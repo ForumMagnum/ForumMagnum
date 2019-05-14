@@ -6,43 +6,20 @@ import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import { registerComponent, mergeWithComponents } from 'meteor/vulcan:core';
 
-const styles = theme => ({
-    formSection: {
-      fontFamily: theme.typography.fontFamily,
-      border: `solid 1px ${theme.palette.grey[400]}`,
-      marginBottom: theme.spacing.unit,
-    },
-    formSectionFields: {
-      paddingRight: theme.spacing.unit*2,
-      paddingLeft: theme.spacing.unit*2,
-      [theme.breakpoints.down('md')]: {
-        paddingLeft: theme.spacing.unit/2,
-        paddingRight: theme.spacing.unit/2,
-      },
-    },
-    formSectionBody: {
-      paddingTop: theme.spacing.unit,
-      paddingBottom: theme.spacing.unit,
-      borderTop: `solid 1px ${theme.palette.grey[300]}`,
-    },
-    formSectionHeading: {
-      cursor: "pointer",
-      display:"flex",
-      justifyContent: "space-between",
-      paddingTop: theme.spacing.unit*2,
-      paddingRight: theme.spacing.unit*2,
-      paddingBottom: theme.spacing.unit,
-      paddingLeft: theme.spacing.unit*2,
-    },
-    flex: {
-      display: "flex",
-      alignItems: "flex-start",
-      flexWrap: "wrap"
-    }
-})
+const headerStyles = theme => ({
+  formSectionHeading: {
+    cursor: "pointer",
+    display:"flex",
+    justifyContent: "space-between",
+    paddingTop: theme.spacing.unit*2,
+    paddingRight: theme.spacing.unit*2,
+    paddingBottom: theme.spacing.unit,
+    paddingLeft: theme.spacing.unit*2,
+  },
+});
 
-const FormGroupHeader = ({ toggle, collapsed, label }) => (
-  <div className="form-section-heading" onClick={toggle}>
+const FormGroupHeader = ({ toggle, collapsed, label, classes }) => (
+  <div className={classes.formSectionHeading} onClick={toggle}>
     <h3 className="form-section-heading-title">{label}</h3>
     <span className="form-section-heading-toggle">
       {collapsed ? (
@@ -58,27 +35,63 @@ FormGroupHeader.propTypes = {
   label: PropTypes.string.isRequired,
   collapsed: PropTypes.bool
 };
-registerComponent({ name: 'FormGroupHeader', component: FormGroupHeader });
+registerComponent({ name: 'FormGroupHeader', component: FormGroupHeader,
+  hocs: [withStyles(headerStyles, {name: "FormGroupHeader"})]});
 
-const FormGroupLayout = ({ children, label, heading, collapsed, hasErrors }) => (
-  <div className={`form-section form-section-${Utils.slugify(label)}`}>
+const groupLayoutStyles = theme => ({
+  formSection: {
+    fontFamily: theme.typography.fontFamily,
+    border: `solid 1px ${theme.palette.grey[400]}`,
+    marginBottom: theme.spacing.unit,
+  },
+  formSectionFields: {
+    paddingRight: theme.spacing.unit*2,
+    paddingLeft: theme.spacing.unit*2,
+    [theme.breakpoints.down('md')]: {
+      paddingLeft: theme.spacing.unit/2,
+      paddingRight: theme.spacing.unit/2,
+    },
+  },
+  formSectionBody: {
+    paddingTop: theme.spacing.unit,
+    paddingBottom: theme.spacing.unit,
+    borderTop: `solid 1px ${theme.palette.grey[300]}`,
+  },
+  flex: {
+    display: "flex",
+    alignItems: "flex-start",
+    flexWrap: "wrap"
+  }
+});
+
+const FormGroupLayout = ({ children, label, heading, collapsed, hasErrors, groupStyling, flexStyle, classes }) => {
+  return <div className={classNames(
+    {[classes.formSection]: groupStyling},
+    `form-section-${Utils.slugify(label)}`)}
+  >
     {heading}
     <div
-      className={classNames({
-        'form-section-collapsed': collapsed && !hasErrors
-      })}
+      className={classNames(
+        classes.formSectionFields,
+        {
+          'form-section-collapsed': collapsed && !hasErrors,
+          [classes.formSectionBody]: groupStyling,
+          [classes.flex]: flexStyle,
+        }
+      )}
     >
       {children}
     </div>
   </div>
-);
+};
 FormGroupLayout.propTypes = {
   hasErrors: PropTypes.bool,
   collapsed: PropTypes.bool,
   heading: PropTypes.node,
   children: PropTypes.node
 };
-registerComponent({ name: 'FormGroupLayout', component: FormGroupLayout });
+registerComponent({ name: 'FormGroupLayout', component: FormGroupLayout,
+  hocs: [withStyles(groupLayoutStyles, {name: "FormGroupLayout"})]});
 
 class FormGroup extends PureComponent {
   constructor(props) {
@@ -114,17 +127,20 @@ class FormGroup extends PureComponent {
     });
 
   render() {
-    const { name, fields, formComponents, label } = this.props;
+    const { name, fields, formComponents, label, defaultStyle, flexStyle } = this.props;
     const { collapsed } = this.state;
     const FormComponents = mergeWithComponents(formComponents);
+    const groupStyling = !(name === 'default' || defaultStyle)
 
     return (
       <FormComponents.FormGroupLayout
         label={label}
         toggle={this.toggle}
         collapsed={collapsed}
-        heading={name === 'default' ? null : this.renderHeading(FormComponents)}
+        heading={groupStyling ? this.renderHeading(FormComponents) : null}
+        groupStyling={groupStyling}
         hasErrors={this.hasErrors()}
+        flexStyle={flexStyle}
       >
         {fields.map(field => (
           <FormComponents.FormComponent
@@ -166,7 +182,7 @@ FormGroup.propTypes = {
 
 module.exports = FormGroup;
 
-registerComponent('FormGroup', FormGroup, withStyles(styles, {name: "FormGroup"}));
+registerComponent('FormGroup', FormGroup);
 
 const IconRight = ({ width = 24, height = 24 }) => (
   <svg
