@@ -2,21 +2,26 @@ import React, { Component } from 'react';
 import { withMessages, registerComponent, Utils, withMulti, withCreate } from 'meteor/vulcan:core';
 import { Subscriptions } from '../../lib/collections/subscriptions/collection'
 import { defaultSubscriptionTypeTable } from '../../lib/collections/subscriptions/mutations'
+import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil.js';
 import mapProps from 'recompose/mapProps'
 import withUser from '../common/withUser';
 
-const getSubscribeAction = subscribed => subscribed ? 'unsubscribe' : 'subscribe'
-
 class SubscribeTo extends Component {
   isSubscribed = () => {
-    const { results } = this.props
-    if (!results || results.length === 0) return false
+    const { results, currentUser, subscriptionType, collectionName, document } = this.props
     // Get the last element of the results array, which will be the most recent subscription
-    const currentSubscription = results[results.length-1]
-    return !!(currentSubscription.state === "subscribed")
+    if (results && results.length > 0) {
+      const currentSubscription = results[results.length-1]
+      if (currentSubscription.state === "subscribed")
+        return true;
+    }
+    return userIsDefaultSubscribed({
+      user: currentUser,
+      subscriptionType, collectionName, document
+    });
   }
   onSubscribe = async (e) => {
-    const { document, createSubscription, collectionName, flash } = this.props;
+    const { document, createSubscription, collectionName, flash, subscriptionType } = this.props;
     try {
       e.preventDefault();
       
@@ -24,7 +29,7 @@ class SubscribeTo extends Component {
         state: this.isSubscribed() ? 'suppressed' : 'subscribed',
         documentId: document._id,
         collectionName,
-        type: defaultSubscriptionTypeTable[collectionName]
+        type: subscriptionType,
       }
       createSubscription({data: newSubscription})
 
@@ -36,7 +41,7 @@ class SubscribeTo extends Component {
   }
 
   render() {
-    const { currentUser, document, collectionName, documentType, subscribeMessage, unsubscribeMessage } = this.props;
+    const { currentUser, document, collectionName, subscribeMessage, unsubscribeMessage } = this.props;
     // can't subscribe to yourself
     if (!currentUser || !document || (collectionName === 'Users' && document._id === currentUser._id)) {
       return null;
@@ -51,19 +56,21 @@ class SubscribeTo extends Component {
 }
 
 const remapProps = ({document, currentUser, type, ...rest}) => {
-  const documentType = Utils.getCollectionNameFromTypename(document.__typename)
-  const collectionName = Utils.capitalize(documentType)
+  const documentType = Utils.getCollectionNameFromTypename(document.__typename);
+  const collectionName = Utils.capitalize(documentType);
+  const subscriptionType = type || defaultSubscriptionTypeTable[collectionName];
+  
   return {
     document,
     collectionName,
     currentUser,
-    type,
+    subscriptionType,
     documentType,
     terms: {
       view: "subscriptionState",
       documentId: document._id,
       userId: currentUser._id,
-      type: type || defaultSubscriptionTypeTable[collectionName],
+      subscriptionType,
       collectionName,
       limit: 1
     },

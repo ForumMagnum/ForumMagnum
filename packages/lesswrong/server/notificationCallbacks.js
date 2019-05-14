@@ -218,7 +218,7 @@ async function postsNewNotifications (post) {
       const subscribedUsers = await getSubscribedUsers({
         documentId: post.groupId,
         collectionName: "Localgroups",
-        type: subscriptionTypes.newEvent,
+        type: subscriptionTypes.newEvents,
         potentiallyDefaultSubscribedUserIds: organizerIds,
         userIsDefaultSubscribed: u => u.autoSubscribeAsOrganizer,
       });
