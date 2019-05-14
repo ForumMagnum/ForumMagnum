@@ -14,7 +14,8 @@ const Home2 = ({ currentUser }) => {
 
   return (
     <React.Fragment>
-      {shouldRenderSidebar && <SplitComponent name="SunshineSidebar" />}
+      {/*{shouldRenderSidebar && <SplitComponent name="SunshineSidebar" />}*/}
+      {shouldRenderSidebar && <Components.SunshineSidebar/>}
 
       <Components.HeadTags image={getSetting('siteImage')} />
       <TabNavigationMenu />
