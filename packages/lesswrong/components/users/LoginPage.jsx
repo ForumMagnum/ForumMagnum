@@ -1,13 +1,13 @@
 import { Components, registerComponent, } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { withRouter } from 'react-router';
 import withUser from '../common/withUser';
 
 class LoginPage extends Component {
   UNSAFE_componentWillMount() {
     // If already logged in, redirect to the front page
     if (this.props.currentUser) {
-      this.props.router.push({pathanme: "/"});
+      this.props.history.push({pathname: "/"});
     }
   }
   

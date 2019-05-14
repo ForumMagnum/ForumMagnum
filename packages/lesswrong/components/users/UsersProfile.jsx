@@ -1,7 +1,9 @@
 import { Components, registerComponent, withDocument, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
-import { Link, withRouter } from '../../lib/reactRouterWrapper.js';
+import { Link } from 'react-router-dom';
+import { withRouter } from 'react-router';
+import { parseQuery } from '../../lib/routeUtil.js';
 import Users from "meteor/vulcan:users";
 import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
@@ -143,7 +145,7 @@ class UsersProfile extends Component {
   }
 
   render() {
-    const { slug, classes, currentUser, loading, document, documentId, router } = this.props;
+    const { slug, classes, currentUser, loading, document, documentId } = this.props;
   
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -160,7 +162,7 @@ class UsersProfile extends Component {
     const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton } = Components
     
     const user = document;
-    const query = _.clone(router.location.query || {});
+    const query = parseQuery(this.props);
 
     const draftTerms = {view: "drafts", userId: user._id, limit: 4}
     const unlistedTerms= {view: "unlisted", userId: user._id, limit: 20}

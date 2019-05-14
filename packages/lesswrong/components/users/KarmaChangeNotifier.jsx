@@ -6,7 +6,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import Popper from '@material-ui/core/Popper';
 import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from 'react-router';
 import Users from 'meteor/vulcan:users';
 import Typography from '@material-ui/core/Typography';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';

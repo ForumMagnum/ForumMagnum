@@ -1,6 +1,7 @@
 import { Components, registerComponent, Utils } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
-import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from 'react-router-dom';
+import { withRouter } from 'react-router';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
@@ -65,8 +66,8 @@ const styles = theme => ({
 
 class BigCollectionsCard extends PureComponent {
   handleClick = (event) => {
-    const { url, router } = this.props
-    Utils.manualClickNavigation(event, url, router.push)
+    const { url, history } = this.props
+    Utils.manualClickNavigation(event, url, history.push)
   }
 
   render() {
