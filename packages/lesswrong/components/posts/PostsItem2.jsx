@@ -44,8 +44,10 @@ const styles = (theme) => ({
   },
   background: {
     transition: "3s",
-    borderBottom: "solid 1px rgba(0,0,0,.2)",
     width: "100%",
+  },
+  bottomBorder: {
+    borderBottom: "solid 1px rgba(0,0,0,.2)",
   },
   commentsBackground: {
     backgroundColor: COMMENTS_BACKGROUND_COLOR,
@@ -252,7 +254,7 @@ class PostsItem2 extends PureComponent {
   }
 
   render() {
-    const { classes, post, chapter, currentUser, index, terms } = this.props
+    const { classes, post, chapter, currentUser, index, terms, showBottomBorder=true, showQuestionTag=true, showPostedAt=true } = this.props
     const { showComments, readComments } = this.state
     const { PostsItemComments, PostsItemKarma, PostsItemTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
 
@@ -263,6 +265,7 @@ class PostsItem2 extends PureComponent {
         <div className={classNames(
           classes.background,
           {
+            [classes.bottomBorder]: showBottomBorder,
             [classes.commentsBackground]: showComments,
             [classes.firstItem]: (index===0) && showComments,
             "personalBlogpost": !post.frontpageDate,
@@ -275,7 +278,7 @@ class PostsItem2 extends PureComponent {
             </PostsItem2MetaInfo>
 
             <Link to={postLink} className={classes.title}>
-              <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} />
+              <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
             </Link>
 
             { post.user && !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
@@ -286,7 +289,7 @@ class PostsItem2 extends PureComponent {
               <EventVicinity post={post} />
             </PostsItem2MetaInfo>}
 
-            <Components.PostsItemDate post={post}/>
+            {showPostedAt && <Components.PostsItemDate post={post}/>}
 
             <div className={classes.mobileSecondRowSpacer}/>
             
