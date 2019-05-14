@@ -4,10 +4,11 @@ import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import withUser from '../common/withUser';
 
-const UsersAccount = (props, /* context*/) => {
+const UsersAccount = (props) => {
 
+  const { params } = props.match;
   // note: terms is as the same as a document-shape the SmartForm edit-mode expects to receive
-  const terms = props.params.slug ? { slug: props.params.slug } : props.currentUser ? { documentId: props.currentUser._id } : {};
+  const terms = params.slug ? { slug: params.slug } : props.currentUser ? { documentId: props.currentUser._id } : {};
 
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
   return <div>
