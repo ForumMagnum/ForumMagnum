@@ -151,6 +151,7 @@ registerFragment(`
     }
     targetPostRelations {
       _id
+      sourcePostId
       targetPostId
       targetPost {
         ...PostsBase
@@ -226,9 +227,6 @@ registerFragment(`
     contents {
       htmlHighlight
       wordCount
-    }
-    feed {
-      ...RSSFeedMinimumInfo
     }
   }
 `);

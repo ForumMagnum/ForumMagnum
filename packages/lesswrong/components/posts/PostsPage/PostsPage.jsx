@@ -1,14 +1,6 @@
-import {
-  Components,
-  withDocument,
-  registerComponent,
-  getActions,
-  withMutation } from 'meteor/vulcan:core';
-import withNewEvents from '../../../lib/events/withNewEvents.jsx';
+import { Components, withDocument, registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { withRouter } from '../../../lib/reactRouterWrapper.js';
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
@@ -20,6 +12,7 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import classNames from 'classnames';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import Users from 'meteor/vulcan:users';
+import withRecordPostView from '../../common/withRecordPostView';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 
@@ -291,9 +284,8 @@ class PostsPage extends Component {
             </div>}
             
             {/* Recommendations */}
-            {currentUser && Users.isAdmin(currentUser) &&
+            {currentUser && Users.isAdmin(currentUser) && !post.question && 
               <ConfigurableRecommendationsList configName="afterpost"/>}
-             
             
             {/* Answers Section */}
             {post.question && <div className={classes.post}>
@@ -311,73 +303,22 @@ class PostsPage extends Component {
   }
 
   async componentDidMount() {
-    this.recordPostView();
+    this.props.recordPostView(this.props);
   }
   
   componentDidUpdate(prevProps) {
     if (prevProps.document && this.props.document && prevProps.document._id !== this.props.document._id) {
       this.props.closeAllEvents();
-      this.recordPostView();
-    }
-  }
-  
-  async recordPostView() {
-    try {
-
-      // destructure the relevant props
-      const {
-        // from the parent component, used in withDocument, GraphQL HOC
-        documentId,
-        // from connect, Redux HOC
-        setViewed,
-        postsViewed,
-        // from withMutation, GraphQL HOC
-        increasePostViewCount,
-      } = this.props;
-
-      // a post id has been found & it's has not been seen yet on this client session
-      if (documentId && !postsViewed.includes(documentId)) {
-
-        // Trigger the asynchronous mutation with postId as an argument
-        // Deliberately not awaiting, because this should be fire-and-forget
-        increasePostViewCount({postId: documentId});
-
-        // Update the redux store
-        setViewed(documentId);
-      }
-
-      //LESSWRONG: register page-visit event
-      if(this.props.currentUser) {
-        const recordEvent = this.props.recordEvent;
-        const currentUser = this.props.currentUser;
-        const eventProperties = {
-          userId: currentUser._id,
-          important: false,
-          intercom: true,
-          sequenceId: this.getSequenceId(),
-        };
-
-        if(this.props.document) {
-          eventProperties.documentId = this.props.document._id;
-          eventProperties.postTitle = this.props.document.title;
-        } else if (this.props.documentId){
-          eventProperties.documentId = this.props.documentId;
-        }
-        recordEvent('post-view', true, eventProperties);
-      }
-    } catch(error) {
-      console.log("PostPage componentDidMount error:", error); // eslint-disable-line
+      this.props.recordPostView(this.props, {
+        sequenceId: this.getSequenceId(),
+      });
     }
   }
 }
 PostsPage.displayName = "PostsPage";
 
 PostsPage.propTypes = {
-  documentId: PropTypes.string,
   document: PropTypes.object,
-  postsViewed: PropTypes.array,
-  setViewed: PropTypes.func,
-  increasePostViewCount: PropTypes.func,
 }
 
 const queryOptions = {
@@ -392,21 +333,11 @@ const queryOptions = {
   }
 };
 
-const mutationOptions = {
-  name: 'increasePostViewCount',
-  args: {postId: 'String'},
-};
-
-const mapStateToProps = state => ({ postsViewed: state.postsViewed });
-const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsViewed, dispatch);
-
 registerComponent(
   'PostsPage', PostsPage,
-  withUser, withNewEvents, withRouter,
+  withUser, withRouter,
   [withDocument, queryOptions],
-  withMutation(mutationOptions),
-  // HOC to give access to the redux store & related actions
-  connect(mapStateToProps, mapDispatchToProps),
   withStyles(styles, { name: "PostsPage" }),
-  withErrorBoundary
+  withRecordPostView,
+  withErrorBoundary,
 );

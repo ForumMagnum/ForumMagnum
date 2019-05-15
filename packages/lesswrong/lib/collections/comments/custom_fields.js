@@ -69,20 +69,6 @@ addFieldsDict(Comments, {
     canCreate: ['members'],
   },
 
-  // legacyData: A complete dump of all the legacy data we have on this post in a
-  // single blackbox object. Never queried on the client, but useful for a lot
-  // of backend functionality, and simplifies the data import from the legacy
-  // LessWrong database
-  legacyData: {
-    type: Object,
-    optional: true,
-    canRead: ['admins'],
-    canCreate: ['admins'],
-    canUpdate: ['admins'],
-    hidden: true,
-    blackbox: true,
-  },
-
   // retracted: Indicates whether a comment has been retracted by its author.
   // Results in the text of the comment being struck-through, but still readable.
   retracted: {
