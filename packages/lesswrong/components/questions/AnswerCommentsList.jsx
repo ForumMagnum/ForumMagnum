@@ -45,7 +45,7 @@ const styles = theme => ({
   }
 })
 
-export const ABRIDGE_COMMENT_COUNT = 20;
+export const ABRIDGE_COMMENT_COUNT = 500;
 
 class AnswerCommentsList extends PureComponent {
 
@@ -127,7 +127,7 @@ class AnswerCommentsList extends PureComponent {
               parentAnswerId={parentAnswer._id}
               defaultNestingLevel={2}
               postPage
-              startThreadCollapsed
+              startThreadTruncated
             />
           </div>
           {(results && results.length && results.length < totalCount) ?

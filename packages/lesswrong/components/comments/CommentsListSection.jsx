@@ -148,7 +148,7 @@ class CommentsListSection extends Component {
   }
 
   render() {
-    const { currentUser, comments, post, classes, totalComments, parentAnswerId, startThreadCollapsed, newForm=true, guidelines=true } = this.props;
+    const { currentUser, comments, post, classes, totalComments, parentAnswerId, startThreadTruncated, newForm=true, guidelines=true } = this.props;
 
     // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
@@ -181,7 +181,7 @@ class CommentsListSection extends Component {
           highlightDate={this.state.highlightDate}
           post={post}
           postPage
-          startThreadCollapsed={startThreadCollapsed}
+          startThreadTruncated={startThreadTruncated}
           parentAnswerId={parentAnswerId}
         />
       </div>

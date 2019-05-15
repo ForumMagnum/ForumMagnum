@@ -54,6 +54,7 @@ class GroupFormLink extends Component {
           <WrappedSmartForm
             collection={Localgroups}
             documentId={this.props.documentId}
+            queryFragment={getFragment('localGroupsEdit')}
             mutationFragment={getFragment('localGroupsHomeFragment')}
             prefilledProps={this.props.documentId ? {} : {organizerIds: [this.props.currentUser._id]}} // If edit form, do not prefill organizerIds
             successCallback={group => {

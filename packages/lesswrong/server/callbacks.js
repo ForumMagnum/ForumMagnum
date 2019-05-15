@@ -9,8 +9,6 @@ import { Votes } from '../lib/collections/votes';
 import { cancelVoteServer } from './voteServer.js';
 import { Posts } from '../lib/collections/posts';
 import { Comments } from '../lib/collections/comments'
-import './emailComponents/EmailWrapper.jsx';
-import './emailComponents/NewPostEmail.jsx';
 
 import {
   addCallback,

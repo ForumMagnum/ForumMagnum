@@ -1,13 +1,13 @@
 // Very slightly adapted from: https://gist.github.com/bengotow/63462490660da6bfea8d92b3124e09ee 
 
 import React from 'react';
-import { RichUtils, Modifier, EditorState, SelectionState } from 'draft-js';
+import { RichUtils, EditorState, SelectionState } from 'draft-js';
 import linkifyIt from 'linkify-it'
 const linkify = linkifyIt({}, {fuzzyLink: false})
 
 const linkableTypes = ['unordered-list-item', 'ordered-list-item', 'paragraph', 'unstyled']
 
-function isURL(text) {
+export function isURL(text) {
   const links = linkify.match(text)
   return links && links.length > 0 // insert your favorite library here
 }
@@ -119,6 +119,7 @@ const createLinkifyPlugin = () => {
       some basic logic to keep the LINK entity in sync with the user's text
       and typing.
       */
+      // debugger
       const contentState = editorState.getCurrentContent();
       const selection = editorState.getSelection();
       if (!selection || !selection.isCollapsed()) {
@@ -167,23 +168,26 @@ const createLinkifyPlugin = () => {
             }),
           });
         } else {
+          // LESSWRONG: This branch was causing a bunch of problems and is pretty buggy, so I deactivated it
+          
           // We are no longer in a URL but the entity is still present. Remove it from
           // the current character so the linkifying "ends".
-          const entityRange = new SelectionState({
-            anchorOffset: currentWordStart - 1,
-            anchorKey: cursorBlockKey,
-            focusOffset: currentWordStart,
-            focusKey: cursorBlockKey,
-            isBackward: false,
-            hasFocus: true,
-          });
-          return EditorState.set(editorState, {
-            currentContent: Modifier.applyEntity(
-              editorState.getCurrentContent(),
-              entityRange,
-              null
-            ),
-          });
+          // const entityRange = new SelectionState({
+          //   anchorOffset: currentWordStart - 1,
+          //   anchorKey: cursorBlockKey,
+          //   focusOffset: currentWordEnd,
+          //   focusKey: cursorBlockKey,
+          //   isBackward: false,
+          //   hasFocus: true,
+          // });
+          // debugger
+          // return EditorState.set(editorState, {
+          //   currentContent: Modifier.applyEntity(
+          //     editorState.getCurrentContent(),
+          //     entityRange,
+          //     null
+          //   ),
+          // });
         }
       }
 
