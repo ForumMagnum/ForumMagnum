@@ -107,7 +107,6 @@ export const createMutator = async ({
       properties: [currentUser, validationErrors],
       ignoreExceptions: false,
     });
-
     if (validationErrors.length) {
       console.log(validationErrors); // eslint-disable-line no-console
       throwError({ id: 'app.validation_error', data: { break: true, errors: validationErrors } });
@@ -141,12 +140,7 @@ export const createMutator = async ({
     if (schema[fieldName].onCreate) {
       // OpenCRUD backwards compatibility: keep both newDocument and data for now, but phase out newDocument eventually
       // eslint-disable-next-line no-await-in-loop
-      autoValue = await schema[fieldName].onCreate({
-        newDocument: clone(document),
-        data: clone(document),
-        currentUser,
-        fieldName
-      });
+      autoValue = await schema[fieldName].onCreate(properties); // eslint-disable-line no-await-in-loop
     } else if (schema[fieldName].onInsert) {
       // OpenCRUD backwards compatibility
       autoValue = await schema[fieldName].onInsert(clone(document), currentUser); // eslint-disable-line no-await-in-loop
@@ -328,13 +322,7 @@ export const updateMutator = async ({
     let autoValue;
     if (schema[fieldName].onUpdate) {
       // eslint-disable-next-line no-await-in-loop
-      autoValue = await schema[fieldName].onUpdate({
-        data: clone(data),
-        document,
-        currentUser,
-        newDocument,
-        fieldName
-      });
+      autoValue = await schema[fieldName].onUpdate(properties);
     } else if (schema[fieldName].onEdit) {
       // OpenCRUD backwards compatibility
       // eslint-disable-next-line no-await-in-loop
