@@ -20,9 +20,10 @@ import { Components } from 'meteor/vulcan:core';
 import React from 'react';
 import keyBy from 'lodash/keyBy';
 
-// Return a list of users subscribed to a given document. This is the union of
-// users who have subscribed to it explicitly, and users who were subscribed to
-// it by default and didn't suppress the subscription.
+// Return a list of users (as complete user objects) subscribed to a given
+// document. This is the union of users who have subscribed to it explicitly,
+// and users who were subscribed to it by default and didn't suppress the
+// subscription.
 //
 // documentId: The document to look for subscriptions to.
 // collectionName: The collection the document to look for subscriptions to is in.
@@ -59,8 +60,9 @@ async function getSubscribedUsers({
     // Check for suppression in the subscriptions table
     const suppressions = await Subscriptions.find({documentId, type, collectionName, deleted: false, state: "suppressed"}).fetch();
     const suppressionsByUserId = keyBy(suppressions, s=>s.userId);
+    const defaultSubscribedUsersNotSuppressed = _.filter(defaultSubscribedUsers, u=>!(u._id in suppressionsByUserId))
     
-    return _.union(explicitlySubscribedUsers, _.filter(defaultSubscribedUsers, u=>!(u._id in suppressionsByUserId)));
+    return _.union(explicitlySubscribedUsers, defaultSubscribedUsersNotSuppressed);
   } else {
     return explicitlySubscribedUsers;
   }
@@ -227,13 +229,15 @@ async function postsNewNotifications (post) {
     
     // remove this post's author
     usersToNotify = _.without(usersToNotify, post.userId);
+    
+    const userIdsToNotify = _.map(usersToNotify, u=>u._id);
 
     if (post.groupId && post.isEvent) {
-      createNotifications(usersToNotify, 'newEvent', 'post', post._id);
+      createNotifications(userIdsToNotify, 'newEvent', 'post', post._id);
     } else if (post.groupId && !post.isEvent) {
-      createNotifications(usersToNotify, 'newGroupPost', 'post', post._id);
+      createNotifications(userIdsToNotify, 'newGroupPost', 'post', post._id);
     } else {
-      createNotifications(usersToNotify, 'newPost', 'post', post._id);
+      createNotifications(userIdsToNotify, 'newPost', 'post', post._id);
     }
 
   }
@@ -307,12 +311,16 @@ async function CommentsNewNotifications(comment) {
         potentiallyDefaultSubscribedUserIds: [parentComment.userId],
         userIsDefaultSubscribed: u => u.auto_subscribe_to_my_comments
       })
-      // remove userIds of users that have already been notified
-        // and of comment and parentComment author (they could be replying in a thread they're subscribed to)
-      let parentCommentSubscribersToNotify = _.difference(subscribedUsers, notifiedUsers, [comment.userId, parentComment.userId])
-      createNotifications(parentCommentSubscribersToNotify, 'newReply', 'comment', comment._id);
+      const subscribedUserIds = _.map(subscribedUsers, u=>u._id);
+      
+      // Don't notify the author of their own comment, and filter out the author
+      // of the parent-comment to be treated specially (with a newReplyToYou
+      // notification instead of a newReply notification).
+      let parentCommentSubscriberIdsToNotify = _.difference(subscribedUserIds, [comment.userId, parentComment.userId])
+      createNotifications(parentCommentSubscriberIdsToNotify, 'newReply', 'comment', comment._id);
 
-      // Separately notify author of comment with different notification, if they are subscribed, and are NOT the author of the comment
+      // Separately notify author of comment with different notification, if
+      // they are subscribed, and are NOT the author of the comment
       if (subscribedUsers.includes(parentComment.userId) && parentComment.userId !== comment.userId) {
         createNotifications([parentComment.userId], 'newReplyToYou', 'comment', comment._id);
         notifiedUsers = [...notifiedUsers, parentComment.userId];
@@ -328,11 +336,13 @@ async function CommentsNewNotifications(comment) {
       potentiallyDefaultSubscribedUserIds: [post.userId],
       userIsDefaultSubscribed: u => u.auto_subscribe_to_my_posts
     })
+    const userIdsSubscribedToPost = _.map(usersSubscribedToPost, u=>u._id);
+    
     // remove userIds of users that have already been notified
     // and of comment author (they could be replying in a thread they're subscribed to)
-    const postSubscribersToNotify = _.difference(usersSubscribedToPost, notifiedUsers, [comment.userId])
-    if (postSubscribersToNotify.length > 0) {
-      createNotifications(postSubscribersToNotify, 'newComment', 'comment', comment._id)
+    const postSubscriberIdsToNotify = _.difference(userIdsSubscribedToPost, [...notifiedUsers, comment.userId])
+    if (postSubscriberIdsToNotify.length > 0) {
+      createNotifications(postSubscriberIdsToNotify, 'newComment', 'comment', comment._id)
     }
   }
 }
@@ -402,10 +412,10 @@ function messageNewNotification(message) {
   // message. For email notifications, notify everyone including the sender
   // (since if there's a back-and-forth in the grouped notifications, you want
   // to see your own messages.)
-  const recipients = conversation.participantIds.filter((id) => (id !== message.userId));
+  const recipientIds = conversation.participantIds.filter((id) => (id !== message.userId));
 
   // Create on-site notification
-  createNotifications(recipients, 'newMessage', 'message', message._id);
+  createNotifications(recipientIds, 'newMessage', 'message', message._id);
   
   // Generate debounced email notifications
   privateMessagesDebouncer.recordEvent({
