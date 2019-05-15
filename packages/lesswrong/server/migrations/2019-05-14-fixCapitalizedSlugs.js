@@ -18,12 +18,11 @@ registerMigration({
           filter: { _id: user._id },
           update: {
             $set: {
-              slug: Utils.slugify(user.slug)
+              slug: Utils.getUnusedSlugByCollectionName('Users', Utils.slugify(user.slug))
             }
           }
         }
       }));
-
       await Users.rawCollection().bulkWrite(updates, { ordered: false });
     },
   })
