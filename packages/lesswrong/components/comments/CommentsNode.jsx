@@ -129,7 +129,7 @@ class CommentsNode extends Component {
   }
 
   unTruncate = (event) => {
-    event.stopPropagation()
+    // event.stopPropagation()
     this.setState({truncated: false, truncatedStateSet: true});
   }
 
