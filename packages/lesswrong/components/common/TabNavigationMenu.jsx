@@ -201,42 +201,45 @@ const TabNavigationMenu = ({
               </span>
           </Link>
         </Tooltip>}
-
-        <Tooltip placement="right-start" title={<div>
-            <p>
-              LessWrong was founded by Eliezer Yudkowsky. For two years he wrote a blogpost a day about topics including rationality, science, ambition and artificial intelligence.
-            </p>
-            <p>
-              Those posts have been edited down into this introductory collection, recommended for new users.
-            </p>
-          </div>}>
-          <Link to="/rationality">
-            <TabNavigationSubItem>
-              Rationality: A-Z
-            </TabNavigationSubItem>
-          </Link>
-        </Tooltip>
-        <Tooltip placement="right-start" title={<div>
-            The Codex is a collection of essays written by Scott Alexander that discuss how good reasoning works, how to learn from the institution of science, and different ways society has been and could be designed.
-          </div>}>
-          <Link to="/codex">
-            <TabNavigationSubItem>
-              The Codex
-            </TabNavigationSubItem>
-          </Link>
-        </Tooltip>
-        <Tooltip placement="right-start" title={<div>
+        { getSetting('forumType') !== 'AlignmentForum' && <span>
+          <Tooltip placement="right-start" title={<div>
+              <p>
+                LessWrong was founded by Eliezer Yudkowsky. For two years he wrote a blogpost a day about topics including rationality, science, ambition and artificial intelligence.
+              </p>
+              <p>
+                Those posts have been edited down into this introductory collection, recommended for new users.
+              </p>
+            </div>}>
+            <Link to="/rationality">
+              <TabNavigationSubItem>
+                Rationality: A-Z
+              </TabNavigationSubItem>
+            </Link>
+          </Tooltip>
+          <Tooltip placement="right-start" title={<div>
+              The Codex is a collection of essays written by Scott Alexander that discuss how good reasoning works, how to learn from the institution of science, and different ways society has been and could be designed.
+            </div>}>
+            <Link to="/codex">
+              <TabNavigationSubItem>
+                The Codex
+              </TabNavigationSubItem>
+            </Link>
+          </Tooltip>
+          <Tooltip placement="right-start" title={<div>
             <p><em>Harry Potter and the Methods of Rationality</em></p>
             <p>
               What if Harry was a scientist? What would you do if the universe had magic in it? A story that illustrates many rationality concepts.
             </p>
           </div>}>
-          <Link to="/hpmor">
-            <TabNavigationSubItem>
-              HPMOR
-            </TabNavigationSubItem>
-          </Link>
-        </Tooltip>
+            <Link to="/hpmor">
+              <TabNavigationSubItem>
+                HPMOR
+              </TabNavigationSubItem>
+            </Link>
+          </Tooltip>
+        </span> }
+        
+        
 
         { getSetting('forumType') !== 'AlignmentForum' && <Tooltip placement="right" title={<div>Find a meetup near you.</div>}>
           <Link to="/community" className={classNames(classes.navButton, {[classes.selected]: pathname === "/community"})}>
