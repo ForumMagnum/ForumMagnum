@@ -1,4 +1,4 @@
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
@@ -189,7 +189,7 @@ const TabNavigationMenu = ({
           </Link>
         </Tooltip>
 
-        <Tooltip placement="right" title={<div>
+        { getSetting('forumType') !== 'AlignmentForum' && <Tooltip placement="right" title={<div>
             <div>Curated collections of LessWrong's best writing.</div>
           </div>}>
           <Link to="/library" className={classNames(classes.navButton, {[classes.selected]: pathname === "/library"})}>
@@ -200,7 +200,7 @@ const TabNavigationMenu = ({
                 Library
               </span>
           </Link>
-        </Tooltip>
+        </Tooltip>}
 
         <Tooltip placement="right-start" title={<div>
             <p>
@@ -238,7 +238,7 @@ const TabNavigationMenu = ({
           </Link>
         </Tooltip>
 
-        <Tooltip placement="right" title={<div>Find a meetup near you.</div>}>
+        { getSetting('forumType') !== 'AlignmentForum' && <Tooltip placement="right" title={<div>Find a meetup near you.</div>}>
           <Link to="/community" className={classNames(classes.navButton, {[classes.selected]: pathname === "/community"})}>
             <span className={classes.icon}>
               { communityGlobeIcon }
@@ -247,7 +247,7 @@ const TabNavigationMenu = ({
               Community<span className={classes.hideOnMobile}> Events</span>
             </span>
           </Link>
-        </Tooltip>
+        </Tooltip>}
 
         <span className={classes.hideOnMobile}>
           <TabNavigationEventsList terms={eventsListTerms} />
