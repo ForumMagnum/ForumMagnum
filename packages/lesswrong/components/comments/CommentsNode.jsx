@@ -129,7 +129,7 @@ class CommentsNode extends Component {
   }
 
   unTruncate = (event) => {
-    // event.stopPropagation()
+    event.preventDefault()
     this.setState({truncated: false, truncatedStateSet: true});
   }
 
@@ -181,7 +181,7 @@ class CommentsNode extends Component {
   }
 
   render() {
-    const { comment, children, nestingLevel=1, currentUser, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, parentAnswerId, condensed } = this.props;
+    const { comment, children, nestingLevel=1, currentUser, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, parentAnswerId, condensed, markAsRead } = this.props;
 
     const { SingleLineComment, CommentsItem } = Components
 
@@ -258,6 +258,7 @@ class CommentsNode extends Component {
                 nestingLevel={nestingLevel+1}
                 truncated={this.isTruncated()}
                 unreadComments={unreadComments}
+                markAsRead={markAsRead}
                 //eslint-disable-next-line react/no-children-prop
                 children={child.children}
                 key={child.item._id}
