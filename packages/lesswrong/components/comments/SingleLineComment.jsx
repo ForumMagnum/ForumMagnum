@@ -111,9 +111,8 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, anchorEl}) =>
         <span className={classes.username}>
           {comment.user.displayName}
         </span>
-        <span className={classes.truncatedHighlight} dangerouslySetInnerHTML={{__html: html}} />
-      </div>
-      {hover && <span className={classNames(classes.highlight)}>
+        {(comment.baseScore > -5) && <span className={classes.truncatedHighlight} dangerouslySetInnerHTML={{__html: html}} />}      </div>
+      {hover && (comment.baseScore > -5) && <span className={classNames(classes.highlight)}>
         <CommentBody truncated comment={comment}/>
       </span>}
     </div>

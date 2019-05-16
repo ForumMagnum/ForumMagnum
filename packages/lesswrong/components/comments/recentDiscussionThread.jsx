@@ -164,7 +164,7 @@ class RecentDiscussionThread extends PureComponent {
                     dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents && post.contents.htmlHighlight)}}/>}
               </div>
           }
-          <div className={classes.commentsList} onClick={this.markAsRead}>
+          <div className={classes.commentsList}>
             <div className={"comments-items"}>
               {nestedComments.map(comment =>
                 <div key={comment.item._id}>
@@ -173,6 +173,7 @@ class RecentDiscussionThread extends PureComponent {
                     nestingLevel={1}
                     currentUser={currentUser}
                     comment={comment.item}
+                    markAsRead={this.markAsRead}
                     highlightDate={lastVisitedAt}
                     //eslint-disable-next-line react/no-children-prop
                     children={comment.children}
