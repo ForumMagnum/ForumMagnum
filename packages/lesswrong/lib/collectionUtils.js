@@ -53,26 +53,29 @@ async function conflictingIndexExists(collection, index, options)
 export async function ensureIndex(collection, index, options={})
 {
   if (Meteor.isServer) {
-    try {
-      if (options.name && await conflictingIndexExists(collection, index, options)) {
+    // Defer index creation until 15s after startup
+    Meteor.setTimeout(async () => {
+      try {
+        if (options.name && await conflictingIndexExists(collection, index, options)) {
+          //eslint-disable-next-line no-console
+          console.log(`Differing index exists with the same name: ${options.name}. Dropping.`);
+          collection.rawCollection().dropIndex(options.name);
+        }
+        
+        const mergedOptions = {background: true, ...options};
+        collection._ensureIndex(index, mergedOptions);
+        
+        if (!expectedIndexes[collection.collectionName])
+          expectedIndexes[collection.collectionName] = [];
+        expectedIndexes[collection.collectionName].push({
+          key: index,
+          partialFilterExpression: options.partialFilterExpression,
+        });
+      } catch(e) {
         //eslint-disable-next-line no-console
-        console.log(`Differing index exists with the same name: ${options.name}. Dropping.`);
-        collection.rawCollection().dropIndex(options.name);
+        console.error(`Error in ${collection.collectionName}.ensureIndex: ${e}`);
       }
-      
-      const mergedOptions = {background: true, ...options};
-      collection._ensureIndex(index, mergedOptions);
-      
-      if (!expectedIndexes[collection.collectionName])
-        expectedIndexes[collection.collectionName] = [];
-      expectedIndexes[collection.collectionName].push({
-        key: index,
-        partialFilterExpression: options.partialFilterExpression,
-      });
-    } catch(e) {
-      //eslint-disable-next-line no-console
-      console.error(`Error in ${collection.collectionName}.ensureIndex: ${e}`);
-    }
+    }, 15000);
   }
 }
 
