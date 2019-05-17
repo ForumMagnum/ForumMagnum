@@ -130,7 +130,6 @@ class CommentsNode extends Component {
 
   unTruncate = (event) => {
     event.stopPropagation()
-    // event.preventDefault()
     if (this.isTruncated()) {
       this.props.markAsRead && this.props.markAsRead()
       this.setState({truncated: false, truncatedStateSet: true});

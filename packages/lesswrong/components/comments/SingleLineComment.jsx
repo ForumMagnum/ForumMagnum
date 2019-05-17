@@ -6,6 +6,7 @@ import withHover from '../common/withHover';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
+import { isMobile } from '../../lib/modules/utils/isMobile.js'
 
 const styles = theme => ({
   root: {
@@ -93,10 +94,12 @@ const styles = theme => ({
   },
 })
 
-const SingleLineComment = ({comment, classes, nestingLevel, hover, anchorEl}) => {
+const SingleLineComment = ({comment, classes, nestingLevel, hover}) => {
   const { voteCount, baseScore } = comment
   const { CommentBody, ShowParentComment } = Components
   const { html = ""} = comment.contents || {}
+  
+  const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile()
 
   return (
     <div className={classes.root}>
@@ -112,7 +115,7 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, anchorEl}) =>
           {comment.user.displayName}
         </span>
         {(comment.baseScore > -5) && <span className={classes.truncatedHighlight} dangerouslySetInnerHTML={{__html: html}} />}      </div>
-      {hover && (comment.baseScore > -5) && <span className={classNames(classes.highlight)}>
+      {displayHoverOver && <span className={classNames(classes.highlight)}>
         <CommentBody truncated comment={comment}/>
       </span>}
     </div>
