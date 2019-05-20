@@ -83,6 +83,7 @@ extendFragment('UsersCurrent', `
   googleLocation
   mongoLocation
   emailSubscribedToCurated
+  unsubscribeFromAll
   emails
   whenConfirmationEmailSent
   noCollapseCommentsFrontpage
@@ -94,6 +95,7 @@ extendFragment('UsersCurrent', `
   sunshineShowNewUserContent
   # TODO: Remove this after april fools
   blockedGPT2
+  recommendationSettings
 `);
 
 registerFragment(`
@@ -215,6 +217,7 @@ registerFragment(`
     bigDownvoteCount
     banned
     reviewedByUserId
+    signUpReCaptchaRating
   }
 `);
 
@@ -387,6 +390,7 @@ registerFragment(`
     email
     whenConfirmationEmailSent
     emailSubscribedToCurated
+    unsubscribeFromAll
 
     # Moderation
     moderatorAssistance
@@ -425,6 +429,8 @@ registerFragment(`
 
     # TODO: Remove this after april fools
     blockedGPT2
+    
+    recommendationSettings
   }
 `)
 

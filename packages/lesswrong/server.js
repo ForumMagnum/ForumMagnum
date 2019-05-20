@@ -35,6 +35,7 @@ import './server/scripts/logMongoQueries.js';
 import './server/scripts/fillMissing.js';
 import './server/scripts/recomputeDenormalized.js';
 import './server/scripts/validateDatabase.js';
+import './server/scripts/validateMakeEditableDenormalization.js';
 import './server/migrations';
 
 import './server/legacy-redirects/routes.js';
@@ -55,6 +56,8 @@ import './server/siteAdminMetadata.js';
 import './server/callbacks.js';
 import './server/notificationCallbacks.js';
 import './server/voteServer.js';
+import './server/recommendations.js';
+import './server/emails/emailTokens.js';
 
 import './lib/collections/comments/callbacks.js';
 import './lib/collections/comments/graphql.js';

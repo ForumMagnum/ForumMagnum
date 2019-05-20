@@ -5,6 +5,7 @@ import { commentBodyStyles, postHighlightStyles } from '../../../themes/stylePip
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
+import withUser from '../../common/withUser'
 
 const styles = theme => ({
   commentStyling: {
@@ -67,9 +68,9 @@ const styles = theme => ({
 
 class CommentBody extends Component {
   render () {
-    const { comment, classes, collapsed, truncationCharCount, truncated } = this.props
+    const { comment, currentUser, classes, collapsed, truncated, postPage } = this.props
     const { ContentItemBody, CommentDeletedMetadata } = Components
-    const { html = "", plaintextDescription = ""} = comment.contents || {}
+    const { html = "" } = comment.contents || {}
 
     const bodyClasses = classNames(
       { [classes.commentStyling]: !comment.answer,
@@ -77,33 +78,23 @@ class CommentBody extends Component {
         [classes.retracted]: comment.retracted }
     );
 
-    const shouldRenderExcerpt = truncated && 
-      (plaintextDescription && plaintextDescription.length) > truncationCharCount && 
-      !collapsed
+    if (comment.deleted) { return <CommentDeletedMetadata documentId={comment._id}/> }
+    if (collapsed) { return null }
 
-    if (comment.deleted) {
-      return <CommentDeletedMetadata documentId={comment._id}/>
-    } else if (shouldRenderExcerpt) {
-      return (
-        <div className={classes.root}>
-          <ContentItemBody className={bodyClasses}
-            dangerouslySetInnerHTML={{__html: commentExcerptFromHTML(html, truncationCharCount)}}/>
-        </div>
-      )
-    } else if (!collapsed) {
-      return <ContentItemBody className={bodyClasses}
-        dangerouslySetInnerHTML={{__html: html}}/>
-    } else {
-      return null
-    }
+    const innerHtml = truncated ? commentExcerptFromHTML(comment, currentUser, postPage) : html
+  
+    return (
+      <div className={classes.root}>
+        <ContentItemBody className={bodyClasses} dangerouslySetInnerHTML={{__html: innerHtml }}/>
+      </div>
+    )
   }
 }
 
 CommentBody.propTypes = {
   comment: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
-  truncationCharCount: PropTypes.number
 };
 
 
-registerComponent('CommentBody', CommentBody, withStyles(styles, {name: "CommentBody"}));
+registerComponent('CommentBody', CommentBody, withUser, withStyles(styles, {name: "CommentBody"}));

@@ -108,6 +108,7 @@ import Revisions from './collections/revisions/collection.js'
 // Users
 import './collections/users/helpers.js';
 import './collections/users/custom_fields.js';
+import './collections/users/recommendationSettings.js';
 import './collections/users/karmaChangesGraphQL.js';
 import './collections/users/views.js';
 import './collections/users/permissions.js';
@@ -128,7 +129,8 @@ import './scrollRestoration.js';
 
 import './components.js';
 
-import './recommendations.js';
+// PostRelation
+import './collections/postRelations';
 
 // Alignment Forum
 import './modules/alignment-forum/callbacks.js';

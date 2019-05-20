@@ -1,6 +1,7 @@
 import Users from 'meteor/vulcan:users'
 import { Utils } from 'meteor/vulcan:core'
 import { ContentType } from '../collections/revisions/schema'
+import { accessFilterMultiple } from '../modules/utils/schemaUtils.js';
 import SimpleSchema from 'simpl-schema'
 
 const RevisionStorageType = new SimpleSchema({
@@ -113,12 +114,9 @@ export const makeEditable = ({collection, options = {}}) => {
           type: '[Revision]',
           arguments: 'limit: Int = 5',
           resolver: async (post, { limit }, { currentUser, Revisions }) => {
-            const { checkAccess } = Revisions
             const field = fieldName || "contents"
             const resolvedDocs = await Revisions.find({documentId: post._id, fieldName: field}, {sort: {editedAt: -1}, limit}).fetch()
-            const filteredDocs = checkAccess ? _.filter(resolvedDocs, d => checkAccess(currentUser, d)) : resolvedDocs
-            const restrictedDocs = Users.restrictViewableFields(currentUser, Revisions, filteredDocs)
-            return restrictedDocs
+            return accessFilterMultiple(currentUser, Revisions, resolvedDocs);
           }
         }
       }
