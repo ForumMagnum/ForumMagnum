@@ -386,8 +386,8 @@ const schema = {
   hiddenRelatedQuestion: {
     type: Boolean,
     viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: [Users.owns, 'admins', 'sunshineRegiment'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
     optional: true,
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
