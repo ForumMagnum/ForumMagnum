@@ -63,7 +63,7 @@ class UsersAccountMenu extends PureComponent {
           {this.state.open
             && getSetting('reCaptcha.apiKey')
             && <Components.ReCaptcha verifyCallback={this.setReCaptchaToken} action="login/signup"/>}
-          <Components.AccountsLoginForm 
+          <Components.WrappedLoginForm 
             onPreSignUpHook={(options) => {
               const reCaptchaToken = this.state.reCaptchaToken
               return {...options, profile: {...options.profile, reCaptchaToken}}
