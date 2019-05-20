@@ -9,42 +9,36 @@ export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
 
 const styles = theme => ({
-  startTime: {
-    '&&': {
-      width: START_TIME_WIDTH,
-      justifyContent: "center",
-      fontWeight: 300,
-      fontSize: "1rem",
-      color: "rgba(0,0,0,.9)",
-      [theme.breakpoints.down('sm')]: {
-        justifyContent: "flex-start",
-        width: "none",
-        flexGrow: 1,
-      }
-    }
-  },
   postedAt: {
     '&&': {
       width: POSTED_AT_WIDTH,
-      justifyContent: "center",
       fontWeight: 300,
       fontSize: "1rem",
       color: "rgba(0,0,0,.9)",
       [theme.breakpoints.down('sm')]: {
-        justifyContent: "flex-start",
-        width: "none",
-        flexGrow: 1,
+        width: "auto",
+      }
+    }
+  },
+  startTime: {
+    '&&': {
+      width: START_TIME_WIDTH,
+      fontWeight: 300,
+      fontSize: "1rem",
+      color: "rgba(0,0,0,.9)",
+      [theme.breakpoints.down('sm')]: {
+        width: "auto",
       }
     }
   },
 });
 
 const PostsItemDate = ({post, classes}) => {
-  const { PostsItemMetaInfo, EventTime, FormatDate } = Components;
+  const { PostsItem2MetaInfo, EventTime, FormatDate } = Components;
   
   if (post.isEvent)
   {
-    return (<PostsItemMetaInfo className={classes.startTime}>
+    return (<PostsItem2MetaInfo className={classes.startTime}>
       {post.startTime
         ? <Tooltip title={<span>Event starts at <EventTime post={post} /></span>}>
             <FormatDate date={post.startTime} format={"MMM Do"}/>
@@ -52,28 +46,28 @@ const PostsItemDate = ({post, classes}) => {
         : <Tooltip title={<span>To Be Determined</span>}>
             <span>TBD</span>
           </Tooltip>}
-    </PostsItemMetaInfo>);
+    </PostsItem2MetaInfo>);
   }
   else if (post.curatedDate)
   {
-    return (<PostsItemMetaInfo className={classes.postedAt}>
+    return (<PostsItem2MetaInfo className={classes.postedAt}>
       <Tooltip title={<div>
         <div>Curated on <ExpandedDate date={post.curatedDate}/></div>
         <div>Posted on <ExpandedDate date={post.postedAt}/></div>
       </div>}>
         <span>{moment(new Date(post.curatedDate)).fromNow()}</span>
       </Tooltip>
-    </PostsItemMetaInfo>);
+    </PostsItem2MetaInfo>);
   }
   else
   {
-    return (<PostsItemMetaInfo className={classes.postedAt}>
+    return (<PostsItem2MetaInfo className={classes.postedAt}>
       <Tooltip title={
         <ExpandedDate date={post.postedAt}/>
       }>
         <span>{moment(new Date(post.postedAt)).fromNow()}</span>
       </Tooltip>
-    </PostsItemMetaInfo>);
+    </PostsItem2MetaInfo>);
   }
 }
 

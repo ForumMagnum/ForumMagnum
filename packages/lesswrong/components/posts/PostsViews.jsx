@@ -8,6 +8,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 
+// TODO; possibly delete
+
 const styles = theme => ({
   view: {
     color: theme.palette.primary.light,

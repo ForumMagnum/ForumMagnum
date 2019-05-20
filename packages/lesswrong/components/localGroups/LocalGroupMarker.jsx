@@ -17,8 +17,8 @@ export const styles = theme => ({
   },
   closeIcon: {
     position: "absolute",
-    right: "-3px",
-    top: "4px",
+    right: 5,
+    top: 5,
     color: "rgba(0,0,0,0.5)",
     height: "15px",
     width: "15px",
@@ -27,6 +27,7 @@ export const styles = theme => ({
     fontSize: "15px",
     marginTop: "3.5px",
     marginBottom: "0px",
+    marginRight: 10
   },
   markerBody: {
     marginTop: 10,
@@ -44,8 +45,7 @@ export const styles = theme => ({
   },
   linksWrapper: {
     position: "absolute",
-    bottom: "0px",
-    right: "-2px",
+    right: 10,
   },
 });
 

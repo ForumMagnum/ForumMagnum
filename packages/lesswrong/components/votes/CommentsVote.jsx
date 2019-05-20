@@ -51,7 +51,7 @@ class CommentsVote extends PureComponent {
     )
 
     return (
-      <div className={classes.vote}>
+      <span className={classes.vote}>
         {(getSetting('forumType') !== 'AlignmentForum' || !!comment.af) &&
           <span>
             <Tooltip
@@ -70,7 +70,7 @@ class CommentsVote extends PureComponent {
                 />
               </span>
             </Tooltip>
-            <Tooltip title={`${voteCount} ${voteCount == 1 ? "Vote" : "Votes"}`} placement="bottom">
+            <Tooltip title={`This comment has ${baseScore} karma (${voteCount} ${voteCount == 1 ? "Vote" : "Votes"})`} placement="bottom">
               <span className={classes.voteScore}>
                 {baseScore || 0}
               </span>
@@ -113,7 +113,7 @@ class CommentsVote extends PureComponent {
             </span>
           </Tooltip>
         }
-      </div>)
+      </span>)
     }
 }
 

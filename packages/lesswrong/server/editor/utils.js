@@ -22,7 +22,7 @@ Utils.trimEmptyLatexParagraphs = (dom) => {
 const MATHJAX_OPTIONS = {
   jax: ['input/TeX', 'output/CommonHTML'],
   TeX: {
-    extensions: ['autoload-all.js'],
+    extensions: ['autoload-all.js', 'Safe.js'],
   },
   messageStyles: 'none',
   showProcessingMessages: false,

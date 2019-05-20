@@ -1,4 +1,4 @@
-import { Components, registerComponent, withMutation, getActions, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper.js';
@@ -7,32 +7,22 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import Typography from '@material-ui/core/Typography';
 import withUser from "../common/withUser";
 import classNames from 'classnames';
-import { connect } from 'react-redux';
-import withNewEvents from '../../lib/events/withNewEvents.jsx';
-import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import grey from '@material-ui/core/colors/grey';
-import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import Hidden from '@material-ui/core/Hidden';
+import withRecordPostView from '../common/withRecordPostView';
 
-import { POSTED_AT_WIDTH, START_TIME_WIDTH } from './PostsItemDate.jsx';
+import { POSTED_AT_WIDTH } from './PostsItemDate.jsx';
 
 export const MENU_WIDTH = 18
-export const AUTHOR_WIDTH = 140
-export const EVENT_WIDTH = 110
 export const KARMA_WIDTH = 42
 export const COMMENTS_WIDTH = 48
-
-const TITLE_WIDTH = SECTION_WIDTH - AUTHOR_WIDTH - KARMA_WIDTH - POSTED_AT_WIDTH - COMMENTS_WIDTH
-
-const EVENT_TITLE_WIDTH = SECTION_WIDTH - EVENT_WIDTH - KARMA_WIDTH - START_TIME_WIDTH - COMMENTS_WIDTH
 
 const COMMENTS_BACKGROUND_COLOR = grey[200]
 
 const styles = (theme) => ({
   root: {
-    display: "flex",
     position: "relative",
-    width: SECTION_WIDTH,
     [theme.breakpoints.down('sm')]: {
       width: "100%"
     },
@@ -44,14 +34,18 @@ const styles = (theme) => ({
     display: "flex",
     paddingTop: theme.spacing.unit*1.5,
     paddingBottom: theme.spacing.unit*1.5,
-    borderBottom: "solid 1px rgba(0,0,0,.2)",
     alignItems: "center",
-    flexWrap: "wrap",
+    flexWrap: "nowrap",
+    [theme.breakpoints.down('sm')]: {
+      flexWrap: "wrap",
+    },
   },
   background: {
     transition: "3s",
-    backgroundColor: "none",
     width: "100%",
+  },
+  bottomBorder: {
+    borderBottom: "solid 1px rgba(0,0,0,.2)",
   },
   commentsBackground: {
     backgroundColor: COMMENTS_BACKGROUND_COLOR,
@@ -65,24 +59,26 @@ const styles = (theme) => ({
       padding: theme.spacing.unit
     }
   },
-  karma: {
-    width: KARMA_WIDTH,
-    justifyContent: "center",
-    marginLeft: 4,
-    marginRight: 14,
-    [theme.breakpoints.down('sm')]: {
-      justifyContent: "flex-start",
-      width: "unset",
-      marginLeft: 0,
-      marginRight: theme.spacing.unit*2
-    }
-  },
   firstItem: {
     borderTop: "solid 1px rgba(0,0,0,.2)"
   },
+  karma: {
+    width: 42,
+    justifyContent: "center",
+    [theme.breakpoints.down('sm')]:{
+      width: "unset",
+      justifyContent: "flex-start",
+      marginLeft: 2,
+      marginRight: theme.spacing.unit
+    }
+  },
   title: {
     height: 22,
-    maxWidth: TITLE_WIDTH,
+    flexGrow: 1,
+    flexShrink: 1,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    marginRight: 12,
     [theme.breakpoints.down('sm')]: {
       order:-1,
       height: "unset",
@@ -95,16 +91,8 @@ const styles = (theme) => ({
       opacity: 1,
     }
   },
-  eventTitle: {
-    maxWidth: EVENT_TITLE_WIDTH,
-    [theme.breakpoints.down('sm')]: {
-      maxWidth: "unset",
-    }
-  },
   author: {
-    width: AUTHOR_WIDTH,
     justifyContent: "flex-end",
-    flex: 1,
     overflow: "hidden",
     whiteSpace: "nowrap",
     textOverflow: "ellipsis", // I'm not sure this line worked properly?
@@ -112,25 +100,30 @@ const styles = (theme) => ({
     [theme.breakpoints.down('sm')]: {
       justifyContent: "flex-start",
       width: "unset",
-      maxWidth: AUTHOR_WIDTH,
       marginLeft: 0,
       flex: "unset"
     }
   },
   event: {
-    width: EVENT_WIDTH,
-    justifyContent: "flex-end",
-    flex: 1,
+    maxWidth: 250,
     overflow: "hidden",
     whiteSpace: "nowrap",
     textOverflow: "ellipsis", // I'm not sure this line worked properly?
     marginRight: theme.spacing.unit*1.5,
     [theme.breakpoints.down('sm')]: {
-      justifyContent: "flex-start",
       width: "unset",
-      maxWidth: EVENT_WIDTH,
       marginLeft: 0,
-      flex: "unset"
+    }
+  },
+  postedAt: {
+    '&&': {
+      width: POSTED_AT_WIDTH,
+      fontWeight: 300,
+      fontSize: "1rem",
+      color: "rgba(0,0,0,.9)",
+      [theme.breakpoints.down('sm')]: {
+        width: "auto",
+      }
     }
   },
   newCommentsSection: {
@@ -146,16 +139,9 @@ const styles = (theme) => ({
     color: theme.palette.grey[500],
     textAlign: "right",
   },
-  postIcon: {
-    display: "none",
-    marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
-    [theme.breakpoints.down('sm')]: {
-      display: "block"
-    }
-  },
   commentsIcon: {
     width: COMMENTS_WIDTH,
+    height: 24,
     cursor: "pointer",
     position: "relative",
     flexShrink: 0,
@@ -183,6 +169,12 @@ const styles = (theme) => ({
     position: "absolute",
     top: 0,
   },
+  mobileSecondRowSpacer: {
+    [theme.breakpoints.up('md')]: {
+      display: "none",
+    },
+    flexGrow: 1,
+  },
   mobileActions: {
     cursor: "pointer",
     width: MENU_WIDTH,
@@ -203,7 +195,7 @@ class PostsItem2 extends PureComponent {
   }
 
   toggleComments = (scroll) => {
-    this.handleMarkAsRead()
+    this.props.recordPostView({...this.props, document:this.props.post})
     this.setState((prevState) => {
       if (scroll) {
         this.postsItemRef.current.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"})
@@ -213,40 +205,6 @@ class PostsItem2 extends PureComponent {
         readComments: true
       })
     })
-  }
-
-  async handleMarkAsRead () {
-    const {
-      // from the parent component, used in withDocument, GraphQL HOC
-      // from connect, Redux HOC
-      setViewed,
-      postsViewed,
-      post,
-      // from withMutation, GraphQL HOC
-      increasePostViewCount,
-    } = this.props;
-    // a post id has been found & it's has not been seen yet on this client session
-    if (post && post._id && postsViewed && !postsViewed.includes(post._id)) {
-
-      // trigger the asynchronous mutation with postId as an argument
-      await increasePostViewCount({postId: post._id});
-
-      // once the mutation is done, update the redux store
-      setViewed(post._id);
-    }
-
-    //LESSWRONG: register page-visit event
-    if (this.props.currentUser) {
-      const eventProperties = {
-        userId: this.props.currentUser._id,
-        important: false,
-        intercom: true,
-      };
-
-      eventProperties.documentId = post._id;
-      eventProperties.postTitle = post.title;
-      this.props.registerEvent('post-view', eventProperties)
-    }
   }
 
   isSticky = (post, terms) => {
@@ -260,60 +218,73 @@ class PostsItem2 extends PureComponent {
   }
 
   render() {
-    const { classes, post, chapter, currentUser, index, terms } = this.props
+    const { classes, post, chapter, currentUser, index, terms, showBottomBorder=true, showQuestionTag=true, showPostedAt=true } = this.props
     const { showComments, readComments } = this.state
-    const { PostsItemComments, PostsItemKarma, PostsItemMetaInfo, PostsItemTitle, PostsUserAndCoauthors, EventVicinity, PostsItemCuratedIcon, PostsItemAlignmentIcon, PostsPageActions } = Components
+    const { PostsItemComments, PostsItemKarma, PostsItemTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
 
     const postLink = chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getPageUrl(post)
-
+    
     return (
-      <div className={classes.root}>
-        <div className={classNames(classes.background, {[classes.commentsBackground]: showComments,[classes.firstItem]: (index===0) && showComments, "personalBlogpost": !post.frontpageDate})}>
-          <div className={classNames(classes.postsItem, {[classes.commentBox]: showComments})}>
-            <div ref={this.postsItemRef}/>
-            <PostsItemKarma post={post} />
+      <div className={classes.root} ref={this.postsItemRef}>
+        <div className={classNames(
+          classes.background,
+          {
+            [classes.bottomBorder]: showBottomBorder,
+            [classes.commentsBackground]: showComments,
+            [classes.firstItem]: (index===0) && showComments,
+            "personalBlogpost": !post.frontpageDate,
+            [classes.commentBox]: showComments
+          }
+        )}>
+          <div className={classes.postsItem}>
+            <PostsItem2MetaInfo className={classes.karma}>
+              <PostsItemKarma post={post} />
+            </PostsItem2MetaInfo>
 
             <Link to={postLink} className={classes.title}>
-              <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} backgroundColor={showComments ? COMMENTS_BACKGROUND_COLOR : "white"} sticky={this.isSticky(post, terms)} />
+              <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
             </Link>
 
-            { post.user && !post.isEvent && <PostsItemMetaInfo className={classes.author}>
+            { post.user && !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
               <PostsUserAndCoauthors post={post}/>
-            </PostsItemMetaInfo>}
+            </PostsItem2MetaInfo>}
 
-            { post.isEvent && <PostsItemMetaInfo className={classes.event}>
+            { post.isEvent && <PostsItem2MetaInfo className={classes.event}>
               <EventVicinity post={post} />
-            </PostsItemMetaInfo>}
+            </PostsItem2MetaInfo>}
 
-            <Components.PostsItemDate post={post}/>
+            {showPostedAt && <Components.PostsItemDate post={post}/>}
 
+            <div className={classes.mobileSecondRowSpacer}/>
+            
             {<div className={classes.mobileActions}>
               <PostsPageActions post={post} menuClassName={classes.actionsMenu} />
             </div>}
 
-            {post.curatedDate && <span className={classes.postIcon}><PostsItemCuratedIcon /></span> }
-            {getSetting('forumType') !== 'AlignmentForum' && post.af && <span className={classes.postIcon}><PostsItemAlignmentIcon /></span> }
+            <Hidden mdUp implementation="css">
+              <PostsItemIcons post={post}/>
+            </Hidden>
 
             <div className={classes.commentsIcon}>
               <PostsItemComments post={post} onClick={() => this.toggleComments(false)} readStatus={readComments}/>
             </div>
 
-            {this.state.showComments && <div className={classes.newCommentsSection} onClick={()=> this.toggleComments(true)}>
-              <Components.PostsItemNewCommentsWrapper
-                currentUser={currentUser}
-                highlightDate={post.lastVisitedAt}
-                terms={{view:"postCommentsUnread", limit:5, postId: post._id}}
-                post={post}
-              />
-              <Typography variant="body2" className={classes.closeComments}><a>Close</a></Typography>
-            </div>}
           </div>
           {<div className={classes.actions}>
             <PostsPageActions post={post} vertical menuClassName={classes.actionsMenu} />
           </div>}
+          
+          {this.state.showComments && <div className={classes.newCommentsSection} onClick={() => this.toggleComments(true)}>
+            <Components.PostsItemNewCommentsWrapper
+              currentUser={currentUser}
+              highlightDate={post.lastVisitedAt}
+              terms={{view:"postCommentsUnread", limit:7, postId: post._id}}
+              post={post}
+            />
+            <Typography variant="body2" className={classes.closeComments}><a>Close</a></Typography>
+          </div>}
         </div>
       </div>
-
     )
   }
 }
@@ -321,26 +292,13 @@ class PostsItem2 extends PureComponent {
 PostsItem2.propTypes = {
   currentUser: PropTypes.object,
   post: PropTypes.object.isRequired,
-  postsViewed: PropTypes.array,
-  setViewed: PropTypes.func,
-  increasePostViewCount: PropTypes.func,
 };
-
-const mutationOptions = {
-  name: 'increasePostViewCount',
-  args: {postId: 'String'},
-};
-
-const mapStateToProps = state => ({ postsViewed: state.postsViewed });
-const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsViewed, dispatch);
 
 registerComponent(
   'PostsItem2',
   PostsItem2,
-  withMutation(mutationOptions),
-  withNewEvents,
-  connect(mapStateToProps, mapDispatchToProps),
   withStyles(styles, { name: "PostsItem2" }),
+  withUser,
+  withRecordPostView,
   withErrorBoundary,
-  withUser
 );

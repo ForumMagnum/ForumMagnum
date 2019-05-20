@@ -24,6 +24,7 @@ const styles = theme => ({
     width: 'initial',
     height: '20px',
     fontSize: '14px',
+    marginRight: 5
   },
 
   groupLinks: {

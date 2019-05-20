@@ -2,7 +2,7 @@ import { Posts } from './collection';
 import { getSetting } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
-import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField } from '../../modules/utils/schemaUtils'
+import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple } from '../../modules/utils/schemaUtils'
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { Utils } from 'meteor/vulcan:core';
 import GraphQLJSON from 'graphql-type-json';
@@ -140,20 +140,6 @@ addFieldsDict(Posts, {
     group: formGroups.adminOptions
   },
 
-  // legacyData: A complete dump of all the legacy data we have on this post in a
-  // single blackbox object. Never queried on the client, but useful for a lot
-  // of backend functionality, and simplifies the data import from the legacy
-  // LessWrong database
-  legacyData: {
-    type: Object,
-    optional: true,
-    viewableBy: ['admins'],
-    insertableBy: ['admins'],
-    editableBy: ['admins'],
-    hidden: true,
-    blackbox: true,
-  },
-
   // lastVisitDateDefault: Sets the default of what the lastVisit of a post
   // should be, resolves to the date of the last visit of a user, when a user is
   // loggedn in. Returns null when no user is logged in;
@@ -217,16 +203,17 @@ addFieldsDict(Posts, {
     resolveAs: {
       fieldName: 'suggestForCuratedUsernames',
       type: 'String',
-      resolver: (post, args, context) => {
+      resolver: async (post, args, context) => {
         // TODO - Turn this into a proper resolve field.
         // Ran into weird issue trying to get this to be a proper "users"
         // resolve field. Wasn't sure it actually needed to be anyway,
         // did a hacky thing.
-        const users = _.map(post.suggestForCuratedUserIds,
-          (userId => {
-            return context.Users.findOne({ _id: userId }).displayName
-          })
-        )
+        const users = await Promise.all(_.map(post.suggestForCuratedUserIds,
+          async userId => {
+            const user = await context.Users.loader.load(userId)
+            return user.displayName;
+          }
+        ))
         if (users.length) {
           return users.join(", ")
         } else {
@@ -401,8 +388,24 @@ addFieldsDict(Posts, {
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
   },
-
-
+  
+  // disableRecommendation: If true, this post will never appear as a
+  // recommended post (but will still appear in all other places, ie on its
+  // author's profile, in archives, etc).
+  // Use for things that lose their relevance with age, like announcements, or
+  // for things that aged poorly, like results that didn't replicate.
+  disableRecommendation: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    label: "Exclude from Recommendations",
+    control: "checkbox",
+    order: 12,
+    group: formGroups.adminOptions,
+    ...schemaDefaultValue(false),
+  },
 
   // Drafts
   draft: {
@@ -949,11 +952,7 @@ addFieldsDict(Users, {
       type: '[Post]',
       resolver: (user, { limit }, { currentUser, Users, Posts }) => {
         const posts = Posts.find({ userId: user._id }, { limit }).fetch();
-
-        // restrict documents fields
-        const viewablePosts = _.filter(posts, post => Posts.checkAccess(currentUser, post));
-        const restrictedPosts = Users.restrictViewableFields(currentUser, Posts, viewablePosts);
-        return restrictedPosts
+        return accessFilterMultiple(currentUser, Posts, posts);
       }
     }
   },

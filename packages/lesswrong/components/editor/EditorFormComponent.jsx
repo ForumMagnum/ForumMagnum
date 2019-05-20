@@ -125,8 +125,14 @@ class EditorFormComponent extends Component {
       try {
         // eslint-disable-next-line no-console
         console.log("Restoring saved document state: ", savedState);
-        state = EditorState.createWithContent(convertFromRaw(savedState))
-        return state;
+        const contentState = convertFromRaw(savedState)
+        if (contentState.hasText()) {
+          return EditorState.createWithContent(contentState)
+        } else {
+          // eslint-disable-next-line no-console
+          console.log("Not restoring empty document state: ", contentState)
+        }
+        
       } catch(e) {
         // eslint-disable-next-line no-console
         console.error(e)
@@ -392,8 +398,8 @@ class EditorFormComponent extends Component {
     // or as tall as a post editor) needs to be applied deeper in the tree, for
     // the draftJS editor; if we apply it to our wrapper div, it'll look right
     // but most of it won't be clickable.
-    const heightClass = commentStyles ? classes.commentEditorHeight : classes.postEditorHeight;
 
+    const heightClass = (commentStyles || document.question) ? classes.commentEditorHeight : classes.postEditorHeight;
     const bodyStyles = this.getBodyStyles()
 
     const editorWarning =

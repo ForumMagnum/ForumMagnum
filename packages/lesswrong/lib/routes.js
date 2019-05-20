@@ -100,3 +100,5 @@ addRoute({ name: 'daily', path: '/daily', componentName: 'PostsDaily', title: "P
 
 addRoute({ name: 'questions', path: '/questions', componentName: 'QuestionsPage', title: "All Questions" });
 addRoute({ name: 'recommendations', path: '/recommendations', componentName: 'RecommendationsPage', title: "Recommendations" });
+
+addRoute({ name: 'emailToken', path: '/emailToken/:token', componentName: 'EmailTokenPage' });

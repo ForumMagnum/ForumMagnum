@@ -44,18 +44,16 @@ class HomeLatestPosts extends PureComponent {
     }
 
     const latestTitle = (
-      <p>
+      <div>
         <p>Recent posts, sorted by a mix of 'new' and 'highly upvoted'.</p>
         <p>By default shows only frontpage posts, and can optionally include personal blogposts.</p>
-        <p><em>Moderators promote posts to frontpage if they seem to be:</em>
-          <ul>
-            <li>Aiming to explain rather than persuade</li>
-            <li>Relatively timeless (avoiding reference to current events or local social knowledge)</li>
-            {/* TODO; fix better I guess */}
-            <li>Reasonably relevant to the average reader</li>
-          </ul>
-        </p>
-      </p>
+        <p><em>Moderators promote posts to frontpage if they seem to be:</em></p>
+        <ul>
+          <li>Aiming to explain rather than persuade</li>
+          <li>Relatively timeless (avoiding reference to current events or local social knowledge)</li>
+          <li>Reasonably relevant to the average reader</li>
+        </ul>
+      </div>
     )
 
     return (

@@ -141,7 +141,7 @@ Users.blockedCommentingReason = (user, post) => {
 
   if (getSetting('forumType') === 'AlignmentForum') {
     if (!Users.canDo(user, 'comments.alignment.new')) {
-      return "You must be approved by an admin to comment on Alignment Forum"
+      return "You must be approved by an admin to comment on the AI Alignment Forum"
     }
   }
   if (Users.userIsBannedFromAllPosts(user, post)) {

@@ -24,7 +24,8 @@ Posts.addDefaultView(terms => {
       isFuture: false,
       unlisted: false,
       authorIsUnreviewed: false,
-      groupId: {$exists: false},
+      hiddenRelatedQuestion: false,
+      groupId: viewFieldNullOrMissing,
       ...validFields,
       ...alignmentForum
     }
@@ -36,7 +37,9 @@ Posts.addDefaultView(terms => {
   if (terms.userId) {
     params.selector.hideAuthor = false
   }
-
+  if (terms.includeRelatedQuestions === "true") {
+    params.selector.hiddenRelatedQuestion = viewFieldAllowAny
+  }
   if (terms.filter === "curated") {
     params.selector.curatedDate ={$gt: new Date(0)}
   }
@@ -48,6 +51,7 @@ Posts.addDefaultView(terms => {
   }
   if (terms.filter === "questions") {
     params.selector.question = true
+    params.selector.hiddenRelatedQuestion = viewFieldAllowAny
   }
   if (terms.filter === "events") {
     params.selector.isEvent = true
@@ -62,7 +66,7 @@ export function augmentForDefaultView(indexFields)
 {
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,
-    prefix: {status:1, isFuture:1, draft:1, unlisted:1, authorIsUnreviewed:1, groupId:1 },
+    prefix: {status:1, isFuture:1, draft:1, unlisted:1, hiddenRelatedQuestion:1, authorIsUnreviewed:1, groupId:1 },
     suffix: { _id:1, meta:1, isEvent:1, af:1, frontpageDate:1, curatedDate:1, postedAt:1, baseScore:1 },
   });
 }
@@ -75,6 +79,7 @@ export function augmentForDefaultView(indexFields)
 Posts.addView("userPosts", terms => ({
   selector: { 
     userId: viewFieldAllowAny,
+    hiddenRelatedQuestion: viewFieldAllowAny,
     groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
     $or: [{userId: terms.userId}, {coauthorUserIds: terms.userId}],
   },
@@ -86,7 +91,7 @@ Posts.addView("userPosts", terms => ({
   }
 }));
 ensureIndex(Posts,
-  augmentForDefaultView({ userId: 1, postedAt: -1, }),
+  augmentForDefaultView({ userId: 1, hideAuthor: 1, postedAt: -1, }),
   {
     name: "posts.userId_postedAt",
   }
@@ -136,7 +141,7 @@ ensureIndex(Posts,
   }
 );
 ensureIndex(Posts,
-  augmentForDefaultView({ userId: 1, ...stickiesIndexPrefix, score:-1 }),
+  augmentForDefaultView({ userId: 1, hideAuthor: 1, ...stickiesIndexPrefix, score:-1 }),
   {
     name: "posts.userId_stickies_score",
   }
@@ -153,7 +158,7 @@ ensureIndex(Posts,
   }
 );
 ensureIndex(Posts,
-  augmentForDefaultView({ userId: 1, ...stickiesIndexPrefix, baseScore:-1 }),
+  augmentForDefaultView({ userId: 1, hideAuthor: 1, ...stickiesIndexPrefix, baseScore:-1 }),
   {
     name: "posts.userId_stickies_baseScore",
   }
@@ -170,7 +175,7 @@ ensureIndex(Posts,
   }
 );
 ensureIndex(Posts,
-  augmentForDefaultView({ userId: 1, ...stickiesIndexPrefix, postedAt:-1 }),
+  augmentForDefaultView({ userId: 1, hideAuthor: 1, ...stickiesIndexPrefix, postedAt:-1 }),
   {
     name: "posts.userId_stickies_postedAt",
   }
@@ -294,6 +299,7 @@ Posts.addView('rss', Posts.views['community-rss']); // default to 'community-rss
 Posts.addView("topQuestions", terms => ({
   selector: {
     question: true,
+    hiddenRelatedQuestion: viewFieldAllowAny,
     baseScore: {$gte: 40}
   },
   options: {
@@ -310,6 +316,7 @@ ensureIndex(Posts,
 Posts.addView("recentQuestionActivity", terms => ({
   selector: {
     question: true,
+    hiddenRelatedQuestion: viewFieldAllowAny,
   },
   options: {
     sort: {lastCommentedAt: -1}
@@ -352,7 +359,7 @@ Posts.addView("drafts", terms => {
     }
 }});
 ensureIndex(Posts,
-  augmentForDefaultView({ userId: 1, deletedDraft: 1, createdAt: -1 }),
+  augmentForDefaultView({ userId: 1, hideAuthor: 1, deletedDraft: 1, createdAt: -1 }),
   { name: "posts.userId_createdAt" }
 );
 ensureIndex(Posts,
@@ -428,6 +435,7 @@ Posts.addView("recentDiscussionThreadsList", terms => {
     selector: {
       baseScore: {$gt:0},
       hideFrontpageComments: false,
+      hiddenRelatedQuestion: viewFieldAllowAny,
       groupId: null,
     },
     options: {
@@ -610,7 +618,7 @@ Posts.addView("sunshineNewUsersPosts", function (terms) {
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ status:1, userId:1, reviewedByUserId:1, frontpageDate: 1, authorIsUnreviewed:1, createdAt: -1 }),
+  augmentForDefaultView({ status:1, userId:1, hideAuthor: 1, reviewedByUserId:1, frontpageDate: 1, authorIsUnreviewed:1, createdAt: -1 }),
   { name: "posts.sunshineNewUsersPosts" }
 );
 
@@ -654,7 +662,6 @@ ensureIndex(Posts,
   { name: "posts.afRecentDiscussionThreadsList", }
 );
 
-
 // Used in Posts.find() in various places
 ensureIndex(Posts, {userId:1, createdAt:-1});
 
@@ -667,3 +674,9 @@ ensureIndex(Posts, {isFuture:1, postedAt:1});
 
 // Used in scoring aggregate query
 ensureIndex(Posts, {inactive:1,postedAt:1});
+
+// Used for recommendations
+ensureIndex(Posts,
+  augmentForDefaultView({ meta:1, disableRecommendation:1, baseScore:1, curatedDate:1, frontpageDate:1 }),
+  { name: "posts.recommendable" }
+);
