@@ -34,3 +34,12 @@ export async function getWithLoader(collection, loaderName, baseQuery={}, groupB
 
   return await collection.extraLoaders[loaderName].load(id);
 }
+
+export async function getWithCustomLoader(collection, loaderName, id, idsToResults)
+{
+  if (!collection.extraLoaders[loaderName]) {
+    collection.extraLoaders[loaderName] = new DataLoader(idsToResults, { cache: true });
+  }
+
+  return await collection.extraLoaders[loaderName].load(id);
+}
