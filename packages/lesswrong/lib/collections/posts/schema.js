@@ -381,6 +381,7 @@ const schema = {
     insertableBy: ['members'],
     editableBy: [Users.owns, 'admins', 'sunshineRegiment'],
     optional: true,
+    hidden: true,
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
     onCreate: ({newDocument}) => {
