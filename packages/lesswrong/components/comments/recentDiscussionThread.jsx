@@ -116,6 +116,8 @@ class RecentDiscussionThread extends PureComponent {
 
     const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight } = Components
 
+    const lastCommentId = results && results[0]?._id
+
     const nestedComments = unflattenComments(results)
 
     const lastVisitedAt = markedAsVisitedAt || post.lastVisitedAt
@@ -171,6 +173,7 @@ class RecentDiscussionThread extends PureComponent {
                   <CommentsNode
                     startThreadTruncated={true}
                     nestingLevel={1}
+                    recentDiscussionExpandedId={lastCommentId}
                     currentUser={currentUser}
                     comment={comment.item}
                     markAsRead={this.markAsRead}
