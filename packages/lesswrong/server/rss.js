@@ -2,14 +2,13 @@ import RSS from 'rss';
 import { Posts } from '../lib/collections/posts';
 import { rssTermsToUrl } from '../lib/modules/rss_urls.js';
 import { Comments } from '../lib/collections/comments';
-import { Utils, getSetting, registerSetting } from 'meteor/vulcan:core';
+import { Utils, getSetting } from 'meteor/vulcan:core';
 import { Picker } from 'meteor/meteorhacks:picker';
+import { accessFilterMultiple } from '../lib/modules/utils/schemaUtils.js';
 import moment from 'moment-timezone';
 
 // LESSWRONG - this import wasn't needed until fixing author below.
 import Users from 'meteor/vulcan:users';
-
-registerSetting('forum.RSSLinksPointTo', 'link', 'Where to point RSS links to');
 
 Posts.addView('rss', Posts.views.new); // default to 'new' view for RSS feed
 Comments.addView('rss', Comments.views.recentComments); // default to 'recentComments' view for comments RSS feed
@@ -42,9 +41,10 @@ export const servePostRSS = (terms, url) => {
 
   parameters.options.limit = 10;
 
-  const postsCursor = Posts.find(parameters.selector, parameters.options);
+  const postsCursor = Posts.find(parameters.selector, parameters.options).fetch();
+  const restrictedPosts = accessFilterMultiple(null, Posts, postsCursor);
 
-  postsCursor.forEach((post) => {
+  restrictedPosts.forEach((post) => {
     // LESSWRONG - this was added to handle karmaThresholds
     let thresholdDate = (karmaThreshold === 2)  ? post.scoreExceeded2Date
                       : (karmaThreshold === 30) ? post.scoreExceeded30Date
@@ -64,10 +64,7 @@ export const servePostRSS = (terms, url) => {
     const formattedTime = moment(post.postedAt).tz(moment.tz.guess()).format('LLL z');
     const feedItem = {
       title: post.title,
-      // LESSWRONG - this was added to handle karmaThresholds
-      // description: `${post.htmlBody || ""}<br/><br/>${postLink}`,
-
-      description: `Published on ${formattedTime}<br/><br/>${post.htmlBody || ""}<br/><br/>${postLink}`,
+      description: `Published on ${formattedTime}<br/><br/>${(post.contents && post.contents.html) || ""}<br/><br/>${postLink}`,
       // LESSWRONG - changed how author is set for RSS because
       // LessWrong posts don't reliably have post.author defined.
       //author: post.author,
@@ -96,14 +93,15 @@ export const serveCommentRSS = (terms, url) => {
 
   let parameters = Comments.getParameters(terms);
   parameters.options.limit = 50;
-  const commentsCursor = Comments.find(parameters.selector, parameters.options);
+  const commentsCursor = Comments.find(parameters.selector, parameters.options).fetch();
+  const restrictedComments = accessFilterMultiple(null, Comments, commentsCursor);
 
-  commentsCursor.forEach(function(comment) {
+  restrictedComments.forEach(function(comment) {
     const post = Posts.findOne(comment.postId);
 
     feed.item({
      title: 'Comment on ' + post.title,
-     description: `${comment.body}</br></br><a href='${Comments.getPageUrl(comment, true)}'>Discuss</a>`,
+     description: `${comment.contents && comment.contents.html}</br></br><a href='${Comments.getPageUrl(comment, true)}'>Discuss</a>`,
      author: comment.author,
      date: comment.postedAt,
      url: Comments.getPageUrl(comment, true),

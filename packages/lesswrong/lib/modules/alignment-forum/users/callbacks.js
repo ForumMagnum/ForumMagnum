@@ -1,4 +1,3 @@
-import React from 'react';
 import { addCallback, newMutation } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import Messages from '../../../collections/messages/collection.js';
@@ -47,14 +46,19 @@ export async function NewAlignmentUserSendPMAsync (newUser, oldUser, context) {
             <p>You can now:</p>
             <ul>
               <li> Create alignment posts</li>
-              <li> Suggest other posts for the alignment forum</li>
-              <li> Move comments to the alignment forum</li>
+              <li> Suggest other posts for the Alignment Forum</li>
+              <li> Move comments to the AI Alignment Forum</li>
             </ul>
         </div>`
 
     const firstMessageData = {
       userId: lwAccount._id,
-      htmlBody: firstMessageContent,
+      contents: {
+        originalContents: {
+          type: "html",
+          data: firstMessageContent
+        }
+      },
       conversationId: conversation.data._id
     }
     newMutation({

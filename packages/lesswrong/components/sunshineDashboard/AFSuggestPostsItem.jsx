@@ -2,7 +2,7 @@ import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
-import { Link } from 'react-router'
+import { Link } from '../../lib/reactRouterWrapper.js'
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import withHover from '../common/withHover'
@@ -69,7 +69,7 @@ class AFSuggestPostsItem extends Component {
             </Link>
           </Components.SidebarInfo>
           {post.postedAt && <Components.SidebarInfo>
-            <Components.FromNowDate date={post.postedAt}/>
+            <Components.FormatDate date={post.postedAt}/>
           </Components.SidebarInfo>}
         </div>
         <Components.SidebarInfo>

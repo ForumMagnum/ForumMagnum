@@ -1,8 +1,8 @@
+
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 // import { InstantSearch} from 'react-instantsearch-dom';
 import React, { PureComponent } from 'react';
-import { withRouter } from 'react-router';
-import PropTypes from 'prop-types';
+import { withRouter } from '../lib/reactRouterWrapper.js';
 import Helmet from 'react-helmet';
 import { withApollo } from 'react-apollo';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -10,15 +10,15 @@ import classNames from 'classnames'
 import Intercom from 'react-intercom';
 import moment from 'moment-timezone';
 
-import V0MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import { customizeTheme } from '../lib/modules/utils/theme';
 import { withStyles, withTheme } from '@material-ui/core/styles';
 import getHeaderSubtitleData from '../lib/modules/utils/getHeaderSubtitleData';
 import { UserContext } from './common/withUser';
 import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
+import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
 
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
+const googleTagManagerId = getSetting('googleTagManager.apiKey')
 
 const styles = theme => ({
   main: {
@@ -41,15 +41,36 @@ const styles = theme => ({
         marginBottom: 0,
       }
     },
-  }
+  },
+  searchResultsArea: {
+    position: "absolute",
+    zIndex: theme.zIndexes.layout,
+    top: 0,
+    width: "100%",
+  },
 })
 
 class Layout extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      timezone: null
-    };
+  state = {
+    timezone: null,
+    toc: null,
+  };
+  
+  searchResultsAreaRef = React.createRef();
+
+  setToC = (document, sectionData) => {
+    if (document) {
+      this.setState({
+        toc: {
+          document: document,
+          sections: sectionData && sectionData.sections
+        }
+      });
+    } else {
+      this.setState({
+        toc: null,
+      });
+    }
   }
 
   componentDidMount() {
@@ -63,7 +84,6 @@ class Layout extends PureComponent {
 
   render () {
     const {currentUser, children, currentRoute, location, params, client, classes, theme} = this.props;
-    const {userAgent} = this.context;
 
     const showIntercom = currentUser => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -96,8 +116,8 @@ class Layout extends PureComponent {
     return (
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
-      <div className={classNames("wrapper", {'alignment-forum': getSetting('AlignmentForum', false)}) } id="wrapper">
-        <V0MuiThemeProvider muiTheme={customizeTheme(currentRoute, userAgent, params, client.store)}>
+      <TableOfContentsContext.Provider value={this.setToC}>
+        <div className={classNames("wrapper", {'alignment-forum': getSetting('forumType') === 'AlignmentForum'}) } id="wrapper">
           <DialogManager>
           <div>
             <CssBaseline />
@@ -120,29 +140,25 @@ class Layout extends PureComponent {
             {/* Sign up user for Intercom, if they do not yet have an account */}
             {showIntercom(currentUser)}
             <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
-            <Components.Header/>
+            {/* Google Tag Manager i-frame fallback */}
+            <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerId}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
+            <Components.Header toc={this.state.toc} searchResultsArea={this.searchResultsAreaRef} />
+            <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
             <div className={classes.main}>
               <Components.ErrorBoundary>
                 <Components.FlashMessages />
               </Components.ErrorBoundary>
               {children}
-              <Components.ErrorBoundary>
-                <Components.SunshineSidebar />
-              </Components.ErrorBoundary>
             </div>
-            {/* <Components.Footer />  Deactivated Footer, since we don't use one. Might want to add one later*/ }
+            <Components.Footer />
           </div>
           </DialogManager>
-        </V0MuiThemeProvider>
-      </div>
+        </div>
+      </TableOfContentsContext.Provider>
       </TimezoneContext.Provider>
       </UserContext.Provider>
     )
   }
-}
-
-Layout.contextTypes = {
-  userAgent: PropTypes.string,
 }
 
 Layout.displayName = "Layout";

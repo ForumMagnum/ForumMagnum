@@ -9,6 +9,7 @@ Package.onUse( function(api) {
   api.versionsFrom("METEOR@1.0");
 
   api.use([
+    'ecmascript',
     'promise',
     'fourseven:scss',
 
@@ -16,28 +17,27 @@ Package.onUse( function(api) {
     'vulcan:core',
 
     // vulcan packages
-    'vulcan:voting',
     'vulcan:accounts',
-    'vulcan:email',
     'vulcan:forms',
     'vulcan:events',
     'vulcan:embed',
     'vulcan:admin',
     'vulcan:users',
-    'vulcan:voting',
+    'vulcan:routing',
   ]);
 
-  api.mainModule('server.js', 'server');
   api.mainModule('client.js', 'client');
+  api.mainModule('server.js', 'server');
 
   api.addFiles([
     'styles/main.scss',
   ], ['client']);
 
-  api.addAssets([
-    'server/emails/templates/newPost.handlebars',
-    'server/emails/templates/wrapper.handlebars',
-  ], ['server']);
+  Npm.depends({
+    "@babel/core": "7.4.3",
+    "@babel/plugin-proposal-optional-chaining": "7.2.0",
+    "@babel/plugin-syntax-optional-chaining": "7.2.0"
+  })
 });
 
 Package.onTest(function(api) {
@@ -47,11 +47,16 @@ Package.onTest(function(api) {
     'fourseven:scss',
     'vulcan:core',
     'vulcan:users',
-    'vulcan:voting',
     'practicalmeteor:sinon',
     'coffeescript',
     'meteortesting:mocha',
   ]);
+
+  Npm.depends({
+    "@babel/core": "7.4.3",
+    "@babel/plugin-proposal-optional-chaining": "7.2.0",
+    "@babel/plugin-syntax-optional-chaining": "7.2.0"
+  })
   // Entry points for tests
   api.mainModule('./testing/client.tests.js', 'client');
   api.mainModule('./testing/server.tests.js', 'server');

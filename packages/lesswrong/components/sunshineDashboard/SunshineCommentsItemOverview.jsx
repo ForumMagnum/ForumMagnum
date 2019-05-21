@@ -2,7 +2,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
-import { Link } from 'react-router'
+import { Link } from '../../lib/reactRouterWrapper.js'
 import Icon from '@material-ui/core/Icon';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
@@ -17,14 +17,14 @@ const styles = theme => ({
 })
 
 class SunshineCommentsItemOverview extends Component {
-
   render () {
     const { comment, classes } = this.props
-    let commentExcerpt = comment.body.substring(0,38);
+    const { markdown = "" } = comment.contents || {}
+    const commentExcerpt = markdown && markdown.substring(0,38);
     return (
       <div>
         <Typography variant="body2">
-          <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id} className={classes.comment}>
+          <Link to={comment.post && Posts.getPageUrl(comment.post) + "#" + comment._id} className={classes.comment}>
             { comment.deleted ? <span>COMMENT DELETED</span>
               : <span>{ commentExcerpt }</span>
             }
@@ -40,8 +40,8 @@ class SunshineCommentsItemOverview extends Component {
             </Link>
           </Components.SidebarInfo>
           <Components.SidebarInfo>
-            <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
-              <Components.FromNowDate date={comment.postedAt}/>
+            <Link to={comment.post && Posts.getPageUrl(comment.post) + "#" + comment._id}>
+              <Components.FormatDate date={comment.postedAt}/>
               <Icon className={"material-icons comments-item-permalink"}> link </Icon>
             </Link>
           </Components.SidebarInfo>

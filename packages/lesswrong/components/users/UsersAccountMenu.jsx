@@ -1,4 +1,4 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
@@ -7,6 +7,9 @@ import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
+  root: {
+    marginTop: 5,
+  },
   userButton: {
     fontSize: '14px',
     fontWeight: 400,
@@ -19,6 +22,7 @@ class UsersAccountMenu extends PureComponent {
     super(props);
     this.state = {
       open: false,
+      reCaptchaToken: null
     }
   }
 
@@ -36,11 +40,15 @@ class UsersAccountMenu extends PureComponent {
     });
   }
 
+  setReCaptchaToken = (token) => {
+    this.setState({reCaptchaToken: token})
+  }
+
   render() {
     const { color, classes } = this.props
 
     return (
-      <div className="users-menu">
+      <div className={classes.root}>
         <Button onClick={this.handleClick}>
           <span className={classes.userButton} style={{ color: color }}>
             Login
@@ -52,7 +60,15 @@ class UsersAccountMenu extends PureComponent {
           anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
           onClose={this.handleRequestClose}
         >
-          <Components.AccountsLoginForm />
+          {this.state.open
+            && getSetting('reCaptcha.apiKey')
+            && <Components.ReCaptcha verifyCallback={this.setReCaptchaToken} action="login/signup"/>}
+          <Components.AccountsLoginForm 
+            onPreSignUpHook={(options) => {
+              const reCaptchaToken = this.state.reCaptchaToken
+              return {...options, profile: {...options.profile, reCaptchaToken}}
+            }}
+          />
         </Popover>
       </div>
     )

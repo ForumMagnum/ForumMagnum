@@ -1,14 +1,9 @@
 import Users from 'meteor/vulcan:users';
 import schema from './schema.js';
-import './permissions.js'
 import { createCollection, getDefaultResolvers, getDefaultMutations} from 'meteor/vulcan:core';
 import Conversations from '../conversations/collection.js'
 import { makeEditable } from '../../editor/make_editable.js'
-
-/**
- * @summary Telescope Messages namespace
- * @namespace Messages
- */
+import { addUniversalFields } from '../../collectionUtils'
 
 const options = {
   newCheck: (user, document) => {
@@ -34,20 +29,12 @@ const options = {
 }
 
 const Messages = createCollection({
-
   collectionName: 'Messages',
-
   typeName: 'Message',
-
   schema,
-
   resolvers: getDefaultResolvers('Messages'),
-
   mutations: getDefaultMutations('Messages', options),
-
 });
-
-export default Messages;
 
 export const makeEditableOptions = {
   // Determines whether to use the comment editor configuration (e.g. Toolbars)
@@ -66,3 +53,7 @@ makeEditable({
   collection: Messages,
   options: makeEditableOptions
 })
+
+addUniversalFields({collection: Messages})
+
+export default Messages;

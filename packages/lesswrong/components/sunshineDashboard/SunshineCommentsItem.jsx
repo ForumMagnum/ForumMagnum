@@ -2,7 +2,7 @@ import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Comments } from '../../lib/collections/comments';
 import Users from 'meteor/vulcan:users';
-import { Link } from 'react-router'
+import { Link } from '../../lib/reactRouterWrapper.js'
 import Icon from '@material-ui/core/Icon';
 import { withStyles } from '@material-ui/core/styles';
 import classnames from 'classnames';
@@ -15,7 +15,28 @@ const styles = theme => ({
   icon: {
     fontSize: "18px",
     color:"rgba(0,0,0,.25)"
-  }
+  },
+  postAction: {
+    marginRight: 12,
+    "&:hover": {
+      cursor: "pointer",
+      "& span": {
+        color: "rgba(0,0,0,.4) !important",
+      },
+    },
+  
+    "&.clear, &.purge": {
+      "&:hover .sunshine-sidebar-posts-item-delete-overlay": {
+        background: "rgba(255,50,0,.2)",
+        position: "absolute",
+        top: 0,
+        right: 0,
+        width: 250,
+        height: "100%",
+        pointerEvents: "none",
+      }
+    }
+  },
 });
 
 class SunshineCommentsItem extends Component {
@@ -64,7 +85,7 @@ class SunshineCommentsItem extends Component {
               <Components.SunshineCommentsItemOverview comment={comment}/>
               <div className="sunshine-sidebar-posts-actions new-comment">
                 <Link
-                  className="sunshine-sidebar-posts-action new-comment clear"
+                  className={classnames(classes.postAction, "new-comment", "clear")}
                   target="_blank"
                   title="Spam/Eugin (delete immediately)"
                   to={Users.getProfileUrl(comment.user)}
@@ -76,7 +97,7 @@ class SunshineCommentsItem extends Component {
                     <div className="sunshine-sidebar-posts-item-delete-overlay"/>
                 </Link>
                 <span
-                  className="sunshine-sidebar-posts-action new-comment review"
+                  className={classnames(classes.postAction, "new-comment", "review")}
                   title="Mark as Reviewed"
                   onClick={this.handleReview}>
                   <Icon

@@ -1,15 +1,17 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withRouter } from 'react-router';
-import React, { PureComponent } from 'react';
+import { withRouter } from '../../lib/reactRouterWrapper.js';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../common/withErrorBoundary'
+import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
 const styles = theme => ({
   node: {
+    cursor: "default",
     // Higher specificity to override child class (variant syntax)
     '&$new': {
       borderLeft: `solid 5px ${theme.palette.secondary.light}`
@@ -22,8 +24,8 @@ const styles = theme => ({
     }
   },
   child: {
-    marginLeft: 8,
-    marginBottom: 8,
+    marginLeft: theme.spacing.unit,
+    marginBottom: theme.spacing.unit,
     borderLeft: `solid 1px ${theme.palette.grey[300]}`,
     borderTop: `solid 1px ${theme.palette.grey[300]}`,
     borderBottom: `solid 1px ${theme.palette.grey[300]}`,
@@ -41,10 +43,35 @@ const styles = theme => ({
     '&:hover': {
       backgroundColor: "rgba(0,0,0,.075)"
     }
-  }
+  },
+  isAnswer: {
+    border: `solid 2px ${theme.palette.grey[300]}`,
+  },
+  answerChildComment: {
+    marginBottom: theme.spacing.unit,
+    border: `solid 1px ${theme.palette.grey[300]}`,
+  },
+  childAnswerComment: {
+    borderRight: "none"
+  },
+  oddAnswerComment: {
+    backgroundColor: 'white'
+  },
+  answerLeafComment: {
+    paddingBottom: 0
+  },
+  isSingleLine: {
+    marginBottom: 0,
+    borderBottom: "none",
+    borderTop: "solid 1px rgba(0,0,0,.15)",
+    '&.comments-node-root':{
+      marginBottom: 6,
+      borderBottom: "solid 1px rgba(0,0,0,.2)",
+    }
+  },
 })
 
-class CommentsNode extends PureComponent {
+class CommentsNode extends Component {
   constructor(props) {
     super(props);
 
@@ -57,17 +84,22 @@ class CommentsNode extends PureComponent {
     };
   }
 
+  // TODO: Remove this after April Fools
+  commentIsByGPT2 = (comment) => {
+    return !!(comment && comment.user && comment.user.displayName === "GPT2")
+  }
+
   isCollapsed = () => {
-    const { comment } = this.props
+    const { comment, currentUser } = this.props
     return (
       comment.deleted ||
-      comment.baseScore < KARMA_COLLAPSE_THRESHOLD
+      comment.baseScore < KARMA_COLLAPSE_THRESHOLD ||
+      (currentUser && currentUser.blockedGPT2 && this.commentIsByGPT2(comment))
     )
   }
 
   beginTruncated = () => {
-    const { nestingLevel, startThreadCollapsed } = this.props
-    return startThreadCollapsed && nestingLevel === 1
+    return this.props.startThreadTruncated
   }
 
   componentDidMount() {
@@ -102,17 +134,64 @@ class CommentsNode extends PureComponent {
   }
 
   toggleHover = () => {
-    this.setState({hover: !this.state.hover});
+    this.setState(prevState => ({hover: !prevState.hover}));
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (!shallowEqual(this.state, nextState))
+      return true;
+    if (!shallowEqualExcept(this.props, nextProps, ["editMutation", "post", "children"]))
+      return true;
+    if (this.commentTreesDiffer(this.props.children, nextProps.children))
+      return true;
+
+    return false;
+  }
+
+  commentTreesDiffer(oldComments, newComments) {
+    if(!oldComments && newComments) return true;
+    if(oldComments && !newComments) return true;
+    if(!newComments) return false;
+
+    if(oldComments.length != newComments.length)
+      return true;
+    for(let i=0; i<oldComments.length; i++) {
+      if(oldComments[i].item != newComments[i].item)
+        return true;
+      if(this.commentTreesDiffer(oldComments[i].children, newComments[i].children))
+        return true;
+    }
+    return false;
+  }
+
+  isTruncated = () => {
+    const { comment, expandAllThreads } = this.props;
+    const { truncatedStateSet } = this.state
+    return !expandAllThreads && (this.state.truncated || ((this.props.truncated || this.commentIsByGPT2(comment)) && truncatedStateSet === false))
+  }
+
+  isNewComment = () => {
+    const { comment, highlightDate } = this.props;
+    return highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime())
+  }
+
+  isSingleLine = () => {
+    const { currentUser, comment, condensed } = this.props 
+    return currentUser && currentUser.isAdmin && this.isTruncated() && (!this.isNewComment() || condensed) && (comment.baseScore < 10 || condensed) 
   }
 
   render() {
-    const { comment, children, nestingLevel=1, currentUser, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, expandAllThreads, answerId } = this.props;
+    const { comment, children, nestingLevel=1, currentUser, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, parentAnswerId, condensed } = this.props;
 
-    const { hover, collapsed, finishedScroll, truncatedStateSet } = this.state
+    const { SingleLineComment, CommentsItem } = Components
 
-    const truncated = !expandAllThreads && (this.state.truncated || (this.props.truncated && truncatedStateSet === false))
+    if (!comment || !post)
+      return null;
 
-    const newComment = highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime())
+    const { hover, collapsed, finishedScroll } = this.state
+
+    const newComment = this.isNewComment()
+
     const nodeClass = classNames(
       "comments-node",
       classes.node,
@@ -120,7 +199,7 @@ class CommentsNode extends PureComponent {
         "af":comment.af,
         "comments-node-root" : nestingLevel === 1,
         "comments-node-even" : nestingLevel % 2 === 0,
-        "comments-node-odd"  : nestingLevel % 2 != 0,
+        "comments-node-odd"  : nestingLevel % 2 !== 0,
         "comments-node-linked" : router.location.hash === "#" + comment._id && finishedScroll,
         "comments-node-its-getting-nested-here": nestingLevel > 8,
         "comments-node-so-take-off-all-your-margins": nestingLevel > 12,
@@ -135,60 +214,65 @@ class CommentsNode extends PureComponent {
         [classes.new]: newComment,
         [classes.newHover]: newComment && hover,
         [classes.deleted]: comment.deleted,
+        [classes.isAnswer]: comment.answer,
+        [classes.answerChildComment]: parentAnswerId,
+        [classes.childAnswerComment]: child && parentAnswerId,
+        [classes.oddAnswerComment]: (nestingLevel % 2 !== 0) && parentAnswerId,
+        [classes.answerLeafComment]: !(children && children.length),
+        [classes.isSingleLine]: this.isSingleLine()
       }
     )
-    if (comment && post) {
-      return (
-        <div className={newComment ? "comment-new" : "comment-old"}>
-          <div className={nodeClass}
-            onMouseEnter={this.toggleHover}
-            onMouseLeave={this.toggleHover}
-            onClick={(event) => this.unTruncate(event)}
-            id={comment._id}>
-            {/*eslint-disable-next-line react/no-string-refs*/}
-            <div ref="comment">
-              <Components.CommentsItem
-                collapsed={collapsed}
-                truncated={truncated}
-                toggleCollapse={this.toggleCollapse}
+
+    return (
+      <div className={newComment ? "comment-new" : "comment-old"}>
+        <div className={nodeClass}
+          onMouseEnter={this.toggleHover}
+          onMouseLeave={this.toggleHover}
+          onClick={(event) => this.unTruncate(event)}
+          id={comment._id}>
+          {/*eslint-disable-next-line react/no-string-refs*/}
+          <div ref="comment">
+            {this.isSingleLine() ? <SingleLineComment comment={comment} nestingLevel={nestingLevel} />
+              : <CommentsItem
+              collapsed={collapsed}
+              truncated={this.isTruncated()}
+              toggleCollapse={this.toggleCollapse}
+              currentUser={currentUser}
+              comment={comment}
+              key={comment._id}
+              editMutation={editMutation}
+              scrollIntoView={this.scrollIntoView}
+              post={post}
+              postPage={postPage}
+              nestingLevel={nestingLevel}
+              showPostTitle={showPostTitle}
+              parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
+            />}
+          </div>
+          {!collapsed && <div className="comments-children">
+            <div className={classes.parentScroll} onClick={this.scrollIntoView}></div>
+            {children && children.map(child =>
+              <Components.CommentsNode child
                 currentUser={currentUser}
-                comment={comment}
-                key={comment._id}
+                comment={child.item}
+                nestingLevel={nestingLevel+1}
+                truncated={this.isTruncated()}
+                unreadComments={unreadComments}
+                //eslint-disable-next-line react/no-children-prop
+                children={child.children}
+                key={child.item._id}
+                muiTheme={muiTheme}
+                highlightDate={highlightDate}
                 editMutation={editMutation}
-                scrollIntoView={this.scrollIntoView}
                 post={post}
                 postPage={postPage}
-                nestingLevel={nestingLevel}
-                showPostTitle={showPostTitle}
-                answerId={answerId}
-              />
-            </div>
-            {!collapsed && <div className="comments-children">
-              <div className={classes.parentScroll} onClick={this.scrollIntoView}></div>
-              {children && children.map(child =>
-                <Components.CommentsNode child
-                  currentUser={currentUser}
-                  comment={child.item}
-                  nestingLevel={nestingLevel+1}
-                  truncated={truncated}
-                  unreadComments={unreadComments}
-                  //eslint-disable-next-line react/no-children-prop
-                  children={child.children}
-                  key={child.item._id}
-                  muiTheme={muiTheme}
-                  highlightDate={highlightDate}
-                  editMutation={editMutation}
-                  post={post}
-                  postPage={postPage}
-                  answerId={answerId}
-                />)}
-            </div>}
-          </div>
+                parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
+                condensed={condensed}
+              />)}
+          </div>}
         </div>
-        )
-    } else {
-      return null
-    }
+      </div>
+    )
   }
 }
 

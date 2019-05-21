@@ -1,77 +1,88 @@
-import {
-  Components,
-  getRawComponent,
-  withDocument,
-  registerComponent,
-  getActions,
-  withMutation } from 'meteor/vulcan:core';
-
-import withNewEvents from '../../../lib/events/withNewEvents.jsx';
+import { Components, withDocument, registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { withRouter } from 'react-router'
+import { withRouter } from '../../../lib/reactRouterWrapper.js';
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
 import { withStyles } from '@material-ui/core/styles';
-import { postBodyStyles, commentBodyStyles } from '../../../themes/stylePiping'
+import Tooltip from '@material-ui/core/Tooltip';
+import { postBodyStyles } from '../../../themes/stylePiping'
 import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
-import Hidden from '@material-ui/core/Hidden';
+import classNames from 'classnames';
+import { extractVersionsFromSemver } from '../../../lib/editor/utils'
+import Users from 'meteor/vulcan:users';
+import withRecordPostView from '../../common/withRecordPostView';
+
+const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 
 const styles = theme => ({
     root: {
-      marginTop: 80,
-      position:"relative",
-      [theme.breakpoints.down('sm')]: {
-        marginTop: 40
-      }
+      position: "relative"
     },
     post: {
-      maxWidth: 650,
+      maxWidth: 650 + (theme.spacing.unit*4),
+      marginLeft: "auto",
+      marginRight: "auto"
     },
     header: {
       position: 'relative',
-      marginBottom: 80,
-      [theme.breakpoints.down('sm')]: {
-        marginBottom: 30
-      }
+      display:"flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: theme.spacing.unit*2
+    },
+    headerLeft: {
+      width:"100%"
+    },
+    headerVote: {
+      textAlign: 'center',
+      fontSize: 42,
+      position: "relative",
+    },
+    divider: {
+      marginTop: theme.spacing.unit*2,
+      marginBottom: theme.spacing.unit*2,
+      marginLeft:0,
+      borderTop: "solid 1px rgba(0,0,0,.1)",
+      borderLeft: 'transparent'
+    },
+    eventHeader: {
+      marginBottom:0,
     },
     secondaryInfo: {
       fontSize: '1.4rem',
-      width: 'calc(100% - 60px)',
-    },
-    voteTop: {
-      position: 'absolute',
-      fontSize: 42,
-      left: -72,
-      top: -6,
-      textAlign: 'center',
-    },
-    mobileVote: {
-      position: 'absolute',
-      top: -14,
-      right: 0,
-      fontSize: 42,
-      display: 'inline-block',
-      textAlign: 'center',
     },
     mobileDate: {
       marginLeft: 20,
       display: 'inline-block',
-      color: theme.palette.grey[600]
+      color: theme.palette.grey[600],
+      fontSize: theme.typography.body2.fontSize,
+      [theme.breakpoints.up('md')]: {
+        display:"none"
+      }
     },
-    mobileActions: {
+    desktopDate: {
+      marginLeft: 20,
+      display: 'inline-block',
+      color: theme.palette.grey[600],
+      whiteSpace: "no-wrap",
+      fontSize: theme.typography.body2.fontSize,
+      [theme.breakpoints.down('sm')]: {
+        display:"none"
+      }
+    },
+    commentsLink: {
+      marginLeft: 20,
+      color: theme.palette.grey[600],
+      whiteSpace: "no-wrap",
+      fontSize: theme.typography.body2.fontSize,
+    },
+    actions: {
       display: 'inline-block',
       marginLeft: 15,
+      cursor: "pointer",
       color: theme.palette.grey[600],
-    },
-    mobileDivider: {
-      width: '60%',
-      marginTop: 20,
-      marginLeft: 0,
-      borderColor: theme.palette.grey[100]
     },
     postBody: {
       marginBottom: 50,
@@ -85,212 +96,235 @@ const styles = theme => ({
       fontSize: 42,
       textAlign: 'center',
       display: 'inline-block',
-      marginLeft: 8,
-      marginRight: 8,
-    },
-    postFooter: {
-      padding: '10px 0px',
-      borderTop: '1px solid rgba(0,0,0,0.2)',
-      borderBottom: '1px solid rgba(0,0,0,0.2)',
-      marginBottom: 30,
+      marginLeft: 'auto',
+      marginRight: 'auto',
+      marginBottom: 40
     },
     draft: {
       color: theme.palette.secondary.light
     },
-    recommendedReading: {
+    bottomNavigation: {
       width: 640,
       margin: 'auto',
       [theme.breakpoints.down('sm')]: {
         width:'100%'
       }
     },
-    moderationGuidelinesWrapper: {
-      width: 'calc(100% - 70px)',
-      verticalAlign: 'top',
-      display: 'inline-block',
-      ...commentBodyStyles(theme)
-    },
     inline: {
       display: 'inline-block'
     },
-
+    unreviewed: {
+      fontStyle: "italic",
+      color: theme.palette.grey[600],
+      marginBottom: theme.spacing.unit*2,
+      fontSize:".9em",
+      maxWidth: "100%",
+      overflowX: "hidden",
+      textOverflow: "ellipsis",
+      ...theme.typography.postStyle,
+    },
+    feedName: {
+      fontSize: theme.typography.body2.fontSize,
+      marginLeft: 20,
+      display: 'inline-block',
+      color: theme.palette.grey[600],
+      [theme.breakpoints.down('sm')]: {
+        display: "none"
+      }
+    },
+    commentsSection: {
+      minHeight: 'calc(70vh - 100px)',
+      [theme.breakpoints.down('sm')]: {
+        paddingRight: 0,
+        marginLeft: 0
+      },
+      // TODO: This is to prevent the Table of Contents from overlapping with the comments section. Could probably fine-tune the breakpoints and spacing to avoid needing this.
+      background: "white",
+      position: "relative"
+    },
+    footerSection: {
+      display: 'flex',
+      alignItems: 'center',
+      fontSize: '1.4em'
+    },
+    bottomDate: {
+      color: theme.palette.grey[600]
+    },
 })
+
+// On the server, use the 'url' library for parsing hostname out of feed URLs.
+// On the client, we instead create an <a> tag, set its href, and extract
+// properties from that. (There is a URL class which theoretically would work,
+// but it doesn't have the hostname field on IE11 and it's missing entirely on
+// Opera Mini.)
+let URLClass = null;
+if (Meteor.isServer) {
+  URLClass = require('url').URL
+}
+
+function getHostname(url) {
+  if (URLClass)
+    return new URLClass(url).hostname;
+
+  // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
+  var parser = document.createElement('a');
+  parser.href = url;
+  return parser.hostname;
+}
 
 class PostsPage extends Component {
 
   render() {
-    const { loading, document, currentUser, location, router, classes, params } = this.props
+    const { loading, document: post, currentUser, location, router, classes, params, data: {refetch} } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
-      LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, RecommendedReadingWrapper,
-      PostsTopSequencesNav, PostsPageMetadata, ModerationGuidelinesBox, FromNowDate,
-      PostsPageMobileActions, ContentItemBody, AnswersSection, Section } = Components
+      LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigationWrapper,
+      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent, Section, TableOfContents, PostsRevisionSelector, PostsRevisionMessage, AlignmentCrosspostMessage, ConfigurableRecommendationsList } = Components
 
     if (loading) {
       return <div><Loading/></div>
-    } else if (!document) {
+    } else if (!post) {
       return <Error404/>
     } else {
-      const post = document
+      const { html, plaintextDescription, markdown, wordCount = 0 } = post.contents || {}
       let query = location && location.query
       const view = _.clone(router.location.query).view || Comments.getDefaultView(post, currentUser)
-      const description = post.plaintextExcerpt ? post.plaintextExcerpt : (post.body && post.body.substring(0, 300))
-      const commentTerms = _.isEmpty(query && query.view) ? {view: view, limit: 500} : {...query, limit:500}
+      const description = plaintextDescription ? plaintextDescription : (markdown && markdown.substring(0, 300))
+      const commentTerms = _.isEmpty(query.view) ? {view: view, limit: 500} : {...query, limit:500}
       const sequenceId = params.sequenceId || post.canonicalSequenceId;
+      const sectionData = post.tableOfContents;
+      const htmlWithAnchors = (sectionData && sectionData.html) ? sectionData.html : html
+      const feedLink = post.feed && post.feed.url && getHostname(post.feed.url)
+      const { major } = extractVersionsFromSemver(post.version)
+      const hasMajorRevision = major > 1
 
       return (
         <div className={classes.root}>
           <HeadTags url={Posts.getPageUrl(post, true)} title={post.title} description={description}/>
 
           {/* Header/Title */}
-          <Section>
+          <Section deactivateSection={!sectionData}>
             <div className={classes.post}>
-              <div className={classes.header}>
-                <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
-                <PostsPageTitle post={post} />
-                <span className={classes.mobileVote}>
-                  <Hidden mdUp implementation="css">
-                    <PostsVote collection={Posts} post={post} currentUser={currentUser}/>
-                  </Hidden>
-                </span>
-                <Hidden smDown implementation="css">
-                  <div className={classes.voteTop}>
-                    <PostsVote collection={Posts} post={post} currentUser={currentUser}/>
+              {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
+              <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
+              <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}
+              >
+                <div className={classes.headerLeft}>
+                  <PostsPageTitle post={post} />
+                  <div className={classes.secondaryInfo}>
+                    <span className={classes.inline}>
+                      <PostsAuthors post={post}/>
+                    </span>
+                    { post.feed && post.feed.user &&
+                      <Tooltip title={`Crossposted from ${feedLink}`}>
+                        <a href={`http://${feedLink}`} className={classes.feedName}>
+                          {post.feed.nickname}
+                        </a>
+                      </Tooltip>
+                    }
+                    {!post.isEvent && <span className={classes.mobileDate}>
+                      <FormatDate date={post.postedAt}/>
+                    </span>}
+                    {!post.isEvent && <span className={classes.desktopDate}>
+                      {hasMajorRevision ? <PostsRevisionSelector post={post}/> : <FormatDate date={post.postedAt} format="Do MMM YYYY"/>}
+                    </span>}
+                    {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
+                    <a className={classes.commentsLink} href={"#comments"}>{ Posts.getCommentCountStr(post)}</a>
+                    <span className={classes.actions}>
+                        <PostsPageActions post={post} />
+                    </span>
                   </div>
-                </Hidden>
-                {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
-                <div className={classes.secondaryInfo}>
-                  <span className={classes.inline}><PostsAuthors post={post}/></span>
-                  <span className={classes.mobileDate}>
-                    <Hidden mdUp implementation="css">
-                      <FromNowDate date={post.postedAt}/>
-                    </Hidden>
-                  </span>
-                  <span className={classes.mobileActions}>
-                    <Hidden mdUp implementation="css">
-                      <PostsPageMobileActions post={post} />
-                    </Hidden>
-                  </span>
-                  <Hidden mdUp implementation="css">
-                    <hr className={classes.mobileDivider} />
-                  </Hidden>
+                </div>
+                <div className={classes.headerVote}>
+                  <PostsVote
+                    collection={Posts}
+                    post={post}
+                    currentUser={currentUser}
+                    />
                 </div>
               </div>
-
-              {/* Body */}
-              <div className={classes.postBody}>
-                <Hidden smDown implementation="css">
-                  <PostsPageMetadata post={post} />
-                </Hidden>
-                { post.isEvent && <SmallMapPreviewWrapper post={post} /> }
-                <div className={classes.postContent}>
-                  <LinkPostMessage post={post} />
-                  { post.htmlBody && <ContentItemBody dangerouslySetInnerHTML={{__html: post.htmlBody}}/> }
-                </div>
-              </div>
-
-              {/* Footer */}
-              <div className={classes.postFooter}>
-                <div className={classes.voteBottom}>
-                  <PostsVote collection={Posts} post={post} currentUser={currentUser}/>
-                </div>
-                <div className={classes.moderationGuidelinesWrapper}>
-                  <ModerationGuidelinesBox documentId={post._id} showModeratorAssistance />
-                </div>
-              </div>
-              {sequenceId && <div className={classes.recommendedReading}>
-                <RecommendedReadingWrapper documentId={sequenceId} post={post}/>
-              </div>}
+              <hr className={classes.divider}/>
+              {post.isEvent && <PostsPageEventData post={post}/>}
             </div>
           </Section>
+          <Section deactivateSection={!sectionData} titleComponent={
+            <TableOfContents sectionData={sectionData} document={post} />
+          }>
+            <div className={classes.post}>
+              {/* Body */}
+              <div className={classes.postBody}>
+                { post.isEvent && <SmallMapPreviewWrapper post={post} /> }
+                <div className={classes.postContent}>
+                  <AlignmentCrosspostMessage post={post} />
+                  { post.authorIsUnreviewed && <div className={classes.unreviewed}>This post is awaiting moderator approval</div>}
+                  <LinkPostMessage post={post} />
+                  {query.revision && <PostsRevisionMessage post={post} />}
+                  { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}}/> }
+                </div>
+              </div>
+            </div>
 
-          {/* Answers Section */}
-          {post.question && <div id="answers">
-            <AnswersSection terms={{...commentTerms, postId: post._id}} post={post}/>
-          </div>}
-
-          {/* Comments Section */}
-          <div id="comments">
-            <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post}/>
-          </div>
-
+            {/* Footer */}
+            {(wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
+              <div className={classes.footerSection}>
+                <div className={classes.voteBottom}>
+                  <PostsVote
+                    collection={Posts}
+                    post={post}
+                    currentUser={currentUser}
+                    />
+                </div>
+              </div>}
+            {sequenceId && <div className={classes.bottomNavigation}>
+              <BottomNavigationWrapper documentId={sequenceId} post={post}/>
+            </div>}
+            
+            {/* Recommendations */}
+            {currentUser && Users.isAdmin(currentUser) && !post.question && 
+              <ConfigurableRecommendationsList configName="afterpost"/>}
+            
+            {/* Answers Section */}
+            {post.question && <div className={classes.post}>
+              <div id="answers"/>
+              <PostsPageQuestionContent terms={{...commentTerms, postId: post._id}} post={post} refetch={refetch}/>
+            </div>}
+            {/* Comments Section */}
+            <div className={classes.commentsSection}>
+              <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question} guidelines={!post.question}/>
+            </div>
+          </Section>
         </div>
       );
     }
   }
 
   async componentDidMount() {
-    try {
-
-      // destructure the relevant props
-      const {
-        // from the parent component, used in withDocument, GraphQL HOC
-        documentId,
-        // from connect, Redux HOC
-        setViewed,
-        postsViewed,
-        // from withMutation, GraphQL HOC
-        increasePostViewCount,
-      } = this.props;
-
-      // a post id has been found & it's has not been seen yet on this client session
-      if (documentId && !postsViewed.includes(documentId)) {
-
-        // trigger the asynchronous mutation with postId as an argument
-        await increasePostViewCount({postId: documentId});
-
-        // once the mutation is done, update the redux store
-        setViewed(documentId);
-      }
-
-      //LESSWRONG: register page-visit event
-      if(this.props.currentUser) {
-        const registerEvent = this.props.registerEvent;
-        const currentUser = this.props.currentUser;
-        const eventProperties = {
-          userId: currentUser._id,
-          important: false,
-          intercom: true,
-        };
-
-        if(this.props.document) {
-          eventProperties.documentId = this.props.document._id;
-          eventProperties.postTitle = this.props.document.title;
-        } else if (this.props.documentId){
-          eventProperties.documentId = this.props.documentId;
-        }
-        registerEvent('post-view', eventProperties);
-      }
-    } catch(error) {
-      console.log("PostPage componentDidMount error:", error); // eslint-disable-line
+    this.props.recordPostView(this.props);
+  }
+  
+  componentDidUpdate(prevProps) {
+    if (prevProps.document && this.props.document && prevProps.document._id !== this.props.document._id) {
+      this.props.closeAllEvents();
+      this.props.recordPostView(this.props);
     }
   }
 }
 PostsPage.displayName = "PostsPage";
 
 PostsPage.propTypes = {
-  documentId: PropTypes.string,
   document: PropTypes.object,
-  postsViewed: PropTypes.array,
-  setViewed: PropTypes.func,
-  increasePostViewCount: PropTypes.func,
 }
 
 const queryOptions = {
   collection: Posts,
   queryName: 'postsSingleQuery',
-  fragmentName: 'LWPostsPage',
+  fragmentName: 'PostsRevision',
   enableTotal: false,
   enableCache: true,
-  ssr: true
+  ssr: true,
+  extraVariables: {
+    version: 'String'
+  }
 };
-
-const mutationOptions = {
-  name: 'increasePostViewCount',
-  args: {postId: 'String'},
-};
-
-const mapStateToProps = state => ({ postsViewed: state.postsViewed });
-const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsViewed, dispatch);
 
 registerComponent(
   // component name used by Vulcan
@@ -299,18 +333,13 @@ registerComponent(
   PostsPage,
   // HOC to give access to the current user
   withUser,
-  // HOC to give access to LW2 event API
-  withNewEvents,
   // HOC to give access to router and params
   withRouter,
   // HOC to load the data of the document, based on queryOptions & a documentId props
   [withDocument, queryOptions],
-  // HOC to provide a single mutation, based on mutationOptions
-  withMutation(mutationOptions),
-  // HOC to give access to the redux store & related actions
-  connect(mapStateToProps, mapDispatchToProps),
   // HOC to add JSS styles to component
   withStyles(styles, { name: "PostsPage" }),
+  withRecordPostView,
   // Add error boundary to post
-  withErrorBoundary
+  withErrorBoundary,
 );

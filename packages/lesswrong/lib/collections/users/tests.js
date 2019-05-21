@@ -1,4 +1,3 @@
-import React from 'react';
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { createDummyUser, userUpdateFieldSucceeds, userUpdateFieldFails, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../../../testing/utils.js'
@@ -83,7 +82,7 @@ describe('updateUser – ', async () => {
     await userUpdateFieldFails({
       user:user,
       document:user,
-      fieldName:'banned',
+      fieldName: 'banned',
       newValue: new Date(),
       collectionType:'User',
     })

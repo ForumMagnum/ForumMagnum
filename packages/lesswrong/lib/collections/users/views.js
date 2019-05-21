@@ -1,5 +1,4 @@
 import Users from "meteor/vulcan:users";
-import moment from 'moment';
 import { ensureIndex } from '../../collectionUtils';
 
 // Auto-generated indexes from production
@@ -54,14 +53,12 @@ Users.addView("usersWithBannedUsers", function () {
 })
 
 Users.addView("sunshineNewUsers", function () {
-  const twoDaysAgo = moment().subtract(2, 'days').toDate();
   return {
     selector: {
-      createdAt: {$gt: twoDaysAgo},
       $or: [
-        { voteCount: {$gt: 0}},
+        { voteCount: {$gt: 12}},
         { commentCount: {$gt: 0}},
-        { postCount: {$gt: 0}},
+        { postCount: {$gt: 0}, signUpReCaptchaRating: {$gt: 0.3}},
       ],
       reviewedByUserId: {$exists: false},
       banned: {$exists: false},

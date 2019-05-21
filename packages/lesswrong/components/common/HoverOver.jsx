@@ -1,4 +1,4 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 
 class HoverOver extends Component {

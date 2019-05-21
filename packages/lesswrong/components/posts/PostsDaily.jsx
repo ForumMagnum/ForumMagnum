@@ -1,18 +1,15 @@
-import { Components, registerComponent, getSetting, registerSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import moment from 'moment';
 import { withStyles } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
-
-registerSetting('forum.numberOfDays', 5, 'Number of days to display in Daily view');
 
 // Shared with EventsPast, EventsUpcoming
 export const styles = theme => ({
   titleSettings: {
     marginTop: 10,
     width: 150,
-    
+
     [theme.breakpoints.up('md')]: {
       float: "right"
     }
@@ -32,7 +29,7 @@ export const styles = theme => ({
     ...theme.typography.subheading,
     marginLeft: 5
   },
-  
+
   dailyWrapper: {
     [theme.breakpoints.up('md')]: {
       marginLeft: -100,
@@ -41,7 +38,7 @@ export const styles = theme => ({
   dailyContentWrapper: {
     marginTop: -12,
     marginLeft: 15,
-    
+
     [theme.breakpoints.down('xs')]: {
       marginLeft: 2,
     },
@@ -76,7 +73,6 @@ class PostsDaily extends Component {
     const numberOfDays = getSetting('forum.numberOfDays', 5);
     const terms = {
       view: 'daily',
-      meta: null, // Show both frontpage and meta posts on daily
       after: moment().utc().subtract(numberOfDays - 1, 'days').format('YYYY-MM-DD'),
       before: moment().utc().add(1, 'days').format('YYYY-MM-DD'),
       karmaThreshold: this.state.hideLowKarma ? -10 : -100

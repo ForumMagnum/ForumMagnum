@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { Marker, InfoWindow } from "react-google-maps"
-import { Link } from 'react-router';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import CloseIcon from '@material-ui/icons/Close';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -17,8 +17,8 @@ export const styles = theme => ({
   },
   closeIcon: {
     position: "absolute",
-    right: "-3px",
-    top: "4px",
+    right: 5,
+    top: 5,
     color: "rgba(0,0,0,0.5)",
     height: "15px",
     width: "15px",
@@ -27,6 +27,7 @@ export const styles = theme => ({
     fontSize: "15px",
     marginTop: "3.5px",
     marginBottom: "0px",
+    marginRight: 10
   },
   markerBody: {
     marginTop: 10,
@@ -44,8 +45,7 @@ export const styles = theme => ({
   },
   linksWrapper: {
     position: "absolute",
-    bottom: "0px",
-    right: "-2px",
+    right: 10,
   },
 });
 
@@ -68,7 +68,8 @@ class LocalGroupMarker extends PureComponent {
   render() {
     const { group, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes } = this.props;
     const { geometry: {location: {lat, lng}}} = location;
-    const htmlBody = {__html: group.htmlBody};
+    const { html = "" } = group.contents || {}
+    const htmlBody = {__html: html};
 
     var circleIcon = {
         path: google.maps.SymbolPath.CIRCLE,

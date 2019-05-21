@@ -38,6 +38,7 @@ export const postBodyStyles = (theme, fontSize) => {
   return {
     ...theme.typography.body1,
     ...theme.typography.postStyle,
+    wordBreak: "break-word",
     ...spoilerStyles(theme),
     '& pre': {
       ...theme.typography.codeblock
@@ -75,6 +76,34 @@ export const postBodyStyles = (theme, fontSize) => {
     '& img': {
       maxWidth: "100%"
     },
+    '& sup': {
+      verticalAlign: 'baseline',
+      top: '-0.6em',
+      fontSize: '65%',
+      position: 'relative'
+    },
+    // Used for R:A-Z imports as well as markdown-it-footnotes
+    '& .footnotes': {
+      marginTop: 40,
+      fontSize: '0.9em',
+      paddingTop: 40,
+      borderTop: 'solid 1px rgba(0,0,0,0.2)',
+      '& sup': {
+        marginRight: 10,
+      },
+      '& ol': {
+        marginBlockStart: '1em',
+        paddingInlineStart: 0,
+        marginInlineStart: '1em'
+      },
+      '& li': {
+        fontSize: '0.9em' // Overwriting default size setting for list items
+      },
+    },
+    // Hiding the footnote-separator that markdown-it adds by default
+    '& .footnotes-sep': {
+      display: 'none'
+    },
     '& a, & a:hover, & a:active': {
       ...linkStyle({
         theme: theme,
@@ -96,6 +125,7 @@ export const commentBodyStyles = theme => {
   const commentBodyStyles = {
     marginTop: ".5em",
     marginBottom: ".25em",
+    wordBreak: "break-word",
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     ...spoilerStyles(theme),
@@ -144,6 +174,8 @@ export const postHighlightStyles = theme => {
   const postHighlightStyles = {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
+    fontSize: "1.25rem",
+    lineHeight: "1.8rem",
     '& blockquote': {
       ...theme.typography.body2,
       ...theme.typography.postStyle,

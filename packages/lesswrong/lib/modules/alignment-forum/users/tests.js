@@ -1,4 +1,3 @@
-import React from 'react';
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { createDummyUser, userUpdateFieldSucceeds, userUpdateFieldFails, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../../../../testing/utils.js'
@@ -14,7 +13,8 @@ describe('alignment updateUser – ', async () => {
     await userUpdateFieldFails({
       user:alignmentAdmin,
       document:user,
-      fieldName:'bio'
+      fieldName:'bio',
+      collectionType:'User'
     })
     assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });

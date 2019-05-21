@@ -1,14 +1,30 @@
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import PropTypes from 'prop-types';
-import { List, ListItem } from 'material-ui/List';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
 import { Components, registerComponent, withList, withEdit } from 'meteor/vulcan:core';
 import Notifications from '../../lib/collections/notifications/collection.js';
 import withUser from '../common/withUser';
 
 const styles = theme => ({
+  root: {
+    width: 270,
+    overflowY: "auto",
+    padding: 0,
+  },
+  
   empty: {
     padding: 10
+  },
+  
+  loadMoreButton: {
+    fontSize: "14px",
+    padding: 0,
+  },
+  loadMoreLabel: {
+    padding: 16,
+    textAlign: "center",
+    width: "100%",
   },
 });
 
@@ -25,9 +41,24 @@ class NotificationsList extends Component {
     const { results, loadMore, classes } = this.props;
     if (results && results.length) {
       return (
-        <List style={{width: '270px', overflowY: 'auto', padding: '0px'}}>
-          {results.map(notification => <Components.NotificationsItem notification={notification} lastNotificationsCheck={this.state.lastNotificationsCheck} key={notification._id} />)}
-          {results.length >= 20 && <ListItem onClick={() => loadMore()} primaryText="Load More" style={{textAlign: 'center', fontSize: '14px'}} />}
+        <List className={classes.root}>
+          {results.map(notification =>
+            <Components.NotificationsItem
+              notification={notification}
+              lastNotificationsCheck={this.state.lastNotificationsCheck}
+              key={notification._id}
+            />
+          )}
+          {results.length >= 20 &&
+            <ListItem
+              button={true}
+              className={classes.loadMoreButton}
+              onClick={() => loadMore()}
+            >
+              <div className={classes.loadMoreLabel}>
+                Load More
+              </div>
+            </ListItem>}
         </List>
       )
     } else {

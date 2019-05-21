@@ -1,6 +1,5 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Checkbox } from 'formsy-react-components';
 
 class AlignmentCheckbox extends Component {
@@ -29,7 +28,7 @@ class AlignmentCheckbox extends Component {
         layout="elementOnly"
              />
       { this.state.showWarning && <span className="alignment-checkbox-warning">
-        NOTE: Upstream comments will become visible on Alignment Forum
+        NOTE: Upstream comments will become visible on AI Alignment Forum
       </span>}
     </div>
   }

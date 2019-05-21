@@ -1,13 +1,12 @@
-import { addCallback, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
+import { addCallback, runCallbacks, runCallbacksAsync, newMutation } from 'meteor/vulcan:core';
 import { Posts } from './collection';
 import Users from 'meteor/vulcan:users';
-import { performVoteServer } from 'meteor/vulcan:voting';
+import { performVoteServer } from '../../../server/voteServer.js';
 import Localgroups from '../localgroups/collection.js';
-
-import { addEditableCallbacks } from '../../../server/editor/make_editable_callbacks.js'
+import { addEditableCallbacks } from '../../../server/editor/make_editable_callbacks'
 import { makeEditableOptions, makeEditableOptionsModeration } from './custom_fields.js'
-
-
+import { PostRelations } from '../postRelations/index';
+const MINIMUM_APPROVAL_KARMA = 5
 
 function PostsEditRunPostUndraftedSyncCallbacks (modifier, post) {
   if (modifier.$set && modifier.$set.draft === false && post.draft) {
@@ -154,5 +153,46 @@ async function LWPostsNewUpvoteOwnPost(post) {
 
 addCallback('posts.new.after', LWPostsNewUpvoteOwnPost);
 
+function PostsNewUserApprovedStatus (post) {
+  const postAuthor = Users.findOne(post.userId);
+  if (!postAuthor.reviewedByUserId && (postAuthor.karma || 0) < MINIMUM_APPROVAL_KARMA) {
+    return {...post, authorIsUnreviewed: true}
+  }
+}
+
+addCallback("posts.new.sync", PostsNewUserApprovedStatus);
+
+function AddReferrerToPost(post, properties)
+{
+  if (properties && properties.context && properties.context.headers) {
+    let referrer = properties.context.headers["referer"];
+    let userAgent = properties.context.headers["user-agent"];
+    
+    return {
+      ...post,
+      referrer: referrer,
+      userAgent: userAgent,
+    };
+  }
+}
+addCallback("post.create.before", AddReferrerToPost);
+
 addEditableCallbacks({collection: Posts, options: makeEditableOptions})
 addEditableCallbacks({collection: Posts, options: makeEditableOptionsModeration})
+
+function PostsNewPostRelation (post) {
+  if (post.originalPostRelationSourceId) {
+    newMutation({
+      collection: PostRelations,
+      document: {
+        type: "subQuestion",
+        sourcePostId: post.originalPostRelationSourceId,
+        targetPostId: post._id,
+      },
+      validate: false,
+    })
+  }
+  return post
+}
+
+addCallback("posts.new.after", PostsNewPostRelation);

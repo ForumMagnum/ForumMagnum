@@ -2,8 +2,7 @@
 import { Comments } from '../../lib/collections/comments'
 import { Posts } from '../../lib/collections/posts'
 import { wrapVulcanAsyncScript } from '../scripts/utils'
-
-import { batchUpdateScore } from 'meteor/vulcan:voting';
+import { batchUpdateScore } from '../updateScores.js';
 
 Vulcan.forceBatchUpdateScores = wrapVulcanAsyncScript('forceBatchUpdateScores', async () => {
   // Posts

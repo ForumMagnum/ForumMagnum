@@ -1,11 +1,11 @@
-import { Components, registerComponent, withDocument} from 'meteor/vulcan:core';
+import { registerComponent, withDocument} from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import IconButton from '@material-ui/core/IconButton'
 import Tooltip from '@material-ui/core/Tooltip';
 import NavigateBefore from '@material-ui/icons/NavigateBefore'
 import NavigateNext from '@material-ui/icons/NavigateNext'
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
 import { withStyles } from '@material-ui/core/styles';
 import classnames from 'classnames';
 
@@ -36,14 +36,11 @@ const SequencesNavigationLink = ({
   classes}
 ) => {
   const button = (
-    <IconButton
-      classes={{
-        root: classnames(classes.root, classes.normal)
-      }}
-      onClick={() => router.push(documentUrl)}
-    >
-      { direction === "left" ? <NavigateBefore/> : <NavigateNext/> }
-    </IconButton>
+    <Link to={documentUrl}>
+      <IconButton classes={{root: classnames(classes.root, classes.normal)}}>
+        { direction === "left" ? <NavigateBefore/> : <NavigateNext/> }
+      </IconButton>
+    </Link>
   )
   if (document && document.title) {
     return <Tooltip title={document.title}>{button}</Tooltip>

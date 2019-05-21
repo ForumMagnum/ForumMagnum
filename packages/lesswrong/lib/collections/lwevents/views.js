@@ -15,11 +15,27 @@ LWEvents.addView("postVisits", function (terms) {
       documentId: terms.postId,
       userId: terms.userId,
       name: "post-view",
-      deleted: {$in: [false,null]}
+      deleted: {$in: [false,null]} //FIXME: deleted isn't in the schema!
     },
     options: {sort: {createdAt: -1}, limit: terms.limit || 1},
   };
 });
+
+LWEvents.addView("emailHistory", function (terms) {
+  return {
+    selector: {
+      userId: terms.userId,
+      name: "emailSent",
+    },
+    options: {
+      sort: {createdAt: -1}
+    }
+  }
+});
+
 // Index also supports the LWEvents.findOne in the `lastVisitedAt` resolver
 // (very speed critical)
 ensureIndex(LWEvents, {name:1, userId:1, documentId:1, createdAt:-1})
+
+// Used in constructAkismetReport
+ensureIndex(LWEvents, {name:1, userId:1, createdAt:-1})

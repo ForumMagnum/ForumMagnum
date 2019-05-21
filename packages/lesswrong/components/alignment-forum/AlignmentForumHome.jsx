@@ -1,10 +1,11 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { Link } from 'react-router';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import Users from "meteor/vulcan:users";
 import withUser from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 import { withStyles } from '@material-ui/core/styles';
+import AddIcon from '@material-ui/icons/Add';
 
 const styles = theme => ({
   frontpageSequencesGridList: {
@@ -15,40 +16,41 @@ const styles = theme => ({
 });
 
 const AlignmentForumHome = ({currentUser, classes}) => {
-  let recentPostsTerms = {view: 'new', limit: 10, forum: true, af: true}
+  const { SingleColumnSection, SectionTitle, SequencesGridWrapper, PostsList2, SectionButton, RecentDiscussionThreadsList } = Components
 
-  const renderRecentPostsTitle = () => <div className="recent-posts-title-component">
-    { currentUser && Users.canDo(currentUser, "posts.alignment.new") &&
-      <div className="new-post-link">
-        <Link to={{pathname:"/newPost", query: {af: true}}}>
-          new post
-        </Link>
-      </div>
-    }
-  </div>
+  let recentPostsTerms = {view: 'new', limit: 10, forum: true, af: true}
 
   return (
     <div className="alignment-forum-home">
-      <Components.Section
-        title="Recommended Sequences"
-      >
-        <Components.SequencesGridWrapper
-          terms={{view:"curatedSequences", limit:3}}
-          showAuthor={true}
-          showLoadMore={false}
-          className={classes.frontpageSequencesGridList}
-        />
-      </Components.Section>
-      <Components.Section title="AI Alignment Posts"
-        titleComponent={renderRecentPostsTitle()}>
-        <Components.PostsList terms={recentPostsTerms} showHeader={false} />
-      </Components.Section>
-      <Components.Section title="Recent Discussion" titleLink="/AllComments">
-        <Components.RecentDiscussionThreadsList
+      <SingleColumnSection>
+        <SectionTitle title="Recommended Sequences"/>
+        <SequencesGridWrapper
+            terms={{view:"curatedSequences", limit:3}}
+            showAuthor={true}
+            showLoadMore={false}
+            className={classes.frontpageSequencesGridList}
+          />
+      </SingleColumnSection>
+      <SingleColumnSection>
+        <SectionTitle title="AI Alignment Posts">
+          { currentUser && Users.canDo(currentUser, "posts.alignment.new") && 
+            <Link to={{pathname:"/newPost", query: {af: true}}}>
+              <SectionButton>
+                <AddIcon />
+                New Post
+              </SectionButton>
+            </Link>
+          }
+        </SectionTitle>
+        <PostsList2 terms={recentPostsTerms} />
+      </SingleColumnSection>
+      <SingleColumnSection>
+        <SectionTitle title="Recent Discussion"/>
+        <RecentDiscussionThreadsList
           terms={{view: 'afRecentDiscussionThreadsList', limit:6}}
           threadView={"afRecentDiscussionThread"}
         />
-      </Components.Section>
+      </SingleColumnSection>
     </div>
   )
 };

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
+import { registerComponent, withEdit } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { rssTermsToUrl } from "../../lib/modules/rss_urls.js";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
@@ -218,10 +218,10 @@ class SubscribeDialog extends Component {
         </Tabs>
 
         <DialogContent className={classes.content}>
-          { method === "rss" && [
-            viewSelector,
+          { method === "rss" && <React.Fragment>
+            {viewSelector}
 
-            (view === "community" || view === "frontpage") && <div>
+            {(view === "community" || view === "frontpage") && <div>
               <DialogContentText>Generate a RSS link to posts in {viewNames[view]} of this karma and above.</DialogContentText>
               <RadioGroup
                 value={threshold}
@@ -240,7 +240,7 @@ class SubscribeDialog extends Component {
               <DialogContentText className={classes.estimate}>
                 That's roughly { postsPerWeek[threshold] } posts per week ({ hoursPerWeek[threshold] } of reading)
               </DialogContentText>
-            </div>,
+            </div>}
 
             <TextField
               className={classes.RSSLink}
@@ -251,7 +251,7 @@ class SubscribeDialog extends Component {
               key="rssLinkTextField"
               readOnly
               fullWidth />
-          ] }
+          </React.Fragment> }
 
           { method === "email" && [
             viewSelector,

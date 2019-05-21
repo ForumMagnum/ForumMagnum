@@ -8,7 +8,7 @@ if (!Meteor.isPackageTest) {
     return `Activate your Account on LessWrong 2.0`;
   };
   Accounts.emailTemplates.enrollAccount.text = (user, url) => {
-    return 'You are invited to participate in the LessWrong 2.0 closed beta'
+    return 'You are invited to join LessWrong 2.0'
       + ' To register an account, simply click the link below:\n\n'
       + url;
   };
@@ -24,7 +24,7 @@ if (!Meteor.isPackageTest) {
   };
 
   Accounts.emailTemplates.resetPassword.text = (user, url) => {
-    return 'You\'ve requested to reset your password for the LessWrong 2.0 Open Beta. \n\n'
+    return 'You\'ve requested to reset your password for the LessWrong 2.0.\n\n'
       + 'To reset your password, click on the link below. The link in this email will expire within 2 days.\n \n'
       + url;
   };

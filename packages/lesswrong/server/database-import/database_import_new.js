@@ -4,7 +4,7 @@ import { Comments } from '../../lib/collections/comments'
 import { Posts } from '../../lib/collections/posts'
 import { newMutation, Utils } from 'meteor/vulcan:core';
 import moment from 'moment';
-import marked from 'marked';
+import { markdownToHtml } from '../editor/make_editable_callbacks.js';
 import pgp from 'pg-promise';
 import mapValues from 'lodash/mapValues';
 import groupBy from 'lodash/groupBy';
@@ -46,7 +46,7 @@ Vulcan.postgresImport = async () => {
   const processedUsers = _.map(mergedGroupedUserData, legacyUserToNewUser);
 
   // Construct user lookup table to avoid repeated querying
-  let legacyIdToUserMap = await new Map(await Users.find().fetch().map((user) => [user.legacyId, user]));
+  let legacyIdToUserMap = new Map(await Users.find().fetch().map((user) => [user.legacyId, user]));
 
   // Upsert Users
   await upsertProcessedUsers(processedUsers, legacyIdToUserMap);
@@ -192,10 +192,10 @@ const upsertProcessedUsers = async (users, userMap) => {
   // We first find all the users for which we already have an existing user in the DB
   const usersToUpdate = _.filter(users, (user) => userMap.get(user.legacyId))
   //eslint-disable-next-line no-console
-  console.log("Updating N users: ", _.size(usersToUpdate), usersToUpdate[22], typeof usersToUpdate);
+  //console.log("Updating N users: ", _.size(usersToUpdate), usersToUpdate[22], typeof usersToUpdate);
   const usersToInsert = _.filter(users, (user) => !userMap.get(user.legacyId))
   //eslint-disable-next-line no-console
-  console.log("Inserting N users: ", _.size(usersToInsert), usersToInsert[22], typeof usersToInsert);
+  //console.log("Inserting N users: ", _.size(usersToInsert), usersToInsert[22], typeof usersToInsert);
   if (usersToUpdate && _.size(usersToUpdate)) {await bulkUpdateUsers(usersToUpdate, userMap);}
   if (usersToInsert && _.size(usersToInsert)) {
     for(let key in usersToInsert) {
@@ -306,17 +306,17 @@ const upsertProcessedComments = async (comments, commentMap) => {
       })
     }
   })
-  if (postUpdates && _.size(postUpdates)) {
+  if (_.size(postUpdates)) {
     const postUpdateCursor = await Posts.rawCollection().bulkWrite(postUpdates, {ordered: false});
     //eslint-disable-next-line no-console
     console.log("postUpdateCursor", postUpdateCursor);
   }
-  if (userUpdates && _.size(userUpdates)) {
+  if (_.size(userUpdates)) {
     const userUpdateCursor = await Users.rawCollection().bulkWrite(userUpdates, {ordered: false});
     //eslint-disable-next-line no-console
     console.log("userUpdateCursor", userUpdateCursor);
   }
-  if (commentUpdates && _.size(commentUpdates)) {
+  if (_.size(commentUpdates)) {
     const commentUpdateCursor = await Comments.rawCollection().bulkWrite(commentUpdates, {ordered: false});
     //eslint-disable-next-line no-console
     console.log("commentUpdateCursor", commentUpdateCursor);
@@ -357,7 +357,13 @@ const legacyPostToNewPost = (post, legacyId, user) => {
     legacyData: post,
     title: post.title,
     userId: user && user._id,
-    htmlBody: post.article,
+    contents: {
+      originalContents: {
+        type: "html",
+        data: post.article
+      },
+      html: post.article
+    },
     userIP: post.ip,
     status: post.deleted || post.spam ? 3 : 2,
     legacySpam: post.spam,
@@ -366,7 +372,6 @@ const legacyPostToNewPost = (post, legacyId, user) => {
     createdAt: moment(post.date).toDate(),
     postedAt: moment(post.date).toDate(),
     slug: Utils.slugify(post.title),
-    body: body,
     excerpt: body.slice(0,600),
     draft: !isPublished,
   };
@@ -386,13 +391,18 @@ const legacyCommentToNewComment = (comment, legacyId, author, parentPost) => {
     postId: parentPost && parentPost._id,
     userId: author && author._id,
     baseScore: comment.ups - comment.downs,
-    body: comment.body,
     retracted: comment.retracted,
     deleted: comment.deleted,
     isDeleted: comment.isDeleted,
     createdAt: moment(comment.date).toDate(),
     postedAt: moment(comment.date).toDate(),
-    htmlBody: comment.body && Utils.sanitize(marked(comment.body)),
+    contents: {
+      originalContents: {
+        type: "markdown",
+        data: comment.body
+      },
+      html: comment.body && Utils.sanitize(markdownToHtml(comment.body))
+    },
   };
 }
 

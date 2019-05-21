@@ -4,10 +4,9 @@ import {
   withDocument,
   registerComponent,
 } from 'meteor/vulcan:core';
-import PropTypes from 'prop-types';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import NoSSR from 'react-no-ssr';
-import { Link } from 'react-router';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
@@ -38,6 +37,7 @@ const styles = theme => ({
     },
   },
   description: {
+    marginTop: -6,
     marginLeft: 10,
     ...postBodyStyles(theme),
   },
@@ -99,7 +99,7 @@ class SequencesPage extends Component {
     const { document, currentUser, loading, classes } = this.props;
     if (document && document.isDeleted) {
       return <h3>This sequence has been deleted</h3>
-    } if (loading || !document) {
+    } else if (loading || !document) {
       return <Components.Loading />
     } else if (this.state.edit) {
       return <Components.SequencesEditForm
@@ -109,6 +109,7 @@ class SequencesPage extends Component {
     } else {
       const canEdit = Users.canDo(currentUser, 'sequences.edit.all') || (Users.canDo(currentUser, 'sequences.edit.own') && Users.owns(currentUser, document))
       const canCreateChapter = Users.canDo(currentUser, 'chapters.new.all')
+      const { html = "" } = document.contents || {}
 
       return (<div className={classes.root}>
         <Components.HeadTags url={Sequences.getPageUrl(document, true)} title={document.title}/>
@@ -134,7 +135,7 @@ class SequencesPage extends Component {
         <Components.Section titleComponent={
           <div className={classes.meta}>
             <Typography variant="subheading"><strong>
-              <Components.SimpleDate date={document.createdAt}/>
+              <Components.FormatDate date={document.createdAt} format="MMM DD, YYYY"/>
             </strong></Typography>
             { this.commentsEnabled() && (
               <div className="sequences-comment-count">
@@ -149,22 +150,13 @@ class SequencesPage extends Component {
               <a onClick={this.showEdit}>edit</a></Components.SectionSubtitle>}
           </div>}>
           <div className={classNames(classes.description, "content-body")}>
-            {document.htmlDescription && <div className="content-body" dangerouslySetInnerHTML={{__html: document.htmlDescription}}/>}
+            {html && <div className="content-body" dangerouslySetInnerHTML={{__html: html}}/>}
           </div>
         </Components.Section>
         <div className="sequences-chapters">
           <Components.ChaptersList terms={{view: "SequenceChapters", sequenceId: document._id}} canEdit={canEdit} />
           {canCreateChapter ? <Components.ChaptersNewForm prefilledProps={{sequenceId: document._id}}/> : null}
         </div>
-        {/*<div className="sequences-page-content-footer">
-          <div className="sequences-page-content-footer-voting">
-            <Components.Vote collection={Posts} document={document} currentUser={currentUser}/>
-          </div>
-          <div className="sequences-page-content-footer-author">
-            <Components.UsersName user={document.user} />
-          </div>
-        </div>
-        <Components.PostsCommentsThreadWrapper terms={{postId: document._id, view: 'postCommentsTop'}} userId={document.userId} /> */}
       </div>)
     }
   }

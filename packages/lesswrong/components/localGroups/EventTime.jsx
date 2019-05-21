@@ -1,4 +1,4 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import moment from 'moment';
 import withTimezone from '../common/withTimezone';
@@ -57,8 +57,7 @@ const EventTime = ({post, timezone, dense}) => {
         start.format(startTimeFormat) + '-' + end.format(timeFormat);
     } else {
       return (<span>
-        {start.calendar({}, startCalendarFormat)}
-        to {end.calendar({}, calendarFormat)}
+        {start.calendar({}, startCalendarFormat)} to {end.calendar({}, calendarFormat)}
       </span>);
     }
   }

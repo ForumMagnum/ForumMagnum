@@ -3,10 +3,10 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
 import Users from 'meteor/vulcan:users';
-import { Link } from 'react-router'
+import { Link } from '../../lib/reactRouterWrapper.js'
 
 const DateDisplay = ({column, document}) => {
-  return <div>{document[column.name] && <Components.FromNowDate date={document[column.name]}/>}</div>
+  return <div>{document[column.name] && <Components.FormatDate date={document[column.name]}/>}</div>
 }
 
 const PostDisplay = ({column, document}) => {
@@ -15,7 +15,7 @@ const PostDisplay = ({column, document}) => {
 }
 
 const UserDisplay = ({column, document}) => {
-  const user = document.user || document.user || document
+  const user = document.user || document
   return <div>
     <Components.UsersName user={user} />
   </div>

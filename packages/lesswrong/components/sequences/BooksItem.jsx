@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import { postBodyStyles } from '../../themes/stylePiping'
@@ -8,10 +7,7 @@ const styles = theme => ({
   root: {
   },
   description: {
-    marginLeft: 20,
-    marginRight: 28,
     marginBottom: 20,
-    
     ...postBodyStyles(theme),
   },
   subtitle: {
@@ -50,15 +46,10 @@ class BooksItem extends Component {
     this.setState({edit: false})
   }
 
-  renderTitleComponent = (book, canEdit) => <div>
-    {book.subtitle ?   <div className={this.props.classes.subtitle}>
-        {book.subtitle}
-      </div> : null}
-    {canEdit ? <a onClick={this.showEdit}>edit</a> : null}
-  </div>
-
   render() {
-    const { book, classes } = this.props;
+    const { book, classes, canEdit } = this.props;
+    const { html = "" } = book.contents || {}
+    const { SingleColumnSection, SectionTitle, SectionButton, SequencesGrid, SequencesPostsList, Divider } = Components
     if (this.state.edit) {
       return <Components.BooksEditForm
                 documentId={book._id}
@@ -66,21 +57,21 @@ class BooksItem extends Component {
                 cancelCallback={this.showBook} />
     } else {
       return <div className="books-item">
-        <Components.Section title={book.title}
-          titleComponent={this.renderTitleComponent(book, this.props.canEdit)}
-        >
-          {book.htmlDescription && book.plaintextDescription && <div className={classes.description}>
-            <div className="content-body" dangerouslySetInnerHTML={{__html: book.htmlDescription}}/>
+        <SingleColumnSection>
+          <SectionTitle title={book.title}>
+            {canEdit && <SectionButton><a onClick={this.showEdit}>Edit</a></SectionButton>}
+          </SectionTitle>
+          {html  && <div className={classes.description}>
+            <div dangerouslySetInnerHTML={{__html: html}}/>
           </div>}
 
-          {book.posts && book.posts.length ? <div className={classes.posts}>
-            <Components.SequencesPostsList posts={book.posts} />
-          </div> : null}
+          {book.posts && !!book.posts.length && <div className={classes.posts}>
+            <SequencesPostsList posts={book.posts} />
+          </div>}
 
-          <div className="books-item-sequences">
-            <Components.SequencesGrid sequences={book.sequences} className="books-sequences-grid-list" />
-          </div>
-        </Components.Section>
+          <SequencesGrid sequences={book.sequences} />
+        </SingleColumnSection>
+        <Divider />
       </div>
     }
   }

@@ -1,4 +1,4 @@
-import { Components, getRawComponent, registerComponent, withDocument } from 'meteor/vulcan:core';
+import { Components, registerComponent, withDocument } from 'meteor/vulcan:core';
 import React from 'react';
 import { Comments } from '../../lib/collections/comments';
 

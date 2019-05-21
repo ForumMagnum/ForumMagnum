@@ -7,7 +7,7 @@ function recalculateAFCommentMetadata(postId) {
   const afComments = Comments.find({
     postId:postId,
     af: true,
-    deleted: {$in: [false,null]}
+    deleted: false
   }).fetch()
 
   const lastComment = _.max(afComments, function(c){return c.postedAt;})
@@ -20,7 +20,8 @@ function recalculateAFCommentMetadata(postId) {
       afLastCommentedAt:new Date(lastCommentedAt),
       afCommentCount:afComments.length
     },
-    unset: {}
+    unset: {},
+    validate: false,
   })
 }
 

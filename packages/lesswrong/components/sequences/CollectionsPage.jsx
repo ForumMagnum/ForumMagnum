@@ -1,19 +1,18 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types'
 import { Components, withDocument, registerComponent } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import Collections from '../../lib/collections/collections/collection.js';
 import Button from '@material-ui/core/Button';
-import { Link } from 'react-router';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import { postBodyStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
   root: {
-    marginRight: 90,
   },
   header: {
-    paddingLeft: 20,
     marginBottom: 50,
   },
   startReadingButton: {
@@ -26,6 +25,7 @@ const styles = theme => ({
     fontFamily: "Roboto, sans-serif",
   },
   title: {
+    ...theme.typography.headerStyle,
     fontWeight: "bold",
     textTransform: "uppercase",
     borderTopStyle: "solid",
@@ -38,6 +38,8 @@ const styles = theme => ({
     marginTop: 30,
     marginBottom: 25,
     lineHeight: 1.25,
+    maxWidth: 700,
+    ...postBodyStyles(theme),
   },
 });
 
@@ -59,6 +61,7 @@ class CollectionsPage extends Component {
 
   render() {
     const {document, currentUser, loading, classes} = this.props;
+    const { TabNavigationMenu, SingleColumnSection, BooksItem, BooksNewForm, SectionButton } = Components
     if (loading || !document) {
       return <Components.Loading />;
     } else if (this.state.edit) {
@@ -70,13 +73,19 @@ class CollectionsPage extends Component {
       const startedReading = false; //TODO: Check whether user has started reading sequences
       const collection = document;
       const canEdit = Users.canDo(currentUser, 'collections.edit.all') || (Users.canDo(currentUser, 'collections.edit.own') && Users.owns(currentUser, collection))
+      const { html = "" } = collection.contents || {}
       return (<div className={classes.root}>
-        <Components.Section titleComponent={canEdit ? <a onClick={this.showEdit}>edit</a> : null}>
+        <TabNavigationMenu />
+        <SingleColumnSection>
           <div className={classes.header}>
-            <h1 className={classes.title}>{collection.title}</h1>
+            <Typography variant="display3" className={classes.title}>{collection.title}</Typography>
+
+            {canEdit && <SectionButton><a onClick={this.showEdit}>Edit</a></SectionButton>}
+
             <div className={classes.description}>
-              {collection.htmlDescription && <div className="content-body" dangerouslySetInnerHTML={{__html: collection.htmlDescription}}/>}
+              {html && <div dangerouslySetInnerHTML={{__html: html}}/>}
             </div>
+
             <Button
               className={classes.startReadingButton}
               component={Link} to={document.firstPageLink}
@@ -84,12 +93,14 @@ class CollectionsPage extends Component {
               {startedReading ? "Continue Reading" : "Start Reading"}
             </Button>
           </div>
-        </Components.Section>
-        <div className="collections-page-content">
+        </SingleColumnSection>
+        <div>
           {/* For each book, print a section with a grid of sequences */}
-          {collection.books.map(book => <Components.BooksItem key={book._id} collection={collection} book={book} canEdit={canEdit} />)}
+          {collection.books.map(book => <BooksItem key={book._id} collection={collection} book={book} canEdit={canEdit} />)}
         </div>
-        {canEdit ? <Components.BooksNewForm prefilledProps={{collectionId: collection._id}} /> : null}
+        {canEdit && <SingleColumnSection>
+          <BooksNewForm prefilledProps={{collectionId: collection._id}} />
+        </SingleColumnSection>}
       </div>);
     }
   }

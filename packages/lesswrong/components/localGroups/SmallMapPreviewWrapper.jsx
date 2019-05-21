@@ -1,5 +1,13 @@
-import React, { Component } from 'react';
-import { Components, registerComponent, getSetting} from 'meteor/vulcan:core';
+import React from 'react';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  previewWrapper: {
+    paddingTop: 5,
+    marginBottom: 20,
+  }
+});
 
 /*
   Wrapper around SmallMapPreview to ensure the defaultProps are accessibel to the HoCs
@@ -8,8 +16,10 @@ import { Components, registerComponent, getSetting} from 'meteor/vulcan:core';
 const SmallMapPreviewWrapper = (props) => {
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
   let document = props.post || props.group;
-  let location = document.googleLocation && document.googleLocation.geometry && document.googleLocation.geometry.location || {lat: 37.871853, lng: -122.258423};
-  return <div className="small-map-preview-wrapper">
+  const googleLocation = document.googleLocation;
+  const defaultLocation = {lat: 37.871853, lng: -122.258423};
+  let location = (googleLocation && googleLocation.geometry && googleLocation.geometry.location) || defaultLocation;
+  return <div className={props.classes.previewWrapper}>
     <Components.SmallMapPreview
       {...props}
       center={location}
@@ -26,4 +36,5 @@ SmallMapPreviewWrapper.defaultProps = {
   initialOpenWindows: []
 }
 
-registerComponent("SmallMapPreviewWrapper", SmallMapPreviewWrapper)
+registerComponent("SmallMapPreviewWrapper", SmallMapPreviewWrapper,
+  withStyles(styles, {name: "SmallMapPreviewWrapper"}))

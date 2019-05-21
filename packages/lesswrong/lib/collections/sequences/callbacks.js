@@ -1,10 +1,8 @@
 import { addCallback } from 'meteor/vulcan:core';
-import { convertFromRaw } from 'draft-js';
-import { draftToHTML } from '../../editor/utils.js';
-import htmlToText from 'html-to-text';
 import Chapters from '../chapters/collection.js'
-import Sequences from './collection.js'
+import Sequences, { makeEditableOptions } from './collection.js'
 import Users from "meteor/vulcan:users";
+import { addEditableCallbacks } from '../../../server/editor/make_editable_callbacks.js';
 
 function SequenceNewCreateChapter (sequence) {
   if (sequence._id && !sequence.chaptersDummy) {
@@ -18,16 +16,16 @@ function UpdateUserSequenceCount (sequence) {
   if (sequence.userId) {
     const sequences = Sequences.find({
       userId: sequence.userId,
-      draft: {$in: [false,null]},
-      isDeleted: {$in: [false,null]}
+      draft: false,
+      isDeleted: false
     }).fetch()
     const drafts = Sequences.find({
       userId: sequence.userId,
       draft: true,
-      isDeleted: {$in: [false,null]}
+      isDeleted: false
     }).fetch()
     Users.update(sequence.userId, {$set: {
-      'sequenceCount':sequences.length,
+      'sequenceCount': sequences.length,
       'sequenceDraftCount': drafts.length
     }})
   }
@@ -35,30 +33,4 @@ function UpdateUserSequenceCount (sequence) {
 addCallback("sequences.new.async", UpdateUserSequenceCount);
 addCallback("sequences.edit.async", UpdateUserSequenceCount);
 
-function SequencesNewHTMLSerializeCallback (sequence) {
-  if (sequence.description) {
-    const contentState = convertFromRaw(sequence.description);
-    const html = draftToHTML(contentState);
-    sequence.htmlDescription = html;
-    sequence.plaintextDescription = contentState.getPlainText();
-  }
-  return sequence
-}
-
-addCallback("sequences.new.sync", SequencesNewHTMLSerializeCallback);
-
-function SequencesEditHTMLSerializeCallback (modifier, sequence) {
-  if (modifier.$set && modifier.$set.description) {
-    const contentState = convertFromRaw(modifier.$set.description);
-    modifier.$set.htmlDescription = draftToHTML(contentState);
-    modifier.$set.plaintextDescription = contentState.getPlainText();
-  } else if (modifier.$set && modifier.$set.htmlDescription) {
-    modifier.$set.plaintextDescription = htmlToText.fromString(modifier.$set.htmlDescription);
-  } else if (modifier.$unset && modifier.$unset.description) {
-    modifier.$unset.htmlDescription = true;
-    modifier.$unset.plaintextDescription = true;
-  }
-  return modifier
-}
-
-addCallback("sequences.edit.sync", SequencesEditHTMLSerializeCallback);
+addEditableCallbacks({collection: Sequences, options: makeEditableOptions})

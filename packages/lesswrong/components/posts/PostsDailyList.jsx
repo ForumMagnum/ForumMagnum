@@ -3,9 +3,23 @@ import PropTypes from 'prop-types';
 import moment from 'moment-timezone';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Posts } from '../../lib/collections/posts';
-import { withCurrentUser, withList, getSetting, Components, getRawComponent, registerComponent } from 'meteor/vulcan:core';
+import { withCurrentUser, withList, getSetting, Components, registerComponent } from 'meteor/vulcan:core';
 import withTimezone from '../common/withTimezone';
+import { withStyles } from '@material-ui/core/styles'
+import Typography from '@material-ui/core/Typography'
 
+const styles = theme => ({
+  loading: {
+    opacity: .4,
+  },
+  loadMore: {
+    ...theme.typography.postStyle,
+    color: theme.palette.primary.main
+  }
+})
+
+
+import classNames from 'classnames';
 class PostsDailyList extends PureComponent {
 
   constructor(props) {
@@ -48,7 +62,7 @@ class PostsDailyList extends PureComponent {
         .tz(this.props.timezone)
         .format('YYYY-MM-DD')
     );
-    
+
     if(this.getDatePosts(posts, range[0]).length == 0) {
       return _.rest(range);
     } else {
@@ -63,10 +77,10 @@ class PostsDailyList extends PureComponent {
         .tz(this.props.timezone)
         .format('YYYY-MM-DD') === date);
   }
-  
+
   groupByDate(posts) {
     const { timeField } = this.props.terms
-    
+
     return _.groupBy(posts, post =>
       moment(new Date(timeField ? post[timeField] : post.postedAt))
         .tz(this.props.timezone)
@@ -103,31 +117,42 @@ class PostsDailyList extends PureComponent {
       after: loadMoreAfter,
     });
 
-    this.setState({
-      days: this.state.days + this.props.increment,
-      after: loadMoreAfter,
-    });
+    this.setState((prevState) => ({
+        days: prevState.days + this.props.increment,
+        after: loadMoreAfter,
+      })
+    );
   }
 
   render() {
+    const { dimWhenLoading, loading, loadingMore, classes, currentUser, networkStatus } = this.props
     const posts = this.props.results;
     const dates = this.getDateRange(this.state.afterLoaded, this.state.before, posts);
-    
-    if (this.props.loading && (!posts || !posts.length)) {
-      return <Components.PostsLoading />
+    const { Loading, PostsDay } = Components
+
+    const dim = dimWhenLoading && networkStatus !== 7
+
+    if (loading && (!posts || !posts.length)) {
+      return <Loading />
     } else {
       return (
-        <div className="posts-daily">
-          {/* <Components.PostsListHeader /> */}
+        <div className={classNames({[classes.loading]: dim})}>
+          { loading && <Loading />}
           {dates.map((date, index) =>
-            <Components.PostsDay key={index} number={index}
+            <PostsDay key={date.toString()}
               date={moment(date)}
               posts={this.getDatePosts(posts, date)}
-              networkStatus={this.props.networkStatus}
-              currentUser={this.props.currentUser}
+              networkStatus={networkStatus}
+              currentUser={currentUser}
             />
           )}
-          {this.props.loadingMore ? <Components.PostsLoading /> : <a className="posts-load-more posts-load-more-days" onClick={this.loadMoreDays}><FormattedMessage id="posts.load_more_days"/></a>}
+          {loadingMore ?
+            <Loading />
+            :
+            <Typography variant="body1" className={classes.loadMore} onClick={this.loadMoreDays}>
+              <a><FormattedMessage id="posts.load_more_days"/></a>
+            </Typography>
+          }
         </div>
       )
     }
@@ -153,4 +178,4 @@ const options = {
   ssr: true,
 };
 
-registerComponent('PostsDailyList', PostsDailyList, withCurrentUser, [withList, options], withTimezone);
+registerComponent('PostsDailyList', PostsDailyList, withCurrentUser, [withList, options], withTimezone, withStyles(styles, {name: "PostsDailyList"}));

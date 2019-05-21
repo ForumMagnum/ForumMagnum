@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { Marker, InfoWindow } from "react-google-maps"
-import { Link } from 'react-router';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import CloseIcon from '@material-ui/icons/Close';
 import { Posts } from '../../lib/collections/posts';
 import { withStyles } from '@material-ui/core/styles';
@@ -15,7 +15,7 @@ class LocalEventMarker extends PureComponent {
   render() {
     const { event, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes } = this.props;
     const { geometry: {location: {lat, lng}}} = location || {geometry: {location: {lat: -98.44228020000003, lng: 35.1592256}}};
-
+    const { html = "" } = event.contents || {}
     var arrowIcon = {
         path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
         fillColor: '#2b6a99',
@@ -25,7 +25,7 @@ class LocalEventMarker extends PureComponent {
         strokeColor: "#FFFFFF"
     };
 
-    const htmlBody = {__html: event.htmlBody};
+    const htmlBody = {__html: html};
     return(
       <Marker
         onClick={() => handleMarkerClick(event._id)}

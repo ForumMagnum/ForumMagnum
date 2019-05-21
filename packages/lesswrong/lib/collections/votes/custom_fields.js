@@ -1,17 +1,15 @@
-import { Votes } from "meteor/vulcan:voting";
-import { VoteableCollections } from 'meteor/vulcan:voting';
+import { Votes } from './collection.js';
+import { VoteableCollections } from '../../modules/make_voteable.js';
 import { getWithLoader } from "../../loaders.js";
+import { addFieldsDict } from '../../modules/utils/schemaUtils'
 
-Votes.addField([
-  {
-    fieldName: "afPower",
-    fieldSchema: {
-      type: Number,
-      optional: true,
-      viewableBy: ['guests'],
-    }
+addFieldsDict(Votes, {
+  afPower: {
+    type: Number,
+    optional: true,
+    viewableBy: ['guests'],
   }
-]);
+});
 
 VoteableCollections.forEach(collection => {
   // Replace currentUserVotes and allVotes resolvers with our own
@@ -20,75 +18,61 @@ VoteableCollections.forEach(collection => {
   // comments.
   collection.removeField(["currentUserVotes", "currentUserVotes.$"]);
   collection.removeField(["allVotes", "allVotes.$"]);
-  collection.addField([
-    {
-      fieldName: 'currentUserVotes',
-      fieldSchema: {
-        type: Array,
-        optional: true,
-        viewableBy: ['guests'],
-        resolveAs: {
-          type: '[Vote]',
-          resolver: async (document, args, { Users, Votes, currentUser }) => {
-            if (!currentUser) return [];
-            const votes = await getWithLoader(Votes, `votesByUser${currentUser._id}`, {userId: currentUser._id}, "documentId", document._id);
-            if (!votes.length) return [];
-            return Users.restrictViewableFields(currentUser, Votes, votes);
-          },
-        }
+  addFieldsDict(collection, {
+    currentUserVotes: {
+      type: Array,
+      optional: true,
+      viewableBy: ['guests'],
+      resolveAs: {
+        type: '[Vote]',
+        resolver: async (document, args, { Users, Votes, currentUser }) => {
+          if (!currentUser) return [];
+          const votes = await getWithLoader(Votes,
+            `votesByUser${currentUser._id}`,
+            {
+              userId: currentUser._id,
+              cancelled: false,
+            },
+            "documentId", document._id
+          );
+          
+          if (!votes.length) return [];
+          return Users.restrictViewableFields(currentUser, Votes, votes);
+        },
       }
     },
-    {
-      fieldName: 'currentUserVotes.$',
-      fieldSchema: {
-        type: Object,
-        optional: true
+    'currentUserVotes.$': {
+      type: Object,
+      optional: true
+    },
+    allVotes: {
+      type: Array,
+      optional: true,
+      viewableBy: ['guests'],
+      resolveAs: {
+        type: '[Vote]',
+        resolver: async (document, args, { Users, Votes, currentUser }) => {
+          const votes = await getWithLoader(Votes,
+            "votesByDocument",
+            {
+              cancelled: false,
+            },
+            "documentId", document._id
+          );
+          
+          if (!votes.length) return [];
+          return Users.restrictViewableFields(currentUser, Votes, votes);
+        },
       }
     },
-    {
-      fieldName: 'allVotes',
-      fieldSchema: {
-        type: Array,
-        optional: true,
-        viewableBy: ['guests'],
-        resolveAs: {
-          type: '[Vote]',
-          resolver: async (document, args, { Users, Votes, currentUser }) => {
-            const votes = await getWithLoader(Votes, "votesByDocument", {}, "documentId", document._id)
-            if (!votes.length) return [];
-            return Users.restrictViewableFields(currentUser, Votes, votes);
-          },
-        }
-      }
+    'allVotes.$': {
+      type: Object,
+      optional: true
     },
-    {
-      fieldName: 'allVotes.$',
-      fieldSchema: {
-        type: Object,
-        optional: true
-      }
-    },
-    {
-      fieldName: 'voteCount',
-      fieldSchema: {
-        type: Number,
-        optional: true,
-        viewableBy: ['guests'],
-        resolveAs: {
-          type: 'Int',
-          resolver: async (document, args, { Users, Votes, currentUser }) => {
-            const votes = await getWithLoader(Votes, "votesByDocument",
-              // Base query
-              {},
-              // Selector
-              "documentId", document._id,
-              // Projection
-              {documentId:1}
-            )
-            return votes.length;
-          }
-        }
-      }
+    voteCount: {
+      type: Number,
+      optional: true,
+      viewableBy: ['guests'],
     }
-  ]);
+  });
 });

@@ -1,4 +1,4 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
@@ -8,7 +8,7 @@ const styles = theme => ({
     position: "absolute",
     top:0,
     right:0,
-    height:"100%",
+    height: "100%",
     display:"flex",
     alignItems: "center",
     backgroundColor: theme.palette.grey[50],

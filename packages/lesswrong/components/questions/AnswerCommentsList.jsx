@@ -9,39 +9,81 @@ import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
-  answersList: {
-    marginTop: theme.spacing.unit*2,
-    paddingLeft: theme.spacing.unit*2,
-    borderLeft: "solid 1.3em rgba(0,0,0,.07)",
-    marginLeft: "1.3em",
-  },
-  newComment: {
-    marginTop: theme.spacing.unit*2,
-    marginLeft: theme.spacing.unit,
-    color: theme.palette.grey[500]
+  commentsList: {
+    marginLeft: -theme.spacing.unit*1.5,
+    marginRight: -theme.spacing.unit*1.5,
   },
   noComments: {
     position: "relative",
-    top: -theme.spacing.unit*8,
+    textAlign: "right",
+    top:-theme.spacing.unit*8
   },
+  noCommentAnswersList: {
+    borderTop: 'transparent'
+  },
+  editor: {
+    marginLeft: theme.spacing.unit*4,
+    marginTop: theme.spacing.unit*2,
+    paddingLeft: theme.spacing.unit*1.5,
+    paddingBottom: theme.spacing.unit*1.5,
+    borderTop: `solid 1px ${theme.palette.grey[300]}`
+  },
+  newComment: {
+    padding: theme.spacing.unit*2.5,
+    textAlign: 'right',
+    color: theme.palette.grey[600]
+  },
+  loadMore: {
+    color: theme.palette.primary.main,
+    textAlign: 'right'
+  },
+  loadingMore: {
+    opacity:.7
+  },
+  canLoadMore: {
+    cursor: "pointer"
+  }
 })
 
+export const ABRIDGE_COMMENT_COUNT = 500;
 
 class AnswerCommentsList extends PureComponent {
 
   constructor(props) {
     super(props);
+
+    const { lastEvent, post } = this.props;
+
     this.state = {
       commenting: false,
-      highlightDate: this.props.lastEvent && this.props.lastEvent.properties && this.props.lastEvent.properties.createdAt && new Date(this.props.lastEvent.properties.createdAt) || this.props.post && this.props.post.lastVisitedAt && new Date(this.props.post.lastVisitedAt) || new Date(),
+      loadedMore: false,
+      highlightDate:
+        (lastEvent && lastEvent.properties && lastEvent.properties.createdAt
+          && new Date(lastEvent.properties.createdAt))
+        || (post && post.lastVisitedAt
+          && new Date(post.lastVisitedAt))
+        || new Date(),
+    }
+  }
+
+  closeCommentNewForm = () => {
+    this.setState({commenting:false})
+  }
+
+  loadMoreComments = (event) => {
+    event.stopPropagation()
+    const { loadMore, totalCount } = this.props
+    if (totalCount > ABRIDGE_COMMENT_COUNT) {
+      this.setState({loadedMore: true})
+      loadMore({limit: 10000})
     }
   }
 
   render() {
-    const { currentUser, results, loading, classes, totalCount, post, answerId } = this.props
+    const { currentUser, results, loading, loadingMore, classes, totalCount, post, parentAnswer } = this.props
     const { CommentsList, Loading, CommentsNewForm } = Components
-
-    const { commenting, highlightDate } = this.state
+    const { commenting, highlightDate, loadedMore } = this.state
+    const noComments = (!results || !results.length) && !commenting
 
     // const loadingMore = networkStatus === 2;
     if (loading || !results) {
@@ -50,32 +92,48 @@ class AnswerCommentsList extends PureComponent {
       const nestedComments = unflattenComments(results);
       return (
         <div>
-          <div className={classes.answersList}>
+          {!commenting && <Typography variant="body2" onClick={()=>this.setState({commenting: true})} className={classNames(classes.newComment)}>
+              <a>Add Comment</a>
+            </Typography>}
+          { commenting &&
+              <div className={classes.editor}>
+                <CommentsNewForm
+                  post={post}
+                  parentComment={parentAnswer}
+                  prefilledProps={{
+                    parentAnswerId: parentAnswer._id,
+                  }}
+                  successCallback={this.closeCommentNewForm}
+                  cancelCallback={this.closeCommentNewForm}
+                  type="reply"
+                />
+              </div>
+            }
+          <div onClick={this.loadMoreComments}
+            className={classNames(
+              classes.commentsList, {
+                [classes.noCommentAnswersList]: noComments,
+                [classes.loadingMore]: loadingMore,
+                [classes.canLoadMore]: !loadedMore && totalCount > ABRIDGE_COMMENT_COUNT
+              }
+          )}>
+            { loadingMore && <Loading /> }
             <CommentsList
               currentUser={currentUser}
               totalComments={totalCount}
               comments={nestedComments}
               highlightDate={highlightDate}
               post={post}
-              answerId={answerId}
+              parentAnswerId={parentAnswer._id}
+              defaultNestingLevel={2}
               postPage
-              startThreadCollapsed
+              startThreadTruncated
             />
-            { commenting &&
-              <div className={classes.editor}>
-                <CommentsNewForm
-                  postId={post._id}
-                  prefilledProps={{
-                    af: Comments.defaultToAlignment(currentUser, post),
-                    parentAnswerId: answerId}}
-                  type="comment"
-                />
-              </div>
-            }
           </div>
-          {!commenting && <Typography variant="body2" onClick={()=>this.setState({commenting: true})} className={classNames(classes.newComment, {[classes.noComments]: (!results || !results.length) && !commenting})}>
-            <a>Add Comment</a>
-          </Typography>}
+          {(results && results.length && results.length < totalCount) ?
+            <Typography variant="body2" onClick={this.loadMoreComments} className={classes.loadMore}>
+              <a>Showing {results.length}/{totalCount} comments. Click to load All.</a>
+            </Typography> : null}
         </div>
       );
     }
@@ -85,7 +143,7 @@ class AnswerCommentsList extends PureComponent {
 AnswerCommentsList.propTypes = {
   classes: PropTypes.object.isRequired,
   post: PropTypes.object.isRequired,
-  answerId: PropTypes.string,
+  parentAnswer: PropTypes.object,
   loading: PropTypes.bool,
   results: PropTypes.array,
 };

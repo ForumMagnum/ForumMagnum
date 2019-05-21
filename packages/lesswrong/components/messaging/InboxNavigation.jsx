@@ -5,12 +5,10 @@ The Navigation for the Inbox components
 */
 
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
+import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
 import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import Conversations from '../../lib/collections/conversations/collection.js';
 import Typography from '@material-ui/core/Typography';
-import { Link } from 'react-router';
 import grey from '@material-ui/core/colors/grey';
 import withUser from '../common/withUser';
 
@@ -88,7 +86,7 @@ class InboxNavigation extends Component {
                 <Typography variant="body2" className={classes.conversationItem}>
                   { Conversations.getTitle(conversation, currentUser) }
                   <span className={classes.conversationItemLatestActivity}>
-                    {conversation.latestActivity && <Components.FromNowDate date={conversation.latestActivity}/>}
+                    {conversation.latestActivity && <Components.FormatDate date={conversation.latestActivity}/>}
                   </span>
                 </Typography>
             </Link>)

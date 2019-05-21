@@ -1,15 +1,14 @@
 import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
 import { withList, Components, registerComponent } from 'meteor/vulcan:core';
 import { Comments } from '../../lib/collections/comments';
 import { unflattenComments } from "../../lib/modules/utils/unflatten";
 
 class PostsCommentsThread extends PureComponent {
   render() {
-    const {loading, results, loadMore, networkStatus, totalCount, post} = this.props;
+    const {loading, results, loadMore, networkStatus, totalCount, post, newForm=true, guidelines=true } = this.props;
     const loadingMore = networkStatus === 2;
-    if (loading || !results) {
-      return <div className="posts-comments-thread"><Components.Loading/></div>
+    if (loading) {
+      return <Components.Loading/>
     } else {
       const nestedComments = unflattenComments(results);
       return (
@@ -19,9 +18,11 @@ class PostsCommentsThread extends PureComponent {
             lastEvent={post.lastVisitedAt}
             loadMoreComments={loadMore}
             totalComments={totalCount}
-            commentCount={results.length}
+            commentCount={(results && results.length) || 0}
             loadingMoreComments={loadingMore}
             post={post}
+            newForm={newForm}
+            guidelines={guidelines}
           />
       );
     }

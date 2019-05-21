@@ -1,29 +1,31 @@
-import React, { Component, PureComponent } from 'react';
+import React, { PureComponent } from 'react';
 import {
   Components,
   registerComponent,
   withList,
   Loading,
-  getActions,
-  withMutation
 } from 'meteor/vulcan:core';
-import { Link } from 'react-router';
+
+import { Link } from '../../lib/reactRouterWrapper.js';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
 import classNames from 'classnames';
-import { bindActionCreators } from 'redux';
-import withNewEvents from '../../lib/events/withNewEvents.jsx';
-import { connect } from 'react-redux';
 import { unflattenComments } from '../../lib/modules/utils/unflatten';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
+import withRecordPostView from '../common/withRecordPostView';
 
 import { withStyles } from '@material-ui/core/styles';
-import { postExcerptFromHTML, postExcerptMaxChars } from '../../lib/editor/ellipsize'
-
+import { postExcerptFromHTML } from '../../lib/editor/ellipsize'
 import { postHighlightStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
+  root: {
+    marginTop: theme.spacing.unit*2,
+    marginBottom: theme.spacing.unit*4,
+    position: "relative",
+    minHeight: 50,
+  },
   postStyle: theme.typography.postStyle,
   postBody: {
     ...postHighlightStyles(theme),
@@ -33,9 +35,14 @@ const styles = theme => ({
     overflowY: "hidden",
   },
   postItem: {
-    paddingLeft:10,
+    // position: "absolute",
+    // right: "100%",
     paddingBottom:10,
     ...theme.typography.postStyle,
+    // width: 300,
+    // marginTop: -2,
+    // textAlign: "right",
+    // marginRight: -theme.spacing.unit
   },
   continueReading: {
     marginTop:theme.spacing.unit*2,
@@ -55,11 +62,38 @@ const styles = theme => ({
     ...postHighlightStyles(theme),
     marginTop:5,
     maxWidth:600,
-    lineHeight:"22px",
     marginBottom:16,
     '& a, & a:hover, & a:focus, & a:active, & a:visited': {
       backgroundColor: "none"
     }
+  },
+  noComments: {
+    // borderBottom: "solid 1px rgba(0,0,0,.2)"
+  },
+  threadMeta: {
+    cursor: "pointer",
+
+    "&:hover $showHighlight": {
+      opacity: 1
+    },
+  },
+  showHighlight: {
+    opacity: 0,
+  },
+  content :{
+    [theme.breakpoints.up('lg')]: {
+      marginLeft: theme.spacing.unit*3,
+    }
+  },
+  commentsList: {
+    [theme.breakpoints.down('md')]: {
+      marginLeft: 0,
+      marginRight: 0
+    }
+  },
+  title: {
+    ...theme.typography.body1,
+    ...theme.typography.postStyle,
   }
 })
 
@@ -68,57 +102,28 @@ class RecentDiscussionThread extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      showExcerpt: false,
+      showHighlight: false,
       readStatus: false,
     };
   }
 
-  async handleMarkAsRead () {
-    // try {
-      const {
-        // from the parent component, used in withDocument, GraphQL HOC
-        // from connect, Redux HOC
-        setViewed,
-        postsViewed,
-        post,
-        // from withMutation, GraphQL HOC
-        increasePostViewCount,
-      } = this.props;
-      // a post id has been found & it's has not been seen yet on this client session
-      if (post && post._id && postsViewed && !postsViewed.includes(post._id)) {
-
-        // trigger the asynchronous mutation with postId as an argument
-        await increasePostViewCount({postId: post._id});
-
-        // once the mutation is done, update the redux store
-        setViewed(post._id);
-      }
-
-      //LESSWRONG: register page-visit event
-      if (this.props.currentUser) {
-        const eventProperties = {
-          userId: this.props.currentUser._id,
-          important: false,
-          intercom: true,
-        };
-
-        eventProperties.documentId = post._id;
-        eventProperties.postTitle = post.title;
-        this.props.registerEvent('post-view', eventProperties)
-      }
-  }
-
-  showExcerpt = () => {
-    this.setState({showExcerpt:!this.state.showExcerpt});
+  showHighlight = () => {
+    this.setState(prevState => ({showHighlight:!prevState.showHighlight}));
     this.setState({readStatus:true});
-    this.handleMarkAsRead()
+    this.markAsRead()
+  }
+  
+  markAsRead = async () => {
+    this.props.recordPostView({...this.props, document:this.props.post})
   }
 
   render() {
     const { post, postCount, results, loading, editMutation, currentUser, classes } = this.props
+    const { readStatus, showHighlight } = this.state
 
-    const { ContentItemBody, LinkPostMessage, PostsItemTitle, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode } = Components
-    const nestedComments = unflattenComments(results);
+    const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight } = Components
+
+    const nestedComments = unflattenComments(results)
 
     // Only show the loading widget if this is the first post in the recent discussion section, so that the users don't see a bunch of loading components while the comments load
     if (loading && postCount === 0) {
@@ -131,66 +136,59 @@ class RecentDiscussionThread extends PureComponent {
       return null
     }
 
-    const highlightClasses = classNames("recent-discussion-thread-highlight", {"no-comments":post.commentCount === null})
+    const highlightClasses = classNames({
+      [classes.noComments]: post.commentCount === null
+    })
 
     return (
-      <div className="recent-discussion-thread-wrapper">
-        <div className={classNames(classes.postItem)}>
+      <div className={classes.root}>
+        <div className={classes.postItem}>
 
-          <Link to={Posts.getPageUrl(post)}>
-            <PostsItemTitle post={post} />
+          <Link className={classes.title} to={Posts.getPageUrl(post)}>
+            {post.title}
           </Link>
 
-          <div className="recent-discussion-thread-meta" onClick={() => { this.showExcerpt() }}>
-            {currentUser && !(post.lastVisitedAt || this.state.readStatus) &&
-              <span title="Unread" className={classes.unreadDot}>•</span>
-            }
+          <div className={classes.threadMeta} onClick={this.showHighlight}>
+            {currentUser && !(post.lastVisitedAt || readStatus) &&
+              <span title="Unread" className={classes.unreadDot}>•</span>}
             <PostsItemMeta post={post}/>
             <ShowOrHideHighlightButton
-              className={"recent-discussion-show-highlight"}
-              open={this.state.showExcerpt}/>
+              className={classes.showHighlight}
+              open={showHighlight}/>
           </div>
         </div>
-
-        { this.state.showExcerpt ?
-          <div className={highlightClasses}>
-            <LinkPostMessage post={post} />
-            { post.htmlHighlight ?
-              <div>
-                <div className={classNames(classes.postHighlight, classes.postBody)} dangerouslySetInnerHTML={{__html: post.htmlHighlight}}/>
-                { post.wordCount > postExcerptMaxChars && <div className={classes.continueReading}>
-                  <Link to={Posts.getPageUrl(post)}>
-                    (Continue Reading {` – ${post.wordCount - postExcerptMaxChars} more words`})
-                  </Link>
-                </div>}
-              </div>
-              :
-              <ContentItemBody className={classes.commentStyling} dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.htmlHighlight)}}/>
-            }
-          </div>
-          : <div className={highlightClasses} onClick={() => { this.showExcerpt() }}>
-              <Components.LinkPostMessage post={post} />
-              { post.excerpt && (!post.lastVisitedAt || post.commentCount === null) && <ContentItemBody className={classes.postHighlight} dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.htmlHighlight)}}/>}
+        <div className={classes.content}>
+          { showHighlight ?
+            <div className={highlightClasses}>
+              <PostsHighlight post={post} />
             </div>
-        }
-        <div className="recent-discussion-thread-comment-list">
-          <div className={"comments-items"}>
-            {nestedComments.map(comment =>
-              <div key={comment.item._id}>
-                <CommentsNode
-                  startThreadCollapsed={true}
-                  nestingLevel={1}
-                  currentUser={currentUser}
-                  comment={comment.item}
-                  //eslint-disable-next-line react/no-children-prop
-                  children={comment.children}
-                  key={comment.item._id}
-                  editMutation={editMutation}
-                  post={post}
-                  frontPage
-                />
+            : <div className={highlightClasses} onClick={this.showHighlight}>
+                { (!post.lastVisitedAt || post.commentCount === null) &&
+                  <ContentItemBody
+                    className={classes.postHighlight}
+                    dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents && post.contents.htmlHighlight)}}/>}
               </div>
-            )}
+          }
+          <div className={classes.commentsList}>
+            <div className={"comments-items"} onClick={this.markAsRead}>
+              {nestedComments.map(comment =>
+                <div key={comment.item._id}>
+                  <CommentsNode
+                    startThreadTruncated={true}
+                    nestingLevel={1}
+                    currentUser={currentUser}
+                    comment={comment.item}
+                    highlightDate={post.lastVisitedAt}
+                    //eslint-disable-next-line react/no-children-prop
+                    children={comment.children}
+                    key={comment.item._id}
+                    editMutation={editMutation}
+                    post={post}
+                    condensed
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -201,30 +199,20 @@ class RecentDiscussionThread extends PureComponent {
 const commentsOptions = {
   collection: Comments,
   queryName: 'selectCommentsListQuery',
-  fragmentName: 'SelectCommentsList',
+  fragmentName: 'CommentsList',
   enableTotal: false,
   pollInterval: 0,
   enableCache: true,
   fetchPolicy: 'cache-and-network',
-  limit: 3,
+  limit: 12,
 };
-
-const mutationOptions = {
-  name: 'increasePostViewCount',
-  args: {postId: 'String'},
-};
-
-const mapStateToProps = state => ({ postsViewed: state.postsViewed });
-const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsViewed, dispatch);
 
 registerComponent(
   'RecentDiscussionThread',
   RecentDiscussionThread,
   [withList, commentsOptions],
-  withMutation(mutationOptions),
   withUser,
-  withNewEvents,
-  connect(mapStateToProps, mapDispatchToProps),
   withStyles(styles, { name: "RecentDiscussionThread" }),
+  withRecordPostView,
   withErrorBoundary
 );

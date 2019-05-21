@@ -7,14 +7,16 @@ import createImagePlugin from 'draft-js-image-plugin';
 import createAlignmentPlugin from 'draft-js-alignment-plugin';
 import createFocusPlugin from 'draft-js-focus-plugin';
 import createResizeablePlugin from 'draft-js-resizeable-plugin';
-import createLinkPlugin from 'draft-js-anchor-plugin';
 import createRichButtonsPlugin from 'draft-js-richbuttons-plugin';
 import createBlockBreakoutPlugin from 'draft-js-block-breakout-plugin'
 import createDividerPlugin from './editor-plugins/divider';
 import createMathjaxPlugin from 'draft-js-mathjax-plugin'
 import createMarkdownShortcutsPlugin from './editor-plugins/markdown-shortcuts-plugin';
 import { withTheme } from '@material-ui/core/styles';
+import createLinkPlugin from 'draft-js-anchor-plugin';
+import LinkButton from './editor-plugins/LinkButton'
 import { myKeyBindingFn } from './editor-plugins/keyBindings.js'
+import createLinkifyPlugin from './editor-plugins/linkifyPlugin'
 import ImageButton from './editor-plugins/image/ImageButton.jsx';
 import { Map } from 'immutable';
 import {
@@ -78,7 +80,7 @@ class EditorForm extends Component {
       { button: BoldButton,                    commentEditor: true   },
       { button: ItalicButton,                  commentEditor: true   },
       { button: UnderlineButton,               commentEditor: true   },
-      { button: linkPlugin.LinkButton,         commentEditor: true   },
+      { button: LinkButton,             commentEditor: true   },
       { button: Separator,                     commentEditor: true   },
       { button: HeadlineOneButton,             commentEditor: false  },
       { button: HeadlineTwoButton,             commentEditor: true   },
@@ -98,6 +100,8 @@ class EditorForm extends Component {
     const blockBreakoutPlugin = createBlockBreakoutPlugin()
     const markdownShortcutsPlugin = createMarkdownShortcutsPlugin();
 
+    const linkifyPlugin = createLinkifyPlugin();
+
     const imagePlugin = createImagePlugin({ decorator });
     let plugins = [
       inlineToolbarPlugin,
@@ -109,7 +113,8 @@ class EditorForm extends Component {
       richButtonsPlugin,
       blockBreakoutPlugin,
       markdownShortcutsPlugin,
-      dividerPlugin
+      dividerPlugin,
+      linkifyPlugin
     ];
 
     if (isClient) {
@@ -119,7 +124,7 @@ class EditorForm extends Component {
           mathjaxConfig: {
             jax: ['input/TeX', 'output/CommonHTML'],
             TeX: {
-              extensions: ['autoload-all.js'],
+              extensions: ['autoload-all.js', 'Safe.js'],
             },
             messageStyle: 'none',
             showProcessingMessages: false,
@@ -156,7 +161,7 @@ class EditorForm extends Component {
         <NoSsr>
         <div
           className={classNames(
-            { "content-editor-is-empty": !editorState.getCurrentContent().hasText() },
+            { "content-editor-is-empty": !(editorState && editorState.getCurrentContent && editorState.getCurrentContent().hasText()) },
             this.props.className
           )}
           onClick={this.focus}

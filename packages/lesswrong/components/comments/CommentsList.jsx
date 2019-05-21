@@ -24,10 +24,17 @@ class CommentsList extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     if(!shallowEqual(this.state, nextState))
       return true;
-    if(!shallowEqualExcept(this.props, nextProps, ["post","comments","editMutation"]))
+    
+    if(!shallowEqualExcept(this.props, nextProps,
+      ["post","comments","editMutation","updateComment"]))
+    {
       return true;
-    if(this.props.post==null || nextProps.post==null || this.props.post._id != nextProps.post._id)
+    }
+    
+    if(this.props.post==null || nextProps.post==null || this.props.post._id != nextProps.post._id || 
+      (this.props.post.contents && this.props.post.contents.version !== nextProps.post.contents && nextProps.post.contents.version))
       return true;
+    
     if(this.commentTreesDiffer(this.props.comments, nextProps.comments))
       return true;
     return false;
@@ -50,8 +57,7 @@ class CommentsList extends Component {
   }
 
   render() {
-    const { comments, currentUser, highlightDate, editMutation, post, postPage, totalComments, startThreadCollapsed, answerId } = this.props;
-
+    const { comments, currentUser, highlightDate, editMutation, post, postPage, totalComments, condensed, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1 } = this.props;
 
     const { expandAllThreads } = this.state
     const { lastVisitedAt } = post
@@ -64,12 +70,12 @@ class CommentsList extends Component {
           <div className="comments-list">
             {comments.map(comment =>
               <Components.CommentsNode
-                startThreadCollapsed={startThreadCollapsed || totalComments >= 25}
+                startThreadTruncated={startThreadTruncated || totalComments >= 50}
                 expandAllThreads={expandAllThreads}
                 unreadComments={unreadComments}
                 currentUser={currentUser}
                 comment={comment.item}
-                nestingLevel={1}
+                nestingLevel={defaultNestingLevel}
                 //eslint-disable-next-line react/no-children-prop
                 children={comment.children}
                 key={comment.item._id}
@@ -77,7 +83,8 @@ class CommentsList extends Component {
                 editMutation={editMutation}
                 post={post}
                 postPage={postPage}
-                answerId={answerId}
+                parentAnswerId={parentAnswerId}
+                condensed={condensed}
               />)
             }
           </div>

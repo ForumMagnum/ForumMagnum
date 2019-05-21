@@ -18,7 +18,7 @@ const UsersAutoCompleteHit = ({document, removeItem, classes}) => {
         {document.karma} points
       </Components.MetaInfo>
       <Components.MetaInfo>
-        <Components.FromNowDate date={document.createdAt}/>
+        <Components.FormatDate date={document.createdAt}/>
       </Components.MetaInfo>
     </div>
   } else {

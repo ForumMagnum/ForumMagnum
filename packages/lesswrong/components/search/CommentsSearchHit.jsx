@@ -1,8 +1,8 @@
 import { Components, registerComponent} from 'meteor/vulcan:core';
-import { Link } from 'react-router';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import { Snippet } from 'react-instantsearch-dom';
 import { withStyles } from '@material-ui/core/styles';
-import React, { PureComponent } from 'react';
+import React from 'react';
 
 const styles = theme => ({
   root: {
@@ -26,7 +26,7 @@ const CommentsSearchHit = ({hit, clickAction, classes}) => {
         <Components.MetaInfo>{hit.authorDisplayName}</Components.MetaInfo>
         <Components.MetaInfo>{hit.baseScore} points </Components.MetaInfo>
         <Components.MetaInfo>
-          <Components.FromNowDate date={hit.postedAt}/>
+          <Components.FormatDate date={hit.postedAt}/>
         </Components.MetaInfo>
       </div>
       <div className={classes.snippet}>

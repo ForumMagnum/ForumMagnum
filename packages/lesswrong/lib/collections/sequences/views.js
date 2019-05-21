@@ -3,10 +3,10 @@ import { getSetting } from 'meteor/vulcan:core';
 import { ensureIndex } from '../../collectionUtils';
 
 Sequences.addDefaultView(terms => {
-  const alignmentForum = getSetting('AlignmentForum', false) ? {af: true} : {}
+  const alignmentForum = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
   let params = {
     selector: {
-      hidden: {$in: [false,null]},
+      hidden: false,
       ...alignmentForum
     }
   }
@@ -22,8 +22,8 @@ Sequences.addView("userProfile", function (terms) {
   return {
     selector: {
       userId: terms.userId,
-      isDeleted: {$in: [false,null]},
-      draft: {$in: [false,null]},
+      isDeleted: false,
+      draft: false,
     },
     options: {
       sort: {
@@ -38,7 +38,7 @@ Sequences.addView("userProfileAll", function (terms) {
   return {
     selector: {
       userId: terms.userId,
-      isDeleted: {$in: [false,null]},
+      isDeleted: false,
     },
     options: {
       sort: {
@@ -54,9 +54,9 @@ Sequences.addView("curatedSequences", function (terms) {
     selector: {
       userId: terms.userId,
       curatedOrder: {$exists: true},
-      isDeleted: {$in: [false,null]},
+      isDeleted: false,
       gridImageId: {$ne: null },
-      draft: {$in: [false,null]},
+      draft: false,
     },
     options: {
       sort: {
@@ -75,8 +75,8 @@ Sequences.addView("communitySequences", function (terms) {
       curatedOrder: {$exists: false},
       gridImageId: {$ne: null },
       canonicalCollectionSlug: { $in: [null, ""] },
-      isDeleted: {$in: [false,null]},
-      draft: {$in: [false,null]},
+      isDeleted: false,
+      draft: false,
     },
     options: {
       sort: {

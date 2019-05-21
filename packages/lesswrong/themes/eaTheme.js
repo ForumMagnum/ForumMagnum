@@ -36,6 +36,9 @@ const palette = {
   secondary: {
     main: '#0c869b',
   },
+  lwTertiary: {
+    main: "#607e88" // EA-folk: you may want to pick your own color here
+  },
   error: {
     main: deepOrange[900]
   },
@@ -48,7 +51,7 @@ const basicText = {
   color: grey[800],
   // use ems (not rems) to preserve relative height even if font-size is changed
   lineHeight: '1.75em',
-  fontWeight: 500,
+  fontWeight: 400,
   fontFamily: serifStack
 }
 
@@ -151,7 +154,8 @@ const theme = createLWTheme({
     },
     MuiTooltip: {
       tooltip: {
-        fontSize: "1rem"
+        fontSize: "1rem",
+        padding: ".7rem",
       }
     }
   }

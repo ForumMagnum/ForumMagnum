@@ -1,11 +1,9 @@
 import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
 import LinkIcon from '@material-ui/icons/Link';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
-import FontIcon from 'material-ui/FontIcon';
 import { withStyles } from '@material-ui/core/styles';
 
 
@@ -14,30 +12,26 @@ const FacebookIcon = (props) => <SvgIcon viewBox="0 0 155.139 155.139" {...props
   c0-7.984,2.208-13.425,13.67-13.425l14.595-0.006V1.08C115.325,0.752,106.661,0,96.577,0C75.52,0,61.104,12.853,61.104,36.452 v20.341H37.29v27.585h23.814v70.761H89.584z"/>
 </SvgIcon>
 
-// TODO: This is, in fact, a wildly inappropriate use of FontIcon; the string
-// inside is just having its typography modified, it's not an icon at all.
-const GroupTypeIcon = (props) => <FontIcon style={{fontSize: '14px'}}>
-  {props.type}
-</FontIcon>
-
 const styles = theme => ({
   groupTypes: {
+    marginLeft: 20,
     display: 'inline-block',
   },
-  
+
   groupType: {
     ...theme.typography.headerStyle,
     display: 'inline-block',
-    padding: '4px',
     width: 'initial',
     height: '20px',
+    fontSize: '14px',
+    marginRight: 5
   },
-  
+
   groupLinks: {
     display: 'inline-block',
     marginLeft: '6px'
   },
-  
+
   facebookIcon: {
     width: "12px",
     height: "12px",
@@ -46,14 +40,14 @@ const styles = theme => ({
     paddingTop: "0px",
     transform: "translateY(1px)",
   },
-  
+
   linkIcon: {
     height: "17px",
     width: "17px",
     paddingTop: "2px",
     transform: "translateY(3px) rotate(-45deg)",
   },
-  
+
   iconButton: {
     padding: '0px',
     width: '18px',
@@ -62,21 +56,28 @@ const styles = theme => ({
   }
 });
 
+const tooltips = {
+  'LW': "This is a LessWrong group",
+  'EA': "This is an Effective Altruism group",
+  'SSC': "This is a Slate Star Codex group",
+  'MIRIx': "This is a MIRIx group"
+}
+
 class GroupLinks extends PureComponent {
   render() {
     const { document, classes } = this.props;
     return(
-      <div className="group-links">
+      <span className="group-links">
         <div className={classes.groupTypes}>
           {document.types && document.types.map(type => {
             return (
               <Tooltip
-                title="Group Type"
+                title={tooltips[type]}
                 placement="top-end"
                 key={type}
               >
                 <div className={classes.groupType}>
-                  <GroupTypeIcon type={type}/>
+                  {type}
                 </div>
               </Tooltip>
             )
@@ -85,7 +86,7 @@ class GroupLinks extends PureComponent {
         <div className={classes.groupLinks}>
           {document.facebookLink
             && <Tooltip
-              title="Facebook Group"
+              title="Link to Facebook Group"
               placement="top-end"
             >
               <a href={document.facebookLink}><IconButton className={classes.iconButton} color="inherit">
@@ -93,16 +94,13 @@ class GroupLinks extends PureComponent {
               </IconButton></a>
             </Tooltip>}
           {document.website
-            && <Tooltip
-              title="Group Website"
-              placement="top-end"
-            >
+            && <Tooltip title={<span>Link to Group Website ({document.website})</span>} placement="top-end">
               <a href={document.website}><IconButton className={classes.iconButton} color="inherit">
                 <LinkIcon className={classes.linkIcon}/>
               </IconButton></a>
             </Tooltip>}
         </div>
-      </div>
+      </span>
     )
   }
 }

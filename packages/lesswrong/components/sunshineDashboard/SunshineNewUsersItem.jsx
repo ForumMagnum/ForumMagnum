@@ -1,16 +1,29 @@
 /* global confirm */
-import { Components as C, registerComponent, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';
-import { Link } from 'react-router'
+import { Link } from '../../lib/reactRouterWrapper.js'
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import withHover from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
+import red from '@material-ui/core/colors/red';
+import { withStyles } from '@material-ui/core/styles';
 
+const styles = theme => ({
+  negativeKarma: {
+     color: red['A100']
+  },
+  info: {
+    // Wrap between MetaInfo elements. Non-standard CSS which may not work in Firefox.
+    wordBreak: "break-word",
+    display: "inline-block"
+  },
+})
 class SunshineNewUsersItem extends Component {
+  state = {hidden: false}
 
   handleReview = () => {
     const { currentUser, user, editMutation } = this.props
@@ -21,10 +34,11 @@ class SunshineNewUsersItem extends Component {
     })
   }
 
-  handlePurge = () => {
+  handlePurge = async () => {
     const { currentUser, user, editMutation } = this.props
     if (confirm("Are you sure you want to delete all this user's posts, comments and votes?")) {
-      editMutation({
+      this.setState({hidden: true})
+      await editMutation({
         documentId: user._id,
         set: {
           reviewedByUserId: currentUser._id,
@@ -39,16 +53,19 @@ class SunshineNewUsersItem extends Component {
   }
 
   render () {
-    const { user, hover, anchorEl } = this.props
+    const { user, hover, anchorEl, classes, currentUser } = this.props
+    const showNewUserContent = currentUser && currentUser.sunshineShowNewUserContent
+
+    const { SunshineListItem, SidebarHoverOver, MetaInfo, SidebarActionMenu, SidebarAction, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList } = Components
+
+    if (this.state.hidden) { return null }
+
     return (
-        <C.SunshineListItem hover={hover}>
-          <C.SidebarHoverOver hover={hover} anchorEl={anchorEl} width={250}>
+        <SunshineListItem hover={hover}>
+          <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
             <Typography variant="body2">
-              <Link to={Users.getProfileUrl(user)}>
-                { user.displayName }
-              </Link>
-              <br/>
-              <C.MetaInfo>
+              <MetaInfo>
+                <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
                 <div>Posts: { user.postCount || 0 }</div>
                 <div>Comments: { user.commentCount || 0 }</div>
                 <hr />
@@ -56,35 +73,45 @@ class SunshineNewUsersItem extends Component {
                 <div>Upvotes: { user.smallUpvoteCount || 0 }</div>
                 <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
                 <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
-              </C.MetaInfo>
+
+                {!showNewUserContent && <React.Fragment>
+                  <SunshineNewUserPostsList terms={{view:"sunshineNewUsersPosts", userId: user._id}}/>
+                  <SunshineNewUserCommentsList terms={{view:"sunshineNewUsersComments", userId: user._id}}/>
+                </React.Fragment>}
+              </MetaInfo>
             </Typography>
-          </C.SidebarHoverOver>
+          </SidebarHoverOver>
           <div>
-            <C.MetaInfo>
-              <Link to={Users.getProfileUrl(user)}>
+            <MetaInfo className={classes.info}>
+              { user.karma || 0 }
+            </MetaInfo>
+            <MetaInfo className={classes.info}>
+              <Link className={user.karma < 0 ? classes.negativeKarma : ""} to={Users.getProfileUrl(user)}>
                   {user.displayName}
               </Link>
-            </C.MetaInfo>
-            <C.MetaInfo>
-              { user.karma || 0 }
-            </C.MetaInfo>
-            <C.MetaInfo>
+            </MetaInfo>
+            <MetaInfo className={classes.info}>
+              <FormatDate date={user.createdAt}/>
+            </MetaInfo>
+            <MetaInfo className={classes.info}>
               { user.email }
-            </C.MetaInfo>
-            <C.MetaInfo>
-              <C.FromNowDate date={user.createdAt}/>
-            </C.MetaInfo>
+            </MetaInfo>
           </div>
-
-          { hover && <C.SidebarActionMenu>
-            <C.SidebarAction title="Review" onClick={this.handleReview}>
+          {showNewUserContent && 
+            <div>
+              <SunshineNewUserPostsList truncated={true} terms={{view:"sunshineNewUsersPosts", userId: user._id}}/>
+              <SunshineNewUserCommentsList truncated={true} terms={{view:"sunshineNewUsersComments", userId: user._id}}/>
+            </div>
+          }
+          { hover && <SidebarActionMenu>
+            <SidebarAction title="Review" onClick={this.handleReview}>
               done
-            </C.SidebarAction>
-            <C.SidebarAction warningHighlight={true} title="Purge User (delete and ban)" onClick={this.handlePurge}>
+            </SidebarAction>
+            <SidebarAction warningHighlight={true} title="Purge User (delete and ban)" onClick={this.handlePurge}>
               delete_forever
-            </C.SidebarAction>
-          </C.SidebarActionMenu>}
-        </C.SunshineListItem>
+            </SidebarAction>
+          </SidebarActionMenu>}
+        </SunshineListItem>
     )
   }
 }
@@ -101,4 +128,4 @@ const withEditOptions = {
   collection: Users,
   fragmentName: 'SunshineUsersList',
 }
-registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, [withEdit, withEditOptions], withUser, withHover, withErrorBoundary);
+registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, [withEdit, withEditOptions], withUser, withHover, withErrorBoundary, withStyles(styles, {name:"SunshineNewUsersItem"}));

@@ -13,16 +13,17 @@ const styles = theme => ({
 
 class SunshineNewCommentsList extends Component {
   render () {
-    const { results, classes } = this.props
+    const { results, classes, totalCount } = this.props
+    const { SunshineListCount, SunshineNewCommentsItem, SunshineListTitle } = Components
     if (results && results.length) {
       return (
         <div className={classes.root}>
-          <Components.SunshineListTitle>
-            Unreviewed Comments
-          </Components.SunshineListTitle>
+          <SunshineListTitle>
+            Unreviewed Comments <SunshineListCount count={totalCount}/>
+          </SunshineListTitle>
           {this.props.results.map(comment =>
             <div key={comment._id} >
-              <Components.SunshineNewCommentsItem comment={comment}/>
+              <SunshineNewCommentsItem comment={comment}/>
             </div>
           )}
         </div>
@@ -37,6 +38,7 @@ const withListOptions = {
   collection: Comments,
   queryName: 'sunshineNewCommentsListQuery',
   fragmentName: 'SelectCommentsList',
+  enableTotal: true,
 };
 
 SunshineNewCommentsList.propTypes = {

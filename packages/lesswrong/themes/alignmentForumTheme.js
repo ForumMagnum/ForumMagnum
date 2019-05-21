@@ -30,6 +30,9 @@ const sansSerifStack = [
 const palette = {
   primary: indigo,
   secondary: indigo,
+  lwTertiary: {
+    main: "#607e88"
+  },
   error: {
     main: deepOrange[900]
   },
@@ -88,6 +91,31 @@ const theme = createLWTheme({
         [defaultTheme.breakpoints.up('md')]: {
           top: 8,
         }
+      }
+    },
+    SectionTitle: {
+      leftDivider: {
+        width: 18,
+        marginTop: 4
+      },
+      rightDivider: {
+        marginTop: 4,
+        marginRight: 8,
+      },
+      tailDivider: {
+        marginTop: 4,
+        width: 24,
+      }
+    },
+    SectionButton: {
+      root: {
+        marginTop: 4,
+        fontWeight: 500,
+      }
+    },
+    LoadMore: {
+      root: {
+        fontWeight: 500,
       }
     }
   }

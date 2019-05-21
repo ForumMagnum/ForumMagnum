@@ -2,46 +2,50 @@ import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Comments } from '../../lib/collections/comments';
-import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
-import classNames from 'classnames';
 
 const styles = theme => ({
+  root: {
+    width: 650 + (theme.spacing.unit*4),
+    [theme.breakpoints.down('md')]: {
+      width: "unset"
+    }
+  },
   answersList: {
-    marginTop: theme.spacing.unit*2
+    marginTop: theme.spacing.unit*2,
+    marginBottom: theme.spacing.unit*5,
+    paddingBottom: theme.spacing.unit*2,
   },
   answerCount: {
     ...theme.typography.postStyle,
-    borderTop: "solid 3px rgba(0,0,0,.87)",
-    margin: 10,
-    paddingTop: 10,
-    width: 640,
     marginBottom: theme.spacing.unit*2,
+    [theme.breakpoints.down('md')]: {
+      marginLeft: "auto",
+      marginRight: "auto"
+    }
   },
   loading: {
     opacity: .5,
   },
 })
 
-const AnswersList = ({results, loading, classes, post}) => {
-  const { Answer, Section } = Components
+const AnswersList = ({results, classes, post}) => {
+  const { Answer, SectionTitle } = Components
 
-  return <div>
-    <Section>
-      <Typography variant="display1" className={classNames(classes.answerCount, {[classes.loading]: loading})}>
-        { results ? results.length : "Loading" } Answers
-      </Typography>
-    </Section>
-    <div className={classes.answersList}>
-      { results ? results.map((comment) => {
-        return <span key={comment._id} >
-          <Answer comment={comment} post={post}/>
-        </span>
-        })
-        : <Components.Loading />
-      }
+  if (results && results.length) {
+    return <div className={classes.root}>
+      <SectionTitle title={<span>{ results.length } Answers</span>}/>
+
+      <div className={classes.answersList}>
+        { results.map((comment, i) => {
+          return <Answer comment={comment} post={post} key={comment._id} />
+          })
+        }
+      </div>
     </div>
-  </div>
+  } else {
+    return null
+  }
 };
 
 AnswersList.propTypes = {

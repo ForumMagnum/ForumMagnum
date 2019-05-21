@@ -1,23 +1,34 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
-import { withRouter } from 'react-router'
+import { withRouter } from '../../lib/reactRouterWrapper.js';
 import {
   Components,
-  registerComponent,
-  getSetting
+  registerComponent
 } from 'meteor/vulcan:core';
 import moment from 'moment';
 import Users from 'meteor/vulcan:users';
-import { Comments } from "../../lib/collections/comments";
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import withUser from '../common/withUser';
+import { commentBodyStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
+  root: {
+    fontWeight: 400,
+    maxWidth: 720,
+    margin: "0px auto 15px auto",
+    ...theme.typography.commentStyle,
+
+    "& .content-editor-is-empty": {
+      fontSize: "15px !important",
+    },
+    background: "white",
+    position: "relative"
+  },
+
   meta: {
     fontSize: 14,
     clear: 'both',
@@ -34,9 +45,11 @@ const styles = theme => ({
     color: theme.palette.secondary.main,
   },
   newComment: {
-    padding: '0 10px',
+    padding: theme.spacing.unit*1.5,
+    paddingTop: 0,
     border: 'solid 1px rgba(0,0,0,.2)',
     position: 'relative',
+    marginBottom: "1.3em",
     "@media print": {
       display: "none"
     }
@@ -45,15 +58,31 @@ const styles = theme => ({
     ...theme.typography.commentStyle,
     ...theme.typography.body2,
     fontWeight: 600,
-    marginTop: theme.spacing.unit
-  }
+    marginTop: 12
+  },
+  moderationGuidelinesWrapper: {
+    ...commentBodyStyles(theme),
+    verticalAlign: 'top',
+    display: 'block',
+    padding: '10px 0px',
+    borderTop: '1px solid rgba(0,0,0,0.2)',
+    borderBottom: '1px solid rgba(0,0,0,0.2)',
+    marginBottom: 30,
+  },
 })
 
 class CommentsListSection extends Component {
   constructor(props) {
     super(props);
+    const {lastEvent, post} = this.props;
+
     this.state = {
-      highlightDate: this.props.lastEvent && this.props.lastEvent.properties && this.props.lastEvent.properties.createdAt && new Date(this.props.lastEvent.properties.createdAt) || this.props.post && this.props.post.lastVisitedAt && new Date(this.props.post.lastVisitedAt) || new Date(),
+      highlightDate:
+        (lastEvent && lastEvent.properties && lastEvent.properties.createdAt
+          && new Date(lastEvent.properties.createdAt))
+        || (post && post.lastVisitedAt &&
+          new Date(post.lastVisitedAt))
+        || new Date(),
     }
   }
 
@@ -108,8 +137,8 @@ class CommentsListSection extends Component {
             terms={{view: "postVisits", limit: 4, postId: post._id, userId: currentUser._id}}
             clickCallback={this.handleDateChange}/>}
           <Divider />
-          {suggestedHighlightDates.map((date,i) => {
-            return <MenuItem key={i} onClick={() => this.handleDateChange(date)}>
+          {suggestedHighlightDates.map(date => {
+            return <MenuItem key={date.toString()} onClick={() => this.handleDateChange(date)}>
               {date.calendar().toString()}
             </MenuItem>
           })}
@@ -119,13 +148,32 @@ class CommentsListSection extends Component {
   }
 
   render() {
-    const { currentUser, comments, postId, post, classes, totalComments, answerId, startThreadCollapsed } = this.props;
+    const { currentUser, comments, post, classes, totalComments, parentAnswerId, startThreadTruncated, newForm=true, guidelines=true } = this.props;
 
     // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
     return (
-      <div className="posts-comments-thread">
+      <div className={classes.root}>
+        {guidelines && <div className={classes.moderationGuidelinesWrapper}>
+          <Components.ModerationGuidelinesBox documentId={post._id} showModeratorAssistance />
+        </div>}
         { this.props.totalComments ? this.renderTitleComponent() : null }
+        <div id="comments"/>
+
+        {newForm && (!currentUser || Users.isAllowedToComment(currentUser, post)) &&
+          <div id="posts-thread-new-comment" className={classes.newComment}>
+            <div className={classes.newCommentLabel}><FormattedMessage id="comments.new"/></div>
+            <Components.CommentsNewForm
+              post={post}
+              prefilledProps={{
+                parentAnswerId: parentAnswerId}}
+              type="comment"
+            />
+          </div>
+        }
+        {currentUser && !Users.isAllowedToComment(currentUser, post) &&
+          <Components.CantCommentExplanation post={post}/>
+        }
         <Components.CommentsList
           currentUser={currentUser}
           totalComments={totalComments}
@@ -133,36 +181,9 @@ class CommentsListSection extends Component {
           highlightDate={this.state.highlightDate}
           post={post}
           postPage
-          startThreadCollapsed={startThreadCollapsed}
-          answerId={answerId}
+          startThreadTruncated={startThreadTruncated}
+          parentAnswerId={parentAnswerId}
         />
-        {!currentUser &&
-          <div>
-            <Components.LoginPopupLink>
-              <FormattedMessage id={!(getSetting('AlignmentForum', false)) ? "comments.please_log_in" : "alignment.comments.please_log_in"}/>
-            </Components.LoginPopupLink>
-          </div>
-        }
-        {currentUser && Users.isAllowedToComment(currentUser, post) &&
-          <div id="posts-thread-new-comment" className={classes.newComment}>
-            <div className={classes.newCommentLabel}><FormattedMessage id="comments.new"/></div>
-            <Components.CommentsNewForm
-              postId={postId}
-              prefilledProps={{
-                af: Comments.defaultToAlignment(currentUser, post),
-                answerId: answerId}}
-              type="comment"
-            />
-          </div>
-        }
-        {currentUser && !Users.isAllowedToComment(currentUser, post) && (
-          <div className="i18n-message author_has_banned_you">
-            { Users.blockedCommentingReason(currentUser, post)}
-            { !(getSetting('AlignmentForum', false)) && <span>
-              (Questions? Send an email to <a className="email-link" href="mailto:moderation@lesserwrong.com">moderation@lesserwrong.com</a>)
-            </span> }
-          </div>
-        )}
       </div>
     );
   }

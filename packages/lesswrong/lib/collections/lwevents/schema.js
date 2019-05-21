@@ -1,12 +1,5 @@
-import { generateIdResolverSingle } from '../../modules/utils/schemaUtils'
+import { foreignKeyField } from '../../modules/utils/schemaUtils'
 
-/*
-
-A SimpleSchema-compatible JSON schema
-
-*/
-
-//define schema
 const schema = {
   _id: {
     optional: true,
@@ -16,23 +9,18 @@ const schema = {
   createdAt: {
     type: Date,
     optional: true,
-    onInsert: (document, currentUser) => {
-      return new Date();
-    },
+    onInsert: (document, currentUser) => new Date(),
     viewableBy: ['members'],
   },
   userId: {
-    type: String,
+    ...foreignKeyField({
+      idFieldName: "userId",
+      resolverName: "user",
+      collectionName: "Users",
+      type: "User",
+    }),
     viewableBy: ['members'],
     insertableBy: ['members'],
-    resolveAs: {
-      fieldName: 'user',
-      type: 'User',
-      resolver: generateIdResolverSingle(
-        {collectionName: 'Users', fieldName: 'userId'}
-      ),
-      addOriginalField: true,
-    },
     optional: true,
   },
   name: {
@@ -42,6 +30,7 @@ const schema = {
   },
   documentId: {
     type: String,
+    // No explicit foreign-key relationship because documentId refers to different collections based on event type
     optional: true,
     viewableBy: ['members'],
     insertableBy: ['members'],

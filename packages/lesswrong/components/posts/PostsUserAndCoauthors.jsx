@@ -8,7 +8,6 @@ const styles = theme => ({
     maxWidth: 300,
     textOverflow: "ellipsis",
     overflowX: "hidden",
-    whiteSpace: "nowrap"
   },
   lengthUnlimited: {
     display: "inline",
@@ -17,7 +16,7 @@ const styles = theme => ({
 
 const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes}) => {
   if (!post.user || post.hideAuthor)
-    return '[deleted]';
+    return <Components.UserNameDeleted/>;
   
   return <div className={abbreviateIfLong ? classes.lengthLimited : classes.lengthUnlimited}>
     {<Components.UsersName user={post.user} />}

@@ -1,16 +1,20 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
-import { Link } from 'react-router';
+import { registerComponent } from 'meteor/vulcan:core';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
+import classNames from 'classnames';
+import withErrorBoundary from './withErrorBoundary.jsx';
 
 
 const BORDER_TOP_WIDTH = 3
 
 const styles = (theme) => ({
   section: {
-    marginBottom: theme.spacing.unit * 4,
+    [theme.breakpoints.up('sm')]: {
+      marginBottom: theme.spacing.unit * 4,
+    }
   },
   root: {
     maxWidth: "100vw",
@@ -20,6 +24,15 @@ const styles = (theme) => ({
       textAlign: 'right',
       display: 'inline',
       maxWidth: 240,
+    },
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: 20,
+      maxWidth: 720,
+      marginLeft: "auto",
+      marginRight: "auto"
+    },
+    [theme.breakpoints.down('xs')]: {
+      marginBottom: 0,
     },
   },
   sectionTitle: {
@@ -54,6 +67,10 @@ const styles = (theme) => ({
     maxWidth: 739,
     [theme.breakpoints.up('md')]: {
       paddingLeft: 24
+    },
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: "auto",
+      marginRight: "auto"
     }
   },
   subscribeWidget: {
@@ -71,41 +88,42 @@ const styles = (theme) => ({
 })
 
 const Section = ({
-  contentStyle,
   title,
   titleLink,
   titleComponent,
   subscribeLinks = null,
+  className = null,
   children,
-  classes
+  classes,
+  deactivateSection
 }) => {
 
+  if (deactivateSection) return <React.Fragment>{children}</React.Fragment>
+
   return (
-    <Components.ErrorBoundary>
-      <div className={classes.root}>
-      <Grid container className={classes.section} spacing={0}>
-        <Grid item xs={12} md={3} className={classes.sectionTitleContainer}>
-          {title && <div className={classes.sectionTitleTop}>
-            <Typography variant="display1" className={classes.sectionTitle}>
-              {!titleLink ? <span className="heading">{title}</span> : <Link className="heading" to={titleLink}>{title}</Link>}
-              { subscribeLinks && <Typography className={classes.subscribeWidget} variant="body2">
-                {subscribeLinks}
-              </Typography> }
-            </Typography>
-          </div>}
-          {titleComponent && <div className={classes.sectionTitleBottom}>
-            {titleComponent}
-          </div>}
-        </Grid>
-        <Grid item xs={12} md={9}>
-          <div className={classes.sectionContent}>
-            {children}
-          </div>
-        </Grid>
+    <div className={classNames(className, classes.root)}>
+    <Grid container className={classes.section} spacing={0}>
+      <Grid item xs={12} md={3} className={classes.sectionTitleContainer}>
+        {title && <div className={classes.sectionTitleTop}>
+          <Typography variant="display1" className={classes.sectionTitle}>
+            {!titleLink ? <span className="heading">{title}</span> : <Link className="heading" to={titleLink}>{title}</Link>}
+            { subscribeLinks && <Typography className={classes.subscribeWidget} variant="body2">
+              {subscribeLinks}
+            </Typography> }
+          </Typography>
+        </div>}
+        {titleComponent && <div className={classes.sectionTitleBottom}>
+          {titleComponent}
+        </div>}
       </Grid>
-      </div>
-    </Components.ErrorBoundary>
+      <Grid item xs={12} md={9}>
+        <div className={classes.sectionContent}>
+          {children}
+        </div>
+      </Grid>
+    </Grid>
+    </div>
   )
 };
 
-registerComponent('Section', Section, withStyles(styles, { name: 'Section'}));
+registerComponent('Section', Section, withStyles(styles, { name: 'Section'}), withErrorBoundary);

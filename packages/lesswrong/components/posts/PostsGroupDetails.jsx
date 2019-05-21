@@ -1,7 +1,6 @@
-import { Components , registerComponent, withDocument } from 'meteor/vulcan:core';
+import { registerComponent, withDocument } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { Link } from 'react-router';
-import PropTypes from 'prop-types';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import { Localgroups } from '../../lib/index.js';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -16,8 +15,8 @@ const styles = theme => ({
     marginTop: -10,
   },
   root: {
-    position: 'absolute',
-    top: -40,
+    marginBottom: 10, 
+    marginTop: 10
   }
 })
 

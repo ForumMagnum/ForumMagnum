@@ -1,4 +1,3 @@
-import React from 'react';
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { createDummyUser, createDummyPost, createDummyComment, createDummyConversation, createDummyMessage } from '../../../testing/utils.js'
@@ -102,6 +101,7 @@ describe('notification generation', async () => {
     const post = await createDummyPost(user1);
     const comment = await createDummyComment(user2, {postId: post._id});
     performSubscriptionAction('subscribe', Comments, comment._id, user3)
+    await waitUntilCallbacksFinished();
     await createDummyComment(user1, {postId: post._id, parentCommentId: comment._id});
     await waitUntilCallbacksFinished();
     

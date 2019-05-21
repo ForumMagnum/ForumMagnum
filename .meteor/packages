@@ -17,7 +17,6 @@ vulcan:users                      # user management and permissions
 
 vulcan:admin
 # vulcan:newsletter
-vulcan:voting
 vulcan:events
 vulcan:embed
 # vulcan:subscribe
@@ -57,7 +56,6 @@ accounts-github@1.4.2
 # example-reactions
 
 # vulcan:debug
-vulcan:events-ga
 
 lesswrong
 # webtoken-session

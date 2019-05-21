@@ -1,7 +1,7 @@
 import Users from "meteor/vulcan:users";
 import bowser from 'bowser'
-import { getSetting } from 'meteor/vulcan:core';
-import { Votes } from "meteor/vulcan:voting";
+import { getSetting, Utils } from 'meteor/vulcan:core';
+import { Votes } from '../votes';
 import { Comments } from '../comments'
 import { Posts } from '../posts'
 
@@ -39,13 +39,13 @@ Users.canModeratePost = (user, post) => {
     (
       Users.canDo(user,"posts.moderate.own") &&
       Users.owns(user, post) &&
-      post.moderationGuidelinesHtmlBody
+      ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle)
     )
     ||
     (
       Users.canDo(user, "posts.moderate.own.personal") &&
       Users.owns(user, post) &&
-      post.moderationGuidelinesHtmlBody &&
+      ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle) &&
       !post.frontpageDate
     )
   )
@@ -65,9 +65,9 @@ Users.canCommentLock = (user, post) => {
 }
 
 Users.userIsBannedFromPost = (user, post) => {
+  if (!post) return false;
   const postAuthor = post.user || Users.findOne(post.userId)
   return !!(
-    post &&
     post.bannedUserIds &&
     post.bannedUserIds.includes(user._id) &&
     Users.owns(postAuthor, post)
@@ -121,7 +121,7 @@ Users.isAllowedToComment = (user, post) => {
     return false
   }
 
-  if (getSetting('AlignmentForum', false)) {
+  if (getSetting('forumType') === 'AlignmentForum') {
     if (!Users.canDo(user, 'comments.alignment.new')) {
       return Users.owns(user, post) && Users.canDo(user, 'votes.alignment')
     }
@@ -139,9 +139,9 @@ Users.blockedCommentingReason = (user, post) => {
     return "This post's author has blocked you from commenting."
   }
 
-  if (getSetting('AlignmentForum', false)) {
+  if (getSetting('forumType') === 'AlignmentForum') {
     if (!Users.canDo(user, 'comments.alignment.new')) {
-      return "You must be approved by an admin to comment on Alignment Forum"
+      return "You must be approved by an admin to comment on the AI Alignment Forum"
     }
   }
   if (Users.userIsBannedFromAllPosts(user, post)) {
@@ -168,6 +168,24 @@ Users.emailAddressIsVerified = (user) => {
   }
   return false;
 };
+
+// Replaces Users.getProfileUrl from the vulcan-users package.
+Users.getProfileUrl = (user, isAbsolute=false) => {
+  if (!user) return "";
+  
+  if (user.slug) {
+    return Users.getProfileUrlFromSlug(user.slug, isAbsolute);
+  } else {
+    return "";
+  }
+}
+
+Users.getProfileUrlFromSlug = (userSlug, isAbsolute=false) => {
+  if (!userSlug) return "";
+  
+  const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
+  return `${prefix}/users/${userSlug}`;
+}
 
 
 
@@ -250,7 +268,27 @@ Users.getAggregateKarma = async (user) => {
   const documentIds = [...posts, ...comments]
 
   return await Votes.rawCollection().aggregate([
-    {$match: {documentId: {$in:documentIds}, userId: {$ne: user._id}}},
+    {$match: {
+      documentId: {$in:documentIds},
+      userId: {$ne: user._id},
+      cancelled: false
+    }},
     {$group: { _id: null, totalPower: { $sum: '$power' }}},
   ]).toArray()[0].totalPower;
+}
+
+Users.getPostCount = (user) => {
+  if (getSetting('forumType') === 'AlignmentForum') {
+    return user.afPostCount;
+  } else {
+    return user.postCount;
+  }
+}
+
+Users.getCommentCount = (user) => {
+  if (getSetting('forumType') === 'AlignmentForum') {
+    return user.afCommentCount;
+  } else {
+    return user.commentCount;
+  }
 }

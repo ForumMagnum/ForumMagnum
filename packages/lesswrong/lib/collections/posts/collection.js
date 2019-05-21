@@ -1,19 +1,8 @@
-/*
-
-Posts collection
-
-*/
-
 import schema from './schema.js';
 import { createCollection, getDefaultResolvers, getDefaultMutations } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
+import { addUniversalFields } from '../../collectionUtils'
 
-/**
- * @summary The global namespace for Posts.
- * @namespace Posts
- */
-
-// LESSWRONG - New options
 const options = {
   newCheck: (user) => {
     if (!user) return false;
@@ -35,19 +24,12 @@ const options = {
   },
 }
 
-
 export const Posts = createCollection({
-
   collectionName: 'Posts',
-
   typeName: 'Post',
-
   schema,
-
   resolvers: getDefaultResolvers('Posts'),
-
   mutations: getDefaultMutations('Posts', options),
-
 });
 
 // refactor: moved here from schema.js
@@ -60,10 +42,7 @@ Posts.config.STATUS_SPAM = 4;
 Posts.config.STATUS_DELETED = 5;
 
 
-/**
- * @summary Posts statuses
- * @type {Object}
- */
+// Post statuses
 Posts.statuses = [
   {
     value: 1,
@@ -97,3 +76,7 @@ Posts.checkAccess = (currentUser, post) => {
     return Users.canDo(currentUser, `posts.view.${status.label}`);
   }
 }
+
+addUniversalFields({collection: Posts})
+
+export default Posts;

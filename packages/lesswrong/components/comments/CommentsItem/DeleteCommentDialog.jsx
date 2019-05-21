@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, withMessages, Components } from 'meteor/vulcan:core';
-import PropTypes from 'prop-types';
+import { registerComponent, withMessages } from 'meteor/vulcan:core';
 import withModerateComment from './withModerateComment.js'
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -14,7 +13,10 @@ import { withStyles } from '@material-ui/core/styles'
 const styles = theme => ({
   deleteWithoutTrace: {
     marginRight:"auto"
-  }
+  },
+  modalTextField: {
+    marginTop: 10,
+  },
 })
 
 class DeleteCommentDialog extends PureComponent {
@@ -62,7 +64,7 @@ class DeleteCommentDialog extends PureComponent {
           <TextField
             id="comment-menu-item-delete-reason"
             label="Reason for deleting (optional)"
-            className="comments-delete-modal-textfield"
+            className={classes.modalTextField}
             value={this.state.deletedReason}
             onChange={((event)=> {this.setState({deletedReason:event.target.value})})}
             fullWidth

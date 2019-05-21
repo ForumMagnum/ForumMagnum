@@ -1,8 +1,8 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
-import { Link } from 'react-router';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import Users from 'meteor/vulcan:users';
 import { withApollo } from 'react-apollo';
 
@@ -15,7 +15,10 @@ import withUser from '../common/withUser';
 import withDialog from '../common/withDialog'
 
 const styles = theme => ({
-  userButton: {
+  root: {
+    marginTop: 5,
+  },
+  userButtonContents: {
     textTransform: 'none',
     fontSize: '16px',
     fontWeight: 400,
@@ -54,16 +57,19 @@ class UsersMenu extends PureComponent {
   render() {
     let { currentUser, client, classes, color, openDialog } = this.props;
 
-    const showNewButtons = !getSetting('AlignmentForum') || Users.canDo(currentUser, 'posts.alignment.new')
+    if (!currentUser) return null;
+
+    const showNewButtons = getSetting('forumType') !== 'AlignmentForum' || Users.canDo(currentUser, 'posts.alignment.new')
+    const showNewShortformButton = showNewButtons && !!currentUser.shortformFeedId
     const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
 
 
     return (
-      <div className="users-menu">
+      <div className={classes.root}>
         <Button onClick={this.handleClick}>
-          <span className={classes.userButton} style={{ color: color }}>
+          <span className={classes.userButtonContents} style={{ color: color }}>
             {Users.getDisplayName(currentUser)}
-            {getSetting('AlignmentForum', false) && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
+            {getSetting('forumType') === 'AlignmentForum' && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
           </span>
         </Button>
         <Menu
@@ -72,16 +78,22 @@ class UsersMenu extends PureComponent {
           anchorEl={this.state.anchorEl}
           onClose={this.handleRequestClose}
         >
-            {(showNewButtons && Users.isAdmin(currentUser)) &&
+            {showNewButtons &&
               <MenuItem onClick={()=>openDialog({componentName:"NewQuestionDialog"})}>
-                Ask Question
+                Ask Question [Beta]
               </MenuItem>
             }
             {showNewButtons && <Link to={`/newPost`}>
                 <MenuItem>New Post</MenuItem>
               </Link>
             }
-            { getSetting('AlignmentForum', false) && !isAfMember && <MenuItem onClick={() => openDialog({componentName: "AFApplicationForm"})}>
+            {showNewShortformButton &&
+              <Link to={`/posts/${currentUser.shortformFeedId}`}>
+                {/* TODO: set up a proper link url */}
+                <MenuItem>Shortform Feed</MenuItem>
+              </Link>
+            }
+            { getSetting('forumType') === 'AlignmentForum' && !isAfMember && <MenuItem onClick={() => openDialog({componentName: "AFApplicationForm"})}>
               Apply for Membership
             </MenuItem> }
             <Link to={`/users/${currentUser.slug}`}>
