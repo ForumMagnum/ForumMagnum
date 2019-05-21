@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import { Hits, Configure, Index, CurrentRefinements } from 'react-instantsearch-dom';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
@@ -13,7 +13,7 @@ const styles = theme => ({
     width:520,
     position: "fixed",
     right: 0,
-    top: 64,
+    top: getSetting('forumType') === 'EAForum' ? 90 : 64,
     display: "flex",
     flexWrap: "wrap",
     [theme.breakpoints.down('sm')]: {
