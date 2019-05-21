@@ -115,5 +115,19 @@ async function addReCaptchaRating (user) {
     }
   }
 }
-
 addCallback('users.new.async', addReCaptchaRating);
+
+async function subscribeOnSignup (user) {
+  // If the subscribed-to-curated checkbox was checked, set the corresponding config setting
+  const subscribeToCurated = user?.profile?.subscribeToCurated;
+  if (subscribeToCurated) {
+    console.log("Subscribing to curated");
+    Users.update(user._id, {$set: {emailSubscribedToCurated: true}});
+  } else {
+    console.log("Not subscribing to curated");
+  }
+  
+  // Regardless of the config setting, try to confirm the user's email address
+  Accounts.sendVerificationEmail(user._id);
+}
+addCallback('users.new.async', subscribeOnSignup);
