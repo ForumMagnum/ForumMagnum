@@ -116,7 +116,7 @@ class RecentDiscussionThread extends PureComponent {
 
     const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight } = Components
 
-    const lastCommentId = results && results[0] && results[0]._id
+    const lastCommentId = results && results[0]?._id
 
     const nestedComments = unflattenComments(results)
 
