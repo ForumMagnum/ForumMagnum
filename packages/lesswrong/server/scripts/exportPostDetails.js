@@ -1,3 +1,4 @@
+/* global Vulcan */
 /*
 
     # Vulcan.exportPostDetails({ selector, outputDir })
@@ -29,7 +30,7 @@ import path from 'path'
 import moment from 'moment'
 import Papa from 'papaparse'
 
-const getPosts = (selector) => {
+function getPosts (selector) {
   const defaultSelector = {
     baseScore: {$gte: 0},
     draft: {$ne: true},
@@ -81,17 +82,20 @@ Vulcan.exportPostDetails = wrapVulcanAsyncScript(
       }
       rows.push(row)
       c++
+      //eslint-disable-next-line no-console
       if (c % 20 === 0) console.log(`Post Details: Processed ${c}/${count} posts (${Math.round(c / count * 100)}%)`)
     }
     const csvFile = Papa.unparse(rows)
     const filePath = path.join(outputDir,`${path.basename(outputFile)}.csv`)
     await fs.writeFile(filePath, csvFile)
+    //eslint-disable-next-line no-console
     console.log(`Wrote details for ${rows.length} posts to ${filePath}`)
   })
 
 Vulcan.exportPostDetailsByMonth = ({month, outputDir, outputFile}) => {
   const lastMonth = moment.utc(month, 'YYYY-MM').startOf('month')
   outputFile = outputFile || `post_details_${lastMonth.format('YYYY-MM')}`
+  //eslint-disable-next-line no-console
   console.log(`Exporting all posts from ${lastMonth.format('MMM YYYY')}`)
   return Vulcan.exportPostDetails({
   selector: {
