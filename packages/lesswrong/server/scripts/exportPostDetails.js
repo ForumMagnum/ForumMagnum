@@ -7,9 +7,6 @@
 
       selector (Object, optional):
         Mongo selector to choose posts. Default is all published pending and approved posts
-      baseUrl (String, required):
-        The website for which you are exporting posts, ie:
-        https://lesswrong.com
       outputDir (String, required):
         Absolute path to the directory where you'd like the CSV output to be written
       outputFile (String, optional):
@@ -26,6 +23,7 @@
 */
 
 import { wrapVulcanAsyncScript } from './utils'
+import { getSetting } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts'
 import Users from 'meteor/vulcan:users'
 import fs from 'mz/fs'
@@ -60,9 +58,8 @@ function getPosts (selector) {
 
 Vulcan.exportPostDetails = wrapVulcanAsyncScript(
   'exportPostDetails',
-  async ({selector, baseUrl, outputDir, outputFile = 'post_details.csv'}) => {
+  async ({selector, outputDir, outputFile = 'post_details.csv'}) => {
     if (!outputDir) throw new Error('you must specify an output directory (hint: {outputDir})')
-    if (!baseUrl) throw new Error('you must specify a base url (hint: {baseUrl})')
     const documents = getPosts(selector)
     let c = 0
     const count = documents.count()
@@ -70,8 +67,9 @@ Vulcan.exportPostDetails = wrapVulcanAsyncScript(
     for (let post of documents) {
       // SD: this makes things horribly slow, but no idea how to do a more efficient join query in Mongo
       const user = Users.findOne(post.userId, { fields: { username: 1, email: 1 }})
+      const postUrl = getSetting('siteUrl')
       const row = {
-        username: user.username + 'asdlfkjas;dlfkja',
+        username: user.username,
         email: user.email,
         id: post._id,
         user_id: post.userId,
@@ -82,7 +80,7 @@ Vulcan.exportPostDetails = wrapVulcanAsyncScript(
         frontpage_date: post.frontpageDate,
         posted_at: post.postedAt,
         created_at: post.createdAt,
-        url: `${baseUrl}/posts/${post._id}/${post.slug}`
+        url: `${postUrl}/posts/${post._id}/${post.slug}`
       }
       rows.push(row)
       c++
@@ -96,7 +94,7 @@ Vulcan.exportPostDetails = wrapVulcanAsyncScript(
     console.log(`Wrote details for ${rows.length} posts to ${filePath}`)
   })
 
-Vulcan.exportPostDetailsByMonth = ({month, baseUrl, outputDir, outputFile}) => {
+Vulcan.exportPostDetailsByMonth = ({month, outputDir, outputFile}) => {
   const lastMonth = moment.utc(month, 'YYYY-MM').startOf('month')
   outputFile = outputFile || `post_details_${lastMonth.format('YYYY-MM')}`
   //eslint-disable-next-line no-console
@@ -108,7 +106,6 @@ Vulcan.exportPostDetailsByMonth = ({month, baseUrl, outputDir, outputFile}) => {
         $lte: moment.utc(lastMonth).endOf('month').toDate()
       }
     },
-    baseUrl,
     outputFile,
     outputDir
   })
