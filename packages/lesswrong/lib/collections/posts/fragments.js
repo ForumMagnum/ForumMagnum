@@ -20,7 +20,7 @@ registerFragment(`
     deletedDraft
     viewCount
     clickCount
-    question
+    
     commentCount
     voteCount
     baseScore
@@ -33,6 +33,10 @@ registerFragment(`
     canonicalCollectionSlug
     curatedDate
     commentsLocked
+
+    # questions
+    question
+    hiddenRelatedQuestion
 
     # vulcan:users
     userId
@@ -136,14 +140,44 @@ registerFragment(`
     feed {
       ...RSSFeedMinimumInfo
     }
+    sourcePostRelations {
+      _id
+      sourcePostId
+      sourcePost {
+        ...PostsBase
+        ...PostsAuthors
+      }
+      order
+    }
+    targetPostRelations {
+      _id
+      sourcePostId
+      targetPostId
+      targetPost {
+        ...PostsBase
+        ...PostsAuthors
+      }
+      order
+    }
   }
 `);
+
+// Same as PostsPage just optional arguments to the content field
+registerFragment(`
+  fragment PostsRevision on Post {
+    ...PostsDetails
+
+    # Content & Revisions
+    version
+    contents(version: $version) {
+      ...RevisionDisplay
+    }
+  }
+`)
 
 registerFragment(`
   fragment PostsPage on Post {
     ...PostsDetails
-
-    # Content & Revisions
     version
     contents {
       ...RevisionDisplay
@@ -185,32 +219,14 @@ registerFragment(`
 `)
 
 
-
-// Same as PostsPage just optional arguments to the content field
-registerFragment(`
-  fragment PostsRevision on Post {
-    ...PostsDetails
-
-    # Content & Revisions
-    version
-    contents(version: $version) {
-      ...RevisionDisplay
-    }
-  }
-`)
-
-
 registerFragment(`
   fragment PostsList on Post {
     ...PostsBase
     ...PostsAuthors
-
+    originalPostRelationSourceId
     contents {
       htmlHighlight
       wordCount
-    }
-    feed {
-      ...RSSFeedMinimumInfo
     }
   }
 `);

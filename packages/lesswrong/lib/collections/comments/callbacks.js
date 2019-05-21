@@ -1,6 +1,6 @@
 import { Posts } from "../posts";
 import { Comments } from './collection'
-import { addCallback, runCallbacksAsync, newMutation, editMutation, removeMutation, registerSetting, getSetting, Utils } from 'meteor/vulcan:core';
+import { addCallback, runCallbacksAsync, newMutation, editMutation, removeMutation, getSetting, Utils } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import { performVoteServer } from '../../../server/voteServer.js';
 import { createError } from 'apollo-errors';
@@ -46,7 +46,6 @@ function CommentsNewOperations (comment) {
   Posts.update(comment.postId, {
     $inc:       {commentCount: 1},
     $set:       {lastCommentedAt: new Date()},
-    $addToSet:  {commenters: userId}
   });
 
   return comment;
@@ -83,13 +82,12 @@ function CommentsRemovePostCommenters (comment, currentUser) {
 
   const postComments = Comments.find({postId}, {sort: {postedAt: -1}}).fetch();
 
-  const commenters = _.uniq(postComments.map(comment => comment.userId));
   const lastCommentedAt = postComments[0] && postComments[0].postedAt;
 
-  // update post with a decremented comment count, a unique list of commenters and corresponding last commented at date
+  // update post with a decremented comment count, and corresponding last commented at date
   Posts.update(postId, {
     $inc: {commentCount: -1},
-    $set: {lastCommentedAt, commenters},
+    $set: {lastCommentedAt},
   });
 
   return comment;
@@ -144,7 +142,7 @@ function UsersRemoveDeleteComments (user, options) {
 }
 addCallback('users.remove.async', UsersRemoveDeleteComments);
 
-registerSetting('forum.commentInterval', 15, 'How long users should wait in between comments (in seconds)');
+
 
 function CommentsNewRateLimit (comment, user) {
   if (!Users.isAdmin(user)) {

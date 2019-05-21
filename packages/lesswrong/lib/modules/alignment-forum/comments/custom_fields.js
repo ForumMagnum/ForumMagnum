@@ -10,7 +10,7 @@ export const alignmentOptionsGroup = {
   startCollapsed: true
 };
 
-const alignmentForum = getSetting('AlignmentForum', false)
+const alignmentForum = getSetting('forumType') === 'AlignmentForum'
 
 addFieldsDict(Comments, {
   af: {

@@ -57,8 +57,7 @@ class CommentsList extends Component {
   }
 
   render() {
-    const { comments, currentUser, highlightDate, editMutation, post, postPage, totalComments, startThreadCollapsed, parentAnswerId } = this.props;
-
+    const { comments, currentUser, highlightDate, editMutation, post, postPage, totalComments, condensed, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1 } = this.props;
 
     const { expandAllThreads } = this.state
     const { lastVisitedAt } = post
@@ -71,12 +70,12 @@ class CommentsList extends Component {
           <div className="comments-list">
             {comments.map(comment =>
               <Components.CommentsNode
-                startThreadCollapsed={startThreadCollapsed || totalComments >= 100}
+                startThreadTruncated={startThreadTruncated || totalComments >= 50}
                 expandAllThreads={expandAllThreads}
                 unreadComments={unreadComments}
                 currentUser={currentUser}
                 comment={comment.item}
-                nestingLevel={1}
+                nestingLevel={defaultNestingLevel}
                 //eslint-disable-next-line react/no-children-prop
                 children={comment.children}
                 key={comment.item._id}
@@ -85,6 +84,7 @@ class CommentsList extends Component {
                 post={post}
                 postPage={postPage}
                 parentAnswerId={parentAnswerId}
+                condensed={condensed}
               />)
             }
           </div>

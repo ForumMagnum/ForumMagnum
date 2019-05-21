@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { Link } from '../../lib/reactRouterWrapper.js';
 import { withStyles } from '@material-ui/core/styles';
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 import Typography from '@material-ui/core/Typography';
@@ -33,15 +32,12 @@ const styles = theme => ({
   listDescription: {
     marginTop: theme.spacing.unit*2,
     ...postBodyStyles(theme)
-  },
-  newSequence: {
-    color: theme.palette.primary.light
   }
 });
 
 const SequencesHome = ({classes}) => {
 
-  const { SingleColumnSection, SectionTitle, TabNavigationMenu, Divider } = Components
+  const { SingleColumnSection, SectionTitle, TabNavigationMenu, Divider, SequencesNewButton } = Components
   // TODO: decide on terms for community sequences
   return <React.Fragment>
     <TabNavigationMenu />
@@ -80,7 +76,7 @@ const SequencesHome = ({classes}) => {
     
     <SingleColumnSection>
       <SectionTitle  title="Community Sequences" >
-        <Typography className={classes.newSequence} variant="body2"><Link to={"/sequencesnew"}> Create New Sequence </Link></Typography>
+        <SequencesNewButton />
       </SectionTitle>
       <div className={classes.sequencesGridWrapperWrapper}>
         <Components.SequencesGridWrapper

@@ -1,14 +1,6 @@
-import {
-  Components,
-  withDocument,
-  registerComponent,
-  getActions,
-  withMutation } from 'meteor/vulcan:core';
-import withNewEvents from '../../../lib/events/withNewEvents.jsx';
+import { Components, withDocument, registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { withRouter } from '../../../lib/reactRouterWrapper.js';
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
@@ -19,6 +11,8 @@ import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import classNames from 'classnames';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
+import Users from 'meteor/vulcan:users';
+import withRecordPostView from '../../common/withRecordPostView';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 
@@ -27,11 +21,9 @@ const styles = theme => ({
       position: "relative"
     },
     post: {
-      maxWidth: 650,
-      [theme.breakpoints.down('md')]: {
-        marginLeft: "auto",
-        marginRight: "auto"
-      }
+      maxWidth: 650 + (theme.spacing.unit*4),
+      marginLeft: "auto",
+      marginRight: "auto"
     },
     header: {
       position: 'relative',
@@ -106,7 +98,6 @@ const styles = theme => ({
       display: 'inline-block',
       marginLeft: 'auto',
       marginRight: 'auto',
-      paddingRight: 50,
       marginBottom: 40
     },
     draft: {
@@ -143,7 +134,6 @@ const styles = theme => ({
     },
     commentsSection: {
       minHeight: 'calc(70vh - 100px)',
-      marginLeft: -67,
       [theme.breakpoints.down('sm')]: {
         paddingRight: 0,
         marginLeft: 0
@@ -185,10 +175,10 @@ function getHostname(url) {
 class PostsPage extends Component {
 
   render() {
-    const { loading, document: post, currentUser, location, router, classes, params } = this.props
+    const { loading, document: post, currentUser, location, router, classes, params, data: {refetch} } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigationWrapper,
-      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent, Section, TableOfContents, PostsRevisionSelector, PostsRevisionMessage, AlignmentCrosspostMessage } = Components
+      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent, Section, TableOfContents, PostsRevisionSelector, PostsRevisionMessage, AlignmentCrosspostMessage, ConfigurableRecommendationsList } = Components
 
     if (loading) {
       return <div><Loading/></div>
@@ -212,7 +202,7 @@ class PostsPage extends Component {
           <HeadTags url={Posts.getPageUrl(post, true)} title={post.title} description={description}/>
 
           {/* Header/Title */}
-          <Section>
+          <Section deactivateSection={!sectionData}>
             <div className={classes.post}>
               {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
               <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
@@ -256,7 +246,7 @@ class PostsPage extends Component {
               {post.isEvent && <PostsPageEventData post={post}/>}
             </div>
           </Section>
-          <Section titleComponent={
+          <Section deactivateSection={!sectionData} titleComponent={
             <TableOfContents sectionData={sectionData} document={post} />
           }>
             <div className={classes.post}>
@@ -287,10 +277,15 @@ class PostsPage extends Component {
             {sequenceId && <div className={classes.bottomNavigation}>
               <BottomNavigationWrapper documentId={sequenceId} post={post}/>
             </div>}
+            
+            {/* Recommendations */}
+            {currentUser && Users.isAdmin(currentUser) && !post.question && 
+              <ConfigurableRecommendationsList configName="afterpost"/>}
+            
             {/* Answers Section */}
-            {post.question && <div>
+            {post.question && <div className={classes.post}>
               <div id="answers"/>
-              <PostsPageQuestionContent terms={{...commentTerms, postId: post._id}} post={post}/>
+              <PostsPageQuestionContent terms={{...commentTerms, postId: post._id}} post={post} refetch={refetch}/>
             </div>}
             {/* Comments Section */}
             <div className={classes.commentsSection}>
@@ -303,60 +298,20 @@ class PostsPage extends Component {
   }
 
   async componentDidMount() {
-    try {
-
-      // destructure the relevant props
-      const {
-        // from the parent component, used in withDocument, GraphQL HOC
-        documentId,
-        // from connect, Redux HOC
-        setViewed,
-        postsViewed,
-        // from withMutation, GraphQL HOC
-        increasePostViewCount,
-      } = this.props;
-
-      // a post id has been found & it's has not been seen yet on this client session
-      if (documentId && !postsViewed.includes(documentId)) {
-
-        // trigger the asynchronous mutation with postId as an argument
-        await increasePostViewCount({postId: documentId});
-
-        // once the mutation is done, update the redux store
-        setViewed(documentId);
-      }
-
-      //LESSWRONG: register page-visit event
-      if(this.props.currentUser) {
-        const registerEvent = this.props.registerEvent;
-        const currentUser = this.props.currentUser;
-        const eventProperties = {
-          userId: currentUser._id,
-          important: false,
-          intercom: true,
-        };
-
-        if(this.props.document) {
-          eventProperties.documentId = this.props.document._id;
-          eventProperties.postTitle = this.props.document.title;
-        } else if (this.props.documentId){
-          eventProperties.documentId = this.props.documentId;
-        }
-        registerEvent('post-view', eventProperties);
-      }
-    } catch(error) {
-      console.log("PostPage componentDidMount error:", error); // eslint-disable-line
+    this.props.recordPostView(this.props);
+  }
+  
+  componentDidUpdate(prevProps) {
+    if (prevProps.document && this.props.document && prevProps.document._id !== this.props.document._id) {
+      this.props.closeAllEvents();
+      this.props.recordPostView(this.props);
     }
   }
 }
 PostsPage.displayName = "PostsPage";
 
 PostsPage.propTypes = {
-  documentId: PropTypes.string,
   document: PropTypes.object,
-  postsViewed: PropTypes.array,
-  setViewed: PropTypes.func,
-  increasePostViewCount: PropTypes.func,
 }
 
 const queryOptions = {
@@ -371,14 +326,6 @@ const queryOptions = {
   }
 };
 
-const mutationOptions = {
-  name: 'increasePostViewCount',
-  args: {postId: 'String'},
-};
-
-const mapStateToProps = state => ({ postsViewed: state.postsViewed });
-const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsViewed, dispatch);
-
 registerComponent(
   // component name used by Vulcan
   'PostsPage',
@@ -386,18 +333,13 @@ registerComponent(
   PostsPage,
   // HOC to give access to the current user
   withUser,
-  // HOC to give access to LW2 event API
-  withNewEvents,
   // HOC to give access to router and params
   withRouter,
   // HOC to load the data of the document, based on queryOptions & a documentId props
   [withDocument, queryOptions],
-  // HOC to provide a single mutation, based on mutationOptions
-  withMutation(mutationOptions),
-  // HOC to give access to the redux store & related actions
-  connect(mapStateToProps, mapDispatchToProps),
   // HOC to add JSS styles to component
   withStyles(styles, { name: "PostsPage" }),
+  withRecordPostView,
   // Add error boundary to post
-  withErrorBoundary
+  withErrorBoundary,
 );

@@ -1,16 +1,9 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
-import { registerComponent, Utils, getSetting, registerSetting, Head } from 'meteor/vulcan:lib';
+import { registerComponent, Utils, getSetting, Head } from 'meteor/vulcan:lib';
 import { compose } from 'react-apollo';
 import { withRouter } from '../../lib/reactRouterWrapper.js';
-
-registerSetting('logoUrl', null, 'Absolute URL for the logo image');
-registerSetting('title', 'My App', 'App title');
-registerSetting('tagline', null, 'App tagline');
-registerSetting('description');
-registerSetting('siteImage', null, 'An image used to represent the site on social media');
-registerSetting('faviconUrl', '/img/favicon.ico', 'Favicon absolute URL');
 
 class HeadTags extends PureComponent {
 

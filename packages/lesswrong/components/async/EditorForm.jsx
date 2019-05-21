@@ -14,6 +14,7 @@ import createMathjaxPlugin from 'draft-js-mathjax-plugin'
 import createMarkdownShortcutsPlugin from './editor-plugins/markdown-shortcuts-plugin';
 import { withTheme } from '@material-ui/core/styles';
 import createLinkPlugin from 'draft-js-anchor-plugin';
+import LinkButton from './editor-plugins/LinkButton'
 import { myKeyBindingFn } from './editor-plugins/keyBindings.js'
 import createLinkifyPlugin from './editor-plugins/linkifyPlugin'
 import ImageButton from './editor-plugins/image/ImageButton.jsx';
@@ -79,7 +80,7 @@ class EditorForm extends Component {
       { button: BoldButton,                    commentEditor: true   },
       { button: ItalicButton,                  commentEditor: true   },
       { button: UnderlineButton,               commentEditor: true   },
-      { button: linkPlugin.LinkButton,         commentEditor: true   },
+      { button: LinkButton,             commentEditor: true   },
       { button: Separator,                     commentEditor: true   },
       { button: HeadlineOneButton,             commentEditor: false  },
       { button: HeadlineTwoButton,             commentEditor: true   },
@@ -123,7 +124,7 @@ class EditorForm extends Component {
           mathjaxConfig: {
             jax: ['input/TeX', 'output/CommonHTML'],
             TeX: {
-              extensions: ['autoload-all.js'],
+              extensions: ['autoload-all.js', 'Safe.js'],
             },
             messageStyle: 'none',
             showProcessingMessages: false,

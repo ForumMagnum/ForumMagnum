@@ -30,6 +30,7 @@ const styles = theme => ({
 })
 
 const UsersNameDisplay = ({user, classes}) => {
+  if (!user) return <Components.UserDeleted/>
   const { FormatDate } = Components
   const { htmlBio } = user
 
@@ -46,7 +47,7 @@ const UsersNameDisplay = ({user, classes}) => {
 
   return <Tooltip title={tooltip}>
     <Link to={Users.getProfileUrl(user)} className={classes.userName}>
-      {getSetting('AlignmentForum', false) ? (user.fullName || Users.getDisplayName(user)) : Users.getDisplayName(user)}
+      {getSetting('forumType') === 'AlignmentForum' ? (user.fullName || Users.getDisplayName(user)) : Users.getDisplayName(user)}
     </Link>
   </Tooltip>
 }

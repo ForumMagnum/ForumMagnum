@@ -22,7 +22,7 @@ class TableOfContentsList extends Component {
   render() {
     const { sectionData, document} = this.props;
     const { currentSection } = this.state;
-    const { TableOfContentsRow } = Components;
+    const { TableOfContentsRow, AnswerTocRow } = Components;
     // const Row = TableOfContentsRow;
 
     if (!sectionData)
@@ -31,7 +31,7 @@ class TableOfContentsList extends Component {
     const { sections, headingsCount } = sectionData;
 
     const title = (document && document.title) || (sectionData.document && sectionData.document.title);
-    
+
     return <div>
       <div>
         <TableOfContentsRow key="postTitle"
@@ -50,7 +50,11 @@ class TableOfContentsList extends Component {
             onClick={(ev) => this.jumpToAnchor(section.anchor, ev)}
             answersStyling={headingsCount > 1}
           >
-            {section.title}
+              {section.answer ? 
+                <AnswerTocRow answer={section.answer} />
+                : 
+                <span>{section.title}</span> 
+              }
           </TableOfContentsRow>
         )}
       </div>
@@ -93,14 +97,18 @@ class TableOfContentsList extends Component {
     if (this.props.onClickSection) {
       this.props.onClickSection();
     }
-
-    window.scrollTo({
-      top: y - this.getCurrentSectionMark() + 1,
-      behavior: "smooth"
-    });
-
-    if (ev)
-      ev.preventDefault();
+    try {
+      window.scrollTo({
+        top: y - this.getCurrentSectionMark() + 1,
+        behavior: "smooth"
+      });
+  
+      if (ev) ev.preventDefault();
+    } catch(e) {
+      // eslint-disable-next-line no-console
+      console.warn("scrollTo not supported, using link fallback", e)
+    }
+    
   }
 
   updateHighlightedSection = () => {

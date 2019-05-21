@@ -10,7 +10,7 @@ import Users from 'meteor/vulcan:users';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
 const styles = theme => ({
-  allPostsContent: {
+  daily: {
     padding: theme.spacing.unit,
     [theme.breakpoints.down('xs')]: {
       padding: 0,
@@ -64,7 +64,7 @@ class AllPostsPage extends Component {
   render() {
     const { classes, currentUser, router } = this.props
     const { showSettings } = this.state
-    const { AllPostsPageSettings, PostsList2, SingleColumnSection, SectionTitle, PostsDailyList, MetaInfo, TabNavigationMenu } = Components
+    const { PostsListSettings, PostsList2, SingleColumnSection, SectionTitle, PostsDailyList, MetaInfo, TabNavigationMenu } = Components
     const query = _.clone(router.location.query) || {}
 
     const currentView = query.view || (currentUser && currentUser.allPostsView) || "daily"
@@ -99,19 +99,20 @@ class AllPostsPage extends Component {
               </SectionTitle>
             </div>
           </Tooltip>
-          <AllPostsPageSettings
+          <PostsListSettings
             hidden={!showSettings}
             currentView={currentView}
             currentFilter={currentFilter}
             currentShowLowKarma={currentShowLowKarma}
+            persistentSettings
           />
-          <div className={classes.allPostsContent}>
-            {currentView === "daily" ?
+          {currentView === "daily" ?
+            <div className={classes.daily}>
               <PostsDailyList title="Posts by Day" terms={dailyTerms} days={numberOfDays} dimWhenLoading={showSettings} />
-              :
-              <PostsList2 terms={terms} showHeader={false} dimWhenLoading={showSettings} />
-            }
-          </div>
+            </div>
+            :
+            <PostsList2 terms={terms} showHeader={false} dimWhenLoading={showSettings} />
+          }
         </SingleColumnSection>
       </React.Fragment>
     )

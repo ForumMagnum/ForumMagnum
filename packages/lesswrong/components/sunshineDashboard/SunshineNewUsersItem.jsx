@@ -21,14 +21,6 @@ const styles = theme => ({
     wordBreak: "break-word",
     display: "inline-block"
   },
-  sample: {
-    maxHeight: 100,
-    overflow: "hidden",
-    '&:hover': {
-      maxHeight: "unset",
-      overflow: "unset"
-    }
-  }
 })
 class SunshineNewUsersItem extends Component {
   state = {hidden: false}
@@ -73,6 +65,7 @@ class SunshineNewUsersItem extends Component {
           <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
             <Typography variant="body2">
               <MetaInfo>
+                <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
                 <div>Posts: { user.postCount || 0 }</div>
                 <div>Comments: { user.commentCount || 0 }</div>
                 <hr />
@@ -105,7 +98,7 @@ class SunshineNewUsersItem extends Component {
             </MetaInfo>
           </div>
           {showNewUserContent && 
-            <div className={classes.sample}>
+            <div>
               <SunshineNewUserPostsList truncated={true} terms={{view:"sunshineNewUsersPosts", userId: user._id}}/>
               <SunshineNewUserCommentsList truncated={true} terms={{view:"sunshineNewUsersComments", userId: user._id}}/>
             </div>

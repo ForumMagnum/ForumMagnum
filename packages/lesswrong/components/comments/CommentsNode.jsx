@@ -24,8 +24,8 @@ const styles = theme => ({
     }
   },
   child: {
-    marginLeft: 8,
-    marginBottom: 8,
+    marginLeft: theme.spacing.unit,
+    marginBottom: theme.spacing.unit,
     borderLeft: `solid 1px ${theme.palette.grey[300]}`,
     borderTop: `solid 1px ${theme.palette.grey[300]}`,
     borderBottom: `solid 1px ${theme.palette.grey[300]}`,
@@ -45,29 +45,30 @@ const styles = theme => ({
     }
   },
   isAnswer: {
-    borderLeft: 'transparent',
-    borderRight: 'solid 1px rgba(0,0,0,.125)',
-    borderTop: 'transparent',
-    borderBottom: 'transparent',
+    border: `solid 2px ${theme.palette.grey[300]}`,
   },
   answerChildComment: {
-    borderLeft: 'transparent',
-    borderRight: 'transparent',
-    borderTop: 'transparent',
-    paddingBottom: 1,
-    marginBottom: 0
+    marginBottom: theme.spacing.unit,
+    border: `solid 1px ${theme.palette.grey[300]}`,
   },
   childAnswerComment: {
-    borderTop: 'transparent',
-    borderBottom: 'transparent',
-    marginBottom: 8
+    borderRight: "none"
   },
   oddAnswerComment: {
     backgroundColor: 'white'
   },
   answerLeafComment: {
     paddingBottom: 0
-  }
+  },
+  isSingleLine: {
+    marginBottom: 0,
+    borderBottom: "none",
+    borderTop: "solid 1px rgba(0,0,0,.15)",
+    '&.comments-node-root':{
+      marginBottom: 6,
+      borderBottom: "solid 1px rgba(0,0,0,.2)",
+    }
+  },
 })
 
 class CommentsNode extends Component {
@@ -98,8 +99,7 @@ class CommentsNode extends Component {
   }
 
   beginTruncated = () => {
-    const { nestingLevel, startThreadCollapsed } = this.props
-    return startThreadCollapsed && nestingLevel === 1
+    return this.props.startThreadTruncated
   }
 
   componentDidMount() {
@@ -129,17 +129,13 @@ class CommentsNode extends Component {
   }
 
   unTruncate = (event) => {
-    const { parentAnswerId } = this.props
-    if (!parentAnswerId) {
-      event.stopPropagation()
-    }
+    event.stopPropagation()
     this.setState({truncated: false, truncatedStateSet: true});
   }
 
   toggleHover = () => {
-    this.setState({hover: !this.state.hover});
+    this.setState(prevState => ({hover: !prevState.hover}));
   }
-
 
   shouldComponentUpdate(nextProps, nextState) {
     if (!shallowEqual(this.state, nextState))
@@ -168,17 +164,34 @@ class CommentsNode extends Component {
     return false;
   }
 
+  isTruncated = () => {
+    const { comment, expandAllThreads } = this.props;
+    const { truncatedStateSet } = this.state
+    return !expandAllThreads && (this.state.truncated || ((this.props.truncated || this.commentIsByGPT2(comment)) && truncatedStateSet === false))
+  }
+
+  isNewComment = () => {
+    const { comment, highlightDate } = this.props;
+    return highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime())
+  }
+
+  isSingleLine = () => {
+    const { currentUser, comment, condensed } = this.props 
+    return currentUser && currentUser.isAdmin && this.isTruncated() && (!this.isNewComment() || condensed) && (comment.baseScore < 10 || condensed) 
+  }
+
   render() {
-    const { comment, children, nestingLevel=1, currentUser, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, expandAllThreads, parentAnswerId } = this.props;
+    const { comment, children, nestingLevel=1, currentUser, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, parentAnswerId, condensed } = this.props;
+
+    const { SingleLineComment, CommentsItem } = Components
 
     if (!comment || !post)
       return null;
 
-    const { hover, collapsed, finishedScroll, truncatedStateSet } = this.state
+    const { hover, collapsed, finishedScroll } = this.state
 
-    const truncated = !expandAllThreads && (this.state.truncated || ((this.props.truncated || this.commentIsByGPT2(comment)) && truncatedStateSet === false))
+    const newComment = this.isNewComment()
 
-    const newComment = highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime())
     const nodeClass = classNames(
       "comments-node",
       classes.node,
@@ -205,7 +218,8 @@ class CommentsNode extends Component {
         [classes.answerChildComment]: parentAnswerId,
         [classes.childAnswerComment]: child && parentAnswerId,
         [classes.oddAnswerComment]: (nestingLevel % 2 !== 0) && parentAnswerId,
-        [classes.answerLeafComment]: !(children && children.length)
+        [classes.answerLeafComment]: !(children && children.length),
+        [classes.isSingleLine]: this.isSingleLine()
       }
     )
 
@@ -218,9 +232,10 @@ class CommentsNode extends Component {
           id={comment._id}>
           {/*eslint-disable-next-line react/no-string-refs*/}
           <div ref="comment">
-            <Components.CommentsItem
+            {this.isSingleLine() ? <SingleLineComment comment={comment} nestingLevel={nestingLevel} />
+              : <CommentsItem
               collapsed={collapsed}
-              truncated={truncated}
+              truncated={this.isTruncated()}
               toggleCollapse={this.toggleCollapse}
               currentUser={currentUser}
               comment={comment}
@@ -232,7 +247,7 @@ class CommentsNode extends Component {
               nestingLevel={nestingLevel}
               showPostTitle={showPostTitle}
               parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
-            />
+            />}
           </div>
           {!collapsed && <div className="comments-children">
             <div className={classes.parentScroll} onClick={this.scrollIntoView}></div>
@@ -241,7 +256,7 @@ class CommentsNode extends Component {
                 currentUser={currentUser}
                 comment={child.item}
                 nestingLevel={nestingLevel+1}
-                truncated={truncated}
+                truncated={this.isTruncated()}
                 unreadComments={unreadComments}
                 //eslint-disable-next-line react/no-children-prop
                 children={child.children}
@@ -252,6 +267,7 @@ class CommentsNode extends Component {
                 post={post}
                 postPage={postPage}
                 parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
+                condensed={condensed}
               />)}
           </div>}
         </div>

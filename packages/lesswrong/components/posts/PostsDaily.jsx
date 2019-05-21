@@ -1,10 +1,8 @@
-import { Components, registerComponent, getSetting, registerSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import moment from 'moment';
 import { withStyles } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
-
-registerSetting('forum.numberOfDays', 5, 'Number of days to display in Daily view');
 
 // Shared with EventsPast, EventsUpcoming
 export const styles = theme => ({

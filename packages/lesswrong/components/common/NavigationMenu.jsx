@@ -101,7 +101,7 @@ const styles = theme => ({
 });
 
 const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
-  const af = getSetting('AlignmentForum', false);
+  const af = getSetting('forumType') === 'AlignmentForum';
 
   const NavigationMenuLink = ({to, label, icon, indent=false}) => (
     <MenuItem

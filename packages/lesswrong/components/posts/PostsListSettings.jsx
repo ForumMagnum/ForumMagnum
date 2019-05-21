@@ -11,7 +11,7 @@ import { Link } from '../../lib/reactRouterWrapper.js'
 import withUser from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
-import { views } from './AllPostsPage.jsx'
+import { views as defaultViews } from './AllPostsPage.jsx'
 
 const styles = theme => ({
   root: {
@@ -24,7 +24,6 @@ const styles = theme => ({
     paddingRight: theme.spacing.unit*4,
     paddingTop: theme.spacing.unit/2,
     paddingBottom: theme.spacing.unit*2,
-    marginRight: theme.spacing.unit*2,
     flexWrap: "wrap",
     marginLeft: 3,
     [theme.breakpoints.down('md')]: {
@@ -78,11 +77,11 @@ const styles = theme => ({
   },
 })
 
-class AllPostsPageSettings extends Component {
+class PostsListSettings extends Component {
 
   setFilter = (filter) => {
-    const { updateUser, currentUser } = this.props
-    if (currentUser) {
+    const { updateUser, currentUser, persistentSettings } = this.props
+    if (currentUser && persistentSettings) {
       updateUser({
         selector: { _id: currentUser._id},
         data: {
@@ -93,8 +92,8 @@ class AllPostsPageSettings extends Component {
   }
 
   setView = (view) => {
-    const { updateUser, currentUser } = this.props
-    if (currentUser) {
+    const { updateUser, currentUser, persistentSettings } = this.props
+    if (currentUser && persistentSettings) {
       updateUser({
         selector: { _id: currentUser._id},
         data: {
@@ -105,8 +104,8 @@ class AllPostsPageSettings extends Component {
   }
 
   setShowLowKarma = (newSetting) => {
-    const { updateUser, currentUser } = this.props
-    if (currentUser) {
+    const { updateUser, currentUser, persistentSettings } = this.props
+    if (currentUser && persistentSettings) {
       updateUser({
         selector: { _id: currentUser._id},
         data: {
@@ -118,7 +117,7 @@ class AllPostsPageSettings extends Component {
 
 
   render () {
-    const { classes, hidden, currentView, currentFilter, currentShowLowKarma } = this.props
+    const { classes, hidden, currentView, currentFilter, currentShowLowKarma, views = defaultViews } = this.props
     const { MetaInfo } = Components
 
     const filters = [
@@ -212,15 +211,15 @@ class AllPostsPageSettings extends Component {
   }
 }
 
-AllPostsPageSettings.propTypes = {
+PostsListSettings.propTypes = {
   currentUser: PropTypes.object,
 };
 
-AllPostsPageSettings.displayName = 'AllPostsPageSettings';
+PostsListSettings.displayName = 'PostsListSettings';
 
 const withUpdateOptions = {
   collection: Users,
   fragmentName: 'UsersCurrent',
 }
 
-registerComponent('AllPostsPageSettings', AllPostsPageSettings, withUser, withStyles(styles, {name:"AllPostsPageSettings"}), [withUpdate, withUpdateOptions]);
+registerComponent('PostsListSettings', PostsListSettings, withUser, withStyles(styles, {name:"PostsListSettings"}), [withUpdate, withUpdateOptions]);

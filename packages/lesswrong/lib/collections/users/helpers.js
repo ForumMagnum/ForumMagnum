@@ -121,7 +121,7 @@ Users.isAllowedToComment = (user, post) => {
     return false
   }
 
-  if (getSetting('AlignmentForum', false)) {
+  if (getSetting('forumType') === 'AlignmentForum') {
     if (!Users.canDo(user, 'comments.alignment.new')) {
       return Users.owns(user, post) && Users.canDo(user, 'votes.alignment')
     }
@@ -139,9 +139,9 @@ Users.blockedCommentingReason = (user, post) => {
     return "This post's author has blocked you from commenting."
   }
 
-  if (getSetting('AlignmentForum', false)) {
+  if (getSetting('forumType') === 'AlignmentForum') {
     if (!Users.canDo(user, 'comments.alignment.new')) {
-      return "You must be approved by an admin to comment on Alignment Forum"
+      return "You must be approved by an admin to comment on the AI Alignment Forum"
     }
   }
   if (Users.userIsBannedFromAllPosts(user, post)) {
@@ -278,7 +278,7 @@ Users.getAggregateKarma = async (user) => {
 }
 
 Users.getPostCount = (user) => {
-  if (getSetting('AlignmentForum')) {
+  if (getSetting('forumType') === 'AlignmentForum') {
     return user.afPostCount;
   } else {
     return user.postCount;
@@ -286,7 +286,7 @@ Users.getPostCount = (user) => {
 }
 
 Users.getCommentCount = (user) => {
-  if (getSetting('AlignmentForum')) {
+  if (getSetting('forumType') === 'AlignmentForum') {
     return user.afCommentCount;
   } else {
     return user.commentCount;
