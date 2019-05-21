@@ -11,7 +11,10 @@ export function addCronJob(options)
 {
   Meteor.startup(function() {
     if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {
-      SyncedCron.add(options);
+      // Defer starting of cronjobs until 20s after server startup
+      Meteor.setTimeout(() => {
+        SyncedCron.add(options);
+      }, 20000);
     }
   });
 }

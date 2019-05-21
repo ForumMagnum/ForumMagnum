@@ -2,13 +2,15 @@ import { Posts } from './collection';
 import { getSetting } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
-import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple, denormalizedCountOfReferences } from '../../modules/utils/schemaUtils'
+import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple, resolverOnlyField, denormalizedCountOfReferences } from '../../modules/utils/schemaUtils'
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { Utils } from 'meteor/vulcan:core';
 import GraphQLJSON from 'graphql-type-json';
 import { Comments } from '../comments'
 import { questionAnswersSort } from '../comments/views';
 import { schemaDefaultValue } from '../../collectionUtils';
+//import { getWithCustomLoader } from '../../loaders.js';
+//import keyBy from 'lodash/keyBy';
 
 export const formGroups = {
   adminOptions: {
@@ -140,41 +142,34 @@ addFieldsDict(Posts, {
     group: formGroups.adminOptions
   },
 
-  // legacyData: A complete dump of all the legacy data we have on this post in a
-  // single blackbox object. Never queried on the client, but useful for a lot
-  // of backend functionality, and simplifies the data import from the legacy
-  // LessWrong database
-  legacyData: {
-    type: Object,
-    optional: true,
-    viewableBy: ['admins'],
-    insertableBy: ['admins'],
-    editableBy: ['admins'],
-    hidden: true,
-    blackbox: true,
-  },
-
-  // lastVisitDateDefault: Sets the default of what the lastVisit of a post
-  // should be, resolves to the date of the last visit of a user, when a user is
-  // loggedn in. Returns null when no user is logged in;
-  lastVisitedAtDefault: {
+  // lastVisitedAt: If the user is logged in and has viewed this post, the date
+  // they last viewed it. Otherwise, null.
+  lastVisitedAt: resolverOnlyField({
     type: Date,
-    optional: true,
-    hidden: true,
     viewableBy: ['guests'],
-    resolveAs: {
-      fieldName: 'lastVisitedAt',
-      type: 'Date',
-      resolver: async (post, args, { LWEvents, currentUser }) => {
-        if(currentUser){
-          const event = await LWEvents.findOne({name:'post-view', documentId: post._id, userId: currentUser._id}, {sort:{createdAt:-1}});
-          return event && event.createdAt
-        } else {
-          return post.lastVisitDateDefault
+    resolver: async (post, args, { ReadStatuses, LWEvents, currentUser }) => {
+      if (!currentUser) return null;
+      
+      // Slow method, from the LWEvents table. This is an N+1 select. Switch
+      // after the migration script is run.
+      const event = await LWEvents.findOne({name:'post-view', documentId: post._id, userId: currentUser._id}, {sort:{createdAt:-1}});
+      return event && event.createdAt
+      
+      // Faster method, using the ReadStatuses table.
+      /*return await getWithCustomLoader(ReadStatuses, `postsReadByUser${currentUser._id}`, post._id,
+        async postIDs => {
+          const readDates = await ReadStatuses.find({
+            userId: currentUser._id,
+            postId: {$in: postIDs},
+            isRead: true,
+          }, {postId:1, lastUpdated:1}).fetch();
+          
+          const readDateByPostID = keyBy(readDates, ev=>ev.postId);
+          return postIDs.map(postID => readDateByPostID[postID] ? readDateByPostID[postID].lastUpdated : null);
         }
-      }
+      );*/
     }
-  },
+  }),
 
   lastCommentedAt: {
     type: Date,
@@ -217,16 +212,17 @@ addFieldsDict(Posts, {
     resolveAs: {
       fieldName: 'suggestForCuratedUsernames',
       type: 'String',
-      resolver: (post, args, context) => {
+      resolver: async (post, args, context) => {
         // TODO - Turn this into a proper resolve field.
         // Ran into weird issue trying to get this to be a proper "users"
         // resolve field. Wasn't sure it actually needed to be anyway,
         // did a hacky thing.
-        const users = _.map(post.suggestForCuratedUserIds,
-          (userId => {
-            return context.Users.findOne({ _id: userId }).displayName
-          })
-        )
+        const users = await Promise.all(_.map(post.suggestForCuratedUserIds,
+          async userId => {
+            const user = await context.Users.loader.load(userId)
+            return user.displayName;
+          }
+        ))
         if (users.length) {
           return users.join(", ")
         } else {

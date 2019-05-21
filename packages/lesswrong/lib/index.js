@@ -57,6 +57,9 @@ import { LWEvents } from './collections/lwevents/index.js';
 // DebouncerEvents
 import './collections/debouncerEvents/collection.js';
 
+
+// ReadStatuses
+import './collections/readStatus/collection.js';
 // Bans
 import { Bans } from './collections/bans/index.js'
 // Chapters

@@ -60,8 +60,14 @@ const styles = theme => ({
   answerLeafComment: {
     paddingBottom: 0
   },
-  noBottomMargin: {
-    marginBottom: 4
+  isSingleLine: {
+    marginBottom: 0,
+    borderBottom: "none",
+    borderTop: "solid 1px rgba(0,0,0,.15)",
+    '&.comments-node-root':{
+      marginBottom: 6,
+      borderBottom: "solid 1px rgba(0,0,0,.2)",
+    }
   },
 })
 
@@ -124,7 +130,10 @@ class CommentsNode extends Component {
 
   unTruncate = (event) => {
     event.stopPropagation()
-    this.setState({truncated: false, truncatedStateSet: true});
+    if (this.isTruncated()) {
+      this.props.markAsRead && this.props.markAsRead()
+      this.setState({truncated: false, truncatedStateSet: true});
+    }
   }
 
   toggleHover = () => {
@@ -175,7 +184,7 @@ class CommentsNode extends Component {
   }
 
   render() {
-    const { comment, children, nestingLevel=1, currentUser, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, parentAnswerId, condensed } = this.props;
+    const { comment, children, nestingLevel=1, currentUser, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, parentAnswerId, condensed, markAsRead } = this.props;
 
     const { SingleLineComment, CommentsItem } = Components
 
@@ -213,7 +222,7 @@ class CommentsNode extends Component {
         [classes.childAnswerComment]: child && parentAnswerId,
         [classes.oddAnswerComment]: (nestingLevel % 2 !== 0) && parentAnswerId,
         [classes.answerLeafComment]: !(children && children.length),
-        [classes.noBottomMargin]: this.isSingleLine()
+        [classes.isSingleLine]: this.isSingleLine()
       }
     )
 
@@ -226,7 +235,7 @@ class CommentsNode extends Component {
           id={comment._id}>
           {/*eslint-disable-next-line react/no-string-refs*/}
           <div ref="comment">
-            {this.isSingleLine() ? <SingleLineComment comment={comment} />
+            {this.isSingleLine() ? <SingleLineComment comment={comment} nestingLevel={nestingLevel} />
               : <CommentsItem
               collapsed={collapsed}
               truncated={this.isTruncated()}
@@ -252,6 +261,7 @@ class CommentsNode extends Component {
                 nestingLevel={nestingLevel+1}
                 truncated={this.isTruncated()}
                 unreadComments={unreadComments}
+                markAsRead={markAsRead}
                 //eslint-disable-next-line react/no-children-prop
                 children={child.children}
                 key={child.item._id}

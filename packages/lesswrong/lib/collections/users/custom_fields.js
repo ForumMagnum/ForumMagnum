@@ -388,20 +388,6 @@ addFieldsDict(Users, {
     hidden: true,
   },
 
-  // legacyData: A complete dump of all the legacy data we have on this post in a
-  // single blackbox object. Never queried on the client, but useful for a lot
-  // of backend functionality, and simplifies the data import from the legacy
-  // LessWrong database
-  legacyData: {
-    type: Object,
-    optional: true,
-    canRead: ['admins'],
-    canCreate: ['admins'],
-    canUpdate: ['admins'],
-    hidden: true,
-    blackbox: true,
-  },
-
   // voteBanned: All future votes of this user have weight 0
   voteBanned: {
     type: Boolean,

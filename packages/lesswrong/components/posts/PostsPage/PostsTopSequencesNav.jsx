@@ -10,7 +10,7 @@ const PostsTopSequencesNav = ({post, sequenceId, routes}) => {
 
   const isSequenceRoute = _.some(routes, r => r.name === "sequencesPost")
 
-  if (sequenceId && isSequenceRoute) {
+  if (sequenceId && isSequenceRoute && !canonicalCollectionSlug) {
     return (
       <SequencesNavigation
         documentId={sequenceId}
@@ -27,7 +27,7 @@ const PostsTopSequencesNav = ({post, sequenceId, routes}) => {
         prevPostSlug={post.canonicalPrevPostSlug}
       />
     )
-  } else if (sequenceId){
+  } else if (sequenceId) {
     return (
       <SequencesNavigation
         documentId={sequenceId}
