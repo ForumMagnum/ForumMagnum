@@ -1,8 +1,6 @@
 import {
   Components,
   registerComponent,
-  withMutation,
-  getActions,
 } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
@@ -10,9 +8,6 @@ import { Link } from '../../lib/reactRouterWrapper.js';
 import { Posts } from "../../lib/collections/posts";
 import classNames from 'classnames';
 
-import { bindActionCreators } from 'redux';
-import withNewEvents from '../../lib/events/withNewEvents.jsx';
-import { connect } from 'react-redux';
 import CommentIcon from '@material-ui/icons/ModeComment';
 import Paper from '@material-ui/core/Paper';
 import Icon from '@material-ui/core/Icon';
@@ -22,6 +17,7 @@ import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 import Typography from '@material-ui/core/Typography';
 import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
 import withErrorBoundary from '../common/withErrorBoundary'
+import withRecordPostView from '../common/withRecordPostView';
 
 
 const styles = theme => ({
@@ -274,13 +270,14 @@ class PostsItem extends Component {
   }
 
   toggleNewComments = () => {
-    this.handleMarkAsRead()
+    this.props.recordPostView({...this.props, document:this.props.post})
     this.setState({readStatus: true});
     this.setState({showNewComments: !this.state.showNewComments});
     this.setState({showHighlight: false});
   }
+  
   toggleHighlight = () => {
-    this.handleMarkAsRead()
+    this.props.recordPostView({...this.props, document:this.props.post})
     this.setState({readStatus: true});
     this.setState({showHighlight: !this.state.showHighlight});
     this.setState({showNewComments: false});
@@ -302,43 +299,6 @@ class PostsItem extends Component {
     }
 
     return false;
-  }
-
-
-  async handleMarkAsRead () {
-    // try {
-      const {
-        // from the parent component, used in withDocument, GraphQL HOC
-        // from connect, Redux HOC
-        setViewed,
-        postsViewed,
-        post,
-        // from withMutation, GraphQL HOC
-        increasePostViewCount,
-      } = this.props;
-      // a post id has been found & it's has not been seen yet on this client session
-      if (post && post._id && postsViewed && !postsViewed.includes(post._id)) {
-
-        // trigger the asynchronous mutation with postId as an argument
-        await increasePostViewCount({postId: post._id});
-
-        // once the mutation is done, update the redux store
-        setViewed(post._id);
-      }
-
-      //LESSWRONG: register page-visit event
-      if (this.props.currentUser) {
-        const eventProperties = {
-          userId: this.props.currentUser._id,
-          important: false,
-          intercom: true,
-        };
-
-        eventProperties.documentId = post._id;
-        eventProperties.postTitle = post.title;
-        this.props.recordEvent('post-view', false, eventProperties)
-      }
-    // }
   }
 
   // Render the thing that appears when you click "Show Highlight"
@@ -500,20 +460,10 @@ PostsItem.propTypes = {
   increasePostViewCount: PropTypes.func,
 };
 
-const mutationOptions = {
-  name: 'increasePostViewCount',
-  args: {postId: 'String'},
-};
-
-const mapStateToProps = state => ({ postsViewed: state.postsViewed });
-const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsViewed, dispatch);
-
 registerComponent(
   'PostsItem',
   PostsItem,
-  withMutation(mutationOptions),
-  withNewEvents,
-  connect(mapStateToProps, mapDispatchToProps),
   withStyles(styles, { name: "PostsItem" }),
+  withRecordPostView,
   withErrorBoundary
 );

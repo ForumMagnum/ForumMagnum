@@ -1,6 +1,5 @@
-import { Components, registerComponent, withList } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import Sequences from '../../lib/collections/sequences/collection.js';
 import { withStyles } from '@material-ui/core/styles';
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 
@@ -51,15 +50,5 @@ const SequencesGrid = ({sequences, showAuthor, classes}) =>
     </div>
   </div>
 
-const options = {
-  collection: Sequences,
-  queryName: 'SequencesGridQuery',
-  fragmentName: 'SequencesPageFragment',
-  enableTotal: false,
-  enableCache: true,
-  ssr: true,
-}
-
-
-registerComponent('SequencesGrid', SequencesGrid, [withList, options],
+registerComponent('SequencesGrid', SequencesGrid,
   withStyles(styles, {name: "SequencesGrid"}));

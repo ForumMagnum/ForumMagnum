@@ -1,4 +1,4 @@
-import { Components, registerComponent, withMutation, getActions } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper.js';
@@ -7,12 +7,10 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import Typography from '@material-ui/core/Typography';
 import withUser from "../common/withUser";
 import classNames from 'classnames';
-import { connect } from 'react-redux';
-import withNewEvents from '../../lib/events/withNewEvents.jsx';
-import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import grey from '@material-ui/core/colors/grey';
 import Hidden from '@material-ui/core/Hidden';
+import withRecordPostView from '../common/withRecordPostView';
 
 import { POSTED_AT_WIDTH } from './PostsItemDate.jsx';
 
@@ -44,8 +42,10 @@ const styles = (theme) => ({
   },
   background: {
     transition: "3s",
-    borderBottom: "solid 1px rgba(0,0,0,.2)",
     width: "100%",
+  },
+  bottomBorder: {
+    borderBottom: "solid 1px rgba(0,0,0,.2)",
   },
   commentsBackground: {
     backgroundColor: COMMENTS_BACKGROUND_COLOR,
@@ -195,7 +195,7 @@ class PostsItem2 extends PureComponent {
   }
 
   toggleComments = (scroll) => {
-    this.handleMarkAsRead()
+    this.props.recordPostView({...this.props, document:this.props.post})
     this.setState((prevState) => {
       if (scroll) {
         this.postsItemRef.current.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"})
@@ -205,40 +205,6 @@ class PostsItem2 extends PureComponent {
         readComments: true
       })
     })
-  }
-
-  async handleMarkAsRead () {
-    const {
-      // from the parent component, used in withDocument, GraphQL HOC
-      // from connect, Redux HOC
-      setViewed,
-      postsViewed,
-      post,
-      // from withMutation, GraphQL HOC
-      increasePostViewCount,
-    } = this.props;
-    // a post id has been found & it's has not been seen yet on this client session
-    if (post && post._id && postsViewed && !postsViewed.includes(post._id)) {
-
-      // trigger the asynchronous mutation with postId as an argument
-      await increasePostViewCount({postId: post._id});
-
-      // once the mutation is done, update the redux store
-      setViewed(post._id);
-    }
-
-    //LESSWRONG: register page-visit event
-    if (this.props.currentUser) {
-      const eventProperties = {
-        userId: this.props.currentUser._id,
-        important: false,
-        intercom: true,
-      };
-
-      eventProperties.documentId = post._id;
-      eventProperties.postTitle = post.title;
-      this.props.recordEvent('post-view', false, eventProperties)
-    }
   }
 
   isSticky = (post, terms) => {
@@ -252,7 +218,7 @@ class PostsItem2 extends PureComponent {
   }
 
   render() {
-    const { classes, post, chapter, currentUser, index, terms } = this.props
+    const { classes, post, chapter, currentUser, index, terms, showBottomBorder=true, showQuestionTag=true, showPostedAt=true } = this.props
     const { showComments, readComments } = this.state
     const { PostsItemComments, PostsItemKarma, PostsItemTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
 
@@ -263,6 +229,7 @@ class PostsItem2 extends PureComponent {
         <div className={classNames(
           classes.background,
           {
+            [classes.bottomBorder]: showBottomBorder,
             [classes.commentsBackground]: showComments,
             [classes.firstItem]: (index===0) && showComments,
             "personalBlogpost": !post.frontpageDate,
@@ -275,7 +242,7 @@ class PostsItem2 extends PureComponent {
             </PostsItem2MetaInfo>
 
             <Link to={postLink} className={classes.title}>
-              <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} />
+              <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
             </Link>
 
             { post.user && !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
@@ -286,7 +253,7 @@ class PostsItem2 extends PureComponent {
               <EventVicinity post={post} />
             </PostsItem2MetaInfo>}
 
-            <Components.PostsItemDate post={post}/>
+            {showPostedAt && <Components.PostsItemDate post={post}/>}
 
             <div className={classes.mobileSecondRowSpacer}/>
             
@@ -325,26 +292,13 @@ class PostsItem2 extends PureComponent {
 PostsItem2.propTypes = {
   currentUser: PropTypes.object,
   post: PropTypes.object.isRequired,
-  postsViewed: PropTypes.array,
-  setViewed: PropTypes.func,
-  increasePostViewCount: PropTypes.func,
 };
-
-const mutationOptions = {
-  name: 'increasePostViewCount',
-  args: {postId: 'String'},
-};
-
-const mapStateToProps = state => ({ postsViewed: state.postsViewed });
-const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsViewed, dispatch);
 
 registerComponent(
   'PostsItem2',
   PostsItem2,
-  withMutation(mutationOptions),
-  withNewEvents,
-  connect(mapStateToProps, mapDispatchToProps),
   withStyles(styles, { name: "PostsItem2" }),
+  withUser,
+  withRecordPostView,
   withErrorBoundary,
-  withUser
 );
