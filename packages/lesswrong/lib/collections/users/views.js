@@ -58,7 +58,10 @@ Users.addView("sunshineNewUsers", function () {
       $or: [
         { voteCount: {$gt: 12}},
         { commentCount: {$gt: 0}},
-        { postCount: {$gt: 0}, signUpReCaptchaRating: {$gt: 0.3}},
+        { postCount: {$gt: 0}, $or: [
+          {signUpReCaptchaRating: {$exists: false}},
+          {signUpReCaptchaRating: {$gt: 0.3}}
+        ]},
       ],
       reviewedByUserId: {$exists: false},
       banned: {$exists: false},
