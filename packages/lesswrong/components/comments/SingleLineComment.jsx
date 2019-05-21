@@ -94,7 +94,7 @@ const styles = theme => ({
   },
 })
 
-const SingleLineComment = ({comment, classes, nestingLevel, hover, anchorEl}) => {
+const SingleLineComment = ({comment, classes, nestingLevel, hover }) => {
   const { voteCount, baseScore } = comment
   const { CommentBody, ShowParentComment } = Components
 
