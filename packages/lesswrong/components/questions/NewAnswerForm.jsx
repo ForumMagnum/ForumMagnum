@@ -29,26 +29,7 @@ const styles = theme => ({
   },
 })
 
-const FormGroupComponent = (props) => {
-  return <React.Fragment>
-    {props.fields.map(field => (
-      <Components.FormComponent
-        key={field.name}
-        disabled={props.disabled}
-        {...field}
-        errors={props.errors}
-        throwError={props.throwError}
-        currentValues={props.currentValues}
-        updateCurrentValues={props.updateCurrentValues}
-        deletedValues={props.deletedValues}
-        addToDeletedValues={props.addToDeletedValues}
-        clearFieldErrors={props.clearFieldErrors}
-        formType={props.formType}
-        currentUser={props.currentUser}
-      />
-    ))}
-  </React.Fragment>
-}
+
 
 const NewAnswerForm = ({post, classes, flash, currentUser}) => {
 
@@ -89,8 +70,10 @@ const NewAnswerForm = ({post, classes, flash, currentUser}) => {
     <div className={classes.answersForm}>
       <SmartForm
         collection={Comments}
-        GroupComponent={FormGroupComponent}
-        SubmitComponent={SubmitComponent}
+        formComponents={{
+          FormSubmit: SubmitComponent,
+          FormGroupLayout: Components.DefaultStyleFormGroup
+        }}
         mutationFragment={getFragment('CommentsList')}
         prefilledProps={prefilledProps}
         alignmentForumPost={post.af}
