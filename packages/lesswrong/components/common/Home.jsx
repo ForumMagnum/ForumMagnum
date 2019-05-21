@@ -1,3 +1,5 @@
+import { SplitComponent } from 'meteor/vulcan:routing';
+import Users from 'meteor/vulcan:users';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { getSetting } from 'meteor/vulcan:lib';
 import React from 'react';
@@ -28,6 +30,9 @@ function getPostsSectionTitle(view, currentUser) {
       return "Recent Posts";
   }
 }
+
+const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
+  Users.canDo(currentUser, 'alignment.sidebar')
 
 const Home = ({ currentUser, router, classes }) => {
 
@@ -60,6 +65,8 @@ const Home = ({ currentUser, router, classes }) => {
 
   return (
     <div>
+      {shouldRenderSidebar && <SplitComponent name="SunshineSidebar" />}
+
       <Components.HeadTags image={getSetting('siteImage')} />
       <Components.RecommendedReading />
       {currentUser &&
