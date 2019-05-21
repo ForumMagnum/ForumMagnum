@@ -1,11 +1,11 @@
-import { SplitComponent } from 'meteor/vulcan:routing';
-import Users from 'meteor/vulcan:users';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { getSetting } from 'meteor/vulcan:lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import withUser from '../common/withUser';
 import { withStyles } from  '@material-ui/core/styles'
+import { SplitComponent } from 'meteor/vulcan:routing';
+import Users from 'meteor/vulcan:users';
 
 const styles = theme => ({
   recentDiscussionListWrapper: {
@@ -30,9 +30,6 @@ function getPostsSectionTitle(view, currentUser) {
       return "Recent Posts";
   }
 }
-
-const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
-  Users.canDo(currentUser, 'alignment.sidebar')
 
 const Home = ({ currentUser, router, classes }) => {
 
@@ -62,6 +59,9 @@ const Home = ({ currentUser, router, classes }) => {
       limit: 3,
     }
   }
+
+  const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
+    Users.canDo(currentUser, 'alignment.sidebar')
 
   return (
     <div>

@@ -240,19 +240,20 @@ const TabNavigationMenu = ({
         </span> }
         
         
-        { getSetting('hasEvents', true) && getSetting('forumType') !== 'AlignmentForum' && <Tooltip
-          placement="right"
-          title={<div>Find a meetup near you.</div>}
-        >
-          <Link to="/community" className={classNames(classes.navButton, {[classes.selected]: pathname === "/community"})}>
-            <span className={classes.icon}>
-              { communityGlobeIcon }
-            </span>
-            <span className={classes.navText}>
-              Community<span className={classes.hideOnMobile}> Events</span>
-            </span>
-          </Link>
-        </Tooltip>}
+        { getSetting('hasEvents', true) && getSetting('forumType') !== 'AlignmentForum' && <span>
+          <Tooltip
+            placement="right"
+            title={<div>Find a meetup near you.</div>}
+          >
+            <Link to="/community" className={classNames(classes.navButton, {[classes.selected]: pathname === "/community"})}>
+              <span className={classes.icon}>
+                { communityGlobeIcon }
+              </span>
+              <span className={classes.navText}>
+                Community<span className={classes.hideOnMobile}> Events</span>
+              </span>
+            </Link>
+          </Tooltip>
 
           <span className={classes.hideOnMobile}>
             <TabNavigationEventsList terms={eventsListTerms} />
