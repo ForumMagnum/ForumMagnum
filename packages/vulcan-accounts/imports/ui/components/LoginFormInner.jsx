@@ -817,7 +817,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
       options.password = password;
     }
 
-    const SignUp = function(_options) {
+    const SignUp = (_options) => {
       Accounts.createUser(_options, (error) => {
         if (error) {
           // eslint-disable-next-line no-console
