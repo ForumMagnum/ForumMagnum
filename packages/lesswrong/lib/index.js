@@ -152,7 +152,6 @@ import './modules/alignment-forum/comments/views.js';
 import './modules/alignment-forum/comments/fragments.js';
 
 import './modules/alignment-forum/sequences/custom_fields.js'
-import './modules/alignment-forum/sequences/callbacks.js';
 
 import './modules/alignment-forum/users/callbacks.js';
 import './modules/alignment-forum/users/custom_fields.js';

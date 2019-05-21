@@ -1,4 +1,5 @@
-import { Connectors } from 'meteor/vulcan:core'; // import from vulcan:lib because vulcan:core isn't loaded yet
+import { addFieldsDict, denormalizedCountOfReferences } from './utils/schemaUtils'
+import { getWithLoader } from '../loaders.js'
 
 export const VoteableCollections = [];
 
@@ -6,161 +7,96 @@ export const makeVoteable = collection => {
 
   VoteableCollections.push(collection);
 
-  collection.addField([
-    /**
-      The current user's votes on the document, if they exists
-    */
-    {
-      fieldName: 'currentUserVotes',
-      fieldSchema: {
-        type: Array,
-        optional: true,
-        canRead: ['guests'],
-        resolveAs: {
-          type: '[Vote]',
-          resolver: async (document, args, { Users, Votes, currentUser }) => {
-            if (!currentUser) return [];
-            const votes = await Connectors.find(Votes, {
+  addFieldsDict(collection, {
+    currentUserVotes: {
+      type: Array,
+      optional: true,
+      viewableBy: ['guests'],
+      resolveAs: {
+        type: '[Vote]',
+        resolver: async (document, args, { Users, Votes, currentUser }) => {
+          if (!currentUser) return [];
+          const votes = await getWithLoader(Votes,
+            `votesByUser${currentUser._id}`,
+            {
               userId: currentUser._id,
-              documentId: document._id,
               cancelled: false,
-            });
-            if (!votes.length) return [];
-            return Users.restrictViewableFields(currentUser, Votes, votes);
-          },
-
-        }
+            },
+            "documentId", document._id
+          );
+          
+          if (!votes.length) return [];
+          return Users.restrictViewableFields(currentUser, Votes, votes);
+        },
       }
     },
-    {
-      fieldName: 'currentUserVotes.$',
-      fieldSchema: {
-        type: Object,
-        optional: true,
-      }
+    'currentUserVotes.$': {
+      type: Object,
+      optional: true
     },
-    /**
-      All votes on the document
-    */
-    {
-      fieldName: 'allVotes',
-      fieldSchema: {
-        type: Array,
-        optional: true,
-        canRead: ['guests'],
-        resolveAs: {
-          type: '[Vote]',
-          resolver: async (document, args, { Users, Votes, currentUser }) => {
-            const votes = await Connectors.find(Votes, {
-              documentId: document._id,
+    allVotes: {
+      type: Array,
+      optional: true,
+      viewableBy: ['guests'],
+      resolveAs: {
+        type: '[Vote]',
+        resolver: async (document, args, { Users, Votes, currentUser }) => {
+          const votes = await getWithLoader(Votes,
+            "votesByDocument",
+            {
               cancelled: false,
-            });
-            if (!votes.length) return [];
-            return Users.restrictViewableFields(currentUser, Votes, votes);
-          },
-        }
+            },
+            "documentId", document._id
+          );
+          
+          if (!votes.length) return [];
+          return Users.restrictViewableFields(currentUser, Votes, votes);
+        },
       }
     },
-    {
-      fieldName: 'allVotes.$',
-      fieldSchema: {
-        type: Object,
-        optional: true,
+    'allVotes.$': {
+      type: Object,
+      optional: true
+    },
+    voteCount: {
+      ...denormalizedCountOfReferences({
+        fieldName: "voteCount",
+        collectionName: collection.collectionName,
+        foreignCollectionName: "Votes",
+        foreignTypeName: "vote",
+        foreignFieldName: "documentId",
+        filterFn: vote => !vote.cancelled
+      }),
+      viewableBy: ['guests'],
+    },
+    // The document's base score (not factoring in the document's age)
+    baseScore: {
+      type: Number,
+      optional: true,
+      defaultValue: 0,
+      canRead: ['guests'],
+      onInsert: document => {
+        // default to 0 if empty
+        return document.baseScore || 0;
       }
     },
-    // /**
-    //   An array containing the `_id`s of the document's upvoters
-    // */
-    // {
-    //   fieldName: 'voters',
-    //   fieldSchema: {
-    //     type: Array,
-    //     optional: true,
-    //     viewableBy: ['sunshineRegiment', 'admins'],
-    //     resolveAs: {
-    //       type: '[User]',
-    //       resolver: async (document, args, { currentUser, Users, Votes }) => {
-    //         // eslint-disable-next-line no-undef
-    //         const votes = await Connectors.find(Votes, {
-    //           documentId: document._id,
-    //           cancelled: false,
-    //         });
-    //         const votersIds = _.pluck(votes, 'userId');
-    //         // eslint-disable-next-line no-undef
-    //         const voters = await Connectors.find(Users, {_id: {$in: votersIds}});
-    //         return Users.restrictViewableFields(currentUser, Users, voters);
-    //         // if (!document.upvoters) return [];
-    //         // const upvoters = await Users.loader.loadMany(document.upvoters);
-    //       },
-    //     },
-    //   }
-    // },
-    // {
-    //   fieldName: 'voters.$',
-    //   fieldSchema: {
-    //     type: String,
-    //     optional: true
-    //   }
-    // },
-    /**
-      The document's base score (not factoring in the document's age)
-    */
-    {
-      fieldName: 'baseScore',
-      fieldSchema: {
-        type: Number,
-        optional: true,
-        defaultValue: 0,
-        canRead: ['guests'],
-        onInsert: document => {
-          // default to 0 if empty
-          return document.baseScore || 0;
-        }
+    // The document's current score (factoring in age)
+    score: {
+      type: Number,
+      optional: true,
+      defaultValue: 0,
+      canRead: ['guests'],
+      onInsert: document => {
+        // default to 0 if empty
+        return document.score || 0;
       }
     },
-    /**
-      The number of votes on the document
-    */
-    {
-      fieldName: 'voteCount',
-      fieldSchema: {
-        type: Number,
-        optional: true,
-        defaultValue: 0,
-        canRead: ['guests'],
-        onInsert: document => {
-          // default to 0 if empty
-          return document.voteCount || 0;
-        }
-      }
+    // Whether the document is inactive. Inactive documents see their score
+    // recalculated less often
+    inactive: {
+      type: Boolean,
+      optional: true,
+      onInsert: () => false
     },
-    /**
-      The document's current score (factoring in age)
-    */
-    {
-      fieldName: 'score',
-      fieldSchema: {
-        type: Number,
-        optional: true,
-        defaultValue: 0,
-        canRead: ['guests'],
-        onInsert: document => {
-          // default to 0 if empty
-          return document.score || 0;
-        }
-      }
-    },
-    /**
-      Whether the document is inactive. Inactive documents see their score recalculated less often
-    */
-    {
-      fieldName: 'inactive',
-      fieldSchema: {
-        type: Boolean,
-        optional: true,
-        onInsert: () => false
-      }
-    },
-
-  ]);
+  });
 }

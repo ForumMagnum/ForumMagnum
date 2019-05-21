@@ -1,6 +1,6 @@
 import Users from "meteor/vulcan:users";
 import { getSetting } from "meteor/vulcan:core"
-import { foreignKeyField, addFieldsDict, resolverOnlyField } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences } from '../../modules/utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
 import { addUniversalFields } from '../../collectionUtils'
 import SimpleSchema from 'simpl-schema'
@@ -532,26 +532,44 @@ addFieldsDict(Users, {
     type: Number,
     denormalized: true,
     optional: true,
-    canRead: ['guests'],
     onInsert: (document, currentUser) => 0,
+    
+    
+    ...denormalizedCountOfReferences({
+      fieldName: "frontpagePostCount",
+      collectionName: "Users",
+      foreignCollectionName: "Posts",
+      foreignTypeName: "post",
+      foreignFieldName: "userId",
+      filterFn: post => !!post.frontpageDate
+    }),
+    canRead: ['guests'],
   },
 
   // sequenceCount: count of how many non-draft, non-deleted sequences you have
   sequenceCount: {
-    type: Number,
-    denormalized: true,
-    optional: true,
+    ...denormalizedCountOfReferences({
+      fieldName: "sequenceCount",
+      collectionName: "Users",
+      foreignCollectionName: "Sequences",
+      foreignTypeName: "sequence",
+      foreignFieldName: "userId",
+      filterFn: sequence => !sequence.draft && !sequence.isDeleted
+    }),
     canRead: ['guests'],
-    onInsert: (document, currentUser) => 0,
   },
 
   // sequenceDraftCount: count of how many draft, non-deleted sequences you have
   sequenceDraftCount: {
-    type: Number,
-    denormalized: true,
-    optional: true,
+    ...denormalizedCountOfReferences({
+      fieldName: "sequenceDraftCount",
+      collectionName: "Users",
+      foreignCollectionName: "Sequences",
+      foreignTypeName: "sequence",
+      foreignFieldName: "userId",
+      filterFn: sequence => sequence.draft && !sequence.isDeleted
+    }),
     canRead: ['guests'],
-    onInsert: (document, currentUser) => 0,
   },
 
   mongoLocation: {

@@ -294,14 +294,6 @@ const schema = {
     }
   }),
 
-  commentsCount: resolverOnlyField({
-    type: Number,
-    viewableBy: ['guests'],
-    resolver: (post, args, { Comments }) => {
-      return Comments.find({ postId: post._id }).count();
-    },
-  }),
-
   emailShareUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],

@@ -1,6 +1,7 @@
 import Users from "meteor/vulcan:users";
 import { formGroups } from "../../../collections/users/custom_fields.js"
-import { addFieldsDict } from '../../utils/schemaUtils'
+import { addFieldsDict, denormalizedCountOfReferences } from '../../utils/schemaUtils'
+import { Posts } from '../../../collections/posts';
 
 addFieldsDict(Users, {
   afKarma: {
@@ -11,31 +12,54 @@ addFieldsDict(Users, {
   },
 
   afPostCount: {
-    type: Number,
-    optional: true,
+    ...denormalizedCountOfReferences({
+      fieldName: "afPostCount",
+      collectionName: "Users",
+      foreignCollectionName: "Posts",
+      foreignTypeName: "post",
+      foreignFieldName: "userId",
+      filterFn: (post) => (post.af && !post.draft && post.status===Posts.config.STATUS_APPROVED),
+    }),
     canRead: ['guests'],
-    onInsert: (document, currentUser) => 0,
   },
 
   afCommentCount: {
     type: Number,
     optional: true,
-    canRead: ['guests'],
     onInsert: (document, currentUser) => 0,
+    ...denormalizedCountOfReferences({
+      fieldName: "afCommentCount",
+      collectionName: "Users",
+      foreignCollectionName: "Comments",
+      foreignTypeName: "comment",
+      foreignFieldName: "userId",
+      filterFn: (comment) => comment.af,
+    }),
+    canRead: ['guests'],
   },
 
   afSequenceCount: {
-    type: Number,
-    optional: true,
+    ...denormalizedCountOfReferences({
+      fieldName: "afSequenceCount",
+      collectionName: "Users",
+      foreignCollectionName: "Sequences",
+      foreignTypeName: "sequence",
+      foreignFieldName: "userId",
+      filterFn: sequence => sequence.af && !sequence.draft && !sequence.isDeleted
+    }),
     canRead: ['guests'],
-    onInsert: (document, currentUser) => 0,
   },
 
   afSequenceDraftCount: {
-    type: Number,
-    optional: true,
+    ...denormalizedCountOfReferences({
+      fieldName: "afSequenceDraftCount",
+      collectionName: "Users",
+      foreignCollectionName: "Sequences",
+      foreignTypeName: "sequence",
+      foreignFieldName: "userId",
+      filterFn: sequence => sequence.af && sequence.draft && !sequence.isDeleted
+    }),
     canRead: ['guests'],
-    onInsert: (document, currentUser) => 0,
   },
 
   reviewForAlignmentForumUserId: {
