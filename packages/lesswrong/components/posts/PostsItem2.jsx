@@ -73,7 +73,7 @@ const styles = (theme) => ({
     }
   },
   title: {
-    height: 22,
+    height: 26, // TODO(JP) extract into theme file or otherwise upstream
     flexGrow: 1,
     flexShrink: 1,
     overflow: "hidden",

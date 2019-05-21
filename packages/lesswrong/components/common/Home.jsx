@@ -67,7 +67,7 @@ const Home = ({ currentUser, router, classes }) => {
           <Components.HomePostsViews />
         </div>}
       >
-        <Components.PostsList terms={recentPostsTerms} />
+        <Components.PostsList2 terms={recentPostsTerms} />
       </Components.Section>
       <Components.Section title="Recent Discussion" titleLink="/AllComments" titleComponent={
         <div>
