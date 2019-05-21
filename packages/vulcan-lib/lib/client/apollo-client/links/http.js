@@ -1,6 +1,6 @@
-import { HttpLink } from 'apollo-link-http';
+import { BatchHttpLink } from 'apollo-link-batch-http';
 
-const httpLink = new HttpLink({
+const httpLink = new BatchHttpLink({
   uri: '/graphql',
   credentials: 'same-origin',
 });
