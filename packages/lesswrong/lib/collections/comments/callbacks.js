@@ -35,8 +35,6 @@ const getLessWrongAccount = async () => {
 
 function CommentsNewOperations (comment) {
 
-  var userId = comment.userId;
-
   // update post
   Posts.update(comment.postId, {
     $set:       {lastCommentedAt: new Date()},
