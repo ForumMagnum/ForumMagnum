@@ -71,7 +71,7 @@ const styles = theme => ({
 
 class CollectionsCard extends PureComponent {
   handleClick = (event) => {
-    const { url, router } = this.props
+    const { url, history } = this.props
     Utils.manualClickNavigation(event, url, history.push)
   }
 

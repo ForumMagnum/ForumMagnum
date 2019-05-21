@@ -116,7 +116,7 @@ class SequencesGridItem extends PureComponent {
 
   handleClick = (event) => {
     const url = this.getSequenceUrl()
-    const navigate = this.props.router.push
+    const navigate = this.props.history.push
     Utils.manualClickNavigation(event, url, navigate)
   }
 
