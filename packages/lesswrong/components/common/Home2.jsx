@@ -64,7 +64,7 @@ class Home2 extends PureComponent {
               post={{_id:shortformFeedId}}
               type="comment"
             />}
-          <RecentDiscussionThreadsList terms={{view: 'recentDiscussionThreadsList', limit:6}}/>
+          <RecentDiscussionThreadsList terms={{view: 'recentDiscussionThreadsList', limit:20}}/>
         </SingleColumnSection>
       </React.Fragment>
     )

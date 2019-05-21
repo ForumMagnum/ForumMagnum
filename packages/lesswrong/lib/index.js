@@ -55,6 +55,9 @@ import { LWEvents } from './collections/lwevents/index.js';
 // DebouncerEvents
 import './collections/debouncerEvents/collection.js';
 
+
+// ReadStatuses
+import './collections/readStatus/collection.js';
 // Bans
 import { Bans } from './collections/bans/index.js'
 // Chapters
@@ -146,7 +149,6 @@ import './modules/alignment-forum/comments/views.js';
 import './modules/alignment-forum/comments/fragments.js';
 
 import './modules/alignment-forum/sequences/custom_fields.js'
-import './modules/alignment-forum/sequences/callbacks.js';
 
 import './modules/alignment-forum/users/callbacks.js';
 import './modules/alignment-forum/users/custom_fields.js';

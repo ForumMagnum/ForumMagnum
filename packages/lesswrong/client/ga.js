@@ -20,10 +20,11 @@ function googleTagManagerInit() {
 addInitFunction(googleTagManagerInit)
 
 const identifyFullStoryUser = (currentUser) => {
-  const { karma = 0, afKarma = 0, frontpagePostCount = 0, voteCount = 0, createdAt } = currentUser
-  const fullStoryData = { karma, afKarma, frontpagePostCount, voteCount, createdAt }
+  const { karma = 0, afKarma = 0, frontpagePostCount = 0, voteCount = 0, createdAt, username, displayName: lWDisplayName } = currentUser
+  const fullStoryData = { karma, afKarma, frontpagePostCount, voteCount, createdAt, username, lWDisplayName }
   global.FS.identify(currentUser._id, {
-    displayName: currentUser.displayName,
+    // Don't show user display names by default
+    displayName: currentUser._id,
     email: currentUser.email,
     // Custom LessWrong variables
     ...fullStoryData

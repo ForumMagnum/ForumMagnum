@@ -1,4 +1,4 @@
-import { debug, debugGroup, debugGroupEnd, Connectors, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
+import { debug, debugGroup, debugGroupEnd, Connectors, runCallbacks, runCallbacksAsync, newMutation, editMutation } from 'meteor/vulcan:core';
 import Votes from '../lib/collections/votes/collection.js';
 import Users from 'meteor/vulcan:users';
 import { recalculateScore, recalculateBaseScore } from '../lib/modules/scoring.js';
@@ -27,7 +27,11 @@ const addVoteServer = async (voteOptions) => {
   // create vote and insert it
   const vote = createVote({ document, collectionName: collection.options.collectionName, voteType, user, voteId });
   delete vote.__typename;
-  await Connectors.create(Votes, vote);
+  await newMutation({
+    collection: Votes,
+    document: vote,
+    validate: false,
+  });
 
   // LESSWRONG – recalculateBaseScore
   newDocument.baseScore = recalculateBaseScore(newDocument)
@@ -44,7 +48,6 @@ const addVoteServer = async (voteOptions) => {
           baseScore: newDocument.baseScore,
           score: newDocument.score
         },
-        $inc: { voteCount: 1 },
       },
       {}, true
     );
@@ -62,12 +65,16 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }) 
     cancelled: false,
   });
   if (votes.length) {
-    // Cancel all the existing votes
-    await Connectors.update(Votes,
-      {documentId: document._id, userId: user._id, cancelled: false},
-      {$set: {cancelled: true}},
-      {multi:true}, true);
-    votes.forEach((vote) => {
+    for (let vote of votes) {
+      // Cancel the existing votes
+      await editMutation({
+        collection: Votes,
+        documentId: vote._id,
+        set: { cancelled: true },
+        unset: {},
+        validate: false,
+      });
+      
       //eslint-disable-next-line no-unused-vars
       const {_id, ...otherVoteFields} = vote;
       // Create an un-vote for each of the existing votes
@@ -78,17 +85,20 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }) 
         power: -vote.power,
         votedAt: new Date(),
       };
-      Connectors.create(Votes, unvote);
+      await newMutation({
+        collection: Votes,
+        document: unvote,
+        validate: false,
+      });
       
       runCallbacks(`votes.cancel.sync`, {newDocument, vote}, collection, user);
       runCallbacksAsync(`votes.cancel.async`, {newDocument, vote}, collection, user);
-    })
+    }
     if (updateDocument) {
       await Connectors.update(collection,
         {_id: document._id},
         {
           $set: {baseScore: recalculateBaseScore(document) },
-          $inc: {voteCount: -votes.length},
         },
         {}, true
       );
@@ -121,13 +131,20 @@ export const cancelVoteServer = async ({ document, voteType, collection, user, u
     power: -vote.power,
     votedAt: new Date(),
   };
-  Connectors.create(Votes, unvote);
+  await newMutation({
+    collection: Votes,
+    document: unvote,
+    validate: false,
+  });
   
   // Set the cancelled field on the vote object to true
-  await Connectors.update(Votes,
-    {_id: vote._id},
-    {$set: {cancelled: true}},
-    {}, true);
+  await editMutation({
+    collection: Votes,
+    documentId: vote._id,
+    set: { cancelled: true },
+    unset: {},
+    validate: false,
+  });
   newDocument.baseScore = recalculateBaseScore(newDocument);
   newDocument.score = recalculateScore(newDocument);
   newDocument.voteCount--;
@@ -143,9 +160,6 @@ export const cancelVoteServer = async ({ document, voteType, collection, user, u
           score: newDocument.score,
           baseScore: newDocument.baseScore
         },
-        $inc: {
-          voteCount: -1
-        }
       },
       {},
       true

@@ -1,3 +1,5 @@
+import { getSetting} from 'meteor/vulcan:core';
+
 export * from './lib/index.js';
 
 import './server/database-import/database_import_new.js';
@@ -29,6 +31,7 @@ import './server/scripts/localgroupsEditCallbacks.js';
 import './server/scripts/nullifyVotes.js';
 import './server/scripts/fixSSCDrafts.js';
 import './server/scripts/invites.js';
+import './server/scripts/exportPostDetails.js';
 import './server/scripts/legacyKarma_aggregate2.js';
 import './server/scripts/removeObsoleteIndexes.js';
 import './server/scripts/logMongoQueries.js';
@@ -72,15 +75,16 @@ import './lib/collections/users/validate_login.js';
 import './lib/collections/users/callbacks.js';
 import './lib/collections/bans/callbacks.js';
 import './lib/collections/posts/tableOfContents.js';
-import './lib/collections/localgroups/callbacks.js';
 import './lib/collections/subscriptions/callbacks.js';
+if (getSetting('hasEvents', true)) {
+  import './lib/collections/localgroups/callbacks.js';
+}
 
 import './lib/collections/revisions/resolvers.js';
 import './lib/collections/posts/serverSchema.js';
 import './lib/collections/users/serverSchema.js';
 
 import './lib/events/server.js';
-
 import './lib/modules/connection_logs.js';
 
 

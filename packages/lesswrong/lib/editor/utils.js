@@ -114,6 +114,10 @@ export const draftToHTML = convertToHTML({
     if (type === 'spoiler') {
      return <p className="spoiler" />
     }
+    if (type === 'unstyled') {
+      if (block.text === ' ' || block.text === '') return <br />;
+      return <p />
+    }
     //  return <span/>;
    },
 });
