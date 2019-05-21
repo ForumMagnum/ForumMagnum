@@ -100,6 +100,7 @@ extendFragment('UsersCurrent', `
 
 registerFragment(`
   fragment UserKarmaChanges on User {
+    _id
     karmaChanges {
       totalChange
       updateFrequency
