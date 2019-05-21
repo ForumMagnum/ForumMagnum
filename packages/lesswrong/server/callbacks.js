@@ -9,6 +9,7 @@ import { Votes } from '../lib/collections/votes';
 import { cancelVoteServer } from './voteServer.js';
 import { Posts } from '../lib/collections/posts';
 import { Comments } from '../lib/collections/comments'
+import { ReadStatuses } from '../lib/collections/readStatus/collection.js';
 
 import {
   addCallback,
@@ -290,5 +291,20 @@ function fixUsernameOnGithubLogin(user) {
   return user;
 }
 addCallback("users.new.sync", fixUsernameOnGithubLogin);
+
+function updateReadStatus(event) {
+  ReadStatuses.update({
+    postId: event.documentId,
+    userId: event.userId,
+  }, {
+    $set: {
+      isRead: true,
+      lastUpdated: event.createdAt
+    }
+  }, {
+    upsert: true
+  });
+}
+addCallback('lwevents.new.sync', updateReadStatus);
 
 removeCallback('router.onUpdate', 'RouterClearMessages');
