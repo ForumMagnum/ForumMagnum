@@ -2,6 +2,8 @@ import {registerSetting} from 'meteor/vulcan:core'
 
 registerSetting('forumType', 'LessWrong', 'What type of Forum is being run, {LessWrong, AlignmentForum, EAForum}')
 
+registerSetting('hasEvents', true, 'Does this version have local events')
+
 // HeadTags
 registerSetting('logoUrl', null, 'Absolute URL for the logo image');
 registerSetting('title', 'My App', 'App title');

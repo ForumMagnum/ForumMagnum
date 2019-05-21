@@ -130,7 +130,10 @@ class CommentsNode extends Component {
 
   unTruncate = (event) => {
     event.stopPropagation()
-    this.setState({truncated: false, truncatedStateSet: true});
+    if (this.isTruncated()) {
+      this.props.markAsRead && this.props.markAsRead()
+      this.setState({truncated: false, truncatedStateSet: true});
+    }
   }
 
   toggleHover = () => {
@@ -176,12 +179,12 @@ class CommentsNode extends Component {
   }
 
   isSingleLine = () => {
-    const { currentUser, comment, condensed } = this.props 
-    return currentUser && currentUser.isAdmin && this.isTruncated() && (!this.isNewComment() || condensed) && (comment.baseScore < 10 || condensed) 
+    const { currentUser, comment, condensed, recentDiscussionExpandedId } = this.props 
+    return currentUser && currentUser.isAdmin && this.isTruncated() && (!this.isNewComment() || (condensed && recentDiscussionExpandedId !== comment._id)) && (comment.baseScore < 10 || condensed) 
   }
 
   render() {
-    const { comment, children, nestingLevel=1, currentUser, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, parentAnswerId, condensed } = this.props;
+    const { comment, children, nestingLevel=1, currentUser, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, parentAnswerId, condensed, markAsRead, recentDiscussionExpandedId } = this.props;
 
     const { SingleLineComment, CommentsItem } = Components
 
@@ -258,6 +261,8 @@ class CommentsNode extends Component {
                 nestingLevel={nestingLevel+1}
                 truncated={this.isTruncated()}
                 unreadComments={unreadComments}
+                recentDiscussionExpandedId={recentDiscussionExpandedId}
+                markAsRead={markAsRead}
                 //eslint-disable-next-line react/no-children-prop
                 children={child.children}
                 key={child.item._id}
