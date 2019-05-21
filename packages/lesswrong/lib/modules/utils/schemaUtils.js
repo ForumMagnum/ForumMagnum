@@ -151,9 +151,9 @@ SimpleSchema.extendOptions(['canAutoDenormalize'])
 // Helper function to add all the correct callbacks and metainfo to make fields denormalized
 export function denormalizedField({ needsUpdate, getValue }) {
   return {
-    onUpdate: async ({data, newDocument}) => {
+    onUpdate: async ({data, document}) => {
       if (!needsUpdate || needsUpdate(data)) {
-        return await getValue(newDocument)
+        return await getValue(document)
       }
     },
     onCreate: async ({newDocument}) => {
