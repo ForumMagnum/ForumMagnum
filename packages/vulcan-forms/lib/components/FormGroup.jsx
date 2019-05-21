@@ -110,13 +110,19 @@ class FormGroup extends PureComponent {
   }
 
   renderHeading(FormComponents) {
-    return (
-      <FormComponents.FormGroupHeader
-        toggle={this.toggle}
-        label={this.props.label}
-        collapsed={this.state.collapsed}
-      />
-    );
+    const component = <FormComponents.FormGroupHeader
+      toggle={this.toggle}
+      label={this.props.label}
+      collapsed={this.state.collapsed}
+    />
+    if (this.props.helpText) {
+      return <Tooltip title={this.props.helpText}>
+        <span>
+        {component}
+        </span>
+      </Tooltip>
+    }
+    return component
   }
 
   // if at least one of the fields in the group has an error, the group as a whole has an error
