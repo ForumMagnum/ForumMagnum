@@ -64,8 +64,6 @@ class ModerationGuidelinesEditForm extends PureComponent {
               FormSubmit: SubmitComponent,
               FormGroupLayout: Components.DefaultStyleFormGroup
             }}
-            SubmitComponent={SubmitComponent}
-            GroupComponent={Components.DefaultStyleFormGroup}
           />
         </DialogContent>
       </Dialog>

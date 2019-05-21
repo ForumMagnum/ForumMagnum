@@ -56,7 +56,9 @@ const PostsNewForm = ({history, currentUser, flash, classes, location}) => {
         }}
         eventForm={eventForm}
         repeatErrors
-        SubmitComponent={NewPostsSubmit}
+        formComponents={{
+          FormSubmit: NewPostsSubmit,
+        }}
       />
     </div>
   );

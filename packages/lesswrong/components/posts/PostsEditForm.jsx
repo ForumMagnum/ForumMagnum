@@ -51,7 +51,7 @@ class PostsEditForm extends PureComponent {
           }}
           showRemove={true}
           submitLabel={isDraft ? "Publish" : "Publish Changes"}
-          SubmitComponent={EditPostsSubmit}
+          formComponents={{SubmitComponent:EditPostsSubmit}}
           extraVariables={{
             version: 'String'
           }}

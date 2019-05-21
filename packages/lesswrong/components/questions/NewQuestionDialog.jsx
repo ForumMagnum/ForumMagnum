@@ -50,7 +50,9 @@ class NewQuestionDialog extends PureComponent {
               flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
               onClose()
             }}
-            SubmitComponent={QuestionSubmit}
+            formComponents={{
+              FormSubmit: QuestionSubmit,
+            }}
           />
         </DialogContent>
       </Dialog>
