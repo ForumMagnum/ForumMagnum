@@ -6,6 +6,7 @@ import withHover from '../common/withHover';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
+import { commentExcerptFromHTML } from '../../lib/editor/ellipsize'
 
 const styles = theme => ({
   root: {
@@ -96,7 +97,8 @@ const styles = theme => ({
 const SingleLineComment = ({comment, classes, nestingLevel, hover, anchorEl}) => {
   const { voteCount, baseScore } = comment
   const { CommentBody, ShowParentComment } = Components
-  const { html = ""} = comment.contents || {}
+
+  const truncatedHtml = commentExcerptFromHTML(comment)
 
   return (
     <div className={classes.root}>
@@ -111,7 +113,7 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, anchorEl}) =>
         <span className={classes.username}>
           {comment.user.displayName}
         </span>
-        <span className={classes.truncatedHighlight} dangerouslySetInnerHTML={{__html: html}} />
+        <span className={classes.truncatedHighlight} dangerouslySetInnerHTML={{__html: truncatedHtml}} />
       </div>
       {hover && <span className={classNames(classes.highlight)}>
         <CommentBody truncated comment={comment}/>
