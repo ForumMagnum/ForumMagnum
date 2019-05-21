@@ -69,7 +69,7 @@ const UsersEditForm = (props) => {
           history.push(Users.getProfileUrl(user));
         }}
         queryFragment={getFragment('UsersEdit')}
-        mutationFragment={getFragment('UsersProfile')}
+        mutationFragment={getFragment('UsersEdit')}
         showRemove={false}
       />
     </div>
