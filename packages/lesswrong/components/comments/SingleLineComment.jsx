@@ -42,6 +42,12 @@ const styles = theme => ({
     width: 30,
     padding: 5,
   },
+  date: {
+    display:"inline-block",
+    padding: 5,
+    paddingRight: theme.spacing.unit,
+    paddingLeft: theme.spacing.unit
+  },
   truncatedHighlight: {
     padding: 5,
     ...commentBodyStyles(theme),
@@ -114,6 +120,9 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover}) => {
         </Tooltip>
         <span className={classes.username}>
           {comment.user.displayName}
+        </span>
+        <span className={classes.date}>
+          <Components.FormatDate date={comment.postedAt}/>
         </span>
         {(comment.baseScore > -5) && <span className={classes.truncatedHighlight} dangerouslySetInnerHTML={{__html: singleLineHtml}} />}      </div>
       {displayHoverOver && <span className={classNames(classes.highlight)}>
