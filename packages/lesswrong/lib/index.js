@@ -26,7 +26,6 @@ import './collections/comments/fragments.js';
 
 // Notifications
 import Notifications from './collections/notifications/collection.js';
-import './collections/notifications/custom_fields.js';
 import './collections/notifications/views.js';
 import './collections/notifications/permissions.js';
 import './collections/notifications/seed.js';

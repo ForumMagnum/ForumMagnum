@@ -458,16 +458,37 @@ addFieldsDict(Users, {
 
   // New Notifications settings
   auto_subscribe_to_my_posts: {
+    label: "Notifications for Comments on My Posts",
     group: formGroups.notifications,
-    label: "Notifications for Comments on My Posts"
+    type: Boolean,
+    optional: true,
+    control: "checkbox",
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(true),
   },
   auto_subscribe_to_my_comments: {
-    group: formGroups.notifications,
     label: "Notifications for Replies to My Comments",
+    group: formGroups.notifications,
+    type: Boolean,
+    optional: true,
+    control: "checkbox",
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(true),
   },
   autoSubscribeAsOrganizer: {
-    group: formGroups.notifications,
     label: "Notifications for posts and meetups in groups I organize",
+    group: formGroups.notifications,
+    type: Boolean,
+    optional: true,
+    control: "checkbox",
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(true),
   },
   
   // Karma-change notifier settings
