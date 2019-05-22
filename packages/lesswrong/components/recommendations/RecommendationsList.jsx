@@ -34,6 +34,8 @@ const withRecommendations = component => {
           nextPost {
             ...PostsList
           }
+          numRead
+          numTotal
         }
       }
     }

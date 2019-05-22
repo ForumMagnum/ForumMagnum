@@ -14,11 +14,12 @@ const updateSequenceReadStatusForPostRead = async (userId, postId, sequenceId) =
   const postIDs = await Sequences.getAllPostIDs(sequenceId);
   const postReadStatuses = await postsToReadStatuses(user, postIDs);
   const anyUnread = _.some(postIDs, postID => !postReadStatuses[postID]);
-  const collection = await Collections.findOne({slug: sequence.canonicalCollectionSlug});
+  const sequence = await Sequences.findOne({_id: sequenceId});
+  const collection = sequence.canonicalCollectionSlug ? await Collections.findOne({slug: sequence.canonicalCollectionSlug}) : null;
   
   const partiallyReadMinusThis = _.filter(user.partiallyReadSequences,
     partiallyRead => partiallyRead.sequenceId !== sequenceId
-      && partiallyRead.collectionId !== collection._id);
+      && (!collection || partiallyRead.collectionId !== collection._id));
   
   // Any unread posts in the sequence?
   if (anyUnread) {
@@ -31,6 +32,8 @@ const updateSequenceReadStatusForPostRead = async (userId, postId, sequenceId) =
       sequenceId: sequenceId,
       lastReadPostId: postId,
       nextPostId: nextPostId,
+      numRead: _.filter(postIDs, id=>postReadStatuses[id]).length,
+      numTotal: postIDs.length
     };
     
     // Generate a new partiallyReadSequences list by filtering out any previous
@@ -45,11 +48,12 @@ const updateSequenceReadStatusForPostRead = async (userId, postId, sequenceId) =
   // collection (ie, R:A-Z, Codex or HPMoR), find the first unread post in
   // the whole collection. If they've read everything in the collection, or
   // it isn't part of a collection, they're done.
-  const sequence = await Sequences.findOne({_id: sequenceId});
-  if (sequence.canonicalCollectionSlug) {
+  if (collection) {
     const collectionPostIDs = await Collections.getAllPostIDs(collection._id);
     const collectionPostReadStatuses = await postsToReadStatuses(user, collectionPostIDs);
     const collectionAnyUnread = _.some(collectionPostIDs, postID => !collectionPostReadStatuses[postID]);
+    
+    console.log(collectionPostIDs);
     
     if (collectionAnyUnread) {
       const nextPostIndex = findIndex(collectionPostIDs, postID=>!collectionPostReadStatuses[postID]);
@@ -58,7 +62,9 @@ const updateSequenceReadStatusForPostRead = async (userId, postId, sequenceId) =
       const collectionReadStatus = {
         collectionId: collection._id,
         lastReadPostId: postId,
-        nextPostId: nextPostId
+        nextPostId: nextPostId,
+        numRead: _.filter(collectionPostIDs, id=>collectionPostReadStatuses[id]).length,
+        numTotal: collectionPostIDs.length
       };
       
       // Generate a new partiallyReadSequences, filtering out the sequence that

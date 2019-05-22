@@ -98,6 +98,12 @@ const partiallyReadSequenceItem = new SimpleSchema({
     type: String,
     foreignKey: "Posts",
   },
+  numRead: {
+    type: SimpleSchema.Integer,
+  },
+  numTotal: {
+    type: SimpleSchema.Integer,
+  },
 });
 
 addFieldsDict(Users, {

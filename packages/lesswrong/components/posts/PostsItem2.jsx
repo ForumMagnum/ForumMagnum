@@ -303,12 +303,19 @@ class PostsItem2 extends PureComponent {
               <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
             </Link>
             
-            {resumeReading?.sequence && <div className={classes.nextUnreadIn}>
-              Next unread in <Link to={Sequences.getPageUrl(resumeReading.sequence)}>{resumeReading.sequence.title}</Link>
-            </div>}
-            {resumeReading?.collection && <div className={classes.nextUnreadIn}>
-              Next unread in <Link to={Collections.getPageUrl(resumeReading.collection)}>{resumeReading.collection.title}</Link>
-            </div>}
+            {(resumeReading?.sequence || resumeReading?.collection) &&
+              <div className={classes.nextUnreadIn}>
+                Next unread in <Link to={
+                  resumeReading.sequence
+                    ? Sequences.getPageUrl(resumeReading.sequence)
+                    : Collections.getPageUrl(resumeReading.collection)
+                }>
+                  {resumeReading.sequence?.title || resumeReading.collection?.title}
+                  {" "}
+                  ({resumeReading.numRead}/{resumeReading.numTotal} read)
+                </Link>
+              </div>
+            }
 
             { post.user && !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
               <PostsUserAndCoauthors post={post}/>

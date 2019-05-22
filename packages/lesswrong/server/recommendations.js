@@ -175,6 +175,8 @@ const getResumeSequences = async (currentUser, context) => {
         : null,
       lastReadPost: await context["Posts"].loader.load(partiallyReadSequence.lastReadPostId),
       nextPost: await context["Posts"].loader.load(partiallyReadSequence.nextPostId),
+      numRead: partiallyReadSequence.numRead,
+      numTotal: partiallyReadSequence.numTotal,
     })
   ));
 }
@@ -207,6 +209,8 @@ addGraphQLSchema(`
     collection: Collection
     lastReadPost: Post!
     nextPost: Post!
+    numRead: Int
+    numTotal: Int
   }
   type RecommendationList {
     posts: [Post!]
