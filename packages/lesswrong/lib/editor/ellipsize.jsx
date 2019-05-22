@@ -67,8 +67,8 @@ export const answerTocExcerptFromHTML = (html) => {
   const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
 
   return truncatise(htmlRemovedStyles, {
-    TruncateLength: 75,
-    TruncateBy: "characters",
+    TruncateLength: 9,
+    TruncateBy: "words",
     Suffix: `${styles}`,
   });
 };

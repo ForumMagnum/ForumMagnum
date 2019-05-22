@@ -15,6 +15,7 @@ const styles = (theme) => ({
     width: 20,
     textAlign: "center",
     marginRight: theme.spacing.unit,
+    marginTop: 1,
     fontFamily: theme.typography.commentStyle.fontFamily,
   },
   tooltip: {
@@ -44,6 +45,9 @@ const styles = (theme) => ({
     '& strong': {
       fontWeight: theme.typography.body2.fontWeight
     }
+  },
+  author: {
+    fontFamily: theme.typography.commentStyle.fontFamily,
   }
 })
 
@@ -52,7 +56,7 @@ const AnswerTocRow = ({classes, answer}) => {
   const { html = "" } = answer.contents || {}
 
   const highlight = truncate(html, 900)
-  const singleLineHighlight = htmlToText.fromString(answerTocExcerptFromHTML(html)).split(".")[0].split(",")[0]
+  const singleLineHighlight = htmlToText.fromString(answerTocExcerptFromHTML(html)).substring(0,80)
 
   const tooltip = <div>
       <div className={classes.tooltipKarma}>
@@ -72,7 +76,7 @@ const AnswerTocRow = ({classes, answer}) => {
           {answer.baseScore}
         </span>
         <span className={classes.firstLine}>
-          { singleLineHighlight }
+          <span className={classes.author}>{answer.author}:</span> { singleLineHighlight }...
         </span>
       </span>
     </Tooltip>
