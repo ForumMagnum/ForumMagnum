@@ -95,7 +95,7 @@ class RecommendationsList extends Component {
   }
   
   render() {
-    const { recommendations, recommendationsLoading, currentUser, dismissRecommendation } = this.props;
+    const { recommendations, recommendationsLoading } = this.props;
     const { dismissedRecommendations } = this.state;
     const { PostsItem2, PostsLoading } = Components;
     if (recommendationsLoading || !recommendations)
