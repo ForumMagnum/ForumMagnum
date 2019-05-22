@@ -162,15 +162,21 @@ const getRecommendedPosts = async ({count, algorithm, currentUser}) => {
 const getResumeSequences = async (currentUser, context) => {
   if (!currentUser)
     return [];
-  if (currentUser.partiallyReadSequences) {
-    return Promise.all(_.map(currentUser.partiallyReadSequences, async partiallyReadSequence => ({
-      sequence: await context["Sequences"].loader.load(partiallyReadSequence.sequenceId),
+  if (!currentUser.partiallyReadSequences)
+    return [];
+  
+  return Promise.all(_.map(currentUser.partiallyReadSequences,
+    async partiallyReadSequence => ({
+      sequence: partiallyReadSequence.sequenceId
+        ? await context["Sequences"].loader.load(partiallyReadSequence.sequenceId)
+        : null,
+      collection: partiallyReadSequence.collectionId
+        ? await context["Collections"].loader.load(partiallyReadSequence.collectionId)
+        : null,
       lastReadPost: await context["Posts"].loader.load(partiallyReadSequence.lastReadPostId),
       nextPost: await context["Posts"].loader.load(partiallyReadSequence.nextPostId),
-    })));
-  } else {
-    return [];
-  }
+    })
+  ));
 }
 
 
@@ -197,7 +203,8 @@ addGraphQLResolvers({
 
 addGraphQLSchema(`
   type RecommendResumeSequence {
-    sequence: Sequence!
+    sequence: Sequence
+    collection: Collection
     lastReadPost: Post!
     nextPost: Post!
   }

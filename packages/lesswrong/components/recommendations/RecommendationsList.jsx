@@ -23,6 +23,11 @@ const withRecommendations = component => {
             gridImageId
             canonicalCollectionSlug
           }
+          collection {
+            _id
+            title
+            slug
+          }
           lastReadPost {
             ...PostsList
           }
@@ -61,7 +66,11 @@ const RecommendationsList = ({ recommendations, recommendationsLoading, currentU
   
   return <div>
     {recommendations.resumeReading.map(resumeReading =>
-      <PostsItem2 post={resumeReading.nextPost} sequence={resumeReading.sequence} key={resumeReading.sequence._id}/>)}
+      <PostsItem2
+        post={resumeReading.nextPost}
+        resumeReading={resumeReading}
+        key={resumeReading.sequence?._id || resumeReading.collection?._id}
+      />)}
     {recommendations.posts.map(post =>
       <PostsItem2 post={post} key={post._id}/>)}
     {recommendations.posts.length===0 && recommendations.resumeReading.length==0 &&

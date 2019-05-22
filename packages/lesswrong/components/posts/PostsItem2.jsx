@@ -4,6 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { Posts } from "../../lib/collections/posts";
 import { Sequences } from "../../lib/collections/sequences/collection.js";
+import { Collections } from "../../lib/collections/collections/collection.js";
 import withErrorBoundary from '../common/withErrorBoundary';
 import Typography from '@material-ui/core/Typography';
 import CloseIcon from '@material-ui/icons/Close';
@@ -50,7 +51,7 @@ const styles = (theme) => ({
     transition: "3s",
     width: "100%",
   },
-  hasSequence: {
+  hasResumeReading: {
     ...theme.typography.body,
     "& $title": {
       position: "relative",
@@ -274,7 +275,7 @@ class PostsItem2 extends PureComponent {
   }
 
   render() {
-    const { classes, post, chapter, currentUser, index, terms, sequence, showBottomBorder=true, showQuestionTag=true, showPostedAt=true } = this.props
+    const { classes, post, chapter, currentUser, index, terms, resumeReading, showBottomBorder=true, showQuestionTag=true, showPostedAt=true } = this.props
     const { showComments, readComments } = this.state
     const { PostsItemComments, PostsItemKarma, PostsItemTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
 
@@ -290,7 +291,7 @@ class PostsItem2 extends PureComponent {
             [classes.firstItem]: (index===0) && showComments,
             "personalBlogpost": !post.frontpageDate,
             [classes.commentBox]: showComments,
-            [classes.hasSequence]: !!sequence,
+            [classes.hasResumeReading]: !!resumeReading,
           }
         )}>
           <div className={classes.postsItem}>
@@ -302,8 +303,11 @@ class PostsItem2 extends PureComponent {
               <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
             </Link>
             
-            {sequence && <div className={classes.nextUnreadIn}>
-              Next unread in <Link to={Sequences.getPageUrl(sequence)}>{sequence.title}</Link>
+            {resumeReading?.sequence && <div className={classes.nextUnreadIn}>
+              Next unread in <Link to={Sequences.getPageUrl(resumeReading.sequence)}>{resumeReading.sequence.title}</Link>
+            </div>}
+            {resumeReading?.collection && <div className={classes.nextUnreadIn}>
+              Next unread in <Link to={Collections.getPageUrl(resumeReading.collection)}>{resumeReading.collection.title}</Link>
             </div>}
 
             { post.user && !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
@@ -314,7 +318,7 @@ class PostsItem2 extends PureComponent {
               <EventVicinity post={post} />
             </PostsItem2MetaInfo>}
 
-            {showPostedAt && !sequence && <Components.PostsItemDate post={post}/>}
+            {showPostedAt && !resumeReading && <Components.PostsItemDate post={post}/>}
 
             <div className={classes.mobileSecondRowSpacer}/>
             
@@ -326,15 +330,15 @@ class PostsItem2 extends PureComponent {
               <PostsItemIcons post={post}/>
             </Hidden>
 
-            {!sequence && <div className={classes.commentsIcon}>
+            {!resumeReading && <div className={classes.commentsIcon}>
               <PostsItemComments post={post} onClick={() => this.toggleComments(false)} readStatus={readComments}/>
             </div>}
             
-            {sequence &&
+            {resumeReading &&
               <div className={classes.sequenceImage}>
                 <NoSSR>
                   <Components.CloudinaryImage
-                    publicId={sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
+                    publicId={resumeReading.sequence?.gridImageId || resumeReading.collection?.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
                     height={48}
                     width={146}
                   />
@@ -344,8 +348,8 @@ class PostsItem2 extends PureComponent {
           </div>
           
           {<div className={classes.actions}>
-            {sequence && <CloseIcon onClick={() => this.dismissSequence()}/>}
-            {!sequence && <PostsPageActions post={post} vertical menuClassName={classes.actionsMenu} />}
+            {resumeReading && <CloseIcon onClick={() => this.dismissSequence()}/>}
+            {!resumeReading && <PostsPageActions post={post} vertical menuClassName={classes.actionsMenu} />}
           </div>}
           
           {this.state.showComments && <div className={classes.newCommentsSection} onClick={() => this.toggleComments(true)}>

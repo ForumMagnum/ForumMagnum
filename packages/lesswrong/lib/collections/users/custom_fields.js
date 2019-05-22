@@ -83,6 +83,12 @@ const partiallyReadSequenceItem = new SimpleSchema({
   sequenceId: {
     type: String,
     foreignKey: "Sequences",
+    optional: true,
+  },
+  collectionId: {
+    type: String,
+    foreignKey: "Collections",
+    optional: true,
   },
   lastReadPostId: {
     type: String,

@@ -303,7 +303,9 @@ class PostsPage extends Component {
   }
 
   async componentDidMount() {
-    this.props.recordPostView(this.props);
+    this.props.recordPostView(this.props, {
+      sequenceId: this.getSequenceId(),
+    });
   }
   
   componentDidUpdate(prevProps) {
