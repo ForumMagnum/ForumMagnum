@@ -6,7 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
-import { Link, SetQueryLink } from '../../lib/reactRouterWrapper.js'
+import { QueryLink } from '../../lib/reactRouterWrapper.js'
 
 import withUser from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
@@ -151,15 +151,16 @@ class PostsListSettings extends Component {
           </MetaInfo>
           {Object.entries(views).map(([name, label]) => {
             return (
-              <Link 
+              <QueryLink 
                 key={name} 
                 onClick={() => this.setView(name)}
-                to={loc=> ({...loc, query: {...loc.query, view: name}})}
+                query={{view: name}}
+                merge
               >
                 <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentView === name})}>
                   { label }
                 </MetaInfo>
-              </Link>
+              </QueryLink>
             )
           })}
         </div>
@@ -170,26 +171,28 @@ class PostsListSettings extends Component {
           </MetaInfo>
           {filters.map(filter => {
             return (
-              <SetQueryLink
+              <QueryLink
                 key={filter.name} 
                 onClick={() => this.setFilter(filter.name)}
-                newQuery={{filter: filter.name}}
+                query={{filter: filter.name}}
+                merge
               >
                 <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentFilter === filter.name})}>
                   <Tooltip title={<div>{filter['tooltip']}</div>} placement="left-start">
                     <span>{ filter.label }</span>
                   </Tooltip>
                 </MetaInfo>
-              </SetQueryLink>
+              </QueryLink>
             )
           })}
         </div>
 
         <Tooltip title={<div><div>By default, posts below -10 karma are hidden.</div><div>Toggle to show them.</div></div>} placement="right-start">
-          <SetQueryLink
+          <QueryLink
             className={classes.checkboxGroup}
             onClick={() => this.setShowLowKarma(!currentShowLowKarma)}
-            newQuery={{karmaThreshold: (currentShowLowKarma ? DEFAULT_LOW_KARMA_THRESHOLD : MAX_LOW_KARMA_THRESHOLD)}}
+            query={{karmaThreshold: (currentShowLowKarma ? DEFAULT_LOW_KARMA_THRESHOLD : MAX_LOW_KARMA_THRESHOLD)}}
+            merge
           >
             <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentShowLowKarma} /> 
 
@@ -204,7 +207,7 @@ class PostsListSettings extends Component {
             <MetaInfo className={classes.checkboxLabel}>
               Show Low Karma
             </MetaInfo>
-          </SetQueryLink>
+          </QueryLink>
         </Tooltip>
       </div>
     );

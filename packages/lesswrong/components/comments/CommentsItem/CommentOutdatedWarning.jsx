@@ -4,7 +4,7 @@ import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import HistoryIcon from '@material-ui/icons/History';
 import { withStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
-import { Link } from '../../../lib/reactRouterWrapper.js';
+import { QueryLink } from '../../../lib/reactRouterWrapper.js';
 
 const styles = theme => ({
   icon: {
@@ -26,7 +26,7 @@ function postHadMajorRevision(comment, post) {
 const CommentOutdatedWarning = ({comment, post, classes}) => {
   return postHadMajorRevision(comment, post) && 
     <Tooltip title="The top-level post had major updates since this comment was created. Click to see post at time of creation.">
-      <Link to={loc=> ({...loc, query: {...loc.query, revision: comment.postVersion}})}><HistoryIcon className={classes.icon}/> Response to previous version </Link>
+      <QueryLink query={{revision: comment.postVersion}} merge><HistoryIcon className={classes.icon}/> Response to previous version </QueryLink>
     </Tooltip>  
 };
 

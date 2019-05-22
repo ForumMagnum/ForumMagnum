@@ -8,6 +8,8 @@ import React from 'react';
 
 import * as reactRouter from 'react-router';
 import * as reactRouterDom from 'react-router-dom';
+import { parseQuery } from './routeUtil'
+import qs from 'qs'
 
 export const withRouter = (WrappedComponent) => {
   const WithRouterWrapper = (props) => {
@@ -22,12 +24,19 @@ export const withRouter = (WrappedComponent) => {
 }
 
 export const Link = (props) => {
+  if (!(typeof props.to === "string" || typeof props.to === "function")) {
+    // eslint-disable-next-line no-console
+    console.error("Props 'to' for Link components only accepts strings or functions, passed type: ", typeof props.to)
+    return <span>Broken Link</span>
+  }
   return <reactRouterDom.Link {...props}/>
 }
 
-export const SetQueryLink = ({newQuery, ...rest}) => {
+export const QueryLink = reactRouter.withRouter(({query, location, staticContext, merge=false, ...rest}) => {
+  // Merge determines whether we do a shallow merge with the existing query parameters, or replace them completely
+  const newSearchString = merge ? qs.stringify({...parseQuery(location), ...query}) : qs.stringify(query)
   return <reactRouterDom.Link
-    to={loc => ({...loc, query: newQuery})}
     {...rest}
+    to={{search: newSearchString}}
   />
-}
+})
