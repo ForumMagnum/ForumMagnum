@@ -32,7 +32,7 @@ export const withRecordPostView = (Component) => {
 
         // Trigger the asynchronous mutation with postId as an argument
         // Deliberately not awaiting, because this should be fire-and-forget
-        increasePostViewCount({postId: documentId});
+        await increasePostViewCount({postId: documentId});
 
         // Update the redux store
         setViewed(documentId);

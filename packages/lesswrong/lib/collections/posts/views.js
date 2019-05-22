@@ -299,6 +299,7 @@ Posts.addView('rss', Posts.views['community-rss']); // default to 'community-rss
 Posts.addView("topQuestions", terms => ({
   selector: {
     question: true,
+    hiddenRelatedQuestion: viewFieldAllowAny,
     baseScore: {$gte: 40}
   },
   options: {
@@ -315,6 +316,7 @@ ensureIndex(Posts,
 Posts.addView("recentQuestionActivity", terms => ({
   selector: {
     question: true,
+    hiddenRelatedQuestion: viewFieldAllowAny,
   },
   options: {
     sort: {lastCommentedAt: -1}
@@ -433,6 +435,7 @@ Posts.addView("recentDiscussionThreadsList", terms => {
     selector: {
       baseScore: {$gt:0},
       hideFrontpageComments: false,
+      hiddenRelatedQuestion: viewFieldAllowAny,
       groupId: null,
     },
     options: {

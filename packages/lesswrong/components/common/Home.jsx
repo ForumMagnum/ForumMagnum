@@ -62,7 +62,7 @@ const Home = ({ currentUser, location, classes }) => {
   }
 
   const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
-      Users.canDo(currentUser, 'alignment.sidebar')
+    Users.canDo(currentUser, 'alignment.sidebar')
 
   return (
     <div>
@@ -82,17 +82,18 @@ const Home = ({ currentUser, location, classes }) => {
       >
         <Components.PostsList terms={recentPostsTerms} />
       </Components.Section>
-      <Components.Section
+
+      {getSetting('hasEvents', true) && <Components.Section
         title="Community"
         titleLink="/community"
         titleComponent={<div>
           <Components.SectionSubtitle>
-          <Link to="/community">Find Events Nearby</Link>
+            <Link to="/community">Find Events Nearby</Link>
           </Components.SectionSubtitle>
         </div>}
       >
         <Components.PostsList terms={eventsListTerms} showLoadMore={false} />
-      </Components.Section>
+      </Components.Section>}
       <Components.Section title="Recent Discussion" titleLink="/AllComments" titleComponent={
         <div>
           {shortformFeedId && <Components.SectionSubtitle>
