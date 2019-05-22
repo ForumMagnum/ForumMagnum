@@ -1,6 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
+import { parseQuery } from '../../lib/routeUtil';
 
 const styles = theme => ({
   root: {
@@ -11,7 +12,8 @@ const styles = theme => ({
 });
 
 const RecentCommentsPage = ({location, classes}) => {
-  const terms = _.isEmpty(location && location.query) ? {view: 'recentComments', limit: 100}: location.query;
+  const query = parseQuery(location)
+  const terms = _.isEmpty(query) ? {view: 'recentComments', limit: 100}: query;
 
   return (
     <div className={classes.root}>
