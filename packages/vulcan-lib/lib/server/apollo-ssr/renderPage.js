@@ -6,7 +6,7 @@
  */
 import React from 'react';
 import ReactDOM from 'react-dom/server';
-import { renderToStringWithData } from 'react-apollo';
+import { getDataFromTree } from 'react-apollo';
 
 import { runCallbacks } from '../../modules/callbacks';
 import { createClient } from './apolloClient';
@@ -40,10 +40,30 @@ const makePageRenderer = ({ computeContext }) => {
       properties: { req, context, apolloClient: client },
     });
 
-    // equivalent to calling getDataFromTree and then renderToStringWithData
     let htmlContent = '';
     try {
-    htmlContent = await renderToStringWithData(WrappedApp);
+      // LESSWRONG: Split a call to renderToStringWithData into getDataFromTree
+      // followed by ReactDOM.renderToString, then pass a context variable
+      // isGetDataFromTree to only the getDataFromTree call. This is to enable
+      // a hack in packages/lesswrong/server/material-ui/themeProvider.js.
+      //
+      // In getDataFromTree, the order in which components are rendered is
+      // complicated and depends on what HoCs they have and the order in which
+      // results come back from the database; whereas in
+      // ReactDOM.renderToString, the render order is simply an inorder
+      // traversal of the resulting virtual DOM. When the client rehydrates the
+      // SSR, it traverses inorder, like renderToString did.
+      //
+      // Ordinarily the render order wouldn't matter, except that material-UI
+      // JSS stylesheet generation happens on first render, and it generates
+      // some class names which contain an iterating counter, which needs to
+      // match between client and server.
+      //
+      // So the hacky solution is: when rendering for getDataFromTree, we pass
+      // a context variable isGetDataFromTree, and if that's present and true,
+      // we suppress JSS style generation.
+      await getDataFromTree(WrappedApp, {isGetDataFromTree: true});
+      htmlContent = await ReactDOM.renderToString(WrappedApp);
     } catch (err) {
       console.error(`Error while server-rendering. date: ${new Date().toString()} url: ${req.url}`); // eslint-disable-line no-console
       console.error(err);
