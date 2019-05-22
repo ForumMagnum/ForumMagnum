@@ -2,22 +2,20 @@ import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
-import { truncate } from '../../lib/editor/ellipsize';
+import { truncate, answerTocExcerptFromHTML } from '../../../lib/editor/ellipsize';
+import htmlToText from 'html-to-text'
 
 const styles = (theme) => ({
   root: {
-    marginLeft: -theme.spacing.unit
+    marginLeft: -theme.spacing.unit,
+    display: "flex"
   },
   karma: {
-    fontFamily: theme.typography.commentStyle.fontFamily,
-    width: 20,
     display: "inline-block",
-    textAlign: "right",
-    marginRight: theme.spacing.unit
-  },
-  date: {
+    width: 20,
+    textAlign: "center",
+    marginRight: theme.spacing.unit,
     fontFamily: theme.typography.commentStyle.fontFamily,
-    paddingLeft: theme.spacing.unit,
   },
   tooltip: {
     wordBreak: "break-word"
@@ -27,6 +25,25 @@ const styles = (theme) => ({
     marginBottom: theme.spacing.unit*2,
     display:"flex",
     justifyContent: "space-between"
+  },
+  firstLine: {
+    fontSize: 13.2,
+    width: "calc(100% - 20px)",
+    fontFamily: theme.typography.postStyle.fontFamily,
+    marginTop: 0,
+    marginBottom: 0,
+    '& *': {
+      display: "inline"
+    },
+    '& blockquote, & br, & figure, & img': {
+      display: "none"
+    },
+    '& p': {
+      marginRight: 6
+    },
+    '& strong': {
+      fontWeight: theme.typography.body2.fontWeight
+    }
   }
 })
 
@@ -35,6 +52,7 @@ const AnswerTocRow = ({classes, answer}) => {
   const { html = "" } = answer.contents || {}
 
   const highlight = truncate(html, 900)
+  const singleLineHighlight = htmlToText.fromString(answerTocExcerptFromHTML(html)).split(".")[0].split(",")[0]
 
   const tooltip = <div>
       <div className={classes.tooltipKarma}>
@@ -47,15 +65,14 @@ const AnswerTocRow = ({classes, answer}) => {
       </div>
       <div dangerouslySetInnerHTML={{__html:highlight}} className={classes.tooltip} />
     </div>
-
   return <div>
     <Tooltip title={tooltip} placement="right-start">
       <span className={classes.root}>
         <span className={classes.karma}>
           {answer.baseScore}
         </span>
-        <span>
-          {answer.author}
+        <span className={classes.firstLine}>
+          { singleLineHighlight }
         </span>
       </span>
     </Tooltip>
