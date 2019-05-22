@@ -24,9 +24,9 @@ export const withRouter = (WrappedComponent) => {
 }
 
 export const Link = (props) => {
-  if (!(typeof props.to === "string" || typeof props.to === "function")) {
+  if (!(typeof props.to === "string" || typeof props.to === "object")) {
     // eslint-disable-next-line no-console
-    console.error("Props 'to' for Link components only accepts strings or functions, passed type: ", typeof props.to)
+    console.error("Props 'to' for Link components only accepts strings or objects, passed type: ", typeof props.to)
     return <span>Broken Link</span>
   }
   return <reactRouterDom.Link {...props}/>
