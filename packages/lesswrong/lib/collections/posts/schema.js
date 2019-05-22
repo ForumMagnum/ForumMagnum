@@ -294,14 +294,6 @@ const schema = {
     }
   }),
 
-  commentsCount: resolverOnlyField({
-    type: Number,
-    viewableBy: ['guests'],
-    resolver: (post, args, { Comments }) => {
-      return Comments.find({ postId: post._id }).count();
-    },
-  }),
-
   emailShareUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
@@ -389,6 +381,7 @@ const schema = {
     insertableBy: ['members'],
     editableBy: [Users.owns, 'admins', 'sunshineRegiment'],
     optional: true,
+    hidden: true,
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
     onCreate: ({newDocument}) => {
