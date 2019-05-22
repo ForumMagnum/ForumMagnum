@@ -61,7 +61,25 @@ const withRecommendations = component => {
   )(component);
 }
 
-const RecommendationsList = ({ recommendations, recommendationsLoading, currentUser }) => {
+const withDismissRecommendation = component => {
+  return graphql(gql`
+    mutation dismissRecommendation($postId: String) {
+      dismissRecommendation(postId: $postId)
+    }
+  `, {
+    props: ({ownProps, mutate}) => ({
+      dismissRecommendation: async ({postId}) => {
+        await mutate({
+          variables: {
+            postId: postId
+          },
+        });
+      }
+    })
+  })(component);
+}
+
+const RecommendationsList = ({ recommendations, recommendationsLoading, currentUser, dismissRecommendation }) => {
   const { PostsItem2, PostsLoading } = Components;
   if (recommendationsLoading || !recommendations)
     return <PostsLoading/>
@@ -71,6 +89,7 @@ const RecommendationsList = ({ recommendations, recommendationsLoading, currentU
       <PostsItem2
         post={resumeReading.nextPost}
         resumeReading={resumeReading}
+        dismissRecommendation={() => dismissRecommendation({postId: resumeReading.nextPost._id})}
         key={resumeReading.sequence?._id || resumeReading.collection?._id}
       />)}
     {recommendations.posts.map(post =>
@@ -82,6 +101,7 @@ const RecommendationsList = ({ recommendations, recommendationsLoading, currentU
 
 registerComponent('RecommendationsList', RecommendationsList,
   withRecommendations,
+  withDismissRecommendation,
   withUser
 );
 

@@ -5,6 +5,7 @@ import Posts from '../lib/collections/posts/collection.js';
 import Collections from '../lib/collections/collections/collection.js';
 import findIndex from 'lodash/findIndex';
 
+
 // Given a user ID, a post ID which the user has just read, and a sequence ID
 // that they read it in the context of, determine whether this means they have
 // a partially-read sequence, and update their user object to reflect this
@@ -53,8 +54,6 @@ const updateSequenceReadStatusForPostRead = async (userId, postId, sequenceId) =
     const collectionPostReadStatuses = await postsToReadStatuses(user, collectionPostIDs);
     const collectionAnyUnread = _.some(collectionPostIDs, postID => !collectionPostReadStatuses[postID]);
     
-    console.log(collectionPostIDs);
-    
     if (collectionAnyUnread) {
       const nextPostIndex = findIndex(collectionPostIDs, postID=>!collectionPostReadStatuses[postID]);
       const nextPostId = collectionPostIDs[nextPostIndex];
@@ -87,7 +86,7 @@ const updateSequenceReadStatusForPostRead = async (userId, postId, sequenceId) =
   }
 }
 
-const setUserPartiallyReadSequences = async (userId, newPartiallyReadSequences) => {
+export const setUserPartiallyReadSequences = async (userId, newPartiallyReadSequences) => {
   editMutation({
     collection: Users,
     documentId: userId,

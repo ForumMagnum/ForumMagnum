@@ -270,10 +270,6 @@ class PostsItem2 extends PureComponent {
     }
   }
   
-  dismissSequence = () => {
-    // TODO
-  }
-
   render() {
     const { classes, post, chapter, currentUser, index, terms, resumeReading, showBottomBorder=true, showQuestionTag=true, showPostedAt=true } = this.props
     const { showComments, readComments } = this.state
@@ -355,7 +351,7 @@ class PostsItem2 extends PureComponent {
           </div>
           
           {<div className={classes.actions}>
-            {resumeReading && <CloseIcon onClick={() => this.dismissSequence()}/>}
+            {resumeReading && <CloseIcon onClick={() => this.props.dismissRecommendation()}/>}
             {!resumeReading && <PostsPageActions post={post} vertical menuClassName={classes.actionsMenu} />}
           </div>}
           

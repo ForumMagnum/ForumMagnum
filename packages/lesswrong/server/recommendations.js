@@ -1,7 +1,8 @@
-import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema } from 'meteor/vulcan:core';
+import { addGraphQLResolvers, addGraphQLQuery, addGraphQLMutation, addGraphQLSchema } from 'meteor/vulcan:core';
 import { Posts } from '../lib/collections/posts';
 import { WeightedList } from './weightedList.js';
 import { accessFilterMultiple } from '../lib/modules/utils/schemaUtils.js';
+import { setUserPartiallyReadSequences } from './partiallyReadSequences.js';
 
 // The set of fields on Posts which are used for deciding which posts to
 // recommend. Fields other than these will be projected out before downloading
@@ -200,7 +201,20 @@ addGraphQLResolvers({
         resumeReading: resumeSequences
       };
     }
-  }
+  },
+  Mutation: {
+    async dismissRecommendation(root, {postId}, context) {
+      const { currentUser } = context;
+      
+      if (_.some(currentUser.partiallyReadSequences, s=>s.nextPostId===postId)) {
+        const newPartiallyRead = _.filter(currentUser.partiallyReadSequences,
+          s=>s.nextPostId !== postId);
+        setUserPartiallyReadSequences(currentUser._id, newPartiallyRead);
+        return true;
+      }
+      return false;
+    }
+  },
 });
 
 addGraphQLSchema(`
@@ -219,4 +233,5 @@ addGraphQLSchema(`
 `);
 
 addGraphQLQuery("Recommendations(count: Int, algorithm: JSON): RecommendationList!");
+addGraphQLMutation("dismissRecommendation(postId: String): Boolean");
 
