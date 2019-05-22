@@ -39,7 +39,7 @@ const PostsPageTitle = ({classes, post}) => {
       </Typography>}
       {post.question && parentPost && <Typography variant="title">
         <Link to={Posts.getPageUrl(parentPost)} className={classes.question}>
-          [ Parent Question — {parentPost.title} ]
+          [ Parent Question — {parentPost.title} ]
         </Link>
       </Typography>}
       <Typography variant="display3" className={classes.root}>
