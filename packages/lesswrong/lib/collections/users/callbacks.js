@@ -119,7 +119,7 @@ addCallback('users.new.async', addReCaptchaRating);
 
 async function subscribeOnSignup (user) {
   // If the subscribed-to-curated checkbox was checked, set the corresponding config setting
-  const subscribeToCurated = user?.profile?.subscribeToCurated;
+  const subscribeToCurated = user.profile?.subscribeToCurated;
   if (subscribeToCurated) {
     Users.update(user._id, {$set: {emailSubscribedToCurated: true}});
   }
