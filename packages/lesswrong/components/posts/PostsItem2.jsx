@@ -307,9 +307,9 @@ class PostsItem2 extends PureComponent {
                     : Collections.getPageUrl(resumeReading.collection)
                 }>
                   {resumeReading.sequence?.title || resumeReading.collection?.title}
-                  {" "}
-                  ({resumeReading.numRead}/{resumeReading.numTotal} read)
                 </Link>
+                {" "}
+                ({resumeReading.numRead}/{resumeReading.numTotal} read)
               </div>
             }
 

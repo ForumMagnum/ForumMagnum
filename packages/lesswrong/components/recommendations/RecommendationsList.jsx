@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { getFragment } from 'meteor/vulcan:core';
 import gql from 'graphql-tag';
@@ -79,24 +79,42 @@ const withDismissRecommendation = component => {
   })(component);
 }
 
-const RecommendationsList = ({ recommendations, recommendationsLoading, currentUser, dismissRecommendation }) => {
-  const { PostsItem2, PostsLoading } = Components;
-  if (recommendationsLoading || !recommendations)
-    return <PostsLoading/>
+class RecommendationsList extends Component {
+  state = {
+    dismissedRecommendations: {}
+  }
   
-  return <div>
-    {recommendations.resumeReading.map(resumeReading =>
-      <PostsItem2
-        post={resumeReading.nextPost}
-        resumeReading={resumeReading}
-        dismissRecommendation={() => dismissRecommendation({postId: resumeReading.nextPost._id})}
-        key={resumeReading.sequence?._id || resumeReading.collection?._id}
-      />)}
-    {recommendations.posts.map(post =>
-      <PostsItem2 post={post} key={post._id}/>)}
-    {recommendations.posts.length===0 && recommendations.resumeReading.length==0 &&
-      <span>There are no more recommendations left.</span>}
-  </div>
+  dismissAndHideRecommendation(postId) {
+    this.props.dismissRecommendation({postId: postId});
+    this.setState({
+      dismissedRecommendations: {
+        ...this.state.dismissedRecommendations,
+        [postId]: true
+      }
+    });
+  }
+  
+  render() {
+    const { recommendations, recommendationsLoading, currentUser, dismissRecommendation } = this.props;
+    const { dismissedRecommendations } = this.state;
+    const { PostsItem2, PostsLoading } = Components;
+    if (recommendationsLoading || !recommendations)
+      return <PostsLoading/>
+    
+    return <div>
+      {recommendations.resumeReading.map(resumeReading =>
+        !(dismissedRecommendations[resumeReading.nextPost._id]) && <PostsItem2
+          post={resumeReading.nextPost}
+          resumeReading={resumeReading}
+          dismissRecommendation={() => this.dismissAndHideRecommendation(resumeReading.nextPost._id)}
+          key={resumeReading.sequence?._id || resumeReading.collection?._id}
+        />)}
+      {recommendations.posts.map(post =>
+        <PostsItem2 post={post} key={post._id}/>)}
+      {recommendations.posts.length===0 && recommendations.resumeReading.length==0 &&
+        <span>There are no more recommendations left.</span>}
+    </div>
+  }
 }
 
 registerComponent('RecommendationsList', RecommendationsList,
