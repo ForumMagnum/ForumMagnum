@@ -9,6 +9,7 @@ import Users from 'meteor/vulcan:users';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 import EventIcon from '@material-ui/icons/Event';
+import { parseQuery } from '../../lib/routeUtil.js';
 
 const styles = theme => ({
   content: {
@@ -59,8 +60,9 @@ class CommunityHome extends Component {
   }
 
   render() {
-    const {classes, router} = this.props;
-    const filters = (router.location.query && router.location.query.filters) || [];
+    const {classes, location} = this.props;
+    const query = parseQuery(location)
+    const filters = query?.filters || [];
     const { TabNavigationMenu, SingleColumnSection, SectionTitle, PostsList2, SectionButton, GroupFormLink } = Components
 
     const postsListTerms = {

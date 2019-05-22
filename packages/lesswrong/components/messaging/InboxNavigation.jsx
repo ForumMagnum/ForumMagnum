@@ -6,6 +6,7 @@ The Navigation for the Inbox components
 
 import React, { Component } from 'react';
 import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
+import { parseQuery } from '../../lib/routeUtil'
 import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import Conversations from '../../lib/collections/conversations/collection.js';
 import Typography from '@material-ui/core/Typography';
@@ -50,8 +51,9 @@ const styles = theme => ({
 class InboxNavigation extends Component {
 
   render() {
-    const { results, classes, currentUser } = this.props
-    const select = this.props.location.query.select;
+    const { results, classes, currentUser, location } = this.props
+    const query = parseQuery(location)
+    const select = query.select;
 
     const messagesTerms = {view: 'messagesConversation', conversationId: select};
 

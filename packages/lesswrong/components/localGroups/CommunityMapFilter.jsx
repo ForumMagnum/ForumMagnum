@@ -4,6 +4,7 @@ import { withRouter } from '../../lib/reactRouterWrapper.js';
 import { registerComponent } from 'meteor/vulcan:core';
 import Checkbox from '@material-ui/core/Checkbox';
 import { groupTypes } from '../../lib/collections/localgroups/groupTypes';
+import { parseQuery } from '../../lib/routeUtil'
 import { withStyles } from '@material-ui/core/styles';
 
 const availableFilters = _.map(groupTypes, t => t.shortName);
@@ -30,7 +31,8 @@ const styles = theme => ({
 class CommunityMapFilter extends Component {
   constructor(props) {
     super(props);
-    const filters = this.props.router.location.query && this.props.router.location.query.filters;
+    const query = parseQuery(this.props?.router?.location)
+    const filters = query?.filters
     if (Array.isArray(filters)) {
       this.state = {filters: filters}
     } else if (typeof filters === "string") {

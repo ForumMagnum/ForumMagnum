@@ -3,7 +3,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { registerComponent, Components, withSingle } from 'meteor/vulcan:core';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Posts } from '../../../lib/collections/posts/collection'
-import { Link } from '../../../lib/reactRouterWrapper.js';
+import { QueryLink } from '../../../lib/reactRouterWrapper.js';
 
 
 const styles = theme => ({
@@ -18,7 +18,7 @@ const PostsRevisionsList = ({document, loading, classes}) => {
   const { revisions } = document
   return <React.Fragment>
     {revisions.map(({editedAt, version, user}) => 
-    <MenuItem key={version} component={Link} to={location => ({...location, query: {...location.query, revision: version}})}>
+    <MenuItem key={version} component={QueryLink} query={{revision: version}} merge>
       <span className={classes.version}>v{version}</span> <FormatDate date={editedAt}/>
     </MenuItem>)}
   </React.Fragment>

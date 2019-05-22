@@ -11,6 +11,8 @@ import postViewSections from '../../lib/sections.js'
 import withUser from '../common/withUser';
 import classNames from 'classnames';
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
+import { parseQuery } from '../../lib/routeUtil.js';
+import qs from 'qs'
 
 const defaultViews = ["curated", "frontpage"];
 const defaultExpandedViews = ["community"];
@@ -140,12 +142,13 @@ class HomePostsViews extends Component {
   }
 
   handleChange = (view, event) => {
-    const { router } = this.props;
-    const query = { ...router.location.query, view };
-    const location = { pathname: router.location.pathname, query };
-    router.replace(location);
+    const { location, history } = this.props;
+    const query = parseQuery(location)
+    const newQuery = { ...query, view };
+    const newLocation = { ...location, search: `?${qs.stringify(newQuery)}` };
+    history.replace(newLocation);
     this.setState({ view });
-    if (this.props.currentUser && router.location.pathname === "/") {
+    if (this.props.currentUser && location.pathname === "/") {
       this.props.editMutation({
         documentId: this.props.currentUser._id,
         set: {currentFrontpageFilter: view},
@@ -155,8 +158,9 @@ class HomePostsViews extends Component {
   }
 
   getCurrentView = () => {
-    const props = this.props;
-    return _.clone(props.router.location.query).view || props.defaultView || (props.currentUser && props.currentUser.currentFrontpageFilter) || (this.props.currentUser ? "frontpage" : "curated");
+    const { location, defaultView, currentUser } = this.props
+    const query = parseQuery(location)
+    return query?.view || defaultView || currentUser?.currentFrontpageFilter || (currentUser ? "frontpage" : "curated");
   }
 
   renderMenu = (viewData, view) => {

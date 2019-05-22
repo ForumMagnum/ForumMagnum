@@ -2,9 +2,10 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import withUser from '../common/withUser';
+import { parseQuery } from '../../lib/routeUtil.js';
 
 const Meta = ({location, currentUser}, context) => {
-  const query = location ? location.query : {};
+  const query = parseQuery(location)
   const recentPostsTerms = { view: 'magic', limit: 10, ...query, meta: true, forum: true }
   return (
     <div className="home">

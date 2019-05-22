@@ -5,6 +5,7 @@ import { withRouter } from '../../lib/reactRouterWrapper.js';
 import { withStyles } from '@material-ui/core/styles';
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 import withErrorBoundary from '../common/withErrorBoundary';
+import { parseQuery } from '../../lib/routeUtil';
 
 const styles = theme => ({
   communityMap: {
@@ -19,12 +20,12 @@ const styles = theme => ({
   }
 });
 
-const CommunityMapWrapper = ({router, classes, groupQueryTerms, results, currentUserLocation, mapOptions}) => {
+const CommunityMapWrapper = ({location, classes, groupQueryTerms, results, currentUserLocation, mapOptions}) => {
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
-  
+  const query = parseQuery(location)
   return (
     <Components.CommunityMap
-      terms={groupQueryTerms || {view: "all", filters: (router.location.query && router.location.query.filters) || []}}
+      terms={groupQueryTerms || {view: "all", filters: query?.filters || []}}
       loadingElement= {<div style={{ height: `100%` }} />}
       events={results}
       containerElement= {<div style={{height: "500px"}} className={classes.communityMap}/>}

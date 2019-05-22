@@ -1,6 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import { Link, withRouter } from '../../lib/reactRouterWrapper.js';
+import { parseQuery } from '../../lib/routeUtil'
 import withDialog from '../common/withDialog'
 import withUser from '../common/withUser'
 import AddBoxIcon from '@material-ui/icons/AddBox'
@@ -9,6 +10,7 @@ class QuestionsPage extends PureComponent {
   render () {
     const { currentUser, location, openDialog } = this.props
     const { TabNavigationMenu, SingleColumnSection, SectionTitle,  PostsList2, SectionButton } = Components
+    const query = parseQuery(location)
 
     const topQuestionsTerms = {
       view: 'topQuestions',
@@ -18,7 +20,7 @@ class QuestionsPage extends PureComponent {
     const recentActivityTerms = {
       view: 'recentQuestionActivity',
       limit: 12,
-      includeRelatedQuestions: location.query.includeRelatedQuestions
+      includeRelatedQuestions: query.includeRelatedQuestions
     };
   
     return (
