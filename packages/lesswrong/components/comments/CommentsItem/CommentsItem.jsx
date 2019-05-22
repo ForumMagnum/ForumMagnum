@@ -136,10 +136,10 @@ class CommentsItem extends Component {
   }
 
   handleLinkClick = (event) => {
-    const { comment, router } = this.props;
+    const { comment, history, location, scrollIntoView } = this.props;
     event.preventDefault()
-    this.props.router.replace({...router.location, hash: "#" + comment._id})
-    this.props.scrollIntoView(event);
+    history.push({...location, hash: "#" + comment._id})
+    scrollIntoView(event);
   }
 
   render() {

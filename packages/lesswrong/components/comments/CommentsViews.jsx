@@ -9,6 +9,7 @@ import { Comments } from '../../lib/collections/comments'
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import { parseQuery } from '../../lib/routeUtil.js';
+import qs from 'qs'
 
 const viewNames = {
   'postCommentsTop': 'magical algorithm',
@@ -43,11 +44,11 @@ class CommentsViews extends Component {
   };
 
   handleViewClick = (view) => {
-    const { router, post, location } = this.props
+    const { history, post, location } = this.props
     const query = parseQuery(location);
-    const currentQuery = query || {view: 'postCommentsTop'}
+    const currentQuery = _.isEmpty(query) ? {view: 'postCommentsTop'} : query
     this.setState({ anchorEl: null })
-    router.replace({...router.location, query: {...currentQuery, view: view, postId: post ? post._id : undefined}})
+    history.push({...location, search: `?${qs.stringify({...currentQuery, view: view, postId: post ? post._id : undefined})}`})
   };
 
   handleClose = () => {
@@ -55,7 +56,7 @@ class CommentsViews extends Component {
   }
 
   render() {
-    const { currentUser, classes, router, post } = this.props
+    const { currentUser, classes, post } = this.props
     const { anchorEl } = this.state
     let views = ["postCommentsTop", "postCommentsNew", "postCommentsOld"]
     const adminViews = ["postCommentsDeleted", "postCommentsSpam", "postCommentsReported"]

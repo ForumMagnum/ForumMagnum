@@ -6,6 +6,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { groupTypes } from '../../lib/collections/localgroups/groupTypes';
 import { parseQuery } from '../../lib/routeUtil'
 import { withStyles } from '@material-ui/core/styles';
+import qs from 'qs'
 
 const availableFilters = _.map(groupTypes, t => t.shortName);
 
@@ -43,7 +44,7 @@ class CommunityMapFilter extends Component {
   }
 
   handleCheck = (filter) => {
-    const router = this.props.router;
+    const { location, history } = this.props
     let newFilters = [];
     if (Array.isArray(this.state.filters) && this.state.filters.includes(filter)) {
       newFilters = _.without(this.state.filters, filter);
@@ -51,7 +52,7 @@ class CommunityMapFilter extends Component {
       newFilters = [...this.state.filters, filter];
     }
     this.setState({filters: newFilters});
-    router.replace({...router.location, pathname: "/community", query: {filters: newFilters}})
+    history.replace({...location, search: `?${qs.stringify({filters: newFilters})}`})
   }
 
   render() {
