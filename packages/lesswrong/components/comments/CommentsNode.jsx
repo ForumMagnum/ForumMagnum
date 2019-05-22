@@ -182,11 +182,10 @@ class CommentsNode extends Component {
   isSingleLine = () => {
     const { currentUser, comment, condensed, recentDiscussionExpandedId } = this.props 
     
-    const isAdmin = currentUser && currentUser.isAdmin
     const newAndMostRecent = (this.isNewComment() && (!condensed || (recentDiscussionExpandedId === comment._id)))
     const lowKarmaOrCondensed = (comment.baseScore < 10 || condensed) 
     return (
-      isAdmin &&
+      currentUser?.isAdmin &&
       this.isTruncated() && 
       !newAndMostRecent && 
       lowKarmaOrCondensed
@@ -237,8 +236,8 @@ class CommentsNode extends Component {
       }
     )
 
-    const commentsItemProps = { post, postPage, comment, editMutation, nestingLevel, showPostTitle, collapsed }
-    const commentsNodeProps = { post, postPage, unreadComments, recentDiscussionExpandedId, markAsRead, muiTheme, highlightDate, editMutation, condensed }
+    const passedThroughItemProps = { post, postPage, comment, editMutation, nestingLevel, showPostTitle, collapsed }
+    const passedThroughNodeProps = { post, postPage, unreadComments, recentDiscussionExpandedId, markAsRead, muiTheme, highlightDate, editMutation, condensed }
 
     return (
       <div className={newComment ? "comment-new" : "comment-old"}>
@@ -257,7 +256,7 @@ class CommentsNode extends Component {
               key={comment._id}
               scrollIntoView={this.scrollIntoView}
 
-              { ...commentsItemProps}
+              { ...passedThroughItemProps}
             />}
           </div>
           {!collapsed && <div className="comments-children">
@@ -272,7 +271,7 @@ class CommentsNode extends Component {
                 children={child.children}
                 key={child.item._id}
 
-                { ...commentsNodeProps}
+                { ...passedThroughNodeProps}
               />)}
           </div>}
         </div>
