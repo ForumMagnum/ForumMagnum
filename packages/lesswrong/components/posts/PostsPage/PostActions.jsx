@@ -9,6 +9,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper.js';
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import EditIcon from '@material-ui/icons/Edit'
+import qs from 'qs'
 
 const styles = theme => ({
   root: {
@@ -87,7 +88,7 @@ class PostActions extends Component {
     const { MoveToDraft, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft } = Components
     return (
       <div className={classes.actions}>
-      { Posts.canEdit(currentUser,post) && <Link to={{pathname:'/editPost', query:{postId: post._id, eventForm: post.isEvent}}}>
+      { Posts.canEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
         <MenuItem>
           <ListItemIcon>
             <EditIcon />

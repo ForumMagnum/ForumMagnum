@@ -4,16 +4,18 @@ import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
 import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
+import { parseQuery } from '../../lib/routeUtil';
+import qs from 'qs'
 
 class HomeLatestPosts extends PureComponent {
 
   toggleFilter = () => {
-    const { updateUser, currentUser, router } = this.props
-
-    let query = _.clone(router.location.query) || {view: "magic"}
-    const currentFilter = query.filter || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
-
+    const { updateUser, currentUser, location, history } = this.props
+    const query = parseQuery(location)
+    let newQuery = _.isEmpty(query) ? {view: "magic"} : query
+    const currentFilter = newQuery.filter || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
     const newFilter = (currentFilter === "frontpage") ? "includeMetaAndPersonal" : "frontpage"
+
     if (currentUser) {
       updateUser({
         selector: { _id: currentUser._id},
@@ -22,16 +24,16 @@ class HomeLatestPosts extends PureComponent {
         },
       })
     }
-    query.filter = newFilter
-    const location = { pathname: router.location.pathname, query };
-    router.replace(location);
+
+    newQuery.filter = newFilter
+    const newLocation = { pathname: location.pathname, search: qs.stringify(newQuery)};
+    history.replace(newLocation);
   }
 
   render () {
-    const { currentUser, router } = this.props;
+    const { currentUser, location } = this.props;
     const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox } = Components
-
-    const query = _.clone(router.location.query) || {}
+    const query = parseQuery(location)
     const currentFilter = query.filter || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
     const limit = parseInt(query.limit) || 10
 

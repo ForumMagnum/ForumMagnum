@@ -6,6 +6,7 @@ import withUser from '../common/withUser';
 import { withStyles } from  '@material-ui/core/styles'
 import { SplitComponent } from 'meteor/vulcan:routing';
 import Users from 'meteor/vulcan:users';
+import { parseQuery } from '../../lib/routeUtil.js';
 
 const styles = theme => ({
   recentDiscussionListWrapper: {
@@ -31,10 +32,10 @@ function getPostsSectionTitle(view, currentUser) {
   }
 }
 
-const Home = ({ currentUser, router, classes }) => {
-
-  const currentView = _.clone(router.location.query).view || (currentUser && currentUser.currentFrontpageFilter) || (currentUser ? "frontpage" : "curated");
-  let recentPostsTerms = _.isEmpty(router.location.query) ? {view: currentView, limit: 10} : _.clone(router.location.query)
+const Home = ({ currentUser, location, classes }) => {
+  const query = parseQuery(location)
+  const currentView = _.clone(query).view || (currentUser && currentUser.currentFrontpageFilter) || (currentUser ? "frontpage" : "curated");
+  let recentPostsTerms = _.isEmpty(query) ? {view: currentView, limit: 10} : _.clone(query)
   const shortformFeedId = currentUser && currentUser.shortformFeedId
 
   recentPostsTerms.forum = true

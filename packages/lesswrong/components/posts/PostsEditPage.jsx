@@ -7,9 +7,9 @@ import { parseQuery } from '../../lib/routeUtil.js';
 class PostsEditPage extends PureComponent {
 
   render() {
-    const postId = this.props.location.query.postId;
     const query = parseQuery(this.props.location);
-    const eventForm = !!(query && query.eventForm === "true");
+    const postId = query.postId;
+    const eventForm = !!(query.eventForm === "true");
     const mapsAPIKey = getSetting('googleMaps.apiKey', null);
     
     return <div>
