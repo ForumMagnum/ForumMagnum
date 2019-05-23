@@ -17,7 +17,7 @@ registerMigration({
       // eslint-disable-next-line no-console
       console.log(`Filling in missing values on ${collection.collectionName} in fields: ${fieldsWithAutofill}`);
   
-      for (let fieldName in fieldsWithAutofill) {
+      for (let fieldName of fieldsWithAutofill) {
         const defaultValue = schema[fieldName].defaultValue
         await migrateDocuments({
           description: `Filling in missing values for ${collection.collectionName} in field: ${fieldName} (default value: ${defaultValue})`,
