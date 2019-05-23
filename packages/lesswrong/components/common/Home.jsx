@@ -67,7 +67,6 @@ const Home = ({ currentUser, router, classes }) => {
           <Components.HomePostsViews />
         </div>}
       >
-        {/*TODO; this is an orphan that should be in ea-forum already*/}
         <Components.PostsList2 terms={recentPostsTerms} />
       </Components.Section>
       <Components.Section title="Recent Discussion" titleLink="/AllComments" titleComponent={
