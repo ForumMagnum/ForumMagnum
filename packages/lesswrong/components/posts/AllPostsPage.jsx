@@ -9,6 +9,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
+// TODO; brand as Custom Filter Page or some such
+
 const styles = theme => ({
   daily: {
     padding: theme.spacing.unit,

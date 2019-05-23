@@ -46,6 +46,7 @@ import '../components/common/NavigationMenu.jsx';
 import '../components/common/HeadTags.jsx';
 import '../components/common/Home.jsx';
 import '../components/common/Home2.jsx';
+import '../components/common/HomeEA.jsx';
 import '../components/common/HomeLatestPosts';
 import '../components/common/RecommendedReading.jsx';
 import '../components/common/Meta.jsx';

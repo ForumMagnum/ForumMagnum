@@ -222,9 +222,8 @@ Picker.route('/rss/comments.xml', (params, req, res, next) => {
   return makeRedirect(res, '/feed.xml?type=comments');
 });
 
-// EAFORUM reverse change of allposts
-Picker.route('/allPosts', (params, req, res, next) => {
-  return makeRedirect(res, '/daily');
+Picker.route('/daily', (params, req, res, next) => {
+  return makeRedirect(res, '/allPosts');
 });
 
 // Route for old general RSS (all posts)
