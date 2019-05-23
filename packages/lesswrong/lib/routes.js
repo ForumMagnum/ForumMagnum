@@ -83,7 +83,7 @@ switch (getSetting('forumType')) {
   case 'EAForum':
     addRoute({name: 'home', path: '/', componentName: 'HomeEA'});
     addRoute({name:'about',   path:'/about', componentName: 'PostsSingleRoute', _id:"Y2iqhjAHbXNkwcS8F"});
-    addRoute({ name: 'Meta', path: '/meta', componentName: 'Meta', title: "Community"})
+    addRoute({ name: 'Community', path: '/meta', componentName: 'Meta', title: "Community"})
     break
   default:
     // Default is Vanilla LW
