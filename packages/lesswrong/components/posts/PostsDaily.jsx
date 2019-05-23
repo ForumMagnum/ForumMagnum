@@ -57,7 +57,6 @@ class PostsDaily extends Component {
   renderTitle = () => {
     const { classes } = this.props;
     return <div className={classes.titleSettings}>
-      {/*TODO; green*/}
       <Checkbox
         classes={{root: classes.checkbox, checked: classes.checkboxChecked}}
         checked={this.state.hideLowKarma}

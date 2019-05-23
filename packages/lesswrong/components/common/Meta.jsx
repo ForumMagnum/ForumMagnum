@@ -3,8 +3,6 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import withUser from '../common/withUser';
 
-// TODO; this said meta
-
 const Meta = ({location, currentUser}, context) => {
   const query = location ? location.query : {};
   const recentPostsTerms = { view: 'magic', limit: 10, ...query, meta: true, forum: true }
