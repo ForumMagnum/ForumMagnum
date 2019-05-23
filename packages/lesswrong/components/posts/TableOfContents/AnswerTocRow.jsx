@@ -12,7 +12,7 @@ const styles = (theme) => ({
   },
   karma: {
     display: "inline-block",
-    width: 20,
+    width: 16,
     textAlign: "center",
     marginRight: theme.spacing.unit,
     marginTop: 1,
@@ -28,19 +28,12 @@ const styles = (theme) => ({
     justifyContent: "space-between"
   },
   firstLine: {
-    fontSize: 13.2,
     width: "calc(100% - 20px)",
     fontFamily: theme.typography.postStyle.fontFamily,
     marginTop: 0,
     marginBottom: 0,
-    '& *': {
-      display: "inline"
-    },
     '& blockquote, & br, & figure, & img': {
       display: "none"
-    },
-    '& p': {
-      marginRight: 6
     },
     '& strong': {
       fontWeight: theme.typography.body2.fontWeight
@@ -48,6 +41,7 @@ const styles = (theme) => ({
   },
   author: {
     fontFamily: theme.typography.commentStyle.fontFamily,
+    marginBottom: 4
   }
 })
 
@@ -56,7 +50,7 @@ const AnswerTocRow = ({classes, answer}) => {
   const { html = "" } = answer.contents || {}
 
   const highlight = truncate(html, 900)
-  const singleLineHighlight = htmlToText.fromString(answerTocExcerptFromHTML(html)).substring(0,80)
+  const singleLineHighlight = htmlToText.fromString(answerTocExcerptFromHTML(html))
 
   const tooltip = <div>
       <div className={classes.tooltipKarma}>
@@ -76,7 +70,10 @@ const AnswerTocRow = ({classes, answer}) => {
           {answer.baseScore}
         </span>
         <span className={classes.firstLine}>
-          <span className={classes.author}>{answer.author}:</span> { singleLineHighlight }...
+          <div className={classes.author}>{answer.author}</div> 
+          <div>
+            { singleLineHighlight }
+          </div>
         </span>
       </span>
     </Tooltip>

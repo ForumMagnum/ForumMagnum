@@ -66,10 +66,16 @@ export const answerTocExcerptFromHTML = (html) => {
   const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
   const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
 
-  return truncatise(htmlRemovedStyles, {
-    TruncateLength: 9,
-    TruncateBy: "words",
-    Suffix: `${styles}`,
+  const firstParagraph = truncatise(htmlRemovedStyles, {
+    TruncateLength: 1,
+    TruncateBy: "paragraph",
+    Suffix: `...`,
+  });
+
+  return truncatise(firstParagraph, {
+    TruncateLength: 70,
+    TruncateBy: "characters",
+    Suffix: `...${styles}`,
   });
 };
 
