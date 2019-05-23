@@ -40,13 +40,10 @@ Posts.addDefaultView(terms => {
   if (terms.includeRelatedQuestions === "true") {
     params.selector.hiddenRelatedQuestion = viewFieldAllowAny
   }
-  console.log('terms.filter', terms.filter)
-  console.log('params.selector', params.selector)
   if (terms.filter === "curated") {
     params.selector.curatedDate ={$gt: new Date(0)}
   }
   if (terms.filter === "frontpage") {
-    console.log('filter is frontpage')
     params.selector.frontpageDate = {$gt: new Date(0)}
   }
   if (terms.filter === 'frontpageAndMeta') {
@@ -68,7 +65,6 @@ Posts.addDefaultView(terms => {
   if (terms.filter === "meta") {
     params.selector.meta = true
   }
-  console.log('params.selector', params.selector)
   return params;
 })
 
@@ -216,16 +212,12 @@ ensureIndex(Posts,
 let frontpageSelector = {frontpageDate: {$gte: new Date(0)}}
 if (getSetting('forumType') === 'EAForum') frontpageSelector.meta = {$ne: true}
 
-Posts.addView("frontpage", terms => {
-  console.log('frontpage view invoked')
-
-  return {
-    selector: frontpageSelector,
-    options: {
-      sort: {sticky: -1, score: -1}
-    }
+Posts.addView("frontpage", terms => ({
+  selector: frontpageSelector,
+  options: {
+    sort: {sticky: -1, score: -1}
   }
-});
+}));
 ensureIndex(Posts,
   augmentForDefaultView({ sticky: -1, score: -1, frontpageDate:1 }),
   {
