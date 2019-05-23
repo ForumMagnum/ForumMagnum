@@ -13,7 +13,7 @@ class HomeLatestPosts extends PureComponent {
     let query = _.clone(router.location.query) || {view: "magic"}
     const currentFilter = query.filter || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
 
-    const newFilter = (currentFilter === "frontpage") ? "frontpageAndMeta" : "frontpage"
+    const newFilter = (currentFilter === "frontpage") ? "includeMetaAndPersonal" : "frontpage"
     if (currentUser) {
       updateUser({
         selector: { _id: currentUser._id},
@@ -64,7 +64,7 @@ class HomeLatestPosts extends PureComponent {
           <SectionFooterCheckbox 
             onClick={this.toggleFilter} 
             value={!(currentFilter === "frontpage")} 
-            label={"Include Community Posts"}
+            label={"Include Personal Posts"}
             />
         </PostsList2>
       </SingleColumnSection>

@@ -47,6 +47,7 @@ Posts.addDefaultView(terms => {
     params.selector.frontpageDate = {$gt: new Date(0)}
   }
   if (terms.filter === 'frontpageAndMeta') {
+    // NB: currently only used on EA Forum
     params.selector.$or = [
       {frontpageDate: {$gt: new Date(0)}},
       {meta: true}
