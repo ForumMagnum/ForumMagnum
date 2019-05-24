@@ -159,7 +159,7 @@ function tagToHeadingLevel(tagName)
     return 0;
 }
 
-const getTocAnswers = async (document) => {
+async function getTocAnswers (document) {
   if (!document.question) return []
 
   let answersTerms = {
@@ -185,7 +185,7 @@ const getTocAnswers = async (document) => {
   }
 }
 
-const getTocComments = async (document) => {
+async function getTocComments (document) {
   const commentSelector = {
     answer: false,
     parentAnswerId: null,
