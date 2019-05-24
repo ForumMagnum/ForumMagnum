@@ -32,12 +32,6 @@ const styles = (theme) => ({
     fontFamily: theme.typography.postStyle.fontFamily,
     marginTop: 0,
     marginBottom: 0,
-    '& blockquote, & br, & figure, & img': {
-      display: "none"
-    },
-    '& strong': {
-      fontWeight: theme.typography.body2.fontWeight
-    }
   },
   author: {
     fontFamily: theme.typography.commentStyle.fontFamily,
@@ -50,7 +44,7 @@ const AnswerTocRow = ({classes, answer}) => {
   const { html = "" } = answer.contents || {}
 
   const highlight = truncate(html, 900)
-  const singleLineHighlight = htmlToText.fromString(answerTocExcerptFromHTML(html))
+  let shortHighlight = htmlToText.fromString(answerTocExcerptFromHTML(html), {ignoreImage:true, ignoreHref:true})
 
   const tooltip = <div>
       <div className={classes.tooltipKarma}>
@@ -72,7 +66,7 @@ const AnswerTocRow = ({classes, answer}) => {
         <span className={classes.firstLine}>
           <div className={classes.author}>{answer.author}</div> 
           <div>
-            { singleLineHighlight }
+            { shortHighlight }
           </div>
         </span>
       </span>

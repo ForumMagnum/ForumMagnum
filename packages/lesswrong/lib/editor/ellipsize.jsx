@@ -69,7 +69,7 @@ export const answerTocExcerptFromHTML = (html) => {
   const firstParagraph = truncatise(htmlRemovedStyles, {
     TruncateLength: 1,
     TruncateBy: "paragraph",
-    Suffix: `...`,
+    Suffix: '',
   });
 
   return truncatise(firstParagraph, {
