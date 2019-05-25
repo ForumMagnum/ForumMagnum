@@ -248,7 +248,7 @@ class PostsPage extends Component {
             </div>
           </Section>
           <Section deactivateSection={!sectionData} titleComponent={
-            <TableOfContents secto={sectionData} document={post} />
+            <TableOfContents sectionData={sectionData} document={post} />
           }>
             <div className={classes.post}>
               {/* Body */}
