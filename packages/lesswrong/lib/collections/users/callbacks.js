@@ -125,6 +125,10 @@ async function subscribeOnSignup (user) {
   }
   
   // Regardless of the config setting, try to confirm the user's email address
-  Accounts.sendVerificationEmail(user._id);
+  // (But not in unit-test contexts, where this function is unavailable and sending
+  // emails doesn't make sense.)
+  if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {
+    Accounts.sendVerificationEmail(user._id);
+  }
 }
 addCallback('users.new.async', subscribeOnSignup);
