@@ -21,8 +21,8 @@ const PostsType = ({classes, post}) => {
     <div>Moderators promote posts to frontpage based on:</div>
     <ul>
       <li>Usefulness, novelty, relevance</li>
-      <li>Timeless content</li>
-      <li>Aim to explain, rather than persuade</li>
+      <li>Timeless content (minimizing reference to current events)</li>
+      <li>Aiming to explain, rather than persuade</li>
     </ul>
   </div>
 
