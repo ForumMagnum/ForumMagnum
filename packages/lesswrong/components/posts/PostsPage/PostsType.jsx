@@ -3,6 +3,8 @@ import { withStyles } from '@material-ui/core/styles';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
+import PersonIcon from '@material-ui/icons/Person'
+import HomeIcon from '@material-ui/icons/Home'
 
 const styles = theme => ({
   root: {
@@ -14,6 +16,12 @@ const styles = theme => ({
     whiteSpace: "no-wrap",
     fontSize: theme.typography.body2.fontSize,
   },
+  icon: {
+    fontSize: "1.3rem",
+    color: theme.palette.grey[500],
+    position: "relative",
+    top: 3,
+  }
 })
 
 const PostsType = ({classes, post}) => {
@@ -41,11 +49,11 @@ const PostsType = ({classes, post}) => {
   return <Typography variant="body1" component="span" className={classes.root}>
     { post.frontpageDate ? 
       <Tooltip title={frontpageTooltip}>
-        <span>Frontpage</span>
+        <HomeIcon className={classes.icon} />
       </Tooltip>
         :
       <Tooltip title={personalTooltip}>
-        <span>Personal Blogpost</span>
+        <PersonIcon className={classes.icon}  />
       </Tooltip>
     }
   </Typography>

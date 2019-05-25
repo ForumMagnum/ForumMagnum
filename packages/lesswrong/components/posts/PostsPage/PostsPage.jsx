@@ -214,6 +214,7 @@ class PostsPage extends Component {
                     <span className={classes.inline}>
                       <PostsAuthors post={post}/>
                     </span>
+                    <PostsType post={post}/>
                     { post.feed && post.feed.user &&
                       <Tooltip title={`Crossposted from ${feedLink}`}>
                         <a href={`http://${feedLink}`} className={classes.feedName}>
@@ -227,7 +228,6 @@ class PostsPage extends Component {
                     {!post.isEvent && <span className={classes.desktopDate}>
                       {hasMajorRevision ? <PostsRevisionSelector post={post}/> : <FormatDate date={post.postedAt} format="Do MMM YYYY"/>}
                     </span>}
-                    <PostsType post={post}/>
                     {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
                     <a className={classes.commentsLink} href={"#comments"}>{ Posts.getCommentCountStr(post)}</a>
                     <span className={classes.actions}>
