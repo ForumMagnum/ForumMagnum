@@ -51,7 +51,7 @@ function increaseMaxBaseScore ({newDocument, vote}, collection, user, context) {
       thresholdTimestamp.scoreExceeded2Date = new Date();
     }
     if (!newDocument.scoreExceeded30Date && newDocument.baseScore >= 30) {
-      thresholdTimestamp.scoreExceeded30 = new Date();
+      thresholdTimestamp.scoreExceeded30Date = new Date();
     }
     if (!newDocument.scoreExceeded45Date && newDocument.baseScore >= 45) {
       thresholdTimestamp.scoreExceeded45Date = new Date();
