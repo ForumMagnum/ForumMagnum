@@ -89,7 +89,7 @@ class HomeLatestPosts extends PureComponent {
               <SectionFooterCheckbox 
                 onClick={this.toggleFilter} 
                 value={!(currentFilter === "frontpage")} 
-                label={<span>Include Personal Posts</span>} 
+                label={"Include Personal Posts"} 
                 />
             </div>
           </Tooltip>
