@@ -176,7 +176,7 @@ class PostsPage extends Component {
 
   render() {
     const { loading, document: post, currentUser, location, router, classes, params, data: {refetch} } = this.props
-    const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
+    const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, PostsType,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigationWrapper,
       PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent, Section, TableOfContents, PostsRevisionSelector, PostsRevisionMessage, AlignmentCrosspostMessage, ConfigurableRecommendationsList } = Components
 
@@ -227,6 +227,7 @@ class PostsPage extends Component {
                     {!post.isEvent && <span className={classes.desktopDate}>
                       {hasMajorRevision ? <PostsRevisionSelector post={post}/> : <FormatDate date={post.postedAt} format="Do MMM YYYY"/>}
                     </span>}
+                    <PostsType post={post}/>
                     {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
                     <a className={classes.commentsLink} href={"#comments"}>{ Posts.getCommentCountStr(post)}</a>
                     <span className={classes.actions}>
@@ -247,7 +248,7 @@ class PostsPage extends Component {
             </div>
           </Section>
           <Section deactivateSection={!sectionData} titleComponent={
-            <TableOfContents sectionData={sectionData} document={post} />
+            <TableOfContents secto={sectionData} document={post} />
           }>
             <div className={classes.post}>
               {/* Body */}
