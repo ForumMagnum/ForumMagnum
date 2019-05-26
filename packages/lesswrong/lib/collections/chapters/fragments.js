@@ -17,3 +17,12 @@ registerFragment(`
     }
   }
 `);
+
+registerFragment(`
+  fragment ChaptersEdit on Chapter {
+    ...ChaptersFragment
+    contents {
+      ...RevisionEdit
+    }
+  }
+`);

@@ -7,13 +7,14 @@ import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 import { postBodyStyles } from '../../themes/stylePiping'
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
-import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   root: {
     marginTop: 500,
   },
-  groupInfo: sectionFooterLeftStyles,
+  groupInfo: {
+    ...sectionFooterLeftStyles
+  },
   groupName: {
     ...theme.typography.headerStyle,
     fontSize: "30px",
