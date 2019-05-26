@@ -135,7 +135,6 @@ import '../components/posts/PostsSingleRoute.jsx';
 import '../components/posts/PostsSingleSlugWrapper.jsx';
 import '../components/posts/PostsList.jsx';
 import '../components/posts/PostsList2.jsx'; // Should replace PostsList eventually
-import '../components/posts/PostsDaily.jsx';
 import '../components/posts/PostsDay.jsx';
 import '../components/posts/PostsCommentsThread.jsx';
 import '../components/posts/PostsNewForm.jsx';
