@@ -50,8 +50,8 @@ const styles = theme => ({
 class InboxNavigation extends Component {
 
   render() {
-    const { results, classes, currentUser } = this.props
-    const select = this.props.location.query.select;
+    const { results, classes, currentUser, location } = this.props
+    const select = location.query.select;
 
     const messagesTerms = {view: 'messagesConversation', conversationId: select};
 
