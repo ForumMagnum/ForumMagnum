@@ -13,6 +13,14 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import Tooltip from '@material-ui/core/Tooltip';
 import { postBodyStyles } from '../../themes/stylePiping'
 
+export const sectionFooterLeftStyles = {
+  flexGrow: 1,
+  display: "flex",
+  '&:after': {
+    content: '""'
+  }
+}
+
 const styles = theme => ({
   profilePage: {
     marginLeft: "auto",
@@ -20,13 +28,7 @@ const styles = theme => ({
       margin: 0,
     }
   },
-  meta: {
-    flexGrow: 1,
-    display: "flex",
-    '&:after': {
-      content: '""'
-    }
-  },
+  meta: sectionFooterLeftStyles,
   icon: {
     '&$specificalz': {
       fontSize: 18,
