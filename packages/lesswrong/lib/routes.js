@@ -53,7 +53,6 @@ if (getSetting('forumType') === 'LessWrong') {
   })
 }
 
-addRoute({ name: 'FeaturedPosts', path: '/featured', componentName: 'FeaturedPostsPage'})
 addRoute({ name: 'AllComments', path: '/allComments', componentName: 'AllComments', title: "All Comments"})
 
 if (getSetting('hasEvents', true)) {

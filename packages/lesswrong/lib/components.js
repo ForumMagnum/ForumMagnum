@@ -140,7 +140,6 @@ import '../components/posts/PostsCommentsThread.jsx';
 import '../components/posts/PostsNewForm.jsx';
 import '../components/posts/PostsEditForm.jsx';
 import '../components/posts/PostsEditPage.jsx';
-import '../components/posts/FeaturedPostsPage.jsx';
 import '../components/posts/PostsGroupDetails.jsx';
 import '../components/posts/PostsStats.jsx';
 import '../components/posts/TableOfContents';
