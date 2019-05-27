@@ -202,8 +202,12 @@ const getTableOfContentsData = async (document, args, options) => {
   const { html } = document.contents || {}
   let tocSections = extractTableOfContents(html) || []
 
-  tocSections.push(...(await getTocAnswers(document)))
-  tocSections.push(...(await getTocComments(document)))
+  const tocAnswers = await getTocAnswers(document)
+  const tocComments = await getTocComments(document)
+
+  tocSections.push(...tocAnswers)
+  tocSections.push(...tocComments)
+  
   if (tocSections.length >= MIN_HEADINGS_FOR_TOC) {
     return {
       html: html,
