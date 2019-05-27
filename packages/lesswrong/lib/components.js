@@ -14,8 +14,10 @@ if (getSetting('forumType') === 'EAForum') {
 
 import '../components/messaging/ConversationTitleEditForm.jsx';
 import '../components/messaging/ConversationDetails.jsx';
-import '../components/messaging/MessageItem.jsx';
+import '../components/messaging/ConversationItem.jsx';
 import '../components/messaging/ConversationWrapper.jsx';
+import '../components/messaging/ConversationPage.jsx';
+import '../components/messaging/MessageItem.jsx';
 import '../components/messaging/InboxWrapper.jsx';
 import '../components/messaging/InboxNavigation.jsx';
 import '../components/messaging/NewConversationButton.jsx';

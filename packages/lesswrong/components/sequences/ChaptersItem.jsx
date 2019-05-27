@@ -41,7 +41,7 @@ class ChaptersItem extends Component {
 
   render() {
     const { chapter, classes, canEdit } = this.props;
-    const { ChaptersEditForm, SingleColumnSection, SectionTitle, SectionSubtitle, SectionFooter, 
+    const { ChaptersEditForm, SingleColumnSection, SectionTitle, SectionFooter, 
       SectionButton, SequencesPostsList } = Components
     const { html = "" } = chapter.contents
     if (this.state.edit) return ( 

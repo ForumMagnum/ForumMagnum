@@ -14,6 +14,8 @@ registerFragment(`
     participants {
       ...UsersMinimumInfo
     }
+    archivedByIds
+    messageCount
   }
 `);
 
