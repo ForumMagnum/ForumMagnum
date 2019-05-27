@@ -211,7 +211,8 @@ class PostsPage extends Component {
     const { loading, document: post, currentUser, location, router, classes, params, data: {refetch} } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigationWrapper,
-      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent, Section, TableOfContents, PostsRevisionSelector, PostsRevisionMessage, AlignmentCrosspostMessage, ConfigurableRecommendationsList } = Components
+      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent, 
+      TableOfContents, PostsRevisionSelector, PostsRevisionMessage, AlignmentCrosspostMessage, ConfigurableRecommendationsList } = Components
 
     if (loading) {
       return <div><Loading/></div>
