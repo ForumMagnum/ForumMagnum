@@ -1,7 +1,7 @@
 import Messages from './collections/messages/collection.js';
 import Conversations from './collections/conversations/collection.js';
 import Users from 'meteor/vulcan:users';
-import { Utils } from 'meteor/vulcan:core';
+import { Utils, getCollection } from 'meteor/vulcan:core';
 
 
 /**
@@ -56,4 +56,24 @@ Utils.manualClickNavigation = (event, url, navigate) => {
   if (!event.target.closest('a')) { // Checks whether any parent is a tag (polyfilled for IE and Edge)
     navigate(url)
   }
+}
+
+// LESSWRONG version of getting unused slug. Modified to also include "oldSlugs" array
+Utils.getUnusedSlug = function (collection, slug) {
+  let suffix = '';
+  let index = 0;
+
+  // test if slug is already in use
+  while (!!collection.findOne({$or: [{slug: slug+suffix},{oldSlugs: slug+suffix}]})) {
+    index++
+    suffix = '-'+index;
+  }
+
+  return slug+suffix;
+};
+
+Utils.slugIsUsed = async (collectionName, slug) => {
+  const collection = getCollection(collectionName)
+  const existingUserWithSlug = await collection.findOne({$or: [{slug: slug},{oldSlugs: slug}]})
+  return !!existingUserWithSlug
 }

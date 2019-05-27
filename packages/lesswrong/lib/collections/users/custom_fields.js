@@ -1,5 +1,5 @@
 import Users from "meteor/vulcan:users";
-import { getSetting } from "meteor/vulcan:core"
+import { getSetting, Utils } from "meteor/vulcan:core"
 import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences } from '../../modules/utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
 import { addUniversalFields } from '../../collectionUtils'
@@ -758,6 +758,46 @@ addFieldsDict(Users, {
     type: Number, 
     optional: true, 
     canRead: [Users.owns, 'sunshineRegiment', 'admins']
+  },
+  // Unique user slug for URLs, copied over from Vulcan-Accounts
+  slug: {
+    type: String,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    group: formGroups.adminOptions,
+    order: 40,
+    onInsert: user => {
+      // create a basic slug from display name and then modify it if this slugs already exists;
+      const displayName = createDisplayName(user);
+      const basicSlug = Utils.slugify(displayName);
+      return Utils.getUnusedSlugByCollectionName('Users', basicSlug);
+    },
+    onUpdate: async ({data, document}) => {
+      //Make sure to update this callback for Apollo2 upgrade
+      if (data.slug && data.slug !== document.slug) {
+        const slugIsUsed = await Utils.slugIsUsed("Users", data.slug)
+        if (slugIsUsed) {
+          throw Error(`Specified slug is already used: ${data.slug}`)
+        }
+      }
+    }
+  },
+  oldSlugs: {
+    type: Array,
+    optional: true,
+    canRead: ['guests'],
+    onUpdate: ({data, document}) => {
+      // Make sure to update this callback for Apollo2 upgrade
+      if (data.slug && data.slug !== document.slug)  {
+        return [...(document.oldSlugs || []), document.slug]
+      }
+    }
+  },
+  'oldSlugs.$': {
+    type: String,
+    optional: true,
+    canRead: ['guests'],
   }
 });
 
@@ -784,3 +824,16 @@ makeEditable({
 })
 
 addUniversalFields({collection: Users})
+
+// Copied over utility function from Vulcan
+const createDisplayName = user => {
+  const profileName = Utils.getNestedProperty(user, 'profile.name');
+  const twitterName = Utils.getNestedProperty(user, 'services.twitter.screenName');
+  const linkedinFirstName = Utils.getNestedProperty(user, 'services.linkedin.firstName');
+  if (profileName) return profileName;
+  if (twitterName) return twitterName;
+  if (linkedinFirstName) return `${linkedinFirstName} ${Utils.getNestedProperty(user, 'services.linkedin.lastName')}`;
+  if (user.username) return user.username;
+  if (user.email) return user.email.slice(0, user.email.indexOf('@'));
+  return undefined;
+}
