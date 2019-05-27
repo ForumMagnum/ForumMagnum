@@ -15,141 +15,174 @@ import Users from 'meteor/vulcan:users';
 import withRecordPostView from '../../common/withRecordPostView';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
+const DEFAULT_TOC_MARGIN = 50
+const MAX_TOC_WIDTH = 270
+const MIN_TOC_WIDTH = 200
+const MAX_COLUMN_WIDTH = 720
 
 const styles = theme => ({
-    root: {
-      position: "relative"
+  root: {
+    position: "relative",
+  },
+  tocActivated: {
+    display: 'grid',
+    gridTemplateColumns: `minmax(${MIN_TOC_WIDTH}px, ${MAX_TOC_WIDTH}px) minmax(0px, ${DEFAULT_TOC_MARGIN}px) min-content minmax(0px, ${DEFAULT_TOC_MARGIN}px)`,
+    gridTemplateAreas: `
+      "... .... title   ...."
+      "toc gap1 content gap2"
+    `,
+    [theme.breakpoints.down('sm')]: {
+      display: 'block'
+    }
+  },
+  title: { gridArea: 'title' },
+  toc: { gridArea: 'toc' },
+  content: { gridArea: 'content' },
+  gap1: { gridArea: 'gap1'},
+  gap2: { gridArea: 'gap2'},
+  post: {
+    maxWidth: 650 + (theme.spacing.unit*4),
+    marginLeft: 'auto',
+    marginRight: 'auto'
+  },
+  recommendations: {
+    maxWidth: MAX_COLUMN_WIDTH,
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    // Hack to deal with the PostsItem action items being absolutely positioned
+    paddingRight: 18,
+    paddingLeft: 18,
+    [theme.breakpoints.down('sm')]: {
+      paddingRight: 0,
+      paddingLeft: 0
+    }
+  },
+  header: {
+    position: 'relative',
+    display:"flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: theme.spacing.unit*2
+  },
+  headerLeft: {
+    width:"100%"
+  },
+  headerVote: {
+    textAlign: 'center',
+    fontSize: 42,
+    position: "relative",
+  },
+  divider: {
+    marginTop: theme.spacing.unit*2,
+    marginBottom: theme.spacing.unit*2,
+    marginLeft:0,
+    borderTop: "solid 1px rgba(0,0,0,.1)",
+    borderLeft: 'transparent'
+  },
+  eventHeader: {
+    marginBottom:0,
+  },
+  secondaryInfo: {
+    fontSize: '1.4rem',
+  },
+  mobileDate: {
+    marginLeft: 20,
+    display: 'inline-block',
+    color: theme.palette.grey[600],
+    fontSize: theme.typography.body2.fontSize,
+    [theme.breakpoints.up('md')]: {
+      display:"none"
+    }
+  },
+  desktopDate: {
+    marginLeft: 20,
+    display: 'inline-block',
+    color: theme.palette.grey[600],
+    whiteSpace: "no-wrap",
+    fontSize: theme.typography.body2.fontSize,
+    [theme.breakpoints.down('sm')]: {
+      display:"none"
+    }
+  },
+  commentsLink: {
+    marginLeft: 20,
+    color: theme.palette.grey[600],
+    whiteSpace: "no-wrap",
+    fontSize: theme.typography.body2.fontSize,
+  },
+  actions: {
+    display: 'inline-block',
+    marginLeft: 15,
+    cursor: "pointer",
+    color: theme.palette.grey[600],
+  },
+  postBody: {
+    marginBottom: 50,
+  },
+  postContent: postBodyStyles(theme),
+  subtitle: {
+    ...theme.typography.subtitle,
+  },
+  voteBottom: {
+    position: 'relative',
+    fontSize: 42,
+    textAlign: 'center',
+    display: 'inline-block',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginBottom: 40
+  },
+  draft: {
+    color: theme.palette.secondary.light
+  },
+  bottomNavigation: {
+    width: 640,
+    margin: 'auto',
+    [theme.breakpoints.down('sm')]: {
+      width:'100%',
+      maxWidth: MAX_COLUMN_WIDTH
+    }
+  },
+  inline: {
+    display: 'inline-block'
+  },
+  unreviewed: {
+    fontStyle: "italic",
+    color: theme.palette.grey[600],
+    marginBottom: theme.spacing.unit*2,
+    fontSize:".9em",
+    maxWidth: "100%",
+    overflowX: "hidden",
+    textOverflow: "ellipsis",
+    ...theme.typography.postStyle,
+  },
+  feedName: {
+    fontSize: theme.typography.body2.fontSize,
+    marginLeft: 20,
+    display: 'inline-block',
+    color: theme.palette.grey[600],
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    }
+  },
+  commentsSection: {
+    minHeight: 'calc(70vh - 100px)',
+    [theme.breakpoints.down('sm')]: {
+      paddingRight: 0,
+      marginLeft: 0
     },
-    post: {
-      maxWidth: 650 + (theme.spacing.unit*4),
-      marginLeft: "auto",
-      marginRight: "auto"
-    },
-    header: {
-      position: 'relative',
-      display:"flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginBottom: theme.spacing.unit*2
-    },
-    headerLeft: {
-      width:"100%"
-    },
-    headerVote: {
-      textAlign: 'center',
-      fontSize: 42,
-      position: "relative",
-    },
-    divider: {
-      marginTop: theme.spacing.unit*2,
-      marginBottom: theme.spacing.unit*2,
-      marginLeft:0,
-      borderTop: "solid 1px rgba(0,0,0,.1)",
-      borderLeft: 'transparent'
-    },
-    eventHeader: {
-      marginBottom:0,
-    },
-    secondaryInfo: {
-      fontSize: '1.4rem',
-    },
-    mobileDate: {
-      marginLeft: 20,
-      display: 'inline-block',
-      color: theme.palette.grey[600],
-      fontSize: theme.typography.body2.fontSize,
-      [theme.breakpoints.up('md')]: {
-        display:"none"
-      }
-    },
-    desktopDate: {
-      marginLeft: 20,
-      display: 'inline-block',
-      color: theme.palette.grey[600],
-      whiteSpace: "no-wrap",
-      fontSize: theme.typography.body2.fontSize,
-      [theme.breakpoints.down('sm')]: {
-        display:"none"
-      }
-    },
-    commentsLink: {
-      marginLeft: 20,
-      color: theme.palette.grey[600],
-      whiteSpace: "no-wrap",
-      fontSize: theme.typography.body2.fontSize,
-    },
-    actions: {
-      display: 'inline-block',
-      marginLeft: 15,
-      cursor: "pointer",
-      color: theme.palette.grey[600],
-    },
-    postBody: {
-      marginBottom: 50,
-    },
-    postContent: postBodyStyles(theme),
-    subtitle: {
-      ...theme.typography.subtitle,
-    },
-    voteBottom: {
-      position: 'relative',
-      fontSize: 42,
-      textAlign: 'center',
-      display: 'inline-block',
-      marginLeft: 'auto',
-      marginRight: 'auto',
-      marginBottom: 40
-    },
-    draft: {
-      color: theme.palette.secondary.light
-    },
-    bottomNavigation: {
-      width: 640,
-      margin: 'auto',
-      [theme.breakpoints.down('sm')]: {
-        width:'100%'
-      }
-    },
-    inline: {
-      display: 'inline-block'
-    },
-    unreviewed: {
-      fontStyle: "italic",
-      color: theme.palette.grey[600],
-      marginBottom: theme.spacing.unit*2,
-      fontSize:".9em",
-      maxWidth: "100%",
-      overflowX: "hidden",
-      textOverflow: "ellipsis",
-      ...theme.typography.postStyle,
-    },
-    feedName: {
-      fontSize: theme.typography.body2.fontSize,
-      marginLeft: 20,
-      display: 'inline-block',
-      color: theme.palette.grey[600],
-      [theme.breakpoints.down('sm')]: {
-        display: "none"
-      }
-    },
-    commentsSection: {
-      minHeight: 'calc(70vh - 100px)',
-      [theme.breakpoints.down('sm')]: {
-        paddingRight: 0,
-        marginLeft: 0
-      },
-      // TODO: This is to prevent the Table of Contents from overlapping with the comments section. Could probably fine-tune the breakpoints and spacing to avoid needing this.
-      background: "white",
-      position: "relative"
-    },
-    footerSection: {
-      display: 'flex',
-      alignItems: 'center',
-      fontSize: '1.4em'
-    },
-    bottomDate: {
-      color: theme.palette.grey[600]
-    },
+    // TODO: This is to prevent the Table of Contents from overlapping with the comments section. Could probably fine-tune the breakpoints and spacing to avoid needing this.
+    background: "white",
+    position: "relative"
+  },
+  footerSection: {
+    display: 'flex',
+    alignItems: 'center',
+    fontSize: '1.4em'
+  },
+  bottomDate: {
+    color: theme.palette.grey[600]
+  },
 })
 
 // On the server, use the 'url' library for parsing hostname out of feed URLs.
@@ -198,11 +231,10 @@ class PostsPage extends Component {
       const hasMajorRevision = major > 1
 
       return (
-        <div className={classes.root}>
+        <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
           <HeadTags url={Posts.getPageUrl(post, true)} title={post.title} description={description}/>
-
           {/* Header/Title */}
-          <Section deactivateSection={!sectionData}>
+          <div className={classes.title}>
             <div className={classes.post}>
               {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
               <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
@@ -245,10 +277,12 @@ class PostsPage extends Component {
               <hr className={classes.divider}/>
               {post.isEvent && <PostsPageEventData post={post}/>}
             </div>
-          </Section>
-          <Section deactivateSection={!sectionData} titleComponent={
+          </div>
+          <div className={classes.toc}>
             <TableOfContents sectionData={sectionData} document={post} />
-          }>
+          </div>
+          <div className={classes.gap1}/>
+          <div className={classes.content}>
             <div className={classes.post}>
               {/* Body */}
               <div className={classes.postBody}>
@@ -279,8 +313,9 @@ class PostsPage extends Component {
             </div>}
             
             {/* Recommendations */}
-            {currentUser && Users.isAdmin(currentUser) && !post.question && 
-              <ConfigurableRecommendationsList configName="afterpost"/>}
+            {currentUser && Users.isAdmin(currentUser) && !post.question && <div className={classes.recommendations}>
+                <ConfigurableRecommendationsList configName="afterpost"/>
+            </div>}
             
             {/* Answers Section */}
             {post.question && <div className={classes.post}>
@@ -291,7 +326,8 @@ class PostsPage extends Component {
             <div className={classes.commentsSection}>
               <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question} guidelines={!post.question}/>
             </div>
-          </Section>
+          </div>
+          <div className={classes.gap2}/>
         </div>
       );
     }
