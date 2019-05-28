@@ -46,7 +46,10 @@ const styles = theme => ({
       display: 'block'
     }
   },
-  title: { gridArea: 'title' },
+  title: { 
+    gridArea: 'title',
+    marginBottom: 32
+  },
   toc: { 
     '@supports (grid-template-areas: "title")': {
       gridArea: 'toc',

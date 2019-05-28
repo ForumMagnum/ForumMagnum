@@ -28,7 +28,6 @@ const styles = theme => ({
       opacity: "initial",
     }
   },
-
   link: {
     display: "block",
     paddingTop: 6,
@@ -41,9 +40,13 @@ const styles = theme => ({
       textShadow: "0 0 0 rgba(0,0,0,1].87)",
     }
   },
-
+  // Makes sure that the start of the ToC is in line with the start of the text
+  title: {
+    paddingTop: 3
+  },
   level0: {
     display:"inline-block",
+    maxWidth: '100%',
     marginBottom: theme.spacing.unit,
     paddingBottom: theme.spacing.unit,
     borderBottom: "solid 1px rgba(0,0,0,.1)",
@@ -92,7 +95,7 @@ const styles = theme => ({
 class TableOfContentsRow extends PureComponent
 {
   render() {
-    const {indentLevel=0, highlighted=false, href, onClick, children, classes, answersStyling } = this.props;
+    const {indentLevel=0, highlighted=false, href, onClick, children, classes, answersStyling, title } = this.props;
 
     return <Typography variant="body2"
       className={classNames(
@@ -104,7 +107,7 @@ class TableOfContentsRow extends PureComponent
         }
       )}
     >
-      <a href={href} onClick={onClick} className={classes.link}>
+      <a href={href} onClick={onClick} className={classNames(classes.link, {[classes.title]: title})}>
         {children}
       </a>
     </Typography>

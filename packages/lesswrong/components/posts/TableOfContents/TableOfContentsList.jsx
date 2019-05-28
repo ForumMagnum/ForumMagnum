@@ -38,6 +38,7 @@ class TableOfContentsList extends Component {
           href="#"
           onClick={ev => this.jumpToY(0, ev)}
           highlighted={currentSection && currentSection.anchor === topSection}
+          title
         >
           {title.trim()}
         </TableOfContentsRow>
