@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
-// import NoSSR from 'react-no-ssr';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
@@ -109,11 +108,9 @@ class RecommendationsAndCurated extends PureComponent {
             <Link to={"/recommendations"}>Top Unread Posts</Link>
           </Tooltip>
         </SectionButton>
-      {/* <NoSSR> */}
         <RecommendationsList
           algorithm={settings}
         />
-      {/* </NoSSR> */}
       <SectionButton className={classes.subtitle}>
         <Tooltip placement="top-start" title={curatedTooltip}>
           <Link to={"/allPosts?filter=curated&view=new"}>Recently Curated</Link>
