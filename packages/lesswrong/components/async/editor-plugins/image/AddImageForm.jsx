@@ -29,7 +29,6 @@ export default class AddImageForm extends Component {
   onRef = (node) => { this.input = node; }
 
   onChange = ({ target: { value } }) => {
-    const value = props.target.value
     const nextState = { value };
     if (this.state.isInvalid && this.isUrl(this.normalizeUrl(value))) {
       nextState.isInvalid = false;
