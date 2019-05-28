@@ -96,6 +96,7 @@ class UsersProfile extends Component {
     const props = this.props
     const { classes, results } = props
     const document = results?.[0]
+    if (!document) return null
     const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma } = document;
 
     const userKarma = karma || 0
