@@ -1,5 +1,6 @@
 /* global Vulcan */
 import { Collections } from 'meteor/vulcan:core';
+import { Comments } from '../../lib/collections/comments'
 import { getFieldsWithAttribute } from './utils';
 import { migrateDocuments, registerMigration } from '../migrations/migrationUtils'
 
@@ -7,17 +8,19 @@ registerMigration({
   name: "fillMissingValues",
   idempotent: true,
   action: async () => {
-    for(let collection of Collections) {
+    for(let collection of [Comments]) {
       if (!collection.simpleSchema) continue;
       const schema = collection.simpleSchema()._schema
       
-      const fieldsWithAutofill = getFieldsWithAttribute(schema, 'canAutofillDefault')
+      // const fieldsWithAutofill = getFieldsWithAttribute(schema, 'canAutofillDefault')
+      const fieldsWithAutofill = ['authorIsUnreviewed']
       if (fieldsWithAutofill.length == 0) continue;
       
       // eslint-disable-next-line no-console
       console.log(`Filling in missing values on ${collection.collectionName} in fields: ${fieldsWithAutofill}`);
   
-      for (let fieldName in fieldsWithAutofill) {
+      for (let fieldName of fieldsWithAutofill) {
+        // console.log('schema aiu', schema.authorIsUnreviewed)
         const defaultValue = schema[fieldName].defaultValue
         await migrateDocuments({
           description: `Filling in missing values for ${collection.collectionName} in field: ${fieldName} (default value: ${defaultValue})`,

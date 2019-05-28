@@ -11,7 +11,9 @@ Comments.addDefaultView(terms => {
   const alignmentForum = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
   return ({
     selector: {
+      // TODO; wat
       $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: false}],
+      authorIsUnreviewed: false,
       hideAuthor: terms.userId ? false : undefined,
       ...validFields,
       ...alignmentForum,

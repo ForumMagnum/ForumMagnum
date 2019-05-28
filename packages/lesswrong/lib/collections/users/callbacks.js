@@ -1,6 +1,7 @@
 import Users from "meteor/vulcan:users";
 import { addCallback, getSetting } from 'meteor/vulcan:core';
 import { Posts } from '../posts'
+import { Comments } from '../comments'
 import request from 'request';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
@@ -46,14 +47,25 @@ addCallback("users.edit.sync", maybeSendVerificationEmail);
 
 addEditableCallbacks({collection: Users, options: makeEditableOptionsModeration})
 
+// TODO; rename?
 function approveUnreviewedPosts (newUser, oldUser)
+{
+  if(newUser.reviewedByUserId && !oldUser.reviewedByUserId)
+  {
+    Posts.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false, postedAt: new Date()}})
+    Comments.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false, postedAt: new Date()}})
+  }
+}
+addCallback("users.edit.async", approveUnreviewedPosts);
+
+function approveUnreviewedComments (newUser, oldUser)
 {
   if(newUser.reviewedByUserId && !oldUser.reviewedByUserId)
   {
     Posts.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false, postedAt: new Date()}})
   }
 }
-addCallback("users.edit.async", approveUnreviewedPosts);
+addCallback("users.edit.async", approveUnreviewedComments);
 
 // When the very first user account is being created, add them to Sunshine
 // Regiment. Patterned after a similar callback in
