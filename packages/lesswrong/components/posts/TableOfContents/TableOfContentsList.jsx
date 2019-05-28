@@ -39,7 +39,7 @@ class TableOfContentsList extends Component {
           onClick={ev => this.jumpToY(0, ev)}
           highlighted={currentSection && currentSection.anchor === topSection}
         >
-          {title}
+          {title.trim()}
         </TableOfContentsRow>
         {sections && sections.map((section, index) =>
           <TableOfContentsRow
@@ -53,7 +53,7 @@ class TableOfContentsList extends Component {
               {section.answer ? 
                 <AnswerTocRow answer={section.answer} />
                 : 
-                <span>{section.title}</span> 
+                <span>{section.title.trim()}</span> 
               }
           </TableOfContentsRow>
         )}

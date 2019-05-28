@@ -8,7 +8,7 @@ const styles = theme => ({
   root: {
     position: "relative",
     ...theme.typography.body2,
-    ...theme.typography.postStyle,
+    ...theme.typography.commentsStyle,
     direction:"ltr",
   },
 
@@ -17,7 +17,12 @@ const styles = theme => ({
   highlighted: {
     '& $link': {
       color: "black",
-      textShadow: "0 0 0 rgba(0,0,0,.87)",
+    },
+    '& $link:after': {
+      content: `"•"`,
+      marginLeft: 3,
+      position: 'relative',
+      top: 1
     },
     "& a:focus, & a:hover": {
       opacity: "initial",
@@ -45,6 +50,10 @@ const styles = theme => ({
     '& $link': {
       whiteSpace: "normal",
     },
+    // Don't show location dot for level0
+    '& $link:after': {
+      content: `""`
+    },
     '&:last-of-type': {
       borderBottom: "none",
       marginTop: theme.spacing.unit,
@@ -56,17 +65,17 @@ const styles = theme => ({
     paddingLeft: 0,
   },
   level2: {
-    fontSize:"1.1em",
+    fontSize:"1.1rem",
     paddingLeft: 16,
 
   },
   level3: {
-    fontSize:"1.1em",
+    fontSize:"1.1rem",
     color:theme.palette.grey[700],
     paddingLeft: 32,
   },
   level4: {
-    fontSize:"1.1em",
+    fontSize:"1.1rem",
     color:theme.palette.grey[700],
     paddingLeft: 48,
   },

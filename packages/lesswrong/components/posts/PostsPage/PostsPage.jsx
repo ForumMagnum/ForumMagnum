@@ -15,28 +15,49 @@ import Users from 'meteor/vulcan:users';
 import withRecordPostView from '../../common/withRecordPostView';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
-const DEFAULT_TOC_MARGIN = 50
+const DEFAULT_TOC_MARGIN = 100
 const MAX_TOC_WIDTH = 270
 const MIN_TOC_WIDTH = 200
 const MAX_COLUMN_WIDTH = 720
+const POST_WIDTH = 682
 
 const styles = theme => ({
   root: {
     position: "relative",
   },
   tocActivated: {
-    display: 'grid',
-    gridTemplateColumns: `minmax(${MIN_TOC_WIDTH}px, ${MAX_TOC_WIDTH}px) minmax(0px, ${DEFAULT_TOC_MARGIN}px) min-content minmax(0px, ${DEFAULT_TOC_MARGIN}px)`,
-    gridTemplateAreas: `
-      "... .... title   ...."
-      "toc gap1 content gap2"
-    `,
+    // Check for support for template areas before applying
+    '@supports (grid-template-areas: "title")': {
+      display: 'grid',
+      gridTemplateColumns: `
+        1fr
+        minmax(${MIN_TOC_WIDTH}px, ${MAX_TOC_WIDTH}px) 
+        minmax(0px, ${DEFAULT_TOC_MARGIN}px) 
+        minmax(min-content, ${MAX_COLUMN_WIDTH}px) 
+        minmax(0px, ${DEFAULT_TOC_MARGIN}px)
+        1.5fr
+      `,
+      gridTemplateAreas: `
+        "... ... .... title   .... ..."
+        "... toc gap1 content gap2 ..."
+      `,
+    },
     [theme.breakpoints.down('sm')]: {
       display: 'block'
     }
   },
   title: { gridArea: 'title' },
-  toc: { gridArea: 'toc' },
+  toc: { 
+    '@supports (grid-template-areas: "title")': {
+      gridArea: 'toc',
+      position: 'unset',
+      width: 'unset'
+    },
+    //Fallback styles in case we don't have CSS-Grid support. These don't get applied if we have a grid
+    position: 'absolute',
+    width: MAX_TOC_WIDTH,
+    left: -DEFAULT_TOC_MARGIN,
+  },
   content: { gridArea: 'content' },
   gap1: { gridArea: 'gap1'},
   gap2: { gridArea: 'gap2'},
