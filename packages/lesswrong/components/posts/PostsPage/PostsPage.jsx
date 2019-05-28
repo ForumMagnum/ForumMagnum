@@ -19,7 +19,6 @@ const DEFAULT_TOC_MARGIN = 100
 const MAX_TOC_WIDTH = 270
 const MIN_TOC_WIDTH = 200
 const MAX_COLUMN_WIDTH = 720
-const POST_WIDTH = 682
 
 const styles = theme => ({
   root: {
