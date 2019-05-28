@@ -68,7 +68,11 @@ class LocalGroupPage extends Component {
           mapOptions={{zoom:11, center: location, initialOpenWindows:[groupId]}}
         />
         <SingleColumnSection>
-          <SectionTitle title={group.name}>{currentUser && <SectionButton><SubscribeTo document={group} /></SectionButton>}</SectionTitle>
+          <SectionTitle title={group.name}>
+            {currentUser && <SectionButton>
+              <SubscribeTo document={group} />
+            </SectionButton>}
+          </SectionTitle>
           <div className={classes.groupDescription}>
             <div className={classes.groupSubtitle}>
               <SectionFooter>
@@ -77,13 +81,17 @@ class LocalGroupPage extends Component {
                   <div className={classes.groupLinks}><GroupLinks document={group} /></div>
                 </span>
                 {Posts.options.mutations.new.check(currentUser) && 
-                  <SectionButton><Link to={{pathname:"/newPost", query: {eventForm: true, groupId}}} className={classes.leftAction}>
-                  Create new event
-                </Link></SectionButton>}
+                  <SectionButton>
+                    <Link to={{pathname:"/newPost", query: {eventForm: true, groupId}}} className={classes.leftAction}>
+                      Create new event
+                    </Link>
+                  </SectionButton>}
                 {Posts.options.mutations.new.check(this.props.currentUser) && 
-                  <SectionButton><Link to={{pathname:"/newPost", query: {groupId}}} className={classes.leftAction}>
-                  Create new group post
-                </Link></SectionButton>}
+                  <SectionButton>
+                    <Link to={{pathname:"/newPost", query: {groupId}}} className={classes.leftAction}>
+                      Create new group post
+                    </Link>
+                  </SectionButton>}
                 {Localgroups.options.mutations.edit.check(this.props.currentUser, group)
                 && <span className={classes.leftAction}><GroupFormLink documentId={groupId} label="Edit group" /></span>}
               </SectionFooter>
