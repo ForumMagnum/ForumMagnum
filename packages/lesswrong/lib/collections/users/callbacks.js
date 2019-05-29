@@ -58,15 +58,6 @@ function approveUnreviewedPosts (newUser, oldUser)
 }
 addCallback("users.edit.async", approveUnreviewedPosts);
 
-function approveUnreviewedComments (newUser, oldUser)
-{
-  if(newUser.reviewedByUserId && !oldUser.reviewedByUserId)
-  {
-    Posts.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false, postedAt: new Date()}})
-  }
-}
-addCallback("users.edit.async", approveUnreviewedComments);
-
 // When the very first user account is being created, add them to Sunshine
 // Regiment. Patterned after a similar callback in
 // vulcan-users/lib/server/callbacks.js which makes the first user an admin.

@@ -3,17 +3,6 @@ import { foreignKeyField, resolverOnlyField } from '../../../lib/modules/utils/s
 import { Posts } from '../posts/collection'
 import { schemaDefaultValue } from '../../collectionUtils';
 
-// TODO; idk if this should be there
-const formGroups = {
-  // TODO - Figure out why properly moving this from custom_fields to schema was producing weird errors and then fix it
-  adminOptions: {
-    name: "adminOptions",
-    order: 25,
-    label: "Admin Options",
-    startCollapsed: true,
-  },
-};
-
 const schema = {
   // ID
   _id: {
@@ -139,7 +128,7 @@ const schema = {
     viewableBy: ['guests'],
     insertableBy: ['admins', 'sunshineRegiment'],
     editableBy: ['admins', 'sunshineRegiment'],
-    group: formGroups.adminOptions,
+    hidden: true,
   },
 
   // GraphQL only fields
