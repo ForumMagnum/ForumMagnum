@@ -275,7 +275,7 @@ class PostsItem2 extends PureComponent {
     const { showComments, readComments } = this.state
     const { PostsItemComments, PostsItemKarma, PostsItemTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
 
-    const postLink = chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getPageUrl(post)
+    const postLink = Posts.getPageUrl(post, false, chapter?.sequenceId);
     
     return (
       <div className={classes.root} ref={this.postsItemRef}>

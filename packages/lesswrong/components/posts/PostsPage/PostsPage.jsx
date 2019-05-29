@@ -332,7 +332,8 @@ const queryOptions = {
   enableCache: true,
   ssr: true,
   extraVariables: {
-    version: 'String'
+    version: 'String',
+    sequenceId: 'String',
   }
 };
 

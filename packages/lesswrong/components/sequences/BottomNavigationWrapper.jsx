@@ -20,4 +20,5 @@ const options = {
   ssr: true,
 }
 
-registerComponent('BottomNavigationWrapper', BottomNavigationWrapper, [withDocument, options], withErrorBoundary);
+registerComponent('BottomNavigationWrapper', BottomNavigationWrapper,
+  [withDocument, options], withErrorBoundary);

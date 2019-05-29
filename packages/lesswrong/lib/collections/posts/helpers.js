@@ -154,14 +154,15 @@ ${Posts.getLink(post, true, false)}
  * @summary Get URL of a post page.
  * @param {Object} post
  */
-Posts.getPageUrl = function(post, isAbsolute = false){
+Posts.getPageUrl = function(post, isAbsolute = false, sequenceId=null) {
   const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
 
   // LESSWRONG – included event and group post urls
-  if (post.isEvent) {
+  if (sequenceId) {
+    return `${prefix}/s/${sequenceId}/p/${post._id}`;
+  } else if (post.isEvent) {
     return `${prefix}/events/${post._id}/${post.slug}`;
-  }
-  if (post.groupId) {
+  } else if (post.groupId) {
     return `${prefix}/g/${post.groupId}/p/${post._id}/`;
   }
   return `${prefix}/posts/${post._id}/${post.slug}`;
