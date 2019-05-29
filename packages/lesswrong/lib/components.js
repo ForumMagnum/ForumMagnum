@@ -129,6 +129,7 @@ import '../components/posts/PostsItemMetaInfo.jsx';
 import '../components/posts/PostsItemNewCommentsWrapper.jsx';
 import '../components/posts/PostsItemIcons.jsx';
 import '../components/posts/PostsItemCuratedIcon.jsx';
+import '../components/posts/PostsItemPersonalIcon.jsx';
 import '../components/posts/PostsItemAlignmentIcon.jsx';
 import '../components/posts/PostsPage';
 import '../components/posts/PostsPageAdminActions.jsx';
@@ -349,7 +350,6 @@ import '../components/questions/AnswerCommentsList.jsx';
 import '../components/questions/AnswersList.jsx';
 import '../components/questions/Answer.jsx';
 import '../components/questions/QuestionsPage.jsx';
-import '../components/questions/AnswerTocRow.jsx';
 import '../components/questions/RelatedQuestionsList.jsx';
 
 import '../components/recommendations/ConfigurableRecommendationsList.jsx';
