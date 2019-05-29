@@ -28,7 +28,7 @@ export function augmentForDefaultView(indexFields)
 {
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,
-    prefix: {},
+    prefix: {authorIsUnreviewed: 1},
     suffix: {deleted:1, deletedPublic:1, hideAuthor:1, userId:1, af:1},
   });
 }
