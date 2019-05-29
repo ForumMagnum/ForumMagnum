@@ -190,6 +190,7 @@ async function getTocComments (document) {
     answer: false,
     parentAnswerId: null,
     postId: document._id
+
   }
   if (document.af && getSetting('forumType') === 'AlignmentForum') {
     commentSelector.af = true

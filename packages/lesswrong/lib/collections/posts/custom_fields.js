@@ -793,59 +793,6 @@ addFieldsDict(Posts, {
       type: GraphQLJSON,
       resolver: async (document, args, options) => {
         return await Utils.getTableOfContentsData(document);
-        // const { html } = document.contents || {}
-        // let tocData
-        // if (document.question) {
-
-        //   let answersTerms = {
-        //     answer:true,
-        //     postId: document._id,
-        //     deleted:false,
-        //   }
-        //   if (getSetting('forumType') === 'AlignmentForum') {
-        //     answersTerms.af = true
-        //   }
-
-        //   const answers = await Comments.find(answersTerms, {sort:questionAnswersSort}).fetch()
-
-        //   if (answers && answers.length) {
-        //     tocData = Utils.extractTableOfContents(html, true) || {
-        //       html: null,
-        //       headingsCount: 0,
-        //       sections: []
-        //     }
-
-        //     const answerSections = answers.map((answer) => ({
-        //       answer: answer,
-        //       anchor: answer._id,
-        //       level: 2
-        //     }))
-        //     tocData = {
-        //       html: tocData.html,
-        //       headingsCount: tocData.headingsCount,
-        //       sections: [
-        //         ...tocData.sections,
-        //         {anchor:"answers", level:1, title:"Answers"},
-        //         ...answerSections
-        //       ]
-        //     }
-        //   }
-        // } else {
-        //   tocData = Utils.extractTableOfContents(html)
-        // }
-        // if (tocData) {
-        //   const selector = {
-        //     answer: false,
-        //     parentAnswerId: null,
-        //     postId: document._id
-        //   }
-        //   if (document.af && getSetting('forumType') === 'AlignmentForum') {
-        //     selector.af = true
-        //   }
-        //   const commentCount = await Comments.find(selector).count()
-        //   tocData.sections.push({anchor:"comments", level:0, title:Posts.getCommentCountStr(document, commentCount)})
-        // }
-        // return tocData;
       },
     },
   },
