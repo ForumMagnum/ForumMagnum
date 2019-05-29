@@ -1,5 +1,5 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
@@ -81,15 +81,7 @@ const BottomNavigation = ({post, classes}) => {
     
     <div className={classes.divider}></div>
     
-    {/* TODO: This is currently unreachable (nextTitle is never passed). Hook it up, test the styles, then JSS-ify them. */}
-    {/*nextTitle &&
-      <div className="sequences-navigation-bottom-next-sequence">
-        <Link className="sequences-navigation-next-sequence" to={nextLink || post.nextPageLink}>
-          <div className={classes.nextSequenceDirection}>Next Sequence:</div> {nextTitle || post.nextPageTitle}
-        </Link>
-      </div>*/}
-    
-    {(nextPost && sequence) &&
+    {nextPost &&
       <div className={classnames(classes.post, classes.nextPost)}>
         <Components.BottomNavigationItem direction="Next" post={nextPost} sequence={nextPost.sequence}/>
       </div>}
