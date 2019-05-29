@@ -67,28 +67,33 @@ const styles = theme => ({
   }
 })
 
-const BottomNavigation = ({sequence, post, previousPost, nextPost, nextTitle, nextLink, classes}) => {
-  if (!nextPost && !previousPost)
+const BottomNavigation = ({post, classes}) => {
+  const { sequence, nextPost, prevPost } = post;
+  
+  if (!nextPost && !prevPost)
     return null;
   
   return <div className={classes.root}>
-    {(previousPost && sequence) ? <div className={classnames(classes.post, classes.prevPost)}>
-      <Components.BottomNavigationItem direction="Previous" post={previousPost} sequence={sequence}/>
-    </div> : null}
+    {prevPost &&
+      <div className={classnames(classes.post, classes.prevPost)}>
+      <Components.BottomNavigationItem direction="Previous" post={prevPost} sequence={prevPost.sequence}/>
+      </div>}
+    
     <div className={classes.divider}></div>
+    
     {/* TODO: This is currently unreachable (nextTitle is never passed). Hook it up, test the styles, then JSS-ify them. */}
-    {/*nextTitle ?
+    {/*nextTitle &&
       <div className="sequences-navigation-bottom-next-sequence">
         <Link className="sequences-navigation-next-sequence" to={nextLink || post.nextPageLink}>
           <div className={classes.nextSequenceDirection}>Next Sequence:</div> {nextTitle || post.nextPageTitle}
         </Link>
-      </div>
-    :*/}
-    {
-      (nextPost && sequence) ? <div className={classnames(classes.post, classes.nextPost)}>
-        <Components.BottomNavigationItem direction="Next" post={nextPost} sequence={sequence}/>
-      </div> : null
-    }
+      </div>*/}
+    
+    {(nextPost && sequence) &&
+      <div className={classnames(classes.post, classes.nextPost)}>
+        <Components.BottomNavigationItem direction="Next" post={nextPost} sequence={nextPost.sequence}/>
+      </div>}
+    
     <div className={classes.clear}></div>
   </div>
 };

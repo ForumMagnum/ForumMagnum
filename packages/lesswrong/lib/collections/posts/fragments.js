@@ -178,6 +178,7 @@ registerFragment(`
   }
 `)
 
+// This is a union of the fields needed by PostsTopNavigation and BottomNavigation.
 registerFragment(`
   fragment PostSequenceNavigation on Post {
     # Prev/next sequence navigation
@@ -189,6 +190,8 @@ registerFragment(`
       _id
       title
       slug
+      commentCount
+      baseScore
       sequence(sequenceId: $sequenceId) {
         _id
       }
@@ -197,6 +200,8 @@ registerFragment(`
       _id
       title
       slug
+      commentCount
+      baseScore
       sequence(sequenceId: $sequenceId) {
         _id
       }

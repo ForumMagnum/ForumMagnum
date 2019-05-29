@@ -288,7 +288,6 @@ import '../components/sequences/SequencesNewButton.jsx';
 import '../components/sequences/SequencesNavigationLinkDisabled.jsx';
 import '../components/sequences/BottomNavigation.jsx';
 import '../components/sequences/BottomNavigationItem.jsx';
-import '../components/sequences/BottomNavigationWrapper.jsx';
 import '../components/sequences/SequencesPost.jsx';
 import '../components/sequences/SequencesGridItem.jsx';
 import '../components/sequences/ChaptersItem.jsx';
