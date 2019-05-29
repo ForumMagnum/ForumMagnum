@@ -182,7 +182,7 @@ Comments.addView("afRecentDiscussionThread", function (terms) {
   };
 })
 
-Comments.addView("postCommentsUnread", function (terms) {
+Comments.addView("postsItemComments", function (terms) {
   return {
     selector: {
       postId: terms.postId,

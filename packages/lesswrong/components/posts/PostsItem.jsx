@@ -428,7 +428,7 @@ class PostsItem extends Component {
               <Components.PostsItemNewCommentsWrapper
                 currentUser={currentUser}
                 highlightDate={lastVisitedAt}
-                terms={{view:"postCommentsUnread", limit:5, postId: post._id}}
+                terms={{view:"postsItemComments", limit:5, postId: post._id}}
                 post={post}
               />
               <div className={classes.newCommentsFooter}>

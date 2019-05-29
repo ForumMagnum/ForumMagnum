@@ -5,6 +5,8 @@ import { Comments } from "../../lib/collections/comments";
 import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
 import { Posts } from '../../lib/collections/posts';
 import withGlobalKeydown from '../common/withGlobalKeydown';
+import withUser from "../common/withUser";
+
 
 class CommentsList extends Component {
   state = { expandAllThreads: false }
@@ -111,4 +113,4 @@ const withEditOptions = {
 };
 
 
-registerComponent('CommentsList', CommentsList, [withEdit, withEditOptions], withGlobalKeydown);
+registerComponent('CommentsList', CommentsList, withUser, [withEdit, withEditOptions], withGlobalKeydown);

@@ -278,7 +278,7 @@ class PostsItem2 extends PureComponent {
             <Components.PostsItemNewCommentsWrapper
               currentUser={currentUser}
               highlightDate={post.lastVisitedAt}
-              terms={{view:"postCommentsUnread", limit:7, postId: post._id}}
+              terms={{view:"postsItemComments", limit:7, postId: post._id}}
               post={post}
             />
             <Typography variant="body2" className={classes.closeComments}><a>Close</a></Typography>

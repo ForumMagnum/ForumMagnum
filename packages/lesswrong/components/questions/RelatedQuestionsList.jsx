@@ -42,17 +42,17 @@ const styles = theme => ({
   },
   subQuestion: {
     marginBottom: theme.spacing.unit,
-    borderLeft: "solid 2px rgba(0,0,0,.15)"
   },
   subSubQuestions: {
-    marginLeft: theme.spacing.unit,
-    background: "rgba(0,0,0,.05)"
+    background: "rgba(0,0,0,.05)",
+    marginLeft: theme.spacing.unit*1.5,
+    marginTop: theme.spacing.unit,
   }
 })
 
 const RelatedQuestionsList = ({ post, currentUser, classes }) => {
 
-  const { PostsItem2, SectionTitle } = Components
+  const { PostsItem2, SectionTitle, RelatedQuestion } = Components
 
   
   const sourcePostRelations = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)
@@ -73,7 +73,6 @@ const RelatedQuestionsList = ({ post, currentUser, classes }) => {
         <PostsItem2
           key={rel._id}
           post={rel.sourcePost} 
-          currentUser={currentUser} 
           index={i}
           parentQuestion
       /> )} 
@@ -85,23 +84,19 @@ const RelatedQuestionsList = ({ post, currentUser, classes }) => {
         const showSubQuestions = subQuestionTargetPostRelations.length >= 1
         return (
           <div key={rel._id} className={classes.subQuestion} >
-            <PostsItem2 
+            <RelatedQuestion 
+              terms={{view:"postsItemComments", postId:rel.targetPost._id, limit:3}}
               post={rel.targetPost} 
-              currentUser={currentUser} 
-              index={i}
-              showQuestionTag={false}
-              showPostedAt={false}
-              showBottomBorder={!showSubQuestions}
+              index={i} 
             />
             {showSubQuestions && <div className={classes.subSubQuestions}>
-              {subQuestionTargetPostRelations.map((rel, i) => <PostsItem2 
-                key={rel._id}
-                post={rel.targetPost} 
-                showQuestionTag={false}
-                showPostedAt={false}
-                currentUser={currentUser} 
-                index={i}
-              />)}
+              {subQuestionTargetPostRelations.map((rel, i) => <div key={rel._id}>
+                <RelatedQuestion 
+                  terms={{view:"postsItemComments", postId:rel.targetPost._id, limit:3}}
+                  post={rel.targetPost} 
+                  index={i} 
+                />
+              </div>)}
             </div>}
           </div>
         )
