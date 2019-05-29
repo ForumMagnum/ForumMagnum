@@ -23,7 +23,7 @@ export const truncate = (html, truncateLength) => {
   return truncatise(html, {
     TruncateLength: Math.floor(truncateLength - (truncateLength/4)) || truncateLength,
     TruncateBy: "characters",
-    Suffix: '...',
+    Suffix: `...`,
   });
 }
 
@@ -60,6 +60,24 @@ export const getTruncationCharCount = (comment, currentUser, postPage) => {
     return SMALL_TRUNCATION_CHAR_COUNT
   }
 }
+
+export const answerTocExcerptFromHTML = (html) => {
+  if(!html) return ""
+  const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
+  const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
+
+  const firstParagraph = truncatise(htmlRemovedStyles, {
+    TruncateLength: 1,
+    TruncateBy: "paragraph",
+    Suffix: '',
+  });
+
+  return truncatise(firstParagraph, {
+    TruncateLength: 70,
+    TruncateBy: "characters",
+    Suffix: `...${styles}`,
+  });
+};
 
 export const commentExcerptFromHTML = (comment, currentUser, postPage) => {
   const { html } = comment.contents
