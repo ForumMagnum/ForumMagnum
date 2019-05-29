@@ -4,11 +4,9 @@ import { withStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { Posts } from "../../lib/collections/posts";
 import withErrorBoundary from '../common/withErrorBoundary';
-import Typography from '@material-ui/core/Typography';
 import withUser from "../common/withUser";
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import grey from '@material-ui/core/colors/grey';
 import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
 
