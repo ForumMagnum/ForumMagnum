@@ -18,6 +18,9 @@ import DataLoader from 'dataloader';
 //
 export async function getWithLoader(collection, loaderName, baseQuery={}, groupByField, id, projection)
 {
+  if (!collection.extraLoaders) {
+    collection.extraLoaders = {};
+  }
   if (!collection.extraLoaders[loaderName]) {
     collection.extraLoaders[loaderName] = new DataLoader(async docIDs => {
       let query = {
@@ -30,6 +33,15 @@ export async function getWithLoader(collection, loaderName, baseQuery={}, groupB
     }, {
       cache: true
     })
+  }
+
+  return await collection.extraLoaders[loaderName].load(id);
+}
+
+export async function getWithCustomLoader(collection, loaderName, id, idsToResults)
+{
+  if (!collection.extraLoaders[loaderName]) {
+    collection.extraLoaders[loaderName] = new DataLoader(idsToResults, { cache: true });
   }
 
   return await collection.extraLoaders[loaderName].load(id);

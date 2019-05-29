@@ -98,32 +98,29 @@ const styles = theme => ({
 })
 
 class RecentDiscussionThread extends PureComponent {
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      showHighlight: false,
-      readStatus: false,
-    };
-  }
+  state = { showHighlight: false, readStatus: false, markedAsVisitedAt: null }
 
   showHighlight = () => {
     this.setState(prevState => ({showHighlight:!prevState.showHighlight}));
-    this.setState({readStatus:true});
     this.markAsRead()
   }
   
   markAsRead = async () => {
+    this.setState({readStatus:true, markedAsVisitedAt: new Date()});
     this.props.recordPostView({...this.props, document:this.props.post})
   }
 
   render() {
     const { post, postCount, results, loading, editMutation, currentUser, classes } = this.props
-    const { readStatus, showHighlight } = this.state
+    const { readStatus, showHighlight, markedAsVisitedAt } = this.state
 
     const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight } = Components
 
+    const lastCommentId = results && results[0]?._id
+
     const nestedComments = unflattenComments(results)
+
+    const lastVisitedAt = markedAsVisitedAt || post.lastVisitedAt
 
     // Only show the loading widget if this is the first post in the recent discussion section, so that the users don't see a bunch of loading components while the comments load
     if (loading && postCount === 0) {
@@ -170,15 +167,17 @@ class RecentDiscussionThread extends PureComponent {
               </div>
           }
           <div className={classes.commentsList}>
-            <div className={"comments-items"} onClick={this.markAsRead}>
+            <div className={"comments-items"}>
               {nestedComments.map(comment =>
                 <div key={comment.item._id}>
                   <CommentsNode
                     startThreadTruncated={true}
                     nestingLevel={1}
+                    recentDiscussionExpandedId={lastCommentId}
                     currentUser={currentUser}
                     comment={comment.item}
-                    highlightDate={post.lastVisitedAt}
+                    markAsRead={this.markAsRead}
+                    highlightDate={lastVisitedAt}
                     //eslint-disable-next-line react/no-children-prop
                     children={comment.children}
                     key={comment.item._id}

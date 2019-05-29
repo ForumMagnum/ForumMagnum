@@ -6,6 +6,8 @@ import withHover from '../common/withHover';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
+import { isMobile } from '../../lib/modules/utils/isMobile.js'
+import { commentExcerptFromHTML } from '../../lib/editor/ellipsize'
 
 const styles = theme => ({
   root: {
@@ -39,6 +41,12 @@ const styles = theme => ({
     textAlign: "center",
     width: 30,
     padding: 5,
+  },
+  date: {
+    display:"inline-block",
+    padding: 5,
+    paddingRight: theme.spacing.unit,
+    paddingLeft: theme.spacing.unit
   },
   truncatedHighlight: {
     padding: 5,
@@ -93,10 +101,12 @@ const styles = theme => ({
   },
 })
 
-const SingleLineComment = ({comment, classes, nestingLevel, hover, anchorEl}) => {
+const SingleLineComment = ({comment, classes, nestingLevel, hover}) => {
   const { voteCount, baseScore } = comment
   const { CommentBody, ShowParentComment } = Components
-  const { html = ""} = comment.contents || {}
+  
+  const singleLineHtml = commentExcerptFromHTML(comment)
+  const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile()
 
   return (
     <div className={classes.root}>
@@ -111,9 +121,11 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, anchorEl}) =>
         <span className={classes.username}>
           {comment.user.displayName}
         </span>
-        <span className={classes.truncatedHighlight} dangerouslySetInnerHTML={{__html: html}} />
-      </div>
-      {hover && <span className={classNames(classes.highlight)}>
+        <span className={classes.date}>
+          <Components.FormatDate date={comment.postedAt}/>
+        </span>
+        {(comment.baseScore > -5) && <span className={classes.truncatedHighlight} dangerouslySetInnerHTML={{__html: singleLineHtml}} />}      </div>
+      {displayHoverOver && <span className={classNames(classes.highlight)}>
         <CommentBody truncated comment={comment}/>
       </span>}
     </div>

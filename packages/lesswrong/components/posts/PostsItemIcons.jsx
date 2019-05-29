@@ -10,10 +10,11 @@ const styles = theme => ({
 });
 
 const PostsItemIcons = ({post, classes}) => {
-  const { PostsItemCuratedIcon, PostsItemAlignmentIcon } = Components;
+  const { PostsItemCuratedIcon, PostsItemAlignmentIcon, PostsItemPersonalIcon } = Components;
   
   return <React.Fragment>
     {post.curatedDate && <span className={classes.postIcon}><PostsItemCuratedIcon /></span>}
+    {!post.frontpageDate && <span className={classes.postIcon}><PostsItemPersonalIcon /></span>}
     
     {getSetting('forumType') !== 'AlignmentForum' && post.af &&
       <span className={classes.postIcon}>
