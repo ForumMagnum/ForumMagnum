@@ -1,5 +1,5 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
+import { withRouter } from '../../lib/reactRouterWrapper.js';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
@@ -68,7 +68,7 @@ const styles = theme => ({
 })
 
 const BottomNavigation = ({post, classes}) => {
-  const { sequence, nextPost, prevPost } = post;
+  const { nextPost, prevPost } = post;
   
   if (!nextPost && !prevPost)
     return null;
