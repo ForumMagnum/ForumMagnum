@@ -251,7 +251,7 @@ class UsersProfile extends Component {
         {/* Comments Sections */}
         <SingleColumnSection>
           <SectionTitle title={`${user.displayName}'s Comments`} />
-          <Components.RecentComments terms={{view: 'allRecentComments', limit: 10, userId: user._id}} fontSize="small" />
+          <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} fontSize="small" />
         </SingleColumnSection>
       </div>
     )

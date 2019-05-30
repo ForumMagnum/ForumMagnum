@@ -7,11 +7,10 @@ import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionU
 // Auto-generated indexes from production
 
 Comments.addDefaultView(terms => {
-  const validFields = _.pick(terms, 'userId');
+  const validFields = _.pick(terms, 'userId', 'authorIsUnreviewed');
   const alignmentForum = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
   return ({
     selector: {
-      // TODO; wat
       $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: false}],
       authorIsUnreviewed: false,
       hideAuthor: terms.userId ? false : undefined,
@@ -230,6 +229,8 @@ Comments.addView("sunshineNewUsersComments", function (terms) {
       userId: terms.userId,
       // Don't hide deleted
       $or: null,
+      // Don't hide unreviewed comments
+      authorIsUnreviewed: null
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
