@@ -36,16 +36,18 @@ const FILTERS_ALL = {
       tooltip: "Posts relating to LessWrong itself"
     },
   ],
+  // TODO; submit edits to LW?
+  // Really the important thing is that they're not edited when lw does
   "EAForum": [
     { name: "all",
       label: "All Posts",
       tooltip: "Includes personal blogposts as well as frontpage, questions, and community posts."},
     { name: "frontpage",
       label: "Frontpage",
-      tooltip: "Moderators add posts to the frontpage if they meet certain criteria: aiming to explain, not persuade, and staying on topic."},
+      tooltip: "Material selected by moderators as especially interesting or useful to people with interest in doing good effectively."},
     { name: "questions",
       label: "Questions",
-      tooltip: "Open questions and answers, ranging from newbie-questions to important unsolved scientific problems."},
+      tooltip: "Open questions and answers, ranging from newcomer questions to important unsolved scientific problems."},
     { name: "meta",
       label: "Community",
       tooltip: "Posts with topical content or relating to the EA community itself"
