@@ -1,4 +1,5 @@
 import Users from "meteor/vulcan:users";
+import { getSetting } from "meteor/vulcan:core";
 import { ensureIndex } from '../../collectionUtils';
 
 // Auto-generated indexes from production
@@ -53,12 +54,21 @@ Users.addView("usersWithBannedUsers", function () {
 })
 
 Users.addView("sunshineNewUsers", function () {
+  let reCaptchaSelector = {signUpReCaptchaRating: {$gt: 0.3}}
+  if (!getSetting('requireReCaptcha')) {
+    reCaptchaSelector = {
+      $or: [
+        {signUpReCaptchaRating: {$exists: false}},
+        reCaptchaSelector,
+      ]
+    }
+  }
   return {
     selector: {
       $or: [
         { voteCount: {$gt: 12}},
         { commentCount: {$gt: 0}},
-        { postCount: {$gt: 0}, signUpReCaptchaRating: {$gt: 0.3}},
+        { postCount: {$gt: 0}, ...reCaptchaSelector},
       ],
       reviewedByUserId: {$exists: false},
       banned: {$exists: false},

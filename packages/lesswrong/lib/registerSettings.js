@@ -54,3 +54,6 @@ registerSetting('reCaptcha.secret', null, 'ReCaptcha Secret')
 // Akismet
 registerSetting('akismet.apiKey', null, 'Akismet API Key')
 registerSetting('akismet.url', null, 'Akismet url as entered into their site')
+
+// Spam strictness settings
+registerSetting('requireReCaptcha', false, 'Users must come with recaptcha scores to be reviewed')
