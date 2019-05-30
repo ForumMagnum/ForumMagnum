@@ -606,7 +606,7 @@ Posts.addView("sunshineNewPosts", function () {
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ status:1, reviewedByUserId:1, frontpageDate: 1, authorIsUnreviewed:1 }),
+  augmentForDefaultView({ status:1, reviewedByUserId:1, frontpageDate: 1, authorIsUnreviewed:1, meta: 1 }),
   { name: "posts.sunshineNewPosts" }
 );
 
