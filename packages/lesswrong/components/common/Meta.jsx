@@ -12,7 +12,7 @@ const Meta = ({location, currentUser}, context) => {
         titleComponent= {<div className="recent-posts-title-component">
           {currentUser && <div className="new-post-link"><Link to={{pathname:"/newPost", query: {meta: true}}}> new post </Link></div>}
           </div>} >
-          <Components.PostsList terms={recentPostsTerms} />
+          <Components.PostsList2 terms={recentPostsTerms} />
         </Components.Section>
     </div>
   )
