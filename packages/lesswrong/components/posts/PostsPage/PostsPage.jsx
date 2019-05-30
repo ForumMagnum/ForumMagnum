@@ -178,7 +178,7 @@ class PostsPage extends Component {
   render() {
     const { loading, document: post, currentUser, classes, data: {refetch} } = this.props
     const { params } = this.props.match;
-    const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
+    const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, PostsType,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigationWrapper,
       PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent, Section, TableOfContents, PostsRevisionSelector, PostsRevisionMessage, AlignmentCrosspostMessage, ConfigurableRecommendationsList } = Components
 
@@ -216,6 +216,7 @@ class PostsPage extends Component {
                     <span className={classes.inline}>
                       <PostsAuthors post={post}/>
                     </span>
+                    <PostsType post={post}/>
                     { post.feed && post.feed.user &&
                       <Tooltip title={`Crossposted from ${feedLink}`}>
                         <a href={`http://${feedLink}`} className={classes.feedName}>
