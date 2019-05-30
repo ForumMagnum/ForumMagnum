@@ -13,7 +13,7 @@ class HomeLatestPosts extends PureComponent {
     let query = _.clone(router.location.query) || {view: "magic"}
     const currentFilter = query.filter || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
 
-    const newFilter = (currentFilter === "frontpage") ? "includeMetaAndPersonal" : "frontpage"
+    const newFilter = (currentFilter === "frontpage") ? "frontpageAndMeta" : "frontpage"
     if (currentUser) {
       updateUser({
         selector: { _id: currentUser._id},
@@ -46,13 +46,8 @@ class HomeLatestPosts extends PureComponent {
     const latestTitle = (
       <div>
         <p>Recent posts, sorted by a mix of 'new' and 'highly upvoted'.</p>
-        <p>By default shows only frontpage posts, and can optionally include personal blogposts.</p>
-        <p><em>Moderators promote posts to frontpage if they seem to be:</em></p>
-        <ul>
-          <li>Aiming to explain rather than persuade</li>
-          <li>Relatively timeless (avoiding reference to current events or local social knowledge)</li>
-          <li>Reasonably relevant to the average reader</li>
-        </ul>
+        <p>By default shows only frontpage posts, and can optionally include community posts.</p>
+        <p>Frontpage posts are selected by moderators as especially interesting or useful to people with interest in doing good effectively.</p>
       </div>
     )
 
@@ -60,11 +55,11 @@ class HomeLatestPosts extends PureComponent {
       <SingleColumnSection>
         <SectionTitle title={<Tooltip title={latestTitle} placement="left-start"><span>Latest Posts</span></Tooltip>}/>
         <PostsList2 terms={recentPostsTerms}>
-          <Link to={"/daily"}>View All Posts</Link>
+          <Link to={"/allPosts"}>View All Posts</Link>
           <SectionFooterCheckbox 
             onClick={this.toggleFilter} 
             value={!(currentFilter === "frontpage")} 
-            label={"Include Personal Posts"} 
+            label={"Include Community Posts"}
             />
         </PostsList2>
       </SingleColumnSection>

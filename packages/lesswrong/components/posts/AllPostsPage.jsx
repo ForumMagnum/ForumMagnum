@@ -9,6 +9,10 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
+// TODO: If we go back to having an option to include all posts on the
+// frontpage, I think it makes sense to think about rebranding this page to
+// custom view or some such
+
 const styles = theme => ({
   daily: {
     padding: theme.spacing.unit,
@@ -89,7 +93,6 @@ class AllPostsPage extends Component {
 
     return (
       <React.Fragment>
-        <TabNavigationMenu />
         <SingleColumnSection>
           <Tooltip title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`} placement="top-end">
             <div className={classes.title} onClick={this.toggleSettings}>

@@ -46,6 +46,12 @@ Posts.addDefaultView(terms => {
   if (terms.filter === "frontpage") {
     params.selector.frontpageDate = {$gt: new Date(0)}
   }
+  if (terms.filter === 'frontpageAndMeta') {
+    params.selector.$or = [
+      {frontpageDate: {$gt: new Date(0)}},
+      {meta: true}
+    ]
+  }
   if (terms.filter === "all") {
     params.selector.groupId = null
   }

@@ -1,4 +1,4 @@
-import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
+import { Components, registerComponent, withUpdate, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames'
@@ -12,6 +12,49 @@ import withUser from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
 import { views as defaultViews } from './AllPostsPage.jsx'
+
+const FILTERS_ALL = {
+  "LessWrong": [
+    { name: "all",
+      label: "All Posts",
+      tooltip: "Includes personal blogposts as well as frontpage, curated, questions, events and meta posts."},
+    { name: "frontpage",
+      label: "Frontpage",
+      tooltip: "Moderators add posts to the frontpage if they meet certain criteria: aiming to explain, rather than persuade, and avoiding identity politics."},
+    { name: "curated",
+      label: "Curated",
+      tooltip: "Posts chosen by the moderation team to be well written and important (approximately 3 per week)"},
+    { name: "questions",
+      label: "Questions",
+      tooltip: "Open questions and answers, ranging from newbie-questions to important unsolved scientific problems."},
+    { name: "events",
+      label: "Events",
+      tooltip: "Events from around the world."
+    },
+    { name: "meta",
+      label: "Meta",
+      tooltip: "Posts relating to LessWrong itself"
+    },
+  ],
+  // TODO; submit edits to LW?
+  // Really the important thing is that they're not edited when lw does
+  "EAForum": [
+    { name: "all",
+      label: "All Posts",
+      tooltip: "Includes personal blogposts as well as frontpage, questions, and community posts."},
+    { name: "frontpage",
+      label: "Frontpage",
+      tooltip: "Material selected by moderators as especially interesting or useful to people with interest in doing good effectively."},
+    { name: "questions",
+      label: "Questions",
+      tooltip: "Open questions and answers, ranging from newcomer questions to important unsolved scientific problems."},
+    { name: "meta",
+      label: "Community",
+      tooltip: "Posts with topical content or relating to the EA community itself"
+    },
+  ]
+}
+const FILTERS = FILTERS_ALL[getSetting('forumType')]
 
 const styles = theme => ({
   root: {
@@ -120,29 +163,6 @@ class PostsListSettings extends Component {
     const { classes, hidden, currentView, currentFilter, currentShowLowKarma, views = defaultViews } = this.props
     const { MetaInfo } = Components
 
-    const filters = [
-      { name: "all",
-        label: "All Posts",
-        tooltip: "Includes personal blogposts as well as frontpage, curated, questions, events and meta posts."},
-      { name: "frontpage",
-        label: "Frontpage",
-        tooltip: "Moderators add posts to the frontpage if they meet certain criteria: aiming to explain, rather than persuade, and avoiding identity politics."},
-      { name: "curated",
-        label: "Curated",
-        tooltip: "Posts chosen by the moderation team to be well written and important (approximately 3 per week)"},
-      { name: "questions",
-        label: "Questions",
-        tooltip: "Open questions and answers, ranging from newbie-questions to important unsolved scientific problems."},
-      { name: "events",
-        label: "Events",
-        tooltip: "Events from around the world."
-      },
-      { name: "meta",
-        label: "Meta",
-        tooltip: "Posts relating to LessWrong itself"
-      },
-    ]
-
     return (
       <div className={classNames(classes.root, {[classes.hidden]: hidden})}>
         <div className={classes.selectionList}>
@@ -168,7 +188,7 @@ class PostsListSettings extends Component {
           <MetaInfo className={classes.selectionTitle}>
             Filtered by:
           </MetaInfo>
-          {filters.map(filter => {
+          {FILTERS.map(filter => {
             return (
               <Link 
                 key={filter.name} 
