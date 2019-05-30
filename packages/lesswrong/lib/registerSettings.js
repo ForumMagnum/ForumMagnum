@@ -50,3 +50,7 @@ registerSetting('sentry.release', null, 'Sentry release')
 // ReCaptcha ApiKey
 registerSetting('reCaptcha.apiKey', null, 'ReCaptcha API Key')
 registerSetting('reCaptcha.secret', null, 'ReCaptcha Secret')
+
+// Akismet
+registerSetting('akismet.apiKey', null, 'Akismet API Key')
+registerSetting('akismet.url', null, 'Akismet url as entered into their site')
