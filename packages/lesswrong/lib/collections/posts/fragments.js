@@ -163,7 +163,6 @@ registerFragment(`
 `);
 
 // Same as PostsPage, with added just optional arguments to the content field
-// and sequence navigation.
 registerFragment(`
   fragment PostsRevision on Post {
     ...PostsDetails
@@ -173,7 +172,12 @@ registerFragment(`
     contents(version: $version) {
       ...RevisionDisplay
     }
-    
+  }
+`)
+
+registerFragment(`
+  fragment PostsWithNavigation on Post {
+    ...PostsRevision
     ...PostSequenceNavigation
   }
 `)
