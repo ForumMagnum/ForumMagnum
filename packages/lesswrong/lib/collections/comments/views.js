@@ -12,7 +12,9 @@ Comments.addDefaultView(terms => {
   return ({
     selector: {
       $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: false}],
-      authorIsUnreviewed: false,
+      // allow for null so that comments that haven't had the default value set
+      // yet (ie: those created by the frontend immediately prior appear
+      authorIsUnreviewed: {$ne: true},
       hideAuthor: terms.userId ? false : undefined,
       ...validFields,
       ...alignmentForum,

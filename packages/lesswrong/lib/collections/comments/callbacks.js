@@ -268,7 +268,6 @@ function CommentsNewUserApprovedStatus (comment) {
     return {...comment, authorIsUnreviewed: true}
   }
 }
-
 addCallback("comments.new.sync", CommentsNewUserApprovedStatus);
 
 /**
