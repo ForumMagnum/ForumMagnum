@@ -28,17 +28,28 @@ export const styles = theme => ({
 });
 
 const SequencesNavigationLink = ({ post, direction, classes }) => {
-  const button = (
-    <Link to={Posts.getPageUrl(post, false, post.sequence?._id)}>
-      <IconButton classes={{root: classnames(classes.root, classes.normal)}}>
-        { direction === "left" ? <NavigateBefore/> : <NavigateNext/> }
-      </IconButton>
-    </Link>
-  )
-  if (post?.title) {
-    return <Tooltip title={post?.title}>{button}</Tooltip>
+  const icon = (
+    <IconButton classes={{root: classnames(classes.root, {
+      [classes.disabled]: !post,
+      [classes.normal]: !!post,
+    })}}>
+      { (direction === "left") ? <NavigateBefore/> : <NavigateNext/> }
+    </IconButton>
+  );
+  
+  if (post) {
+    const button = (
+      <Link to={Posts.getPageUrl(post, false, post.sequence?._id)}>
+        {icon}
+      </Link>
+    )
+    if (post.title) {
+      return <Tooltip title={post.title}>{button}</Tooltip>
+    } else {
+      return button;
+    }
   } else {
-    return button;
+    return icon;
   }
 };
 

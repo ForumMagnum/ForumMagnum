@@ -57,23 +57,17 @@ class PostsTopSequencesNav extends PureComponent
     
     return (
       <div className={classes.root}>
-        {post.prevPost
-          ? <Components.SequencesNavigationLink
-              post={post.prevPost}
-              direction="left" />
-          : <Components.SequencesNavigationLinkDisabled
-              direction="left" />}
+        <Components.SequencesNavigationLink
+          post={post.prevPost}
+          direction="left" />
   
         <div className={classes.title}>
           <Link to={Sequences.getPageUrl(post.sequence)}>{ post.sequence.title }</Link>
         </div>
   
-        {post.nextPost
-          ? <Components.SequencesNavigationLink
-              post={post.nextPost}
-              direction="right" />
-          : <Components.SequencesNavigationLinkDisabled
-              direction="right" />}
+        <Components.SequencesNavigationLink
+          post={post.nextPost}
+          direction="right" />
       </div>
     )
   }
