@@ -6,7 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import deepmerge from 'deepmerge';
 import Users from 'meteor/vulcan:users';
-import { defaultAlgorithmSettings, slotSpecificRecommendationSettingDefaults, getRecommendationSettings } from '../../lib/collections/users/recommendationSettings.js';
+import { defaultAlgorithmSettings, slotSpecificRecommendationSettingDefaults } from '../../lib/collections/users/recommendationSettings.js';
 
 const styles = theme => ({
   gearIcon: {
@@ -16,7 +16,7 @@ const styles = theme => ({
   },
 });
 
-class ConfigurableRecommendationsList extends PureComponent {
+class RecommendationSettings extends PureComponent {
   state = {
     settingsVisible: false,
     settings: null
@@ -28,17 +28,54 @@ class ConfigurableRecommendationsList extends PureComponent {
     });
   }
   
+  getDefaultSettings = () => {
+    const { configName } = this.props;
+    if (configName in slotSpecificRecommendationSettingDefaults) {
+      return deepmerge(defaultAlgorithmSettings, slotSpecificRecommendationSettingDefaults[configName]);
+    } else {
+      return defaultAlgorithmSettings;
+    }
+  }
+  
+  getCurrentSettings = () => {
+    if (this.state.settings)
+      return this.state.settings;
+    
+    const { currentUser, configName } = this.props;
+    if (currentUser && currentUser.recommendationSettings && configName in currentUser.recommendationSettings) {
+      return deepmerge(this.getDefaultSettings(), currentUser.recommendationSettings[configName]||{});
+    } else {
+      return this.getDefaultSettings();
+    }
+  }
+  
   changeSettings = (newSettings) => {
+    const { updateUser, currentUser, configName } = this.props;
+    
     this.setState({
       settings: newSettings
     });
+    
+    if (currentUser) {
+      const mergedSettings = {
+        ...currentUser.recommendationSettings,
+        [configName]: newSettings
+      };
+    
+      updateUser({
+        selector: { _id: currentUser._id },
+        data: {
+          recommendationSettings: mergedSettings
+        },
+      });
+    }
   }
   
   render() {
-    const { currentUser, configName, classes } = this.props;
+    const { classes } = this.props;
     const { SingleColumnSection, SectionTitle, RecommendationsAlgorithmPicker,
       RecommendationsList } = Components;
-    const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
+    const settings = this.getCurrentSettings();
     
     return <SingleColumnSection>
       <SectionTitle title="Recommended">
@@ -58,9 +95,9 @@ class ConfigurableRecommendationsList extends PureComponent {
   }
 }
 
-registerComponent("ConfigurableRecommendationsList", ConfigurableRecommendationsList,
+registerComponent("RecommendationSettings", RecommendationSettings,
   [withUpdate, {
     collection: Users,
     fragmentName: "UsersCurrent",
   }],
-  withUser, withStyles(styles, {name: "ConfigurableRecommendationsList"}));
+  withUser, withStyles(styles, {name: "RecommendationSettings"}));

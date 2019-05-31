@@ -3,9 +3,8 @@ import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
-import deepmerge from 'deepmerge';
 import Users from 'meteor/vulcan:users';
-import { defaultAlgorithmSettings, slotSpecificRecommendationSettingDefaults } from '../../lib/collections/users/recommendationSettings.js';
+import { getRecommendationSettings } from '../../lib/collections/users/recommendationSettings.js';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import Tooltip from '@material-ui/core/Tooltip';
 
@@ -33,54 +32,17 @@ class RecommendationsAndCurated extends PureComponent {
     });
   }
   
-  getDefaultSettings = () => {
-    const { configName } = this.props;
-    if (configName in slotSpecificRecommendationSettingDefaults) {
-      return deepmerge(defaultAlgorithmSettings, slotSpecificRecommendationSettingDefaults[configName]);
-    } else {
-      return defaultAlgorithmSettings;
-    }
-  }
-  
-  getCurrentSettings = () => {
-    if (this.state.settings)
-      return this.state.settings;
-    
-    const { currentUser, configName } = this.props;
-    if (currentUser && currentUser.recommendationSettings && configName in currentUser.recommendationSettings) {
-      return deepmerge(this.getDefaultSettings(), currentUser.recommendationSettings[configName]||{});
-    } else {
-      return this.getDefaultSettings();
-    }
-  }
-  
   changeSettings = (newSettings) => {
-    const { updateUser, currentUser, configName } = this.props;
-    
     this.setState({
       settings: newSettings
     });
-    
-    if (currentUser) {
-      const mergedSettings = {
-        ...currentUser.recommendationSettings,
-        [configName]: newSettings
-      };
-    
-      updateUser({
-        selector: { _id: currentUser._id },
-        data: {
-          recommendationSettings: mergedSettings
-        },
-      });
-    }
   }
   
   render() {
-    const { classes } = this.props;
+    const { currentUser, configName, classes } = this.props;
     const { SingleColumnSection, SectionTitle, RecommendationsAlgorithmPicker,
       RecommendationsList, PostsList2, SubscribeWidget, SectionButton } = Components;
-    const settings = this.getCurrentSettings();
+    const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
     
     const curatedTooltip = <div>
       <div>Every few days, LessWrong moderators manually curate posts that are well written and informative.</div>
@@ -103,14 +65,14 @@ class RecommendationsAndCurated extends PureComponent {
           settings={settings}
           onChange={(newSettings) => this.changeSettings(newSettings)}
         /> }
-        <SectionButton className={classes.subtitle}>
-          <Tooltip placement="top-start" title={allTimeTooltip}>
-            <Link to={"/recommendations"}>Top Unread Posts</Link>
-          </Tooltip>
-        </SectionButton>
-        <RecommendationsList
-          algorithm={settings}
-        />
+      <SectionButton className={classes.subtitle}>
+        <Tooltip placement="top-start" title={allTimeTooltip}>
+          <Link to={"/recommendations"}>Top Unread Posts</Link>
+        </Tooltip>
+      </SectionButton>
+      <RecommendationsList
+        algorithm={settings}
+      />
       <SectionButton className={classes.subtitle}>
         <Tooltip placement="top-start" title={curatedTooltip}>
           <Link to={"/allPosts?filter=curated&view=new"}>Recently Curated</Link>

@@ -2,6 +2,8 @@ import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import Input from '@material-ui/core/Input';
 import Checkbox from '@material-ui/core/Checkbox';
+import deepmerge from 'deepmerge';
+import { slotSpecificRecommendationSettingDefaults, defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings.js';
 
 // Elements here should match switch cases in recommendations.js
 const recommendationAlgorithms = [
@@ -15,7 +17,43 @@ const recommendationAlgorithms = [
   },
 ];
 
-const RecommendationsAlgorithmPicker = ({ settings, onChange }) => {
+function getDefaultSettings(configName) {
+  if (configName in slotSpecificRecommendationSettingDefaults) {
+    return deepmerge(defaultAlgorithmSettings, slotSpecificRecommendationSettingDefaults[configName]);
+  } else {
+    return defaultAlgorithmSettings;
+  }
+}
+
+export function getRecommendationSettings({settings, currentUser, configName})
+{
+  if (settings)
+   return settings;
+
+  if (currentUser && currentUser.recommendationSettings && configName in currentUser.recommendationSettings) {
+    return deepmerge(this.getDefaultSettings(), currentUser.recommendationSettings[configName]||{});
+  } else {
+    return getDefaultSettings(configName);
+  }
+}
+
+const RecommendationsAlgorithmPicker = ({ currentUser, settings, onChange }) => {
+  function applyChange(newSetings) {
+    if (currentUser) {
+      const mergedSettings = {
+        ...currentUser.recommendationSettings,
+        [configName]: newSettings
+      };
+    
+      updateUser({
+        selector: { _id: currentUser._id },
+        data: {
+          recommendationSettings: mergedSettings
+        },
+      });
+    }
+    onChange(newSettings);
+  }
   return <div>
     <div>{"Algorithm "}
       <select
