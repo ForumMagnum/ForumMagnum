@@ -202,7 +202,7 @@ export const runCallbacksAsync = function () {
                 exception => {
                   markCallbackFinished(pendingAsyncCallback)
                   // eslint-disable-next-line no-console
-                  console.log("Error running async callback [${callback.name}] on hook [${hook}]");
+                  console.log(`Error running async callback [${callback.name}] on hook [${hook}]`);
                   // eslint-disable-next-line no-console
                   console.log(exception);
                   throw exception;
