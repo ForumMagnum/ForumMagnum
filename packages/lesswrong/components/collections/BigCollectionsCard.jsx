@@ -83,7 +83,7 @@ class BigCollectionsCard extends PureComponent {
               <Link to={url}>{collection.title}</Link>
             </Typography>
             <Typography variant="subheading" className={classes.author}>
-              by <Components.UsersName user={collection.user}/>
+              by <Components.UsersName documentId={collection.userId}/>
             </Typography>
             <Typography variant="body2" className={classes.text}>
               {collection.summary}
