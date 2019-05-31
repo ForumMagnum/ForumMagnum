@@ -246,7 +246,7 @@ class PostsItem2 extends PureComponent {
             </Link>
 
             { post.user && !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
-              <PostsUserAndCoauthors post={post}/>
+              <PostsUserAndCoauthors post={post} abbreviateIfLong={true} />
             </PostsItem2MetaInfo>}
 
             { post.isEvent && <PostsItem2MetaInfo className={classes.event}>
