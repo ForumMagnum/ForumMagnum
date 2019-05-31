@@ -585,6 +585,8 @@ addFieldsDict(Users, {
     optional: true
   },
 
+  // Set after a moderator has approved or purged a new user. NB: reviewed does
+  // not imply approval, the user might have been banned
   reviewedByUserId: {
     ...foreignKeyField({
       idFieldName: "reviewedByUserId",
@@ -598,6 +600,12 @@ addFieldsDict(Users, {
     canCreate: ['sunshineRegiment', 'admins'],
     group: formGroups.adminOptions,
   },
+
+  isReviewed: resolverOnlyField({
+    type: Boolean,
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+    resolver: (user, args, context) => !!user.reviewedByUserId,
+  }),
 
   allVotes: resolverOnlyField({
     type: Array,

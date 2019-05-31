@@ -62,6 +62,7 @@ extendFragment('UsersCurrent', `
   ...UsersMinimumInfo
   voteBanned
   banned
+  isReviewed
   nullifyVotes
   hideIntercom
   currentFrontpageFilter

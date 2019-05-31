@@ -103,7 +103,8 @@ const simplSchemaToGraphQLtype = (type) => {
   if (type === String) return "String";
   else if (type === Number) return "Int";
   else if (type === Date) return "Date";
-  else throw new Error("Invalid type in simplSchemaToGraphQLtype ");
+  else if (type === Boolean) return "Boolean";
+  else throw new Error("Invalid type in simplSchemaToGraphQLtype");
 }
 
 export const resolverOnlyField = ({type, graphQLtype=null, resolver, ...rest}) => {
