@@ -18,6 +18,9 @@ const styles = theme => ({
   },
   archivedItem: {
     opacity: 0.5
+  },
+  commentFont: {
+    ...theme.typography.commentStyle
   }
 });
 
@@ -39,7 +42,7 @@ const ConversationItem = ({conversation, classes, currentUser, updateConversatio
 
   return (
     <div className={classNames(classes.root, {[classes.archivedItem]: isArchived})}>
-      <Link to={`/inbox/${conversation._id}`} className={classes.title}>{Conversations.getTitle(conversation, currentUser)}</Link>
+      <Link to={`/inbox/${conversation._id}`} className={classNames(classes.title, classes.commentFont)}>{Conversations.getTitle(conversation, currentUser)}</Link>
       { conversation.participants
         .filter(user => user._id !== currentUser._id)
         .map(user => <span key={user._id} className={classes.leftMargin}>
