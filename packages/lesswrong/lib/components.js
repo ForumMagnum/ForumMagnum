@@ -95,6 +95,7 @@ import '../components/users/AccountsResetPassword.jsx';
 import '../components/users/EmailTokenPage.jsx';
 import '../components/users/EmailTokenResult.jsx';
 import '../components/users/UserNameDeleted.jsx';
+import '../components/users/WrappedLoginForm.jsx';
 
 import '../components/icons/OmegaIcon.jsx';
 
