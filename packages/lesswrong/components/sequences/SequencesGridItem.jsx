@@ -77,10 +77,6 @@ const styles = theme => ({
     }
   },
 
-  bottom: {
-    pointerEvents: "none",
-  },
-
   image: {
     width: "100%",
     height: 95,
@@ -128,16 +124,14 @@ class SequencesGridItem extends PureComponent {
             by <Components.UsersName user={sequence.user} />
           </div>}
       </div>
-      <div className={classes.bottom}>
-        <div className={classes.image}>
-          <NoSSR>
-            <Components.CloudinaryImage
-              publicId={sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
-              height={124}
-              width={315}
-            />
-          </NoSSR>
-        </div>
+      <div className={classes.image}>
+        <NoSSR>
+          <Components.CloudinaryImage
+            publicId={sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
+            height={124}
+            width={315}
+          />
+        </NoSSR>
       </div>
     </LinkCard>;
   }
