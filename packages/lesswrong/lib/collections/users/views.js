@@ -32,6 +32,8 @@ Users.addView('usersProfile', function(terms) {
   }
 });
 
+ensureIndex(Users, {oldSlugs:1});
+
 Users.addView('LWSunshinesList', function(terms) {
   return {
     selector: {groups:'sunshineRegiment'},
