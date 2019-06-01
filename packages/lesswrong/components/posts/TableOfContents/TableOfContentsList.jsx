@@ -28,7 +28,7 @@ class TableOfContentsList extends Component {
     if (!sectionData)
       return <div/>
 
-    const { sections, headingsCount } = sectionData;
+    const { sections } = sectionData;
 
     const title = (document && document.title) || (sectionData.document && sectionData.document.title);
 
@@ -41,22 +41,24 @@ class TableOfContentsList extends Component {
         >
           {title}
         </TableOfContentsRow>
-        {sections && sections.map((section, index) =>
-          <TableOfContentsRow
-            key={section.anchor}
-            indentLevel={section.level}
-            highlighted={section.anchor === currentSection}
-            href={"#"+section.anchor}
-            onClick={(ev) => this.jumpToAnchor(section.anchor, ev)}
-            answersStyling={headingsCount > 1}
-          >
-              {section.answer ? 
-                <AnswerTocRow answer={section.answer} />
-                : 
-                <span>{section.title}</span> 
-              }
-          </TableOfContentsRow>
-        )}
+        {sections && sections.map((section, index) => {          
+          return (
+            <TableOfContentsRow
+              key={section.anchor}
+              indentLevel={section.level}
+              divider={section.divider}
+              highlighted={section.anchor === currentSection}
+              href={"#"+section.anchor}
+              onClick={(ev) => this.jumpToAnchor(section.anchor, ev)}
+            >
+                {section.answer ? 
+                  <AnswerTocRow answer={section.answer} />
+                  : 
+                  <span>{section.title}</span> 
+                }
+            </TableOfContentsRow>
+          )
+        })}
       </div>
     </div>
   }
