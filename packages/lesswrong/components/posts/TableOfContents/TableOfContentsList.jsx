@@ -51,6 +51,7 @@ class TableOfContentsList extends Component {
               highlighted={section.anchor === currentSection}
               href={"#"+section.anchor}
               onClick={(ev) => this.jumpToAnchor(section.anchor, ev)}
+              answer={!!section.answer}
             >
                 {section.answer ?
                   <AnswerTocRow answer={section.answer} />

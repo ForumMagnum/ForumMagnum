@@ -18,7 +18,7 @@ const styles = theme => ({
     '& $link': {
       color: "black",
     },
-    '& $link:after': {
+    '& $highlightDot:after': {
       content: `"•"`,
       marginLeft: 3,
       position: 'relative',
@@ -40,6 +40,7 @@ const styles = theme => ({
       textShadow: "0 0 0 rgba(0,0,0,1].87)",
     }
   },
+  highlightDot: {},
   // Makes sure that the start of the ToC is in line with the start of the text
   title: {
     paddingTop: 3
@@ -94,7 +95,7 @@ const styles = theme => ({
 class TableOfContentsRow extends PureComponent
 {
   render() {
-    const {indentLevel=0, highlighted=false, href, onClick, children, classes, title, divider } = this.props;
+    const {indentLevel=0, highlighted=false, href, onClick, children, classes, title, divider, answer } = this.props;
 
     if (divider) return <div className={classes.divider} />
 
@@ -105,7 +106,7 @@ class TableOfContentsRow extends PureComponent
         { [classes.highlighted]: highlighted }
       )}
     >
-      <a href={href} onClick={onClick} className={classNames(classes.link, {[classes.title]: title})}>
+      <a href={href} onClick={onClick} className={classNames(classes.link, {[classes.title]: title, [classes.highlightDot]: !answer})}>
         {children}
       </a>
     </Typography>
