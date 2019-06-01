@@ -15,6 +15,6 @@ Conversations.getTitle = (conversation, currentUser) => {
 
 Conversations.getPageUrl = (conversation, isAbsolute=false) => {
   const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
-  
-  return `${prefix}/inbox?select=${conversation._id}`;
+
+  return `${prefix}/inbox/${conversation._id}`;
 }
