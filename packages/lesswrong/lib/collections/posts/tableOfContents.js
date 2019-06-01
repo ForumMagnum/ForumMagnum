@@ -95,7 +95,11 @@ export function extractTableOfContents(postHTML)
   if (headings.length) {
     headings.push({divider:true, level: 0, anchor: "postHeadingsDivider"})
   }
-  return headings
+  return {
+    html: postBody.html(),
+    sections: headings,
+    headingsCount: headings.length
+  }
 }
 
 const reservedAnchorNames = ["top", "comments"];
@@ -201,8 +205,8 @@ async function getTocComments (document) {
 
 const getTableOfContentsData = async (document, args, options) => {
   const { html } = document.contents || {}
-  let tocSections = extractTableOfContents(html) || []
-
+  const tableOfContents = extractTableOfContents(html) || []
+  let tocSections = tableOfContents.headings
   const tocAnswers = await getTocAnswers(document)
   const tocComments = await getTocComments(document)
 
@@ -211,7 +215,7 @@ const getTableOfContentsData = async (document, args, options) => {
   
   if (tocSections.length >= MIN_HEADINGS_FOR_TOC) {
     return {
-      html: html,
+      html: tableOfContents.html,
       sections: tocSections,
       headingsCount: tocSections.length
     }
