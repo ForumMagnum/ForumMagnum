@@ -164,6 +164,7 @@ class UsersProfile extends Component {
     if (slug !== document.slug) {
       const canonicalUrl = Users.getProfileUrlFromSlug(document.slug);
       router.replace(canonicalUrl);
+      return null;
     }
 
     const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton } = Components
