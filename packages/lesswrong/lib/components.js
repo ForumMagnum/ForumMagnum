@@ -46,6 +46,7 @@ import '../components/common/NavigationMenu.jsx';
 import '../components/common/HeadTags.jsx';
 import '../components/common/Home.jsx';
 import '../components/common/Home2.jsx';
+import '../components/common/HomeEA.jsx';
 import '../components/common/HomeLatestPosts';
 import '../components/common/RecommendedReading.jsx';
 import '../components/common/Meta.jsx';
@@ -69,6 +70,7 @@ import '../components/common/ContentItemBody.jsx';
 import '../components/common/Footer.jsx';
 import '../components/common/LoadMore.jsx';
 import '../components/common/ReCaptcha.jsx';
+import '../components/common/LinkCard.jsx';
 
 
 // Outgoing RSS Feed builder
@@ -94,6 +96,7 @@ import '../components/users/AccountsResetPassword.jsx';
 import '../components/users/EmailTokenPage.jsx';
 import '../components/users/EmailTokenResult.jsx';
 import '../components/users/UserNameDeleted.jsx';
+import '../components/users/WrappedLoginForm.jsx';
 
 import '../components/icons/OmegaIcon.jsx';
 
