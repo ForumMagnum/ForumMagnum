@@ -79,11 +79,12 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
   if (currentUser && !Comments.options.mutations.new.check(currentUser, prefilledProps)) {
     return <FormattedMessage id="users.cannot_comment"/>;
   }
-  console.log('currentUser', currentUser)
-  
+
+  const commentWillBeHidden = getSetting('hideUnreviewedAuthorComments') && currentUser && !currentUser.isReviewed
+
   return (
     <div className={classes.root}>
-      {currentUser && !currentUser.isReviewed && <div className={classes.modNote}><em>
+      {commentWillBeHidden && <div className={classes.modNote}><em>
         A moderator will need to review your account before your comments will show up.
       </em></div>}
 

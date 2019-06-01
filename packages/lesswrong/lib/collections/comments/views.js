@@ -9,15 +9,19 @@ import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionU
 Comments.addDefaultView(terms => {
   const validFields = _.pick(terms, 'userId', 'authorIsUnreviewed');
   const alignmentForum = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
+  let hideUnreviewedAuthorComments = {}
+  if (getSetting('hideUnreviewedAuthorComments')) {
+    // allow for null so that comments that haven't had the default value set
+    // yet (ie: those created by the frontend immediately prior appear
+    hideUnreviewedAuthorComments = {authorIsUnreviewed: {$ne: true}}
+  }
   return ({
     selector: {
       $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: false}],
-      // allow for null so that comments that haven't had the default value set
-      // yet (ie: those created by the frontend immediately prior appear
-      authorIsUnreviewed: {$ne: true},
       hideAuthor: terms.userId ? false : undefined,
       ...validFields,
       ...alignmentForum,
+      ...hideUnreviewedAuthorComments,
     },
     options: {
       sort: {postedAt: -1},

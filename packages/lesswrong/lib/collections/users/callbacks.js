@@ -47,8 +47,7 @@ addCallback("users.edit.sync", maybeSendVerificationEmail);
 
 addEditableCallbacks({collection: Users, options: makeEditableOptionsModeration})
 
-// TODO; rename?
-function approveUnreviewedPosts (newUser, oldUser)
+function approveUnreviewedSubmissions (newUser, oldUser)
 {
   if(newUser.reviewedByUserId && !oldUser.reviewedByUserId)
   {
@@ -56,7 +55,7 @@ function approveUnreviewedPosts (newUser, oldUser)
     Comments.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false, postedAt: new Date()}})
   }
 }
-addCallback("users.edit.async", approveUnreviewedPosts);
+addCallback("users.edit.async", approveUnreviewedSubmissions);
 
 // When the very first user account is being created, add them to Sunshine
 // Regiment. Patterned after a similar callback in
