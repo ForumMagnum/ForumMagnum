@@ -59,17 +59,23 @@ Utils.manualClickNavigation = (event, url, navigate) => {
 }
 
 // LESSWRONG version of getting unused slug. Modified to also include "oldSlugs" array
-Utils.getUnusedSlug = function (collection, slug) {
+Utils.getUnusedSlug = function (collection, slug, useOldSlugs = false) {
   let suffix = '';
   let index = 0;
+  const query = useOldSlugs ? {$or: [{slug: slug+suffix},{oldSlugs: slug+suffix}]} : {slug: slug+suffix}
 
   // test if slug is already in use
-  while (!!collection.findOne({$or: [{slug: slug+suffix},{oldSlugs: slug+suffix}]})) {
+  while (!!collection.findOne(query)) {
     index++
     suffix = '-'+index;
   }
 
   return slug+suffix;
+};
+
+// LESSWRONG version of getting unused slug by collection name. Modified to also include "oldSlugs" array
+Utils.getUnusedSlugByCollectionName = function (collectionName, slug, useOldSlugs = false) {
+  return Utils.getUnusedSlug(getCollection(collectionName), slug, useOldSlugs)
 };
 
 Utils.slugIsUsed = async (collectionName, slug) => {
