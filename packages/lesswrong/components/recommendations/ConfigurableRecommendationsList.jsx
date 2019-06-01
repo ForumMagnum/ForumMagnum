@@ -6,7 +6,8 @@ import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import deepmerge from 'deepmerge';
 import Users from 'meteor/vulcan:users';
-import { defaultAlgorithmSettings, slotSpecificRecommendationSettingDefaults, getRecommendationSettings } from '../../lib/collections/users/recommendationSettings.js';
+
+import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 
 const styles = theme => ({
   gearIcon: {

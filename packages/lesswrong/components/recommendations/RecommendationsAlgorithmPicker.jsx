@@ -31,7 +31,7 @@ export function getRecommendationSettings({settings, currentUser, configName})
    return settings;
 
   if (currentUser && currentUser.recommendationSettings && configName in currentUser.recommendationSettings) {
-    return deepmerge(this.getDefaultSettings(), currentUser.recommendationSettings[configName]||{});
+    return deepmerge(getDefaultSettings(), currentUser.recommendationSettings[configName]||{});
   } else {
     return getDefaultSettings(configName);
   }
