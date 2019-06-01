@@ -51,7 +51,7 @@ class RecommendationsAndCurated extends PureComponent {
   render() {
     const { currentUser, configName, classes } = this.props;
     const { SingleColumnSection, SectionTitle, RecommendationsAlgorithmPicker,
-      RecommendationsList, PostsList2, SubscribeWidget, SectionButton } = Components;
+      RecommendationsList, PostsList2, SubscribeWidget } = Components;
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
     
     const curatedTooltip = <div>

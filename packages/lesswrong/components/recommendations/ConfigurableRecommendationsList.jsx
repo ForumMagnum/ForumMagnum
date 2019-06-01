@@ -4,7 +4,6 @@ import NoSSR from 'react-no-ssr';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
-import deepmerge from 'deepmerge';
 import Users from 'meteor/vulcan:users';
 
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'

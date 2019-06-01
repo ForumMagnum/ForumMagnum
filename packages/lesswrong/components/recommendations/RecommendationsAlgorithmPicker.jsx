@@ -37,8 +37,8 @@ export function getRecommendationSettings({settings, currentUser, configName})
   }
 }
 
-const RecommendationsAlgorithmPicker = ({ currentUser, settings, onChange }) => {
-  function applyChange(newSetings) {
+const RecommendationsAlgorithmPicker = ({ currentUser, settings, configName, updateUser, onChange }) => {
+  function applyChange(newSettings) {
     if (currentUser) {
       const mergedSettings = {
         ...currentUser.recommendationSettings,
@@ -57,7 +57,7 @@ const RecommendationsAlgorithmPicker = ({ currentUser, settings, onChange }) => 
   return <div>
     <div>{"Algorithm "}
       <select
-        onChange={(ev) => onChange({ ...settings, method: ev.target.value })}
+        onChange={(ev) => applyChange({ ...settings, method: ev.target.value })}
         value={settings.method}
       >
         {recommendationAlgorithms.map(method =>
@@ -70,46 +70,46 @@ const RecommendationsAlgorithmPicker = ({ currentUser, settings, onChange }) => 
     <div>{"Count "}
       <Input type="number"
         value={settings.count}
-        onChange={(ev) => onChange({ ...settings, count: ev.target.value })}
+        onChange={(ev) => applyChange({ ...settings, count: ev.target.value })}
       />
     </div>
     <div>
       {"Weight: (score - "}
       <Input type="number"
         value={settings.scoreOffset}
-        onChange={(ev) => onChange({ ...settings, scoreOffset: ev.target.value })}
+        onChange={(ev) => applyChange({ ...settings, scoreOffset: ev.target.value })}
       />
       {") ^ "}
       <Input type="number"
         value={settings.scoreExponent}
-        onChange={(ev) => onChange({ ...settings, scoreExponent: ev.target.value })}
+        onChange={(ev) => applyChange({ ...settings, scoreExponent: ev.target.value })}
       />
     </div>
     <div>
       {"Personal blogpost modifier "}
       <Input type="number"
         value={settings.personalBlogpostModifier}
-        onChange={(ev) => onChange({ ...settings, personalBlogpostModifier: ev.target.value })}
+        onChange={(ev) => applyChange({ ...settings, personalBlogpostModifier: ev.target.value })}
       />
     </div>
     <div>
       {"Frontpage modifier "}
       <Input type="number"
         value={settings.frontpageModifier}
-        onChange={(ev) => onChange({ ...settings, frontpageModifier: ev.target.value })}
+        onChange={(ev) => applyChange({ ...settings, frontpageModifier: ev.target.value })}
       />
     </div>
     <div>
       {"Curated modifier "}
       <Input type="number"
         value={settings.curatedModifier}
-        onChange={(ev) => onChange({ ...settings, curatedModifier: ev.target.value })}
+        onChange={(ev) => applyChange({ ...settings, curatedModifier: ev.target.value })}
       />
     </div>
     <div>
       <Checkbox
         checked={settings.onlyUnread}
-        onChange={(ev, checked) => onChange({ ...settings, onlyUnread: checked })}
+        onChange={(ev, checked) => applyChange({ ...settings, onlyUnread: checked })}
       /> Only unread
     </div>
   </div>;
