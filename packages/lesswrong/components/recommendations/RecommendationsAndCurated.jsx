@@ -7,6 +7,7 @@ import Users from 'meteor/vulcan:users';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import Tooltip from '@material-ui/core/Tooltip';
+import classNames from 'classnames';
 
 const styles = theme => ({
   gearIcon: {
@@ -14,9 +15,18 @@ const styles = theme => ({
     color: theme.palette.grey[400],
     marginRight: theme.spacing.unit,
   },
-  subtitle: {
+  topUnread: {
+    marginTop: theme.spacing.unit,
+  },
+  curated: {
     marginTop: theme.spacing.unit*2,
-    marginBottom: theme.spacing.unit,
+  },
+  subtitle: {
+    display: "block",
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[700],
+    marginBottom: theme.spacing.unit/2,
   }
 });
 
@@ -65,20 +75,21 @@ class RecommendationsAndCurated extends PureComponent {
           settings={settings}
           onChange={(newSettings) => this.changeSettings(newSettings)}
         /> }
-      <SectionButton className={classes.subtitle}>
-        <Tooltip placement="top-start" title={allTimeTooltip}>
-          <Link to={"/recommendations"}>Top Unread Posts</Link>
-        </Tooltip>
-      </SectionButton>
+      <Tooltip placement="top-start" title={allTimeTooltip}>
+        <Link className={classNames(classes.subtitle, classes.topUnread)} to={"/recommendations"}>
+          Top Unread Posts
+        </Link>
+      </Tooltip>
       <RecommendationsList
         algorithm={settings}
       />
-      <SectionButton className={classes.subtitle}>
-        <Tooltip placement="top-start" title={curatedTooltip}>
-          <Link to={"/allPosts?filter=curated&view=new"}>Recently Curated</Link>
-        </Tooltip>
-      </SectionButton>
+      <Tooltip placement="top-start" title={curatedTooltip}>
+        <Link className={classNames(classes.subtitle, classes.curated)} to={"/allPosts?filter=curated&view=new"}>
+          Recently Curated
+        </Link>
+      </Tooltip>
       <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false}>
+        <Link to={"/allPosts?filter=curated&view=new"}>View All Curated Posts</Link>
         <SubscribeWidget view={"curated"} />
       </PostsList2>
     </SingleColumnSection>
