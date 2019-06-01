@@ -56,16 +56,43 @@ class HomeLatestPosts extends PureComponent {
       </div>
     )
 
+    const personalBlogpostTooltip = <div>
+      <div>
+        By default, the home page only displays Frontpage Posts, which meet criteria including:
+      </div>
+      <ul>
+        <li>Usefulness, novelty and relevance</li>
+        <li>Timeless content (minimize reference to current events</li>
+        <li>Explain, rather than persuade</li>
+      </ul>
+      <div>
+        Members can write about whatever they want on their personal blog. Personal blogposts are a good fit for:
+      </div>
+      <ul>
+        <li>Niche topics, less relevant to most members</li>
+        <li>Meta-discussion of LessWrong (site features, interpersonal community dynamics)</li>
+        <li>Topics that are difficult to discuss rationally</li>
+        <li>Personal ramblings</li>
+      </ul>
+      <div>
+        All posts are submitted as personal blogposts. Moderators manually move some to frontpage
+      </div>
+    </div>
+
     return (
       <SingleColumnSection>
         <SectionTitle title={<Tooltip title={latestTitle} placement="left-start"><span>Latest Posts</span></Tooltip>}/>
         <PostsList2 terms={recentPostsTerms}>
           <Link to={"/allPosts"}>View All Posts</Link>
-          <SectionFooterCheckbox 
-            onClick={this.toggleFilter} 
-            value={!(currentFilter === "frontpage")} 
-            label={"Include Personal Posts"} 
-            />
+          <Tooltip title={personalBlogpostTooltip}>
+            <div>
+              <SectionFooterCheckbox 
+                onClick={this.toggleFilter} 
+                value={!(currentFilter === "frontpage")} 
+                label={"Include Personal Blogposts"} 
+                />
+            </div>
+          </Tooltip>
         </PostsList2>
       </SingleColumnSection>
     )

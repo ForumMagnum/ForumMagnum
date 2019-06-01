@@ -201,7 +201,7 @@ const TabNavigationMenu = ({
               </span>
           </Link>
         </Tooltip>}
-        { getSetting('forumType') !== 'AlignmentForum' && <span>
+        { getSetting('forumType') !== 'AlignmentForum' && <React.Fragment>
           <Tooltip placement="right-start" title={<div>
               <p>
                 LessWrong was founded by Eliezer Yudkowsky. For two years he wrote a blogpost a day about topics including rationality, science, ambition and artificial intelligence.
@@ -237,24 +237,28 @@ const TabNavigationMenu = ({
               </TabNavigationSubItem>
             </Link>
           </Tooltip>
-        </span> }
+        </React.Fragment> }
         
         
+        { getSetting('hasEvents', true) && getSetting('forumType') !== 'AlignmentForum' && <React.Fragment>
+          <Tooltip
+            placement="right"
+            title={<div>Find a meetup near you.</div>}
+          >
+            <Link to="/community" className={classNames(classes.navButton, {[classes.selected]: pathname === "/community"})}>
+              <span className={classes.icon}>
+                { communityGlobeIcon }
+              </span>
+              <span className={classes.navText}>
+                Community<span className={classes.hideOnMobile}> Events</span>
+              </span>
+            </Link>
+          </Tooltip>
 
-        { getSetting('forumType') !== 'AlignmentForum' && <Tooltip placement="right" title={<div>Find a meetup near you.</div>}>
-          <Link to="/community" className={classNames(classes.navButton, {[classes.selected]: pathname === "/community"})}>
-            <span className={classes.icon}>
-              { communityGlobeIcon }
-            </span>
-            <span className={classes.navText}>
-              Community<span className={classes.hideOnMobile}> Events</span>
-            </span>
-          </Link>
-        </Tooltip>}
-
-        <span className={classes.hideOnMobile}>
-          <TabNavigationEventsList terms={eventsListTerms} />
-        </span>
+          <span className={classes.hideOnMobile}>
+            <TabNavigationEventsList terms={eventsListTerms} />
+          </span>
+        </React.Fragment>}
 
         <Tooltip placement="right" title="See all posts, filtered and sorted however you like.">
           <Link to="/allPosts" className={classNames(classes.navButton, {[classes.selected]: pathname === "/allPosts"})}>

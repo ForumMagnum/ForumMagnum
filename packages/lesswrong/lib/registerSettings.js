@@ -2,6 +2,8 @@ import {registerSetting} from 'meteor/vulcan:core'
 
 registerSetting('forumType', 'LessWrong', 'What type of Forum is being run, {LessWrong, AlignmentForum, EAForum}')
 
+registerSetting('hasEvents', true, 'Does this version have local events')
+
 // HeadTags
 registerSetting('logoUrl', null, 'Absolute URL for the logo image');
 registerSetting('title', 'My App', 'App title');
@@ -58,3 +60,4 @@ registerSetting('akismet.url', null, 'Akismet url as entered into their site')
 // Spam strictness settings
 registerSetting('requireReCaptcha', false, 'Users must come with recaptcha scores to be reviewed')
 registerSetting('hideUnreviewedAuthorComments', false, 'Hide comments by unreviewed authors (prevents spam, but delays new user engagement)')
+

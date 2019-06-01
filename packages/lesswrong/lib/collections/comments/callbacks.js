@@ -37,16 +37,8 @@ const getLessWrongAccount = async () => {
 
 function CommentsNewOperations (comment) {
 
-  var userId = comment.userId;
-
-  // increment comment count
-  Users.update({_id: userId}, {
-    $inc:       {'commentCount': 1}
-  });
-
   // update post
   Posts.update(comment.postId, {
-    $inc:       {commentCount: 1},
     $set:       {lastCommentedAt: new Date()},
   });
 
@@ -75,12 +67,7 @@ addCallback('comments.new.async', UpvoteAsyncCallbacksAfterDocumentInsert);
 //////////////////////////////////////////////////////
 
 function CommentsRemovePostCommenters (comment, currentUser) {
-  const { userId, postId } = comment;
-
-  // dec user's comment count
-  Users.update({_id: userId}, {
-    $inc: {'commentCount': -1}
-  });
+  const { postId } = comment;
 
   const postComments = Comments.find({postId}, {sort: {postedAt: -1}}).fetch();
 
@@ -88,7 +75,6 @@ function CommentsRemovePostCommenters (comment, currentUser) {
 
   // update post with a decremented comment count, and corresponding last commented at date
   Posts.update(postId, {
-    $inc: {commentCount: -1},
     $set: {lastCommentedAt},
   });
 
@@ -183,7 +169,6 @@ function ModerateCommentsPostUpdate (comment, oldComment) {
     documentId: comment.postId,
     set: {
       lastCommentedAt:new Date(lastCommentedAt),
-      commentCount:comments.length
     },
     unset: {},
     validate: false,

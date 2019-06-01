@@ -23,7 +23,7 @@ export const truncate = (html, truncateLength) => {
   return truncatise(html, {
     TruncateLength: Math.floor(truncateLength - (truncateLength/4)) || truncateLength,
     TruncateBy: "characters",
-    Suffix: '...',
+    Suffix: `...`,
   });
 }
 
@@ -61,6 +61,24 @@ export const getTruncationCharCount = (comment, currentUser, postPage) => {
   }
 }
 
+export const answerTocExcerptFromHTML = (html) => {
+  if(!html) return ""
+  const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
+  const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
+
+  const firstParagraph = truncatise(htmlRemovedStyles, {
+    TruncateLength: 1,
+    TruncateBy: "paragraph",
+    Suffix: '',
+  });
+
+  return truncatise(firstParagraph, {
+    TruncateLength: 70,
+    TruncateBy: "characters",
+    Suffix: `...${styles}`,
+  });
+};
+
 export const commentExcerptFromHTML = (comment, currentUser, postPage) => {
   const { html } = comment.contents
   if(!html) return ""
@@ -75,7 +93,7 @@ export const commentExcerptFromHTML = (comment, currentUser, postPage) => {
     // This varies by the size of the comment or truncation amount, and reducing it by 1/4th seems about right.
     TruncateLength: Math.floor(truncationCharCount - (truncationCharCount/4)),
     TruncateBy: "characters",
-    Suffix: `... <span class="read-more"><a class="read-more-default">(Read more)</a><a class="read-more-tooltip">(Click to expand thread)</a><span class="read-more-f-tooltip">Cmd/Ctrl F to expand all comments on this post</span></span>${styles}`,
+    Suffix: `... <span class="read-more"><a class="read-more-default">(Read more)</a><a class="read-more-tooltip">(Click to expand thread. ⌘F to Expand All)</a><span class="read-more-f-tooltip">Cmd/Ctrl F to expand all comments on this post</span></span>${styles}`,
   });
 };
 
