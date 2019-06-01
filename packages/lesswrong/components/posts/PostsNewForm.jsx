@@ -15,8 +15,8 @@ const styles = theme => ({
   }
 })
 
-const PostsNewForm = ({history, currentUser, flash, classes, location}) => {
-  const { PostSubmit, WrappedSmartForm, AccountsLoginForm, SubmitToFrontpageCheckbox } = Components
+const PostsNewForm = ({router, currentUser, flash, classes}) => {
+  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox } = Components
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = getSetting('forumType') === 'AlignmentForum'
@@ -34,7 +34,7 @@ const PostsNewForm = ({history, currentUser, flash, classes, location}) => {
   const eventForm = query && query.eventForm
 
   if (!Posts.options.mutations.new.check(currentUser)) {
-    return (<AccountsLoginForm />);
+    return (<WrappedLoginForm />);
   }
   const NewPostsSubmit = (props) => {
     return <div className={classes.formSubmit}>

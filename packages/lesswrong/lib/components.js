@@ -70,7 +70,7 @@ import '../components/common/Footer.jsx';
 import '../components/common/LoadMore.jsx';
 import '../components/common/ReCaptcha.jsx';
 import '../components/common/DefaultStyleFormGroup.jsx'
-
+import '../components/common/LinkCard.jsx';
 
 // Outgoing RSS Feed builder
 import '../components/common/SubscribeWidget.jsx';
@@ -95,6 +95,7 @@ import '../components/users/AccountsResetPassword.jsx';
 import '../components/users/EmailTokenPage.jsx';
 import '../components/users/EmailTokenResult.jsx';
 import '../components/users/UserNameDeleted.jsx';
+import '../components/users/WrappedLoginForm.jsx';
 
 import '../components/icons/OmegaIcon.jsx';
 
