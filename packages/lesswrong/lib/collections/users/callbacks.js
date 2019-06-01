@@ -117,5 +117,20 @@ async function addReCaptchaRating (user) {
     }
   }
 }
-
 addCallback('users.new.async', addReCaptchaRating);
+
+async function subscribeOnSignup (user) {
+  // If the subscribed-to-curated checkbox was checked, set the corresponding config setting
+  const subscribeToCurated = user.profile?.subscribeToCurated;
+  if (subscribeToCurated) {
+    Users.update(user._id, {$set: {emailSubscribedToCurated: true}});
+  }
+  
+  // Regardless of the config setting, try to confirm the user's email address
+  // (But not in unit-test contexts, where this function is unavailable and sending
+  // emails doesn't make sense.)
+  if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {
+    Accounts.sendVerificationEmail(user._id);
+  }
+}
+addCallback('users.new.async', subscribeOnSignup);
