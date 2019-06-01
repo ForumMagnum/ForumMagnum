@@ -216,8 +216,10 @@ class FormComponent extends Component {
   
   */
   clearField = event => {
-    event.preventDefault();
-    event.stopPropagation();
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
     this.props.updateCurrentValues({ [this.props.path]: null });
     if (this.showCharsRemaining()) {
       this.updateCharacterCount(null);

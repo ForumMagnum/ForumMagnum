@@ -36,6 +36,9 @@ export class AccountsForm extends PureComponent {
         <Components.AccountsPasswordOrService oauthServices={ oauthServices } />
         <Components.AccountsSocialButtons oauthServices={ oauthServices } />
         <Components.AccountsFormMessages messages={messages} />
+        <div className="reCaptcha-text">
+            This site is protected by reCAPTCHA and the Google <a href="https://policies.google.com/privacy">Privacy Policy</a> and <a href="https://policies.google.com/terms">Terms of Service</a> apply.
+        </div>
       </form>
     );
   }

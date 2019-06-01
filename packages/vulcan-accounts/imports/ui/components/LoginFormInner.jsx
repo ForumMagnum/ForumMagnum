@@ -839,7 +839,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
     // set the signup locale
     options.locale = this.context.intl.locale;
 
-    const SignUp = function(_options) {
+    const SignUp = (_options) => {
       Accounts.createUser(_options, (error) => {
         if (error) {
           // eslint-disable-next-line no-console
@@ -870,12 +870,13 @@ export class AccountsLoginFormInner extends TrackerComponent {
       this.setState({ waiting: true });
       // Allow for Promises to return.
       let promise = this.state.onPreSignUpHook(options);
+      // LESSWRONG: allow preSignUpHook to return value that replaces options
       if (promise instanceof Promise) {
-        promise.then(SignUp.bind(this, options));
+        promise.then((value) => {SignUp(value || options)});
       }
       else {
         // eslint-disable-next-line babel/new-cap
-        SignUp(options);
+        SignUp(promise || options);
       }
     }
   }
