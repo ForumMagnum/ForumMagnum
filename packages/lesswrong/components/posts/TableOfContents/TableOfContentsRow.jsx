@@ -82,29 +82,27 @@ const styles = theme => ({
     color:theme.palette.grey[700],
     paddingLeft: 48,
   },
-  answers: {
-    marginTop:theme.spacing.unit,
-    '& $link': {
-      display:"inline-block",
-      borderTop: "solid 1px rgba(0,0,0,.1)",
-      paddingTop: theme.spacing.unit*1.5,
-    }
+  divider: {
+    width: 60,
+    marginBottom:theme.spacing.unit,
+    borderBottom: "solid 1px rgba(0,0,0,.1)",
+    paddingBottom: theme.spacing.unit,
+    display:"inline-block",
   }
 });
 
 class TableOfContentsRow extends PureComponent
 {
   render() {
-    const {indentLevel=0, highlighted=false, href, onClick, children, classes, answersStyling, title } = this.props;
+    const {indentLevel=0, highlighted=false, href, onClick, children, classes, title, divider } = this.props;
+
+    if (divider) return <div className={classes.divider} />
 
     return <Typography variant="body2"
       className={classNames(
         classes.root,
         this.levelToClassName(indentLevel),
-        {
-          [classes.answers]: href==="#answers" && answersStyling,
-          [classes.highlighted]: highlighted
-        }
+        { [classes.highlighted]: highlighted }
       )}
     >
       <a href={href} onClick={onClick} className={classNames(classes.link, {[classes.title]: title})}>

@@ -5,11 +5,11 @@ import withUser from '../common/withUser';
 const Meta = ({location, currentUser}) => {
   const query = location ? location.query : {};
   const recentPostsTerms = { view: 'magic', limit: 10, ...query, meta: true, forum: true }
-  const { SingleColumnSection, SectionTitle, PostsList } = Components
+  const { SingleColumnSection, SectionTitle, PostsList2 } = Components
   return (
     <SingleColumnSection>
       <SectionTitle title="Recent Meta Posts" />
-      <PostsList terms={recentPostsTerms} />
+      <PostsList2 terms={recentPostsTerms} />
     </SingleColumnSection>
   )
 };
