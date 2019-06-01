@@ -192,7 +192,7 @@ const styles = (theme) => ({
     }
   },
   nextUnreadIn: {
-    color: grey[800],
+    color: theme.palette.grey[800],
     
     [theme.breakpoints.up('md')]: {
       position: "absolute",
