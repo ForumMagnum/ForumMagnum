@@ -206,7 +206,7 @@ async function getTocComments (document) {
 const getTableOfContentsData = async (document, args, options) => {
   const { html } = document.contents || {}
   const tableOfContents = extractTableOfContents(html)
-  let tocSections = tableOfContents.sections || []
+  let tocSections = tableOfContents?.sections || []
   const tocAnswers = await getTocAnswers(document)
   const tocComments = await getTocComments(document)
 
