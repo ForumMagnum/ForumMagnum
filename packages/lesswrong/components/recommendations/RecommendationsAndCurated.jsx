@@ -72,6 +72,7 @@ class RecommendationsAndCurated extends PureComponent {
 
       { this.state.settingsVisible &&
         <RecommendationsAlgorithmPicker
+          configName={"frontpage"}
           settings={settings}
           onChange={(newSettings) => this.changeSettings(newSettings)}
         /> }

@@ -1,9 +1,11 @@
 import React from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent, withUpdate } from 'meteor/vulcan:core';
 import Input from '@material-ui/core/Input';
 import Checkbox from '@material-ui/core/Checkbox';
 import deepmerge from 'deepmerge';
+import withUser from '../common/withUser';
 import { slotSpecificRecommendationSettingDefaults, defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings.js';
+import Users from 'meteor/vulcan:users';
 
 // Elements here should match switch cases in recommendations.js
 const recommendationAlgorithms = [
@@ -115,4 +117,10 @@ const RecommendationsAlgorithmPicker = ({ currentUser, settings, configName, upd
   </div>;
 }
 
-registerComponent("RecommendationsAlgorithmPicker", RecommendationsAlgorithmPicker);
+registerComponent("RecommendationsAlgorithmPicker", RecommendationsAlgorithmPicker,
+  withUser,
+  [withUpdate, {
+    collection: Users,
+    fragmentName: "UsersCurrent",
+  }]
+);

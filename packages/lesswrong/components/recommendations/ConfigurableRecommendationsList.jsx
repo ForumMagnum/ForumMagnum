@@ -1,10 +1,9 @@
 import React, { PureComponent } from 'react';
-import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import NoSSR from 'react-no-ssr';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
-import Users from 'meteor/vulcan:users';
 
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 
@@ -46,6 +45,7 @@ class ConfigurableRecommendationsList extends PureComponent {
       </SectionTitle>
       { this.state.settingsVisible &&
         <RecommendationsAlgorithmPicker
+          configName={configName}
           settings={settings}
           onChange={(newSettings) => this.changeSettings(newSettings)}
         /> }
@@ -59,8 +59,4 @@ class ConfigurableRecommendationsList extends PureComponent {
 }
 
 registerComponent("ConfigurableRecommendationsList", ConfigurableRecommendationsList,
-  [withUpdate, {
-    collection: Users,
-    fragmentName: "UsersCurrent",
-  }],
   withUser, withStyles(styles, {name: "ConfigurableRecommendationsList"}));
