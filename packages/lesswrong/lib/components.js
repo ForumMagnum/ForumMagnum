@@ -70,6 +70,7 @@ import '../components/common/ContentItemBody.jsx';
 import '../components/common/Footer.jsx';
 import '../components/common/LoadMore.jsx';
 import '../components/common/ReCaptcha.jsx';
+import '../components/common/LinkCard.jsx';
 
 
 // Outgoing RSS Feed builder
