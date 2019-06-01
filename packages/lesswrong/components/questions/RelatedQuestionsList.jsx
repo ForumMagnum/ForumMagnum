@@ -94,7 +94,9 @@ const RelatedQuestionsList = ({ post, currentUser, classes }) => {
               index={i}
               showQuestionTag={false}
               showPostedAt={false}
+              showIcons={false}
               showBottomBorder={!showSubQuestions}
+              defaultToShowUnreadComments={true}
             />
             {showSubQuestions && <div className={classes.subSubQuestions}>
               {subQuestionTargetPostRelations.map((rel, i) => <PostsItem2 
@@ -102,7 +104,9 @@ const RelatedQuestionsList = ({ post, currentUser, classes }) => {
                 post={rel.targetPost} 
                 showQuestionTag={false}
                 showPostedAt={false}
+                showIcons={false}
                 currentUser={currentUser} 
+                defaultToShowUnreadComments={true}
                 index={i}
               />)}
             </div>}
