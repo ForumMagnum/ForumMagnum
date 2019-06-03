@@ -317,7 +317,6 @@ registerFragment(`
     # vulcan:users
     _id
     slug
-    oldSlugs
     createdAt
     username
     displayName

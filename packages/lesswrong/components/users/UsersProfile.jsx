@@ -1,4 +1,4 @@
-import { Components, registerComponent, withList, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, withDocument, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link, withRouter } from '../../lib/reactRouterWrapper.js';
@@ -94,10 +94,8 @@ class UsersProfile extends Component {
 
   renderMeta = () => {
     const props = this.props
-    const { classes, results } = props
-    const document = results?.[0]
-    if (!document) return null
-    const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma } = document;
+    const { classes } = props
+    const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma } = props.document;
 
     const userKarma = karma || 0
     const userAfKarma = afKarma || 0
@@ -145,8 +143,7 @@ class UsersProfile extends Component {
   }
 
   render() {
-    const { slug, classes, currentUser, loading, results, router } = this.props;
-    const document = results?.[0]
+    const { slug, classes, currentUser, loading, document, documentId, router } = this.props;
   
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -156,15 +153,8 @@ class UsersProfile extends Component {
     
     if (!document || !document._id || document.deleted) {
       //eslint-disable-next-line no-console
-      console.error(`// missing user (_id/slug: ${slug})`);
+      console.error(`// missing user (_id/slug: ${documentId || slug})`);
       return <Components.Error404/>
-    }
-
-    // Javascript redirect to make sure we are always on the most canonical URL for this user
-    if (slug !== document.slug) {
-      const canonicalUrl = Users.getProfileUrlFromSlug(document.slug);
-      router.replace(canonicalUrl);
-      return null;
     }
 
     const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton } = Components
@@ -268,13 +258,10 @@ class UsersProfile extends Component {
   }
 }
 
-
 const options = {
   collection: Users,
   queryName: 'usersSingleQuery',
   fragmentName: 'UsersProfile',
-  enableTotal: false,
-  ssr: true
 };
 
-registerComponent('UsersProfile', UsersProfile, withUser, [withList, options], withRouter, withStyles(styles, {name: "UsersProfile"}));
+registerComponent('UsersProfile', UsersProfile, withUser, [withDocument, options], withRouter, withStyles(styles, {name: "UsersProfile"}));
