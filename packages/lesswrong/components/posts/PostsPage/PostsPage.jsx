@@ -11,7 +11,6 @@ import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import classNames from 'classnames';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
-import Users from 'meteor/vulcan:users';
 import withRecordPostView from '../../common/withRecordPostView';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
@@ -176,9 +175,9 @@ class PostsPage extends Component {
 
   render() {
     const { loading, document: post, currentUser, location, router, classes, params, data: {refetch} } = this.props
-    const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper,
+    const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, PostsType,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigationWrapper,
-      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent, Section, TableOfContents, PostsRevisionSelector, PostsRevisionMessage, AlignmentCrosspostMessage, ConfigurableRecommendationsList } = Components
+      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent, Section, TableOfContents, PostsRevisionSelector, PostsRevisionMessage, AlignmentCrosspostMessage } = Components
 
     if (loading) {
       return <div><Loading/></div>
@@ -214,6 +213,7 @@ class PostsPage extends Component {
                     <span className={classes.inline}>
                       <PostsAuthors post={post}/>
                     </span>
+                    <PostsType post={post}/>
                     { post.feed && post.feed.user &&
                       <Tooltip title={`Crossposted from ${feedLink}`}>
                         <a href={`http://${feedLink}`} className={classes.feedName}>
@@ -277,10 +277,6 @@ class PostsPage extends Component {
             {sequenceId && <div className={classes.bottomNavigation}>
               <BottomNavigationWrapper documentId={sequenceId} post={post}/>
             </div>}
-            
-            {/* Recommendations */}
-            {currentUser && Users.isAdmin(currentUser) && !post.question && 
-              <ConfigurableRecommendationsList configName="afterpost"/>}
             
             {/* Answers Section */}
             {post.question && <div className={classes.post}>

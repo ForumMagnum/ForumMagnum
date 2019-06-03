@@ -1,7 +1,7 @@
 import Messages from './collections/messages/collection.js';
 import Conversations from './collections/conversations/collection.js';
 import Users from 'meteor/vulcan:users';
-import { Utils } from 'meteor/vulcan:core';
+import { Utils, getCollection } from 'meteor/vulcan:core';
 
 
 /**
@@ -41,19 +41,28 @@ Users.isSubscribedTo = (user, document) => {
     return false;
   }
 };
+// LESSWRONG version of getting unused slug. Modified to also include "oldSlugs" array
+Utils.getUnusedSlug = function (collection, slug, useOldSlugs = false) {
+  let suffix = '';
+  let index = 0;
+  const query = useOldSlugs ? {$or: [{slug: slug+suffix},{oldSlugs: slug+suffix}]} : {slug: slug+suffix}
 
-/**
-* @summary Navigates user to url, if they did not click on any child link. We need
-* this because sometimes we have nested navigation areas, such as SequencesGridItems,
-* in which the whole item navigates you to the sequences page when clicked, but it also
-* has a link to the author's user page inside of the GridItem. To avoid triggering both
-* events we check whether any parent of the clicked element is an a tag.
-* @param {Event} event
-* @param {String} url
-* @param {Function} navigate
-**/
-Utils.manualClickNavigation = (event, url, navigate) => {
-  if (!event.target.closest('a')) { // Checks whether any parent is a tag (polyfilled for IE and Edge)
-    navigate(url)
+  // test if slug is already in use
+  while (!!collection.findOne(query)) {
+    index++
+    suffix = '-'+index;
   }
+
+  return slug+suffix;
+};
+
+// LESSWRONG version of getting unused slug by collection name. Modified to also include "oldSlugs" array
+Utils.getUnusedSlugByCollectionName = function (collectionName, slug, useOldSlugs = false) {
+  return Utils.getUnusedSlug(getCollection(collectionName), slug, useOldSlugs)
+};
+
+Utils.slugIsUsed = async (collectionName, slug) => {
+  const collection = getCollection(collectionName)
+  const existingUserWithSlug = await collection.findOne({$or: [{slug: slug},{oldSlugs: slug}]})
+  return !!existingUserWithSlug
 }
