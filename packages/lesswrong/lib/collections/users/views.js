@@ -20,6 +20,20 @@ ensureIndex(Users, {isAdmin:1});
 ensureIndex(Users, {"services.github.id":1}, {unique:true,sparse:1});
 ensureIndex(Users, {createdAt:-1,_id:-1});
 
+Users.addView('usersProfile', function(terms) {
+  if (terms.userId) {
+    return {
+      selector: {_id:terms.userId}
+    }
+  }
+
+  return {
+    selector: {$or: [{slug: terms.slug}, {oldSlugs: terms.slug}]},
+  }
+});
+
+ensureIndex(Users, {oldSlugs:1});
+
 Users.addView('LWSunshinesList', function(terms) {
   return {
     selector: {groups:'sunshineRegiment'},
