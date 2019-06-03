@@ -35,17 +35,11 @@ const styles = (theme) => ({
 class PostsItemComments extends Component {
 
   render () {
-    const { classes, post, onClick, readStatus  } = this.props
-    const { lastVisitedAt } = post
-
-    const lastCommentedAt = Posts.getLastCommentedAt(post)
+    const { classes, post, onClick, unreadComments } = this.props
 
     let commentCount = Posts.getCommentCount(post)
 
-    const read = lastVisitedAt;
-    const newComments = lastVisitedAt < lastCommentedAt;
-
-    let unreadCommentsClass = (read && newComments && !readStatus) ? classes.unreadComments : classes.noUnreadComments;
+    let unreadCommentsClass = unreadComments ? classes.unreadComments : classes.noUnreadComments;
 
     return (
       <div className={classes.root} onClick={onClick}>

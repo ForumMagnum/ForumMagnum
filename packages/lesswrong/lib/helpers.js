@@ -41,23 +41,6 @@ Users.isSubscribedTo = (user, document) => {
     return false;
   }
 };
-
-/**
-* @summary Navigates user to url, if they did not click on any child link. We need
-* this because sometimes we have nested navigation areas, such as SequencesGridItems,
-* in which the whole item navigates you to the sequences page when clicked, but it also
-* has a link to the author's user page inside of the GridItem. To avoid triggering both
-* events we check whether any parent of the clicked element is an a tag.
-* @param {Event} event
-* @param {String} url
-* @param {Function} navigate
-**/
-Utils.manualClickNavigation = (event, url, navigate) => {
-  if (!event.target.closest('a')) { // Checks whether any parent is a tag (polyfilled for IE and Edge)
-    navigate(url)
-  }
-}
-
 // LESSWRONG version of getting unused slug. Modified to also include "oldSlugs" array
 Utils.getUnusedSlug = function (collection, slug, useOldSlugs = false) {
   let suffix = '';

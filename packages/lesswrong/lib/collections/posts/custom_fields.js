@@ -1,13 +1,10 @@
 import { Posts } from './collection';
-import { getSetting } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
 import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple, resolverOnlyField, denormalizedCountOfReferences } from '../../modules/utils/schemaUtils'
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { Utils } from 'meteor/vulcan:core';
 import GraphQLJSON from 'graphql-type-json';
-import { Comments } from '../comments'
-import { questionAnswersSort } from '../comments/views';
 import { schemaDefaultValue } from '../../collectionUtils';
 //import { getWithCustomLoader } from '../../loaders.js';
 //import keyBy from 'lodash/keyBy';
@@ -795,60 +792,7 @@ addFieldsDict(Posts, {
       fieldName: "tableOfContents",
       type: GraphQLJSON,
       resolver: async (document, args, options) => {
-        const { html } = document.contents || {}
-        let tocData
-        if (document.question) {
-
-          let answersTerms = {
-            answer:true,
-            postId: document._id,
-            deleted:false,
-          }
-          if (getSetting('forumType') === 'AlignmentForum') {
-            answersTerms.af = true
-          }
-
-          const answers = await Comments.find(answersTerms, {sort:questionAnswersSort}).fetch()
-
-          if (answers && answers.length) {
-            tocData = Utils.extractTableOfContents(html, true) || {
-              html: null,
-              headingsCount: 0,
-              sections: []
-            }
-
-            const answerSections = answers.map((answer) => ({
-              title: `${answer.baseScore} ${answer.author}`,
-              answer: answer,
-              anchor: answer._id,
-              level: 2
-            }))
-            tocData = {
-              html: tocData.html,
-              headingsCount: tocData.headingsCount,
-              sections: [
-                ...tocData.sections,
-                {anchor:"answers", level:1, title:"Answers"},
-                ...answerSections
-              ]
-            }
-          }
-        } else {
-          tocData = Utils.extractTableOfContents(html)
-        }
-        if (tocData) {
-          const selector = {
-            answer: false,
-            parentAnswerId: null,
-            postId: document._id
-          }
-          if (document.af && getSetting('forumType') === 'AlignmentForum') {
-            selector.af = true
-          }
-          const commentCount = await Comments.find(selector).count()
-          tocData.sections.push({anchor:"comments", level:0, title:Posts.getCommentCountStr(document, commentCount)})
-        }
-        return tocData;
+        return await Utils.getTableOfContentsData(document);
       },
     },
   },
