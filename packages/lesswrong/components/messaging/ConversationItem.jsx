@@ -26,12 +26,12 @@ const styles = theme => ({
 
 const ConversationItem = ({conversation, classes, currentUser, updateConversation}) => {
   const { PostsItem2MetaInfo, UsersName, FormatDate } = Components
-  const isArchived = conversation?.archivedByIds.includes(currentUser._id)
-  if (!conversation) return null 
+  const isArchived = conversation?.archivedByIds?.includes(currentUser._id)
+  if (!conversation) return null
 
   const archiveIconClick = () => {
-    const newArchivedByIds = isArchived ? 
-      _.without(conversation.archivedByIds, currentUser._id) : 
+    const newArchivedByIds = isArchived ?
+      _.without(conversation.archivedByIds || [] , currentUser._id) :
       [...(conversation.archivedByIds || []), currentUser._id]
 
     updateConversation({
@@ -47,7 +47,7 @@ const ConversationItem = ({conversation, classes, currentUser, updateConversatio
         .filter(user => user._id !== currentUser._id)
         .map(user => <span key={user._id} className={classes.leftMargin}>
           <PostsItem2MetaInfo> <UsersName user={user} /> </PostsItem2MetaInfo>
-        </span>) 
+        </span>)
       }
       {conversation.latestActivity && <span className={classes.leftMargin}><PostsItem2MetaInfo>
         <FormatDate date={conversation.latestActivity} />
