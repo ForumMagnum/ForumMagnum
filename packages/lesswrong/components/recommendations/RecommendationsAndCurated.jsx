@@ -34,28 +34,29 @@ const styles = theme => ({
 });
 
 class RecommendationsAndCurated extends PureComponent {
-  state = {
-    settingsVisible: false,
-    settings: null
-  }
+  // This component will eventually get some settings again, so leaving the infrastructure here
+  // state = {
+  //   settingsVisible: false,
+  //   settings: null
+  // }
   
-  toggleSettings = () => {
-    this.setState({
-      settingsVisible: !this.state.settingsVisible,
-    });
-  }
+  // toggleSettings = () => {
+  //   this.setState({
+  //     settingsVisible: !this.state.settingsVisible,
+  //   });
+  // }
   
-  changeSettings = (newSettings) => {
-    this.setState({
-      settings: newSettings
-    });
-  }
+  // changeSettings = (newSettings) => {
+  //   this.setState({
+  //     settings: newSettings
+  //   });
+  // }
   
   render() {
-    const { currentUser, configName, classes } = this.props;
-    const { SingleColumnSection, SectionTitle, RecommendationsAlgorithmPicker,
+    const { classes } = this.props;
+    const { SingleColumnSection, SectionTitle,
       RecommendationsList, PostsList2, SubscribeWidget } = Components;
-    const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
+    // const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
     
     const curatedTooltip = <div>
       <div>Every few days, LessWrong moderators manually curate posts that are well written and informative.</div>
@@ -67,18 +68,20 @@ class RecommendationsAndCurated extends PureComponent {
       <div><em>(Click to see more recommendations)</em></div>
     </div>
 
-
+    const frontpageRecommendationSettings = {
+      method: "sample",
+      count: 3,
+      scoreOffset: 0,
+      scoreExponent: 3,
+      personalBlogpostModifier: 0,
+      frontpageModifier: 10,
+      curatedModifier: 50,
+      onlyUnread: true,
+    }
     return <SingleColumnSection>
       <SectionTitle title="Recommendations [Beta]">
-        <SettingsIcon className={classes.gearIcon} onClick={this.toggleSettings}/>
+        {/* <SettingsIcon className={classes.gearIcon} onClick={this.toggleSettings}/> */}
       </SectionTitle>
-
-      { this.state.settingsVisible &&
-        <RecommendationsAlgorithmPicker
-          configName={"frontpage"}
-          settings={settings}
-          onChange={(newSettings) => this.changeSettings(newSettings)}
-        /> }
       <Tooltip placement="top-start" title={allTimeTooltip}>
         <Link className={classNames(classes.subtitle, classes.topUnread)} to={"/recommendations"}>
           Top Unread Posts
@@ -86,7 +89,7 @@ class RecommendationsAndCurated extends PureComponent {
       </Tooltip>
       <div className={classes.list}>
         <RecommendationsList
-          algorithm={settings}
+          algorithm={frontpageRecommendationSettings}
         />
       </div>
       <Tooltip placement="top-start" title={curatedTooltip}>
