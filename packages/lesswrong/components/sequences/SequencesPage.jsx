@@ -6,39 +6,39 @@ import {
 } from 'meteor/vulcan:core';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import NoSSR from 'react-no-ssr';
-import { Link } from '../../lib/reactRouterWrapper.js';
 import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import classNames from 'classnames';
 import withUser from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 import { postBodyStyles } from '../../themes/stylePiping'
+import { sectionFooterLeftStyles } from '../users/UsersProfile'
 
-// TODO: Styling overhaul.
+export const sequencesImageScrim = theme => ({
+  position: 'absolute',
+  bottom: 0,
+  height: 150,
+  width: '100%',
+  zIndex: theme.zIndexes.sequencesImageScrim,
+  background: 'linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.2) 42%, rgba(255, 255, 255, 0) 100%)'
+})
 
 const styles = theme => ({
   root: {
     paddingTop: 380,
-    marginRight: 90,
-    
-    [theme.breakpoints.down('sm')]: {
-      marginRight: 0,
-    },
   },
   titleWrapper: {
+    paddingLeft: theme.spacing.unit
   },
   title: {
-    fontVariant: "small-caps",
-    color: "white",
     ...theme.typography.postStyle,
-    
-    [theme.breakpoints.down('sm')]: {
-    },
+    fontVariant: "small-caps",
+    marginTop: 0
   },
   description: {
-    marginTop: -6,
-    marginLeft: 10,
+    marginTop: theme.spacing.unit * 2,
+    marginLeft: theme.spacing.unit,
+    marginBottom: theme.spacing.unit * 2,
     ...postBodyStyles(theme),
   },
   banner: {
@@ -60,14 +60,34 @@ const styles = theme => ({
     backgroundColor: "rgba(0,0,0,0.5)",
   },
   meta: {
-    marginTop: -4,
-    lineHeight: 1.1,
-    color: "rgba(0,0,0,0.5)",
-    
+    ...theme.typography.body2,
+    ...sectionFooterLeftStyles
+  },
+  metaItem: {
+    marginRight: theme.spacing.unit
+  },
+  content: {
+    padding: theme.spacing.unit * 4,
+    position: 'relative',
+    backgroundColor: 'white',
+    marginTop: -200,
+    zIndex: theme.zIndexes.sequencesPageContent,
     [theme.breakpoints.down('sm')]: {
-      textAlign: "center",
+      marginTop: -100,
+    },
+    [theme.breakpoints.down('xs')]: {
+      marginTop: theme.spacing.unit,
+      padding: theme.spacing.unit
     },
   },
+  leftAction: {
+    [theme.breakpoints.down('xs')]: {
+      textAlign: 'left'
+    }
+  },
+  imageScrim: {
+    ...sequencesImageScrim(theme)
+  }
 })
 
 class SequencesPage extends Component {
@@ -86,80 +106,69 @@ class SequencesPage extends Component {
     this.setState({edit: false})
   }
 
-  // Are sequences (as opposed to sequence-posts) a type
-  // of entity that people should be able to comment on?
-  // Maybe, at some point in the future? The current answer
-  // however is "no" (reflected in this function, and the
-  // comments widget being commented out below).
-  commentsEnabled = () => {
-    return false;
-  }
-
   render() {
     const { document, currentUser, loading, classes } = this.props;
-    if (document && document.isDeleted) {
-      return <h3>This sequence has been deleted</h3>
-    } else if (loading || !document) {
-      return <Components.Loading />
-    } else if (this.state.edit) {
-      return <Components.SequencesEditForm
+    const { SequencesEditForm, HeadTags, CloudinaryImage, SingleColumnSection, SectionSubtitle,
+      ChaptersList, ChaptersNewForm, FormatDate, Loading, SectionFooter, UsersName } = Components
+    if (document && document.isDeleted) return <h3>This sequence has been deleted</h3>
+    if (loading || !document) return <Loading />
+    if (this.state.edit) return (
+      <SequencesEditForm
         documentId={document._id}
         successCallback={this.showSequence}
         cancelCallback={this.showSequence} />
-    } else {
-      const canEdit = Users.canDo(currentUser, 'sequences.edit.all') || (Users.canDo(currentUser, 'sequences.edit.own') && Users.owns(currentUser, document))
-      const canCreateChapter = Users.canDo(currentUser, 'chapters.new.all')
-      const { html = "" } = document.contents || {}
+    )
 
-      return (<div className={classes.root}>
-        <Components.HeadTags url={Sequences.getPageUrl(document, true)} title={document.title}/>
-        <div className={classes.banner}>
-          <div className={classes.bannerWrapper}>
-            <NoSSR>
-              <div className="sequences-image">
-                <Components.CloudinaryImage
-                  publicId={document.bannerImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
-                  width="auto"
-                  height="380"
-                />
-                <div className="sequences-image-scrim-overlay"></div>
-              </div>
-            </NoSSR>
-            <div className={classNames(classes.titleWrapper, "sequences-title-wrapper")}>
-              <Typography variant='display2' className={classNames("sequences-title", classes.title)}>
-                {document.draft && <span className="sequences-page-content-header-title-draft">[Draft] </span>}{document.title}
-              </Typography>
+    const canEdit = Users.canDo(currentUser, 'sequences.edit.all') || (Users.canDo(currentUser, 'sequences.edit.own') && Users.owns(currentUser, document))
+    const canCreateChapter = Users.canDo(currentUser, 'chapters.new.all')
+    const { html = "" } = document.contents || {}
+
+    return <div className={classes.root}>
+      <HeadTags url={Sequences.getPageUrl(document, true)} title={document.title}/>
+      <div className={classes.banner}>
+        <div className={classes.bannerWrapper}>
+          <NoSSR>
+            <div>
+              <CloudinaryImage
+                publicId={document.bannerImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
+                width="auto"
+                height="380"
+              />
+              <div className={classes.imageScrim}/>
             </div>
-          </div>
+          </NoSSR>
         </div>
-        <Components.Section titleComponent={
-          <div className={classes.meta}>
-            <Typography variant="subheading"><strong>
-              <Components.FormatDate date={document.createdAt} format="MMM DD, YYYY"/>
-            </strong></Typography>
-            { this.commentsEnabled() && (
-              <div className="sequences-comment-count">
-                {document.commentCount || 0} comments
-              </div>)}
-            {document.userId && <Typography variant="subheading">
-              by <Link to={Users.getProfileUrl(document.user)}>
+      </div>
+      <SingleColumnSection>
+        <div className={classes.content}>
+          <div className={classes.titleWrapper}>
+            <Typography variant='display2' className={classes.title}>
+              {document.draft && <span>[Draft] </span>}{document.title}
+            </Typography>
+          </div>
+          <SectionFooter>
+            <div className={classes.meta}>
+              <span className={classes.metaItem}><FormatDate date={document.createdAt} format="MMM DD, YYYY"/></span>
+              {document.userId && <span className={classes.metaItem}> by <UsersName user={document.user}>
                 {document.user.displayName}
-              </Link>
-            </Typography>}
-            {canEdit && <Components.SectionSubtitle>
-              <a onClick={this.showEdit}>edit</a></Components.SectionSubtitle>}
-          </div>}>
-          <div className={classNames(classes.description, "content-body")}>
-            {html && <div className="content-body" dangerouslySetInnerHTML={{__html: html}}/>}
+              </UsersName></span>}
+            </div>
+            {canEdit && <span className={classes.leftAction}><SectionSubtitle>
+              <a onClick={this.showEdit}>edit</a>
+            </SectionSubtitle></span>}
+          </SectionFooter>
+          
+          <div className={classes.description}>
+            {html && <div dangerouslySetInnerHTML={{__html: html}}/>}
           </div>
-        </Components.Section>
-        <div className="sequences-chapters">
-          <Components.ChaptersList terms={{view: "SequenceChapters", sequenceId: document._id}} canEdit={canEdit} />
-          {canCreateChapter ? <Components.ChaptersNewForm prefilledProps={{sequenceId: document._id}}/> : null}
+          <div>
+            <ChaptersList terms={{view: "SequenceChapters", sequenceId: document._id}} canEdit={canEdit} />
+            {canCreateChapter ? <ChaptersNewForm prefilledProps={{sequenceId: document._id}}/> : null}
+          </div>
         </div>
-      </div>)
+      </SingleColumnSection>
+    </div>
     }
-  }
 }
 
 const options = {

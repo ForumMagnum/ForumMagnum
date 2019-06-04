@@ -276,3 +276,7 @@ Picker.route('/item', (params, req, res, next) => {
 Picker.route('/favicon.ico', (params, req, res, next) => {
   makeRedirect(res, getSetting('faviconUrl'));
 });
+
+Picker.route('/featured', (params, req, res, next) => {
+  makeRedirect(res, '/allPosts?filter=curated&view=new')
+})
