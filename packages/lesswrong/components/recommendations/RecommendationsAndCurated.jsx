@@ -27,6 +27,9 @@ const styles = theme => ({
     ...theme.typography.commentStyle,
     color: theme.palette.grey[700],
     marginBottom: theme.spacing.unit/2,
+  },
+  list: {
+    marginLeft: theme.spacing.unit*2
   }
 });
 
@@ -66,7 +69,7 @@ class RecommendationsAndCurated extends PureComponent {
 
 
     return <SingleColumnSection>
-      <SectionTitle title="Recommendations">
+      <SectionTitle title="Recommendations [Beta]">
         <SettingsIcon className={classes.gearIcon} onClick={this.toggleSettings}/>
       </SectionTitle>
 
@@ -81,18 +84,22 @@ class RecommendationsAndCurated extends PureComponent {
           Top Unread Posts
         </Link>
       </Tooltip>
-      <RecommendationsList
-        algorithm={settings}
-      />
+      <div className={classes.list}>
+        <RecommendationsList
+          algorithm={settings}
+        />
+      </div>
       <Tooltip placement="top-start" title={curatedTooltip}>
         <Link className={classNames(classes.subtitle, classes.curated)} to={"/allPosts?filter=curated&view=new"}>
           Recently Curated
         </Link>
       </Tooltip>
-      <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false}>
-        <Link to={"/allPosts?filter=curated&view=new"}>View All Curated Posts</Link>
-        <SubscribeWidget view={"curated"} />
-      </PostsList2>
+      <div className={classes.list}>
+        <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false}>
+          <Link to={"/allPosts?filter=curated&view=new"}>View All Curated Posts</Link>
+          <SubscribeWidget view={"curated"} />
+        </PostsList2>
+      </div>
     </SingleColumnSection>
   }
 }
