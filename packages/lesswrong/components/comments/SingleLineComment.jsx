@@ -127,6 +127,7 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover}) => {
         {(comment.baseScore > -5) && <span className={classes.truncatedHighlight} dangerouslySetInnerHTML={{__html: singleLineHtml}} />}      </div>
       {displayHoverOver && <span className={classNames(classes.highlight)}>
         <CommentBody truncated comment={comment}/>
+        [Beta]
       </span>}
     </div>
   )
