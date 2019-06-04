@@ -3,10 +3,13 @@ import { Posts } from '../lib/collections/posts';
 import { WeightedList } from './weightedList.js';
 import { accessFilterMultiple } from '../lib/modules/utils/schemaUtils.js';
 
+const MINIMUM_BASE_SCORE = 60
+
 // The set of fields on Posts which are used for deciding which posts to
 // recommend. Fields other than these will be projected out before downloading
 // from the database.
 const scoreRelevantFields = {baseScore:1, curatedDate:1, frontpageDate:1};
+
 
 // Returns part of a mongodb aggregate pipeline, which will join against the
 // LWEvents collection and filter out any posts which have a corresponding
@@ -50,10 +53,10 @@ const recommendablePostFilter = {
   // excluding drafts and deleted posts
   ...Posts.getParameters({}).selector,
   
-  // Only consider recommending posts if they have score>30. This has a big
+  // Only consider recommending posts if they hit the minimum base score. This has a big
   // effect on the size of the recommendable-post set, which needs to not be
   // too big for performance reasons.
-  baseScore: {$gt: 60},
+  baseScore: {$gt: MINIMUM_BASE_SCORE},
   
   // Don't recommend meta posts
   meta: false,
