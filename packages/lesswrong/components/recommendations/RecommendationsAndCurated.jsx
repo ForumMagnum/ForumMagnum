@@ -1,10 +1,10 @@
 import React, { PureComponent } from 'react';
 import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
-import SettingsIcon from '@material-ui/icons/Settings';
+// import SettingsIcon from '@material-ui/icons/Settings';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import Users from 'meteor/vulcan:users';
-import { getRecommendationSettings } from './RecommendationsAlgorithmPicker';
+// import { getRecommendationSettings } from './RecommendationsAlgorithmPicker';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
