@@ -7,6 +7,7 @@ import { withStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../common/withErrorBoundary';
 import withUser from '../common/withUser';
 import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
+import Users from 'meteor/vulcan:users';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -185,11 +186,10 @@ class CommentsNode extends Component {
 
   isSingleLine = () => {
     const { currentUser, comment, condensed, lastCommentId } = this.props 
-    
     const newAndMostRecent = (this.isNewComment() && (!condensed || (lastCommentId === comment._id)))
     const lowKarmaOrCondensed = (comment.baseScore < 10 || condensed) 
     return (
-      currentUser?.isAdmin &&
+      Users.canDo(currentUser, 'beta.all') &&
       this.isTruncated() && 
       !newAndMostRecent && 
       lowKarmaOrCondensed

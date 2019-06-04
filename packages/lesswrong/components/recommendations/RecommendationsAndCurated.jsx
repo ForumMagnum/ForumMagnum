@@ -66,7 +66,7 @@ class RecommendationsAndCurated extends PureComponent {
 
 
     return <SingleColumnSection>
-      <SectionTitle title="Recommendations">
+      <SectionTitle title="Recommendations [Beta]">
         <SettingsIcon className={classes.gearIcon} onClick={this.toggleSettings}/>
       </SectionTitle>
 
