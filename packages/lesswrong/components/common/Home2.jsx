@@ -32,12 +32,12 @@ class Home2 extends PureComponent {
         <Components.HeadTags image={getSetting('siteImage')} />
         <TabNavigationMenu />
   
-        {!currentUser && <SingleColumnSection>
+        {!currentUser?.beta && <SingleColumnSection>
           <SectionTitle title="Core Reading" />
           <Components.CoreReading />
         </SingleColumnSection>}
   
-        {!Users.canDo(currentUser, 'beta.all') && 
+        {!currentUser?.beta && 
         <SingleColumnSection>
           <SectionTitle title="Curated" />
           <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false}>
@@ -46,7 +46,7 @@ class Home2 extends PureComponent {
           </PostsList2>
         </SingleColumnSection>}
   
-        {Users.canDo(currentUser, 'beta.all') &&
+        {currentUser?.beta &&
           <RecommendationsAndCurated configName="frontpage" />
         }
   

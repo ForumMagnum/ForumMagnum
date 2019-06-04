@@ -189,7 +189,7 @@ class CommentsNode extends Component {
     const newAndMostRecent = (this.isNewComment() && (!condensed || (lastCommentId === comment._id)))
     const lowKarmaOrCondensed = (comment.baseScore < 10 || condensed) 
     return (
-      Users.canDo(currentUser, 'beta.all') &&
+      currentUser?.beta &&
       this.isTruncated() && 
       !newAndMostRecent && 
       lowKarmaOrCondensed
