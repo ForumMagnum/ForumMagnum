@@ -13,7 +13,7 @@ const UsersSingle = ({params, router}) => {
     router.replace(canonicalUrl);
     return null;
   } else {
-    return <Components.UsersProfile userId={params._id} slug={slug} />
+    return <Components.UsersProfile terms={{view: 'usersProfile', slug}} slug={slug} />
   }
 };
 
