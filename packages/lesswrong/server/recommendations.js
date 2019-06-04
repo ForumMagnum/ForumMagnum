@@ -53,7 +53,7 @@ const recommendablePostFilter = {
   // Only consider recommending posts if they have score>30. This has a big
   // effect on the size of the recommendable-post set, which needs to not be
   // too big for performance reasons.
-  baseScore: {$gt: 30},
+  baseScore: {$gt: 60},
   
   // Don't recommend meta posts
   meta: false,
