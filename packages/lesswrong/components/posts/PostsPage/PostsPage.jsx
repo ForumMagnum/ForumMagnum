@@ -181,8 +181,10 @@ class PostsPage extends Component {
   render() {
     const { loading, document: post, currentUser, location, router, classes, data: {refetch} } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, PostsType,
-      LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigationWrapper,
-      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent, Section, TableOfContents, PostsRevisionSelector, PostsRevisionMessage, AlignmentCrosspostMessage } = Components
+      LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigation,
+      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody,
+      PostsPageQuestionContent, Section, TableOfContents, PostsRevisionSelector, PostsRevisionMessage,
+      AlignmentCrosspostMessage } = Components
 
     if (loading) {
       return <div><Loading/></div>
@@ -280,7 +282,7 @@ class PostsPage extends Component {
                 </div>
               </div>}
             {sequenceId && <div className={classes.bottomNavigation}>
-              <BottomNavigationWrapper documentId={sequenceId} post={post}/>
+              <BottomNavigation post={post}/>
             </div>}
             
             {/* Answers Section */}
@@ -322,12 +324,13 @@ PostsPage.propTypes = {
 const queryOptions = {
   collection: Posts,
   queryName: 'postsSingleQuery',
-  fragmentName: 'PostsRevision',
+  fragmentName: 'PostsWithNavigation',
   enableTotal: false,
   enableCache: true,
   ssr: true,
   extraVariables: {
-    version: 'String'
+    version: 'String',
+    sequenceId: 'String',
   }
 };
 

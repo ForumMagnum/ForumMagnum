@@ -277,7 +277,7 @@ class PostsItem2 extends PureComponent {
     const { showComments } = this.state
     const { PostsItemComments, PostsItemKarma, PostsItemTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
 
-    const postLink = chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getPageUrl(post)
+    const postLink = Posts.getPageUrl(post, false, chapter?.sequenceId);
     
     const unreadComments = this.hasUnreadComments()
 
