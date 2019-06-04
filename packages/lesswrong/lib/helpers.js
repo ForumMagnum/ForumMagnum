@@ -45,10 +45,9 @@ Users.isSubscribedTo = (user, document) => {
 Utils.getUnusedSlug = function (collection, slug, useOldSlugs = false) {
   let suffix = '';
   let index = 0;
-  const query = useOldSlugs ? {$or: [{slug: slug+suffix},{oldSlugs: slug+suffix}]} : {slug: slug+suffix}
 
   // test if slug is already in use
-  while (!!collection.findOne(query)) {
+  while (!!collection.findOne(useOldSlugs ? {$or: [{slug: slug+suffix},{oldSlugs: slug+suffix}]} : {slug: slug+suffix})) {
     index++
     suffix = '-'+index;
   }
