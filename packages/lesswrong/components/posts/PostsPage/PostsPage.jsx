@@ -11,7 +11,6 @@ import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import classNames from 'classnames';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
-import Users from 'meteor/vulcan:users';
 import withRecordPostView from '../../common/withRecordPostView';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
@@ -30,9 +29,9 @@ const styles = theme => ({
       display: 'grid',
       gridTemplateColumns: `
         1fr
-        minmax(${MIN_TOC_WIDTH}px, ${MAX_TOC_WIDTH}px) 
-        minmax(0px, ${DEFAULT_TOC_MARGIN}px) 
-        minmax(min-content, ${MAX_COLUMN_WIDTH}px) 
+        minmax(${MIN_TOC_WIDTH}px, ${MAX_TOC_WIDTH}px)
+        minmax(0px, ${DEFAULT_TOC_MARGIN}px)
+        minmax(min-content, ${MAX_COLUMN_WIDTH}px)
         minmax(0px, ${DEFAULT_TOC_MARGIN}px)
         1.5fr
       `,
@@ -45,11 +44,11 @@ const styles = theme => ({
       display: 'block'
     }
   },
-  title: { 
+  title: {
     gridArea: 'title',
     marginBottom: 32
   },
-  toc: { 
+  toc: {
     '@supports (grid-template-areas: "title")': {
       gridArea: 'toc',
       position: 'unset',
@@ -234,8 +233,8 @@ class PostsPage extends Component {
     const { loading, document: post, currentUser, location, router, classes, params, data: {refetch} } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, PostsType,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigationWrapper,
-      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent, 
-      TableOfContents, PostsRevisionSelector, PostsRevisionMessage, AlignmentCrosspostMessage, ConfigurableRecommendationsList } = Components
+      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
+      TableOfContents, PostsRevisionSelector, PostsRevisionMessage, AlignmentCrosspostMessage } = Components
 
     if (loading) {
       return <div><Loading/></div>
@@ -336,12 +335,7 @@ class PostsPage extends Component {
             {sequenceId && <div className={classes.bottomNavigation}>
               <BottomNavigationWrapper documentId={sequenceId} post={post}/>
             </div>}
-            
-            {/* Recommendations */}
-            {currentUser && Users.isAdmin(currentUser) && !post.question && <div className={classes.recommendations}>
-                <ConfigurableRecommendationsList configName="afterpost"/>
-            </div>}
-            
+
             {/* Answers Section */}
             {post.question && <div className={classes.post}>
               <div id="answers"/>
@@ -361,7 +355,7 @@ class PostsPage extends Component {
   async componentDidMount() {
     this.props.recordPostView(this.props);
   }
-  
+
   componentDidUpdate(prevProps) {
     if (prevProps.document && this.props.document && prevProps.document._id !== this.props.document._id) {
       this.props.closeAllEvents();
