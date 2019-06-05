@@ -14,6 +14,8 @@ registerFragment(`
     participants {
       ...UsersMinimumInfo
     }
+    archivedByIds
+    messageCount
   }
 `);
 
@@ -332,6 +334,7 @@ registerFragment(`
     commentCount
     afPostCount 
     afCommentCount
+    beta
   }
 `);
 

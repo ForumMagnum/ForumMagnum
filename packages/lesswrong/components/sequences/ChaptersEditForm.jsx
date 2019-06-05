@@ -14,9 +14,8 @@ const ChaptersEditForm = (props) => {
         successCallback={props.successCallback}
         cancelCallback={props.cancelCallback}
         showRemove={true}
-        fragment={getFragment('ChaptersFragment')}
-        queryFragment={getFragment('ChaptersFragment')}
-        mutationFragment={getFragment('ChaptersFragment')}
+        queryFragment={getFragment('ChaptersEdit')}
+        mutationFragment={getFragment('ChaptersEdit')}
       />
     </div>
   )

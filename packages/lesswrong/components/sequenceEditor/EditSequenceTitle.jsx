@@ -2,6 +2,7 @@ import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { Textarea } from 'formsy-react-components';
 import { withStyles } from '@material-ui/core/styles';
+import { sequencesImageScrim } from '../sequences/SequencesPage'
 
 const styles = theme => ({
   root: {
@@ -12,11 +13,14 @@ const styles = theme => ({
       marginTop: 40,
     }
   },
+  imageScrim: {
+    ...sequencesImageScrim(theme)
+  }
 });
 
 const EditSequenceTitle = ({classes, inputProperties, placeholder}) => {
   return <div className={classes.root}>
-    <div className="sequences-image-scrim-overlay"></div>
+    <div className={classes.imageScrim}/>
     <div className="sequences-editor-title-wrapper">
       <Textarea
         className="sequences-editor-title"

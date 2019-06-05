@@ -37,9 +37,9 @@ class GroupFormLink extends Component {
     )
     return (<React.Fragment>
       { documentId ? 
-        <Components.SectionSubtitle>
+        <SectionButton>
           <span onClick={this.handleOpenGroupForm}>Edit Group</span>
-        </Components.SectionSubtitle> 
+        </SectionButton> 
         : 
         <SectionButton>
           <AddLocationIcon />

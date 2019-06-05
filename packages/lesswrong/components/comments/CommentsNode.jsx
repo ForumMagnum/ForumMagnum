@@ -185,11 +185,10 @@ class CommentsNode extends Component {
 
   isSingleLine = () => {
     const { currentUser, comment, condensed, lastCommentId } = this.props 
-    
     const newAndMostRecent = (this.isNewComment() && (!condensed || (lastCommentId === comment._id)))
     const lowKarmaOrCondensed = (comment.baseScore < 10 || condensed) 
     return (
-      currentUser?.isAdmin &&
+      currentUser?.beta &&
       this.isTruncated() && 
       !newAndMostRecent && 
       lowKarmaOrCondensed

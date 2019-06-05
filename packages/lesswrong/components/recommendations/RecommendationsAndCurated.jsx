@@ -22,7 +22,6 @@ const styles = theme => ({
     marginTop: theme.spacing.unit*2,
   },
   subtitle: {
-    display: "block",
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[700],
@@ -54,7 +53,7 @@ class RecommendationsAndCurated extends PureComponent {
   
   render() {
     const { classes } = this.props;
-    const { SingleColumnSection, SectionTitle,
+    const { BetaTag, SingleColumnSection, SectionTitle,
       RecommendationsList, PostsList2, SubscribeWidget } = Components;
     // const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
     
@@ -82,21 +81,26 @@ class RecommendationsAndCurated extends PureComponent {
       <SectionTitle title="Recommendations [Beta]">
         {/* <SettingsIcon className={classes.gearIcon} onClick={this.toggleSettings}/> */}
       </SectionTitle>
-      <Tooltip placement="top-start" title={allTimeTooltip}>
-        <Link className={classNames(classes.subtitle, classes.topUnread)} to={"/recommendations"}>
-          Top Unread Posts
-        </Link>
-      </Tooltip>
+      <div>
+        <Tooltip placement="top-start" title={allTimeTooltip}>
+          <Link className={classNames(classes.subtitle, classes.topUnread)} to={"/recommendations"}>
+            Top Unread Posts
+          </Link>
+        </Tooltip>
+        <BetaTag />
+      </div>
       <div className={classes.list}>
         <RecommendationsList
           algorithm={frontpageRecommendationSettings}
         />
       </div>
-      <Tooltip placement="top-start" title={curatedTooltip}>
-        <Link className={classNames(classes.subtitle, classes.curated)} to={"/allPosts?filter=curated&view=new"}>
-          Recently Curated
-        </Link>
-      </Tooltip>
+      <div>
+        <Tooltip placement="top-start" title={curatedTooltip}>
+          <Link className={classNames(classes.subtitle, classes.curated)} to={"/allPosts?filter=curated&view=new"}>
+            Recently Curated
+          </Link>
+        </Tooltip>
+      </div>
       <div className={classes.list}>
         <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false}>
           <Link to={"/allPosts?filter=curated&view=new"}>View All Curated Posts</Link>
