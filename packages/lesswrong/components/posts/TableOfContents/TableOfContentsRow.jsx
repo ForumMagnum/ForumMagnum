@@ -43,14 +43,14 @@ const styles = theme => ({
   highlightDot: {},
   // Makes sure that the start of the ToC is in line with the start of the text
   title: {
-    paddingTop: 3
+    paddingTop: 3,
+    paddingBottom: theme.spacing.unit*1.5,
+    borderBottom: "solid 1px rgba(0,0,0,.1)"
   },
   level0: {
     display:"inline-block",
     maxWidth: '100%',
     marginBottom: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
-    borderBottom: "solid 1px rgba(0,0,0,.1)",
     '& $link': {
       whiteSpace: "normal",
     },
@@ -58,12 +58,6 @@ const styles = theme => ({
     '& $link:after': {
       content: `""`
     },
-    '&:last-of-type': {
-      borderBottom: "none",
-      marginTop: theme.spacing.unit,
-      paddingTop: theme.spacing.unit,
-      borderTop: "solid 1px rgba(0,0,0,.1)",
-    }
   },
   level1: {
     paddingLeft: 0,
@@ -84,11 +78,12 @@ const styles = theme => ({
     paddingLeft: 48,
   },
   divider: {
-    width: 60,
+    width: 80,
     marginBottom:theme.spacing.unit,
+    marginRight: "auto",
     borderBottom: "solid 1px rgba(0,0,0,.1)",
     paddingBottom: theme.spacing.unit,
-    display:"inline-block",
+    display:"block",
   }
 });
 
