@@ -38,6 +38,7 @@ import '../components/Layout.jsx';
 
 import '../components/common/CalendarDate.jsx';
 import '../components/common/FormatDate.jsx';
+import '../components/common/BetaTag.jsx';
 import '../components/common/FlashMessages.jsx';
 import '../components/common/Header.jsx';
 import '../components/common/TabNavigationMenu.jsx';
