@@ -84,7 +84,7 @@ export function augmentForDefaultView(indexFields)
  */
 
 Posts.addView("userPosts", terms => ({
-  selector: { 
+  selector: {
     userId: viewFieldAllowAny,
     hiddenRelatedQuestion: viewFieldAllowAny,
     groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
