@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
-import { Link } from '../../lib/reactRouterWrapper.js';
 
 const styles = (theme) => ({
   root: {
