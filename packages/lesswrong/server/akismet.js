@@ -70,17 +70,15 @@ client.verifyKey()
 async function checkPostForSpamWithAkismet(post, currentUser) {
   if (akismetKey) {
     const spam = await checkForAkismetSpam({document: post,type: "post"})
-    if (spam) {
-      if ((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) {
-        // eslint-disable-next-line no-console
-        console.log("Deleting post from user below spam threshold", post)
-        editMutation({
-          collection: Posts,
-          documentId: post._id,
-          set: {status: 4},
-          validate: false,
-        });
-      }
+    if (spam && ((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD)) {
+      // eslint-disable-next-line no-console
+      console.log("Deleting post from user below spam threshold", post)
+      editMutation({
+        collection: Posts,
+        documentId: post._id,
+        set: {status: 4},
+        validate: false,
+      });
     } else {
       //eslint-disable-next-line no-console
       console.log('Post marked as not spam', post._id);
@@ -94,22 +92,20 @@ addCallback('posts.new.after', checkPostForSpamWithAkismet);
 async function checkCommentForSpamWithAkismet(comment, currentUser) {
     if (akismetKey) {
       const spam = await checkForAkismetSpam({document: comment, type: "comment"})
-      if (spam) {
-        if ((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) {
-          // eslint-disable-next-line no-console
-          console.log("Deleting comment from user below spam threshold", comment)
-          await editMutation({
-            collection: Comments,
-            documentId: comment._id,
-            set: {
-              deleted: true,
-              deletedDate: new Date(), 
-              deletedReason: "Your comment has been marked as spam by the Akismet span integration. We will review your comment in the coming hours and restore it if we determine that it isn't spam"
-            },
-            validate: false,
-            user: currentUser
-          });
-        }
+      if (spam && ((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD)) {
+        // eslint-disable-next-line no-console
+        console.log("Deleting comment from user below spam threshold", comment)
+        await editMutation({
+          collection: Comments,
+          documentId: comment._id,
+          set: {
+            deleted: true,
+            deletedDate: new Date(), 
+            deletedReason: "Your comment has been marked as spam by the Akismet span integration. We will review your comment in the coming hours and restore it if we determine that it isn't spam"
+          },
+          validate: false,
+          user: currentUser
+        });
       } else {
         //eslint-disable-next-line no-console
         console.log('Comment marked as not spam', comment._id);
