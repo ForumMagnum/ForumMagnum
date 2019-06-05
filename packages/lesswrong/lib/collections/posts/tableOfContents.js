@@ -219,7 +219,7 @@ const getTableOfContentsData = async (document, args, options) => {
   
   if (tocSections.length >= MIN_HEADINGS_FOR_TOC) {
     return {
-      html: tableOfContents.html,
+      html: tableOfContents?.html,
       sections: tocSections,
       headingsCount: tocSections.length
     }
