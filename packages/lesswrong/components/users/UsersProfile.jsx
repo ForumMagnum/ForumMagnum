@@ -94,10 +94,15 @@ class UsersProfile extends Component {
     }
   }
 
+  getUserFromResults = (results) => {
+    // HOTFIX: Filtering out invalid users
+    return results?.find(user => !!user.displayName) || results?.[0]
+  }
+
   renderMeta = () => {
     const props = this.props
     const { classes, results } = props
-    const document = results?.[0]
+    const document = this.getUserFromResults(results)
     if (!document) return null
     const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma } = document;
 
@@ -148,14 +153,13 @@ class UsersProfile extends Component {
 
   render() {
     const { slug, classes, currentUser, loading, results, router } = this.props;
-    const document = results?.[0]
-  
+    const document = this.getUserFromResults(results)
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Components.Loading/>
       </div>
     }
-    
+
     if (!document || !document._id || document.deleted) {
       //eslint-disable-next-line no-console
       console.error(`// missing user (_id/slug: ${slug})`);
@@ -170,7 +174,7 @@ class UsersProfile extends Component {
     }
 
     const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton } = Components
-    
+
     const user = document;
     const query = _.clone(router.location.query || {});
 
@@ -207,14 +211,14 @@ class UsersProfile extends Component {
               </div>
             }
             { currentUser && currentUser._id != user._id && <NewConversationButton user={user}>
-              <a>Send Message</a> 
+              <a>Send Message</a>
             </NewConversationButton>}
             { currentUser && currentUser._id !== user._id && <SubscribeTo document={user} /> }
             {Users.canEdit(currentUser, user) && <Link to={Users.getEditUrl(user)}>
               <FormattedMessage id="users.edit_account"/>
             </Link>}
           </SectionFooter>
-        
+
           { user.bio && <div className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} /> }
 
         </SingleColumnSection>
@@ -228,7 +232,7 @@ class UsersProfile extends Component {
               terms={ownPage ? sequenceAllTerms : sequenceTerms}
               showLoadMore={true}/>
         </SingleColumnSection> }
-        
+
         {/* Drafts Section */}
         { ownPage && <SingleColumnSection>
           <SectionTitle title="My Drafts">
