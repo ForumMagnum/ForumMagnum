@@ -167,18 +167,21 @@ const getResumeSequences = async (currentUser, context) => {
     return [];
   
   return Promise.all(_.map(currentUser.partiallyReadSequences,
-    async partiallyReadSequence => ({
-      sequence: partiallyReadSequence.sequenceId
-        ? await context["Sequences"].loader.load(partiallyReadSequence.sequenceId)
-        : null,
-      collection: partiallyReadSequence.collectionId
-        ? await context["Collections"].loader.load(partiallyReadSequence.collectionId)
-        : null,
-      lastReadPost: await context["Posts"].loader.load(partiallyReadSequence.lastReadPostId),
-      nextPost: await context["Posts"].loader.load(partiallyReadSequence.nextPostId),
-      numRead: partiallyReadSequence.numRead,
-      numTotal: partiallyReadSequence.numTotal,
-    })
+    async partiallyReadSequence => {
+      const { sequenceId, collectionId, lastReadPostId, nextPostId, numRead, numTotal } = partiallyReadSequence;
+      return {
+        sequence: sequenceId
+          ? await context["Sequences"].loader.load(sequenceId)
+          : null,
+        collection: collectionId
+          ? await context["Collections"].loader.load(collectionId)
+          : null,
+        lastReadPost: await context["Posts"].loader.load(lastReadPostId),
+        nextPost: await context["Posts"].loader.load(nextPostId),
+        numRead: numRead,
+        numTotal: numTotal,
+      }
+    }
   ));
 }
 
