@@ -334,6 +334,7 @@ registerFragment(`
     commentCount
     afPostCount 
     afCommentCount
+    beta
   }
 `);
 

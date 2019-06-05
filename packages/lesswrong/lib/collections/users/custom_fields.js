@@ -753,6 +753,13 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     label: "Auto-collapse comments from GPT2"
   },
+  beta: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    tooltip: "Get early access to new in-development features"
+  },
   // ReCaptcha v3 Integration
   signUpReCaptchaRating: {
     type: Number,
