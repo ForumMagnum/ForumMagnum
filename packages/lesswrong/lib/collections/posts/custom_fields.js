@@ -399,9 +399,10 @@ addFieldsDict(Posts, {
       if (post.canonicalNextPostSlug) {
         const nextPost = await Posts.findOne({ slug: post.canonicalNextPostSlug });
         return accessFilterSingle(currentUser, Posts, nextPost);
-      } else if(post.canonicalSequenceId) {
+      }
+      if(post.canonicalSequenceId) {
         const nextPostID = await Sequences.getNextPostID(post.canonicalSequenceId, post._id);
-        if (nextPostID) return null;
+        if (!nextPostID) return null;
         const nextPost = await Posts.loader.load(nextPostID);
         return accessFilterSingle(currentUser, Posts, nextPost);
       }
@@ -429,7 +430,8 @@ addFieldsDict(Posts, {
       if (post.canonicalPrevPostSlug) {
         const prevPost = await Posts.findOne({ slug: post.canonicalPrevPostSlug });
         return accessFilterSingle(currentUser, Posts, prevPost);
-      } else if(post.canonicalSequenceId) {
+      }
+      if(post.canonicalSequenceId) {
         const prevPostID = await Sequences.getPrevPostID(post.canonicalSequenceId, post._id);
         if (!prevPostID) return null;
         const prevPost = await Posts.loader.load(prevPostID);
