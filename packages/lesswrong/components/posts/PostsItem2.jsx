@@ -274,7 +274,9 @@ class PostsItem2 extends PureComponent {
   }
 
   render() {
-    const { classes, post, chapter, currentUser, index, terms, resumeReading, showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true, defaultToShowUnreadComments=false } = this.props
+    const { classes, post, chapter, currentUser, index, terms, resumeReading,
+      showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true,
+      defaultToShowUnreadComments=false, dismissRecommendation } = this.props
     const { showComments } = this.state
     const { PostsItemComments, PostsItemKarma, PostsItemTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
 
@@ -361,7 +363,7 @@ class PostsItem2 extends PureComponent {
           </div>
           
           {<div className={classes.actions}>
-            {resumeReading && <CloseIcon onClick={() => this.props.dismissRecommendation()}/>}
+            {resumeReading && <CloseIcon onClick={() => dismissRecommendation()}/>}
             {!resumeReading && <PostsPageActions post={post} vertical menuClassName={classes.actionsMenu} />}
           </div>}
           
