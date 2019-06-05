@@ -4,7 +4,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
-import withErrorBoundary from '../common/withErrorBoundary'
+import withErrorBoundary from '../common/withErrorBoundary';
+import withUser from '../common/withUser';
 import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
@@ -69,6 +70,10 @@ const styles = theme => ({
       borderBottom: "solid 1px rgba(0,0,0,.2)",
     }
   },
+  commentHidden: {
+    border: "none !important",
+    background: "none"
+  },
 })
 
 class CommentsNode extends Component {
@@ -130,7 +135,10 @@ class CommentsNode extends Component {
 
   unTruncate = (event) => {
     event.stopPropagation()
-    this.setState({truncated: false, truncatedStateSet: true});
+    if (this.isTruncated()) {
+      this.props.markAsRead && this.props.markAsRead()
+      this.setState({truncated: false, truncatedStateSet: true});
+    }
   }
 
   toggleHover = () => {
@@ -172,16 +180,25 @@ class CommentsNode extends Component {
 
   isNewComment = () => {
     const { comment, highlightDate } = this.props;
-    return highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime())
+    return !!(highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime()))
   }
 
   isSingleLine = () => {
-    const { currentUser, comment, condensed } = this.props 
-    return currentUser && currentUser.isAdmin && this.isTruncated() && (!this.isNewComment() || condensed) && (comment.baseScore < 10 || condensed) 
+    const { currentUser, comment, condensed, lastCommentId } = this.props 
+    
+    const newAndMostRecent = (this.isNewComment() && (!condensed || (lastCommentId === comment._id)))
+    const lowKarmaOrCondensed = (comment.baseScore < 10 || condensed) 
+    return (
+      currentUser?.isAdmin &&
+      this.isTruncated() && 
+      !newAndMostRecent && 
+      lowKarmaOrCondensed
+    )
+    
   }
 
   render() {
-    const { comment, children, nestingLevel=1, currentUser, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, parentAnswerId, condensed } = this.props;
+    const { comment, children, nestingLevel=1, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments } = this.props;
 
     const { SingleLineComment, CommentsItem } = Components
 
@@ -191,6 +208,8 @@ class CommentsNode extends Component {
     const { hover, collapsed, finishedScroll } = this.state
 
     const newComment = this.isNewComment()
+
+    const hiddenReadComment = hideReadComments && !newComment
 
     const nodeClass = classNames(
       "comments-node",
@@ -210,7 +229,7 @@ class CommentsNode extends Component {
         "comments-node-seriously-what-the-fuck": nestingLevel > 32,
         "comments-node-are-you-curi-and-lumifer-specifically": nestingLevel > 36,
         "comments-node-cuz-i-guess-that-makes-sense-but-like-really-tho": nestingLevel > 40,
-        [classes.child]: child,
+        [classes.child]: child && (!hideReadComments || comment.children?.length),
         [classes.new]: newComment,
         [classes.newHover]: newComment && hover,
         [classes.deleted]: comment.deleted,
@@ -219,9 +238,13 @@ class CommentsNode extends Component {
         [classes.childAnswerComment]: child && parentAnswerId,
         [classes.oddAnswerComment]: (nestingLevel % 2 !== 0) && parentAnswerId,
         [classes.answerLeafComment]: !(children && children.length),
-        [classes.isSingleLine]: this.isSingleLine()
+        [classes.isSingleLine]: this.isSingleLine(),
+        [classes.commentHidden]: hiddenReadComment,
       }
     )
+
+    const passedThroughItemProps = { post, postPage, comment, editMutation, nestingLevel, showPostTitle, collapsed }
+    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, editMutation, condensed, hideReadComments}
 
     return (
       <div className={newComment ? "comment-new" : "comment-old"}>
@@ -231,43 +254,31 @@ class CommentsNode extends Component {
           onClick={(event) => this.unTruncate(event)}
           id={comment._id}>
           {/*eslint-disable-next-line react/no-string-refs*/}
-          <div ref="comment">
+          {!hiddenReadComment && <div ref="comment">
             {this.isSingleLine() ? <SingleLineComment comment={comment} nestingLevel={nestingLevel} />
               : <CommentsItem
-              collapsed={collapsed}
               truncated={this.isTruncated()}
-              toggleCollapse={this.toggleCollapse}
-              currentUser={currentUser}
-              comment={comment}
-              key={comment._id}
-              editMutation={editMutation}
-              scrollIntoView={this.scrollIntoView}
-              post={post}
-              postPage={postPage}
-              nestingLevel={nestingLevel}
-              showPostTitle={showPostTitle}
               parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
+              toggleCollapse={this.toggleCollapse}
+              key={comment._id}
+              scrollIntoView={this.scrollIntoView}
+
+              { ...passedThroughItemProps}
             />}
-          </div>
+          </div>}
           {!collapsed && <div className="comments-children">
             <div className={classes.parentScroll} onClick={this.scrollIntoView}></div>
             {children && children.map(child =>
               <Components.CommentsNode child
-                currentUser={currentUser}
                 comment={child.item}
+                parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
                 nestingLevel={nestingLevel+1}
                 truncated={this.isTruncated()}
-                unreadComments={unreadComments}
                 //eslint-disable-next-line react/no-children-prop
                 children={child.children}
                 key={child.item._id}
-                muiTheme={muiTheme}
-                highlightDate={highlightDate}
-                editMutation={editMutation}
-                post={post}
-                postPage={postPage}
-                parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
-                condensed={condensed}
+                
+                { ...passedThroughNodeProps}
               />)}
           </div>}
         </div>
@@ -282,6 +293,7 @@ CommentsNode.propTypes = {
 };
 
 registerComponent('CommentsNode', CommentsNode,
+  withUser, 
   withRouter,
   withErrorBoundary,
   withStyles(styles, { name: "CommentsNode" })

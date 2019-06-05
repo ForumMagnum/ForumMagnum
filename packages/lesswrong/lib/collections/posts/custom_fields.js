@@ -1,14 +1,13 @@
 import { Posts } from './collection';
-import { getSetting } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
-import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple } from '../../modules/utils/schemaUtils'
+import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple, resolverOnlyField, denormalizedCountOfReferences } from '../../modules/utils/schemaUtils'
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { Utils } from 'meteor/vulcan:core';
 import GraphQLJSON from 'graphql-type-json';
-import { Comments } from '../comments'
-import { questionAnswersSort } from '../comments/views';
 import { schemaDefaultValue } from '../../collectionUtils';
+//import { getWithCustomLoader } from '../../loaders.js';
+//import keyBy from 'lodash/keyBy';
 
 export const formGroups = {
   adminOptions: {
@@ -140,27 +139,34 @@ addFieldsDict(Posts, {
     group: formGroups.adminOptions
   },
 
-  // lastVisitDateDefault: Sets the default of what the lastVisit of a post
-  // should be, resolves to the date of the last visit of a user, when a user is
-  // loggedn in. Returns null when no user is logged in;
-  lastVisitedAtDefault: {
+  // lastVisitedAt: If the user is logged in and has viewed this post, the date
+  // they last viewed it. Otherwise, null.
+  lastVisitedAt: resolverOnlyField({
     type: Date,
-    optional: true,
-    hidden: true,
     viewableBy: ['guests'],
-    resolveAs: {
-      fieldName: 'lastVisitedAt',
-      type: 'Date',
-      resolver: async (post, args, { LWEvents, currentUser }) => {
-        if(currentUser){
-          const event = await LWEvents.findOne({name:'post-view', documentId: post._id, userId: currentUser._id}, {sort:{createdAt:-1}});
-          return event && event.createdAt
-        } else {
-          return post.lastVisitDateDefault
+    resolver: async (post, args, { ReadStatuses, LWEvents, currentUser }) => {
+      if (!currentUser) return null;
+      
+      // Slow method, from the LWEvents table. This is an N+1 select. Switch
+      // after the migration script is run.
+      const event = await LWEvents.findOne({name:'post-view', documentId: post._id, userId: currentUser._id}, {sort:{createdAt:-1}});
+      return event && event.createdAt
+      
+      // Faster method, using the ReadStatuses table.
+      /*return await getWithCustomLoader(ReadStatuses, `postsReadByUser${currentUser._id}`, post._id,
+        async postIDs => {
+          const readDates = await ReadStatuses.find({
+            userId: currentUser._id,
+            postId: {$in: postIDs},
+            isRead: true,
+          }, {postId:1, lastUpdated:1}).fetch();
+          
+          const readDateByPostID = keyBy(readDates, ev=>ev.postId);
+          return postIDs.map(postID => readDateByPostID[postID] ? readDateByPostID[postID].lastUpdated : null);
         }
-      }
+      );*/
     }
-  },
+  }),
 
   lastCommentedAt: {
     type: Date,
@@ -786,60 +792,7 @@ addFieldsDict(Posts, {
       fieldName: "tableOfContents",
       type: GraphQLJSON,
       resolver: async (document, args, options) => {
-        const { html } = document.contents || {}
-        let tocData
-        if (document.question) {
-
-          let answersTerms = {
-            answer:true,
-            postId: document._id,
-            deleted:false,
-          }
-          if (getSetting('forumType') === 'AlignmentForum') {
-            answersTerms.af = true
-          }
-
-          const answers = await Comments.find(answersTerms, {sort:questionAnswersSort}).fetch()
-
-          if (answers && answers.length) {
-            tocData = Utils.extractTableOfContents(html, true) || {
-              html: null,
-              headingsCount: 0,
-              sections: []
-            }
-
-            const answerSections = answers.map((answer) => ({
-              title: `${answer.baseScore} ${answer.author}`,
-              answer: answer,
-              anchor: answer._id,
-              level: 2
-            }))
-            tocData = {
-              html: tocData.html,
-              headingsCount: tocData.headingsCount,
-              sections: [
-                ...tocData.sections,
-                {anchor:"answers", level:1, title:"Answers"},
-                ...answerSections
-              ]
-            }
-          }
-        } else {
-          tocData = Utils.extractTableOfContents(html)
-        }
-        if (tocData) {
-          const selector = {
-            answer: false,
-            parentAnswerId: null,
-            postId: document._id
-          }
-          if (document.af && getSetting('forumType') === 'AlignmentForum') {
-            selector.af = true
-          }
-          const commentCount = await Comments.find(selector).count()
-          tocData.sections.push({anchor:"comments", level:0, title:Posts.getCommentCountStr(document, commentCount)})
-        }
-        return tocData;
+        return await Utils.getTableOfContentsData(document);
       },
     },
   },
@@ -936,10 +889,14 @@ makeEditable({
 addFieldsDict(Users, {
   // Count of the user's posts
   postCount: {
-    type: Number,
-    optional: true,
-    denormalized: true,
-    defaultValue: 0,
+    ...denormalizedCountOfReferences({
+      fieldName: "postCount",
+      collectionName: "Users",
+      foreignCollectionName: "Posts",
+      foreignTypeName: "post",
+      foreignFieldName: "userId",
+      filterFn: (post) => (!post.draft && post.status===Posts.config.STATUS_APPROVED),
+    }),
     viewableBy: ['guests'],
   },
   // The user's associated posts (GraphQL only)

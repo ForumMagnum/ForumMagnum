@@ -1,4 +1,4 @@
-import { Components, registerComponent, withDocument, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link, withRouter } from '../../lib/reactRouterWrapper.js';
@@ -92,10 +92,17 @@ class UsersProfile extends Component {
     }
   }
 
+  getUserFromResults = (results) => {
+    // HOTFIX: Filtering out invalid users
+    return results?.find(user => !!user.displayName) || results?.[0]
+  }
+
   renderMeta = () => {
     const props = this.props
-    const { classes } = props
-    const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma } = props.document;
+    const { classes, results } = props
+    const document = this.getUserFromResults(results)
+    if (!document) return null
+    const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma } = document;
 
     const userKarma = karma || 0
     const userAfKarma = afKarma || 0
@@ -143,22 +150,29 @@ class UsersProfile extends Component {
   }
 
   render() {
-    const { slug, classes, currentUser, loading, document, documentId, router } = this.props;
-  
+    const { slug, classes, currentUser, loading, results, router } = this.props;
+    const document = this.getUserFromResults(results)
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Components.Loading/>
       </div>
     }
-    
+
     if (!document || !document._id || document.deleted) {
       //eslint-disable-next-line no-console
-      console.error(`// missing user (_id/slug: ${documentId || slug})`);
+      console.error(`// missing user (_id/slug: ${slug})`);
       return <Components.Error404/>
     }
 
+    // Javascript redirect to make sure we are always on the most canonical URL for this user
+    if (slug !== document.slug) {
+      const canonicalUrl = Users.getProfileUrlFromSlug(document.slug);
+      router.replace(canonicalUrl);
+      return null;
+    }
+
     const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton } = Components
-    
+
     const user = document;
     const query = _.clone(router.location.query || {});
 
@@ -195,14 +209,14 @@ class UsersProfile extends Component {
               </div>
             }
             { currentUser && currentUser._id != user._id && <NewConversationButton user={user}>
-              <a>Send Message</a> 
+              <a>Send Message</a>
             </NewConversationButton>}
             { currentUser && currentUser._id !== user._id && <SubscribeTo document={user} /> }
             {Users.canEdit(currentUser, user) && <Link to={Users.getEditUrl(user)}>
               <FormattedMessage id="users.edit_account"/>
             </Link>}
           </SectionFooter>
-        
+
           { user.bio && <div className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} /> }
 
         </SingleColumnSection>
@@ -216,7 +230,7 @@ class UsersProfile extends Component {
               terms={ownPage ? sequenceAllTerms : sequenceTerms}
               showLoadMore={true}/>
         </SingleColumnSection> }
-        
+
         {/* Drafts Section */}
         { ownPage && <SingleColumnSection>
           <SectionTitle title="My Drafts">
@@ -258,10 +272,13 @@ class UsersProfile extends Component {
   }
 }
 
+
 const options = {
   collection: Users,
   queryName: 'usersSingleQuery',
   fragmentName: 'UsersProfile',
+  enableTotal: false,
+  ssr: true
 };
 
-registerComponent('UsersProfile', UsersProfile, withUser, [withDocument, options], withRouter, withStyles(styles, {name: "UsersProfile"}));
+registerComponent('UsersProfile', UsersProfile, withUser, [withList, options], withRouter, withStyles(styles, {name: "UsersProfile"}));

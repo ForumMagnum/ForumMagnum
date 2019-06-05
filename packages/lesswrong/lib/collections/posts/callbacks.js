@@ -44,64 +44,6 @@ function PostsSetPostedAt (modifier, post) {
 }
 addCallback("posts.undraft.sync", PostsSetPostedAt);
 
-/**
- * @summary increment postCount when post is undrafted
- */
-function postsUndraftIncrementPostCount (post, oldPost) {
-  Users.update({_id: post.userId}, {$inc: {postCount: 1}})
-}
-addCallback("posts.undraft.async", postsUndraftIncrementPostCount);
-
-/**
- * @summary decrement postCount when post is drafted
- */
-function postsDraftDecrementPostCount (post, oldPost) {
-  Users.update({_id: post.userId}, {$inc: {postCount: -1}})
-}
-addCallback("posts.draft.async", postsDraftDecrementPostCount);
-
-/**
- * @summary update frontpagePostCount when post is moved into frontpage
- */
-function postsEditIncreaseFrontpagePostCount (post, oldPost) {
-  if (post.frontpageDate && !oldPost.frontpageDate) {
-    Users.update({_id: post.userId}, {$inc: {frontpagePostCount: 1}})
-  }
-}
-addCallback("posts.edit.async", postsEditIncreaseFrontpagePostCount);
-
-/**
- * @summary update frontpagePostCount when post is moved into frontpage
- */
-function postsNewIncreaseFrontpageCount (post) {
-  if (post.frontpageDate) {
-    Users.update({_id: post.userId}, {$inc: {frontpagePostCount: 1}})
-  }
-}
-addCallback("posts.new.async", postsNewIncreaseFrontpageCount);
-
-/**
- * @summary update frontpagePostCount when post is moved into frontpage
- */
-function postsRemoveDecreaseFrontpageCount (post) {
-  if (post.frontpageDate) {
-    Users.update({_id: post.userId}, {$inc: {frontpagePostCount: -1}})
-  }
-}
-addCallback("posts.remove.async", postsRemoveDecreaseFrontpageCount);
-
-/**
- * @summary update frontpagePostCount when post is moved out of frontpage
- */
-function postsEditDecreaseFrontpagePostCount (post, oldPost) {
-  if (!post.frontpageDate && oldPost.frontpageDate) {
-    Users.update({_id: post.userId}, {$inc: {frontpagePostCount: -1}})
-  }
-}
-addCallback("posts.edit.async", postsEditDecreaseFrontpagePostCount);
-
-
-
 function increaseMaxBaseScore ({newDocument, vote}, collection, user, context) {
   if (vote.collectionName === "Posts" && newDocument.baseScore > (newDocument.maxBaseScore || 0)) {
     let thresholdTimestamp = {};
@@ -109,7 +51,7 @@ function increaseMaxBaseScore ({newDocument, vote}, collection, user, context) {
       thresholdTimestamp.scoreExceeded2Date = new Date();
     }
     if (!newDocument.scoreExceeded30Date && newDocument.baseScore >= 30) {
-      thresholdTimestamp.scoreExceeded30 = new Date();
+      thresholdTimestamp.scoreExceeded30Date = new Date();
     }
     if (!newDocument.scoreExceeded45Date && newDocument.baseScore >= 45) {
       thresholdTimestamp.scoreExceeded45Date = new Date();

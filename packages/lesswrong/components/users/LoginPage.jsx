@@ -18,7 +18,7 @@ class LoginPage extends Component {
       // `componentWillMount`.
       return <div />
     } else {
-      return <Components.AccountsLoginForm />;
+      return <Components.WrappedLoginForm />;
     }
   }
 }

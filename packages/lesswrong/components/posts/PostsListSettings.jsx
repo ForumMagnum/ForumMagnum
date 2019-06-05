@@ -1,4 +1,4 @@
-import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
+import { Components, registerComponent, withUpdate, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames'
@@ -12,6 +12,62 @@ import withUser from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
 import { views as defaultViews } from './AllPostsPage.jsx'
+
+const FILTERS_ALL = {
+  "AlignmentForum": [
+    {
+      name: "all",
+      label: "All Posts",
+      tooltip: "Includes all posts"},
+    {
+      name: "questions",
+      label: "Questions",
+      tooltip: "Open questions and answers, ranging from newbie-questions to important unsolved scientific problems."},
+    {
+      name: "meta",
+      label: "Meta",
+      tooltip: "Posts relating to LessWrong itself"
+    },
+  ],
+  "LessWrong": [
+    { name: "all",
+      label: "All Posts",
+      tooltip: "Includes personal blogposts as well as frontpage, curated, questions, events and meta posts."},
+    { name: "frontpage",
+      label: "Frontpage",
+      tooltip: "Moderators add posts to the frontpage if they meet certain criteria: aiming to explain, rather than persuade, and avoiding identity politics."},
+    { name: "curated",
+      label: "Curated",
+      tooltip: "Posts chosen by the moderation team to be well written and important (approximately 3 per week)"},
+    { name: "questions",
+      label: "Questions",
+      tooltip: "Open questions and answers, ranging from newbie-questions to important unsolved scientific problems."},
+    { name: "events",
+      label: "Events",
+      tooltip: "Events from around the world."
+    },
+    { name: "meta",
+      label: "Meta",
+      tooltip: "Posts relating to LessWrong itself"
+    },
+  ],
+  "EAForum": [
+    { name: "all",
+      label: "All Posts",
+      tooltip: "Includes personal blogposts as well as frontpage, questions, and community posts."},
+    { name: "frontpage",
+      label: "Frontpage",
+      tooltip: "Moderators add posts to the frontpage if they meet certain criteria: aiming to explain, not persuade, and staying on topic."},
+    { name: "questions",
+      label: "Questions",
+      tooltip: "Open questions and answers, ranging from newbie-questions to important unsolved scientific problems."},
+    { name: "meta",
+      label: "Community",
+      tooltip: "Posts with topical content or relating to the EA community itself"
+    },
+  ]
+}
+const FILTERS = FILTERS_ALL[getSetting('forumType')]
 
 const styles = theme => ({
   root: {
@@ -32,7 +88,7 @@ const styles = theme => ({
     }
   },
   hidden: {
-    display: "none", // Uses CSS to show/hide 
+    display: "none", // Uses CSS to show/hide
     overflow: "hidden",
   },
   menuItem: {
@@ -99,7 +155,7 @@ class PostsListSettings extends Component {
         data: {
           allPostsView: view,
         },
-      })  
+      })
     }
   }
 
@@ -111,7 +167,7 @@ class PostsListSettings extends Component {
         data: {
           allPostsShowLowKarma: newSetting,
         },
-      })  
+      })
     }
   }
 
@@ -119,29 +175,6 @@ class PostsListSettings extends Component {
   render () {
     const { classes, hidden, currentView, currentFilter, currentShowLowKarma, views = defaultViews } = this.props
     const { MetaInfo } = Components
-
-    const filters = [
-      { name: "all",
-        label: "All Posts",
-        tooltip: "Includes personal blogposts as well as frontpage, curated, questions, events and meta posts."},
-      { name: "frontpage",
-        label: "Frontpage",
-        tooltip: "Moderators add posts to the frontpage if they meet certain criteria: aiming to explain, rather than persuade, and avoiding identity politics."},
-      { name: "curated",
-        label: "Curated",
-        tooltip: "Posts chosen by the moderation team to be well written and important (approximately 3 per week)"},
-      { name: "questions",
-        label: "Questions",
-        tooltip: "Open questions and answers, ranging from newbie-questions to important unsolved scientific problems."},
-      { name: "events",
-        label: "Events",
-        tooltip: "Events from around the world."
-      },
-      { name: "meta",
-        label: "Meta",
-        tooltip: "Posts relating to LessWrong itself"
-      },
-    ]
 
     return (
       <div className={classNames(classes.root, {[classes.hidden]: hidden})}>
@@ -151,8 +184,8 @@ class PostsListSettings extends Component {
           </MetaInfo>
           {Object.entries(views).map(([name, label]) => {
             return (
-              <Link 
-                key={name} 
+              <Link
+                key={name}
                 onClick={() => this.setView(name)}
                 to={loc=> ({...loc, query: {...loc.query, view: name}})}
               >
@@ -168,10 +201,10 @@ class PostsListSettings extends Component {
           <MetaInfo className={classes.selectionTitle}>
             Filtered by:
           </MetaInfo>
-          {filters.map(filter => {
+          {FILTERS.map(filter => {
             return (
-              <Link 
-                key={filter.name} 
+              <Link
+                key={filter.name}
                 onClick={() => this.setFilter(filter.name)}
                 to={loc=> ({...loc, query: {...loc.query, filter: filter.name}})}
               >
@@ -186,18 +219,18 @@ class PostsListSettings extends Component {
         </div>
 
         <Tooltip title={<div><div>By default, posts below -10 karma are hidden.</div><div>Toggle to show them.</div></div>} placement="right-start">
-          <Link 
+          <Link
             className={classes.checkboxGroup}
             onClick={() => this.setShowLowKarma(!currentShowLowKarma)}
             to={loc=> ({...loc, query: {...loc.query, karmaThreshold: (currentShowLowKarma ? DEFAULT_LOW_KARMA_THRESHOLD : MAX_LOW_KARMA_THRESHOLD)}})}
           >
-            <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentShowLowKarma} /> 
+            <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentShowLowKarma} />
 
-            {/* {currentShowLowKarma ? 
+            {/* {currentShowLowKarma ?
             // Looks like Checkbox doesn't play nicely with the Link/route based check-status-setting/
             // This works fine but feels a bit hacky
-              <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked /> 
-              : 
+              <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked />
+              :
               <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}}/>
             } */}
 
