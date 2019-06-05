@@ -147,6 +147,15 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
 
       <Divider className={classes.divider}/>
 
+      {/* TODO(JP) if forumtype is lw */}
+      {/*{!af && <NavigationMenuLink icon={<LocalLibrary/>} to="/library" label="Library"/>}*/}
+      {/*{!af && <NavigationMenuLink indent={true} to="/rationality" label="Rationality: A-Z"/>}*/}
+      {/*{!af && <NavigationMenuLink indent={true} to="/codex" label="The Codex"/>}*/}
+      {/*{!af && <NavigationMenuLink indent={true} to="/hpmor" label="HPMOR"/>}*/}
+
+      <Divider className={classes.divider}/>
+
+      {!af && getSetting('hasEvents', true) && <NavigationMenuLink icon={<Public/>} to={"/community"} label="Community Events"/>}
       <NavigationMenuLink icon={<ListAlt/>} to={"/allPosts"} label="All Posts"/>
       <NavigationMenuLink icon={<Details/>} to={"/meta"} label="Community"/>
       <NavigationMenuLink icon={<span className={classes.about}>?</span>} to={"/about"} label="About"/>

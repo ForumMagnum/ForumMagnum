@@ -18,7 +18,7 @@ class Home2 extends PureComponent {
     const { currentUser } = this.props
     const { showShortformFeed } = this.state
 
-    const { SingleColumnSection, SectionTitle, PostsList2, RecentDiscussionThreadsList, CommentsNewForm, SubscribeWidget, HomeLatestPosts, TabNavigationMenu, ConfigurableRecommendationsList, SectionButton } = Components
+    const { SingleColumnSection, SectionTitle, PostsList2, RecentDiscussionThreadsList, CommentsNewForm, SubscribeWidget, HomeLatestPosts, TabNavigationMenu, RecommendationsAndCurated, SectionButton } = Components
 
     const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
         Users.canDo(currentUser, 'alignment.sidebar')
@@ -37,16 +37,17 @@ class Home2 extends PureComponent {
           <Components.CoreReading />
         </SingleColumnSection>}
   
+        {!currentUser?.isAdmin && 
         <SingleColumnSection>
           <SectionTitle title="Curated" />
           <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false}>
             <Link to={"/allPosts?filter=curated&view=new"}>View All Curated Posts</Link>
             <SubscribeWidget view={"curated"} />
           </PostsList2>
-        </SingleColumnSection>
+        </SingleColumnSection>}
   
-        {currentUser && Users.isAdmin(currentUser) &&
-          <ConfigurableRecommendationsList configName="frontpage" />
+        {currentUser?.isAdmin &&
+          <RecommendationsAndCurated configName="frontpage" />
         }
   
         <HomeLatestPosts />

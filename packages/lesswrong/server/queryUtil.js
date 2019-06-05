@@ -11,9 +11,9 @@ import { runThenSleep } from './migrations/migrationUtils';
 // way in Javascript as in Mongo; which translates into the assumption that IDs
 // are homogenously string typed. Ie, this function will break if some rows
 // have _id of type ObjectID instead of string.
-export async function forEachDocumentBatchInCollection({collection, batchSize, callback, loadFactor=1.0})
+export async function forEachDocumentBatchInCollection({collection, batchSize, filter=null, callback, loadFactor=1.0})
 {
-  let rows = await collection.find({},
+  let rows = await collection.find({ ...filter },
     {
       sort: {_id: 1},
       limit: batchSize
@@ -25,7 +25,7 @@ export async function forEachDocumentBatchInCollection({collection, batchSize, c
       await callback(rows);
       const lastID = rows[rows.length - 1]._id
       rows = await collection.find(
-        { _id: {$gt: lastID} },
+        { _id: {$gt: lastID}, ...filter },
         {
           sort: {_id: 1},
           limit: batchSize

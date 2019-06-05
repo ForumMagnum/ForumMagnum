@@ -4,11 +4,9 @@ import { withStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { Posts } from "../../lib/collections/posts";
 import withErrorBoundary from '../common/withErrorBoundary';
-import Typography from '@material-ui/core/Typography';
 import withUser from "../common/withUser";
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import grey from '@material-ui/core/colors/grey';
 import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
 
@@ -18,7 +16,7 @@ export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 export const COMMENTS_WIDTH = 48
 
-const COMMENTS_BACKGROUND_COLOR = grey[200]
+const COMMENTS_BACKGROUND_COLOR = "rgba(0,0,0,.1)"
 
 const styles = (theme) => ({
   root: {
@@ -50,14 +48,6 @@ const styles = (theme) => ({
   commentsBackground: {
     backgroundColor: COMMENTS_BACKGROUND_COLOR,
     transition: "0s",
-  },
-  commentBox: {
-    borderLeft: "solid 1px rgba(0,0,0,.2)",
-    borderRight: "solid 1px rgba(0,0,0,.2)",
-    paddingBottom: 0,
-    [theme.breakpoints.down('sm')]: {
-      padding: theme.spacing.unit
-    }
   },
   firstItem: {
     borderTop: "solid 1px rgba(0,0,0,.2)"
@@ -128,8 +118,10 @@ const styles = (theme) => ({
   },
   newCommentsSection: {
     width: "100%",
-    marginTop: theme.spacing.unit,
-    padding: theme.spacing.unit*2,
+    paddingLeft: theme.spacing.unit*2,
+    paddingRight: theme.spacing.unit*2,
+    paddingBottom: theme.spacing.unit,
+    paddingTop: theme.spacing.unit,
     cursor: "pointer",
     [theme.breakpoints.down('sm')]: {
       padding: 0,
@@ -190,7 +182,7 @@ const styles = (theme) => ({
 class PostsItem2 extends PureComponent {
   constructor(props) {
     super(props)
-    this.state = { showComments: false, readComments: false}
+    this.state = { showComments: props.defaultToShowComments, readComments: false}
     this.postsItemRef = React.createRef();
   }
 
@@ -217,23 +209,37 @@ class PostsItem2 extends PureComponent {
     }
   }
 
+  hasUnreadComments = () => {
+    const { post } = this.props
+    const { lastVisitedAt } = post
+    const { readComments } = this.state
+    const lastCommentedAt = Posts.getLastCommentedAt(post)
+    const read = lastVisitedAt;
+    const newComments = lastVisitedAt < lastCommentedAt;
+    return (read && newComments && !readComments)
+  }
+
   render() {
-    const { classes, post, chapter, currentUser, index, terms, showBottomBorder=true, showQuestionTag=true, showPostedAt=true } = this.props
-    const { showComments, readComments } = this.state
+    const { classes, post, chapter, currentUser, index, terms, showBottomBorder=true, showQuestionTag=true,showIcons=true, showPostedAt=true, defaultToShowUnreadComments=false } = this.props
+    const { showComments } = this.state
     const { PostsItemComments, PostsItemKarma, PostsItemTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
 
     const postLink = chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getPageUrl(post)
     
+    const unreadComments = this.hasUnreadComments()
+
+    const renderComments = showComments || (defaultToShowUnreadComments && unreadComments)
+    const condensedAndHiddenComments = defaultToShowUnreadComments && unreadComments && !showComments
+
     return (
       <div className={classes.root} ref={this.postsItemRef}>
         <div className={classNames(
           classes.background,
           {
             [classes.bottomBorder]: showBottomBorder,
-            [classes.commentsBackground]: showComments,
+            [classes.commentsBackground]: renderComments,
             [classes.firstItem]: (index===0) && showComments,
             "personalBlogpost": !post.frontpageDate,
-            [classes.commentBox]: showComments
           }
         )}>
           <div className={classes.postsItem}>
@@ -246,7 +252,7 @@ class PostsItem2 extends PureComponent {
             </Link>
 
             { post.user && !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
-              <PostsUserAndCoauthors post={post}/>
+              <PostsUserAndCoauthors post={post} abbreviateIfLong={true} />
             </PostsItem2MetaInfo>}
 
             { post.isEvent && <PostsItem2MetaInfo className={classes.event}>
@@ -261,12 +267,16 @@ class PostsItem2 extends PureComponent {
               <PostsPageActions post={post} menuClassName={classes.actionsMenu} />
             </div>}
 
-            <Hidden mdUp implementation="css">
+            {showIcons && <Hidden mdUp implementation="css">
               <PostsItemIcons post={post}/>
-            </Hidden>
+            </Hidden>}
 
             <div className={classes.commentsIcon}>
-              <PostsItemComments post={post} onClick={() => this.toggleComments(false)} readStatus={readComments}/>
+              <PostsItemComments 
+                post={post} 
+                onClick={() => this.toggleComments(false)} 
+                unreadComments={unreadComments}
+              />
             </div>
 
           </div>
@@ -274,14 +284,15 @@ class PostsItem2 extends PureComponent {
             <PostsPageActions post={post} vertical menuClassName={classes.actionsMenu} />
           </div>}
           
-          {this.state.showComments && <div className={classes.newCommentsSection} onClick={() => this.toggleComments(true)}>
+          {renderComments && <div className={classes.newCommentsSection} onClick={() => this.toggleComments(true)}>
             <Components.PostsItemNewCommentsWrapper
               currentUser={currentUser}
               highlightDate={post.lastVisitedAt}
               terms={{view:"postCommentsUnread", limit:7, postId: post._id}}
               post={post}
+              condensed={condensedAndHiddenComments}
+              hideReadComments={condensedAndHiddenComments}
             />
-            <Typography variant="body2" className={classes.closeComments}><a>Close</a></Typography>
           </div>}
         </div>
       </div>

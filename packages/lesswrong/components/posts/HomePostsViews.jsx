@@ -228,12 +228,18 @@ class HomePostsViews extends Component {
             {!props.hideDaily && <div className={classes.postsViewButton}><span className={classes.viewChip}>
               {/* TODO; Regression */}
               <Components.SectionSubtitle className={classes.viewChipInactive}>
-                <Link to="/community">Community</Link> { this.renderMenu(postViewSections["meta"])}
+                <Link to="/meta">
+                  {postViewSections["meta"].label}
+                </Link>
+                {this.renderMenu(postViewSections["meta"])}
               </Components.SectionSubtitle></span>
             </div>}
             {!props.hideDaily && <span className={classes.viewChip}>
               <Components.SectionSubtitle className={classes.viewChipInactive}>
-                <Link to="/allPosts">All Posts</Link> { this.renderMenu(postViewSections["daily"])}
+                <Link to="/allPosts">
+                  {postViewSections["daily"].label}
+                </Link>
+                {this.renderMenu(postViewSections["daily"])}
               </Components.SectionSubtitle>
             </span>}
           </span> : <span>

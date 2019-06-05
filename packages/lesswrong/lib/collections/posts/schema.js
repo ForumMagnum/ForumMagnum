@@ -88,11 +88,11 @@ const schema = {
     optional: true,
     viewableBy: ['guests'],
     onInsert: (post) => {
-      return Utils.slugify(post.title);
+      return Utils.getUnusedSlugByCollectionName("Posts", Utils.slugify(post.title))
     },
     onEdit: (modifier, post) => {
       if (modifier.$set.title) {
-        return Utils.slugify(modifier.$set.title);
+        return Utils.getUnusedSlugByCollectionName("Posts", Utils.slugify(modifier.$set.title))
       }
     }
   },
@@ -294,14 +294,6 @@ const schema = {
     }
   }),
 
-  commentsCount: resolverOnlyField({
-    type: Number,
-    viewableBy: ['guests'],
-    resolver: (post, args, { Comments }) => {
-      return Comments.find({ postId: post._id }).count();
-    },
-  }),
-
   emailShareUrl: resolverOnlyField({
     type: String,
     viewableBy: ['guests'],
@@ -389,6 +381,7 @@ const schema = {
     insertableBy: ['admins', 'sunshineRegiment'],
     editableBy: ['admins', 'sunshineRegiment'],
     optional: true,
+    hidden: true,
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
     onCreate: ({newDocument}) => {

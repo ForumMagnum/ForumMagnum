@@ -72,6 +72,7 @@ import '../components/common/ContentItemBody.jsx';
 import '../components/common/Footer.jsx';
 import '../components/common/LoadMore.jsx';
 import '../components/common/ReCaptcha.jsx';
+import '../components/common/LinkCard.jsx';
 
 
 // Outgoing RSS Feed builder
@@ -97,6 +98,7 @@ import '../components/users/AccountsResetPassword.jsx';
 import '../components/users/EmailTokenPage.jsx';
 import '../components/users/EmailTokenResult.jsx';
 import '../components/users/UserNameDeleted.jsx';
+import '../components/users/WrappedLoginForm.jsx';
 
 import '../components/icons/OmegaIcon.jsx';
 
@@ -132,6 +134,7 @@ import '../components/posts/PostsItemMetaInfo.jsx';
 import '../components/posts/PostsItemNewCommentsWrapper.jsx';
 import '../components/posts/PostsItemIcons.jsx';
 import '../components/posts/PostsItemCuratedIcon.jsx';
+import '../components/posts/PostsItemPersonalIcon.jsx';
 import '../components/posts/PostsItemAlignmentIcon.jsx';
 import '../components/posts/PostsPage';
 import '../components/posts/PostsPageAdminActions.jsx';
@@ -143,8 +146,6 @@ import '../components/posts/PostsList.jsx';
 import '../components/posts/PostsList2.jsx'; // Should replace PostsList eventually
 import '../components/posts/PostsDaily.jsx';
 import '../components/posts/PostsDay.jsx';
-import '../components/posts/EventsPast.jsx';
-import '../components/posts/EventsUpcoming.jsx';
 import '../components/posts/PostsCommentsThread.jsx';
 import '../components/posts/PostsNewForm.jsx';
 import '../components/posts/PostsEditForm.jsx';
@@ -160,28 +161,35 @@ import '../components/posts/SubmitToFrontpageCheckbox';
 import '../components/posts/ReportPostMenuItem.jsx';
 import '../components/posts/PostsItemDate.jsx';
 
-
 import '../components/votes/VoteButton.jsx';
 import '../components/votes/CommentsVote.jsx';
 import '../components/votes/PostsVote.jsx';
 
-import '../components/localGroups/CommunityHome.jsx';
-import '../components/localGroups/CommunityMap.jsx';
-import '../components/localGroups/CommunityMapFilter.jsx';
-import '../components/localGroups/CommunityMapWrapper.jsx';
-import '../components/localGroups/EventTime.jsx';
-import '../components/localGroups/EventVicinity.jsx';
-import '../components/localGroups/LocalGroupMarker.jsx';
-import '../components/localGroups/LocalEventMarker.jsx';
-import '../components/localGroups/LocalGroupPage.jsx';
-import '../components/localGroups/LocalGroupSingle.jsx';
-import '../components/localGroups/GroupFormLink.jsx';
-import '../components/localGroups/SmallMapPreview.jsx';
-import '../components/localGroups/SmallMapPreviewWrapper.jsx';
-import '../components/localGroups/GroupLinks.jsx';
-import '../components/localGroups/LocalGroupsList.jsx';
-import '../components/localGroups/LocalGroupsItem.jsx';
-import '../components/localGroups/TabNavigationEventsList.jsx';
+// events
+
+if (getSetting('hasEvents', true)) {
+  import '../components/posts/EventsPast.jsx';
+  import '../components/posts/EventsUpcoming.jsx';
+  import '../components/localGroups/CommunityHome.jsx';
+  import '../components/localGroups/CommunityMap.jsx';
+  import '../components/localGroups/CommunityMapFilter.jsx';
+  import '../components/localGroups/CommunityMapWrapper.jsx';
+  import '../components/localGroups/EventTime.jsx';
+  import '../components/localGroups/EventVicinity.jsx';
+  import '../components/localGroups/LocalGroupMarker.jsx';
+  import '../components/localGroups/LocalEventMarker.jsx';
+  import '../components/localGroups/LocalGroupPage.jsx';
+  import '../components/localGroups/LocalGroupSingle.jsx';
+  import '../components/localGroups/GroupFormLink.jsx';
+  import '../components/localGroups/SmallMapPreview.jsx';
+  import '../components/localGroups/SmallMapPreviewWrapper.jsx';
+  import '../components/localGroups/GroupLinks.jsx';
+  import '../components/localGroups/LocalGroupsList.jsx';
+  import '../components/localGroups/LocalGroupsItem.jsx';
+  import '../components/localGroups/TabNavigationEventsList.jsx';
+}
+
+// comments
 
 import '../components/comments/CommentsItem/CommentsItem.jsx';
 import '../components/comments/CommentsItem/RetractCommentMenuItem.jsx';
@@ -347,10 +355,10 @@ import '../components/questions/AnswerCommentsList.jsx';
 import '../components/questions/AnswersList.jsx';
 import '../components/questions/Answer.jsx';
 import '../components/questions/QuestionsPage.jsx';
-import '../components/questions/AnswerTocRow.jsx';
 import '../components/questions/RelatedQuestionsList.jsx';
 
 import '../components/recommendations/ConfigurableRecommendationsList.jsx';
 import '../components/recommendations/RecommendationsAlgorithmPicker.jsx';
 import '../components/recommendations/RecommendationsList.jsx';
 import '../components/recommendations/RecommendationsPage.jsx';
+import '../components/recommendations/RecommendationsAndCurated.jsx';

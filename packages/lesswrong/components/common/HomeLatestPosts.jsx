@@ -51,16 +51,29 @@ class HomeLatestPosts extends PureComponent {
       </div>
     )
 
+    const personalBlogpostTooltip = <div>
+      <div>
+        By default, the home page only displays Frontpage Posts, which are selected by moderators as especially interesting or useful to people with interest in doing good effectively.
+      </div>
+      <div>
+        Include community posts to get posts with topical content or which relate to the EA community itself.
+      </div>
+    </div>
+
     return (
       <SingleColumnSection>
         <SectionTitle title={<Tooltip title={latestTitle} placement="left-start"><span>Latest Posts</span></Tooltip>}/>
         <PostsList2 terms={recentPostsTerms}>
           <Link to={"/allPosts"}>View All Posts</Link>
-          <SectionFooterCheckbox 
-            onClick={this.toggleFilter} 
-            value={!(currentFilter === "frontpage")} 
-            label={"Include Community Posts"}
-            />
+          <Tooltip title={personalBlogpostTooltip}>
+            <div>
+              <SectionFooterCheckbox
+                onClick={this.toggleFilter}
+                value={!(currentFilter === "frontpage")}
+                label={"Include Community Posts"}
+              />
+            </div>
+          </Tooltip>
         </PostsList2>
       </SingleColumnSection>
     )

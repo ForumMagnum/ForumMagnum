@@ -1,6 +1,6 @@
 import Users from "meteor/vulcan:users";
-import { getSetting } from "meteor/vulcan:core"
-import { foreignKeyField, addFieldsDict, resolverOnlyField } from '../../modules/utils/schemaUtils'
+import { getSetting, Utils } from "meteor/vulcan:core"
+import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences } from '../../modules/utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
 import { addUniversalFields } from '../../collectionUtils'
 import SimpleSchema from 'simpl-schema'
@@ -40,18 +40,18 @@ export const formGroups = {
 export const karmaChangeNotifierDefaultSettings = {
   // One of the string keys in karmaNotificationTimingChocies
   updateFrequency: "daily",
-  
+
   // Time of day at which daily/weekly batched updates are released, a number
   // of hours [0,24). Always in GMT, regardless of the user's time zone.
   // Default corresponds to 3am PST.
   timeOfDayGMT: 11,
-  
+
   // A string day-of-the-week name, spelled out and capitalized like "Monday".
   // Always in GMT, regardless of the user's timezone (timezone matters for day
   // of the week because time zones could take it across midnight.)
   dayOfWeekGMT: "Saturday",
 
-  // A boolean that determines whether we hide or show negative karma updates. 
+  // A boolean that determines whether we hide or show negative karma updates.
   // False by default because people tend to drastically overweigh negative feedback
   showNegativeKarma: false,
 };
@@ -74,7 +74,7 @@ const karmaChangeSettingsType = new SimpleSchema({
     allowedValues: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
   },
   showNegativeKarma: {
-    type: Boolean, 
+    type: Boolean,
     optional: true,
   }
 })
@@ -364,7 +364,7 @@ addFieldsDict(Users, {
     foreignKey: "Users",
     optional: true
   },
-  
+
   // Legacy ID: ID used in the original LessWrong database
   legacyId: {
     type: String,
@@ -465,7 +465,7 @@ addFieldsDict(Users, {
     group: formGroups.notifications,
     label: "Notifications For Replies to My Comments",
   },
-  
+
   // Karma-change notifier settings
   karmaChangeNotifierSettings: {
     group: formGroups.notifications,
@@ -477,7 +477,7 @@ addFieldsDict(Users, {
     canCreate: [Users.owns, 'admins', 'sunshineRegiment'],
     ...schemaDefaultValue(karmaChangeNotifierDefaultSettings)
   },
-  
+
   // Time at which the karma-change notification was last opened (clicked)
   karmaChangeLastOpened: {
     hidden: true,
@@ -487,7 +487,7 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'admins'],
     canRead: [Users.owns, 'admins'],
   },
-  
+
   // If, the last time you opened the karma-change notifier, you saw more than
   // just the most recent batch (because there was a batch you hadn't viewed),
   // the start of the date range of that batch.
@@ -532,26 +532,44 @@ addFieldsDict(Users, {
     type: Number,
     denormalized: true,
     optional: true,
-    canRead: ['guests'],
     onInsert: (document, currentUser) => 0,
+
+
+    ...denormalizedCountOfReferences({
+      fieldName: "frontpagePostCount",
+      collectionName: "Users",
+      foreignCollectionName: "Posts",
+      foreignTypeName: "post",
+      foreignFieldName: "userId",
+      filterFn: post => !!post.frontpageDate
+    }),
+    canRead: ['guests'],
   },
 
   // sequenceCount: count of how many non-draft, non-deleted sequences you have
   sequenceCount: {
-    type: Number,
-    denormalized: true,
-    optional: true,
+    ...denormalizedCountOfReferences({
+      fieldName: "sequenceCount",
+      collectionName: "Users",
+      foreignCollectionName: "Sequences",
+      foreignTypeName: "sequence",
+      foreignFieldName: "userId",
+      filterFn: sequence => !sequence.draft && !sequence.isDeleted
+    }),
     canRead: ['guests'],
-    onInsert: (document, currentUser) => 0,
   },
 
   // sequenceDraftCount: count of how many draft, non-deleted sequences you have
   sequenceDraftCount: {
-    type: Number,
-    denormalized: true,
-    optional: true,
+    ...denormalizedCountOfReferences({
+      fieldName: "sequenceDraftCount",
+      collectionName: "Users",
+      foreignCollectionName: "Sequences",
+      foreignTypeName: "sequence",
+      foreignFieldName: "userId",
+      filterFn: sequence => sequence.draft && !sequence.isDeleted
+    }),
     canRead: ['guests'],
-    onInsert: (document, currentUser) => 0,
   },
 
   mongoLocation: {
@@ -737,9 +755,49 @@ addFieldsDict(Users, {
   },
   // ReCaptcha v3 Integration
   signUpReCaptchaRating: {
-    type: Number, 
-    optional: true, 
+    type: Number,
+    optional: true,
     canRead: [Users.owns, 'sunshineRegiment', 'admins']
+  },
+  // Unique user slug for URLs, copied over from Vulcan-Accounts
+  slug: {
+    type: String,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    group: formGroups.adminOptions,
+    order: 40,
+    onInsert: user => {
+      // create a basic slug from display name and then modify it if this slugs already exists;
+      const displayName = createDisplayName(user);
+      const basicSlug = Utils.slugify(displayName);
+      return Utils.getUnusedSlugByCollectionName('Users', basicSlug, true);
+    },
+    onUpdate: async ({data, document}) => {
+      //Make sure to update this callback for Apollo2 upgrade
+      if (data.slug && data.slug !== document.slug) {
+        const slugIsUsed = await Utils.slugIsUsed("Users", data.slug)
+        if (slugIsUsed) {
+          throw Error(`Specified slug is already used: ${data.slug}`)
+        }
+      }
+    }
+  },
+  oldSlugs: {
+    type: Array,
+    optional: true,
+    canRead: ['guests'],
+    onUpdate: ({data, document}) => {
+      // Make sure to update this callback for Apollo2 upgrade
+      if (data.slug && data.slug !== document.slug)  {
+        return [...(document.oldSlugs || []), document.slug]
+      }
+    }
+  },
+  'oldSlugs.$': {
+    type: String,
+    optional: true,
+    canRead: ['guests'],
   }
 });
 
@@ -766,3 +824,16 @@ makeEditable({
 })
 
 addUniversalFields({collection: Users})
+
+// Copied over utility function from Vulcan
+const createDisplayName = user => {
+  const profileName = Utils.getNestedProperty(user, 'profile.name');
+  const twitterName = Utils.getNestedProperty(user, 'services.twitter.screenName');
+  const linkedinFirstName = Utils.getNestedProperty(user, 'services.linkedin.firstName');
+  if (profileName) return profileName;
+  if (twitterName) return twitterName;
+  if (linkedinFirstName) return `${linkedinFirstName} ${Utils.getNestedProperty(user, 'services.linkedin.lastName')}`;
+  if (user.username) return user.username;
+  if (user.email) return user.email.slice(0, user.email.indexOf('@'));
+  return undefined;
+}
