@@ -758,7 +758,8 @@ addFieldsDict(Users, {
     optional: true,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    tooltip: "Get early access to new in-development features"
+    tooltip: "Get early access to new in-development features",
+    label: "Opt into beta features"
   },
   // ReCaptcha v3 Integration
   signUpReCaptchaRating: {
