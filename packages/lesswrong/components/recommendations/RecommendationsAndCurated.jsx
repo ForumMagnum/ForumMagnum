@@ -1,10 +1,8 @@
 import React, { PureComponent } from 'react';
 import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
-// import SettingsIcon from '@material-ui/icons/Settings';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import Users from 'meteor/vulcan:users';
-// import { getRecommendationSettings } from './RecommendationsAlgorithmPicker';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
@@ -34,29 +32,11 @@ const styles = theme => ({
 });
 
 class RecommendationsAndCurated extends PureComponent {
-  // This component will eventually get some settings again, so leaving the infrastructure here
-  // state = {
-  //   settingsVisible: false,
-  //   settings: null
-  // }
-  
-  // toggleSettings = () => {
-  //   this.setState({
-  //     settingsVisible: !this.state.settingsVisible,
-  //   });
-  // }
-  
-  // changeSettings = (newSettings) => {
-  //   this.setState({
-  //     settings: newSettings
-  //   });
-  // }
   
   render() {
     const { classes } = this.props;
     const { BetaTag, SingleColumnSection, SectionTitle,
       RecommendationsList, PostsList2, SubscribeWidget } = Components;
-    // const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
     
     const curatedTooltip = <div>
       <div>Every few days, LessWrong moderators manually curate posts that are well written and informative.</div>
@@ -79,9 +59,7 @@ class RecommendationsAndCurated extends PureComponent {
       onlyUnread: true,
     }
     return <SingleColumnSection>
-      <SectionTitle title="Recommendations [Beta]">
-        {/* <SettingsIcon className={classes.gearIcon} onClick={this.toggleSettings}/> */}
-      </SectionTitle>
+      <SectionTitle title="Recommendations [Beta]" />
       <div>
         <Tooltip placement="top-start" title={allTimeTooltip}>
           <Link className={classNames(classes.subtitle, classes.topUnread)} to={"/recommendations"}>

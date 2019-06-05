@@ -3,7 +3,7 @@ import { Posts } from '../lib/collections/posts';
 import { WeightedList } from './weightedList.js';
 import { accessFilterMultiple } from '../lib/modules/utils/schemaUtils.js';
 
-const MINIMUM_BASE_SCORE = 60
+const MINIMUM_BASE_SCORE = 50
 
 // The set of fields on Posts which are used for deciding which posts to
 // recommend. Fields other than these will be projected out before downloading
