@@ -4,6 +4,7 @@ import NoSSR from 'react-no-ssr';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
+import { Link } from '../../lib/reactRouterWrapper'
 
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 
@@ -40,7 +41,11 @@ class ConfigurableRecommendationsList extends PureComponent {
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
     
     return <SingleColumnSection>
-      <SectionTitle title="Recommended">
+      <SectionTitle
+        title={<Link to={'/recommendations'}>
+          Recommended
+        </Link>}
+      >
         <SettingsIcon className={classes.gearIcon} onClick={this.toggleSettings}/>
       </SectionTitle>
       { this.state.settingsVisible &&
