@@ -19,6 +19,7 @@ const styles = theme => ({
     marginTop: theme.spacing.unit,
   },
   curated: {
+    display: "block",
     marginTop: theme.spacing.unit*2,
   },
   subtitle: {
@@ -94,13 +95,11 @@ class RecommendationsAndCurated extends PureComponent {
           algorithm={frontpageRecommendationSettings}
         />
       </div>
-      <div>
-        <Tooltip placement="top-start" title={curatedTooltip}>
-          <Link className={classNames(classes.subtitle, classes.curated)} to={"/allPosts?filter=curated&view=new"}>
-            Recently Curated
-          </Link>
-        </Tooltip>
-      </div>
+      <Tooltip placement="top-start" title={curatedTooltip}>
+        <Link className={classNames(classes.subtitle, classes.curated)} to={"/allPosts?filter=curated&view=new"}>
+          Recently Curated
+        </Link>
+      </Tooltip>
       <div className={classes.list}>
         <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false}>
           <Link to={"/allPosts?filter=curated&view=new"}>View All Curated Posts</Link>

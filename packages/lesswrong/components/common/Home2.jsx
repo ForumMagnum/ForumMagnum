@@ -32,7 +32,7 @@ class Home2 extends PureComponent {
         <Components.HeadTags image={getSetting('siteImage')} />
         <TabNavigationMenu />
   
-        {!currentUser?.beta && <SingleColumnSection>
+        {!currentUser && <SingleColumnSection>
           <SectionTitle title="Core Reading" />
           <Components.CoreReading />
         </SingleColumnSection>}
