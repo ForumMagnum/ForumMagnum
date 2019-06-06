@@ -635,6 +635,7 @@ addFieldsDict(Users, {
   //   1.0: Reviewed user with 20+ karma
   spamRiskScore: resolverOnlyField({
     type: Number,
+    graphQLtype: "Float",
     canRead: ['guests'],
     resolver: (user, args, context) => {
       const isReviewed = !!user.reviewedByUserId;
