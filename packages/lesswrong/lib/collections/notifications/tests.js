@@ -64,6 +64,7 @@ describe('notification generation', async () => {
     const user = await createDummyUser()
     const otherUser = await createDummyUser()
     performSubscriptionAction('subscribe', Users, user._id, otherUser)
+    await waitUntilCallbacksFinished();
     await createDummyPost(user);
     await waitUntilCallbacksFinished();
     
@@ -76,6 +77,7 @@ describe('notification generation', async () => {
     const user = await createDummyUser()
     const otherUser = await createDummyUser()
     const post = await createDummyPost(user);
+    await waitUntilCallbacksFinished();
     await createDummyComment(otherUser, {postId: post._id});
     await waitUntilCallbacksFinished();
     
@@ -99,7 +101,9 @@ describe('notification generation', async () => {
     const user2 = await createDummyUser()
     const user3 = await createDummyUser()
     const post = await createDummyPost(user1);
+    await waitUntilCallbacksFinished();
     const comment = await createDummyComment(user2, {postId: post._id});
+    await waitUntilCallbacksFinished();
     performSubscriptionAction('subscribe', Comments, comment._id, user3)
     await waitUntilCallbacksFinished();
     await createDummyComment(user1, {postId: post._id, parentCommentId: comment._id});
