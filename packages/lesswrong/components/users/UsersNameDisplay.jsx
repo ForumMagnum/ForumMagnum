@@ -29,7 +29,7 @@ const styles = theme => ({
   }
 })
 
-const UsersNameDisplay = ({user, classes}) => {
+const UsersNameDisplay = ({user, classes, nofollow=false}) => {
   if (!user) return <Components.UserDeleted/>
   const { FormatDate } = Components
   const { htmlBio } = user
@@ -46,7 +46,9 @@ const UsersNameDisplay = ({user, classes}) => {
   </div>
 
   return <Tooltip title={tooltip}>
-    <Link to={Users.getProfileUrl(user)} className={classes.userName}>
+    <Link to={Users.getProfileUrl(user)} className={classes.userName}
+      {...(nofollow ? {rel:"nofollow"} : {})}
+    >
       {getSetting('forumType') === 'AlignmentForum' ? (user.fullName || Users.getDisplayName(user)) : Users.getDisplayName(user)}
     </Link>
   </Tooltip>
