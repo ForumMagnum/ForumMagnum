@@ -98,7 +98,7 @@ export const setUserPartiallyReadSequences = async (userId, newPartiallyReadSequ
   });
 }
 
-const EventUpdatePartialReadStatusCallback = async (event) => {
+const EventUpdatePartialReadStatusCallback = (event) => {
   if (event.name === 'post-view' && event.properties.sequenceId) {
     // Deliberately lacks an await - this runs concurrently in the background
     updateSequenceReadStatusForPostRead(event.userId, event.documentId, event.properties.sequenceId);
