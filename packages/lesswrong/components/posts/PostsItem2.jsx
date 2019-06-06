@@ -200,6 +200,7 @@ const styles = (theme) => ({
   },
   nextUnreadIn: {
     color: theme.palette.grey[800],
+    fontFamily: theme.typography.commentStyle.fontFamily,
     
     [theme.breakpoints.up('md')]: {
       position: "absolute",
