@@ -3,12 +3,12 @@ import Users from 'meteor/vulcan:users';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const UsersNameWrapper = ({document, documentId, loading}) => {
+const UsersNameWrapper = ({document, documentId, loading, nofollow=false}) => {
   if (!document && loading) {
     return <Components.Loading />
   }
   if (document) {
-    return <Components.UsersNameDisplay user={document} />
+    return <Components.UsersNameDisplay user={document} nofollow={nofollow} />
   }
 };
 
