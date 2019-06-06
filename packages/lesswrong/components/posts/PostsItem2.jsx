@@ -165,9 +165,6 @@ const styles = (theme) => ({
     cursor: "pointer",
     alignItems: "center",
     justifyContent: "center",
-    '&:hover': {
-      opacity: 1
-    },
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
@@ -190,6 +187,15 @@ const styles = (theme) => ({
     display: "none",
     [theme.breakpoints.down('sm')]: {
       display: "block"
+    }
+  },
+  mobileDismissButton: {
+    display: "none",
+    opacity: 0.5,
+    verticalAlign: "middle",
+    marginLeft: 5,
+    [theme.breakpoints.down('sm')]: {
+      display: "inline-block"
     }
   },
   nextUnreadIn: {
@@ -232,6 +238,8 @@ const styles = (theme) => ({
     }
   },
 })
+
+const dismissRecommendationTooltip = "Don't remind me to finish reading this sequence unless I visit it again";
 
 class PostsItem2 extends PureComponent {
   constructor(props) {
@@ -285,6 +293,11 @@ class PostsItem2 extends PureComponent {
     const renderComments = showComments || (defaultToShowUnreadComments && unreadComments)
     const condensedAndHiddenComments = defaultToShowUnreadComments && unreadComments && !showComments
 
+    const dismissButton = (resumeReading && <Tooltip title={dismissRecommendationTooltip} placement="right">
+        <CloseIcon onClick={() => this.props.dismissRecommendation()}/>
+      </Tooltip>
+    )
+    
     return (
       <div className={classes.root} ref={this.postsItemRef}>
         <div className={classNames(
@@ -317,6 +330,10 @@ class PostsItem2 extends PureComponent {
                 </Link>
                 {" "}
                 ({resumeReading.numRead}/{resumeReading.numTotal} read)
+                
+                <div className={classes.mobileDismissButton}>
+                  {dismissButton}
+                </div>
               </div>
             }
 
@@ -333,7 +350,7 @@ class PostsItem2 extends PureComponent {
             <div className={classes.mobileSecondRowSpacer}/>
             
             {<div className={classes.mobileActions}>
-              <PostsPageActions post={post} menuClassName={classes.actionsMenu} />
+              {!resumeReading && <PostsPageActions post={post} menuClassName={classes.actionsMenu} />}
             </div>}
 
             {showIcons && <Hidden mdUp implementation="css">
@@ -361,9 +378,7 @@ class PostsItem2 extends PureComponent {
           </div>
           
           {<div className={classes.actions}>
-            {resumeReading && <Tooltip title="Don't remind me to finish reading this sequence unless I visit it again" placement="right">
-              <CloseIcon onClick={() => this.props.dismissRecommendation()}/>
-            </Tooltip>}
+            {dismissButton}
             {!resumeReading && <PostsPageActions post={post} vertical menuClassName={classes.actionsMenu} />}
           </div>}
           
