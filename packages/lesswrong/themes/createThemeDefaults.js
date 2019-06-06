@@ -177,6 +177,8 @@ const createLWTheme = (theme) => {
     },
     zIndexes: {
       commentsMenu: 1,
+      sequencesPageContent: 1,
+      sequencesImageScrim: 1,
       postsVote: 1,
       singleLineCommentMeta: 2,
       postItemTitle: 2,

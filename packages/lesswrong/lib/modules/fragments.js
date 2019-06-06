@@ -14,6 +14,8 @@ registerFragment(`
     participants {
       ...UsersMinimumInfo
     }
+    archivedByIds
+    messageCount
   }
 `);
 
@@ -62,6 +64,7 @@ extendFragment('UsersCurrent', `
   ...UsersMinimumInfo
   voteBanned
   banned
+  isReviewed
   nullifyVotes
   hideIntercom
   currentFrontpageFilter
@@ -332,6 +335,7 @@ registerFragment(`
     commentCount
     afPostCount 
     afCommentCount
+    beta
   }
 `);
 

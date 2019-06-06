@@ -603,6 +603,8 @@ addFieldsDict(Users, {
     optional: true
   },
 
+  // Set after a moderator has approved or purged a new user. NB: reviewed does
+  // not imply approval, the user might have been banned
   reviewedByUserId: {
     ...foreignKeyField({
       idFieldName: "reviewedByUserId",
@@ -616,6 +618,12 @@ addFieldsDict(Users, {
     canCreate: ['sunshineRegiment', 'admins'],
     group: formGroups.adminOptions,
   },
+
+  isReviewed: resolverOnlyField({
+    type: Boolean,
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+    resolver: (user, args, context) => !!user.reviewedByUserId,
+  }),
 
   allVotes: resolverOnlyField({
     type: Array,
@@ -752,6 +760,14 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     label: "Auto-collapse comments from GPT2"
+  },
+  beta: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    tooltip: "Get early access to new in-development features",
+    label: "Opt into beta features"
   },
   // ReCaptcha v3 Integration
   signUpReCaptchaRating: {

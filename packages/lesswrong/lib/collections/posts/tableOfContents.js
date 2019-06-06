@@ -183,7 +183,11 @@ async function getTocAnswers (document) {
   }))
 
   if (answerSections.length) {
-    return [{anchor: "answers", level:1, title:"Answers"}, ...answerSections]
+    return [
+      {anchor: "answers", level:1, title:'Answers'}, 
+      ...answerSections,
+      {divider:true, level: 0, anchor: "postHeadingsDivider"}
+    ]
   } else {
     return []
   }
@@ -215,7 +219,7 @@ const getTableOfContentsData = async (document, args, options) => {
   
   if (tocSections.length >= MIN_HEADINGS_FOR_TOC) {
     return {
-      html: tableOfContents.html,
+      html: tableOfContents?.html,
       sections: tocSections,
       headingsCount: tocSections.length
     }
