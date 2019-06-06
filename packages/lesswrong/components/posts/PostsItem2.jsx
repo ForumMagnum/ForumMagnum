@@ -7,6 +7,7 @@ import { Sequences } from "../../lib/collections/sequences/collection.js";
 import { Collections } from "../../lib/collections/collections/collection.js";
 import withErrorBoundary from '../common/withErrorBoundary';
 import CloseIcon from '@material-ui/icons/Close';
+import Tooltip from '@material-ui/core/Tooltip';
 import withUser from "../common/withUser";
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
@@ -360,7 +361,9 @@ class PostsItem2 extends PureComponent {
           </div>
           
           {<div className={classes.actions}>
-            {resumeReading && <CloseIcon onClick={() => this.props.dismissRecommendation()}/>}
+            {resumeReading && <Tooltip title="Don't remind me to finish reading this sequence unless I visit it again" placement="right">
+              <CloseIcon onClick={() => this.props.dismissRecommendation()}/>
+            </Tooltip>}
             {!resumeReading && <PostsPageActions post={post} vertical menuClassName={classes.actionsMenu} />}
           </div>}
           
