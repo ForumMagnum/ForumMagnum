@@ -336,6 +336,7 @@ registerFragment(`
     afPostCount 
     afCommentCount
     beta
+    spamRiskScore
   }
 `);
 

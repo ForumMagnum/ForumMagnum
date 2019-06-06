@@ -624,6 +624,36 @@ addFieldsDict(Users, {
     canRead: [Users.owns, 'sunshineRegiment', 'admins'],
     resolver: (user, args, context) => !!user.reviewedByUserId,
   }),
+  
+  // A number from 0 to 1, where 0 is almost certainly spam, and 1 is almost
+  // certainly not-spam. This is the same scale as ReCaptcha, except that it
+  // also includes post-signup activity like moderator approval, upvotes, etc.
+  // Scale:
+  //   0    Banned and purged user
+  //   0-0.8: Unreviewed user, based on ReCaptcha rating on signup (times 0.8)
+  //   0.9: Reviewed user
+  //   1.0: Reviewed user with 20+ karma
+  spamRiskScore: resolverOnlyField({
+    type: Number,
+    canRead: ['guests'],
+    resolver: (user, args, context) => {
+      const isReviewed = !!user.reviewedByUserId;
+      const { karma, signUpReCaptchaRating } = user;
+      
+      if (user.deleteContent && user.banned) return 0.0;
+      else if (Users.isAdmin(user)) return 1.0;
+      else if (isReviewed && karma>=20) return 1.0;
+      else if (isReviewed && karma>=0) return 0.9;
+      else if (isReviewed) return 0.8;
+      else if (signUpReCaptchaRating>=0) {
+        // Rescale recaptcha ratings to [0,.8]
+        return signUpReCaptchaRating * 0.8;
+      } else {
+        // No recaptcha rating present; score it .8
+        return 0.8;
+      }
+    }
+  }),
 
   allVotes: resolverOnlyField({
     type: Array,
@@ -770,6 +800,7 @@ addFieldsDict(Users, {
     label: "Opt into beta features"
   },
   // ReCaptcha v3 Integration
+  // From 0 to 1. Lower is spammier, higher is humaner.
   signUpReCaptchaRating: {
     type: Number,
     optional: true,
