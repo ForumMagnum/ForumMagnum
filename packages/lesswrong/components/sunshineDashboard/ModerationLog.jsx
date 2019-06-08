@@ -11,20 +11,20 @@ const DateDisplay = ({column, document}) => {
 
 const PostDisplay = ({column, document}) => {
   const post = document.post || document
-  return <Link to={Posts.getPageUrl(post) + "#" + document._id }>{ post.title }</Link>
+  return <Link rel="nofollow" to={Posts.getPageUrl(post) + "#" + document._id }>{ post.title }</Link>
 }
 
 const UserDisplay = ({column, document}) => {
   const user = document.user || document
   return <div>
-    <Components.UsersName user={user} />
+    <Components.UsersName user={user} nofollow />
   </div>
 }
 
 const DeletedByUserDisplay = ({column, document}) => {
   const user = document.deletedByUser || document.user || document
   return <div>
-    <Components.UsersName user={user} />
+    <Components.UsersName user={user} nofollow />
   </div>
 }
 
@@ -33,7 +33,7 @@ const BannedUsersDisplay = ({column, document}) => {
   const bannedUsers = document[column.name]
   return <div>
     { bannedUsers.map((userId) => <div key={userId}>
-      <Components.UsersNameWrapper documentId={userId} />
+      <Components.UsersNameWrapper documentId={userId} nofollow />
       </div>)}
   </div>
 }

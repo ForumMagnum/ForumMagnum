@@ -9,17 +9,6 @@
   .sequences-image-scrim-overlay {
     height: 200px;
   }
-  .sequences-title-wrapper {
-    width: 100vw !important;
-    left: inherit !important;
-    padding-left: 10px;
-    padding-right: 10px;
-    .sequences-title {
-      left: inherit !important;
-      width: inherit !important;
-      text-align: center;
-    }
-  }
 }
 
 .sequences-image-scrim-overlay {
@@ -143,7 +132,7 @@
   }
 }
 
-.sequences-title-wrapper, .sequences-editor-title-wrapper {
+.sequences-editor-title-wrapper {
   position: absolute;
   bottom: 5px;
   left: 50%;
@@ -238,9 +227,4 @@
 }
 .chapters-new-form {
   border:solid 1px rgba(0,0,0,.2);
-}
-
-.sequences-page-content-header-title-draft {
-  text-transform: uppercase;
-  color: rgba(140, 239, 145, 0.9)
 }

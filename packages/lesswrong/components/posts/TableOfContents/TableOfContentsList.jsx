@@ -38,10 +38,11 @@ class TableOfContentsList extends Component {
           href="#"
           onClick={ev => this.jumpToY(0, ev)}
           highlighted={currentSection && currentSection.anchor === topSection}
+          title
         >
-          {title}
+          {title?.trim()}
         </TableOfContentsRow>
-        {sections && sections.map((section, index) => {          
+        {sections && sections.map((section, index) => {
           return (
             <TableOfContentsRow
               key={section.anchor}
@@ -50,11 +51,12 @@ class TableOfContentsList extends Component {
               highlighted={section.anchor === currentSection}
               href={"#"+section.anchor}
               onClick={(ev) => this.jumpToAnchor(section.anchor, ev)}
+              answer={!!section.answer}
             >
-                {section.answer ? 
+                {section.answer ?
                   <AnswerTocRow answer={section.answer} />
-                  : 
-                  <span>{section.title}</span> 
+                  :
+                  <span>{section.title?.trim()}</span>
                 }
             </TableOfContentsRow>
           )
@@ -104,13 +106,13 @@ class TableOfContentsList extends Component {
         top: y - this.getCurrentSectionMark() + 1,
         behavior: "smooth"
       });
-  
+
       if (ev) ev.preventDefault();
     } catch(e) {
       // eslint-disable-next-line no-console
       console.warn("scrollTo not supported, using link fallback", e)
     }
-    
+
   }
 
   updateHighlightedSection = () => {
