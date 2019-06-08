@@ -229,10 +229,15 @@ function getHostname(url) {
 
 class PostsPage extends Component {
 
+  getSequenceId() {
+    const { params, document: post } = this.props;
+    return params.sequenceId || post?.canonicalSequenceId;
+  }
+  
   render() {
-    const { loading, document: post, currentUser, location, router, classes, params, data: {refetch} } = this.props
+    const { loading, document: post, currentUser, location, router, classes, data: {refetch} } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, PostsType,
-      LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigationWrapper,
+      LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
       TableOfContents, PostsRevisionSelector, PostsRevisionMessage, AlignmentCrosspostMessage } = Components
 
@@ -246,7 +251,7 @@ class PostsPage extends Component {
       const view = _.clone(router.location.query).view || Comments.getDefaultView(post, currentUser)
       const description = plaintextDescription ? plaintextDescription : (markdown && markdown.substring(0, 300))
       const commentTerms = _.isEmpty(query.view) ? {view: view, limit: 500} : {...query, limit:500}
-      const sequenceId = params.sequenceId || post.canonicalSequenceId;
+      const sequenceId = this.getSequenceId();
       const sectionData = post.tableOfContents;
       const htmlWithAnchors = (sectionData && sectionData.html) ? sectionData.html : html
       const feedLink = post.feed && post.feed.url && getHostname(post.feed.url)
@@ -333,7 +338,7 @@ class PostsPage extends Component {
                 </div>
               </div>}
             {sequenceId && <div className={classes.bottomNavigation}>
-              <BottomNavigationWrapper documentId={sequenceId} post={post}/>
+              <BottomNavigation post={post}/>
             </div>}
 
             {/* Answers Section */}
@@ -353,13 +358,17 @@ class PostsPage extends Component {
   }
 
   async componentDidMount() {
-    this.props.recordPostView(this.props);
+    this.props.recordPostView(this.props, {
+      sequenceId: this.getSequenceId(),
+    });
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.document && this.props.document && prevProps.document._id !== this.props.document._id) {
       this.props.closeAllEvents();
-      this.props.recordPostView(this.props);
+      this.props.recordPostView(this.props, {
+        sequenceId: this.getSequenceId(),
+      });
     }
   }
 }
@@ -372,29 +381,21 @@ PostsPage.propTypes = {
 const queryOptions = {
   collection: Posts,
   queryName: 'postsSingleQuery',
-  fragmentName: 'PostsRevision',
+  fragmentName: 'PostsWithNavigation',
   enableTotal: false,
   enableCache: true,
   ssr: true,
   extraVariables: {
-    version: 'String'
+    version: 'String',
+    sequenceId: 'String',
   }
 };
 
 registerComponent(
-  // component name used by Vulcan
-  'PostsPage',
-  // React component
-  PostsPage,
-  // HOC to give access to the current user
-  withUser,
-  // HOC to give access to router and params
-  withRouter,
-  // HOC to load the data of the document, based on queryOptions & a documentId props
+  'PostsPage', PostsPage,
+  withUser, withRouter,
   [withDocument, queryOptions],
-  // HOC to add JSS styles to component
   withStyles(styles, { name: "PostsPage" }),
   withRecordPostView,
-  // Add error boundary to post
   withErrorBoundary,
 );

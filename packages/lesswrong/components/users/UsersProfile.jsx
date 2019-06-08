@@ -177,6 +177,20 @@ class UsersProfile extends Component {
 
     const user = document;
     const query = _.clone(router.location.query || {});
+    
+    // Does this profile page belong to a likely-spam account?
+    if (user.spamRiskScore < 0.4) {
+      if (currentUser?._id === user._id) {
+        // Logged-in spammer can see their own profile
+      } else if (currentUser && Users.canDo(currentUser, 'posts.moderate.all')) {
+        // Admins and sunshines can see spammer's profile
+      } else {
+        // Anyone else gets a 404 here
+        // eslint-disable-next-line no-console
+        console.log(`Not rendering profile page for account with poor spam risk score: ${user.displayName}`);
+        return <Components.Error404/>
+      }
+    }
 
     const draftTerms = {view: "drafts", userId: user._id, limit: 4}
     const unlistedTerms= {view: "unlisted", userId: user._id, limit: 20}
