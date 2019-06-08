@@ -36,6 +36,8 @@ const styles = (theme) => ({
     flexWrap: "nowrap",
     [theme.breakpoints.down('sm')]: {
       flexWrap: "wrap",
+      paddingTop: theme.spacing.unit,
+      paddingBottom: theme.spacing.unit,
     },
   },
   background: {
@@ -72,7 +74,6 @@ const styles = (theme) => ({
     [theme.breakpoints.down('sm')]: {
       order:-1,
       height: "unset",
-      marginBottom: theme.spacing.unit,
       maxWidth: "unset",
       width: "100%",
       paddingRight: theme.spacing.unit
