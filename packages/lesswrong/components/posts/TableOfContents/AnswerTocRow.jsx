@@ -29,7 +29,7 @@ const styles = (theme) => ({
   },
   firstLine: {
     width: "calc(100% - 20px)",
-    fontFamily: theme.typography.postStyle.fontFamily,
+    fontFamily: theme.typography.commentStyle.fontFamily,
     marginTop: 0,
     marginBottom: 0,
   },

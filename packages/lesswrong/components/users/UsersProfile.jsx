@@ -13,6 +13,14 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import Tooltip from '@material-ui/core/Tooltip';
 import { postBodyStyles } from '../../themes/stylePiping'
 
+export const sectionFooterLeftStyles = {
+  flexGrow: 1,
+  display: "flex",
+  '&:after': {
+    content: '""'
+  }
+}
+
 const styles = theme => ({
   profilePage: {
     marginLeft: "auto",
@@ -20,13 +28,7 @@ const styles = theme => ({
       margin: 0,
     }
   },
-  meta: {
-    flexGrow: 1,
-    display: "flex",
-    '&:after': {
-      content: '""'
-    }
-  },
+  meta: sectionFooterLeftStyles,
   icon: {
     '&$specificalz': {
       fontSize: 18,
@@ -175,6 +177,20 @@ class UsersProfile extends Component {
 
     const user = document;
     const query = _.clone(router.location.query || {});
+    
+    // Does this profile page belong to a likely-spam account?
+    if (user.spamRiskScore < 0.4) {
+      if (currentUser?._id === user._id) {
+        // Logged-in spammer can see their own profile
+      } else if (currentUser && Users.canDo(currentUser, 'posts.moderate.all')) {
+        // Admins and sunshines can see spammer's profile
+      } else {
+        // Anyone else gets a 404 here
+        // eslint-disable-next-line no-console
+        console.log(`Not rendering profile page for account with poor spam risk score: ${user.displayName}`);
+        return <Components.Error404/>
+      }
+    }
 
     const draftTerms = {view: "drafts", userId: user._id, limit: 4}
     const unlistedTerms= {view: "unlisted", userId: user._id, limit: 20}
@@ -265,7 +281,7 @@ class UsersProfile extends Component {
         {/* Comments Sections */}
         <SingleColumnSection>
           <SectionTitle title={`${user.displayName}'s Comments`} />
-          <Components.RecentComments terms={{view: 'allRecentComments', limit: 10, userId: user._id}} fontSize="small" />
+          <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} fontSize="small" />
         </SingleColumnSection>
       </div>
     )
