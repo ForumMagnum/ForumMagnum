@@ -25,7 +25,10 @@ const styles = theme => ({
     ...theme.typography.commentStyle,
     color: theme.palette.grey[700],
     display: "inline-block",
-    marginBottom: theme.spacing.unit*1.5,
+    [theme.breakpoints.down('sm')]:{
+      marginBottom: theme.spacing.unit*1.5,
+    },
+    marginBottom: theme.spacing.unit,
   },
   list: {
     marginLeft: theme.spacing.unit*2
