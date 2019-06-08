@@ -10,7 +10,7 @@ const styles = theme => ({
   root: {
     color: "rgba(0,0,0,.87)",
     position: "relative",
-    lineHeight: "2rem",
+    lineHeight: "1.5rem",
     zIndex: theme.zIndexes.postItemTitle,
     [theme.breakpoints.down('xs')]: {
       paddingLeft: 2,

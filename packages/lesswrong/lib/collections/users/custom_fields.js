@@ -79,6 +79,33 @@ const karmaChangeSettingsType = new SimpleSchema({
   }
 })
 
+const partiallyReadSequenceItem = new SimpleSchema({
+  sequenceId: {
+    type: String,
+    foreignKey: "Sequences",
+    optional: true,
+  },
+  collectionId: {
+    type: String,
+    foreignKey: "Collections",
+    optional: true,
+  },
+  lastReadPostId: {
+    type: String,
+    foreignKey: "Posts",
+  },
+  nextPostId: {
+    type: String,
+    foreignKey: "Posts",
+  },
+  numRead: {
+    type: SimpleSchema.Integer,
+  },
+  numTotal: {
+    type: SimpleSchema.Integer,
+  },
+});
+
 addFieldsDict(Users, {
   createdAt: {
     type: Date,
@@ -792,6 +819,19 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     label: "Auto-collapse comments from GPT2"
   },
+  
+  partiallyReadSequences: {
+    type: Array,
+    canRead: [Users.owns],
+    canUpdate: [Users.owns],
+    optional: true,
+    hidden: true,
+  },
+  "partiallyReadSequences.$": {
+    type: partiallyReadSequenceItem,
+    optional: true,
+  },
+  
   beta: {
     type: Boolean,
     optional: true,

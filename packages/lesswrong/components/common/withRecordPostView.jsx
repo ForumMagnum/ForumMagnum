@@ -9,7 +9,7 @@ export const withRecordPostView = (Component) => {
   const mapStateToProps = state => ({ postsViewed: state.postsViewed });
   const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsViewed, dispatch);
 
-  async function recordPostView(props) {
+  async function recordPostView(props, extraEventProperties) {
     try {
 
       // destructure the relevant props
@@ -44,6 +44,7 @@ export const withRecordPostView = (Component) => {
           userId: currentUser._id,
           important: false,
           intercom: true,
+          ...extraEventProperties
         };
 
         if(document) {
