@@ -176,6 +176,7 @@ const createLWTheme = (theme) => {
       }
     },
     zIndexes: {
+      continueReadingImage: -1,
       commentsMenu: 1,
       sequencesPageContent: 1,
       sequencesImageScrim: 1,
@@ -186,6 +187,7 @@ const createLWTheme = (theme) => {
       singleLineCommentHover: 3,
       questionPageWhitescreen: 3,
       textbox: 4,
+      nextUnread: 999,
       sunshineSidebar: 1000,
       postItemMenu: 1001,
       layout: 1100,

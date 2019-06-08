@@ -205,8 +205,8 @@ const styles = (theme) => ({
     [theme.breakpoints.up('md')]: {
       position: "absolute",
       left: 42,
-      top: 30,
-      zIndex: 1000,
+      top: 28,
+      zIndex: theme.zIndexes.nextUnread,
     },
     [theme.breakpoints.down('sm')]: {
       order: -1,
@@ -222,11 +222,12 @@ const styles = (theme) => ({
   sequenceImage: {
     marginTop: -12,
     marginBottom: -12,
-    top: 4,
     position: "relative",
     marginLeft: -60,
-    zIndex: -1,
+    zIndex: theme.zIndexes.continueReadingImage,
     opacity: 0.6,
+    height: 48,
+    width: 146,
     
     // Overlay a white-to-transparent gradient over the image
     "&:after": {
@@ -284,7 +285,9 @@ class PostsItem2 extends PureComponent {
   }
 
   render() {
-    const { classes, post, chapter, currentUser, index, terms, resumeReading, showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true, defaultToShowUnreadComments=false } = this.props
+    const { classes, post, chapter, currentUser, index, terms, resumeReading,
+      showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true,
+      defaultToShowUnreadComments=false, dismissRecommendation } = this.props
     const { showComments } = this.state
     const { PostsItemComments, PostsItemKarma, PostsItemTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
 
