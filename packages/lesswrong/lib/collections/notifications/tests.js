@@ -60,7 +60,6 @@ describe('performSubscriptionAction', async () => {
 });
 
 describe('notification generation', async () => {
-  this.timeout(10000)
   it("generates notifications for new posts", async (done) => {
     const user = await createDummyUser()
     const otherUser = await createDummyUser()
