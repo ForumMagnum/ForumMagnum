@@ -78,7 +78,6 @@ const styles = (theme) => ({
     }
   },
   title: {
-    height: 22,
     flexGrow: 1,
     flexShrink: 1,
     overflow: "hidden",
