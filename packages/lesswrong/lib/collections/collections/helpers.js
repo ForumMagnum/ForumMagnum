@@ -1,15 +1,23 @@
 import Collections from './collection.js';
 import Books from '../books/collection.js';
 import Sequences from '../sequences/collection.js';
+import toDictionary from '../../modules/utils/toDictionary.js';
 
 Collections.getAllPostIDs = async (collectionID) => {
   const books = await Books.find({collectionId: collectionID}).fetch();
-  const sequenceIDs = _.flatten(_.map(books, book=>book.sequenceIds));
+  const sequenceIDs = _.flatten(books.map(book=>book.sequenceIds));
   
-  const postsBySequence = await Promise.all(
-    _.map(sequenceIDs, seqID=>Sequences.getAllPostIDs(seqID))
+  const sequencePostsPairs = await Promise.all(
+    sequenceIDs.map(seqID=>[seqID, Sequences.getAllPostIDs(seqID)])
   );
-  const posts = _.flatten(postsBySequence);
+  const postsBySequence = toDictionary(sequencePostsPairs, pair=>pair[0], pair=>pair[1]);
+  
+  const posts = _.flatten(books.map(book => {
+    const postsInSequencesInBook = _.flatten(
+      book.sequenceIds.map(sequenceId => postsBySeqeunce[sequenceId])
+    );
+    return _.union(book.postIds, postsInSequencesInBook);
+  }));
   return posts;
 };
 
