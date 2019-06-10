@@ -1,4 +1,4 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper.js';
@@ -303,6 +303,8 @@ class PostsItem2 extends PureComponent {
       </Tooltip>
     )
     
+    const cloudinaryCloudName = getSetting('cloudinary.cloudName', 'lesswrong-2-0')
+    
     return (
       <div className={classes.root} ref={this.postsItemRef}>
         <div className={classNames(
@@ -372,13 +374,15 @@ class PostsItem2 extends PureComponent {
             
             {resumeReading &&
               <div className={classes.sequenceImage}>
-                <NoSSR>
-                  <Components.CloudinaryImage
-                    publicId={resumeReading.sequence?.gridImageId || resumeReading.collection?.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
-                    height={48}
-                    width={146}
-                  />
-                </NoSSR>
+                <img
+                  height={48}
+                  width={146}
+                  src={`http://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_48,q_auto,w_146/v1/${
+                    resumeReading.sequence?.gridImageId
+                      || resumeReading.collection?.gridImageId
+                      || "sequences/vnyzzznenju0hzdv6pqb.jpg"
+                  }`}
+                />
               </div>}
           </div>
           
