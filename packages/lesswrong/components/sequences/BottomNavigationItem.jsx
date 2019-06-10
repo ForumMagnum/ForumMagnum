@@ -56,9 +56,9 @@ const styles = theme => ({
 
 const BottomNavigationItem = ({direction, post, sequence, classes}) => {
   const commentCount = post.commentCount || "No"
-
+  
   return (
-    <Link to={Posts.getPageUrl(post, false, sequence._id)}>
+    <Link to={Posts.getPageUrl(post, false, sequence?._id)}>
       <div className={classnames(
         classes.root,
         { [classes.previous]: direction==="Previous" }

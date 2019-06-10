@@ -104,6 +104,10 @@ const partiallyReadSequenceItem = new SimpleSchema({
   numTotal: {
     type: SimpleSchema.Integer,
   },
+  lastReadTime: {
+    type: Date,
+    optional: true,
+  },
 });
 
 addFieldsDict(Users, {
