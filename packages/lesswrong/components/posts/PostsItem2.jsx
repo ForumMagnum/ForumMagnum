@@ -78,6 +78,7 @@ const styles = (theme) => ({
     }
   },
   title: {
+    minHeight: 24,
     flexGrow: 1,
     flexShrink: 1,
     overflow: "hidden",
