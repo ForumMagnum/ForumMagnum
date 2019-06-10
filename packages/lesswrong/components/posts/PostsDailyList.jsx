@@ -18,66 +18,111 @@ const styles = theme => ({
   }
 })
 
+// TODO; copypasta
+const timeframeToTimeBlock = {
+  daily: 'days',
+  monthly: 'months',
+}
+
+// TODO; doc
+// utility funcs
+
+function getAfterDateDefault ({numTimeBlocks, timeBlock}) {
+  const startCurrentTimeBlock = moment().utc().startOf(timeBlock)
+  return startCurrentTimeBlock.subtract(numTimeBlocks - 1, timeBlock).format('YYYY-MM-DD')
+}
+
+function getBeforeDateDefault ({numTimeBlocks, timeBlock}) {
+  const startCurrentTimeBlock = moment().utc().startOf(timeBlock)
+  return startCurrentTimeBlock.add(1, timeBlock).format('YYYY-MM-DD')
+}
+
+// Useful reading for network status use in this file and elsewhere:
+// https://github.com/apollographql/apollo-client/blob/master/packages/apollo-client/src/core/networkStatus.ts
 
 import classNames from 'classnames';
 class PostsDailyList extends PureComponent {
 
   constructor(props) {
     super(props);
-    this.loadMoreDays = this.loadMoreDays.bind(this);
+
+    console.log('PostsDailyList constructor')
+    // console.log('  props', props)
+    // TODO; try without
+    this.loadMoreTimeBlocks = this.loadMoreTimeBlocks.bind(this);
+
+    const timeBlock = timeframeToTimeBlock[props.timeframe]
+    const after = props.terms.after ||
+      getAfterDateDefault({timeBlock, numTimeBlocks: props.numTimeBlocks})
+    const before = props.terms.before ||
+      getBeforeDateDefault({timeBlock, numTimeBlocks: props.numTimeBlocks})
     this.state = {
-      days: props.days,
-      after: props.terms.after,
-      daysLoaded: props.days,
-      afterLoaded: props.terms.after,
-      before: props.terms.before,
-      //loading: true,
+      rumTimeBlocks: props.numTimeBlocks,
+      blocksLoaded: props.numTimeBlocks,
+      // TODO; doc
+      afterLoaded: after,
+      after,
+      before,
+      timeBlock,
     };
+    console.log('  state', this.state)
   }
 
   // intercept prop change and only show more days once data is done loading
+  // TODO; can we get rid of UNSAFE
   UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.networkStatus === 2) {
       //this.setState({loading: true});
     } else {
       this.setState((prevState, props) => ({
         //loading: false,
-        daysLoaded: prevState.days,
+        blocksLoaded: prevState.numTimeBlocks,
         afterLoaded: prevState.after,
       }));
     }
+    if (nextProps.timeframe !== this.props.timeframe) {
+      this.setState({timeBlock: timeframeToTimeBlock[nextProps.timeframe]})
+    }
   }
 
+  // TODO; update docstring
   // Return a date string for each date which should have a section. This
   // includes all dates in the range, *except* that if the newest date has no
   // posts, it's omitted. (Because the end of the range is some fraction of a
   // day into the future, which would otherwise sometimes result in an awkward
   // empty slot for tomorrow, depending on the current time of day.)
-  getDateRange(after, before, posts) {
+  getDateRange(after, before, posts, timeBlock) {
     const mAfter = moment.utc(after, 'YYYY-MM-DD');
     const mBefore = moment.utc(before, 'YYYY-MM-DD');
-    const daysCount = mBefore.diff(mAfter, 'days') + 1;
+    const daysCount = mBefore.diff(mAfter, this.state.timeBlock) + 1;
     const range = _.range(daysCount).map(
-      i => moment.utc(before, 'YYYY-MM-DD').subtract(i, 'days')
+      i => moment.utc(before, 'YYYY-MM-DD').subtract(i, this.state.timeBlock)
         .tz(this.props.timezone)
         .format('YYYY-MM-DD')
     );
 
-    if(this.getDatePosts(posts, range[0]).length == 0) {
+    if(this.getDatePosts(posts, range[0]).length === 0, timeBlock) {
       return _.rest(range);
     } else {
       return range;
     }
   }
 
-  getDatePosts(posts, date) {
+  getDatePosts(posts, date, timeBlock) {
+    // console.log('getDatePosts')
+    // console.log('  date', date)
     const { timeField } = this.props.terms
-    return _.filter(posts, post =>
-      moment(new Date(timeField ? post[timeField] : post.postedAt))
+    return _.filter(posts, post => {
+      const postDate = moment(new Date(timeField ? post[timeField] : post.postedAt))
         .tz(this.props.timezone)
-        .format('YYYY-MM-DD') === date);
+      // console.log('  postDate', postDate)
+      const result = postDate.isSame(moment(date), timeBlock)
+      // console.log('  result', result)
+      return result
+    })
   }
 
+  // TODO; remove
   groupByDate(posts) {
     const { timeField } = this.props.terms
 
@@ -87,11 +132,13 @@ class PostsDailyList extends PureComponent {
         .format('YYYY-MM-DD'));
   }
 
+  // TODO; solve this variant shit
   // variant 1: reload everything each time (works with polling)
-  loadMoreDays(e) {
+  loadMoreTimeBlocks(e) {
     e.preventDefault();
-    const numberOfDays = getSetting('forum.numberOfDays', 5);
-    const loadMoreAfter = moment(this.state.after, 'YYYY-MM-DD').subtract(numberOfDays, 'days').format('YYYY-MM-DD');
+    // TODO; why not use state?
+    const numberOfTimeBlocks = getSetting('forum.numberOfDays', 5);
+    const loadMoreAfter = moment(this.state.after, 'YYYY-MM-DD').subtract(numberOfTimeBlocks, this.state.timeBlock).format('YYYY-MM-DD');
 
     this.props.loadMore({
       ...this.props.terms,
@@ -99,7 +146,7 @@ class PostsDailyList extends PureComponent {
     });
 
     this.setState({
-      days: this.state.days + this.props.increment,
+      numTimeBlocks: this.state.numTimeBlocks + this.props.increment,
       after: loadMoreAfter,
     });
   }
@@ -107,9 +154,9 @@ class PostsDailyList extends PureComponent {
   // variant 2: only load new data (need to disable polling)
   loadMoreDaysInc(e) {
     e.preventDefault();
-    const numberOfDays = getSetting('forum.numberOfDays', 5);
-    const loadMoreAfter = moment(this.state.after, 'YYYY-MM-DD').subtract(numberOfDays, 'days').format('YYYY-MM-DD');
-    const loadMoreBefore = moment(this.state.after, 'YYYY-MM-DD').subtract(1, 'days').format('YYYY-MM-DD');
+    const numberOfTimeBlocks = getSetting('forum.numTimeBlocks', 5);
+    const loadMoreAfter = moment(this.state.after, 'YYYY-MM-DD').subtract(numberOfTimeBlocks, this.state.timeBlock).format('YYYY-MM-DD');
+    const loadMoreBefore = moment(this.state.after, 'YYYY-MM-DD').subtract(1, this.state.timeBlock).format('YYYY-MM-DD');
 
     this.props.loadMoreInc({
       ...this.props.terms,
@@ -118,17 +165,24 @@ class PostsDailyList extends PureComponent {
     });
 
     this.setState((prevState) => ({
-        days: prevState.days + this.props.increment,
+        numTimeBlocks: prevState.numTimeBlocks + this.props.increment,
         after: loadMoreAfter,
       })
     );
   }
 
   render() {
-    const { dimWhenLoading, loading, loadingMore, classes, currentUser, networkStatus } = this.props
+    const { timeframe, dimWhenLoading, loading, loadingMore, classes, currentUser, networkStatus } = this.props
+    console.log('PostsDailyList render()')
+    console.log('  props subset', {loading, loadingMore, networkStatus})
     const posts = this.props.results;
-    const dates = this.getDateRange(this.state.afterLoaded, this.state.before, posts);
+    const { timeBlock } = this.state
+    const dates = this.getDateRange(this.state.afterLoaded, this.state.before, posts, timeBlock);
     const { Loading, PostsDay } = Components
+    const loadMoreMessageId = {
+      daily: "posts.load_more_days",
+      monthly: "posts.load_more_months",
+    }[timeframe]
 
     const dim = dimWhenLoading && networkStatus !== 7
 
@@ -138,19 +192,20 @@ class PostsDailyList extends PureComponent {
       return (
         <div className={classNames({[classes.loading]: dim})}>
           { loading && <Loading />}
-          {dates.map((date, index) =>
-            <PostsDay key={date.toString()}
+          {dates.map((date) => {
+            console.log('dates map date', date)
+            return <PostsDay key={date.toString()}
               date={moment(date)}
-              posts={this.getDatePosts(posts, date)}
+              posts={this.getDatePosts(posts, date, timeBlock)}
               networkStatus={networkStatus}
               currentUser={currentUser}
             />
-          )}
+          })}
           {loadingMore ?
             <Loading />
             :
-            <Typography variant="body1" className={classes.loadMore} onClick={this.loadMoreDays}>
-              <a><FormattedMessage id="posts.load_more_days"/></a>
+            <Typography variant="body1" className={classes.loadMore} onClick={this.loadMoreTimeBlocks}>
+              <a><FormattedMessage id={loadMoreMessageId}/></a>
             </Typography>
           }
         </div>
@@ -160,14 +215,17 @@ class PostsDailyList extends PureComponent {
 }
 
 PostsDailyList.propTypes = {
+  timeframe: PropTypes.string,
   currentUser: PropTypes.object,
-  days: PropTypes.number,
-  increment: PropTypes.number
+  numTimeBlocks: PropTypes.number,
+  increment: PropTypes.number,
 };
 
 PostsDailyList.defaultProps = {
-  days: getSetting('forum.numberOfDays', 5),
-  increment: getSetting('forum.numberOfDays', 5)
+  // TODO; maybe register setting
+  timeframe: 'daily',
+  numTimeBlocks: getSetting('forum.numTimeBlocks', 5),
+  increment: getSetting('forum.numTimeBlocks', 5)
 };
 
 const options = {

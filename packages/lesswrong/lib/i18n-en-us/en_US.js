@@ -18,6 +18,7 @@ addStrings('en', {
   'posts.sticky': 'Sticky',
   'posts.load_more': 'Load More',
   'posts.load_more_days': 'Load More Days',
+  'posts.load_more_months': 'Load More Months',
   'posts.no_more': 'No more posts.',
   'posts.no_results': 'No posts to display.',
   'posts.search': 'Search',

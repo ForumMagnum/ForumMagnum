@@ -29,6 +29,7 @@ class PostsDay extends PureComponent {
     const { date, posts, classes, currentUser } = this.props;
     const noPosts = posts.length === 0;
     const { PostsItem2 } = Components
+    // TODO; load more button if timeframe > day
 
     return (
       <div className={classes.root}>

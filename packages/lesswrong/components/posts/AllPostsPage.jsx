@@ -6,6 +6,7 @@ import { withRouter } from '../../lib/reactRouterWrapper.js';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
+import Typography from '@material-ui/core/Typography'
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
 const styles = theme => ({
@@ -28,13 +29,24 @@ const styles = theme => ({
   }
 });
 
-export const sortings = {
+// TODO; doc
+// TODO; more timeframes
+const timeframes = {
   daily: "Daily",
+  monthly: "Monthly",
+}
+
+const timeframeToTimeBlock = {
+  daily: 'days',
+  monthly: 'months',
+}
+
+export const sortings = {
   magic: "Magic (New & Upvoted)",
   recentComments: "Recent Comments",
   new: "New",
   old: "Old",
-  top: "Top"
+  top: "Top",
 }
 
 class AllPostsPage extends Component {
@@ -57,10 +69,47 @@ class AllPostsPage extends Component {
     })
   }
 
+  // TODO; factor out part of logic from render
+  // TODO; better args
+  renderPostsList = (currentView, terms, classes, showSettings, query) => {
+    // TODO; ensure defaults are right
+    // TODO; and that user preference is remembered
+    // TODO; and that queries are king
+    console.log('renderPostsList')
+    const timeframe = 'monthly'
+    const numberOfDays = 2 // getSetting('forum.numberOfDays', 5);
+    const dailyTerms = {
+      karmaThreshold: DEFAULT_LOW_KARMA_THRESHOLD,
+      ...query,
+    };
+    console.log('  dailyTerms', dailyTerms)
+
+    const {PostsDailyList, PostsList2} = Components
+    // currentView === "daily"
+    if (true) return <div className={classes.daily}>
+      <PostsDailyList
+        // TODO; title unused?
+        title="Posts by Day"
+        timeframe={timeframe}
+        terms={dailyTerms}
+        numTimeBlocks={numberOfDays}
+        dimWhenLoading={showSettings}
+      />
+    </div>
+    // // TODO; factor out component
+    // if (currentView === "monthly") return <div>
+    //   <Typography variant="headline">
+    //     June
+    //   </Typography>
+    // </div>
+    return <PostsList2 terms={terms} showHeader={false} dimWhenLoading={showSettings} />
+  }
+
   render() {
+    console.log('AllPostsPage render()')
     const { classes, currentUser, router } = this.props
     const { showSettings } = this.state
-    const { PostsListSettings, PostsList2, SingleColumnSection, SectionTitle, PostsDailyList, MetaInfo, TabNavigationMenu, SettingsIcon } = Components
+    const { PostsListSettings, SingleColumnSection, SectionTitle, MetaInfo, TabNavigationMenu, SettingsIcon } = Components
     const query = _.clone(router.location.query) || {}
     // maintain backward compatibility with bookmarks
     const querySorting = query.sortedBy || query.view
@@ -84,15 +133,6 @@ class AllPostsPage extends Component {
       limit:50
     }
 
-    const numberOfDays = getSetting('forum.numberOfDays', 5);
-    const dailyTerms = {
-      view: 'daily',
-      karmaThreshold: DEFAULT_LOW_KARMA_THRESHOLD,
-      after: moment().utc().subtract(numberOfDays - 1, 'days').format('YYYY-MM-DD'),
-      ...query,
-      before: moment().utc().add(1, 'days').format('YYYY-MM-DD'),
-    };
-
     return (
       <React.Fragment>
         <TabNavigationMenu />
@@ -114,13 +154,7 @@ class AllPostsPage extends Component {
             currentShowLowKarma={currentShowLowKarma}
             persistentSettings
           />
-          {currentSorting === "daily" ?
-            <div className={classes.daily}>
-              <PostsDailyList title="Posts by Day" terms={dailyTerms} days={numberOfDays} dimWhenLoading={showSettings} />
-            </div>
-            :
-            <PostsList2 terms={terms} showHeader={false} dimWhenLoading={showSettings} />
-          }
+          {this.renderPostsList(currentSorting, terms, classes, showSettings, query)}
         </SingleColumnSection>
       </React.Fragment>
     )
