@@ -12,7 +12,6 @@ import withUser from "../common/withUser";
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import Hidden from '@material-ui/core/Hidden';
-import NoSSR from 'react-no-ssr';
 import withRecordPostView from '../common/withRecordPostView';
 
 import { POSTED_AT_WIDTH } from './PostsItemDate.jsx';

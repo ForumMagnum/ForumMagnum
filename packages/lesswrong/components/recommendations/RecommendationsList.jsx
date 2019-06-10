@@ -121,7 +121,7 @@ class RecommendationsList extends Component {
         const { nextPost, sequence, collection } = resumeReading;
         return <PostsItem2
           post={nextPost}
-          sequenceId={sequence._id}
+          sequenceId={sequence?._id}
           resumeReading={resumeReading}
           dismissRecommendation={() => this.dismissAndHideRecommendation(nextPost._id)}
           key={sequence?._id || collection?._id}

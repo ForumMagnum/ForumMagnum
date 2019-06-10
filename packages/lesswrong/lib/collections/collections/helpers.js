@@ -14,7 +14,7 @@ Collections.getAllPostIDs = async (collectionID) => {
   
   const posts = _.flatten(books.map(book => {
     const postsInSequencesInBook = _.flatten(
-      book.sequenceIds.map(sequenceId => postsBySeqeunce[sequenceId])
+      book.sequenceIds.map(sequenceId => postsBySequence[sequenceId])
     );
     return _.union(book.postIds, postsInSequencesInBook);
   }));
