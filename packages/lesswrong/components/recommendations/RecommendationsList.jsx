@@ -36,6 +36,7 @@ const withRecommendations = component => {
           }
           numRead
           numTotal
+          lastReadTime
         }
       }
     }
@@ -94,18 +95,30 @@ class RecommendationsList extends Component {
     });
   }
   
+  limitResumeReading(resumeReadingList) {
+    const { dismissedRecommendations } = this.state;
+    // Filter out dismissed recommendations
+    const filtered = _.filter(resumeReadingList, r=>!dismissedRecommendations[r.nextPost._id]);
+    // Sort by last-interaction time
+    let sorted = _.sortBy(filtered, r=>r.lastReadTime);
+    sorted.reverse(); //in-place
+    // Limit to the three most recent
+    const maxEntries = 3;
+    if (sorted.length < maxEntries) return sorted;
+    return sorted.slice(0, maxEntries);
+  }
+  
   render() {
     const { recommendations, recommendationsLoading } = this.props;
-    const { dismissedRecommendations } = this.state;
     const { PostsItem2, PostsLoading } = Components;
     if (recommendationsLoading || !recommendations)
       return <PostsLoading/>
     
+    const resumeReadingList = this.limitResumeReading(recommendations.resumeReading);
+    
     return <div>
-      {recommendations.resumeReading.map(resumeReading => {
+      {resumeReadingList.map(resumeReading => {
         const { nextPost, sequence, collection } = resumeReading;
-        if (dismissedRecommendations[nextPost._id])
-          return null;
         return <PostsItem2
           post={nextPost}
           sequenceId={sequence._id}
