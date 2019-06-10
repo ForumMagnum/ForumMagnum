@@ -8,15 +8,18 @@ Collections.getAllPostIDs = async (collectionID) => {
   const sequenceIDs = _.flatten(books.map(book=>book.sequenceIds));
   
   const sequencePostsPairs = await Promise.all(
-    sequenceIDs.map(seqID=>[seqID, Sequences.getAllPostIDs(seqID)])
+    sequenceIDs.map(async seqID => [seqID, await Sequences.getAllPostIDs(seqID)])
   );
   const postsBySequence = toDictionary(sequencePostsPairs, pair=>pair[0], pair=>pair[1]);
   
   const posts = _.flatten(books.map(book => {
     const postsInSequencesInBook = _.flatten(
-      book.sequenceIds.map(sequenceId => postsBySequence[sequenceId])
+      _.map(book.sequenceIds, sequenceId => postsBySequence[sequenceId])
     );
-    return _.union(book.postIds, postsInSequencesInBook);
+    if (book.postIds)
+      return _.union(book.postIds, postsInSequencesInBook);
+    else
+      return postsInSequencesInBook;
   }));
   return posts;
 };
