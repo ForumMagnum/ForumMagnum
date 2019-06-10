@@ -1,28 +1,5 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import Checkbox from '@material-ui/core/Checkbox';
-
-class SignupSubscribeToCurated extends Component
-{
-  state = {
-    checked: this.props.defaultValue
-  }
-  render() {
-    const {onChange, id} = this.props;
-    return <div key={id}>
-      <Checkbox
-        checked={this.state.checked}
-        onChange={(ev, checked) => {
-          this.setState({
-            checked: checked
-          });
-          onChange({target: {value: checked}})
-        }}
-      />
-      Subscribe to curated posts
-    </div>
-  }
-}
 
 class WrappedLoginForm extends Component
 {
@@ -40,7 +17,7 @@ class WrappedLoginForm extends Component
         id: "subscribeToCurated",
         type: 'custom',
         defaultValue: true,
-        renderCustom: SignupSubscribeToCurated
+        renderCustom: Components.SignupSubscribeToCurated
       }
     ]
     
