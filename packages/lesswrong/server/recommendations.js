@@ -171,7 +171,7 @@ const getResumeSequences = async (currentUser, context) => {
   
   return Promise.all(_.map(currentUser.partiallyReadSequences,
     async partiallyReadSequence => {
-      const { sequenceId, collectionId, lastReadPostId, nextPostId, numRead, numTotal } = partiallyReadSequence;
+      const { sequenceId, collectionId, lastReadPostId, nextPostId, numRead, numTotal, lastReadTime } = partiallyReadSequence;
       return {
         sequence: sequenceId
           ? await context["Sequences"].loader.load(sequenceId)
@@ -183,6 +183,7 @@ const getResumeSequences = async (currentUser, context) => {
         nextPost: await context["Posts"].loader.load(nextPostId),
         numRead: numRead,
         numTotal: numTotal,
+        lastReadTime: lastReadTime,
       }
     }
   ));
@@ -231,6 +232,7 @@ addGraphQLSchema(`
     nextPost: Post!
     numRead: Int
     numTotal: Int
+    lastReadTime: Date
   }
   type RecommendationList {
     posts: [Post!]

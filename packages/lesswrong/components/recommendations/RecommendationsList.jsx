@@ -36,6 +36,7 @@ const withRecommendations = component => {
           }
           numRead
           numTotal
+          lastReadTime
         }
       }
     }
@@ -94,21 +95,38 @@ class RecommendationsList extends Component {
     });
   }
   
+  limitResumeReading(resumeReadingList) {
+    const { dismissedRecommendations } = this.state;
+    // Filter out dismissed recommendations
+    const filtered = _.filter(resumeReadingList, r=>!dismissedRecommendations[r.nextPost._id]);
+    // Sort by last-interaction time
+    let sorted = _.sortBy(filtered, r=>r.lastReadTime);
+    sorted.reverse(); //in-place
+    // Limit to the three most recent
+    const maxEntries = 3;
+    if (sorted.length < maxEntries) return sorted;
+    return sorted.slice(0, maxEntries);
+  }
+  
   render() {
     const { recommendations, recommendationsLoading } = this.props;
-    const { dismissedRecommendations } = this.state;
     const { PostsItem2, PostsLoading } = Components;
     if (recommendationsLoading || !recommendations)
       return <PostsLoading/>
     
+    const resumeReadingList = this.limitResumeReading(recommendations.resumeReading);
+    
     return <div>
-      {recommendations.resumeReading.map(resumeReading =>
-        !(dismissedRecommendations[resumeReading.nextPost._id]) && <PostsItem2
-          post={resumeReading.nextPost}
+      {resumeReadingList.map(resumeReading => {
+        const { nextPost, sequence, collection } = resumeReading;
+        return <PostsItem2
+          post={nextPost}
+          sequenceId={sequence?._id}
           resumeReading={resumeReading}
-          dismissRecommendation={() => this.dismissAndHideRecommendation(resumeReading.nextPost._id)}
-          key={resumeReading.sequence?._id || resumeReading.collection?._id}
-        />)}
+          dismissRecommendation={() => this.dismissAndHideRecommendation(nextPost._id)}
+          key={sequence?._id || collection?._id}
+        />
+      })}
       {recommendations.posts.map(post =>
         <PostsItem2 post={post} key={post._id}/>)}
       {recommendations.posts.length===0 && recommendations.resumeReading.length==0 &&

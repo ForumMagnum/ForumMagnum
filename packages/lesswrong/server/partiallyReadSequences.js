@@ -17,6 +17,7 @@ const updateSequenceReadStatusForPostRead = async (userId, postId, sequenceId) =
   const anyUnread = _.some(postIDs, postID => !postReadStatuses[postID]);
   const sequence = await Sequences.findOne({_id: sequenceId});
   const collection = sequence.canonicalCollectionSlug ? await Collections.findOne({slug: sequence.canonicalCollectionSlug}) : null;
+  const now = new Date();
   
   const partiallyReadMinusThis = _.filter(user.partiallyReadSequences,
     partiallyRead => partiallyRead.sequenceId !== sequenceId
@@ -34,7 +35,8 @@ const updateSequenceReadStatusForPostRead = async (userId, postId, sequenceId) =
       lastReadPostId: postId,
       nextPostId: nextPostId,
       numRead: _.filter(postIDs, id=>postReadStatuses[id]).length,
-      numTotal: postIDs.length
+      numTotal: postIDs.length,
+      lastReadTime: now,
     };
     
     // Generate a new partiallyReadSequences list by filtering out any previous
@@ -63,7 +65,8 @@ const updateSequenceReadStatusForPostRead = async (userId, postId, sequenceId) =
         lastReadPostId: postId,
         nextPostId: nextPostId,
         numRead: _.filter(collectionPostIDs, id=>collectionPostReadStatuses[id]).length,
-        numTotal: collectionPostIDs.length
+        numTotal: collectionPostIDs.length,
+        lastReadTime: now,
       };
       
       // Generate a new partiallyReadSequences, filtering out the sequence that
