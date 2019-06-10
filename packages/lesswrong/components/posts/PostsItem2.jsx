@@ -285,13 +285,13 @@ class PostsItem2 extends PureComponent {
   }
 
   render() {
-    const { classes, post, chapter, currentUser, index, terms, resumeReading,
+    const { classes, post, sequenceId, chapter, currentUser, index, terms, resumeReading,
       showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true,
       defaultToShowUnreadComments=false, dismissRecommendation } = this.props
     const { showComments } = this.state
     const { PostsItemComments, PostsItemKarma, PostsItemTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
 
-    const postLink = Posts.getPageUrl(post, false, chapter?.sequenceId);
+    const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
     
     const unreadComments = this.hasUnreadComments()
 

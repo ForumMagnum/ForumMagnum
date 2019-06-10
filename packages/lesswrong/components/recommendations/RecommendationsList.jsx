@@ -102,13 +102,18 @@ class RecommendationsList extends Component {
       return <PostsLoading/>
     
     return <div>
-      {recommendations.resumeReading.map(resumeReading =>
-        !(dismissedRecommendations[resumeReading.nextPost._id]) && <PostsItem2
-          post={resumeReading.nextPost}
+      {recommendations.resumeReading.map(resumeReading => {
+        const { nextPost, sequence, collection } = resumeReading;
+        if (dismissedRecommendations[nextPost._id])
+          return null;
+        return <PostsItem2
+          post={nextPost}
+          sequenceId={sequence._id}
           resumeReading={resumeReading}
-          dismissRecommendation={() => this.dismissAndHideRecommendation(resumeReading.nextPost._id)}
-          key={resumeReading.sequence?._id || resumeReading.collection?._id}
-        />)}
+          dismissRecommendation={() => this.dismissAndHideRecommendation(nextPost._id)}
+          key={sequence?._id || collection?._id}
+        />
+      })}
       {recommendations.posts.map(post =>
         <PostsItem2 post={post} key={post._id}/>)}
       {recommendations.posts.length===0 && recommendations.resumeReading.length==0 &&
