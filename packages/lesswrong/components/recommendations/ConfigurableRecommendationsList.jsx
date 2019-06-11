@@ -1,19 +1,10 @@
 import React, { PureComponent } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import NoSSR from 'react-no-ssr';
-import SettingsIcon from '@material-ui/icons/Settings';
-import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
+import { Link } from '../../lib/reactRouterWrapper'
 
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
-
-const styles = theme => ({
-  gearIcon: {
-    cursor: "pointer",
-    color: theme.palette.grey[400],
-    marginRight: theme.spacing.unit,
-  },
-});
 
 class ConfigurableRecommendationsList extends PureComponent {
   state = {
@@ -34,14 +25,18 @@ class ConfigurableRecommendationsList extends PureComponent {
   }
   
   render() {
-    const { currentUser, configName, classes } = this.props;
+    const { currentUser, configName } = this.props;
     const { SingleColumnSection, SectionTitle, RecommendationsAlgorithmPicker,
-      RecommendationsList } = Components;
+      RecommendationsList, SettingsIcon } = Components;
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
     
     return <SingleColumnSection>
-      <SectionTitle title="Recommended">
-        <SettingsIcon className={classes.gearIcon} onClick={this.toggleSettings}/>
+      <SectionTitle
+        title={<Link to={'/recommendations'}>
+          Recommended
+        </Link>}
+      >
+        <SettingsIcon onClick={this.toggleSettings}/>
       </SectionTitle>
       { this.state.settingsVisible &&
         <RecommendationsAlgorithmPicker
@@ -58,5 +53,4 @@ class ConfigurableRecommendationsList extends PureComponent {
   }
 }
 
-registerComponent("ConfigurableRecommendationsList", ConfigurableRecommendationsList,
-  withUser, withStyles(styles, {name: "ConfigurableRecommendationsList"}));
+registerComponent("ConfigurableRecommendationsList", ConfigurableRecommendationsList, withUser);

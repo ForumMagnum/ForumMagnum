@@ -9,11 +9,6 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import classNames from 'classnames';
 
 const styles = theme => ({
-  gearIcon: {
-    cursor: "pointer",
-    color: theme.palette.grey[400],
-    marginRight: theme.spacing.unit,
-  },
   topUnread: {
     marginTop: theme.spacing.unit,
   },
