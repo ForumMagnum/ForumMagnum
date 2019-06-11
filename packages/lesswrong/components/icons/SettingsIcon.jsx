@@ -8,9 +8,6 @@ const styles = (theme) => ({
   root: {
     cursor: "pointer",
     color: theme.palette.grey[400],
-    '&:hover': {
-      color: theme.palette.grey[500],
-    }
   }
 })
 
