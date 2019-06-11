@@ -32,7 +32,7 @@ const styles = theme => ({
   }
 });
 
-export const views = {
+export const sortings = {
   daily: "Daily",
   magic: "Magic (New & Upvoted)",
   recentComments: "Recent Comments",
@@ -66,14 +66,18 @@ class AllPostsPage extends Component {
     const { showSettings } = this.state
     const { PostsListSettings, PostsList2, SingleColumnSection, SectionTitle, PostsDailyList, MetaInfo, TabNavigationMenu } = Components
     const query = _.clone(router.location.query) || {}
+    // maintain backward compatibility with bookmarks
+    const querySorting = query.sortedBy || query.view
 
-    const currentView = query.view || (currentUser && currentUser.allPostsView) || "daily"
+    // TODO[WIP] migration for allPostsView
+    const currentSorting = querySorting || (currentUser && currentUser.allPostsView) || "daily"
     const currentFilter = query.filter || (currentUser && currentUser.allPostsFilter) || "all"
     const currentShowLowKarma = (parseInt(query.karmaThreshold) === MAX_LOW_KARMA_THRESHOLD) || (currentUser && currentUser.allPostsShowLowKarma) || false
 
     const terms = {
       karmaThreshold: DEFAULT_LOW_KARMA_THRESHOLD,
-      view: currentView,
+      filter: currentFilter,
+      sortedBy: currentSorting,
       ...query,
       limit:50
     }
@@ -95,18 +99,20 @@ class AllPostsPage extends Component {
             <div className={classes.title} onClick={this.toggleSettings}>
               <SectionTitle title="All Posts">
                 <SettingsIcon className={classes.settingsIcon}/>
-                <MetaInfo className={classes.sortedBy}>Sorted by { views[currentView] }</MetaInfo>
+                <MetaInfo className={classes.sortedBy}>
+                  Sorted by { sortings[currentSorting] }
+                </MetaInfo>
               </SectionTitle>
             </div>
           </Tooltip>
           <PostsListSettings
             hidden={!showSettings}
-            currentView={currentView}
+            currentSorting={currentSorting}
             currentFilter={currentFilter}
             currentShowLowKarma={currentShowLowKarma}
             persistentSettings
           />
-          {currentView === "daily" ?
+          {currentSorting === "daily" ?
             <div className={classes.daily}>
               <PostsDailyList title="Posts by Day" terms={dailyTerms} days={numberOfDays} dimWhenLoading={showSettings} />
             </div>

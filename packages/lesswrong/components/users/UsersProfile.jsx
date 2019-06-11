@@ -73,7 +73,7 @@ const styles = theme => ({
   }
 })
 
-const views = {
+const sortings = {
   magic: "Magic (New & Upvoted)",
   recentComments: "Recent Comments",
   new: "New",
@@ -199,7 +199,8 @@ class UsersProfile extends Component {
     const sequenceAllTerms = {view: "userProfileAll", userId: user._id, limit:3}
 
     const { showSettings } = this.state
-    const currentView = query.view ||  "new"
+    // maintain backward compatibility with bookmarks
+    const currentSorting = query.sortedBy || query.view ||  "new"
     const currentFilter = query.filter ||  "all"
     const ownPage = currentUser && currentUser._id === user._id
 
@@ -265,15 +266,15 @@ class UsersProfile extends Component {
           <div className={classes.title} onClick={() => this.setState({showSettings: !showSettings})}>
             <SectionTitle title={`${user.displayName}'s Posts`}>
               <SettingsIcon className={classes.settingsIcon}/>
-              <div className={classes.settingsText}>Sorted by { views[currentView] }</div>
+              <div className={classes.settingsText}>Sorted by { sortings[currentSorting] }</div>
             </SectionTitle>
           </div>
           {showSettings && <PostsListSettings
             hidden={false}
-            currentView={currentView}
+            currentSorting={currentSorting}
             currentFilter={currentFilter}
             currentShowLowKarma={true}
-            views={views}
+            sortings={sortings}
           />}
           <PostsList2 terms={terms} />
         </SingleColumnSection>
