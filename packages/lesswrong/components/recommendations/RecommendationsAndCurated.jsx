@@ -5,6 +5,7 @@ import withUser from '../common/withUser';
 import Users from 'meteor/vulcan:users';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import Tooltip from '@material-ui/core/Tooltip';
+import SettingsIcon from '@material-ui/icons/Settings';
 import classNames from 'classnames';
 
 const styles = theme => ({
@@ -32,9 +33,15 @@ const styles = theme => ({
 });
 
 class RecommendationsAndCurated extends PureComponent {
+  state = { showSettings: false }
   
+  toggleSettings = () => {	
+    this.setState(prevState => ({showSettings: !prevState.showSettings}))
+  }
+
   render() {
     const { classes } = this.props;
+    const { showSettings } = this.props
     const { BetaTag, SingleColumnSection, SectionTitle,
       RecommendationsList, PostsList2, SubscribeWidget } = Components;
     
@@ -59,7 +66,12 @@ class RecommendationsAndCurated extends PureComponent {
       onlyUnread: true,
     }
     return <SingleColumnSection>
-      <SectionTitle title="Recommendations [Beta]" />
+      <SectionTitle title="Recommendations [Beta]">
+        <span onClick={this.toggleSettings}>
+          <SettingsIcon />
+        </span>
+      </SectionTitle>
+      {showSettings && <div>Settings</div>}
       <div>
         <Tooltip placement="top-start" title={allTimeTooltip}>
           <Link className={classNames(classes.subtitle, classes.topUnread)} to={"/recommendations"}>
