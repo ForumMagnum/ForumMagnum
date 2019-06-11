@@ -99,6 +99,7 @@ import '../components/users/UserNameDeleted.jsx';
 import '../components/users/WrappedLoginForm.jsx';
 
 import '../components/icons/OmegaIcon.jsx';
+import '../components/icons/SettingsIcon.jsx';
 
 // posts
 
