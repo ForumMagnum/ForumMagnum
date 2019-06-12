@@ -1,4 +1,4 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper.js';
@@ -12,7 +12,6 @@ import withUser from "../common/withUser";
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import Hidden from '@material-ui/core/Hidden';
-import NoSSR from 'react-no-ssr';
 import withRecordPostView from '../common/withRecordPostView';
 
 import { POSTED_AT_WIDTH } from './PostsItemDate.jsx';
@@ -29,9 +28,6 @@ const styles = (theme) => ({
     [theme.breakpoints.down('sm')]: {
       width: "100%"
     },
-    [theme.breakpoints.up('md')]: {
-      height: 49,
-    },
     '&:hover $actions': {
       opacity: .2,
     }
@@ -44,6 +40,8 @@ const styles = (theme) => ({
     flexWrap: "nowrap",
     [theme.breakpoints.down('sm')]: {
       flexWrap: "wrap",
+      paddingTop: theme.spacing.unit,
+      paddingBottom: theme.spacing.unit,
     },
   },
   background: {
@@ -78,6 +76,7 @@ const styles = (theme) => ({
     }
   },
   title: {
+    minHeight: 24,
     flexGrow: 1,
     flexShrink: 1,
     overflow: "hidden",
@@ -86,7 +85,6 @@ const styles = (theme) => ({
     [theme.breakpoints.down('sm')]: {
       order:-1,
       height: "unset",
-      marginBottom: theme.spacing.unit,
       maxWidth: "unset",
       width: "100%",
       paddingRight: theme.spacing.unit
@@ -284,13 +282,13 @@ class PostsItem2 extends PureComponent {
   }
 
   render() {
-    const { classes, post, chapter, currentUser, index, terms, resumeReading,
+    const { classes, post, sequenceId, chapter, currentUser, index, terms, resumeReading,
       showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true,
       defaultToShowUnreadComments=false, dismissRecommendation } = this.props
     const { showComments } = this.state
     const { PostsItemComments, PostsItemKarma, PostsItemTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
 
-    const postLink = Posts.getPageUrl(post, false, chapter?.sequenceId);
+    const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
     
     const unreadComments = this.hasUnreadComments()
 
@@ -301,6 +299,8 @@ class PostsItem2 extends PureComponent {
         <CloseIcon onClick={() => dismissRecommendation()}/>
       </Tooltip>
     )
+    
+    const cloudinaryCloudName = getSetting('cloudinary.cloudName', 'lesswrong-2-0')
     
     return (
       <div className={classes.root} ref={this.postsItemRef}>
@@ -371,13 +371,15 @@ class PostsItem2 extends PureComponent {
             
             {resumeReading &&
               <div className={classes.sequenceImage}>
-                <NoSSR>
-                  <Components.CloudinaryImage
-                    publicId={resumeReading.sequence?.gridImageId || resumeReading.collection?.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
-                    height={48}
-                    width={146}
-                  />
-                </NoSSR>
+                <img
+                  height={48}
+                  width={146}
+                  src={`http://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_48,q_auto,w_146/v1/${
+                    resumeReading.sequence?.gridImageId
+                      || resumeReading.collection?.gridImageId
+                      || "sequences/vnyzzznenju0hzdv6pqb.jpg"
+                  }`}
+                />
               </div>}
           </div>
           
