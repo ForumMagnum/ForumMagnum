@@ -77,6 +77,7 @@ import '../components/common/LinkCard.jsx';
 import '../components/common/SubscribeWidget.jsx';
 import '../components/common/SubscribeDialog.jsx';
 
+import '../components/users/AccountsVerifyEmail.jsx';
 import '../components/users/UsersMenu.jsx';
 import '../components/users/UsersEditForm.jsx';
 import '../components/users/UsersAccount.jsx';
