@@ -6,6 +6,7 @@ import deepmerge from 'deepmerge';
 import withUser from '../common/withUser';
 import { slotSpecificRecommendationSettingDefaults, defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings.js';
 import Users from 'meteor/vulcan:users';
+import Typography from '@material-ui/core/Typography'
 
 // Elements here should match switch cases in recommendations.js
 const recommendationAlgorithms = [
@@ -39,7 +40,7 @@ export function getRecommendationSettings({settings, currentUser, configName})
   }
 }
 
-const RecommendationsAlgorithmPicker = ({ currentUser, settings, configName, updateUser, onChange }) => {
+const RecommendationsAlgorithmPicker = ({ currentUser, settings, configName, updateUser, onChange, showAdvanced }) => {
   function applyChange(newSettings) {
     if (currentUser) {
       const mergedSettings = {
@@ -57,63 +58,77 @@ const RecommendationsAlgorithmPicker = ({ currentUser, settings, configName, upd
     onChange(newSettings);
   }
   return <div>
-    <div>{"Algorithm "}
-      <select
-        onChange={(ev) => applyChange({ ...settings, method: ev.target.value })}
-        value={settings.method}
-      >
-        {recommendationAlgorithms.map(method =>
-          <option value={method.name} key={method.name}>
-            {method.description}
-          </option>
-        )}
-      </select>
-    </div>
-    <div>{"Count "}
-      <Input type="number"
-        value={settings.count}
-        onChange={(ev) => applyChange({ ...settings, count: ev.target.value })}
-      />
-    </div>
-    <div>
-      {"Weight: (score - "}
-      <Input type="number"
-        value={settings.scoreOffset}
-        onChange={(ev) => applyChange({ ...settings, scoreOffset: ev.target.value })}
-      />
-      {") ^ "}
-      <Input type="number"
-        value={settings.scoreExponent}
-        onChange={(ev) => applyChange({ ...settings, scoreExponent: ev.target.value })}
-      />
-    </div>
-    <div>
-      {"Personal blogpost modifier "}
-      <Input type="number"
-        value={settings.personalBlogpostModifier}
-        onChange={(ev) => applyChange({ ...settings, personalBlogpostModifier: ev.target.value })}
-      />
-    </div>
-    <div>
-      {"Frontpage modifier "}
-      <Input type="number"
-        value={settings.frontpageModifier}
-        onChange={(ev) => applyChange({ ...settings, frontpageModifier: ev.target.value })}
-      />
-    </div>
-    <div>
-      {"Curated modifier "}
-      <Input type="number"
-        value={settings.curatedModifier}
-        onChange={(ev) => applyChange({ ...settings, curatedModifier: ev.target.value })}
-      />
-    </div>
+    {(configName === "frontpage") && <div> 
+      <Checkbox
+        checked={settings.hideFrontpage}
+        onChange={(ev, checked) => applyChange({ ...settings, hideFrontpage: checked })}
+      /> Hide frontpage recommendations
+    </div>}
     <div>
       <Checkbox
         checked={settings.onlyUnread}
         onChange={(ev, checked) => applyChange({ ...settings, onlyUnread: checked })}
-      /> Only unread
+      /> Only show unread posts
     </div>
+    {showAdvanced && <div>
+      <div>{"Algorithm "}
+        <select
+          onChange={(ev) => applyChange({ ...settings, method: ev.target.value })}
+          value={settings.method}
+        >
+          {recommendationAlgorithms.map(method =>
+            <option value={method.name} key={method.name}>
+              {method.description}
+            </option>
+          )}
+        </select>
+      </div>
+      <div>{"Count "}
+        <Input type="number"
+          value={settings.count}
+          onChange={(ev) => applyChange({ ...settings, count: ev.target.value })}
+        />
+      </div>
+      <div>
+        {"Weight: (score - "}
+        <Input type="number"
+          value={settings.scoreOffset}
+          onChange={(ev) => applyChange({ ...settings, scoreOffset: ev.target.value })}
+        />
+        {") ^ "}
+        <Input type="number"
+          value={settings.scoreExponent}
+          onChange={(ev) => applyChange({ ...settings, scoreExponent: ev.target.value })}
+        />
+      </div>
+      <div>
+        {"Personal blogpost modifier "}
+        <Input type="number"
+          value={settings.personalBlogpostModifier}
+          onChange={(ev) => applyChange({ ...settings, personalBlogpostModifier: ev.target.value })}
+        />
+      </div>
+      <div>
+        {"Frontpage modifier "}
+        <Input type="number"
+          value={settings.frontpageModifier}
+          onChange={(ev) => applyChange({ ...settings, frontpageModifier: ev.target.value })}
+        />
+      </div>
+      <div>
+        {"Curated modifier "}
+        <Input type="number"
+          value={settings.curatedModifier}
+          onChange={(ev) => applyChange({ ...settings, curatedModifier: ev.target.value })}
+        />
+      </div>
+      <div>
+        <Checkbox
+          checked={settings.onlyUnread}
+          onChange={(ev, checked) => applyChange({ ...settings, onlyUnread: checked })}
+        /> Only unread
+      </div>
+    </div>}
   </div>;
 }
 
