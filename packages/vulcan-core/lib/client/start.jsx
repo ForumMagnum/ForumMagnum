@@ -7,7 +7,8 @@ import {
   createApolloClient,
   populateComponentsApp,
   populateRoutesApp,
-  initializeFragments
+  initializeFragments,
+  runCallbacks
 } from 'meteor/vulcan:lib';
 
 Meteor.startup(() => {
@@ -28,5 +29,6 @@ Meteor.startup(() => {
 
   onPageLoad(() => {
     ReactDOM.hydrate(<Main />, document.getElementById('react-app'));
+    runCallbacks({ name: 'client.hydrate.after', iterator: null});
   });
 });
