@@ -9,13 +9,15 @@ const styles = theme => ({
   post: {
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit*2,
+    fontSize: "1.1em",
+  },
+  postBody: {
     ...postHighlightStyles(theme),
-    fontSize: "1.1em"
   }
 })
 
 const SunshineNewUserPostsList = ({loading, results, classes, truncated}) => {
-  const { PostsItemTitle, Loading } = Components
+  const { Loading, MetaInfo } = Components
  
   if (!results && loading && !truncated) return <Loading />
   if (!results) return null
@@ -24,11 +26,13 @@ const SunshineNewUserPostsList = ({loading, results, classes, truncated}) => {
     <div>
       {loading && !truncated && <Loading />}
       {results.map(post=><div className={classes.post} key={post._id}>
-        {!truncated && <Link to={`/posts/${post._id}`}>
-          <PostsItemTitle post={post} />
-        </Link>}
-        {!truncated && !(post.status ==2) && `Flagged as Spam ${post.status}`}
-        <div dangerouslySetInnerHTML={{__html: (post.contents && post.contents.htmlHighlight)}} />
+        <MetaInfo>
+          <Link to={`/posts/${post._id}`}>
+            Post: {post.title}
+          </Link>
+        </MetaInfo>
+        <div className={classes.postBody} dangerouslySetInnerHTML={{__html: (post.contents && post.contents.htmlHighlight)}} />
+        {!(post.status ==2) && `Flagged as Spam ${post.status}`}
       </div>)}
     </div>
   )
