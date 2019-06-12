@@ -99,6 +99,7 @@ import '../components/users/EmailTokenResult.jsx';
 import '../components/users/SignupSubscribeToCurated.jsx';
 import '../components/users/UserNameDeleted.jsx';
 import '../components/users/WrappedLoginForm.jsx';
+import '../components/users/ResendVerificationEmailPage.jsx';
 
 import '../components/icons/OmegaIcon.jsx';
 import '../components/icons/SettingsIcon.jsx';
