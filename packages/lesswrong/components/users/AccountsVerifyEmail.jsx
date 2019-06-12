@@ -3,6 +3,8 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { withApollo } from 'react-apollo';
+import Users from 'meteor/vulcan:users';
+import withUser from '../common/withUser';
 
 const styles = theme => ({
   root: {
@@ -47,7 +49,7 @@ class AccountsVerifyEmail extends PureComponent {
   }
 
   render() {
-    const { classes } = this.props;
+    const { currentUser, classes } = this.props;
     
     if(this.state.pending) {
       return (
@@ -56,11 +58,19 @@ class AccountsVerifyEmail extends PureComponent {
         </div>
       );
     } else if(this.state.error) {
-      return (
-        <div className={classes.root}>
-          {this.state.error}
-        </div>
-      );
+      if (Users.emailAddressIsVerified(currentUser)) {
+        return (
+          <div className={classes.root}>
+            Your email address is already verified.
+          </div>
+        );
+      } else {
+        return (
+          <div className={classes.root}>
+            {this.state.error}
+          </div>
+        );
+      }
     } else {
       return (
         <div className={classes.root}>
@@ -72,6 +82,7 @@ class AccountsVerifyEmail extends PureComponent {
 }
 
 AccountsVerifyEmail.propTypes = {
+  currentUser: PropTypes.object,
   params: PropTypes.object,
 };
 
@@ -79,5 +90,6 @@ AccountsVerifyEmail.displayName = 'AccountsEnrollAccount';
 
 // Shadows AccountsVerifyEmail in meteor/vulcan:accounts
 registerComponent('AccountsVerifyEmail', AccountsVerifyEmail,
-  withApollo, withStyles(styles, { name: "AccountsVerifyEmail" }));
+  withApollo, withUser,
+  withStyles(styles, { name: "AccountsVerifyEmail" }));
 
