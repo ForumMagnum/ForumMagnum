@@ -43,8 +43,8 @@ class SignupSubscribeToCurated extends Component
           onChange({target: {value: checked}})
         }}
       />
-      Subscribe to curated posts
-      <Tooltip title="Emails 2-3 posts per week selected by the LessWrong moderation team.">
+      Subscribe to Curated posts
+      <Tooltip title="Emails 2-3 times per week with the best posts, chosen by the LessWrong moderation team.">
         <Info className={classes.infoIcon}/>
       </Tooltip>
     </div>
