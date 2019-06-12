@@ -104,6 +104,10 @@ const partiallyReadSequenceItem = new SimpleSchema({
   numTotal: {
     type: SimpleSchema.Integer,
   },
+  lastReadTime: {
+    type: Date,
+    optional: true,
+  },
 });
 
 addFieldsDict(Users, {
@@ -536,6 +540,7 @@ addFieldsDict(Users, {
     label: "Email me new posts in Curated",
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: ['AlignmentForum', 'EAForum'].includes(getSetting('forumType')),
     canRead: ['members'],
   },
   unsubscribeFromAll: {
@@ -614,6 +619,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: !getSetting('hasEvents', true),
     label: "Group Location",
     control: 'LocationFormComponent',
     blackbox: true,
@@ -751,7 +757,8 @@ addFieldsDict(Users, {
     type: String,
     optional: true,
     canRead: ['guests'],
-    canUpdate: [Users.owns, 'sunshineRegiment']
+    canUpdate: [Users.owns, 'sunshineRegiment'],
+    hidden: !['LessWrong', 'AlignmentForum'].includes(getSetting('forumType'))
   },
 
   noCollapseCommentsPosts: {
@@ -817,6 +824,7 @@ addFieldsDict(Users, {
     optional: true,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: getSetting('forumType') !== 'LessWrong',
     label: "Auto-collapse comments from GPT2"
   },
   
