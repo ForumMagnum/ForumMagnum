@@ -13,6 +13,7 @@ import classNames from 'classnames';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import { parseQuery } from '../../../lib/routeUtil.js';
 import withRecordPostView from '../../common/withRecordPostView';
+import withNewEvents from '../../../lib/events/withNewEvents.jsx';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 const DEFAULT_TOC_MARGIN = 100
@@ -231,7 +232,7 @@ function getHostname(url) {
 class PostsPage extends Component {
 
   getSequenceId() {
-    const { params, document: post } = this.props;
+    const { match: { params }, document: post } = this.props;
     return params.sequenceId || post?.canonicalSequenceId;
   }
 
@@ -400,5 +401,6 @@ registerComponent(
   [withDocument, queryOptions],
   withStyles(styles, { name: "PostsPage" }),
   withRecordPostView,
+  withNewEvents,
   withErrorBoundary,
 );
