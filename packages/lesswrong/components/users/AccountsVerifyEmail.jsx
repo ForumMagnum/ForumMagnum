@@ -1,8 +1,14 @@
 import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { intlShape } from 'meteor/vulcan:i18n';
+import { withStyles } from '@material-ui/core/styles';
 import { withApollo } from 'react-apollo';
+
+const styles = theme => ({
+  root: {
+    textAlign: "center",
+  }
+});
 
 class AccountsVerifyEmail extends PureComponent {
   constructor(props) {
@@ -41,35 +47,37 @@ class AccountsVerifyEmail extends PureComponent {
   }
 
   render() {
+    const { classes } = this.props;
+    
     if(this.state.pending) {
-      return <Components.Loading />
+      return (
+        <div className={classes.root}>
+          <Components.Loading />
+        </div>
+      );
     } else if(this.state.error) {
       return (
-        <div className='password-reset-form'>
+        <div className={classes.root}>
           {this.state.error}
         </div>
       );
     } else {
       return (
-        <div className='password-reset-form'>
-          {this.context.intl.formatMessage({id: 'accounts.email_verified'})}
+        <div className={classes.root}>
+          Your email address has been verified.
         </div>
       );
     }
   }
 }
 
-AccountsVerifyEmail.contextTypes = {
-  intl: intlShape
-}
-
-AccountsVerifyEmail.propsTypes = {
-  currentUser: PropTypes.object,
+AccountsVerifyEmail.propTypes = {
   params: PropTypes.object,
 };
 
 AccountsVerifyEmail.displayName = 'AccountsEnrollAccount';
 
 // Shadows AccountsVerifyEmail in meteor/vulcan:accounts
-registerComponent('AccountsVerifyEmail', AccountsVerifyEmail, withCurrentUser, withApollo);
+registerComponent('AccountsVerifyEmail', AccountsVerifyEmail,
+  withApollo, withStyles(styles, { name: "AccountsVerifyEmail" }));
 
