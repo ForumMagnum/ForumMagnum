@@ -4,7 +4,7 @@ import { createDummyUser, createDummyPost, createDummyComment, createDummyConver
 import { performSubscriptionAction } from '../../subscriptions/mutations.js';
 
 import Users from 'meteor/vulcan:users';
-import { Comments } from '../comments'
+// import { Comments } from '../comments' // commented out along with a flaky test (see below)
 import Notifications from './collection.js';
 import { waitUntilCallbacksFinished } from 'meteor/vulcan:core';
 
