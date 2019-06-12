@@ -20,7 +20,7 @@ const styles = theme => ({
 
 class NewQuestionDialog extends PureComponent {
   render() {
-    const { onClose, currentUser, router, flash, fullScreen, classes } = this.props
+    const { onClose, currentUser, history, flash, fullScreen, classes } = this.props
     const { PostSubmit, SubmitToFrontpageCheckbox } = Components
     const QuestionSubmit = (props) => {
       return <div className={classes.formSubmit}>
@@ -46,7 +46,7 @@ class NewQuestionDialog extends PureComponent {
             }}
             cancelCallback={onClose}
             successCallback={post => {
-              router.push({pathname: Posts.getPageUrl(post)});
+              history.push({pathname: Posts.getPageUrl(post)});
               flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
               onClose()
             }}
