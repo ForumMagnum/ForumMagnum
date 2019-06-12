@@ -19,7 +19,11 @@ const styles = theme => ({
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[700],
-    marginBottom: theme.spacing.unit/2,
+    display: "inline-block",
+    [theme.breakpoints.down('sm')]:{
+      marginBottom: theme.spacing.unit*1.5,
+    },
+    marginBottom: theme.spacing.unit,
   },
   list: {
     marginLeft: theme.spacing.unit*2
@@ -55,14 +59,11 @@ class RecommendationsAndCurated extends PureComponent {
     }
     return <SingleColumnSection>
       <SectionTitle title="Recommendations [Beta]" />
-      <div>
-        <Tooltip placement="top-start" title={allTimeTooltip}>
-          <Link className={classNames(classes.subtitle, classes.topUnread)} to={"/recommendations"}>
-            Top Unread Posts
-          </Link>
-        </Tooltip>
-        <BetaTag />
-      </div>
+      <Tooltip placement="top-start" title={allTimeTooltip}>
+        <Link className={classNames(classes.subtitle, classes.topUnread)} to={"/recommendations"}>
+          Top Unread Posts <BetaTag />
+        </Link>
+      </Tooltip>
       <div className={classes.list}>
         <RecommendationsList
           algorithm={frontpageRecommendationSettings}

@@ -22,6 +22,7 @@ const styles = theme => ({
     fontSize: "1.3rem",
     [theme.breakpoints.down('sm')]: {
       whiteSpace: "unset",
+      lineHeight: "1.8rem",
     },
     fontFamily: theme.typography.postStyle.fontFamily,
     marginRight: theme.spacing.unit,
