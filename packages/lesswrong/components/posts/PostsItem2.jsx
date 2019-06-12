@@ -28,9 +28,6 @@ const styles = (theme) => ({
     [theme.breakpoints.down('sm')]: {
       width: "100%"
     },
-    [theme.breakpoints.up('md')]: {
-      height: 49,
-    },
     '&:hover $actions': {
       opacity: .2,
     }
