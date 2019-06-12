@@ -9,6 +9,23 @@ import {
 } from 'meteor/vulcan:lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
 import clone from 'lodash/clone';
 
+// Takes a function that returns a promise and wraps it with Meteor.wrapAsync
+// Definitely gets rid of the `this` context, so only use with contextless functions
+function asyncWrapper(func) {
+  // First we have to wrap the function so that it takes a callback as it's last argument
+  // because that is what Meteor.wrapAsync expects
+  const functionWithCallback = (args, callback) => {
+    const promise = Promise.resolve(func(...args))
+    promise
+      .then((value) => callback(null, value))
+      .catch((err) => callback(err, null))
+  }
+  // Then we make sure to pass through the old arguments properly
+  return (...args) => {
+    return Meteor.wrapAsync(functionWithCallback)(args)
+  }
+}
+
 // TODO: the following should use async/await, but async/await doesn't seem to work with Accounts.onCreateUser
 function onCreateUserCallback(options, user) {
   debug('');
@@ -52,7 +69,7 @@ function onCreateUserCallback(options, user) {
     if (schema[fieldName].onCreate) {
       const document = clone(user);
       // eslint-disable-next-line no-await-in-loop
-      autoValue = schema[fieldName].onCreate({ document });
+      autoValue = asyncWrapper(schema[fieldName].onCreate)({ document, newDocument: document, fieldName });
     } else if (schema[fieldName].onInsert) {
       // OpenCRUD backwards compatibility
       // eslint-disable-next-line no-await-in-loop
@@ -62,8 +79,9 @@ function onCreateUserCallback(options, user) {
       user[fieldName] = autoValue;
     }
   }
-  user = runCallbacks({ name: 'user.create.before', iterator: user, properties: {} });
-  user = runCallbacks('users.new.sync', user);
+
+  user = asyncWrapper(runCallbacks)({ name: 'user.create.before', iterator: user, properties: {} });
+  user = asyncWrapper(runCallbacks)('users.new.sync', user);
 
   runCallbacksAsync({ name: 'user.create.async', properties: { data: user } });
   // OpenCRUD backwards compatibility
@@ -86,6 +104,6 @@ function onCreateUserCallback(options, user) {
 
 Meteor.startup(() => {
   if (typeof Accounts !== 'undefined') {
-    Accounts.onCreateUser(onCreateUserCallback);
+    Accounts.onCreateUser(onCreateUserCallback)
   }
 });
