@@ -8,6 +8,9 @@ const styles = theme => ({
     maxWidth: 300,
     textOverflow: "ellipsis",
     overflowX: "hidden",
+    [theme.breakpoints.down('sm')]: {
+      maxWidth: 160
+    },
   },
   lengthUnlimited: {
     display: "inline",
