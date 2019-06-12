@@ -112,8 +112,9 @@ addFieldsDict(Users, {
     group: formGroups.emails,
     control: 'UsersEmailVerification',
     canRead: ['members'],
-    canUpdate: ['sunshineRegiment', 'admins'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
+    hidden: true,
   },
 
   // Legacy: Boolean used to indicate that post was imported from old LW database
@@ -285,8 +286,9 @@ addFieldsDict(Users, {
     group: formGroups.moderationGroup,
     label: "Style",
     canRead: ['guests'],
-    canUpdate: ['sunshineRegiment', 'admins'],
-    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true,
     blackbox: true,
     order: 55,
     form: {
@@ -307,8 +309,9 @@ addFieldsDict(Users, {
     group: formGroups.moderationGroup,
     label: "I'm happy for LW site moderators to help enforce my policy",
     canRead: ['guests'],
-    canUpdate: ['sunshineRegiment', 'admins'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
+    hidden: true,
     control: 'checkbox',
     order: 55,
   },
@@ -319,8 +322,9 @@ addFieldsDict(Users, {
     group: formGroups.moderationGroup,
     label: "On my posts, collapse my moderation guidelines by default",
     canRead: ['guests'],
-    canUpdate: ['sunshineRegiment', 'admins'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
+    hidden: true,
     control: 'checkbox',
     order: 56,
   },
@@ -813,8 +817,9 @@ export const makeEditableOptionsModeration = {
   permissions: {
     viewableBy: ['guests'],
     editableBy: ['sunshineRegiment', 'admins'],
-    insertableBy: ['sunshineRegiment', 'admins']
+    insertableBy: [Users.owns, 'sunshineRegiment', 'admins']
   },
+  hidden: true,
   deactivateNewCallback: true, // Fix to avoid triggering the editable operations on incomplete users during creation
 }
 
