@@ -337,7 +337,7 @@ class PostsItem2 extends PureComponent {
             </PostsItem2MetaInfo>
 
             <Link to={postLink} className={classes.title}>
-              <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
+              <PostsItemTitle post={post} postItem2 expandOnHover={!renderComments} read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
             </Link>
             
             {(resumeReading?.sequence || resumeReading?.collection) &&
