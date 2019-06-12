@@ -37,7 +37,7 @@ class UsersEmailVerification extends PureComponent
   }
   
   render() {
-    let { currentUser, classes } = this.props;
+    let { resend=false, currentUser, classes } = this.props;
     
     if(Users.emailAddressIsVerified(currentUser)) {
       return (
@@ -59,7 +59,8 @@ class UsersEmailVerification extends PureComponent
             className={classes.verifyEmailButton}
             onClick={() => this.sendConfirmationEmail()}
           >
-            Send Confirmation Email
+            {resend ? "Resend Confirmation Email"
+                    : "Send Confirmation Email"}
           </Button>
         </div>
       );
