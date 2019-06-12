@@ -1,8 +1,8 @@
 import { Components, registerComponent} from 'meteor/vulcan:core';
 import React from 'react';
 
-const SequencesSingle = (props, context) => {
-  return <Components.SequencesPage documentId={props.params._id} />
+const SequencesSingle = ({ match: { params } }, context) => {
+  return <Components.SequencesPage documentId={params._id} />
 };
 
 SequencesSingle.displayName = "SequencesSingle";

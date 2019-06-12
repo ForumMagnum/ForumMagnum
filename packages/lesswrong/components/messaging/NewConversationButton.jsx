@@ -14,7 +14,7 @@ import withUser from '../common/withUser';
 class NewConversationButton extends Component {
 
    newConversation = async () => {
-    const { user, currentUser, newMutation, router } = this.props
+    const { user, currentUser, newMutation, history } = this.props
     const alignmentFields = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
 
     const response = await newMutation({
@@ -24,7 +24,7 @@ class NewConversationButton extends Component {
       validate: false,
     })
     const conversationId = response.data.createConversation.data._id
-    router.push({pathname: `/inbox/${conversationId}`})
+    history.push({pathname: `/inbox/${conversationId}`})
   }
 
   render() {
