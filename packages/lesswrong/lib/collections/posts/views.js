@@ -257,6 +257,11 @@ Posts.addView("recentComments", terms => ({
   options: {sort: sortings["recentComments"]}
 }))
 
+Posts.addView("old", terms => ({
+  options: {sort: sortings["old"]}
+}))
+// Covered by the same index as `new`
+
 Posts.addView("daily", terms => ({
   options: {
     sort: {score: -1}
