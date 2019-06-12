@@ -9,7 +9,6 @@ import MessageIcon from '@material-ui/icons/Message'
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
-import SettingsIcon from '@material-ui/icons/Settings';
 import Tooltip from '@material-ui/core/Tooltip';
 import { postBodyStyles } from '../../themes/stylePiping'
 
@@ -48,10 +47,6 @@ const styles = theme => ({
   primaryColor: {
     color: theme.palette.primary.light
   },
-  settingsIcon: {
-    color: theme.palette.grey[400],
-    marginRight: theme.spacing.unit,
-  },
   title: {
     cursor: "pointer",
     '&:hover $settingsIcon, &:hover $settingsText': {
@@ -59,6 +54,7 @@ const styles = theme => ({
     }
   },
   settingsText: {
+    marginLeft: theme.spacing.unit,
     fontStyle: "italic",
     display: "inline-block",
     ...theme.typography.commentStyle,
@@ -173,7 +169,7 @@ class UsersProfile extends Component {
       return null;
     }
 
-    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton } = Components
+    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsIcon } = Components
 
     const user = document;
     const query = _.clone(router.location.query || {});
@@ -264,7 +260,7 @@ class UsersProfile extends Component {
         <SingleColumnSection>
           <div className={classes.title} onClick={() => this.setState({showSettings: !showSettings})}>
             <SectionTitle title={`${user.displayName}'s Posts`}>
-              <SettingsIcon className={classes.settingsIcon}/>
+              <SettingsIcon/>
               <div className={classes.settingsText}>Sorted by { views[currentView] }</div>
             </SectionTitle>
           </div>

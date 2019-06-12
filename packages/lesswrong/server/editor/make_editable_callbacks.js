@@ -127,8 +127,8 @@ ensureIndex(Revisions, {documentId: 1, version: 1, fieldName: 1, editedAt: 1})
 export function addEditableCallbacks({collection, options = {}}) {
   const {
     fieldName = "contents",
-    // deactivateNewCallback // Because of Meteor shenannigans we don't have access to the full user object when a new user is created, and this creates
-    // // bugs when we register callbacks that trigger on new user creation. So we allow the deactivation of the new callbacks.
+    deactivateNewCallback // Because of Meteor shenannigans we don't have access to the full user object when a new user is created, and this creates
+    // bugs when we register callbacks that trigger on new user creation. So we allow the deactivation of the new callbacks.
   } = options
 
   const { typeName } = collection.options
@@ -147,7 +147,9 @@ export function addEditableCallbacks({collection, options = {}}) {
     return doc
   }
 
-  addCallback(`${typeName.toLowerCase()}.create.before`, editorSerializationNew);
+  if (!deactivateNewCallback) {
+    addCallback(`${typeName.toLowerCase()}.create.before`, editorSerializationNew);
+  }
 
   async function editorSerializationEdit (docData, { document, currentUser }) {
     if (docData[fieldName] && docData[fieldName].originalContents) {
