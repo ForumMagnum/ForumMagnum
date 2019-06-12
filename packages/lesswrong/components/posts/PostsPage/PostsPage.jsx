@@ -176,13 +176,15 @@ function getHostname(url) {
 class PostsPage extends Component {
 
   render() {
-    const { loading, document: post, currentUser, classes, data: {refetch} } = this.props
+    const { loading, document: post, currentUser, classes, data: {refetch}, error } = this.props
     const { params } = this.props.match;
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, PostsType,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigationWrapper,
       PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent, Section, TableOfContents, PostsRevisionSelector, PostsRevisionMessage, AlignmentCrosspostMessage, ConfigurableRecommendationsList } = Components
 
-    if (loading) {
+    if (error) {
+      return <Error404 />
+    } else if (loading && !post) {
       return <div><Loading/></div>
     } else if (!post) {
       return <Error404/>
@@ -280,11 +282,11 @@ class PostsPage extends Component {
             {sequenceId && <div className={classes.bottomNavigation}>
               <BottomNavigationWrapper documentId={sequenceId} post={post}/>
             </div>}
-            
+
             {/* Recommendations */}
-            {currentUser && Users.isAdmin(currentUser) && !post.question && 
+            {currentUser && Users.isAdmin(currentUser) && !post.question &&
               <ConfigurableRecommendationsList configName="afterpost"/>}
-            
+
             {/* Answers Section */}
             {post.question && <div className={classes.post}>
               <div id="answers"/>
@@ -303,7 +305,7 @@ class PostsPage extends Component {
   async componentDidMount() {
     this.props.recordPostView(this.props);
   }
-  
+
   componentDidUpdate(prevProps) {
     if (prevProps.document && this.props.document && prevProps.document._id !== this.props.document._id) {
       this.props.closeAllEvents();
