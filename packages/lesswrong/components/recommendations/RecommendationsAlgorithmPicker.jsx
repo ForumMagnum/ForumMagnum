@@ -6,7 +6,6 @@ import deepmerge from 'deepmerge';
 import withUser from '../common/withUser';
 import { slotSpecificRecommendationSettingDefaults, defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings.js';
 import Users from 'meteor/vulcan:users';
-import Typography from '@material-ui/core/Typography'
 
 // Elements here should match switch cases in recommendations.js
 const recommendationAlgorithms = [
