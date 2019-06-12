@@ -3,7 +3,6 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import NoSSR from 'react-no-ssr';
 import withUser from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper'
-
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 
 class ConfigurableRecommendationsList extends PureComponent {
