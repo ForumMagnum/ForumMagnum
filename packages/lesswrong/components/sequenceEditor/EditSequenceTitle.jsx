@@ -16,6 +16,24 @@ const styles = theme => ({
   },
   imageScrim: {
     ...sequencesImageScrim(theme)
+  },
+  input: {
+    position: 'relative',
+    lineHeight: '1.1',
+    left: -275,
+    width: 650,
+    fontSize: '36px',
+    color: 'white',
+    fontVariant: 'small-caps',
+    zIndex: 2,
+    height: '1em',
+    resize: 'none',
+    backgroundColor: 'transparent',
+    boxShadow: 'none',
+    overflow: 'hidden',
+    '&::placeholder': {
+      color: 'rgba(255,255,255,.5)'
+    }
   }
 });
 
@@ -24,7 +42,7 @@ const EditSequenceTitle = ({classes, inputProperties, value, path, placeholder},
     <div className={classes.imageScrim}/>
     <div className="sequences-editor-title-wrapper">
       <Input
-        className="sequences-editor-title"
+        className={classes.input}
         placeholder={placeholder}
         value={value}
         onChange={(event) => {
@@ -32,6 +50,7 @@ const EditSequenceTitle = ({classes, inputProperties, value, path, placeholder},
             [path]: event.target.value
           })
         }}
+        disableUnderline
       />
     </div>
   </div>
