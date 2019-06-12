@@ -75,7 +75,7 @@ export const createMutator = async ({
   Properties
 
   Note: keep newDocument for backwards compatibility
-  
+
   */
   const properties = { data, currentUser, collection, context, document, newDocument: document, schema };
 
@@ -125,11 +125,11 @@ export const createMutator = async ({
     if (!!userIdInSchema && !document.userId) document.userId = currentUser._id;
   }
 
-  /* 
-  
+  /*
+
   onCreate
 
-  note: cannot use forEach with async/await. 
+  note: cannot use forEach with async/await.
   See https://stackoverflow.com/a/37576787/649299
 
   note: clone arguments in case callbacks modify them
@@ -140,7 +140,7 @@ export const createMutator = async ({
     if (schema[fieldName].onCreate) {
       // OpenCRUD backwards compatibility: keep both newDocument and data for now, but phase out newDocument eventually
       // eslint-disable-next-line no-await-in-loop
-      autoValue = await schema[fieldName].onCreate(properties); // eslint-disable-line no-await-in-loop
+      autoValue = await schema[fieldName].onCreate({...properties, fieldName}); // eslint-disable-line no-await-in-loop
     } else if (schema[fieldName].onInsert) {
       // OpenCRUD backwards compatibility
       autoValue = await schema[fieldName].onInsert(clone(document), currentUser); // eslint-disable-line no-await-in-loop
@@ -159,7 +159,7 @@ export const createMutator = async ({
   /*
 
   Before
-  
+
   */
   document = await runCallbacks({
     name: `${typeName.toLowerCase()}.create.before`,
