@@ -1,18 +1,6 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 
-const customSignupFields = ['EAForum', 'AlignmentForum'].includes(getSetting('forumType'))
-  ? []
-  : [
-    {
-      id: "subscribeToCurated",
-      type: 'custom',
-      defaultValue: true,
-      renderCustom: Components.SignupSubscribeToCurated
-    }
-  ]
-
-
 class WrappedLoginForm extends Component
 {
   state = {
@@ -24,6 +12,17 @@ class WrappedLoginForm extends Component
   }
   
   render() {
+    const customSignupFields = ['EAForum', 'AlignmentForum'].includes(getSetting('forumType'))
+      ? []
+      : [
+        {
+          id: "subscribeToCurated",
+          type: 'custom',
+          defaultValue: true,
+          renderCustom: Components.SignupSubscribeToCurated
+        }
+      ]
+  
     return <React.Fragment>
       {getSetting('reCaptcha.apiKey')
         && <Components.ReCaptcha verifyCallback={this.setReCaptchaToken} action="login/signup"/>}
