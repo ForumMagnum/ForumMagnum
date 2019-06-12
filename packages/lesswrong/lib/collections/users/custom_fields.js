@@ -40,18 +40,18 @@ export const formGroups = {
 export const karmaChangeNotifierDefaultSettings = {
   // One of the string keys in karmaNotificationTimingChocies
   updateFrequency: "daily",
-  
+
   // Time of day at which daily/weekly batched updates are released, a number
   // of hours [0,24). Always in GMT, regardless of the user's time zone.
   // Default corresponds to 3am PST.
   timeOfDayGMT: 11,
-  
+
   // A string day-of-the-week name, spelled out and capitalized like "Monday".
   // Always in GMT, regardless of the user's timezone (timezone matters for day
   // of the week because time zones could take it across midnight.)
   dayOfWeekGMT: "Saturday",
 
-  // A boolean that determines whether we hide or show negative karma updates. 
+  // A boolean that determines whether we hide or show negative karma updates.
   // False by default because people tend to drastically overweigh negative feedback
   showNegativeKarma: false,
 };
@@ -74,7 +74,7 @@ const karmaChangeSettingsType = new SimpleSchema({
     allowedValues: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
   },
   showNegativeKarma: {
-    type: Boolean, 
+    type: Boolean,
     optional: true,
   }
 })
@@ -364,7 +364,7 @@ addFieldsDict(Users, {
     foreignKey: "Users",
     optional: true
   },
-  
+
   // Legacy ID: ID used in the original LessWrong database
   legacyId: {
     type: String,
@@ -465,7 +465,7 @@ addFieldsDict(Users, {
     group: formGroups.notifications,
     label: "Notifications For Replies to My Comments",
   },
-  
+
   // Karma-change notifier settings
   karmaChangeNotifierSettings: {
     group: formGroups.notifications,
@@ -477,7 +477,7 @@ addFieldsDict(Users, {
     canCreate: [Users.owns, 'admins', 'sunshineRegiment'],
     ...schemaDefaultValue(karmaChangeNotifierDefaultSettings)
   },
-  
+
   // Time at which the karma-change notification was last opened (clicked)
   karmaChangeLastOpened: {
     hidden: true,
@@ -487,7 +487,7 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'admins'],
     canRead: [Users.owns, 'admins'],
   },
-  
+
   // If, the last time you opened the karma-change notifier, you saw more than
   // just the most recent batch (because there was a batch you hadn't viewed),
   // the start of the date range of that batch.
@@ -533,8 +533,8 @@ addFieldsDict(Users, {
     denormalized: true,
     optional: true,
     onInsert: (document, currentUser) => 0,
-    
-    
+
+
     ...denormalizedCountOfReferences({
       fieldName: "frontpagePostCount",
       collectionName: "Users",
@@ -755,8 +755,8 @@ addFieldsDict(Users, {
   },
   // ReCaptcha v3 Integration
   signUpReCaptchaRating: {
-    type: Number, 
-    optional: true, 
+    type: Number,
+    optional: true,
     canRead: [Users.owns, 'sunshineRegiment', 'admins']
   }
 });
@@ -774,8 +774,7 @@ export const makeEditableOptionsModeration = {
     viewableBy: ['guests'],
     editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
     insertableBy: [Users.owns, 'sunshineRegiment', 'admins']
-  },
-  deactivateNewCallback: true, // Fix to avoid triggering the editable operations on incomplete users during creation
+  }
 }
 
 makeEditable({
