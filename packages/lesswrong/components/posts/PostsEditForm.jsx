@@ -22,7 +22,10 @@ class PostsEditForm extends PureComponent {
     const EditPostsSubmit = (props) => {
       return <div className={classes.formSubmit}>
         {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
-        <PostSubmit {...props} />
+        <PostSubmit
+          saveDraftLabel={isDraft ? "Save as draft" : "Move to Drafts"}
+          {...props}
+        />
       </div>
     }
 

@@ -14,6 +14,8 @@ registerFragment(`
     participants {
       ...UsersMinimumInfo
     }
+    archivedByIds
+    messageCount
   }
 `);
 
@@ -62,6 +64,7 @@ extendFragment('UsersCurrent', `
   ...UsersMinimumInfo
   voteBanned
   banned
+  isReviewed
   nullifyVotes
   hideIntercom
   currentFrontpageFilter
@@ -318,6 +321,7 @@ registerFragment(`
     # vulcan:users
     _id
     slug
+    oldSlugs
     createdAt
     username
     displayName
@@ -332,6 +336,8 @@ registerFragment(`
     commentCount
     afPostCount 
     afCommentCount
+    beta
+    spamRiskScore
   }
 `);
 

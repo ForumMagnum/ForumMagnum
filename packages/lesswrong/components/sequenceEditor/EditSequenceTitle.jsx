@@ -3,6 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types'
 import Input from '@material-ui/core/Input';
 import { withStyles } from '@material-ui/core/styles';
+import { sequencesImageScrim } from '../sequences/SequencesPage'
 
 const styles = theme => ({
   root: {
@@ -13,11 +14,14 @@ const styles = theme => ({
       marginTop: 40,
     }
   },
+  imageScrim: {
+    ...sequencesImageScrim(theme)
+  }
 });
 
 const EditSequenceTitle = ({classes, inputProperties, value, path, placeholder}, context) => {
   return <div className={classes.root}>
-    <div className="sequences-image-scrim-overlay"></div>
+    <div className={classes.imageScrim}/>
     <div className="sequences-editor-title-wrapper">
       <Input
         className="sequences-editor-title"

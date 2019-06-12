@@ -12,7 +12,9 @@ const UsersAccount = (props) => {
 
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
   return <div>
-    <Helmet><script src={`https://maps.googleapis.com/maps/api/js?key=${mapsAPIKey}&libraries=places`}/></Helmet>
+    {mapsAPIKey && <Helmet>
+      <script src={`https://maps.googleapis.com/maps/api/js?key=${mapsAPIKey}&libraries=places`}/>
+    </Helmet>}
     <Components.UsersEditForm terms={terms} />
   </div>
 };

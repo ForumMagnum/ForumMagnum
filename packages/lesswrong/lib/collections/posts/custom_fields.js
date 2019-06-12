@@ -1,7 +1,7 @@
 import { Posts } from './collection';
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
-import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple, resolverOnlyField, denormalizedCountOfReferences } from '../../modules/utils/schemaUtils'
+import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple, resolverOnlyField, denormalizedCountOfReferences, accessFilterSingle } from '../../modules/utils/schemaUtils'
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { Utils } from 'meteor/vulcan:core';
 import GraphQLJSON from 'graphql-type-json';
@@ -379,6 +379,90 @@ addFieldsDict(Posts, {
     hidden: false,
     control: "text"
   },
+  
+  // The next post. If a sequenceId is provided, that sequence must contain this
+  // post, and this returns the next post after this one in that sequence. If
+  // no sequenceId is provided, uses this post's canonical sequence.
+  nextPost: resolverOnlyField({
+    type: "Post",
+    graphQLtype: "Post",
+    viewableBy: ['guests'],
+    graphqlArguments: 'sequenceId: String',
+    resolver: async (post, { sequenceId }, { currentUser, Posts, Sequences }) => {
+      if (sequenceId) {
+        const nextPostID = await Sequences.getNextPostID(sequenceId, post._id);
+        if (nextPostID) {
+          const nextPost = await Posts.loader.load(nextPostID);
+          return accessFilterSingle(currentUser, Posts, nextPost);
+        }
+      }
+      if (post.canonicalNextPostSlug) {
+        const nextPost = await Posts.findOne({ slug: post.canonicalNextPostSlug });
+        return accessFilterSingle(currentUser, Posts, nextPost);
+      }
+      if(post.canonicalSequenceId) {
+        const nextPostID = await Sequences.getNextPostID(post.canonicalSequenceId, post._id);
+        if (!nextPostID) return null;
+        const nextPost = await Posts.loader.load(nextPostID);
+        return accessFilterSingle(currentUser, Posts, nextPost);
+      }
+      
+      return null;
+    }
+  }),
+  
+  // The previous post. If a sequenceId is provided, that sequence must contain
+  // this post, and this returns the post before this one in that sequence.
+  // If no sequenceId is provided, uses this post's canonical sequence.
+  prevPost: resolverOnlyField({
+    type: "Post",
+    graphQLtype: "Post",
+    viewableBy: ['guests'],
+    graphqlArguments: 'sequenceId: String',
+    resolver: async (post, { sequenceId }, { currentUser, Posts, Sequences }) => {
+      if (sequenceId) {
+        const prevPostID = await Sequences.getPrevPostID(sequenceId, post._id);
+        if (prevPostID) {
+          const prevPost = await Posts.loader.load(prevPostID);
+          return accessFilterSingle(currentUser, Posts, prevPost);
+        }
+      }
+      if (post.canonicalPrevPostSlug) {
+        const prevPost = await Posts.findOne({ slug: post.canonicalPrevPostSlug });
+        return accessFilterSingle(currentUser, Posts, prevPost);
+      }
+      if(post.canonicalSequenceId) {
+        const prevPostID = await Sequences.getPrevPostID(post.canonicalSequenceId, post._id);
+        if (!prevPostID) return null;
+        const prevPost = await Posts.loader.load(prevPostID);
+        return accessFilterSingle(currentUser, Posts, prevPost);
+      }
+      
+      return null;
+    }
+  }),
+  
+  // A sequence this post is part of. Takes an optional sequenceId; if the
+  // sequenceId is given and it contains this post, returns that sequence.
+  // Otherwise, if this post has a canonical sequence, return that. If no
+  // sequence ID is given and there is no canonical sequence for this post,
+  // returns null.
+  sequence: resolverOnlyField({
+    type: "Sequence",
+    graphQLtype: "Sequence",
+    viewableBy: ['guests'],
+    graphqlArguments: 'sequenceId: String',
+    resolver: async (post, { sequenceId }, { currentUser, Sequences }) => {
+      let sequence = null;
+      if (sequenceId && await Sequences.sequenceContainsPost(sequenceId, post._id)) {
+        sequence = await Sequences.loader.load(sequenceId);
+      } else if (post.canonicalSequenceId) {
+        sequence = await Sequences.loader.load(post.canonicalSequenceId);
+      }
+      
+      return accessFilterSingle(currentUser, Sequences, sequence);
+    }
+  }),
 
   // unlisted: If true, the post is not featured on the frontpage and is not
   // featured on the user page. Only accessible via it's ID

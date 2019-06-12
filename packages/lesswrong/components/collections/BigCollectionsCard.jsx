@@ -65,7 +65,7 @@ const styles = theme => ({
 class BigCollectionsCard extends PureComponent {
   render() {
     const { collection, url, classes } = this.props
-    const { LinkCard } = Components;
+    const { LinkCard, UsersName } = Components;
     const cardContentStyle = {borderTopColor: collection.color}
 
     return <LinkCard className={classes.root} to={url}>
@@ -78,7 +78,7 @@ class BigCollectionsCard extends PureComponent {
             <Link to={url}>{collection.title}</Link>
           </Typography>
           <Typography variant="subheading" className={classes.author}>
-            by <Components.UsersName user={collection.user}/>
+            by <UsersName documentId={collection.userId}/>
           </Typography>
           <Typography variant="body2" className={classes.text}>
             {collection.summary}
