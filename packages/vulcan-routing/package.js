@@ -11,5 +11,4 @@ Package.onUse(function(api) {
   api.use(['vulcan:lib@1.13.0']);
 
   api.mainModule('lib/server/main.js', 'server');
-  api.mainModule('lib/client/main.js', 'client');
 });
