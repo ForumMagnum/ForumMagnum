@@ -9,7 +9,7 @@ import classNames from 'classnames';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 
 const styles = theme => ({
-  topUnread: {
+  fromTheArchives: {
     marginTop: theme.spacing.unit,
   },
   curated: {
@@ -92,7 +92,7 @@ class RecommendationsAndCurated extends PureComponent {
       {!settings.hideFrontpage && <div>
         <div>
           <Tooltip placement="top-start" title={allTimeTooltip}>
-            <Link className={classNames(classes.subtitle, classes.topUnread)} to={"/recommendations"}>
+            <Link className={classNames(classes.subtitle, classes.fromTheArchives)} to={"/recommendations"}>
               From the Archives
             </Link>
           </Tooltip>
