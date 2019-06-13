@@ -65,9 +65,10 @@ const RecommendationsAlgorithmPicker = ({ currentUser, settings, configName, upd
     </div>}
     <div>
       <Checkbox
-        checked={settings.onlyUnread}
+        disabled={!currentUser}
+        checked={settings.onlyUnread && currentUser}
         onChange={(ev, checked) => applyChange({ ...settings, onlyUnread: checked })}
-      /> Only show unread posts
+      /> Only show unread posts {!currentUser && "(Requires login)"}
     </div>
     {showAdvanced && <div>
       <div>{"Algorithm "}

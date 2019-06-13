@@ -32,23 +32,12 @@ class Home2 extends PureComponent {
         <Components.HeadTags image={getSetting('siteImage')} />
         <TabNavigationMenu />
   
-        {!currentUser && <SingleColumnSection>
+        {/* {!currentUser && <SingleColumnSection>
           <SectionTitle title="Core Reading" />
           <Components.CoreReading />
-        </SingleColumnSection>}
+        </SingleColumnSection>} */}
   
-        {!currentUser?.beta && 
-        <SingleColumnSection>
-          <SectionTitle title="Curated" />
-          <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false}>
-            <Link to={"/allPosts?filter=curated&view=new"}>View All Curated Posts</Link>
-            <SubscribeWidget view={"curated"} />
-          </PostsList2>
-        </SingleColumnSection>}
-  
-        {currentUser?.beta &&
-          <RecommendationsAndCurated configName="frontpage" />
-        }
+        <RecommendationsAndCurated configName="frontpage" />
   
         <HomeLatestPosts />
   

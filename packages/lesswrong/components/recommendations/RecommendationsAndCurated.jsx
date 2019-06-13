@@ -75,11 +75,11 @@ class RecommendationsAndCurated extends PureComponent {
 
     const frontpageRecommendationSettings = {
       ...settings,
-      defaultFrontpageSettings
+      ...defaultFrontpageSettings
     } 
 
     return <SingleColumnSection>
-      <SectionTitle title="Recommendations [Beta]">
+      <SectionTitle title="Recommendations">
         <SettingsIcon onClick={this.toggleSettings}/>
       </SectionTitle>
       {showSettings &&
