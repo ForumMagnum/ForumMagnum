@@ -1,4 +1,4 @@
-import { registerComponent, withEdit, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, withUpdate, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
@@ -6,28 +6,26 @@ import withUser from '../common/withUser';
 
 class SuggestCurated extends Component {
   handleSuggestCurated = () => {
-    const { currentUser, post, editMutation } = this.props
+    const { currentUser, post, updatePost } = this.props
     let suggestUserIds = _.clone(post.suggestForCuratedUserIds) || []
     if (!suggestUserIds.includes(currentUser._id)) {
       suggestUserIds.push(currentUser._id)
     }
-    editMutation({
+    updatePost({
       documentId: post._id,
-      set: {suggestForCuratedUserIds:suggestUserIds},
-      unset: {}
+      data: {suggestForCuratedUserIds:suggestUserIds}
     })
   }
 
   handleUnsuggestCurated = () => {
-    const { currentUser, post, editMutation } = this.props
+    const { currentUser, post, updatePost } = this.props
     let suggestUserIds = _.clone(post.suggestForCuratedUserIds) || []
     if (suggestUserIds.includes(currentUser._id)) {
       suggestUserIds = _.without(suggestUserIds, currentUser._id);
     }
-    editMutation({
+    updatePost({
       documentId: post._id,
-      set: {suggestForCuratedUserIds:suggestUserIds},
-      unset: {}
+      data: {suggestForCuratedUserIds:suggestUserIds}
     })
   }
 
@@ -60,7 +58,7 @@ class SuggestCurated extends Component {
   }
 }
 
-const withEditOptions = {
+const withUpdateOptions = {
   collection: Posts,
   fragmentName: 'PostsList',
 }
@@ -68,6 +66,6 @@ const withEditOptions = {
 registerComponent(
   'SuggestCurated',
   SuggestCurated,
-  [withEdit, withEditOptions],
+  [withUpdate, withUpdateOptions],
   withUser
 );

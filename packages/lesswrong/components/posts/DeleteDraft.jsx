@@ -1,4 +1,4 @@
-import { registerComponent, withEdit } from 'meteor/vulcan:core';
+import { registerComponent, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
@@ -7,12 +7,11 @@ class DeleteDraft extends Component {
 
   handleDelete = () => {
     if (confirm("Are you sure you want to delete this post?")) {
-      const { post, editMutation } = this.props
+      const { post, updatePost } = this.props
 
-      editMutation({
+      updatePost({
         documentId: post._id,
-        set: {deletedDraft:true, draft: true},
-        unset: {}
+        data: {deletedDraft:true, draft: true}
       })
     }
   }
@@ -31,7 +30,7 @@ class DeleteDraft extends Component {
   }
 }
 
-const withEditOptions = {
+const withUpdateOptions = {
   collection: Posts,
   fragmentName: 'PostsList',
 }
@@ -39,6 +38,6 @@ const withEditOptions = {
 registerComponent(
   'DeleteDraft',
   DeleteDraft,
-  [withEdit, withEditOptions],
+  [withUpdate, withUpdateOptions],
   withUser
 );

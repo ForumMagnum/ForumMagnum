@@ -1,5 +1,5 @@
 /* global confirm */
-import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';
 import { Link } from '../../lib/reactRouterWrapper.js'
@@ -26,28 +26,26 @@ class SunshineNewUsersItem extends Component {
   state = {hidden: false}
 
   handleReview = () => {
-    const { currentUser, user, editMutation } = this.props
-    editMutation({
+    const { currentUser, user, updateUser } = this.props
+    updateUser({
       documentId: user._id,
-      set: {reviewedByUserId: currentUser._id},
-      unset: {}
+      data: {reviewedByUserId: currentUser._id}
     })
   }
 
   handlePurge = async () => {
-    const { currentUser, user, editMutation } = this.props
+    const { currentUser, user, updateUser } = this.props
     if (confirm("Are you sure you want to delete all this user's posts, comments and votes?")) {
       this.setState({hidden: true})
-      await editMutation({
+      await updateUser({
         documentId: user._id,
-        set: {
+        data: {
           reviewedByUserId: currentUser._id,
           nullifyVotes: true,
           voteBanned: true,
           deleteContent: true,
           banned: moment().add(12, 'months').toDate()
-        },
-        unset: {}
+        }
       })
     }
   }
@@ -97,7 +95,7 @@ class SunshineNewUsersItem extends Component {
               { user.email }
             </MetaInfo>
           </div>
-          {showNewUserContent && 
+          {showNewUserContent &&
             <div>
               <SunshineNewUserPostsList truncated={true} terms={{view:"sunshineNewUsersPosts", userId: user._id}}/>
               <SunshineNewUserCommentsList truncated={true} terms={{view:"sunshineNewUsersComments", userId: user._id}}/>
@@ -121,11 +119,11 @@ SunshineNewUsersItem.propTypes = {
   hover: PropTypes.bool.isRequired,
   anchorEl: PropTypes.object,
   currentUser: PropTypes.object.isRequired,
-  editMutation: PropTypes.func.isRequired,
+  updateUser: PropTypes.func.isRequired,
 }
 
-const withEditOptions = {
+const withUpdateOptions = {
   collection: Users,
   fragmentName: 'SunshineUsersList',
 }
-registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, [withEdit, withEditOptions], withUser, withHover, withErrorBoundary, withStyles(styles, {name:"SunshineNewUsersItem"}));
+registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, [withUpdate, withUpdateOptions], withUser, withHover, withErrorBoundary, withStyles(styles, {name:"SunshineNewUsersItem"}));

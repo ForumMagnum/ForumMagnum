@@ -15,7 +15,7 @@ const styles = theme => ({
   }
 })
 
-const PostsNewForm = ({router, currentUser, flash, classes}) => {
+const PostsNewForm = ({history, location, currentUser, flash, classes}) => {
   const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox } = Components
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents

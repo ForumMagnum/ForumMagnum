@@ -148,7 +148,7 @@ class CommentsNode extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     if (!shallowEqual(this.state, nextState))
       return true;
-    if (!shallowEqualExcept(this.props, nextProps, ["editMutation", "post", "children"]))
+    if (!shallowEqualExcept(this.props, nextProps, ["updateComment", "post", "children"]))
       return true;
     if (this.commentTreesDiffer(this.props.children, nextProps.children))
       return true;
@@ -184,20 +184,20 @@ class CommentsNode extends Component {
   }
 
   isSingleLine = () => {
-    const { currentUser, comment, condensed, lastCommentId } = this.props 
+    const { currentUser, comment, condensed, lastCommentId } = this.props
     const newAndMostRecent = (this.isNewComment() && (!condensed || (lastCommentId === comment._id)))
-    const lowKarmaOrCondensed = (comment.baseScore < 10 || condensed) 
+    const lowKarmaOrCondensed = (comment.baseScore < 10 || condensed)
     return (
       currentUser?.beta &&
-      this.isTruncated() && 
-      !newAndMostRecent && 
+      this.isTruncated() &&
+      !newAndMostRecent &&
       lowKarmaOrCondensed
     )
-    
+
   }
 
   render() {
-    const { comment, children, nestingLevel=1, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments } = this.props;
+    const { comment, children, nestingLevel=1, highlightDate, updateComment, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments } = this.props;
 
     const { SingleLineComment, CommentsItem } = Components
 
@@ -242,8 +242,8 @@ class CommentsNode extends Component {
       }
     )
 
-    const passedThroughItemProps = { post, postPage, comment, editMutation, nestingLevel, showPostTitle, collapsed }
-    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, editMutation, condensed, hideReadComments}
+    const passedThroughItemProps = { post, postPage, comment, updateComment, nestingLevel, showPostTitle, collapsed }
+    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, updateComment, condensed, hideReadComments}
 
     return (
       <div className={newComment ? "comment-new" : "comment-old"}>
@@ -276,7 +276,7 @@ class CommentsNode extends Component {
                 //eslint-disable-next-line react/no-children-prop
                 children={child.children}
                 key={child.item._id}
-                
+
                 { ...passedThroughNodeProps}
               />)}
           </div>}
@@ -292,7 +292,7 @@ CommentsNode.propTypes = {
 };
 
 registerComponent('CommentsNode', CommentsNode,
-  withUser, 
+  withUser,
   withRouter,
   withErrorBoundary,
   withStyles(styles, { name: "CommentsNode" })

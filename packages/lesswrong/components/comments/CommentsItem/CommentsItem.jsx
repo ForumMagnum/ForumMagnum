@@ -95,9 +95,9 @@ class CommentsItem extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     if(!shallowEqual(this.state, nextState))
       return true;
-    if(!shallowEqualExcept(this.props, nextProps, ["post", "editMutation"]))
+    if(!shallowEqualExcept(this.props, nextProps, ["post", "updateComment"]))
       return true;
-    if ((nextProps.post && nextProps.post.contents && nextProps.post.contents.version) !== (this.props.post && this.props.post.contents && this.props.post.contents.version)) 
+    if ((nextProps.post && nextProps.post.contents && nextProps.post.contents.version) !== (this.props.post && this.props.post.contents && this.props.post.contents.version))
       return true;
     return false;
   }
@@ -222,7 +222,7 @@ class CommentsItem extends Component {
                 }
               </div>
               <Components.CommentsVote comment={comment} currentUser={currentUser} />
-              
+
               <span className={classes.metaRight}>
                 <span className={classes.menu}>
                   <CommentsMenu

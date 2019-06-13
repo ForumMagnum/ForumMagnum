@@ -103,14 +103,14 @@ class RecentDiscussionThread extends PureComponent {
     this.setState(prevState => ({showHighlight:!prevState.showHighlight}));
     this.markAsRead()
   }
-  
+
   markAsRead = async () => {
     this.setState({readStatus:true, markedAsVisitedAt: new Date()});
     this.props.recordPostView({...this.props, document:this.props.post})
   }
 
   render() {
-    const { post, postCount, results, loading, editMutation, currentUser, classes } = this.props
+    const { post, postCount, results, loading, updateComment, currentUser, classes } = this.props
     const { readStatus, showHighlight, markedAsVisitedAt } = this.state
 
     const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, Loading } = Components
@@ -179,7 +179,7 @@ class RecentDiscussionThread extends PureComponent {
                     //eslint-disable-next-line react/no-children-prop
                     children={comment.children}
                     key={comment.item._id}
-                    editMutation={editMutation}
+                    updateComment={updateComment}
                     post={post}
                     condensed
                   />

@@ -1,4 +1,4 @@
-import { registerComponent, withEdit } from 'meteor/vulcan:core';
+import { registerComponent, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
@@ -6,12 +6,11 @@ import withUser from '../common/withUser';
 class MoveToDraft extends Component {
 
   handleMoveToDraft = () => {
-    const { post, editMutation } = this.props
+    const { post, updatePost } = this.props
 
-    editMutation({
+    updatePost({
       documentId: post._id,
-      set: {draft:true},
-      unset: {}
+      data: {draft:true}
     })
   }
 
@@ -29,7 +28,7 @@ class MoveToDraft extends Component {
   }
 }
 
-const withEditOptions = {
+const withUpdateOptions = {
   collection: Posts,
   fragmentName: 'PostsList',
 }
@@ -37,6 +36,6 @@ const withEditOptions = {
 registerComponent(
   'MoveToDraft',
   MoveToDraft,
-  [withEdit, withEditOptions],
+  [withUpdate, withUpdateOptions],
   withUser
 );

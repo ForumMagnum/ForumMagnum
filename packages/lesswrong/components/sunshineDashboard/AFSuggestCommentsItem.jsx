@@ -79,7 +79,7 @@ class AFSuggestCommentsItem extends Component {
 
 AFSuggestCommentsItem.propTypes = {
   currentUser: PropTypes.object.isRequired,
-  editMutation: PropTypes.func.isRequired,
+  updateComment: PropTypes.func.isRequired,
   comment: PropTypes.object.isRequired,
   hover: PropTypes.bool.isRequired,
   anchorEl: PropTypes.object,

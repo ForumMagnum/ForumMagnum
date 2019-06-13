@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, withEdit, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, withUpdate, getSetting } from 'meteor/vulcan:core';
 import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
 import { getHeaderSubtitleDataFromRouterProps } from '../../lib/routeUtil.js';
 import NoSSR from 'react-no-ssr';
@@ -120,13 +120,12 @@ class Header extends Component {
   handleNotificationToggle = () => {
     this.handleSetNotificationDrawerOpen(!this.state.notificationOpen);
   }
-  
+
   handleSetNotificationDrawerOpen = (isOpen) => {
     if (isOpen) {
-      this.props.editMutation({
+      this.props.updateUser({
         documentId: this.props.currentUser._id,
-        set: {lastNotificationsCheck: new Date()},
-        unset: {}
+        data: {lastNotificationsCheck: new Date()}
       })
       this.setState({
         notificationOpen: true,
@@ -136,7 +135,7 @@ class Header extends Component {
       this.setState({notificationOpen: false})
     }
   }
-  
+
   // Set whether Headroom (the auto-hiding top bar) is pinned so it doesn't
   // hide on scroll. Called by SearchBar, which pins the header open when a
   // search is active.
@@ -151,7 +150,7 @@ class Header extends Component {
     const { notificationOpen, notificationHasOpened, navigationOpen, headroomPinnedOpen } = this.state
     const { subtitleLink, subtitleText } = getHeaderSubtitleDataFromRouterProps(this.props);
     const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
-    
+
     const { SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton,
       NavigationMenu, NotificationsMenu, KarmaChangeNotifier } = Components;
 
@@ -231,9 +230,9 @@ Header.propTypes = {
   searchResultsArea: PropTypes.object,
 };
 
-const withEditOptions = {
+const withUpdateOptions = {
   collection: Users,
   fragmentName: 'UsersCurrent',
 };
 
-registerComponent('Header', Header, withErrorBoundary, withRouter, withApollo, [withEdit, withEditOptions], withUser, withStyles(styles, { name: 'Header'}), withTheme());
+registerComponent('Header', Header, withErrorBoundary, withRouter, withApollo, [withUpdate, withUpdateOptions], withUser, withStyles(styles, { name: 'Header'}), withTheme());

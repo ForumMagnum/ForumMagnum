@@ -275,7 +275,7 @@ class PostsItem extends Component {
     this.setState({showNewComments: !this.state.showNewComments});
     this.setState({showHighlight: false});
   }
-  
+
   toggleHighlight = () => {
     this.props.recordPostView({...this.props, document:this.props.post})
     this.setState({readStatus: true});
@@ -294,7 +294,7 @@ class PostsItem extends Component {
     }
 
     // Exclude mutators from comparison
-    if (!shallowEqualExcept(this.props, nextProps, ["terms", "increasePostViewCount", "createLWEvent", "newMutation"])) {
+    if (!shallowEqualExcept(this.props, nextProps, ["terms", "increasePostViewCount", "createLWEvent", "createComment"])) {
       return true;
     }
 

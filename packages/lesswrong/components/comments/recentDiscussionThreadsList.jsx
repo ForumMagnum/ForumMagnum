@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent, withList, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList, withUpdate } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
 import withUser from '../common/withUser';
@@ -9,7 +9,7 @@ const RecentDiscussionThreadsList = ({
   loading,
   loadMore,
   networkStatus,
-  editMutation,
+  updateComment,
   currentUser,
   threadView = "recentDiscussionThread"
 }) => {
@@ -26,7 +26,7 @@ const RecentDiscussionThreadsList = ({
   return (
     <div>
         {loading || !results ? <Loading /> :
-        <div> 
+        <div>
           {results.map((post, i) =>
             <Components.RecentDiscussionThread
               key={post._id}
@@ -34,8 +34,7 @@ const RecentDiscussionThreadsList = ({
               postCount={i}
               terms={{view:threadView, postId:post._id, limit}}
               currentUser={currentUser}
-              editMutation={editMutation}/>
-
+              updateComment={updateComment}/>
           )}
           { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
           { loadingMore && <Loading />}
@@ -52,9 +51,9 @@ const discussionThreadsOptions = {
   enableCache: true,
 };
 
-const withEditOptions = {
+const withUpdateOptions = {
   collection: Comments,
   fragmentName: 'CommentsList',
 };
 
-registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList, [withList, discussionThreadsOptions], [withEdit, withEditOptions], withUser);
+registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList, [withList, discussionThreadsOptions], [withUpdate, withUpdateOptions], withUser);

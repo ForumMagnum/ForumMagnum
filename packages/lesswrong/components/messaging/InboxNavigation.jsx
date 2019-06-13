@@ -15,7 +15,6 @@ import qs from 'qs'
 
 const InboxNavigation = ({results, loading, updateConversation, location, history}) => {
   const { SectionTitle, SingleColumnSection, ConversationItem, Loading, SectionFooter, SectionFooterCheckbox } = Components
-  if (loading) return <Loading />
   const query = parseQuery(location)
   const showArchive = query?.showArchive === "true"
   const checkboxClick = () => {
@@ -27,7 +26,7 @@ const InboxNavigation = ({results, loading, updateConversation, location, histor
         <SectionTitle title="Your Conversations"/>
         {results?.length ?
           results.map(conversation => <ConversationItem key={conversation._id} conversation={conversation} updateConversation={updateConversation} />) :
-          <Typography variant="body2">You are all done! You have no more open conversations. Go and be free.</Typography>
+          loading ? <Loading /> : <Typography variant="body2">You are all done! You have no more open conversations. Go and be free.</Typography>
         }
         <SectionFooter>
           <SectionFooterCheckbox
@@ -44,8 +43,8 @@ const conversationOptions = {
   collection: Conversations,
   queryName: 'conversationsListQuery',
   fragmentName: 'conversationsListFragment',
+  fetchPolicy: 'cache-and-network',
   limit: 200,
-  enableTotal: false,
 };
 
 const withUpdateOptions = {
