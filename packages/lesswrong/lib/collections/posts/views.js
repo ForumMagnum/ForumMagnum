@@ -25,7 +25,9 @@ const filters = {
     frontpageDate: {$gt: new Date(0)}
   },
   "frontpageAndMeta": {
-    // NB: currently only used on EA Forum
+    // NB:   Currently only used on EA Forum
+    // NB#2: Do not combine this with a view that specifies a selector with
+    // $or, as this will be overwritten.
     $or: [
       {frontpageDate: {$gt: new Date(0)}},
       {meta: true}
@@ -49,6 +51,9 @@ if (getSetting('forumType') === 'EAForum') filters.frontpage.meta = {$ne: true}
 
 /**
  * @summary Similar to filters (see docstring above), but specifying MongoDB-style sorts
+ *
+ * NB: Vulcan views overwrite sortings. If you are using a named view with a
+ * sorting, do not try to supply your own.
  */
 const sortings = {
   magic: {score: -1},
@@ -175,7 +180,7 @@ const stickiesIndexPrefix = {
 
 
 Posts.addView("magic", terms => ({
-  options: {sort: setStickies(sortings["magic"], terms)}
+  options: {sort: setStickies(sortings.magic, terms)}
 }))
 ensureIndex(Posts,
   augmentForDefaultView({ score:-1 }),
@@ -204,7 +209,7 @@ ensureIndex(Posts,
 
 
 Posts.addView("top", terms => ({
-  options: {sort: setStickies(sortings["tops"], terms)}
+  options: {sort: setStickies(sortings.tops, terms)}
 }))
 ensureIndex(Posts,
   augmentForDefaultView({ ...stickiesIndexPrefix, baseScore:-1 }),
@@ -221,7 +226,7 @@ ensureIndex(Posts,
 
 
 Posts.addView("new", terms => ({
-  options: {sort: setStickies(sortings["new"], terms)}
+  options: {sort: setStickies(sortings.new, terms)}
 }))
 ensureIndex(Posts,
   augmentForDefaultView({ ...stickiesIndexPrefix, postedAt:-1 }),
@@ -237,11 +242,11 @@ ensureIndex(Posts,
 );
 
 Posts.addView("recentComments", terms => ({
-  options: {sort: sortings["recentComments"]}
+  options: {sort: sortings.recentComments}
 }))
 
 Posts.addView("old", terms => ({
-  options: {sort: sortings["old"]}
+  options: {sort: sortings.old}
 }))
 // Covered by the same index as `new`
 
@@ -258,7 +263,7 @@ ensureIndex(Posts,
 );
 
 Posts.addView("frontpage", terms => ({
-  selector: filters["frontpage"],
+  selector: filters.frontpage,
   options: {
     sort: {sticky: -1, score: -1}
   }
@@ -267,12 +272,12 @@ ensureIndex(Posts,
   augmentForDefaultView({ sticky: -1, score: -1, frontpageDate:1 }),
   {
     name: "posts.frontpage",
-    partialFilterExpression: filters["frontpage"],
+    partialFilterExpression: filters.frontpage,
   }
 );
 
 Posts.addView("frontpage-rss", terms => ({
-  selector: filters["frontpage"],
+  selector: filters.frontpage,
   options: {
     sort: {frontpageDate: -1, postedAt: -1}
   }
@@ -280,7 +285,7 @@ Posts.addView("frontpage-rss", terms => ({
 // Covered by the same index as `frontpage`
 
 Posts.addView("curated", terms => ({
-  selector: filters["curated"],
+  selector: filters.curated,
   options: {
     sort: {sticky: -1, curatedDate: -1, postedAt: -1}
   }
