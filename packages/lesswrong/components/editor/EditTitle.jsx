@@ -36,16 +36,16 @@ class EditTitle extends Component {
     addToSuccessForm(() => clearField())
   }
   render() {
-    const { document, value, path, placeholder, inputProperties, classes } = this.props
+    const { document, value, path, placeholder, classes } = this.props
     const { question } = document;
-    
+
     return <Input
       className={classNames(classes.root, {[classes.question]: question})}
       placeholder={ question ? "Question Title" : placeholder }
       value={value}
       onChange={(event) => {
         this.context.updateCurrentValues({
-          [this.props.path]: event.target.value
+          [path]: event.target.value
         })
       }}
     />

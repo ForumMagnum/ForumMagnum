@@ -1,6 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { parseQuery } from '../../lib/routeUtil.js';
 
 const PostsSingleRoute = ({route, router, params, location}) => {
   const query = parseQuery(location);

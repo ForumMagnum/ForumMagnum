@@ -53,7 +53,7 @@ class Layout extends PureComponent {
     timezone: null,
     toc: null,
   };
-  
+
   searchResultsAreaRef = React.createRef();
 
   setToC = (document, sectionData) => {
@@ -81,7 +81,7 @@ class Layout extends PureComponent {
   }
 
   render () {
-    const {currentUser, children, currentRoute, classes, theme} = this.props;
+    const {currentUser, children, classes, theme} = this.props;
 
     const showIntercom = currentUser => {
       if (currentUser && !currentUser.hideIntercom) {

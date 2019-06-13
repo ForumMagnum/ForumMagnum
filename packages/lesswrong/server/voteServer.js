@@ -187,7 +187,6 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
 
   const voteOptions = {document, collection, voteType, user, voteId, updateDocument};
 
-  console.log("Users Can Do", Users.canDo(user, `${collectionName.toLowerCase()}.${voteType}`), `${collectionName.toLowerCase()}.${voteType}`)
   if (!document || !user || !Users.canDo(user, `${collectionName.toLowerCase()}.${voteType}`)) {
     const VoteError = createError('voting.no_permission', {message: 'voting.no_permission'});
     throw new VoteError();
