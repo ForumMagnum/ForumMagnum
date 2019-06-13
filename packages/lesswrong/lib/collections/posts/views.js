@@ -17,7 +17,6 @@ export const MAX_LOW_KARMA_THRESHOLD = -1000
  * corresponding filter
  */
 const filters = {
-  // TODO-Q: should allPosts have stickies?
   "curated": {
     curatedDate: {$gt: new Date(0)}
   },
@@ -209,7 +208,7 @@ ensureIndex(Posts,
 
 
 Posts.addView("top", terms => ({
-  options: {sort: setStickies(sortings.tops, terms)}
+  options: {sort: setStickies(sortings.top, terms)}
 }))
 ensureIndex(Posts,
   augmentForDefaultView({ ...stickiesIndexPrefix, baseScore:-1 }),
