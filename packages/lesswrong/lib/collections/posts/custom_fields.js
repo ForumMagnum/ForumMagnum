@@ -6,8 +6,8 @@ import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { Utils } from 'meteor/vulcan:core';
 import GraphQLJSON from 'graphql-type-json';
 import { schemaDefaultValue } from '../../collectionUtils';
-//import { getWithCustomLoader } from '../../loaders.js';
-//import keyBy from 'lodash/keyBy';
+import { getWithCustomLoader } from '../../loaders.js';
+import keyBy from 'lodash/keyBy';
 
 export const formGroups = {
   adminOptions: {
