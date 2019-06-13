@@ -23,7 +23,7 @@ class QuestionsPage extends PureComponent {
   
     return (
       <div>
-        <TabNavigationMenu />
+        {/*<TabNavigationMenu />*/}
         <SingleColumnSection>
           <SectionTitle title="Top Questions"/>
           <PostsList2 terms={topQuestionsTerms}/>
