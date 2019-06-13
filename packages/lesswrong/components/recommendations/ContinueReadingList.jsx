@@ -33,12 +33,12 @@ class ContinueReadingList extends Component {
   }
   
   render() {
-    const { recommendations, recommendationsLoading } = this.props;
+    const { continueReading, continueReadingLoading } = this.props;
     const { PostsItem2, PostsLoading } = Components;
-    if (recommendationsLoading || !recommendations)
+    if (continueReadingLoading || !continueReading)
       return <PostsLoading/>
     
-    const resumeReadingList = this.limitResumeReading(recommendations);
+    const resumeReadingList = this.limitResumeReading(continueReading);
     
     return <div>
       {resumeReadingList.map(resumeReading => {

@@ -42,8 +42,8 @@ export const withContinueReading = component => {
       }),
       props(props) {
         return {
-          recommendationsLoading: props.data.loading,
-          recommendations: props.data.ContinueReading,
+          continueReadingLoading: props.data.loading,
+          continueReading: props.data.ContinueReading,
         }
       }
     }
