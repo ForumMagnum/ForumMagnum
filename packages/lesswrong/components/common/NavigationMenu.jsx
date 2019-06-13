@@ -102,6 +102,7 @@ const styles = theme => ({
 
 const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
   const isLW = getSetting('forumType') === 'LessWrong';
+  const isAF = getSetting('forumType') === 'AlignmentForum';
 
   const NavigationMenuLink = ({to, label, icon, indent=false}) => (
     <MenuItem
@@ -147,7 +148,7 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
 
       <Divider className={classes.divider}/>
 
-      {isLW && <NavigationMenuLink icon={<LocalLibrary/>} to="/library" label="Library"/>}
+      {(isLW || isAF) && <NavigationMenuLink icon={<LocalLibrary/>} to="/library" label="Library"/>}
       {isLW && <NavigationMenuLink indent={true} to="/rationality" label="Rationality: A-Z"/>}
       {isLW && <NavigationMenuLink indent={true} to="/codex" label="The Codex"/>}
       {isLW && <NavigationMenuLink indent={true} to="/hpmor" label="HPMOR"/>}

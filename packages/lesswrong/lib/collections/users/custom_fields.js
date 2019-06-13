@@ -79,6 +79,37 @@ const karmaChangeSettingsType = new SimpleSchema({
   }
 })
 
+const partiallyReadSequenceItem = new SimpleSchema({
+  sequenceId: {
+    type: String,
+    foreignKey: "Sequences",
+    optional: true,
+  },
+  collectionId: {
+    type: String,
+    foreignKey: "Collections",
+    optional: true,
+  },
+  lastReadPostId: {
+    type: String,
+    foreignKey: "Posts",
+  },
+  nextPostId: {
+    type: String,
+    foreignKey: "Posts",
+  },
+  numRead: {
+    type: SimpleSchema.Integer,
+  },
+  numTotal: {
+    type: SimpleSchema.Integer,
+  },
+  lastReadTime: {
+    type: Date,
+    optional: true,
+  },
+});
+
 addFieldsDict(Users, {
   createdAt: {
     type: Date,
@@ -512,7 +543,8 @@ addFieldsDict(Users, {
     control: 'EmailConfirmationRequiredCheckbox',
     label: "Email me new posts in Curated",
     canCreate: ['members'],
-    canUpdate: ['sunshineRegiment', 'admins'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: ['AlignmentForum', 'EAForum'].includes(getSetting('forumType')),
     canRead: ['members'],
   },
   unsubscribeFromAll: {
@@ -590,7 +622,8 @@ addFieldsDict(Users, {
     type: Object,
     canRead: ['guests'],
     canCreate: ['members'],
-    canUpdate: ['sunshineRegiment', 'admins'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: !getSetting('hasEvents', true),
     label: "Group Location",
     control: 'LocationFormComponent',
     blackbox: true,
@@ -627,6 +660,37 @@ addFieldsDict(Users, {
     type: Boolean,
     canRead: [Users.owns, 'sunshineRegiment', 'admins'],
     resolver: (user, args, context) => !!user.reviewedByUserId,
+  }),
+  
+  // A number from 0 to 1, where 0 is almost certainly spam, and 1 is almost
+  // certainly not-spam. This is the same scale as ReCaptcha, except that it
+  // also includes post-signup activity like moderator approval, upvotes, etc.
+  // Scale:
+  //   0    Banned and purged user
+  //   0-0.8: Unreviewed user, based on ReCaptcha rating on signup (times 0.8)
+  //   0.9: Reviewed user
+  //   1.0: Reviewed user with 20+ karma
+  spamRiskScore: resolverOnlyField({
+    type: Number,
+    graphQLtype: "Float",
+    canRead: ['guests'],
+    resolver: (user, args, context) => {
+      const isReviewed = !!user.reviewedByUserId;
+      const { karma, signUpReCaptchaRating } = user;
+      
+      if (user.deleteContent && user.banned) return 0.0;
+      else if (Users.isAdmin(user)) return 1.0;
+      else if (isReviewed && karma>=20) return 1.0;
+      else if (isReviewed && karma>=0) return 0.9;
+      else if (isReviewed) return 0.8;
+      else if (signUpReCaptchaRating>=0) {
+        // Rescale recaptcha ratings to [0,.8]
+        return signUpReCaptchaRating * 0.8;
+      } else {
+        // No recaptcha rating present; score it .8
+        return 0.8;
+      }
+    }
   }),
 
   allVotes: resolverOnlyField({
@@ -697,7 +761,8 @@ addFieldsDict(Users, {
     type: String,
     optional: true,
     canRead: ['guests'],
-    canUpdate: ['sunshineRegiment']
+    canUpdate: [Users.owns, 'sunshineRegiment'],
+    hidden: !['LessWrong', 'AlignmentForum'].includes(getSetting('forumType'))
   },
 
   noCollapseCommentsPosts: {
@@ -763,8 +828,22 @@ addFieldsDict(Users, {
     optional: true,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: getSetting('forumType') !== 'LessWrong',
     label: "Auto-collapse comments from GPT2"
   },
+  
+  partiallyReadSequences: {
+    type: Array,
+    canRead: [Users.owns],
+    canUpdate: [Users.owns],
+    optional: true,
+    hidden: true,
+  },
+  "partiallyReadSequences.$": {
+    type: partiallyReadSequenceItem,
+    optional: true,
+  },
+  
   beta: {
     type: Boolean,
     optional: true,
@@ -774,6 +853,7 @@ addFieldsDict(Users, {
     label: "Opt into beta features"
   },
   // ReCaptcha v3 Integration
+  // From 0 to 1. Lower is spammier, higher is humaner.
   signUpReCaptchaRating: {
     type: Number,
     optional: true,

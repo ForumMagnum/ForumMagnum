@@ -1,9 +1,13 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { Posts } from "../../lib/collections/posts";
+import { Sequences } from "../../lib/collections/sequences/collection.js";
+import { Collections } from "../../lib/collections/collections/collection.js";
 import withErrorBoundary from '../common/withErrorBoundary';
+import CloseIcon from '@material-ui/icons/Close';
+import Tooltip from '@material-ui/core/Tooltip';
 import withUser from "../common/withUser";
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
@@ -28,19 +32,33 @@ const styles = (theme) => ({
       opacity: .2,
     }
   },
+  fixedHeight: {
+    [theme.breakpoints.up('md')]: {
+      height: 48,
+    }
+  },
   postsItem: {
     display: "flex",
-    paddingTop: theme.spacing.unit*1.5,
-    paddingBottom: theme.spacing.unit*1.5,
+    paddingTop: 10,
+    paddingBottom: 10,
     alignItems: "center",
     flexWrap: "nowrap",
     [theme.breakpoints.down('sm')]: {
       flexWrap: "wrap",
+      paddingTop: theme.spacing.unit,
+      paddingBottom: theme.spacing.unit,
     },
   },
   background: {
     transition: "3s",
     width: "100%",
+  },
+  hasResumeReading: {
+    ...theme.typography.body,
+    "& $title": {
+      position: "relative",
+      top: -5,
+    },
   },
   bottomBorder: {
     borderBottom: "solid 1px rgba(0,0,0,.2)",
@@ -63,16 +81,19 @@ const styles = (theme) => ({
     }
   },
   title: {
-    height: 26, // TODO(JP) extract into theme file or otherwise upstream
+    minHeight: 26,
     flexGrow: 1,
     flexShrink: 1,
     overflow: "hidden",
     textOverflow: "ellipsis",
     marginRight: 12,
+    [theme.breakpoints.up('md')]: {
+      position: "relative",
+      top: 1,
+    },
     [theme.breakpoints.down('sm')]: {
       order:-1,
       height: "unset",
-      marginBottom: theme.spacing.unit,
       maxWidth: "unset",
       width: "100%",
       paddingRight: theme.spacing.unit
@@ -144,15 +165,12 @@ const styles = (theme) => ({
     display: "flex",
     position: "absolute",
     top: 0,
-    right: -MENU_WIDTH,
+    right: -MENU_WIDTH - 6,
     width: MENU_WIDTH,
     height: "100%",
     cursor: "pointer",
     alignItems: "center",
     justifyContent: "center",
-    '&:hover': {
-      opacity: 1
-    },
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
@@ -177,7 +195,67 @@ const styles = (theme) => ({
       display: "block"
     }
   },
+  mobileDismissButton: {
+    display: "none",
+    opacity: 0.5,
+    verticalAlign: "middle",
+    marginLeft: 5,
+    [theme.breakpoints.down('sm')]: {
+      display: "inline-block"
+    }
+  },
+  nextUnreadIn: {
+    color: theme.palette.grey[800],
+    fontFamily: theme.typography.commentStyle.fontFamily,
+    
+    [theme.breakpoints.up('md')]: {
+      position: "absolute",
+      left: 42,
+      top: 28,
+      zIndex: theme.zIndexes.nextUnread,
+    },
+    [theme.breakpoints.down('sm')]: {
+      order: -1,
+      width: "100%",
+      marginTop: -10,
+      marginLeft: 3,
+    },
+    
+    "& a": {
+      color: theme.palette.primary.main,
+    },
+  },
+  sequenceImage: {
+    position: "relative",
+    marginLeft: -60,
+    zIndex: theme.zIndexes.continueReadingImage,
+    opacity: 0.6,
+    height: 48,
+    width: 146,
+    
+    // Negative margins that are the opposite of the padding on postsItem, since
+    // the image extends into the padding.
+    marginTop: -12,
+    marginBottom: -12,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: -8,
+      marginBottom: -8,
+    },
+    
+    // Overlay a white-to-transparent gradient over the image
+    "&:after": {
+      content: "''",
+      position: "absolute",
+      width: "100%",
+      height: "100%",
+      left: 0,
+      top: 0,
+      background: "linear-gradient(to right, white 0%, rgba(255,255,255,.8) 60%, transparent 100%)",
+    }
+  },
 })
+
+const dismissRecommendationTooltip = "Don't remind me to finish reading this sequence unless I visit it again";
 
 class PostsItem2 extends PureComponent {
   constructor(props) {
@@ -208,7 +286,7 @@ class PostsItem2 extends PureComponent {
       )
     }
   }
-
+  
   hasUnreadComments = () => {
     const { post } = this.props
     const { lastVisitedAt } = post
@@ -220,17 +298,26 @@ class PostsItem2 extends PureComponent {
   }
 
   render() {
-    const { classes, post, chapter, currentUser, index, terms, showBottomBorder=true, showQuestionTag=true,showIcons=true, showPostedAt=true, defaultToShowUnreadComments=false } = this.props
+    const { classes, post, sequenceId, chapter, currentUser, index, terms, resumeReading,
+      showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true,
+      defaultToShowUnreadComments=false, dismissRecommendation } = this.props
     const { showComments } = this.state
     const { PostsItemComments, PostsItemKarma, PostsItemTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
 
-    const postLink = chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getPageUrl(post)
+    const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
     
     const unreadComments = this.hasUnreadComments()
 
     const renderComments = showComments || (defaultToShowUnreadComments && unreadComments)
     const condensedAndHiddenComments = defaultToShowUnreadComments && unreadComments && !showComments
 
+    const dismissButton = (resumeReading && <Tooltip title={dismissRecommendationTooltip} placement="right">
+        <CloseIcon onClick={() => dismissRecommendation()}/>
+      </Tooltip>
+    )
+    
+    const cloudinaryCloudName = getSetting('cloudinary.cloudName', 'lesswrong-2-0')
+    
     return (
       <div className={classes.root} ref={this.postsItemRef}>
         <div className={classNames(
@@ -240,6 +327,8 @@ class PostsItem2 extends PureComponent {
             [classes.commentsBackground]: renderComments,
             [classes.firstItem]: (index===0) && showComments,
             "personalBlogpost": !post.frontpageDate,
+            [classes.hasResumeReading]: !!resumeReading,
+            [classes.fixedHeight]: !renderComments,
           }
         )}>
           <div className={classes.postsItem}>
@@ -248,8 +337,26 @@ class PostsItem2 extends PureComponent {
             </PostsItem2MetaInfo>
 
             <Link to={postLink} className={classes.title}>
-              <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
+              <PostsItemTitle post={post} postItem2 expandOnHover={!renderComments} read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
             </Link>
+            
+            {(resumeReading?.sequence || resumeReading?.collection) &&
+              <div className={classes.nextUnreadIn}>
+                Next unread in <Link to={
+                  resumeReading.sequence
+                    ? Sequences.getPageUrl(resumeReading.sequence)
+                    : Collections.getPageUrl(resumeReading.collection)
+                }>
+                  {resumeReading.sequence?.title || resumeReading.collection?.title}
+                </Link>
+                {" "}
+                ({resumeReading.numRead}/{resumeReading.numTotal} read)
+                
+                <div className={classes.mobileDismissButton}>
+                  {dismissButton}
+                </div>
+              </div>
+            }
 
             { post.user && !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
               <PostsUserAndCoauthors post={post} abbreviateIfLong={true} />
@@ -259,29 +366,43 @@ class PostsItem2 extends PureComponent {
               <EventVicinity post={post} />
             </PostsItem2MetaInfo>}
 
-            {showPostedAt && <Components.PostsItemDate post={post}/>}
+            {showPostedAt && !resumeReading && <Components.PostsItemDate post={post}/>}
 
             <div className={classes.mobileSecondRowSpacer}/>
             
             {<div className={classes.mobileActions}>
-              <PostsPageActions post={post} menuClassName={classes.actionsMenu} />
+              {!resumeReading && <PostsPageActions post={post} menuClassName={classes.actionsMenu} />}
             </div>}
 
             {showIcons && <Hidden mdUp implementation="css">
               <PostsItemIcons post={post}/>
             </Hidden>}
 
-            <div className={classes.commentsIcon}>
-              <PostsItemComments 
-                post={post} 
-                onClick={() => this.toggleComments(false)} 
+            {!resumeReading && <div className={classes.commentsIcon}>
+              <PostsItemComments
+                post={post}
+                onClick={() => this.toggleComments(false)}
                 unreadComments={unreadComments}
               />
-            </div>
-
+            </div>}
+            
+            {resumeReading &&
+              <div className={classes.sequenceImage}>
+                <img
+                  height={48}
+                  width={146}
+                  src={`http://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_48,q_auto,w_146/v1/${
+                    resumeReading.sequence?.gridImageId
+                      || resumeReading.collection?.gridImageId
+                      || "sequences/vnyzzznenju0hzdv6pqb.jpg"
+                  }`}
+                />
+              </div>}
           </div>
+          
           {<div className={classes.actions}>
-            <PostsPageActions post={post} vertical menuClassName={classes.actionsMenu} />
+            {dismissButton}
+            {!resumeReading && <PostsPageActions post={post} vertical menuClassName={classes.actionsMenu} />}
           </div>}
           
           {renderComments && <div className={classes.newCommentsSection} onClick={() => this.toggleComments(true)}>

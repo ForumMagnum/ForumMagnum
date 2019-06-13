@@ -336,6 +336,7 @@ registerFragment(`
     afPostCount 
     afCommentCount
     beta
+    spamRiskScore
   }
 `);
 
@@ -372,6 +373,7 @@ registerFragment(`
     viewUnreviewedComments
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
+    sunshineShowNewUserContent
   }
 `);
 
@@ -390,6 +392,7 @@ registerFragment(`
     currentFrontpageFilter
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
+    sunshineShowNewUserContent
 
     # Emails
     email

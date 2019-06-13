@@ -1,58 +1,68 @@
 import React, { PureComponent } from 'react';
 import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
-import SettingsIcon from '@material-ui/icons/Settings';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import Users from 'meteor/vulcan:users';
-import { getRecommendationSettings } from './RecommendationsAlgorithmPicker';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
+import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 
 const styles = theme => ({
-  gearIcon: {
-    cursor: "pointer",
-    color: theme.palette.grey[400],
-    marginRight: theme.spacing.unit,
-  },
-  topUnread: {
+  fromTheArchives: {
     marginTop: theme.spacing.unit,
   },
   curated: {
+    display: "block",
     marginTop: theme.spacing.unit*2,
   },
   subtitle: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[700],
-    marginBottom: theme.spacing.unit/2,
+    display: "inline-block",
+    [theme.breakpoints.down('sm')]:{
+      marginBottom: theme.spacing.unit*1.5,
+    },
+    marginBottom: theme.spacing.unit,
+  },
+  list: {
+    marginLeft: theme.spacing.unit*2
   }
 });
 
+const defaultFrontpageSettings = {
+  method: "sample",
+  count: 3,
+  scoreOffset: 0,
+  scoreExponent: 3,
+  personalBlogpostModifier: 0,
+  frontpageModifier: 10,
+  curatedModifier: 50,
+}
+
+
 class RecommendationsAndCurated extends PureComponent {
-  state = {
-    settingsVisible: false,
-    settings: null
-  }
+  state = { showSettings: false, stateSettings: null }
   
-  toggleSettings = () => {
-    this.setState({
-      settingsVisible: !this.state.settingsVisible,
-    });
+  toggleSettings = () => {	
+    this.setState(prevState => ({showSettings: !prevState.showSettings}))
   }
-  
+
   changeSettings = (newSettings) => {
     this.setState({
       settings: newSettings
     });
   }
-  
+
   render() {
-    const { currentUser, configName, classes } = this.props;
-    const { BetaTag, SingleColumnSection, SectionTitle, RecommendationsAlgorithmPicker,
-      RecommendationsList, PostsList2, SubscribeWidget } = Components;
-    const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
+    const { classes, currentUser } = this.props;
+    const { showSettings } = this.state
+    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SectionTitle, SettingsIcon, RecommendationsList, PostsList2, SubscribeWidget } = Components;
     
+    const configName = "frontpage"
+    const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
+
     const curatedTooltip = <div>
       <div>Every few days, LessWrong moderators manually curate posts that are well written and informative.</div>
       <div><em>(Click to see more curated posts)</em></div>
@@ -63,39 +73,48 @@ class RecommendationsAndCurated extends PureComponent {
       <div><em>(Click to see more recommendations)</em></div>
     </div>
 
+    const frontpageRecommendationSettings = {
+      ...settings,
+      defaultFrontpageSettings
+    } 
 
     return <SingleColumnSection>
-      <SectionTitle title={<div>Recommendations</div>}>
-        <SettingsIcon className={classes.gearIcon} onClick={this.toggleSettings}/>
+      <SectionTitle title="Recommendations [Beta]">
+        <SettingsIcon onClick={this.toggleSettings}/>
       </SectionTitle>
-      { this.state.settingsVisible &&
+      {showSettings &&
         <RecommendationsAlgorithmPicker
-          configName={"frontpage"}
-          settings={settings}
+          configName={configName}
+          settings={frontpageRecommendationSettings}
           onChange={(newSettings) => this.changeSettings(newSettings)}
         /> }
-      <div>
-        <Tooltip placement="top-start" title={allTimeTooltip}>
-          <Link className={classNames(classes.subtitle, classes.topUnread)} to={"/recommendations"}>
-            From the Archives
-          </Link>
-        </Tooltip>
-        <BetaTag />
+      
+      {!settings.hideFrontpage && <div>
+        <div>
+          <Tooltip placement="top-start" title={allTimeTooltip}>
+            <Link className={classNames(classes.subtitle, classes.fromTheArchives)} to={"/recommendations"}>
+              From the Archives
+            </Link>
+          </Tooltip>
+          <BetaTag />
+        </div>
+        <div className={classes.list}>
+          <RecommendationsList
+            algorithm={frontpageRecommendationSettings}
+          />
+        </div>
+      </div>}
+      <Tooltip placement="top-start" title={curatedTooltip}>
+        <Link className={classNames(classes.subtitle, classes.curated)} to={"/allPosts?filter=curated&view=new"}>
+          Recently Curated
+        </Link>
+      </Tooltip>
+      <div className={classes.list}>
+        <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false}>
+          <Link to={"/allPosts?filter=curated&view=new"}>View All Curated Posts</Link>
+          <SubscribeWidget view={"curated"} />
+        </PostsList2>
       </div>
-      <RecommendationsList
-        algorithm={settings}
-      />
-      <div>
-        <Tooltip placement="top-start" title={curatedTooltip}>
-          <Link className={classNames(classes.subtitle, classes.curated)} to={"/allPosts?filter=curated&view=new"}>
-            Recently Curated
-          </Link>
-        </Tooltip>
-      </div>
-      <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false}>
-        <Link to={"/allPosts?filter=curated&view=new"}>View All Curated Posts</Link>
-        <SubscribeWidget view={"curated"} />
-      </PostsList2>
     </SingleColumnSection>
   }
 }

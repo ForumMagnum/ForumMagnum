@@ -9,7 +9,6 @@ import MessageIcon from '@material-ui/icons/Message'
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
-import SettingsIcon from '@material-ui/icons/Settings';
 import Tooltip from '@material-ui/core/Tooltip';
 import { postBodyStyles } from '../../themes/stylePiping'
 
@@ -48,10 +47,6 @@ const styles = theme => ({
   primaryColor: {
     color: theme.palette.primary.light
   },
-  settingsIcon: {
-    color: theme.palette.grey[400],
-    marginRight: theme.spacing.unit,
-  },
   title: {
     cursor: "pointer",
     '&:hover $settingsIcon, &:hover $settingsText': {
@@ -59,6 +54,7 @@ const styles = theme => ({
     }
   },
   settingsText: {
+    marginLeft: theme.spacing.unit,
     fontStyle: "italic",
     display: "inline-block",
     ...theme.typography.commentStyle,
@@ -173,10 +169,24 @@ class UsersProfile extends Component {
       return null;
     }
 
-    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton } = Components
+    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsIcon } = Components
 
     const user = document;
     const query = _.clone(router.location.query || {});
+    
+    // Does this profile page belong to a likely-spam account?
+    if (user.spamRiskScore < 0.4) {
+      if (currentUser?._id === user._id) {
+        // Logged-in spammer can see their own profile
+      } else if (currentUser && Users.canDo(currentUser, 'posts.moderate.all')) {
+        // Admins and sunshines can see spammer's profile
+      } else {
+        // Anyone else gets a 404 here
+        // eslint-disable-next-line no-console
+        console.log(`Not rendering profile page for account with poor spam risk score: ${user.displayName}`);
+        return <Components.Error404/>
+      }
+    }
 
     const draftTerms = {view: "drafts", userId: user._id, limit: 4}
     const unlistedTerms= {view: "unlisted", userId: user._id, limit: 20}
@@ -250,7 +260,7 @@ class UsersProfile extends Component {
         <SingleColumnSection>
           <div className={classes.title} onClick={() => this.setState({showSettings: !showSettings})}>
             <SectionTitle title={`${user.displayName}'s Posts`}>
-              <SettingsIcon className={classes.settingsIcon}/>
+              <SettingsIcon/>
               <div className={classes.settingsText}>Sorted by { views[currentView] }</div>
             </SectionTitle>
           </div>

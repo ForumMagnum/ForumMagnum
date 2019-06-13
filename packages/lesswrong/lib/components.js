@@ -101,6 +101,7 @@ import '../components/users/UserNameDeleted.jsx';
 import '../components/users/WrappedLoginForm.jsx';
 
 import '../components/icons/OmegaIcon.jsx';
+import '../components/icons/SettingsIcon.jsx';
 
 // posts
 
@@ -285,14 +286,10 @@ import '../components/sequences/SequencesNewForm.jsx';
 import '../components/sequences/SequencesHome.jsx';
 import '../components/sequences/SequencesGrid.jsx';
 import '../components/sequences/SequencesGridWrapper.jsx';
-import '../components/sequences/SequencesNavigation.jsx';
-import '../components/sequences/CollectionsNavigation.jsx';
 import '../components/sequences/SequencesNavigationLink.jsx';
 import '../components/sequences/SequencesNewButton.jsx';
-import '../components/sequences/SequencesNavigationLinkDisabled.jsx';
 import '../components/sequences/BottomNavigation.jsx';
 import '../components/sequences/BottomNavigationItem.jsx';
-import '../components/sequences/BottomNavigationWrapper.jsx';
 import '../components/sequences/SequencesPost.jsx';
 import '../components/sequences/SequencesGridItem.jsx';
 import '../components/sequences/ChaptersItem.jsx';
