@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
-import { withContinueReading } from './withContinueReading';
 import { withDismissRecommendation } from './withDismissRecommendation';
 
 class ContinueReadingList extends Component {
@@ -56,7 +55,6 @@ class ContinueReadingList extends Component {
 }
 
 registerComponent('ContinueReadingList', ContinueReadingList,
-  withContinueReading,
   withDismissRecommendation,
   withUser
 );
