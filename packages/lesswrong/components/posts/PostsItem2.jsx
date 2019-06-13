@@ -219,8 +219,9 @@ const styles = (theme) => ({
     [theme.breakpoints.down('sm')]: {
       order: -1,
       width: "100%",
-      marginTop: -10,
-      marginLeft: 3,
+      marginTop: -2,
+      marginBottom: 3,
+      marginLeft: 1,
     },
     
     "& a": {
