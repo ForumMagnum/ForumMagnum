@@ -9,7 +9,7 @@ import { Utils, getCollection } from 'meteor/vulcan:core';
 * @param {Object} conversation
 **/
 Conversations.getLink = (conversation) => {
-  return `/inbox?select=${conversation._id}`;
+  return `/inbox/${conversation._id}`;
 };
 
 /**
@@ -17,7 +17,7 @@ Conversations.getLink = (conversation) => {
 * @param {Object} message
 **/
 Messages.getLink = (message) => {
-  return `/inbox?select=${message.conversationId}`;
+  return `/inbox/${message.conversationId}`;
 };
 
 

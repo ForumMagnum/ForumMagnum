@@ -23,7 +23,6 @@ const googleTagManagerId = getSetting('googleTagManager.apiKey')
 const styles = theme => ({
   main: {
     margin: '50px auto 15px auto',
-    maxWidth: 1200,
     [theme.breakpoints.down('sm')]: {
       marginTop: 0,
       paddingLeft: theme.spacing.unit,

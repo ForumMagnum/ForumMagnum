@@ -12,6 +12,8 @@ addRoute([
 // Miscellaneous LW2 routes
 addRoute({ name: 'login', path: '/login', componentName: 'LoginPage', title: "Login" });
 addRoute({ name: 'inbox', path: '/inbox', componentName: 'InboxWrapper', title: "Inbox" });
+addRoute({ name: 'conversation', path: '/inbox/:_id', componentName: 'ConversationWrapper', title: "Private Conversation" });
+
 addRoute({ name: 'newPost', path: '/newPost', componentName: 'PostsNewForm', title: "New Post" });
 addRoute({ name: 'editPost', path: '/editPost', componentName: 'PostsEditPage' });
 addRoute({ name: 'recentComments', path: '/recentComments', componentName: 'RecentCommentsPage', title: "Recent Comments" });
@@ -53,8 +55,6 @@ if (getSetting('forumType') === 'LessWrong') {
   })
 }
 
-addRoute({ name: 'FeaturedPosts', path: '/featured', componentName: 'FeaturedPostsPage'})
-addRoute({ name: 'Community', path: '/community', componentName: 'Meta', title: 'Community'})
 addRoute({ name: 'AllComments', path: '/allComments', componentName: 'AllComments', title: "All Comments"})
 
 if (getSetting('hasEvents', true)) {
@@ -102,7 +102,6 @@ addRoute({ name: 'home2', path: '/home2', componentName: 'Home2', title: "Home2 
 
 
 addRoute({ name: 'allPosts', path: '/allPosts', componentName: 'AllPostsPage', title: "All Posts" });
-addRoute({ name: 'daily', path: '/daily', componentName: 'PostsDaily', title: "Posts by Day" });
 
 addRoute({ name: 'questions', path: '/questions', componentName: 'QuestionsPage', title: "All Questions" });
 addRoute({ name: 'recommendations', path: '/recommendations', componentName: 'RecommendationsPage', title: "Recommendations" });

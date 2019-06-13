@@ -10,6 +10,8 @@ import Conversations from '../conversations/collection.js';
 import { addEditableCallbacks } from '../../../server/editor/make_editable_callbacks.js'
 import { makeEditableOptions } from './custom_fields.js'
 
+const MINIMUM_APPROVAL_KARMA = 5
+
 const getLessWrongAccount = async () => {
   let account = Users.findOne({username: "AdminTeam"});
   if (!account) {
@@ -244,6 +246,15 @@ export async function CommentsDeleteSendPMAsync (newComment) {
   }
 }
 addCallback("comments.moderate.async", CommentsDeleteSendPMAsync);
+
+// Duplicate of PostsNewUserApprovedStatus
+function CommentsNewUserApprovedStatus (comment) {
+  const commentAuthor = Users.findOne(comment.userId);
+  if (!commentAuthor.reviewedByUserId && (commentAuthor.karma || 0) < MINIMUM_APPROVAL_KARMA) {
+    return {...comment, authorIsUnreviewed: true}
+  }
+}
+addCallback("comments.new.sync", CommentsNewUserApprovedStatus);
 
 /**
  * @summary Make users upvote their own new comments

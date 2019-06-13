@@ -59,7 +59,7 @@ const styles = theme => ({
     float: "left",
     position: "relative",
     marginRight: 15,
-    
+
     '& img': {
       width: 50,
       height: 41,
@@ -89,7 +89,7 @@ class CollectionsCard extends PureComponent {
             <Link to={url}>{collection.title}</Link>
           </Typography>
           <Typography variant="subheading" className={classes.author}>
-            by <UsersName user={collection.user}/>
+            by <UsersName documentId={collection.userId}/>
           </Typography>
           <Typography variant="body2" className={classes.text}>
             {collection.summary}
