@@ -79,6 +79,37 @@ const karmaChangeSettingsType = new SimpleSchema({
   }
 })
 
+const partiallyReadSequenceItem = new SimpleSchema({
+  sequenceId: {
+    type: String,
+    foreignKey: "Sequences",
+    optional: true,
+  },
+  collectionId: {
+    type: String,
+    foreignKey: "Collections",
+    optional: true,
+  },
+  lastReadPostId: {
+    type: String,
+    foreignKey: "Posts",
+  },
+  nextPostId: {
+    type: String,
+    foreignKey: "Posts",
+  },
+  numRead: {
+    type: SimpleSchema.Integer,
+  },
+  numTotal: {
+    type: SimpleSchema.Integer,
+  },
+  lastReadTime: {
+    type: Date,
+    optional: true,
+  },
+});
+
 addFieldsDict(Users, {
   createdAt: {
     type: Date,
@@ -509,6 +540,7 @@ addFieldsDict(Users, {
     label: "Email me new posts in Curated",
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: ['AlignmentForum', 'EAForum'].includes(getSetting('forumType')),
     canRead: ['members'],
   },
   unsubscribeFromAll: {
@@ -587,6 +619,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: !getSetting('hasEvents', true),
     label: "Group Location",
     control: 'LocationFormComponent',
     blackbox: true,
@@ -724,7 +757,8 @@ addFieldsDict(Users, {
     type: String,
     optional: true,
     canRead: ['guests'],
-    canUpdate: [Users.owns, 'sunshineRegiment']
+    canUpdate: [Users.owns, 'sunshineRegiment'],
+    hidden: !['LessWrong', 'AlignmentForum'].includes(getSetting('forumType'))
   },
 
   noCollapseCommentsPosts: {
@@ -790,8 +824,22 @@ addFieldsDict(Users, {
     optional: true,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: getSetting('forumType') !== 'LessWrong',
     label: "Auto-collapse comments from GPT2"
   },
+  
+  partiallyReadSequences: {
+    type: Array,
+    canRead: [Users.owns],
+    canUpdate: [Users.owns],
+    optional: true,
+    hidden: true,
+  },
+  "partiallyReadSequences.$": {
+    type: partiallyReadSequenceItem,
+    optional: true,
+  },
+  
   beta: {
     type: Boolean,
     optional: true,

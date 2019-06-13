@@ -24,6 +24,18 @@ class SignupSubscribeToCurated extends Component
   }
 }
 
+const customSignupFields = ['EAForum', 'AlignmentForum'].includes(getSetting('forumType'))
+  ? []
+  : [
+    {
+      id: "subscribeToCurated",
+      type: 'custom',
+      defaultValue: true,
+      renderCustom: SignupSubscribeToCurated
+    }
+  ]
+
+
 class WrappedLoginForm extends Component
 {
   state = {
@@ -35,15 +47,6 @@ class WrappedLoginForm extends Component
   }
   
   render() {
-    const customSignupFields = [
-      {
-        id: "subscribeToCurated",
-        type: 'custom',
-        defaultValue: true,
-        renderCustom: SignupSubscribeToCurated
-      }
-    ]
-    
     return <React.Fragment>
       {getSetting('reCaptcha.apiKey')
         && <Components.ReCaptcha verifyCallback={this.setReCaptchaToken} action="login/signup"/>}

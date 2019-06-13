@@ -109,12 +109,13 @@ const simplSchemaToGraphQLtype = (type) => {
   else throw new Error("Invalid type in simplSchemaToGraphQLtype");
 }
 
-export const resolverOnlyField = ({type, graphQLtype=null, resolver, ...rest}) => {
+export const resolverOnlyField = ({type, graphQLtype=null, resolver, graphqlArguments=null, ...rest}) => {
   return {
     type: type,
     optional: true,
     resolveAs: {
       type: graphQLtype || simplSchemaToGraphQLtype(type),
+      arguments: graphqlArguments,
       resolver: resolver,
     },
     ...rest

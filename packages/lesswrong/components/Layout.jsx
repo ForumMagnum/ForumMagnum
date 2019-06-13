@@ -24,7 +24,7 @@ const styles = theme => ({
   main: {
     margin: '50px auto 15px auto',
     [theme.breakpoints.down('sm')]: {
-      marginTop: 0,
+      marginTop: -16,
       paddingLeft: theme.spacing.unit,
       paddingRight: theme.spacing.unit,
     },

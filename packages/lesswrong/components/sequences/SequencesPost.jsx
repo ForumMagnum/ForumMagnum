@@ -1,5 +1,4 @@
-import { Components, registerComponent , withDocument} from 'meteor/vulcan:core';
-import Sequences from '../../lib/collections/sequences/collection.js';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { withRouter } from '../../lib/reactRouterWrapper.js';
 
@@ -8,11 +7,4 @@ const SequencesPost = ({params, router}) => {
   return <Components.PostsPage documentId={params.postId} sequenceId={params.sequenceId} version={version} />
 };
 
-const options = {
-  collection: Sequences,
-  queryName: "SequencesNavigationQuery",
-  fragmentName: 'SequencesNavigationFragment',
-  enableTotal: false,
-}
-
-registerComponent('SequencesPost', SequencesPost, [withDocument, options], withRouter);
+registerComponent('SequencesPost', SequencesPost, withRouter);

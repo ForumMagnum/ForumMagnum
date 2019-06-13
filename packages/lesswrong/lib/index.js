@@ -84,6 +84,7 @@ import './collections/books/fragments.js';
 import './collections/books/views.js';
 import './collections/collections/fragments.js';
 import './collections/collections/views.js';
+import './collections/collections/helpers.js';
 import './modules/alignment-forum/posts/fragments.js';
 import './modules/alignment-forum/users/fragments.js';
 

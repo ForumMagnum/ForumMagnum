@@ -4,6 +4,7 @@ import classnames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { withStyles } from '@material-ui/core/styles';
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
+import { Posts } from '../../lib/collections/posts/collection.js';
 
 const styles = theme => ({
   root: {
@@ -55,9 +56,9 @@ const styles = theme => ({
 
 const BottomNavigationItem = ({direction, post, sequence, classes}) => {
   const commentCount = post.commentCount || "No"
-
+  
   return (
-    <Link to={`/s/${sequence._id}/p/${post._id}`}>
+    <Link to={Posts.getPageUrl(post, false, sequence?._id)}>
       <div className={classnames(
         classes.root,
         { [classes.previous]: direction==="Previous" }
