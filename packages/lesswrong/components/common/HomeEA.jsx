@@ -38,7 +38,7 @@ class HomeEA extends PureComponent {
 
         <Components.HeadTags image={getSetting('siteImage')} />
 
-        {currentUser && Users.isAdmin(currentUser) &&
+        {currentUser?.beta &&
           <ConfigurableRecommendationsList configName="frontpage" />
         }
 
