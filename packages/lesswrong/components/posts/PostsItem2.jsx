@@ -197,9 +197,11 @@ const styles = (theme) => ({
   },
   mobileDismissButton: {
     display: "none",
-    opacity: 0.5,
+    opacity: 0.75,
     verticalAlign: "middle",
-    marginLeft: 5,
+    position: "relative",
+    cursor: "pointer",
+    right: 10,
     [theme.breakpoints.down('sm')]: {
       display: "inline-block"
     }
@@ -217,8 +219,9 @@ const styles = (theme) => ({
     [theme.breakpoints.down('sm')]: {
       order: -1,
       width: "100%",
-      marginTop: -10,
-      marginLeft: 3,
+      marginTop: -2,
+      marginBottom: 3,
+      marginLeft: 1,
     },
     
     "& a": {
@@ -238,8 +241,12 @@ const styles = (theme) => ({
     marginTop: -12,
     marginBottom: -12,
     [theme.breakpoints.down('sm')]: {
-      marginTop: -8,
-      marginBottom: -8,
+      marginTop: 0,
+      marginBottom: 0,
+      position: "absolute",
+      right: 0,
+      bottom: 0,
+      height: "100%",
     },
     
     // Overlay a white-to-transparent gradient over the image
@@ -253,6 +260,13 @@ const styles = (theme) => ({
       background: "linear-gradient(to right, white 0%, rgba(255,255,255,.8) 60%, transparent 100%)",
     }
   },
+  sequenceImageImg: {
+    height: 48,
+    width: 146,
+    [theme.breakpoints.down('sm')]: {
+      height: "100%",
+    },
+  }
 })
 
 const dismissRecommendationTooltip = "Don't remind me to finish reading this sequence unless I visit it again";
@@ -351,10 +365,6 @@ class PostsItem2 extends PureComponent {
                 </Link>
                 {" "}
                 ({resumeReading.numRead}/{resumeReading.numTotal} read)
-                
-                <div className={classes.mobileDismissButton}>
-                  {dismissButton}
-                </div>
               </div>
             }
 
@@ -386,12 +396,14 @@ class PostsItem2 extends PureComponent {
               />
             </div>}
             
+            <div className={classes.mobileDismissButton}>
+              {dismissButton}
+            </div>
+
             {resumeReading &&
               <div className={classes.sequenceImage}>
-                <img
-                  height={48}
-                  width={146}
-                  src={`http://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_48,q_auto,w_146/v1/${
+                <img className={classes.sequenceImageImg}
+                  src={`http://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
                     resumeReading.sequence?.gridImageId
                       || resumeReading.collection?.gridImageId
                       || "sequences/vnyzzznenju0hzdv6pqb.jpg"

@@ -148,7 +148,8 @@ const createLWTheme = (theme) => {
         fontWeight: 400,
         backgroundColor: grey[100],
         borderRadius: 2,
-        padding: 3,
+        paddingTop: 3,
+        paddingBottom: 3,
         lineHeight: 1.42
       },
       li: {

@@ -28,6 +28,9 @@ const styles = (theme) => ({
     [theme.breakpoints.down('md')]: {
       position: "unset",
     },
+    "@media print": {
+      display: "none"
+    },
   },
   tabMenu: {
     display: "flex",

@@ -191,6 +191,12 @@ const getResumeSequences = async (currentUser, context) => {
 
 addGraphQLResolvers({
   Query: {
+    async ContinueReading(root, args, context) {
+      const { currentUser } = context;
+      
+      return await getResumeSequences(currentUser, context);
+    },
+    
     async Recommendations(root, {count,algorithm}, context) {
       const { currentUser } = context;
       const recommendedPosts = await getRecommendedPosts({count, algorithm, currentUser})
@@ -200,12 +206,7 @@ addGraphQLResolvers({
         console.error("Recommendation engine returned a post which permissions filtered out as inaccessible");
       }
       
-      const resumeSequences = await getResumeSequences(currentUser, context);
-      
-      return {
-        posts: accessFilteredPosts,
-        resumeReading: resumeSequences
-      };
+      return accessFilteredPosts;
     }
   },
   Mutation: {
@@ -233,12 +234,9 @@ addGraphQLSchema(`
     numTotal: Int
     lastReadTime: Date
   }
-  type RecommendationList {
-    posts: [Post!]
-    resumeReading: [RecommendResumeSequence!]
-  }
 `);
 
-addGraphQLQuery("Recommendations(count: Int, algorithm: JSON): RecommendationList!");
+addGraphQLQuery("ContinueReading: [RecommendResumeSequence!]");
+addGraphQLQuery("Recommendations(count: Int, algorithm: JSON): [Post!]");
 addGraphQLMutation("dismissRecommendation(postId: String): Boolean");
 

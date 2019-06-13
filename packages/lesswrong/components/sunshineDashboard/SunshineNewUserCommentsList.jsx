@@ -26,11 +26,11 @@ const SunshineNewUserCommentsList = ({loading, results, classes, truncated}) => 
     <div>
       {loading && !truncated && <Loading />}
       {results.map(comment=><div className={classes.comment} key={comment._id}>
-        {!truncated && <MetaInfo>
+        <MetaInfo>
           <Link to={`/posts/${comment.postId}`}>
             Comment made <FormatDate date={comment.postedAt}/> {comment.status}
           </Link>
-        </MetaInfo>}
+        </MetaInfo>
         {!truncated && <div><MetaInfo>{comment.deleted && `[Comment deleted${comment.deletedReason ? ` because "${comment.deletedReason}"` : ""}]`}</MetaInfo></div>}
         <div className={classes.commentStyle} dangerouslySetInnerHTML={{__html: (comment.contents && comment.contents.html) || ""}} />
       </div>)}

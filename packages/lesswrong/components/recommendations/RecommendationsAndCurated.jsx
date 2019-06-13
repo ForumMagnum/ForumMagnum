@@ -7,10 +7,11 @@ import { Link } from '../../lib/reactRouterWrapper.js';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
+import { withContinueReading } from './withContinueReading';
 
 const styles = theme => ({
-  fromTheArchives: {
-    marginTop: theme.spacing.unit,
+  continueReadingList: {
+    marginBottom: theme.spacing.unit*2,
   },
   curated: {
     display: "block",
@@ -56,9 +57,9 @@ class RecommendationsAndCurated extends PureComponent {
   }
 
   render() {
-    const { classes, currentUser } = this.props;
+    const { continueReading, classes, currentUser } = this.props;
     const { showSettings } = this.state
-    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SectionTitle, SettingsIcon, RecommendationsList, PostsList2, SubscribeWidget } = Components;
+    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SectionTitle, SettingsIcon, ContinueReadingList, RecommendationsList, PostsList2, SubscribeWidget } = Components;
     
     const configName = "frontpage"
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
@@ -68,6 +69,10 @@ class RecommendationsAndCurated extends PureComponent {
       <div><em>(Click to see more curated posts)</em></div>
     </div>
 
+    const continueReadingTooltip = <div>
+      <div>The next posts in sequences you've started reading, but not finished.</div>
+    </div>
+    
     const allTimeTooltip = <div>
       <div>A weighted, randomized sample of the highest karma posts that you haven't read yet.</div>
       <div><em>(Click to see more recommendations)</em></div>
@@ -77,6 +82,8 @@ class RecommendationsAndCurated extends PureComponent {
       ...settings,
       defaultFrontpageSettings
     } 
+
+    const renderContinueReading = continueReading && continueReading.length>0
 
     return <SingleColumnSection>
       <SectionTitle title="Recommendations [Beta]">
@@ -90,6 +97,20 @@ class RecommendationsAndCurated extends PureComponent {
         /> }
       
       {!settings.hideFrontpage && <div>
+        {renderContinueReading && <React.Fragment>
+          <div>
+            <Tooltip placement="top-start" title={continueReadingTooltip}>
+              <Link className={classNames(classes.subtitle, classes.continueReading)} to={"/library"}>
+                Continue Reading
+              </Link>
+            </Tooltip>
+            <BetaTag />
+          </div>
+          <div className={classNames(classes.continueReadingList, classes.list)}>
+            <ContinueReadingList continueReading={continueReading} />
+          </div>
+        </React.Fragment>}
+        
         <div>
           <Tooltip placement="top-start" title={allTimeTooltip}>
             <Link className={classNames(classes.subtitle, classes.fromTheArchives)} to={"/recommendations"}>
@@ -99,11 +120,10 @@ class RecommendationsAndCurated extends PureComponent {
           <BetaTag />
         </div>
         <div className={classes.list}>
-          <RecommendationsList
-            algorithm={frontpageRecommendationSettings}
-          />
+          <RecommendationsList algorithm={frontpageRecommendationSettings} />
         </div>
       </div>}
+      
       <Tooltip placement="top-start" title={curatedTooltip}>
         <Link className={classNames(classes.subtitle, classes.curated)} to={"/allPosts?filter=curated&view=new"}>
           Recently Curated
@@ -124,4 +144,5 @@ registerComponent("RecommendationsAndCurated", RecommendationsAndCurated,
     collection: Users,
     fragmentName: "UsersCurrent",
   }],
+  withContinueReading,
   withUser, withStyles(styles, {name: "RecommendationsAndCurated"}));
