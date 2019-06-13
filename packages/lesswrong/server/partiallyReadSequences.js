@@ -119,11 +119,10 @@ const postsToReadStatuses = async (user, postIDs) => {
     } },
     
     { $lookup: {
-      from: "lwevents",
+      from: "readstatuses",
       let: { documentId: "$_id", },
       pipeline: [
         { $match: {
-          name: "post-view",
           userId: user._id,
         } },
         { $match: { $expr: {
