@@ -153,8 +153,7 @@ class PostsListSettings extends Component {
       updateUser({
         selector: { _id: currentUser._id},
         data: {
-          // TODO[WIP] migration for allPostsView
-          allPostsView: sortedBy,
+          allPostsSorting: sortedBy,
         },
       })
     }

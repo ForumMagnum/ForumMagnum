@@ -70,8 +70,14 @@ class AllPostsPage extends Component {
     const querySorting = query.sortedBy || query.view
 
     // TODO[WIP] migration for allPostsView
-    const currentSorting = querySorting || (currentUser && currentUser.allPostsView) || "daily"
-    const currentFilter = query.filter || (currentUser && currentUser.allPostsFilter) || "all"
+    // maintain backward compatibility with previous user setting during
+    // transition
+    const currentSorting = querySorting ||
+      (currentUser && (currentUser.allPostsSorting || currentUser.allPostsView)) ||
+      "daily"
+    const currentFilter = query.filter ||
+      (currentUser && currentUser.allPostsFilter) ||
+      "all"
     const currentShowLowKarma = (parseInt(query.karmaThreshold) === MAX_LOW_KARMA_THRESHOLD) || (currentUser && currentUser.allPostsShowLowKarma) || false
 
     const terms = {
