@@ -45,6 +45,7 @@ import { Connectors } from './connectors.js';
 import pickBy from 'lodash/pickBy';
 import clone from 'lodash/clone';
 import isEmpty from 'lodash/isEmpty';
+import { createError } from 'apollo-errors';
 
 registerSetting('database', 'mongo', 'Which database to use for your back-end');
 

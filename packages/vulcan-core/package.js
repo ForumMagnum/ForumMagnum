@@ -25,5 +25,4 @@ Package.onUse(function(api) {
 Package.onTest(function(api) {
   api.use(['ecmascript', 'meteortesting:mocha', 'vulcan:test', 'vulcan:core']);
   api.mainModule('./test/index.js');
-  api.mainModule('./test/client/index.js', ['client']);
 });

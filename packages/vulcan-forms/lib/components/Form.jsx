@@ -239,9 +239,9 @@ class SmartForm extends Component {
     this.state.deletedValues.forEach(path => {
       if (path.includes('.')) {
         /*
-        
+
         If deleted field is a nested field, nested array, or nested array item, try to compact its parent array
-        
+
         - Nested field: 'address.city'
         - Nested array: 'addresses.1'
         - Nested array item: 'addresses.1.city'
@@ -493,7 +493,7 @@ class SmartForm extends Component {
   /*
   Given a field's name, the containing schema, and parent, create the
   complete field object to be passed to the component
-  
+
   */
   createField = (fieldName, schema, parentFieldName, parentPath) => {
     const fieldSchema = schema[fieldName];
@@ -517,9 +517,9 @@ class SmartForm extends Component {
   };
 
   /*
-  
+
    Get a field's label
-  
+
    */
   getLabel = (fieldName, fieldLocale) => {
     const collectionName = this.props.collectionName.toLowerCase();
@@ -544,15 +544,15 @@ class SmartForm extends Component {
   // --------------------------------------------------------------------- //
 
   /*
-  
+
   Add error to form state
-  
+
   Errors can have the following properties:
     - id: used as an internationalization key, for example `errors.required`
     - path: for field-specific errors, the path of the field with the issue
     - properties: additional data. Will be passed to vulcan-i18n as values
     - message: if id cannot be used as i81n key, message will be used
-    
+
   */
   throwError = error => {
     let formErrors = getErrors(error);
@@ -567,9 +567,9 @@ class SmartForm extends Component {
   };
 
   /*
-  
+
   Clear errors for a field
-  
+
   */
   clearFieldErrors = path => {
     const errors = this.state.errors.filter(error => error.path !== path);
@@ -649,12 +649,12 @@ class SmartForm extends Component {
   // --------------------------------------------------------------------- //
 
   /*
-  
+
   When props change, reinitialize the form  state
   Triggered only for data related props (collection, document, currentUser etc.)
 
   @see https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html
-   
+
   */
   UNSAFE_componentWillReceiveProps(nextProps) {
     const needReset = !!RESET_PROPS.find(prop => !isEqual(this.props[prop], nextProps[prop]));
@@ -664,9 +664,9 @@ class SmartForm extends Component {
   }
 
   /*
-   
+
   Manually update the current values of one or more fields(i.e. on change or blur).
-   
+
   */
   updateCurrentValues = (newValues, options = {}) => {
     // default to overwriting old value with new
@@ -719,9 +719,9 @@ class SmartForm extends Component {
   };
 
   /*
-   
+
   Install a route leave hook to warn the user if there are unsaved changes
-   
+
   */
   componentDidMount = () => {
     this.checkRouteChange();
@@ -772,7 +772,7 @@ class SmartForm extends Component {
             const routes = this.props.router.routes;
             const currentRoute = routes[routes.length - 1];
             this.props.router.setRouteLeaveHook(currentRoute, this.handleRouteLeave);
-      
+
             */
       });
     }
@@ -799,7 +799,7 @@ class SmartForm extends Component {
 
   /**
    * Same for browser closing
-   * 
+   *
    * see https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload
    * the message returned is actually ignored by most browsers and a default message 'Are you sure you want to leave this page? You might have unsaved changes' is displayed. See the Notes section on the mozilla docs above
    */
@@ -817,9 +817,9 @@ class SmartForm extends Component {
     }
   };
   /*
-   
+
   Returns true if there are any differences between the initial document and the current one
-   
+
   */
   isChanged = () => {
     const initialDocument = this.state.initialDocument;
@@ -835,9 +835,9 @@ class SmartForm extends Component {
   };
 
   /*
-   
+
   Refetch the document from the database (in case it was updated by another process or to reset the form)
-   
+
   */
   refetchForm = () => {
     if (this.props.data && this.props.data.refetch) {
@@ -881,9 +881,9 @@ class SmartForm extends Component {
   };
 
   /*
-  
+
   Key down handler
-  
+
   */
   formKeyDown = event => {
     if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
@@ -949,9 +949,9 @@ class SmartForm extends Component {
   };
 
   /*
-  
+
   Submit form handler
-  
+
   */
   submitForm = event => {
 
@@ -992,9 +992,9 @@ class SmartForm extends Component {
   };
 
   /*
-  
+
   Delete document handler
-  
+
   */
   deleteDocument = () => {
     const document = this.getDocument();
@@ -1025,7 +1025,7 @@ class SmartForm extends Component {
 
   // --------------------------------------------------------------------- //
   // ------------------------- Props to Pass ----------------------------- //
-  // --------------------------------------------------------------------- //  
+  // --------------------------------------------------------------------- //
 
   getFormProps = () => ({
     className: 'document-' + this.getFormType(),
@@ -1108,7 +1108,6 @@ SmartForm.propTypes = {
 
   // graphQL
   newMutation: PropTypes.func, // the new mutation
-  editMutation: PropTypes.func, // the edit mutation
   removeMutation: PropTypes.func, // the remove mutation
 
   // form

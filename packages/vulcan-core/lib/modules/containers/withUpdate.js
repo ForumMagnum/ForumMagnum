@@ -1,8 +1,8 @@
 /*
 
-Generic mutation wrapper to update a document in a collection. 
+Generic mutation wrapper to update a document in a collection.
 
-Sample mutation: 
+Sample mutation:
 
   mutation updateMovie($input: UpdateMovieInput) {
     updateMovie(input: $input) {
@@ -15,7 +15,7 @@ Sample mutation:
     }
   }
 
-Arguments: 
+Arguments:
 
   - input
     - input.selector: a selector to indicate the document to update
@@ -24,15 +24,16 @@ Arguments:
 Child Props:
 
   - updateMovie({ selector, data })
-  
+
 */
 
-import React, { Component } from 'react';
-import { graphql } from 'react-apollo';
+import React from 'react';
+import { Mutation } from 'react-apollo';
 import { compose, withHandlers } from 'recompose';
 import gql from 'graphql-tag';
 import { updateClientTemplate, extractCollectionInfo, extractFragmentInfo } from 'meteor/vulcan:lib';
-import clone from 'lodash/clone';
+import { getExtraVariables } from './utils';
+import { cacheUpdateGenerator } from './cacheUpdates';
 
 const withUpdate = options => {
   const { collectionName, collection } = extractCollectionInfo(options);
@@ -44,35 +45,29 @@ const withUpdate = options => {
     ${fragment}
   `;
 
-  const withHandlersOptions = {
-    [`update${typeName}`]: ({ mutate, ownProps }) => args => {
-      const extraVariables = _.pick(ownProps || {}, Object.keys(options.extraVariables || {}))  
-      const { selector, data } = args;
-      return mutate({
-        variables: { selector, data, ...extraVariables }
-        // note: updateQueries is not needed for editing documents
-      });
-    },
-    // OpenCRUD backwards compatibility
-    editMutation: ({ mutate, ownProps }) => args => {
-      const extraVariables = _.pick(ownProps || {}, Object.keys(options.extraVariables || {}))  
-      const { documentId, set, unset } = args;
-      const selector = { documentId };
-      const data = clone(set);
-      unset &&
-        Object.keys(unset).forEach(fieldName => {
-          data[fieldName] = null;
-        });
-      return mutate({
-        variables: { selector, data, ...extraVariables }
-        // note: updateQueries is not needed for editing documents
-      });
-    }
-  }
-  
+  const mutationWrapper = (Component) => (props) => (
+    <Mutation mutation={query}>
+      {(mutate, { data }) => (
+        <Component
+          {...props}
+          mutate={mutate}
+          ownProps={props}
+        />
+      )}
+    </Mutation>
+  )
+
   return compose(
-    graphql(query, {alias: `withUpdate${typeName}`}),
-    withHandlers(withHandlersOptions)
+    mutationWrapper,
+    withHandlers({
+      [`update${typeName}`]: ({ mutate, ownProps }) => ({ selector, data }) => {
+        const extraVariables = getExtraVariables(ownProps, options.extraVariables)
+        return mutate({
+          variables: { selector, data, ...extraVariables },
+          update: cacheUpdateGenerator(typeName, 'update')
+        });
+      },
+    })
   )
 };
 

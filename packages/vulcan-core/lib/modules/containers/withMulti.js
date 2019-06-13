@@ -4,7 +4,7 @@
 
 Paginated items container
 
-Options: 
+Options:
 
   - collection: the collection to fetch the documents from
   - fragment: the fragment that defines which properties to fetch
@@ -13,7 +13,7 @@ Options:
   - pollInterval: how often the data should be updated, in ms (set to 0 to disable polling)
   - terms: an object that defines which documents to fetch
 
-Props Received: 
+Props Received:
 
   - terms: an object that defines which documents to fetch
 
@@ -31,7 +31,7 @@ Terms object can have the following properties:
   - query: String # search query
   - postId: String
   - limit: String
-         
+
 */
 
 import { withApollo, graphql } from 'react-apollo';
@@ -101,7 +101,7 @@ export default function withMulti(options) {
         options({ terms, paginationTerms, client: apolloClient, currentUser, ...rest }) {
           // get terms from options, then props, then pagination
           const mergedTerms = { ...options.terms, ...terms, ...paginationTerms };
-          const extraVariables = _.pick(rest, Object.keys(options.extraVariables || {}))  
+          const extraVariables = _.pick(rest, Object.keys(options.extraVariables || {}))
           const graphQLOptions = {
             variables: {
               input: {

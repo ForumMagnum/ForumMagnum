@@ -3,14 +3,6 @@
  */
 import Mingo from 'mingo';
 
-export const WatchedMutations = {};
-
-export const registerWatchedMutation = (mutationName, queryName, updateFunction) => {
-  WatchedMutations[mutationName] = {
-    [queryName]: updateFunction,
-  };
-};
-
 /*
 
 Test if a document is matched by a given selector
@@ -50,7 +42,7 @@ export const updateInSet = (queryData, document) => {
   const oldDocument = queryData.results.find(item => item._id === document._id);
   const newDocument = { ...oldDocument, ...document };
   const index = queryData.results.findIndex(item => item._id === document._id);
-  const newData = { results: [...queryData.results] }; // clone
+  const newData = { ...queryData }; // clone
   newData.results[index] = newDocument;
   return newData;
 };

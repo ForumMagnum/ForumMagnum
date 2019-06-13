@@ -1,8 +1,8 @@
 /*
 
-Generic mutation wrapper to remove a document from a collection. 
+Generic mutation wrapper to remove a document from a collection.
 
-Sample mutation: 
+Sample mutation:
 
   mutation deleteMovie($input: DeleteMovieInput) {
     deleteMovie(input: $input) {
@@ -15,7 +15,7 @@ Sample mutation:
     }
   }
 
-Arguments: 
+Arguments:
 
   - input
     - input.selector: the id of the document to remove
@@ -23,15 +23,17 @@ Arguments:
 Child Props:
 
   - deleteMovie({ selector })
-  
+
 */
 
-import React, { Component } from 'react';
+import React from 'react';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { deleteClientTemplate } from 'meteor/vulcan:core';
 import { extractCollectionInfo, extractFragmentInfo } from 'meteor/vulcan:lib';
 import { compose, withHandlers } from 'recompose';
+import { cacheUpdateGenerator } from './cacheUpdates';
+import { getExtraVariables } from './utils'
 
 const withDelete = options => {
   const { collectionName, collection } = extractCollectionInfo(options);
@@ -43,29 +45,30 @@ const withDelete = options => {
     ${fragment}
   `;
 
-  const withHandlersOptions = {
-    [`delete${typeName}`]: ({ mutate, ownProps }) => args => {
-      const extraVariables = _.pick(ownProps || {}, Object.keys(options.extraVariables || {}))  
-      const { selector } = args;
-      return mutate({
-        variables: { selector, ...extraVariables }
-      });
-    },
-    // OpenCRUD backwards compatibility
-    removeMutation: ({ mutate, ownProps }) => args => {
-      const extraVariables = _.pick(ownProps || {}, Object.keys(options.extraVariables || {}))  
-      const { documentId } = args;
-      const selector = { documentId };
-      return mutate({
-        variables: { selector, ...extraVariables }
-      });
-    },
-  }    
+  const mutationWrapper = (Component) => (props) => (
+    <Mutation mutation={query}>
+      {(mutate, { data }) => (
+        <Component
+          {...props}
+          mutate={mutate}
+          ownProps={props}
+        />
+      )}
+    </Mutation>
+  )
 
   // wrap component with graphql HoC
   return compose(
-    graphql(query, {alias: `withDelete${typeName}`}),
-    withHandlers(withHandlersOptions)
+    mutationWrapper,
+    withHandlers({
+      [`delete${typeName}`]: ({ mutate, ownProps }) => ({ selector }) => {
+        const extraVariables = getExtraVariables(ownProps, options.extraVariables)
+        return mutate({
+          variables: { selector, ...extraVariables },
+          update: cacheUpdateGenerator(typeName, 'delete')
+        });
+      },
+    })
   )
 };
 
