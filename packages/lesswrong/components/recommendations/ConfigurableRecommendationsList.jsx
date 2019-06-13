@@ -26,7 +26,7 @@ class ConfigurableRecommendationsList extends PureComponent {
   render() {
     const { currentUser, configName } = this.props;
     const { SingleColumnSection, SectionTitle, RecommendationsAlgorithmPicker,
-      ContinueReadingList, RecommendationsList, SettingsIcon } = Components;
+      RecommendationsList, SettingsIcon } = Components;
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
     
     return <SingleColumnSection>
@@ -44,7 +44,6 @@ class ConfigurableRecommendationsList extends PureComponent {
           onChange={(newSettings) => this.changeSettings(newSettings)}
         /> }
       <NoSSR>
-        <ContinueReadingList />
         <RecommendationsList
           algorithm={settings}
         />
