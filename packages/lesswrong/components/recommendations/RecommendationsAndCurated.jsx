@@ -14,7 +14,7 @@ const styles = theme => ({
     marginTop: theme.spacing.unit,
   },
   fromTheArchives: {
-    marginTop: theme.spacing.unit,
+    marginTop: theme.spacing.unit*2,
   },
   curated: {
     display: "block",
