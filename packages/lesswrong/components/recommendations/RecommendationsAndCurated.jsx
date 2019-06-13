@@ -10,11 +10,8 @@ import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { withContinueReading } from './withContinueReading';
 
 const styles = theme => ({
-  continueReading: {
-    marginTop: theme.spacing.unit,
-  },
-  fromTheArchives: {
-    marginTop: theme.spacing.unit*2,
+  continueReadingList: {
+    marginBottom: theme.spacing.unit*2,
   },
   curated: {
     display: "block",
@@ -86,6 +83,8 @@ class RecommendationsAndCurated extends PureComponent {
       defaultFrontpageSettings
     } 
 
+    const renderContinueReading = continueReading && continueReading.length>0
+
     return <SingleColumnSection>
       <SectionTitle title="Recommendations [Beta]">
         <SettingsIcon onClick={this.toggleSettings}/>
@@ -98,7 +97,7 @@ class RecommendationsAndCurated extends PureComponent {
         /> }
       
       {!settings.hideFrontpage && <div>
-        {continueReading && continueReading.length>0 && <React.Fragment>
+        {renderContinueReading && <React.Fragment>
           <div>
             <Tooltip placement="top-start" title={continueReadingTooltip}>
               <Link className={classNames(classes.subtitle, classes.continueReading)} to={"/library"}>
@@ -107,7 +106,7 @@ class RecommendationsAndCurated extends PureComponent {
             </Tooltip>
             <BetaTag />
           </div>
-          <div className={classes.list}>
+          <div className={classNames(classes.continueReadingList, classes.list)}>
             <ContinueReadingList continueReading={continueReading} />
           </div>
         </React.Fragment>}
