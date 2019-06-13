@@ -28,21 +28,25 @@ const styles = (theme) => ({
     [theme.breakpoints.down('sm')]: {
       width: "100%"
     },
-    [theme.breakpoints.up('md')]: {
-      height: 49,
-    },
     '&:hover $actions': {
       opacity: .2,
     }
   },
+  fixedHeight: {
+    [theme.breakpoints.up('md')]: {
+      height: 48,
+    }
+  },
   postsItem: {
     display: "flex",
-    paddingTop: theme.spacing.unit*1.5,
-    paddingBottom: theme.spacing.unit*1.5,
+    paddingTop: 10,
+    paddingBottom: 10,
     alignItems: "center",
     flexWrap: "nowrap",
     [theme.breakpoints.down('sm')]: {
       flexWrap: "wrap",
+      paddingTop: theme.spacing.unit,
+      paddingBottom: theme.spacing.unit,
     },
   },
   background: {
@@ -77,16 +81,19 @@ const styles = (theme) => ({
     }
   },
   title: {
-    minHeight: 24,
+    minHeight: 26,
     flexGrow: 1,
     flexShrink: 1,
     overflow: "hidden",
     textOverflow: "ellipsis",
     marginRight: 12,
+    [theme.breakpoints.up('md')]: {
+      position: "relative",
+      top: 1,
+    },
     [theme.breakpoints.down('sm')]: {
       order:-1,
       height: "unset",
-      marginBottom: theme.spacing.unit,
       maxWidth: "unset",
       width: "100%",
       paddingRight: theme.spacing.unit
@@ -219,14 +226,21 @@ const styles = (theme) => ({
     },
   },
   sequenceImage: {
-    marginTop: -12,
-    marginBottom: -12,
     position: "relative",
     marginLeft: -60,
     zIndex: theme.zIndexes.continueReadingImage,
     opacity: 0.6,
     height: 48,
     width: 146,
+    
+    // Negative margins that are the opposite of the padding on postsItem, since
+    // the image extends into the padding.
+    marginTop: -12,
+    marginBottom: -12,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: -8,
+      marginBottom: -8,
+    },
     
     // Overlay a white-to-transparent gradient over the image
     "&:after": {
@@ -314,6 +328,7 @@ class PostsItem2 extends PureComponent {
             [classes.firstItem]: (index===0) && showComments,
             "personalBlogpost": !post.frontpageDate,
             [classes.hasResumeReading]: !!resumeReading,
+            [classes.fixedHeight]: !renderComments,
           }
         )}>
           <div className={classes.postsItem}>
@@ -322,7 +337,7 @@ class PostsItem2 extends PureComponent {
             </PostsItem2MetaInfo>
 
             <Link to={postLink} className={classes.title}>
-              <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
+              <PostsItemTitle post={post} postItem2 expandOnHover={!renderComments} read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
             </Link>
             
             {(resumeReading?.sequence || resumeReading?.collection) &&
