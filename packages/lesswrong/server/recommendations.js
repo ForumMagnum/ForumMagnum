@@ -1,12 +1,16 @@
-import { addGraphQLResolvers, addGraphQLQuery } from 'meteor/vulcan:core';
+import { addGraphQLResolvers, addGraphQLQuery, addGraphQLMutation, addGraphQLSchema } from 'meteor/vulcan:core';
 import { Posts } from '../lib/collections/posts';
 import { WeightedList } from './weightedList.js';
 import { accessFilterMultiple } from '../lib/modules/utils/schemaUtils.js';
+import { setUserPartiallyReadSequences } from './partiallyReadSequences.js';
+
+const MINIMUM_BASE_SCORE = 50
 
 // The set of fields on Posts which are used for deciding which posts to
 // recommend. Fields other than these will be projected out before downloading
 // from the database.
 const scoreRelevantFields = {baseScore:1, curatedDate:1, frontpageDate:1};
+
 
 // Returns part of a mongodb aggregate pipeline, which will join against the
 // LWEvents collection and filter out any posts which have a corresponding
@@ -50,10 +54,10 @@ const recommendablePostFilter = {
   // excluding drafts and deleted posts
   ...Posts.getParameters({}).selector,
   
-  // Only consider recommending posts if they have score>30. This has a big
+  // Only consider recommending posts if they hit the minimum base score. This has a big
   // effect on the size of the recommendable-post set, which needs to not be
   // too big for performance reasons.
-  baseScore: {$gt: 30},
+  baseScore: {$gt: MINIMUM_BASE_SCORE},
   
   // Don't recommend meta posts
   meta: false,
@@ -126,7 +130,7 @@ const samplePosts = async ({count, currentUser, onlyUnread, sampleWeightFn}) => 
   ).fetch();
 }
 
-const getRecommendations = async ({count, algorithm, currentUser}) => {
+const getRecommendedPosts = async ({count, algorithm, currentUser}) => {
   const scoreFn = post => {
     const sectionModifier = post.curatedDate
       ? algorithm.curatedModifier
@@ -159,18 +163,83 @@ const getRecommendations = async ({count, algorithm, currentUser}) => {
   }
 };
 
+const getResumeSequences = async (currentUser, context) => {
+  if (!currentUser)
+    return [];
+  if (!currentUser.partiallyReadSequences)
+    return [];
+  
+  return Promise.all(_.map(currentUser.partiallyReadSequences,
+    async partiallyReadSequence => {
+      const { sequenceId, collectionId, lastReadPostId, nextPostId, numRead, numTotal, lastReadTime } = partiallyReadSequence;
+      return {
+        sequence: sequenceId
+          ? await context["Sequences"].loader.load(sequenceId)
+          : null,
+        collection: collectionId
+          ? await context["Collections"].loader.load(collectionId)
+          : null,
+        lastReadPost: await context["Posts"].loader.load(lastReadPostId),
+        nextPost: await context["Posts"].loader.load(nextPostId),
+        numRead: numRead,
+        numTotal: numTotal,
+        lastReadTime: lastReadTime,
+      }
+    }
+  ));
+}
+
+
 addGraphQLResolvers({
   Query: {
-    async Recommendations(root, {count,algorithm}, {currentUser}) {
-      const recommended = await getRecommendations({count, algorithm, currentUser})
-      const accessFiltered = accessFilterMultiple(currentUser, Posts, recommended);
-      if (recommended.length !== accessFiltered.length) {
+    async Recommendations(root, {count,algorithm}, context) {
+      const { currentUser } = context;
+      const recommendedPosts = await getRecommendedPosts({count, algorithm, currentUser})
+      const accessFilteredPosts = accessFilterMultiple(currentUser, Posts, recommendedPosts);
+      if (recommendedPosts.length !== accessFilteredPosts.length) {
         // eslint-disable-next-line no-console
         console.error("Recommendation engine returned a post which permissions filtered out as inaccessible");
       }
-      return accessFiltered;
+      
+      const resumeSequences = await getResumeSequences(currentUser, context);
+      
+      return {
+        posts: accessFilteredPosts,
+        resumeReading: resumeSequences
+      };
     }
-  }
+  },
+  Mutation: {
+    async dismissRecommendation(root, {postId}, context) {
+      const { currentUser } = context;
+      
+      if (_.some(currentUser.partiallyReadSequences, s=>s.nextPostId===postId)) {
+        const newPartiallyRead = _.filter(currentUser.partiallyReadSequences,
+          s=>s.nextPostId !== postId);
+        setUserPartiallyReadSequences(currentUser._id, newPartiallyRead);
+        return true;
+      }
+      return false;
+    }
+  },
 });
 
-addGraphQLQuery("Recommendations(count: Int, algorithm: JSON): [Post!]");
+addGraphQLSchema(`
+  type RecommendResumeSequence {
+    sequence: Sequence
+    collection: Collection
+    lastReadPost: Post!
+    nextPost: Post!
+    numRead: Int
+    numTotal: Int
+    lastReadTime: Date
+  }
+  type RecommendationList {
+    posts: [Post!]
+    resumeReading: [RecommendResumeSequence!]
+  }
+`);
+
+addGraphQLQuery("Recommendations(count: Int, algorithm: JSON): RecommendationList!");
+addGraphQLMutation("dismissRecommendation(postId: String): Boolean");
+

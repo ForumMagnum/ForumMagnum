@@ -37,7 +37,7 @@ class Home2 extends PureComponent {
           <Components.CoreReading />
         </SingleColumnSection>}
   
-        {!currentUser?.isAdmin && 
+        {!currentUser?.beta && 
         <SingleColumnSection>
           <SectionTitle title="Curated" />
           <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false}>
@@ -46,7 +46,7 @@ class Home2 extends PureComponent {
           </PostsList2>
         </SingleColumnSection>}
   
-        {currentUser?.isAdmin &&
+        {currentUser?.beta &&
           <RecommendationsAndCurated configName="frontpage" />
         }
   
