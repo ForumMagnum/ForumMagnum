@@ -108,8 +108,8 @@ class CommentsNode extends Component {
   }
 
   componentDidMount() {
-    const { router, comment, post } = this.props
-    let commentHash = router.location.hash;
+    const { comment, post, location } = this.props
+    let commentHash = location.hash;
     const self = this;
     if (comment && commentHash === ("#" + comment._id) && post) {
       setTimeout(function () { //setTimeout make sure we execute this after the element has properly rendered
@@ -197,7 +197,7 @@ class CommentsNode extends Component {
   }
 
   render() {
-    const { comment, children, nestingLevel=1, highlightDate, updateComment, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments } = this.props;
+    const { comment, children, nestingLevel=1, highlightDate, updateComment, post, muiTheme, location, postPage, classes, child, showPostTitle, unreadComments, parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments } = this.props;
 
     const { SingleLineComment, CommentsItem } = Components
 
@@ -218,7 +218,7 @@ class CommentsNode extends Component {
         "comments-node-root" : nestingLevel === 1,
         "comments-node-even" : nestingLevel % 2 === 0,
         "comments-node-odd"  : nestingLevel % 2 !== 0,
-        "comments-node-linked" : router.location.hash === "#" + comment._id && finishedScroll,
+        "comments-node-linked" : location.hash === "#" + comment._id && finishedScroll,
         "comments-node-its-getting-nested-here": nestingLevel > 8,
         "comments-node-so-take-off-all-your-margins": nestingLevel > 12,
         "comments-node-im-getting-so-nested": nestingLevel > 16,

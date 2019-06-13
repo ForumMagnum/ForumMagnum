@@ -1,8 +1,8 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 
-const LocalGroupSingle = (props) => {
-  return <Components.LocalGroupPage documentId={props.params.groupId}/>
+const LocalGroupSingle = ({ match: { params }}) => {
+  return <Components.LocalGroupPage documentId={params.groupId}/>
 }
 
 registerComponent('LocalGroupSingle', LocalGroupSingle);

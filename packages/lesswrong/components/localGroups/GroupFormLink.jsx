@@ -29,18 +29,18 @@ class GroupFormLink extends Component {
   }
 
   render() {
-    const { documentId } =  this.props
+    const { documentId, history, flash, currentUser } =  this.props
     const { WrappedSmartForm, SectionButton } = Components
     const dialogClasses = classNames(
       "comments-item-text",
       "local-group-form"
     )
     return (<React.Fragment>
-      { documentId ? 
+      { documentId ?
         <SectionButton>
           <span onClick={this.handleOpenGroupForm}>Edit Group</span>
-        </SectionButton> 
-        : 
+        </SectionButton>
+        :
         <SectionButton>
           <AddLocationIcon />
           <span onClick={this.handleOpenGroupForm}>New Group</span>
@@ -53,17 +53,17 @@ class GroupFormLink extends Component {
         <DialogContent className={dialogClasses}>
           <WrappedSmartForm
             collection={Localgroups}
-            documentId={this.props.documentId}
+            documentId={documentId}
             queryFragment={getFragment('localGroupsEdit')}
             mutationFragment={getFragment('localGroupsHomeFragment')}
-            prefilledProps={this.props.documentId ? {} : {organizerIds: [this.props.currentUser._id]}} // If edit form, do not prefill organizerIds
+            prefilledProps={documentId ? {} : {organizerIds: [currentUser._id]}} // If edit form, do not prefill organizerIds
             successCallback={group => {
               this.handleCloseGroupForm();
-              if (this.props.documentId) {
-                this.props.flash({messageString: "Successfully edited local group " + group.name});
+              if (documentId) {
+                flash({messageString: "Successfully edited local group " + group.name});
               } else {
-                this.props.flash({messageString: "Successfully created new local group " + group.name})
-                this.props.router.push({pathname: '/groups/' + group._id});
+                flash({messageString: "Successfully created new local group " + group.name})
+                history.push({pathname: '/groups/' + group._id});
               }
             }}
           />

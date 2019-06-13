@@ -225,7 +225,6 @@ Header.propTypes = {
   classes: PropTypes.object.isRequired,
   routes: PropTypes.array.isRequired,
   location: PropTypes.object.isRequired,
-  params: PropTypes.object,
   client: PropTypes.object.isRequired,
   searchResultsArea: PropTypes.object,
 };

@@ -16,7 +16,7 @@ const styles = theme => ({
 class PostsEditForm extends PureComponent {
 
   render() {
-    const { documentId, document, eventForm, classes } = this.props;
+    const { documentId, document, eventForm, classes, flash, history, match: { params } } = this.props;
     const isDraft = document && document.draft;
     const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox } = Components
     const EditPostsSubmit = (props) => {
@@ -37,18 +37,18 @@ class PostsEditForm extends PureComponent {
           queryFragment={getFragment('PostsEdit')}
           mutationFragment={getFragment('PostsRevision')}
           successCallback={post => {
-            this.props.flash({ id: 'posts.edit_success', properties: { title: post.title }, type: 'success'});
-            this.props.router.push({pathname: Posts.getPageUrl(post)});
+            flash({ id: 'posts.edit_success', properties: { title: post.title }, type: 'success'});
+            history.push({pathname: Posts.getPageUrl(post)});
           }}
           eventForm={eventForm}
           removeSuccessCallback={({ documentId, documentTitle }) => {
             // post edit form is being included from a single post, redirect to index
             // note: this.props.params is in the worst case an empty obj (from react-router)
-            if (this.props.params._id) {
-              this.props.router.push('/');
+            if (params._id) {
+              history.push('/');
             }
 
-            this.props.flash({ id: 'posts.delete_success', properties: { title: documentTitle }, type: 'success'});
+            flash({ id: 'posts.delete_success', properties: { title: documentTitle }, type: 'success'});
             // todo: handle events in collection callbacks
             // this.context.events.track("post deleted", {_id: documentId});
           }}
@@ -67,12 +67,7 @@ class PostsEditForm extends PureComponent {
 }
 
 PostsEditForm.propTypes = {
-  closeModal: PropTypes.func,
   flash: PropTypes.func,
-}
-
-PostsEditForm.contextTypes = {
-  intl: intlShape
 }
 
 const documentQuery = {
@@ -86,4 +81,4 @@ registerComponent('PostsEditForm', PostsEditForm,
   [withDocument, documentQuery],
   withMessages, withRouter,
   withStyles(styles, { name: "PostsEditForm" })
-  );
+);

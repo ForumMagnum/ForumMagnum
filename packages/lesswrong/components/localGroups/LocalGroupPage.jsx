@@ -51,14 +51,14 @@ const styles = theme => ({
 
 class LocalGroupPage extends Component {
   render() {
-    const { classes, document:group, currentUser } = this.props;
-    const { groupId } = this.props.params;
-    const { CommunityMapWrapper, SingleColumnSection, SectionTitle, GroupLinks, PostsList2, Loading, 
+    const { classes, document:group, currentUser, match: { params } } = this.props;
+    const { groupId } = params;
+    const { CommunityMapWrapper, SingleColumnSection, SectionTitle, GroupLinks, PostsList2, Loading,
       SectionButton, SubscribeTo, SectionFooter, GroupFormLink } = Components
     if (!group) return <Loading />
     const { html = ""} = group.contents || {}
     const htmlBody = {__html: html}
-    
+
     const { googleLocation: { geometry: { location } }} = group;
     return (
       <div className={classes.root}>
@@ -80,13 +80,13 @@ class LocalGroupPage extends Component {
                   <div className={classes.groupLocation}>{group.location}</div>
                   <div className={classes.groupLinks}><GroupLinks document={group} /></div>
                 </span>
-                {Posts.options.mutations.new.check(currentUser) && 
+                {Posts.options.mutations.new.check(currentUser) &&
                   <SectionButton>
                     <Link to={{pathname:"/newPost", query: {eventForm: true, groupId}}} className={classes.leftAction}>
                       Create new event
                     </Link>
                   </SectionButton>}
-                {Posts.options.mutations.new.check(this.props.currentUser) && 
+                {Posts.options.mutations.new.check(this.props.currentUser) &&
                   <SectionButton>
                     <Link to={{pathname:"/newPost", query: {groupId}}} className={classes.leftAction}>
                       Create new group post
