@@ -89,11 +89,6 @@ const schema = {
     viewableBy: ['guests'],
     onInsert: (post) => {
       return Utils.getUnusedSlugByCollectionName("Posts", Utils.slugify(post.title))
-    },
-    onEdit: (modifier, post) => {
-      if (modifier.$set.title) {
-        return Utils.getUnusedSlugByCollectionName("Posts", Utils.slugify(modifier.$set.title))
-      }
     }
   },
   // Post Excerpt
