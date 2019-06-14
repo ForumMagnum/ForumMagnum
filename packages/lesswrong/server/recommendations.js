@@ -165,9 +165,22 @@ const getRecommendedPosts = async ({count, algorithm, currentUser}) => {
 
 const getDefaultResumeSequence = () => {
   return [
-    { sequenceId: "5g5TkQTe9rmPS5vvM", 
-      // collectionId: , 
-      lastReadPostId: null, 
+    { 
+      // HPMOR
+      sequenceId: "PtgH6ALi5CoJnPmGS", 
+      collectionId: "ywQvGBSojSQZTMpLh", 
+      nextPostId: "vNHf7dx5QZA4SLSZb", 
+    },
+    { 
+      // Codex
+      sequenceId: "XsMTxdQ6fprAQMoKi", 
+      collectionId: "2izXHCrmJ684AnZ5X", 
+      nextPostId: "gFMH3Cqw4XxwL69iy", 
+    },
+    { 
+      // R:A-Z
+      sequenceId: "5g5TkQTe9rmPS5vvM", 
+      collectionId: "oneQyj4pw77ynzwAF", 
       nextPostId: "uXn3LyA8eNqpvdoZw", 
     },
   ]
@@ -189,7 +202,7 @@ const getResumeSequences = async (currentUser, context) => {
         collection: collectionId
           ? await context["Collections"].loader.load(collectionId)
           : null,
-        lastReadPost: await context["Posts"].loader.load(lastReadPostId),
+        lastReadPost: lastReadPostId && await context["Posts"].loader.load(lastReadPostId),
         nextPost: await context["Posts"].loader.load(nextPostId),
         numRead: numRead,
         numTotal: numTotal,
@@ -238,7 +251,7 @@ addGraphQLSchema(`
   type RecommendResumeSequence {
     sequence: Sequence
     collection: Collection
-    lastReadPost: Post!
+    lastReadPost: Post
     nextPost: Post!
     numRead: Int
     numTotal: Int

@@ -99,26 +99,12 @@ class RecommendationsAndCurated extends PureComponent {
           settings={frontpageRecommendationSettings}
           onChange={(newSettings) => this.changeSettings(newSettings)}
         /> }
-
-      {!currentUser && <React.Fragment>
-        <div>
-          <Tooltip placement="top-start" title={coreReadingTooltip}>
-            <Link className={classNames(classes.subtitle, classes.continueReading)} to={"/library"}>
-              Core Reading
-            </Link>
-          </Tooltip>
-          <BetaTag />
-        </div>
-        <div className={classNames(classes.continueReadingList, classes.list)}>
-          <CoreReadingList terms={{view:"presetPosts", presetName:"coreReading"}} />
-        </div>
-      </React.Fragment>}
       
       {renderContinueReading && <React.Fragment>
           <div>
-            <Tooltip placement="top-start" title={continueReadingTooltip}>
+            <Tooltip placement="top-start" title={currentUser ? continueReadingTooltip : coreReadingTooltip}>
               <Link className={classNames(classes.subtitle, classes.continueReading)} to={"/library"}>
-                Continue Reading
+                {currentUser ? "Continue Reading" : "Core Reading" }
               </Link>
             </Tooltip>
             <BetaTag />
