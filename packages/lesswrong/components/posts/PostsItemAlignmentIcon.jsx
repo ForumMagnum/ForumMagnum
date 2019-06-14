@@ -5,7 +5,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = (theme) => ({
   icon: {
-    fontSize: "1.3rem",
+    fontSize: "1rem",
     color: theme.palette.grey[500],
     top: 0,
   }

@@ -6,7 +6,7 @@ import PersonIcon from '@material-ui/icons/Person';
 
 const styles = (theme) => ({
   icon: {
-    fontSize: "1.3rem",
+    fontSize: "1.2rem",
     color: theme.palette.grey[500],
     position: "relative",
     top: 3,
