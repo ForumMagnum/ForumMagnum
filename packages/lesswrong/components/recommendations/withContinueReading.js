@@ -19,6 +19,7 @@ export const withContinueReading = component => {
           _id
           title
           slug
+          gridImageId
         }
         lastReadPost {
           ...PostsList
