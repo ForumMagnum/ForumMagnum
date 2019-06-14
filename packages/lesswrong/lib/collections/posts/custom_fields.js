@@ -6,8 +6,8 @@ import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { Utils } from 'meteor/vulcan:core';
 import GraphQLJSON from 'graphql-type-json';
 import { schemaDefaultValue } from '../../collectionUtils';
-//import { getWithCustomLoader } from '../../loaders.js';
-//import keyBy from 'lodash/keyBy';
+import { getWithCustomLoader } from '../../loaders.js';
+import keyBy from 'lodash/keyBy';
 
 export const formGroups = {
   adminOptions: {
@@ -147,13 +147,7 @@ addFieldsDict(Posts, {
     resolver: async (post, args, { ReadStatuses, LWEvents, currentUser }) => {
       if (!currentUser) return null;
       
-      // Slow method, from the LWEvents table. This is an N+1 select. Switch
-      // after the migration script is run.
-      const event = await LWEvents.findOne({name:'post-view', documentId: post._id, userId: currentUser._id}, {sort:{createdAt:-1}});
-      return event && event.createdAt
-      
-      // Faster method, using the ReadStatuses table.
-      /*return await getWithCustomLoader(ReadStatuses, `postsReadByUser${currentUser._id}`, post._id,
+      return await getWithCustomLoader(ReadStatuses, `postsReadByUser${currentUser._id}`, post._id,
         async postIDs => {
           const readDates = await ReadStatuses.find({
             userId: currentUser._id,
@@ -164,7 +158,7 @@ addFieldsDict(Posts, {
           const readDateByPostID = keyBy(readDates, ev=>ev.postId);
           return postIDs.map(postID => readDateByPostID[postID] ? readDateByPostID[postID].lastUpdated : null);
         }
-      );*/
+      );
     }
   }),
 

@@ -24,11 +24,10 @@ const pipelineFilterUnread = ({currentUser}) => {
   
   return [
     { $lookup: {
-      from: "lwevents",
+      from: "readstatuses",
       let: { documentId: "$_id", },
       pipeline: [
         { $match: {
-          name: "post-view",
           userId: currentUser._id,
         } },
         { $match: { $expr: {
