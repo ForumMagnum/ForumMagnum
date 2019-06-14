@@ -357,7 +357,7 @@ class PostsItem2 extends PureComponent {
             {(resumeReading?.sequence || resumeReading?.collection) &&
               <div className={classes.nextUnreadIn}>
                 {resumeReading.numRead ? "Next unread in " : "First post in "}<Link to={
-                  (resumeReading.sequence && resumeReading.numRead)
+                  resumeReading.sequence
                     ? Sequences.getPageUrl(resumeReading.sequence)
                     : Collections.getPageUrl(resumeReading.collection)
                 }>
