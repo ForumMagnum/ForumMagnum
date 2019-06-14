@@ -77,6 +77,7 @@ import '../components/common/LinkCard.jsx';
 import '../components/common/SubscribeWidget.jsx';
 import '../components/common/SubscribeDialog.jsx';
 
+import '../components/users/AccountsVerifyEmail.jsx';
 import '../components/users/UsersMenu.jsx';
 import '../components/users/UsersEditForm.jsx';
 import '../components/users/UsersAccount.jsx';
@@ -95,8 +96,10 @@ import '../components/users/KarmaChangeNotifierSettings.jsx';
 import '../components/users/AccountsResetPassword.jsx';
 import '../components/users/EmailTokenPage.jsx';
 import '../components/users/EmailTokenResult.jsx';
+import '../components/users/SignupSubscribeToCurated.jsx';
 import '../components/users/UserNameDeleted.jsx';
 import '../components/users/WrappedLoginForm.jsx';
+import '../components/users/ResendVerificationEmailPage.jsx';
 
 import '../components/icons/OmegaIcon.jsx';
 import '../components/icons/SettingsIcon.jsx';

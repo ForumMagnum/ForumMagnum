@@ -11,6 +11,7 @@ addRoute([
 
 // Miscellaneous LW2 routes
 addRoute({ name: 'login', path: '/login', componentName: 'LoginPage', title: "Login" });
+addRoute({ name: 'resendVerificationEmail', path: '/resendVerificationEmail', componentName: 'ResendVerificationEmailPage'});
 addRoute({ name: 'inbox', path: '/inbox', componentName: 'InboxWrapper', title: "Inbox" });
 addRoute({ name: 'conversation', path: '/inbox/:_id', componentName: 'ConversationWrapper', title: "Private Conversation" });
 

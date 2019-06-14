@@ -3,6 +3,7 @@ import { addCallback, getSetting } from 'meteor/vulcan:core';
 import { Posts } from '../posts'
 import { Comments } from '../comments'
 import request from 'request';
+import { bellNotifyEmailVerificationRequired } from '../../../server/notificationCallbacks.js';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -131,6 +132,10 @@ async function subscribeOnSignup (user) {
   // emails doesn't make sense.)
   if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {
     Accounts.sendVerificationEmail(user._id);
+    
+    if (subscribeToCurated) {
+      bellNotifyEmailVerificationRequired(user);
+    }
   }
 }
 addCallback('users.new.async', subscribeOnSignup);
