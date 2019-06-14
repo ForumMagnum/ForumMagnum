@@ -24,11 +24,10 @@ const pipelineFilterUnread = ({currentUser}) => {
   
   return [
     { $lookup: {
-      from: "lwevents",
+      from: "readstatuses",
       let: { documentId: "$_id", },
       pipeline: [
         { $match: {
-          name: "post-view",
           userId: currentUser._id,
         } },
         { $match: { $expr: {
@@ -163,13 +162,36 @@ const getRecommendedPosts = async ({count, algorithm, currentUser}) => {
   }
 };
 
+const getDefaultResumeSequence = () => {
+  return [
+    { 
+      // HPMOR
+      sequenceId: "PtgH6ALi5CoJnPmGS", 
+      collectionId: "ywQvGBSojSQZTMpLh", 
+      nextPostId: "vNHf7dx5QZA4SLSZb", 
+    },
+    { 
+      // Codex
+      sequenceId: "XsMTxdQ6fprAQMoKi", 
+      collectionId: "2izXHCrmJ684AnZ5X", 
+      nextPostId: "gFMH3Cqw4XxwL69iy", 
+    },
+    { 
+      // R:A-Z
+      sequenceId: "5g5TkQTe9rmPS5vvM", 
+      collectionId: "oneQyj4pw77ynzwAF", 
+      nextPostId: "uXn3LyA8eNqpvdoZw", 
+    },
+  ]
+}
+
 const getResumeSequences = async (currentUser, context) => {
-  if (!currentUser)
-    return [];
-  if (!currentUser.partiallyReadSequences)
+  const sequences = currentUser ? currentUser.partiallyReadSequences : getDefaultResumeSequence()
+
+  if (!sequences)
     return [];
   
-  return Promise.all(_.map(currentUser.partiallyReadSequences,
+  return Promise.all(_.map(sequences,
     async partiallyReadSequence => {
       const { sequenceId, collectionId, lastReadPostId, nextPostId, numRead, numTotal, lastReadTime } = partiallyReadSequence;
       return {
@@ -179,7 +201,7 @@ const getResumeSequences = async (currentUser, context) => {
         collection: collectionId
           ? await context["Collections"].loader.load(collectionId)
           : null,
-        lastReadPost: await context["Posts"].loader.load(lastReadPostId),
+        lastReadPost: lastReadPostId && await context["Posts"].loader.load(lastReadPostId),
         nextPost: await context["Posts"].loader.load(nextPostId),
         numRead: numRead,
         numTotal: numTotal,
@@ -192,6 +214,12 @@ const getResumeSequences = async (currentUser, context) => {
 
 addGraphQLResolvers({
   Query: {
+    async ContinueReading(root, args, context) {
+      const { currentUser } = context;
+      
+      return await getResumeSequences(currentUser, context);
+    },
+    
     async Recommendations(root, {count,algorithm}, context) {
       const { currentUser } = context;
       const recommendedPosts = await getRecommendedPosts({count, algorithm, currentUser})
@@ -200,13 +228,7 @@ addGraphQLResolvers({
         // eslint-disable-next-line no-console
         console.error("Recommendation engine returned a post which permissions filtered out as inaccessible");
       }
-      
-      const resumeSequences = await getResumeSequences(currentUser, context);
-      
-      return {
-        posts: accessFilteredPosts,
-        resumeReading: resumeSequences
-      };
+      return accessFilteredPosts;
     }
   },
   Mutation: {
@@ -228,18 +250,15 @@ addGraphQLSchema(`
   type RecommendResumeSequence {
     sequence: Sequence
     collection: Collection
-    lastReadPost: Post!
+    lastReadPost: Post
     nextPost: Post!
     numRead: Int
     numTotal: Int
     lastReadTime: Date
   }
-  type RecommendationList {
-    posts: [Post!]
-    resumeReading: [RecommendResumeSequence!]
-  }
 `);
 
-addGraphQLQuery("Recommendations(count: Int, algorithm: JSON): RecommendationList!");
+addGraphQLQuery("ContinueReading: [RecommendResumeSequence!]");
+addGraphQLQuery("Recommendations(count: Int, algorithm: JSON): [Post!]");
 addGraphQLMutation("dismissRecommendation(postId: String): Boolean");
 
