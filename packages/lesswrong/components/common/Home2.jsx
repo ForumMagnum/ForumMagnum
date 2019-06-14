@@ -1,7 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { getSetting } from 'meteor/vulcan:lib';
 import React, { PureComponent } from 'react';
-import { Link } from '../../lib/reactRouterWrapper.js';
 import withUser from '../common/withUser';
 import { SplitComponent } from 'meteor/vulcan:routing';
 import Users from 'meteor/vulcan:users';
@@ -18,7 +17,7 @@ class Home2 extends PureComponent {
     const { currentUser } = this.props
     const { showShortformFeed } = this.state
 
-    const { SingleColumnSection, SectionTitle, PostsList2, RecentDiscussionThreadsList, CommentsNewForm, SubscribeWidget, HomeLatestPosts, TabNavigationMenu, RecommendationsAndCurated, SectionButton } = Components
+    const { SingleColumnSection, SectionTitle, RecentDiscussionThreadsList, CommentsNewForm, HomeLatestPosts, TabNavigationMenu, RecommendationsAndCurated, SectionButton } = Components
 
     const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
         Users.canDo(currentUser, 'alignment.sidebar')
@@ -32,23 +31,7 @@ class Home2 extends PureComponent {
         <Components.HeadTags image={getSetting('siteImage')} />
         <TabNavigationMenu />
   
-        {!currentUser && <SingleColumnSection>
-          <SectionTitle title="Core Reading" />
-          <Components.CoreReading />
-        </SingleColumnSection>}
-  
-        {!currentUser?.beta && 
-        <SingleColumnSection>
-          <SectionTitle title="Curated" />
-          <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false}>
-            <Link to={"/allPosts?filter=curated&view=new"}>View All Curated Posts</Link>
-            <SubscribeWidget view={"curated"} />
-          </PostsList2>
-        </SingleColumnSection>}
-  
-        {currentUser?.beta &&
-          <RecommendationsAndCurated configName="frontpage" />
-        }
+        <RecommendationsAndCurated configName="frontpage" />
   
         <HomeLatestPosts />
   

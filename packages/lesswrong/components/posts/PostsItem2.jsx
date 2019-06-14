@@ -325,7 +325,7 @@ class PostsItem2 extends PureComponent {
     const renderComments = showComments || (defaultToShowUnreadComments && unreadComments)
     const condensedAndHiddenComments = defaultToShowUnreadComments && unreadComments && !showComments
 
-    const dismissButton = (resumeReading && <Tooltip title={dismissRecommendationTooltip} placement="right">
+    const dismissButton = (resumeReading?.numRead && <Tooltip title={dismissRecommendationTooltip} placement="right">
         <CloseIcon onClick={() => dismissRecommendation()}/>
       </Tooltip>
     )
@@ -356,15 +356,15 @@ class PostsItem2 extends PureComponent {
             
             {(resumeReading?.sequence || resumeReading?.collection) &&
               <div className={classes.nextUnreadIn}>
-                Next unread in <Link to={
-                  resumeReading.sequence
+                {resumeReading.numRead ? "Next unread in " : "First post in "}<Link to={
+                  (resumeReading.sequence && resumeReading.numRead)
                     ? Sequences.getPageUrl(resumeReading.sequence)
                     : Collections.getPageUrl(resumeReading.collection)
                 }>
-                  {resumeReading.sequence?.title || resumeReading.collection?.title}
+                  {(resumeReading.sequence && resumeReading.numRead) ? resumeReading.sequence.title : resumeReading.collection?.title}
                 </Link>
                 {" "}
-                ({resumeReading.numRead}/{resumeReading.numTotal} read)
+                {resumeReading.numRead && <span>({resumeReading.numRead}/{resumeReading.numTotal} read)</span>}
               </div>
             }
 

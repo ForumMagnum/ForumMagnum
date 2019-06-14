@@ -69,6 +69,10 @@ class RecommendationsAndCurated extends PureComponent {
       <div><em>(Click to see more curated posts)</em></div>
     </div>
 
+    const coreReadingTooltip = <div>
+      <div>Collections of posts that form the core background knowledge of the LessWrong community</div>
+    </div>
+
     const continueReadingTooltip = <div>
       <div>The next posts in sequences you've started reading, but not finished.</div>
     </div>
@@ -80,13 +84,13 @@ class RecommendationsAndCurated extends PureComponent {
 
     const frontpageRecommendationSettings = {
       ...settings,
-      defaultFrontpageSettings
+      ...defaultFrontpageSettings
     } 
 
-    const renderContinueReading = continueReading && continueReading.length>0
+    const renderContinueReading = continueReading && continueReading.length>0 && !settings.hideContinueReading 
 
     return <SingleColumnSection>
-      <SectionTitle title="Recommendations [Beta]">
+      <SectionTitle title="Recommendations">
         <SettingsIcon onClick={this.toggleSettings}/>
       </SectionTitle>
       {showSettings &&
@@ -96,12 +100,11 @@ class RecommendationsAndCurated extends PureComponent {
           onChange={(newSettings) => this.changeSettings(newSettings)}
         /> }
       
-      {!settings.hideFrontpage && <div>
-        {renderContinueReading && <React.Fragment>
+      {renderContinueReading && <React.Fragment>
           <div>
-            <Tooltip placement="top-start" title={continueReadingTooltip}>
+            <Tooltip placement="top-start" title={currentUser ? continueReadingTooltip : coreReadingTooltip}>
               <Link className={classNames(classes.subtitle, classes.continueReading)} to={"/library"}>
-                Continue Reading
+                {currentUser ? "Continue Reading" : "Core Reading" }
               </Link>
             </Tooltip>
             <BetaTag />
@@ -110,7 +113,8 @@ class RecommendationsAndCurated extends PureComponent {
             <ContinueReadingList continueReading={continueReading} />
           </div>
         </React.Fragment>}
-        
+
+      {!settings.hideFrontpage && <div>
         <div>
           <Tooltip placement="top-start" title={allTimeTooltip}>
             <Link className={classNames(classes.subtitle, classes.fromTheArchives)} to={"/recommendations"}>
