@@ -59,7 +59,7 @@ class RecommendationsAndCurated extends PureComponent {
   render() {
     const { continueReading, classes, currentUser } = this.props;
     const { showSettings } = this.state
-    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SectionTitle, SettingsIcon, ContinueReadingList, RecommendationsList, PostsList2, SubscribeWidget } = Components;
+    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SectionTitle, SettingsIcon, CoreReadingList, ContinueReadingList, RecommendationsList, PostsList2, SubscribeWidget } = Components;
     
     const configName = "frontpage"
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
@@ -67,6 +67,10 @@ class RecommendationsAndCurated extends PureComponent {
     const curatedTooltip = <div>
       <div>Every few days, LessWrong moderators manually curate posts that are well written and informative.</div>
       <div><em>(Click to see more curated posts)</em></div>
+    </div>
+
+    const coreReadingTooltip = <div>
+      <div>Collections of posts that form the core background knowledge of the LessWrong community</div>
     </div>
 
     const continueReadingTooltip = <div>
@@ -95,9 +99,22 @@ class RecommendationsAndCurated extends PureComponent {
           settings={frontpageRecommendationSettings}
           onChange={(newSettings) => this.changeSettings(newSettings)}
         /> }
+
+      {!currentUser && <React.Fragment>
+        <div>
+          <Tooltip placement="top-start" title={coreReadingTooltip}>
+            <Link className={classNames(classes.subtitle, classes.continueReading)} to={"/library"}>
+              Core Reading
+            </Link>
+          </Tooltip>
+          <BetaTag />
+        </div>
+        <div className={classNames(classes.continueReadingList, classes.list)}>
+          <CoreReadingList terms={{view:"presetPosts", presetName:"coreReading"}} />
+        </div>
+      </React.Fragment>}
       
-      {!settings.hideFrontpage && <div>
-        {renderContinueReading && <React.Fragment>
+      {renderContinueReading && <React.Fragment>
           <div>
             <Tooltip placement="top-start" title={continueReadingTooltip}>
               <Link className={classNames(classes.subtitle, classes.continueReading)} to={"/library"}>
@@ -110,7 +127,8 @@ class RecommendationsAndCurated extends PureComponent {
             <ContinueReadingList continueReading={continueReading} />
           </div>
         </React.Fragment>}
-        
+
+      {!settings.hideFrontpage && <div>
         <div>
           <Tooltip placement="top-start" title={allTimeTooltip}>
             <Link className={classNames(classes.subtitle, classes.fromTheArchives)} to={"/recommendations"}>

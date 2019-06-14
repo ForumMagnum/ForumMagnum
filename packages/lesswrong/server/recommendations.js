@@ -163,13 +163,23 @@ const getRecommendedPosts = async ({count, algorithm, currentUser}) => {
   }
 };
 
+const getDefaultResumeSequence = () => {
+  return [
+    { sequenceId: "5g5TkQTe9rmPS5vvM", 
+      // collectionId: , 
+      lastReadPostId: null, 
+      nextPostId: "uXn3LyA8eNqpvdoZw", 
+    },
+  ]
+}
+
 const getResumeSequences = async (currentUser, context) => {
-  if (!currentUser)
-    return [];
-  if (!currentUser.partiallyReadSequences)
+  const sequences = currentUser ? currentUser.partiallyReadSequences : getDefaultResumeSequence()
+
+  if (!sequences)
     return [];
   
-  return Promise.all(_.map(currentUser.partiallyReadSequences,
+  return Promise.all(_.map(sequences,
     async partiallyReadSequence => {
       const { sequenceId, collectionId, lastReadPostId, nextPostId, numRead, numTotal, lastReadTime } = partiallyReadSequence;
       return {
@@ -206,7 +216,6 @@ addGraphQLResolvers({
         // eslint-disable-next-line no-console
         console.error("Recommendation engine returned a post which permissions filtered out as inaccessible");
       }
-      
       return accessFilteredPosts;
     }
   },
