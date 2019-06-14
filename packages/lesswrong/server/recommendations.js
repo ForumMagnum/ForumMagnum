@@ -32,7 +32,7 @@ const pipelineFilterUnread = ({currentUser}) => {
         } },
         { $match: { $expr: {
           $and: [
-            {$eq: ["$documentId", "$$documentId"]},
+            {$eq: ["$postId", "$$documentId"]},
           ]
         } } },
         { $limit: 1},
@@ -166,19 +166,16 @@ const getDefaultResumeSequence = () => {
   return [
     { 
       // HPMOR
-      sequenceId: "PtgH6ALi5CoJnPmGS", 
       collectionId: "ywQvGBSojSQZTMpLh", 
       nextPostId: "vNHf7dx5QZA4SLSZb", 
     },
     { 
       // Codex
-      sequenceId: "XsMTxdQ6fprAQMoKi", 
       collectionId: "2izXHCrmJ684AnZ5X", 
       nextPostId: "gFMH3Cqw4XxwL69iy", 
     },
     { 
       // R:A-Z
-      sequenceId: "5g5TkQTe9rmPS5vvM", 
       collectionId: "oneQyj4pw77ynzwAF", 
       nextPostId: "uXn3LyA8eNqpvdoZw", 
     },
