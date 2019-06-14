@@ -325,7 +325,7 @@ class PostsItem2 extends PureComponent {
     const renderComments = showComments || (defaultToShowUnreadComments && unreadComments)
     const condensedAndHiddenComments = defaultToShowUnreadComments && unreadComments && !showComments
 
-    const dismissButton = (resumeReading && <Tooltip title={dismissRecommendationTooltip} placement="right">
+    const dismissButton = (resumeReading?.numRead && <Tooltip title={dismissRecommendationTooltip} placement="right">
         <CloseIcon onClick={() => dismissRecommendation()}/>
       </Tooltip>
     )

@@ -59,9 +59,15 @@ const RecommendationsAlgorithmPicker = ({ currentUser, settings, configName, upd
   return <div>
     {(configName === "frontpage") && <div> 
       <Checkbox
+        checked={settings.hideContinueReading}
+        onChange={(ev, checked) => applyChange({ ...settings, hideContinueReading: checked })}
+      /> Hide Continue Reading
+    </div>}
+    {(configName === "frontpage") && <div> 
+      <Checkbox
         checked={settings.hideFrontpage}
         onChange={(ev, checked) => applyChange({ ...settings, hideFrontpage: checked })}
-      /> Hide frontpage recommendations
+      /> Hide Frontpage Recommendations
     </div>}
     <div>
       <Checkbox

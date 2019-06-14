@@ -87,7 +87,7 @@ class RecommendationsAndCurated extends PureComponent {
       ...defaultFrontpageSettings
     } 
 
-    const renderContinueReading = continueReading && continueReading.length>0
+    const renderContinueReading = continueReading && continueReading.length>0 && !settings.hideContinueReading 
 
     return <SingleColumnSection>
       <SectionTitle title="Recommendations">
