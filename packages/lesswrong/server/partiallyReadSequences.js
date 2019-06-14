@@ -127,7 +127,7 @@ const postsToReadStatuses = async (user, postIDs) => {
         } },
         { $match: { $expr: {
           $and: [
-            {$eq: ["$documentId", "$$documentId"]},
+            {$eq: ["$postId", "$$documentId"]},
           ]
         } } },
         { $limit: 1},

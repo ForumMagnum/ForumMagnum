@@ -32,7 +32,7 @@ const pipelineFilterUnread = ({currentUser}) => {
         } },
         { $match: { $expr: {
           $and: [
-            {$eq: ["$documentId", "$$documentId"]},
+            {$eq: ["$postId", "$$documentId"]},
           ]
         } } },
         { $limit: 1},

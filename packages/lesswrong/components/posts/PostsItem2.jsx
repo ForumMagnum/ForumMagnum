@@ -364,7 +364,7 @@ class PostsItem2 extends PureComponent {
                   {resumeReading.sequence ? resumeReading.sequence.title : resumeReading.collection?.title}
                 </Link>
                 {" "}
-                {resumeReading.numRead && <span>({resumeReading.numRead}/{resumeReading.numTotal} read)</span>}
+                {(resumeReading.numRead>0) && <span>({resumeReading.numRead}/{resumeReading.numTotal} read)</span>}
               </div>
             }
 
