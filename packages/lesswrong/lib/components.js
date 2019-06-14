@@ -349,7 +349,6 @@ import '../components/questions/QuestionsPage.jsx';
 import '../components/questions/RelatedQuestionsList.jsx';
 
 import '../components/recommendations/ConfigurableRecommendationsList.jsx';
-import '../components/recommendations/CoreReadingList.jsx';
 import '../components/recommendations/ContinueReadingList.jsx';
 import '../components/recommendations/RecommendationsAlgorithmPicker.jsx';
 import '../components/recommendations/RecommendationsList.jsx';
