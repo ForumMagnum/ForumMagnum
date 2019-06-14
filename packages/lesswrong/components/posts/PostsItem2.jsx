@@ -89,7 +89,7 @@ const styles = (theme) => ({
     marginRight: 12,
     [theme.breakpoints.up('md')]: {
       position: "relative",
-      top: 1,
+      top: 3,
     },
     [theme.breakpoints.down('sm')]: {
       order:-1,
@@ -209,7 +209,7 @@ const styles = (theme) => ({
   nextUnreadIn: {
     color: theme.palette.grey[800],
     fontFamily: theme.typography.commentStyle.fontFamily,
-    
+
     [theme.breakpoints.up('md')]: {
       position: "absolute",
       left: 42,
@@ -223,7 +223,7 @@ const styles = (theme) => ({
       marginBottom: 3,
       marginLeft: 1,
     },
-    
+
     "& a": {
       color: theme.palette.primary.main,
     },
@@ -235,7 +235,7 @@ const styles = (theme) => ({
     opacity: 0.6,
     height: 48,
     width: 146,
-    
+
     // Negative margins that are the opposite of the padding on postsItem, since
     // the image extends into the padding.
     marginTop: -12,
@@ -248,7 +248,7 @@ const styles = (theme) => ({
       bottom: 0,
       height: "100%",
     },
-    
+
     // Overlay a white-to-transparent gradient over the image
     "&:after": {
       content: "''",
@@ -300,7 +300,7 @@ class PostsItem2 extends PureComponent {
       )
     }
   }
-  
+
   hasUnreadComments = () => {
     const { post } = this.props
     const { lastVisitedAt } = post
@@ -319,7 +319,7 @@ class PostsItem2 extends PureComponent {
     const { PostsItemComments, PostsItemKarma, PostsItemTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
 
     const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
-    
+
     const unreadComments = this.hasUnreadComments()
 
     const renderComments = showComments || (defaultToShowUnreadComments && unreadComments)
@@ -329,9 +329,9 @@ class PostsItem2 extends PureComponent {
         <CloseIcon onClick={() => dismissRecommendation()}/>
       </Tooltip>
     )
-    
+
     const cloudinaryCloudName = getSetting('cloudinary.cloudName', 'lesswrong-2-0')
-    
+
     return (
       <div className={classes.root} ref={this.postsItemRef}>
         <div className={classNames(
@@ -353,7 +353,7 @@ class PostsItem2 extends PureComponent {
             <Link to={postLink} className={classes.title}>
               <PostsItemTitle post={post} postItem2 expandOnHover={!renderComments} read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
             </Link>
-            
+
             {(resumeReading?.sequence || resumeReading?.collection) &&
               <div className={classes.nextUnreadIn}>
                 {resumeReading.numRead ? "Next unread in " : "First post in "}<Link to={
@@ -379,7 +379,7 @@ class PostsItem2 extends PureComponent {
             {showPostedAt && !resumeReading && <Components.PostsItemDate post={post}/>}
 
             <div className={classes.mobileSecondRowSpacer}/>
-            
+
             {<div className={classes.mobileActions}>
               {!resumeReading && <PostsPageActions post={post} menuClassName={classes.actionsMenu} />}
             </div>}
@@ -395,7 +395,7 @@ class PostsItem2 extends PureComponent {
                 unreadComments={unreadComments}
               />
             </div>}
-            
+
             <div className={classes.mobileDismissButton}>
               {dismissButton}
             </div>
@@ -411,12 +411,12 @@ class PostsItem2 extends PureComponent {
                 />
               </div>}
           </div>
-          
+
           {<div className={classes.actions}>
             {dismissButton}
             {!resumeReading && <PostsPageActions post={post} vertical menuClassName={classes.actionsMenu} />}
           </div>}
-          
+
           {renderComments && <div className={classes.newCommentsSection} onClick={() => this.toggleComments(true)}>
             <Components.PostsItemNewCommentsWrapper
               currentUser={currentUser}
