@@ -244,6 +244,7 @@ const styles = (theme) => ({
       marginTop: 0,
       marginBottom: 0,
       position: "absolute",
+      overflow: 'hidden',
       right: 0,
       bottom: 0,
       height: "100%",
@@ -265,6 +266,7 @@ const styles = (theme) => ({
     width: 146,
     [theme.breakpoints.down('sm')]: {
       height: "100%",
+      width: 'auto'
     },
   }
 })
@@ -394,6 +396,7 @@ class PostsItem2 extends PureComponent {
                 onClick={() => this.toggleComments(false)}
                 unreadComments={unreadComments}
               />
+
             </div>}
 
             <div className={classes.mobileDismissButton}>
