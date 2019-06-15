@@ -15,6 +15,10 @@ export const styles = theme => ({
   gridContent: {
     marginLeft: -15,
     marginRight: -24,
+    [theme.breakpoints.down('md')]: {
+      marginLeft: 0,
+      marginRight: 0
+    },
     paddingRight: 6,
     [legacyBreakpoints.maxTiny]: {
       paddingLeft: 0,
