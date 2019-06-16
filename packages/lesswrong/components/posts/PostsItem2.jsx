@@ -175,10 +175,6 @@ const styles = (theme) => ({
       display: "none"
     }
   },
-  actionsMenu: {
-    position: "absolute",
-    top: 0,
-  },
   mobileSecondRowSpacer: {
     [theme.breakpoints.up('md')]: {
       display: "none",
@@ -383,7 +379,7 @@ class PostsItem2 extends PureComponent {
             <div className={classes.mobileSecondRowSpacer}/>
 
             {<div className={classes.mobileActions}>
-              {!resumeReading && <PostsPageActions post={post} menuClassName={classes.actionsMenu} />}
+              {!resumeReading && <PostsPageActions post={post} />}
             </div>}
 
             {showIcons && <Hidden mdUp implementation="css">
@@ -417,7 +413,7 @@ class PostsItem2 extends PureComponent {
 
           {<div className={classes.actions}>
             {dismissButton}
-            {!resumeReading && <PostsPageActions post={post} vertical menuClassName={classes.actionsMenu} />}
+            {!resumeReading && <PostsPageActions post={post} vertical />}
           </div>}
 
           {renderComments && <div className={classes.newCommentsSection} onClick={() => this.toggleComments(true)}>
