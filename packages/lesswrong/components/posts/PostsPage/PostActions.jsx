@@ -143,19 +143,15 @@ class PostActions extends Component {
     )
   }
 }
-const withUpdateOptions = {
-  collection: Posts,
-  fragmentName: 'PostsList',
-};
-
-const setAlignmentOptions = {
-  fragmentName: "PostsList"
-}
-
-
 
 registerComponent('PostActions', PostActions,
   withStyles(styles, {name: "PostActions"}),
   withUser,
-  [withUpdate, withUpdateOptions],
-  [withSetAlignmentPost, setAlignmentOptions])
+  [withUpdate, {
+    collection: Posts,
+    fragmentName: 'PostsList',
+  }],
+  [withSetAlignmentPost, {
+    fragmentName: "PostsList"
+  }]
+)
