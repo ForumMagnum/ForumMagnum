@@ -126,17 +126,6 @@ const styles = (theme) => ({
       marginLeft: 0,
     }
   },
-  postedAt: {
-    '&&': {
-      width: POSTED_AT_WIDTH,
-      fontWeight: 300,
-      fontSize: "1rem",
-      color: "rgba(0,0,0,.9)",
-      [theme.breakpoints.down('sm')]: {
-        width: "auto",
-      }
-    }
-  },
   newCommentsSection: {
     width: "100%",
     paddingLeft: theme.spacing.unit*2,
@@ -147,10 +136,6 @@ const styles = (theme) => ({
     [theme.breakpoints.down('sm')]: {
       padding: 0,
     }
-  },
-  closeComments: {
-    color: theme.palette.grey[500],
-    textAlign: "right",
   },
   commentsIcon: {
     width: COMMENTS_WIDTH,
