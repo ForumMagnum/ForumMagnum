@@ -139,7 +139,6 @@ import '../components/posts/PostsItemCuratedIcon.jsx';
 import '../components/posts/PostsItemPersonalIcon.jsx';
 import '../components/posts/PostsItemAlignmentIcon.jsx';
 import '../components/posts/PostsPage';
-import '../components/posts/PostsPageAdminActions.jsx';
 import '../components/posts/PostsSingleSlug.jsx';
 import '../components/posts/PostsSingleRoute.jsx';
 import '../components/posts/PostsSingleSlugWrapper.jsx';
