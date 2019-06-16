@@ -2,6 +2,7 @@ import { registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
+import MenuItem from '@material-ui/core/MenuItem';
 
 class DeleteDraft extends Component {
 
@@ -18,13 +19,13 @@ class DeleteDraft extends Component {
   }
 
   render() {
-    const { currentUser, post, Container } = this.props;
+    const { currentUser, post } = this.props;
     if (currentUser && Posts.canDelete(currentUser, post)) {
       return <div onClick={this.handleDelete}>
-              <Container>
-                Delete Post
-              </Container>
-            </div>
+        <MenuItem>
+          Delete Post
+        </MenuItem>
+      </div>
     } else {
       return null
     }

@@ -83,7 +83,7 @@ class PostActions extends Component {
   }
 
   render() {
-    const { classes, post, Container, currentUser } = this.props
+    const { classes, post, currentUser } = this.props
     const { MoveToDraft, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft } = Components
     return (
       <div className={classes.actions}>
@@ -101,44 +101,44 @@ class PostActions extends Component {
           <span>
             { !post.meta &&
               <div onClick={this.handleMoveToMeta}>
-                <Container>
+                <MenuItem>
                   Move to Meta
-                </Container>
+                </MenuItem>
               </div>
             }
             { !post.frontpageDate &&
               <div onClick={this.handleMoveToFrontpage}>
-                <Container>
+                <MenuItem>
                   Move to Frontpage
-                </Container>
+                </MenuItem>
               </div>
             }
             { (post.frontpageDate || post.meta || post.curatedDate) &&
                <div onClick={this.handleMoveToPersonalBlog}>
-                 <Container>
+                 <MenuItem>
                    Move to Personal Blog
-                 </Container>
+                 </MenuItem>
                </div>
             }
           </span>
         }
-        <SuggestAlignment post={post} Container={Container}/>
+        <SuggestAlignment post={post}/>
         { Users.canMakeAlignmentPost(currentUser, post) &&
           !post.af && <div onClick={this.handleMoveToAlignmentForum }>
-            <Container>
+            <MenuItem>
               Ω Move to Alignment
-            </Container>
+            </MenuItem>
           </div>}
         { Users.canMakeAlignmentPost(currentUser, post) && post.af &&
           <div onClick={this.handleRemoveFromAlignmentForum}>
-            <Container>
+            <MenuItem>
               Ω Remove Alignment
-            </Container>
+            </MenuItem>
           </div>
         }
-        <SuggestCurated post={post} Container={Container}/>
-        <MoveToDraft post={post} Container={Container}/>
-        <DeleteDraft post={post} Container={Container}/>
+        <SuggestCurated post={post}/>
+        <MoveToDraft post={post}/>
+        <DeleteDraft post={post}/>
       </div>
     )
   }

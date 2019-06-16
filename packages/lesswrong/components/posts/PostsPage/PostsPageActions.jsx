@@ -4,7 +4,6 @@ import { registerComponent, Components } from 'meteor/vulcan:core';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Popover from '@material-ui/core/Popover';
-import MenuItem from '@material-ui/core/MenuItem';
 import { Posts } from '../../../lib/collections/posts';
 import Users from 'meteor/vulcan:users'
 import withUser from '../../common/withUser'
@@ -54,7 +53,7 @@ class PostsPageActions extends PureComponent {
           anchorOrigin={{horizontal: 'left', vertical: 'top'}}
           onClose={this.handleClose}
         >
-          <Components.PostActions Container={MenuItem} post={post}/>
+          <Components.PostActions post={post}/>
         </Popover>
       </span>
     )
