@@ -6,8 +6,7 @@ import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { Utils } from 'meteor/vulcan:core';
 import GraphQLJSON from 'graphql-type-json';
 import { schemaDefaultValue } from '../../collectionUtils';
-import { getWithCustomLoader } from '../../loaders.js';
-import keyBy from 'lodash/keyBy';
+import { getWithLoader } from '../../loaders.js';
 
 export const formGroups = {
   adminOptions: {
@@ -138,27 +137,39 @@ addFieldsDict(Posts, {
     insertableBy: ['admins'],
     group: formGroups.adminOptions
   },
+ 
 
   // lastVisitedAt: If the user is logged in and has viewed this post, the date
   // they last viewed it. Otherwise, null.
   lastVisitedAt: resolverOnlyField({
     type: Date,
     viewableBy: ['guests'],
-    resolver: async (post, args, { ReadStatuses, LWEvents, currentUser }) => {
+    resolver: async (post, args, { ReadStatuses, currentUser }) => {
       if (!currentUser) return null;
 
-      return await getWithCustomLoader(ReadStatuses, `postsReadByUser${currentUser._id}`, post._id,
-        async postIDs => {
-          const readDates = await ReadStatuses.find({
-            userId: currentUser._id,
-            postId: {$in: postIDs},
-            isRead: true,
-          }, {postId:1, lastUpdated:1}).fetch();
-
-          const readDateByPostID = keyBy(readDates, ev=>ev.postId);
-          return postIDs.map(postID => readDateByPostID[postID] ? readDateByPostID[postID].lastUpdated : null);
-        }
+      const readStatus = await getWithLoader(ReadStatuses,
+        `readStatuses`,
+        { userId: currentUser._id },
+        'postId', post._id
       );
+      if (!readStatus.length) return null;
+      return readStatus[0].lastUpdated;
+    }
+  }),
+  
+  isRead: resolverOnlyField({
+    type: Boolean,
+    viewableBy: ['guests'],
+    resolver: async (post, args, { ReadStatuses, currentUser }) => {
+      if (!currentUser) return false;
+      
+      const readStatus = await getWithLoader(ReadStatuses,
+        `readStatuses`,
+        { userId: currentUser._id },
+        'postId', post._id
+      );
+      if (!readStatus.length) return false;
+      return readStatus[0].isRead;
     }
   }),
 

@@ -14,8 +14,6 @@ import PropTypes from 'prop-types';
 import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
 
-import { POSTED_AT_WIDTH } from './PostsItemDate.jsx';
-
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 export const COMMENTS_WIDTH = 48
@@ -286,12 +284,10 @@ class PostsItem2 extends PureComponent {
 
   hasUnreadComments = () => {
     const { post } = this.props
-    const { lastVisitedAt } = post
     const { readComments } = this.state
     const lastCommentedAt = Posts.getLastCommentedAt(post)
-    const read = lastVisitedAt;
-    const newComments = lastVisitedAt < lastCommentedAt;
-    return (read && newComments && !readComments)
+    const newComments = post.lastVisitedAt < lastCommentedAt;
+    return (post.isRead && newComments && !readComments)
   }
 
   render() {
@@ -334,7 +330,7 @@ class PostsItem2 extends PureComponent {
             </PostsItem2MetaInfo>
 
             <Link to={postLink} className={classes.title}>
-              <PostsItemTitle post={post} postItem2 expandOnHover={!renderComments} read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
+              <PostsItemTitle post={post} postItem2 expandOnHover={!renderComments} read={post.isRead} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
             </Link>
 
             {(resumeReading?.sequence || resumeReading?.collection) &&

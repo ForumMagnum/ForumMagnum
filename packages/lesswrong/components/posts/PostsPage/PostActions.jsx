@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { withStyles } from '@material-ui/core/styles';
-import { registerComponent, Components, withUpdate } from 'meteor/vulcan:core';
+import { registerComponent, Components, withUpdate, withMutation } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users'
 import withUser from '../../common/withUser'
 import { Posts } from '../../../lib/collections/posts';
@@ -27,6 +27,20 @@ const styles = theme => ({
 
 class PostActions extends Component {
 
+  handleMarkAsRead = () => {
+    this.props.markAsReadOrUnread({
+      postId: this.props.post._id,
+      isRead: true,
+    });
+  }
+  
+  handleMarkAsUnread = () => {
+    this.props.markAsReadOrUnread({
+      postId: this.props.post._id,
+      isRead: false,
+    });
+  }
+  
   handleMoveToMeta = () => {
     const { post, updatePost } = this.props
     updatePost({
@@ -87,6 +101,19 @@ class PostActions extends Component {
     const { MoveToDraft, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft } = Components
     return (
       <div className={classes.actions}>
+        { post.isRead
+          ? <div onClick={this.handleMarkAsUnread}>
+              <MenuItem>
+                Mark as Unread
+              </MenuItem>
+            </div>
+          : <div onClick={this.handleMarkAsRead}>
+              <MenuItem>
+                Mark as Read
+              </MenuItem>
+            </div>
+        }
+        
         { Posts.canEdit(currentUser,post) && <Link to={{pathname:'/editPost', query:{postId: post._id, eventForm: post.isEvent}}}>
           <MenuItem>
             <ListItemIcon>
@@ -153,5 +180,9 @@ registerComponent('PostActions', PostActions,
   }],
   [withSetAlignmentPost, {
     fragmentName: "PostsList"
+  }],
+  [withMutation, {
+    name: 'markAsReadOrUnread',
+    args: {postId: 'String', isRead: 'Boolean'},
   }]
-)
+);

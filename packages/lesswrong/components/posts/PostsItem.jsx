@@ -339,7 +339,7 @@ class PostsItem extends Component {
     let commentCount = Posts.getCommentCount(post)
 
     const renderCommentsButton = () => {
-      const read = lastVisitedAt;
+      const read = post.isRead;
       const newComments = lastVisitedAt < lastCommentedAt;
       const commentsButtonClassnames = classNames(
         classes.commentsSpeechBubble,
@@ -381,10 +381,10 @@ class PostsItem extends Component {
 
             <div className={classes.content}>
               <Link to={this.getPostLink()}>
-                <Components.PostsItemTitle post={post} sticky={isSticky(post, terms)} read={lastVisitedAt || this.state.readStatus}/>
+                <Components.PostsItemTitle post={post} sticky={isSticky(post, terms)} read={post.isRead || this.state.readStatus}/>
               </Link>
               <div onClick={this.toggleHighlight} className={classes.meta}>
-                <Components.PostsItemMeta post={post} read={lastVisitedAt || this.state.readStatus}/>
+                <Components.PostsItemMeta post={post} read={post.isRead || this.state.readStatus}/>
                 <Components.ShowOrHideHighlightButton
                   className={classes.showHighlightButton}
                   open={this.state.showHighlight}/>
@@ -395,7 +395,7 @@ class PostsItem extends Component {
             </div>
             <Components.CategoryDisplay
               onClick={this.toggleHighlight}
-              post={post} read={lastVisitedAt || this.state.readStatus}/>
+              post={post} read={post.isRead || this.state.readStatus}/>
 
             { renderCommentsButton() }
 

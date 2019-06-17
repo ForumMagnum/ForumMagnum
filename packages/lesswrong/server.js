@@ -50,6 +50,7 @@ import './server/posts/index.js';
 
 import './server/debouncer.js';
 import './server/logging.js';
+import './server/markAsUnread.js';
 import './server/rss.js';
 import './server/akismet.js';
 import './server/votingCron.js';
