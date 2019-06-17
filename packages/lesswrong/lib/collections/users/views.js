@@ -83,6 +83,7 @@ Users.addView("sunshineNewUsers", function () {
         { voteCount: {$gt: 12}},
         { commentCount: {$gt: 0}},
         { postCount: {$gt: 0}, ...reCaptchaSelector},
+        { bio: {$exists: true}},
       ],
       reviewedByUserId: {$exists: false},
       banned: {$exists: false},
