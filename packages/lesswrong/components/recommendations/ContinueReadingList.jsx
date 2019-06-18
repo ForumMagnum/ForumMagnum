@@ -2,10 +2,20 @@ import React, { Component } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
 import { withDismissRecommendation } from './withDismissRecommendation';
+import { Link } from '../../lib/reactRouterWrapper.js'
+
+const MAX_ENTRIES = 3;
 
 class ContinueReadingList extends Component {
   state = {
-    dismissedRecommendations: {}
+    dismissedRecommendations: {},
+    showAll: false,
+  }
+  
+  showAll = () => {
+    this.setState({
+      showAll: true
+    });
   }
   
   dismissAndHideRecommendation(postId) {
@@ -20,27 +30,38 @@ class ContinueReadingList extends Component {
   
   limitResumeReading(resumeReadingList) {
     const { dismissedRecommendations } = this.state;
+    
     // Filter out dismissed recommendations
     const filtered = _.filter(resumeReadingList, r=>!dismissedRecommendations[r.nextPost._id]);
+    
     // Sort by last-interaction time
     let sorted = _.sortBy(filtered, r=>r.lastReadTime);
     sorted.reverse(); //in-place
+    
     // Limit to the three most recent
-    const maxEntries = 3;
-    if (sorted.length < maxEntries) return sorted;
-    return sorted.slice(0, maxEntries);
+    if (this.state.showAll || sorted.length <= MAX_ENTRIES) {
+      return {
+        entries: sorted,
+        showAllLink: false,
+      };
+    } else {
+      return {
+        entries: sorted.slice(0, MAX_ENTRIES),
+        showAllLink: true,
+      }
+    }
   }
   
   render() {
     const { continueReading, continueReadingLoading } = this.props;
-    const { PostsItem2, PostsLoading } = Components;
+    const { PostsItem2, PostsLoading, SectionFooter } = Components;
     if (continueReadingLoading || !continueReading)
       return <PostsLoading/>
     
-    const resumeReadingList = this.limitResumeReading(continueReading);
+    const { entries, showAllLink } = this.limitResumeReading(continueReading);
     
     return <div>
-      {resumeReadingList.map(resumeReading => {
+      {entries.map(resumeReading => {
         const { nextPost, sequence, collection } = resumeReading;
         return <PostsItem2
           post={nextPost}
@@ -50,6 +71,11 @@ class ContinueReadingList extends Component {
           key={sequence?._id || collection?._id}
         />
       })}
+      {showAllLink && <SectionFooter>
+        <Link onClick={this.showAll}>
+          Show All
+        </Link>
+      </SectionFooter>}
     </div>
   }
 }
