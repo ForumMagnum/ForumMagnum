@@ -63,4 +63,4 @@ registerSetting('hideUnreviewedAuthorComments', false, 'Hide comments by unrevie
 
 // LogRocket settings
 registerSetting('logRocket.apiKey', null, 'LogRocket API Key')
-registerSetting('logRocket.sampleDensity', 5, '1/n value of what fraction of logged-out users to track')
+registerSetting('logRocket.sampleDensity', 5, 'Tracking 1 of n users (1 means all users are tracked)')
