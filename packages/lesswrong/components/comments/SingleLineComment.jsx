@@ -119,7 +119,7 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover}) => {
           </span>
         </Tooltip>
         <span className={classes.username}>
-          {comment.answer && "Answer by "}{comment.user.displayName}
+          {comment.answer && "Answer by "}{comment.user?.displayName || "[deleted]"}
         </span>
         <span className={classes.date}>
           <Components.FormatDate date={comment.postedAt}/>
