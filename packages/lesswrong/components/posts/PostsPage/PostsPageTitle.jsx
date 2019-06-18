@@ -15,7 +15,7 @@ const styles = theme => ({
     [theme.breakpoints.down('sm')]: {
       fontSize: '2.5rem',
     },
-    lineHeight: '1.5em'
+    lineHeight: '1.25em'
   },
   draft: {
     color: theme.palette.grey[500]
