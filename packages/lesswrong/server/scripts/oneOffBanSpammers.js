@@ -1,3 +1,4 @@
+/* global Vulcan */
 import { wrapVulcanAsyncScript } from './utils'
 import { runCallbacksAsync } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users'
@@ -39,6 +40,7 @@ Vulcan.oneOffBanSpammers = wrapVulcanAsyncScript(
         {signUpReCaptchaRating: {$lt: 0.4}},
       ]
     })
+    // eslint-disable-next-line no-console
     console.log('Spammer count', spammers.count())
     for (const spammer of spammers) {
       await banUser(spammer)
