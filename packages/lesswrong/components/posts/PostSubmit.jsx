@@ -45,7 +45,7 @@ const styles = theme => ({
 
 class PostSubmit extends PureComponent {
   render() {
-    const { submitLabel = "Submit", cancelLabel = "Cancel", cancelCallback, document, collectionName, classes } = this.props
+    const { submitLabel = "Submit", cancelLabel = "Cancel", saveDraftLabel = "Save as draft", cancelCallback, document, collectionName, classes } = this.props
     const { updateCurrentValues } = this.context
 
     return (
@@ -68,7 +68,7 @@ class PostSubmit extends PureComponent {
           className={classNames(classes.formButton, classes.secondaryButton, classes.draft)}
           onClick={() => updateCurrentValues({draft: true})}
         >
-          Save as draft
+          {saveDraftLabel}
         </Button>
 
         <Button

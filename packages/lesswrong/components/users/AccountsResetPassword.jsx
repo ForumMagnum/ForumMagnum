@@ -11,7 +11,7 @@ class AccountsResetPassword extends PureComponent {
   }
 
   render() {
-    return <Components.AccountsLoginForm formState={ STATES.PASSWORD_CHANGE }/>
+    return <Components.WrappedLoginForm formState={ STATES.PASSWORD_CHANGE }/>
   }
 }
 

@@ -7,7 +7,7 @@ import { withRouter } from '../../lib/reactRouterWrapper.js';
 const PostsSingleSlug = ({results, loading, router}) => {
   const version = router.location && router.location.query && router.location.query.revision
   if (results && results.length>0 && results[0]._id) {
-    return <Components.PostsPage documentId={results[0]._id } version={version} />
+    return <Components.PostsPage documentId={results[0]._id } sequenceId={null} version={version} />
   } else {
     return loading ? <Components.Loading/> : <Error404 />
   }

@@ -46,6 +46,13 @@ Posts.addDefaultView(terms => {
   if (terms.filter === "frontpage") {
     params.selector.frontpageDate = {$gt: new Date(0)}
   }
+  if (terms.filter === 'frontpageAndMeta') {
+    // NB: currently only used on EA Forum
+    params.selector.$or = [
+      {frontpageDate: {$gt: new Date(0)}},
+      {meta: true}
+    ]
+  }
   if (terms.filter === "all") {
     params.selector.groupId = null
   }
@@ -77,7 +84,7 @@ export function augmentForDefaultView(indexFields)
  */
 
 Posts.addView("userPosts", terms => ({
-  selector: { 
+  selector: {
     userId: viewFieldAllowAny,
     hiddenRelatedQuestion: viewFieldAllowAny,
     groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
@@ -590,6 +597,7 @@ Posts.addView("sunshineNewPosts", function () {
     selector: {
       reviewedByUserId: {$exists: false},
       frontpageDate: viewFieldNullOrMissing,
+      meta: false,
     },
     options: {
       sort: {
@@ -599,7 +607,7 @@ Posts.addView("sunshineNewPosts", function () {
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ status:1, reviewedByUserId:1, frontpageDate: 1, authorIsUnreviewed:1 }),
+  augmentForDefaultView({ status:1, reviewedByUserId:1, frontpageDate: 1, authorIsUnreviewed:1, meta: 1 }),
   { name: "posts.sunshineNewPosts" }
 );
 

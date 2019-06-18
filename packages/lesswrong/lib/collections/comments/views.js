@@ -7,14 +7,22 @@ import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionU
 // Auto-generated indexes from production
 
 Comments.addDefaultView(terms => {
-  const validFields = _.pick(terms, 'userId');
+  const validFields = _.pick(terms, 'userId', 'authorIsUnreviewed');
+
   const alignmentForum = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
+  // We set `{$ne: true}` instead of `false` to allow for comments that haven't
+  // had the default value set yet (ie: those created by the frontend
+  // immediately prior to appearing)
+  const hideUnreviewedAuthorComments = getSetting('hideUnreviewedAuthorComments')
+    ? {authorIsUnreviewed: {$ne: true}}
+    : {}
   return ({
     selector: {
       $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: false}],
       hideAuthor: terms.userId ? false : undefined,
-      ...validFields,
       ...alignmentForum,
+      ...hideUnreviewedAuthorComments,
+      ...validFields,
     },
     options: {
       sort: {postedAt: -1},
@@ -26,7 +34,7 @@ export function augmentForDefaultView(indexFields)
 {
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,
-    prefix: {},
+    prefix: {authorIsUnreviewed: 1},
     suffix: {deleted:1, deletedPublic:1, hideAuthor:1, userId:1, af:1},
   });
 }
@@ -228,6 +236,8 @@ Comments.addView("sunshineNewUsersComments", function (terms) {
       userId: terms.userId,
       // Don't hide deleted
       $or: null,
+      // Don't hide unreviewed comments
+      authorIsUnreviewed: null
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };

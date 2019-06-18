@@ -5,6 +5,7 @@ import { Link, withRouter } from '../../lib/reactRouterWrapper.js';
 import { Snippet} from 'react-instantsearch-dom';
 import { withStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
+import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
     root: {
@@ -29,9 +30,9 @@ const PostsSearchHit = ({hit, clickAction, router, classes}) => {
       to={Posts.getPageUrl(hit)}
       target={Posts.getLinkTarget(hit)}
     >
-        <div>
-          <Components.PostsItemTitle post={hit} />
-        </div>
+        <Typography variant="title">
+          {hit.title}
+        </Typography>
         {hit.authorDisplayName && <Components.MetaInfo>
           {hit.authorDisplayName}
         </Components.MetaInfo>}

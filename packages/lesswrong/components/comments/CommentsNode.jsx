@@ -70,6 +70,10 @@ const styles = theme => ({
       borderBottom: "solid 1px rgba(0,0,0,.2)",
     }
   },
+  commentHidden: {
+    border: "none !important",
+    background: "none"
+  },
 })
 
 class CommentsNode extends Component {
@@ -180,21 +184,20 @@ class CommentsNode extends Component {
   }
 
   isSingleLine = () => {
-    const { currentUser, comment, condensed, recentDiscussionExpandedId } = this.props 
-    
-    const newAndMostRecent = (this.isNewComment() && (!condensed || (recentDiscussionExpandedId === comment._id)))
+    const { currentUser, comment, condensed, lastCommentId } = this.props 
+    const mostRecent = (!condensed || (lastCommentId === comment._id))
     const lowKarmaOrCondensed = (comment.baseScore < 10 || condensed) 
     return (
-      currentUser?.isAdmin &&
+      currentUser?.beta &&
       this.isTruncated() && 
-      !newAndMostRecent && 
+      !mostRecent && 
       lowKarmaOrCondensed
     )
     
   }
 
   render() {
-    const { comment, children, nestingLevel=1, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, parentAnswerId, condensed, markAsRead, recentDiscussionExpandedId } = this.props;
+    const { comment, children, nestingLevel=1, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments } = this.props;
 
     const { SingleLineComment, CommentsItem } = Components
 
@@ -204,6 +207,8 @@ class CommentsNode extends Component {
     const { hover, collapsed, finishedScroll } = this.state
 
     const newComment = this.isNewComment()
+
+    const hiddenReadComment = hideReadComments && !newComment
 
     const nodeClass = classNames(
       "comments-node",
@@ -223,7 +228,7 @@ class CommentsNode extends Component {
         "comments-node-seriously-what-the-fuck": nestingLevel > 32,
         "comments-node-are-you-curi-and-lumifer-specifically": nestingLevel > 36,
         "comments-node-cuz-i-guess-that-makes-sense-but-like-really-tho": nestingLevel > 40,
-        [classes.child]: child,
+        [classes.child]: child && (!hideReadComments || comment.children?.length),
         [classes.new]: newComment,
         [classes.newHover]: newComment && hover,
         [classes.deleted]: comment.deleted,
@@ -232,12 +237,13 @@ class CommentsNode extends Component {
         [classes.childAnswerComment]: child && parentAnswerId,
         [classes.oddAnswerComment]: (nestingLevel % 2 !== 0) && parentAnswerId,
         [classes.answerLeafComment]: !(children && children.length),
-        [classes.isSingleLine]: this.isSingleLine()
+        [classes.isSingleLine]: this.isSingleLine(),
+        [classes.commentHidden]: hiddenReadComment,
       }
     )
 
     const passedThroughItemProps = { post, postPage, comment, editMutation, nestingLevel, showPostTitle, collapsed }
-    const passedThroughNodeProps = { post, postPage, unreadComments, recentDiscussionExpandedId, markAsRead, muiTheme, highlightDate, editMutation, condensed }
+    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, editMutation, condensed, hideReadComments}
 
     return (
       <div className={newComment ? "comment-new" : "comment-old"}>
@@ -247,7 +253,7 @@ class CommentsNode extends Component {
           onClick={(event) => this.unTruncate(event)}
           id={comment._id}>
           {/*eslint-disable-next-line react/no-string-refs*/}
-          <div ref="comment">
+          {!hiddenReadComment && <div ref="comment">
             {this.isSingleLine() ? <SingleLineComment comment={comment} nestingLevel={nestingLevel} />
               : <CommentsItem
               truncated={this.isTruncated()}
@@ -258,7 +264,7 @@ class CommentsNode extends Component {
 
               { ...passedThroughItemProps}
             />}
-          </div>
+          </div>}
           {!collapsed && <div className="comments-children">
             <div className={classes.parentScroll} onClick={this.scrollIntoView}></div>
             {children && children.map(child =>
@@ -270,7 +276,7 @@ class CommentsNode extends Component {
                 //eslint-disable-next-line react/no-children-prop
                 children={child.children}
                 key={child.item._id}
-
+                
                 { ...passedThroughNodeProps}
               />)}
           </div>}

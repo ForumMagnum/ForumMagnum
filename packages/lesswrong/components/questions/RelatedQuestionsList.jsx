@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import withErrorBoundary from '../common/withErrorBoundary';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles'
+import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
@@ -42,6 +43,8 @@ const styles = theme => ({
   },
   subQuestion: {
     marginBottom: theme.spacing.unit,
+  },
+  hasSubSubQuestions: {
     borderLeft: "solid 2px rgba(0,0,0,.15)"
   },
   subSubQuestions: {
@@ -84,14 +87,16 @@ const RelatedQuestionsList = ({ post, currentUser, classes }) => {
 
         const showSubQuestions = subQuestionTargetPostRelations.length >= 1
         return (
-          <div key={rel._id} className={classes.subQuestion} >
+          <div key={rel._id} className={classNames(classes.subQuestion, {[classes.hasSubSubQuestions]:showSubQuestions})} >
             <PostsItem2 
               post={rel.targetPost} 
               currentUser={currentUser} 
               index={i}
               showQuestionTag={false}
               showPostedAt={false}
+              showIcons={false}
               showBottomBorder={!showSubQuestions}
+              defaultToShowUnreadComments={true}
             />
             {showSubQuestions && <div className={classes.subSubQuestions}>
               {subQuestionTargetPostRelations.map((rel, i) => <PostsItem2 
@@ -99,7 +104,9 @@ const RelatedQuestionsList = ({ post, currentUser, classes }) => {
                 post={rel.targetPost} 
                 showQuestionTag={false}
                 showPostedAt={false}
+                showIcons={false}
                 currentUser={currentUser} 
+                defaultToShowUnreadComments={true}
                 index={i}
               />)}
             </div>}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 import Typography from '@material-ui/core/Typography';
@@ -56,11 +56,11 @@ const SequencesHome = ({classes}) => {
       </div>
     </SingleColumnSection>
 
-    <SingleColumnSection>
+    {getSetting('forumType') === 'LessWrong' && <SingleColumnSection>
       <SectionTitle title="Core Reading" />
       <Components.CoreReading />
       <Divider />
-    </SingleColumnSection>
+    </SingleColumnSection>}
 
     <SingleColumnSection>
       <SectionTitle title="Curated Sequences" />

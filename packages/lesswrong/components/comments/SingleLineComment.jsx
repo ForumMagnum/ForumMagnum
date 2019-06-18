@@ -103,7 +103,7 @@ const styles = theme => ({
 
 const SingleLineComment = ({comment, classes, nestingLevel, hover}) => {
   const { voteCount, baseScore } = comment
-  const { CommentBody, ShowParentComment } = Components
+  const { BetaTag, CommentBody, ShowParentComment } = Components
   
   const singleLineHtml = commentExcerptFromHTML(comment)
   const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile()
@@ -119,7 +119,7 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover}) => {
           </span>
         </Tooltip>
         <span className={classes.username}>
-          {comment.user.displayName}
+          {comment.answer && "Answer by "}{comment.user.displayName}
         </span>
         <span className={classes.date}>
           <Components.FormatDate date={comment.postedAt}/>
@@ -127,6 +127,7 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover}) => {
         {(comment.baseScore > -5) && <span className={classes.truncatedHighlight} dangerouslySetInnerHTML={{__html: singleLineHtml}} />}      </div>
       {displayHoverOver && <span className={classNames(classes.highlight)}>
         <CommentBody truncated comment={comment}/>
+        <BetaTag />
       </span>}
     </div>
   )

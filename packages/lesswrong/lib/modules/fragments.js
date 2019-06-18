@@ -14,6 +14,8 @@ registerFragment(`
     participants {
       ...UsersMinimumInfo
     }
+    archivedByIds
+    messageCount
   }
 `);
 
@@ -62,6 +64,7 @@ extendFragment('UsersCurrent', `
   ...UsersMinimumInfo
   voteBanned
   banned
+  isReviewed
   nullifyVotes
   hideIntercom
   currentFrontpageFilter
@@ -320,6 +323,7 @@ registerFragment(`
     # vulcan:users
     _id
     slug
+    oldSlugs
     createdAt
     username
     displayName
@@ -334,6 +338,8 @@ registerFragment(`
     commentCount
     afPostCount 
     afCommentCount
+    beta
+    spamRiskScore
   }
 `);
 
@@ -371,6 +377,7 @@ registerFragment(`
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
+    sunshineShowNewUserContent
   }
 `);
 
@@ -389,6 +396,7 @@ registerFragment(`
     currentFrontpageFilter
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
+    sunshineShowNewUserContent
 
     # Emails
     email

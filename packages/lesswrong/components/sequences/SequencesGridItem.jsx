@@ -1,7 +1,6 @@
 import {
   Components,
   registerComponent,
-  Utils
 } from 'meteor/vulcan:core';
 import NoSSR from 'react-no-ssr';
 import React, { PureComponent } from 'react';
@@ -15,7 +14,6 @@ import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 const styles = theme => ({
   root: {
     ...theme.typography.postStyle,
-    cursor: 'pointer',
 
     width: "33%",
     padding: 15,
@@ -43,9 +41,6 @@ const styles = theme => ({
 
   topWithAuthor: {
     height: 68,
-  },
-
-  link: {
   },
 
   title: {
@@ -82,9 +77,6 @@ const styles = theme => ({
     }
   },
 
-  bottom: {
-  },
-
   image: {
     width: "100%",
     height: 95,
@@ -114,18 +106,14 @@ class SequencesGridItem extends PureComponent {
     return '/s/' + this.props.sequence._id
   }
 
-  handleClick = (event) => {
-    const url = this.getSequenceUrl()
-    const navigate = this.props.router.push
-    Utils.manualClickNavigation(event, url, navigate)
-  }
-
   render() {
     const { sequence, showAuthor=false, classes } = this.props
+    const { LinkCard } = Components;
+    const url = this.getSequenceUrl()
 
-    return <div className={classes.root} onClick={this.handleClick}>
+    return <LinkCard className={classes.root} to={url}>
       <div className={classNames(classes.top, {[classes.topWithAuthor]: showAuthor})} style={{borderTopColor: sequence.color}}>
-        <Link key={sequence._id} className={classes.link} to={this.getSequenceUrl()}>
+        <Link key={sequence._id} to={url}>
           <Typography variant='title' className={classes.title}>
             {sequence.draft && <span className={classes.draft}>[Draft] </span>}
             {sequence.title}
@@ -136,18 +124,16 @@ class SequencesGridItem extends PureComponent {
             by <Components.UsersName user={sequence.user} />
           </div>}
       </div>
-      <div className={classes.bottom}>
-        <div className={classes.image}>
-          <NoSSR>
-            <Components.CloudinaryImage
-              publicId={sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
-              height={124}
-              width={315}
-            />
-          </NoSSR>
-        </div>
+      <div className={classes.image}>
+        <NoSSR>
+          <Components.CloudinaryImage
+            publicId={sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
+            height={124}
+            width={315}
+          />
+        </NoSSR>
       </div>
-    </div>;
+    </LinkCard>;
   }
 }
 

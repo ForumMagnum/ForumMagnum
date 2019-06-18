@@ -1,6 +1,7 @@
 import Messages from './collections/messages/collection.js';
 import Conversations from './collections/conversations/collection.js';
-import { Utils } from 'meteor/vulcan:core';
+import Users from 'meteor/vulcan:users';
+import { Utils, getCollection } from 'meteor/vulcan:core';
 
 
 /**
@@ -8,7 +9,7 @@ import { Utils } from 'meteor/vulcan:core';
 * @param {Object} conversation
 **/
 Conversations.getLink = (conversation) => {
-  return `/inbox?select=${conversation._id}`;
+  return `/inbox/${conversation._id}`;
 };
 
 /**
@@ -16,22 +17,51 @@ Conversations.getLink = (conversation) => {
 * @param {Object} message
 **/
 Messages.getLink = (message) => {
-  return `/inbox?select=${message.conversationId}`;
+  return `/inbox/${message.conversationId}`;
 };
 
-
 /**
-* @summary Navigates user to url, if they did not click on any child link. We need
-* this because sometimes we have nested navigation areas, such as SequencesGridItems,
-* in which the whole item navigates you to the sequences page when clicked, but it also
-* has a link to the author's user page inside of the GridItem. To avoid triggering both
-* events we check whether any parent of the clicked element is an a tag.
-* @param {Event} event
-* @param {String} url
-* @param {Function} navigate
+* @summary Check whether User is subscribed to a document
+* @param {Object} user
+* @param {Object} document
 **/
-Utils.manualClickNavigation = (event, url, navigate) => {
-  if (!event.target.closest('a')) { // Checks whether any parent is a tag (polyfilled for IE and Edge)
-    navigate(url)
+Users.isSubscribedTo = (user, document) => {
+  if (!user || !document) {
+    // should return an error
+    return false;
   }
+
+  const { __typename, _id: itemId } = document;
+  const documentType = Utils.capitalize(Utils.getCollectionNameFromTypename(__typename));
+
+  if (user.subscribedItems && user.subscribedItems[documentType]) {
+    return !!user.subscribedItems[documentType].find(subscribedItems => subscribedItems.itemId === itemId);
+  } else {
+    return false;
+  }
+};
+
+// LESSWRONG version of getting unused slug. Modified to also include "oldSlugs" array
+Utils.getUnusedSlug = function (collection, slug, useOldSlugs = false) {
+  let suffix = '';
+  let index = 0;
+
+  // test if slug is already in use
+  while (!!collection.findOne(useOldSlugs ? {$or: [{slug: slug+suffix},{oldSlugs: slug+suffix}]} : {slug: slug+suffix})) {
+    index++
+    suffix = '-'+index;
+  }
+
+  return slug+suffix;
+};
+
+// LESSWRONG version of getting unused slug by collection name. Modified to also include "oldSlugs" array
+Utils.getUnusedSlugByCollectionName = function (collectionName, slug, useOldSlugs = false) {
+  return Utils.getUnusedSlug(getCollection(collectionName), slug, useOldSlugs)
+};
+
+Utils.slugIsUsed = async (collectionName, slug) => {
+  const collection = getCollection(collectionName)
+  const existingUserWithSlug = await collection.findOne({$or: [{slug: slug},{oldSlugs: slug}]})
+  return !!existingUserWithSlug
 }

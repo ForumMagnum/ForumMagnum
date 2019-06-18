@@ -14,7 +14,7 @@ const SequencesEditForm = (props, context) => {
         removeSuccessCallback={props.removeSuccessCallback}
         showRemove={true}
         queryFragment={getFragment('SequencesEdit')}
-        mutationFragment={getFragment('SequencesPageFragment')}
+        mutationFragment={getFragment('SequencesEdit')}
       />
     </div>
   )

@@ -324,7 +324,7 @@ class PostsItem extends Component {
 
   getPostLink = () => {
    const {post, chapter} = this.props
-   return chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getPageUrl(post)
+   return Posts.getPageUrl(post, false, chapter?.sequenceId);
  }
 
   render() {

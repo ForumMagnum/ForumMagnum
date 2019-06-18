@@ -3,12 +3,12 @@ import React from 'react';
 import withUser from '../common/withUser';
 
 const AllComments = (props, context) => {
+  const { SingleColumnSection, RecentComments, SectionTitle } = Components
   return (
-    <div className="all-posts">
-      <Components.Section title="All Comments">
-        <Components.RecentComments />
-      </Components.Section>
-    </div>
+    <SingleColumnSection>
+      <SectionTitle title="All Comments"/>
+      <RecentComments />
+    </SingleColumnSection>
   )
 };
 

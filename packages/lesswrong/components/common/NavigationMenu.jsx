@@ -101,7 +101,8 @@ const styles = theme => ({
 });
 
 const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
-  const af = getSetting('forumType') === 'AlignmentForum';
+  const isLW = getSetting('forumType') === 'LessWrong';
+  const isAF = getSetting('forumType') === 'AlignmentForum';
 
   const NavigationMenuLink = ({to, label, icon, indent=false}) => (
     <MenuItem
@@ -178,14 +179,14 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
 
       <Divider className={classes.divider}/>
 
-      {!af && <NavigationMenuLink icon={<LocalLibrary/>} to="/library" label="Library"/>}
-      {!af && <NavigationMenuLink indent={true} to="/rationality" label="Rationality: A-Z"/>}
-      {!af && <NavigationMenuLink indent={true} to="/codex" label="The Codex"/>}
-      {!af && <NavigationMenuLink indent={true} to="/hpmor" label="HPMOR"/>}
+      {(isLW || isAF) && <NavigationMenuLink icon={<LocalLibrary/>} to="/library" label="Library"/>}
+      {isLW && <NavigationMenuLink indent={true} to="/rationality" label="Rationality: A-Z"/>}
+      {isLW && <NavigationMenuLink indent={true} to="/codex" label="The Codex"/>}
+      {isLW && <NavigationMenuLink indent={true} to="/hpmor" label="HPMOR"/>}
 
       <Divider className={classes.divider}/>
 
-      {!af && getSetting('hasEvents', true) && <NavigationMenuLink icon={<Public/>} to={"/community"} label="Community Events"/>}
+      {getSetting('hasEvents', true) && <NavigationMenuLink icon={<Public/>} to={"/community"} label="Community Events"/>}
       <NavigationMenuLink icon={<ListAlt/>} to={"/allPosts"} label="All Posts"/>
       <NavigationMenuLink icon={<Details/>} to={"/meta"} label="Meta"/>
       <NavigationMenuLink icon={<span className={classes.about}>?</span>} to={"/about"} label="About"/>

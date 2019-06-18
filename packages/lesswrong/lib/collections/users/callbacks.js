@@ -1,7 +1,9 @@
 import Users from "meteor/vulcan:users";
 import { addCallback, getSetting } from 'meteor/vulcan:core';
 import { Posts } from '../posts'
+import { Comments } from '../comments'
 import request from 'request';
+import { bellNotifyEmailVerificationRequired } from '../../../server/notificationCallbacks.js';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -46,14 +48,15 @@ addCallback("users.edit.sync", maybeSendVerificationEmail);
 
 addEditableCallbacks({collection: Users, options: makeEditableOptionsModeration})
 
-function approveUnreviewedPosts (newUser, oldUser)
+function approveUnreviewedSubmissions (newUser, oldUser)
 {
   if(newUser.reviewedByUserId && !oldUser.reviewedByUserId)
   {
     Posts.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false, postedAt: new Date()}})
+    Comments.update({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false, postedAt: new Date()}})
   }
 }
-addCallback("users.edit.async", approveUnreviewedPosts);
+addCallback("users.edit.async", approveUnreviewedSubmissions);
 
 // When the very first user account is being created, add them to Sunshine
 // Regiment. Patterned after a similar callback in
@@ -115,5 +118,24 @@ async function addReCaptchaRating (user) {
     }
   }
 }
-
 addCallback('users.new.async', addReCaptchaRating);
+
+async function subscribeOnSignup (user) {
+  // If the subscribed-to-curated checkbox was checked, set the corresponding config setting
+  const subscribeToCurated = user.profile?.subscribeToCurated;
+  if (subscribeToCurated) {
+    Users.update(user._id, {$set: {emailSubscribedToCurated: true}});
+  }
+  
+  // Regardless of the config setting, try to confirm the user's email address
+  // (But not in unit-test contexts, where this function is unavailable and sending
+  // emails doesn't make sense.)
+  if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {
+    Accounts.sendVerificationEmail(user._id);
+    
+    if (subscribeToCurated) {
+      bellNotifyEmailVerificationRequired(user);
+    }
+  }
+}
+addCallback('users.new.async', subscribeOnSignup);

@@ -28,6 +28,9 @@ const styles = (theme) => ({
     [theme.breakpoints.down('md')]: {
       position: "unset",
     },
+    "@media print": {
+      display: "none"
+    },
   },
   tabMenu: {
     display: "flex",
@@ -201,7 +204,7 @@ const TabNavigationMenu = ({
               </span>
           </Link>
         </Tooltip>}
-        { getSetting('forumType') !== 'AlignmentForum' && <span>
+        { getSetting('forumType') !== 'AlignmentForum' && <React.Fragment>
           <Tooltip placement="right-start" title={<div>
               <p>
                 LessWrong was founded by Eliezer Yudkowsky. For two years he wrote a blogpost a day about topics including rationality, science, ambition and artificial intelligence.
@@ -237,10 +240,10 @@ const TabNavigationMenu = ({
               </TabNavigationSubItem>
             </Link>
           </Tooltip>
-        </span> }
+        </React.Fragment> }
         
         
-        { getSetting('hasEvents', true) && getSetting('forumType') !== 'AlignmentForum' && <span>
+        { getSetting('hasEvents', true) && getSetting('forumType') !== 'AlignmentForum' && <React.Fragment>
           <Tooltip
             placement="right"
             title={<div>Find a meetup near you.</div>}
@@ -258,7 +261,7 @@ const TabNavigationMenu = ({
           <span className={classes.hideOnMobile}>
             <TabNavigationEventsList terms={eventsListTerms} />
           </span>
-        </span>}
+        </React.Fragment>}
 
         <Tooltip placement="right" title="See all posts, filtered and sorted however you like.">
           <Link to="/allPosts" className={classNames(classes.navButton, {[classes.selected]: pathname === "/allPosts"})}>

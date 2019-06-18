@@ -120,6 +120,16 @@ const schema = {
     optional: true,
     canRead: ['admins'],
   },
+  authorIsUnreviewed: {
+    type: Boolean,
+    optional: true,
+    denormalized: true,
+    ...schemaDefaultValue(false),
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    hidden: true,
+  },
 
   // GraphQL only fields
 

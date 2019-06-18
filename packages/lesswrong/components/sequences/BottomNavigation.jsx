@@ -67,31 +67,27 @@ const styles = theme => ({
   }
 })
 
-const BottomNavigation = ({sequence, chapter, post, previousPost, nextPost, nextTitle, nextLink, collectionTitle, classes}) => {
-  if (nextPost || previousPost) {
-    return <div className={classes.root}>
-      {(previousPost && sequence) ? <div className={classnames(classes.post, classes.prevPost)}>
-        <Components.BottomNavigationItem direction="Previous" post={previousPost} sequence={sequence}/>
-      </div> : null}
-      <div className={classes.divider}></div>
-      {/* TODO: This is currently unreachable (nextTitle is never passed). Hook it up, test the styles, then JSS-ify them. */}
-      {/*nextTitle ?
-        <div className="sequences-navigation-bottom-next-sequence">
-          <Link className="sequences-navigation-next-sequence" to={nextLink || post.nextPageLink}>
-            <div className={classes.nextSequenceDirection}>Next Sequence:</div> {nextTitle || post.nextPageTitle}
-          </Link>
-        </div>
-      :*/}
-      {
-        (nextPost && sequence) ? <div className={classnames(classes.post, classes.nextPost)}>
-          <Components.BottomNavigationItem direction="Next" post={nextPost} sequence={sequence}/>
-        </div> : null
-      }
-      <div className={classes.clear}></div>
-    </div>
-  } else {
-    return null
-  }
+const BottomNavigation = ({post, classes}) => {
+  const { nextPost, prevPost } = post;
+  
+  if (!nextPost && !prevPost)
+    return null;
+  
+  return <div className={classes.root}>
+    {prevPost &&
+      <div className={classnames(classes.post, classes.prevPost)}>
+      <Components.BottomNavigationItem direction="Previous" post={prevPost} sequence={prevPost.sequence}/>
+      </div>}
+    
+    <div className={classes.divider}></div>
+    
+    {nextPost &&
+      <div className={classnames(classes.post, classes.nextPost)}>
+        <Components.BottomNavigationItem direction="Next" post={nextPost} sequence={nextPost.sequence}/>
+      </div>}
+    
+    <div className={classes.clear}></div>
+  </div>
 };
 
 

@@ -1,20 +1,16 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { Link } from '../../lib/reactRouterWrapper.js';
 import withUser from '../common/withUser';
 
-const Meta = ({location, currentUser}, context) => {
+const Meta = ({location, currentUser}) => {
   const query = location ? location.query : {};
   const recentPostsTerms = { view: 'magic', limit: 10, ...query, meta: true, forum: true }
+  const { SingleColumnSection, SectionTitle, PostsList2 } = Components
   return (
-    <div className="home">
-      <Components.Section title="Recent Meta Posts"
-        titleComponent= {<div className="recent-posts-title-component">
-          {currentUser && <div className="new-post-link"><Link to={{pathname:"/newPost", query: {meta: true}}}> new post </Link></div>}
-          </div>} >
-          <Components.PostsList terms={recentPostsTerms} />
-        </Components.Section>
-    </div>
+    <SingleColumnSection>
+      <SectionTitle title="Recent Meta Posts" />
+      <PostsList2 terms={recentPostsTerms} />
+    </SingleColumnSection>
   )
 };
 

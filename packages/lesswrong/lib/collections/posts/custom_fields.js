@@ -1,16 +1,13 @@
 import { Posts } from './collection';
-import { getSetting } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
-import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple, resolverOnlyField, denormalizedCountOfReferences } from '../../modules/utils/schemaUtils'
+import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple, resolverOnlyField, denormalizedCountOfReferences, accessFilterSingle } from '../../modules/utils/schemaUtils'
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { Utils } from 'meteor/vulcan:core';
 import GraphQLJSON from 'graphql-type-json';
-import { Comments } from '../comments'
-import { questionAnswersSort } from '../comments/views';
 import { schemaDefaultValue } from '../../collectionUtils';
-//import { getWithCustomLoader } from '../../loaders.js';
-//import keyBy from 'lodash/keyBy';
+import { getWithCustomLoader } from '../../loaders.js';
+import keyBy from 'lodash/keyBy';
 
 export const formGroups = {
   adminOptions: {
@@ -149,25 +146,19 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     resolver: async (post, args, { ReadStatuses, LWEvents, currentUser }) => {
       if (!currentUser) return null;
-      
-      // Slow method, from the LWEvents table. This is an N+1 select. Switch
-      // after the migration script is run.
-      const event = await LWEvents.findOne({name:'post-view', documentId: post._id, userId: currentUser._id}, {sort:{createdAt:-1}});
-      return event && event.createdAt
-      
-      // Faster method, using the ReadStatuses table.
-      /*return await getWithCustomLoader(ReadStatuses, `postsReadByUser${currentUser._id}`, post._id,
+
+      return await getWithCustomLoader(ReadStatuses, `postsReadByUser${currentUser._id}`, post._id,
         async postIDs => {
           const readDates = await ReadStatuses.find({
             userId: currentUser._id,
             postId: {$in: postIDs},
             isRead: true,
           }, {postId:1, lastUpdated:1}).fetch();
-          
+
           const readDateByPostID = keyBy(readDates, ev=>ev.postId);
           return postIDs.map(postID => readDateByPostID[postID] ? readDateByPostID[postID].lastUpdated : null);
         }
-      );*/
+      );
     }
   }),
 
@@ -383,6 +374,90 @@ addFieldsDict(Posts, {
     control: "text"
   },
 
+  // The next post. If a sequenceId is provided, that sequence must contain this
+  // post, and this returns the next post after this one in that sequence. If
+  // no sequenceId is provided, uses this post's canonical sequence.
+  nextPost: resolverOnlyField({
+    type: "Post",
+    graphQLtype: "Post",
+    viewableBy: ['guests'],
+    graphqlArguments: 'sequenceId: String',
+    resolver: async (post, { sequenceId }, { currentUser, Posts, Sequences }) => {
+      if (sequenceId) {
+        const nextPostID = await Sequences.getNextPostID(sequenceId, post._id);
+        if (nextPostID) {
+          const nextPost = await Posts.loader.load(nextPostID);
+          return accessFilterSingle(currentUser, Posts, nextPost);
+        }
+      }
+      if (post.canonicalNextPostSlug) {
+        const nextPost = await Posts.findOne({ slug: post.canonicalNextPostSlug });
+        return accessFilterSingle(currentUser, Posts, nextPost);
+      }
+      if(post.canonicalSequenceId) {
+        const nextPostID = await Sequences.getNextPostID(post.canonicalSequenceId, post._id);
+        if (!nextPostID) return null;
+        const nextPost = await Posts.loader.load(nextPostID);
+        return accessFilterSingle(currentUser, Posts, nextPost);
+      }
+
+      return null;
+    }
+  }),
+
+  // The previous post. If a sequenceId is provided, that sequence must contain
+  // this post, and this returns the post before this one in that sequence.
+  // If no sequenceId is provided, uses this post's canonical sequence.
+  prevPost: resolverOnlyField({
+    type: "Post",
+    graphQLtype: "Post",
+    viewableBy: ['guests'],
+    graphqlArguments: 'sequenceId: String',
+    resolver: async (post, { sequenceId }, { currentUser, Posts, Sequences }) => {
+      if (sequenceId) {
+        const prevPostID = await Sequences.getPrevPostID(sequenceId, post._id);
+        if (prevPostID) {
+          const prevPost = await Posts.loader.load(prevPostID);
+          return accessFilterSingle(currentUser, Posts, prevPost);
+        }
+      }
+      if (post.canonicalPrevPostSlug) {
+        const prevPost = await Posts.findOne({ slug: post.canonicalPrevPostSlug });
+        return accessFilterSingle(currentUser, Posts, prevPost);
+      }
+      if(post.canonicalSequenceId) {
+        const prevPostID = await Sequences.getPrevPostID(post.canonicalSequenceId, post._id);
+        if (!prevPostID) return null;
+        const prevPost = await Posts.loader.load(prevPostID);
+        return accessFilterSingle(currentUser, Posts, prevPost);
+      }
+
+      return null;
+    }
+  }),
+
+  // A sequence this post is part of. Takes an optional sequenceId; if the
+  // sequenceId is given and it contains this post, returns that sequence.
+  // Otherwise, if this post has a canonical sequence, return that. If no
+  // sequence ID is given and there is no canonical sequence for this post,
+  // returns null.
+  sequence: resolverOnlyField({
+    type: "Sequence",
+    graphQLtype: "Sequence",
+    viewableBy: ['guests'],
+    graphqlArguments: 'sequenceId: String',
+    resolver: async (post, { sequenceId }, { currentUser, Sequences }) => {
+      let sequence = null;
+      if (sequenceId && await Sequences.sequenceContainsPost(sequenceId, post._id)) {
+        sequence = await Sequences.loader.load(sequenceId);
+      } else if (post.canonicalSequenceId) {
+        sequence = await Sequences.loader.load(post.canonicalSequenceId);
+      }
+
+      return accessFilterSingle(currentUser, Sequences, sequence);
+    }
+  }),
+
   // unlisted: If true, the post is not featured on the frontpage and is not
   // featured on the user page. Only accessible via it's ID
   unlisted: {
@@ -397,7 +472,7 @@ addFieldsDict(Posts, {
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
   },
-  
+
   // disableRecommendation: If true, this post will never appear as a
   // recommended post (but will still appear in all other places, ie on its
   // author's profile, in archives, etc).
@@ -412,6 +487,20 @@ addFieldsDict(Posts, {
     label: "Exclude from Recommendations",
     control: "checkbox",
     order: 12,
+    group: formGroups.adminOptions,
+    ...schemaDefaultValue(false),
+  },
+
+  // defaultRecommendation: If true, always include this post in the recommendations
+  defaultRecommendation: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    label: "Include in default recommendations",
+    control: "checkbox",
+    order: 13,
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
   },
@@ -795,60 +884,7 @@ addFieldsDict(Posts, {
       fieldName: "tableOfContents",
       type: GraphQLJSON,
       resolver: async (document, args, options) => {
-        const { html } = document.contents || {}
-        let tocData
-        if (document.question) {
-
-          let answersTerms = {
-            answer:true,
-            postId: document._id,
-            deleted:false,
-          }
-          if (getSetting('forumType') === 'AlignmentForum') {
-            answersTerms.af = true
-          }
-
-          const answers = await Comments.find(answersTerms, {sort:questionAnswersSort}).fetch()
-
-          if (answers && answers.length) {
-            tocData = Utils.extractTableOfContents(html, true) || {
-              html: null,
-              headingsCount: 0,
-              sections: []
-            }
-
-            const answerSections = answers.map((answer) => ({
-              title: `${answer.baseScore} ${answer.author}`,
-              answer: answer,
-              anchor: answer._id,
-              level: 2
-            }))
-            tocData = {
-              html: tocData.html,
-              headingsCount: tocData.headingsCount,
-              sections: [
-                ...tocData.sections,
-                {anchor:"answers", level:1, title:"Answers"},
-                ...answerSections
-              ]
-            }
-          }
-        } else {
-          tocData = Utils.extractTableOfContents(html)
-        }
-        if (tocData) {
-          const selector = {
-            answer: false,
-            parentAnswerId: null,
-            postId: document._id
-          }
-          if (document.af && getSetting('forumType') === 'AlignmentForum') {
-            selector.af = true
-          }
-          const commentCount = await Comments.find(selector).count()
-          tocData.sections.push({anchor:"comments", level:0, title:Posts.getCommentCountStr(document, commentCount)})
-        }
-        return tocData;
+        return await Utils.getTableOfContentsData(document);
       },
     },
   },

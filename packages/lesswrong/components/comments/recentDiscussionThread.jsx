@@ -173,7 +173,7 @@ class RecentDiscussionThread extends PureComponent {
                   <CommentsNode
                     startThreadTruncated={true}
                     nestingLevel={1}
-                    recentDiscussionExpandedId={lastCommentId}
+                    lastCommentId={lastCommentId}
                     currentUser={currentUser}
                     comment={comment.item}
                     markAsRead={this.markAsRead}

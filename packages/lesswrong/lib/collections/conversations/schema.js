@@ -1,4 +1,4 @@
-import { arrayOfForeignKeysField } from '../../modules/utils/schemaUtils'
+import { arrayOfForeignKeysField, denormalizedCountOfReferences } from '../../modules/utils/schemaUtils'
 
 const schema = {
   _id: {
@@ -44,7 +44,7 @@ const schema = {
     denormalized: true,
     viewableBy: ['members'],
     onInsert: (document) => {
-      return new Date(); // if this is an insert, set createdAt to current timestamp
+      return new Date(); // if this is an insert, set latestActivity to current timestamp
     },
     optional: true,
   },
@@ -54,7 +54,48 @@ const schema = {
     insertableBy: ['members'],
     editableBy: ['admins'],
     optional: true,
-  }
+  },
+  messageCount: {
+    ...denormalizedCountOfReferences({
+      fieldName: "messageCount",
+      collectionName: "Conversations",
+      foreignCollectionName: "Messages",
+      foreignTypeName: "message",
+      foreignFieldName: "conversationId"
+    }),
+    viewableBy: ['guests'],
+  },
+  archivedByIds: {
+    ...arrayOfForeignKeysField({
+      idFieldName: "archivedByIds",
+      resolverName: "archivedBy",
+      collectionName: "Users",
+      type: "User"
+    }),
+    optional: true,
+    hidden: true,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    // Allow users to only update their own archived status, this has some potential concurrency problems,
+    // but I don't expect this to ever come up, and it fails relatively gracefully in case one does occur
+    onUpdate: ({data, currentUser, document}) => {
+      // TODO: Make sure to update this callback after the Apollo2 Upgrade
+      if (data?.archivedByIds) {
+        const changedIds = _.difference(document?.archivedByIds || [], data?.archivedByIds)
+        changedIds.forEach((id => {
+          if (id !== currentUser._id) {
+            throw new Error(`You can't archive or unarchive a conversation for another user. Attempted update: ${JSON.stringify(data)}`)
+          }
+        }))
+      }
+    }
+  },
+  'archivedByIds.$': {
+    type: String,
+    foreignKey: "Users",
+    optional: true,
+  },
 };
 
 export default schema;

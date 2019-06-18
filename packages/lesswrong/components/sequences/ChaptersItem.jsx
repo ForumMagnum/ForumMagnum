@@ -15,6 +15,12 @@ const styles = theme => ({
     fontStyle: "italic",
     marginTop: 20,
   },
+  posts: {
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: 8,
+      paddingRight: 8
+    }
+  }
 });
 
 class ChaptersItem extends Component {
@@ -33,38 +39,33 @@ class ChaptersItem extends Component {
     this.setState({edit: false})
   }
 
-  renderTitleComponent = (chapter, canEdit) => {
-    const { classes } = this.props;
-    return <div>
-      {chapter.subtitle ? <div className={classes.subtitle}>
-        {chapter.subtitle}
-      </div> : null}
-      {canEdit && <Components.SectionSubtitle><a onClick={this.showEdit}>Add/Remove Posts</a></Components.SectionSubtitle>}
-    </div>
-  }
-
   render() {
-    const { chapter, classes } = this.props;
+    const { chapter, classes, canEdit } = this.props;
+    const { ChaptersEditForm, SingleColumnSection, SectionTitle, SectionFooter, 
+      SectionButton, SequencesPostsList } = Components
     const { html = "" } = chapter.contents
-    if (this.state.edit) {
-      return <Components.ChaptersEditForm
-                documentId={chapter._id}
-                successCallback={this.showChapter}
-                cancelCallback={this.showChapter} />
-    } else {
-      return <div className="chapters-item">
-        <Components.Section title={chapter.title}
-          titleComponent={this.renderTitleComponent(chapter, this.props.canEdit)}
-        >
-          {html && <div className={classes.description}>
-            <div className="content-body" dangerouslySetInnerHTML={{__html: html}}/> 
-          </div>}
-          <div className="chapters-item-posts">
-            <Components.SequencesPostsList posts={chapter.posts} chapter={chapter} />
-          </div>
-        </Components.Section>
-      </div>
-    }
+    if (this.state.edit) return ( 
+      <ChaptersEditForm
+        documentId={chapter._id}
+        successCallback={this.showChapter}
+        cancelCallback={this.showChapter} />
+    )
+    const editButton = <SectionButton><a onClick={this.showEdit}>Add/Remove Posts</a></SectionButton> 
+
+    return (
+      <SingleColumnSection>
+        {chapter.title && <SectionTitle title={chapter.title}>
+          {canEdit && editButton}
+        </SectionTitle>}
+        {html && <div className={classes.description}>
+          <div dangerouslySetInnerHTML={{__html: html}}/> 
+        </div>}
+        <div className={classes.posts}>
+          <SequencesPostsList posts={chapter.posts} chapter={chapter} />
+        </div>
+        {!chapter.title && <SectionFooter>{editButton}</SectionFooter>}
+      </SingleColumnSection>
+    )
   }
 }
 

@@ -38,7 +38,7 @@ class LoginPopupLink extends PureComponent {
           onClose={(e) => this.setState({isOpen: false})}
         >
           <div className={classes.popup}>
-            <Components.AccountsLoginForm/>
+            <Components.WrappedLoginForm/>
           </div>
         </Modal>
       </div>

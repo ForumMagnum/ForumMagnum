@@ -19,7 +19,7 @@ deploy.sh
 dump/
 dump/*
 
-settings*
+settings*.json
 
 .idea
 .tern-project

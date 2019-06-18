@@ -23,7 +23,8 @@ class NewConversationButton extends Component {
       currentUser: currentUser,
       validate: false,
     })
-    router.push({pathname: '/inbox', query: {select: response.data.createConversation.data._id}})
+    const conversationId = response.data.createConversation.data._id
+    router.push({pathname: `/inbox/${conversationId}`})
   }
 
   render() {
@@ -31,7 +32,7 @@ class NewConversationButton extends Component {
 
     if (currentUser) {
       return (
-        <div className="new-conversation-button" onClick={this.newConversation}>
+        <div onClick={this.newConversation}>
           {children}
         </div>
       )

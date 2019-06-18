@@ -1,14 +1,16 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { Posts } from "../../lib/collections/posts";
+import { Sequences } from "../../lib/collections/sequences/collection.js";
+import { Collections } from "../../lib/collections/collections/collection.js";
 import withErrorBoundary from '../common/withErrorBoundary';
-import Typography from '@material-ui/core/Typography';
+import CloseIcon from '@material-ui/icons/Close';
+import Tooltip from '@material-ui/core/Tooltip';
 import withUser from "../common/withUser";
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import grey from '@material-ui/core/colors/grey';
 import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
 
@@ -18,7 +20,7 @@ export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 export const COMMENTS_WIDTH = 48
 
-const COMMENTS_BACKGROUND_COLOR = grey[200]
+const COMMENTS_BACKGROUND_COLOR = "rgba(0,0,0,.1)"
 
 const styles = (theme) => ({
   root: {
@@ -30,19 +32,33 @@ const styles = (theme) => ({
       opacity: .2,
     }
   },
+  fixedHeight: {
+    [theme.breakpoints.up('md')]: {
+      height: 48,
+    }
+  },
   postsItem: {
     display: "flex",
-    paddingTop: theme.spacing.unit*1.5,
-    paddingBottom: theme.spacing.unit*1.5,
+    paddingTop: 10,
+    paddingBottom: 10,
     alignItems: "center",
     flexWrap: "nowrap",
     [theme.breakpoints.down('sm')]: {
       flexWrap: "wrap",
+      paddingTop: theme.spacing.unit,
+      paddingBottom: theme.spacing.unit,
     },
   },
   background: {
     transition: "3s",
     width: "100%",
+  },
+  hasResumeReading: {
+    ...theme.typography.body,
+    "& $title": {
+      position: "relative",
+      top: -5,
+    },
   },
   bottomBorder: {
     borderBottom: "solid 1px rgba(0,0,0,.2)",
@@ -50,14 +66,6 @@ const styles = (theme) => ({
   commentsBackground: {
     backgroundColor: COMMENTS_BACKGROUND_COLOR,
     transition: "0s",
-  },
-  commentBox: {
-    borderLeft: "solid 1px rgba(0,0,0,.2)",
-    borderRight: "solid 1px rgba(0,0,0,.2)",
-    paddingBottom: 0,
-    [theme.breakpoints.down('sm')]: {
-      padding: theme.spacing.unit
-    }
   },
   firstItem: {
     borderTop: "solid 1px rgba(0,0,0,.2)"
@@ -73,16 +81,19 @@ const styles = (theme) => ({
     }
   },
   title: {
-    height: 22,
+    minHeight: 26,
     flexGrow: 1,
     flexShrink: 1,
     overflow: "hidden",
     textOverflow: "ellipsis",
     marginRight: 12,
+    [theme.breakpoints.up('md')]: {
+      position: "relative",
+      top: 3,
+    },
     [theme.breakpoints.down('sm')]: {
       order:-1,
       height: "unset",
-      marginBottom: theme.spacing.unit,
       maxWidth: "unset",
       width: "100%",
       paddingRight: theme.spacing.unit
@@ -128,8 +139,10 @@ const styles = (theme) => ({
   },
   newCommentsSection: {
     width: "100%",
-    marginTop: theme.spacing.unit,
-    padding: theme.spacing.unit*2,
+    paddingLeft: theme.spacing.unit*2,
+    paddingRight: theme.spacing.unit*2,
+    paddingBottom: theme.spacing.unit,
+    paddingTop: theme.spacing.unit,
     cursor: "pointer",
     [theme.breakpoints.down('sm')]: {
       padding: 0,
@@ -152,15 +165,12 @@ const styles = (theme) => ({
     display: "flex",
     position: "absolute",
     top: 0,
-    right: -MENU_WIDTH,
+    right: -MENU_WIDTH - 6,
     width: MENU_WIDTH,
     height: "100%",
     cursor: "pointer",
     alignItems: "center",
     justifyContent: "center",
-    '&:hover': {
-      opacity: 1
-    },
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
@@ -185,12 +195,88 @@ const styles = (theme) => ({
       display: "block"
     }
   },
+  mobileDismissButton: {
+    display: "none",
+    opacity: 0.75,
+    verticalAlign: "middle",
+    position: "relative",
+    cursor: "pointer",
+    right: 10,
+    [theme.breakpoints.down('sm')]: {
+      display: "inline-block"
+    }
+  },
+  nextUnreadIn: {
+    color: theme.palette.grey[800],
+    fontFamily: theme.typography.commentStyle.fontFamily,
+
+    [theme.breakpoints.up('md')]: {
+      position: "absolute",
+      left: 42,
+      top: 28,
+      zIndex: theme.zIndexes.nextUnread,
+    },
+    [theme.breakpoints.down('sm')]: {
+      order: -1,
+      width: "100%",
+      marginTop: -2,
+      marginBottom: 3,
+      marginLeft: 1,
+    },
+
+    "& a": {
+      color: theme.palette.primary.main,
+    },
+  },
+  sequenceImage: {
+    position: "relative",
+    marginLeft: -60,
+    zIndex: theme.zIndexes.continueReadingImage,
+    opacity: 0.6,
+    height: 48,
+    width: 146,
+
+    // Negative margins that are the opposite of the padding on postsItem, since
+    // the image extends into the padding.
+    marginTop: -12,
+    marginBottom: -12,
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 0,
+      marginBottom: 0,
+      position: "absolute",
+      overflow: 'hidden',
+      right: 0,
+      bottom: 0,
+      height: "100%",
+    },
+
+    // Overlay a white-to-transparent gradient over the image
+    "&:after": {
+      content: "''",
+      position: "absolute",
+      width: "100%",
+      height: "100%",
+      left: 0,
+      top: 0,
+      background: "linear-gradient(to right, white 0%, rgba(255,255,255,.8) 60%, transparent 100%)",
+    }
+  },
+  sequenceImageImg: {
+    height: 48,
+    width: 146,
+    [theme.breakpoints.down('sm')]: {
+      height: "100%",
+      width: 'auto'
+    },
+  }
 })
+
+const dismissRecommendationTooltip = "Don't remind me to finish reading this sequence unless I visit it again";
 
 class PostsItem2 extends PureComponent {
   constructor(props) {
     super(props)
-    this.state = { showComments: false, readComments: false}
+    this.state = { showComments: props.defaultToShowComments, readComments: false}
     this.postsItemRef = React.createRef();
   }
 
@@ -217,23 +303,48 @@ class PostsItem2 extends PureComponent {
     }
   }
 
+  hasUnreadComments = () => {
+    const { post } = this.props
+    const { lastVisitedAt } = post
+    const { readComments } = this.state
+    const lastCommentedAt = Posts.getLastCommentedAt(post)
+    const read = lastVisitedAt;
+    const newComments = lastVisitedAt < lastCommentedAt;
+    return (read && newComments && !readComments)
+  }
+
   render() {
-    const { classes, post, chapter, currentUser, index, terms, showBottomBorder=true, showQuestionTag=true, showPostedAt=true } = this.props
-    const { showComments, readComments } = this.state
+    const { classes, post, sequenceId, chapter, currentUser, index, terms, resumeReading,
+      showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true,
+      defaultToShowUnreadComments=false, dismissRecommendation } = this.props
+    const { showComments } = this.state
     const { PostsItemComments, PostsItemKarma, PostsItemTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
 
-    const postLink = chapter ? ("/s/" + chapter.sequenceId + "/p/" + post._id) : Posts.getPageUrl(post)
-    
+    const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
+
+    const unreadComments = this.hasUnreadComments()
+
+    const renderComments = showComments || (defaultToShowUnreadComments && unreadComments)
+    const condensedAndHiddenComments = defaultToShowUnreadComments && unreadComments && !showComments
+
+    const dismissButton = (currentUser && resumeReading && <Tooltip title={dismissRecommendationTooltip} placement="right">
+        <CloseIcon onClick={() => dismissRecommendation()}/>
+      </Tooltip>
+    )
+
+    const cloudinaryCloudName = getSetting('cloudinary.cloudName', 'lesswrong-2-0')
+
     return (
       <div className={classes.root} ref={this.postsItemRef}>
         <div className={classNames(
           classes.background,
           {
             [classes.bottomBorder]: showBottomBorder,
-            [classes.commentsBackground]: showComments,
+            [classes.commentsBackground]: renderComments,
             [classes.firstItem]: (index===0) && showComments,
             "personalBlogpost": !post.frontpageDate,
-            [classes.commentBox]: showComments
+            [classes.hasResumeReading]: !!resumeReading,
+            [classes.fixedHeight]: !renderComments,
           }
         )}>
           <div className={classes.postsItem}>
@@ -242,46 +353,82 @@ class PostsItem2 extends PureComponent {
             </PostsItem2MetaInfo>
 
             <Link to={postLink} className={classes.title}>
-              <PostsItemTitle post={post} postItem2 read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
+              <PostsItemTitle post={post} postItem2 expandOnHover={!renderComments} read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
             </Link>
 
+            {(resumeReading?.sequence || resumeReading?.collection) &&
+              <div className={classes.nextUnreadIn}>
+                {resumeReading.numRead ? "Next unread in " : "First post in "}<Link to={
+                  resumeReading.sequence
+                    ? Sequences.getPageUrl(resumeReading.sequence)
+                    : Collections.getPageUrl(resumeReading.collection)
+                }>
+                  {resumeReading.sequence ? resumeReading.sequence.title : resumeReading.collection?.title}
+                </Link>
+                {" "}
+                {(resumeReading.numRead>0) && <span>({resumeReading.numRead}/{resumeReading.numTotal} read)</span>}
+              </div>
+            }
+
             { post.user && !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
-              <PostsUserAndCoauthors post={post}/>
+              <PostsUserAndCoauthors post={post} abbreviateIfLong={true} />
             </PostsItem2MetaInfo>}
 
             { post.isEvent && <PostsItem2MetaInfo className={classes.event}>
               <EventVicinity post={post} />
             </PostsItem2MetaInfo>}
 
-            {showPostedAt && <Components.PostsItemDate post={post}/>}
+            {showPostedAt && !resumeReading && <Components.PostsItemDate post={post}/>}
 
             <div className={classes.mobileSecondRowSpacer}/>
-            
+
             {<div className={classes.mobileActions}>
-              <PostsPageActions post={post} menuClassName={classes.actionsMenu} />
+              {!resumeReading && <PostsPageActions post={post} menuClassName={classes.actionsMenu} />}
             </div>}
 
-            <Hidden mdUp implementation="css">
+            {showIcons && <Hidden mdUp implementation="css">
               <PostsItemIcons post={post}/>
-            </Hidden>
+            </Hidden>}
 
-            <div className={classes.commentsIcon}>
-              <PostsItemComments post={post} onClick={() => this.toggleComments(false)} readStatus={readComments}/>
+            {!resumeReading && <div className={classes.commentsIcon}>
+              <PostsItemComments
+                post={post}
+                onClick={() => this.toggleComments(false)}
+                unreadComments={unreadComments}
+              />
+
+            </div>}
+
+            <div className={classes.mobileDismissButton}>
+              {dismissButton}
             </div>
 
+            {resumeReading &&
+              <div className={classes.sequenceImage}>
+                <img className={classes.sequenceImageImg}
+                  src={`http://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
+                    resumeReading.sequence?.gridImageId
+                      || resumeReading.collection?.gridImageId
+                      || "sequences/vnyzzznenju0hzdv6pqb.jpg"
+                  }`}
+                />
+              </div>}
           </div>
+
           {<div className={classes.actions}>
-            <PostsPageActions post={post} vertical menuClassName={classes.actionsMenu} />
+            {dismissButton}
+            {!resumeReading && <PostsPageActions post={post} vertical menuClassName={classes.actionsMenu} />}
           </div>}
-          
-          {this.state.showComments && <div className={classes.newCommentsSection} onClick={() => this.toggleComments(true)}>
+
+          {renderComments && <div className={classes.newCommentsSection} onClick={() => this.toggleComments(true)}>
             <Components.PostsItemNewCommentsWrapper
               currentUser={currentUser}
               highlightDate={post.lastVisitedAt}
               terms={{view:"postCommentsUnread", limit:7, postId: post._id}}
               post={post}
+              condensed={condensedAndHiddenComments}
+              hideReadComments={condensedAndHiddenComments}
             />
-            <Typography variant="body2" className={classes.closeComments}><a>Close</a></Typography>
           </div>}
         </div>
       </div>
