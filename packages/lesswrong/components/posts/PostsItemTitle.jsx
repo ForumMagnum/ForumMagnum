@@ -79,27 +79,7 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2, ex
   const shouldRenderQuestionTag = !(location.pathname === "/questions") && showQuestionTag
   const shouldRenderEventsTag = !(location.pathname === "/community")
 
-  const wrapWithTooltip = postItem2
-    ? (wrapped) => (<Tooltip
-        title={<PostsItemTooltip post={post} />}
-        classes={{tooltip:classes.tooltip}}
-        TransitionProps={{ timeout: 0 }}
-        placement="left-start"
-        enterDelay={0}
-        PopperProps={{ style: { pointerEvents: 'none' } }}
-      >
-        <span>{wrapped}</span>
-      </Tooltip>)
-    : (wrapped) => wrapped
-  
-  return <span className={classNames(
-    classes.root,
-    {
-      [classes.read]: read,
-      [classes.expandOnHover]: expandOnHover
-    }
-  )}>
-    {wrapWithTooltip(<React.Fragment>
+  const unwrappedTitle = <React.Fragment>
       {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
   
       {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
@@ -113,7 +93,29 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2, ex
       {post.isEvent && shouldRenderEventsTag && <span className={classes.tag}>[Event]</span>}
   
       <span>{post.title}</span>
-    </React.Fragment>)}
+    </React.Fragment>
+  
+  const titleWithTooltip = postItem2
+    ? (<Tooltip
+        title={<PostsItemTooltip post={post} />}
+        classes={{tooltip:classes.tooltip}}
+        TransitionProps={{ timeout: 0 }}
+        placement="left-start"
+        enterDelay={0}
+        PopperProps={{ style: { pointerEvents: 'none' } }}
+      >
+        <span>{unwrappedTitle}</span>
+      </Tooltip>)
+    : unwrappedTitle
+  
+  return <span className={classNames(
+    classes.root,
+    {
+      [classes.read]: read,
+      [classes.expandOnHover]: expandOnHover
+    }
+  )}>
+    {titleWithTooltip}
 
     {postItem2 && <span className={classes.hideSmDown}>
       <PostsItemIcons post={post}/>
