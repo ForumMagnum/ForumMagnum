@@ -8,9 +8,12 @@ import PersonIcon from '@material-ui/icons/Person';
 import DetailsIcon from '@material-ui/icons/Details';
 
 const styles = theme => ({
-  postIcon: {
+  iconSet: {
     marginLeft: theme.spacing.unit,
     marginRight: theme.spacing.unit,
+  },
+  postIcon: {
+    marginRight: 4,
   },
   icon: {
     fontSize: "1.2rem",
@@ -28,7 +31,7 @@ const styles = theme => ({
 const PostsItemIcons = ({post, classes}) => {
   const { OmegaIcon } = Components;
   
-  return <React.Fragment>
+  return <span className={classes.iconSet}>
     {post.curatedDate && <span className={classes.postIcon}>
       <Tooltip title="Curated Post">
         <StarIcon className={classes.icon}/>
@@ -54,7 +57,7 @@ const PostsItemIcons = ({post, classes}) => {
         </Tooltip>
       </span>
     }
-  </React.Fragment>
+  </span>
 }
 
 registerComponent('PostsItemIcons', PostsItemIcons, withStyles(styles, { name: "PostsItemIcons" }));
