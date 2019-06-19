@@ -17,3 +17,5 @@ import '../lib/modules/alignment-forum/users/tests.js';
 
 import '../server/emails/tests.jsx';
 import '../lib/editor/utils.test.js';
+
+import '../server/search/utils.tests.js';
