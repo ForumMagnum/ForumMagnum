@@ -23,7 +23,6 @@ const styles = theme => ({
   },
   alignmentIcon: {
     fontSize: "1rem",
-    color: theme.palette.grey[500],
     top: 0,
   },
 });
