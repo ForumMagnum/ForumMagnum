@@ -53,7 +53,7 @@ const PostsItemIcons = ({post, classes}) => {
     {getSetting('forumType') !== 'AlignmentForum' && post.af &&
       <span className={classes.postIcon}>
         <Tooltip title="Crossposted from AlignmentForum.org">
-          <OmegaIcon className={classNames(classes.icon, classes.alignmentIcon)}/>
+          <span><OmegaIcon className={classNames(classes.icon, classes.alignmentIcon)}/></span>
         </Tooltip>
       </span>
     }
