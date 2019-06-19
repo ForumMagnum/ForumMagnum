@@ -79,46 +79,46 @@ const PostsItemTitle = ({currentUser, post, classes, sticky, read, postItem2, ex
   const shouldRenderQuestionTag = !(location.pathname === "/questions") && showQuestionTag
   const shouldRenderEventsTag = !(location.pathname === "/community")
 
-  const postTitle = <span className={classNames(
+  const wrapWithTooltip = postItem2
+    ? (wrapped) => (<Tooltip
+        title={<PostsItemTooltip post={post} />}
+        classes={{tooltip:classes.tooltip}}
+        TransitionProps={{ timeout: 0 }}
+        placement="left-start"
+        enterDelay={0}
+        PopperProps={{ style: { pointerEvents: 'none' } }}
+      >
+        <span>{wrapped}</span>
+      </Tooltip>)
+    : (wrapped) => wrapped
+  
+  return <span className={classNames(
     classes.root,
     {
       [classes.read]: read,
       [classes.expandOnHover]: expandOnHover
     }
   )}>
-    {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
-
-    {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
-
-    {shared && <span className={classes.tag}>[Shared]</span>}
-
-    {post.question && shouldRenderQuestionTag && <span className={classes.tag}>[Question]</span>}
-
-    {post.url && <span className={classes.tag}>[Link]</span>}
-
-    {post.isEvent && shouldRenderEventsTag && <span className={classes.tag}>[Event]</span>}
-
-    <span>{post.title}</span>
+    {wrapWithTooltip(<React.Fragment>
+      {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
+  
+      {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
+  
+      {shared && <span className={classes.tag}>[Shared]</span>}
+  
+      {post.question && shouldRenderQuestionTag && <span className={classes.tag}>[Question]</span>}
+  
+      {post.url && <span className={classes.tag}>[Link]</span>}
+  
+      {post.isEvent && shouldRenderEventsTag && <span className={classes.tag}>[Event]</span>}
+  
+      <span>{post.title}</span>
+    </React.Fragment>)}
 
     {postItem2 && <span className={classes.hideSmDown}>
       <PostsItemIcons post={post}/>
     </span>}
   </span>
-
-  if (postItem2) {
-    return <Tooltip
-      title={<PostsItemTooltip post={post} />}
-      classes={{tooltip:classes.tooltip}}
-      TransitionProps={{ timeout: 0 }}
-      placement="left-start"
-      enterDelay={0}
-      PopperProps={{ style: { pointerEvents: 'none' } }}
-    >
-      { postTitle }
-    </Tooltip>
-  } else {
-    return <span>{ postTitle }</span>
-  }
 }
 
 PostsItemTitle.displayName = "PostsItemTitle";
