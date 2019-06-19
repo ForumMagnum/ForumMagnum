@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 import StarIcon from '@material-ui/icons/Star';
 import PersonIcon from '@material-ui/icons/Person';
+import DetailsIcon from '@material-ui/icons/Details';
 
 const styles = theme => ({
   postIcon: {
@@ -37,6 +38,12 @@ const PostsItemIcons = ({post, classes}) => {
     {!post.frontpageDate && <span className={classes.postIcon}>
       <Tooltip title="Personal Blogpost">
         <PersonIcon className={classes.icon}/>
+      </Tooltip>
+    </span>}
+    
+    {post.meta && <span className={classes.postIcon}>
+      <Tooltip title="Meta Post">
+        <DetailsIcon  className={classes.icon}/>
       </Tooltip>
     </span>}
     
