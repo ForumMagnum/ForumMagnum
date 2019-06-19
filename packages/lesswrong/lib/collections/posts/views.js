@@ -249,15 +249,11 @@ Posts.addView("old", terms => ({
 }))
 // Covered by the same index as `new`
 
-// Posts.addView("timeframe", terms => {
-//   localDebug('timeframe view')
-//   return {
-//     options: {
-//       sort: {score: -1}
-//     }
-//   }
-// });
-// TODO; indexes man?
+Posts.addView("daily", terms => ({
+  options: {
+    sort: {score: -1}
+  }
+}));
 ensureIndex(Posts,
   augmentForDefaultView({ postedAt:1, baseScore:1}),
   {
