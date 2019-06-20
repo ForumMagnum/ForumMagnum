@@ -190,10 +190,9 @@ class CommentsNode extends Component {
     return (
       currentUser?.beta &&
       this.isTruncated() && 
-      !mostRecent && 
-      lowKarmaOrCondensed
+      lowKarmaOrCondensed &&
+      !(mostRecent && condensed)
     )
-    
   }
 
   render() {
