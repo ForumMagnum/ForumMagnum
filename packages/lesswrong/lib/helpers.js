@@ -55,7 +55,7 @@ Utils.getUnusedSlug = function (collection, slug, useOldSlugs = false, documentI
     if (!!conflictingDocuments?.length) {
       index++
       suffix = '-'+index;
-      existingDocuments = getDocumentsBySlug({slug, suffix, useOldSlugs, collection, documentId})
+      existingDocuments = getDocumentsBySlug({slug, suffix, useOldSlugs, collection})
     } else {
       break
     }
