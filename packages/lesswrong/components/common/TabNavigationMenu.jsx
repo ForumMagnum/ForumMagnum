@@ -9,7 +9,7 @@ import withUser from '../common/withUser';
 import { compassIcon } from '../icons/compassIcon';
 import { questionsGlobeIcon } from '../icons/questionsGlobeIcon';
 import { communityGlobeIcon } from '../icons/communityGlobeIcon';
-import { bookIcon } from '../icons/bookIcon'
+import { BookIcon } from '../icons/bookIcon'
 import { allPostsIcon } from '../icons/allPostsIcon';
 
 export const iconWidth = 30
@@ -196,9 +196,7 @@ const TabNavigationMenu = ({
             <div>Curated collections of LessWrong's best writing.</div>
           </div>}>
           <Link to="/library" className={classNames(classes.navButton, {[classes.selected]: pathname === "/library"})}>
-              <span className={classes.icon}>
-                { bookIcon }
-              </span>
+              <BookIcon className={classes.icon}/>
               <span className={classes.navText}>
                 Library
               </span>

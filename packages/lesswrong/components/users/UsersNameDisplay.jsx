@@ -8,6 +8,8 @@ import { truncate } from '../../lib/editor/ellipsize';
 import DescriptionIcon from '@material-ui/icons/Description';
 import MessageIcon from '@material-ui/icons/Message';
 import { withStyles } from '@material-ui/core/styles';
+import { BookIcon } from '../icons/bookIcon'
+import classNames from 'classnames';
 
 const styles = theme => ({
   userName: {
@@ -24,6 +26,11 @@ const styles = theme => ({
     top: 2,
     color: "rgba(255,255,255,.8)"
   },
+  bookIcon: {
+    width: "1rem",
+    height: "1rem",
+    filter: "invert(100%)",
+  },
   bio: {
     marginTop: theme.spacing.unit
   }
@@ -37,9 +44,13 @@ const UsersNameDisplay = ({user, classes, nofollow=false}) => {
   const truncatedBio = truncate(htmlBio, 500)
   const postCount = Users.getPostCount(user)
   const commentCount = Users.getCommentCount(user)
+  const sequenceCount = user.sequenceCount; // TODO: Counts LW sequences on Alignment Forum
 
   const tooltip = <div>
     <div className={classes.joined}>Joined on <FormatDate date={user.createdAt} format="MMM Do YYYY" /></div>
+    { !!sequenceCount && <div>
+        <BookIcon className={classNames(classes.icon, classes.bookIcon)}/> { sequenceCount } sequences
+      </div>}
     { !!postCount && <div><DescriptionIcon className={classes.icon} /> { postCount } posts</div>}
     { !!commentCount && <div><MessageIcon className={classes.icon}  /> { commentCount } comments</div>}
     { truncatedBio && <div className={classes.bio } dangerouslySetInnerHTML={{__html: truncatedBio}}/>}
