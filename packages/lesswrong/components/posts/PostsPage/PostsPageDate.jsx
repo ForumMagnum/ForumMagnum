@@ -1,6 +1,8 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
+import Tooltip from '@material-ui/core/Tooltip';
+import { ExpandedDate } from '../../common/FormatDate.jsx';
 import classNames from 'classnames';
 
 const styles = theme => ({
@@ -26,13 +28,25 @@ const styles = theme => ({
 const PostsPageDate = ({ post, hasMajorRevision, classes }) => {
   const { FormatDate, PostsRevisionSelector } = Components;
   
+  const tooltip = (<div>
+    <div>Posted on <ExpandedDate date={post.postedAt}/></div>
+    
+    {post.curatedDate && <div>
+      Curated on <ExpandedDate date={post.curatedDate}/>
+    </div>}
+  </div>);
+  
   return (<React.Fragment>
-    {<span className={classNames(classes.date, classes.mobileDate)}>
-      <FormatDate date={post.postedAt}/>
-    </span>}
-    {<span className={classNames(classes.date, classes.desktopDate)}>
-      {hasMajorRevision ? <PostsRevisionSelector post={post}/> : <FormatDate date={post.postedAt} format="Do MMM YYYY"/>}
-    </span>}
+    <Tooltip title={tooltip} placement="bottom">
+      <span>
+        <span className={classNames(classes.date, classes.mobileDate)}>
+          <FormatDate date={post.postedAt} tooltip={false} />
+        </span>
+        <span className={classNames(classes.date, classes.desktopDate)}>
+          {hasMajorRevision ? <PostsRevisionSelector post={post}/> : <FormatDate date={post.postedAt} format="Do MMM YYYY" tooltip={false} />}
+        </span>
+      </span>
+    </Tooltip>
   </React.Fragment>);
 }
 

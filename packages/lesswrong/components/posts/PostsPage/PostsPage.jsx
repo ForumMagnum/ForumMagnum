@@ -262,7 +262,7 @@ class PostsPage extends Component {
                         </a>
                       </Tooltip>
                     }
-                    {!post.isEvent && <PostsPageDate post={post}/>}
+                    {!post.isEvent && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
                     {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
                     <a className={classes.commentsLink} href={"#comments"}>{ Posts.getCommentCountStr(post)}</a>
                     <span className={classes.actions}>
