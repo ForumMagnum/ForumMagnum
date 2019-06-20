@@ -68,6 +68,7 @@ extendFragment('UsersCurrent', `
   nullifyVotes
   hideIntercom
   currentFrontpageFilter
+  allPostsTimeframe
   allPostsView
   allPostsSorting
   allPostsFilter

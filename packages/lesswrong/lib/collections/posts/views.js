@@ -249,6 +249,14 @@ Posts.addView("old", terms => ({
 }))
 // Covered by the same index as `new`
 
+// TODO; test with bad timeframe
+Posts.addView("timeframe", terms => {
+  // TODO; I'd rather do the before after logic here than on the frontend
+  return {
+    limit: 500 // TODO; revisit
+  }
+})
+
 Posts.addView("daily", terms => ({
   options: {
     sort: {score: -1}

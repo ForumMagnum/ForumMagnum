@@ -30,18 +30,40 @@ const styles = theme => ({
 });
 
 export const timeframes = {
+  allTime: 'All Time',
   daily: 'Daily',
   weekly: 'Weekly',
   monthly: 'Monthly',
   yearly: 'Yearly',
-  allTime: 'All Time',
 }
 
-const timeframeToTimeBlock = {
+export const timeframeToTimeBlock = {
   daily: 'days',
-  weekly: 'weekly',
+  weekly: 'weeks',
   monthly: 'months',
   yearly: 'years',
+}
+
+const timeframeToNumTimeBlocks = {
+  daily: getSetting('forum.numberOfDays', 5),
+  weekly: getSetting('forum.numberOfWeeks', 3),
+  monthly: getSetting('forum.numberOfMonths', 3),
+  yearly: getSetting('forum.numberOfYears', 1),
+}
+
+// TODO; doc
+// utility funcs
+
+export function getAfterDateDefault ({numTimeBlocks, timeBlock}) {
+  if (!numTimeBlocks || !timeBlock) return
+  const startCurrentTimeBlock = moment().utc().startOf(timeBlock)
+  return startCurrentTimeBlock.subtract(numTimeBlocks - 1, timeBlock).format('YYYY-MM-DD')
+}
+
+export function getBeforeDateDefault ({numTimeBlocks, timeBlock}) {
+  if (!numTimeBlocks || !timeBlock) return
+  const startCurrentTimeBlock = moment().utc().startOf(timeBlock)
+  return startCurrentTimeBlock.add(1, timeBlock).format('YYYY-MM-DD')
 }
 
 export const sortings = {
@@ -74,28 +96,34 @@ class AllPostsPage extends Component {
 
   // TODO; factor out part of logic from render
   // TODO; better args
-  renderPostsList = (currentView, terms, classes, showSettings, query) => {
+  renderPostsList = (currentTimeframe, terms, classes, showSettings, query) => {
     // TODO; ensure defaults are right
     // TODO; and that user preference is remembered
     // TODO; and that queries are king
     console.log('renderPostsList')
-    const timeframe = 'monthly'
-    const numberOfDays = 2 // getSetting('forum.numberOfDays', 5);
+    console.log('currentTimeframe', currentTimeframe)
+    const numTimeBlocks = timeframeToNumTimeBlocks[currentTimeframe]
+    const timeBlock = timeframeToTimeBlock[currentTimeframe]
     const dailyTerms = {
+      view: 'timeframe',
+      // TODO; is this properly overwritten?
+      timeframe: currentTimeframe,
       karmaThreshold: DEFAULT_LOW_KARMA_THRESHOLD,
+      after: moment().utc().subtract(numTimeBlocks - 1, timeBlock).format('YYYY-MM-DD'),
+      before: moment().utc().add(1, 'days').format('YYYY-MM-DD'),
+      ...terms,
       ...query,
     };
     console.log('  dailyTerms', dailyTerms)
 
     const {PostsDailyList, PostsList2} = Components
-    // timeframe !== 'allTime'
-    if (false) return <div className={classes.daily}>
+    if (currentTimeframe !== 'allTime') return <div className={classes.daily}>
       <PostsDailyList
         // TODO; title unused?
         title="Posts by Day"
-        timeframe={timeframe}
+        timeframe={currentTimeframe}
         terms={dailyTerms}
-        numTimeBlocks={numberOfDays}
+        numTimeBlocks={numTimeBlocks}
         dimWhenLoading={showSettings}
       />
     </div>
@@ -106,21 +134,26 @@ class AllPostsPage extends Component {
     console.log('AllPostsPage render()')
     const { classes, currentUser, router } = this.props
     const { showSettings } = this.state
-    const { PostsListSettings, SingleColumnSection, SectionTitle, MetaInfo, TabNavigationMenu, SettingsIcon } = Components
+    const { SingleColumnSection, SectionTitle, SettingsIcon, MetaInfo, TabNavigationMenu, PostsListSettings } = Components
+    // TODO; test by throwing crap at the query
     const query = _.clone(router.location.query) || {}
     // maintain backward compatibility with bookmarks
     const querySorting = query.sortedBy || query.view
 
-    const currentTimeframe = 'allTime' // TODO;
+    // TODO; generalize
+    const currentTimeframe = query.timeframe ||
+      (currentUser && currentUser.allPostsTimeframe) ||
+      'allTime'
+    console.log('why timeframe 1', currentTimeframe)
     // TODO[WIP] migration for allPostsView
     // maintain backward compatibility with previous user setting during
     // transition
     const currentSorting = querySorting ||
       (currentUser && (currentUser.allPostsSorting || currentUser.allPostsView)) ||
-      "daily"
+      'daily'
     const currentFilter = query.filter ||
       (currentUser && currentUser.allPostsFilter) ||
-      "all"
+      'all'
     const currentShowLowKarma = (parseInt(query.karmaThreshold) === MAX_LOW_KARMA_THRESHOLD) || (currentUser && currentUser.allPostsShowLowKarma) || false
 
     const terms = {
@@ -153,7 +186,7 @@ class AllPostsPage extends Component {
             currentShowLowKarma={currentShowLowKarma}
             persistentSettings
           />
-          {this.renderPostsList(currentSorting, terms, classes, showSettings, query)}
+          {this.renderPostsList(currentTimeframe, terms, classes, showSettings, query)}
         </SingleColumnSection>
       </React.Fragment>
     )
@@ -163,6 +196,7 @@ class AllPostsPage extends Component {
 const withUpdateOptions = {
   collection: Users,
   fragmentName: 'UsersCurrent',
+  ssr: false, // TODO; temporary
 }
 
 registerComponent('AllPostsPage', AllPostsPage, withStyles(styles, {name:"AllPostsPage"}), withRouter, withUser, [withUpdate, withUpdateOptions]);

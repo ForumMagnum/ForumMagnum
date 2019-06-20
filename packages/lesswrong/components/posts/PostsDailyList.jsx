@@ -8,6 +8,14 @@ import withTimezone from '../common/withTimezone';
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 
+// TODO; probs reverse import direction
+import {
+  timeframeToTimeBlock,
+  getAfterDateDefault,
+  getBeforeDateDefault,
+  timeframes
+} from './AllPostsPage'
+
 const styles = theme => ({
   loading: {
     opacity: .4,
@@ -17,25 +25,6 @@ const styles = theme => ({
     color: theme.palette.primary.main
   }
 })
-
-// TODO; copypasta
-const timeframeToTimeBlock = {
-  daily: 'days',
-  monthly: 'months',
-}
-
-// TODO; doc
-// utility funcs
-
-function getAfterDateDefault ({numTimeBlocks, timeBlock}) {
-  const startCurrentTimeBlock = moment().utc().startOf(timeBlock)
-  return startCurrentTimeBlock.subtract(numTimeBlocks - 1, timeBlock).format('YYYY-MM-DD')
-}
-
-function getBeforeDateDefault ({numTimeBlocks, timeBlock}) {
-  const startCurrentTimeBlock = moment().utc().startOf(timeBlock)
-  return startCurrentTimeBlock.add(1, timeBlock).format('YYYY-MM-DD')
-}
 
 // Useful reading for network status use in this file and elsewhere:
 // https://github.com/apollographql/apollo-client/blob/master/packages/apollo-client/src/core/networkStatus.ts
@@ -51,6 +40,14 @@ class PostsDailyList extends PureComponent {
     // TODO; try without
     this.loadMoreTimeBlocks = this.loadMoreTimeBlocks.bind(this);
 
+    if (!timeframes[props.timeframe]) {
+      // TODO; this caused hella problems
+      // throw new Error(`Invalid timeframe supplied to [TODO; ComponentName] ${props.timeframe}`)
+      return
+    }
+
+    console.log('  timeframettb', timeframeToTimeBlock)
+    console.log('  props.timeframe', props.timeframe)
     const timeBlock = timeframeToTimeBlock[props.timeframe]
     const after = props.terms.after ||
       getAfterDateDefault({timeBlock, numTimeBlocks: props.numTimeBlocks})
@@ -92,6 +89,10 @@ class PostsDailyList extends PureComponent {
   // day into the future, which would otherwise sometimes result in an awkward
   // empty slot for tomorrow, depending on the current time of day.)
   getDateRange(after, before, posts, timeBlock) {
+    console.log('getDateRange')
+    console.log('after', after)
+    console.log('before', before)
+    console.log('timeBlock', timeBlock)
     const mAfter = moment.utc(after, 'YYYY-MM-DD');
     const mBefore = moment.utc(before, 'YYYY-MM-DD');
     const daysCount = mBefore.diff(mAfter, this.state.timeBlock) + 1;
@@ -175,6 +176,10 @@ class PostsDailyList extends PureComponent {
     const { timeframe, dimWhenLoading, loading, loadingMore, classes, currentUser, networkStatus } = this.props
     console.log('PostsDailyList render()')
     console.log('  props subset', {loading, loadingMore, networkStatus})
+    if (!timeframes[this.props.timeframe]) {
+      // TODO; this caused hella problems
+      throw new Error(`Invalid timeframe supplied to [TODO; ComponentName]: '${this.props.timeframe}'`)
+    }
     const posts = this.props.results;
     const { timeBlock } = this.state
     const dates = this.getDateRange(this.state.afterLoaded, this.state.before, posts, timeBlock);
@@ -188,29 +193,33 @@ class PostsDailyList extends PureComponent {
 
     if (loading && (!posts || !posts.length)) {
       return <Loading />
-    } else {
-      return (
-        <div className={classNames({[classes.loading]: dim})}>
-          { loading && <Loading />}
-          {dates.map((date) => {
-            console.log('dates map date', date)
-            return <PostsDay key={date.toString()}
-              date={moment(date)}
-              posts={this.getDatePosts(posts, date, timeBlock)}
-              networkStatus={networkStatus}
-              currentUser={currentUser}
-            />
-          })}
-          {loadingMore ?
-            <Loading />
-            :
-            <Typography variant="body1" className={classes.loadMore} onClick={this.loadMoreTimeBlocks}>
-              <a><FormattedMessage id={loadMoreMessageId}/></a>
-            </Typography>
-          }
-        </div>
-      )
     }
+    //
+    const titlesAndDates = posts.map(post => _.pick(post, ['title', 'postedAt']))
+    console.log('titlesAndDates', titlesAndDates)
+    console.log('----')
+    //
+    return (
+      <div className={classNames({[classes.loading]: dim})}>
+        { loading && <Loading />}
+        {dates.map((date) => {
+          console.log('dates map date', date)
+          return <PostsDay key={date.toString()}
+            date={moment(date)}
+            posts={this.getDatePosts(posts, date, timeBlock)}
+            networkStatus={networkStatus}
+            currentUser={currentUser}
+          />
+        })}
+        {loadingMore ?
+          <Loading />
+          :
+          <Typography variant="body1" className={classes.loadMore} onClick={this.loadMoreTimeBlocks}>
+            <a><FormattedMessage id={loadMoreMessageId}/></a>
+          </Typography>
+        }
+      </div>
+    )
   }
 }
 
@@ -233,7 +242,7 @@ const options = {
   queryName: 'postsDailyListQuery',
   fragmentName: 'PostsList',
   limit: 0,
-  ssr: true,
+  ssr: false, // TODO; temporary
 };
 
 registerComponent('PostsDailyList', PostsDailyList, withCurrentUser, [withList, options], withTimezone, withStyles(styles, {name: "PostsDailyList"}));

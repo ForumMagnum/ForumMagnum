@@ -223,6 +223,14 @@ addFieldsDict(Users, {
     canCreate: Users.owns,
     hidden: true,
   },
+  allPostsTimeframe: {
+    type: String,
+    optional: true,
+    canRead: Users.owns,
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: Users.owns,
+    hidden: true,
+  },
   allPostsFilter: {
     type: String,
     optional: true,
