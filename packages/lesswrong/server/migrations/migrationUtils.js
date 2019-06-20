@@ -146,6 +146,15 @@ export async function migrateDocuments({ description, collection, batchSize, unm
   // eslint-disable-next-line no-console
   console.log(`Beginning migration step: ${description}`);
 
+  if (!unmigratedDocumentQuery) {
+    // eslint-disable-next-line no-console
+    console.log(`No unmigrated-document query found, migrating all documents in ${collection.collectionName}`)
+    await forEachDocumentBatchInCollection({collection, batchSize, callback: migrate, loadFactor})
+    // eslint-disable-next-line no-console
+    console.log(`Finished migration step ${description} for all documents`)
+    return
+  }
+
   let previousDocumentIds = {};
   let documentsAffected = 0;
   let done = false;
