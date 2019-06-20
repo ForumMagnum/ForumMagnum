@@ -16,9 +16,10 @@ const SequenceTooltip = ({ sequence, classes }) => {
   const truncatedDescription = truncate(sequence.contents && sequence.contents.htmlHighlight, SEQUENCE_DESCRIPTION_TRUNCATION_LENGTH);
   
   return <div>
-    <div>{sequence.title}</div>
-    <div>by {sequence.user.displayName}</div>
-    <div>Created <CalendarDate date={sequence.createdAt}/></div>
+    { /*<div>Created <CalendarDate date={sequence.createdAt}/></div>*/ }
+    { /* TODO: Show a date here. We can't use sequence.createdAt because it's often
+      very mismatched with the dates of the posts; ideally we'd say something like
+      "15 posts from Dec 2010-Feb 2011". */ }
     
     <ContentItemBody
       className={classes.sequenceDescriptionHighlight}
