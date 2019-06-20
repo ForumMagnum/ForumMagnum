@@ -11,7 +11,7 @@ const styles = theme => ({
 });
 
 const SequenceTooltip = ({ sequence, classes }) => {
-  const { CalendarDate, ContentItemBody } = Components;
+  const { ContentItemBody } = Components;
   
   const truncatedDescription = truncate(sequence.contents && sequence.contents.htmlHighlight, SEQUENCE_DESCRIPTION_TRUNCATION_LENGTH);
   
