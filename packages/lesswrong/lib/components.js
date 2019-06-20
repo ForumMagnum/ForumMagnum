@@ -287,6 +287,7 @@ import '../components/sequences/SequencesNewForm.jsx';
 import '../components/sequences/SequencesHome.jsx';
 import '../components/sequences/SequencesGrid.jsx';
 import '../components/sequences/SequencesGridWrapper.jsx';
+import '../components/sequences/SequenceTooltip.jsx';
 import '../components/sequences/SequencesNavigationLink.jsx';
 import '../components/sequences/SequencesNewButton.jsx';
 import '../components/sequences/BottomNavigation.jsx';
