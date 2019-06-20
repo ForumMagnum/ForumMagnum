@@ -23,6 +23,7 @@ const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
 const googleTagManagerId = getSetting('googleTagManager.apiKey')
 
 // From https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
+// Simple hash for randomly sampling users. NOT CRYPTOGRAPHIC.
 const hashCode = function(str) {
   var hash = 0, i, chr;
   if (str.length === 0) return hash;
