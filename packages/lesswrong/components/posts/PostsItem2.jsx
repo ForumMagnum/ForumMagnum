@@ -244,6 +244,7 @@ const styles = (theme) => ({
       marginTop: 0,
       marginBottom: 0,
       position: "absolute",
+      overflow: 'hidden',
       right: 0,
       bottom: 0,
       height: "100%",
@@ -265,6 +266,7 @@ const styles = (theme) => ({
     width: 146,
     [theme.breakpoints.down('sm')]: {
       height: "100%",
+      width: 'auto'
     },
   }
 })
@@ -325,7 +327,7 @@ class PostsItem2 extends PureComponent {
     const renderComments = showComments || (defaultToShowUnreadComments && unreadComments)
     const condensedAndHiddenComments = defaultToShowUnreadComments && unreadComments && !showComments
 
-    const dismissButton = (resumeReading?.numRead && <Tooltip title={dismissRecommendationTooltip} placement="right">
+    const dismissButton = (currentUser && resumeReading && <Tooltip title={dismissRecommendationTooltip} placement="right">
         <CloseIcon onClick={() => dismissRecommendation()}/>
       </Tooltip>
     )
@@ -357,14 +359,14 @@ class PostsItem2 extends PureComponent {
             {(resumeReading?.sequence || resumeReading?.collection) &&
               <div className={classes.nextUnreadIn}>
                 {resumeReading.numRead ? "Next unread in " : "First post in "}<Link to={
-                  (resumeReading.sequence && resumeReading.numRead)
+                  resumeReading.sequence
                     ? Sequences.getPageUrl(resumeReading.sequence)
                     : Collections.getPageUrl(resumeReading.collection)
                 }>
-                  {(resumeReading.sequence && resumeReading.numRead) ? resumeReading.sequence.title : resumeReading.collection?.title}
+                  {resumeReading.sequence ? resumeReading.sequence.title : resumeReading.collection?.title}
                 </Link>
                 {" "}
-                {resumeReading.numRead && <span>({resumeReading.numRead}/{resumeReading.numTotal} read)</span>}
+                {(resumeReading.numRead>0) && <span>({resumeReading.numRead}/{resumeReading.numTotal} read)</span>}
               </div>
             }
 
@@ -394,6 +396,7 @@ class PostsItem2 extends PureComponent {
                 onClick={() => this.toggleComments(false)}
                 unreadComments={unreadComments}
               />
+
             </div>}
 
             <div className={classes.mobileDismissButton}>

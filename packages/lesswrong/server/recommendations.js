@@ -3,14 +3,14 @@ import { Posts } from '../lib/collections/posts';
 import { WeightedList } from './weightedList.js';
 import { accessFilterMultiple } from '../lib/modules/utils/schemaUtils.js';
 import { setUserPartiallyReadSequences } from './partiallyReadSequences.js';
+import { ensureIndex } from '../lib/collectionUtils';
 
 const MINIMUM_BASE_SCORE = 50
 
 // The set of fields on Posts which are used for deciding which posts to
 // recommend. Fields other than these will be projected out before downloading
 // from the database.
-const scoreRelevantFields = {baseScore:1, curatedDate:1, frontpageDate:1};
-
+const scoreRelevantFields = {baseScore:1, curatedDate:1, frontpageDate:1, defaultRecommendation: 1};
 
 // Returns part of a mongodb aggregate pipeline, which will join against the
 // LWEvents collection and filter out any posts which have a corresponding
@@ -21,7 +21,7 @@ const scoreRelevantFields = {baseScore:1, curatedDate:1, frontpageDate:1};
 const pipelineFilterUnread = ({currentUser}) => {
   if (!currentUser)
     return [];
-  
+
   return [
     { $lookup: {
       from: "readstatuses",
@@ -32,14 +32,14 @@ const pipelineFilterUnread = ({currentUser}) => {
         } },
         { $match: { $expr: {
           $and: [
-            {$eq: ["$documentId", "$$documentId"]},
+            {$eq: ["$postId", "$$documentId"]},
           ]
         } } },
         { $limit: 1},
       ],
       as: "views",
     } },
-    
+
     { $match: {
       "views": {$size:0}
     } },
@@ -48,22 +48,31 @@ const pipelineFilterUnread = ({currentUser}) => {
 
 // A filter (mongodb selector) for which posts should be considered at all as
 // recommendations.
-const recommendablePostFilter = {
-  // Gets the selector from the default Posts view, which includes things like
-  // excluding drafts and deleted posts
-  ...Posts.getParameters({}).selector,
-  
-  // Only consider recommending posts if they hit the minimum base score. This has a big
-  // effect on the size of the recommendable-post set, which needs to not be
-  // too big for performance reasons.
-  baseScore: {$gt: MINIMUM_BASE_SCORE},
-  
-  // Don't recommend meta posts
-  meta: false,
-  
-  // Enforce the disableRecommendation flag
-  disableRecommendation: {$ne: true},
+const recommendablePostFilter = {$or:
+  [
+    {
+      // Gets the selector from the default Posts view, which includes things like
+      // excluding drafts and deleted posts
+      ...Posts.getParameters({}).selector,
+
+      // Only consider recommending posts if they hit the minimum base score. This has a big
+      // effect on the size of the recommendable-post set, which needs to not be
+      // too big for performance reasons.
+      baseScore: {$gt: MINIMUM_BASE_SCORE},
+
+      // Don't recommend meta posts
+      meta: false,
+
+      // Enforce the disableRecommendation flag
+      disableRecommendation: {$ne: true},
+    },
+    {
+      defaultRecommendation: true
+    }
+  ]
 }
+
+ensureIndex(Posts, {defaultRecommendation: 1})
 
 // Return the set of all posts that are eligible for being recommended, with
 // scoreRelevantFields included (but other fields projected away). If
@@ -75,10 +84,10 @@ const allRecommendablePosts = async ({currentUser, onlyUnread}) => {
     { $match: {
       ...recommendablePostFilter,
     } },
-    
+
     // If onlyUnread, filter to just unread posts
     ...(onlyUnread ? pipelineFilterUnread({currentUser}) : []),
-    
+
     // Project out fields other than _id and scoreRelevantFields
     { $project: {_id:1, ...scoreRelevantFields} },
   ]).toArray();
@@ -95,12 +104,12 @@ const allRecommendablePosts = async ({currentUser, onlyUnread}) => {
 //     return value will be the ones returned.
 const topPosts = async ({count, currentUser, onlyUnread, scoreFn}) => {
   const unreadPostsMetadata  = await allRecommendablePosts({currentUser, onlyUnread});
-  
+
   const unreadTopPosts = _.first(
     _.sortBy(unreadPostsMetadata, post => -scoreFn(post)),
     count);
   const unreadTopPostIds = _.map(unreadTopPosts, p=>p._id);
-  
+
   return await Posts.find(
     { _id: {$in: unreadTopPostIds} },
     { sort: {baseScore: -1} }
@@ -109,6 +118,7 @@ const topPosts = async ({count, currentUser, onlyUnread, scoreFn}) => {
 
 // Returns a random weighted sampling of highly-rated posts (weighted by
 // sampleWeightFn) to recommend to a user.
+//
 //   count: The maximum number of posts to return. May return fewer, if there
 //     aren't enough recommendable unread posts in the database.
 //   currentUser: The user who is requesting the recommendations, or null if
@@ -119,13 +129,20 @@ const topPosts = async ({count, currentUser, onlyUnread, scoreFn}) => {
 //     more likely to be recommended.
 const samplePosts = async ({count, currentUser, onlyUnread, sampleWeightFn}) => {
   const unreadPostsMetadata  = await allRecommendablePosts({currentUser, onlyUnread});
-  
-  const sampledPosts = new WeightedList(
-    _.map(unreadPostsMetadata, post => [post._id, sampleWeightFn(post)])
-  ).pop(count);
-  
+
+  // Limit number of default recommendations to count
+  const recommendedUnreadPosts = _.first(unreadPostsMetadata.filter(p=> !!p.defaultRecommendation).map(p=>p._id), count)
+
+  let sampledPosts = []
+  if (count - recommendedUnreadPosts.length > 0 && recommendedUnreadPosts.length > count) {
+    sampledPosts = new WeightedList(
+      _.map(unreadPostsMetadata, post => [post._id, sampleWeightFn(post)])
+    ).pop(count - recommendedUnreadPosts.length);
+  }
+
   return await Posts.find(
-    { _id: {$in: sampledPosts} },
+    { _id: {$in: [...recommendedUnreadPosts, ...sampledPosts]} },
+    { sort: {defaultRecommendation: -1} }
   ).fetch();
 }
 
@@ -139,7 +156,7 @@ const getRecommendedPosts = async ({count, algorithm, currentUser}) => {
     const weight = sectionModifier + Math.pow(post.baseScore - algorithm.scoreOffset, algorithm.scoreExponent)
     return Math.max(0, weight);
   }
-  
+
   // Cases here should match recommendationAlgorithms in RecommendationsAlgorithmPicker.jsx
   switch(algorithm.method) {
     case "top": {
@@ -164,23 +181,20 @@ const getRecommendedPosts = async ({count, algorithm, currentUser}) => {
 
 const getDefaultResumeSequence = () => {
   return [
-    { 
+    {
       // HPMOR
-      sequenceId: "PtgH6ALi5CoJnPmGS", 
-      collectionId: "ywQvGBSojSQZTMpLh", 
-      nextPostId: "vNHf7dx5QZA4SLSZb", 
+      collectionId: "ywQvGBSojSQZTMpLh",
+      nextPostId: "vNHf7dx5QZA4SLSZb",
     },
-    { 
+    {
       // Codex
-      sequenceId: "XsMTxdQ6fprAQMoKi", 
-      collectionId: "2izXHCrmJ684AnZ5X", 
-      nextPostId: "gFMH3Cqw4XxwL69iy", 
+      collectionId: "2izXHCrmJ684AnZ5X",
+      nextPostId: "gFMH3Cqw4XxwL69iy",
     },
-    { 
+    {
       // R:A-Z
-      sequenceId: "5g5TkQTe9rmPS5vvM", 
-      collectionId: "oneQyj4pw77ynzwAF", 
-      nextPostId: "uXn3LyA8eNqpvdoZw", 
+      collectionId: "oneQyj4pw77ynzwAF",
+      nextPostId: "uXn3LyA8eNqpvdoZw",
     },
   ]
 }
@@ -190,7 +204,7 @@ const getResumeSequences = async (currentUser, context) => {
 
   if (!sequences)
     return [];
-  
+
   return Promise.all(_.map(sequences,
     async partiallyReadSequence => {
       const { sequenceId, collectionId, lastReadPostId, nextPostId, numRead, numTotal, lastReadTime } = partiallyReadSequence;
@@ -216,10 +230,10 @@ addGraphQLResolvers({
   Query: {
     async ContinueReading(root, args, context) {
       const { currentUser } = context;
-      
+
       return await getResumeSequences(currentUser, context);
     },
-    
+
     async Recommendations(root, {count,algorithm}, context) {
       const { currentUser } = context;
       const recommendedPosts = await getRecommendedPosts({count, algorithm, currentUser})
@@ -234,7 +248,7 @@ addGraphQLResolvers({
   Mutation: {
     async dismissRecommendation(root, {postId}, context) {
       const { currentUser } = context;
-      
+
       if (_.some(currentUser.partiallyReadSequences, s=>s.nextPostId===postId)) {
         const newPartiallyRead = _.filter(currentUser.partiallyReadSequences,
           s=>s.nextPostId !== postId);
@@ -261,4 +275,3 @@ addGraphQLSchema(`
 addGraphQLQuery("ContinueReading: [RecommendResumeSequence!]");
 addGraphQLQuery("Recommendations(count: Int, algorithm: JSON): [Post!]");
 addGraphQLMutation("dismissRecommendation(postId: String): Boolean");
-

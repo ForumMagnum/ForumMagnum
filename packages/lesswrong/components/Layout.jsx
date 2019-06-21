@@ -9,6 +9,8 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import classNames from 'classnames'
 import Intercom from 'react-intercom';
 import moment from 'moment-timezone';
+import { withCookies } from 'react-cookie'
+import LogRocket from 'logrocket'
 
 import { withStyles, withTheme } from '@material-ui/core/styles';
 import getHeaderSubtitleData from '../lib/modules/utils/getHeaderSubtitleData';
@@ -19,6 +21,19 @@ import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents'
 
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
 const googleTagManagerId = getSetting('googleTagManager.apiKey')
+
+// From https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
+// Simple hash for randomly sampling users. NOT CRYPTOGRAPHIC.
+const hashCode = function(str) {
+  var hash = 0, i, chr;
+  if (str.length === 0) return hash;
+  for (i = 0; i < str.length; i++) {
+    chr   = str.charCodeAt(i);
+    hash  = ((hash << 5) - hash) + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+};
 
 const styles = theme => ({
   main: {
@@ -72,6 +87,38 @@ class Layout extends PureComponent {
     }
   }
 
+  getUniqueClientId = () => {
+    const { currentUser, cookies } = this.props
+    
+    if (currentUser) return currentUser._id
+    
+    const cookieId = cookies.get('clientId')
+    if (cookieId) return cookieId
+
+    const newId = Random.id()
+    cookies.set('clientId', newId)
+    return newId
+  }
+
+  initializeLogRocket = () => {
+    const { currentUser } = this.props
+    const logRocketKey = getSetting('logRocket.apiKey')
+    if (logRocketKey) {
+      // If the user is logged in, always log their sessions
+      if (currentUser) { 
+        LogRocket.init()
+        return
+      }
+
+      // If the user is not logged in, only track 1/5 of the sessions
+      const clientId = this.getUniqueClientId()
+      const hash = hashCode(clientId)
+      if (hash % getSetting('logRocket.sampleDensity') === 0) {
+        LogRocket.init(getSetting('logRocket.apiKey'))
+      }
+    }
+  }
+
   componentDidMount() {
     const newTimezone = moment.tz.guess();
     if(this.state.timezone !== newTimezone) {
@@ -79,6 +126,7 @@ class Layout extends PureComponent {
         timezone: newTimezone
       });
     }
+    this.initializeLogRocket()
   }
 
   render () {
@@ -162,4 +210,4 @@ class Layout extends PureComponent {
 
 Layout.displayName = "Layout";
 
-registerComponent('Layout', Layout, withRouter, withApollo, withStyles(styles, { name: "Layout" }), withTheme());
+registerComponent('Layout', Layout, withRouter, withApollo, withStyles(styles, { name: "Layout" }), withTheme(), withCookies);

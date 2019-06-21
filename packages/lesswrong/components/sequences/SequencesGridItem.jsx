@@ -108,10 +108,10 @@ class SequencesGridItem extends PureComponent {
 
   render() {
     const { sequence, showAuthor=false, classes } = this.props
-    const { LinkCard } = Components;
+    const { LinkCard, SequenceTooltip } = Components;
     const url = this.getSequenceUrl()
 
-    return <LinkCard className={classes.root} to={url}>
+    return <LinkCard className={classes.root} to={url} tooltip={<SequenceTooltip sequence={sequence}/>}>
       <div className={classNames(classes.top, {[classes.topWithAuthor]: showAuthor})} style={{borderTopColor: sequence.color}}>
         <Link key={sequence._id} to={url}>
           <Typography variant='title' className={classes.title}>
@@ -133,7 +133,7 @@ class SequencesGridItem extends PureComponent {
           />
         </NoSSR>
       </div>
-    </LinkCard>;
+    </LinkCard>
   }
 }
 
