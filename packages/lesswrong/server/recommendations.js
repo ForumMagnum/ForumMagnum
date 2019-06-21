@@ -130,18 +130,18 @@ const topPosts = async ({count, currentUser, onlyUnread, scoreFn}) => {
 const samplePosts = async ({count, currentUser, onlyUnread, sampleWeightFn}) => {
   const unreadPostsMetadata  = await allRecommendablePosts({currentUser, onlyUnread});
 
-  // Limit number of default recommendations to count
-  const recommendedUnreadPosts = _.first(unreadPostsMetadata.filter(p=> !!p.defaultRecommendation).map(p=>p._id), count)
+  const numPostsToReturn = Math.max(0, Math.min(unreadPostsMetadata.length, count))
 
-  let sampledPosts = []
-  if (count - recommendedUnreadPosts.length > 0 && recommendedUnreadPosts.length > count) {
-    sampledPosts = new WeightedList(
-      _.map(unreadPostsMetadata, post => [post._id, sampleWeightFn(post)])
-    ).pop(count - recommendedUnreadPosts.length);
-  }
+  const defaultRecommendations = unreadPostsMetadata.filter(p=> !!p.defaultRecommendation).map(p=>p._id)
+
+  const sampledPosts = new WeightedList(
+    _.map(unreadPostsMetadata, post => [post._id, sampleWeightFn(post)])
+  ).pop(Math.max(numPostsToReturn - defaultRecommendations.length, 0))
+
+  const recommendedPosts = _.first([...defaultRecommendations, ...sampledPosts], numPostsToReturn)
 
   return await Posts.find(
-    { _id: {$in: [...recommendedUnreadPosts, ...sampledPosts]} },
+    { _id: {$in: recommendedPosts} },
     { sort: {defaultRecommendation: -1} }
   ).fetch();
 }
