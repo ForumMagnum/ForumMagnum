@@ -134,7 +134,7 @@ const samplePosts = async ({count, currentUser, onlyUnread, sampleWeightFn}) => 
   const recommendedUnreadPosts = _.first(unreadPostsMetadata.filter(p=> !!p.defaultRecommendation).map(p=>p._id), count)
 
   let sampledPosts = []
-  if (count - recommendedUnreadPosts.length > 0 && recommendedUnreadPosts.length > count) {
+  if (count - recommendedUnreadPosts.length > 0) {
     sampledPosts = new WeightedList(
       _.map(unreadPostsMetadata, post => [post._id, sampleWeightFn(post)])
     ).pop(count - recommendedUnreadPosts.length);
