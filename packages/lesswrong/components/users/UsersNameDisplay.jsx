@@ -27,8 +27,6 @@ const styles = theme => ({
     color: "rgba(255,255,255,.8)"
   },
   bookIcon: {
-    width: "1rem",
-    height: "1rem",
     filter: "invert(100%)",
   },
   bio: {
