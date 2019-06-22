@@ -11,6 +11,7 @@ addRoute([
 
 // Miscellaneous LW2 routes
 addRoute({ name: 'login', path: '/login', componentName: 'LoginPage', title: "Login" });
+addRoute({ name: 'resendVerificationEmail', path: '/resendVerificationEmail', componentName: 'ResendVerificationEmailPage'});
 addRoute({ name: 'inbox', path: '/inbox', componentName: 'InboxWrapper', title: "Inbox" });
 addRoute({ name: 'conversation', path: '/inbox/:_id', componentName: 'ConversationWrapper', title: "Private Conversation" });
 
@@ -94,7 +95,7 @@ switch (getSetting('forumType')) {
   default:
     // Default is Vanilla LW
     addRoute({name: 'home', path: '/', componentName: 'Home2'});
-    addRoute({name:'about',   path:'/about', componentName: 'PostsSingleRoute', _id:"ANDbEKqbdDuBCQAnM"});
+    addRoute({name:'about',   path:'/about', componentName: 'PostsSingleRoute', _id:"bJ2haLkcGeLtTWaD5"});
     addRoute({ name: 'Meta', path: '/meta', componentName: 'Meta', title: "Meta"})
 }
 

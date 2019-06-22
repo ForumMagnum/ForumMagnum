@@ -84,6 +84,33 @@ class UsersProfile extends Component {
     showSettings: false
   }
 
+  componentDidMount() {
+    const { results } = this.props
+    const document = this.getUserFromResults(results)
+    if (document) {
+      this.setCanonicalUrl()
+    }
+  }
+
+  componentDidUpdate({results: previousResults}) {
+    const { results } = this.props
+    const oldDocument = this.getUserFromResults(previousResults)
+    const newDocument = this.getUserFromResults(results)
+    if (oldDocument?.slug !== newDocument?.slug) {
+      this.setCanonicalUrl()
+    }
+  }
+
+  setCanonicalUrl = () => {
+    const { router, results, slug } = this.props
+    const document = this.getUserFromResults(results)
+    // Javascript redirect to make sure we are always on the most canonical URL for this user
+    if (slug !== document?.slug) {
+      const canonicalUrl = Users.getProfileUrlFromSlug(document.slug);
+      router.replace(canonicalUrl);
+    }
+  }
+
   displaySequenceSection = (canEdit, user)  => {
     if (getSetting('forumType') === 'AlignmentForum') {
         return !!((canEdit && user.afSequenceDraftCount) || user.afSequenceCount) || !!(!canEdit && user.afSequenceCount)
@@ -162,13 +189,6 @@ class UsersProfile extends Component {
       //eslint-disable-next-line no-console
       console.error(`// missing user (_id/slug: ${slug})`);
       return <Components.Error404/>
-    }
-
-    // Javascript redirect to make sure we are always on the most canonical URL for this user
-    if (slug !== document.slug) {
-      const canonicalUrl = Users.getProfileUrlFromSlug(document.slug);
-      history.replace(canonicalUrl);
-      return null;
     }
 
     const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsIcon } = Components

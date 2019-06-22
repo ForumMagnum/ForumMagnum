@@ -846,7 +846,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     tooltip: "Get early access to new in-development features",
-    label: "Opt into beta features"
+    label: "Opt into experimental features"
   },
   // ReCaptcha v3 Integration
   // From 0 to 1. Lower is spammier, higher is humaner.

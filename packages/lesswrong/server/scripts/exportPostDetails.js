@@ -35,7 +35,8 @@ function getPosts (selector) {
   const defaultSelector = {
     baseScore: {$gte: 0},
     draft: {$ne: true},
-    status: { $in: [1, 2] }
+    status: { $in: [1, 2] },
+    authorIsUnreviewed: false,
   }
 
   const fields = {

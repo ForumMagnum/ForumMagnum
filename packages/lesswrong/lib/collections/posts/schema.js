@@ -92,7 +92,7 @@ const schema = {
     },
     onEdit: (modifier, post) => {
       if (modifier.$set.title) {
-        return Utils.getUnusedSlugByCollectionName("Posts", Utils.slugify(modifier.$set.title))
+        return Utils.getUnusedSlugByCollectionName("Posts", Utils.slugify(modifier.$set.title), false, post._id)
       }
     }
   },

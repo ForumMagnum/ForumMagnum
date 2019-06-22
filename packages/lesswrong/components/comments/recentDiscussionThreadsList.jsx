@@ -21,7 +21,7 @@ const RecentDiscussionThreadsList = ({
     return null
   }
 
-  const limit = (currentUser && currentUser.isAdmin) ? 8 : 3
+  const limit = (currentUser && currentUser.isAdmin) ? 4 : 3
 
   return (
     <div>
