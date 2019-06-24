@@ -56,6 +56,7 @@ class WrappedLoginForm extends Component
           return {...options, profile: {...options.profile, reCaptchaToken}}
         }}
         customSignupFields={customSignupFields}
+        {...this.props}
       />
     </React.Fragment>;
   }
