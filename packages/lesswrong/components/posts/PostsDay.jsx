@@ -23,6 +23,7 @@ const styles = theme => ({
   },
 })
 
+// TODO; rename
 class PostsDay extends PureComponent {
 
   render() {

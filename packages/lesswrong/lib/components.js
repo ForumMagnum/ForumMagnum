@@ -112,7 +112,7 @@ import '../components/posts/PostsSingle.jsx';
 import '../components/posts/PostsNoMore.jsx';
 import '../components/posts/PostsNoResults.jsx';
 import '../components/posts/PostsLoading.jsx';
-import '../components/posts/PostsDailyList.jsx';
+import '../components/posts/PostsTimeframeList.jsx';
 import '../components/posts/AllPostsPage.jsx';
 import '../components/posts/PostsListSettings.jsx';
 import '../components/posts/PostsThumbnail.jsx';
