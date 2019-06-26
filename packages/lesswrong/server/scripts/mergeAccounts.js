@@ -97,6 +97,7 @@ Vulcan.mergeAccounts = async (sourceUserId, targetUserId) => {
   await transferCollection({sourceUserId, targetUserId, collectionName: "Collections"})
   
   // Transfer karma
+  // eslint-disable-next-line no-console
   console.log("Transferring karma")
   await editMutation({
     collection: Users,
@@ -106,21 +107,19 @@ Vulcan.mergeAccounts = async (sourceUserId, targetUserId) => {
   })
   
   // Transfer votes that target content from source user (authorId)
+  // eslint-disable-next-line no-console
   console.log("Transferring votes that target source user")
   await Votes.update({authorId: sourceUserId}, {$set: {authorId: targetUserId}}, {multi: true})
 
   // Transfer votes cast by source user
+  // eslint-disable-next-line no-console
   console.log("Transferring votes cast by source user")
   await Votes.update({userId: sourceUserId}, {$set: {userId: targetUserId}}, {multi: true})
   
   // Change slug of source account by appending "old" and reset oldSlugs array
+  // eslint-disable-next-line no-console
   console.log("Change slugs of source account")
-  await editMutation({
-    collection: Users,
-    documentId: sourceUserId,
-    set: {slug: Utils.getUnusedSlug(Users, `${sourceUser.slug}-old`, true), oldSlugs: []},
-    validate: false
-  })
+  await Users.update({_id: sourceUserId}, {slug: Utils.getUnusedSlug(Users, `${sourceUser.slug}-old`, true)})
 
   // Add slug to oldSlugs array of target account
   const newOldSlugs = [
@@ -128,6 +127,7 @@ Vulcan.mergeAccounts = async (sourceUserId, targetUserId) => {
     ...(sourceUser.oldSlugs || []), 
     sourceUser.slug
   ]
+  // eslint-disable-next-line no-console
   console.log("Changing slugs of target account", sourceUser.slug, newOldSlugs)
   
   await editMutation({
@@ -138,6 +138,7 @@ Vulcan.mergeAccounts = async (sourceUserId, targetUserId) => {
   })
   
   // Mark old acccount as deleted
+  // eslint-disable-next-line no-console
   console.log("Marking old account as deleted")
   await editMutation({
     collection: Users,
