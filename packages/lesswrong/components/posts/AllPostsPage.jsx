@@ -101,9 +101,9 @@ class AllPostsPage extends Component {
     };
     console.log(' dailyTerms', dailyTerms)
 
-    const {PostsDailyList, PostsList2} = Components
+    const {PostsTimeframeList, PostsList2} = Components
     if (currentTimeframe !== 'allTime') return <div className={classes.daily}>
-      <PostsDailyList
+      <PostsTimeframeList
         // TODO; title unused?
         title="Posts by Day"
         timeframe={currentTimeframe}

@@ -27,12 +27,12 @@ const styles = theme => ({
 // https://github.com/apollographql/apollo-client/blob/master/packages/apollo-client/src/core/networkStatus.ts
 
 import classNames from 'classnames';
-class PostsDailyList extends PureComponent {
+class PostsTimeframeList extends PureComponent {
 
   constructor(props) {
     super(props);
 
-    console.log('PostsDailyList constructor')
+    console.log('PostsTimeframeList constructor')
     // console.log('  props', props)
     // TODO; try without
     this.loadMoreTimeBlocks = this.loadMoreTimeBlocks.bind(this);
@@ -133,7 +133,7 @@ class PostsDailyList extends PureComponent {
     const {
       timeframe, dimWhenLoading, loading, loadingMore, classes, currentUser, networkStatus, timezone, timeField
     } = this.props
-    console.log('PostsDailyList render()')
+    console.log('PostsTimeframeList render()')
     // console.log('  props subset', {loading, loadingMore, networkStatus})
     if (!timeframes[this.props.timeframe]) {
       throw new Error(`Invalid timeframe supplied to [TODO; ComponentName]: '${this.props.timeframe}'`)
@@ -177,14 +177,14 @@ class PostsDailyList extends PureComponent {
   }
 }
 
-PostsDailyList.propTypes = {
+PostsTimeframeList.propTypes = {
   timeframe: PropTypes.string,
   currentUser: PropTypes.object,
   numTimeBlocks: PropTypes.number,
   increment: PropTypes.number,
 };
 
-PostsDailyList.defaultProps = {
+PostsTimeframeList.defaultProps = {
   // TODO; maybe register setting
   timeframe: 'daily',
   numTimeBlocks: getSetting('forum.numTimeBlocks', 5),
@@ -193,10 +193,10 @@ PostsDailyList.defaultProps = {
 
 const options = {
   collection: Posts,
-  queryName: 'postsDailyListQuery',
+  queryName: 'PostsTimeframeListQuery',
   fragmentName: 'PostsList',
   limit: 0,
   ssr: false, // TODO; temp
 };
 
-registerComponent('PostsDailyList', PostsDailyList, withCurrentUser, [withList, options], withTimezone, withStyles(styles, {name: "PostsDailyList"}));
+registerComponent('PostsTimeframeList', PostsTimeframeList, withCurrentUser, [withList, options], withTimezone, withStyles(styles, {name: "PostsTimeframeList"}));
