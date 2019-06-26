@@ -7,6 +7,8 @@ import { withCurrentUser, withList, getSetting, Components, registerComponent } 
 import withTimezone from '../common/withTimezone';
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
+import {getDatePosts, getDateRange} from './timeframeUtils'
+
 
 // TODO; probs reverse import direction
 import {
@@ -46,13 +48,11 @@ class PostsDailyList extends PureComponent {
       return
     }
 
-    console.log('  timeframettb', timeframeToTimeBlock)
-    console.log('  props.timeframe', props.timeframe)
+    // console.log(' timeframettb', timeframeToTimeBlock)
+    // console.log(' props.timeframe', props.timeframe)
     const timeBlock = timeframeToTimeBlock[props.timeframe]
-    const after = props.terms.after ||
-      getAfterDateDefault({timeBlock, numTimeBlocks: props.numTimeBlocks})
-    const before = props.terms.before ||
-      getBeforeDateDefault({timeBlock, numTimeBlocks: props.numTimeBlocks})
+    const after = props.terms.after || getAfterDateDefault(props.numTimeBlocks, timeBlock)
+    const before = props.terms.before || getBeforeDateDefault(timeBlock)
     this.state = {
       rumTimeBlocks: props.numTimeBlocks,
       blocksLoaded: props.numTimeBlocks,
@@ -62,11 +62,12 @@ class PostsDailyList extends PureComponent {
       before,
       timeBlock,
     };
-    console.log('  state', this.state)
+    // console.log(' state', this.state)
   }
 
   // intercept prop change and only show more days once data is done loading
   // TODO; can we get rid of UNSAFE
+  // TODO; change properly on month change
   UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.networkStatus === 2) {
       //this.setState({loading: true});
@@ -80,47 +81,6 @@ class PostsDailyList extends PureComponent {
     if (nextProps.timeframe !== this.props.timeframe) {
       this.setState({timeBlock: timeframeToTimeBlock[nextProps.timeframe]})
     }
-  }
-
-  // TODO; update docstring
-  // Return a date string for each date which should have a section. This
-  // includes all dates in the range, *except* that if the newest date has no
-  // posts, it's omitted. (Because the end of the range is some fraction of a
-  // day into the future, which would otherwise sometimes result in an awkward
-  // empty slot for tomorrow, depending on the current time of day.)
-  getDateRange(after, before, posts, timeBlock) {
-    console.log('getDateRange')
-    console.log('after', after)
-    console.log('before', before)
-    console.log('timeBlock', timeBlock)
-    const mAfter = moment.utc(after, 'YYYY-MM-DD');
-    const mBefore = moment.utc(before, 'YYYY-MM-DD');
-    const daysCount = mBefore.diff(mAfter, this.state.timeBlock) + 1;
-    const range = _.range(daysCount).map(
-      i => moment.utc(before, 'YYYY-MM-DD').subtract(i, this.state.timeBlock)
-        .tz(this.props.timezone)
-        .format('YYYY-MM-DD')
-    );
-
-    if(this.getDatePosts(posts, range[0]).length === 0, timeBlock) {
-      return _.rest(range);
-    } else {
-      return range;
-    }
-  }
-
-  getDatePosts(posts, date, timeBlock) {
-    // console.log('getDatePosts')
-    // console.log('  date', date)
-    const { timeField } = this.props.terms
-    return _.filter(posts, post => {
-      const postDate = moment(new Date(timeField ? post[timeField] : post.postedAt))
-        .tz(this.props.timezone)
-      // console.log('  postDate', postDate)
-      const result = postDate.isSame(moment(date), timeBlock)
-      // console.log('  result', result)
-      return result
-    })
   }
 
   // TODO; remove
@@ -173,16 +133,17 @@ class PostsDailyList extends PureComponent {
   }
 
   render() {
-    const { timeframe, dimWhenLoading, loading, loadingMore, classes, currentUser, networkStatus } = this.props
+    const {
+      timeframe, dimWhenLoading, loading, loadingMore, classes, currentUser, networkStatus, timezone, timeField
+    } = this.props
     console.log('PostsDailyList render()')
-    console.log('  props subset', {loading, loadingMore, networkStatus})
+    // console.log('  props subset', {loading, loadingMore, networkStatus})
     if (!timeframes[this.props.timeframe]) {
-      // TODO; this caused hella problems
       throw new Error(`Invalid timeframe supplied to [TODO; ComponentName]: '${this.props.timeframe}'`)
     }
     const posts = this.props.results;
     const { timeBlock } = this.state
-    const dates = this.getDateRange(this.state.afterLoaded, this.state.before, posts, timeBlock);
+    const dates = getDateRange(this.state.afterLoaded, this.state.before, posts, timeBlock, timeField, timezone);
     const { Loading, PostsDay } = Components
     const loadMoreMessageId = {
       daily: "posts.load_more_days",
@@ -195,8 +156,15 @@ class PostsDailyList extends PureComponent {
       return <Loading />
     }
     //
-    const titlesAndDates = posts.map(post => _.pick(post, ['title', 'postedAt']))
-    console.log('titlesAndDates', titlesAndDates)
+    // const titlesAndDates = posts
+      // .map(post => ({title: post.title, postedAt: post.postedAt.slice(0, post.postedAt.indexOf('T'))}))
+      // .sort((a, b) => {
+      //   if (a.postedAt === b.postedAt) return 0
+      //   if (a.postedAt < b.postedAt) return 1
+      //   return 1
+      // })
+    // console.log('titlesAndDates', titlesAndDates)
+    console.log('posts', posts)
     console.log('----')
     //
     return (
@@ -206,7 +174,7 @@ class PostsDailyList extends PureComponent {
           console.log('dates map date', date)
           return <PostsDay key={date.toString()}
             date={moment(date)}
-            posts={this.getDatePosts(posts, date, timeBlock)}
+            posts={getDatePosts(posts, date, timeBlock, timeField, timezone)}
             networkStatus={networkStatus}
             currentUser={currentUser}
           />

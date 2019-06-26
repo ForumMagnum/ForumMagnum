@@ -8,6 +8,16 @@ import moment from 'moment';
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
 
+// In lieu of a proper debugging solution, hack in a single flag
+// TODO: Get a proper logging library
+// Set this to true when you want to see the view params
+const DEBUG_POSTS_VIEWS = false
+function localDebug (...args) {
+  if (!DEBUG_POSTS_VIEWS) return
+  // eslint-disable-next-line no-console
+  console.log('posts/views.js > ', ...args)
+}
+
 /**
  * @description In allPosts and elsewhere (every component that uses PostsListSettings and some
  * that use PostsList) we use the concept of filters which are like Vulcan's
@@ -66,7 +76,10 @@ const sortings = {
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
  */
 Posts.addDefaultView(terms => {
+  localDebug('defaultView full terms', terms)
+  localDebug('defaultView terms.view', terms.view)
   const validFields = _.pick(terms, 'userId', 'meta', 'groupId', 'af','question', 'authorIsUnreviewed');
+  localDebug('defaultView validFields', validFields)
   // Also valid fields: before, after, timeField (select on postedAt), and
   // karmaThreshold (selects on baseScore).
 
@@ -85,6 +98,7 @@ Posts.addDefaultView(terms => {
     },
     options: {},
   }
+  localDebug('defaultView initial params\n ', params)
   if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
     params.selector.baseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
     params.selector.maxBaseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
@@ -95,6 +109,7 @@ Posts.addDefaultView(terms => {
   if (terms.includeRelatedQuestions === "true") {
     params.selector.hiddenRelatedQuestion = viewFieldAllowAny
   }
+  localDebug('defaultView filter', terms.filter)
   if (terms.filter) {
     if (filters[terms.filter]) {
       params.selector = {...params.selector, ...filters[terms.filter]}
@@ -106,6 +121,7 @@ Posts.addDefaultView(terms => {
       )
     }
   }
+  localDebug('defaultView sortedBy', terms.sortedBy)
   if (terms.sortedBy) {
     if (sortings[terms.sortedBy]) {
       params.options = {sort: {...params.options.sort, ...sortings[terms.sortedBy]}}
@@ -117,6 +133,7 @@ Posts.addDefaultView(terms => {
       )
     }
   }
+  localDebug('defaultView params post processing\n ', params)
   return params;
 })
 
@@ -251,6 +268,7 @@ Posts.addView("old", terms => ({
 
 // TODO; test with bad timeframe
 Posts.addView("timeframe", terms => {
+  localDebug('viewFunc: timeframe')
   // TODO; I'd rather do the before after logic here than on the frontend
   return {
     limit: 500 // TODO; revisit

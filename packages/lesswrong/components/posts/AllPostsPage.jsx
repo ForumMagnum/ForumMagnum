@@ -53,17 +53,21 @@ const timeframeToNumTimeBlocks = {
 
 // TODO; doc
 // utility funcs
+// TODO; move into timeframeUtils
 
-export function getAfterDateDefault ({numTimeBlocks, timeBlock}) {
+export function getAfterDateDefault (numTimeBlocks, timeBlock) {
   if (!numTimeBlocks || !timeBlock) return
   const startCurrentTimeBlock = moment().utc().startOf(timeBlock)
+  console.log('startCurrentTimeBlock', startCurrentTimeBlock.format('YYYY-MM-DD'))
   return startCurrentTimeBlock.subtract(numTimeBlocks - 1, timeBlock).format('YYYY-MM-DD')
 }
 
-export function getBeforeDateDefault ({numTimeBlocks, timeBlock}) {
-  if (!numTimeBlocks || !timeBlock) return
+export function getBeforeDateDefault (timeBlock) {
+  if (!timeBlock) return
   const startCurrentTimeBlock = moment().utc().startOf(timeBlock)
-  return startCurrentTimeBlock.add(1, timeBlock).format('YYYY-MM-DD')
+  let result = startCurrentTimeBlock.add(1, timeBlock) // TODO; why is this necessary again?
+  if (timeBlock !== 'days') result = result.add(1, 'days') // TODO; remove but fix range
+  return result.format('YYYY-MM-DD')
 }
 
 export const sortings = {
@@ -109,12 +113,12 @@ class AllPostsPage extends Component {
       // TODO; is this properly overwritten?
       timeframe: currentTimeframe,
       karmaThreshold: DEFAULT_LOW_KARMA_THRESHOLD,
-      after: moment().utc().subtract(numTimeBlocks - 1, timeBlock).format('YYYY-MM-DD'),
-      before: moment().utc().add(1, 'days').format('YYYY-MM-DD'),
+      after: getAfterDateDefault(numTimeBlocks, timeBlock),
+      before: getBeforeDateDefault(timeBlock),
       ...terms,
       ...query,
     };
-    console.log('  dailyTerms', dailyTerms)
+    console.log(' dailyTerms', dailyTerms)
 
     const {PostsDailyList, PostsList2} = Components
     if (currentTimeframe !== 'allTime') return <div className={classes.daily}>
@@ -144,13 +148,13 @@ class AllPostsPage extends Component {
     const currentTimeframe = query.timeframe ||
       (currentUser && currentUser.allPostsTimeframe) ||
       'allTime'
-    console.log('why timeframe 1', currentTimeframe)
+    // TODO; deal with daily or allTime
     // TODO[WIP] migration for allPostsView
     // maintain backward compatibility with previous user setting during
     // transition
     const currentSorting = querySorting ||
       (currentUser && (currentUser.allPostsSorting || currentUser.allPostsView)) ||
-      'daily'
+      'magic'
     const currentFilter = query.filter ||
       (currentUser && currentUser.allPostsFilter) ||
       'all'
