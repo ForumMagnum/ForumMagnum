@@ -49,7 +49,7 @@ const UsersNameDisplay = ({user, classes, nofollow=false}) => {
     <Link to={Users.getProfileUrl(user)} className={classes.userName}
       {...(nofollow ? {rel:"nofollow"} : {})}
     >
-      {getSetting('forumType') === 'AlignmentForum' ? (user.fullName || Users.getDisplayName(user)) : Users.getDisplayName(user)}
+      {Users.getDisplayName(user)}
     </Link>
   </Tooltip>
 }
