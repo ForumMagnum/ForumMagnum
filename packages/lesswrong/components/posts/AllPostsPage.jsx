@@ -6,8 +6,8 @@ import { withRouter } from '../../lib/reactRouterWrapper.js';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
-import Typography from '@material-ui/core/Typography'
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
+import { getBeforeDateDefault, getAfterDateDefault } from './timeframeUtils'
 
 const styles = theme => ({
   daily: {
@@ -49,25 +49,6 @@ const timeframeToNumTimeBlocks = {
   weekly: getSetting('forum.numberOfWeeks', 3),
   monthly: getSetting('forum.numberOfMonths', 3),
   yearly: getSetting('forum.numberOfYears', 1),
-}
-
-// TODO; doc
-// utility funcs
-// TODO; move into timeframeUtils
-
-export function getAfterDateDefault (numTimeBlocks, timeBlock) {
-  if (!numTimeBlocks || !timeBlock) return
-  const startCurrentTimeBlock = moment().utc().startOf(timeBlock)
-  console.log('startCurrentTimeBlock', startCurrentTimeBlock.format('YYYY-MM-DD'))
-  return startCurrentTimeBlock.subtract(numTimeBlocks - 1, timeBlock).format('YYYY-MM-DD')
-}
-
-export function getBeforeDateDefault (timeBlock) {
-  if (!timeBlock) return
-  const startCurrentTimeBlock = moment().utc().startOf(timeBlock)
-  let result = startCurrentTimeBlock.add(1, timeBlock) // TODO; why is this necessary again?
-  if (timeBlock !== 'days') result = result.add(1, 'days') // TODO; remove but fix range
-  return result.format('YYYY-MM-DD')
 }
 
 export const sortings = {

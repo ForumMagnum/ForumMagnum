@@ -239,15 +239,6 @@ class PostsListSettings extends Component {
           >
             <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentShowLowKarma} />
 
-            {/*TODO; is this removable now*/}
-            {/* {currentShowLowKarma ?
-            // Looks like Checkbox doesn't play nicely with the Link/route based check-status-setting/
-            // This works fine but feels a bit hacky
-              <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked />
-              :
-              <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}}/>
-            } */}
-
             <MetaInfo className={classes.checkboxLabel}>
               Show Low Karma
             </MetaInfo>

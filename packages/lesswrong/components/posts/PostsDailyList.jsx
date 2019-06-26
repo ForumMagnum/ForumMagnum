@@ -7,16 +7,11 @@ import { withCurrentUser, withList, getSetting, Components, registerComponent } 
 import withTimezone from '../common/withTimezone';
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
-import {getDatePosts, getDateRange} from './timeframeUtils'
-
-
-// TODO; probs reverse import direction
 import {
-  timeframeToTimeBlock,
-  getAfterDateDefault,
-  getBeforeDateDefault,
-  timeframes
-} from './AllPostsPage'
+  getBeforeDateDefault, getAfterDateDefault, getDatePosts, getDateRange
+} from './timeframeUtils'
+// TODO; probs reverse import direction
+import { timeframeToTimeBlock, timeframes } from './AllPostsPage'
 
 const styles = theme => ({
   loading: {
@@ -67,7 +62,9 @@ class PostsDailyList extends PureComponent {
 
   // intercept prop change and only show more days once data is done loading
   // TODO; can we get rid of UNSAFE
-  // TODO; change properly on month change
+  // TODO; currently on switch from daily to monthly the before date stays the
+  // same, and the grouping is in the middle of the month, plus probably other
+  // problems
   UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.networkStatus === 2) {
       //this.setState({loading: true});
@@ -155,18 +152,7 @@ class PostsDailyList extends PureComponent {
     if (loading && (!posts || !posts.length)) {
       return <Loading />
     }
-    //
-    // const titlesAndDates = posts
-      // .map(post => ({title: post.title, postedAt: post.postedAt.slice(0, post.postedAt.indexOf('T'))}))
-      // .sort((a, b) => {
-      //   if (a.postedAt === b.postedAt) return 0
-      //   if (a.postedAt < b.postedAt) return 1
-      //   return 1
-      // })
-    // console.log('titlesAndDates', titlesAndDates)
-    console.log('posts', posts)
-    console.log('----')
-    //
+    console.log(' posts', posts)
     return (
       <div className={classNames({[classes.loading]: dim})}>
         { loading && <Loading />}
@@ -210,7 +196,7 @@ const options = {
   queryName: 'postsDailyListQuery',
   fragmentName: 'PostsList',
   limit: 0,
-  ssr: false, // TODO; temporary
+  ssr: false, // TODO; temp
 };
 
 registerComponent('PostsDailyList', PostsDailyList, withCurrentUser, [withList, options], withTimezone, withStyles(styles, {name: "PostsDailyList"}));
