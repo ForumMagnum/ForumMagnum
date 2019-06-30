@@ -21,8 +21,6 @@ const defaultOptions = {
   commentEditor: false,
   // Determines whether to use the comment editor styles (e.g. Fonts)
   commentStyles: false,
-  // Determines whether to use the comment local storage restoration system
-  commentLocalStorage: false,
   permissions: {
     viewableBy: ['guests'],
     editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
@@ -121,7 +119,7 @@ export const makeEditable = ({collection, options = {}}) => {
       viewableBy: ['guests'],
       
       resolver: (post) => {
-        return post[fieldName || "contents"] && post[fieldName || "contents"].version
+        return post[fieldName || "contents"]?.version
       }
     })
   });
