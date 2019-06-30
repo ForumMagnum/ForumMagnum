@@ -134,17 +134,23 @@ export function addEditableCallbacks({collection, options = {}}) {
   const { typeName } = collection.options
 
   async function editorSerializationNew (doc, { currentUser }) {
-    if (doc[fieldName]?.originalContents) {
-      if (!currentUser) { throw Error("Can't create document without current user") }
-      const { data, type } = doc[fieldName].originalContents
-      const html = await dataToHTML(data, type, !currentUser.isAdmin)
-      const wordCount = await dataToWordCount(data, type)
-      const version = getInitialVersion(doc)
-      const userId = currentUser._id
-      const editedAt = new Date()
-      return {...doc, [fieldName]: {...doc[fieldName], html, version, userId, editedAt, wordCount, updateType: 'initial'}}
+    if (!doc[fieldName]?.originalContents) return doc;
+    if (!currentUser) { throw Error("Can't create document without current user") }
+    
+    const { data, type } = doc[fieldName].originalContents
+    const html = await dataToHTML(data, type, !currentUser.isAdmin)
+    const wordCount = await dataToWordCount(data, type)
+    const version = getInitialVersion(doc)
+    const userId = currentUser._id
+    const editedAt = new Date()
+    return {
+      ...doc,
+      [fieldName]: {
+        ...doc[fieldName],
+        html, version, userId, editedAt, wordCount,
+        updateType: 'initial'
+      }
     }
-    return doc
   }
 
   if (!deactivateNewCallback) {
@@ -152,23 +158,30 @@ export function addEditableCallbacks({collection, options = {}}) {
   }
 
   async function editorSerializationEdit (docData, { document, currentUser }) {
-    if (docData[fieldName]?.originalContents) {
-      if (!currentUser) { throw Error("Can't create document without current user") }
-      const { data, type } = docData[fieldName].originalContents
-      const html = await dataToHTML(data, type, !currentUser.isAdmin)
-      const wordCount = await dataToWordCount(data, type)
-      const defaultUpdateType = docData[fieldName].updateType || (!document[fieldName] && 'initial') || 'minor'
-      const newDocument = {...document, ...docData}
-      const isBeingUndrafted = document.draft && !newDocument.draft
-      // When a document is undrafted for the first time, we ensure that this constitutes a major update
-      const { major } = extractVersionsFromSemver((document[fieldName]?.version) ? document[fieldName].version : undefined)
-      const updateType = (isBeingUndrafted && (major < 1)) ? 'major' : defaultUpdateType
-      const version = await getNextVersion(document._id, updateType, fieldName, newDocument.draft)
-      const userId = currentUser._id
-      const editedAt = new Date()
-      return {...docData, [fieldName]: {...docData[fieldName], html, version, userId, editedAt, wordCount}}
-    } 
-    return docData
+    if (!docData[fieldName]?.originalContents)
+      return docDate;
+    if (!currentUser) { throw Error("Can't create document without current user") }
+    
+    const { data, type } = docData[fieldName].originalContents
+    const html = await dataToHTML(data, type, !currentUser.isAdmin)
+    const wordCount = await dataToWordCount(data, type)
+    const defaultUpdateType = docData[fieldName].updateType || (!document[fieldName] && 'initial') || 'minor'
+    const newDocument = {...document, ...docData}
+    const isBeingUndrafted = document.draft && !newDocument.draft
+    // When a document is undrafted for the first time, we ensure that this constitutes a major update
+    const { major } = extractVersionsFromSemver((document[fieldName]?.version) ? document[fieldName].version : undefined)
+    const updateType = (isBeingUndrafted && (major < 1)) ? 'major' : defaultUpdateType
+    const version = await getNextVersion(document._id, updateType, fieldName, newDocument.draft)
+    const userId = currentUser._id
+    const editedAt = new Date()
+    
+    return {
+      ...docData,
+      [fieldName]: {
+        ...docData[fieldName],
+        html, version, userId, editedAt, wordCount
+      }
+    }
   }
   
   addCallback(`${typeName.toLowerCase()}.update.before`, editorSerializationEdit);
