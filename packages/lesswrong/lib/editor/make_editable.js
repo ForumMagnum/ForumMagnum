@@ -77,15 +77,16 @@ export const makeEditable = ({collection, options = {}}) => {
           const revision = await Revisions.findOne({documentId: doc._id, version, fieldName: field})
           return checkAccess(currentUser, revision) ? revision : null
         }
+        const fieldValue = doc[field];
         return {
-          editedAt: (doc[field] && doc[field].editedAt) || new Date(),
-          userId: doc[field] && doc[field].userId,
-          originalContentsType: (doc[field] && doc[field].originalContentsType) || "html",
-          originalContents: (doc[field] && doc[field].originalContents) || {},
-          html: doc[field] && doc[field].html,
-          updateType: doc[field] && doc[field].updateType,
-          version: doc[field] && doc[field].version,
-          wordCount: doc[field] && doc[field].wordCount,
+          editedAt: fieldValue?.editedAt || new Date(),
+          userId: fieldValue?.userId,
+          originalContentsType: fieldValue?.originalContentsType || "html",
+          originalContents: fieldValue?.originalContents || {},
+          html: fieldValue?.html,
+          updateType: fieldValue?.updateType,
+          version: fieldValue?.version,
+          wordCount: fieldValue?.wordCount,
         }
       },
       
