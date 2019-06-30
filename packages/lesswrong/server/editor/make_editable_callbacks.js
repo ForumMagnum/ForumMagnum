@@ -134,7 +134,7 @@ export function addEditableCallbacks({collection, options = {}}) {
   const { typeName } = collection.options
 
   async function editorSerializationNew (doc, { currentUser }) {
-    if (doc[fieldName] && doc[fieldName].originalContents) {
+    if (doc[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
       const { data, type } = doc[fieldName].originalContents
       const html = await dataToHTML(data, type, !currentUser.isAdmin)
@@ -142,7 +142,7 @@ export function addEditableCallbacks({collection, options = {}}) {
       const version = getInitialVersion(doc)
       const userId = currentUser._id
       const editedAt = new Date()
-      return {...doc, [fieldName]: {...doc[fieldName], html, version, userId, editedAt, wordCount, updateType: 'initial'}}  
+      return {...doc, [fieldName]: {...doc[fieldName], html, version, userId, editedAt, wordCount, updateType: 'initial'}}
     }
     return doc
   }
@@ -152,7 +152,7 @@ export function addEditableCallbacks({collection, options = {}}) {
   }
 
   async function editorSerializationEdit (docData, { document, currentUser }) {
-    if (docData[fieldName] && docData[fieldName].originalContents) {
+    if (docData[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
       const { data, type } = docData[fieldName].originalContents
       const html = await dataToHTML(data, type, !currentUser.isAdmin)
@@ -161,7 +161,7 @@ export function addEditableCallbacks({collection, options = {}}) {
       const newDocument = {...document, ...docData}
       const isBeingUndrafted = document.draft && !newDocument.draft
       // When a document is undrafted for the first time, we ensure that this constitutes a major update
-      const { major } = extractVersionsFromSemver((document[fieldName] && document[fieldName].version) ? document[fieldName].version : undefined)
+      const { major } = extractVersionsFromSemver((document[fieldName]?.version) ? document[fieldName].version : undefined)
       const updateType = (isBeingUndrafted && (major < 1)) ? 'major' : defaultUpdateType
       const version = await getNextVersion(document._id, updateType, fieldName, newDocument.draft)
       const userId = currentUser._id
@@ -174,8 +174,8 @@ export function addEditableCallbacks({collection, options = {}}) {
   addCallback(`${typeName.toLowerCase()}.update.before`, editorSerializationEdit);
 
   async function editorSerializationCreateRevision(newDoc, { document }) {
-    if (newDoc[fieldName] && newDoc[fieldName].originalContents && 
-      (newDoc[fieldName].version !== (document && document[fieldName] && document[fieldName].version))) {
+    if (newDoc[fieldName]?.originalContents &&
+      (newDoc[fieldName].version !== (document?.[fieldName]?.version))) {
       Revisions.insert({
         ...newDoc[fieldName],
         documentId: newDoc._id,
