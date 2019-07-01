@@ -83,7 +83,7 @@ class ModerationGuidelinesBox extends PureComponent {
       Suffix: "... (Read More)",
       Strict: false
     }
-    const { html = "" } = document.moderationGuidelines
+    const html = document.moderationGuidelines?.html || "";
     const userGuidelines = `${document.user ? `<b>${document.user.displayName + "'s commenting guidelines"}</b>: <span class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle] || ""}</span> <br/>` : ""}
     ${html || ""}`
 
