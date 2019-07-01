@@ -71,20 +71,26 @@ export const makeEditable = ({collection, options = {}}) => {
       resolver: async (doc, { version }, { currentUser, Revisions }) => {
         const field = fieldName || "contents"
         const { checkAccess } = Revisions
+        let revision;
         if (version) {
-          const revision = await Revisions.findOne({documentId: doc._id, version, fieldName: field})
+          revision = await Revisions.findOne({documentId: doc._id, version, fieldName: field})
           return checkAccess(currentUser, revision) ? revision : null
+        } else {
+          const revisionID = doc[`${field}_latest`];
+          if (!revisionID) return null;
+          revision = await Revisions.loader.load(revisionID);
         }
-        const fieldValue = doc[field];
+        revision = checkAccess(currentUser, revision) ? revision : null
+        
         return {
-          editedAt: fieldValue?.editedAt || new Date(),
-          userId: fieldValue?.userId,
-          originalContentsType: fieldValue?.originalContentsType || "html",
-          originalContents: fieldValue?.originalContents || {},
-          html: fieldValue?.html,
-          updateType: fieldValue?.updateType,
-          version: fieldValue?.version,
-          wordCount: fieldValue?.wordCount,
+          editedAt: revision.editedAt || new Date(),
+          userId: revision.userId,
+          originalContentsType: revision.originalContentsType || "html",
+          originalContents: revision.originalContents || {},
+          html: revision.html,
+          updateType: revision.updateType,
+          version: revision.version,
+          wordCount: revision.wordCount,
         }
       },
       
@@ -100,6 +106,14 @@ export const makeEditable = ({collection, options = {}}) => {
         enableMarkDownEditor,
       },
     }),
+    
+    [`${fieldName || "contents"}_latest`]: {
+      type: String,
+      viewableBy: ['guests'],
+      hidden: true,
+      optional: true,
+      ...permissions,
+    },
     
     [Utils.camelCaseify(`${fieldName}Revisions`)]: resolverOnlyField({
       type: Object,

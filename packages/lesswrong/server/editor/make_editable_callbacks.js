@@ -1,5 +1,6 @@
 /* global Random */
 import { Utils } from 'meteor/vulcan:core';
+import { Connectors } from 'meteor/vulcan:lib';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../../lib/editor/utils.js';
 import Revisions from '../../lib/collections/revisions/collection'
@@ -125,12 +126,12 @@ async function getNextVersion(documentId, updateType = 'minor', fieldName, isDra
 ensureIndex(Revisions, {documentId: 1, version: 1, fieldName: 1, editedAt: 1})
 
 async function buildRevision({ originalContents, currentUser }) {
-  const { data, type } = doc[fieldName].originalContents
+  const { data, type } = originalContents
   
   const html = await dataToHTML(data, type, !currentUser.isAdmin);
   const wordCount = await dataToWordCount(data, type);
   return {
-    html, wordCount,
+    html, wordCount, originalContents,
     editedAt: new Date(),
     userId: currentUser._id,
   };
@@ -145,36 +146,60 @@ export function addEditableCallbacks({collection, options = {}}) {
 
   const { typeName } = collection.options
 
-  async function editorSerializationNew (doc, { currentUser }) {
+  // When we create a new document with a content-editable field, we create
+  // a corresponding entry in the Revisions collection with the content, and
+  // set ${fieldName}_latest to its ID. That revision should have a documentId
+  // which points back to the document, but we don't have a document ID yet. So
+  // the before-create callback creates a revision with a blank document ID, and
+  // the after-create callback fills it in. (This is the only time, except
+  // perhaps in migration scripts, when a Revision object will ever be edited.)
+  
+  async function editorSerializationBeforeCreate (doc, { currentUser }) {
     if (!doc[fieldName]?.originalContents) return doc;
     if (!currentUser) { throw Error("Can't create document without current user") }
     
-    const { data, type } = doc[fieldName].originalContents
     const version = getInitialVersion(doc)
-    return {
+    
+    // Create the initial revision
+    const firstRevision = await Connectors.create(Revisions, {
+      ...await buildRevision({
+        originalContents: doc[fieldName].originalContents,
+        currentUser,
+      }),
+      version,
+      updateType: "initial",
+    });
+    
+    // Replace the content with a reference to the revision which contains it
+    let insertedDoc = {
       ...doc,
-      [fieldName]: {
-        ...doc[fieldName],
-        ...buildRevision({
-          originalContents: doc[fieldName].originalContents,
-          currentUser
-        }),
-        version,
-        updateType: 'initial'
-      }
-    }
+      [`${fieldName}_latest`]: firstRevision,
+    };
+    delete insertedDoc[fieldName];
+    return insertedDoc;
+  }
+  
+  async function editorSerializationAfterCreateOrUpdate(document, context) {
+    // Update the revision to point to the document that owns it
+    const revisionID = document[`${fieldName}_latest`];
+    await Revisions.update(
+      { _id: revisionID },
+      { $set: { documentId: document._id } }
+    );
+    
+    return document;
   }
 
   if (!deactivateNewCallback) {
-    addCallback(`${typeName.toLowerCase()}.create.before`, editorSerializationNew);
+    addCallback(`${typeName.toLowerCase()}.create.before`, editorSerializationBeforeCreate);
+    addCallback(`${typeName.toLowerCase()}.create.after`, editorSerializationAfterCreateOrUpdate);
   }
 
   async function editorSerializationEdit (docData, { document, currentUser }) {
     if (!docData[fieldName]?.originalContents)
-      return docDate;
+      return docData;
     if (!currentUser) { throw Error("Can't create document without current user") }
     
-    const { data, type } = docData[fieldName].originalContents
     const defaultUpdateType = docData[fieldName].updateType || (!document[fieldName] && 'initial') || 'minor'
     const newDocument = {...document, ...docData}
     const isBeingUndrafted = document.draft && !newDocument.draft
@@ -183,33 +208,24 @@ export function addEditableCallbacks({collection, options = {}}) {
     const updateType = (isBeingUndrafted && (major < 1)) ? 'major' : defaultUpdateType
     const version = await getNextVersion(document._id, updateType, fieldName, newDocument.draft)
     
-    return {
+    // Create the new revision
+    const newRevision = await Connectors.create(Revisions, {
+      ...await buildRevision({
+        originalContents: docData[fieldName].originalContents,
+        currentUser
+      }),
+      version
+    });
+    
+    // Replace the content with a reference to the revision
+    const updatedDoc = {
       ...docData,
-      [fieldName]: {
-        ...docData[fieldName],
-        ...buildRevision({
-          originalContents: docData[fieldName].originalContents,
-          currentUser,
-        }),
-        version
-      }
-    }
+      [`${fieldName}_latest`]: newRevision
+    };
+    delete updatedDoc[fieldName];
+    return updatedDoc;
   }
   
   addCallback(`${typeName.toLowerCase()}.update.before`, editorSerializationEdit);
-
-  async function editorSerializationCreateRevision(newDoc, { document }) {
-    if (newDoc[fieldName]?.originalContents &&
-      (newDoc[fieldName].version !== (document?.[fieldName]?.version))) {
-      Revisions.insert({
-        ...newDoc[fieldName],
-        documentId: newDoc._id,
-        fieldName
-      })
-    }
-    return newDoc
-  }
-  
-  addCallback(`${typeName.toLowerCase()}.create.after`, editorSerializationCreateRevision)
-  addCallback(`${typeName.toLowerCase()}.update.after`, editorSerializationCreateRevision)
+  addCallback(`${typeName.toLowerCase()}.update.after`, editorSerializationAfterCreateOrUpdate);
 }
