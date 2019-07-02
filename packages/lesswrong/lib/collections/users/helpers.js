@@ -5,6 +5,17 @@ import { Votes } from '../votes';
 import { Comments } from '../comments'
 import { Posts } from '../posts'
 
+// Overwrite user display name getter from Vulcan
+Users.getDisplayName = (user) => {
+  if (!user) {
+    return "";
+  } else {
+    return getSetting('forumType') === 'AlignmentForum' ? 
+      (user.fullName || user.displayName) :
+      (user.displayName || Users.getUserName(user))
+  }
+};
+
 Users.ownsAndInGroup = (group) => {
   return (user, document) => {
     return Users.owns(user, document) && Users.isMemberOf(user, group)
