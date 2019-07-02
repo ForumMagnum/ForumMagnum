@@ -13,12 +13,12 @@ class LoginPopup extends PureComponent {
   }
   
   render() {
-    const { onClose, classes } = this.props;
+    const { onClose } = this.props;
     
     return (
       <Dialog
         open={true}
-        onClose={this.props.onClose}
+        onClose={onClose}
       >
         <Components.WrappedLoginForm/>
       </Dialog>

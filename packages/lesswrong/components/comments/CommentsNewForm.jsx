@@ -62,8 +62,6 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
         className={classNames(classes.formButton)}
         onClick={(ev) => {
           if (!currentUser) {
-            const isAF = getSetting('forumType') === 'AlignmentForum';
-            console.log("Opening dialog");
             openDialog({
               componentName: "LoginPopup",
               componentProps: {}

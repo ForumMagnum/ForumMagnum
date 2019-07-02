@@ -1,4 +1,4 @@
-import { Components, registerComponent, getFragment, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Comments } from '../../lib/collections/comments';
@@ -60,7 +60,6 @@ const NewAnswerForm = ({post, classes, currentUser}) => {
         className={classNames(classes.formButton)}
         onClick={(ev) => {
           if (!currentUser) {
-            const isAF = getSetting('forumType') === 'AlignmentForum';
             openDialog({
               componentName: "LoginPopup",
               componentProps: {}
