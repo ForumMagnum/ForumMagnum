@@ -1,4 +1,4 @@
-import { registerComponent, getSetting, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Users from 'meteor/vulcan:users';
@@ -49,7 +49,7 @@ const UsersNameDisplay = ({user, classes, nofollow=false}) => {
     <Link to={Users.getProfileUrl(user)} className={classes.userName}
       {...(nofollow ? {rel:"nofollow"} : {})}
     >
-      {getSetting('forumType') === 'AlignmentForum' ? (user.fullName || Users.getDisplayName(user)) : Users.getDisplayName(user)}
+      {Users.getDisplayName(user)}
     </Link>
   </Tooltip>
 }
