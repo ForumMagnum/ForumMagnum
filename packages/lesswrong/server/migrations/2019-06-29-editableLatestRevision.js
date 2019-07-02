@@ -24,6 +24,7 @@ registerMigration({
     for (let fieldName of editableCollectionsFields[collectionName])
     {
       const collection = getCollection(collectionName);
+      // eslint-disable-next-line no-console
       console.log("Updating ${collectionName}.${fieldName}_latest");
       await forEachDocumentBatchInCollection({
         collection: collection,
