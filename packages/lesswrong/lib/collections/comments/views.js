@@ -257,3 +257,6 @@ ensureIndex(Comments, {topLevelCommentId:1});
 
 // Used in findCommentByLegacyAFId
 ensureIndex(Comments, {agentFoundationsId:1});
+
+// Will be used for experimental shortform display on AllPosts page
+ensureIndex(Comments, {shortform:1, postedAt:1, baseScore:1});

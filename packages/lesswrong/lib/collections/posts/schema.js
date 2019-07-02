@@ -447,7 +447,15 @@ const schema = {
   'targetPostRelations.$': {
     type: String,
     optional: true,
-  }
+  },
+  
+  shortform: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins'],
+    editableBy: ['admins'],
+    ...schemaDefaultValue(false),
+  },
 };
 
 export default schema;
