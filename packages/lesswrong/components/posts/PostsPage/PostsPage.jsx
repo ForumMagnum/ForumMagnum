@@ -234,6 +234,17 @@ class PostsPage extends Component {
     return params.sequenceId || post?.canonicalSequenceId;
   }
   
+  shouldHideAsSpam() {
+    const { document: post, currentUser } = this.props;
+    
+    // Logged-out users shouldn't be able to see spam posts
+    if (post.authorIsUnreviewed && !currentUser) {
+      return true;
+    }
+    
+    return false;
+  }
+  
   render() {
     const { loading, document: post, currentUser, location, router, classes, data: {refetch} } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, PostsType,
@@ -245,6 +256,8 @@ class PostsPage extends Component {
       return <div><Loading/></div>
     } else if (!post) {
       return <Error404/>
+    } else if (this.shouldHideAsSpam()) {
+      throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
     } else {
       const { html, plaintextDescription, markdown, wordCount = 0 } = post.contents || {}
       let query = location && location.query
