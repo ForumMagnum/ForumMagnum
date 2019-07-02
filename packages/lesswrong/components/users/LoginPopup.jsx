@@ -17,8 +17,6 @@ class LoginPopup extends PureComponent {
     
     return (
       <Dialog
-        title="Log In"
-        modal={false}
         open={true}
         onClose={this.props.onClose}
       >
