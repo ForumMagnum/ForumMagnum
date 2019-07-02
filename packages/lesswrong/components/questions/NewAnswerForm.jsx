@@ -1,4 +1,4 @@
-import { Components, registerComponent, getFragment, withMessages, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Comments } from '../../lib/collections/comments';
@@ -7,6 +7,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import withUser from '../common/withUser'
+import withDialog from '../common/withDialog';
 
 const styles = theme => ({
   answersForm: {
@@ -50,9 +51,9 @@ const FormGroupComponent = (props) => {
   </React.Fragment>
 }
 
-const NewAnswerForm = ({post, classes, flash, currentUser}) => {
+const NewAnswerForm = ({post, classes, currentUser}) => {
 
-  const SubmitComponent = ({submitLabel = "Submit"}) => {
+  const SubmitComponent = withDialog(({submitLabel = "Submit", openDialog}) => {
     return <div className={classes.submit}>
       <Button
         type="submit"
@@ -60,11 +61,10 @@ const NewAnswerForm = ({post, classes, flash, currentUser}) => {
         onClick={(ev) => {
           if (!currentUser) {
             const isAF = getSetting('forumType') === 'AlignmentForum';
-            const message = (isAF
-              ? "Log in or go to LessWrong to submit your answer."
-              : "Log in to submit your answer."
-            );
-            flash({messageString: message});
+            openDialog({
+              componentName: "LoginPopup",
+              componentProps: {}
+            });
             ev.preventDefault();
           }
         }}
@@ -72,7 +72,7 @@ const NewAnswerForm = ({post, classes, flash, currentUser}) => {
         {submitLabel}
       </Button>
     </div>
-  }
+  });
 
   const prefilledProps = {
     postId: post._id,
@@ -105,7 +105,6 @@ NewAnswerForm.propTypes = {
   classes: PropTypes.object.isRequired,
   post: PropTypes.object.isRequired,
   prefilledProps: PropTypes.object,
-  flash: PropTypes.func,
 };
 
-registerComponent('NewAnswerForm', NewAnswerForm, withMessages, withUser, withStyles(styles, {name:"NewAnswerForm"}));
+registerComponent('NewAnswerForm', NewAnswerForm, withUser, withStyles(styles, {name:"NewAnswerForm"}));
