@@ -100,6 +100,7 @@ const styles = (theme) => ({
     },
     '&:hover': {
       opacity: 1,
+      overflow: "unset",
     }
   },
   author: {
@@ -353,7 +354,7 @@ class PostsItem2 extends PureComponent {
             </PostsItem2MetaInfo>
 
             <Link to={postLink} className={classes.title}>
-              <PostsTitle post={post} postItem2 expandOnHover={!renderComments} read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
+              <PostsTitle post={post} expandOnHover={!renderComments} read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
             </Link>
 
             {(resumeReading?.sequence || resumeReading?.collection) &&
