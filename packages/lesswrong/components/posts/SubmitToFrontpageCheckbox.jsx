@@ -9,7 +9,7 @@ const styles = theme => ({
   submitToFrontpageWrapper: {
     [theme.breakpoints.down('sm')]: {
       width: "100%",
-      order:1,
+      order:1
     }
   },
   submitToFrontpage: {
