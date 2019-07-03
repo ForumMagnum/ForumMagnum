@@ -8,10 +8,13 @@ const RecentComments = ({results, currentUser, loading, loadMore, networkStatus,
   if (!loading && results && !results.length) {
     return (<div>No comments found</div>)
   }
+  if (loading || !results) {
+    return <Loading />
+  }
+  
   return (
     <div>
       <div className="comments-list recent-comments-list">
-        {loading || !results ? <Loading /> :
         <div className={"comments-items"}>
           {results.map(comment =>
             <div key={comment._id}>
@@ -30,18 +33,18 @@ const RecentComments = ({results, currentUser, loading, loadMore, networkStatus,
     </div>)
   }
 
-const commentsOptions = {
-  collection: Comments,
-  queryName: 'selectCommentsListQuery',
-  fragmentName: 'SelectCommentsList',
-  enableTotal: false,
-  pollInterval: 0,
-  enableCache: true,
-};
-
-const withEditOptions = {
-  collection: Comments,
-  fragmentName: 'SelectCommentsList',
-};
-
-registerComponent('RecentComments', RecentComments, [withList, commentsOptions], [withEdit, withEditOptions], withUser);
+registerComponent('RecentComments', RecentComments,
+  [withList, {
+    collection: Comments,
+    queryName: 'selectCommentsListQuery',
+    fragmentName: 'SelectCommentsList',
+    enableTotal: false,
+    pollInterval: 0,
+    enableCache: true,
+  }],
+  [withEdit, {
+    collection: Comments,
+    fragmentName: 'SelectCommentsList',
+  }],
+  withUser
+);
