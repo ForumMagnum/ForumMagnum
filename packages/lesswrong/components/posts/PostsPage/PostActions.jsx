@@ -67,7 +67,7 @@ class PostActions extends Component {
   }
   
   handleMakeShortform = () => {
-    const { post, updateUser, currentUser } = this.props;
+    const { post, updateUser } = this.props;
     updateUser({
       selector: { _id: post.userId },
       data: {
