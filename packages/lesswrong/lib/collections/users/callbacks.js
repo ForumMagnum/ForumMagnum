@@ -1,5 +1,5 @@
 import Users from "meteor/vulcan:users";
-import { addCallback, getSetting } from 'meteor/vulcan:core';
+import { addCallback, getSetting, editMutation } from 'meteor/vulcan:core';
 import { Posts } from '../posts'
 import { Comments } from '../comments'
 import request from 'request';
@@ -139,3 +139,36 @@ async function subscribeOnSignup (user) {
   }
 }
 addCallback('users.new.async', subscribeOnSignup);
+
+async function handleSetShortformPost (newUser, oldUser) {
+  console.log(`In users.edit.async: shortformFeedId ${oldUser.shortformFeedId} => ${newUser.shortformFeedId}`);
+  if (newUser.shortformFeedId !== oldUser.shortformFeedId)
+  {
+    const post = await Posts.findOne({_id: newUser.shortformFeedId});
+    if (!post)
+      throw new Error("Invalid post ID for shortform");
+    if (post.userId !== user._id)
+      throw new Error("Post can only be an author's short-form post if they are the post's author");
+    if (post.draft)
+      throw new Error("Draft post cannot be a user's short-form post");
+    if (post.deleted)
+      throw new Error("Deleted post cannot be a user's short-form post");
+    
+    // In theory, we should check here whether the user already had a short-form
+    // post which is getting un-set, and clear the short-form flag from it. But
+    // in the long run we won't need to do this, because creation of short-form
+    // posts will be automatic-only, and as admins we can just not click the
+    // set-as-shortform button on posts for users that already have a shortform.
+    // So, don't bother checking for an old post in the shortformFeedId field.
+    
+    // Mark the post as shortform
+    await editMutation({
+      collection: Posts,
+      documentId: post._id,
+      set: { shortform: true },
+      unset: {},
+      validate: false,
+    });
+  }
+}
+addCallback("users.edit.async", handleSetShortformPost);
