@@ -141,13 +141,12 @@ async function subscribeOnSignup (user) {
 addCallback('users.new.async', subscribeOnSignup);
 
 async function handleSetShortformPost (newUser, oldUser) {
-  console.log(`In users.edit.async: shortformFeedId ${oldUser.shortformFeedId} => ${newUser.shortformFeedId}`);
   if (newUser.shortformFeedId !== oldUser.shortformFeedId)
   {
     const post = await Posts.findOne({_id: newUser.shortformFeedId});
     if (!post)
       throw new Error("Invalid post ID for shortform");
-    if (post.userId !== user._id)
+    if (post.userId !== newUser._id)
       throw new Error("Post can only be an author's short-form post if they are the post's author");
     if (post.draft)
       throw new Error("Draft post cannot be a user's short-form post");
