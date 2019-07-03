@@ -28,10 +28,11 @@ const RecentComments = ({results, currentUser, loading, loadMore, networkStatus,
             </div>
           )}
           {loadMore && <Components.LoadMore loading={loadingMore || loading} loadMore={loadMore}  />}
-        </div>}
+        </div>
       </div>
-    </div>)
-  }
+    </div>
+  )
+}
 
 registerComponent('RecentComments', RecentComments,
   [withList, {

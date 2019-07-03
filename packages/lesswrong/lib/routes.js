@@ -56,6 +56,7 @@ if (getSetting('forumType') === 'LessWrong') {
 }
 
 addRoute({ name: 'AllComments', path: '/allComments', componentName: 'AllComments', title: "All Comments"})
+addRoute({ name: 'Shortform', path: '/shortform', componentName: 'ShortformPage', title: "Shortform"})
 
 if (getSetting('hasEvents', true)) {
   addRoute({ name: 'EventsPast', path: '/pastEvents', componentName: 'EventsPast', title: "Past Events by Day"})
