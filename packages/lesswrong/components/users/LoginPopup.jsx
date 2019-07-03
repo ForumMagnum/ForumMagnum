@@ -20,7 +20,10 @@ class LoginPopup extends PureComponent {
         open={true}
         onClose={onClose}
       >
-        <Components.WrappedLoginForm/>
+        <Components.WrappedLoginForm
+          onSignedInHook={() => onClose()}
+          onPostSignUpHook={() => onClose()}
+        />
       </Dialog>
     );
   }
