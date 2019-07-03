@@ -146,8 +146,8 @@ function UpdatePostShortform (newPost, oldPost) {
       { postId: newPost._id },
       { $set: {
         shortform: shortform
-      },
-      { multi: true }}
+      } },
+      { multi: true }
     );
   }
   return newPost;
