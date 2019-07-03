@@ -10,7 +10,6 @@ const styles = theme => ({
     [theme.breakpoints.down('sm')]: {
       width: "100%",
       order:1,
-      paddingLeft: 0,
     }
   },
   submitToFrontpage: {
