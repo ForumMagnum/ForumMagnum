@@ -17,7 +17,6 @@ addRoute({ name: 'conversation', path: '/inbox/:_id', componentName: 'Conversati
 
 addRoute({ name: 'newPost', path: '/newPost', componentName: 'PostsNewForm', title: "New Post" });
 addRoute({ name: 'editPost', path: '/editPost', componentName: 'PostsEditPage' });
-addRoute({ name: 'recentComments', path: '/recentComments', componentName: 'RecentCommentsPage', title: "Recent Comments" });
 
 // Sequences
 addRoute({ name: 'sequencesHome', path: '/library', componentName: 'SequencesHome', title: "The Library" });
