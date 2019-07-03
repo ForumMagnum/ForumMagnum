@@ -267,7 +267,7 @@ const TabNavigationMenu = ({
               { allPostsIcon }
             </span>
             <span className={classes.navText}>
-              Archive
+              All Posts
             </span>
           </Link>
         </Tooltip>
