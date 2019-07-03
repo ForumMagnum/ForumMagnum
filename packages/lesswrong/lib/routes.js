@@ -96,6 +96,7 @@ switch (getSetting('forumType')) {
     // Default is Vanilla LW
     addRoute({name: 'home', path: '/', componentName: 'Home2'});
     addRoute({name:'about',   path:'/about', componentName: 'PostsSingleRoute', _id:"bJ2haLkcGeLtTWaD5"});
+    addRoute({name:'about',   path:'/faq', componentName: 'PostsSingleRoute', _id:"2rWKkWuPrgTMpLRbp"});
     addRoute({ name: 'Meta', path: '/meta', componentName: 'Meta', title: "Meta"})
 }
 
