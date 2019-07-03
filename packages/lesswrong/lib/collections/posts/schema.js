@@ -385,7 +385,6 @@ const schema = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: [Users.owns, 'admins', 'sunshineRegiment'],
-    order: 120,   
     hidden: true,
     optional: true,
     ...schemaDefaultValue(false),
