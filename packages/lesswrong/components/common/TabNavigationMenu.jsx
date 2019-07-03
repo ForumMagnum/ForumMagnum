@@ -137,6 +137,16 @@ const styles = (theme) => ({
       }
     }
   },
+  divider: {
+    width: 100,
+    marginLeft: theme.spacing.unit*2,
+    marginTop: theme.spacing.unit*2,
+    marginBottom: theme.spacing.unit*2,
+    borderBottom: "solid 1px rgba(0,0,0,.2)",
+    [theme.breakpoints.down('md')]: {
+      display: "none"
+    },
+  },
 })
 
 const TabNavigationMenu = ({
@@ -241,8 +251,8 @@ const TabNavigationMenu = ({
             </Link>
           </Tooltip>
         </React.Fragment> }
-        
-        
+
+
         { getSetting('hasEvents', true) && getSetting('forumType') !== 'AlignmentForum' && <React.Fragment>
           <Tooltip
             placement="right"
@@ -273,6 +283,17 @@ const TabNavigationMenu = ({
             </span>
           </Link>
         </Tooltip>
+        <div className={classes.divider}/>
+        <Link to="/about">
+          <TabNavigationSubItem>
+            About
+          </TabNavigationSubItem>
+        </Link>
+        <Link to="/faq">
+          <TabNavigationSubItem>
+            FAQ
+          </TabNavigationSubItem>
+        </Link>
       </div>
     </div>
   )
