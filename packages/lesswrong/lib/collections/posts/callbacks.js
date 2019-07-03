@@ -1,5 +1,6 @@
 import { addCallback, runCallbacks, runCallbacksAsync, newMutation } from 'meteor/vulcan:core';
 import { Posts } from './collection';
+import { Comments } from '../comments/collection';
 import Users from 'meteor/vulcan:users';
 import { performVoteServer } from '../../../server/voteServer.js';
 import Localgroups from '../localgroups/collection.js';
@@ -136,5 +137,19 @@ function PostsNewPostRelation (post) {
   }
   return post
 }
-
 addCallback("posts.new.after", PostsNewPostRelation);
+
+function UpdatePostShortform (newPost, oldPost) {
+  if (!!newPost.shortform !== !!oldPost.shortform) {
+    const shortform = !!newPost.shortform;
+    Comments.update(
+      { postId: newPost._id },
+      { $set: {
+        shortform: shortform
+      } },
+      { multi: true }
+    );
+  }
+  return newPost;
+}
+addCallback("posts.edit.async", UpdatePostShortform );
