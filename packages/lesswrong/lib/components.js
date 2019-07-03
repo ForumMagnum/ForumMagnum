@@ -157,6 +157,8 @@ import '../components/posts/SubmitToFrontpageCheckbox';
 import '../components/posts/ReportPostMenuItem.jsx';
 import '../components/posts/PostsItemDate.jsx';
 
+import '../components/shortform/ShortformPage.jsx';
+
 import '../components/votes/VoteButton.jsx';
 import '../components/votes/CommentsVote.jsx';
 import '../components/votes/PostsVote.jsx';
@@ -216,7 +218,6 @@ import '../components/comments/CommentsViews.jsx';
 import '../components/comments/RecentComments.jsx';
 import '../components/comments/RecentCommentsItem.jsx';
 import '../components/comments/RecentCommentsSingle.jsx';
-import '../components/comments/RecentCommentsPage.jsx';
 import '../components/comments/ModerationGuidelines/ModerationGuidelinesBox.jsx';
 import '../components/comments/ModerationGuidelines/ModerationGuidelinesEditForm.jsx'
 import '../components/comments/LastVisitList.jsx'

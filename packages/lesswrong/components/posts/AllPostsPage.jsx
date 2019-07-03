@@ -104,7 +104,7 @@ class AllPostsPage extends Component {
           />
           {currentView === "daily" ?
             <div className={classes.daily}>
-              <PostsDailyList title="Posts by Day" terms={dailyTerms} days={numberOfDays} dimWhenLoading={showSettings} />
+              <PostsDailyList terms={dailyTerms} days={numberOfDays} dimWhenLoading={showSettings} />
             </div>
             :
             <PostsList2 terms={terms} showHeader={false} dimWhenLoading={showSettings} />

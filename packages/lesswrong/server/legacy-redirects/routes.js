@@ -280,3 +280,7 @@ Picker.route('/favicon.ico', (params, req, res, next) => {
 Picker.route('/featured', (params, req, res, next) => {
   makeRedirect(res, '/allPosts?filter=curated&view=new')
 })
+
+Picker.route('/recentComments', (params, req, res, next) => {
+  makeRedirect(res, '/allComments');
+})
