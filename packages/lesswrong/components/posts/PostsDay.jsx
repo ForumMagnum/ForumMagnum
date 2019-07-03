@@ -23,31 +23,27 @@ const styles = theme => ({
   },
 })
 
-class PostsDay extends PureComponent {
+const PostsDay = ({ date, posts, classes, currentUser }) => {
+  const noPosts = posts.length === 0;
+  const { PostsItem2 } = Components
 
-  render() {
-    const { date, posts, classes, currentUser } = this.props;
-    const noPosts = posts.length === 0;
-    const { PostsItem2 } = Components
-
-    return (
-      <div className={classes.root}>
-        <Typography variant="headline" className={classes.dayTitle}>
-          <Hidden xsDown implementation="css">
-            {date.format('dddd, MMMM Do YYYY')}
-          </Hidden>
-          <Hidden smUp implementation="css">
-            {date.format('ddd, MMM Do YYYY')}
-          </Hidden>
-        </Typography>
-        { noPosts ? (<div className={classes.noPosts}>No posts on {date.format('MMMM Do YYYY')}</div>) :
-          <div>
-            {posts.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
-          </div>
-        }
-      </div>
-    );
-  }
+  return (
+    <div className={classes.root}>
+      <Typography variant="headline" className={classes.dayTitle}>
+        <Hidden xsDown implementation="css">
+          {date.format('dddd, MMMM Do YYYY')}
+        </Hidden>
+        <Hidden smUp implementation="css">
+          {date.format('ddd, MMM Do YYYY')}
+        </Hidden>
+      </Typography>
+      { noPosts ? (<div className={classes.noPosts}>No posts on {date.format('MMMM Do YYYY')}</div>) :
+        <div>
+          {posts.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
+        </div>
+      }
+    </div>
+  );
 }
 
 PostsDay.propTypes = {

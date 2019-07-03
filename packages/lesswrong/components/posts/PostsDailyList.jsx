@@ -1,12 +1,12 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment-timezone';
-import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Posts } from '../../lib/collections/posts';
 import { withCurrentUser, withList, getSetting, Components, registerComponent } from 'meteor/vulcan:core';
 import withTimezone from '../common/withTimezone';
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
+import classNames from 'classnames';
 
 const styles = theme => ({
   loading: {
@@ -19,7 +19,6 @@ const styles = theme => ({
 })
 
 
-import classNames from 'classnames';
 class PostsDailyList extends PureComponent {
 
   constructor(props) {
@@ -137,7 +136,7 @@ class PostsDailyList extends PureComponent {
     } else {
       return (
         <div className={classNames({[classes.loading]: dim})}>
-          { loading && <Loading />}
+          {loading && <Loading />}
           {dates.map((date, index) =>
             <PostsDay key={date.toString()}
               date={moment(date)}
@@ -150,7 +149,7 @@ class PostsDailyList extends PureComponent {
             <Loading />
             :
             <Typography variant="body1" className={classes.loadMore} onClick={this.loadMoreDays}>
-              <a><FormattedMessage id="posts.load_more_days"/></a>
+              <a>Load More Days</a>
             </Typography>
           }
         </div>
@@ -170,12 +169,13 @@ PostsDailyList.defaultProps = {
   increment: getSetting('forum.numberOfDays', 5)
 };
 
-const options = {
-  collection: Posts,
-  queryName: 'postsDailyListQuery',
-  fragmentName: 'PostsList',
-  limit: 0,
-  ssr: true,
-};
-
-registerComponent('PostsDailyList', PostsDailyList, withCurrentUser, [withList, options], withTimezone, withStyles(styles, {name: "PostsDailyList"}));
+registerComponent('PostsDailyList', PostsDailyList,
+  [withList, {
+    collection: Posts,
+    queryName: 'postsDailyListQuery',
+    fragmentName: 'PostsList',
+    limit: 0,
+    ssr: true,
+  }],
+  withCurrentUser, withTimezone, withStyles(styles, {name: "PostsDailyList"})
+);
