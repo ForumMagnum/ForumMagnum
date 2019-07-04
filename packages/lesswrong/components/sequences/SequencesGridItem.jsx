@@ -81,11 +81,9 @@ const styles = theme => ({
     width: "100%",
     height: 95,
     backgroundColor: "rgba(0,0,0,0.05)",
+    display: 'block',
     [legacyBreakpoints.maxTiny]: {
       width: "100%",
-    },
-    [theme.breakpoints.down('sm')]: {
-      height: "auto",
     },
     "& img": {
       [legacyBreakpoints.maxSmall]: {
