@@ -14,6 +14,11 @@ const formGroups = {
     label: "Admin Options",
     startCollapsed: true,
   },
+  visibleOptions: {
+    name: "visibleOptions",
+    order: 30,
+    defaultStyle: true,
+  }
 };
 
 const schema = {
@@ -380,13 +385,9 @@ const schema = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: [Users.owns, 'admins', 'sunshineRegiment'],
-    optional: true,
     hidden: true,
-    group: formGroups.adminOptions,
+    optional: true,
     ...schemaDefaultValue(false),
-    onCreate: ({newDocument}) => {
-      return newDocument.originalPostRelationSourceId ? true : !!newDocument.hiddenRelatedQuestion
-    },
   },
 
   originalPostRelationSourceId: {
