@@ -445,7 +445,20 @@ const schema = {
   'targetPostRelations.$': {
     type: String,
     optional: true,
-  }
+  },
+  
+  // A post should have the shortform flag set iff its author's shortformFeedId
+  // field is set to this post's ID.
+  shortform: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    viewableBy: ['guests'],
+    insertableBy: ['admins'],
+    editableBy: ['admins'],
+    denormalized: true,
+    ...schemaDefaultValue(false),
+  },
 };
 
 export default schema;

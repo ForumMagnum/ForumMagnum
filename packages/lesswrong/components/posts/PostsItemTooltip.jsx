@@ -54,14 +54,19 @@ const styles = theme => ({
 })
 
 const getPostCategory = (post) => {
+  const categories = [];
   const postOrQuestion = post.question ? "Question" : "Post"
 
-  if (post.af) return `AI Alignment Forum ${postOrQuestion}`
-  if (post.meta) return `Meta ${postOrQuestion}`
-  if (post.curatedDate) return `Curated ${postOrQuestion}`
-  if (post.frontpageDate) return `Frontpage ${postOrQuestion}`
-  if (post.isEvent) return `Event`
-  return post.question ? `Question` : `Personal Blogpost`
+  if (post.isEvent) categories.push(`Event`)
+  if (post.curatedDate) categories.push(`Curated ${postOrQuestion}`)
+  if (post.af) categories.push(`AI Alignment Forum ${postOrQuestion}`);
+  if (post.meta) categories.push(`Meta ${postOrQuestion}`)
+  if (post.frontpageDate && !post.curatedDate && !post.af) categories.push(`Frontpage ${postOrQuestion}`)
+  
+  if (categories.length > 0)
+    return categories.join(', ');
+  else
+    return post.question ? `Question` : `Personal Blogpost`
 }
 
 const PostsItemTooltip = ({ post, classes, author, }) => {

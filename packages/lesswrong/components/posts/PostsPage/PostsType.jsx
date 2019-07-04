@@ -21,11 +21,15 @@ const styles = theme => ({
     color: theme.palette.grey[500],
     position: "relative",
     top: 3,
-  }
+  },
+  tooltipTitle: {
+    marginBottom: 8,
+  },
 })
 
 const PostsType = ({classes, post}) => {
   const frontpageTooltip = <div>
+    <div className={classes.tooltipTitle}>Frontpage Post</div>
     <div>Moderators promote posts to frontpage based on:</div>
     <ul>
       <li>Usefulness, novelty, relevance</li>
@@ -35,6 +39,7 @@ const PostsType = ({classes, post}) => {
   </div>
 
   const personalTooltip = <div>
+    <div className={classes.tooltipTitle}>Personal Blog Post</div>
     <div>
       Members can write whatever they want on their personal blog. Personal blogposts are a good fit for:
     </div>

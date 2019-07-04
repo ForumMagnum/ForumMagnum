@@ -89,7 +89,7 @@ import '../components/users/UsersSingle.jsx';
 import '../components/users/UsersEmailVerification.jsx';
 import '../components/users/EmailConfirmationRequiredCheckbox.jsx';
 import '../components/users/LoginPage.jsx';
-import '../components/users/LoginPopupLink.jsx';
+import '../components/users/LoginPopup.jsx';
 import '../components/users/KarmaChangeNotifier.jsx';
 import '../components/users/KarmaChangeNotifierSettings.jsx';
 import '../components/users/AccountsResetPassword.jsx';
@@ -156,6 +156,8 @@ import '../components/posts/SubmitToFrontpageCheckbox';
 import '../components/posts/ReportPostMenuItem.jsx';
 import '../components/posts/PostsItemDate.jsx';
 
+import '../components/shortform/ShortformPage.jsx';
+
 import '../components/votes/VoteButton.jsx';
 import '../components/votes/CommentsVote.jsx';
 import '../components/votes/PostsVote.jsx';
@@ -215,7 +217,6 @@ import '../components/comments/CommentsViews.jsx';
 import '../components/comments/RecentComments.jsx';
 import '../components/comments/RecentCommentsItem.jsx';
 import '../components/comments/RecentCommentsSingle.jsx';
-import '../components/comments/RecentCommentsPage.jsx';
 import '../components/comments/ModerationGuidelines/ModerationGuidelinesBox.jsx';
 import '../components/comments/ModerationGuidelines/ModerationGuidelinesEditForm.jsx'
 import '../components/comments/LastVisitList.jsx'
