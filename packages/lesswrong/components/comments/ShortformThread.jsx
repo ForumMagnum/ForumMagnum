@@ -67,19 +67,6 @@ const styles = theme => ({
       backgroundColor: "none"
     }
   },
-  noComments: {
-    // borderBottom: "solid 1px rgba(0,0,0,.2)"
-  },
-  threadMeta: {
-    cursor: "pointer",
-
-    "&:hover $showHighlight": {
-      opacity: 1
-    },
-  },
-  showHighlight: {
-    opacity: 0,
-  },
   content :{
     [theme.breakpoints.up('lg')]: {
       marginLeft: theme.spacing.unit*3,
@@ -97,13 +84,8 @@ const styles = theme => ({
   }
 })
 
-class RecentDiscussionThread extends PureComponent {
+class ShortformThread extends PureComponent {
   state = { showHighlight: false, readStatus: false, markedAsVisitedAt: null }
-
-  showHighlight = () => {
-    this.setState(prevState => ({showHighlight:!prevState.showHighlight}));
-    this.markAsRead()
-  }
   
   markAsRead = async () => {
     this.setState({readStatus:true, markedAsVisitedAt: new Date()});
@@ -112,14 +94,23 @@ class RecentDiscussionThread extends PureComponent {
 
   render() {
     const { post, postCount, results, loading, editMutation, currentUser, classes } = this.props
-    const { readStatus, showHighlight, markedAsVisitedAt } = this.state
+    const { readStatus, markedAsVisitedAt } = this.state
 
-    const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight } = Components
+    const { CommentsNode, PostsItemKarma } = Components
 
     const lastCommentId = results && results[0]?._id
 
     const nestedComments = unflattenComments(results)
 
+    const topLevelComments = _.uniq(_.map(results, c => c.topLevelComment), c => c._id)
+
+    const topLevelCommentsNested = _.map(topLevelComments, topComment => {
+      if (!topComment) return
+      const children = _.filter(nestedComments, c => c.item.topLevelCommentId === topComment._id)
+      return { item: topComment, children: children}
+    })
+
+    // console.log(nestedComments)
     const lastVisitedAt = markedAsVisitedAt || post.lastVisitedAt
 
     // Only show the loading widget if this is the first post in the recent discussion section, so that the users don't see a bunch of loading components while the comments load
@@ -133,43 +124,19 @@ class RecentDiscussionThread extends PureComponent {
       return null
     }
 
-    const highlightClasses = classNames({
-      [classes.noComments]: post.commentCount === null
-    })
-
     return (
       <div className={classes.root}>
         <div className={classes.postItem}>
-
           <Link className={classes.title} to={Posts.getPageUrl(post)}>
-            {post.title}
+            {post.title} 
           </Link>
-
-          <div className={classes.threadMeta} onClick={this.showHighlight}>
-            {currentUser && !(post.lastVisitedAt || readStatus) &&
-              <span title="Unread" className={classes.unreadDot}>•</span>}
-            <PostsItemMeta post={post}/>
-            <ShowOrHideHighlightButton
-              className={classes.showHighlight}
-              open={showHighlight}/>
-          </div>
         </div>
         <div className={classes.content}>
-          { showHighlight ?
-            <div className={highlightClasses}>
-              <PostsHighlight post={post} />
-            </div>
-            : <div className={highlightClasses} onClick={this.showHighlight}>
-                { (!post.lastVisitedAt || post.commentCount === null) &&
-                  <ContentItemBody
-                    className={classes.postHighlight}
-                    dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents && post.contents.htmlHighlight)}}/>}
-              </div>
-          }
           <div className={classes.commentsList}>
             <div className={"comments-items"}>
-              {nestedComments.map(comment =>
+              {topLevelCommentsNested.map(comment =>
                 <div key={comment.item._id}>
+                  
                   <CommentsNode
                     startThreadTruncated={true}
                     nestingLevel={1}
@@ -183,7 +150,7 @@ class RecentDiscussionThread extends PureComponent {
                     key={comment.item._id}
                     editMutation={editMutation}
                     post={post}
-                    condensed
+                    
                   />
                 </div>
               )}
@@ -207,11 +174,11 @@ const commentsOptions = {
 };
 
 registerComponent(
-  'RecentDiscussionThread',
-  RecentDiscussionThread,
+  'ShortformThread',
+  ShortformThread,
   [withList, commentsOptions],
   withUser,
-  withStyles(styles, { name: "RecentDiscussionThread" }),
+  withStyles(styles, { name: "ShortformThread" }),
   withRecordPostView,
   withErrorBoundary
 );

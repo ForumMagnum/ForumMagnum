@@ -457,6 +457,26 @@ ensureIndex(Posts,
   { name: "posts.recentDiscussionThreadsList", }
 );
 
+Posts.addView("shortformDiscussionThreadsList", terms => {
+  return {
+    selector: {
+      baseScore: {$gt:0},
+      hideFrontpageComments: false,
+      shortform: true,
+      hiddenRelatedQuestion: viewFieldAllowAny,
+      groupId: null,
+    },
+    options: {
+      sort: {lastCommentedAt:-1},
+      limit: terms.limit || 12,
+    }
+  }
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ hideFrontpageComments:1, shortForm: 1, lastCommentedAt:-1, baseScore:1,}),
+  { name: "posts.shortformDiscussionThreadsList", }
+);
+
 Posts.addView("nearbyEvents", function (terms) {
   const yesterday = moment().subtract(1, 'days').toDate();
   let query = {

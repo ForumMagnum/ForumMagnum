@@ -43,6 +43,15 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment RecentDiscussionComments on Comment {
+    ...CommentsList
+    topLevelComment {
+      ...CommentsList
+    }
+  }
+`);
+
+registerFragment(`
   fragment CommentEdit on Comment {
     ...CommentsList
     contents {

@@ -2,13 +2,12 @@ import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 
 const ShortformPage = () => {
-  const { SingleColumnSection, RecentComments, SectionTitle } = Components
-  const terms = {view: 'shortform', limit: 100};
+  const { SingleColumnSection, ShortformThreadList, SectionTitle } = Components
   
   return (
     <SingleColumnSection>
-      <SectionTitle title="Shortform Posts"/>
-      <RecentComments terms={terms} />
+      <SectionTitle title="Shortform Content"/>
+      <ShortformThreadList terms={{view: 'shortformDiscussionThreadsList', limit:20}} />
     </SingleColumnSection>
   )
 }
