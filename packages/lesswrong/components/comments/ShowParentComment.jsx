@@ -5,7 +5,7 @@ import SubdirectoryArrowLeft from '@material-ui/icons/SubdirectoryArrowLeft';
 
 const styles = theme => ({
   root: {
-    paddingLeft: theme.spacing.unit,
+    paddingRight: theme.spacing.unit,
     paddingTop: theme.spacing.unit,
     paddingBottom: theme.spacing.unit,
   },
@@ -24,27 +24,26 @@ const styles = theme => ({
   }
 })
 
-const ShowParentComment = ({ comment, classes, nestingLevel }) => {
-  if (!comment.parentCommentId || (nestingLevel !== 1)) return null
+const ShowParentComment = ({ comment, classes, nestingLevel, onClick }) => {
 
-  // const { RecentCommentsSingle } = Components
+  // topLevelComment -> never render 
+
+  if (
+    !comment?.topLevelCommentId || 
+    (
+      (nestingLevel === 2) && (comment?.parentCommentId === comment?.topLevelCommentId)
+    ) ||
+    nestingLevel > 2
+  ) {    
+    return null
+  }
 
   return (
-    <span className={classes.root}>
+    <span className={classes.root} onClick={onClick}>
       <SubdirectoryArrowLeft className={classes.icon}>
         subdirectory_arrow_left
       </SubdirectoryArrowLeft>
-      {/* {hover && <span className={classes.parentComment}>
-        <RecentCommentsSingle 
-          currentUser={currentUser}
-          documentId={comment.parentCommentId}
-          level={nestingLevel + 1}
-          expanded={true}
-          key={comment.parentCommentId}
-        />
-      </span>} */}
     </span>
-
   )
 };
 
