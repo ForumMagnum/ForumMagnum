@@ -9,15 +9,12 @@ import {
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
-import classNames from 'classnames';
 import { unflattenComments } from '../../lib/modules/utils/unflatten';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import withRecordPostView from '../common/withRecordPostView';
 
 import { withStyles } from '@material-ui/core/styles';
-import { postExcerptFromHTML } from '../../lib/editor/ellipsize'
-import { postHighlightStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
   root: {
@@ -26,46 +23,13 @@ const styles = theme => ({
     position: "relative",
     minHeight: 50,
   },
-  postStyle: theme.typography.postStyle,
-  postBody: {
-    ...postHighlightStyles(theme),
-    marginBottom:theme.spacing.unit*2,
-    maxWidth: "100%",
-    overflowX: "auto",
-    overflowY: "hidden",
-  },
   postItem: {
-    // position: "absolute",
-    // right: "100%",
     paddingBottom:10,
     ...theme.typography.postStyle,
-    // width: 300,
-    // marginTop: -2,
-    // textAlign: "right",
-    // marginRight: -theme.spacing.unit
   },
   continueReading: {
     marginTop:theme.spacing.unit*2,
     marginBottom:theme.spacing.unit*2,
-  },
-  unreadDot: {
-    fontFamily: theme.typography.fontFamily,
-    color: theme.palette.primary.light,
-    fontSize: 30,
-    lineHeight:0,
-    position: "relative",
-    top:5.5,
-    marginLeft:2,
-    marginRight:5
-  },
-  postHighlight: {
-    ...postHighlightStyles(theme),
-    marginTop:5,
-    maxWidth:600,
-    marginBottom:16,
-    '& a, & a:hover, & a:focus, & a:active, & a:visited': {
-      backgroundColor: "none"
-    }
   },
   content :{
     [theme.breakpoints.up('lg')]: {
@@ -96,19 +60,21 @@ class ShortformThread extends PureComponent {
     const { post, postCount, results, loading, editMutation, currentUser, classes } = this.props
     const { readStatus, markedAsVisitedAt } = this.state
 
-    const { CommentsNode, PostsItemKarma } = Components
+    const { CommentsNode } = Components
 
     const lastCommentId = results && results[0]?._id
 
     const nestedComments = unflattenComments(results)
 
-    const topLevelComments = _.uniq(_.map(results, c => c.topLevelComment), c => c._id)
+    const topLevelComments = _.uniq(_.map(results, c => c.topLevelComment), c => c?._id)
 
     const topLevelCommentsNested = _.map(topLevelComments, topComment => {
       if (!topComment) return
-      const children = _.filter(nestedComments, c => c.item.topLevelCommentId === topComment._id)
+      const children = _.filter(nestedComments, c => c?.item?.topLevelCommentId === topComment._id)
       return { item: topComment, children: children}
     })
+
+    console.log(post.title, "tnested", topLevelCommentsNested)
 
     // console.log(nestedComments)
     const lastVisitedAt = markedAsVisitedAt || post.lastVisitedAt

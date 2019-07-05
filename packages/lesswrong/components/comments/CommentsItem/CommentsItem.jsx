@@ -7,7 +7,6 @@ import { Posts } from "../../../lib/collections/posts";
 import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
 import Icon from '@material-ui/core/Icon';
-import Tooltip from '@material-ui/core/Tooltip';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/componentUtils';
 import { withStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../../common/withErrorBoundary';
@@ -143,7 +142,7 @@ class CommentsItem extends Component {
   }
 
   render() {
-    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, truncated, collapsed, parentAnswerId } = this.props
+    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, truncated, collapsed } = this.props
 
     const { showEdit } = this.state
     const { CommentsMenu, ShowParentComment } = Components
