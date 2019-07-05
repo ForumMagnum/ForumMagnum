@@ -74,7 +74,6 @@ export const makeEditable = ({collection, options = {}}) => {
         let revision;
         if (version) {
           revision = await Revisions.findOne({documentId: doc._id, version, fieldName: field})
-          return checkAccess(currentUser, revision) ? revision : null
         } else {
           const revisionID = doc[`${field}_latest`];
           if (!revisionID) return null;
@@ -132,8 +131,12 @@ export const makeEditable = ({collection, options = {}}) => {
       type: String,
       viewableBy: ['guests'],
       
-      resolver: (post) => {
-        return post[fieldName || "contents"]?.version
+      resolver: async (doc, args, { currentUser, Revisions }) => {
+        const revisionID = doc[`${fieldName || "contents"}_latest`];
+        if (!revisionID) return null;
+        let revision = await Revisions.loader.load(revisionID);
+        revision = Revisions.checkAccess(currentUser, revision) ? revision : null
+        return revision?.version;
       }
     })
   });
