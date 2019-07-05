@@ -23,8 +23,9 @@ const styles = theme => ({
   },
 })
 
-const PostsDay = ({ date, posts, classes, currentUser }) => {
-  const noPosts = posts.length === 0;
+const PostsDay = ({ date, posts, comments, classes, currentUser }) => {
+  const noPosts = !posts || (posts.length === 0);
+  const noComments = !comments || (comments.length === 0);
   const { PostsItem2 } = Components
 
   return (
@@ -37,11 +38,12 @@ const PostsDay = ({ date, posts, classes, currentUser }) => {
           {date.format('ddd, MMM Do YYYY')}
         </Hidden>
       </Typography>
-      { noPosts ? (<div className={classes.noPosts}>No posts on {date.format('MMMM Do YYYY')}</div>) :
-        <div>
-          {posts.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
-        </div>
-      }
+      { (noPosts && noComments) && (<div className={classes.noPosts}>No posts on {date.format('MMMM Do YYYY')}</div>) }
+      
+      {posts.map((post, i) =>
+        <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
+      {comments.map((comment, i) =>
+        <SingleLineComment key={comment._id} comment={comment} nestingLevel={1} />)}
     </div>
   );
 }
