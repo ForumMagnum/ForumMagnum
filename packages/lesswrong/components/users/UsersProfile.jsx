@@ -225,7 +225,7 @@ class UsersProfile extends Component {
       <div className={classNames("page", "users-profile", classes.profilePage)}>
         {/* Bio Section */}
         <SingleColumnSection>
-          <SectionTitle title={user.displayName}/>
+          <SectionTitle title={Users.getDisplayName(user)}/>
 
           <SectionFooter>
             { this.renderMeta() }
@@ -281,7 +281,7 @@ class UsersProfile extends Component {
         {/* Posts Section */}
         <SingleColumnSection>
           <div className={classes.title} onClick={() => this.setState({showSettings: !showSettings})}>
-            <SectionTitle title={`${user.displayName}'s Posts`}>
+            <SectionTitle title={`${Users.getDisplayName(user)}'s Posts`}>
               <SettingsIcon/>
               <div className={classes.settingsText}>Sorted by { views[currentView] }</div>
             </SectionTitle>
@@ -298,7 +298,7 @@ class UsersProfile extends Component {
 
         {/* Comments Sections */}
         <SingleColumnSection>
-          <SectionTitle title={`${user.displayName}'s Comments`} />
+          <SectionTitle title={`${Users.getDisplayName(user)}'s Comments`} />
           <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} fontSize="small" />
         </SingleColumnSection>
       </div>
