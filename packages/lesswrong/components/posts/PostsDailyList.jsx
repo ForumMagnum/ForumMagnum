@@ -103,26 +103,6 @@ class PostsDailyList extends PureComponent {
     });
   }
 
-  // variant 2: only load new data (need to disable polling)
-  loadMoreDaysInc(e) {
-    e.preventDefault();
-    const numberOfDays = getSetting('forum.numberOfDays', 5);
-    const loadMoreAfter = moment(this.state.after, 'YYYY-MM-DD').subtract(numberOfDays, 'days').format('YYYY-MM-DD');
-    const loadMoreBefore = moment(this.state.after, 'YYYY-MM-DD').subtract(1, 'days').format('YYYY-MM-DD');
-
-    this.props.loadMoreInc({
-      ...this.props.terms,
-      before: loadMoreBefore,
-      after: loadMoreAfter,
-    });
-
-    this.setState((prevState) => ({
-        days: prevState.days + this.props.increment,
-        after: loadMoreAfter,
-      })
-    );
-  }
-
   render() {
     const { dimWhenLoading, loading, loadingMore, classes, currentUser, networkStatus } = this.props
     const posts = this.props.results;
