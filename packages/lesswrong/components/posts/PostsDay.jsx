@@ -23,11 +23,17 @@ const styles = theme => ({
   },
 })
 
-const PostsDay = ({ date, posts, comments, classes, currentUser }) => {
+const PostsDay = ({ date, posts, comments, hideIfEmpty, classes, currentUser }) => {
   const noPosts = !posts || (posts.length === 0);
   const noComments = !comments || (comments.length === 0);
   const { PostsItem2 } = Components
 
+  // The most recent day is hidden if there are no posts on it, to avoid having
+  // an awkward empty partial day when it's close to midnight.
+  if (noPosts && noComments && hideIfEmpty) {
+    return null;
+  }
+  
   return (
     <div className={classes.root}>
       <Typography variant="headline" className={classes.dayTitle}>

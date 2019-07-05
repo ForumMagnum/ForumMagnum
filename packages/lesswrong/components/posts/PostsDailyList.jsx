@@ -18,7 +18,6 @@ const styles = theme => ({
   }
 })
 
-
 class PostsDailyList extends PureComponent {
 
   constructor(props) {
@@ -48,11 +47,8 @@ class PostsDailyList extends PureComponent {
   }
 
   // Return a date string for each date which should have a section. This
-  // includes all dates in the range, *except* that if the newest date has no
-  // posts, it's omitted. (Because the end of the range is some fraction of a
-  // day into the future, which would otherwise sometimes result in an awkward
-  // empty slot for tomorrow, depending on the current time of day.)
-  getDateRange(after, before, posts) {
+  // includes all dates in the range
+  getDateRange(after, before) {
     const mAfter = moment.utc(after, 'YYYY-MM-DD');
     const mBefore = moment.utc(before, 'YYYY-MM-DD');
     const daysCount = mBefore.diff(mAfter, 'days') + 1;
@@ -61,12 +57,7 @@ class PostsDailyList extends PureComponent {
         .tz(this.props.timezone)
         .format('YYYY-MM-DD')
     );
-
-    if(this.getDatePosts(posts, range[0]).length == 0) {
-      return _.rest(range);
-    } else {
-      return range;
-    }
+    return range;
   }
 
   getDatePosts(posts, date) {
@@ -106,7 +97,7 @@ class PostsDailyList extends PureComponent {
   render() {
     const { dimWhenLoading, loading, loadingMore, classes, currentUser, networkStatus } = this.props
     const posts = this.props.results;
-    const dates = this.getDateRange(this.state.afterLoaded, this.state.before, posts);
+    const dates = this.getDateRange(this.state.afterLoaded, this.state.before);
     const { Loading, PostsDay } = Components
 
     const dim = dimWhenLoading && networkStatus !== 7
@@ -123,6 +114,7 @@ class PostsDailyList extends PureComponent {
               posts={this.getDatePosts(posts, date)}
               networkStatus={networkStatus}
               currentUser={currentUser}
+              hideIfEmpty={index==0}
             />
           )}
           {loadingMore ?
