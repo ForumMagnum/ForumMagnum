@@ -259,8 +259,20 @@ ensureIndex(Comments, {topLevelCommentId:1});
 ensureIndex(Comments, {agentFoundationsId:1});
 
 Comments.addView('shortform', function (terms) {
+  const timeRange = ((terms.before || terms.after)
+    ? { postedAt: {
+      ...(terms.before && {$lt: new Date(terms.before)}),
+      ...(terms.after && {$gt: new Date(terms.after)})
+    } }
+    : null
+  );
+  
   return {
-    selector: { shortform: true },
+    selector: {
+      shortform: true,
+      parentCommentId: viewFieldNullOrMissing,
+      ...timeRange
+    },
     options: {sort: {postedAt: -1}}
   };
 });

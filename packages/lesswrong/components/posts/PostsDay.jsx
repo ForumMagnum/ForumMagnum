@@ -1,8 +1,9 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, withList, registerComponent } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
+import { Comments } from '../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
@@ -23,10 +24,10 @@ const styles = theme => ({
   },
 })
 
-const PostsDay = ({ date, posts, comments, hideIfEmpty, classes, currentUser }) => {
+const PostsDay = ({ date, posts, results: comments, hideIfEmpty, classes, currentUser }) => {
   const noPosts = !posts || (posts.length === 0);
   const noComments = !comments || (comments.length === 0);
-  const { PostsItem2 } = Components
+  const { PostsItem2, SingleLineComment } = Components
 
   // The most recent day is hidden if there are no posts on it, to avoid having
   // an awkward empty partial day when it's close to midnight.
@@ -46,9 +47,9 @@ const PostsDay = ({ date, posts, comments, hideIfEmpty, classes, currentUser }) 
       </Typography>
       { (noPosts && noComments) && (<div className={classes.noPosts}>No posts on {date.format('MMMM Do YYYY')}</div>) }
       
-      {posts.map((post, i) =>
+      {posts?.map((post, i) =>
         <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
-      {comments.map((comment, i) =>
+      {comments?.map((comment, i) =>
         <SingleLineComment key={comment._id} comment={comment} nestingLevel={1} />)}
     </div>
   );
@@ -59,4 +60,13 @@ PostsDay.propTypes = {
   date: PropTypes.object,
 };
 
-registerComponent('PostsDay', PostsDay, withStyles(styles, { name: "PostsDay" }));
+registerComponent('PostsDay', PostsDay,
+  [withList, {
+    collection: Comments,
+    queryName: 'dailyShortformQuery',
+    fragmentName: 'CommentsList',
+    enableTotal: false,
+    enableCache: true,
+    limit: 3,
+  }],
+  withStyles(styles, { name: "PostsDay" }));
