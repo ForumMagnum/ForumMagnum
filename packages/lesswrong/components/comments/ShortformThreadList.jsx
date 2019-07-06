@@ -1,9 +1,19 @@
 import React from 'react';
 import { Components, registerComponent, withList, Loading } from 'meteor/vulcan:core';
 import { Comments } from '../../lib/collections/comments';
+import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
+import { withStyles } from '@material-ui/core/styles';
 
-const ShortformThreadList = ({ results, loading, loadMore, networkStatus, currentUser }) => {
+const styles = theme => ({
+  title: {
+    marginTop: theme.spacing.unit*2,
+    marginBottom: theme.spacing.unit*2,
+    color: theme.palette.grey[600]
+  }
+})
+
+const ShortformThreadList = ({ classes, results, loading, loadMore, networkStatus, currentUser }) => {
 
   const { LoadMore, ShortformThread } = Components
 
@@ -15,6 +25,9 @@ const ShortformThreadList = ({ results, loading, loadMore, networkStatus, curren
 
   return (
     <div>
+        <Typography variant="body2" className={classes.title}>
+          Note: shows the most recent 3 comments on each shortform post
+        </Typography>
         {loading || !results ? <Loading /> :
         <div> 
           {results.map((comment, i) => {
@@ -35,4 +48,4 @@ const discussionThreadsOptions = {
   enableCache: true,
 };
 
-registerComponent('ShortformThreadList', ShortformThreadList, [withList, discussionThreadsOptions], withUser);
+registerComponent('ShortformThreadList', ShortformThreadList, [withList, discussionThreadsOptions], withUser, withStyles(styles, {name:"ShortformThreadList"}));
