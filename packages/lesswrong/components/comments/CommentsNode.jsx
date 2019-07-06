@@ -89,17 +89,11 @@ class CommentsNode extends Component {
     this.scrollTargetRef = React.createRef();
   }
 
-  // TODO: Remove this after April Fools
-  commentIsByGPT2 = (comment) => {
-    return !!(comment && comment.user && comment.user.displayName === "GPT2")
-  }
-
   beginCollapsed = () => {
-    const { comment, currentUser } = this.props
+    const { comment } = this.props
     return (
       comment.deleted ||
-      comment.baseScore < KARMA_COLLAPSE_THRESHOLD ||
-      (currentUser && currentUser.blockedGPT2 && this.commentIsByGPT2(comment))
+      comment.baseScore < KARMA_COLLAPSE_THRESHOLD
     )
   }
 
@@ -163,9 +157,9 @@ class CommentsNode extends Component {
   }
 
   isTruncated = () => {
-    const { comment, expandAllThreads } = this.props;
+    const { expandAllThreads } = this.props;
     const { truncatedStateSet } = this.state
-    return !expandAllThreads && (this.state.truncated || ((this.props.truncated || this.commentIsByGPT2(comment)) && truncatedStateSet === false))
+    return !expandAllThreads && (this.state.truncated || (this.props.truncated && truncatedStateSet === false))
   }
 
   isNewComment = () => {

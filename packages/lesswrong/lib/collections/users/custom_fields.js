@@ -818,15 +818,6 @@ addFieldsDict(Users, {
     group: formGroups.adminOptions,
     order: 0,
   },
-  // TODO: Remove this after april fools
-  blockedGPT2: {
-    type: Boolean,
-    optional: true,
-    canRead: ['guests'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    hidden: getSetting('forumType') !== 'LessWrong',
-    label: "Auto-collapse comments from GPT2"
-  },
   
   partiallyReadSequences: {
     type: Array,
