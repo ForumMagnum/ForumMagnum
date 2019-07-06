@@ -83,6 +83,7 @@ class CommentsNode extends Component {
     this.state = {
       collapsed: this.beginCollapsed(),
       truncated: this.beginTruncated(),
+      singleLine: this.beginSingleLine(),
       truncatedStateSet: false,
       finishedScroll: false,
     };
@@ -99,6 +100,21 @@ class CommentsNode extends Component {
 
   beginTruncated = () => {
     return this.props.startThreadTruncated
+  }
+  
+  beginSingleLine = () => {
+    const { currentUser, comment, condensed, lastCommentId, forceSingleLine } = this.props
+    const mostRecent = (!condensed || (lastCommentId === comment._id))
+    const lowKarmaOrCondensed = (comment.baseScore < 10 || condensed)
+    
+    if (forceSingleLine)
+      return true;
+    
+    return (
+      currentUser?.beta &&
+      lowKarmaOrCondensed &&
+      !(mostRecent && condensed)
+    )
   }
 
   componentDidMount() {
@@ -123,9 +139,9 @@ class CommentsNode extends Component {
 
   unTruncate = (event) => {
     event.stopPropagation()
-    if (this.isTruncated()) {
+    if (this.isTruncated() || this.isSingleLine()) {
       this.props.markAsRead && this.props.markAsRead()
-      this.setState({truncated: false, truncatedStateSet: true});
+      this.setState({truncated: false, singleLine: false, truncatedStateSet: true});
     }
   }
 
@@ -168,16 +184,7 @@ class CommentsNode extends Component {
   }
 
   isSingleLine = () => {
-    const { currentUser, comment, condensed, lastCommentId } = this.props 
-    const mostRecent = (!condensed || (lastCommentId === comment._id))
-    const lowKarmaOrCondensed = (comment.baseScore < 10 || condensed) 
-    
-    return (
-      currentUser?.beta &&
-      this.isTruncated() && 
-      lowKarmaOrCondensed &&
-      !(mostRecent && condensed)
-    )
+    return this.state.singleLine;
   }
 
   render() {
@@ -235,16 +242,17 @@ class CommentsNode extends Component {
          >
           {/*eslint-disable-next-line react/no-string-refs*/}
           {!hiddenReadComment && <div ref={this.scrollTargetRef}>
-            {this.isSingleLine() ? <SingleLineComment comment={comment} nestingLevel={nestingLevel} />
+            {this.isSingleLine()
+              ? <SingleLineComment comment={comment} nestingLevel={nestingLevel} />
               : <CommentsItem
-              truncated={this.isTruncated()}
-              parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
-              toggleCollapse={this.toggleCollapse}
-              key={comment._id}
-              scrollIntoView={this.scrollIntoView}
-
-              { ...passedThroughItemProps}
-            />}
+                  truncated={this.isTruncated()}
+                  parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
+                  toggleCollapse={this.toggleCollapse}
+                  key={comment._id}
+                  scrollIntoView={this.scrollIntoView}
+                  { ...passedThroughItemProps}
+                />
+            }
           </div>}
           {!collapsed && children && children.length>0 && <div className="comments-children">
             <div className={classes.parentScroll} onClick={this.scrollIntoView}/>
