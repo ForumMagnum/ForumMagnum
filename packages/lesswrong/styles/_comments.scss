@@ -14,7 +14,6 @@ $lw-green: #588f27;
   color: rgba(0,0,0,0.87);
   
   .comments-item-body {
-    border-style: none;
     padding: 0px;
     .comments-item-text {
       margin-top:0px;
@@ -58,11 +57,6 @@ $lw-green: #588f27;
 .comments-node-linked {
   border-left: solid 5px rgba(88, 143, 39, 0.3);
   animation: lw-green-fade 5s ease-in-out 0s;
-}
-
-.comments-item-body{
-  border-radius: .25rem;
-  border: $border;
 }
 
 .comments-node-root {
