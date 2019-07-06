@@ -15,6 +15,7 @@ const styles = theme => ({
       padding: 0,
     }
   },
+  settingsIcon: {},
   title: {
     cursor: "pointer",
     '&:hover $settingsIcon, &:hover $sortedBy': {
