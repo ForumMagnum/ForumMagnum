@@ -69,6 +69,7 @@ extendFragment('UsersCurrent', `
   hideIntercom
   currentFrontpageFilter
   allPostsView
+  allPostsSorting
   allPostsFilter
   allPostsShowLowKarma
   allPostsOpenSettings
