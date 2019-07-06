@@ -261,12 +261,12 @@ ensureIndex(Comments, {agentFoundationsId:1});
 Comments.addView('shortform', function (terms) {
   return {
     selector: { shortform: true, parentCommentId: { $exists: false } },
-    options: {sort: {lastSubthreadActivity: -1}}
+    options: {sort: {lastSubthreadActivity: -1, postedAt: -1}}
   };
 });
 
 // Will be used for experimental shortform display on AllPosts page
-ensureIndex(Comments, {shortform:1, topLevelCommentId: 1, lastSubthreadActivity:1, baseScore:1});
+ensureIndex(Comments, {shortform:1, topLevelCommentId: 1, lastSubthreadActivity:1, postedAt: 1, baseScore:1});
 
 Comments.addView('shortformLatestChildren', function (terms) {
   return {
