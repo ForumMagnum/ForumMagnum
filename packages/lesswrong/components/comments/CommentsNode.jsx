@@ -86,6 +86,7 @@ class CommentsNode extends Component {
       truncatedStateSet: false,
       finishedScroll: false,
     };
+    this.scrollTargetRef = React.createRef();
   }
 
   // TODO: Remove this after April Fools
@@ -118,14 +119,8 @@ class CommentsNode extends Component {
   }
 
   scrollIntoView = (event) => {
-    // TODO: This is a legacy React API; migrate to the new type of refs.
-    // https://reactjs.org/docs/refs-and-the-dom.html#legacy-api-string-refs
-    //eslint-disable-next-line react/no-string-refs
-    if (this.refs && this.refs.comment) {
-      //eslint-disable-next-line react/no-string-refs
-      this.refs.comment.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
-      this.setState({finishedScroll: true});
-    }
+    this.scrollTargetRef.current?.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
+    this.setState({finishedScroll: true});
   }
 
   toggleCollapse = () => {
@@ -245,7 +240,7 @@ class CommentsNode extends Component {
           id={comment._id}
          >
           {/*eslint-disable-next-line react/no-string-refs*/}
-          {!hiddenReadComment && <div ref="comment">
+          {!hiddenReadComment && <div ref={this.scrollTargetRef}>
             {this.isSingleLine() ? <SingleLineComment comment={comment} nestingLevel={nestingLevel} />
               : <CommentsItem
               truncated={this.isTruncated()}
@@ -258,7 +253,7 @@ class CommentsNode extends Component {
             />}
           </div>}
           {!collapsed && <div className="comments-children">
-            <div className={classes.parentScroll} onClick={this.scrollIntoView}></div>
+            <div className={classes.parentScroll} onClick={this.scrollIntoView}/>
             {children && children.map(child =>
               <Components.CommentsNode child
                 comment={child.item}
