@@ -240,7 +240,6 @@ class CommentsNode extends Component {
     const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, editMutation, condensed, hideReadComments}
 
     return (
-      <div className={newComment ? "comment-new" : "comment-old"}>
         <div className={nodeClass}
           onClick={(event) => this.unTruncate(event)}
           id={comment._id}
@@ -274,7 +273,6 @@ class CommentsNode extends Component {
               />)}
           </div>}
         </div>
-      </div>
     )
   }
 }
