@@ -7,7 +7,6 @@ import { Posts } from "../../../lib/collections/posts";
 import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
 import Icon from '@material-ui/core/Icon';
-import Tooltip from '@material-ui/core/Tooltip';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/componentUtils';
 import { withStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../../common/withErrorBoundary';
@@ -143,10 +142,10 @@ class CommentsItem extends Component {
   }
 
   render() {
-    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, truncated, collapsed, parentAnswerId } = this.props
+    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, truncated, collapsed } = this.props
 
     const { showEdit } = this.state
-    const { CommentsMenu } = Components
+    const { CommentsMenu, ShowParentComment } = Components
 
     if (comment && post) {
       return (
@@ -178,15 +177,7 @@ class CommentsItem extends Component {
 
           <div className="comments-item-body">
             <div className="comments-item-meta">
-              {(comment.parentCommentId && (parentAnswerId !== comment.parentCommentId) && (nestingLevel === 1)) &&
-                <Tooltip title="Show previous comment">
-                  <Icon
-                    onClick={this.toggleShowParent}
-                    className={classNames("material-icons","recent-comments-show-parent",{active:this.state.showParent})}
-                  >
-                    subdirectory_arrow_left
-                  </Icon>
-                </Tooltip>}
+              <ShowParentComment comment={comment} nestingLevel={nestingLevel} onClick={this.toggleShowParent}/>
               { (postPage || this.props.collapsed) && <a className={classes.collapse} onClick={this.props.toggleCollapse}>
                 [<span>{this.props.collapsed ? "+" : "-"}</span>]
               </a>
