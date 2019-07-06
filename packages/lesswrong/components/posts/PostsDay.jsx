@@ -68,5 +68,6 @@ registerComponent('PostsDay', PostsDay,
     enableTotal: false,
     enableCache: true,
     limit: 3,
+    ssr: true,
   }],
   withStyles(styles, { name: "PostsDay" }));
