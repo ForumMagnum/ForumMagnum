@@ -2,7 +2,6 @@ import { Components, registerComponent, withMessages } from 'meteor/vulcan:core'
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter, Link } from '../../../lib/reactRouterWrapper.js';
-import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Posts } from "../../../lib/collections/posts";
 import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
@@ -284,7 +283,7 @@ class CommentsItem extends Component {
             { comment.retracted && <MetaInfo>[This comment is no longer endorsed by its author]</MetaInfo>}
             { showReplyButton &&
               <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={this.showReply}>
-                <FormattedMessage id="comments.reply"/>
+                Reply
               </a>
             }
           </div>
@@ -316,7 +315,7 @@ class CommentsItem extends Component {
 
 CommentsItem.propTypes = {
   currentUser: PropTypes.object,
-  post: PropTypes.object.isRequired,
+  post: PropTypes.object,
   comment: PropTypes.object.isRequired
 }
 
