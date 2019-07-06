@@ -354,7 +354,6 @@ addCallback('comment.create.before', HandleReplyToAnswer);
 
 async function updateTopLevelCommentLastCommentedAt (comment) {
   Comments.update({ _id: comment.topLevelCommentId }, { $set: {lastSubthreadActivity: new Date()}})
-  console.log("ASDF")
   return comment;
 }
 addCallback("comments.new.after", updateTopLevelCommentLastCommentedAt)
