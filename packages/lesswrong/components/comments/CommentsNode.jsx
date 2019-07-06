@@ -15,10 +15,11 @@ const styles = theme => ({
     cursor: "default",
     // Higher specificity to override child class (variant syntax)
     '&$new': {
-      borderLeft: `solid 5px ${theme.palette.secondary.light}`
-    },
-    '&$newHover': {
-      borderLeft: `solid 5px ${theme.palette.secondary.main}`
+      borderLeft: `solid 5px ${theme.palette.secondary.light}`,
+      
+      '&:hover': {
+        borderLeft: `solid 5px ${theme.palette.secondary.main}`
+      },
     },
     '&$deleted': {
       opacity: 0.6
@@ -32,7 +33,6 @@ const styles = theme => ({
     borderBottom: `solid 1px ${theme.palette.grey[300]}`,
   },
   new: {},
-  newHover: {},
   deleted: {},
   parentScroll: {
     position: "absolute",
@@ -81,7 +81,6 @@ class CommentsNode extends Component {
     super(props);
 
     this.state = {
-      hover: false,
       collapsed: this.isCollapsed(),
       truncated: this.beginTruncated(),
       truncatedStateSet: false,
@@ -141,10 +140,6 @@ class CommentsNode extends Component {
     }
   }
 
-  toggleHover = () => {
-    this.setState(prevState => ({hover: !prevState.hover}));
-  }
-
   shouldComponentUpdate(nextProps, nextState) {
     if (!shallowEqual(this.state, nextState))
       return true;
@@ -187,6 +182,7 @@ class CommentsNode extends Component {
     const { currentUser, comment, condensed, lastCommentId } = this.props 
     const mostRecent = (!condensed || (lastCommentId === comment._id))
     const lowKarmaOrCondensed = (comment.baseScore < 10 || condensed) 
+    
     return (
       currentUser?.beta &&
       this.isTruncated() && 
@@ -203,7 +199,7 @@ class CommentsNode extends Component {
     if (!comment || !post)
       return null;
 
-    const { hover, collapsed, finishedScroll } = this.state
+    const { collapsed, finishedScroll } = this.state
 
     const newComment = this.isNewComment()
 
@@ -229,7 +225,6 @@ class CommentsNode extends Component {
         "comments-node-cuz-i-guess-that-makes-sense-but-like-really-tho": nestingLevel > 40,
         [classes.child]: child && (!hideReadComments || comment.children?.length),
         [classes.new]: newComment,
-        [classes.newHover]: newComment && hover,
         [classes.deleted]: comment.deleted,
         [classes.isAnswer]: comment.answer,
         [classes.answerChildComment]: parentAnswerId,
@@ -247,10 +242,9 @@ class CommentsNode extends Component {
     return (
       <div className={newComment ? "comment-new" : "comment-old"}>
         <div className={nodeClass}
-          onMouseEnter={this.toggleHover}
-          onMouseLeave={this.toggleHover}
           onClick={(event) => this.unTruncate(event)}
-          id={comment._id}>
+          id={comment._id}
+         >
           {/*eslint-disable-next-line react/no-string-refs*/}
           {!hiddenReadComment && <div ref="comment">
             {this.isSingleLine() ? <SingleLineComment comment={comment} nestingLevel={nestingLevel} />
