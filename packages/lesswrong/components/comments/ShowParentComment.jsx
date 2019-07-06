@@ -8,6 +8,7 @@ const styles = theme => ({
     paddingRight: theme.spacing.unit,
     paddingTop: theme.spacing.unit,
     paddingBottom: theme.spacing.unit,
+    cursor: "pointer"
   },
   icon: {
     fontSize: 12,

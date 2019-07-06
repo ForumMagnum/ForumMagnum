@@ -43,10 +43,17 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment RecentDiscussionComments on Comment {
+  fragment ShortformCommentsList on Comment {
     ...CommentsList
-    topLevelComment {
+    lastSubthreadActivity
+    latestChildren {
       ...CommentsList
+    }
+    post {
+      title
+      _id
+      slug
+      lastVisitedAt
     }
   }
 `);

@@ -1,12 +1,9 @@
 import React from 'react';
 import { Components, registerComponent, withList, Loading } from 'meteor/vulcan:core';
-import { Posts } from '../../lib/collections/posts';
+import { Comments } from '../../lib/collections/comments';
 import withUser from '../common/withUser';
 
-const ShortformThreadList = ({ 
-  results, loading, loadMore, networkStatus, currentUser,
-}) => {
-  const loadingMore = networkStatus === 2;
+const ShortformThreadList = ({ results, loading, loadMore, networkStatus, currentUser }) => {
 
   const { LoadMore, ShortformThread } = Components
 
@@ -14,21 +11,15 @@ const ShortformThreadList = ({
     return null
   }
 
-  const limit = (currentUser && currentUser.isAdmin) ? 4 : 3
+  const loadingMore = networkStatus === 2;
 
   return (
     <div>
         {loading || !results ? <Loading /> :
         <div> 
-          {results.map((post, i) =>
-            <ShortformThread
-              key={post._id}
-              post={post}
-              postCount={i}
-              terms={{view:"postCommentsUnread", postId:post._id, limit}}
-              currentUser={currentUser}
-            />
-          )}
+          {results.map((comment, i) => {
+            return <ShortformThread key={comment._id} comment={comment} />
+          })}
           { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
           { loadingMore && <Loading />}
         </div>}
@@ -36,9 +27,9 @@ const ShortformThreadList = ({
   }
 
 const discussionThreadsOptions = {
-  collection: Posts,
-  queryName: 'selectCommentsListQuery',
-  fragmentName: 'PostsList',
+  collection: Comments,
+  queryName: 'ShortformThreadListQuery',
+  fragmentName: 'ShortformCommentsList',
   enableTotal: false,
   pollInterval: 0,
   enableCache: true,

@@ -198,7 +198,7 @@ class RecentDiscussionThread extends PureComponent {
 const commentsOptions = {
   collection: Comments,
   queryName: 'selectCommentsListQuery',
-  fragmentName: 'RecentDiscussionComments',
+  fragmentName: 'CommentsList',
   enableTotal: false,
   pollInterval: 0,
   enableCache: true,
