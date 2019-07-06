@@ -81,7 +81,7 @@ class CommentsNode extends Component {
     super(props);
 
     this.state = {
-      collapsed: this.isCollapsed(),
+      collapsed: this.beginCollapsed(),
       truncated: this.beginTruncated(),
       truncatedStateSet: false,
       finishedScroll: false,
@@ -94,7 +94,7 @@ class CommentsNode extends Component {
     return !!(comment && comment.user && comment.user.displayName === "GPT2")
   }
 
-  isCollapsed = () => {
+  beginCollapsed = () => {
     const { comment, currentUser } = this.props
     return (
       comment.deleted ||
@@ -252,7 +252,7 @@ class CommentsNode extends Component {
               { ...passedThroughItemProps}
             />}
           </div>}
-          {!collapsed && <div className="comments-children">
+          {!collapsed && children && children.length>0 && <div className="comments-children">
             <div className={classes.parentScroll} onClick={this.scrollIntoView}/>
             {children && children.map(child =>
               <Components.CommentsNode child
