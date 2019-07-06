@@ -8,11 +8,9 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   root: {
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit*3
+    marginBottom: theme.spacing.unit*4
   },
   dayTitle: {
-    marginBottom: theme.spacing.unit*2,
     whiteSpace: "pre",
     textOverflow: "ellipsis",
     ...theme.typography.postStyle,
@@ -21,6 +19,15 @@ const styles = theme => ({
   noPosts: {
     marginLeft: "23px",
     color: "rgba(0,0,0,0.5)",
+  },
+  shortformGroup: {
+    marginTop: 20,
+  },
+  shortformTag: {
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[700],
+    marginBottom: 8,
   },
 })
 
@@ -45,12 +52,19 @@ const PostsDay = ({ date, posts, results: comments, hideIfEmpty, classes, curren
           {date.format('ddd, MMM Do YYYY')}
         </Hidden>
       </Typography>
+      
       { (noPosts && noComments) && (<div className={classes.noPosts}>No posts on {date.format('MMMM Do YYYY')}</div>) }
       
       {posts?.map((post, i) =>
         <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
-      {comments?.map((comment, i) =>
-        <CommentsNode forceSingleLine={true} key={comment._id} comment={comment} post={comment.post} nestingLevel={1} />)}
+      
+      <div className={classes.shortformGroup}>
+        <div className={classes.shortformTag}>
+          Shortform [Beta]
+        </div>
+        {comments?.map((comment, i) =>
+          <CommentsNode forceSingleLine={true} key={comment._id} comment={comment} post={comment.post} nestingLevel={1} />)}
+      </div>
     </div>
   );
 }
