@@ -87,6 +87,7 @@ class CommentsList extends Component {
                 parentAnswerId={parentAnswerId}
                 condensed={condensed}
                 hideReadComments={hideReadComments}
+                shortform={post.shortform}
               />)
             }
           </div>

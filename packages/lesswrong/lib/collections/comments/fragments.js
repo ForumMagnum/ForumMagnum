@@ -43,6 +43,22 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment ShortformCommentsList on Comment {
+    ...CommentsList
+    lastSubthreadActivity
+    latestChildren {
+      ...CommentsList
+    }
+    post {
+      title
+      _id
+      slug
+      lastVisitedAt
+    }
+  }
+`);
+
+registerFragment(`
   fragment CommentEdit on Comment {
     ...CommentsList
     contents {
