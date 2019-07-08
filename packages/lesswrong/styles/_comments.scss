@@ -219,21 +219,6 @@ $lw-green: #588f27;
   margin:0;
   width:100%;
 
-  .recent-comments-show-parent {
-    font-size:12px !important;
-    margin-right:5px;
-    cursor:pointer;
-    transform: rotate(90deg);
-    color:rgba(0,0,0,.75);
-    &.active {
-      color:rgba(0,0,0,.3) !important;
-    }
-
-    @include max-small() {
-      padding:10px;
-    }
-  }
-
   &.loading {
     min-height:80px;
     padding:35px;
