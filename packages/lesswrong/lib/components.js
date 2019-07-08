@@ -190,6 +190,7 @@ if (getSetting('hasEvents', true)) {
 // comments
 
 import '../components/comments/CommentsItem/CommentsItem.jsx';
+import '../components/comments/CommentsItem/CommentUserName.jsx';
 import '../components/comments/CommentsItem/RetractCommentMenuItem.jsx';
 import '../components/comments/CommentsItem/MoveToAnswersMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromPostMenuItem.jsx';

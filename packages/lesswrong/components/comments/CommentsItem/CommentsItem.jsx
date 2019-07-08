@@ -15,20 +15,6 @@ const styles = theme => ({
       opacity:1
     }
   },
-  author: {
-    ...theme.typography.body2,
-    fontWeight: 600,
-    marginRight: 10
-  },
-  authorAnswer: {
-    ...theme.typography.body2,
-    fontFamily: theme.typography.postStyle.fontFamily,
-    fontWeight: 600,
-    marginRight: 10,
-    '& a, & a:hover': {
-      textShadow:"none",
-      backgroundImage: "none"
-    }
   },
   menu: {
     opacity:.35,
@@ -129,7 +115,7 @@ class CommentsItem extends Component {
     const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, truncated, collapsed, scrollIntoView } = this.props
 
     const { showEdit } = this.state
-    const { CommentsMenu, ShowParentComment, CommentsItemDate } = Components
+    const { CommentsMenu, ShowParentComment, CommentsItemDate, CommentUserName } = Components
 
     if (comment && post) {
       return (
@@ -166,19 +152,7 @@ class CommentsItem extends Component {
                 [<span>{this.props.collapsed ? "+" : "-"}</span>]
               </a>
               }
-              { comment.deleted || comment.hideAuthor || !comment.user ?
-                ((comment.hideAuthor || !comment.user) ? <span>[deleted]  </span> : <span> [comment deleted]  </span>) :
-                  <span>
-                  {!comment.answer ? <span className={classes.author}>
-                      <Components.UsersName user={comment.user}/>
-                    </span>
-                    :
-                    <span className={classes.authorAnswer}>
-                      Answer by <Components.UsersName user={comment.user}/>
-                    </span>
-                  }
-                  </span>
-              }
+              <CommentUserName comment={comment}/>
               <CommentsItemDate
                 comment={comment} post={post}
                 showPostTitle={showPostTitle}
