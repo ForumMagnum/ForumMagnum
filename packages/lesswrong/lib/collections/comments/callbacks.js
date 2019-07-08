@@ -352,6 +352,22 @@ function HandleReplyToAnswer (comment, properties)
 }
 addCallback('comment.create.before', HandleReplyToAnswer);
 
+async function SetTopLevelCommentId (comment, context)
+{
+  let rootComment = comment;
+  while (rootComment.parentCommentId) {
+    rootComment = await Comments.findOne({_id: rootComment.parentCommentId});
+  }
+  
+  if (rootComment && rootComment._id !== comment._id) {
+    return {
+      ...comment,
+      topLevelCommentId: rootComment._id
+    };
+  }
+}
+addCallback('comment.create.before', SetTopLevelCommentId);
+
 async function updateTopLevelCommentLastCommentedAt (comment) {
   Comments.update({ _id: comment.topLevelCommentId }, { $set: {lastSubthreadActivity: new Date()}})
   return comment;
