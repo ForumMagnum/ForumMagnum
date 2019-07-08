@@ -15,7 +15,6 @@ const styles = theme => ({
       opacity:1
     }
   },
-  },
   menu: {
     opacity:.35,
     marginRight:-5
