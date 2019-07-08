@@ -27,15 +27,20 @@ const styles = theme => ({
 
 const ShowParentComment = ({ comment, classes, nestingLevel, onClick }) => {
 
-  // topLevelComment -> never render 
-
-  if (
-    !comment?.topLevelCommentId || 
-    (
-      (nestingLevel === 2) && (comment?.parentCommentId === comment?.topLevelCommentId)
-    ) ||
-    nestingLevel > 2
-  ) {    
+  if (!comment) return null;
+  
+  if (!comment.topLevelCommentId) {
+    // This is a root comment
+    return null;
+  }
+  
+  if (nestingLevel > 2) {
+    return null;
+  }
+  
+  if (nestingLevel === 2
+    && comment.parentCommentId === comment.topLevelCommentId
+  ) {
     return null
   }
 
