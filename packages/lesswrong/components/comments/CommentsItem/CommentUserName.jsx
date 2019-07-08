@@ -21,18 +21,23 @@ const styles = theme => ({
 });
 
 const CommentUserName = ({comment, classes}) => {
-  return comment.deleted || comment.hideAuthor || !comment.user ?
-    ((comment.hideAuthor || !comment.user) ? <span>[deleted]  </span> : <span> [comment deleted]  </span>) :
-      <span>
-      {!comment.answer ? <span className={classes.author}>
-          <Components.UsersName user={comment.user}/>
-        </span>
-        :
-        <span className={classes.authorAnswer}>
-          Answer by <Components.UsersName user={comment.user}/>
-        </span>
-      }
+  if (comment.deleted) {
+    return <span>[comment deleted]</span>
+  } else if (comment.deleted || comment.hideAuthor || !comment.user) {
+    return <span>[deleted]</span>
+  } else if (comment.answer) {
+    return (
+      <span className={classes.authorAnswer}>
+        Answer by <Components.UsersName user={comment.user}/>
       </span>
+    );
+  } else {
+    return (
+      <span className={classes.author}>
+        <Components.UsersName user={comment.user}/>
+      </span>
+    );
+  }
 }
 
 registerComponent('CommentUserName', CommentUserName,
