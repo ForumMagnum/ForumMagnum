@@ -2,6 +2,7 @@ import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import SubdirectoryArrowLeft from '@material-ui/icons/SubdirectoryArrowLeft';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = theme => ({
   root: {
@@ -45,11 +46,13 @@ const ShowParentComment = ({ comment, classes, nestingLevel, onClick }) => {
   }
 
   return (
-    <span className={classes.root} onClick={onClick}>
-      <SubdirectoryArrowLeft className={classes.icon}>
-        subdirectory_arrow_left
-      </SubdirectoryArrowLeft>
-    </span>
+    <Tooltip title="Show previous comment">
+      <span className={classes.root} onClick={onClick}>
+        <SubdirectoryArrowLeft className={classes.icon}>
+          subdirectory_arrow_left
+        </SubdirectoryArrowLeft>
+      </span>
+    </Tooltip>
   )
 };
 
