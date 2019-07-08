@@ -9,7 +9,11 @@ const styles = theme => ({
     paddingRight: theme.spacing.unit,
     paddingTop: theme.spacing.unit,
     paddingBottom: theme.spacing.unit,
-    cursor: "pointer"
+    cursor: "pointer",
+    color: "rgba(0,0,0,.75)",
+  },
+  active: {
+    color: "rgba(0,0,0, .3)",
   },
   icon: {
     fontSize: 12,
@@ -26,7 +30,7 @@ const styles = theme => ({
   }
 })
 
-const ShowParentComment = ({ comment, classes, nestingLevel, onClick }) => {
+const ShowParentComment = ({ comment, nestingLevel, active, onClick, classes }) => {
 
   if (!comment) return null;
   
@@ -56,7 +60,7 @@ const ShowParentComment = ({ comment, classes, nestingLevel, onClick }) => {
 
   return (
     <Tooltip title="Show previous comment">
-      <span className={classes.root} onClick={onClick}>
+      <span className={classNames(classes.root, {[classes.active]: active})} onClick={onClick}>
         <SubdirectoryArrowLeft className={classes.icon}>
           subdirectory_arrow_left
         </SubdirectoryArrowLeft>
