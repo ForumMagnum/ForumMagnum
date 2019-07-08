@@ -354,9 +354,13 @@ addCallback('comment.create.before', HandleReplyToAnswer);
 
 async function SetTopLevelCommentId (comment, context)
 {
+  let visited = {};
   let rootComment = comment;
   while (rootComment.parentCommentId) {
     rootComment = await Comments.findOne({_id: rootComment.parentCommentId});
+    if (visited[rootComment._id])
+      throw new Error("Cyclic parent-comment relations detected!");
+    visited[rootComment._id] = true;
   }
   
   if (rootComment && rootComment._id !== comment._id) {
