@@ -131,7 +131,6 @@ CommentsNewForm.propTypes = {
   parentComment: PropTypes.object, // if reply, the comment being replied to
   successCallback: PropTypes.func, // a callback to execute when the submission has been successful
   cancelCallback: PropTypes.func,
-  router: PropTypes.object,
   prefilledProps: PropTypes.object
 };
 
