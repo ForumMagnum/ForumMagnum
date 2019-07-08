@@ -18,21 +18,6 @@ const styles = theme => ({
       opacity:1
     }
   },
-  author: {
-    ...theme.typography.body2,
-    fontWeight: 600,
-    marginRight: 10
-  },
-  authorAnswer: {
-    ...theme.typography.body2,
-    fontFamily: theme.typography.postStyle.fontFamily,
-    fontWeight: 600,
-    marginRight: 10,
-    '& a, & a:hover': {
-      textShadow:"none",
-      backgroundImage: "none"
-    }
-  },
   postTitle: {
     marginRight: 5,
   },
@@ -145,7 +130,7 @@ class CommentsItem extends Component {
     const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, truncated, collapsed } = this.props
 
     const { showEdit } = this.state
-    const { CommentsMenu, ShowParentComment } = Components
+    const { CommentsMenu, ShowParentComment, CommentUserName } = Components
 
     if (comment && post) {
       return (
@@ -182,19 +167,7 @@ class CommentsItem extends Component {
                 [<span>{this.props.collapsed ? "+" : "-"}</span>]
               </a>
               }
-              { comment.deleted || comment.hideAuthor || !comment.user ?
-                ((comment.hideAuthor || !comment.user) ? <span>[deleted]  </span> : <span> [comment deleted]  </span>) :
-                  <span>
-                  {!comment.answer ? <span className={classes.author}>
-                      <Components.UsersName user={comment.user}/>
-                    </span>
-                    :
-                    <span className={classes.authorAnswer}>
-                      Answer by <Components.UsersName user={comment.user}/>
-                    </span>
-                  }
-                  </span>
-              }
+              <CommentUserName comment={comment}/>
               <div className={comment.answer ? classes.answerDate : classes.date}>
                 { !postPage ?
                   <Link to={Posts.getPageUrl(post) + "#" + comment._id}>
