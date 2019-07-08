@@ -73,14 +73,13 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
           <div className="comments-item">
             <div className="comments-item-body recent-comments-item-body ">
               <div className="comments-item-meta recent-comments-item-meta">
-                { comment.parentCommentId ? (
-                    <Icon
+                { comment.parentCommentId
+                  ? <ShowParentComment
+                      comment={comment} nestingLevel={level}
+                      active={this.state.showParent}
                       onClick={this.toggleShowParent}
-                      className={classNames("material-icons","recent-comments-show-parent",{active:this.state.showParent})}
-                    >
-                      subdirectory_arrow_left
-                    </Icon>
-                  ) : level != 1 && <div className={classes.usernameSpacing}>○</div>
+                    />
+                  : (level != 1) && <div className={classes.usernameSpacing}>○</div>
                 }
                 <span className={classNames(classes.author, {[classes.authorAnswer]:comment.answer})}>
                   {comment.answer && "Answer by "}<Components.UsersName user={comment.user}/>
