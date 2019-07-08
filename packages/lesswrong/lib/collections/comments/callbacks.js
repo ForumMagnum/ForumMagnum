@@ -352,12 +352,14 @@ function HandleReplyToAnswer (comment, properties)
 }
 addCallback('comment.create.before', HandleReplyToAnswer);
 
-async function SetTopLevelCommentId (comment, context)
+function SetTopLevelCommentId (comment, context)
 {
   let visited = {};
   let rootComment = comment;
   while (rootComment?.parentCommentId) {
-    rootComment = await Comments.findOne({_id: rootComment.parentCommentId});
+    // This relies on Meteor fibers (rather than being async/await) because
+    // Vulcan callbacks aren't async-safe.
+    rootComment = Comments.findOne({_id: rootComment.parentCommentId});
     if (rootComment && visited[rootComment._id])
       throw new Error("Cyclic parent-comment relations detected!");
     visited[rootComment?._id] = true;
