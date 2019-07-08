@@ -352,3 +352,9 @@ function HandleReplyToAnswer (comment, properties)
   }
 }
 addCallback('comment.create.before', HandleReplyToAnswer);
+
+async function updateTopLevelCommentLastCommentedAt (comment) {
+  Comments.update({ _id: comment.topLevelCommentId }, { $set: {lastSubthreadActivity: new Date()}})
+  return comment;
+}
+addCallback("comments.new.after", updateTopLevelCommentLastCommentedAt)

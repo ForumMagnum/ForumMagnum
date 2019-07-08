@@ -6,8 +6,8 @@ import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { Utils } from 'meteor/vulcan:core';
 import GraphQLJSON from 'graphql-type-json';
 import { schemaDefaultValue } from '../../collectionUtils';
-//import { getWithCustomLoader } from '../../loaders.js';
-//import keyBy from 'lodash/keyBy';
+import { getWithCustomLoader } from '../../loaders.js';
+import keyBy from 'lodash/keyBy';
 
 export const formGroups = {
   adminOptions: {
@@ -146,25 +146,19 @@ addFieldsDict(Posts, {
     viewableBy: ['guests'],
     resolver: async (post, args, { ReadStatuses, LWEvents, currentUser }) => {
       if (!currentUser) return null;
-      
-      // Slow method, from the LWEvents table. This is an N+1 select. Switch
-      // after the migration script is run.
-      const event = await LWEvents.findOne({name:'post-view', documentId: post._id, userId: currentUser._id}, {sort:{createdAt:-1}});
-      return event && event.createdAt
-      
-      // Faster method, using the ReadStatuses table.
-      /*return await getWithCustomLoader(ReadStatuses, `postsReadByUser${currentUser._id}`, post._id,
+
+      return await getWithCustomLoader(ReadStatuses, `postsReadByUser${currentUser._id}`, post._id,
         async postIDs => {
           const readDates = await ReadStatuses.find({
             userId: currentUser._id,
             postId: {$in: postIDs},
             isRead: true,
           }, {postId:1, lastUpdated:1}).fetch();
-          
+
           const readDateByPostID = keyBy(readDates, ev=>ev.postId);
           return postIDs.map(postID => readDateByPostID[postID] ? readDateByPostID[postID].lastUpdated : null);
         }
-      );*/
+      );
     }
   }),
 
@@ -379,7 +373,7 @@ addFieldsDict(Posts, {
     hidden: false,
     control: "text"
   },
-  
+
   // The next post. If a sequenceId is provided, that sequence must contain this
   // post, and this returns the next post after this one in that sequence. If
   // no sequenceId is provided, uses this post's canonical sequence.
@@ -406,11 +400,11 @@ addFieldsDict(Posts, {
         const nextPost = await Posts.loader.load(nextPostID);
         return accessFilterSingle(currentUser, Posts, nextPost);
       }
-      
+
       return null;
     }
   }),
-  
+
   // The previous post. If a sequenceId is provided, that sequence must contain
   // this post, and this returns the post before this one in that sequence.
   // If no sequenceId is provided, uses this post's canonical sequence.
@@ -437,11 +431,11 @@ addFieldsDict(Posts, {
         const prevPost = await Posts.loader.load(prevPostID);
         return accessFilterSingle(currentUser, Posts, prevPost);
       }
-      
+
       return null;
     }
   }),
-  
+
   // A sequence this post is part of. Takes an optional sequenceId; if the
   // sequenceId is given and it contains this post, returns that sequence.
   // Otherwise, if this post has a canonical sequence, return that. If no
@@ -459,7 +453,7 @@ addFieldsDict(Posts, {
       } else if (post.canonicalSequenceId) {
         sequence = await Sequences.loader.load(post.canonicalSequenceId);
       }
-      
+
       return accessFilterSingle(currentUser, Sequences, sequence);
     }
   }),
@@ -478,7 +472,7 @@ addFieldsDict(Posts, {
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
   },
-  
+
   // disableRecommendation: If true, this post will never appear as a
   // recommended post (but will still appear in all other places, ie on its
   // author's profile, in archives, etc).
@@ -493,6 +487,20 @@ addFieldsDict(Posts, {
     label: "Exclude from Recommendations",
     control: "checkbox",
     order: 12,
+    group: formGroups.adminOptions,
+    ...schemaDefaultValue(false),
+  },
+
+  // defaultRecommendation: If true, always include this post in the recommendations
+  defaultRecommendation: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    label: "Include in default recommendations",
+    control: "checkbox",
+    order: 13,
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
   },

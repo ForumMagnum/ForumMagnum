@@ -15,13 +15,14 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = theme => ({
   root: {
     width: "60%",
+    maxWidth: 600,
     margin: "auto",
     marginBottom: 100,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
     }
   },
-  
+
   header: {
     margin: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 4,

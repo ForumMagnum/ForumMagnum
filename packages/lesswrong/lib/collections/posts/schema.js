@@ -14,6 +14,11 @@ const formGroups = {
     label: "Admin Options",
     startCollapsed: true,
   },
+  visibleOptions: {
+    name: "visibleOptions",
+    order: 30,
+    defaultStyle: true,
+  }
 };
 
 const schema = {
@@ -92,7 +97,7 @@ const schema = {
     },
     onEdit: (modifier, post) => {
       if (modifier.$set.title) {
-        return Utils.getUnusedSlugByCollectionName("Posts", Utils.slugify(modifier.$set.title))
+        return Utils.getUnusedSlugByCollectionName("Posts", Utils.slugify(modifier.$set.title), false, post._id)
       }
     }
   },
@@ -378,15 +383,11 @@ const schema = {
   hiddenRelatedQuestion: {
     type: Boolean,
     viewableBy: ['guests'],
-    insertableBy: ['admins', 'sunshineRegiment'],
-    editableBy: ['admins', 'sunshineRegiment'],
-    optional: true,
+    insertableBy: ['members'],
+    editableBy: [Users.owns, 'admins', 'sunshineRegiment'],
     hidden: true,
-    group: formGroups.adminOptions,
+    optional: true,
     ...schemaDefaultValue(false),
-    onCreate: ({newDocument}) => {
-      return newDocument.originalPostRelationSourceId ? true : !!newDocument.hiddenRelatedQuestion
-    },
   },
 
   originalPostRelationSourceId: {
@@ -447,7 +448,20 @@ const schema = {
   'targetPostRelations.$': {
     type: String,
     optional: true,
-  }
+  },
+  
+  // A post should have the shortform flag set iff its author's shortformFeedId
+  // field is set to this post's ID.
+  shortform: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    viewableBy: ['guests'],
+    insertableBy: ['admins'],
+    editableBy: ['admins'],
+    denormalized: true,
+    ...schemaDefaultValue(false),
+  },
 };
 
 export default schema;

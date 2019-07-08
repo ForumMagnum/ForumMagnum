@@ -89,7 +89,7 @@ const styles = (theme) => ({
     marginRight: 12,
     [theme.breakpoints.up('md')]: {
       position: "relative",
-      top: 1,
+      top: 3,
     },
     [theme.breakpoints.down('sm')]: {
       order:-1,
@@ -197,9 +197,11 @@ const styles = (theme) => ({
   },
   mobileDismissButton: {
     display: "none",
-    opacity: 0.5,
+    opacity: 0.75,
     verticalAlign: "middle",
-    marginLeft: 5,
+    position: "relative",
+    cursor: "pointer",
+    right: 10,
     [theme.breakpoints.down('sm')]: {
       display: "inline-block"
     }
@@ -207,7 +209,7 @@ const styles = (theme) => ({
   nextUnreadIn: {
     color: theme.palette.grey[800],
     fontFamily: theme.typography.commentStyle.fontFamily,
-    
+
     [theme.breakpoints.up('md')]: {
       position: "absolute",
       left: 42,
@@ -217,10 +219,11 @@ const styles = (theme) => ({
     [theme.breakpoints.down('sm')]: {
       order: -1,
       width: "100%",
-      marginTop: -10,
-      marginLeft: 3,
+      marginTop: -2,
+      marginBottom: 3,
+      marginLeft: 1,
     },
-    
+
     "& a": {
       color: theme.palette.primary.main,
     },
@@ -232,16 +235,21 @@ const styles = (theme) => ({
     opacity: 0.6,
     height: 48,
     width: 146,
-    
+
     // Negative margins that are the opposite of the padding on postsItem, since
     // the image extends into the padding.
     marginTop: -12,
     marginBottom: -12,
     [theme.breakpoints.down('sm')]: {
-      marginTop: -8,
-      marginBottom: -8,
+      marginTop: 0,
+      marginBottom: 0,
+      position: "absolute",
+      overflow: 'hidden',
+      right: 0,
+      bottom: 0,
+      height: "100%",
     },
-    
+
     // Overlay a white-to-transparent gradient over the image
     "&:after": {
       content: "''",
@@ -253,6 +261,14 @@ const styles = (theme) => ({
       background: "linear-gradient(to right, white 0%, rgba(255,255,255,.8) 60%, transparent 100%)",
     }
   },
+  sequenceImageImg: {
+    height: 48,
+    width: 146,
+    [theme.breakpoints.down('sm')]: {
+      height: "100%",
+      width: 'auto'
+    },
+  }
 })
 
 const dismissRecommendationTooltip = "Don't remind me to finish reading this sequence unless I visit it again";
@@ -286,7 +302,7 @@ class PostsItem2 extends PureComponent {
       )
     }
   }
-  
+
   hasUnreadComments = () => {
     const { post } = this.props
     const { lastVisitedAt } = post
@@ -305,19 +321,19 @@ class PostsItem2 extends PureComponent {
     const { PostsItemComments, PostsItemKarma, PostsItemTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
 
     const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
-    
+
     const unreadComments = this.hasUnreadComments()
 
     const renderComments = showComments || (defaultToShowUnreadComments && unreadComments)
     const condensedAndHiddenComments = defaultToShowUnreadComments && unreadComments && !showComments
 
-    const dismissButton = (resumeReading && <Tooltip title={dismissRecommendationTooltip} placement="right">
+    const dismissButton = (currentUser && resumeReading && <Tooltip title={dismissRecommendationTooltip} placement="right">
         <CloseIcon onClick={() => dismissRecommendation()}/>
       </Tooltip>
     )
-    
+
     const cloudinaryCloudName = getSetting('cloudinary.cloudName', 'lesswrong-2-0')
-    
+
     return (
       <div className={classes.root} ref={this.postsItemRef}>
         <div className={classNames(
@@ -339,22 +355,18 @@ class PostsItem2 extends PureComponent {
             <Link to={postLink} className={classes.title}>
               <PostsItemTitle post={post} postItem2 expandOnHover={!renderComments} read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
             </Link>
-            
+
             {(resumeReading?.sequence || resumeReading?.collection) &&
               <div className={classes.nextUnreadIn}>
-                Next unread in <Link to={
+                {resumeReading.numRead ? "Next unread in " : "First post in "}<Link to={
                   resumeReading.sequence
                     ? Sequences.getPageUrl(resumeReading.sequence)
                     : Collections.getPageUrl(resumeReading.collection)
                 }>
-                  {resumeReading.sequence?.title || resumeReading.collection?.title}
+                  {resumeReading.sequence ? resumeReading.sequence.title : resumeReading.collection?.title}
                 </Link>
                 {" "}
-                ({resumeReading.numRead}/{resumeReading.numTotal} read)
-                
-                <div className={classes.mobileDismissButton}>
-                  {dismissButton}
-                </div>
+                {(resumeReading.numRead>0) && <span>({resumeReading.numRead}/{resumeReading.numTotal} read)</span>}
               </div>
             }
 
@@ -369,7 +381,7 @@ class PostsItem2 extends PureComponent {
             {showPostedAt && !resumeReading && <Components.PostsItemDate post={post}/>}
 
             <div className={classes.mobileSecondRowSpacer}/>
-            
+
             {<div className={classes.mobileActions}>
               {!resumeReading && <PostsPageActions post={post} menuClassName={classes.actionsMenu} />}
             </div>}
@@ -384,14 +396,17 @@ class PostsItem2 extends PureComponent {
                 onClick={() => this.toggleComments(false)}
                 unreadComments={unreadComments}
               />
+
             </div>}
-            
+
+            <div className={classes.mobileDismissButton}>
+              {dismissButton}
+            </div>
+
             {resumeReading &&
               <div className={classes.sequenceImage}>
-                <img
-                  height={48}
-                  width={146}
-                  src={`http://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_48,q_auto,w_146/v1/${
+                <img className={classes.sequenceImageImg}
+                  src={`http://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
                     resumeReading.sequence?.gridImageId
                       || resumeReading.collection?.gridImageId
                       || "sequences/vnyzzznenju0hzdv6pqb.jpg"
@@ -399,12 +414,12 @@ class PostsItem2 extends PureComponent {
                 />
               </div>}
           </div>
-          
+
           {<div className={classes.actions}>
             {dismissButton}
             {!resumeReading && <PostsPageActions post={post} vertical menuClassName={classes.actionsMenu} />}
           </div>}
-          
+
           {renderComments && <div className={classes.newCommentsSection} onClick={() => this.toggleComments(true)}>
             <Components.PostsItemNewCommentsWrapper
               currentUser={currentUser}

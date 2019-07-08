@@ -79,6 +79,7 @@ import '../components/common/LinkCard.jsx';
 import '../components/common/SubscribeWidget.jsx';
 import '../components/common/SubscribeDialog.jsx';
 
+import '../components/users/AccountsVerifyEmail.jsx';
 import '../components/users/UsersMenu.jsx';
 import '../components/users/UsersEditForm.jsx';
 import '../components/users/UsersAccount.jsx';
@@ -91,14 +92,16 @@ import '../components/users/UsersSingle.jsx';
 import '../components/users/UsersEmailVerification.jsx';
 import '../components/users/EmailConfirmationRequiredCheckbox.jsx';
 import '../components/users/LoginPage.jsx';
-import '../components/users/LoginPopupLink.jsx';
+import '../components/users/LoginPopup.jsx';
 import '../components/users/KarmaChangeNotifier.jsx';
 import '../components/users/KarmaChangeNotifierSettings.jsx';
 import '../components/users/AccountsResetPassword.jsx';
 import '../components/users/EmailTokenPage.jsx';
 import '../components/users/EmailTokenResult.jsx';
+import '../components/users/SignupSubscribeToCurated.jsx';
 import '../components/users/UserNameDeleted.jsx';
 import '../components/users/WrappedLoginForm.jsx';
+import '../components/users/ResendVerificationEmailPage.jsx';
 
 import '../components/icons/OmegaIcon.jsx';
 import '../components/icons/SettingsIcon.jsx';
@@ -134,9 +137,6 @@ import '../components/posts/PostsItemKarma.jsx';
 import '../components/posts/PostsItemMetaInfo.jsx';
 import '../components/posts/PostsItemNewCommentsWrapper.jsx';
 import '../components/posts/PostsItemIcons.jsx';
-import '../components/posts/PostsItemCuratedIcon.jsx';
-import '../components/posts/PostsItemPersonalIcon.jsx';
-import '../components/posts/PostsItemAlignmentIcon.jsx';
 import '../components/posts/PostsPage';
 import '../components/posts/PostsPageAdminActions.jsx';
 import '../components/posts/PostsSingleSlug.jsx';
@@ -158,6 +158,8 @@ import '../components/posts/PostSubmit.jsx';
 import '../components/posts/SubmitToFrontpageCheckbox';
 import '../components/posts/ReportPostMenuItem.jsx';
 import '../components/posts/PostsItemDate.jsx';
+
+import '../components/shortform/ShortformPage.jsx';
 
 import '../components/votes/VoteButton.jsx';
 import '../components/votes/CommentsVote.jsx';
@@ -209,6 +211,8 @@ import '../components/comments/CommentsItem/CommentOutdatedWarning';
 
 import '../components/comments/recentDiscussionThread.jsx';
 import '../components/comments/recentDiscussionThreadsList.jsx';
+import '../components/comments/ShortformThread.jsx';
+import '../components/comments/ShortformThreadList.jsx';
 import '../components/comments/CantCommentExplanation.jsx';
 import '../components/comments/CommentsEditForm.jsx';
 import '../components/comments/CommentsListSection.jsx';
@@ -218,7 +222,6 @@ import '../components/comments/CommentsViews.jsx';
 import '../components/comments/RecentComments.jsx';
 import '../components/comments/RecentCommentsItem.jsx';
 import '../components/comments/RecentCommentsSingle.jsx';
-import '../components/comments/RecentCommentsPage.jsx';
 import '../components/comments/ModerationGuidelines/ModerationGuidelinesBox.jsx';
 import '../components/comments/ModerationGuidelines/ModerationGuidelinesEditForm.jsx'
 import '../components/comments/LastVisitList.jsx'
@@ -286,6 +289,7 @@ import '../components/sequences/SequencesNewForm.jsx';
 import '../components/sequences/SequencesHome.jsx';
 import '../components/sequences/SequencesGrid.jsx';
 import '../components/sequences/SequencesGridWrapper.jsx';
+import '../components/sequences/SequenceTooltip.jsx';
 import '../components/sequences/SequencesNavigationLink.jsx';
 import '../components/sequences/SequencesNewButton.jsx';
 import '../components/sequences/BottomNavigation.jsx';
@@ -351,6 +355,7 @@ import '../components/questions/QuestionsPage.jsx';
 import '../components/questions/RelatedQuestionsList.jsx';
 
 import '../components/recommendations/ConfigurableRecommendationsList.jsx';
+import '../components/recommendations/ContinueReadingList.jsx';
 import '../components/recommendations/RecommendationsAlgorithmPicker.jsx';
 import '../components/recommendations/RecommendationsList.jsx';
 import '../components/recommendations/RecommendationsPage.jsx';
