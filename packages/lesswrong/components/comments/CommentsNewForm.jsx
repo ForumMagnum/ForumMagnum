@@ -127,7 +127,7 @@ const FormGroupComponent = (props) => {
 
 
 CommentsNewForm.propTypes = {
-  post: PropTypes.object.isRequired,
+  post: PropTypes.object,
   type: PropTypes.string, // "comment" or "reply"
   parentComment: PropTypes.object, // if reply, the comment being replied to
   topLevelCommentId: PropTypes.string, // if reply
