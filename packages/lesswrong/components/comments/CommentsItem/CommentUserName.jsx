@@ -23,7 +23,7 @@ const styles = theme => ({
 const CommentUserName = ({comment, classes}) => {
   if (comment.deleted) {
     return <span>[comment deleted]</span>
-  } else if (comment.deleted || comment.hideAuthor || !comment.user) {
+  } else if (comment.hideAuthor || !comment.user) {
     return <Components.UserNameDeleted/>
   } else if (comment.answer) {
     return (
