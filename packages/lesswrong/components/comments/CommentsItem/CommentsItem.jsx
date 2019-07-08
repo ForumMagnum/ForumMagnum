@@ -162,7 +162,11 @@ class CommentsItem extends Component {
 
           <div className="comments-item-body">
             <div className="comments-item-meta">
-              <ShowParentComment comment={comment} nestingLevel={nestingLevel} onClick={this.toggleShowParent}/>
+              <ShowParentComment
+                comment={comment} nestingLevel={nestingLevel}
+                active={this.state.showParent}
+                onClick={this.toggleShowParent}
+              />
               { (postPage || this.props.collapsed) && <a className={classes.collapse} onClick={this.props.toggleCollapse}>
                 [<span>{this.props.collapsed ? "+" : "-"}</span>]
               </a>
