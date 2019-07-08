@@ -32,7 +32,7 @@ class PostsTimeframeList extends PureComponent {
   constructor(props) {
     super(props);
 
-    console.log('PostsTimeframeList constructor')
+    // console.log('PostsTimeframeList constructor')
     // console.log('  props', props)
     // TODO; try without
     this.loadMoreTimeBlocks = this.loadMoreTimeBlocks.bind(this);
@@ -133,7 +133,7 @@ class PostsTimeframeList extends PureComponent {
     const {
       timeframe, dimWhenLoading, loading, loadingMore, classes, currentUser, networkStatus, timezone, timeField
     } = this.props
-    console.log('PostsTimeframeList render()')
+    // console.log('PostsTimeframeList render()')
     // console.log('  props subset', {loading, loadingMore, networkStatus})
     if (!timeframes[this.props.timeframe]) {
       throw new Error(`Invalid timeframe supplied to [TODO; ComponentName]: '${this.props.timeframe}'`)
@@ -152,12 +152,12 @@ class PostsTimeframeList extends PureComponent {
     if (loading && (!posts || !posts.length)) {
       return <Loading />
     }
-    console.log(' posts', posts)
+    // console.log(' posts', posts)
     return (
       <div className={classNames({[classes.loading]: dim})}>
         { loading && <Loading />}
         {dates.map((date) => {
-          console.log('dates map date', date)
+          // console.log('dates map date', date)
           return <PostsDay key={date.toString()}
             date={moment(date)}
             posts={getDatePosts(posts, date, timeBlock, timeField, timezone)}

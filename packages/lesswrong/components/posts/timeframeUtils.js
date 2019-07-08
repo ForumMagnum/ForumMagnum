@@ -5,11 +5,11 @@ import moment from 'moment-timezone';
 // Export for testing
 // TODO; kwargs
 export const getDatePosts = (posts, date, timeBlock, timeField, timezone) => {
-  console.log('getDatePosts')
-  console.log(' date moment', moment(date))
-  console.log(' timeBlock', timeBlock)
-  console.log(' timeField', timeField)
-  console.log(' timezone', timezone)
+  // console.log('getDatePosts')
+  // console.log(' date moment', moment(date))
+  // console.log(' timeBlock', timeBlock)
+  // console.log(' timeField', timeField)
+  // console.log(' timezone', timezone)
   const result = _.filter(posts, post => {
     const postDate = moment(new Date(timeField ? post[timeField] : post.postedAt))
       .tz(timezone)
@@ -19,7 +19,7 @@ export const getDatePosts = (posts, date, timeBlock, timeField, timezone) => {
     // console.log(' result', result)
     return result
   })
-  console.log('/getDatePosts')
+  // console.log('/getDatePosts')
   return result
 }
 
@@ -31,27 +31,27 @@ export const getDatePosts = (posts, date, timeBlock, timeField, timezone) => {
 // TODO; See TODO in getBeforeDateDefault for if this functionality is necessary
 // Export for testing
 export const getDateRange = (after, before, posts, timeBlock, timeField, timezone) => {
-  console.log('getDateRange')
-  console.log(' after', after)
-  console.log(' before', before)
-  console.log(' timeBlock', timeBlock)
-  console.log(' timezone', timezone)
+  // console.log('getDateRange')
+  // console.log(' after', after)
+  // console.log(' before', before)
+  // console.log(' timeBlock', timeBlock)
+  // console.log(' timezone', timezone)
   const mAfter = moment.utc(after, 'YYYY-MM-DD');
   const mBefore = moment.utc(before, 'YYYY-MM-DD');
   const timeBlocksCount = mBefore.diff(mAfter, timeBlock) + 1;
-  console.log(' timeBlocksCount', timeBlocksCount)
+  // console.log(' timeBlocksCount', timeBlocksCount)
   const range = _.range(timeBlocksCount).map(
     i => moment.utc(before, 'YYYY-MM-DD').subtract(i, timeBlock)
       .tz(timezone)
       .format('YYYY-MM-DD')
   );
-  console.log(' range', range)
+  // console.log(' range', range)
 
   if(getDatePosts(posts, range[0], timeBlock, timeField, timezone).length === 0) {
-    console.log(' last timeBlock has no posts, returning')
+    // console.log(' last timeBlock has no posts, returning')
     return _.rest(range);
   }
-  console.log(' last timeBlock actually does have posts')
+  // console.log(' last timeBlock actually does have posts')
   return range;
 }
 
@@ -61,7 +61,7 @@ export const getDateRange = (after, before, posts, timeBlock, timeField, timezon
 export function getAfterDateDefault (numTimeBlocks, timeBlock) {
   if (!numTimeBlocks || !timeBlock) return
   const startCurrentTimeBlock = moment().utc().startOf(timeBlock)
-  console.log('startCurrentTimeBlock', startCurrentTimeBlock.format('YYYY-MM-DD'))
+  // console.log('startCurrentTimeBlock', startCurrentTimeBlock.format('YYYY-MM-DD'))
   return startCurrentTimeBlock.subtract(numTimeBlocks - 1, timeBlock).format('YYYY-MM-DD')
 }
 

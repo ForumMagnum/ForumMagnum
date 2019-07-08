@@ -38,6 +38,7 @@ export const timeframes = {
   yearly: 'Yearly',
 }
 
+// TODO; days -> day
 export const timeframeToTimeBlock = {
   daily: 'days',
   weekly: 'weeks',
@@ -86,8 +87,8 @@ class AllPostsPage extends Component {
     // TODO; ensure defaults are right
     // TODO; and that user preference is remembered
     // TODO; and that queries are king
-    console.log('renderPostsList')
-    console.log('currentTimeframe', currentTimeframe)
+    // console.log('renderPostsList')
+    // console.log('currentTimeframe', currentTimeframe)
     const numTimeBlocks = timeframeToNumTimeBlocks[currentTimeframe]
     const timeBlock = timeframeToTimeBlock[currentTimeframe]
     const dailyTerms = {
@@ -100,7 +101,7 @@ class AllPostsPage extends Component {
       ...terms,
       ...query,
     };
-    console.log(' dailyTerms', dailyTerms)
+    // console.log(' dailyTerms', dailyTerms)
 
     const {PostsTimeframeList, PostsList2} = Components
     if (currentTimeframe !== 'allTime') return <div className={classes.daily}>
@@ -115,7 +116,7 @@ class AllPostsPage extends Component {
   }
 
   render() {
-    console.log('AllPostsPage render()')
+    // console.log('AllPostsPage render()')
     const { classes, currentUser, router } = this.props
     const { showSettings } = this.state
     const { SingleColumnSection, SectionTitle, SettingsIcon, MetaInfo, TabNavigationMenu, PostsListSettings } = Components
@@ -140,6 +141,7 @@ class AllPostsPage extends Component {
       'all'
     const currentShowLowKarma = (parseInt(query.karmaThreshold) === MAX_LOW_KARMA_THRESHOLD) || (currentUser && currentUser.allPostsShowLowKarma) || false
 
+    // TODO; deal with old view query param overriding
     const terms = {
       karmaThreshold: DEFAULT_LOW_KARMA_THRESHOLD,
       filter: currentFilter,
