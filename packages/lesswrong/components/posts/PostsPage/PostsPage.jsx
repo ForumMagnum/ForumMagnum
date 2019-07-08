@@ -107,25 +107,6 @@ const styles = theme => ({
   secondaryInfo: {
     fontSize: '1.4rem',
   },
-  mobileDate: {
-    marginLeft: 20,
-    display: 'inline-block',
-    color: theme.palette.grey[600],
-    fontSize: theme.typography.body2.fontSize,
-    [theme.breakpoints.up('md')]: {
-      display:"none"
-    }
-  },
-  desktopDate: {
-    marginLeft: 20,
-    display: 'inline-block',
-    color: theme.palette.grey[600],
-    whiteSpace: "no-wrap",
-    fontSize: theme.typography.body2.fontSize,
-    [theme.breakpoints.down('sm')]: {
-      display:"none"
-    }
-  },
   commentsLink: {
     marginLeft: 20,
     color: theme.palette.grey[600],
@@ -234,17 +215,30 @@ class PostsPage extends Component {
     return params.sequenceId || post?.canonicalSequenceId;
   }
   
+  shouldHideAsSpam() {
+    const { document: post, currentUser } = this.props;
+    
+    // Logged-out users shouldn't be able to see spam posts
+    if (post.authorIsUnreviewed && !currentUser) {
+      return true;
+    }
+    
+    return false;
+  }
+  
   render() {
     const { loading, document: post, currentUser, location, router, classes, data: {refetch} } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, PostsType,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigation,
-      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
-      TableOfContents, PostsRevisionSelector, PostsRevisionMessage, AlignmentCrosspostMessage } = Components
+      PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
+      TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate } = Components
 
     if (loading) {
       return <div><Loading/></div>
     } else if (!post) {
       return <Error404/>
+    } else if (this.shouldHideAsSpam()) {
+      throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
     } else {
       const { html, plaintextDescription, markdown, wordCount = 0 } = post.contents || {}
       let query = location && location.query
@@ -266,8 +260,7 @@ class PostsPage extends Component {
             <div className={classes.post}>
               {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
               <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
-              <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}
-              >
+              <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}>
                 <div className={classes.headerLeft}>
                   <PostsPageTitle post={post} />
                   <div className={classes.secondaryInfo}>
@@ -282,12 +275,7 @@ class PostsPage extends Component {
                         </a>
                       </Tooltip>
                     }
-                    {!post.isEvent && <span className={classes.mobileDate}>
-                      <FormatDate date={post.postedAt}/>
-                    </span>}
-                    {!post.isEvent && <span className={classes.desktopDate}>
-                      {hasMajorRevision ? <PostsRevisionSelector post={post}/> : <FormatDate date={post.postedAt} format="Do MMM YYYY"/>}
-                    </span>}
+                    {!post.isEvent && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
                     {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
                     <a className={classes.commentsLink} href={"#comments"}>{ Posts.getCommentCountStr(post)}</a>
                     <span className={classes.actions}>

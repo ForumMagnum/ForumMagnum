@@ -231,7 +231,16 @@ addFieldsDict(Users, {
     canCreate: Users.owns,
     hidden: true,
   },
+  // TODO: After initial deploy, remove allPostsView here and in fragments
   allPostsView: {
+    type: String,
+    optional: true,
+    hidden: true,
+    canRead: Users.owns,
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: Users.owns,
+  },
+  allPostsSorting: {
     type: String,
     optional: true,
     hidden: true,
@@ -846,7 +855,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     tooltip: "Get early access to new in-development features",
-    label: "Opt into beta features"
+    label: "Opt into experimental features"
   },
   // ReCaptcha v3 Integration
   // From 0 to 1. Lower is spammier, higher is humaner.

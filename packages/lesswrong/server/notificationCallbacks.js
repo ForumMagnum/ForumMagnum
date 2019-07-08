@@ -19,28 +19,29 @@ import { Components } from 'meteor/vulcan:core';
 import React from 'react';
 import keyBy from 'lodash/keyBy';
 
-const createNotifications = (userIds, notificationType, documentType, documentId) => {
-  userIds.forEach(userId => {
-
-    let user = Users.findOne({ _id:userId });
-
-    let notificationData = {
-      userId: userId,
-      documentId: documentId,
-      documentType: documentType,
-      message: notificationMessage(notificationType, documentType, documentId),
-      type: notificationType,
-      link: getLink(documentType, documentId),
-    }
-
-    newMutation({
-      action: 'notifications.new',
-      collection: Notifications,
-      document: notificationData,
-      currentUser: user,
-      validate: false
-    });
-  });
+const createNotifications = async (userIds, notificationType, documentType, documentId) => {
+  return Promise.all(
+    userIds.map(async userId => {
+      let user = Users.findOne({ _id:userId });
+  
+      let notificationData = {
+        userId: userId,
+        documentId: documentId,
+        documentType: documentType,
+        message: notificationMessage(notificationType, documentType, documentId),
+        type: notificationType,
+        link: getLink(notificationType, documentType, documentId),
+      }
+  
+      await newMutation({
+        action: 'notifications.new',
+        collection: Notifications,
+        document: notificationData,
+        currentUser: user,
+        validate: false
+      });
+    })
+  );
 }
 
 const sendPostByEmail = async (users, postId, reason) => {
@@ -66,9 +67,17 @@ const sendPostByEmail = async (users, postId, reason) => {
   }
 }
 
-const getLink = (documentType, documentId) => {
+const getLink = (notificationType, documentType, documentId) => {
   let document = getDocument(documentType, documentId);
 
+  switch(notificationType) {
+    case "emailVerificationRequired":
+      return "/resendVerificationEmail";
+    default:
+      // Fall through to based on document-type
+      break;
+  }
+  
   switch(documentType) {
     case "post":
       return Posts.getPageUrl(document);
@@ -113,6 +122,8 @@ const notificationMessage = (notificationType, documentType, documentId) => {
     case "newMessage":
       let conversation = Conversations.findOne(document.conversationId);
       return Users.findOne(document.userId).displayName + ' sent you a new message' + (conversation.title ? (' in the conversation ' + conversation.title) : "") + '!';
+    case "emailVerificationRequired":
+      return "Verify your email address to activate email subscriptions.";
     default:
       //eslint-disable-next-line no-console
       console.error("Invalid notification type");
@@ -120,6 +131,8 @@ const notificationMessage = (notificationType, documentType, documentId) => {
 }
 
 const getDocument = (documentType, documentId) => {
+  if (!documentId) return null;
+  
   switch(documentType) {
     case "post":
       return Posts.findOne(documentId);
@@ -131,7 +144,7 @@ const getDocument = (documentType, documentId) => {
       return Messages.findOne(documentId);
     default:
       //eslint-disable-next-line no-console
-      console.error("Invalid documentType type");
+      console.error(`Invalid documentType type: ${documentType}`);
   }
 }
 
@@ -189,7 +202,7 @@ function postsNewNotifications (post) {
 addCallback("posts.new.async", postsNewNotifications);
 
 function findUsersToEmail(filter) {
-  let usersMatchingFilter = Users.find(filter, {fields: {_id:1, email:1, emails:1}}).fetch();
+  let usersMatchingFilter = Users.find(filter).fetch();
 
   let usersToEmail = usersMatchingFilter.filter(u => {
     if (u.email && u.emails && u.emails.length) {
@@ -355,3 +368,7 @@ function messageNewNotification(message) {
   });
 }
 addCallback("messages.new.async", messageNewNotification);
+
+export async function bellNotifyEmailVerificationRequired (user) {
+  await createNotifications([user._id], 'emailVerificationRequired', null, null);
+}

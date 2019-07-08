@@ -69,6 +69,7 @@ extendFragment('UsersCurrent', `
   hideIntercom
   currentFrontpageFilter
   allPostsView
+  allPostsSorting
   allPostsFilter
   allPostsShowLowKarma
   allPostsOpenSettings
@@ -333,7 +334,8 @@ registerFragment(`
     htmlBio
     postCount
     commentCount
-    afPostCount 
+    sequenceCount
+    afPostCount
     afCommentCount
     beta
     spamRiskScore
@@ -356,6 +358,7 @@ registerFragment(`
     frontpagePostCount
     # example-forum
     commentCount
+    sequenceCount
     afCommentCount
     sequenceCount
     afSequenceCount

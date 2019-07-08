@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
-import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = (theme) => ({
   root: {
@@ -14,9 +13,7 @@ const styles = (theme) => ({
 })
 
 const BetaTag = ({classes}) => {
-  return <Tooltip placement="right" title="This feature is in beta-testing. You can send feedback to us about it via intercom. If it's currently buggy and you don't want to deal with it, you can turn off your beta settings in your user profile">
-    <span className={classes.root}>[Beta]</span>
-  </Tooltip>
+  return <span className={classes.root}>[Beta]</span>
 }
 
 registerComponent('BetaTag', BetaTag, withStyles(styles, {name: 'BetaTag'}))

@@ -22,6 +22,7 @@ const styles = theme => ({
     ...commentBodyStyles(theme),
     marginTop: 0,
     marginBottom: 0,
+    paddingLeft: theme.spacing.unit,
     paddingRight: theme.spacing.unit,
     color: "rgba(0,0,0,.6)",
     overflow: "hidden",
@@ -40,7 +41,7 @@ const styles = theme => ({
     display:"inline-block",
     textAlign: "center",
     width: 30,
-    padding: 5,
+    paddingRight: 5,
   },
   date: {
     display:"inline-block",
@@ -119,7 +120,7 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover}) => {
           </span>
         </Tooltip>
         <span className={classes.username}>
-          {comment.answer && "Answer by "}{comment.user.displayName}
+          {comment.answer && "Answer by "}{comment.user?.displayName || "[deleted]"}
         </span>
         <span className={classes.date}>
           <Components.FormatDate date={comment.postedAt}/>
