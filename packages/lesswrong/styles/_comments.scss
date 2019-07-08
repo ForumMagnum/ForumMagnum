@@ -91,16 +91,6 @@ $lw-green: #588f27;
     margin-right: 5px;
   }
 
-  .comments-item-origin {
-    display: inline-block;
-    color: rgba(0,0,0,0.4);
-  }
-  .comments-item-origin:hover {
-    .comments-item-date {
-      color: rgba(0,0,0,0.3);
-    }
-    color: rgba(0,0,0,0.3);
-  }
   a:hover, a:active {
     text-decoration: none;
     color: rgba(0,0,0,0.3) !important;

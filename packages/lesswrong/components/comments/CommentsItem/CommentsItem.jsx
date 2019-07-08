@@ -1,12 +1,9 @@
 import { Components, registerComponent, withMessages } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withRouter, Link } from '../../../lib/reactRouterWrapper.js';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
-import { Posts } from "../../../lib/collections/posts";
 import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
-import Icon from '@material-ui/core/Icon';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/componentUtils';
 import { withStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../../common/withErrorBoundary';
@@ -33,9 +30,6 @@ const styles = theme => ({
       backgroundImage: "none"
     }
   },
-  postTitle: {
-    marginRight: 5,
-  },
   menu: {
     opacity:.35,
     marginRight:-5
@@ -51,9 +45,6 @@ const styles = theme => ({
       marginTop: 7,
       display: 'block'
     }
-  },
-  date: {
-    color: "rgba(0,0,0,0.5)",
   },
   blockedReplies: {
     padding: "5px 0",
@@ -134,18 +125,11 @@ class CommentsItem extends Component {
     this.setState({showParent:!this.state.showParent})
   }
 
-  handleLinkClick = (event) => {
-    const { comment, router } = this.props;
-    event.preventDefault()
-    this.props.router.replace({...router.location, hash: "#" + comment._id})
-    this.props.scrollIntoView(event);
-  }
-
   render() {
-    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, truncated, collapsed } = this.props
+    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, truncated, collapsed, scrollIntoView } = this.props
 
     const { showEdit } = this.state
-    const { CommentsMenu, ShowParentComment } = Components
+    const { CommentsMenu, ShowParentComment, CommentsItemDate } = Components
 
     if (comment && post) {
       return (
@@ -195,23 +179,12 @@ class CommentsItem extends Component {
                   }
                   </span>
               }
-              <div className={comment.answer ? classes.answerDate : classes.date}>
-                { !postPage ?
-                  <Link to={Posts.getPageUrl(post) + "#" + comment._id}>
-                    <Components.FormatDate date={comment.postedAt} format={comment.answer && "MMM DD, YYYY"}/>
-                    <Icon className="material-icons comments-item-permalink"> link
-                    </Icon>
-                    {showPostTitle && post.title && <span className={classes.postTitle}> { post.title }</span>}
-                  </Link>
-                :
-                <a href={Posts.getPageUrl(post) + "#" + comment._id} onClick={this.handleLinkClick}>
-                  <Components.FormatDate date={comment.postedAt}/>
-                  <Icon className="material-icons comments-item-permalink"> link
-                  </Icon>
-                  {showPostTitle && post.title && <span className={classes.postTitle}> { post.title }</span>}
-                </a>
-                }
-              </div>
+              <CommentsItemDate
+                comment={comment} post={post}
+                showPostTitle={showPostTitle}
+                scrollIntoView={scrollIntoView}
+                scrollOnClick={postPage}
+              />
               <Components.CommentsVote comment={comment} currentUser={currentUser} />
               
               <span className={classes.metaRight}>
@@ -312,7 +285,7 @@ CommentsItem.propTypes = {
 }
 
 registerComponent('CommentsItem', CommentsItem,
-  withRouter, withMessages, withUser,
+  withMessages, withUser,
   withStyles(styles, { name: "CommentsItem" }),
   withErrorBoundary
 );
