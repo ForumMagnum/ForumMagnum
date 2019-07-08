@@ -82,6 +82,33 @@ class UsersProfile extends Component {
     showSettings: false
   }
 
+  componentDidMount() {
+    const { results } = this.props
+    const document = this.getUserFromResults(results)
+    if (document) {
+      this.setCanonicalUrl()
+    }
+  }
+
+  componentDidUpdate({results: previousResults}) {
+    const { results } = this.props
+    const oldDocument = this.getUserFromResults(previousResults)
+    const newDocument = this.getUserFromResults(results)
+    if (oldDocument?.slug !== newDocument?.slug) {
+      this.setCanonicalUrl()
+    }
+  }
+
+  setCanonicalUrl = () => {
+    const { router, results, slug } = this.props
+    const document = this.getUserFromResults(results)
+    // Javascript redirect to make sure we are always on the most canonical URL for this user
+    if (slug !== document?.slug) {
+      const canonicalUrl = Users.getProfileUrlFromSlug(document.slug);
+      router.replace(canonicalUrl);
+    }
+  }
+
   displaySequenceSection = (canEdit, user)  => {
     if (getSetting('forumType') === 'AlignmentForum') {
         return !!((canEdit && user.afSequenceDraftCount) || user.afSequenceCount) || !!(!canEdit && user.afSequenceCount)
@@ -162,18 +189,13 @@ class UsersProfile extends Component {
       return <Components.Error404/>
     }
 
-    // Javascript redirect to make sure we are always on the most canonical URL for this user
-    if (slug !== document.slug) {
-      const canonicalUrl = Users.getProfileUrlFromSlug(document.slug);
-      router.replace(canonicalUrl);
-      return null;
-    }
+
 
     const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsIcon } = Components
 
     const user = document;
     const query = _.clone(router.location.query || {});
-    
+
     // Does this profile page belong to a likely-spam account?
     if (user.spamRiskScore < 0.4) {
       if (currentUser?._id === user._id) {
@@ -204,7 +226,7 @@ class UsersProfile extends Component {
       <div className={classNames("page", "users-profile", classes.profilePage)}>
         {/* Bio Section */}
         <SingleColumnSection>
-          <SectionTitle title={user.displayName}/>
+          <SectionTitle title={Users.getDisplayName(user)}/>
 
           <SectionFooter>
             { this.renderMeta() }
@@ -260,7 +282,7 @@ class UsersProfile extends Component {
         {/* Posts Section */}
         <SingleColumnSection>
           <div className={classes.title} onClick={() => this.setState({showSettings: !showSettings})}>
-            <SectionTitle title={`${user.displayName}'s Posts`}>
+            <SectionTitle title={`${Users.getDisplayName(user)}'s Posts`}>
               <SettingsIcon/>
               <div className={classes.settingsText}>Sorted by { sortings[currentSorting] }</div>
             </SectionTitle>
@@ -277,7 +299,7 @@ class UsersProfile extends Component {
 
         {/* Comments Sections */}
         <SingleColumnSection>
-          <SectionTitle title={`${user.displayName}'s Comments`} />
+          <SectionTitle title={`${Users.getDisplayName(user)}'s Comments`} />
           <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} fontSize="small" />
         </SingleColumnSection>
       </div>

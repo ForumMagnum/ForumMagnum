@@ -62,3 +62,6 @@ registerSetting('akismet.url', null, 'Akismet url as entered into their site')
 registerSetting('requireReCaptcha', false, 'Users must come with recaptcha scores to be reviewed')
 registerSetting('hideUnreviewedAuthorComments', false, 'Hide comments by unreviewed authors (prevents spam, but delays new user engagement)')
 
+// LogRocket settings
+registerSetting('logRocket.apiKey', null, 'LogRocket API Key')
+registerSetting('logRocket.sampleDensity', 5, 'Tracking 1 of n users (1 means all users are tracked)')

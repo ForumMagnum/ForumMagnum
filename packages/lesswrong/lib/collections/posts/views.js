@@ -414,6 +414,7 @@ Posts.addView("drafts", terms => {
       unlisted: null,
       groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
       authorIsUnreviewed: viewFieldAllowAny,
+      hiddenRelatedQuestion: viewFieldAllowAny,
     },
     options: {
       sort: {createdAt: -1}
@@ -508,6 +509,26 @@ Posts.addView("recentDiscussionThreadsList", terms => {
 ensureIndex(Posts,
   augmentForDefaultView({ lastCommentedAt:-1, baseScore:1, hideFrontpageComments:1 }),
   { name: "posts.recentDiscussionThreadsList", }
+);
+
+Posts.addView("shortformDiscussionThreadsList", terms => {
+  return {
+    selector: {
+      baseScore: {$gt:0},
+      hideFrontpageComments: false,
+      shortform: true,
+      hiddenRelatedQuestion: viewFieldAllowAny,
+      groupId: null,
+    },
+    options: {
+      sort: {lastCommentedAt:-1},
+      limit: terms.limit || 12,
+    }
+  }
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ hideFrontpageComments:1, shortForm: 1, lastCommentedAt:-1, baseScore:1,}),
+  { name: "posts.shortformDiscussionThreadsList", }
 );
 
 Posts.addView("nearbyEvents", function (terms) {

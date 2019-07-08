@@ -3,6 +3,7 @@ import { registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper.js';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = theme => ({
   root: {
@@ -39,13 +40,23 @@ const styles = theme => ({
 // described in https://www.sarasoueidan.com/blog/nested-links/, we make the
 // card background and card contents siblings rather than nested, then use
 // z-index to control which is clickable.
-const LinkCard = ({children, to, className, classes}) => {
-  return <div className={classNames(className, classes.root)}>
-    <div className={classes.background}>
-      <Link to={to}/>
+const LinkCard = ({children, to, tooltip, className, classes}) => {
+  const card = (
+    <div className={classNames(className, classes.root)}>
+      <div className={classes.background}>
+        <Link to={to}/>
+      </div>
+      {children}
     </div>
-    {children}
-  </div>;
+  );
+  
+  if (tooltip) {
+    return <Tooltip title={tooltip} placement="bottom-start">
+      {card}
+    </Tooltip>;
+  } else {
+    return card;
+  }
 }
 
 

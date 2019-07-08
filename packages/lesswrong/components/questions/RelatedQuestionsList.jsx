@@ -59,7 +59,7 @@ const RelatedQuestionsList = ({ post, currentUser, classes }) => {
 
   
   const sourcePostRelations = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)
-  const targetPostRelations = _.filter(post.targetPostRelations, rel => rel.sourcePostId === post._id)
+  const targetPostRelations = _.filter(post.targetPostRelations, rel => (rel.sourcePostId === post._id && !!rel.targetPost))
 
   const totalRelatedQuestionCount = sourcePostRelations.length + targetPostRelations.length
   

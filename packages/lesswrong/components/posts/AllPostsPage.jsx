@@ -16,6 +16,7 @@ const styles = theme => ({
       padding: 0,
     }
   },
+  settingsIcon: {},
   title: {
     cursor: "pointer",
     '&:hover $settingsIcon, &:hover $sortedBy': {
@@ -104,8 +105,6 @@ class AllPostsPage extends Component {
     const {PostsTimeframeList, PostsList2} = Components
     if (currentTimeframe !== 'allTime') return <div className={classes.daily}>
       <PostsTimeframeList
-        // TODO; title unused?
-        title="Posts by Day"
         timeframe={currentTimeframe}
         terms={dailyTerms}
         numTimeBlocks={numTimeBlocks}
