@@ -24,7 +24,7 @@ const CommentUserName = ({comment, classes}) => {
   if (comment.deleted) {
     return <span>[comment deleted]</span>
   } else if (comment.deleted || comment.hideAuthor || !comment.user) {
-    return <span>[deleted]</span>
+    return <Components.UserNameDeleted/>
   } else if (comment.answer) {
     return (
       <span className={classes.authorAnswer}>
