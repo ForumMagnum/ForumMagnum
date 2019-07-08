@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, getRawComponent, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles'
 import { withRouter, Link } from '../../../lib/reactRouterWrapper.js';
 import Icon from '@material-ui/core/Icon';
