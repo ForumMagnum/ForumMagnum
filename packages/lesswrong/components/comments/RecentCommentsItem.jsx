@@ -74,7 +74,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
             <div className="comments-item-body recent-comments-item-body ">
               <div className="comments-item-meta recent-comments-item-meta">
                 { comment.parentCommentId
-                  ? <ShowParentComment
+                  ? <Components.ShowParentComment
                       comment={comment} nestingLevel={level}
                       active={this.state.showParent}
                       onClick={this.toggleShowParent}

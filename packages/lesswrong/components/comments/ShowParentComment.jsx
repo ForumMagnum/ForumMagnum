@@ -3,6 +3,7 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import SubdirectoryArrowLeft from '@material-ui/icons/SubdirectoryArrowLeft';
 import Tooltip from '@material-ui/core/Tooltip';
+import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
