@@ -78,7 +78,10 @@ const styles = theme => ({
     '&&': {
       marginBottom: theme.spacing.unit*4
     }
-  }
+  },
+  children: {
+    position: "relative"
+  },
 })
 
 class CommentsNode extends Component {
@@ -272,7 +275,7 @@ class CommentsNode extends Component {
               { ...passedThroughItemProps}
             />}
           </div>}
-          {!collapsed && <div className="comments-children">
+          {!collapsed && <div className={classes.children}>
             <div className={classes.parentScroll} onClick={this.scrollIntoView}></div>
             {children && children.map(child =>
               <Components.CommentsNode child

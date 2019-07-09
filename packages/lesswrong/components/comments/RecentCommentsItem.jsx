@@ -45,7 +45,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
           }
         )}>
         { comment.parentCommentId && this.state.showParent && (
-          <div className="recent-comment-parent">
+          <div>
             <Components.RecentCommentsSingle
               post={post}
               currentUser={this.props.currentUser}
@@ -58,8 +58,8 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
         )}
 
         <div className="comments-item">
-          <div className="comments-item-body recent-comments-item-body ">
-            <div className="comments-item-meta recent-comments-item-meta">
+          <div className="comments-item-body">
+            <div className="comments-item-meta">
               <Components.ShowParentComment
                 comment={comment} nestingLevel={level}
                 active={this.state.showParent}

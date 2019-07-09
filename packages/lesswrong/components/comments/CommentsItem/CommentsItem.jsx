@@ -55,6 +55,10 @@ const styles = theme => ({
       fontFamily: "monospace",
     }
   },
+  firstParentComment: {
+    // Sorry Oli
+    margin: "-2px -13px -2px -12px"
+  },
 })
 
 class CommentsItem extends Component {
@@ -134,7 +138,7 @@ class CommentsItem extends Component {
         )}
       >
         { comment.parentCommentId && this.state.showParent && (
-          <div className="recent-comment-parent root">
+          <div className={classes.firstParentComment}>
             <Components.RecentCommentsSingle
               post={post}
               currentUser={currentUser}

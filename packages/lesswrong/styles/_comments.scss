@@ -34,7 +34,7 @@ $lw-green: #588f27;
   }
 }
 
-.comments-item-body, .recent-comments-item-body {
+.comments-item-body {
   font-family: $comments-font;
 }
 
@@ -230,11 +230,3 @@ $lw-green: #588f27;
   }
 }
 
-.comments-children {
-  position:relative;
-}
-
-.recent-comment-parent.root {
-  // Sorry Oli
-  margin:-2px -13px -2px -12px;
-}
