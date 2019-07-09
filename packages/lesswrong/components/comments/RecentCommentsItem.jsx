@@ -3,16 +3,8 @@ import React from 'react';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { withStyles } from '@material-ui/core/styles'
-import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 
 const styles = theme => ({
-  usernameSpacing: {
-    paddingRight: 1,
-    color: "rgba(0,0,0,.3)",
-    [legacyBreakpoints.maxSmall]: {
-      padding: "0 10px",
-    }
-  }
 })
 
 class RecentCommentsItem extends getRawComponent('CommentsItem') {
@@ -31,7 +23,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
   }
 
   render() {
-    const { comment, showTitle, level=1, classes } = this.props;
+    const { comment, post, showTitle, level=1, classes } = this.props;
     const { CommentUserName } = Components;
 
     if (!comment || !comment.post) {
@@ -55,6 +47,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
         { comment.parentCommentId && this.state.showParent && (
           <div className="recent-comment-parent">
             <Components.RecentCommentsSingle
+              post={post}
               currentUser={this.props.currentUser}
               documentId={comment.parentCommentId}
               level={level + 1}
@@ -67,14 +60,12 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
         <div className="comments-item">
           <div className="comments-item-body recent-comments-item-body ">
             <div className="comments-item-meta recent-comments-item-meta">
-              { comment.parentCommentId
-                ? <Components.ShowParentComment
-                    comment={comment} nestingLevel={level}
-                    active={this.state.showParent}
-                    onClick={this.toggleShowParent}
-                  />
-                : (level != 1) && <div className={classes.usernameSpacing}>○</div>
-              }
+              <Components.ShowParentComment
+                comment={comment} nestingLevel={level}
+                active={this.state.showParent}
+                onClick={this.toggleShowParent}
+                placeholderIfMissing={true}
+              />
               <CommentUserName comment={comment}/>
               {comment.post &&
                 <Components.CommentsItemDate
