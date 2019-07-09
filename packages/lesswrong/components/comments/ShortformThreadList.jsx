@@ -40,7 +40,7 @@ const ShortformThreadList = ({ classes, results, loading, loadMore, networkStatu
         {loading || !results ? <Loading /> :
         <div> 
           {results.map((comment, i) => {
-            return <ShortformThread key={comment._id} comment={comment} />
+            return <ShortformThread key={comment._id} comment={comment} refetch={refetch}/>
           })}
           { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
           { loadingMore && <Loading />}

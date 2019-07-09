@@ -14,7 +14,7 @@ class ShortformThread extends PureComponent {
   }
 
   render () {
-    const { comment } = this.props
+    const { comment, refetch } = this.props
     const { CommentsNode } = Components
     const { markedAsVisitedAt } = this.state
 
@@ -37,6 +37,7 @@ class ShortformThread extends PureComponent {
         post={comment.post}
         condensed
         shortform
+        refetch={refetch}
       />
   }
 }
