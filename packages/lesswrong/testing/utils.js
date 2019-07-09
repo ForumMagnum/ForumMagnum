@@ -1,4 +1,4 @@
-import { newMutation } from 'meteor/vulcan:core';
+import { newMutation, editMutation } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { Posts } from '../lib/collections/posts'
 import { Comments } from '../lib/collections/comments'
@@ -6,7 +6,7 @@ import Conversations from '../lib/collections/conversations/collection.js';
 import Messages from '../lib/collections/messages/collection.js';
 import {ContentState, convertToRaw} from 'draft-js';
 import { Random } from 'meteor/random';
-import { runQuery } from 'meteor/vulcan:core';
+import { runQuery, Callbacks, waitUntilCallbacksFinished } from 'meteor/vulcan:core';
 import { setOnGraphQLError } from 'meteor/vulcan:lib';
 
 
@@ -146,12 +146,15 @@ export const createDefaultUser = async() => {
 }
 
 export const createDummyPost = async (user, data) => {
+  // console.log('createDummyPost')
+  // console.log(' Callbacks', Callbacks['posts.new.after'])
   const defaultUser = await createDefaultUser();
   const defaultData = {
     userId: (user && user._id) ? user._id : defaultUser._id,
     title: Random.id(),
   }
   const postData = {...defaultData, ...data};
+  // console.log(' postData', postData)
   const newPostResponse = await newMutation({
     collection: Posts,
     document: postData,
@@ -159,6 +162,22 @@ export const createDummyPost = async (user, data) => {
     validate: false,
     context: {},
   });
+  // console.log('newPostReponse', newPostResponse)
+  await waitUntilCallbacksFinished()
+  // baseScore by default gets overwritten by a post.new.after callback. Force
+  // it to the supplied value with a mutation.
+  if (postData.baseScore) {
+    const updatedDocResponse = await editMutation({
+      collection: Posts,
+      documentId: newPostResponse.data._id,
+      set: {baseScore: postData.baseScore},
+      validate: false,
+      context: {},
+    })
+    // console.log('updatedDocResponse', updatedDocResponse)
+    await waitUntilCallbacksFinished()
+    return updatedDocResponse.data
+  }
   return newPostResponse.data
 }
 
@@ -176,6 +195,7 @@ export const createDummyUser = async (data) => {
     validate: false,
     context: {},
   })
+  // TODO; waitforcallbacks?
   return newUserResponse.data;
 }
 export const createDummyComment = async (user, data) => {

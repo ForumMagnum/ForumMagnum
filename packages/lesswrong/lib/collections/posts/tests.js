@@ -1,6 +1,7 @@
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
-import { runQuery } from 'meteor/vulcan:core';
+import { runQuery, waitUntilCallbacksFinished } from 'meteor/vulcan:core';
+import moment from 'moment-timezone';
 import { createDummyUser, createDummyPost, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../../../testing/utils.js'
 
 chai.should();
@@ -82,11 +83,13 @@ describe('Posts RSS Views', async () => {
   it("returns curated posts in descending order of them being curated", async () => {
     const user = await createDummyUser();
     const now = new Date();
+    await waitUntilCallbacksFinished()
     const yesterday = new Date(new Date().getTime()-(1*24*60*60*1000));
     const twoDaysAgo = new Date(new Date().getTime()-(2*24*60*60*1000));
     const curatedPost1 = await createDummyPost(user, {curatedDate: now, frontpageDate: new Date(), baseScore: 10});
     const curatedPost2 = await createDummyPost(user, {curatedDate: yesterday, frontpageDate: new Date(), baseScore: 10});
     const curatedPost3 = await createDummyPost(user, {curatedDate: twoDaysAgo, frontpageDate: new Date(), baseScore: 10});
+    await waitUntilCallbacksFinished()
 
     const query = `
       query {
@@ -105,12 +108,15 @@ describe('Posts RSS Views', async () => {
   });
   it("only shows frontpage posts in frontpage-rss view", async () => {
     const user = await createDummyUser();
+    await waitUntilCallbacksFinished()
     const frontpagePost1 = await createDummyPost(user, {frontpageDate: new Date(), baseScore: 10});
+    console.log('frontpagePost1', frontpagePost1)
     const frontpagePost2 = await createDummyPost(user, {curatedDate: new Date(), frontpageDate: new Date(), baseScore: 10});
     const frontpagePost3 = await createDummyPost(user, {frontpageDate: new Date(), baseScore: 10});
     const personalPost1 = await createDummyPost(user, {baseScore: 10});
     const personalPost2 = await createDummyPost(user, {baseScore: 10});
     const personalPost3 = await createDummyPost(user, {baseScore: 10});
+    await waitUntilCallbacksFinished()
 
     const query = `
       query {
@@ -130,4 +136,60 @@ describe('Posts RSS Views', async () => {
     _.pluck(posts, '_id').should.not.include(personalPost2._id)
     _.pluck(posts, '_id').should.not.include(personalPost3._id)
   });
+})
+
+// TODO; remove only
+// TODO; this may need to be changed, as there's more logic on the frontend now
+describe.only('Posts timeframe view', () => {
+  it('smokes month', async () => {
+    const user = await createDummyUser()
+    await waitUntilCallbacksFinished()
+
+    // console.log('finished creating user', user)
+
+    const testData = [
+      {post: await createDummyPost(user, {postedAt: moment().toDate(), baseScore: 112}),
+       included: true},
+      // {post: await createDummyPost(user, {postedAt: moment().toDate(), baseScore: 111}),
+      //  included: true},
+      // {post: await createDummyPost(user, {postedAt: moment().toDate(), baseScore: 110}),
+      //  included: false},
+      // {post: await createDummyPost(user, {postedAt: moment().subtract(1, 'month').toDate(), baseScore: 112}),
+      //  included: true},
+      // {post: await createDummyPost(user, {postedAt: moment().subtract(1, 'month').toDate(), baseScore: 111}),
+      //  included: true},
+      // {post: await createDummyPost(user, {postedAt: moment().subtract(1, 'month').toDate(), baseScore: 110}),
+      //  included: false},
+      // {post: await createDummyPost(user, {postedAt: moment().subtract(2, 'month').toDate(), baseScore: 112}),
+      //  included: false},
+    ]
+    await waitUntilCallbacksFinished()
+
+    // console.log('testData', testData)
+    // console.log('/testData') //
+
+    const query = `
+      query {
+        posts(input:{terms:{view: "timeframe", timeframe: "monthly", sortedBy: "top"}}) {
+          results {
+            _id
+          }
+        }
+      }
+    `
+    const { data: { posts: {results: posts} } } = await runQuery(query, {}, user)
+
+    const ids = _.pluck(posts, '_id')
+    console.log('test result ids', ids)
+    for (const {included, post} of testData) {
+      // console.log('included', included)
+      // console.log('post', post)
+      if (included) {
+        ids.should.include(post._id)
+      } else {
+        ids.should.not.include(post._id)
+      }
+    }
+    // TODO; doesn't clean up after itself
+  })
 })

@@ -89,6 +89,8 @@ addCallback("posts.new.sync", PostsNewDefaultTypes);
 
 // LESSWRONG – bigUpvote
 async function LWPostsNewUpvoteOwnPost(post) {
+  // console.log('LWPostsNewUpvoteOwnPost')
+  // console.log('post', post) //
  var postAuthor = Users.findOne(post.userId);
  const votedPost = await performVoteServer({ document: post, voteType: 'bigUpvote', collection: Posts, user: postAuthor })
  return {...post, ...votedPost};
