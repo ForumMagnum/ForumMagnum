@@ -34,64 +34,64 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
     const { comment, showTitle, level=1, classes } = this.props;
     const { CommentUserName } = Components;
 
-    if (comment && comment.post) {
-      return (
-        <div
-          className={classNames(
-            'comments-node',
-            'recent-comments-node',
-            {
-              "comments-node-root" : level === 1,
-              "comments-node-even" : level % 2 === 0,
-              "comments-node-odd"  : level % 2 != 0,
-              "showParent": this.state.showParent,
-            }
-          )}>
-          { comment.parentCommentId && this.state.showParent && (
-            <div className="recent-comment-parent">
-              <Components.RecentCommentsSingle
-                currentUser={this.props.currentUser}
-                documentId={comment.parentCommentId}
-                level={level + 1}
-                expanded={true}
-                key={comment.parentCommentId}
-              />
-            </div>
-          )}
-
-          <div className="comments-item">
-            <div className="comments-item-body recent-comments-item-body ">
-              <div className="comments-item-meta recent-comments-item-meta">
-                { comment.parentCommentId
-                  ? <Components.ShowParentComment
-                      comment={comment} nestingLevel={level}
-                      active={this.state.showParent}
-                      onClick={this.toggleShowParent}
-                    />
-                  : (level != 1) && <div className={classes.usernameSpacing}>○</div>
-                }
-                <CommentUserName comment={comment}/>
-                {comment.post &&
-                  <Components.CommentsItemDate
-                    comment={comment} post={comment.post}
-                    showPostTitle={showTitle}
-                    scrollOnClick={false}
-                  />
-                }
-                <Components.CommentsVote comment={comment} currentUser={this.props.currentUser} />
-                { level === 1 && this.renderMenu() }
-              </div>
-              {this.renderBodyOrEditor()}
-            </div>
-          </div>
-          {this.state.showReply ? this.renderReply() : null}
-        </div>
-      )
-    } else {
+    if (!comment || !comment.post) {
       return <div className="comments-node recent-comments-node loading">
         <Components.Loading />
       </div>
     }
+    
+    return (
+      <div
+        className={classNames(
+          'comments-node',
+          'recent-comments-node',
+          {
+            "comments-node-root" : level === 1,
+            "comments-node-even" : level % 2 === 0,
+            "comments-node-odd"  : level % 2 != 0,
+            "showParent": this.state.showParent,
+          }
+        )}>
+        { comment.parentCommentId && this.state.showParent && (
+          <div className="recent-comment-parent">
+            <Components.RecentCommentsSingle
+              currentUser={this.props.currentUser}
+              documentId={comment.parentCommentId}
+              level={level + 1}
+              expanded={true}
+              key={comment.parentCommentId}
+            />
+          </div>
+        )}
+
+        <div className="comments-item">
+          <div className="comments-item-body recent-comments-item-body ">
+            <div className="comments-item-meta recent-comments-item-meta">
+              { comment.parentCommentId
+                ? <Components.ShowParentComment
+                    comment={comment} nestingLevel={level}
+                    active={this.state.showParent}
+                    onClick={this.toggleShowParent}
+                  />
+                : (level != 1) && <div className={classes.usernameSpacing}>○</div>
+              }
+              <CommentUserName comment={comment}/>
+              {comment.post &&
+                <Components.CommentsItemDate
+                  comment={comment} post={comment.post}
+                  showPostTitle={showTitle}
+                  scrollOnClick={false}
+                />
+              }
+              <Components.CommentsVote comment={comment} currentUser={this.props.currentUser} />
+              { level === 1 && this.renderMenu() }
+            </div>
+            {this.renderBodyOrEditor()}
+          </div>
+        </div>
+        {this.state.showReply ? this.renderReply() : null}
+      </div>
+    );
   }
 }
 
