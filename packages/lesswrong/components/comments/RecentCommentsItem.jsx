@@ -7,14 +7,6 @@ import { withStyles } from '@material-ui/core/styles'
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 
 const styles = theme => ({
-  author: {
-    ...theme.typography.body2,
-    fontWeight: 600,
-    marginRight: 10
-  },
-  authorAnswer: {
-    fontFamily: theme.typography.postStyle.fontFamily
-  },
   usernameSpacing: {
     paddingRight: 1,
     color: "rgba(0,0,0,.3)",
@@ -41,6 +33,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
 
   render() {
     const { comment, showTitle, level=1, truncated, collapsed, classes } = this.props;
+    const { CommentUserName } = Components;
     const { showEdit } = this.state
 
     if (comment && comment.post) {
@@ -79,9 +72,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
                     />
                   : (level != 1) && <div className={classes.usernameSpacing}>○</div>
                 }
-                <span className={classNames(classes.author, {[classes.authorAnswer]:comment.answer})}>
-                  {comment.answer && "Answer by "}<Components.UsersName user={comment.user}/>
-                </span>
+                <CommentUserName comment={comment}/>
                 {comment.post &&
                   <Components.CommentsItemDate
                     comment={comment} post={comment.post}
