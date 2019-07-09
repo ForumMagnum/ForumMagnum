@@ -169,7 +169,7 @@ class CommentsItem extends Component {
                   <CommentsMenu
                     comment={comment}
                     post={post}
-                    showEdit={this.showEdit}
+                    showEdit={showEdit}
                   />
                 </span>
               </span>
