@@ -7,7 +7,7 @@ import { withStyles } from '@material-ui/core/styles'
 const styles = theme => ({
 })
 
-class RecentCommentsItem extends getRawComponent('CommentsItem') {
+class ParentCommentItem extends getRawComponent('CommentsItem') {
   constructor(props) {
     super(props);
     this.state = {
@@ -46,7 +46,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
         )}>
         { comment.parentCommentId && this.state.showParent && (
           <div>
-            <Components.RecentCommentsSingle
+            <Components.ParentCommentSingle
               post={post}
               currentUser={this.props.currentUser}
               documentId={comment.parentCommentId}
@@ -86,4 +86,6 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
   }
 }
 
-registerComponent('RecentCommentsItem', RecentCommentsItem, withErrorBoundary, withStyles(styles, {name:'RecentCommentsItem'}));
+registerComponent('ParentCommentItem', ParentCommentItem,
+  withErrorBoundary,
+  withStyles(styles, {name:'ParentCommentItem'}));

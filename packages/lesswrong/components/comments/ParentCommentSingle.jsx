@@ -2,9 +2,9 @@ import { Components, registerComponent, withDocument } from 'meteor/vulcan:core'
 import React from 'react';
 import { Comments } from '../../lib/collections/comments';
 
-const RecentCommentsSingle = (props) => {
+const ParentCommentSingle = (props) => {
   if (props.document && !props.loading) {
-    return <Components.RecentCommentsItem {...props} comment={props.document}/>
+    return <Components.ParentCommentItem {...props} comment={props.document}/>
   } else {
     return <Components.Loading />
   }
@@ -12,8 +12,8 @@ const RecentCommentsSingle = (props) => {
 
 const documentOptions = {
   collection: Comments,
-  queryName: 'RecentCommentsQuery',
+  queryName: 'ParentCommentQuery',
   fragmentName: 'SelectCommentsList',
 };
 
-registerComponent('RecentCommentsSingle', RecentCommentsSingle, [withDocument, documentOptions]);
+registerComponent('ParentCommentSingle', ParentCommentSingle, [withDocument, documentOptions]);

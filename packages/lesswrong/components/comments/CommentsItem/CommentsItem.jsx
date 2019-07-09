@@ -139,7 +139,7 @@ class CommentsItem extends Component {
       >
         { comment.parentCommentId && this.state.showParent && (
           <div className={classes.firstParentComment}>
-            <Components.RecentCommentsSingle
+            <Components.ParentCommentSingle
               post={post}
               currentUser={currentUser}
               documentId={comment.parentCommentId}
