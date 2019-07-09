@@ -1,6 +1,5 @@
 import { Components, getRawComponent, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import Icon from '@material-ui/core/Icon';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { withStyles } from '@material-ui/core/styles'

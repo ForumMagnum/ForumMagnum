@@ -7,13 +7,11 @@ class ShortformPage extends PureComponent {
 
   render () {
     // const { currentUser } = this.props
-    const { SingleColumnSection, ShortformThreadList, SectionTitle, CommentsNewForm } = Components
+    const { SingleColumnSection, ShortformThreadList, SectionTitle } = Components
 
     return (
       <SingleColumnSection>
-        <SectionTitle title="Shortform Content [Beta]"/>
-
-  
+        <SectionTitle title="Shortform Content [Beta]"/>  
         <ShortformThreadList terms={{view: 'shortform', limit:20}} />
       </SingleColumnSection>
     )
