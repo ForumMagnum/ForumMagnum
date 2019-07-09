@@ -111,7 +111,7 @@ class CommentsItem extends Component {
   }
 
   render() {
-    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, truncated, collapsed, scrollIntoView } = this.props
+    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, collapsed, scrollIntoView } = this.props
 
     const { showEdit } = this.state
     const { CommentsMenu, ShowParentComment, CommentsItemDate, CommentUserName } = Components
@@ -177,20 +177,7 @@ class CommentsItem extends Component {
                   <Components.CommentOutdatedWarning comment={comment} post={post} />
               </span>
             </div>
-            { showEdit ? (
-              <Components.CommentsEditForm
-                  comment={comment}
-                  successCallback={this.editSuccessCallback}
-                  cancelCallback={this.editCancelCallback}
-                />
-            ) : (
-              <Components.CommentBody
-                truncated={truncated}
-                collapsed={collapsed}
-                comment={comment}
-                postPage={postPage}
-              />
-            ) }
+            {this.renderBodyOrEditor()}
             {!comment.deleted && !collapsed && this.renderCommentBottom()}
           </div>
           { this.state.showReply && !this.props.collapsed && this.renderReply() }
@@ -198,6 +185,26 @@ class CommentsItem extends Component {
       )
     } else {
       return null
+    }
+  }
+  
+  renderBodyOrEditor = () => {
+    const { comment, truncated, collapsed, postPage } = this.props;
+    const { showEdit } = this.state;
+    
+    if (showEdit) {
+      return <Components.CommentsEditForm
+        comment={comment}
+        successCallback={this.editSuccessCallback}
+        cancelCallback={this.editCancelCallback}
+      />
+    } else {
+      return <Components.CommentBody
+        truncated={truncated}
+        collapsed={collapsed}
+        comment={comment}
+        postPage={postPage}
+      />
     }
   }
 

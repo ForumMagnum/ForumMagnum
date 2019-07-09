@@ -1,6 +1,5 @@
 import { Components, getRawComponent, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import Icon from '@material-ui/core/Icon';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { withStyles } from '@material-ui/core/styles'
@@ -32,9 +31,8 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
   }
 
   render() {
-    const { comment, showTitle, level=1, truncated, collapsed, classes } = this.props;
+    const { comment, showTitle, level=1, classes } = this.props;
     const { CommentUserName } = Components;
-    const { showEdit } = this.state
 
     if (comment && comment.post) {
       return (
@@ -83,19 +81,7 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
                 <Components.CommentsVote comment={comment} currentUser={this.props.currentUser} />
                 { level === 1 && this.renderMenu() }
               </div>
-              { showEdit ?
-                <Components.CommentsEditForm
-                  comment={this.props.comment}
-                  successCallback={this.editSuccessCallback}
-                  cancelCallback={this.editCancelCallback}
-                />
-                :
-                <Components.CommentBody
-                  truncated={truncated}
-                  collapsed={collapsed}
-                  comment={comment}
-                />
-              }
+              {this.renderBodyOrEditor()}
             </div>
           </div>
           {this.state.showReply ? this.renderReply() : null}
