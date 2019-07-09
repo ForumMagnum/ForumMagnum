@@ -4,6 +4,7 @@ import { Comments } from '../../lib/collections/comments';
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
+import { withRouter } from '../../lib/reactRouterWrapper.js';
 
 const styles = theme => ({
   title: {
@@ -13,18 +14,26 @@ const styles = theme => ({
   }
 })
 
-const ShortformThreadList = ({ classes, results, loading, loadMore, networkStatus, currentUser }) => {
+const ShortformThreadList = ({ classes, results, loading, loadMore, networkStatus, currentUser, data: {refetch} }) => {
 
-  const { LoadMore, ShortformThread } = Components
+  const { LoadMore, ShortformThread, CommentsNewForm } = Components
 
   if (!loading && results && !results.length) {
     return null
   }
 
   const loadingMore = networkStatus === 2;
+  const shortformFeedId = currentUser?.shortformFeedId
 
   return (
     <div>
+        <CommentsNewForm 
+          post={{_id:shortformFeedId}} 
+          prefilledProps={{shortform: true}}
+          mutationFragment={"ShortformCommentsList"}
+          successCallback={() => refetch()}
+          type="comment" 
+        />
         <Typography variant="body2" className={classes.title}>
           Note: shows the most recent 3 comments on each shortform post
         </Typography>
@@ -48,4 +57,4 @@ const discussionThreadsOptions = {
   enableCache: true,
 };
 
-registerComponent('ShortformThreadList', ShortformThreadList, [withList, discussionThreadsOptions], withUser, withStyles(styles, {name:"ShortformThreadList"}));
+registerComponent('ShortformThreadList', ShortformThreadList, [withList, discussionThreadsOptions], withUser, withRouter, withStyles(styles, {name:"ShortformThreadList"}));
