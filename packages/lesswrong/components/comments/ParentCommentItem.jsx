@@ -8,20 +8,6 @@ const styles = theme => ({
 })
 
 class ParentCommentItem extends getRawComponent('CommentsItem') {
-  constructor(props) {
-    super(props);
-    this.state = {
-      showReply: false,
-      showEdit: false,
-      expanded: false,
-      showParent: false
-    };
-  }
-
-  toggleShowParent = () => {
-    this.setState({showParent:!this.state.showParent})
-  }
-
   render() {
     const { comment, post, showTitle, level=1, classes } = this.props;
     const { CommentUserName } = Components;
