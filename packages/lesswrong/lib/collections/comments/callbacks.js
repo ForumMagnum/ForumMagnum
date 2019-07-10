@@ -399,7 +399,7 @@ function SetTopLevelCommentId (comment, context)
 addCallback('comment.create.before', SetTopLevelCommentId);
 
 async function updateTopLevelCommentLastCommentedAt (comment) {
-  // For now, this is just updating the lastSubthreadActivity of the top comment (because that's where we're using it. At some point we should probably do this across all parent comments)
+  // TODO: Make this work for all parent comments. For now, this is just updating the lastSubthreadActivity of the top comment because that's where we're using it 
   if (comment.topLevelCommentId) {
     Comments.update({ _id: comment.topLevelCommentId }, { $set: {lastSubthreadActivity: new Date()}})
   }
