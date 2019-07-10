@@ -26,21 +26,20 @@ class ParentCommentItem extends getRawComponent('CommentsItem') {
             "comments-node-even" : level % 2 === 0,
             "comments-node-odd"  : level % 2 != 0,
           }
-        )}>
-        { comment.parentCommentId && this.state.showParent && (
-          <div>
-            <Components.ParentCommentSingle
-              post={post}
-              currentUser={this.props.currentUser}
-              documentId={comment.parentCommentId}
-              level={level + 1}
-              expanded={true}
-              key={comment.parentCommentId}
-            />
-          </div>
-        )}
-
+      )}>
         <div className="comments-item">
+          { comment.parentCommentId && this.state.showParent && (
+            <div>
+              <Components.ParentCommentSingle
+                post={post}
+                currentUser={this.props.currentUser}
+                documentId={comment.parentCommentId}
+                level={level + 1}
+                expanded={true}
+                key={comment.parentCommentId}
+              />
+            </div>
+          )}
           <div className={classes.body}>
             <div className={classes.meta}>
               <Components.ShowParentComment
@@ -62,8 +61,8 @@ class ParentCommentItem extends getRawComponent('CommentsItem') {
             </div>
             {this.renderBodyOrEditor()}
           </div>
+          {this.state.showReply ? this.renderReply() : null}
         </div>
-        {this.state.showReply ? this.renderReply() : null}
       </div>
     );
   }
