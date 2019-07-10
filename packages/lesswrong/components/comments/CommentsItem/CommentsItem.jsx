@@ -150,7 +150,6 @@ class CommentsItem extends Component {
   render() {
     const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, collapsed, scrollIntoView } = this.props
 
-    const { showEdit } = this.state
     const { CommentsMenu, ShowParentComment, CommentsItemDate, CommentUserName } = Components
 
     if (!comment || !post) {
@@ -201,15 +200,7 @@ class CommentsItem extends Component {
             />
             <Components.CommentsVote comment={comment} currentUser={currentUser} />
             
-            <span className={classes.metaRight}>
-              <span className={classes.menu}>
-                <CommentsMenu
-                  comment={comment}
-                  post={post}
-                  showEdit={showEdit}
-                />
-              </span>
-            </span>
+            {this.renderMenu()}
             <span className={classes.outdatedWarning}>
               <Components.CommentOutdatedWarning comment={comment} post={post} />
             </span>
@@ -219,6 +210,22 @@ class CommentsItem extends Component {
         </div>
         { this.state.showReply && !this.props.collapsed && this.renderReply() }
       </div>
+    )
+  }
+  
+  renderMenu = () => {
+    const { classes, comment, post } = this.props;
+    const { showEdit } = this.state;
+    return (
+      <span className={classes.metaRight}>
+        <span className={classes.menu}>
+          <CommentsMenu
+            comment={comment}
+            post={post}
+            showEdit={showEdit}
+          />
+        </span>
+      </span>
     )
   }
   
