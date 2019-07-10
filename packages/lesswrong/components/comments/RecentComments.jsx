@@ -13,7 +13,7 @@ const RecentComments = ({results, currentUser, loading, loadMore, networkStatus,
   }
   
   return (
-    <div className="comments-list recent-comments-list">
+    <div className="recent-comments-list">
       {results.map(comment =>
         <div key={comment._id}>
           <Components.CommentsNode
