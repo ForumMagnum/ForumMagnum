@@ -139,8 +139,8 @@ describe('Posts RSS Views', async () => {
 })
 
 // TODO; remove only
-// TODO; this may need to be changed, as there's more logic on the frontend now
-describe.only('Posts timeframe view', () => {
+// TODO; this may need to be changed, as there's more logic on the frontend now // edit or not
+describe.only('Posts timeframe resolver', () => {
   it('smokes month', async () => {
     const user = await createDummyUser()
     await waitUntilCallbacksFinished()
@@ -148,7 +148,7 @@ describe.only('Posts timeframe view', () => {
     // console.log('finished creating user', user)
 
     const testData = [
-      {post: await createDummyPost(user, {postedAt: moment().toDate(), baseScore: 112}),
+      {post: await createDummyPost(user, {postedAt: moment().toDate(), baseScore: 11}),
        included: true},
       // {post: await createDummyPost(user, {postedAt: moment().toDate(), baseScore: 111}),
       //  included: true},
@@ -169,27 +169,30 @@ describe.only('Posts timeframe view', () => {
     // console.log('/testData') //
 
     const query = `
-      query {
-        posts(input:{terms:{view: "timeframe", timeframe: "monthly", sortedBy: "top"}}) {
-          results {
-            _id
-          }
+      query PostsByTimeframeQuery {
+        PostsByTimeframe(foo: 1) {
+          _id
+          title
+          baseScore
         }
       }
     `
-    const { data: { posts: {results: posts} } } = await runQuery(query, {}, user)
+    // { posts: {results: posts} }
+    const { data: result } = await runQuery(query, {}, user)
 
-    const ids = _.pluck(posts, '_id')
-    console.log('test result ids', ids)
-    for (const {included, post} of testData) {
-      // console.log('included', included)
-      // console.log('post', post)
-      if (included) {
-        ids.should.include(post._id)
-      } else {
-        ids.should.not.include(post._id)
-      }
-    }
-    // TODO; doesn't clean up after itself
+    console.log('test result full', result)
+
+    // const ids = _.pluck(posts, '_id')
+    // console.log('test result ids', ids)
+    // for (const {included, post} of testData) {
+    //   // console.log('included', included)
+    //   // console.log('post', post)
+    //   if (included) {
+    //     ids.should.include(post._id)
+    //   } else {
+    //     ids.should.not.include(post._id)
+    //   }
+    // }
+    // // TODO; doesn't clean up after itself
   })
 })

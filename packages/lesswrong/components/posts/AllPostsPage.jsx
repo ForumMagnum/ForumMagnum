@@ -107,7 +107,7 @@ class AllPostsPage extends Component {
     if (currentTimeframe !== 'allTime') return <div className={classes.daily}>
       <PostsTimeframeList
         timeframe={currentTimeframe}
-        terms={dailyTerms}
+        terms={dailyTerms} // TODO; here
         numTimeBlocks={numTimeBlocks}
         dimWhenLoading={showSettings}
       />
