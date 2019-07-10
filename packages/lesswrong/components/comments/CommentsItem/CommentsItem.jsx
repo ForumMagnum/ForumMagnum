@@ -131,7 +131,7 @@ class CommentsItem extends Component {
     this.setState({showReply: false});
   }
 
-  showEdit = () => {
+  setShowEdit = () => {
     this.setState({showEdit: true});
   }
 
@@ -225,7 +225,6 @@ class CommentsItem extends Component {
   
   renderMenu = () => {
     const { classes, comment, post } = this.props;
-    const { showEdit } = this.state;
     const { CommentsMenu } = Components;
     return (
       <span className={classes.metaRight}>
@@ -233,7 +232,7 @@ class CommentsItem extends Component {
           <CommentsMenu
             comment={comment}
             post={post}
-            showEdit={showEdit}
+            showEdit={this.setShowEdit}
           />
         </span>
       </span>
