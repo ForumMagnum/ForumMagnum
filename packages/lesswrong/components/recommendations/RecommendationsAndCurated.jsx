@@ -59,7 +59,7 @@ class RecommendationsAndCurated extends PureComponent {
   render() {
     const { continueReading, classes, currentUser } = this.props;
     const { showSettings } = this.state
-    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SectionTitle, SettingsIcon, ContinueReadingList, RecommendationsList, PostsList2, SubscribeWidget } = Components;
+    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SectionTitle, SettingsIcon, ContinueReadingList, RecommendationsList, PostsList2, SubscribeWidget, SectionFooter } = Components;
     
     const configName = "frontpage"
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
