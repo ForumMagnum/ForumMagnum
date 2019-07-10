@@ -25,7 +25,6 @@ class ParentCommentItem extends getRawComponent('CommentsItem') {
             "comments-node-root" : level === 1,
             "comments-node-even" : level % 2 === 0,
             "comments-node-odd"  : level % 2 != 0,
-            "showParent": this.state.showParent,
           }
         )}>
         { comment.parentCommentId && this.state.showParent && (

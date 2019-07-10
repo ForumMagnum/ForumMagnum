@@ -162,8 +162,6 @@ class CommentsItem extends Component {
           "recent-comments-node",
           {
             deleted: comment.deleted && !comment.deletedPublic,
-            "public-deleted": comment.deletedPublic,
-            "showParent": this.state.showParent,
           },
         )}
       >
