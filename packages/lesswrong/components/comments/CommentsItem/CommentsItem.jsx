@@ -65,6 +65,25 @@ export const styles = theme => ({
     // Sorry Oli
     margin: "-2px -13px -2px -12px"
   },
+  meta: {
+    "& > div": {
+      display: "inline-block",
+      marginRight: 5,
+    },
+    
+    marginBottom: 8,
+    color: "rgba(0,0,0,0.5)",
+    paddingTop: ".6em",
+  
+    "& a:hover, & a:active": {
+      textDecoration: "none",
+      color: "rgba(0,0,0,0.3) !important",
+    },
+  },
+  bottom: {
+    paddingBottom: 5,
+    fontSize: 12,
+  },
 })
 
 class CommentsItem extends Component {
@@ -157,7 +176,7 @@ class CommentsItem extends Component {
         )}
 
         <div className={classes.body}>
-          <div className="comments-item-meta">
+          <div className={classes.meta}>
             <ShowParentComment
               comment={comment} nestingLevel={nestingLevel}
               active={this.state.showParent}
@@ -231,7 +250,7 @@ class CommentsItem extends Component {
       )
 
       return (
-        <div className="comments-item-bottom">
+        <div className={classes.bottom}>
           { blockedReplies &&
             <div className={classes.blockedReplies}>
               A moderator has deactivated replies on this comment until <Components.CalendarDate date={comment.repliesBlockedUntil}/>
