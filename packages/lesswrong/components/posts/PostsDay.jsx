@@ -70,7 +70,7 @@ const PostsDay = ({ date, posts, results: comments, totalCount, loadMore, hideIf
               forceSingleLine loadChildrenSeparately
               nestingLevel={1}
             />)}
-          {comments.length < totalCount &&
+          {comments?.length < totalCount &&
             <LoadMore
               loadMore={loadMore}
               count={comments.length}
