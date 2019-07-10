@@ -31,6 +31,7 @@ export const withPostsByTimeframe = component => {
         variables: {}
       }),
       props(props) {
+        console.log('gql props handler', props.data)
         return {
           postsByTimeframeLoading: props.data.loading,
           postsByTimeframe: props.data.PostsByTimeframe,

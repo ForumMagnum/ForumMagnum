@@ -26,6 +26,8 @@ addGraphQLMutation('increasePostViewCount(postId: String): Float')
 const makeTimeframePipeline = ({foo}) => {
   //
   return [
+    // TODO; ...Posts.getParameters({}).selector,
+    // TODO; filter by date range
     {$bucket: {
       groupBy: "$postedAt",
       boundaries: [
