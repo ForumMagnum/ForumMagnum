@@ -3,9 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { withStyles } from '@material-ui/core/styles'
-
-const styles = theme => ({
-})
+import { styles } from './CommentsItem/CommentsItem.jsx';
 
 class ParentCommentItem extends getRawComponent('CommentsItem') {
   render() {

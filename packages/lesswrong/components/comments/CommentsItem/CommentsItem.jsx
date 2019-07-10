@@ -9,7 +9,8 @@ import { withStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import withUser from '../../common/withUser';
 
-const styles = theme => ({
+// Shared with ParentCommentItem
+export const styles = theme => ({
   root: {
     "&:hover $menu": {
       opacity:1
