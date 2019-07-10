@@ -88,7 +88,9 @@ class CommentsItem extends Component {
 
   replySuccessCallback = () => {
     const { refetch } = this.props 
-    refetch()
+    if (refetch) {
+      refetch()
+    }
     this.setState({showReply: false});
   }
 
@@ -102,7 +104,9 @@ class CommentsItem extends Component {
 
   editSuccessCallback = () => {
     const { refetch } = this.props 
-    refetch()
+    if (refetch) {
+      refetch()
+    }
     this.setState({showEdit: false});
   }
 
