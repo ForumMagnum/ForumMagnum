@@ -31,10 +31,6 @@ class GroupFormLink extends Component {
   render() {
     const { documentId } =  this.props
     const { WrappedSmartForm, SectionButton } = Components
-    const dialogClasses = classNames(
-      "comments-item-text",
-      "local-group-form"
-    )
     return (<React.Fragment>
       { documentId ? 
         <SectionButton>
@@ -50,7 +46,7 @@ class GroupFormLink extends Component {
         open={this.state.groupFormOpen}
         onClose={this.handleCloseGroupForm}
       >
-        <DialogContent className={dialogClasses}>
+        <DialogContent className="local-group-form">
           <WrappedSmartForm
             collection={Localgroups}
             documentId={this.props.documentId}

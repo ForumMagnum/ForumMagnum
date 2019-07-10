@@ -11,11 +11,6 @@ $lw-green: #588f27;
   .comments-item-body {
     border-style: none;
     padding: 0px;
-    .comments-item-text {
-      margin-top:0px;
-      overflow-wrap: break-word;
-    }
-    
     font-family: $comments-font;
   }
   .comments-item-meta {
@@ -45,11 +40,6 @@ $lw-green: #588f27;
 
 .comments-item.deleted {
   background-color: #ffefef;
-  .comments-item-text.content-body {
-    text-decoration: line-through;
-    padding-top:.25em;
-    padding-bottom:.25em;
-  }
 }
 @keyframes lw-green-fade {
   from {
@@ -123,16 +113,6 @@ $lw-green: #588f27;
     .comments-item {
       padding:0px 7px;
     }
-  }
-}
-
-.comments-item-text.collapsed {
-  .ory-cell-inner.ory-cell-leaf {
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    text-overflow: ellipsis;
   }
 }
 
