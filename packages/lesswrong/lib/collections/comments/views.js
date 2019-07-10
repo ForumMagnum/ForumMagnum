@@ -258,7 +258,7 @@ ensureIndex(Comments, {topLevelCommentId:1});
 // Used in findCommentByLegacyAFId
 ensureIndex(Comments, {agentFoundationsId:1});
 
-Comments.addView('shortform', function (terms) {
+Comments.addView('topShortform', function (terms) {
   const timeRange = ((terms.before || terms.after)
     ? { postedAt: {
       ...(terms.before && {$lt: new Date(terms.before)}),
@@ -272,6 +272,16 @@ Comments.addView('shortform', function (terms) {
       shortform: true,
       parentCommentId: viewFieldNullOrMissing,
       ...timeRange
+    },
+    options: {sort: {baseScore: -1, postedAt: -1}}
+  };
+});
+
+Comments.addView('shortform', function (terms) {
+  return {
+    selector: {
+      shortform: true,
+      parentCommentId: viewFieldNullOrMissing,
     },
     options: {sort: {lastSubthreadActivity: -1, postedAt: -1}}
   };

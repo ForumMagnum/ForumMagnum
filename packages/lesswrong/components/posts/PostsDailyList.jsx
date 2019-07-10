@@ -116,7 +116,7 @@ class PostsDailyList extends PureComponent {
               currentUser={currentUser}
               hideIfEmpty={index==0}
               terms={{
-                view: "shortform",
+                view: "topShortform",
                 before: moment(date).add(1, 'days').toString(),
                 after: moment(date).toString().toString()
               }}
