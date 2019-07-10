@@ -1,8 +1,5 @@
 import { Components, getRawComponent, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { Posts } from '../../lib/collections/posts';
-import { Link } from '../../lib/reactRouterWrapper.js';
-import Icon from '@material-ui/core/Icon';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { withStyles } from '@material-ui/core/styles'
@@ -73,29 +70,24 @@ class RecentCommentsItem extends getRawComponent('CommentsItem') {
           <div className="comments-item">
             <div className="comments-item-body recent-comments-item-body ">
               <div className="comments-item-meta recent-comments-item-meta">
-                { comment.parentCommentId ? (
-                    <Icon
+                { comment.parentCommentId
+                  ? <Components.ShowParentComment
+                      comment={comment} nestingLevel={level}
+                      active={this.state.showParent}
                       onClick={this.toggleShowParent}
-                      className={classNames("material-icons","recent-comments-show-parent",{active:this.state.showParent})}
-                    >
-                      subdirectory_arrow_left
-                    </Icon>
-                  ) : level != 1 && <div className={classes.usernameSpacing}>○</div>
+                    />
+                  : (level != 1) && <div className={classes.usernameSpacing}>○</div>
                 }
                 <span className={classNames(classes.author, {[classes.authorAnswer]:comment.answer})}>
                   {comment.answer && "Answer by "}<Components.UsersName user={comment.user}/>
                 </span>
-                { comment.post && (
-                  <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
-                    <div className="comments-item-origin">
-                      <div className="comments-item-date">
-                        <Components.FormatDate date={comment.postedAt}/>
-                        <Icon className="material-icons comments-item-permalink"> link </Icon>
-                      </div>
-                      { showTitle && comment.post.title}
-                    </div>
-                  </Link>
-                )}
+                {comment.post &&
+                  <Components.CommentsItemDate
+                    comment={comment} post={comment.post}
+                    showPostTitle={showTitle}
+                    scrollOnClick={false}
+                  />
+                }
                 <Components.CommentsVote comment={comment} currentUser={this.props.currentUser} />
                 { level === 1 && this.renderMenu() }
               </div>

@@ -14,7 +14,6 @@ $lw-green: #588f27;
   color: rgba(0,0,0,0.87);
   
   .comments-item-body {
-    border-style: none;
     padding: 0px;
     .comments-item-text {
       margin-top:0px;
@@ -60,11 +59,6 @@ $lw-green: #588f27;
   animation: lw-green-fade 5s ease-in-out 0s;
 }
 
-.comments-item-body{
-  border-radius: .25rem;
-  border: $border;
-}
-
 .comments-node-root {
   margin-bottom:1.3em;
   border:solid 1px rgba(0,0,0,.2);
@@ -91,16 +85,6 @@ $lw-green: #588f27;
     margin-right: 5px;
   }
 
-  .comments-item-origin {
-    display: inline-block;
-    color: rgba(0,0,0,0.4);
-  }
-  .comments-item-origin:hover {
-    .comments-item-date {
-      color: rgba(0,0,0,0.3);
-    }
-    color: rgba(0,0,0,0.3);
-  }
   a:hover, a:active {
     text-decoration: none;
     color: rgba(0,0,0,0.3) !important;
@@ -218,21 +202,6 @@ $lw-green: #588f27;
 .recent-comments-node {
   margin:0;
   width:100%;
-
-  .recent-comments-show-parent {
-    font-size:12px !important;
-    margin-right:5px;
-    cursor:pointer;
-    transform: rotate(90deg);
-    color:rgba(0,0,0,.75);
-    &.active {
-      color:rgba(0,0,0,.3) !important;
-    }
-
-    @include max-small() {
-      padding:10px;
-    }
-  }
 
   &.loading {
     min-height:80px;

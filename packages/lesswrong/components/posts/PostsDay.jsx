@@ -1,17 +1,16 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, withList, registerComponent } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
+import { Comments } from '../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   root: {
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit*3
+    marginBottom: theme.spacing.unit*4
   },
   dayTitle: {
-    marginBottom: theme.spacing.unit*2,
     whiteSpace: "pre",
     textOverflow: "ellipsis",
     ...theme.typography.postStyle,
@@ -21,35 +20,69 @@ const styles = theme => ({
     marginLeft: "23px",
     color: "rgba(0,0,0,0.5)",
   },
+  shortformGroup: {
+    marginTop: 20,
+  },
+  shortformTag: {
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[700],
+    marginBottom: 8,
+  },
 })
 
 // TODO; rename
-class PostsDay extends PureComponent {
+const PostsDay = ({ date, posts, results: comments, totalCount, loadMore, hideIfEmpty, classes, currentUser }) => {
+  const noPosts = !posts || (posts.length === 0);
+  const noComments = !comments || (comments.length === 0);
+  const { PostsItem2, CommentsNode, LoadMore } = Components
+  // TODO; load more button if timeframe > day
 
-  render() {
-    const { date, posts, classes, currentUser } = this.props;
-    const noPosts = posts.length === 0;
-    const { PostsItem2 } = Components
-    // TODO; load more button if timeframe > day
-
-    return (
-      <div className={classes.root}>
-        <Typography variant="headline" className={classes.dayTitle}>
-          <Hidden xsDown implementation="css">
-            {date.format('dddd, MMMM Do YYYY')}
-          </Hidden>
-          <Hidden smUp implementation="css">
-            {date.format('ddd, MMM Do YYYY')}
-          </Hidden>
-        </Typography>
-        { noPosts ? (<div className={classes.noPosts}>No posts on {date.format('MMMM Do YYYY')}</div>) :
-          <div>
-            {posts.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
-          </div>
-        }
-      </div>
-    );
+  // The most recent day is hidden if there are no posts on it, to avoid having
+  // an awkward empty partial day when it's close to midnight.
+  if (noPosts && noComments && hideIfEmpty) {
+    return null;
   }
+  
+  return (
+    <div className={classes.root}>
+      <Typography variant="headline" className={classes.dayTitle}>
+        <Hidden xsDown implementation="css">
+          {date.format('dddd, MMMM Do YYYY')}
+        </Hidden>
+        <Hidden smUp implementation="css">
+          {date.format('ddd, MMM Do YYYY')}
+        </Hidden>
+      </Typography>
+      
+      { (noPosts && noComments) && (<div className={classes.noPosts}>No posts on {date.format('MMMM Do YYYY')}</div>) }
+      
+      {posts?.map((post, i) =>
+        <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
+      
+      {currentUser?.beta && comments?.length > 0 &&
+        <div className={classes.shortformGroup}>
+          <div className={classes.shortformTag}>
+            Shortform [Beta]
+          </div>
+          {comments?.map((comment, i) =>
+            <CommentsNode
+              comment={comment} post={comment.post}
+              key={comment._id}
+              forceSingleLine loadChildrenSeparately
+              nestingLevel={1}
+            />)}
+          {comments?.length < totalCount &&
+            <LoadMore
+              loadMore={loadMore}
+              count={comments.length}
+              totalCount={totalCount}
+            />
+          }
+        </div>
+      }
+    </div>
+  );
 }
 
 PostsDay.propTypes = {
@@ -57,4 +90,14 @@ PostsDay.propTypes = {
   date: PropTypes.object,
 };
 
-registerComponent('PostsDay', PostsDay, withStyles(styles, { name: "PostsDay" }));
+registerComponent('PostsDay', PostsDay,
+  [withList, {
+    collection: Comments,
+    queryName: 'dailyShortformQuery',
+    fragmentName: 'ShortformComments',
+    enableTotal: true,
+    enableCache: true,
+    limit: 3,
+    ssr: true,
+  }],
+  withStyles(styles, { name: "PostsDay" }));
