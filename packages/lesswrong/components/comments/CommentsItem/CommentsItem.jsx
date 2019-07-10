@@ -89,6 +89,9 @@ export const styles = theme => ({
     padding: 10,
     border: "solid 1px rgba(0,0,0,.2)",
   },
+  deleted: {
+    backgroundColor: "#ffefef",
+  },
 })
 
 class CommentsItem extends Component {
@@ -161,7 +164,7 @@ class CommentsItem extends Component {
           "comments-item",
           "recent-comments-node",
           {
-            deleted: comment.deleted && !comment.deletedPublic,
+            [classes.deleted]: comment.deleted && !comment.deletedPublic,
           },
         )}
       >
