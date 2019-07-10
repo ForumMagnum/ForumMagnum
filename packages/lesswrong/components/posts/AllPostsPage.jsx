@@ -103,9 +103,9 @@ class AllPostsPage extends Component {
     };
     // console.log(' dailyTerms', dailyTerms)
 
-    const {PostsTimeframeList, PostsList2} = Components
+    const {PostsDailyList, PostsList2} = Components
     if (currentTimeframe !== 'allTime') return <div className={classes.daily}>
-      <PostsTimeframeList
+      <PostsDailyList
         timeframe={currentTimeframe}
         terms={dailyTerms} // TODO; here
         numTimeBlocks={numTimeBlocks}
