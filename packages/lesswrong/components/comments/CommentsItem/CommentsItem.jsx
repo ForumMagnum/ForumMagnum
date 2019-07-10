@@ -84,6 +84,11 @@ export const styles = theme => ({
     paddingBottom: 5,
     fontSize: 12,
   },
+  replyForm: {
+    marginTop: 15,
+    padding: 10,
+    border: "solid 1px rgba(0,0,0,.2)",
+  },
 })
 
 class CommentsItem extends Component {
@@ -274,7 +279,7 @@ class CommentsItem extends Component {
     const levelClass = (nestingLevel + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
 
     return (
-      <div className={classNames("comments-item-reply", levelClass)}>
+      <div className={classNames(classes.replyForm, levelClass)}>
         <Components.CommentsNewForm
           post={post}
           parentComment={comment}
