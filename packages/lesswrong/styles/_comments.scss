@@ -8,11 +8,6 @@ $lw-green: #588f27;
   line-height: 1.25;
   color: rgba(0,0,0,0.87);
   
-  .comments-item-body {
-    border-style: none;
-    padding: 0px;
-    font-family: $comments-font;
-  }
   .comments-item-meta {
     & > div {
       display: inline-block;

@@ -42,7 +42,7 @@ class ParentCommentItem extends getRawComponent('CommentsItem') {
         )}
 
         <div className="comments-item">
-          <div className="comments-item-body">
+          <div className={classes.body}>
             <div className="comments-item-meta">
               <Components.ShowParentComment
                 comment={comment} nestingLevel={level}

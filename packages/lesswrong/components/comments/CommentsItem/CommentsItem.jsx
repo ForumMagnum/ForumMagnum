@@ -16,6 +16,11 @@ export const styles = theme => ({
       opacity:1
     }
   },
+  body: {
+    borderStyle: "none",
+    padding: 0,
+    ...theme.typography.commentStyle,
+  },
   menu: {
     opacity:.35,
     marginRight:-5
@@ -151,7 +156,7 @@ class CommentsItem extends Component {
           </div>
         )}
 
-        <div className="comments-item-body">
+        <div className={classes.body}>
           <div className="comments-item-meta">
             <ShowParentComment
               comment={comment} nestingLevel={nestingLevel}
