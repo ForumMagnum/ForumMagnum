@@ -217,7 +217,6 @@ class CommentsItem extends Component {
   
   renderMenu = () => {
     const { classes, comment, post } = this.props;
-    const { showEdit } = this.state;
     const { CommentsMenu } = Components;
     return (
       <span className={classes.metaRight}>
