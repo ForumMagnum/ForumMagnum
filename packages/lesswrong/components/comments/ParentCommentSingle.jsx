@@ -16,7 +16,7 @@ const ParentCommentSingle = (props) => {
           "comments-node-odd"  : nestingLevel % 2 != 0,
         }
       )}>
-        <Components.ParentCommentItem {...props} comment={props.document}/>
+        <Components.CommentsItem {...props} comment={props.document}/>
       </div>
     )
   } else {

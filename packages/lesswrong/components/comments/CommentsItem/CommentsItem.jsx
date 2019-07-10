@@ -148,9 +148,9 @@ class CommentsItem extends Component {
   }
 
   render() {
-    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, collapsed, scrollIntoView } = this.props
+    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, collapsed, scrollIntoView, isParentComment } = this.props
 
-    const { CommentsMenu, ShowParentComment, CommentsItemDate, CommentUserName } = Components
+    const { ShowParentComment, CommentsItemDate, CommentUserName } = Components
 
     if (!comment || !post) {
       return null;
@@ -174,7 +174,8 @@ class CommentsItem extends Component {
               currentUser={currentUser}
               documentId={comment.parentCommentId}
               nestingLevel={nestingLevel + 1}
-              truncated={false}
+              expanded={isParentComment}
+              truncated={!isParentComment}
               key={comment.parentCommentId}
             />
           </div>
@@ -186,6 +187,7 @@ class CommentsItem extends Component {
               comment={comment} nestingLevel={nestingLevel}
               active={this.state.showParent}
               onClick={this.toggleShowParent}
+              placeholderIfMissing={isParentComment}
             />
             { (postPage || this.props.collapsed) && <a className={classes.collapse} onClick={this.props.toggleCollapse}>
               [<span>{this.props.collapsed ? "+" : "-"}</span>]
@@ -196,11 +198,11 @@ class CommentsItem extends Component {
               comment={comment} post={post}
               showPostTitle={showPostTitle}
               scrollIntoView={scrollIntoView}
-              scrollOnClick={postPage}
+              scrollOnClick={postPage && !isParentComment}
             />
             <Components.CommentsVote comment={comment} currentUser={currentUser} />
             
-            {this.renderMenu()}
+            {!isParentComment && this.renderMenu()}
             <span className={classes.outdatedWarning}>
               <Components.CommentOutdatedWarning comment={comment} post={post} />
             </span>
@@ -216,6 +218,7 @@ class CommentsItem extends Component {
   renderMenu = () => {
     const { classes, comment, post } = this.props;
     const { showEdit } = this.state;
+    const { CommentsMenu } = Components;
     return (
       <span className={classes.metaRight}>
         <span className={classes.menu}>

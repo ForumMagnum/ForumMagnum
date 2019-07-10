@@ -220,7 +220,6 @@ import '../components/comments/CommentsList.jsx';
 import '../components/comments/CommentsNode.jsx';
 import '../components/comments/CommentsViews.jsx';
 import '../components/comments/RecentComments.jsx';
-import '../components/comments/ParentCommentItem.jsx';
 import '../components/comments/ParentCommentSingle.jsx';
 import '../components/comments/ModerationGuidelines/ModerationGuidelinesBox.jsx';
 import '../components/comments/ModerationGuidelines/ModerationGuidelinesEditForm.jsx'
