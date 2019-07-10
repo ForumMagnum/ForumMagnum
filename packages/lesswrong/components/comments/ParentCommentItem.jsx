@@ -17,52 +17,41 @@ class ParentCommentItem extends getRawComponent('CommentsItem') {
     }
     
     return (
-      <div
-        className={classNames(
-          'comments-node',
-          'recent-comments-node',
-          {
-            "comments-node-root" : level === 1,
-            "comments-node-even" : level % 2 === 0,
-            "comments-node-odd"  : level % 2 != 0,
-          }
-      )}>
-        <div className="comments-item">
-          { comment.parentCommentId && this.state.showParent && (
-            <div>
-              <Components.ParentCommentSingle
-                post={post}
-                currentUser={this.props.currentUser}
-                documentId={comment.parentCommentId}
-                level={level + 1}
-                expanded={true}
-                key={comment.parentCommentId}
-              />
-            </div>
-          )}
-          <div className={classes.body}>
-            <div className={classes.meta}>
-              <Components.ShowParentComment
-                comment={comment} nestingLevel={level}
-                active={this.state.showParent}
-                onClick={this.toggleShowParent}
-                placeholderIfMissing={true}
-              />
-              <CommentUserName comment={comment}/>
-              {comment.post &&
-                <Components.CommentsItemDate
-                  comment={comment} post={comment.post}
-                  showPostTitle={showTitle}
-                  scrollOnClick={false}
-                />
-              }
-              <Components.CommentsVote comment={comment} currentUser={this.props.currentUser} />
-              { level === 1 && this.renderMenu() }
-            </div>
-            {this.renderBodyOrEditor()}
+      <div className="comments-item">
+        { comment.parentCommentId && this.state.showParent && (
+          <div>
+            <Components.ParentCommentSingle
+              post={post}
+              currentUser={this.props.currentUser}
+              documentId={comment.parentCommentId}
+              level={level + 1}
+              expanded={true}
+              key={comment.parentCommentId}
+            />
           </div>
-          {this.state.showReply ? this.renderReply() : null}
+        )}
+        <div className={classes.body}>
+          <div className={classes.meta}>
+            <Components.ShowParentComment
+              comment={comment} nestingLevel={level}
+              active={this.state.showParent}
+              onClick={this.toggleShowParent}
+              placeholderIfMissing={true}
+            />
+            <CommentUserName comment={comment}/>
+            {comment.post &&
+              <Components.CommentsItemDate
+                comment={comment} post={comment.post}
+                showPostTitle={showTitle}
+                scrollOnClick={false}
+              />
+            }
+            <Components.CommentsVote comment={comment} currentUser={this.props.currentUser} />
+            { level === 1 && this.renderMenu() }
+          </div>
+          {this.renderBodyOrEditor()}
         </div>
+        {this.state.showReply ? this.renderReply() : null}
       </div>
     );
   }

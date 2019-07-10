@@ -1,10 +1,24 @@
 import { Components, registerComponent, withDocument } from 'meteor/vulcan:core';
 import React from 'react';
 import { Comments } from '../../lib/collections/comments';
+import classNames from 'classnames';
 
 const ParentCommentSingle = (props) => {
   if (props.document && !props.loading) {
-    return <Components.ParentCommentItem {...props} comment={props.document}/>
+    const { level } = props;
+    return (
+      <div className={classNames(
+        'comments-node',
+        'recent-comments-node',
+        {
+          "comments-node-root" : level === 1,
+          "comments-node-even" : level % 2 === 0,
+          "comments-node-odd"  : level % 2 != 0,
+        }
+      )}>
+        <Components.ParentCommentItem {...props} comment={props.document}/>
+      </div>
+    )
   } else {
     return <Components.Loading />
   }
