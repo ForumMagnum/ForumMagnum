@@ -5,15 +5,15 @@ import classNames from 'classnames';
 
 const ParentCommentSingle = (props) => {
   if (props.document && !props.loading) {
-    const { level } = props;
+    const { nestingLevel } = props;
     return (
       <div className={classNames(
         'comments-node',
         'recent-comments-node',
         {
-          "comments-node-root" : level === 1,
-          "comments-node-even" : level % 2 === 0,
-          "comments-node-odd"  : level % 2 != 0,
+          "comments-node-root" : nestingLevel === 1,
+          "comments-node-even" : nestingLevel % 2 === 0,
+          "comments-node-odd"  : nestingLevel % 2 != 0,
         }
       )}>
         <Components.ParentCommentItem {...props} comment={props.document}/>

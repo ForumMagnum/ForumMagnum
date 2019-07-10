@@ -7,7 +7,7 @@ import { styles } from './CommentsItem/CommentsItem.jsx';
 
 class ParentCommentItem extends getRawComponent('CommentsItem') {
   render() {
-    const { comment, post, showTitle, level=1, classes } = this.props;
+    const { comment, post, collapsed, showTitle, nestingLevel=1, classes } = this.props;
     const { CommentUserName } = Components;
 
     if (!comment || !comment.post) {
@@ -24,7 +24,7 @@ class ParentCommentItem extends getRawComponent('CommentsItem') {
               post={post}
               currentUser={this.props.currentUser}
               documentId={comment.parentCommentId}
-              level={level + 1}
+              nestingLevel={nestingLevel + 1}
               expanded={true}
               key={comment.parentCommentId}
             />
@@ -33,7 +33,7 @@ class ParentCommentItem extends getRawComponent('CommentsItem') {
         <div className={classes.body}>
           <div className={classes.meta}>
             <Components.ShowParentComment
-              comment={comment} nestingLevel={level}
+              comment={comment} nestingLevel={nestingLevel}
               active={this.state.showParent}
               onClick={this.toggleShowParent}
               placeholderIfMissing={true}
@@ -47,7 +47,7 @@ class ParentCommentItem extends getRawComponent('CommentsItem') {
               />
             }
             <Components.CommentsVote comment={comment} currentUser={this.props.currentUser} />
-            { level === 1 && this.renderMenu() }
+            { nestingLevel === 1 && this.renderMenu() }
           </div>
           {this.renderBodyOrEditor()}
         </div>

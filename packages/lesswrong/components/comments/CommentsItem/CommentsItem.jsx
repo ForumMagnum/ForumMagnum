@@ -174,7 +174,7 @@ class CommentsItem extends Component {
               post={post}
               currentUser={currentUser}
               documentId={comment.parentCommentId}
-              level={nestingLevel + 1}
+              nestingLevel={nestingLevel + 1}
               truncated={false}
               key={comment.parentCommentId}
             />
@@ -211,7 +211,7 @@ class CommentsItem extends Component {
               </span>
             </span>
             <span className={classes.outdatedWarning}>
-                <Components.CommentOutdatedWarning comment={comment} post={post} />
+              <Components.CommentOutdatedWarning comment={comment} post={post} />
             </span>
           </div>
           {this.renderBodyOrEditor()}
@@ -276,7 +276,7 @@ class CommentsItem extends Component {
   }
 
   renderReply = () => {
-    const { post, comment, parentAnswerId, nestingLevel=1 } = this.props
+    const { post, comment, classes, parentAnswerId, nestingLevel=1 } = this.props
     const levelClass = (nestingLevel + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
 
     return (
