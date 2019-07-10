@@ -31,10 +31,10 @@ const styles = theme => ({
   },
 })
 
-const PostsDay = ({ date, posts, results: comments, hideIfEmpty, classes, currentUser }) => {
+const PostsDay = ({ date, posts, results: comments, totalCount, loadMore, hideIfEmpty, classes, currentUser }) => {
   const noPosts = !posts || (posts.length === 0);
   const noComments = !comments || (comments.length === 0);
-  const { PostsItem2, CommentsNode } = Components
+  const { PostsItem2, CommentsNode, LoadMore } = Components
 
   // The most recent day is hidden if there are no posts on it, to avoid having
   // an awkward empty partial day when it's close to midnight.
@@ -70,6 +70,13 @@ const PostsDay = ({ date, posts, results: comments, hideIfEmpty, classes, curren
               forceSingleLine loadChildrenSeparately
               nestingLevel={1}
             />)}
+          {comments.length < totalCount &&
+            <LoadMore
+              loadMore={loadMore}
+              count={comments.length}
+              totalCount={totalCount}
+            />
+          }
         </div>
       }
     </div>
@@ -86,7 +93,7 @@ registerComponent('PostsDay', PostsDay,
     collection: Comments,
     queryName: 'dailyShortformQuery',
     fragmentName: 'ShortformComments',
-    enableTotal: false,
+    enableTotal: true,
     enableCache: true,
     limit: 3,
     ssr: true,
