@@ -14,6 +14,7 @@ import { unflattenComments } from '../../lib/modules/utils/unflatten';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import withRecordPostView from '../common/withRecordPostView';
+import { withRouter } from '../../lib/reactRouterWrapper.js';
 
 import { withStyles } from '@material-ui/core/styles';
 import { postExcerptFromHTML } from '../../lib/editor/ellipsize'
@@ -111,7 +112,8 @@ class RecentDiscussionThread extends PureComponent {
   }
 
   render() {
-    const { post, postCount, results, loading, editMutation, currentUser, classes } = this.props
+    const { post, postCount, results, loading, editMutation, currentUser, classes, data: {refetch}
+  } = this.props
     const { readStatus, showHighlight, markedAsVisitedAt } = this.state
 
     const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight } = Components
@@ -181,6 +183,7 @@ class RecentDiscussionThread extends PureComponent {
                   children={comment.children}
                   key={comment.item._id}
                   editMutation={editMutation}
+                  refetch={refetch}
                   post={post}
                   condensed
                 />
@@ -211,5 +214,6 @@ registerComponent(
   withUser,
   withStyles(styles, { name: "RecentDiscussionThread" }),
   withRecordPostView,
-  withErrorBoundary
+  withErrorBoundary,
+  withRouter
 );

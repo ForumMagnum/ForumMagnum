@@ -203,9 +203,8 @@ const schema = {
     optional: true,
     hidden: true,
     canRead: ['guests'],
-    insertableBy: ['admins'],
-    editableBy: ['admins'],
-    
+    canCreate: ['members', 'admins'],
+    canUpdate: [Users.owns, 'admins'],
     ...denormalizedField({
       needsUpdate: data => ('postId' in data),
       getValue: async (comment) => {
@@ -221,6 +220,7 @@ const schema = {
     denormalized: true,
     optional: true,
     viewableBy: ['guests'],
+    onInsert: (document, currentUser) => new Date(),
   },
 
   // The semver-style version of the post that this comment was made against

@@ -215,7 +215,7 @@ export const makeEditableOptions = {
   getLocalStorageId: (comment, name) => {
     if (comment._id) { return {id: comment._id, verify: true} }
     if (comment.parentCommentId) { return {id: ('parent:' + comment.parentCommentId), verify: false}}
-    if (comment.postId) { return {id: ('post:' + comment.postId), verify: false}}
+    return {id: ('post:' + comment.postId), verify: false}
   },
   order: 25
 }

@@ -29,11 +29,35 @@ const getLessWrongAccount = async () => {
   return account;
 }
 
-// EXAMPLE-FORUM CALLBACKS:
+async function createShortformPost (comment, context) {
+  if (comment.shortform && !comment.postId) {
+    const post = await newMutation({
+      collection: Posts,
+      document: {
+        userId: context.currentUser._id,
+        shortform: true,
+        title: `${ context.currentUser.displayName }'s Shortform`
+      },
+      validate: false,
+    })
+    await editMutation({
+      collection:Users,
+      documentId: context.currentUser._id,
+      set: {
+        shortformFeedId: post.data._id
+      },
+      unset: {},
+      validate: false,
+    })
 
-//////////////////////////////////////////////////////
-// comments.new.sync                                //
-//////////////////////////////////////////////////////
+    return ({
+      ...comment,
+      postId: post.data._id
+    })
+  }
+  return comment
+}
+addCallback('comments.new.validate', createShortformPost);
 
 function CommentsNewOperations (comment) {
 
@@ -375,7 +399,10 @@ function SetTopLevelCommentId (comment, context)
 addCallback('comment.create.before', SetTopLevelCommentId);
 
 async function updateTopLevelCommentLastCommentedAt (comment) {
-  Comments.update({ _id: comment.topLevelCommentId }, { $set: {lastSubthreadActivity: new Date()}})
+  // TODO: Make this work for all parent comments. For now, this is just updating the lastSubthreadActivity of the top comment because that's where we're using it 
+  if (comment.topLevelCommentId) {
+    Comments.update({ _id: comment.topLevelCommentId }, { $set: {lastSubthreadActivity: new Date()}})
+  }
   return comment;
 }
-addCallback("comments.new.after", updateTopLevelCommentLastCommentedAt)
+addCallback("comment.create.after", updateTopLevelCommentLastCommentedAt)

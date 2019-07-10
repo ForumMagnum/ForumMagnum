@@ -3,7 +3,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 
 const ShortformPage = () => {
   const { SingleColumnSection, ShortformThreadList, SectionTitle } = Components
-  
+
   return (
     <SingleColumnSection>
       <SectionTitle title="Shortform Content [Beta]"/>

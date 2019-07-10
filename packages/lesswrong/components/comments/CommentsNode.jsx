@@ -206,7 +206,7 @@ class CommentsNode extends Component {
   }
 
   render() {
-    const { comment, children, nestingLevel=1, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments, shortform } = this.props;
+    const { comment, children, nestingLevel=1, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments, shortform, refetch } = this.props;
 
     const { SingleLineComment, CommentsItem } = Components
 
@@ -252,8 +252,8 @@ class CommentsNode extends Component {
       }
     )
 
-    const passedThroughItemProps = { post, postPage, comment, editMutation, nestingLevel, showPostTitle, collapsed }
-    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, editMutation, condensed, hideReadComments}
+    const passedThroughItemProps = { post, postPage, comment, editMutation, nestingLevel, showPostTitle, collapsed, refetch }
+    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, editMutation, condensed, hideReadComments, refetch }
 
     return (
       <div className={newComment ? "comment-new" : "comment-old"}>
