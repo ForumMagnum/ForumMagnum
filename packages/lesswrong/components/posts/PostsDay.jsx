@@ -58,13 +58,20 @@ const PostsDay = ({ date, posts, results: comments, hideIfEmpty, classes, curren
       {posts?.map((post, i) =>
         <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
       
-      <div className={classes.shortformGroup}>
-        <div className={classes.shortformTag}>
-          Shortform [Beta]
+      {comments?.length > 0 &&
+        <div className={classes.shortformGroup}>
+          <div className={classes.shortformTag}>
+            Shortform [Beta]
+          </div>
+          {comments?.map((comment, i) =>
+            <CommentsNode
+              comment={comment} post={comment.post}
+              key={comment._id}
+              forceSingleLine loadChildrenSeparately
+              nestingLevel={1}
+            />)}
         </div>
-        {comments?.map((comment, i) =>
-          <CommentsNode forceSingleLine={true} key={comment._id} comment={comment} post={comment.post} nestingLevel={1} />)}
-      </div>
+      }
     </div>
   );
 }

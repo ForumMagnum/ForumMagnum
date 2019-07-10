@@ -277,5 +277,14 @@ Comments.addView('shortform', function (terms) {
   };
 });
 
+Comments.addView('repliesToCommentThread', function (terms) {
+  return {
+    selector: {
+      topLevelCommentId: terms.topLevelCommentId
+    },
+    options: {sort: {baseScore: -1}}
+  }
+});
+
 // Will be used for experimental shortform display on AllPosts page
 ensureIndex(Comments, {shortform:1, postedAt:1, baseScore:1});

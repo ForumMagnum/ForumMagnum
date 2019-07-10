@@ -188,9 +188,12 @@ class CommentsNode extends Component {
   }
 
   render() {
-    const { comment, children, nestingLevel=1, highlightDate, editMutation, post, muiTheme, router, postPage, classes, child, showPostTitle, unreadComments, parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments } = this.props;
+    const { comment, children, nestingLevel=1, highlightDate, editMutation, post,
+      muiTheme, router, postPage, classes, child, showPostTitle, unreadComments,
+      parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments,
+      loadChildrenSeparately } = this.props;
 
-    const { SingleLineComment, CommentsItem } = Components
+    const { SingleLineComment, CommentsItem, RepliesToCommentList } = Components
 
     if (!comment || !post)
       return null;
@@ -240,7 +243,6 @@ class CommentsNode extends Component {
           onClick={(event) => this.unTruncate(event)}
           id={comment._id}
          >
-          {/*eslint-disable-next-line react/no-string-refs*/}
           {!hiddenReadComment && <div ref={this.scrollTargetRef}>
             {this.isSingleLine()
               ? <SingleLineComment comment={comment} nestingLevel={nestingLevel} />
@@ -254,6 +256,7 @@ class CommentsNode extends Component {
                 />
             }
           </div>}
+          
           {!collapsed && children && children.length>0 && <div className="comments-children">
             <div className={classes.parentScroll} onClick={this.scrollIntoView}/>
             {children && children.map(child =>
@@ -269,6 +272,16 @@ class CommentsNode extends Component {
                 { ...passedThroughNodeProps}
               />)}
           </div>}
+          
+          {!this.isSingleLine() && loadChildrenSeparately &&
+            <RepliesToCommentList
+              terms={{
+                view: "repliesToCommentThread",
+                topLevelCommentId: comment._id
+              }}
+              post={post}
+            />
+          }
         </div>
     )
   }
