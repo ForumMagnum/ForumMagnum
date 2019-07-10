@@ -50,6 +50,7 @@ class ParentCommentItem extends getRawComponent('CommentsItem') {
             { nestingLevel === 1 && this.renderMenu() }
           </div>
           {this.renderBodyOrEditor()}
+          {!comment.deleted && !collapsed && this.renderCommentBottom()}
         </div>
         {this.state.showReply ? this.renderReply() : null}
       </div>
