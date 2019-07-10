@@ -195,7 +195,6 @@ class CommentsNode extends Component {
   }
 
   render() {
-  render() {
     const { comment, children, nestingLevel=1, highlightDate, editMutation, post,
       muiTheme, router, postPage, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments,
@@ -283,13 +282,16 @@ class CommentsNode extends Component {
           </div>}
           
           {!this.isSingleLine() && loadChildrenSeparately &&
-            <RepliesToCommentList
-              terms={{
-                view: "repliesToCommentThread",
-                topLevelCommentId: comment._id
-              }}
-              post={post}
-            />
+            <div className="comments-children">
+              <div className={classes.parentScroll} onClick={this.scrollIntoView}/>
+              <RepliesToCommentList
+                terms={{
+                  view: "repliesToCommentThread",
+                  topLevelCommentId: comment._id
+                }}
+                post={post}
+              />
+            </div>
           }
         </div>
     )
