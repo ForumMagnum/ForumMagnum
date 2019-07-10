@@ -9,20 +9,20 @@ export const withPostsByTimeframe = component => {
 
   const withPostsByTimeframe = gql`
     query PostsByTimeframeQuery {
-      PostsByTimeframe {
-        lastReadPost {
-          ...PostsList
+      PostsByTimeframe(foo: 1) {
+        _id
+        posts {
+          _id
+          title
+          baseScore
         }
-        nextPost {
-          ...PostsList
-        }
-        numRead
-        numTotal
-        lastReadTime
       }
     }
-    ${getFragment("PostsList")}
   `;
+  // stuff {
+  //   ...PostsList
+  // }
+  // ${getFragment("PostsList")}
 
   return graphql(withPostsByTimeframe,
     {

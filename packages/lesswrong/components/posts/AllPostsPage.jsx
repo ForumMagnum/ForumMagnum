@@ -185,4 +185,11 @@ const withUpdateOptions = {
   ssr: false, // TODO; temporary
 }
 
-registerComponent('AllPostsPage', AllPostsPage, withStyles(styles, {name:"AllPostsPage"}), withRouter, withUser, [withUpdate, withUpdateOptions]);
+registerComponent(
+  'AllPostsPage',
+  AllPostsPage,
+  withStyles(styles, {name:"AllPostsPage"}),
+  withRouter,
+  withUser,
+  [withUpdate, withUpdateOptions]
+);

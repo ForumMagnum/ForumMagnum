@@ -7,11 +7,13 @@ import { withCurrentUser, withList, getSetting, Components, registerComponent } 
 import withTimezone from '../common/withTimezone';
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
+import classNames from 'classnames';
 import {
   getBeforeDateDefault, getAfterDateDefault, getDatePosts, getDateRange
 } from './timeframeUtils'
 // TODO; probs reverse import direction
 import { timeframeToTimeBlock, timeframes } from './AllPostsPage'
+import { withPostsByTimeframe } from './withPostsByTimeframe'
 
 const styles = theme => ({
   loading: {
@@ -26,7 +28,6 @@ const styles = theme => ({
 // Useful reading for network status use in this file and elsewhere:
 // https://github.com/apollographql/apollo-client/blob/master/packages/apollo-client/src/core/networkStatus.ts
 
-import classNames from 'classnames';
 class PostsTimeframeList extends PureComponent {
 
   constructor(props) {
@@ -152,7 +153,7 @@ class PostsTimeframeList extends PureComponent {
     if (loading && (!posts || !posts.length)) {
       return <Loading />
     }
-    // console.log(' posts', posts)
+    console.log(' posts', posts)
     return (
       <div className={classNames({[classes.loading]: dim})}>
         { loading && <Loading />}
@@ -199,4 +200,11 @@ const options = {
   ssr: false, // TODO; temp
 };
 
-registerComponent('PostsTimeframeList', PostsTimeframeList, withCurrentUser, [withList, options], withTimezone, withStyles(styles, {name: "PostsTimeframeList"}));
+registerComponent(
+  'PostsTimeframeList',
+  PostsTimeframeList,
+  withCurrentUser,
+  withPostsByTimeframe,
+  withTimezone,
+  withStyles(styles, {name: "PostsTimeframeList"})
+);

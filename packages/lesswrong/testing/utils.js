@@ -1,4 +1,4 @@
-import { newMutation, editMutation } from 'meteor/vulcan:core';
+import { newMutation, editMutation, removeMutation } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { Posts } from '../lib/collections/posts'
 import { Comments } from '../lib/collections/comments'
@@ -163,21 +163,22 @@ export const createDummyPost = async (user, data) => {
     context: {},
   });
   // console.log('newPostReponse', newPostResponse)
-  await waitUntilCallbacksFinished()
-  // baseScore by default gets overwritten by a post.new.after callback. Force
-  // it to the supplied value with a mutation.
-  if (postData.baseScore) {
-    const updatedDocResponse = await editMutation({
-      collection: Posts,
-      documentId: newPostResponse.data._id,
-      set: {baseScore: postData.baseScore},
-      validate: false,
-      context: {},
-    })
-    // console.log('updatedDocResponse', updatedDocResponse)
-    await waitUntilCallbacksFinished()
-    return updatedDocResponse.data
-  }
+  // // TODO; I think we can't do this cause it takes too long
+  // await waitUntilCallbacksFinished()
+  // // baseScore by default gets overwritten by a post.new.after callback. Force
+  // // it to the supplied value with a mutation.
+  // if (postData.baseScore) {
+  //   const updatedDocResponse = await editMutation({
+  //     collection: Posts,
+  //     documentId: newPostResponse.data._id,
+  //     set: {baseScore: postData.baseScore},
+  //     validate: false,
+  //     context: {},
+  //   })
+  //   // console.log('updatedDocResponse', updatedDocResponse)
+  //   await waitUntilCallbacksFinished()
+  //   return updatedDocResponse.data
+  // }
   return newPostResponse.data
 }
 

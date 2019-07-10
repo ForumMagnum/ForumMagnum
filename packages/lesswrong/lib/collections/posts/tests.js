@@ -1,15 +1,23 @@
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
-import { runQuery, waitUntilCallbacksFinished } from 'meteor/vulcan:core';
+import { runQuery, waitUntilCallbacksFinished, removeCallback, addCallback } from 'meteor/vulcan:core';
 import moment from 'moment-timezone';
-import { createDummyUser, createDummyPost, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../../../testing/utils.js'
+import {
+  createDummyUser,
+  createDummyPost,
+  catchGraphQLErrors,
+  assertIsPermissionsFlavoredError,
+  clearDatabase
+  // cleanUpPosts
+} from '../../../testing/utils.js'
+import { LWPostsNewUpvoteOwnPost } from './callbacks'
 
 chai.should();
 chai.use(chaiAsPromised);
 
 describe('PostsEdit', async () => {
   let graphQLerrors = catchGraphQLErrors();
-  
+
   it("succeeds when owner of post edits title", async () => {
     const user = await createDummyUser()
     const post = await createDummyPost(user)
@@ -141,6 +149,20 @@ describe('Posts RSS Views', async () => {
 // TODO; remove only
 // TODO; this may need to be changed, as there's more logic on the frontend now // edit or not
 describe.only('Posts timeframe resolver', () => {
+  // createDummyPost creates a post with baseScore, but LWPostsNewUpvoteOwnPost
+  // overwrites it.
+  // TODO: The right way to do this is probably remove the callback in
+  // createDummy if baseScore is present in the input post
+  before(() => {
+    console.log('before removing ====')
+    removeCallback('posts.new.after', 'LWPostsNewUpvoteOwnPost')
+  })
+  after(() => {
+    console.log('after adding ====')
+    addCallback('posts.new.after', LWPostsNewUpvoteOwnPost)
+  })
+  afterEach(clearDatabase)
+
   it('smokes month', async () => {
     const user = await createDummyUser()
     await waitUntilCallbacksFinished()
@@ -148,51 +170,67 @@ describe.only('Posts timeframe resolver', () => {
     // console.log('finished creating user', user)
 
     const testData = [
-      {post: await createDummyPost(user, {postedAt: moment().toDate(), baseScore: 11}),
-       included: true},
-      // {post: await createDummyPost(user, {postedAt: moment().toDate(), baseScore: 111}),
-      //  included: true},
-      // {post: await createDummyPost(user, {postedAt: moment().toDate(), baseScore: 110}),
-      //  included: false},
-      // {post: await createDummyPost(user, {postedAt: moment().subtract(1, 'month').toDate(), baseScore: 112}),
-      //  included: true},
-      // {post: await createDummyPost(user, {postedAt: moment().subtract(1, 'month').toDate(), baseScore: 111}),
-      //  included: true},
-      // {post: await createDummyPost(user, {postedAt: moment().subtract(1, 'month').toDate(), baseScore: 110}),
-      //  included: false},
-      // {post: await createDummyPost(user, {postedAt: moment().subtract(2, 'month').toDate(), baseScore: 112}),
-      //  included: false},
+      {post: await createDummyPost(user, {postedAt: moment().toDate(), baseScore: 112}),
+       included: true, bucketIndex: 0},
+      {post: await createDummyPost(user, {postedAt: moment().toDate(), baseScore: 111}),
+       included: true, bucketIndex: 0},
+      {post: await createDummyPost(user, {postedAt: moment().toDate(), baseScore: 110}),
+       included: false},
+      {post: await createDummyPost(user, {postedAt: moment().subtract(1, 'month').toDate(), baseScore: 112}),
+       included: true, bucketIndex: 1},
+      {post: await createDummyPost(user, {postedAt: moment().subtract(1, 'month').toDate(), baseScore: 111}),
+       included: true, bucketIndex: 1},
+      {post: await createDummyPost(user, {postedAt: moment().subtract(1, 'month').toDate(), baseScore: 110}),
+       included: false},
+      {post: await createDummyPost(user, {postedAt: moment().subtract(2, 'month').toDate(), baseScore: 112}),
+       included: false},
     ]
     await waitUntilCallbacksFinished()
 
     // console.log('testData', testData)
-    // console.log('/testData') //
+    // console.log('/testData')
 
+    // TODO; real arguments
     const query = `
       query PostsByTimeframeQuery {
         PostsByTimeframe(foo: 1) {
           _id
-          title
-          baseScore
+          posts {
+            _id
+            title
+            baseScore
+          }
         }
       }
     `
-    // { posts: {results: posts} }
-    const { data: result } = await runQuery(query, {}, user)
+    console.log('hello 1')
+    // { posts: {results: posts} } //
+    const { data: { PostsByTimeframe: result } } = await runQuery(query, {}, user)
+    console.log('hello 2')
 
     console.log('test result full', result)
 
-    // const ids = _.pluck(posts, '_id')
-    // console.log('test result ids', ids)
-    // for (const {included, post} of testData) {
-    //   // console.log('included', included)
-    //   // console.log('post', post)
-    //   if (included) {
-    //     ids.should.include(post._id)
-    //   } else {
-    //     ids.should.not.include(post._id)
-    //   }
-    // }
+    for (const {included, bucketIndex, post} of testData) {
+      console.log('included', included)
+      console.log('post info', _.pick(post, ['_id', 'postedAt', 'baseScore']))
+      console.log('bucketIndex', bucketIndex)
+      if (included) {
+        const bucket = result[bucketIndex]
+        console.log('bucket', bucket)
+        const bucketIds = _.pluck(bucket.posts, '_id')
+        console.log('bucketIds', bucketIds)
+        bucketIds.should.include(post._id)
+      } else {
+        for (const bucket of result) {
+          console.log('bucket', bucket)
+          const bucketIds = _.pluck(bucket.posts, '_id')
+          console.log('bucketIds', bucketIds)
+          bucketIds.should.not.include(post._id)
+        }
+      }
+      console.log('single post checked')
+    }
+    console.log('exiting////')
     // // TODO; doesn't clean up after itself
   })
 })
