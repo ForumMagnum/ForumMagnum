@@ -167,27 +167,25 @@ class RecentDiscussionThread extends PureComponent {
               </div>
           }
           <div className={classes.commentsList}>
-            <div className={"comments-items"}>
-              {nestedComments.map(comment =>
-                <div key={comment.item._id}>
-                  <CommentsNode
-                    startThreadTruncated={true}
-                    nestingLevel={1}
-                    lastCommentId={lastCommentId}
-                    currentUser={currentUser}
-                    comment={comment.item}
-                    markAsRead={this.markAsRead}
-                    highlightDate={lastVisitedAt}
-                    //eslint-disable-next-line react/no-children-prop
-                    children={comment.children}
-                    key={comment.item._id}
-                    editMutation={editMutation}
-                    post={post}
-                    condensed
-                  />
-                </div>
-              )}
-            </div>
+            {nestedComments.map(comment =>
+              <div key={comment.item._id}>
+                <CommentsNode
+                  startThreadTruncated={true}
+                  nestingLevel={1}
+                  lastCommentId={lastCommentId}
+                  currentUser={currentUser}
+                  comment={comment.item}
+                  markAsRead={this.markAsRead}
+                  highlightDate={lastVisitedAt}
+                  //eslint-disable-next-line react/no-children-prop
+                  children={comment.children}
+                  key={comment.item._id}
+                  editMutation={editMutation}
+                  post={post}
+                  condensed
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

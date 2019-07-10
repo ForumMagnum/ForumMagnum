@@ -13,23 +13,19 @@ const RecentComments = ({results, currentUser, loading, loadMore, networkStatus,
   }
   
   return (
-    <div>
-      <div className="comments-list recent-comments-list">
-        <div className={"comments-items"}>
-          {results.map(comment =>
-            <div key={comment._id}>
-              <Components.CommentsNode
-                currentUser={currentUser}
-                comment={comment}
-                post={comment.post}
-                editMutation={editMutation}
-                showPostTitle
-              />
-            </div>
-          )}
-          {loadMore && <Components.LoadMore loading={loadingMore || loading} loadMore={loadMore}  />}
+    <div className="comments-list recent-comments-list">
+      {results.map(comment =>
+        <div key={comment._id}>
+          <Components.CommentsNode
+            currentUser={currentUser}
+            comment={comment}
+            post={comment.post}
+            editMutation={editMutation}
+            showPostTitle
+          />
         </div>
-      </div>
+      )}
+      {loadMore && <Components.LoadMore loading={loadingMore || loading} loadMore={loadMore}  />}
     </div>
   )
 }
