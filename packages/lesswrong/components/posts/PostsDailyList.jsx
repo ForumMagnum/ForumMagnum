@@ -18,29 +18,6 @@ const styles = theme => ({
   }
 })
 
-// Return an array of numDays date-range buckets, each corresponding to one
-// day, in order from most-recent to least recent. Each bucket is represented
-// by an object with a start date and end date (both as `moment` dates),
-// except for the most recent bucket, which has a start but no end date.
-function getDailyBuckets(numDays, timezone, now) {
-  const buckets = [];
-  const firstBoundary = moment(moment(now).tz(timezone).format('YYYY-MM-DD'));
-  
-  buckets.push({
-    start: firstBoundary
-  });
-  
-  for (let i=1; i<numDays; i++)
-  {
-    buckets.push({
-      start: moment(firstBoundary).subtract(i, 'days'),
-      end: moment(firstBoundary).subtract(i-1, 'days'),
-    });
-  }
-  
-  return buckets;
-}
-
 class PostsDailyList extends PureComponent {
 
   constructor(props) {

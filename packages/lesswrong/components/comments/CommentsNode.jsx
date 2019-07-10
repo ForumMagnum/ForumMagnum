@@ -267,7 +267,7 @@ class CommentsNode extends Component {
           
           {!collapsed && children && children.length>0 && <div className="comments-children">
             <div className={classes.parentScroll} onClick={this.scrollIntoView}/>
-            {children && children.map(child =>
+            {children.map(child =>
               <Components.CommentsNode child
                 comment={child.item}
                 parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
