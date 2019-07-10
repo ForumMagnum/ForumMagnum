@@ -21,9 +21,6 @@ $lw-green: #588f27;
     a:hover, a:active {
       text-decoration: none;
       color: rgba(0,0,0,0.3) !important;
-      .comments-item-permalink {
-        color: rgba(0,0,0,0.3) !important;
-      }
     }
   }
 
@@ -67,15 +64,6 @@ $lw-green: #588f27;
     margin-left:5px;
     margin-bottom:5px;
   }
-}
-
-.comments-item-permalink{
-  font-size: 0.9rem!important;
-  transform: rotate(-45deg);
-  vertical-align: middle;
-  color: rgba(0,0,0,0.5)!important;
-  margin: 0 3px;
-  padding-bottom: 2px;
 }
 
 .comments-edit-form {
