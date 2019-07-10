@@ -351,3 +351,31 @@ function HandleReplyToAnswer (comment, properties)
   }
 }
 addCallback('comment.create.before', HandleReplyToAnswer);
+
+function SetTopLevelCommentId (comment, context)
+{
+  let visited = {};
+  let rootComment = comment;
+  while (rootComment?.parentCommentId) {
+    // This relies on Meteor fibers (rather than being async/await) because
+    // Vulcan callbacks aren't async-safe.
+    rootComment = Comments.findOne({_id: rootComment.parentCommentId});
+    if (rootComment && visited[rootComment._id])
+      throw new Error("Cyclic parent-comment relations detected!");
+    visited[rootComment?._id] = true;
+  }
+  
+  if (rootComment && rootComment._id !== comment._id) {
+    return {
+      ...comment,
+      topLevelCommentId: rootComment._id
+    };
+  }
+}
+addCallback('comment.create.before', SetTopLevelCommentId);
+
+async function updateTopLevelCommentLastCommentedAt (comment) {
+  Comments.update({ _id: comment.topLevelCommentId }, { $set: {lastSubthreadActivity: new Date()}})
+  return comment;
+}
+addCallback("comments.new.after", updateTopLevelCommentLastCommentedAt)

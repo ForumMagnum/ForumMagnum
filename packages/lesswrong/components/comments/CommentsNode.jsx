@@ -74,6 +74,11 @@ const styles = theme => ({
     border: "none !important",
     background: "none"
   },
+  shortformTop: {
+    '&&': {
+      marginBottom: theme.spacing.unit*4
+    }
+  }
 })
 
 class CommentsNode extends Component {
@@ -103,9 +108,10 @@ class CommentsNode extends Component {
   }
   
   beginSingleLine = () => {
-    const { currentUser, comment, condensed, lastCommentId, forceSingleLine } = this.props
+    const { currentUser, comment, condensed, lastCommentId, forceSingleLine, shortform, nestingLevel } = this.props
     const mostRecent = (!condensed || (lastCommentId === comment._id))
     const lowKarmaOrCondensed = (comment.baseScore < 10 || condensed)
+    const shortformAndTop = (nestingLevel === 1) && shortform
     
     if (forceSingleLine)
       return true;
@@ -113,7 +119,8 @@ class CommentsNode extends Component {
     return (
       currentUser?.beta &&
       lowKarmaOrCondensed &&
-      !(mostRecent && condensed)
+      !(mostRecent && condensed) &&
+      !(shortformAndTop)
     )
   }
 
@@ -188,10 +195,11 @@ class CommentsNode extends Component {
   }
 
   render() {
+  render() {
     const { comment, children, nestingLevel=1, highlightDate, editMutation, post,
       muiTheme, router, postPage, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments,
-      loadChildrenSeparately } = this.props;
+      loadChildrenSeparately, shortform } = this.props;
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList } = Components
 
@@ -232,6 +240,7 @@ class CommentsNode extends Component {
         [classes.answerLeafComment]: !(children && children.length),
         [classes.isSingleLine]: this.isSingleLine(),
         [classes.commentHidden]: hiddenReadComment,
+        [classes.shortformTop]: shortform && (nestingLevel===1)
       }
     )
 

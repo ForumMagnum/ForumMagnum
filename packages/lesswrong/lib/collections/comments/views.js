@@ -273,7 +273,7 @@ Comments.addView('shortform', function (terms) {
       parentCommentId: viewFieldNullOrMissing,
       ...timeRange
     },
-    options: {sort: {postedAt: -1}}
+    options: {sort: {lastSubthreadActivity: -1, postedAt: -1}}
   };
 });
 
@@ -287,4 +287,14 @@ Comments.addView('repliesToCommentThread', function (terms) {
 });
 
 // Will be used for experimental shortform display on AllPosts page
-ensureIndex(Comments, {shortform:1, postedAt:1, baseScore:1});
+ensureIndex(Comments, {shortform:1, topLevelCommentId: 1, lastSubthreadActivity:1, postedAt: 1, baseScore:1});
+
+Comments.addView('shortformLatestChildren', function (terms) {
+  return {
+    selector: { topLevelCommentId: terms.comment._id} ,
+    options: {sort: {postedAt: -1}, limit: 3}
+  };
+});
+
+// Will be used for experimental shortform display on AllPosts page
+ensureIndex(Comments, { topLevelCommentId: 1, postedAt: 1, baseScore:1});

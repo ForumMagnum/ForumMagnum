@@ -85,16 +85,6 @@ $lw-green: #588f27;
     margin-right: 5px;
   }
 
-  .comments-item-origin {
-    display: inline-block;
-    color: rgba(0,0,0,0.4);
-  }
-  .comments-item-origin:hover {
-    .comments-item-date {
-      color: rgba(0,0,0,0.3);
-    }
-    color: rgba(0,0,0,0.3);
-  }
   a:hover, a:active {
     text-decoration: none;
     color: rgba(0,0,0,0.3) !important;
@@ -212,21 +202,6 @@ $lw-green: #588f27;
 .recent-comments-node {
   margin:0;
   width:100%;
-
-  .recent-comments-show-parent {
-    font-size:12px !important;
-    margin-right:5px;
-    cursor:pointer;
-    transform: rotate(90deg);
-    color:rgba(0,0,0,.75);
-    &.active {
-      color:rgba(0,0,0,.3) !important;
-    }
-
-    @include max-small() {
-      padding:10px;
-    }
-  }
 
   &.loading {
     min-height:80px;

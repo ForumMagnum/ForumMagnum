@@ -90,6 +90,7 @@ import '../components/users/UsersSingle.jsx';
 import '../components/users/UsersEmailVerification.jsx';
 import '../components/users/EmailConfirmationRequiredCheckbox.jsx';
 import '../components/users/LoginPage.jsx';
+import '../components/users/LoginPopupButton.jsx';
 import '../components/users/LoginPopup.jsx';
 import '../components/users/KarmaChangeNotifier.jsx';
 import '../components/users/KarmaChangeNotifierSettings.jsx';
@@ -191,6 +192,7 @@ if (getSetting('hasEvents', true)) {
 // comments
 
 import '../components/comments/CommentsItem/CommentsItem.jsx';
+import '../components/comments/CommentsItem/CommentUserName.jsx';
 import '../components/comments/CommentsItem/RetractCommentMenuItem.jsx';
 import '../components/comments/CommentsItem/MoveToAnswersMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromPostMenuItem.jsx';
@@ -207,9 +209,12 @@ import '../components/comments/CommentsItem/CommentDeletedMetadata.jsx';
 import '../components/comments/CommentsItem/CommentBody.jsx';
 import '../components/comments/CommentsItem/CommentsMenu.jsx';
 import '../components/comments/CommentsItem/CommentOutdatedWarning';
+import '../components/comments/CommentsItem/CommentsItemDate';
 
 import '../components/comments/recentDiscussionThread.jsx';
 import '../components/comments/recentDiscussionThreadsList.jsx';
+import '../components/comments/ShortformThread.jsx';
+import '../components/comments/ShortformThreadList.jsx';
 import '../components/comments/CantCommentExplanation.jsx';
 import '../components/comments/CommentsEditForm.jsx';
 import '../components/comments/CommentsListSection.jsx';
