@@ -1,4 +1,4 @@
-import { Components, registerComponent, getFragment, withMessages, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Comments } from '../../lib/collections/comments';
@@ -8,6 +8,7 @@ import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
+import withDialog from '../common/withDialog';
 
 const styles = theme => ({
   root: {
@@ -33,7 +34,7 @@ const styles = theme => ({
   }
 });
 
-const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, flash, currentUser}) => {
+const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, currentUser}) => {
   prefilledProps = {
     ...prefilledProps,
     postId: post._id,
@@ -41,14 +42,13 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
   };
 
   if (parentComment) {
-    prefilledProps = Object.assign(prefilledProps, {
+    prefilledProps = {
+      ...prefilledProps,
       parentCommentId: parentComment._id,
-      // if parent comment has a topLevelCommentId use it; if it doesn't then it *is* the top level comment
-      topLevelCommentId: parentComment.topLevelCommentId || parentComment._id
-    });
+    };
   }
 
-  const SubmitComponent = ({submitLabel = "Submit"}) => {
+  const SubmitComponent = withDialog(({submitLabel = "Submit", openDialog}) => {
     return <div className={classes.submit}>
       {(type === "reply") && <Button
         onClick={cancelCallback}
@@ -61,12 +61,10 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
         className={classNames(classes.formButton)}
         onClick={(ev) => {
           if (!currentUser) {
-            const isAF = getSetting('forumType') === 'AlignmentForum';
-            const message = (isAF
-              ? "Log in or go to LessWrong to submit your comment."
-              : "Log in to submit your comment."
-            );
-            flash({messageString: message});
+            openDialog({
+              componentName: "LoginPopup",
+              componentProps: {}
+            });
             ev.preventDefault();
           }
         }}
@@ -74,7 +72,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
         {submitLabel}
       </Button>
     </div>
-  }
+  });
 
   if (currentUser && !Comments.options.mutations.new.check(currentUser, prefilledProps)) {
     return <FormattedMessage id="users.cannot_comment"/>;
@@ -128,15 +126,12 @@ const FormGroupComponent = (props) => {
 
 
 CommentsNewForm.propTypes = {
-  post: PropTypes.object.isRequired,
+  post: PropTypes.object,
   type: PropTypes.string, // "comment" or "reply"
   parentComment: PropTypes.object, // if reply, the comment being replied to
-  topLevelCommentId: PropTypes.string, // if reply
   successCallback: PropTypes.func, // a callback to execute when the submission has been successful
   cancelCallback: PropTypes.func,
-  router: PropTypes.object,
-  flash: PropTypes.func,
   prefilledProps: PropTypes.object
 };
 
-registerComponent('CommentsNewForm', CommentsNewForm, withUser, withMessages, withStyles(styles), withErrorBoundary);
+registerComponent('CommentsNewForm', CommentsNewForm, withUser, withStyles(styles), withErrorBoundary);

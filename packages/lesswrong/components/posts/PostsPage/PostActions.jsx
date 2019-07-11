@@ -65,6 +65,16 @@ class PostActions extends Component {
       },
     })
   }
+  
+  handleMakeShortform = () => {
+    const { post, updateUser } = this.props;
+    updateUser({
+      selector: { _id: post.userId },
+      data: {
+        shortformFeedId: post._id
+      },
+    });
+  }
 
   handleMoveToAlignmentForum = () => {
     const { post, setAlignmentPostMutation } = this.props
@@ -120,6 +130,14 @@ class PostActions extends Component {
                  </Container>
                </div>
             }
+            
+            { !post.shortform &&
+               <div onClick={this.handleMakeShortform}>
+                 <Container>
+                   Set as user's Shortform Post
+                 </Container>
+               </div>
+            }
           </span>
         }
         <SuggestAlignment post={post} Container={Container}/>
@@ -143,19 +161,19 @@ class PostActions extends Component {
     )
   }
 }
-const withUpdateOptions = {
-  collection: Posts,
-  fragmentName: 'PostsList',
-};
-
-const setAlignmentOptions = {
-  fragmentName: "PostsList"
-}
-
-
 
 registerComponent('PostActions', PostActions,
   withStyles(styles, {name: "PostActions"}),
   withUser,
-  [withUpdate, withUpdateOptions],
-  [withSetAlignmentPost, setAlignmentOptions])
+  [withUpdate, {
+    collection: Posts,
+    fragmentName: 'PostsList',
+  }],
+  [withUpdate, {
+    collection: Users,
+    fragmentName: 'UsersCurrent'
+  }],
+  [withSetAlignmentPost, {
+    fragmentName: "PostsList"
+  }]
+)
