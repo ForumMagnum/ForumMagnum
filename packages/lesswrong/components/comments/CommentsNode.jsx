@@ -201,7 +201,7 @@ class CommentsNode extends Component {
     const { comment, children, nestingLevel=1, highlightDate, editMutation, post,
       muiTheme, router, postPage, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments,
-      loadChildrenSeparately, shortform, refetch } = this.props;
+      loadChildrenSeparately, shortform, refetch, parentCommentId } = this.props;
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList } = Components
 
@@ -259,6 +259,7 @@ class CommentsNode extends Component {
               ? <SingleLineComment comment={comment} nestingLevel={nestingLevel} />
               : <CommentsItem
                   truncated={this.isTruncated()}
+                  parentCommentId={parentCommentId}
                   parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
                   toggleCollapse={this.toggleCollapse}
                   key={comment._id}
@@ -273,6 +274,7 @@ class CommentsNode extends Component {
             {children && children.map(child =>
               <Components.CommentsNode child
                 comment={child.item}
+                parentCommentId={comment._id}
                 parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
                 nestingLevel={nestingLevel+1}
                 truncated={this.isTruncated()}
@@ -292,6 +294,7 @@ class CommentsNode extends Component {
                   view: "repliesToCommentThread",
                   topLevelCommentId: comment._id
                 }}
+                parentCommentId={comment._id}
                 post={post}
               />
             </div>

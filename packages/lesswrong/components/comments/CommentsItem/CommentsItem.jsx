@@ -155,7 +155,7 @@ class CommentsItem extends Component {
   }
 
   render() {
-    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, collapsed, scrollIntoView, isParentComment } = this.props
+    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, collapsed, scrollIntoView, isParentComment, parentCommentId } = this.props
 
     const { ShowParentComment, CommentsItemDate, CommentUserName } = Components
 
@@ -190,12 +190,17 @@ class CommentsItem extends Component {
 
         <div className={classes.body}>
           <div className={classes.meta}>
-            <ShowParentComment
-              comment={comment} nestingLevel={nestingLevel}
-              active={this.state.showParent}
-              onClick={this.toggleShowParent}
-              placeholderIfMissing={isParentComment}
-            />
+            { !this.state.showParent && parentCommentId!=comment.parentCommentId &&
+              <ShowParentComment
+                comment={comment} nestingLevel={nestingLevel}
+                active={this.state.showParent}
+                onClick={this.toggleShowParent}
+                placeholderIfMissing={isParentComment}
+              />
+            }
+            { !this.state.showParent && !parentCommentId && !comment.parentCommentId && isParentComment &&
+              <div className={classes.usernameSpacing}>○</div>
+            }
             { (postPage || this.props.collapsed) && <a className={classes.collapse} onClick={this.props.toggleCollapse}>
               [<span>{this.props.collapsed ? "+" : "-"}</span>]
             </a>
