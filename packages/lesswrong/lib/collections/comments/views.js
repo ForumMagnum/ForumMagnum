@@ -262,7 +262,7 @@ Comments.addView('topShortform', function (terms) {
   const timeRange = ((terms.before || terms.after)
     ? { postedAt: {
       ...(terms.before && {$lt: new Date(terms.before)}),
-      ...(terms.after && {$gt: new Date(terms.after)})
+      ...(terms.after && {$gte: new Date(terms.after)})
     } }
     : null
   );
