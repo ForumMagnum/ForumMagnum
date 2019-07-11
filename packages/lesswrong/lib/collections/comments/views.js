@@ -302,7 +302,7 @@ ensureIndex(Comments, {shortform:1, topLevelCommentId: 1, lastSubthreadActivity:
 Comments.addView('shortformLatestChildren', function (terms) {
   return {
     selector: { topLevelCommentId: terms.comment._id} ,
-    options: {sort: {postedAt: -1}, limit: 3}
+    options: {sort: {postedAt: -1}, limit: 500}
   };
 });
 

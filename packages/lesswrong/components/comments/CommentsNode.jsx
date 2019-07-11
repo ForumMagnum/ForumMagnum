@@ -76,7 +76,8 @@ const styles = theme => ({
   },
   shortformTop: {
     '&&': {
-      marginBottom: theme.spacing.unit*4
+      marginTop: theme.spacing.unit*4,
+      marginBottom: 0
     }
   },
   children: {

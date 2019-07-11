@@ -7,7 +7,7 @@ const ShortformPage = () => {
   return (
     <SingleColumnSection>
       <SectionTitle title="Shortform Content [Beta]"/>
-      <ShortformThreadList terms={{view: 'shortform', limit:20}} />
+      <ShortformThreadList terms={{view: 'shortform', limit:20, testLimit:30}} />
     </SingleColumnSection>
   )
 }

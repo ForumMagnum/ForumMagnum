@@ -100,6 +100,7 @@ const styles = (theme) => ({
     },
     '&:hover': {
       opacity: 1,
+      overflow: "unset",
     }
   },
   author: {
@@ -318,7 +319,7 @@ class PostsItem2 extends PureComponent {
       showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true,
       defaultToShowUnreadComments=false, dismissRecommendation } = this.props
     const { showComments } = this.state
-    const { PostsItemComments, PostsItemKarma, PostsItemTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
+    const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
 
     const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -353,7 +354,7 @@ class PostsItem2 extends PureComponent {
             </PostsItem2MetaInfo>
 
             <Link to={postLink} className={classes.title}>
-              <PostsItemTitle post={post} postItem2 expandOnHover={!renderComments} read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
+              <PostsTitle post={post} expandOnHover={!renderComments} read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
             </Link>
 
             {(resumeReading?.sequence || resumeReading?.collection) &&
