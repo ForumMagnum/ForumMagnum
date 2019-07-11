@@ -222,8 +222,7 @@ import '../components/comments/CommentsList.jsx';
 import '../components/comments/CommentsNode.jsx';
 import '../components/comments/CommentsViews.jsx';
 import '../components/comments/RecentComments.jsx';
-import '../components/comments/RecentCommentsItem.jsx';
-import '../components/comments/RecentCommentsSingle.jsx';
+import '../components/comments/ParentCommentSingle.jsx';
 import '../components/comments/ModerationGuidelines/ModerationGuidelinesBox.jsx';
 import '../components/comments/ModerationGuidelines/ModerationGuidelinesEditForm.jsx'
 import '../components/comments/LastVisitList.jsx'

@@ -78,7 +78,10 @@ const styles = theme => ({
     '&&': {
       marginBottom: theme.spacing.unit*4
     }
-  }
+  },
+  children: {
+    position: "relative"
+  },
 })
 
 class CommentsNode extends Component {
@@ -198,7 +201,7 @@ class CommentsNode extends Component {
     const { comment, children, nestingLevel=1, highlightDate, editMutation, post,
       muiTheme, router, postPage, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments,
-      loadChildrenSeparately, shortform } = this.props;
+      loadChildrenSeparately, shortform, refetch } = this.props;
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList } = Components
 
@@ -243,8 +246,8 @@ class CommentsNode extends Component {
       }
     )
 
-    const passedThroughItemProps = { post, postPage, comment, editMutation, nestingLevel, showPostTitle, collapsed }
-    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, editMutation, condensed, hideReadComments}
+    const passedThroughItemProps = { post, postPage, comment, editMutation, nestingLevel, showPostTitle, collapsed, refetch }
+    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, editMutation, condensed, hideReadComments, refetch }
 
     return (
         <div className={nodeClass}
@@ -264,10 +267,16 @@ class CommentsNode extends Component {
                 />
             }
           </div>}
+<<<<<<< HEAD
           
           {!collapsed && children && children.length>0 && <div className="comments-children">
             <div className={classes.parentScroll} onClick={this.scrollIntoView}/>
             {children.map(child =>
+=======
+          {!collapsed && <div className={classes.children}>
+            <div className={classes.parentScroll} onClick={this.scrollIntoView}></div>
+            {children && children.map(child =>
+>>>>>>> 78dc42721780529a106d3fc6119663c709325b13
               <Components.CommentsNode child
                 comment={child.item}
                 parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
