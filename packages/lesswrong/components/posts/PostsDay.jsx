@@ -58,7 +58,7 @@ const PostsDay = ({ date, posts, results: comments, totalCount, loadMore, hideIf
       {posts?.map((post, i) =>
         <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
       
-      {currentUser?.beta && comments?.length > 0 &&
+      {comments?.length > 0 &&
         <div className={classes.shortformGroup}>
           <div className={classes.shortformTag}>
             Shortform [Beta]
