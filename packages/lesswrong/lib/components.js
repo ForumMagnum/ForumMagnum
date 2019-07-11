@@ -125,7 +125,6 @@ import '../components/posts/DeleteDraft.jsx';
 import '../components/posts/MoveToDraft.jsx';
 import '../components/posts/SuggestAlignment.jsx';
 import '../components/posts/PostsItemMeta.jsx';
-import '../components/posts/PostsItem.jsx';
 import '../components/posts/PostsItem2.jsx';
 import '../components/posts/PostsItem2MetaInfo.jsx';
 import '../components/posts/PostsItemTitle.jsx';
@@ -141,8 +140,7 @@ import '../components/posts/PostsPageAdminActions.jsx';
 import '../components/posts/PostsSingleSlug.jsx';
 import '../components/posts/PostsSingleRoute.jsx';
 import '../components/posts/PostsSingleSlugWrapper.jsx';
-import '../components/posts/PostsList.jsx';
-import '../components/posts/PostsList2.jsx'; // Should replace PostsList eventually
+import '../components/posts/PostsList2.jsx';
 import '../components/posts/PostsDay.jsx';
 import '../components/posts/PostsCommentsThread.jsx';
 import '../components/posts/PostsNewForm.jsx';
