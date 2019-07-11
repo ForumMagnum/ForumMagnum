@@ -79,6 +79,16 @@ class PostActions extends Component {
       },
     })
   }
+  
+  handleMakeShortform = () => {
+    const { post, updateUser } = this.props;
+    updateUser({
+      selector: { _id: post.userId },
+      data: {
+        shortformFeedId: post._id
+      },
+    });
+  }
 
   handleMoveToAlignmentForum = () => {
     const { post, setAlignmentPostMutation } = this.props
@@ -147,6 +157,14 @@ class PostActions extends Component {
                  </MenuItem>
                </div>
             }
+            
+            { !post.shortform &&
+               <div onClick={this.handleMakeShortform}>
+                 <Container>
+                   Set as user's Shortform Post
+                 </Container>
+               </div>
+            }
           </span>
         }
         <SuggestAlignment post={post}/>
@@ -178,11 +196,15 @@ registerComponent('PostActions', PostActions,
     collection: Posts,
     fragmentName: 'PostsList',
   }],
-  [withSetAlignmentPost, {
-    fragmentName: "PostsList"
-  }],
   [withMutation, {
     name: 'markAsReadOrUnread',
     args: {postId: 'String', isRead: 'Boolean'},
+  }],
+  [withUpdate, {
+    collection: Users,
+    fragmentName: 'UsersCurrent'
+  }],
+  [withSetAlignmentPost, {
+    fragmentName: "PostsList"
   }]
 );

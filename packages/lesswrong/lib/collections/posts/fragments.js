@@ -76,6 +76,7 @@ registerFragment(`
     hideAuthor
     moderationStyle
     submitToFrontpage
+    shortform
   }
 `);
 

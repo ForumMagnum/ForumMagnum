@@ -91,6 +91,7 @@
     "intl-locales-supported": "^1.0.0",
     "jsdom": "^13.1.0",
     "juice": "^1.11.0",
+    "logrocket": "^1.0.0",
     "lolex": "^3.0.0",
     "mailchimp": "^1.1.6",
     "markdown-it": "^8.4.2",

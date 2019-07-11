@@ -1,12 +1,12 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment-timezone';
-import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Posts } from '../../lib/collections/posts';
 import { withCurrentUser, withList, getSetting, Components, registerComponent } from 'meteor/vulcan:core';
 import withTimezone from '../common/withTimezone';
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
+import classNames from 'classnames';
 
 const styles = theme => ({
   loading: {
@@ -18,8 +18,6 @@ const styles = theme => ({
   }
 })
 
-
-import classNames from 'classnames';
 class PostsDailyList extends PureComponent {
 
   constructor(props) {
@@ -34,7 +32,7 @@ class PostsDailyList extends PureComponent {
       //loading: true,
     };
   }
-
+ 
   // intercept prop change and only show more days once data is done loading
   UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.networkStatus === 2) {
@@ -49,11 +47,8 @@ class PostsDailyList extends PureComponent {
   }
 
   // Return a date string for each date which should have a section. This
-  // includes all dates in the range, *except* that if the newest date has no
-  // posts, it's omitted. (Because the end of the range is some fraction of a
-  // day into the future, which would otherwise sometimes result in an awkward
-  // empty slot for tomorrow, depending on the current time of day.)
-  getDateRange(after, before, posts) {
+  // includes all dates in the range
+  getDateRange(after, before) {
     const mAfter = moment.utc(after, 'YYYY-MM-DD');
     const mBefore = moment.utc(before, 'YYYY-MM-DD');
     const daysCount = mBefore.diff(mAfter, 'days') + 1;
@@ -62,12 +57,7 @@ class PostsDailyList extends PureComponent {
         .tz(this.props.timezone)
         .format('YYYY-MM-DD')
     );
-
-    if(this.getDatePosts(posts, range[0]).length == 0) {
-      return _.rest(range);
-    } else {
-      return range;
-    }
+    return range;
   }
 
   getDatePosts(posts, date) {
@@ -104,30 +94,10 @@ class PostsDailyList extends PureComponent {
     });
   }
 
-  // variant 2: only load new data (need to disable polling)
-  loadMoreDaysInc(e) {
-    e.preventDefault();
-    const numberOfDays = getSetting('forum.numberOfDays', 5);
-    const loadMoreAfter = moment(this.state.after, 'YYYY-MM-DD').subtract(numberOfDays, 'days').format('YYYY-MM-DD');
-    const loadMoreBefore = moment(this.state.after, 'YYYY-MM-DD').subtract(1, 'days').format('YYYY-MM-DD');
-
-    this.props.loadMoreInc({
-      ...this.props.terms,
-      before: loadMoreBefore,
-      after: loadMoreAfter,
-    });
-
-    this.setState((prevState) => ({
-        days: prevState.days + this.props.increment,
-        after: loadMoreAfter,
-      })
-    );
-  }
-
   render() {
     const { dimWhenLoading, loading, loadingMore, classes, currentUser, networkStatus } = this.props
     const posts = this.props.results;
-    const dates = this.getDateRange(this.state.afterLoaded, this.state.before, posts);
+    const dates = this.getDateRange(this.state.afterLoaded, this.state.before);
     const { Loading, PostsDay } = Components
 
     const dim = dimWhenLoading && networkStatus !== 7
@@ -137,20 +107,26 @@ class PostsDailyList extends PureComponent {
     } else {
       return (
         <div className={classNames({[classes.loading]: dim})}>
-          { loading && <Loading />}
+          {loading && <Loading />}
           {dates.map((date, index) =>
             <PostsDay key={date.toString()}
               date={moment(date)}
               posts={this.getDatePosts(posts, date)}
               networkStatus={networkStatus}
               currentUser={currentUser}
+              hideIfEmpty={index==0}
+              terms={{
+                view: "topShortform",
+                before: moment(date).add(1, 'days').toString(),
+                after: moment(date).toString().toString()
+              }}
             />
           )}
           {loadingMore ?
             <Loading />
             :
             <Typography variant="body1" className={classes.loadMore} onClick={this.loadMoreDays}>
-              <a><FormattedMessage id="posts.load_more_days"/></a>
+              <a>Load More Days</a>
             </Typography>
           }
         </div>
@@ -170,12 +146,13 @@ PostsDailyList.defaultProps = {
   increment: getSetting('forum.numberOfDays', 5)
 };
 
-const options = {
-  collection: Posts,
-  queryName: 'postsDailyListQuery',
-  fragmentName: 'PostsList',
-  limit: 0,
-  ssr: true,
-};
-
-registerComponent('PostsDailyList', PostsDailyList, withCurrentUser, [withList, options], withTimezone, withStyles(styles, {name: "PostsDailyList"}));
+registerComponent('PostsDailyList', PostsDailyList,
+  [withList, {
+    collection: Posts,
+    queryName: 'postsDailyListQuery',
+    fragmentName: 'PostsList',
+    limit: 0,
+    ssr: true,
+  }],
+  withCurrentUser, withTimezone, withStyles(styles, {name: "PostsDailyList"})
+);

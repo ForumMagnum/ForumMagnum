@@ -1,4 +1,5 @@
 import './PostsPage.jsx'
+import './PostsPageDate.jsx'
 import './PostsAuthors.jsx'
 import './PostsPageTitle.jsx'
 import './PostsTopSequencesNav.jsx'

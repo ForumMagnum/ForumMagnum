@@ -69,6 +69,7 @@ extendFragment('UsersCurrent', `
   hideIntercom
   currentFrontpageFilter
   allPostsView
+  allPostsSorting
   allPostsFilter
   allPostsShowLowKarma
   allPostsOpenSettings
@@ -96,8 +97,6 @@ extendFragment('UsersCurrent', `
   shortformFeedId
   viewUnreviewedComments
   sunshineShowNewUserContent
-  # TODO: Remove this after april fools
-  blockedGPT2
   recommendationSettings
 `);
 
@@ -333,7 +332,8 @@ registerFragment(`
     htmlBio
     postCount
     commentCount
-    afPostCount 
+    sequenceCount
+    afPostCount
     afCommentCount
     beta
     spamRiskScore
@@ -356,6 +356,7 @@ registerFragment(`
     frontpagePostCount
     # example-forum
     commentCount
+    sequenceCount
     afCommentCount
     sequenceCount
     afSequenceCount
@@ -434,9 +435,6 @@ registerFragment(`
     # Karma Settings
     karmaChangeLastOpened
     karmaChangeNotifierSettings
-
-    # TODO: Remove this after april fools
-    blockedGPT2
     
     recommendationSettings
   }
