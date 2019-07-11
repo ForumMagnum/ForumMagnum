@@ -120,7 +120,6 @@ class CommentsNode extends Component {
       return true;
     
     return (
-      currentUser?.beta &&
       lowKarmaOrCondensed &&
       !(mostRecent && condensed) &&
       !(shortformAndTop)
