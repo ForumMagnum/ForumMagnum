@@ -27,6 +27,9 @@ const ShortformThreadList = ({ classes, results, loading, loadMore, networkStatu
 
   return (
     <div>
+        {/* <Typography variant="body2" className={classes.title}>
+          Note: shows the most recent 3 comments on each shortform post
+        </Typography> */}
         <CommentsNewForm 
           post={{_id:shortformFeedId}} 
           prefilledProps={{shortform: true}}
@@ -34,9 +37,6 @@ const ShortformThreadList = ({ classes, results, loading, loadMore, networkStatu
           successCallback={() => refetch()}
           type="comment" 
         />
-        <Typography variant="body2" className={classes.title}>
-          Note: shows the most recent 3 comments on each shortform post
-        </Typography>
         {loading || !results ? <Loading /> :
         <div> 
           {results.map((comment, i) => {
