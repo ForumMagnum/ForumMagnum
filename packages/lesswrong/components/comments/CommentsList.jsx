@@ -88,6 +88,7 @@ class CommentsList extends Component {
                 condensed={condensed}
                 hideReadComments={hideReadComments}
                 shortform={post.shortform}
+                child={defaultNestingLevel > 1}
               />)
             }
           </div>
