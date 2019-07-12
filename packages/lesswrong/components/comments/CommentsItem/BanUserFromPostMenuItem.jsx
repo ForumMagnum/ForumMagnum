@@ -39,7 +39,7 @@ class BanUserFromPostMenuItem extends PureComponent {
   }
 }
 
-// TODO - fix RecentCommentsItem so it doesn't throw an error due to the requiredProps, and then uncomment this
+// TODO - fix ParentCommentItem so it doesn't throw an error due to the requiredProps, and then uncomment this
 
 BanUserFromPostMenuItem.propTypes = {
   post: PropTypes.object.isRequired,

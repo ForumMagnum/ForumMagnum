@@ -11,7 +11,7 @@ import { QueryLink } from '../../lib/reactRouterWrapper.js'
 import withUser from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
-import { views as defaultViews } from './AllPostsPage.jsx'
+import { sortings as defaultSortings } from './AllPostsPage.jsx'
 
 const FILTERS_ALL = {
   "AlignmentForum": [
@@ -147,13 +147,13 @@ class PostsListSettings extends Component {
     }
   }
 
-  setView = (view) => {
+  setSortedBy = (sortedBy) => {
     const { updateUser, currentUser, persistentSettings } = this.props
     if (currentUser && persistentSettings) {
       updateUser({
         selector: { _id: currentUser._id},
         data: {
-          allPostsView: view,
+          allPostsSorting: sortedBy,
         },
       })
     }
@@ -173,7 +173,7 @@ class PostsListSettings extends Component {
 
 
   render () {
-    const { classes, hidden, currentView, currentFilter, currentShowLowKarma, views = defaultViews } = this.props
+    const { classes, hidden, currentSorting, currentFilter, currentShowLowKarma, sortings = defaultSortings } = this.props
     const { MetaInfo } = Components
 
     return (
@@ -182,15 +182,15 @@ class PostsListSettings extends Component {
           <MetaInfo className={classes.selectionTitle}>
             Sorted by:
           </MetaInfo>
-          {Object.entries(views).map(([name, label]) => {
+          {Object.entries(sortings).map(([name, label]) => {
             return (
               <QueryLink
                 key={name}
-                onClick={() => this.setView(name)}
-                query={{view: name}}
+                onClick={() => this.setSortedBy(name)}
+                query={{sortedBy: name}}
                 merge
               >
-                <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentView === name})}>
+                <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentSorting === name})}>
                   { label }
                 </MetaInfo>
               </QueryLink>

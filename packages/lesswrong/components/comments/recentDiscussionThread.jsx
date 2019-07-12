@@ -13,6 +13,7 @@ import { unflattenComments } from '../../lib/modules/utils/unflatten';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import withRecordPostView from '../common/withRecordPostView';
+import { withRouter } from '../../lib/reactRouterWrapper.js';
 
 import { withStyles } from '@material-ui/core/styles';
 import { postExcerptFromHTML } from '../../lib/editor/ellipsize'
@@ -110,10 +111,9 @@ class RecentDiscussionThread extends PureComponent {
   }
 
   render() {
-    const { post, postCount, results, loading, updateComment, currentUser, classes } = this.props
+    const { post, postCount, results, loading, updateComment, currentUser, classes, data: {refetch} } = this.props
     const { readStatus, showHighlight, markedAsVisitedAt } = this.state
-
-    const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, Loading } = Components
+    const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle, Loading } = Components
 
     const lastCommentId = results && results[0]?._id
     const nestedComments = unflattenComments(results);
@@ -140,7 +140,7 @@ class RecentDiscussionThread extends PureComponent {
         <div className={classes.postItem}>
 
           <Link className={classes.title} to={Posts.getPageUrl(post)}>
-            {post.title}
+            <PostsTitle wrap post={post} />
           </Link>
 
           <div className={classes.threadMeta} onClick={this.showHighlight}>
@@ -165,27 +165,26 @@ class RecentDiscussionThread extends PureComponent {
               </div>
           }
           <div className={classes.commentsList}>
-            <div className={"comments-items"}>
-              {nestedComments.map(comment =>
-                <div key={comment.item._id}>
-                  <CommentsNode
-                    startThreadTruncated={true}
-                    nestingLevel={1}
-                    lastCommentId={lastCommentId}
-                    currentUser={currentUser}
-                    comment={comment.item}
-                    markAsRead={this.markAsRead}
-                    highlightDate={lastVisitedAt}
-                    //eslint-disable-next-line react/no-children-prop
-                    children={comment.children}
-                    key={comment.item._id}
-                    updateComment={updateComment}
-                    post={post}
-                    condensed
-                  />
-                </div>
-              )}
-            </div>
+            {nestedComments.map(comment =>
+              <div key={comment.item._id}>
+                <CommentsNode
+                  startThreadTruncated={true}
+                  nestingLevel={1}
+                  lastCommentId={lastCommentId}
+                  currentUser={currentUser}
+                  comment={comment.item}
+                  markAsRead={this.markAsRead}
+                  highlightDate={lastVisitedAt}
+                  //eslint-disable-next-line react/no-children-prop
+                  children={comment.children}
+                  key={comment.item._id}
+                  updateComment={updateComment}
+                  refetch={refetch}
+                  post={post}
+                  condensed
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -211,5 +210,6 @@ registerComponent(
   withUser,
   withStyles(styles, { name: "RecentDiscussionThread" }),
   withRecordPostView,
-  withErrorBoundary
+  withErrorBoundary,
+  withRouter
 );

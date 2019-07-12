@@ -42,11 +42,10 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
   };
 
   if (parentComment) {
-    prefilledProps = Object.assign(prefilledProps, {
+    prefilledProps = {
+      ...prefilledProps,
       parentCommentId: parentComment._id,
-      // if parent comment has a topLevelCommentId use it; if it doesn't then it *is* the top level comment
-      topLevelCommentId: parentComment.topLevelCommentId || parentComment._id
-    });
+    };
   }
 
   const SubmitComponent = withDialog(({submitLabel = "Submit", openDialog}) => {
@@ -109,13 +108,11 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
 
 
 CommentsNewForm.propTypes = {
-  post: PropTypes.object.isRequired,
+  post: PropTypes.object,
   type: PropTypes.string, // "comment" or "reply"
   parentComment: PropTypes.object, // if reply, the comment being replied to
-  topLevelCommentId: PropTypes.string, // if reply
   successCallback: PropTypes.func, // a callback to execute when the submission has been successful
   cancelCallback: PropTypes.func,
-  router: PropTypes.object,
   prefilledProps: PropTypes.object
 };
 

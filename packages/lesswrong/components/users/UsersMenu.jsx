@@ -90,7 +90,7 @@ class UsersMenu extends PureComponent {
             {showNewShortformButton &&
               <Link to={`/posts/${currentUser.shortformFeedId}`}>
                 {/* TODO: set up a proper link url */}
-                <MenuItem>Shortform Feed</MenuItem>
+                <MenuItem>Shortform</MenuItem>
               </Link>
             }
             { getSetting('forumType') === 'AlignmentForum' && !isAfMember && <MenuItem onClick={() => openDialog({componentName: "AFApplicationForm"})}>

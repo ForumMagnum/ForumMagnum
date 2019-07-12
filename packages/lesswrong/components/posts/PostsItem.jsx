@@ -381,7 +381,7 @@ class PostsItem extends Component {
 
             <div className={classes.content}>
               <Link to={this.getPostLink()}>
-                <Components.PostsItemTitle post={post} sticky={isSticky(post, terms)} read={lastVisitedAt || this.state.readStatus}/>
+                <Components.PostsTitle post={post} sticky={isSticky(post, terms)} read={lastVisitedAt || this.state.readStatus}/>
               </Link>
               <div onClick={this.toggleHighlight} className={classes.meta}>
                 <Components.PostsItemMeta post={post} read={lastVisitedAt || this.state.readStatus}/>

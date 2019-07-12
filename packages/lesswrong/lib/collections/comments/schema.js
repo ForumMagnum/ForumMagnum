@@ -172,6 +172,21 @@ const schema = {
     optional: true,
     hidden: true,
   },
+  
+  
+  latestChildren: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[Comment]',
+    viewableBy: ['guests'],
+    resolver: async (comment, args, { Comments }) => {
+      const params = Comments.getParameters({view:"shortformLatestChildren", comment: comment})
+      return await Comments.find(params.selector, params.options).fetch()
+    }
+  }),
+  'latestChildren.$': {
+    type: String,
+    optional: true,
+  },
 
   chosenAnswer: {
     type: Boolean,
@@ -188,9 +203,8 @@ const schema = {
     optional: true,
     hidden: true,
     canRead: ['guests'],
-    insertableBy: ['admins'],
-    editableBy: ['admins'],
-    
+    canCreate: ['members', 'admins'],
+    canUpdate: [Users.owns, 'admins'],
     ...denormalizedField({
       needsUpdate: data => ('postId' in data),
       getValue: async (comment) => {
@@ -199,6 +213,14 @@ const schema = {
         return !!post.shortform;
       }
     }),
+  },
+
+  lastSubthreadActivity: {
+    type: Date,
+    denormalized: true,
+    optional: true,
+    viewableBy: ['guests'],
+    onInsert: (document, currentUser) => new Date(),
   },
 
   // The semver-style version of the post that this comment was made against
