@@ -159,6 +159,8 @@ import '../components/posts/ReportPostMenuItem.jsx';
 import '../components/posts/PostsItemDate.jsx';
 
 import '../components/shortform/ShortformPage.jsx';
+import '../components/shortform/ShortformThread.jsx';
+import '../components/shortform/ShortformThreadList.jsx';
 import '../components/shortform/RepliesToCommentList.jsx';
 
 import '../components/votes/VoteButton.jsx';
@@ -213,8 +215,6 @@ import '../components/comments/CommentsItem/CommentsItemDate';
 
 import '../components/comments/recentDiscussionThread.jsx';
 import '../components/comments/recentDiscussionThreadsList.jsx';
-import '../components/comments/ShortformThread.jsx';
-import '../components/comments/ShortformThreadList.jsx';
 import '../components/comments/CantCommentExplanation.jsx';
 import '../components/comments/CommentsEditForm.jsx';
 import '../components/comments/CommentsListSection.jsx';
