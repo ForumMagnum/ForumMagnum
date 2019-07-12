@@ -19,11 +19,9 @@ export function parseQuery(location) {
 // Given the props of a component which has withRouter, return a subtitle for
 // the page.
 export function getHeaderSubtitleDataFromRouterProps(props) {
-  const routeName = ""; //TODO
-  const currentRoute = null; //TODO
   const query = parseQuery(props.location);
   const params = props.match.params;
   const client = props.client;
-  const { subtitleText = currentRoute?.title || "", subtitleLink = "" } = getHeaderSubtitleData(routeName, query, params, client) || {};
+  const { subtitleText = props.currentRoute?.title || "", subtitleLink = "" } = getHeaderSubtitleData(props.currentRoute?.routeName, query, params, client) || {};
   return { subtitleText, subtitleLink };
 }
