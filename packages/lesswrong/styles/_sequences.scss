@@ -132,14 +132,6 @@
   }
 }
 
-.sequences-editor-title-wrapper {
-  position: absolute;
-  bottom: 5px;
-  left: 50%;
-  z-index: 1;
-  width:0;
-}
-
 .sequences-title, .sequences-editor-title {
   position: relative;
   line-height: 1.1;
@@ -178,10 +170,6 @@
   }
 }
 @include mui-breakpoint-down-sm {
-  .sequences-editor-title-wrapper {
-    left:0;
-    width:100%;
-  }
   .sequences-title, .sequences-editor-title {
     left: 0;
     width:100%;

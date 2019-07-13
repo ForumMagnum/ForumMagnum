@@ -15,13 +15,25 @@ const styles = theme => ({
   },
   imageScrim: {
     ...sequencesImageScrim(theme)
-  }
+  },
+  titleWrapper: {
+    position: "absolute",
+    bottom: 5,
+    left: "50%",
+    zIndex: 1,
+    width: 0,
+    
+    [theme.breakpoints.down('sm')]: {
+      left: 0,
+      width: "100%",
+    },
+  },
 });
 
 const EditSequenceTitle = ({classes, inputProperties, placeholder}) => {
   return <div className={classes.root}>
     <div className={classes.imageScrim}/>
-    <div className="sequences-editor-title-wrapper">
+    <div className={classes.titleWrapper}>
       <Textarea
         className="sequences-editor-title"
         {...inputProperties}
