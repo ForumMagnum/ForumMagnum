@@ -132,7 +132,7 @@
   }
 }
 
-.sequences-title, .sequences-editor-title {
+.sequences-editor-title {
   position: relative;
   line-height: 1.1;
   left: -275px;
@@ -170,7 +170,7 @@
   }
 }
 @include mui-breakpoint-down-sm {
-  .sequences-title, .sequences-editor-title {
+  .sequences-editor-title {
     left: 0;
     width:100%;
     text-align:center;
