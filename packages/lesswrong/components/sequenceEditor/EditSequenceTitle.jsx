@@ -28,6 +28,32 @@ const styles = theme => ({
       width: "100%",
     },
   },
+  title: {
+    position: "relative",
+    lineHeight: 1.1,
+    left: -275,
+    width: 650,
+    fontSize: "36px",
+    color: "white",
+    fontVariant: "small-caps",
+    zIndex: 2,
+    
+    height: "1em",
+    resize: "none",
+    backgroundColor: "transparent",
+    boxShadow: "none",
+    overflow: "hidden",
+    
+    "&::placeholder": {
+      color: "rgba(255,255,255,.5)",
+    },
+    
+    [theme.breakpoints.down('sm')]: {
+      left: 0,
+      width: "100%",
+      textAlign: "center",
+    },
+  }
 });
 
 const EditSequenceTitle = ({classes, inputProperties, placeholder}) => {
@@ -35,7 +61,7 @@ const EditSequenceTitle = ({classes, inputProperties, placeholder}) => {
     <div className={classes.imageScrim}/>
     <div className={classes.titleWrapper}>
       <Textarea
-        className="sequences-editor-title"
+        className={classes.title}
         {...inputProperties}
         placeholder={ placeholder }
         layout="elementOnly"

@@ -132,16 +132,6 @@
   }
 }
 
-.sequences-editor-title {
-  position: relative;
-  line-height: 1.1;
-  left: -275px;
-  width: 650px;
-  font-size: 36px;
-  color: white;
-  font-variant: small-caps;
-  z-index: 2;
-}
 .input-title .form-input-errors {
     background-color:rgba(0,0,0,0.25);;
     width: 100%;
@@ -159,23 +149,6 @@
     }
 }
 
-.sequences-editor-title {
-  height:1em;
-  resize:none;
-  background-color: transparent;
-  box-shadow: none;
-  overflow:hidden;
-  &::placeholder {
-    color:rgba(255,255,255,.5);
-  }
-}
-@include mui-breakpoint-down-sm {
-  .sequences-editor-title {
-    left: 0;
-    width:100%;
-    text-align:center;
-  }
-}
 
 .chapters-edit-form {
     width: 700px;
