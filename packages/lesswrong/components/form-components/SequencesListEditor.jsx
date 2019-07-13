@@ -3,22 +3,34 @@ import PropTypes from 'prop-types';
 import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  item: {
+    listStyle: "none",
+    position: "relative",
+    padding: 5,
+  },
+});
+
+const SortableSequenceItem = withStyles(styles, {name: "SortableSequenceItem"})(
+  // React sortable has constructors that don't work like normal constructors
+  //eslint-disable-next-line babel/new-cap
+  SortableElement(({sequenceId, currentUser, removeItem, classes}) =>
+    <li className={classes.item}>
+      <Components.SequencesListEditorItem documentId={sequenceId} currentUser={currentUser} removeItem={removeItem} />
+    </li>
+  )
+);
 
 // React sortable has constructors that don't work like normal constructors
 //eslint-disable-next-line babel/new-cap
-const SortableItem = SortableElement(({sequenceId, currentUser, removeItem}) =>
-  <li className="sequences-list-editor-item">
-    <Components.SequencesListEditorItem documentId={sequenceId} currentUser={currentUser} removeItem={removeItem} />
-  </li>
-);
-// React sortable has constructors that don't work like normal constructors
-//eslint-disable-next-line babel/new-cap
-const SortableList = SortableContainer(({items, currentUser, removeItem}) => {
+const SortableSequenceList = SortableContainer(({items, currentUser, removeItem}) => {
   if (items) {
     return (
       <div>
         {items.map((sequenceId, index) => (
-          <SortableItem key={`item-${index}`} removeItem={removeItem} index={index} sequenceId={sequenceId} currentUser={currentUser}/>
+          <SortableSequenceItem key={`item-${index}`} removeItem={removeItem} index={index} sequenceId={sequenceId} currentUser={currentUser}/>
         ))}
       </div>
     );
@@ -89,7 +101,7 @@ class SequencesListEditor extends Component {
 
   render() {
     return <div className="sequences-list-editor">
-      <SortableList items={this.state.sequenceIds} onSortEnd={this.onSortEnd} currentUser={this.props.currentUser} removeItem={this.removeSequenceId} shouldCancelStart={this.shouldCancelStart}/>
+      <SortableSequenceList items={this.state.sequenceIds} onSortEnd={this.onSortEnd} currentUser={this.props.currentUser} removeItem={this.removeSequenceId} shouldCancelStart={this.shouldCancelStart}/>
       <Components.SequencesSearchAutoComplete clickAction={this.addSequenceId}/>
     </div>
   }
