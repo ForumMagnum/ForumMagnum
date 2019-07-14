@@ -23,14 +23,9 @@ import { getSetting } from '../../modules/settings.js';
 
 /**
  * Called once on server creation
- * @param {*} currentContext
  */
 export const initContext = () => {
-  let context = {};
-  // merge with custom context
-  // TODO: deepmerge created an infinite loop here
-  context = _merge({}, context, GraphQLSchema.context);
-  return context;
+  return {...GraphQLSchema.context};
 };
 
 import Cookies from 'universal-cookie';
