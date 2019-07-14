@@ -124,10 +124,6 @@ export const onStart = () => {
     app: WebApp.connectHandlers,
     ...getApolloApplyMiddlewareOptions(),
   };
-  // this replace the previous syntax graphqlExpress(async req => { ... })
-  // this function takes the context, which contains the current request,
-  // and setup the options accordingly ({req}) => { ...; return options }
-  const context = computeContextFromReq();
 
   // define executableSchema
   initGraphQL();
@@ -140,7 +136,7 @@ export const onStart = () => {
       formatError,
       tracing: getSetting('apolloTracing', Meteor.isDevelopment),
       cacheControl: true,
-      context: ({ req }) => context(req),
+      context: ({ req }) => computeContextFromReq(req),
       ...getApolloServerOptions(),
     },
   });
@@ -152,5 +148,5 @@ export const onStart = () => {
     setupToolsMiddlewares(config);
   }
   // ssr
-  enableSSR({ computeContext: context });
+  enableSSR({ computeContext: computeContextFromReq });
 };

@@ -58,39 +58,34 @@ const generateDataLoaders = (context) => {
 
 
 // Returns a function called on every request to compute context
-export const computeContextFromReq = () => {
-  // create options given the current request
-  const handleReq = async req => {
-    const { headers } = req;
-    let context;
+export const computeContextFromReq = async (req) => {
+  const { headers } = req;
+  let context;
 
-    // eslint-disable-next-line no-unused-vars
-    let user = null;
+  // eslint-disable-next-line no-unused-vars
+  let user = null;
 
-    context = {...GraphQLSchema.context};
+  context = {...GraphQLSchema.context};
 
-    generateDataLoaders(context);
+  generateDataLoaders(context);
 
-    // note: custom default resolver doesn't currently work
-    // see https://github.com/apollographql/apollo-server/issues/716
-    // @options.fieldResolver = (source, args, context, info) => {
-    //   return source[info.fieldName];
-    // }
+  // note: custom default resolver doesn't currently work
+  // see https://github.com/apollographql/apollo-server/issues/716
+  // @options.fieldResolver = (source, args, context, info) => {
+  //   return source[info.fieldName];
+  // }
 
-    await setupAuthToken(context, req);
+  await setupAuthToken(context, req);
 
-    //add the headers to the context
-    context.headers = headers;
+  //add the headers to the context
+  context.headers = headers;
 
-    // if apiKey is present, assign "fake" currentUser with admin rights
-    if (headers.apikey && headers.apikey === getSetting('vulcan.apiKey')) {
-      context.currentUser = { isAdmin: true, isApiUser: true };
-    }
+  // if apiKey is present, assign "fake" currentUser with admin rights
+  if (headers.apikey && headers.apikey === getSetting('vulcan.apiKey')) {
+    context.currentUser = { isAdmin: true, isApiUser: true };
+  }
 
-    context.locale = getHeaderLocale(headers, context.currentUser && context.currentUser.locale);
+  context.locale = getHeaderLocale(headers, context.currentUser && context.currentUser.locale);
 
-    return context;
-  };
-
-  return handleReq;
+  return context;
 };
