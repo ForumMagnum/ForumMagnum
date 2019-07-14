@@ -25,13 +25,8 @@ import { getSetting } from '../../modules/settings.js';
  * Called once on server creation
  * @param {*} currentContext
  */
-export const initContext = currentContext => {
-  let context;
-  if (currentContext) {
-    context = { ...currentContext };
-  } else {
-    context = {};
-  }
+export const initContext = () => {
+  let context = {};
   // merge with custom context
   // TODO: deepmerge created an infinite loop here
   context = _merge({}, context, GraphQLSchema.context);
