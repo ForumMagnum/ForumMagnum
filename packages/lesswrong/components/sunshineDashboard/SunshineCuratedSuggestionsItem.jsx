@@ -14,7 +14,7 @@ class SunshineCuratedSuggestionsItem extends Component {
   handleCurate = () => {
     const { currentUser, post, updatePost } = this.props
     updatePost({
-      documentId: post._id,
+      selector: {_id: post._id},
       data: {
         reviewForCuratedUserId: currentUser._id,
         curatedDate: new Date(),
@@ -25,7 +25,7 @@ class SunshineCuratedSuggestionsItem extends Component {
   handleDisregardForCurated = () => {
     const { currentUser, post, updatePost } = this.props
     updatePost({
-      documentId: post._id,
+      selector: {_id: post._id},
       data: {
         reviewForCuratedUserId: currentUser._id,
       }
@@ -39,7 +39,7 @@ class SunshineCuratedSuggestionsItem extends Component {
       suggestUserIds.push(currentUser._id)
     }
     updatePost({
-      documentId: post._id,
+      selector: {_id: post._id},
       data: {suggestForCuratedUserIds:suggestUserIds}
     })
   }
@@ -51,7 +51,7 @@ class SunshineCuratedSuggestionsItem extends Component {
       suggestUserIds = _.without(suggestUserIds, currentUser._id);
     }
     updatePost({
-      documentId: post._id,
+      selector: {_id: post._id},
       data: {suggestForCuratedUserIds:suggestUserIds}
     })
   }

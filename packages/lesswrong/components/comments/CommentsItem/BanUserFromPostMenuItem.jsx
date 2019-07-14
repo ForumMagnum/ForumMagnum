@@ -21,7 +21,7 @@ class BanUserFromPostMenuItem extends PureComponent {
         bannedUserIds.push(commentUserId)
       }
       this.props.updateUser({
-        documentId: this.props.comment.postId,
+        selector: {_id: this.props.comment.postId},
         data: {bannedUserIds:bannedUserIds}
       }).then(()=>this.props.flash({messageString: `User ${this.props.comment.user.displayName} is now banned from commenting on ${this.props.post.title}`}))
     }

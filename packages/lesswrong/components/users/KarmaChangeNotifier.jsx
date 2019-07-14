@@ -180,7 +180,7 @@ class KarmaChangeNotifier extends PureComponent {
     });
     if (this.props.document && this.props.document.karmaChanges) {
       this.props.updateUser({
-        documentId: this.props.currentUser._id,
+        selector: {_id: this.props.currentUser._id},
         data: {
           karmaChangeLastOpened: this.props.document.karmaChanges.endDate,
           karmaChangeBatchStart: this.props.document.karmaChanges.startDate

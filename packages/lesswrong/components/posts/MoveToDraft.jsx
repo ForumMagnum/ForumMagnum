@@ -9,7 +9,7 @@ class MoveToDraft extends Component {
     const { post, updatePost } = this.props
 
     updatePost({
-      documentId: post._id,
+      selector: {_id: post._id},
       data: {draft:true}
     })
   }

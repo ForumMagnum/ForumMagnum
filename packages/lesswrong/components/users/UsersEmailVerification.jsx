@@ -27,7 +27,7 @@ class UsersEmailVerification extends PureComponent
 
   sendConfirmationEmail() {
     this.props.updateUser({
-      documentId: this.props.currentUser._id,
+      selector: {_id: this.props.currentUser._id},
       data: { whenConfirmationEmailSent: new Date() }
     });
     this.setState({

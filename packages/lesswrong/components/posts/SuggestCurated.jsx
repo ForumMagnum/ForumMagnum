@@ -12,7 +12,7 @@ class SuggestCurated extends Component {
       suggestUserIds.push(currentUser._id)
     }
     updatePost({
-      documentId: post._id,
+      selector: { _id: post._id },
       data: {suggestForCuratedUserIds:suggestUserIds}
     })
   }
@@ -24,7 +24,7 @@ class SuggestCurated extends Component {
       suggestUserIds = _.without(suggestUserIds, currentUser._id);
     }
     updatePost({
-      documentId: post._id,
+      selector: { _id: post._id },
       data: {suggestForCuratedUserIds:suggestUserIds}
     })
   }
@@ -58,14 +58,12 @@ class SuggestCurated extends Component {
   }
 }
 
-const withUpdateOptions = {
-  collection: Posts,
-  fragmentName: 'PostsList',
-}
-
 registerComponent(
   'SuggestCurated',
   SuggestCurated,
-  [withUpdate, withUpdateOptions],
+  [withUpdate, {
+    collection: Posts,
+    fragmentName: 'PostsList',
+  }],
   withUser
 );

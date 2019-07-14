@@ -14,7 +14,7 @@ class BanUserFromAllPersonalPostsMenuItem extends PureComponent {
         bannedPersonalUserIds.push(commentUserId)
       }
       this.props.updateUser({
-        documentId: this.props.currentUser._id,
+        selector: { _id: this.props.currentUser._id },
         data: {bannedPersonalUserIds:bannedPersonalUserIds},
       }).then(()=>this.props.flash({messageString: `User ${this.props.comment.user.displayName} is now banned from commenting on any of your personal blog posts`}))
     }

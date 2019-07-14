@@ -14,7 +14,7 @@ class SunshineReportedItem extends Component {
   handleReview = () => {
     const { currentUser, report, updateReport } = this.props
     updateReport({
-      documentId: report._id,
+      selector: {_id: report._id},
       data: {
         closedAt: new Date(),
         claimedUserId: currentUser._id,
@@ -34,7 +34,7 @@ class SunshineReportedItem extends Component {
     if (confirm(`Are you sure you want to immediately delete this ${report.comment ? "comment" : "post"}?`)) {
       if (report.comment) {
         updateComment({
-          selector: {documentId: report.comment._id},
+          selector: {_id: report.comment._id},
           data: {
             deleted: true,
             deletedDate: new Date(),
@@ -44,12 +44,12 @@ class SunshineReportedItem extends Component {
         })
       } else if (report.post) {
         updatePost({
-          selector: {documentId: report.post._id},
+          selector: {_id: report.post._id},
           data: { status: report.reportedAsSpam ? 4 : 5 }
         })
       }
       updateReport({
-        documentId: report._id,
+        selector: {_id: report._id},
         data: {
           closedAt: new Date(),
           claimedUserId: currentUser._id,

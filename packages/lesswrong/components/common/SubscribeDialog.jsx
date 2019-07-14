@@ -111,7 +111,7 @@ class SubscribeDialog extends Component {
 
   sendVerificationEmail() {
     this.props.updateUser({
-      documentId: this.props.currentUser._id,
+      selector: {_id: this.props.currentUser._id},
       data: { whenConfirmationEmailSent: new Date() }
     });
   }
@@ -128,7 +128,7 @@ class SubscribeDialog extends Component {
     }
 
     this.props.updateUser({
-      documentId: this.props.currentUser._id,
+      selector: {_id: this.props.currentUser._id},
       data: mutation
     })
 

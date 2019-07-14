@@ -15,7 +15,7 @@ class SunshineNewCommentsItem extends Component {
   handleReview = () => {
     const { currentUser, comment, updateComment } = this.props
     updateComment({
-      documentId: comment._id,
+      selector: {_id: comment._id},
       data: {reviewedByUserId : currentUser._id}
     })
   }
@@ -25,7 +25,7 @@ class SunshineNewCommentsItem extends Component {
     if (confirm("Are you sure you want to immediately delete this comment?")) {
       window.open(Users.getProfileUrl(comment.user), '_blank');
       updateComment({
-        documentId: comment._id,
+        selector: {_id: comment._id},
         data: {
           deleted: true,
           deletedDate: new Date(),

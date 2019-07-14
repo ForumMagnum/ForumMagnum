@@ -124,7 +124,7 @@ class Header extends Component {
   handleSetNotificationDrawerOpen = (isOpen) => {
     if (isOpen) {
       this.props.updateUser({
-        documentId: this.props.currentUser._id,
+        selector: {_id: this.props.currentUser._id},
         data: {lastNotificationsCheck: new Date()}
       })
       this.setState({

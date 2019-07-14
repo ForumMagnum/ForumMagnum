@@ -17,7 +17,7 @@ class AFSuggestPostsItem extends Component {
   handleMoveToAlignment = () => {
     const { currentUser, post, updatePost } = this.props
     updatePost({
-      documentId: post._id,
+      selector: {_id: post._id},
       data: {
         reviewForAlignmentUserId: currentUser._id,
         moveToAlignmentUserId: currentUser._id,
@@ -30,7 +30,7 @@ class AFSuggestPostsItem extends Component {
   handleDisregardForAlignment = () => {
     const { currentUser, post, updatePost } = this.props
     updatePost({
-      documentId: post._id,
+      selector: {_id: post._id},
       data: {
         reviewForAlignmentUserId: currentUser._id,
       }

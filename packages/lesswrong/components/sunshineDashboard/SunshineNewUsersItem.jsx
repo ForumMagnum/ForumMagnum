@@ -28,7 +28,7 @@ class SunshineNewUsersItem extends Component {
   handleReview = () => {
     const { currentUser, user, updateUser } = this.props
     updateUser({
-      documentId: user._id,
+      selector: {_id: user._id},
       data: {reviewedByUserId: currentUser._id}
     })
   }
@@ -38,7 +38,7 @@ class SunshineNewUsersItem extends Component {
     if (confirm("Are you sure you want to delete all this user's posts, comments and votes?")) {
       this.setState({hidden: true})
       await updateUser({
-        documentId: user._id,
+        selector: {_id: user._id},
         data: {
           reviewedByUserId: currentUser._id,
           nullifyVotes: true,

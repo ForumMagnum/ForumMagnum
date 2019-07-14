@@ -10,7 +10,7 @@ class RetractCommentMenuItem extends PureComponent
   handleRetract = (event) => {
     const { updateComment, comment } = this.props;
     updateComment({
-      documentId: comment._id,
+      selector: {_id: comment._id},
       data: { retracted: true }
     });
   }
@@ -18,7 +18,7 @@ class RetractCommentMenuItem extends PureComponent
   handleUnretract = (event) => {
     const { updateComment, comment } = this.props;
     updateComment({
-      documentId: comment._id,
+      selector: {_id: comment._id},
       data: { retracted: false }
     });
   }
