@@ -23,7 +23,7 @@ import getPlaygroundConfig from './playground';
 import initGraphQL from './initGraphQL';
 import './settings';
 import { engineConfig } from './engine';
-import { initContext, computeContextFromReq } from './context.js';
+import { computeContextFromReq } from './context.js';
 
 import { GraphQLSchema } from '../../modules/graphql.js';
 
@@ -124,12 +124,10 @@ export const onStart = () => {
     app: WebApp.connectHandlers,
     ...getApolloApplyMiddlewareOptions(),
   };
-  // init context
-  const initialContext = initContext();
   // this replace the previous syntax graphqlExpress(async req => { ... })
   // this function takes the context, which contains the current request,
   // and setup the options accordingly ({req}) => { ...; return options }
-  const context = computeContextFromReq(initialContext);
+  const context = computeContextFromReq();
 
   // define executableSchema
   initGraphQL();

@@ -20,14 +20,6 @@ import _merge from 'lodash/merge';
 import { getUser } from 'meteor/apollo';
 import { getHeaderLocale } from '../intl.js';
 import { getSetting } from '../../modules/settings.js';
-
-/**
- * Called once on server creation
- */
-export const initContext = () => {
-  return {...GraphQLSchema.context};
-};
-
 import Cookies from 'universal-cookie';
 
 // initial request will get the login token from a cookie, subsequent requests from
@@ -66,7 +58,7 @@ const generateDataLoaders = (context) => {
 
 
 // Returns a function called on every request to compute context
-export const computeContextFromReq = (currentContext) => {
+export const computeContextFromReq = () => {
   // create options given the current request
   const handleReq = async req => {
     const { headers } = req;
@@ -75,7 +67,7 @@ export const computeContextFromReq = (currentContext) => {
     // eslint-disable-next-line no-unused-vars
     let user = null;
 
-    context = {...currentContext};
+    context = {...GraphQLSchema.context};
 
     generateDataLoaders(context);
 
