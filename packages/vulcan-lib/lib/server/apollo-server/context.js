@@ -60,12 +60,7 @@ const generateDataLoaders = (context) => {
 // Returns a function called on every request to compute context
 export const computeContextFromReq = async (req) => {
   const { headers } = req;
-  let context;
-
-  // eslint-disable-next-line no-unused-vars
-  let user = null;
-
-  context = {...GraphQLSchema.context};
+  let context = {...GraphQLSchema.context};
 
   generateDataLoaders(context);
 
