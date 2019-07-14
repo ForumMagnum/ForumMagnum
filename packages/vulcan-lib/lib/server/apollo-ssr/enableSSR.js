@@ -9,14 +9,14 @@ import { onPageLoad } from 'meteor/server-render';
 
 import makePageRenderer from './renderPage';
 
-const enableSSR = ({ computeContext }) => {
+const enableSSR = () => {
   Meteor.startup(() => {
     // init the application components and routes, including components & routes from 3rd-party packages
     initializeFragments();
     populateComponentsApp();
     populateRoutesApp();
     // render the page
-    onPageLoad(makePageRenderer({ computeContext }));
+    onPageLoad(makePageRenderer());
   });
 };
 

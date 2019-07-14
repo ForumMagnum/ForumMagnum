@@ -148,5 +148,5 @@ export const onStart = () => {
     setupToolsMiddlewares(config);
   }
   // ssr
-  enableSSR({ computeContext: computeContextFromReq });
+  enableSSR();
 };
