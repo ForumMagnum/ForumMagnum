@@ -16,7 +16,7 @@ const enableSSR = () => {
     populateComponentsApp();
     populateRoutesApp();
     // render the page
-    onPageLoad(makePageRenderer());
+    onPageLoad(makePageRenderer);
   });
 };
 
