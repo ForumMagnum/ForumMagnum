@@ -76,13 +76,7 @@ const generateDataLoaders = (context) => {
 
 
 // Returns a function called on every request to compute context
-export const computeContextFromReq = (currentContext, customContextFromReq) => {
-  // givenOptions can be either a function of the request or an object
-  const getBaseContext = req =>
-    customContextFromReq
-      ? { ...currentContext, ...customContextFromReq(req) }
-      : { ...currentContext };
-
+export const computeContextFromReq = (currentContext) => {
   // create options given the current request
   const handleReq = async req => {
     const { headers } = req;
@@ -91,7 +85,7 @@ export const computeContextFromReq = (currentContext, customContextFromReq) => {
     // eslint-disable-next-line no-unused-vars
     let user = null;
 
-    context = getBaseContext(req);
+    context = {...currentContext};
 
     generateDataLoaders(context);
 
