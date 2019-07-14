@@ -28,8 +28,7 @@ const getAuthToken = req => {
   return req.headers.authorization || new Cookies(req.cookies).get('meteor_login_token');
 };
 // @see https://www.apollographql.com/docs/react/recipes/meteor#Server
-const setupAuthToken = async (context, req) => {
-  const user = await getUser(getAuthToken(req));
+const setupAuthToken = (user, context) => {
   if (user) {
     context.userId = user._id;
     context.currentUser = user;
@@ -57,9 +56,7 @@ const generateDataLoaders = (context) => {
 };
 
 
-// Returns a function called on every request to compute context
-export const computeContextFromReq = async (req) => {
-  const { headers } = req;
+export const computeContextFromUser = async (user, headers) => {
   let context = {...GraphQLSchema.context};
 
   generateDataLoaders(context);
@@ -70,7 +67,7 @@ export const computeContextFromReq = async (req) => {
   //   return source[info.fieldName];
   // }
 
-  await setupAuthToken(context, req);
+  setupAuthToken(user, context);
 
   //add the headers to the context
   context.headers = headers;
@@ -83,4 +80,10 @@ export const computeContextFromReq = async (req) => {
   context.locale = getHeaderLocale(headers, context.currentUser && context.currentUser.locale);
 
   return context;
+}
+
+// Returns a function called on every request to compute context
+export const computeContextFromReq = async (req) => {
+  const user = await getUser(getAuthToken(req));
+  return computeContextFromUser(user, req.headers);
 };
