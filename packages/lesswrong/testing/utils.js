@@ -112,7 +112,11 @@ const isPermissionsFlavoredError = (error) => {
     return true;
   }
 
-  if (!error.message) return false;
+  if (!error.message)
+    return false;
+  if (isPermissionsFlavoredErrorString(error.message))
+    return true;
+  
   let errorData = null;
   try {
     errorData = JSON.parse(error.message);
@@ -121,8 +125,14 @@ const isPermissionsFlavoredError = (error) => {
   }
   if (!errorData) return false;
   if (Array.isArray(errorData)) errorData = errorData[0];
-  let id = errorData.id;
-  switch (id)
+  if (isPermissionsFlavoredErrorString(errorData)) return true;
+  if (isPermissionsFlavoredErrorString(errorData.id)) return true;
+  
+  return false;
+};
+
+const isPermissionsFlavoredErrorString = (str) => {
+  switch (str)
   {
   case 'errors.disallowed_property_detected':
   case 'app.operation_not_allowed':
@@ -132,7 +142,7 @@ const isPermissionsFlavoredError = (error) => {
   default:
     return false;
   }
-};
+}
 
 
 export const createDefaultUser = async() => {
