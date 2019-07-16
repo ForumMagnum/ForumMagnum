@@ -7,6 +7,7 @@ import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionU
 // Auto-generated indexes from production
 
 Comments.addDefaultView(terms => {
+  // console.log('comments default view, terms', terms)
   const validFields = _.pick(terms, 'userId', 'authorIsUnreviewed');
 
   const alignmentForum = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
@@ -259,6 +260,7 @@ ensureIndex(Comments, {topLevelCommentId:1});
 ensureIndex(Comments, {agentFoundationsId:1});
 
 Comments.addView('topShortform', function (terms) {
+  // console.log('topShortform view')
   const timeRange = ((terms.before || terms.after)
     ? { postedAt: {
       ...(terms.before && {$lt: new Date(terms.before)}),

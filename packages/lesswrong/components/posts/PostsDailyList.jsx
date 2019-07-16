@@ -97,7 +97,9 @@ class PostsDailyList extends PureComponent {
   render() {
     const { dimWhenLoading, loading, loadingMore, classes, currentUser, networkStatus } = this.props
     const posts = this.props.results;
-    const dates = this.getDateRange(this.state.afterLoaded, this.state.before);
+    // TODO; remove
+    let dates = this.getDateRange(this.state.afterLoaded, this.state.before);
+    // dates = dates.slice(0, 2)
     const { Loading, PostsDay } = Components
 
     const dim = dimWhenLoading && networkStatus !== 7
@@ -115,11 +117,6 @@ class PostsDailyList extends PureComponent {
               networkStatus={networkStatus}
               currentUser={currentUser}
               hideIfEmpty={index==0}
-              terms={{
-                view: "topShortform",
-                before: moment(date).add(1, 'days').toString(),
-                after: moment(date).toString().toString()
-              }}
             />
           )}
           {loadingMore ?
