@@ -4,6 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import SubdirectoryArrowLeft from '@material-ui/icons/SubdirectoryArrowLeft';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
+import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 
 const styles = theme => ({
   root: {
@@ -28,12 +29,22 @@ const styles = theme => ({
     bottom: "100%",
     left: 0,
     boxShadow: "0 0 10px rgba(0,0,0,.2)"
+  },
+  usernameSpacing: {
+    paddingRight: 1,
+    color: "rgba(0,0,0,.3)",
+    [legacyBreakpoints.maxSmall]: {
+      padding: "0 10px",
+    }
   }
 })
 
-const ShowParentComment = ({ comment, nestingLevel, active, onClick, classes }) => {
+const ShowParentComment = ({ comment, nestingLevel, active, onClick, placeholderIfMissing=false, classes }) => {
 
   if (!comment) return null;
+  
+  if (placeholderIfMissing && !comment.parentCommentId && nestingLevel!=1)
+    return <div className={classes.usernameSpacing}>○</div>;
   
   if (!comment.topLevelCommentId) {
     // This is a root comment
@@ -49,14 +60,8 @@ const ShowParentComment = ({ comment, nestingLevel, active, onClick, classes }) 
   //           [deep reply]
   // In that case the deep reply has nestingLevel 2, but unlike a true level-2
   // comment, its parent is not a top-level comment.
-  if (nestingLevel > 2) {
+  if (nestingLevel >= 2) {
     return null;
-  }
-  
-  if (nestingLevel === 2
-    && comment.parentCommentId === comment.topLevelCommentId
-  ) {
-    return null
   }
 
   return (

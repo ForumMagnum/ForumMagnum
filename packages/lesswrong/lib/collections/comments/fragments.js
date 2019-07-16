@@ -39,6 +39,8 @@ registerFragment(`
     retracted
     postVersion
     reviewedByUserId
+    shortform
+    lastSubthreadActivity
   }
 `);
 

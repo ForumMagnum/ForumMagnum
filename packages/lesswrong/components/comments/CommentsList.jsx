@@ -67,7 +67,7 @@ class CommentsList extends Component {
     if (comments) {
       return (
         <Components.ErrorBoundary>
-          <div className="comments-list">
+          <div>
             {comments.map(comment =>
               <Components.CommentsNode
                 startThreadTruncated={startThreadTruncated || totalComments >= 50}
@@ -96,7 +96,7 @@ class CommentsList extends Component {
       )
     } else {
       return (
-        <div className="comments-list">
+        <div>
           <p>
             <FormattedMessage id="comments.no_comments"/>
           </p>

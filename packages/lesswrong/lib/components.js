@@ -128,7 +128,7 @@ import '../components/posts/PostsItemMeta.jsx';
 import '../components/posts/PostsItem.jsx';
 import '../components/posts/PostsItem2.jsx';
 import '../components/posts/PostsItem2MetaInfo.jsx';
-import '../components/posts/PostsItemTitle.jsx';
+import '../components/posts/PostsTitle.jsx';
 import '../components/posts/PostsItemTooltip.jsx';
 import '../components/posts/PostsItemComments.jsx';
 import '../components/posts/PostsItemWrapper.jsx';
@@ -222,8 +222,7 @@ import '../components/comments/CommentsList.jsx';
 import '../components/comments/CommentsNode.jsx';
 import '../components/comments/CommentsViews.jsx';
 import '../components/comments/RecentComments.jsx';
-import '../components/comments/RecentCommentsItem.jsx';
-import '../components/comments/RecentCommentsSingle.jsx';
+import '../components/comments/ParentCommentSingle.jsx';
 import '../components/comments/ModerationGuidelines/ModerationGuidelinesBox.jsx';
 import '../components/comments/ModerationGuidelines/ModerationGuidelinesEditForm.jsx'
 import '../components/comments/LastVisitList.jsx'

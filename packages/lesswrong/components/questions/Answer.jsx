@@ -7,9 +7,6 @@ import Typography from '@material-ui/core/Typography'
 import withErrorBoundary from '../common/withErrorBoundary'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import withUser from '../common/withUser'
-import { Link } from '../../lib/reactRouterWrapper.js';
-import { Posts } from "../../lib/collections/posts";
-import Icon from '@material-ui/core/Icon';
 import { ABRIDGE_COMMENT_COUNT } from './AnswerCommentsList';
 
 const styles = theme => ({
@@ -112,7 +109,7 @@ class Answer extends Component {
   render () {
     const { comment, post, classes } = this.props
     const { showEdit } = this.state
-    const { ContentItemBody, FormatDate, AnswerCommentsList, CommentsMenu, UsersName } = Components
+    const { ContentItemBody, AnswerCommentsList, CommentsMenu, CommentsItemDate, UsersName } = Components
     const { html = "" } = comment.contents || {}
 
     return (
@@ -139,10 +136,7 @@ class Answer extends Component {
                   { <UsersName user={comment.user} />}
                 </Typography >}
                 <Typography variant="subheading" className={classes.date}>
-                  <Link to={Posts.getPageUrl(post) + "#" + comment._id}>
-                    <FormatDate date={comment.postedAt} format="MMM DD, YYYY"/>
-                    <Icon className="material-icons comments-item-permalink"> link </Icon>
-                  </Link>
+                  <CommentsItemDate comment={comment} post={post}/>
                 </Typography>
                 <span className={classes.vote}><Components.CommentsVote comment={comment}/></span>
                 <span className={classes.menu}>

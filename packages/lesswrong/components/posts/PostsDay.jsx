@@ -70,7 +70,6 @@ const PostsDay = ({ date, posts, results: comments, totalCount, loadMore, hideIf
               comment={comment} post={comment.post}
               key={comment._id}
               forceSingleLine loadChildrenSeparately
-              nestingLevel={1}
             />)}
           {comments?.length < totalCount &&
             <LoadMore
