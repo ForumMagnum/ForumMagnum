@@ -160,6 +160,7 @@ import '../components/posts/PostsItemDate.jsx';
 
 import '../components/shortform/ShortformPage.jsx';
 import '../components/shortform/RepliesToCommentList.jsx';
+import '../components/shortform/ShortformTimeBlock.jsx';
 
 import '../components/votes/VoteButton.jsx';
 import '../components/votes/CommentsVote.jsx';

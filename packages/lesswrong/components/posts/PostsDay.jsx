@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { Components, withList, registerComponent } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
-import { Comments } from '../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles';
+import moment from 'moment-timezone';
 
 const styles = theme => ({
   root: {
@@ -20,26 +20,18 @@ const styles = theme => ({
     marginLeft: "23px",
     color: "rgba(0,0,0,0.5)",
   },
-  shortformGroup: {
-    marginTop: 20,
-  },
-  shortformTag: {
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[700],
-    marginBottom: 8,
-  },
 })
 
 // TODO; rename
 const PostsDay = ({ date, posts, results: comments, totalCount, loadMore, hideIfEmpty, classes, currentUser }) => {
   const noPosts = !posts || (posts.length === 0);
   const noComments = !comments || (comments.length === 0);
-  const { PostsItem2, CommentsNode, LoadMore } = Components
+  const { PostsItem2, CommentsNode, LoadMore, ShortformTimeBlock } = Components
   // TODO; load more button if timeframe > day
 
   // The most recent day is hidden if there are no posts on it, to avoid having
   // an awkward empty partial day when it's close to midnight.
+  // TODO; how to tell if empty
   if (noPosts && noComments && hideIfEmpty) {
     return null;
   }
@@ -60,26 +52,14 @@ const PostsDay = ({ date, posts, results: comments, totalCount, loadMore, hideIf
       {posts?.map((post, i) =>
         <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
       
-      {currentUser?.beta && comments?.length > 0 &&
-        <div className={classes.shortformGroup}>
-          <div className={classes.shortformTag}>
-            Shortform [Beta]
-          </div>
-          {comments?.map((comment, i) =>
-            <CommentsNode
-              comment={comment} post={comment.post}
-              key={comment._id}
-              forceSingleLine loadChildrenSeparately
-            />)}
-          {comments?.length < totalCount &&
-            <LoadMore
-              loadMore={loadMore}
-              count={comments.length}
-              totalCount={totalCount}
-            />
-          }
-        </div>
-      }
+      {currentUser?.beta && <ShortformTimeBlock
+        terms={{
+          view: "topShortform",
+          before: moment(date).add(1, 'days').toString(),
+          after: moment(date).toString().toString()
+        }}
+      />}
+
     </div>
   );
 }
@@ -89,14 +69,7 @@ PostsDay.propTypes = {
   date: PropTypes.object,
 };
 
+// TODO; PR submission note (to remove): This component previously had a withList for the shortform view. Unfortunately, it seems Vulcan does not support multiple withList HOCs on a single component. Thus we have pushed them down into two separate child components <Finish writing this when finished with the refactor>.
 registerComponent('PostsDay', PostsDay,
-  [withList, {
-    collection: Comments,
-    queryName: 'dailyShortformQuery',
-    fragmentName: 'ShortformComments',
-    enableTotal: true,
-    enableCache: true,
-    limit: 3,
-    ssr: true,
-  }],
-  withStyles(styles, { name: "PostsDay" }));
+  withStyles(styles, { name: "PostsDay" })
+);

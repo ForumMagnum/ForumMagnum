@@ -87,8 +87,8 @@ class AllPostsPage extends Component {
     // TODO; ensure defaults are right
     // TODO; and that user preference is remembered
     // TODO; and that queries are king
-    // console.log('renderPostsList')
-    // console.log('currentTimeframe', currentTimeframe)
+    // console.log('renderPostsList()')
+    // console.log(' currentTimeframe', currentTimeframe)
     const numTimeBlocks = timeframeToNumTimeBlocks[currentTimeframe]
     const timeBlock = timeframeToTimeBlock[currentTimeframe]
     const dailyTerms = {
