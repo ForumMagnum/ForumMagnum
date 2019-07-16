@@ -16,6 +16,7 @@ import { getSetting } from '../modules/settings';
 import merge from 'lodash/merge';
 import { singleClientTemplate } from '../modules/graphql_templates';
 import { Utils } from './utils';
+import { GraphQLSchema } from '../modules/graphql';
 
 function writeGraphQLErrorToStderr(errors)
 {
