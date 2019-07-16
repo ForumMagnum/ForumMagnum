@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent, withList, Loading } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import { Comments } from '../../lib/collections/comments';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
@@ -15,7 +15,7 @@ const styles = theme => ({
 
 const ShortformThreadList = ({ classes, results, loading, loadMore, networkStatus, currentUser, data: {refetch} }) => {
 
-  const { LoadMore, ShortformThread, CommentsNewForm } = Components
+  const { LoadMore, ShortformThread, CommentsNewForm, Loading } = Components
 
   if (!loading && results && !results.length) {
     return null
