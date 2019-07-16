@@ -34,6 +34,7 @@ import { extractCollectionInfo, extractFragmentInfo } from 'meteor/vulcan:lib';
 import { compose, withHandlers } from 'recompose';
 import { cacheUpdateGenerator } from './cacheUpdates';
 import { getExtraVariables } from './utils'
+import { Mutation } from 'react-apollo';
 
 const withDelete = options => {
   const { collectionName, collection } = extractCollectionInfo(options);
