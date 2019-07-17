@@ -22,8 +22,6 @@ class Home2 extends PureComponent {
     const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
         Users.canDo(currentUser, 'alignment.sidebar')
   
-    const shortformFeedId = currentUser && currentUser.shortformFeedId
-  
     return (
       <React.Fragment>
         {shouldRenderSidebar && <SplitComponent name="SunshineSidebar" />}
@@ -37,17 +35,14 @@ class Home2 extends PureComponent {
   
         <SingleColumnSection>
           <SectionTitle title="Recent Discussion">
-            {shortformFeedId &&  <div onClick={this.toggleShortformFeed}>
+            {currentUser?.beta && <div onClick={this.toggleShortformFeed}>
               <SectionButton>
                 <AddBoxIcon />
                 New Shortform Post
               </SectionButton>
             </div>}
           </SectionTitle>
-          {showShortformFeed && <CommentsNewForm
-              post={{_id:shortformFeedId}}
-              type="comment"
-            />}
+          {showShortformFeed && <ShortformSubmitForm/>}
           <RecentDiscussionThreadsList terms={{view: 'recentDiscussionThreadsList', limit:20}}/>
         </SingleColumnSection>
       </React.Fragment>

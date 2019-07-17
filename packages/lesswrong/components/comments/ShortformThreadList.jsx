@@ -15,7 +15,7 @@ const styles = theme => ({
 
 const ShortformThreadList = ({ classes, results, loading, loadMore, networkStatus, currentUser, data: {refetch} }) => {
 
-  const { LoadMore, ShortformThread, CommentsNewForm } = Components
+  const { LoadMore, ShortformThread, ShortformSubmitForm } = Components
 
   if (!loading && results && !results.length) {
     return null
@@ -26,21 +26,15 @@ const ShortformThreadList = ({ classes, results, loading, loadMore, networkStatu
 
   return (
     <div>
-        <CommentsNewForm 
-          post={{_id:shortformFeedId}} 
-          prefilledProps={{shortform: true}}
-          mutationFragment={"ShortformCommentsList"}
-          successCallback={() => refetch()}
-          type="comment" 
-        />
-        {loading || !results ? <Loading /> :
-        <div> 
-          {results.map((comment, i) => {
-            return <ShortformThread key={comment._id} comment={comment} refetch={refetch}/>
-          })}
-          { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
-          { loadingMore && <Loading />}
-        </div>}
+      <ShortformSubmitForm successCallback={refetch} />
+      {loading || !results ? <Loading /> :
+      <div>
+        {results.map((comment, i) => {
+          return <ShortformThread key={comment._id} comment={comment} refetch={refetch}/>
+        })}
+        { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
+        { loadingMore && <Loading />}
+      </div>}
     </div>)
   }
 
