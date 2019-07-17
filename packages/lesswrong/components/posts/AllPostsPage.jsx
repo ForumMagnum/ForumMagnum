@@ -85,7 +85,7 @@ class AllPostsPage extends Component {
       limit:50
     }
 
-    const numberOfDays = getSetting('forum.numberOfDays', 5);
+    const numberOfDays = getSetting('forum.numberOfDays', 10);
     const dailyTerms = {
       view: 'daily',
       karmaThreshold: DEFAULT_LOW_KARMA_THRESHOLD,
