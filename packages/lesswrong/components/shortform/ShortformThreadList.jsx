@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent, withList, Loading } from 'meteor/vulcan:core';
 import { Comments } from '../../lib/collections/comments';
-import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 import { withRouter } from '../../lib/reactRouterWrapper.js';
@@ -34,9 +33,6 @@ const ShortformThreadList = ({ classes, results, loading, loadMore, networkStatu
           successCallback={() => refetch()}
           type="comment" 
         />
-        <Typography variant="body2" className={classes.title}>
-          Note: shows the most recent 3 comments on each shortform post
-        </Typography>
         {loading || !results ? <Loading /> :
         <div> 
           {results.map((comment, i) => {

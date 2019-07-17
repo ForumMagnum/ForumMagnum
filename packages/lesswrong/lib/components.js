@@ -125,10 +125,9 @@ import '../components/posts/DeleteDraft.jsx';
 import '../components/posts/MoveToDraft.jsx';
 import '../components/posts/SuggestAlignment.jsx';
 import '../components/posts/PostsItemMeta.jsx';
-import '../components/posts/PostsItem.jsx';
 import '../components/posts/PostsItem2.jsx';
 import '../components/posts/PostsItem2MetaInfo.jsx';
-import '../components/posts/PostsItemTitle.jsx';
+import '../components/posts/PostsTitle.jsx';
 import '../components/posts/PostsItemTooltip.jsx';
 import '../components/posts/PostsItemComments.jsx';
 import '../components/posts/PostsItemWrapper.jsx';
@@ -141,8 +140,7 @@ import '../components/posts/PostsPageAdminActions.jsx';
 import '../components/posts/PostsSingleSlug.jsx';
 import '../components/posts/PostsSingleRoute.jsx';
 import '../components/posts/PostsSingleSlugWrapper.jsx';
-import '../components/posts/PostsList.jsx';
-import '../components/posts/PostsList2.jsx'; // Should replace PostsList eventually
+import '../components/posts/PostsList2.jsx';
 import '../components/posts/PostsDay.jsx';
 import '../components/posts/PostsCommentsThread.jsx';
 import '../components/posts/PostsNewForm.jsx';
@@ -159,6 +157,8 @@ import '../components/posts/ReportPostMenuItem.jsx';
 import '../components/posts/PostsItemDate.jsx';
 
 import '../components/shortform/ShortformPage.jsx';
+import '../components/shortform/ShortformThread.jsx';
+import '../components/shortform/ShortformThreadList.jsx';
 import '../components/shortform/RepliesToCommentList.jsx';
 
 import '../components/votes/VoteButton.jsx';
@@ -211,10 +211,8 @@ import '../components/comments/CommentsItem/CommentsMenu.jsx';
 import '../components/comments/CommentsItem/CommentOutdatedWarning';
 import '../components/comments/CommentsItem/CommentsItemDate';
 
-import '../components/comments/recentDiscussionThread.jsx';
-import '../components/comments/recentDiscussionThreadsList.jsx';
-import '../components/comments/ShortformThread.jsx';
-import '../components/comments/ShortformThreadList.jsx';
+import '../components/comments/RecentDiscussionThread.jsx';
+import '../components/comments/RecentDiscussionThreadsList.jsx';
 import '../components/comments/CantCommentExplanation.jsx';
 import '../components/comments/CommentsEditForm.jsx';
 import '../components/comments/CommentsListSection.jsx';

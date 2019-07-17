@@ -13,7 +13,7 @@ registerSetting('siteImage', null, 'An image used to represent the site on socia
 registerSetting('faviconUrl', '/img/favicon.ico', 'Favicon absolute URL');
 
 // EventsPast.jsx
-registerSetting('forum.numberOfDays', 5, 'Number of days to display in Daily view');
+registerSetting('forum.numberOfDays', 10, 'Number of days to display in Daily view');
 
 // Comments callbacks
 registerSetting('forum.commentInterval', 15, 'How long users should wait in between comments (in seconds)');

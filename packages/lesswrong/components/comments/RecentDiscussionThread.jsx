@@ -116,7 +116,7 @@ class RecentDiscussionThread extends PureComponent {
   } = this.props
     const { readStatus, showHighlight, markedAsVisitedAt } = this.state
 
-    const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight } = Components
+    const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle } = Components
 
     const lastCommentId = results && results[0]?._id
 
@@ -144,7 +144,7 @@ class RecentDiscussionThread extends PureComponent {
         <div className={classes.postItem}>
 
           <Link className={classes.title} to={Posts.getPageUrl(post)}>
-            {post.title}
+            <PostsTitle wrap post={post} />
           </Link>
 
           <div className={classes.threadMeta} onClick={this.showHighlight}>

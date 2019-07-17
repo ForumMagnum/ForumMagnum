@@ -80,7 +80,7 @@ class PostsDailyList extends PureComponent {
   // variant 1: reload everything each time (works with polling)
   loadMoreDays(e) {
     e.preventDefault();
-    const numberOfDays = getSetting('forum.numberOfDays', 5);
+    const numberOfDays = getSetting('forum.numberOfDays', 10);
     const loadMoreAfter = moment(this.state.after, 'YYYY-MM-DD').subtract(numberOfDays, 'days').format('YYYY-MM-DD');
 
     this.props.loadMore({
@@ -142,8 +142,8 @@ PostsDailyList.propTypes = {
 };
 
 PostsDailyList.defaultProps = {
-  days: getSetting('forum.numberOfDays', 5),
-  increment: getSetting('forum.numberOfDays', 5)
+  days: getSetting('forum.numberOfDays', 10),
+  increment: getSetting('forum.numberOfDays', 10)
 };
 
 registerComponent('PostsDailyList', PostsDailyList,
