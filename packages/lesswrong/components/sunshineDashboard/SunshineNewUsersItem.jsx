@@ -73,7 +73,6 @@ class SunshineNewUsersItem extends Component {
                 <div>Upvotes: { user.smallUpvoteCount || 0 }</div>
                 <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
                 <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
-                
                 {!showNewUserContent && <React.Fragment>
                   <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
                   <SunshineNewUserPostsList terms={{view:"sunshineNewUsersPosts", userId: user._id}}/>
