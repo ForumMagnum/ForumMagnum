@@ -260,7 +260,7 @@ ensureIndex(Comments, {topLevelCommentId:1});
 ensureIndex(Comments, {agentFoundationsId:1});
 
 Comments.addView('topShortform', function (terms) {
-  // console.log('topShortform view')
+  // console.log('topShortform view terms', terms)
   const timeRange = ((terms.before || terms.after)
     ? { postedAt: {
       ...(terms.before && {$lt: new Date(terms.before)}),

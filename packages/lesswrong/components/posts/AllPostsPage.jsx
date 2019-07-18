@@ -83,36 +83,32 @@ class AllPostsPage extends Component {
 
   // TODO; factor out part of logic from render
   // TODO; better args
-  renderPostsList = (currentTimeframe, terms, classes, showSettings, query) => {
+  renderPostsList = (currentTimeframe, postListParameters, classes, showSettings) => {
     // TODO; ensure defaults are right
     // TODO; and that user preference is remembered
     // TODO; and that queries are king
     // console.log('renderPostsList()')
     // console.log(' currentTimeframe', currentTimeframe)
     const numTimeBlocks = timeframeToNumTimeBlocks[currentTimeframe]
-    const timeBlock = timeframeToTimeBlock[currentTimeframe]
-    const dailyTerms = {
-      view: 'timeframe',
-      // TODO; is this properly overwritten?
-      timeframe: currentTimeframe,
-      karmaThreshold: DEFAULT_LOW_KARMA_THRESHOLD,
-      after: getAfterDateDefault(numTimeBlocks, timeBlock),
-      before: getBeforeDateDefault(timeBlock),
-      ...terms,
-      ...query,
-    };
     // console.log(' dailyTerms', dailyTerms)
 
     const {PostsDailyList, PostsList2} = Components
-    if (currentTimeframe !== 'allTime') return <div className={classes.daily}>
-      <PostsDailyList
-        timeframe={currentTimeframe}
-        terms={dailyTerms} // TODO; here
-        numTimeBlocks={numTimeBlocks}
-        dimWhenLoading={showSettings}
-      />
-    </div>
-    return <PostsList2 terms={terms} showHeader={false} dimWhenLoading={showSettings} />
+    if (currentTimeframe !== 'allTime') {
+      const timeBlock = timeframeToTimeBlock[currentTimeframe]
+      return <div className={classes.daily}>
+        <PostsDailyList
+          timeframe={currentTimeframe}
+          postListParameters={postListParameters} // TODO; name?
+          numTimeBlocks={numTimeBlocks}
+          dimWhenLoading={true} // TODO; showSettings
+          // TODO; rename from before after to more explicit
+          // TODO; do these functions change in the new world?
+          after={getAfterDateDefault(numTimeBlocks, timeBlock)}
+          before={getBeforeDateDefault(timeBlock)}
+        />
+      </div>
+    }
+    return <PostsList2 terms={postListParameters} showHeader={false} dimWhenLoading={showSettings} />
   }
 
   render() {
@@ -142,12 +138,14 @@ class AllPostsPage extends Component {
     const currentShowLowKarma = (parseInt(query.karmaThreshold) === MAX_LOW_KARMA_THRESHOLD) || (currentUser && currentUser.allPostsShowLowKarma) || false
 
     // TODO; deal with old view query param overriding
+    // TODO; rename
     const terms = {
+      // TODO; can we use showLowKarma??
       karmaThreshold: DEFAULT_LOW_KARMA_THRESHOLD,
       filter: currentFilter,
       sortedBy: currentSorting,
       ...query,
-      limit:50
+      limit:50 // TODO; remove?
     }
 
     return (
@@ -172,7 +170,7 @@ class AllPostsPage extends Component {
             currentShowLowKarma={currentShowLowKarma}
             persistentSettings
           />
-          {this.renderPostsList(currentTimeframe, terms, classes, showSettings, query)}
+          {this.renderPostsList(currentTimeframe, terms, classes, showSettings)}
         </SingleColumnSection>
       </React.Fragment>
     )

@@ -1,12 +1,11 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment-timezone';
-import { Posts } from '../../lib/collections/posts';
-import { withCurrentUser, withList, getSetting, Components, registerComponent } from 'meteor/vulcan:core';
-import withTimezone from '../common/withTimezone';
+import { getSetting, Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import classNames from 'classnames';
+import withTimezone from '../common/withTimezone';
 
 const styles = theme => ({
   loading: {
@@ -22,32 +21,19 @@ class PostsDailyList extends PureComponent {
 
   constructor(props) {
     super(props);
+    // TODO; why do we need this?
     this.loadMoreDays = this.loadMoreDays.bind(this);
+    this.dayLoadComplete = this.dayLoadComplete.bind(this);
     this.state = {
-      days: props.days,
-      after: props.terms.after,
-      daysLoaded: props.days,
-      afterLoaded: props.terms.after,
-      before: props.terms.before,
-      //loading: true,
+      after: props.after,
+      before: props.before,
+      dim: props.dimWhenLoading,
     };
-  }
- 
-  // intercept prop change and only show more days once data is done loading
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    if (nextProps.networkStatus === 2) {
-      //this.setState({loading: true});
-    } else {
-      this.setState((prevState, props) => ({
-        //loading: false,
-        daysLoaded: prevState.days,
-        afterLoaded: prevState.after,
-      }));
-    }
   }
 
   // Return a date string for each date which should have a section. This
   // includes all dates in the range
+  // TODO; move to timeframeUtils
   getDateRange(after, before) {
     const mAfter = moment.utc(after, 'YYYY-MM-DD');
     const mBefore = moment.utc(before, 'YYYY-MM-DD');
@@ -60,75 +46,68 @@ class PostsDailyList extends PureComponent {
     return range;
   }
 
-  getDatePosts(posts, date) {
-    const { timeField } = this.props.terms
-    return _.filter(posts, post =>
-      moment(new Date(timeField ? post[timeField] : post.postedAt))
-        .tz(this.props.timezone)
-        .format('YYYY-MM-DD') === date);
-  }
-
-  groupByDate(posts) {
-    const { timeField } = this.props.terms
-
-    return _.groupBy(posts, post =>
-      moment(new Date(timeField ? post[timeField] : post.postedAt))
-        .tz(this.props.timezone)
-        .format('YYYY-MM-DD'));
-  }
-
   // variant 1: reload everything each time (works with polling)
   loadMoreDays(e) {
+    console.log('load more days()')
     e.preventDefault();
     const numberOfDays = getSetting('forum.numberOfDays', 5);
     const loadMoreAfter = moment(this.state.after, 'YYYY-MM-DD').subtract(numberOfDays, 'days').format('YYYY-MM-DD');
-
-    this.props.loadMore({
-      ...this.props.terms,
-      after: loadMoreAfter,
-    });
+    console.log('newAfter', loadMoreAfter)
 
     this.setState({
-      days: this.state.days + this.props.increment,
       after: loadMoreAfter,
+      // dim: props.dimWhenLoading Nah, right?
+      // datesLoading: this.getDateRange(after, moment.utc(this.state.after, 'YYYY-MM-DD').format('YYYY-MM-DD'))
     });
   }
 
-  render() {
-    const { dimWhenLoading, loading, loadingMore, classes, currentUser, networkStatus } = this.props
-    const posts = this.props.results;
-    // TODO; remove
-    let dates = this.getDateRange(this.state.afterLoaded, this.state.before);
-    // dates = dates.slice(0, 2)
-    const { Loading, PostsDay } = Components
-
-    const dim = dimWhenLoading && networkStatus !== 7
-
-    if (loading && (!posts || !posts.length)) {
-      return <Loading />
-    } else {
-      return (
-        <div className={classNames({[classes.loading]: dim})}>
-          {loading && <Loading />}
-          {dates.map((date, index) =>
-            <PostsDay key={date.toString()}
-              date={moment(date)}
-              posts={this.getDatePosts(posts, date)}
-              networkStatus={networkStatus}
-              currentUser={currentUser}
-              hideIfEmpty={index==0}
-            />
-          )}
-          {loadingMore ?
-            <Loading />
-            :
-            <Typography variant="body1" className={classes.loadMore} onClick={this.loadMoreDays}>
-              <a>Load More Days</a>
-            </Typography>
-          }
-        </div>
-      )
+  // Calculating when all the components have loaded looks like a mess of
+  // brittleness, we'll just cease to be dim as soon as a single day has loaded
+  dayLoadComplete () {
+    // TODO; timeout?
+    if (this.state.dim) {
+      this.setState({dim: false})
     }
+  }
+
+  render() {
+    console.log('PostsDailyList render()')
+    // TODO; where should we actually get terms
+    const { classes, timeframe, postListParameters } = this.props
+    const { after, before, dim } = this.state
+    // TODO; remove let
+    let dates = this.getDateRange(after, before);
+    // dates = dates.slice(0, 2)
+    // console.log('dates', dates)
+    const { PostsDay } = Components
+
+    // console.log(' dim', dim)
+    // console.log(' postListParameters', postListParameters)
+
+    return (
+      <div className={classNames({[classes.loading]: dim})}>
+        {dates.map((date, index) =>
+          <PostsDay
+            key={date.toString()}
+            date={moment(date)}
+            terms={{
+              view: 'timeframe',
+              timeframe,
+              ...postListParameters,
+              // TODO; test with timezones
+              before: moment(date).format('YYYY-MM-DD'), // TODO; .add(1, 'days') ????
+              after: moment(date).format('YYYY-MM-DD'),
+              // limit: 1
+            }}
+            dayLoadComplete={this.dayLoadComplete}
+            hideIfEmpty={index===0}
+          />
+        )}
+        <Typography variant="body1" className={classes.loadMore} onClick={this.loadMoreDays}>
+          <a>Load More Days</a>
+        </Typography>
+      </div>
+    )
   }
 }
 
@@ -144,12 +123,5 @@ PostsDailyList.defaultProps = {
 };
 
 registerComponent('PostsDailyList', PostsDailyList,
-  [withList, {
-    collection: Posts,
-    queryName: 'postsDailyListQuery',
-    fragmentName: 'PostsList',
-    limit: 0,
-    ssr: true,
-  }],
-  withCurrentUser, withTimezone, withStyles(styles, {name: "PostsDailyList"})
+  withTimezone, withStyles(styles, {name: "PostsDailyList"})
 );
