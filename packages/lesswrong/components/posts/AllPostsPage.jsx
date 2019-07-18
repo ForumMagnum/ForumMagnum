@@ -58,6 +58,39 @@ class AllPostsPage extends Component {
     })
   }
 
+<<<<<<< HEAD
+=======
+  // TODO; factor out part of logic from render
+  // TODO; better args
+  renderPostsList = (currentTimeframe, postListParameters, classes, showSettings) => {
+    // TODO; ensure defaults are right
+    // TODO; and that user preference is remembered
+    // TODO; and that queries are king
+    // console.log('renderPostsList()')
+    // console.log(' currentTimeframe', currentTimeframe)
+    const numTimeBlocks = timeframeToNumTimeBlocks[currentTimeframe]
+    // console.log(' dailyTerms', dailyTerms)
+
+    const {PostsDailyList, PostsList2} = Components
+    if (currentTimeframe !== 'allTime') {
+      const timeBlock = timeframeToTimeBlock[currentTimeframe]
+      return <div className={classes.daily}>
+        <PostsDailyList
+          timeframe={currentTimeframe}
+          postListParameters={postListParameters} // TODO; name?
+          numTimeBlocks={numTimeBlocks}
+          dimWhenLoading={true} // TODO; showSettings
+          // TODO; rename from before after to more explicit
+          // TODO; do these functions change in the new world?
+          after={getAfterDateDefault(numTimeBlocks, timeBlock)}
+          before={getBeforeDateDefault(timeBlock)}
+        />
+      </div>
+    }
+    return <PostsList2 terms={postListParameters} showHeader={false} dimWhenLoading={showSettings} />
+  }
+
+>>>>>>> ed38a2ded... working multiple queries
   render() {
     const { classes, currentUser, router } = this.props
     const { showSettings } = this.state
