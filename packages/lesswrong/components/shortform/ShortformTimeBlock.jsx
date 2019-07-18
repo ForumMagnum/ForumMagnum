@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Components, withList, registerComponent } from 'meteor/vulcan:core';
 import { Comments } from '../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles';
+import moment from 'moment'
 
 const styles = theme => ({
   shortformGroup: {
@@ -16,19 +17,26 @@ const styles = theme => ({
 })
 
 class ShortformTimeBlock extends Component {
+  componentDidMount () {
+    const {networkStatus, results: comments} = this.props
+    this.checkEmpty(networkStatus, comments)
+  }
+
   componentDidUpdate (prevProps) {
     const {networkStatus: prevNetworkStatus} = prevProps
-    const {networkStatus, reportEmpty, results: comments} = this.props
+    const {networkStatus, results: comments} = this.props
+    if (prevNetworkStatus !== networkStatus) {
+      this.checkEmpty(networkStatus, comments)
+    }
+  }
+
+  checkEmpty (networkStatus, comments) {
+    const { reportEmpty } = this.props
     // https://github.com/apollographql/apollo-client/blob/master/packages/apollo-client/src/core/networkStatus.ts
     // 1-4 indicate query is in flight
     // There's a double negative here. We want to know if we did *not* find
     // shortform, because if there's no content for a day, we don't render.
-    if (
-      prevNetworkStatus !== networkStatus &&
-      ![1, 2, 3, 4].includes(networkStatus) &&
-      !comments?.length &&
-      reportEmpty
-    ) {
+    if (![1, 2, 3, 4].includes(networkStatus) && !comments?.length && reportEmpty) {
       reportEmpty()
     }
   }

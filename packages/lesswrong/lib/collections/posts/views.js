@@ -86,9 +86,6 @@ Posts.addDefaultView(terms => {
     },
     options: {},
   }
-  // TODO; Why not use default threshold
-  // TODO; looks like a bug in cases where karmaThreshold = 0, because we'd
-  // still want to filter
   if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
     params.selector.baseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
     params.selector.maxBaseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
@@ -254,9 +251,6 @@ Posts.addView("old", terms => ({
 // Covered by the same index as `new`
 
 Posts.addView("timeframe", terms => {
-  // TODO; what is the purpose of views on allPosts?
-  // TODO; why is this logging 4 times in the console at the end?
-  // console.log('timeframe view', terms)
   return {
     options: {limit: 10}
   }
@@ -268,11 +262,24 @@ ensureIndex(Posts,
   }
 );
 
-Posts.addView("daily", terms => ({
-  options: {
-    sort: {baseScore: -1}
+Posts.addView("daily", terms => {
+  if (terms.before === '2019-07-07') {
+    console.log('daily view')
+    console.log(' before', terms.before)
+    console.log(' after', terms.after)
+    return {
+      selector: {baseScore: {$gte: -11}},
+      options: {
+        sort: {baseScore: -1}
+      }
+    }
   }
-}));
+  return {
+    options: {
+      sort: {baseScore: -1}
+    }
+  }
+});
 ensureIndex(Posts,
   augmentForDefaultView({ postedAt:1, baseScore:1}),
   {
