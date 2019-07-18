@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { Components, withList, registerComponent } from 'meteor/vulcan:core';
 import { Comments } from '../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles';
@@ -15,30 +15,49 @@ const styles = theme => ({
   },
 })
 
-const ShortformTimeBlock = ({ totalCount, loadMore, results: comments, classes }) => {
-  const { CommentsNode, LoadMore } = Components
-  // TODO; return null or something?
-  if (!comments?.length) return <div></div>
-  return <div>
-    <div className={classes.shortformGroup}>
-      <div className={classes.shortformTag}>
-        Shortform [Beta]
+class ShortformTimeBlock extends Component {
+  componentDidUpdate (prevProps) {
+    const {networkStatus: prevNetworkStatus} = prevProps
+    const {networkStatus, reportEmpty, results: comments} = this.props
+    // https://github.com/apollographql/apollo-client/blob/master/packages/apollo-client/src/core/networkStatus.ts
+    // 1-4 indicate query is in flight
+    // There's a double negative here. We want to know if we did *not* find
+    // shortform, because if there's no content for a day, we don't render.
+    if (
+      prevNetworkStatus !== networkStatus &&
+      ![1, 2, 3, 4].includes(networkStatus) &&
+      !comments?.length &&
+      reportEmpty
+    ) {
+      reportEmpty()
+    }
+  }
+
+  render () {
+    const { totalCount, loadMore, results: comments, classes } = this.props
+    const { CommentsNode, LoadMore } = Components
+    if (!comments?.length) return null
+    return <div>
+      <div className={classes.shortformGroup}>
+        <div className={classes.shortformTag}>
+          Shortform [Beta]
+        </div>
+        {comments?.map((comment, i) =>
+          <CommentsNode
+            comment={comment} post={comment.post}
+            key={comment._id}
+            forceSingleLine loadChildrenSeparately
+          />)}
+        {comments?.length < totalCount &&
+        <LoadMore
+          loadMore={loadMore}
+          count={comments.length}
+          totalCount={totalCount}
+        />
+        }
       </div>
-      {comments?.map((comment, i) =>
-        <CommentsNode
-          comment={comment} post={comment.post}
-          key={comment._id}
-          forceSingleLine loadChildrenSeparately
-        />)}
-      {comments?.length < totalCount &&
-      <LoadMore
-        loadMore={loadMore}
-        count={comments.length}
-        totalCount={totalCount}
-      />
-      }
     </div>
-  </div>
+  }
 }
 
 registerComponent('ShortformTimeBlock', ShortformTimeBlock,
