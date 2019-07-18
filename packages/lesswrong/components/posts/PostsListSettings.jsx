@@ -13,7 +13,6 @@ import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/
 
 import { sortings as defaultSortings, timeframes as defaultTimeframs } from './AllPostsPage.jsx'
 
-// TODO; same trick for filters?
 const FILTERS_ALL = {
   "AlignmentForum": {
     all: {
@@ -140,7 +139,6 @@ const styles = theme => ({
   },
 })
 
-// TODO; could this be on the component?
 const SettingsColumn = ({type, title, options, currentOption, classes, setSetting}) => {
   const { MetaInfo } = Components
 
@@ -154,7 +152,7 @@ const SettingsColumn = ({type, title, options, currentOption, classes, setSettin
         <Link
           key={name}
           onClick={() => setSetting(type, name)}
-          // TODO; Can the query have an ordering that matches the column ordering?
+          // TODO: Can the query have an ordering that matches the column ordering?
           to={loc=> ({...loc, query: {...loc.query, [type]: name}})}
         >
           <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentOption === name})}>
@@ -203,7 +201,7 @@ class PostsListSettings extends Component {
 
     return (
       <div className={classNames(classes.root, {[classes.hidden]: hidden})}>
-        {/* TODO; spaced correctly */}
+        {/* TODO-Q-ForPR Does anyone notice the spacing bothering them? */}
         <SettingsColumn
           type={'timeframe'}
           title={'Timeframe:'}

@@ -1,4 +1,4 @@
-import {getDateRange, getafterDefault, getbeforeDefault} from './timeframeUtils'
+import { getDateRange } from './timeframeUtils'
 
 describe('getDateRange', () => {
   it('handles days', () => {
@@ -55,28 +55,3 @@ describe('getDateRange', () => {
     ).should.throw(Error, /Invalid timeBlock/)
   })
 })
-
-// // TODO; Probably just remove, don't feel like being the first person to use
-// // monkey-patching in this codebase
-//
-// describe.only('get___DateDefault', () => {
-//   before(() => {
-//
-//   })
-//
-//   describe('getAfterDefault', () => {
-//     // it('')
-//   })
-//
-//   describe('getBeforeDefault', () => {
-//     it('returns today for days', () => {
-//       const result = getBeforeDefault('days')
-//       result.should.equal(moment().format('YYYY-MM-DD'))
-//     })
-//
-//     // it('returns today for days', () => {
-//     //   const result = getBeforeDefault('days')
-//     //   result.should.equal(moment().format('YYYY-MM-DD'))
-//     // })
-//   })
-// })

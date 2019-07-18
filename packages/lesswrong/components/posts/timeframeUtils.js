@@ -1,6 +1,5 @@
 import moment from 'moment';
 
-// TODO; days -> day
 export const timeframeToTimeBlock = {
   daily: 'day',
   weekly: 'week',
@@ -9,7 +8,7 @@ export const timeframeToTimeBlock = {
 }
 
 // Locally valid. Moment supports seconds, but that's not how these functions
-// work
+// work.
 const VALID_TIME_BLOCKS = [
   'days', 'day',
   'weeks', 'week',
@@ -17,17 +16,16 @@ const VALID_TIME_BLOCKS = [
   'years', 'year',
 ]
 
-// Return a date string for each date which should have a section. This
-// includes all dates in the range, in descending order.
+// Return a date string for each date which should have a section, in
+// descending order.
 //
-// Dates must be in YYYY-MM-DD format
-// TODO; timeblock + doc
+// Dates must be in YYYY-MM-DD format. before is exclusive.
 //
 // This is timezone agnostic. For (2019-01-01, 2019-01-03, 'day') it will return
-// 2019-01-03, 2019-01-02, 2019-01-01, all as strings without regard to any
-// notion of timezone. It pretends that everything's in UTC for date-parsing
-// (used for date-math), but this is just a convenient fiction that doesn't
-// effect the result.
+// 2019-01-02, 2019-01-01, all as strings without regard to any notion of
+// timezone. It pretends that everything's in UTC for date-parsing (used for
+// date-math), but this is just a convenient fiction that doesn't effect the
+// result.
 export function getDateRange (after, before, timeBlock) {
   // true for strict parsing
   const mAfter = moment.utc(after, 'YYYY-MM-DD', true)
@@ -61,9 +59,12 @@ export function getDateRange (after, before, timeBlock) {
   )
 }
 
-// TODO; doc
-
-// TODO; not default, rename
+// Calculates the initial value for after, as used by PostsDailyList
+//
+// Will always land on the boundary of the timeBlock, as determined by moment's
+// startOf function. If you wanted to posts for the past 3 weeks, you'd call
+// this with (3, 'week'). You would then go to the most recent Sunday, and then
+// two Sundays before that.
 export function getAfterDefault (numTimeBlocks, timeBlock) {
   console.log('getAfterDefault()')
   if (!numTimeBlocks || !timeBlock) return
@@ -74,12 +75,13 @@ export function getAfterDefault (numTimeBlocks, timeBlock) {
   return afterResult
 }
 
+// Calculates the initial value for before, as used by PostsDailyList. Note that
+// it is used as an exclusive boundary.
+//
+// For ease of calculations, we start at the beginning of the next timeBlock.
+// i.e. if today is July 10th, the default 'before' date is August 1st.
 export function getBeforeDefault (timeBlock) {
-  console.log('getBeforeDefault()')
   if (!timeBlock) return
   const startNextTimeBlock = moment().startOf(timeBlock).add(1, timeBlock)
-  // console.log(' startNextTimeBlock', startNextTimeBlock)
-  const beforeResult = startNextTimeBlock.format('YYYY-MM-DD')
-  console.log(' beforeResult', beforeResult)
-  return beforeResult
+  return startNextTimeBlock.format('YYYY-MM-DD')
 }

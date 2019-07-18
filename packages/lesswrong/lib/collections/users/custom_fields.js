@@ -239,15 +239,6 @@ addFieldsDict(Users, {
     canCreate: Users.owns,
     hidden: true,
   },
-  // TODO: After initial deploy, remove allPostsView here and in fragments
-  allPostsView: {
-    type: String,
-    optional: true,
-    hidden: true,
-    canRead: Users.owns,
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    canCreate: Users.owns,
-  },
   allPostsSorting: {
     type: String,
     optional: true,

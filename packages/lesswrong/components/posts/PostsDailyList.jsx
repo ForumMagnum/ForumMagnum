@@ -17,38 +17,49 @@ const styles = theme => ({
   }
 })
 
+const loadMoreTimeframeMessages = {
+  'daily': 'Load More Days',
+  'weekly': 'Load More Weeks',
+  'monthly': 'Load More Months',
+  'yearly': 'Load More Years',
+}
+
 class PostsDailyList extends PureComponent {
 
   constructor(props) {
     super(props);
-    this.loadMoreDays = this.loadMoreDays.bind(this);
-    this.dayLoadComplete = this.dayLoadComplete.bind(this);
     this.state = {
+      // after goes backwards in time when we load more time blocks
       after: props.after,
-      before: props.before,
       dim: props.dimWhenLoading,
     };
   }
 
   componentDidUpdate (prevProps) {
-    // TODO; doc
-    if (prevProps.after !== this.props.after || prevProps.before !== this.props.before) {
-      this.setState({after: this.props.after, before: this.props.before})
+    // If we receive a new after prop, it's because our parent is asking us to
+    // change what we've loaded. Throw away any previous updates to the after
+    // state
+    if (prevProps.after !== this.props.after) {
+      this.setState({after: this.props.after})
     }
   }
 
-  loadMoreDays(e) {
+  loadMoreTimeBlocks = (e) => {
     e.preventDefault();
-    const numberOfDays = getSetting('forum.numberOfDays', 10);
-    const loadMoreAfter = moment(this.state.after, 'YYYY-MM-DD').subtract(numberOfDays, 'days').format('YYYY-MM-DD');
+    const { timeframe, numTimeBlocks } = this.props
+    const timeBlock = timeframeToTimeBlock[timeframe]
+    const loadMoreAfter = moment(this.state.after, 'YYYY-MM-DD')
+      .subtract(numTimeBlocks, timeBlock)
+      .format('YYYY-MM-DD');
     this.setState({
       after: loadMoreAfter,
     });
   }
 
   // Calculating when all the components have loaded looks like a mess of
-  // brittleness, we'll just cease to be dim as soon as a single day has loaded
-  dayLoadComplete () {
+  // brittleness, we'll just cease to be dim as soon as a single timeBlock has
+  // loaded
+  timeBlockLoadComplete = () => {
     if (this.state.dim) {
       this.setState({dim: false})
     }
@@ -56,9 +67,10 @@ class PostsDailyList extends PureComponent {
 
   render() {
     console.log('PostsDailyList render()')
-    const { classes, postListParameters, timeframe } = this.props
-    const { after, before, dim } = this.state
+    const { classes, postListParameters, timeframe, before } = this.props
+    const { after, dim } = this.state
     const { PostsDay } = Components
+
     // console.log(' timeframe', timeframe)
     const timeBlock = timeframeToTimeBlock[timeframe]
     // console.log(' timeBlock', timeBlock)
@@ -76,15 +88,16 @@ class PostsDailyList extends PureComponent {
             timeframe={timeframe}
             terms={{
               ...postListParameters,
+              // NB: 'before', as a parameter for a posts view, is inclusive
               before: moment(date).endOf(timeBlock).format('YYYY-MM-DD'),
               after: moment(date).startOf(timeBlock).format('YYYY-MM-DD'),
             }}
-            dayLoadComplete={this.dayLoadComplete}
+            timeBlockLoadComplete={this.timeBlockLoadComplete}
             hideIfEmpty={index===0}
           />
         )}
-        <Typography variant="body1" className={classes.loadMore} onClick={this.loadMoreDays}>
-          <a>Load More Days</a>
+        <Typography variant="body1" className={classes.loadMore} onClick={this.loadMoreTimeBlocks}>
+          <a>{loadMoreTimeframeMessages[timeframe]}</a>
         </Typography>
       </div>
     )

@@ -1,7 +1,6 @@
 import { Components, registerComponent, getSetting, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import moment from 'moment';
 import { withRouter } from '../../lib/reactRouterWrapper.js';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -39,10 +38,10 @@ export const timeframes = {
 }
 
 const timeframeToNumTimeBlocks = {
-  daily: getSetting('forum.numberOfDays', 5),
-  weekly: getSetting('forum.numberOfWeeks', 3),
-  monthly: getSetting('forum.numberOfMonths', 3),
-  yearly: getSetting('forum.numberOfYears', 1),
+  daily: getSetting('forum.numberOfDays'),
+  weekly: getSetting('forum.numberOfWeeks'),
+  monthly: getSetting('forum.numberOfMonths'),
+  yearly: getSetting('forum.numberOfYears'),
 }
 
 export const sortings = {
@@ -73,69 +72,64 @@ class AllPostsPage extends Component {
     })
   }
 
-  // TODO; factor out part of logic from render
-  // TODO; better args
-  renderPostsList = (currentTimeframe, postListParameters, classes, showSettings) => {
+  renderPostsList = ({currentTimeframe, currentFilter, currentSorting, currentShowLowKarma}) => {
     console.log('renderPostsList()')
     console.log(' currentTimeframe', currentTimeframe)
-    const numTimeBlocks = timeframeToNumTimeBlocks[currentTimeframe]
-
+    const { classes } = this.props
+    const { showSettings } = this.state
     const {PostsDailyList, PostsList2} = Components
-    if (currentTimeframe !== 'allTime') {
-      const timeBlock = timeframeToTimeBlock[currentTimeframe]
-      console.log(' timeBlock', timeBlock)
-      return <div className={classes.daily}>
-        <PostsDailyList
-          timeframe={currentTimeframe}
-          postListParameters={{
-            view: 'timeframe',
-            ...postListParameters
-          }}
-          numTimeBlocks={numTimeBlocks}
-          dimWhenLoading={showSettings}
-          after={getAfterDefault(numTimeBlocks, timeBlock)}
-          before={getBeforeDefault(timeBlock)}
-        />
-      </div>
+
+    const baseTerms = {
+      karmaThreshold: currentShowLowKarma ? MAX_LOW_KARMA_THRESHOLD : DEFAULT_LOW_KARMA_THRESHOLD,
+      filter: currentFilter,
+      sortedBy: currentSorting,
     }
-    return <PostsList2 terms={{...postListParameters, limit: 50}} showHeader={false} dimWhenLoading={showSettings} />
+
+    if (currentTimeframe === 'allTime') {
+      return <PostsList2
+        terms={{...baseTerms, limit: 50}}
+        showHeader={false}
+        dimWhenLoading={showSettings}
+      />
+    }
+
+    const numTimeBlocks = timeframeToNumTimeBlocks[currentTimeframe]
+    const timeBlock = timeframeToTimeBlock[currentTimeframe]
+    console.log(' timeBlock', timeBlock)
+    return <div className={classes.daily}>
+      <PostsDailyList
+        timeframe={currentTimeframe}
+        postListParameters={{
+          view: 'timeframe',
+          ...baseTerms
+        }}
+        numTimeBlocks={numTimeBlocks}
+        dimWhenLoading={showSettings}
+        after={getAfterDefault(numTimeBlocks, timeBlock)}
+        before={getBeforeDefault(timeBlock)}
+      />
+    </div>
   }
 
   render() {
     // console.log('AllPostsPage render()')
-    const { classes, currentUser, router } = this.props
+    const { classes, router, currentUser } = this.props
     const { showSettings } = this.state
     const { SingleColumnSection, SectionTitle, SettingsIcon, MetaInfo, TabNavigationMenu, PostsListSettings } = Components
-    // TODO; test by throwing crap at the query
-    const query = _.clone(router.location.query) || {}
-    // maintain backward compatibility with bookmarks
-    const querySorting = query.sortedBy || query.view
 
-    // TODO; generalize
+    const query = _.clone(router.location.query) || {}
     const currentTimeframe = query.timeframe ||
       (currentUser && currentUser.allPostsTimeframe) ||
       'allTime'
-    // TODO; deal with daily or allTime
-    // TODO[WIP] migration for allPostsView
-    // maintain backward compatibility with previous user setting during
-    // transition
-    const currentSorting = querySorting ||
-      (currentUser && (currentUser.allPostsSorting || currentUser.allPostsView)) ||
+    const currentSorting = query.sortedBy ||
+      (currentUser && (currentUser.allPostsSorting)) ||
       'magic'
     const currentFilter = query.filter ||
       (currentUser && currentUser.allPostsFilter) ||
       'all'
-    const currentShowLowKarma = (parseInt(query.karmaThreshold) === MAX_LOW_KARMA_THRESHOLD) || (currentUser && currentUser.allPostsShowLowKarma) || false
-
-    // TODO; deal with old view query param overriding
-    // TODO; rename
-    const baseTerms = {
-      // TODO; can we use showLowKarma??
-      karmaThreshold: DEFAULT_LOW_KARMA_THRESHOLD,
-      filter: currentFilter,
-      sortedBy: currentSorting,
-      ...query,
-    }
+    const currentShowLowKarma = (parseInt(query.karmaThreshold) === MAX_LOW_KARMA_THRESHOLD) ||
+      (currentUser && currentUser.allPostsShowLowKarma) ||
+      false
 
     return (
       <React.Fragment>
@@ -159,7 +153,7 @@ class AllPostsPage extends Component {
             currentShowLowKarma={currentShowLowKarma}
             persistentSettings
           />
-          {this.renderPostsList(currentTimeframe, baseTerms, classes, showSettings)}
+          {this.renderPostsList({currentTimeframe, currentSorting, currentFilter, currentShowLowKarma})}
         </SingleColumnSection>
       </React.Fragment>
     )
@@ -169,7 +163,7 @@ class AllPostsPage extends Component {
 const withUpdateOptions = {
   collection: Users,
   fragmentName: 'UsersCurrent',
-  ssr: false, // TODO; temporary
+  ssr: true,
 }
 
 registerComponent(
