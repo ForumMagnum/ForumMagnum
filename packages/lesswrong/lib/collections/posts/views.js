@@ -66,7 +66,6 @@ const sortings = {
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
  */
 Posts.addDefaultView(terms => {
-  // console.log('posts default view terms', terms)
   const validFields = _.pick(terms, 'userId', 'meta', 'groupId', 'af','question', 'authorIsUnreviewed');
   // Also valid fields: before, after, timeField (select on postedAt), and
   // karmaThreshold (selects on baseScore).
@@ -250,36 +249,11 @@ Posts.addView("old", terms => ({
 }))
 // Covered by the same index as `new`
 
-Posts.addView("timeframe", terms => {
-  return {
-    options: {limit: 10}
+Posts.addView("daily", terms => ({
+  options: {
+    sort: {baseScore: -1}
   }
-});
-ensureIndex(Posts,
-  augmentForDefaultView({ postedAt:1, baseScore:1}),
-  {
-    name: "posts.postedAt_baseScore",
-  }
-);
-
-Posts.addView("daily", terms => {
-  if (terms.before === '2019-07-07') {
-    console.log('daily view')
-    console.log(' before', terms.before)
-    console.log(' after', terms.after)
-    return {
-      selector: {baseScore: {$gte: -11}},
-      options: {
-        sort: {baseScore: -1}
-      }
-    }
-  }
-  return {
-    options: {
-      sort: {baseScore: -1}
-    }
-  }
-});
+}));
 ensureIndex(Posts,
   augmentForDefaultView({ postedAt:1, baseScore:1}),
   {

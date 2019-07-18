@@ -36,22 +36,14 @@ class PostsDailyList extends PureComponent {
   // TODO(JP): This function is a bit janky, but I'm about to refactor it for
   // timeframe use, so we'll leave it for now
   getDateRange(after, before) {
-    // console.log('getDateRange()')
-    // console.log(' after', after)
-    // console.log(' before', before)
     const mAfter = moment.utc(after, 'YYYY-MM-DD');
     const mBefore = moment.utc(before, 'YYYY-MM-DD');
-    // console.log(' mAfter', mAfter)
-    // console.log(' mBefore', mBefore)
     const daysCount = mBefore.diff(mAfter, 'days') + 1;
-    // console.log(' daysCount', daysCount)
-    // console.log(' timezone', this.props.timezone)
     const range = _.range(daysCount).map(
       i => moment.utc(before, 'YYYY-MM-DD').subtract(i, 'days')
         .tz(this.props.timezone)
         .format('YYYY-MM-DD')
     );
-    console.log(' range', range)
     return range;
   }
 
@@ -77,8 +69,7 @@ class PostsDailyList extends PureComponent {
     const { classes, postListParameters } = this.props
     const { after, before, dim } = this.state
     const { PostsDay } = Components
-    let dates = this.getDateRange(after, before)
-    // dates = ['2019-07-07']
+    const dates = this.getDateRange(after, before)
 
     return (
       <div className={classNames({[classes.loading]: dim})}>

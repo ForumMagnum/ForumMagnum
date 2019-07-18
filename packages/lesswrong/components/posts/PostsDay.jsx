@@ -52,22 +52,11 @@ class PostsDay extends Component {
   }
 
   render () {
-    // TODO; can we use property name?
     const {
       date, results: posts, totalCount, loading, loadMore, hideIfEmpty, classes, currentUser
     } = this.props
     const { noShortform } = this.state
     const { PostsItem2, LoadMore, ShortformTimeBlock, Loading } = Components
-
-    let debug = false
-    if (this.props.terms.before === '2019-07-07') {
-      debug = true
-    }
-    debug && console.log('PostsDay render() date', date)
-    debug && console.log(' ns', this.props.networkStatus)
-    debug && console.log(' loading', loading)
-    debug && console.log(' error', this.props.error)
-    debug && console.log(' data', this.props.data)
 
     const noPosts = !loading && (!posts || (posts.length === 0))
     // The most recent day is hidden if there are no posts or shortforms on it,
