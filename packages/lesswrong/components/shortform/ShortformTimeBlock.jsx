@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Components, withList, registerComponent } from 'meteor/vulcan:core';
 import { Comments } from '../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles';
-import moment from 'moment'
 
 const styles = theme => ({
   shortformGroup: {
@@ -78,5 +77,5 @@ registerComponent('ShortformTimeBlock', ShortformTimeBlock,
     limit: 3,
     ssr: true,
   }],
-  withStyles(styles, { name: "PostsDay" })
+  withStyles(styles, { name: "ShortformTimeBlock" })
 );

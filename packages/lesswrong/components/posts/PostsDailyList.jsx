@@ -94,10 +94,6 @@ class PostsDailyList extends PureComponent {
   }
 }
 
-PostsDailyList.propTypes = {
-  currentUser: PropTypes.object,
-};
-
 registerComponent('PostsDailyList', PostsDailyList,
   withTimezone, withStyles(styles, {name: "PostsDailyList"})
 );
