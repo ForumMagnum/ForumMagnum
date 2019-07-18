@@ -116,12 +116,11 @@ class CommentsNode extends Component {
     const mostRecent = (!condensed || (lastCommentId === comment._id))
     const lowKarmaOrCondensed = (comment.baseScore < 10 || condensed)
     const shortformAndTop = (nestingLevel === 1) && shortform
-    
+
     if (forceSingleLine)
       return true;
     
     return (
-      currentUser?.beta &&
       lowKarmaOrCondensed &&
       !(mostRecent && condensed) &&
       !(shortformAndTop)

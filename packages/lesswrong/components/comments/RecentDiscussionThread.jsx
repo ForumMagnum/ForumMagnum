@@ -172,7 +172,7 @@ class RecentDiscussionThread extends PureComponent {
             {nestedComments.map(comment =>
               <div key={comment.item._id}>
                 <CommentsNode
-                  startThreadTruncated={true}
+                  startThreadTruncated={(currentUser && currentUser.noCollapseCommentsFrontpage)}
                   nestingLevel={1}
                   lastCommentId={lastCommentId}
                   currentUser={currentUser}
