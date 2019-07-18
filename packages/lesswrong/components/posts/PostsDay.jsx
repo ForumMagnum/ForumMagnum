@@ -32,12 +32,24 @@ class PostsDay extends Component {
     }
   }
 
+  componentDidMount () {
+    const {networkStatus} = this.props
+    this.checkLoaded(networkStatus)
+  }
+
   componentDidUpdate (prevProps) {
     const {networkStatus: prevNetworkStatus} = prevProps
-    const {networkStatus, dayLoadComplete} = this.props
+    const {networkStatus} = this.props
+    if (prevNetworkStatus !== networkStatus) {
+      this.checkLoaded(networkStatus)
+    }
+  }
+
+  checkLoaded (networkStatus) {
+    const { dayLoadComplete } = this.props
     // https://github.com/apollographql/apollo-client/blob/master/packages/apollo-client/src/core/networkStatus.ts
     // 1-4 indicate query is in flight
-    if (prevNetworkStatus !== networkStatus && ![1, 2, 3, 4].includes(networkStatus) && dayLoadComplete) {
+    if (![1, 2, 3, 4].includes(networkStatus) && dayLoadComplete) {
       dayLoadComplete()
     }
   }
