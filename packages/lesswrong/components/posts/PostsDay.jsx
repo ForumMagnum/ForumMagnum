@@ -23,22 +23,31 @@ const styles = theme => ({
   },
 })
 
-// TODO; rename
 class PostsDay extends Component {
+  constructor (props) {
+    super(props)
+    this.reportEmptyShortform = this.reportEmptyShortform.bind(this);
+    this.state = {
+      noShortform: false
+    }
+  }
 
   componentDidUpdate (prevProps) {
-    // console.log('pd didUpdate')
     const {networkStatus: prevNetworkStatus} = prevProps
-    const {networkStatus, dayLoadComplete, date} = this.props
-    // console.log(' date', date)
-    // console.log(' prevNetworkStatus', prevNetworkStatus)
-    // console.log(' networkStatus', networkStatus)
+    const {networkStatus, dayLoadComplete} = this.props
     // https://github.com/apollographql/apollo-client/blob/master/packages/apollo-client/src/core/networkStatus.ts
     // 1-4 indicate query is in flight
-    // TODO; test for shortform loaded ?
     if (prevNetworkStatus !== networkStatus && ![1, 2, 3, 4].includes(networkStatus) && dayLoadComplete) {
-      // console.log(' loading complete for ', date)
-      dayLoadComplete() // date
+      dayLoadComplete()
+    }
+  }
+
+  // Child component needs a way to tell us about the presence of shortforms
+  reportEmptyShortform () {
+    if (!this.state.noShortform) {
+      this.setState({
+        noShortform: true
+      })
     }
   }
 
@@ -46,23 +55,15 @@ class PostsDay extends Component {
     const {
       date, results: posts, totalCount, loading, loadMore, hideIfEmpty, classes, currentUser
     } = this.props
-    console.log('PostsDay()')
-    console.log(' date', date)
-    // console.log(' posts', posts)
-    const noPosts = !loading && (!posts || (posts.length === 0))
+    const { noShortform } = this.state
     const { PostsItem2, LoadMore, ShortformTimeBlock, Loading } = Components
 
-    // The most recent day is hidden if there are no posts on it, to avoid having
-    // an awkward empty partial day when it's close to midnight.
-    console.log(' hideIfEmpty', hideIfEmpty)
-    console.log(' loading, posts.length', loading, posts?.length)
-    // TODO; what if there are shortform?
-    if (noPosts && hideIfEmpty) {
+    const noPosts = !loading && (!posts || (posts.length === 0))
+    // The most recent day is hidden if there are no posts or shortforms on it,
+    // to avoid having an awkward empty partial day when it's close to midnight.
+    if (noPosts && noShortform && hideIfEmpty) {
       return null
     }
-
-    // console.log(' posts.length', posts?.length)
-    // console.log(' totalCount', totalCount)
 
     return (
       <div className={classes.root}>
@@ -89,6 +90,7 @@ class PostsDay extends Component {
         />}
 
         {currentUser?.beta && <ShortformTimeBlock
+          reportEmpty={this.reportEmptyShortform}
           terms={{
             view: "topShortform",
             before: moment(date).add(1, 'days').toString(),
@@ -107,16 +109,14 @@ PostsDay.propTypes = {
   date: PropTypes.object,
 };
 
-// TODO; PR submission note (to remove): This component previously had a withList for the shortform view. Unfortunately, it seems Vulcan does not support multiple withList HOCs on a single component. Thus we have pushed them down into two separate child components <Finish writing this when finished with the refactor>.
 registerComponent('PostsDay', PostsDay,
   [withList, {
     collection: Posts,
     queryName: 'postsDailyListQuery',
     fragmentName: 'PostsList',
     enableTotal: true,
-    // enable cache?
-    limit: 0, // TODO;
-    ssr: false, // TODO;
+    enableCache: true,
+    ssr: true,
   }],
   withCurrentUser, withStyles(styles, { name: "PostsDay" })
 );

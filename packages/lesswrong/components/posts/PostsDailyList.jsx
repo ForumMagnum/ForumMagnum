@@ -21,7 +21,6 @@ class PostsDailyList extends PureComponent {
 
   constructor(props) {
     super(props);
-    // TODO; why do we need this?
     this.loadMoreDays = this.loadMoreDays.bind(this);
     this.dayLoadComplete = this.dayLoadComplete.bind(this);
     this.state = {
@@ -33,13 +32,13 @@ class PostsDailyList extends PureComponent {
 
   // Return a date string for each date which should have a section. This
   // includes all dates in the range
-  // TODO; move to timeframeUtils
+  // TODO(JP): Move to timeframeUtils
   getDateRange(after, before) {
     const mAfter = moment.utc(after, 'YYYY-MM-DD');
     const mBefore = moment.utc(before, 'YYYY-MM-DD');
-    const daysCount = mBefore.diff(mAfter, 'days') + 1;
+    const daysCount = mBefore.diff(mAfter, 'days');
     const range = _.range(daysCount).map(
-      i => moment.utc(before, 'YYYY-MM-DD').subtract(i, 'days')
+      i => moment.utc(before, 'YYYY-MM-DD').subtract(i + 1, 'days') // TODO; think real careful about cutting out tomorrow
         .tz(this.props.timezone)
         .format('YYYY-MM-DD')
     );
@@ -48,41 +47,27 @@ class PostsDailyList extends PureComponent {
 
   // variant 1: reload everything each time (works with polling)
   loadMoreDays(e) {
-    console.log('load more days()')
     e.preventDefault();
     const numberOfDays = getSetting('forum.numberOfDays', 5);
     const loadMoreAfter = moment(this.state.after, 'YYYY-MM-DD').subtract(numberOfDays, 'days').format('YYYY-MM-DD');
-    console.log('newAfter', loadMoreAfter)
-
     this.setState({
       after: loadMoreAfter,
-      // dim: props.dimWhenLoading Nah, right?
-      // datesLoading: this.getDateRange(after, moment.utc(this.state.after, 'YYYY-MM-DD').format('YYYY-MM-DD'))
     });
   }
 
   // Calculating when all the components have loaded looks like a mess of
   // brittleness, we'll just cease to be dim as soon as a single day has loaded
   dayLoadComplete () {
-    // TODO; timeout?
     if (this.state.dim) {
       this.setState({dim: false})
     }
   }
 
   render() {
-    console.log('PostsDailyList render()')
-    // TODO; where should we actually get terms
     const { classes, timeframe, postListParameters } = this.props
     const { after, before, dim } = this.state
-    // TODO; remove let
-    let dates = this.getDateRange(after, before);
-    // dates = dates.slice(0, 2)
-    // console.log('dates', dates)
+    const dates = this.getDateRange(after, before)
     const { PostsDay } = Components
-
-    // console.log(' dim', dim)
-    // console.log(' postListParameters', postListParameters)
 
     return (
       <div className={classNames({[classes.loading]: dim})}>
@@ -94,10 +79,8 @@ class PostsDailyList extends PureComponent {
               view: 'timeframe',
               timeframe,
               ...postListParameters,
-              // TODO; test with timezones
-              before: moment(date).format('YYYY-MM-DD'), // TODO; .add(1, 'days') ????
+              before: moment(date).format('YYYY-MM-DD'),
               after: moment(date).format('YYYY-MM-DD'),
-              // limit: 1
             }}
             dayLoadComplete={this.dayLoadComplete}
             hideIfEmpty={index===0}

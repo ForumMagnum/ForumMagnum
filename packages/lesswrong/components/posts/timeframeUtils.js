@@ -68,7 +68,7 @@ export function getAfterDateDefault (numTimeBlocks, timeBlock) {
 export function getBeforeDateDefault (timeBlock) {
   if (!timeBlock) return
   const startCurrentTimeBlock = moment().utc().startOf(timeBlock)
-  let result = startCurrentTimeBlock.add(1, timeBlock) // TODO; why is this necessary again?
+  let result = startCurrentTimeBlock.add(1, timeBlock) // TODO; why is this necessary again? IS it??
   if (timeBlock !== 'days') result = result.add(1, 'days') // TODO; remove but fix range
   return result.format('YYYY-MM-DD')
 }
