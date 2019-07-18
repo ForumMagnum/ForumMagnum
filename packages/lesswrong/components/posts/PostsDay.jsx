@@ -61,7 +61,7 @@ class PostsDay extends Component {
     const noPosts = !loading && (!posts || (posts.length === 0))
     // The most recent day is hidden if there are no posts or shortforms on it,
     // to avoid having an awkward empty partial day when it's close to midnight.
-    if (noPosts && noShortform && hideIfEmpty) {
+    if (noPosts && (!currentUser?.beta || noShortform) && hideIfEmpty) {
       return null
     }
 

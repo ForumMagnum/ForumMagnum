@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
 import moment from 'moment-timezone';
 import { getSetting, Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles'
@@ -32,7 +31,9 @@ class PostsDailyList extends PureComponent {
 
   // Return a date string for each date which should have a section. This
   // includes all dates in the range
-  // TODO(JP): Move to timeframeUtils
+  // TODO(JP): Move to timeframeUtils once that exists
+  // TODO(JP): This function is a bit janky, but I'm about to refactor it for
+  // timeframe use, so we'll leave it for now
   getDateRange(after, before) {
     const mAfter = moment.utc(after, 'YYYY-MM-DD');
     const mBefore = moment.utc(before, 'YYYY-MM-DD');
@@ -48,7 +49,7 @@ class PostsDailyList extends PureComponent {
   // variant 1: reload everything each time (works with polling)
   loadMoreDays(e) {
     e.preventDefault();
-    const numberOfDays = getSetting('forum.numberOfDays', 5);
+    const numberOfDays = getSetting('forum.numberOfDays', 10);
     const loadMoreAfter = moment(this.state.after, 'YYYY-MM-DD').subtract(numberOfDays, 'days').format('YYYY-MM-DD');
     this.setState({
       after: loadMoreAfter,
@@ -64,10 +65,10 @@ class PostsDailyList extends PureComponent {
   }
 
   render() {
-    const { classes, timeframe, postListParameters } = this.props
+    const { classes, postListParameters } = this.props
     const { after, before, dim } = this.state
-    const dates = this.getDateRange(after, before)
     const { PostsDay } = Components
+    const dates = this.getDateRange(after, before)
 
     return (
       <div className={classNames({[classes.loading]: dim})}>
@@ -76,8 +77,6 @@ class PostsDailyList extends PureComponent {
             key={date.toString()}
             date={moment(date)}
             terms={{
-              view: 'timeframe',
-              timeframe,
               ...postListParameters,
               before: moment(date).format('YYYY-MM-DD'),
               after: moment(date).format('YYYY-MM-DD'),
@@ -93,17 +92,6 @@ class PostsDailyList extends PureComponent {
     )
   }
 }
-
-PostsDailyList.propTypes = {
-  currentUser: PropTypes.object,
-  days: PropTypes.number,
-  increment: PropTypes.number
-};
-
-PostsDailyList.defaultProps = {
-  days: getSetting('forum.numberOfDays', 5),
-  increment: getSetting('forum.numberOfDays', 5)
-};
 
 registerComponent('PostsDailyList', PostsDailyList,
   withTimezone, withStyles(styles, {name: "PostsDailyList"})

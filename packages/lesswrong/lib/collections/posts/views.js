@@ -270,7 +270,7 @@ ensureIndex(Posts,
 
 Posts.addView("daily", terms => ({
   options: {
-    sort: {score: -1}
+    sort: {baseScore: -1}
   }
 }));
 ensureIndex(Posts,

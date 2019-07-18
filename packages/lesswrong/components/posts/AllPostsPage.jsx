@@ -98,7 +98,10 @@ class AllPostsPage extends Component {
       return <div className={classes.daily}>
         <PostsDailyList
           timeframe={currentTimeframe}
-          postListParameters={postListParameters} // TODO; name?
+          postListParameters={{
+            view: 'timeframe',
+            ...postListParameters
+          }} // TODO; name?
           numTimeBlocks={numTimeBlocks}
           dimWhenLoading={true} // TODO; showSettings
           // TODO; rename from before after to more explicit
