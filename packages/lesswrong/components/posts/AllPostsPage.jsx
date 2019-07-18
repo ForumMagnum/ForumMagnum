@@ -7,7 +7,7 @@ import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
-import { getBeforeDateDefault, getAfterDateDefault } from './timeframeUtils'
+import { getBeforeDefault, getAfterDefault, timeframeToTimeBlock } from './timeframeUtils'
 
 const styles = theme => ({
   daily: {
@@ -36,14 +36,6 @@ export const timeframes = {
   weekly: 'Weekly',
   monthly: 'Monthly',
   yearly: 'Yearly',
-}
-
-// TODO; days -> day
-export const timeframeToTimeBlock = {
-  daily: 'days',
-  weekly: 'weeks',
-  monthly: 'months',
-  yearly: 'years',
 }
 
 const timeframeToNumTimeBlocks = {
@@ -84,9 +76,6 @@ class AllPostsPage extends Component {
   // TODO; factor out part of logic from render
   // TODO; better args
   renderPostsList = (currentTimeframe, postListParameters, classes, showSettings) => {
-    // TODO; ensure defaults are right
-    // TODO; and that user preference is remembered
-    // TODO; and that queries are king
     // console.log('renderPostsList()')
     // console.log(' currentTimeframe', currentTimeframe)
     const numTimeBlocks = timeframeToNumTimeBlocks[currentTimeframe]
@@ -101,17 +90,15 @@ class AllPostsPage extends Component {
           postListParameters={{
             view: 'timeframe',
             ...postListParameters
-          }} // TODO; name?
+          }}
           numTimeBlocks={numTimeBlocks}
-          dimWhenLoading={true} // TODO; showSettings
-          // TODO; rename from before after to more explicit
-          // TODO; do these functions change in the new world?
-          after={getAfterDateDefault(numTimeBlocks, timeBlock)}
-          before={getBeforeDateDefault(timeBlock)}
+          dimWhenLoading={showSettings}
+          after={getAfterDefault(numTimeBlocks, timeBlock)}
+          before={getBeforeDefault(timeBlock)}
         />
       </div>
     }
-    return <PostsList2 terms={postListParameters} showHeader={false} dimWhenLoading={showSettings} />
+    return <PostsList2 terms={{...postListParameters, limit: 50}} showHeader={false} dimWhenLoading={showSettings} />
   }
 
   render() {
@@ -142,13 +129,12 @@ class AllPostsPage extends Component {
 
     // TODO; deal with old view query param overriding
     // TODO; rename
-    const terms = {
+    const baseTerms = {
       // TODO; can we use showLowKarma??
       karmaThreshold: DEFAULT_LOW_KARMA_THRESHOLD,
       filter: currentFilter,
       sortedBy: currentSorting,
       ...query,
-      limit:50 // TODO; remove?
     }
 
     return (
@@ -173,7 +159,7 @@ class AllPostsPage extends Component {
             currentShowLowKarma={currentShowLowKarma}
             persistentSettings
           />
-          {this.renderPostsList(currentTimeframe, terms, classes, showSettings)}
+          {this.renderPostsList(currentTimeframe, baseTerms, classes, showSettings)}
         </SingleColumnSection>
       </React.Fragment>
     )

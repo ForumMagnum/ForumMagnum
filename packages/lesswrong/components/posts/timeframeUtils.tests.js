@@ -1,6 +1,6 @@
-import {getDatePosts, getDateRange} from './timeframeUtils'
+import {getDateRange, getafterDefault, getbeforeDefault} from './timeframeUtils'
 
-describe.only('getDateRange', () => {
+describe('getDateRange', () => {
   it('handles days', () => {
     const result = getDateRange('2019-01-01', '2019-01-03', 'day')
     result.should.deep.equal(['2019-01-03', '2019-01-02', '2019-01-01'])
@@ -34,7 +34,7 @@ describe.only('getDateRange', () => {
   it('handles reversed start and end dates', () => {
     (
       () => getDateRange('2019-01-03', '2019-01-01', 'day')
-    ).should.throw(Error, /got a startDate .* after the endDate/)
+    ).should.throw(Error, /got a after .* after the before/)
   })
 
   it('handles malformed dates', () => {
@@ -56,3 +56,27 @@ describe.only('getDateRange', () => {
   })
 })
 
+// // TODO; Probably just remove, don't feel like being the first person to use
+// // monkey-patching in this codebase
+//
+// describe.only('get___DateDefault', () => {
+//   before(() => {
+//
+//   })
+//
+//   describe('getAfterDefault', () => {
+//     // it('')
+//   })
+//
+//   describe('getBeforeDefault', () => {
+//     it('returns today for days', () => {
+//       const result = getBeforeDefault('days')
+//       result.should.equal(moment().format('YYYY-MM-DD'))
+//     })
+//
+//     // it('returns today for days', () => {
+//     //   const result = getBeforeDefault('days')
+//     //   result.should.equal(moment().format('YYYY-MM-DD'))
+//     // })
+//   })
+// })

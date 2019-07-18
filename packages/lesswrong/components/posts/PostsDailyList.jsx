@@ -1,10 +1,11 @@
 import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import moment from 'moment-timezone';
 import { getSetting, Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import classNames from 'classnames';
-import { getDateRange } from './timeframeUtils'
+import { getDateRange, timeframeToTimeBlock } from './timeframeUtils'
 
 const styles = theme => ({
   loading: {
@@ -48,21 +49,27 @@ class PostsDailyList extends PureComponent {
   }
 
   render() {
-    const { classes, postListParameters } = this.props
+    console.log('PostsDailyList render()')
+    const { classes, postListParameters, timeframe } = this.props
     const { after, before, dim } = this.state
     const { PostsDay } = Components
-    const dates = getDateRange(after, before, 'day')
+    // console.log(' timeframe', timeframe)
+    const timeBlock = timeframeToTimeBlock[timeframe]
+    // console.log(' timeBlock', timeBlock)
+    const dates = getDateRange(after, before, timeBlock)
+    console.log(' dates', dates)
 
     return (
       <div className={classNames({[classes.loading]: dim})}>
         {dates.map((date, index) =>
           <PostsDay
             key={date.toString()}
-            date={moment(date)}
+            startDate={moment(date)}
+            timeframe={timeframe}
             terms={{
               ...postListParameters,
-              before: moment(date).format('YYYY-MM-DD'),
-              after: moment(date).format('YYYY-MM-DD'),
+              before: moment(date).endOf(timeBlock).format('YYYY-MM-DD'),
+              after: moment(date).startOf(timeBlock).format('YYYY-MM-DD'),
             }}
             dayLoadComplete={this.dayLoadComplete}
             hideIfEmpty={index===0}
@@ -75,6 +82,11 @@ class PostsDailyList extends PureComponent {
     )
   }
 }
+
+PostsDailyList.propTypes = {
+  after: PropTypes.string,
+  before: PropTypes.string, // exclusive
+};
 
 registerComponent('PostsDailyList', PostsDailyList,
   withStyles(styles, {name: "PostsDailyList"})

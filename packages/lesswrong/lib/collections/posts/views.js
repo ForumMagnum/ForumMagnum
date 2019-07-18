@@ -260,7 +260,9 @@ Posts.addView("old", terms => ({
 Posts.addView("timeframe", terms => {
   // TODO; what is the purpose of views on allPosts?
   // TODO; why is this logging 4 times in the console at the end?
-  // console.log('timeframe view', terms)
+  // console.log('timeframe view()')
+  // console.log(' terms.after', terms.after)
+  // console.log(' terms.before', terms.before)
   return {
     options: {limit: 10}
   }

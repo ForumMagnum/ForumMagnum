@@ -6,6 +6,7 @@ import Hidden from '@material-ui/core/Hidden';
 import { withStyles } from '@material-ui/core/styles';
 import moment from 'moment-timezone';
 import { Posts } from '../../lib/collections/posts';
+import { timeframeToTimeBlock } from './timeframeUtils'
 
 const styles = theme => ({
   root: {
@@ -65,10 +66,11 @@ class PostsDay extends Component {
 
   render () {
     const {
-      date, results: posts, totalCount, loading, loadMore, hideIfEmpty, classes, currentUser
+      startDate, results: posts, totalCount, loading, loadMore, hideIfEmpty, classes, currentUser, timeframe
     } = this.props
     const { noShortform } = this.state
     const { PostsItem2, LoadMore, ShortformTimeBlock, Loading } = Components
+    const timeBlock = timeframeToTimeBlock[timeframe]
 
     const noPosts = !loading && (!posts || (posts.length === 0))
     // The most recent day is hidden if there are no posts or shortforms on it,
@@ -80,17 +82,23 @@ class PostsDay extends Component {
     return (
       <div className={classes.root}>
         <Typography variant="headline" className={classes.dayTitle}>
-          <Hidden xsDown implementation="css">
-            {date.format('dddd, MMMM Do YYYY')}
-          </Hidden>
-          <Hidden smUp implementation="css">
-            {date.format('ddd, MMM Do YYYY')}
-          </Hidden>
+          {timeframe === 'yearly' && startDate.format('YYYY')}
+          {timeframe === 'monthly' && startDate.format('MMMM YYYY')}
+          {['daily', 'weekly'].includes(timeframe) && <div>
+            <Hidden xsDown implementation="css">
+              {timeframe === 'weekly' && 'Week Of '}
+              {startDate.format('dddd, MMMM Do YYYY')}
+            </Hidden>
+            <Hidden smUp implementation="css">
+              {timeframe === 'weekly' && 'Week Of '}
+              {startDate.format('ddd, MMM Do YYYY')}
+            </Hidden>
+          </div>}
         </Typography>
 
         { loading && <Loading /> }
 
-        { noPosts && <div className={classes.noPosts}>No posts on {date.format('MMMM Do YYYY')}</div> }
+        { noPosts && <div className={classes.noPosts}>No posts on {startDate.format('MMMM Do YYYY')}</div> }
 
         {posts?.map((post, i) =>
           <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
@@ -105,8 +113,8 @@ class PostsDay extends Component {
           reportEmpty={this.reportEmptyShortform}
           terms={{
             view: "topShortform",
-            before: moment(date).add(1, 'days').toString(),
-            after: moment(date).toString()
+            before: moment(startDate).endOf(timeBlock).add(1, 'days').toString(),
+            after: moment(startDate).startOf(timeBlock).toString()
           }}
         />}
 
@@ -118,7 +126,7 @@ class PostsDay extends Component {
 
 PostsDay.propTypes = {
   currentUser: PropTypes.object,
-  date: PropTypes.object,
+  startDate: PropTypes.object,
 };
 
 registerComponent('PostsDay', PostsDay,
