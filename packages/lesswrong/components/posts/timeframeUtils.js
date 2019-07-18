@@ -22,8 +22,8 @@ const VALID_TIME_BLOCKS = [
 // effect the result.
 export function getDateRange (startDate, endDate, timeBlock) {
   // true for strict parsing
-  const mStartDate = moment.utc(startDate, 'YYYY-MM-DD', true);
-  const mEndDate = moment.utc(endDate, 'YYYY-MM-DD', true);
+  const mStartDate = moment.utc(startDate, 'YYYY-MM-DD', true)
+  const mEndDate = moment.utc(endDate, 'YYYY-MM-DD', true)
   if (!mStartDate.isValid()) {
     throw new Error(`Invalid startDate '${startDate}', expected 'YYYY-MM-DD'`)
   }
@@ -39,18 +39,18 @@ export function getDateRange (startDate, endDate, timeBlock) {
     throw new Error(`getDateRange got a startDate (${startDate}) after the endDate (${endDate})`)
   }
   if (rawDiff % 1 !== 0) {
+    // eslint-disable-next-line no-console
     console.warn(`getDateRange: dates ${startDate}, ${endDate} are not exactly N ${timeBlock}s apart`)
     // No return, ceil the value and return a range that goes before the
     // startDate
   }
   // +1 for fenceposts
-  const numTimeBlocks = Math.ceil(rawDiff) + 1;
-  const range = _.range(numTimeBlocks).map(
+  const numTimeBlocks = Math.ceil(rawDiff) + 1
+  return _.range(numTimeBlocks).map(
     i => mEndDate.clone()
       .subtract(i, timeBlock)
       .format('YYYY-MM-DD')
-  );
-  return range
+  )
 }
 
 // TODO; doc
