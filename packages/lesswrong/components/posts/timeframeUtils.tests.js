@@ -1,62 +1,58 @@
 import {getDatePosts, getDateRange} from './timeframeUtils'
 
-describe('getDatePosts', () => {
-  const posts = [
-    {testId: 1, postedAt: '2019-01-11T01:20:30.123Z'},
-    {testId: 2, postedAt: '2019-01-12T01:20:30.123Z'},
-    // Feb
-    {testId: 3, postedAt: '2019-02-13T01:20:30.123Z'},
-    // curatedAt
-    {testId: 4, postedAt: '2018-12-31T01:20:30.123Z', curatedAt: '2019-01-11T01:20:30.123Z'},
-  ]
-
-  it('handles basic case', () => {
-    const result = getDatePosts(posts, '2019-01-12', 'days', null, 'Etc/UTC')
-    result.should.deep.equal([{testId: 2, postedAt: '2019-01-12T01:20:30.123Z'}])
+describe.only('getDateRange', () => {
+  it('handles days', () => {
+    const result = getDateRange('2019-01-01', '2019-01-03', 'day')
+    result.should.deep.equal(['2019-01-03', '2019-01-02', '2019-01-01'])
   })
 
-  it('handles timezones', () => {
-    // Note that in Pacific Time, those posts are all still in the previous
-    // day. We ask for posts on the 11th and expect to get back the 2nd post.
-    const result = getDatePosts(posts, '2019-01-11', 'days', null, 'America/Los_Angeles')
-    result.should.deep.equal([{testId: 2, postedAt: '2019-01-12T01:20:30.123Z'}])
+  it('handles weeks, basic case', () => {
+    const result = getDateRange('2019-01-01', '2019-01-15', 'week')
+    result.should.deep.equal(['2019-01-15', '2019-01-08', '2019-01-01'])
   })
 
   it('handles months', () => {
-    // Also test that it can return more than one post
-    const result = getDatePosts(posts, '2019-01-01', 'months', null, 'Etc/UTC')
-    result.should.deep.equal([
-      {testId: 1, postedAt: '2019-01-11T01:20:30.123Z'},
-      {testId: 2, postedAt: '2019-01-12T01:20:30.123Z'},
-    ])
+    const result = getDateRange('2019-01-01', '2019-03-01', 'month')
+    result.should.deep.equal(['2019-03-01', '2019-02-01', '2019-01-01'])
   })
 
-  it('handles timeField', () => {
-    // Also test that it can handle missing field gracefully
-    const result = getDatePosts(posts, '2019-01-11', 'months', 'curatedAt', 'Etc/UTC')
-    result.should.deep.equal([
-      {testId: 4, postedAt: '2018-12-31T01:20:30.123Z', curatedAt: '2019-01-11T01:20:30.123Z'},
-    ])
-  })
-})
-
-describe('getDateRange', () => {
-  const posts = [
-    {testId: 1, postedAt: '2019-01-11T01:20:30.123Z'},
-    {testId: 2, postedAt: '2019-01-12T01:20:30.123Z'},
-    {testId: 3, postedAt: '2019-01-13T01:20:30.123Z'},
-  ]
-
-  it('handles case basic case', () => {
-    const result = getDateRange('2019-01-11', '2019-01-13', posts, 'days', null, 'Etc/UTC')
-    result.should.deep.equal(['2019-01-13', '2019-01-12', '2019-01-11'])
+  it('handles years', () => {
+    const result = getDateRange('2018-01-01', '2019-01-01', 'year')
+    result.should.deep.equal(['2019-01-01', '2018-01-01'])
   })
 
-  it('excludes last day if there\'s no posts', () => {
-    const result = getDateRange('2019-01-12', '2019-01-14', posts, 'days', null, 'Etc/UTC')
-    result.should.deep.equal(['2019-01-13', '2019-01-12'])
+  // --- Sad cases --- //
+
+  // Correct behavior for partial timeBlocks isn't super obvious. I'd hope it
+  // wouldn't come up, but I think the right way to handle it is to go further
+  // back than expected
+  it('handles partial timeBlocks', () => {
+    const result = getDateRange('2019-01-02', '2019-01-15', 'week')
+    result.should.deep.equal(['2019-01-15', '2019-01-08', '2019-01-01'])
   })
 
-  // TODO; Week, month, year
+  it('handles reversed start and end dates', () => {
+    (
+      () => getDateRange('2019-01-03', '2019-01-01', 'day')
+    ).should.throw(Error, /got a startDate .* after the endDate/)
+  })
+
+  it('handles malformed dates', () => {
+    (
+      () => getDateRange('01/01/2019', '2019-01-03', 'day')
+    ).should.throw(Error, /Invalid \w+Date/)
+  })
+
+  it('handles malformed timeBlock', () => {
+    (
+      () => getDateRange('2019-01-01', '2019-01-03', 'asdf')
+    ).should.throw(Error, /Invalid timeBlock/)
+  })
+
+  it('handles null timeBlock', () => {
+    (
+      () => getDateRange('2019-01-01', '2019-01-03', null)
+    ).should.throw(Error, /Invalid timeBlock/)
+  })
 })
 

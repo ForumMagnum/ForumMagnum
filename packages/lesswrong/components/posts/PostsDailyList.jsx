@@ -4,7 +4,7 @@ import { getSetting, Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import classNames from 'classnames';
-import withTimezone from '../common/withTimezone';
+import { getDateRange } from './timeframeUtils'
 
 const styles = theme => ({
   loading: {
@@ -29,23 +29,6 @@ class PostsDailyList extends PureComponent {
     };
   }
 
-  // Return a date string for each date which should have a section. This
-  // includes all dates in the range
-  // TODO(JP): Move to timeframeUtils once that exists
-  // TODO(JP): This function is a bit janky, but I'm about to refactor it for
-  // timeframe use, so we'll leave it for now
-  getDateRange(after, before) {
-    const mAfter = moment.utc(after, 'YYYY-MM-DD');
-    const mBefore = moment.utc(before, 'YYYY-MM-DD');
-    const daysCount = mBefore.diff(mAfter, 'days');
-    const range = _.range(daysCount).map(
-      i => moment.utc(before, 'YYYY-MM-DD').subtract(i + 1, 'days') // TODO; think real careful about cutting out tomorrow
-        .tz(this.props.timezone)
-        .format('YYYY-MM-DD')
-    );
-    return range;
-  }
-
   // variant 1: reload everything each time (works with polling)
   loadMoreDays(e) {
     e.preventDefault();
@@ -65,10 +48,10 @@ class PostsDailyList extends PureComponent {
   }
 
   render() {
-    const { classes, postListParameters } = this.props
+    const { classes, postListParameters, timezone } = this.props
     const { after, before, dim } = this.state
     const { PostsDay } = Components
-    const dates = this.getDateRange(after, before)
+    const dates = getDateRange(after, before, null)
 
     return (
       <div className={classNames({[classes.loading]: dim})}>
@@ -94,5 +77,5 @@ class PostsDailyList extends PureComponent {
 }
 
 registerComponent('PostsDailyList', PostsDailyList,
-  withTimezone, withStyles(styles, {name: "PostsDailyList"})
+  withStyles(styles, {name: "PostsDailyList"})
 );

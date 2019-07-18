@@ -1,58 +1,56 @@
-import moment from 'moment-timezone';
+import moment from 'moment';
 
-// Given a list of posts and a date, get all the posts in the same {timeBlock}
-// as the date.
-// Export for testing
-// TODO; kwargs
-export const getDatePosts = (posts, date, timeBlock, timeField, timezone) => {
-  // console.log('getDatePosts')
-  // console.log(' date moment', moment(date))
-  // console.log(' timeBlock', timeBlock)
-  // console.log(' timeField', timeField)
-  // console.log(' timezone', timezone)
-  const result = _.filter(posts, post => {
-    const postDate = moment(new Date(timeField ? post[timeField] : post.postedAt))
-      .tz(timezone)
-    // console.log(' postDate', postDate.format('YYYY-MM-DD'))
-    // console.log(' postDate moment', postDate)
-    const result = postDate.isSame(moment(date), timeBlock)
-    // console.log(' result', result)
-    return result
-  })
-  // console.log('/getDatePosts')
-  return result
-}
+// Locally valid. Moment supports seconds, but that's not how these functions
+// work
+const VALID_TIME_BLOCKS = [
+  'days', 'day',
+  'weeks', 'week',
+  'months', 'month',
+  'years', 'year',
+]
 
 // Return a date string for each date which should have a section. This
-// includes all dates in the range (inclusive), *except* that if the newest date has no
-// posts, it's omitted. (Because the end of the range is some fraction of a
-// day into the future, which would otherwise sometimes result in an awkward
-// empty slot for tomorrow, depending on the current time of day.)
-// TODO; See TODO in getBeforeDateDefault for if this functionality is necessary
-// Export for testing
-export const getDateRange = (after, before, posts, timeBlock, timeField, timezone) => {
-  // console.log('getDateRange')
-  // console.log(' after', after)
-  // console.log(' before', before)
-  // console.log(' timeBlock', timeBlock)
-  // console.log(' timezone', timezone)
-  const mAfter = moment.utc(after, 'YYYY-MM-DD');
-  const mBefore = moment.utc(before, 'YYYY-MM-DD');
-  const timeBlocksCount = mBefore.diff(mAfter, timeBlock) + 1;
-  // console.log(' timeBlocksCount', timeBlocksCount)
-  const range = _.range(timeBlocksCount).map(
-    i => moment.utc(before, 'YYYY-MM-DD').subtract(i, timeBlock)
-      .tz(timezone)
+// includes all dates in the range, in descending order.
+//
+// Dates must be in YYYY-MM-DD format
+// TODO; timeblock + doc
+//
+// This is timezone agnostic. For (2019-01-01, 2019-01-03, 'day') it will return
+// 2019-01-03, 2019-01-02, 2019-01-01, all as strings without regard to any
+// notion of timezone. It pretends that everything's in UTC for date-parsing
+// (used for date-math), but this is just a convenient fiction that doesn't
+// effect the result.
+export function getDateRange (startDate, endDate, timeBlock) {
+  // true for strict parsing
+  const mStartDate = moment.utc(startDate, 'YYYY-MM-DD', true);
+  const mEndDate = moment.utc(endDate, 'YYYY-MM-DD', true);
+  if (!mStartDate.isValid()) {
+    throw new Error(`Invalid startDate '${startDate}', expected 'YYYY-MM-DD'`)
+  }
+  if (!mEndDate.isValid()) {
+    throw new Error(`Invalid endDate '${endDate}', expected 'YYYY-MM-DD'`)
+  }
+  if (!VALID_TIME_BLOCKS.includes(timeBlock)) {
+    throw new Error(`Invalid timeBlock '${timeBlock}'`)
+  }
+  // true for decimal result
+  const rawDiff = mEndDate.diff(mStartDate, timeBlock, true)
+  if (rawDiff < 0) {
+    throw new Error(`getDateRange got a startDate (${startDate}) after the endDate (${endDate})`)
+  }
+  if (rawDiff % 1 !== 0) {
+    console.warn(`getDateRange: dates ${startDate}, ${endDate} are not exactly N ${timeBlock}s apart`)
+    // No return, ceil the value and return a range that goes before the
+    // startDate
+  }
+  // +1 for fenceposts
+  const numTimeBlocks = Math.ceil(rawDiff) + 1;
+  const range = _.range(numTimeBlocks).map(
+    i => mEndDate.clone()
+      .subtract(i, timeBlock)
       .format('YYYY-MM-DD')
   );
-  // console.log(' range', range)
-
-  if(getDatePosts(posts, range[0], timeBlock, timeField, timezone).length === 0) {
-    // console.log(' last timeBlock has no posts, returning')
-    return _.rest(range);
-  }
-  // console.log(' last timeBlock actually does have posts')
-  return range;
+  return range
 }
 
 // TODO; doc

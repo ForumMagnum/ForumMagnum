@@ -64,6 +64,10 @@ const sortings = {
 
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
+ *
+ * NB: Specifying "before" into posts views is a bit of a misnomer at present,
+ * as it is *inclusive*. The parameters callback that handles it outputs
+ * ~ $lt: before.endOf('day').
  */
 Posts.addDefaultView(terms => {
   // console.log('posts default view terms', terms)
