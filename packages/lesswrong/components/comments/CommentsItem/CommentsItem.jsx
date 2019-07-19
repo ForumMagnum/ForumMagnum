@@ -181,8 +181,7 @@ class CommentsItem extends Component {
               currentUser={currentUser}
               documentId={comment.parentCommentId}
               nestingLevel={nestingLevel - 1}
-              expanded={isParentComment}
-              truncated={!isParentComment}
+              truncated={false}
               key={comment.parentCommentId}
             />
           </div>

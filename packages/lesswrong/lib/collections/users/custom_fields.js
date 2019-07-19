@@ -632,7 +632,8 @@ addFieldsDict(Users, {
     label: "Group Location",
     control: 'LocationFormComponent',
     blackbox: true,
-    optional: true
+    optional: true,
+    order: 42,
   },
 
   location: {
@@ -767,7 +768,8 @@ addFieldsDict(Users, {
     optional: true,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment'],
-    hidden: !['LessWrong', 'AlignmentForum'].includes(getSetting('forumType'))
+    hidden: !['LessWrong', 'AlignmentForum'].includes(getSetting('forumType')),
+    order: 39,
   },
 
   noCollapseCommentsPosts: {
