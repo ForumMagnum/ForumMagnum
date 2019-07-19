@@ -89,9 +89,8 @@ class AllPostsPage extends Component {
     const dailyTerms = {
       view: 'daily',
       karmaThreshold: DEFAULT_LOW_KARMA_THRESHOLD,
-      after: moment().utc().subtract(numberOfDays - 1, 'days').format('YYYY-MM-DD'),
+      filter: currentFilter,
       ...query,
-      before: moment().utc().add(1, 'days').format('YYYY-MM-DD'),
     };
 
     return (
@@ -117,7 +116,12 @@ class AllPostsPage extends Component {
           />
           {currentSorting === "daily" ?
             <div className={classes.daily}>
-              <PostsDailyList terms={dailyTerms} days={numberOfDays} dimWhenLoading={showSettings} />
+              <PostsDailyList
+                after={moment().utc().subtract(numberOfDays - 1, 'days').format('YYYY-MM-DD')}
+                before={moment().utc().add(1, 'days').format('YYYY-MM-DD')}
+                postListParameters={dailyTerms}
+                dimWhenLoading={showSettings}
+              />
             </div>
             :
             <PostsList2 terms={terms} showHeader={false} dimWhenLoading={showSettings} />
