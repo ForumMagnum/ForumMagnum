@@ -17,7 +17,9 @@ class Home2 extends PureComponent {
     const { currentUser } = this.props
     const { showShortformFeed } = this.state
 
-    const { SingleColumnSection, SectionTitle, RecentDiscussionThreadsList, CommentsNewForm, HomeLatestPosts, TabNavigationMenu, RecommendationsAndCurated, SectionButton } = Components
+    const { SingleColumnSection, SectionTitle, RecentDiscussionThreadsList,
+      CommentsNewForm, HomeLatestPosts, TabNavigationMenu,
+      RecommendationsAndCurated, SectionButton, ShortformSubmitForm } = Components
 
     const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
         Users.canDo(currentUser, 'alignment.sidebar')

@@ -5,7 +5,7 @@ import { withRouter } from '../../lib/reactRouterWrapper.js';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 
 
-const NewShortformDialog = ({onClose}) => {
+const NewShortformDialog = ({onClose, router}) => {
   const { ShortformSubmitForm } = Components;
   return (
     <Dialog open={true}
