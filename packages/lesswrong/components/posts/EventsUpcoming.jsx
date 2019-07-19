@@ -2,7 +2,7 @@ import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 
-const numberOfDays = getSetting('forum.numberOfDays', 5);
+const numberOfDays = getSetting('forum.numberOfDays', 10);
 const styles = theme => ({
   daily: {
     padding: theme.spacing.unit

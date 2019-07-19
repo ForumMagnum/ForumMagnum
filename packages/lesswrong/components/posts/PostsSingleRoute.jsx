@@ -7,7 +7,7 @@ const PostsSingleRoute = ({match, router, location, currentRoute}) => {
   const query = parseQuery(location);
   const version = query?.revision
   if (currentRoute._id) {
-    return <Components.PostsPage documentId={currentRoute._id} sequenceId={null} version={version} />
+    return <Components.PostsPageWrapper documentId={currentRoute._id} sequenceId={null} version={version} />
   }
 };
 

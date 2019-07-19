@@ -22,7 +22,7 @@ class ShortformThread extends PureComponent {
   markAsRead = async () => {
     const { comment, recordPostView } = this.props
     this.setState({markedAsVisitedAt: new Date()});
-    recordPostView({...this.props, document: comment.post})
+    recordPostView({post: comment.post})
   }
 
   render () {

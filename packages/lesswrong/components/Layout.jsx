@@ -16,6 +16,7 @@ import { UserContext } from './common/withUser';
 import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
+import { PostsReadContext } from './common/withRecordPostView';
 import { getHeaderSubtitleDataFromRouterProps } from '../lib/routeUtil.js';
 
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
@@ -67,6 +68,7 @@ class Layout extends PureComponent {
   state = {
     timezone: null,
     toc: null,
+    postsRead: {}
   };
 
   searchResultsAreaRef = React.createRef();
@@ -160,6 +162,12 @@ class Layout extends PureComponent {
     return (
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
+      <PostsReadContext.Provider value={{
+        postsRead: this.state.postsRead,
+        setPostRead: (postId, isRead) => this.setState({
+          postsRead: {...this.state.postsRead, [postId]: isRead}
+        })
+      }}>
       <TableOfContentsContext.Provider value={this.setToC}>
         <div className={classNames("wrapper", {'alignment-forum': getSetting('forumType') === 'AlignmentForum'}) } id="wrapper">
           <DialogManager>
@@ -199,6 +207,7 @@ class Layout extends PureComponent {
           </DialogManager>
         </div>
       </TableOfContentsContext.Provider>
+      </PostsReadContext.Provider>
       </TimezoneContext.Provider>
       </UserContext.Provider>
     )

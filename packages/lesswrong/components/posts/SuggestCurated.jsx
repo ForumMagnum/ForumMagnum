@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
 import withUser from '../common/withUser';
+import MenuItem from '@material-ui/core/MenuItem';
 
 class SuggestCurated extends Component {
   handleSuggestCurated = () => {
@@ -30,7 +31,7 @@ class SuggestCurated extends Component {
   }
 
   render() {
-    const { currentUser, post, Container } = this.props;
+    const { currentUser, post } = this.props;
     if (currentUser &&
         post &&
         post.frontpageDate &&
@@ -39,19 +40,19 @@ class SuggestCurated extends Component {
         getSetting('forumType') !== 'AlignmentForum' &&
         Users.canDo(this.props.currentUser, "posts.moderate.all")) {
       return <div className="posts-page-suggest-curated">
-          { !post.suggestForCuratedUserIds || !post.suggestForCuratedUserIds.includes(currentUser._id) ?
-            <div onClick={this.handleSuggestCurated}>
-              <Container>
-                Suggest Curation
-              </Container>
-            </div> :
-            <div onClick={this.handleUnsuggestCurated}>
-              <Container>
-                Unsuggest Curation
-              </Container>
-            </div>
-          }
-        </div>
+        { !post.suggestForCuratedUserIds || !post.suggestForCuratedUserIds.includes(currentUser._id) ?
+          <div onClick={this.handleSuggestCurated}>
+            <MenuItem>
+              Suggest Curation
+            </MenuItem>
+          </div> :
+          <div onClick={this.handleUnsuggestCurated}>
+            <MenuItem>
+              Unsuggest Curation
+            </MenuItem>
+          </div>
+        }
+      </div>
     } else {
       return null
     }

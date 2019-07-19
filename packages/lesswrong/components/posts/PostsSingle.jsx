@@ -8,7 +8,7 @@ const PostsSingle = ({match, router, location}) => {
   const query = parseQuery(location);
   const version = query?.revision;
 
-  return <Components.PostsPage documentId={params._id} sequenceId={null} version={version} />
+  return <Components.PostsPageWrapper documentId={params._id} sequenceId={null} version={version} />
 };
 
 PostsSingle.displayName = "PostsSingle";

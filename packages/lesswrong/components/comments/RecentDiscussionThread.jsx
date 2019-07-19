@@ -107,11 +107,11 @@ class RecentDiscussionThread extends PureComponent {
 
   markAsRead = async () => {
     this.setState({readStatus:true, markedAsVisitedAt: new Date()});
-    this.props.recordPostView({...this.props, document:this.props.post})
+    this.props.recordPostView({post:this.props.post})
   }
 
   render() {
-    const { post, postCount, results, loading, updateComment, currentUser, classes, data: {refetch} } = this.props
+    const { post, postCount, results, loading, updateComment, currentUser, classes, data: {refetch}, isRead} = this.props
     const { readStatus, showHighlight, markedAsVisitedAt } = this.state
     const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle, Loading } = Components
 
@@ -144,7 +144,7 @@ class RecentDiscussionThread extends PureComponent {
           </Link>
 
           <div className={classes.threadMeta} onClick={this.showHighlight}>
-            {currentUser && !(post.lastVisitedAt || readStatus) &&
+            {currentUser && !(isRead || readStatus) &&
               <span title="Unread" className={classes.unreadDot}>•</span>}
             <PostsItemMeta post={post}/>
             <ShowOrHideHighlightButton
@@ -158,7 +158,7 @@ class RecentDiscussionThread extends PureComponent {
               <PostsHighlight post={post} />
             </div>
             : <div className={highlightClasses} onClick={this.showHighlight}>
-                { (!post.lastVisitedAt || post.commentCount === null) &&
+                { (!isRead || post.commentCount === null) &&
                   <ContentItemBody
                     className={classes.postHighlight}
                     dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents && post.contents.htmlHighlight)}}/>}
