@@ -144,7 +144,7 @@ class RecentDiscussionThread extends PureComponent {
           </Link>
 
           <div className={classes.threadMeta} onClick={this.showHighlight}>
-            {currentUser && !(post.lastVisitedAt || readStatus) &&
+            {currentUser && !(post.isRead || readStatus) &&
               <span title="Unread" className={classes.unreadDot}>•</span>}
             <PostsItemMeta post={post}/>
             <ShowOrHideHighlightButton
@@ -158,7 +158,7 @@ class RecentDiscussionThread extends PureComponent {
               <PostsHighlight post={post} />
             </div>
             : <div className={highlightClasses} onClick={this.showHighlight}>
-                { (!post.lastVisitedAt || post.commentCount === null) &&
+                { (!post.isRead || post.commentCount === null) &&
                   <ContentItemBody
                     className={classes.postHighlight}
                     dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents && post.contents.htmlHighlight)}}/>}

@@ -135,7 +135,6 @@ import '../components/posts/PostsItemMetaInfo.jsx';
 import '../components/posts/PostsItemNewCommentsWrapper.jsx';
 import '../components/posts/PostsItemIcons.jsx';
 import '../components/posts/PostsPage';
-import '../components/posts/PostsPageAdminActions.jsx';
 import '../components/posts/PostsSingleSlug.jsx';
 import '../components/posts/PostsSingleRoute.jsx';
 import '../components/posts/PostsSingleSlugWrapper.jsx';
