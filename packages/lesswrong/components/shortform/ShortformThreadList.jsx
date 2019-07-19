@@ -22,7 +22,6 @@ const ShortformThreadList = ({ classes, results, loading, loadMore, networkStatu
   }
 
   const loadingMore = networkStatus === 2;
-  const shortformFeedId = currentUser?.shortformFeedId
 
   return (
     <div>

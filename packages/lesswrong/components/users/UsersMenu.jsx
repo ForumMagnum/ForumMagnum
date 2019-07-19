@@ -86,7 +86,7 @@ class UsersMenu extends PureComponent {
                 <MenuItem>New Post</MenuItem>
               </Link>
             }
-            {currentUser?.beta &&
+            {currentUser.beta &&
               <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>
                 Post to Shortform [Beta]
               </MenuItem>
