@@ -229,19 +229,13 @@ class PostsPage extends Component {
   }
   
   render() {
-    const { loading, post, currentUser, classes, error } = this.props
+    const { post, refetch, currentUser, classes } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, PostsType,
-      LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigation,
+      LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
       TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate } = Components
 
-    if (error) {
-      return <Error404 />
-    } else if (loading && !post) {
-      return <div><Loading/></div>
-    } else if (!post) {
-      return <Error404/>
-    } else if (this.shouldHideAsSpam()) {
+    if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
     } else {
       const { html, plaintextDescription, markdown, wordCount = 0 } = post.contents || {}
