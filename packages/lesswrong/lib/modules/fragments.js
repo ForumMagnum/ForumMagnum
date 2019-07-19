@@ -208,6 +208,8 @@ registerFragment(`
   fragment SunshineUsersList on User {
     ...UsersMinimumInfo
     karma
+    bio
+    htmlBio
     createdAt
     email
     commentCount
