@@ -9,7 +9,7 @@ const PostsSingleSlug = ({results, loading, location}) => {
   const query = parseQuery(location);
   const version = query?.revision
   if (results && results.length>0 && results[0]._id) {
-    return <Components.PostsPage documentId={results[0]._id } sequenceId={null} version={version} />
+    return <Components.PostsPageWrapper documentId={results[0]._id } sequenceId={null} version={version} />
   } else {
     return loading ? <Components.Loading/> : <Error404 />
   }

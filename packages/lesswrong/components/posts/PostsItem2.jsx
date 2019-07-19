@@ -261,7 +261,7 @@ class PostsItem2 extends PureComponent {
   }
 
   toggleComments = (scroll) => {
-    this.props.recordPostView({...this.props, document:this.props.post})
+    this.props.recordPostView({post:this.props.post})
     this.setState((prevState) => {
       if (scroll) {
         this.postsItemRef.current.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"})
@@ -284,17 +284,17 @@ class PostsItem2 extends PureComponent {
   }
 
   hasUnreadComments = () => {
-    const { post } = this.props
+    const { post, isRead } = this.props
     const { readComments } = this.state
     const lastCommentedAt = Posts.getLastCommentedAt(post)
     const newComments = post.lastVisitedAt < lastCommentedAt;
-    return (post.isRead && newComments && !readComments)
+    return (isRead && newComments && !readComments)
   }
 
   render() {
     const { classes, post, sequenceId, chapter, currentUser, index, terms, resumeReading,
       showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true,
-      defaultToShowUnreadComments=false, dismissRecommendation } = this.props
+      defaultToShowUnreadComments=false, dismissRecommendation, isRead } = this.props
     const { showComments } = this.state
     const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
 
@@ -331,7 +331,7 @@ class PostsItem2 extends PureComponent {
             </PostsItem2MetaInfo>
 
             <Link to={postLink} className={classes.title}>
-              <PostsTitle post={post} expandOnHover={!renderComments} read={post.isRead} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
+              <PostsTitle post={post} expandOnHover={!renderComments} read={isRead} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
             </Link>
 
             {(resumeReading?.sequence || resumeReading?.collection) &&

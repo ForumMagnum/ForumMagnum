@@ -161,9 +161,9 @@ class PostActions extends Component {
             
             { !post.shortform &&
                <div onClick={this.handleMakeShortform}>
-                 <Container>
+                 <MenuItem>
                    Set as user's Shortform Post
-                 </Container>
+                 </MenuItem>
                </div>
             }
           </span>

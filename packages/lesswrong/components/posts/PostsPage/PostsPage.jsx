@@ -1,4 +1,4 @@
-import { Components, withDocument, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from '../../../lib/reactRouterWrapper.js';
@@ -213,12 +213,12 @@ function getHostname(url) {
 class PostsPage extends Component {
 
   getSequenceId() {
-    const { match: { params }, document: post } = this.props;
+    const { match: { params }, post } = this.props;
     return params.sequenceId || post?.canonicalSequenceId;
   }
   
   shouldHideAsSpam() {
-    const { document: post, currentUser } = this.props;
+    const { post, currentUser } = this.props;
     
     // Logged-out users shouldn't be able to see spam posts
     if (post.authorIsUnreviewed && !currentUser) {
@@ -229,7 +229,7 @@ class PostsPage extends Component {
   }
   
   render() {
-    const { loading, document: post, currentUser, classes, data: {refetch}, error } = this.props
+    const { loading, post, currentUser, classes, error } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, PostsType,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
@@ -350,43 +350,34 @@ class PostsPage extends Component {
   }
 
   async componentDidMount() {
-    this.props.recordPostView(this.props, {
-      sequenceId: this.getSequenceId(),
+    this.props.recordPostView({
+      post: this.props.post,
+      extraEventProperties: {
+        sequenceId: this.getSequenceId()
+      }
     });
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.document && this.props.document && prevProps.document._id !== this.props.document._id) {
+    if (prevProps.post && this.props.post && prevProps.post._id !== this.props.post._id) {
       this.props.closeAllEvents();
-      this.props.recordPostView(this.props, {
-        sequenceId: this.getSequenceId(),
+      this.props.recordPostView({
+        post: this.props.post,
+        extraEventProperties: {
+          sequenceId: this.getSequenceId(),
+        }
       });
     }
   }
 }
-PostsPage.displayName = "PostsPage";
 
 PostsPage.propTypes = {
   document: PropTypes.object,
 }
 
-const queryOptions = {
-  collection: Posts,
-  queryName: 'postsSingleQuery',
-  fragmentName: 'PostsWithNavigation',
-  enableTotal: false,
-  enableCache: true,
-  ssr: true,
-  extraVariables: {
-    version: 'String',
-    sequenceId: 'String',
-  }
-};
-
 registerComponent(
   'PostsPage', PostsPage,
   withUser, withRouter,
-  [withDocument, queryOptions],
   withStyles(styles, { name: "PostsPage" }),
   withRecordPostView,
   withNewEvents,
