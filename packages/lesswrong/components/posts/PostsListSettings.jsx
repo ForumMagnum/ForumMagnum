@@ -160,7 +160,7 @@ const SettingsColumn = ({type, title, options, currentOption, classes, setSettin
               <Tooltip title={<div>{optionValue.tooltip}</div>} placement="left-start">
                 <span>{ label }</span>
               </Tooltip> :
-              // TODO-Q: Anyone want to tell me how I can be smarter about
+              // TODO-Q-ForPR Anyone want to tell me how I can be smarter about
               // conditionally rendering that tooltip?
               <span>{ label }</span>
             }
