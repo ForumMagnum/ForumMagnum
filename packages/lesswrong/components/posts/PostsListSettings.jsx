@@ -195,21 +195,21 @@ class PostsListSettings extends Component {
   render () {
     const {
       classes, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma,
-      timeframes = defaultTimeframs, sortings = defaultSortings
+      timeframes = defaultTimeframs, sortings = defaultSortings, showTimeframe
     } = this.props
     const { MetaInfo } = Components
 
     return (
       <div className={classNames(classes.root, {[classes.hidden]: hidden})}>
         {/* TODO-Q-ForPR Does anyone notice the spacing bothering them? */}
-        <SettingsColumn
+        {showTimeframe && <SettingsColumn
           type={'timeframe'}
           title={'Timeframe:'}
           options={timeframes}
           currentOption={currentTimeframe}
           setSetting={this.setSetting}
           classes={classes}
-        />
+        />}
 
         <SettingsColumn
           type={'sortedBy'}

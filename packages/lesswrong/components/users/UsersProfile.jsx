@@ -293,6 +293,7 @@ class UsersProfile extends Component {
             currentFilter={currentFilter}
             currentShowLowKarma={true}
             sortings={sortings}
+            showTimeframe={false}
           />}
           <PostsList2 terms={terms} />
         </SingleColumnSection>

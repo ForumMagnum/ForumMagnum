@@ -148,6 +148,7 @@ class AllPostsPage extends Component {
             currentFilter={currentFilter}
             currentShowLowKarma={currentShowLowKarma}
             persistentSettings
+            showTimeframe
           />
           {this.renderPostsList({currentTimeframe, currentSorting, currentFilter, currentShowLowKarma})}
         </SingleColumnSection>
