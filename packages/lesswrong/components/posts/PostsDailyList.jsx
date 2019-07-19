@@ -66,18 +66,12 @@ class PostsDailyList extends PureComponent {
   }
 
   render() {
-    console.log('PostsDailyList render()')
     const { classes, postListParameters, timeframe, before } = this.props
     const { after, dim } = this.state
     const { PostsDay } = Components
 
-    // console.log(' timeframe', timeframe)
     const timeBlock = timeframeToTimeBlock[timeframe]
-    // console.log(' timeBlock', timeBlock)
-    console.log(' after', after)
-    console.log(' before', before)
     const dates = getDateRange(after, before, timeBlock)
-    console.log(' dates', dates)
 
     return (
       <div className={classNames({[classes.loading]: dim})}>

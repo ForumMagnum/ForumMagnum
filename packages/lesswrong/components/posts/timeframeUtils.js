@@ -66,13 +66,9 @@ export function getDateRange (after, before, timeBlock) {
 // this with (3, 'week'). You would then go to the most recent Sunday, and then
 // two Sundays before that.
 export function getAfterDefault (numTimeBlocks, timeBlock) {
-  console.log('getAfterDefault()')
   if (!numTimeBlocks || !timeBlock) return
   const startCurrentTimeBlock = moment().startOf(timeBlock)
-  // console.log(' startCurrentTimeBlock', startCurrentTimeBlock.format('YYYY-MM-DD'))
-  const afterResult = startCurrentTimeBlock.subtract(numTimeBlocks - 1, timeBlock).format('YYYY-MM-DD')
-  console.log(' afterResult', afterResult)
-  return afterResult
+  return startCurrentTimeBlock.subtract(numTimeBlocks - 1, timeBlock).format('YYYY-MM-DD')
 }
 
 // Calculates the initial value for before, as used by PostsDailyList. Note that

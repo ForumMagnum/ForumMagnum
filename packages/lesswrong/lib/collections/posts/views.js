@@ -70,7 +70,6 @@ const sortings = {
  * ~ $lt: before.endOf('day').
  */
 Posts.addDefaultView(terms => {
-  // console.log('posts default view terms', terms)
   const validFields = _.pick(terms, 'userId', 'meta', 'groupId', 'af','question', 'authorIsUnreviewed');
   // Also valid fields: before, after, timeField (select on postedAt), and
   // karmaThreshold (selects on baseScore).
