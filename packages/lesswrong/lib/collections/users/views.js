@@ -87,7 +87,13 @@ Users.addView("sunshineNewUsers", function () {
       ],
       reviewedByUserId: {$exists: false},
       banned: {$exists: false},
-    },
+    }, 
+    options: {
+      sort: {
+        commentCount: -1,
+        postCount: -1,
+      }
+    }
   }
 })
 ensureIndex(Users, {voteCount: 1, reviewedByUserId: 1, banned: 1})

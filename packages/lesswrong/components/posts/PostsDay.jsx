@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, withList, registerComponent } from 'meteor/vulcan:core';
+import { withCurrentUser, Components, withList, registerComponent } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
-import { Comments } from '../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles';
+import moment from 'moment-timezone';
+import { Posts } from '../../lib/collections/posts';
 
 const styles = theme => ({
   root: {
@@ -20,66 +21,99 @@ const styles = theme => ({
     marginLeft: "23px",
     color: "rgba(0,0,0,0.5)",
   },
-  shortformGroup: {
-    marginTop: 20,
-  },
-  shortformTag: {
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[700],
-    marginBottom: 8,
-  },
 })
 
-const PostsDay = ({ date, posts, results: comments, totalCount, loadMore, hideIfEmpty, classes, currentUser }) => {
-  const noPosts = !posts || (posts.length === 0);
-  const noComments = !comments || (comments.length === 0);
-  const { PostsItem2, CommentsNode, LoadMore } = Components
-
-  // The most recent day is hidden if there are no posts on it, to avoid having
-  // an awkward empty partial day when it's close to midnight.
-  if (noPosts && noComments && hideIfEmpty) {
-    return null;
+class PostsDay extends Component {
+  constructor (props) {
+    super(props)
+    this.reportEmptyShortform = this.reportEmptyShortform.bind(this);
+    this.state = {
+      noShortform: false
+    }
   }
-  
-  return (
-    <div className={classes.root}>
-      <Typography variant="headline" className={classes.dayTitle}>
-        <Hidden xsDown implementation="css">
-          {date.format('dddd, MMMM Do YYYY')}
-        </Hidden>
-        <Hidden smUp implementation="css">
-          {date.format('ddd, MMM Do YYYY')}
-        </Hidden>
-      </Typography>
-      
-      { (noPosts && noComments) && (<div className={classes.noPosts}>No posts on {date.format('MMMM Do YYYY')}</div>) }
-      
-      {posts?.map((post, i) =>
-        <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
-      
-      {currentUser?.beta && comments?.length > 0 &&
-        <div className={classes.shortformGroup}>
-          <div className={classes.shortformTag}>
-            Shortform [Beta]
-          </div>
-          {comments?.map((comment, i) =>
-            <CommentsNode
-              comment={comment} post={comment.post}
-              key={comment._id}
-              forceSingleLine loadChildrenSeparately
-            />)}
-          {comments?.length < totalCount &&
-            <LoadMore
-              loadMore={loadMore}
-              count={comments.length}
-              totalCount={totalCount}
-            />
-          }
-        </div>
-      }
-    </div>
-  );
+
+  componentDidMount () {
+    const {networkStatus} = this.props
+    this.checkLoaded(networkStatus)
+  }
+
+  componentDidUpdate (prevProps) {
+    const {networkStatus: prevNetworkStatus} = prevProps
+    const {networkStatus} = this.props
+    if (prevNetworkStatus !== networkStatus) {
+      this.checkLoaded(networkStatus)
+    }
+  }
+
+  checkLoaded (networkStatus) {
+    const { dayLoadComplete } = this.props
+    // https://github.com/apollographql/apollo-client/blob/master/packages/apollo-client/src/core/networkStatus.ts
+    // 1-4 indicate query is in flight
+    if (![1, 2, 3, 4].includes(networkStatus) && dayLoadComplete) {
+      dayLoadComplete()
+    }
+  }
+
+  // Child component needs a way to tell us about the presence of shortforms
+  reportEmptyShortform () {
+    if (!this.state.noShortform) {
+      this.setState({
+        noShortform: true
+      })
+    }
+  }
+
+  render () {
+    const {
+      date, results: posts, totalCount, loading, loadMore, hideIfEmpty, classes, currentUser
+    } = this.props
+    const { noShortform } = this.state
+    const { PostsItem2, LoadMore, ShortformTimeBlock, Loading } = Components
+
+    const noPosts = !loading && (!posts || (posts.length === 0))
+    // The most recent day is hidden if there are no posts or shortforms on it,
+    // to avoid having an awkward empty partial day when it's close to midnight.
+    if (noPosts && (!currentUser?.beta || noShortform) && hideIfEmpty) {
+      return null
+    }
+
+    return (
+      <div className={classes.root}>
+        <Typography variant="headline" className={classes.dayTitle}>
+          <Hidden xsDown implementation="css">
+            {date.format('dddd, MMMM Do YYYY')}
+          </Hidden>
+          <Hidden smUp implementation="css">
+            {date.format('ddd, MMM Do YYYY')}
+          </Hidden>
+        </Typography>
+
+        { loading && <Loading /> }
+
+        { noPosts && <div className={classes.noPosts}>No posts on {date.format('MMMM Do YYYY')}</div> }
+
+        {posts?.map((post, i) =>
+          <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
+
+        {posts?.length < totalCount && <LoadMore
+          loadMore={loadMore}
+          count={posts.length}
+          totalCount={totalCount}
+        />}
+
+        {currentUser?.beta && <ShortformTimeBlock
+          reportEmpty={this.reportEmptyShortform}
+          terms={{
+            view: "topShortform",
+            before: moment(date).add(1, 'days').toString(),
+            after: moment(date).toString()
+          }}
+        />}
+
+      </div>
+    );
+  }
+
 }
 
 PostsDay.propTypes = {
@@ -89,12 +123,12 @@ PostsDay.propTypes = {
 
 registerComponent('PostsDay', PostsDay,
   [withList, {
-    collection: Comments,
-    queryName: 'dailyShortformQuery',
-    fragmentName: 'ShortformComments',
+    collection: Posts,
+    queryName: 'postsDailyListQuery',
+    fragmentName: 'PostsList',
     enableTotal: true,
     enableCache: true,
-    limit: 3,
     ssr: true,
   }],
-  withStyles(styles, { name: "PostsDay" }));
+  withCurrentUser, withStyles(styles, { name: "PostsDay" })
+);
