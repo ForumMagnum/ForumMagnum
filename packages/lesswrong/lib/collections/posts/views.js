@@ -89,7 +89,7 @@ Posts.addDefaultView(terms => {
     },
     options: {},
   }
-  // TODO: Use default threshold
+  // TODO: Use default threshold in default view
   // TODO: Looks like a bug in cases where karmaThreshold = 0, because we'd
   // still want to filter.
   if (terms.karmaThreshold && terms.karmaThreshold !== "0") {

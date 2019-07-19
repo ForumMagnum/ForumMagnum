@@ -159,7 +159,6 @@ class AllPostsPage extends Component {
 const withUpdateOptions = {
   collection: Users,
   fragmentName: 'UsersCurrent',
-  ssr: true,
 }
 
 registerComponent(
