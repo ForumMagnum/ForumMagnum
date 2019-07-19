@@ -32,7 +32,7 @@ class Home2 extends PureComponent {
         <TabNavigationMenu />
   
         <RecommendationsAndCurated configName="frontpage" />
-  
+        
         <HomeLatestPosts />
   
         <SingleColumnSection>

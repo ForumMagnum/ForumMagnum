@@ -15,7 +15,6 @@ import './server/scripts/hpmorImport.js';
 import './server/scripts/algoliaExport.js';
 import './server/scripts/algoliaConfigureIndexes.js';
 import './server/scripts/brokenLinksReport.js';
-import './server/scripts/exportForAprilFoolsTraining.js';
 import './server/scripts/fixBodyField.js';
 import './server/scripts/fixKarmaField.js';
 import './server/scripts/fixEmailField.js';

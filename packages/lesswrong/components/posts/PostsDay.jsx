@@ -1,17 +1,17 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withCurrentUser, Components, withList, registerComponent } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
 import { withStyles } from '@material-ui/core/styles';
+import moment from 'moment-timezone';
+import { Posts } from '../../lib/collections/posts';
 
 const styles = theme => ({
   root: {
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit*3
+    marginBottom: theme.spacing.unit*4
   },
   dayTitle: {
-    marginBottom: theme.spacing.unit*2,
     whiteSpace: "pre",
     textOverflow: "ellipsis",
     ...theme.typography.postStyle,
@@ -23,12 +23,59 @@ const styles = theme => ({
   },
 })
 
-class PostsDay extends PureComponent {
+class PostsDay extends Component {
+  constructor (props) {
+    super(props)
+    this.reportEmptyShortform = this.reportEmptyShortform.bind(this);
+    this.state = {
+      noShortform: false
+    }
+  }
 
-  render() {
-    const { date, posts, classes, currentUser } = this.props;
-    const noPosts = posts.length === 0;
-    const { PostsItem2 } = Components
+  componentDidMount () {
+    const {networkStatus} = this.props
+    this.checkLoaded(networkStatus)
+  }
+
+  componentDidUpdate (prevProps) {
+    const {networkStatus: prevNetworkStatus} = prevProps
+    const {networkStatus} = this.props
+    if (prevNetworkStatus !== networkStatus) {
+      this.checkLoaded(networkStatus)
+    }
+  }
+
+  checkLoaded (networkStatus) {
+    const { dayLoadComplete } = this.props
+    // https://github.com/apollographql/apollo-client/blob/master/packages/apollo-client/src/core/networkStatus.ts
+    // 1-4 indicate query is in flight
+    if (![1, 2, 3, 4].includes(networkStatus) && dayLoadComplete) {
+      dayLoadComplete()
+    }
+  }
+
+  // Child component needs a way to tell us about the presence of shortforms
+  reportEmptyShortform () {
+    if (!this.state.noShortform) {
+      this.setState({
+        noShortform: true
+      })
+    }
+  }
+
+  render () {
+    const {
+      date, results: posts, totalCount, loading, loadMore, hideIfEmpty, classes, currentUser
+    } = this.props
+    const { noShortform } = this.state
+    const { PostsItem2, LoadMore, ShortformTimeBlock, Loading } = Components
+
+    const noPosts = !loading && (!posts || (posts.length === 0))
+    // The most recent day is hidden if there are no posts or shortforms on it,
+    // to avoid having an awkward empty partial day when it's close to midnight.
+    if (noPosts && (!currentUser?.beta || noShortform) && hideIfEmpty) {
+      return null
+    }
 
     return (
       <div className={classes.root}>
@@ -40,14 +87,33 @@ class PostsDay extends PureComponent {
             {date.format('ddd, MMM Do YYYY')}
           </Hidden>
         </Typography>
-        { noPosts ? (<div className={classes.noPosts}>No posts on {date.format('MMMM Do YYYY')}</div>) :
-          <div>
-            {posts.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
-          </div>
-        }
+
+        { loading && <Loading /> }
+
+        { noPosts && <div className={classes.noPosts}>No posts on {date.format('MMMM Do YYYY')}</div> }
+
+        {posts?.map((post, i) =>
+          <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
+
+        {posts?.length < totalCount && <LoadMore
+          loadMore={loadMore}
+          count={posts.length}
+          totalCount={totalCount}
+        />}
+
+        {currentUser?.beta && <ShortformTimeBlock
+          reportEmpty={this.reportEmptyShortform}
+          terms={{
+            view: "topShortform",
+            before: moment(date).add(1, 'days').toString(),
+            after: moment(date).toString()
+          }}
+        />}
+
       </div>
     );
   }
+
 }
 
 PostsDay.propTypes = {
@@ -55,4 +121,14 @@ PostsDay.propTypes = {
   date: PropTypes.object,
 };
 
-registerComponent('PostsDay', PostsDay, withStyles(styles, { name: "PostsDay" }));
+registerComponent('PostsDay', PostsDay,
+  [withList, {
+    collection: Posts,
+    queryName: 'postsDailyListQuery',
+    fragmentName: 'PostsList',
+    enableTotal: true,
+    enableCache: true,
+    ssr: true,
+  }],
+  withCurrentUser, withStyles(styles, { name: "PostsDay" })
+);

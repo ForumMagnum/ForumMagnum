@@ -39,8 +39,21 @@ registerFragment(`
     retracted
     postVersion
     reviewedByUserId
+    shortform
+    lastSubthreadActivity
   }
 `);
+
+registerFragment(`
+  fragment ShortformComments on Comment {
+    ...CommentsList
+    post {
+      _id
+      slug
+      title
+    }
+  }
+`)
 
 registerFragment(`
   fragment ShortformCommentsList on Comment {

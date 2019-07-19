@@ -97,8 +97,6 @@ extendFragment('UsersCurrent', `
   shortformFeedId
   viewUnreviewedComments
   sunshineShowNewUserContent
-  # TODO: Remove this after april fools
-  blockedGPT2
   recommendationSettings
 `);
 
@@ -210,6 +208,8 @@ registerFragment(`
   fragment SunshineUsersList on User {
     ...UsersMinimumInfo
     karma
+    bio
+    htmlBio
     createdAt
     email
     commentCount
@@ -437,9 +437,6 @@ registerFragment(`
     # Karma Settings
     karmaChangeLastOpened
     karmaChangeNotifierSettings
-
-    # TODO: Remove this after april fools
-    blockedGPT2
     
     recommendationSettings
   }
