@@ -62,24 +62,24 @@ export function getDateRange (after, before, timeBlock) {
 }
 
 // TODO; doc
-// TODO; test
 
+// TODO; not default, rename
 export function getAfterDefault (numTimeBlocks, timeBlock) {
-  // console.log('getAfterDefault()')
+  console.log('getAfterDefault()')
   if (!numTimeBlocks || !timeBlock) return
   const startCurrentTimeBlock = moment().startOf(timeBlock)
   // console.log(' startCurrentTimeBlock', startCurrentTimeBlock.format('YYYY-MM-DD'))
   const afterResult = startCurrentTimeBlock.subtract(numTimeBlocks - 1, timeBlock).format('YYYY-MM-DD')
-  // console.log(' afterResult', afterResult)
+  console.log(' afterResult', afterResult)
   return afterResult
 }
 
 export function getBeforeDefault (timeBlock) {
-  // console.log('getBeforeDefault()')
+  console.log('getBeforeDefault()')
   if (!timeBlock) return
   const startNextTimeBlock = moment().startOf(timeBlock).add(1, timeBlock)
   // console.log(' startNextTimeBlock', startNextTimeBlock)
   const beforeResult = startNextTimeBlock.format('YYYY-MM-DD')
-  // console.log(' beforeResult', beforeResult)
+  console.log(' beforeResult', beforeResult)
   return beforeResult
 }

@@ -76,14 +76,14 @@ class AllPostsPage extends Component {
   // TODO; factor out part of logic from render
   // TODO; better args
   renderPostsList = (currentTimeframe, postListParameters, classes, showSettings) => {
-    // console.log('renderPostsList()')
-    // console.log(' currentTimeframe', currentTimeframe)
+    console.log('renderPostsList()')
+    console.log(' currentTimeframe', currentTimeframe)
     const numTimeBlocks = timeframeToNumTimeBlocks[currentTimeframe]
-    // console.log(' dailyTerms', dailyTerms)
 
     const {PostsDailyList, PostsList2} = Components
     if (currentTimeframe !== 'allTime') {
       const timeBlock = timeframeToTimeBlock[currentTimeframe]
+      console.log(' timeBlock', timeBlock)
       return <div className={classes.daily}>
         <PostsDailyList
           timeframe={currentTimeframe}

@@ -30,7 +30,13 @@ class PostsDailyList extends PureComponent {
     };
   }
 
-  // variant 1: reload everything each time (works with polling)
+  componentDidUpdate (prevProps) {
+    // TODO; doc
+    if (prevProps.after !== this.props.after || prevProps.before !== this.props.before) {
+      this.setState({after: this.props.after, before: this.props.before})
+    }
+  }
+
   loadMoreDays(e) {
     e.preventDefault();
     const numberOfDays = getSetting('forum.numberOfDays', 10);
@@ -56,6 +62,8 @@ class PostsDailyList extends PureComponent {
     // console.log(' timeframe', timeframe)
     const timeBlock = timeframeToTimeBlock[timeframe]
     // console.log(' timeBlock', timeBlock)
+    console.log(' after', after)
+    console.log(' before', before)
     const dates = getDateRange(after, before, timeBlock)
     console.log(' dates', dates)
 
