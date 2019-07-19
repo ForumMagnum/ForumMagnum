@@ -29,20 +29,20 @@ const getLessWrongAccount = async () => {
   return account;
 }
 
-async function createShortformPost (comment, context) {
+async function createShortformPost (comment, currentUser) {
   if (comment.shortform && !comment.postId) {
     const post = await newMutation({
       collection: Posts,
       document: {
-        userId: context.currentUser._id,
+        userId: currentUser._id,
         shortform: true,
-        title: `${ context.currentUser.displayName }'s Shortform`
+        title: `${ currentUser.displayName }'s Shortform`
       },
       validate: false,
     })
     await editMutation({
       collection:Users,
-      documentId: context.currentUser._id,
+      documentId: currentUser._id,
       set: {
         shortformFeedId: post.data._id
       },
