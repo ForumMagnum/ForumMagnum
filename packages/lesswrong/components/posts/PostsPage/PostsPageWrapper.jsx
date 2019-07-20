@@ -6,10 +6,9 @@ import { Posts } from '../../../lib/collections/posts';
 // object.
 const PostsPageWrapper = ({document: post, sequenceId, version, data: {refetch}, loading, error}) => {
   const { Error404, Loading, PostsPage } = Components;
-  
   if (error) {
     return <Error404 />
-  } else if (loading && !post) {
+  } else if (loading) {
     return <div><Loading/></div>
   } else if (!post) {
     return <Error404/>
