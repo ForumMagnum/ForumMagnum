@@ -77,9 +77,9 @@ class ContinueReadingList extends Component {
       })}
       
       <SectionFooter>
-        {showAllLink && <Link onClick={this.showAll}>
+        {showAllLink && <a onClick={this.showAll}>
           Show All
-        </Link>}
+        </a>}
         <LoginPopupButton title={saveLeftOffTooltip}>
           Log in to save where you left off
         </LoginPopupButton>
