@@ -13,9 +13,9 @@ registerSetting('siteImage', null, 'An image used to represent the site on socia
 registerSetting('faviconUrl', '/img/favicon.ico', 'Favicon absolute URL');
 
 registerSetting('forum.numberOfDays', 10, 'Number of days to display in the timeframe view');
-registerSetting('forum.numberOfWeeks', 3, 'Number of weeks to display in the timeframe view');
-registerSetting('forum.numberOfMonths', 3, 'Number of months to display in the timeframe view');
-registerSetting('forum.numberOfYears', 1, 'Number of days to display in the timeframe view');
+registerSetting('forum.numberOfWeeks', 4, 'Number of weeks to display in the timeframe view');
+registerSetting('forum.numberOfMonths', 4, 'Number of months to display in the timeframe view');
+registerSetting('forum.numberOfYears', 4, 'Number of days to display in the timeframe view');
 
 // Comments callbacks
 registerSetting('forum.commentInterval', 15, 'How long users should wait in between comments (in seconds)');
