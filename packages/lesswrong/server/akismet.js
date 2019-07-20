@@ -71,19 +71,6 @@ async function checkPostForSpamWithAkismet(post, currentUser) {
   if (akismetKey) {
     const spam = await checkForAkismetSpam({document: post,type: "post"})
     if (spam) {
-      //eslint-disable-next-line no-console
-      console.log("Spam post detected, creating new Report", currentUser)
-      newMutation({
-        collection: Reports,
-        document: {
-          userId: currentUser._id,
-          postId: post._id,
-          link: Posts.getPageUrl(post),
-          description: "Akismet reported this as spam",
-          reportedAsSpam: true,
-        },
-        validate: false,
-      })
       if ((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) {
         // eslint-disable-next-line no-console
         console.log("Deleting post from user below spam threshold", post)
@@ -108,20 +95,6 @@ async function checkCommentForSpamWithAkismet(comment, currentUser) {
     if (akismetKey) {
       const spam = await checkForAkismetSpam({document: comment, type: "comment"})
       if (spam) {
-        //eslint-disable-next-line no-console
-        console.log("Spam comment detected, creating new Report", currentUser)
-        newMutation({
-          collection: Reports,
-          document: {
-            userId: currentUser._id,
-            postId: comment.postId,
-            commentId: comment._id,
-            link: comment.postId && Comments.getPageUrl(comment),
-            description: "Akismet reported this as spam",
-            reportedAsSpam: true
-          },
-          validate: false,
-        })
         if ((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) {
           // eslint-disable-next-line no-console
           console.log("Deleting comment from user below spam threshold", comment)
