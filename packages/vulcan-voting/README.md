@@ -1,1 +1,0 @@
-Vulcan scoring package, used internally. 
