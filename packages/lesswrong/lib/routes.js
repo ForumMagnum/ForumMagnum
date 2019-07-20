@@ -66,7 +66,7 @@ if (getSetting('hasEvents', true)) {
   addRoute({ name: 'MeetupsHome', path: '/meetups', componentName: 'CommunityHome', title: "Community"})
 
   addRoute({ name:'Localgroups.single',   path: '/groups/:groupId', componentName: 'LocalGroupSingle' });
-  addRoute({ name:'events.single',   path: '/events/:_id(/:slug)', componentName: 'PostsSingle' });
+  addRoute({ name:'events.single',   path: '/events/:_id/:slug?', componentName: 'PostsSingle' });
   addRoute({ name: 'groups.post', path: '/g/:groupId/p/:_id', componentName: 'PostsSingle'});
 
 }
