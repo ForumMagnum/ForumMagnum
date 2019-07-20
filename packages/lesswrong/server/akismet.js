@@ -1,8 +1,7 @@
 import LWEvents from '../lib/collections/lwevents/collection'
-import Reports from '../lib/collections/reports/collection.js'
 import { Posts } from '../lib/collections/posts/collection.js'
 import { Comments } from '../lib/collections/comments/collection.js'
-import { editMutation, newMutation, getSetting, addCallback, runCallbacksAsync } from 'meteor/vulcan:core';
+import { editMutation, getSetting, addCallback, runCallbacksAsync } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import akismet from 'akismet-api'
 
