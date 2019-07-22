@@ -46,8 +46,6 @@ class PostsDay extends Component {
   componentDidUpdate (prevProps) {
     const {networkStatus: prevNetworkStatus} = prevProps
     const {networkStatus} = this.props
-    // console.log('PD didUpdate()')
-    // console.log(` NS ${prevNetworkStatus} -> ${networkStatus}`)
     if (prevNetworkStatus !== networkStatus) {
       this.checkLoaded(networkStatus)
     }
@@ -80,9 +78,9 @@ class PostsDay extends Component {
   }
 
   render () {
-    // console.log('PostsDay render()')
     const {
-      startDate, results: posts, totalCount, loading, loadMore, hideIfEmpty, classes, currentUser, timeframe, networkStatus
+      startDate, results: posts, totalCount, loading, loadMore, hideIfEmpty, classes, currentUser,
+      timeframe, networkStatus
     } = this.props
     const { noShortform } = this.state
     const { PostsItem2, LoadMore, ShortformTimeBlock, Loading } = Components
@@ -95,9 +93,6 @@ class PostsDay extends Component {
     if (noPosts && (!currentUser?.beta || noShortform) && hideIfEmpty) {
       return null
     }
-
-    // console.log(' loading', loading)
-    // console.log(' networkstatus',  networkStatus)
 
     return (
       <div className={classes.root}>
