@@ -213,8 +213,8 @@ class UsersProfile extends Component {
     const draftTerms = {view: "drafts", userId: user._id, limit: 4}
     const unlistedTerms= {view: "unlisted", userId: user._id, limit: 20}
     const terms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
-    const sequenceTerms = {view: "userProfile", userId: user._id, limit:3}
-    const sequenceAllTerms = {view: "userProfileAll", userId: user._id, limit:3}
+    const sequenceTerms = {view: "userProfile", userId: user._id, limit:9}
+    const sequenceAllTerms = {view: "userProfileAll", userId: user._id, limit:9}
 
     const { showSettings } = this.state
     // maintain backward compatibility with bookmarks

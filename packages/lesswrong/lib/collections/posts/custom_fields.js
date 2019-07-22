@@ -919,9 +919,9 @@ addFieldsDict(Posts, {
           const event = await LWEvents.findOne(query, sort);
           const author = await Users.findOne({_id: post.userId});
           if (event) {
-            return event.properties && event.properties.targetState
+            return !!(event.properties && event.properties.targetState)
           } else {
-            return author.collapseModerationGuidelines ? false : ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle)
+            return !!(author.collapseModerationGuidelines ? false : ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle))
           }
         } else {
           return false

@@ -32,7 +32,6 @@ const updateEachQueryResultOfType = ({ store, typeName, func, document }) => {
 
     const updatedResults = func({document, results, parameters, typeName})
 
-    console.log("updatedResults: ", updatedResults)
     data[multiResolverName] = updatedResults
     store.writeQuery({query, data, variables})
   })
@@ -45,7 +44,7 @@ const getParametersByTypeName = (terms, typeName) => {
 
 const handleDeleteMutation = ({ document, results, typeName }) => {
   if (!document) return results;
-  results = removeFromSet(results[multiResolverName], document);
+  results = removeFromSet(results, document);
 
   return {
     ...results,

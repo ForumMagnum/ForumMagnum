@@ -22,12 +22,8 @@ import { withRouter} from 'react-router';
 import MessageContext, { flash } from '../messages.js';
 
 // see https://stackoverflow.com/questions/42862028/react-router-v4-with-multiple-layouts
-const RouteWithLayout = ({ layoutName, component, currentRoute, ...rest }) => {
-
-   // if defined, use ErrorCatcher component to wrap layout contents
-   const ErrorCatcher = Components.ErrorCatcher ? Components.ErrorCatcher : Components.Dummy;
-
-   return (
+const RouteWithLayout = ({ layoutName, component:Children, currentRoute, ...rest }) => {
+  return (
   <Route
     // NOTE: Switch ignores the "exact" prop of components that 
     // are not its direct children
@@ -36,11 +32,8 @@ const RouteWithLayout = ({ layoutName, component, currentRoute, ...rest }) => {
     //exact 
     {...rest}
     render={props => {
-
-   const layoutProps = { ...props, currentRoute };
-   const childComponentProps = { ...props, currentRoute };
-      const layout = layoutName ? Components[layoutName] : Components.Layout;
-      return React.createElement(layout, layoutProps, <ErrorCatcher>{React.createElement(component, childComponentProps)}</ErrorCatcher>);
+      const childComponentProps = { ...props, currentRoute };
+      return <Children {...childComponentProps} />
     }}
   />
 );};
@@ -182,24 +175,24 @@ class App extends PureComponent {
         <MessageContext.Provider value={{ messages, flash }}>
           <Components.ScrollToTop />
           <div className={`locale-${this.getLocale()}`}>
+            <Components.Layout >
             <Components.HeadTags />
-            {/* <Components.RouterHook currentRoute={currentRoute} /> */}
-            {this.props.currentUserLoading ? (
-              <Components.Loading />
-            ) : routeNames.length ? (
-              <Switch>
-                {routeNames.map(key => (
-                  // NOTE: if we want the exact props to be taken into account
-                  // we have to pass it to the RouteWithLayout, not the underlying Route,
-                  // because it is the direct child of Switch
-                  <RouteWithLayout exact currentRoute={Routes[key]} siteData={this.props.siteData} key={key} {...Routes[key]} />
-                ))}
-                <RouteWithLayout siteData={this.props.siteData} currentRoute={{ name: '404'}} component={Components.Error404} />
-                {/* <Route component={Components.Error404} />  */}
-              </Switch>
-            ) : (
-                  <Components.Welcome />
-                )}
+              {this.props.currentUserLoading ? (
+                <Components.Loading />
+              ) : routeNames.length ? (
+                <Switch>
+                  {routeNames.map(key => (
+                    // NOTE: if we want the exact props to be taken into account
+                    // we have to pass it to the RouteWithLayout, not the underlying Route,
+                    // because it is the direct child of Switch
+                    <RouteWithLayout exact currentRoute={Routes[key]} siteData={this.props.siteData} key={key} {...Routes[key]} />
+                  ))}
+                  <RouteWithLayout siteData={this.props.siteData} currentRoute={{ name: '404'}} component={Components.Error404} />
+                </Switch>
+              ) : (
+                    <Components.Welcome />
+                  )}
+            </Components.Layout>
           </div>
         </MessageContext.Provider>
       </IntlProvider>
