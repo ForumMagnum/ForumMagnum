@@ -36,7 +36,7 @@ const styles = theme => ({
 
 // Given a user (which may not be null), render the user name as a link with a
 // tooltip. This should not be used directly; use UsersName instead.
-const UsersNameDisplay = ({user, classes, nofollow=false}) => {
+const UsersNameDisplay = ({user, classes, nofollow=false, simple=false}) => {
   if (!user) return <Components.UserDeleted/>
   const { FormatDate } = Components
   const { htmlBio } = user
@@ -55,6 +55,10 @@ const UsersNameDisplay = ({user, classes, nofollow=false}) => {
     { !!commentCount && <div><MessageIcon className={classes.icon}  /> { commentCount } comments</div>}
     { truncatedBio && <div className={classes.bio } dangerouslySetInnerHTML={{__html: truncatedBio}}/>}
   </div>
+
+  if (simple) {
+    return <span className={classes.userName}>{Users.getDisplayName(user)}</span>
+  }
 
   return <Tooltip title={tooltip}>
     <Link to={Users.getProfileUrl(user)} className={classes.userName}

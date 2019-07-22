@@ -113,18 +113,16 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover}) => {
     <div className={classes.root}>
       <div className={classNames(classes.commentInfo, {[classes.isAnswer]: comment.answer, [classes.odd]:((nestingLevel%2) !== 0)})}>
         <ShowParentComment comment={comment} nestingLevel={nestingLevel} />
-        <Tooltip title={`This comment has ${baseScore} karma (${voteCount} ${voteCount == 1 ? "Vote" : "Votes"})`} placement="bottom">
-          <span className={classes.karma}>
+        <span className={classes.karma}>
 
-            {baseScore || 0}
-          </span>
-        </Tooltip>
+          {baseScore || 0}
+        </span>
         <span className={classes.username}>
           {comment.answer && "Answer by "}
-          <UsersName user={comment.user}/>
+          <UsersName user={comment.user} simple={true}/>
         </span>
         <span className={classes.date}>
-          <Components.FormatDate date={comment.postedAt}/>
+          <Components.FormatDate date={comment.postedAt} tooltip={false}/>
         </span>
         {(comment.baseScore > -5) && <span className={classes.truncatedHighlight} dangerouslySetInnerHTML={{__html: singleLineHtml}} />}      </div>
       {displayHoverOver && <span className={classNames(classes.highlight)}>
