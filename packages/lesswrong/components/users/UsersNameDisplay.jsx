@@ -34,6 +34,8 @@ const styles = theme => ({
   }
 })
 
+// Given a user (which may not be null), render the user name as a link with a
+// tooltip. This should not be used directly; use UsersName instead.
 const UsersNameDisplay = ({user, classes, nofollow=false}) => {
   if (!user) return <Components.UserDeleted/>
   const { FormatDate } = Components
