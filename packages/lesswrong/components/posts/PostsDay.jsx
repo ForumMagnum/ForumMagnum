@@ -107,7 +107,7 @@ class PostsDay extends Component {
         { loading && <Loading /> }
 
         { noPosts && <div className={classes.noPosts}>
-          No posts for {
+        No posts for {
           timeframe === 'daily' ?
             startDate.format('MMMM Do YYYY') :
             // Should be pretty rare. Basically people running off the end of
