@@ -15,8 +15,6 @@ const EventsUpcoming = ({ classes }) => {
   return (
     <SingleColumnSection>
       <SectionTitle title="Upcoming Events"/>
-      {/* TODO-Q-ForPR I removed 'days' from here, as PostsList2 does not accept
-          it. Plausibly we'd rather have this be PostsDaily? */}
       <PostsList2 terms={terms}/>
     </SingleColumnSection>
   )
