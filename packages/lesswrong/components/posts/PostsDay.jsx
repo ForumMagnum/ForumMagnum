@@ -46,6 +46,8 @@ class PostsDay extends Component {
   componentDidUpdate (prevProps) {
     const {networkStatus: prevNetworkStatus} = prevProps
     const {networkStatus} = this.props
+    // console.log('PD didUpdate()')
+    // console.log(` NS ${prevNetworkStatus} -> ${networkStatus}`)
     if (prevNetworkStatus !== networkStatus) {
       this.checkLoaded(networkStatus)
     }

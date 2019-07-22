@@ -36,11 +36,21 @@ class PostsDailyList extends PureComponent {
   }
 
   componentDidUpdate (prevProps) {
-    // If we receive a new after prop, it's because our parent is asking us to
-    // change what we've loaded. Throw away any previous updates to the after
-    // state
-    if (prevProps.after !== this.props.after) {
-      this.setState({after: this.props.after})
+    // If we receive a new `after`, or `postListParameters` prop, it's because
+    // our parent is asking us to change what we've loaded. Throw away any
+    // previous updates to the `after` state and redim for reloading.
+    // console.log('PDL didUpdate()')
+    // console.log(' prevProps.terms', prevProps.postListParameters)
+    // console.log(' this.props.terms', this.props.postListParameters)
+    // console.log(' equality', _.isEqual(prevProps.postListParameters, this.props.postListParameters))
+    if (
+      prevProps.after !== this.props.after ||
+      !_.isEqual(prevProps.postListParameters, this.props.postListParameters)
+    ) {
+      this.setState({
+        after: this.props.after,
+        dim: this.props.dimWhenLoading,
+      })
     }
   }
 
@@ -69,6 +79,9 @@ class PostsDailyList extends PureComponent {
     const { classes, postListParameters, timeframe, before } = this.props
     const { after, dim } = this.state
     const { PostsDay } = Components
+
+    // console.log('PDL render()')
+    // console.log(' dim', dim)
 
     const timeBlock = timeframeToTimeBlock[timeframe]
     const dates = getDateRange(after, before, timeBlock)
