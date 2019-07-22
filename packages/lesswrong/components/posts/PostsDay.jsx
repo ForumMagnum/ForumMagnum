@@ -84,7 +84,7 @@ class PostsDay extends Component {
     // The most recent timeBlock is hidden if there are no posts or shortforms
     // on it, to avoid having an awkward empty partial timeBlock when it's close
     // to midnight.
-    if (noPosts && (!currentUser?.beta || noShortform) && hideIfEmpty) {
+    if (noPosts && noShortform && hideIfEmpty) {
       return null
     }
 
@@ -119,13 +119,13 @@ class PostsDay extends Component {
         {posts?.map((post, i) =>
           <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
 
-        {posts?.length < totalCount && <LoadMore
+        {(posts?.length < totalCount) && <LoadMore
           loadMore={loadMore}
           count={posts.length}
           totalCount={totalCount}
         />}
 
-        {currentUser?.beta && <ShortformTimeBlock
+        <ShortformTimeBlock
           reportEmpty={this.reportEmptyShortform}
           terms={{
             view: "topShortform",
@@ -134,7 +134,7 @@ class PostsDay extends Component {
             before: moment(startDate).endOf(timeBlock).add(1, 'days').toString(),
             after: moment(startDate).startOf(timeBlock).toString()
           }}
-        />}
+        />
 
       </div>
     );
