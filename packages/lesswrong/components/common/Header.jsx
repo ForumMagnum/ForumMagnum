@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent, withUpdate, getSetting } from 'meteor/vulcan:core';
-import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
+import { withRouter } from 'react-router';
+import { Link } from 'react-router-dom';
 import { getHeaderSubtitleDataFromRouterProps } from '../../lib/routeUtil.js';
 import NoSSR from 'react-no-ssr';
 import Headroom from 'react-headroom'
@@ -223,7 +224,6 @@ Header.displayName = "Header";
 Header.propTypes = {
   currentUser: PropTypes.object,
   classes: PropTypes.object.isRequired,
-  routes: PropTypes.array.isRequired,
   location: PropTypes.object.isRequired,
   client: PropTypes.object.isRequired,
   searchResultsArea: PropTypes.object,
