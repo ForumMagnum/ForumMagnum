@@ -257,7 +257,10 @@ class CommentsNode extends Component {
          >
           {!hiddenReadComment && <div ref={this.scrollTargetRef}>
             {this.isSingleLine()
-              ? <SingleLineComment comment={comment} nestingLevel={nestingLevel} />
+              ? <SingleLineComment
+                  comment={comment} nestingLevel={nestingLevel}
+                  parentCommentId={parentCommentId}
+                />
               : <CommentsItem
                   truncated={this.isTruncated()}
                   parentCommentId={parentCommentId}
