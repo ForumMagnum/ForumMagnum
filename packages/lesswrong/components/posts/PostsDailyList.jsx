@@ -1,10 +1,11 @@
 import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import moment from 'moment-timezone';
-import { getSetting, Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import classNames from 'classnames';
-import withTimezone from '../common/withTimezone';
+import { getDateRange, timeframeToTimeBlock } from './timeframeUtils'
 
 const styles = theme => ({
   loading: {
@@ -16,83 +17,92 @@ const styles = theme => ({
   }
 })
 
+const loadMoreTimeframeMessages = {
+  'daily': 'Load More Days',
+  'weekly': 'Load More Weeks',
+  'monthly': 'Load More Months',
+  'yearly': 'Load More Years',
+}
+
 class PostsDailyList extends PureComponent {
 
   constructor(props) {
     super(props);
-    this.loadMoreDays = this.loadMoreDays.bind(this);
-    this.dayLoadComplete = this.dayLoadComplete.bind(this);
     this.state = {
+      // after goes backwards in time when we load more time blocks
       after: props.after,
-      before: props.before,
       dim: props.dimWhenLoading,
     };
   }
 
-  // Return a date string for each date which should have a section. This
-  // includes all dates in the range
-  // TODO(JP): Move to timeframeUtils once that exists
-  // TODO(JP): This function is a bit janky, but I'm about to refactor it for
-  // timeframe use, so we'll leave it for now
-  getDateRange(after, before) {
-    const mAfter = moment.utc(after, 'YYYY-MM-DD');
-    const mBefore = moment.utc(before, 'YYYY-MM-DD');
-    const daysCount = mBefore.diff(mAfter, 'days') + 1;
-    const range = _.range(daysCount).map(
-      i => moment.utc(before, 'YYYY-MM-DD').subtract(i, 'days')
-        .tz(this.props.timezone)
-        .format('YYYY-MM-DD')
-    );
-    return range;
+  componentDidUpdate (prevProps) {
+    // If we receive a new after prop, it's because our parent is asking us to
+    // change what we've loaded. Throw away any previous updates to the after
+    // state
+    if (prevProps.after !== this.props.after) {
+      this.setState({after: this.props.after})
+    }
   }
 
-  // variant 1: reload everything each time (works with polling)
-  loadMoreDays(e) {
+  loadMoreTimeBlocks = (e) => {
     e.preventDefault();
-    const numberOfDays = getSetting('forum.numberOfDays', 10);
-    const loadMoreAfter = moment(this.state.after, 'YYYY-MM-DD').subtract(numberOfDays, 'days').format('YYYY-MM-DD');
+    const { timeframe, numTimeBlocks } = this.props
+    const timeBlock = timeframeToTimeBlock[timeframe]
+    const loadMoreAfter = moment(this.state.after, 'YYYY-MM-DD')
+      .subtract(numTimeBlocks, timeBlock)
+      .format('YYYY-MM-DD');
     this.setState({
       after: loadMoreAfter,
     });
   }
 
   // Calculating when all the components have loaded looks like a mess of
-  // brittleness, we'll just cease to be dim as soon as a single day has loaded
-  dayLoadComplete () {
+  // brittleness, we'll just cease to be dim as soon as a single timeBlock has
+  // loaded
+  timeBlockLoadComplete = () => {
     if (this.state.dim) {
       this.setState({dim: false})
     }
   }
 
   render() {
-    const { classes, postListParameters } = this.props
-    const { after, before, dim } = this.state
+    const { classes, postListParameters, timeframe, before } = this.props
+    const { after, dim } = this.state
     const { PostsDay } = Components
-    const dates = this.getDateRange(after, before)
+
+    const timeBlock = timeframeToTimeBlock[timeframe]
+    const dates = getDateRange(after, before, timeBlock)
 
     return (
       <div className={classNames({[classes.loading]: dim})}>
         {dates.map((date, index) =>
           <PostsDay
             key={date.toString()}
-            date={moment(date)}
+            startDate={moment(date)}
+            timeframe={timeframe}
             terms={{
               ...postListParameters,
-              before: moment(date).format('YYYY-MM-DD'),
-              after: moment(date).format('YYYY-MM-DD'),
+              // NB: 'before', as a parameter for a posts view, is inclusive
+              before: moment(date).endOf(timeBlock).format('YYYY-MM-DD'),
+              after: moment(date).startOf(timeBlock).format('YYYY-MM-DD'),
             }}
-            dayLoadComplete={this.dayLoadComplete}
+            timeBlockLoadComplete={this.timeBlockLoadComplete}
             hideIfEmpty={index===0}
           />
         )}
-        <Typography variant="body1" className={classes.loadMore} onClick={this.loadMoreDays}>
-          <a>Load More Days</a>
+        <Typography variant="body1" className={classes.loadMore} onClick={this.loadMoreTimeBlocks}>
+          <a>{loadMoreTimeframeMessages[timeframe]}</a>
         </Typography>
       </div>
     )
   }
 }
 
+PostsDailyList.propTypes = {
+  after: PropTypes.string,
+  before: PropTypes.string, // exclusive
+};
+
 registerComponent('PostsDailyList', PostsDailyList,
-  withTimezone, withStyles(styles, {name: "PostsDailyList"})
+  withStyles(styles, {name: "PostsDailyList"})
 );

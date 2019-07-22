@@ -1,13 +1,13 @@
 import { Components, registerComponent, getSetting, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import moment from 'moment';
 import { withRouter } from 'react-router';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { parseQuery } from '../../lib/routeUtil.js';
+import { getBeforeDefault, getAfterDefault, timeframeToTimeBlock } from './timeframeUtils'
 
 const styles = theme => ({
   daily: {
@@ -30,13 +30,27 @@ const styles = theme => ({
   }
 });
 
+export const timeframes = {
+  allTime: 'All Time',
+  daily: 'Daily',
+  weekly: 'Weekly',
+  monthly: 'Monthly',
+  yearly: 'Yearly',
+}
+
+const timeframeToNumTimeBlocks = {
+  daily: getSetting('forum.numberOfDays'),
+  weekly: getSetting('forum.numberOfWeeks'),
+  monthly: getSetting('forum.numberOfMonths'),
+  yearly: getSetting('forum.numberOfYears'),
+}
+
 export const sortings = {
-  daily: "Daily",
-  magic: "Magic (New & Upvoted)",
-  recentComments: "Recent Comments",
-  new: "New",
-  old: "Old",
-  top: "Top"
+  magic: 'Magic (New & Upvoted)',
+  recentComments: 'Recent Comments',
+  new: 'New',
+  old: 'Old',
+  top: 'Top',
 }
 
 class AllPostsPage extends Component {
@@ -59,40 +73,60 @@ class AllPostsPage extends Component {
     })
   }
 
-  render() {
-    const { classes, currentUser, location } = this.props
+  renderPostsList = ({currentTimeframe, currentFilter, currentSorting, currentShowLowKarma}) => {
+    const { classes } = this.props
     const { showSettings } = this.state
-    const { PostsListSettings, PostsList2, SingleColumnSection, SectionTitle, PostsDailyList, MetaInfo, TabNavigationMenu, SettingsIcon } = Components
-    const query = parseQuery(location)
-    // maintain backward compatibility with bookmarks
-    const querySorting = query.sortedBy || query.view
+    const {PostsDailyList, PostsList2} = Components
 
-    // TODO[WIP] migration for allPostsView
-    // maintain backward compatibility with previous user setting during
-    // transition
-    const currentSorting = querySorting ||
-      (currentUser && (currentUser.allPostsSorting || currentUser.allPostsView)) ||
-      "daily"
-    const currentFilter = query.filter ||
-      (currentUser && currentUser.allPostsFilter) ||
-      "all"
-    const currentShowLowKarma = (parseInt(query.karmaThreshold) === MAX_LOW_KARMA_THRESHOLD) || (currentUser && currentUser.allPostsShowLowKarma) || false
-
-    const terms = {
-      karmaThreshold: DEFAULT_LOW_KARMA_THRESHOLD,
+    const baseTerms = {
+      karmaThreshold: currentShowLowKarma ? MAX_LOW_KARMA_THRESHOLD : DEFAULT_LOW_KARMA_THRESHOLD,
       filter: currentFilter,
       sortedBy: currentSorting,
-      ...query,
-      limit:50
     }
 
-    const numberOfDays = getSetting('forum.numberOfDays', 10);
-    const dailyTerms = {
-      view: 'daily',
-      karmaThreshold: DEFAULT_LOW_KARMA_THRESHOLD,
-      filter: currentFilter,
-      ...query,
-    };
+    if (currentTimeframe === 'allTime') {
+      return <PostsList2
+        terms={{...baseTerms, limit: 50}}
+        showHeader={false}
+        dimWhenLoading={showSettings}
+      />
+    }
+
+    const numTimeBlocks = timeframeToNumTimeBlocks[currentTimeframe]
+    const timeBlock = timeframeToTimeBlock[currentTimeframe]
+    return <div className={classes.daily}>
+      <PostsDailyList
+        timeframe={currentTimeframe}
+        postListParameters={{
+          view: 'timeframe',
+          ...baseTerms
+        }}
+        numTimeBlocks={numTimeBlocks}
+        dimWhenLoading={showSettings}
+        after={getAfterDefault(numTimeBlocks, timeBlock)}
+        before={getBeforeDefault(timeBlock)}
+      />
+    </div>
+  }
+
+  render() {
+    const { classes, location, currentUser } = this.props
+    const { showSettings } = this.state
+    const { SingleColumnSection, SectionTitle, SettingsIcon, MetaInfo, TabNavigationMenu, PostsListSettings } = Components
+
+    const query = parseQuery(location);
+    const currentTimeframe = query.timeframe ||
+      (currentUser && currentUser.allPostsTimeframe) ||
+      'allTime'
+    const currentSorting = query.sortedBy ||
+      (currentUser && (currentUser.allPostsSorting)) ||
+      'magic'
+    const currentFilter = query.filter ||
+      (currentUser && currentUser.allPostsFilter) ||
+      'all'
+    const currentShowLowKarma = (parseInt(query.karmaThreshold) === MAX_LOW_KARMA_THRESHOLD) ||
+      (currentUser && currentUser.allPostsShowLowKarma) ||
+      false
 
     return (
       <React.Fragment>
@@ -110,23 +144,14 @@ class AllPostsPage extends Component {
           </Tooltip>
           <PostsListSettings
             hidden={!showSettings}
+            currentTimeframe={currentTimeframe}
             currentSorting={currentSorting}
             currentFilter={currentFilter}
             currentShowLowKarma={currentShowLowKarma}
             persistentSettings
+            showTimeframe
           />
-          {currentSorting === "daily" ?
-            <div className={classes.daily}>
-              <PostsDailyList
-                after={moment().utc().subtract(numberOfDays - 1, 'days').format('YYYY-MM-DD')}
-                before={moment().utc().add(1, 'days').format('YYYY-MM-DD')}
-                postListParameters={dailyTerms}
-                dimWhenLoading={showSettings}
-              />
-            </div>
-            :
-            <PostsList2 terms={terms} showHeader={false} dimWhenLoading={showSettings} />
-          }
+          {this.renderPostsList({currentTimeframe, currentSorting, currentFilter, currentShowLowKarma})}
         </SingleColumnSection>
       </React.Fragment>
     )
@@ -138,4 +163,11 @@ const withUpdateOptions = {
   fragmentName: 'UsersCurrent',
 }
 
-registerComponent('AllPostsPage', AllPostsPage, withStyles(styles, {name:"AllPostsPage"}), withRouter, withUser, [withUpdate, withUpdateOptions]);
+registerComponent(
+  'AllPostsPage',
+  AllPostsPage,
+  withStyles(styles, {name:"AllPostsPage"}),
+  withRouter,
+  withUser,
+  [withUpdate, withUpdateOptions]
+);
