@@ -60,14 +60,8 @@ const ShowParentComment = ({ comment, nestingLevel, active, onClick, placeholder
   //           [deep reply]
   // In that case the deep reply has nestingLevel 2, but unlike a true level-2
   // comment, its parent is not a top-level comment.
-  if (nestingLevel > 2) {
+  if (nestingLevel >= 2) {
     return null;
-  }
-  
-  if (nestingLevel === 2
-    && comment.parentCommentId === comment.topLevelCommentId
-  ) {
-    return null
   }
 
   return (
