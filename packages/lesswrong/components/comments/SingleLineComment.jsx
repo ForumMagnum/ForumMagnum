@@ -3,7 +3,6 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { commentBodyStyles, postBodyStyles } from '../../themes/stylePiping'
 import withHover from '../common/withHover';
-import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { isMobile } from '../../lib/modules/utils/isMobile.js'
@@ -103,7 +102,7 @@ const styles = theme => ({
 })
 
 const SingleLineComment = ({comment, classes, nestingLevel, hover}) => {
-  const { voteCount, baseScore } = comment
+  const { baseScore } = comment
   const { BetaTag, CommentBody, ShowParentComment, UsersName } = Components
   
   const singleLineHtml = commentExcerptFromHTML(comment)
