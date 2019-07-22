@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
 import { withDismissRecommendation } from './withDismissRecommendation';
-import { Link } from '../../lib/reactRouterWrapper.js'
 
 const MAX_ENTRIES = 3;
 

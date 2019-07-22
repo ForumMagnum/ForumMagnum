@@ -121,7 +121,6 @@ class Layout extends PureComponent {
   }
 
   componentDidMount() {
-    console.log("ComponentDidMount Layout")
     const newTimezone = moment.tz.guess();
     if(this.state.timezone !== newTimezone) {
       this.setState({
@@ -132,7 +131,6 @@ class Layout extends PureComponent {
   }
 
   componentWillUnmount() {
-    console.log("ComponentWillUnmount Layout")
   }
 
   render () {
