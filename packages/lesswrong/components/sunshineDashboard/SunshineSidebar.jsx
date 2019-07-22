@@ -60,7 +60,7 @@ class SunshineSidebar extends Component {
         { showSidebar && Users.canDo(currentUser, 'posts.moderate.all') && <div>
           <SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
           <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 30}}/>
-          <SunshineReportedContentList terms={{view:"sunshineSidebarReports"}}/>
+          <SunshineReportedContentList terms={{view:"sunshineSidebarReports", limit: 30}}/>
           {!!currentUser.viewUnreviewedComments && <SunshineNewCommentsList terms={{view:"sunshineNewCommentsList"}}/>}
           <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions"}}/>
         </div>}
