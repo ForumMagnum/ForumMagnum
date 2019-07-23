@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { useState } from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Menu from '@material-ui/core/Menu';
@@ -21,51 +21,39 @@ const styles = theme => ({
   }
 })
 
-class CommentsMenu extends PureComponent {
-  state = {anchorEl:null}
-
-  handleClick = event => {
-    this.setState({ anchorEl: event.currentTarget });
-  }
-
-  handleClose = () => {
-    this.setState({anchorEl: null})
-  }
-
-  render() {
-    const { currentUser, children, classes, className, comment, post, showEdit, icon } = this.props
-    const { anchorEl } = this.state
-    const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem } = Components
-    
-    if (!currentUser) return null
-    
-    return (
-      <span className={className}>
-        <span onClick={this.handleClick}>
-          {icon ? icon : <MoreVertIcon
-            className={classes.icon}/>}
-        </span>
-        <Menu
-          onClick={this.handleClose}
-          open={Boolean(anchorEl)}
-          anchorEl={anchorEl}
-        >
-          <EditCommentMenuItem comment={comment} showEdit={showEdit}/>
-          <ReportCommentMenuItem comment={comment}/>
-          <MoveToAlignmentMenuItem comment={comment} post={post}/>
-          <SuggestAlignmentMenuItem comment={comment} post={post}/>
-          { Users.canModeratePost(currentUser, post) && post.user && Users.canModeratePost(post.user, post) && <Divider />}
-          <MoveToAnswersMenuItem comment={comment} post={post}/>
-          <DeleteCommentMenuItem comment={comment} post={post}/>
-          <RetractCommentMenuItem comment={comment}/>
-          <BanUserFromPostMenuItem comment={comment} post={post}/>
-          <BanUserFromAllPostsMenuItem comment={comment} post={post}/>
-          <BanUserFromAllPersonalPostsMenuItem comment={comment} post={post}/>
-          {children}
-        </Menu>
+const CommentsMenu = ({currentUser, children, classes, className, comment, post, showEdit, icon}) => {
+  const [anchorEl, setAnchorEl] = useState(null);
+  
+  const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem } = Components
+  
+  if (!currentUser) return null
+  
+  return (
+    <span className={className}>
+      <span onClick={event => setAnchorEl(event.currentTarget)}>
+        {icon ? icon : <MoreVertIcon
+          className={classes.icon}/>}
       </span>
-    )
-  }
+      <Menu
+        onClick={event => setAnchorEl(null)}
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+      >
+        <EditCommentMenuItem comment={comment} showEdit={showEdit}/>
+        <ReportCommentMenuItem comment={comment}/>
+        <MoveToAlignmentMenuItem comment={comment} post={post}/>
+        <SuggestAlignmentMenuItem comment={comment} post={post}/>
+        { Users.canModeratePost(currentUser, post) && post.user && Users.canModeratePost(post.user, post) && <Divider />}
+        <MoveToAnswersMenuItem comment={comment} post={post}/>
+        <DeleteCommentMenuItem comment={comment} post={post}/>
+        <RetractCommentMenuItem comment={comment}/>
+        <BanUserFromPostMenuItem comment={comment} post={post}/>
+        <BanUserFromAllPostsMenuItem comment={comment} post={post}/>
+        <BanUserFromAllPersonalPostsMenuItem comment={comment} post={post}/>
+        {children}
+      </Menu>
+    </span>
+  )
 }
 
 registerComponent('CommentsMenu', CommentsMenu, withStyles(styles, {name:"CommentsMenu"}), withUser)
