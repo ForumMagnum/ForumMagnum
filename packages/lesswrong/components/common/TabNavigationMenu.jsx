@@ -282,7 +282,7 @@ const TabNavigationMenu = ({
           </Link>
         </Tooltip>
         <div className={classes.divider}/>
-        {currentUser?.beta && <Link to="/shortform">
+        {<Link to="/shortform">
           <TabNavigationSubItem>
             Shortform [Beta]
           </TabNavigationSubItem>
