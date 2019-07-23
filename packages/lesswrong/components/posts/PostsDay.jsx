@@ -22,6 +22,25 @@ const styles = theme => ({
     marginLeft: "23px",
     color: "rgba(0,0,0,0.5)",
   },
+  subtitle: {
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    marginTop: theme.spacing.unit,
+    color: theme.palette.grey[700],
+    display: "inline-block",
+    [theme.breakpoints.down('sm')]:{
+      marginBottom: theme.spacing.unit*1.5,
+    },
+  },
+  frontpageSubtitle: {
+    marginTop: theme.spacing.unit
+  },
+  personSubtitle: {
+    marginTop: theme.spacing.unit*1.5
+  },
+  loadMore: {
+    marginTop: theme.spacing.unit*1.5
+  }
 })
 
 class PostsDay extends Component {
@@ -77,7 +96,7 @@ class PostsDay extends Component {
       startDate, results: posts, totalCount, loading, loadMore, hideIfEmpty, classes, currentUser, timeframe
     } = this.props
     const { noShortform } = this.state
-    const { PostsItem2, LoadMore, ShortformTimeBlock, Loading } = Components
+    const { PostsItem2, LoadMore, ShortformTimeBlock, SectionSubtitle, SubSection, Loading, ContentType, Divider } = Components
     const timeBlock = timeframeToTimeBlock[timeframe]
 
     const noPosts = !loading && (!posts || (posts.length === 0))
@@ -87,6 +106,9 @@ class PostsDay extends Component {
     if (noPosts && noShortform && hideIfEmpty) {
       return null
     }
+
+    const frontpagePosts = _.filter(posts, (p) => p.frontpageDate)
+    const personalBlogposts = _.filter(posts, (p) => !p.frontpageDate)
 
     return (
       <div className={classes.root}>
@@ -106,36 +128,56 @@ class PostsDay extends Component {
 
         { loading && <Loading /> }
 
-        { noPosts && <div className={classes.noPosts}>
-          No posts for {
-          timeframe === 'daily' ?
-            startDate.format('MMMM Do YYYY') :
-            // Should be pretty rare. Basically people running off the end of
-            // the Forum history on yearly
-            `this ${timeBlock}`
-          }
-        </div> }
+        <div className={classes.dayContent}>
+          { noPosts && <div className={classes.noPosts}>
+            No posts for {
+            timeframe === 'daily' ?
+              startDate.format('MMMM Do YYYY') :
+              // Should be pretty rare. Basically people running off the end of
+              // the Forum history on yearly
+              `this ${timeBlock}`
+            }
+          </div> }
 
-        {posts?.map((post, i) =>
-          <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
+          {(frontpagePosts?.length > 0) && <div>
+            <SectionSubtitle className={classes.frontpageSubtitle}>
+              <ContentType frontpage={true} label="Frontpage Posts"/>
+            </SectionSubtitle>
+            <SubSection>
+              {frontpagePosts.map((post, i) =><PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
+            </SubSection>
+          </div>}
 
-        {(posts?.length < totalCount) && <LoadMore
-          loadMore={loadMore}
-          count={posts.length}
-          totalCount={totalCount}
-        />}
+          {(personalBlogposts?.length > 0) && <div>
+            <SectionSubtitle className={classes.personSubtitle}>
+              <ContentType frontpage={false} label="Personal Blogposts"/>
+            </SectionSubtitle>
 
-        <ShortformTimeBlock
-          reportEmpty={this.reportEmptyShortform}
-          terms={{
-            view: "topShortform",
-            // NB: The comments before differs from posts in that before is not
-            // inclusive
-            before: moment(startDate).endOf(timeBlock).add(1, 'days').toString(),
-            after: moment(startDate).startOf(timeBlock).toString()
-          }}
-        />
+            <SubSection>
+              {personalBlogposts.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
+            </SubSection>
+          </div>}
 
+          {(posts?.length < totalCount) && <div className={classes.loadMore}>
+            <LoadMore
+                loadMore={loadMore}
+                count={posts.length}
+                totalCount={totalCount}
+              />
+          </div>}
+
+          <ShortformTimeBlock
+            reportEmpty={this.reportEmptyShortform}
+            terms={{
+              view: "topShortform",
+              // NB: The comments before differs from posts in that before is not
+              // inclusive
+              before: moment(startDate).endOf(timeBlock).add(1, 'days').toString(),
+              after: moment(startDate).startOf(timeBlock).toString()
+            }}
+          />
+        </div>
+        <Divider />
       </div>
     );
   }

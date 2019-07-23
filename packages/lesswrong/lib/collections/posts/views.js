@@ -257,7 +257,7 @@ Posts.addView("old", terms => ({
 // Covered by the same index as `new`
 
 Posts.addView("timeframe", terms => ({
-  options: {limit: 10}
+  options: {limit: 16}
 }))
 ensureIndex(Posts,
   augmentForDefaultView({ postedAt:1, baseScore:1}),
