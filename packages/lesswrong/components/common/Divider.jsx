@@ -5,8 +5,8 @@ import theme from '../../themes/eaTheme';
 
 const styles = () => ({
   root: {
-    marginTop: theme.spacing.unit*5,
-    marginBottom: theme.spacing.unit*5,
+    marginTop: theme.spacing.unit*3,
+    marginBottom: theme.spacing.unit*3,
     display: "flex",
     alignItems: "center",
     justifyContent: "center"

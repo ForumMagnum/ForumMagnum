@@ -85,6 +85,7 @@ class PostsDailyList extends PureComponent {
               // NB: 'before', as a parameter for a posts view, is inclusive
               before: moment(date).endOf(timeBlock).format('YYYY-MM-DD'),
               after: moment(date).startOf(timeBlock).format('YYYY-MM-DD'),
+              limit: 16
             }}
             timeBlockLoadComplete={this.timeBlockLoadComplete}
             hideIfEmpty={index===0}

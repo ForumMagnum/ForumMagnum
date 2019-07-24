@@ -22,16 +22,6 @@ const styles = theme => ({
     marginLeft: "23px",
     color: "rgba(0,0,0,0.5)",
   },
-  subtitle: {
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
-    marginTop: theme.spacing.unit,
-    color: theme.palette.grey[700],
-    display: "inline-block",
-    [theme.breakpoints.down('sm')]:{
-      marginBottom: theme.spacing.unit*1.5,
-    },
-  },
   frontpageSubtitle: {
     marginTop: theme.spacing.unit
   },
