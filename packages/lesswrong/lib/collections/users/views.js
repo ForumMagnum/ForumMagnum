@@ -92,6 +92,7 @@ Users.addView("sunshineNewUsers", function () {
       sort: {
         commentCount: -1,
         postCount: -1,
+        createdAt: -1,
       }
     }
   }

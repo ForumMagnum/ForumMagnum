@@ -116,7 +116,7 @@ class AllPostsPage extends Component {
     const query = _.clone(router.location.query) || {}
     const currentTimeframe = query.timeframe ||
       (currentUser && currentUser.allPostsTimeframe) ||
-      'allTime'
+      'daily'
     const currentSorting = query.sortedBy ||
       (currentUser && (currentUser.allPostsSorting)) ||
       'magic'
