@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Components, withList, registerComponent } from 'meteor/vulcan:core';
 import { Comments } from '../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles';
+import {queryIsUpdating} from '../common/queryStatusUtils'
 
 const styles = theme => ({
   shortformGroup: {
@@ -41,7 +42,7 @@ class ShortformTimeBlock extends Component {
     // 1-4 indicate query is in flight
     // There's a double negative here. We want to know if we did *not* find
     // shortform, because if there's no content for a day, we don't render.
-    if (![1, 2, 3, 4].includes(networkStatus) && !comments?.length && reportEmpty) {
+    if (!queryIsUpdating(networkStatus) && !comments?.length && reportEmpty) {
       reportEmpty()
     }
   }

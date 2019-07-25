@@ -7,6 +7,7 @@ import { withStyles } from '@material-ui/core/styles';
 import moment from 'moment-timezone';
 import { Posts } from '../../lib/collections/posts';
 import { timeframeToTimeBlock } from './timeframeUtils'
+import { queryIsUpdating } from '../common/queryStatusUtils'
 
 const styles = theme => ({
   root: {
@@ -17,6 +18,10 @@ const styles = theme => ({
     textOverflow: "ellipsis",
     ...theme.typography.postStyle,
     fontWeight: 600
+  },
+  loadMore: {
+    marginTop: theme.spacing.unit,
+    marginLeft: theme.spacing.unit,
   },
   noPosts: {
     marginLeft: "23px",
@@ -59,7 +64,7 @@ class PostsDay extends Component {
     const { timeBlockLoadComplete } = this.props
     // https://github.com/apollographql/apollo-client/blob/master/packages/apollo-client/src/core/networkStatus.ts
     // 1-4 indicate query is in flight
-    if (![1, 2, 3, 4].includes(networkStatus) && timeBlockLoadComplete) {
+    if (!queryIsUpdating(networkStatus) && timeBlockLoadComplete) {
       timeBlockLoadComplete()
     }
   }
@@ -83,7 +88,8 @@ class PostsDay extends Component {
 
   render () {
     const {
-      startDate, results: posts, totalCount, loading, loadMore, hideIfEmpty, classes, currentUser, timeframe
+      startDate, results: posts, totalCount, loading, loadMore, hideIfEmpty, classes, currentUser,
+      timeframe, networkStatus
     } = this.props
     const { noShortform } = this.state
     const { PostsItem2, LoadMore, ShortformTimeBlock, SectionSubtitle, SubSection, Loading, ContentType, Divider } = Components
@@ -134,7 +140,9 @@ class PostsDay extends Component {
               <ContentType frontpage={true} label="Frontpage Posts"/>
             </SectionSubtitle>
             <SubSection>
-              {frontpagePosts.map((post, i) =><PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} density={1} />)}
+              {frontpagePosts.map((post, i) =>
+                <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} density={1} />
+              )}
             </SubSection>
           </div>}
 
@@ -144,7 +152,9 @@ class PostsDay extends Component {
             </SectionSubtitle>
 
             <SubSection>
-              {personalBlogposts.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} density={1} />)}
+              {personalBlogposts.map((post, i) => 
+                <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} density={1} />
+              )}
             </SubSection>
           </div>}
 
@@ -153,6 +163,7 @@ class PostsDay extends Component {
                 loadMore={loadMore}
                 count={posts.length}
                 totalCount={totalCount}
+                networkStatus={networkStatus}
               />
           </div>}
 
