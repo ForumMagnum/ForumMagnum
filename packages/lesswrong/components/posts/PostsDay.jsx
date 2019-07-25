@@ -20,8 +20,7 @@ const styles = theme => ({
     fontWeight: 600
   },
   loadMore: {
-    marginTop: theme.spacing.unit,
-    marginLeft: theme.spacing.unit,
+    marginTop: theme.spacing.unit*1.5,
   },
   noPosts: {
     marginLeft: "23px",
@@ -33,9 +32,6 @@ const styles = theme => ({
   personSubtitle: {
     marginTop: theme.spacing.unit*1.5
   },
-  loadMore: {
-    marginTop: theme.spacing.unit*1.5
-  }
 })
 
 class PostsDay extends Component {
