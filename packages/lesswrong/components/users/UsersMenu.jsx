@@ -79,16 +79,16 @@ class UsersMenu extends PureComponent {
         >
             {showNewButtons &&
               <MenuItem onClick={()=>openDialog({componentName:"NewQuestionDialog"})}>
-                Ask Question [Beta]
+                Ask Question
               </MenuItem>
             }
             {showNewButtons && <Link to={`/newPost`}>
                 <MenuItem>New Post</MenuItem>
               </Link>
             }
-            {currentUser.beta &&
+            {showNewButtons &&
               <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>
-                Post to Shortform [Beta]
+                New Shortform [Beta]
               </MenuItem>
             }
             { getSetting('forumType') === 'AlignmentForum' && !isAfMember && <MenuItem onClick={() => openDialog({componentName: "AFApplicationForm"})}>

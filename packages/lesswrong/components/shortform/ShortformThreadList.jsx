@@ -2,18 +2,9 @@ import React from 'react';
 import { Components, registerComponent, withList, Loading } from 'meteor/vulcan:core';
 import { Comments } from '../../lib/collections/comments';
 import withUser from '../common/withUser';
-import { withStyles } from '@material-ui/core/styles';
 import { withRouter } from '../../lib/reactRouterWrapper.js';
 
-const styles = theme => ({
-  title: {
-    marginTop: theme.spacing.unit*2,
-    marginBottom: theme.spacing.unit*2,
-    color: theme.palette.grey[600]
-  }
-})
-
-const ShortformThreadList = ({ classes, results, loading, loadMore, networkStatus, currentUser, data: {refetch} }) => {
+const ShortformThreadList = ({ results, loading, loadMore, networkStatus, data: {refetch} }) => {
 
   const { LoadMore, ShortformThread, ShortformSubmitForm } = Components
 
@@ -46,4 +37,4 @@ const discussionThreadsOptions = {
   enableCache: true,
 };
 
-registerComponent('ShortformThreadList', ShortformThreadList, [withList, discussionThreadsOptions], withUser, withRouter, withStyles(styles, {name:"ShortformThreadList"}));
+registerComponent('ShortformThreadList', ShortformThreadList, [withList, discussionThreadsOptions], withUser, withRouter);
