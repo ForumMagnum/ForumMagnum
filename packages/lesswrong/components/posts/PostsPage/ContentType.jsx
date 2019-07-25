@@ -54,7 +54,7 @@ const ContentType = ({classes, frontpage, shortform, label}) => {
   const shortformTooltip = <div>
     <div className={classes.tooltipTitle}>Shortform</div>
     <div>
-      Shortform is for off-the-cuff writing, short comments, public drafts, etc.
+      Writing that is short in length, or written in a short amount of time. Off-the-cuff thoughts, brainstorming, early stage drafts, etc.
     </div>
   </div>
 

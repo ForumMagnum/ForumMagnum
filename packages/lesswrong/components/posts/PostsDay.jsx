@@ -134,7 +134,7 @@ class PostsDay extends Component {
               <ContentType frontpage={true} label="Frontpage Posts"/>
             </SectionSubtitle>
             <SubSection>
-              {frontpagePosts.map((post, i) =><PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
+              {frontpagePosts.map((post, i) =><PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} density={1} />)}
             </SubSection>
           </div>}
 
@@ -144,7 +144,7 @@ class PostsDay extends Component {
             </SectionSubtitle>
 
             <SubSection>
-              {personalBlogposts.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
+              {personalBlogposts.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} density={1} />)}
             </SubSection>
           </div>}
 
@@ -167,7 +167,7 @@ class PostsDay extends Component {
             }}
           />
         </div>
-        <Divider />
+        <Divider wings={false}/>
       </div>
     );
   }
