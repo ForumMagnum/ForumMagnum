@@ -35,6 +35,7 @@ const options = {
   fragmentName: 'CommentsList',
   // enableCache: true,
   enableTotal: true,
+  ssr: true
 };
 
 registerComponent('PostsCommentsThread', PostsCommentsThread, [withList, options]);
