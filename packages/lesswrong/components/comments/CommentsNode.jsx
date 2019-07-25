@@ -1,5 +1,5 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { withLocation } from '../../lib/routeUtil';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -304,12 +304,11 @@ class CommentsNode extends Component {
 
 CommentsNode.propTypes = {
   comment: PropTypes.object.isRequired, // the current comment
-  router: PropTypes.object.isRequired
 };
 
 registerComponent('CommentsNode', CommentsNode,
   withUser,
-  withRouter,
+  withLocation,
   withErrorBoundary,
   withStyles(styles, { name: "CommentsNode" })
 );

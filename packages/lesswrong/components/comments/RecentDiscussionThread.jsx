@@ -13,7 +13,6 @@ import { unflattenComments } from '../../lib/modules/utils/unflatten';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import withRecordPostView from '../common/withRecordPostView';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
 
 import { withStyles } from '@material-ui/core/styles';
 import { postExcerptFromHTML } from '../../lib/editor/ellipsize'
@@ -210,6 +209,5 @@ registerComponent(
   withUser,
   withStyles(styles, { name: "RecentDiscussionThread" }),
   withRecordPostView,
-  withErrorBoundary,
-  withRouter
+  withErrorBoundary
 );

@@ -3,7 +3,6 @@ import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import { Comments } from '../../lib/collections/comments';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
 
 const styles = theme => ({
   title: {
@@ -53,4 +52,4 @@ const discussionThreadsOptions = {
   enableCache: true,
 };
 
-registerComponent('ShortformThreadList', ShortformThreadList, [withList, discussionThreadsOptions], withUser, withRouter, withStyles(styles, {name:"ShortformThreadList"}));
+registerComponent('ShortformThreadList', ShortformThreadList, [withList, discussionThreadsOptions], withUser, withStyles(styles, {name:"ShortformThreadList"}));
