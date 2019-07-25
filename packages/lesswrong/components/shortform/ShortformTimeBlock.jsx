@@ -6,13 +6,19 @@ import {queryIsUpdating} from '../common/queryStatusUtils'
 
 const styles = theme => ({
   shortformGroup: {
-    marginTop: 20,
+    marginTop: 12,
   },
   shortformTag: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[700],
     marginBottom: 8,
+  },
+  subtitle: {
+    [theme.breakpoints.down('sm')]:{
+      marginBottom: theme.spacing.unit*1.5,
+    },
+    marginBottom: theme.spacing.unit*2,
   },
 })
 
@@ -43,26 +49,28 @@ class ShortformTimeBlock extends Component {
 
   render () {
     const { totalCount, loadMore, results: comments, classes } = this.props
-    const { CommentsNode, LoadMore } = Components
+    const { CommentsNode, LoadMore, SectionSubtitle, SubSection, ContentType } = Components
     if (!comments?.length) return null
     return <div>
       <div className={classes.shortformGroup}>
-        <div className={classes.shortformTag}>
-          Shortform [Beta]
-        </div>
-        {comments?.map((comment, i) =>
-          <CommentsNode
-            comment={comment} post={comment.post}
-            key={comment._id}
-            forceSingleLine loadChildrenSeparately
-          />)}
-        {comments?.length < totalCount &&
-        <LoadMore
-          loadMore={loadMore}
-          count={comments.length}
-          totalCount={totalCount}
-        />
-        }
+        <SectionSubtitle className={classes.subtitle}>
+          <ContentType shortform label="Shortform [Beta]"/>
+        </SectionSubtitle>
+        <SubSection>
+          {comments?.map((comment, i) =>
+            <CommentsNode
+              comment={comment} post={comment.post}
+              key={comment._id}
+              forceSingleLine loadChildrenSeparately
+            />)}
+          {comments?.length < totalCount &&
+          <LoadMore
+            loadMore={loadMore}
+            count={comments.length}
+            totalCount={totalCount}
+          />
+          }
+        </SubSection>
       </div>
     </div>
   }
@@ -75,7 +83,7 @@ registerComponent('ShortformTimeBlock', ShortformTimeBlock,
     fragmentName: 'ShortformComments',
     enableTotal: true,
     enableCache: true,
-    limit: 3,
+    limit: 5,
     ssr: true,
   }],
   withStyles(styles, { name: "ShortformTimeBlock" })

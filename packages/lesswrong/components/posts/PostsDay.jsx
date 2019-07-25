@@ -20,12 +20,17 @@ const styles = theme => ({
     fontWeight: 600
   },
   loadMore: {
-    marginTop: theme.spacing.unit,
-    marginLeft: theme.spacing.unit,
+    marginTop: theme.spacing.unit*1.5,
   },
   noPosts: {
     marginLeft: "23px",
     color: "rgba(0,0,0,0.5)",
+  },
+  frontpageSubtitle: {
+    marginTop: theme.spacing.unit
+  },
+  personSubtitle: {
+    marginTop: theme.spacing.unit*1.5
   },
 })
 
@@ -83,7 +88,7 @@ class PostsDay extends Component {
       timeframe, networkStatus
     } = this.props
     const { noShortform } = this.state
-    const { PostsItem2, LoadMore, ShortformTimeBlock, Loading } = Components
+    const { PostsItem2, LoadMore, ShortformTimeBlock, SectionSubtitle, SubSection, Loading, ContentType, Divider } = Components
     const timeBlock = timeframeToTimeBlock[timeframe]
 
     const noPosts = !loading && (!posts || (posts.length === 0))
@@ -93,6 +98,9 @@ class PostsDay extends Component {
     if (noPosts && noShortform && hideIfEmpty) {
       return null
     }
+
+    const frontpagePosts = _.filter(posts, (p) => p.frontpageDate)
+    const personalBlogposts = _.filter(posts, (p) => !p.frontpageDate)
 
     return (
       <div className={classes.root}>
@@ -112,39 +120,61 @@ class PostsDay extends Component {
 
         { loading && <Loading /> }
 
-        { noPosts && <div className={classes.noPosts}>
-          No posts for {
-          timeframe === 'daily' ?
-            startDate.format('MMMM Do YYYY') :
-            // Should be pretty rare. Basically people running off the end of
-            // the Forum history on yearly
-            `this ${timeBlock}`
-          }
-        </div> }
+        <div className={classes.dayContent}>
+          { noPosts && <div className={classes.noPosts}>
+            No posts for {
+            timeframe === 'daily' ?
+              startDate.format('MMMM Do YYYY') :
+              // Should be pretty rare. Basically people running off the end of
+              // the Forum history on yearly
+              `this ${timeBlock}`
+            }
+          </div> }
 
-        {posts?.map((post, i) =>
-          <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} />)}
+          {(frontpagePosts?.length > 0) && <div>
+            <SectionSubtitle className={classes.frontpageSubtitle}>
+              <ContentType frontpage={true} label="Frontpage Posts"/>
+            </SectionSubtitle>
+            <SubSection>
+              {frontpagePosts.map((post, i) =>
+                <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} dense />
+              )}
+            </SubSection>
+          </div>}
 
-        {(posts?.length < totalCount) && <div className={classes.loadMore}>
-          <LoadMore
-            loadMore={loadMore}
-            count={posts.length}
-            totalCount={totalCount}
-            networkStatus={networkStatus}
+          {(personalBlogposts?.length > 0) && <div>
+            <SectionSubtitle className={classes.personSubtitle}>
+              <ContentType frontpage={false} label="Personal Blogposts"/>
+            </SectionSubtitle>
+
+            <SubSection>
+              {personalBlogposts.map((post, i) => 
+                <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} dense />
+              )}
+            </SubSection>
+          </div>}
+
+          {(posts?.length < totalCount) && <div className={classes.loadMore}>
+            <LoadMore
+                loadMore={loadMore}
+                count={posts.length}
+                totalCount={totalCount}
+                networkStatus={networkStatus}
+              />
+          </div>}
+
+          <ShortformTimeBlock
+            reportEmpty={this.reportEmptyShortform}
+            terms={{
+              view: "topShortform",
+              // NB: The comments before differs from posts in that before is not
+              // inclusive
+              before: moment(startDate).endOf(timeBlock).add(1, 'days').toString(),
+              after: moment(startDate).startOf(timeBlock).toString()
+            }}
           />
-        </div>}
-
-        <ShortformTimeBlock
-          reportEmpty={this.reportEmptyShortform}
-          terms={{
-            view: "topShortform",
-            // NB: The comments before differs from posts in that before is not
-            // inclusive
-            before: moment(startDate).endOf(timeBlock).add(1, 'days').toString(),
-            after: moment(startDate).startOf(timeBlock).toString()
-          }}
-        />
-
+        </div>
+        <Divider wings={false}/>
       </div>
     );
   }

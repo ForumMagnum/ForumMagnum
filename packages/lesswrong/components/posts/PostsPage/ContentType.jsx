@@ -4,13 +4,12 @@ import { registerComponent } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
 import PersonIcon from '@material-ui/icons/Person'
-import HomeIcon from '@material-ui/icons/Home'
+import HomeIcon from '@material-ui/icons/Home';
+import SubjectIcon from '@material-ui/icons/Subject';
 
 const styles = theme => ({
   root: {
     textAlign: 'left',
-    ...theme.typography.postStyle,
-    marginLeft: 20,
     display: 'inline-block',
     color: theme.palette.grey[600],
     whiteSpace: "no-wrap",
@@ -21,13 +20,14 @@ const styles = theme => ({
     color: theme.palette.grey[500],
     position: "relative",
     top: 3,
+    marginRight: 4,
   },
   tooltipTitle: {
     marginBottom: 8,
   },
 })
 
-const PostsType = ({classes, post}) => {
+const ContentType = ({classes, frontpage, shortform, label}) => {
   const frontpageTooltip = <div>
     <div className={classes.tooltipTitle}>Frontpage Post</div>
     <div>Moderators promote posts to frontpage based on:</div>
@@ -51,17 +51,34 @@ const PostsType = ({classes, post}) => {
     </ul>
   </div>
 
-  return <Typography variant="body1" component="span" className={classes.root}>
-    { post.frontpageDate ? 
+  const shortformTooltip = <div>
+    <div className={classes.tooltipTitle}>Shortform</div>
+    <div>
+      Writing that is short in length, or written in a short amount of time. Off-the-cuff thoughts, brainstorming, early stage drafts, etc.
+    </div>
+  </div>
+
+  if (frontpage) {
+    return <Typography variant="body1" component="span" className={classes.root}>
       <Tooltip title={frontpageTooltip}>
-        <HomeIcon className={classes.icon} />
+        <span><HomeIcon className={classes.icon} /> {label}</span>
       </Tooltip>
-        :
-      <Tooltip title={personalTooltip}>
-        <PersonIcon className={classes.icon}  />
+    </Typography>
+  }
+
+  if (shortform) {
+    return <Typography variant="body1" component="span" className={classes.root}>
+      <Tooltip title={shortformTooltip}>
+        <span><SubjectIcon className={classes.icon} /> {label}</span>
       </Tooltip>
-    }
+    </Typography>
+  }
+
+  return <Typography variant="body1" component="span" className={classes.root}>
+    <Tooltip title={personalTooltip}>
+      <span><PersonIcon className={classes.icon} /> {label}</span>
+    </Tooltip>
   </Typography>
 }
 
-registerComponent('PostsType', PostsType, withStyles(styles, {name: "PostsType"}))
+registerComponent('ContentType', ContentType, withStyles(styles, {name: "ContentType"}))
