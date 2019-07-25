@@ -55,6 +55,7 @@ import '../components/common/AllComments.jsx';
 import '../components/common/SingleColumnSection';
 import '../components/common/SectionTitle.jsx';
 import '../components/common/SectionSubtitle.jsx';
+import '../components/common/SubSection.jsx';
 import '../components/common/SectionFooter.jsx';
 import '../components/common/SectionButton.jsx';
 import '../components/common/MetaInfo.jsx';

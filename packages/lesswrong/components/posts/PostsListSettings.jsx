@@ -160,8 +160,6 @@ const SettingsColumn = ({type, title, options, currentOption, classes, setSettin
               <Tooltip title={<div>{optionValue.tooltip}</div>} placement="left-start">
                 <span>{ label }</span>
               </Tooltip> :
-              // TODO-Q-ForPR Anyone want to tell me how I can be smarter about
-              // conditionally rendering that tooltip?
               <span>{ label }</span>
             }
           </MetaInfo>
@@ -201,7 +199,6 @@ class PostsListSettings extends Component {
 
     return (
       <div className={classNames(classes.root, {[classes.hidden]: hidden})}>
-        {/* TODO-Q-ForPR Does anyone notice the spacing bothering them? */}
         {showTimeframe && <SettingsColumn
           type={'timeframe'}
           title={'Timeframe:'}

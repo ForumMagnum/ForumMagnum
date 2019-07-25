@@ -36,11 +36,17 @@ class PostsDailyList extends PureComponent {
   }
 
   componentDidUpdate (prevProps) {
-    // If we receive a new after prop, it's because our parent is asking us to
-    // change what we've loaded. Throw away any previous updates to the after
-    // state
-    if (prevProps.after !== this.props.after) {
-      this.setState({after: this.props.after})
+    // If we receive a new `after` or `postListParameters` prop, it's because
+    // our parent is asking us to change what we've loaded. Throw away any
+    // previous updates to the `after` state and redim for reloading.
+    if (
+      prevProps.after !== this.props.after ||
+      !_.isEqual(prevProps.postListParameters, this.props.postListParameters)
+    ) {
+      this.setState({
+        after: this.props.after,
+        dim: this.props.dimWhenLoading,
+      })
     }
   }
 
@@ -85,6 +91,7 @@ class PostsDailyList extends PureComponent {
               // NB: 'before', as a parameter for a posts view, is inclusive
               before: moment(date).endOf(timeBlock).format('YYYY-MM-DD'),
               after: moment(date).startOf(timeBlock).format('YYYY-MM-DD'),
+              limit: 16
             }}
             timeBlockLoadComplete={this.timeBlockLoadComplete}
             hideIfEmpty={index===0}
