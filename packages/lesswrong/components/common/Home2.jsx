@@ -37,12 +37,12 @@ class Home2 extends PureComponent {
   
         <SingleColumnSection>
           <SectionTitle title="Recent Discussion">
-            {currentUser?.beta && <div onClick={this.toggleShortformFeed}>
+            <div onClick={this.toggleShortformFeed}>
               <SectionButton>
                 <AddBoxIcon />
                 New Shortform Post
               </SectionButton>
-            </div>}
+            </div>
           </SectionTitle>
           {showShortformFeed && <ShortformSubmitForm/>}
           <RecentDiscussionThreadsList terms={{view: 'recentDiscussionThreadsList', limit:20}}/>
