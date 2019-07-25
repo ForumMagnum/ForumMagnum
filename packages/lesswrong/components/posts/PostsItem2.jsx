@@ -265,7 +265,7 @@ const styles = (theme) => ({
       width: 'auto'
     },
   },
-  density1: {
+  dense: {
     paddingTop: 7,
     paddingBottom:8
   }
@@ -316,7 +316,7 @@ class PostsItem2 extends PureComponent {
   render() {
     const { classes, post, sequenceId, chapter, currentUser, index, terms, resumeReading,
       showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true,
-      defaultToShowUnreadComments=false, dismissRecommendation, density } = this.props
+      defaultToShowUnreadComments=false, dismissRecommendation, dense } = this.props
     const { showComments } = this.state
     const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
 
@@ -347,7 +347,7 @@ class PostsItem2 extends PureComponent {
           }
         )}>
           <div className={classNames(classes.postsItem, {
-            [classes.density1]: density===1
+            [classes.dense]: dense
             })}>
             <PostsItem2MetaInfo className={classes.karma}>
               <PostsItemKarma post={post} />

@@ -9,7 +9,7 @@ import classNames from 'classnames';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { withContinueReading } from './withContinueReading';
 
-export const styles = theme => ({
+const styles = theme => ({
   continueReadingList: {
     marginBottom: theme.spacing.unit*2,
   },
