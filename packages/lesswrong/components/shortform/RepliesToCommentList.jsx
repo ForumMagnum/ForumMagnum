@@ -19,7 +19,7 @@ class RepliesToCommentList extends PureComponent {
       totalComments={results.length}
       comments={nestedComments}
       post={post}
-      startThreadTruncated={false}
+      startThreadTruncated={true}
       defaultNestingLevel={2}
     />
   }

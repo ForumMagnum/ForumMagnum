@@ -121,6 +121,7 @@ class CommentsNode extends Component {
       return true;
     
     return (
+      this.isTruncated() &&
       currentUser?.beta &&
       lowKarmaOrCondensed &&
       !(mostRecent && condensed) &&
@@ -184,9 +185,10 @@ class CommentsNode extends Component {
   }
 
   isTruncated = () => {
-    const { expandAllThreads } = this.props;
-    const { truncatedStateSet } = this.state
-    return !expandAllThreads && (this.state.truncated || (this.props.truncated && truncatedStateSet === false))
+    const { expandAllThreads, startThreadTruncated } = this.props;
+    // const { truncatedStateSet } = this.state
+    const truncatedStateSetFalse = !this.state || (this.state.truncatedStateSet === false)
+    return !expandAllThreads && (this.state?.truncated || ((this.props.truncated && truncatedStateSetFalse) || (startThreadTruncated && truncatedStateSetFalse)))
   }
 
   isNewComment = () => {
@@ -195,7 +197,12 @@ class CommentsNode extends Component {
   }
 
   isSingleLine = () => {
-    return this.state.singleLine;
+    const { forceSingleLine } = this.props
+    const { singleLine } = this.state
+    if (forceSingleLine && singleLine)
+      return true;
+
+    return this.isTruncated() && singleLine && !this.isNewComment();
   }
 
   render() {
