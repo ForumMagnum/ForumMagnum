@@ -24,6 +24,7 @@ import MessageContext, { flash } from '../messages.js';
 import qs from 'qs'
 
 export const LocationContext = React.createContext("location");
+export const SubscribeLocationContext = React.createContext("subscribeLocation");
 export const NavigationContext = React.createContext("navigation");
 
 export function parseQuery(location) {
@@ -211,9 +212,18 @@ class App extends PureComponent {
       this.navigationContext.history = this.props.history;
     }
     
+    // subscribeLocationContext changes (by shallow comparison) whenever the
+    // URL changes.
+    if (!this.subscribeLocationContext || this.subscribeLocationContext.pathname != location.pathname) {
+      this.subscribeLocationContext = location;
+    } else {
+      Object.assign(this.subscribeLocationContext, location);
+    }
+    
     const { currentRoute, RouteComponent } = location;
     return (
       <LocationContext.Provider value={this.locationContext}>
+      <SubscribeLocationContext.Provider value={this.subscribeLocationContext}>
       <NavigationContext.Provider value={this.navigationContext}>
       <IntlProvider locale={this.getLocale()} key={this.getLocale()} messages={Strings[this.getLocale()]}>
         <MessageContext.Provider value={{ messages, flash }}>
@@ -230,6 +240,7 @@ class App extends PureComponent {
         </MessageContext.Provider>
       </IntlProvider>
       </NavigationContext.Provider>
+      </SubscribeLocationContext.Provider>
       </LocationContext.Provider>
     );
   }

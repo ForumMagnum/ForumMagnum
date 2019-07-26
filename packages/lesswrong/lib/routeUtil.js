@@ -1,7 +1,7 @@
 import React from 'react';
 import { useContext } from 'react';
 import qs from 'qs';
-import { NavigationContext, LocationContext } from 'meteor/vulcan:core';
+import { NavigationContext, LocationContext, SubscribeLocationContext } from 'meteor/vulcan:core';
 
 // Given the props of a component which has withRouter, return the parsed query
 // from the URL.
@@ -18,7 +18,14 @@ export function parseQuery(location) {
   return qs.parse(query);
 }
 
-// React Hook which returns the page location (parsed URL and route). Contains:
+// React Hook which returns the page location (parsed URL and route). Takes an
+// options dictionary:
+// {
+//   subscribe (optional boolean, default false): If true, triggers a rerender
+//     on navigation events. Otherwise no rerenders will be triggered, and
+//     components may be stale after navigation events.
+// }
+// Return value contains:
 // {
 //   currentRoute
 //     The object that was passed to addRoute.
@@ -40,9 +47,12 @@ export function parseQuery(location) {
 //     "http://lesswrong.com/foo?x=1&y=abc" this will be {x:"1",y:"abc"}. If
 //     the URL does not contain a ?, this is the empty object.
 // }
-// Using this HoC will trigger a rerender whenever the URL changes.
-export const useLocation = () => {
-  return useContext(LocationContext);
+export const useLocation = (options) => {
+  if (options?.subscribe) {
+    return useContext(SubscribeLocationContext);
+  } else {
+    return useContext(LocationContext);
+  }
 }
 
 // React Hook which returns an acessor-object for page navigation. Contains one
