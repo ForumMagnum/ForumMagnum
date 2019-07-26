@@ -9,7 +9,7 @@ import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/
 import { getBeforeDefault, getAfterDefault, timeframeToTimeBlock } from './timeframeUtils'
 
 const styles = theme => ({
-  daily: {
+  timeframe: {
     padding: theme.spacing.unit,
     [theme.breakpoints.down('xs')]: {
       padding: 0,
@@ -75,7 +75,7 @@ class AllPostsPage extends Component {
   renderPostsList = ({currentTimeframe, currentFilter, currentSorting, currentShowLowKarma}) => {
     const { classes } = this.props
     const { showSettings } = this.state
-    const {PostsDailyList, PostsList2} = Components
+    const {PostsTimeframeList, PostsList2} = Components
 
     const baseTerms = {
       karmaThreshold: currentShowLowKarma ? MAX_LOW_KARMA_THRESHOLD : DEFAULT_LOW_KARMA_THRESHOLD,
@@ -93,8 +93,8 @@ class AllPostsPage extends Component {
 
     const numTimeBlocks = timeframeToNumTimeBlocks[currentTimeframe]
     const timeBlock = timeframeToTimeBlock[currentTimeframe]
-    return <div className={classes.daily}>
-      <PostsDailyList
+    return <div className={classes.timeframe}>
+      <PostsTimeframeList
         timeframe={currentTimeframe}
         postListParameters={{
           view: 'timeframe',

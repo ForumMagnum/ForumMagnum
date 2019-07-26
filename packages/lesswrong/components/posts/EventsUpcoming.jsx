@@ -1,14 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
 
-const styles = theme => ({
-  daily: {
-    padding: theme.spacing.unit
-  }
-})
-
-const EventsUpcoming = ({ classes }) => {
+const EventsUpcoming = () => {
   const { SingleColumnSection, SectionTitle, PostsList2 } = Components
   const terms = { view: 'upcomingEvents', limit: 20 }
 
@@ -20,4 +13,4 @@ const EventsUpcoming = ({ classes }) => {
   )
 }
 
-registerComponent('EventsUpcoming', EventsUpcoming, withStyles(styles, {name: "EventsUpcoming"}));
+registerComponent('EventsUpcoming', EventsUpcoming);

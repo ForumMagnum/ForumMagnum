@@ -79,7 +79,7 @@ class ShortformTimeBlock extends Component {
 registerComponent('ShortformTimeBlock', ShortformTimeBlock,
   [withList, {
     collection: Comments,
-    queryName: 'dailyShortformQuery',
+    queryName: 'timeframeShortformQuery',
     fragmentName: 'ShortformComments',
     enableTotal: true,
     enableCache: true,
