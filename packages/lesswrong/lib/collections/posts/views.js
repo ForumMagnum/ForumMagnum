@@ -81,6 +81,7 @@ Posts.addDefaultView(terms => {
       draft: false,
       isFuture: false,
       unlisted: false,
+      shortform: false,
       authorIsUnreviewed: false,
       hiddenRelatedQuestion: false,
       groupId: viewFieldNullOrMissing,
@@ -147,6 +148,7 @@ Posts.addView("userPosts", terms => {
     selector: {
       userId: viewFieldAllowAny,
       hiddenRelatedQuestion: viewFieldAllowAny,
+      shortform: viewFieldAllowAny,
       groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
       $or: [{userId: terms.userId}, {coauthorUserIds: terms.userId}],
     },
