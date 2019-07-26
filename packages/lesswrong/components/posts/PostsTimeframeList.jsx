@@ -24,7 +24,7 @@ const loadMoreTimeframeMessages = {
   'yearly': 'Load More Years',
 }
 
-class PostsDailyList extends PureComponent {
+class PostsTimeframeList extends PureComponent {
 
   constructor(props) {
     super(props);
@@ -74,7 +74,7 @@ class PostsDailyList extends PureComponent {
   render() {
     const { classes, postListParameters, timeframe, before } = this.props
     const { after, dim } = this.state
-    const { PostsDay } = Components
+    const { PostsTimeBlock } = Components
 
     const timeBlock = timeframeToTimeBlock[timeframe]
     const dates = getDateRange(after, before, timeBlock)
@@ -82,7 +82,7 @@ class PostsDailyList extends PureComponent {
     return (
       <div className={classNames({[classes.loading]: dim})}>
         {dates.map((date, index) =>
-          <PostsDay
+          <PostsTimeBlock
             key={date.toString()}
             startDate={moment(date)}
             timeframe={timeframe}
@@ -105,11 +105,11 @@ class PostsDailyList extends PureComponent {
   }
 }
 
-PostsDailyList.propTypes = {
+PostsTimeframeList.propTypes = {
   after: PropTypes.string,
   before: PropTypes.string, // exclusive
 };
 
-registerComponent('PostsDailyList', PostsDailyList,
-  withStyles(styles, {name: "PostsDailyList"})
+registerComponent('PostsTimeframeList', PostsTimeframeList,
+  withStyles(styles, {name: "PostsTimeframeList"})
 );

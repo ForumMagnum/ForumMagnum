@@ -9,7 +9,7 @@ const styles = theme => ({
   }
 })
 const EventsPast = ({ classes }) => {
-  const { SingleColumnSection, SectionTitle, PostsDailyList } = Components
+  const { SingleColumnSection, SectionTitle, PostsTimeframeList } = Components
   const numberOfDays = getSetting('forum.numberOfDays');
   const terms = {
     view: 'pastEvents',
@@ -20,7 +20,7 @@ const EventsPast = ({ classes }) => {
     <SingleColumnSection>
       <SectionTitle title="Past Events by Day"/>
       <div className={classes.daily}>
-        <PostsDailyList
+        <PostsTimeframeList
           timeframe={'daily'}
           after={getAfterDefault(numberOfDays, 'day')}
           before={getBeforeDefault('day')}
