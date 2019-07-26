@@ -8,7 +8,7 @@ export * from './default_resolvers.js';
 export * from './components.js';
 
 export { default as Layout } from './components/Layout.jsx';
-export { default as App } from './components/App.jsx';
+export * from './components/App.jsx';
 export { default as Icon } from './components/Icon.jsx';
 export { default as ShowIf } from './components/ShowIf.jsx';
 export { default as MutationButton } from './components/MutationButton.jsx';

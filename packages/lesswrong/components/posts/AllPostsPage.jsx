@@ -1,12 +1,11 @@
 import { Components, registerComponent, getSetting, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { withRouter } from 'react-router';
+import { withLocation } from '../../lib/routeUtil';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
-import { parseQuery } from '../../lib/routeUtil.js';
 import { getBeforeDefault, getAfterDefault, timeframeToTimeBlock } from './timeframeUtils'
 
 const styles = theme => ({
@@ -110,11 +109,11 @@ class AllPostsPage extends Component {
   }
 
   render() {
-    const { classes, location, currentUser } = this.props
+    const { classes, currentUser } = this.props
+    const { query } = this.props.location;
     const { showSettings } = this.state
     const { SingleColumnSection, SectionTitle, SettingsIcon, MetaInfo, TabNavigationMenu, PostsListSettings } = Components
 
-    const query = parseQuery(location);
     const currentTimeframe = query.timeframe ||
       (currentUser && currentUser.allPostsTimeframe) ||
       'daily'
@@ -167,7 +166,7 @@ registerComponent(
   'AllPostsPage',
   AllPostsPage,
   withStyles(styles, {name:"AllPostsPage"}),
-  withRouter,
+  withLocation,
   withUser,
   [withUpdate, withUpdateOptions]
 );

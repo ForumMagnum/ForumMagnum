@@ -1,10 +1,10 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import withUser from '../common/withUser';
-import { parseQuery } from '../../lib/routeUtil.js';
+import { useLocation } from '../../lib/routeUtil';
 
-const Meta = ({location, currentUser}) => {
-  const query = parseQuery(location)
+const Meta = ({currentUser}) => {
+  const { query } = useLocation();
   const recentPostsTerms = { view: 'magic', limit: 10, ...query, meta: true, forum: true }
   const { SingleColumnSection, SectionTitle, PostsList2 } = Components
   return (

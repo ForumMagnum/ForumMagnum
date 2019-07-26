@@ -4,12 +4,12 @@ import {
   withMessages,
 } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import Users from 'meteor/vulcan:users';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 import EventIcon from '@material-ui/icons/Event';
-import { parseQuery } from '../../lib/routeUtil.js';
+import { withLocation } from '../../lib/routeUtil';
 
 const styles = theme => ({
   content: {
@@ -60,8 +60,8 @@ class CommunityHome extends Component {
   }
 
   render() {
-    const {classes, location} = this.props;
-    const query = parseQuery(location)
+    const { classes } = this.props;
+    const { query } = this.props.location; // From withLocation
     const filters = query?.filters || [];
     const { TabNavigationMenu, SingleColumnSection, SectionTitle, PostsList2, SectionButton, GroupFormLink } = Components
 
@@ -129,5 +129,5 @@ class CommunityHome extends Component {
 }
 
 registerComponent('CommunityHome', CommunityHome,
-  withUser, withMessages, withRouter,
+  withUser, withMessages, withLocation,
   withStyles(styles, { name: "CommunityHome" }));

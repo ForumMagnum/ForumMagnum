@@ -1,13 +1,12 @@
 import React, { PureComponent } from 'react';
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
-import { withRouter } from '../../lib/reactRouterWrapper.js'
+import { withLocation } from '../../lib/routeUtil'
 import Helmet from 'react-helmet';
-import { parseQuery } from '../../lib/routeUtil.js';
 
 class PostsEditPage extends PureComponent {
 
   render() {
-    const query = parseQuery(this.props.location);
+    const { query } = this.props.location;
     const postId = query.postId;
     const eventForm = !!(query.eventForm === "true");
     const mapsAPIKey = getSetting('googleMaps.apiKey', null);
@@ -19,4 +18,4 @@ class PostsEditPage extends PureComponent {
   }
 }
 
-registerComponent('PostsEditPage', PostsEditPage, withRouter);
+registerComponent('PostsEditPage', PostsEditPage, withLocation);

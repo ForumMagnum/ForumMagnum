@@ -1,7 +1,9 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
+import { useLocation } from '../../lib/routeUtil';
 
-const LocalGroupSingle = ({ match: { params }}) => {
+const LocalGroupSingle = () => {
+  const { params } = useLocation();
   return <Components.LocalGroupPage documentId={params.groupId}/>
 }
 

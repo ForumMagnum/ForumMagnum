@@ -2,8 +2,7 @@ import { Components, registerComponent, withList, getSetting } from 'meteor/vulc
 import React, { Component } from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link } from 'react-router-dom';
-import { withRouter } from 'react-router';
-import { parseQuery } from '../../lib/routeUtil.js';
+import { withLocation, withNavigation } from '../../lib/routeUtil';
 import Users from "meteor/vulcan:users";
 import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
@@ -102,12 +101,12 @@ class UsersProfile extends Component {
   }
 
   setCanonicalUrl = () => {
-    const { router, results, slug } = this.props
+    const { history, results, slug } = this.props
     const document = this.getUserFromResults(results)
     // Javascript redirect to make sure we are always on the most canonical URL for this user
     if (slug !== document?.slug) {
       const canonicalUrl = Users.getProfileUrlFromSlug(document.slug);
-      router.replace(canonicalUrl);
+      history.replace(canonicalUrl);
     }
   }
 
@@ -125,8 +124,7 @@ class UsersProfile extends Component {
   }
 
   renderMeta = () => {
-    const props = this.props
-    const { classes, results } = props
+    const { classes, results } = this.props
     const document = this.getUserFromResults(results)
     if (!document) return null
     const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma } = document;
@@ -178,6 +176,7 @@ class UsersProfile extends Component {
 
   render() {
     const { slug, classes, currentUser, loading, results, location } = this.props;
+    const { query } = location;
     const document = this.getUserFromResults(results)
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -194,7 +193,6 @@ class UsersProfile extends Component {
     const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsIcon } = Components
 
     const user = document;
-    const query = parseQuery(location);
 
     // Does this profile page belong to a likely-spam account?
     if (user.spamRiskScore < 0.4) {
@@ -316,4 +314,4 @@ const options = {
   ssr: true
 };
 
-registerComponent('UsersProfile', UsersProfile, withUser, [withList, options], withRouter, withStyles(styles, {name: "UsersProfile"}));
+registerComponent('UsersProfile', UsersProfile, withUser, [withList, options], withLocation, withNavigation, withStyles(styles, {name: "UsersProfile"}));

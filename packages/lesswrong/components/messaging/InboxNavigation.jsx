@@ -5,17 +5,19 @@ The Navigation for the Inbox components
 */
 
 import React from 'react';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { Components, registerComponent, withList, withUpdate } from 'meteor/vulcan:core';
-import { parseQuery } from '../../lib/routeUtil.js';
 import Conversations from '../../lib/collections/conversations/collection.js';
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import qs from 'qs'
 
-const InboxNavigation = ({results, loading, updateConversation, location, history}) => {
+const InboxNavigation = ({results, loading, updateConversation}) => {
+  const location = useLocation();
+  const { query } = location;
+  const { history } = useNavigation();
+  
   const { SectionTitle, SingleColumnSection, ConversationItem, Loading, SectionFooter, SectionFooterCheckbox } = Components
-  const query = parseQuery(location)
   const showArchive = query?.showArchive === "true"
   const checkboxClick = () => {
     history.push({...location, search: `?${qs.stringify({showArchive: !showArchive})}`})
@@ -53,4 +55,4 @@ const withUpdateOptions = {
 };
 
 registerComponent('InboxNavigation', InboxNavigation, [withList, conversationOptions],
-  withUser, withRouter,[withUpdate, withUpdateOptions]);
+  withUser, [withUpdate, withUpdateOptions]);

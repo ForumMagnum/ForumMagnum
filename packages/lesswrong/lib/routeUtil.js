@@ -1,5 +1,7 @@
-import getHeaderSubtitleData from './modules/utils/getHeaderSubtitleData';
+import React from 'react';
+import { useContext } from 'react';
 import qs from 'qs';
+import { NavigationContext, LocationContext } from 'meteor/vulcan:core';
 
 // Given the props of a component which has withRouter, return the parsed query
 // from the URL.
@@ -16,11 +18,68 @@ export function parseQuery(location) {
   return qs.parse(query);
 }
 
-// Given the props of a component which has withRouter, return a subtitle for
-// the page.
-export function getHeaderSubtitleDataFromRouterProps(props) {
-  const { location, match, client, currentRoute } = props;
-  const query = parseQuery(location);
-  const { subtitleText = currentRoute?.title || "", subtitleLink = "" } = getHeaderSubtitleData(currentRoute?.name, query, match.params, client) || {};
-  return { subtitleText, subtitleLink };
+// React Hook which returns the page location (parsed URL and route). Contains:
+// {
+//   currentRoute
+//     The object that was passed to addRoute.
+//   RouteComponent
+//     The component used to render this route.
+//   location
+//     The react-router location. Inconsistent between client and SSR.
+//   pathname
+//     All of the URL after the domain. ie if the URL is
+//     "http://lesswrong.com/foo?x=1&y=abc" then pathname is "/foo?x=1&y=abc".
+//   hash
+//     The within-page location part of a URL. Ie if the URL is
+//     "http://lesswrong.com/foo#abc", the hash is "#abc".
+//   params
+//     Parsed components of the route path. Eg if the route path is
+//     "/posts/:_id/:slug?" this might be {_id:"123", slug:"abc"}.
+//   query
+//     Parsed object for the portion of the URL after the ?, eg if the URL is
+//     "http://lesswrong.com/foo?x=1&y=abc" this will be {x:"1",y:"abc"}. If
+//     the URL does not contain a ?, this is the empty object.
+// }
+// Using this HoC will trigger a rerender whenever the URL changes.
+export const useLocation = () => {
+  return useContext(LocationContext);
+}
+
+// React Hook which returns an acessor-object for page navigation. Contains one
+// field, `history`. See https://github.com/ReactTraining/history for
+// documentation on it.
+// Use of this hook will never trigger rerenders.
+export const useNavigation = () => {
+  return useContext(NavigationContext);
+}
+
+// HoC which adds a `location` property to an object, which contains the page
+// location (parsed URL and route). See `useLocation`.
+export const withLocation = (WrappedComponent) => {
+  return (props) => (
+    <LocationContext.Consumer>
+      {location =>
+        <WrappedComponent
+          {...props}
+          location={location}
+        />
+      }
+    </LocationContext.Consumer>
+  );
+}
+
+// HoC which adds a `history` property to an object, which is a history obejct
+// as doumented on https://github.com/ReactTraining/history .
+// This HoC will never trigger rerenders.
+export const withNavigation = (WrappedComponent) => {
+  return (props) => (
+    <NavigationContext.Consumer>
+      {navigation =>
+        <WrappedComponent
+          {...props}
+          history={navigation.history}
+        />
+      }
+    </NavigationContext.Consumer>
+  );
 }

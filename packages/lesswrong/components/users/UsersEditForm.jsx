@@ -5,10 +5,10 @@ import { FormattedMessage, intlShape } from 'meteor/vulcan:i18n';
 import Users from 'meteor/vulcan:users';
 import Button from '@material-ui/core/Button';
 import { Accounts } from 'meteor/accounts-base';
-import { withRouter } from 'react-router';
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import { withApollo } from 'react-apollo'
+import { useNavigation } from '../../lib/routeUtil';
 
 import { withStyles } from '@material-ui/core/styles';
 
@@ -36,8 +36,8 @@ const styles = theme => ({
 })
 
 const UsersEditForm = (props) => {
-
-  const { classes, terms, currentUser, client, history } = props
+  const { classes, terms, currentUser, client } = props
+  const { history } = useNavigation();
 
   if(!terms.slug && !terms.documentId) {
     // No user specified and not logged in
@@ -89,6 +89,6 @@ UsersEditForm.contextTypes = {
 UsersEditForm.displayName = 'UsersEditForm';
 
 registerComponent('UsersEditForm', UsersEditForm,
-  withMessages, withUser, withApollo, withRouter,
+  withMessages, withUser, withApollo,
   withStyles(styles, { name: "UsersEditForm" })
 );

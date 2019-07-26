@@ -1,7 +1,8 @@
 import { Components, registerComponent, withMessages, withDocument } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Localgroups } from '../../lib/index.js';
-import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.js';
+import { withLocation } from '../../lib/routeUtil';
 import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
@@ -51,7 +52,8 @@ const styles = theme => ({
 
 class LocalGroupPage extends Component {
   render() {
-    const { classes, document:group, currentUser, match: { params } } = this.props;
+    const { classes, document:group, currentUser } = this.props;
+    const { params } = this.props.location;
     const { groupId } = params;
     const { CommunityMapWrapper, SingleColumnSection, SectionTitle, GroupLinks, PostsList2, Loading,
       SectionButton, SubscribeTo, SectionFooter, GroupFormLink } = Components
@@ -112,6 +114,6 @@ const options = {
 };
 
 registerComponent('LocalGroupPage', LocalGroupPage,
-  withUser, withMessages, withRouter,
+  withUser, withMessages, withLocation,
   withStyles(styles, { name: "LocalGroupPage" }),
   [withDocument, options]);

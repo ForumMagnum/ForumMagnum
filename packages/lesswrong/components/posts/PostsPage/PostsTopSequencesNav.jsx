@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withRouter, Link } from '../../../lib/reactRouterWrapper.js';
+import { Link } from '../../../lib/reactRouterWrapper.js';
+import { withNavigation } from '../../../lib/routeUtil.js';
 import withGlobalKeydown from '../../common/withGlobalKeydown';
 import { withStyles } from '@material-ui/core/styles';
 import { Sequences } from '../../../lib/collections/sequences/collection.js';
@@ -74,5 +75,5 @@ class PostsTopSequencesNav extends PureComponent
 }
 
 registerComponent('PostsTopSequencesNav', PostsTopSequencesNav,
-  withRouter, withGlobalKeydown,
+  withNavigation, withGlobalKeydown,
   withStyles(styles, {name: "PostsTopSequencesNav"}));

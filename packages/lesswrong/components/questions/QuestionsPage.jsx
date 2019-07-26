@@ -1,16 +1,16 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
-import { Link, withRouter } from '../../lib/reactRouterWrapper.js';
-import { parseQuery } from '../../lib/routeUtil'
+import { Link } from '../../lib/reactRouterWrapper.js';
+import { withLocation } from '../../lib/routeUtil';
 import withDialog from '../common/withDialog'
 import withUser from '../common/withUser'
 import AddBoxIcon from '@material-ui/icons/AddBox'
 class QuestionsPage extends PureComponent {
 
   render () {
-    const { currentUser, location, openDialog } = this.props
+    const { currentUser, openDialog } = this.props
+    const { query } = this.props.location;
     const { TabNavigationMenu, SingleColumnSection, SectionTitle,  PostsList2, SectionButton } = Components
-    const query = parseQuery(location)
 
     const topQuestionsTerms = {
       view: 'topQuestions',
@@ -49,4 +49,4 @@ class QuestionsPage extends PureComponent {
   }
 }
 
-registerComponent('QuestionsPage', QuestionsPage, withRouter, withDialog, withUser);
+registerComponent('QuestionsPage', QuestionsPage, withDialog, withUser, withLocation);

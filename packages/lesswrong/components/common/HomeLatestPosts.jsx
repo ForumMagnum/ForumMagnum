@@ -3,15 +3,16 @@ import React, { PureComponent } from 'react';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
-import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
-import { parseQuery } from '../../lib/routeUtil';
+import { Link } from '../../lib/reactRouterWrapper.js';
+import { withLocation, withNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
 
 class HomeLatestPosts extends PureComponent {
 
   toggleFilter = () => {
-    const { updateUser, currentUser, location, history } = this.props
-    const query = parseQuery(location)
+    const { updateUser, currentUser } = this.props
+    const { location, history } = this.props // From withLocation, withNavigation
+    const { query, pathname } = location;
     let newQuery = _.isEmpty(query) ? {view: "magic"} : query
     const currentFilter = newQuery.filter || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
     const newFilter = (currentFilter === "frontpage") ? "includeMetaAndPersonal" : "frontpage"
@@ -26,14 +27,14 @@ class HomeLatestPosts extends PureComponent {
     }
 
     newQuery.filter = newFilter
-    const newLocation = { pathname: location.pathname, search: qs.stringify(newQuery)};
+    const newLocation = { pathname: pathname, search: qs.stringify(newQuery)};
     history.replace(newLocation);
   }
 
   render () {
     const { currentUser, location } = this.props;
+    const { query } = location;
     const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox } = Components
-    const query = parseQuery(location)
     const currentFilter = query.filter || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
     const limit = parseInt(query.limit) || 10
 
@@ -106,4 +107,6 @@ const withUpdateOptions = {
   fragmentName: 'UsersCurrent',
 }
 
-registerComponent('HomeLatestPosts', HomeLatestPosts, withUser, withRouter, [withUpdate, withUpdateOptions]);
+registerComponent('HomeLatestPosts', HomeLatestPosts,
+  withUser, withLocation, withNavigation,
+  [withUpdate, withUpdateOptions]);

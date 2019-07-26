@@ -1,7 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 
-const CoreSequences = (props, context) => {
+const CoreSequences = () => {
   return <Components.CollectionsPage documentId={'oneQyj4pw77ynzwAF'} />
 };
 

@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent, withUpdate, getSetting } from 'meteor/vulcan:core';
-import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
-import { getHeaderSubtitleDataFromRouterProps } from '../../lib/routeUtil.js';
 import NoSSR from 'react-no-ssr';
 import Headroom from 'react-headroom'
 import { withStyles, withTheme } from '@material-ui/core/styles';
@@ -14,7 +12,6 @@ import MenuIcon from '@material-ui/icons/Menu';
 import TocIcon from '@material-ui/icons/Toc';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
-import { withApollo } from 'react-apollo';
 import Users from 'meteor/vulcan:users';
 import grey from '@material-ui/core/colors/grey';
 import withUser from '../common/withUser';
@@ -56,12 +53,6 @@ const styles = theme => ({
       textDecoration: 'none',
       opacity: 0.7,
     }
-  },
-  subtitle: {
-    marginLeft: '1em',
-    paddingLeft: '1em',
-    textTransform: 'uppercase',
-    borderLeft: `1px solid ${grey[400]}`,
   },
   menuButton: {
     marginLeft: -theme.spacing.unit,
@@ -149,11 +140,10 @@ class Header extends Component {
   render() {
     const { currentUser, classes, theme, toc, searchResultsArea } = this.props
     const { notificationOpen, notificationHasOpened, navigationOpen, headroomPinnedOpen } = this.state
-    const { subtitleLink, subtitleText } = getHeaderSubtitleDataFromRouterProps(this.props);
     const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
 
     const { SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton,
-      NavigationMenu, NotificationsMenu, KarmaChangeNotifier } = Components;
+      NavigationMenu, NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle } = Components;
 
     return (
         <div className={classes.root}>
@@ -189,11 +179,7 @@ class Header extends Component {
                     <Link to="/" className={classes.titleLink}>
                       {getSetting('forumSettings.headerTitle', 'LESSWRONG')}
                     </Link>
-                    {subtitleLink && <span className={classes.subtitle}>
-                      <Link to={subtitleLink} className={classes.titleLink}>
-                        {subtitleText}
-                      </Link>
-                    </span>}
+                    <HeaderSubtitle/>
                   </Hidden>
                   <Hidden mdUp implementation="css">
                     <Link to="/" className={classes.titleLink}>
@@ -224,8 +210,6 @@ Header.displayName = "Header";
 Header.propTypes = {
   currentUser: PropTypes.object,
   classes: PropTypes.object.isRequired,
-  location: PropTypes.object.isRequired,
-  client: PropTypes.object.isRequired,
   searchResultsArea: PropTypes.object,
 };
 
@@ -234,4 +218,4 @@ const withUpdateOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-registerComponent('Header', Header, withErrorBoundary, withRouter, withApollo, [withUpdate, withUpdateOptions], withUser, withStyles(styles, { name: 'Header'}), withTheme());
+registerComponent('Header', Header, withErrorBoundary, [withUpdate, withUpdateOptions], withUser, withStyles(styles, { name: 'Header'}), withTheme());

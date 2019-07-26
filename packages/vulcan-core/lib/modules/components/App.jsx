@@ -6,7 +6,7 @@ import {
   runCallbacks,
   detectLocale,
   hasIntlFields,
-  Routes,
+  Routes
 } from 'meteor/vulcan:lib';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
@@ -17,26 +17,27 @@ import withSiteData from '../containers/withSiteData.js';
 import { withApollo } from 'react-apollo';
 import { withCookies } from 'react-cookie';
 import moment from 'moment';
+import { matchPath } from 'react-router';
 import { Switch, Route } from 'react-router-dom';
 import { withRouter} from 'react-router';
 import MessageContext, { flash } from '../messages.js';
+import qs from 'qs'
 
-// see https://stackoverflow.com/questions/42862028/react-router-v4-with-multiple-layouts
-const RouteWithLayout = ({ layoutName, component:Children, currentRoute, ...rest }) => {
-  return (
-  <Route
-    // NOTE: Switch ignores the "exact" prop of components that 
-    // are not its direct children
-    // Since the render tree is now Switch > RouteWithLayout > Route
-    // (instead of just Switch > Route), we must write <RouteWithLayout exact ... />
-    //exact 
-    {...rest}
-    render={props => {
-      const childComponentProps = { ...props, currentRoute };
-      return <Children {...childComponentProps} />
-    }}
-  />
-);};
+export const LocationContext = React.createContext("location");
+export const NavigationContext = React.createContext("navigation");
+
+export function parseQuery(location) {
+  let query = location && location.search;
+  if (!query) return {};
+  
+  // The unparsed query string looks like ?foo=bar&numericOption=5&flag but the
+  // 'qs' parser wants it without the leading question mark, so strip the
+  // question mark.
+  if (query.startsWith('?'))
+    query = query.substr(1);
+    
+  return qs.parse(query);
+}
 
 class App extends PureComponent {
   constructor(props) {
@@ -163,39 +164,72 @@ class App extends PureComponent {
       runCallbacks('events.identify', nextProps.currentUser);
     }
   }
+  
+  parseRoute(location) {
+    const routeNames = Object.keys(Routes);
+    let currentRoute = null;
+    let params={};
+    for (let routeName of routeNames) {
+      const route = Routes[routeName];
+      const match = matchPath(location.pathname, { path: route.path, exact: true, strict: false });
+      if (match) {
+        currentRoute = route;
+        params = match.params;
+      }
+    }
+    
+    const RouteComponent = currentRoute ? Components[currentRoute.componentName] : Components.Error404;
+    return {
+      currentRoute, RouteComponent, location, params,
+      pathname: location.pathname,
+      hash: location.hash,
+      query: parseQuery(location),
+    };
+  }
 
   render() {
-    const routeNames = Object.keys(Routes);
     const { flash } = this;
     const { messages } = this.state;
-    //const LayoutComponent = currentRoute.layoutName ? Components[currentRoute.layoutName] : Components.Layout;
+    const { currentUser } = this.props;
 
+    // Parse the location into a route/params/query/etc.
+    const location = this.parseRoute(this.props.location);
+    
+    // Reuse the container objects for location and navigation context, so that
+    // they will be reference-stable and won't trigger spurious rerenders.
+    if (!this.locationContext) {
+      this.locationContext = location;
+    } else {
+      Object.assign(this.locationContext, location);
+    }
+    
+    if (!this.navigationContext) {
+      this.navigationContext = {
+        history: this.props.history
+      };
+    } else {
+      this.navigationContext.history = this.props.history;
+    }
+    
+    const { currentRoute, RouteComponent } = location;
     return (
+      <LocationContext.Provider value={this.locationContext}>
+      <NavigationContext.Provider value={this.navigationContext}>
       <IntlProvider locale={this.getLocale()} key={this.getLocale()} messages={Strings[this.getLocale()]}>
         <MessageContext.Provider value={{ messages, flash }}>
           <Components.ScrollToTop />
           <div className={`locale-${this.getLocale()}`}>
-            <Components.Layout >
-            <Components.HeadTags />
-              {this.props.currentUserLoading ? (
-                <Components.Loading />
-              ) : routeNames.length ? (
-                <Switch>
-                  {routeNames.map(key => (
-                    // NOTE: if we want the exact props to be taken into account
-                    // we have to pass it to the RouteWithLayout, not the underlying Route,
-                    // because it is the direct child of Switch
-                    <RouteWithLayout exact currentRoute={Routes[key]} siteData={this.props.siteData} key={key} {...Routes[key]} />
-                  ))}
-                  <RouteWithLayout siteData={this.props.siteData} currentRoute={{ name: '404'}} component={Components.Error404} />
-                </Switch>
-              ) : (
-                    <Components.Welcome />
-                  )}
+            <Components.Layout currentUser={currentUser}>
+              {this.props.currentUserLoading
+                ? <Components.Loading />
+                : <RouteComponent />
+              }
             </Components.Layout>
           </div>
         </MessageContext.Provider>
       </IntlProvider>
+      </NavigationContext.Provider>
+      </LocationContext.Provider>
     );
   }
 }

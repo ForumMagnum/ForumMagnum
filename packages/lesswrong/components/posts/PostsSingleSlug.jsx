@@ -2,11 +2,10 @@ import { Components, registerComponent, withList} from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import { Error404 } from 'meteor/vulcan:core';
-import { withRouter } from 'react-router';
-import { parseQuery } from '../../lib/routeUtil.js';
+import { useLocation } from '../../lib/routeUtil.js';
 
-const PostsSingleSlug = ({results, loading, location}) => {
-  const query = parseQuery(location);
+const PostsSingleSlug = ({results, loading}) => {
+  const { query } = useLocation();
   const version = query?.revision
   if (results && results.length>0 && results[0]._id) {
     return <Components.PostsPageWrapper documentId={results[0]._id } sequenceId={null} version={version} />
@@ -26,4 +25,4 @@ const options = {
   ssr: true,
 };
 
-registerComponent('PostsSingleSlug', PostsSingleSlug, [withList, options], withRouter);
+registerComponent('PostsSingleSlug', PostsSingleSlug, [withList, options]);

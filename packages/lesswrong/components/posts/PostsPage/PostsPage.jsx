@@ -1,7 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from '../../../lib/reactRouterWrapper.js';
+import { withLocation } from '../../../lib/routeUtil';
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
 import { withStyles } from '@material-ui/core/styles';
@@ -11,7 +11,6 @@ import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import classNames from 'classnames';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
-import { parseQuery } from '../../../lib/routeUtil.js';
 import withRecordPostView from '../../common/withRecordPostView';
 import withNewEvents from '../../../lib/events/withNewEvents.jsx';
 
@@ -213,7 +212,8 @@ function getHostname(url) {
 class PostsPage extends Component {
 
   getSequenceId() {
-    const { match: { params }, post } = this.props;
+    const { post } = this.props;
+    const { params } = this.props.location;
     return params.sequenceId || post?.canonicalSequenceId;
   }
   
@@ -239,7 +239,7 @@ class PostsPage extends Component {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
     } else {
       const { html, plaintextDescription, markdown, wordCount = 0 } = post.contents || {}
-      let query = parseQuery(this.props.location);
+      const { query } = this.props.location;
       const view = _.clone(query).view || Comments.getDefaultView(post, currentUser)
       const description = plaintextDescription ? plaintextDescription : (markdown && markdown.substring(0, 300))
       const commentTerms = _.isEmpty(query.view) ? {view: view, limit: 500} : {...query, limit:500}
@@ -371,7 +371,7 @@ PostsPage.propTypes = {
 
 registerComponent(
   'PostsPage', PostsPage,
-  withUser, withRouter,
+  withUser, withLocation,
   withStyles(styles, { name: "PostsPage" }),
   withRecordPostView,
   withNewEvents,

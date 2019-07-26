@@ -7,13 +7,13 @@ Button used to start a new conversation for a given user
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent, withCreate, getSetting } from 'meteor/vulcan:core';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { withNavigation } from '../../lib/routeUtil.js';
 import Conversations from '../../lib/collections/conversations/collection.js';
 import withUser from '../common/withUser';
 
 class NewConversationButton extends Component {
 
-   newConversation = async () => {
+  newConversation = async () => {
     const { user, currentUser, createConversation, history } = this.props
     const alignmentFields = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
 
@@ -49,4 +49,4 @@ const withCreateOptions = {
   fragmentName: 'newConversationFragment',
 }
 
-registerComponent('NewConversationButton', NewConversationButton, [withCreate, withCreateOptions], withUser, withRouter);
+registerComponent('NewConversationButton', NewConversationButton, [withCreate, withCreateOptions], withUser, withNavigation);

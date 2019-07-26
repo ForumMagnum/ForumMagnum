@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent, getFragment, withMessages, withDocument } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
-import { withRouter } from '../../lib/reactRouterWrapper.js'
+import { withLocation, withNavigation } from '../../lib/routeUtil'
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
@@ -15,7 +15,8 @@ const styles = theme => ({
 class PostsEditForm extends PureComponent {
 
   render() {
-    const { documentId, document, eventForm, classes, flash, history, match: { params } } = this.props;
+    const { documentId, document, eventForm, classes, flash, history } = this.props;
+    const { params } = this.props.location; // From withLocation
     const isDraft = document && document.draft;
     const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox } = Components
     const EditPostsSubmit = (props) => {
@@ -78,6 +79,6 @@ const documentQuery = {
 
 registerComponent('PostsEditForm', PostsEditForm,
   [withDocument, documentQuery],
-  withMessages, withRouter,
+  withMessages, withLocation, withNavigation,
   withStyles(styles, { name: "PostsEditForm" })
 );

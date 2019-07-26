@@ -2,11 +2,10 @@ import { Components, registerComponent, getFragment, withMessages, getSetting } 
 import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
 import Helmet from 'react-helmet';
 import withUser from '../common/withUser'
 import { withStyles } from '@material-ui/core/styles';
-import { parseQuery } from '../../lib/routeUtil.js';
+import { useLocation, useNavigation } from '../../lib/routeUtil.js';
 
 const styles = theme => ({
   formSubmit: {
@@ -15,12 +14,14 @@ const styles = theme => ({
   }
 })
 
-const PostsNewForm = ({history, location, currentUser, flash, classes}) => {
+const PostsNewForm = ({currentUser, flash, classes}) => {
+  const { query } = useLocation();
+  const { history } = useNavigation();
+  
   const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox } = Components
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = getSetting('forumType') === 'AlignmentForum'
-  const query = parseQuery(location);
   const prefilledProps = {
     isEvent: query && query.eventForm,
     types: query && query.ssc ? ['SSC'] : [],
@@ -72,4 +73,4 @@ PostsNewForm.propTypes = {
 
 PostsNewForm.displayName = "PostsNewForm";
 
-registerComponent('PostsNewForm', PostsNewForm, withRouter, withMessages, withRouter, withUser, withStyles(styles, { name: "PostsNewForm" }));
+registerComponent('PostsNewForm', PostsNewForm, withMessages, withUser, withStyles(styles, { name: "PostsNewForm" }));

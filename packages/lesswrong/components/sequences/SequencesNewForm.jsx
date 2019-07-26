@@ -1,10 +1,12 @@
 import { Components, registerComponent, getFragment, withMessages } from 'meteor/vulcan:core';
 import React from 'react';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { useNavigation } from '../../lib/routeUtil';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import withUser from '../common/withUser';
 
-const SequencesNewForm = ({ currentUser, history, flash, redirect, cancelCallback, removeSuccessCallback}) => {
+const SequencesNewForm = ({ currentUser, flash, redirect, cancelCallback, removeSuccessCallback}) => {
+  const { history } = useNavigation();
+  
   if (currentUser) {
     return (
       <div className="sequences-new-form">
@@ -27,4 +29,4 @@ const SequencesNewForm = ({ currentUser, history, flash, redirect, cancelCallbac
   }
 }
 
-registerComponent('SequencesNewForm', SequencesNewForm, withMessages, withRouter, withUser);
+registerComponent('SequencesNewForm', SequencesNewForm, withMessages, withUser);

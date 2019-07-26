@@ -1,6 +1,6 @@
 import { Components, registerComponent, } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { withRouter } from 'react-router';
+import { withNavigation } from '../../lib/routeUtil';
 import withUser from '../common/withUser';
 
 class LoginPage extends Component {
@@ -23,4 +23,4 @@ class LoginPage extends Component {
   }
 }
 
-registerComponent('LoginPage', LoginPage, withUser, withRouter);
+registerComponent('LoginPage', LoginPage, withUser, withNavigation);

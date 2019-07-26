@@ -1,13 +1,15 @@
 import { Components, registerComponent, Utils } from 'meteor/vulcan:core';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
 import Users from "meteor/vulcan:users";
 
-const UsersSingle = ({match, history, location}) => {
-  const { params } = match;
+const UsersSingle = () => {
+  const { params, pathname } = useLocation();
+  const { history } = useNavigation();
+  
   const slug = Utils.slugify(params.slug);
   const canonicalUrl = Users.getProfileUrlFromSlug(slug);
-  if (location.pathname !== canonicalUrl) {
+  if (pathname !== canonicalUrl) {
     // A Javascript redirect, which replaces the history entry (so you don't
     // have a redirector interfering with the back button). Does not cause a
     // pageload.
@@ -20,4 +22,4 @@ const UsersSingle = ({match, history, location}) => {
 
 UsersSingle.displayName = "UsersSingle";
 
-registerComponent('UsersSingle', UsersSingle, withRouter);
+registerComponent('UsersSingle', UsersSingle);

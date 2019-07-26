@@ -1,11 +1,10 @@
 import React from 'react';
 import { Components, registerComponent, getSetting, withList} from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { useLocation } from '../../lib/routeUtil';
 import { withStyles } from '@material-ui/core/styles';
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { parseQuery } from '../../lib/routeUtil';
 
 const styles = theme => ({
   communityMap: {
@@ -20,9 +19,9 @@ const styles = theme => ({
   }
 });
 
-const CommunityMapWrapper = ({location, classes, groupQueryTerms, results, currentUserLocation, mapOptions}) => {
+const CommunityMapWrapper = ({classes, groupQueryTerms, results, currentUserLocation, mapOptions}) => {
+  const { query } = useLocation();
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
-  const query = parseQuery(location)
   return (
     <Components.CommunityMap
       terms={groupQueryTerms || {view: "all", filters: query?.filters || []}}
@@ -44,5 +43,5 @@ const listOptions = {
 }
 
 registerComponent("CommunityMapWrapper", CommunityMapWrapper,
-  [withList, listOptions], withRouter, withErrorBoundary,
+  [withList, listOptions], withErrorBoundary,
   withStyles(styles, {name: "CommunityMapWrapper"}))

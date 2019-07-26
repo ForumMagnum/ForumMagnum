@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import Paper from '@material-ui/core/Paper';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { withLocation, withNavigation } from '../../lib/routeUtil.js';
 import { registerComponent } from 'meteor/vulcan:core';
 import Checkbox from '@material-ui/core/Checkbox';
 import { groupTypes } from '../../lib/collections/localgroups/groupTypes';
-import { parseQuery } from '../../lib/routeUtil'
 import { withStyles } from '@material-ui/core/styles';
 import qs from 'qs'
 
@@ -32,7 +31,7 @@ const styles = theme => ({
 class CommunityMapFilter extends Component {
   constructor(props) {
     super(props);
-    const query = parseQuery(this.props?.router?.location)
+    const { query } = this.props.location;
     const filters = query?.filters
     if (Array.isArray(filters)) {
       this.state = {filters: filters}
@@ -52,7 +51,9 @@ class CommunityMapFilter extends Component {
       newFilters = [...this.state.filters, filter];
     }
     this.setState({filters: newFilters});
-    history.replace({...location, search: `?${qs.stringify({filters: newFilters})}`})
+    // FIXME: qs.stringify doesn't handle array parameters in the way react-router-v3
+    // did, which causes awkward-looking and backwards-incompatible (but not broken) URLs.
+    history.replace({...location.location, search: qs.stringify({filters: newFilters})})
   }
 
   render() {
@@ -78,6 +79,6 @@ class CommunityMapFilter extends Component {
 }
 
 registerComponent('CommunityMapFilter', CommunityMapFilter,
-  withRouter,
+  withLocation, withNavigation,
   withStyles(styles, {name: "CommunityMapFilter"})
 );

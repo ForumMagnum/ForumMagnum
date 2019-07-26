@@ -1,7 +1,6 @@
 import { Components, registerComponent, getSetting, withCurrentUser } from 'meteor/vulcan:core';
 // import { InstantSearch} from 'react-instantsearch-dom';
 import React, { PureComponent } from 'react';
-import { withRouter } from 'react-router';
 import Helmet from 'react-helmet';
 import { withApollo } from 'react-apollo';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -17,7 +16,9 @@ import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
 import { PostsReadContext } from './common/withRecordPostView';
-import { getHeaderSubtitleDataFromRouterProps } from '../lib/routeUtil.js';
+import getHeaderSubtitleData from '../lib/modules/utils/getHeaderSubtitleData';
+import { withLocation } from '../lib/routeUtil.js';
+import { debugShouldComponentUpdate, shallowEqual, shallowEqualExcept } from '../lib/modules/utils/componentUtils';
 
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
 const googleTagManagerId = getSetting('googleTagManager.apiKey')
@@ -134,7 +135,8 @@ class Layout extends PureComponent {
   }
 
   render () {
-    const {currentUser, children, classes, theme} = this.props;
+    const {currentUser, children, classes, theme, client} = this.props;
+    const { currentRoute, query, params } = this.props.location; // From withLocation HoC
 
     const showIntercom = currentUser => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -158,7 +160,7 @@ class Layout extends PureComponent {
       }
     }
 
-    const { subtitleText } = getHeaderSubtitleDataFromRouterProps(this.props);
+    const { subtitleText = currentRoute.title || "" } = getHeaderSubtitleData(currentRoute?.name, query, params, client) || {};
     const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
     const title = subtitleText ? `${subtitleText} - ${siteName}` : siteName;
 
@@ -200,7 +202,6 @@ class Layout extends PureComponent {
             <Components.Header
               toc={this.state.toc}
               searchResultsArea={this.searchResultsAreaRef}
-              currentRoute={this.props.currentRoute}
             />
             <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
             <div className={classes.main}>
@@ -223,4 +224,4 @@ class Layout extends PureComponent {
 
 Layout.displayName = "Layout";
 
-registerComponent('Layout', Layout, withRouter, withApollo, withStyles(styles, { name: "Layout" }), withTheme(), withCurrentUser, withCookies);
+registerComponent('Layout', Layout, withLocation, withApollo, withStyles(styles, { name: "Layout" }), withTheme(), withCookies);

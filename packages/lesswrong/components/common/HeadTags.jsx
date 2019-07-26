@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { registerComponent, Utils, getSetting, Head } from 'meteor/vulcan:lib';
 import { compose } from 'react-apollo';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { withLocation } from '../../lib/routeUtil';
 
 class HeadTags extends PureComponent {
 
@@ -69,6 +69,6 @@ HeadTags.propTypes = {
   image: PropTypes.string,
 };
 
-registerComponent('HeadTags', HeadTags, withRouter);
+registerComponent('HeadTags', HeadTags, withLocation);
 
 export default HeadTags;

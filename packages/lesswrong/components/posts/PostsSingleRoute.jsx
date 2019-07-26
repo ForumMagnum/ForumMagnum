@@ -1,10 +1,9 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { withRouter } from 'react-router';
-import { parseQuery } from '../../lib/routeUtil.js';
+import { useLocation } from '../../lib/routeUtil';
 
-const PostsSingleRoute = ({match, router, location, currentRoute}) => {
-  const query = parseQuery(location);
+const PostsSingleRoute = () => {
+  const { currentRoute, query } = useLocation();
   const version = query?.revision
   if (currentRoute._id) {
     return <Components.PostsPageWrapper documentId={currentRoute._id} sequenceId={null} version={version} />
@@ -13,4 +12,4 @@ const PostsSingleRoute = ({match, router, location, currentRoute}) => {
 
 PostsSingleRoute.displayName = "PostsSingleRoute";
 
-registerComponent('PostsSingleRoute', PostsSingleRoute, withRouter);
+registerComponent('PostsSingleRoute', PostsSingleRoute);
