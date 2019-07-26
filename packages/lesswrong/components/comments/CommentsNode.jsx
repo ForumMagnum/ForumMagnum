@@ -113,7 +113,7 @@ class CommentsNode extends Component {
   
   beginSingleLine = () => {
     const { currentUser, comment, condensed, lastCommentId, forceSingleLine, shortform, nestingLevel } = this.props
-    const mostRecent = (!condensed || (lastCommentId === comment._id))
+    const mostRecent = lastCommentId === comment._id
     const lowKarmaOrCondensed = (comment.baseScore < 10 || condensed)
     const shortformAndTop = (nestingLevel === 1) && shortform
     
@@ -187,8 +187,10 @@ class CommentsNode extends Component {
   isTruncated = () => {
     const { expandAllThreads, startThreadTruncated } = this.props;
     // const { truncatedStateSet } = this.state
-    const truncatedStateSetFalse = !this.state || (this.state.truncatedStateSet === false)
-    return !expandAllThreads && (this.state?.truncated || ((this.props.truncated && truncatedStateSetFalse) || (startThreadTruncated && truncatedStateSetFalse)))
+
+    const truncatedStateUnset = !this.state || !this.state.truncatedStateSet
+    
+    return !expandAllThreads && (this.state?.truncated || ((this.props.truncated && truncatedStateUnset) || (startThreadTruncated && truncatedStateUnset)))
   }
 
   isNewComment = () => {
@@ -199,10 +201,11 @@ class CommentsNode extends Component {
   isSingleLine = () => {
     const { forceSingleLine } = this.props
     const { singleLine } = this.state
-    if (forceSingleLine && singleLine)
+    if (!singleLine) return false;
+    if (forceSingleLine)
       return true;
 
-    return this.isTruncated() && singleLine && !this.isNewComment();
+    return this.isTruncated() && !this.isNewComment();
   }
 
   render() {
