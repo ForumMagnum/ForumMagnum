@@ -162,8 +162,6 @@ class PostsTimeBlock extends Component {
                 networkStatus={networkStatus}
               />
           </div>}
-          {console.log(this.getTitle(startDate, timeframe, 'smUp'))}
-          {console.log(startDate)}
           <ShortformTimeBlock
             reportEmpty={this.reportEmptyShortform}
             terms={{
