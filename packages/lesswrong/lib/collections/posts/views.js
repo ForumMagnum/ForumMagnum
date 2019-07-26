@@ -64,6 +64,10 @@ const sortings = {
 
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
+ *
+ * NB: Specifying "before" into posts views is a bit of a misnomer at present,
+ * as it is *inclusive*. The parameters callback that handles it outputs
+ * ~ $lt: before.endOf('day').
  */
 Posts.addDefaultView(terms => {
   const validFields = _.pick(terms, 'userId', 'meta', 'groupId', 'af','question', 'authorIsUnreviewed');
@@ -85,6 +89,9 @@ Posts.addDefaultView(terms => {
     },
     options: {},
   }
+  // TODO: Use default threshold in default view
+  // TODO: Looks like a bug in cases where karmaThreshold = 0, because we'd
+  // still want to filter.
   if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
     params.selector.baseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
     params.selector.maxBaseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
@@ -248,6 +255,16 @@ Posts.addView("old", terms => ({
   options: {sort: sortings.old}
 }))
 // Covered by the same index as `new`
+
+Posts.addView("timeframe", terms => ({
+  options: {limit: terms.limit}
+}))
+ensureIndex(Posts,
+  augmentForDefaultView({ postedAt:1, baseScore:1}),
+  {
+    name: "posts.postedAt_baseScore",
+  }
+);
 
 Posts.addView("daily", terms => ({
   options: {

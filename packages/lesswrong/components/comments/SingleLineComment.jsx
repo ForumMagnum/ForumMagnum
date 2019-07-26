@@ -3,7 +3,6 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { commentBodyStyles, postBodyStyles } from '../../themes/stylePiping'
 import withHover from '../common/withHover';
-import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { isMobile } from '../../lib/modules/utils/isMobile.js'
@@ -103,8 +102,8 @@ const styles = theme => ({
 })
 
 const SingleLineComment = ({comment, classes, nestingLevel, hover, parentCommentId}) => {
-  const { voteCount, baseScore } = comment
-  const { BetaTag, CommentBody, ShowParentComment, UsersNameDisplay } = Components
+  const { baseScore } = comment
+  const { BetaTag, CommentBody, ShowParentComment, UsersName } = Components
   
   const singleLineHtml = commentExcerptFromHTML(comment)
   const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile()
@@ -115,18 +114,15 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
         { parentCommentId!=comment.parentCommentId &&
           <ShowParentComment comment={comment} nestingLevel={nestingLevel} />
         }
-        <Tooltip title={`This comment has ${baseScore} karma (${voteCount} ${voteCount == 1 ? "Vote" : "Votes"})`} placement="bottom">
-          <span className={classes.karma}>
-
-            {baseScore || 0}
-          </span>
-        </Tooltip>
+        <span className={classes.karma}>
+          {baseScore || 0}
+        </span>
         <span className={classes.username}>
           {comment.answer && "Answer by "}
-          <UsersNameDisplay user={comment.user}/>
+          <UsersName user={comment.user} simple={true}/>
         </span>
         <span className={classes.date}>
-          <Components.FormatDate date={comment.postedAt}/>
+          <Components.FormatDate date={comment.postedAt} tooltip={false}/>
         </span>
         {(comment.baseScore > -5) && <span className={classes.truncatedHighlight} dangerouslySetInnerHTML={{__html: singleLineHtml}} />}      </div>
       {displayHoverOver && <span className={classNames(classes.highlight)}>
