@@ -1,4 +1,4 @@
-import { Components, registerComponent, getSetting, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 // import { InstantSearch} from 'react-instantsearch-dom';
 import React, { PureComponent } from 'react';
 import Helmet from 'react-helmet';
@@ -18,7 +18,6 @@ import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents'
 import { PostsReadContext } from './common/withRecordPostView';
 import getHeaderSubtitleData from '../lib/modules/utils/getHeaderSubtitleData';
 import { withLocation } from '../lib/routeUtil.js';
-import { debugShouldComponentUpdate, shallowEqual, shallowEqualExcept } from '../lib/modules/utils/componentUtils';
 
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
 const googleTagManagerId = getSetting('googleTagManager.apiKey')
