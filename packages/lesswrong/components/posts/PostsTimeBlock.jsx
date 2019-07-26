@@ -170,7 +170,7 @@ class PostsTimeBlock extends Component {
               // inclusive
               before: moment(startDate).endOf(timeBlock).toString(),
               after: moment(startDate).startOf(timeBlock).toString()
-             }}
+            }}
           />
         </div>
         <Divider wings={false}/>
