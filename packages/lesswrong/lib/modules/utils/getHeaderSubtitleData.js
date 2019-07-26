@@ -32,17 +32,29 @@ export default function getHeaderSubtitleData(routeName, query, params, client) 
 }
 
 const profileSubtitle = (userSlug, client) => {
-  const user = client && Users.findInStore(client.store, {slug:userSlug}).fetch()[0]
+  // FIXME: collection.findInStore no longer exists; this function needs to
+  // be rearchitected into a place where it can have an Apollo HoC
+  return {
+    subtitleLink: "",
+    subtitleText: "",
+  }
+  /*const user = client && Users.findInStore(client.store, {slug:userSlug}).fetch()[0]
   if (user && (user.displayName || user.slug)) {
     return {
       subtitleLink: Users.getProfileUrl(user),
       subtitleText: user.displayName || user.slug
     }
-  }
+  }*/
 }
 
 const userPostSubtitle = (postId, client) => {
-  const post = client && Posts.findOneInStore(client.store, postId)
+  // FIXME: collection.findInStore no longer exists; this function needs to
+  // be rearchitected into a place where it can have an Apollo HoC
+  return {
+    subtitleLink: "",
+    subtitleText: "",
+  }
+  /*const post = client && Posts.findOneInStore(client.store, postId)
   if (getSetting('forumType') !== 'AlignmentForum' && post && post.af) {
     return alignmentSubtitle()
   } else if (post && post.frontpageDate) {
@@ -59,7 +71,7 @@ const userPostSubtitle = (postId, client) => {
     } else {
       return null
     }
-  }
+  }*/
 }
 
 const rationalitySubtitle = () => {
@@ -91,7 +103,13 @@ const metaSubtitle = () => {
 }
 
 const sequenceSubtitle = (sequenceId, client) => {
-  if (client && client.store && sequenceId) {
+  // FIXME: collection.findInStore no longer exists; this function needs to
+  // be rearchitected into a place where it can have an Apollo HoC
+  return {
+    subtitleLink: "",
+    subtitleText: "",
+  }
+  /*if (client && client.store && sequenceId) {
     const sequence = Sequences.findOneInStore(client.store, sequenceId)
     if (sequence && sequence.canonicalCollectionSlug == "rationality") {
       return rationalitySubtitle()
@@ -100,7 +118,7 @@ const sequenceSubtitle = (sequenceId, client) => {
     } else if (sequence && sequence.canonicalCollectionSlug == "codex") {
       return codexSubtitle()
     }
-  }
+  }*/
 }
 
 const communitySubtitle = () => {
