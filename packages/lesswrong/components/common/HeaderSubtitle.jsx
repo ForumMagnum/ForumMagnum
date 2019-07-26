@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { useLocation } from '../../lib/routeUtil.js';
+import { useSubscribedLocation } from '../../lib/routeUtil.js';
 import getHeaderSubtitleData from '../../lib/modules/utils/getHeaderSubtitleData';
 import { withApollo } from 'react-apollo';
 import { withStyles } from '@material-ui/core/styles';
@@ -17,7 +17,7 @@ const styles = theme => ({
 });
 
 const HeaderSubtitle = ({client, classes}) => {
-  const { currentRoute, query, params } = useLocation({ subscribe: true });
+  const { currentRoute, query, params } = useSubscribedLocation();
   const { subtitleText = currentRoute?.title || "", subtitleLink = "" } = getHeaderSubtitleData(currentRoute?.name, query, params, client) || {};
   
   if (!subtitleLink)

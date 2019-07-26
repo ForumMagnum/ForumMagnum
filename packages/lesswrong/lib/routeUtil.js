@@ -18,13 +18,7 @@ export function parseQuery(location) {
   return qs.parse(query);
 }
 
-// React Hook which returns the page location (parsed URL and route). Takes an
-// options dictionary:
-// {
-//   subscribe (optional boolean, default false): If true, triggers a rerender
-//     on navigation events. Otherwise no rerenders will be triggered, and
-//     components may be stale after navigation events.
-// }
+// React Hook which returns the page location (parsed URL and route).
 // Return value contains:
 // {
 //   currentRoute
@@ -47,12 +41,16 @@ export function parseQuery(location) {
 //     "http://lesswrong.com/foo?x=1&y=abc" this will be {x:"1",y:"abc"}. If
 //     the URL does not contain a ?, this is the empty object.
 // }
+// Does not trigger rerenders on navigation events. If you want your component
+// to rerender on navigations, use useSubscribedLocation instead.
 export const useLocation = (options) => {
-  if (options?.subscribe) {
-    return useContext(SubscribeLocationContext);
-  } else {
-    return useContext(LocationContext);
-  }
+  return useContext(LocationContext);
+}
+
+// React Hook which returns the page location, formatted as in useLocation, and
+// triggers a rerender whenever navigation occurs.
+export const useSubscribedLocation = () => {
+  return useContext(SubscribeLocationContext);
 }
 
 // React Hook which returns an acessor-object for page navigation. Contains one

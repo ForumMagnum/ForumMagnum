@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { registerComponent, Utils, getSetting, Head } from 'meteor/vulcan:lib';
 import { compose } from 'react-apollo';
-import { useLocation } from '../../lib/routeUtil';
+import { useSubscribedLocation } from '../../lib/routeUtil';
 import getHeaderSubtitleData from '../../lib/modules/utils/getHeaderSubtitleData';
 import { withApollo } from 'react-apollo';
 
@@ -12,7 +12,7 @@ const HeadTags = (props) => {
     const description = props.description || getSetting('tagline') || getSetting('description');
     
     const { client } = props;
-    const { currentRoute, query, params, pathname } = useLocation({ subscribe: true });
+    const { currentRoute, query, params, pathname } = useSubscribedLocation();
     const { subtitleText = currentRoute.title || "" } = getHeaderSubtitleData(currentRoute?.name, query, params, client) || {};
     const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
     const title = subtitleText ? `${subtitleText} - ${siteName}` : siteName;
