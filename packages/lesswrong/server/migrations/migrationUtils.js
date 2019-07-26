@@ -101,9 +101,9 @@ export async function fillDefaultValues({ collection, fieldName, batchSize, load
         const mutation = { $set: {
           [fieldName]: defaultValue
         } };
-        const writeResult = await collection.update(...bucketSelector, mutation, {multi: true});
+        const writeResult = await collection.update(bucketSelector, mutation, {multi: true});
         
-        nModified += writeResult.nModified;
+        nModified += writeResult.nModified || 0;
         // eslint-disable-next-line no-console
         console.log(`Finished bucket. Write result: ${JSON.stringify(writeResult)}`);
       });
