@@ -1,8 +1,7 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 
-const numberOfDays = getSetting('forum.numberOfDays', 10);
 const styles = theme => ({
   daily: {
     padding: theme.spacing.unit
@@ -16,7 +15,7 @@ const EventsUpcoming = ({ classes }) => {
   return (
     <SingleColumnSection>
       <SectionTitle title="Upcoming Events"/>
-      <PostsList2 terms={terms} days={numberOfDays}/>
+      <PostsList2 terms={terms}/>
     </SingleColumnSection>
   )
 }

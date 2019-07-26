@@ -186,6 +186,9 @@ const styles = theme => ({
   bottomDate: {
     color: theme.palette.grey[600]
   },
+  postType: {
+    marginLeft: 20
+  }
 })
 
 // On the server, use the 'url' library for parsing hostname out of feed URLs.
@@ -228,7 +231,7 @@ class PostsPage extends Component {
   
   render() {
     const { loading, document: post, currentUser, location, router, classes, data: {refetch} } = this.props
-    const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, PostsType,
+    const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, ContentType,
       LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
       TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate } = Components
@@ -267,7 +270,9 @@ class PostsPage extends Component {
                     <span className={classes.inline}>
                       <PostsAuthors post={post}/>
                     </span>
-                    <PostsType post={post}/>
+                    <span className={classes.postType}>
+                      <ContentType frontpage={post.frontpageDate}/>
+                    </span>
                     { post.feed && post.feed.user &&
                       <Tooltip title={`Crossposted from ${feedLink}`}>
                         <a href={`http://${feedLink}`} className={classes.feedName}>

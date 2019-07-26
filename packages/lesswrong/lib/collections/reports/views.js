@@ -36,7 +36,7 @@ Reports.addView("sunshineSidebarReports", function (terms) {
     selector: {
       closedAt: {$exists: false}
     },
-    options: {sort: {createdAt: 1}}
+    options: {sort: {createdAt: -1}}
   };
 });
 ensureIndex(Reports, {closedAt:1, createdAt: 1});
