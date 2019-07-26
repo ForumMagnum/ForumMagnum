@@ -79,7 +79,7 @@ class UsersMenu extends PureComponent {
         >
             {showNewButtons &&
               <MenuItem onClick={()=>openDialog({componentName:"NewQuestionDialog"})}>
-                Ask Question
+                Ask Question [Beta]
               </MenuItem>
             }
             {showNewButtons && <Link to={`/newPost`}>
