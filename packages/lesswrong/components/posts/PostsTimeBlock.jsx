@@ -34,7 +34,7 @@ const styles = theme => ({
   },
 })
 
-class PostsDay extends Component {
+class PostsTimeBlock extends Component {
   constructor (props) {
     super(props)
     this.reportEmptyShortform = this.reportEmptyShortform.bind(this);
@@ -181,20 +181,20 @@ class PostsDay extends Component {
 
 }
 
-PostsDay.propTypes = {
+PostsTimeBlock.propTypes = {
   currentUser: PropTypes.object,
   startDate: PropTypes.object,
   timeBlockLoadComplete: PropTypes.func,
 };
 
-registerComponent('PostsDay', PostsDay,
+registerComponent('PostsTimeBlock', PostsTimeBlock,
   [withList, {
     collection: Posts,
-    queryName: 'postsDailyListQuery',
+    queryName: 'PostsTimeframeListQuery',
     fragmentName: 'PostsList',
     enableTotal: true,
     enableCache: true,
     ssr: true,
   }],
-  withCurrentUser, withStyles(styles, { name: "PostsDay" })
+  withCurrentUser, withStyles(styles, { name: "PostsTimeBlock" })
 );
