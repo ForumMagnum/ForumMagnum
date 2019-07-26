@@ -112,10 +112,11 @@ class CommentsNode extends Component {
   }
   
   beginSingleLine = () => {
-    const { currentUser, comment, condensed, lastCommentId, forceSingleLine, shortform, nestingLevel } = this.props
+    const { currentUser, comment, condensed, lastCommentId, forceSingleLine, shortform, nestingLevel, postPage } = this.props
     const mostRecent = lastCommentId === comment._id
     const lowKarmaOrCondensed = (comment.baseScore < 10 || condensed)
     const shortformAndTop = (nestingLevel === 1) && shortform
+    const postPageAndTop = (nestingLevel === 1) && postPage
     
     if (forceSingleLine)
       return true;
@@ -125,7 +126,8 @@ class CommentsNode extends Component {
       currentUser?.beta &&
       lowKarmaOrCondensed &&
       !(mostRecent && condensed) &&
-      !(shortformAndTop)
+      !(shortformAndTop) && 
+      !(postPageAndTop)
     )
   }
 
