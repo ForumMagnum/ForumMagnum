@@ -3,7 +3,7 @@ import { registerComponent, Components } from 'meteor/vulcan:core';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Menu from '@material-ui/core/Menu';
 import Divider from '@material-ui/core/Divider';
-import { getCurrentUser } from '../../common/withUser';
+import { useCurrentUser } from '../../common/withUser';
 import Users from 'meteor/vulcan:users';
 
 import { withStyles } from '@material-ui/core/styles';
@@ -23,7 +23,7 @@ const styles = theme => ({
 
 const CommentsMenu = ({children, classes, className, comment, post, showEdit, icon}) => {
   const [anchorEl, setAnchorEl] = useState(null);
-  const currentUser = getCurrentUser();
+  const currentUser = useCurrentUser();
   
   const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem } = Components
   
