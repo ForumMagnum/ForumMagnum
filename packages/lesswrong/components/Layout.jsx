@@ -129,7 +129,7 @@ class Layout extends PureComponent {
       }
     } else {
       newTimezone = moment.tz.guess();
-      cookies.set('newTimezone', newTimezone)
+      cookies.set('timezone', newTimezone)
     }
     
     if(this.state.timezone !== newTimezone) {
