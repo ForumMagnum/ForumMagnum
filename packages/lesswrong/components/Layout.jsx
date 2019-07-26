@@ -120,17 +120,7 @@ class Layout extends PureComponent {
   }
 
   componentDidMount() {
-    const { cookies } = this.props
-    let newTimezone 
-    if (Meteor.isServer) {
-      const savedTimezone = cookies.get('timezone')
-      if (savedTimezone) {
-        newTimezone = savedTimezone
-      }
-    } else {
-      newTimezone = moment.tz.guess();
-      cookies.set('timezone', newTimezone)
-    }
+    const newTimezone = moment.tz.guess();
     
     if(this.state.timezone !== newTimezone) {
       this.setState({
