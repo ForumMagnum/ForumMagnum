@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent, withUpdate, getSetting } from 'meteor/vulcan:core';
 import { Link } from 'react-router-dom';
@@ -97,7 +97,7 @@ const styles = theme => ({
   },
 });
 
-class Header extends Component {
+class Header extends PureComponent {
   state = {
     navigationOpen: false,
     notificationOpen: false,

@@ -3,21 +3,24 @@ import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { registerComponent, Utils, getSetting, Head } from 'meteor/vulcan:lib';
 import { compose } from 'react-apollo';
-import { withLocation } from '../../lib/routeUtil';
+import { useLocation } from '../../lib/routeUtil';
+import getHeaderSubtitleData from '../../lib/modules/utils/getHeaderSubtitleData';
+import { withApollo } from 'react-apollo';
 
-class HeadTags extends PureComponent {
-
-  render() {
-
-    const url = this.props.url || Utils.getSiteUrl();
+const HeadTags = (props) => {
+    const url = props.url || Utils.getSiteUrl();
     const appTitle = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
-    const title = this.props.title ? `${this.props.title} - ${appTitle}` : appTitle;
-    const description = this.props.description || getSetting('tagline') || getSetting('description');
+    const description = props.description || getSetting('tagline') || getSetting('description');
+    
+    const { client } = props;
+    const { currentRoute, query, params, pathname } = useLocation({ subscribe: true });
+    const { subtitleText = currentRoute.title || "" } = getHeaderSubtitleData(currentRoute?.name, query, params, client) || {};
+    const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
+    const title = subtitleText ? `${subtitleText} - ${siteName}` : siteName;
     
     return (
       <div>
-        <Helmet key={this.props.location.pathname}>
-
+        <Helmet key={pathname}>
           <title>{title}</title>
 
           <meta charSet='utf-8'/>
@@ -27,13 +30,13 @@ class HeadTags extends PureComponent {
           {/* facebook */}
           <meta property='og:type' content='article'/>
           <meta property='og:url' content={url}/>
-          {this.props.image && <meta property='og:image' content={this.props.image}/>}
+          {props.image && <meta property='og:image' content={props.image}/>}
           <meta property='og:title' content={title}/>
           <meta property='og:description' content={description}/>
 
           {/* twitter */}
           <meta name='twitter:card' content='summary'/>
-          {this.props.image && <meta name='twitter:image:src' content={this.props.image}/>}
+          {props.image && <meta name='twitter:image:src' content={props.image}/>}
           <meta name='twitter:title' content={title}/>
           <meta name='twitter:description' content={description}/>
 
@@ -59,7 +62,6 @@ class HeadTags extends PureComponent {
 
       </div>
     );
-  }
 }
 
 HeadTags.propTypes = {
@@ -69,6 +71,6 @@ HeadTags.propTypes = {
   image: PropTypes.string,
 };
 
-registerComponent('HeadTags', HeadTags, withLocation);
+registerComponent('HeadTags', HeadTags, withApollo);
 
 export default HeadTags;

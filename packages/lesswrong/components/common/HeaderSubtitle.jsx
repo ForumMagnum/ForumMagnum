@@ -17,7 +17,7 @@ const styles = theme => ({
 });
 
 const HeaderSubtitle = ({client, classes}) => {
-  const { currentRoute, query, params } = useLocation();
+  const { currentRoute, query, params } = useLocation({ subscribe: true });
   const { subtitleText = currentRoute?.title || "", subtitleLink = "" } = getHeaderSubtitleData(currentRoute?.name, query, params, client) || {};
   
   if (!subtitleLink)

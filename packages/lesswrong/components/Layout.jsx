@@ -2,7 +2,6 @@ import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 // import { InstantSearch} from 'react-instantsearch-dom';
 import React, { PureComponent } from 'react';
 import Helmet from 'react-helmet';
-import { withApollo } from 'react-apollo';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import classNames from 'classnames'
 import Intercom from 'react-intercom';
@@ -16,8 +15,6 @@ import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
 import { PostsReadContext } from './common/withRecordPostView';
-import getHeaderSubtitleData from '../lib/modules/utils/getHeaderSubtitleData';
-import { withLocation } from '../lib/routeUtil.js';
 
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
 const googleTagManagerId = getSetting('googleTagManager.apiKey')
@@ -134,8 +131,7 @@ class Layout extends PureComponent {
   }
 
   render () {
-    const {currentUser, children, classes, theme, client} = this.props;
-    const { currentRoute, query, params } = this.props.location; // From withLocation HoC
+    const {currentUser, children, classes, theme} = this.props;
 
     const showIntercom = currentUser => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -159,10 +155,6 @@ class Layout extends PureComponent {
       }
     }
 
-    const { subtitleText = currentRoute.title || "" } = getHeaderSubtitleData(currentRoute?.name, query, params, client) || {};
-    const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
-    const title = subtitleText ? `${subtitleText} - ${siteName}` : siteName;
-
     return (
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
@@ -178,7 +170,6 @@ class Layout extends PureComponent {
           <div>
             <CssBaseline />
             <Helmet>
-              <title>{title}</title>
               <link name="material-icons" rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
               <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@7.0.0/themes/reset-min.css"/>
               <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
@@ -223,4 +214,4 @@ class Layout extends PureComponent {
 
 Layout.displayName = "Layout";
 
-registerComponent('Layout', Layout, withLocation, withApollo, withStyles(styles, { name: "Layout" }), withTheme(), withCookies);
+registerComponent('Layout', Layout, withStyles(styles, { name: "Layout" }), withTheme(), withCookies);
