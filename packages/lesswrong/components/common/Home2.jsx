@@ -29,7 +29,6 @@ class Home2 extends PureComponent {
         {/*shouldRenderSidebar && <SplitComponent name="SunshineSidebar" />*/}
         {shouldRenderSidebar && <Components.SunshineSidebar/>}
   
-        <Components.HeadTags image={getSetting('siteImage')} />
         <TabNavigationMenu />
   
         <RecommendationsAndCurated configName="frontpage" />

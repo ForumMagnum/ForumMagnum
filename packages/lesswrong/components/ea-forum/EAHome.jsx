@@ -8,8 +8,6 @@ const EAHome = () => {
 
   return (
     <React.Fragment>
-      <Components.HeadTags image={getSetting('siteImage')} />
-
       <HomeLatestPosts />
 
       <SingleColumnSection>

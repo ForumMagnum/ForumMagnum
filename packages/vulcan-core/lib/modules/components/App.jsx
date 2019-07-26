@@ -217,6 +217,7 @@ class App extends PureComponent {
       <NavigationContext.Provider value={this.navigationContext}>
       <IntlProvider locale={this.getLocale()} key={this.getLocale()} messages={Strings[this.getLocale()]}>
         <MessageContext.Provider value={{ messages, flash }}>
+          <Components.HeadTags image={getSetting('siteImage')} />
           <Components.ScrollToTop />
           <div className={`locale-${this.getLocale()}`}>
             <Components.Layout currentUser={currentUser}>

@@ -36,8 +36,6 @@ class HomeEA extends PureComponent {
       <React.Fragment>
         {shouldRenderSidebar && <SplitComponent name="SunshineSidebar" />}
 
-        <Components.HeadTags image={getSetting('siteImage')} />
-
         {currentUser && Users.isAdmin(currentUser) &&
           <ConfigurableRecommendationsList configName="frontpage" />
         }
