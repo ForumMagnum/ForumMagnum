@@ -9,7 +9,6 @@ import { withApollo } from 'react-apollo';
 
 const HeadTags = (props) => {
     const url = props.url || Utils.getSiteUrl();
-    const appTitle = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
     const description = props.description || getSetting('tagline') || getSetting('description');
     
     const { client } = props;

@@ -1,5 +1,4 @@
 import { Components, registerComponent } from 'meteor/vulcan:core'
-import { getSetting } from 'meteor/vulcan:lib'
 import React, { PureComponent } from 'react'
 import withUser from '../common/withUser'
 import { SplitComponent } from 'meteor/vulcan:routing'
