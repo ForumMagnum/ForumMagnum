@@ -21,13 +21,6 @@ jobs:
     steps:
       # chackout the code from github
       - checkout
-      - run:
-          name: clone Vulcan
-          command: |
-            cd ..
-            git clone https://github.com/LessWrong2/Vulcan.git Vulcan
-            cd lesswrong
-            export METEOR_PACKAGE_DIRS="../Vulcan/packages"
       # if certain cached files (packages, etc) are presetn, don't redownload them, restore the cached version
       - restore_cache:
           key: build-temp-{{ checksum ".meteor/release" }}-{{ checksum ".circleci/config.yml" }}
@@ -160,7 +153,6 @@ jobs:
       - run:
           name: testing
           environment:
-            METEOR_PACKAGE_DIRS: ../Vulcan/packages
             TOOL_NODE_FLAGS: --max_old_space_size=3072
           command: meteor yarn test
   deploy_prod_fast:
@@ -234,7 +226,6 @@ jobs:
             meteor json -I -f settings.json -e "this.public.sentry.release=\"$SENTRY_VERSION\""
       - deploy:
           environment:
-            METEOR_PACKAGE_DIRS: ../Vulcan/packages
             TOOL_NODE_FLAGS: --max_old_space_size=3072
           command: meteor mup deploy --config mup.secret        
   deploy_prod:
@@ -308,7 +299,6 @@ jobs:
             meteor json -I -f settings.json -e "this.public.sentry.release=\"$SENTRY_VERSION\""
       - deploy:
           environment:
-            METEOR_PACKAGE_DIRS: ../Vulcan/packages
             TOOL_NODE_FLAGS: --max_old_space_size=3072
           command: meteor mup deploy --config mup.secret
   deploy_af:
@@ -382,7 +372,6 @@ jobs:
             meteor json -I -f settings.json -e "this.public.sentry.release=\"$SENTRY_VERSION\""
       - deploy:
           environment:
-            METEOR_PACKAGE_DIRS: ../Vulcan/packages
             TOOL_NODE_FLAGS: --max_old_space_size=3072
           command: meteor mup deploy --config mup.secret
   deploy_baserates:
@@ -455,7 +444,6 @@ jobs:
             meteor json -I -f settings.json -e "this.public.sentry.release=\"$SENTRY_VERSION\""
       - deploy:
           environment:
-            METEOR_PACKAGE_DIRS: ../Vulcan/packages
             TOOL_NODE_FLAGS: --max_old_space_size=3072
           command: meteor mup deploy --config mup.secret
   deploy_staging:
@@ -529,7 +517,6 @@ jobs:
             meteor json -I -f settings.json -e "this.public.sentry.release=\"$SENTRY_VERSION\""
       - deploy:
           environment:
-            METEOR_PACKAGE_DIRS: ../Vulcan/packages
             TOOL_NODE_FLAGS: --max_old_space_size=3072
           command: meteor mup deploy --config mup.secret
 

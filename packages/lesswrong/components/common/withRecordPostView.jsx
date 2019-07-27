@@ -1,58 +1,42 @@
 import React from 'react';
-import { getActions, withMutation } from 'meteor/vulcan:core';
+import { withMutation } from 'meteor/vulcan:core';
 import compose from 'recompose/compose';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
 
+export const PostsReadContext = React.createContext('postsViewed');
+
+// HoC which adds recordPostView and isRead properties to a component which
+// already has a post property.
 export const withRecordPostView = (Component) => {
-  const mapStateToProps = state => ({ postsViewed: state.postsViewed });
-  const mapDispatchToProps = dispatch => bindActionCreators(getActions().postsViewed, dispatch);
-
-  async function recordPostView(props, extraEventProperties) {
+  const recordPostView = ({post, postsRead, setPostRead, increasePostViewCount, currentUser, recordEvent}) => async ({extraEventProperties}) => {
     try {
-
-      // destructure the relevant props
-      const {
-        // from the parent component, used in withDocument, GraphQL HOC
-        documentId,
-        // from connect, Redux HOC
-        setViewed,
-        postsViewed,
-        // from withMutation, GraphQL HOC
-        increasePostViewCount,
-        
-        document,
-        currentUser,
-        recordEvent,
-      } = props;
-
+      if (!post) throw new Error("Tried to record view of null post");
+      
       // a post id has been found & it's has not been seen yet on this client session
-      if (documentId && !postsViewed.includes(documentId)) {
+      if (post && !postsRead[post._id]) {
 
         // Trigger the asynchronous mutation with postId as an argument
         // Deliberately not awaiting, because this should be fire-and-forget
-        await increasePostViewCount({postId: documentId});
+        await increasePostViewCount({postId: post._id});
 
-        // Update the redux store
-        setViewed(documentId);
+        // Update the client-side read status cache
+        setPostRead(post._id, true);
       }
 
-      //LESSWRONG: register page-visit event
+      // Register page-visit event
       if(currentUser) {
-        const eventProperties = {
+        let eventProperties = {
           userId: currentUser._id,
           important: false,
           intercom: true,
           ...extraEventProperties
         };
 
-        if(document) {
-          eventProperties.documentId = document._id;
-          eventProperties.postTitle = document.title;
-        } else if (documentId){
-          eventProperties.documentId = documentId;
-        }
+        eventProperties = {
+          ...eventProperties,
+          documentId: post._id,
+          postTitle: post.title,
+        };
         recordEvent('post-view', true, eventProperties);
       }
     } catch(error) {
@@ -61,7 +45,20 @@ export const withRecordPostView = (Component) => {
   }
   
   function ComponentWithRecordPostView(props) {
-    return <Component {...props} recordPostView={recordPostView}/>
+    return (<PostsReadContext.Consumer>
+      { (postsReadContext) => {
+        const {postsRead,setPostRead} = postsReadContext;
+        const {post, increasePostViewCount, currentUser, recordEvent} = props;
+        return <Component
+          {...props}
+          recordPostView={recordPostView({post, postsRead, setPostRead, increasePostViewCount, currentUser, recordEvent})}
+          isRead={post && ((post._id in postsRead)
+              ? postsRead[post._id]
+              : post.isRead)
+          }
+        />
+      }}
+    </PostsReadContext.Consumer>);
   }
   
   return compose(
@@ -70,7 +67,6 @@ export const withRecordPostView = (Component) => {
       args: {postId: 'String'},
     }),
     withNewEvents,
-    connect(mapStateToProps, mapDispatchToProps),
   )(ComponentWithRecordPostView);
 }
 

@@ -44,7 +44,8 @@ const filters = {
   },
   "meta": {
     meta: true
-  }
+  },
+  "includeMetaAndPersonal": {}
 }
 if (getSetting('forumType') === 'EAForum') filters.frontpage.meta = {$ne: true}
 

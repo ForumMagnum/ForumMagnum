@@ -1,5 +1,4 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
@@ -92,4 +91,4 @@ const BottomNavigation = ({post, classes}) => {
 
 
 registerComponent('BottomNavigation', BottomNavigation,
-  withRouter, withStyles(styles, {name: "BottomNavigation"}));
+  withStyles(styles, {name: "BottomNavigation"}));

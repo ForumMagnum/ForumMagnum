@@ -1,7 +1,7 @@
-import { Components, withDocument, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from '../../../lib/reactRouterWrapper.js';
+import { withLocation } from '../../../lib/routeUtil';
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
 import { withStyles } from '@material-ui/core/styles';
@@ -12,6 +12,7 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import classNames from 'classnames';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import withRecordPostView from '../../common/withRecordPostView';
+import withNewEvents from '../../../lib/events/withNewEvents.jsx';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 const DEFAULT_TOC_MARGIN = 100
@@ -214,12 +215,13 @@ function getHostname(url) {
 class PostsPage extends Component {
 
   getSequenceId() {
-    const { params, document: post } = this.props;
+    const { post } = this.props;
+    const { params } = this.props.location;
     return params.sequenceId || post?.canonicalSequenceId;
   }
   
   shouldHideAsSpam() {
-    const { document: post, currentUser } = this.props;
+    const { post, currentUser } = this.props;
     
     // Logged-out users shouldn't be able to see spam posts
     if (post.authorIsUnreviewed && !currentUser) {
@@ -230,22 +232,18 @@ class PostsPage extends Component {
   }
   
   render() {
-    const { loading, document: post, currentUser, location, router, classes, data: {refetch} } = this.props
+    const { post, refetch, currentUser, classes } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, ContentType,
-      LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigation,
+      LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
       TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate } = Components
 
-    if (loading) {
-      return <div><Loading/></div>
-    } else if (!post) {
-      return <Error404/>
-    } else if (this.shouldHideAsSpam()) {
+    if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
     } else {
       const { html, plaintextDescription, markdown, wordCount = 0 } = post.contents || {}
-      let query = location && location.query
-      const view = _.clone(router.location.query).view || Comments.getDefaultView(post, currentUser)
+      const { query } = this.props.location;
+      const view = _.clone(query).view || Comments.getDefaultView(post, currentUser)
       const description = plaintextDescription ? plaintextDescription : (markdown && markdown.substring(0, 300))
       const commentTerms = _.isEmpty(query.view) ? {view: view, limit: 500} : {...query, limit:500}
       const sequenceId = this.getSequenceId();
@@ -351,44 +349,36 @@ class PostsPage extends Component {
   }
 
   async componentDidMount() {
-    this.props.recordPostView(this.props, {
-      sequenceId: this.getSequenceId(),
+    this.props.recordPostView({
+      post: this.props.post,
+      extraEventProperties: {
+        sequenceId: this.getSequenceId()
+      }
     });
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.document && this.props.document && prevProps.document._id !== this.props.document._id) {
+    if (prevProps.post && this.props.post && prevProps.post._id !== this.props.post._id) {
       this.props.closeAllEvents();
-      this.props.recordPostView(this.props, {
-        sequenceId: this.getSequenceId(),
+      this.props.recordPostView({
+        post: this.props.post,
+        extraEventProperties: {
+          sequenceId: this.getSequenceId(),
+        }
       });
     }
   }
 }
-PostsPage.displayName = "PostsPage";
 
 PostsPage.propTypes = {
   document: PropTypes.object,
 }
 
-const queryOptions = {
-  collection: Posts,
-  queryName: 'postsSingleQuery',
-  fragmentName: 'PostsWithNavigation',
-  enableTotal: false,
-  enableCache: true,
-  ssr: true,
-  extraVariables: {
-    version: 'String',
-    sequenceId: 'String',
-  }
-};
-
 registerComponent(
   'PostsPage', PostsPage,
-  withUser, withRouter,
-  [withDocument, queryOptions],
+  withUser, withLocation,
   withStyles(styles, { name: "PostsPage" }),
   withRecordPostView,
+  withNewEvents,
   withErrorBoundary,
 );

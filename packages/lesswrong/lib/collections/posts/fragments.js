@@ -29,6 +29,7 @@ registerFragment(`
     feedId
     feedLink
     lastVisitedAt
+    isRead
     lastCommentedAt
     canonicalCollectionSlug
     curatedDate

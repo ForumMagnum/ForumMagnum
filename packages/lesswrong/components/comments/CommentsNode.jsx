@@ -1,5 +1,5 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { withLocation } from '../../lib/routeUtil';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -132,8 +132,8 @@ class CommentsNode extends Component {
   }
 
   componentDidMount() {
-    const { router, comment, post } = this.props
-    let commentHash = router.location.hash;
+    const { comment, post, location } = this.props
+    let commentHash = location.hash;
     const self = this;
     if (comment && commentHash === ("#" + comment._id) && post) {
       setTimeout(function () { //setTimeout make sure we execute this after the element has properly rendered
@@ -162,7 +162,7 @@ class CommentsNode extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     if (!shallowEqual(this.state, nextState))
       return true;
-    if (!shallowEqualExcept(this.props, nextProps, ["editMutation", "post", "children"]))
+    if (!shallowEqualExcept(this.props, nextProps, ["updateComment", "post", "children"]))
       return true;
     if (this.commentTreesDiffer(this.props.children, nextProps.children))
       return true;
@@ -211,8 +211,8 @@ class CommentsNode extends Component {
   }
 
   render() {
-    const { comment, children, nestingLevel=1, highlightDate, editMutation, post,
-      muiTheme, router, postPage, classes, child, showPostTitle, unreadComments,
+    const { comment, children, nestingLevel=1, highlightDate, updateComment, post,
+      muiTheme, location, postPage, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments,
       loadChildrenSeparately, shortform, refetch, parentCommentId } = this.props;
 
@@ -235,7 +235,7 @@ class CommentsNode extends Component {
         "comments-node-root" : nestingLevel === 1,
         "comments-node-even" : nestingLevel % 2 === 0,
         "comments-node-odd"  : nestingLevel % 2 !== 0,
-        "comments-node-linked" : router.location.hash === "#" + comment._id && finishedScroll,
+        "comments-node-linked" : location.hash === "#" + comment._id && finishedScroll,
         "comments-node-its-getting-nested-here": nestingLevel > 8,
         "comments-node-so-take-off-all-your-margins": nestingLevel > 12,
         "comments-node-im-getting-so-nested": nestingLevel > 16,
@@ -259,8 +259,8 @@ class CommentsNode extends Component {
       }
     )
 
-    const passedThroughItemProps = { post, postPage, comment, editMutation, nestingLevel, showPostTitle, collapsed, refetch }
-    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, editMutation, condensed, hideReadComments, refetch }
+    const passedThroughItemProps = { post, postPage, comment, updateComment, nestingLevel, showPostTitle, collapsed, refetch }
+    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, updateComment, condensed, hideReadComments, refetch }
 
     return (
         <div className={nodeClass}
@@ -297,7 +297,7 @@ class CommentsNode extends Component {
                 //eslint-disable-next-line react/no-children-prop
                 children={child.children}
                 key={child.item._id}
-                
+
                 { ...passedThroughNodeProps}
               />)}
           </div>}
@@ -308,7 +308,8 @@ class CommentsNode extends Component {
               <RepliesToCommentList
                 terms={{
                   view: "repliesToCommentThread",
-                  topLevelCommentId: comment._id
+                  topLevelCommentId: comment._id,
+                  limit: 500
                 }}
                 parentCommentId={comment._id}
                 post={post}
@@ -322,12 +323,11 @@ class CommentsNode extends Component {
 
 CommentsNode.propTypes = {
   comment: PropTypes.object.isRequired, // the current comment
-  router: PropTypes.object.isRequired
 };
 
 registerComponent('CommentsNode', CommentsNode,
-  withUser, 
-  withRouter,
+  withUser,
+  withLocation,
   withErrorBoundary,
   withStyles(styles, { name: "CommentsNode" })
 );
