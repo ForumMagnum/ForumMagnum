@@ -137,7 +137,6 @@ class RecentDiscussionThread extends PureComponent {
     return (
       <div className={classes.root}>
         <div className={classes.postItem}>
-
           <Link className={classes.title} to={Posts.getPageUrl(post)}>
             <PostsTitle wrap post={post} />
           </Link>

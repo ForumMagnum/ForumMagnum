@@ -164,6 +164,8 @@ import '../components/shortform/ShortformPage.jsx';
 import '../components/shortform/ShortformThread.jsx';
 import '../components/shortform/ShortformThreadList.jsx';
 import '../components/shortform/RepliesToCommentList.jsx';
+import '../components/shortform/NewShortformDialog.jsx';
+import '../components/shortform/ShortformSubmitForm.jsx';
 import '../components/shortform/ShortformTimeBlock.jsx';
 
 import '../components/votes/VoteButton.jsx';

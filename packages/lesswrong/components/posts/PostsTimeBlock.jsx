@@ -162,14 +162,13 @@ class PostsTimeBlock extends Component {
                 networkStatus={networkStatus}
               />
           </div>}
-
           <ShortformTimeBlock
             reportEmpty={this.reportEmptyShortform}
             terms={{
               view: "topShortform",
               // NB: The comments before differs from posts in that before is not
               // inclusive
-              before: moment(startDate).endOf(timeBlock).add(1, 'days').toString(),
+              before: moment(startDate).endOf(timeBlock).toString(),
               after: moment(startDate).startOf(timeBlock).toString()
             }}
           />

@@ -57,7 +57,7 @@ class CommentsList extends Component {
   }
 
   render() {
-    const { comments, currentUser, highlightDate, updateComment, post, postPage, totalComments, condensed, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1, hideReadComments, lastCommentId } = this.props;
+    const { comments, currentUser, highlightDate, updateComment, post, postPage, totalComments, condensed, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1, hideReadComments, lastCommentId, parentCommentId=null } = this.props;
 
     const { expandAllThreads } = this.state
     const { lastVisitedAt } = post
@@ -75,6 +75,7 @@ class CommentsList extends Component {
                 unreadComments={unreadComments}
                 currentUser={currentUser}
                 comment={comment.item}
+                parentCommentId={parentCommentId}
                 nestingLevel={defaultNestingLevel}
                 lastCommentId={lastCommentId}
                 //eslint-disable-next-line react/no-children-prop
