@@ -31,12 +31,12 @@ class RecentDiscussionThreadsList extends PureComponent {
     return (
       <SingleColumnSection>
         <SectionTitle title="Recent Discussion">
-          <div onClick={this.toggleShortformFeed}>
+          {currentUser && currentUser.isReviewed && <div onClick={this.toggleShortformFeed}>
             <SectionButton>
               <AddBoxIcon />
               New Shortform Post
             </SectionButton>
-          </div>
+          </div>}
         </SectionTitle>
         {showShortformFeed && <ShortformSubmitForm successCallback={refetch}/>}
         <div>
