@@ -1,7 +1,6 @@
 import React from 'react';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useNavigation } from '../../lib/routeUtil';
 
@@ -18,7 +17,7 @@ const NewShortformDialog = ({onClose}) => {
         <ShortformSubmitForm
           successCallback={() => {
             onClose();
-            router.push('/shortform');
+            history.push('/shortform');
           }}
         />
       </DialogContent>
