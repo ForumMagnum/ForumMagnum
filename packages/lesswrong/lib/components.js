@@ -156,6 +156,10 @@ import '../components/posts/SubmitToFrontpageCheckbox';
 import '../components/posts/ReportPostMenuItem.jsx';
 import '../components/posts/PostsItemDate.jsx';
 
+import '../components/titles/UserPageTitle.jsx';
+import '../components/titles/SequencesPageTitle.jsx';
+import '../components/titles/PostsPageTitle.jsx';
+
 import '../components/shortform/ShortformPage.jsx';
 import '../components/shortform/ShortformThread.jsx';
 import '../components/shortform/ShortformThreadList.jsx';

@@ -1,11 +1,10 @@
 import React from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useSubscribedLocation } from '../../lib/routeUtil.js';
-import getHeaderSubtitleData from '../../lib/modules/utils/getHeaderSubtitleData';
 import { withApollo } from 'react-apollo';
 import { withStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
-import { Link } from 'react-router-dom';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = theme => ({
   subtitle: {
@@ -17,16 +16,22 @@ const styles = theme => ({
 });
 
 const HeaderSubtitle = ({client, classes}) => {
-  const { currentRoute, query, params } = useSubscribedLocation();
-  const { subtitleText = currentRoute?.title || "", subtitleLink = "" } = getHeaderSubtitleData(currentRoute?.name, query, params, client) || {};
+  const { currentRoute } = useSubscribedLocation();
+  const SubtitleComponent = currentRoute.subtitleComponentName ? Components[currentRoute.subtitleComponentName] : null;
+  const subtitleString = currentRoute.subtitle;
+  const subtitleLink = currentRoute.subtitleLink;
   
-  if (!subtitleLink)
+  if (!SubtitleComponent && !subtitleString)
     return null;
   
   return <span className={classes.subtitle}>
-    <Link to={subtitleLink} className={classes.titleLink}>
-      {subtitleText}
-    </Link>
+    { SubtitleComponent
+      ? <SubtitleComponent isSubtitle={true} />
+      : (subtitleLink
+        ? <Link to={subtitleLink}>{subtitleString}</Link>
+        : {subtitleString}
+      )
+    }
   </span>
 }
 
