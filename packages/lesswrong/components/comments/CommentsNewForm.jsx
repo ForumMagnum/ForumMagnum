@@ -34,7 +34,7 @@ const styles = theme => ({
   }
 });
 
-const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, currentUser}) => {
+const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, currentUser, fragment = "CommentsList"}) => {
   prefilledProps = {
     ...prefilledProps,
     af: Comments.defaultToAlignment(currentUser, post, parentComment),
@@ -94,7 +94,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
 
       <Components.WrappedSmartForm
         collection={Comments}
-        mutationFragment={getFragment('CommentsList')}
+        mutationFragment={getFragment(fragment)}
         successCallback={successCallback}
         cancelCallback={cancelCallback}
         prefilledProps={prefilledProps}

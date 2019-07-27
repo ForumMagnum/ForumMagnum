@@ -8,7 +8,7 @@ const ShortformSubmitForm = ({currentUser, successCallback}) => {
   return (
     <CommentsNewForm
       prefilledProps={{shortform: true}}
-      mutationFragment={"ShortformCommentsList"}
+      fragment={"ShortformCommentsList"}
       successCallback={successCallback}
       type="comment"
     />
