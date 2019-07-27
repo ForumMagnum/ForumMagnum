@@ -1,12 +1,13 @@
 import React from 'react';
 import { Components } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
 
 import { compassIcon } from '../../icons/compassIcon';
 import { questionsGlobeIcon } from '../../icons/questionsGlobeIcon';
 import { communityGlobeIcon } from '../../icons/communityGlobeIcon';
 import { BookIcon } from '../../icons/bookIcon'
 import { allPostsIcon } from '../../icons/allPostsIcon';
+
+import { LocalLibrary, Search, Group, Sort } from '@material-ui/icons'
 
 const EventsList = ({currentUser}) => {
   const { TabNavigationEventsList } = Components
@@ -42,7 +43,6 @@ export default forumTabs = {
       id: 'home',
       title: 'Home',
       link: '/',
-      class: 'homeIcon',
       icon: compassIcon,
       tooltip: 'Latest posts, comments and curated content.',
       showOnMobileStandalone: true,
@@ -61,7 +61,7 @@ export default forumTabs = {
       id: 'library',
       title: 'Library',
       link: '/library',
-      icon: BookIcon,
+      iconComponent: BookIcon,
       tooltip: "Curated collections of LessWrong's best writing.",
       showOnMobileStandalone: true,
     // next 3 are subItems
@@ -133,7 +133,6 @@ export default forumTabs = {
       id: 'home',
       title: 'Home',
       link: '/',
-      class: 'homeIcon',
       icon: compassIcon,
       tooltip: 'Latest posts, comments and curated content.',
       showOnMobileStandalone: true,
@@ -181,22 +180,21 @@ export default forumTabs = {
       id: 'home',
       title: 'Home',
       link: '/',
-      class: 'homeIcon',
-      icon: compassIcon,
+      iconComponent: LocalLibrary,
       tooltip: 'Latest posts. TODO;',
       showOnMobileStandalone: true,
     }, {
       id: 'community',
       title: 'Community',
       link: '/meta',
-      icon: communityGlobeIcon,
+      iconComponent: Group,
       tooltip: 'Community posts TODO;.',
       showOnMobileStandalone: true,
     }, {
       id: 'questions',
       title: 'Questions',
       link: '/questions',
-      icon: questionsGlobeIcon,
+      iconComponent: Search,
       tooltip: <div>
         <div>• Ask simple newbie questions.</div>
         <div>• Collaborate on open research questions.</div>
@@ -208,7 +206,7 @@ export default forumTabs = {
       id: 'allPosts',
       title: 'All Posts',
       link: '/allPosts',
-      icon: allPostsIcon,
+      iconComponent: Sort,
       tooltip: 'See all posts, filtered and sorted however you like.',
       showOnMobileStandalone: true,
     }, {

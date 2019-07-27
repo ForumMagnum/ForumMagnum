@@ -32,6 +32,7 @@ const styles = theme => ({
 
 const NavigationStandalone = ({classes}) => {
   const { TabNavigationMenu } = Components
+  // TODO; Different tabnavigationmenu for mobile standalone
   return <div className={classes.root}>
     <TabNavigationMenu standalone />
   </div>
