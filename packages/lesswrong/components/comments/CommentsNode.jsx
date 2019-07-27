@@ -112,19 +112,22 @@ class CommentsNode extends Component {
   }
   
   beginSingleLine = () => {
-    const { currentUser, comment, condensed, lastCommentId, forceSingleLine, shortform, nestingLevel } = this.props
-    const mostRecent = (!condensed || (lastCommentId === comment._id))
+    const { currentUser, comment, condensed, lastCommentId, forceSingleLine, shortform, nestingLevel, postPage } = this.props
+    const mostRecent = lastCommentId === comment._id
     const lowKarmaOrCondensed = (comment.baseScore < 10 || condensed)
     const shortformAndTop = (nestingLevel === 1) && shortform
+    const postPageAndTop = (nestingLevel === 1) && postPage
     
     if (forceSingleLine)
       return true;
     
     return (
+      this.isTruncated() &&
       currentUser?.beta &&
       lowKarmaOrCondensed &&
       !(mostRecent && condensed) &&
-      !(shortformAndTop)
+      !(shortformAndTop) && 
+      !(postPageAndTop)
     )
   }
 
@@ -184,9 +187,12 @@ class CommentsNode extends Component {
   }
 
   isTruncated = () => {
-    const { expandAllThreads } = this.props;
-    const { truncatedStateSet } = this.state
-    return !expandAllThreads && (this.state.truncated || (this.props.truncated && truncatedStateSet === false))
+    const { expandAllThreads, startThreadTruncated } = this.props;
+    // const { truncatedStateSet } = this.state
+
+    const truncatedStateUnset = !this.state || !this.state.truncatedStateSet
+    
+    return !expandAllThreads && (this.state?.truncated || ((this.props.truncated && truncatedStateUnset) || (startThreadTruncated && truncatedStateUnset)))
   }
 
   isNewComment = () => {
@@ -195,14 +201,20 @@ class CommentsNode extends Component {
   }
 
   isSingleLine = () => {
-    return this.state.singleLine;
+    const { forceSingleLine } = this.props
+    const { singleLine } = this.state
+    if (!singleLine) return false;
+    if (forceSingleLine)
+      return true;
+
+    return this.isTruncated() && !this.isNewComment();
   }
 
   render() {
     const { comment, children, nestingLevel=1, highlightDate, editMutation, post,
       muiTheme, router, postPage, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments,
-      loadChildrenSeparately, shortform, refetch } = this.props;
+      loadChildrenSeparately, shortform, refetch, parentCommentId } = this.props;
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList } = Components
 
@@ -257,9 +269,13 @@ class CommentsNode extends Component {
          >
           {!hiddenReadComment && <div ref={this.scrollTargetRef}>
             {this.isSingleLine()
-              ? <SingleLineComment comment={comment} nestingLevel={nestingLevel} />
+              ? <SingleLineComment
+                  comment={comment} nestingLevel={nestingLevel}
+                  parentCommentId={parentCommentId}
+                />
               : <CommentsItem
                   truncated={this.isTruncated()}
+                  parentCommentId={parentCommentId}
                   parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
                   toggleCollapse={this.toggleCollapse}
                   key={comment._id}
@@ -274,6 +290,7 @@ class CommentsNode extends Component {
             {children && children.map(child =>
               <Components.CommentsNode child
                 comment={child.item}
+                parentCommentId={comment._id}
                 parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
                 nestingLevel={nestingLevel+1}
                 truncated={this.isTruncated()}
@@ -291,8 +308,10 @@ class CommentsNode extends Component {
               <RepliesToCommentList
                 terms={{
                   view: "repliesToCommentThread",
-                  topLevelCommentId: comment._id
+                  topLevelCommentId: comment._id,
+                  limit: 500
                 }}
+                parentCommentId={comment._id}
                 post={post}
               />
             </div>

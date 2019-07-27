@@ -59,7 +59,7 @@ export function getDateRange (after, before, timeBlock) {
   )
 }
 
-// Calculates the initial value for after, as used by PostsDailyList
+// Calculates the initial value for after, as used by PostsTimeframeList
 //
 // Will always land on the boundary of the timeBlock, as determined by moment's
 // startOf function. If you wanted to posts for the past 3 weeks, you'd call
@@ -71,7 +71,7 @@ export function getAfterDefault (numTimeBlocks, timeBlock) {
   return startCurrentTimeBlock.subtract(numTimeBlocks - 1, timeBlock).format('YYYY-MM-DD')
 }
 
-// Calculates the initial value for before, as used by PostsDailyList. Note that
+// Calculates the initial value for before, as used by PostsTimeframeList. Note that
 // it is used as an exclusive boundary.
 //
 // For ease of calculations, we start at the beginning of the next timeBlock.
