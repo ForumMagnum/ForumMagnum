@@ -24,7 +24,9 @@ class HomeEA extends PureComponent {
       CommentsNewForm,
       HomeLatestPosts,
       ConfigurableRecommendationsList,
-      SectionButton
+      SectionButton,
+      HeadTags,
+      TabNavigationMenu
     } = Components
 
     const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
@@ -36,7 +38,9 @@ class HomeEA extends PureComponent {
       <React.Fragment>
         {shouldRenderSidebar && <SplitComponent name="SunshineSidebar" />}
 
-        <Components.HeadTags image={getSetting('siteImage')} />
+        <HeadTags image={getSetting('siteImage')} />
+
+        <TabNavigationMenu />
 
         {currentUser && Users.isAdmin(currentUser) &&
           <ConfigurableRecommendationsList configName="frontpage" />

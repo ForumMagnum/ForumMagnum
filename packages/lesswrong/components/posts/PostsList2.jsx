@@ -62,7 +62,7 @@ const PostsList2 = ({ children, results, loading, count, totalCount, loadMore, n
       {error && <Error error={Utils.decodeIntlError(error)} />}
       {loading && showLoading && dimWhenLoading && <Loading />}
       {results && !results.length && showNoResults && <PostsNoResults />}
-      
+
       {results && results.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} terms={terms} index={i}/> )}
       <SectionFooter>
         {(showLoadMore) &&
