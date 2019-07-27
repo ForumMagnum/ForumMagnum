@@ -32,12 +32,6 @@ export const getHeaderTextColor = theme => {
   }
 }
 
-const standaloneRouteNames = {
-  'LessWrong': ['home', 'allPosts', 'questions', 'sequencesHome', 'CommunityHome'],
-  'AlignmentForum': ['allPosts', 'questions'],  // TODO; maybe none?
-  'EAForum': ['home', 'allPosts', 'questions', 'Community'],
-}
-
 const styles = theme => ({
   appBar: {
     boxShadow: "0 1px 1px rgba(0, 0, 0, 0.05), 0 1px 1px rgba(0, 0, 0, 0.05)",
@@ -155,21 +149,22 @@ class Header extends Component {
   }
 
   render() {
-    const { currentUser, classes, routes, location, params, client, theme, toc, searchResultsArea } = this.props
+    const {
+      currentUser, classes, routes, location, params, client, theme, toc, searchResultsArea,
+      showNavigationDrawer
+    } = this.props
     const { notificationOpen, notificationHasOpened, navigationOpen, headroomPinnedOpen } = this.state
     const routeName = routes[1].name
     const query = location && location.query
     const { subtitleLink = "", subtitleText = "" } = getHeaderSubtitleData(routeName, query, params, client) || {}
     const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
 
-    const {
-      SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationStandalone,
-      NavigationDrawer, NotificationsMenu, KarmaChangeNotifier
-    } = Components;
+    // console.log('navopen', navigationOpen)
 
-    console.log('routeName', routeName)
-    const standaloneNavigation = standaloneRouteNames[getSetting('forumType')].includes(routeName)
-    console.log('standaloneNavigation', standaloneNavigation)
+    const {
+      SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
+      NotificationsMenu, KarmaChangeNotifier
+    } = Components;
 
     return (
       <div className={classes.root}>
@@ -183,7 +178,7 @@ class Header extends Component {
         >
           <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
             <Toolbar>
-              {!standaloneNavigation && <IconButton
+              {showNavigationDrawer && <IconButton
                 className={classes.menuButton} color="inherit"
                 aria-label="Menu"
                 onClick={()=>this.setNavigationOpen(true)}
@@ -230,14 +225,11 @@ class Header extends Component {
               </div>
             </Toolbar>
           </AppBar>
-          {standaloneNavigation ?
-            <NavigationStandalone /> :
-            <NavigationDrawer
-              open={navigationOpen}
-              handleOpen={this.setNavigationOpen}
-              handleClose={this.setNavigationOpen}
-            />
-          }
+          {showNavigationDrawer && <NavigationDrawer
+            open={navigationOpen}
+            handleOpen={() => this.setNavigationOpen(true)}
+            handleClose={() => this.setNavigationOpen(false)}
+          />}
         </Headroom>
         {currentUser && <NotificationsMenu open={notificationOpen} hasOpened={notificationHasOpened} terms={notificationTerms} setIsOpen={this.handleSetNotificationDrawerOpen} />}
       </div>
