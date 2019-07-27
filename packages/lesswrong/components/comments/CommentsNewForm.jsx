@@ -34,12 +34,18 @@ const styles = theme => ({
   }
 });
 
-const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, currentUser}) => {
+const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, currentUser, fragment = "CommentsList"}) => {
   prefilledProps = {
     ...prefilledProps,
-    postId: post._id,
     af: Comments.defaultToAlignment(currentUser, post, parentComment),
   };
+  
+  if (post) {
+    prefilledProps = {
+      ...prefilledProps,
+      postId: post._id
+    };
+  }
 
   if (parentComment) {
     prefilledProps = {
@@ -88,14 +94,14 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
 
       <Components.WrappedSmartForm
         collection={Comments}
-        mutationFragment={getFragment('CommentsList')}
+        mutationFragment={getFragment(fragment)}
         successCallback={successCallback}
         cancelCallback={cancelCallback}
         prefilledProps={prefilledProps}
         layout="elementOnly"
         GroupComponent={FormGroupComponent}
         SubmitComponent={SubmitComponent}
-        alignmentForumPost={post.af}
+        alignmentForumPost={post?.af}
         addFields={currentUser?[]:["contents"]}
       />
     </div>
