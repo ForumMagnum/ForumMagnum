@@ -10,19 +10,38 @@ class Home2 extends PureComponent {
   render () {
     const { currentUser } = this.props
 
-    const { RecentDiscussionThreadsList, HomeLatestPosts, TabNavigationMenu, RecommendationsAndCurated } = Components
+    const { SingleColumnSection, SectionTitle, RecentDiscussionThreadsList, CommentsNewForm, HomeLatestPosts, RecommendationsAndCurated, SectionButton } = Components
 
     const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
         Users.canDo(currentUser, 'alignment.sidebar')
-  
+
+    const shortformFeedId = currentUser && currentUser.shortformFeedId
+
     return (
       <React.Fragment>
         {shouldRenderSidebar && <SplitComponent name="SunshineSidebar" />}
+
         <Components.HeadTags image={getSetting('siteImage')} />
-        <TabNavigationMenu />
+
         <RecommendationsAndCurated configName="frontpage" />
+
         <HomeLatestPosts />
-        <RecentDiscussionThreadsList terms={{view: 'recentDiscussionThreadsList', limit:20}}/>
+
+        <SingleColumnSection>
+          <SectionTitle title="Recent Discussion">
+            {shortformFeedId &&  <div onClick={this.toggleShortformFeed}>
+              <SectionButton>
+                <AddBoxIcon />
+                New Shortform Post
+              </SectionButton>
+            </div>}
+          </SectionTitle>
+          {showShortformFeed && <CommentsNewForm
+              post={{_id:shortformFeedId}}
+              type="comment"
+            />}
+          <RecentDiscussionThreadsList terms={{view: 'recentDiscussionThreadsList', limit:20}}/>
+        </SingleColumnSection>
       </React.Fragment>
     )
   }

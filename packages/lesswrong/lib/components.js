@@ -43,9 +43,12 @@ import '../components/common/FormatDate.jsx';
 import '../components/common/BetaTag.jsx';
 import '../components/common/FlashMessages.jsx';
 import '../components/common/Header.jsx';
+// TODO; move this into own folder
 import '../components/common/TabNavigationMenu.jsx';
 import '../components/common/TabNavigationSubItem.jsx';
 import '../components/common/NavigationMenu.jsx';
+import '../components/common/NavigationDrawer.jsx';
+import '../components/common/NavigationStandalone.jsx';
 import '../components/common/HeadTags.jsx';
 import '../components/common/Home2.jsx';
 import '../components/common/HomeEA.jsx';

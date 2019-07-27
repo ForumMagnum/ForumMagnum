@@ -116,7 +116,7 @@ class AllPostsPage extends Component {
   render() {
     const { classes, router, currentUser } = this.props
     const { showSettings } = this.state
-    const { SingleColumnSection, SectionTitle, SettingsIcon, MetaInfo, TabNavigationMenu, PostsListSettings } = Components
+    const { SingleColumnSection, SectionTitle, SettingsIcon, MetaInfo, PostsListSettings } = Components
 
     const query = _.clone(router.location.query) || {}
     const currentTimeframe = query.timeframe ||
