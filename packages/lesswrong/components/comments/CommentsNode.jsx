@@ -308,7 +308,8 @@ class CommentsNode extends Component {
               <RepliesToCommentList
                 terms={{
                   view: "repliesToCommentThread",
-                  topLevelCommentId: comment._id
+                  topLevelCommentId: comment._id,
+                  limit: 500
                 }}
                 parentCommentId={comment._id}
                 post={post}
