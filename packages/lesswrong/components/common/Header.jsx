@@ -225,6 +225,7 @@ class Header extends Component {
             open={navigationOpen}
             handleOpen={() => this.setNavigationOpen(true)}
             handleClose={() => this.setNavigationOpen(false)}
+            toc={toc}
           />}
         </Headroom>
         {currentUser && <NotificationsMenu open={notificationOpen} hasOpened={notificationHasOpened} terms={notificationTerms} setIsOpen={this.handleSetNotificationDrawerOpen} />}

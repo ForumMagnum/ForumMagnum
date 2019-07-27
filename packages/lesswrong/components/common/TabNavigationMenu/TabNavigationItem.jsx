@@ -10,7 +10,6 @@ export const iconWidth = 30
 const smallIconSize = 23
 
 const styles = theme => ({
-  // TODO; fill whole flex area
   selected: {
     '& $icon': {
       opacity: 1,
@@ -111,13 +110,14 @@ const TabNavigationItem = ({tab, classes, location, standalone}) => {
       })}
     >
       {/* TODO; all icons take classname */}
-      {tab.icon && <span
+      {(tab.icon || tab.iconComponent) && <span
         // TODO; homeIcon
         className={classNames(
           classes.icon, {[classes.homeIcon]: tab.id === 'home', [classes.iconStandalone]: standalone}
         )}
       >
-        {tab.id === 'library' ? <tab.icon/> : tab.icon}
+        {tab.iconComponent && <tab.iconComponent />}
+        {tab.icon && tab.icon}
       </span>}
       {tab.subItem ?
         <TabNavigationSubItem>
