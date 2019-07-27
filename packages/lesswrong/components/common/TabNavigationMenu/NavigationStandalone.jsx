@@ -6,35 +6,44 @@ const styles = theme => ({
   root: {
     position: "absolute",
     zIndex: theme.zIndexes.tabNavigation,
-    width:"100%",
-    [theme.breakpoints.up('lg')]: {
-      top: 64,
-      left:0,
-      width:260,
-      paddingTop: 30,
-      paddingBottom: 70,
-      // flexDirection: "column",
-    },
+  },
+  sidebar: {
     [theme.breakpoints.down('md')]: {
-      position: "fixed",
-      bottom: 0,
-      left: 0,
-      backgroundColor: theme.palette.grey[300],
-      width: "100%",
-      // flexDirection: "row",
-      // TODO; move back to Navigation standalone?
-    },
-    "@media print": {
       display: "none"
     },
+    top: 64,
+    left:0,
+    width:260,
+    paddingTop: 30,
+    paddingBottom: 70,
+  },
+  footerBar: {
+    [theme.breakpoints.up('lg')]: {
+      display: "none"
+    },
+    position: "fixed",
+    bottom: 0,
+    left: 0,
+    backgroundColor: theme.palette.grey[300],
+    width: "100%",
+  },
+  "@media print": {
+    display: "none"
   }
 })
 
 const NavigationStandalone = ({classes}) => {
-  const { TabNavigationMenu } = Components
+  const { TabNavigationMenu, TabNavigationMenuFooter } = Components
   // TODO; Different tabnavigationmenu for mobile standalone
   return <div className={classes.root}>
-    <TabNavigationMenu standalone />
+    {/* TODO; at this point it seems like there's a reasonable performance /
+        cleanliness game to be won by only including this if we're large */}
+    <div className={classes.sidebar}>
+      <TabNavigationMenu standalone />
+    </div>
+    <div className={classes.footerBar}>
+      <TabNavigationMenuFooter standalone />
+    </div>
   </div>
 }
 

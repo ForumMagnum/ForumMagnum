@@ -14,25 +14,9 @@ const styles = (theme) => {
   return {
     root: {
       display: "flex",
+      flexDirection: "column",
       justifyContent: "space-around",
       backgroundColor: "#ffffffd4",
-    },
-    // TODO; refactor to default theme
-    hideOnMobile: {
-      [theme.breakpoints.down('md')]: {
-        display: "none"
-      },
-    },
-    standaloneFlex: {
-      [theme.breakpoints.up('lg')]: {
-        flexDirection: "column",
-      },
-      [theme.breakpoints.down('md')]: {
-        flexDirection: "row",
-      }
-    },
-    drawerFlex: {
-      flexDirection: "column",
     },
     divider: {
       width: 50,
@@ -49,24 +33,14 @@ const TabNavigationMenu = ({classes, standalone, currentUser}) => {
   const customComponentProps = {currentUser}
 
   return (
-    <div className={classNames(
-        classes.root, {[classes.standaloneFlex]: standalone, [classes.drawerFlex]: !standalone}
-    )}>
+    <div className={classes.root}>
       {menuTabs[getSetting('forumType')].map(tab => {
-        const mobileHide = {[classes.hideOnMobile]: standalone && !tab.showOnMobileStandalone}
         // console.log('tab', tab)
         if (tab.divider) {
-          return <div
-            key={tab.id}
-            className={classNames(classes.divider, mobileHide)}
-          />
+          return <div key={tab.id} className={classes.divider} />
         }
         if (tab.customComponent) {
-          return <tab.customComponent
-            key={tab.id}
-            {...customComponentProps}
-            className={classNames(mobileHide)}
-          />
+          return <tab.customComponent key={tab.id} {...customComponentProps} />
         }
 
         return <TabNavigationItem
