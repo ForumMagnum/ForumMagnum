@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components, withList } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import Tooltip from '@material-ui/core/Tooltip';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles'
 import moment from 'moment';
 import withTimezone from '../common/withTimezone';

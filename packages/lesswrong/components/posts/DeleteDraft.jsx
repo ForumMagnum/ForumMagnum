@@ -1,37 +1,37 @@
-import { registerComponent, withEdit } from 'meteor/vulcan:core';
+import { registerComponent, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
+import MenuItem from '@material-ui/core/MenuItem';
 
 class DeleteDraft extends Component {
 
   handleDelete = () => {
     if (confirm("Are you sure you want to delete this post?")) {
-      const { post, editMutation } = this.props
+      const { post, updatePost } = this.props
 
-      editMutation({
-        documentId: post._id,
-        set: {deletedDraft:true, draft: true},
-        unset: {}
+      updatePost({
+        selector: {_id: post._id},
+        data: {deletedDraft:true, draft: true}
       })
     }
   }
 
   render() {
-    const { currentUser, post, Container } = this.props;
+    const { currentUser, post } = this.props;
     if (currentUser && Posts.canDelete(currentUser, post)) {
       return <div onClick={this.handleDelete}>
-              <Container>
-                Delete Post
-              </Container>
-            </div>
+        <MenuItem>
+          Delete Post
+        </MenuItem>
+      </div>
     } else {
       return null
     }
   }
 }
 
-const withEditOptions = {
+const withUpdateOptions = {
   collection: Posts,
   fragmentName: 'PostsList',
 }
@@ -39,6 +39,6 @@ const withEditOptions = {
 registerComponent(
   'DeleteDraft',
   DeleteDraft,
-  [withEdit, withEditOptions],
+  [withUpdate, withUpdateOptions],
   withUser
 );

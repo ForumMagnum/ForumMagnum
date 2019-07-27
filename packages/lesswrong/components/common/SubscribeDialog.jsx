@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { registerComponent, withEdit } from 'meteor/vulcan:core';
+import { registerComponent, withUpdate } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { rssTermsToUrl } from "../../lib/modules/rss_urls.js";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
@@ -110,10 +110,9 @@ class SubscribeDialog extends Component {
   }
 
   sendVerificationEmail() {
-    this.props.editMutation({
-      documentId: this.props.currentUser._id,
-      set: { whenConfirmationEmailSent: new Date() },
-      unset: {}
+    this.props.updateUser({
+      selector: {_id: this.props.currentUser._id},
+      data: { whenConfirmationEmailSent: new Date() }
     });
   }
 
@@ -121,17 +120,16 @@ class SubscribeDialog extends Component {
     let mutation = { emailSubscribedToCurated: true }
 
     if (!Users.emailAddressIsVerified(this.props.currentUser)) {
-      // Combine mutations into a single editMutation call.
+      // Combine mutations into a single update call.
       // (This reduces the number of server-side callback
       // invocations. In a past version this worked around
       // a bug, now it's just a performance optimization.)
       mutation.whenConfirmationEmailSent = new Date();
     }
 
-    this.props.editMutation({
-      documentId: this.props.currentUser._id,
-      set: mutation,
-      unset: {}
+    this.props.updateUser({
+      selector: {_id: this.props.currentUser._id},
+      data: mutation
     })
 
     this.setState({ subscribedByEmail: true });
@@ -298,7 +296,7 @@ class SubscribeDialog extends Component {
   }
 }
 
-const withEditOptions = {
+const withUpdateOptions = {
   collection: Users,
   fragmentName: 'UsersCurrent',
 };
@@ -306,5 +304,5 @@ const withEditOptions = {
 registerComponent("SubscribeDialog", SubscribeDialog,
   withMobileDialog(),
   withUser,
-  [withEdit, withEditOptions],
+  [withUpdate, withUpdateOptions],
   withStyles(styles, { name: "SubscribeDialog" }));

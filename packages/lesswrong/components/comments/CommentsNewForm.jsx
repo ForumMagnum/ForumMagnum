@@ -99,8 +99,10 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
         cancelCallback={cancelCallback}
         prefilledProps={prefilledProps}
         layout="elementOnly"
-        GroupComponent={FormGroupComponent}
-        SubmitComponent={SubmitComponent}
+        formComponents={{
+          FormSubmit: SubmitComponent,
+          FormGroupLayout: Components.DefaultStyleFormGroup
+        }}
         alignmentForumPost={post?.af}
         addFields={currentUser?[]:["contents"]}
       />
@@ -108,26 +110,6 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
   );
 };
 
-const FormGroupComponent = (props) => {
-  return <React.Fragment>
-    {props.fields.map(field => (
-      <Components.FormComponent
-        key={field.name}
-        disabled={props.disabled}
-        {...field}
-        errors={props.errors}
-        throwError={props.throwError}
-        currentValues={props.currentValues}
-        updateCurrentValues={props.updateCurrentValues}
-        deletedValues={props.deletedValues}
-        addToDeletedValues={props.addToDeletedValues}
-        clearFieldErrors={props.clearFieldErrors}
-        formType={props.formType}
-        currentUser={props.currentUser}
-      />
-    ))}
-  </React.Fragment>
-}
 
 
 
