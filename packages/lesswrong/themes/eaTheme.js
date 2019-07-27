@@ -160,7 +160,7 @@ const theme = createLWTheme({
     },
     // TODO; use this sort of thing for other css changes
     // TODO; doc change
-    TabNavigationMenu: {
+    NavigationStandalone: {
       // Can't use theme.breakpoints b/c we're still constucting theme
       // This is theme.breakpoints.up('lg')
       root: {
@@ -168,6 +168,15 @@ const theme = createLWTheme({
           top: 90
         }
       },
+    },
+    TabNavigationMenu: {
+      root: {
+        // '@media (max-width: 1279.95px)': {
+        //   backgroundColor: "#ffffffd4" // TODO; ?
+        // }
+      }
+    },
+    TabNavigationItem: {
       icon: {
         opacity: 1,
       },

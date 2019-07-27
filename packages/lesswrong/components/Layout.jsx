@@ -35,6 +35,12 @@ const hashCode = function(str) {
   return hash;
 };
 
+const standaloneNavMenuRouteNames = {
+  'LessWrong': ['home', 'allPosts', 'questions', 'sequencesHome', 'CommunityHome'],
+  'AlignmentForum': ['allPosts', 'questions'],  // TODO; maybe none?
+  'EAForum': ['home', 'allPosts', 'questions', 'Community'],
+}
+
 const styles = theme => ({
   main: {
     margin: '50px auto 15px auto',
@@ -69,7 +75,7 @@ class Layout extends PureComponent {
     timezone: null,
     toc: null,
   };
-  
+
   searchResultsAreaRef = React.createRef();
 
   setToC = (document, sectionData) => {
@@ -89,9 +95,9 @@ class Layout extends PureComponent {
 
   getUniqueClientId = () => {
     const { currentUser, cookies } = this.props
-    
+
     if (currentUser) return currentUser._id
-    
+
     const cookieId = cookies.get('clientId')
     if (cookieId) return cookieId
 
@@ -105,7 +111,7 @@ class Layout extends PureComponent {
     const logRocketKey = getSetting('logRocket.apiKey')
     if (logRocketKey) {
       // If the user is logged in, always log their sessions
-      if (currentUser) { 
+      if (currentUser) {
         LogRocket.init()
         return
       }
@@ -159,6 +165,9 @@ class Layout extends PureComponent {
     const { subtitleText = currentRoute.title || "" } = getHeaderSubtitleData(routeName, query, params, client) || {}
     const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
     const title = subtitleText ? `${subtitleText} - ${siteName}` : siteName;
+    // console.log('routeName', routeName)
+    const standaloneNavigation = standaloneNavMenuRouteNames[getSetting('forumType')].includes(routeName)
+    // console.log('standaloneNavigation', standaloneNavigation)
 
     return (
       <UserContext.Provider value={currentUser}>
@@ -189,7 +198,12 @@ class Layout extends PureComponent {
             <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
             {/* Google Tag Manager i-frame fallback */}
             <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerId}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
-            <Components.Header toc={this.state.toc} searchResultsArea={this.searchResultsAreaRef} />
+            <Components.Header
+              toc={this.state.toc}
+              searchResultsArea={this.searchResultsAreaRef}
+              showNavigationDrawer={!standaloneNavigation}
+            />
+            {standaloneNavigation && <Components.NavigationStandalone />}
             <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
             <div className={classes.main}>
               <Components.ErrorBoundary>
