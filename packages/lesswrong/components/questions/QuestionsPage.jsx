@@ -8,22 +8,21 @@ class QuestionsPage extends PureComponent {
 
   render () {
     const { currentUser, location, openDialog } = this.props
-    const { TabNavigationMenu, SingleColumnSection, SectionTitle,  PostsList2, SectionButton } = Components
+    const { SingleColumnSection, SectionTitle,  PostsList2, SectionButton } = Components
 
     const topQuestionsTerms = {
       view: 'topQuestions',
       limit: 5,
     };
-  
+
     const recentActivityTerms = {
       view: 'recentQuestionActivity',
       limit: 12,
       includeRelatedQuestions: location.query.includeRelatedQuestions
     };
-  
+
     return (
       <div>
-        <TabNavigationMenu />
         <SingleColumnSection>
           <SectionTitle title="Top Questions"/>
           <PostsList2 terms={topQuestionsTerms}/>
@@ -42,7 +41,7 @@ class QuestionsPage extends PureComponent {
           </PostsList2>
         </SingleColumnSection>
       </div>
-  
+
     )
   }
 }

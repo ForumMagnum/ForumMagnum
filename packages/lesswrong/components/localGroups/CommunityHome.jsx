@@ -61,7 +61,7 @@ class CommunityHome extends Component {
   render() {
     const {classes, router} = this.props;
     const filters = (router.location.query && router.location.query.filters) || [];
-    const { TabNavigationMenu, SingleColumnSection, SectionTitle, PostsList2, SectionButton, GroupFormLink } = Components
+    const { SingleColumnSection, SectionTitle, PostsList2, SectionButton, GroupFormLink } = Components
 
     const postsListTerms = {
       view: 'nearbyEvents',
@@ -83,9 +83,9 @@ class CommunityHome extends Component {
       lng: this.state.currentUserLocation.lng,
       filters: filters,
     }
+    // TODO; confirm map is overridden
     return (
       <React.Fragment>
-        <TabNavigationMenu />
         <Components.CommunityMapWrapper
           terms={mapEventTerms}
         />

@@ -48,6 +48,7 @@ const styles = (theme) => {
       position: "absolute",
       width:"100%",
       zIndex: theme.zIndexes.tabNavigation,
+      // TODO; extract to header
       [theme.breakpoints.up('lg')]: {
         top: 64,
         left:0,
@@ -77,6 +78,10 @@ const styles = (theme) => {
         width: "100%",
         backgroundColor: theme.palette.grey[300]
       },
+    },
+    // TODO; this is fucked
+    drawerPaper: {
+      width: 225,
     },
     selected: {
       '& $icon': {
@@ -253,6 +258,7 @@ const forumTabs = {
       title: 'Shortform [Beta]',
       link: '/shortform',
       subItem: true,
+    // TODO; confirm removal of meta
     }, {
       id: 'about',
       title: 'About',
@@ -363,7 +369,7 @@ const forumTabs = {
   ]
 }
 
-const TabNavigationMenu = ({currentUser, classes, location}) => {
+const TabNavigationMenu = ({currentUser, classes, location, open, handleOpen, handleClose}) => {
   const { pathname } = location
   const { TabNavigationSubItem } = Components
 
@@ -375,7 +381,7 @@ const TabNavigationMenu = ({currentUser, classes, location}) => {
     <div className={classes.root}>
       <div className={classes.tabMenu}>
         {forumTabs[getSetting('forumType')].map(tab => {
-          console.log('tab', tab)
+          // console.log('tab', tab)
           if (tab.divider) {
             return <div key={tab.id} className={classes.divider} />
           }
@@ -410,6 +416,7 @@ const TabNavigationMenu = ({currentUser, classes, location}) => {
             </Tooltip>
           </React.Fragment>
         })}
+        {/* TODO; better mobile behavior, include way to find faq */}
       </div>
     </div>
   )
