@@ -16,7 +16,7 @@ class RecentDiscussionThreadsList extends PureComponent {
   render () {
     const { results, loading, loadMore, networkStatus, updateComment, currentUser, data: { refetch }, threadView = "recentDiscussionThread" } = this.props
     const { showShortformFeed } = this.state
-    const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm } = Components
+    const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, Loading } = Components
     
     const loadingMore = networkStatus === 2;
 
