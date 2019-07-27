@@ -174,6 +174,26 @@ const theme = createLWTheme({
       icon: {
         color: grey[800]
       }
+    },
+    // TODO; use this sort of thing for other css changes
+    // TODO; doc change
+    TabNavigationMenu: {
+      // Can't use theme.breakpoints b/c we're still constucting theme
+      // This is theme.breakpoints.up('lg')
+      root: {
+        '@media (min-width:1280px)': {
+          top: 90
+        }
+      },
+      icon: {
+        opacity: 1,
+      },
+      navText: {
+        color: grey[800]
+      }
+    },
+    TabNavigationMenuSubItem: {
+      color: grey[800]
     }
   }
 });

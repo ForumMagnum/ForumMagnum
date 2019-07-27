@@ -8,7 +8,20 @@ import Users from 'meteor/vulcan:users'
 class HomeEA extends PureComponent {
   render () {
     const { currentUser } = this.props
-    const { RecentDiscussionThreadsList, HomeLatestPosts, ConfigurableRecommendationsList, } = Components
+    const { showShortformFeed } = this.state
+
+    // TODO;
+    const {
+      SingleColumnSection,
+      SectionTitle,
+      RecentDiscussionThreadsList,
+      CommentsNewForm,
+      HomeLatestPosts,
+      ConfigurableRecommendationsList,
+      SectionButton,
+      HeadTags,
+      TabNavigationMenu
+    } = Components
 
     const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
       Users.canDo(currentUser, 'alignment.sidebar')
@@ -17,7 +30,9 @@ class HomeEA extends PureComponent {
       <React.Fragment>
         {shouldRenderSidebar && <SplitComponent name="SunshineSidebar" />}
 
-        <Components.HeadTags image={getSetting('siteImage')} />
+        <HeadTags image={getSetting('siteImage')} />
+
+        <TabNavigationMenu />
 
         {currentUser?.beta &&
           <ConfigurableRecommendationsList configName="frontpage" />
