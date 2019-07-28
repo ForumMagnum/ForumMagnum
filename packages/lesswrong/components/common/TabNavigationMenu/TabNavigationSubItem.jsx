@@ -18,7 +18,7 @@ const styles = (theme) => ({
     textOverflow: "ellipsis",
     overflow: "hidden",
     '&:hover': {
-      opacity: .5
+      opacity: .6
     }
   }
 })

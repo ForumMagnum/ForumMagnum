@@ -21,7 +21,7 @@ const styles = theme => ({
   },
   icon: {
     display: "block",
-    opacity: .45,
+    opacity: .6,
     width: compressedIconSize,
     height: compressedIconSize,
     '& svg': {

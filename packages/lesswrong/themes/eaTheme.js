@@ -31,7 +31,7 @@ const sansSerifStack = [
 
 const palette = {
   primary: {
-    main: '#0c869b',
+    main: '#0c869b', // Maybe replace with: 00b2be
   },
   secondary: {
     main: '#0c869b',
@@ -163,16 +163,17 @@ const theme = createLWTheme({
     NavigationStandalone: {
       // Can't use theme.breakpoints b/c we're still constucting theme
       // This is theme.breakpoints.up('lg')
-      root: {
-        '@media (min-width:1280px)': {
-          top: 90
-        }
+      sidebar: {
+        top: 35
       },
+      footerBar: {
+        backgroundColor: grey[200],
+      }
     },
     TabNavigationMenu: {
       root: {
         // '@media (max-width: 1279.95px)': {
-        //   backgroundColor: "#ffffffd4" // TODO; ?
+        //   backgroundColor: grey[something] // TODO; ?
         // }
       }
     },
@@ -184,8 +185,20 @@ const theme = createLWTheme({
         color: grey[800]
       }
     },
+    TabNavigationFooterItem: {
+      selected: {
+        backgroundColor: palette.secondary.main
+      }
+    },
+    TabNavigationCompressedItem: {
+      icon: {
+        opacity: 1
+      }
+    },
     TabNavigationMenuSubItem: {
-      color: grey[800]
+      root: {
+        color: grey[800]
+      }
     }
   }
 });
