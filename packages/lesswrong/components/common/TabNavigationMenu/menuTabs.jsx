@@ -7,7 +7,7 @@ import { communityGlobeIcon } from '../../icons/communityGlobeIcon';
 import { BookIcon } from '../../icons/bookIcon'
 import { allPostsIcon } from '../../icons/allPostsIcon';
 
-import { LocalLibrary, Search, Group, Sort } from '@material-ui/icons'
+import { LocalLibrary, Search, Group, Sort, Info } from '@material-ui/icons'
 
 const EventsList = ({currentUser}) => {
   const { TabNavigationEventsList } = Components
@@ -46,6 +46,7 @@ export default forumTabs = {
       icon: compassIcon,
       tooltip: 'Latest posts, comments and curated content.',
       showOnMobileStandalone: true,
+      showOnCompressed: true,
     }, {
       id: 'questions',
       title: 'Questions',
@@ -57,6 +58,7 @@ export default forumTabs = {
         <div>• Pose and resolve confusions.</div>
       </div>,
       showOnMobileStandalone: true,
+      showOnCompressed: true,
     }, {
       id: 'library',
       title: 'Library',
@@ -64,6 +66,7 @@ export default forumTabs = {
       iconComponent: BookIcon,
       tooltip: "Curated collections of LessWrong's best writing.",
       showOnMobileStandalone: true,
+      showOnCompressed: true,
     // next 3 are subItems
     }, {
       id: 'r-az',
@@ -97,6 +100,7 @@ export default forumTabs = {
       icon: communityGlobeIcon,
       tooltip: 'Find a meetup near you.',
       showOnMobileStandalone: true,
+      showOnCompressed: true,
     }, {
       id: 'eventsList',
       customComponent: EventsList,
@@ -107,9 +111,11 @@ export default forumTabs = {
       icon: allPostsIcon,
       tooltip: 'See all posts, filtered and sorted however you like.',
       showOnMobileStandalone: true,
+      showOnCompressed: true,
     }, {
       id: 'divider',
       divider: true,
+      showOnCompressed: true,
     }, {
       id: 'shortform',
       title: 'Shortform [Beta]',
@@ -121,6 +127,8 @@ export default forumTabs = {
       title: 'About',
       link: '/about',
       subItem: true,
+      compressedIconComponent: Info,
+      showOnCompressed: true,
     }, {
       id: 'faq',
       title: 'FAQ',
@@ -136,6 +144,7 @@ export default forumTabs = {
       icon: compassIcon,
       tooltip: 'Latest posts, comments and curated content.',
       showOnMobileStandalone: true,
+      showOnCompressed: true,
     }, {
       id: 'questions',
       title: 'Questions',
@@ -147,6 +156,7 @@ export default forumTabs = {
         <div>• Pose and resolve confusions.</div>
       </div>,
       showOnMobileStandalone: true,
+      showOnCompressed: true,
     }, {
       id: 'allPosts',
       title: 'All Posts',
@@ -154,6 +164,7 @@ export default forumTabs = {
       icon: allPostsIcon,
       tooltip: 'See all posts, filtered and sorted however you like.',
       showOnMobileStandalone: true,
+      showOnCompressed: true,
     }, {
       id: 'divider',
       divider: true,
@@ -167,6 +178,8 @@ export default forumTabs = {
       title: 'About',
       link: '/about',
       subItem: true,
+      compressedIconComponent: Info,
+      showOnCompressed: true,
     }, {
       id: 'faq',
       title: 'FAQ',
@@ -183,6 +196,7 @@ export default forumTabs = {
       iconComponent: LocalLibrary,
       tooltip: 'Latest posts. TODO;',
       showOnMobileStandalone: true,
+      showOnCompressed: true,
     }, {
       id: 'community',
       title: 'Community',
@@ -190,6 +204,7 @@ export default forumTabs = {
       iconComponent: Group,
       tooltip: 'Community posts TODO;.',
       showOnMobileStandalone: true,
+      showOnCompressed: true,
     }, {
       id: 'questions',
       title: 'Questions',
@@ -202,6 +217,7 @@ export default forumTabs = {
         <div>• TODO; Aaron plz review.</div>
       </div>,
       showOnMobileStandalone: true,
+      showOnCompressed: true,
     }, {
       id: 'allPosts',
       title: 'All Posts',
@@ -209,9 +225,11 @@ export default forumTabs = {
       iconComponent: Sort,
       tooltip: 'See all posts, filtered and sorted however you like.',
       showOnMobileStandalone: true,
+      showOnCompressed: true,
     }, {
       id: 'divider',
       divider: true,
+      showOnCompressed: true,
     }, {
       id: 'shortform',
       title: 'Shortform [Beta]',
@@ -222,6 +240,8 @@ export default forumTabs = {
       title: 'About',
       link: '/about',
       subItem: true,
+      compressedIconComponent: Info,
+      showOnCompressed: true,
     }
   ]
 }

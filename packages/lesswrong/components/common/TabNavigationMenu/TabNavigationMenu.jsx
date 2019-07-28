@@ -46,10 +46,8 @@ const TabNavigationMenu = ({classes, standalone, currentUser}) => {
         return <TabNavigationItem
           key={tab.id}
           tab={tab}
-          standalone={standalone}
         />
       })}
-      {/* TODO; better mobile behavior, include way to find faq */}
     </div>
   )
 };

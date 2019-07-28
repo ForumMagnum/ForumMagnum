@@ -1,27 +1,16 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
-import { withRouter } from '../../../lib/reactRouterWrapper.js';
 import { withStyles } from '@material-ui/core/styles';
 import { Link } from '../../../lib/reactRouterWrapper.js';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 
-const smallIconSize = 23
+const compressedIconSize = 23
 
 const styles = theme => ({
-  selected: {
-    '& $icon': {
-      opacity: 1,
-    },
-    '& $navText': {
-      color: theme.palette.grey[900],
-      fontWeight: 600,
-    },
-    backgroundColor: theme.palette.grey[400]
-  },
   navButton: {
     paddingTop: theme.spacing.unit,
-    paddingBottom: 2,
+    paddingBottom: theme.spacing.unit,
     paddingLeft: theme.spacing.unit*2,
     paddingRight: theme.spacing.unit*2,
     width: "100%",
@@ -33,11 +22,11 @@ const styles = theme => ({
   icon: {
     display: "block",
     opacity: .45,
-    width: smallIconSize,
-    height: smallIconSize,
+    width: compressedIconSize,
+    height: compressedIconSize,
     '& svg': {
-      width: smallIconSize,
-      height: smallIconSize,
+      width: compressedIconSize,
+      height: compressedIconSize,
     }
   },
   navText: {
@@ -53,36 +42,28 @@ const styles = theme => ({
   },
 })
 
-const TabNavigationFooterItem = ({tab, classes, location}) => {
+const TabNavigationCompressedItem = ({tab, classes}) => {
   const { TabNavigationSubItem } = Components
-  const { pathname } = location
 
   return <Tooltip placement='right-start' title={tab.tooltip || ''}>
     <Link
       to={tab.link}
-      className={classNames(classes.navButton, {[classes.selected]: pathname === tab.link})}
+      className={classes.navButton}
     >
       {/* TODO; all icons take classname */}
-      {(tab.icon || tab.iconComponent) && <span
+      {<span
         // TODO; homeIcon
         className={classNames(classes.icon, {[classes.homeIcon]: tab.id === 'home'})}
       >
         {tab.iconComponent && <tab.iconComponent />}
         {tab.icon && tab.icon}
+        {tab.compressedIconComponent && <tab.compressedIconComponent />}
       </span>}
-      {tab.subItem ?
-        <TabNavigationSubItem>
-          {tab.title}
-        </TabNavigationSubItem> :
-        <span className={classes.navText}>
-          {tab.title}
-        </span>
-      }
     </Link>
   </Tooltip>
 }
 
 registerComponent(
-  'TabNavigationFooterItem', TabNavigationFooterItem,
-  withRouter, withStyles(styles, { name: 'TabNavigationFooterItem'})
+  'TabNavigationCompressedItem', TabNavigationCompressedItem,
+  withStyles(styles, { name: 'TabNavigationCompressedItem'})
 );

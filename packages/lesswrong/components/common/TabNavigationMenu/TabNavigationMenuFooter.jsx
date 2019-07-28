@@ -19,7 +19,7 @@ const styles = (theme) => {
   }
 }
 
-const TabNavigationMenuFooter = ({classes, standalone}) => {
+const TabNavigationMenuFooter = ({classes}) => {
   const { TabNavigationFooterItem } = Components
 
   return (
@@ -37,6 +37,7 @@ const TabNavigationMenuFooter = ({classes, standalone}) => {
       })}
     </div>
     // TODO; how to find faq info
+    // Maybe by having regular bar pull out in footer mode
   )
 };
 
