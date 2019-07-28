@@ -11,14 +11,16 @@ const styles = theme => ({
     width: 300,
     overflow:"hidden",
   },
-  drawerNavigationMenu: {
+  drawerNavigationMenuUncompressed: {
     paddingTop: '10px',
     left:0,
     width:260,
     paddingBottom: 20,
-    // flexDirection: "column",
+    [theme.breakpoints.down('sm')]: {
+      display:"none"
+    }
   },
-  navButtons: {
+  drawerNavigationMenuCompressed: {
     width:55,
     backgroundColor: theme.palette.grey[100],
     paddingTop: theme.spacing.unit*2,
@@ -37,25 +39,27 @@ const styles = theme => ({
     left:55,
     maxWidth: 247,
     height:"100%",
-    display:"none",
-    [theme.breakpoints.down('sm')]: {
-      display:"block"
+    [theme.breakpoints.up('md')]: {
+      display: "none"
     }
   },
 })
 
 const NavigationDrawer = ({open, handleOpen, handleClose, toc, classes}) => {
-  const { TabNavigationMenu } = Components
+  const { TabNavigationMenu, TabNavigationMenuCompressed } = Components
   const showToc = toc && toc.sections
 
   return <SwipeableDrawer
     open={open}
     onClose={(event) => handleClose()}
     onOpen={(event) => handleOpen()}
-    classes={{paper: classes.paper}}
+    classes={{paper: showToc ? classes.paperWithToC : classes.paperWithoutToC}}
   >
-    <div className={classes.drawerNavigationMenu}>
+    <div className={classes.drawerNavigationMenuUncompressed}>
       <TabNavigationMenu />
+    </div>
+    <div className={classes.drawerNavigationMenuCompressed}>
+      <TabNavigationMenuCompressed />
     </div>
     {showToc && <React.Fragment>
       <div className={classes.tableOfContents}>

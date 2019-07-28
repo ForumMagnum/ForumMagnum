@@ -18,9 +18,6 @@ const styles = theme => ({
       color: theme.palette.grey[900],
       fontWeight: 600,
     },
-    [theme.breakpoints.down('md')]: {
-      backgroundColor: theme.palette.grey[400]
-    }
   },
   navButton: {
     '&:hover': {
@@ -35,20 +32,6 @@ const styles = theme => ({
     justifyContent: "flex-start",
     flexDirection: "row",
   },
-  navButtonStandalone: {
-    [theme.breakpoints.down('md')]: {
-      justifyContent: "space-around",
-      paddingTop: theme.spacing.unit,
-      paddingBottom: 2,
-      width: "100%",
-      flexDirection: "column",
-    }
-  },
-  hideOnMobile: {
-    [theme.breakpoints.down('md')]: {
-      display: "none"
-    },
-  },
   icon: {
     display: "block",
     opacity: .3,
@@ -57,45 +40,21 @@ const styles = theme => ({
     marginRight: theme.spacing.unit*2,
     display: "inline",
   },
-  iconStandalone: {
-    [theme.breakpoints.down('md')]: {
-      marginRight: 'unset',
-      display: 'unset',
-      opacity: .45,
-      width: smallIconSize,
-      height: smallIconSize,
-      '& svg': {
-        width: smallIconSize,
-        height: smallIconSize,
-      }
-    }
-  },
   navText: {
     ...theme.typography.body2,
     color: theme.palette.grey[600],
     textTransform: "none !important",
-  },
-  navTextStandalone: {
-    [theme.breakpoints.down('md')]: {
-      textTransform: 'unset',
-      fontSize: '.8rem',
-      color: theme.palette.grey[700],
-    },
   },
   homeIcon: {
     '& svg': {
       height: 29,
       position: "relative",
       top: -1,
-      [theme.breakpoints.down('md')]: {
-        height: smallIconSize,
-        width: smallIconSize
-      }
     }
   },
 })
 
-const TabNavigationItem = ({tab, classes, location, standalone}) => {
+const TabNavigationItem = ({tab, classes, location}) => {
   const { TabNavigationSubItem } = Components
   const { pathname } = location
 
@@ -104,17 +63,13 @@ const TabNavigationItem = ({tab, classes, location, standalone}) => {
       to={tab.link}
       className={classNames({
         [classes.navButton]: !tab.subItem,
-        [classes.navButtonStandalone]: !tab.subItem && standalone,
-        [classes.selected]: pathname === tab.link && standalone,
-        [classes.hideOnMobile]: standalone && !tab.showOnMobileStandalone
+        [classes.selected]: pathname === tab.link,
       })}
     >
       {/* TODO; all icons take classname */}
       {(tab.icon || tab.iconComponent) && <span
         // TODO; homeIcon
-        className={classNames(
-          classes.icon, {[classes.homeIcon]: tab.id === 'home', [classes.iconStandalone]: standalone}
-        )}
+        className={classNames(classes.icon, {[classes.homeIcon]: tab.id === 'home'})}
       >
         {tab.iconComponent && <tab.iconComponent />}
         {tab.icon && tab.icon}
@@ -123,7 +78,7 @@ const TabNavigationItem = ({tab, classes, location, standalone}) => {
         <TabNavigationSubItem>
           {tab.title}
         </TabNavigationSubItem> :
-        <span className={classNames(classes.navText, {[classes.navTextStandalone]: standalone})}>
+        <span className={classes.navText}>
           {tab.title}
         </span>
       }
