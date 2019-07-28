@@ -8,14 +8,13 @@ const styles = theme => ({
     zIndex: theme.zIndexes.tabNavigation,
   },
   sidebar: {
+    position: "absolute",
     [theme.breakpoints.down('md')]: {
       display: "none"
     },
-    top: 64,
+    top: 20,
     left:0,
     width:260,
-    paddingTop: 30,
-    paddingBottom: 70,
   },
   footerBar: {
     [theme.breakpoints.up('lg')]: {
