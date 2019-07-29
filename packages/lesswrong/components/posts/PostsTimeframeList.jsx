@@ -6,6 +6,7 @@ import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import classNames from 'classnames';
 import { getDateRange, timeframeToTimeBlock } from './timeframeUtils'
+import withTimezone from '../common/withTimezone';
 
 const styles = theme => ({
   loading: {
@@ -72,7 +73,7 @@ class PostsTimeframeList extends PureComponent {
   }
 
   render() {
-    const { classes, postListParameters, timeframe, before } = this.props
+    const { timezone, classes, postListParameters, timeframe, before } = this.props
     const { after, dim } = this.state
     const { PostsTimeBlock } = Components
 
@@ -89,8 +90,10 @@ class PostsTimeframeList extends PureComponent {
             terms={{
               ...postListParameters,
               // NB: 'before', as a parameter for a posts view, is inclusive
-              before: moment(date).endOf(timeBlock).format('YYYY-MM-DD'),
-              after: moment(date).startOf(timeBlock).format('YYYY-MM-DD'),
+              before: moment.tz(date, timezone)
+                .endOf(timeBlock).format('YYYY-MM-DD'),
+              after: moment.tz(date, timezone)
+                .startOf(timeBlock).format('YYYY-MM-DD'),
               limit: 16
             }}
             timeBlockLoadComplete={this.timeBlockLoadComplete}
@@ -111,5 +114,6 @@ PostsTimeframeList.propTypes = {
 };
 
 registerComponent('PostsTimeframeList', PostsTimeframeList,
+  withTimezone,
   withStyles(styles, {name: "PostsTimeframeList"})
 );
