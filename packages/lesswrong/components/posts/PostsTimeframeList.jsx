@@ -85,7 +85,7 @@ class PostsTimeframeList extends PureComponent {
         {dates.map((date, index) =>
           <PostsTimeBlock
             key={date.toString()}
-            startDate={moment(date)}
+            startDate={moment.tz(date, timezone)}
             timeframe={timeframe}
             terms={{
               ...postListParameters,
