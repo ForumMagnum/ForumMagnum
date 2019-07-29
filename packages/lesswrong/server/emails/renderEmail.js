@@ -2,7 +2,7 @@ import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { ApolloProvider } from 'react-apollo';
 import Juice from 'juice';
-import { createApolloClient, configureStore } from 'meteor/vulcan:lib';
+import { createClient, computeContextFromUser } from 'meteor/vulcan:lib';
 import JssProvider from 'react-jss/lib/JssProvider';
 import { SheetsRegistry } from 'react-jss/lib/jss';
 import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles';
@@ -14,15 +14,11 @@ import Users from 'meteor/vulcan:users';
 import moment from 'moment-timezone';
 import LWEvents from '../../lib/collections/lwevents/collection'
 import StyleValidator from '../vendor/react-html-email/src/StyleValidator.js';
+import { getDataFromTree } from 'react-apollo';
 
 // TODO: We probably want to use a different theme than this for rendering
 // emails.
 import forumTheme from '../../themes/forumTheme'
-
-// HACK: This getDataFromTree is awkwardly plucked from a newer version of
-// Apollo (Apollo 2.0). We do the same thing in Vulcan. After the Apollo
-// upgrade, we'll want to use Apollo's instead.
-import getDataFromTree from './getDataFromTree';
 
 // How many characters to wrap the plain-text version of the email to
 const plainTextWordWrap = 80;
@@ -74,14 +70,6 @@ const emailGlobalCss = `
   }
 `;
 
-/*function getLoginTokenForEmail(user)
-{
-  // TODO: If there's already a non-expired login token, reuse it
-  let loginToken = Accounts._generateStampedLoginToken();
-  Accounts._insertLoginToken(user._id, loginToken);
-  return loginToken;
-}*/
-
 function addEmailBoilerplate({ css, title, body })
 {
   return `
@@ -129,15 +117,8 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
   if (!bodyComponent) throw new Error("Missing required argument: bodyComponent");
   
   // Set up Apollo
-  //const loginToken = getLoginTokenForEmail(user);
-  const loginToken = null;
-  const locale = null;
-  const apolloClient = createApolloClient({
-    loginToken, locale,
-    useMeteorAccounts: true,
-  });
-  const reducers = {apollo: apolloClient.reducer()};
-  const store = configureStore(reducers, {}, []);
+  const headers = {};
+  const apolloClient = await createClient(await computeContextFromUser(user, headers));
   
   // Wrap the body in Apollo, JSS, and MUI wrappers.
   const sheetsRegistry = new SheetsRegistry();
@@ -150,7 +131,7 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
   const timezone = moment.tz.guess();
   
   const wrappedBodyComponent = (
-    <ApolloProvider store={store} client={apolloClient}>
+    <ApolloProvider client={apolloClient}>
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
     <MuiThemeProvider theme={forumTheme} sheetsManager={new Map()}>
     <UserContext.Provider value={user}>

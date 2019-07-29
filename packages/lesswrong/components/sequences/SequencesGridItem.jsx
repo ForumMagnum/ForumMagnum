@@ -4,7 +4,7 @@ import {
 } from 'meteor/vulcan:core';
 import NoSSR from 'react-no-ssr';
 import React, { PureComponent } from 'react';
-import { Link, withRouter } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
@@ -81,11 +81,9 @@ const styles = theme => ({
     width: "100%",
     height: 95,
     backgroundColor: "rgba(0,0,0,0.05)",
+    display: 'block',
     [legacyBreakpoints.maxTiny]: {
       width: "100%",
-    },
-    [theme.breakpoints.down('sm')]: {
-      height: "auto",
     },
     "& img": {
       [legacyBreakpoints.maxSmall]: {
@@ -108,10 +106,10 @@ class SequencesGridItem extends PureComponent {
 
   render() {
     const { sequence, showAuthor=false, classes } = this.props
-    const { LinkCard } = Components;
+    const { LinkCard, SequenceTooltip } = Components;
     const url = this.getSequenceUrl()
 
-    return <LinkCard className={classes.root} to={url}>
+    return <LinkCard className={classes.root} to={url} tooltip={<SequenceTooltip sequence={sequence}/>}>
       <div className={classNames(classes.top, {[classes.topWithAuthor]: showAuthor})} style={{borderTopColor: sequence.color}}>
         <Link key={sequence._id} to={url}>
           <Typography variant='title' className={classes.title}>
@@ -133,10 +131,10 @@ class SequencesGridItem extends PureComponent {
           />
         </NoSSR>
       </div>
-    </LinkCard>;
+    </LinkCard>
   }
 }
 
 SequencesGridItem.displayName = "SequencesGridItem";
 
-registerComponent('SequencesGridItem', SequencesGridItem, withUser, withStyles(styles, { name: "SequencesGridItem" }), withRouter);
+registerComponent('SequencesGridItem', SequencesGridItem, withUser, withStyles(styles, { name: "SequencesGridItem" }));

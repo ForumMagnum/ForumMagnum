@@ -1,6 +1,7 @@
-import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
-import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
 import React from 'react';
+import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
+import { Link } from '../../lib/reactRouterWrapper.js';
+import { useLocation } from '../../lib/routeUtil.js';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -9,7 +10,7 @@ import withUser from '../common/withUser';
 import { compassIcon } from '../icons/compassIcon';
 import { questionsGlobeIcon } from '../icons/questionsGlobeIcon';
 import { communityGlobeIcon } from '../icons/communityGlobeIcon';
-import { bookIcon } from '../icons/bookIcon'
+import { BookIcon } from '../icons/bookIcon'
 import { allPostsIcon } from '../icons/allPostsIcon';
 
 export const iconWidth = 30
@@ -137,15 +138,24 @@ const styles = (theme) => ({
       }
     }
   },
+  divider: {
+    width: 50,
+    marginLeft: (theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2)) - 2,
+    marginTop: theme.spacing.unit*1.5,
+    marginBottom: theme.spacing.unit*2.5,
+    borderBottom: "solid 1px rgba(0,0,0,.2)",
+    [theme.breakpoints.down('md')]: {
+      display: "none"
+    },
+  },
 })
 
 const TabNavigationMenu = ({
   currentUser,
   classes,
-  location,
 }) => {
 
-  const { pathname } = location
+  const { pathname } = useLocation();
   const { TabNavigationSubItem, TabNavigationEventsList } = Components
 
   const lat = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[1]
@@ -196,9 +206,7 @@ const TabNavigationMenu = ({
             <div>Curated collections of LessWrong's best writing.</div>
           </div>}>
           <Link to="/library" className={classNames(classes.navButton, {[classes.selected]: pathname === "/library"})}>
-              <span className={classes.icon}>
-                { bookIcon }
-              </span>
+              <BookIcon className={classes.icon}/>
               <span className={classes.navText}>
                 Library
               </span>
@@ -241,8 +249,8 @@ const TabNavigationMenu = ({
             </Link>
           </Tooltip>
         </React.Fragment> }
-        
-        
+
+
         { getSetting('hasEvents', true) && getSetting('forumType') !== 'AlignmentForum' && <React.Fragment>
           <Tooltip
             placement="right"
@@ -269,13 +277,34 @@ const TabNavigationMenu = ({
               { allPostsIcon }
             </span>
             <span className={classes.navText}>
-              Archive
+              All Posts
             </span>
           </Link>
         </Tooltip>
+        <div className={classes.divider}/>
+        <Link to="/shortform">
+          <TabNavigationSubItem>
+            Shortform [Beta]
+          </TabNavigationSubItem>
+        </Link>
+        <Link to="/meta">
+          <TabNavigationSubItem>
+            Meta
+          </TabNavigationSubItem>
+        </Link>
+        <Link to="/about">
+          <TabNavigationSubItem>
+            About
+          </TabNavigationSubItem>
+        </Link>
+        <Link to="/faq">
+          <TabNavigationSubItem>
+            FAQ
+          </TabNavigationSubItem>
+        </Link>
       </div>
     </div>
   )
 };
 
-registerComponent('TabNavigationMenu', TabNavigationMenu, withRouter, withUser, withStyles(styles, { name: 'TabNavigationMenu'}));
+registerComponent('TabNavigationMenu', TabNavigationMenu, withUser, withStyles(styles, { name: 'TabNavigationMenu'}));

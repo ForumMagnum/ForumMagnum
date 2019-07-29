@@ -1,15 +1,18 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import withUser from '../common/withUser';
+import { useLocation } from '../../lib/routeUtil';
 
-const AllComments = (props, context) => {
+const AllComments = () => {
+  const { query } = useLocation();
   const { SingleColumnSection, RecentComments, SectionTitle } = Components
+  const terms = _.isEmpty(query) ? {view: 'recentComments', limit: 100} : query;
+  
   return (
     <SingleColumnSection>
       <SectionTitle title="All Comments"/>
-      <RecentComments />
+      <RecentComments terms={terms} />
     </SingleColumnSection>
   )
 };
 
-registerComponent('AllComments', AllComments, withUser);
+registerComponent('AllComments', AllComments);

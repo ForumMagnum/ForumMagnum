@@ -18,18 +18,11 @@ const styles = theme => ({
     marginTop: theme.spacing.unit*2,
   },
   subtitle: {
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[700],
-    display: "inline-block",
     [theme.breakpoints.down('sm')]:{
       marginBottom: theme.spacing.unit*1.5,
     },
     marginBottom: theme.spacing.unit,
   },
-  list: {
-    marginLeft: theme.spacing.unit*2
-  }
 });
 
 const defaultFrontpageSettings = {
@@ -59,7 +52,7 @@ class RecommendationsAndCurated extends PureComponent {
   render() {
     const { continueReading, classes, currentUser } = this.props;
     const { showSettings } = this.state
-    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SectionTitle, SettingsIcon, ContinueReadingList, RecommendationsList, PostsList2, SubscribeWidget } = Components;
+    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, RecommendationsList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SubSection } = Components;
     
     const configName = "frontpage"
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
@@ -103,42 +96,48 @@ class RecommendationsAndCurated extends PureComponent {
       {renderContinueReading && <React.Fragment>
           <div>
             <Tooltip placement="top-start" title={currentUser ? continueReadingTooltip : coreReadingTooltip}>
-              <Link className={classNames(classes.subtitle, classes.continueReading)} to={"/library"}>
-                {currentUser ? "Continue Reading" : "Core Reading" }
+              <Link to={"/library"}>
+                <SectionSubtitle className={classNames(classes.subtitle, classes.continueReading)}>
+                  {currentUser ? "Continue Reading" : "Core Reading" }
+                </SectionSubtitle>
               </Link>
             </Tooltip>
             <BetaTag />
           </div>
-          <div className={classNames(classes.continueReadingList, classes.list)}>
+          <SubSection className={classes.continueReadingList}>
             <ContinueReadingList continueReading={continueReading} />
-          </div>
+          </SubSection>
         </React.Fragment>}
 
       {!settings.hideFrontpage && <div>
         <div>
           <Tooltip placement="top-start" title={allTimeTooltip}>
-            <Link className={classNames(classes.subtitle, classes.fromTheArchives)} to={"/recommendations"}>
-              From the Archives
+            <Link to={"/recommendations"}>
+              <SectionSubtitle className={classNames(classes.subtitle, classes.fromTheArchives)} >
+                From the Archives
+              </SectionSubtitle>
             </Link>
           </Tooltip>
           <BetaTag />
         </div>
-        <div className={classes.list}>
+        <SubSection>
           <RecommendationsList algorithm={frontpageRecommendationSettings} />
-        </div>
+        </SubSection>
       </div>}
       
       <Tooltip placement="top-start" title={curatedTooltip}>
-        <Link className={classNames(classes.subtitle, classes.curated)} to={"/allPosts?filter=curated&view=new"}>
-          Recently Curated
+        <Link to={"/allPosts?filter=curated&view=new"}>
+          <SectionSubtitle className={classNames(classes.subtitle, classes.curated)}>
+            Recently Curated
+          </SectionSubtitle>
         </Link>
       </Tooltip>
-      <div className={classes.list}>
+      <SubSection>
         <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false}>
           <Link to={"/allPosts?filter=curated&view=new"}>View All Curated Posts</Link>
           <SubscribeWidget view={"curated"} />
         </PostsList2>
-      </div>
+      </SubSection>
     </SingleColumnSection>
   }
 }

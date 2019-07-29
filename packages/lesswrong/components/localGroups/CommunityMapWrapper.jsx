@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent, getSetting, withList} from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { useLocation } from '../../lib/routeUtil';
 import { withStyles } from '@material-ui/core/styles';
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -19,12 +19,12 @@ const styles = theme => ({
   }
 });
 
-const CommunityMapWrapper = ({router, classes, groupQueryTerms, results, currentUserLocation, mapOptions}) => {
+const CommunityMapWrapper = ({classes, groupQueryTerms, results, currentUserLocation, mapOptions}) => {
+  const { query } = useLocation();
   const mapsAPIKey = getSetting('googleMaps.apiKey', null);
-  
   return (
     <Components.CommunityMap
-      terms={groupQueryTerms || {view: "all", filters: (router.location.query && router.location.query.filters) || []}}
+      terms={groupQueryTerms || {view: "all", filters: query?.filters || []}}
       loadingElement= {<div style={{ height: `100%` }} />}
       events={results}
       containerElement= {<div style={{height: "500px"}} className={classes.communityMap}/>}
@@ -43,5 +43,5 @@ const listOptions = {
 }
 
 registerComponent("CommunityMapWrapper", CommunityMapWrapper,
-  [withList, listOptions], withRouter, withErrorBoundary,
+  [withList, listOptions], withErrorBoundary,
   withStyles(styles, {name: "CommunityMapWrapper"}))

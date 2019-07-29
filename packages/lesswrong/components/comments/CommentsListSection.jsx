@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
 import {
   Components,
   registerComponent
@@ -190,7 +189,7 @@ class CommentsListSection extends Component {
 }
 
 registerComponent("CommentsListSection", CommentsListSection,
-  withUser, withRouter,
+  withUser,
   withStyles(styles, { name: "CommentsListSection" })
 );
 export default CommentsListSection

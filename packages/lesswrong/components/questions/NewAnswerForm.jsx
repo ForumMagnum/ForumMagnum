@@ -1,4 +1,4 @@
-import { Components, registerComponent, getFragment, withMessages, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Comments } from '../../lib/collections/comments';
@@ -7,6 +7,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import withUser from '../common/withUser'
+import withDialog from '../common/withDialog';
 
 const styles = theme => ({
   answersForm: {
@@ -29,42 +30,21 @@ const styles = theme => ({
   },
 })
 
-const FormGroupComponent = (props) => {
-  return <React.Fragment>
-    {props.fields.map(field => (
-      <Components.FormComponent
-        key={field.name}
-        disabled={props.disabled}
-        {...field}
-        errors={props.errors}
-        throwError={props.throwError}
-        currentValues={props.currentValues}
-        updateCurrentValues={props.updateCurrentValues}
-        deletedValues={props.deletedValues}
-        addToDeletedValues={props.addToDeletedValues}
-        clearFieldErrors={props.clearFieldErrors}
-        formType={props.formType}
-        currentUser={props.currentUser}
-      />
-    ))}
-  </React.Fragment>
-}
 
-const NewAnswerForm = ({post, classes, flash, currentUser}) => {
 
-  const SubmitComponent = ({submitLabel = "Submit"}) => {
+const NewAnswerForm = ({post, classes, currentUser}) => {
+
+  const SubmitComponent = withDialog(({submitLabel = "Submit", openDialog}) => {
     return <div className={classes.submit}>
       <Button
         type="submit"
         className={classNames(classes.formButton)}
         onClick={(ev) => {
           if (!currentUser) {
-            const isAF = getSetting('forumType') === 'AlignmentForum';
-            const message = (isAF
-              ? "Log in or go to LessWrong to submit your answer."
-              : "Log in to submit your answer."
-            );
-            flash({messageString: message});
+            openDialog({
+              componentName: "LoginPopup",
+              componentProps: {}
+            });
             ev.preventDefault();
           }
         }}
@@ -72,7 +52,7 @@ const NewAnswerForm = ({post, classes, flash, currentUser}) => {
         {submitLabel}
       </Button>
     </div>
-  }
+  });
 
   const prefilledProps = {
     postId: post._id,
@@ -89,8 +69,10 @@ const NewAnswerForm = ({post, classes, flash, currentUser}) => {
     <div className={classes.answersForm}>
       <SmartForm
         collection={Comments}
-        GroupComponent={FormGroupComponent}
-        SubmitComponent={SubmitComponent}
+        formComponents={{
+          FormSubmit: SubmitComponent,
+          FormGroupLayout: Components.DefaultStyleFormGroup
+        }}
         mutationFragment={getFragment('CommentsList')}
         prefilledProps={prefilledProps}
         alignmentForumPost={post.af}
@@ -105,7 +87,6 @@ NewAnswerForm.propTypes = {
   classes: PropTypes.object.isRequired,
   post: PropTypes.object.isRequired,
   prefilledProps: PropTypes.object,
-  flash: PropTypes.func,
 };
 
-registerComponent('NewAnswerForm', NewAnswerForm, withMessages, withUser, withStyles(styles, {name:"NewAnswerForm"}));
+registerComponent('NewAnswerForm', NewAnswerForm, withUser, withStyles(styles, {name:"NewAnswerForm"}));

@@ -1,5 +1,5 @@
 import { registerComponent } from 'meteor/vulcan:core';
 
-const UserNameDeleted = () => '[deleted]';
+const UserNameDeleted = () => '[anonymous]';
 
 registerComponent('UserNameDeleted', UserNameDeleted);

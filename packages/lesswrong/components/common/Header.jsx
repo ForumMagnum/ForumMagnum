@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, withEdit, getSetting } from 'meteor/vulcan:core';
-import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
+import { Components, registerComponent, withUpdate, getSetting } from 'meteor/vulcan:core';
+import { Link } from 'react-router-dom';
 import NoSSR from 'react-no-ssr';
 import Headroom from 'react-headroom'
 import { withStyles, withTheme } from '@material-ui/core/styles';
@@ -12,9 +12,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import TocIcon from '@material-ui/icons/Toc';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
-import { withApollo } from 'react-apollo';
 import Users from 'meteor/vulcan:users';
-import getHeaderSubtitleData from '../../lib/modules/utils/getHeaderSubtitleData';
 import grey from '@material-ui/core/colors/grey';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -55,12 +53,6 @@ const styles = theme => ({
       textDecoration: 'none',
       opacity: 0.7,
     }
-  },
-  subtitle: {
-    marginLeft: '1em',
-    paddingLeft: '1em',
-    textTransform: 'uppercase',
-    borderLeft: `1px solid ${grey[400]}`,
   },
   menuButton: {
     marginLeft: -theme.spacing.unit,
@@ -105,7 +97,7 @@ const styles = theme => ({
   },
 });
 
-class Header extends Component {
+class Header extends PureComponent {
   state = {
     navigationOpen: false,
     notificationOpen: false,
@@ -120,13 +112,12 @@ class Header extends Component {
   handleNotificationToggle = () => {
     this.handleSetNotificationDrawerOpen(!this.state.notificationOpen);
   }
-  
+
   handleSetNotificationDrawerOpen = (isOpen) => {
     if (isOpen) {
-      this.props.editMutation({
-        documentId: this.props.currentUser._id,
-        set: {lastNotificationsCheck: new Date()},
-        unset: {}
+      this.props.updateUser({
+        selector: {_id: this.props.currentUser._id},
+        data: {lastNotificationsCheck: new Date()}
       })
       this.setState({
         notificationOpen: true,
@@ -136,7 +127,7 @@ class Header extends Component {
       this.setState({notificationOpen: false})
     }
   }
-  
+
   // Set whether Headroom (the auto-hiding top bar) is pinned so it doesn't
   // hide on scroll. Called by SearchBar, which pins the header open when a
   // search is active.
@@ -147,15 +138,12 @@ class Header extends Component {
   }
 
   render() {
-    const { currentUser, classes, routes, location, params, client, theme, toc, searchResultsArea } = this.props
+    const { currentUser, classes, theme, toc, searchResultsArea } = this.props
     const { notificationOpen, notificationHasOpened, navigationOpen, headroomPinnedOpen } = this.state
-    const routeName = routes[1].name
-    const query = location && location.query
-    const { subtitleLink = "", subtitleText = "" } = getHeaderSubtitleData(routeName, query, params, client) || {}
     const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
-    
+
     const { SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton,
-      NavigationMenu, NotificationsMenu, KarmaChangeNotifier } = Components;
+      NavigationMenu, NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle } = Components;
 
     return (
         <div className={classes.root}>
@@ -191,11 +179,7 @@ class Header extends Component {
                     <Link to="/" className={classes.titleLink}>
                       {getSetting('forumSettings.headerTitle', 'LESSWRONG')}
                     </Link>
-                    {subtitleLink && <span className={classes.subtitle}>
-                      <Link to={subtitleLink} className={classes.titleLink}>
-                        {subtitleText}
-                      </Link>
-                    </span>}
+                    <HeaderSubtitle/>
                   </Hidden>
                   <Hidden mdUp implementation="css">
                     <Link to="/" className={classes.titleLink}>
@@ -226,16 +210,12 @@ Header.displayName = "Header";
 Header.propTypes = {
   currentUser: PropTypes.object,
   classes: PropTypes.object.isRequired,
-  routes: PropTypes.array.isRequired,
-  location: PropTypes.object.isRequired,
-  params: PropTypes.object,
-  client: PropTypes.object.isRequired,
   searchResultsArea: PropTypes.object,
 };
 
-const withEditOptions = {
+const withUpdateOptions = {
   collection: Users,
   fragmentName: 'UsersCurrent',
 };
 
-registerComponent('Header', Header, withErrorBoundary, withRouter, withApollo, [withEdit, withEditOptions], withUser, withStyles(styles, { name: 'Header'}), withTheme());
+registerComponent('Header', Header, withErrorBoundary, [withUpdate, withUpdateOptions], withUser, withStyles(styles, { name: 'Header'}), withTheme());

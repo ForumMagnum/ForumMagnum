@@ -29,6 +29,7 @@ registerFragment(`
     feedId
     feedLink
     lastVisitedAt
+    isRead
     lastCommentedAt
     canonicalCollectionSlug
     curatedDate
@@ -75,6 +76,7 @@ registerFragment(`
     hideAuthor
     moderationStyle
     submitToFrontpage
+    shortform
   }
 `);
 

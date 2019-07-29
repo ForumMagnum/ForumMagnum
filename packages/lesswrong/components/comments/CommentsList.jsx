@@ -24,17 +24,17 @@ class CommentsList extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     if(!shallowEqual(this.state, nextState))
       return true;
-    
+
     if(!shallowEqualExcept(this.props, nextProps,
-      ["post","comments","editMutation","updateComment"]))
+      ["post","comments","updateComment"]))
     {
       return true;
     }
-    
-    if(this.props.post==null || nextProps.post==null || this.props.post._id != nextProps.post._id || 
+
+    if(this.props.post==null || nextProps.post==null || this.props.post._id != nextProps.post._id ||
       (this.props.post.contents && this.props.post.contents.version !== nextProps.post.contents && nextProps.post.contents.version))
       return true;
-    
+
     if(this.commentTreesDiffer(this.props.comments, nextProps.comments))
       return true;
     return false;
@@ -57,7 +57,7 @@ class CommentsList extends Component {
   }
 
   render() {
-    const { comments, currentUser, highlightDate, editMutation, post, postPage, totalComments, condensed, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1, hideReadComments, lastCommentId } = this.props;
+    const { comments, currentUser, highlightDate, updateComment, post, postPage, totalComments, condensed, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1, hideReadComments, lastCommentId, parentCommentId=null } = this.props;
 
     const { expandAllThreads } = this.state
     const { lastVisitedAt } = post
@@ -67,26 +67,29 @@ class CommentsList extends Component {
     if (comments) {
       return (
         <Components.ErrorBoundary>
-          <div className="comments-list">
+          <div>
             {comments.map(comment =>
               <Components.CommentsNode
-                startThreadTruncated={startThreadTruncated || totalComments >= 50}
+                startThreadTruncated={startThreadTruncated || totalComments >= 70}
                 expandAllThreads={expandAllThreads}
                 unreadComments={unreadComments}
                 currentUser={currentUser}
                 comment={comment.item}
+                parentCommentId={parentCommentId}
                 nestingLevel={defaultNestingLevel}
                 lastCommentId={lastCommentId}
                 //eslint-disable-next-line react/no-children-prop
                 children={comment.children}
                 key={comment.item._id}
                 highlightDate={highlightDate}
-                editMutation={editMutation}
+                updateComment={updateComment}
                 post={post}
                 postPage={postPage}
                 parentAnswerId={parentAnswerId}
                 condensed={condensed}
                 hideReadComments={hideReadComments}
+                shortform={post.shortform}
+                child={defaultNestingLevel > 1}
               />)
             }
           </div>
@@ -94,7 +97,7 @@ class CommentsList extends Component {
       )
     } else {
       return (
-        <div className="comments-list">
+        <div>
           <p>
             <FormattedMessage id="comments.no_comments"/>
           </p>

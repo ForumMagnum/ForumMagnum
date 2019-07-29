@@ -45,6 +45,7 @@
     "meteor/audit-argument-checks": 0,
     "no-case-declarations": 0,
     "react/no-unescaped-entities": 0,
+    "react/display-name": 0,
     "no-mixed-operators": 1,
     "react-hooks/rules-of-hooks": "error"
   },

@@ -6,66 +6,72 @@ import { withStyles } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
-import { Link } from '../../lib/reactRouterWrapper.js'
+import { QueryLink } from '../../lib/reactRouterWrapper.js'
 
 import withUser from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
-import { views as defaultViews } from './AllPostsPage.jsx'
+import { sortings as defaultSortings, timeframes as defaultTimeframs } from './AllPostsPage.jsx'
 
 const FILTERS_ALL = {
-  "AlignmentForum": [
-    {
-      name: "all",
+  "AlignmentForum": {
+    all: {
       label: "All Posts",
-      tooltip: "Includes all posts"},
-    {
-      name: "questions",
+      tooltip: "Includes all posts"
+    },
+    questions: {
       label: "Questions",
-      tooltip: "Open questions and answers, ranging from newbie-questions to important unsolved scientific problems."},
-    {
-      name: "meta",
+      tooltip: "Open questions and answers, ranging from newbie-questions to important unsolved scientific problems."
+    },
+    meta: {
       label: "Meta",
       tooltip: "Posts relating to LessWrong itself"
     },
-  ],
-  "LessWrong": [
-    { name: "all",
+  },
+  "LessWrong": {
+    all: {
       label: "All Posts",
-      tooltip: "Includes personal blogposts as well as frontpage, curated, questions, events and meta posts."},
-    { name: "frontpage",
+      tooltip: "Includes personal blogposts as well as frontpage, curated, questions, events and meta posts."
+    },
+    frontpage: {
       label: "Frontpage",
-      tooltip: "Moderators add posts to the frontpage if they meet certain criteria: aiming to explain, rather than persuade, and avoiding identity politics."},
-    { name: "curated",
+      tooltip: "Moderators add posts to the frontpage if they meet certain criteria: aiming to explain, rather than persuade, and avoiding identity politics."
+    },
+    curated: {
       label: "Curated",
-      tooltip: "Posts chosen by the moderation team to be well written and important (approximately 3 per week)"},
-    { name: "questions",
+      tooltip: "Posts chosen by the moderation team to be well written and important (approximately 3 per week)"
+    },
+    questions: {
       label: "Questions",
-      tooltip: "Open questions and answers, ranging from newbie-questions to important unsolved scientific problems."},
-    { name: "events",
+      tooltip: "Open questions and answers, ranging from newbie-questions to important unsolved scientific problems."
+    },
+    events: {
       label: "Events",
       tooltip: "Events from around the world."
     },
-    { name: "meta",
+    meta: {
       label: "Meta",
       tooltip: "Posts relating to LessWrong itself"
     },
-  ],
-  "EAForum": [
-    { name: "all",
+  },
+  "EAForum": {
+    all: {
       label: "All Posts",
-      tooltip: "Includes personal blogposts as well as frontpage, questions, and community posts."},
-    { name: "frontpage",
+      tooltip: "Includes personal blogposts as well as frontpage, questions, and community posts."
+    },
+    frontpage: {
       label: "Frontpage",
-      tooltip: "Moderators add posts to the frontpage if they meet certain criteria: aiming to explain, not persuade, and staying on topic."},
-    { name: "questions",
+      tooltip: "Material selected by moderators as especially interesting or useful to people with interest in doing good effectively."
+    },
+    questions: {
       label: "Questions",
-      tooltip: "Open questions and answers, ranging from newbie-questions to important unsolved scientific problems."},
-    { name: "meta",
+      tooltip: "Open questions and answers, ranging from newcomer questions to important unsolved scientific problems."
+    },
+    meta: {
       label: "Community",
       tooltip: "Posts with topical content or relating to the EA community itself"
     },
-  ]
+  }
 }
 const FILTERS = FILTERS_ALL[getSetting('forumType')]
 
@@ -133,111 +139,107 @@ const styles = theme => ({
   },
 })
 
+const SettingsColumn = ({type, title, options, currentOption, classes, setSetting}) => {
+  const { MetaInfo } = Components
+
+  return <div className={classes.selectionList}>
+    <MetaInfo className={classes.selectionTitle}>
+      {title}
+    </MetaInfo>
+    {Object.entries(options).map(([name, optionValue]) => {
+      const label = _.isString(optionValue) ? optionValue : optionValue.label
+      return (
+        <QueryLink
+          key={name}
+          onClick={() => setSetting(type, name)}
+          // TODO: Can the query have an ordering that matches the column ordering?
+          query={{ [type]: name }}
+          merge
+        >
+          <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentOption === name})}>
+            {optionValue.tooltip ?
+              <Tooltip title={<div>{optionValue.tooltip}</div>} placement="left-start">
+                <span>{ label }</span>
+              </Tooltip> :
+              <span>{ label }</span>
+            }
+          </MetaInfo>
+        </QueryLink>
+      )
+    })}
+  </div>
+}
+
+const USER_SETTING_NAMES = {
+  timeframe: 'allPostsTimeframe',
+  sortedBy: 'allPostsSorting',
+  filter: 'allPostsFilter',
+  showLowKarma: 'allPostsShowLowKarma',
+}
+
 class PostsListSettings extends Component {
 
-  setFilter = (filter) => {
+  setSetting = (type, newSetting) => {
     const { updateUser, currentUser, persistentSettings } = this.props
     if (currentUser && persistentSettings) {
       updateUser({
         selector: { _id: currentUser._id},
         data: {
-          allPostsFilter: filter,
+          [USER_SETTING_NAMES[type]]: newSetting,
         },
       })
     }
   }
-
-  setView = (view) => {
-    const { updateUser, currentUser, persistentSettings } = this.props
-    if (currentUser && persistentSettings) {
-      updateUser({
-        selector: { _id: currentUser._id},
-        data: {
-          allPostsView: view,
-        },
-      })
-    }
-  }
-
-  setShowLowKarma = (newSetting) => {
-    const { updateUser, currentUser, persistentSettings } = this.props
-    if (currentUser && persistentSettings) {
-      updateUser({
-        selector: { _id: currentUser._id},
-        data: {
-          allPostsShowLowKarma: newSetting,
-        },
-      })
-    }
-  }
-
 
   render () {
-    const { classes, hidden, currentView, currentFilter, currentShowLowKarma, views = defaultViews } = this.props
+    const {
+      classes, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma,
+      timeframes = defaultTimeframs, sortings = defaultSortings, showTimeframe
+    } = this.props
     const { MetaInfo } = Components
 
     return (
       <div className={classNames(classes.root, {[classes.hidden]: hidden})}>
-        <div className={classes.selectionList}>
-          <MetaInfo className={classes.selectionTitle}>
-            Sorted by:
-          </MetaInfo>
-          {Object.entries(views).map(([name, label]) => {
-            return (
-              <Link
-                key={name}
-                onClick={() => this.setView(name)}
-                to={loc=> ({...loc, query: {...loc.query, view: name}})}
-              >
-                <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentView === name})}>
-                  { label }
-                </MetaInfo>
-              </Link>
-            )
-          })}
-        </div>
+        {showTimeframe && <SettingsColumn
+          type={'timeframe'}
+          title={'Timeframe:'}
+          options={timeframes}
+          currentOption={currentTimeframe}
+          setSetting={this.setSetting}
+          classes={classes}
+        />}
 
-        <div className={classes.selectionList}>
-          <MetaInfo className={classes.selectionTitle}>
-            Filtered by:
-          </MetaInfo>
-          {FILTERS.map(filter => {
-            return (
-              <Link
-                key={filter.name}
-                onClick={() => this.setFilter(filter.name)}
-                to={loc=> ({...loc, query: {...loc.query, filter: filter.name}})}
-              >
-                <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentFilter === filter.name})}>
-                  <Tooltip title={<div>{filter['tooltip']}</div>} placement="left-start">
-                    <span>{ filter.label }</span>
-                  </Tooltip>
-                </MetaInfo>
-              </Link>
-            )
-          })}
-        </div>
+        <SettingsColumn
+          type={'sortedBy'}
+          title={'Sorted by:'}
+          options={sortings}
+          currentOption={currentSorting}
+          setSetting={this.setSetting}
+          classes={classes}
+        />
+
+        <SettingsColumn
+          type={'filter'}
+          title={'Filtered by:'}
+          options={FILTERS}
+          currentOption={currentFilter}
+          setSetting={this.setSetting}
+          classes={classes}
+        />
 
         <Tooltip title={<div><div>By default, posts below -10 karma are hidden.</div><div>Toggle to show them.</div></div>} placement="right-start">
-          <Link
+          <QueryLink
             className={classes.checkboxGroup}
-            onClick={() => this.setShowLowKarma(!currentShowLowKarma)}
-            to={loc=> ({...loc, query: {...loc.query, karmaThreshold: (currentShowLowKarma ? DEFAULT_LOW_KARMA_THRESHOLD : MAX_LOW_KARMA_THRESHOLD)}})}
+            onClick={() => this.setSetting('showLowKarma', !currentShowLowKarma)}
+            query={{karmaThreshold: (currentShowLowKarma ? DEFAULT_LOW_KARMA_THRESHOLD : MAX_LOW_KARMA_THRESHOLD)}}
+            merge
           >
             <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentShowLowKarma} />
-
-            {/* {currentShowLowKarma ?
-            // Looks like Checkbox doesn't play nicely with the Link/route based check-status-setting/
-            // This works fine but feels a bit hacky
-              <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked />
-              :
-              <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}}/>
-            } */}
 
             <MetaInfo className={classes.checkboxLabel}>
               Show Low Karma
             </MetaInfo>
-          </Link>
+          </QueryLink>
         </Tooltip>
       </div>
     );

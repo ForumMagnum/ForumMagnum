@@ -259,7 +259,7 @@ async function postsNewNotifications (post) {
 addCallback("posts.new.async", postsNewNotifications);
 
 function findUsersToEmail(filter) {
-  let usersMatchingFilter = Users.find(filter, {fields: {_id:1, email:1, emails:1}}).fetch();
+  let usersMatchingFilter = Users.find(filter).fetch();
 
   let usersToEmail = usersMatchingFilter.filter(u => {
     if (u.email && u.emails && u.emails.length) {

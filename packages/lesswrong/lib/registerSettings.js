@@ -12,8 +12,10 @@ registerSetting('description');
 registerSetting('siteImage', null, 'An image used to represent the site on social media');
 registerSetting('faviconUrl', '/img/favicon.ico', 'Favicon absolute URL');
 
-// EventsPast.jsx
-registerSetting('forum.numberOfDays', 5, 'Number of days to display in Daily view');
+registerSetting('forum.numberOfDays', 10, 'Number of days to display in the timeframe view');
+registerSetting('forum.numberOfWeeks', 4, 'Number of weeks to display in the timeframe view');
+registerSetting('forum.numberOfMonths', 4, 'Number of months to display in the timeframe view');
+registerSetting('forum.numberOfYears', 4, 'Number of days to display in the timeframe view');
 
 // Comments callbacks
 registerSetting('forum.commentInterval', 15, 'How long users should wait in between comments (in seconds)');
@@ -61,3 +63,6 @@ registerSetting('akismet.url', null, 'Akismet url as entered into their site')
 registerSetting('requireReCaptcha', false, 'Users must come with recaptcha scores to be reviewed')
 registerSetting('hideUnreviewedAuthorComments', false, 'Hide comments by unreviewed authors (prevents spam, but delays new user engagement)')
 
+// LogRocket settings
+registerSetting('logRocket.apiKey', null, 'LogRocket API Key')
+registerSetting('logRocket.sampleDensity', 5, 'Tracking 1 of n users (1 means all users are tracked)')

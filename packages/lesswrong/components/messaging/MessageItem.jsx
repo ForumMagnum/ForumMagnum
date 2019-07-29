@@ -21,6 +21,7 @@ const styles = theme => ({
     paddingRight: theme.spacing.unit*1.5,
     borderRadius:5,
     marginBottom:theme.spacing.unit*1.5,
+    wordWrap: "break-word"
   },
   backgroundIsCurrent: {
     backgroundColor: grey[700],

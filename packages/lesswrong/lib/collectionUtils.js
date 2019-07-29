@@ -119,9 +119,9 @@ export function schemaDefaultValue(defaultValue) {
       return undefined;
     }
   };
-  const throwIfSetToNull = ({document, newDocument, fieldName}) => {
-    const wasValid = (document[fieldName] !== undefined && document[fieldName] !== null);
-    const isValid = (newDocument[fieldName] !== undefined && newDocument[fieldName] !== null);
+  const throwIfSetToNull = ({oldDocument, document, fieldName}) => {
+    const wasValid = (oldDocument[fieldName] !== undefined && oldDocument[fieldName] !== null);
+    const isValid = (document[fieldName] !== undefined && document[fieldName] !== null);
     if (wasValid && !isValid) {
       throw new Error(`Error updating: ${fieldName} cannot be null or missing`);
     }
