@@ -182,7 +182,6 @@ class Header extends Component {
                 onClick={()=>this.setNavigationOpen(true)}
               >
               {/* Show the ToC icon if there's a table of contents being displayed  */}
-              {/* TODO; wtf is toc */}
                 {toc && toc.sections ? (
                   <span>
                     <Hidden smDown implementation="css">
