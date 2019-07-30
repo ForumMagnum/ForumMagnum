@@ -9,6 +9,7 @@ Package.onUse(function(api) {
   api.versionsFrom('1.6.1');
 
   api.use([
+    'ecmascript',
     'fourseven:scss@4.10.0',
     'dynamic-import@0.1.1',
     // Vulcan packages

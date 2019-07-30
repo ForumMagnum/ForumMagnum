@@ -5,6 +5,10 @@ import './registerSettings.js'
 import './modules/utils/schemaUtils.js'
 // Permissions
 import './modules/permissions.js';
+console.log("index.js")
+// Routes
+import './routes.js';
+
 
 // Head tags
 import './modules/headtags.js'
@@ -128,7 +132,6 @@ import './i18n-en-us/en_US.js';
 
 // Misc.
 import './helpers.js'
-import './routes.js';
 import './scrollRestoration.js';
 
 import './components.js';

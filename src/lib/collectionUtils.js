@@ -1,5 +1,5 @@
 import SimpleSchema from 'simpl-schema';
-
+console.log("collectionUtils: ", SimpleSchema.extendOptions)
 // canAutofillDefault: Marks a field where, if its value is null, it should
 // be auto-replaced with defaultValue in migration scripts.
 SimpleSchema.extendOptions([ 'canAutofillDefault' ]);

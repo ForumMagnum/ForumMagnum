@@ -56,10 +56,9 @@ accounts-github@1.4.2
 # example-reactions
 
 # vulcan:debug
-
-lesswrong
 # webtoken-session
 # internal-graphql
-es5-shim@4.8.0
 meteortesting:mocha
 zodern:standard-minifier-js
+ardatan:webpack
+ardatan:webpack-dev-middleware

@@ -8,7 +8,7 @@ Package.describe({
 Package.onUse(function(api) {
   api.versionsFrom('1.6.1');
 
-  api.use(['http', 'vulcan:core@1.13.0', 'fourseven:scss@4.10.0']);
+  api.use(['http', 'vulcan:core@1.13.0', 'fourseven:scss@4.10.0', 'ecmascript']);
 
   api.addFiles(['lib/stylesheets/embedly.scss'], ['client']);
 

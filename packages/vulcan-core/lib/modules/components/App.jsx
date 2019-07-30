@@ -171,6 +171,7 @@ class App extends PureComponent {
     let currentRoute = null;
     let params={};
     for (let routeName of routeNames) {
+      console.log("routeName", routeName)
       const route = Routes[routeName];
       const match = matchPath(location.pathname, { path: route.path, exact: true, strict: false });
       if (match) {
@@ -178,7 +179,7 @@ class App extends PureComponent {
         params = match.params;
       }
     }
-    
+    console.log("parseRoute: ", currentRoute)
     const RouteComponent = currentRoute ? Components[currentRoute.componentName] : Components.Error404;
     return {
       currentRoute, RouteComponent, location, params,

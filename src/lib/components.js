@@ -1,16 +1,16 @@
 import { getSetting } from 'meteor/vulcan:core';
 import { registerSplitComponent } from 'meteor/vulcan:routing';
 
-if(getSetting('forumType') === 'AlignmentForum') {
-  // HACK: At the top of the file because DeepScan false-positively warns about
-  // imports not at top level, and it re-detects it every time the line number
-  // changes. Putting it at the top makes its line number stable.
-  import '../components/alignment-forum/AlignmentForumHome.jsx';
-}
+// if(getSetting('forumType') === 'AlignmentForum') {
+//   // HACK: At the top of the file because DeepScan false-positively warns about
+//   // imports not at top level, and it re-detects it every time the line number
+//   // changes. Putting it at the top makes its line number stable.
+import '../components/alignment-forum/AlignmentForumHome.jsx';
+// }
 
-if (getSetting('forumType') === 'EAForum') {
-  import '../components/ea-forum/EAHome'
-}
+// if (getSetting('forumType') === 'EAForum') {
+import '../components/ea-forum/EAHome'
+// }
 
 import '../components/messaging/ConversationTitleEditForm.jsx';
 import '../components/messaging/ConversationDetails.jsx';
@@ -174,27 +174,27 @@ import '../components/votes/PostsVote.jsx';
 
 // events
 
-if (getSetting('hasEvents', true)) {
-  import '../components/posts/EventsPast.jsx';
-  import '../components/posts/EventsUpcoming.jsx';
-  import '../components/localGroups/CommunityHome.jsx';
-  import '../components/localGroups/CommunityMap.jsx';
-  import '../components/localGroups/CommunityMapFilter.jsx';
-  import '../components/localGroups/CommunityMapWrapper.jsx';
-  import '../components/localGroups/EventTime.jsx';
-  import '../components/localGroups/EventVicinity.jsx';
-  import '../components/localGroups/LocalGroupMarker.jsx';
-  import '../components/localGroups/LocalEventMarker.jsx';
-  import '../components/localGroups/LocalGroupPage.jsx';
-  import '../components/localGroups/LocalGroupSingle.jsx';
-  import '../components/localGroups/GroupFormLink.jsx';
-  import '../components/localGroups/SmallMapPreview.jsx';
-  import '../components/localGroups/SmallMapPreviewWrapper.jsx';
-  import '../components/localGroups/GroupLinks.jsx';
-  import '../components/localGroups/LocalGroupsList.jsx';
-  import '../components/localGroups/LocalGroupsItem.jsx';
-  import '../components/localGroups/TabNavigationEventsList.jsx';
-}
+// if (getSetting('hasEvents', true)) {
+import '../components/posts/EventsPast.jsx';
+import '../components/posts/EventsUpcoming.jsx';
+import '../components/localGroups/CommunityHome.jsx';
+import '../components/localGroups/CommunityMap.jsx';
+import '../components/localGroups/CommunityMapFilter.jsx';
+import '../components/localGroups/CommunityMapWrapper.jsx';
+import '../components/localGroups/EventTime.jsx';
+import '../components/localGroups/EventVicinity.jsx';
+import '../components/localGroups/LocalGroupMarker.jsx';
+import '../components/localGroups/LocalEventMarker.jsx';
+import '../components/localGroups/LocalGroupPage.jsx';
+import '../components/localGroups/LocalGroupSingle.jsx';
+import '../components/localGroups/GroupFormLink.jsx';
+import '../components/localGroups/SmallMapPreview.jsx';
+import '../components/localGroups/SmallMapPreviewWrapper.jsx';
+import '../components/localGroups/GroupLinks.jsx';
+import '../components/localGroups/LocalGroupsList.jsx';
+import '../components/localGroups/LocalGroupsItem.jsx';
+import '../components/localGroups/TabNavigationEventsList.jsx';
+// }
 
 // comments
 

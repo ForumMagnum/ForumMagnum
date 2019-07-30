@@ -11,7 +11,6 @@ Package.onUse(function(api) {
 
   api.use('vulcan:core@1.13.0');
 
-  api.use('ecmascript');
   api.use('tracker');
   api.use('underscore');
   api.use('accounts-base');
@@ -20,6 +19,7 @@ Package.onUse(function(api) {
   api.use('email');
   api.use('session');
   api.use('service-configuration');
+  api.use('ecmascript');
 
   api.imply('accounts-base');
 

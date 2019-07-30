@@ -1,5 +1,6 @@
 import { getSetting} from 'meteor/vulcan:core';
 
+import './lib/index'
 export * from './lib/index.js';
 
 import './server/database-import/database_import_new.js';
@@ -78,9 +79,9 @@ import './lib/collections/users/validate_login.js';
 import './lib/collections/users/callbacks.js';
 import './lib/collections/bans/callbacks.js';
 import './lib/collections/posts/tableOfContents.js';
-if (getSetting('hasEvents', true)) {
-  import './lib/collections/localgroups/callbacks.js';
-}
+// if (getSetting('hasEvents', true)) {
+import './lib/collections/localgroups/callbacks.js';
+// }
 
 import './lib/collections/revisions/resolvers.js';
 import './lib/collections/posts/serverSchema.js';

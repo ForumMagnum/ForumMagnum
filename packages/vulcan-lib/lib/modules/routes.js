@@ -15,6 +15,7 @@ export const RoutesTable = {}; // storage for infos about routes themselves
  if there there is value for parentRouteName it will look for the route and add the new route as a child of it
  */
 export const addRoute = (routeOrRouteArray, parentRouteName) => {
+  console.log("addRoute:", routeOrRouteArray )
 
   // be sure to have an array of routes to manipulate
   const addedRoutes = Array.isArray(routeOrRouteArray) ? routeOrRouteArray : [routeOrRouteArray];

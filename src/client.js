@@ -5,9 +5,11 @@ import './client/ga.js';
 // Then import google reCaptcha v3
 import './client/reCaptcha.js'
 
+import './lib/index.js'
+
 // Then do the rest
 import './client/disconnect_meteor.js';
-import './client/themeProvider.js';
+import './client/themeProvider';
 import './client/logging.js';
 import './client/votingFragmentMatcher.js';
 export * from './lib/index.js';

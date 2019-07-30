@@ -1,4 +1,6 @@
-import Users from 'meteor/vulcan:users';
+import { Users } from 'meteor/vulcan:users';
+
+console.log("permissions Users: ", Users)
 
 Users.createGroup("sunshineRegiment");
 Users.createGroup("trustLevel1");

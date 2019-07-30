@@ -4,7 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { commentBodyStyles, postHighlightStyles } from '../../../themes/stylePiping'
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
+import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize.jsx'
 import withUser from '../../common/withUser'
 
 const styles = theme => ({
@@ -35,7 +35,7 @@ const styles = theme => ({
       display: "inline-block",
       minWidth: 125,
       color: "rgba(0,0,0,.4)",
-    },
+    }, 
     '& .read-more-tooltip': {
       display:"none",
     },

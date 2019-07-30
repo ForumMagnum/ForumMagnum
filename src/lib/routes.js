@@ -1,4 +1,3 @@
-import React from 'react';
 import { addRoute, getSetting } from 'meteor/vulcan:core';
 
 const communitySubtitle = { subtitleLink: "/community", subtitle: "Community" };
@@ -6,6 +5,8 @@ const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationali
 const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
 const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
 const metaSubtitle = { subtitleLink: "/meta", subtitle: "Meta" };
+
+console.log("routes.js")
 
 addRoute([
   // User-profile routes

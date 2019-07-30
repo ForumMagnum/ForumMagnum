@@ -8,7 +8,7 @@ Package.describe({
 Package.onUse(function(api) {
   api.versionsFrom('1.6.1');
 
-  api.use(['vulcan:core@1.13.0']);
+  api.use(['vulcan:core@1.13.0', 'ecmascript']);
 
   api.addFiles(['lib/en_US.js'], ['client', 'server']);
 });

@@ -13,7 +13,7 @@ Package.onUse(function(api) {
     // dependencies on posts, categories are done with nested imports to reduce explicit dependencies
   ]);
 
-  api.use(['vulcan:posts@1.13.0', 'vulcan:comments@1.13.0', 'vulcan:categories@1.13.0'], {
+  api.use(['vulcan:posts@1.13.0', 'vulcan:comments@1.13.0', 'vulcan:categories@1.13.0', 'ecmascript'], {
     weak: true,
   });
 

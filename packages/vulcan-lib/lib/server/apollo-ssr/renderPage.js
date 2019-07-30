@@ -44,7 +44,7 @@ const makePageRenderer = async sink => {
     // LESSWRONG: Split a call to renderToStringWithData into getDataFromTree
     // followed by ReactDOM.renderToString, then pass a context variable
     // isGetDataFromTree to only the getDataFromTree call. This is to enable
-    // a hack in packages/lesswrong/server/material-ui/themeProvider.js.
+    // a hack in packages/lesswrong/server/material-ui/themeProvider.
     //
     // In getDataFromTree, the order in which components are rendered is
     // complicated and depends on what HoCs they have and the order in which

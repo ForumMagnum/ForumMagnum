@@ -31,6 +31,7 @@ function isAppUrl(req) {
 }
 
 function generateSSRData(options, req, res, renderProps) {
+  console.log("GenerateSSRData")
   let html;
   let css;
   let styledComponentCss;
