@@ -20,6 +20,7 @@ const PostsPageHeaderTitle = ({location, isSubtitle, siteName, loading, document
     // is invalid. Maybe make a sensible place for it to link to, then put it
     // back? (alignment-forum.org isn't necessarily good to link to, because
     // it's invite-only.)
+    return null;
   } else if (post?.frontpageDate) {
     return null;
   } else if (post?.meta) {
@@ -27,6 +28,7 @@ const PostsPageHeaderTitle = ({location, isSubtitle, siteName, loading, document
   } else if (post?.userId) {
     // TODO: For personal blogposts, put the user in the sutitle. There was an
     // attempt to do this in a previous implementation, which didn't work.
+    return null;
   }
 }
 registerComponent("PostsPageHeaderTitle", PostsPageHeaderTitle,
