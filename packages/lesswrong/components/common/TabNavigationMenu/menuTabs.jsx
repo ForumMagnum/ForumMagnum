@@ -35,8 +35,30 @@ const EventsList = ({currentUser}) => {
   </span>
 }
 
-// TODO; document tab
-// See TabNavigationItem for how these are used
+// The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
+// tabs can appear in
+//   1. The always-on sidebar of the homepage (allPosts, etc, [see Layout.jsx]) (Standalone Sidbar)
+//   2. The always-on bottom bar of the homepage (etc) on mobile (Standalone FooterMenu)
+//   3. The swipeable drawer of any other page (hidden by default) (Drawer Menu)
+//   4. The same as 3, but collapsed to make room for table of contents on mobile (Drawer Collapsed
+//      Menu)
+//
+// Tab objects support the following properties
+//   id: string, required, uniqe; for React map keys. `divider` is a keyword id
+//   title: string; user facing description
+//   link: string
+//   // One of the following 3
+//   icon: already-rendered-Component
+//   iconComponent: Component-ready-for-rendering
+//   compressedIconComponent: Component-ready-for-rendering; only displayed in compressed mode (4)
+//   tooltip: string|Component; passed into Tooltip `title`; optionaly -- without it the Tooltip
+//            call is a no-op
+//   showOnMobileStandalone: boolean; show in (2) Standalone Footer Menu
+//   showOnCompressed: boolean; show in (4) Drawer Collapsed Menu
+//   subitem: boolean; display title in smaller text
+//   customComponent: Component; instead of a TabNavigationItem, display this component
+//
+// See TabNavigation[Footer|Compressed]?Item.jsx for how these are used by the code
 export default forumTabs = {
   LessWrong: [
     {
@@ -188,7 +210,7 @@ export default forumTabs = {
     }
   ],
   EAForum: [
-    // TODO; copy, icons
+    // TODO; copy
     {
       id: 'home',
       title: 'Home',
