@@ -1,7 +1,8 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles'
-import { withRouter, Link } from '../../../lib/reactRouterWrapper.js';
+import { Link } from '../../../lib/reactRouterWrapper.js';
+import { useNavigation, useLocation } from '../../../lib/routeUtil';
 import Icon from '@material-ui/core/Icon';
 import { Posts } from "../../../lib/collections/posts";
 import classNames from 'classnames';
@@ -34,9 +35,12 @@ const styles = theme => ({
 });
 
 const CommentsItemDate = ({comment, post, router, showPostTitle, scrollOnClick=false, scrollIntoView, classes }) => {
+  const { history } = useNavigation();
+  const { location } = useLocation();
+  
   const handleLinkClick = (event) => {
     event.preventDefault()
-    router.replace({...router.location, hash: "#" + comment._id})
+    history.replace({...location, hash: "#" + comment._id})
     scrollIntoView(event);
   };
   
@@ -63,5 +67,4 @@ const CommentsItemDate = ({comment, post, router, showPostTitle, scrollOnClick=f
 }
 
 registerComponent('CommentsItemDate', CommentsItemDate,
-  withRouter,
   withStyles(styles, {name: "CommentsItemDate"}));

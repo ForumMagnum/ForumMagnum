@@ -1,47 +1,64 @@
-import React from 'react';
-import { Components, registerComponent, withList, Loading, withEdit } from 'meteor/vulcan:core';
+import React, { PureComponent } from 'react';
+import { Components, registerComponent, withList, withUpdate } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
 import withUser from '../common/withUser';
+import AddBoxIcon from '@material-ui/icons/AddBox';
 
-const RecentDiscussionThreadsList = ({
-  results,
-  loading,
-  loadMore,
-  networkStatus,
-  editMutation,
-  currentUser,
-  threadView = "recentDiscussionThread"
-}) => {
-  const loadingMore = networkStatus === 2;
+class RecentDiscussionThreadsList extends PureComponent {
 
-  const { LoadMore } = Components
+  state = { showShortformFeed: false }
 
-  if (!loading && results && !results.length) {
-    return null
+  toggleShortformFeed = () => {
+    this.setState(prevState => ({showShortformFeed: !prevState.showShortformFeed}))
   }
 
-  const limit = (currentUser && currentUser.isAdmin) ? 4 : 3
+  render () {
+    const { results, loading, loadMore, networkStatus, updateComment, currentUser, data: { refetch }, threadView = "recentDiscussionThread" } = this.props
+    const { showShortformFeed } = this.state
+    const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, Loading } = Components
+    
+    const loadingMore = networkStatus === 2;
 
-  return (
-    <div>
-        {loading || !results ? <Loading /> :
-        <div> 
-          {results.map((post, i) =>
-            <Components.RecentDiscussionThread
-              key={post._id}
-              post={post}
-              postCount={i}
-              terms={{view:threadView, postId:post._id, limit}}
-              currentUser={currentUser}
-              editMutation={editMutation}/>
+    const { LoadMore } = Components
 
-          )}
-          { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
-          { loadingMore && <Loading />}
-        </div>}
-    </div>)
+    if (!loading && results && !results.length) {
+      return null
+    }
+
+    const limit = (currentUser && currentUser.isAdmin) ? 4 : 3
+
+    return (
+      <SingleColumnSection>
+        <SectionTitle title="Recent Discussion">
+          {currentUser && currentUser.isReviewed && <div onClick={this.toggleShortformFeed}>
+            <SectionButton>
+              <AddBoxIcon />
+              New Shortform Post
+            </SectionButton>
+          </div>}
+        </SectionTitle>
+        {showShortformFeed && <ShortformSubmitForm successCallback={refetch}/>}
+        <div>
+          {loading || !results ? <Loading /> :
+          <div> 
+            {results.map((post, i) =>
+              <Components.RecentDiscussionThread
+                key={post._id}
+                post={post}
+                postCount={i}
+                terms={{view:threadView, postId:post._id, limit}}
+                currentUser={currentUser}
+                updateComment={updateComment}/>
+            )}
+            { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
+            { loadingMore && <Loading />}
+          </div>}
+        </div>
+      </SingleColumnSection>
+    )
   }
+}
 
 const discussionThreadsOptions = {
   collection: Posts,
@@ -52,9 +69,9 @@ const discussionThreadsOptions = {
   enableCache: true,
 };
 
-const withEditOptions = {
+const withUpdateOptions = {
   collection: Comments,
   fragmentName: 'CommentsList',
 };
 
-registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList, [withList, discussionThreadsOptions], [withEdit, withEditOptions], withUser);
+registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList, [withList, discussionThreadsOptions], [withUpdate, withUpdateOptions], withUser);

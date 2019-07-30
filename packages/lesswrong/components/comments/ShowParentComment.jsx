@@ -43,27 +43,6 @@ const ShowParentComment = ({ comment, nestingLevel, active, onClick, placeholder
 
   if (!comment) return null;
   
-  if (placeholderIfMissing && !comment.parentCommentId && nestingLevel!=1)
-    return <div className={classes.usernameSpacing}>○</div>;
-  
-  if (!comment.topLevelCommentId) {
-    // This is a root comment
-    return null;
-  }
-  
-  // As a weird special case for shortform, a comment tree can be rendered
-  // with the root comment shown, a deep-in-tree comment shown, and the
-  // intermediate parents hidden, ie
-  //     [shortform-comment]
-  //       [hidden]
-  //         [hidden]
-  //           [deep reply]
-  // In that case the deep reply has nestingLevel 2, but unlike a true level-2
-  // comment, its parent is not a top-level comment.
-  if (nestingLevel >= 2) {
-    return null;
-  }
-
   return (
     <Tooltip title="Show previous comment">
       <span className={classNames(classes.root, {[classes.active]: active})} onClick={onClick}>

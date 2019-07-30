@@ -1,6 +1,6 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { Textarea } from 'formsy-react-components';
+import Input from '@material-ui/core/Input';
 import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
@@ -36,19 +36,25 @@ class EditTitle extends Component {
     addToSuccessForm(() => clearField())
   }
   render() {
-    const {document: { question }, placeholder, inputProperties, classes} = this.props
+    const { document, value, path, placeholder, classes } = this.props
+    const { question } = document;
 
-    return <Textarea
+    return <Input
       className={classNames(classes.root, {[classes.question]: question})}
-      {...inputProperties}
       placeholder={ question ? "Question Title" : placeholder }
-      layout="elementOnly"
-          />
+      value={value}
+      onChange={(event) => {
+        this.context.updateCurrentValues({
+          [path]: event.target.value
+        })
+      }}
+    />
   }
-} 
+}
 
 EditTitle.contextTypes = {
-  addToSuccessForm: PropTypes.func
+  addToSuccessForm: PropTypes.func,
+  updateCurrentValues: PropTypes.func,
 };
 
 registerComponent("EditTitle", EditTitle, withStyles(styles, { name: "EditTitle" }));

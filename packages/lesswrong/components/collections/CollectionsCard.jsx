@@ -1,6 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
-import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
@@ -105,4 +105,5 @@ class CollectionsCard extends PureComponent {
   }
 }
 
-registerComponent("CollectionsCard", CollectionsCard, withStyles(styles, { name: "CollectionsCard" }), withRouter);
+registerComponent("CollectionsCard", CollectionsCard,
+  withStyles(styles, { name: "CollectionsCard" }));

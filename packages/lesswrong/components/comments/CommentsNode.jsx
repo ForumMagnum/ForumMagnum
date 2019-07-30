@@ -1,5 +1,5 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { withLocation } from '../../lib/routeUtil';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -83,6 +83,9 @@ const styles = theme => ({
   children: {
     position: "relative"
   },
+  emptyNode: {
+    paddingTop: theme.spacing.unit
+  }
 })
 
 class CommentsNode extends Component {
@@ -112,25 +115,28 @@ class CommentsNode extends Component {
   }
   
   beginSingleLine = () => {
-    const { currentUser, comment, condensed, lastCommentId, forceSingleLine, shortform, nestingLevel } = this.props
-    const mostRecent = (!condensed || (lastCommentId === comment._id))
+    const { currentUser, comment, condensed, lastCommentId, forceSingleLine, shortform, nestingLevel, postPage } = this.props
+    const mostRecent = lastCommentId === comment._id
     const lowKarmaOrCondensed = (comment.baseScore < 10 || condensed)
     const shortformAndTop = (nestingLevel === 1) && shortform
+    const postPageAndTop = (nestingLevel === 1) && postPage
     
     if (forceSingleLine)
       return true;
     
     return (
+      this.isTruncated() &&
       currentUser?.beta &&
       lowKarmaOrCondensed &&
       !(mostRecent && condensed) &&
-      !(shortformAndTop)
+      !(shortformAndTop) && 
+      !(postPageAndTop)
     )
   }
 
   componentDidMount() {
-    const { router, comment, post } = this.props
-    let commentHash = router.location.hash;
+    const { comment, post, location } = this.props
+    let commentHash = location.hash;
     const self = this;
     if (comment && commentHash === ("#" + comment._id) && post) {
       setTimeout(function () { //setTimeout make sure we execute this after the element has properly rendered
@@ -159,7 +165,7 @@ class CommentsNode extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     if (!shallowEqual(this.state, nextState))
       return true;
-    if (!shallowEqualExcept(this.props, nextProps, ["editMutation", "post", "children"]))
+    if (!shallowEqualExcept(this.props, nextProps, ["updateComment", "post", "children"]))
       return true;
     if (this.commentTreesDiffer(this.props.children, nextProps.children))
       return true;
@@ -184,9 +190,12 @@ class CommentsNode extends Component {
   }
 
   isTruncated = () => {
-    const { expandAllThreads } = this.props;
-    const { truncatedStateSet } = this.state
-    return !expandAllThreads && (this.state.truncated || (this.props.truncated && truncatedStateSet === false))
+    const { expandAllThreads, startThreadTruncated } = this.props;
+    // const { truncatedStateSet } = this.state
+
+    const truncatedStateUnset = !this.state || !this.state.truncatedStateSet
+    
+    return !expandAllThreads && (this.state?.truncated || ((this.props.truncated && truncatedStateUnset) || (startThreadTruncated && truncatedStateUnset)))
   }
 
   isNewComment = () => {
@@ -195,14 +204,20 @@ class CommentsNode extends Component {
   }
 
   isSingleLine = () => {
-    return this.state.singleLine;
+    const { forceSingleLine } = this.props
+    const { singleLine } = this.state
+    if (!singleLine) return false;
+    if (forceSingleLine)
+      return true;
+
+    return this.isTruncated() && !this.isNewComment();
   }
 
   render() {
-    const { comment, children, nestingLevel=1, highlightDate, editMutation, post,
-      muiTheme, router, postPage, classes, child, showPostTitle, unreadComments,
+    const { comment, children, nestingLevel=1, highlightDate, updateComment, post,
+      muiTheme, location, postPage, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments,
-      loadChildrenSeparately, shortform, refetch } = this.props;
+      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton } = this.props;
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList } = Components
 
@@ -223,7 +238,7 @@ class CommentsNode extends Component {
         "comments-node-root" : nestingLevel === 1,
         "comments-node-even" : nestingLevel % 2 === 0,
         "comments-node-odd"  : nestingLevel % 2 !== 0,
-        "comments-node-linked" : router.location.hash === "#" + comment._id && finishedScroll,
+        "comments-node-linked" : location.hash === "#" + comment._id && finishedScroll,
         "comments-node-its-getting-nested-here": nestingLevel > 8,
         "comments-node-so-take-off-all-your-margins": nestingLevel > 12,
         "comments-node-im-getting-so-nested": nestingLevel > 16,
@@ -243,23 +258,29 @@ class CommentsNode extends Component {
         [classes.answerLeafComment]: !(children && children.length),
         [classes.isSingleLine]: this.isSingleLine(),
         [classes.commentHidden]: hiddenReadComment,
-        [classes.shortformTop]: shortform && (nestingLevel===1)
+        [classes.shortformTop]: shortform && (nestingLevel===1),
       }
     )
 
-    const passedThroughItemProps = { post, postPage, comment, editMutation, nestingLevel, showPostTitle, collapsed, refetch }
-    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, editMutation, condensed, hideReadComments, refetch }
+    const passedThroughItemProps = { post, postPage, comment, updateComment, nestingLevel, showPostTitle, collapsed, refetch }
+    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, updateComment, condensed, hideReadComments, refetch }
+
+    const nodeIsEmpty = !comment._id // sometimes empty nodes are rendered to indicate that there is one or more hidden comment between two comments.
 
     return (
         <div className={nodeClass}
           onClick={(event) => this.unTruncate(event)}
           id={comment._id}
          >
-          {!hiddenReadComment && <div ref={this.scrollTargetRef}>
+          {!hiddenReadComment && comment._id && <div ref={this.scrollTargetRef}>
             {this.isSingleLine()
-              ? <SingleLineComment comment={comment} nestingLevel={nestingLevel} />
+              ? <SingleLineComment
+                  comment={comment} nestingLevel={nestingLevel}
+                  parentCommentId={parentCommentId}
+                />
               : <CommentsItem
                   truncated={this.isTruncated()}
+                  parentCommentId={parentCommentId}
                   parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
                   toggleCollapse={this.toggleCollapse}
                   key={comment._id}
@@ -269,18 +290,19 @@ class CommentsNode extends Component {
             }
           </div>}
           
-          {!collapsed && children && children.length>0 && <div className={classes.children}>
+          {!collapsed && children && children.length>0 && <div className={classNames(classes.children, {[classes.emptyNode]: nodeIsEmpty})}>
             <div className={classes.parentScroll} onClick={this.scrollIntoView}/>
+            { showExtraChildrenButton }
             {children && children.map(child =>
               <Components.CommentsNode child
                 comment={child.item}
+                parentCommentId={comment._id}
                 parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
                 nestingLevel={nestingLevel+1}
                 truncated={this.isTruncated()}
                 //eslint-disable-next-line react/no-children-prop
                 children={child.children}
                 key={child.item._id}
-                
                 { ...passedThroughNodeProps}
               />)}
           </div>}
@@ -291,8 +313,10 @@ class CommentsNode extends Component {
               <RepliesToCommentList
                 terms={{
                   view: "repliesToCommentThread",
-                  topLevelCommentId: comment._id
+                  topLevelCommentId: comment._id,
+                  limit: 500
                 }}
+                parentCommentId={comment._id}
                 post={post}
               />
             </div>
@@ -304,12 +328,11 @@ class CommentsNode extends Component {
 
 CommentsNode.propTypes = {
   comment: PropTypes.object.isRequired, // the current comment
-  router: PropTypes.object.isRequired
 };
 
 registerComponent('CommentsNode', CommentsNode,
-  withUser, 
-  withRouter,
+  withUser,
+  withLocation,
   withErrorBoundary,
   withStyles(styles, { name: "CommentsNode" })
 );

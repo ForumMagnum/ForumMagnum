@@ -12,15 +12,14 @@ import withUser from '../common/withUser'
 class SunshineReportedItem extends Component {
 
   handleReview = () => {
-    const { currentUser, report, reportEditMutation } = this.props
-    reportEditMutation({
-      documentId: report._id,
-      set: {
+    const { currentUser, report, updateReport } = this.props
+    updateReport({
+      selector: {_id: report._id},
+      data: {
         closedAt: new Date(),
         claimedUserId: currentUser._id,
         markedAsSpam: false
-      },
-      unset: {}
+      }
     })
   }
 
@@ -30,12 +29,12 @@ class SunshineReportedItem extends Component {
       report,
       updateComment,
       updatePost,
-      reportEditMutation,
+      updateReport,
     } = this.props
     if (confirm(`Are you sure you want to immediately delete this ${report.comment ? "comment" : "post"}?`)) {
       if (report.comment) {
         updateComment({
-          selector: {documentId: report.comment._id},
+          selector: {_id: report.comment._id},
           data: {
             deleted: true,
             deletedDate: new Date(),
@@ -45,20 +44,19 @@ class SunshineReportedItem extends Component {
         })
       } else if (report.post) {
         updatePost({
-          selector: {documentId: report.post._id},
+          selector: {_id: report.post._id},
           data: { status: report.reportedAsSpam ? 4 : 5 }
         })
       }
-      reportEditMutation({
-        documentId: report._id,
-        set: {
+      updateReport({
+        selector: {_id: report._id},
+        data: {
           closedAt: new Date(),
           claimedUserId: currentUser._id,
           markedAsSpam: report.reportedAsSpam
-        },
-        unset: {}
+        }
       })
-    } 
+    }
   }
 
   render () {
@@ -68,7 +66,7 @@ class SunshineReportedItem extends Component {
     const { MetaInfo, SunshineListItem, SidebarInfo, SidebarHoverOver, CommentBody, PostsHighlight, SidebarActionMenu, SidebarAction, FormatDate, SunshineCommentsItemOverview  } = Components
 
     if (!post) return null;
-    
+
     return (
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl} >
@@ -119,7 +117,7 @@ SunshineReportedItem.propTypes = {
   currentUser: PropTypes.object.isRequired,
   updateComment: PropTypes.func.isRequired,
   updatePost: PropTypes.func.isRequired,
-  reportEditMutation: PropTypes.func.isRequired,
+  updateReport: PropTypes.func.isRequired,
 };
 
 registerComponent(

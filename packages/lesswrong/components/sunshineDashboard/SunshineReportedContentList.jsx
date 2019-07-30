@@ -2,7 +2,7 @@ import {
   Components,
   registerComponent,
   withList,
-  withEdit
+  withUpdate
 } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Reports from '../../lib/collections/reports/collection.js';
@@ -18,7 +18,7 @@ const styles = theme => ({
 
 class SunshineReportedContentList extends Component {
   render () {
-    const { results, editMutation, classes, totalCount } = this.props
+    const { results, updateReport, classes, totalCount } = this.props
     const { SunshineListTitle, SunshineReportedItem, SunshineListCount } = Components
     if (results && results.length) {
       return (
@@ -30,7 +30,7 @@ class SunshineReportedContentList extends Component {
             <div key={report._id} >
               <SunshineReportedItem
                 report={report}
-                reportEditMutation={editMutation}
+                updateReport={updateReport}
               />
             </div>
           )}
@@ -44,7 +44,7 @@ class SunshineReportedContentList extends Component {
 
 SunshineReportedContentList.propTypes = {
   results: PropTypes.array,
-  editMutation: PropTypes.func.isRequired,
+  updateReport: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired,
 };
 
@@ -55,7 +55,7 @@ const withListOptions = {
   enableTotal: true,
 };
 
-const withEditOptions = {
+const withUpdateOptions = {
   collection: Reports,
   fragmentName: 'unclaimedReportsList',
 }
@@ -64,7 +64,7 @@ registerComponent(
   'SunshineReportedContentList',
   SunshineReportedContentList,
   [withList, withListOptions],
-  [withEdit, withEditOptions],
+  [withUpdate, withUpdateOptions],
   withUser,
   withStyles(styles, {name:"SunshineReportedContentList"})
 );

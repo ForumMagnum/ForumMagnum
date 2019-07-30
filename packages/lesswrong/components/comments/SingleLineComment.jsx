@@ -101,19 +101,22 @@ const styles = theme => ({
   },
 })
 
-const SingleLineComment = ({comment, classes, nestingLevel, hover}) => {
+const SingleLineComment = ({comment, classes, nestingLevel, hover, parentCommentId}) => {
   const { baseScore } = comment
   const { BetaTag, CommentBody, ShowParentComment, UsersName } = Components
   
   const singleLineHtml = commentExcerptFromHTML(comment)
   const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile()
 
+  if (!comment) return null
+
   return (
     <div className={classes.root}>
       <div className={classNames(classes.commentInfo, {[classes.isAnswer]: comment.answer, [classes.odd]:((nestingLevel%2) !== 0)})}>
-        <ShowParentComment comment={comment} nestingLevel={nestingLevel} />
+        { parentCommentId!=comment.parentCommentId &&
+          <ShowParentComment comment={comment} nestingLevel={nestingLevel} />
+        }
         <span className={classes.karma}>
-
           {baseScore || 0}
         </span>
         <span className={classes.username}>

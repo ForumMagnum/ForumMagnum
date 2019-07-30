@@ -7,7 +7,7 @@ import { unflattenComments } from "../../lib/modules/utils/unflatten";
 
 class RepliesToCommentList extends PureComponent {
   render() {
-    const { loading, results, post, currentUser } = this.props;
+    const { loading, results, post, currentUser, parentCommentId } = this.props;
     const { CommentsList, Loading } = Components;
     
     if (loading || !results)
@@ -19,8 +19,9 @@ class RepliesToCommentList extends PureComponent {
       totalComments={results.length}
       comments={nestedComments}
       post={post}
-      startThreadTruncated={false}
+      startThreadTruncated={true}
       defaultNestingLevel={2}
+      parentCommentId={parentCommentId}
     />
   }
 }
