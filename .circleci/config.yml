@@ -153,9 +153,9 @@ jobs:
       - run:
           name: testing
           environment:
-            TOOL_NODE_FLAGS: --max_old_space_size=2560
+            TOOL_NODE_FLAGS: --max_old_space_size=3072 
             NODE_OPTIONS: --max_old_space_size=512
-          command: NODE_OPTIONS=--max_old_space_size=512 TOOL_NODE_FLAGS=--max_old_space_size=2560 meteor yarn test
+          command: meteor yarn test
   deploy_prod_fast:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -228,7 +228,7 @@ jobs:
       - deploy:
           environment:
             TOOL_NODE_FLAGS: --max_old_space_size=3072
-            NODE_FLAGS: --max_old_space_size=1024
+            NODE_OPTIONS: --max_old_space_size=512
           command: meteor mup deploy --config mup.secret        
   deploy_prod:
     docker:
@@ -302,7 +302,7 @@ jobs:
       - deploy:
           environment:
             TOOL_NODE_FLAGS: --max_old_space_size=3072
-            NODE_FLAGS: --max_old_space_size=1024
+            NODE_OPTIONS: --max_old_space_size=512
           command: meteor mup deploy --config mup.secret
   deploy_af:
     docker:
@@ -376,7 +376,7 @@ jobs:
       - deploy:
           environment:
             TOOL_NODE_FLAGS: --max_old_space_size=3072
-            NODE_FLAGS: --max_old_space_size=1024
+            NODE_OPTIONS: --max_old_space_size=512
           command: meteor mup deploy --config mup.secret
   deploy_baserates:
     docker:
@@ -449,7 +449,7 @@ jobs:
       - deploy:
           environment:
             TOOL_NODE_FLAGS: --max_old_space_size=3072
-            NODE_FLAGS: --max_old_space_size=1024
+            NODE_OPTIONS: --max_old_space_size=512
           command: meteor mup deploy --config mup.secret
   deploy_staging:
     docker:
@@ -523,7 +523,7 @@ jobs:
       - deploy:
           environment:
             TOOL_NODE_FLAGS: --max_old_space_size=3072
-            NODE_FLAGS: --max_old_space_size=1024
+            NODE_OPTIONS: --max_old_space_size=512
           command: meteor mup deploy --config mup.secret
 
 workflows:
