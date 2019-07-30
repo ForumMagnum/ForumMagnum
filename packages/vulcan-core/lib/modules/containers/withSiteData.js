@@ -10,7 +10,6 @@ const withSiteData = component => {
         SiteData {
           url
           title
-          sourceVersion
           logoUrl
         }
       }
