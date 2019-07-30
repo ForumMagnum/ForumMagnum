@@ -153,9 +153,9 @@ jobs:
       - run:
           name: testing
           environment:
-            TOOL_NODE_FLAGS: --max_old_space_size=3072
+            TOOL_NODE_FLAGS: --max_old_space_size=2048
             NODE_OPTIONS: --max_old_space_size=1024
-          command: meteor yarn test
+          command: NODE_OPTIONS=--max_old_space_size=1024 TOOL_NODE_FLAGS=--max_old_space_size=2048 meteor yarn test
   deploy_prod_fast:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
