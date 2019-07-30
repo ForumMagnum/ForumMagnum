@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
-import { unflattenComments } from '../../lib/modules/utils/unflatten';
+import { unflattenComments, addGapIndicators } from '../../lib/modules/utils/unflatten';
 import withRecordPostView from '../common/withRecordPostView';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -37,12 +37,7 @@ class ShortformThread extends PureComponent {
 
     let nestedComments = unflattenComments(renderedChildren)
     if (extraChildrenCount > 0) {
-      nestedComments = unflattenComments(renderedChildren).map(node=>{
-        if (node?.item?.parentCommentId !== node?.item?.topLevelCommentId) {
-          return { item: {}, children: [{item: node.item, children: node.children}]}
-        }
-        return node
-      })
+      nestedComments = addGapIndicators(nestedComments)
     }
     const lastVisitedAt = markedAsVisitedAt || comment.post.lastVisitedAt
 
