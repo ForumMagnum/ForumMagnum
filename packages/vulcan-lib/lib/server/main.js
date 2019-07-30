@@ -16,7 +16,6 @@ export * from './meteor_patch.js';
 export * from './utils.js';
 export * from './intl.js';
 export * from './accounts_helpers.js';
-export * from './source_version.js';
 
 export * from './apollo-server/settings.js';
 export * from './apollo-server/context.js';
