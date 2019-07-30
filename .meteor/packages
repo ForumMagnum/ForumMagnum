@@ -62,4 +62,3 @@ lesswrong
 # internal-graphql
 es5-shim@4.8.0
 meteortesting:mocha
-zodern:standard-minifier-js
