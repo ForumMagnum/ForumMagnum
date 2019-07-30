@@ -11,6 +11,8 @@ export function unflattenComments(comments)
 }
 
 export function addGapIndicators(comments) {
+  // Sometimes (such as /shortform page), a comment tree is rendered where some comments are not the direct descendant of the previous comment. 
+  // This function adds extra, empty comment nodes to make this UI more visually clear
   return comments.map(node=>{
     if (node?.item?.parentCommentId !== node?.item?.topLevelCommentId) {
       return { item: {}, children: [{item: node.item, children: node.children}]}
