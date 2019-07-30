@@ -83,6 +83,9 @@ const styles = theme => ({
   children: {
     position: "relative"
   },
+  emptyNode: {
+    paddingTop: theme.spacing.unit
+  }
 })
 
 class CommentsNode extends Component {
@@ -214,7 +217,7 @@ class CommentsNode extends Component {
     const { comment, children, nestingLevel=1, highlightDate, updateComment, post,
       muiTheme, location, postPage, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments,
-      loadChildrenSeparately, shortform, refetch, parentCommentId } = this.props;
+      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton } = this.props;
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList } = Components
 
@@ -255,19 +258,21 @@ class CommentsNode extends Component {
         [classes.answerLeafComment]: !(children && children.length),
         [classes.isSingleLine]: this.isSingleLine(),
         [classes.commentHidden]: hiddenReadComment,
-        [classes.shortformTop]: shortform && (nestingLevel===1)
+        [classes.shortformTop]: shortform && (nestingLevel===1),
       }
     )
 
     const passedThroughItemProps = { post, postPage, comment, updateComment, nestingLevel, showPostTitle, collapsed, refetch }
     const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, updateComment, condensed, hideReadComments, refetch }
 
+    const nodeIsEmpty = !comment._id // sometimes empty nodes are rendered to indicate that there is one or more hidden comment between two comments.
+
     return (
         <div className={nodeClass}
           onClick={(event) => this.unTruncate(event)}
           id={comment._id}
          >
-          {!hiddenReadComment && <div ref={this.scrollTargetRef}>
+          {!hiddenReadComment && comment._id && <div ref={this.scrollTargetRef}>
             {this.isSingleLine()
               ? <SingleLineComment
                   comment={comment} nestingLevel={nestingLevel}
@@ -285,8 +290,9 @@ class CommentsNode extends Component {
             }
           </div>}
           
-          {!collapsed && children && children.length>0 && <div className={classes.children}>
+          {!collapsed && children && children.length>0 && <div className={classNames(classes.children, {[classes.emptyNode]: nodeIsEmpty})}>
             <div className={classes.parentScroll} onClick={this.scrollIntoView}/>
+            { showExtraChildrenButton }
             {children && children.map(child =>
               <Components.CommentsNode child
                 comment={child.item}
@@ -297,7 +303,6 @@ class CommentsNode extends Component {
                 //eslint-disable-next-line react/no-children-prop
                 children={child.children}
                 key={child.item._id}
-
                 { ...passedThroughNodeProps}
               />)}
           </div>}
