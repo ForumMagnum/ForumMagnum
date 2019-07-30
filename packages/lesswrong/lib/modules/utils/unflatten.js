@@ -10,6 +10,15 @@ export function unflattenComments(comments)
   return unflattenCommentsRec(resultsRestructured);
 }
 
+export function addGapIndicators(comments) {
+  return comments.map(node=>{
+    if (node?.item?.parentCommentId !== node?.item?.topLevelCommentId) {
+      return { item: {}, children: [{item: node.item, children: node.children}]}
+    }
+    return node
+  })
+}
+
 // Recursive portion of unflattenComments. Produced by incremental modification
 // of Vulcan's Utils.unflatten.
 function unflattenCommentsRec(array, parent, tree)
