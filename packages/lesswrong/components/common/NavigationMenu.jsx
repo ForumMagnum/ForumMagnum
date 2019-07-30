@@ -13,6 +13,7 @@ import ListAlt from '@material-ui/icons/ListAlt';
 import Public from '@material-ui/icons/Public';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Tooltip from '@material-ui/core/Tooltip';
+import SubjectIcon from '@material-ui/icons/Subject';
 
 const styles = theme => ({
   drawerPaperWithoutToC: {
@@ -163,6 +164,11 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
           <ListAlt/>
         </Link>
       </Tooltip>
+      <Tooltip title="Shortform" placement="right">
+        <Link to="/shortform" className={classes.navButton}>
+          <SubjectIcon />
+        </Link>
+    </Tooltip>
       <Tooltip title="Meta" placement="right">
         <Link to="/meta" className={classes.navButton}>
           <Details/>
@@ -188,6 +194,7 @@ const NavigationMenu = ({open, handleOpen, handleClose, classes, toc}) => {
 
       {getSetting('hasEvents', true) && <NavigationMenuLink icon={<Public/>} to={"/community"} label="Community Events"/>}
       <NavigationMenuLink icon={<ListAlt/>} to={"/allPosts"} label="All Posts"/>
+      <NavigationMenuLink icon={<SubjectIcon/>} to={"/shortform"} label="Shortform"/>
       <NavigationMenuLink icon={<Details/>} to={"/meta"} label="Meta"/>
       <NavigationMenuLink icon={<span className={classes.about}>?</span>} to={"/about"} label="About"/>
     </div>
