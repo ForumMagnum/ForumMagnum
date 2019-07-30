@@ -154,7 +154,7 @@ jobs:
           name: testing
           environment:
             TOOL_NODE_FLAGS: --max_old_space_size=3072
-            NODE_FLAGS: --max_old_space_size=1024
+            NODE_OPTIONS: --max_old_space_size=1024
           command: meteor yarn test
   deploy_prod_fast:
     docker:
