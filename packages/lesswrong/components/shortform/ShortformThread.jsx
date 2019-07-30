@@ -7,10 +7,10 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   showChildren: {
-    textAlign:"right",
     padding: 4,
+    paddingLeft: 12,
     ...theme.typography.body2,
-    color: theme.palette.grey[600],
+    color: theme.palette.lwTertiary.main,
     display: "block",
     fontSize: 14,
   },
@@ -35,8 +35,21 @@ class ShortformThread extends PureComponent {
     const renderedChildren = comment.latestChildren.slice(0, maxChildren)
     const extraChildrenCount = (comment.latestChildren.length > renderedChildren.length) && (comment.latestChildren.length - renderedChildren.length)
 
-    const nestedComments = unflattenComments(renderedChildren)
+    let nestedComments = unflattenComments(renderedChildren)
+    if (extraChildrenCount > 0) {
+      nestedComments = unflattenComments(renderedChildren).map(node=>{
+        if (node?.item?.parentCommentId !== node?.item?.topLevelCommentId) {
+          return { item: {}, children: [{item: node.item, children: node.children}]}
+        }
+        return node
+      })
+    }
     const lastVisitedAt = markedAsVisitedAt || comment.post.lastVisitedAt
+
+    const showExtraChildrenButton = (extraChildrenCount>0) ? 
+      <a className={classes.showChildren} onClick={()=>this.setState({maxChildren: 500})}>
+        Showing 3 of {comment.latestChildren.length } replies (Click to show all)
+      </a> : null
 
     return <div>
         <CommentsNode
@@ -55,8 +68,8 @@ class ShortformThread extends PureComponent {
           condensed
           shortform
           refetch={refetch}
+          showExtraChildrenButton={showExtraChildrenButton}
         />
-        {(extraChildrenCount>0) && <a className={classes.showChildren} onClick={()=>this.setState({maxChildren: 500})}>{extraChildrenCount} additional comments</a>}
       </div>
   }
 }
