@@ -153,7 +153,8 @@ jobs:
       - run:
           name: testing
           environment:
-            TOOL_NODE_FLAGS: --max_old_space_size=3072
+            TOOL_NODE_FLAGS: --max_old_space_size=3072 
+            NODE_OPTIONS: --max_old_space_size=512
           command: meteor yarn test
   deploy_prod_fast:
     docker:
@@ -227,6 +228,7 @@ jobs:
       - deploy:
           environment:
             TOOL_NODE_FLAGS: --max_old_space_size=3072
+            NODE_OPTIONS: --max_old_space_size=512
           command: meteor mup deploy --config mup.secret        
   deploy_prod:
     docker:
@@ -300,6 +302,7 @@ jobs:
       - deploy:
           environment:
             TOOL_NODE_FLAGS: --max_old_space_size=3072
+            NODE_OPTIONS: --max_old_space_size=512
           command: meteor mup deploy --config mup.secret
   deploy_af:
     docker:
@@ -373,6 +376,7 @@ jobs:
       - deploy:
           environment:
             TOOL_NODE_FLAGS: --max_old_space_size=3072
+            NODE_OPTIONS: --max_old_space_size=512
           command: meteor mup deploy --config mup.secret
   deploy_baserates:
     docker:
@@ -445,6 +449,7 @@ jobs:
       - deploy:
           environment:
             TOOL_NODE_FLAGS: --max_old_space_size=3072
+            NODE_OPTIONS: --max_old_space_size=512
           command: meteor mup deploy --config mup.secret
   deploy_staging:
     docker:
@@ -518,6 +523,7 @@ jobs:
       - deploy:
           environment:
             TOOL_NODE_FLAGS: --max_old_space_size=3072
+            NODE_OPTIONS: --max_old_space_size=512
           command: meteor mup deploy --config mup.secret
 
 workflows:
