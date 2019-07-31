@@ -7,6 +7,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { getBeforeDefault, getAfterDefault, timeframeToTimeBlock } from './timeframeUtils'
+import withTimezone from '../common/withTimezone';
 
 const styles = theme => ({
   timeframe: {
@@ -73,7 +74,7 @@ class AllPostsPage extends Component {
   }
 
   renderPostsList = ({currentTimeframe, currentFilter, currentSorting, currentShowLowKarma}) => {
-    const { classes } = this.props
+    const { timezone, classes } = this.props
     const { showSettings } = this.state
     const {PostsTimeframeList, PostsList2} = Components
 
@@ -102,8 +103,8 @@ class AllPostsPage extends Component {
         }}
         numTimeBlocks={numTimeBlocks}
         dimWhenLoading={showSettings}
-        after={getAfterDefault(numTimeBlocks, timeBlock)}
-        before={getBeforeDefault(timeBlock)}
+        after={getAfterDefault({numTimeBlocks, timeBlock, timezone})}
+        before={getBeforeDefault({timeBlock, timezone})}
       />
     </div>
   }
@@ -168,5 +169,6 @@ registerComponent(
   withStyles(styles, {name:"AllPostsPage"}),
   withRouter,
   withUser,
+  withTimezone,
   [withUpdate, withUpdateOptions]
 );
