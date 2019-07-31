@@ -2,7 +2,6 @@ import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Divider from '@material-ui/core/Divider';
-import classNames from 'classnames';
 
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
@@ -39,12 +38,9 @@ const TabNavigationMenuCompressed = ({classes}) => {
           return
         }
         if (tab.divider) {
-          return <Divider className={classes.divider} />
+          return <Divider key={tab.id} className={classes.divider} />
         }
-        return <TabNavigationCompressedItem
-          key={tab.id}
-          tab={tab}
-        />
+        return <TabNavigationCompressedItem key={tab.id} tab={tab} />
       })}
     </div>
     // TODO; how to find faq info
