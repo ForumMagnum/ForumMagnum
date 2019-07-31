@@ -98,7 +98,6 @@ const getObject = object => {
 
     return (
       <div className="dashboard-user" style={{ whiteSpace: 'nowrap' }}>
-        <Components.Avatar size="small" user={user} link />
         <Link to={user.pageUrl}>{user.displayName}</Link>
       </div>
     );

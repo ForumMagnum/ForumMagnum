@@ -140,17 +140,6 @@ Users.getEmailById = function(userId) {
 };
 
 /**
- * @summary Get a user's email hash
- * @param {Object} user
- */
-Users.getEmailHash = function(user) {
-  return user.emailHash;
-};
-Users.getEmailHashById = function(userId) {
-  return Users.getEmailHash(Users.findOne(userId));
-};
-
-/**
  * @summary Get a user setting
  * @param {Object} user
  * @param {String} settingName
