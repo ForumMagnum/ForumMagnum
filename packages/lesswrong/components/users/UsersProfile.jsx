@@ -1,7 +1,8 @@
 import { Components, registerComponent, withList, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
-import { Link, withRouter } from '../../lib/reactRouterWrapper.js';
+import { Link } from 'react-router-dom';
+import { withLocation, withNavigation } from '../../lib/routeUtil';
 import Users from "meteor/vulcan:users";
 import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
@@ -69,7 +70,7 @@ const styles = theme => ({
   }
 })
 
-const views = {
+const sortings = {
   magic: "Magic (New & Upvoted)",
   recentComments: "Recent Comments",
   new: "New",
@@ -100,12 +101,12 @@ class UsersProfile extends Component {
   }
 
   setCanonicalUrl = () => {
-    const { router, results, slug } = this.props
+    const { history, results, slug } = this.props
     const document = this.getUserFromResults(results)
     // Javascript redirect to make sure we are always on the most canonical URL for this user
     if (slug !== document?.slug) {
       const canonicalUrl = Users.getProfileUrlFromSlug(document.slug);
-      router.replace(canonicalUrl);
+      history.replace(canonicalUrl);
     }
   }
 
@@ -123,8 +124,7 @@ class UsersProfile extends Component {
   }
 
   renderMeta = () => {
-    const props = this.props
-    const { classes, results } = props
+    const { classes, results } = this.props
     const document = this.getUserFromResults(results)
     if (!document) return null
     const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma } = document;
@@ -175,7 +175,8 @@ class UsersProfile extends Component {
   }
 
   render() {
-    const { slug, classes, currentUser, loading, results, router } = this.props;
+    const { slug, classes, currentUser, loading, results, location } = this.props;
+    const { query } = location;
     const document = this.getUserFromResults(results)
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -189,12 +190,9 @@ class UsersProfile extends Component {
       return <Components.Error404/>
     }
 
-
-
     const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsIcon } = Components
 
     const user = document;
-    const query = _.clone(router.location.query || {});
 
     // Does this profile page belong to a likely-spam account?
     if (user.spamRiskScore < 0.4) {
@@ -213,11 +211,12 @@ class UsersProfile extends Component {
     const draftTerms = {view: "drafts", userId: user._id, limit: 4}
     const unlistedTerms= {view: "unlisted", userId: user._id, limit: 20}
     const terms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
-    const sequenceTerms = {view: "userProfile", userId: user._id, limit:3}
-    const sequenceAllTerms = {view: "userProfileAll", userId: user._id, limit:3}
+    const sequenceTerms = {view: "userProfile", userId: user._id, limit:9}
+    const sequenceAllTerms = {view: "userProfileAll", userId: user._id, limit:9}
 
     const { showSettings } = this.state
-    const currentView = query.view ||  "new"
+    // maintain backward compatibility with bookmarks
+    const currentSorting = query.sortedBy || query.view ||  "new"
     const currentFilter = query.filter ||  "all"
     const ownPage = currentUser && currentUser._id === user._id
 
@@ -283,15 +282,15 @@ class UsersProfile extends Component {
           <div className={classes.title} onClick={() => this.setState({showSettings: !showSettings})}>
             <SectionTitle title={`${Users.getDisplayName(user)}'s Posts`}>
               <SettingsIcon/>
-              <div className={classes.settingsText}>Sorted by { views[currentView] }</div>
+              <div className={classes.settingsText}>Sorted by { sortings[currentSorting] }</div>
             </SectionTitle>
           </div>
           {showSettings && <PostsListSettings
             hidden={false}
-            currentView={currentView}
+            currentSorting={currentSorting}
             currentFilter={currentFilter}
             currentShowLowKarma={true}
-            views={views}
+            sortings={sortings}
           />}
           <PostsList2 terms={terms} />
         </SingleColumnSection>
@@ -315,4 +314,4 @@ const options = {
   ssr: true
 };
 
-registerComponent('UsersProfile', UsersProfile, withUser, [withList, options], withRouter, withStyles(styles, {name: "UsersProfile"}));
+registerComponent('UsersProfile', UsersProfile, withUser, [withList, options], withLocation, withNavigation, withStyles(styles, {name: "UsersProfile"}));

@@ -1,4 +1,9 @@
 import React from 'react';
+
+// Commented out because these unit tests were based on a very brittle hack:
+// mocking Apollo with no backend. Under Apollo 2, you can't create an
+// ApolloClient without a link, so that doesn't work at all.
+/*
 import { shallow, configure } from 'enzyme';
 import { expect } from 'meteor/practicalmeteor:chai';
 
@@ -21,8 +26,10 @@ const commentListMockProps = {
   router: { location: {query:()=>{}}, push: ()=>{}},
   classes: {}
 }
+*/
 
 describe('Commenting while banned from post --', async () => {
+  /*
   it('CommentsItem does NOT render reply-button when user is in a Post bannedUserIds list', async () => {
     const user = await createDummyUser()
     const author = await createDummyUser({groups:['trustLevel1']})
@@ -126,6 +133,7 @@ describe('Commenting while banned from post --', async () => {
     )
     expect(commentsListSection.find("#posts-thread-new-comment")).to.have.length(0);
   });
+  */
   
   // These tests are disabled because they were built on a brittle assumption
   // which no longer holds: that the relevant part of the resulting React tree

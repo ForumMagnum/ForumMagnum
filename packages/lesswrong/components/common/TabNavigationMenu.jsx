@@ -1,6 +1,7 @@
-import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
-import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
 import React from 'react';
+import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
+import { Link } from '../../lib/reactRouterWrapper.js';
+import { useLocation } from '../../lib/routeUtil.js';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -152,10 +153,9 @@ const styles = (theme) => ({
 const TabNavigationMenu = ({
   currentUser,
   classes,
-  location,
 }) => {
 
-  const { pathname } = location
+  const { pathname } = useLocation();
   const { TabNavigationSubItem, TabNavigationEventsList } = Components
 
   const lat = currentUser && currentUser.mongoLocation && currentUser.mongoLocation.coordinates[1]
@@ -282,6 +282,16 @@ const TabNavigationMenu = ({
           </Link>
         </Tooltip>
         <div className={classes.divider}/>
+        <Link to="/shortform">
+          <TabNavigationSubItem>
+            Shortform [Beta]
+          </TabNavigationSubItem>
+        </Link>
+        <Link to="/meta">
+          <TabNavigationSubItem>
+            Meta
+          </TabNavigationSubItem>
+        </Link>
         <Link to="/about">
           <TabNavigationSubItem>
             About
@@ -297,4 +307,4 @@ const TabNavigationMenu = ({
   )
 };
 
-registerComponent('TabNavigationMenu', TabNavigationMenu, withRouter, withUser, withStyles(styles, { name: 'TabNavigationMenu'}));
+registerComponent('TabNavigationMenu', TabNavigationMenu, withUser, withStyles(styles, { name: 'TabNavigationMenu'}));

@@ -21,7 +21,10 @@ function googleTagManagerInit() {
 addInitFunction(googleTagManagerInit)
 
 const identifyLogRocketCallback = (currentUser) => {
-  LogRocket.init(getSetting('logRocket.apiKey'))
+  const logRocketKey = getSetting('logRocket.apiKey')
+  if (!logRocketKey) return
+
+  LogRocket.init(logRocketKey)
   const { karma = 0, afKarma = 0, frontpagePostCount = 0, voteCount = 0, createdAt, username, displayName: lWDisplayName } = currentUser
   const additionalData = { karma, afKarma, frontpagePostCount, voteCount, createdAt, username, lWDisplayName }
   LogRocket.identify(currentUser._id, {

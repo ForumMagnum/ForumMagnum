@@ -72,7 +72,9 @@ const NewRelatedQuestionForm = (props) => {
           refetch()
           flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
         }}
-        SubmitComponent={QuestionSubmit}
+        formComponents={{
+          FormSubmit: QuestionSubmit,
+        }}
       />
     </div>
   )
@@ -81,7 +83,6 @@ const NewRelatedQuestionForm = (props) => {
 NewRelatedQuestionForm.propTypes = {
   classes: PropTypes.object.isRequired,
   post: PropTypes.object.isRequired,
-  prefilledProps: PropTypes.object
 };
 
 registerComponent('NewRelatedQuestionForm', NewRelatedQuestionForm, withMessages, withUser, withStyles(styles, {name:"NewRelatedQuestionForm"}));

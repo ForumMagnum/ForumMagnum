@@ -68,7 +68,8 @@ extendFragment('UsersCurrent', `
   nullifyVotes
   hideIntercom
   currentFrontpageFilter
-  allPostsView
+  allPostsTimeframe
+  allPostsSorting
   allPostsFilter
   allPostsShowLowKarma
   allPostsOpenSettings
@@ -96,13 +97,12 @@ extendFragment('UsersCurrent', `
   shortformFeedId
   viewUnreviewedComments
   sunshineShowNewUserContent
-  # TODO: Remove this after april fools
-  blockedGPT2
   recommendationSettings
 `);
 
 registerFragment(`
   fragment UserKarmaChanges on User {
+    _id
     karmaChanges {
       totalChange
       updateFrequency
@@ -209,6 +209,8 @@ registerFragment(`
   fragment SunshineUsersList on User {
     ...UsersMinimumInfo
     karma
+    bio
+    htmlBio
     createdAt
     email
     commentCount
@@ -436,9 +438,6 @@ registerFragment(`
     # Karma Settings
     karmaChangeLastOpened
     karmaChangeNotifierSettings
-
-    # TODO: Remove this after april fools
-    blockedGPT2
     
     recommendationSettings
   }

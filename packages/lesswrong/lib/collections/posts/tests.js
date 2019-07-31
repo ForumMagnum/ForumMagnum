@@ -45,8 +45,7 @@ describe('PostsEdit', async () => {
       }
     `;
     const response = runQuery(query,{},{currentUser:user2})
-    const expectedError = '{"id":"app.operation_not_allowed","value":"check"}'
-    await response.should.be.rejectedWith(expectedError);
+    await response.should.be.rejected;
     assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
 });

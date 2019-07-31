@@ -223,6 +223,14 @@ addFieldsDict(Users, {
     canCreate: Users.owns,
     hidden: true,
   },
+  allPostsTimeframe: {
+    type: String,
+    optional: true,
+    canRead: Users.owns,
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: Users.owns,
+    hidden: true,
+  },
   allPostsFilter: {
     type: String,
     optional: true,
@@ -231,7 +239,7 @@ addFieldsDict(Users, {
     canCreate: Users.owns,
     hidden: true,
   },
-  allPostsView: {
+  allPostsSorting: {
     type: String,
     optional: true,
     hidden: true,
@@ -623,7 +631,8 @@ addFieldsDict(Users, {
     label: "Group Location",
     control: 'LocationFormComponent',
     blackbox: true,
-    optional: true
+    optional: true,
+    order: 42,
   },
 
   location: {
@@ -758,7 +767,8 @@ addFieldsDict(Users, {
     optional: true,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment'],
-    hidden: !['LessWrong', 'AlignmentForum'].includes(getSetting('forumType'))
+    hidden: !['LessWrong', 'AlignmentForum'].includes(getSetting('forumType')),
+    order: 39,
   },
 
   noCollapseCommentsPosts: {
@@ -817,15 +827,6 @@ addFieldsDict(Users, {
     editableBy: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
     order: 0,
-  },
-  // TODO: Remove this after april fools
-  blockedGPT2: {
-    type: Boolean,
-    optional: true,
-    canRead: ['guests'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    hidden: getSetting('forumType') !== 'LessWrong',
-    label: "Auto-collapse comments from GPT2"
   },
   
   partiallyReadSequences: {
@@ -910,8 +911,7 @@ export const makeEditableOptionsModeration = {
     viewableBy: ['guests'],
     editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
     insertableBy: [Users.owns, 'sunshineRegiment', 'admins']
-  },
-  deactivateNewCallback: true, // Fix to avoid triggering the editable operations on incomplete users during creation
+  }
 }
 
 makeEditable({

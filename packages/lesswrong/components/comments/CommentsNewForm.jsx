@@ -34,19 +34,24 @@ const styles = theme => ({
   }
 });
 
-const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, currentUser}) => {
+const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, currentUser, fragment = "CommentsList"}) => {
   prefilledProps = {
     ...prefilledProps,
-    postId: post._id,
     af: Comments.defaultToAlignment(currentUser, post, parentComment),
   };
+  
+  if (post) {
+    prefilledProps = {
+      ...prefilledProps,
+      postId: post._id
+    };
+  }
 
   if (parentComment) {
-    prefilledProps = Object.assign(prefilledProps, {
+    prefilledProps = {
+      ...prefilledProps,
       parentCommentId: parentComment._id,
-      // if parent comment has a topLevelCommentId use it; if it doesn't then it *is* the top level comment
-      topLevelCommentId: parentComment.topLevelCommentId || parentComment._id
-    });
+    };
   }
 
   const SubmitComponent = withDialog(({submitLabel = "Submit", openDialog}) => {
@@ -89,51 +94,31 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
 
       <Components.WrappedSmartForm
         collection={Comments}
-        mutationFragment={getFragment('CommentsList')}
+        mutationFragment={getFragment(fragment)}
         successCallback={successCallback}
         cancelCallback={cancelCallback}
         prefilledProps={prefilledProps}
         layout="elementOnly"
-        GroupComponent={FormGroupComponent}
-        SubmitComponent={SubmitComponent}
-        alignmentForumPost={post.af}
+        formComponents={{
+          FormSubmit: SubmitComponent,
+          FormGroupLayout: Components.DefaultStyleFormGroup
+        }}
+        alignmentForumPost={post?.af}
         addFields={currentUser?[]:["contents"]}
       />
     </div>
   );
 };
 
-const FormGroupComponent = (props) => {
-  return <React.Fragment>
-    {props.fields.map(field => (
-      <Components.FormComponent
-        key={field.name}
-        disabled={props.disabled}
-        {...field}
-        errors={props.errors}
-        throwError={props.throwError}
-        currentValues={props.currentValues}
-        updateCurrentValues={props.updateCurrentValues}
-        deletedValues={props.deletedValues}
-        addToDeletedValues={props.addToDeletedValues}
-        clearFieldErrors={props.clearFieldErrors}
-        formType={props.formType}
-        currentUser={props.currentUser}
-      />
-    ))}
-  </React.Fragment>
-}
 
 
 
 CommentsNewForm.propTypes = {
-  post: PropTypes.object.isRequired,
+  post: PropTypes.object,
   type: PropTypes.string, // "comment" or "reply"
   parentComment: PropTypes.object, // if reply, the comment being replied to
-  topLevelCommentId: PropTypes.string, // if reply
   successCallback: PropTypes.func, // a callback to execute when the submission has been successful
   cancelCallback: PropTypes.func,
-  router: PropTypes.object,
   prefilledProps: PropTypes.object
 };
 
