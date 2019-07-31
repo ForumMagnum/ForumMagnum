@@ -1,5 +1,5 @@
 import Revisions from './collection'
-import { htmlToDraft } from '../../editor/utils';
+import { htmlToDraft } from '../../../server/draftConvert';
 import { convertToRaw } from 'draft-js';
 import { markdownToHtmlNoLaTeX, dataToMarkdown } from '../../../server/editor/make_editable_callbacks'
 import { highlightFromHTML } from '../../editor/ellipsize';
