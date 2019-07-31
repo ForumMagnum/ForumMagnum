@@ -1,3 +1,4 @@
+import React from 'react';
 import { convertFromHTML, convertToHTML } from 'draft-convert';
 
 export const htmlToDraft = convertFromHTML({
