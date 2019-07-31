@@ -11,18 +11,6 @@ import { Utils } from './utils.js';
 // ------------------------------ Dynamic Icons ------------------------------ //
 
 /**
- * @summary Take an icon name (such as "open") and return the HTML code to display the icon
- * @param {string} iconName - the name of the icon
- * @param {string} [iconClass] - an optional class to assign to the icon
- */
-Utils.getIcon = function (iconName, iconClass) {
-  var icons = Utils.icons;
-  var iconCode = !!icons[iconName] ? icons[iconName] : iconName;
-  iconClass = (typeof iconClass === 'string') ? ' '+iconClass : '';
-  return '<i class="icon fa fa-fw fa-' + iconCode + ' icon-' + iconName + iconClass+ '" aria-hidden="true"></i>';
-};
-
-/**
  * @summary A directory of icon keys and icon codes
  */
 Utils.icons = {
