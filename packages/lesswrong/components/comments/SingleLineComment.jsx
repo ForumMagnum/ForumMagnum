@@ -56,7 +56,7 @@ const styles = theme => ({
     '& *': {
       display: "inline"
     },
-    '& blockquote, & br, & figure, & img': {
+    '& blockquote, & br, & figure, & img, & pre, & .mjx-chtml': {
       display: "none"
     },
     '& p': {
