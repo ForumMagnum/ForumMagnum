@@ -19,7 +19,7 @@ const SequencesPageTitle = ({location, isSubtitle, siteName, loading, document, 
       </Link>
     </span>);
   } else {
-    return <Helmet><title>`${sequence.title} - ${siteName}`</title></Helmet>
+    return <Helmet><title>{`${sequence.title} - ${siteName}`}</title></Helmet>
   }
   
   // TODO: An earlier implementation of this had a special case for the core

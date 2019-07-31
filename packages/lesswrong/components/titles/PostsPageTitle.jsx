@@ -13,7 +13,7 @@ const PostsPageHeaderTitle = ({location, isSubtitle, siteName, loading, document
   const post = document;
   
   if (!isSubtitle)
-    return <Helmet><title>`${post.title} - ${siteName}`</title></Helmet>
+    return <Helmet><title>{`${post.title} - ${siteName}`}</title></Helmet>
   
   if (getSetting('forumType') !== 'AlignmentForum' && post?.af) {
     // TODO: A (broken) bit of an earlier iteration of the header subtitle
