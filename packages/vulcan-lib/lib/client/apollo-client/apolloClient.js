@@ -15,6 +15,7 @@ export const createApolloClient = () => {
   const newClient = new ApolloClient({
     link: ApolloLink.from([stateLink, ...staticLinks]),
     cache,
+    ssrForceFetchDelay: 500,
   });
   // register the client
   apolloClient = newClient;
