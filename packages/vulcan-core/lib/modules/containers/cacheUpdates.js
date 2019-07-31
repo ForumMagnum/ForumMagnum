@@ -60,7 +60,7 @@ const handleCreateMutation = ({ document, results, parameters: { selector, optio
       // make sure document hasn't been already added as this may be called several times
       results = addToSet(results, document);
     }
-    results = reorderSet(results, options.sort);
+    results = reorderSet(results, options.sort, selector);
   }
 
   return {
