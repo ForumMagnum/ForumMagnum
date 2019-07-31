@@ -153,6 +153,7 @@ const listOptions = {
   collection: Comments,
   queryName: 'AnswersCommentListQuery',
   fragmentName: 'CommentsList',
+  fetchPolicy: 'cache-and-network',
   enableTotal: true,
 }
 
