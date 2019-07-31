@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
+import classNames from 'classnames';
 
 const styles = theme => ({
   paperWithoutToC: {
@@ -16,6 +17,8 @@ const styles = theme => ({
     left:0,
     width:260,
     paddingBottom: 20,
+  },
+  hideOnMobile: {
     [theme.breakpoints.down('sm')]: {
       display:"none"
     }
@@ -55,13 +58,16 @@ const NavigationDrawer = ({open, handleOpen, handleClose, toc, classes}) => {
     onOpen={(event) => handleOpen()}
     classes={{paper: showToc ? classes.paperWithToC : classes.paperWithoutToC}}
   >
-    <div className={classes.drawerNavigationMenuUncompressed}>
+    <div className={classNames(
+      classes.drawerNavigationMenuUncompressed,
+      {[classes.hideOnMobile]: showToc}
+    )}>
       <TabNavigationMenu />
     </div>
-    <div className={classes.drawerNavigationMenuCompressed}>
-      <TabNavigationMenuCompressed />
-    </div>
     {showToc && <React.Fragment>
+      <div className={classes.drawerNavigationMenuCompressed}>
+        <TabNavigationMenuCompressed />
+      </div>
       <div className={classes.tableOfContents}>
         <Components.TableOfContentsList
           sectionData={toc}
