@@ -62,13 +62,19 @@ const styles = theme => ({
 })
 
 class Layout extends PureComponent {
-  state = {
-    timezone: null,
-    toc: null,
-    postsRead: {}
-  };
-
-  searchResultsAreaRef = React.createRef();
+  constructor (props) {
+    super(props);
+    const { cookies } = this.props;
+    const savedTimezone = cookies?.get('timezone');
+    
+    this.state = {
+      timezone: savedTimezone,
+      toc: null,
+      postsRead: {}
+    };
+  
+    this.searchResultsAreaRef = React.createRef();
+  }
 
   setToC = (document, sectionData) => {
     if (document) {
@@ -118,8 +124,10 @@ class Layout extends PureComponent {
   }
 
   componentDidMount() {
+    const { cookies } = this.props;
     const newTimezone = moment.tz.guess();
     if(this.state.timezone !== newTimezone) {
+      cookies.set('timezone', newTimezone);
       this.setState({
         timezone: newTimezone
       });

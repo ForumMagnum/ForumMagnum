@@ -38,11 +38,6 @@ export const addCallback = function (hook, callback) {
 
   const formattedHook = formatHookName(hook);
 
-  if (!callback.name) {
-    // eslint-disable-next-line no-console
-    console.log(`// Warning! You are adding an unnamed callback to ${formattedHook}. Please use the function foo () {} syntax.`);
-  }
-
   // if callback array doesn't exist yet, initialize it
   if (typeof Callbacks[formattedHook] === 'undefined') {
     Callbacks[formattedHook] = [];
@@ -54,18 +49,21 @@ export const addCallback = function (hook, callback) {
     // eslint-disable-next-line no-console
     console.log(`Warning: Excessively many hooks (${Callbacks[formattedHook].length}) on callback ${callback}.`);
   }
+  
+  return callback;
 };
 
 /**
  * @summary Remove a callback from a hook
- * @param {string} hook - The name of the hook
- * @param {string} functionName - The name of the function to remove
+ * @param {string} hookName - The name of the hook
+ * @param {Function} callback - A reference to the function which was previously
+ *   passed to addCallback.
  */
-export const removeCallback = function (hookName, callbackName) {
+export const removeCallback = function (hookName, callback) {
   const formattedHook = formatHookName(hookName);
-  Callbacks[formattedHook] = _.reject(Callbacks[formattedHook], function (callback) {
-    return callback.name === callbackName;
-  });
+  Callbacks[formattedHook] = _.reject(Callbacks[formattedHook],
+    c => c === callback
+  );
 };
 
 /**
@@ -123,7 +121,7 @@ export const runCallbacks = function () {
 
         // if callback is only supposed to run once, remove it
         if (callback.runOnce) {
-          removeCallback(formattedHook, callback.name);
+          removeCallback(formattedHook, callback);
         }
 
         if (typeof result === 'undefined') {
