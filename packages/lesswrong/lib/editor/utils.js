@@ -121,6 +121,3 @@ export const draftToHTML = convertToHTML({
     //  return <span/>;
    },
 });
-
-Utils.draftToHTML = draftToHTML;
-Utils.htmlToDraft = htmlToDraft;
