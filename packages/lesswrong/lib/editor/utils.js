@@ -1,4 +1,3 @@
-import React from 'react';
 
 // This currently only supports our limited subset of semVer
 export function extractVersionsFromSemver(semver) {
