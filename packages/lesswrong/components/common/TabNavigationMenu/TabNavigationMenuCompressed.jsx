@@ -26,7 +26,6 @@ const styles = (theme) => {
   }
 }
 
-// TODO; should this just be footer but with flexDirection: column?
 const TabNavigationMenuCompressed = ({classes}) => {
   const { TabNavigationCompressedItem } = Components
 
