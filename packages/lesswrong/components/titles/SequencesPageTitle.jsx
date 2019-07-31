@@ -13,7 +13,7 @@ const SequencesPageTitle = ({location, isSubtitle, siteName, loading, document})
   if (isSubtitle)
     return <Link to={Sequences.getPageUrl(sequence, false)}>{sequence.title}</Link>
   else
-    return <Helmet><title>`${sequence.title} - ${siteName}`</title></Helmet>
+    return <Helmet><title>{`${sequence.title} - ${siteName}`}</title></Helmet>
   
   // TODO: An earlier implementation of this had a special case for the core
   // collections. That special case didn't work, but maybe it's worth building
