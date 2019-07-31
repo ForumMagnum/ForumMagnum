@@ -18,7 +18,6 @@ vulcan:users                      # user management and permissions
 vulcan:admin
 # vulcan:newsletter
 vulcan:events
-vulcan:embed
 # vulcan:subscribe
 vulcan:accounts
 

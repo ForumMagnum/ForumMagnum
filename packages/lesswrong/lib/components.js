@@ -120,7 +120,6 @@ import '../components/posts/PostsLoading.jsx';
 import '../components/posts/PostsTimeframeList.jsx';
 import '../components/posts/AllPostsPage.jsx';
 import '../components/posts/PostsListSettings.jsx';
-import '../components/posts/PostsThumbnail.jsx';
 import '../components/posts/SuggestCurated.jsx';
 import '../components/posts/DeleteDraft.jsx';
 import '../components/posts/MoveToDraft.jsx';
