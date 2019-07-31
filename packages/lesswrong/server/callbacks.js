@@ -306,5 +306,3 @@ function updateReadStatus(event) {
   });
 }
 addCallback('lwevents.new.sync', updateReadStatus);
-
-removeCallback('router.onUpdate', 'RouterClearMessages');
