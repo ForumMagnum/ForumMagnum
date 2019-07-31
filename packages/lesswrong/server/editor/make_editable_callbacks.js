@@ -1,7 +1,7 @@
 /* global Random */
 import { Utils } from 'meteor/vulcan:core';
 import { convertFromRaw } from 'draft-js';
-import { draftToHTML } from '../../lib/editor/utils.js';
+import { draftToHTML } from '../draftConvert';
 import Revisions from '../../lib/collections/revisions/collection'
 import { extractVersionsFromSemver } from '../../lib/editor/utils'
 import { ensureIndex } from '../../lib/collectionUtils'

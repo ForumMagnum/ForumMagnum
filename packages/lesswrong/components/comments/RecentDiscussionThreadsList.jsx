@@ -64,6 +64,7 @@ const discussionThreadsOptions = {
   collection: Posts,
   queryName: 'selectCommentsListQuery',
   fragmentName: 'PostsList',
+  fetchPolicy: 'cache-and-network',
   enableTotal: false,
   pollInterval: 0,
   enableCache: true,

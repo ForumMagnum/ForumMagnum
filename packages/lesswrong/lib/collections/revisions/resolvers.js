@@ -1,5 +1,5 @@
 import Revisions from './collection'
-import { htmlToDraft } from '../../editor/utils';
+import { htmlToDraft } from '../../../server/draftConvert';
 import { convertToRaw } from 'draft-js';
 import { markdownToHtmlNoLaTeX, dataToMarkdown } from '../../../server/editor/make_editable_callbacks'
 import { highlightFromHTML } from '../../editor/ellipsize';
@@ -8,6 +8,7 @@ import { JSDOM } from 'jsdom'
 import { Utils } from 'meteor/vulcan:core';
 import htmlToText from 'html-to-text'
 import { truncate } from '../../editor/ellipsize'
+import sanitizeHtml from 'sanitize-html';
 
 const PLAINTEXT_HTML_TRUNCATION_LENGTH = 4000
 const PLAINTEXT_DESCRIPTION_LENGTH = 2000
@@ -54,6 +55,10 @@ export function dataToDraftJS(data, type) {
   }
 }
 
+const nonMainTextTags = [
+  'style', 'script', 'textarea', 'noscript', 'blockquote', 'code', 'img'
+]
+
 addFieldsDict(Revisions, {
   markdown: {
     type: String,
@@ -86,6 +91,20 @@ addFieldsDict(Revisions, {
           .fromString(truncatedHtml)
           .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
       } 
+    }
+  },
+  // Plaintext version, except that specially-formatted blocks like blockquotes are filtered out, for use in highly-abridged displays like SingleLineComment.
+  plaintextMainText: {
+    type: String, 
+    resolveAs: {
+      type: 'String',
+      resolver: ({html}) => {
+        const mainTextHtml = sanitizeHtml(html, { nonTextTags: nonMainTextTags })
+        const truncatedHtml = truncate(mainTextHtml, PLAINTEXT_HTML_TRUNCATION_LENGTH)
+        return htmlToText
+          .fromString(truncatedHtml)
+          .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
+      }
     }
   }
 })

@@ -6,7 +6,6 @@ import './deep.js';
 import './deep_extend.js';
 // import './intl_polyfill.js';
 // import './graphql.js';
-import './icons.js';
 
 export * from './components.js';
 export * from './collections.js';

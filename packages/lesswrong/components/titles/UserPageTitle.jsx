@@ -5,18 +5,25 @@ import Users from 'meteor/vulcan:users';
 import mapProps from 'recompose/mapProps';
 import { withLocation } from '../../lib/routeUtil';
 import Helmet from 'react-helmet';
+import { withStyles } from '@material-ui/core/styles';
+import { styles } from '../common/HeaderSubtitle';
 
-const UserPageTitle = ({location, isSubtitle, siteName, loading, document}) => {
+const UserPageTitle = ({location, isSubtitle, siteName, loading, document, classes}) => {
   if (!document || loading) return null;
   
   const user = document;
   const userLink = Users.getProfileUrl(user);
   const userNameString = user.displayName || user.slug;
   
-  if (isSubtitle)
-    return <Link to={userLink}>{userNameString}</Link>
-  else
+  if (isSubtitle) {
+    return (<span className={classes.subtitle}>
+      <Link to={userLink}>
+        {userNameString}
+      </Link>
+    </span>);
+  } else {
     return <Helmet><title>{`${userNameString} - ${siteName}`}</title></Helmet>
+  }
 }
 registerComponent("UserPageTitle", UserPageTitle,
   withLocation,
@@ -32,5 +39,6 @@ registerComponent("UserPageTitle", UserPageTitle,
     collection: Users,
     fragmentName: "UsersMinimumInfo",
     ssr: true,
-  }]
+  }],
+  withStyles(styles, {name: "UserPageTitle"})
 );

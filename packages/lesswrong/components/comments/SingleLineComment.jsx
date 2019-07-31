@@ -6,7 +6,6 @@ import withHover from '../common/withHover';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { isMobile } from '../../lib/modules/utils/isMobile.js'
-import { commentExcerptFromHTML } from '../../lib/editor/ellipsize'
 
 const styles = theme => ({
   root: {
@@ -102,10 +101,11 @@ const styles = theme => ({
 })
 
 const SingleLineComment = ({comment, classes, nestingLevel, hover, parentCommentId}) => {
+  if (!comment) return null
   const { baseScore } = comment
+  const { plaintextMainText } = comment.contents
   const { BetaTag, CommentBody, ShowParentComment, UsersName } = Components
-  
-  const singleLineHtml = commentExcerptFromHTML(comment)
+
   const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile()
 
   return (
@@ -124,7 +124,8 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
         <span className={classes.date}>
           <Components.FormatDate date={comment.postedAt} tooltip={false}/>
         </span>
-        {(comment.baseScore > -5) && <span className={classes.truncatedHighlight} dangerouslySetInnerHTML={{__html: singleLineHtml}} />}      </div>
+        {(comment.baseScore > -5) && <span className={classes.truncatedHighlight}> {plaintextMainText} </span>}      
+      </div>
       {displayHoverOver && <span className={classNames(classes.highlight)}>
         <CommentBody truncated comment={comment}/>
         <BetaTag />

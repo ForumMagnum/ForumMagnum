@@ -86,6 +86,11 @@ const schema = {
     type: String, 
     viewableBy: ['guests'],
     // resolveAs defined in resolvers.js
+  },
+  plaintextMainText: {
+    type: String,
+    viewableBy: ['guests']
+    // resolveAs defined in resolvers.js
   }
 };
 
