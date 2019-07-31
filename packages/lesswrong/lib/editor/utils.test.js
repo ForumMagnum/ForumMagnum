@@ -1,6 +1,5 @@
-
 import { convertFromRaw } from 'draft-js';
-import { draftToHTML } from './utils'
+import { draftToHTML } from '../../server/draftConvert'
 import { htmlToDraftServer } from '../collections/revisions/resolvers'
 
 describe("draftToHtml", () => {

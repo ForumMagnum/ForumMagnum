@@ -63,7 +63,6 @@ import '../components/common/NoContent.jsx';
 import '../components/common/SearchBar.jsx';
 import '../components/common/DialogGroup.jsx';
 import '../components/common/Divider.jsx';
-import '../components/common/DraftJSRenderer.jsx';
 import '../components/common/HoverOver.jsx';
 import '../components/common/ErrorBoundary.jsx';
 import '../components/common/CloudinaryImage.jsx';
