@@ -13,7 +13,6 @@ import { ReadStatuses } from '../lib/collections/readStatus/collection.js';
 
 import {
   addCallback,
-  removeCallback,
   newMutation,
   editMutation,
   removeMutation,
@@ -306,5 +305,3 @@ function updateReadStatus(event) {
   });
 }
 addCallback('lwevents.new.sync', updateReadStatus);
-
-removeCallback('router.onUpdate', 'RouterClearMessages');
