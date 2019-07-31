@@ -201,7 +201,7 @@ class Layout extends PureComponent {
             <Components.Header
               toc={this.state.toc}
               searchResultsArea={this.searchResultsAreaRef}
-              showNavigationDrawer={!standaloneNavigation}
+              standaloneNavigationPresent={standaloneNavigation}
             />
             {standaloneNavigation && <Components.NavigationStandalone />}
             <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />

@@ -43,8 +43,7 @@ const styles = theme => ({
 })
 
 const TabNavigationCompressedItem = ({tab, classes}) => {
-  const { TabNavigationSubItem } = Components
-
+  // TODO; bracketless return
   return <Tooltip placement='right-start' title={tab.tooltip || ''}>
     <Link
       to={tab.link}

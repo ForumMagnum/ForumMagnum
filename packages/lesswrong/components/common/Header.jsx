@@ -5,6 +5,7 @@ import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
 import NoSSR from 'react-no-ssr';
 import Headroom from 'react-headroom'
 import { withStyles, withTheme } from '@material-ui/core/styles';
+// import withWidth from '@material-ui/core/withWidth';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -19,6 +20,8 @@ import grey from '@material-ui/core/colors/grey';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
+// import { isMobileByWidth } from '../../lib/modules/utils/isMobile.js';
+// import { isMobileByScreensize } from '../../lib/modules/utils/isMobile.js';
 
 export const getHeaderTextColor = theme => {
   if (theme.palette.headerType === 'primary') {
@@ -65,6 +68,11 @@ const styles = theme => ({
   menuButton: {
     marginLeft: -theme.spacing.unit,
     marginRight: theme.spacing.unit,
+  },
+  hideOnDesktop: {
+    [theme.breakpoints.up('md')]: {
+      display:"none"
+    }
   },
   rightHeaderItems: {
     marginRight: -theme.spacing.unit,
@@ -149,7 +157,7 @@ class Header extends Component {
   render() {
     const {
       currentUser, classes, routes, location, params, client, theme, toc, searchResultsArea,
-      showNavigationDrawer
+      standaloneNavigationPresent, width
     } = this.props
     const { notificationOpen, notificationHasOpened, navigationOpen, headroomPinnedOpen } = this.state
     const routeName = routes[1].name
@@ -158,6 +166,10 @@ class Header extends Component {
     const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
 
     // console.log('navopen', navigationOpen)
+    // console.log('width', width)
+    // console.log('isMobile', isMobileByWidth(width, {mdIsMobile: false}))
+    // console.log('isMobile', isMobileByScreensize())
+    // const showNavigationDrawer = standaloneNavigationPresent && true
 
     const {
       SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
@@ -176,8 +188,12 @@ class Header extends Component {
         >
           <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
             <Toolbar>
-              {showNavigationDrawer && <IconButton
-                className={classes.menuButton} color="inherit"
+              <IconButton
+                className={classNames(
+                  classes.menuButton,
+                  {[classes.hideOnDesktop]: standaloneNavigationPresent}
+                )}
+                color="inherit"
                 aria-label="Menu"
                 onClick={()=>this.setNavigationOpen(true)}
               >
@@ -192,7 +208,7 @@ class Header extends Component {
                     </Hidden>
                   </span>
                 ) : <MenuIcon />}
-              </IconButton>}
+              </IconButton>
               <Typography className={classes.title} variant="title" color="textSecondary">
                 <Hidden smDown implementation="css">
                   <Link to="/" className={classes.titleLink}>
@@ -220,12 +236,12 @@ class Header extends Component {
               </div>
             </Toolbar>
           </AppBar>
-          {showNavigationDrawer && <NavigationDrawer
+          <NavigationDrawer
             open={navigationOpen}
             handleOpen={() => this.setNavigationOpen(true)}
             handleClose={() => this.setNavigationOpen(false)}
             toc={toc}
-          />}
+          />
         </Headroom>
         {currentUser && <NotificationsMenu open={notificationOpen} hasOpened={notificationHasOpened} terms={notificationTerms} setIsOpen={this.handleSetNotificationDrawerOpen} />}
       </div>
@@ -250,4 +266,5 @@ const withEditOptions = {
   fragmentName: 'UsersCurrent',
 };
 
+// withWidth(),
 registerComponent('Header', Header, withErrorBoundary, withRouter, withApollo, [withEdit, withEditOptions], withUser, withStyles(styles, { name: 'Header'}), withTheme());
