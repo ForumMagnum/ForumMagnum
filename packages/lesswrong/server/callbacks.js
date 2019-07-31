@@ -13,7 +13,6 @@ import { ReadStatuses } from '../lib/collections/readStatus/collection.js';
 
 import {
   addCallback,
-  removeCallback,
   newMutation,
   editMutation,
   removeMutation,
