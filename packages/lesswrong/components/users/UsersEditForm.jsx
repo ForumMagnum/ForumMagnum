@@ -52,14 +52,31 @@ const UsersEditForm = (props) => {
     return <FormattedMessage id="app.noPermission"/>;
   }
 
+  // currentUser will not be the user being edited in the case where current
+  // user is an admin. This component does not have access to the user email at
+  // all in admin mode unfortunately. In the fullness of time we could fix that,
+  // currently we disable it below
+  const requestPasswordReset = () => Accounts.forgotPassword(
+    { email: props.currentUser.email },
+    (error) => props.flash({
+      messageString: error ?
+      error.reason :
+      // TODO: This doesn't seem to display
+      "Sent password reset email to " + props.currentUser.email
+    })
+  )
+
   return (
     <div className={classes.root}>
       <Typography variant="display2" className={classes.header}><FormattedMessage id="users.edit_account"/></Typography>
-      <Button color="secondary" variant="outlined" className={classes.resetButton } onClick={() => Accounts.forgotPassword({ email: props.currentUser.email },
-          (error) => props.flash({ messageString: error ? error.reason : "Sent password reset email to " + props.currentUser.email }))
-        }>
+      {props.currentUser._id === terms.documentId && <Button
+        color="secondary"
+        variant="outlined"
+        className={classes.resetButton}
+        onClick={requestPasswordReset}
+      >
         Reset Password
-      </Button>
+      </Button>}
 
       <Components.WrappedSmartForm
         collection={Users}
