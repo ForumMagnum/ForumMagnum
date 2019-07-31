@@ -5,15 +5,22 @@ import mapProps from 'recompose/mapProps';
 import { withLocation } from '../../lib/routeUtil';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import Helmet from 'react-helmet';
+import { withStyles } from '@material-ui/core/styles';
+import { styles } from '../common/HeaderSubtitle';
 
-const SequencesPageTitle = ({location, isSubtitle, siteName, loading, document}) => {
+const SequencesPageTitle = ({location, isSubtitle, siteName, loading, document, classes}) => {
   if (!document || loading) return null;
   const sequence = document;
   
-  if (isSubtitle)
-    return <Link to={Sequences.getPageUrl(sequence, false)}>{sequence.title}</Link>
-  else
+  if (isSubtitle) {
+    return (<span className={classes.subtitle}>
+      <Link to={Sequences.getPageUrl(sequence, false)}>
+        {sequence.title}
+      </Link>
+    </span>);
+  } else {
     return <Helmet><title>`${sequence.title} - ${siteName}`</title></Helmet>
+  }
   
   // TODO: An earlier implementation of this had a special case for the core
   // collections. That special case didn't work, but maybe it's worth building
@@ -33,5 +40,6 @@ registerComponent("SequencesPageTitle", SequencesPageTitle,
     collection: Sequences,
     fragmentName: "SequencesPageFragment",
     ssr: true,
-  }]
+  }],
+  withStyles(styles, {name: "SequencesPageTitle"})
 );
