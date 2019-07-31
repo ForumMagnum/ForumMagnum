@@ -67,10 +67,6 @@
       } else {
         modifier.$set.emails = [{address: newEmail, verified: false}];
       }
-
-      // update email hash
-      modifier.$set.emailHash = Users.avatar.hash(newEmail);
-
     }
     return modifier;
   }

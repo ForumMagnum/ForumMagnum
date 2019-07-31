@@ -11,10 +11,8 @@ registerFragment(`
     isAdmin
     displayName
     email
-    emailHash
     slug
     groups
     services
-    avatarUrl
   }
 `);

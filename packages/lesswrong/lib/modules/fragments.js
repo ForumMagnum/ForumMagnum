@@ -327,7 +327,6 @@ registerFragment(`
     username
     displayName
     fullName
-    emailHash
     karma
     afKarma
     deleted
