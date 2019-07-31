@@ -6,7 +6,6 @@ import withHover from '../common/withHover';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { isMobile } from '../../lib/modules/utils/isMobile.js'
-import { commentExcerptFromHTML } from '../../lib/editor/ellipsize'
 
 const styles = theme => ({
   root: {
