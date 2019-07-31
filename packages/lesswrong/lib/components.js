@@ -218,6 +218,8 @@ import '../components/comments/CommentsItem/CommentsMenu.jsx';
 import '../components/comments/CommentsItem/CommentOutdatedWarning';
 import '../components/comments/CommentsItem/CommentsItemDate';
 
+
+import '../components/comments/CommentPermalink.jsx';
 import '../components/comments/RecentDiscussionThread.jsx';
 import '../components/comments/RecentDiscussionThreadsList.jsx';
 import '../components/comments/CantCommentExplanation.jsx';

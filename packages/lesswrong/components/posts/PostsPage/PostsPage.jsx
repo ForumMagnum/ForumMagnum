@@ -236,7 +236,7 @@ class PostsPage extends Component {
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, ContentType,
       LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
-      TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate } = Components
+      TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink } = Components
 
     if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
