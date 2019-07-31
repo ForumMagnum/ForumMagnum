@@ -93,6 +93,7 @@ addFieldsDict(Revisions, {
       } 
     }
   },
+  // Plaintext version, except that specially-formatted blocks like blockquotes are filtered out, for use in highly-abridged displays like SingleLineComment.
   plaintextMainText: {
     type: String, 
     resolveAs: {
