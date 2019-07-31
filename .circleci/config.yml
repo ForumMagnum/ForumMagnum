@@ -154,8 +154,7 @@ jobs:
           name: testing
           environment:
             TOOL_NODE_FLAGS: --max_old_space_size=2800 
-            NODE_OPTIONS: --max_old_space_size=512
-          command: meteor yarn test
+          command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=512" meteor yarn test
   deploy_prod_fast:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -228,8 +227,7 @@ jobs:
       - deploy:
           environment:
             TOOL_NODE_FLAGS: --max_old_space_size=2800
-            NODE_OPTIONS: --max_old_space_size=512
-          command: meteor mup deploy --config mup.secret        
+          command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=512" meteor mup deploy --config mup.secret
   deploy_prod:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -302,8 +300,7 @@ jobs:
       - deploy:
           environment:
             TOOL_NODE_FLAGS: --max_old_space_size=2800
-            NODE_OPTIONS: --max_old_space_size=512
-          command: meteor mup deploy --config mup.secret
+          command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=512" meteor mup deploy --config mup.secret
   deploy_af:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -376,8 +373,7 @@ jobs:
       - deploy:
           environment:
             TOOL_NODE_FLAGS: --max_old_space_size=2800
-            NODE_OPTIONS: --max_old_space_size=512
-          command: meteor mup deploy --config mup.secret
+          command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=512" meteor mup deploy --config mup.secret
   deploy_baserates:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -449,8 +445,7 @@ jobs:
       - deploy:
           environment:
             TOOL_NODE_FLAGS: --max_old_space_size=2800
-            NODE_OPTIONS: --max_old_space_size=512
-          command: meteor mup deploy --config mup.secret
+          command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=512" meteor mup deploy --config mup.secret
   deploy_staging:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -523,8 +518,7 @@ jobs:
       - deploy:
           environment:
             TOOL_NODE_FLAGS: --max_old_space_size=2800
-            NODE_OPTIONS: --max_old_space_size=512
-          command: meteor mup deploy --config mup.secret
+          command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=512" meteor mup deploy --config mup.secret
 
 workflows:
   version: 2

@@ -5,8 +5,10 @@ import mapProps from 'recompose/mapProps';
 import { withLocation } from '../../lib/routeUtil';
 import Posts from '../../lib/collections/posts/collection.js';
 import Helmet from 'react-helmet';
+import { withStyles } from '@material-ui/core/styles';
+import { styles } from '../common/HeaderSubtitle';
 
-const PostsPageHeaderTitle = ({location, isSubtitle, siteName, loading, document}) => {
+const PostsPageHeaderTitle = ({location, isSubtitle, siteName, loading, document, classes}) => {
   if (!document || loading) return null;
   const post = document;
   
@@ -24,7 +26,9 @@ const PostsPageHeaderTitle = ({location, isSubtitle, siteName, loading, document
   } else if (post?.frontpageDate) {
     return null;
   } else if (post?.meta) {
-    return <Link to="/meta">Meta</Link>;
+    return (<span className={classes.subtitle}>
+      <Link to="/meta">Meta</Link>
+    </span>);
   } else if (post?.userId) {
     // TODO: For personal blogposts, put the user in the sutitle. There was an
     // attempt to do this in a previous implementation, which didn't work.
@@ -45,5 +49,6 @@ registerComponent("PostsPageHeaderTitle", PostsPageHeaderTitle,
     collection: Posts,
     fragmentName: "PostsBase",
     ssr: true,
-  }]
+  }],
+  withStyles(styles, {name: "PostsPageHeaderTitle"})
 );

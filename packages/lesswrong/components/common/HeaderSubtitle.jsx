@@ -6,7 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = theme => ({
+export const styles = theme => ({
   subtitle: {
     marginLeft: '1em',
     paddingLeft: '1em',
@@ -24,15 +24,19 @@ const HeaderSubtitle = ({client, classes}) => {
   if (!SubtitleComponent && !subtitleString)
     return null;
   
-  return <span className={classes.subtitle}>
-    { SubtitleComponent
-      ? <SubtitleComponent isSubtitle={true} />
-      : (subtitleLink
-        ? <Link to={subtitleLink}>{subtitleString}</Link>
-        : {subtitleString}
-      )
-    }
-  </span>
+  if (SubtitleComponent) {
+    return <SubtitleComponent isSubtitle={true} />
+  } else if (subtitleLink) {
+    return <span className={classes.subtitle}>
+      <Link to={subtitleLink}>{subtitleString}</Link>
+    </span>
+  } else if (subtitleString) {
+    return <span className={classes.subtitle}>
+      {subtitleString}
+    </span>
+  } else {
+    return null;
+  }
 }
 
 registerComponent("HeaderSubtitle", HeaderSubtitle,
