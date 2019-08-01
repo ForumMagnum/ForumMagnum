@@ -175,23 +175,22 @@ const theme = createLWTheme({
         color: grey[800]
       }
     },
-    // TODO; use this sort of thing for other css changes
-    // TODO; doc change
+    SunshineSidebar: {
+      root: {
+        top: 30
+      }
+    },
+    PostsPageTitle: {
+      root: {
+        lineHeight: '1.25em'
+      }
+    },
     NavigationStandalone: {
-      // Can't use theme.breakpoints b/c we're still constucting theme
-      // This is theme.breakpoints.up('lg')
       sidebar: {
         top: 35
       },
       footerBar: {
         backgroundColor: grey[200],
-      }
-    },
-    TabNavigationMenu: {
-      root: {
-        // '@media (max-width: 1279.95px)': {
-        //   backgroundColor: grey[something] // TODO; ?
-        // }
       }
     },
     TabNavigationItem: {

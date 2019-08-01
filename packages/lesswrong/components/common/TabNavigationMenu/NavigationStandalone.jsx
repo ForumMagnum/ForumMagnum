@@ -33,10 +33,7 @@ const styles = theme => ({
 
 const NavigationStandalone = ({classes}) => {
   const { TabNavigationMenu, TabNavigationMenuFooter } = Components
-  // TODO; Different tabnavigationmenu for mobile standalone
   return <div className={classes.root}>
-    {/* TODO; at this point it seems like there's a reasonable performance /
-        cleanliness game to be won by only including this if we're large */}
     <div className={classes.sidebar}>
       <TabNavigationMenu standalone />
     </div>

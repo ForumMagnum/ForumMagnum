@@ -36,8 +36,6 @@ const TabNavigationMenuFooter = ({classes}) => {
         />
       })}
     </div>
-    // TODO; how to find faq info
-    // Maybe by having regular bar pull out in footer mode
   )
 };
 

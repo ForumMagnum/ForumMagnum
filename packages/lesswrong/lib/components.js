@@ -72,7 +72,6 @@ import '../components/common/LoadMore.jsx';
 import '../components/common/ReCaptcha.jsx';
 import '../components/common/LinkCard.jsx';
 
-// TODO; rename menu to menu sidebar
 import '../components/common/TabNavigationMenu/TabNavigationMenu.jsx';
 import '../components/common/TabNavigationMenu/TabNavigationMenuFooter.jsx';
 import '../components/common/TabNavigationMenu/TabNavigationMenuCompressed.jsx';
