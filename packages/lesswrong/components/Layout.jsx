@@ -35,9 +35,15 @@ const hashCode = function(str) {
   return hash;
 };
 
+// These routes will have the standalone TabNavigationMenu (aka sidebar)
+//
+// Refer to routes.js for the route names. Or console log in the route you'd
+// like to include
 const standaloneNavMenuRouteNames = {
   'LessWrong': ['home', 'allPosts', 'questions', 'sequencesHome', 'CommunityHome'],
-  'AlignmentForum': ['allPosts', 'questions'],  // TODO; maybe none?
+  // TODO-PR-Q: I left this mimicking current behavior, it's possible you'd
+  // rather just have an empty list
+  'AlignmentForum': ['allPosts', 'questions'],
   'EAForum': ['home', 'allPosts', 'questions', 'Community'],
 }
 

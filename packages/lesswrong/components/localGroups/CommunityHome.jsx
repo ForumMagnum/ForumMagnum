@@ -83,7 +83,6 @@ class CommunityHome extends Component {
       lng: this.state.currentUserLocation.lng,
       filters: filters,
     }
-    // TODO; confirm map is overridden
     return (
       <React.Fragment>
         <Components.CommunityMapWrapper

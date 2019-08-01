@@ -42,16 +42,13 @@ const styles = theme => ({
   },
 })
 
-const TabNavigationCompressedItem = ({tab, classes}) => {
-  // TODO; bracketless return
-  return <Tooltip placement='right-start' title={tab.tooltip || ''}>
+const TabNavigationCompressedItem = ({tab, classes}) =>
+  <Tooltip placement='right-start' title={tab.tooltip || ''}>
     <Link
       to={tab.link}
       className={classes.navButton}
     >
-      {/* TODO; all icons take classname */}
       {<span
-        // TODO; homeIcon
         className={classNames(classes.icon, {[classes.homeIcon]: tab.id === 'home'})}
       >
         {tab.iconComponent && <tab.iconComponent />}
@@ -60,7 +57,6 @@ const TabNavigationCompressedItem = ({tab, classes}) => {
       </span>}
     </Link>
   </Tooltip>
-}
 
 registerComponent(
   'TabNavigationCompressedItem', TabNavigationCompressedItem,

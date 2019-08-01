@@ -143,7 +143,11 @@ export default forumTabs = {
       title: 'Shortform [Beta]',
       link: '/shortform',
       subItem: true,
-    // TODO; confirm removal of meta
+    }, {
+      id: 'meta',
+      title: 'Meta',
+      link: '/meta',
+      subItem: true,
     }, {
       id: 'about',
       title: 'About',
@@ -210,7 +214,7 @@ export default forumTabs = {
     }
   ],
   EAForum: [
-    // TODO; copy
+    // TODO; write copy
     {
       id: 'home',
       title: 'Home',

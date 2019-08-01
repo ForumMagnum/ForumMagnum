@@ -66,9 +66,7 @@ const TabNavigationItem = ({tab, classes, location}) => {
         [classes.selected]: pathname === tab.link,
       })}
     >
-      {/* TODO; all icons take classname */}
       {(tab.icon || tab.iconComponent) && <span
-        // TODO; homeIcon
         className={classNames(classes.icon, {[classes.homeIcon]: tab.id === 'home'})}
       >
         {tab.iconComponent && <tab.iconComponent />}

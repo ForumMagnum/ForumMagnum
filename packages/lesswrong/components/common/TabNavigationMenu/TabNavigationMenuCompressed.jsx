@@ -42,7 +42,6 @@ const TabNavigationMenuCompressed = ({classes}) => {
         return <TabNavigationCompressedItem key={tab.id} tab={tab} />
       })}
     </div>
-    // TODO; how to find faq info
   )
 };
 
