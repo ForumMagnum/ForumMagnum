@@ -31,19 +31,17 @@ const CommentPermalink = (props) => {
   const { documentId, post, document: comment, classes, data: {refetch}, loading, error} = props
   const { Loading, Divider, CommentWithReplies } = Components;
 
-  if (error || !comment) return <div>Comment not found</div>
+  if (error || (!comment && !loading)) return <div>Comment not found</div>
 
   if (!documentId) return null
 
   return <div className={classes.root}>
       <div className={classes.permalinkLabel}>Comment Permalink</div>
-      {loading ? 
-        <Loading /> : 
-        <div>
-          <CommentWithReplies key={comment._id} post={post} comment={comment} refetch={refetch}/>
-          <div className={classes.seeInContext}><a href={`#${documentId}`}>See in context</a></div>
-          <div className={classes.dividerMargins}><Divider /></div>
-        </div>}
+      {loading ? <Loading /> : <div>
+        <CommentWithReplies key={comment._id} post={post} comment={comment} refetch={refetch}/>
+        <div className={classes.seeInContext}><a href={`#${documentId}`}>See in context</a></div>
+      </div>}
+      <div className={classes.dividerMargins}><Divider /></div>
     </div>
 }
 
