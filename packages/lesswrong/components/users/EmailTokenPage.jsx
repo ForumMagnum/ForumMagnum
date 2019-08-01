@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import { Components, registerComponent, withMutation } from 'meteor/vulcan:core';
-import { getComponent } from 'meteor/vulcan:lib';
+import { withLocation } from '../../lib/routeUtil';
 
 class EmailTokenPage extends Component
 {
@@ -10,7 +10,8 @@ class EmailTokenPage extends Component
   };
   
   componentDidMount() {
-    const { params: { token } } = this.props;
+    const { params } = this.props.location;
+    const { token } = params;
     this.props.useEmailToken({token}).then((mutationResult) => {
       this.setState({
         loading: false,
@@ -24,12 +25,13 @@ class EmailTokenPage extends Component
     if (loading)
       return <Components.Loading/>
     
-    const ResultComponent = getComponent(useTokenResult.componentName);
+    const ResultComponent = Components[useTokenResult.componentName];
     return <ResultComponent {...useTokenResult.props}/>
   }
 }
 
 registerComponent("EmailTokenPage", EmailTokenPage,
+  withLocation,
   withMutation({
     name: "useEmailToken",
     args: {token: 'String'}

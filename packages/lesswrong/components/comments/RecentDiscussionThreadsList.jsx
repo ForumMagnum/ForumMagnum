@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Components, registerComponent, withList, Loading, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList, withUpdate } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
 import withUser from '../common/withUser';
@@ -14,9 +14,9 @@ class RecentDiscussionThreadsList extends PureComponent {
   }
 
   render () {
-    const { results, loading, loadMore, networkStatus, editMutation, currentUser, data: { refetch }, threadView = "recentDiscussionThread" } = this.props
+    const { results, loading, loadMore, networkStatus, updateComment, currentUser, data: { refetch }, threadView = "recentDiscussionThread" } = this.props
     const { showShortformFeed } = this.state
-    const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm } = Components
+    const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, Loading } = Components
     
     const loadingMore = networkStatus === 2;
 
@@ -49,8 +49,7 @@ class RecentDiscussionThreadsList extends PureComponent {
                 postCount={i}
                 terms={{view:threadView, postId:post._id, limit}}
                 currentUser={currentUser}
-                editMutation={editMutation}/>
-
+                updateComment={updateComment}/>
             )}
             { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
             { loadingMore && <Loading />}
@@ -65,14 +64,15 @@ const discussionThreadsOptions = {
   collection: Posts,
   queryName: 'selectCommentsListQuery',
   fragmentName: 'PostsList',
+  fetchPolicy: 'cache-and-network',
   enableTotal: false,
   pollInterval: 0,
   enableCache: true,
 };
 
-const withEditOptions = {
+const withUpdateOptions = {
   collection: Comments,
   fragmentName: 'CommentsList',
 };
 
-registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList, [withList, discussionThreadsOptions], [withEdit, withEditOptions], withUser);
+registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList, [withList, discussionThreadsOptions], [withUpdate, withUpdateOptions], withUser);

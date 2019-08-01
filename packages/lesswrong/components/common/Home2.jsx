@@ -1,5 +1,4 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { getSetting } from 'meteor/vulcan:lib';
 import React, { PureComponent } from 'react';
 import withUser from '../common/withUser';
 import { SplitComponent } from 'meteor/vulcan:routing';
@@ -17,8 +16,9 @@ class Home2 extends PureComponent {
 
     return (
       <React.Fragment>
-        {shouldRenderSidebar && <SplitComponent name="SunshineSidebar" />}
-        <Components.HeadTags image={getSetting('siteImage')} />
+        {/*shouldRenderSidebar && <SplitComponent name="SunshineSidebar" />*/}
+        {shouldRenderSidebar && <Components.SunshineSidebar/>}
+
         <RecommendationsAndCurated configName="frontpage" />
         <HomeLatestPosts />
         <RecentDiscussionThreadsList terms={{view: 'recentDiscussionThreadsList', limit:20}}/>

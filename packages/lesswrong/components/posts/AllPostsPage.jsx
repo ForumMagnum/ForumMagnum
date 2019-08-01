@@ -1,7 +1,7 @@
 import { Components, registerComponent, getSetting, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { withLocation } from '../../lib/routeUtil';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
@@ -110,11 +110,11 @@ class AllPostsPage extends Component {
   }
 
   render() {
-    const { classes, router, currentUser } = this.props
+    const { classes, currentUser } = this.props
+    const { query } = this.props.location;
     const { showSettings } = this.state
     const { SingleColumnSection, SectionTitle, SettingsIcon, MetaInfo, PostsListSettings } = Components
 
-    const query = _.clone(router.location.query) || {}
     const currentTimeframe = query.timeframe ||
       (currentUser && currentUser.allPostsTimeframe) ||
       'daily'
@@ -166,7 +166,7 @@ registerComponent(
   'AllPostsPage',
   AllPostsPage,
   withStyles(styles, {name:"AllPostsPage"}),
-  withRouter,
+  withLocation,
   withUser,
   withTimezone,
   [withUpdate, withUpdateOptions]

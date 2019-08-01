@@ -23,7 +23,6 @@
     "twitterAccount": "foo",
     "facebookPage": "http://facebook.com/foo",
     "runVoteMigration": false,
-    "embedProvider": "builtin",
     "algolia": {
       "searchKey": "57abef6b46bc3ad6b7fcc28526976c3e",
       "appId": "CR43JFSDAS"

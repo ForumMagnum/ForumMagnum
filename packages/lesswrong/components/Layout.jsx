@@ -1,10 +1,7 @@
-
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 // import { InstantSearch} from 'react-instantsearch-dom';
 import React, { PureComponent } from 'react';
-import { withRouter } from '../lib/reactRouterWrapper.js';
 import Helmet from 'react-helmet';
-import { withApollo } from 'react-apollo';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import classNames from 'classnames'
 import Intercom from 'react-intercom';
@@ -13,11 +10,12 @@ import { withCookies } from 'react-cookie'
 import LogRocket from 'logrocket'
 
 import { withStyles, withTheme } from '@material-ui/core/styles';
-import getHeaderSubtitleData from '../lib/modules/utils/getHeaderSubtitleData';
+import { useLocation } from '../../../lib/routeUtil';
 import { UserContext } from './common/withUser';
 import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
+import { PostsReadContext } from './common/withRecordPostView';
 
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
 const googleTagManagerId = getSetting('googleTagManager.apiKey')
@@ -77,12 +75,19 @@ const styles = theme => ({
 })
 
 class Layout extends PureComponent {
-  state = {
-    timezone: null,
-    toc: null,
-  };
+  constructor (props) {
+    super(props);
+    const { cookies } = this.props;
+    const savedTimezone = cookies?.get('timezone');
 
-  searchResultsAreaRef = React.createRef();
+    this.state = {
+      timezone: savedTimezone,
+      toc: null,
+      postsRead: {}
+    };
+
+    this.searchResultsAreaRef = React.createRef();
+  }
 
   setToC = (document, sectionData) => {
     if (document) {
@@ -132,8 +137,10 @@ class Layout extends PureComponent {
   }
 
   componentDidMount() {
+    const { cookies } = this.props;
     const newTimezone = moment.tz.guess();
     if(this.state.timezone !== newTimezone) {
+      cookies.set('timezone', newTimezone);
       this.setState({
         timezone: newTimezone
       });
@@ -141,8 +148,11 @@ class Layout extends PureComponent {
     this.initializeLogRocket()
   }
 
+  componentWillUnmount() {
+  }
+
   render () {
-    const {currentUser, children, currentRoute, location, params, client, classes, theme} = this.props;
+    const {currentUser, children, classes, theme} = this.props;
 
     const showIntercom = currentUser => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -166,25 +176,23 @@ class Layout extends PureComponent {
       }
     }
 
-    const routeName = currentRoute.name
-    const query = location && location.query
-    const { subtitleText = currentRoute.title || "" } = getHeaderSubtitleData(routeName, query, params, client) || {}
-    const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
-    const title = subtitleText ? `${subtitleText} - ${siteName}` : siteName;
-    // console.log('routeName', routeName)
-    const standaloneNavigation = standaloneNavMenuRouteNames[getSetting('forumType')].includes(routeName)
-    // console.log('standaloneNavigation', standaloneNavigation)
-
+    const { currentRoute } = useLocation()
+    const standaloneNavigation = standaloneNavMenuRouteNames[getSetting('forumType')].includes(currentRoute.name)
     return (
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
+      <PostsReadContext.Provider value={{
+        postsRead: this.state.postsRead,
+        setPostRead: (postId, isRead) => this.setState({
+          postsRead: {...this.state.postsRead, [postId]: isRead}
+        })
+      }}>
       <TableOfContentsContext.Provider value={this.setToC}>
         <div className={classNames("wrapper", {'alignment-forum': getSetting('forumType') === 'AlignmentForum'}) } id="wrapper">
           <DialogManager>
           <div>
             <CssBaseline />
             <Helmet>
-              <title>{title}</title>
               <link name="material-icons" rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
               <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@7.0.0/themes/reset-min.css"/>
               <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
@@ -207,9 +215,13 @@ class Layout extends PureComponent {
             <Components.Header
               toc={this.state.toc}
               searchResultsArea={this.searchResultsAreaRef}
+<<<<<<< HEAD
               standaloneNavigationPresent={standaloneNavigation}
             />
             {standaloneNavigation && <Components.NavigationStandalone />}
+=======
+            />
+>>>>>>> lw-devel
             <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
             <div className={classes.main}>
               <Components.ErrorBoundary>
@@ -222,6 +234,7 @@ class Layout extends PureComponent {
           </DialogManager>
         </div>
       </TableOfContentsContext.Provider>
+      </PostsReadContext.Provider>
       </TimezoneContext.Provider>
       </UserContext.Provider>
     )
@@ -230,4 +243,4 @@ class Layout extends PureComponent {
 
 Layout.displayName = "Layout";
 
-registerComponent('Layout', Layout, withRouter, withApollo, withStyles(styles, { name: "Layout" }), withTheme(), withCookies);
+registerComponent('Layout', Layout, withStyles(styles, { name: "Layout" }), withTheme(), withCookies);

@@ -20,7 +20,6 @@ Package.onUse( function(api) {
     'vulcan:accounts',
     'vulcan:forms',
     'vulcan:events',
-    'vulcan:embed',
     'vulcan:admin',
     'vulcan:users',
     'vulcan:routing',

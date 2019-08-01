@@ -28,6 +28,7 @@ const styles = (theme) => {
   }
 }
 
+// TODO; standalone
 const TabNavigationMenu = ({classes, standalone, currentUser}) => {
   const { TabNavigationItem } = Components
   const customComponentProps = {currentUser}

@@ -102,6 +102,7 @@ extendFragment('UsersCurrent', `
 
 registerFragment(`
   fragment UserKarmaChanges on User {
+    _id
     karmaChanges {
       totalChange
       updateFrequency
@@ -326,7 +327,6 @@ registerFragment(`
     username
     displayName
     fullName
-    emailHash
     karma
     afKarma
     deleted
