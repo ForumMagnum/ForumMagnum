@@ -29,9 +29,9 @@ const styles = theme => ({
 
 const CommentPermalink = (props) => {
   const { documentId, post, document: comment, classes, data: {refetch}, loading, error} = props
-  const { Error404, Loading, Divider, CommentWithReplies } = Components;
+  const { Loading, Divider, CommentWithReplies } = Components;
 
-  if (error || !comment) return <Error404 />
+  if (error || !comment) return <div>Comment not found</div>
 
   if (!documentId) return null
 

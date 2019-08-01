@@ -48,6 +48,7 @@ class CommentWithReplies extends PureComponent {
 
     return <div>
         <CommentsNode
+          noHash
           startThreadTruncated={true}
           showPostTitle
           startCollapsed
