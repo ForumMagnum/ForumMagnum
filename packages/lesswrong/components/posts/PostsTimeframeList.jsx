@@ -6,6 +6,7 @@ import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import classNames from 'classnames';
 import { getDateRange, timeframeToTimeBlock } from './timeframeUtils'
+import withTimezone from '../common/withTimezone';
 
 const styles = theme => ({
   loading: {
@@ -31,6 +32,15 @@ class PostsTimeframeList extends PureComponent {
     this.state = {
       // after goes backwards in time when we load more time blocks
       after: props.after,
+      // See below for reasoning behind inclusion
+      before: props.before,
+      // Must include timeframe in state if we include after. Although timeframe
+      // as stored in state is the same as the timeframe passed down from props
+      // 99.999% of the time...
+      // > Ok, it's setting the after prop at the same time as the timeframe,
+      // but the state is dirty and takes a few milliseconds to catch up,
+      // during which time the PTL has asked for 1200 days worth of posts.
+      timeframe: props.timeframe,
       dim: props.dimWhenLoading,
     };
   }
@@ -41,10 +51,15 @@ class PostsTimeframeList extends PureComponent {
     // previous updates to the `after` state and redim for reloading.
     if (
       prevProps.after !== this.props.after ||
+       // Next two presumeably redundant, but included for completeness
+      prevProps.before !== this.props.before ||
+      prevProps.timeframe !== this.props.timeframe ||
       !_.isEqual(prevProps.postListParameters, this.props.postListParameters)
     ) {
       this.setState({
         after: this.props.after,
+        before: this.props.before,
+        timeframe: this.props.timeframe,
         dim: this.props.dimWhenLoading,
       })
     }
@@ -72,8 +87,8 @@ class PostsTimeframeList extends PureComponent {
   }
 
   render() {
-    const { classes, postListParameters, timeframe, before } = this.props
-    const { after, dim } = this.state
+    const { timezone, classes, postListParameters } = this.props
+    const { timeframe, after, before, dim } = this.state
     const { PostsTimeBlock } = Components
 
     const timeBlock = timeframeToTimeBlock[timeframe]
@@ -84,13 +99,15 @@ class PostsTimeframeList extends PureComponent {
         {dates.map((date, index) =>
           <PostsTimeBlock
             key={date.toString()}
-            startDate={moment(date)}
+            startDate={moment.tz(date, timezone)}
             timeframe={timeframe}
             terms={{
               ...postListParameters,
               // NB: 'before', as a parameter for a posts view, is inclusive
-              before: moment(date).endOf(timeBlock).format('YYYY-MM-DD'),
-              after: moment(date).startOf(timeBlock).format('YYYY-MM-DD'),
+              before: moment.tz(date, timezone)
+                .endOf(timeBlock).format('YYYY-MM-DD'),
+              after: moment.tz(date, timezone)
+                .startOf(timeBlock).format('YYYY-MM-DD'),
               limit: 16
             }}
             timeBlockLoadComplete={this.timeBlockLoadComplete}
@@ -111,5 +128,6 @@ PostsTimeframeList.propTypes = {
 };
 
 registerComponent('PostsTimeframeList', PostsTimeframeList,
+  withTimezone,
   withStyles(styles, {name: "PostsTimeframeList"})
 );

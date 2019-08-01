@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment from 'moment-timezone';
 
 export const timeframeToTimeBlock = {
   daily: 'day',
@@ -65,9 +65,9 @@ export function getDateRange (after, before, timeBlock) {
 // startOf function. If you wanted to posts for the past 3 weeks, you'd call
 // this with (3, 'week'). You would then go to the most recent Sunday, and then
 // two Sundays before that.
-export function getAfterDefault (numTimeBlocks, timeBlock) {
-  if (!numTimeBlocks || !timeBlock) return
-  const startCurrentTimeBlock = moment().startOf(timeBlock)
+export function getAfterDefault ({numTimeBlocks, timeBlock, timezone}) {
+  if (!numTimeBlocks || !timeBlock || !timezone) throw new Error("Missing argument in getAfterDefault");
+  const startCurrentTimeBlock = moment().tz(timezone).startOf(timeBlock)
   return startCurrentTimeBlock.subtract(numTimeBlocks - 1, timeBlock).format('YYYY-MM-DD')
 }
 
@@ -76,8 +76,8 @@ export function getAfterDefault (numTimeBlocks, timeBlock) {
 //
 // For ease of calculations, we start at the beginning of the next timeBlock.
 // i.e. if today is July 10th, the default 'before' date is August 1st.
-export function getBeforeDefault (timeBlock) {
-  if (!timeBlock) return
-  const startNextTimeBlock = moment().startOf(timeBlock).add(1, timeBlock)
+export function getBeforeDefault ({timeBlock, timezone}) {
+  if (!timeBlock) throw new Error("Missing argument in getBeforeDefault");
+  const startNextTimeBlock = moment().tz(timezone).startOf(timeBlock).add(1, timeBlock)
   return startNextTimeBlock.format('YYYY-MM-DD')
 }
