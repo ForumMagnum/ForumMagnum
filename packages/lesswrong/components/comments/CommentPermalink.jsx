@@ -1,34 +1,60 @@
 import React from 'react';
 import { Components, registerComponent, withDocument } from 'meteor/vulcan:core';
 import { Comments } from '../../lib/collections/comments';
+import { withStyles } from '@material-ui/core/styles';
 
-// Wraps PostsPage with a withDocument, taking a documentId instead of a post
-// object.
+const styles = theme => ({
+  dividerMargins: {
+    marginTop: 150,
+    marginBottom: 150,
+  },
+  permalinkLabel: {
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[600],
+    marginBottom: theme.spacing.unit*2,
+    marginLeft: 10,
+    [theme.breakpoints.down('md')]: {
+      marginTop: theme.spacing.unit*2
+    }
+  },
+  seeInContext: {
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    textAlign: "right",
+    color: theme.palette.lwTertiary.main,
+    marginRight: 10
+  },
+})
+
 const CommentPermalink = (props) => {
-  const {document: comment, sequenceId, version, data: {refetch}, loading, error} = props
-  const { Error404, Loading, CommentsNode } = Components;
-  if (error) {
-    return <Error404 />
-  } else if (loading) {
-    return <div><Loading/></div>
-  } else if (!comment) {
-    return <Error404/>
-  }
-  console.log(props)
-  return <CommentsNode comment={comment}/>
+  const { documentId, post, document: comment, classes, data: {refetch}, loading, error} = props
+  const { Error404, Loading, Divider, CommentWithReplies } = Components;
+
+  if (error || !comment) return <Error404 />
+
+  if (!documentId) return null
+
+  return <div className={classes.root}>
+      <div className={classes.permalinkLabel}>Comment Permalink</div>
+      {loading ? 
+        <Loading /> : 
+        <div>
+          <CommentWithReplies key={comment._id} post={post} comment={comment} refetch={refetch}/>
+          <div className={classes.seeInContext}><a href={`#${documentId}`}>See in context</a></div>
+          <div className={classes.dividerMargins}><Divider /></div>
+        </div>}
+    </div>
 }
 
 registerComponent("CommentPermalink", CommentPermalink,
+  withStyles(styles, {name:"CommentPermalink"}),
   [withDocument, {
     collection: Comments,
     queryName: 'commentsPermalinkQuery',
-    fragmentName: 'commentWithContextFragment',
+    fragmentName: 'ShortformCommentsList',
     enableTotal: false,
     enableCache: true,
     ssr: true,
-    extraVariables: {
-      version: 'String',
-      sequenceId: 'String',
-    }
   }]
 );

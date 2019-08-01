@@ -220,7 +220,7 @@ class CommentsNode extends Component {
     const { comment, children, nestingLevel=1, highlightDate, updateComment, post,
       muiTheme, location, postPage, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments,
-      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton } = this.props;
+      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash } = this.props;
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList } = Components
 
@@ -261,7 +261,7 @@ class CommentsNode extends Component {
         [classes.answerLeafComment]: !(children && children.length),
         [classes.isSingleLine]: this.isSingleLine(),
         [classes.commentHidden]: hiddenReadComment,
-        [classes.shortformTop]: shortform && (nestingLevel===1),
+        [classes.shortformTop]: postPage && shortform && (nestingLevel===1),
       }
     )
 
@@ -273,7 +273,7 @@ class CommentsNode extends Component {
     return (
         <div className={nodeClass}
           onClick={(event) => this.unTruncate(event)}
-          id={comment._id}
+          id={!noHash && comment._id}
          >
           {!hiddenReadComment && comment._id && <div ref={this.scrollTargetRef}>
             {this.isSingleLine()
@@ -305,7 +305,7 @@ class CommentsNode extends Component {
                 truncated={this.isTruncated()}
                 //eslint-disable-next-line react/no-children-prop
                 children={child.children}
-                key={child.item._id}
+                key={child.item._id ||  new Date()}
                 { ...passedThroughNodeProps}
               />)}
           </div>}

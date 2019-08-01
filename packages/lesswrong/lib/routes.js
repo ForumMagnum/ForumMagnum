@@ -263,7 +263,7 @@ addRoute([
 addRoute([
   {
     name:'posts.commentPermalink',
-    path:'/posts/:_id/comments/:_id?',
+    path:'/posts/:_id/:slug/comments/:_commentId?',
     componentName: 'PostsSingle',
     titleComponentName: 'PostsPageHeaderTitle',
     subtitleComponentName: 'PostsPageHeaderTitle',

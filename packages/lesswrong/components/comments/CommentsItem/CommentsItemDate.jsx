@@ -21,6 +21,7 @@ const styles = theme => ({
   },
   postTitle: {
     marginRight: 5,
+    
   },
   link: {
   },
@@ -50,13 +51,13 @@ const CommentsItemDate = ({comment, post, router, showPostTitle, scrollOnClick=f
       [classes.answerDate]: comment.answer,
     })}>
       { !scrollOnClick ?
-        <Link to={Posts.getPageUrl(post) + "#" + comment._id}>
+        <Link to={Posts.getPageUrl(post) + "/comments/" + comment._id}>
           <Components.FormatDate date={comment.postedAt} format={comment.answer && "MMM DD, YYYY"}/>
           <Icon className={classNames("material-icons", classes.icon)}> link </Icon>
           {showPostTitle && post.title && <span className={classes.postTitle}> { post.title }</span>}
         </Link>
       :
-      <a href={Posts.getPageUrl(post) + "#" + comment._id} onClick={handleLinkClick}>
+      <a href={Posts.getPageUrl(post) + "/comments/" + comment._id} onClick={handleLinkClick}>
         <Components.FormatDate date={comment.postedAt}/>
         <Icon className={classNames("material-icons", classes.icon)}> link </Icon>
         {showPostTitle && post.title && <span className={classes.postTitle}> { post.title }</span>}

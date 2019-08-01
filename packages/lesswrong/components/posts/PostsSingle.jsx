@@ -6,7 +6,6 @@ const PostsSingle = () => {
   const { params, query } = useLocation();
   const version = query?.revision;
 
-  console.log(query)
   return <Components.PostsPageWrapper documentId={params._id} sequenceId={null} version={version} />
 };
 
