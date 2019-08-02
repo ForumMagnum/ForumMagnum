@@ -14,7 +14,8 @@ class HomeEA extends PureComponent {
 
     return (
       <React.Fragment>
-        {shouldRenderSidebar && <SplitComponent name="SunshineSidebar" />}
+        {/* {shouldRenderSidebar && <SplitComponent name="SunshineSidebar" />} */}
+        {shouldRenderSidebar && <Components.SunshineSidebar/>}
 
         {currentUser && Users.isAdmin(currentUser) &&
           <ConfigurableRecommendationsList configName="frontpage" />

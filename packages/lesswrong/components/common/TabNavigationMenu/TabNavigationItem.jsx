@@ -4,7 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { Link } from '../../../lib/reactRouterWrapper.js';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
-import { useLocation } from '../../lib/routeUtil.js';
+import { useLocation } from '../../../lib/routeUtil.js';
 
 export const iconWidth = 30
 const smallIconSize = 23

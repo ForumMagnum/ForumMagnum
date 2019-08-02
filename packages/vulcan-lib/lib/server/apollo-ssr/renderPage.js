@@ -64,7 +64,10 @@ const makePageRenderer = async sink => {
     await getDataFromTree(WrappedApp, {isGetDataFromTree: true});
     htmlContent = await ReactDOM.renderToString(WrappedApp);
   } catch (err) {
-    console.error(`Error while server-rendering. date: ${new Date().toString()} url: ${req.url}`); // eslint-disable-line no-console
+    // console.log('req', req)
+    // TODO; are we catching graphql errors correctly?
+    // Ya know, stack traces are real nice
+    console.error(`Error while server-rendering. date: ${new Date().toString()} url: ${req.url.pathname}`); // eslint-disable-line no-console
     console.error(err);
     // show error in client in dev
     if (Meteor.isDevelopment) {

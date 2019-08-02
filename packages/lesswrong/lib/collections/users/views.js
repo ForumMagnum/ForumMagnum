@@ -68,6 +68,7 @@ Users.addView("usersWithBannedUsers", function () {
 })
 
 Users.addView("sunshineNewUsers", function () {
+  console.log('ssNU view()')
   let reCaptchaSelector = {signUpReCaptchaRating: {$gt: 0.3}}
   if (!getSetting('requireReCaptcha')) {
     reCaptchaSelector = {
@@ -87,7 +88,7 @@ Users.addView("sunshineNewUsers", function () {
       ],
       reviewedByUserId: {$exists: false},
       banned: {$exists: false},
-    }, 
+    },
     options: {
       sort: {
         commentCount: -1,

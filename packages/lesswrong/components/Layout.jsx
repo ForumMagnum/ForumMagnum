@@ -1,5 +1,4 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
-// import { InstantSearch} from 'react-instantsearch-dom';
 import React, { PureComponent } from 'react';
 import Helmet from 'react-helmet';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -10,7 +9,7 @@ import { withCookies } from 'react-cookie'
 import LogRocket from 'logrocket'
 
 import { withStyles, withTheme } from '@material-ui/core/styles';
-import { useLocation } from '../../../lib/routeUtil';
+import { withLocation } from '../lib/routeUtil';
 import { UserContext } from './common/withUser';
 import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
@@ -38,11 +37,12 @@ const hashCode = function(str) {
 // Refer to routes.js for the route names. Or console log in the route you'd
 // like to include
 const standaloneNavMenuRouteNames = {
-  'LessWrong': ['home', 'allPosts', 'questions', 'sequencesHome', 'CommunityHome'],
+  // TODO; test shortform
+  'LessWrong': ['home', 'allPosts', 'questions', 'sequencesHome', 'CommunityHome', 'Shortform'],
   // TODO-PR-Q: I left this mimicking current behavior, it's possible you'd
   // rather just have an empty list
   'AlignmentForum': ['allPosts', 'questions'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Community'],
+  'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform'],
 }
 
 const styles = theme => ({
@@ -152,7 +152,7 @@ class Layout extends PureComponent {
   }
 
   render () {
-    const {currentUser, children, classes, theme} = this.props;
+    const {currentUser, location, children, classes, theme} = this.props;
 
     const showIntercom = currentUser => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -176,8 +176,8 @@ class Layout extends PureComponent {
       }
     }
 
-    const { currentRoute } = useLocation()
-    const standaloneNavigation = standaloneNavMenuRouteNames[getSetting('forumType')].includes(currentRoute.name)
+    const standaloneNavigation = standaloneNavMenuRouteNames[getSetting('forumType')]
+      .includes(location.currentRoute.name)
     return (
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
@@ -215,13 +215,9 @@ class Layout extends PureComponent {
             <Components.Header
               toc={this.state.toc}
               searchResultsArea={this.searchResultsAreaRef}
-<<<<<<< HEAD
               standaloneNavigationPresent={standaloneNavigation}
             />
             {standaloneNavigation && <Components.NavigationStandalone />}
-=======
-            />
->>>>>>> lw-devel
             <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
             <div className={classes.main}>
               <Components.ErrorBoundary>
@@ -243,4 +239,4 @@ class Layout extends PureComponent {
 
 Layout.displayName = "Layout";
 
-registerComponent('Layout', Layout, withStyles(styles, { name: "Layout" }), withTheme(), withCookies);
+registerComponent('Layout', Layout, withLocation, withStyles(styles, { name: "Layout" }), withTheme(), withCookies);

@@ -65,12 +65,12 @@ function generateSSRData(options, req, res, renderProps) {
     if (!options.disableSSR) {
       const sheet = new ServerStyleSheet();
       const time = new Date()
-      
+
       html = renderToString(sheet.collectStyles(app));
       const postTime = new Date() - time
       console.log("renderToString time: ", postTime) // eslint-disable-line no-console
       styledComponentCss = sheet.getStyleTags();
-      
+
       InjectData.pushData(res, 'splitComponents', splitComponentCollector.getUsedComponents());
     } else if (options.loadingScreen) {
       html = options.loadingScreen;
@@ -83,7 +83,7 @@ function generateSSRData(options, req, res, renderProps) {
 
     // send server timezone to client
     InjectData.pushData(res, 'utcOffset', moment().utcOffset());
-    
+
     // send the URL that is being rendered to the client
     InjectData.pushData(res, 'url', req.url);
 
