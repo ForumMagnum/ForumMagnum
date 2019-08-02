@@ -8,8 +8,6 @@ const PostsEdit = ({post}) => {
   return <Link to={link}>Edit</Link>
 }
 
-PostsEdit.displayName = "PostsEdit";
-
 PostsEdit.propTypes = {
   post: PropTypes.object.isRequired,
 };

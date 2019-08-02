@@ -102,8 +102,6 @@ class ImageUpload extends Component {
   }
 }
 
-ImageUpload.displayName = "ImageUpload"
-
 ImageUpload.contextTypes = {
   updateCurrentValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,

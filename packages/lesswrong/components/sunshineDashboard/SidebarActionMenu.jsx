@@ -26,6 +26,4 @@ SidebarActionMenu.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-SidebarActionMenu.displayName = "SidebarActionMenu";
-
 registerComponent('SidebarActionMenu', SidebarActionMenu, withStyles(styles, { name: 'SidebarActionMenu'}));

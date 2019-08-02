@@ -71,6 +71,4 @@ PostsNewForm.propTypes = {
   flash: PropTypes.func,
 }
 
-PostsNewForm.displayName = "PostsNewForm";
-
 registerComponent('PostsNewForm', PostsNewForm, withMessages, withUser, withStyles(styles, { name: "PostsNewForm" }));

@@ -103,8 +103,6 @@ UsersEditForm.contextTypes = {
   intl: intlShape
 };
 
-UsersEditForm.displayName = 'UsersEditForm';
-
 registerComponent('UsersEditForm', UsersEditForm,
   withMessages, withUser, withApollo,
   withStyles(styles, { name: "UsersEditForm" })

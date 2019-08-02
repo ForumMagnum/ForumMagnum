@@ -107,9 +107,6 @@ class CommentsList extends Component {
   }
 }
 
-
-CommentsList.displayName = "CommentsList";
-
 const withEditOptions = {
   collection: Comments,
   fragmentName: 'CommentsList',
