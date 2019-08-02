@@ -39,7 +39,7 @@ const ShortformThreadList = ({ classes, results, loading, loadMore, networkStatu
 const discussionThreadsOptions = {
   collection: Comments,
   queryName: 'ShortformThreadListQuery',
-  fragmentName: 'ShortformCommentsList',
+  fragmentName: 'CommentWithReplies',
   enableTotal: false,
   pollInterval: 0,
   enableCache: true,

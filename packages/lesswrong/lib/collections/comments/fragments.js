@@ -66,7 +66,7 @@ registerFragment(`
 `)
 
 registerFragment(`
-  fragment ShortformCommentsList on Comment {
+  fragment CommentWithReplies on Comment {
     ...CommentsList
     lastSubthreadActivity
     latestChildren {

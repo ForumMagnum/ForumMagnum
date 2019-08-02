@@ -50,7 +50,7 @@ registerComponent("CommentPermalink", CommentPermalink,
   [withDocument, {
     collection: Comments,
     queryName: 'commentsPermalinkQuery',
-    fragmentName: 'ShortformCommentsList',
+    fragmentName: 'CommentWithReplies',
     enableTotal: false,
     enableCache: true,
     ssr: true,
