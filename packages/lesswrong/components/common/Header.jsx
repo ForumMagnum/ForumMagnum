@@ -62,7 +62,12 @@ const styles = theme => ({
     marginRight: theme.spacing.unit,
   },
   hideOnDesktop: {
-    [theme.breakpoints.up('md')]: {
+    [theme.breakpoints.up('lg')]: {
+      display:"none"
+    }
+  },
+  hideOnMobile: {
+    [theme.breakpoints.down('md')]: {
       display:"none"
     }
   },
@@ -145,10 +150,47 @@ class Header extends PureComponent {
     });
   }
 
+  renderNavigationMenuButton = () => {
+    const {standaloneNavigationPresent, toggleStandaloneNavigation, classes, toc} = this.props
+    // const {} = Components
+    return <React.Fragment>
+      <IconButton
+        className={classNames(
+          classes.menuButton,
+          {[classes.hideOnDesktop]: standaloneNavigationPresent}
+        )}
+        color="inherit"
+        aria-label="Menu"
+        onClick={()=>this.setNavigationOpen(true)}
+      >
+      {/* Show the ToC icon if there's a table of contents being displayed  */}
+        {toc && toc.sections ? (
+          <span>
+            <Hidden smDown implementation="css">
+              <MenuIcon />
+            </Hidden>
+            <Hidden mdUp implementation="css">
+              <TocIcon />
+            </Hidden>
+          </span>
+        ) : <MenuIcon />}
+      </IconButton>
+      {standaloneNavigationPresent && <IconButton
+        className={classNames(
+          classes.menuButton,
+          classes.hideOnMobile
+        )}
+        color="inherit"
+        aria-label="Menu"
+        onClick={toggleStandaloneNavigation}
+      >
+        <MenuIcon />
+      </IconButton>}
+    </React.Fragment>
+  }
+
   render() {
-    const {
-      currentUser, classes, theme, toc, searchResultsArea, standaloneNavigationPresent
-    } = this.props
+    const { currentUser, classes, theme, searchResultsArea, toc } = this.props
     const { notificationOpen, notificationHasOpened, navigationOpen, headroomPinnedOpen } = this.state
     const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
 
@@ -175,27 +217,7 @@ class Header extends PureComponent {
         >
           <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
             <Toolbar>
-              <IconButton
-                className={classNames(
-                  classes.menuButton,
-                  {[classes.hideOnDesktop]: standaloneNavigationPresent}
-                )}
-                color="inherit"
-                aria-label="Menu"
-                onClick={()=>this.setNavigationOpen(true)}
-              >
-              {/* Show the ToC icon if there's a table of contents being displayed  */}
-                {toc && toc.sections ? (
-                  <span>
-                    <Hidden smDown implementation="css">
-                      <MenuIcon />
-                    </Hidden>
-                    <Hidden mdUp implementation="css">
-                      <TocIcon />
-                    </Hidden>
-                  </span>
-                ) : <MenuIcon />}
-              </IconButton>
+              {this.renderNavigationMenuButton()}
               <Typography className={classes.title} variant="title" color="textSecondary">
                 <Hidden smDown implementation="css">
                   <Link to="/" className={classes.titleLink}>

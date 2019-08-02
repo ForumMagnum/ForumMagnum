@@ -83,7 +83,8 @@ class Layout extends PureComponent {
     this.state = {
       timezone: savedTimezone,
       toc: null,
-      postsRead: {}
+      postsRead: {},
+      hideNavigationSidebar: false,
     };
 
     this.searchResultsAreaRef = React.createRef();
@@ -102,6 +103,21 @@ class Layout extends PureComponent {
         toc: null,
       });
     }
+  }
+
+  toggleStandaloneNavigation = () => {
+    const { updateUser, currentUser } = this.props
+    this.setState(prevState => {
+      updateUser({
+        selector: { _id: currentUser._id},
+        data: {
+          hideNavigationSidebar: !prevState.hideNavigationSidebar
+        },
+      })
+      return {
+        hideNavigationSidebar: !prevState.hideNavigationSidebar
+      }
+    })
   }
 
   getUniqueClientId = () => {
@@ -148,11 +164,18 @@ class Layout extends PureComponent {
     this.initializeLogRocket()
   }
 
-  componentWillUnmount() {
+  componentDidUpdate ({currentUser: prevCurrentUser}) {
+    const { currentUser} = this.props
+    if (!prevCurrentUser && currentUser) {
+      this.setState({
+        hideNavigationSidebar: currentUser.hideNavigationSidebar
+      })
+    }
   }
 
   render () {
     const {currentUser, location, children, classes, theme} = this.props;
+    const {hideNavigationSidebar} = this.state
 
     const showIntercom = currentUser => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -216,8 +239,9 @@ class Layout extends PureComponent {
               toc={this.state.toc}
               searchResultsArea={this.searchResultsAreaRef}
               standaloneNavigationPresent={standaloneNavigation}
+              toggleStandaloneNavigation={this.toggleStandaloneNavigation}
             />
-            {standaloneNavigation && <Components.NavigationStandalone />}
+            {standaloneNavigation && !hideNavigationSidebar && <Components.NavigationStandalone />}
             <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
             <div className={classes.main}>
               <Components.ErrorBoundary>
@@ -239,4 +263,7 @@ class Layout extends PureComponent {
 
 Layout.displayName = "Layout";
 
-registerComponent('Layout', Layout, withLocation, withStyles(styles, { name: "Layout" }), withTheme(), withCookies);
+registerComponent(
+  'Layout', Layout, withUpdateUser, withLocation, withCookies,
+  withStyles(styles, { name: "Layout" }), withTheme()
+);
