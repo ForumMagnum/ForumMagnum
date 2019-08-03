@@ -2,7 +2,6 @@ import { debug, debugGroup, debugGroupEnd, Connectors, runCallbacks, runCallback
 import Votes from '../lib/collections/votes/collection.js';
 import Users from 'meteor/vulcan:users';
 import { recalculateScore, recalculateBaseScore } from '../lib/modules/scoring.js';
-import { createError } from 'apollo-errors';
 import { voteTypes, createVote } from '../lib/modules/vote.js';
 import { algoliaDocumentExport } from './search/utils';
 import moment from 'moment';
@@ -187,9 +186,10 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
 
   const voteOptions = {document, collection, voteType, user, voteId, updateDocument};
 
-  if (!document || !user || !Users.canDo(user, `${collectionName.toLowerCase()}.${voteType}`)) {
-    const VoteError = createError('voting.no_permission', {message: 'voting.no_permission'});
-    throw new VoteError();
+  if (!document) throw new Error("Error casting vote: Document not found.");
+  if (!user) throw new Error("Error casting vote: Not logged in.");
+  if (!Users.canDo(user, `${collectionName.toLowerCase()}.${voteType}`)) {
+    throw new Error("Error casting vote: User can't cast that type of vote.");
   }
 
   const existingVote = await hasVotedServer({document, voteType, user});
