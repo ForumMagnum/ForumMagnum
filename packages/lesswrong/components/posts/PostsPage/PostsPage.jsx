@@ -12,6 +12,7 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import classNames from 'classnames';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import withRecordPostView from '../../common/withRecordPostView';
+import { postsItemLikeStyles } from '../../localGroups/LocalGroupsItem.jsx';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 const DEFAULT_TOC_MARGIN = 100
@@ -217,18 +218,18 @@ class PostsPage extends Component {
     const { params, document: post } = this.props;
     return params.sequenceId || post?.canonicalSequenceId;
   }
-  
+
   shouldHideAsSpam() {
     const { document: post, currentUser } = this.props;
-    
+
     // Logged-out users shouldn't be able to see spam posts
     if (post.authorIsUnreviewed && !currentUser) {
       return true;
     }
-    
+
     return false;
   }
-  
+
   render() {
     const { loading, document: post, currentUser, location, router, classes, data: {refetch} } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, ContentType,
@@ -254,6 +255,9 @@ class PostsPage extends Component {
       const feedLink = post.feed && post.feed.url && getHostname(post.feed.url)
       const { major } = extractVersionsFromSemver(post.version)
       const hasMajorRevision = major > 1
+      const contentType = (post.frontpageDate && 'frontpage') ||
+        (post.meta && 'meta') ||
+        'personal'
 
       return (
         <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
@@ -271,7 +275,7 @@ class PostsPage extends Component {
                       <PostsAuthors post={post}/>
                     </span>
                     <span className={classes.postType}>
-                      <ContentType frontpage={post.frontpageDate}/>
+                      <ContentType type={contentType}/>
                     </span>
                     { post.feed && post.feed.user &&
                       <Tooltip title={`Crossposted from ${feedLink}`}>

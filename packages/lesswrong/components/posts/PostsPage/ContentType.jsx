@@ -5,19 +5,21 @@ import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
 import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
+import MetaIcon from '@material-ui/icons/Group';
 import SubjectIcon from '@material-ui/icons/Subject';
 
 const styles = theme => ({
   root: {
     textAlign: 'left',
     display: 'inline-block',
-    color: theme.palette.grey[600],
+    color: theme.palette.grey[800], // TODO;
     whiteSpace: "no-wrap",
     fontSize: theme.typography.body2.fontSize,
+    fontWeight: 600,
   },
   icon: {
     fontSize: "1.3rem",
-    color: theme.palette.grey[500],
+    color: theme.palette.grey[800],
     position: "relative",
     top: 3,
     marginRight: 4,
@@ -27,7 +29,23 @@ const styles = theme => ({
   },
 })
 
-const ContentType = ({classes, frontpage, shortform, label}) => {
+// const contentTypes = {
+//   LessWrong: [
+//     {
+//       tooltip,
+
+//     }
+//   ],
+//   AlignmentForum: [
+
+//   ],
+//   EAForum: [
+
+//   ]
+// }
+
+const ContentType = ({classes, type, shortform, label}) => {
+  // TODO; forumTYpe coming through
   const frontpageTooltip = <div>
     <div className={classes.tooltipTitle}>Frontpage Post</div>
     <div>Moderators promote posts to frontpage based on:</div>
@@ -35,6 +53,15 @@ const ContentType = ({classes, frontpage, shortform, label}) => {
       <li>Usefulness, novelty, relevance</li>
       <li>Timeless content (minimizing reference to current events)</li>
       <li>Aiming to explain, rather than persuade</li>
+    </ul>
+  </div>
+
+  // TODO;
+  const metaTooltip = <div>
+    <div className={classes.tooltipTitle}>Meta Post</div>
+    <div>Moderators promote posts to meta based on:</div>
+    <ul>
+      <li>Uselessness, boringness, irrelevance</li>
     </ul>
   </div>
 
@@ -58,7 +85,8 @@ const ContentType = ({classes, frontpage, shortform, label}) => {
     </div>
   </div>
 
-  if (frontpage) {
+  // TODO; dry
+  if (type === 'frontpage') {
     return <Typography variant="body1" component="span" className={classes.root}>
       <Tooltip title={frontpageTooltip}>
         <span><HomeIcon className={classes.icon} /> {label}</span>
@@ -66,7 +94,15 @@ const ContentType = ({classes, frontpage, shortform, label}) => {
     </Typography>
   }
 
-  if (shortform) {
+  if (type === 'meta') {
+    return <Typography variant="body1" component="span" className={classes.root}>
+      <Tooltip title={metaTooltip}>
+        <span><MetaIcon className={classes.icon} /> {label}</span>
+      </Tooltip>
+    </Typography>
+  }
+
+  if (type === 'shortform') {
     return <Typography variant="body1" component="span" className={classes.root}>
       <Tooltip title={shortformTooltip}>
         <span><SubjectIcon className={classes.icon} /> {label}</span>

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withCurrentUser, Components, withList, registerComponent } from 'meteor/vulcan:core';
+// TODO; wrap
+import { withCurrentUser, Components, withList, registerComponent, getSetting } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
 import { withStyles } from '@material-ui/core/styles';
@@ -30,7 +31,7 @@ const styles = theme => ({
   frontpageSubtitle: {
     marginTop: theme.spacing.unit
   },
-  personSubtitle: {
+  otherSubtitle: {
     marginTop: theme.spacing.unit*1.5
   },
 })
@@ -101,7 +102,15 @@ class PostsTimeBlock extends Component {
     }
 
     const frontpagePosts = _.filter(posts, (p) => p.frontpageDate)
-    const personalBlogposts = _.filter(posts, (p) => !p.frontpageDate)
+    const metaPosts = _.filter(posts, (p) => p.meta)
+    const personalBlogposts = _.filter(posts, (p) => !(p.frontpageDate || p.meta))
+
+    const postTypes = [
+      {name: 'frontpage', posts: frontpagePosts, label: 'Frontpage Posts'},
+      // TODO; wrap
+      {name: 'meta', posts: metaPosts, label: getSetting('forumType') === 'EAForum' ? 'Community Posts' : 'Meta Posts'},
+      {name: 'personal', posts: personalBlogposts, label: 'Personal Blogposts'},
+    ]
 
     return (
       <div className={classes.root}>
@@ -132,12 +141,31 @@ class PostsTimeBlock extends Component {
             }
           </div> }
 
-          {(frontpagePosts?.length > 0) && <div>
-            <SectionSubtitle className={classes.frontpageSubtitle}>
-              <ContentType frontpage={true} label="Frontpage Posts"/>
+          {postTypes.map(({name, posts, label}) => {
+            if (posts?.length > 0) return <div key={name}>
+              <SectionSubtitle
+                className={name === 'frontpage' ? classes.frontpageSubtitle : classes.otherSubtitle}
+              >
+                <ContentType type='frontpage' label={label} />
+              </SectionSubtitle>
+              <SubSection>
+                {posts.map((post, i) =>
+                  <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} dense />
+                )}
+              </SubSection>
+            </div>
+          })}
+
+          {/* {(frontpagePosts?.length > 0) && <div>
+          </div>}
+
+          {(metaPosts?.length > 0) && <div>
+            <SectionSubtitle className={classes.personSubtitle}>
+              <ContentType type={'meta'} label="Meta Posts"/>
             </SectionSubtitle>
+
             <SubSection>
-              {frontpagePosts.map((post, i) =>
+              {metaPosts.map((post, i) =>
                 <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} dense />
               )}
             </SubSection>
@@ -145,15 +173,15 @@ class PostsTimeBlock extends Component {
 
           {(personalBlogposts?.length > 0) && <div>
             <SectionSubtitle className={classes.personSubtitle}>
-              <ContentType frontpage={false} label="Personal Blogposts"/>
+              <ContentType type={'personal'} label="Personal Blogposts"/>
             </SectionSubtitle>
 
             <SubSection>
-              {personalBlogposts.map((post, i) => 
+              {personalBlogposts.map((post, i) =>
                 <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} dense />
               )}
             </SubSection>
-          </div>}
+          </div>} */}
 
           {(posts?.length < totalCount) && <div className={classes.loadMore}>
             <LoadMore
@@ -174,7 +202,7 @@ class PostsTimeBlock extends Component {
             }}
           />
         </div>
-        <Divider wings={false}/>
+        {/* <Divider wings={false}/> */}
       </div>
     );
   }
