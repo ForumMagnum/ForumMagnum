@@ -83,6 +83,7 @@ const options = {
   collection: Messages,
   queryName: 'messagesForConversation',
   fragmentName: 'messageListFragment',
+  fetchPolicy: 'cache-and-network',
   limit: 1000,
   enableTotal: false,
 };

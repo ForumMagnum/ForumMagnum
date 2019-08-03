@@ -9,6 +9,7 @@ registerFragment(`
     topLevelCommentId
     contents {
       ...RevisionDisplay
+      plaintextMainText
     }
     postedAt
     repliesBlockedUntil

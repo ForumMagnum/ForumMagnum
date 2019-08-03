@@ -9,10 +9,6 @@
       display: inline-block;
       cursor: pointer;
     }
-    .avatar{
-      display: inline-block;
-      margin-right: 5px;
-    }
     a{
       display: flex;
       align-items: center;
@@ -33,9 +29,5 @@
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-
-  .avatar img{
-    width: 20px;
   }
 }

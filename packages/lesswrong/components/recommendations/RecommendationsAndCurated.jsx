@@ -81,7 +81,7 @@ class RecommendationsAndCurated extends PureComponent {
     } 
 
     const renderContinueReading = continueReading && continueReading.length>0 && !settings.hideContinueReading 
-    const curatedUrl = "/allPosts?filter=curated&view=new&timeframe=allTime"
+    const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
     return <SingleColumnSection>
       <SectionTitle title="Recommendations">
