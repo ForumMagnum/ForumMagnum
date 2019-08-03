@@ -221,7 +221,6 @@ class App extends PureComponent {
     }
 
     const { RouteComponent } = location;
-    // console.log('LocationContext', LocationContext)
     return (
       <LocationContext.Provider value={this.locationContext}>
       <SubscribeLocationContext.Provider value={this.subscribeLocationContext}>
