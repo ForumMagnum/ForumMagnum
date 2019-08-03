@@ -1,8 +1,6 @@
-
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
-// import { InstantSearch} from 'react-instantsearch-dom';
+import { Components, registerComponent, getSetting, withUpdate } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
-import { withRouter } from '../lib/reactRouterWrapper.js';
+import Users from 'meteor/vulcan:users';
 import Helmet from 'react-helmet';
 import { withApollo } from 'react-apollo';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -79,14 +77,14 @@ const styles = theme => ({
 class Layout extends PureComponent {
   constructor (props) {
     super(props);
-    const { cookies } = this.props;
+    const { cookies, currentUser } = this.props;
     const savedTimezone = cookies?.get('timezone');
 
     this.state = {
       timezone: savedTimezone,
       toc: null,
       postsRead: {},
-      hideNavigationSidebar: false,
+      hideNavigationSidebar: currentUser.hideNavigationSidebar,
     };
 
     this.searchResultsAreaRef = React.createRef();
@@ -162,15 +160,6 @@ class Layout extends PureComponent {
       });
     }
     this.initializeLogRocket()
-  }
-
-  componentDidUpdate ({currentUser: prevCurrentUser}) {
-    const { currentUser} = this.props
-    if (!prevCurrentUser && currentUser) {
-      this.setState({
-        hideNavigationSidebar: currentUser.hideNavigationSidebar
-      })
-    }
   }
 
   render () {
@@ -264,7 +253,12 @@ class Layout extends PureComponent {
 
 Layout.displayName = "Layout";
 
+const withUpdateOptions = {
+  collection: Users,
+  fragmentName: 'UsersCurrent',
+}
+
 registerComponent(
-  'Layout', Layout, withUpdateUser, withLocation, withCookies,
+  'Layout', Layout, withLocation, withCookies, [withUpdate, withUpdateOptions],
   withStyles(styles, { name: "Layout" }), withTheme()
 );

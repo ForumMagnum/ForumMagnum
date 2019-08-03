@@ -5,7 +5,6 @@ import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
 import NoSSR from 'react-no-ssr';
 import Headroom from 'react-headroom'
 import { withStyles, withTheme } from '@material-ui/core/styles';
-// import withWidth from '@material-ui/core/withWidth';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -20,8 +19,6 @@ import grey from '@material-ui/core/colors/grey';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
-// import { isMobileByWidth } from '../../lib/modules/utils/isMobile.js';
-// import { isMobileByScreensize } from '../../lib/modules/utils/isMobile.js';
 
 export const getHeaderTextColor = theme => {
   if (theme.palette.headerType === 'primary') {
@@ -163,7 +160,6 @@ class Header extends Component {
 
   renderNavigationMenuButton = () => {
     const {standaloneNavigationPresent, toggleStandaloneNavigation, classes, toc} = this.props
-    // const {} = Components
     return <React.Fragment>
       <IconButton
         className={classNames(
@@ -207,12 +203,6 @@ class Header extends Component {
     const query = location && location.query
     const { subtitleLink = "", subtitleText = "" } = getHeaderSubtitleData(routeName, query, params, client) || {}
     const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
-
-    // console.log('navopen', navigationOpen)
-    // console.log('width', width)
-    // console.log('isMobile', isMobileByWidth(width, {mdIsMobile: false}))
-    // console.log('isMobile', isMobileByScreensize())
-    // const showNavigationDrawer = standaloneNavigationPresent && true
 
     const {
       SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
@@ -286,10 +276,11 @@ Header.propTypes = {
   searchResultsArea: PropTypes.object,
 };
 
+// TODO;
+
 const withEditOptions = {
   collection: Users,
   fragmentName: 'UsersCurrent',
 };
 
-// withWidth(),
-registerComponent('Header', Header, withErrorBoundary, withRouter, withApollo, [withEdit, withEditOptions], withUser, withStyles(styles, { name: 'Header'}), withTheme());
+registerComponent('Header', Header, withErrorBoundary, [withUpdate, withUpdateOptions], withUser, withStyles(styles, { name: 'Header'}), withTheme());
