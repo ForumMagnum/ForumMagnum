@@ -2,6 +2,7 @@ import { Components, registerComponent, getSetting, withUpdate } from 'meteor/vu
 import React, { PureComponent } from 'react';
 import Users from 'meteor/vulcan:users';
 import Helmet from 'react-helmet';
+// TODO;
 import { withApollo } from 'react-apollo';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import classNames from 'classnames'
@@ -38,7 +39,7 @@ const hashCode = function(str) {
 // Refer to routes.js for the route names. Or console log in the route you'd
 // like to include
 const standaloneNavMenuRouteNames = {
-  'LessWrong': ['home', 'allPosts', 'questions', 'sequencesHome', 'CommunityHome'],
+  'LessWrong': ['home', 'allPosts', 'questions', 'sequencesHome', 'CommunityHome', 'Shortform'],
   // TODO-PR-Q: I left this mimicking current behavior, it's possible you'd
   // rather just have an empty list
   'AlignmentForum': ['allPosts', 'questions'],

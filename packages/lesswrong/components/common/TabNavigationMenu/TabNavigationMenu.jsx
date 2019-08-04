@@ -15,7 +15,6 @@ const styles = (theme) => {
       display: "flex",
       flexDirection: "column",
       justifyContent: "space-around",
-      backgroundColor: "#ffffffd4",
     },
     divider: {
       width: 50,

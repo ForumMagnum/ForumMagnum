@@ -12,9 +12,11 @@ const styles = theme => ({
     [theme.breakpoints.down('md')]: {
       display: "none"
     },
-    top: 20,
+    top: -15,
     left:0,
+    paddingTop: 20,
     width:260,
+    backgroundColor: "#ffffffd4",
   },
   footerBar: {
     [theme.breakpoints.up('lg')]: {

@@ -1,15 +1,24 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 
-const ShortformPage = () => {
+const styles = theme => ({
+  column: {
+    width:680,
+    margin:"auto"
+  }
+})
+
+const ShortformPage = ({classes}) => {
   const { SingleColumnSection, ShortformThreadList, SectionTitle } = Components
 
   return (
     <SingleColumnSection>
-      <SectionTitle title="Shortform Content [Beta]"/>
-      <ShortformThreadList terms={{view: 'shortform', limit:20, testLimit:30}} />
+      <div className={classes.column}>
+        <SectionTitle title="Shortform Content [Beta]"/>
+        <ShortformThreadList terms={{view: 'shortform', limit:20, testLimit:30}} />
+      </div>
     </SingleColumnSection>
   )
 }
 
-registerComponent('ShortformPage', ShortformPage);
+registerComponent('ShortformPage', ShortformPage, withStyles(styles, {name:"ShortformPage"}));
