@@ -39,7 +39,6 @@ const styles = theme => ({
     paddingRight: 0,
   },
   icon: {
-    display: "block",
     opacity: .3,
     width: iconWidth,
     height: 28,

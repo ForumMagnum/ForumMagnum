@@ -1,7 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core'
 import React, { PureComponent } from 'react'
 import withUser from '../common/withUser'
-import { SplitComponent } from 'meteor/vulcan:routing'
 import Users from 'meteor/vulcan:users'
 
 class HomeEA extends PureComponent {
