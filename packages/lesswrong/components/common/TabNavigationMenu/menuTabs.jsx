@@ -63,7 +63,7 @@ const EventsList = ({currentUser, onClick}) => {
 //   customComponent: Component; instead of a TabNavigationItem, display this component
 //
 // See TabNavigation[Footer|Compressed]?Item.jsx for how these are used by the code
-export default forumTabs = {
+export default {
   LessWrong: [
     {
       id: 'home',
