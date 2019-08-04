@@ -16,6 +16,12 @@ const TOMORROW_STRING = "[Tomorrow]"
 const HIGHLIGHT_LENGTH = 600
 
 const styles = theme => ({
+  subItemOverride: {
+    paddingTop: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+    paddingRight: 0,
+  },
   displayTime: {
     fontSize: ".85rem",
     position: "relative",
@@ -107,12 +113,12 @@ const TabNavigationEventsList = ({ results, onClick, classes, timezone }) => {
               </React.Fragment>}
           </div>
 
-        // TODO; test with event
         return (
           <Tooltip key={event._id} placement="right-start" title={tooltip}>
             <MenuItem
               onClick={onClick}
               component={Link} to={Posts.getPageUrl(event)}
+              classes={{root: classes.subItemOverride}}
             >
               <TabNavigationSubItem>
                 {(displayTime && displayTime !== " ") && <span className={classNames(

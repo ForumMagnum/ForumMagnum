@@ -218,13 +218,12 @@ export default forumTabs = {
     }
   ],
   EAForum: [
-    // TODO; write copy
     {
       id: 'home',
       title: 'Home',
       link: '/',
       iconComponent: LocalLibrary,
-      tooltip: 'Latest posts. TODO;',
+      tooltip: 'See the new and popular posts, as well as recent discussion.',
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
@@ -232,7 +231,7 @@ export default forumTabs = {
       title: 'Community',
       link: '/meta',
       iconComponent: Group,
-      tooltip: 'Community posts TODO;.',
+      tooltip: 'See posts pertaining to the EA Community itself.',
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
@@ -241,10 +240,10 @@ export default forumTabs = {
       link: '/questions',
       iconComponent: Search,
       tooltip: <div>
-        <div>• Ask simple newbie questions.</div>
+        <div>• New to EA? Ask simple questions here!</div>
         <div>• Collaborate on open research questions.</div>
-        <div>• Pose and resolve confusions.</div>
-        <div>• TODO; Aaron plz review.</div>
+        <div>• Gather opinions from the community.</div>
+        <div>• Get personal advice to boost your impact.</div>
       </div>,
       showOnMobileStandalone: true,
       showOnCompressed: true,

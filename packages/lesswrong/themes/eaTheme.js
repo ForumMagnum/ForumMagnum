@@ -170,7 +170,7 @@ const theme = createLWTheme({
     },
     NavigationStandalone: {
       sidebar: {
-        top: 35
+        paddingTop: 30,
       },
       footerBar: {
         backgroundColor: grey[200],

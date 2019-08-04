@@ -38,7 +38,6 @@ const hashCode = function(str) {
 // Refer to routes.js for the route names. Or console log in the route you'd
 // like to include
 const standaloneNavMenuRouteNames = {
-  // TODO; test shortform
   'LessWrong': ['home', 'allPosts', 'questions', 'sequencesHome', 'CommunityHome', 'Shortform'],
   // TODO-PR-Q: I left this mimicking current behavior, it's possible you'd
   // rather just have an empty list
