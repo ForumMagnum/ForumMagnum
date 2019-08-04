@@ -9,7 +9,10 @@ const styles = theme => ({
     width: 225
   },
   paperWithToC: {
-    width: 300,
+    width: 225,
+    [theme.breakpoints.down('sm')]: {
+      width: 300
+    },
     overflow:"hidden",
   },
   drawerNavigationMenuUncompressed: {

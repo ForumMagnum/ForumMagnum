@@ -5,18 +5,14 @@ import { withStyles } from '@material-ui/core/styles';
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
 
-const styles = (theme) => {
-  // console.log('theme breakpoints', theme.breakpoints.up('lg'))
-  // console.log('theme.zIndex.tabNavigation', theme.zIndexes.tabNavigation)
-  return {
-    root: {
-      display: "flex",
-      justifyContent: "space-around",
-      backgroundColor: "#ffffffd4",
-      flexDirection: "row",
-    }
+const styles = (theme) => ({
+  root: {
+    display: "flex",
+    justifyContent: "space-around",
+    backgroundColor: "#ffffffd4",
+    flexDirection: "row",
   }
-}
+})
 
 const TabNavigationMenuFooter = ({classes}) => {
   const { TabNavigationFooterItem } = Components
@@ -24,7 +20,6 @@ const TabNavigationMenuFooter = ({classes}) => {
   return (
     <div className={classes.root}>
       {menuTabs[getSetting('forumType')].map(tab => {
-        // console.log('tab', tab)
         if (!tab.showOnMobileStandalone) {
           return
         }

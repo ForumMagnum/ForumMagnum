@@ -8,8 +8,6 @@ import { iconWidth } from './TabNavigationItem'
 import menuTabs from './menuTabs'
 
 const styles = (theme) => {
-  // console.log('theme breakpoints', theme.breakpoints.up('lg'))
-  // console.log('theme.zIndex.tabNavigation', theme.zIndexes.tabNavigation)
   return {
     root: {
       display: "flex",
