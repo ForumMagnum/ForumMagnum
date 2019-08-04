@@ -7,9 +7,13 @@ import { communityGlobeIcon } from '../../icons/communityGlobeIcon';
 import { BookIcon } from '../../icons/bookIcon'
 import { allPostsIcon } from '../../icons/allPostsIcon';
 
-import { LocalLibrary, Search, Group, Sort, Info } from '@material-ui/icons'
+import LocalLibrary from '@material-ui/icons/LocalLibrary'
+import Search from '@material-ui/icons/Search'
+import Group from '@material-ui/icons/Group'
+import Sort from '@material-ui/icons/Sort'
+import Info from '@material-ui/icons/Info'
 
-const EventsList = ({currentUser}) => {
+const EventsList = ({currentUser, onClick}) => {
   const { TabNavigationEventsList } = Components
 
   const lat = currentUser &&
@@ -31,7 +35,7 @@ const EventsList = ({currentUser}) => {
     }
   }
   return <span>
-    <TabNavigationEventsList terms={eventsListTerms} />
+    <TabNavigationEventsList onClick={onClick} terms={eventsListTerms} />
   </span>
 }
 

@@ -193,7 +193,17 @@ const theme = createLWTheme({
         backgroundColor: grey[200],
       }
     },
+    TabNavigationMenu: {
+      divider: {
+        marginTop: 10,
+        marginBottom: 20,
+      }
+    },
     TabNavigationItem: {
+      navButton: {
+        paddingTop: 10,
+        paddingBottom: 10,
+      },
       icon: {
         opacity: 1,
       },

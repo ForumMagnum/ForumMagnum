@@ -35,10 +35,10 @@ const NavigationStandalone = ({classes}) => {
   const { TabNavigationMenu, TabNavigationMenuFooter } = Components
   return <div className={classes.root}>
     <div className={classes.sidebar}>
-      <TabNavigationMenu standalone />
+      <TabNavigationMenu />
     </div>
     <div className={classes.footerBar}>
-      <TabNavigationMenuFooter standalone />
+      <TabNavigationMenuFooter />
     </div>
   </div>
 }
