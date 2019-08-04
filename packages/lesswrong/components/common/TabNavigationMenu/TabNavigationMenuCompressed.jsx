@@ -26,7 +26,7 @@ const styles = (theme) => {
   }
 }
 
-const TabNavigationMenuCompressed = ({classes}) => {
+const TabNavigationMenuCompressed = ({onClickSection, classes}) => {
   const { TabNavigationCompressedItem } = Components
 
   return (
@@ -39,7 +39,7 @@ const TabNavigationMenuCompressed = ({classes}) => {
         if (tab.divider) {
           return <Divider key={tab.id} className={classes.divider} />
         }
-        return <TabNavigationCompressedItem key={tab.id} tab={tab} />
+        return <TabNavigationCompressedItem key={tab.id} tab={tab} onClick={onClickSection} />
       })}
     </div>
   )

@@ -1,7 +1,6 @@
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import classNames from 'classnames';
 import withUser from '../withUser';
 import { iconWidth } from './TabNavigationItem'
 
@@ -28,25 +27,28 @@ const styles = (theme) => {
   }
 }
 
-// TODO; standalone
-const TabNavigationMenu = ({classes, standalone, currentUser}) => {
+const TabNavigationMenu = ({onClickSection, classes, currentUser}) => {
   const { TabNavigationItem } = Components
   const customComponentProps = {currentUser}
 
   return (
     <div className={classes.root}>
       {menuTabs[getSetting('forumType')].map(tab => {
-        // console.log('tab', tab)
         if (tab.divider) {
           return <div key={tab.id} className={classes.divider} />
         }
         if (tab.customComponent) {
-          return <tab.customComponent key={tab.id} {...customComponentProps} />
+          return <tab.customComponent
+            key={tab.id}
+            onClick={onClickSection}
+            {...customComponentProps}
+          />
         }
 
         return <TabNavigationItem
           key={tab.id}
           tab={tab}
+          onClick={onClickSection}
         />
       })}
     </div>

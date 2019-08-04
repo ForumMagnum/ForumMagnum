@@ -1,13 +1,13 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
+import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper.js';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 import { useLocation } from '../../../lib/routeUtil.js';
 
 export const iconWidth = 30
-const smallIconSize = 23
 
 const styles = theme => ({
   selected: {
@@ -32,6 +32,12 @@ const styles = theme => ({
     justifyContent: "flex-start",
     flexDirection: "row",
   },
+  subItemOverride: {
+    paddingTop: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+    paddingRight: 0,
+  },
   icon: {
     display: "block",
     opacity: .3,
@@ -54,17 +60,20 @@ const styles = theme => ({
   },
 })
 
-const TabNavigationItem = ({tab, classes}) => {
+const TabNavigationItem = ({tab, onClick, classes}) => {
   const { TabNavigationSubItem } = Components
   const { pathname } = useLocation()
 
   return <Tooltip placement='right-start' title={tab.tooltip || ''}>
-    <Link
-      to={tab.link}
-      className={classNames({
+    <MenuItem
+      onClick={onClick}
+      component={Link} to={tab.link}
+      disableGutters
+      classes={{root: classNames({
         [classes.navButton]: !tab.subItem,
+        [classes.subItemOverride]: tab.subItem,
         [classes.selected]: pathname === tab.link,
-      })}
+      })}}
     >
       {(tab.icon || tab.iconComponent) && <span
         className={classNames(classes.icon, {[classes.homeIcon]: tab.id === 'home'})}
@@ -80,7 +89,7 @@ const TabNavigationItem = ({tab, classes}) => {
           {tab.title}
         </span>
       }
-    </Link>
+    </MenuItem>
   </Tooltip>
 }
 

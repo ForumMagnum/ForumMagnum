@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent, Components, withList } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import Tooltip from '@material-ui/core/Tooltip';
+import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles'
 import moment from 'moment';
@@ -65,7 +66,7 @@ const styles = theme => ({
 })
 
 
-const TabNavigationEventsList = ({ results, classes, timezone}) => {
+const TabNavigationEventsList = ({ results, onClick, classes, timezone }) => {
   const { TabNavigationSubItem, EventTime } = Components
 
   if (!results) return null
@@ -106,9 +107,13 @@ const TabNavigationEventsList = ({ results, classes, timezone}) => {
               </React.Fragment>}
           </div>
 
+        // TODO; test with event
         return (
           <Tooltip key={event._id} placement="right-start" title={tooltip}>
-            <Link to={Posts.getPageUrl(event)}>
+            <MenuItem
+              onClick={onClick}
+              component={Link} to={Posts.getPageUrl(event)}
+            >
               <TabNavigationSubItem>
                 {(displayTime && displayTime !== " ") && <span className={classNames(
                     classes.displayTime, {[classes.yesterday]: displayTime === YESTERDAY_STRING})
@@ -117,7 +122,7 @@ const TabNavigationEventsList = ({ results, classes, timezone}) => {
                 </span>}
                 <span className={classes.title}>{event.title}</span>
               </TabNavigationSubItem>
-            </Link>
+            </MenuItem>
           </Tooltip>
         )
       })}

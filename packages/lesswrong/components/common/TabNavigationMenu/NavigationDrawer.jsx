@@ -62,11 +62,11 @@ const NavigationDrawer = ({open, handleOpen, handleClose, toc, classes}) => {
       classes.drawerNavigationMenuUncompressed,
       {[classes.hideOnMobile]: showToc}
     )}>
-      <TabNavigationMenu />
+      <TabNavigationMenu onClickSection={handleClose}/>
     </div>
     {showToc && <React.Fragment>
       <div className={classes.drawerNavigationMenuCompressed}>
-        <TabNavigationMenuCompressed />
+        <TabNavigationMenuCompressed onClickSection={handleClose}/>
       </div>
       <div className={classes.tableOfContents}>
         <Components.TableOfContentsList

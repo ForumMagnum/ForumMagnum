@@ -1,6 +1,7 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
+import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper.js';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -8,17 +9,6 @@ import Tooltip from '@material-ui/core/Tooltip';
 const compressedIconSize = 23
 
 const styles = theme => ({
-  navButton: {
-    paddingTop: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
-    paddingLeft: theme.spacing.unit*2,
-    paddingRight: theme.spacing.unit*2,
-    width: "100%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-around",
-    flexDirection: "column",
-  },
   icon: {
     display: "block",
     opacity: .6,
@@ -42,21 +32,22 @@ const styles = theme => ({
   },
 })
 
-const TabNavigationCompressedItem = ({tab, classes}) =>
+const TabNavigationCompressedItem = ({tab, onClick, classes}) =>
   <Tooltip placement='right-start' title={tab.tooltip || ''}>
-    <Link
-      to={tab.link}
-      className={classes.navButton}
+    <MenuItem
+      onClick={onClick}
+      component={Link} to={tab.link}
     >
-      {<span
+      <span
         className={classNames(classes.icon, {[classes.homeIcon]: tab.id === 'home'})}
       >
         {tab.iconComponent && <tab.iconComponent />}
         {tab.icon && tab.icon}
         {tab.compressedIconComponent && <tab.compressedIconComponent />}
-      </span>}
-    </Link>
+      </span>
+    </MenuItem>
   </Tooltip>
+
 
 registerComponent(
   'TabNavigationCompressedItem', TabNavigationCompressedItem,
