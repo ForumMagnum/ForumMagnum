@@ -105,7 +105,7 @@ class CommunityHome extends Component {
           </SingleColumnSection>
           <SingleColumnSection>
             <SectionTitle title="Events">
-              {this.props.currentUser && <Link to={{pathname:"/newPost", query: {eventForm: true}}}>
+              {this.props.currentUser && <Link to={{pathname:"/newPost", search: `?eventForm=true`}}>
                 <SectionButton>
                   <EventIcon />
                   New Event

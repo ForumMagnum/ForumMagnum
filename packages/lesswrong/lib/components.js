@@ -107,7 +107,6 @@ import '../components/icons/SettingsIcon.jsx';
 
 // posts
 
-import '../components/posts/PostsEdit.jsx';
 import '../components/posts/PostsHighlight.jsx';
 import '../components/posts/AlignmentCrosspostMessage.jsx';
 import '../components/posts/LinkPostMessage.jsx';
