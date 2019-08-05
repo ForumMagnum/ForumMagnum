@@ -81,6 +81,9 @@ export const makeEditable = ({collection, options = {}}) => {
         }
         revision = checkAccess(currentUser, revision) ? revision : null
         
+        if (!revision)
+          return null;
+        
         return {
           editedAt: revision.editedAt || new Date(),
           userId: revision.userId,
