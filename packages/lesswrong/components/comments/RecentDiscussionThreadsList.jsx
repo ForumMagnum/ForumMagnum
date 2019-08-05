@@ -4,19 +4,41 @@ import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
 import withUser from '../common/withUser';
 import AddBoxIcon from '@material-ui/icons/AddBox';
+import Tooltip from '@material-ui/core/Tooltip';
+import Users from 'meteor/vulcan:users';
 
 class RecentDiscussionThreadsList extends PureComponent {
 
-  state = { showShortformFeed: false }
+  state = { showSettings: false, showShortformFeed: false }
 
   toggleShortformFeed = () => {
     this.setState(prevState => ({showShortformFeed: !prevState.showShortformFeed}))
   }
 
+  toggleShowSettings = () => {
+    this.setState(prevState => ({showSettings: !prevState.showSettings}))
+  }
+
+  toggleExpandComments = () => {
+    const { updateUser, currentUser, data: { refetch } } = this.props
+    if (currentUser) {
+      updateUser({
+        selector: { _id: currentUser._id},
+        data: {
+          noCollapseCommentsFrontpage: !(currentUser.noCollapseCommentsFrontpage),
+        },
+      })
+    }
+    if (!(currentUser?.noCollapseCommentsFrontpage)) {
+      console.log("BAsdf")
+      refetch()
+    }
+  }
+
   render () {
     const { results, loading, loadMore, networkStatus, updateComment, currentUser, data: { refetch }, threadView = "recentDiscussionThread" } = this.props
-    const { showShortformFeed } = this.state
-    const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, Loading } = Components
+  const { showShortformFeed, showSettings } = this.state
+    const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, Loading, SectionFooter, SectionFooterCheckbox, SettingsIcon } = Components
     
     const loadingMore = networkStatus === 2;
 
@@ -27,23 +49,34 @@ class RecentDiscussionThreadsList extends PureComponent {
     }
 
     const limit = (currentUser && currentUser.isAdmin) ? 4 : 3
+    const expandCommentsFrontpage = !(currentUser && currentUser.noCollapseCommentsFrontpage)
 
     return (
       <SingleColumnSection>
         <SectionTitle title="Recent Discussion">
-          {currentUser && currentUser.isReviewed && <div onClick={this.toggleShortformFeed}>
-            <SectionButton>
-              <AddBoxIcon />
-              New Shortform Post
-            </SectionButton>
-          </div>}
+          <SettingsIcon onClick={this.toggleShowSettings}/>
         </SectionTitle>
+        {<SectionFooter>
+          {currentUser && currentUser.isReviewed && <SectionButton onClick={this.toggleShortformFeed}>
+              New Shortform Post
+          </SectionButton>}
+          <Tooltip title={"Click to expand all comments."}>
+            <div>
+              <SectionFooterCheckbox 
+                onClick={this.toggleExpandComments} 
+                value={expandCommentsFrontpage} 
+                label={"Expand Comments"} 
+                />
+            </div>
+          </Tooltip>
+        </SectionFooter>}
         {showShortformFeed && <ShortformSubmitForm successCallback={refetch}/>}
         <div>
           {loading || !results ? <Loading /> :
           <div> 
             {results.map((post, i) =>
               <Components.RecentDiscussionThread
+                expandAll={expandCommentsFrontpage}
                 key={post._id}
                 post={post}
                 postCount={i}
@@ -60,19 +93,24 @@ class RecentDiscussionThreadsList extends PureComponent {
   }
 }
 
-const discussionThreadsOptions = {
-  collection: Posts,
-  queryName: 'selectCommentsListQuery',
-  fragmentName: 'PostsList',
-  fetchPolicy: 'cache-and-network',
-  enableTotal: false,
-  pollInterval: 0,
-  enableCache: true,
-};
-
-const withUpdateOptions = {
-  collection: Comments,
-  fragmentName: 'CommentsList',
-};
-
-registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList, [withList, discussionThreadsOptions], [withUpdate, withUpdateOptions], withUser);
+registerComponent(
+  'RecentDiscussionThreadsList', 
+  RecentDiscussionThreadsList, 
+  [withList, {
+    collection: Posts,
+    queryName: 'selectCommentsListQuery',
+    fragmentName: 'PostsList',
+    fetchPolicy: 'cache-and-network',
+    enableTotal: false,
+    pollInterval: 0,
+    enableCache: true,
+  }], 
+  [withUpdate, {
+    collection: Comments,
+    fragmentName: 'CommentsList',
+  }], 
+  [withUpdate, {
+    collection: Users,
+    fragmentName: 'UsersCurrent',
+  }],
+  withUser);
