@@ -1,4 +1,3 @@
-import { Utils } from 'meteor/vulcan:core';
 import cheerio from 'cheerio';
 import { Comments } from '../comments'
 import { Posts } from './collection';

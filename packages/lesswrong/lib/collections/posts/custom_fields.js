@@ -3,8 +3,6 @@ import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
 import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple, resolverOnlyField, denormalizedCountOfReferences, accessFilterSingle } from '../../modules/utils/schemaUtils'
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
-import { Utils } from 'meteor/vulcan:core';
-import GraphQLJSON from 'graphql-type-json';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { getWithLoader } from '../../loaders.js';
 import { postHasModerationGuidelines } from './helpers';
