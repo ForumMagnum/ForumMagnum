@@ -10,6 +10,4 @@ const PostsSingleRoute = () => {
   }
 };
 
-PostsSingleRoute.displayName = "PostsSingleRoute";
-
 registerComponent('PostsSingleRoute', PostsSingleRoute);

@@ -9,6 +9,4 @@ const PostsSingle = () => {
   return <Components.PostsPageWrapper documentId={params._id} sequenceId={null} version={version} />
 };
 
-PostsSingle.displayName = "PostsSingle";
-
 registerComponent('PostsSingle', PostsSingle);

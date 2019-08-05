@@ -53,8 +53,4 @@ FlashMessages.contextTypes = {
   intl: intlShape
 }
 
-
-
-FlashMessages.displayName = "FlashMessages";
-
 replaceComponent('FlashMessages', FlashMessages, withMessages);
