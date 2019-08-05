@@ -35,7 +35,7 @@ class PostsEditForm extends PureComponent {
           collection={Posts}
           documentId={documentId}
           queryFragment={getFragment('PostsEdit')}
-          mutationFragment={getFragment('PostsRevision')}
+          mutationFragment={getFragment('PostsEdit')}
           successCallback={post => {
             flash({ id: 'posts.edit_success', properties: { title: post.title }, type: 'success'});
             history.push({pathname: Posts.getPageUrl(post)});
