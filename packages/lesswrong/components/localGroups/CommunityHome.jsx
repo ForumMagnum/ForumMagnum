@@ -4,7 +4,7 @@ import {
   withMessages,
 } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link, QueryLink } from '../../lib/reactRouterWrapper.js';
 import Users from 'meteor/vulcan:users';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
@@ -105,7 +105,7 @@ class CommunityHome extends Component {
           </SingleColumnSection>
           <SingleColumnSection>
             <SectionTitle title="Events">
-              {this.props.currentUser && <Link to={{pathname:"/newPost", query: {eventForm: true}}}>
+              {this.props.currentUser && <Link to={{pathname:"/newPost", search: `?eventForm=true`}}>
                 <SectionButton>
                   <EventIcon />
                   New Event
