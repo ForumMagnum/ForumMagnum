@@ -65,6 +65,7 @@ const makePageRenderer = async sink => {
     // a context variable isGetDataFromTree, and if that's present and true,
     // we suppress JSS style generation.
     await getDataFromTree(WrappedApp, {isGetDataFromTree: true});
+    htmlContent = await ReactDOM.renderToString(WrappedApp);
   } catch (err) {
     console.error(`Error while server-rendering. date: ${new Date().toString()} url: ${req.url}`); // eslint-disable-line no-console
     console.error(err);
@@ -73,8 +74,6 @@ const makePageRenderer = async sink => {
     //   htmlContent = `Error while server-rendering: ${err.message}`;
     // }
   }
-
-  htmlContent = await ReactDOM.renderToString(WrappedApp);
 
   if(serverRequestStatus.status) {
     sink.setStatusCode(serverRequestStatus.status)
