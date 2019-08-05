@@ -1,11 +1,10 @@
 import { Components, registerComponent, Utils } from 'meteor/vulcan:core';
 import React from 'react';
-import { useLocation, useNavigation } from '../../lib/routeUtil';
+import { useLocation } from '../../lib/routeUtil';
 import Users from "meteor/vulcan:users";
 
 const UsersSingle = () => {
   const { params, pathname } = useLocation();
-  const { history } = useNavigation();
   
   const slug = Utils.slugify(params.slug);
   const canonicalUrl = Users.getProfileUrlFromSlug(slug);
