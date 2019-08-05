@@ -29,8 +29,6 @@ const LinkPostMessage = ({post, classes}) => {
   );
 }
 
-LinkPostMessage.displayName = "LinkPostMessage";
-
 LinkPostMessage.propTypes = {
   post: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired

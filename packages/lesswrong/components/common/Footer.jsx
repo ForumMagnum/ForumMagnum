@@ -14,6 +14,4 @@ const Footer = ({classes}) => {
   )
 }
 
-Footer.displayName = "Footer";
-
 registerComponent('Footer', Footer, withStyles(styles, { name: "Footer" }));

@@ -86,8 +86,6 @@ AccountsVerifyEmail.propTypes = {
   params: PropTypes.object,
 };
 
-AccountsVerifyEmail.displayName = 'AccountsEnrollAccount';
-
 // Shadows AccountsVerifyEmail in meteor/vulcan:accounts
 registerComponent('AccountsVerifyEmail', AccountsVerifyEmail,
   withApollo, withUser,

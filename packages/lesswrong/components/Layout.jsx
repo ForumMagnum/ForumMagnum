@@ -220,6 +220,4 @@ class Layout extends PureComponent {
   }
 }
 
-Layout.displayName = "Layout";
-
 registerComponent('Layout', Layout, withStyles(styles, { name: "Layout" }), withTheme(), withCookies);

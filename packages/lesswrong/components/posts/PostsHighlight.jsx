@@ -29,8 +29,6 @@ const PostsHighlight = ({post, classes}) => {
     </div>
 };
 
-PostsHighlight.displayName = "PostsHighlight";
-
 PostsHighlight.propTypes = {
   post: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired

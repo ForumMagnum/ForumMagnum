@@ -31,5 +31,4 @@ const EventsPast = ({ classes }) => {
   )
 }
 
-EventsPast.displayName = 'EventsPast';
 registerComponent('EventsPast', EventsPast, withStyles(styles, {name: "EventsPast"}));

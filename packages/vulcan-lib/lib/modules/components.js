@@ -64,6 +64,9 @@ export function registerComponent(name, rawComponent, ...hocs) {
     var { name, component, hocs = [] } = arguments[0];
     rawComponent = component;
   }
+  
+  rawComponent.displayName = name;
+  
   // store the component in the table
   ComponentsTable[name] = {
     name,
