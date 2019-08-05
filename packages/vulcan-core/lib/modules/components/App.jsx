@@ -26,6 +26,7 @@ import qs from 'qs'
 export const LocationContext = React.createContext("location");
 export const SubscribeLocationContext = React.createContext("subscribeLocation");
 export const NavigationContext = React.createContext("navigation");
+export const ServerRequestStatusContext = React.createContext("serverRequestStatus");
 
 export function parseQuery(location) {
   let query = location && location.search;
@@ -191,7 +192,7 @@ class App extends PureComponent {
   render() {
     const { flash } = this;
     const { messages } = this.state;
-    const { currentUser } = this.props;
+    const { currentUser, serverRequestStatus } = this.props;
 
     // Parse the location into a route/params/query/etc.
     const location = this.parseRoute(this.props.location);
@@ -225,6 +226,7 @@ class App extends PureComponent {
       <LocationContext.Provider value={this.locationContext}>
       <SubscribeLocationContext.Provider value={this.subscribeLocationContext}>
       <NavigationContext.Provider value={this.navigationContext}>
+      <ServerRequestStatusContext.Provider value={serverRequestStatus}>
       <IntlProvider locale={this.getLocale()} key={this.getLocale()} messages={Strings[this.getLocale()]}>
         <MessageContext.Provider value={{ messages, flash }}>
           <Components.HeadTags image={getSetting('siteImage')} />
@@ -239,6 +241,7 @@ class App extends PureComponent {
           </div>
         </MessageContext.Provider>
       </IntlProvider>
+      </ServerRequestStatusContext.Provider>
       </NavigationContext.Provider>
       </SubscribeLocationContext.Provider>
       </LocationContext.Provider>

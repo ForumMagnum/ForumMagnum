@@ -13,8 +13,7 @@ const UsersSingle = () => {
     // A Javascript redirect, which replaces the history entry (so you don't
     // have a redirector interfering with the back button). Does not cause a
     // pageload.
-    history.replace(canonicalUrl);
-    return null;
+    return <Components.PermanentRedirect url={canonicalUrl} />;
   } else {
     return <Components.UsersProfile terms={{view: 'usersProfile', slug}} slug={slug} />
   }
