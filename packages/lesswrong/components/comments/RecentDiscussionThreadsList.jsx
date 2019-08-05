@@ -40,8 +40,7 @@ class RecentDiscussionThreadsList extends PureComponent {
         </SectionTitle>
         {showShortformFeed && <ShortformSubmitForm successCallback={refetch}/>}
         <div>
-          {loading || !results ? <Loading /> :
-          <div> 
+          {results && <div>
             {results.map((post, i) =>
               <Components.RecentDiscussionThread
                 key={post._id}
@@ -51,9 +50,9 @@ class RecentDiscussionThreadsList extends PureComponent {
                 currentUser={currentUser}
                 updateComment={updateComment}/>
             )}
-            { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
-            { loadingMore && <Loading />}
           </div>}
+          { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
+          { (loading || loadingMore) && <Loading />}
         </div>
       </SingleColumnSection>
     )

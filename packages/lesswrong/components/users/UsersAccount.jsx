@@ -24,6 +24,4 @@ UsersAccount.propTypes = {
   currentUser: PropTypes.object
 };
 
-UsersAccount.displayName = 'UsersAccount';
-
 registerComponent('UsersAccount', UsersAccount, withUser);

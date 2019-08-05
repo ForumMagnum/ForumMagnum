@@ -20,6 +20,4 @@ const UsersSingle = () => {
   }
 };
 
-UsersSingle.displayName = "UsersSingle";
-
 registerComponent('UsersSingle', UsersSingle);

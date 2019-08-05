@@ -73,6 +73,4 @@ UsersNameDisplay.propTypes = {
   user: PropTypes.object.isRequired,
 }
 
-UsersNameDisplay.displayName = 'UsersNameDisplay';
-
 registerComponent('UsersNameDisplay', UsersNameDisplay, withStyles(styles, {name: "UsersNameDisplay"}));

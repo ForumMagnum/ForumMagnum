@@ -7,6 +7,4 @@ const PostsSingleSlugWrapper = () => {
   return <Components.PostsSingleSlug terms={{view:"slugPost", slug: params.slug}} />
 };
 
-PostsSingleSlugWrapper.displayName = "PostsSingleSlugWrapper";
-
 registerComponent('PostsSingleSlugWrapper', PostsSingleSlugWrapper);

@@ -14,8 +14,6 @@ const PostsSingleSlug = ({results, loading}) => {
   }
 };
 
-PostsSingleSlug.displayName = "PostsSingleSlug";
-
 const options = {
   collection: Posts,
   queryName: 'PostsPageSlugQuery',
