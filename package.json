@@ -6,7 +6,7 @@
   },
   "scripts": {
     "prestart": "bash prestart_lesswrong.sh",
-    "start": "meteor --settings settings-dev.json",
+    "start": "NODE_OPTIONS='--max_old_space_size=4096' TOOL_NODE_FLAGS='--max_old_space_size=4096' meteor --settings settings-dev.json",
     "debug": "meteor --settings settings-dev.json --inspect run",
     "start-af": "meteor --settings settings-af.json",
     "start-af-second": "MONGO_URL=mongodb://localhost:3001/meteor meteor --settings settings-af.json --port 3030",
@@ -90,7 +90,6 @@
     "graphql-tools": "^3.0.5",
     "graphql-type-json": "^0.1.4",
     "graphql-voyager": "^1.0.0-rc.26",
-    "handlebars": "^4.0.5",
     "he": "^1.1.1",
     "history": "^3.0.0",
     "html-to-text": "^2.1.0",
@@ -102,7 +101,6 @@
     "intl": "^1.2.4",
     "intl-locales-supported": "^1.0.0",
     "jsdom": "^13.1.0",
-    "juice": "^1.11.0",
     "logrocket": "^1.0.0",
     "lolex": "^3.0.0",
     "mailchimp": "^1.1.6",
@@ -170,8 +168,7 @@
     "turndown": "^4.0.2",
     "underscore": "^1.9.1",
     "universal-cookie-express": "^2.2.0",
-    "url": "^0.11.0",
-    "webpack-hot-middleware": "^2.25.0"
+    "url": "^0.11.0"
   },
   "resolutions": {
     "**/cloudinary-core": "2.5.0"
@@ -203,7 +200,10 @@
     "redux-mock-store": "^1.5.3",
     "webpack": "^4.38.0",
     "webpack-dev-middleware": "^3.7.0",
-    "webpack-meteor-externals": "0.0.5"
+    "webpack-hot-middleware": "^2.25.0",
+    "webpack-hot-server-middleware": "^0.6.0",
+    "webpack-meteor-externals": "0.0.5",
+    "webpack-node-externals": "^1.7.2"
   },
   "postcss": {
     "plugins": {

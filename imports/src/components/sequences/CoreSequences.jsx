@@ -1,0 +1,8 @@
+import { Components, registerComponent } from 'vulcan:core';
+import React from 'react';
+
+const CoreSequences = () => {
+  return <Components.CollectionsPage documentId={'oneQyj4pw77ynzwAF'} />
+};
+
+registerComponent('CoreSequences', CoreSequences);

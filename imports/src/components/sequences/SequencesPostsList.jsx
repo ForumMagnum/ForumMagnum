@@ -1,0 +1,10 @@
+import React from 'react';
+import { registerComponent, Components } from 'vulcan:core';
+import withUser from '../common/withUser';
+
+const SequencesPostsList = ({posts, chapter, currentUser}) =>
+  <div>
+    {posts.map((post) => <Components.PostsItem2 key={post._id} post={post} chapter={chapter} currentUser={currentUser} />)}
+  </div>
+
+registerComponent('SequencesPostsList', SequencesPostsList, withUser)

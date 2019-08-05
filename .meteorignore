@@ -1,0 +1,4 @@
+*
+!.meteor/
+!node_modules/
+!webpack.config.js

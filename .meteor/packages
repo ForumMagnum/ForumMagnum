@@ -6,31 +6,21 @@
 # the queries going by to look for N+1 selects or similar problems.
 #matb33:collection-hooks
 
-############ Core Packages ############
-
-vulcan:core                       # core components and wrappers
-vulcan:forms                      # auto-generated forms
-vulcan:routing                    # routing and server-side rendering
-vulcan:users                      # user management and permissions
-
-############ Features Packages ############
-
-vulcan:admin
-# vulcan:newsletter
-vulcan:events
-vulcan:embed
-# vulcan:subscribe
-vulcan:accounts
-
-############ Theme Packages ############
-
-# vulcan:base-styles            # default styling
-vulcan:ui-bootstrap
-
-############ Language Packages ############
-
-vulcan:i18n-en-us
-# vulcan:i18n-es-es
+# Old Vulcan dependencies
+meteorhacks:inject-initial
+meteorhacks:picker
+littledata:synced-cron
+accounts-base
+check
+random
+email
+session
+service-configuration
+shell-server
+webapp
+apollo
+mongo
+http
 
 ############ Accounts Packages ############
 
@@ -62,3 +52,4 @@ meteortesting:mocha
 zodern:standard-minifier-js
 ardatan:webpack
 ardatan:webpack-dev-middleware
+server-render

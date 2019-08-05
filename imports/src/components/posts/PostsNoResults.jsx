@@ -1,0 +1,23 @@
+import { registerComponent } from 'vulcan:core';
+import React from 'react';
+import { FormattedMessage } from 'vulcan:i18n';
+import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+
+const styles = theme => ({
+  root: {
+    marginLeft: theme.spacing.unit,
+    fontStyle: "italic",
+    color: theme.palette.grey[500]
+  }
+});
+
+const PostsNoResults = ({classes}) =>
+  <Typography variant="body2" className={classes.root}>
+    <FormattedMessage id="posts.no_results"/>
+  </Typography>;
+
+PostsNoResults.displayName = "PostsNoResults";
+
+registerComponent('PostsNoResults', PostsNoResults,
+  withStyles(styles, {name: "PostsNoResults"}));
