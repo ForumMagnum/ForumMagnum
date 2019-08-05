@@ -7,6 +7,7 @@ import { Utils } from 'meteor/vulcan:core';
 import GraphQLJSON from 'graphql-type-json';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { getWithLoader } from '../../loaders.js';
+import { postHasModerationGuidelines } from './helpers';
 
 export const formGroups = {
   adminOptions: {
@@ -55,7 +56,8 @@ export const formGroups = {
 
 
 const userHasModerationGuidelines = (currentUser) => {
-  return !!(currentUser && ((currentUser.moderationGuidelines && currentUser.moderationGuidelines.html) || currentUser.moderationStyle))
+  if (!currentUser) return false;
+  return !!(currentUser.moderationGuidelines_latest || currentUser.moderationStyle)
 }
 
 addFieldsDict(Posts, {
@@ -891,13 +893,6 @@ addFieldsDict(Posts, {
     type: Object,
     optional: true,
     viewableBy: ['guests'],
-    resolveAs: {
-      fieldName: "tableOfContents",
-      type: GraphQLJSON,
-      resolver: async (document, args, options) => {
-        return await Utils.getTableOfContentsData(document);
-      },
-    },
   },
 
   // GraphQL only field that resolves based on whether the current user has closed
@@ -909,22 +904,22 @@ addFieldsDict(Posts, {
     resolveAs: {
       type: 'Boolean',
       resolver: async (post, args, { LWEvents, currentUser }) => {
-        if(currentUser){
-          const query = {
-            name:'toggled-user-moderation-guidelines',
-            documentId: post.userId,
-            userId: currentUser._id
-          }
-          const sort = {sort:{createdAt:-1}}
-          const event = await LWEvents.findOne(query, sort);
-          const author = await Users.findOne({_id: post.userId});
-          if (event) {
-            return !!(event.properties && event.properties.targetState)
-          } else {
-            return !!(author.collapseModerationGuidelines ? false : ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle))
-          }
+        if(!currentUser) return false;
+        
+        const query = {
+          name:'toggled-user-moderation-guidelines',
+          documentId: post.userId,
+          userId: currentUser._id
+        }
+        const sort = {sort:{createdAt:-1}}
+        const event = await LWEvents.findOne(query, sort);
+        const author = await Users.findOne({_id: post.userId});
+        if (event) {
+          return !!(event.properties && event.properties.targetState)
+        } else if (author.collapseModerationGuidelines) {
+          return false;
         } else {
-          return false
+          return postHasModerationGuidelines(post);
         }
       },
       addOriginalField: false

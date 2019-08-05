@@ -190,3 +190,7 @@ Posts.canDelete = (currentUser, post) => {
   }
   return Users.owns(currentUser, post) && post.draft
 }
+
+export const postHasModerationGuidelines = (post) => {
+  return !!(post.moderationGuidelines_latest || post.moderationStyle);
+}

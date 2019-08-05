@@ -4,6 +4,7 @@ import { getSetting, Utils } from 'meteor/vulcan:core';
 import { Votes } from '../votes';
 import { Comments } from '../comments'
 import { Posts } from '../posts'
+import { postHasModerationGuidelines } from '../posts/helpers';
 
 // Overwrite user display name getter from Vulcan
 Users.getDisplayName = (user) => {
@@ -50,13 +51,13 @@ Users.canModeratePost = (user, post) => {
     (
       Users.canDo(user,"posts.moderate.own") &&
       Users.owns(user, post) &&
-      ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle)
+      postHasModerationGuidelines(post)
     )
     ||
     (
       Users.canDo(user, "posts.moderate.own.personal") &&
       Users.owns(user, post) &&
-      ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle) &&
+      postHasModerationGuidelines(post) &&
       !post.frontpageDate
     )
   )
