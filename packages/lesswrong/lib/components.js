@@ -72,6 +72,9 @@ import '../components/common/LoadMore.jsx';
 import '../components/common/ReCaptcha.jsx';
 import '../components/common/DefaultStyleFormGroup.jsx'
 import '../components/common/LinkCard.jsx';
+import '../components/common/Error404.jsx';
+import '../components/common/PermanentRedirect.jsx';
+
 
 // Outgoing RSS Feed builder
 import '../components/common/SubscribeWidget.jsx';
