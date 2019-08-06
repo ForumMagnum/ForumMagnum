@@ -106,7 +106,7 @@ export const createApolloServer = ({
   return apolloServer;
 };
 
-export const onStart = () => {
+Meteor.startup(() => {
   // Vulcan specific options
   const config = {
     path: '/graphql',
@@ -149,4 +149,4 @@ export const onStart = () => {
   }
   // ssr
   enableSSR();
-};
+});
