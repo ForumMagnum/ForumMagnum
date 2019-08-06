@@ -6,7 +6,8 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = theme => ({
   root: {
     cursor: "pointer",
-    color: theme.palette.lwTertiary.main,
+    ...theme.typography.commentStyle,
+    ...theme.typography.body2,
     [theme.breakpoints.down('xs')]: {
       marginBottom: theme.spacing.unit*2,
       flex: `1 0 100%`,
@@ -28,12 +29,15 @@ const styles = theme => ({
       color: theme.palette.lwTertiary.main,
     }
   },
+  label: {
+    color: theme.palette.grey[600]
+  }
 })
 
 const SectionFooterCheckbox = ({ classes, label, onClick, value }) => {
   return <span className={classes.root} onClick={onClick}>
     <Checkbox disableRipple classes={{root: classes.checkbox, checked: classes.checked}} checked={value} />
-    { label }
+    <span className={classes.label}>{ label }</span>
   </span>
 }
 

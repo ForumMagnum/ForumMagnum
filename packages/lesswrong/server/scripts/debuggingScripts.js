@@ -260,8 +260,8 @@ Vulcan.createTestPostSet = async () =>
     numRootComments: 1000
   });
   await Vulcan.createBulkyTestPost({
-    postTitle: "Test post with 50-deep comments",
-    numRootComments: 1,
+    postTitle: "Test post with multiple 50-deep comments",
+    numRootComments: 3,
     commentDepth: 50
   });
   await Vulcan.createBulkyTestPost({
@@ -294,7 +294,6 @@ Vulcan.createTestPostSet = async () =>
   //eslint-disable-next-line no-console
   console.log("Finished creating bulky test posts.");
 }
-
 
 // Create a single test post, which is bulky in one or more of a
 // number of different ways, controlled by arguments. Used for testing

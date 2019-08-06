@@ -98,7 +98,10 @@ class UsersMenu extends PureComponent {
               <MenuItem>Profile</MenuItem>
             </Link>
             <Link to={`/account`}>
-              <MenuItem>Edit Account</MenuItem>
+              <MenuItem>
+                
+                Edit User Settings
+              </MenuItem>
             </Link>
             <Link to={`/inbox`}>
               <MenuItem>Private Messages</MenuItem>

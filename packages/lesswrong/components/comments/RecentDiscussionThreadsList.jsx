@@ -6,21 +6,12 @@ import withUser from '../common/withUser';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
+import { withApollo } from 'react-apollo'
 
 class RecentDiscussionThreadsList extends PureComponent {
 
-  state = { showSettings: false, showShortformFeed: false }
-
-  toggleShortformFeed = () => {
-    this.setState(prevState => ({showShortformFeed: !prevState.showShortformFeed}))
-  }
-
-  toggleShowSettings = () => {
-    this.setState(prevState => ({showSettings: !prevState.showSettings}))
-  }
-
   toggleExpandComments = () => {
-    const { updateUser, currentUser, data: { refetch } } = this.props
+    const { updateUser, currentUser } = this.props
     if (currentUser) {
       updateUser({
         selector: { _id: currentUser._id},
@@ -29,16 +20,12 @@ class RecentDiscussionThreadsList extends PureComponent {
         },
       })
     }
-    if (!(currentUser?.noCollapseCommentsFrontpage)) {
-      console.log("BAsdf")
-      refetch()
-    }
   }
 
   render () {
     const { results, loading, loadMore, networkStatus, updateComment, currentUser, data: { refetch }, threadView = "recentDiscussionThread" } = this.props
-  const { showShortformFeed, showSettings } = this.state
-    const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, Loading, SectionFooter, SectionFooterCheckbox, SettingsIcon } = Components
+    const { SingleColumnSection, SectionTitle, ShortformSubmitForm, Loading, SectionFooterCheckbox } = Components
+    if (networkStatus === 4) return <Loading />
     
     const loadingMore = networkStatus === 2;
 
@@ -48,19 +35,12 @@ class RecentDiscussionThreadsList extends PureComponent {
       return null
     }
 
-    const limit = (currentUser && currentUser.isAdmin) ? 4 : 3
     const expandCommentsFrontpage = !(currentUser && currentUser.noCollapseCommentsFrontpage)
 
     return (
       <SingleColumnSection>
         <SectionTitle title="Recent Discussion">
-          <SettingsIcon onClick={this.toggleShowSettings}/>
-        </SectionTitle>
-        {<SectionFooter>
-          {currentUser && currentUser.isReviewed && <SectionButton onClick={this.toggleShortformFeed}>
-              New Shortform Post
-          </SectionButton>}
-          <Tooltip title={"Click to expand all comments."}>
+          <Tooltip title={expandCommentsFrontpage ? <div><div>Click to collapse comments</div><em>(may require page refresh)</em></div> : "Click to expand all comments."}>
             <div>
               <SectionFooterCheckbox 
                 onClick={this.toggleExpandComments} 
@@ -69,8 +49,8 @@ class RecentDiscussionThreadsList extends PureComponent {
                 />
             </div>
           </Tooltip>
-        </SectionFooter>}
-        {showShortformFeed && <ShortformSubmitForm successCallback={refetch}/>}
+        </SectionTitle>
+        {currentUser?.shortformFeedId && <ShortformSubmitForm successCallback={refetch} startCollapsed/>}
         <div>
           {results && <div>
             {results.map((post, i) =>
@@ -79,7 +59,7 @@ class RecentDiscussionThreadsList extends PureComponent {
                 key={post._id}
                 post={post}
                 postCount={i}
-                terms={{view:threadView, postId:post._id, limit}}
+                terms={{view:threadView, postId:post._id, limit:4}}
                 currentUser={currentUser}
                 updateComment={updateComment}/>
             )}
@@ -112,4 +92,5 @@ registerComponent(
     collection: Users,
     fragmentName: 'UsersCurrent',
   }],
+  withApollo,
   withUser);
