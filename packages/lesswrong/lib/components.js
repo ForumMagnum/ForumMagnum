@@ -1,5 +1,4 @@
 import { getSetting } from 'meteor/vulcan:core';
-import { registerSplitComponent } from 'meteor/vulcan:routing';
 
 if(getSetting('forumType') === 'AlignmentForum') {
   // HACK: At the top of the file because DeepScan false-positively warns about
