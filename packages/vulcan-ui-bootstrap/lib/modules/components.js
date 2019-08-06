@@ -11,5 +11,3 @@ import '../components/ui/Button.jsx';
 import '../components/ui/Alert.jsx';
 import '../components/ui/Modal.jsx';
 import '../components/ui/ModalTrigger.jsx';
-import '../components/ui/Dropdown.jsx';
-import '../components/ui/Table.jsx';

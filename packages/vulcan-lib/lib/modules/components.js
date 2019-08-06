@@ -10,7 +10,6 @@ export const coreComponents = [
   'Button',
   'Modal',
   'ModalTrigger',
-  'Table',
   'FormComponentCheckbox',
   'FormComponentCheckboxGroup',
   'FormComponentDate',
