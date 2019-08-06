@@ -43,8 +43,7 @@ const makePageRenderer = async sink => {
   });
 
   let htmlContent = '';
-  try {
-    // LESSWRONG: Split a call to renderToStringWithData into getDataFromTree
+  // LESSWRONG: Split a call to renderToStringWithData into getDataFromTree
     // followed by ReactDOM.renderToString, then pass a context variable
     // isGetDataFromTree to only the getDataFromTree call. This is to enable
     // a hack in packages/lesswrong/server/material-ui/themeProvider.js.
@@ -64,15 +63,17 @@ const makePageRenderer = async sink => {
     // So the hacky solution is: when rendering for getDataFromTree, we pass
     // a context variable isGetDataFromTree, and if that's present and true,
     // we suppress JSS style generation.
+  try {
     await getDataFromTree(WrappedApp, {isGetDataFromTree: true});
+  } catch(err) {
+    console.error(`Error while fetching Apollo Data. date: ${new Date().toString()} url: ${JSON.stringify(req.url)}`); // eslint-disable-line no-console
+    console.error(err);
+  }
+  try {
     htmlContent = await ReactDOM.renderToString(WrappedApp);
   } catch (err) {
-    console.error(`Error while server-rendering. date: ${new Date().toString()} url: ${req.url}`); // eslint-disable-line no-console
+    console.error(`Error while rendering React tree. date: ${new Date().toString()} url: ${JSON.stringify(req.url)}`); // eslint-disable-line no-console
     console.error(err);
-    // // show error in client in dev
-    // if (Meteor.isDevelopment) {
-    //   htmlContent = `Error while server-rendering: ${err.message}`;
-    // }
   }
 
   if(serverRequestStatus.status) {

@@ -1,27 +1,18 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
-import { intlShape } from 'meteor/vulcan:i18n';
+import React, { useEffect } from 'react';
 import { STATES } from 'meteor/vulcan:accounts'
+import { useLocation } from '../../lib/routeUtil'
 
-class AccountsResetPassword extends PureComponent {
-  componentDidMount() {
-    const token = this.props.match.params.token;
+const AccountsResetPassword = () => {
+  const { params: { token } } = useLocation()
+  const { WrappedLoginForm } = Components
+  
+  useEffect(() => {
     Accounts._loginButtonsSession.set('resetPasswordToken', token);
-  }
-
-  render() {
-    return <Components.WrappedLoginForm formState={ STATES.PASSWORD_CHANGE }/>
-  }
+  }, [token])
+  
+  return <WrappedLoginForm formState={ STATES.PASSWORD_CHANGE }/>
 }
-
-AccountsResetPassword.contextTypes = {
-  intl: intlShape
-}
-
-AccountsResetPassword.propTypes = {
-  match: PropTypes.object,
-};
 
 // Shadows AccountsResetPassword from vulcan:accounts
 registerComponent('AccountsResetPassword', AccountsResetPassword);
