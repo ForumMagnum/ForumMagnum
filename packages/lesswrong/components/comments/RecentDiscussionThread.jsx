@@ -110,21 +110,16 @@ class RecentDiscussionThread extends PureComponent {
   }
 
   render() {
-    const { post, postCount, results, loading, updateComment, currentUser, classes, data: {refetch}, isRead} = this.props
+    const { post, postCount, comments, loading=false, updateComment, currentUser, classes, isRead} = this.props
     const { readStatus, showHighlight, markedAsVisitedAt } = this.state
     const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle, Loading } = Components
 
-    const lastCommentId = results && results[0]?._id
-    const nestedComments = unflattenComments(results);
+    const lastCommentId = comments && comments[0]?._id
+    const nestedComments = unflattenComments(comments);
 
     const lastVisitedAt = markedAsVisitedAt || post.lastVisitedAt
 
-    // Only show the loading widget if this is the first post in the recent discussion section, so that the users don't see a bunch of loading components while the comments load
-    if (loading && postCount === 0) {
-      return  <Loading />
-    } else if (loading && postCount !== 0) {
-      return null
-    } else if (results && !results.length && post.commentCount != null) {
+    if (comments && !comments.length && post.commentCount != null) {
       // New posts should render (to display their highlight).
       // Posts with at least one comment should only render if that those comments meet the frontpage filter requirements
       return null
@@ -177,7 +172,6 @@ class RecentDiscussionThread extends PureComponent {
                   children={comment.children}
                   key={comment.item._id}
                   updateComment={updateComment}
-                  refetch={refetch}
                   post={post}
                   condensed
                 />
@@ -190,21 +184,9 @@ class RecentDiscussionThread extends PureComponent {
   }
 }
 
-const commentsOptions = {
-  collection: Comments,
-  queryName: 'selectCommentsListQuery',
-  fragmentName: 'CommentsList',
-  enableTotal: false,
-  pollInterval: 0,
-  enableCache: true,
-  fetchPolicy: 'cache-and-network',
-  limit: 12,
-};
-
 registerComponent(
   'RecentDiscussionThread',
   RecentDiscussionThread,
-  [withList, commentsOptions],
   withUser,
   withStyles(styles, { name: "RecentDiscussionThread" }),
   withRecordPostView,

@@ -7,6 +7,7 @@ import { Utils } from 'meteor/vulcan:core';
 import GraphQLJSON from 'graphql-type-json';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { getWithLoader } from '../../loaders.js';
+import moment from 'moment';
 
 export const formGroups = {
   adminOptions: {
@@ -952,6 +953,31 @@ addFieldsDict(Posts, {
         ];
       }
     },
+  },
+  
+  recentComments: resolverOnlyField({
+    type: Array,
+    graphQLtype: "[Comment]",
+    viewableBy: ['guests'],
+    graphqlArguments: 'commentsLimit: Int',
+    resolver: async (post, { commentsLimit=5 }, { currentUser, Comments }) => {
+      const eighteenHoursAgo = moment().subtract(18, 'hours').toDate();
+      const comments = Comments.find({
+        ...Comments.defaultView({}).selector,
+        postId: post._id,
+        score: {$gt:0},
+        deletedPublic: false,
+        postedAt: {$gt: eighteenHoursAgo},
+      }, {
+        limit: commentsLimit,
+        sort: {postedAt:-1}
+      }).fetch();
+      return accessFilterMultiple(currentUser, Comments, comments);
+    }
+  }),
+  'recentComments.$': {
+    type: Object,
+    foreignKey: 'Comments',
   },
 });
 

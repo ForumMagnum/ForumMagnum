@@ -26,8 +26,6 @@ class RecentDiscussionThreadsList extends PureComponent {
       return null
     }
 
-    const limit = (currentUser && currentUser.isAdmin) ? 4 : 3
-
     return (
       <SingleColumnSection>
         <SectionTitle title="Recent Discussion">
@@ -46,7 +44,7 @@ class RecentDiscussionThreadsList extends PureComponent {
                 key={post._id}
                 post={post}
                 postCount={i}
-                terms={{view:threadView, postId:post._id, limit}}
+                comments={post.recentComments}
                 currentUser={currentUser}
                 updateComment={updateComment}/>
             )}
@@ -59,19 +57,22 @@ class RecentDiscussionThreadsList extends PureComponent {
   }
 }
 
-const discussionThreadsOptions = {
-  collection: Posts,
-  queryName: 'selectCommentsListQuery',
-  fragmentName: 'PostsList',
-  fetchPolicy: 'cache-and-network',
-  enableTotal: false,
-  pollInterval: 0,
-  enableCache: true,
-};
-
-const withUpdateOptions = {
-  collection: Comments,
-  fragmentName: 'CommentsList',
-};
-
-registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList, [withList, discussionThreadsOptions], [withUpdate, withUpdateOptions], withUser);
+registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList,
+  [withList, {
+    collection: Posts,
+    queryName: 'selectCommentsListQuery',
+    fragmentName: 'PostsRecentDiscussion',
+    fetchPolicy: 'cache-and-network',
+    enableTotal: false,
+    pollInterval: 0,
+    enableCache: true,
+    extraVariables: {
+      commentsLimit: 'Int'
+    }
+  }],
+  [withUpdate, {
+    collection: Comments,
+    fragmentName: 'CommentsList',
+  }],
+  withUser
+);

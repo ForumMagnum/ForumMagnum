@@ -272,6 +272,15 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment PostsRecentDiscussion on Post {
+    ...PostsList
+    recentComments(commentsLimit: $commentsLimit) {
+      ...CommentsList
+    }
+  }
+`);
+
+registerFragment(`
   fragment UsersBannedFromPostsModerationLog on Post {
     user {
       ...UsersMinimumInfo
