@@ -1,6 +1,5 @@
 import '../components/forms/FormElement.jsx';
 import '../components/forms/Checkboxgroup.jsx';
-import '../components/forms/Default.jsx';
 import '../components/forms/Email.jsx';
 import '../components/forms/Textarea.jsx';
 import '../components/forms/Url.jsx';

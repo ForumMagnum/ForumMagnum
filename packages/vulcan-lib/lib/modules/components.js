@@ -16,7 +16,6 @@ export const coreComponents = [
   'FormComponentDate',
   'FormComponentDateTime',
   'FormComponentDefault',
-  'FormComponentText',
   'FormComponentEmail',
   'FormComponentNumber',
   'FormComponentSelect',
