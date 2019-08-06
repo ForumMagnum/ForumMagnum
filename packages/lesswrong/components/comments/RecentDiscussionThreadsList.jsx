@@ -67,8 +67,11 @@ registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList,
     pollInterval: 0,
     enableCache: true,
     extraVariables: {
-      commentsLimit: 'Int'
-    }
+      commentsLimit: 'Int',
+      maxAgeHours: 'Int',
+      af: 'Boolean',
+    },
+    ssr: true,
   }],
   [withUpdate, {
     collection: Comments,

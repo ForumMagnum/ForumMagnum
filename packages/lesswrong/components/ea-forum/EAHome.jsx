@@ -15,6 +15,8 @@ const EAHome = ({currentUser}) => {
         <RecentDiscussionThreadsList
           terms={{view: 'recentDiscussionThreadsList', limit:6}}
           commentsLimit={recentDiscussionCommentsPerPost}
+          maxAgeHours={18}
+          af={false}
         />
       </SingleColumnSection>
     </React.Fragment>

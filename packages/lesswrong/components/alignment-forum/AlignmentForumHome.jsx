@@ -49,6 +49,8 @@ const AlignmentForumHome = ({currentUser, classes}) => {
         <RecentDiscussionThreadsList
           terms={{view: 'afRecentDiscussionThreadsList', limit:6}}
           threadView={"afRecentDiscussionThread"}
+          maxAgeHours={24*7}
+          af={true}
         />
       </SingleColumnSection>
     </div>

@@ -274,7 +274,7 @@ registerFragment(`
 registerFragment(`
   fragment PostsRecentDiscussion on Post {
     ...PostsList
-    recentComments(commentsLimit: $commentsLimit) {
+    recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
       ...CommentsList
     }
   }

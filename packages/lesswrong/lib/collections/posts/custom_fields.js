@@ -959,15 +959,16 @@ addFieldsDict(Posts, {
     type: Array,
     graphQLtype: "[Comment]",
     viewableBy: ['guests'],
-    graphqlArguments: 'commentsLimit: Int',
-    resolver: async (post, { commentsLimit=5 }, { currentUser, Comments }) => {
-      const eighteenHoursAgo = moment().subtract(18, 'hours').toDate();
+    graphqlArguments: 'commentsLimit: Int, maxAgeHours: Int, af: Boolean',
+    resolver: async (post, { commentsLimit=5, maxAgeHours=18, af=false }, { currentUser, Comments }) => {
+      const timeCutoff = moment().subtract(maxAgeHours, 'hours').toDate();
       const comments = Comments.find({
         ...Comments.defaultView({}).selector,
         postId: post._id,
         score: {$gt:0},
         deletedPublic: false,
-        postedAt: {$gt: eighteenHoursAgo},
+        postedAt: {$gt: timeCutoff},
+        ...(af ? {af:true} : {}),
       }, {
         limit: commentsLimit,
         sort: {postedAt:-1}

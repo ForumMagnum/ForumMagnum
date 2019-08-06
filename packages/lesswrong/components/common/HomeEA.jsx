@@ -24,6 +24,8 @@ class HomeEA extends PureComponent {
         <RecentDiscussionThreadsList
           terms={{view: 'recentDiscussionThreadsList', limit:20}}
           commentsLimit={recentDiscussionCommentsPerPost}
+          maxAgeHours={18}
+          af={false}
         />
       </React.Fragment>
     )
