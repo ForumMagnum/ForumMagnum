@@ -16,7 +16,6 @@ Package.onUse(function(api) {
     // Vulcan packages
 
     'vulcan:lib@1.13.0',
-    'vulcan:email@1.13.0',
   ]);
 
   api.addFiles(['lib/stylesheets/debug.scss'], ['client']);
