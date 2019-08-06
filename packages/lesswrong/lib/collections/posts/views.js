@@ -645,6 +645,7 @@ Posts.addView("groupPosts", function (terms) {
     selector: {
       isEvent: null,
       groupId: terms.groupId,
+      authorIsUnreviewed: viewFieldAllowAny
     },
     options: {
       sort: {
