@@ -2,12 +2,10 @@ import React, { PureComponent } from 'react';
 import {
   Components,
   registerComponent,
-  withList,
 } from 'meteor/vulcan:core';
 
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { Posts } from '../../lib/collections/posts';
-import { Comments } from '../../lib/collections/comments'
 import classNames from 'classnames';
 import { unflattenComments } from '../../lib/modules/utils/unflatten';
 import withUser from '../common/withUser';
@@ -110,9 +108,9 @@ class RecentDiscussionThread extends PureComponent {
   }
 
   render() {
-    const { post, postCount, comments, loading=false, updateComment, currentUser, classes, isRead} = this.props
+    const { post, comments, updateComment, currentUser, classes, isRead} = this.props
     const { readStatus, showHighlight, markedAsVisitedAt } = this.state
-    const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle, Loading } = Components
+    const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle } = Components
 
     const lastCommentId = comments && comments[0]?._id
     const nestedComments = unflattenComments(comments);
