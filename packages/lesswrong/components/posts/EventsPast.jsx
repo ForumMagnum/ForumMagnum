@@ -25,6 +25,7 @@ const EventsPast = ({ classes }) => {
           after={getAfterDefault(numberOfDays, 'day')}
           before={getBeforeDefault('day')}
           postListParameters={terms}
+          displayShortform={false}
         />
       </div>
     </SingleColumnSection>
