@@ -216,7 +216,7 @@ jobs:
           command: meteor npm i -g json
       - run:
           name: Install mup and mup-aws-beanstalk
-          command: meteor npm i -g mup mup-aws-beanstalk
+          command: meteor npm install -g mup https://github.com/jimrandomh/mup-aws-beanstalk
       - run:
           name: Set sentry version and modify settings.json
           command: |
@@ -289,7 +289,7 @@ jobs:
           command: meteor npm i -g json
       - run:
           name: Install mup and mup-aws-beanstalk
-          command: meteor npm i -g mup mup-aws-beanstalk
+          command: meteor npm install -g mup https://github.com/jimrandomh/mup-aws-beanstalk
       - run:
           name: Set sentry version and modify settings.json
           command: |
@@ -362,7 +362,7 @@ jobs:
           command: meteor npm i -g json
       - run:
           name: Install mup and mup-aws-beanstalk
-          command: meteor npm i -g mup mup-aws-beanstalk
+          command: meteor npm install -g mup https://github.com/jimrandomh/mup-aws-beanstalk
       - run:
           name: Set sentry version and modify settings.json
           command: |
@@ -434,7 +434,7 @@ jobs:
           command: meteor npm i -g json
       - run:
           name: Install mup and mup-aws-beanstalk
-          command: meteor npm i -g mup mup-aws-beanstalk
+          command: meteor npm install -g mup https://github.com/jimrandomh/mup-aws-beanstalk
       - run:
           name: Set sentry version and modify settings.json
           command: |
@@ -507,7 +507,7 @@ jobs:
           command: meteor npm i -g json
       - run:
           name: Install mup and mup-aws-beanstalk
-          command: meteor npm i -g mup mup-aws-beanstalk
+          command: meteor npm install -g mup https://github.com/jimrandomh/mup-aws-beanstalk
       - run:
           name: Set sentry version and modify settings.json
           command: |

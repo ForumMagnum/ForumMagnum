@@ -42,13 +42,12 @@ const styles = theme => ({
   },
   title: {
     flex: 1,
+    position: "relative",
+    top: 3,
   },
   titleLink: {
     color: getHeaderTextColor(theme),
-    verticalAlign: 'middle',
     fontSize: 19,
-    position: "relative",
-    top: 3,
     '&:hover, &:focus, &:active': {
       textDecoration: 'none',
       opacity: 0.7,
@@ -204,8 +203,6 @@ class Header extends PureComponent {
     )
   }
 }
-
-Header.displayName = "Header";
 
 Header.propTypes = {
   currentUser: PropTypes.object,

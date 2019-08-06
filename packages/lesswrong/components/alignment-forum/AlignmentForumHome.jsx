@@ -34,7 +34,7 @@ const AlignmentForumHome = ({currentUser, classes}) => {
       <SingleColumnSection>
         <SectionTitle title="AI Alignment Posts">
           { currentUser && Users.canDo(currentUser, "posts.alignment.new") && 
-            <Link to={{pathname:"/newPost", query: {af: true}}}>
+            <Link to={{pathname:"/newPost", search: `?af=true`}}>
               <SectionButton>
                 <AddIcon />
                 New Post

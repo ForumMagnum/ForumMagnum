@@ -23,7 +23,5 @@ AccountsResetPassword.propTypes = {
   match: PropTypes.object,
 };
 
-AccountsResetPassword.displayName = 'AccountsResetPassword';
-
 // Shadows AccountsResetPassword from vulcan:accounts
 registerComponent('AccountsResetPassword', AccountsResetPassword);

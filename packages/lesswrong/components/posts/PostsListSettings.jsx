@@ -250,8 +250,6 @@ PostsListSettings.propTypes = {
   currentUser: PropTypes.object,
 };
 
-PostsListSettings.displayName = 'PostsListSettings';
-
 const withUpdateOptions = {
   collection: Users,
   fragmentName: 'UsersCurrent',

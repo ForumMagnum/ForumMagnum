@@ -72,6 +72,9 @@ import '../components/common/LoadMore.jsx';
 import '../components/common/ReCaptcha.jsx';
 import '../components/common/DefaultStyleFormGroup.jsx'
 import '../components/common/LinkCard.jsx';
+import '../components/common/Error404.jsx';
+import '../components/common/PermanentRedirect.jsx';
+
 
 // Outgoing RSS Feed builder
 import '../components/common/SubscribeWidget.jsx';
@@ -107,7 +110,6 @@ import '../components/icons/SettingsIcon.jsx';
 
 // posts
 
-import '../components/posts/PostsEdit.jsx';
 import '../components/posts/PostsHighlight.jsx';
 import '../components/posts/AlignmentCrosspostMessage.jsx';
 import '../components/posts/LinkPostMessage.jsx';

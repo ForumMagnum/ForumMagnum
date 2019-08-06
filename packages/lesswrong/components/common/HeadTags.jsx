@@ -20,8 +20,8 @@ const HeadTags = (props) => {
     const { currentRoute, pathname } = useSubscribedLocation();
     const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
     
-    const TitleComponent = currentRoute.titleComponentName ? Components[currentRoute.titleComponentName] : null;
-    const titleString = currentRoute.title || currentRoute.subtitle;
+    const TitleComponent = currentRoute?.titleComponentName ? Components[currentRoute.titleComponentName] : null;
+    const titleString = currentRoute?.title || currentRoute?.subtitle;
     
     return (
       <div>

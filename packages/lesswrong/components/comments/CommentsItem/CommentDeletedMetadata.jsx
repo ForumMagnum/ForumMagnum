@@ -36,8 +36,6 @@ const CommentDeletedMetadata = ({document, classes}) => {
   }
 };
 
-CommentDeletedMetadata.displayName = "CommentDeletedMetadata";
-
 const options = {
   collection: Comments,
   queryName: 'CommentsDeletedMetadataQuery',

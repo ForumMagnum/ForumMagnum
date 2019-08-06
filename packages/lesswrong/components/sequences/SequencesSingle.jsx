@@ -7,6 +7,4 @@ const SequencesSingle = () => {
   return <Components.SequencesPage documentId={params._id} />
 };
 
-SequencesSingle.displayName = "SequencesSingle";
-
 registerComponent('SequencesSingle', SequencesSingle);

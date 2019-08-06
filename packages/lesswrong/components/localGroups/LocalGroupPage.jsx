@@ -8,6 +8,7 @@ import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 import { postBodyStyles } from '../../themes/stylePiping'
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
+import qs from 'qs'
 
 const styles = theme => ({
   root: {
@@ -84,13 +85,13 @@ class LocalGroupPage extends Component {
                 </span>
                 {Posts.options.mutations.new.check(currentUser) &&
                   <SectionButton>
-                    <Link to={{pathname:"/newPost", query: {eventForm: true, groupId}}} className={classes.leftAction}>
+                    <Link to={{pathname:"/newPost", search: `?${qs.stringify({eventForm: true, groupId})}`}} className={classes.leftAction}>
                       Create new event
                     </Link>
                   </SectionButton>}
                 {Posts.options.mutations.new.check(this.props.currentUser) &&
                   <SectionButton>
-                    <Link to={{pathname:"/newPost", query: {groupId}}} className={classes.leftAction}>
+                    <Link to={{pathname:"/newPost", search: `?${qs.stringify({groupId})}`}} className={classes.leftAction}>
                       Create new group post
                     </Link>
                   </SectionButton>}
