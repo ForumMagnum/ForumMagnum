@@ -63,7 +63,7 @@ class ChaptersItem extends Component {
         <div className={classes.posts}>
           <SequencesPostsList posts={chapter.posts} chapter={chapter} />
         </div>
-        {!chapter.title && <SectionFooter>{editButton}</SectionFooter>}
+        {!chapter.title && canEdit && <SectionFooter>{editButton}</SectionFooter>}
       </SingleColumnSection>
     )
   }

@@ -44,7 +44,8 @@ const filters = {
   },
   "meta": {
     meta: true
-  }
+  },
+  "includeMetaAndPersonal": {}
 }
 if (getSetting('forumType') === 'EAForum') filters.frontpage.meta = {$ne: true}
 
@@ -644,6 +645,7 @@ Posts.addView("groupPosts", function (terms) {
     selector: {
       isEvent: null,
       groupId: terms.groupId,
+      authorIsUnreviewed: viewFieldAllowAny
     },
     options: {
       sort: {

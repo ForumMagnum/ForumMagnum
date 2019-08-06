@@ -1,12 +1,11 @@
 import React from 'react';
-import { Components, registerComponent, withList, Loading } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import { Comments } from '../../lib/collections/comments';
 import withUser from '../common/withUser';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
 
 const ShortformThreadList = ({ results, loading, loadMore, networkStatus, data: {refetch} }) => {
 
-  const { LoadMore, ShortformThread, ShortformSubmitForm } = Components
+  const { LoadMore, ShortformThread, ShortformSubmitForm, Loading } = Components
 
   if (!loading && results && !results.length) {
     return null
@@ -32,9 +31,10 @@ const discussionThreadsOptions = {
   collection: Comments,
   queryName: 'ShortformThreadListQuery',
   fragmentName: 'ShortformCommentsList',
+  fetchPolicy: 'cache-and-network',
   enableTotal: false,
   pollInterval: 0,
   enableCache: true,
 };
 
-registerComponent('ShortformThreadList', ShortformThreadList, [withList, discussionThreadsOptions], withUser, withRouter);
+registerComponent('ShortformThreadList', ShortformThreadList, [withList, discussionThreadsOptions], withUser);

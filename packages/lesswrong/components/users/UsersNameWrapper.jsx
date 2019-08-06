@@ -16,8 +16,6 @@ const UsersNameWrapper = ({document, loading, nofollow=false, simple=false}) => 
   return null
 };
 
-UsersNameWrapper.displayName = "UsersNameWrapper";
-
 UsersNameWrapper.propTypes = {
   document: PropTypes.object,
   loading: PropTypes.bool

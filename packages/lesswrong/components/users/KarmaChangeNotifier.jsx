@@ -1,12 +1,12 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, withDocument, withEdit } from 'meteor/vulcan:core';
+import { registerComponent, withDocument, withUpdate } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import Popper from '@material-ui/core/Popper';
 import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from 'react-router-dom';
 import Users from 'meteor/vulcan:users';
 import Typography from '@material-ui/core/Typography';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
@@ -55,7 +55,7 @@ const styles = theme => ({
     maxWidth: 250,
     textOverflow: "ellipsis"
   },
-  
+
   singleLinePreview: {
     whiteSpace: "nowrap",
     overflow: "hidden",
@@ -151,7 +151,7 @@ class KarmaChangeNotifier extends PureComponent {
     karmaChanges: this.props.document && this.props.document.karmaChanges,
     karmaChangeLastOpened: this.props.currentUser && this.props.currentUser.karmaChangeLastOpened
   };
-  
+
   handleOpen = (event) => {
     this.setState({
       open: true,
@@ -168,7 +168,7 @@ class KarmaChangeNotifier extends PureComponent {
       this.handleOpen(e)
     }
   }
-  
+
   handleClose = (e) => {
     const { anchorEl } = this.state
     if (e && anchorEl.contains(e.target)) {
@@ -179,36 +179,36 @@ class KarmaChangeNotifier extends PureComponent {
       anchorEl: null,
     });
     if (this.props.document && this.props.document.karmaChanges) {
-      this.props.editMutation({
-        documentId: this.props.currentUser._id,
-        set: {
+      this.props.updateUser({
+        selector: {_id: this.props.currentUser._id},
+        data: {
           karmaChangeLastOpened: this.props.document.karmaChanges.endDate,
           karmaChangeBatchStart: this.props.document.karmaChanges.startDate
         }
       });
-      
+
       if (this.props.document.karmaChanges.updateFrequency === "realtime") {
         this.setState({cleared: true});
       }
     }
   }
-  
+
   render() {
     const {document, classes, currentUser} = this.props;
     if (!currentUser || !document) return null
     const {open, anchorEl, karmaChanges: stateKarmaChanges, karmaChangeLastOpened} = this.state;
     const karmaChanges = stateKarmaChanges || document.karmaChanges; // Covers special case when state was initialized when user wasn't logged in
     if (!karmaChanges) return null;
-    
+
     const { karmaChangeNotifierSettings: settings } = currentUser
     if (settings && settings.updateFrequency === "disabled")
       return null;
-    
+
     const { posts, comments, endDate, totalChange } = karmaChanges
     //Check if user opened the karmaChangeNotifications for the current interval
     const newKarmaChangesSinceLastVisit = (new Date(karmaChangeLastOpened || 0) - new Date(endDate || 0)) < 0
     const starIsHollow = ((comments.length===0 && posts.length===0) || this.state.cleared || !newKarmaChangesSinceLastVisit)
-    
+
     return <div>
         <IconButton onClick={this.handleToggle} className={classes.karmaNotifierButton}>
           {starIsHollow
@@ -250,7 +250,7 @@ registerComponent('KarmaChangeNotifier', KarmaChangeNotifier,
     queryName: 'UserKarmaChangesQuery',
     fragmentName: 'UserKarmaChanges'
   }],
-  [withEdit, {
+  [withUpdate, {
     collection: Users,
     fragmentName: 'UsersCurrent',
   }],

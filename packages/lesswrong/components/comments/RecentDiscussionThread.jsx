@@ -3,7 +3,6 @@ import {
   Components,
   registerComponent,
   withList,
-  Loading,
 } from 'meteor/vulcan:core';
 
 import { Link } from '../../lib/reactRouterWrapper.js';
@@ -14,7 +13,6 @@ import { unflattenComments } from '../../lib/modules/utils/unflatten';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import withRecordPostView from '../common/withRecordPostView';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
 
 import { withStyles } from '@material-ui/core/styles';
 import { postExcerptFromHTML } from '../../lib/editor/ellipsize'
@@ -105,22 +103,19 @@ class RecentDiscussionThread extends PureComponent {
     this.setState(prevState => ({showHighlight:!prevState.showHighlight}));
     this.markAsRead()
   }
-  
+
   markAsRead = async () => {
     this.setState({readStatus:true, markedAsVisitedAt: new Date()});
-    this.props.recordPostView({...this.props, document:this.props.post})
+    this.props.recordPostView({post:this.props.post})
   }
 
   render() {
-    const { post, postCount, results, loading, editMutation, currentUser, classes, data: {refetch}
-  } = this.props
+    const { post, postCount, results, loading, updateComment, currentUser, classes, data: {refetch}, isRead} = this.props
     const { readStatus, showHighlight, markedAsVisitedAt } = this.state
-
-    const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle } = Components
+    const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle, Loading } = Components
 
     const lastCommentId = results && results[0]?._id
-
-    const nestedComments = unflattenComments(results)
+    const nestedComments = unflattenComments(results);
 
     const lastVisitedAt = markedAsVisitedAt || post.lastVisitedAt
 
@@ -147,7 +142,7 @@ class RecentDiscussionThread extends PureComponent {
           </Link>
 
           <div className={classes.threadMeta} onClick={this.showHighlight}>
-            {currentUser && !(post.lastVisitedAt || readStatus) &&
+            {currentUser && !(isRead || readStatus) &&
               <span title="Unread" className={classes.unreadDot}>•</span>}
             <PostsItemMeta post={post}/>
             <ShowOrHideHighlightButton
@@ -161,7 +156,7 @@ class RecentDiscussionThread extends PureComponent {
               <PostsHighlight post={post} />
             </div>
             : <div className={highlightClasses} onClick={this.showHighlight}>
-                { (!post.lastVisitedAt || post.commentCount === null) &&
+                { (!isRead || post.commentCount === null) &&
                   <ContentItemBody
                     className={classes.postHighlight}
                     dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents && post.contents.htmlHighlight)}}/>}
@@ -181,7 +176,7 @@ class RecentDiscussionThread extends PureComponent {
                   //eslint-disable-next-line react/no-children-prop
                   children={comment.children}
                   key={comment.item._id}
-                  editMutation={editMutation}
+                  updateComment={updateComment}
                   refetch={refetch}
                   post={post}
                   condensed
@@ -213,6 +208,5 @@ registerComponent(
   withUser,
   withStyles(styles, { name: "RecentDiscussionThread" }),
   withRecordPostView,
-  withErrorBoundary,
-  withRouter
+  withErrorBoundary
 );

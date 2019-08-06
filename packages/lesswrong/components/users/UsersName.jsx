@@ -16,6 +16,4 @@ UsersName.propTypes = {
   documentId: PropTypes.string,
 }
 
-UsersName.displayName = 'UsersName';
-
 registerComponent('UsersName', UsersName);

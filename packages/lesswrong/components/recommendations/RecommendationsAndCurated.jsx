@@ -81,6 +81,7 @@ class RecommendationsAndCurated extends PureComponent {
     } 
 
     const renderContinueReading = continueReading && continueReading.length>0 && !settings.hideContinueReading 
+    const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
     return <SingleColumnSection>
       <SectionTitle title="Recommendations">
@@ -126,7 +127,7 @@ class RecommendationsAndCurated extends PureComponent {
       </div>}
       
       <Tooltip placement="top-start" title={curatedTooltip}>
-        <Link to={"/allPosts?filter=curated&view=new"}>
+        <Link to={curatedUrl}>
           <SectionSubtitle className={classNames(classes.subtitle, classes.curated)}>
             Recently Curated
           </SectionSubtitle>
@@ -134,7 +135,7 @@ class RecommendationsAndCurated extends PureComponent {
       </Tooltip>
       <SubSection>
         <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false}>
-          <Link to={"/allPosts?filter=curated&view=new"}>View All Curated Posts</Link>
+          <Link to={curatedUrl}>View All Curated Posts</Link>
           <SubscribeWidget view={"curated"} />
         </PostsList2>
       </SubSection>

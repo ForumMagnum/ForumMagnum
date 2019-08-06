@@ -29,8 +29,6 @@ const AlignmentCrosspostMessage = ({post, classes}) => {
   }
 }
 
-AlignmentCrosspostMessage.displayName = "LinkPostMessage";
-
 AlignmentCrosspostMessage.propTypes = {
   post: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired

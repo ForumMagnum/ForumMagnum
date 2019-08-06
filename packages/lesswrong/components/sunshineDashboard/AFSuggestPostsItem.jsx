@@ -1,4 +1,4 @@
-import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
@@ -15,32 +15,30 @@ import withErrorBoundary from '../common/withErrorBoundary'
 class AFSuggestPostsItem extends Component {
 
   handleMoveToAlignment = () => {
-    const { currentUser, post, editMutation } = this.props
-    editMutation({
-      documentId: post._id,
-      set: {
+    const { currentUser, post, updatePost } = this.props
+    updatePost({
+      selector: {_id: post._id},
+      data: {
         reviewForAlignmentUserId: currentUser._id,
         moveToAlignmentUserId: currentUser._id,
         afDate: new Date(),
         af: true,
-      },
-      unset: {}
+      }
     })
   }
 
   handleDisregardForAlignment = () => {
-    const { currentUser, post, editMutation } = this.props
-    editMutation({
-      documentId: post._id,
-      set: {
+    const { currentUser, post, updatePost } = this.props
+    updatePost({
+      selector: {_id: post._id},
+      data: {
         reviewForAlignmentUserId: currentUser._id,
-      },
-      unset: {}
+      }
     })
   }
 
   render () {
-    const { post, currentUser, hover, anchorEl, editMutation } = this.props
+    const { post, currentUser, hover, anchorEl, updatePost } = this.props
 
     const userHasVoted = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser._id)
 
@@ -77,11 +75,11 @@ class AFSuggestPostsItem extends Component {
         </Components.SidebarInfo>
         { hover && <Components.SidebarActionMenu>
           { userHasVoted ?
-            <Components.SidebarAction title="Unendorse for Alignment" onClick={()=>Posts.unSuggestForAlignment({currentUser, post, editMutation})}>
+            <Components.SidebarAction title="Unendorse for Alignment" onClick={()=>Posts.unSuggestForAlignment({currentUser, post, updatePost})}>
               <UndoIcon/>
             </Components.SidebarAction>
             :
-            <Components.SidebarAction title="Endorse for Alignment" onClick={()=>Posts.suggestForAlignment({currentUser, post, editMutation})}>
+            <Components.SidebarAction title="Endorse for Alignment" onClick={()=>Posts.suggestForAlignment({currentUser, post, updatePost})}>
               <PlusOneIcon/>
             </Components.SidebarAction>
           }
@@ -99,13 +97,13 @@ class AFSuggestPostsItem extends Component {
 
 AFSuggestPostsItem.propTypes = {
   currentUser: PropTypes.object.isRequired,
-  editMutation: PropTypes.func.isRequired,
+  updatePost: PropTypes.func.isRequired,
   post: PropTypes.object.isRequired,
   hover: PropTypes.bool.isRequired,
   anchorEl: PropTypes.object,
 }
 
-const withEditOptions = {
+const withUpdateOptions = {
   collection: Posts,
   fragmentName: 'SuggestAlignmentPost',
 }
@@ -113,7 +111,7 @@ const withEditOptions = {
 registerComponent(
   'AFSuggestPostsItem',
   AFSuggestPostsItem,
-  [withEdit, withEditOptions],
+  [withUpdate, withUpdateOptions],
   withUser,
   withHover,
   withErrorBoundary
