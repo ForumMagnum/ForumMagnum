@@ -23,7 +23,7 @@ const PostsNewForm = ({currentUser, flash, classes}) => {
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = getSetting('forumType') === 'AlignmentForum'
   const prefilledProps = {
-    isEvent: query && query.eventForm,
+    isEvent: query && !!query.eventForm,
     types: query && query.ssc ? ['SSC'] : [],
     meta: query && !!query.meta,
     frontpageDate: af ? new Date() : null,
