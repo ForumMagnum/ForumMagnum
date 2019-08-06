@@ -8,6 +8,7 @@ import moment from 'moment-timezone';
 import { Posts } from '../../lib/collections/posts';
 import { timeframeToTimeBlock } from './timeframeUtils'
 import { queryIsUpdating } from '../common/queryStatusUtils'
+import withTimezone from '../common/withTimezone';
 
 const styles = theme => ({
   root: {
@@ -85,7 +86,7 @@ class PostsTimeBlock extends Component {
   render () {
     const {
       startDate, results: posts, totalCount, loading, loadMore, hideIfEmpty, classes, currentUser,
-      timeframe, networkStatus, displayShortform = true
+      timeframe, networkStatus, timezone, displayShortform = true
     } = this.props
     const { noShortform } = this.state
     const { PostsItem2, LoadMore, ShortformTimeBlock, SectionSubtitle, SubSection, Loading, ContentType, Divider } = Components
@@ -168,8 +169,8 @@ class PostsTimeBlock extends Component {
               view: "topShortform",
               // NB: The comments before differs from posts in that before is not
               // inclusive
-              before: moment(startDate).endOf(timeBlock).toString(),
-              after: moment(startDate).startOf(timeBlock).toString()
+              before: moment.tz(startDate, timezone).endOf(timeBlock).toString(),
+              after: moment.tz(startDate, timezone).startOf(timeBlock).toString()
             }}
           />}
         </div>
@@ -195,5 +196,6 @@ registerComponent('PostsTimeBlock', PostsTimeBlock,
     enableCache: true,
     ssr: true,
   }],
+  withTimezone,
   withCurrentUser, withStyles(styles, { name: "PostsTimeBlock" })
 );
