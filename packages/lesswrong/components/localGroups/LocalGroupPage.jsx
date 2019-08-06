@@ -35,6 +35,7 @@ const styles = theme => ({
     ...theme.typography.body2,
     display: "inline-block",
     color: "rgba(0,0,0,0.7)",
+    maxWidth: 260
   },
   groupLinks: {
     display: "inline-block",

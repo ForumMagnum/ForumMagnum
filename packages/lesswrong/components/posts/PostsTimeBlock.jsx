@@ -85,7 +85,7 @@ class PostsTimeBlock extends Component {
   render () {
     const {
       startDate, results: posts, totalCount, loading, loadMore, hideIfEmpty, classes, currentUser,
-      timeframe, networkStatus
+      timeframe, networkStatus, displayShortform = true
     } = this.props
     const { noShortform } = this.state
     const { PostsItem2, LoadMore, ShortformTimeBlock, SectionSubtitle, SubSection, Loading, ContentType, Divider } = Components
@@ -162,7 +162,7 @@ class PostsTimeBlock extends Component {
                 networkStatus={networkStatus}
               />
           </div>}
-          <ShortformTimeBlock
+          {displayShortform && <ShortformTimeBlock
             reportEmpty={this.reportEmptyShortform}
             terms={{
               view: "topShortform",
@@ -171,7 +171,7 @@ class PostsTimeBlock extends Component {
               before: moment(startDate).endOf(timeBlock).toString(),
               after: moment(startDate).startOf(timeBlock).toString()
             }}
-          />
+          />}
         </div>
         <Divider wings={false}/>
       </div>
