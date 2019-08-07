@@ -17,6 +17,7 @@ import withDialog from '../common/withDialog'
 const styles = theme => ({
   root: {
     marginTop: 5,
+    wordBreak: 'break-all'
   },
   userButtonContents: {
     textTransform: 'none',
