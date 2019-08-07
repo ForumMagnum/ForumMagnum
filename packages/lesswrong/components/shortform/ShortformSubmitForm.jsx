@@ -16,7 +16,6 @@ const ShortformSubmitForm = ({ classes, successCallback}) => {
     <div className={classes.root}>
       <CommentsNewForm
         prefilledProps={{shortform: true}}
-        fragment={"ShortformCommentsList"}
         successCallback={successCallback}
         type="comment"
       />
