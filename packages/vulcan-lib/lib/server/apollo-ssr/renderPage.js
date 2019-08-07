@@ -11,16 +11,11 @@ import { getUserFromReq, computeContextFromUser } from '../apollo-server/context
 
 import { runCallbacks } from '../../modules/callbacks';
 import { createClient } from './apolloClient';
-import { pageCache, cacheKeyFromReq } from './pageCache';
+import { cachedPageRender, recordCacheBypass, getCacheHitRate } from './pageCache';
 
 import Head from './components/Head';
 import ApolloState from './components/ApolloState';
 import AppGenerator from './components/AppGenerator';
-
-let cacheHits = 0;
-let cacheMisses = 0;
-let cacheIneligible = 0;
-let cacheQueriesTotal = 0;
 
 const makePageRenderer = async sink => {
   const req = sink.request;
@@ -28,27 +23,14 @@ const makePageRenderer = async sink => {
   
   if (user) {
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
-    cacheQueriesTotal++; cacheIneligible++;
-      //eslint-disable-next-line no-console
-    console.log(`Rendering ${req.url} (logged in request; hit rate=${cacheHits/cacheQueriesTotal})`);
+    recordCacheBypass();
+    //eslint-disable-next-line no-console
+    console.log(`Rendering ${req.url} (logged in request; hit rate=${getCacheHitRate()})`);
     const rendered = await renderRequest(req, user);
     sendToSink(sink, rendered);
   } else {
-    const cacheKey = cacheKeyFromReq(req);
-    const cached = pageCache.get(cacheKey);
-    if (cached) {
-      cacheHits++; cacheQueriesTotal++;
-      //eslint-disable-next-line no-console
-      console.log(`Serving ${req.url.path} from cache; hit rate=${cacheHits/cacheQueriesTotal}`);
-      sendToSink(sink, cached);
-    } else {
-      cacheMisses++; cacheQueriesTotal++;
-      //eslint-disable-next-line no-console
-      console.log(`Rendering ${req.url.path} (not in cache; hit rate=${cacheHits/cacheQueriesTotal})`);
-      const rendered = await renderRequest(req, user);
-      pageCache.set(cacheKey, rendered);
-      sendToSink(sink, rendered);
-    }
+    const rendered = await cachedPageRender(req, (req) => renderRequest(req, null));
+    sendToSink(sink, rendered);
   }
 };
 
