@@ -160,7 +160,6 @@ import '../components/titles/SequencesPageTitle.jsx';
 import '../components/titles/PostsPageTitle.jsx';
 
 import '../components/shortform/ShortformPage.jsx';
-import '../components/shortform/ShortformThread.jsx';
 import '../components/shortform/ShortformThreadList.jsx';
 import '../components/shortform/RepliesToCommentList.jsx';
 import '../components/shortform/NewShortformDialog.jsx';
@@ -217,6 +216,8 @@ import '../components/comments/CommentsItem/CommentsMenu.jsx';
 import '../components/comments/CommentsItem/CommentOutdatedWarning';
 import '../components/comments/CommentsItem/CommentsItemDate';
 
+import '../components/comments/CommentWithReplies';
+import '../components/comments/CommentPermalink.jsx';
 import '../components/comments/RecentDiscussionThread.jsx';
 import '../components/comments/RecentDiscussionThreadsList.jsx';
 import '../components/comments/CantCommentExplanation.jsx';

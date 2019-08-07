@@ -231,11 +231,11 @@ class PostsPage extends Component {
   }
   
   render() {
-    const { post, refetch, currentUser, classes } = this.props
+    const { post, refetch, currentUser, classes, location: { query: { commentId }} } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, ContentType,
       LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
-      TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate } = Components
+      TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink } = Components
 
     if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
@@ -258,6 +258,7 @@ class PostsPage extends Component {
           {/* Header/Title */}
           <div className={classes.title}>
             <div className={classes.post}>
+              <CommentPermalink documentId={commentId} post={post}/>
               {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
               <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
               <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}>
