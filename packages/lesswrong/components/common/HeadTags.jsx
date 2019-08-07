@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Utils, getSetting, Head } from 'meteor/vulcan:lib';
 import { compose } from 'react-apollo';

@@ -9,13 +9,13 @@ import { makeEditableOptions, makeEditableOptionsModeration } from './custom_fie
 import { PostRelations } from '../postRelations/index';
 const MINIMUM_APPROVAL_KARMA = 5
 
-function PostsEditRunPostUndraftedSyncCallbacks (modifier, post) {
-  if (modifier.$set && modifier.$set.draft === false && post.draft) {
-    modifier = runCallbacks("posts.undraft.sync", modifier, post);
+function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
+  if (data.draft === false && post.draft) {
+    data = runCallbacks("post.undraft.before", data, post);
   }
-  return modifier;
+  return data;
 }
-addCallback("posts.edit.sync", PostsEditRunPostUndraftedSyncCallbacks);
+addCallback("post.update.before", PostsEditRunPostUndraftedSyncCallbacks);
 
 function PostsEditRunPostUndraftedAsyncCallbacks (newPost, oldPost) {
   if (!newPost.draft && oldPost.draft) {
@@ -36,14 +36,11 @@ addCallback("posts.edit.async", PostsEditRunPostDraftedAsyncCallbacks);
 /**
  * @summary set postedAt when a post is moved out of drafts
  */
-function PostsSetPostedAt (modifier, post) {
-  modifier.$set.postedAt = new Date();
-  if (modifier.$unset) {
-    delete modifier.$unset.postedAt;
-  }
-  return modifier;
+function PostsSetPostedAt (data, oldPost) {
+  data.postedAt = new Date();
+  return data;
 }
-addCallback("posts.undraft.sync", PostsSetPostedAt);
+addCallback("post.undraft.before", PostsSetPostedAt);
 
 function increaseMaxBaseScore ({newDocument, vote}, collection, user, context) {
   if (vote.collectionName === "Posts" && newDocument.baseScore > (newDocument.maxBaseScore || 0)) {

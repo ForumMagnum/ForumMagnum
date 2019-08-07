@@ -149,9 +149,8 @@ Meteor.startup(() => {
   // /graphql middlewares (request parsing)
   setupGraphQLMiddlewares(apolloServer, config, apolloApplyMiddlewareOptions);
   //// other middlewares (dev tools etc.)
-  if (Meteor.isDevelopment) {
-    setupToolsMiddlewares(config);
-  }
+  // LW: Made available in production environment
+  setupToolsMiddlewares(config);
   
   // init the application components and routes, including components & routes from 3rd-party packages
   initializeFragments();

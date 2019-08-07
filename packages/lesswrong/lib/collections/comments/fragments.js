@@ -46,6 +46,15 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment CommentPermalink on Comment {
+    ...CommentsList
+    parentComment {
+      ...CommentsList
+    }
+  }
+`);
+
+registerFragment(`
   fragment ShortformComments on Comment {
     ...CommentsList
     post {
@@ -57,7 +66,7 @@ registerFragment(`
 `)
 
 registerFragment(`
-  fragment ShortformCommentsList on Comment {
+  fragment CommentWithReplies on Comment {
     ...CommentsList
     lastSubthreadActivity
     latestChildren {
