@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
-import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = theme => ({
   root: {
@@ -29,23 +28,10 @@ const styles = theme => ({
 }) 
 
 class ShortformSubmitForm extends PureComponent {
-  state = { expanded: false }
   
   render() {
-    const { classes, successCallback, startCollapsed=false } = this.props
-    const { expanded } = this.state
+    const { classes, successCallback } = this.props
     const { CommentsNewForm } = Components;
-    
-    if (startCollapsed && !expanded) {
-      return <div className={classes.root}>
-        <Tooltip title="Click to begin writing a shortform post" placement="top-start">
-          <div className={classes.placeholderWrapper} onClick={()=>this.setState({expanded: true})}>
-            <div className={classes.placeholder}>Write shortform post</div>
-            <div className={classes.placeholderSubmit}>SUBMIT</div>
-          </div>
-        </Tooltip>
-      </div>
-    }
 
     return (
       <div className={classes.root}>
