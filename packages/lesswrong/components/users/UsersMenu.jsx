@@ -100,7 +100,6 @@ class UsersMenu extends PureComponent {
             </Link>
             <Link to={`/account`}>
               <MenuItem>
-                
                 Edit User Settings
               </MenuItem>
             </Link>
