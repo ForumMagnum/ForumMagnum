@@ -20,12 +20,13 @@ import moment from 'moment';
 import { matchPath } from 'react-router';
 import { Switch, Route } from 'react-router-dom';
 import { withRouter} from 'react-router';
-import MessageContext, { flash } from '../messages.js';
+import MessageContext from '../messages.js';
 import qs from 'qs'
 
 export const LocationContext = React.createContext("location");
 export const SubscribeLocationContext = React.createContext("subscribeLocation");
 export const NavigationContext = React.createContext("navigation");
+export const ServerRequestStatusContext = React.createContext("serverRequestStatus");
 
 export function parseQuery(location) {
   let query = location && location.search;
@@ -78,8 +79,8 @@ class App extends PureComponent {
   */
   flash = message => {
     this.setState({
-      messages: [...this.state.messages, message
-    ]});
+      messages: [...this.state.messages, message]
+    });
   }
 
   /*
@@ -88,7 +89,14 @@ class App extends PureComponent {
 
   */
   clear = () => {
-    this.setState({ messages: []});
+    // When clearing messages, we first set all current messages to have a hide property
+    // And only after 500ms set the array to empty, to allow UI elements to show a fade-out animation
+    this.setState({
+      messages: this.state.messages.map(message => ({...message, hide: true}))
+    })
+    setTimeout(() => {
+      this.setState({ messages: []});
+    }, 500)
   }
 
   componentDidMount() {
@@ -191,7 +199,7 @@ class App extends PureComponent {
   render() {
     const { flash } = this;
     const { messages } = this.state;
-    const { currentUser } = this.props;
+    const { currentUser, serverRequestStatus } = this.props;
 
     // Parse the location into a route/params/query/etc.
     const location = this.parseRoute(this.props.location);
@@ -225,12 +233,13 @@ class App extends PureComponent {
       <LocationContext.Provider value={this.locationContext}>
       <SubscribeLocationContext.Provider value={this.subscribeLocationContext}>
       <NavigationContext.Provider value={this.navigationContext}>
+      <ServerRequestStatusContext.Provider value={serverRequestStatus}>
       <IntlProvider locale={this.getLocale()} key={this.getLocale()} messages={Strings[this.getLocale()]}>
-        <MessageContext.Provider value={{ messages, flash }}>
+        <MessageContext.Provider value={{ messages, flash, clear: this.clear }}>
           <Components.HeadTags image={getSetting('siteImage')} />
           <Components.ScrollToTop />
           <div className={`locale-${this.getLocale()}`}>
-            <Components.Layout currentUser={currentUser}>
+            <Components.Layout currentUser={currentUser} messages={messages}>
               {this.props.currentUserLoading
                 ? <Components.Loading />
                 : <RouteComponent />
@@ -239,6 +248,7 @@ class App extends PureComponent {
           </div>
         </MessageContext.Provider>
       </IntlProvider>
+      </ServerRequestStatusContext.Provider>
       </NavigationContext.Provider>
       </SubscribeLocationContext.Provider>
       </LocationContext.Provider>

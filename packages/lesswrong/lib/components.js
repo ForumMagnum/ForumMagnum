@@ -1,5 +1,4 @@
 import { getSetting } from 'meteor/vulcan:core';
-import { registerSplitComponent } from 'meteor/vulcan:routing';
 
 if(getSetting('forumType') === 'AlignmentForum') {
   // HACK: At the top of the file because DeepScan false-positively warns about
@@ -69,6 +68,9 @@ import '../components/common/LoadMore.jsx';
 import '../components/common/ReCaptcha.jsx';
 import '../components/common/DefaultStyleFormGroup.jsx'
 import '../components/common/LinkCard.jsx';
+import '../components/common/Error404.jsx';
+import '../components/common/PermanentRedirect.jsx';
+
 
 import '../components/common/TabNavigationMenu/TabNavigationMenu.jsx';
 import '../components/common/TabNavigationMenu/TabNavigationMenuFooter.jsx';
@@ -114,7 +116,6 @@ import '../components/icons/SettingsIcon.jsx';
 
 // posts
 
-import '../components/posts/PostsEdit.jsx';
 import '../components/posts/PostsHighlight.jsx';
 import '../components/posts/AlignmentCrosspostMessage.jsx';
 import '../components/posts/LinkPostMessage.jsx';
@@ -166,7 +167,6 @@ import '../components/titles/SequencesPageTitle.jsx';
 import '../components/titles/PostsPageTitle.jsx';
 
 import '../components/shortform/ShortformPage.jsx';
-import '../components/shortform/ShortformThread.jsx';
 import '../components/shortform/ShortformThreadList.jsx';
 import '../components/shortform/RepliesToCommentList.jsx';
 import '../components/shortform/NewShortformDialog.jsx';
@@ -223,6 +223,8 @@ import '../components/comments/CommentsItem/CommentsMenu.jsx';
 import '../components/comments/CommentsItem/CommentOutdatedWarning';
 import '../components/comments/CommentsItem/CommentsItemDate';
 
+import '../components/comments/CommentWithReplies';
+import '../components/comments/CommentPermalink.jsx';
 import '../components/comments/RecentDiscussionThread.jsx';
 import '../components/comments/RecentDiscussionThreadsList.jsx';
 import '../components/comments/CantCommentExplanation.jsx';

@@ -80,8 +80,6 @@ SunshineSidebar.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-SunshineSidebar.displayName = "SunshineSidebar";
-
 /*export default defineComponent({
   name: "SunshineSidebar",
   component: SunshineSidebar,

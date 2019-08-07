@@ -1,7 +1,6 @@
 import { Components, registerComponent, withList} from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import React from 'react';
-import { Error404 } from 'meteor/vulcan:core';
 import { useLocation } from '../../lib/routeUtil.js';
 
 const PostsSingleSlug = ({results, loading}) => {
@@ -10,11 +9,9 @@ const PostsSingleSlug = ({results, loading}) => {
   if (results && results.length>0 && results[0]._id) {
     return <Components.PostsPageWrapper documentId={results[0]._id } sequenceId={null} version={version} />
   } else {
-    return loading ? <Components.Loading/> : <Error404 />
+    return loading ? <Components.Loading/> : <Components.Error404 />
   }
 };
-
-PostsSingleSlug.displayName = "PostsSingleSlug";
 
 const options = {
   collection: Posts,

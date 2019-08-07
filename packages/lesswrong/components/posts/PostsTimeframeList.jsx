@@ -87,7 +87,7 @@ class PostsTimeframeList extends PureComponent {
   }
 
   render() {
-    const { timezone, classes, postListParameters } = this.props
+    const { timezone, classes, postListParameters, displayShortform } = this.props
     const { timeframe, after, before, dim } = this.state
     const { PostsTimeBlock } = Components
 
@@ -112,6 +112,7 @@ class PostsTimeframeList extends PureComponent {
             }}
             timeBlockLoadComplete={this.timeBlockLoadComplete}
             hideIfEmpty={index===0}
+            displayShortform={displayShortform}
           />
         )}
         <Typography variant="body1" className={classes.loadMore} onClick={this.loadMoreTimeBlocks}>

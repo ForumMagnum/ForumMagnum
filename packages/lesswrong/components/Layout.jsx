@@ -1,7 +1,11 @@
 import { Components, registerComponent, getSetting, withUpdate } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
+<<<<<<< HEAD
 import Users from 'meteor/vulcan:users';
 import Helmet from 'react-helmet';
+=======
+import { Helmet } from 'react-helmet';
+>>>>>>> lw-devel
 import CssBaseline from '@material-ui/core/CssBaseline';
 import classNames from 'classnames'
 import Intercom from 'react-intercom';
@@ -170,7 +174,7 @@ class Layout extends PureComponent {
   }
 
   render () {
-    const {currentUser, location, children, classes, theme} = this.props;
+    const {currentUser, location, children, classes, theme, messages} = this.props;
     const {hideNavigationSidebar} = this.state
 
     const showIntercom = currentUser => {
@@ -243,9 +247,11 @@ class Layout extends PureComponent {
             <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
             <div className={classes.main}>
               <Components.ErrorBoundary>
-                <Components.FlashMessages />
+                <Components.FlashMessages messages={messages} />
               </Components.ErrorBoundary>
-              {children}
+              <Components.ErrorBoundary>
+                {children}
+              </Components.ErrorBoundary>
             </div>
             <Components.Footer />
           </div>
@@ -259,6 +265,7 @@ class Layout extends PureComponent {
   }
 }
 
+<<<<<<< HEAD
 Layout.displayName = "Layout";
 
 const withUpdateOptions = {
@@ -270,3 +277,6 @@ registerComponent(
   'Layout', Layout, withLocation, withCookies, [withUpdate, withUpdateOptions],
   withStyles(styles, { name: "Layout" }), withTheme()
 );
+=======
+registerComponent('Layout', Layout, withStyles(styles, { name: "Layout" }), withTheme(), withCookies);
+>>>>>>> lw-devel

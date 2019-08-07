@@ -4,7 +4,7 @@ import { Posts } from '../posts';
 import { Localgroups, makeEditableOptions } from './collection'
 import { addEditableCallbacks } from '../../../server/editor/make_editable_callbacks.js'
 
-function GroupsNewDefaultPost (group, context) {
+function GroupsNewDefaultPost (group, { currentUser }) {
   const newFields = {
     title: `Welcome to ${group.name} [Edit With Your Details]`,
     groupId: group._id,
@@ -17,11 +17,11 @@ function GroupsNewDefaultPost (group, context) {
   newMutation({
     collection: Posts,
     document: post,
-    currentUser: context.currentUser,
+    currentUser,
     validate: false,
   })
 }
-addCallback("localgroups.new.after", GroupsNewDefaultPost);
+addCallback("localgroup.create.after", GroupsNewDefaultPost);
 
 const groupWelcomePostTemplate = {
   contents: {

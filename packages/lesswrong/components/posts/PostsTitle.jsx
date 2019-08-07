@@ -128,8 +128,6 @@ const PostsTitle = ({currentUser, post, classes, sticky, read, expandOnHover, to
   </span>
 }
 
-PostsTitle.displayName = "PostsTitle";
-
 registerComponent('PostsTitle', PostsTitle, withUser,
   withStyles(styles, { name: "PostsTitle" })
 );

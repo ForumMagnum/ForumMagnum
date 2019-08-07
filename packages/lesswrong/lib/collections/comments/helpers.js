@@ -23,9 +23,14 @@ Comments.getPageUrl = function(comment, isAbsolute = false) {
   return `${Posts.getPageUrl(post, isAbsolute)}#${comment._id}`;
 };
 
-Comments.getPageUrlFromIds = function(postId, postSlug, commentId, isAbsolute=false) {
+Comments.getPageUrlFromIds = function(postId, postSlug, commentId, isAbsolute=false, permalink=true) {
   const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
-  return `${prefix}/posts/${postId}/${postSlug?postSlug:""}#${commentId}`;
+
+  if (permalink) {
+    return `${prefix}/posts/${postId}/${postSlug?postSlug:""}?commentId=${commentId}`;
+  } else {
+    return `${prefix}/posts/${postId}/${postSlug?postSlug:""}#${commentId}-context`;
+  }
 }
 
 // URL for RSS feed of all direct replies

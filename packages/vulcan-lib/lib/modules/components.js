@@ -10,22 +10,15 @@ export const coreComponents = [
   'Button',
   'Modal',
   'ModalTrigger',
-  'Table',
   'FormComponentCheckbox',
   'FormComponentCheckboxGroup',
   'FormComponentDate',
-  'FormComponentDate2',
   'FormComponentDateTime',
   'FormComponentDefault',
-  'FormComponentText',
   'FormComponentEmail',
   'FormComponentNumber',
-  'FormComponentRadioGroup',
   'FormComponentSelect',
-  'FormComponentSelectMultiple',
-  'FormComponentStaticText',
   'FormComponentTextarea',
-  'FormComponentTime',
   'FormComponentUrl',
   'FormComponentInner',
   'FormControl',
@@ -64,6 +57,9 @@ export function registerComponent(name, rawComponent, ...hocs) {
     var { name, component, hocs = [] } = arguments[0];
     rawComponent = component;
   }
+  
+  rawComponent.displayName = name;
+  
   // store the component in the table
   ComponentsTable[name] = {
     name,

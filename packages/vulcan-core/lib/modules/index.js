@@ -11,7 +11,6 @@ export { default as Layout } from './components/Layout.jsx';
 export * from './components/App.jsx';
 export { default as Icon } from './components/Icon.jsx';
 export { default as ShowIf } from './components/ShowIf.jsx';
-export { default as Error404 } from './components/Error404.jsx';
 export { default as DynamicLoading } from './components/DynamicLoading.jsx';
 export { default as HeadTags } from './components/HeadTags.jsx';
 export { default as Datatable } from './components/Datatable.jsx';

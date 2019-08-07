@@ -36,6 +36,4 @@ SunshineListItem.propTypes = {
   hover: PropTypes.bool.isRequired,
 };
 
-SunshineListItem.displayName = "SunshineListItem";
-
 registerComponent('SunshineListItem', SunshineListItem, withStyles(styles, { name: 'SunshineListItem'}));

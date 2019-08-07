@@ -243,8 +243,6 @@ class Header extends PureComponent {
   }
 }
 
-Header.displayName = "Header";
-
 Header.propTypes = {
   currentUser: PropTypes.object,
   classes: PropTypes.object.isRequired,

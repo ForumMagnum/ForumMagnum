@@ -4,17 +4,6 @@ import Snackbar from '@material-ui/core/Snackbar';
 import { intlShape } from 'meteor/vulcan:i18n';
 
 class FlashMessages extends Component {
-  handleRequestClose = () => {
-    let message = this.props.messages.filter(message => message.show)[0];
-    this.setState({
-      open: false,
-    });
-    if(message) {
-      this.props.markAsSeen(message._id);
-      this.props.clear(message._id);
-    }
-  };
-
   getProperties = (message) => {
     if (typeof message === 'string') {
       // if error is a string, use it as message
@@ -28,21 +17,21 @@ class FlashMessages extends Component {
       const translatedMessage = this.context.intl.formatMessage({ id, defaultMessage: messageString }, properties);
       return {
         ...message,
-        message: translatedMessage,
+        message: translatedMessage || messageString,
       };
     }
   }
 
   render() {
-    let messages = this.props.messages.filter(message => message.show);
-    let messageObject = messages.length > 0 && (messages[0].id || messages[0].messageString) && this.getProperties(messages[0]);
+    const { messages, clear } = this.props
+    let messageObject = messages.length > 0 && this.getProperties(messages[0]);
     return (
       <div className="flash-messages">
         <Snackbar
-          open={!!messageObject}
+          open={messages[0] && !messages[0].hide}
           message={messageObject && messageObject.message}
-          autoHideDuration = {4000}
-          onClose={this.handleRequestClose}
+          autoHideDuration={2000}
+          onClose={clear}
         />
       </div>
     );
@@ -52,9 +41,5 @@ class FlashMessages extends Component {
 FlashMessages.contextTypes = {
   intl: intlShape
 }
-
-
-
-FlashMessages.displayName = "FlashMessages";
 
 replaceComponent('FlashMessages', FlashMessages, withMessages);

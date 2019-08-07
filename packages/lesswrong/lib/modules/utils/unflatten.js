@@ -15,7 +15,7 @@ export function addGapIndicators(comments) {
   // This function adds extra, empty comment nodes to make this UI more visually clear
   return comments.map(node=>{
     if (node?.item?.parentCommentId !== node?.item?.topLevelCommentId) {
-      return { item: {}, children: [{item: node.item, children: node.children}]}
+      return {item: {...node.item, gapIndicator: true}, children: node.children}
     }
     return node
   })
