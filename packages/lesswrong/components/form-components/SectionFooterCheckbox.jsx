@@ -31,7 +31,7 @@ const styles = theme => ({
     }
   },
   label: {
-    color: theme.palette.grey[600]
+    color: theme.palette.lwTertiary.main
   },
   disabled: {
     cursor: "default",
