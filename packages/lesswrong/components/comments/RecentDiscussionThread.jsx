@@ -108,7 +108,7 @@ class RecentDiscussionThread extends PureComponent {
   }
 
   render() {
-    const { post, comments, updateComment, currentUser, classes, isRead} = this.props
+    const { post, comments, updateComment, currentUser, classes, isRead, refetch } = this.props
     const { readStatus, showHighlight, markedAsVisitedAt } = this.state
     const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle } = Components
 
@@ -171,6 +171,7 @@ class RecentDiscussionThread extends PureComponent {
                   key={comment.item._id}
                   updateComment={updateComment}
                   post={post}
+                  refetch={refetch}
                   condensed
                 />
               </div>
