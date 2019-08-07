@@ -77,9 +77,12 @@ class CommentsList extends Component {
     const { expandAllThreads } = this.state
     const { SettingsIcon, CommentsListMeta, LoginPopupButton } = Components
     if  (totalComments > POST_COMMENT_COUNT_TRUNCATE_THRESHOLD) {
+
+      const expandTooltip = `Posts with more than ${POST_COMMENT_COUNT_TRUNCATE_THRESHOLD} comments automatically truncate replies with less than ${TRUNCATION_KARMA_THRESHOLD} karma. Click or press ⌘F to expand all.`
+
       return <CommentsListMeta>
         <span>
-          Some comments are truncated due to high volume. <Tooltip title={`Posts with more than ${POST_COMMENT_COUNT_TRUNCATE_THRESHOLD} comments automatically truncate replies with less than ${TRUNCATION_KARMA_THRESHOLD} karma. Click or press ⌘F to expand all.`}>
+          Some comments are truncated due to high volume. <Tooltip title={expandTooltip}>
             <a className={!expandAllThreads && classes.button} onClick={()=>this.setState({expandAllThreads: true})}>(⌘F to expand all)</a>
           </Tooltip>
         </span>

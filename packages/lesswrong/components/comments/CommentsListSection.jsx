@@ -14,7 +14,7 @@ import Divider from '@material-ui/core/Divider';
 import withUser from '../common/withUser';
 import { commentBodyStyles } from '../../themes/stylePiping'
 
-export const styles = theme => ({
+const styles = theme => ({
   root: {
     fontWeight: 400,
     maxWidth: 720,
