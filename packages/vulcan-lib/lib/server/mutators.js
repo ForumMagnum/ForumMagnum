@@ -329,7 +329,7 @@ export const updateMutator = async ({
       // eslint-disable-next-line no-await-in-loop
       autoValue = await schema[fieldName].onEdit(
         dataToModifier(clone(data)),
-        document,
+        oldDocument,
         currentUser,
         document
       );
@@ -355,7 +355,7 @@ export const updateMutator = async ({
     await runCallbacks(
       `${collectionName.toLowerCase()}.edit.before`,
       dataToModifier(data),
-      document,
+      oldDocument,
       currentUser,
       document
     )
@@ -364,7 +364,7 @@ export const updateMutator = async ({
     await runCallbacks(
       `${collectionName.toLowerCase()}.edit.sync`,
       dataToModifier(data),
-      document,
+      oldDocument,
       currentUser,
       document
     )

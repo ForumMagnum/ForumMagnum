@@ -189,7 +189,7 @@ export const runCallbacksAsync = function () {
   } else {
     // OpenCRUD backwards compatibility
     // the first argument is the name of the hook or an array of functions
-    hook = arguments[0];
+    hook = formatHookName(arguments[0]);
     // successive arguments are passed to each iteration
     args = Array.prototype.slice.call(arguments).slice(1);
   }
