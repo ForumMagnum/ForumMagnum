@@ -1,11 +1,7 @@
 import { Components, registerComponent, getSetting, withUpdate } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
-<<<<<<< HEAD
 import Users from 'meteor/vulcan:users';
-import Helmet from 'react-helmet';
-=======
 import { Helmet } from 'react-helmet';
->>>>>>> lw-devel
 import CssBaseline from '@material-ui/core/CssBaseline';
 import classNames from 'classnames'
 import Intercom from 'react-intercom';
@@ -265,9 +261,6 @@ class Layout extends PureComponent {
   }
 }
 
-<<<<<<< HEAD
-Layout.displayName = "Layout";
-
 const withUpdateOptions = {
   collection: Users,
   fragmentName: 'UsersCurrent',
@@ -277,6 +270,3 @@ registerComponent(
   'Layout', Layout, withLocation, withCookies, [withUpdate, withUpdateOptions],
   withStyles(styles, { name: "Layout" }), withTheme()
 );
-=======
-registerComponent('Layout', Layout, withStyles(styles, { name: "Layout" }), withTheme(), withCookies);
->>>>>>> lw-devel
