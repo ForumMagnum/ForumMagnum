@@ -33,7 +33,7 @@ class RecentDiscussionThreadsList extends PureComponent {
   }
 
   render () {
-    const { results, loading, loadMore, networkStatus, updateComment, currentUser, data: { refetch }, threadView = "recentDiscussionThread" } = this.props
+    const { results, loading, loadMore, networkStatus, updateComment, currentUser, data: { refetch } } = this.props
     const { resettingPage } = this.state
     const { SingleColumnSection, SectionTitle, ShortformSubmitForm, Loading, SectionFooterCheckbox } = Components
     if (networkStatus === 4) return <Loading />
@@ -71,8 +71,9 @@ class RecentDiscussionThreadsList extends PureComponent {
                 expandAll={expandCommentsFrontpage}
                 key={post._id}
                 post={post}
-                postCount={i}
-                terms={{view:threadView, postId:post._id, limit:4}}
+                postCount={i} 
+                refetch={refetch}
+                comments={post.recentComments}
                 currentUser={currentUser}
                 updateComment={updateComment}/>
             )}
@@ -85,25 +86,30 @@ class RecentDiscussionThreadsList extends PureComponent {
   }
 }
 
-registerComponent(
-  'RecentDiscussionThreadsList', 
-  RecentDiscussionThreadsList, 
+registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList,
   [withList, {
     collection: Posts,
     queryName: 'selectCommentsListQuery',
-    fragmentName: 'PostsList',
+    fragmentName: 'PostsRecentDiscussion',
     fetchPolicy: 'cache-and-network',
     enableTotal: false,
     pollInterval: 0,
     enableCache: true,
-  }], 
+    extraVariables: {
+      commentsLimit: 'Int',
+      maxAgeHours: 'Int',
+      af: 'Boolean',
+    },
+    ssr: true,
+  }],
   [withUpdate, {
     collection: Comments,
     fragmentName: 'CommentsList',
-  }], 
+  }],
   [withUpdate, {
     collection: Users,
     fragmentName: 'UsersCurrent',
   }],
   withApollo,
-  withUser);
+  withUser
+);

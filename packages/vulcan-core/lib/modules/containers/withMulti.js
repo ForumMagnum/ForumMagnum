@@ -63,11 +63,17 @@ export default function withMulti(options) {
   //pollInterval = typeof window === 'undefined' ? null : pollInterval;
 
   const { collectionName, collection } = extractCollectionInfo(options);
-  const { fragmentName, fragment, extraVariablesString } = extractFragmentInfo(options, collectionName);
+  const { fragmentName, fragment } = extractFragmentInfo(options, collectionName);
 
   const typeName = collection.options.typeName;
   const resolverName = collection.options.multiResolverName;
 
+  // LESSWRONG MODIFICATION: Allow the passing of extraVariables so that you can have field-specific queries
+  let extraVariablesString = ''
+  if (options.extraVariables) {
+    extraVariablesString = Object.keys(options.extraVariables).map(k => `$${k}: ${options.extraVariables[k]}`).join(', ')
+  }
+  
   // build graphql query from options
   const query = gql`
     ${multiClientTemplate({ typeName, fragmentName, extraQueries, extraVariablesString })}
