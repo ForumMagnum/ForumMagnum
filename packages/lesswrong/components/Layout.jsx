@@ -84,7 +84,7 @@ class Layout extends PureComponent {
       timezone: savedTimezone,
       toc: null,
       postsRead: {},
-      hideNavigationSidebar: currentUser.hideNavigationSidebar,
+      hideNavigationSidebar: currentUser?.hideNavigationSidebar,
     };
 
     this.searchResultsAreaRef = React.createRef();
@@ -108,12 +108,14 @@ class Layout extends PureComponent {
   toggleStandaloneNavigation = () => {
     const { updateUser, currentUser } = this.props
     this.setState(prevState => {
-      updateUser({
-        selector: { _id: currentUser._id},
-        data: {
-          hideNavigationSidebar: !prevState.hideNavigationSidebar
-        },
-      })
+      if (currentUser) {
+        updateUser({
+          selector: { _id: currentUser._id},
+          data: {
+            hideNavigationSidebar: !prevState.hideNavigationSidebar
+          },
+        })
+      }
       return {
         hideNavigationSidebar: !prevState.hideNavigationSidebar
       }
