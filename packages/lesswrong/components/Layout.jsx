@@ -38,10 +38,13 @@ const hashCode = function(str) {
 // Refer to routes.js for the route names. Or console log in the route you'd
 // like to include
 const standaloneNavMenuRouteNames = {
-  'LessWrong': ['home', 'allPosts', 'questions', 'sequencesHome', 'CommunityHome', 'Shortform'],
+  'LessWrong': [
+    'home', 'allPosts', 'questions', 'sequencesHome', 'CommunityHome', 'Shortform', 'Codex',
+    'HPMOR', 'Rationality', 'Sequences', 'collections'
+  ],
   // TODO-PR-Q: I left this mimicking current behavior, it's possible you'd
   // rather just have an empty list
-  'AlignmentForum': ['allPosts', 'questions'],
+  'AlignmentForum': ['allPosts', 'questions', 'Shortform'],
   'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform'],
 }
 
@@ -84,7 +87,7 @@ class Layout extends PureComponent {
       timezone: savedTimezone,
       toc: null,
       postsRead: {},
-      hideNavigationSidebar: currentUser?.hideNavigationSidebar,
+      hideNavigationSidebar: !!(currentUser?.hideNavigationSidebar),
     };
 
     this.searchResultsAreaRef = React.createRef();
@@ -234,7 +237,9 @@ class Layout extends PureComponent {
               standaloneNavigationPresent={standaloneNavigation}
               toggleStandaloneNavigation={this.toggleStandaloneNavigation}
             />
-            {standaloneNavigation && !hideNavigationSidebar && <Components.NavigationStandalone />}
+            {standaloneNavigation && <Components.NavigationStandalone
+              sidebarHidden={hideNavigationSidebar}
+            />}
             <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
             <div className={classes.main}>
               <Components.ErrorBoundary>

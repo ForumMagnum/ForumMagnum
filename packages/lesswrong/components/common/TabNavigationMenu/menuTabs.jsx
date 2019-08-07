@@ -223,7 +223,7 @@ export default {
       title: 'Home',
       link: '/',
       iconComponent: LocalLibrary,
-      tooltip: 'See the new and popular posts, as well as recent discussion.',
+      tooltip: 'See recent posts on strategies for doing the most good, plus recent activity from all across the Forum.',
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
@@ -231,7 +231,7 @@ export default {
       title: 'Community',
       link: '/meta',
       iconComponent: Group,
-      tooltip: 'See posts pertaining to the EA Community itself.',
+      tooltip: 'Read posts about EA philosophy, the EA community, and the Forum itself.',
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
@@ -252,7 +252,7 @@ export default {
       title: 'All Posts',
       link: '/allPosts',
       iconComponent: Sort,
-      tooltip: 'See all posts, filtered and sorted however you like.',
+      tooltip: 'See all posts, filtered and sorted by date, karma, and more.',
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {

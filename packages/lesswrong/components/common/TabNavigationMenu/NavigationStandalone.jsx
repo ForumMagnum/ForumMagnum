@@ -1,6 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
+import Slide from '@material-ui/core/Slide'
 
 const styles = theme => ({
   root: {
@@ -33,11 +34,19 @@ const styles = theme => ({
   }
 })
 
-const NavigationStandalone = ({classes}) => {
+const NavigationStandalone = ({sidebarHidden, classes}) => {
   const { TabNavigationMenu, TabNavigationMenuFooter } = Components
   return <div className={classes.root}>
     <div className={classes.sidebar}>
-      <TabNavigationMenu />
+      <Slide
+        direction='right'
+        in={!sidebarHidden}
+        appear={false}
+        mountOnEnter
+        unmountOnExit
+      >
+        <TabNavigationMenu />
+      </Slide>
     </div>
     <div className={classes.footerBar}>
       <TabNavigationMenuFooter />
