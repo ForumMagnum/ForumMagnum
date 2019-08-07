@@ -37,7 +37,7 @@ const styles = theme => ({
 
 const SequencesHome = ({classes}) => {
 
-  const { SingleColumnSection, SectionTitle, TabNavigationMenu, Divider, SequencesNewButton } = Components
+  const { SingleColumnSection, SectionTitle, Divider, SequencesNewButton } = Components
   // TODO: decide on terms for community sequences
   return <React.Fragment>
     {/* Title */}

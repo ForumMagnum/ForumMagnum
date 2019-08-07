@@ -61,7 +61,7 @@ class CollectionsPage extends Component {
 
   render() {
     const {document, currentUser, loading, classes} = this.props;
-    const { TabNavigationMenu, SingleColumnSection, BooksItem, BooksNewForm, SectionButton } = Components
+    const { SingleColumnSection, BooksItem, BooksNewForm, SectionButton } = Components
     if (loading || !document) {
       return <Components.Loading />;
     } else if (this.state.edit) {
