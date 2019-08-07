@@ -35,7 +35,7 @@ class ShortformSubmitForm extends PureComponent {
     const { classes, successCallback, startCollapsed=false } = this.props
     const { expanded } = this.state
     const { CommentsNewForm } = Components;
-
+    
     if (startCollapsed && !expanded) {
       return <div className={classes.root}>
         <Tooltip title="Click to begin writing a shortform post" placement="top-start">
@@ -51,7 +51,6 @@ class ShortformSubmitForm extends PureComponent {
       <div className={classes.root}>
         <CommentsNewForm
           prefilledProps={{shortform: true}}
-          fragment={"ShortformCommentsList"}
           successCallback={successCallback}
           type="comment"
         />

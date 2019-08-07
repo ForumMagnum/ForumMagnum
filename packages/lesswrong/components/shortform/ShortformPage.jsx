@@ -4,7 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   column: {
-    width:680,
+    maxWidth:680,
     margin:"auto"
   }
 })

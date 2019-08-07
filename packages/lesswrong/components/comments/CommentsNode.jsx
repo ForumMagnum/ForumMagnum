@@ -278,7 +278,7 @@ class CommentsNode extends Component {
             onClick={(event) => this.unTruncate(event)}
             id={!noHash ? comment._id : undefined}
           >
-            {!hiddenReadComment && comment._id && <div ref={this.scrollTargetRShortformCommentsListef}>
+            {!hiddenReadComment && comment._id && <div ref={this.scrollTargetRef}>
               {this.isSingleLine()
                 ? <SingleLineComment
                     comment={comment} nestingLevel={updatedNestingLevel}
