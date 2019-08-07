@@ -10,7 +10,6 @@
 
 vulcan:core                       # core components and wrappers
 vulcan:forms                      # auto-generated forms
-vulcan:routing                    # routing and server-side rendering
 vulcan:users                      # user management and permissions
 
 ############ Features Packages ############

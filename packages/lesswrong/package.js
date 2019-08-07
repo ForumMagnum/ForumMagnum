@@ -22,7 +22,6 @@ Package.onUse( function(api) {
     'vulcan:events',
     'vulcan:admin',
     'vulcan:users',
-    'vulcan:routing',
   ]);
 
   api.mainModule('client.js', 'client');
