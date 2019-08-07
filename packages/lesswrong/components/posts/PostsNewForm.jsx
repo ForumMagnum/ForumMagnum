@@ -2,7 +2,7 @@ import { Components, registerComponent, getFragment, withMessages, getSetting } 
 import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import PropTypes from 'prop-types';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet';
 import withUser from '../common/withUser'
 import { withStyles } from '@material-ui/core/styles';
 import { useLocation, useNavigation } from '../../lib/routeUtil.js';

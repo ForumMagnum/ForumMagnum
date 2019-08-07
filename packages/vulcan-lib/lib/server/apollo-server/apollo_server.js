@@ -144,9 +144,8 @@ export const onStart = () => {
   // /graphql middlewares (request parsing)
   setupGraphQLMiddlewares(apolloServer, config, apolloApplyMiddlewareOptions);
   //// other middlewares (dev tools etc.)
-  if (Meteor.isDevelopment) {
-    setupToolsMiddlewares(config);
-  }
+  // LW: Made available in production environment
+  setupToolsMiddlewares(config);
   // ssr
   enableSSR();
 };
