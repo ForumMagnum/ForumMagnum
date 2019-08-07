@@ -135,6 +135,7 @@ const renderRequest = async (req, user) => {
     ssrBody, head, serializedApolloState, jssSheets,
     status: serverRequestStatus.status,
     redirectUrl: serverRequestStatus.redirectUrl,
+    renderTime: new Date(),
   };
 }
 

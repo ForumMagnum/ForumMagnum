@@ -7,6 +7,7 @@ export let pageCache = new LRU({
   max: maxPageCacheSizeBytes,
   length: (page,key) => JSON.stringify(page).length + JSON.stringify(key).length,
   maxAge: maxCacheAgeMs,
+  updateAgeOnGet: false,
 });
 
 export const cacheKeyFromReq = (req) => {
