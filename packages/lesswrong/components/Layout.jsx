@@ -1,9 +1,13 @@
 import { Components, registerComponent, getSetting, withUpdate } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import Users from 'meteor/vulcan:users';
+<<<<<<< HEAD
 import Helmet from 'react-helmet';
 // TODO;
 import { withApollo } from 'react-apollo';
+=======
+import { Helmet } from 'react-helmet';
+>>>>>>> 2407c66f7... fix merge misses
 import CssBaseline from '@material-ui/core/CssBaseline';
 import classNames from 'classnames'
 import Intercom from 'react-intercom';
