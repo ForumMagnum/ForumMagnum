@@ -1,7 +1,5 @@
 import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
-import React, { PureComponent, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { intlShape } from 'meteor/vulcan:i18n';
+import React, { useEffect } from 'react';
 import { STATES } from 'meteor/vulcan:accounts'
 import { useLocation } from '../../lib/routeUtil'
 
