@@ -4,7 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import mapProps from 'recompose/mapProps';
 import { withLocation } from '../../lib/routeUtil';
 import Posts from '../../lib/collections/posts/collection.js';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet';
 import { withStyles } from '@material-ui/core/styles';
 import { styles } from '../common/HeaderSubtitle';
 

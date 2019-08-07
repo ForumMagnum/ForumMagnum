@@ -1,7 +1,7 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet';
 import withUser from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 
