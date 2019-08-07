@@ -83,8 +83,11 @@ const styles = theme => ({
   children: {
     position: "relative"
   },
-  emptyNode: {
-    paddingTop: theme.spacing.unit
+  gapIndicator: {
+    border: `solid 1px ${theme.palette.grey[300]}`,
+    backgroundColor: theme.palette.grey[100],
+    marginLeft: theme.spacing.unit,
+    paddingTop: theme.spacing.unit,
   }
 })
 
@@ -220,7 +223,7 @@ class CommentsNode extends Component {
     const { comment, children, nestingLevel=1, highlightDate, updateComment, post,
       muiTheme, location, postPage, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments,
-      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton } = this.props;
+      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash } = this.props;
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList } = Components
 
@@ -233,97 +236,100 @@ class CommentsNode extends Component {
 
     const hiddenReadComment = hideReadComments && !newComment
 
+    const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
+
     const nodeClass = classNames(
       "comments-node",
       classes.node,
       {
         "af":comment.af,
-        "comments-node-root" : nestingLevel === 1,
-        "comments-node-even" : nestingLevel % 2 === 0,
-        "comments-node-odd"  : nestingLevel % 2 !== 0,
+        "comments-node-root" : updatedNestingLevel === 1,
+        "comments-node-even" : updatedNestingLevel % 2 === 0,
+        "comments-node-odd"  : updatedNestingLevel % 2 !== 0,
         "comments-node-linked" : location.hash === "#" + comment._id && finishedScroll,
-        "comments-node-its-getting-nested-here": nestingLevel > 8,
-        "comments-node-so-take-off-all-your-margins": nestingLevel > 12,
-        "comments-node-im-getting-so-nested": nestingLevel > 16,
-        "comments-node-im-gonna-drop-my-margins": nestingLevel > 20,
-        "comments-node-what-are-you-even-arguing-about": nestingLevel > 24,
-        "comments-node-are-you-sure-this-is-a-good-idea": nestingLevel > 28,
-        "comments-node-seriously-what-the-fuck": nestingLevel > 32,
-        "comments-node-are-you-curi-and-lumifer-specifically": nestingLevel > 36,
-        "comments-node-cuz-i-guess-that-makes-sense-but-like-really-tho": nestingLevel > 40,
+        "comments-node-its-getting-nested-here": updatedNestingLevel > 8,
+        "comments-node-so-take-off-all-your-margins": updatedNestingLevel > 12,
+        "comments-node-im-getting-so-nested": updatedNestingLevel > 16,
+        "comments-node-im-gonna-drop-my-margins": updatedNestingLevel > 20,
+        "comments-node-what-are-you-even-arguing-about": updatedNestingLevel > 24,
+        "comments-node-are-you-sure-this-is-a-good-idea": updatedNestingLevel > 28,
+        "comments-node-seriously-what-the-fuck": updatedNestingLevel > 32,
+        "comments-node-are-you-curi-and-lumifer-specifically": updatedNestingLevel > 36,
+        "comments-node-cuz-i-guess-that-makes-sense-but-like-really-tho": updatedNestingLevel > 40,
         [classes.child]: child && (!hideReadComments || comment.children?.length),
         [classes.new]: newComment,
         [classes.deleted]: comment.deleted,
         [classes.isAnswer]: comment.answer,
         [classes.answerChildComment]: parentAnswerId,
         [classes.childAnswerComment]: child && parentAnswerId,
-        [classes.oddAnswerComment]: (nestingLevel % 2 !== 0) && parentAnswerId,
+        [classes.oddAnswerComment]: (updatedNestingLevel % 2 !== 0) && parentAnswerId,
         [classes.answerLeafComment]: !(children && children.length),
         [classes.isSingleLine]: this.isSingleLine(),
         [classes.commentHidden]: hiddenReadComment,
-        [classes.shortformTop]: shortform && (nestingLevel===1),
+        [classes.shortformTop]: postPage && shortform && (updatedNestingLevel===1),
       }
     )
 
-    const passedThroughItemProps = { post, postPage, comment, updateComment, nestingLevel, showPostTitle, collapsed, refetch }
+    const passedThroughItemProps = { post, postPage, comment, updateComment, showPostTitle, collapsed, refetch }
     const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, updateComment, condensed, hideReadComments, refetch }
 
-    const nodeIsEmpty = !comment._id // sometimes empty nodes are rendered to indicate that there is one or more hidden comment between two comments.
-
     return (
-        <div className={nodeClass}
-          onClick={(event) => this.unTruncate(event)}
-          id={comment._id}
-         >
-          {!hiddenReadComment && comment._id && <div ref={this.scrollTargetRef}>
-            {this.isSingleLine()
-              ? <SingleLineComment
-                  comment={comment} nestingLevel={nestingLevel}
-                  parentCommentId={parentCommentId}
-                />
-              : <CommentsItem
-                  truncated={this.isTruncated()}
-                  parentCommentId={parentCommentId}
-                  parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
-                  toggleCollapse={this.toggleCollapse}
-                  key={comment._id}
-                  scrollIntoView={this.scrollIntoView}
-                  { ...passedThroughItemProps}
-                />
-            }
-          </div>}
-          
-          {!collapsed && children && children.length>0 && <div className={classNames(classes.children, {[classes.emptyNode]: nodeIsEmpty})}>
-            <div className={classes.parentScroll} onClick={this.scrollIntoView}/>
-            { showExtraChildrenButton }
-            {children && children.map(child =>
-              <Components.CommentsNode child
-                comment={child.item}
-                parentCommentId={comment._id}
-                parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
-                nestingLevel={nestingLevel+1}
-                truncated={this.isTruncated()}
-                //eslint-disable-next-line react/no-children-prop
-                children={child.children}
-                key={child.item._id}
-                { ...passedThroughNodeProps}
-              />)}
-          </div>}
-          
-          {!this.isSingleLine() && loadChildrenSeparately &&
-            <div className="comments-children">
+        <div className={comment.gapIndicator && classes.gapIndicator}>
+          <div className={nodeClass}
+            onClick={(event) => this.unTruncate(event)}
+            id={!noHash ? comment._id : undefined}
+          >
+            {!hiddenReadComment && comment._id && <div ref={this.scrollTargetRShortformCommentsListef}>
+              {this.isSingleLine()
+                ? <SingleLineComment
+                    comment={comment} nestingLevel={updatedNestingLevel}
+                    parentCommentId={parentCommentId}
+                  />
+                : <CommentsItem
+                    truncated={this.isTruncated()}
+                    nestingLevel={updatedNestingLevel}
+                    parentCommentId={parentCommentId}
+                    parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
+                    toggleCollapse={this.toggleCollapse}
+                    key={comment._id}
+                    scrollIntoView={this.scrollIntoView}
+                    { ...passedThroughItemProps}
+                  />
+              }
+            </div>}
+            
+            {!collapsed && children && children.length>0 && <div className={classes.children}>
               <div className={classes.parentScroll} onClick={this.scrollIntoView}/>
-              <RepliesToCommentList
-                terms={{
-                  view: "repliesToCommentThread",
-                  topLevelCommentId: comment._id,
-                  limit: 500
-                }}
-                parentCommentId={comment._id}
-                post={post}
-              />
-            </div>
-          }
+              { showExtraChildrenButton }
+              {children && children.map(child =>
+                <Components.CommentsNode child
+                  comment={child.item}
+                  parentCommentId={comment._id}
+                  parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
+                  nestingLevel={updatedNestingLevel+1}
+                  truncated={this.isTruncated()}
+                  //eslint-disable-next-line react/no-children-prop
+                  children={child.children}
+                  key={child.item._id}
+                  { ...passedThroughNodeProps}
+                />)}
+            </div>}
+            
+            {!this.isSingleLine() && loadChildrenSeparately &&
+              <div className="comments-children">
+                <div className={classes.parentScroll} onClick={this.scrollIntoView}/>
+                <RepliesToCommentList
+                  terms={{
+                    view: "repliesToCommentThread",
+                    topLevelCommentId: comment._id,
+                    limit: 500
+                  }}
+                  parentCommentId={comment._id}
+                  post={post}
+                />
+              </div>
+            }
+          </div>
         </div>
     )
   }
