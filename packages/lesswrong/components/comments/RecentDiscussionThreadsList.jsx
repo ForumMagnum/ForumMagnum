@@ -44,6 +44,7 @@ class RecentDiscussionThreadsList extends PureComponent {
                 key={post._id}
                 post={post}
                 postCount={i} 
+                refetch={refetch}
                 comments={post.recentComments}
                 currentUser={currentUser}
                 updateComment={updateComment}/>
