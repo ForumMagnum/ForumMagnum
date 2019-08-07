@@ -88,7 +88,7 @@ class CommentsListSection extends Component {
   }
 
   renderTitleComponent = () => {
-    const { classes, commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, post, currentUser } = this.props;
+    const { commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, post, currentUser, classes } = this.props;
     const { anchorEl, highlightDate } = this.state
     const { CommentsListMeta } = Components
     const suggestedHighlightDates = [moment().subtract(1, 'day'), moment().subtract(1, 'week'), moment().subtract(1, 'month'), moment().subtract(1, 'year')]
