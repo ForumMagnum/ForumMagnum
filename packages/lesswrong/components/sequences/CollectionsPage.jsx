@@ -17,7 +17,7 @@ const styles = theme => ({
   },
   startReadingButton: {
     background: "rgba(0,0,0, 0.05)",
-    
+
     // TODO: Pick typography for this button. (This is just the typography that
     // Material UI v0 happened to use.)
     fontWeight: 500,
@@ -75,7 +75,6 @@ class CollectionsPage extends Component {
       const canEdit = Users.canDo(currentUser, 'collections.edit.all') || (Users.canDo(currentUser, 'collections.edit.own') && Users.owns(currentUser, collection))
       const { html = "" } = collection.contents || {}
       return (<div className={classes.root}>
-        <TabNavigationMenu />
         <SingleColumnSection>
           <div className={classes.header}>
             <Typography variant="display3" className={classes.title}>{collection.title}</Typography>

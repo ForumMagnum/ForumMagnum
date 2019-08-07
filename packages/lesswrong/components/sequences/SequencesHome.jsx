@@ -40,7 +40,6 @@ const SequencesHome = ({classes}) => {
   const { SingleColumnSection, SectionTitle, TabNavigationMenu, Divider, SequencesNewButton } = Components
   // TODO: decide on terms for community sequences
   return <React.Fragment>
-    <TabNavigationMenu />
     {/* Title */}
     <SingleColumnSection>
       <div className={classes.header}>
@@ -73,7 +72,7 @@ const SequencesHome = ({classes}) => {
       </div>
       <Divider />
     </SingleColumnSection>
-    
+
     <SingleColumnSection>
       <SectionTitle  title="Community Sequences" >
         <SequencesNewButton />
