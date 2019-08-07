@@ -40,6 +40,7 @@ const discussionThreadsOptions = {
   collection: Comments,
   queryName: 'ShortformThreadListQuery',
   fragmentName: 'CommentWithReplies',
+  fetchPolicy: 'cache-and-network',
   enableTotal: false,
   pollInterval: 0,
   enableCache: true,

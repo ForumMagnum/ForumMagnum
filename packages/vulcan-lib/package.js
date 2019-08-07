@@ -12,8 +12,6 @@ Package.onUse(function(api) {
   api.use('accounts-base', { weak: true });
 
   var packages = [
-    'buffer@0.0.0', // see https://github.com/meteor/meteor/issues/8645
-
     // Minimal Meteor packages
 
     'meteor@1.9.0',

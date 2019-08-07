@@ -65,6 +65,7 @@ const schema = {
     editableBy: ['members'],
     control: 'MultiSelectButtons',
     label: "Group Type:",
+    defaultValue: ["LW"],
     minCount: 1, // Ensure that at least one type is selected
     form: {
       options: localGroupTypeFormOptions

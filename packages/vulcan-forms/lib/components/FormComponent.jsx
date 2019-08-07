@@ -78,12 +78,9 @@ class FormComponent extends Component {
       'textarea',
       'checkbox',
       'checkboxgroup',
-      'radiogroup',
       'select',
-      'selectmultiple',
       'datetime',
       'date',
-      'time',
       'text'
     ].includes(inputType);
     return !isStandardInput;
@@ -264,29 +261,14 @@ class FormComponent extends Component {
         case 'checkboxgroup':
           return FormComponents.FormComponentCheckboxGroup;
 
-        case 'radiogroup':
-          return FormComponents.FormComponentRadioGroup;
-
         case 'select':
           return FormComponents.FormComponentSelect;
-
-        case 'selectmultiple':
-          return FormComponents.FormComponentSelectMultiple;
 
         case 'datetime':
           return FormComponents.FormComponentDateTime;
 
         case 'date':
           return FormComponents.FormComponentDate;
-
-        case 'date2':
-          return FormComponents.FormComponentDate2;
-
-        case 'time':
-          return FormComponents.FormComponentTime;
-
-        case 'statictext':
-          return FormComponents.FormComponentStaticText;
 
         default:
           if (this.props.input && FormComponents[this.props.input]) {
