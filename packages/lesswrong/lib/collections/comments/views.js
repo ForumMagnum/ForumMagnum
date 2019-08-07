@@ -1,5 +1,5 @@
 import { getSetting } from 'meteor/vulcan:core'
-import { viewFieldNullOrMissing } from 'meteor/vulcan:lib';
+import { viewFieldNullOrMissing, viewFieldAllowAny } from 'meteor/vulcan:lib';
 import { Comments } from './index';
 import moment from 'moment';
 import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionUtils';
@@ -156,7 +156,7 @@ Comments.addView("allRecentComments", function (terms) {
 
 Comments.addView("recentComments", function (terms) {
   return {
-    selector: { score:{$gt:0}, deletedPublic: false},
+    selector: { score:{$gt:0}, deletedPublic: false, shortform: terms.hideShortform ? false : viewFieldAllowAny },
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
 });
@@ -308,3 +308,10 @@ Comments.addView('shortformLatestChildren', function (terms) {
 
 // Will be used for experimental shortform display on AllPosts page
 ensureIndex(Comments, { topLevelCommentId: 1, postedAt: 1, baseScore:1});
+
+Comments.addView('rss', function (terms) {
+  return {
+    selector: { shortform: false },
+    sort: { postedAt: -1}
+  }
+})
