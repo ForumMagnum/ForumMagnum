@@ -1,7 +1,7 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 // import { InstantSearch} from 'react-instantsearch-dom';
 import React, { PureComponent } from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import classNames from 'classnames'
 import Intercom from 'react-intercom';
@@ -139,7 +139,7 @@ class Layout extends PureComponent {
   }
 
   render () {
-    const {currentUser, children, classes, theme} = this.props;
+    const {currentUser, children, classes, theme, messages} = this.props;
 
     const showIntercom = currentUser => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -204,9 +204,11 @@ class Layout extends PureComponent {
             <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
             <div className={classes.main}>
               <Components.ErrorBoundary>
-                <Components.FlashMessages />
+                <Components.FlashMessages messages={messages} />
               </Components.ErrorBoundary>
-              {children}
+              <Components.ErrorBoundary>
+                {children}
+              </Components.ErrorBoundary>
             </div>
             <Components.Footer />
           </div>

@@ -16,13 +16,13 @@ const styles = theme => ({
   },
 })
 
-class ShortformThread extends PureComponent {
+class CommentWithReplies extends PureComponent {
   state = { markedAsVisitedAt: null, maxChildren: 3 }
 
   markAsRead = async () => {
-    const { comment, recordPostView } = this.props
+    const { comment, post, recordPostView } = this.props
     this.setState({markedAsVisitedAt: new Date()});
-    recordPostView({post: comment.post})
+    recordPostView({post: post ? post : comment.post})
   }
 
   render () {
@@ -48,6 +48,7 @@ class ShortformThread extends PureComponent {
 
     return <div>
         <CommentsNode
+          noHash
           startThreadTruncated={true}
           showPostTitle
           startCollapsed
@@ -69,4 +70,4 @@ class ShortformThread extends PureComponent {
   }
 }
 
-registerComponent('ShortformThread', ShortformThread, withUser, withRecordPostView, withStyles(styles, {name:"ShortformThread"}));
+registerComponent('CommentWithReplies', CommentWithReplies, withUser, withRecordPostView, withStyles(styles, {name:"CommentWithReplies"}));

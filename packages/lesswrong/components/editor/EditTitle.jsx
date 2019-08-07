@@ -13,7 +13,6 @@ const styles = theme => ({
     width: "100%",
     resize: "none",
     textAlign: "left",
-    height: 100,
     marginTop: 0,
     borderBottom: "solid 1px rgba(0,0,0,.2)",
     '&:focused': {
@@ -48,6 +47,7 @@ class EditTitle extends Component {
           [path]: event.target.value
         })
       }}
+      multiline
     />
   }
 }

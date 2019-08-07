@@ -268,7 +268,6 @@ addRoute([
     titleComponentName: 'PostsPageHeaderTitle',
     subtitleComponentName: 'PostsPageHeaderTitle',
   },
-  
   {
     name: 'admin',
     path: '/admin',
