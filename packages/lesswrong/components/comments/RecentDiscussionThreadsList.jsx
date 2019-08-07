@@ -46,7 +46,7 @@ class RecentDiscussionThreadsList extends PureComponent {
       return null
     }
 
-    const expandCommentsFrontpage = !(currentUser?.noCollapseCommentsFrontpage)
+    const expandCommentsFrontpage = currentUser ? !(currentUser.noCollapseCommentsFrontpage) : false
 
     return (
       <SingleColumnSection>

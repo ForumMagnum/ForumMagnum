@@ -76,9 +76,9 @@ class CommentsList extends Component {
   }
 
   renderExpandOptions = () => {
-    const { classes, totalComments } = this.props;
+    const { currentUser, classes, totalComments } = this.props;
     const { expandAllThreads } = this.state
-    const { SettingsIcon, CommentsListMeta } = Components
+    const { SettingsIcon, CommentsListMeta, LoginPopupButton } = Components
     if  (totalComments > POST_COMMENT_COUNT_TRUNCATE_THRESHOLD) {
       return <CommentsListMeta>
         <span>
@@ -86,9 +86,16 @@ class CommentsList extends Component {
             <a className={!expandAllThreads && classes.button} onClick={()=>this.setState({expandAllThreads: true})}>(⌘F to expand all)</a>
           </Tooltip>
         </span>
-        <Link to="/account">
-          <SettingsIcon label="Change truncation settings" />
-        </Link>
+        {currentUser 
+          ? 
+            <Link to="/account">
+              <SettingsIcon label="Change default truncation settings" />
+            </Link>
+          : 
+            <LoginPopupButton title={"Login to change default truncation settings"}>
+              <SettingsIcon label="Change truncation settings" />
+            </LoginPopupButton>
+        }
       </CommentsListMeta>
     }
   }
