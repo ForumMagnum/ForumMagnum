@@ -107,7 +107,7 @@ class AllPostsPage extends Component {
     const { classes, currentUser } = this.props
     const { query } = this.props.location;
     const { showSettings } = this.state
-    const { SingleColumnSection, SectionTitle, SettingsIcon, MetaInfo, TabNavigationMenu, PostsListSettings } = Components
+    const { SingleColumnSection, SectionTitle, SettingsIcon, TabNavigationMenu, PostsListSettings } = Components
 
     const currentTimeframe = query.timeframe ||
       (currentUser && currentUser.allPostsTimeframe) ||

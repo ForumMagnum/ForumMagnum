@@ -1,6 +1,5 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { withLocation } from '../../../lib/routeUtil';
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
@@ -368,10 +367,6 @@ class PostsPage extends Component {
       });
     }
   }
-}
-
-PostsPage.propTypes = {
-  document: PropTypes.object,
 }
 
 registerComponent(
