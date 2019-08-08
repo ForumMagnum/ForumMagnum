@@ -162,6 +162,15 @@ const theme = createLWTheme({
       divider: {
         display: 'none'
       }
+    },
+    ContentType: {
+      root: {
+        color: grey[800],
+        fontWeight: 600
+      },
+      icon: {
+        color: grey[800]
+      }
     }
   }
 });

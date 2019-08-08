@@ -13,14 +13,13 @@ const styles = theme => ({
   root: {
     textAlign: 'left',
     display: 'inline-block',
-    color: theme.palette.grey[800], // TODO;
+    color: theme.palette.grey[600],
     whiteSpace: "no-wrap",
     fontSize: theme.typography.body2.fontSize,
-    fontWeight: 600,
   },
   icon: {
     fontSize: "1.3rem",
-    color: theme.palette.grey[800],
+    color: theme.palette.grey[500],
     position: "relative",
     top: 3,
     marginRight: 4,
