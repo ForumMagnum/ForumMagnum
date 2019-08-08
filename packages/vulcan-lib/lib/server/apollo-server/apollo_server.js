@@ -41,7 +41,7 @@ import { getApolloApplyMiddlewareOptions, getApolloServerOptions } from './setti
 import { getSetting } from '../../modules/settings.js';
 import { formatError } from 'apollo-errors';
 
-import timber from 'timber';
+//import timber from 'timber';
 const timberApiKey = getSetting('timber.apiKey');
 
 const sentryUrl = getSetting('sentry.url');
@@ -169,10 +169,10 @@ Meteor.startup(() => {
   
   if (timberApiKey) {
     console.info("Starting timber integration");
-    WebApp.connectHandlers.use(timber.middlewares.express({
+    /*WebApp.connectHandlers.use(timber.middlewares.express({
       capture_request_body: true,
       capture_response_body: true,
-    }));
+    }));*/
   }
   
   // NOTE: order matters here
