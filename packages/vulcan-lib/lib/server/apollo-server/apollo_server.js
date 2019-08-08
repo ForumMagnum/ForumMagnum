@@ -41,6 +41,21 @@ import { getApolloApplyMiddlewareOptions, getApolloServerOptions } from './setti
 import { getSetting } from '../../modules/settings.js';
 import { formatError } from 'apollo-errors';
 
+import timber from 'timber';
+const timberApiKey = getSetting('timber.apiKey');
+
+const sentryUrl = getSetting('sentry.url');
+const sentryEnvironment = getSetting('sentry.environment');
+const sentryRelease = getSetting('sentry.release');
+import Sentry from '@sentry/node';
+
+if (sentryUrl) {
+  Sentry.init({ dsn: sentryUrl, environment: sentryEnvironment, release: sentryRelease });
+} else {
+  // eslint-disable-next-line no-console
+  console.warn("Sentry is not configured. To activate error reporting, please set the sentry.url variable in your settings file.");
+}
+
 export const setupGraphQLMiddlewares = (apolloServer, config, apolloApplyMiddlewareOptions) => {
   // IMPORTANT: order matters !
   // 1 - Add request parsing middleware
@@ -138,13 +153,28 @@ Meteor.startup(() => {
     apolloServerOptions: {
       engine: engineConfig,
       schema: GraphQLSchema.executableSchema,
-      formatError,
+      formatError: (e) => {
+        Sentry.captureException(e);
+        return formatError(e);
+      },
       tracing: getSetting('apolloTracing', Meteor.isDevelopment),
       cacheControl: true,
       context: ({ req }) => computeContextFromReq(req),
       ...getApolloServerOptions(),
     },
   });
+  
+  WebApp.connectHandlers.use(Sentry.Handlers.requestHandler());
+  WebApp.connectHandlers.use(Sentry.Handlers.errorHandler());
+  
+  if (timberApiKey) {
+    console.info("Starting timber integration");
+    WebApp.connectHandlers.use(timber.middlewares.express({
+      capture_request_body: true,
+      capture_response_body: true,
+    }));
+  }
+  
   // NOTE: order matters here
   // /graphql middlewares (request parsing)
   setupGraphQLMiddlewares(apolloServer, config, apolloApplyMiddlewareOptions);

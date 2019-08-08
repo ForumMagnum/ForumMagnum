@@ -21,6 +21,7 @@ import { getUser } from 'meteor/apollo';
 import { getHeaderLocale } from '../intl.js';
 import { getSetting } from '../../modules/settings.js';
 import Cookies from 'universal-cookie';
+import Sentry from '@sentry/node';
 
 // initial request will get the login token from a cookie, subsequent requests from
 // the header
@@ -32,6 +33,15 @@ const setupAuthToken = (user, context) => {
   if (user) {
     context.userId = user._id;
     context.currentUser = user;
+    
+    Sentry.configureScope(scope => {
+      scope.setUser({
+        id: user._id,
+        email: user.email,
+        username: user.username
+      });
+    });
+    
     // identify user to any server-side analytics providers
     runCallbacks('events.identify', user);
   } else {
