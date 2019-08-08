@@ -1,5 +1,5 @@
 import { getSetting } from 'meteor/vulcan:core'
-import { Picker } from 'meteor/meteorhacks:picker'
+import { addStaticRoute } from 'meteor/vulcan:lib'
 import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
 import Users from 'meteor/vulcan:users';
@@ -52,7 +52,7 @@ function findCommentByLegacyAFId(legacyId) {
 // addRoute({ name: 'lessWrongLegacy', path: 'lw/:id/:slug/:commentId', componentName: 'LegacyPostRedirect'});
 
 // Route for old post links
-Picker.route(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug?`, (params, req, res, next) => {
+addStaticRoute(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug?`, (params, req, res, next) => {
   if(params.id){
 
     try {
@@ -79,7 +79,7 @@ Picker.route(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug?`, (params, 
 });
 
 // Route for old comment links
-Picker.route(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug/:commentId`, (params, req, res, next) => {
+addStaticRoute(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug/:commentId`, (params, req, res, next) => {
   if(params.id){
 
     try {
@@ -107,7 +107,7 @@ Picker.route(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug/:commentId`,
 });
 
 // Route for old user links
-Picker.route('/user/:slug/:category?/:filter?', (params, req, res, next) => {
+addStaticRoute('/user/:slug/:category?/:filter?', (params, req, res, next) => {
   res.statusCode = 404
   if(params.slug){
     try {
@@ -134,7 +134,7 @@ Picker.route('/user/:slug/:category?/:filter?', (params, req, res, next) => {
 
 // Route for old comment links
 
-Picker.route('/posts/:_id/:slug/:commentId', (params, req, res, next) => {
+addStaticRoute('/posts/:_id/:slug/:commentId', (params, req, res, next) => {
   if(params.commentId){
     try {
       const comment = Comments.findOne({_id: params.commentId});
@@ -161,7 +161,7 @@ Picker.route('/posts/:_id/:slug/:commentId', (params, req, res, next) => {
 
 // Route for old images
 
-Picker.route('/static/imported/:year/:month/:day/:imageName', (params, req, res, next) => {
+addStaticRoute('/static/imported/:year/:month/:day/:imageName', (params, req, res, next) => {
   if(params.imageName){
     try {
       return makeRedirect(res,
@@ -182,7 +182,7 @@ Picker.route('/static/imported/:year/:month/:day/:imageName', (params, req, res,
 // Legacy RSS Routes
 
 // Route for old comment rss feeds
-Picker.route(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug/:commentId/.rss`, (params, req, res, next) => {
+addStaticRoute(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug/:commentId/.rss`, (params, req, res, next) => {
   if(params.id){
     try {
       const post = findPostByLegacyId(params.id);
@@ -209,36 +209,36 @@ Picker.route(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug/:commentId/.
 });
 
 // Route for old general RSS (all posts)
-Picker.route('/.rss', (params, req, res, next) => {
+addStaticRoute('/.rss', (params, req, res, next) => {
   return makeRedirect(res, "/feed.xml");
 });
 
 // Route for old general RSS (all comments)
-Picker.route('comments/.rss', (params, req, res, next) => {
+addStaticRoute('comments/.rss', (params, req, res, next) => {
   return makeRedirect(res, '/feed.xml?type=comments');
 });
 
-Picker.route('/rss/comments.xml', (params, req, res, next) => {
+addStaticRoute('/rss/comments.xml', (params, req, res, next) => {
   return makeRedirect(res, '/feed.xml?type=comments');
 });
 
-Picker.route('/daily', (params, req, res, next) => {
+addStaticRoute('/daily', (params, req, res, next) => {
   return makeRedirect(res, '/allPosts');
 });
 
 // Route for old general RSS (all posts)
-Picker.route('/:section?/:subreddit?/:new?/.rss', (params, req, res, next) => {
+addStaticRoute('/:section?/:subreddit?/:new?/.rss', (params, req, res, next) => {
   return makeRedirect(res, '/feed.xml');
 });
 
 // Route for old promoted RSS (promoted posts)
-Picker.route('/promoted/.rss', (params, req, res, next) => {
+addStaticRoute('/promoted/.rss', (params, req, res, next) => {
   return makeRedirect(res, '/feed.xml?view=curated-rss');
 });
 
 
 // Route for old agent-foundations post and commentlinks
-Picker.route('/item', (params, req, res, next) => {
+addStaticRoute('/item', (params, req, res, next) => {
   if(params.query.id){
     const id = parseInt(params.query.id)
     try {
@@ -273,14 +273,14 @@ Picker.route('/item', (params, req, res, next) => {
 
 // Secondary way of specifying favicon for browser or RSS readers that don't
 // support using a meta tag (the preferred approach).
-Picker.route('/favicon.ico', (params, req, res, next) => {
+addStaticRoute('/favicon.ico', (params, req, res, next) => {
   makeRedirect(res, getSetting('faviconUrl'));
 });
 
-Picker.route('/featured', (params, req, res, next) => {
+addStaticRoute('/featured', (params, req, res, next) => {
   makeRedirect(res, '/allPosts?filter=curated&view=new')
 })
 
-Picker.route('/recentComments', (params, req, res, next) => {
+addStaticRoute('/recentComments', (params, req, res, next) => {
   makeRedirect(res, '/allComments');
 })

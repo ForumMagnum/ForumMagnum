@@ -12,7 +12,6 @@ class Home2 extends PureComponent {
 
     const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
         Users.canDo(currentUser, 'alignment.sidebar')
-    const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
 
     return (
       <React.Fragment>
@@ -22,7 +21,7 @@ class Home2 extends PureComponent {
         <HomeLatestPosts />
         <RecentDiscussionThreadsList
           terms={{view: 'recentDiscussionThreadsList', limit:20}}
-          commentsLimit={recentDiscussionCommentsPerPost}
+          commentsLimit={4}
           maxAgeHours={18}
           af={false}
         />
