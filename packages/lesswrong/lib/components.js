@@ -80,6 +80,7 @@ import '../components/common/SubscribeWidget.jsx';
 import '../components/common/SubscribeDialog.jsx';
 
 import '../components/users/AccountsVerifyEmail.jsx';
+import '../components/users/EnrollAccount.jsx';
 import '../components/users/UsersMenu.jsx';
 import '../components/users/UsersEditForm.jsx';
 import '../components/users/UsersAccount.jsx';
@@ -224,6 +225,7 @@ import '../components/comments/CantCommentExplanation.jsx';
 import '../components/comments/CommentsEditForm.jsx';
 import '../components/comments/CommentsListSection.jsx';
 import '../components/comments/CommentsList.jsx';
+import '../components/comments/CommentsListMeta.jsx';
 import '../components/comments/CommentsNode.jsx';
 import '../components/comments/CommentsViews.jsx';
 import '../components/comments/RecentComments.jsx';

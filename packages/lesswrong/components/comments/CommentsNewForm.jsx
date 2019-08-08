@@ -27,7 +27,7 @@ const styles = theme => ({
     "&:hover": {
       background: "rgba(0,0,0, 0.05)",
     },
-    color: theme.palette.secondary.main
+    color: theme.palette.lwTertiary.main
   },
   cancelButton: {
     color: theme.palette.grey[400]

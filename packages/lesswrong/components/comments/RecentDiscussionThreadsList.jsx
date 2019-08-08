@@ -14,7 +14,7 @@ class RecentDiscussionThreadsList extends PureComponent {
   }
 
   render () {
-    const { results, loading, loadMore, networkStatus, updateComment, currentUser, data: { refetch }, threadView = "recentDiscussionThread" } = this.props
+    const { results, loading, loadMore, networkStatus, updateComment, currentUser, data: { refetch } } = this.props
     const { showShortformFeed } = this.state
     const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, Loading } = Components
     
@@ -25,8 +25,6 @@ class RecentDiscussionThreadsList extends PureComponent {
     if (!loading && results && !results.length) {
       return null
     }
-
-    const limit = (currentUser && currentUser.isAdmin) ? 4 : 3
 
     return (
       <SingleColumnSection>
@@ -45,8 +43,9 @@ class RecentDiscussionThreadsList extends PureComponent {
               <Components.RecentDiscussionThread
                 key={post._id}
                 post={post}
-                postCount={i}
-                terms={{view:threadView, postId:post._id, limit}}
+                postCount={i} 
+                refetch={refetch}
+                comments={post.recentComments}
                 currentUser={currentUser}
                 updateComment={updateComment}/>
             )}
@@ -59,19 +58,25 @@ class RecentDiscussionThreadsList extends PureComponent {
   }
 }
 
-const discussionThreadsOptions = {
-  collection: Posts,
-  queryName: 'selectCommentsListQuery',
-  fragmentName: 'PostsList',
-  fetchPolicy: 'cache-and-network',
-  enableTotal: false,
-  pollInterval: 0,
-  enableCache: true,
-};
-
-const withUpdateOptions = {
-  collection: Comments,
-  fragmentName: 'CommentsList',
-};
-
-registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList, [withList, discussionThreadsOptions], [withUpdate, withUpdateOptions], withUser);
+registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList,
+  [withList, {
+    collection: Posts,
+    queryName: 'selectCommentsListQuery',
+    fragmentName: 'PostsRecentDiscussion',
+    fetchPolicy: 'cache-and-network',
+    enableTotal: false,
+    pollInterval: 0,
+    enableCache: true,
+    extraVariables: {
+      commentsLimit: 'Int',
+      maxAgeHours: 'Int',
+      af: 'Boolean',
+    },
+    ssr: true,
+  }],
+  [withUpdate, {
+    collection: Comments,
+    fragmentName: 'CommentsList',
+  }],
+  withUser
+);
