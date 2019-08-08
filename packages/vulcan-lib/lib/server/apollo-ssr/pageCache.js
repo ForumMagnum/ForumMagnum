@@ -47,10 +47,7 @@ export const cachedPageRender = async (req, renderFn) => {
     inProgressRenders[cacheKey] = renderPromise;
     const rendered = await renderPromise;
     pageCache.set(cacheKey, rendered);
-    
     delete inProgressRenders[cacheKey];
-    await renderPromise;
-    
     return rendered;
   }
 }
