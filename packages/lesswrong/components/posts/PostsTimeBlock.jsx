@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-// TODO; wrap
-import { withCurrentUser, Components, withList, registerComponent, getSetting } from 'meteor/vulcan:core';
+import {
+  withCurrentUser, Components, withList, registerComponent, getSetting
+} from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
 import { withStyles } from '@material-ui/core/styles';
@@ -108,8 +109,10 @@ class PostsTimeBlock extends Component {
 
     const postTypes = [
       {name: 'frontpage', posts: frontpagePosts, label: 'Frontpage Posts'},
-      // TODO; wrap
-      {name: 'meta', posts: metaPosts, label: getSetting('forumType') === 'EAForum' ? 'Community Posts' : 'Meta Posts'},
+      {
+        name: 'meta', posts: metaPosts,
+        label: getSetting('forumType') === 'EAForum' ? 'Community Posts' : 'Meta Posts'
+      },
       {name: 'personal', posts: personalBlogposts, label: 'Personal Blogposts'},
     ]
 

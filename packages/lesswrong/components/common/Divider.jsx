@@ -20,10 +20,10 @@ const styles = () => ({
     opacity: .5
   },
   compass: {
-    height: 35,
-    width: 35,
+    height: 50,
+    width: 50,
     display: "inline-block",
-    opacity: .4 // TODO;
+    opacity: .25
   }
 })
 
