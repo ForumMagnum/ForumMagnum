@@ -14,8 +14,6 @@ import PropTypes from 'prop-types';
 import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
 
-import { POSTED_AT_WIDTH } from './PostsItemDate.jsx';
-
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 export const COMMENTS_WIDTH = 48
@@ -122,17 +120,6 @@ const styles = (theme) => ({
       marginLeft: 0,
     }
   },
-  postedAt: {
-    '&&': {
-      width: POSTED_AT_WIDTH,
-      fontWeight: 300,
-      fontSize: "1rem",
-      color: "rgba(0,0,0,.9)",
-      [theme.breakpoints.down('sm')]: {
-        width: "auto",
-      }
-    }
-  },
   newCommentsSection: {
     width: "100%",
     paddingLeft: theme.spacing.unit*2,
@@ -143,10 +130,6 @@ const styles = (theme) => ({
     [theme.breakpoints.down('sm')]: {
       padding: 0,
     }
-  },
-  closeComments: {
-    color: theme.palette.grey[500],
-    textAlign: "right",
   },
   commentsIcon: {
     width: COMMENTS_WIDTH,
@@ -170,10 +153,6 @@ const styles = (theme) => ({
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
-  },
-  actionsMenu: {
-    position: "absolute",
-    top: 0,
   },
   mobileSecondRowSpacer: {
     [theme.breakpoints.up('md')]: {
@@ -281,7 +260,7 @@ class PostsItem2 extends PureComponent {
   }
 
   toggleComments = (scroll) => {
-    this.props.recordPostView({...this.props, document:this.props.post})
+    this.props.recordPostView({post:this.props.post})
     this.setState((prevState) => {
       if (scroll) {
         this.postsItemRef.current.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"})
@@ -304,19 +283,17 @@ class PostsItem2 extends PureComponent {
   }
 
   hasUnreadComments = () => {
-    const { post } = this.props
-    const { lastVisitedAt } = post
+    const { post, isRead } = this.props
     const { readComments } = this.state
     const lastCommentedAt = Posts.getLastCommentedAt(post)
-    const read = lastVisitedAt;
-    const newComments = lastVisitedAt < lastCommentedAt;
-    return (read && newComments && !readComments)
+    const newComments = post.lastVisitedAt < lastCommentedAt;
+    return (isRead && newComments && !readComments)
   }
 
   render() {
     const { classes, post, sequenceId, chapter, currentUser, index, terms, resumeReading,
       showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true,
-      defaultToShowUnreadComments=false, dismissRecommendation, dense } = this.props
+      defaultToShowUnreadComments=false, dismissRecommendation, isRead, dense } = this.props
     const { showComments } = this.state
     const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
 
@@ -354,7 +331,7 @@ class PostsItem2 extends PureComponent {
             </PostsItem2MetaInfo>
 
             <Link to={postLink} className={classes.title}>
-              <PostsTitle post={post} expandOnHover={!renderComments} read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
+              <PostsTitle post={post} expandOnHover={!renderComments} read={isRead} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
             </Link>
 
             {(resumeReading?.sequence || resumeReading?.collection) &&
@@ -384,7 +361,7 @@ class PostsItem2 extends PureComponent {
             <div className={classes.mobileSecondRowSpacer}/>
 
             {<div className={classes.mobileActions}>
-              {!resumeReading && <PostsPageActions post={post} menuClassName={classes.actionsMenu} />}
+              {!resumeReading && <PostsPageActions post={post} />}
             </div>}
 
             {showIcons && <Hidden mdUp implementation="css">
@@ -418,7 +395,7 @@ class PostsItem2 extends PureComponent {
 
           {<div className={classes.actions}>
             {dismissButton}
-            {!resumeReading && <PostsPageActions post={post} vertical menuClassName={classes.actionsMenu} />}
+            {!resumeReading && <PostsPageActions post={post} vertical />}
           </div>}
 
           {renderComments && <div className={classes.newCommentsSection} onClick={() => this.toggleComments(true)}>

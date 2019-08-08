@@ -29,6 +29,7 @@ registerFragment(`
     feedId
     feedLink
     lastVisitedAt
+    isRead
     lastCommentedAt
     canonicalCollectionSlug
     curatedDate
@@ -266,6 +267,15 @@ registerFragment(`
     contents {
       htmlHighlight
       wordCount
+    }
+  }
+`);
+
+registerFragment(`
+  fragment PostsRecentDiscussion on Post {
+    ...PostsList
+    recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
+      ...CommentsList
     }
   }
 `);

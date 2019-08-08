@@ -3,7 +3,6 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles'
 import { truncate } from '../../lib/editor/ellipsize';
 import withUser from "../common/withUser";
-import { withRouter } from '../../lib/reactRouterWrapper.js';
 
 const styles = theme => ({
   tooltip:{
@@ -90,8 +89,6 @@ const PostsItemTooltip = ({ post, classes, author, }) => {
 
 }
 
-PostsItemTooltip.displayName = "PostsItemTooltip";
-
-registerComponent('PostsItemTooltip', PostsItemTooltip, withUser, withRouter,
+registerComponent('PostsItemTooltip', PostsItemTooltip, withUser,
   withStyles(styles, { name: "PostsItemTooltip" })
 );

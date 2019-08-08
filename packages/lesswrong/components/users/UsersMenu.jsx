@@ -2,7 +2,7 @@ import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from 'react-router-dom';
 import Users from 'meteor/vulcan:users';
 import { withApollo } from 'react-apollo';
 
@@ -17,6 +17,7 @@ import withDialog from '../common/withDialog'
 const styles = theme => ({
   root: {
     marginTop: 5,
+    wordBreak: 'break-all'
   },
   userButtonContents: {
     textTransform: 'none',
@@ -98,7 +99,9 @@ class UsersMenu extends PureComponent {
               <MenuItem>Profile</MenuItem>
             </Link>
             <Link to={`/account`}>
-              <MenuItem>Edit Account</MenuItem>
+              <MenuItem>
+                Edit User Settings
+              </MenuItem>
             </Link>
             <Link to={`/inbox`}>
               <MenuItem>Private Messages</MenuItem>

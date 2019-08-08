@@ -4,6 +4,7 @@ Redux
 
 */
 
+/*
 import { addAction, addReducer } from 'meteor/vulcan:core';
 
 addAction({
@@ -27,3 +28,4 @@ addReducer({
     return state;
   },
 });
+*/

@@ -72,7 +72,9 @@ const NewRelatedQuestionForm = (props) => {
           refetch()
           flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
         }}
-        SubmitComponent={QuestionSubmit}
+        formComponents={{
+          FormSubmit: QuestionSubmit,
+        }}
       />
     </div>
   )

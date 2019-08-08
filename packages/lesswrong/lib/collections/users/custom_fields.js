@@ -35,6 +35,12 @@ export const formGroups = {
     label: "Admin Options",
     startCollapsed: true,
   },
+  truncationOptions: {
+    name: "truncationOptions",
+    order: 9,
+    label: "Comment Truncation Options",
+    startCollapsed: false,
+  },
 }
 
 export const karmaChangeNotifierDefaultSettings = {
@@ -775,24 +781,26 @@ addFieldsDict(Users, {
     order: 70,
     type: Boolean,
     optional: true,
+    group: formGroups.truncationOptions,
     defaultValue: false,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     control: 'checkbox',
-    label: "Do not collapse comments (in large threads on Post Pages)"
+    label: "Do not truncate comments (in large threads on Post Pages)"
   },
 
   noCollapseCommentsFrontpage: {
     order: 70,
     type: Boolean,
     optional: true,
+    group: formGroups.truncationOptions,
     defaultValue: false,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     control: 'checkbox',
-    label: "Do not collapse comments (on home page)"
+    label: "Do not truncate comments (on home page)"
   },
 
   shortformFeedId: {
@@ -911,8 +919,7 @@ export const makeEditableOptionsModeration = {
     viewableBy: ['guests'],
     editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
     insertableBy: [Users.owns, 'sunshineRegiment', 'admins']
-  },
-  deactivateNewCallback: true, // Fix to avoid triggering the editable operations on incomplete users during creation
+  }
 }
 
 makeEditable({

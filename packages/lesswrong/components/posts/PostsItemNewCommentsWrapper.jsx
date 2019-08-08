@@ -32,6 +32,7 @@ const options = {
   collection: Comments,
   queryName: 'PostsItemNewCommentsThreadQuery',
   fragmentName: 'CommentsList',
+  fetchPolicy: 'cache-and-network',
   limit: 5,
   // enableTotal: false,
 };

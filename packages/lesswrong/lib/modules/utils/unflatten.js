@@ -10,6 +10,17 @@ export function unflattenComments(comments)
   return unflattenCommentsRec(resultsRestructured);
 }
 
+export function addGapIndicators(comments) {
+  // Sometimes (such as /shortform page), a comment tree is rendered where some comments are not the direct descendant of the previous comment. 
+  // This function adds extra, empty comment nodes to make this UI more visually clear
+  return comments.map(node=>{
+    if (node?.item?.parentCommentId !== node?.item?.topLevelCommentId) {
+      return {item: {...node.item, gapIndicator: true}, children: node.children}
+    }
+    return node
+  })
+}
+
 // Recursive portion of unflattenComments. Produced by incremental modification
 // of Vulcan's Utils.unflatten.
 function unflattenCommentsRec(array, parent, tree)

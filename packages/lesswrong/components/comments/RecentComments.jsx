@@ -1,15 +1,15 @@
 import React from 'react';
-import { Components, registerComponent, withList, Loading, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList, withEdit } from 'meteor/vulcan:core';
 import { Comments } from '../../lib/collections/comments';
 import withUser from '../common/withUser';
 
-const RecentComments = ({results, currentUser, loading, loadMore, networkStatus, editMutation}) => {
+const RecentComments = ({results, currentUser, loading, loadMore, networkStatus, updateComment}) => {
   const loadingMore = networkStatus === 2;
   if (!loading && results && !results.length) {
     return (<div>No comments found</div>)
   }
   if (loading || !results) {
-    return <Loading />
+    return <Components.Loading />
   }
   
   return (
@@ -20,7 +20,7 @@ const RecentComments = ({results, currentUser, loading, loadMore, networkStatus,
             currentUser={currentUser}
             comment={comment}
             post={comment.post}
-            editMutation={editMutation}
+            updateComment={updateComment}
             showPostTitle
           />
         </div>

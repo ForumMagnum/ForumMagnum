@@ -1,20 +1,23 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { getSetting } from 'meteor/vulcan:lib';
 import React from 'react';
 import withUser from '../common/withUser';
 
-const EAHome = () => {
+const EAHome = ({currentUser}) => {
   const { SingleColumnSection, SectionTitle, RecentDiscussionThreadsList, HomeLatestPosts } = Components
 
+  const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
   return (
     <React.Fragment>
-      <Components.HeadTags image={getSetting('siteImage')} />
-
       <HomeLatestPosts />
 
       <SingleColumnSection>
         <SectionTitle title="Recent Discussion" />
-        <RecentDiscussionThreadsList terms={{view: 'recentDiscussionThreadsList', limit:6}}/>
+        <RecentDiscussionThreadsList
+          terms={{view: 'recentDiscussionThreadsList', limit:6}}
+          commentsLimit={recentDiscussionCommentsPerPost}
+          maxAgeHours={18}
+          af={false}
+        />
       </SingleColumnSection>
     </React.Fragment>
   )

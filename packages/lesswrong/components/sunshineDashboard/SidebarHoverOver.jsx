@@ -33,6 +33,4 @@ SidebarHoverOver.propTypes = {
   width: PropTypes.number,
 };
 
-SidebarHoverOver.displayName = "SidebarHoverOver";
-
 registerComponent('SidebarHoverOver', SidebarHoverOver, withStyles(styles, { name: 'SidebarHoverOver'}));

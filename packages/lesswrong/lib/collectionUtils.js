@@ -53,8 +53,7 @@ async function conflictingIndexExists(collection, index, options)
 export async function ensureIndex(collection, index, options={})
 {
   if (Meteor.isServer) {
-    // Defer index creation until 15s after startup
-    Meteor.setTimeout(async () => {
+    const buildIndex = async () => {
       try {
         if (options.name && await conflictingIndexExists(collection, index, options)) {
           //eslint-disable-next-line no-console
@@ -75,7 +74,20 @@ export async function ensureIndex(collection, index, options={})
         //eslint-disable-next-line no-console
         console.error(`Error in ${collection.collectionName}.ensureIndex: ${e}`);
       }
-    }, 15000);
+    };
+    
+    // If running a normal server, defer index creation until 15s after
+    // startup. This speeds up testing in the common case, where indexes haven't
+    // meaningfully changed (but sending a bunch of no-op ensureIndex commands
+    // to the database is still expensive).
+    // In unit tests, build indexes immediately, because (a) indexes probably
+    // don't exist yet, and (b) building indexes in the middle of a later test
+    // risks making that test time out.
+    if (Meteor.isTest || Meteor.isAppTest || Meteor.isPackageTest) {
+      await buildIndex();
+    } else {
+      Meteor.setTimeout(buildIndex, 15000);
+    }
   }
 }
 
@@ -119,9 +131,9 @@ export function schemaDefaultValue(defaultValue) {
       return undefined;
     }
   };
-  const throwIfSetToNull = ({document, newDocument, fieldName}) => {
-    const wasValid = (document[fieldName] !== undefined && document[fieldName] !== null);
-    const isValid = (newDocument[fieldName] !== undefined && newDocument[fieldName] !== null);
+  const throwIfSetToNull = ({oldDocument, document, fieldName}) => {
+    const wasValid = (oldDocument[fieldName] !== undefined && oldDocument[fieldName] !== null);
+    const isValid = (document[fieldName] !== undefined && document[fieldName] !== null);
     if (wasValid && !isValid) {
       throw new Error(`Error updating: ${fieldName} cannot be null or missing`);
     }

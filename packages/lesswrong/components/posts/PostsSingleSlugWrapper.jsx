@@ -1,10 +1,10 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { useLocation } from '../../lib/routeUtil.js';
 
-const PostsSingleSlugWrapper = (props, context) => {
-  return <Components.PostsSingleSlug terms={{view:"slugPost", slug: props.params.slug}} />
+const PostsSingleSlugWrapper = () => {
+  const { params } = useLocation();
+  return <Components.PostsSingleSlug terms={{view:"slugPost", slug: params.slug}} />
 };
-
-PostsSingleSlugWrapper.displayName = "PostsSingleSlugWrapper";
 
 registerComponent('PostsSingleSlugWrapper', PostsSingleSlugWrapper);

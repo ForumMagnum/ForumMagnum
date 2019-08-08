@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, withEdit } from 'meteor/vulcan:core';
+import { registerComponent, withUpdate } from 'meteor/vulcan:core';
 import { Comments } from '../../../lib/collections/comments';
 import withUser from '../../common/withUser';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -8,18 +8,18 @@ import Tooltip from '@material-ui/core/Tooltip';
 class RetractCommentMenuItem extends PureComponent
 {
   handleRetract = (event) => {
-    const { editMutation, comment } = this.props;
-    editMutation({
-      documentId: comment._id,
-      set: { retracted: true },
+    const { updateComment, comment } = this.props;
+    updateComment({
+      selector: {_id: comment._id},
+      data: { retracted: true }
     });
   }
 
   handleUnretract = (event) => {
-    const { editMutation, comment } = this.props;
-    editMutation({
-      documentId: comment._id,
-      set: { retracted: false },
+    const { updateComment, comment } = this.props;
+    updateComment({
+      selector: {_id: comment._id},
+      data: { retracted: false }
     });
   }
 
@@ -41,10 +41,10 @@ class RetractCommentMenuItem extends PureComponent
   }
 }
 
-const withEditOptions = {
+const withUpdateOptions = {
   collection: Comments,
   fragmentName: 'CommentsList',
 }
 
 registerComponent('RetractCommentMenuItem', RetractCommentMenuItem,
-  withUser, [withEdit, withEditOptions]);
+  withUser, [withUpdate, withUpdateOptions]);
