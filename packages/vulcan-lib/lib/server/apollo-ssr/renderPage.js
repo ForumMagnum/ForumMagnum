@@ -12,10 +12,10 @@ import { getUserFromReq, computeContextFromUser } from '../apollo-server/context
 import { runCallbacks } from '../../modules/callbacks';
 import { createClient } from './apolloClient';
 import { cachedPageRender, recordCacheBypass, getCacheHitRate } from './pageCache';
-
 import Head from './components/Head';
 import ApolloState from './components/ApolloState';
 import AppGenerator from './components/AppGenerator';
+import Sentry from '@sentry/node';
 
 const makePageRenderer = async sink => {
   const req = sink.request;
@@ -35,6 +35,7 @@ const makePageRenderer = async sink => {
 };
 
 const renderRequest = async (req, user) => {
+  const startTime = new Date();
   const requestContext = await computeContextFromUser(user, req.headers);
   // according to the Apollo doc, client needs to be recreated on every request
   // this avoids caching server side
@@ -87,6 +88,7 @@ const renderRequest = async (req, user) => {
     console.error(`Error while fetching Apollo Data. date: ${new Date().toString()} url: ${JSON.stringify(req.url)}`); // eslint-disable-line no-console
     console.error(err);
   }
+  const afterPrerenderTime = new Date();
   try {
     htmlContent = await ReactDOM.renderToString(WrappedApp);
   } catch (err) {
@@ -112,6 +114,15 @@ const renderRequest = async (req, user) => {
   // signature of the callback didn't fit.
   const sheetsRegistry = context.sheetsRegistry;
   const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
+  
+  const finishedTime = new Date();
+  const prerenderTime = afterPrerenderTime - startTime
+  const renderTime = finishedTime - afterPrerenderTime
+  const totalTime = finishedTime - startTime;
+  console.log(`preRender time: ${prerenderTime}; render time: ${renderTime}`);
+  if (totalTime > 3000) {
+    Sentry.captureException(new Error("SSR time above 3 seconds"));
+  }
   
   return {
     ssrBody, head, serializedApolloState, jssSheets,
