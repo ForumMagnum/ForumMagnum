@@ -157,6 +157,11 @@ const theme = createLWTheme({
         fontSize: "1rem",
         padding: ".7rem",
       }
+    },
+    PostsTimeBlock: {
+      divider: {
+        display: 'none'
+      }
     }
   }
 });

@@ -34,6 +34,7 @@ const styles = theme => ({
   otherSubtitle: {
     marginTop: theme.spacing.unit*1.5
   },
+  divider: {/* Exists only to get overriden by the eaTheme */}
 })
 
 class PostsTimeBlock extends Component {
@@ -146,7 +147,7 @@ class PostsTimeBlock extends Component {
               <SectionSubtitle
                 className={name === 'frontpage' ? classes.frontpageSubtitle : classes.otherSubtitle}
               >
-                <ContentType type='frontpage' label={label} />
+                <ContentType type={name} label={label} />
               </SectionSubtitle>
               <SubSection>
                 {posts.map((post, i) =>
@@ -155,33 +156,6 @@ class PostsTimeBlock extends Component {
               </SubSection>
             </div>
           })}
-
-          {/* {(frontpagePosts?.length > 0) && <div>
-          </div>}
-
-          {(metaPosts?.length > 0) && <div>
-            <SectionSubtitle className={classes.personSubtitle}>
-              <ContentType type={'meta'} label="Meta Posts"/>
-            </SectionSubtitle>
-
-            <SubSection>
-              {metaPosts.map((post, i) =>
-                <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} dense />
-              )}
-            </SubSection>
-          </div>}
-
-          {(personalBlogposts?.length > 0) && <div>
-            <SectionSubtitle className={classes.personSubtitle}>
-              <ContentType type={'personal'} label="Personal Blogposts"/>
-            </SectionSubtitle>
-
-            <SubSection>
-              {personalBlogposts.map((post, i) =>
-                <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} dense />
-              )}
-            </SubSection>
-          </div>} */}
 
           {(posts?.length < totalCount) && <div className={classes.loadMore}>
             <LoadMore
@@ -202,7 +176,9 @@ class PostsTimeBlock extends Component {
             }}
           />
         </div>
-        {/* <Divider wings={false}/> */}
+        <div className={classes.divider}>
+          <Divider wings={false} />
+        </div>
       </div>
     );
   }
