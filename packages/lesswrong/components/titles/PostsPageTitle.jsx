@@ -49,6 +49,7 @@ registerComponent("PostsPageHeaderTitle", PostsPageHeaderTitle,
     collection: Posts,
     fragmentName: "PostsBase",
     ssr: true,
+    fetchPolicy: 'cache-only'
   }],
   withStyles(styles, {name: "PostsPageHeaderTitle"})
 );

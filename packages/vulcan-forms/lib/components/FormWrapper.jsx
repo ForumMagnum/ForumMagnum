@@ -204,7 +204,6 @@ class FormWrapper extends PureComponent {
       fragment: queryFragment,
       extraQueries,
       fetchPolicy: 'network-only', // we always want to load a fresh copy of the document
-      enableCache: false,
       pollInterval: 0 // no polling, only load data once
     };
 

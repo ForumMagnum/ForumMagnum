@@ -52,7 +52,6 @@ registerComponent("CommentPermalink", CommentPermalink,
     queryName: 'commentsPermalinkQuery',
     fragmentName: 'CommentWithReplies',
     enableTotal: false,
-    enableCache: true,
     ssr: true,
   }]
 );

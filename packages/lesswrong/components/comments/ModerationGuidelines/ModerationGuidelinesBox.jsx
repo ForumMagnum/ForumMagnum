@@ -149,9 +149,9 @@ const moderationStyleLookup = {
 const queryOptions = {
   collection: Posts,
   queryName: 'postsSingleQuery',
-  fragmentName: 'PostsPage',
+  fragmentName: 'PostsWithNavigation',
+  fetchPolicy: 'cache-only',
   enableTotal: false,
-  enableCache: true,
 };
 
 registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBox, [withDocument, queryOptions], withStyles(styles, {name: 'ModerationGuidelinesBox'}),

@@ -43,7 +43,6 @@ const discussionThreadsOptions = {
   fetchPolicy: 'cache-and-network',
   enableTotal: false,
   pollInterval: 0,
-  enableCache: true,
 };
 
 registerComponent('ShortformThreadList', ShortformThreadList, withStyles(styles, {name:"ShortformThreadList"}), [withList, discussionThreadsOptions], withUser);

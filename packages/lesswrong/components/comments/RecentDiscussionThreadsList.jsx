@@ -66,7 +66,6 @@ registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList,
     fetchPolicy: 'cache-and-network',
     enableTotal: false,
     pollInterval: 0,
-    enableCache: true,
     extraVariables: {
       commentsLimit: 'Int',
       maxAgeHours: 'Int',

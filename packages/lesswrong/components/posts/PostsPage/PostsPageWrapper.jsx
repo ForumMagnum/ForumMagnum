@@ -28,7 +28,6 @@ registerComponent("PostsPageWrapper", PostsPageWrapper,
     queryName: 'postsSingleQuery',
     fragmentName: 'PostsWithNavigation',
     enableTotal: false,
-    enableCache: true,
     ssr: true,
     extraVariables: {
       version: 'String',
