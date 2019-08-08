@@ -54,7 +54,7 @@ class ShortformTimeBlock extends Component {
     return <div>
       <div className={classes.shortformGroup}>
         <SectionSubtitle className={classes.subtitle}>
-          <ContentType shortform label="Shortform [Beta]"/>
+          <ContentType type="shortform" label="Shortform [Beta]"/>
         </SectionSubtitle>
         <SubSection>
           {comments?.map((comment, i) =>
