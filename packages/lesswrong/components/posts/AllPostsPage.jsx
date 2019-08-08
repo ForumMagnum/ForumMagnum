@@ -7,6 +7,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { getBeforeDefault, getAfterDefault, timeframeToTimeBlock } from './timeframeUtils'
+import withTimezone from '../common/withTimezone';
 
 // TODO: If we go back to having an option to include all posts on the
 // frontpage, I think it makes sense to think about rebranding this page to
@@ -77,7 +78,7 @@ class AllPostsPage extends Component {
   }
 
   renderPostsList = ({currentTimeframe, currentFilter, currentSorting, currentShowLowKarma}) => {
-    const { classes } = this.props
+    const { timezone, classes } = this.props
     const { showSettings } = this.state
     const {PostsTimeframeList, PostsList2} = Components
 
@@ -106,8 +107,8 @@ class AllPostsPage extends Component {
         }}
         numTimeBlocks={numTimeBlocks}
         dimWhenLoading={showSettings}
-        after={getAfterDefault(numTimeBlocks, timeBlock)}
-        before={getBeforeDefault(timeBlock)}
+        after={getAfterDefault({numTimeBlocks, timeBlock, timezone})}
+        before={getBeforeDefault({timeBlock, timezone})}
       />
     </div>
   }
@@ -171,5 +172,6 @@ registerComponent(
   withStyles(styles, {name:"AllPostsPage"}),
   withRouter,
   withUser,
+  withTimezone,
   [withUpdate, withUpdateOptions]
 );
