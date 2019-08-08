@@ -52,7 +52,7 @@ export const setupGraphQLMiddlewares = (apolloServer, config, apolloApplyMiddlew
   // parse request (order matters)
   WebApp.connectHandlers.use(
     config.path,
-    bodyParser.json({ limit: getSetting('apolloServer.jsonParserOptions.limit') })
+    bodyParser.json({ limit: '50mb' })
   );
   WebApp.connectHandlers.use(config.path, bodyParser.text({ type: 'application/graphql' }));
 
