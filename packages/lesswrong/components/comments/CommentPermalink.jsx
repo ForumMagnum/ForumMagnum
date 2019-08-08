@@ -14,6 +14,7 @@ const styles = theme => ({
     color: theme.palette.grey[600],
     marginBottom: theme.spacing.unit*2,
     marginLeft: 10,
+    cursor: "default",
     [theme.breakpoints.down('md')]: {
       marginTop: theme.spacing.unit*2
     }
@@ -42,6 +43,7 @@ const CommentPermalink = (props) => {
         <div className={classes.seeInContext}><a href={`#${documentId}`}>See in context</a></div>
       </div>}
       <div className={classes.dividerMargins}><Divider /></div>
+      <div className={classes.permalinkLabel}>Original Post</div>
     </div>
 }
 
