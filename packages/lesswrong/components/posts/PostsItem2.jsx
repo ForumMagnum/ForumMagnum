@@ -32,11 +32,6 @@ const styles = (theme) => ({
       opacity: .2,
     }
   },
-  fixedHeight: {
-    [theme.breakpoints.up('md')]: {
-      height: 48,
-    }
-  },
   postsItem: {
     display: "flex",
     paddingTop: 10,
@@ -100,6 +95,7 @@ const styles = (theme) => ({
     },
     '&:hover': {
       opacity: 1,
+      overflow: "unset",
     }
   },
   author: {
@@ -268,6 +264,10 @@ const styles = (theme) => ({
       height: "100%",
       width: 'auto'
     },
+  },
+  dense: {
+    paddingTop: 7,
+    paddingBottom:8
   }
 })
 
@@ -316,9 +316,9 @@ class PostsItem2 extends PureComponent {
   render() {
     const { classes, post, sequenceId, chapter, currentUser, index, terms, resumeReading,
       showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true,
-      defaultToShowUnreadComments=false, dismissRecommendation } = this.props
+      defaultToShowUnreadComments=false, dismissRecommendation, dense } = this.props
     const { showComments } = this.state
-    const { PostsItemComments, PostsItemKarma, PostsItemTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
+    const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
 
     const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -344,16 +344,17 @@ class PostsItem2 extends PureComponent {
             [classes.firstItem]: (index===0) && showComments,
             "personalBlogpost": !post.frontpageDate,
             [classes.hasResumeReading]: !!resumeReading,
-            [classes.fixedHeight]: !renderComments,
           }
         )}>
-          <div className={classes.postsItem}>
+          <div className={classNames(classes.postsItem, {
+            [classes.dense]: dense
+            })}>
             <PostsItem2MetaInfo className={classes.karma}>
               <PostsItemKarma post={post} />
             </PostsItem2MetaInfo>
 
             <Link to={postLink} className={classes.title}>
-              <PostsItemTitle post={post} postItem2 expandOnHover={!renderComments} read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
+              <PostsTitle post={post} expandOnHover={!renderComments} read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
             </Link>
 
             {(resumeReading?.sequence || resumeReading?.collection) &&

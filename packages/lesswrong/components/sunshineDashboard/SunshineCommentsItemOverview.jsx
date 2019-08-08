@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
 import { Link } from '../../lib/reactRouterWrapper.js'
-import Icon from '@material-ui/core/Icon';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
@@ -40,10 +39,7 @@ class SunshineCommentsItemOverview extends Component {
             </Link>
           </Components.SidebarInfo>
           <Components.SidebarInfo>
-            <Link to={comment.post && Posts.getPageUrl(comment.post) + "#" + comment._id}>
-              <Components.FormatDate date={comment.postedAt}/>
-              <Icon className={"material-icons comments-item-permalink"}> link </Icon>
-            </Link>
+            <Components.CommentsItemDate comment={comment} post={comment.post}/>
           </Components.SidebarInfo>
         </div>
       </div>

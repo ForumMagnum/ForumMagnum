@@ -57,7 +57,7 @@ class CommentsList extends Component {
   }
 
   render() {
-    const { comments, currentUser, highlightDate, editMutation, post, postPage, totalComments, condensed, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1, hideReadComments, lastCommentId } = this.props;
+    const { comments, currentUser, highlightDate, editMutation, post, postPage, totalComments, condensed, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1, hideReadComments, lastCommentId, parentCommentId=null } = this.props;
 
     const { expandAllThreads } = this.state
     const { lastVisitedAt } = post
@@ -67,14 +67,15 @@ class CommentsList extends Component {
     if (comments) {
       return (
         <Components.ErrorBoundary>
-          <div className="comments-list">
+          <div>
             {comments.map(comment =>
               <Components.CommentsNode
-                startThreadTruncated={startThreadTruncated || totalComments >= 50}
+                startThreadTruncated={startThreadTruncated || totalComments >= 70}
                 expandAllThreads={expandAllThreads}
                 unreadComments={unreadComments}
                 currentUser={currentUser}
                 comment={comment.item}
+                parentCommentId={parentCommentId}
                 nestingLevel={defaultNestingLevel}
                 lastCommentId={lastCommentId}
                 //eslint-disable-next-line react/no-children-prop
@@ -88,6 +89,7 @@ class CommentsList extends Component {
                 condensed={condensed}
                 hideReadComments={hideReadComments}
                 shortform={post.shortform}
+                child={defaultNestingLevel > 1}
               />)
             }
           </div>
@@ -95,7 +97,7 @@ class CommentsList extends Component {
       )
     } else {
       return (
-        <div className="comments-list">
+        <div>
           <p>
             <FormattedMessage id="comments.no_comments"/>
           </p>
