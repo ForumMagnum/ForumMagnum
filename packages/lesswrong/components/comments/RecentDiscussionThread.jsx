@@ -45,15 +45,13 @@ const styles = theme => ({
     marginTop:theme.spacing.unit*2,
     marginBottom:theme.spacing.unit*2,
   },
-  unreadDot: {
-    fontFamily: theme.typography.fontFamily,
-    color: theme.palette.primary.light,
-    fontSize: 30,
-    lineHeight:0,
-    position: "relative",
-    top:5.5,
-    marginLeft:2,
-    marginRight:5
+  unreadPost: {
+    borderLeft: `solid 5px ${theme.palette.primary.light}`,
+    paddingLeft: theme.spacing.unit*1.5,
+    cursor: "pointer",
+    '&:hover': {
+      borderLeft: `solid 5px ${theme.palette.primary.main}`,
+    }
   },
   postHighlight: {
     ...postHighlightStyles(theme),
@@ -108,7 +106,7 @@ class RecentDiscussionThread extends PureComponent {
   }
 
   render() {
-    const { post, comments, updateComment, currentUser, classes, isRead, refetch } = this.props
+    const { post, comments, updateComment, currentUser, classes, isRead, refetch, expandAll } = this.props
     const { readStatus, showHighlight, markedAsVisitedAt } = this.state
     const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle } = Components
 
@@ -129,21 +127,19 @@ class RecentDiscussionThread extends PureComponent {
 
     return (
       <div className={classes.root}>
-        <div className={classes.postItem}>
-          <Link className={classes.title} to={Posts.getPageUrl(post)}>
-            <PostsTitle wrap post={post} />
-          </Link>
+        <div className={(currentUser && !(isRead || readStatus)) && classes.unreadPost}>
+          <div className={classes.postItem}>
+            <Link className={classes.title} to={Posts.getPageUrl(post)}>
+              <PostsTitle wrap post={post} />
+            </Link>
 
-          <div className={classes.threadMeta} onClick={this.showHighlight}>
-            {currentUser && !(isRead || readStatus) &&
-              <span title="Unread" className={classes.unreadDot}>•</span>}
-            <PostsItemMeta post={post}/>
-            <ShowOrHideHighlightButton
-              className={classes.showHighlight}
-              open={showHighlight}/>
+            <div className={classes.threadMeta} onClick={this.showHighlight}>
+              <PostsItemMeta post={post}/>
+              <ShowOrHideHighlightButton
+                className={classes.showHighlight}
+                open={showHighlight}/>
+            </div>
           </div>
-        </div>
-        <div className={classes.content}>
           { showHighlight ?
             <div className={highlightClasses}>
               <PostsHighlight post={post} />
@@ -155,11 +151,14 @@ class RecentDiscussionThread extends PureComponent {
                     dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents && post.contents.htmlHighlight)}}/>}
               </div>
           }
+        </div>
+        <div className={classes.content}>
           <div className={classes.commentsList}>
             {nestedComments.map(comment =>
               <div key={comment.item._id}>
                 <CommentsNode
                   startThreadTruncated={true}
+                  expandAllThreads={expandAll}
                   nestingLevel={1}
                   lastCommentId={lastCommentId}
                   currentUser={currentUser}

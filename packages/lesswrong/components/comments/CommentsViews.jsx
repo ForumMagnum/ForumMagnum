@@ -11,14 +11,14 @@ import withUser from '../common/withUser';
 import qs from 'qs'
 
 const viewNames = {
-  'postCommentsTop': 'magical algorithm',
-  'postCommentsNew': 'most recent',
+  'postCommentsTop': 'top scoring',
+  'postCommentsNew': 'newest',
   'postCommentsOld': 'oldest',
   'postCommentsBest': 'highest karma',
   'postCommentsDeleted': 'deleted',
   'postCommentsSpam': 'spam',
   'postCommentsReported': 'reported',
-  'postLWComments': 'magical algorithm (include LW)',
+  'postLWComments': 'top scoring (include LW)',
 }
 
 const styles = theme => ({
@@ -26,7 +26,7 @@ const styles = theme => ({
     display: 'inline'
   },
   link: {
-    color: theme.palette.secondary.main,
+    color: theme.palette.lwTertiary.main,
   }
 })
 
