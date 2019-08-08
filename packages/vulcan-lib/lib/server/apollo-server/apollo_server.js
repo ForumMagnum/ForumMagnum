@@ -41,7 +41,7 @@ import { getApolloApplyMiddlewareOptions, getApolloServerOptions } from './setti
 import { getSetting } from '../../modules/settings.js';
 import { formatError } from 'apollo-errors';
 
-import timber from 'timber';
+//import timber from 'timber';
 const timberApiKey = getSetting('timber.apiKey');
 
 const sentryUrl = getSetting('sentry.url');

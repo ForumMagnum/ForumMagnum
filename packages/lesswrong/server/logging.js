@@ -1,5 +1,5 @@
-import { getSetting, addCallback } from 'meteor/vulcan:core';
-//imporj timber from 'timber';
+//import { getSetting, addCallback } from 'meteor/vulcan:core';
+//import timber from 'timber';
 
 /*function initializeTimber() {
   const timberApiKey = getSetting('timber.apiKey', null);
