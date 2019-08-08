@@ -11,11 +11,7 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import classNames from 'classnames';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import withRecordPostView from '../../common/withRecordPostView';
-<<<<<<< HEAD
-import { postsItemLikeStyles } from '../../localGroups/LocalGroupsItem.jsx';
-=======
 import withNewEvents from '../../../lib/events/withNewEvents.jsx';
->>>>>>> lw-devel
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 const DEFAULT_TOC_MARGIN = 100
