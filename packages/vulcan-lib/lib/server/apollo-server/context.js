@@ -82,8 +82,12 @@ export const computeContextFromUser = async (user, headers) => {
   return context;
 }
 
+export const getUserFromReq = async (req) => {
+  return getUser(getAuthToken(req));
+}
+
 // Returns a function called on every request to compute context
 export const computeContextFromReq = async (req) => {
-  const user = await getUser(getAuthToken(req));
+  const user = await getUserFromReq(req);
   return computeContextFromUser(user, req.headers);
 };

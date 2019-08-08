@@ -27,7 +27,12 @@ import { computeContextFromReq } from './context.js';
 
 import { GraphQLSchema } from '../../modules/graphql.js';
 
-import { enableSSR } from '../apollo-ssr';
+import { populateComponentsApp, populateRoutesApp, initializeFragments } from 'meteor/vulcan:lib';
+// onPageLoad is mostly equivalent to an Express middleware
+// excepts it is tailored to handle Meteor server side rendering
+import { onPageLoad } from 'meteor/server-render';
+
+import makePageRenderer from '../apollo-ssr/renderPage';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
 
@@ -106,7 +111,7 @@ export const createApolloServer = ({
   return apolloServer;
 };
 
-export const onStart = () => {
+Meteor.startup(() => {
   // Vulcan specific options
   const config = {
     path: '/graphql',
@@ -146,6 +151,11 @@ export const onStart = () => {
   //// other middlewares (dev tools etc.)
   // LW: Made available in production environment
   setupToolsMiddlewares(config);
-  // ssr
-  enableSSR();
-};
+  
+  // init the application components and routes, including components & routes from 3rd-party packages
+  initializeFragments();
+  populateComponentsApp();
+  populateRoutesApp();
+  // render the page
+  onPageLoad(makePageRenderer);
+});
