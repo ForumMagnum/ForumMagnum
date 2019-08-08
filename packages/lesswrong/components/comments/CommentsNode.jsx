@@ -292,7 +292,6 @@ class CommentsNode extends Component {
                     parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
                     toggleCollapse={this.toggleCollapse}
                     key={comment._id}
-                    scrollIntoView={this.scrollIntoView}
                     { ...passedThroughItemProps}
                   />
               }
