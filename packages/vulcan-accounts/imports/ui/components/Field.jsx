@@ -53,14 +53,23 @@ export class AccountsField extends PureComponent {
       defaultValue = '',
       message,
     } = this.props;
+    
     const { mount = true } = this.state;
-    if (type == 'notice') {
+    if (!mount)
+      return null;
+    
+    if (type == 'custom') {
+      const RenderCustom = this.props.renderCustom;
+      return <RenderCustom
+        onChange={onChange} defaultValue={defaultValue} id={id}
+      />
+    } else if (type == 'notice') {
       return <div className={ className }>{ label }</div>;
     }
     
     const autoComplete = autocompleteValues[id];
 
-    return mount ? (
+    return (
       <div className={ className } style={{marginBottom: '10px'}}>
         <Components.FormControl id={ id } type={ type } inputRef={ref => { this.input = ref; }} onChange={ onChange } placeholder={ hint } defaultValue={ defaultValue } autoComplete={autoComplete }/>
         {message && (
@@ -68,7 +77,7 @@ export class AccountsField extends PureComponent {
             {message.message}</span>
         )}
       </div>
-    ) : null;
+    );
   }
 }
 AccountsField.propTypes = {
