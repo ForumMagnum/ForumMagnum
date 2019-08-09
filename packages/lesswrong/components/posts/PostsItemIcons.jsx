@@ -34,7 +34,9 @@ const styles = theme => ({
 const PostsItemIcons = ({post, classes}) => {
   const { OmegaIcon } = Components;
 
-  const isPersonalBlogpost = !(post.frontpageDate || post.meta)
+  const isPersonalBlogpost = getSetting('forumType') === 'EAForum' ?
+    !(post.frontpageDate || post.meta) :
+    !post.frontpageDate
 
   return <span className={classes.iconSet}>
     {post.curatedDate && <span className={classes.postIcon}>

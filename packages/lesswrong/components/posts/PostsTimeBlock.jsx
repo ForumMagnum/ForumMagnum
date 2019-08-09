@@ -38,6 +38,20 @@ const styles = theme => ({
   divider: {/* Exists only to get overriden by the eaTheme */}
 })
 
+const defaultPostTypes = [
+  {name: 'frontpage', postIsType: post => !!post.frontpageDate, label: 'Frontpage Posts'},
+  {name: 'personal', postIsType: post => !post.frontpageDate, label: 'Personal Blogposts'}
+]
+const postTypes = {
+  LessWrong: defaultPostTypes,
+  AlignmentForum: defaultPostTypes,
+  EAForum: [
+    {name: 'frontpage', postIsType: post => !!post.frontpageDate, label: 'Frontpage Posts'},
+    {name: 'meta', postIsType: post => post.meta, label: 'Community Posts'},
+    {name: 'personal', postIsType: post => !(post.frontpageDate || post.meta), label: 'Personal Blogposts'}
+   ]
+}
+
 class PostsTimeBlock extends Component {
   constructor (props) {
     super(props)
@@ -103,18 +117,10 @@ class PostsTimeBlock extends Component {
       return null
     }
 
-    const frontpagePosts = _.filter(posts, (p) => p.frontpageDate)
-    const metaPosts = _.filter(posts, (p) => p.meta)
-    const personalBlogposts = _.filter(posts, (p) => !(p.frontpageDate || p.meta))
-
-    const postTypes = [
-      {name: 'frontpage', posts: frontpagePosts, label: 'Frontpage Posts'},
-      {
-        name: 'meta', posts: metaPosts,
-        label: getSetting('forumType') === 'EAForum' ? 'Community Posts' : 'Meta Posts'
-      },
-      {name: 'personal', posts: personalBlogposts, label: 'Personal Blogposts'},
-    ]
+    const postGroups = postTypes[getSetting('forumType')].map(type => ({
+      ...type,
+      posts: posts?.filter(type.postIsType)
+    }))
 
     return (
       <div className={classes.root}>
@@ -145,7 +151,7 @@ class PostsTimeBlock extends Component {
             }
           </div> }
 
-          {postTypes.map(({name, posts, label}) => {
+          {postGroups.map(({name, posts, label}) => {
             if (posts?.length > 0) return <div key={name}>
               <SectionSubtitle
                 className={name === 'frontpage' ? classes.frontpageSubtitle : classes.otherSubtitle}
