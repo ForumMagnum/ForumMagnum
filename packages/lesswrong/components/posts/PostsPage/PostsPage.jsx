@@ -28,7 +28,8 @@ const styles = theme => ({
     '@supports (grid-template-areas: "title")': {
       display: 'grid',
       gridTemplateColumns: `
-        1fr
+        .5fr
+        minmax(0px, ${DEFAULT_TOC_MARGIN}px)
         minmax(${MIN_TOC_WIDTH}px, ${MAX_TOC_WIDTH}px)
         minmax(0px, ${DEFAULT_TOC_MARGIN}px)
         minmax(min-content, ${MAX_COLUMN_WIDTH}px)
@@ -36,8 +37,8 @@ const styles = theme => ({
         1.5fr
       `,
       gridTemplateAreas: `
-        "... ... .... title   .... ..."
-        "... toc gap1 content gap2 ..."
+        "... .... ... .... title   .... ..."
+        "... gap0 toc gap1 content gap2 ..."
       `,
     },
     [theme.breakpoints.down('sm')]: {

@@ -11,15 +11,16 @@ import Tooltip from '@material-ui/core/Tooltip';
 import withDialog from '../../common/withDialog'
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
+import classNames from 'classnames';
 
 const styles = theme => ({
-  root: {
-    padding: '8px 14px 1px 14px',
+  moderationGuidelinesInner: {
+    paddingTop: theme.spacing.unit*2,
     cursor: 'pointer',
     position:"relative",
-    '&:hover': {
-      backgroundColor: 'rgba(0,0,0,0.05)'
-    }
+    backgroundColor: "white",
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle
   },
   assistance: {
     color: 'rgba(0,0,0,0.6)',
@@ -36,6 +37,7 @@ const styles = theme => ({
   'editButton': {
     position: 'absolute',
     right: 16,
+    top: -16,
     height: '0.8em'
   },
   collapse: {
@@ -45,35 +47,45 @@ const styles = theme => ({
     marginBottom: 4,
   },
   moderationGuidelines: {
-    '& p': {
+    '& p, & li': {
       marginTop: '.6em',
       marginBottom: '.6em'
+    },
+    '& ul': {
+      paddingInlineStart: '22px'
+    },
+    '& .dividerBlock': {
+      marginTop: 0,
+      marginBottom: 0,
     }
+  },
+  moderationOuterWrapper: {
+    position: "absolute",
+    [theme.breakpoints.up('md')]: {
+      left: "calc(100% + 26px)",
+      top: -66,
+      width: 220,
+    },
+    [theme.breakpoints.down('sm')]: {
+    }
+  },
+  moderationOutline: {
+    border: `solid 3px ${theme.palette.lwTertiary.main}`,
+    position: "absolute",
+    top: -26,
+    left: -12,
+    height: "calc(100% + 38px)",
+    width: "calc(100% + 22px)"
+  },
+  bigOutline: {
+    top: -48,
+    left: -13,
+    height: "calc(100% + 61px)",
+    width: "calc(100% + 26px)"
   }
 })
 
 class ModerationGuidelinesBox extends PureComponent {
-  constructor(props, context) {
-    super(props);
-    this.state = {
-      open: props && props.document && props.document.showModerationGuidelines,
-    }
-  }
-
-  handleClick = () => {
-    const { currentUser, recordEvent, document } = this.props
-    this.setState({open: !this.state.open})
-    if (currentUser) {
-      const eventProperties = {
-        userId: currentUser._id,
-        important: false,
-        intercom: true,
-        documentId: document && document.userId,
-        targetState: !this.state.open
-      };
-      recordEvent('toggled-user-moderation-guidelines', false, eventProperties);
-    }
-  }
 
   getModerationGuidelines = (document, classes) => {
     const moderationStyle = document.moderationStyle || (document.user && document.user.moderationStyle)
@@ -84,7 +96,7 @@ class ModerationGuidelinesBox extends PureComponent {
       Strict: false
     }
     const { html = "" } = document.moderationGuidelines
-    const userGuidelines = `${document.user ? `<b>${document.user.displayName + "'s commenting guidelines"}</b>: <span class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle] || ""}</span> <br/>` : ""}
+    const userGuidelines = `${document.user ? `<p><em>${document.user.displayName + "'s commenting guidelines"}</em></p> <span class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle] || ""}</span> <br/>` : ""}
     ${html || ""}`
 
     const combinedGuidelines = `
@@ -116,24 +128,26 @@ class ModerationGuidelinesBox extends PureComponent {
   }
 
   render() {
-    const { document, classes, currentUser } = this.props;
-    const { open } = this.state
+    const { document, classes, currentUser, postPageComment } = this.props;
     if (!document) return null
     
-    const { combinedGuidelines, truncatedGuidelines } = this.getModerationGuidelines(document, classes)
-    const displayedGuidelines = open ? combinedGuidelines : truncatedGuidelines
+    const { combinedGuidelines } = this.getModerationGuidelines(document, classes)
     return (
-      <div className={classes.root} onClick={this.handleClick}>
-        {Users.canModeratePost(currentUser, document) &&
-          <span onClick={this.openEditDialog}>
-            <Tooltip title="Edit moderation guidelines">
-              <Edit className={classes.editButton} />
-            </Tooltip>
-          </span>
-        }
-        <div className={classes.moderationGuidelines}>
-          <div dangerouslySetInnerHTML={{__html: displayedGuidelines}}/>
-          {open && (displayedGuidelines.length > 250) && <a className={classes.collapse}>(Click to Collapse)</a>}
+      <div>
+        <div className={classNames(classes.moderationOutline, {[classes.bigOutline]:postPageComment})}></div>
+        <div className={classes.moderationOuterWrapper}>
+          <div className={classes.moderationGuidelinesInner} onClick={this.handleClick}>
+            {Users.canModeratePost(currentUser, document) &&
+              <span onClick={this.openEditDialog}>
+                <Tooltip title="Edit moderation guidelines">
+                  <Edit className={classes.editButton} />
+                </Tooltip>
+              </span>
+            }
+            <div className={classes.moderationGuidelines}>
+              <div dangerouslySetInnerHTML={{__html: combinedGuidelines}}/>
+            </div>
+          </div>
         </div>
       </div>
     )
@@ -141,9 +155,9 @@ class ModerationGuidelinesBox extends PureComponent {
 }
 
 const moderationStyleLookup = {
-  'norm-enforcing': "Norm Enforcing - I try to enforce particular rules (see below)",
-  'reign-of-terror': "Reign of Terror - I delete anything I judge to be annoying or counterproductive",
-  'easy-going': "Easy Going - I just delete obvious spam and trolling."
+  'norm-enforcing': "<b>Norm Enforcing</b><br/> I try to enforce particular rules",
+  'reign-of-terror': "<b>Reign of Terror</b><br/> I delete anything I judge to be counterproductive",
+  'easy-going': "<b>Easy Going</b><br/> I just delete obvious spam and trolling."
 }
 
 const queryOptions = {

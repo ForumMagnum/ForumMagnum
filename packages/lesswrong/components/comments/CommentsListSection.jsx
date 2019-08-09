@@ -138,14 +138,11 @@ class CommentsListSection extends Component {
   }
 
   render() {
-    const { currentUser, comments, post, classes, totalComments, parentAnswerId, startThreadTruncated, newForm=true, guidelines=true } = this.props;
+    const { currentUser, comments, post, classes, totalComments, parentAnswerId, startThreadTruncated, newForm=true } = this.props;
     // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
     return (
       <div className={classes.root}>
-        {guidelines && <div className={classes.moderationGuidelinesWrapper}>
-          <Components.ModerationGuidelinesBox documentId={post._id} showModeratorAssistance />
-        </div>}
         { this.props.totalComments ? this.renderTitleComponent() : null }
         <div id="comments"/>
 
@@ -157,6 +154,7 @@ class CommentsListSection extends Component {
               prefilledProps={{
                 parentAnswerId: parentAnswerId}}
               type="comment"
+              postPageComment
             />
           </div>
         }

@@ -1,5 +1,5 @@
 import { Components, registerComponent, getFragment, getSetting } from 'meteor/vulcan:core';
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Comments } from '../../lib/collections/comments';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
@@ -12,6 +12,7 @@ import withDialog from '../common/withDialog';
 
 const styles = theme => ({
   root: {
+    position: "relative"
   },
   modNote: {
     paddingTop: '4px',
@@ -34,7 +35,10 @@ const styles = theme => ({
   }
 });
 
-const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, currentUser, fragment = "CommentsList"}) => {
+const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, currentUser, fragment = "CommentsList", postPageComment}) => {
+  const { WrappedSmartForm, ModerationGuidelinesBox } = Components
+  const [showModerationGuidelines, setShowModerationGuidelines] = useState(null);
+
   prefilledProps = {
     ...prefilledProps,
     af: Comments.defaultToAlignment(currentUser, post, parentComment),
@@ -87,12 +91,19 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
   const commentWillBeHidden = getSetting('hideUnreviewedAuthorComments') && currentUser && !currentUser.isReviewed
 
   return (
-    <div className={classes.root}>
+    <div 
+      className={classNames(classes.root)} 
+      onClick={() => setShowModerationGuidelines(true)} 
+      onBlur={() => setShowModerationGuidelines(false)}
+    >
+      {showModerationGuidelines && post && <div className={classes.moderationWrapper}>
+        <ModerationGuidelinesBox documentId={post._id} showModeratorAssistance postPageComment={postPageComment} />
+      </div>}
       {commentWillBeHidden && <div className={classes.modNote}><em>
         A moderator will need to review your account before your comments will show up.
       </em></div>}
 
-      <Components.WrappedSmartForm
+      <WrappedSmartForm
         collection={Comments}
         mutationFragment={getFragment(fragment)}
         successCallback={successCallback}

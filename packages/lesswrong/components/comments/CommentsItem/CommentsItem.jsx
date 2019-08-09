@@ -84,9 +84,13 @@ export const styles = theme => ({
     fontSize: 12,
   },
   replyForm: {
-    marginTop: 15,
+    marginTop: theme.spacing.unit,
     padding: 10,
-    border: "solid 1px rgba(0,0,0,.2)",
+    marginLeft: 9,
+    marginBottom: theme.spacing.unit,
+    borderLeft: "solid 1px rgba(0,0,0,.15)",
+    borderTop: "solid 1px rgba(0,0,0,.15)",
+    borderBottom: "solid 1px rgba(0,0,0,.15)",
   },
   deleted: {
     backgroundColor: "#ffefef",
@@ -164,62 +168,64 @@ class CommentsItem extends Component {
     }
     
     return (
-      <div className={
-        classNames(
-          classes.root,
-          "comments-item",
-          "recent-comments-node",
-          {
-            [classes.deleted]: comment.deleted && !comment.deletedPublic,
-          },
-        )}
-      >
-        { comment.parentCommentId && this.state.showParent && (
-          <div className={classes.firstParentComment}>
-            <Components.ParentCommentSingle
-              post={post}
-              currentUser={currentUser}
-              documentId={comment.parentCommentId}
-              nestingLevel={nestingLevel - 1}
-              truncated={false}
-              key={comment.parentCommentId}
-            />
-          </div>
-        )}
-
-        <div className={classes.body}>
-          <div className={classes.meta}>
-            { !this.state.showParent && parentCommentId!=comment.parentCommentId &&
-              <ShowParentComment
-                comment={comment} nestingLevel={nestingLevel}
-                active={this.state.showParent}
-                onClick={this.toggleShowParent}
-                placeholderIfMissing={isParentComment}
+      <div>
+        <div className={
+          classNames(
+            classes.root,
+            "comments-item",
+            "recent-comments-node",
+            {
+              [classes.deleted]: comment.deleted && !comment.deletedPublic,
+            },
+          )}
+        >
+          { comment.parentCommentId && this.state.showParent && (
+            <div className={classes.firstParentComment}>
+              <Components.ParentCommentSingle
+                post={post}
+                currentUser={currentUser}
+                documentId={comment.parentCommentId}
+                nestingLevel={nestingLevel - 1}
+                truncated={false}
+                key={comment.parentCommentId}
               />
-            }
-            { !this.state.showParent && !parentCommentId && !comment.parentCommentId && isParentComment &&
-              <div className={classes.usernameSpacing}>○</div>
-            }
-            { (postPage || this.props.collapsed) && <a className={classes.collapse} onClick={this.props.toggleCollapse}>
-              [<span>{this.props.collapsed ? "+" : "-"}</span>]
-            </a>
-            }
-            <CommentUserName comment={comment}/>
-            <CommentsItemDate
-              comment={comment} post={post}
-              showPostTitle={showPostTitle}
-              scrollIntoView={scrollIntoView}
-              scrollOnClick={postPage && !isParentComment}
-            />
-            <Components.CommentsVote comment={comment} currentUser={currentUser} />
-            
-            {!isParentComment && this.renderMenu()}
-            <span className={classes.outdatedWarning}>
-              <Components.CommentOutdatedWarning comment={comment} post={post} />
-            </span>
+            </div>
+          )}
+
+          <div className={classes.body}>
+            <div className={classes.meta}>
+              { !this.state.showParent && parentCommentId!=comment.parentCommentId &&
+                <ShowParentComment
+                  comment={comment} nestingLevel={nestingLevel}
+                  active={this.state.showParent}
+                  onClick={this.toggleShowParent}
+                  placeholderIfMissing={isParentComment}
+                />
+              }
+              { !this.state.showParent && !parentCommentId && !comment.parentCommentId && isParentComment &&
+                <div className={classes.usernameSpacing}>○</div>
+              }
+              { (postPage || this.props.collapsed) && <a className={classes.collapse} onClick={this.props.toggleCollapse}>
+                [<span>{this.props.collapsed ? "+" : "-"}</span>]
+              </a>
+              }
+              <CommentUserName comment={comment}/>
+              <CommentsItemDate
+                comment={comment} post={post}
+                showPostTitle={showPostTitle}
+                scrollIntoView={scrollIntoView}
+                scrollOnClick={postPage && !isParentComment}
+              />
+              <Components.CommentsVote comment={comment} currentUser={currentUser} />
+              
+              {!isParentComment && this.renderMenu()}
+              <span className={classes.outdatedWarning}>
+                <Components.CommentOutdatedWarning comment={comment} post={post} />
+              </span>
+            </div>
+            {this.renderBodyOrEditor()}
+            {!comment.deleted && !collapsed && this.renderCommentBottom()}
           </div>
-          {this.renderBodyOrEditor()}
-          {!comment.deleted && !collapsed && this.renderCommentBottom()}
         </div>
         { this.state.showReply && !this.props.collapsed && this.renderReply() }
       </div>
