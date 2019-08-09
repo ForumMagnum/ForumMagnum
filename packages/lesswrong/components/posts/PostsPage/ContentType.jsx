@@ -6,7 +6,6 @@ import Tooltip from '@material-ui/core/Tooltip';
 import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
 import GroupIcon from '@material-ui/icons/Group';
-import DetailsIcon from '@material-ui/icons/Details';
 import SubjectIcon from '@material-ui/icons/Subject';
 
 const styles = theme => ({
