@@ -9,7 +9,8 @@ class RecommendationsList extends Component {
     const { PostsItem2, PostsLoading, SectionFooter, LoginPopupButton } = Components;
     if (recommendationsLoading || !recommendations)
       return <PostsLoading/>
-    
+
+    // TODO;(EA Forum) Change tooltip
     const improvedRecommendationsTooltip = <div>
       LessWrong keeps track of what recommended posts logged-in users have read. Login to get recommended posts you haven't read before.
     </div>
@@ -32,4 +33,3 @@ registerComponent('RecommendationsList', RecommendationsList,
   withRecommendations,
   withUser
 );
-
