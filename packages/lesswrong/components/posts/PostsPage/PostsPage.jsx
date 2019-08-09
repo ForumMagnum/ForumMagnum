@@ -1,4 +1,4 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { withLocation } from '../../../lib/routeUtil';
 import { Posts } from '../../../lib/collections/posts';
@@ -191,6 +191,15 @@ const styles = theme => ({
   }
 })
 
+const getContentType = (post) => {
+  if (getSetting('forumType') === 'EAForum') {
+    return (post.frontpageDate && 'frontpage') ||
+    (post.meta && 'meta') ||
+    'personal'
+  }
+  return post.frontpageDate ? 'frontpage' : 'personal'
+}
+
 // On the server, use the 'url' library for parsing hostname out of feed URLs.
 // On the client, we instead create an <a> tag, set its href, and extract
 // properties from that. (There is a URL class which theoretically would work,
@@ -251,9 +260,7 @@ class PostsPage extends Component {
       const feedLink = post.feed && post.feed.url && getHostname(post.feed.url)
       const { major } = extractVersionsFromSemver(post.version)
       const hasMajorRevision = major > 1
-      const contentType = (post.frontpageDate && 'frontpage') ||
-        (post.meta && 'meta') ||
-        'personal'
+      const contentType = getContentType(post)
 
       return (
         <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>

@@ -43,20 +43,6 @@ const contentTypes = {
       </React.Fragment>,
       Icon: HomeIcon
     },
-    meta: {
-      tooltipTitle: 'Meta Post',
-      // TODO-PR: LW, you'll want your own copy here, this is a new section
-      // (Previously y'all were just grouping with personal blog)
-      tooltipBody: <React.Fragment>
-        <div>Moderators promote posts to meta based on:</div>
-        <ul>
-          <li>Uselessness, redundance, triviality</li>
-          <li>Ephemeral content</li>
-          <li>Aiming to persuade, rather than explain</li>
-        </ul>
-      </React.Fragment>,
-      Icon: DetailsIcon
-    },
     personal: {
       tooltipTitle: 'Personal Blog Post',
       tooltipBody: <React.Fragment>
@@ -66,7 +52,6 @@ const contentTypes = {
         </div>
         <ul>
           <li>Niche topics</li>
-          {/* TODO-PR: Maybe edit this bullet item? */}
           <li>Meta-discussion of LessWrong (site features, interpersonal community dynamics)</li>
           <li>Topics that are difficult to discuss rationally</li>
           <li>Personal ramblings</li>
@@ -97,20 +82,6 @@ const contentTypes = {
       </React.Fragment>,
       Icon: HomeIcon
     },
-    meta: {
-      tooltipTitle: 'Meta Post',
-      // TODO-PR: LW, you'll want your own copy here, this is a new section
-      // (Previously y'all were just grouping with personal blog)
-      tooltipBody: <React.Fragment>
-        <div>Moderators promote posts to meta based on:</div>
-        <ul>
-          <li>Uselessness, redundance, triviality</li>
-          <li>Ephemeral content</li>
-          <li>Aiming to persuade, rather than explain</li>
-        </ul>
-      </React.Fragment>,
-      Icon: DetailsIcon
-    },
     personal: {
       tooltipTitle: 'Personal Blog Post',
       tooltipBody: <React.Fragment>
@@ -120,7 +91,6 @@ const contentTypes = {
         </div>
         <ul>
           <li>Niche topics</li>
-          {/* TODO-PR: Maybe edit this bullet item? */}
           <li>Meta-discussion of LessWrong (site features, interpersonal community dynamics)</li>
           <li>Topics that are difficult to discuss rationally</li>
           <li>Personal ramblings</li>
