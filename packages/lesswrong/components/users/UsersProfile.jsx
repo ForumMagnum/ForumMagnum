@@ -190,7 +190,7 @@ class UsersProfile extends Component {
       return <Components.Error404/>
     }
 
-    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsIcon } = Components
+    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsIcon, ContentItemBody } = Components
 
     const user = document;
 
@@ -250,7 +250,7 @@ class UsersProfile extends Component {
             </Link>}
           </SectionFooter>
 
-          { user.bio && <div className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} /> }
+          { user.bio && <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} /> }
 
         </SingleColumnSection>
 

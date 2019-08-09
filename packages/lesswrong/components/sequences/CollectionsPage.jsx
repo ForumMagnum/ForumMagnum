@@ -61,7 +61,8 @@ class CollectionsPage extends Component {
 
   render() {
     const {document, currentUser, loading, classes} = this.props;
-    const { TabNavigationMenu, SingleColumnSection, BooksItem, BooksNewForm, SectionButton } = Components
+    const { TabNavigationMenu, SingleColumnSection, BooksItem, BooksNewForm,
+      SectionButton, ContentItemBody } = Components
     if (loading || !document) {
       return <Components.Loading />;
     } else if (this.state.edit) {
@@ -83,7 +84,7 @@ class CollectionsPage extends Component {
             {canEdit && <SectionButton><a onClick={this.showEdit}>Edit</a></SectionButton>}
 
             <div className={classes.description}>
-              {html && <div dangerouslySetInnerHTML={{__html: html}}/>}
+              {html && <ContentItemBody dangerouslySetInnerHTML={{__html: html}}/>}
             </div>
 
             <Button
