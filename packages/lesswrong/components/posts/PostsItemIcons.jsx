@@ -6,6 +6,10 @@ import Tooltip from '@material-ui/core/Tooltip';
 import StarIcon from '@material-ui/icons/Star';
 import PersonIcon from '@material-ui/icons/Person';
 import DetailsIcon from '@material-ui/icons/Details';
+import GroupIcon from '@material-ui/icons/Group';
+
+const MetaTitle = getSetting('forumType') === 'EAForum' ? 'Community Post' : 'Meta Post'
+const MetaIcon = getSetting('forumType') === 'EAForum' ? GroupIcon : DetailsIcon
 
 const styles = theme => ({
   iconSet: {
@@ -29,26 +33,30 @@ const styles = theme => ({
 
 const PostsItemIcons = ({post, classes}) => {
   const { OmegaIcon } = Components;
-  
+
+  const isPersonalBlogpost = getSetting('forumType') === 'EAForum' ?
+    !(post.frontpageDate || post.meta) :
+    !post.frontpageDate
+
   return <span className={classes.iconSet}>
     {post.curatedDate && <span className={classes.postIcon}>
       <Tooltip title="Curated Post">
         <StarIcon className={classes.icon}/>
       </Tooltip>
     </span>}
-    
-    {!post.frontpageDate && <span className={classes.postIcon}>
+
+    {isPersonalBlogpost && <span className={classes.postIcon}>
       <Tooltip title="Personal Blogpost">
         <PersonIcon className={classes.icon}/>
       </Tooltip>
     </span>}
-    
+
     {post.meta && <span className={classes.postIcon}>
-      <Tooltip title="Meta Post">
-        <DetailsIcon  className={classes.icon}/>
+      <Tooltip title={MetaTitle}>
+        <MetaIcon className={classes.icon}/>
       </Tooltip>
     </span>}
-    
+
     {getSetting('forumType') !== 'AlignmentForum' && post.af &&
       <span className={classes.postIcon}>
         <Tooltip title="Crossposted from AlignmentForum.org">
