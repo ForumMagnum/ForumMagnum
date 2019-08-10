@@ -74,7 +74,7 @@ export function registerComponent(name, rawComponent, ...hocs) {
  * @param {String} name The name of the component to get.
  * @returns {Function|React Component} A (wrapped) React component
  */
-export const getComponent = name => {
+const getComponent = name => {
   const component = ComponentsTable[name];
   if (!component) {
     throw new Error(`Component ${name} not registered.`);
@@ -137,7 +137,7 @@ export const instantiateComponent = (component, props) => {
   if (!component) {
     return null;
   } else if (typeof component === 'string') {
-    const Component = getComponent(component);
+    const Component = Components[component];
     return <Component {...props} />;
   } else if (
     typeof component === 'function' &&
