@@ -173,7 +173,7 @@ class CommentsNode extends Component {
       markAsRead && markAsRead()
       this.setState({truncated: false, singleLine: false, truncatedStateSet: true});
       if (scrollOnExpand) {
-        this.scrollIntoView("auto")
+        this.scrollIntoView("auto") // should scroll instantly
       }
     }
   }
