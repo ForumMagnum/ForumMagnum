@@ -7,8 +7,13 @@ let componentsPopulated = false;
 
 const componentsProxyHandler = {
   get: function(obj, prop) {
-    if (prop in obj)
+    if (prop in obj) {
       return obj[prop];
+    }
+    else if (prop in ComponentsTable) {
+      obj[prop] = getComponent(prop);
+      return obj[prop];
+    }
     
     console.error(`Missing component: ${prop}`);
   }
@@ -120,15 +125,6 @@ const getComponent = name => {
  **/
 export const populateComponentsApp = () => {
   const registeredComponents = Object.keys(ComponentsTable);
-
-  // loop over each component in the list
-  registeredComponents.map(name => {
-    // populate an entry in the lookup table
-    Components[name] = getComponent(name);
-
-    // uncomment for debug
-    // console.log('init component:', name);
-  });
 
   const missingComponents = difference(coreComponents, registeredComponents);
 
