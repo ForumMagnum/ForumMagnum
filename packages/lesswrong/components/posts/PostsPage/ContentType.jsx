@@ -67,7 +67,6 @@ const contentTypes = {
       Icon: SubjectIcon
     }
   },
-  // TODO-PR: LW, do you want this to be a different section?
   AlignmentForum: {
     frontpage: {
       tooltipTitle: 'Frontpage Post',
