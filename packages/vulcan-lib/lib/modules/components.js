@@ -80,6 +80,10 @@ export function registerComponent(name, rawComponent, ...hocs) {
   
   rawComponent.displayName = name;
   
+  if (name in ComponentsTable && ComponentsTable[name].rawComponent !== rawComponent) {
+    throw new Error(`Two components with the same name: ${name}`);
+  }
+  
   // store the component in the table
   ComponentsTable[name] = {
     name,
