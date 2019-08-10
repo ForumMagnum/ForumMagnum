@@ -109,7 +109,6 @@ class CommentsNode extends Component {
       singleLine: this.beginSingleLine(),
       truncatedStateSet: false,
       highlighted: false,
-      finishedScroll: false,
     };
     this.scrollTargetRef = React.createRef();
   }
@@ -155,9 +154,12 @@ class CommentsNode extends Component {
     }
   }
 
-  scrollIntoView = (event) => {
-    this.scrollTargetRef.current?.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
-    this.setState({finishedScroll: true});
+  scrollIntoView = (behavior="smooth") => {
+    this.scrollTargetRef.current?.scrollIntoView({behavior: behavior, block: "center", inline: "nearest"});
+    this.setState({highlighted: true})
+    setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
+      this.setState({highlighted: false})
+    }, HIGHLIGHT_DURATION*1000);
   }
 
   toggleCollapse = () => {
@@ -165,16 +167,13 @@ class CommentsNode extends Component {
   }
 
   handleExpand = (event) => {
-    const { comment, markAsRead, scrollOnExpand } = this.props
+    const { markAsRead, scrollOnExpand } = this.props
     event.stopPropagation()
     if (this.isTruncated() || this.isSingleLine()) {
       markAsRead && markAsRead()
-      this.setState({truncated: false, singleLine: false, truncatedStateSet: true, highlighted: true});
+      this.setState({truncated: false, singleLine: false, truncatedStateSet: true});
       if (scrollOnExpand) {
-        this.scrollTargetRef.current?.scrollIntoView()
-        setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
-          this.setState({highlighted: false})
-        }, HIGHLIGHT_DURATION*1000);
+        this.scrollIntoView("auto")
       }
     }
   }
