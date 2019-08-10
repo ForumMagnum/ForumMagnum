@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, withEdit, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, withUpdate, getSetting } from 'meteor/vulcan:core';
 import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
 import NoSSR from 'react-no-ssr';
 import Headroom from 'react-headroom'
@@ -197,7 +197,8 @@ class Header extends Component {
   }
 
   render() {
-    const { currentUser, classes, theme, searchResultsArea, toc } = this.props
+    // TODO;(EA Forum) Will need to trim some props
+    const { currentUser, classes, location, routes, params, client, theme, searchResultsArea, toc } = this.props
     const { notificationOpen, notificationHasOpened, navigationOpen, headroomPinnedOpen } = this.state
     const routeName = routes[1].name
     const query = location && location.query
@@ -276,11 +277,12 @@ Header.propTypes = {
   searchResultsArea: PropTypes.object,
 };
 
-// TODO;
+// TODO;(EA Forum) Rename to edit
 
-const withEditOptions = {
+const withUpdateOptions = {
   collection: Users,
   fragmentName: 'UsersCurrent',
 };
 
-registerComponent('Header', Header, withErrorBoundary, [withUpdate, withUpdateOptions], withUser, withStyles(styles, { name: 'Header'}), withTheme());
+// TODO;(EA Forum) remove withApollo
+registerComponent('Header', Header, withErrorBoundary, withRouter, withApollo, [withUpdate, withUpdateOptions], withUser, withStyles(styles, { name: 'Header'}), withTheme());

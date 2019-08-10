@@ -59,7 +59,7 @@ const styles = theme => ({
   },
 })
 
-const TabNavigationItem = ({tab, onClick, classes}) => {
+const TabNavigationItem = ({tab, onClick, location, classes}) => {
   const { TabNavigationSubItem } = Components
   const { pathname } = location
 

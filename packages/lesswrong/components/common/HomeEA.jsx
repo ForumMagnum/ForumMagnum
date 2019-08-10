@@ -2,14 +2,14 @@ import { Components, registerComponent } from 'meteor/vulcan:core'
 import { getSetting } from 'meteor/vulcan:lib'
 import React, { PureComponent } from 'react'
 import withUser from '../common/withUser'
+import { SplitComponent } from 'meteor/vulcan:routing'
 import Users from 'meteor/vulcan:users'
 
 class HomeEA extends PureComponent {
   render () {
     const { currentUser } = this.props
-    const { showShortformFeed } = this.state
 
-    // TODO;
+    // TODO;(EA Forum)
     const {
       SingleColumnSection,
       SectionTitle,

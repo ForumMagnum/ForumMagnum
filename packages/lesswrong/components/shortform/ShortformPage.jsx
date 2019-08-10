@@ -1,12 +1,8 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 
-const styles = theme => ({
-  column: {
-    width:680,
-    margin:"auto"
-  }
-})
+// TODO;(EA Forum) Confirm that we get the styles back a la
+// https://github.com/LessWrong2/Lesswrong2/blame/master/packages/lesswrong/components/shortform/ShortformPage.jsx
 
 const ShortformPage = ({classes}) => {
   const { SingleColumnSection, ShortformThreadList, SectionTitle } = Components
@@ -21,4 +17,4 @@ const ShortformPage = ({classes}) => {
   )
 }
 
-registerComponent('ShortformPage', ShortformPage, withStyles(styles, {name:"ShortformPage"}));
+registerComponent('ShortformPage', ShortformPage);

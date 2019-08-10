@@ -1,13 +1,8 @@
 import { Components, registerComponent, getSetting, withUpdate } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
+import { withRouter } from '../lib/reactRouterWrapper.js';
 import Users from 'meteor/vulcan:users';
-<<<<<<< HEAD
 import Helmet from 'react-helmet';
-// TODO;
-import { withApollo } from 'react-apollo';
-=======
-import { Helmet } from 'react-helmet';
->>>>>>> 2407c66f7... fix merge misses
 import CssBaseline from '@material-ui/core/CssBaseline';
 import classNames from 'classnames'
 import Intercom from 'react-intercom';
@@ -173,7 +168,8 @@ class Layout extends PureComponent {
   }
 
   render () {
-    const {currentUser, location, children, classes, theme} = this.props;
+    // TODO;(EA Forum) remove unncecssary params
+    const {currentUser, currentRoute, location, params, client, children, classes, theme} = this.props;
     const {hideNavigationSidebar} = this.state
 
     const showIntercom = currentUser => {
@@ -271,6 +267,6 @@ const withUpdateOptions = {
 }
 
 registerComponent(
-  'Layout', Layout, withLocation, withCookies, [withUpdate, withUpdateOptions],
+  'Layout', Layout, withRouter, withCookies, [withUpdate, withUpdateOptions],
   withStyles(styles, { name: "Layout" }), withTheme()
 );
