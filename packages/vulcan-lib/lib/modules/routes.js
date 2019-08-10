@@ -118,23 +118,11 @@ export const addAsChildRoute = (parentRouteName, addedRoutes) => {
 
 export const getRoute = name => {
   const routeDef = RoutesTable[name];
-
-  // components should be loaded by now (populateComponentsApp function), we can grab the component in the lookup table and assign it to the route
-  if (!routeDef.component && routeDef.componentName) {
-    routeDef.component = Components[routeDef.componentName];
-  }
-
   return routeDef;
 };
 
 export const getChildRoute = (name, index) => {
   const routeDef = RoutesTable[name]['childRoutes'][index];
-
-  // components should be loaded by now (populateComponentsApp function), we can grab the component in the lookup table and assign it to the route
-  if (!routeDef.component && routeDef.componentName) {
-    routeDef.component = Components[routeDef.componentName];
-  }
-
   return routeDef;
 };
 
