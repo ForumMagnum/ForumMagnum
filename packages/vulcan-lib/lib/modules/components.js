@@ -7,23 +7,23 @@ let componentsPopulated = false;
 
 const componentsProxyHandler = {
   get: function(obj, prop) {
-    if (prop in obj) {
-      return obj[prop];
+    if (prop in PreparedComponents) {
+      return PreparedComponents[prop];
+    } else {
+      return prepareComponent(prop);
     }
-    else if (prop in ComponentsTable) {
-      obj[prop] = getComponent(prop);
-      return obj[prop];
-    }
-    
-    console.error(`Missing component: ${prop}`);
   }
 }
 
 // will be populated on startup (see vulcan:routing)
 export const Components = new Proxy({}, componentsProxyHandler);
 
+const PreparedComponents = {};
+
 // storage for infos about components
 export const ComponentsTable = {};
+
+const DeferredComponentsTable = {};
 
 export const coreComponents = [
   'Alert',
@@ -92,6 +92,35 @@ export function registerComponent(name, rawComponent, ...hocs) {
   };
 }
 
+export function importComponent(componentName, importFn) {
+  if (Array.isArray(componentName)) {
+    for (let name of componentName) {
+      DeferredComponentsTable[name] = importFn;
+    }
+  } else {
+    DeferredComponentsTable[componentName] = importFn;
+  }
+}
+
+function prepareComponent(componentName)
+{
+  if (componentName in PreparedComponents) {
+    return PreparedComponents[componentName];
+  } else if (componentName in ComponentsTable) {
+    PreparedComponents[componentName] = getComponent(componentName);
+    return PreparedComponents[componentName];
+  } else if (componentName in DeferredComponentsTable) {
+    DeferredComponentsTable[componentName]();
+    if (!(componentName in ComponentsTable)) {
+      throw new Error(`Import did not provide component ${componentName}`);
+    }
+    return prepareComponent(componentName);
+  } else {
+    console.error(`Missing component: ${componentName}`);
+    return null;
+  }
+}
+
 /**
  * Get a component registered with registerComponent(name, component, ...hocs).
  *
@@ -128,9 +157,12 @@ const getComponent = name => {
  * ℹ️ Called once on app startup
  **/
 export const populateComponentsApp = () => {
-  const registeredComponents = Object.keys(ComponentsTable);
-
-  const missingComponents = difference(coreComponents, registeredComponents);
+  const missingComponents = [];
+  for (let coreComponent of coreComponents) {
+    if (!(coreComponent in ComponentsTable) && !(coreComponent in DeferredComponentsTable)) {
+      missingComponents.push(coreComponent);
+    }
+  }
 
   if (missingComponents.length) {
     // eslint-disable-next-line no-console
