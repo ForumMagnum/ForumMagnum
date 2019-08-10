@@ -106,7 +106,7 @@ class RecentDiscussionThread extends PureComponent {
   }
 
   render() {
-    const { post, comments, updateComment, currentUser, classes, isRead, refetch, expandAll } = this.props
+    const { post, comments, updateComment, currentUser, classes, isRead, refetch, expandAllThreads } = this.props
     const { readStatus, showHighlight, markedAsVisitedAt } = this.state
     const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle } = Components
 
@@ -158,7 +158,7 @@ class RecentDiscussionThread extends PureComponent {
               <div key={comment.item._id}>
                 <CommentsNode
                   startThreadTruncated={true}
-                  expandAllThreads={expandAll}
+                  expandAllThreads={expandAllThreads}
                   nestingLevel={1}
                   lastCommentId={lastCommentId}
                   currentUser={currentUser}
