@@ -9,6 +9,7 @@ import withUser from '../common/withUser';
 import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
+const HIGHLIGHT_DURATION = 5
 
 const styles = theme => ({
   node: {
@@ -66,7 +67,7 @@ const styles = theme => ({
     borderBottom: "none",
     borderTop: "solid 1px rgba(0,0,0,.15)",
     '&.comments-node-root':{
-      marginBottom: 6,
+      marginBottom: -1,
       borderBottom: "solid 1px rgba(0,0,0,.2)",
     }
   },
@@ -82,6 +83,13 @@ const styles = theme => ({
   },
   children: {
     position: "relative"
+  },
+  '@keyframes higlight-animation': {
+    from: {backgroundColor: theme.palette.lwTertiary.light},
+    to: {backgroundColor: "none"}
+  },
+  highlightAnimation: {
+    animation: `higlight-animation ${HIGHLIGHT_DURATION}s ease-in-out 0s;`
   },
   gapIndicator: {
     border: `solid 1px ${theme.palette.grey[300]}`,
@@ -100,6 +108,7 @@ class CommentsNode extends Component {
       truncated: this.beginTruncated(),
       singleLine: this.beginSingleLine(),
       truncatedStateSet: false,
+      highlighted: false,
       finishedScroll: false,
     };
     this.scrollTargetRef = React.createRef();
@@ -139,10 +148,9 @@ class CommentsNode extends Component {
   componentDidMount() {
     const { comment, post, location } = this.props
     let commentHash = location.hash;
-    const self = this;
     if (comment && commentHash === ("#" + comment._id) && post) {
-      setTimeout(function () { //setTimeout make sure we execute this after the element has properly rendered
-        self.scrollIntoView()
+      setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
+        this.scrollIntoView()
       }, 0);
     }
   }
@@ -156,11 +164,18 @@ class CommentsNode extends Component {
     this.setState({collapsed: !this.state.collapsed});
   }
 
-  unTruncate = (event) => {
+  handleExpand = (event) => {
+    const { comment, markAsRead, scrollOnExpand } = this.props
     event.stopPropagation()
     if (this.isTruncated() || this.isSingleLine()) {
-      this.props.markAsRead && this.props.markAsRead()
-      this.setState({truncated: false, singleLine: false, truncatedStateSet: true});
+      markAsRead && markAsRead()
+      this.setState({truncated: false, singleLine: false, truncatedStateSet: true, highlighted: true});
+      if (scrollOnExpand) {
+        this.scrollTargetRef.current?.scrollIntoView()
+        setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
+          this.setState({highlighted: false})
+        }, HIGHLIGHT_DURATION*1000);
+      }
     }
   }
 
@@ -220,16 +235,16 @@ class CommentsNode extends Component {
 
   render() {
     const { comment, children, nestingLevel=1, highlightDate, updateComment, post,
-      muiTheme, location, postPage, classes, child, showPostTitle, unreadComments,
+      muiTheme, postPage, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments,
-      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash } = this.props;
+      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand } = this.props;
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList } = Components
 
     if (!comment || !post)
       return null;
 
-    const { collapsed, finishedScroll } = this.state
+    const { collapsed, highlighted } = this.state
 
     const newComment = this.isNewComment()
 
@@ -245,7 +260,7 @@ class CommentsNode extends Component {
         "comments-node-root" : updatedNestingLevel === 1,
         "comments-node-even" : updatedNestingLevel % 2 === 0,
         "comments-node-odd"  : updatedNestingLevel % 2 !== 0,
-        "comments-node-linked" : location.hash === "#" + comment._id && finishedScroll,
+        [classes.highlightAnimation] : highlighted,
         "comments-node-its-getting-nested-here": updatedNestingLevel > 8,
         "comments-node-so-take-off-all-your-margins": updatedNestingLevel > 12,
         "comments-node-im-getting-so-nested": updatedNestingLevel > 16,
@@ -270,12 +285,12 @@ class CommentsNode extends Component {
     )
 
     const passedThroughItemProps = { post, postPage, comment, updateComment, showPostTitle, collapsed, refetch }
-    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, updateComment, condensed, hideReadComments, refetch }
+    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, updateComment, condensed, hideReadComments, refetch, scrollOnExpand }
 
     return (
         <div className={comment.gapIndicator && classes.gapIndicator}>
           <div className={nodeClass}
-            onClick={(event) => this.unTruncate(event)}
+            onClick={(event) => this.handleExpand(event)}
             id={!noHash ? comment._id : undefined}
           >
             {!hiddenReadComment && comment._id && <div ref={this.scrollTargetRef}>
