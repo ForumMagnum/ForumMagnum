@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import ReactDOM from 'react-dom';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -79,18 +80,30 @@ class ContentItemBody extends Component {
   constructor(props) {
     super(props);
     this.bodyRef = React.createRef();
+    this.replacedElements = [];
   }
   
   render() {
-    return <div
-      className={this.props.className}
-      ref={this.bodyRef}
-      dangerouslySetInnerHTML={this.props.dangerouslySetInnerHTML}
-    />
+    return (<React.Fragment>
+      <div
+        className={this.props.className}
+        ref={this.bodyRef}
+        dangerouslySetInnerHTML={this.props.dangerouslySetInnerHTML}
+      />
+      {
+        this.replacedElements.map(replaced => {
+          return ReactDOM.createPortal(
+            replaced.replacementElement,
+            replaced.container
+          );
+        })
+      }
+    </React.Fragment>);
   }
   
   componentDidMount() {
     this.markScrollableLaTeX();
+    this.markHoverableLinks();
   }
   
   // Find LaTeX elements inside the body, check whether they're wide enough to
@@ -181,6 +194,28 @@ class ContentItemBody extends Component {
     updateScrollIndicatorClasses();
     block.onscroll = (ev) => updateScrollIndicatorClasses();
   };
+  
+  markHoverableLinks = () => {
+    //if(!Meteor.isServer && this.bodyRef && this.bodyRef.current) {
+    if(this.bodyRef && this.bodyRef.current) {
+      const linkTags = [...this.bodyRef.current.getElementsByTagName("a")];
+      for (let linkTag of linkTags) {
+        const tagContentsHTML = linkTag.innerHTML;
+        const href = linkTag.getAttribute("href");
+        const replacementElement = <Components.HoverPreviewLink href={href} innerHTML={tagContentsHTML} />
+        this.replaceElement(linkTag, replacementElement);
+      }
+    }
+  }
+  
+  replaceElement = (replacedElement, replacementElement) => {
+    const replacementContainer = document.createElement("span");
+    this.replacedElements.push({
+      replacementElement: replacementElement,
+      container: replacementContainer,
+    });
+    replacedElement.parentElement.replaceChild(replacementContainer, replacedElement);
+  }
 }
 
 registerComponent('ContentItemBody', ContentItemBody,

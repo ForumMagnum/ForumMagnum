@@ -79,6 +79,9 @@ import '../components/common/PermanentRedirect.jsx';
 import '../components/common/SubscribeWidget.jsx';
 import '../components/common/SubscribeDialog.jsx';
 
+import '../components/linkPreview/HoverPreviewLink.jsx';
+import '../components/linkPreview/PostLinkPreview.jsx';
+
 import '../components/users/AccountsVerifyEmail.jsx';
 import '../components/users/EnrollAccount.jsx';
 import '../components/users/UsersMenu.jsx';

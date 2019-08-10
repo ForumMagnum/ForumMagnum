@@ -23,9 +23,6 @@ const styles = theme => ({
     marginBottom: theme.spacing.unit*1.5,
     fontWeight: 600,
     fontSize: "1.2rem",
-    [theme.breakpoints.down('sm')]: {
-      display: "none"
-    },
   },
   highlight: {
     marginTop: theme.spacing.unit,
@@ -68,7 +65,7 @@ const getPostCategory = (post) => {
     return post.question ? `Question` : `Personal Blogpost`
 }
 
-const PostsItemTooltip = ({ post, classes, author, }) => {
+const PostsItemTooltip = ({ showTitle, post, classes, author, }) => {
   const { PostsUserAndCoauthors } = Components
   const postCategory = getPostCategory(post)
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
@@ -76,6 +73,9 @@ const PostsItemTooltip = ({ post, classes, author, }) => {
   const highlight = truncate(htmlHighlight, 600)
 
   return <div className={classes.root}>
+    {showTitle && <div className={classes.tooltipTitle}>
+      {post.title}
+    </div>}
     <div className={classes.tooltipInfo}>
       {postCategory}
       { author && post.user && <span> by <PostsUserAndCoauthors post={post}/></span>}

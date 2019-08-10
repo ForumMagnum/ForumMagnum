@@ -267,6 +267,7 @@ addRoute([
     componentName: 'PostsSingle',
     titleComponentName: 'PostsPageHeaderTitle',
     subtitleComponentName: 'PostsPageHeaderTitle',
+    previewComponentName: 'PostLinkPreview',
   },
   {
     name: 'admin',

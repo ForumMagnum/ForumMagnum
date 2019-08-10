@@ -101,7 +101,7 @@ const PostsTitle = ({currentUser, post, classes, sticky, read, expandOnHover, to
   
   const titleWithTooltip = tooltip
     ? (<Tooltip
-        title={<PostsItemTooltip post={post} />}
+        title={<PostsItemTooltip post={post} showTitle={false} />}
         classes={{tooltip:classes.tooltip}}
         TransitionProps={{ timeout: 0 }}
         placement="left-start"
