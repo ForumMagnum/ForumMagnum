@@ -14,7 +14,6 @@ export { default as ShowIf } from './components/ShowIf.jsx';
 export { default as DynamicLoading } from './components/DynamicLoading.jsx';
 export { default as HeadTags } from './components/HeadTags.jsx';
 export { default as Datatable } from './components/Datatable.jsx';
-export { default as Flash } from './components/Flash.jsx';
 export { default as RouterHook } from './components/RouterHook.jsx';
 export { default as ScrollToTop } from './components/ScrollToTop.jsx';
 
