@@ -166,11 +166,11 @@ class CommentsNode extends Component {
     this.setState({collapsed: !this.state.collapsed});
   }
 
-  handleExpand = (event) => {
+  handleExpand = async (event) => {
     const { markAsRead, scrollOnExpand } = this.props
     event.stopPropagation()
     if (this.isTruncated() || this.isSingleLine()) {
-      markAsRead && markAsRead()
+      markAsRead && await markAsRead()
       this.setState({truncated: false, singleLine: false, truncatedStateSet: true});
       if (scrollOnExpand) {
         this.scrollIntoView("auto") // should scroll instantly
