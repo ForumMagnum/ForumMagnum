@@ -71,6 +71,9 @@ const styles = theme => ({
     marginLeft: -theme.spacing.unit,
     marginRight: theme.spacing.unit,
   },
+  siteLogo: {
+    marginLeft: -theme.spacing.unit * 1.5
+  },
   hideOnDesktop: {
     [theme.breakpoints.up('lg')]: {
       display:"none"
@@ -228,12 +231,12 @@ class Header extends Component {
           )}
         >
           <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
-            <Toolbar>
+            <Toolbar disableGutters>
               {this.renderNavigationMenuButton()}
               <Typography className={classes.title} variant="title" color="textSecondary">
                 <Hidden smDown implementation="css">
                   <Link to="/" className={classes.titleLink}>
-                    <Components.SiteLogo/>
+                    <div className={classes.siteLogo}><Components.SiteLogo/></div>
                     {getSetting('forumSettings.headerTitle', 'LESSWRONG')}
                   </Link>
                   {subtitleLink && <span className={classes.subtitle}>
@@ -244,13 +247,13 @@ class Header extends Component {
                 </Hidden>
                 <Hidden mdUp implementation="css">
                   <Link to="/" className={classes.titleLink}>
-                    <Components.SiteLogo/>
+                    <div className={classes.siteLogo}><Components.SiteLogo/></div>
                     {getSetting('forumSettings.shortForumTitle', 'LW')}
                   </Link>
                 </Hidden>
               </Typography>
               <div className={classes.rightHeaderItems}>
-                <NoSSR onSSR={classes.searchSSRStandin}>
+                <NoSSR onSSR={<div className={classes.searchSSRStandin} />}>
                   <SearchBar onSetIsActive={this.setHeadroomPinnedOpen} searchResultsArea={searchResultsArea} />
                 </NoSSR>
                 {currentUser ? <UsersMenu color={getHeaderTextColor(theme)} /> : <UsersAccountMenu color={getHeaderTextColor(theme)} />}
