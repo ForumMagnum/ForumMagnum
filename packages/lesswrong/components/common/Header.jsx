@@ -44,6 +44,7 @@ const styles = theme => ({
     flex: 1,
     position: "relative",
     top: 3,
+    paddingRight: theme.spacing.unit
   },
   titleLink: {
     color: getHeaderTextColor(theme),
@@ -60,6 +61,10 @@ const styles = theme => ({
   rightHeaderItems: {
     marginRight: -theme.spacing.unit,
     display: "flex",
+  },
+  // Prevent rearranging of mobile header when search loads after SSR
+  searchSSRStandin: {
+    minWidth: 48
   },
   headroom: {
     // Styles for header scrolling, provided by react-headroom
@@ -187,7 +192,7 @@ class Header extends PureComponent {
                   </Hidden>
                 </Typography>
                 <div className={classes.rightHeaderItems}>
-                  <NoSSR>
+                  <NoSSR onSSR={<div className={classes.searchSSRStandin} />}>
                     <SearchBar onSetIsActive={this.setHeadroomPinnedOpen} searchResultsArea={searchResultsArea} />
                   </NoSSR>
                   {currentUser ? <UsersMenu color={getHeaderTextColor(theme)} /> : <UsersAccountMenu color={getHeaderTextColor(theme)} />}
