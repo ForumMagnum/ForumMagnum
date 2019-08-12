@@ -157,6 +157,20 @@ const theme = createLWTheme({
         fontSize: "1rem",
         padding: ".7rem",
       }
+    },
+    PostsTimeBlock: {
+      divider: {
+        display: 'none'
+      }
+    },
+    ContentType: {
+      root: {
+        color: grey[800],
+        fontWeight: 600
+      },
+      icon: {
+        color: grey[800]
+      }
     }
   }
 });
