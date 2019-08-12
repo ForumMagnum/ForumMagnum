@@ -21,7 +21,8 @@ const styles = theme => ({
   },
   navButton: {
     '&:hover': {
-      opacity:.6
+      opacity:.6,
+      backgroundColor: 'transparent' // Prevent MUI default behavior of rendering solid background on hover
     },
     paddingTop: theme.spacing.unit*1.5,
     paddingBottom: theme.spacing.unit*1.5,
@@ -37,6 +38,9 @@ const styles = theme => ({
     paddingBottom: 0,
     paddingLeft: 0,
     paddingRight: 0,
+    '&:hover': {
+      backgroundColor: 'transparent' // Prevent MUI default behavior of rendering solid background on hover
+    }
   },
   icon: {
     opacity: .3,
