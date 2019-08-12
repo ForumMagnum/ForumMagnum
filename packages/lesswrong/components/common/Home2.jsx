@@ -4,6 +4,9 @@ import React, { PureComponent } from 'react';
 import withUser from '../common/withUser';
 import { SplitComponent } from 'meteor/vulcan:routing';
 import Users from 'meteor/vulcan:users';
+import AddBoxIcon from '@material-ui/icons/AddBox';
+
+// TODO;(EA Forum) Confirm we match after merge
 
 class Home2 extends PureComponent {
 
@@ -14,8 +17,6 @@ class Home2 extends PureComponent {
 
     const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
         Users.canDo(currentUser, 'alignment.sidebar')
-
-    const shortformFeedId = currentUser && currentUser.shortformFeedId
 
     return (
       <React.Fragment>
@@ -28,18 +29,7 @@ class Home2 extends PureComponent {
         <HomeLatestPosts />
 
         <SingleColumnSection>
-          <SectionTitle title="Recent Discussion">
-            {shortformFeedId &&  <div onClick={this.toggleShortformFeed}>
-              <SectionButton>
-                <AddBoxIcon />
-                New Shortform Post
-              </SectionButton>
-            </div>}
-          </SectionTitle>
-          {showShortformFeed && <CommentsNewForm
-              post={{_id:shortformFeedId}}
-              type="comment"
-            />}
+          <SectionTitle title="Recent Discussion" />
           <RecentDiscussionThreadsList terms={{view: 'recentDiscussionThreadsList', limit:20}}/>
         </SingleColumnSection>
       </React.Fragment>

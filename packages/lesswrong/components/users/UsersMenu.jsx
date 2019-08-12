@@ -17,6 +17,7 @@ import withDialog from '../common/withDialog'
 const styles = theme => ({
   root: {
     marginTop: 5,
+    wordBreak: 'break-all'
   },
   userButtonRoot: {
     // Mui default is 16px, so we're halving it to bring it into line with the
