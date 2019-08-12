@@ -18,6 +18,12 @@ const styles = theme => ({
   root: {
     marginTop: 5,
   },
+  userButtonRoot: {
+    // Mui default is 16px, so we're halving it to bring it into line with the
+    // rest of the header components
+    paddingLeft: theme.spacing.unit,
+    paddingRight: theme.spacing.unit
+  },
   userButtonContents: {
     textTransform: 'none',
     fontSize: '16px',
@@ -65,7 +71,7 @@ class UsersMenu extends PureComponent {
 
     return (
       <div className={classes.root}>
-        <Button onClick={this.handleClick}>
+        <Button onClick={this.handleClick} classes={{root: classes.userButtonRoot}}>
           <span className={classes.userButtonContents} style={{ color: color }}>
             {Users.getDisplayName(currentUser)}
             {getSetting('forumType') === 'AlignmentForum' && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
