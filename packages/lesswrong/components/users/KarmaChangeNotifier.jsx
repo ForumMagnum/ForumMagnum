@@ -20,6 +20,10 @@ import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments';
 
 const styles = theme => ({
+  root: {
+    display: 'flex',
+    alignItems: 'center',
+  },
   karmaNotifierButton: {
   },
   karmaNotifierPaper: {
@@ -209,7 +213,7 @@ class KarmaChangeNotifier extends PureComponent {
     const newKarmaChangesSinceLastVisit = (new Date(karmaChangeLastOpened || 0) - new Date(endDate || 0)) < 0
     const starIsHollow = ((comments.length===0 && posts.length===0) || this.state.cleared || !newKarmaChangesSinceLastVisit)
 
-    return <div>
+    return <div className={classes.root}>
         <IconButton onClick={this.handleToggle} className={classes.karmaNotifierButton}>
           {starIsHollow
             ? <StarBorderIcon className={classes.starIcon}/>
