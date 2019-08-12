@@ -37,7 +37,7 @@ import {
   validateData,
   dataToModifier,
   modifierToData,
-} from '../modules/validation.js';
+} from './validation.js';
 import { registerSetting } from '../modules/settings.js';
 import { debug, debugGroup, debugGroupEnd } from '../modules/debug.js';
 import { throwError } from './errors.js';
