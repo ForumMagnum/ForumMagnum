@@ -17,7 +17,6 @@ export * from './settings.js';
 export * from './headtags.js';
 export * from './fragments.js';
 export * from './apollo-common';
-export * from './dynamic_loader.js';
 export * from './admin.js';
 export * from './fragment_matcher.js';
 export * from './debug.js';
