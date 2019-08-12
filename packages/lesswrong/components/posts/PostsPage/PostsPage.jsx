@@ -210,6 +210,16 @@ if (Meteor.isServer) {
   URLClass = require('url').URL
 }
 
+function getProtocol(url) {
+  if (URLClass)
+    return new URLClass(url).protocol;
+
+  // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
+  var parser = document.createElement('a');
+  parser.href = url;
+  return parser.protocol;
+}
+
 function getHostname(url) {
   if (URLClass)
     return new URLClass(url).hostname;
@@ -257,7 +267,8 @@ class PostsPage extends Component {
       const sequenceId = this.getSequenceId();
       const sectionData = post.tableOfContents;
       const htmlWithAnchors = (sectionData && sectionData.html) ? sectionData.html : html
-      const feedLink = post.feed && post.feed.url && getHostname(post.feed.url)
+      const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
+      const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;
       const { major } = extractVersionsFromSemver(post.version)
       const hasMajorRevision = major > 1
       const contentType = getContentType(post)
@@ -283,7 +294,7 @@ class PostsPage extends Component {
                     </span>
                     { post.feed && post.feed.user &&
                       <Tooltip title={`Crossposted from ${feedLink}`}>
-                        <a href={`http://${feedLink}`} className={classes.feedName}>
+                        <a href={feedLink} className={classes.feedName}>
                           {post.feed.nickname}
                         </a>
                       </Tooltip>
