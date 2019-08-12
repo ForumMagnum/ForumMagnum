@@ -293,7 +293,7 @@ class PostsPage extends Component {
                       <ContentType type={contentType}/>
                     </span>
                     { post.feed && post.feed.user &&
-                      <Tooltip title={`Crossposted from ${feedLink}`}>
+                      <Tooltip title={`Crossposted from ${feedLinkDescription}`}>
                         <a href={feedLink} className={classes.feedName}>
                           {post.feed.nickname}
                         </a>
