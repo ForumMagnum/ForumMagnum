@@ -66,6 +66,11 @@ const styles = theme => ({
   searchSSRStandin: {
     minWidth: 48
   },
+  hideOnMobile: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    }
+  },
   headroom: {
     // Styles for header scrolling, provided by react-headroom
     // https://github.com/KyleAMathews/react-headroom
@@ -106,7 +111,7 @@ class Header extends PureComponent {
     navigationOpen: false,
     notificationOpen: false,
     notificationHasOpened: false,
-    headroomPinnedOpen: false,
+    searchOpen: false,
   }
 
   setNavigationOpen = (open) => {
@@ -132,18 +137,20 @@ class Header extends PureComponent {
     }
   }
 
-  // Set whether Headroom (the auto-hiding top bar) is pinned so it doesn't
-  // hide on scroll. Called by SearchBar, which pins the header open when a
-  // search is active.
-  setHeadroomPinnedOpen = (isPinned) => {
+  // We do two things when the search is open:
+  //  1) Pin the header open with the Headroom component
+  //  2) Hide the username on mobile so users with long usernames can still
+  //     enter search queries
+  // Called by SearchBar.
+  setSearchOpen = (isOpen) => {
     this.setState({
-      headroomPinnedOpen: isPinned
+      searchOpen: isOpen
     });
   }
 
   render() {
     const { currentUser, classes, theme, toc, searchResultsArea } = this.props
-    const { notificationOpen, notificationHasOpened, navigationOpen, headroomPinnedOpen } = this.state
+    const { notificationOpen, notificationHasOpened, navigationOpen, searchOpen } = this.state
     const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
 
     const { SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton,
@@ -156,7 +163,7 @@ class Header extends PureComponent {
             downTolerance={10} upTolerance={10}
             className={classNames(
               classes.headroom,
-              { [classes.headroomPinnedOpen]: headroomPinnedOpen }
+              { [classes.headroomPinnedOpen]: searchOpen }
             )}
           >
             <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
@@ -193,9 +200,12 @@ class Header extends PureComponent {
                 </Typography>
                 <div className={classes.rightHeaderItems}>
                   <NoSSR onSSR={<div className={classes.searchSSRStandin} />}>
-                    <SearchBar onSetIsActive={this.setHeadroomPinnedOpen} searchResultsArea={searchResultsArea} />
+                    <SearchBar onSetIsActive={this.setSearchOpen} searchResultsArea={searchResultsArea} />
                   </NoSSR>
-                  {currentUser ? <UsersMenu color={getHeaderTextColor(theme)} /> : <UsersAccountMenu color={getHeaderTextColor(theme)} />}
+                  {currentUser && <div className={searchOpen && classes.hideOnMobile}>
+                    <UsersMenu color={getHeaderTextColor(theme)} />
+                  </div>}
+                  {!currentUser && <UsersAccountMenu color={getHeaderTextColor(theme)} />}
                   {currentUser && <KarmaChangeNotifier documentId={currentUser._id}/>}
                   {currentUser && <NotificationsMenuButton color={getHeaderTextColor(theme)} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
                 </div>
