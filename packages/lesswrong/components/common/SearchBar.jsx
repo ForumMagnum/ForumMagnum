@@ -14,6 +14,13 @@ import { algoliaIndexNames } from '../../lib/algoliaIndexNames.js';
 const VirtualMenu = connectMenu(() => null);
 
 const styles = theme => ({
+  root: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  rootChild: {
+    height: 'fit-content'
+  },
   searchInputArea: {
     display: "block",
     position: "relative",
@@ -40,7 +47,7 @@ const styles = theme => ({
     // are doing a somewhat hacky thing to style it.
     "& .ais-SearchBox-input": {
       display:"none",
-      
+
       height: "100%",
       width: "100%",
       paddingRight: 0,
@@ -53,7 +60,7 @@ const styles = theme => ({
       "-webkit-appearance": "none",
       cursor: "text",
       borderRadius:5,
-      
+
       [theme.breakpoints.down('tiny')]: {
         backgroundColor: "#eee",
         zIndex: theme.zIndexes.searchBar,
@@ -162,41 +169,43 @@ class SearchBar extends Component {
     if(!algoliaAppId) {
       return <div>Search is disabled (Algolia App ID not configured on server)</div>
     }
-    
+
     // HACK FIXME: This should very likely be factored out somewhere close to where the routes lives, to avoid breaking when we make small URL changes
     let userRefinement
     if(location && location.pathname && location.pathname.includes("/users/")){
       userRefinement = location.pathname.split('/')[2]
     }
 
-    return <div onKeyDown={this.handleKeyDown}>
-      <InstantSearch
-        indexName={algoliaIndexNames.Posts}
-        appId={algoliaAppId}
-        apiKey={algoliaSearchKey}
-        onSearchStateChange={this.queryStateControl}
-      >
-        <div className={classNames(
-          classes.searchInputArea,
-          {"open": inputOpen},
-          {[classes.alignmentForum]: alignmentForum}
-        )}>
-          {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
-          {userRefinement && <VirtualMenu attribute='authorSlug' defaultRefinement={userRefinement} />}
-          <div onClick={this.handleSearchTap}>
-            <Icon className={classes.searchIcon}>search</Icon>
-            { inputOpen && <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} /> }
+    return <div className={classes.root} onKeyDown={this.handleKeyDown}>
+      <div className={classes.rootChild}>
+        <InstantSearch
+          indexName={algoliaIndexNames.Posts}
+          appId={algoliaAppId}
+          apiKey={algoliaSearchKey}
+          onSearchStateChange={this.queryStateControl}
+        >
+          <div className={classNames(
+            classes.searchInputArea,
+            {"open": inputOpen},
+            {[classes.alignmentForum]: alignmentForum}
+          )}>
+            {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
+            {userRefinement && <VirtualMenu attribute='authorSlug' defaultRefinement={userRefinement} />}
+            <div onClick={this.handleSearchTap}>
+              <Icon className={classes.searchIcon}>search</Icon>
+              { inputOpen && <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} /> }
+            </div>
+            { searchOpen && <div className={classes.searchBarClose} onClick={this.closeSearch}>
+              <Icon className={classes.closeSearchIcon}>close</Icon>
+            </div>}
+            <div>
+              { searchOpen && <Portal container={searchResultsArea.current}>
+                  <Components.SearchBarResults closeSearch={this.closeSearch} />
+                </Portal> }
+            </div>
           </div>
-          { searchOpen && <div className={classes.searchBarClose} onClick={this.closeSearch}>
-            <Icon className={classes.closeSearchIcon}>close</Icon>
-          </div>}
-          <div>
-            { searchOpen && <Portal container={searchResultsArea.current}>
-                <Components.SearchBarResults closeSearch={this.closeSearch} />
-              </Portal> }
-          </div>
-        </div>
-      </InstantSearch>
+        </InstantSearch>
+      </div>
     </div>
   }
 }
