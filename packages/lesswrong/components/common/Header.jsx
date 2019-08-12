@@ -258,7 +258,7 @@ class Header extends Component {
                 <NoSSR onSSR={<div className={classes.searchSSRStandin} />}>
                   <SearchBar onSetIsActive={this.setSearchOpen} searchResultsArea={searchResultsArea} />
                 </NoSSR>
-                {currentUser && <div className={searchOpen && classes.hideOnMobile}>
+                {currentUser && <div className={searchOpen ? classes.hideOnMobile : undefined}>
                   <UsersMenu color={getHeaderTextColor(theme)} />
                 </div>}
                 {!currentUser && <UsersAccountMenu color={getHeaderTextColor(theme)} />}
