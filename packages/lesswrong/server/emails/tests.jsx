@@ -75,7 +75,7 @@ describe('renderEmail', async () => {
       }
     };
     const PostTitleComponent = withDocument(queryOptions)(
-      ({document}) => <div>{document.title}</div>
+      ({document}) => <div>{document?.title}</div>
     );
     
     const email = await renderTestEmail({

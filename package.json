@@ -12,7 +12,7 @@
     "start-af-second": "MONGO_URL=mongodb://localhost:3001/meteor meteor --settings settings-af.json --port 3030",
     "debug-af": "meteor --settings settings-af.json --inspect run",
     "lint": "eslint --max-warnings 0 --cache --ext .jsx,js packages",
-    "test-watch": "TEST_WATCH=1 meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings settings-dev.json --port 3200 --full-app",
+    "test-watch": "TEST_WATCH=1 meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings sample_settings.json --port 3200 --full-app",
     "test": "meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings sample_settings.json --port 3200 --full-app --once",
     "test-prod": "meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings settings.json --port 3200 --full-app --once"
   },
