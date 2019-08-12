@@ -8,7 +8,6 @@ import urlObject from 'url';
 import moment from 'moment';
 import getSlug from 'speakingurl';
 import { getSetting, registerSetting } from './settings.js';
-import { Routes } from './routes.js';
 import { getCollection } from './collections.js';
 import set from 'lodash/set';
 import get from 'lodash/get';
@@ -184,10 +183,6 @@ Utils.getUnusedSlugByCollectionName = function (collectionName, slug) {
   return Utils.getUnusedSlug(getCollection(collectionName), slug);
 };
 
-Utils.getShortUrl = function(post) {
-  return post.shortUrl || post.url;
-};
-
 Utils.getDomain = function(url) {
   try {
     return urlObject.parse(url).hostname.replace('www.', '');
@@ -339,32 +334,12 @@ Utils.unflatten = function(array, options, parent, level=0, tree){
   return tree;
 };
 
-// remove the telescope object from a schema and duplicate it at the root
-Utils.stripTelescopeNamespace = (schema) => {
-  // grab the users schema keys
-  const schemaKeys = Object.keys(schema);
-
-  // remove any field beginning by telescope: .telescope, .telescope.upvotedPosts.$, ...
-  const filteredSchemaKeys = schemaKeys.filter(key => key.slice(0,9) !== 'telescope');
-
-  // replace the previous schema by an object based on this filteredSchemaKeys
-  return filteredSchemaKeys.reduce((sch, key) => ({...sch, [key]: schema[key]}), {});
-};
-
 /**
  * Convert an array of field names into a Mongo fields specifier
  * @param {Array} fieldsArray
  */
 Utils.arrayToFields = (fieldsArray) => {
   return _.object(fieldsArray, _.map(fieldsArray, function () {return true;}));
-};
-
-/**
- * Get the display name of a React component
- * @param {React Component} WrappedComponent
- */
-Utils.getComponentDisplayName = (WrappedComponent) => {
-  return WrappedComponent.displayName || WrappedComponent.name || 'Component';
 };
 
 
@@ -433,15 +408,6 @@ Utils.decodeIntlError = (error, options = {stripped: false}) => {
 };
 
 Utils.findWhere = (array, criteria) => array.find(item => Object.keys(criteria).every(key => item[key] === criteria[key]));
-
-Utils.defineName = (o, name) => {
-  Object.defineProperty(o, 'name', { value: name });
-  return o;
-};
-
-Utils.getRoutePath = routeName => {
-  return Routes[routeName] && Routes[routeName].path;
-};
 
 String.prototype.replaceAll = function(search, replacement) {
   var target = this;
