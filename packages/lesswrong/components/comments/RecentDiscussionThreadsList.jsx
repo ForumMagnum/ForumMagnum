@@ -39,6 +39,8 @@ class RecentDiscussionThreadsList extends PureComponent {
       return null
     }
 
+    const expandAll = currentUser?.noCollapseCommentsFrontpage || expandAllThreads
+
     return (
       <SingleColumnSection>
         <SectionTitle title="Recent Discussion">
@@ -59,7 +61,7 @@ class RecentDiscussionThreadsList extends PureComponent {
                 postCount={i} 
                 refetch={refetch}
                 comments={post.recentComments}
-                expandAllThreads={expandAllThreads}
+                expandAllThreads={expandAll}
                 currentUser={currentUser}
                 updateComment={updateComment}/>
             )}

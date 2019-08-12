@@ -93,7 +93,7 @@ const styles = theme => ({
 })
 
 class RecentDiscussionThread extends PureComponent {
-  state = { showHighlight: false, readStatus: false, markedAsVisitedAt: null }
+  state = { showHighlight: false, readStatus: false, markedAsVisitedAt: null, expandAllThreads: false }
 
   showHighlight = () => {
     this.setState(prevState => ({showHighlight:!prevState.showHighlight}));
@@ -101,12 +101,12 @@ class RecentDiscussionThread extends PureComponent {
   }
 
   markAsRead = async () => {
-    this.setState({readStatus:true, markedAsVisitedAt: new Date()});
+    this.setState({readStatus:true, markedAsVisitedAt: new Date(), expandAllThreads: true});
     this.props.recordPostView({post:this.props.post})
   }
 
   render() {
-    const { post, comments, updateComment, currentUser, classes, isRead, refetch, expandAllThreads } = this.props
+    const { post, comments, updateComment, currentUser, classes, isRead, refetch } = this.props
     const { readStatus, showHighlight, markedAsVisitedAt } = this.state
     const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle } = Components
 
@@ -158,7 +158,8 @@ class RecentDiscussionThread extends PureComponent {
               <div key={comment.item._id}>
                 <CommentsNode
                   startThreadTruncated={true}
-                  expandAllThreads={expandAllThreads}
+                  expandAllThreads={this.props.expandAllThreads || this.state.expandAllThreads}
+                  scrollOnExpand
                   nestingLevel={1}
                   lastCommentId={lastCommentId}
                   currentUser={currentUser}
