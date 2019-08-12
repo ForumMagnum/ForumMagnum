@@ -6,7 +6,7 @@ Run a GraphQL request from the server with the proper context
 import { graphql } from 'graphql';
 import { Collections } from '../modules/collections.js';
 import DataLoader from 'dataloader';
-import findByIds from '../modules/findbyids.js';
+import findByIds from './findbyids.js';
 import {
   getDefaultFragmentText,
   extractFragmentName,

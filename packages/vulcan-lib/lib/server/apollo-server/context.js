@@ -14,7 +14,7 @@
 import DataLoader from 'dataloader';
 import { Collections } from '../../modules/collections.js';
 import { runCallbacks } from '../../modules/callbacks.js';
-import findByIds from '../../modules/findbyids.js';
+import findByIds from '../findbyids.js';
 import { GraphQLSchema } from '../../modules/graphql.js';
 import _merge from 'lodash/merge';
 import { getUser } from 'meteor/apollo';
