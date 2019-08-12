@@ -11,8 +11,8 @@ const SPAM_KARMA_THRESHOLD = 10 //Threshold after which you are no longer affect
 const akismetKey = getSetting('akismet.apiKey', false)
 const akismetURL = getSetting('akismet.url', false)
 const client = akismet.client({
-  key  : akismetKey,                   
-  blog : akismetURL       
+  key  : akismetKey,
+  blog : akismetURL
 });
 
 async function constructAkismetReport({document, type = "post"}) {
@@ -34,7 +34,7 @@ async function constructAkismetReport({document, type = "post"}) {
       comment_type : (type === "post") ? 'blog-post' : 'comment',
       comment_author : author.displayName,
       comment_author_email : author.email,
-      comment_content : document.contents && document.contents.html, 
+      comment_content : document.contents && document.contents.html,
       is_test: Meteor.isDevelopment
     }
 }
@@ -51,7 +51,7 @@ async function checkForAkismetSpam({document, type = "post"}) {
     console.error("Akismet spam checker crashed. Classifying as not spam.", e)
     return false
   }
-    
+
 }
 
 client.verifyKey()
@@ -70,7 +70,7 @@ async function checkPostForSpamWithAkismet(post, currentUser) {
   if (akismetKey) {
     const spam = await checkForAkismetSpam({document: post,type: "post"})
     if (spam) {
-      if ((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) {
+      if (((currentUser && currentUser.karma) || 0) < SPAM_KARMA_THRESHOLD) {
         // eslint-disable-next-line no-console
         console.log("Deleting post from user below spam threshold", post)
         editMutation({
@@ -102,7 +102,7 @@ async function checkCommentForSpamWithAkismet(comment, currentUser) {
             documentId: comment._id,
             set: {
               deleted: true,
-              deletedDate: new Date(), 
+              deletedDate: new Date(),
               deletedReason: "Your comment has been marked as spam by the Akismet span integration. We will review your comment in the coming hours and restore it if we determine that it isn't spam"
             },
             validate: false,
