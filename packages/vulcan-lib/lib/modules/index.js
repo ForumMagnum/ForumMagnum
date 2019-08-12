@@ -21,7 +21,6 @@ export * from './dynamic_loader.js';
 export * from './admin.js';
 export * from './fragment_matcher.js';
 export * from './debug.js';
-export * from './startup.js';
 export * from './errors.js';
 export * from './intl.js';
 export * from './detect_locale.js';

@@ -11,4 +11,6 @@ function initializeConnectors () {
   Connectors = DatabaseConnectors[database];
 }
 
-addCallback('app.startup', initializeConnectors);
+Meteor.startup(() => {
+  initializeConnectors();
+});
