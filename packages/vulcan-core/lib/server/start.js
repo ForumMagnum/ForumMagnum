@@ -13,5 +13,3 @@ Meteor.startup(function() {
     SyncedCron.start();
   }
 });
-
-Inject.obj('serverTimezoneOffset', {offset: new Date().getTimezoneOffset()});
