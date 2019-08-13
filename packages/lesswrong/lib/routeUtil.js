@@ -104,8 +104,7 @@ export const withNavigation = (WrappedComponent) => {
 export const hostIsOffsite = (host) => {
   // FIXME: This is currently server-side-only because 'URL' is a browser-API
   // class. See the workaround for the same issue in PostsPage.
-  const siteUrl = Utils.getSiteUrl();
+  const siteUrl = new URL(Utils.getSiteUrl()).host;
   const siteUrlHost = new URL(siteUrl).host;
-  console.log(`siteUrlHost: ${siteUrlHost}`);
   return host === siteUrlHost;
 }
