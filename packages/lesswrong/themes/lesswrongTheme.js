@@ -37,7 +37,6 @@ const palette = {
     main: '#5f9b65',
   },
   lwTertiary: {
-    light: "#a1bec7",
     main: "#558391"
   },
   error: {
