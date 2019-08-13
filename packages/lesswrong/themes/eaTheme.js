@@ -37,7 +37,6 @@ const palette = {
     main: '#0c869b',
   },
   lwTertiary: {
-    light: "#a1bec7",
     main: "#607e88" // EA-folk: you may want to pick your own color here
   },
   error: {

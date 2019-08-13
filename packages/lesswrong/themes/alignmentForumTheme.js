@@ -31,7 +31,6 @@ const palette = {
   primary: indigo,
   secondary: indigo,
   lwTertiary: {
-    light: "#a1bec7",
     main: "#607e88"
   },
   error: {
