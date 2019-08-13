@@ -221,6 +221,14 @@ addFieldsDict(Users, {
     order: 20,
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
   },
+  hideNavigationSidebar: {
+    type: Boolean,
+    optional: true,
+    canRead: Users.owns,
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: Users.owns,
+    hidden: true,
+  },
   currentFrontpageFilter: {
     type: String,
     optional: true,
@@ -672,7 +680,7 @@ addFieldsDict(Users, {
     canRead: [Users.owns, 'sunshineRegiment', 'admins'],
     resolver: (user, args, context) => !!user.reviewedByUserId,
   }),
-  
+
   // A number from 0 to 1, where 0 is almost certainly spam, and 1 is almost
   // certainly not-spam. This is the same scale as ReCaptcha, except that it
   // also includes post-signup activity like moderator approval, upvotes, etc.
@@ -688,7 +696,7 @@ addFieldsDict(Users, {
     resolver: (user, args, context) => {
       const isReviewed = !!user.reviewedByUserId;
       const { karma, signUpReCaptchaRating } = user;
-      
+
       if (user.deleteContent && user.banned) return 0.0;
       else if (Users.isAdmin(user)) return 1.0;
       else if (isReviewed && karma>=20) return 1.0;
@@ -836,7 +844,7 @@ addFieldsDict(Users, {
     group: formGroups.adminOptions,
     order: 0,
   },
-  
+
   partiallyReadSequences: {
     type: Array,
     canRead: [Users.owns],
@@ -848,7 +856,7 @@ addFieldsDict(Users, {
     type: partiallyReadSequenceItem,
     optional: true,
   },
-  
+
   beta: {
     type: Boolean,
     optional: true,

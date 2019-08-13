@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames'
-import { iconWidth } from './TabNavigationMenu'
+import { iconWidth } from './TabNavigationItem'
 
 const styles = (theme) => ({
   root: {
@@ -16,12 +16,9 @@ const styles = (theme) => ({
     fontSize: "1rem",
     whiteSpace: "nowrap",
     textOverflow: "ellipsis",
-    [theme.breakpoints.down('md')]: {
-      display: "none"
-    },
     overflow: "hidden",
     '&:hover': {
-      opacity: .5
+      opacity: .6
     }
   }
 })

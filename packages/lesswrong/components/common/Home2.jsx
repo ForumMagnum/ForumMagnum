@@ -8,16 +8,15 @@ class Home2 extends PureComponent {
   render () {
     const { currentUser } = this.props
 
-    const { RecentDiscussionThreadsList, HomeLatestPosts, TabNavigationMenu, RecommendationsAndCurated } = Components
+    const { RecentDiscussionThreadsList, HomeLatestPosts, RecommendationsAndCurated } = Components
 
     const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
         Users.canDo(currentUser, 'alignment.sidebar')
-    
+
     return (
       <React.Fragment>
         {shouldRenderSidebar && <Components.SunshineSidebar/>}
-  
-        <TabNavigationMenu />
+
         <RecommendationsAndCurated configName="frontpage" />
         <HomeLatestPosts />
         <RecentDiscussionThreadsList
