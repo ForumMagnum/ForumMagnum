@@ -2,7 +2,6 @@ import React from 'react';
 import { Components, registerComponent, parseRoute, Utils } from 'meteor/vulcan:core';
 import { Link } from 'react-router-dom';
 import { hostIsOffsite, useLocation } from '../../lib/routeUtil';
-import Tooltip from '@material-ui/core/Tooltip';
 
 // From react-router-v4
 var parsePath = function parsePath(path) {
@@ -41,19 +40,13 @@ const HoverPreviewLink = ({innerHTML, href}) => {
   } else {
     const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
     const parsedUrl = parseRoute(parsePath(linkTargetAbsolute.pathname));
-    const PreviewComponent = parsedUrl.currentRoute.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;
+    const PreviewComponent = parsedUrl.currentRoute?.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;
     
     if (PreviewComponent) {
-      return <Tooltip
-        title={<PreviewComponent targetLocation={parsedUrl}/>}
-        TransitionProps={{ timeout: 0 }}
-        placement="right-start"
-        enterDelay={0}
-        PopperProps={{ style: { pointerEvents: 'none' } }}
-      >
-        <Link to={onsiteUrl} dangerouslySetInnerHTML={{__html: innerHTML}}/>
-      </Tooltip>;
+      console.log("Rendering PreviewComponent");
+      return <PreviewComponent href={onsiteUrl} targetLocation={parsedUrl} innerHTML={innerHTML}/>
     } else {
+      console.log("PreviewComponent not found");
       return <Link to={onsiteUrl} dangerouslySetInnerHTML={{__html: innerHTML}} />
     }
   }
