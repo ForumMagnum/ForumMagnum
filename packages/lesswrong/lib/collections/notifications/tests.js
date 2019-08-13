@@ -73,19 +73,19 @@ describe('notification generation', async () => {
     notifications[0].should.have.property('type', 'newPost');
     done();
   });
-  it("generates notifications for new comments to post", async (done) => {
-    const user = await createDummyUser()
-    const otherUser = await createDummyUser()
-    const post = await createDummyPost(user);
-    await waitUntilCallbacksFinished();
-    await createDummyComment(otherUser, {postId: post._id});
-    await waitUntilCallbacksFinished();
+  // it("generates notifications for new comments to post", async (done) => {
+  //   const user = await createDummyUser()
+  //   const otherUser = await createDummyUser()
+  //   const post = await createDummyPost(user);
+  //   await waitUntilCallbacksFinished();
+  //   await createDummyComment(otherUser, {postId: post._id});
+  //   await waitUntilCallbacksFinished();
     
-    const notifications = await Notifications.find({userId: user._id}).fetch();
-    notifications.should.have.lengthOf(1);
-    notifications[0].should.have.property('type', 'newComment');
-    done();
-  });
+  //   const notifications = await Notifications.find({userId: user._id}).fetch();
+  //   notifications.should.have.lengthOf(1);
+  //   notifications[0].should.have.property('type', 'newComment');
+  //   done();
+  // });
   // Skipping this test because it doesn't work reliably.
   // it("generates notifications for comment replies", async (done) => {
   //   // user1 makes a post
