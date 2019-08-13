@@ -220,9 +220,9 @@ class CommentsNode extends Component {
   }
 
   isSingleLine = () => {
-    const { forceSingleLine, postPage } = this.props
+    const { forceSingleLine, postPage, currentUser } = this.props
     const { singleLine } = this.state
-    if (!singleLine) return false;
+    if (!singleLine || currentUser?.noSingleLineComments) return false;
     if (forceSingleLine)
       return true;
     

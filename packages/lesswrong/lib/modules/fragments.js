@@ -93,6 +93,7 @@ extendFragment('UsersCurrent', `
   whenConfirmationEmailSent
   noCollapseCommentsFrontpage
   noCollapseCommentsPosts
+  noSingleLineComments
   karmaChangeNotifierSettings
   karmaChangeLastOpened
   shortformFeedId

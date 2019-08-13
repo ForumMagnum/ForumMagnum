@@ -785,6 +785,19 @@ addFieldsDict(Users, {
     order: 39,
   },
 
+  noSingleLineComments: {
+    order: 70,
+    type: Boolean,
+    optional: true,
+    group: formGroups.truncationOptions,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    control: 'checkbox',
+    label: "Do not collapse comments to Single Line"
+  },
+
   noCollapseCommentsPosts: {
     order: 70,
     type: Boolean,
