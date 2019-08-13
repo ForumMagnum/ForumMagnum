@@ -11,7 +11,7 @@ class HomeEA extends PureComponent {
     const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
       Users.canDo(currentUser, 'alignment.sidebar')
     const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
-    
+
     return (
       <React.Fragment>
         {shouldRenderSidebar && <Components.SunshineSidebar/>}

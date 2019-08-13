@@ -67,6 +67,7 @@ extendFragment('UsersCurrent', `
   isReviewed
   nullifyVotes
   hideIntercom
+  hideNavigationSidebar
   currentFrontpageFilter
   allPostsTimeframe
   allPostsSorting
@@ -437,7 +438,7 @@ registerFragment(`
     # Karma Settings
     karmaChangeLastOpened
     karmaChangeNotifierSettings
-    
+
     recommendationSettings
   }
 `)
