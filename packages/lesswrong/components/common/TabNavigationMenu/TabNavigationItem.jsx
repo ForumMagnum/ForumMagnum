@@ -24,8 +24,8 @@ const styles = theme => ({
       opacity:.6,
       backgroundColor: 'transparent' // Prevent MUI default behavior of rendering solid background on hover
     },
-    paddingTop: theme.spacing.unit*1.5,
-    paddingBottom: theme.spacing.unit*1.5,
+    paddingTop: theme.spacing.unit*2,
+    paddingBottom: theme.spacing.unit*2,
     paddingLeft: theme.spacing.unit*2,
     paddingRight: theme.spacing.unit*2,
     display: "flex",
