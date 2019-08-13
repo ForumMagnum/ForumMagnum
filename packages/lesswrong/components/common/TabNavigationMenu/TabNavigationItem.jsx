@@ -77,6 +77,7 @@ const TabNavigationItem = ({tab, onClick, classes}) => {
         [classes.subItemOverride]: tab.subItem,
         [classes.selected]: pathname === tab.link,
       })}}
+      disableTouchRipple
     >
       {(tab.icon || tab.iconComponent) && <span
         className={classNames(classes.icon, {[classes.homeIcon]: tab.id === 'home'})}
