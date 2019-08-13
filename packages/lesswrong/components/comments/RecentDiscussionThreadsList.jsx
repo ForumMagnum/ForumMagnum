@@ -5,7 +5,6 @@ import { Comments } from '../../lib/collections/comments'
 import withUser from '../common/withUser';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import withGlobalKeydown from '../common/withGlobalKeydown';
-
 class RecentDiscussionThreadsList extends PureComponent {
 
   state = { expandAllThreads: false , showShortformFeed: false }
