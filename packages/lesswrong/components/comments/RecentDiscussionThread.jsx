@@ -58,6 +58,8 @@ const styles = theme => ({
     marginTop:5,
     maxWidth:600,
     marginBottom:16,
+    maxHeight: 1000,
+    overflow: "hidden",
     '& a, & a:hover, & a:focus, & a:active, & a:visited': {
       backgroundColor: "none"
     }
