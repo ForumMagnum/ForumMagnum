@@ -85,8 +85,8 @@ const styles = theme => ({
     position: "relative"
   },
   '@keyframes higlight-animation': {
-    from: {backgroundColor: theme.palette.lwTertiary.light},
-    to: {backgroundColor: "none"}
+    from: {borderColor: theme.palette.grey[900]},
+    to: {borderColor: "rgba(0,0,0,.15)"}
   },
   highlightAnimation: {
     animation: `higlight-animation ${HIGHLIGHT_DURATION}s ease-in-out 0s;`
