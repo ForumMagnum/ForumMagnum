@@ -76,11 +76,6 @@ const styles = theme => ({
   searchSSRStandin: {
     minWidth: 48
   },
-  hideOnMobile: {
-    [theme.breakpoints.down('sm')]: {
-      display: "none"
-    }
-  },
   headroom: {
     // Styles for header scrolling, provided by react-headroom
     // https://github.com/KyleAMathews/react-headroom
