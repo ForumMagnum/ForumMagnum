@@ -130,7 +130,6 @@ const options = {
   queryName: 'postsListQuery',
   fragmentName: 'PostsList',
   enableTotal: false,
-  enableCache: true,
   fetchPolicy: 'cache-and-network',
   ssr: true
 };

@@ -44,7 +44,6 @@ const withListOptions = {
   collection: Posts,
   queryName: 'sunshineNewPostsListQuery',
   fragmentName: 'PostsList',
-  enableCache: true,
   enableTotal: true,
   ssr: true
 };

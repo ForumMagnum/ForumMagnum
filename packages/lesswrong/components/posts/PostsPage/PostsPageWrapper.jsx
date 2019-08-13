@@ -8,7 +8,6 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }) => {
     queryName: 'postsSingleQuery',
     fragmentName: (version || sequenceId) ? 'PostsWithNavigation' : 'PostsPage',
     enableTotal: false,
-    enableCache: true,
     ssr: true,
     extraVariables: (version || sequenceId) ? {
       version: 'String',
