@@ -44,6 +44,7 @@ const discussionThreadsOptions = {
   enableTotal: false,
   pollInterval: 0,
   enableCache: true,
+  ssr: true,
 };
 
 registerComponent('ShortformThreadList', ShortformThreadList, withStyles(styles, {name:"ShortformThreadList"}), [withList, discussionThreadsOptions], withUser);
