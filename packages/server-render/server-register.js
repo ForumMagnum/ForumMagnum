@@ -2,7 +2,7 @@ import { WebAppInternals } from "meteor/webapp";
 import MagicString from "magic-string";
 import { SAXParser } from "parse5";
 import { create as createStream } from "combined-stream2";
-import { ServerSink, isReadable } from "./server-sink.js";
+import { ServerSink, isReadable, catenateStringsOrStreams } from "./server-sink.js";
 import { onPageLoad } from "./server.js";
 
 WebAppInternals.registerBoilerplateDataCallback(
@@ -71,7 +71,7 @@ WebAppInternals.registerBoilerplateDataCallback(
       }
 
       if (sink.head) {
-        data.dynamicHead = (data.dynamicHead || "") + sink.head;
+        data.dynamicHead = catenateStringsOrStreams(data.dynamicHead, sink.head);
         reallyMadeChanges = true;
       }
 
@@ -83,7 +83,7 @@ WebAppInternals.registerBoilerplateDataCallback(
       }
 
       if (sink.body) {
-        data.dynamicBody = (data.dynamicBody || "") + sink.body;
+        data.dynamicBody = catenateStringsOrStreams(data.dynamicBody, sink.body);
         reallyMadeChanges = true;
       }
 
