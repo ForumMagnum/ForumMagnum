@@ -20,7 +20,7 @@ const styles = theme => ({
   },
 });
 
-const CommentUserName = ({comment, classes}) => {
+const CommentUserName = ({comment, classes, simple = false}) => {
   if (comment.deleted) {
     return <span>[comment deleted]</span>
   } else if (comment.hideAuthor || !comment.user) {
@@ -28,13 +28,13 @@ const CommentUserName = ({comment, classes}) => {
   } else if (comment.answer) {
     return (
       <span className={classes.authorAnswer}>
-        Answer by <Components.UsersName user={comment.user}/>
+        Answer by <Components.UsersName user={comment.user} simple={simple}/>
       </span>
     );
   } else {
     return (
       <span className={classes.author}>
-        <Components.UsersName user={comment.user}/>
+        <Components.UsersName user={comment.user} simple={simple}/>
       </span>
     );
   }

@@ -129,7 +129,7 @@ class RecentDiscussionThread extends PureComponent {
 
     return (
       <div className={classes.root}>
-        <div className={(currentUser && !(isRead || readStatus)) && classes.unreadPost}>
+        <div className={(currentUser && !(isRead || readStatus)) ? classes.unreadPost : null}>
           <div className={classes.postItem}>
             <Link className={classes.title} to={Posts.getPageUrl(post)}>
               <PostsTitle wrap post={post} />

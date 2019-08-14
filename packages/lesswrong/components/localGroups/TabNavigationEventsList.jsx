@@ -21,6 +21,9 @@ const styles = theme => ({
     paddingBottom: 0,
     paddingLeft: 0,
     paddingRight: 0,
+    '&:hover': {
+      backgroundColor: 'transparent' // Prevent MUI default behavior of rendering solid background on hover
+    }
   },
   displayTime: {
     fontSize: ".85rem",
