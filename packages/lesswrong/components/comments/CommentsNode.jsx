@@ -117,7 +117,6 @@ class CommentsNode extends Component {
       highlighted: false,
     };
     this.scrollTargetRef = React.createRef();
-    // this.inputRef = useRef()
   }
 
   beginCollapsed = () => {
