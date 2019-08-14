@@ -207,6 +207,8 @@ if (getSetting('hasEvents', true)) {
 import '../components/comments/CommentsItem/CommentsItem.jsx';
 import '../components/comments/CommentsItem/CommentUserName.jsx';
 import '../components/comments/CommentsItem/RetractCommentMenuItem.jsx';
+import '../components/comments/CommentsItem/CommentsPermalinkMenuItem.jsx';
+import '../components/comments/CommentsItem/CommentShortformIcon.jsx';
 import '../components/comments/CommentsItem/MoveToAnswersMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromPostMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromAllPostsMenuItem.jsx';

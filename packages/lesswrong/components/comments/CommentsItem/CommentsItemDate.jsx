@@ -5,6 +5,7 @@ import { Link } from '../../../lib/reactRouterWrapper.js';
 import Icon from '@material-ui/core/Icon';
 import { Comments } from "../../../lib/collections/comments";
 import classNames from 'classnames';
+import { useNavigation, useLocation } from '../../../lib/routeUtil';	
 
 const styles = theme => ({
   root: {
@@ -33,17 +34,32 @@ const styles = theme => ({
   },
 });
 
-const CommentsItemDate = ({comment, post, showPostTitle, classes }) => {
+const CommentsItemDate = ({comment, post, showPostTitle, classes, scrollOnClick, scrollIntoView }) => {
+  const { history } = useNavigation();	
+  const { location } = useLocation();	
+
+   const handleLinkClick = (event) => {	
+    event.preventDefault()	
+    history.replace({...location, hash: "#" + comment._id})	
+    scrollIntoView();	
+  };
+
+  const url = Comments.getPageUrlFromIds(post._id, post.slug, comment._id, false)
+
+  const date = <span>
+    <Components.FormatDate date={comment.postedAt} format={comment.answer && "MMM DD, YYYY"}/>
+    <Icon className={classNames("material-icons", classes.icon)}> link </Icon>
+    {showPostTitle && post.title && <span className={classes.postTitle}> { post.title }</span>}
+  </span>
+
   return (
     <div className={classNames(classes.root, {
       [classes.date]: !comment.answer,
       [classes.answerDate]: comment.answer,
     })}>
-      <Link to={Comments.getPageUrlFromIds(post._id, post.slug, comment._id)}>
-        <Components.FormatDate date={comment.postedAt} format={comment.answer && "MMM DD, YYYY"}/>
-        <Icon className={classNames("material-icons", classes.icon)}> link </Icon>
-        {showPostTitle && post.title && <span className={classes.postTitle}> { post.title }</span>}
-      </Link>
+      {scrollOnClick ? <a href={url} onClick={handleLinkClick}>{ date } </a>
+        : <Link to={url}>{ date }</Link>
+      }
     </div>
   );
 }

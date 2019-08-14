@@ -7,6 +7,7 @@ import { withStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../common/withErrorBoundary';
 import withUser from '../common/withUser';
 import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
+import { useRef } from 'react'
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 const HIGHLIGHT_DURATION = 5
@@ -85,8 +86,14 @@ const styles = theme => ({
     position: "relative"
   },
   '@keyframes higlight-animation': {
-    from: {borderColor: theme.palette.grey[900]},
-    to: {borderColor: "rgba(0,0,0,.15)"}
+    from: {
+      backgroundColor: theme.palette.grey[300],
+      borderColor: "black"
+    },
+    to: { 
+      backgroundColor: "none",
+      borderColor: "rgba(0,0,0,.15)"
+    }
   },
   highlightAnimation: {
     animation: `higlight-animation ${HIGHLIGHT_DURATION}s ease-in-out 0s;`
@@ -111,6 +118,7 @@ class CommentsNode extends Component {
       highlighted: false,
     };
     this.scrollTargetRef = React.createRef();
+    // this.inputRef = useRef()
   }
 
   beginCollapsed = () => {
@@ -290,7 +298,7 @@ class CommentsNode extends Component {
         <div className={comment.gapIndicator && classes.gapIndicator}>
           <div className={nodeClass}
             onClick={(event) => this.handleExpand(event)}
-            id={!noHash ? comment._id : undefined}
+            id={!noHash ? `${comment._id}` : undefined}
           >
             {!hiddenReadComment && comment._id && <div ref={this.scrollTargetRef}>
               {this.isSingleLine()
@@ -305,6 +313,7 @@ class CommentsNode extends Component {
                     parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
                     toggleCollapse={this.toggleCollapse}
                     key={comment._id}
+                    scrollIntoView={this.scrollIntoView}
                     { ...passedThroughItemProps}
                   />
               }

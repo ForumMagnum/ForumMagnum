@@ -90,7 +90,7 @@ export const styles = theme => ({
   },
   deleted: {
     backgroundColor: "#ffefef",
-  },
+  }
 })
 
 class CommentsItem extends Component {
@@ -155,9 +155,9 @@ class CommentsItem extends Component {
   }
 
   render() {
-    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, collapsed, isParentComment, parentCommentId } = this.props
+    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, collapsed, isParentComment, parentCommentId, scrollIntoView } = this.props
 
-    const { ShowParentComment, CommentsItemDate, CommentUserName } = Components
+    const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon } = Components
 
     if (!comment || !post) {
       return null;
@@ -189,6 +189,7 @@ class CommentsItem extends Component {
 
         <div className={classes.body}>
           <div className={classes.meta}>
+            <CommentShortformIcon comment={comment} post={post} postPage={postPage}/>
             { !this.state.showParent && parentCommentId!=comment.parentCommentId &&
               <ShowParentComment
                 comment={comment} nestingLevel={nestingLevel}
@@ -208,6 +209,8 @@ class CommentsItem extends Component {
             <CommentsItemDate
               comment={comment} post={post}
               showPostTitle={showPostTitle}
+              scrollIntoView={scrollIntoView}
+              scrollOnClick={postPage && !isParentComment}
             />
             <Components.CommentsVote comment={comment} currentUser={currentUser} />
             

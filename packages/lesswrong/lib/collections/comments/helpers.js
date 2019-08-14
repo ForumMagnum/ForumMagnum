@@ -23,13 +23,11 @@ Comments.getPageUrl = function(comment, isAbsolute = false) {
   return `${Posts.getPageUrl(post, isAbsolute)}#${comment._id}`;
 };
 
-Comments.getPageUrlFromIds = function(postId, postSlug, commentId, isAbsolute=false, permalink=true) {
-  const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
-
+Comments.getPageUrlFromIds = function(postId, postSlug, commentId, permalink=true) {
   if (permalink) {
-    return `${prefix}/posts/${postId}/${postSlug?postSlug:""}?commentId=${commentId}`;
+    return `/posts/${postId}/${postSlug?postSlug:""}?commentId=${commentId}`;
   } else {
-    return `${prefix}/posts/${postId}/${postSlug?postSlug:""}#${commentId}-context`;
+    return `/posts/${postId}/${postSlug?postSlug:""}#${commentId}`;
   }
 }
 
