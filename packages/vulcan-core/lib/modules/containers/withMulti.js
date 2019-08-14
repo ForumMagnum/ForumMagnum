@@ -178,37 +178,6 @@ export default function withMulti({
               props.ownProps.setPaginationTerms(newTerms);
             },
 
-            // incremental loading version (only load new content)
-            // note: not compatible with polling
-            loadMoreInc(providedTerms) {
-              // get terms passed as argument or else just default to incrementing the offset
-              const newTerms =
-                typeof providedTerms === 'undefined'
-                  ? {
-                      ...props.ownProps.terms,
-                      ...props.ownProps.paginationTerms,
-                      offset: results.length,
-                    }
-                  : providedTerms;
-
-              return props.data.fetchMore({
-                variables: { input: { terms: newTerms } }, // ??? not sure about 'terms: newTerms'
-                updateQuery(previousResults, { fetchMoreResult }) {
-                  // no more post to fetch
-                  if (!fetchMoreResult.data) {
-                    return previousResults;
-                  }
-                  const newResults = {};
-                  newResults[resolverName] = [
-                    ...previousResults[resolverName],
-                    ...fetchMoreResult.data[resolverName],
-                  ];
-                  // return the previous results "augmented" with more
-                  return { ...previousResults, ...newResults };
-                },
-              });
-            },
-
             fragmentName,
             fragment,
             ...props.ownProps, // pass on the props down to the wrapped component
