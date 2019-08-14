@@ -830,7 +830,7 @@ function runWebAppServer() {
   app.use(rawConnectHandlers);
 
   // Auto-compress any json, javascript, or text.
-  app.use(compress({filter: shouldCompress}));
+  //app.use(compress({filter: shouldCompress}));
 
   // parse cookies into an object
   app.use(cookieParser());
