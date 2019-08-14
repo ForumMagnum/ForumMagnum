@@ -7,7 +7,6 @@ import { withStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../common/withErrorBoundary';
 import withUser from '../common/withUser';
 import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
-import { useRef } from 'react'
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 const HIGHLIGHT_DURATION = 5
