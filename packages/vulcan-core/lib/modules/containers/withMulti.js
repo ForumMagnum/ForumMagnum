@@ -84,9 +84,6 @@ export default function withMulti({
   `;
 
   return compose(
-    // wrap component with Apollo HoC to give it access to the store
-    withApollo,
-
     // wrap component with HoC that manages the terms object via its state
     withState('paginationTerms', 'setPaginationTerms', props => {
       // get initial limit from props, or else options
@@ -107,7 +104,7 @@ export default function withMulti({
         alias: `with${Utils.pluralize(typeName)}`,
 
         // graphql query options
-        options({ terms, paginationTerms, client: apolloClient, currentUser, ...rest }) {
+        options({ terms, paginationTerms, currentUser, ...rest }) {
           // get terms from options, then props, then pagination
           const mergedTerms = { ...queryTerms, ...terms, ...paginationTerms };
           const graphQLOptions = {
