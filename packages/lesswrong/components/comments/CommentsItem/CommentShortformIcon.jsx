@@ -1,7 +1,7 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import NotesIcon from '@material-ui/icons/notes';
+import NotesIcon from '@material-ui/icons/Notes';
 import Tooltip from '@material-ui/core/Tooltip';
 import { Comments } from "../../../lib/collections/comments";
 import { Link } from '../../../lib/reactRouterWrapper.js';
