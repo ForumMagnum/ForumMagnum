@@ -397,6 +397,7 @@ registerFragment(`
     currentFrontpageFilter
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
+    noSingleLineComments
     sunshineShowNewUserContent
 
     # Emails
