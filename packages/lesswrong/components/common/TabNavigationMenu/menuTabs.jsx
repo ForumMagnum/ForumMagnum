@@ -199,22 +199,12 @@ export default {
       id: 'divider',
       divider: true,
     }, {
-      id: 'shortform',
-      title: 'Shortform [Beta]',
-      link: '/shortform',
-      subItem: true,
-    }, {
       id: 'about',
       title: 'About',
       link: '/about',
       subItem: true,
       compressedIconComponent: Info,
       showOnCompressed: true,
-    }, {
-      id: 'faq',
-      title: 'FAQ',
-      link: '/faq',
-      subItem: true,
     }
   ],
   EAForum: [
