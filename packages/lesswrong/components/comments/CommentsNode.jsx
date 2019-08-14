@@ -160,8 +160,16 @@ class CommentsNode extends Component {
     }
   }
 
+  isInViewport() {
+    if (!this.scrollTargetRef) return false;
+    const top = this.scrollTargetRef.current?.getBoundingClientRect().top;
+    return (top >= 0) && (top <= window.innerHeight);
+  }
+
   scrollIntoView = (behavior="smooth") => {
-    this.scrollTargetRef.current?.scrollIntoView({behavior: behavior, block: "center", inline: "nearest"});
+    if (!this.isInViewport()) {
+      this.scrollTargetRef.current?.scrollIntoView({behavior: behavior, block: "center", inline: "nearest"});
+    }
     this.setState({highlighted: true})
     setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
       this.setState({highlighted: false})
