@@ -37,7 +37,7 @@ export const cachedPageRender = async (req, renderFn) => {
     //eslint-disable-next-line no-console
     console.log(`Merging request for ${req.url.path} into in-progress render`);
     
-    return await inProgressRenders[cacheKey];
+    return inProgressRenders[cacheKey];
   } else {
     recordCacheMiss();
     //eslint-disable-next-line no-console
@@ -45,10 +45,11 @@ export const cachedPageRender = async (req, renderFn) => {
     
     const renderPromise = renderFn(req);
     inProgressRenders[cacheKey] = renderPromise;
-    const rendered = await renderPromise;
-    pageCache.set(cacheKey, rendered);
-    delete inProgressRenders[cacheKey];
-    return rendered;
+    renderPromise.then(rendered => {
+      pageCache.set(cacheKey, rendered);
+      delete inProgressRenders[cacheKey];
+    });
+    return renderPromise;
   }
 }
 
