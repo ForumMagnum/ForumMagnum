@@ -46,32 +46,35 @@ import {
 import compose from 'recompose/compose';
 import withState from 'recompose/withState';
 
-export default function withMulti(options) {
-  // console.log(options)
-
-  let {
-    limit = 10,
-    pollInterval = getSetting('pollInterval', 0), //LESSWRONG: Polling defaults disabled
-    enableTotal = false, //LESSWRONG: enableTotal defaults false
-    enableCache = false,
-    extraQueries,
-    ssr = false //LESSWRONG: SSR defaults false
-  } = options;
-
+export default function withMulti({
+  limit = 10,
+  pollInterval = getSetting('pollInterval', 0), //LESSWRONG: Polling defaults disabled
+  enableTotal = false, //LESSWRONG: enableTotal defaults false
+  enableCache = false,
+  extraQueries,
+  ssr = false, //LESSWRONG: SSR defaults false
+  extraVariables,
+  fetchPolicy,
+  notifyOnNetworkStatusChange,
+  propertyName = "results",
+  collectionName, collection,
+  fragmentName, fragment,
+  terms: queryTerms,
+}) {
   // if this is the SSR process, set pollInterval to null
   // see https://github.com/apollographql/apollo-client/issues/1704#issuecomment-322995855
   //pollInterval = typeof window === 'undefined' ? null : pollInterval;
 
-  const { collectionName, collection } = extractCollectionInfo(options);
-  const { fragmentName, fragment } = extractFragmentInfo(options, collectionName);
+  ({ collectionName, collection } = extractCollectionInfo({ collectionName, collection }));
+  ({ fragmentName, fragment } = extractFragmentInfo({ fragmentName, fragment }, collectionName));
 
   const typeName = collection.options.typeName;
   const resolverName = collection.options.multiResolverName;
 
   // LESSWRONG MODIFICATION: Allow the passing of extraVariables so that you can have field-specific queries
   let extraVariablesString = ''
-  if (options.extraVariables) {
-    extraVariablesString = Object.keys(options.extraVariables).map(k => `$${k}: ${options.extraVariables[k]}`).join(', ')
+  if (extraVariables) {
+    extraVariablesString = Object.keys(extraVariables).map(k => `$${k}: ${extraVariables[k]}`).join(', ')
   }
   
   // build graphql query from options
@@ -106,8 +109,7 @@ export default function withMulti(options) {
         // graphql query options
         options({ terms, paginationTerms, client: apolloClient, currentUser, ...rest }) {
           // get terms from options, then props, then pagination
-          const mergedTerms = { ...options.terms, ...terms, ...paginationTerms };
-          const extraVariables = _.pick(rest, Object.keys(options.extraVariables || {}))
+          const mergedTerms = { ...queryTerms, ...terms, ...paginationTerms };
           const graphQLOptions = {
             variables: {
               input: {
@@ -115,20 +117,20 @@ export default function withMulti(options) {
                 enableCache,
                 enableTotal,
               },
-              ...extraVariables
+              ...(_.pick(rest, Object.keys(extraVariables || {})))
             },
             // note: pollInterval can be set to 0 to disable polling (20s by default)
             pollInterval,
             ssr,
           };
 
-          if (options.fetchPolicy) {
-            graphQLOptions.fetchPolicy = options.fetchPolicy;
+          if (fetchPolicy) {
+            graphQLOptions.fetchPolicy = fetchPolicy;
           }
 
           // set to true if running into https://github.com/apollographql/apollo-client/issues/1186
-          if (options.notifyOnNetworkStatusChange) {
-            graphQLOptions.notifyOnNetworkStatusChange = options.notifyOnNetworkStatusChange;
+          if (notifyOnNetworkStatusChange) {
+            graphQLOptions.notifyOnNetworkStatusChange = notifyOnNetworkStatusChange;
           }
 
           return graphQLOptions;
@@ -145,8 +147,7 @@ export default function withMulti(options) {
             loadingInitial = props.data.networkStatus === 1,
             loading = props.data.networkStatus === 1,
             loadingMore = props.data.networkStatus === 2,
-            error = props.data.error,
-            propertyName = options.propertyName || 'results';
+            error = props.data.error;
 
           if (error) {
             // eslint-disable-next-line no-console
