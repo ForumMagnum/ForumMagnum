@@ -15,7 +15,34 @@ function appendToStream(chunk, stream) {
   } else if (Buffer.isBuffer(chunk) ||
              typeof chunk.read === "function") {
     stream.append(chunk);
+  } else {
+    throw new Error("Appending unrecognized type to stream");
   }
+}
+
+// Given a list of chunks (each either a string, a Buffer, or a stream), append
+// each to a stream. Consecutive strings will be separated by newlines, and
+// appended all at once, to avoid having excessively many buffer-flushes.
+function appendAllToStream(chunks, stream) {
+  let accumulator = [];
+  const flush = () => {
+    if (accumulator.length > 0) {
+      const combinedChunks = accumulator.join('\n');
+      stream.append(Buffer.from(combinedChunks, "utf8"));
+      accumulator = [];
+    }
+  }
+  for (let chunk of chunks) {
+    if (typeof chunk === "string") {
+      accumulator.push(chunk);
+    } else if (Buffer.isBuffer(chunk) || typeof chunk.read === "function") {
+      flush();
+      stream.append(chunk);
+    } else {
+      throw new Error("Appending unrecognized type to stream");
+    }
+  }
+  flush();
 }
 
 let shouldWarnAboutToHTMLDeprecation = ! Meteor.isProduction;
@@ -71,14 +98,14 @@ export class Boilerplate {
     }
 
     const data = {...this.baseData, ...extraData};
-    const start = "<!DOCTYPE html>\n" + this.headTemplate(data);
+    const start = this.headTemplate(data);
 
     const { body, dynamicBody } = data;
 
     const end = this.closeTemplate(data);
     const response = createStream();
 
-    appendToStream(start, response);
+    appendAllToStream(start, response);
 
     if (body) {
       appendToStream(body, response);
@@ -88,7 +115,7 @@ export class Boilerplate {
       appendToStream(dynamicBody, response);
     }
 
-    appendToStream(end, response);
+    appendAllToStream(end, response);
 
     return response;
   }

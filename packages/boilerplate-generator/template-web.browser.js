@@ -20,6 +20,7 @@ export const headTemplate = ({
   )].join('\n');
 
   return [
+    "<!DOCTYPE html>",
     '<html' + Object.keys(htmlAttributes || {}).map(
       key => template(' <%= attrName %>="<%- attrValue %>"')({
         attrName: key,
@@ -36,7 +37,7 @@ export const headTemplate = ({
     dynamicHead,
     '</head>',
     '<body>',
-  ].join('\n');
+  ]
 };
 
 // Template function for rendering the boilerplate html for browsers
@@ -80,4 +81,4 @@ export const closeTemplate = ({
   '',
   '</body>',
   '</html>'
-].join('\n');
+]
