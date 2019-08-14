@@ -9,6 +9,7 @@ import withUser from '../common/withUser';
 import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
+const HIGHLIGHT_DURATION = 5
 
 const styles = theme => ({
   node: {
@@ -66,7 +67,7 @@ const styles = theme => ({
     borderBottom: "none",
     borderTop: "solid 1px rgba(0,0,0,.15)",
     '&.comments-node-root':{
-      marginBottom: 6,
+      marginBottom: -1,
       borderBottom: "solid 1px rgba(0,0,0,.2)",
     }
   },
@@ -82,6 +83,13 @@ const styles = theme => ({
   },
   children: {
     position: "relative"
+  },
+  '@keyframes higlight-animation': {
+    from: {borderColor: theme.palette.grey[900]},
+    to: {borderColor: "rgba(0,0,0,.15)"}
+  },
+  highlightAnimation: {
+    animation: `higlight-animation ${HIGHLIGHT_DURATION}s ease-in-out 0s;`
   },
   gapIndicator: {
     border: `solid 1px ${theme.palette.grey[300]}`,
@@ -100,7 +108,7 @@ class CommentsNode extends Component {
       truncated: this.beginTruncated(),
       singleLine: this.beginSingleLine(),
       truncatedStateSet: false,
-      finishedScroll: false,
+      highlighted: false,
     };
     this.scrollTargetRef = React.createRef();
   }
@@ -139,28 +147,34 @@ class CommentsNode extends Component {
   componentDidMount() {
     const { comment, post, location } = this.props
     let commentHash = location.hash;
-    const self = this;
     if (comment && commentHash === ("#" + comment._id) && post) {
-      setTimeout(function () { //setTimeout make sure we execute this after the element has properly rendered
-        self.scrollIntoView()
+      setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
+        this.scrollIntoView()
       }, 0);
     }
   }
 
-  scrollIntoView = (event) => {
-    this.scrollTargetRef.current?.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
-    this.setState({finishedScroll: true});
+  scrollIntoView = (behavior="smooth") => {
+    this.scrollTargetRef.current?.scrollIntoView({behavior: behavior, block: "center", inline: "nearest"});
+    this.setState({highlighted: true})
+    setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
+      this.setState({highlighted: false})
+    }, HIGHLIGHT_DURATION*1000);
   }
 
   toggleCollapse = () => {
     this.setState({collapsed: !this.state.collapsed});
   }
 
-  unTruncate = (event) => {
+  handleExpand = async (event) => {
+    const { markAsRead, scrollOnExpand } = this.props
     event.stopPropagation()
     if (this.isTruncated() || this.isSingleLine()) {
-      this.props.markAsRead && this.props.markAsRead()
+      markAsRead && await markAsRead()
       this.setState({truncated: false, singleLine: false, truncatedStateSet: true});
+      if (scrollOnExpand) {
+        this.scrollIntoView("auto") // should scroll instantly
+      }
     }
   }
 
@@ -206,9 +220,9 @@ class CommentsNode extends Component {
   }
 
   isSingleLine = () => {
-    const { forceSingleLine, postPage } = this.props
+    const { forceSingleLine, postPage, currentUser } = this.props
     const { singleLine } = this.state
-    if (!singleLine) return false;
+    if (!singleLine || currentUser?.noSingleLineComments) return false;
     if (forceSingleLine)
       return true;
     
@@ -220,16 +234,16 @@ class CommentsNode extends Component {
 
   render() {
     const { comment, children, nestingLevel=1, highlightDate, updateComment, post,
-      muiTheme, location, postPage, classes, child, showPostTitle, unreadComments,
+      muiTheme, postPage, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments,
-      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash } = this.props;
+      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand } = this.props;
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList } = Components
 
     if (!comment || !post)
       return null;
 
-    const { collapsed, finishedScroll } = this.state
+    const { collapsed, highlighted } = this.state
 
     const newComment = this.isNewComment()
 
@@ -245,7 +259,7 @@ class CommentsNode extends Component {
         "comments-node-root" : updatedNestingLevel === 1,
         "comments-node-even" : updatedNestingLevel % 2 === 0,
         "comments-node-odd"  : updatedNestingLevel % 2 !== 0,
-        "comments-node-linked" : location.hash === "#" + comment._id && finishedScroll,
+        [classes.highlightAnimation] : highlighted,
         "comments-node-its-getting-nested-here": updatedNestingLevel > 8,
         "comments-node-so-take-off-all-your-margins": updatedNestingLevel > 12,
         "comments-node-im-getting-so-nested": updatedNestingLevel > 16,
@@ -270,12 +284,12 @@ class CommentsNode extends Component {
     )
 
     const passedThroughItemProps = { post, postPage, comment, updateComment, showPostTitle, collapsed, refetch }
-    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, updateComment, condensed, hideReadComments, refetch }
+    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, updateComment, condensed, hideReadComments, refetch, scrollOnExpand }
 
     return (
         <div className={comment.gapIndicator && classes.gapIndicator}>
           <div className={nodeClass}
-            onClick={(event) => this.unTruncate(event)}
+            onClick={(event) => this.handleExpand(event)}
             id={!noHash ? comment._id : undefined}
           >
             {!hiddenReadComment && comment._id && <div ref={this.scrollTargetRef}>
@@ -291,7 +305,6 @@ class CommentsNode extends Component {
                     parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
                     toggleCollapse={this.toggleCollapse}
                     key={comment._id}
-                    scrollIntoView={this.scrollIntoView}
                     { ...passedThroughItemProps}
                   />
               }

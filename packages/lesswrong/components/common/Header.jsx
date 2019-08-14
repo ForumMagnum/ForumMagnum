@@ -44,6 +44,7 @@ const styles = theme => ({
     flex: 1,
     position: "relative",
     top: 3,
+    paddingRight: theme.spacing.unit
   },
   titleLink: {
     color: getHeaderTextColor(theme),
@@ -57,9 +58,23 @@ const styles = theme => ({
     marginLeft: -theme.spacing.unit,
     marginRight: theme.spacing.unit,
   },
+  hideOnDesktop: {
+    [theme.breakpoints.up('lg')]: {
+      display:"none"
+    }
+  },
+  hideOnMobile: {
+    [theme.breakpoints.down('md')]: {
+      display:"none"
+    }
+  },
   rightHeaderItems: {
     marginRight: -theme.spacing.unit,
     display: "flex",
+  },
+  // Prevent rearranging of mobile header when search loads after SSR
+  searchSSRStandin: {
+    minWidth: 48
   },
   headroom: {
     // Styles for header scrolling, provided by react-headroom
@@ -101,7 +116,7 @@ class Header extends PureComponent {
     navigationOpen: false,
     notificationOpen: false,
     notificationHasOpened: false,
-    headroomPinnedOpen: false,
+    searchOpen: false,
   }
 
   setNavigationOpen = (open) => {
@@ -127,79 +142,113 @@ class Header extends PureComponent {
     }
   }
 
-  // Set whether Headroom (the auto-hiding top bar) is pinned so it doesn't
-  // hide on scroll. Called by SearchBar, which pins the header open when a
-  // search is active.
-  setHeadroomPinnedOpen = (isPinned) => {
+  // We do two things when the search is open:
+  //  1) Pin the header open with the Headroom component
+  //  2) Hide the username on mobile so users with long usernames can still
+  //     enter search queries
+  // Called by SearchBar.
+  setSearchOpen = (isOpen) => {
     this.setState({
-      headroomPinnedOpen: isPinned
+      searchOpen: isOpen
     });
+  }
+
+  renderNavigationMenuButton = () => {
+    const {standaloneNavigationPresent, toggleStandaloneNavigation, classes, toc} = this.props
+    return <React.Fragment>
+      <IconButton
+        className={classNames(
+          classes.menuButton,
+          {[classes.hideOnDesktop]: standaloneNavigationPresent}
+        )}
+        color="inherit"
+        aria-label="Menu"
+        onClick={()=>this.setNavigationOpen(true)}
+      >
+      {/* Show the ToC icon if there's a table of contents being displayed  */}
+        {toc && toc.sections ? (
+          <span>
+            <Hidden smDown implementation="css">
+              <MenuIcon />
+            </Hidden>
+            <Hidden mdUp implementation="css">
+              <TocIcon />
+            </Hidden>
+          </span>
+        ) : <MenuIcon />}
+      </IconButton>
+      {standaloneNavigationPresent && <IconButton
+        className={classNames(
+          classes.menuButton,
+          classes.hideOnMobile
+        )}
+        color="inherit"
+        aria-label="Menu"
+        onClick={toggleStandaloneNavigation}
+      >
+        <MenuIcon />
+      </IconButton>}
+    </React.Fragment>
   }
 
   render() {
     const { currentUser, classes, theme, toc, searchResultsArea } = this.props
-    const { notificationOpen, notificationHasOpened, navigationOpen, headroomPinnedOpen } = this.state
+    const { notificationOpen, notificationHasOpened, navigationOpen, searchOpen } = this.state
     const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
 
-    const { SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton,
-      NavigationMenu, NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle } = Components;
+    const {
+      SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
+      NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle
+    } = Components;
 
     return (
-        <div className={classes.root}>
-          <Headroom
-            disableInlineStyles
-            downTolerance={10} upTolerance={10}
-            className={classNames(
-              classes.headroom,
-              { [classes.headroomPinnedOpen]: headroomPinnedOpen }
-            )}
-          >
-            <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
-              <Toolbar>
-                <IconButton
-                  className={classes.menuButton} color="inherit"
-                  aria-label="Menu"
-                  onClick={()=>this.setNavigationOpen(true)}
-                >
-                {/* Show the ToC icon if there's a table of contents being displayed  */}
-                  {toc && toc.sections ? (
-                    <span>
-                      <Hidden smDown implementation="css">
-                        <MenuIcon />
-                      </Hidden>
-                      <Hidden mdUp implementation="css">
-                        <TocIcon />
-                      </Hidden>
-                    </span>
-                  ) : <MenuIcon />}
-                </IconButton>
-                <Typography className={classes.title} variant="title" color="textSecondary">
-                  <Hidden smDown implementation="css">
-                    <Link to="/" className={classes.titleLink}>
-                      {getSetting('forumSettings.headerTitle', 'LESSWRONG')}
-                    </Link>
-                    <HeaderSubtitle/>
-                  </Hidden>
-                  <Hidden mdUp implementation="css">
-                    <Link to="/" className={classes.titleLink}>
-                      {getSetting('forumSettings.shortForumTitle', 'LW')}
-                    </Link>
-                  </Hidden>
-                </Typography>
-                <div className={classes.rightHeaderItems}>
-                  <NoSSR>
-                    <SearchBar onSetIsActive={this.setHeadroomPinnedOpen} searchResultsArea={searchResultsArea} />
-                  </NoSSR>
-                  {currentUser ? <UsersMenu color={getHeaderTextColor(theme)} /> : <UsersAccountMenu color={getHeaderTextColor(theme)} />}
-                  {currentUser && <KarmaChangeNotifier documentId={currentUser._id}/>}
-                  {currentUser && <NotificationsMenuButton color={getHeaderTextColor(theme)} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
-                </div>
-              </Toolbar>
-            </AppBar>
-            <NavigationMenu open={navigationOpen} handleOpen={()=>this.setNavigationOpen(true)} handleClose={()=>this.setNavigationOpen(false)} toc={toc} />
-          </Headroom>
-          {currentUser && <NotificationsMenu open={notificationOpen} hasOpened={notificationHasOpened} terms={notificationTerms} setIsOpen={this.handleSetNotificationDrawerOpen} />}
-        </div>
+      <div className={classes.root}>
+        <Headroom
+          disableInlineStyles
+          downTolerance={10} upTolerance={10}
+          className={classNames(
+            classes.headroom,
+            { [classes.headroomPinnedOpen]: searchOpen }
+          )}
+        >
+          <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
+            <Toolbar>
+              {this.renderNavigationMenuButton()}
+              <Typography className={classes.title} variant="title" color="textSecondary">
+                <Hidden smDown implementation="css">
+                  <Link to="/" className={classes.titleLink}>
+                    {getSetting('forumSettings.headerTitle', 'LESSWRONG')}
+                  </Link>
+                  <HeaderSubtitle />
+                </Hidden>
+                <Hidden mdUp implementation="css">
+                  <Link to="/" className={classes.titleLink}>
+                    {getSetting('forumSettings.shortForumTitle', 'LW')}
+                  </Link>
+                </Hidden>
+              </Typography>
+              <div className={classes.rightHeaderItems}>
+                <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
+                  <SearchBar onSetIsActive={this.setSearchOpen} searchResultsArea={searchResultsArea} />
+                </NoSSR>
+                {currentUser && <div className={searchOpen ? classes.hideOnMobile : undefined}>
+                    <UsersMenu color={getHeaderTextColor(theme)} />
+                  </div>}
+                {!currentUser && <UsersAccountMenu color={getHeaderTextColor(theme)} />}
+                {currentUser && <KarmaChangeNotifier documentId={currentUser._id}/>}
+                {currentUser && <NotificationsMenuButton color={getHeaderTextColor(theme)} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
+              </div>
+            </Toolbar>
+          </AppBar>
+          <NavigationDrawer
+            open={navigationOpen}
+            handleOpen={() => this.setNavigationOpen(true)}
+            handleClose={() => this.setNavigationOpen(false)}
+            toc={toc}
+          />
+        </Headroom>
+        {currentUser && <NotificationsMenu open={notificationOpen} hasOpened={notificationHasOpened} terms={notificationTerms} setIsOpen={this.handleSetNotificationDrawerOpen} />}
+      </div>
     )
   }
 }

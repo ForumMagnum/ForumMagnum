@@ -1,54 +1,59 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { graphql } from 'react-apollo';
+
+import { graphql, useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
-import { getSetting, singleClientTemplate, Utils, extractCollectionInfo, extractFragmentInfo } from 'meteor/vulcan:lib';
+import { singleClientTemplate, Utils, extractCollectionInfo, extractFragmentInfo } from 'meteor/vulcan:lib';
 
-export default function withSingle(options) {
-  
-  let { pollInterval = getSetting('pollInterval', 0), enableCache = false, extraQueries } = options;
-  // LESSWRONG: pollInterval defaults to 0 instead of 20000
-
-  // if this is the SSR process, set pollInterval to null
-  // see https://github.com/apollographql/apollo-client/issues/1704#issuecomment-322995855
-  //pollInterval = typeof window === 'undefined' ? null : pollInterval;
-
-  const { collectionName, collection } = extractCollectionInfo(options);
-  const { fragmentName, fragment } = extractFragmentInfo(options, collectionName);
+export function getGraphQLQueryFromOptions({ extraVariables, extraQueries, collectionName, collection, fragment, fragmentName }) {
+  ({ collectionName, collection } = extractCollectionInfo({ collectionName, collection }));
+  ({ fragmentName, fragment } = extractFragmentInfo({ fragment, fragmentName }, collectionName));
   const typeName = collection.options.typeName;
-  const resolverName = Utils.camelCaseify(typeName);
 
   // LESSWRONG MODIFICATION: Allow the passing of extraVariables so that you can have field-specific queries
   let extraVariablesString = ''
-  if (options.extraVariables) {
-    extraVariablesString = Object.keys(options.extraVariables).map(k => `$${k}: ${options.extraVariables[k]}`).join(', ')
+  if (extraVariables) {
+    extraVariablesString = Object.keys(extraVariables).map(k => `$${k}: ${extraVariables[k]}`).join(', ')
   }
-
+  
   const query = gql`
     ${singleClientTemplate({ typeName, fragmentName, extraQueries, extraVariablesString })}
     ${fragment}
   `;
+  
+  return query
+}
 
+export function getResolverNameFromOptions({ collectionName, collection }) {
+  ({ collection } = extractCollectionInfo({ collectionName, collection }))
+  const typeName = collection.options.typeName;
+  return Utils.camelCaseify(typeName);
+}
+
+export default function withSingle({ collectionName, collection, fragment, fragmentName, extraVariables, fetchPolicy, propertyName = 'document', extraQueries }) {
+  ({ collectionName, collection } = extractCollectionInfo({ collectionName, collection }));
+  ({ fragmentName, fragment } = extractFragmentInfo({ fragment, fragmentName }, collectionName));
+
+  const query = getGraphQLQueryFromOptions({ extraVariables, extraQueries, collectionName, collection, fragment, fragmentName })
+  const resolverName = getResolverNameFromOptions({ collectionName, collection })
+  const typeName = collection.options.typeName
+  
   return graphql(query, {
     alias: `with${typeName}`,
 
     options({ documentId, slug, selector = { documentId, slug }, ...rest }) {
       // OpenCrud backwards compatibility
       // From the provided arguments, pick the key-value pairs where the key is also in extraVariables option
-      const extraVariables = _.pick(rest, Object.keys(options.extraVariables || {}))  
+      const extraVariablesValues = _.pick(rest, Object.keys(extraVariables || {}))  
       const graphQLOptions = {
         variables: {
           input: {
             selector,
-            enableCache
           },
-          ...extraVariables
-        },
-        pollInterval // note: pollInterval can be set to 0 to disable polling (20s by default)
+          ...extraVariablesValues
+        }
       };
 
-      if (options.fetchPolicy) {
-        graphQLOptions.fetchPolicy = options.fetchPolicy;
+      if (fetchPolicy) {
+        graphQLOptions.fetchPolicy = fetchPolicy;
       }
 
       return graphQLOptions;
@@ -56,7 +61,6 @@ export default function withSingle(options) {
     props: returnedProps => {
       const { /* ownProps, */ data } = returnedProps;
 
-      const propertyName = options.propertyName || 'document';
       const props = {
         loading: data.loading,
         refetch: data.refetch,
@@ -75,4 +79,25 @@ export default function withSingle(options) {
       return props;
     }
   });
+}
+
+export function useSingle({ collectionName, 
+  collection, 
+  fragment, 
+  fragmentName, 
+  extraVariables, 
+  fetchPolicy, 
+  propertyName, 
+  extraQueries, 
+  documentId, 
+  extraVariablesValues
+}) {
+  const query = getGraphQLQueryFromOptions({ extraVariables, extraQueries, collectionName, collection, fragment, fragmentName })
+  const resolverName = getResolverNameFromOptions({ collectionName, collection })
+  const { data, ...rest } = useQuery(query, { 
+    variables: { input: { selector: { documentId } }, ...extraVariables }, 
+    fetchPolicy 
+  })
+  const document = data && data[resolverName] && data[resolverName].result
+  return { document, data, ...rest }
 }

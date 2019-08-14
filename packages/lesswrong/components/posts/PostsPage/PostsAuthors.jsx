@@ -21,7 +21,7 @@ const PostsAuthors = ({classes, post}) => {
     by
     <span className={classes.authorName}>
       {!post.user || post.hideAuthor ? <Components.UserNameDeleted/> : <UsersName user={post.user} />}
-      { post.coauthors.map(coauthor=><span key={coauthor._id} >
+      { post.coauthors?.map(coauthor=><span key={coauthor._id} >
         , <UsersName user={coauthor} />
       </span>)}
     </span>

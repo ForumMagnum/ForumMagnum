@@ -10,12 +10,10 @@ const styles = theme => ({
 })
 
 const ShortformPage = ({classes}) => {
-  const { SingleColumnSection, ShortformThreadList, SectionTitle, TabNavigationMenu } = Components
+  const { SingleColumnSection, ShortformThreadList, SectionTitle } = Components
 
   return (
     <SingleColumnSection>
-      <TabNavigationMenu /> 
-      {/* TODO: JP do whatever to the above */}
       <div className={classes.column}>
         <SectionTitle title="Shortform Content [Beta]"/>
         <ShortformThreadList terms={{view: 'shortform', limit:20, testLimit:30}} />
