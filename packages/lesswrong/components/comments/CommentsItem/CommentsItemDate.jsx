@@ -44,7 +44,7 @@ const CommentsItemDate = ({comment, post, showPostTitle, classes, scrollOnClick,
     scrollIntoView();	
   };
 
-  const url = Comments.getPageUrlFromIds(post._id, post.slug, comment._id, false)
+  const url = Comments.getPageUrlFromIds({postId: post._id, postSlug: post.slug, commentId: comment._id, permalink: false})
 
   const date = <span>
     <Components.FormatDate date={comment.postedAt} format={comment.answer && "MMM DD, YYYY"}/>

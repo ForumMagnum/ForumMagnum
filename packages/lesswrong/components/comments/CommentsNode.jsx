@@ -304,7 +304,7 @@ class CommentsNode extends Component {
         <div className={comment.gapIndicator && classes.gapIndicator}>
           <div className={nodeClass}
             onClick={(event) => this.handleExpand(event)}
-            id={!noHash ? `${comment._id}` : undefined}
+            id={!noHash ? comment._id : undefined}
           >
             {!hiddenReadComment && comment._id && <div ref={this.scrollTargetRef}>
               {this.isSingleLine()

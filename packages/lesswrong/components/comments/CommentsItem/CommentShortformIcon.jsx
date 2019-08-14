@@ -23,7 +23,7 @@ const CommentShortformIcon = ({comment, post, postPage, classes}) => {
   if (!comment.shortform || comment.topLevelCommentId || postPage) return null
   return (
     <Tooltip title="Shortform Permalink">
-      <Link to={Comments.getPageUrlFromIds(post._id, post.slug, comment._id)}>
+      <Link to={Comments.getPageUrlFromIds({postId:post._id, postSlug:post.slug, commentId: comment._id})}>
         <NotesIcon className={classes.icon} />
       </Link>
     </Tooltip>

@@ -7,7 +7,7 @@ import { Link } from '../../../lib/reactRouterWrapper.js';
 import { Comments } from "../../../lib/collections/comments";
 
 const CommentsPermalinkMenuItem = ({comment, post}) => {
-  return <Link to={Comments.getPageUrlFromIds(post._id, post.slug, comment._id)}>
+  return <Link to={Comments.getPageUrlFromIds({postId: post._id, postSlug: post.slug, commentId: comment._id})}>
     <MenuItem onClick={this.showReport}>
       <ListItemIcon>
         <LinkIcon />
