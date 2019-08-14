@@ -85,7 +85,6 @@ export const styles = theme => ({
   },
   replyForm: {
     marginTop: theme.spacing.unit,
-    padding: 10,
     marginLeft: 9,
     marginBottom: theme.spacing.unit,
     borderLeft: "solid 1px rgba(0,0,0,.15)",

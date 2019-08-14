@@ -123,8 +123,8 @@ export const postBodyStyles = (theme, fontSize) => {
 
 export const commentBodyStyles = theme => {
   const commentBodyStyles = {
-    marginTop: ".5em",
-    marginBottom: ".25em",
+    paddingTop: ".5em",
+    paddingBottom: ".25em",
     wordBreak: "break-word",
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
@@ -198,6 +198,12 @@ export const editorStyles = (theme, styleFunction) => ({
     '& .public-DraftStyleDefault-block': {
       marginTop: '1em',
       marginBottom: '1em',
+      '&:first-child': {
+        marginTop: 0,
+      },
+      '&:last-child': {
+        marginBottom: 0,
+      },
     },
     '& code .public-DraftStyleDefault-block': {
       marginTop: 0,

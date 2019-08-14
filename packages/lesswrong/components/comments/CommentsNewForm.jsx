@@ -12,7 +12,10 @@ import withDialog from '../common/withDialog';
 
 const styles = theme => ({
   root: {
-    position: "relative"
+    position: "relative",
+  },
+  form: {
+    padding: theme.spacing.unit*1.5
   },
   modNote: {
     paddingTop: '4px',
@@ -35,7 +38,7 @@ const styles = theme => ({
   }
 });
 
-const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, currentUser, fragment = "CommentsList", postPageComment}) => {
+const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, currentUser, fragment = "CommentsList"}) => {
   const { WrappedSmartForm, ModerationGuidelinesBox } = Components
   const [showModerationGuidelines, setShowModerationGuidelines] = useState(null);
 
@@ -96,27 +99,28 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
       onClick={() => setShowModerationGuidelines(true)} 
       onBlur={() => setShowModerationGuidelines(false)}
     >
-      {showModerationGuidelines && post && <div className={classes.moderationWrapper}>
-        <ModerationGuidelinesBox documentId={post._id} showModeratorAssistance postPageComment={postPageComment} />
+      {post && <div className={classes.moderationWrapper}>
+        <ModerationGuidelinesBox documentId={post._id} showModeratorAssistance />
       </div>}
       {commentWillBeHidden && <div className={classes.modNote}><em>
         A moderator will need to review your account before your comments will show up.
       </em></div>}
-
-      <WrappedSmartForm
-        collection={Comments}
-        mutationFragment={getFragment(fragment)}
-        successCallback={successCallback}
-        cancelCallback={cancelCallback}
-        prefilledProps={prefilledProps}
-        layout="elementOnly"
-        formComponents={{
-          FormSubmit: SubmitComponent,
-          FormGroupLayout: Components.DefaultStyleFormGroup
-        }}
-        alignmentForumPost={post?.af}
-        addFields={currentUser?[]:["contents"]}
-      />
+      <div className={classes.form}>
+        <WrappedSmartForm
+          collection={Comments}
+          mutationFragment={getFragment(fragment)}
+          successCallback={successCallback}
+          cancelCallback={cancelCallback}
+          prefilledProps={prefilledProps}
+          layout="elementOnly"
+          formComponents={{
+            FormSubmit: SubmitComponent,
+            FormGroupLayout: Components.DefaultStyleFormGroup
+          }}
+          alignmentForumPost={post?.af}
+          addFields={currentUser?[]:["contents"]}
+        />
+      </div>
     </div>
   );
 };
@@ -133,4 +137,4 @@ CommentsNewForm.propTypes = {
   prefilledProps: PropTypes.object
 };
 
-registerComponent('CommentsNewForm', CommentsNewForm, withUser, withStyles(styles), withErrorBoundary);
+registerComponent('CommentsNewForm', CommentsNewForm, withUser, withStyles(styles, { name: "CommentsNewForm"}), withErrorBoundary);

@@ -70,12 +70,10 @@ const styles = theme => ({
     }
   },
   moderationOutline: {
-    border: `solid 3px ${theme.palette.lwTertiary.main}`,
+    border: `solid 2px ${theme.palette.lwTertiary.main}`,
     position: "absolute",
-    top: -26,
-    left: -12,
-    height: "calc(100% + 38px)",
-    width: "calc(100% + 22px)"
+    height: "100%",
+    width: "100%"
   },
   bigOutline: {
     top: -48,
@@ -128,13 +126,13 @@ class ModerationGuidelinesBox extends PureComponent {
   }
 
   render() {
-    const { document, classes, currentUser, postPageComment } = this.props;
+    const { document, classes, currentUser } = this.props;
     if (!document) return null
     
     const { combinedGuidelines } = this.getModerationGuidelines(document, classes)
     return (
       <div>
-        <div className={classNames(classes.moderationOutline, {[classes.bigOutline]:postPageComment})}></div>
+        <div className={classes.moderationOutline}></div>
         <div className={classes.moderationOuterWrapper}>
           <div className={classes.moderationGuidelinesInner} onClick={this.handleClick}>
             {Users.canModeratePost(currentUser, document) &&

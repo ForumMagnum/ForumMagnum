@@ -154,7 +154,6 @@ class CommentsListSection extends Component {
               prefilledProps={{
                 parentAnswerId: parentAnswerId}}
               type="comment"
-              postPageComment
             />
           </div>
         }
