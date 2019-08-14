@@ -1,6 +1,7 @@
 export * from './collection.js';
 import './views.js';
 import './helpers.js';
+import './parameters.js';
 import './permissions.js';
 import './redux.js';
 import './voting.js'
