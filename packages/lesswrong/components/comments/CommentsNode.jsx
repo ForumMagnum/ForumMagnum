@@ -9,7 +9,7 @@ import withUser from '../common/withUser';
 import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
-const HIGHLIGHT_DURATION = 5
+const HIGHLIGHT_DURATION = 3
 
 const styles = theme => ({
   node: {
