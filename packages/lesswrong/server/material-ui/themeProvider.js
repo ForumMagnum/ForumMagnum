@@ -37,15 +37,4 @@ function wrapWithMuiTheme (app, { context }) {
   );
 }
 
-
-function injectJss (sink, { context }) {
-  const sheets = context.sheetsRegistry.toString();
-  sink.appendToHead(
-    `<style id="jss-server-side">${sheets}</style>`
-  );
-  return sink;
-}
-
-
 addCallback('router.server.wrapper', wrapWithMuiTheme);
-addCallback('router.server.postRender', injectJss);

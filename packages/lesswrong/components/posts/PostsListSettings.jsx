@@ -69,7 +69,7 @@ const FILTERS_ALL = {
     },
     meta: {
       label: "Community",
-      tooltip: "Posts with topical content or relating to the EA community itself"
+      tooltip: "Posts with topical content or relating to the EA community itself."
     },
   }
 }

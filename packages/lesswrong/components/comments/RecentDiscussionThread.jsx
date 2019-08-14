@@ -58,6 +58,8 @@ const styles = theme => ({
     marginTop:5,
     maxWidth:600,
     marginBottom:16,
+    maxHeight: 1000,
+    overflow: "hidden",
     '& a, & a:hover, & a:focus, & a:active, & a:visited': {
       backgroundColor: "none"
     }
@@ -93,7 +95,7 @@ const styles = theme => ({
 })
 
 class RecentDiscussionThread extends PureComponent {
-  state = { showHighlight: false, readStatus: false, markedAsVisitedAt: null }
+  state = { showHighlight: false, readStatus: false, markedAsVisitedAt: null, expandAllThreads: false }
 
   showHighlight = () => {
     this.setState(prevState => ({showHighlight:!prevState.showHighlight}));
@@ -101,12 +103,12 @@ class RecentDiscussionThread extends PureComponent {
   }
 
   markAsRead = async () => {
-    this.setState({readStatus:true, markedAsVisitedAt: new Date()});
+    this.setState({readStatus:true, markedAsVisitedAt: new Date(), expandAllThreads: true});
     this.props.recordPostView({post:this.props.post})
   }
 
   render() {
-    const { post, comments, updateComment, currentUser, classes, isRead, refetch, expandAll } = this.props
+    const { post, comments, updateComment, currentUser, classes, isRead, refetch } = this.props
     const { readStatus, showHighlight, markedAsVisitedAt } = this.state
     const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle } = Components
 
@@ -127,7 +129,7 @@ class RecentDiscussionThread extends PureComponent {
 
     return (
       <div className={classes.root}>
-        <div className={(currentUser && !(isRead || readStatus)) && classes.unreadPost}>
+        <div className={(currentUser && !(isRead || readStatus)) ? classes.unreadPost : null}>
           <div className={classes.postItem}>
             <Link className={classes.title} to={Posts.getPageUrl(post)}>
               <PostsTitle wrap post={post} />
@@ -158,7 +160,8 @@ class RecentDiscussionThread extends PureComponent {
               <div key={comment.item._id}>
                 <CommentsNode
                   startThreadTruncated={true}
-                  expandAllThreads={expandAll}
+                  expandAllThreads={this.props.expandAllThreads || this.state.expandAllThreads}
+                  scrollOnExpand
                   nestingLevel={1}
                   lastCommentId={lastCommentId}
                   currentUser={currentUser}

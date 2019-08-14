@@ -1,7 +1,7 @@
-import { getSetting, addCallback } from 'meteor/vulcan:core';
-import timber from 'timber';
+//import { getSetting, addCallback } from 'meteor/vulcan:core';
+//import timber from 'timber';
 
-function initializeTimber() {
+/*function initializeTimber() {
   const timberApiKey = getSetting('timber.apiKey', null);
   if (timberApiKey) {
     const transport = new timber.transports.HTTPS(timberApiKey);
@@ -12,7 +12,7 @@ function initializeTimber() {
   }
 }
 
-addCallback('graphql.init.before', initializeTimber)
+addCallback('graphql.init.before', initializeTimber)*/
 
 // Log unhandled promise rejections, eg exceptions escaping from async
 // callbacks. The default node behavior is to silently ignore these exceptions,

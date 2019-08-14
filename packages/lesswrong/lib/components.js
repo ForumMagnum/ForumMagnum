@@ -42,9 +42,6 @@ import '../components/common/BetaTag.jsx';
 import '../components/common/FlashMessages.jsx';
 import '../components/common/Header.jsx';
 import '../components/common/HeaderSubtitle.jsx';
-import '../components/common/TabNavigationMenu.jsx';
-import '../components/common/TabNavigationSubItem.jsx';
-import '../components/common/NavigationMenu.jsx';
 import '../components/common/HeadTags.jsx';
 import '../components/common/Home2.jsx';
 import '../components/common/HomeEA.jsx';
@@ -74,6 +71,16 @@ import '../components/common/LinkCard.jsx';
 import '../components/common/Error404.jsx';
 import '../components/common/PermanentRedirect.jsx';
 
+
+import '../components/common/TabNavigationMenu/TabNavigationMenu.jsx';
+import '../components/common/TabNavigationMenu/TabNavigationMenuFooter.jsx';
+import '../components/common/TabNavigationMenu/TabNavigationMenuCompressed.jsx';
+import '../components/common/TabNavigationMenu/TabNavigationItem.jsx';
+import '../components/common/TabNavigationMenu/TabNavigationFooterItem.jsx';
+import '../components/common/TabNavigationMenu/TabNavigationCompressedItem.jsx';
+import '../components/common/TabNavigationMenu/TabNavigationSubItem.jsx';
+import '../components/common/TabNavigationMenu/NavigationDrawer.jsx';
+import '../components/common/TabNavigationMenu/NavigationStandalone.jsx';
 
 // Outgoing RSS Feed builder
 import '../components/common/SubscribeWidget.jsx';
@@ -200,6 +207,8 @@ if (getSetting('hasEvents', true)) {
 import '../components/comments/CommentsItem/CommentsItem.jsx';
 import '../components/comments/CommentsItem/CommentUserName.jsx';
 import '../components/comments/CommentsItem/RetractCommentMenuItem.jsx';
+import '../components/comments/CommentsItem/CommentsPermalinkMenuItem.jsx';
+import '../components/comments/CommentsItem/CommentShortformIcon.jsx';
 import '../components/comments/CommentsItem/MoveToAnswersMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromPostMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromAllPostsMenuItem.jsx';
