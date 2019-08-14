@@ -95,7 +95,7 @@ export function useSingle({ collectionName,
   const query = getGraphQLQueryFromOptions({ extraVariables, extraQueries, collectionName, collection, fragment, fragmentName })
   const resolverName = getResolverNameFromOptions({ collectionName, collection })
   const { data, ...rest } = useQuery(query, { 
-    variables: { input: { selector: { documentId } }, ...extraVariables }, 
+    variables: { input: { selector: { documentId } }, ...extraVariablesValues }, 
     fetchPolicy 
   })
   const document = data && data[resolverName] && data[resolverName].result

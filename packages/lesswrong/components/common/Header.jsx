@@ -117,6 +117,7 @@ class Header extends PureComponent {
     notificationOpen: false,
     notificationHasOpened: false,
     searchOpen: false,
+    unFixed: true
   }
 
   setNavigationOpen = (open) => {
@@ -155,11 +156,12 @@ class Header extends PureComponent {
 
   renderNavigationMenuButton = () => {
     const {standaloneNavigationPresent, toggleStandaloneNavigation, classes, toc} = this.props
+    const { unFixed } = this.state
     return <React.Fragment>
       <IconButton
         className={classNames(
           classes.menuButton,
-          {[classes.hideOnDesktop]: standaloneNavigationPresent}
+          {[classes.hideOnDesktop]: standaloneNavigationPresent && unFixed}
         )}
         color="inherit"
         aria-label="Menu"
@@ -177,7 +179,7 @@ class Header extends PureComponent {
           </span>
         ) : <MenuIcon />}
       </IconButton>
-      {standaloneNavigationPresent && <IconButton
+      {standaloneNavigationPresent && unFixed && <IconButton
         className={classNames(
           classes.menuButton,
           classes.hideOnMobile
@@ -210,6 +212,8 @@ class Header extends PureComponent {
             classes.headroom,
             { [classes.headroomPinnedOpen]: searchOpen }
           )}
+          onUnfix={() => this.setState({unFixed: true})}
+          onUnpin={() => this.setState({unFixed: false})}
         >
           <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
             <Toolbar>
