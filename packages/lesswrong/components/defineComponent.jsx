@@ -1,6 +1,6 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
-import { compose } from 'react-apollo';
+import compose from 'lodash/flowRight';
 
 export function defineComponent({name, component, split, styles, hocs})
 {

@@ -31,13 +31,12 @@ const sansSerifStack = [
 
 const palette = {
   primary: {
-    main: '#0c869b',
+    main: '#0c869b', // Maybe replace with: 00b2be
   },
   secondary: {
     main: '#0c869b',
   },
   lwTertiary: {
-    light: "#a1bec7",
     main: "#607e88" // EA-folk: you may want to pick your own color here
   },
   error: {
@@ -157,6 +156,57 @@ const theme = createLWTheme({
       tooltip: {
         fontSize: "1rem",
         padding: ".7rem",
+      }
+    },
+    SunshineSidebar: {
+      root: {
+        top: 30
+      }
+    },
+    PostsPageTitle: {
+      root: {
+        lineHeight: '1.25em'
+      }
+    },
+    NavigationStandalone: {
+      sidebar: {
+        paddingTop: 30,
+      },
+      footerBar: {
+        backgroundColor: grey[200],
+      }
+    },
+    TabNavigationMenu: {
+      divider: {
+        marginTop: 10,
+        marginBottom: 20,
+      }
+    },
+    TabNavigationItem: {
+      navButton: {
+        paddingTop: 10,
+        paddingBottom: 10,
+      },
+      icon: {
+        opacity: 1,
+      },
+      navText: {
+        color: grey[800]
+      }
+    },
+    TabNavigationFooterItem: {
+      selected: {
+        backgroundColor: palette.secondary.main
+      }
+    },
+    TabNavigationCompressedItem: {
+      icon: {
+        opacity: 1
+      }
+    },
+    TabNavigationMenuSubItem: {
+      root: {
+        color: grey[800]
       }
     },
     PostsTimeBlock: {

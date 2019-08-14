@@ -31,13 +31,13 @@ export const ServerRequestStatusContext = React.createContext("serverRequestStat
 export function parseQuery(location) {
   let query = location && location.search;
   if (!query) return {};
-  
+
   // The unparsed query string looks like ?foo=bar&numericOption=5&flag but the
   // 'qs' parser wants it without the leading question mark, so strip the
   // question mark.
   if (query.startsWith('?'))
     query = query.substr(1);
-    
+
   return qs.parse(query);
 }
 
@@ -48,10 +48,10 @@ class App extends PureComponent {
       runCallbacks('events.identify', props.currentUser);
     }
     const { locale, localeMethod } = this.initLocale();
-    this.state = { 
-      locale, 
+    this.state = {
+      locale,
       localeMethod,
-      messages: [], 
+      messages: [],
     };
     moment.locale(locale);
   }
@@ -72,13 +72,13 @@ class App extends PureComponent {
       this.unlisten();
   }
 
-  /* 
-  
+  /*
+
   Show a flash message
-  
+
   */
   flash = message => {
-    this.setState({ 
+    this.setState({
       messages: [...this.state.messages, message]
     });
   }
@@ -96,7 +96,7 @@ class App extends PureComponent {
     })
     setTimeout(() => {
       this.setState({ messages: []});
-    }, 500) 
+    }, 500)
   }
 
   componentDidMount() {
@@ -173,7 +173,7 @@ class App extends PureComponent {
       runCallbacks('events.identify', nextProps.currentUser);
     }
   }
-  
+
   parseRoute(location) {
     const routeNames = Object.keys(Routes);
     let currentRoute = null;
@@ -186,7 +186,7 @@ class App extends PureComponent {
         params = match.params;
       }
     }
-    
+
     const RouteComponent = currentRoute ? Components[currentRoute.componentName] : Components.Error404;
     return {
       currentRoute, RouteComponent, location, params,
@@ -203,7 +203,7 @@ class App extends PureComponent {
 
     // Parse the location into a route/params/query/etc.
     const location = this.parseRoute(this.props.location);
-    
+
     // Reuse the container objects for location and navigation context, so that
     // they will be reference-stable and won't trigger spurious rerenders.
     if (!this.locationContext) {
@@ -211,7 +211,7 @@ class App extends PureComponent {
     } else {
       Object.assign(this.locationContext, location);
     }
-    
+
     if (!this.navigationContext) {
       this.navigationContext = {
         history: this.props.history
@@ -219,7 +219,7 @@ class App extends PureComponent {
     } else {
       this.navigationContext.history = this.props.history;
     }
-    
+
     // subscribeLocationContext changes (by shallow comparison) whenever the
     // URL changes.
     if (!this.subscribeLocationContext || this.subscribeLocationContext.pathname != location.pathname) {
@@ -227,8 +227,8 @@ class App extends PureComponent {
     } else {
       Object.assign(this.subscribeLocationContext, location);
     }
-    
-    const { currentRoute, RouteComponent } = location;
+
+    const { RouteComponent } = location;
     return (
       <LocationContext.Provider value={this.locationContext}>
       <SubscribeLocationContext.Provider value={this.subscribeLocationContext}>

@@ -58,6 +58,8 @@ const styles = theme => ({
     marginTop:5,
     maxWidth:600,
     marginBottom:16,
+    maxHeight: 1000,
+    overflow: "hidden",
     '& a, & a:hover, & a:focus, & a:active, & a:visited': {
       backgroundColor: "none"
     }
@@ -127,7 +129,7 @@ class RecentDiscussionThread extends PureComponent {
 
     return (
       <div className={classes.root}>
-        <div className={(currentUser && !(isRead || readStatus)) && classes.unreadPost}>
+        <div className={(currentUser && !(isRead || readStatus)) ? classes.unreadPost : null}>
           <div className={classes.postItem}>
             <Link className={classes.title} to={Posts.getPageUrl(post)}>
               <PostsTitle wrap post={post} />
