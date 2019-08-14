@@ -34,7 +34,8 @@ Terms object can have the following properties:
 
 */
 
-import { withApollo, graphql } from 'react-apollo';
+import { useState } from 'react';
+import { withApollo, graphql, useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
 import {
   getSetting,
@@ -45,6 +46,24 @@ import {
 } from 'meteor/vulcan:lib';
 import compose from 'recompose/compose';
 import withState from 'recompose/withState';
+
+function getGraphQLQueryFromOptions({
+  collectionName, collection, fragmentName, fragment, extraQueries, extraVariables,
+}) {
+  const typeName = collection.options.typeName;
+  ({ fragmentName, fragment } = extractFragmentInfo({ fragmentName, fragment }, collectionName));
+
+  let extraVariablesString = ''
+  if (extraVariables) {
+    extraVariablesString = Object.keys(extraVariables).map(k => `$${k}: ${extraVariables[k]}`).join(', ')
+  }
+  
+  // build graphql query from options
+  return gql`
+    ${multiClientTemplate({ typeName, fragmentName, extraQueries, extraVariablesString })}
+    ${fragment}
+  `;
+}
 
 export default function withMulti({
   limit = 10,
@@ -70,18 +89,8 @@ export default function withMulti({
 
   const typeName = collection.options.typeName;
   const resolverName = collection.options.multiResolverName;
-
-  // LESSWRONG MODIFICATION: Allow the passing of extraVariables so that you can have field-specific queries
-  let extraVariablesString = ''
-  if (extraVariables) {
-    extraVariablesString = Object.keys(extraVariables).map(k => `$${k}: ${extraVariables[k]}`).join(', ')
-  }
   
-  // build graphql query from options
-  const query = gql`
-    ${multiClientTemplate({ typeName, fragmentName, extraQueries, extraVariablesString })}
-    ${fragment}
-  `;
+  const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraQueries, extraVariables });
 
   return compose(
     // wrap component with HoC that manages the terms object via its state
@@ -187,4 +196,56 @@ export default function withMulti({
       }
     )
   );
+}
+
+export function useMulti({
+  terms,
+  extraVariablesValues,
+  
+  pollInterval = getSetting('pollInterval', 0), //LESSWRONG: Polling defaults disabled
+  enableTotal = false, //LESSWRONG: enableTotal defaults false
+  enableCache = false,
+  extraQueries,
+  ssr = false, //LESSWRONG: SSR defaults false
+  extraVariables,
+  fetchPolicy,
+  collectionName, collection,
+  fragmentName, fragment,
+  limit:initialLimit = 10,
+  itemsPerPage = 10,
+}) {
+  const [ limit, setLimit ] = useState(initialLimit);
+  const [ hasRequestedMore, setHasRequestedMore ] = useState(false);
+  
+  ({ collectionName, collection } = extractCollectionInfo({ collectionName, collection }));
+  ({ fragmentName, fragment } = extractFragmentInfo({ fragmentName, fragment }, collectionName));
+  
+  const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraQueries, extraVariables });
+  const resolverName = collection.options.multiResolverName;
+  
+  const {data, error, loading} = useQuery(query, {
+    variables: {
+      input: {
+        terms: { ...terms, limit: limit },
+        enableCache, enableTotal,
+      },
+      ...(_.pick(extraVariablesValues, Object.keys(extraVariables || {})))
+    },
+    pollInterval,
+    fetchPolicy,
+    ssr
+  });
+  
+  return {
+    loading,
+    loadingInitial: loading && !hasRequestedMore,
+    loadingMore: loading && hasRequestedMore,
+    results: data && data[resolverName] && data[resolverName].results,
+    totalCount: data && data[resolverName] && data[resolverName].totalCount,
+    refetch: data.refetch,
+    error,
+    count: data && data.results && data.results.length,
+    loadMore: () => setLimit(limit+itemsPerPage),
+    limit,
+  };
 }
