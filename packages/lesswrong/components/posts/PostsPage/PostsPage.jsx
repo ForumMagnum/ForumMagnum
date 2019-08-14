@@ -41,7 +41,8 @@ const styles = theme => ({
       `,
     },
     [theme.breakpoints.down('sm')]: {
-      display: 'block'
+      display: 'block',
+      marginTop: 20
     }
   },
   title: {

@@ -5,7 +5,6 @@ import { Comments } from '../../lib/collections/comments'
 import withUser from '../common/withUser';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import withGlobalKeydown from '../common/withGlobalKeydown';
-
 class RecentDiscussionThreadsList extends PureComponent {
 
   state = { expandAllThreads: false , showShortformFeed: false }
@@ -39,6 +38,8 @@ class RecentDiscussionThreadsList extends PureComponent {
       return null
     }
 
+    const expandAll = currentUser?.noCollapseCommentsFrontpage || expandAllThreads
+
     return (
       <SingleColumnSection>
         <SectionTitle title="Recent Discussion">
@@ -59,7 +60,7 @@ class RecentDiscussionThreadsList extends PureComponent {
                 postCount={i} 
                 refetch={refetch}
                 comments={post.recentComments}
-                expandAllThreads={expandAllThreads}
+                expandAllThreads={expandAll}
                 currentUser={currentUser}
                 updateComment={updateComment}/>
             )}
