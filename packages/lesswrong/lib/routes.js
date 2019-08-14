@@ -140,7 +140,7 @@ addRoute([
   {
     name: 'Rationality.posts.single',
     path: '/rationality/:slug',
-    componentName: 'PostsSingleSlugWrapper',
+    componentName: 'PostsSingleSlug',
     ...rationalitySubtitle
   }
 ]);
@@ -157,7 +157,7 @@ if (getSetting('forumType') === 'LessWrong') {
     {
       name: 'HPMOR.posts.single',
       path: '/hpmor/:slug',
-      componentName: 'PostsSingleSlugWrapper',
+      componentName: 'PostsSingleSlug',
       ...hpmorSubtitle,
     },
   
@@ -171,7 +171,7 @@ if (getSetting('forumType') === 'LessWrong') {
     {
       name: 'Codex.posts.single',
       path: '/codex/:slug',
-      componentName: 'PostsSingleSlugWrapper',
+      componentName: 'PostsSingleSlug',
       ...codexSubtitle,
     },
   ]);

@@ -149,7 +149,6 @@ import '../components/posts/PostsItemIcons.jsx';
 import '../components/posts/PostsPage';
 import '../components/posts/PostsSingleSlug.jsx';
 import '../components/posts/PostsSingleRoute.jsx';
-import '../components/posts/PostsSingleSlugWrapper.jsx';
 import '../components/posts/PostsList2.jsx';
 import '../components/posts/PostsTimeBlock.jsx';
 import '../components/posts/PostsCommentsThread.jsx';
