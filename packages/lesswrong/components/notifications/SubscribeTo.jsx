@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { withMessages, registerComponent, Utils, useMulti, withCreate } from 'meteor/vulcan:core';
+import { Components, withMessages, registerComponent, Utils, useMulti, withCreate } from 'meteor/vulcan:core';
 import { Subscriptions } from '../../lib/collections/subscriptions/collection'
 import { defaultSubscriptionTypeTable } from '../../lib/collections/subscriptions/mutations'
 import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil.js';
@@ -21,7 +21,7 @@ const SubscribeTo = ({
   const subscriptionType = overrideSubscriptionType || defaultSubscriptionTypeTable[collectionName];
   
   // Get existing subscription, if there is one
-  const { results } = useMulti({
+  const { results, loading } = useMulti({
     terms: {
       view: "subscriptionState",
       documentId: document._id,
@@ -38,12 +38,18 @@ const SubscribeTo = ({
     ssr: true
   });
   
+  if (loading) {
+    return <Components.Loading/>
+  }
+  
   const isSubscribed = () => {
     // Get the last element of the results array, which will be the most recent subscription
     if (results && results.length > 0) {
       const currentSubscription = results[results.length-1]
       if (currentSubscription.state === "subscribed")
         return true;
+      else if (currentSubscription.state === "suppressed")
+        return false;
     }
     return userIsDefaultSubscribed({
       user: currentUser,
