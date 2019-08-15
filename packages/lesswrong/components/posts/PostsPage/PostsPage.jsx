@@ -1,6 +1,5 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { withLocation } from '../../../lib/routeUtil';
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
@@ -42,7 +41,8 @@ const styles = theme => ({
       `,
     },
     [theme.breakpoints.down('sm')]: {
-      display: 'block'
+      display: 'block',
+      marginTop: 20
     }
   },
   title: {
@@ -192,6 +192,15 @@ const styles = theme => ({
   }
 })
 
+const getContentType = (post) => {
+  if (getSetting('forumType') === 'EAForum') {
+    return (post.frontpageDate && 'frontpage') ||
+    (post.meta && 'meta') ||
+    'personal'
+  }
+  return post.frontpageDate ? 'frontpage' : 'personal'
+}
+
 // On the server, use the 'url' library for parsing hostname out of feed URLs.
 // On the client, we instead create an <a> tag, set its href, and extract
 // properties from that. (There is a URL class which theoretically would work,
@@ -219,24 +228,24 @@ class PostsPage extends Component {
     const { params } = this.props.location;
     return params.sequenceId || post?.canonicalSequenceId;
   }
-  
+
   shouldHideAsSpam() {
     const { post, currentUser } = this.props;
-    
+
     // Logged-out users shouldn't be able to see spam posts
     if (post.authorIsUnreviewed && !currentUser) {
       return true;
     }
-    
+
     return false;
   }
-  
+
   render() {
-    const { post, refetch, currentUser, classes } = this.props
+    const { post, refetch, currentUser, classes, location: { query: { commentId }} } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, ContentType,
       LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
-      TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate } = Components
+      TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink } = Components
 
     if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
@@ -252,6 +261,7 @@ class PostsPage extends Component {
       const feedLink = post.feed && post.feed.url && getHostname(post.feed.url)
       const { major } = extractVersionsFromSemver(post.version)
       const hasMajorRevision = major > 1
+      const contentType = getContentType(post)
 
       return (
         <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
@@ -259,6 +269,7 @@ class PostsPage extends Component {
           {/* Header/Title */}
           <div className={classes.title}>
             <div className={classes.post}>
+              <CommentPermalink documentId={commentId} post={post}/>
               {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
               <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
               <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}>
@@ -269,7 +280,7 @@ class PostsPage extends Component {
                       <PostsAuthors post={post}/>
                     </span>
                     <span className={classes.postType}>
-                      <ContentType frontpage={post.frontpageDate}/>
+                      <ContentType type={contentType}/>
                     </span>
                     { post.feed && post.feed.user &&
                       <Tooltip title={`Crossposted from ${feedLink}`}>
@@ -368,10 +379,6 @@ class PostsPage extends Component {
       });
     }
   }
-}
-
-PostsPage.propTypes = {
-  document: PropTypes.object,
 }
 
 registerComponent(

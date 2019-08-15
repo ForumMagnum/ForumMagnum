@@ -1,5 +1,4 @@
 import { getSetting } from 'meteor/vulcan:core';
-import { registerSplitComponent } from 'meteor/vulcan:routing';
 
 if(getSetting('forumType') === 'AlignmentForum') {
   // HACK: At the top of the file because DeepScan false-positively warns about
@@ -43,9 +42,6 @@ import '../components/common/BetaTag.jsx';
 import '../components/common/FlashMessages.jsx';
 import '../components/common/Header.jsx';
 import '../components/common/HeaderSubtitle.jsx';
-import '../components/common/TabNavigationMenu.jsx';
-import '../components/common/TabNavigationSubItem.jsx';
-import '../components/common/NavigationMenu.jsx';
 import '../components/common/HeadTags.jsx';
 import '../components/common/Home2.jsx';
 import '../components/common/HomeEA.jsx';
@@ -72,12 +68,26 @@ import '../components/common/LoadMore.jsx';
 import '../components/common/ReCaptcha.jsx';
 import '../components/common/DefaultStyleFormGroup.jsx'
 import '../components/common/LinkCard.jsx';
+import '../components/common/Error404.jsx';
+import '../components/common/PermanentRedirect.jsx';
+
+
+import '../components/common/TabNavigationMenu/TabNavigationMenu.jsx';
+import '../components/common/TabNavigationMenu/TabNavigationMenuFooter.jsx';
+import '../components/common/TabNavigationMenu/TabNavigationMenuCompressed.jsx';
+import '../components/common/TabNavigationMenu/TabNavigationItem.jsx';
+import '../components/common/TabNavigationMenu/TabNavigationFooterItem.jsx';
+import '../components/common/TabNavigationMenu/TabNavigationCompressedItem.jsx';
+import '../components/common/TabNavigationMenu/TabNavigationSubItem.jsx';
+import '../components/common/TabNavigationMenu/NavigationDrawer.jsx';
+import '../components/common/TabNavigationMenu/NavigationStandalone.jsx';
 
 // Outgoing RSS Feed builder
 import '../components/common/SubscribeWidget.jsx';
 import '../components/common/SubscribeDialog.jsx';
 
 import '../components/users/AccountsVerifyEmail.jsx';
+import '../components/users/EnrollAccount.jsx';
 import '../components/users/UsersMenu.jsx';
 import '../components/users/UsersEditForm.jsx';
 import '../components/users/UsersAccount.jsx';
@@ -107,7 +117,6 @@ import '../components/icons/SettingsIcon.jsx';
 
 // posts
 
-import '../components/posts/PostsEdit.jsx';
 import '../components/posts/PostsHighlight.jsx';
 import '../components/posts/AlignmentCrosspostMessage.jsx';
 import '../components/posts/LinkPostMessage.jsx';
@@ -159,7 +168,6 @@ import '../components/titles/SequencesPageTitle.jsx';
 import '../components/titles/PostsPageTitle.jsx';
 
 import '../components/shortform/ShortformPage.jsx';
-import '../components/shortform/ShortformThread.jsx';
 import '../components/shortform/ShortformThreadList.jsx';
 import '../components/shortform/RepliesToCommentList.jsx';
 import '../components/shortform/NewShortformDialog.jsx';
@@ -199,6 +207,8 @@ if (getSetting('hasEvents', true)) {
 import '../components/comments/CommentsItem/CommentsItem.jsx';
 import '../components/comments/CommentsItem/CommentUserName.jsx';
 import '../components/comments/CommentsItem/RetractCommentMenuItem.jsx';
+import '../components/comments/CommentsItem/CommentsPermalinkMenuItem.jsx';
+import '../components/comments/CommentsItem/CommentShortformIcon.jsx';
 import '../components/comments/CommentsItem/MoveToAnswersMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromPostMenuItem.jsx';
 import '../components/comments/CommentsItem/BanUserFromAllPostsMenuItem.jsx';
@@ -216,12 +226,15 @@ import '../components/comments/CommentsItem/CommentsMenu.jsx';
 import '../components/comments/CommentsItem/CommentOutdatedWarning';
 import '../components/comments/CommentsItem/CommentsItemDate';
 
+import '../components/comments/CommentWithReplies';
+import '../components/comments/CommentPermalink.jsx';
 import '../components/comments/RecentDiscussionThread.jsx';
 import '../components/comments/RecentDiscussionThreadsList.jsx';
 import '../components/comments/CantCommentExplanation.jsx';
 import '../components/comments/CommentsEditForm.jsx';
 import '../components/comments/CommentsListSection.jsx';
 import '../components/comments/CommentsList.jsx';
+import '../components/comments/CommentsListMeta.jsx';
 import '../components/comments/CommentsNode.jsx';
 import '../components/comments/CommentsViews.jsx';
 import '../components/comments/RecentComments.jsx';

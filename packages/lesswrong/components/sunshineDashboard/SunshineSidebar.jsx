@@ -47,7 +47,7 @@ class SunshineSidebar extends Component {
     const { currentUser, classes } = this.props
     const { showSidebar } = this.state
     const { SunshineNewUsersList, SunshineNewCommentsList, SunshineNewPostsList, SunshineReportedContentList, SunshineCuratedSuggestionsList, AFSuggestUsersList, AFSuggestPostsList, AFSuggestCommentsList } = Components
-    
+
     return (
       <div className={classNames(classes.root, {[classes.showSidebar]:showSidebar})}>
         { showSidebar ? <KeyboardArrowDownIcon
@@ -79,8 +79,6 @@ SunshineSidebar.propTypes = {
   currentUser: PropTypes.object,
   classes: PropTypes.object.isRequired
 };
-
-SunshineSidebar.displayName = "SunshineSidebar";
 
 /*export default defineComponent({
   name: "SunshineSidebar",

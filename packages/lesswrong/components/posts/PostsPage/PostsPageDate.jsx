@@ -35,6 +35,19 @@ const PostsPageDate = ({ post, hasMajorRevision, classes }) => {
       Curated on <ExpandedDate date={post.curatedDate}/>
     </div>}
   </div>);
+
+  if (hasMajorRevision) {
+    return (
+      <span>
+        <span className={classNames(classes.date, classes.mobileDate)}>
+          <PostsRevisionSelector post={post}/>
+        </span>
+        <span className={classNames(classes.date, classes.desktopDate)}>
+          <PostsRevisionSelector format="Do MMM YYYY" post={post}/>
+        </span>
+      </span>
+    )
+  }
   
   return (<React.Fragment>
     <Tooltip title={tooltip} placement="bottom">
@@ -43,7 +56,7 @@ const PostsPageDate = ({ post, hasMajorRevision, classes }) => {
           <FormatDate date={post.postedAt} tooltip={false} />
         </span>
         <span className={classNames(classes.date, classes.desktopDate)}>
-          {hasMajorRevision ? <PostsRevisionSelector post={post}/> : <FormatDate date={post.postedAt} format="Do MMM YYYY" tooltip={false} />}
+          <FormatDate date={post.postedAt} format="Do MMM YYYY" tooltip={false} />
         </span>
       </span>
     </Tooltip>

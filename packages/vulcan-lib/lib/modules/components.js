@@ -1,4 +1,4 @@
-import { compose } from 'react-apollo'; // note: at the moment, compose@react-apollo === compose@redux ; see https://github.com/apollostack/react-apollo/blob/master/src/index.ts#L4-L7
+import compose from 'lodash/flowRight';
 import React from 'react';
 import difference from 'lodash/difference';
 
@@ -10,22 +10,15 @@ export const coreComponents = [
   'Button',
   'Modal',
   'ModalTrigger',
-  'Table',
   'FormComponentCheckbox',
   'FormComponentCheckboxGroup',
   'FormComponentDate',
-  'FormComponentDate2',
   'FormComponentDateTime',
   'FormComponentDefault',
-  'FormComponentText',
   'FormComponentEmail',
   'FormComponentNumber',
-  'FormComponentRadioGroup',
   'FormComponentSelect',
-  'FormComponentSelectMultiple',
-  'FormComponentStaticText',
   'FormComponentTextarea',
-  'FormComponentTime',
   'FormComponentUrl',
   'FormComponentInner',
   'FormControl',
@@ -64,6 +57,9 @@ export function registerComponent(name, rawComponent, ...hocs) {
     var { name, component, hocs = [] } = arguments[0];
     rawComponent = component;
   }
+  
+  rawComponent.displayName = name;
+  
   // store the component in the table
   ComponentsTable[name] = {
     name,

@@ -89,8 +89,6 @@ const PostsItemTooltip = ({ post, classes, author, }) => {
 
 }
 
-PostsItemTooltip.displayName = "PostsItemTooltip";
-
 registerComponent('PostsItemTooltip', PostsItemTooltip, withUser,
   withStyles(styles, { name: "PostsItemTooltip" })
 );

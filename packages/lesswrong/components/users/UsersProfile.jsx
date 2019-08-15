@@ -78,6 +78,11 @@ const sortings = {
   top: "Top"
 }
 
+export const getUserFromResults = (results) => {
+  // HOTFIX: Filtering out invalid users
+  return results?.find(user => !!user.displayName) || results?.[0]
+}
+
 class UsersProfile extends Component {
   state = {
     showSettings: false
@@ -85,7 +90,7 @@ class UsersProfile extends Component {
 
   componentDidMount() {
     const { results } = this.props
-    const document = this.getUserFromResults(results)
+    const document = getUserFromResults(results)
     if (document) {
       this.setCanonicalUrl()
     }
@@ -93,8 +98,8 @@ class UsersProfile extends Component {
 
   componentDidUpdate({results: previousResults}) {
     const { results } = this.props
-    const oldDocument = this.getUserFromResults(previousResults)
-    const newDocument = this.getUserFromResults(results)
+    const oldDocument = getUserFromResults(previousResults)
+    const newDocument = getUserFromResults(results)
     if (oldDocument?.slug !== newDocument?.slug) {
       this.setCanonicalUrl()
     }
@@ -102,7 +107,7 @@ class UsersProfile extends Component {
 
   setCanonicalUrl = () => {
     const { history, results, slug } = this.props
-    const document = this.getUserFromResults(results)
+    const document = getUserFromResults(results)
     // Javascript redirect to make sure we are always on the most canonical URL for this user
     if (slug !== document?.slug) {
       const canonicalUrl = Users.getProfileUrlFromSlug(document.slug);
@@ -118,14 +123,9 @@ class UsersProfile extends Component {
     }
   }
 
-  getUserFromResults = (results) => {
-    // HOTFIX: Filtering out invalid users
-    return results?.find(user => !!user.displayName) || results?.[0]
-  }
-
   renderMeta = () => {
     const { classes, results } = this.props
-    const document = this.getUserFromResults(results)
+    const document = getUserFromResults(results)
     if (!document) return null
     const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma } = document;
 
@@ -177,7 +177,7 @@ class UsersProfile extends Component {
   render() {
     const { slug, classes, currentUser, loading, results, location } = this.props;
     const { query } = location;
-    const document = this.getUserFromResults(results)
+    const document = getUserFromResults(results)
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Components.Loading/>

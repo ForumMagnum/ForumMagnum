@@ -98,13 +98,18 @@ const styles = theme => ({
       backgroundColor: "#f3f3f3",
     }
   },
+  expandTip: {
+    textAlign: "right",
+    fontSize: "1rem",
+    color: theme.palette.lwTertiary.main
+  }
 })
 
 const SingleLineComment = ({comment, classes, nestingLevel, hover, parentCommentId}) => {
   if (!comment) return null
   const { baseScore } = comment
   const { plaintextMainText } = comment.contents
-  const { BetaTag, CommentBody, ShowParentComment, UsersName } = Components
+  const { CommentBody, ShowParentComment, CommentUserName } = Components
 
   const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile()
 
@@ -118,8 +123,7 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
           {baseScore || 0}
         </span>
         <span className={classes.username}>
-          {comment.answer && "Answer by "}
-          <UsersName user={comment.user} simple={true}/>
+          <CommentUserName comment={comment} simple={true}/>
         </span>
         <span className={classes.date}>
           <Components.FormatDate date={comment.postedAt} tooltip={false}/>
@@ -128,7 +132,7 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
       </div>
       {displayHoverOver && <span className={classNames(classes.highlight)}>
         <CommentBody truncated comment={comment}/>
-        <BetaTag />
+        <div className={classes.expandTip}>[Click to expand all comments in this thread]</div>
       </span>}
     </div>
   )

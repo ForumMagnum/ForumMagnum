@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withCurrentUser, Components, withList, registerComponent } from 'meteor/vulcan:core';
+import {
+  withCurrentUser, Components, withList, registerComponent, getSetting
+} from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
 import { withStyles } from '@material-ui/core/styles';
@@ -8,6 +10,7 @@ import moment from 'moment-timezone';
 import { Posts } from '../../lib/collections/posts';
 import { timeframeToTimeBlock } from './timeframeUtils'
 import { queryIsUpdating } from '../common/queryStatusUtils'
+import withTimezone from '../common/withTimezone';
 
 const styles = theme => ({
   root: {
@@ -29,10 +32,25 @@ const styles = theme => ({
   frontpageSubtitle: {
     marginTop: theme.spacing.unit
   },
-  personSubtitle: {
+  otherSubtitle: {
     marginTop: theme.spacing.unit*1.5
   },
+  divider: {/* Exists only to get overriden by the eaTheme */}
 })
+
+const defaultPostTypes = [
+  {name: 'frontpage', postIsType: post => !!post.frontpageDate, label: 'Frontpage Posts'},
+  {name: 'personal', postIsType: post => !post.frontpageDate, label: 'Personal Blogposts'}
+]
+const postTypes = {
+  LessWrong: defaultPostTypes,
+  AlignmentForum: defaultPostTypes,
+  EAForum: [
+    {name: 'frontpage', postIsType: post => !!post.frontpageDate, label: 'Frontpage Posts'},
+    {name: 'meta', postIsType: post => post.meta, label: 'Community Posts'},
+    {name: 'personal', postIsType: post => !(post.frontpageDate || post.meta), label: 'Personal Blogposts'}
+   ]
+}
 
 class PostsTimeBlock extends Component {
   constructor (props) {
@@ -85,7 +103,7 @@ class PostsTimeBlock extends Component {
   render () {
     const {
       startDate, results: posts, totalCount, loading, loadMore, hideIfEmpty, classes, currentUser,
-      timeframe, networkStatus
+      timeframe, networkStatus, timezone, displayShortform = true
     } = this.props
     const { noShortform } = this.state
     const { PostsItem2, LoadMore, ShortformTimeBlock, SectionSubtitle, SubSection, Loading, ContentType, Divider } = Components
@@ -99,8 +117,10 @@ class PostsTimeBlock extends Component {
       return null
     }
 
-    const frontpagePosts = _.filter(posts, (p) => p.frontpageDate)
-    const personalBlogposts = _.filter(posts, (p) => !p.frontpageDate)
+    const postGroups = postTypes[getSetting('forumType')].map(type => ({
+      ...type,
+      posts: posts?.filter(type.postIsType)
+    }))
 
     return (
       <div className={classes.root}>
@@ -131,28 +151,20 @@ class PostsTimeBlock extends Component {
             }
           </div> }
 
-          {(frontpagePosts?.length > 0) && <div>
-            <SectionSubtitle className={classes.frontpageSubtitle}>
-              <ContentType frontpage={true} label="Frontpage Posts"/>
-            </SectionSubtitle>
-            <SubSection>
-              {frontpagePosts.map((post, i) =>
-                <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} dense />
-              )}
-            </SubSection>
-          </div>}
-
-          {(personalBlogposts?.length > 0) && <div>
-            <SectionSubtitle className={classes.personSubtitle}>
-              <ContentType frontpage={false} label="Personal Blogposts"/>
-            </SectionSubtitle>
-
-            <SubSection>
-              {personalBlogposts.map((post, i) => 
-                <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} dense />
-              )}
-            </SubSection>
-          </div>}
+          {postGroups.map(({name, posts, label}) => {
+            if (posts?.length > 0) return <div key={name}>
+              <SectionSubtitle
+                className={name === 'frontpage' ? classes.frontpageSubtitle : classes.otherSubtitle}
+              >
+                <ContentType type={name} label={label} />
+              </SectionSubtitle>
+              <SubSection>
+                {posts.map((post, i) =>
+                  <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} dense />
+                )}
+              </SubSection>
+            </div>
+          })}
 
           {(posts?.length < totalCount) && <div className={classes.loadMore}>
             <LoadMore
@@ -162,18 +174,20 @@ class PostsTimeBlock extends Component {
                 networkStatus={networkStatus}
               />
           </div>}
-          <ShortformTimeBlock
+          {displayShortform && <ShortformTimeBlock
             reportEmpty={this.reportEmptyShortform}
             terms={{
               view: "topShortform",
               // NB: The comments before differs from posts in that before is not
               // inclusive
-              before: moment(startDate).endOf(timeBlock).toString(),
-              after: moment(startDate).startOf(timeBlock).toString()
+              before: moment.tz(startDate, timezone).endOf(timeBlock).toString(),
+              after: moment.tz(startDate, timezone).startOf(timeBlock).toString()
             }}
-          />
+          />}
         </div>
-        <Divider wings={false}/>
+        <div className={classes.divider}>
+          <Divider wings={false} />
+        </div>
       </div>
     );
   }
@@ -195,5 +209,6 @@ registerComponent('PostsTimeBlock', PostsTimeBlock,
     enableCache: true,
     ssr: true,
   }],
+  withTimezone,
   withCurrentUser, withStyles(styles, { name: "PostsTimeBlock" })
 );

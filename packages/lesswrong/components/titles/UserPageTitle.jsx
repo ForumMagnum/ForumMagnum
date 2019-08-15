@@ -1,17 +1,19 @@
 import React from 'react';
-import { registerComponent, withDocument } from 'meteor/vulcan:core';
+import { registerComponent, withList } from 'meteor/vulcan:core';
 import { Link } from '../../lib/reactRouterWrapper';
 import Users from 'meteor/vulcan:users';
 import mapProps from 'recompose/mapProps';
 import { withLocation } from '../../lib/routeUtil';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet';
 import { withStyles } from '@material-ui/core/styles';
 import { styles } from '../common/HeaderSubtitle';
+import { getUserFromResults } from '../users/UsersProfile';
 
-const UserPageTitle = ({location, isSubtitle, siteName, loading, document, classes}) => {
-  if (!document || loading) return null;
+const UserPageTitle = ({location, isSubtitle, siteName, loading, results, classes}) => {
+  if (!results || loading) return null;
   
-  const user = document;
+  const user = getUserFromResults(results);
+  if (!user) return null;
   const userLink = Users.getProfileUrl(user);
   const userNameString = user.displayName || user.slug;
   
@@ -35,7 +37,7 @@ registerComponent("UserPageTitle", UserPageTitle,
       ...props
     }
   }),
-  [withDocument, {
+  [withList, {
     collection: Users,
     fragmentName: "UsersMinimumInfo",
     ssr: true,

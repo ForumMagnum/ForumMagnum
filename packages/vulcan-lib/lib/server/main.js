@@ -20,5 +20,6 @@ export * from './accounts_helpers.js';
 export * from './apollo-server/settings.js';
 export * from './apollo-server/context.js';
 export * from './apollo-ssr/apolloClient.js';
+export * from './apollo-ssr'
 
-import './apollo-server/startup';
+import './apollo-server/index';

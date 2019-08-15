@@ -1,10 +1,10 @@
 import { runCallbacksAsync } from 'meteor/vulcan:core';
-import { Picker } from 'meteor/meteorhacks:picker';
+import { addStaticRoute } from 'meteor/vulcan:lib'
 import { Posts } from '../../lib/collections/posts';
 import { ensureIndex } from '../../lib/collectionUtils.js';
 
 // Click-tracking redirector for outgoing links in linkposts
-Picker.route('/out', ({ query}, req, res, next) => {
+addStaticRoute('/out', ({ query}, req, res, next) => {
   if(query.url) {
     try {
       const post = Posts.findOne({url: query.url}, {sort: {postedAt: -1, createdAt: -1}});

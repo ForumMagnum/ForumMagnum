@@ -1,7 +1,7 @@
 import React from 'react';
 import { useContext } from 'react';
 import qs from 'qs';
-import { NavigationContext, LocationContext, SubscribeLocationContext } from 'meteor/vulcan:core';
+import { NavigationContext, LocationContext, SubscribeLocationContext, ServerRequestStatusContext } from 'meteor/vulcan:core';
 
 // Given the props of a component which has withRouter, return the parsed query
 // from the URL.
@@ -43,8 +43,16 @@ export function parseQuery(location) {
 // }
 // Does not trigger rerenders on navigation events. If you want your component
 // to rerender on navigations, use useSubscribedLocation instead.
-export const useLocation = (options) => {
+export const useLocation = () => {
   return useContext(LocationContext);
+}
+
+// React Hook which returns the server-side server request status, used to set 404s or redirects
+// The relevant handling happens in the renderPage function
+// This hook only works on the server and will throw an error when called on the client
+
+export const useServerRequestStatus = () => {
+  return useContext(ServerRequestStatusContext)
 }
 
 // React Hook which returns the page location, formatted as in useLocation, and

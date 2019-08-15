@@ -67,6 +67,7 @@ extendFragment('UsersCurrent', `
   isReviewed
   nullifyVotes
   hideIntercom
+  hideNavigationSidebar
   currentFrontpageFilter
   allPostsTimeframe
   allPostsSorting
@@ -91,6 +92,7 @@ extendFragment('UsersCurrent', `
   whenConfirmationEmailSent
   noCollapseCommentsFrontpage
   noCollapseCommentsPosts
+  noSingleLineComments
   karmaChangeNotifierSettings
   karmaChangeLastOpened
   shortformFeedId
@@ -399,6 +401,7 @@ registerFragment(`
     currentFrontpageFilter
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
+    noSingleLineComments
     sunshineShowNewUserContent
 
     # Emails
@@ -441,7 +444,7 @@ registerFragment(`
     # Karma Settings
     karmaChangeLastOpened
     karmaChangeNotifierSettings
-    
+
     recommendationSettings
   }
 `)

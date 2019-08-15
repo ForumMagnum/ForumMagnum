@@ -1,7 +1,7 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
-// import { InstantSearch} from 'react-instantsearch-dom';
+import { Components, registerComponent, getSetting, withUpdate } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
-import Helmet from 'react-helmet';
+import Users from 'meteor/vulcan:users';
+import { Helmet } from 'react-helmet';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import classNames from 'classnames'
 import Intercom from 'react-intercom';
@@ -10,6 +10,7 @@ import { withCookies } from 'react-cookie'
 import LogRocket from 'logrocket'
 
 import { withStyles, withTheme } from '@material-ui/core/styles';
+import { withLocation } from '../lib/routeUtil';
 import { UserContext } from './common/withUser';
 import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
@@ -31,6 +32,21 @@ const hashCode = function(str) {
   }
   return hash;
 };
+
+// These routes will have the standalone TabNavigationMenu (aka sidebar)
+//
+// Refer to routes.js for the route names. Or console log in the route you'd
+// like to include
+const standaloneNavMenuRouteNames = {
+  'LessWrong': [
+    'home', 'allPosts', 'questions', 'sequencesHome', 'CommunityHome', 'Shortform', 'Codex',
+    'HPMOR', 'Rationality', 'Sequences', 'collections'
+  ],
+  // TODO-PR-Q: I left this mimicking current behavior, it's possible you'd
+  // rather just have an empty list
+  'AlignmentForum': ['allPosts', 'questions', 'Shortform'],
+  'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform'],
+}
 
 const styles = theme => ({
   main: {
@@ -64,15 +80,16 @@ const styles = theme => ({
 class Layout extends PureComponent {
   constructor (props) {
     super(props);
-    const { cookies } = this.props;
+    const { cookies, currentUser } = this.props;
     const savedTimezone = cookies?.get('timezone');
-    
+
     this.state = {
       timezone: savedTimezone,
       toc: null,
-      postsRead: {}
+      postsRead: {},
+      hideNavigationSidebar: !!(currentUser?.hideNavigationSidebar),
     };
-  
+
     this.searchResultsAreaRef = React.createRef();
   }
 
@@ -91,11 +108,28 @@ class Layout extends PureComponent {
     }
   }
 
+  toggleStandaloneNavigation = () => {
+    const { updateUser, currentUser } = this.props
+    this.setState(prevState => {
+      if (currentUser) {
+        updateUser({
+          selector: { _id: currentUser._id},
+          data: {
+            hideNavigationSidebar: !prevState.hideNavigationSidebar
+          },
+        })
+      }
+      return {
+        hideNavigationSidebar: !prevState.hideNavigationSidebar
+      }
+    })
+  }
+
   getUniqueClientId = () => {
     const { currentUser, cookies } = this.props
-    
+
     if (currentUser) return currentUser._id
-    
+
     const cookieId = cookies.get('clientId')
     if (cookieId) return cookieId
 
@@ -109,7 +143,7 @@ class Layout extends PureComponent {
     const logRocketKey = getSetting('logRocket.apiKey')
     if (logRocketKey) {
       // If the user is logged in, always log their sessions
-      if (currentUser) { 
+      if (currentUser) {
         LogRocket.init()
         return
       }
@@ -135,11 +169,9 @@ class Layout extends PureComponent {
     this.initializeLogRocket()
   }
 
-  componentWillUnmount() {
-  }
-
   render () {
-    const {currentUser, children, classes, theme} = this.props;
+    const {currentUser, location, children, classes, theme, messages} = this.props;
+    const {hideNavigationSidebar} = this.state
 
     const showIntercom = currentUser => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -163,6 +195,8 @@ class Layout extends PureComponent {
       }
     }
 
+    const standaloneNavigation = standaloneNavMenuRouteNames[getSetting('forumType')]
+      .includes(location.currentRoute.name)
     return (
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
@@ -200,13 +234,20 @@ class Layout extends PureComponent {
             <Components.Header
               toc={this.state.toc}
               searchResultsArea={this.searchResultsAreaRef}
+              standaloneNavigationPresent={standaloneNavigation}
+              toggleStandaloneNavigation={this.toggleStandaloneNavigation}
             />
+            {standaloneNavigation && <Components.NavigationStandalone
+              sidebarHidden={hideNavigationSidebar}
+            />}
             <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
             <div className={classes.main}>
               <Components.ErrorBoundary>
-                <Components.FlashMessages />
+                <Components.FlashMessages messages={messages} />
               </Components.ErrorBoundary>
-              {children}
+              <Components.ErrorBoundary>
+                {children}
+              </Components.ErrorBoundary>
             </div>
             <Components.Footer />
           </div>
@@ -220,6 +261,12 @@ class Layout extends PureComponent {
   }
 }
 
-Layout.displayName = "Layout";
+const withUpdateOptions = {
+  collection: Users,
+  fragmentName: 'UsersCurrent',
+}
 
-registerComponent('Layout', Layout, withStyles(styles, { name: "Layout" }), withTheme(), withCookies);
+registerComponent(
+  'Layout', Layout, withLocation, withCookies, [withUpdate, withUpdateOptions],
+  withStyles(styles, { name: "Layout" }), withTheme()
+);

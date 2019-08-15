@@ -27,6 +27,4 @@ const PostsStats = ({post, classes}) => {
   )
 }
 
-PostsStats.displayName = "PostsStats";
-
 registerComponent('PostsStats', PostsStats, withStyles(styles));

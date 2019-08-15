@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Utils, getSetting, Head } from 'meteor/vulcan:lib';
-import { compose } from 'react-apollo';
+import compose from 'lodash/flowRight';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { withApollo } from 'react-apollo';
 
@@ -20,8 +20,8 @@ const HeadTags = (props) => {
     const { currentRoute, pathname } = useSubscribedLocation();
     const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
     
-    const TitleComponent = currentRoute.titleComponentName ? Components[currentRoute.titleComponentName] : null;
-    const titleString = currentRoute.title || currentRoute.subtitle;
+    const TitleComponent = currentRoute?.titleComponentName ? Components[currentRoute.titleComponentName] : null;
+    const titleString = currentRoute?.title || currentRoute?.subtitle;
     
     return (
       <div>
