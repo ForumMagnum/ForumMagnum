@@ -6,9 +6,9 @@ import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil.js';
 import mapProps from 'recompose/mapProps'
 import withUser from '../common/withUser';
 
-class SubscribeTo extends Component {
-  isSubscribed = () => {
-    const { results, currentUser, subscriptionType, collectionName, document } = this.props
+const SubscribeTo = (props) => {
+  const isSubscribed = () => {
+    const { results, currentUser, subscriptionType, collectionName, document } = props
     // Get the last element of the results array, which will be the most recent subscription
     if (results && results.length > 0) {
       const currentSubscription = results[results.length-1]
@@ -20,13 +20,13 @@ class SubscribeTo extends Component {
       subscriptionType, collectionName, document
     });
   }
-  onSubscribe = async (e) => {
-    const { document, createSubscription, collectionName, flash, subscriptionType } = this.props;
+  const onSubscribe = async (e) => {
+    const { document, createSubscription, collectionName, flash, subscriptionType } = props;
     try {
       e.preventDefault();
       
       const newSubscription = {
-        state: this.isSubscribed() ? 'suppressed' : 'subscribed',
+        state: isSubscribed() ? 'suppressed' : 'subscribed',
         documentId: document._id,
         collectionName,
         type: subscriptionType,
@@ -34,25 +34,22 @@ class SubscribeTo extends Component {
       createSubscription({data: newSubscription})
 
       // success message will be for example posts.subscribed
-      flash({messageString: `Successfully ${this.isSubscribed() ? "unsubscribed" : "subscribed"}`});
+      flash({messageString: `Successfully ${isSubscribed() ? "unsubscribed" : "subscribed"}`});
     } catch(error) {
       flash({messageString: error.message});
     }
   }
 
-  render() {
-    const { currentUser, document, collectionName, subscribeMessage, unsubscribeMessage } = this.props;
-    // can't subscribe to yourself
-    if (!currentUser || !document || (collectionName === 'Users' && document._id === currentUser._id)) {
-      return null;
-    }
-
-    const className = this.props.className || "";
-    return <a className={className} onClick={this.onSubscribe}>
-      { this.isSubscribed() ? unsubscribeMessage : subscribeMessage }
-    </a>
+  const { currentUser, document, collectionName, subscribeMessage, unsubscribeMessage } = props;
+  // can't subscribe to yourself
+  if (!currentUser || !document || (collectionName === 'Users' && document._id === currentUser._id)) {
+    return null;
   }
 
+  const className = props.className || "";
+  return <a className={className} onClick={onSubscribe}>
+    { isSubscribed() ? unsubscribeMessage : subscribeMessage }
+  </a>
 }
 
 const remapProps = ({document, currentUser, type, ...rest}) => {
