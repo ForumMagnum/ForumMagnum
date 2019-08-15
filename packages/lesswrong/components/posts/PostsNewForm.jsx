@@ -6,6 +6,7 @@ import { Helmet } from 'react-helmet';
 import withUser from '../common/withUser'
 import { withStyles } from '@material-ui/core/styles';
 import { useLocation, useNavigation } from '../../lib/routeUtil.js';
+import NoSsr from '@material-ui/core/NoSsr';
 
 const styles = theme => ({
   formSubmit: {
@@ -47,20 +48,22 @@ const PostsNewForm = ({currentUser, flash, classes}) => {
   return (
     <div className="posts-new-form">
       {prefilledProps.isEvent && <Helmet><script src={`https://maps.googleapis.com/maps/api/js?key=${mapsAPIKey}&libraries=places`}/></Helmet>}
-      <WrappedSmartForm
-        collection={Posts}
-        mutationFragment={getFragment('PostsPage')}
-        prefilledProps={prefilledProps}
-        successCallback={post => {
-          history.push({pathname: Posts.getPageUrl(post)});
-          flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
-        }}
-        eventForm={eventForm}
-        repeatErrors
-        formComponents={{
-          FormSubmit: NewPostsSubmit,
-        }}
-      />
+      <NoSsr>
+        <WrappedSmartForm
+          collection={Posts}
+          mutationFragment={getFragment('PostsPage')}
+          prefilledProps={prefilledProps}
+          successCallback={post => {
+            history.push({pathname: Posts.getPageUrl(post)});
+            flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
+          }}
+          eventForm={eventForm}
+          repeatErrors
+          formComponents={{
+            FormSubmit: NewPostsSubmit,
+          }}
+        />
+      </NoSsr>
     </div>
   );
 }
