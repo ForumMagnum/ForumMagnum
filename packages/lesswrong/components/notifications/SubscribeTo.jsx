@@ -45,7 +45,9 @@ const SubscribeTo = ({
   const isSubscribed = () => {
     // Get the last element of the results array, which will be the most recent subscription
     if (results && results.length > 0) {
-      const currentSubscription = results[results.length-1]
+      // Get the newest subscription entry (Mingo doesn't enforce the limit:1)
+      const currentSubscription = _.max(results, result=>new Date(result.createdAt).getTime());
+      
       if (currentSubscription.state === "subscribed")
         return true;
       else if (currentSubscription.state === "suppressed")
