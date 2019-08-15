@@ -1,11 +1,17 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, withUpdate } from 'meteor/vulcan:core';
+import { registerComponent, useUpdate } from 'meteor/vulcan:core';
 import { Comments } from '../../../lib/collections/comments';
-import withUser from '../../common/withUser';
+import { useCurrentUser } from '../../common/withUser';
 import MenuItem from '@material-ui/core/MenuItem';
 import Tooltip from '@material-ui/core/Tooltip';
 
-const RetractCommentMenuItem = ({updateComment, comment, currentUser}) => {
+const RetractCommentMenuItem = ({comment}) => {
+  const currentUser = useCurrentUser();
+  const {mutate: updateComment} = useUpdate({
+    collection: Comments,
+    fragmentName: 'CommentsList',
+  });
+  
   const handleRetract = (event) => {
     updateComment({
       selector: {_id: comment._id},
@@ -34,10 +40,4 @@ const RetractCommentMenuItem = ({updateComment, comment, currentUser}) => {
   }
 }
 
-registerComponent('RetractCommentMenuItem', RetractCommentMenuItem,
-  withUser,
-  [withUpdate, {
-    collection: Comments,
-    fragmentName: 'CommentsList',
-  }]
-);
+registerComponent('RetractCommentMenuItem', RetractCommentMenuItem);
