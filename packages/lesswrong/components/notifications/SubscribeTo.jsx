@@ -3,7 +3,6 @@ import { Components, withMessages, registerComponent, Utils, useMulti, withCreat
 import { Subscriptions } from '../../lib/collections/subscriptions/collection'
 import { defaultSubscriptionTypeTable } from '../../lib/collections/subscriptions/mutations'
 import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil.js';
-import mapProps from 'recompose/mapProps'
 import { useCurrentUser } from '../common/withUser';
 
 const SubscribeTo = ({

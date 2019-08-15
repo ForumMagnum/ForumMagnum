@@ -13,6 +13,7 @@ import './emailComponents/NewPostEmail.jsx';
 import './emailComponents/PrivateMessagesEmail.jsx';
 import { EventDebouncer } from './debouncer.js';
 import { UnsubscribeAllToken } from './emails/emailTokens.js';
+import { getNotificationTypeByName } from '../lib/notificationTypes.js';
 
 import { addCallback, newMutation } from 'meteor/vulcan:core';
 
@@ -143,40 +144,8 @@ const getLink = (notificationType, documentType, documentId) => {
 }
 
 const notificationMessage = (notificationType, documentType, documentId) => {
-  let document = getDocument(documentType, documentId);
-  let group = {}
-  if (documentType == "post" && document.groupId) {
-    group = Localgroups.findOne(document.groupId);
-  }
-
-  switch(notificationType) {
-    case "newPost":
-      return Posts.getAuthorName(document) + ' has created a new post: ' + document.title;
-    case "newPendingPost":
-      return Posts.getAuthorName(document) + ' has a new post pending approval ' + document.title;
-    case "postApproved":
-      return 'Your post "' + document.title + '" has been approved';
-    case "newEvent":
-        return Posts.getAuthorName(document) + ' has created a new event in the group "' + group.name + '"';
-    case "newGroupPost":
-        return Posts.getAuthorName(document) + ' has created a new post in the group "' + group.name + '"';
-    case "newComment":
-      return Comments.getAuthorName(document) + ' left a new comment on "' + Posts.findOne(document.postId).title + '"';
-    case "newReply":
-      return Comments.getAuthorName(document) + ' replied to a comment on "' + Posts.findOne(document.postId).title + '"';
-    case "newReplyToYou":
-        return Comments.getAuthorName(document) + ' replied to your comment on "' + Posts.findOne(document.postId).title + '"';
-    case "newUser":
-      return document.displayName + ' just signed up!';
-    case "newMessage":
-      let conversation = Conversations.findOne(document.conversationId);
-      return Users.findOne(document.userId).displayName + ' sent you a new message' + (conversation.title ? (' in the conversation ' + conversation.title) : "") + '!';
-    case "emailVerificationRequired":
-      return "Verify your email address to activate email subscriptions.";
-    default:
-      //eslint-disable-next-line no-console
-      console.error("Invalid notification type");
-  }
+  return getNotificationTypeByName(notificationType)
+    .getMessage({documentType, documentId});
 }
 
 const getDocument = (documentType, documentId) => {
