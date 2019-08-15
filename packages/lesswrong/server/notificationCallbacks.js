@@ -170,8 +170,8 @@ const getDocument = (documentType, documentId) => {
 /**
  * @summary Add notification callback when a post is approved
  */
-function PostsApprovedNotification(post) {
-  createNotifications([post.userId], 'postApproved', 'post', post._id);
+async function PostsApprovedNotification(post) {
+  await createNotifications([post.userId], 'postApproved', 'post', post._id);
 }
 addCallback("posts.approve.async", PostsApprovedNotification);
 
@@ -216,11 +216,11 @@ async function postsNewNotifications (post) {
     const userIdsToNotify = _.map(usersToNotify, u=>u._id);
 
     if (post.groupId && post.isEvent) {
-      createNotifications(userIdsToNotify, 'newEvent', 'post', post._id);
+      await createNotifications(userIdsToNotify, 'newEvent', 'post', post._id);
     } else if (post.groupId && !post.isEvent) {
-      createNotifications(userIdsToNotify, 'newGroupPost', 'post', post._id);
+      await createNotifications(userIdsToNotify, 'newGroupPost', 'post', post._id);
     } else {
-      createNotifications(userIdsToNotify, 'newPost', 'post', post._id);
+      await createNotifications(userIdsToNotify, 'newPost', 'post', post._id);
     }
 
   }
@@ -300,12 +300,12 @@ async function CommentsNewNotifications(comment) {
       // of the parent-comment to be treated specially (with a newReplyToYou
       // notification instead of a newReply notification).
       let parentCommentSubscriberIdsToNotify = _.difference(subscribedUserIds, [comment.userId, parentComment.userId])
-      createNotifications(parentCommentSubscriberIdsToNotify, 'newReply', 'comment', comment._id);
+      await createNotifications(parentCommentSubscriberIdsToNotify, 'newReply', 'comment', comment._id);
 
       // Separately notify author of comment with different notification, if
       // they are subscribed, and are NOT the author of the comment
       if (subscribedUsers.includes(parentComment.userId) && parentComment.userId !== comment.userId) {
-        createNotifications([parentComment.userId], 'newReplyToYou', 'comment', comment._id);
+        await createNotifications([parentComment.userId], 'newReplyToYou', 'comment', comment._id);
         notifiedUsers = [...notifiedUsers, parentComment.userId];
       }
     }
@@ -325,7 +325,7 @@ async function CommentsNewNotifications(comment) {
     // and of comment author (they could be replying in a thread they're subscribed to)
     const postSubscriberIdsToNotify = _.difference(userIdsSubscribedToPost, [...notifiedUsers, comment.userId])
     if (postSubscriberIdsToNotify.length > 0) {
-      createNotifications(postSubscriberIdsToNotify, 'newComment', 'comment', comment._id)
+      await createNotifications(postSubscriberIdsToNotify, 'newComment', 'comment', comment._id)
     }
   }
 }
@@ -387,7 +387,7 @@ const privateMessagesDebouncer = new EventDebouncer({
   callback: sendPrivateMessagesEmail
 });
 
-function messageNewNotification(message) {
+async function messageNewNotification(message) {
   const conversationId = message.conversationId;
   const conversation = Conversations.findOne(conversationId);
   
@@ -398,7 +398,7 @@ function messageNewNotification(message) {
   const recipientIds = conversation.participantIds.filter((id) => (id !== message.userId));
 
   // Create on-site notification
-  createNotifications(recipientIds, 'newMessage', 'message', message._id);
+  await createNotifications(recipientIds, 'newMessage', 'message', message._id);
   
   // Generate debounced email notifications
   privateMessagesDebouncer.recordEvent({
