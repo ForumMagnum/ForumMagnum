@@ -1,19 +1,43 @@
 import React, { Component } from 'react';
-import { withMessages, registerComponent, Utils, withMulti, withCreate } from 'meteor/vulcan:core';
+import { withMessages, registerComponent, Utils, useMulti, withCreate } from 'meteor/vulcan:core';
 import { Subscriptions } from '../../lib/collections/subscriptions/collection'
 import { defaultSubscriptionTypeTable } from '../../lib/collections/subscriptions/mutations'
 import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil.js';
 import mapProps from 'recompose/mapProps'
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 
 const SubscribeTo = ({
-  document, results, // From withMulti HoC
-  subscriptionType, collectionName,
+  document,
+  subscriptionType: overrideSubscriptionType,
   createSubscription, // From withCreate HoC
-  currentUser, flash, // From withUser, withMessages HoCs
+  flash, // From withMessages HoC
   subscribeMessage, unsubscribeMessage,
   className="",
 }) => {
+  const currentUser = useCurrentUser();
+  
+  const documentType = Utils.getCollectionNameFromTypename(document.__typename);
+  const collectionName = Utils.capitalize(documentType);
+  const subscriptionType = overrideSubscriptionType || defaultSubscriptionTypeTable[collectionName];
+  
+  // Get existing subscription, if there is one
+  const { results } = useMulti({
+    terms: {
+      view: "subscriptionState",
+      documentId: document._id,
+      userId: currentUser._id,
+      subscriptionType,
+      collectionName,
+      limit: 1
+    },
+    
+    collection: Subscriptions,
+    queryName: 'subscriptionState',
+    fragmentName: 'SubscriptionState',
+    enableTotal: false,
+    ssr: true
+  });
+  
   const isSubscribed = () => {
     // Get the last element of the results array, which will be the most recent subscription
     if (results && results.length > 0) {
@@ -55,39 +79,8 @@ const SubscribeTo = ({
   </a>
 }
 
-const remapProps = ({document, currentUser, type, ...rest}) => {
-  const documentType = Utils.getCollectionNameFromTypename(document.__typename);
-  const collectionName = Utils.capitalize(documentType);
-  const subscriptionType = type || defaultSubscriptionTypeTable[collectionName];
-  
-  return {
-    document,
-    collectionName,
-    currentUser,
-    subscriptionType,
-    documentType,
-    terms: {
-      view: "subscriptionState",
-      documentId: document._id,
-      userId: currentUser._id,
-      subscriptionType,
-      collectionName,
-      limit: 1
-    },
-    ...rest
-  }
-}
-//Note: the order of HoCs matters in this case, since we need to have access to currentUser before we call mapProps
 registerComponent('SubscribeTo', SubscribeTo,
-  withUser, withMessages,
-  mapProps(remapProps),
-  [withMulti, {
-    collection: Subscriptions,
-    queryName: 'subscriptionState',
-    fragmentName: 'SubscriptionState',
-    enableTotal: false,
-    ssr: true
-  }],
+  withMessages,
   [withCreate, {
     collection: Subscriptions,
     fragmentName: 'SubscriptionState',
