@@ -11,7 +11,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import withDialog from '../../common/withDialog'
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
-import classNames from 'classnames';
+
+export const MODERATION_GUIDE_WIDTH = 220
 
 const styles = theme => ({
   moderationGuidelinesInner: {
@@ -61,10 +62,10 @@ const styles = theme => ({
   },
   moderationOuterWrapper: {
     position: "absolute",
-    [theme.breakpoints.up('md')]: {
+    [theme.breakpoints.up('lg')]: {
       left: "calc(100% + 26px)",
       top: -66,
-      width: 220,
+      width: MODERATION_GUIDE_WIDTH,
     },
     [theme.breakpoints.down('sm')]: {
     }

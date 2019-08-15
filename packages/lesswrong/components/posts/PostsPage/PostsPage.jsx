@@ -12,12 +12,15 @@ import classNames from 'classnames';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import withRecordPostView from '../../common/withRecordPostView';
 import withNewEvents from '../../../lib/events/withNewEvents.jsx';
+import { MODERATION_GUIDE_WIDTH } from '../../comments/ModerationGuidelines/ModerationGuidelinesBox'
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 const DEFAULT_TOC_MARGIN = 100
 const MAX_TOC_WIDTH = 270
 const MIN_TOC_WIDTH = 200
 const MAX_COLUMN_WIDTH = 720
+
+// const MAX_COLUMN_WIDTH = 720
 
 const styles = theme => ({
   root: {
@@ -28,17 +31,17 @@ const styles = theme => ({
     '@supports (grid-template-areas: "title")': {
       display: 'grid',
       gridTemplateColumns: `
-        .5fr
+        1fr
         minmax(0px, ${DEFAULT_TOC_MARGIN}px)
         minmax(${MIN_TOC_WIDTH}px, ${MAX_TOC_WIDTH}px)
         minmax(0px, ${DEFAULT_TOC_MARGIN}px)
-        minmax(min-content, ${MAX_COLUMN_WIDTH}px)
-        minmax(0px, ${DEFAULT_TOC_MARGIN}px)
-        1.5fr
+        ${MAX_COLUMN_WIDTH}px
+        minmax(min-content, ${MODERATION_GUIDE_WIDTH + (DEFAULT_TOC_MARGIN*1.5)}px)
+        1fr
       `,
       gridTemplateAreas: `
         "... .... ... .... title   .... ..."
-        "... gap0 toc gap1 content gap2 ..."
+        "... .... toc gap1 content gap2 ..."
       `,
     },
     [theme.breakpoints.down('sm')]: {
@@ -223,6 +226,7 @@ function getHostname(url) {
 }
 
 class PostsPage extends Component {
+  modGuidelinesPortalRef = React.createRef()
 
   getSequenceId() {
     const { post } = this.props;
@@ -354,7 +358,8 @@ class PostsPage extends Component {
               <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question} guidelines={!post.question}/>
             </div>
           </div>
-          <div className={classes.gap2}/>
+          <div className={classes.gap2}>
+          </div>
         </div>
       );
     }
