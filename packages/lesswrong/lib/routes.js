@@ -108,7 +108,8 @@ addRoute([
   {
     name: 'sequencesPost',
     path: '/s/:sequenceId/p/:postId',
-    componentName: 'SequencesPost'
+    componentName: 'SequencesPost',
+    previewComponentName: 'PostLinkPreviewSequencePost',
   },
   
   {
@@ -141,6 +142,7 @@ addRoute([
     name: 'Rationality.posts.single',
     path: '/rationality/:slug',
     componentName: 'PostsSingleSlug',
+    previewComponentName: 'PostLinkPreviewSlug',
     ...rationalitySubtitle
   }
 ]);
@@ -158,6 +160,7 @@ if (getSetting('forumType') === 'LessWrong') {
       name: 'HPMOR.posts.single',
       path: '/hpmor/:slug',
       componentName: 'PostsSingleSlug',
+      previewComponentName: 'PostLinkPreviewSlug',
       ...hpmorSubtitle,
     },
   
@@ -172,6 +175,7 @@ if (getSetting('forumType') === 'LessWrong') {
       name: 'Codex.posts.single',
       path: '/codex/:slug',
       componentName: 'PostsSingleSlug',
+      previewComponentName: 'PostLinkPreviewSlug',
       ...codexSubtitle,
     },
   ]);
@@ -231,12 +235,14 @@ if (getSetting('hasEvents', true)) {
       name:'events.single',
       path: '/events/:_id/:slug?',
       componentName: 'PostsSingle',
+      previewComponentName: 'PostLinkPreview',
       ...communitySubtitle
     },
     {
       name: 'groups.post',
       path: '/g/:groupId/p/:_id',
       componentName: 'PostsSingle',
+      previewComponentName: 'PostLinkPreview',
       ...communitySubtitle
     },
   ]);

@@ -1,18 +1,54 @@
 import React from 'react';
-import { Components, registerComponent, withDocument } from 'meteor/vulcan:core';
+import { Components, registerComponent, withDocument, useSingle } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import { Link } from 'react-router-dom';
 import Tooltip from '@material-ui/core/Tooltip';
+import { usePostBySlug } from '../posts/usePostBySlug.js';
 
 const PostLinkPreview = ({href, targetLocation, innerHTML}) => {
   const postID = targetLocation.params._id;
-  return <Components.PostLinkPreviewWithPost href={href} innerHTML={innerHTML} documentId={postID} />
+  
+  const { document: post, loading, error } = useSingle({
+    collection: Posts,
+    queryName: "postLinkPreview",
+    fragmentName: 'PostsList',
+    fetchPolicy: 'cache-then-network',
+    
+    documentId: postID,
+  });
+  
+  return <Components.PostLinkPreviewWithPost post={post} error={error} href={href} innerHTML={innerHTML} />
 }
 registerComponent('PostLinkPreview', PostLinkPreview);
 
-const PostLinkPreviewWithPost = ({href, innerHTML, loading, document, error}) => {
+const PostLinkPreviewSequencePost = ({href, targetLocation, innerHTML}) => {
+  const postID = targetLocation.params.postId;
+  
+  const { document: post, loading, error } = useSingle({
+    collection: Posts,
+    queryName: "postLinkPreview",
+    fragmentName: 'PostsList',
+    fetchPolicy: 'cache-then-network',
+    
+    documentId: postID,
+  });
+  
+  return <Components.PostLinkPreviewWithPost post={post} error={error} href={href} innerHTML={innerHTML} />
+}
+registerComponent('PostLinkPreviewSequencePost', PostLinkPreviewSequencePost);
+
+
+const PostLinkPreviewSlug = ({href, targetLocation, innerHTML}) => {
+  const slug = targetLocation.params.slug;
+  const { post, loading, error } = usePostBySlug({ slug });
+  
+  return <Components.PostLinkPreviewWithPost href={href} innerHTML={innerHTML} post={post} error={error} />
+}
+registerComponent('PostLinkPreviewSlug', PostLinkPreviewSlug);
+
+const PostLinkPreviewWithPost = ({href, innerHTML, post, error}) => {
   const linkElement = <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}}/>;
-  if (loading || !document) {
+  if (!post) {
     return linkElement;
   }
   
@@ -23,7 +59,7 @@ const PostLinkPreviewWithPost = ({href, innerHTML, loading, document, error}) =>
         error
           ? error
           : <Components.PostsItemTooltip
-              post={document}
+              post={post}
               showTitle={true}
               author={true}
             />
@@ -37,11 +73,4 @@ const PostLinkPreviewWithPost = ({href, innerHTML, loading, document, error}) =>
     </Tooltip>
   );
 }
-registerComponent('PostLinkPreviewWithPost', PostLinkPreviewWithPost,
-  [withDocument, {
-    collection: Posts,
-    queryName: "postLinkPreview",
-    fragmentName: 'PostsList',
-    fetchPolicy: 'cache-then-network',
-  }]
-);
+registerComponent('PostLinkPreviewWithPost', PostLinkPreviewWithPost);
