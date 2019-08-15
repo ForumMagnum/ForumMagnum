@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';
 import { editorStyles, postBodyStyles, postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
@@ -14,6 +14,7 @@ import EditorForm from '../async/EditorForm'
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import withErrorBoundary from '../common/withErrorBoundary'
+import Checkbox from '@material-ui/core/Checkbox';
 
 const postEditorHeight = 250;
 const commentEditorHeight = 100;
@@ -77,12 +78,23 @@ class EditorFormComponent extends Component {
     const editorType = this.getCurrentEditorType()
     this.state = {
       editorOverride: null,
+      ckEditorLoaded: null,
+      ckEditorActivated: props.currentUser.defaultToCKEditor,
       updateType: 'minor',
       ...this.getEditorStatesFromType(editorType)
     }
     this.hasUnsavedData = false;
-
     this.throttledSaveBackup = _.throttle(this.saveBackup, autosaveInterval, {leading:false});
+  }
+
+  async componentDidMount() {
+    const { currentUser } = this.props
+    if (currentUser?.isAdmin) {
+      const EditorModule = await import('../async/CKEditor')
+      const Editor = EditorModule.default
+      this.ckEditor = Editor
+      this.setState({ckEditorLoaded: true})
+    }
   }
 
   getEditorStatesFromType = (editorType) => {
@@ -244,8 +256,8 @@ class EditorFormComponent extends Component {
     }
   }
 
-  setHtml = (e) => {
-    const newContent = e.target.value
+  setHtml = (eventOrHtml) => {
+    const newContent = (typeof eventOrHtml === "string") ? eventOrHtml : eventOrHtml.target.value 
     const changed = (this.state.htmlValue !== newContent);
     this.setState({htmlValue: newContent})
 
@@ -332,6 +344,7 @@ class EditorFormComponent extends Component {
     }
     // Otherwise, default to rich-text, but maybe show others
     if (originalType) { return originalType }
+    else if (currentUser.defaultToCKEditor) { return "html" }
     else if (enableMarkDownEditor && Users.useMarkdownPostEditor(currentUser)){
       return "markdown"
     } else {
@@ -387,8 +400,9 @@ class EditorFormComponent extends Component {
   }
 
   render() {
-    const { editorOverride, draftJSValue, htmlValue, markdownValue } = this.state
+    const { editorOverride, draftJSValue, htmlValue, markdownValue, ckEditorActivated } = this.state
     const { document, currentUser, formType, form, classes, fieldName } = this.props
+    const { Loading } = Components
     const commentStyles = form && form.commentStyles
     const currentEditorType = this.getCurrentEditorType()
 
@@ -409,6 +423,36 @@ class EditorFormComponent extends Component {
       && document[fieldName].originalContents.type !== this.getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
 
+    const CKEditorCheckbox = <span>
+        Activate CKEditor (admin only)
+        <Checkbox
+          checked={ckEditorActivated}
+          onChange={(_, checked) => {
+            this.setState({ckEditorActivated: checked})
+            checked && this.handleEditorOverride("html")
+          }}
+      />
+    </span>
+
+    const CKEditor = this.ckEditor
+
+    if (currentUser?.isAdmin && this.state.ckEditorActivated) {
+      if (!this.state.ckEditorLoaded || !this.ckEditor) return <Loading />
+      return <div className={classnames(classes.root, "editor-form-component")}>
+        { editorWarning }
+        <CKEditor 
+          onSave={(data) => this.setHtml(data)}
+          data={htmlValue || ""}
+          documentId={document._id}
+          formType={formType}
+          userId={currentUser._id}
+        />
+        { this.renderUpdateTypeSelect() }
+        { this.renderEditorTypeSelect() }
+        { CKEditorCheckbox }
+      </div>
+    }
+
     if (this.getCurrentEditorType() === "draftJS" && draftJSValue) {
       return (
         <div className={classnames(heightClass, classes.root, "editor-form-component")}>
@@ -422,6 +466,7 @@ class EditorFormComponent extends Component {
           />
           { this.renderUpdateTypeSelect() }
           { this.renderEditorTypeSelect() }
+          { CKEditorCheckbox }
         </div>);
     } else {
       const { multiLine, hintText, placeholder, label, fullWidth, disableUnderline, startAdornment } = this.props
@@ -446,6 +491,7 @@ class EditorFormComponent extends Component {
           </div>
           { this.renderUpdateTypeSelect() }
           { this.renderEditorTypeSelect() }
+          { CKEditorCheckbox }
         </div>
       );
     }

@@ -865,6 +865,14 @@ addFieldsDict(Users, {
     tooltip: "Get early access to new in-development features",
     label: "Opt into experimental features"
   },
+  defaultToCKEditor: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    group: formGroups.adminOptions,
+    label: "Activate CKEditor by default"
+  },
   // ReCaptcha v3 Integration
   // From 0 to 1. Lower is spammier, higher is humaner.
   signUpReCaptchaRating: {

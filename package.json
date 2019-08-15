@@ -19,6 +19,7 @@
   "dependencies": {
     "@babel/runtime": "^7.1.2",
     "@google/maps": "^0.5.5",
+    "@lesswrong/lesswrong-editor": "file:public/ckeditor5-build-balloon-block",
     "@material-ui/core": "3.1.2",
     "@material-ui/icons": "^3.0.0",
     "@sentry/browser": "^4.3.4",
@@ -95,6 +96,7 @@
     "intl": "^1.2.4",
     "intl-locales-supported": "^1.0.0",
     "jsdom": "^13.1.0",
+    "jsonwebtoken": "^8.5.1",
     "juice": "^1.11.0",
     "logrocket": "^1.0.0",
     "lolex": "^3.0.0",

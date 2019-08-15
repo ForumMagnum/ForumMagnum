@@ -62,6 +62,7 @@ registerFragment(`
 
 extendFragment('UsersCurrent', `
   ...UsersMinimumInfo
+  defaultToCKEditor
   voteBanned
   banned
   isReviewed
