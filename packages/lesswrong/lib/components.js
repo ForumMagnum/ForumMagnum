@@ -44,7 +44,6 @@ import '../components/common/Header.jsx';
 import '../components/common/HeaderSubtitle.jsx';
 import '../components/common/HeadTags.jsx';
 import '../components/common/Home2.jsx';
-import '../components/common/HomeEA.jsx';
 import '../components/common/HomeLatestPosts';
 import '../components/common/Meta.jsx';
 import '../components/common/AllComments.jsx';
