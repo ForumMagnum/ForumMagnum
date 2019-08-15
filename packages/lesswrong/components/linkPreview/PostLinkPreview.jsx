@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent, withDocument, useSingle } from 'meteor/vulcan:core';
+import { Components, registerComponent, useSingle } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import { Link } from 'react-router-dom';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -8,7 +8,7 @@ import { usePostBySlug } from '../posts/usePostBySlug.js';
 const PostLinkPreview = ({href, targetLocation, innerHTML}) => {
   const postID = targetLocation.params._id;
   
-  const { document: post, loading, error } = useSingle({
+  const { document: post, error } = useSingle({
     collection: Posts,
     queryName: "postLinkPreview",
     fragmentName: 'PostsList',
@@ -24,7 +24,7 @@ registerComponent('PostLinkPreview', PostLinkPreview);
 const PostLinkPreviewSequencePost = ({href, targetLocation, innerHTML}) => {
   const postID = targetLocation.params.postId;
   
-  const { document: post, loading, error } = useSingle({
+  const { document: post, error } = useSingle({
     collection: Posts,
     queryName: "postLinkPreview",
     fragmentName: 'PostsList',
@@ -40,7 +40,7 @@ registerComponent('PostLinkPreviewSequencePost', PostLinkPreviewSequencePost);
 
 const PostLinkPreviewSlug = ({href, targetLocation, innerHTML}) => {
   const slug = targetLocation.params.slug;
-  const { post, loading, error } = usePostBySlug({ slug });
+  const { post, error } = usePostBySlug({ slug });
   
   return <Components.PostLinkPreviewWithPost href={href} innerHTML={innerHTML} post={post} error={error} />
 }

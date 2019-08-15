@@ -43,10 +43,8 @@ const HoverPreviewLink = ({innerHTML, href}) => {
     const PreviewComponent = parsedUrl.currentRoute?.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;
     
     if (PreviewComponent) {
-      console.log("Rendering PreviewComponent");
       return <PreviewComponent href={onsiteUrl} targetLocation={parsedUrl} innerHTML={innerHTML}/>
     } else {
-      console.log("PreviewComponent not found");
       return <Link to={onsiteUrl} dangerouslySetInnerHTML={{__html: innerHTML}} />
     }
   }

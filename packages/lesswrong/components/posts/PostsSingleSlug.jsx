@@ -7,7 +7,7 @@ const PostsSingleSlug = () => {
   const { params, query } = useLocation();
   const version = query?.revision
   const slug = params.slug;
-  const { post, loading, error } = usePostBySlug({ slug });
+  const { post, loading } = usePostBySlug({ slug });
   
   if (post) {
     return <Components.PostsPageWrapper documentId={post._id} sequenceId={null} version={version} />
