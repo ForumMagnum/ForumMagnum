@@ -6,9 +6,15 @@ import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil.js';
 import mapProps from 'recompose/mapProps'
 import withUser from '../common/withUser';
 
-const SubscribeTo = (props) => {
+const SubscribeTo = ({
+  document, results, // From withMulti HoC
+  subscriptionType, collectionName,
+  createSubscription, // From withCreate HoC
+  currentUser, flash, // From withUser, withMessages HoCs
+  subscribeMessage, unsubscribeMessage,
+  className="",
+}) => {
   const isSubscribed = () => {
-    const { results, currentUser, subscriptionType, collectionName, document } = props
     // Get the last element of the results array, which will be the most recent subscription
     if (results && results.length > 0) {
       const currentSubscription = results[results.length-1]
@@ -21,7 +27,6 @@ const SubscribeTo = (props) => {
     });
   }
   const onSubscribe = async (e) => {
-    const { document, createSubscription, collectionName, flash, subscriptionType } = props;
     try {
       e.preventDefault();
       
@@ -40,13 +45,11 @@ const SubscribeTo = (props) => {
     }
   }
 
-  const { currentUser, document, collectionName, subscribeMessage, unsubscribeMessage } = props;
   // can't subscribe to yourself
   if (!currentUser || !document || (collectionName === 'Users' && document._id === currentUser._id)) {
     return null;
   }
 
-  const className = props.className || "";
   return <a className={className} onClick={onSubscribe}>
     { isSubscribed() ? unsubscribeMessage : subscribeMessage }
   </a>
