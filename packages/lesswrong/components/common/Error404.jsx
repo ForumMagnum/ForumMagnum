@@ -1,15 +1,18 @@
-import { registerComponent } from 'meteor/vulcan:lib';
+import { Components, registerComponent } from 'meteor/vulcan:lib';
 import React from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { useServerRequestStatus } from '../../lib/routeUtil'
 
 const Error404 = () => {
+  const { SingleColumnSection } = Components;
   const serverRequestStatus = useServerRequestStatus()
   if (serverRequestStatus) serverRequestStatus.status = 404
+  
   return (
-    <div className="error404">
-      <h3><FormattedMessage id="app.404"/></h3>
-    </div>
+    <SingleColumnSection>
+      <h2>404 Not Found</h2>
+      <h3>Sorry, we couldn't find what you were looking for.</h3>
+    </SingleColumnSection>
   );
 };
 
