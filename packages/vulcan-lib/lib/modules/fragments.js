@@ -1,7 +1,6 @@
 import gql from 'graphql-tag';
 
 const Fragments = {};
-const FragmentsExtensions = {}; // will be used on startup
 
 /*
 
@@ -107,48 +106,6 @@ const getDefaultFragment = collection => {
   const fragmentText = getDefaultFragmentText(collection);
   return fragmentText ? gql`${fragmentText}` : null;
 };
-/*
-
-Queue a fragment to be extended with additional properties.
-
-Note: can be used even before the fragment has been registered. 
-
-*/
-export const extendFragment = (fragmentName, newProperties) => {
-  FragmentsExtensions[fragmentName] = FragmentsExtensions[fragmentName] ? [...FragmentsExtensions[fragmentName], newProperties] : [newProperties];
-};
-
-/*
-
-Perform fragment extension (called from initializeFragments()
-
-Note: will call registerFragment again each time, resulting in multiple fragments
-with the same name (but duplicate fragments warning is disabled).
-
-*/
-const extendFragmentWithProperties = (fragmentName, newProperties) => {
-  const fragment = Fragments[fragmentName];
-  const fragmentEndPosition = fragment.fragmentText.lastIndexOf('}');
-  const newFragmentText = [
-    fragment.fragmentText.slice(0, fragmentEndPosition), 
-    newProperties, 
-    fragment.fragmentText.slice(fragmentEndPosition)
-  ].join('');
-  registerFragment(newFragmentText);
-};
-
-/*
-
-Remove a property from a fragment
-
-Note: can only be called *after* a fragment is registered
-
-*/
-const removeFromFragment = (fragmentName, propertyName) => {
-  const fragment = Fragments[fragmentName];
-  const newFragmentText = fragment.fragmentText.replace(propertyName, '');
-  registerFragment(newFragmentText);  
-};
 
 /*
 
@@ -202,15 +159,6 @@ Perform all fragment extensions (called from routing)
 export const initializeFragments = (fragments = getNonInitializedFragmentNames()) => {
 
   const errorFragmentKeys = [];
-
-  // extend fragment texts (if extended fragment exists)
-  _.forEach(FragmentsExtensions, (extensions, fragmentName) => {
-    if (Fragments[fragmentName]) {
-      extensions.forEach(newProperties => {
-        extendFragmentWithProperties(fragmentName, newProperties);
-      });
-    }
-  });
   
   // create fragment objects
 
