@@ -205,7 +205,7 @@ const getResumeSequences = async (currentUser, context) => {
   if (!sequences)
     return [];
 
-  return Promise.all(_.map(sequences,
+  const results = Promise.all(_.map(sequences,
     async partiallyReadSequence => {
       const { sequenceId, collectionId, lastReadPostId, nextPostId, numRead, numTotal, lastReadTime } = partiallyReadSequence;
       return {
@@ -223,6 +223,11 @@ const getResumeSequences = async (currentUser, context) => {
       }
     }
   ));
+  
+  // Filter out results where nextPost is null. (Specifically, this filters out
+  // the default sequences on dev databases, which would otherwise cause a crash
+  // down the line.)
+  return _.filter(results, result=>result.nextPost);
 }
 
 
