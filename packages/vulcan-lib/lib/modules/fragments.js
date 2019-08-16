@@ -144,47 +144,7 @@ export const getFragmentText = fragmentName => {
   return Fragments[fragmentName].fragmentText;  
 };
 
-/*
-
-Get names of non initialized fragments.
-
-*/
-const getNonInitializedFragmentNames = () =>
-  _.keys(Fragments).filter(name => !Fragments[name].fragmentObject);
-
 export const initializeFragment = (fragmentName) => {
   const fragment = Fragments[fragmentName];
   Fragments[fragmentName].fragmentObject = getFragmentObject(fragment.fragmentText, fragment.subFragments);
-};
-
-/*
-
-Perform all fragment extensions (called from routing)
-
-*/
-export const initializeFragments = (fragments = getNonInitializedFragmentNames()) => {
-
-  const errorFragmentKeys = [];
-  
-  // create fragment objects
-
-  // initialize fragments *with no subfragments* first to avoid unresolved dependencies
-  const keysWithoutSubFragments = _.filter(fragments, fragmentName => !Fragments[fragmentName].subFragments);
-  _.forEach(keysWithoutSubFragments, fragmentName => initializeFragment(fragmentName));
-
-  // next, initialize fragments that *have* subfragments
-  const keysWithSubFragments = _.filter(_.keys(Fragments), fragmentName => !!Fragments[fragmentName].subFragments);
-  _.forEach(keysWithSubFragments, fragmentName => {
-    try {
-      initializeFragment(fragmentName);
-    } catch (error) {
-      // if fragment initialization triggers an error, store fragment and try again later
-      // common error causes include cross-dependencies
-      errorFragmentKeys.push(fragmentName);
-    }
-  });
-
-  // finally, try initializing any fragment that triggered an error again
-  _.forEach(errorFragmentKeys, fragmentName => initializeFragment(fragmentName));
-
 };
