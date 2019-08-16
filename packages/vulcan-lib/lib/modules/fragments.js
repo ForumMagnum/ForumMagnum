@@ -124,7 +124,7 @@ export const getFragment = fragmentName => {
     throw new Error(`Fragment "${fragmentName}" not registered.`);
   }
   if (!Fragments[fragmentName].fragmentObject) {
-    initializeFragments([fragmentName]);
+    initializeFragment(fragmentName);
   }
   // return fragment object created by gql
   return Fragments[fragmentName].fragmentObject;  
@@ -151,6 +151,11 @@ Get names of non initialized fragments.
 const getNonInitializedFragmentNames = () =>
   _.keys(Fragments).filter(name => !Fragments[name].fragmentObject);
 
+export const initializeFragment = (fragmentName) => {
+  const fragment = Fragments[fragmentName];
+  Fragments[fragmentName].fragmentObject = getFragmentObject(fragment.fragmentText, fragment.subFragments);
+};
+
 /*
 
 Perform all fragment extensions (called from routing)
@@ -164,17 +169,13 @@ export const initializeFragments = (fragments = getNonInitializedFragmentNames()
 
   // initialize fragments *with no subfragments* first to avoid unresolved dependencies
   const keysWithoutSubFragments = _.filter(fragments, fragmentName => !Fragments[fragmentName].subFragments);
-  _.forEach(keysWithoutSubFragments, fragmentName => {
-    const fragment = Fragments[fragmentName];
-    fragment.fragmentObject = getFragmentObject(fragment.fragmentText, fragment.subFragments);
-  });
+  _.forEach(keysWithoutSubFragments, fragmentName => initializeFragment(fragmentName));
 
   // next, initialize fragments that *have* subfragments
   const keysWithSubFragments = _.filter(_.keys(Fragments), fragmentName => !!Fragments[fragmentName].subFragments);
   _.forEach(keysWithSubFragments, fragmentName => {
-    const fragment = Fragments[fragmentName];
     try {
-      fragment.fragmentObject = getFragmentObject(fragment.fragmentText, fragment.subFragments);
+      initializeFragment(fragmentName);
     } catch (error) {
       // if fragment initialization triggers an error, store fragment and try again later
       // common error causes include cross-dependencies
@@ -183,9 +184,6 @@ export const initializeFragments = (fragments = getNonInitializedFragmentNames()
   });
 
   // finally, try initializing any fragment that triggered an error again
-  _.forEach(errorFragmentKeys, fragmentName => {
-    const fragment = Fragments[fragmentName];
-    fragment.fragmentObject = getFragmentObject(fragment.fragmentText, fragment.subFragments);
-  });
+  _.forEach(errorFragmentKeys, fragmentName => initializeFragment(fragmentName));
 
 };
