@@ -7,14 +7,11 @@ export * from './default_resolvers.js';
 
 export * from './components.js';
 
-export { default as Layout } from './components/Layout.jsx';
 export * from './components/App.jsx';
 export { default as Icon } from './components/Icon.jsx';
 export { default as ShowIf } from './components/ShowIf.jsx';
 export { default as DynamicLoading } from './components/DynamicLoading.jsx';
-export { default as HeadTags } from './components/HeadTags.jsx';
 export { default as Datatable } from './components/Datatable.jsx';
-export { default as Flash } from './components/Flash.jsx';
 export { default as RouterHook } from './components/RouterHook.jsx';
 export { default as ScrollToTop } from './components/ScrollToTop.jsx';
 
@@ -28,8 +25,6 @@ export { default as withDelete } from './containers/withDelete.js';
 export { default as withCurrentUser } from './containers/withCurrentUser.js';
 export { default as withMutation } from './containers/withMutation.js';
 export { default as withSiteData } from './containers/withSiteData.js';
-
-export { default as withComponents } from './containers/withComponents';
 
 export { default as MessageContext } from './messages.js';
 
