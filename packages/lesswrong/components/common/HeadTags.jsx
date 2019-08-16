@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Utils, registerSetting, getSetting, Head } from 'meteor/vulcan:lib';
-import { compose } from 'react-apollo';
+import compose from 'lodash/flowRight';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { withApollo } from 'react-apollo';
 

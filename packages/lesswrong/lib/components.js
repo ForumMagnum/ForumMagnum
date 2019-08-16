@@ -43,12 +43,8 @@ importComponent("BetaTag", () => require('../components/common/BetaTag.jsx'));
 importComponent("FlashMessages", () => require('../components/common/FlashMessages.jsx'));
 importComponent("Header", () => require('../components/common/Header.jsx'));
 importComponent("HeaderSubtitle", () => require('../components/common/HeaderSubtitle.jsx'));
-importComponent("TabNavigationMenu", () => require('../components/common/TabNavigationMenu.jsx'));
-importComponent("TabNavigationSubItem", () => require('../components/common/TabNavigationSubItem.jsx'));
-importComponent("NavigationMenu", () => require('../components/common/NavigationMenu.jsx'));
 importComponent("HeadTags", () => require('../components/common/HeadTags.jsx'));
 importComponent("Home2", () => require('../components/common/Home2.jsx'));
-importComponent("HomeEA", () => require('../components/common/HomeEA.jsx'));
 importComponent("HomeLatestPosts", () => require('../components/common/HomeLatestPosts'));
 importComponent("Meta", () => require('../components/common/Meta.jsx'));
 importComponent("AllComments", () => require('../components/common/AllComments.jsx'));
@@ -75,6 +71,15 @@ importComponent("LinkCard", () => require('../components/common/LinkCard.jsx'));
 importComponent("Error404", () => require('../components/common/Error404.jsx'));
 importComponent("PermanentRedirect", () => require('../components/common/PermanentRedirect.jsx'));
 
+importComponent("TabNavigationMenu", () => require('../components/common/TabNavigationMenu/TabNavigationMenu.jsx'));
+import '../components/common/TabNavigationMenu/TabNavigationMenuFooter.jsx';
+import '../components/common/TabNavigationMenu/TabNavigationMenuCompressed.jsx';
+import '../components/common/TabNavigationMenu/TabNavigationItem.jsx';
+import '../components/common/TabNavigationMenu/TabNavigationFooterItem.jsx';
+import '../components/common/TabNavigationMenu/TabNavigationCompressedItem.jsx';
+importComponent("TabNavigationSubItem", () => require('../components/common/TabNavigationMenu/TabNavigationSubItem.jsx'));
+import '../components/common/TabNavigationMenu/NavigationDrawer.jsx';
+import '../components/common/TabNavigationMenu/NavigationStandalone.jsx';
 
 // Outgoing RSS Feed builder
 importComponent("SubscribeWidget", () => require('../components/common/SubscribeWidget.jsx'));
@@ -202,6 +207,8 @@ importComponent("CommentsItem", () => require('../components/comments/CommentsIt
 importComponent("CommentUserName", () => require('../components/comments/CommentsItem/CommentUserName.jsx'));
 importComponent("RetractCommentMenuItem", () => require('../components/comments/CommentsItem/RetractCommentMenuItem.jsx'));
 importComponent("MoveToAnswersMenuItem", () => require('../components/comments/CommentsItem/MoveToAnswersMenuItem.jsx'));
+importComponent("CommentsPermalinkMenuItem", () => require('../components/comments/CommentsItem/CommentsPermalinkMenuItem.jsx'));
+importComponent("CommentShortformIcon", () => require('../components/comments/CommentsItem/CommentShortformIcon.jsx'));
 importComponent("BanUserFromPostMenuItem", () => require('../components/comments/CommentsItem/BanUserFromPostMenuItem.jsx'));
 importComponent("BanUserFromAllPostsMenuItem", () => require('../components/comments/CommentsItem/BanUserFromAllPostsMenuItem.jsx'));
 importComponent("BanUserFromAllPersonalPostsMenuItem", () => require('../components/comments/CommentsItem/BanUserFromAllPersonalPostsMenuItem.jsx'));
@@ -230,6 +237,7 @@ importComponent("CommentsListMeta", () => require('../components/comments/Commen
 importComponent("CommentsNode", () => require('../components/comments/CommentsNode.jsx'));
 importComponent("CommentsViews", () => require('../components/comments/CommentsViews.jsx'));
 importComponent("RecentComments", () => require('../components/comments/RecentComments.jsx'));
+
 importComponent("ParentCommentSingle", () => require('../components/comments/ParentCommentSingle.jsx'));
 importComponent("ModerationGuidelinesBox", () => require('../components/comments/ModerationGuidelines/ModerationGuidelinesBox.jsx'));
 importComponent("ModerationGuidelinesEditForm", () => require('../components/comments/ModerationGuidelines/ModerationGuidelinesEditForm.jsx'))
@@ -250,7 +258,6 @@ importComponent("UsersAutoCompleteHit", () => require('../components/search/User
 importComponent("UsersSearchInput", () => require('../components/search/UsersSearchInput.jsx'));
 importComponent("SearchBarResults", () => require('../components/search/SearchBarResults.jsx'));
 importComponent("SearchPagination", () => require('../components/search/SearchPagination.jsx'));
-
 
 importComponent("AdminHome", () => require('../components/sunshineDashboard/AdminHome.jsx'));
 importComponent("AdminMetadata", () => require('../components/sunshineDashboard/AdminMetadata.jsx'));
