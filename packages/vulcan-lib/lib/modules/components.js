@@ -1,6 +1,5 @@
 import compose from 'lodash/flowRight';
 import React from 'react';
-import difference from 'lodash/difference';
 
 let componentsPopulated = false;
 
