@@ -22,6 +22,7 @@ import { Switch, Route } from 'react-router-dom';
 import { withRouter} from 'react-router';
 import MessageContext from '../messages.js';
 import qs from 'qs'
+import Sentry from '@sentry/node';
 
 export const LocationContext = React.createContext("location");
 export const SubscribeLocationContext = React.createContext("subscribeLocation");
@@ -187,6 +188,10 @@ class App extends PureComponent {
       }
     }
 
+    if (!currentRoute) {
+      Sentry.captureException(new Error(`404 not found: ${location.pathname}`));
+    }
+    
     const RouteComponent = currentRoute ? Components[currentRoute.componentName] : Components.Error404;
     return {
       currentRoute, RouteComponent, location, params,
