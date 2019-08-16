@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 
-export const Fragments = {};
-export const FragmentsExtensions = {}; // will be used on startup
+const Fragments = {};
+const FragmentsExtensions = {}; // will be used on startup
 
 /*
 
@@ -15,7 +15,7 @@ export const extractFragmentName = fragmentText => fragmentText.match(/fragment 
 Get a query resolver's name from its text
 
 */
-export const extractResolverName = resolverText => resolverText.trim().substr(0, resolverText.trim().indexOf('{'));
+const extractResolverName = resolverText => resolverText.trim().substr(0, resolverText.trim().indexOf('{'));
 
 
 /*
@@ -51,7 +51,7 @@ export const registerFragment = fragmentTextSource => {
 Create gql fragment object from text and subfragments
 
 */
-export const getFragmentObject = (fragmentText, subFragments) => {
+const getFragmentObject = (fragmentText, subFragments) => {
   // pad the literals array with line returns for each subFragments
   const literals = subFragments ? [fragmentText, ...subFragments.map(x => '\n')] : [fragmentText];
 
@@ -103,7 +103,7 @@ export const getDefaultFragmentText = (collection, options = { onlyViewable: tru
   }
 
 };
-export const getDefaultFragment = collection => {
+const getDefaultFragment = collection => {
   const fragmentText = getDefaultFragmentText(collection);
   return fragmentText ? gql`${fragmentText}` : null;
 };
@@ -126,7 +126,7 @@ Note: will call registerFragment again each time, resulting in multiple fragment
 with the same name (but duplicate fragments warning is disabled).
 
 */
-export const extendFragmentWithProperties = (fragmentName, newProperties) => {
+const extendFragmentWithProperties = (fragmentName, newProperties) => {
   const fragment = Fragments[fragmentName];
   const fragmentEndPosition = fragment.fragmentText.lastIndexOf('}');
   const newFragmentText = [
@@ -144,7 +144,7 @@ Remove a property from a fragment
 Note: can only be called *after* a fragment is registered
 
 */
-export const removeFromFragment = (fragmentName, propertyName) => {
+const removeFromFragment = (fragmentName, propertyName) => {
   const fragment = Fragments[fragmentName];
   const newFragmentText = fragment.fragmentText.replace(propertyName, '');
   registerFragment(newFragmentText);  
@@ -191,7 +191,7 @@ export const getFragmentText = fragmentName => {
 Get names of non initialized fragments.
 
 */
-export const getNonInitializedFragmentNames = () =>
+const getNonInitializedFragmentNames = () =>
   _.keys(Fragments).filter(name => !Fragments[name].fragmentObject);
 
 /*
