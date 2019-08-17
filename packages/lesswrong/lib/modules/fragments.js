@@ -1,7 +1,19 @@
-import { registerFragment, extendFragment } from 'meteor/vulcan:core';
+import { registerFragment } from 'meteor/vulcan:core';
 
-extendFragment('UsersAdmin', `
-  karma
+registerFragment(`
+  fragment UsersAdmin on User {
+    _id
+    username
+    createdAt
+    isAdmin
+    displayName
+    email
+    slug
+    groups
+    services
+    
+    karma
+  }
 `);
 
 registerFragment(`
@@ -60,46 +72,61 @@ registerFragment(`
   }
 `);
 
-extendFragment('UsersCurrent', `
-  ...UsersMinimumInfo
-  voteBanned
-  banned
-  isReviewed
-  nullifyVotes
-  hideIntercom
-  hideNavigationSidebar
-  currentFrontpageFilter
-  allPostsTimeframe
-  allPostsSorting
-  allPostsFilter
-  allPostsShowLowKarma
-  allPostsOpenSettings
-  lastNotificationsCheck
-  subscribedItems
-  groups
-  bannedUserIds
-  moderationStyle
-  moderationGuidelines {
-    ...RevisionEdit
+registerFragment(`
+  fragment UsersCurrent on User {
+    ...UsersMinimumInfo
+  
+    _id
+    username
+    createdAt
+    isAdmin
+    displayName
+    email
+    slug
+    groups
+    services
+    pageUrl
+    locale
+    
+    voteBanned
+    banned
+    isReviewed
+    nullifyVotes
+    hideIntercom
+    hideNavigationSidebar
+    currentFrontpageFilter
+    allPostsTimeframe
+    allPostsSorting
+    allPostsFilter
+    allPostsShowLowKarma
+    allPostsOpenSettings
+    lastNotificationsCheck
+    subscribedItems
+    groups
+    bannedUserIds
+    moderationStyle
+    moderationGuidelines {
+      ...RevisionEdit
+    }
+    markDownPostEditor
+    commentSorting
+    location
+    googleLocation
+    mongoLocation
+    emailSubscribedToCurated
+    unsubscribeFromAll
+    emails
+    whenConfirmationEmailSent
+    noCollapseCommentsFrontpage
+    noCollapseCommentsPosts
+    noSingleLineComments
+    karmaChangeNotifierSettings
+    karmaChangeLastOpened
+    shortformFeedId
+    viewUnreviewedComments
+    sunshineShowNewUserContent
+    recommendationSettings
   }
-  markDownPostEditor
-  commentSorting
-  location
-  googleLocation
-  mongoLocation
-  emailSubscribedToCurated
-  unsubscribeFromAll
-  emails
-  whenConfirmationEmailSent
-  noCollapseCommentsFrontpage
-  noCollapseCommentsPosts
-  noSingleLineComments
-  karmaChangeNotifierSettings
-  karmaChangeLastOpened
-  shortformFeedId
-  viewUnreviewedComments
-  sunshineShowNewUserContent
-  recommendationSettings
 `);
 
 registerFragment(`
