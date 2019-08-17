@@ -277,5 +277,5 @@ export const mergeWithComponents = myComponents => {
     }
   }
   
-  return new Proxy({}, componentsProxyHandler);
+  return new Proxy({}, mergedComponentsProxyHandler );
 }
