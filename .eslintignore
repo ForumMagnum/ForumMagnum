@@ -4,7 +4,6 @@ packages/vulcan-accounts
 packages/vulcan-admin
 packages/vulcan-debug
 packages/vulcan-events
-packages/vulcan-forms
 packages/vulcan-i18n
 packages/vulcan-i18n-en-us
 packages/vulcan-lib
