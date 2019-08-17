@@ -68,6 +68,7 @@
     "import/no-extraneous-dependencies": 0,
     "import/no-duplicates": 1,
     "import/extensions": 0,
+    "import/no-cycle": 1,
     "import/no-mutable-exports": 1,
   },
   "env": {
