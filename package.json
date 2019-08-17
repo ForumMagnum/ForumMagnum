@@ -36,6 +36,7 @@
     "apollo-link-state": "^0.4.2",
     "apollo-server": "2.3.3",
     "apollo-server-express": "2.3.3",
+    "babel-plugin-hash-resolve": "^1.0.2",
     "bcrypt": "^3.0.6",
     "body-parser": "^1.18.3",
     "bowser": "^1.9.4",

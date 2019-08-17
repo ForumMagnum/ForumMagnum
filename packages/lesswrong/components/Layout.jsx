@@ -10,7 +10,7 @@ import { withCookies } from 'react-cookie'
 import LogRocket from 'logrocket'
 
 import { withStyles, withTheme } from '@material-ui/core/styles';
-import { withLocation } from '../lib/routeUtil';
+import { withLocation } from '#/lib/routeUtil';
 import { UserContext } from './common/withUser';
 import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';

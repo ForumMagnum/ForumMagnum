@@ -34,7 +34,8 @@ Package.onUse( function(api) {
   Npm.depends({
     "@babel/core": "7.4.3",
     "@babel/plugin-proposal-optional-chaining": "7.2.0",
-    "@babel/plugin-syntax-optional-chaining": "7.2.0"
+    "@babel/plugin-syntax-optional-chaining": "7.2.0",
+    "babel-plugin-hash-resolve": "1.0.2"
   })
 });
 
@@ -53,7 +54,8 @@ Package.onTest(function(api) {
   Npm.depends({
     "@babel/core": "7.4.3",
     "@babel/plugin-proposal-optional-chaining": "7.2.0",
-    "@babel/plugin-syntax-optional-chaining": "7.2.0"
+    "@babel/plugin-syntax-optional-chaining": "7.2.0",
+    "babel-plugin-hash-resolve": "1.0.2"
   })
   // Entry points for tests
   api.mainModule('./testing/client.tests.js', 'client');
