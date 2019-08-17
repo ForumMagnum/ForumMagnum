@@ -43,6 +43,7 @@
     "no-console": 1,
     "react/prop-types": 0,
     "react/jsx-equals-spacing": 1,
+    "react/jsx-child-element-spacing": 1,
     "meteor/audit-argument-checks": 0,
     "no-case-declarations": 0,
     "react/no-unescaped-entities": 0,
