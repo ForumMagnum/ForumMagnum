@@ -1,8 +1,7 @@
-import { registerComponent, getCollection } from 'meteor/vulcan:lib';
+import { Components, registerComponent, getCollection } from 'meteor/vulcan:lib';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import withCurrentUser from '../containers/withCurrentUser.js';
-import withComponents from '../containers/withComponents';
 import withMulti from '../containers/withMulti.js';
 import { FormattedMessage, intlShape } from 'meteor/vulcan:i18n';
 import { getFieldValue } from './Card.jsx';
@@ -67,11 +66,9 @@ class Datatable extends PureComponent {
   }
 
   render() {
-    const { Components } = this.props;
-
     if (this.props.data) { // static JSON datatable
 
-      return <Components.DatatableContents Components={Components} columns={Object.keys(this.props.data[0])} {...this.props} results={this.props.data} showEdit={false} showNew={false} />;
+      return <Components.DatatableContents columns={Object.keys(this.props.data[0])} {...this.props} results={this.props.data} showEdit={false} showNew={false} />;
             
     } else { // dynamic datatable with data loading
       
@@ -91,9 +88,9 @@ class Datatable extends PureComponent {
       const orderBy = Object.keys(this.state.currentSort).length == 0 ? {} : { ...this.state.currentSort, _id: -1 };
 
       return (
-        <Components.DatatableLayout Components={Components} collectionName={collection.options.collectionName}>
-          <Components.DatatableAbove Components={Components} {...this.props} collection={collection} canInsert={canInsert} value={this.state.value} updateQuery={this.updateQuery} />
-          <DatatableWithMulti Components={Components} {...this.props} collection={collection} terms={{ query: this.state.query, orderBy: orderBy }} currentUser={this.props.currentUser} toggleSort={this.toggleSort} currentSort={this.state.currentSort}/>
+        <Components.DatatableLayout collectionName={collection.options.collectionName}>
+          <Components.DatatableAbove {...this.props} collection={collection} canInsert={canInsert} value={this.state.value} updateQuery={this.updateQuery} />
+          <DatatableWithMulti {...this.props} collection={collection} terms={{ query: this.state.query, orderBy: orderBy }} currentUser={this.props.currentUser} toggleSort={this.toggleSort} currentSort={this.state.currentSort}/>
         </Components.DatatableLayout>
       );
     }
@@ -112,7 +109,6 @@ Datatable.propTypes = {
   newFormOptions: PropTypes.object,
   editFormOptions: PropTypes.object,
   emptyState: PropTypes.object,
-  Components: PropTypes.object.isRequired,
 };
 
 Datatable.defaultProps = {
@@ -120,7 +116,7 @@ Datatable.defaultProps = {
   showEdit: true,
   showSearch: true,
 };
-registerComponent({ name: 'Datatable', component: Datatable, hocs: [withCurrentUser, withComponents] });
+registerComponent({ name: 'Datatable', component: Datatable, hocs: [withCurrentUser] });
 export default Datatable;
 
 const DatatableLayout = ({ collectionName, children }) => (
@@ -137,7 +133,7 @@ DatatableAbove Component
 */
 const DatatableAbove = (props, { intl }) => {
   const { collection, currentUser, showSearch, showNew, canInsert,
-     value, updateQuery, options, newFormOptions, Components } = props;
+     value, updateQuery, options, newFormOptions } = props;
 
   return (
     <Components.DatatableAboveLayout>
@@ -159,7 +155,6 @@ DatatableAbove.contextTypes = {
   intl: intlShape,
 };
 DatatableAbove.propTypes = {
-  Components: PropTypes.object.isRequired
 };
 registerComponent('DatatableAbove', DatatableAbove);
 
@@ -183,7 +178,7 @@ registerComponent({ name: 'DatatableAboveLayout', component: DatatableAboveLayou
 DatatableHeader Component
 
 */
-const DatatableHeader = ({ collection, column, toggleSort, currentSort, Components }, { intl }) => {
+const DatatableHeader = ({ collection, column, toggleSort, currentSort }, { intl }) => {
 
   const columnName = getColumnName(column);
   
@@ -223,7 +218,6 @@ DatatableHeader.contextTypes = {
   intl: intlShape
 };
 DatatableHeader.propTypes = {
-  Components: PropTypes.object.isRequired
 };
 registerComponent('DatatableHeader', DatatableHeader);
 
@@ -279,8 +273,7 @@ const DatatableContents = (props) => {
   // if no columns are provided, default to using keys of first array item
   const { title, collection, results, columns, loading, loadMore, 
     count, totalCount, networkStatus, showEdit, currentUser, emptyState, 
-    toggleSort, currentSort,
-  Components } = props;
+    toggleSort, currentSort } = props;
 
   if (loading) {
     return <div className="datatable-list datatable-list-loading"><Components.Loading /></div>;
@@ -300,7 +293,6 @@ const DatatableContents = (props) => {
             sortedColumns
               .map((column, index) => (
                 <Components.DatatableHeader
-                  Components={Components}
                   key={index} collection={collection} column={column}
                   toggleSort={toggleSort} currentSort={currentSort} />)
               )
@@ -316,7 +308,7 @@ const DatatableContents = (props) => {
           {isLoadingMore
             ? <Components.Loading />
             : (
-            <Components.DatatableLoadMoreButton Components={Components} onClick={e => { e.preventDefault(); loadMore(); }}>
+            <Components.DatatableLoadMoreButton onClick={e => { e.preventDefault(); loadMore(); }}>
                 Load More ({count}/{totalCount})
             </Components.DatatableLoadMoreButton>
             )
@@ -327,7 +319,6 @@ const DatatableContents = (props) => {
   );
 };
 DatatableContents.propTypes = {
-  Components: PropTypes.object.isRequired
 };
 registerComponent('DatatableContents', DatatableContents);
 
@@ -361,7 +352,7 @@ const DatatableContentsMoreLayout = ({ children }) => (
   </div>
 );
 registerComponent({ name: 'DatatableContentsMoreLayout', component: DatatableContentsMoreLayout });
-const DatatableLoadMoreButton = ({ count, totalCount, Components, children, ...otherProps }) => (
+const DatatableLoadMoreButton = ({ count, totalCount, children, ...otherProps }) => (
   <Components.Button variant="primary" {...otherProps}>{children}</Components.Button>
 );
 registerComponent({ name: 'DatatableLoadMoreButton', component: DatatableLoadMoreButton });
@@ -384,7 +375,7 @@ DatatableRow Component
 const DatatableRow = (props, { intl }) => {
 
   const { collection, columns, document, showEdit, 
-    currentUser, options, editFormOptions, rowClass, Components } = props;
+    currentUser, options, editFormOptions, rowClass } = props;
   const canEdit = collection && collection.options && collection.options.mutations && collection.options.mutations.edit && collection.options.mutations.edit.check(currentUser, document);
 
   const row = typeof rowClass === 'function' ? rowClass(document) : rowClass || '';
@@ -398,7 +389,6 @@ const DatatableRow = (props, { intl }) => {
         .map((column, index) => (
         <Components.DatatableCell 
         key={index}
-        Components={Components}
         column={column} document={document} 
         currentUser={currentUser} />
       ))}
@@ -411,7 +401,6 @@ const DatatableRow = (props, { intl }) => {
   );
 };
 DatatableRow.propTypes = {
-  Components: PropTypes.object.isRequired
 };
 registerComponent('DatatableRow', DatatableRow);
 
@@ -430,7 +419,7 @@ registerComponent({ name: 'DatatableRowLayout', component: DatatableRowLayout })
 DatatableCell Component
 
 */
-const DatatableCell = ({ column, document, currentUser, Components }) => {
+const DatatableCell = ({ column, document, currentUser }) => {
   const Component = column.component 
   || column.componentName && Components[column.componentName] 
   || Components.DatatableDefaultCell;
@@ -442,7 +431,6 @@ const DatatableCell = ({ column, document, currentUser, Components }) => {
   );
 };
 DatatableCell.propTypes = {
-  Components: PropTypes.object.isRequired
 };
 registerComponent('DatatableCell', DatatableCell);
 
