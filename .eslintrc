@@ -41,8 +41,10 @@
       "varsIgnorePattern": "React|PropTypes|Component"
     }],
     "no-console": 1,
+    "no-template-curly-in-string": 1,
     "react/prop-types": 0,
     "react/jsx-equals-spacing": 1,
+    "react/jsx-pascal-case": 1,
     "react/jsx-child-element-spacing": 1,
     "meteor/audit-argument-checks": 0,
     "no-case-declarations": 0,
