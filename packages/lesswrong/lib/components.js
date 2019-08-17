@@ -164,7 +164,7 @@ importComponent("PostsItemDate", () => require('../components/posts/PostsItemDat
 
 importComponent("UserPageTitle", () => require('../components/titles/UserPageTitle.jsx'));
 importComponent("SequencesPageTitle", () => require('../components/titles/SequencesPageTitle.jsx'));
-importComponent("PostsPageTitle", () => require('../components/titles/PostsPageTitle.jsx'));
+importComponent("PostsPageHeaderTitle", () => require('../components/titles/PostsPageHeaderTitle.jsx'));
 
 importComponent("ShortformPage", () => require('../components/shortform/ShortformPage.jsx'));
 importComponent("ShortformThreadList", () => require('../components/shortform/ShortformThreadList.jsx'));

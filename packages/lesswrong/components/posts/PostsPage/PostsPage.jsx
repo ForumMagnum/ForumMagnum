@@ -339,9 +339,9 @@ class PostsPage extends Component {
                     />
                 </div>
               </div>}
-            {sequenceId && <div className={classes.bottomNavigation}>
+            <div className={classes.bottomNavigation}>
               <BottomNavigation post={post}/>
-            </div>}
+            </div>
 
             {/* Answers Section */}
             {post.question && <div className={classes.post}>
