@@ -1,6 +1,6 @@
 import { Utils, getSetting } from 'meteor/vulcan:core';
 import cheerio from 'cheerio';
-import { Comments } from '../comments'
+import { Comments } from '../comments/collection.js'
 import { Posts } from './collection';
 import { questionAnswersSort } from '../comments/views';
 
