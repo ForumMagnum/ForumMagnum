@@ -42,6 +42,7 @@
     }],
     "no-console": 1,
     "no-template-curly-in-string": 1,
+    "no-tabs": 1,
     "react/prop-types": 0,
     "react/jsx-equals-spacing": 1,
     "react/jsx-pascal-case": 1,
