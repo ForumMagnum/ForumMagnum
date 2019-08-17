@@ -15,11 +15,8 @@ import withCurrentUser from '../containers/withCurrentUser.js';
 import withUpdate from '../containers/withUpdate.js';
 import withSiteData from '../containers/withSiteData.js';
 import { withApollo } from 'react-apollo';
-import { withCookies } from 'react-cookie';
 import moment from 'moment';
-import { matchPath } from 'react-router';
-import { Switch, Route } from 'react-router-dom';
-import { withRouter} from 'react-router';
+import { withRouter, matchPath } from 'react-router';
 import MessageContext from '../messages.js';
 import qs from 'qs'
 
@@ -62,7 +59,7 @@ class App extends PureComponent {
   See https://stackoverflow.com/a/45373907/649299
 
   */
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     this.unlisten = this.props.history.listen((location, action) => {
       this.clear();
     });
@@ -168,7 +165,7 @@ class App extends PureComponent {
     };
   }
 
-  componentWillUpdate(nextProps) {
+  UNSAFE_componentWillUpdate(nextProps) {
     if (!this.props.currentUser && nextProps.currentUser) {
       runCallbacks('events.identify', nextProps.currentUser);
     }

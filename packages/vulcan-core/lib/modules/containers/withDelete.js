@@ -27,7 +27,6 @@ Child Props:
 */
 
 import React from 'react';
-import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { deleteClientTemplate } from 'meteor/vulcan:core';
 import { extractCollectionInfo, extractFragmentInfo } from 'meteor/vulcan:lib';

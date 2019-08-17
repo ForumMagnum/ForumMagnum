@@ -1,2 +1,12 @@
 packages/_*
-packages/vulcan-*
+packages/vulcan-*/**/*.test.js
+packages/vulcan-accounts
+packages/vulcan-admin
+packages/vulcan-debug
+packages/vulcan-events
+packages/vulcan-forms
+packages/vulcan-i18n
+packages/vulcan-i18n-en-us
+packages/vulcan-lib
+packages/vulcan-ui-bootstrap
+packages/vulcan-users
