@@ -7,7 +7,5 @@ const intercomClient = intercomToken
   ? new Intercom.Client({ token: intercomToken })
   : null;
 
-import './callbacks_async.js';
-
 
 export default intercomClient;
