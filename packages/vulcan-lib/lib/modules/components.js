@@ -230,15 +230,23 @@ export const delayedComponent = name => {
   };
 };
 
-// Example with Proxy (might be unstable/hard to reason about)
-//const mergeWithComponents = (myComponents = {}) => {
-//  const handler = {
-//    get: function(target, name) {
-//      return name in target ? target[name] : Components[name];
-//    }
-//  };
-//  const proxy = new Proxy(myComponents, handler);
-//  return proxy;
-//};
-export const mergeWithComponents = myComponents =>
-  myComponents ? { ...Components, ...myComponents } : Components;
+// Given an optional set of override-components, return a Components object
+// which wraps the main Components table, preserving Components'
+// proxy/deferred-execution tricks.
+export const mergeWithComponents = myComponents => {
+  if (!myComponents) return Components;
+  
+  const mergedComponentsProxyHandler = {
+    get: function(obj, prop) {
+      if (prop in myComponents) {
+        return myComponents[prop];
+      } else if (prop in PreparedComponents) {
+        return PreparedComponents[prop];
+      } else {
+        return prepareComponent(prop);
+      }
+    }
+  }
+  
+  return new Proxy({}, componentsProxyHandler);
+}
