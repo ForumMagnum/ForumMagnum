@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Components, AdminColumns, registerComponent } from 'meteor/vulcan:core';
+import { Components, AdminColumns, registerComponent, addAdminColumn } from 'meteor/vulcan:core';
 import { Bans } from '../../lib/collections/bans';
 import { LWEvents } from '../../lib/collections/lwevents';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
@@ -8,7 +8,6 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
-import { addAdminColumn } from 'meteor/vulcan:core';
 import classNames from 'classnames';
 
 const styles = theme => ({
