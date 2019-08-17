@@ -1,4 +1,4 @@
-import { registerFragment } from 'meteor/vulcan:lib';
+/*import { registerFragment } from 'meteor/vulcan:lib';
 
 // ------------------------------ Vote ------------------------------ //
 
@@ -17,4 +17,4 @@ registerFragment(`
     pageUrl
     locale
   }
-`);
+`);*/
