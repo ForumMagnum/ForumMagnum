@@ -1,6 +1,6 @@
 /* global Vulcan */
 import { Collections, getCollection } from 'meteor/vulcan:lib';
-import { forEachDocumentBatchInCollection } from '../queryUtil';
+import { forEachDocumentBatchInCollection } from '../migrations/migrationUtils.js';
 
 // customValidators: Mapping from collection name to array of
 // {validatorName,validateBatch} tuples.
