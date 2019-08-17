@@ -47,7 +47,8 @@
     "react/no-unescaped-entities": 0,
     "react/display-name": 0,
     "no-mixed-operators": 1,
-    "react-hooks/rules-of-hooks": "error"
+    "react-hooks/rules-of-hooks": "error",
+    "import/no-unresolved": 1
   },
   "env": {
     "browser": true,
@@ -60,13 +61,29 @@
     "babel",
     "meteor",
     "react",
-    "react-hooks"
+    "react-hooks",
+    "import"
   ],
   "settings": {
-    "import/resolver": "meteor",
-    "react": {
-        "version": "16.4.1"
+    "import/resolver": {
+      "meteor": {
+        "extensions": [ ".js", ".jsx" ]
       }
+    },
+    "import/core-modules": [
+      "meteor/vulcan:lib",
+      "meteor/vulcan:core",
+      "meteor/vulcan:i18n",
+      "meteor/practicalmeteor:chai",
+      "sinon",
+      "sinon-chai",
+      "chai-enzyme",
+      "meteor/meteorhacks:inject-initial",
+      "meteor/littledata:synced-cron"
+    ],
+    "react": {
+      "version": "16.4.1"
+    }
   },
   "root": true,
   "globals": {
