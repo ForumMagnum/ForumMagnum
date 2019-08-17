@@ -186,7 +186,7 @@
     "eslint-plugin-meteor": "^5.1.0",
     "eslint-plugin-prettier": "^2.6.2",
     "eslint-plugin-react": "^7.11.1",
-    "eslint-plugin-react-hooks": "^1.0.1",
+    "eslint-plugin-react-hooks": "^1.7.0",
     "prettier": "1.9.2",
     "redux-mock-store": "^1.5.3"
   },

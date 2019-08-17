@@ -48,6 +48,7 @@
     "react/display-name": 0,
     "no-mixed-operators": 1,
     "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
     "import/no-unresolved": 1,
     "import/named": 1,
     "import/default": 1,
