@@ -52,7 +52,7 @@ Utils.underscoreToDash = function (str) {
  * @param {String} str
  */
 Utils.dashToCamel = function (str) {
-  return str.replace(/(\-[a-z])/g, function($1){return $1.toUpperCase().replace('-','');});
+  return str.replace(/(-[a-z])/g, function($1){return $1.toUpperCase().replace('-','');});
 };
 
 /**

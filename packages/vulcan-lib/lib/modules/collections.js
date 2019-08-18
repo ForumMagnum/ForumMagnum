@@ -2,11 +2,11 @@ import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import { addGraphQLCollection, addToGraphQLContext } from './graphql.js';
 import { Utils } from './utils.js';
-import { runCallbacks, runCallbacksAsync, registerCallback, addCallback } from './callbacks.js';
+import { runCallbacks, runCallbacksAsync } from './callbacks.js';
 import { getSetting, registerSetting } from './settings.js';
 import { registerFragment, getDefaultFragmentText } from './fragments.js';
 import escapeStringRegexp from 'escape-string-regexp';
-import { validateIntlField, getIntlString, isIntlField, schemaHasIntlFields } from './intl';
+import { validateIntlField, getIntlString, isIntlField } from './intl';
 
 const wrapAsync = Meteor.wrapAsync ? Meteor.wrapAsync : Meteor._wrapAsync;
 // import { debug } from './debug.js';
@@ -25,7 +25,8 @@ export const viewFieldNullOrMissing = {nullOrMissing:true};
 export const viewFieldAllowAny = {allowAny:true};
 
 // will be set to `true` if there is one or more intl schema fields
-export let hasIntlFields = false;
+let hasIntlFields = false;
+export const getHasIntlFields = () => hasIntlFields
 
 export const Collections = [];
 
