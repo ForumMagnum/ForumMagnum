@@ -2,4 +2,3 @@ packages/_*
 packages/vulcan-*/**/*.test.js
 packages/vulcan-accounts
 packages/vulcan-lib
-packages/vulcan-users

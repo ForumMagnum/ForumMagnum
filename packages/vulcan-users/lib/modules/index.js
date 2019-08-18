@@ -1,8 +1,8 @@
 import Users from './collection.js';
 
-export * from './fragments.js';
+import './fragments.js';
 export * from './helpers.js';
 export * from './permissions.js';
-export * from './views.js';
+import './views.js';
 
 export default Users;
