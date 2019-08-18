@@ -21,7 +21,6 @@ import { graphiqlMiddleware, getGraphiqlConfig } from './graphiql';
 import getPlaygroundConfig from './playground';
 
 import initGraphQL from './initGraphQL';
-import './settings';
 import { engineConfig } from './engine';
 import { computeContextFromReq } from './context.js';
 
@@ -168,6 +167,7 @@ Meteor.startup(() => {
   WebApp.connectHandlers.use(Sentry.Handlers.errorHandler());
   
   if (timberApiKey) {
+    // eslint-disable-next-line no-console
     console.info("Starting timber integration");
     /*WebApp.connectHandlers.use(timber.middlewares.express({
       capture_request_body: true,

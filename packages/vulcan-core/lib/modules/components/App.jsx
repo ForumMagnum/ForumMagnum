@@ -5,7 +5,7 @@ import {
   Strings,
   runCallbacks,
   detectLocale,
-  hasIntlFields,
+  getHasIntlFields,
   Routes
 } from 'meteor/vulcan:lib';
 import React, { PureComponent } from 'react';
@@ -153,7 +153,7 @@ class App extends PureComponent {
       await updateUser({ selector: { documentId: currentUser._id }, data: { locale } });
     }
     moment.locale(locale);
-    if (hasIntlFields) {
+    if (getHasIntlFields()) {
       client.resetStore();
     }
   };

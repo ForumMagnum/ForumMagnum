@@ -1,9 +1,5 @@
 import compose from 'lodash/flowRight';
 import React from 'react';
-import difference from 'lodash/difference';
-
-let componentsPopulated = false;
-
 
 const componentsProxyHandler = {
   get: function(obj, prop) {
@@ -116,6 +112,7 @@ function prepareComponent(componentName)
     }
     return prepareComponent(componentName);
   } else {
+    // eslint-disable-next-line no-console
     console.error(`Missing component: ${componentName}`);
     return null;
   }

@@ -7,7 +7,7 @@ import { getSetting, registerSetting } from './settings.js';
 import { registerFragment, getDefaultFragmentText } from './fragments.js';
 import escapeStringRegexp from 'escape-string-regexp';
 import { validateIntlField, getIntlString, isIntlField } from './intl';
-import { getCollection, Collections } from './getCollection.js';
+import { Collections } from './getCollection.js';
 export * from './getCollection.js';
 
 const wrapAsync = Meteor.wrapAsync ? Meteor.wrapAsync : Meteor._wrapAsync;

@@ -1,4 +1,3 @@
-import { DatabaseConnectors } from '../connectors.js';
 
 // convert GraphQL selector into Mongo-compatible selector
 // TODO: add support for more than just documentId/_id and slug, potentially making conversion unnecessary
@@ -14,7 +13,7 @@ const convertUniqueSelector = selector => {
   return selector;
 };
 
-DatabaseConnectors.mongo = {
+export const Connectors = {
   get: async (collection, selector = {}, options = {}, skipConversion) => {
     const convertedSelector = skipConversion ? selector : convertUniqueSelector(selector)
     return await collection.findOne(convertedSelector, options);
