@@ -1,14 +1,39 @@
-import { getSetting } from '../modules/settings';
-import { addCallback } from '../modules/callbacks';
+import { DatabaseConnectors } from '../connectors.js';
 
-const database = getSetting('database', 'mongo');
+// convert GraphQL selector into Mongo-compatible selector
+// TODO: add support for more than just documentId/_id and slug, potentially making conversion unnecessary
+// see https://github.com/VulcanJS/Vulcan/issues/2000
+const convertSelector = selector => {
+  return selector;
+};
+const convertUniqueSelector = selector => {
+  if (selector.documentId) {
+    selector._id = selector.documentId;
+    delete selector.documentId;
+  }
+  return selector;
+};
 
-export const DatabaseConnectors = {};
-
-export let Connectors = {};
-
-function initializeConnectors () {
-  Connectors = DatabaseConnectors[database];
+DatabaseConnectors.mongo = {
+  get: async (collection, selector = {}, options = {}, skipConversion) => {
+    const convertedSelector = skipConversion ? selector : convertUniqueSelector(selector)
+    return await collection.findOne(convertedSelector, options);
+  },
+  find: async (collection, selector = {}, options = {}) => {
+    return await collection.find(convertSelector(selector), options).fetch();
+  },
+  count: async (collection, selector = {}, options = {}) => {
+    return await collection.find(convertSelector(selector), options).count();
+  },
+  create: async (collection, document, options = {}) => {
+    return await collection.insert(document);
+  },
+  update: async (collection, selector, modifier, options = {}, skipConversion) => {
+    const convertedSelector = skipConversion ? selector : convertUniqueSelector(selector)
+    return await collection.update(convertedSelector, modifier, options);
+  },
+  delete: async (collection, selector, options = {}, skipConversion) => {
+    const convertedSelector = skipConversion ? selector : convertUniqueSelector(selector)
+    return await collection.remove(convertedSelector);
+  },
 }
-
-addCallback('app.startup', initializeConnectors);
