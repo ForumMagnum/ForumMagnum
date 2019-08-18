@@ -9,7 +9,7 @@ import moment from 'moment';
 import getSlug from 'speakingurl';
 import { getSetting, registerSetting } from './settings.js';
 import { Routes } from './routes.js';
-import { getCollection } from './collections.js';
+import { getCollection } from './getCollection.js';
 import set from 'lodash/set';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
