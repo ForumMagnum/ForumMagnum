@@ -11,7 +11,7 @@ class TrackerComponent extends React.Component {
   constructor(props) {
     super(props);
     this.__subs = {}, this.__comps = []; this.__live = false;
-    this.__subscribe = props && props.subscribe || Meteor.subscribe;
+    this.__subscribe = (props && props.subscribe) || Meteor.subscribe;
   }
 
   subscribe(name, ...options) {
