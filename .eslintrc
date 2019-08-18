@@ -100,7 +100,8 @@
       "sinon-chai",
       "chai-enzyme",
       "meteor/meteorhacks:inject-initial",
-      "meteor/littledata:synced-cron"
+      "meteor/littledata:synced-cron",
+      "meteor/meteorhacks:picker"
     ],
     "react": {
       "version": "16.4.1"
