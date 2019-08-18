@@ -17,10 +17,7 @@ Enzyme.configure({ adapter: new Adapter() });
 // we must import all the other components, so that "registerComponent" is called
 import '../lib/modules/components';
 // and then load them in the app so that <Component.Whatever /> is defined
-import { populateComponentsApp, initializeFragments } from 'meteor/vulcan:lib';
-// we need registered fragments to be initialized because populateComponentsApp will run 
-// hocs, like withUpdate, that rely on fragments
-initializeFragments();
+import { populateComponentsApp } from 'meteor/vulcan:lib';
 // actually fills the Components object
 populateComponentsApp();
 
