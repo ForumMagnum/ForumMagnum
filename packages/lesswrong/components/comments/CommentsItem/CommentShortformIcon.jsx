@@ -19,8 +19,9 @@ const styles = theme => ({
   }
 });
 
-const CommentShortformIcon = ({comment, post, postPage, classes}) => {
-  if (!comment.shortform || comment.topLevelCommentId || postPage) return null
+const CommentShortformIcon = ({comment, post, classes}) => {
+  // Top level shortform posts should show this icon/button, both to make shortform posts a bit more visually distinct, and to make it easier to grab permalinks for shortform posts.
+  if (!comment.shortform || comment.topLevelCommentId) return null
   return (
     <Tooltip title="Shortform Permalink">
       <Link to={Comments.getPageUrlFromIds({postId:post._id, postSlug:post.slug, commentId: comment._id})}>
