@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Components, AdminColumns, registerComponent, addAdminColumn } from 'meteor/vulcan:core';
+import { Components, getAdminColumns, registerComponent, addAdminColumn } from 'meteor/vulcan:core';
 import { Bans } from '../../lib/collections/bans';
 import { LWEvents } from '../../lib/collections/lwevents';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
@@ -72,8 +72,8 @@ addAdminColumn([
   },
 ])
 // Remove the ID and posts field from the users, so that the users fit in page reasonably
-delete AdminColumns[0]
-delete AdminColumns[1]
+delete getAdminColumns()[0]
+delete getAdminColumns()[1]
 
 const eventColumns = [
   {
@@ -197,7 +197,7 @@ class AdminHome extends PureComponent {
               </Select>
               <Components.Datatable
                 collection={Users}
-                columns={AdminColumns}
+                columns={getAdminColumns()}
                 options={{
                   fragmentName: 'UsersAdmin',
                   terms: {
