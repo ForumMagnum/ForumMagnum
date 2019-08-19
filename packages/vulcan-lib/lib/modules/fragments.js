@@ -9,13 +9,6 @@ Get a fragment's name from its text
 */
 export const extractFragmentName = fragmentText => fragmentText.match(/fragment (.*) on/)[1];
 
-/*
-
-Get a query resolver's name from its text
-
-*/
-const extractResolverName = resolverText => resolverText.trim().substr(0, resolverText.trim().indexOf('{'));
-
 
 /*
 
@@ -102,10 +95,6 @@ export const getDefaultFragmentText = (collection, options = { onlyViewable: tru
     return null;
   }
 
-};
-const getDefaultFragment = collection => {
-  const fragmentText = getDefaultFragmentText(collection);
-  return fragmentText ? gql`${fragmentText}` : null;
 };
 
 /*
