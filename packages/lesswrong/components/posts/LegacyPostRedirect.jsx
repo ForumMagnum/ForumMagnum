@@ -6,7 +6,6 @@ import { Posts } from '../../lib/collections/posts/collection.js';
 
 const LegacyPostRedirect = () => {
   const { params, query } = useLocation();
-  const version = query?.revision
   const legacyId = params.id;
   const { post, loading } = usePostByLegacyId({ legacyId });
   
