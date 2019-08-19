@@ -1,6 +1,5 @@
 import { Components, registerComponent } from 'meteor/vulcan:lib';
 import React from 'react';
-import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { useServerRequestStatus } from '../../lib/routeUtil'
 
 const Error404 = () => {
