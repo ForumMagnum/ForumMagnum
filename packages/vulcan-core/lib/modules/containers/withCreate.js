@@ -27,7 +27,7 @@ Child Props:
 */
 
 import React, { Component } from 'react';
-import { graphql, Mutation } from 'react-apollo';
+import { Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import { createClientTemplate } from 'meteor/vulcan:core';
 import { extractCollectionInfo, extractFragmentInfo } from 'meteor/vulcan:lib';

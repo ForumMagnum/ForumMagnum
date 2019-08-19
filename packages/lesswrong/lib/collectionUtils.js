@@ -26,7 +26,7 @@ SimpleSchema.extendOptions([ 'denormalized' ]);
 //
 SimpleSchema.extendOptions([ 'foreignKey' ]);
 
-export let expectedIndexes = {};
+export const expectedIndexes = {};
 
 // Returns true if the specified index has a name, and the collection has an
 // existing index with the same name but different columns or options.

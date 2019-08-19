@@ -9,13 +9,6 @@ Get a fragment's name from its text
 */
 export const extractFragmentName = fragmentText => fragmentText.match(/fragment (.*) on/)[1];
 
-/*
-
-Get a query resolver's name from its text
-
-*/
-const extractResolverName = resolverText => resolverText.trim().substr(0, resolverText.trim().indexOf('{'));
-
 
 /*
 
@@ -24,7 +17,7 @@ Register a fragment, including its text, the text of its subfragments, and the f
 */
 export const registerFragment = fragmentTextSource => {
   // remove comments
-  const fragmentText = fragmentTextSource.replace(/\#.*\n/g, '\n');
+  const fragmentText = fragmentTextSource.replace(/#.*\n/g, '\n');
 
   // extract name from fragment text
   const fragmentName = extractFragmentName(fragmentText);
@@ -85,7 +78,7 @@ export const getDefaultFragmentText = (collection, options = { onlyViewable: tru
     */
     const field = schema[fieldName];
     // OpenCRUD backwards compatibility
-    return (field.resolveAs && !field.resolveAs.addOriginalField) || fieldName.includes('$') || fieldName.includes('.') || options.onlyViewable && !(field.canRead || field.viewableBy);
+    return (field.resolveAs && !field.resolveAs.addOriginalField) || fieldName.includes('$') || fieldName.includes('.') || (options.onlyViewable && !(field.canRead || field.viewableBy));
   });
 
   if (fieldNames.length) {
@@ -102,10 +95,6 @@ export const getDefaultFragmentText = (collection, options = { onlyViewable: tru
     return null;
   }
 
-};
-const getDefaultFragment = collection => {
-  const fragmentText = getDefaultFragmentText(collection);
-  return fragmentText ? gql`${fragmentText}` : null;
 };
 
 /*

@@ -15,4 +15,5 @@ switch (getSetting('forumType')) {
     forumTheme = lwTheme
 }
 
-export default forumTheme
+const forumThemeExport = forumTheme;
+export default forumThemeExport

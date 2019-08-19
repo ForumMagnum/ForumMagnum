@@ -9,7 +9,7 @@ import moment from 'moment';
 import getSlug from 'speakingurl';
 import { getSetting, registerSetting } from './settings.js';
 import { Routes } from './routes.js';
-import { getCollection } from './collections.js';
+import { getCollection } from './getCollection.js';
 import set from 'lodash/set';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
@@ -52,7 +52,7 @@ Utils.underscoreToDash = function (str) {
  * @param {String} str
  */
 Utils.dashToCamel = function (str) {
-  return str.replace(/(\-[a-z])/g, function($1){return $1.toUpperCase().replace('-','');});
+  return str.replace(/(-[a-z])/g, function($1){return $1.toUpperCase().replace('-','');});
 };
 
 /**
@@ -441,11 +441,6 @@ Utils.defineName = (o, name) => {
 
 Utils.getRoutePath = routeName => {
   return Routes[routeName] && Routes[routeName].path;
-};
-
-String.prototype.replaceAll = function(search, replacement) {
-  var target = this;
-  return target.replace(new RegExp(search, 'g'), replacement);
 };
 
 Utils.isPromise = value => isFunction(get(value, 'then'));

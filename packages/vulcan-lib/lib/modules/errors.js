@@ -1,4 +1,3 @@
-import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
 /*
@@ -85,7 +84,7 @@ export const getErrors = error => {
   if (error.graphQLErrors && error.graphQLErrors.length > 0) {
     // get graphQL error (see https://github.com/thebigredgeek/apollo-errors/issues/12)
     const graphQLError = error.graphQLErrors[0];
-    if (graphQLError.data && !_.isEmpty(graphQLError.data)) {
+    if (graphQLError.data && !isEmpty(graphQLError.data)) {
       if (graphQLError.data.errors) {
         // 2. there are multiple errors on the data.errors object
         errors = graphQLError.data && graphQLError.data.errors;
