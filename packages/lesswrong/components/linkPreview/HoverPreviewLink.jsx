@@ -40,12 +40,17 @@ const HoverPreviewLink = ({innerHTML, href}) => {
   } else {
     const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
     const parsedUrl = parseRoute(parsePath(linkTargetAbsolute.pathname));
-    const PreviewComponent = parsedUrl.currentRoute?.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;
     
-    if (PreviewComponent) {
-      return <PreviewComponent href={onsiteUrl} targetLocation={parsedUrl} innerHTML={innerHTML}/>
+    if (parsedUrl?.currentRoute) {
+      const PreviewComponent = parsedUrl.currentRoute?.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;
+      
+      if (PreviewComponent) {
+        return <PreviewComponent href={onsiteUrl} targetLocation={parsedUrl} innerHTML={innerHTML}/>
+      } else {
+        return <Link to={onsiteUrl} dangerouslySetInnerHTML={{__html: innerHTML}} />
+      }
     } else {
-      return <Link to={onsiteUrl} dangerouslySetInnerHTML={{__html: innerHTML}} />
+      return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
     }
   }
 }
