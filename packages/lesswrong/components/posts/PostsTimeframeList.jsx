@@ -104,10 +104,8 @@ class PostsTimeframeList extends PureComponent {
             terms={{
               ...postListParameters,
               // NB: 'before', as a parameter for a posts view, is inclusive
-              before: moment.tz(date, timezone)
-                .endOf(timeBlock).format('YYYY-MM-DD'),
-              after: moment.tz(date, timezone)
-                .startOf(timeBlock).format('YYYY-MM-DD'),
+              before: moment.tz(date, timezone).endOf(timeBlock),
+              after: moment.tz(date, timezone).startOf(timeBlock),
               limit: 16
             }}
             timeBlockLoadComplete={this.timeBlockLoadComplete}

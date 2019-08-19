@@ -87,7 +87,7 @@ registerFragment(`
     services
     pageUrl
     locale
-    
+    defaultToCKEditor
     voteBanned
     banned
     isReviewed
@@ -616,6 +616,7 @@ registerFragment(`
     html
     markdown
     draftJS
+    ckEditorMarkup
     wordCount
     htmlHighlight
     plaintextDescription

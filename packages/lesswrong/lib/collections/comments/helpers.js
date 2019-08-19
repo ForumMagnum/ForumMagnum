@@ -74,3 +74,9 @@ Comments.getLatest = async ({ post, currentUser, commentsLimit, maxAgeHours, af}
 
   return accessFilterMultiple(currentUser, Comments, [...comments, ...newTopLevelComments]);
 }
+
+Comments.getKarma = (comment) => {
+  const baseScore = getSetting('forumType') === 'AlignmentForum' ? comment.afBaseScore : comment.baseScore
+  return baseScore || 0
+}
+

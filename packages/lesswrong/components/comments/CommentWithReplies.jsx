@@ -4,6 +4,7 @@ import withUser from '../common/withUser';
 import { unflattenComments } from '../../lib/modules/utils/unflatten';
 import withRecordPostView from '../common/withRecordPostView';
 import { withStyles } from '@material-ui/core/styles';
+import withErrorBoundary from '../common/withErrorBoundary';
 
 const styles = theme => ({
   showChildren: {
@@ -30,12 +31,16 @@ class CommentWithReplies extends PureComponent {
     const { CommentsNode } = Components
     const { markedAsVisitedAt, maxChildren } = this.state
 
+    if (!comment || !comment.post)
+      return null;
+
     const lastCommentId = comment.latestChildren[0]?._id
 
     const renderedChildren = comment.latestChildren.slice(0, maxChildren)
     const extraChildrenCount = (comment.latestChildren.length > renderedChildren.length) && (comment.latestChildren.length - renderedChildren.length)
 
     let nestedComments = unflattenComments(renderedChildren)
+
     const lastVisitedAt = markedAsVisitedAt || comment.post.lastVisitedAt
 
     const showExtraChildrenButton = (extraChildrenCount>0) ? 
@@ -67,4 +72,4 @@ class CommentWithReplies extends PureComponent {
   }
 }
 
-registerComponent('CommentWithReplies', CommentWithReplies, withUser, withRecordPostView, withStyles(styles, {name:"CommentWithReplies"}));
+registerComponent('CommentWithReplies', CommentWithReplies, withUser, withRecordPostView, withStyles(styles, {name:"CommentWithReplies"}), withErrorBoundary);
