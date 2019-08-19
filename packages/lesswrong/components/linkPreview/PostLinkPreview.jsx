@@ -3,7 +3,7 @@ import { Components, registerComponent, useSingle } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import { Link } from 'react-router-dom';
 import Tooltip from '@material-ui/core/Tooltip';
-import { usePostBySlug } from '../posts/usePostBySlug.js';
+import { usePostBySlug, usePostByLegacyId } from '../posts/usePost.js';
 
 const PostLinkPreview = ({href, targetLocation, innerHTML}) => {
   const postID = targetLocation.params._id;
@@ -37,7 +37,6 @@ const PostLinkPreviewSequencePost = ({href, targetLocation, innerHTML}) => {
 }
 registerComponent('PostLinkPreviewSequencePost', PostLinkPreviewSequencePost);
 
-
 const PostLinkPreviewSlug = ({href, targetLocation, innerHTML}) => {
   const slug = targetLocation.params.slug;
   const { post, error } = usePostBySlug({ slug });
@@ -45,6 +44,14 @@ const PostLinkPreviewSlug = ({href, targetLocation, innerHTML}) => {
   return <Components.PostLinkPreviewWithPost href={href} innerHTML={innerHTML} post={post} error={error} />
 }
 registerComponent('PostLinkPreviewSlug', PostLinkPreviewSlug);
+
+const PostLinkPreviewLegacy = ({href, targetLocation, innerHTML}) => {
+  const legacyId = targetLocation.params.id;
+  const { post, error } = usePostByLegacyId({ legacyId });
+  
+  return <Components.PostLinkPreviewWithPost href={href} innerHTML={innerHTML} post={post} error={error} />
+}
+registerComponent('PostLinkPreviewLegacy', PostLinkPreviewLegacy);
 
 const PostLinkPreviewWithPost = ({href, innerHTML, post, error}) => {
   const linkElement = <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}}/>;
