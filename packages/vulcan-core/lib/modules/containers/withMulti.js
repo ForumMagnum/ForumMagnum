@@ -35,7 +35,7 @@ Terms object can have the following properties:
 */
 
 import { useState } from 'react';
-import { withApollo, graphql, useQuery } from 'react-apollo';
+import { graphql, useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
 import {
   getSetting,
@@ -245,7 +245,10 @@ export function useMulti({
     refetch: data.refetch,
     error,
     count: data && data.results && data.results.length,
-    loadMore: () => setLimit(limit+itemsPerPage),
+    loadMore: () => {
+      setHasRequestedMore(true);
+      setLimit(limit+itemsPerPage);
+    },
     limit,
   };
 }
