@@ -1,9 +1,25 @@
 import compose from 'lodash/flowRight';
 import React from 'react';
-import difference from 'lodash/difference';
 
-export const Components = {}; // will be populated on startup (see vulcan:routing)
-export const ComponentsTable = {}; // storage for infos about components
+const componentsProxyHandler = {
+  get: function(obj, prop) {
+    if (prop in PreparedComponents) {
+      return PreparedComponents[prop];
+    } else {
+      return prepareComponent(prop);
+    }
+  }
+}
+
+// will be populated on startup (see vulcan:routing)
+export const Components = new Proxy({}, componentsProxyHandler);
+
+const PreparedComponents = {};
+
+// storage for infos about components
+export const ComponentsTable = {};
+
+const DeferredComponentsTable = {};
 
 export const coreComponents = [
   'Alert',
@@ -60,6 +76,10 @@ export function registerComponent(name, rawComponent, ...hocs) {
   
   rawComponent.displayName = name;
   
+  if (name in ComponentsTable && ComponentsTable[name].rawComponent !== rawComponent) {
+    throw new Error(`Two components with the same name: ${name}`);
+  }
+  
   // store the component in the table
   ComponentsTable[name] = {
     name,
@@ -68,13 +88,72 @@ export function registerComponent(name, rawComponent, ...hocs) {
   };
 }
 
+// If true, `importComponent` imports immediately (rather than deferring until
+// first use) and checks that the file registered the components named, with a
+// lot of log-spam.
+const debugComponentImports = false;
+
+export function importComponent(componentName, importFn) {
+  if (debugComponentImports) {
+    const expectedAddedComponents = {};
+    if (Array.isArray(componentName)) {
+      for (let component of componentName)
+        expectedAddedComponents[component] = true;
+    } else {
+      expectedAddedComponents[componentName] = true;
+    }
+    
+    const oldComponents = {...ComponentsTable};
+    importFn();
+    const newComponents = {...ComponentsTable};
+    for (let addedComponent in expectedAddedComponents) {
+      if (!(addedComponent in ComponentsTable))
+        throw new Error(`Import did not provide component ${addedComponent}`);
+    }
+    for (let component in newComponents) {
+      if (!(component in oldComponents) && !(component in expectedAddedComponents)) {
+        // eslint-disable-next-line no-console
+        console.log(`Import added unexpected extra component: ${component}`);
+      }
+    }
+  } else {
+    if (Array.isArray(componentName)) {
+      for (let name of componentName) {
+        DeferredComponentsTable[name] = importFn;
+      }
+    } else {
+      DeferredComponentsTable[componentName] = importFn;
+    }
+  }
+}
+
+function prepareComponent(componentName)
+{
+  if (componentName in PreparedComponents) {
+    return PreparedComponents[componentName];
+  } else if (componentName in ComponentsTable) {
+    PreparedComponents[componentName] = getComponent(componentName);
+    return PreparedComponents[componentName];
+  } else if (componentName in DeferredComponentsTable) {
+    DeferredComponentsTable[componentName]();
+    if (!(componentName in ComponentsTable)) {
+      throw new Error(`Import did not provide component ${componentName}`);
+    }
+    return prepareComponent(componentName);
+  } else {
+    // eslint-disable-next-line no-console
+    console.error(`Missing component: ${componentName}`);
+    return null;
+  }
+}
+
 /**
  * Get a component registered with registerComponent(name, component, ...hocs).
  *
  * @param {String} name The name of the component to get.
  * @returns {Function|React Component} A (wrapped) React component
  */
-export const getComponent = name => {
+const getComponent = name => {
   const component = ComponentsTable[name];
   if (!component) {
     throw new Error(`Component ${name} not registered.`);
@@ -104,18 +183,12 @@ export const getComponent = name => {
  * ℹ️ Called once on app startup
  **/
 export const populateComponentsApp = () => {
-  const registeredComponents = Object.keys(ComponentsTable);
-
-  // loop over each component in the list
-  registeredComponents.map(name => {
-    // populate an entry in the lookup table
-    Components[name] = getComponent(name);
-
-    // uncomment for debug
-    // console.log('init component:', name);
-  });
-
-  const missingComponents = difference(coreComponents, registeredComponents);
+  const missingComponents = [];
+  for (let coreComponent of coreComponents) {
+    if (!(coreComponent in ComponentsTable) && !(coreComponent in DeferredComponentsTable)) {
+      missingComponents.push(coreComponent);
+    }
+  }
 
   if (missingComponents.length) {
     // eslint-disable-next-line no-console
@@ -128,61 +201,6 @@ export const populateComponentsApp = () => {
 };
 
 /**
- * Get the **raw** (original) component registered with registerComponent
- * without the possible HOCs wrapping it.
- *
- * @param {String} name The name of the component to get.
- * @returns {Function|React Component} An interchangeable/extendable React component
- */
-export const getRawComponent = name => {
-  return ComponentsTable[name].rawComponent;
-};
-
-/**
- * Replace a Vulcan component with the same name with a new component or
- * an extension of the raw component and one or more optional higher order components.
- * This function keeps track of the previous HOCs and wrap the new HOCs around previous ones
- *
- * @param {String} name The name of the component to register.
- * @param {React Component} newComponent Interchangeable/extendable component.
- * @param {...Function} newHocs The HOCs to compose with the raw component.
- * @returns {Function|React Component} A component callable with Components[name]
- *
- * Note: when a component is registered without higher order component, `hocs` will be
- * an empty array, and it's ok!
- * See https://github.com/reactjs/redux/blob/master/src/compose.js#L13-L15
- */
-export function replaceComponent(name, newComponent, ...newHocs) {
-  // support single argument syntax
-  if (typeof arguments[0] === 'object') {
-    // eslint-disable-next-line no-redeclare
-    var { name, component, hocs = [] } = arguments[0];
-    newComponent = component;
-    newHocs = hocs;
-  }
-
-  const previousComponent = ComponentsTable[name];
-  const previousHocs = (previousComponent && previousComponent.hocs) || [];
-
-  if (!previousComponent) {
-    // eslint-disable-next-line no-console
-    console.warn(
-      `Trying to replace non-registered component ${name}. The component is ` +
-        'being registered. If you were trying to replace a component defined by ' +
-        "another package, make sure that you haven't misspelled the name. Check " +
-        'also if the original component is still being registered or that it ' +
-        "hasn't been renamed."
-    );
-  }
-
-  return registerComponent(name, newComponent, ...newHocs, ...previousHocs);
-}
-
-export const copyHoCs = (sourceComponent, targetComponent) => {
-  return compose(...sourceComponent.hocs)(targetComponent);
-};
-
-/**
  * Returns an instance of the given component name of function
  * @param {string|function} component  A component or registered component name
  * @param {Object} [props]  Optional properties to pass to the component
@@ -192,7 +210,7 @@ export const instantiateComponent = (component, props) => {
   if (!component) {
     return null;
   } else if (typeof component === 'string') {
-    const Component = getComponent(component);
+    const Component = Components[component];
     return <Component {...props} />;
   } else if (
     typeof component === 'function' &&
@@ -238,15 +256,23 @@ export const delayedComponent = name => {
   };
 };
 
-// Example with Proxy (might be unstable/hard to reason about)
-//const mergeWithComponents = (myComponents = {}) => {
-//  const handler = {
-//    get: function(target, name) {
-//      return name in target ? target[name] : Components[name];
-//    }
-//  };
-//  const proxy = new Proxy(myComponents, handler);
-//  return proxy;
-//};
-export const mergeWithComponents = myComponents =>
-  myComponents ? { ...Components, ...myComponents } : Components;
+// Given an optional set of override-components, return a Components object
+// which wraps the main Components table, preserving Components'
+// proxy/deferred-execution tricks.
+export const mergeWithComponents = myComponents => {
+  if (!myComponents) return Components;
+  
+  const mergedComponentsProxyHandler = {
+    get: function(obj, prop) {
+      if (prop in myComponents) {
+        return myComponents[prop];
+      } else if (prop in PreparedComponents) {
+        return PreparedComponents[prop];
+      } else {
+        return prepareComponent(prop);
+      }
+    }
+  }
+  
+  return new Proxy({}, mergedComponentsProxyHandler );
+}

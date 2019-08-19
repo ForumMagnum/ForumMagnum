@@ -1,4 +1,4 @@
-import { registerComponent, Utils } from 'meteor/vulcan:lib';
+import { registerComponent } from 'meteor/vulcan:lib';
 import React from 'react';
 
 /**

@@ -7,7 +7,7 @@ export const Head = {
 
 export const removeFromHeadTags = (type, name)=>{
   Head[type] = Head[type].filter((tag)=>{
-    return (!tag.name || tag.name && tag.name !== name);
+    return !tag.name || (tag.name && tag.name !== name);
   });
 
   return Head;
