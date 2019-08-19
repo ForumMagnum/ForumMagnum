@@ -10,6 +10,23 @@ export function unflattenComments(comments)
   return unflattenCommentsRec(resultsRestructured);
 }
 
+export function connectDeepChildren(nestedComments) {
+  const nonTopLevelComments = _.filter(nestedComments, node => node.item.topLevelCommentId)
+  
+
+  let topLevelComments = _.filter(nestedComments, node => !node.item.topLevelCommentId)
+  const topLevelCommentIds = _.map(topLevelComments, node => node.item._id)
+  const nonTopLevelComments = _.filter(nestedComments, node => node.item.topLevelCommentId)
+  let newNestedComments
+  nestedComments.forEach(node => {
+    if (_.includes(topLevelCommentIds, node.item.topLevelCommentId) {
+      topLevelComments.
+    } else {
+      topLevelComments = [...topLevelComments, node]
+    }
+  })
+}
+
 export function addGapIndicators(comments) {
   // Sometimes (such as /shortform page), a comment tree is rendered where some comments are not the direct descendant of the previous comment. 
   // This function adds extra, empty comment nodes to make this UI more visually clear
