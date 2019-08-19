@@ -11,17 +11,15 @@ import createBlockBreakoutPlugin from 'draft-js-block-breakout-plugin'
 import createDividerPlugin from './editor-plugins/divider';
 import createMathjaxPlugin from 'draft-js-mathjax-plugin'
 import createMarkdownShortcutsPlugin from './editor-plugins/markdown-shortcuts-plugin';
-import { withTheme } from '@material-ui/core/styles';
+import { withTheme, withStyles } from '@material-ui/core/styles';
 import createLinkPlugin from 'draft-js-anchor-plugin';
 import LinkButton from './editor-plugins/LinkButton'
 import { myKeyBindingFn } from './editor-plugins/keyBindings.js'
 import createLinkifyPlugin from './editor-plugins/linkifyPlugin'
 import ImageButton from './editor-plugins/image/ImageButton.jsx';
 import { Map } from 'immutable';
-import { withStyles } from '@material-ui/core/styles';
-import NoSsr from '@material-ui/core/NoSsr';
 import compose from 'lodash/flowRight';
-
+import NoSsr from '@material-ui/core/NoSsr';
 import {
   createBlockStyleButton,
   ItalicButton,
