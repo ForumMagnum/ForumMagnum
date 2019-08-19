@@ -25,10 +25,10 @@ const CommunityMapWrapper = ({classes, groupQueryTerms, results, currentUserLoca
   return (
     <Components.CommunityMap
       terms={groupQueryTerms || {view: "all", filters: query?.filters || []}}
-      loadingElement= {<div style={{ height: `100%` }} />}
+      loadingElement={<div style={{ height: `100%` }} />}
       events={results}
-      containerElement= {<div style={{height: "500px"}} className={classes.communityMap}/>}
-      mapElement= {<div style={{ height: `100%` }} />}
+      containerElement={<div style={{height: "500px"}} className={classes.communityMap}/>}
+      mapElement={<div style={{ height: `100%` }} />}
       googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${mapsAPIKey}&v=3.exp&libraries=geometry,drawing,places`}
       center={currentUserLocation}
       {...mapOptions}

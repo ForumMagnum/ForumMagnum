@@ -10,13 +10,11 @@
  * @see https://github.com/apollographql/apollo-server/issues/420
  */
 
-//import deepmerge from 'deepmerge';
 import DataLoader from 'dataloader';
 import { Collections } from '../../modules/collections.js';
 import { runCallbacks } from '../../modules/callbacks.js';
 import findByIds from '../../modules/findbyids.js';
 import { GraphQLSchema } from '../../modules/graphql.js';
-import _merge from 'lodash/merge';
 import { getUser } from 'meteor/apollo';
 import { getHeaderLocale } from '../intl.js';
 import { getSetting } from '../../modules/settings.js';

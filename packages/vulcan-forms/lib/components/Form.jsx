@@ -53,13 +53,9 @@ import isObject from 'lodash/isObject';
 import mapValues from 'lodash/mapValues';
 import pickBy from 'lodash/pickBy';
 
-import { convertSchema, formProperties } from '../modules/schema_utils';
+import { convertSchema, formProperties, getEditableFields, getInsertableFields } from '../modules/schema_utils';
 import { isEmptyValue } from '../modules/utils';
 import { getParentPath } from '../modules/path_utils';
-import {
-  getEditableFields,
-  getInsertableFields
-} from '../modules/schema_utils.js';
 import withCollectionProps from './withCollectionProps';
 import { callbackProps } from './propTypes';
 
@@ -1087,7 +1083,7 @@ class SmartForm extends Component {
         <FormComponents.FormErrors {...this.getFormErrorsProps()} />
 
         {this.getFieldGroups().map(group => (
-          <FormComponents.FormGroup {...this.getFormGroupProps(group)} />
+          <FormComponents.FormGroup {...this.getFormGroupProps(group)} key={group.name} />
         ))}
 
         {this.props.repeatErrors && <FormComponents.FormErrors {...this.getFormErrorsProps()} />}

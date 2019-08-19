@@ -421,7 +421,7 @@ DatatableCell Component
 */
 const DatatableCell = ({ column, document, currentUser }) => {
   const Component = column.component 
-  || column.componentName && Components[column.componentName] 
+  || (column.componentName && Components[column.componentName])
   || Components.DatatableDefaultCell;
   const columnName = getColumnName(column);
   return (

@@ -1,4 +1,4 @@
-export let AdminColumns = [];
+let AdminColumns = [];
 
 export const addAdminColumn = columnOrColumns => {
   if (Array.isArray(columnOrColumns)) {
@@ -7,3 +7,5 @@ export const addAdminColumn = columnOrColumns => {
     AdminColumns.push(columnOrColumns);
   }
 };
+
+export const getAdminColumns = () => AdminColumns;
