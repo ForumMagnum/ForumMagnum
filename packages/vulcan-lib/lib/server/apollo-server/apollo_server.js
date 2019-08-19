@@ -21,13 +21,12 @@ import { graphiqlMiddleware, getGraphiqlConfig } from './graphiql';
 import getPlaygroundConfig from './playground';
 
 import initGraphQL from './initGraphQL';
-import './settings';
 import { engineConfig } from './engine';
 import { computeContextFromReq } from './context.js';
 
 import { GraphQLSchema } from '../../modules/graphql.js';
 
-import { populateComponentsApp, populateRoutesApp, initializeFragments } from 'meteor/vulcan:lib';
+import { populateComponentsApp, populateRoutesApp } from 'meteor/vulcan:lib';
 // onPageLoad is mostly equivalent to an Express middleware
 // excepts it is tailored to handle Meteor server side rendering
 import { onPageLoad } from 'meteor/server-render';
@@ -168,6 +167,7 @@ Meteor.startup(() => {
   WebApp.connectHandlers.use(Sentry.Handlers.errorHandler());
   
   if (timberApiKey) {
+    // eslint-disable-next-line no-console
     console.info("Starting timber integration");
     /*WebApp.connectHandlers.use(timber.middlewares.express({
       capture_request_body: true,
@@ -183,7 +183,6 @@ Meteor.startup(() => {
   setupToolsMiddlewares(config);
   
   // init the application components and routes, including components & routes from 3rd-party packages
-  initializeFragments();
   populateComponentsApp();
   populateRoutesApp();
   // render the page

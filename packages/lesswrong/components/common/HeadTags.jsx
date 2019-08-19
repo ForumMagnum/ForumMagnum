@@ -2,10 +2,17 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { Utils, getSetting, Head } from 'meteor/vulcan:lib';
+import { Utils, registerSetting, getSetting, Head } from 'meteor/vulcan:lib';
 import compose from 'lodash/flowRight';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { withApollo } from 'react-apollo';
+
+registerSetting('logoUrl', null, 'Absolute URL for the logo image');
+registerSetting('title', 'My App', 'App title');
+registerSetting('tagline', null, 'App tagline');
+registerSetting('description');
+registerSetting('siteImage', null, 'An image used to represent the site on social media');
+registerSetting('faviconUrl', '/img/favicon.ico', 'Favicon absolute URL');
 
 const TitleComponent = ({titleString}) => {
   const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');

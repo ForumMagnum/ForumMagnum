@@ -2,7 +2,7 @@
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
 import { getCollection } from 'meteor/vulcan:core'
 import { Revisions } from '../../lib/collections/revisions/collection.js';
-import { forEachDocumentBatchInCollection } from '../queryUtil.js';
+import { forEachDocumentBatchInCollection } from '../migrations/migrationUtils.js';
 
 // Check that the denormalized contents field of objects with make_editable match
 // the newest revision in the revisions table. This is important because we're

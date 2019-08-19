@@ -19,7 +19,8 @@ export class DialogManager extends PureComponent {
 
   render() {
     const { children } = this.props;
-    const ModalComponent = Components[this.state.componentName];
+    const { componentName } = this.state;
+    const ModalComponent = componentName ? Components[componentName] : null;
 
     return (
       <OpenDialogContext.Provider value={{

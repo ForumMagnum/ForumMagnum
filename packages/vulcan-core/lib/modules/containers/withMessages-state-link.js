@@ -11,7 +11,6 @@ import { registerStateLinkMutation, registerStateLinkDefault } from 'meteor/vulc
 import { graphql } from 'react-apollo';
 import compose from 'lodash/flowRight';
 import gql from 'graphql-tag';
-import MessageContext from '../messages.js';
 
 // 1. Define the queries
 // the @client tag tells graphQL that we fetch data from the cache
