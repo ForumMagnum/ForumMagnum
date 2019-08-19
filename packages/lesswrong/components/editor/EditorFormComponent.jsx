@@ -388,7 +388,7 @@ class EditorFormComponent extends Component {
 
   render() {
     const { editorOverride, draftJSValue, htmlValue, markdownValue } = this.state
-    const { document, currentUser, formType, form, classes, fieldName } = this.props
+    const { document: { editorHintText }, currentUser, formType, form, classes, fieldName, hintText, placeholder, label } = this.props
     const commentStyles = form && form.commentStyles
     const currentEditorType = this.getCurrentEditorType()
 
@@ -409,6 +409,8 @@ class EditorFormComponent extends Component {
       && document[fieldName].originalContents.type !== this.getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
 
+    const placeholderText = editorHintText || hintText || placeholder || label
+
     if (this.getCurrentEditorType() === "draftJS" && draftJSValue) {
       return (
         <div className={classnames(heightClass, classes.root, "editor-form-component")}>
@@ -417,6 +419,7 @@ class EditorFormComponent extends Component {
             isClient={Meteor.isClient}
             editorState={draftJSValue}
             onChange={this.setDraftJS}
+            placeholder={placeholderText}
             commentEditor={form && form.commentEditor}
             className={classnames(bodyStyles, heightClass, {[classes.questionWidth]: document.question})}
           />
@@ -424,7 +427,7 @@ class EditorFormComponent extends Component {
           { this.renderEditorTypeSelect() }
         </div>);
     } else {
-      const { multiLine, hintText, placeholder, label, fullWidth, disableUnderline, startAdornment } = this.props
+      const { multiLine, fullWidth, disableUnderline, startAdornment } = this.props
 
       return (
         <div className={classnames(classes.root, "editor-form-component")}>
@@ -436,7 +439,7 @@ class EditorFormComponent extends Component {
               onChange={currentEditorType === "html" ? this.setHtml : this.setMarkdown}
               multiline={multiLine}
               rows={commentStyles ? commentEditorHeightRows : postEditorHeightRows}
-              placeholder={hintText || placeholder || label}
+              placeholder={placeholderText}
               rowsMax={99999}
               fullWidth={fullWidth}
               disableUnderline={disableUnderline}

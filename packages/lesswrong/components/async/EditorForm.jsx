@@ -19,6 +19,10 @@ import { myKeyBindingFn } from './editor-plugins/keyBindings.js'
 import createLinkifyPlugin from './editor-plugins/linkifyPlugin'
 import ImageButton from './editor-plugins/image/ImageButton.jsx';
 import { Map } from 'immutable';
+import { withStyles } from '@material-ui/core/styles';
+import NoSsr from '@material-ui/core/NoSsr';
+import compose from 'lodash/flowRight';
+
 import {
   createBlockStyleButton,
   ItalicButton,
@@ -26,7 +30,14 @@ import {
   UnderlineButton,
   BlockquoteButton,
 } from 'draft-js-buttons';
-import NoSsr from '@material-ui/core/NoSsr';
+
+const styles = theme => ({
+  placeholder: {
+    color: theme.palette.grey[500],
+    position: "absolute",
+    top: 0
+  }
+})
 
 const HeadlineOneButton = createBlockStyleButton({
   blockType: 'header-one',
@@ -151,21 +162,21 @@ class EditorForm extends Component {
   }
 
   render() {
-    const { theme, editorState, onChange } = this.props
+    const { classes, theme, editorState, onChange, placeholder } = this.props
 
     const InlineToolbar = this.plugins[0].InlineToolbar;
     const AlignmentTool = this.plugins[1].AlignmentTool;
+
+    const showPlaceholder = !(editorState && editorState.getCurrentContent && editorState.getCurrentContent().hasText())
 
     return (
       <div>
         <NoSsr>
         <div
-          className={classNames(
-            { "content-editor-is-empty": !(editorState && editorState.getCurrentContent && editorState.getCurrentContent().hasText()) },
-            this.props.className
-          )}
+          className={this.props.className}
           onClick={this.focus}
         >
+          {showPlaceholder && <div className={classes.placeholder}>{placeholder}</div>}
           <Editor
             editorState={editorState}
             onChange={onChange}
@@ -198,4 +209,7 @@ EditorForm.propTypes = {
   onChange: PropTypes.func
 }
 
-export default withTheme()(EditorForm);
+export default compose(
+  withStyles(styles, {name:"EditorForm"}),
+  withTheme()
+)(EditorForm);
