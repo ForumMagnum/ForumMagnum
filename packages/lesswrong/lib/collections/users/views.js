@@ -83,9 +83,21 @@ Users.addView("sunshineNewUsers", function () {
         { voteCount: {$gt: 12}},
         { commentCount: {$gt: 0}},
         { postCount: {$gt: 0}, ...reCaptchaSelector},
+        { bio: {$exists: true}},
       ],
       reviewedByUserId: {$exists: false},
       banned: {$exists: false},
     },
+    options: {
+      sort: {
+        commentCount: -1,
+        postCount: -1,
+        createdAt: -1,
+      }
+    }
   }
 })
+ensureIndex(Users, {voteCount: 1, reviewedByUserId: 1, banned: 1})
+ensureIndex(Users, {commentCount: 1, reviewedByUserId: 1, banned: 1})
+ensureIndex(Users, {postCount: 1, signUpReCaptchaRating: 1, reviewedByUserId: 1, banned: 1})
+ensureIndex(Users, {bio: 1, reviewedByUserId: 1, banned: 1})

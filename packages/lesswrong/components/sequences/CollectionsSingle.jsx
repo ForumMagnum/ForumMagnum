@@ -1,10 +1,10 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
+import { useLocation } from '../../lib/routeUtil';
 
-const CollectionsSingle = (props, context) => {
-  return <Components.CollectionsPage documentId={props.params._id} />
+const CollectionsSingle = () => {
+  const { params } = useLocation();
+  return <Components.CollectionsPage documentId={params._id} />
 };
-
-CollectionsSingle.displayName = "CollectionsSingle";
 
 registerComponent('CollectionsSingle', CollectionsSingle);

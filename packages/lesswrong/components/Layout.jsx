@@ -1,10 +1,7 @@
-
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
-// import { InstantSearch} from 'react-instantsearch-dom';
+import { Components, registerComponent, getSetting, withUpdate } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
-import { withRouter } from '../lib/reactRouterWrapper.js';
-import Helmet from 'react-helmet';
-import { withApollo } from 'react-apollo';
+import Users from 'meteor/vulcan:users';
+import { Helmet } from 'react-helmet';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import classNames from 'classnames'
 import Intercom from 'react-intercom';
@@ -13,11 +10,12 @@ import { withCookies } from 'react-cookie'
 import LogRocket from 'logrocket'
 
 import { withStyles, withTheme } from '@material-ui/core/styles';
-import getHeaderSubtitleData from '../lib/modules/utils/getHeaderSubtitleData';
+import { withLocation } from '../lib/routeUtil';
 import { UserContext } from './common/withUser';
 import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
+import { PostsReadContext } from './common/withRecordPostView';
 
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
 const googleTagManagerId = getSetting('googleTagManager.apiKey')
@@ -34,6 +32,21 @@ const hashCode = function(str) {
   }
   return hash;
 };
+
+// These routes will have the standalone TabNavigationMenu (aka sidebar)
+//
+// Refer to routes.js for the route names. Or console log in the route you'd
+// like to include
+const standaloneNavMenuRouteNames = {
+  'LessWrong': [
+    'home', 'allPosts', 'questions', 'sequencesHome', 'CommunityHome', 'Shortform', 'Codex',
+    'HPMOR', 'Rationality', 'Sequences', 'collections'
+  ],
+  // TODO-PR-Q: I left this mimicking current behavior, it's possible you'd
+  // rather just have an empty list
+  'AlignmentForum': ['allPosts', 'questions', 'Shortform'],
+  'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform'],
+}
 
 const styles = theme => ({
   main: {
@@ -65,12 +78,20 @@ const styles = theme => ({
 })
 
 class Layout extends PureComponent {
-  state = {
-    timezone: null,
-    toc: null,
-  };
-  
-  searchResultsAreaRef = React.createRef();
+  constructor (props) {
+    super(props);
+    const { cookies, currentUser } = this.props;
+    const savedTimezone = cookies?.get('timezone');
+
+    this.state = {
+      timezone: savedTimezone,
+      toc: null,
+      postsRead: {},
+      hideNavigationSidebar: !!(currentUser?.hideNavigationSidebar),
+    };
+
+    this.searchResultsAreaRef = React.createRef();
+  }
 
   setToC = (document, sectionData) => {
     if (document) {
@@ -87,11 +108,28 @@ class Layout extends PureComponent {
     }
   }
 
+  toggleStandaloneNavigation = () => {
+    const { updateUser, currentUser } = this.props
+    this.setState(prevState => {
+      if (currentUser) {
+        updateUser({
+          selector: { _id: currentUser._id},
+          data: {
+            hideNavigationSidebar: !prevState.hideNavigationSidebar
+          },
+        })
+      }
+      return {
+        hideNavigationSidebar: !prevState.hideNavigationSidebar
+      }
+    })
+  }
+
   getUniqueClientId = () => {
     const { currentUser, cookies } = this.props
-    
+
     if (currentUser) return currentUser._id
-    
+
     const cookieId = cookies.get('clientId')
     if (cookieId) return cookieId
 
@@ -105,7 +143,7 @@ class Layout extends PureComponent {
     const logRocketKey = getSetting('logRocket.apiKey')
     if (logRocketKey) {
       // If the user is logged in, always log their sessions
-      if (currentUser) { 
+      if (currentUser) {
         LogRocket.init()
         return
       }
@@ -120,8 +158,10 @@ class Layout extends PureComponent {
   }
 
   componentDidMount() {
+    const { cookies } = this.props;
     const newTimezone = moment.tz.guess();
     if(this.state.timezone !== newTimezone) {
+      cookies.set('timezone', newTimezone);
       this.setState({
         timezone: newTimezone
       });
@@ -130,7 +170,8 @@ class Layout extends PureComponent {
   }
 
   render () {
-    const {currentUser, children, currentRoute, location, params, client, classes, theme} = this.props;
+    const {currentUser, location, children, classes, theme, messages} = this.props;
+    const {hideNavigationSidebar} = this.state
 
     const showIntercom = currentUser => {
       if (currentUser && !currentUser.hideIntercom) {
@@ -154,22 +195,23 @@ class Layout extends PureComponent {
       }
     }
 
-    const routeName = currentRoute.name
-    const query = location && location.query
-    const { subtitleText = currentRoute.title || "" } = getHeaderSubtitleData(routeName, query, params, client) || {}
-    const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
-    const title = subtitleText ? `${subtitleText} - ${siteName}` : siteName;
-
+    const standaloneNavigation = standaloneNavMenuRouteNames[getSetting('forumType')]
+      .includes(location.currentRoute.name)
     return (
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
+      <PostsReadContext.Provider value={{
+        postsRead: this.state.postsRead,
+        setPostRead: (postId, isRead) => this.setState({
+          postsRead: {...this.state.postsRead, [postId]: isRead}
+        })
+      }}>
       <TableOfContentsContext.Provider value={this.setToC}>
         <div className={classNames("wrapper", {'alignment-forum': getSetting('forumType') === 'AlignmentForum'}) } id="wrapper">
           <DialogManager>
           <div>
             <CssBaseline />
             <Helmet>
-              <title>{title}</title>
               <link name="material-icons" rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
               <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@7.0.0/themes/reset-min.css"/>
               <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
@@ -189,25 +231,42 @@ class Layout extends PureComponent {
             <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
             {/* Google Tag Manager i-frame fallback */}
             <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerId}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
-            <Components.Header toc={this.state.toc} searchResultsArea={this.searchResultsAreaRef} />
+            <Components.Header
+              toc={this.state.toc}
+              searchResultsArea={this.searchResultsAreaRef}
+              standaloneNavigationPresent={standaloneNavigation}
+              toggleStandaloneNavigation={this.toggleStandaloneNavigation}
+            />
+            {standaloneNavigation && <Components.NavigationStandalone
+              sidebarHidden={hideNavigationSidebar}
+            />}
             <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
             <div className={classes.main}>
               <Components.ErrorBoundary>
-                <Components.FlashMessages />
+                <Components.FlashMessages messages={messages} />
               </Components.ErrorBoundary>
-              {children}
+              <Components.ErrorBoundary>
+                {children}
+              </Components.ErrorBoundary>
             </div>
             <Components.Footer />
           </div>
           </DialogManager>
         </div>
       </TableOfContentsContext.Provider>
+      </PostsReadContext.Provider>
       </TimezoneContext.Provider>
       </UserContext.Provider>
     )
   }
 }
 
-Layout.displayName = "Layout";
+const withUpdateOptions = {
+  collection: Users,
+  fragmentName: 'UsersCurrent',
+}
 
-registerComponent('Layout', Layout, withRouter, withApollo, withStyles(styles, { name: "Layout" }), withTheme(), withCookies);
+registerComponent(
+  'Layout', Layout, withLocation, withCookies, [withUpdate, withUpdateOptions],
+  withStyles(styles, { name: "Layout" }), withTheme()
+);

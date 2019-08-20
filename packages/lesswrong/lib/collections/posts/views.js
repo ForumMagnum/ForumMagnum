@@ -9,7 +9,66 @@ export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
 
 /**
+ * @description In allPosts and elsewhere (every component that uses PostsListSettings and some
+ * that use PostsList) we use the concept of filters which are like Vulcan's
+ * views, but are more composable. Filters only specify selectors, and are
+ * written with MongoDB query syntax.
+ * To avoid duplication of code, views with the same name, will reference the
+ * corresponding filter
+ */
+const filters = {
+  "curated": {
+    curatedDate: {$gt: new Date(0)}
+  },
+  "frontpage": {
+    frontpageDate: {$gt: new Date(0)}
+  },
+  "frontpageAndMeta": {
+    // NB:   Currently only used on EA Forum
+    // NB#2: Do not combine this with a view that specifies a selector with
+    // $or, as this will be overwritten.
+    $or: [
+      {frontpageDate: {$gt: new Date(0)}},
+      {meta: true}
+    ]
+  },
+  "all": {
+    groupId: null
+  },
+  "questions": {
+    question: true,
+    hiddenRelatedQuestion: viewFieldAllowAny
+  },
+  "events": {
+    isEvent: true
+  },
+  "meta": {
+    meta: true
+  },
+  "includeMetaAndPersonal": {}
+}
+if (getSetting('forumType') === 'EAForum') filters.frontpage.meta = {$ne: true}
+
+/**
+ * @summary Similar to filters (see docstring above), but specifying MongoDB-style sorts
+ *
+ * NB: Vulcan views overwrite sortings. If you are using a named view with a
+ * sorting, do not try to supply your own.
+ */
+const sortings = {
+  magic: {score: -1},
+  top: {baseScore: -1},
+  new: {postedAt: -1},
+  old: {postedAt: 1},
+  recentComments: {lastCommentedAt: -1}
+}
+
+/**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
+ *
+ * NB: Specifying "before" into posts views is a bit of a misnomer at present,
+ * as it is *inclusive*. The parameters callback that handles it outputs
+ * ~ $lt: before.endOf('day').
  */
 Posts.addDefaultView(terms => {
   const validFields = _.pick(terms, 'userId', 'meta', 'groupId', 'af','question', 'authorIsUnreviewed');
@@ -23,13 +82,18 @@ Posts.addDefaultView(terms => {
       draft: false,
       isFuture: false,
       unlisted: false,
+      shortform: false,
       authorIsUnreviewed: false,
       hiddenRelatedQuestion: false,
       groupId: viewFieldNullOrMissing,
       ...validFields,
       ...alignmentForum
-    }
+    },
+    options: {},
   }
+  // TODO: Use default threshold in default view
+  // TODO: Looks like a bug in cases where karmaThreshold = 0, because we'd
+  // still want to filter.
   if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
     params.selector.baseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
     params.selector.maxBaseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
@@ -40,31 +104,27 @@ Posts.addDefaultView(terms => {
   if (terms.includeRelatedQuestions === "true") {
     params.selector.hiddenRelatedQuestion = viewFieldAllowAny
   }
-  if (terms.filter === "curated") {
-    params.selector.curatedDate ={$gt: new Date(0)}
+  if (terms.filter) {
+    if (filters[terms.filter]) {
+      params.selector = {...params.selector, ...filters[terms.filter]}
+    } else {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `Filter '${terms.filter}' not recognized while constructing defaultView`,
+        terms.view ? ` for view ${terms.view}` : ''
+      )
+    }
   }
-  if (terms.filter === "frontpage") {
-    params.selector.frontpageDate = {$gt: new Date(0)}
-  }
-  if (terms.filter === 'frontpageAndMeta') {
-    // NB: currently only used on EA Forum
-    params.selector.$or = [
-      {frontpageDate: {$gt: new Date(0)}},
-      {meta: true}
-    ]
-  }
-  if (terms.filter === "all") {
-    params.selector.groupId = null
-  }
-  if (terms.filter === "questions") {
-    params.selector.question = true
-    params.selector.hiddenRelatedQuestion = viewFieldAllowAny
-  }
-  if (terms.filter === "events") {
-    params.selector.isEvent = true
-  }
-  if (terms.filter === "meta") {
-    params.selector.meta = true
+  if (terms.sortedBy) {
+    if (sortings[terms.sortedBy]) {
+      params.options = {sort: {...params.options.sort, ...sortings[terms.sortedBy]}}
+    } else {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `Sorting '${terms.sortedBy}' not recognized while constructing defaultView`,
+        terms.view ? ` for view ${terms.view}` : ''
+      )
+    }
   }
   return params;
 })
@@ -73,7 +133,7 @@ export function augmentForDefaultView(indexFields)
 {
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,
-    prefix: {status:1, isFuture:1, draft:1, unlisted:1, hiddenRelatedQuestion:1, authorIsUnreviewed:1, groupId:1 },
+    prefix: {status:1, isFuture:1, draft:1, unlisted:1, shortform: 1, hiddenRelatedQuestion:1, authorIsUnreviewed:1, groupId:1 },
     suffix: { _id:1, meta:1, isEvent:1, af:1, frontpageDate:1, curatedDate:1, postedAt:1, baseScore:1 },
   });
 }
@@ -83,20 +143,22 @@ export function augmentForDefaultView(indexFields)
  * @summary User posts view
  */
 
-Posts.addView("userPosts", terms => ({
-  selector: {
-    userId: viewFieldAllowAny,
-    hiddenRelatedQuestion: viewFieldAllowAny,
-    groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
-    $or: [{userId: terms.userId}, {coauthorUserIds: terms.userId}],
-  },
-  options: {
-    limit: 5,
-    sort: {
-      postedAt: -1,
+Posts.addView("userPosts", terms => {
+  const sortOverride = terms.sortedBy ? {} : {sort: {postedAt: -1}}
+  return {
+    selector: {
+      userId: viewFieldAllowAny,
+      hiddenRelatedQuestion: viewFieldAllowAny,
+      shortform: viewFieldAllowAny,
+      groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
+      $or: [{userId: terms.userId}, {coauthorUserIds: terms.userId}],
+    },
+    options: {
+      limit: 5,
+      ...sortOverride
     }
   }
-}));
+});
 ensureIndex(Posts,
   augmentForDefaultView({ userId: 1, hideAuthor: 1, postedAt: -1, }),
   {
@@ -127,7 +189,7 @@ const stickiesIndexPrefix = {
 
 
 Posts.addView("magic", terms => ({
-  options: {sort: setStickies({score: -1}, terms)}
+  options: {sort: setStickies(sortings.magic, terms)}
 }))
 ensureIndex(Posts,
   augmentForDefaultView({ score:-1 }),
@@ -156,7 +218,7 @@ ensureIndex(Posts,
 
 
 Posts.addView("top", terms => ({
-  options: {sort: setStickies({baseScore: -1}, terms)}
+  options: {sort: setStickies(sortings.top, terms)}
 }))
 ensureIndex(Posts,
   augmentForDefaultView({ ...stickiesIndexPrefix, baseScore:-1 }),
@@ -173,7 +235,7 @@ ensureIndex(Posts,
 
 
 Posts.addView("new", terms => ({
-  options: {sort: setStickies({postedAt: -1}, terms)}
+  options: {sort: setStickies(sortings.new, terms)}
 }))
 ensureIndex(Posts,
   augmentForDefaultView({ ...stickiesIndexPrefix, postedAt:-1 }),
@@ -189,18 +251,27 @@ ensureIndex(Posts,
 );
 
 Posts.addView("recentComments", terms => ({
-  options: {sort: {lastCommentedAt:-1}}
+  options: {sort: sortings.recentComments}
 }))
 
-
 Posts.addView("old", terms => ({
-  options: {sort: setStickies({postedAt: 1}, terms)}
+  options: {sort: sortings.old}
 }))
 // Covered by the same index as `new`
 
+Posts.addView("timeframe", terms => ({
+  options: {limit: terms.limit}
+}))
+ensureIndex(Posts,
+  augmentForDefaultView({ postedAt:1, baseScore:1}),
+  {
+    name: "posts.postedAt_baseScore",
+  }
+);
+
 Posts.addView("daily", terms => ({
   options: {
-    sort: {score: -1}
+    sort: {baseScore: -1}
   }
 }));
 ensureIndex(Posts,
@@ -210,11 +281,8 @@ ensureIndex(Posts,
   }
 );
 
-let frontpageSelector = {frontpageDate: {$gte: new Date(0)}}
-if (getSetting('forumType') === 'EAForum') frontpageSelector.meta = {$ne: true}
-
 Posts.addView("frontpage", terms => ({
-  selector: frontpageSelector,
+  selector: filters.frontpage,
   options: {
     sort: {sticky: -1, score: -1}
   }
@@ -223,12 +291,12 @@ ensureIndex(Posts,
   augmentForDefaultView({ sticky: -1, score: -1, frontpageDate:1 }),
   {
     name: "posts.frontpage",
-    partialFilterExpression: frontpageSelector,
+    partialFilterExpression: filters.frontpage,
   }
 );
 
 Posts.addView("frontpage-rss", terms => ({
-  selector: frontpageSelector,
+  selector: filters.frontpage,
   options: {
     sort: {frontpageDate: -1, postedAt: -1}
   }
@@ -236,9 +304,7 @@ Posts.addView("frontpage-rss", terms => ({
 // Covered by the same index as `frontpage`
 
 Posts.addView("curated", terms => ({
-  selector: {
-    curatedDate: {$gt: new Date(0)},
-  },
+  selector: filters.curated,
   options: {
     sort: {sticky: -1, curatedDate: -1, postedAt: -1}
   }
@@ -444,6 +510,7 @@ Posts.addView("recentDiscussionThreadsList", terms => {
       baseScore: {$gt:0},
       hideFrontpageComments: false,
       hiddenRelatedQuestion: viewFieldAllowAny,
+      shortform: viewFieldAllowAny,
       groupId: null,
     },
     options: {
@@ -455,6 +522,26 @@ Posts.addView("recentDiscussionThreadsList", terms => {
 ensureIndex(Posts,
   augmentForDefaultView({ lastCommentedAt:-1, baseScore:1, hideFrontpageComments:1 }),
   { name: "posts.recentDiscussionThreadsList", }
+);
+
+Posts.addView("shortformDiscussionThreadsList", terms => {
+  return {
+    selector: {
+      baseScore: {$gt:0},
+      hideFrontpageComments: false,
+      shortform: true,
+      hiddenRelatedQuestion: viewFieldAllowAny,
+      groupId: null,
+    },
+    options: {
+      sort: {lastCommentedAt:-1},
+      limit: terms.limit || 12,
+    }
+  }
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ hideFrontpageComments:1, shortForm: 1, lastCommentedAt:-1, baseScore:1,}),
+  { name: "posts.shortformDiscussionThreadsList", }
 );
 
 Posts.addView("nearbyEvents", function (terms) {
@@ -558,6 +645,7 @@ Posts.addView("groupPosts", function (terms) {
     selector: {
       isEvent: null,
       groupId: terms.groupId,
+      authorIsUnreviewed: viewFieldAllowAny
     },
     options: {
       sort: {

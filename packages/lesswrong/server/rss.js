@@ -3,7 +3,7 @@ import { Posts } from '../lib/collections/posts';
 import { rssTermsToUrl } from '../lib/modules/rss_urls.js';
 import { Comments } from '../lib/collections/comments';
 import { Utils, getSetting } from 'meteor/vulcan:core';
-import { Picker } from 'meteor/meteorhacks:picker';
+import { addStaticRoute } from 'meteor/vulcan:lib';
 import { accessFilterMultiple } from '../lib/modules/utils/schemaUtils.js';
 import moment from 'moment-timezone';
 
@@ -113,7 +113,7 @@ export const serveCommentRSS = (terms, url) => {
 };
 
 
-Picker.route('/feed.xml', function(params, req, res, next) {
+addStaticRoute('/feed.xml', function(params, req, res, next) {
   if (typeof params.query.view === 'undefined') {
     params.query.view = 'rss';
   }

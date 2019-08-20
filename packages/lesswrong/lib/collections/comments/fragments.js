@@ -9,6 +9,7 @@ registerFragment(`
     topLevelCommentId
     contents {
       ...RevisionDisplay
+      plaintextMainText
     }
     postedAt
     repliesBlockedUntil
@@ -39,6 +40,44 @@ registerFragment(`
     retracted
     postVersion
     reviewedByUserId
+    shortform
+    lastSubthreadActivity
+  }
+`);
+
+registerFragment(`
+  fragment CommentPermalink on Comment {
+    ...CommentsList
+    parentComment {
+      ...CommentsList
+    }
+  }
+`);
+
+registerFragment(`
+  fragment ShortformComments on Comment {
+    ...CommentsList
+    post {
+      _id
+      slug
+      title
+    }
+  }
+`)
+
+registerFragment(`
+  fragment CommentWithReplies on Comment {
+    ...CommentsList
+    lastSubthreadActivity
+    latestChildren {
+      ...CommentsList
+    }
+    post {
+      title
+      _id
+      slug
+      lastVisitedAt
+    }
   }
 `);
 

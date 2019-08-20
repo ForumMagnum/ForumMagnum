@@ -124,6 +124,7 @@ class AnswerCommentsList extends PureComponent {
               comments={nestedComments}
               highlightDate={highlightDate}
               post={post}
+              parentCommentId={parentAnswer._id}
               parentAnswerId={parentAnswer._id}
               defaultNestingLevel={2}
               postPage
@@ -152,6 +153,7 @@ const listOptions = {
   collection: Comments,
   queryName: 'AnswersCommentListQuery',
   fragmentName: 'CommentsList',
+  fetchPolicy: 'cache-and-network',
   enableTotal: true,
 }
 

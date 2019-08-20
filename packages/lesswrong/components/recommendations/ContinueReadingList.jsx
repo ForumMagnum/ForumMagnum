@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
 import { withDismissRecommendation } from './withDismissRecommendation';
-import { Link } from '../../lib/reactRouterWrapper.js'
 
 const MAX_ENTRIES = 3;
 
@@ -50,16 +49,20 @@ class ContinueReadingList extends Component {
         showAllLink: true,
       }
     }
-  }
+  } 
   
   render() {
     const { continueReading, continueReadingLoading } = this.props;
-    const { PostsItem2, PostsLoading, SectionFooter } = Components;
+    const { PostsItem2, PostsLoading, SectionFooter, LoginPopupButton } = Components;
     if (continueReadingLoading || !continueReading)
       return <PostsLoading/>
     
     const { entries, showAllLink } = this.limitResumeReading(continueReading);
     
+    const saveLeftOffTooltip = <div>
+      Logging in helps you keep track of which sequences you've started reading, so that you can continue reading them when you return to LessWrong.
+    </div>
+
     return <div>
       {entries.map(resumeReading => {
         const { nextPost, sequence, collection } = resumeReading;
@@ -71,11 +74,15 @@ class ContinueReadingList extends Component {
           key={sequence?._id || collection?._id}
         />
       })}
-      {showAllLink && <SectionFooter>
-        <Link onClick={this.showAll}>
+      
+      <SectionFooter>
+        {showAllLink && <a onClick={this.showAll}>
           Show All
-        </Link>
-      </SectionFooter>}
+        </a>}
+        <LoginPopupButton title={saveLeftOffTooltip}>
+          Log in to save where you left off
+        </LoginPopupButton>
+      </SectionFooter>
     </div>
   }
 }

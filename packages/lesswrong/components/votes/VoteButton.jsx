@@ -1,4 +1,4 @@
-import { registerComponent, withMessages } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import classNames from 'classnames';
 import { hasVotedClient } from '../../lib/modules/vote.js';
@@ -7,6 +7,7 @@ import { withStyles, withTheme } from '@material-ui/core/styles';
 import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp'
 import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
+import withDialog from '../common/withDialog';
 
 const styles = theme => ({
   root: {
@@ -86,7 +87,10 @@ class VoteButton extends PureComponent {
     const collection = this.props.collection;
     const user = this.props.currentUser;
     if(!user){
-      this.props.flash({id: 'users.please_log_in', type: 'success'});
+      this.props.openDialog({
+        componentName: "LoginPopup",
+        componentProps: {}
+      });
     } else {
       this.props.vote({document, voteType: type, collection, currentUser: this.props.currentUser});
     }
@@ -157,7 +161,7 @@ class VoteButton extends PureComponent {
 }
 
 registerComponent('VoteButton', VoteButton,
-  withMessages,
+  withDialog,
   withStyles(styles, { name: "VoteButton" }),
   withTheme()
 );

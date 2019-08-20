@@ -1,25 +1,47 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import Helmet from 'react-helmet';
-import { registerComponent, Utils, getSetting, Head } from 'meteor/vulcan:lib';
-import { compose } from 'react-apollo';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { Helmet } from 'react-helmet';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Utils, registerSetting, getSetting, Head } from 'meteor/vulcan:lib';
+import compose from 'lodash/flowRight';
+import { useSubscribedLocation } from '../../lib/routeUtil';
+import { withApollo } from 'react-apollo';
 
-class HeadTags extends PureComponent {
+registerSetting('logoUrl', null, 'Absolute URL for the logo image');
+registerSetting('title', 'My App', 'App title');
+registerSetting('tagline', null, 'App tagline');
+registerSetting('description');
+registerSetting('siteImage', null, 'An image used to represent the site on social media');
+registerSetting('faviconUrl', '/img/favicon.ico', 'Favicon absolute URL');
 
-  render() {
+const TitleComponent = ({titleString}) => {
+  const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
+  return <Helmet>
+    <title>{`${titleString} - ${siteName}`}</title>
+  </Helmet>
+}
 
-    const url = this.props.url || Utils.getSiteUrl();
-    const appTitle = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
-    const title = this.props.title ? `${this.props.title} - ${appTitle}` : appTitle;
-    const description = this.props.description || getSetting('tagline') || getSetting('description');
+const HeadTags = (props) => {
+    const url = props.url || Utils.getSiteUrl();
+    const description = props.description || getSetting('tagline') || getSetting('description');
+    const { currentRoute, pathname } = useSubscribedLocation();
+    const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
+    
+    const TitleComponent = currentRoute?.titleComponentName ? Components[currentRoute.titleComponentName] : null;
+    const titleString = currentRoute?.title || currentRoute?.subtitle;
     
     return (
       <div>
-        <Helmet key={this.props.location.pathname}>
+        { TitleComponent
+            ? <TitleComponent siteName={siteName} isSubtitle={false} />
+            : <Helmet><title>
+                {titleString
+                  ? `${titleString} - ${siteName}`
+                  : siteName}
+              </title></Helmet>
+        }
 
-          <title>{title}</title>
-
+        <Helmet key={pathname}>
           <meta charSet='utf-8'/>
           <meta name='description' content={description}/>
           <meta name='viewport' content='width=device-width, initial-scale=1'/>
@@ -27,14 +49,14 @@ class HeadTags extends PureComponent {
           {/* facebook */}
           <meta property='og:type' content='article'/>
           <meta property='og:url' content={url}/>
-          {this.props.image && <meta property='og:image' content={this.props.image}/>}
-          <meta property='og:title' content={title}/>
+          {props.image && <meta property='og:image' content={props.image}/>}
+          { /* <meta property='og:title' content={title}/> */ }
           <meta property='og:description' content={description}/>
 
           {/* twitter */}
           <meta name='twitter:card' content='summary'/>
-          {this.props.image && <meta name='twitter:image:src' content={this.props.image}/>}
-          <meta name='twitter:title' content={title}/>
+          {props.image && <meta name='twitter:image:src' content={props.image}/>}
+          { /* <meta name='twitter:title' content={title}/> */ }
           <meta name='twitter:description' content={description}/>
 
           <link rel='canonical' href={url}/>
@@ -59,7 +81,6 @@ class HeadTags extends PureComponent {
 
       </div>
     );
-  }
 }
 
 HeadTags.propTypes = {
@@ -69,6 +90,6 @@ HeadTags.propTypes = {
   image: PropTypes.string,
 };
 
-registerComponent('HeadTags', HeadTags, withRouter);
+registerComponent('HeadTags', HeadTags, withApollo);
 
 export default HeadTags;

@@ -21,13 +21,6 @@ jobs:
     steps:
       # chackout the code from github
       - checkout
-      - run:
-          name: clone Vulcan
-          command: |
-            cd ..
-            git clone https://github.com/LessWrong2/Vulcan.git Vulcan
-            cd lesswrong
-            export METEOR_PACKAGE_DIRS="../Vulcan/packages"
       # if certain cached files (packages, etc) are presetn, don't redownload them, restore the cached version
       - restore_cache:
           key: build-temp-{{ checksum ".meteor/release" }}-{{ checksum ".circleci/config.yml" }}
@@ -160,9 +153,8 @@ jobs:
       - run:
           name: testing
           environment:
-            METEOR_PACKAGE_DIRS: ../Vulcan/packages
-            TOOL_NODE_FLAGS: --max_old_space_size=3072
-          command: meteor yarn test
+            TOOL_NODE_FLAGS: --max_old_space_size=2800 
+          command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=512" meteor yarn test
   deploy_prod_fast:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -224,7 +216,7 @@ jobs:
           command: meteor npm i -g json
       - run:
           name: Install mup and mup-aws-beanstalk
-          command: meteor npm i -g mup mup-aws-beanstalk
+          command: meteor npm install -g mup https://github.com/jimrandomh/mup-aws-beanstalk
       - run:
           name: Set sentry version and modify settings.json
           command: |
@@ -234,9 +226,8 @@ jobs:
             meteor json -I -f settings.json -e "this.public.sentry.release=\"$SENTRY_VERSION\""
       - deploy:
           environment:
-            METEOR_PACKAGE_DIRS: ../Vulcan/packages
-            TOOL_NODE_FLAGS: --max_old_space_size=3072
-          command: meteor mup deploy --config mup.secret        
+            TOOL_NODE_FLAGS: --max_old_space_size=2800
+          command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=512" meteor mup deploy --config mup.secret
   deploy_prod:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -298,7 +289,7 @@ jobs:
           command: meteor npm i -g json
       - run:
           name: Install mup and mup-aws-beanstalk
-          command: meteor npm i -g mup mup-aws-beanstalk
+          command: meteor npm install -g mup https://github.com/jimrandomh/mup-aws-beanstalk
       - run:
           name: Set sentry version and modify settings.json
           command: |
@@ -308,9 +299,8 @@ jobs:
             meteor json -I -f settings.json -e "this.public.sentry.release=\"$SENTRY_VERSION\""
       - deploy:
           environment:
-            METEOR_PACKAGE_DIRS: ../Vulcan/packages
-            TOOL_NODE_FLAGS: --max_old_space_size=3072
-          command: meteor mup deploy --config mup.secret
+            TOOL_NODE_FLAGS: --max_old_space_size=2800
+          command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=512" meteor mup deploy --config mup.secret
   deploy_af:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -372,7 +362,7 @@ jobs:
           command: meteor npm i -g json
       - run:
           name: Install mup and mup-aws-beanstalk
-          command: meteor npm i -g mup mup-aws-beanstalk
+          command: meteor npm install -g mup https://github.com/jimrandomh/mup-aws-beanstalk
       - run:
           name: Set sentry version and modify settings.json
           command: |
@@ -382,9 +372,8 @@ jobs:
             meteor json -I -f settings.json -e "this.public.sentry.release=\"$SENTRY_VERSION\""
       - deploy:
           environment:
-            METEOR_PACKAGE_DIRS: ../Vulcan/packages
-            TOOL_NODE_FLAGS: --max_old_space_size=3072
-          command: meteor mup deploy --config mup.secret
+            TOOL_NODE_FLAGS: --max_old_space_size=2800
+          command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=512" meteor mup deploy --config mup.secret
   deploy_baserates:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -445,7 +434,7 @@ jobs:
           command: meteor npm i -g json
       - run:
           name: Install mup and mup-aws-beanstalk
-          command: meteor npm i -g mup mup-aws-beanstalk
+          command: meteor npm install -g mup https://github.com/jimrandomh/mup-aws-beanstalk
       - run:
           name: Set sentry version and modify settings.json
           command: |
@@ -455,9 +444,8 @@ jobs:
             meteor json -I -f settings.json -e "this.public.sentry.release=\"$SENTRY_VERSION\""
       - deploy:
           environment:
-            METEOR_PACKAGE_DIRS: ../Vulcan/packages
-            TOOL_NODE_FLAGS: --max_old_space_size=3072
-          command: meteor mup deploy --config mup.secret
+            TOOL_NODE_FLAGS: --max_old_space_size=2800
+          command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=512" meteor mup deploy --config mup.secret
   deploy_staging:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -519,7 +507,7 @@ jobs:
           command: meteor npm i -g json
       - run:
           name: Install mup and mup-aws-beanstalk
-          command: meteor npm i -g mup mup-aws-beanstalk
+          command: meteor npm install -g mup https://github.com/jimrandomh/mup-aws-beanstalk
       - run:
           name: Set sentry version and modify settings.json
           command: |
@@ -529,9 +517,8 @@ jobs:
             meteor json -I -f settings.json -e "this.public.sentry.release=\"$SENTRY_VERSION\""
       - deploy:
           environment:
-            METEOR_PACKAGE_DIRS: ../Vulcan/packages
-            TOOL_NODE_FLAGS: --max_old_space_size=3072
-          command: meteor mup deploy --config mup.secret
+            TOOL_NODE_FLAGS: --max_old_space_size=2800
+          command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=512" meteor mup deploy --config mup.secret
 
 workflows:
   version: 2

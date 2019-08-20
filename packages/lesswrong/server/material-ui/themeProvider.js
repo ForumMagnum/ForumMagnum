@@ -5,19 +5,23 @@ import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/sty
 import forumTheme from '../../themes/forumTheme'
 import { SheetsRegistry } from 'react-jss/lib/jss';
 import JssCleanup from '../../components/themes/JssCleanup';
+import PropTypes from 'prop-types'
 
 const MuiThemeProviderWrapper = (props, context) => {
-  // By experimentation, it turns out that context.client is only available to this component
-  // during the initial `getDataFromTree` render, during which we want to skip
-  // style-generation. See https://github.com/mui-org/material-ui/issues/8522
-  return <MuiThemeProvider {...props} disableStylesGeneration={!!context.client}>
+  // If isGetDataFromTree is present in the context, suppress generation of JSS
+  // styles. See Vulcan/packages/vulcan-lib/lib/server/apollo-ssr/renderPage.js
+  // for an explanation of why we're doing this.
+  return <MuiThemeProvider {...props} disableStylesGeneration={!!context.isGetDataFromTree}>
     {props.children}
   </MuiThemeProvider>
 }
+MuiThemeProviderWrapper.contextTypes = {
+  isGetDataFromTree: PropTypes.bool
+};
 
-function wrapWithMuiTheme (app, { req, res, store, apolloClient }) {
+function wrapWithMuiTheme (app, { context }) {
   const sheetsRegistry = new SheetsRegistry();
-  req.sheetsRegistry = sheetsRegistry;
+  context.sheetsRegistry = sheetsRegistry;
   const generateClassName = createGenerateClassName({
     dangerouslyUseGlobalCSS: true
   });
@@ -33,13 +37,4 @@ function wrapWithMuiTheme (app, { req, res, store, apolloClient }) {
   );
 }
 
-
-function injectJss ({ req, res }) {
-  const sheets = req.sheetsRegistry.toString();
-  req.dynamicHead = req.dynamicHead || '';
-  req.dynamicHead += `<style id="jss-server-side">${sheets}</style>`;
-}
-
-
 addCallback('router.server.wrapper', wrapWithMuiTheme);
-addCallback('router.server.postRender', injectJss);

@@ -1,7 +1,6 @@
-import { Components, withDocument, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { withRouter } from '../../../lib/reactRouterWrapper.js';
+import { withLocation } from '../../../lib/routeUtil';
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
 import { withStyles } from '@material-ui/core/styles';
@@ -12,6 +11,7 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import classNames from 'classnames';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import withRecordPostView from '../../common/withRecordPostView';
+import withNewEvents from '../../../lib/events/withNewEvents.jsx';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 const DEFAULT_TOC_MARGIN = 100
@@ -22,6 +22,9 @@ const MAX_COLUMN_WIDTH = 720
 const styles = theme => ({
   root: {
     position: "relative",
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 20
+    }
   },
   tocActivated: {
     // Check for support for template areas before applying
@@ -107,25 +110,6 @@ const styles = theme => ({
   secondaryInfo: {
     fontSize: '1.4rem',
   },
-  mobileDate: {
-    marginLeft: 20,
-    display: 'inline-block',
-    color: theme.palette.grey[600],
-    fontSize: theme.typography.body2.fontSize,
-    [theme.breakpoints.up('md')]: {
-      display:"none"
-    }
-  },
-  desktopDate: {
-    marginLeft: 20,
-    display: 'inline-block',
-    color: theme.palette.grey[600],
-    whiteSpace: "no-wrap",
-    fontSize: theme.typography.body2.fontSize,
-    [theme.breakpoints.down('sm')]: {
-      display:"none"
-    }
-  },
   commentsLink: {
     marginLeft: 20,
     color: theme.palette.grey[600],
@@ -205,7 +189,19 @@ const styles = theme => ({
   bottomDate: {
     color: theme.palette.grey[600]
   },
+  postType: {
+    marginLeft: 20
+  }
 })
+
+const getContentType = (post) => {
+  if (getSetting('forumType') === 'EAForum') {
+    return (post.frontpageDate && 'frontpage') ||
+    (post.meta && 'meta') ||
+    'personal'
+  }
+  return post.frontpageDate ? 'frontpage' : 'personal'
+}
 
 // On the server, use the 'url' library for parsing hostname out of feed URLs.
 // On the client, we instead create an <a> tag, set its href, and extract
@@ -230,25 +226,35 @@ function getHostname(url) {
 class PostsPage extends Component {
 
   getSequenceId() {
-    const { params, document: post } = this.props;
+    const { post } = this.props;
+    const { params } = this.props.location;
     return params.sequenceId || post?.canonicalSequenceId;
   }
-  
-  render() {
-    const { loading, document: post, currentUser, location, router, classes, data: {refetch} } = this.props
-    const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, PostsType,
-      LinkPostMessage, PostsCommentsThread, Loading, Error404, PostsGroupDetails, BottomNavigation,
-      PostsTopSequencesNav, FormatDate, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
-      TableOfContents, PostsRevisionSelector, PostsRevisionMessage, AlignmentCrosspostMessage } = Components
 
-    if (loading) {
-      return <div><Loading/></div>
-    } else if (!post) {
-      return <Error404/>
+  shouldHideAsSpam() {
+    const { post, currentUser } = this.props;
+
+    // Logged-out users shouldn't be able to see spam posts
+    if (post.authorIsUnreviewed && !currentUser) {
+      return true;
+    }
+
+    return false;
+  }
+
+  render() {
+    const { post, refetch, currentUser, classes, location: { query: { commentId }} } = this.props
+    const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, ContentType,
+      LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
+      PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
+      TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink } = Components
+
+    if (this.shouldHideAsSpam()) {
+      throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
     } else {
       const { html, plaintextDescription, markdown, wordCount = 0 } = post.contents || {}
-      let query = location && location.query
-      const view = _.clone(router.location.query).view || Comments.getDefaultView(post, currentUser)
+      const { query } = this.props.location;
+      const view = _.clone(query).view || Comments.getDefaultView(post, currentUser)
       const description = plaintextDescription ? plaintextDescription : (markdown && markdown.substring(0, 300))
       const commentTerms = _.isEmpty(query.view) ? {view: view, limit: 500} : {...query, limit:500}
       const sequenceId = this.getSequenceId();
@@ -257,6 +263,7 @@ class PostsPage extends Component {
       const feedLink = post.feed && post.feed.url && getHostname(post.feed.url)
       const { major } = extractVersionsFromSemver(post.version)
       const hasMajorRevision = major > 1
+      const contentType = getContentType(post)
 
       return (
         <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
@@ -264,17 +271,19 @@ class PostsPage extends Component {
           {/* Header/Title */}
           <div className={classes.title}>
             <div className={classes.post}>
+              <CommentPermalink documentId={commentId} post={post}/>
               {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
               <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
-              <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}
-              >
+              <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}>
                 <div className={classes.headerLeft}>
                   <PostsPageTitle post={post} />
                   <div className={classes.secondaryInfo}>
                     <span className={classes.inline}>
                       <PostsAuthors post={post}/>
                     </span>
-                    <PostsType post={post}/>
+                    <span className={classes.postType}>
+                      <ContentType type={contentType}/>
+                    </span>
                     { post.feed && post.feed.user &&
                       <Tooltip title={`Crossposted from ${feedLink}`}>
                         <a href={`http://${feedLink}`} className={classes.feedName}>
@@ -282,12 +291,7 @@ class PostsPage extends Component {
                         </a>
                       </Tooltip>
                     }
-                    {!post.isEvent && <span className={classes.mobileDate}>
-                      <FormatDate date={post.postedAt}/>
-                    </span>}
-                    {!post.isEvent && <span className={classes.desktopDate}>
-                      {hasMajorRevision ? <PostsRevisionSelector post={post}/> : <FormatDate date={post.postedAt} format="Do MMM YYYY"/>}
-                    </span>}
+                    {!post.isEvent && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
                     {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
                     <a className={classes.commentsLink} href={"#comments"}>{ Posts.getCommentCountStr(post)}</a>
                     <span className={classes.actions}>
@@ -358,44 +362,32 @@ class PostsPage extends Component {
   }
 
   async componentDidMount() {
-    this.props.recordPostView(this.props, {
-      sequenceId: this.getSequenceId(),
+    this.props.recordPostView({
+      post: this.props.post,
+      extraEventProperties: {
+        sequenceId: this.getSequenceId()
+      }
     });
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.document && this.props.document && prevProps.document._id !== this.props.document._id) {
+    if (prevProps.post && this.props.post && prevProps.post._id !== this.props.post._id) {
       this.props.closeAllEvents();
-      this.props.recordPostView(this.props, {
-        sequenceId: this.getSequenceId(),
+      this.props.recordPostView({
+        post: this.props.post,
+        extraEventProperties: {
+          sequenceId: this.getSequenceId(),
+        }
       });
     }
   }
 }
-PostsPage.displayName = "PostsPage";
-
-PostsPage.propTypes = {
-  document: PropTypes.object,
-}
-
-const queryOptions = {
-  collection: Posts,
-  queryName: 'postsSingleQuery',
-  fragmentName: 'PostsWithNavigation',
-  enableTotal: false,
-  enableCache: true,
-  ssr: true,
-  extraVariables: {
-    version: 'String',
-    sequenceId: 'String',
-  }
-};
 
 registerComponent(
   'PostsPage', PostsPage,
-  withUser, withRouter,
-  [withDocument, queryOptions],
+  withUser, withLocation,
   withStyles(styles, { name: "PostsPage" }),
   withRecordPostView,
+  withNewEvents,
   withErrorBoundary,
 );

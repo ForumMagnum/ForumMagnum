@@ -2,9 +2,8 @@ import Users from "meteor/vulcan:users";
 import { getSetting, Utils } from "meteor/vulcan:core"
 import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences } from '../../modules/utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
-import { addUniversalFields } from '../../collectionUtils'
+import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 import SimpleSchema from 'simpl-schema'
-import { schemaDefaultValue } from '../../collectionUtils';
 
 
 export const formGroups = {
@@ -34,6 +33,12 @@ export const formGroups = {
     order: 25,
     label: "Admin Options",
     startCollapsed: true,
+  },
+  truncationOptions: {
+    name: "truncationOptions",
+    order: 9,
+    label: "Comment Truncation Options",
+    startCollapsed: false,
   },
 }
 
@@ -215,7 +220,23 @@ addFieldsDict(Users, {
     order: 20,
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
   },
+  hideNavigationSidebar: {
+    type: Boolean,
+    optional: true,
+    canRead: Users.owns,
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: Users.owns,
+    hidden: true,
+  },
   currentFrontpageFilter: {
+    type: String,
+    optional: true,
+    canRead: Users.owns,
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: Users.owns,
+    hidden: true,
+  },
+  allPostsTimeframe: {
     type: String,
     optional: true,
     canRead: Users.owns,
@@ -231,7 +252,7 @@ addFieldsDict(Users, {
     canCreate: Users.owns,
     hidden: true,
   },
-  allPostsView: {
+  allPostsSorting: {
     type: String,
     optional: true,
     hidden: true,
@@ -623,7 +644,8 @@ addFieldsDict(Users, {
     label: "Group Location",
     control: 'LocationFormComponent',
     blackbox: true,
-    optional: true
+    optional: true,
+    order: 42,
   },
 
   location: {
@@ -657,7 +679,7 @@ addFieldsDict(Users, {
     canRead: [Users.owns, 'sunshineRegiment', 'admins'],
     resolver: (user, args, context) => !!user.reviewedByUserId,
   }),
-  
+
   // A number from 0 to 1, where 0 is almost certainly spam, and 1 is almost
   // certainly not-spam. This is the same scale as ReCaptcha, except that it
   // also includes post-signup activity like moderator approval, upvotes, etc.
@@ -673,7 +695,7 @@ addFieldsDict(Users, {
     resolver: (user, args, context) => {
       const isReviewed = !!user.reviewedByUserId;
       const { karma, signUpReCaptchaRating } = user;
-      
+
       if (user.deleteContent && user.banned) return 0.0;
       else if (Users.isAdmin(user)) return 1.0;
       else if (isReviewed && karma>=20) return 1.0;
@@ -758,31 +780,47 @@ addFieldsDict(Users, {
     optional: true,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment'],
-    hidden: !['LessWrong', 'AlignmentForum'].includes(getSetting('forumType'))
+    hidden: !['LessWrong', 'AlignmentForum'].includes(getSetting('forumType')),
+    order: 39,
+  },
+
+  noSingleLineComments: {
+    order: 70,
+    type: Boolean,
+    optional: true,
+    group: formGroups.truncationOptions,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    control: 'checkbox',
+    label: "Do not collapse comments to Single Line"
   },
 
   noCollapseCommentsPosts: {
     order: 70,
     type: Boolean,
     optional: true,
+    group: formGroups.truncationOptions,
     defaultValue: false,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     control: 'checkbox',
-    label: "Do not collapse comments (in large threads on Post Pages)"
+    label: "Do not truncate comments (in large threads on Post Pages)"
   },
 
   noCollapseCommentsFrontpage: {
     order: 70,
     type: Boolean,
     optional: true,
+    group: formGroups.truncationOptions,
     defaultValue: false,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     control: 'checkbox',
-    label: "Do not collapse comments (on home page)"
+    label: "Do not truncate comments (on home page)"
   },
 
   shortformFeedId: {
@@ -818,16 +856,7 @@ addFieldsDict(Users, {
     group: formGroups.adminOptions,
     order: 0,
   },
-  // TODO: Remove this after april fools
-  blockedGPT2: {
-    type: Boolean,
-    optional: true,
-    canRead: ['guests'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    hidden: getSetting('forumType') !== 'LessWrong',
-    label: "Auto-collapse comments from GPT2"
-  },
-  
+
   partiallyReadSequences: {
     type: Array,
     canRead: [Users.owns],
@@ -839,7 +868,7 @@ addFieldsDict(Users, {
     type: partiallyReadSequenceItem,
     optional: true,
   },
-  
+
   beta: {
     type: Boolean,
     optional: true,
@@ -910,8 +939,7 @@ export const makeEditableOptionsModeration = {
     viewableBy: ['guests'],
     editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
     insertableBy: [Users.owns, 'sunshineRegiment', 'admins']
-  },
-  deactivateNewCallback: true, // Fix to avoid triggering the editable operations on incomplete users during creation
+  }
 }
 
 makeEditable({

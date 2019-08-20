@@ -114,7 +114,7 @@ SunshineNewPostsItem.propTypes = {
   hover: PropTypes.bool.isRequired,
   anchorEl: PropTypes.object,
   currentUser: PropTypes.object.isRequired,
-  editMutation: PropTypes.func.isRequired,
+  updatePost: PropTypes.func.isRequired,
 }
 
 const withUpdateOptions = {
