@@ -50,13 +50,19 @@ Users.canModeratePost = (user, post) => {
     (
       Users.canDo(user,"posts.moderate.own") &&
       Users.owns(user, post) &&
-      ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle)
+      // Because of a bug in Vulcan that doesn't adequately deal with nested fields in document validation,
+      // we check for originalContents instead of html here, which causes some problems with empty strings, but 
+      // should overall be fine
+    ((post.moderationGuidelines?.originalContents) || post.moderationStyle)
     )
     ||
     (
       Users.canDo(user, "posts.moderate.own.personal") &&
       Users.owns(user, post) &&
-      ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle) &&
+      // Because of a bug in Vulcan that doesn't adequately deal with nested fields in document validation,
+      // we check for originalContents instead of html here, which causes some problems with empty strings, but 
+      // should overall be fine
+      ((post.moderationGuidelines?.originalContents) || post.moderationStyle) &&
       !post.frontpageDate
     )
   )
