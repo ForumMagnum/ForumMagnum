@@ -29,9 +29,15 @@ var parsePath = function parsePath(path) {
 };
 
 const HoverPreviewLink = ({innerHTML, href}) => {
-  // FIXME: This is currently server-side-only because 'URL' is a browser-API
+  // FIXME: This is currently client-side-only because 'URL' is a browser-API
   // class. See the workaround for the same issue in PostsPage.
   const location = useLocation();
+  
+  // Within-page relative link?
+  if (href.startsWith("#")) {
+    return <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
+  }
+  
   const currentURL = new URL(location.pathname, Utils.getSiteUrl());
   const linkTargetAbsolute = new URL(href, currentURL);
   
