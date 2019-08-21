@@ -1,14 +1,13 @@
 import { Posts } from './collection';
-import { getSetting } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
-import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple } from '../../modules/utils/schemaUtils'
+import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple, resolverOnlyField, denormalizedCountOfReferences, accessFilterSingle } from '../../modules/utils/schemaUtils'
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { Utils } from 'meteor/vulcan:core';
 import GraphQLJSON from 'graphql-type-json';
-import { Comments } from '../comments'
-import { questionAnswersSort } from '../comments/views';
 import { schemaDefaultValue } from '../../collectionUtils';
+import { getWithLoader } from '../../loaders.js';
+import moment from 'moment';
 
 export const formGroups = {
   adminOptions: {
@@ -139,28 +138,41 @@ addFieldsDict(Posts, {
     insertableBy: ['admins'],
     group: formGroups.adminOptions
   },
+ 
 
-  // lastVisitDateDefault: Sets the default of what the lastVisit of a post
-  // should be, resolves to the date of the last visit of a user, when a user is
-  // loggedn in. Returns null when no user is logged in;
-  lastVisitedAtDefault: {
+  // lastVisitedAt: If the user is logged in and has viewed this post, the date
+  // they last viewed it. Otherwise, null.
+  lastVisitedAt: resolverOnlyField({
     type: Date,
-    optional: true,
-    hidden: true,
     viewableBy: ['guests'],
-    resolveAs: {
-      fieldName: 'lastVisitedAt',
-      type: 'Date',
-      resolver: async (post, args, { LWEvents, currentUser }) => {
-        if(currentUser){
-          const event = await LWEvents.findOne({name:'post-view', documentId: post._id, userId: currentUser._id}, {sort:{createdAt:-1}});
-          return event && event.createdAt
-        } else {
-          return post.lastVisitDateDefault
-        }
-      }
+    resolver: async (post, args, { ReadStatuses, currentUser }) => {
+      if (!currentUser) return null;
+
+      const readStatus = await getWithLoader(ReadStatuses,
+        `readStatuses`,
+        { userId: currentUser._id },
+        'postId', post._id
+      );
+      if (!readStatus.length) return null;
+      return readStatus[0].lastUpdated;
     }
-  },
+  }),
+  
+  isRead: resolverOnlyField({
+    type: Boolean,
+    viewableBy: ['guests'],
+    resolver: async (post, args, { ReadStatuses, currentUser }) => {
+      if (!currentUser) return false;
+      
+      const readStatus = await getWithLoader(ReadStatuses,
+        `readStatuses`,
+        { userId: currentUser._id },
+        'postId', post._id
+      );
+      if (!readStatus.length) return false;
+      return readStatus[0].isRead;
+    }
+  }),
 
   lastCommentedAt: {
     type: Date,
@@ -374,6 +386,90 @@ addFieldsDict(Posts, {
     control: "text"
   },
 
+  // The next post. If a sequenceId is provided, that sequence must contain this
+  // post, and this returns the next post after this one in that sequence. If
+  // no sequenceId is provided, uses this post's canonical sequence.
+  nextPost: resolverOnlyField({
+    type: "Post",
+    graphQLtype: "Post",
+    viewableBy: ['guests'],
+    graphqlArguments: 'sequenceId: String',
+    resolver: async (post, { sequenceId }, { currentUser, Posts, Sequences }) => {
+      if (sequenceId) {
+        const nextPostID = await Sequences.getNextPostID(sequenceId, post._id);
+        if (nextPostID) {
+          const nextPost = await Posts.loader.load(nextPostID);
+          return accessFilterSingle(currentUser, Posts, nextPost);
+        }
+      }
+      if (post.canonicalNextPostSlug) {
+        const nextPost = await Posts.findOne({ slug: post.canonicalNextPostSlug });
+        return accessFilterSingle(currentUser, Posts, nextPost);
+      }
+      if(post.canonicalSequenceId) {
+        const nextPostID = await Sequences.getNextPostID(post.canonicalSequenceId, post._id);
+        if (!nextPostID) return null;
+        const nextPost = await Posts.loader.load(nextPostID);
+        return accessFilterSingle(currentUser, Posts, nextPost);
+      }
+
+      return null;
+    }
+  }),
+
+  // The previous post. If a sequenceId is provided, that sequence must contain
+  // this post, and this returns the post before this one in that sequence.
+  // If no sequenceId is provided, uses this post's canonical sequence.
+  prevPost: resolverOnlyField({
+    type: "Post",
+    graphQLtype: "Post",
+    viewableBy: ['guests'],
+    graphqlArguments: 'sequenceId: String',
+    resolver: async (post, { sequenceId }, { currentUser, Posts, Sequences }) => {
+      if (sequenceId) {
+        const prevPostID = await Sequences.getPrevPostID(sequenceId, post._id);
+        if (prevPostID) {
+          const prevPost = await Posts.loader.load(prevPostID);
+          return accessFilterSingle(currentUser, Posts, prevPost);
+        }
+      }
+      if (post.canonicalPrevPostSlug) {
+        const prevPost = await Posts.findOne({ slug: post.canonicalPrevPostSlug });
+        return accessFilterSingle(currentUser, Posts, prevPost);
+      }
+      if(post.canonicalSequenceId) {
+        const prevPostID = await Sequences.getPrevPostID(post.canonicalSequenceId, post._id);
+        if (!prevPostID) return null;
+        const prevPost = await Posts.loader.load(prevPostID);
+        return accessFilterSingle(currentUser, Posts, prevPost);
+      }
+
+      return null;
+    }
+  }),
+
+  // A sequence this post is part of. Takes an optional sequenceId; if the
+  // sequenceId is given and it contains this post, returns that sequence.
+  // Otherwise, if this post has a canonical sequence, return that. If no
+  // sequence ID is given and there is no canonical sequence for this post,
+  // returns null.
+  sequence: resolverOnlyField({
+    type: "Sequence",
+    graphQLtype: "Sequence",
+    viewableBy: ['guests'],
+    graphqlArguments: 'sequenceId: String',
+    resolver: async (post, { sequenceId }, { currentUser, Sequences }) => {
+      let sequence = null;
+      if (sequenceId && await Sequences.sequenceContainsPost(sequenceId, post._id)) {
+        sequence = await Sequences.loader.load(sequenceId);
+      } else if (post.canonicalSequenceId) {
+        sequence = await Sequences.loader.load(post.canonicalSequenceId);
+      }
+
+      return accessFilterSingle(currentUser, Sequences, sequence);
+    }
+  }),
+
   // unlisted: If true, the post is not featured on the frontpage and is not
   // featured on the user page. Only accessible via it's ID
   unlisted: {
@@ -388,7 +484,7 @@ addFieldsDict(Posts, {
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
   },
-  
+
   // disableRecommendation: If true, this post will never appear as a
   // recommended post (but will still appear in all other places, ie on its
   // author's profile, in archives, etc).
@@ -403,6 +499,20 @@ addFieldsDict(Posts, {
     label: "Exclude from Recommendations",
     control: "checkbox",
     order: 12,
+    group: formGroups.adminOptions,
+    ...schemaDefaultValue(false),
+  },
+
+  // defaultRecommendation: If true, always include this post in the recommendations
+  defaultRecommendation: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    label: "Include in default recommendations",
+    control: "checkbox",
+    order: 13,
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
   },
@@ -786,60 +896,7 @@ addFieldsDict(Posts, {
       fieldName: "tableOfContents",
       type: GraphQLJSON,
       resolver: async (document, args, options) => {
-        const { html } = document.contents || {}
-        let tocData
-        if (document.question) {
-
-          let answersTerms = {
-            answer:true,
-            postId: document._id,
-            deleted:false,
-          }
-          if (getSetting('forumType') === 'AlignmentForum') {
-            answersTerms.af = true
-          }
-
-          const answers = await Comments.find(answersTerms, {sort:questionAnswersSort}).fetch()
-
-          if (answers && answers.length) {
-            tocData = Utils.extractTableOfContents(html, true) || {
-              html: null,
-              headingsCount: 0,
-              sections: []
-            }
-
-            const answerSections = answers.map((answer) => ({
-              title: `${answer.baseScore} ${answer.author}`,
-              answer: answer,
-              anchor: answer._id,
-              level: 2
-            }))
-            tocData = {
-              html: tocData.html,
-              headingsCount: tocData.headingsCount,
-              sections: [
-                ...tocData.sections,
-                {anchor:"answers", level:1, title:"Answers"},
-                ...answerSections
-              ]
-            }
-          }
-        } else {
-          tocData = Utils.extractTableOfContents(html)
-        }
-        if (tocData) {
-          const selector = {
-            answer: false,
-            parentAnswerId: null,
-            postId: document._id
-          }
-          if (document.af && getSetting('forumType') === 'AlignmentForum') {
-            selector.af = true
-          }
-          const commentCount = await Comments.find(selector).count()
-          tocData.sections.push({anchor:"comments", level:0, title:Posts.getCommentCountStr(document, commentCount)})
-        }
-        return tocData;
+        return await Utils.getTableOfContentsData(document);
       },
     },
   },
@@ -863,9 +920,9 @@ addFieldsDict(Posts, {
           const event = await LWEvents.findOne(query, sort);
           const author = await Users.findOne({_id: post.userId});
           if (event) {
-            return event.properties && event.properties.targetState
+            return !!(event.properties && event.properties.targetState)
           } else {
-            return author.collapseModerationGuidelines ? false : ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle)
+            return !!(author.collapseModerationGuidelines ? false : ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle))
           }
         } else {
           return false
@@ -896,6 +953,32 @@ addFieldsDict(Posts, {
         ];
       }
     },
+  },
+  
+  recentComments: resolverOnlyField({
+    type: Array,
+    graphQLtype: "[Comment]",
+    viewableBy: ['guests'],
+    graphqlArguments: 'commentsLimit: Int, maxAgeHours: Int, af: Boolean',
+    resolver: async (post, { commentsLimit=5, maxAgeHours=18, af=false }, { currentUser, Comments }) => {
+      const timeCutoff = moment().subtract(maxAgeHours, 'hours').toDate();
+      const comments = Comments.find({
+        ...Comments.defaultView({}).selector,
+        postId: post._id,
+        score: {$gt:0},
+        deletedPublic: false,
+        postedAt: {$gt: timeCutoff},
+        ...(af ? {af:true} : {}),
+      }, {
+        limit: commentsLimit,
+        sort: {postedAt:-1}
+      }).fetch();
+      return accessFilterMultiple(currentUser, Comments, comments);
+    }
+  }),
+  'recentComments.$': {
+    type: Object,
+    foreignKey: 'Comments',
   },
 });
 
@@ -936,10 +1019,14 @@ makeEditable({
 addFieldsDict(Users, {
   // Count of the user's posts
   postCount: {
-    type: Number,
-    optional: true,
-    denormalized: true,
-    defaultValue: 0,
+    ...denormalizedCountOfReferences({
+      fieldName: "postCount",
+      collectionName: "Users",
+      foreignCollectionName: "Posts",
+      foreignTypeName: "post",
+      foreignFieldName: "userId",
+      filterFn: (post) => (!post.draft && post.status===Posts.config.STATUS_APPROVED),
+    }),
     viewableBy: ['guests'],
   },
   // The user's associated posts (GraphQL only)

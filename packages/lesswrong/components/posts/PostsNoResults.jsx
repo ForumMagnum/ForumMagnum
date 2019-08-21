@@ -17,7 +17,5 @@ const PostsNoResults = ({classes}) =>
     <FormattedMessage id="posts.no_results"/>
   </Typography>;
 
-PostsNoResults.displayName = "PostsNoResults";
-
 registerComponent('PostsNoResults', PostsNoResults,
   withStyles(styles, {name: "PostsNoResults"}));

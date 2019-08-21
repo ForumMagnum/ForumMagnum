@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, withEdit } from 'meteor/vulcan:core';
+import { registerComponent, withUpdate } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
@@ -24,20 +24,19 @@ class UsersEmailVerification extends PureComponent
       emailSent: false,
     };
   }
-  
+
   sendConfirmationEmail() {
-    this.props.editMutation({
-      documentId: this.props.currentUser._id,
-      set: { whenConfirmationEmailSent: new Date() },
-      unset: {}
+    this.props.updateUser({
+      selector: {_id: this.props.currentUser._id},
+      data: { whenConfirmationEmailSent: new Date() }
     });
     this.setState({
       emailSent: true
     });
   }
-  
+
   render() {
-    let { currentUser, classes } = this.props;
+    let { resend=false, currentUser, classes } = this.props;
     
     if(Users.emailAddressIsVerified(currentUser)) {
       return (
@@ -59,7 +58,8 @@ class UsersEmailVerification extends PureComponent
             className={classes.verifyEmailButton}
             onClick={() => this.sendConfirmationEmail()}
           >
-            Send Confirmation Email
+            {resend ? "Resend Confirmation Email"
+                    : "Send Confirmation Email"}
           </Button>
         </div>
       );
@@ -67,7 +67,7 @@ class UsersEmailVerification extends PureComponent
   }
 }
 
-const withEditOptions = {
+const withUpdateOptions = {
   collection: Users,
   fragmentName: 'UsersCurrent',
 };
@@ -75,6 +75,6 @@ const withEditOptions = {
 registerComponent('UsersEmailVerification', UsersEmailVerification,
   withErrorBoundary,
   withUser,
-  [withEdit, withEditOptions],
+  [withUpdate, withUpdateOptions],
   withStyles(styles, { name: "UsersEmailVerification" })
 );

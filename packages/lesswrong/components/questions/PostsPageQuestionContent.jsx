@@ -5,6 +5,8 @@ import withUser from '../common/withUser'
 import Users from 'meteor/vulcan:users';
 import withErrorBoundary from '../common/withErrorBoundary';
 
+const MAX_ANSWERS_QUERIED = 100
+
 const PostsPageQuestionContent = ({post, currentUser, refetch}) => {
   const { AnswersList, NewAnswerCommentQuestionForm, CantCommentExplanation, RelatedQuestionsList } = Components
   return (
@@ -13,8 +15,8 @@ const PostsPageQuestionContent = ({post, currentUser, refetch}) => {
       {currentUser && !Users.isAllowedToComment(currentUser, post) &&
         <CantCommentExplanation post={post}/>
       }
-      <AnswersList terms={{view: "questionAnswers", postId: post._id}} post={post}/>
       <RelatedQuestionsList post={post} />
+      <AnswersList terms={{view: "questionAnswers", postId: post._id, limit: MAX_ANSWERS_QUERIED}} post={post}/>
     </div>
   )
 

@@ -45,12 +45,6 @@ const schema = {
     control: 'EditSequenceTitle',
   },
 
-  commentCount:{
-    type: Number,
-    optional: true,
-    viewableBy: ['guests'],
-  },
-
   baseScore: {
     type: Number,
     optional: true,

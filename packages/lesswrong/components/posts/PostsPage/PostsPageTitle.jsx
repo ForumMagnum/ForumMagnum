@@ -2,7 +2,8 @@ import React from 'react'
 import { withStyles } from '@material-ui/core/styles';
 import { registerComponent } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
-import { Link } from '../../../lib/reactRouterWrapper.js';
+import { Link } from 'react-router-dom';
+import { Posts } from '../../../lib/collections/posts';
 
 const styles = theme => ({
   root: {
@@ -25,17 +26,29 @@ const styles = theme => ({
   }
 })
 
-const PostsPageTitle = ({classes, post}) => <div>
-  {post.question && <Typography variant="title">
-    <Link to="/questions" className={classes.question}>
-      [ Question ]
-    </Link>
-  </Typography>}
-  <Typography variant="display3" className={classes.root}>
-    {post.draft && <span className={classes.draft}>[Draft] </span>}
-    {post.title}
-  </Typography>
-</div>
+const PostsPageTitle = ({classes, post}) => {
+  const parentPost = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)?.[0]?.sourcePost
+
+  
+  return (
+    <div>
+      {post.question && !parentPost && <Typography variant="title">
+        <Link to="/questions" className={classes.question}>
+          [ Question ] 
+        </Link>
+      </Typography>}
+      {post.question && parentPost && <Typography variant="title">
+        <Link to={Posts.getPageUrl(parentPost)} className={classes.question}>
+          [ Parent Question — {parentPost.title} ]
+        </Link>
+      </Typography>}
+      <Typography variant="display3" className={classes.root}>
+        {post.draft && <span className={classes.draft}>[Draft] </span>}
+        {post.title}
+      </Typography>
+    </div>
+  )
+}
 
 
 registerComponent('PostsPageTitle', PostsPageTitle, withStyles(styles, {name: "PostsPageTitle"}))

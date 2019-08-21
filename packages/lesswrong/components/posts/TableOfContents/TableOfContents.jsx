@@ -1,22 +1,9 @@
 import React, { Component } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
-import Hidden from '@material-ui/core/Hidden';
 import withErrorBoundary from '../../common/withErrorBoundary'
 
 const styles = theme => ({
-  stickyContainer: {
-    position: "absolute",
-    width: 270,
-    height: "100%",
-    [theme.breakpoints.up('lg')]: {
-      left:-54
-    },
-    [theme.breakpoints.up('xl')]: {
-      left:-100
-    },
-    marginTop: -1
-  },
   stickyBlock: {
     position: "sticky",
     fontSize: 12,
@@ -29,7 +16,7 @@ const styles = theme => ({
     overflowY:"scroll",
     direction:"rtl",
     "&::-webkit-scrollbar": {
-        width: 1,
+      width: 1,
     },
 
     /* Track */
@@ -45,6 +32,10 @@ const styles = theme => ({
     /* Handle on hover */
     "&::-webkit-scrollbar-thumb:hover": {
         background: theme.palette.grey[700],
+    },
+
+    [theme.breakpoints.down('sm')]:{
+      display:'none'
     }
   },
 });
@@ -86,18 +77,14 @@ class TableOfContents extends Component
       return <div/>
 
     return (
-      <Hidden smDown implementation="css">
-        <div className={classes.stickyContainer}>
-          <div className={classes.stickyBlock}>
-            <Components.TableOfContentsList
-              sectionData={sectionData}
-              document={document}
-              context={context}
-              drawerStyle={false}
-            />
-          </div>
-        </div>
-      </Hidden>
+      <div className={classes.stickyBlock}>
+        <Components.TableOfContentsList
+          sectionData={sectionData}
+          document={document}
+          context={context}
+          drawerStyle={false}
+        />
+      </div>
     );
   }
 }

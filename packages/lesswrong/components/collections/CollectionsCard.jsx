@@ -1,6 +1,6 @@
-import { Components, registerComponent, Utils } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
-import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
@@ -8,9 +8,11 @@ import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
-    cursor:"pointer",
     width: "100%",
     maxWidth: 347,
+    "&:hover": {
+      boxShadow: "0 0 5px rgba(0,0,0,.2)"
+    },
   },
   card: {
     padding: theme.spacing.unit*2.5,
@@ -26,9 +28,6 @@ const styles = theme => ({
     flexWrap: "wrap",
     flexDirection: "column",
     justifyContent: "space-between",
-    "&:hover": {
-      boxShadow: "0 0 5px rgba(0,0,0,.2)"
-    },
   },
   content: {
     borderTop: "solid 4px black",
@@ -60,7 +59,7 @@ const styles = theme => ({
     float: "left",
     position: "relative",
     marginRight: 15,
-    
+
     '& img': {
       width: 50,
       height: 41,
@@ -69,45 +68,42 @@ const styles = theme => ({
 })
 
 class CollectionsCard extends PureComponent {
-  handleClick = (event) => {
-    const { url, router } = this.props
-    Utils.manualClickNavigation(event, url, router.push)
-  }
-
   render() {
     const { collection, url, mergeTitle=false, classes } = this.props
+    const { LinkCard, CloudinaryImage, UsersName } = Components;
     const cardContentStyle = {borderTopColor: collection.color}
 
-    return <div className={classes.root} onClick={this.handleClick}>
-        <div className={classes.card}>
-          <div className={classes.content} style={cardContentStyle}>
-            <Hidden smUp implementation="css">
-              <div className={classes.thumbnailImage}>
-                <Components.CloudinaryImage
-                  publicId={collection.imageId}
-                  width={50}
-                  height={41}
-                />
-              </div>
-            </Hidden>
-            <Typography variant="title" className={classNames(classes.title, {[classes.mergeTitle]: mergeTitle})}>
-              <Link to={url}>{collection.title}</Link>
-            </Typography>
-            <Typography variant="subheading" className={classes.author}>
-              by <Components.UsersName user={collection.user}/>
-            </Typography>
-            <Typography variant="body2" className={classes.text}>
-              {collection.summary}
-            </Typography>
-          </div>
-          <Hidden xsDown implementation="css">
-            <div className={classes.media}>
-              <Components.CloudinaryImage publicId={collection.imageId} />
+    return <LinkCard className={classes.root} to={url}>
+      <div className={classes.card}>
+        <div className={classes.content} style={cardContentStyle}>
+          <Hidden smUp implementation="css">
+            <div className={classes.thumbnailImage}>
+              <CloudinaryImage
+                publicId={collection.imageId}
+                width={50}
+                height={41}
+              />
             </div>
           </Hidden>
+          <Typography variant="title" className={classNames(classes.title, {[classes.mergeTitle]: mergeTitle})}>
+            <Link to={url}>{collection.title}</Link>
+          </Typography>
+          <Typography variant="subheading" className={classes.author}>
+            by <UsersName documentId={collection.userId}/>
+          </Typography>
+          <Typography variant="body2" className={classes.text}>
+            {collection.summary}
+          </Typography>
         </div>
-    </div>
+        <Hidden xsDown implementation="css">
+          <div className={classes.media}>
+            <CloudinaryImage publicId={collection.imageId} />
+          </div>
+        </Hidden>
+      </div>
+    </LinkCard>
   }
 }
 
-registerComponent("CollectionsCard", CollectionsCard, withStyles(styles, { name: "CollectionsCard" }), withRouter);
+registerComponent("CollectionsCard", CollectionsCard,
+  withStyles(styles, { name: "CollectionsCard" }));

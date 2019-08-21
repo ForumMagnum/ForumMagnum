@@ -11,24 +11,8 @@ Callbacks to:
 */
 
 import { Posts } from '../../../lib/collections/posts'
-import Users from 'meteor/vulcan:users';
 import { Connectors, addCallback, getSetting, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
 import Events from 'meteor/vulcan:events';
-
-
-/**
- * @summary Increment the user's post count
- */
-function PostsNewIncrementPostCount(post) {
-  // LESSWRONG – Fixing post count bug. See issue #488
-  if (post.draft === true) {
-    return;
-  }
-
-  var userId = post.userId;
-  Users.update({ _id: userId }, { $inc: { 'postCount': 1 } });
-}
-addCallback('posts.new.async', PostsNewIncrementPostCount);
 
 //////////////////////////////////////////////////////
 // posts.edit.sync                                  //
@@ -52,16 +36,6 @@ function PostsEditRunPostApprovedAsyncCallbacks(post, oldPost) {
   }
 }
 addCallback('posts.edit.async', PostsEditRunPostApprovedAsyncCallbacks);
-
-//////////////////////////////////////////////////////
-// posts.remove.sync                                //
-//////////////////////////////////////////////////////
-
-function PostsRemoveOperations(post) {
-  Users.update({ _id: post.userId }, { $inc: { 'postCount': -1 } });
-  return post;
-}
-addCallback('posts.remove.sync', PostsRemoveOperations);
 
 //////////////////////////////////////////////////////
 // users.remove.async                               //

@@ -1,7 +1,7 @@
 import Messages from './collections/messages/collection.js';
 import Conversations from './collections/conversations/collection.js';
 import Users from 'meteor/vulcan:users';
-import { Utils } from 'meteor/vulcan:core';
+import { Utils, getCollection } from 'meteor/vulcan:core';
 
 
 /**
@@ -9,7 +9,7 @@ import { Utils } from 'meteor/vulcan:core';
 * @param {Object} conversation
 **/
 Conversations.getLink = (conversation) => {
-  return `/inbox?select=${conversation._id}`;
+  return `/inbox/${conversation._id}`;
 };
 
 /**
@@ -17,7 +17,7 @@ Conversations.getLink = (conversation) => {
 * @param {Object} message
 **/
 Messages.getLink = (message) => {
-  return `/inbox?select=${message.conversationId}`;
+  return `/inbox/${message.conversationId}`;
 };
 
 
@@ -41,19 +41,42 @@ Users.isSubscribedTo = (user, document) => {
     return false;
   }
 };
-
-/**
-* @summary Navigates user to url, if they did not click on any child link. We need
-* this because sometimes we have nested navigation areas, such as SequencesGridItems,
-* in which the whole item navigates you to the sequences page when clicked, but it also
-* has a link to the author's user page inside of the GridItem. To avoid triggering both
-* events we check whether any parent of the clicked element is an a tag.
-* @param {Event} event
-* @param {String} url
-* @param {Function} navigate
-**/
-Utils.manualClickNavigation = (event, url, navigate) => {
-  if (!event.target.closest('a')) { // Checks whether any parent is a tag (polyfilled for IE and Edge)
-    navigate(url)
+// LESSWRONG version of getting unused slug. Modified to also include "oldSlugs" array
+Utils.getUnusedSlug = function (collection, slug, useOldSlugs = false, documentId) {
+  let suffix = '';
+  let index = 0;
+  
+  let existingDocuments = getDocumentsBySlug({slug, suffix, useOldSlugs, collection})
+  // test if slug is already in use
+  while (!!existingDocuments?.length) {
+    // Filter out our own document (i.e. don't change the slug if the only conflict is with ourselves)
+    const conflictingDocuments = existingDocuments.filter((doc) => doc._id !== documentId)
+    // If there are other documents we conflict with, change the index and slug, then check again
+    if (!!conflictingDocuments?.length) {
+      index++
+      suffix = '-'+index;
+      existingDocuments = getDocumentsBySlug({slug, suffix, useOldSlugs, collection})
+    } else {
+      break
+    }
   }
+  return slug+suffix;
+};
+
+const getDocumentsBySlug = ({slug, suffix, useOldSlugs,  collection}) => {
+  return collection.find(useOldSlugs ? 
+    {$or: [{slug: slug+suffix},{oldSlugs: slug+suffix}]} : 
+    {slug: slug+suffix}
+  ).fetch()
+}
+
+// LESSWRONG version of getting unused slug by collection name. Modified to also include "oldSlugs" array
+Utils.getUnusedSlugByCollectionName = function (collectionName, slug, useOldSlugs = false, documentId) {
+  return Utils.getUnusedSlug(getCollection(collectionName), slug, useOldSlugs, documentId)
+};
+
+Utils.slugIsUsed = async (collectionName, slug) => {
+  const collection = getCollection(collectionName)
+  const existingUserWithSlug = await collection.findOne({$or: [{slug: slug},{oldSlugs: slug}]})
+  return !!existingUserWithSlug
 }

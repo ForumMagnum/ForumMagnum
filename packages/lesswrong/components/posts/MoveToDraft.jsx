@@ -1,35 +1,35 @@
-import { registerComponent, withEdit } from 'meteor/vulcan:core';
+import { registerComponent, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
+import MenuItem from '@material-ui/core/MenuItem';
 
 class MoveToDraft extends Component {
 
   handleMoveToDraft = () => {
-    const { post, editMutation } = this.props
+    const { post, updatePost } = this.props
 
-    editMutation({
-      documentId: post._id,
-      set: {draft:true},
-      unset: {}
+    updatePost({
+      selector: {_id: post._id},
+      data: {draft:true}
     })
   }
 
   render() {
-    const { currentUser, post, Container } = this.props;
+    const { currentUser, post } = this.props;
     if (!post.draft && currentUser && Posts.canEdit(currentUser, post)) {
       return <div onClick={this.handleMoveToDraft}>
-              <Container>
-                Move to Draft
-              </Container>
-            </div>
+        <MenuItem>
+          Move to Draft
+        </MenuItem>
+      </div>
     } else {
       return null
     }
   }
 }
 
-const withEditOptions = {
+const withUpdateOptions = {
   collection: Posts,
   fragmentName: 'PostsList',
 }
@@ -37,6 +37,6 @@ const withEditOptions = {
 registerComponent(
   'MoveToDraft',
   MoveToDraft,
-  [withEdit, withEditOptions],
+  [withUpdate, withUpdateOptions],
   withUser
 );

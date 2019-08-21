@@ -1,8 +1,11 @@
-import { Utils } from 'meteor/vulcan:core';
+import { Utils, getSetting } from 'meteor/vulcan:core';
 import cheerio from 'cheerio';
+import { Comments } from '../comments/collection.js'
+import { Posts } from './collection';
+import { questionAnswersSort } from '../comments/views';
 
 // Number of headings below which a table of contents won't be generated.
-const minHeadingsForToC = 3;
+const MIN_HEADINGS_FOR_TOC = 3;
 
 // Tags which define headings. Currently <h1>-<h4>, <strong>, and <b>. Excludes
 // <h5> and <h6> because their usage in historical (HTML) wasn't as a ToC-
@@ -38,7 +41,7 @@ const headingSelector = _.keys(headingTags).join(",");
 //       {title: "Conclusion", anchor: "conclusion", level: 1},
 //     ]
 //   }
-export function extractTableOfContents(postHTML, alwaysDisplayToC)
+export function extractTableOfContents(postHTML)
 {
   if (!postHTML) return null;
   const postBody = cheerio.load(postHTML);
@@ -69,10 +72,6 @@ export function extractTableOfContents(postHTML, alwaysDisplayToC)
     }
   }
 
-  if ((headings.length < minHeadingsForToC) && !alwaysDisplayToC) {
-    return null;
-  }
-
   // Filter out unused heading levels, mapping the heading levels to consecutive
   // numbers starting from 1. So if a post uses <h1>, <h3> and <strong>, those
   // will be levels 1, 2, and 3 (not 1, 3 and 7).
@@ -92,6 +91,9 @@ export function extractTableOfContents(postHTML, alwaysDisplayToC)
   for(let i=0; i<headings.length; i++)
     headings[i].level = headingLevelMap[headings[i].level]+1;
 
+  if (headings.length) {
+    headings.push({divider:true, level: 0, anchor: "postHeadingsDivider"})
+  }
   return {
     html: postBody.html(),
     sections: headings,
@@ -160,4 +162,68 @@ function tagToHeadingLevel(tagName)
     return 0;
 }
 
+async function getTocAnswers (document) {
+  if (!document.question) return []
+
+  let answersTerms = {
+    answer:true,
+    postId: document._id,
+    deleted:false,
+  }
+  if (getSetting('forumType') === 'AlignmentForum') {
+    answersTerms.af = true
+  }
+  const answers = await Comments.find(answersTerms, {sort:questionAnswersSort}).fetch()
+  const answerSections = answers.map((answer) => ({
+    title: `${answer.baseScore} ${answer.author}`,
+    answer: answer,
+    anchor: answer._id,
+    level: 2
+  }))
+
+  if (answerSections.length) {
+    return [
+      {anchor: "answers", level:1, title:'Answers'}, 
+      ...answerSections,
+      {divider:true, level: 0, anchor: "postHeadingsDivider"}
+    ]
+  } else {
+    return []
+  }
+}
+
+async function getTocComments (document) {
+  const commentSelector = {
+    answer: false,
+    parentAnswerId: null,
+    postId: document._id
+
+  }
+  if (document.af && getSetting('forumType') === 'AlignmentForum') {
+    commentSelector.af = true
+  }
+  const commentCount = await Comments.find(commentSelector).count()
+  return [{anchor:"comments", level:0, title: Posts.getCommentCountStr(document, commentCount)}]
+}
+
+const getTableOfContentsData = async (document, args, options) => {
+  const { html } = document.contents || {}
+  const tableOfContents = extractTableOfContents(html)
+  let tocSections = tableOfContents?.sections || []
+  
+  const tocAnswers = await getTocAnswers(document)
+  const tocComments = await getTocComments(document)
+  tocSections.push(...tocAnswers)
+  tocSections.push(...tocComments)
+  
+  if (tocSections.length >= MIN_HEADINGS_FOR_TOC) {
+    return {
+      html: tableOfContents?.html,
+      sections: tocSections,
+      headingsCount: tocSections.length
+    }
+  }
+}
+
+Utils.getTableOfContentsData = getTableOfContentsData;
 Utils.extractTableOfContents = extractTableOfContents;

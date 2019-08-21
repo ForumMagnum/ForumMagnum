@@ -1,30 +1,40 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
-import React, { Component } from 'react';
-import moment from 'moment';
+import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { styles } from './PostsDaily';
+import {getAfterDefault, getBeforeDefault} from './timeframeUtils'
+import withTimezone from '../common/withTimezone';
 
-class EventsPast extends Component {
-  render() {
-    const { classes } = this.props;
-    const numberOfDays = getSetting('forum.numberOfDays', 5);
-    const terms = {
-      view: 'pastEvents',
-      timeField: 'startTime',
-      after: moment().utc().subtract(numberOfDays - 1, 'days').format('YYYY-MM-DD'),
-      before: moment().utc().add(1, 'days').format('YYYY-MM-DD'),
-    };
-
-    return <div className={classes.dailyWrapper}>
-      <Components.Section title="Past Events by Day">
-        <div className={classes.dailyContentWrapper}>
-          <Components.PostsDailyList title="Past Events by Day"
-            terms={terms} days={numberOfDays}/>
-        </div>
-      </Components.Section>
-    </div>
+const styles = theme => ({
+  daily: {
+    padding: theme.spacing.unit
   }
+})
+const EventsPast = ({ timezone, classes }) => {
+  const { SingleColumnSection, SectionTitle, PostsTimeframeList } = Components
+  const numberOfDays = getSetting('forum.numberOfDays');
+  const terms = {
+    view: 'pastEvents',
+    timeField: 'startTime',
+  };
+
+  return (
+    <SingleColumnSection>
+      <SectionTitle title="Past Events by Day"/>
+      <div className={classes.daily}>
+        <PostsTimeframeList
+          timeframe={'daily'}
+          after={getAfterDefault({
+            numTimeBlocks: numberOfDays,
+            timeBlock: 'day',
+            timezone: timezone
+          })}
+          before={getBeforeDefault({timeBlock: 'day', timezone: timezone})}
+          postListParameters={terms}
+          displayShortform={false}
+        />
+      </div>
+    </SingleColumnSection>
+  )
 }
 
-EventsPast.displayName = 'EventsPast';
-registerComponent('EventsPast', EventsPast, withStyles(styles, {name: "EventsPast"}));
+registerComponent('EventsPast', EventsPast, withTimezone, withStyles(styles, {name: "EventsPast"}));

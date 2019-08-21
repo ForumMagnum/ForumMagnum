@@ -34,7 +34,7 @@ const AlignmentForumHome = ({currentUser, classes}) => {
       <SingleColumnSection>
         <SectionTitle title="AI Alignment Posts">
           { currentUser && Users.canDo(currentUser, "posts.alignment.new") && 
-            <Link to={{pathname:"/newPost", query: {af: true}}}>
+            <Link to={{pathname:"/newPost", search: `?af=true`}}>
               <SectionButton>
                 <AddIcon />
                 New Post
@@ -45,10 +45,10 @@ const AlignmentForumHome = ({currentUser, classes}) => {
         <PostsList2 terms={recentPostsTerms} />
       </SingleColumnSection>
       <SingleColumnSection>
-        <SectionTitle title="Recent Discussion"/>
         <RecentDiscussionThreadsList
           terms={{view: 'afRecentDiscussionThreadsList', limit:6}}
-          threadView={"afRecentDiscussionThread"}
+          maxAgeHours={24*7}
+          af={true}
         />
       </SingleColumnSection>
     </div>

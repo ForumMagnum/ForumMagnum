@@ -8,7 +8,7 @@ const styles = theme => ({
   root: {
     position: "relative",
     ...theme.typography.body2,
-    ...theme.typography.postStyle,
+    ...theme.typography.commentsStyle,
     direction:"ltr",
   },
 
@@ -17,13 +17,17 @@ const styles = theme => ({
   highlighted: {
     '& $link': {
       color: "black",
-      textShadow: "0 0 0 rgba(0,0,0,.87)",
+    },
+    '& $highlightDot:after': {
+      content: `"•"`,
+      marginLeft: 3,
+      position: 'relative',
+      top: 1
     },
     "& a:focus, & a:hover": {
       opacity: "initial",
     }
   },
-
   link: {
     display: "block",
     paddingTop: 6,
@@ -36,66 +40,69 @@ const styles = theme => ({
       textShadow: "0 0 0 rgba(0,0,0,1].87)",
     }
   },
-
+  highlightDot: {},
+  // Makes sure that the start of the ToC is in line with the start of the text
+  title: {
+    paddingTop: 3,
+    paddingBottom: theme.spacing.unit*1.5,
+    borderBottom: "solid 1px rgba(0,0,0,.1)"
+  },
   level0: {
     display:"inline-block",
+    maxWidth: '100%',
     marginBottom: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
-    borderBottom: "solid 1px rgba(0,0,0,.1)",
+    marginRight: theme.spacing.unit,
     '& $link': {
       whiteSpace: "normal",
     },
-    '&:last-of-type': {
-      borderBottom: "none",
-      marginTop: theme.spacing.unit,
-      paddingTop: theme.spacing.unit,
-      borderTop: "solid 1px rgba(0,0,0,.1)",
-    }
+    // Don't show location dot for level0
+    '& $link:after': {
+      content: `""`
+    },
   },
   level1: {
     paddingLeft: 0,
   },
   level2: {
-    fontSize:"1.1em",
+    fontSize:"1.1rem",
     paddingLeft: 16,
 
   },
   level3: {
-    fontSize:"1.1em",
+    fontSize:"1.1rem",
     color:theme.palette.grey[700],
     paddingLeft: 32,
   },
   level4: {
-    fontSize:"1.1em",
+    fontSize:"1.1rem",
     color:theme.palette.grey[700],
     paddingLeft: 48,
   },
-  answers: {
-    marginTop:theme.spacing.unit,
-    '& $link': {
-      display:"inline-block",
-      borderTop: "solid 1px rgba(0,0,0,.1)",
-      paddingTop: theme.spacing.unit*1.5,
-    }
+  divider: {
+    width: 80,
+    marginBottom:theme.spacing.unit,
+    marginRight: "auto",
+    borderBottom: "solid 1px rgba(0,0,0,.1)",
+    paddingBottom: theme.spacing.unit,
+    display:"block",
   }
 });
 
 class TableOfContentsRow extends PureComponent
 {
   render() {
-    const {indentLevel=0, highlighted=false, href, onClick, children, classes, answersStyling } = this.props;
+    const {indentLevel=0, highlighted=false, href, onClick, children, classes, title, divider, answer } = this.props;
+
+    if (divider) return <div className={classes.divider} />
 
     return <Typography variant="body2"
       className={classNames(
         classes.root,
         this.levelToClassName(indentLevel),
-        {
-          [classes.answers]: href==="#answers" && answersStyling,
-          [classes.highlighted]: highlighted
-        }
+        { [classes.highlighted]: highlighted }
       )}
     >
-      <a href={href} onClick={onClick} className={classes.link}>
+      <a href={href} onClick={onClick} className={classNames(classes.link, {[classes.title]: title, [classes.highlightDot]: !answer})}>
         {children}
       </a>
     </Typography>

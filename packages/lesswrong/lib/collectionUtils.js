@@ -26,7 +26,7 @@ SimpleSchema.extendOptions([ 'denormalized' ]);
 //
 SimpleSchema.extendOptions([ 'foreignKey' ]);
 
-export let expectedIndexes = {};
+export const expectedIndexes = {};
 
 // Returns true if the specified index has a name, and the collection has an
 // existing index with the same name but different columns or options.
@@ -53,25 +53,40 @@ async function conflictingIndexExists(collection, index, options)
 export async function ensureIndex(collection, index, options={})
 {
   if (Meteor.isServer) {
-    try {
-      if (options.name && await conflictingIndexExists(collection, index, options)) {
+    const buildIndex = async () => {
+      try {
+        if (options.name && await conflictingIndexExists(collection, index, options)) {
+          //eslint-disable-next-line no-console
+          console.log(`Differing index exists with the same name: ${options.name}. Dropping.`);
+          collection.rawCollection().dropIndex(options.name);
+        }
+        
+        const mergedOptions = {background: true, ...options};
+        collection._ensureIndex(index, mergedOptions);
+        
+        if (!expectedIndexes[collection.collectionName])
+          expectedIndexes[collection.collectionName] = [];
+        expectedIndexes[collection.collectionName].push({
+          key: index,
+          partialFilterExpression: options.partialFilterExpression,
+        });
+      } catch(e) {
         //eslint-disable-next-line no-console
-        console.log(`Differing index exists with the same name: ${options.name}. Dropping.`);
-        collection.rawCollection().dropIndex(options.name);
+        console.error(`Error in ${collection.collectionName}.ensureIndex: ${e}`);
       }
-      
-      const mergedOptions = {background: true, ...options};
-      collection._ensureIndex(index, mergedOptions);
-      
-      if (!expectedIndexes[collection.collectionName])
-        expectedIndexes[collection.collectionName] = [];
-      expectedIndexes[collection.collectionName].push({
-        key: index,
-        partialFilterExpression: options.partialFilterExpression,
-      });
-    } catch(e) {
-      //eslint-disable-next-line no-console
-      console.error(`Error in ${collection.collectionName}.ensureIndex: ${e}`);
+    };
+    
+    // If running a normal server, defer index creation until 15s after
+    // startup. This speeds up testing in the common case, where indexes haven't
+    // meaningfully changed (but sending a bunch of no-op ensureIndex commands
+    // to the database is still expensive).
+    // In unit tests, build indexes immediately, because (a) indexes probably
+    // don't exist yet, and (b) building indexes in the middle of a later test
+    // risks making that test time out.
+    if (Meteor.isTest || Meteor.isAppTest || Meteor.isPackageTest) {
+      await buildIndex();
+    } else {
+      Meteor.setTimeout(buildIndex, 15000);
     }
   }
 }
@@ -116,9 +131,9 @@ export function schemaDefaultValue(defaultValue) {
       return undefined;
     }
   };
-  const throwIfSetToNull = ({document, newDocument, fieldName}) => {
-    const wasValid = (document[fieldName] !== undefined && document[fieldName] !== null);
-    const isValid = (newDocument[fieldName] !== undefined && newDocument[fieldName] !== null);
+  const throwIfSetToNull = ({oldDocument, document, fieldName}) => {
+    const wasValid = (oldDocument[fieldName] !== undefined && oldDocument[fieldName] !== null);
+    const isValid = (document[fieldName] !== undefined && document[fieldName] !== null);
     if (wasValid && !isValid) {
       throw new Error(`Error updating: ${fieldName} cannot be null or missing`);
     }

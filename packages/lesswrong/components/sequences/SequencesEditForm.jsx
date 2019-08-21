@@ -1,23 +1,24 @@
 import { Components, registerComponent, getFragment, withMessages } from 'meteor/vulcan:core';
 import React from 'react';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { useLocation } from '../../lib/routeUtil';
 import Sequences from '../../lib/collections/sequences/collection.js';
 
-const SequencesEditForm = (props, context) => {
+const SequencesEditForm = ({ successCallback, cancelCallback, removeSuccessCallback }) => {
+  const { params } = useLocation();
   return (
     <div className="sequences-edit-form">
       <Components.WrappedSmartForm
         collection={Sequences}
-        documentId={props.params._id}
-        successCallback={props.successCallback}
-        cancelCallback={props.cancelCallback}
-        removeSuccessCallback={props.removeSuccessCallback}
+        documentId={params._id}
+        successCallback={successCallback}
+        cancelCallback={cancelCallback}
+        removeSuccessCallback={removeSuccessCallback}
         showRemove={true}
         queryFragment={getFragment('SequencesEdit')}
-        mutationFragment={getFragment('SequencesPageFragment')}
+        mutationFragment={getFragment('SequencesEdit')}
       />
     </div>
   )
 }
 
-registerComponent('SequencesEditForm', SequencesEditForm, withMessages, withRouter);
+registerComponent('SequencesEditForm', SequencesEditForm, withMessages);

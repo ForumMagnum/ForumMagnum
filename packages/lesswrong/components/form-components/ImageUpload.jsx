@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {Components, registerComponent, getSetting} from 'meteor/vulcan:core';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet';
 import Button from '@material-ui/core/Button';
 import ImageIcon from '@material-ui/icons/Image';
 import { withStyles } from '@material-ui/core/styles';
@@ -101,8 +101,6 @@ class ImageUpload extends Component {
     );
   }
 }
-
-ImageUpload.displayName = "ImageUpload"
 
 ImageUpload.contextTypes = {
   updateCurrentValues: PropTypes.func,

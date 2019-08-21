@@ -1,5 +1,6 @@
 import { addCallback, runCallbacks, runCallbacksAsync, newMutation } from 'meteor/vulcan:core';
 import { Posts } from './collection';
+import { Comments } from '../comments/collection';
 import Users from 'meteor/vulcan:users';
 import { performVoteServer } from '../../../server/voteServer.js';
 import Localgroups from '../localgroups/collection.js';
@@ -8,13 +9,13 @@ import { makeEditableOptions, makeEditableOptionsModeration } from './custom_fie
 import { PostRelations } from '../postRelations/index';
 const MINIMUM_APPROVAL_KARMA = 5
 
-function PostsEditRunPostUndraftedSyncCallbacks (modifier, post) {
-  if (modifier.$set && modifier.$set.draft === false && post.draft) {
-    modifier = runCallbacks("posts.undraft.sync", modifier, post);
+function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
+  if (data.draft === false && post.draft) {
+    data = runCallbacks("post.undraft.before", data, post);
   }
-  return modifier;
+  return data;
 }
-addCallback("posts.edit.sync", PostsEditRunPostUndraftedSyncCallbacks);
+addCallback("post.update.before", PostsEditRunPostUndraftedSyncCallbacks);
 
 function PostsEditRunPostUndraftedAsyncCallbacks (newPost, oldPost) {
   if (!newPost.draft && oldPost.draft) {
@@ -35,72 +36,11 @@ addCallback("posts.edit.async", PostsEditRunPostDraftedAsyncCallbacks);
 /**
  * @summary set postedAt when a post is moved out of drafts
  */
-function PostsSetPostedAt (modifier, post) {
-  modifier.$set.postedAt = new Date();
-  if (modifier.$unset) {
-    delete modifier.$unset.postedAt;
-  }
-  return modifier;
+function PostsSetPostedAt (data, oldPost) {
+  data.postedAt = new Date();
+  return data;
 }
-addCallback("posts.undraft.sync", PostsSetPostedAt);
-
-/**
- * @summary increment postCount when post is undrafted
- */
-function postsUndraftIncrementPostCount (post, oldPost) {
-  Users.update({_id: post.userId}, {$inc: {postCount: 1}})
-}
-addCallback("posts.undraft.async", postsUndraftIncrementPostCount);
-
-/**
- * @summary decrement postCount when post is drafted
- */
-function postsDraftDecrementPostCount (post, oldPost) {
-  Users.update({_id: post.userId}, {$inc: {postCount: -1}})
-}
-addCallback("posts.draft.async", postsDraftDecrementPostCount);
-
-/**
- * @summary update frontpagePostCount when post is moved into frontpage
- */
-function postsEditIncreaseFrontpagePostCount (post, oldPost) {
-  if (post.frontpageDate && !oldPost.frontpageDate) {
-    Users.update({_id: post.userId}, {$inc: {frontpagePostCount: 1}})
-  }
-}
-addCallback("posts.edit.async", postsEditIncreaseFrontpagePostCount);
-
-/**
- * @summary update frontpagePostCount when post is moved into frontpage
- */
-function postsNewIncreaseFrontpageCount (post) {
-  if (post.frontpageDate) {
-    Users.update({_id: post.userId}, {$inc: {frontpagePostCount: 1}})
-  }
-}
-addCallback("posts.new.async", postsNewIncreaseFrontpageCount);
-
-/**
- * @summary update frontpagePostCount when post is moved into frontpage
- */
-function postsRemoveDecreaseFrontpageCount (post) {
-  if (post.frontpageDate) {
-    Users.update({_id: post.userId}, {$inc: {frontpagePostCount: -1}})
-  }
-}
-addCallback("posts.remove.async", postsRemoveDecreaseFrontpageCount);
-
-/**
- * @summary update frontpagePostCount when post is moved out of frontpage
- */
-function postsEditDecreaseFrontpagePostCount (post, oldPost) {
-  if (!post.frontpageDate && oldPost.frontpageDate) {
-    Users.update({_id: post.userId}, {$inc: {frontpagePostCount: -1}})
-  }
-}
-addCallback("posts.edit.async", postsEditDecreaseFrontpagePostCount);
-
-
+addCallback("post.undraft.before", PostsSetPostedAt);
 
 function increaseMaxBaseScore ({newDocument, vote}, collection, user, context) {
   if (vote.collectionName === "Posts" && newDocument.baseScore > (newDocument.maxBaseScore || 0)) {
@@ -109,7 +49,7 @@ function increaseMaxBaseScore ({newDocument, vote}, collection, user, context) {
       thresholdTimestamp.scoreExceeded2Date = new Date();
     }
     if (!newDocument.scoreExceeded30Date && newDocument.baseScore >= 30) {
-      thresholdTimestamp.scoreExceeded30 = new Date();
+      thresholdTimestamp.scoreExceeded30Date = new Date();
     }
     if (!newDocument.scoreExceeded45Date && newDocument.baseScore >= 45) {
       thresholdTimestamp.scoreExceeded45Date = new Date();
@@ -194,5 +134,19 @@ function PostsNewPostRelation (post) {
   }
   return post
 }
-
 addCallback("posts.new.after", PostsNewPostRelation);
+
+function UpdatePostShortform (newPost, oldPost) {
+  if (!!newPost.shortform !== !!oldPost.shortform) {
+    const shortform = !!newPost.shortform;
+    Comments.update(
+      { postId: newPost._id },
+      { $set: {
+        shortform: shortform
+      } },
+      { multi: true }
+    );
+  }
+  return newPost;
+}
+addCallback("posts.edit.async", UpdatePostShortform );

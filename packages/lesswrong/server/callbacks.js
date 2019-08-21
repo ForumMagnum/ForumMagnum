@@ -9,10 +9,10 @@ import { Votes } from '../lib/collections/votes';
 import { cancelVoteServer } from './voteServer.js';
 import { Posts } from '../lib/collections/posts';
 import { Comments } from '../lib/collections/comments'
+import { ReadStatuses } from '../lib/collections/readStatus/collection.js';
 
 import {
   addCallback,
-  removeCallback,
   newMutation,
   editMutation,
   removeMutation,
@@ -291,4 +291,17 @@ function fixUsernameOnGithubLogin(user) {
 }
 addCallback("users.new.sync", fixUsernameOnGithubLogin);
 
-removeCallback('router.onUpdate', 'RouterClearMessages');
+function updateReadStatus(event) {
+  ReadStatuses.update({
+    postId: event.documentId,
+    userId: event.userId,
+  }, {
+    $set: {
+      isRead: true,
+      lastUpdated: event.createdAt
+    }
+  }, {
+    upsert: true
+  });
+}
+addCallback('lwevents.new.sync', updateReadStatus);

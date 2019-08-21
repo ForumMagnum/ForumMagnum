@@ -1,15 +1,17 @@
-import { Components, registerComponent, Utils } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
-import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   root: {
-    cursor:"pointer",
     width:"100%",
     [theme.breakpoints.down('sm')]: {
       maxWidth: 347
+    },
+    "&:hover": {
+      boxShadow: "0 0 5px rgba(0,0,0,.2)"
     },
   },
   card: {
@@ -18,9 +20,6 @@ const styles = theme => ({
     height:310,
     flexWrap: "wrap",
     justifyContent: "space-between",
-    "&:hover": {
-      boxShadow: "0 0 5px rgba(0,0,0,.2)"
-    },
     [theme.breakpoints.down('sm')]: {
       height: "auto",
     },
@@ -64,34 +63,30 @@ const styles = theme => ({
 })
 
 class BigCollectionsCard extends PureComponent {
-  handleClick = (event) => {
-    const { url, router } = this.props
-    Utils.manualClickNavigation(event, url, router.push)
-  }
-
   render() {
     const { collection, url, classes } = this.props
+    const { LinkCard, UsersName } = Components;
     const cardContentStyle = {borderTopColor: collection.color}
 
-    return <div className={classes.root} onClick={this.handleClick}>
-        <div className={classes.card}>
-          <div className={classes.media}>
-            <Components.CloudinaryImage publicId={collection.imageId} />
-          </div>
-          <div className={classes.content} style={cardContentStyle}>
-            <Typography variant="title" className={classes.title}>
-              <Link to={url}>{collection.title}</Link>
-            </Typography>
-            <Typography variant="subheading" className={classes.author}>
-              by <Components.UsersName user={collection.user}/>
-            </Typography>
-            <Typography variant="body2" className={classes.text}>
-              {collection.summary}
-            </Typography>
-          </div>
+    return <LinkCard className={classes.root} to={url}>
+      <div className={classes.card}>
+        <div className={classes.media}>
+          <Components.CloudinaryImage publicId={collection.imageId} />
         </div>
-    </div>
+        <div className={classes.content} style={cardContentStyle}>
+          <Typography variant="title" className={classes.title}>
+            <Link to={url}>{collection.title}</Link>
+          </Typography>
+          <Typography variant="subheading" className={classes.author}>
+            by <UsersName documentId={collection.userId}/>
+          </Typography>
+          <Typography variant="body2" className={classes.text}>
+            {collection.summary}
+          </Typography>
+        </div>
+      </div>
+    </LinkCard>
   }
 }
 
-registerComponent("BigCollectionsCard", BigCollectionsCard, withStyles(styles, { name: "BigCollectionsCard" }), withRouter);
+registerComponent("BigCollectionsCard", BigCollectionsCard, withStyles(styles, { name: "BigCollectionsCard" }));

@@ -4,10 +4,11 @@ Component for displaying details about currently selected conversation
 
 */
 
-import React, { Component } from 'react';
+import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
+import withDialog from '../common/withDialog';
 
 const styles = theme => ({
   root: {
@@ -19,33 +20,34 @@ const styles = theme => ({
   }
 })
 
-class ConversationDetails extends Component {
-
-  render() {
-
-    const { conversation, currentUser, classes} = this.props;
-
-    if(conversation && conversation.participants.length) {
-      return (
-        <div className={classes.root}>
-          <span>
-            <Components.MetaInfo>Participants:</Components.MetaInfo>
-            {conversation.participants.map((user, i) => <Components.MetaInfo key={user._id}>
-              <Components.UsersName key={user._id} user={user}/>
-              {/* inserts a comma for all but the last username */}
-              { i < conversation.participants.length-1 && ","}
-            </Components.MetaInfo>)}
-          </span>
-          <Components.DialogGroup title="Conversation Options"
-            actions={[]} trigger={<Components.MetaInfo button>Conversation Options</Components.MetaInfo>}>
-            <Components.ConversationTitleEditForm documentId={conversation._id} currentUser={currentUser} />
-          </Components.DialogGroup>
-        </div>
-      )
-    } else {
-      return <Components.Loading />
-    }
+const ConversationDetails = ({conversation, classes, openDialog}) => {
+  const { Loading, MetaInfo, UsersName } = Components
+  if (!conversation?.participants?.length) return <Loading />
+  
+  const openConversationOptions = () => {
+    openDialog({
+      componentName: "ConversationTitleEditForm",
+      componentProps: {
+        documentId: conversation._id
+      }
+    });
   }
+
+  return (
+    <div className={classes.root}>
+      <span>
+        <MetaInfo>Participants:</MetaInfo>
+        {conversation.participants.map((user, i) => <MetaInfo key={user._id}>
+          <UsersName key={user._id} user={user}/>
+          {/* inserts a comma for all but the last username */}
+          { i < conversation.participants.length-1 && ","}
+        </MetaInfo>)}
+      </span>
+      <span onClick={openConversationOptions}>
+        <MetaInfo button>Conversation Options</MetaInfo>
+      </span>
+    </div>
+  )
 }
 
-registerComponent('ConversationDetails', ConversationDetails, withUser, withStyles(styles, { name: "ConversationDetails" }));
+registerComponent('ConversationDetails', ConversationDetails, withUser, withStyles(styles, { name: "ConversationDetails" }), withDialog);

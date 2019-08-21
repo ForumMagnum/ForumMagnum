@@ -4,12 +4,13 @@ Display of a single message in the Conversation Wrapper
 
 */
 
-import React, { Component } from 'react';
+import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
 import classNames from 'classnames';
+import withErrorBoundary from '../common/withErrorBoundary';
 
 const styles = theme => ({
   message: {
@@ -20,6 +21,7 @@ const styles = theme => ({
     paddingRight: theme.spacing.unit*1.5,
     borderRadius:5,
     marginBottom:theme.spacing.unit*1.5,
+    wordWrap: "break-word"
   },
   backgroundIsCurrent: {
     backgroundColor: grey[700],
@@ -29,6 +31,9 @@ const styles = theme => ({
   meta: {
     marginBottom:theme.spacing.unit*1.5
   },
+  whiteMeta: {
+    color: 'rgba(255,255,255, 0.7)'
+  },
   messageBody: {
     '& a': {
       color: theme.palette.primary.light
@@ -36,36 +41,29 @@ const styles = theme => ({
   }
 })
 
-class MessageItem extends Component {
-
-  render() {
-    const { currentUser, message, classes } = this.props;
-    if (!message) return null;
-    const isCurrentUser = (currentUser && message.user) && currentUser._id == message.user._id
-    const { html = "" } = message.contents || {}
-    if (html) {
-      const htmlBody = {__html: html};
-      return (
-        <Components.ErrorBoundary>
-          <Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
-            <div className={classes.meta}>
-              {message.user && <Components.MetaInfo>
-                <Components.UsersName user={message.user}/>
-              </Components.MetaInfo>}
-              {message.createdAt && <Components.MetaInfo>
-                <Components.FormatDate date={message.createdAt}/>
-              </Components.MetaInfo>}
-            </div>
-            <div dangerouslySetInnerHTML={htmlBody} className={classes.messageBody}></div>
-          </Typography>
-        </Components.ErrorBoundary>
-      )
-    } else {
-      return null
-    }
-  }
-
+const MessageItem = ({currentUser, message, classes}) => {
+  const { html = "" } = message?.contents || {}
+  if (!message) return null;
+  if (!html) return null
+  
+  const isCurrentUser = (currentUser && message.user) && currentUser._id === message.user._id
+  const htmlBody = {__html: html};
+  const colorClassName = classNames({[classes.whiteMeta]: isCurrentUser})
+  
+  return (
+    <Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
+      <div className={classes.meta}>
+        {message.user && <Components.MetaInfo>
+          <span className={colorClassName}><Components.UsersName user={message.user}/></span>
+        </Components.MetaInfo>}
+        {message.createdAt && <Components.MetaInfo>
+          <span className={colorClassName}><Components.FormatDate date={message.createdAt}/></span>
+        </Components.MetaInfo>}
+      </div>
+      <div dangerouslySetInnerHTML={htmlBody} className={classes.messageBody}></div>
+    </Typography>
+  )
 }
 
 
-registerComponent('MessageItem', MessageItem, withStyles(styles, { name: "MessageItem" }));
+registerComponent('MessageItem', MessageItem, withStyles(styles, { name: "MessageItem" }), withErrorBoundary);

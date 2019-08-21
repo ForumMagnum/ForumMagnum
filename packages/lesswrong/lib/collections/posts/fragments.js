@@ -29,6 +29,7 @@ registerFragment(`
     feedId
     feedLink
     lastVisitedAt
+    isRead
     lastCommentedAt
     canonicalCollectionSlug
     curatedDate
@@ -75,6 +76,7 @@ registerFragment(`
     hideAuthor
     moderationStyle
     submitToFrontpage
+    shortform
   }
 `);
 
@@ -151,6 +153,7 @@ registerFragment(`
     }
     targetPostRelations {
       _id
+      sourcePostId
       targetPostId
       targetPost {
         ...PostsBase
@@ -161,7 +164,7 @@ registerFragment(`
   }
 `);
 
-// Same as PostsPage just optional arguments to the content field
+// Same as PostsPage, with added just optional arguments to the content field
 registerFragment(`
   fragment PostsRevision on Post {
     ...PostsDetails
@@ -170,6 +173,51 @@ registerFragment(`
     version
     contents(version: $version) {
       ...RevisionDisplay
+    }
+  }
+`)
+
+registerFragment(`
+  fragment PostsWithNavigationAndRevision on Post {
+    ...PostsRevision
+    ...PostSequenceNavigation
+  }
+`)
+
+registerFragment(`
+  fragment PostsWithNavigation on Post {
+    ...PostsPage
+    ...PostSequenceNavigation
+  }
+`)
+
+// This is a union of the fields needed by PostsTopNavigation and BottomNavigation.
+registerFragment(`
+  fragment PostSequenceNavigation on Post {
+    # Prev/next sequence navigation
+    sequence(sequenceId: $sequenceId) {
+      _id
+      title
+    }
+    prevPost(sequenceId: $sequenceId) {
+      _id
+      title
+      slug
+      commentCount
+      baseScore
+      sequence(sequenceId: $sequenceId) {
+        _id
+      }
+    }
+    nextPost(sequenceId: $sequenceId) {
+      _id
+      title
+      slug
+      commentCount
+      baseScore
+      sequence(sequenceId: $sequenceId) {
+        _id
+      }
     }
   }
 `)
@@ -187,6 +235,7 @@ registerFragment(`
 registerFragment(`
   fragment PostsEdit on Post {
     ...PostsPage
+    shareWithUsers
     moderationGuidelines {
       ...RevisionEdit
     }
@@ -227,19 +276,15 @@ registerFragment(`
       htmlHighlight
       wordCount
     }
-    feed {
-      ...RSSFeedMinimumInfo
-    }
   }
 `);
 
 registerFragment(`
-  fragment SequencesPostNavigationLink on Post {
-    _id
-    title
-    url
-    slug
-    canonicalCollectionSlug
+  fragment PostsRecentDiscussion on Post {
+    ...PostsList
+    recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
+      ...CommentsList
+    }
   }
 `);
 

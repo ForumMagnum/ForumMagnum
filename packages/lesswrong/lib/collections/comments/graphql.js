@@ -4,9 +4,8 @@ GraphQL config
 
 */
 
-import { addGraphQLMutation, addGraphQLResolvers, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
+import { addGraphQLMutation, addGraphQLResolvers, runCallbacks, runCallbacksAsync, Utils } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
-import { Utils } from 'meteor/vulcan:core';
 
 const specificResolvers = {
   Mutation: {

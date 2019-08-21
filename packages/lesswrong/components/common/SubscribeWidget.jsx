@@ -1,97 +1,36 @@
 import React, { Component } from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import Icon from '@material-ui/core/Icon';
-import { withStyles } from '@material-ui/core/styles';
-import classNames from 'classnames';
-
-const styles = theme => ({
-  icon: {
-    width: "1.2rem",
-    fontSize: "inherit !important",
-  },
-  buttons: {
-    display: "inline",
-    cursor: "pointer",
-    whiteSpace: "nowrap",
-  },
-  subscribeButton: {
-    position: "relative",
-    top: "2px",
-    display: "inline",
-    paddingLeft: 5,
-    color: theme.palette.lwTertiary.main,
-  },
-  label: {
-    width: 64,
-    display: "inline-block",
-    textAlign: "center",
-    color: theme.palette.lwTertiary.main
-  }
-});
-
-const defaultSubscribeLabel = "Subscribe";
 
 class SubscribeWidget extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
+  state = {
       dialogOpen: false,
       method: "",
-      subscribeLabel: defaultSubscribeLabel
-    };
   }
 
   openDialog(method) {
     this.setState({ dialogOpen: true, method });
   }
 
-  setSubscribeLabel(label) {
-    this.setState({
-      subscribeLabel: label,
-      subscribeLabelHighlighted: true
-    });
-  }
-
-  resetSubscribeLabel() {
-    this.setState({
-      subscribeLabel: defaultSubscribeLabel,
-      subscribeLabelHighlighted: false
-    });
-  }
-
   render() {
-    const { classes, className, view } = this.props;
-    const { dialogOpen, method, subscribeLabel } = this.state;
+    const { view } = this.props;
+    const { dialogOpen, method } = this.state;
 
     return (
-      <span className={classNames(className, classes.buttons)}>
-        <a className={classes.label} onClick={ () => this.openDialog("email") }>
-          {subscribeLabel}
+      <React.Fragment>
+        <a onClick={ () => this.openDialog("rss") }>
+          Subscribe via RSS
         </a>
-        <a
-          className={classes.subscribeButton}
-          onClick={ () => this.openDialog("rss") }
-          onMouseEnter={ () => this.setSubscribeLabel("Via RSS") }
-          onMouseLeave={ () => this.resetSubscribeLabel() }
-        >
-          <Icon className={classes.icon}>rss_feed</Icon>
-        </a>
-        <a
-          className={classes.subscribeButton}
-          onClick={ () => this.openDialog("email") }
-          onMouseEnter={ () => this.setSubscribeLabel("Via Email") }
-          onMouseLeave={ () => this.resetSubscribeLabel() }
-        >
-          <Icon className={classes.icon}>email</Icon>
+        <a onClick={ () => this.openDialog("email") }>
+          Subscribe via Email
         </a>
         { dialogOpen && <Components.SubscribeDialog
           open={true}
           onClose={ () => this.setState({ dialogOpen: false })}
           view={view}
           method={method} /> }
-      </span>
-    );
+      </React.Fragment>
+    )
   }
 }
 
-registerComponent('SubscribeWidget', SubscribeWidget, withStyles(styles, { name: "SubscribeWidget" }));
+registerComponent('SubscribeWidget', SubscribeWidget);

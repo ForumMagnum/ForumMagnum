@@ -1,5 +1,5 @@
 import Users from 'meteor/vulcan:users';
-import { foreignKeyField, resolverOnlyField } from '../../../lib/modules/utils/schemaUtils';
+import { foreignKeyField, resolverOnlyField, denormalizedField } from '../../../lib/modules/utils/schemaUtils';
 import { Posts } from '../posts/collection'
 import { schemaDefaultValue } from '../../collectionUtils';
 
@@ -120,6 +120,16 @@ const schema = {
     optional: true,
     canRead: ['admins'],
   },
+  authorIsUnreviewed: {
+    type: Boolean,
+    optional: true,
+    denormalized: true,
+    ...schemaDefaultValue(false),
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    hidden: true,
+  },
 
   // GraphQL only fields
 
@@ -162,6 +172,21 @@ const schema = {
     optional: true,
     hidden: true,
   },
+  
+  
+  latestChildren: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[Comment]',
+    viewableBy: ['guests'],
+    resolver: async (comment, args, { Comments }) => {
+      const params = Comments.getParameters({view:"shortformLatestChildren", comment: comment})
+      return await Comments.find(params.selector, params.options).fetch()
+    }
+  }),
+  'latestChildren.$': {
+    type: String,
+    optional: true,
+  },
 
   chosenAnswer: {
     type: Boolean,
@@ -171,6 +196,31 @@ const schema = {
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     ...schemaDefaultValue(false),
+  },
+  
+  shortform: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canRead: ['guests'],
+    canCreate: ['members', 'admins'],
+    canUpdate: [Users.owns, 'admins'],
+    ...denormalizedField({
+      needsUpdate: data => ('postId' in data),
+      getValue: async (comment) => {
+        const post = await Posts.findOne({_id: comment.postId});
+        if (!post) return false;
+        return !!post.shortform;
+      }
+    }),
+  },
+
+  lastSubthreadActivity: {
+    type: Date,
+    denormalized: true,
+    optional: true,
+    viewableBy: ['guests'],
+    onInsert: (document, currentUser) => new Date(),
   },
 
   // The semver-style version of the post that this comment was made against

@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import withErrorBoundary from '../common/withErrorBoundary';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles'
+import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
@@ -39,6 +40,16 @@ const styles = theme => ({
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit/2,
     color: theme.palette.grey[700]
+  },
+  subQuestion: {
+    marginBottom: theme.spacing.unit,
+  },
+  hasSubSubQuestions: {
+    borderLeft: "solid 2px rgba(0,0,0,.15)"
+  },
+  subSubQuestions: {
+    marginLeft: theme.spacing.unit,
+    background: "rgba(0,0,0,.05)"
   }
 })
 
@@ -46,8 +57,9 @@ const RelatedQuestionsList = ({ post, currentUser, classes }) => {
 
   const { PostsItem2, SectionTitle } = Components
 
+  
   const sourcePostRelations = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)
-  const targetPostRelations = _.filter(post.targetPostRelations, rel => !!rel.targetPost)
+  const targetPostRelations = _.filter(post.targetPostRelations, rel => (rel.sourcePostId === post._id && !!rel.targetPost))
 
   const totalRelatedQuestionCount = sourcePostRelations.length + targetPostRelations.length
   
@@ -69,13 +81,38 @@ const RelatedQuestionsList = ({ post, currentUser, classes }) => {
           parentQuestion
       /> )} 
       {showSubQuestionLabel && <div className={classes.header}>Sub-Questions</div>}
-      {targetPostRelations.map((rel, i) => 
-        <PostsItem2 
-          key={rel._id} 
-          post={rel.targetPost} 
-          currentUser={currentUser} 
-          index={i}
-      /> )}
+      {targetPostRelations.map((rel, i) => {
+        const parentQuestionId = rel.targetPostId
+        const subQuestionTargetPostRelations = _.filter(post.targetPostRelations, rel => rel.sourcePostId === parentQuestionId)
+
+        const showSubQuestions = subQuestionTargetPostRelations.length >= 1
+        return (
+          <div key={rel._id} className={classNames(classes.subQuestion, {[classes.hasSubSubQuestions]:showSubQuestions})} >
+            <PostsItem2 
+              post={rel.targetPost} 
+              currentUser={currentUser} 
+              index={i}
+              showQuestionTag={false}
+              showPostedAt={false}
+              showIcons={false}
+              showBottomBorder={!showSubQuestions}
+              defaultToShowUnreadComments={true}
+            />
+            {showSubQuestions && <div className={classes.subSubQuestions}>
+              {subQuestionTargetPostRelations.map((rel, i) => <PostsItem2 
+                key={rel._id}
+                post={rel.targetPost} 
+                showQuestionTag={false}
+                showPostedAt={false}
+                showIcons={false}
+                currentUser={currentUser} 
+                defaultToShowUnreadComments={true}
+                index={i}
+              />)}
+            </div>}
+          </div>
+        )
+      })}
     </div>
   )
 }

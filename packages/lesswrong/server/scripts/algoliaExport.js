@@ -6,7 +6,7 @@ import { getCollection } from 'meteor/vulcan:lib';
 import Sequences from '../../lib/collections/sequences/collection.js'
 import { wrapVulcanAsyncScript } from './utils'
 import { getAlgoliaAdminClient, algoliaIndexDocumentBatch, algoliaDeleteIds, subsetOfIdsAlgoliaShouldntIndex, algoliaGetAllDocuments } from '../search/utils';
-import { forEachDocumentBatchInCollection } from '../queryUtil';
+import { forEachDocumentBatchInCollection } from '../migrations/migrationUtils.js';
 import keyBy from 'lodash/keyBy';
 import { algoliaIndexNames } from '../../lib/algoliaIndexNames';
 

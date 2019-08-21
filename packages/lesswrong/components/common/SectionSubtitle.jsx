@@ -6,12 +6,10 @@ import classNames from 'classnames'
 
 const styles = (theme) => ({
   root: {
-    fontStyle: 'italic',
-    cursor: "pointer",
-    color: theme.palette.grey[600],
-    '&:hover, &:active, &:focus': {
-      color: theme.palette.grey[500],
-    }
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[700],
+    display: "inline-block",
   }
 })
 

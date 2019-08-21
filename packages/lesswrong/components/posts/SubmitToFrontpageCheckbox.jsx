@@ -49,42 +49,47 @@ const styles = theme => ({
 
 class SubmitToFrontpageCheckbox extends Component {
   handleClick = () => {
+    const { fieldName = "submitToFrontpage" } = this.props
     const { updateCurrentValues } = this.context
-    updateCurrentValues({submitToFrontpage: !this.getCurrentValue()})
+    updateCurrentValues({[fieldName]: !this.getCurrentValue()})
   }
+  
   getCurrentValue = () => {
-    const { currentValues, document } = this.props
-    let submitToFrontpage = true
-    if ('submitToFrontpage' in currentValues) {
-      submitToFrontpage = currentValues.submitToFrontpage
-    } else if ('submitToFrontpage' in document) {
-      submitToFrontpage = document.submitToFrontpage
+    const { currentValues, document, fieldName = "submitToFrontpage" } = this.props
+    let value = true
+    if (fieldName in currentValues) {
+      value = currentValues[fieldName]
+    } else if (fieldName in document) {
+      value = document[fieldName]
     }
-    return submitToFrontpage
+    return value
   }
+
   render() {
-    const { classes } = this.props
+    const { classes, label="Moderators may promote", tooltip } = this.props
+
+    const displayedTooltip = tooltip || <div className={classes.tooltip}>
+      <p>LW moderators will consider this post for frontpage</p>
+      <p className={classes.guidelines}>Things to aim for:</p>
+      <ul>
+        <li className={classes.guidelines}>
+          Usefulness, novelty and fun
+        </li>
+        <li className={classes.guidelines}>
+          Timeless content (minimize reference to current events)
+        </li>
+        <li className={classes.guidelines}>
+          Explain rather than persuade
+        </li>
+      </ul>
+    </div>
+
     return <div className={classes.submitToFrontpageWrapper}>
-      <Tooltip title={<div className={classes.tooltip}>
-          <p>LW moderators will consider this post for frontpage</p>
-          <p className={classes.guidelines}>Things to aim for:</p>
-          <ul>
-            <li className={classes.guidelines}>
-              Usefulness, novelty and fun
-            </li>
-            <li className={classes.guidelines}>
-              Timeless content (minimize reference to current events)
-            </li>
-            <li className={classes.guidelines}>
-              Explain rather than persuade
-            </li>
-          </ul>
-        </div>
-        }>
+      <Tooltip title={displayedTooltip}>
         <div className={classes.submitToFrontpage}>
           <div>
             <Checkbox checked={this.getCurrentValue()} onClick={this.handleClick}/>
-            <span className={classes.checkboxLabel}>Moderators may promote</span>
+            <span className={classes.checkboxLabel}>{label}</span>
           </div>
         </div>
       </Tooltip>

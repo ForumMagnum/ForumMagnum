@@ -1,7 +1,8 @@
-import { Components, registerComponent, withDocument, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
-import { Link, withRouter } from '../../lib/reactRouterWrapper.js';
+import { Link } from 'react-router-dom';
+import { withLocation, withNavigation } from '../../lib/routeUtil';
 import Users from "meteor/vulcan:users";
 import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
@@ -9,9 +10,16 @@ import MessageIcon from '@material-ui/icons/Message'
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
-import SettingsIcon from '@material-ui/icons/Settings';
 import Tooltip from '@material-ui/core/Tooltip';
 import { postBodyStyles } from '../../themes/stylePiping'
+
+export const sectionFooterLeftStyles = {
+  flexGrow: 1,
+  display: "flex",
+  '&:after': {
+    content: '""'
+  }
+}
 
 const styles = theme => ({
   profilePage: {
@@ -20,13 +28,7 @@ const styles = theme => ({
       margin: 0,
     }
   },
-  meta: {
-    flexGrow: 1,
-    display: "flex",
-    '&:after': {
-      content: '""'
-    }
-  },
+  meta: sectionFooterLeftStyles,
   icon: {
     '&$specificalz': {
       fontSize: 18,
@@ -46,10 +48,6 @@ const styles = theme => ({
   primaryColor: {
     color: theme.palette.primary.light
   },
-  settingsIcon: {
-    color: theme.palette.grey[400],
-    marginRight: theme.spacing.unit,
-  },
   title: {
     cursor: "pointer",
     '&:hover $settingsIcon, &:hover $settingsText': {
@@ -57,6 +55,7 @@ const styles = theme => ({
     }
   },
   settingsText: {
+    marginLeft: theme.spacing.unit,
     fontStyle: "italic",
     display: "inline-block",
     ...theme.typography.commentStyle,
@@ -71,7 +70,7 @@ const styles = theme => ({
   }
 })
 
-const views = {
+const sortings = {
   magic: "Magic (New & Upvoted)",
   recentComments: "Recent Comments",
   new: "New",
@@ -79,9 +78,41 @@ const views = {
   top: "Top"
 }
 
+export const getUserFromResults = (results) => {
+  // HOTFIX: Filtering out invalid users
+  return results?.find(user => !!user.displayName) || results?.[0]
+}
+
 class UsersProfile extends Component {
   state = {
     showSettings: false
+  }
+
+  componentDidMount() {
+    const { results } = this.props
+    const document = getUserFromResults(results)
+    if (document) {
+      this.setCanonicalUrl()
+    }
+  }
+
+  componentDidUpdate({results: previousResults}) {
+    const { results } = this.props
+    const oldDocument = getUserFromResults(previousResults)
+    const newDocument = getUserFromResults(results)
+    if (oldDocument?.slug !== newDocument?.slug) {
+      this.setCanonicalUrl()
+    }
+  }
+
+  setCanonicalUrl = () => {
+    const { history, results, slug } = this.props
+    const document = getUserFromResults(results)
+    // Javascript redirect to make sure we are always on the most canonical URL for this user
+    if (slug !== document?.slug) {
+      const canonicalUrl = Users.getProfileUrlFromSlug(document.slug);
+      history.replace(canonicalUrl);
+    }
   }
 
   displaySequenceSection = (canEdit, user)  => {
@@ -93,9 +124,10 @@ class UsersProfile extends Component {
   }
 
   renderMeta = () => {
-    const props = this.props
-    const { classes } = props
-    const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma } = props.document;
+    const { classes, results } = this.props
+    const document = getUserFromResults(results)
+    if (!document) return null
+    const { karma, postCount, commentCount, afPostCount, afCommentCount, afKarma } = document;
 
     const userKarma = karma || 0
     const userAfKarma = afKarma || 0
@@ -143,33 +175,48 @@ class UsersProfile extends Component {
   }
 
   render() {
-    const { slug, classes, currentUser, loading, document, documentId, router } = this.props;
-  
+    const { slug, classes, currentUser, loading, results, location } = this.props;
+    const { query } = location;
+    const document = getUserFromResults(results)
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
         <Components.Loading/>
       </div>
     }
-    
+
     if (!document || !document._id || document.deleted) {
       //eslint-disable-next-line no-console
-      console.error(`// missing user (_id/slug: ${documentId || slug})`);
+      console.error(`// missing user (_id/slug: ${slug})`);
       return <Components.Error404/>
     }
 
-    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton } = Components
-    
+    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsIcon } = Components
+
     const user = document;
-    const query = _.clone(router.location.query || {});
+
+    // Does this profile page belong to a likely-spam account?
+    if (user.spamRiskScore < 0.4) {
+      if (currentUser?._id === user._id) {
+        // Logged-in spammer can see their own profile
+      } else if (currentUser && Users.canDo(currentUser, 'posts.moderate.all')) {
+        // Admins and sunshines can see spammer's profile
+      } else {
+        // Anyone else gets a 404 here
+        // eslint-disable-next-line no-console
+        console.log(`Not rendering profile page for account with poor spam risk score: ${user.displayName}`);
+        return <Components.Error404/>
+      }
+    }
 
     const draftTerms = {view: "drafts", userId: user._id, limit: 4}
     const unlistedTerms= {view: "unlisted", userId: user._id, limit: 20}
     const terms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
-    const sequenceTerms = {view: "userProfile", userId: user._id, limit:3}
-    const sequenceAllTerms = {view: "userProfileAll", userId: user._id, limit:3}
+    const sequenceTerms = {view: "userProfile", userId: user._id, limit:9}
+    const sequenceAllTerms = {view: "userProfileAll", userId: user._id, limit:9}
 
     const { showSettings } = this.state
-    const currentView = query.view ||  "new"
+    // maintain backward compatibility with bookmarks
+    const currentSorting = query.sortedBy || query.view ||  "new"
     const currentFilter = query.filter ||  "all"
     const ownPage = currentUser && currentUser._id === user._id
 
@@ -177,7 +224,7 @@ class UsersProfile extends Component {
       <div className={classNames("page", "users-profile", classes.profilePage)}>
         {/* Bio Section */}
         <SingleColumnSection>
-          <SectionTitle title={user.displayName}/>
+          <SectionTitle title={Users.getDisplayName(user)}/>
 
           <SectionFooter>
             { this.renderMeta() }
@@ -195,14 +242,14 @@ class UsersProfile extends Component {
               </div>
             }
             { currentUser && currentUser._id != user._id && <NewConversationButton user={user}>
-              <a>Send Message</a> 
+              <a>Send Message</a>
             </NewConversationButton>}
             { currentUser && currentUser._id !== user._id && <SubscribeTo document={user} /> }
             {Users.canEdit(currentUser, user) && <Link to={Users.getEditUrl(user)}>
               <FormattedMessage id="users.edit_account"/>
             </Link>}
           </SectionFooter>
-        
+
           { user.bio && <div className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} /> }
 
         </SingleColumnSection>
@@ -216,7 +263,7 @@ class UsersProfile extends Component {
               terms={ownPage ? sequenceAllTerms : sequenceTerms}
               showLoadMore={true}/>
         </SingleColumnSection> }
-        
+
         {/* Drafts Section */}
         { ownPage && <SingleColumnSection>
           <SectionTitle title="My Drafts">
@@ -233,35 +280,38 @@ class UsersProfile extends Component {
         {/* Posts Section */}
         <SingleColumnSection>
           <div className={classes.title} onClick={() => this.setState({showSettings: !showSettings})}>
-            <SectionTitle title={`${user.displayName}'s Posts`}>
-              <SettingsIcon className={classes.settingsIcon}/>
-              <div className={classes.settingsText}>Sorted by { views[currentView] }</div>
+            <SectionTitle title={`${Users.getDisplayName(user)}'s Posts`}>
+              <SettingsIcon/>
+              <div className={classes.settingsText}>Sorted by { sortings[currentSorting] }</div>
             </SectionTitle>
           </div>
           {showSettings && <PostsListSettings
             hidden={false}
-            currentView={currentView}
+            currentSorting={currentSorting}
             currentFilter={currentFilter}
             currentShowLowKarma={true}
-            views={views}
+            sortings={sortings}
           />}
           <PostsList2 terms={terms} />
         </SingleColumnSection>
 
         {/* Comments Sections */}
         <SingleColumnSection>
-          <SectionTitle title={`${user.displayName}'s Comments`} />
-          <Components.RecentComments terms={{view: 'allRecentComments', limit: 10, userId: user._id}} fontSize="small" />
+          <SectionTitle title={`${Users.getDisplayName(user)}'s Comments`} />
+          <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} fontSize="small" />
         </SingleColumnSection>
       </div>
     )
   }
 }
 
+
 const options = {
   collection: Users,
   queryName: 'usersSingleQuery',
   fragmentName: 'UsersProfile',
+  enableTotal: false,
+  ssr: true
 };
 
-registerComponent('UsersProfile', UsersProfile, withUser, [withDocument, options], withRouter, withStyles(styles, {name: "UsersProfile"}));
+registerComponent('UsersProfile', UsersProfile, withUser, [withList, options], withLocation, withNavigation, withStyles(styles, {name: "UsersProfile"}));

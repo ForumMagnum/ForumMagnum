@@ -1,8 +1,7 @@
-import { debug, debugGroup, debugGroupEnd, Connectors, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
+import { debug, debugGroup, debugGroupEnd, Connectors, runCallbacks, runCallbacksAsync, newMutation, editMutation } from 'meteor/vulcan:core';
 import Votes from '../lib/collections/votes/collection.js';
 import Users from 'meteor/vulcan:users';
 import { recalculateScore, recalculateBaseScore } from '../lib/modules/scoring.js';
-import { createError } from 'apollo-errors';
 import { voteTypes, createVote } from '../lib/modules/vote.js';
 import { algoliaDocumentExport } from './search/utils';
 import moment from 'moment';
@@ -27,7 +26,11 @@ const addVoteServer = async (voteOptions) => {
   // create vote and insert it
   const vote = createVote({ document, collectionName: collection.options.collectionName, voteType, user, voteId });
   delete vote.__typename;
-  await Connectors.create(Votes, vote);
+  await newMutation({
+    collection: Votes,
+    document: vote,
+    validate: false,
+  });
 
   // LESSWRONG – recalculateBaseScore
   newDocument.baseScore = recalculateBaseScore(newDocument)
@@ -44,7 +47,6 @@ const addVoteServer = async (voteOptions) => {
           baseScore: newDocument.baseScore,
           score: newDocument.score
         },
-        $inc: { voteCount: 1 },
       },
       {}, true
     );
@@ -62,12 +64,16 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }) 
     cancelled: false,
   });
   if (votes.length) {
-    // Cancel all the existing votes
-    await Connectors.update(Votes,
-      {documentId: document._id, userId: user._id, cancelled: false},
-      {$set: {cancelled: true}},
-      {multi:true}, true);
-    votes.forEach((vote) => {
+    for (let vote of votes) {
+      // Cancel the existing votes
+      await editMutation({
+        collection: Votes,
+        documentId: vote._id,
+        set: { cancelled: true },
+        unset: {},
+        validate: false,
+      });
+
       //eslint-disable-next-line no-unused-vars
       const {_id, ...otherVoteFields} = vote;
       // Create an un-vote for each of the existing votes
@@ -78,17 +84,20 @@ const clearVotesServer = async ({ document, user, collection, updateDocument }) 
         power: -vote.power,
         votedAt: new Date(),
       };
-      Connectors.create(Votes, unvote);
-      
+      await newMutation({
+        collection: Votes,
+        document: unvote,
+        validate: false,
+      });
+
       runCallbacks(`votes.cancel.sync`, {newDocument, vote}, collection, user);
       runCallbacksAsync(`votes.cancel.async`, {newDocument, vote}, collection, user);
-    })
+    }
     if (updateDocument) {
       await Connectors.update(collection,
         {_id: document._id},
         {
           $set: {baseScore: recalculateBaseScore(document) },
-          $inc: {voteCount: -votes.length},
         },
         {}, true
       );
@@ -111,7 +120,7 @@ export const cancelVoteServer = async ({ document, voteType, collection, user, u
     voteType,
     cancelled: false,
   })
-  
+
   //eslint-disable-next-line no-unused-vars
   const {_id, ...otherVoteFields} = vote;
   const unvote = {
@@ -121,13 +130,20 @@ export const cancelVoteServer = async ({ document, voteType, collection, user, u
     power: -vote.power,
     votedAt: new Date(),
   };
-  Connectors.create(Votes, unvote);
-  
+  await newMutation({
+    collection: Votes,
+    document: unvote,
+    validate: false,
+  });
+
   // Set the cancelled field on the vote object to true
-  await Connectors.update(Votes,
-    {_id: vote._id},
-    {$set: {cancelled: true}},
-    {}, true);
+  await editMutation({
+    collection: Votes,
+    documentId: vote._id,
+    set: { cancelled: true },
+    unset: {},
+    validate: false,
+  });
   newDocument.baseScore = recalculateBaseScore(newDocument);
   newDocument.score = recalculateScore(newDocument);
   newDocument.voteCount--;
@@ -143,9 +159,6 @@ export const cancelVoteServer = async ({ document, voteType, collection, user, u
           score: newDocument.score,
           baseScore: newDocument.baseScore
         },
-        $inc: {
-          voteCount: -1
-        }
       },
       {},
       true
@@ -164,7 +177,7 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
 
   const collectionName = collection.options.collectionName;
   document = document || await Connectors.get(collection, documentId);
-  
+
   debug('');
   debugGroup('--------------- start \x1b[35mperformVoteServer\x1b[0m  ---------------');
   debug('collectionName: ', collectionName);
@@ -173,9 +186,10 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
 
   const voteOptions = {document, collection, voteType, user, voteId, updateDocument};
 
-  if (!document || !user || !Users.canDo(user, `${collectionName.toLowerCase()}.${voteType}`)) {
-    const VoteError = createError('voting.no_permission', {message: 'voting.no_permission'});
-    throw new VoteError();
+  if (!document) throw new Error("Error casting vote: Document not found.");
+  if (!user) throw new Error("Error casting vote: Not logged in.");
+  if (!Users.canDo(user, `${collectionName.toLowerCase()}.${voteType}`)) {
+    throw new Error("Error casting vote: User can't cast that type of vote.");
   }
 
   const existingVote = await hasVotedServer({document, voteType, user});
@@ -230,9 +244,9 @@ const checkRateLimit = async ({ document, collection, voteType, user }) => {
   // No rate limit on self-votes
   if(document.userId === user._id)
     return;
-  
+
   const rateLimits = await getVotingRateLimits(user);
-  
+
   // Retrieve all non-cancelled votes cast by this user in the past 24 hours
   const oneDayAgo = moment().subtract(1, 'days').toDate();
   const votesInLastDay = await Votes.find({
@@ -241,18 +255,18 @@ const checkRateLimit = async ({ document, collection, voteType, user }) => {
     votedAt: {$gt: oneDayAgo},
     cancelled:false
   }).fetch();
-  
+
   if (votesInLastDay.length >= rateLimits.perDay) {
     throw new Error("Voting rate limit exceeded: too many votes in one day");
   }
-  
+
   const oneHourAgo = moment().subtract(1, 'hours').toDate();
   const votesInLastHour = _.filter(votesInLastDay, vote=>vote.votedAt >= oneHourAgo);
-  
+
   if (votesInLastHour.length >= rateLimits.perHour) {
     throw new Error("Voting rate limit exceeded: too many votes in one hour");
   }
-  
+
   const votesOnThisAuthor = _.filter(votesInLastDay, vote=>vote.authorId===document.userId);
   if (votesOnThisAuthor.length >= rateLimits.perUserPerDay) {
     throw new Error("Voting rate limit exceeded: too many votes today on content by this author");

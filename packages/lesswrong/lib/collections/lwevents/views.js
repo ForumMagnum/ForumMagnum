@@ -33,8 +33,6 @@ LWEvents.addView("emailHistory", function (terms) {
   }
 });
 
-// Index also supports the LWEvents.findOne in the `lastVisitedAt` resolver
-// (very speed critical)
 ensureIndex(LWEvents, {name:1, userId:1, documentId:1, createdAt:-1})
 
 // Used in constructAkismetReport

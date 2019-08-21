@@ -5,6 +5,6 @@ registerMigration({
   name: "fixDeletedBios",
   idempotent: true,
   action: async () => {
-    await recomputeDenormalizedValues("Users", "htmlBio");
+    await recomputeDenormalizedValues({collectionName: "Users", fieldName: "htmlBio"});
   }
 });

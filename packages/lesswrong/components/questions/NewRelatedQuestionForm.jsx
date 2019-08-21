@@ -36,7 +36,20 @@ const NewRelatedQuestionForm = (props) => {
 
   const QuestionSubmit = (props) => {
     return <div className={classes.formSubmit}>
-      <SubmitToFrontpageCheckbox {...props}/>
+      <SubmitToFrontpageCheckbox 
+        {...props} 
+        label="Hide from frontpage" 
+        fieldName="hiddenRelatedQuestion"
+        tooltip={<div>
+          <div>
+            To avoid cluttering the home page with questions (while encouraging people to liberally use the "related question" feature), related questions by default are hidden from the 'Latest Posts' section. 
+          </div>
+          <br/>
+          <div>
+            Toggle this off if you'd like to display your question.
+          </div>
+        </div>}
+      />
       <PostSubmit {...props} />
     </div>
   }
@@ -51,6 +64,7 @@ const NewRelatedQuestionForm = (props) => {
         prefilledProps={{
           userId: currentUser._id,
           question: true,
+          hiddenRelatedQuestion: true,
           originalPostRelationSourceId: post._id
         }}
         successCallback={(...args) => {
@@ -58,7 +72,9 @@ const NewRelatedQuestionForm = (props) => {
           refetch()
           flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
         }}
-        SubmitComponent={QuestionSubmit}
+        formComponents={{
+          FormSubmit: QuestionSubmit,
+        }}
       />
     </div>
   )
@@ -67,7 +83,6 @@ const NewRelatedQuestionForm = (props) => {
 NewRelatedQuestionForm.propTypes = {
   classes: PropTypes.object.isRequired,
   post: PropTypes.object.isRequired,
-  prefilledProps: PropTypes.object
 };
 
 registerComponent('NewRelatedQuestionForm', NewRelatedQuestionForm, withMessages, withUser, withStyles(styles, {name:"NewRelatedQuestionForm"}));

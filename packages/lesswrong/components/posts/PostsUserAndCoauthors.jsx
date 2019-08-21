@@ -5,9 +5,12 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   lengthLimited: {
-    maxWidth: 300,
+    maxWidth: 310,
     textOverflow: "ellipsis",
     overflowX: "hidden",
+    [theme.breakpoints.down('sm')]: {
+      maxWidth: 160
+    },
   },
   lengthUnlimited: {
     display: "inline",

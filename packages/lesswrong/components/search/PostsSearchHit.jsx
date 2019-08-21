@@ -1,10 +1,11 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
-import { Link, withRouter } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import { Snippet} from 'react-instantsearch-dom';
 import { withStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
+import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
     root: {
@@ -21,7 +22,7 @@ const isLeftClick = (event) => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const PostsSearchHit = ({hit, clickAction, router, classes}) => {
+const PostsSearchHit = ({hit, clickAction, classes}) => {
   // If clickAction is provided, disable link and replace with Click of the action
   return <div className={classes.root}>
     <Link
@@ -29,9 +30,9 @@ const PostsSearchHit = ({hit, clickAction, router, classes}) => {
       to={Posts.getPageUrl(hit)}
       target={Posts.getLinkTarget(hit)}
     >
-        <div>
-          <Components.PostsItemTitle post={hit} />
-        </div>
+        <Typography variant="title">
+          {hit.title}
+        </Typography>
         {hit.authorDisplayName && <Components.MetaInfo>
           {hit.authorDisplayName}
         </Components.MetaInfo>}
@@ -47,4 +48,4 @@ const PostsSearchHit = ({hit, clickAction, router, classes}) => {
 }
 
 
-registerComponent("PostsSearchHit", PostsSearchHit, withRouter, withStyles(styles, { name: "PostsSearchHit" }));
+registerComponent("PostsSearchHit", PostsSearchHit, withStyles(styles, { name: "PostsSearchHit" }));

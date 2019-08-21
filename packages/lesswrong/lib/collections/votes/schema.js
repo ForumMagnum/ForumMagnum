@@ -70,6 +70,14 @@ const schema = {
     denormalized: true,
   },
   
+  // The vote's alignment-forum power - that is, the effect this vote had on
+  // the comment/post's AF score.
+  afPower: {
+    type: Number,
+    optional: true,
+    viewableBy: ['guests'],
+  },
+  
   // Whether this vote has been cancelled (by un-voting or switching to a
   // different vote type) or is itself an unvote/cancellation.
   cancelled: {

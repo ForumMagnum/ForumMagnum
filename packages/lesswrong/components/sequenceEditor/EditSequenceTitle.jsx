@@ -1,7 +1,9 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { Textarea } from 'formsy-react-components';
+import PropTypes from 'prop-types'
+import Input from '@material-ui/core/Input';
 import { withStyles } from '@material-ui/core/styles';
+import { sequencesImageScrim } from '../sequences/SequencesPage'
 
 const styles = theme => ({
   root: {
@@ -12,21 +14,51 @@ const styles = theme => ({
       marginTop: 40,
     }
   },
+  imageScrim: {
+    ...sequencesImageScrim(theme)
+  },
+  input: {
+    position: 'relative',
+    lineHeight: '1.1',
+    left: -275,
+    width: 650,
+    fontSize: '36px',
+    color: 'white',
+    fontVariant: 'small-caps',
+    zIndex: 2,
+    height: '1em',
+    resize: 'none',
+    backgroundColor: 'transparent',
+    boxShadow: 'none',
+    overflow: 'hidden',
+    '&::placeholder': {
+      color: 'rgba(255,255,255,.5)'
+    }
+  }
 });
 
-const EditSequenceTitle = ({classes, inputProperties, placeholder}) => {
+const EditSequenceTitle = ({classes, inputProperties, value, path, placeholder}, context) => {
   return <div className={classes.root}>
-    <div className="sequences-image-scrim-overlay"></div>
+    <div className={classes.imageScrim}/>
     <div className="sequences-editor-title-wrapper">
-      <Textarea
-        className="sequences-editor-title"
-        {...inputProperties}
-        placeholder={ placeholder }
-        layout="elementOnly"
+      <Input
+        className={classes.input}
+        placeholder={placeholder}
+        value={value}
+        onChange={(event) => {
+          context.updateCurrentValues({
+            [path]: event.target.value
+          })
+        }}
+        disableUnderline
       />
     </div>
   </div>
 }
+
+EditSequenceTitle.contextTypes = {
+  updateCurrentValues: PropTypes.func,
+};
 
 registerComponent("EditSequenceTitle", EditSequenceTitle,
   withStyles(styles, {name: "EditSequenceTitle"}));

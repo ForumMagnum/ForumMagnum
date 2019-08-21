@@ -1,6 +1,6 @@
 import { Posts } from "../../../collections/posts";
 import { formGroups } from "../../../collections/posts/custom_fields.js"
-import { arrayOfForeignKeysField, addFieldsDict } from '../../../modules/utils/schemaUtils'
+import { arrayOfForeignKeysField, addFieldsDict, denormalizedCountOfReferences } from '../../../modules/utils/schemaUtils'
 import { schemaDefaultValue } from '../../../collectionUtils';
 
 addFieldsDict(Posts, {
@@ -37,10 +37,14 @@ addFieldsDict(Posts, {
   },
 
   afCommentCount: {
-    type: Number,
-    optional: true,
-    defaultValue: 0,
-    hidden:true,
+    ...denormalizedCountOfReferences({
+      fieldName: "afCommentCount",
+      collectionName: "Posts",
+      foreignCollectionName: "Comments",
+      foreignTypeName: "comment",
+      foreignFieldName: "postId",
+      filterFn: comment => comment.af && !comment.deleted,
+    }),
     label: "Alignment Comment Count",
     viewableBy: ['guests'],
   },

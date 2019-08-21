@@ -1,44 +1,50 @@
 import { Components, registerComponent, getSetting, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import moment from 'moment';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { withLocation } from '../../lib/routeUtil';
 import withUser from '../common/withUser';
-import SettingsIcon from '@material-ui/icons/Settings';
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
+import { getBeforeDefault, getAfterDefault, timeframeToTimeBlock } from './timeframeUtils'
+import withTimezone from '../common/withTimezone';
 
 const styles = theme => ({
-  daily: {
+  timeframe: {
     padding: theme.spacing.unit,
     [theme.breakpoints.down('xs')]: {
       padding: 0,
     }
-  },
-  settingsIcon: {
-    color: theme.palette.grey[400],
-    marginRight: theme.spacing.unit,
   },
   title: {
     cursor: "pointer",
     '&:hover $settingsIcon, &:hover $sortedBy': {
       color: theme.palette.grey[800]
     }
-  },
-  sortedBy: {
-    fontStyle: "italic",
-    display: "inline-block"
   }
 });
 
-export const views = {
-  daily: "Daily",
-  magic: "Magic (New & Upvoted)",
-  recentComments: "Recent Comments",
-  new: "New",
-  old: "Old",
-  top: "Top"
+export const timeframes = {
+  allTime: 'All Time',
+  daily: 'Daily',
+  weekly: 'Weekly',
+  monthly: 'Monthly',
+  yearly: 'Yearly',
+}
+
+const timeframeToNumTimeBlocks = {
+  daily: getSetting('forum.numberOfDays'),
+  weekly: getSetting('forum.numberOfWeeks'),
+  monthly: getSetting('forum.numberOfMonths'),
+  yearly: getSetting('forum.numberOfYears'),
+}
+
+export const sortings = {
+  magic: 'Magic (New & Upvoted)',
+  recentComments: 'Recent Comments',
+  new: 'New',
+  old: 'Old',
+  top: 'Top',
 }
 
 class AllPostsPage extends Component {
@@ -61,58 +67,81 @@ class AllPostsPage extends Component {
     })
   }
 
-  render() {
-    const { classes, currentUser, router } = this.props
+  renderPostsList = ({currentTimeframe, currentFilter, currentSorting, currentShowLowKarma}) => {
+    const { timezone, classes } = this.props
     const { showSettings } = this.state
-    const { PostsListSettings, PostsList2, SingleColumnSection, SectionTitle, PostsDailyList, MetaInfo, TabNavigationMenu } = Components
-    const query = _.clone(router.location.query) || {}
+    const {PostsTimeframeList, PostsList2} = Components
 
-    const currentView = query.view || (currentUser && currentUser.allPostsView) || "daily"
-    const currentFilter = query.filter || (currentUser && currentUser.allPostsFilter) || "all"
-    const currentShowLowKarma = (parseInt(query.karmaThreshold) === MAX_LOW_KARMA_THRESHOLD) || (currentUser && currentUser.allPostsShowLowKarma) || false
-
-    const terms = {
-      karmaThreshold: DEFAULT_LOW_KARMA_THRESHOLD,
-      view: currentView,
-      ...query,
-      limit:50
+    const baseTerms = {
+      karmaThreshold: currentShowLowKarma ? MAX_LOW_KARMA_THRESHOLD : DEFAULT_LOW_KARMA_THRESHOLD,
+      filter: currentFilter,
+      sortedBy: currentSorting,
     }
 
-    const numberOfDays = getSetting('forum.numberOfDays', 5);
-    const dailyTerms = {
-      view: 'daily',
-      karmaThreshold: DEFAULT_LOW_KARMA_THRESHOLD,
-      after: moment().utc().subtract(numberOfDays - 1, 'days').format('YYYY-MM-DD'),
-      ...query,
-      before: moment().utc().add(1, 'days').format('YYYY-MM-DD'),
-    };
+    if (currentTimeframe === 'allTime') {
+      return <PostsList2
+        terms={{...baseTerms, limit: 50}}
+        showHeader={false}
+        dimWhenLoading={showSettings}
+      />
+    }
+
+    const numTimeBlocks = timeframeToNumTimeBlocks[currentTimeframe]
+    const timeBlock = timeframeToTimeBlock[currentTimeframe]
+    return <div className={classes.timeframe}>
+      <PostsTimeframeList
+        timeframe={currentTimeframe}
+        postListParameters={{
+          view: 'timeframe',
+          ...baseTerms
+        }}
+        numTimeBlocks={numTimeBlocks}
+        dimWhenLoading={showSettings}
+        after={getAfterDefault({numTimeBlocks, timeBlock, timezone})}
+        before={getBeforeDefault({timeBlock, timezone})}
+      />
+    </div>
+  }
+
+  render() {
+    const { classes, currentUser } = this.props
+    const { query } = this.props.location;
+    const { showSettings } = this.state
+    const { SingleColumnSection, SectionTitle, SettingsIcon, PostsListSettings } = Components
+
+    const currentTimeframe = query.timeframe ||
+      (currentUser && currentUser.allPostsTimeframe) ||
+      'daily'
+    const currentSorting = query.sortedBy ||
+      (currentUser && (currentUser.allPostsSorting)) ||
+      'magic'
+    const currentFilter = query.filter ||
+      (currentUser && currentUser.allPostsFilter) ||
+      'all'
+    const currentShowLowKarma = (parseInt(query.karmaThreshold) === MAX_LOW_KARMA_THRESHOLD) ||
+      (currentUser && currentUser.allPostsShowLowKarma) ||
+      false
 
     return (
       <React.Fragment>
-        <TabNavigationMenu />
         <SingleColumnSection>
           <Tooltip title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`} placement="top-end">
             <div className={classes.title} onClick={this.toggleSettings}>
               <SectionTitle title="All Posts">
-                <SettingsIcon className={classes.settingsIcon}/>
-                <MetaInfo className={classes.sortedBy}>Sorted by { views[currentView] }</MetaInfo>
+                <SettingsIcon label={`Sorted by ${ sortings[currentSorting] }`}/>
               </SectionTitle>
             </div>
           </Tooltip>
           <PostsListSettings
             hidden={!showSettings}
-            currentView={currentView}
+            currentTimeframe={currentTimeframe}
+            currentSorting={currentSorting}
             currentFilter={currentFilter}
             currentShowLowKarma={currentShowLowKarma}
             persistentSettings
+            showTimeframe
           />
-          {currentView === "daily" ?
-            <div className={classes.daily}>
-              <PostsDailyList title="Posts by Day" terms={dailyTerms} days={numberOfDays} dimWhenLoading={showSettings} />
-            </div>
-            :
-            <PostsList2 terms={terms} showHeader={false} dimWhenLoading={showSettings} />
-          }
+          {this.renderPostsList({currentTimeframe, currentSorting, currentFilter, currentShowLowKarma})}
         </SingleColumnSection>
       </React.Fragment>
     )
@@ -124,4 +153,12 @@ const withUpdateOptions = {
   fragmentName: 'UsersCurrent',
 }
 
-registerComponent('AllPostsPage', AllPostsPage, withStyles(styles, {name:"AllPostsPage"}), withRouter, withUser, [withUpdate, withUpdateOptions]);
+registerComponent(
+  'AllPostsPage',
+  AllPostsPage,
+  withStyles(styles, {name:"AllPostsPage"}),
+  withLocation,
+  withUser,
+  withTimezone,
+  [withUpdate, withUpdateOptions]
+);

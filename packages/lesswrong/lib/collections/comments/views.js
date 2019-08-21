@@ -1,20 +1,28 @@
 import { getSetting } from 'meteor/vulcan:core'
 import { viewFieldNullOrMissing } from 'meteor/vulcan:lib';
-import { Comments } from './index';
+import { Comments } from './collection.js';
 import moment from 'moment';
 import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionUtils';
 
 // Auto-generated indexes from production
 
 Comments.addDefaultView(terms => {
-  const validFields = _.pick(terms, 'userId');
+  const validFields = _.pick(terms, 'userId', 'authorIsUnreviewed');
+
   const alignmentForum = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
+  // We set `{$ne: true}` instead of `false` to allow for comments that haven't
+  // had the default value set yet (ie: those created by the frontend
+  // immediately prior to appearing)
+  const hideUnreviewedAuthorComments = getSetting('hideUnreviewedAuthorComments')
+    ? {authorIsUnreviewed: {$ne: true}}
+    : {}
   return ({
     selector: {
       $or: [{$and: [{deleted: true}, {deletedPublic: true}]}, {deleted: false}],
       hideAuthor: terms.userId ? false : undefined,
-      ...validFields,
       ...alignmentForum,
+      ...hideUnreviewedAuthorComments,
+      ...validFields,
     },
     options: {
       sort: {postedAt: -1},
@@ -26,7 +34,7 @@ export function augmentForDefaultView(indexFields)
 {
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,
-    prefix: {},
+    prefix: {authorIsUnreviewed: 1},
     suffix: {deleted:1, deletedPublic:1, hideAuthor:1, userId:1, af:1},
   });
 }
@@ -228,6 +236,8 @@ Comments.addView("sunshineNewUsersComments", function (terms) {
       userId: terms.userId,
       // Don't hide deleted
       $or: null,
+      // Don't hide unreviewed comments
+      authorIsUnreviewed: null
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 5},
   };
@@ -247,3 +257,54 @@ ensureIndex(Comments, {topLevelCommentId:1});
 
 // Used in findCommentByLegacyAFId
 ensureIndex(Comments, {agentFoundationsId:1});
+
+Comments.addView('topShortform', function (terms) {
+  const timeRange = ((terms.before || terms.after)
+    ? { postedAt: {
+      ...(terms.before && {$lt: new Date(terms.before)}),
+      ...(terms.after && {$gte: new Date(terms.after)})
+    } }
+    : null
+  );
+  
+  return {
+    selector: {
+      shortform: true,
+      parentCommentId: viewFieldNullOrMissing,
+      ...timeRange
+    },
+    options: {sort: {baseScore: -1, postedAt: -1}}
+  };
+});
+
+Comments.addView('shortform', function (terms) {
+  return {
+    selector: {
+      shortform: true,
+      parentCommentId: viewFieldNullOrMissing,
+    },
+    options: {sort: {lastSubthreadActivity: -1, postedAt: -1}}
+  };
+});
+
+Comments.addView('repliesToCommentThread', function (terms) {
+  return {
+    selector: {
+      topLevelCommentId: terms.topLevelCommentId
+    },
+    options: {sort: {baseScore: -1}}
+  }
+});
+
+// Will be used for experimental shortform display on AllPosts page
+ensureIndex(Comments, {shortform:1, topLevelCommentId: 1, lastSubthreadActivity:1, postedAt: 1, baseScore:1});
+
+Comments.addView('shortformLatestChildren', function (terms) {
+  return {
+    selector: { topLevelCommentId: terms.comment._id} ,
+    options: {sort: {postedAt: -1}, limit: 500}
+  };
+});
+
+// Will be used for experimental shortform display on AllPosts page
+ensureIndex(Comments, { topLevelCommentId: 1, postedAt: 1, baseScore:1});

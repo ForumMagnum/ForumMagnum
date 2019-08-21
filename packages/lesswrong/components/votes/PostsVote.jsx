@@ -83,7 +83,7 @@ class PostsVote extends PureComponent {
                 <Typography
                   variant="headline"
                   className={classNames(classes.voteScore, classes.secondaryVoteScore)}>
-                  Ω	{post.afBaseScore}
+                  Ω {post.afBaseScore}
                 </Typography>
               </Tooltip>
             }

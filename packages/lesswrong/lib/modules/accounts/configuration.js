@@ -1,3 +1,6 @@
 import { Accounts } from 'meteor/accounts-base';
 
-Accounts._options.forbidClientAccountCreation = false;
+Accounts.config({
+  forbidClientAccountCreation: false,
+  loginExpirationInDays: 365*100,
+});
