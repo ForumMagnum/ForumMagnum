@@ -280,12 +280,12 @@ WebAppInternals.registerBoilerplateDataCallback = function (key, callback) {
 // memoizes on HTML attributes (used by, eg, appcache) and whether inline
 // scripts are currently allowed.
 // XXX so far this function is always called with arch === 'web.browser'
-function getBoilerplate(request, arch) {
+function getBoilerplate(request, arch, flush) {
   console.log(`${new Date().getTime()}: In getBoilerplate`);
-  return getBoilerplateAsync(request, arch).await();
+  return getBoilerplateAsync(request, arch, flush).await();
 }
 
-function getBoilerplateAsync(request, arch) {
+function getBoilerplateAsync(request, arch, flush) {
   console.log(`${new Date().getTime()}: In getBoilerplateAsync`);
   const boilerplate = boilerplateByArch[arch];
   const data = Object.assign({}, boilerplate.baseData, {
@@ -308,7 +308,7 @@ function getBoilerplateAsync(request, arch) {
   });
 
   return promise.then(() => ({
-    stream: boilerplate.toHTMLStream(data),
+    stream: boilerplate.toHTMLStream(data, flush),
     statusCode: data.statusCode,
     headers: data.headers,
   }));
@@ -830,7 +830,7 @@ function runWebAppServer() {
   app.use(rawConnectHandlers);
 
   // Auto-compress any json, javascript, or text.
-  //app.use(compress({filter: shouldCompress}));
+  app.use(compress({filter: shouldCompress}));
 
   // parse cookies into an object
   app.use(cookieParser());
@@ -988,9 +988,32 @@ function runWebAppServer() {
       // If pauseClient(arch) has been called, program.paused will be a
       // Promise that will be resolved when the program is unpaused.
       await WebApp.clientPrograms[arch].paused;
+      
+      // Flush the compressio middleware buffer. Normally, compression
+      // middleware doesn't send anything until its buffer fills up. What we
+      // want to happen, however, is that a header gets sent quickly so that
+      // static resources can start loading. We insert a call to `res.flush`
+      // (which is added to res) after the header has been sent, so that it
+      // gets sent immediately. We do this by inserting a sub-stream into the
+      // template which runs this callback when it's pulled from.
+      //
+      // When this does run, however, the write of the header is still
+      // in-flight; if we flushed immediately, that would flush the stuff before
+      // the header, but not including it, which would defeat the point. So we
+      // defer that up to the event loop with `setTimeout`. (Empirically,
+      // setTimeout works, process.nextTick is too soon.)
+      const flush = () => {
+        console.log(`${new Date().getTime()}: Called stream flush`);
+        if (res.flush) {
+          setTimeout(() => {
+            console.log(`${new Date().getTime()}: Calling res.flush()`);
+            res.flush();
+          }, 0);
+        }
+      }
 
       console.log(`${new Date().getTime()}: Calling getBoilerplateAsync`);
-      return getBoilerplateAsync(request, arch).then(({
+      return getBoilerplateAsync(request, arch, flush).then(({
         stream,
         statusCode,
         headers: newHeaders,
@@ -1011,7 +1034,6 @@ function runWebAppServer() {
           // End the response when the stream ends.
           end: true,
         });
-
       }).catch(error => {
         Log.error("Error running template: " + error.stack);
         res.writeHead(500, headers);

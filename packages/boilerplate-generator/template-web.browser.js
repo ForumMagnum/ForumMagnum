@@ -15,6 +15,7 @@ export const headTemplate = ({
   inlineScriptsAllowed,
   js,
   additionalStaticJs,
+  flusher,
 }) => {
   var headSections = head.split(/<meteor-bundled-css[^<>]*>/, 2);
   var cssBundle = [...(css || []).map(file =>
@@ -66,6 +67,7 @@ export const headTemplate = ({
         })
     )),
 
+    flusher,
     dynamicHead,
     '</head>',
     '<body>',

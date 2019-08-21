@@ -1,5 +1,6 @@
 import { readFile } from 'fs';
 import { create as createStream } from "combined-stream2";
+import { Readable } from 'stream';
 
 import WebBrowserTemplate from './template-web.browser';
 import WebCordovaTemplate from './template-web.cordova';
@@ -47,6 +48,19 @@ function appendAllToStream(chunks, stream) {
 
 let shouldWarnAboutToHTMLDeprecation = ! Meteor.isProduction;
 
+// Create a stream which contains zero bytes, but calls a function when it is
+// read. Used to insert a checkpoint into a combined stream, where a function
+// (flush) gets called when the checkpoint is reached.
+function createCheckpointStream(fn) {
+  return new Readable({
+    read(length) {
+      console.log(`${new Date().getTime()}: Flushing`);
+      fn();
+      this.push(null);
+    }
+  });
+}
+
 export class Boilerplate {
   constructor(arch, manifest, options = {}) {
     const { headTemplate, closeTemplate } = getTemplate(arch);
@@ -92,12 +106,13 @@ export class Boilerplate {
   // the time that you construct the Boilerplate object. (e.g. it is used
   // by 'webapp' to specify data that is only known at request-time).
   // this returns a stream
-  toHTMLStream(extraData) {
+  toHTMLStream(extraData, flush) {
     if (!this.baseData || !this.headTemplate || !this.closeTemplate) {
       throw new Error('Boilerplate did not instantiate correctly.');
     }
 
-    const data = {...this.baseData, ...extraData};
+    const flusher = createCheckpointStream(flush || function(){});
+    const data = {...this.baseData, ...extraData, flusher};
     const start = this.headTemplate(data);
 
     const { body, dynamicBody } = data;
