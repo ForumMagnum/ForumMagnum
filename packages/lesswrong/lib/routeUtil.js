@@ -104,5 +104,12 @@ export const hostIsOffsite = (host) => {
   // FIXME: This is currently client-side-only because 'URL' is a browser-API
   // class. See the workaround for the same issue in PostsPage.
   const siteUrlHost = new URL(Utils.getSiteUrl()).host;
-  return host !== siteUrlHost;
+  if (host === siteUrlHost) return false;
+  
+  // If the domain differs only by the addition or removal of a "www."
+  // subdomain, count it as the same.
+  if ("www."+host === siteUrlHost) return false;
+  if (host === "www."+siteUrlHost) return false;
+  
+  return true;
 }
