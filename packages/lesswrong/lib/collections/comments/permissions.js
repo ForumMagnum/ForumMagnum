@@ -36,7 +36,7 @@ const sunshineRegimentActions = [
   'comments.softRemove.all',
   'comments.replyOnBlocked.all',
   'comments.edit.all',
-  'comments.copyConvertedComments.all'
+  'comments.moveConvertedCommentChildren.all'
 ];
 Users.groups.sunshineRegiment.can(sunshineRegimentActions);
 

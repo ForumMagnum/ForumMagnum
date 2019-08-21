@@ -55,7 +55,7 @@ class ConvertToPostDialog extends PureComponent {
     const { classes, onClose, defaultMoveComments, currentUser } = this.props
     const { title, moveComments } = this.state
 
-    const canMoveComments = Users.canDo('comments.copyConvertedComments.all', currentUser) || defaultMoveComments
+    const canMoveComments = Users.canDo('comments.moveConvertedCommentChildren.all', currentUser) || defaultMoveComments
 
     return (
       <Dialog open={true} onClose={onClose}>
