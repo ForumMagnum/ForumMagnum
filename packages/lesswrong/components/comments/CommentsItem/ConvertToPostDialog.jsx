@@ -33,10 +33,7 @@ class ConvertToPostDialog extends PureComponent {
         title: title,
         draft: true,
         contents: {
-          originalContents: {
-            data: document.contents.draftJS,
-            type: "draftJS",
-          }
+          originalContents: document.contents.originalContents
         },
         userId: document.userId,
         convertedFromCommentId: document._id,
