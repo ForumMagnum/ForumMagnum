@@ -18,7 +18,7 @@ class PostsEditForm extends PureComponent {
   render() {
     const { documentId, document, eventForm, classes, flash, history } = this.props;
     const { params } = this.props.location; // From withLocation
-    const isDraft = document && document.draft;
+    const isDraft = document?.draft;
     const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox } = Components
     const EditPostsSubmit = (props) => {
       return <div className={classes.formSubmit}>
@@ -63,6 +63,7 @@ class PostsEditForm extends PureComponent {
             repeatErrors
           />
         </NoSsr>
+        {document?.moveCommentsFromConvertedComment && "Note: Undrafting this post will transfer child comments from the original comment"}
       </div>
     );
 

@@ -69,7 +69,7 @@ const styles = theme => ({
 class CommentBody extends Component {
   render () {
     const { comment, currentUser, classes, collapsed, truncated, postPage } = this.props
-    const { ContentItemBody, CommentDeletedMetadata } = Components
+    const { ContentItemBody, CommentDeletedMetadata, ConvertedToPostMessage } = Components
     const { html = "" } = comment.contents || {}
 
     const bodyClasses = classNames(
@@ -85,6 +85,7 @@ class CommentBody extends Component {
   
     return (
       <div className={classes.root}>
+        <ConvertedToPostMessage comment={comment}/>
         <ContentItemBody className={bodyClasses} dangerouslySetInnerHTML={{__html: innerHtml }}/>
       </div>
     )

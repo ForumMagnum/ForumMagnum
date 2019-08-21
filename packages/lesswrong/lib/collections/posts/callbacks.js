@@ -150,3 +150,32 @@ function UpdatePostShortform (newPost, oldPost) {
   return newPost;
 }
 addCallback("posts.edit.async", UpdatePostShortform );
+
+function MoveCommentsFromConvertedComment (newPost, oldPost) {
+  const published = newPost.draft === false  && !!oldPost.draft
+  // This currently is intended to work on top-level shortform comments. 
+
+  // TODO — build a version of this that works on children of non-top-level comments,
+  // either by building a recursive function that grabs children here, or changing comment architecture to 
+  // make it easier to grab all children-comments of an arbitrary comment at once
+  if (published && newPost.convertedFromCommentId && newPost.moveCommentsFromConvertedComment) {
+    Comments.update(
+      { topLevelCommentId: newPost.convertedFromCommentId },
+      { $set: {
+        postId: newPost._id,
+        topLevelCommentId: null
+      } },
+      { multi: true }
+    );
+    Comments.update(
+      { parentCommentId: newPost.convertedFromCommentId },
+      { $set: {
+        postId: newPost._id,
+        topLevelCommentId: null
+      } },
+      { multi: true }
+    );
+  }
+  return newPost;
+}
+addCallback("posts.edit.async", MoveCommentsFromConvertedComment );

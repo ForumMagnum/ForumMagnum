@@ -1,29 +1,29 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, withMessages, withCreate } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
 import MenuItem from '@material-ui/core/MenuItem';
-import Users from 'meteor/vulcan:users';
 import withDialog from '../../common/withDialog'
-import withUser from '../../common/withUser';
 
 class ConvertToPostMenuItem extends PureComponent {
 
-  createConvertedDraft = () => {
-    const { createPost, comment } = this.props;
-
+  showConvertDialog = () => {
+    const { openDialog, comment } = this.props;
+    openDialog({
+      componentName: "ConvertToPostDialog",
+      componentProps: {
+        documentId: comment._id,
+        defaultMoveComments: comment.shortform && !comment.topLevelCommentId
+      }
+    });
   }
 
   render() {
-    return <MenuItem onClick={this.createConvertedDraft}>
+    return <MenuItem onClick={this.showConvertDialog}>
       Convert to Post
     </MenuItem>
   }
 }
 
 registerComponent(
-  'ConvertToPostMenuItem', ConvertToPostMenuItem, 
-  [withCreate, {
-    collection: Posts,
-    fragmentName: 'newConversationFragment',
-  }], 
-  withMessages, 
-  withUser);
+  'ConvertToPostMenuItem', ConvertToPostMenuItem,
+  withDialog
+);

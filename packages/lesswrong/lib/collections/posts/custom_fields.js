@@ -954,7 +954,30 @@ addFieldsDict(Posts, {
       }
     },
   },
+
+  convertedFromCommentId: {
+    ...foreignKeyField({
+      idFieldName: "convertedFromCommentId",
+      resolverName: "convertedFromComment",
+      collectionName: "Comments",
+      type: "Comment",
+    }),
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    hidden: true,
+  },
   
+  moveCommentsFromConvertedComment: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins'],
+    editableBy: ['admins'],
+    optional: true,
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
+
   recentComments: resolverOnlyField({
     type: Array,
     graphQLtype: "[Comment]",

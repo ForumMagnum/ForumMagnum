@@ -42,6 +42,13 @@ registerFragment(`
     reviewedByUserId
     shortform
     lastSubthreadActivity
+    convertedToPostId
+    convertedToPost {
+      _id
+      title
+      slug
+      draft
+    }
   }
 `);
 

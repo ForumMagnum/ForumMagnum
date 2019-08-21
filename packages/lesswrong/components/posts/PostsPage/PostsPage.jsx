@@ -12,6 +12,7 @@ import classNames from 'classnames';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import withRecordPostView from '../../common/withRecordPostView';
 import withNewEvents from '../../../lib/events/withNewEvents.jsx';
+import { Link } from '../../../lib/reactRouterWrapper.js';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 const DEFAULT_TOC_MARGIN = 100
@@ -257,7 +258,7 @@ class PostsPage extends Component {
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, ContentType,
       LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
-      TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink } = Components
+      TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink, ConvertedFromCommentMessage } = Components
 
     if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
@@ -334,6 +335,7 @@ class PostsPage extends Component {
                 <div className={classes.postContent}>
                   <AlignmentCrosspostMessage post={post} />
                   { post.authorIsUnreviewed && <div className={classes.unreviewed}>This post is awaiting moderator approval</div>}
+                  <ConvertedFromCommentMessage post={post} />
                   <LinkPostMessage post={post} />
                   {query.revision && <PostsRevisionMessage post={post} />}
                   { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}}/> }
