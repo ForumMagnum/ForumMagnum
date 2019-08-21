@@ -192,7 +192,7 @@ class CommentsItem extends Component {
             { !parentCommentId && !comment.parentCommentId && isParentComment &&
               <div className={classes.usernameSpacing}>○</div>
             }
-            <CommentShortformIcon comment={comment} post={post} postPage={postPage}/>
+            <CommentShortformIcon comment={comment} post={post} />
             { parentCommentId!=comment.parentCommentId &&
               <ShowParentComment
                 comment={comment} nestingLevel={nestingLevel}
