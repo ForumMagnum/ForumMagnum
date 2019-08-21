@@ -205,7 +205,7 @@ const getResumeSequences = async (currentUser, context) => {
   if (!sequences)
     return [];
 
-  const results = Promise.all(_.map(sequences,
+  const results = await Promise.all(_.map(sequences,
     async partiallyReadSequence => {
       const { sequenceId, collectionId, lastReadPostId, nextPostId, numRead, numTotal, lastReadTime } = partiallyReadSequence;
       return {
