@@ -5,7 +5,7 @@ import { usePostByLegacyId } from './usePost.js';
 import { Posts } from '../../lib/collections/posts/collection.js';
 
 const LegacyPostRedirect = () => {
-  const { params, query } = useLocation();
+  const { params } = useLocation();
   const legacyId = params.id;
   const { post, loading } = usePostByLegacyId({ legacyId });
   
