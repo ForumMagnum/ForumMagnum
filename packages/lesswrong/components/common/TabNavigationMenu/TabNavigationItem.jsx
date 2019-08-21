@@ -24,8 +24,8 @@ const styles = theme => ({
       opacity:.6,
       backgroundColor: 'transparent' // Prevent MUI default behavior of rendering solid background on hover
     },
-    paddingTop: theme.spacing.unit*1.5,
-    paddingBottom: theme.spacing.unit*1.5,
+    paddingTop: theme.spacing.unit*2,
+    paddingBottom: theme.spacing.unit*2,
     paddingLeft: theme.spacing.unit*2,
     paddingRight: theme.spacing.unit*2,
     display: "flex",
@@ -77,6 +77,7 @@ const TabNavigationItem = ({tab, onClick, classes}) => {
         [classes.subItemOverride]: tab.subItem,
         [classes.selected]: pathname === tab.link,
       })}}
+      disableTouchRipple
     >
       {(tab.icon || tab.iconComponent) && <span
         className={classNames(classes.icon, {[classes.homeIcon]: tab.id === 'home'})}

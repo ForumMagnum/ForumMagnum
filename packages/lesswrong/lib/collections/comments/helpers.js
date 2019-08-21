@@ -1,5 +1,5 @@
 import { Posts } from '../posts'
-import { Comments } from './index'
+import { Comments } from './collection.js'
 import Users from "meteor/vulcan:users"
 import { getSetting } from 'meteor/vulcan:core'
 
@@ -23,13 +23,13 @@ Comments.getPageUrl = function(comment, isAbsolute = false) {
   return `${Posts.getPageUrl(post, isAbsolute)}#${comment._id}`;
 };
 
-Comments.getPageUrlFromIds = function(postId, postSlug, commentId, isAbsolute=false, permalink=true) {
+Comments.getPageUrlFromIds = function({postId, postSlug, commentId, permalink=true, isAbsolute=false}) {
   const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
 
   if (permalink) {
     return `${prefix}/posts/${postId}/${postSlug?postSlug:""}?commentId=${commentId}`;
   } else {
-    return `${prefix}/posts/${postId}/${postSlug?postSlug:""}#${commentId}-context`;
+    return `${prefix}/posts/${postId}/${postSlug?postSlug:""}#${commentId}`;
   }
 }
 

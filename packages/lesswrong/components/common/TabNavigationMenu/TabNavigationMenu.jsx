@@ -13,6 +13,7 @@ const styles = (theme) => {
       display: "flex",
       flexDirection: "column",
       justifyContent: "space-around",
+      maxWidth: 260,
     },
     divider: {
       width: 50,

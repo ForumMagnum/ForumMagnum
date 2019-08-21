@@ -1,6 +1,6 @@
 import React from 'react';
 import { renderToString } from 'react-dom/server';
-import { ApolloProvider } from 'react-apollo';
+import { ApolloProvider, getDataFromTree } from 'react-apollo';
 import Juice from 'juice';
 import { createClient, computeContextFromUser } from 'meteor/vulcan:lib';
 import JssProvider from 'react-jss/lib/JssProvider';
@@ -14,7 +14,6 @@ import Users from 'meteor/vulcan:users';
 import moment from 'moment-timezone';
 import LWEvents from '../../lib/collections/lwevents/collection'
 import StyleValidator from '../vendor/react-html-email/src/StyleValidator.js';
-import { getDataFromTree } from 'react-apollo';
 
 // TODO: We probably want to use a different theme than this for rendering
 // emails.

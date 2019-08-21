@@ -1,9 +1,8 @@
-import { Utils } from 'meteor/vulcan:core';
+import { Utils, getSetting } from 'meteor/vulcan:core';
 import cheerio from 'cheerio';
-import { Comments } from '../comments'
+import { Comments } from '../comments/collection.js'
 import { Posts } from './collection';
 import { questionAnswersSort } from '../comments/views';
-import { getSetting } from 'meteor/vulcan:core';
 
 // Number of headings below which a table of contents won't be generated.
 const MIN_HEADINGS_FOR_TOC = 3;

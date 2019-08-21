@@ -3,7 +3,7 @@ import LRU from 'lru-cache';
 const maxPageCacheSizeBytes = 16*1024*1024; //16MB
 const maxCacheAgeMs = 60*1000;
 
-export let pageCache = new LRU({
+export const pageCache = new LRU({
   max: maxPageCacheSizeBytes,
   length: (page,key) => JSON.stringify(page).length + JSON.stringify(key).length,
   maxAge: maxCacheAgeMs,
@@ -54,8 +54,6 @@ export const cachedPageRender = async (req, renderFn) => {
 }
 
 let cacheHits = 0;
-let cacheMisses = 0;
-let cacheIneligible = 0;
 let cacheQueriesTotal = 0;
 
 export function recordCacheHit() {
@@ -63,11 +61,9 @@ export function recordCacheHit() {
   cacheQueriesTotal++;
 }
 export function recordCacheMiss() {
-  cacheMisses++;
   cacheQueriesTotal++;
 }
 export function recordCacheBypass() {
-  cacheIneligible++;
   cacheQueriesTotal++;
 }
 export function getCacheHitRate() {

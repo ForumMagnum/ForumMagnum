@@ -87,14 +87,14 @@ const renderRequest = async (req, user) => {
     await getDataFromTree(WrappedApp, {isGetDataFromTree: true});
   } catch(err) {
     console.error(`Error while fetching Apollo Data. date: ${new Date().toString()} url: ${JSON.stringify(req.url)}`); // eslint-disable-line no-console
-    console.error(err);
+    console.error(err); // eslint-disable-line no-console
   }
   const afterPrerenderTime = new Date();
   try {
     htmlContent = await ReactDOM.renderToString(WrappedApp);
   } catch (err) {
     console.error(`Error while rendering React tree. date: ${new Date().toString()} url: ${JSON.stringify(req.url)}`); // eslint-disable-line no-console
-    console.error(err);
+    console.error(err); // eslint-disable-line no-console
   }
 
   // TODO: there should be a cleaner way to set this wrapper
@@ -120,6 +120,7 @@ const renderRequest = async (req, user) => {
   const prerenderTime = afterPrerenderTime - startTime
   const renderTime = finishedTime - afterPrerenderTime
   const totalTime = finishedTime - startTime;
+  // eslint-disable-next-line no-console
   console.log(`preRender time: ${prerenderTime}; render time: ${renderTime}`);
   if (totalTime > 3000) {
     Sentry.captureException(new Error("SSR time above 3 seconds"));

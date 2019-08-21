@@ -6,10 +6,10 @@ import classNames from 'classnames';
 
 const styles = theme => ({
   paperWithoutToC: {
-    width: 225
+    width: 280
   },
   paperWithToC: {
-    width: 225,
+    width: 280,
     [theme.breakpoints.down('sm')]: {
       width: 300
     },

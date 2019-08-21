@@ -22,6 +22,9 @@ const MAX_COLUMN_WIDTH = 720
 const styles = theme => ({
   root: {
     position: "relative",
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 20
+    }
   },
   tocActivated: {
     // Check for support for template areas before applying
