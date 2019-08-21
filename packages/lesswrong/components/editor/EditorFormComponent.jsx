@@ -8,7 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import classnames from 'classnames';
 import Input from '@material-ui/core/Input';
-import { getLSHandlers } from '../async/localStorageHandlers'
+import { getLSHandlers, defaulGetDocumentStorageId } from '../async/localStorageHandlers'
 import { EditorState, convertFromRaw, convertToRaw } from 'draft-js'
 import EditorForm from '../async/EditorForm'
 import Select from '@material-ui/core/Select';
@@ -88,9 +88,9 @@ class EditorFormComponent extends Component {
   }
 
   async componentDidMount() {
-    const { currentUser } = this.props
+    const { currentUser, form } = this.props
     if (currentUser?.isAdmin) {
-      const EditorModule = await import('../async/CKEditor')
+      let EditorModule = await (form?.commentEditor ? import('../async/CKCommentEditor') : import('../async/CKPostEditor'))
       const Editor = EditorModule.default
       this.ckEditor = Editor
       this.setState({ckEditorLoaded: true})
@@ -438,12 +438,16 @@ class EditorFormComponent extends Component {
 
     if (currentUser?.isAdmin && this.state.ckEditorActivated) {
       if (!this.state.ckEditorLoaded || !this.ckEditor) return <Loading />
+      const documentIdGenerator = form?.getLocalStorageId || defaulGetDocumentStorageId
+      const idPrefix = this.getLSKeyPrefix()
+      const ckEditorCloudId = `${idPrefix}${documentIdGenerator(document, name)}`
       return <div className={classnames(classes.root, "editor-form-component")}>
         { editorWarning }
         <CKEditor 
           onSave={(data) => this.setHtml(data)}
-          data={htmlValue || ""}
+          data={htmlValue || "<p>Welcome to LessWrong!</p>"}
           documentId={document._id}
+          ckEditorCloudId={ckEditorCloudId}
           formType={formType}
           userId={currentUser._id}
         />
