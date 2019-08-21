@@ -17,7 +17,7 @@ import { withNavigation } from '../../../lib/routeUtil'
 
 const styles = theme => ({
   title: {
-    fontStyle: theme.typography.postStyle,
+    ...theme.typography.postStyle,
     fontSize: "1.3rem"
   }
 })
@@ -63,6 +63,7 @@ class ConvertToPostDialog extends PureComponent {
           Convert Comment to Post
         </DialogTitle>
         <DialogContent>
+          <p>This will convert this comment into a draft post, which you can then edit and publish when ready</p>
           <Input
             className={classes.title}
             placeholder="Title"
@@ -75,7 +76,7 @@ class ConvertToPostDialog extends PureComponent {
               disabled={!canMoveComments}
               checked={moveComments} 
               onChange={() => this.setState(prevState=>({moveComments: !prevState.moveComments}))}/> 
-              Move Comments
+              Move comments (after post is un-drafted)
           </div>
         </DialogContent>
         <DialogActions>
