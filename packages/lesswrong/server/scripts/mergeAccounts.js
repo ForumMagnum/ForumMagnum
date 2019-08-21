@@ -6,6 +6,7 @@ import { editableCollectionsFields } from '../../lib/editor/make_editable'
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import { Votes } from '../../lib/collections/votes/index';
 import { Conversations } from '../../lib/collections/conversations/collection'
+import sumBy from 'lodash/sumBy';
 
 
 
@@ -55,7 +56,7 @@ const transferEditableField = ({documentId, targetUserId, collection, fieldName 
 const mergeReadStatusForPost = ({sourceUserId, targetUserId, postId}) => {
   const sourceUserStatus = ReadStatuses.findOne({userId: sourceUserId, postId})
   const targetUserStatus = ReadStatuses.findOne({userId: targetUserId, postId})
-  const readStatus = !!(sourceUserStatus?.isRead || targetUserStatus?.isRead)
+  const readStatus = new Date(sourceUserStatus?.lastUpdated) > new Date(targetUserStatus?.lastUpdated) ? sourceUserStatus?.isRead : targetUserStatus?.isRead
   const lastUpdated = new Date(sourceUserStatus?.lastUpdated) > new Date(targetUserStatus?.lastUpdated) ? sourceUserStatus?.lastUpdated : targetUserStatus?.lastUpdated
   if (targetUserStatus) {
     ReadStatuses.update({_id: targetUserStatus._id}, {$set: {isRead: readStatus, lastUpdated}})
@@ -95,14 +96,23 @@ Vulcan.mergeAccounts = async (sourceUserId, targetUserId) => {
   // Transfer sequences
   await transferCollection({sourceUserId, targetUserId, collectionName: "Sequences"})
   await transferCollection({sourceUserId, targetUserId, collectionName: "Collections"})
+
+  // Transfer localgroups
+  await transferCollection({sourceUserId, targetUserId, collectionName: "Localgroups"})
   
   // Transfer karma
   // eslint-disable-next-line no-console
   console.log("Transferring karma")
+  const newKarma = await recomputeKarma(targetUserId)
   await editMutation({
     collection: Users,
     documentId: targetUserId,
-    set: {karma: sourceUser.karma + targetUser.karma, afKarma: sourceUser.afKarma + targetUser.afKarma},
+    set: {
+      karma: newKarma, 
+      // We only recalculate the karma for non-af karma, because recalculating
+      // af karma is a lot more complicated
+      afKarma: sourceUser.afKarma + targetUser.afKaram 
+    },
     validate: false
   })
   
@@ -147,3 +157,23 @@ Vulcan.mergeAccounts = async (sourceUserId, targetUserId) => {
     validate: false
   })
 }
+
+
+async function recomputeKarma(userId) {
+  const user = await Users.findOne({_id: userId})
+  if (!user) throw Error("Can't find user")
+  const allTargetVotes = await Votes.find({
+    authorId: user._id,
+    userId: {$ne: user._id},
+    legacy: {$ne: true},
+    cancelled: false
+  }).fetch()
+  const totalNonLegacyKarma = sumBy(allTargetVotes, vote => {
+    return vote.power
+  })
+  const totalKarma = totalNonLegacyKarma + (user.legacyKarma || 0)
+  console.log("totalKarma calculated: ", totalKarma)
+  return totalKarma
+}
+
+Vulcan.getTotalKarmaForUser = recomputeKarma
