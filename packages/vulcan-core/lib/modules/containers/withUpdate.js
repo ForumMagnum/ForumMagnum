@@ -78,11 +78,11 @@ export const useUpdate = ({
   fragmentName, fragment,
 }) => {
   ({ collectionName, collection } = extractCollectionInfo({collectionName, collection}));
-  ({ fragmentName, fragment, extraVariablesString } = extractFragmentInfo({fragmentName, fragment}, collectionName));
+  ({ fragmentName, fragment } = extractFragmentInfo({fragmentName, fragment}, collectionName));
 
   const typeName = collection.options.typeName;
   const query = gql`
-    ${updateClientTemplate({ typeName, fragmentName, extraVariablesString })}
+    ${updateClientTemplate({ typeName, fragmentName })}
     ${fragment}
   `;
 
