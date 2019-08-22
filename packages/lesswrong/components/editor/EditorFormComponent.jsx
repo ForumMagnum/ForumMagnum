@@ -79,8 +79,9 @@ class EditorFormComponent extends Component {
     this.state = {
       editorOverride: null,
       ckEditorLoaded: null,
-      ckEditorActivated: props.currentUser.defaultToCKEditor,
+      ckEditorActivated: props.currentUser?.defaultToCKEditor,
       updateType: 'minor',
+      ckEditorReference: null,
       ...this.getEditorStatesFromType(editorType)
     }
     this.hasUnsavedData = false;
@@ -180,7 +181,7 @@ class EditorFormComponent extends Component {
     const { document, fieldName } = this.props
     const submitData = (submission) => {
       let data = null
-      const { draftJSValue, markdownValue, htmlValue, updateType} = this.state
+      const { draftJSValue, markdownValue, htmlValue, updateType, ckEditorReference } = this.state
       const type = this.getCurrentEditorType()
       switch(type) {
         case "draftJS":
@@ -191,7 +192,8 @@ class EditorFormComponent extends Component {
           data = markdownValue
           break
         case "html":
-          data = htmlValue
+          // If we have a ckeditor attached, just grab the data from that before submission
+          data = ckEditorReference?.getData() || htmlValue
           break
         default:
           // eslint-disable-next-line no-console
@@ -344,7 +346,7 @@ class EditorFormComponent extends Component {
     }
     // Otherwise, default to rich-text, but maybe show others
     if (originalType) { return originalType }
-    else if (currentUser.defaultToCKEditor) { return "html" }
+    else if (currentUser?.defaultToCKEditor) { return "html" }
     else if (enableMarkDownEditor && Users.useMarkdownPostEditor(currentUser)){
       return "markdown"
     } else {
@@ -438,22 +440,18 @@ class EditorFormComponent extends Component {
 
     if (currentUser?.isAdmin && this.state.ckEditorActivated) {
       if (!this.state.ckEditorLoaded || !this.ckEditor) return <Loading />
-      const documentIdGenerator = form?.getLocalStorageId || defaulGetDocumentStorageId
-      const idPrefix = this.getLSKeyPrefix()
-      const ckEditorCloudId = `${idPrefix}${documentIdGenerator(document, name)}`
       return <div className={classnames(classes.root, "editor-form-component")}>
         { editorWarning }
         <CKEditor 
-          onSave={(data) => this.setHtml(data)}
-          data={htmlValue || "<p>Welcome to LessWrong!</p>"}
+          data={htmlValue}
           documentId={document._id}
-          ckEditorCloudId={ckEditorCloudId}
           formType={formType}
           userId={currentUser._id}
+          onInit={editor => this.setState({ckEditorReference: editor})}
         />
         { this.renderUpdateTypeSelect() }
         { this.renderEditorTypeSelect() }
-        { CKEditorCheckbox }
+        { currentUser.isAdmin && CKEditorCheckbox }
       </div>
     }
 
@@ -470,7 +468,7 @@ class EditorFormComponent extends Component {
           />
           { this.renderUpdateTypeSelect() }
           { this.renderEditorTypeSelect() }
-          { CKEditorCheckbox }
+          { currentUser?.isAdmin && CKEditorCheckbox }
         </div>);
     } else {
       const { multiLine, hintText, placeholder, label, fullWidth, disableUnderline, startAdornment } = this.props
@@ -495,7 +493,7 @@ class EditorFormComponent extends Component {
           </div>
           { this.renderUpdateTypeSelect() }
           { this.renderEditorTypeSelect() }
-          { CKEditorCheckbox }
+          { currentUser?.isAdmin && CKEditorCheckbox }
         </div>
       );
     }
