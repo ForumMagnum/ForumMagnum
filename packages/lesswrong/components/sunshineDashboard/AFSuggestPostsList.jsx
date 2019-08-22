@@ -43,7 +43,6 @@ const withListOptions = {
   collection: Posts,
   queryName: 'SuggestionAlignmentListQuery',
   fragmentName: 'SuggestAlignmentPost',
-  enableCache: true,
   fetchPolicy: 'cache-and-network',
 };
 
