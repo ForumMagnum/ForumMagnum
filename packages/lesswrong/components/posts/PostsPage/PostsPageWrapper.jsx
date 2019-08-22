@@ -7,7 +7,6 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }) => {
     collection: Posts,
     queryName: 'postsSingleQuery',
     enableTotal: false,
-    enableCache: true,
     ssr: true,
     
     ...(version ? {
