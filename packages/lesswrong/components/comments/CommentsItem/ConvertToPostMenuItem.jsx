@@ -21,7 +21,7 @@ class ConvertToPostMenuItem extends PureComponent {
 
     const tooltip = <div>
       <div>Creates a draft post based on this comment</div>
-      <div>(intended for comments that you've decided were worth converting into a full post</div>
+      <div><em>(intended for comments that you've decided were worth converting into a full post)</em></div>
     </div>
     
     return (

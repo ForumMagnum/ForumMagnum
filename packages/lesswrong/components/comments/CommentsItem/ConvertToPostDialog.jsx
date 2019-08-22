@@ -15,11 +15,20 @@ import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments';
 import { withNavigation } from '../../../lib/routeUtil'
 import Tooltip from '@material-ui/core/Tooltip';
+import { checkboxStyling } from '../../form-components/SectionFooterCheckbox.jsx';
 
 const styles = theme => ({
   title: {
     ...theme.typography.postStyle,
-    fontSize: "1.3rem"
+    fontSize: "1.3rem",
+    width: "100%"
+  },
+  helpText: {
+    fontStyle: "italic",
+    marginTop: theme.spacing.unit*1.5,
+  },
+  checkbox: {
+    paddingLeft: 0,
   }
 })
 
@@ -48,9 +57,7 @@ class ConvertToPostDialog extends PureComponent {
         convertedToPostId: postId
       },
     })
-    // setTimeout(() => {
-    // }, 1000);
-    history.push({pathname: `/editPost?postId=${postId}&eventForm=false`})
+    history.push({pathname: '/editPost', search: `?postId=${postId}&eventForm=false`})
     onClose()
   }
 
@@ -63,10 +70,9 @@ class ConvertToPostDialog extends PureComponent {
     return (
       <Dialog open={true} onClose={onClose}>
         <DialogTitle>
-          Convert Comment to Post
+          Create Draft Post from Comment
         </DialogTitle>
         <DialogContent>
-          <p>This will convert this comment into a draft post, which you can then edit and publish when ready</p>
           <Input
             className={classes.title}
             placeholder="Title"
@@ -74,15 +80,18 @@ class ConvertToPostDialog extends PureComponent {
             onChange={(event) => this.setState({title: event.target.value})}
             multiline
           />
-          <Tooltip title="TODO: insert explanation about why you can only sometimes do this">
+          <Tooltip title="If this box is checked, then when you un-draft (i.e. publish) the converted post, it will copy over the child comments of the original comment. This is only available when converting top-level shortform comments.">
             <div> 
               <Checkbox 
                 disabled={!canMoveComments}
+                classes={{root: classes.checkbox}}
                 checked={moveComments} 
                 onChange={() => this.setState(prevState=>({moveComments: !prevState.moveComments}))}/> 
                 Move comments (after post is un-drafted)
             </div>
           </Tooltip>
+          <div className={classes.helpText}>This will convert this comment into a draft post, which you can then edit and publish when ready</div>
+
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>
