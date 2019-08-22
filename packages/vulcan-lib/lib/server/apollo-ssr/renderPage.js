@@ -20,6 +20,11 @@ import { Readable } from 'stream';
 
 const makePageRenderer = async sink => {
   const req = sink.request;
+  
+  deferredRender(sink, () => getRenderPromise(req));
+};
+
+const getRenderPromise = async (req) => {
   const user = await getUserFromReq(req);
   
   if (user) {
@@ -28,12 +33,12 @@ const makePageRenderer = async sink => {
     //eslint-disable-next-line no-console
     console.log(`Rendering ${req.url} (logged in request; hit rate=${getCacheHitRate()})`);
     const renderPromise = renderRequest(req, user);
-    await streamToSink(sink, renderPromise);
+    return renderPromise;
   } else {
     const renderPromise = cachedPageRender(req, (req) => renderRequest(req, null));
-    streamToSink(sink, renderPromise);
+    return renderPromise;
   }
-};
+}
 
 const renderRequest = async (req, user) => {
   const startTime = new Date();
@@ -134,10 +139,30 @@ const renderRequest = async (req, user) => {
   };
 }
 
-const streamToSink = async (sink, renderPromise) => {
+// Put a set of streams (head, SSR body, apollo state, and JSS sheets) into
+// the template, and defer starting rendering until one of those streams is
+// pulled from. This solves a priority-inversion problem where otherwise we
+// would be rendering the page, instead of serving its header.
+const deferredRender = async (sink, getRenderPromise) => {
+  let renderStarted = false;
+  
+  const startRendering = () => {
+    getRenderPromise().then(rendered => {
+      pushAndClose(headStream, rendered.head);
+      pushAndClose(ssrBodyStream, rendered.ssrBody);
+      pushAndClose(apolloStateStream, rendered.serializedApolloState);
+      pushAndClose(jssSheetsStream, rendered.jssSheets);
+    });
+    renderStarted = true;
+  }
   const pushableStream = () => new Readable({
-    read(length) {}
+    read(length) {
+      if (!renderStarted) {
+        startRendering();
+      }
+    }
   });
+  
   const pushAndClose = (stream, content) => {
     stream.push(content);
     stream.push(null);
@@ -147,12 +172,6 @@ const streamToSink = async (sink, renderPromise) => {
   const ssrBodyStream = pushableStream();
   const apolloStateStream = pushableStream();
   const jssSheetsStream = pushableStream();
-  renderPromise.then(rendered => {
-    pushAndClose(headStream, rendered.head);
-    pushAndClose(ssrBodyStream, rendered.ssrBody);
-    pushAndClose(apolloStateStream, rendered.serializedApolloState);
-    pushAndClose(jssSheetsStream, rendered.jssSheets);
-  });
   
   sink.appendToHead(headStream);
   sink.appendToBody(ssrBodyStream);
