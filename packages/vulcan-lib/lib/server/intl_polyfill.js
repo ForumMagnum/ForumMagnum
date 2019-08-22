@@ -5,10 +5,10 @@ intl polyfill. See https://github.com/andyearnshaw/Intl.js/
 */
 
 import { getSetting, registerSetting } from '../modules/settings.js';
+import areIntlLocalesSupported from 'intl-locales-supported';
 
 registerSetting('locale', 'en');
 
-var areIntlLocalesSupported = require('intl-locales-supported');
 
 var localesMyAppSupports = [
   getSetting('locale', 'en')

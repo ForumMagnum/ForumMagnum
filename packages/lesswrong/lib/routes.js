@@ -37,7 +37,7 @@ addRoute([
     path:'/users/:slug/edit',
     componentName: 'UsersAccount'
   },
-  
+
   // Miscellaneous LW2 routes
   {
     name: 'login',
@@ -62,7 +62,7 @@ addRoute([
     componentName: 'ConversationWrapper',
     title: "Private Conversation"
   },
-  
+
   {
     name: 'newPost',
     path: '/newPost',
@@ -74,7 +74,7 @@ addRoute([
     path: '/editPost',
     componentName: 'PostsEditPage'
   },
-  
+
   // Sequences
   {
     name: 'sequencesHome',
@@ -110,14 +110,14 @@ addRoute([
     path: '/s/:sequenceId/p/:postId',
     componentName: 'SequencesPost'
   },
-  
+
   {
     name: 'chaptersEdit',
     path: '/chaptersEdit/:_id',
     componentName: 'ChaptersEditForm',
     title: "Edit Chapter"
   },
-  
+
   // Collections
   {
     name: 'collections',
@@ -160,7 +160,7 @@ if (getSetting('forumType') === 'LessWrong') {
       componentName: 'PostsSingleSlugWrapper',
       ...hpmorSubtitle,
     },
-  
+
     {
       name: 'Codex',
       path: '/codex',
@@ -206,7 +206,7 @@ if (getSetting('hasEvents', true)) {
       componentName: 'EventsUpcoming',
       title: "Upcoming Events by Day"
     },
-  
+
     {
       name: 'CommunityHome',
       path: '/community',
@@ -220,7 +220,7 @@ if (getSetting('hasEvents', true)) {
       componentName: 'CommunityHome',
       title: "Community"
     },
-  
+
     {
       name:'Localgroups.single',
       path: '/groups/:groupId',
@@ -315,7 +315,7 @@ switch (getSetting('forumType')) {
       {
         name: 'home',
         path: '/',
-        componentName: 'HomeEA'
+        componentName: 'EAHome'
       },
       {
         name:'about',

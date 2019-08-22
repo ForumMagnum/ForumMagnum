@@ -8,7 +8,7 @@ class RouterHook extends PureComponent {
     this.runOnUpdateCallback(props);
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     this.runOnUpdateCallback(nextProps);
   }
 

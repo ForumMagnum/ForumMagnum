@@ -1,4 +1,3 @@
-/* global confirm */
 import { Components as C, registerComponent, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';

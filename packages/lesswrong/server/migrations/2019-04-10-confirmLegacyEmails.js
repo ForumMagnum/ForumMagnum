@@ -1,5 +1,4 @@
-import { registerMigration } from './migrationUtils';
-import { forEachDocumentBatchInCollection } from '../queryUtil.js';
+import { forEachDocumentBatchInCollection, registerMigration } from './migrationUtils';
 import Users from 'meteor/vulcan:users';
 
 registerMigration({

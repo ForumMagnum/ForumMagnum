@@ -228,7 +228,7 @@ class UsersProfile extends Component {
 
           <SectionFooter>
             { this.renderMeta() }
-            { user.twitterUsername &&  <a href={"http://twitter.com/" + user.twitterUsername}>
+            { user.twitterUsername &&  <a href={"https://twitter.com/" + user.twitterUsername}>
               @{user.twitterUsername}
             </a>}
             { currentUser && currentUser.isAdmin &&
