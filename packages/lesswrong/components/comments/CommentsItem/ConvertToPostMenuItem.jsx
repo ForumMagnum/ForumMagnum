@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import MenuItem from '@material-ui/core/MenuItem';
+import Tooltip from '@material-ui/core/Tooltip';
 import withDialog from '../../common/withDialog'
 
 class ConvertToPostMenuItem extends PureComponent {
@@ -17,9 +18,19 @@ class ConvertToPostMenuItem extends PureComponent {
   }
 
   render() {
-    return <MenuItem onClick={this.showConvertDialog}>
-      Convert to Post
-    </MenuItem>
+
+    const tooltip = <div>
+      <div>Creates a draft post based on this comment</div>
+      <div>(intended for comments that you've decided were worth converting into a full post</div>
+    </div>
+    
+    return (
+    <Tooltip title={tooltip}>
+        <MenuItem onClick={this.showConvertDialog}>
+          Create Draft Post
+        </MenuItem>
+      </Tooltip>
+    )
   }
 }
 

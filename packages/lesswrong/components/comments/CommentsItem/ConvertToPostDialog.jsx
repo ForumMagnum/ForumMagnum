@@ -14,6 +14,7 @@ import withUser from '../../common/withUser'
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments';
 import { withNavigation } from '../../../lib/routeUtil'
+import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = theme => ({
   title: {
@@ -47,7 +48,9 @@ class ConvertToPostDialog extends PureComponent {
         convertedToPostId: postId
       },
     })
-    history.push({pathname: `/posts/${postId}`})
+    // setTimeout(() => {
+    // }, 1000);
+    history.push({pathname: `/editPost?postId=${postId}&eventForm=false`})
     onClose()
   }
 
@@ -71,13 +74,15 @@ class ConvertToPostDialog extends PureComponent {
             onChange={(event) => this.setState({title: event.target.value})}
             multiline
           />
-          <div> 
-            <Checkbox 
-              disabled={!canMoveComments}
-              checked={moveComments} 
-              onChange={() => this.setState(prevState=>({moveComments: !prevState.moveComments}))}/> 
-              Move comments (after post is un-drafted)
-          </div>
+          <Tooltip title="TODO: insert explanation about why you can only sometimes do this">
+            <div> 
+              <Checkbox 
+                disabled={!canMoveComments}
+                checked={moveComments} 
+                onChange={() => this.setState(prevState=>({moveComments: !prevState.moveComments}))}/> 
+                Move comments (after post is un-drafted)
+            </div>
+          </Tooltip>
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>
