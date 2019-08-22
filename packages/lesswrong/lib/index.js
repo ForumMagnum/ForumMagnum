@@ -46,7 +46,6 @@ import './collections/rssfeeds/views.js'
 // Reports
 import Reports from './collections/reports/collection.js'
 import './collections/reports/views.js'
-import './collections/reports/permissions.js'
 
 // LWEvents
 import { LWEvents } from './collections/lwevents/index.js';

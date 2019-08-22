@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components } from 'meteor/vulcan:core';
-import { registerComponent, mergeWithComponents } from 'meteor/vulcan:core';
+import { Components, registerComponent, mergeWithComponents } from 'meteor/vulcan:core';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import SimpleSchema from 'simpl-schema';
@@ -15,7 +14,7 @@ class FormComponent extends Component {
     this.state = {};
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     if (this.showCharsRemaining()) {
       const value = this.getValue();
       this.updateCharacterCount(value);

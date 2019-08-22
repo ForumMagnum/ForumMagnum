@@ -1,6 +1,5 @@
 import { newMutation } from 'meteor/vulcan:core';
-import { registerMigration } from './migrationUtils';
-import { forEachDocumentBatchInCollection } from '../queryUtil';
+import { forEachDocumentBatchInCollection, registerMigration } from './migrationUtils';
 import Users from 'meteor/vulcan:users';
 import { Comments } from '../../lib/collections/comments/collection.js';
 import { Posts } from '../../lib/collections/posts/collection.js';

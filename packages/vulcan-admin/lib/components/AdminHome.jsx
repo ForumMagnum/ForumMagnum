@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, withCurrentUser, AdminColumns } from 'meteor/vulcan:core';
+import { Components, withCurrentUser, getAdminColumns } from 'meteor/vulcan:core';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import Users from 'meteor/vulcan:users';
 
@@ -10,7 +10,7 @@ const AdminHome = ({ currentUser }) =>
     <Components.ShowIf check={Users.isAdmin} document={currentUser} failureComponent={<p className="admin-home-message"><FormattedMessage id="app.noPermission" /></p>}>
       <Components.Datatable 
         collection={Users} 
-        columns={AdminColumns} 
+        columns={getAdminColumns()} 
         options={{
           fragmentName: 'UsersAdmin',
           terms: {view: 'usersAdmin'},

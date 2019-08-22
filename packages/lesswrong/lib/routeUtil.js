@@ -1,5 +1,4 @@
-import React from 'react';
-import { useContext } from 'react';
+import React, { useContext } from 'react';
 import qs from 'qs';
 import { NavigationContext, LocationContext, SubscribeLocationContext, ServerRequestStatusContext, Utils } from 'meteor/vulcan:core';
 

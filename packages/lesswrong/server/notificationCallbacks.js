@@ -15,9 +15,8 @@ import { EventDebouncer } from './debouncer.js';
 import { UnsubscribeAllToken } from './emails/emailTokens.js';
 import { getNotificationTypeByName } from '../lib/notificationTypes.jsx';
 
-import { addCallback, newMutation } from 'meteor/vulcan:core';
+import { Components, addCallback, newMutation } from 'meteor/vulcan:core';
 
-import { Components } from 'meteor/vulcan:core';
 import React from 'react';
 import keyBy from 'lodash/keyBy';
 
