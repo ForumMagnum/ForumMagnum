@@ -37,7 +37,7 @@ const palette = {
     main: '#5f9b65',
   },
   lwTertiary: {
-    main: "#558391"
+    main: "#7ca343"
   },
   error: {
     main: deepOrange[900]
