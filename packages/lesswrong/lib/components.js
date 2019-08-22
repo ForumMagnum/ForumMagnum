@@ -118,7 +118,6 @@ importComponent("SettingsIcon", () => require('../components/icons/SettingsIcon.
 
 importComponent("PostsHighlight", () => require('../components/posts/PostsHighlight.jsx'));
 importComponent("AlignmentCrosspostMessage", () => require('../components/posts/AlignmentCrosspostMessage.jsx'));
-importComponent("ConvertedFromCommentMessage", () => require('../components/posts/PostsPage/ConvertedFromCommentMessage.jsx'));
 importComponent("LinkPostMessage", () => require('../components/posts/LinkPostMessage.jsx'));
 importComponent("CategoryDisplay", () => require('../components/posts/CategoryDisplay.jsx'));
 importComponent("PostsSingle", () => require('../components/posts/PostsSingle.jsx'));

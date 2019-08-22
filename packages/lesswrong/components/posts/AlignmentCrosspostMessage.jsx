@@ -4,8 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
 import PropTypes from 'prop-types';
 
-// TODO: figure out how this style (used in a couple other places as well) should be factored out more generally
-export const styles = theme => ({
+const styles = theme => ({
   root: {
     color: grey[600],
     marginBottom: theme.spacing.unit*2,

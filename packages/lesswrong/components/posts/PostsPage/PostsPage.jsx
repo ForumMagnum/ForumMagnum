@@ -257,7 +257,7 @@ class PostsPage extends Component {
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, ContentType,
       LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
-      TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink, ConvertedFromCommentMessage } = Components
+      TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink } = Components
 
     if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
@@ -334,7 +334,6 @@ class PostsPage extends Component {
                 <div className={classes.postContent}>
                   <AlignmentCrosspostMessage post={post} />
                   { post.authorIsUnreviewed && <div className={classes.unreviewed}>This post is awaiting moderator approval</div>}
-                  <ConvertedFromCommentMessage post={post} />
                   <LinkPostMessage post={post} />
                   {query.revision && <PostsRevisionMessage post={post} />}
                   { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}}/> }
