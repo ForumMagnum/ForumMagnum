@@ -3,6 +3,8 @@ import { registerComponent } from 'meteor/vulcan:core';
 import MenuItem from '@material-ui/core/MenuItem';
 import Tooltip from '@material-ui/core/Tooltip';
 import withDialog from '../../common/withDialog'
+import { Posts } from '../../../lib/collections/posts';
+import { Link } from '../../../lib/reactRouterWrapper.js';
 
 class ConvertToPostMenuItem extends PureComponent {
 
@@ -12,12 +14,30 @@ class ConvertToPostMenuItem extends PureComponent {
       componentName: "ConvertToPostDialog",
       componentProps: {
         documentId: comment._id,
-        defaultMoveComments: comment.shortform && !comment.topLevelCommentId
+        defaultMoveChildComments: comment.shortform && !(comment.topLevelCommentId)
       }
     });
   }
 
   render() {
+    const { comment } = this.props 
+
+    if (comment.convertedToPostId && !comment.convertedToPost.draft) { return null }
+
+    if (comment.convertedToPostId && comment.convertedToPost.draft) {
+      const goToDraftTooltip = <div>
+        You have previously created a draft post based on this comment.
+      </div>
+      return (
+        <Link to={Posts.getPageUrl(comment.convertedToPost)}>
+          <Tooltip title={goToDraftTooltip}>
+            <MenuItem>
+              Go to Draft Post
+            </MenuItem>
+          </Tooltip>
+        </Link>
+      )
+    }
 
     const tooltip = <div>
       <div>Creates a draft post based on this comment</div>
@@ -25,7 +45,7 @@ class ConvertToPostMenuItem extends PureComponent {
     </div>
     
     return (
-    <Tooltip title={tooltip}>
+      <Tooltip title={tooltip}>
         <MenuItem onClick={this.showConvertDialog}>
           Create Draft Post
         </MenuItem>

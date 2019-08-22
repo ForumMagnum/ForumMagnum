@@ -15,7 +15,7 @@ import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments';
 import { withNavigation } from '../../../lib/routeUtil'
 import Tooltip from '@material-ui/core/Tooltip';
-import { checkboxStyling } from '../../form-components/SectionFooterCheckbox.jsx';
+import classNames from 'classnames';
 
 const styles = theme => ({
   title: {
@@ -29,15 +29,21 @@ const styles = theme => ({
   },
   checkbox: {
     paddingLeft: 0,
+  },
+  checkboxGroup: {
+    cursor: "pointer"
+  },
+  disabled: {
+    opacity: .5
   }
 })
 
 class ConvertToPostDialog extends PureComponent {
-  state = { title: "", moveComments: null }
+  state = { title: "", moveChildComments: this.props.defaultMoveChildComments }
 
   handleConvert = async () => {
     const { createPost, updateComment, document, history, onClose } = this.props;
-    const { title, moveComments } = this.state
+    const { title, moveChildComments } = this.state
     const response = await createPost({
       data: {
         title: title,
@@ -47,7 +53,7 @@ class ConvertToPostDialog extends PureComponent {
         },
         userId: document.userId,
         convertedFromCommentId: document._id,
-        moveCommentsFromConvertedComment: moveComments
+        moveCommentsFromConvertedComment: moveChildComments
       }
     })
     const postId = response.data.createPost.data._id
@@ -63,9 +69,9 @@ class ConvertToPostDialog extends PureComponent {
 
   render() {
     const { classes, onClose, defaultMoveComments, currentUser } = this.props
-    const { title, moveComments } = this.state
+    const { title, moveChildComments } = this.state
 
-    const canMoveComments = Users.canDo('comments.moveConvertedCommentChildren.all', currentUser) || defaultMoveComments
+    const canMoveChildComments = Users.canDo('comments.moveConvertedCommentChildren.all', currentUser) || Users.owns(document, currentUser) && defaultMoveComments
 
     return (
       <Dialog open={true} onClose={onClose}>
@@ -81,12 +87,14 @@ class ConvertToPostDialog extends PureComponent {
             multiline
           />
           <Tooltip title="If this box is checked, then when you un-draft (i.e. publish) the converted post, it will copy over the child comments of the original comment. This is only available when converting top-level shortform comments.">
-            <div> 
+            <div 
+              className={classNames(classes.checkboxGroup, {[classes.disabled]: !canMoveChildComments})} 
+              onClick={() => this.setState(prevState=>({moveChildComments: !prevState.moveChildComments}))}
+            > 
               <Checkbox 
-                disabled={!canMoveComments}
+                disabled={!canMoveChildComments}
                 classes={{root: classes.checkbox}}
-                checked={moveComments} 
-                onChange={() => this.setState(prevState=>({moveComments: !prevState.moveComments}))}/> 
+                checked={moveChildComments} /> 
                 Move comments (after post is un-drafted)
             </div>
           </Tooltip>
