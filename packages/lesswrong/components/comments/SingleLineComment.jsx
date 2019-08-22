@@ -109,13 +109,15 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
   if (!comment) return null
   const { baseScore } = comment
   const { plaintextMainText } = comment.contents
-  const { CommentBody, ShowParentComment, CommentUserName } = Components
+  const { CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon } = Components
 
   const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile()
 
   return (
     <div className={classes.root}>
       <div className={classNames(classes.commentInfo, {[classes.isAnswer]: comment.answer, [classes.odd]:((nestingLevel%2) !== 0)})}>
+        <CommentShortformIcon comment={comment} simple={true} />
+
         { parentCommentId!=comment.parentCommentId &&
           <ShowParentComment comment={comment} nestingLevel={nestingLevel} />
         }

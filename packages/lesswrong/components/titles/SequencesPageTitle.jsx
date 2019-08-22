@@ -39,6 +39,7 @@ registerComponent("SequencesPageTitle", SequencesPageTitle,
   [withDocument, {
     collection: Sequences,
     fragmentName: "SequencesPageFragment",
+    fetchPolicy: 'cache-only',
     ssr: true,
   }],
   withStyles(styles, {name: "SequencesPageTitle"})

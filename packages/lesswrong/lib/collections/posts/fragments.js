@@ -235,6 +235,7 @@ registerFragment(`
 registerFragment(`
   fragment PostsEdit on Post {
     ...PostsPage
+    shareWithUsers
     moderationGuidelines {
       ...RevisionEdit
     }

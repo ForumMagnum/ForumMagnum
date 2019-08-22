@@ -17,7 +17,6 @@ const options = {
   queryName: 'chaptersListQuery',
   fragmentName: 'ChaptersFragment',
   enableTotal: false,
-  enableCache: true,
   ssr: true,
 }
 

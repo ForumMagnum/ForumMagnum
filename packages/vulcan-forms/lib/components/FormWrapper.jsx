@@ -28,7 +28,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { intlShape } from 'meteor/vulcan:i18n';
 import { withRouter } from 'react-router';
-import { withApollo } from 'react-apollo';
+import { graphql, withApollo } from 'react-apollo';
 import compose from 'lodash/flowRight';
 import {
   Components,
@@ -38,11 +38,10 @@ import {
   withNew,
   withUpdate,
   withDelete,
+  withSingle,
   getFragment
 } from 'meteor/vulcan:core';
 import gql from 'graphql-tag';
-import { withSingle } from 'meteor/vulcan:core';
-import { graphql } from 'react-apollo';
 import {
   getReadableFields,
   getCreateableFields,
@@ -205,7 +204,6 @@ class FormWrapper extends PureComponent {
       fragment: queryFragment,
       extraQueries,
       fetchPolicy: 'network-only', // we always want to load a fresh copy of the document
-      enableCache: false,
       pollInterval: 0 // no polling, only load data once
     };
 

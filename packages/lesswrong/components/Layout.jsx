@@ -195,8 +195,15 @@ class Layout extends PureComponent {
       }
     }
 
-    const standaloneNavigation = standaloneNavMenuRouteNames[getSetting('forumType')]
-      .includes(location.currentRoute.name)
+    // Check whether the current route is one which should have standalone
+    // navigation on the side. If there is no current route (ie, a 404 page),
+    // then it should.
+    // FIXME: This is using route names, but it would be better if this was
+    // a property on routes themselves.
+    const standaloneNavigation = !location.currentRoute ||
+      standaloneNavMenuRouteNames[getSetting('forumType')]
+        .includes(location.currentRoute.name)
+    
     return (
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
