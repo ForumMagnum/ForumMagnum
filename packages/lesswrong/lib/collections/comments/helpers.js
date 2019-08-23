@@ -79,4 +79,3 @@ Comments.getKarma = (comment) => {
   const baseScore = getSetting('forumType') === 'AlignmentForum' ? comment.afBaseScore : comment.baseScore
   return baseScore || 0
 }
-
