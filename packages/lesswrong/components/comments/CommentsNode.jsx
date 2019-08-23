@@ -98,10 +98,18 @@ const styles = theme => ({
     animation: `higlight-animation ${HIGHLIGHT_DURATION}s ease-in-out 0s;`
   },
   gapIndicator: {
+    marginTop: 4,
     border: `solid 1px ${theme.palette.grey[300]}`,
     backgroundColor: theme.palette.grey[100],
     marginLeft: theme.spacing.unit,
-    paddingTop: theme.spacing.unit,
+  },
+  gapIndicatorText: {
+    fontSize: 11,
+    paddingLeft: theme.spacing.unit,
+    paddingTop: 4,
+    paddingBottom: 4,
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[700]
   }
 })
 
@@ -261,9 +269,11 @@ class CommentsNode extends Component {
 
     const newComment = this.isNewComment()
 
+    const gapIndicator = parentCommentId != comment.parentCommentId
+
     const hiddenReadComment = hideReadComments && !newComment
 
-    const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
+    const updatedNestingLevel = nestingLevel + (!!gapIndicator ? 1 : 0)
 
     const nodeClass = classNames(
       "comments-node",
@@ -301,7 +311,8 @@ class CommentsNode extends Component {
     const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, updateComment, condensed, hideReadComments, refetch, scrollOnExpand }
 
     return (
-        <div className={comment.gapIndicator && classes.gapIndicator}>
+        <div className={gapIndicator && classes.gapIndicator}>
+          {gapIndicator && <div className={classes.gapIndicatorText}>(omitted comments)</div>}
           <div className={nodeClass}
             onClick={(event) => this.handleExpand(event)}
             id={!noHash ? comment._id : undefined}

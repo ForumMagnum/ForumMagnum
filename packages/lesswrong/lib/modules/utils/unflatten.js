@@ -6,21 +6,8 @@
 // with React's ability to detect whether updates are needed.
 export function unflattenComments(comments)
 {
-  console.log("beginning unflatten")
-  console.log("")
   const resultsRestructured = _.map(comments, comment => { return { item:comment, children:[] }});
   return unflattenCommentsRec(resultsRestructured);
-}
-
-export function addGapIndicators(comments) {
-  // Sometimes (such as /shortform page), a comment tree is rendered where some comments are not the direct descendant of the previous comment. 
-  // This function adds extra, empty comment nodes to make this UI more visually clear
-  return comments.map(node=>{
-    if (node?.item?.parentCommentId !== node?.item?.topLevelCommentId) {
-      return {item: {...node.item, gapIndicator: true}, children: node.children}
-    }
-    return node
-  })
 }
 
 // Recursive portion of unflattenComments. Produced by incremental modification
@@ -30,26 +17,34 @@ function unflattenCommentsRec(array, parent, tree)
   tree = typeof tree !== "undefined" ? tree : [];
 
   let children = [];
+  let commentDict = {}
+  array.forEach((node) => {
+    commentDict[node.item._id] = true
+  })
 
   if (typeof parent === "undefined") {
-    let commentDict = {}
-    array.forEach((node) => {
-      commentDict[node.item._id] = true
-    })
-    // if there is no parent, we're at the root level
-    // so we return all root nodes (i.e. nodes with no parent)
-    children = _.filter(array, node => (!node.item.parentCommentId || !commentDict[node.item.parentCommentId]));
-  } else {
-    // if there *is* a parent, we return all its child nodes
-    // (i.e. nodes whose parentId is equal to the parent's id.)
     children = _.filter(array, node => {
-      if (node.item.parentCommentId === parent.item._id) {
+      // if there is no parent, we're at the root level, so we return all root nodes
+      // there are two types of root nodes:
+
+      // pure root nodes: if a node has no parentCommentId at all, it's definitely a top level comment
+      if (!node.item.parentCommentId) return true
+      
+      // locally root nodes: if neither a node's direct parent or topLevelComment is present in the array
+      if (!commentDict[node.item.parentCommentId] && !commentDict[node.item.topLevelCommentId]) return true
+    })
+  } else {
+    children = _.filter(array, node => {  
+      // if there *is* a parent, we return all its child nodes, either:
+
+      // direct children 
+      if (node.item.parentCommentId === parent.item._id) return true 
+      
+      // distant children (whose topLevelComment is present but no intermediate parents
+      if ((node.item.topLevelCommentId === parent.item._id) && !commentDict[node.item.parentCommentId]) {
         return true
       }
-      if ((node.item.topLevelCommentId === parent.item._id)) {
-        console.log(array)
-        return false
-      }
+
     })
   }
 
