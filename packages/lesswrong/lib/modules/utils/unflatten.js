@@ -6,25 +6,10 @@
 // with React's ability to detect whether updates are needed.
 export function unflattenComments(comments)
 {
+  console.log("beginning unflatten")
+  console.log("")
   const resultsRestructured = _.map(comments, comment => { return { item:comment, children:[] }});
   return unflattenCommentsRec(resultsRestructured);
-}
-
-export function connectDeepChildren(nestedComments) {
-  const nonTopLevelComments = _.filter(nestedComments, node => node.item.topLevelCommentId)
-  
-
-  let topLevelComments = _.filter(nestedComments, node => !node.item.topLevelCommentId)
-  const topLevelCommentIds = _.map(topLevelComments, node => node.item._id)
-  const nonTopLevelComments = _.filter(nestedComments, node => node.item.topLevelCommentId)
-  let newNestedComments
-  nestedComments.forEach(node => {
-    if (_.includes(topLevelCommentIds, node.item.topLevelCommentId) {
-      topLevelComments.
-    } else {
-      topLevelComments = [...topLevelComments, node]
-    }
-  })
 }
 
 export function addGapIndicators(comments) {
@@ -57,7 +42,15 @@ function unflattenCommentsRec(array, parent, tree)
   } else {
     // if there *is* a parent, we return all its child nodes
     // (i.e. nodes whose parentId is equal to the parent's id.)
-    children = _.filter(array, node => node.item.parentCommentId === parent.item._id);
+    children = _.filter(array, node => {
+      if (node.item.parentCommentId === parent.item._id) {
+        return true
+      }
+      if ((node.item.topLevelCommentId === parent.item._id)) {
+        console.log(array)
+        return false
+      }
+    })
   }
 
   // if we found children, we keep on iterating
