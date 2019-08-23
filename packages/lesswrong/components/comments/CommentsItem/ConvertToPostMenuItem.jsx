@@ -13,8 +13,8 @@ class ConvertToPostMenuItem extends PureComponent {
     openDialog({
       componentName: "ConvertToPostDialog",
       componentProps: {
-        documentId: comment._id,
-        defaultMoveChildComments: comment.shortform && !(comment.topLevelCommentId)
+        documentId: comment._id, // we need more data from the comment than is currently available
+        comment: comment // at the same time, we need some info (which is available) immediately to avoid UI flicker, and so also pass through the current copy of the comment
       }
     });
   }
