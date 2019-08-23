@@ -596,6 +596,8 @@ addFieldsDict(Posts, {
     group: formGroups.moderationGroup,
     //insertableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),
     //editableBy: (currentUser, document) => Users.canModeratePost(currentUser, document),
+    insertableBy: ['members'],
+    editableBy: ['members'],
     hidden: true,
     optional: true,
     label: "Users banned from commenting on this post",
