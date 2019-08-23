@@ -75,7 +75,7 @@ export default {
       showOnCompressed: true,
     }, {
       id: 'questions',
-      title: 'Questions',
+      title: 'Open Questions',
       link: '/questions',
       icon: questionsGlobeIcon,
       tooltip: <div>
@@ -121,7 +121,7 @@ export default {
       subItem: true,
     }, {
       id: 'events',
-      title: 'Community', // Events hide on mobile
+      title: 'Community Events', // Events hide on mobile
       link: '/community',
       icon: communityGlobeIcon,
       tooltip: 'Find a meetup near you.',
@@ -199,22 +199,12 @@ export default {
       id: 'divider',
       divider: true,
     }, {
-      id: 'shortform',
-      title: 'Shortform [Beta]',
-      link: '/shortform',
-      subItem: true,
-    }, {
       id: 'about',
       title: 'About',
       link: '/about',
       subItem: true,
       compressedIconComponent: Info,
       showOnCompressed: true,
-    }, {
-      id: 'faq',
-      title: 'FAQ',
-      link: '/faq',
-      subItem: true,
     }
   ],
   EAForum: [

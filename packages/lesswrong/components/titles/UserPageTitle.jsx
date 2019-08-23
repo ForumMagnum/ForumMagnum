@@ -40,6 +40,7 @@ registerComponent("UserPageTitle", UserPageTitle,
   [withList, {
     collection: Users,
     fragmentName: "UsersMinimumInfo",
+    fetchPolicy: 'cache-only',
     ssr: true,
   }],
   withStyles(styles, {name: "UserPageTitle"})

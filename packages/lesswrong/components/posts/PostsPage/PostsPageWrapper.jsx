@@ -1,10 +1,32 @@
 import React from 'react';
-import { Components, registerComponent, withDocument } from 'meteor/vulcan:core';
+import { Components, registerComponent, useSingle } from 'meteor/vulcan:core';
 import { Posts } from '../../../lib/collections/posts';
 
-// Wraps PostsPage with a withDocument, taking a documentId instead of a post
-// object.
-const PostsPageWrapper = ({document: post, sequenceId, version, data: {refetch}, loading, error}) => {
+const PostsPageWrapper = ({ sequenceId, version, documentId }) => {
+  const { document: post, refetch, loading, error } = useSingle({
+    collection: Posts,
+    queryName: 'postsSingleQuery',
+    enableTotal: false,
+    ssr: true,
+    
+    ...(version ? {
+      fragmentName: 'PostsWithNavigationAndRevision',
+      extraVariables: {
+        version: 'String',
+        sequenceId: 'String',
+      },
+      extraVariablesValues: { version, sequenceId },
+    } : {
+      fragmentName: 'PostsWithNavigation',
+      extraVariables: {
+        sequenceId: 'String',
+      },
+      extraVariablesValues: { sequenceId },
+    }),
+    
+    documentId
+  })
+
   const { Error404, Loading, PostsPage } = Components;
   if (error) {
     return <Error404 />
@@ -22,17 +44,4 @@ const PostsPageWrapper = ({document: post, sequenceId, version, data: {refetch},
   />
 }
 
-registerComponent("PostsPageWrapper", PostsPageWrapper,
-  [withDocument, {
-    collection: Posts,
-    queryName: 'postsSingleQuery',
-    fragmentName: 'PostsWithNavigation',
-    enableTotal: false,
-    enableCache: true,
-    ssr: true,
-    extraVariables: {
-      version: 'String',
-      sequenceId: 'String',
-    }
-  }]
-);
+registerComponent("PostsPageWrapper", PostsPageWrapper);

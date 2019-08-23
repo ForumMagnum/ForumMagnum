@@ -117,7 +117,7 @@ export function redirect(redirect) {
 }
 
 export function capitalize(string) {
-  return string.replace(/\-/, ' ').split(' ').map(word => {
+  return string.replace(/-/, ' ').split(' ').map(word => {
     return word.charAt(0).toUpperCase() + word.slice(1);
   }).join(' ');
 }

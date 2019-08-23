@@ -38,8 +38,8 @@ const defaultFrontpageSettings = {
 
 class RecommendationsAndCurated extends PureComponent {
   state = { showSettings: false, stateSettings: null }
-  
-  toggleSettings = () => {	
+
+  toggleSettings = () => {
     this.setState(prevState => ({showSettings: !prevState.showSettings}))
   }
 
@@ -53,7 +53,7 @@ class RecommendationsAndCurated extends PureComponent {
     const { continueReading, classes, currentUser } = this.props;
     const { showSettings } = this.state
     const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, RecommendationsList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SubSection } = Components;
-    
+
     const configName = "frontpage"
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
 
@@ -69,23 +69,28 @@ class RecommendationsAndCurated extends PureComponent {
     const continueReadingTooltip = <div>
       <div>The next posts in sequences you've started reading, but not finished.</div>
     </div>
-    
+
     const allTimeTooltip = <div>
-      <div>A weighted, randomized sample of the highest karma posts that you haven't read yet.</div>
+      <div>
+        A weighted, randomized sample of the highest karma posts
+        {settings.onlyUnread && " that you haven't read yet"}.
+      </div>
       <div><em>(Click to see more recommendations)</em></div>
     </div>
 
     const frontpageRecommendationSettings = {
       ...settings,
       ...defaultFrontpageSettings
-    } 
+    }
 
-    const renderContinueReading = continueReading && continueReading.length>0 && !settings.hideContinueReading 
+    const renderContinueReading = continueReading && continueReading.length>0 && !settings.hideContinueReading
     const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
     return <SingleColumnSection>
       <SectionTitle title="Recommendations">
-        <SettingsIcon onClick={this.toggleSettings}/>
+        <Tooltip title="Customize your recommendations">
+          <SettingsIcon onClick={this.toggleSettings} label="Settings"/> 
+        </Tooltip>
       </SectionTitle>
       {showSettings &&
         <RecommendationsAlgorithmPicker
@@ -93,7 +98,7 @@ class RecommendationsAndCurated extends PureComponent {
           settings={frontpageRecommendationSettings}
           onChange={(newSettings) => this.changeSettings(newSettings)}
         /> }
-      
+
       {renderContinueReading && <React.Fragment>
           <div>
             <Tooltip placement="top-start" title={currentUser ? continueReadingTooltip : coreReadingTooltip}>
@@ -125,7 +130,7 @@ class RecommendationsAndCurated extends PureComponent {
           <RecommendationsList algorithm={frontpageRecommendationSettings} />
         </SubSection>
       </div>}
-      
+
       <Tooltip placement="top-start" title={curatedTooltip}>
         <Link to={curatedUrl}>
           <SectionSubtitle className={classNames(classes.subtitle, classes.curated)}>

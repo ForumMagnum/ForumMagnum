@@ -9,7 +9,7 @@ import withUser from '../common/withUser';
 import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
-const HIGHLIGHT_DURATION = 5
+const HIGHLIGHT_DURATION = 3
 
 const styles = theme => ({
   node: {
@@ -85,8 +85,14 @@ const styles = theme => ({
     position: "relative"
   },
   '@keyframes higlight-animation': {
-    from: {borderColor: theme.palette.grey[900]},
-    to: {borderColor: "rgba(0,0,0,.15)"}
+    from: {
+      backgroundColor: theme.palette.grey[300],
+      borderColor: "black"
+    },
+    to: { 
+      backgroundColor: "none",
+      borderColor: "rgba(0,0,0,.15)"
+    }
   },
   highlightAnimation: {
     animation: `higlight-animation ${HIGHLIGHT_DURATION}s ease-in-out 0s;`
@@ -154,8 +160,16 @@ class CommentsNode extends Component {
     }
   }
 
+  isInViewport() {
+    if (!this.scrollTargetRef) return false;
+    const top = this.scrollTargetRef.current?.getBoundingClientRect().top;
+    return (top >= 0) && (top <= window.innerHeight);
+  }
+
   scrollIntoView = (behavior="smooth") => {
-    this.scrollTargetRef.current?.scrollIntoView({behavior: behavior, block: "center", inline: "nearest"});
+    if (!this.isInViewport()) {
+      this.scrollTargetRef.current?.scrollIntoView({behavior: behavior, block: "center", inline: "nearest"});
+    }
     this.setState({highlighted: true})
     setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
       this.setState({highlighted: false})
@@ -220,9 +234,9 @@ class CommentsNode extends Component {
   }
 
   isSingleLine = () => {
-    const { forceSingleLine, postPage } = this.props
+    const { forceSingleLine, postPage, currentUser } = this.props
     const { singleLine } = this.state
-    if (!singleLine) return false;
+    if (!singleLine || currentUser?.noSingleLineComments) return false;
     if (forceSingleLine)
       return true;
     
@@ -305,6 +319,7 @@ class CommentsNode extends Component {
                     parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
                     toggleCollapse={this.toggleCollapse}
                     key={comment._id}
+                    scrollIntoView={this.scrollIntoView}
                     { ...passedThroughItemProps}
                   />
               }

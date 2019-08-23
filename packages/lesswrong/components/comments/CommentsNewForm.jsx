@@ -122,4 +122,4 @@ CommentsNewForm.propTypes = {
   prefilledProps: PropTypes.object
 };
 
-registerComponent('CommentsNewForm', CommentsNewForm, withUser, withStyles(styles), withErrorBoundary);
+registerComponent('CommentsNewForm', CommentsNewForm, withUser, withStyles(styles, {name: "CommentsNewForm"}), withErrorBoundary);

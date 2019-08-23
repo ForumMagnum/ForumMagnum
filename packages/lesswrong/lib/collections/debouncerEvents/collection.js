@@ -1,7 +1,6 @@
 import schema from './schema.js';
 import { createCollection } from 'meteor/vulcan:core';
-import { addUniversalFields } from '../../collectionUtils'
-import { ensureIndex } from '../../collectionUtils';
+import { addUniversalFields, ensureIndex } from '../../collectionUtils'
 
 export const DebouncerEvents = createCollection({
   collectionName: 'DebouncerEvents',

@@ -43,7 +43,6 @@ const discussionThreadsOptions = {
   fetchPolicy: 'cache-and-network',
   enableTotal: false,
   pollInterval: 0,
-  enableCache: true,
   ssr: true,
 };
 

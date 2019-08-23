@@ -10,5 +10,3 @@ import './ui/components/LoginForm.jsx';
 import './ui/components/LoginFormInner.jsx';
 import './ui/components/PasswordOrService.jsx';
 import './ui/components/SocialButtons.jsx';
-import './ui/components/ResetPassword.jsx';
-import './ui/components/VerifyEmail.jsx';

@@ -2,9 +2,8 @@ import Users from "meteor/vulcan:users";
 import { getSetting, Utils } from "meteor/vulcan:core"
 import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences } from '../../modules/utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
-import { addUniversalFields } from '../../collectionUtils'
+import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 import SimpleSchema from 'simpl-schema'
-import { schemaDefaultValue } from '../../collectionUtils';
 
 
 export const formGroups = {
@@ -783,6 +782,19 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'sunshineRegiment'],
     hidden: !['LessWrong', 'AlignmentForum'].includes(getSetting('forumType')),
     order: 39,
+  },
+
+  noSingleLineComments: {
+    order: 70,
+    type: Boolean,
+    optional: true,
+    group: formGroups.truncationOptions,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    control: 'checkbox',
+    label: "Do not collapse comments to Single Line"
   },
 
   noCollapseCommentsPosts: {

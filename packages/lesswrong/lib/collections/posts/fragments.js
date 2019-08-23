@@ -178,8 +178,15 @@ registerFragment(`
 `)
 
 registerFragment(`
-  fragment PostsWithNavigation on Post {
+  fragment PostsWithNavigationAndRevision on Post {
     ...PostsRevision
+    ...PostSequenceNavigation
+  }
+`)
+
+registerFragment(`
+  fragment PostsWithNavigation on Post {
+    ...PostsPage
     ...PostSequenceNavigation
   }
 `)
@@ -228,6 +235,7 @@ registerFragment(`
 registerFragment(`
   fragment PostsEdit on Post {
     ...PostsPage
+    shareWithUsers
     moderationGuidelines {
       ...RevisionEdit
     }

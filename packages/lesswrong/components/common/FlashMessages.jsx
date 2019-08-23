@@ -1,4 +1,4 @@
-import { replaceComponent, withMessages } from 'meteor/vulcan:core';
+import { registerComponent, withMessages } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
 import { intlShape } from 'meteor/vulcan:i18n';
@@ -42,4 +42,4 @@ FlashMessages.contextTypes = {
   intl: intlShape
 }
 
-replaceComponent('FlashMessages', FlashMessages, withMessages);
+registerComponent('FlashMessages', FlashMessages, withMessages);
