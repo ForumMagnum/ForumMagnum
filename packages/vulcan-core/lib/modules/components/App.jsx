@@ -19,6 +19,7 @@ import moment from 'moment';
 import { withRouter, matchPath } from 'react-router';
 import MessageContext from '../messages.js';
 import qs from 'qs'
+import Sentry from '@sentry/node';
 
 export const LocationContext = React.createContext("location");
 export const SubscribeLocationContext = React.createContext("subscribeLocation");
@@ -192,7 +193,7 @@ class App extends PureComponent {
       runCallbacks('events.identify', nextProps.currentUser);
     }
   }
-  
+
   render() {
     const { flash } = this;
     const { messages } = this.state;

@@ -16,7 +16,7 @@ const styles = theme => ({
     opacity: .4,
   },
   loading: {
-    '&:after': {
+    '&&:after': {
       content: "''",
       marginLeft: 0,
       marginRight: 0,
@@ -25,7 +25,7 @@ const styles = theme => ({
   loadMore: {
     flexGrow: 1,
     textAlign: "left",
-    '&:after': {
+    '&&:after': {
       content: "''",
       marginLeft: 0,
       marginRight: 0,
@@ -100,7 +100,6 @@ const options = {
   queryName: 'postsListQuery',
   fragmentName: 'PostsList',
   enableTotal: false,
-  enableCache: true,
   fetchPolicy: 'cache-and-network',
   ssr: true
 };

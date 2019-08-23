@@ -41,7 +41,6 @@ const SunshineNewUserCommentsList = ({loading, results, classes, truncated}) => 
 const withMultiOptions = {
   collection: Comments,
   fragmentName: 'CommentsList',
-  enableCache: true,
   fetchPolicy: 'cache-and-network',
 }
 

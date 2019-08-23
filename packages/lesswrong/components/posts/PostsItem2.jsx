@@ -384,7 +384,7 @@ class PostsItem2 extends PureComponent {
             {resumeReading &&
               <div className={classes.sequenceImage}>
                 <img className={classes.sequenceImageImg}
-                  src={`http://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
+                  src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
                     resumeReading.sequence?.gridImageId
                       || resumeReading.collection?.gridImageId
                       || "sequences/vnyzzznenju0hzdv6pqb.jpg"
