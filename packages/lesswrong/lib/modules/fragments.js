@@ -588,6 +588,7 @@ registerFragment(`
     html
     markdown
     draftJS
+    ckEditorMarkup
     wordCount
     htmlHighlight
     plaintextDescription
