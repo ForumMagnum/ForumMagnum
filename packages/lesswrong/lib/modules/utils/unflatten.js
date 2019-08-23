@@ -6,6 +6,8 @@
 // with React's ability to detect whether updates are needed.
 export function unflattenComments(comments)
 {
+  console.log("beginning unflatten")
+  console.log("")
   const resultsRestructured = _.map(comments, comment => { return { item:comment, children:[] }});
   return unflattenCommentsRec(resultsRestructured);
 }
@@ -34,6 +36,7 @@ function unflattenCommentsRec(array, parent, tree)
       if (!commentDict[node.item.parentCommentId] && !commentDict[node.item.topLevelCommentId]) return true
     })
   } else {
+<<<<<<< HEAD
     children = _.filter(array, node => {  
       // if there *is* a parent, we return all its child nodes, either:
 
@@ -45,6 +48,18 @@ function unflattenCommentsRec(array, parent, tree)
         return true
       }
 
+=======
+    // if there *is* a parent, we return all its child nodes
+    // (i.e. nodes whose parentId is equal to the parent's id.)
+    children = _.filter(array, node => {
+      if (node.item.parentCommentId === parent.item._id) {
+        return true
+      }
+      if ((node.item.topLevelCommentId === parent.item._id)) {
+        console.log(array)
+        return false
+      }
+>>>>>>> WIP unflatten topLevel
     })
   }
 
