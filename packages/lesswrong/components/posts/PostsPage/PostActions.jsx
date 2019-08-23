@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { withStyles } from '@material-ui/core/styles';
-import { registerComponent, Components, withUpdate } from 'meteor/vulcan:core';
+import { registerComponent, Components, withUpdate, withMutation } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users'
 import withUser from '../../common/withUser'
 import { Posts } from '../../../lib/collections/posts';
@@ -9,6 +9,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper.js';
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import EditIcon from '@material-ui/icons/Edit'
+import qs from 'qs'
 
 const styles = theme => ({
   root: {
@@ -27,6 +28,20 @@ const styles = theme => ({
 
 class PostActions extends Component {
 
+  handleMarkAsRead = () => {
+    this.props.markAsReadOrUnread({
+      postId: this.props.post._id,
+      isRead: true,
+    });
+  }
+  
+  handleMarkAsUnread = () => {
+    this.props.markAsReadOrUnread({
+      postId: this.props.post._id,
+      isRead: false,
+    });
+  }
+  
   handleMoveToMeta = () => {
     const { post, updatePost } = this.props
     updatePost({
@@ -93,70 +108,83 @@ class PostActions extends Component {
   }
 
   render() {
-    const { classes, post, Container, currentUser } = this.props
+    const { classes, post, currentUser } = this.props
     const { MoveToDraft, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft } = Components
     return (
       <div className={classes.actions}>
-      { Posts.canEdit(currentUser,post) && <Link to={{pathname:'/editPost', query:{postId: post._id, eventForm: post.isEvent}}}>
-        <MenuItem>
-          <ListItemIcon>
-            <EditIcon />
-          </ListItemIcon>
-          Edit
-        </MenuItem>
-      </Link>}
-      <ReportPostMenuItem post={post}/>
+        { post.isRead
+          ? <div onClick={this.handleMarkAsUnread}>
+              <MenuItem>
+                Mark as Unread
+              </MenuItem>
+            </div>
+          : <div onClick={this.handleMarkAsRead}>
+              <MenuItem>
+                Mark as Read
+              </MenuItem>
+            </div>
+        }
+        
+        { Posts.canEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
+          <MenuItem>
+            <ListItemIcon>
+              <EditIcon />
+            </ListItemIcon>
+            Edit
+          </MenuItem>
+        </Link>}
+        <ReportPostMenuItem post={post}/>
 
         { Users.canDo(currentUser, "posts.edit.all") &&
           <span>
             { !post.meta &&
               <div onClick={this.handleMoveToMeta}>
-                <Container>
+                <MenuItem>
                   Move to Meta
-                </Container>
+                </MenuItem>
               </div>
             }
             { !post.frontpageDate &&
               <div onClick={this.handleMoveToFrontpage}>
-                <Container>
+                <MenuItem>
                   Move to Frontpage
-                </Container>
+                </MenuItem>
               </div>
             }
             { (post.frontpageDate || post.meta || post.curatedDate) &&
                <div onClick={this.handleMoveToPersonalBlog}>
-                 <Container>
+                 <MenuItem>
                    Move to Personal Blog
-                 </Container>
+                 </MenuItem>
                </div>
             }
             
             { !post.shortform &&
                <div onClick={this.handleMakeShortform}>
-                 <Container>
+                 <MenuItem>
                    Set as user's Shortform Post
-                 </Container>
+                 </MenuItem>
                </div>
             }
           </span>
         }
-        <SuggestAlignment post={post} Container={Container}/>
+        <SuggestAlignment post={post}/>
         { Users.canMakeAlignmentPost(currentUser, post) &&
           !post.af && <div onClick={this.handleMoveToAlignmentForum }>
-            <Container>
+            <MenuItem>
               Ω Move to Alignment
-            </Container>
+            </MenuItem>
           </div>}
         { Users.canMakeAlignmentPost(currentUser, post) && post.af &&
           <div onClick={this.handleRemoveFromAlignmentForum}>
-            <Container>
+            <MenuItem>
               Ω Remove Alignment
-            </Container>
+            </MenuItem>
           </div>
         }
-        <SuggestCurated post={post} Container={Container}/>
-        <MoveToDraft post={post} Container={Container}/>
-        <DeleteDraft post={post} Container={Container}/>
+        <SuggestCurated post={post}/>
+        <MoveToDraft post={post}/>
+        <DeleteDraft post={post}/>
       </div>
     )
   }
@@ -169,6 +197,10 @@ registerComponent('PostActions', PostActions,
     collection: Posts,
     fragmentName: 'PostsList',
   }],
+  [withMutation, {
+    name: 'markAsReadOrUnread',
+    args: {postId: 'String', isRead: 'Boolean'},
+  }],
   [withUpdate, {
     collection: Users,
     fragmentName: 'UsersCurrent'
@@ -176,4 +208,4 @@ registerComponent('PostActions', PostActions,
   [withSetAlignmentPost, {
     fragmentName: "PostsList"
   }]
-)
+);

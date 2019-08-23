@@ -1,4 +1,4 @@
-import { Components } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';
 import withUser from '../common/withUser';
@@ -8,6 +8,7 @@ import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { defineComponent } from '../defineComponent';
+import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   root: {
@@ -46,7 +47,7 @@ class SunshineSidebar extends Component {
     const { currentUser, classes } = this.props
     const { showSidebar } = this.state
     const { SunshineNewUsersList, SunshineNewCommentsList, SunshineNewPostsList, SunshineReportedContentList, SunshineCuratedSuggestionsList, AFSuggestUsersList, AFSuggestPostsList, AFSuggestCommentsList } = Components
-    
+
     return (
       <div className={classNames(classes.root, {[classes.showSidebar]:showSidebar})}>
         { showSidebar ? <KeyboardArrowDownIcon
@@ -79,12 +80,11 @@ SunshineSidebar.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-SunshineSidebar.displayName = "SunshineSidebar";
-
-export default defineComponent({
+/*export default defineComponent({
   name: "SunshineSidebar",
   component: SunshineSidebar,
   split: true,
   styles: styles,
   hocs: [withErrorBoundary, withUser],
-});
+});*/
+registerComponent("SunshineSidebar", SunshineSidebar, withStyles(styles, {name: "SunshineSidebar"}), withErrorBoundary, withUser);

@@ -51,6 +51,7 @@ const styles = theme => ({
     display:"inline-block",
     maxWidth: '100%',
     marginBottom: theme.spacing.unit,
+    marginRight: theme.spacing.unit,
     '& $link': {
       whiteSpace: "normal",
     },

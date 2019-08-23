@@ -1,19 +1,26 @@
 import React from 'react';
-import withUser from '../common/withUser';
 import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withStyles } from '@material-ui/core/styles';
 
-const ShortformSubmitForm = ({currentUser, successCallback}) => {
+const styles = theme => ({
+  root: {
+    marginLeft: 12,
+    marginRight: 12
+  }
+}) 
+
+const ShortformSubmitForm = ({ classes, successCallback}) => {
   const { CommentsNewForm } = Components;
 
   return (
-    <CommentsNewForm
-      prefilledProps={{shortform: true}}
-      fragment={"ShortformCommentsList"}
-      successCallback={successCallback}
-      type="comment"
-    />
-    
+    <div className={classes.root}>
+      <CommentsNewForm
+        prefilledProps={{shortform: true}}
+        successCallback={successCallback}
+        type="comment"
+      />
+    </div>
   );
 }
 
-registerComponent('ShortformSubmitForm', ShortformSubmitForm, withUser);
+registerComponent('ShortformSubmitForm', ShortformSubmitForm, withStyles(styles, {name:"ShortformSubmitForm"}));

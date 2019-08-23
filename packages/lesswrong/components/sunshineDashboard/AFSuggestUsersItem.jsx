@@ -1,4 +1,3 @@
-/* global confirm */
 import { Components as C, registerComponent, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';
@@ -52,7 +51,7 @@ class AFSuggestUsersItem extends Component {
                   <div>Alignment Comments: { user.afCommentCount || 0 }</div>
                 </C.MetaInfo>
                 {user.afApplicationText && <p>
-                  Application: 
+                  Application:
                   {user.afApplicationText}
                 </p>}
               </Typography>
@@ -92,7 +91,7 @@ AFSuggestUsersItem.propTypes = {
   hover: PropTypes.bool.isRequired,
   anchorEl: PropTypes.object,
   currentUser: PropTypes.object.isRequired,
-  editMutation: PropTypes.func.isRequired,
+  updateUser: PropTypes.func.isRequired,
 }
 
 const withUpdateOptions = {

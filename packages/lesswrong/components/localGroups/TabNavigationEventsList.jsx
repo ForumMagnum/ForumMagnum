@@ -2,7 +2,8 @@ import React from 'react';
 import { registerComponent, Components, withList } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import Tooltip from '@material-ui/core/Tooltip';
-import { Link } from 'react-router';
+import MenuItem from '@material-ui/core/MenuItem';
+import { Link } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles'
 import moment from 'moment';
 import withTimezone from '../common/withTimezone';
@@ -15,6 +16,15 @@ const TOMORROW_STRING = "[Tomorrow]"
 const HIGHLIGHT_LENGTH = 600
 
 const styles = theme => ({
+  subItemOverride: {
+    paddingTop: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+    paddingRight: 0,
+    '&:hover': {
+      backgroundColor: 'transparent' // Prevent MUI default behavior of rendering solid background on hover
+    }
+  },
   displayTime: {
     fontSize: ".85rem",
     position: "relative",
@@ -65,7 +75,7 @@ const styles = theme => ({
 })
 
 
-const TabNavigationEventsList = ({ results, classes, timezone}) => {
+const TabNavigationEventsList = ({ results, onClick, classes, timezone }) => {
   const { TabNavigationSubItem, EventTime } = Components
 
   if (!results) return null
@@ -108,7 +118,11 @@ const TabNavigationEventsList = ({ results, classes, timezone}) => {
 
         return (
           <Tooltip key={event._id} placement="right-start" title={tooltip}>
-            <Link to={Posts.getPageUrl(event)}>
+            <MenuItem
+              onClick={onClick}
+              component={Link} to={Posts.getPageUrl(event)}
+              classes={{root: classes.subItemOverride}}
+            >
               <TabNavigationSubItem>
                 {(displayTime && displayTime !== " ") && <span className={classNames(
                     classes.displayTime, {[classes.yesterday]: displayTime === YESTERDAY_STRING})
@@ -117,7 +131,7 @@ const TabNavigationEventsList = ({ results, classes, timezone}) => {
                 </span>}
                 <span className={classes.title}>{event.title}</span>
               </TabNavigationSubItem>
-            </Link>
+            </MenuItem>
           </Tooltip>
         )
       })}
@@ -130,7 +144,6 @@ const options = {
   queryName: 'postsListQuery',
   fragmentName: 'PostsList',
   enableTotal: false,
-  enableCache: true,
   fetchPolicy: 'cache-and-network',
   ssr: true
 };

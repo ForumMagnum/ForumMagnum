@@ -1,7 +1,7 @@
 /* global Random */
-import { Utils } from 'meteor/vulcan:core';
+import { Utils, addCallback } from 'meteor/vulcan:core';
 import { convertFromRaw } from 'draft-js';
-import { draftToHTML } from '../../lib/editor/utils.js';
+import { draftToHTML } from '../draftConvert';
 import Revisions from '../../lib/collections/revisions/collection'
 import { extractVersionsFromSemver } from '../../lib/editor/utils'
 import { ensureIndex } from '../../lib/collectionUtils'
@@ -19,7 +19,6 @@ mdi.use(markdownItMathjax())
 mdi.use(markdownItContainer, 'spoiler')
 mdi.use(markdownItFootnote)
 
-import { addCallback } from 'meteor/vulcan:core';
 import { mjpage }  from 'mathjax-node-page'
 
 function mjPagePromise(html, beforeSerializationCallback) {

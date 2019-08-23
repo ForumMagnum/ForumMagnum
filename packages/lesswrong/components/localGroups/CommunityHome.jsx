@@ -4,11 +4,12 @@ import {
   withMessages,
 } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import Users from 'meteor/vulcan:users';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 import EventIcon from '@material-ui/icons/Event';
+import { withLocation } from '../../lib/routeUtil';
 
 const styles = theme => ({
   content: {
@@ -59,9 +60,10 @@ class CommunityHome extends Component {
   }
 
   render() {
-    const {classes, router} = this.props;
-    const filters = (router.location.query && router.location.query.filters) || [];
-    const { TabNavigationMenu, SingleColumnSection, SectionTitle, PostsList2, SectionButton, GroupFormLink } = Components
+    const { classes } = this.props;
+    const { query } = this.props.location; // From withLocation
+    const filters = query?.filters || [];
+    const { SingleColumnSection, SectionTitle, PostsList2, SectionButton, GroupFormLink } = Components
 
     const postsListTerms = {
       view: 'nearbyEvents',
@@ -85,7 +87,6 @@ class CommunityHome extends Component {
     }
     return (
       <React.Fragment>
-        <TabNavigationMenu />
         <Components.CommunityMapWrapper
           terms={mapEventTerms}
         />
@@ -103,7 +104,7 @@ class CommunityHome extends Component {
           </SingleColumnSection>
           <SingleColumnSection>
             <SectionTitle title="Events">
-              {this.props.currentUser && <Link to={{pathname:"/newPost", query: {eventForm: true}}}>
+              {this.props.currentUser && <Link to={{pathname:"/newPost", search: `?eventForm=true`}}>
                 <SectionButton>
                   <EventIcon />
                   New Event
@@ -127,5 +128,5 @@ class CommunityHome extends Component {
 }
 
 registerComponent('CommunityHome', CommunityHome,
-  withUser, withMessages, withRouter,
+  withUser, withMessages, withLocation,
   withStyles(styles, { name: "CommunityHome" }));

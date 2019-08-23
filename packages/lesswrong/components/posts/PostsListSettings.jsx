@@ -6,7 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
-import { Link } from '../../lib/reactRouterWrapper.js'
+import { QueryLink } from '../../lib/reactRouterWrapper.js'
 
 import withUser from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
@@ -69,7 +69,7 @@ const FILTERS_ALL = {
     },
     meta: {
       label: "Community",
-      tooltip: "Posts with topical content or relating to the EA community itself"
+      tooltip: "Posts with topical content or relating to the EA community itself."
     },
   }
 }
@@ -149,11 +149,12 @@ const SettingsColumn = ({type, title, options, currentOption, classes, setSettin
     {Object.entries(options).map(([name, optionValue]) => {
       const label = _.isString(optionValue) ? optionValue : optionValue.label
       return (
-        <Link
+        <QueryLink
           key={name}
           onClick={() => setSetting(type, name)}
           // TODO: Can the query have an ordering that matches the column ordering?
-          to={loc=> ({...loc, query: {...loc.query, [type]: name}})}
+          query={{ [type]: name }}
+          merge
         >
           <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentOption === name})}>
             {optionValue.tooltip ?
@@ -163,7 +164,7 @@ const SettingsColumn = ({type, title, options, currentOption, classes, setSettin
               <span>{ label }</span>
             }
           </MetaInfo>
-        </Link>
+        </QueryLink>
       )
     })}
   </div>
@@ -227,17 +228,18 @@ class PostsListSettings extends Component {
         />
 
         <Tooltip title={<div><div>By default, posts below -10 karma are hidden.</div><div>Toggle to show them.</div></div>} placement="right-start">
-          <Link
+          <QueryLink
             className={classes.checkboxGroup}
             onClick={() => this.setSetting('showLowKarma', !currentShowLowKarma)}
-            to={loc=> ({...loc, query: {...loc.query, karmaThreshold: (currentShowLowKarma ? DEFAULT_LOW_KARMA_THRESHOLD : MAX_LOW_KARMA_THRESHOLD)}})}
+            query={{karmaThreshold: (currentShowLowKarma ? DEFAULT_LOW_KARMA_THRESHOLD : MAX_LOW_KARMA_THRESHOLD)}}
+            merge
           >
             <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentShowLowKarma} />
 
             <MetaInfo className={classes.checkboxLabel}>
               Show Low Karma
             </MetaInfo>
-          </Link>
+          </QueryLink>
         </Tooltip>
       </div>
     );
@@ -247,8 +249,6 @@ class PostsListSettings extends Component {
 PostsListSettings.propTypes = {
   currentUser: PropTypes.object,
 };
-
-PostsListSettings.displayName = 'PostsListSettings';
 
 const withUpdateOptions = {
   collection: Users,

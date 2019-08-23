@@ -372,11 +372,9 @@ const schema = {
       return true
     },
     onUpdate: ({data, document}) => {
-      // Not actually the real new document, but good enough for checking the two fields we care about
-      const newDocument= {...document, ...data} 
-      const updatedDocIsEvent = ('isEvent' in newDocument) ? newDocument.isEvent : false
+      const updatedDocIsEvent = ('isEvent' in document) ? document.isEvent : false
       if (updatedDocIsEvent) return false
-      return ('submitToFrontpage' in newDocument) ? newDocument.submitToFrontpage : true
+      return ('submitToFrontpage' in document) ? document.submitToFrontpage : true
     }
   },
 

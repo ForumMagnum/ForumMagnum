@@ -2,7 +2,7 @@ import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from 'react-router-dom';
 import Users from 'meteor/vulcan:users';
 import { withApollo } from 'react-apollo';
 
@@ -17,6 +17,13 @@ import withDialog from '../common/withDialog'
 const styles = theme => ({
   root: {
     marginTop: 5,
+    wordBreak: 'break-all'
+  },
+  userButtonRoot: {
+    // Mui default is 16px, so we're halving it to bring it into line with the
+    // rest of the header components
+    paddingLeft: theme.spacing.unit,
+    paddingRight: theme.spacing.unit
   },
   userButtonContents: {
     textTransform: 'none',
@@ -65,7 +72,7 @@ class UsersMenu extends PureComponent {
 
     return (
       <div className={classes.root}>
-        <Button onClick={this.handleClick}>
+        <Button onClick={this.handleClick} classes={{root: classes.userButtonRoot}}>
           <span className={classes.userButtonContents} style={{ color: color }}>
             {Users.getDisplayName(currentUser)}
             {getSetting('forumType') === 'AlignmentForum' && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
@@ -98,7 +105,9 @@ class UsersMenu extends PureComponent {
               <MenuItem>Profile</MenuItem>
             </Link>
             <Link to={`/account`}>
-              <MenuItem>Edit Account</MenuItem>
+              <MenuItem>
+                Edit User Settings
+              </MenuItem>
             </Link>
             <Link to={`/inbox`}>
               <MenuItem>Private Messages</MenuItem>
