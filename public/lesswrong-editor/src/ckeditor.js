@@ -81,11 +81,6 @@ PostEditor.builtinPlugins = [
 ];
 
 PostEditor.defaultConfig = {
-	// autosave: {
-	// 	save (editor) {
-	// 		return onSave( editor.getData() )
-	// 	}
-	// },
 	blockToolbar: [
 		'heading',
 		'|',
@@ -116,12 +111,6 @@ PostEditor.defaultConfig = {
 		'|',
 		'mathpreview'
 	],
-	// cloudServices: {
-	// 	tokenUrl: cloudServicesConfig.tokenUrl,
-	// 	uploadUrl: cloudServicesConfig.uploadUrl,
-	// 	webSocketUrl: cloudServicesConfig.webSocketUrl,
-	// 	documentId: cloudServicesConfig.documentId
-	// },
 	image: {
 		toolbar: [
 			'imageStyle:full',
@@ -143,88 +132,7 @@ PostEditor.defaultConfig = {
 	mediaEmbed: {
 		toolbar: [ 'comment' ]
 	},
-	// sidebar: {
-	// 	container: this.sidebarElementRef.current
-	// },
-	// presenceList: {
-	// 	container: this.presenceListElementRef.current
-	// }
 };
-
-// export default class Sample extends Component {
-// 	state = {
-// 		// You need this state to render the <CKEditor /> component after the layout is ready.
-// 		// <CKEditor /> needs HTMLElements of `Sidebar` and `PresenceList` plugins provided through
-// 		// the `config` property and you have to ensure that both are already rendered.
-// 		isLayoutReady: false
-// 	};
-
-// 	sidebarElementRef = React.createRef();
-// 	presenceListElementRef = React.createRef();
-
-// 	componentDidMount() {
-// 		// When the layout is ready you can switch the state and render the `<CKEditor />` component.
-// 		this.setState( { isLayoutReady: true } );
-// 	}
-
-// 	render() {
-// 		return (
-// 			<div className="App">
-// 				<div className="centered">
-// 					<div className="row-presence">
-// 						<div ref={ this.presenceListElementRef } className="presence"></div>
-// 					</div>
-// 					{ this.renderEditor() }
-// 					<div ref={ this.sidebarElementRef } className="sidebar"></div>
-// 				</div>
-// 			</div>
-// 		);
-// 	}
-
-// 	renderEditor() {
-// 		const { data = initialData, configuration: cloudServicesConfig, onSave } = this.props
-
-// 		return (
-// 			<div className="row row-editor">
-// 				{ /* Do not render the <CKEditor /> component before the layout is ready. */ }
-// 				{ this.state.isLayoutReady && (
-// 					<CKEditor
-// 						onReady={ this.onEditorReady }
-// 						editor={  }
-// 						config={ {
-							
-// 						} }
-// 						data={ data }
-// 					/>
-// 				) }
-// 			</div>
-// 		);
-// 	}
-
-// 	refreshDisplayMode( editor ) {
-// 		const annotations = editor.plugins.get( 'Annotations' );
-// 		const sidebarElement = this.sidebarElementRef.current;
-
-// 		if ( window.innerWidth < 1000 ) {
-// 			sidebarElement.classList.remove( 'narrow' );
-// 			sidebarElement.classList.add( 'hidden' );
-// 			annotations.switchTo( 'inline' );
-// 		}
-// 		else if ( window.innerWidth < 1300 ) {
-// 			sidebarElement.classList.remove( 'hidden' );
-// 			sidebarElement.classList.add( 'narrow' );
-// 			annotations.switchTo( 'narrowSidebar' );
-// 		}
-// 		else {
-// 			sidebarElement.classList.remove( 'hidden', 'narrow' );
-// 			annotations.switchTo( 'wideSidebar' );
-// 		}
-// 	}
-
-// 	componentWillUnmount() {
-// 		window.removeEventListener( 'resize', this.boundRefreshDisplayMode );
-// 	}
-// }
 
 CommentEditor.builtinPlugins = [
 	Autosave,
@@ -255,11 +163,6 @@ CommentEditor.builtinPlugins = [
 ];
 
 CommentEditor.defaultConfig = {
-	// autosave: {
-	// 	save (editor) {
-	// 		return onSave( editor.getData() )
-	// 	}
-	// },
 	blockToolbar: [
 		'heading',
 		'|',
