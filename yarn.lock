@@ -2,6 +2,55 @@
 # yarn lockfile v1
 
 
+"@apollo/react-common@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@apollo/react-common/-/react-common-3.0.1.tgz#9c8f1433ddaddf80e471259126a76f1738dd4273"
+  integrity sha512-7SC4qqPFo/41AhaQKCRovIshKkm4JLEGXyRHi+NPsaNJyk2J/HrWREnlHVqoPzYeIyq33f1L6j/NAkKn1NOnnQ==
+  dependencies:
+    ts-invariant "^0.4.4"
+    tslib "^1.10.0"
+
+"@apollo/react-components@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@apollo/react-components/-/react-components-3.0.1.tgz#f6fdd9fdb9863c0e8094a33f2525e7770fcf14ee"
+  integrity sha512-IQwcwv+ItW/QHUeO2zQH+CJGnqepPwwShD9H6+v1ptLvixggodr7S4KalNKXgRUVJsoPBFiVgpTMoJe3h4+Eyg==
+  dependencies:
+    "@apollo/react-common" "^3.0.1"
+    "@apollo/react-hooks" "^3.0.1"
+    prop-types "^15.7.2"
+    ts-invariant "^0.4.4"
+    tslib "^1.10.0"
+
+"@apollo/react-hoc@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@apollo/react-hoc/-/react-hoc-3.0.1.tgz#b9921cbac3c88124ff8fa977571bfdb1ece8e0ba"
+  integrity sha512-sKt0/xjr6jknJztJRWA0zX9wUY/xBq6lwyqPxrRM72hCatz/BSi1tgVv9LMHTA0aJPBK79pWXFq/EeiXW2LkVw==
+  dependencies:
+    "@apollo/react-common" "^3.0.1"
+    "@apollo/react-components" "^3.0.1"
+    hoist-non-react-statics "^3.3.0"
+    ts-invariant "^0.4.4"
+    tslib "^1.10.0"
+
+"@apollo/react-hooks@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@apollo/react-hooks/-/react-hooks-3.0.1.tgz#83869beddcbb06cba05d50ccf05097191d245a9c"
+  integrity sha512-Boai/T+2z3m23Gy82m1pB+FOlrhkBJ//EIYa3pqX9sUsvgRWMKC+3NxpeHEUYqsf0qzFiM1dO4Pn9OxCFstM8g==
+  dependencies:
+    "@apollo/react-common" "^3.0.1"
+    "@wry/equality" "^0.1.9"
+    ts-invariant "^0.4.4"
+    tslib "^1.10.0"
+
+"@apollo/react-ssr@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@apollo/react-ssr/-/react-ssr-3.0.1.tgz#2d54182e378722314ad1b1b4b9ccfffb06a54c89"
+  integrity sha512-eeAaajIH1zbMk+zigNAlEeyVH80ELrsjvRCcQxH80+THgnJx/hgkKfmhG2p1q2Djefyv6VfImAwd4xqX6/LRSA==
+  dependencies:
+    "@apollo/react-common" "^3.0.1"
+    "@apollo/react-hooks" "^3.0.1"
+    tslib "^1.10.0"
+
 "@apollographql/apollo-tools@^0.3.0":
   version "0.3.7"
   resolved "https://registry.yarnpkg.com/@apollographql/apollo-tools/-/apollo-tools-0.3.7.tgz#3bc9c35b9fff65febd4ddc0c1fc04677693a3d40"
@@ -1141,7 +1190,7 @@
     "@types/node" ">=6"
     tslib "^1.9.3"
 
-"@wry/equality@^0.1.2":
+"@wry/equality@^0.1.2", "@wry/equality@^0.1.9":
   version "0.1.9"
   resolved "https://registry.yarnpkg.com/@wry/equality/-/equality-0.1.9.tgz#b13e18b7a8053c6858aa6c85b54911fb31e3a909"
   integrity sha512-mB6ceGjpMGz1ZTza8HYnrPGos2mC6So4NhS1PtZ8s4Qt0K7fBiIGhpSxUbQmhwcSWE3no+bYxmI2OL6KuXYmoQ==
@@ -1367,15 +1416,7 @@ apollo-cache-inmemory@^1.4.2:
     ts-invariant "^0.4.0"
     tslib "^1.9.3"
 
-apollo-cache@1.1.25:
-  version "1.1.25"
-  resolved "https://registry.yarnpkg.com/apollo-cache/-/apollo-cache-1.1.25.tgz#87a15a2a19993bb07234ccee6839b59d6fb49ac5"
-  integrity sha512-9HhI/tVEHAeGaJJvi1Vpf6PzXUCA0PqNbigi2G3uOc180JjxbcaBvEbKXMEDb/UyTXkFWzI4PiPDuDQFqmIMSA==
-  dependencies:
-    apollo-utilities "^1.1.2"
-    tslib "^1.9.3"
-
-apollo-cache@^1.3.2:
+apollo-cache@1.3.2, apollo-cache@^1.3.2:
   version "1.3.2"
   resolved "https://registry.yarnpkg.com/apollo-cache/-/apollo-cache-1.3.2.tgz#df4dce56240d6c95c613510d7e409f7214e6d26a"
   integrity sha512-+KA685AV5ETEJfjZuviRTEImGA11uNBp/MJGnaCvkgr+BYRrGLruVKBv6WvyFod27WEB2sp7SsG8cNBKANhGLg==
@@ -1383,17 +1424,17 @@ apollo-cache@^1.3.2:
     apollo-utilities "^1.3.2"
     tslib "^1.9.3"
 
-apollo-client@2.4.12:
-  version "2.4.12"
-  resolved "https://registry.yarnpkg.com/apollo-client/-/apollo-client-2.4.12.tgz#9fa15f502d04f8cc788a9fbb825163b437681504"
-  integrity sha512-E5ClFSB9btJLYibLKwLDSCg+w9tI+25eZgXOM+DClawu7of4d/xhuV/xvpuZpsMP3qwrp0QPacBnfG4tUJs3/w==
+apollo-client@^2.6.3:
+  version "2.6.4"
+  resolved "https://registry.yarnpkg.com/apollo-client/-/apollo-client-2.6.4.tgz#872c32927263a0d34655c5ef8a8949fbb20b6140"
+  integrity sha512-oWOwEOxQ9neHHVZrQhHDbI6bIibp9SHgxaLRVPoGvOFy7OH5XUykZE7hBQAVxq99tQjBzgytaZffQkeWo1B4VQ==
   dependencies:
     "@types/zen-observable" "^0.8.0"
-    apollo-cache "1.1.25"
+    apollo-cache "1.3.2"
     apollo-link "^1.0.0"
-    apollo-link-dedup "^1.0.0"
-    apollo-utilities "1.1.2"
+    apollo-utilities "1.3.2"
     symbol-observable "^1.0.2"
+    ts-invariant "^0.4.0"
     tslib "^1.9.3"
     zen-observable "^0.8.0"
 
@@ -1485,14 +1526,6 @@ apollo-link-batch@^1.1.13:
   version "1.1.13"
   resolved "https://registry.yarnpkg.com/apollo-link-batch/-/apollo-link-batch-1.1.13.tgz#cc73cb59d994c41b1c657b597ed95393bc3bb2d6"
   integrity sha512-Be/kQfY1KcXuSNk0MYdbFqOv8LtLkNgJcO96ynwu6geNiO2rPUi4rn8wjbc2YRwnJ3Qjy95YRbxr+O8gfpT/vw==
-  dependencies:
-    apollo-link "^1.2.12"
-    tslib "^1.9.3"
-
-apollo-link-dedup@^1.0.0:
-  version "1.0.19"
-  resolved "https://registry.yarnpkg.com/apollo-link-dedup/-/apollo-link-dedup-1.0.19.tgz#f0f58312c80b9bf0d927a53d5cad56875c679e14"
-  integrity sha512-7dUiOLAcTlnYcRsUc77s7W9ps1A86JWmrx/Un/6K3xiQkDS3IER5CsujWuAOUtWbP72yp18jEhlyHcslpkJwkg==
   dependencies:
     apollo-link "^1.2.12"
     tslib "^1.9.3"
@@ -1637,15 +1670,7 @@ apollo-tracing@0.4.1:
     apollo-server-env "2.2.0"
     graphql-extensions "0.4.2"
 
-apollo-utilities@1.1.2, apollo-utilities@^1.0.0, apollo-utilities@^1.0.1:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/apollo-utilities/-/apollo-utilities-1.1.2.tgz#aa5eca9d1f1eb721c381a22e0dde03559d856db3"
-  integrity sha512-EjDx8vToK+zkWIxc76ZQY/irRX52puNg04xf/w8R0kVTDAgHuVfnFVC01O5vE25kFnIaa5em0pFI0p9b6YMkhQ==
-  dependencies:
-    fast-json-stable-stringify "^2.0.0"
-    tslib "^1.9.3"
-
-apollo-utilities@^1.0.8, apollo-utilities@^1.1.2, apollo-utilities@^1.3.0, apollo-utilities@^1.3.2:
+apollo-utilities@1.3.2, apollo-utilities@^1.0.8, apollo-utilities@^1.3.0, apollo-utilities@^1.3.2:
   version "1.3.2"
   resolved "https://registry.yarnpkg.com/apollo-utilities/-/apollo-utilities-1.3.2.tgz#8cbdcf8b012f664cd6cb5767f6130f5aed9115c9"
   integrity sha512-JWNHj8XChz7S4OZghV6yc9FNnzEXj285QYp/nLNh943iObycI5GTDO3NGR9Dth12LRrSFMeDOConPfPln+WGfg==
@@ -1653,6 +1678,14 @@ apollo-utilities@^1.0.8, apollo-utilities@^1.1.2, apollo-utilities@^1.3.0, apoll
     "@wry/equality" "^0.1.2"
     fast-json-stable-stringify "^2.0.0"
     ts-invariant "^0.4.0"
+    tslib "^1.9.3"
+
+apollo-utilities@^1.0.0, apollo-utilities@^1.0.1:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/apollo-utilities/-/apollo-utilities-1.1.2.tgz#aa5eca9d1f1eb721c381a22e0dde03559d856db3"
+  integrity sha512-EjDx8vToK+zkWIxc76ZQY/irRX52puNg04xf/w8R0kVTDAgHuVfnFVC01O5vE25kFnIaa5em0pFI0p9b6YMkhQ==
+  dependencies:
+    fast-json-stable-stringify "^2.0.0"
     tslib "^1.9.3"
 
 aproba@^1.0.3:
@@ -4141,10 +4174,10 @@ eslint-import-resolver-node@^0.3.2:
     debug "^2.6.9"
     resolve "^1.5.0"
 
-eslint-module-utils@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/eslint-module-utils/-/eslint-module-utils-2.3.0.tgz#546178dab5e046c8b562bbb50705e2456d7bda49"
-  integrity sha512-lmDJgeOOjk8hObTysjqH7wyMi+nsHwwvfBykwfhjR1LNdd7C2uFJBvx4OpWYpXOw4df1yE1cDEVd1yLHitk34w==
+eslint-module-utils@^2.4.0:
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/eslint-module-utils/-/eslint-module-utils-2.4.1.tgz#7b4675875bf96b0dbf1b21977456e5bb1f5e018c"
+  integrity sha512-H6DOj+ejw7Tesdgbfs4jeS4YMFrT8uI8xwd1gtQqXssaR0EQ26L+2O/w6wkYFy2MymON0fTwHmXBvvfLNZVZEw==
   dependencies:
     debug "^2.6.8"
     pkg-dir "^2.0.0"
@@ -4166,21 +4199,22 @@ eslint-plugin-ckeditor5-rules@^0.0.3:
   resolved "https://registry.yarnpkg.com/eslint-plugin-ckeditor5-rules/-/eslint-plugin-ckeditor5-rules-0.0.3.tgz#17223d50363809c5eae57ce1c03673d08c8c2c21"
   integrity sha512-MU8FNzOukAOfxMmCkWhRB07lp1Zje0PhMzKtRqjiE1Wg4MDzDaKfOTxALixhdVvfgz/GENFinoc+mRS4Hg8t3g==
 
-eslint-plugin-import@^2.14.0:
-  version "2.16.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-import/-/eslint-plugin-import-2.16.0.tgz#97ac3e75d0791c4fac0e15ef388510217be7f66f"
-  integrity sha512-z6oqWlf1x5GkHIFgrSvtmudnqM6Q60KM4KvpWi5ubonMjycLjndvd5+8VAZIsTlHC03djdgJuyKG6XO577px6A==
+eslint-plugin-import@^2.18.2:
+  version "2.18.2"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-import/-/eslint-plugin-import-2.18.2.tgz#02f1180b90b077b33d447a17a2326ceb400aceb6"
+  integrity sha512-5ohpsHAiUBRNaBWAF08izwUGlbrJoJJ+W9/TBwsGoR1MnlgfwMIKrFeSjWbt6moabiXW9xNvtFz+97KHRfI4HQ==
   dependencies:
+    array-includes "^3.0.3"
     contains-path "^0.1.0"
     debug "^2.6.9"
     doctrine "1.5.0"
     eslint-import-resolver-node "^0.3.2"
-    eslint-module-utils "^2.3.0"
+    eslint-module-utils "^2.4.0"
     has "^1.0.3"
-    lodash "^4.17.11"
     minimatch "^3.0.4"
+    object.values "^1.1.0"
     read-pkg-up "^2.0.0"
-    resolve "^1.9.0"
+    resolve "^1.11.0"
 
 eslint-plugin-jsx-a11y@^6.1.1:
   version "6.2.0"
@@ -4211,10 +4245,10 @@ eslint-plugin-prettier@^2.6.2:
     fast-diff "^1.1.1"
     jest-docblock "^21.0.0"
 
-eslint-plugin-react-hooks@^1.0.1:
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-react-hooks/-/eslint-plugin-react-hooks-1.6.0.tgz#348efcda8fb426399ac7b8609607c7b4025a6f5f"
-  integrity sha512-lHBVRIaz5ibnIgNG07JNiAuBUeKhEf8l4etNx5vfAEwqQ5tcuK3jV9yjmopPgQDagQb7HwIuQVsE3IVcGrRnag==
+eslint-plugin-react-hooks@^1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-react-hooks/-/eslint-plugin-react-hooks-1.7.0.tgz#6210b6d5a37205f0b92858f895a4e827020a7d04"
+  integrity sha512-iXTCFcOmlWvw4+TOE8CLWj6yX1GwzT0Y6cUfHHZqWnSk144VmVIRcVGtUAzrLES7C798lmvnt02C7rxaOX1HNA==
 
 eslint-plugin-react@^7.11.1:
   version "7.12.4"
@@ -5426,9 +5460,10 @@ intercom-client@^2.10.2:
     lodash.merge "^4.6.1"
     request "^2.83.0"
 
-intl-locales-supported@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/intl-locales-supported/-/intl-locales-supported-1.0.0.tgz#9a9d94dbf104a87818881952dcb782053f0aeefa"
+intl-locales-supported@1.4.5:
+  version "1.4.5"
+  resolved "https://registry.yarnpkg.com/intl-locales-supported/-/intl-locales-supported-1.4.5.tgz#be9774e6d4ea518f000165ecfe78c78d5bee7de5"
+  integrity sha512-D7oriM5x46rd7kNlSW0f9noIBegFr3ReIM6xlMpwH4lfIPD/zvBelPlCjR10IK16boGJG9lKccOvRAM8wzpbrA==
 
 intl@^1.2.4:
   version "1.2.5"
@@ -6206,11 +6241,6 @@ lodash.isboolean@^3.0.3:
 lodash.isempty@^4.4.0:
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/lodash.isempty/-/lodash.isempty-4.4.0.tgz#6f86cbedd8be4ec987be9aaf33c9684db1b31e7e"
-
-lodash.isequal@^4.5.0:
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/lodash.isequal/-/lodash.isequal-4.5.0.tgz#415c4478f2bcc30120c22ce10ed3226f7d3e18e0"
-  integrity sha1-QVxEePK8wwEgwizhDtMib30+GOA=
 
 lodash.isinteger@^4.0.4:
   version "4.0.4"
@@ -7042,6 +7072,16 @@ object.values@^1.0.4:
     function-bind "^1.1.0"
     has "^1.0.1"
 
+object.values@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/object.values/-/object.values-1.1.0.tgz#bf6810ef5da3e5325790eaaa2be213ea84624da9"
+  integrity sha512-8mf0nKLAoFX6VlNVdhGj31SVYpaNFtUnuoOXWyFEstsWRgU837AK+JYM0iAxwkSzGRbwn8cbFmgbyxj1j4VbXg==
+  dependencies:
+    define-properties "^1.1.3"
+    es-abstract "^1.12.0"
+    function-bind "^1.1.1"
+    has "^1.0.3"
+
 on-finished@^2.3.0, on-finished@~2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/on-finished/-/on-finished-2.3.0.tgz#20f1336481b083cd75337992a16971aa2d906947"
@@ -7741,18 +7781,16 @@ react-addons-pure-render-mixin@^15.4.1:
     fbjs "^0.8.4"
     object-assign "^4.1.0"
 
-react-apollo@^2.4.1:
-  version "2.5.8"
-  resolved "https://registry.yarnpkg.com/react-apollo/-/react-apollo-2.5.8.tgz#c7a593b027efeefdd8399885e0ac6bec3b32623c"
-  integrity sha512-60yOQrnNosxU/tRbOxGDaYNLFcOKmQqxHPhxyvKTlGIaF/rRCXQRKixUgWVffpEupSHHD7psY5k5ZOuZsdsSGQ==
+react-apollo@^3.0.0:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/react-apollo/-/react-apollo-3.0.1.tgz#94f981d3e8770180cafc6c23b5582667e8b80b17"
+  integrity sha512-2hsSYBfxPqPquS8CupWq+U+6XuDfr/Rr1ssXwfOTYe5gCyTthdUqafIm+pyStur9X2W4ZNQMFyjVicsPNq2tnA==
   dependencies:
-    apollo-utilities "^1.3.0"
-    fast-json-stable-stringify "^2.0.0"
-    hoist-non-react-statics "^3.3.0"
-    lodash.isequal "^4.5.0"
-    prop-types "^15.7.2"
-    ts-invariant "^0.4.2"
-    tslib "^1.9.3"
+    "@apollo/react-common" "^3.0.1"
+    "@apollo/react-components" "^3.0.1"
+    "@apollo/react-hoc" "^3.0.1"
+    "@apollo/react-hooks" "^3.0.1"
+    "@apollo/react-ssr" "^3.0.1"
 
 react-autosuggest@^9.4.0:
   version "9.4.3"
@@ -8561,6 +8599,13 @@ resolve@^1.1.6:
   resolved "https://registry.yarnpkg.com/resolve/-/resolve-1.4.0.tgz#a75be01c53da25d934a98ebd0e4c4a7312f92a86"
   dependencies:
     path-parse "^1.0.5"
+
+resolve@^1.11.0:
+  version "1.12.0"
+  resolved "https://registry.yarnpkg.com/resolve/-/resolve-1.12.0.tgz#3fc644a35c84a48554609ff26ec52b66fa577df6"
+  integrity sha512-B/dOmuoAik5bKcD6s6nXDCjzUKnaDvdkRyAk6rsmsKLipWj4797iothd7jmmUhWTfinVMU+wc56rYKsit2Qy4w==
+  dependencies:
+    path-parse "^1.0.6"
 
 resolve@^1.5.0, resolve@^1.9.0:
   version "1.10.0"
@@ -9473,12 +9518,17 @@ ts-invariant@^0.3.2:
   dependencies:
     tslib "^1.9.3"
 
-ts-invariant@^0.4.0, ts-invariant@^0.4.2:
+ts-invariant@^0.4.0, ts-invariant@^0.4.4:
   version "0.4.4"
   resolved "https://registry.yarnpkg.com/ts-invariant/-/ts-invariant-0.4.4.tgz#97a523518688f93aafad01b0e80eb803eb2abd86"
   integrity sha512-uEtWkFM/sdZvRNNDL3Ehu4WVpwaulhwQszV8mrtcdeE8nN00BV9mAmQ88RkrBhFgl9gMgvjJLAQcZbnPXI9mlA==
   dependencies:
     tslib "^1.9.3"
+
+tslib@^1.10.0:
+  version "1.10.0"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.10.0.tgz#c3c19f95973fb0a62973fb09d90d961ee43e5c8a"
+  integrity sha512-qOebF53frne81cf0S9B41ByenJ3/IuH8yJKngAX35CmiZySA0khhkovshKK+jGCaMnVomla7gVlIcc3EvKPbTQ==
 
 tslib@^1.8.0, tslib@^1.9.0, tslib@^1.9.3:
   version "1.9.3"
