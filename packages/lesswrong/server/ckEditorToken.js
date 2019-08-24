@@ -50,7 +50,6 @@ addStaticRoute('/ckeditor-token', async ({ query }, req, res, next) => {
   };
   
   const result = jwt.sign( payload, secretKey, { algorithm: 'HS256' } );
-  console.log("payload: ", JSON.stringify(payload))
   
   res.end( result );
 })
