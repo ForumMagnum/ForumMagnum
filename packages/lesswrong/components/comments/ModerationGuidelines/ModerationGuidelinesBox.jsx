@@ -150,8 +150,7 @@ const queryOptions = {
   collection: Posts,
   queryName: 'postsSingleQuery',
   fragmentName: 'PostsPage',
-  enableTotal: false,
-  enableCache: true,
+  fetchPolicy: 'cache-only'
 };
 
 registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBox, [withDocument, queryOptions], withStyles(styles, {name: 'ModerationGuidelinesBox'}),

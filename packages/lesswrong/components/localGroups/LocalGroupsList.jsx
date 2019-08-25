@@ -48,7 +48,6 @@ const options = {
   queryName: 'localGroupsListQuery',
   fragmentName: 'localGroupsHomeFragment',
   enableTotal: false,
-  enableCache: true,
   ssr: true
 }
 
