@@ -63,12 +63,9 @@ const styles = theme => ({
     paddingBottom: 0
   },
   isSingleLine: {
-    marginBottom: 0,
-    borderBottom: "none",
-    borderTop: "solid 1px rgba(0,0,0,.15)",
+    marginBottom: -1,
     '&.comments-node-root':{
-      marginBottom: -1,
-      borderBottom: "solid 1px rgba(0,0,0,.2)",
+      marginBottom: 4,
     }
   },
   commentHidden: {
@@ -98,18 +95,27 @@ const styles = theme => ({
     animation: `higlight-animation ${HIGHLIGHT_DURATION}s ease-in-out 0s;`
   },
   gapIndicator: {
-    marginTop: 4,
+    marginTop: 5,
     border: `solid 1px ${theme.palette.grey[300]}`,
     backgroundColor: theme.palette.grey[100],
     marginLeft: theme.spacing.unit,
   },
   gapIndicatorText: {
-    fontSize: 11,
-    paddingLeft: theme.spacing.unit,
-    paddingTop: 4,
-    paddingBottom: 4,
+    fontSize: 10,
+    paddingTop: 2,
+    paddingBottom: 2,
+    paddingLeft: 6,
+    paddingRight: 6,
+    marginLeft: 8,
+    marginBottom: -2,
+    display: "inline-block",
+    position: "relative",
+    top: -6,
     ...theme.typography.commentStyle,
-    color: theme.palette.grey[700]
+    color: theme.palette.grey[700],
+    backgroundColor: "white",
+    border: `solid 1px ${theme.palette.grey[300]}`,
+    borderRadius: 2,
   }
 })
 
@@ -269,7 +275,7 @@ class CommentsNode extends Component {
 
     const newComment = this.isNewComment()
 
-    const gapIndicator = parentCommentId != comment.parentCommentId
+    const gapIndicator = parentCommentId && (parentCommentId != comment.parentCommentId)
 
     const hiddenReadComment = hideReadComments && !newComment
 
@@ -312,7 +318,7 @@ class CommentsNode extends Component {
 
     return (
         <div className={gapIndicator && classes.gapIndicator}>
-          {gapIndicator && <div className={classes.gapIndicatorText}>(omitted comments)</div>}
+          {gapIndicator && <div className={classes.gapIndicatorText}>omitted comments</div>}
           <div className={nodeClass}
             onClick={(event) => this.handleExpand(event)}
             id={!noHash ? comment._id : undefined}

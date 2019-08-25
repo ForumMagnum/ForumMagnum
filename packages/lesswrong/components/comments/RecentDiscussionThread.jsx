@@ -160,7 +160,7 @@ class RecentDiscussionThread extends PureComponent {
               <div key={comment.item._id}>
                 <CommentsNode
                   startThreadTruncated={true}
-                  expandAllThreads={this.props.expandAllThreads || this.state.expandAllThreads}
+                  expandAllThreads={this.props.expandAllThreads}
                   nestingLevel={1}
                   lastCommentId={lastCommentId}
                   currentUser={currentUser}
