@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import qs from 'qs';
-import { NavigationContext, LocationContext, SubscribeLocationContext, ServerRequestStatusContext } from 'meteor/vulcan:core';
+import { NavigationContext, LocationContext, SubscribeLocationContext, ServerRequestStatusContext, Utils } from 'meteor/vulcan:core';
 
 // Given the props of a component which has withRouter, return the parsed query
 // from the URL.
@@ -97,4 +97,19 @@ export const withNavigation = (WrappedComponent) => {
       }
     </NavigationContext.Consumer>
   );
+}
+
+
+export const hostIsOffsite = (host) => {
+  // FIXME: This is currently client-side-only because 'URL' is a browser-API
+  // class. See the workaround for the same issue in PostsPage.
+  const siteUrlHost = new URL(Utils.getSiteUrl()).host;
+  if (host === siteUrlHost) return false;
+  
+  // If the domain differs only by the addition or removal of a "www."
+  // subdomain, count it as the same.
+  if ("www."+host === siteUrlHost) return false;
+  if (host === "www."+siteUrlHost) return false;
+  
+  return true;
 }

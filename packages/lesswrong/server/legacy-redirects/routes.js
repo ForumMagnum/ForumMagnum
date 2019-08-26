@@ -52,7 +52,8 @@ function findCommentByLegacyAFId(legacyId) {
 // addRoute({ name: 'lessWrongLegacy', path: 'lw/:id/:slug/:commentId', componentName: 'LegacyPostRedirect'});
 
 // Route for old post links
-addStaticRoute(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug?`, (params, req, res, next) => {
+// Disabled because this is now properly in the routes table, as Components.LegacyPostRedirect.
+/*addStaticRoute(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug?`, (params, req, res, next) => {
   if(params.id){
 
     try {
@@ -76,7 +77,7 @@ addStaticRoute(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug?`, (params
     res.statusCode = 404
     res.end("Please provide a URL");
   }
-});
+});*/
 
 // Route for old comment links
 addStaticRoute(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug/:commentId`, (params, req, res, next) => {

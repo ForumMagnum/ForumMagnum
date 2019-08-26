@@ -85,6 +85,9 @@ import '../components/common/TabNavigationMenu/NavigationStandalone.jsx';
 importComponent("SubscribeWidget", () => require('../components/common/SubscribeWidget.jsx'));
 importComponent("SubscribeDialog", () => require('../components/common/SubscribeDialog.jsx'));
 
+importComponent("HoverPreviewLink", () => require('../components/linkPreview/HoverPreviewLink.jsx'));
+importComponent(["PostLinkPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "PostLinkPreviewWithPost"], () => require('../components/linkPreview/PostLinkPreview.jsx'));
+
 importComponent("AccountsVerifyEmail", () => require('../components/users/AccountsVerifyEmail.jsx'));
 importComponent("AccountsEnrollAccount", () => require('../components/users/EnrollAccount.jsx'));
 importComponent("UsersMenu", () => require('../components/users/UsersMenu.jsx'));
@@ -118,6 +121,7 @@ importComponent("SettingsIcon", () => require('../components/icons/SettingsIcon.
 
 importComponent("PostsHighlight", () => require('../components/posts/PostsHighlight.jsx'));
 importComponent("AlignmentCrosspostMessage", () => require('../components/posts/AlignmentCrosspostMessage.jsx'));
+importComponent("LegacyPostRedirect", () => require('../components/posts/LegacyPostRedirect.jsx'));
 importComponent("LinkPostMessage", () => require('../components/posts/LinkPostMessage.jsx'));
 importComponent("CategoryDisplay", () => require('../components/posts/CategoryDisplay.jsx'));
 importComponent("PostsSingle", () => require('../components/posts/PostsSingle.jsx'));
@@ -145,7 +149,6 @@ importComponent("PostsItemIcons", () => require('../components/posts/PostsItemIc
 import '../components/posts/PostsPage';
 importComponent("PostsSingleSlug", () => require('../components/posts/PostsSingleSlug.jsx'));
 importComponent("PostsSingleRoute", () => require('../components/posts/PostsSingleRoute.jsx'));
-importComponent("PostsSingleSlugWrapper", () => require('../components/posts/PostsSingleSlugWrapper.jsx'));
 importComponent("PostsList2", () => require('../components/posts/PostsList2.jsx'));
 importComponent("PostsTimeBlock", () => require('../components/posts/PostsTimeBlock.jsx'));
 importComponent("PostsCommentsThread", () => require('../components/posts/PostsCommentsThread.jsx'));

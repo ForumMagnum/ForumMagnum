@@ -109,7 +109,7 @@ class SequencesPage extends Component {
   render() {
     const { document, currentUser, loading, classes } = this.props;
     const { SequencesEditForm, HeadTags, CloudinaryImage, SingleColumnSection, SectionSubtitle,
-      ChaptersList, ChaptersNewForm, FormatDate, Loading, SectionFooter, UsersName } = Components
+      ChaptersList, ChaptersNewForm, FormatDate, Loading, SectionFooter, UsersName, ContentItemBody } = Components
     if (document && document.isDeleted) return <h3>This sequence has been deleted</h3>
     if (loading || !document) return <Loading />
     if (this.state.edit) return (
@@ -159,7 +159,7 @@ class SequencesPage extends Component {
           </SectionFooter>
           
           <div className={classes.description}>
-            {html && <div dangerouslySetInnerHTML={{__html: html}}/>}
+            {html && <ContentItemBody dangerouslySetInnerHTML={{__html: html}}/>}
           </div>
           <div>
             <ChaptersList terms={{view: "SequenceChapters", sequenceId: document._id}} canEdit={canEdit} />
