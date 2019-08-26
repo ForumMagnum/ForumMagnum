@@ -33,6 +33,11 @@ const HoverPreviewLink = ({innerHTML, href}) => {
   // class. See the workaround for the same issue in PostsPage.
   const location = useLocation();
   
+  // Invalid link with no href? Don't transform it.
+  if (!href) {
+    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
+  }
+  
   // Within-page relative link?
   if (href.startsWith("#")) {
     return <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
