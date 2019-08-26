@@ -17,7 +17,7 @@ const ShortformSubmitForm = ({ classes, successCallback}) => {
       <CommentsNewForm
         prefilledProps={{
           shortform: true, 
-          editorHintText: "Write a shortform post here. (You can switch between rich text and markdown in your user settings)"
+          editorHintText: <div>Write your thoughts here! What have you been thinking about? Incomplete, exploratory, formative, rambly, rough, boring, draft-stage, unedited, and even (gasp!) wrong thoughts are all welcome on Shortform.</div>
         }}
         successCallback={successCallback}
         type="comment"

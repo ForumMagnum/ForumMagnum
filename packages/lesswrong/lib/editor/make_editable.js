@@ -48,13 +48,13 @@ export const makeEditable = ({collection, options = {}}) => {
     fieldName = "",
     hintText = <div>
       <div>
-        Write your {collection.options.singleResolverName} here. Select text for formatting options.
+        Write here. Select text for formatting options.
       </div>
       <div>
-        You can switch between rich text and markdown in your user settings)
+        We support LaTeX: Cmd-4 for inline, Cmd-M for block-level (Ctrl on Windows).
       </div>
       <div>
-        You can switch between rich text and markdown in your user settings)
+        You can switch between rich text and markdown in your user settings.
       </div>
   </div>,
     order,

@@ -18,6 +18,7 @@ import { myKeyBindingFn } from './editor-plugins/keyBindings.js'
 import createLinkifyPlugin from './editor-plugins/linkifyPlugin'
 import ImageButton from './editor-plugins/image/ImageButton.jsx';
 import { Map } from 'immutable';
+import classNames from 'classnames';
 import compose from 'lodash/flowRight';
 import NoSsr from '@material-ui/core/NoSsr';
 import {
@@ -29,6 +30,9 @@ import {
 } from 'draft-js-buttons';
 
 const styles = theme => ({
+  root: {
+    position: "relative",
+  },
   placeholder: {
     color: theme.palette.grey[500],
     position: "absolute",
@@ -170,7 +174,7 @@ class EditorForm extends Component {
       <div>
         <NoSsr>
         <div
-          className={this.props.className}
+          className={classNames(classes.root, this.props.className)}
           onClick={this.focus}
         >
           {showPlaceholder && <div className={classes.placeholder}>{placeholder}</div>}

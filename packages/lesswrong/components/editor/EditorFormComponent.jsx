@@ -419,7 +419,6 @@ class EditorFormComponent extends Component {
             isClient={Meteor.isClient}
             editorState={draftJSValue}
             onChange={this.setDraftJS}
-            placeholder={placeholderText}
             commentEditor={form && form.commentEditor}
             className={classnames(bodyStyles, heightClass, {[classes.questionWidth]: document.question})}
           />
@@ -429,17 +428,18 @@ class EditorFormComponent extends Component {
     } else {
       const { multiLine, fullWidth, disableUnderline, startAdornment } = this.props
 
+      const showPlaceholder = currentEditorType === "html" ? (htmlValue === "") : (markdownValue === "")
       return (
         <div className={classnames(classes.root, "editor-form-component")}>
           { editorWarning }
           <div className="mui-text-field">
+            {showPlaceholder && <div className={classes.placeholder}>{placeholderText}</div>}
             <Input
               className={classnames(classes.markdownEditor, bodyStyles, {[classes.questionWidth]: document.question})}
               value={currentEditorType === "html" ? (htmlValue || "") : (markdownValue || "")}
               onChange={currentEditorType === "html" ? this.setHtml : this.setMarkdown}
               multiline={multiLine}
               rows={commentStyles ? commentEditorHeightRows : postEditorHeightRows}
-              placeholder={placeholderText}
               rowsMax={99999}
               fullWidth={fullWidth}
               disableUnderline={disableUnderline}
