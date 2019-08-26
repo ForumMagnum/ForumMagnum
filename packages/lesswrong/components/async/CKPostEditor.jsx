@@ -47,7 +47,7 @@ const refreshDisplayMode = ( editor, sidebarElement ) => {
 }
 
 
-const Editor = ({ data, onSave, documentId, userId, formType, onInit, classes }) => {
+const CKPostEditor = ({ data, onSave, documentId, userId, formType, onInit, classes }) => {
   // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
   useEffect(() => {
@@ -100,4 +100,4 @@ const Editor = ({ data, onSave, documentId, userId, formType, onInit, classes })
     />}
   </div>
 }
-export default withStyles(styles)(Editor)
+export default withStyles(styles)(CKPostEditor)

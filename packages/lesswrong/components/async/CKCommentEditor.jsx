@@ -4,7 +4,7 @@ import { CommentEditor } from '@lesswrong/lesswrong-editor';
 // Uncomment the import and the line below to activate the debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
 
-const Editor = ({ data, onSave, onInit }) => {
+const CKCommentEditor = ({ data, onSave, onInit }) => {
   return <div>
     <CKEditor
       editor={ CommentEditor }
@@ -24,4 +24,4 @@ const Editor = ({ data, onSave, onInit }) => {
     />
   </div>
 }
-export default Editor
+export default CKCommentEditor
