@@ -2,8 +2,6 @@
 import 'jsdom-global/register';
 import React from 'react';
 import expect from 'expect';
-import { shallow } from 'enzyme';
-import { Components } from 'meteor/vulcan:core';
 import { initComponentTest } from 'meteor/vulcan:test';
 
 // we must import all the other components, so that "registerComponent" is called

@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { registerComponent, useUpdate } from 'meteor/vulcan:core';
 import { Comments } from '../../../lib/collections/comments';
 import { useCurrentUser } from '../../common/withUser';

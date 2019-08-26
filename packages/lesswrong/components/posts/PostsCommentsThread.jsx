@@ -34,7 +34,6 @@ const options = {
   queryName: 'PostCommentsThreadQuery',
   fragmentName: 'CommentsList',
   fetchPolicy: 'cache-and-network',
-  // enableCache: true,
   enableTotal: true,
 };
 

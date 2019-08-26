@@ -41,7 +41,6 @@ const SunshineNewUserPostsList = ({loading, results, classes, truncated}) => {
 const withMultiOptions = {
   collection: Posts,
   fragmentName: 'PostsList',
-  enableCache: true,
   fetchPolicy: 'cache-and-network',
 }
 
