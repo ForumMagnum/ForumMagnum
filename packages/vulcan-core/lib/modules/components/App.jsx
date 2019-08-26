@@ -52,6 +52,10 @@ export function parseRoute(location) {
     }
   }
   
+  if (!currentRoute) {
+    Sentry.captureException(new Error(`404 not found: ${location.pathname}`));
+  }
+  
   const RouteComponent = currentRoute ? Components[currentRoute.componentName] : Components.Error404;
   return {
     currentRoute, RouteComponent, location, params,
