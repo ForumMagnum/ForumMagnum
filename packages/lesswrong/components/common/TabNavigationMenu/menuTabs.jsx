@@ -183,7 +183,6 @@ export default {
       tooltip: "Curated collections of the AI Alignment Forum's best writing.",
       showOnMobileStandalone: true,
       showOnCompressed: true,
-    // next 3 are subItems
     }, {
       id: 'questions',
       title: 'Questions',
