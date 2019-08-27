@@ -27,7 +27,8 @@ const styles = theme => ({
   postBodyStyles: {
     ...editorStyles(theme, postBodyStyles),
     cursor: "text",
-    maxWidth:640,
+    maxWidth: 640,
+    padding: 0,
     '& li .public-DraftStyleDefault-block': {
       margin: 0
     }
@@ -73,13 +74,6 @@ const styles = theme => ({
     top: 0,
     color: theme.palette.grey[600]
   }
-  // .mui-text-field {
-  //   input, textarea { box-shadow: none }
-  //   input:focus, textarea:focus {
-  //     box-shadow: none;
-  //   }
-  // }
-  
 })
 
 const autosaveInterval = 3000; //milliseconds
@@ -427,6 +421,8 @@ class EditorFormComponent extends Component {
         return this.renderDraftJSEditor(currentEditorType)
       case "markdown":
         return this.renderMarkdownEditor(currentEditorType)
+      case "html":
+        return this.renderMarkdownEditor(currentEditorType)
     }
   }
 
@@ -447,17 +443,13 @@ class EditorFormComponent extends Component {
     if (!this.state.ckEditorLoaded || !CKEditor) {
       return <Loading />
     } else {
-      return <div>
-          { this.renderPlaceholder(!ckEditorValue) }
-          <CKEditor 
+      return <CKEditor 
             data={ckEditorValue}
-            placeholder={this.getPlaceholderText()}
             documentId={document._id}
             formType={formType}
             userId={currentUser._id}
             onInit={editor => this.setState({ckEditorReference: editor})}
           />
-        </div>
     }
   }
 
@@ -465,7 +457,7 @@ class EditorFormComponent extends Component {
     const { markdownValue } = this.state
     const { classes, multiLine, fullWidth, disableUnderline, startAdornment, form: { commentStyles }, label } = this.props
     const value = markdownValue || ""
-    return <div className="mui-text-field">
+    return <div>
         { this.renderPlaceholder(!value) }
         <Input
           className={classnames(classes.markdownEditor, this.getBodyStyles(), {[classes.questionWidth]: document.question})}
@@ -478,7 +470,7 @@ class EditorFormComponent extends Component {
           disableUnderline={disableUnderline}
           startAdornment={startAdornment}
           label={label}
-        /><br />
+        />
       </div>
   }
 
@@ -514,11 +506,6 @@ class EditorFormComponent extends Component {
     const currentEditorType = this.getCurrentEditorType()
 
     if (!document) return null;
-
-    // The class which determines clickable height (as tall as a comment editor,
-    // or as tall as a post editor) needs to be applied deeper in the tree, for
-    // the draftJS editor; if we apply it to our wrapper div, it'll look right
-    // but most of it won't be clickable.
 
     const editorWarning =
       !editorOverride
