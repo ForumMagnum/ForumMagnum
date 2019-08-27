@@ -12,6 +12,10 @@ import MessagesIcon from '@material-ui/icons/Forum';
 
 const notificationTypes = {};
 
+export const getNotificationTypes = () => {
+  return Object.keys(notificationTypes);
+}
+
 export const getNotificationTypeByName = (name) => {
   if (name in notificationTypes)
     return notificationTypes[name];

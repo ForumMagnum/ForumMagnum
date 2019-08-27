@@ -84,6 +84,22 @@ const karmaChangeSettingsType = new SimpleSchema({
   }
 })
 
+const notificationTypeSettings = new SimpleSchema({
+  enabled: {
+    type: Boolean,
+  },
+  sendOnSite: {
+    type: Boolean,
+  },
+  sendByEmail: {
+    type: Boolean,
+  },
+  batchingFrequency: {
+    type: String,
+    allowedValues: ['daily', 'weekly', 'realtime']
+  },
+})
+
 const partiallyReadSequenceItem = new SimpleSchema({
   sequenceId: {
     type: String,
@@ -508,7 +524,7 @@ addFieldsDict(Users, {
     optional: true,
   },
 
-  // New Notifications settings
+  // Obsolete notifications settings
   auto_subscribe_to_my_posts: {
     label: "Notifications for Comments on My Posts",
     group: formGroups.notifications,
@@ -541,6 +557,13 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     ...schemaDefaultValue(true),
+  },
+  
+  notificationCommentsOnMyPost: {
+  },
+  notificationRepliesToMyComments: {
+  },
+  notificationPostsInGroups: {
   },
 
   // Karma-change notifier settings

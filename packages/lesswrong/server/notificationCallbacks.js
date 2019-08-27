@@ -13,7 +13,8 @@ import './emailComponents/NewPostEmail.jsx';
 import './emailComponents/PrivateMessagesEmail.jsx';
 import { EventDebouncer } from './debouncer.js';
 import { UnsubscribeAllToken } from './emails/emailTokens.js';
-import { getNotificationTypeByName } from '../lib/notificationTypes.jsx';
+import { getNotificationTypes, getNotificationTypeByName } from '../lib/notificationTypes.jsx';
+import { notificationDebouncers } from './notificationBatching.js';
 
 import { Components, addCallback, newMutation } from 'meteor/vulcan:core';
 
@@ -69,8 +70,11 @@ async function getSubscribedUsers({
 }
 
 const createNotifications = async (userIds, notificationType, documentType, documentId) => {
+  const now = new Date();
+  
   return Promise.all(
     userIds.map(async userId => {
+      console.log(`Creating ${notificationType} notification for user ${userId}`);
       let user = Users.findOne({ _id:userId });
   
       let notificationData = {
@@ -80,15 +84,24 @@ const createNotifications = async (userIds, notificationType, documentType, docu
         message: notificationMessage(notificationType, documentType, documentId),
         type: notificationType,
         link: getLink(notificationType, documentType, documentId),
+        waitingForBatch: true,
       }
   
-      await newMutation({
+      const createdNotification = await newMutation({
         action: 'notifications.new',
         collection: Notifications,
         document: notificationData,
         currentUser: user,
         validate: false
       });
+      console.log(`Recording debouncer event:`);
+      console.log(createdNotification.data);
+      await notificationDebouncers[notificationType].recordEvent({
+        key: {notificationType, userId},
+        data: createdNotification.data._id,
+        af: false, //TODO: Handle AF vs non-AF notifications
+      });
+      console.log("Recorded debouncer event");
     })
   );
 }

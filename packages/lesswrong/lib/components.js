@@ -34,6 +34,7 @@ importComponent("NotificationsList", () => require('../components/notifications/
 importComponent("NotificationsItem", () => require('../components/notifications/NotificationsItem.jsx'));
 importComponent("NotificationsMenuButton", () => require('../components/notifications/NotificationsMenuButton.jsx'));
 importComponent("SubscribeTo", () => require('../components/notifications/SubscribeTo.jsx'));
+importComponent("NotificationTypeSettings", () => require('../components/notifications/NotificationTypeSettings.jsx'));
 
 importComponent("Layout", () => require('../components/Layout.jsx'));
 

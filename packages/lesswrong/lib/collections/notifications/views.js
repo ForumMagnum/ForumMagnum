@@ -8,7 +8,8 @@ Notifications.addDefaultView(function (terms) {
   const alignmentForum = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
   return {
     selector: {
-      ...alignmentForum
+      ...alignmentForum,
+      waitingForBatch: false,
     },
     options: {limit: 1000},
   };
