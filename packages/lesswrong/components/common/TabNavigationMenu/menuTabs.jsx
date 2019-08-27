@@ -176,6 +176,14 @@ export default {
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
+      id: 'library',
+      title: 'Library',
+      link: '/library',
+      iconComponent: BookIcon,
+      tooltip: "Curated collections of the AI Alignment Forum's best writing.",
+      showOnMobileStandalone: true,
+      showOnCompressed: true,
+    }, {
       id: 'questions',
       title: 'Questions',
       link: '/questions',
