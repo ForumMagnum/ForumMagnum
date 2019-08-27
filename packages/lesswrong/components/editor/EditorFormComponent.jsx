@@ -45,7 +45,8 @@ const styles = theme => ({
   commentBodyStyles: {
     ...editorStyles(theme, commentBodyStyles),
     cursor: "text",
-    margin: 0,
+    marginTop: 0,
+    marginBottom: 0,
     padding: 0,
     pointerEvents: 'auto'
   },
