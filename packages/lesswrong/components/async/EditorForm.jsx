@@ -11,15 +11,13 @@ import createBlockBreakoutPlugin from 'draft-js-block-breakout-plugin'
 import createDividerPlugin from './editor-plugins/divider';
 import createMathjaxPlugin from 'draft-js-mathjax-plugin'
 import createMarkdownShortcutsPlugin from './editor-plugins/markdown-shortcuts-plugin';
-import { withTheme, withStyles } from '@material-ui/core/styles';
+import { withTheme } from '@material-ui/core/styles';
 import createLinkPlugin from 'draft-js-anchor-plugin';
 import LinkButton from './editor-plugins/LinkButton'
 import { myKeyBindingFn } from './editor-plugins/keyBindings.js'
 import createLinkifyPlugin from './editor-plugins/linkifyPlugin'
 import ImageButton from './editor-plugins/image/ImageButton.jsx';
 import { Map } from 'immutable';
-import classNames from 'classnames';
-import compose from 'lodash/flowRight';
 import NoSsr from '@material-ui/core/NoSsr';
 import {
   createBlockStyleButton,
@@ -28,17 +26,6 @@ import {
   UnderlineButton,
   BlockquoteButton,
 } from 'draft-js-buttons';
-
-const styles = theme => ({
-  root: {
-    position: "relative",
-  },
-  placeholder: {
-    color: theme.palette.grey[500],
-    position: "absolute",
-    top: 0
-  }
-})
 
 const HeadlineOneButton = createBlockStyleButton({
   blockType: 'header-one',
@@ -163,7 +150,7 @@ class EditorForm extends Component {
   }
 
   render() {
-    const { classes, theme, editorState, onChange } = this.props
+    const { theme, editorState, onChange } = this.props
 
     const InlineToolbar = this.plugins[0].InlineToolbar;
     const AlignmentTool = this.plugins[1].AlignmentTool;
@@ -172,7 +159,7 @@ class EditorForm extends Component {
       <div>
         <NoSsr>
         <div
-          className={classNames(classes.root, this.props.className)}
+          className={this.props.className}
           onClick={this.focus}
         >
           <Editor
@@ -207,7 +194,4 @@ EditorForm.propTypes = {
   onChange: PropTypes.func
 }
 
-export default compose(
-  withStyles(styles, {name:"EditorForm"}),
-  withTheme()
-)(EditorForm);
+export default withTheme()(EditorForm);
