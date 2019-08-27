@@ -18,7 +18,6 @@ import { myKeyBindingFn } from './editor-plugins/keyBindings.js'
 import createLinkifyPlugin from './editor-plugins/linkifyPlugin'
 import ImageButton from './editor-plugins/image/ImageButton.jsx';
 import { Map } from 'immutable';
-import NoSsr from '@material-ui/core/NoSsr';
 import {
   createBlockStyleButton,
   ItalicButton,
@@ -26,6 +25,7 @@ import {
   UnderlineButton,
   BlockquoteButton,
 } from 'draft-js-buttons';
+import NoSsr from '@material-ui/core/NoSsr';
 
 const HeadlineOneButton = createBlockStyleButton({
   blockType: 'header-one',
@@ -158,10 +158,7 @@ class EditorForm extends Component {
     return (
       <div>
         <NoSsr>
-        <div
-          className={this.props.className}
-          onClick={this.focus}
-        >
+        <div className={this.props.className} onClick={this.focus}>
           <Editor
             editorState={editorState}
             onChange={onChange}
