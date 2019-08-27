@@ -163,12 +163,10 @@ class EditorForm extends Component {
   }
 
   render() {
-    const { classes, theme, editorState, onChange, placeholder } = this.props
+    const { classes, theme, editorState, onChange } = this.props
 
     const InlineToolbar = this.plugins[0].InlineToolbar;
     const AlignmentTool = this.plugins[1].AlignmentTool;
-
-    const showPlaceholder = !(editorState && editorState.getCurrentContent && editorState.getCurrentContent().hasText())
 
     return (
       <div>
@@ -177,7 +175,6 @@ class EditorForm extends Component {
           className={classNames(classes.root, this.props.className)}
           onClick={this.focus}
         >
-          {showPlaceholder && <div className={classes.placeholder}>{placeholder}</div>}
           <Editor
             editorState={editorState}
             onChange={onChange}

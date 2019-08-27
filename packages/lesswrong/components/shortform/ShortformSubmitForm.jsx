@@ -17,7 +17,8 @@ const ShortformSubmitForm = ({ classes, successCallback}) => {
       <CommentsNewForm
         prefilledProps={{
           shortform: true, 
-          editorHintText: <div>Write your thoughts here! What have you been thinking about? Incomplete, exploratory, formative, rambly, rough, boring, draft-stage, unedited, and even (gasp!) wrong thoughts are all welcome on Shortform.</div>
+          // TODO: this crashes if passed JSX. I'd like to be able to pass in formatted text. (Ray,  August 2018)
+          editorHintText: "Write your thoughts here! What have you been thinking about? Incomplete, exploratory, formative, rambly, rough, boring, draft-stage, unedited, and even (gasp!) wrong thoughts are all welcome on Shortform."
         }}
         successCallback={successCallback}
         type="comment"

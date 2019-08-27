@@ -98,7 +98,6 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
         successCallback={successCallback}
         cancelCallback={cancelCallback}
         prefilledProps={prefilledProps}
-        editorHintText="Write a shortform post here. (You can switch between rich text and markdown in your user settings)"
         layout="elementOnly"
         formComponents={{
           FormSubmit: SubmitComponent,
