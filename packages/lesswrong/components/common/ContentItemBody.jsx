@@ -196,7 +196,6 @@ class ContentItemBody extends Component {
   };
   
   markHoverableLinks = () => {
-    //if(!Meteor.isServer && this.bodyRef && this.bodyRef.current) {
     if(this.bodyRef && this.bodyRef.current) {
       const linkTags = [...this.bodyRef.current.getElementsByTagName("a")];
       for (let linkTag of linkTags) {
