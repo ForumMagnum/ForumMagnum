@@ -101,15 +101,25 @@ export const withNavigation = (WrappedComponent) => {
 
 
 export const hostIsOffsite = (host) => {
-  // FIXME: This is currently client-side-only because 'URL' is a browser-API
-  // class. See the workaround for the same issue in PostsPage.
-  const siteUrlHost = new URL(Utils.getSiteUrl()).host;
-  if (host === siteUrlHost) return false;
-  
-  // If the domain differs only by the addition or removal of a "www."
-  // subdomain, count it as the same.
-  if ("www."+host === siteUrlHost) return false;
-  if (host === "www."+siteUrlHost) return false;
-  
-  return true;
+  // FIXME: This is currently client-side-only for historical reasons that don't apply anymore but haven't gotten around to fixing it
+  let isOffsite = true
+  const domainWhitelist = [
+    "lesswrong.com", 
+    "lesserwrong.com", 
+    "lessestwrong.com", 
+    "alignmentforum.org", 
+    "alignment-forum.com", 
+    "greaterwrong.com",
+    "localhost:3000"
+  ]
+
+  domainWhitelist.forEach((domain) => {
+    if ((host === domain) && isOffsite) isOffsite = false;
+    // If the domain differs only by the addition or removal of a "www."
+    // subdomain, count it as the same.
+    if (("www."+host === domain) && isOffsite) isOffsite = false;
+    if ((host === "www."+domain) && isOffsite) isOffsite = false;
+  })
+
+  return isOffsite
 }
