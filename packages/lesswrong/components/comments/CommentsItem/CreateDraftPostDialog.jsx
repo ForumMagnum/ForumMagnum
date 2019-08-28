@@ -67,8 +67,8 @@ class CreateDraftPostDialog extends PureComponent {
     const { currentUser, createPost, updateComment, document, history, onClose } = this.props;
     const { title, moveChildComments } = this.state
 
-    // note: this post will have the userID of whoever is creating it (not necessarily that of the author)
-    // I think that's probably actually preferable, but not sure (this shoudl only come up for Sunshines/Admins) – Ray Aug 2019
+    // note — this post will have the userID of whoever is creating it (not necessarily that of the author)
+    // I think that's probably actually preferable, but not sure (this shoudl only come up for Sunshines/Admins)
     let data = {
       title: title,
       draft: true,
