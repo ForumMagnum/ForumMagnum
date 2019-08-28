@@ -88,7 +88,9 @@ class RecommendationsAndCurated extends PureComponent {
 
     return <SingleColumnSection>
       <SectionTitle title="Recommendations">
-        <SettingsIcon onClick={this.toggleSettings}/>
+        <Tooltip title="Customize your recommendations">
+          <SettingsIcon onClick={this.toggleSettings} label="Settings"/> 
+        </Tooltip>
       </SectionTitle>
       {showSettings &&
         <RecommendationsAlgorithmPicker
