@@ -61,6 +61,7 @@ registerFragment(`
       _id
       slug
       title
+      draft
     }
   }
 `)
@@ -77,6 +78,7 @@ registerFragment(`
       _id
       slug
       lastVisitedAt
+      draft
     }
   }
 `);
