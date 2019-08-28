@@ -16,7 +16,7 @@ registerSetting('faviconUrl', '/img/favicon.ico', 'Favicon absolute URL');
 
 const HeadTags = (props) => {
     const url = props.url || Utils.getSiteUrl();
-    const canonicalUrl = props.canonicalUrl || props.url || Utils.getSiteUrl()
+    const canonicalUrl = props.canonicalUrl || url
     const description = props.description || getSetting('tagline') || getSetting('description');
     const { currentRoute, pathname } = useSubscribedLocation();
     const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
