@@ -1,4 +1,4 @@
-import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { commentBodyStyles, postBodyStyles } from '../../themes/stylePiping'
