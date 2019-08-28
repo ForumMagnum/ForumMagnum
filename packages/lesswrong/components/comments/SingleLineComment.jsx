@@ -1,10 +1,11 @@
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { commentBodyStyles, postBodyStyles } from '../../themes/stylePiping'
 import withHover from '../common/withHover';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
+import { Comments } from '../../lib/collections/comments'
 import { isMobile } from '../../lib/modules/utils/isMobile.js'
 
 const styles = theme => ({
@@ -107,7 +108,7 @@ const styles = theme => ({
 
 const SingleLineComment = ({comment, classes, nestingLevel, hover, parentCommentId}) => {
   if (!comment) return null
-  const { baseScore } = comment
+
   const { plaintextMainText } = comment.contents
   const { CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon } = Components
 
@@ -122,7 +123,7 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
           <ShowParentComment comment={comment} nestingLevel={nestingLevel} />
         }
         <span className={classes.karma}>
-          {baseScore || 0}
+          {Comments.getKarma(comment)}
         </span>
         <span className={classes.username}>
           <CommentUserName comment={comment} simple={true}/>
