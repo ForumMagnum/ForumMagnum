@@ -39,10 +39,10 @@ const HoverPreviewLink = ({innerHTML, href}) => {
   }
   
   // Within-page relative link?
-  if (href?.startsWith("#")) {
+  if (href.startsWith("#")) {
     return <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
   }
-  
+
   const currentURL = new URL(location.pathname, Utils.getSiteUrl());
   const linkTargetAbsolute = new URL(href, currentURL);
   
