@@ -1,0 +1,216 @@
+/*
+ * Copyright (c) 2003-2019, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see LICENSE.md.
+ */
+
+/* Give the block toolbar button some space, moving it a few pixels away from the editable area. */
+.ck.ck-block-toolbar-button {
+	transform: translateX( calc(-1 * var(--ck-spacing-large)) );
+}
+
+/**
+ * @license Copyright (c) 2003-2019, CKSource - Frederico Knabben. All rights reserved.
+ * This file is licensed under the terms of the MIT License (see LICENSE.md).
+ */
+
+ :root {
+	--ck-sample-base-spacing: 2em;
+	--ck-sample-color-white: #fff;
+	--ck-sample-color-green: #279863;
+	--ck-sample-container-width: 1285px;
+	--ck-sample-sidebar-width: 300px;
+	--ck-sample-editor-min-height: 200px;
+}
+
+body, html {
+	padding: 0;
+	margin: 0;
+
+	font-family: sans-serif, Arial, Verdana, "Trebuchet MS", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+	font-size: 16px;
+	line-height: 1.5;
+}
+
+body {
+	height: 100%;
+	color: #2D3A4A;
+}
+
+body * {
+	box-sizing: border-box;
+}
+
+a {
+	color: #38A5EE;
+}
+
+.ck-heading-dropdown {
+	width: 105px !important;
+}
+
+/* --------- STYLES TO DISPLAY THE EDITOR BEFORE LOAD ---------------------------------------------------------------------------- */
+
+.row-editor > div:first-child{
+	background: #fff;
+	border: 1px solid hsl(0, 0%, 70%)
+}
+
+.ck.ck-editor {
+	/* Because of sidebar `position: relative`, Edge is overriding the outline of a focused editor. */
+	position: relative;
+	z-index: 10;
+}
+
+.row-editor .image.image-style-side {
+	float: right;
+	width: 50%;
+}
+
+.row-editor .image img {
+	width: 100%;
+	max-width: 100%;
+}
+
+.centered {
+	/* Hide overlapping comments. */
+	overflow: hidden;
+
+	max-width: var(--ck-sample-container-width);
+	margin: 0 auto;
+	padding: 0 var(--ck-sample-base-spacing);
+}
+
+.row {
+	display: flex;
+	position: relative;
+}
+
+.sidebar {
+	padding: 0 10px;
+	position: relative;
+	min-width: var(--ck-sample-sidebar-width);
+	font-size: 20px;
+	background: hsl(0, 0%, 98%);
+	border: 1px solid hsl(0, 0%, 77%);
+	border-left: 0;
+	border-top: 0;
+	overflow: hidden;
+	min-height: 100%;
+
+	/* #2733. Do not overlap the left border if the sidebar is longer than content. */
+	box-shadow: -1px 0 0 0 hsl(0, 0%, 77%);
+}
+
+.sidebar.narrow {
+	min-width: 60px;
+}
+
+.sidebar.hidden {
+	display: none;
+}
+
+.row-presence {
+	position: relative;
+	width: 100%;
+	border: 1px solid hsl(0, 0%, 77%);
+	border-bottom: 0;
+	background: hsl(0, 0%, 98%);
+	padding: var(--ck-spacing-small);
+
+	/* Make `border-bottom` as `box-shadow` to not overlap with the editor border. */
+	box-shadow: 0 1px 0 0 hsl(0, 0%, 77%);
+
+	/* Make `z-index` bigger than `.editor` to properly display tooltips. */
+	z-index: 20;
+}
+
+.presence .ck.ck-presence-list__counter {
+	order: 2;
+	margin-left: var(--ck-spacing-large)
+}
+
+.row-editor > div:first-child,
+/* Classic demo. */
+main .ck-editor[role='application'] .ck.ck-content {
+	background: #fff;
+	font-size: 1em;
+	line-height: 1.6em;
+	min-height: var(--ck-sample-editor-min-height);
+	padding: 1.5em 2em;
+}
+
+/* --------- SAMPLE GENERIC STYLES ---------------------------------------------------------------------------- */
+header .centered {
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: space-between;
+	align-items: center;
+	min-height: 8em;
+}
+
+header h1 a {
+	font-size: 20px;
+	display: flex;
+	align-items: center;
+	color: #2D3A4A;
+	text-decoration: none;
+}
+
+header h1 img {
+	display: block;
+	height: 64px;
+}
+
+header nav ul {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+}
+
+header nav ul li {
+	display: inline-block;
+}
+
+header nav ul li + li {
+	margin-left: 1em;
+}
+
+header nav ul li a {
+	font-weight: bold;
+	text-decoration: none;
+	color: #2D3A4A;
+}
+
+header nav ul li a:hover {
+	text-decoration: underline;
+}
+
+main .message {
+	padding: 0 0 var(--ck-sample-base-spacing);
+	background: var(--ck-sample-color-green);
+	color: var(--ck-sample-color-white);
+}
+
+main .message::after {
+	content: "";
+	z-index: -1;
+	display: block;
+	height: 10em;
+	width: 100%;
+	background: var(--ck-sample-color-green);
+	position: absolute;
+	left: 0;
+}
+
+main .message h2 {
+	position: relative;
+	padding-top: 1em;
+	font-size: 2em;
+}
+
+footer {
+	margin: calc(2*var(--ck-sample-base-spacing)) var(--ck-sample-base-spacing);
+	font-size: .8em;
+	text-align: center;
+	color: rgba(0,0,0,.4);
+}

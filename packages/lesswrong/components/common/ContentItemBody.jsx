@@ -56,6 +56,7 @@ const styles = theme => ({
     // target.
     // !important to take precedence over .mjx-chtml
     marginTop: "-1em !important",
+    marginBottom: "-1em !important",
     
     paddingTop: "2em !important",
     paddingBottom: "2em !important",

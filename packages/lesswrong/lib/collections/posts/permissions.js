@@ -18,6 +18,7 @@ const membersActions = [
 Users.groups.members.can(membersActions);
 
 const adminActions = [
+  'posts.view.all',
   'posts.view.pending',
   'posts.view.rejected',
   'posts.view.spam',
@@ -31,7 +32,7 @@ Users.groups.admins.can(adminActions);
 // LessWrong Permissions
 
 Posts.checkAccess = (currentUser, post) => {
-  if (Users.isAdmin(currentUser)) {
+  if (Users.canDo(currentUser, 'posts.view.all')) {
     return true
   } else if (Users.owns(currentUser, post) || Users.isSharedOn(currentUser, post)) {
     return true;
@@ -53,6 +54,7 @@ const votingActions = [
 Users.groups.members.can(votingActions);
 
 const sunshineRegimentActions = [
+  'posts.view.all',
   'posts.edit.all',
   'posts.curate.all',
   'posts.suggestCurate',

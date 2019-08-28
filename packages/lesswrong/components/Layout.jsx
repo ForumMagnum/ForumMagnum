@@ -44,7 +44,7 @@ const standaloneNavMenuRouteNames = {
   ],
   // TODO-PR-Q: I left this mimicking current behavior, it's possible you'd
   // rather just have an empty list
-  'AlignmentForum': ['allPosts', 'questions', 'Shortform'],
+  'AlignmentForum': ['alignment.home', 'sequencesHome', 'allPosts', 'questions', 'Shortform'],
   'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform'],
 }
 

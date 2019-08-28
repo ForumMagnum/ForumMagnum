@@ -42,7 +42,7 @@ class CommentsVote extends PureComponent {
     const { comment, classes, currentUser, hover, vote } = this.props
     if (!comment) return null;
     const voteCount = comment.voteCount;
-    const baseScore = getSetting('forumType') === 'AlignmentForum' ? comment.afBaseScore : comment.baseScore
+    const karma = Comments.getKarma(comment)
 
     const moveToAfInfo = Users.isAdmin(currentUser) && !!comment.moveToAlignmentUserId && (
       <div className={classes.tooltipHelp}>
@@ -70,9 +70,9 @@ class CommentsVote extends PureComponent {
                 />
               </span>
             </Tooltip>
-            <Tooltip title={`This comment has ${baseScore} karma (${voteCount} ${voteCount == 1 ? "Vote" : "Votes"})`} placement="bottom">
+            <Tooltip title={`This comment has ${karma} karma (${voteCount} ${voteCount == 1 ? "Vote" : "Votes"})`} placement="bottom">
               <span className={classes.voteScore}>
-                {baseScore || 0}
+                {karma}
               </span>
             </Tooltip>
             <Tooltip
