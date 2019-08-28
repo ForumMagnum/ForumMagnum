@@ -14,15 +14,9 @@ registerSetting('description');
 registerSetting('siteImage', null, 'An image used to represent the site on social media');
 registerSetting('faviconUrl', '/img/favicon.ico', 'Favicon absolute URL');
 
-const TitleComponent = ({titleString}) => {
-  const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
-  return <Helmet>
-    <title>{`${titleString} - ${siteName}`}</title>
-  </Helmet>
-}
-
 const HeadTags = (props) => {
     const url = props.url || Utils.getSiteUrl();
+    const canonicalUrl = props.canonicalUrl || props.url || Utils.getSiteUrl()
     const description = props.description || getSetting('tagline') || getSetting('description');
     const { currentRoute, pathname } = useSubscribedLocation();
     const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
@@ -59,7 +53,7 @@ const HeadTags = (props) => {
           { /* <meta name='twitter:title' content={title}/> */ }
           <meta name='twitter:description' content={description}/>
 
-          <link rel='canonical' href={url}/>
+          <link rel='canonical' href={canonicalUrl}/>
           <link name='favicon' rel='shortcut icon' href={getSetting('faviconUrl', '/img/favicon.ico')}/>
 
           {Head.meta.map((tag, index) => <meta key={index} {...tag}/>)}
@@ -85,7 +79,6 @@ const HeadTags = (props) => {
 
 HeadTags.propTypes = {
   url: PropTypes.string,
-  title: PropTypes.string,
   description: PropTypes.string,
   image: PropTypes.string,
 };
