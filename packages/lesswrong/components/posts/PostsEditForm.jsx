@@ -10,6 +10,12 @@ const styles = theme => ({
   formSubmit: {
     display: "flex",
     flexWrap: "wrap",
+  },
+  commentCopyWarning: {
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[600],
+    marginLeft: 15
   }
 })
 
@@ -62,8 +68,10 @@ class PostsEditForm extends PureComponent {
             }}
             repeatErrors
           />
+          {document?.moveCommentsFromConvertedComment && <div className={classes.commentCopyWarning}>
+            Note: Undrafting this post will transfer child comments from the original comment
+          </div>}
         </NoSsr>
-        {document?.moveCommentsFromConvertedComment && "Note: Undrafting this post will transfer child comments from the original comment"}
       </div>
     );
 

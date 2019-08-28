@@ -87,7 +87,9 @@ export const createMutator = async ({
   */
   if (validate) {
     let validationErrors = [];
+    console.log("v1")
     validationErrors = validationErrors.concat(validateDocument(document, collection, context));
+    console.log("v2", validationErrors)
     // run validation callbacks
     validationErrors = await runCallbacks({
       name: `${typeName.toLowerCase()}.create.validate`,
@@ -95,12 +97,14 @@ export const createMutator = async ({
       properties,
       ignoreExceptions: false,
     });
+    console.log("v3", validationErrors)
     validationErrors = await runCallbacks({
       name: '*.create.validate',
       iterator: validationErrors,
       properties,
       ignoreExceptions: false,
     });
+    console.log("v4", validationErrors)
     // OpenCRUD backwards compatibility
     document = await runCallbacks({
       name: `${collectionName.toLowerCase()}.new.validate`,
@@ -108,6 +112,7 @@ export const createMutator = async ({
       properties: [currentUser, validationErrors],
       ignoreExceptions: false,
     });
+    console.log("v4", document)
     if (validationErrors.length) {
       console.log(validationErrors); // eslint-disable-line no-console
       throwError({ id: 'app.validation_error', data: { break: true, errors: validationErrors } });

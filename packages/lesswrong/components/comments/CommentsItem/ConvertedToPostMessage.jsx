@@ -16,7 +16,7 @@ const styles = theme => ({
 
 const ConvertedToPostMessage = ({comment, classes }) => {
 
-  if (!comment.convertedToPostId || comment.convertedToPost?.draft) return null
+  if (!comment.convertedToPostId || !comment.convertedToPost || comment.convertedToPost.draft) return null
 
   return (
     <div className={classes.root}>

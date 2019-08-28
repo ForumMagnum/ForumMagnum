@@ -171,7 +171,7 @@ function MoveCommentsFromConvertedComment (newPost, oldPost) {
       { parentCommentId: newPost.convertedFromCommentId },
       { $set: {
         postId: newPost._id,
-        topLevelCommentId: null
+        parentCommentId: null
       } },
       { multi: true }
     );

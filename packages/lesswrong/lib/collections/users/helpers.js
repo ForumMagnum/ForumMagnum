@@ -85,7 +85,7 @@ Users.canMoveChildComments = (user, comment) => {
   if (Users.canDo('comments.moveConvertedCommentChildren.all', user)) {
     return true
   }
-  if ((Users.owns(comment, user) && comment.shortform && !comment.topLevelCommentId)) {
+  if ((Users.owns(user, comment) && comment.shortform && !comment.topLevelCommentId)) {
     return true
   }
 }

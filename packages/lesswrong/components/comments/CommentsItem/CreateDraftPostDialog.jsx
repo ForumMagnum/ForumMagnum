@@ -38,24 +38,36 @@ const styles = theme => ({
   }
 })
 
-class ConvertToPostDialog extends PureComponent {
-  state = { title: "", moveChildComments: this.props.defaultMoveChildComments }
+class CreateDraftPostDialog extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      title: "",
+      moveChildComments: this.defaultMoveChildComments()
+    };
+  }
+
+  defaultMoveChildComments = () => {
+    const { currentUser, comment } = this.props
+    return Users.canMoveChildComments(currentUser, comment) && !comment.topLevelCommentId && comment.shortform
+  }
 
   handleConvert = async () => {
-    const { createPost, updateComment, document, history, onClose } = this.props;
+    const { currentUser, createPost, updateComment, document, history, onClose } = this.props;
     const { title, moveChildComments } = this.state
-    const response = await createPost({
-      data: {
-        title: title,
-        draft: true,
-        contents: {
-          originalContents: document.contents.originalContents
-        },
-        userId: document.userId,
-        convertedFromCommentId: document._id,
-        moveCommentsFromConvertedComment: moveChildComments
-      }
-    })
+    let data = {
+      title: title,
+      draft: true,
+      contents: {
+        originalContents: document.contents.originalContents
+      },
+      convertedFromCommentId: document._id,
+      moveCommentsFromConvertedComment: moveChildComments
+    }
+    if (!Users.owns(currentUser, document) && Users.canDo('posts.edit.all')) {
+      data.userId = document.userId
+    }
+    const response = await createPost({ data })
     const postId = response.data.createPost.data._id
     updateComment({
       selector: { _id: document._id},
@@ -115,12 +127,12 @@ class ConvertToPostDialog extends PureComponent {
 }
 
 registerComponent(
-  'ConvertToPostDialog', 
-  ConvertToPostDialog, 
+  'CreateDraftPostDialog', 
+  CreateDraftPostDialog, 
   withDialog, 
   withNavigation,
   withUser,
-  withStyles(styles, {name:"ConvertToPostDialog"}),
+  withStyles(styles, {name:"CreateDraftPostDialog"}),
   [withDocument, {
     collection: Comments,
     queryName: 'CommentConvertingToPostQuery',

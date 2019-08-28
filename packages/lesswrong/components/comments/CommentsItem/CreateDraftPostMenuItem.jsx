@@ -3,15 +3,17 @@ import { registerComponent } from 'meteor/vulcan:core';
 import MenuItem from '@material-ui/core/MenuItem';
 import Tooltip from '@material-ui/core/Tooltip';
 import withDialog from '../../common/withDialog'
+import Users from "meteor/vulcan:users";
 import { Posts } from '../../../lib/collections/posts';
 import { Link } from '../../../lib/reactRouterWrapper.js';
+import withUser from '../../common/withUser'
 
-class ConvertToPostMenuItem extends PureComponent {
+class CreateDraftPostMenuItem extends PureComponent {
 
   showConvertDialog = () => {
     const { openDialog, comment } = this.props;
     openDialog({
-      componentName: "ConvertToPostDialog",
+      componentName: "CreateDraftPostDialog",
       componentProps: {
         documentId: comment._id, // we need more data from the comment than is currently available
         comment: comment // at the same time, we need some info (which is available) immediately to avoid UI flicker, and so also pass through the current copy of the comment
@@ -20,9 +22,10 @@ class ConvertToPostMenuItem extends PureComponent {
   }
 
   render() {
-    const { comment } = this.props 
+    const { comment, currentUser } = this.props 
 
     if (comment.convertedToPostId && !comment.convertedToPost.draft) { return null }
+    if (!Users.owns(currentUser, comment) && !Users.canDo(currentUser, 'comments.edit.all')) { return null }
 
     if (comment.convertedToPostId && comment.convertedToPost.draft) {
       const goToDraftTooltip = <div>
@@ -55,6 +58,6 @@ class ConvertToPostMenuItem extends PureComponent {
 }
 
 registerComponent(
-  'ConvertToPostMenuItem', ConvertToPostMenuItem,
-  withDialog
+  'CreateDraftPostMenuItem', CreateDraftPostMenuItem,
+  withDialog, withUser
 );
