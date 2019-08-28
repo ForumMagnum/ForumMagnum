@@ -26,7 +26,8 @@ Users.groups.members.can(membersActions);
 
 const adminActions = [
   'comments.edit.all',
-  'comments.remove.all'
+  'comments.remove.all',
+  'comments.moveConvertedCommentChildren.all'
 ];
 Users.groups.admins.can(adminActions);
 

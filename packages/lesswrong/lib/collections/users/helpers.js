@@ -82,7 +82,7 @@ Users.canCommentLock = (user, post) => {
 }
 
 Users.canMoveChildComments = (user, comment) => {
-  if (Users.canDo('comments.moveConvertedCommentChildren.all', user)) {
+  if (Users.canDo(user, 'comments.moveConvertedCommentChildren.all')) {
     return true
   }
   if ((Users.owns(user, comment) && comment.shortform && !comment.topLevelCommentId)) {

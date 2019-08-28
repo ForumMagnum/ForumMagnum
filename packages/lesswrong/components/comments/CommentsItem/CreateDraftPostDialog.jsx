@@ -34,7 +34,8 @@ const styles = theme => ({
     cursor: "pointer"
   },
   disabled: {
-    opacity: .5
+    opacity: .5,
+    cursor: "default"
   }
 })
 
@@ -47,14 +48,27 @@ class CreateDraftPostDialog extends PureComponent {
     };
   }
 
-  defaultMoveChildComments = () => {
+  canMoveChildComments = () => {
     const { currentUser, comment } = this.props
     return Users.canMoveChildComments(currentUser, comment) && !comment.topLevelCommentId && comment.shortform
+  }
+
+  defaultMoveChildComments = () => {
+    return this.canMoveChildComments()
+  }
+
+  toggleMoveComments = () => {
+    if (this.canMoveChildComments()) {
+      this.setState(prevState=>({moveChildComments: !prevState.moveChildComments}))
+    }
   }
 
   handleConvert = async () => {
     const { currentUser, createPost, updateComment, document, history, onClose } = this.props;
     const { title, moveChildComments } = this.state
+
+    // note: this post will have the userID of whoever is creating it (not necessarily that of the author)
+    // I think that's probably actually preferable, but not sure (this shoudl only come up for Sunshines/Admins) – Ray Aug 2019
     let data = {
       title: title,
       draft: true,
@@ -80,10 +94,10 @@ class CreateDraftPostDialog extends PureComponent {
   }
 
   render() {
-    const { classes, onClose, comment, currentUser } = this.props
+    const { classes, onClose } = this.props
     const { title, moveChildComments } = this.state
 
-    const canMoveChildComments = Users.canMoveChildComments(currentUser, comment)
+    const canMoveChildComments = this.canMoveChildComments()
 
     return (
       <Dialog open={true} onClose={onClose}>
@@ -101,7 +115,7 @@ class CreateDraftPostDialog extends PureComponent {
           <Tooltip title="If this box is checked, then when you un-draft (i.e. publish) the converted post, it will copy over the child comments of the original comment. This is only available when converting top-level shortform comments.">
             <div 
               className={classNames(classes.checkboxGroup, {[classes.disabled]: !canMoveChildComments})} 
-              onClick={() => this.setState(prevState=>({moveChildComments: !prevState.moveChildComments}))}
+              onClick={this.toggleMoveComments}
             > 
               <Checkbox 
                 disabled={!canMoveChildComments}
