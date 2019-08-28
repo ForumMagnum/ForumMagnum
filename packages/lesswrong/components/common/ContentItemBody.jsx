@@ -197,7 +197,7 @@ class ContentItemBody extends Component {
   };
   
   markHoverableLinks = () => {
-    if(this.bodyRef && this.bodyRef.current) {
+    if(this.bodyRef?.current) {
       const linkTags = [...this.bodyRef.current.getElementsByTagName("a")];
       for (let linkTag of linkTags) {
         const tagContentsHTML = linkTag.innerHTML;
