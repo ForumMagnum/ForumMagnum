@@ -18,9 +18,9 @@ const styles = theme => ({
   },
   title: {
     cursor: "pointer",
-    '&:hover $settingsIcon, &:hover $sortedBy': {
-      color: theme.palette.grey[800]
-    }
+    // '&:hover $settingsIcon, &:hover $sortedBy': {
+    //   color: theme.palette.grey[800]
+    // }
   }
 });
 
