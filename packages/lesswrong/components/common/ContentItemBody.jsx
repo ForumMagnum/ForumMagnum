@@ -82,6 +82,8 @@ class ContentItemBody extends Component {
     super(props);
     this.bodyRef = React.createRef();
     this.replacedElements = [];
+    this.markScrollableLaTeX();
+    this.markHoverableLinks();
   }
   
   render() {
@@ -100,11 +102,6 @@ class ContentItemBody extends Component {
         })
       }
     </React.Fragment>);
-  }
-  
-  componentDidMount() {
-    this.markScrollableLaTeX();
-    this.markHoverableLinks();
   }
   
   // Find LaTeX elements inside the body, check whether they're wide enough to
