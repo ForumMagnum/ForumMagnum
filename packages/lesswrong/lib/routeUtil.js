@@ -101,7 +101,6 @@ export const withNavigation = (WrappedComponent) => {
 
 
 export const hostIsOnsite = (host) => {
-  // FIXME: This is currently client-side-only for historical reasons that don't apply anymore but haven't gotten around to fixing it
   let isOnsite = false
   const domainWhitelist = [
     "lesswrong.com", 
