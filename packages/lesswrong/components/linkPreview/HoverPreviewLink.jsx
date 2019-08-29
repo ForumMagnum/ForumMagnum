@@ -31,8 +31,6 @@ var parsePath = function parsePath(path) {
 
 const HoverPreviewLink = ({innerHTML, href}) => {
   const URLClass = getUrlClass()
-  // FIXME: This is currently client-side-only because 'URL' is a browser-API
-  // class. See the workaround for the same issue in PostsPage.
   const location = useLocation();
   
   // Invalid link with no href? Don't transform it.
@@ -48,7 +46,7 @@ const HoverPreviewLink = ({innerHTML, href}) => {
   const currentURL = new URLClass(location.pathname, Utils.getSiteUrl());
   const linkTargetAbsolute = new URLClass(href, currentURL);
   
-  if (hostIsOnsite(linkTargetAbsolute.host) || !Meteor.isClient) {
+  if (hostIsOnsite(linkTargetAbsolute.host) || Meteor.isServer) {
     const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
     const parsedUrl = parseRoute(parsePath(linkTargetAbsolute.pathname));
     
@@ -60,11 +58,8 @@ const HoverPreviewLink = ({innerHTML, href}) => {
       } else {
         return <Link to={onsiteUrl} dangerouslySetInnerHTML={{__html: innerHTML}} />
       }
-    } else {
-      return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
     }
-  } else {
-    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
   }
+  return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
 }
 registerComponent('HoverPreviewLink', HoverPreviewLink);
