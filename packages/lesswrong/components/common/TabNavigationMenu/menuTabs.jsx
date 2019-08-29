@@ -76,6 +76,7 @@ export default {
     }, {
       id: 'questions',
       title: 'Open Questions',
+      mobileTitle: 'Questions',
       link: '/questions',
       icon: questionsGlobeIcon,
       tooltip: <div>
@@ -122,6 +123,7 @@ export default {
     }, {
       id: 'events',
       title: 'Community Events', // Events hide on mobile
+      mobileTitle: 'Community',
       link: '/community',
       icon: communityGlobeIcon,
       tooltip: 'Find a meetup near you.',

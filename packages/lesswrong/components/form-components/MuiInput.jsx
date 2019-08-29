@@ -35,8 +35,7 @@ class MuiInput extends Component {
   }
 
   render() {
-    return <div className="mui-text-field">
-      <Input
+    return <Input
         className={this.props.className}
         value={this.state.contents || ""}
         label={this.props.label}
@@ -49,8 +48,7 @@ class MuiInput extends Component {
         disableUnderline={this.props.disableUnderline}
         classes={{input: this.props.classes.input}}
         startAdornment={this.props.startAdornment}
-      /><br />
-    </div>
+      />
   }
 }
 
