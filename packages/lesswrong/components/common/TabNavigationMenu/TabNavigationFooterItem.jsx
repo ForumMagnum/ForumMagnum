@@ -70,10 +70,10 @@ const TabNavigationFooterItem = ({tab, classes}) => {
       </span>}
       {tab.subItem ?
         <TabNavigationSubItem>
-          {tab.title}
+          { tab.mobileTitle || tab.title }
         </TabNavigationSubItem> :
         <span className={classes.navText}>
-          {tab.title}
+          { tab.mobileTitle || tab.title }
         </span>
       }
     </Link>

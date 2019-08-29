@@ -89,6 +89,7 @@ registerFragment(`
         title
       }
     }
+    canonicalSource
   }
 `);
 
