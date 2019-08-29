@@ -82,6 +82,10 @@ class ContentItemBody extends Component {
     super(props);
     this.bodyRef = React.createRef();
     this.replacedElements = [];
+    this.state = {updatedElements:false}
+  }
+
+  componentDidMount () {
     this.markScrollableLaTeX();
     this.markHoverableLinks();
   }
@@ -202,6 +206,7 @@ class ContentItemBody extends Component {
         const replacementElement = <Components.HoverPreviewLink href={href} innerHTML={tagContentsHTML} />
         this.replaceElement(linkTag, replacementElement);
       }
+      this.setState({updatedElements: true})
     }
   }
   
