@@ -179,3 +179,17 @@ function MoveCommentsFromConvertedComment (newPost, oldPost) {
   return newPost;
 }
 addCallback("posts.edit.async", MoveCommentsFromConvertedComment );
+
+function PostsNewConvertedFrom (post, x) {
+  console.log(x)
+  if (post.convertedFromCommentId) {
+    Comments.update(
+      { _id: post.convertedFromCommentId },
+      { $set: {
+        convertedToPostId: post._id,
+      }},
+    );
+  }
+  return post
+}
+addCallback("posts.new.after", PostsNewConvertedFrom);

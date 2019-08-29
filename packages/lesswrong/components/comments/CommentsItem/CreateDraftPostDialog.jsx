@@ -44,17 +44,13 @@ class CreateDraftPostDialog extends PureComponent {
     super(props);
     this.state = {
       title: "",
-      moveChildComments: this.defaultMoveChildComments()
+      moveChildComments: this.canMoveChildComments() // for the time being, "can move" and "default to move" comments happen to be the same, but this is mostly a coincidence due to limitations of the move children function (and in turn, lack of ancestors-field for comments which would make it easier to move subsets of comments
     };
-  }
+  } 
 
   canMoveChildComments = () => {
     const { currentUser, comment } = this.props
     return Users.canMoveChildComments(currentUser, comment) && !comment.topLevelCommentId && comment.shortform
-  }
-
-  defaultMoveChildComments = () => {
-    return this.canMoveChildComments()
   }
 
   toggleMoveComments = () => {
@@ -78,17 +74,8 @@ class CreateDraftPostDialog extends PureComponent {
       convertedFromCommentId: document._id,
       moveCommentsFromConvertedComment: moveChildComments
     }
-    if (!Users.owns(currentUser, document) && Users.canDo('posts.edit.all')) {
-      data.userId = document.userId
-    }
     const response = await createPost({ data })
     const postId = response.data.createPost.data._id
-    updateComment({
-      selector: { _id: document._id},
-      data: {
-        convertedToPostId: postId
-      },
-    })
     history.push({pathname: '/editPost', search: `?postId=${postId}&eventForm=false`})
     onClose()
   }
