@@ -72,7 +72,7 @@ const styles = theme => ({
   placeholder: {
     position: "absolute",
     top: 0,
-    color: theme.palette.grey[600],
+    color: theme.palette.grey[500],
     // Dark Magick
     // https://giphy.com/gifs/psychedelic-art-phazed-12GGadpt5aIUQE
     pointerEvents: "none",
@@ -436,7 +436,7 @@ class EditorFormComponent extends Component {
     const { classes, formProps, hintText, placeholder, label  } = this.props
 
     if (showPlaceholder) {
-      return <div className={classnames(this.getBodyStyles(), this.getHeightClass(), classes.placeholder)}>
+      return <div className={classnames(this.getBodyStyles(), classes.placeholder)}>
         { formProps?.editorHintText || hintText || placeholder || label }
       </div>
     }
@@ -521,7 +521,7 @@ class EditorFormComponent extends Component {
       && document[fieldName].originalContents.type !== this.getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
 
-    return <div className={classes.root}>
+    return <div className={classNames(classes.root, this.getBodyStyles())}>
       { editorWarning }
       <div>
         { this.renderEditorComponent(currentEditorType) }
