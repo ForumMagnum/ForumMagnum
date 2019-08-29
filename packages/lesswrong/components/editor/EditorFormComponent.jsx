@@ -433,10 +433,11 @@ class EditorFormComponent extends Component {
   }
 
   renderPlaceholder = (showPlaceholder) => {
-    const { classes, formProps: { editorHintText }, hintText, placeholder, label  } = this.props
+    const { classes, formProps, hintText, placeholder, label  } = this.props
+
     if (showPlaceholder) {
       return <div className={classnames(this.getBodyStyles(), this.getHeightClass(), classes.placeholder)}>
-        { editorHintText || hintText || placeholder || label }
+        { formProps?.editorHintText || hintText || placeholder || label }
       </div>
     }
   }
