@@ -68,7 +68,7 @@ class PostsEditForm extends PureComponent {
             }}
             repeatErrors
           />
-          {document?.moveCommentsFromConvertedComment && <div className={classes.commentCopyWarning}>
+          {document?.moveCommentsFromConvertedComment && document?.draft && <div className={classes.commentCopyWarning}>
             Note: Undrafting this post will transfer child comments from the original comment
           </div>}
         </NoSsr>

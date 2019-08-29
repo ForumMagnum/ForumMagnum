@@ -153,17 +153,22 @@ addCallback("posts.edit.async", UpdatePostShortform );
 
 function MoveCommentsFromConvertedComment (newPost, oldPost, user) {
   const published = newPost.draft === false  && !!oldPost.draft
+  const moveComments = newPost.convertedFromCommentId && newPost.moveCommentsFromConvertedComment
+  const comment = Comments.findOne({_id: newPost.convertedFromCommentId})
+  const userHasPermission = Users.canMoveChildComments(user, comment)
+  
   // This currently is intended to work on top-level shortform comments. 
 
   // TODO — build a version of this that works on children of non-top-level comments,
   // either by building a recursive function that grabs children here, or changing comment architecture to 
   // make it easier to grab all children-comments of an arbitrary comment at once
-  if (published && newPost.convertedFromCommentId && newPost.moveCommentsFromConvertedComment && Users.canMoveChildComments(user)) {
+  if (published && moveComments && userHasPermission) {
     Comments.update(
       { topLevelCommentId: newPost.convertedFromCommentId },
       { $set: {
         postId: newPost._id,
-        topLevelCommentId: null
+        topLevelCommentId: null,
+        shortform: false
       } },
       { multi: true }
     );
@@ -171,7 +176,8 @@ function MoveCommentsFromConvertedComment (newPost, oldPost, user) {
       { parentCommentId: newPost.convertedFromCommentId },
       { $set: {
         postId: newPost._id,
-        parentCommentId: null
+        parentCommentId: null,
+        shortform: false
       } },
       { multi: true }
     );
@@ -181,7 +187,9 @@ function MoveCommentsFromConvertedComment (newPost, oldPost, user) {
 addCallback("posts.edit.async", MoveCommentsFromConvertedComment );
 
 function PostsNewConvertedFrom (post, user) {
-  if (post.convertedFromCommentId && Users.canMoveChildComments(user)) {
+  const comment = Comments.findOne({_id:post.convertedFromCommentId})
+  const canEditComment = Users.canDo(user, 'comments.edit.own') && Users.owns(user, comment)
+  if (post.convertedFromCommentId && canEditComment) {
     Comments.update(
       { _id: post.convertedFromCommentId },
       { $set: {
