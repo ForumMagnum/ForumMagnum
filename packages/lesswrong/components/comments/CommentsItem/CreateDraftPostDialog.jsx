@@ -60,7 +60,7 @@ class CreateDraftPostDialog extends PureComponent {
   }
 
   handleConvert = async () => {
-    const { currentUser, createPost, updateComment, document, history, onClose } = this.props;
+    const { createPost, document, history, onClose } = this.props;
     const { title, moveChildComments } = this.state
 
     // note — this post will have the userID of whoever is creating it (not necessarily that of the author)
