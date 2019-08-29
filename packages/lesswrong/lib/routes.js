@@ -108,7 +108,8 @@ addRoute([
   {
     name: 'sequencesPost',
     path: '/s/:sequenceId/p/:postId',
-    componentName: 'SequencesPost'
+    componentName: 'SequencesPost',
+    previewComponentName: 'PostLinkPreviewSequencePost',
   },
 
   {
@@ -140,8 +141,24 @@ addRoute([
   {
     name: 'Rationality.posts.single',
     path: '/rationality/:slug',
-    componentName: 'PostsSingleSlugWrapper',
+    componentName: 'PostsSingleSlug',
+    previewComponentName: 'PostLinkPreviewSlug',
     ...rationalitySubtitle
+  }
+]);
+
+
+// Because the EA Forum was identical except for the change from /lw/ to /ea/
+const legacyRouteAcronym = getSetting('legacyRouteAcronym', 'lw')
+
+addRoute([
+  // Legacy (old-LW, also old-EAF) routes
+  // Note that there are also server-side-only routes in server/legacy-redirects/routes.js.
+  {
+    name: 'post.legacy',
+    path: `/:section(r)?/:subreddit(all|discussion|lesswrong)?/${legacyRouteAcronym}/:id/:slug?`,
+    componentName: "LegacyPostRedirect",
+    previewComponentName: "PostLinkPreviewLegacy",
   }
 ]);
 
@@ -157,7 +174,8 @@ if (getSetting('forumType') === 'LessWrong') {
     {
       name: 'HPMOR.posts.single',
       path: '/hpmor/:slug',
-      componentName: 'PostsSingleSlugWrapper',
+      componentName: 'PostsSingleSlug',
+      previewComponentName: 'PostLinkPreviewSlug',
       ...hpmorSubtitle,
     },
 
@@ -171,7 +189,8 @@ if (getSetting('forumType') === 'LessWrong') {
     {
       name: 'Codex.posts.single',
       path: '/codex/:slug',
-      componentName: 'PostsSingleSlugWrapper',
+      componentName: 'PostsSingleSlug',
+      previewComponentName: 'PostLinkPreviewSlug',
       ...codexSubtitle,
     },
   ]);
@@ -231,12 +250,14 @@ if (getSetting('hasEvents', true)) {
       name:'events.single',
       path: '/events/:_id/:slug?',
       componentName: 'PostsSingle',
+      previewComponentName: 'PostLinkPreview',
       ...communitySubtitle
     },
     {
       name: 'groups.post',
       path: '/g/:groupId/p/:_id',
       componentName: 'PostsSingle',
+      previewComponentName: 'PostLinkPreview',
       ...communitySubtitle
     },
   ]);
@@ -267,6 +288,7 @@ addRoute([
     componentName: 'PostsSingle',
     titleComponentName: 'PostsPageHeaderTitle',
     subtitleComponentName: 'PostsPageHeaderTitle',
+    previewComponentName: 'PostLinkPreview',
   },
   {
     name: 'admin',

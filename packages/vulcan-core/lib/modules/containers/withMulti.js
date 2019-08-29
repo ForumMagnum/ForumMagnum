@@ -34,7 +34,8 @@ Terms object can have the following properties:
 
 */
 
-import { withApollo, graphql } from 'react-apollo';
+import { useState } from 'react';
+import { graphql, useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
 import {
   getSetting,
@@ -46,44 +47,52 @@ import {
 import compose from 'recompose/compose';
 import withState from 'recompose/withState';
 
-export default function withMulti(options) {
-  // console.log(options)
+function getGraphQLQueryFromOptions({
+  collectionName, collection, fragmentName, fragment, extraQueries, extraVariables,
+}) {
+  const typeName = collection.options.typeName;
+  ({ fragmentName, fragment } = extractFragmentInfo({ fragmentName, fragment }, collectionName));
 
-  let {
-    limit = 10,
-    pollInterval = getSetting('pollInterval', 0), //LESSWRONG: Polling defaults disabled
-    enableTotal = false, //LESSWRONG: enableTotal defaults false
-    enableCache = false,
-    extraQueries,
-    ssr = false //LESSWRONG: SSR defaults false
-  } = options;
+  let extraVariablesString = ''
+  if (extraVariables) {
+    extraVariablesString = Object.keys(extraVariables).map(k => `$${k}: ${extraVariables[k]}`).join(', ')
+  }
+  
+  // build graphql query from options
+  return gql`
+    ${multiClientTemplate({ typeName, fragmentName, extraQueries, extraVariablesString })}
+    ${fragment}
+  `;
+}
 
+export default function withMulti({
+  limit = 10,
+  pollInterval = getSetting('pollInterval', 0), //LESSWRONG: Polling defaults disabled
+  enableTotal = false, //LESSWRONG: enableTotal defaults false
+  enableCache = false,
+  extraQueries,
+  ssr = false, //LESSWRONG: SSR defaults false
+  extraVariables,
+  fetchPolicy,
+  notifyOnNetworkStatusChange,
+  propertyName = "results",
+  collectionName, collection,
+  fragmentName, fragment,
+  terms: queryTerms,
+}) {
   // if this is the SSR process, set pollInterval to null
   // see https://github.com/apollographql/apollo-client/issues/1704#issuecomment-322995855
   //pollInterval = typeof window === 'undefined' ? null : pollInterval;
 
-  const { collectionName, collection } = extractCollectionInfo(options);
-  const { fragmentName, fragment } = extractFragmentInfo(options, collectionName);
+  ({ collectionName, collection } = extractCollectionInfo({ collectionName, collection }));
+  ({ fragmentName, fragment } = extractFragmentInfo({ fragmentName, fragment }, collectionName));
 
   const typeName = collection.options.typeName;
   const resolverName = collection.options.multiResolverName;
-
-  // LESSWRONG MODIFICATION: Allow the passing of extraVariables so that you can have field-specific queries
-  let extraVariablesString = ''
-  if (options.extraVariables) {
-    extraVariablesString = Object.keys(options.extraVariables).map(k => `$${k}: ${options.extraVariables[k]}`).join(', ')
-  }
   
-  // build graphql query from options
-  const query = gql`
-    ${multiClientTemplate({ typeName, fragmentName, extraQueries, extraVariablesString })}
-    ${fragment}
-  `;
+  const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraQueries, extraVariables });
 
   return compose(
-    // wrap component with Apollo HoC to give it access to the store
-    withApollo,
-
     // wrap component with HoC that manages the terms object via its state
     withState('paginationTerms', 'setPaginationTerms', props => {
       // get initial limit from props, or else options
@@ -104,10 +113,9 @@ export default function withMulti(options) {
         alias: `with${Utils.pluralize(typeName)}`,
 
         // graphql query options
-        options({ terms, paginationTerms, client: apolloClient, currentUser, ...rest }) {
+        options({ terms, paginationTerms, currentUser, ...rest }) {
           // get terms from options, then props, then pagination
-          const mergedTerms = { ...options.terms, ...terms, ...paginationTerms };
-          const extraVariables = _.pick(rest, Object.keys(options.extraVariables || {}))
+          const mergedTerms = { ...queryTerms, ...terms, ...paginationTerms };
           const graphQLOptions = {
             variables: {
               input: {
@@ -115,20 +123,20 @@ export default function withMulti(options) {
                 enableCache,
                 enableTotal,
               },
-              ...extraVariables
+              ...(_.pick(rest, Object.keys(extraVariables || {})))
             },
             // note: pollInterval can be set to 0 to disable polling (20s by default)
             pollInterval,
             ssr,
           };
 
-          if (options.fetchPolicy) {
-            graphQLOptions.fetchPolicy = options.fetchPolicy;
+          if (fetchPolicy) {
+            graphQLOptions.fetchPolicy = fetchPolicy;
           }
 
           // set to true if running into https://github.com/apollographql/apollo-client/issues/1186
-          if (options.notifyOnNetworkStatusChange) {
-            graphQLOptions.notifyOnNetworkStatusChange = options.notifyOnNetworkStatusChange;
+          if (notifyOnNetworkStatusChange) {
+            graphQLOptions.notifyOnNetworkStatusChange = notifyOnNetworkStatusChange;
           }
 
           return graphQLOptions;
@@ -145,8 +153,7 @@ export default function withMulti(options) {
             loadingInitial = props.data.networkStatus === 1,
             loading = props.data.networkStatus === 1,
             loadingMore = props.data.networkStatus === 2,
-            error = props.data.error,
-            propertyName = options.propertyName || 'results';
+            error = props.data.error;
 
           if (error) {
             // eslint-disable-next-line no-console
@@ -180,37 +187,6 @@ export default function withMulti(options) {
               props.ownProps.setPaginationTerms(newTerms);
             },
 
-            // incremental loading version (only load new content)
-            // note: not compatible with polling
-            loadMoreInc(providedTerms) {
-              // get terms passed as argument or else just default to incrementing the offset
-              const newTerms =
-                typeof providedTerms === 'undefined'
-                  ? {
-                      ...props.ownProps.terms,
-                      ...props.ownProps.paginationTerms,
-                      offset: results.length,
-                    }
-                  : providedTerms;
-
-              return props.data.fetchMore({
-                variables: { input: { terms: newTerms } }, // ??? not sure about 'terms: newTerms'
-                updateQuery(previousResults, { fetchMoreResult }) {
-                  // no more post to fetch
-                  if (!fetchMoreResult.data) {
-                    return previousResults;
-                  }
-                  const newResults = {};
-                  newResults[resolverName] = [
-                    ...previousResults[resolverName],
-                    ...fetchMoreResult.data[resolverName],
-                  ];
-                  // return the previous results "augmented" with more
-                  return { ...previousResults, ...newResults };
-                },
-              });
-            },
-
             fragmentName,
             fragment,
             ...props.ownProps, // pass on the props down to the wrapped component
@@ -220,4 +196,59 @@ export default function withMulti(options) {
       }
     )
   );
+}
+
+export function useMulti({
+  terms,
+  extraVariablesValues,
+  
+  pollInterval = getSetting('pollInterval', 0), //LESSWRONG: Polling defaults disabled
+  enableTotal = false, //LESSWRONG: enableTotal defaults false
+  enableCache = false,
+  extraQueries,
+  ssr = false, //LESSWRONG: SSR defaults false
+  extraVariables,
+  fetchPolicy,
+  collectionName, collection,
+  fragmentName, fragment,
+  limit:initialLimit = 10,
+  itemsPerPage = 10,
+}) {
+  const [ limit, setLimit ] = useState(initialLimit);
+  const [ hasRequestedMore, setHasRequestedMore ] = useState(false);
+  
+  ({ collectionName, collection } = extractCollectionInfo({ collectionName, collection }));
+  ({ fragmentName, fragment } = extractFragmentInfo({ fragmentName, fragment }, collectionName));
+  
+  const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraQueries, extraVariables });
+  const resolverName = collection.options.multiResolverName;
+  
+  const {data, error, loading} = useQuery(query, {
+    variables: {
+      input: {
+        terms: { ...terms, limit: limit },
+        enableCache, enableTotal,
+      },
+      ...(_.pick(extraVariablesValues, Object.keys(extraVariables || {})))
+    },
+    pollInterval,
+    fetchPolicy,
+    ssr
+  });
+  
+  return {
+    loading,
+    loadingInitial: loading && !hasRequestedMore,
+    loadingMore: loading && hasRequestedMore,
+    results: data && data[resolverName] && data[resolverName].results,
+    totalCount: data && data[resolverName] && data[resolverName].totalCount,
+    refetch: data && data.refetch,
+    error,
+    count: data && data.results && data.results.length,
+    loadMore: () => {
+      setHasRequestedMore(true);
+      setLimit(limit+itemsPerPage);
+    },
+    limit,
+  };
 }

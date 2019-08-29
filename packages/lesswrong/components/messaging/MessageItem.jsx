@@ -60,7 +60,7 @@ const MessageItem = ({currentUser, message, classes}) => {
           <span className={colorClassName}><Components.FormatDate date={message.createdAt}/></span>
         </Components.MetaInfo>}
       </div>
-      <div dangerouslySetInnerHTML={htmlBody} className={classes.messageBody}></div>
+      <Components.ContentItemBody dangerouslySetInnerHTML={htmlBody} className={classes.messageBody} />
     </Typography>
   )
 }
