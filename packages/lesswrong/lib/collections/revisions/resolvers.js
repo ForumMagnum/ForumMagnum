@@ -43,6 +43,11 @@ export function dataToDraftJS(data, type) {
       const draftJSContentState = htmlToDraftServer(data, {}, domBuilder)
       return convertToRaw(draftJSContentState)  // On the server have to parse in a JS-DOM implementation to make htmlToDraft work
     }
+    case "ckEditorMarkup": {
+      // CK Editor markup is just html with extra tags, so we just remove them and then handle it as html
+      const draftJSContentState = htmlToDraftServer(Utils.sanitize(data), {}, domBuilder)
+      return convertToRaw(draftJSContentState)  // On the server have to parse in a JS-DOM implementation to make htmlToDraft work
+    }
     case "markdown": {
       const html = markdownToHtmlNoLaTeX(data)
       const draftJSContentState = htmlToDraftServer(html, {}, domBuilder) // On the server have to parse in a JS-DOM implementation to make htmlToDraft work
@@ -71,6 +76,13 @@ addFieldsDict(Revisions, {
     resolveAs: {
       type: 'JSON',
       resolver: ({originalContents: {data, type}}) => dataToDraftJS(data, type)
+    }
+  },
+  ckEditorMarkup: {
+    type: String,
+    resolveAs: {
+      type: 'String',
+      resolver: ({originalContents: {data, type}, html}) => (type === 'ckEditorMarkup' ? data : html) // For ckEditorMarkup we just fall back to HTML, since it's a superset of html
     }
   },
   htmlHighlight: {

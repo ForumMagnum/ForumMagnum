@@ -28,7 +28,7 @@ Child Props:
 */
 
 import React from 'react';
-import { Mutation } from 'react-apollo';
+import { Mutation, useMutation } from 'react-apollo';
 import { compose, withHandlers } from 'recompose';
 import gql from 'graphql-tag';
 import { updateClientTemplate, extractCollectionInfo, extractFragmentInfo } from 'meteor/vulcan:lib';
@@ -72,3 +72,26 @@ const withUpdate = options => {
 };
 
 export default withUpdate;
+
+export const useUpdate = ({
+  collectionName, collection,
+  fragmentName, fragment,
+}) => {
+  ({ collectionName, collection } = extractCollectionInfo({collectionName, collection}));
+  ({ fragmentName, fragment } = extractFragmentInfo({fragmentName, fragment}, collectionName));
+
+  const typeName = collection.options.typeName;
+  const query = gql`
+    ${updateClientTemplate({ typeName, fragmentName })}
+    ${fragment}
+  `;
+
+  const [mutate, {loading, error, called, data}] = useMutation(query);
+  const wrappedMutate = ({selector, data, ...extraVariables}) => {
+    mutate({
+      variables: { selector, data, ...extraVariables },
+      update: cacheUpdateGenerator(typeName, 'update')
+    })
+  }
+  return {mutate: wrappedMutate, loading, error, called, data};
+}

@@ -20,7 +20,7 @@ export { default as withMessages } from './containers/withMessages.js';
 export { default as withMulti, useMulti } from './containers/withMulti.js';
 export { default as withSingle, useSingle } from './containers/withSingle.js';
 export { default as withCreate } from './containers/withCreate.js';
-export { default as withUpdate } from './containers/withUpdate.js';
+export { default as withUpdate, useUpdate } from './containers/withUpdate.js';
 export { default as withDelete } from './containers/withDelete.js';
 export { default as withCurrentUser } from './containers/withCurrentUser.js';
 export { default as withMutation } from './containers/withMutation.js';

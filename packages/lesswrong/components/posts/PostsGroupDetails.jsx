@@ -40,7 +40,6 @@ const options = {
   queryName: "PostsGroupDetailsQuery",
   fragmentName: 'localGroupsHomeFragment',
   enableTotal: false,
-  enableCache: true,
   ssr: true,
 }
 

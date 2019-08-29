@@ -232,6 +232,10 @@ addStaticRoute('/:section?/:subreddit?/:new?/.rss', (params, req, res, next) => 
   return makeRedirect(res, '/feed.xml');
 });
 
+addStaticRoute('/promoted', (params, req, res, next) => {
+  return makeRedirect(res, '/allPosts?filter=curated&sortedBy=new&timeframe=allTime');
+});
+
 // Route for old promoted RSS (promoted posts)
 addStaticRoute('/promoted/.rss', (params, req, res, next) => {
   return makeRedirect(res, '/feed.xml?view=curated-rss');

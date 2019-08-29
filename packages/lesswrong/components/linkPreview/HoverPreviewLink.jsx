@@ -1,9 +1,10 @@
 import React from 'react';
 import { Components, registerComponent, parseRoute, Utils } from 'meteor/vulcan:core';
 import { Link } from 'react-router-dom';
-import { hostIsOffsite, useLocation } from '../../lib/routeUtil';
+import { hostIsOnsite, useLocation } from '../../lib/routeUtil';
 
 // From react-router-v4
+// TODO: add a link to the github repo where this is from
 var parsePath = function parsePath(path) {
   var pathname = path || '/';
   var search = '';
@@ -29,15 +30,24 @@ var parsePath = function parsePath(path) {
 };
 
 const HoverPreviewLink = ({innerHTML, href}) => {
-  // FIXME: This is currently server-side-only because 'URL' is a browser-API
+  // FIXME: This is currently client-side-only because 'URL' is a browser-API
   // class. See the workaround for the same issue in PostsPage.
   const location = useLocation();
+  
+  // Invalid link with no href? Don't transform it.
+  if (!href) {
+    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
+  }
+  
+  // Within-page relative link?
+  if (href.startsWith("#")) {
+    return <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
+  }
+
   const currentURL = new URL(location.pathname, Utils.getSiteUrl());
   const linkTargetAbsolute = new URL(href, currentURL);
   
-  if (hostIsOffsite(linkTargetAbsolute.host) || !Meteor.isClient) {
-    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
-  } else {
+  if (hostIsOnsite(linkTargetAbsolute.host) || !Meteor.isClient) {
     const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
     const parsedUrl = parseRoute(parsePath(linkTargetAbsolute.pathname));
     
@@ -52,6 +62,8 @@ const HoverPreviewLink = ({innerHTML, href}) => {
     } else {
       return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
     }
+  } else {
+    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
   }
 }
 registerComponent('HoverPreviewLink', HoverPreviewLink);

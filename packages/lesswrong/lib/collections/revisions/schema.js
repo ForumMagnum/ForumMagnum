@@ -72,6 +72,11 @@ const schema = {
     viewableBy: ['guests'],
     // resolveAs defined in resolvers.js
   },
+  ckEditorMarkup: {
+    type: String,
+    viewableBy: ['guests'],
+    // resolveAs defined in resolvers.js
+  },
   wordCount: {
     type: Number,
     viewableBy: ['guests'],

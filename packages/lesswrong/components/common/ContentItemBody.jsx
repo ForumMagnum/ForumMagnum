@@ -56,6 +56,7 @@ const styles = theme => ({
     // target.
     // !important to take precedence over .mjx-chtml
     marginTop: "-1em !important",
+    marginBottom: "-1em !important",
     
     paddingTop: "2em !important",
     paddingBottom: "2em !important",
@@ -81,6 +82,8 @@ class ContentItemBody extends Component {
     super(props);
     this.bodyRef = React.createRef();
     this.replacedElements = [];
+    this.markScrollableLaTeX();
+    this.markHoverableLinks();
   }
   
   render() {
@@ -99,11 +102,6 @@ class ContentItemBody extends Component {
         })
       }
     </React.Fragment>);
-  }
-  
-  componentDidMount() {
-    this.markScrollableLaTeX();
-    this.markHoverableLinks();
   }
   
   // Find LaTeX elements inside the body, check whether they're wide enough to
@@ -196,8 +194,7 @@ class ContentItemBody extends Component {
   };
   
   markHoverableLinks = () => {
-    //if(!Meteor.isServer && this.bodyRef && this.bodyRef.current) {
-    if(this.bodyRef && this.bodyRef.current) {
+    if(this.bodyRef?.current) {
       const linkTags = [...this.bodyRef.current.getElementsByTagName("a")];
       for (let linkTag of linkTags) {
         const tagContentsHTML = linkTag.innerHTML;

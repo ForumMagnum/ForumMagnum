@@ -27,4 +27,4 @@ const PostsStats = ({post, classes}) => {
   )
 }
 
-registerComponent('PostsStats', PostsStats, withStyles(styles));
+registerComponent('PostsStats', PostsStats, withStyles(styles, {name: "PostsStats"}));
