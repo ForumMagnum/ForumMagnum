@@ -6,14 +6,14 @@ import { withStyles } from '@material-ui/core/styles';
 import { editorStyles, postBodyStyles, postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
-import classnames from 'classnames';
+import classNames from 'classnames';
 import Input from '@material-ui/core/Input';
 import { getLSHandlers } from '../async/localStorageHandlers'
 import { EditorState, convertFromRaw, convertToRaw } from 'draft-js'
 import EditorForm from '../async/EditorForm'
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
-import withErrorBoundary from '../common/withErrorBoundary'
+import withErrorBoundary from '../common/withErrorBoundary';
 
 const postEditorHeight = 250;
 const commentEditorHeight = 100;
@@ -72,7 +72,7 @@ const styles = theme => ({
   placeholder: {
     position: "absolute",
     top: 0,
-    color: theme.palette.grey[600],
+    color: theme.palette.grey[500],
     // Dark Magick
     // https://giphy.com/gifs/psychedelic-art-phazed-12GGadpt5aIUQE
     pointerEvents: "none",
@@ -433,10 +433,11 @@ class EditorFormComponent extends Component {
   }
 
   renderPlaceholder = (showPlaceholder) => {
-    const { classes, formProps: { editorHintText }, hintText, placeholder, label  } = this.props
+    const { classes, formProps, hintText, placeholder, label  } = this.props
+
     if (showPlaceholder) {
-      return <div className={classnames(this.getBodyStyles(), this.getHeightClass(), classes.placeholder)}>
-        { editorHintText || hintText || placeholder || label }
+      return <div className={classNames(this.getBodyStyles(), classes.placeholder)}>
+        { formProps?.editorHintText || hintText || placeholder || label }
       </div>
     }
   }
@@ -466,7 +467,7 @@ class EditorFormComponent extends Component {
     return <div>
         { this.renderPlaceholder(!value) }
         <Input
-          className={classnames(classes.markdownEditor, this.getBodyStyles(), {[classes.questionWidth]: document.question})}
+          className={classNames(classes.markdownEditor, this.getBodyStyles(), {[classes.questionWidth]: document.question})}
           value={value}
           onChange={this.setMarkdown}
           multiline={multiLine}
@@ -492,7 +493,7 @@ class EditorFormComponent extends Component {
           editorState={draftJSValue}
           onChange={this.setDraftJS}
           commentEditor={form?.commentEditor}
-          className={classnames(this.getBodyStyles(), this.getHeightClass(), {[classes.questionWidth]: document.question})}
+          className={classNames(this.getBodyStyles(), this.getHeightClass(), {[classes.questionWidth]: document.question})}
         />
       </div>
   }
@@ -520,7 +521,7 @@ class EditorFormComponent extends Component {
       && document[fieldName].originalContents.type !== this.getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
 
-    return <div className={classes.root}>
+    return <div className={classNames(classes.root, this.getBodyStyles())}>
       { editorWarning }
       <div>
         { this.renderEditorComponent(currentEditorType) }
