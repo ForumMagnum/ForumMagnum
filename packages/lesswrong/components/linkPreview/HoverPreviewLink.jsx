@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { hostIsOnsite, useLocation } from '../../lib/routeUtil';
 
 // From react-router-v4
-// TODO: add a link to the github repo where this is from
+// https://github.com/ReactTraining/history/blob/master/modules/PathUtils.js
 var parsePath = function parsePath(path) {
   var pathname = path || '/';
   var search = '';
