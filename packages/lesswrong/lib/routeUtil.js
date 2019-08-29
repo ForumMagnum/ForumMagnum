@@ -100,9 +100,9 @@ export const withNavigation = (WrappedComponent) => {
 }
 
 
-export const hostIsOffsite = (host) => {
+export const hostIsOnsite = (host) => {
   // FIXME: This is currently client-side-only for historical reasons that don't apply anymore but haven't gotten around to fixing it
-  let isOffsite = true
+  let isOnsite = false
   const domainWhitelist = [
     "lesswrong.com", 
     "lesserwrong.com", 
@@ -114,12 +114,12 @@ export const hostIsOffsite = (host) => {
   ]
 
   domainWhitelist.forEach((domain) => {
-    if ((host === domain) && isOffsite) isOffsite = false;
+    if (host === domain) isOnsite = true;
     // If the domain differs only by the addition or removal of a "www."
     // subdomain, count it as the same.
-    if (("www."+host === domain) && isOffsite) isOffsite = false;
-    if ((host === "www."+domain) && isOffsite) isOffsite = false;
+    if ("www."+host === domain) isOnsite = true;
+    if (host === "www."+domain) isOnsite = true;
   })
 
-  return isOffsite
+  return isOnsite
 }
