@@ -67,7 +67,6 @@ const CKPostEditor = ({ data, onSave, documentId, userId, formType, onInit, clas
     <div ref={sidebarRef} className={classes.sidebar} onClick={(e) => e.preventDefault()}/>
     {layoutReady && <CKEditor
       editor={ PostEditor }
-      data="Start writing here"
       onInit={ editor => {
           // Uncomment this line and the import above to activate the CKEDItor debugger
           // CKEditorInspector.attach(editor)
