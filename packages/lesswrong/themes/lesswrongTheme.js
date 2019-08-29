@@ -1,4 +1,4 @@
-import createLWTheme from './createThemeDefaults.js';
+import createLWTheme, { body2FontSize } from './createThemeDefaults.js';
 import grey from '@material-ui/core/colors/grey';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 
@@ -46,8 +46,6 @@ const palette = {
     default: '#fff'
   }
 }
-
-const body2FontSize = "1.16rem"
 
 const theme = createLWTheme({
   palette: palette,
@@ -116,10 +114,6 @@ const theme = createLWTheme({
         paddingBottom: 8
       }
     },
-    MuiFormControlLabel: {
-      fontSize: body2FontSize
-    }
-
   }
 });
 
