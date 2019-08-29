@@ -30,6 +30,7 @@ const styles = theme => ({
   highlight: {
     marginTop: theme.spacing.unit,
     marginBottom: theme.spacing.unit*2,
+    wordBreak: 'break-all',
     fontSize: "1.1rem",
     [theme.breakpoints.down('sm')]: {
       display: "none"
