@@ -21,7 +21,10 @@ const ShortformSubmitForm = ({ classes, successCallback}) => {
         successCallback={successCallback}
         type="comment"
         formProps={{
-          editorHintText: "Write your thoughts here! What have you been thinking about? Incomplete, exploratory, formative, rambly, rough, boring, draft-stage, unedited, and even (gasp!) wrong thoughts are all welcome on Shortform."
+          editorHintText: <div>
+            <p>Write your thoughts here! What have you been thinking about?</p>
+            <p>Incomplete, exploratory, formative, rambly, rough, boring, draft-stage, unedited, and even (gasp!) wrong thoughts are all welcome on Shortform.</p>
+          </div>
         }}
       />
     </div>
