@@ -4,6 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { Conversations } from '../../lib/collections/conversations/collection.js';
 import './EmailUsername.jsx';
 import './EmailFormatDate.jsx';
+import './EmailContentItemBody.jsx';
 
 const styles = theme => ({
   message: {
@@ -24,7 +25,7 @@ const PrivateMessagesEmail = ({conversation, messages, participantsById, classes
     {messages.map((message,i) => <div className={classes.message} key={i}>
       <EmailUsername user={participantsById[message.userId]}/>
       {" "}<EmailFormatDate date={message.createdAt}/>
-      <div dangerouslySetInnerHTML={{__html: message.contents.html}}/>
+      <EmailContentItemBody dangerouslySetInnerHTML={{__html: message.contents.html}}/>
     </div>)}
   </React.Fragment>);
 }

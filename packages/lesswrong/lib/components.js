@@ -49,6 +49,7 @@ importComponent("Home2", () => require('../components/common/Home2.jsx'));
 importComponent("HomeLatestPosts", () => require('../components/common/HomeLatestPosts'));
 importComponent("Meta", () => require('../components/common/Meta.jsx'));
 importComponent("AllComments", () => require('../components/common/AllComments.jsx'));
+importComponent("BatchTimePicker", () => require('../components/common/BatchTimePicker.jsx'));
 importComponent("SingleColumnSection", () => require('../components/common/SingleColumnSection'));
 importComponent("SectionTitle", () => require('../components/common/SectionTitle.jsx'));
 importComponent("SectionSubtitle", () => require('../components/common/SectionSubtitle.jsx'));

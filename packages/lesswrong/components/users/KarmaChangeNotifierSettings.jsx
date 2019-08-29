@@ -11,6 +11,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import withTimezone from '../common/withTimezone';
 import moment from 'moment-timezone';
+import { convertTimeOfWeekTimezone } from '../../lib/modules/utils/timeUtil.js';
 
 const styles = theme => ({
   radioGroup: {
@@ -52,9 +53,9 @@ export const karmaNotificationTimingChoices = {
 };
 
 class KarmaChangeNotifierSettings extends PureComponent {
-  setUpdateFrequency = (updateFrequency) => {
+  modifyValue = (changes) => {
     const oldSettings = this.props.value || {}
-    const settings = { ...oldSettings, updateFrequency:updateFrequency };
+    const settings = { ...oldSettings, ...changes };
     this.context.updateCurrentValues({
       [this.props.path]: settings
     });
@@ -66,16 +67,11 @@ class KarmaChangeNotifierSettings extends PureComponent {
       timeOfDay: timeOfDay,
       dayOfWeek: oldTimeLocalTZ.dayOfWeek
     };
-    const newTimeGMT = this.convertTimezone(newTimeLocalTZ.timeOfDay, newTimeLocalTZ.dayOfWeek, tz, "GMT");
+    const newTimeGMT = convertTimeOfWeekTimezone(newTimeLocalTZ.timeOfDay, newTimeLocalTZ.dayOfWeek, tz, "GMT");
     
-    const oldSettings = this.props.value || {}
-    const newSettings = {
-      ...oldSettings,
+    this.modifyValue({
       timeOfDayGMT: newTimeGMT.timeOfDay,
       dayOfWeekGMT: newTimeGMT.dayOfWeek,
-    };
-    this.context.updateCurrentValues({
-      [this.props.path]: newSettings
     });
   }
   
@@ -85,46 +81,18 @@ class KarmaChangeNotifierSettings extends PureComponent {
       timeOfDay: oldTimeLocalTZ.timeOfDay,
       dayOfWeek: dayOfWeek
     };
-    const newTimeGMT = this.convertTimezone(newTimeLocalTZ.timeOfDay, newTimeLocalTZ.dayOfWeek, tz, "GMT");
+    const newTimeGMT = convertTimeOfWeekTimezone(newTimeLocalTZ.timeOfDay, newTimeLocalTZ.dayOfWeek, tz, "GMT");
     
-    const oldSettings = this.props.value || {}
-    const newSettings = {
-      ...oldSettings,
+    this.modifyValue({
       timeOfDayGMT: newTimeGMT.timeOfDay,
       dayOfWeekGMT: newTimeGMT.dayOfWeek,
-    };
-    this.context.updateCurrentValues({
-      [this.props.path]: newSettings
     });
-  }
-
-  setNegativeKarmaFilter = (value) => {
-    const oldSettings = this.props.value || {}
-    const newSettings = {
-      ...oldSettings,
-      showNegativeKarma: value
-    }
-    this.context.updateCurrentValues({
-      [this.props.path]: newSettings
-    })
-  }
-  
-  // Given a time of day (number of hours, 0-24)
-  convertTimezone = (timeOfDay, dayOfWeek, fromTimezone, toTimezone) => {
-    let time = moment()
-      .tz(fromTimezone)
-      .day(dayOfWeek).hour(timeOfDay).minute(0)
-      .tz(toTimezone);
-    return {
-      timeOfDay: time.hour(),
-      dayOfWeek: time.format("dddd")
-    };
   }
   
   getBatchingTimeLocalTZ = () => {
     const settings = this.props.value || {}
     const { timeOfDayGMT, dayOfWeekGMT } = settings;
-    const { timeOfDay, dayOfWeek } = this.convertTimezone(timeOfDayGMT, dayOfWeekGMT, "GMT", this.props.timezone);
+    const { timeOfDay, dayOfWeek } = convertTimeOfWeekTimezone(timeOfDayGMT, dayOfWeekGMT, "GMT", this.props.timezone);
     return { timeOfDay, dayOfWeek };
   }
   
@@ -147,7 +115,7 @@ class KarmaChangeNotifierSettings extends PureComponent {
       </Typography>
       <RadioGroup className={classes.radioGroup}
         value={settings.updateFrequency}
-        onChange={(event, newValue) => this.setUpdateFrequency(newValue)}
+        onChange={(event, newValue) => this.modifyValue({updateFrequency: newValue})}
       >
         {_.map(karmaNotificationTimingChoices, (timingChoice, key) =>
           <FormControlLabel
@@ -208,7 +176,7 @@ class KarmaChangeNotifierSettings extends PureComponent {
           <Checkbox
             classes={{root: classes.checkbox}}
             checked={settings.showNegativeKarma}
-            onChange={(event, checked) => this.setNegativeKarmaFilter(checked)}
+            onChange={(event, checked) => this.modifyValue({showNegativeKarma: checked})}
           />
           <Typography variant="body2" className={classes.inline} component="label">
             Show negative karma notifications

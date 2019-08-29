@@ -85,18 +85,21 @@ const karmaChangeSettingsType = new SimpleSchema({
 })
 
 const notificationTypeSettings = new SimpleSchema({
-  enabled: {
-    type: Boolean,
-  },
-  sendOnSite: {
-    type: Boolean,
-  },
-  sendByEmail: {
-    type: Boolean,
+  channel: {
+    type: String,
+    allowedValues: ["none", "onsite", "email", "both"],
   },
   batchingFrequency: {
     type: String,
-    allowedValues: ['daily', 'weekly', 'realtime']
+    allowedValues: ['realtime', 'daily', 'weekly'],
+  },
+  timeOfDayGMT: {
+    type: Number,
+    optional: true,
+  },
+  dayOfWeekGMT: {
+    type: String,
+    optional: true,
   },
 })
 
@@ -559,11 +562,32 @@ addFieldsDict(Users, {
     ...schemaDefaultValue(true),
   },
   
-  notificationCommentsOnMyPost: {
+  notificationCommentsOnSubscribedPost: {
+    type: notificationTypeSettings,
+    label: "Notifications for comments on subscribed posts",
+    group: formGroups.notifications,
+    control: "NotificationTypeSettings",
+    canRead: [Users.owns, 'admins'],
+    canUpdate: [Users.owns, 'admins'],
+    canCreate: [Users.owns, 'admins'],
   },
   notificationRepliesToMyComments: {
+    type: notificationTypeSettings,
+    label: "Notifications for replies to my comments",
+    group: formGroups.notifications,
+    control: "NotificationTypeSettings",
+    canRead: [Users.owns, 'admins'],
+    canUpdate: [Users.owns, 'admins'],
+    canCreate: [Users.owns, 'admins'],
   },
   notificationPostsInGroups: {
+    type: notificationTypeSettings,
+    label: "Notifications for posts in groups",
+    group: formGroups.notifications,
+    control: "NotificationTypeSettings",
+    canRead: [Users.owns, 'admins'],
+    canUpdate: [Users.owns, 'admins'],
+    canCreate: [Users.owns, 'admins'],
   },
 
   // Karma-change notifier settings

@@ -1,5 +1,5 @@
 import React from 'react';
-import { withDocument } from 'meteor/vulcan:core';
+import { withDocument, useSingle } from 'meteor/vulcan:core';
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { createDummyUser, createDummyPost } from '../../testing/utils.js'
@@ -77,6 +77,30 @@ describe('renderEmail', async () => {
     const PostTitleComponent = withDocument(queryOptions)(
       ({document}) => <div>{document?.title}</div>
     );
+    
+    const email = await renderTestEmail({
+      bodyComponent: <PostTitleComponent documentId={post._id} version={null} />,
+    });
+    email.html.should.equal(emailDoctype+'<body><div>Email unit test post</div></body>');
+  });
+  
+  it("Can use Apollo hooks", async () => {
+    const user = await createDummyUser();
+    const post = await createDummyPost(user, { title: "Email unit test post" });
+    
+    const PostTitleComponent = ({documentId}) => {
+      const { document } = useSingle({
+        documentId,
+        collection: Posts,
+        queryName: 'emailTestPostsSingleQuery',
+        fragmentName: 'PostsRevision',
+        ssr: true,
+        extraVariables: {
+          version: 'String'
+        }
+      });
+      return <div>{document?.title}</div>
+    }
     
     const email = await renderTestEmail({
       bodyComponent: <PostTitleComponent documentId={post._id} version={null} />,

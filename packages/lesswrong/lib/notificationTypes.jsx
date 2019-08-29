@@ -62,19 +62,12 @@ export const NewPostNotification = registerNotificationType({
   getIcon() {
     return <PostsIcon style={iconStyles}/>
   }
-});
-
-export const NewPendingPostNotification = registerNotificationType({
-  name: "newPendingPost",
-  getMessage({documentType, documentId}) {
-    let document = getDocument(documentType, documentId);
-    return Posts.getAuthorName(document) + ' has a new post pending approval ' + document.title;
-  },
-  getIcon() {
-    return <AllIcon style={iconStyles} />
+  getUserSettings(user) {
+    // TODO
   }
 });
 
+// Vulcan notification that we don't really use
 export const PostApprovedNotification = registerNotificationType({
   name: "postApproved",
   getMessage({documentType, documentId}) {
@@ -83,6 +76,9 @@ export const PostApprovedNotification = registerNotificationType({
   },
   getIcon() {
     return <AllIcon style={iconStyles} />
+  }
+  getUserSettings(user) {
+    // TODO
   }
 });
 
@@ -99,6 +95,9 @@ export const NewEventNotification = registerNotificationType({
   getIcon() {
     return <AllIcon style={iconStyles} />
   }
+  getUserSettings(user) {
+    // TODO
+  }
 });
 
 export const NewGroupPostNotification = registerNotificationType({
@@ -114,8 +113,12 @@ export const NewGroupPostNotification = registerNotificationType({
   getIcon() {
     return <AllIcon style={iconStyles} />
   }
+  getUserSettings(user) {
+    // TODO
+  }
 });
 
+// New comment on a post you're subscribed to.
 export const NewCommentNotification = registerNotificationType({
   name: "newComment",
   getMessage({documentType, documentId}) {
@@ -125,8 +128,12 @@ export const NewCommentNotification = registerNotificationType({
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
   }
+  getUserSettings(user) {
+    // TODO
+  }
 });
 
+// Reply to a comment you're subscribed to.
 export const NewReplyNotification = registerNotificationType({
   name: "newReply",
   getMessage({documentType, documentId}) {
@@ -136,8 +143,12 @@ export const NewReplyNotification = registerNotificationType({
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
   }
+  getUserSettings(user) {
+    // TODO
+  }
 });
 
+// Reply to a comment you are the author of.
 export const NewReplyToYouNotification = registerNotificationType({
   name: "newReplyToYou",
   getMessage({documentType, documentId}) {
@@ -147,8 +158,12 @@ export const NewReplyToYouNotification = registerNotificationType({
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
   }
+  getUserSettings(user) {
+    // TODO
+  }
 });
 
+// Vulcan notification that we don't really use
 export const NewUserNotification = registerNotificationType({
   name: "newUser",
   getMessage({documentType, documentId}) {
@@ -157,6 +172,9 @@ export const NewUserNotification = registerNotificationType({
   },
   getIcon() {
     return <AllIcon style={iconStyles} />
+  }
+  getUserSettings(user) {
+    // TODO
   }
 });
 
@@ -170,6 +188,9 @@ export const NewMessageNotification = registerNotificationType({
   getIcon() {
     return <MessagesIcon style={iconStyles}/>
   }
+  getUserSettings(user) {
+    // TODO
+  }
 });
 
 export const EmailVerificationRequiredNotification = registerNotificationType({
@@ -179,6 +200,9 @@ export const EmailVerificationRequiredNotification = registerNotificationType({
   },
   getIcon() {
     return <AllIcon style={iconStyles} />
+  }
+  getUserSettings(user) {
+    // TODO
   }
 });
 

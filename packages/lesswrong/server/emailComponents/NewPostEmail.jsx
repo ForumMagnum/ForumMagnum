@@ -4,6 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { Components, registerComponent, withDocument } from 'meteor/vulcan:core';
 import './EmailFormatDate.jsx';
 import './EmailPostAuthors.jsx';
+import './EmailContentItemBody.jsx';
 
 const styles = theme => ({
   heading: {
@@ -41,7 +42,7 @@ const NewPostEmail = ({document, classes, reason}) => {
       </div><br/>
     </div>
     
-    <div className="post-body" dangerouslySetInnerHTML={{
+    <EmailContentItemBody className="post-body" dangerouslySetInnerHTML={{
       __html: document.contents.html
     }} />
     

@@ -473,6 +473,10 @@ registerFragment(`
     karmaChangeNotifierSettings
 
     recommendationSettings
+    
+    notificationCommentsOnMyPost
+    notificationRepliesToMyComments
+    notificationPostsInGroups
   }
 `)
 

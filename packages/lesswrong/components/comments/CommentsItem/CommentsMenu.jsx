@@ -5,6 +5,7 @@ import Menu from '@material-ui/core/Menu';
 import Divider from '@material-ui/core/Divider';
 import { useCurrentUser } from '../../common/withUser';
 import Users from 'meteor/vulcan:users';
+import MenuItem from '@material-ui/core/MenuItem';
 
 import { withStyles } from '@material-ui/core/styles';
 
@@ -40,7 +41,12 @@ const CommentsMenu = ({children, classes, className, comment, post, showEdit, ic
         open={Boolean(anchorEl)}
         anchorEl={anchorEl}
       >
-        <SubscribeTo document={comment} collectionName={"Comments"}/>
+        <MenuItem>
+          <SubscribeTo document={comment.user}
+            subscribeMessage="Subscribe to Author"
+            unsubscribeMessage="Unsubscribe from Author"
+          />
+        </MenuItem>
         <EditCommentMenuItem comment={comment} showEdit={showEdit}/>
         <ReportCommentMenuItem comment={comment}/>
         <CommentsPermalinkMenuItem comment={comment} post={post} />

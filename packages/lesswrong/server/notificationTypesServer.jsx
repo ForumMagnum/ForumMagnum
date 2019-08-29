@@ -1,9 +1,11 @@
 import React from 'react';
 import { Components } from 'meteor/vulcan:core';
+import { Posts } from '../lib/collections/posts/collection.js';
+import './emailComponents/EmailComment.jsx';
 
 const notificationTypes = {};
 
-const getNotificationTypeByNameServer = (name) => {
+export const getNotificationTypeByNameServer = (name) => {
   if (name in notificationTypes)
     return notificationTypes[name];
   else
@@ -16,90 +18,123 @@ const serverRegisterNotificationType = (notificationTypeClass) => {
   return notificationTypeClass;
 }
 
-export const NewPostNotification = serverExtendNotificationType({
+export const NewPostNotification = serverRegisterNotificationType({
   name: "newPost",
-  renderEmail({ notifications }) {
-    const { documentId } = notification;
-    return <Components.NewPostEmail documentId={documentId}/>
-  }
+  canCombineEmails: false,
+  emailSubject: async ({ user, notifications }) => {
+    const postId = notifications[0].documentId;
+    const post = await Posts.findOne({_id: postId});
+    return post.title;
+  },
+  emailBody: ({ user, notifications }) => {
+    const postId = notifications[0].documentId;
+    return <Components.NewPostEmail documentId={postId}/>
+  },
 });
 
-export const NewPendingPostNotification = serverExtendNotificationType({
-  name: "newPendingPost",
-  renderEmail({ notifications }) {
-    const { documentId } = notification;
-    // TODO
-  }
-});
-
-export const PostApprovedNotification = serverExtendNotificationType({
+// Vulcan notification that we don't really use
+export const PostApprovedNotification = serverRegisterNotificationType({
   name: "postApproved",
-  renderEmail({ notifications }) {
-    const { documentId } = notification;
-    // TODO
-  }
+  emailSubject: ({ user, notifications }) => {
+    return "LessWrong notification";
+  },
+  emailBody: ({ user, notifications }) => {
+  },
 });
 
-export const NewEventNotification = serverExtendNotificationType({
+export const NewEventNotification = serverRegisterNotificationType({
   name: "newEvent",
-  renderEmail({ notifications }) {
-    const { documentId } = notification;
+  emailSubject: ({ user, notifications }) => {
+    return "LessWrong notification"; // TODO
+  },
+  emailBody: ({ user, notifications }) => {
     // TODO
-  }
+  },
 });
 
-export const NewGroupPostNotification = serverExtendNotificationType({
+export const NewGroupPostNotification = serverRegisterNotificationType({
   name: "newGroupPost",
-  renderEmail({ notifications }) {
-    const { documentId } = notification;
+  emailSubject: ({ user, notifications }) => {
+    return "LessWrong notification"; // TODO
+  },
+  emailBody: ({ user, notifications }) => {
     // TODO
-  }
+  },
 });
 
-export const NewCommentNotification = serverExtendNotificationType({
+export const NewCommentNotification = serverRegisterNotificationType({
   name: "newComment",
-  renderEmail({ notifications }) {
-    const { documentId } = notification;
-    // TODO
-  }
+  canCombineEmails: true,
+  emailSubject: ({ user, notifications }) => {
+    return `${notifications.length} comments on posts you subscribed to`;
+  },
+  emailBody: ({ user, notifications }) => {
+    const { EmailComment } = Components;
+    return <div>
+      {notifications.map(notification =>
+        <EmailComment key={notification._id} commentId={notification.documentId}/>)}
+    </div>;
+  },
 });
 
-export const NewReplyNotification = serverExtendNotificationType({
+export const NewReplyNotification = serverRegisterNotificationType({
   name: "newReply",
-  renderEmail({ notifications }) {
-    const { documentId } = notification;
-    // TODO
-  }
+  canCombineEmails: true,
+  emailSubject: ({ user, notifications }) => {
+    return `${notifications.length} replies to you`;
+  },
+  emailBody: ({ user, notifications }) => {
+    const { EmailComment } = Components;
+    return <div>
+      {notifications.map(notification =>
+        <EmailComment key={notification._id} commentId={notification.documentId}/>)}
+    </div>;
+  },
 });
 
-export const NewReplyToYouNotification = serverExtendNotificationType({
+export const NewReplyToYouNotification = serverRegisterNotificationType({
   name: "newReplyToYou",
-  renderEmail({ notifications }) {
-    const { documentId } = notification;
-    // TODO
-  }
+  canCombineEmails: true,
+  emailSubject: ({ user, notifications }) => {
+    return `${notifications.length} replies to your comments`;
+  },
+  emailBody: ({ user, notifications }) => {
+    const { EmailComment } = Components;
+    return <div>
+      {notifications.map(notification =>
+        <EmailComment key={notification._id} commentId={notification.documentId}/>)}
+    </div>;
+  },
 });
 
-export const NewUserNotification = serverExtendNotificationType({
+// Vulcan notification that we don't really use
+export const NewUserNotification = serverRegisterNotificationType({
   name: "newUser",
-  renderEmail({ notifications }) {
-    const { documentId } = notification;
-    // TODO
-  }
+  emailSubject: ({ user, notifications }) => {
+    return "LessWrong notification";
+  },
+  emailBody: ({ user, notifications }) => {
+  },
 });
 
-export const NewMessageNotification = serverExtendNotificationType({
+export const NewMessageNotification = serverRegisterNotificationType({
   name: "newMessage",
-  renderEmail({ notifications }) {
-    const { documentId } = notification;
+  emailSubject: ({ user, notifications }) => {
+    return "LessWrong notification"; // TODO
+  },
+  emailBody: ({ user, notifications }) => {
     // TODO
-  }
+  },
 });
 
-export const EmailVerificationRequiredNotification = serverExtendNotificationType({
+// This notification type should never be emailed (but is displayed in the
+// on-site UI).
+export const EmailVerificationRequiredNotification = serverRegisterNotificationType({
   name: "emailVerificationRequired",
-  renderEmail({ notifications }) {
-    const { documentId } = notification;
-    // TODO
-  }
+  emailSubject: ({ user, notifications }) => {
+    throw new Error("emailVerificationRequired notification should never be emailed");
+  },
+  emailBody: ({ user, notifications }) => {
+    throw new Error("emailVerificationRequired notification should never be emailed");
+  },
 });

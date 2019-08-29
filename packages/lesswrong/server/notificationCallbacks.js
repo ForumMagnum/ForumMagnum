@@ -70,40 +70,78 @@ async function getSubscribedUsers({
 }
 
 const createNotifications = async (userIds, notificationType, documentType, documentId) => {
-  const now = new Date();
-  
   return Promise.all(
     userIds.map(async userId => {
-      console.log(`Creating ${notificationType} notification for user ${userId}`);
-      let user = Users.findOne({ _id:userId });
-  
-      let notificationData = {
-        userId: userId,
-        documentId: documentId,
-        documentType: documentType,
-        message: notificationMessage(notificationType, documentType, documentId),
-        type: notificationType,
-        link: getLink(notificationType, documentType, documentId),
-        waitingForBatch: true,
-      }
-  
-      const createdNotification = await newMutation({
-        action: 'notifications.new',
-        collection: Notifications,
-        document: notificationData,
-        currentUser: user,
-        validate: false
-      });
-      console.log(`Recording debouncer event:`);
-      console.log(createdNotification.data);
-      await notificationDebouncers[notificationType].recordEvent({
-        key: {notificationType, userId},
-        data: createdNotification.data._id,
-        af: false, //TODO: Handle AF vs non-AF notifications
-      });
-      console.log("Recorded debouncer event");
+      createNotification(userId, notificationType, documentType, documentId);
     })
   );
+}
+
+const getNotificationTiming = (typeSettings) => {
+  switch (typeSettings.batchingFrequency) {
+    case "realtime":
+      return { type: "none" };
+    case "daily":
+      return {
+        type: "daily",
+        timeOfDayGMT: typeSettings.timeOfDayGMT,
+      };
+    case "weekly":
+      return {
+        type: "weekly",
+        timeOfDayGMT: typeSettings.timeOfDayGMT,
+        dayOfWeekGMT: typeSettings.dayOfWeekGMT,
+      };
+    default:
+      console.error(`Unrecognized batching frequency: ${typeSettings.batchingFrequency}`);
+      return { type: "none" };
+  }
+}
+
+const createNotification = async (userId, notificationType, documentType, documentId) => {
+  let user = Users.findOne({ _id:userId });
+  const notificationTypeSettings = getNotificationTypeByName(notificationType).getUserSettings(user);
+
+  let notificationData = {
+    userId: userId,
+    documentId: documentId,
+    documentType: documentType,
+    message: notificationMessage(notificationType, documentType, documentId),
+    type: notificationType,
+    link: getLink(notificationType, documentType, documentId),
+    waitingForBatch: true,
+  }
+
+  if (notificationTypeSettings.channel === "onsite" || notificationTypeSettings.channel === "both") {
+    const createdNotification = await newMutation({
+      action: 'notifications.new',
+      collection: Notifications,
+      document: notificationData,
+      currentUser: user,
+      validate: false
+    });
+  }
+  if (notificationTypeSettings.channel === "email" || notificationTypeSettings.channel === "both") {
+    await notificationDebouncers[notificationType].recordEvent({
+      key: {notificationType, userId},
+      data: createdNotification.data._id,
+      timing: getNotificationTiming(notificationTypeSettings),
+      af: false, //TODO: Handle AF vs non-AF notifications
+    });
+  }
+}
+
+export const wrapAndSendEmail = async ({user, subject, body}) => {
+  const unsubscribeAllLink = await UnsubscribeAllToken.generateLink(user._id);
+  await renderAndSendEmail({
+    user,
+    subject: subject,
+    bodyComponent: <Components.EmailWrapper
+      user={user} unsubscribeAllLink={unsubscribeAllLink}
+    >
+      {body}
+    </Components.EmailWrapper>
+  });
 }
 
 const sendPostByEmail = async (users, postId, reason) => {
@@ -111,16 +149,10 @@ const sendPostByEmail = async (users, postId, reason) => {
 
   for(let user of users) {
     if(!reasonUserCantReceiveEmails(user)) {
-      const unsubscribeAllLink = await UnsubscribeAllToken.generateLink(user._id);
-      await renderAndSendEmail({
+      await wrapAndSendEmail({
         user,
         subject: post.title,
-        bodyComponent: <Components.EmailWrapper
-          user={user}
-          unsubscribeAllLink={unsubscribeAllLink}
-        >
-          <Components.NewPostEmail documentId={post._id} reason={reason}/>
-        </Components.EmailWrapper>
+        body: <Components.NewPostEmail documentId={post._id} reason={reason}/>
       });
     } else {
       //eslint-disable-next-line no-console
@@ -261,7 +293,10 @@ function findUsersToEmail(filter) {
 
 const curationEmailDelay = new EventDebouncer({
   name: "curationEmail",
-  delayMinutes: 20,
+  defaultTiming: {
+    type: "delayed",
+    delayMinutes: 20,
+  },
   callback: async (postId) => {
     const post = await Posts.findOne(postId);
     
@@ -370,20 +405,14 @@ async function sendPrivateMessagesEmail(conversationId, messageIds) {
     const subject = `Private message conversation with ${otherParticipants.map(u=>u.displayName).join(', ')}`;
     
     if(!reasonUserCantReceiveEmails(recipientUser)) {
-      const unsubscribeAllLink = await UnsubscribeAllToken.generateLink(recipientUser._id);
-      await renderAndSendEmail({
+      await wrapAndSendEmail({
         user: recipientUser,
         subject: subject,
-        bodyComponent: <Components.EmailWrapper
-          user={recipientUser}
-          unsubscribeAllLink={unsubscribeAllLink}
-        >
-          <Components.PrivateMessagesEmail
-            conversation={conversation}
-            messages={messages}
-            participantsById={participantsById}
-          />
-        </Components.EmailWrapper>
+        body: <Components.PrivateMessagesEmail
+          conversation={conversation}
+          messages={messages}
+          participantsById={participantsById}
+        />
       });
     } else {
       //eslint-disable-next-line no-console
@@ -394,8 +423,11 @@ async function sendPrivateMessagesEmail(conversationId, messageIds) {
 
 const privateMessagesDebouncer = new EventDebouncer({
   name: "privateMessage",
-  delayMinutes: 15,
-  maxDelayMinutes: 30,
+  defaultTiming: {
+    type: "delayed",
+    delayMinutes: 15,
+    maxDelayMinutes: 30,
+  },
   callback: sendPrivateMessagesEmail
 });
 

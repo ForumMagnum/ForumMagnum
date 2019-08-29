@@ -1,18 +1,18 @@
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
-import { createDummyUser, createDummyPost, createDummyConversation, createDummyMessage } from '../../../testing/utils.js'
+import { createDummyUser, createDummyPost, createDummyConversation, createDummyMessage, createDummyComment } from '../../../testing/utils.js'
 import { performSubscriptionAction } from '../subscriptions/mutations.js';
 
 import Users from 'meteor/vulcan:users';
 // import { Comments } from '../comments' // commented out along with a flaky test (see below)
 import Notifications from './collection.js';
+import Comments from '../comments/collection.js';
 import { waitUntilCallbacksFinished } from 'meteor/vulcan:core';
 
 chai.should();
 chai.use(chaiAsPromised);
 
 describe('notification generation', async () => {
-  this.timeout(20000)
   it("generates notifications for new posts", async (done) => {
     const user = await createDummyUser()
     const otherUser = await createDummyUser()
