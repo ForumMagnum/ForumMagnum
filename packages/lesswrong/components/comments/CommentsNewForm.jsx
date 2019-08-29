@@ -34,7 +34,7 @@ const styles = theme => ({
   }
 });
 
-const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, currentUser, fragment = "CommentsList"}) => {
+const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, currentUser, fragment = "CommentsList", formProps}) => {
   prefilledProps = {
     ...prefilledProps,
     af: Comments.defaultToAlignment(currentUser, post, parentComment),
@@ -105,6 +105,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
         }}
         alignmentForumPost={post?.af}
         addFields={currentUser?[]:["contents"]}
+        formProps={formProps}
       />
     </div>
   );
