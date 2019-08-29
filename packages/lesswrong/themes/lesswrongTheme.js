@@ -1,4 +1,4 @@
-import createLWTheme, { body2FontSize } from './createThemeDefaults.js';
+import createLWTheme from './createThemeDefaults.js';
 import grey from '@material-ui/core/colors/grey';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 
@@ -113,7 +113,7 @@ const theme = createLWTheme({
         paddingTop: 8,
         paddingBottom: 8
       }
-    },
+    }
   }
 });
 
