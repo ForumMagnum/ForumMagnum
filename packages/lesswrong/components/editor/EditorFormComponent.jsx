@@ -420,9 +420,9 @@ class EditorFormComponent extends Component {
       case "draftJS":
         return this.renderDraftJSEditor(currentEditorType)
       case "markdown":
-        return this.renderMarkdownEditor(currentEditorType)
+        return this.renderPlaintextEditor(currentEditorType)
       case "html":
-        return this.renderMarkdownEditor(currentEditorType)
+        return this.renderPlaintextEditor(currentEditorType)
     }
   }
 
@@ -453,7 +453,7 @@ class EditorFormComponent extends Component {
     }
   }
 
-  renderMarkdownEditor = () => {
+  renderPlaintextEditor = () => {
     const { markdownValue } = this.state
     const { classes, multiLine, fullWidth, disableUnderline, startAdornment, form: { commentStyles }, label } = this.props
     const value = markdownValue || ""
