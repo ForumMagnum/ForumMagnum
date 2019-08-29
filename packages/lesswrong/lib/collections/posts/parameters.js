@@ -3,7 +3,7 @@ import { addCallback } from 'meteor/vulcan:core';
 
 // Add 'after' and 'before' properties to terms which can be used to limit posts in time.
 function PostsAddBeforeAfterParameters (parameters, terms, apolloClient) {
-  if (parameters.selector.postedAt) {
+  if (!parameters.selector.postedAt) {
     let postedAt = {};
 
     if (terms.after) {
