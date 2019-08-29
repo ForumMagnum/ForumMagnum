@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent, parseRoute, Utils } from 'meteor/vulcan:core';
 import { Link } from 'react-router-dom';
-import { hostIsOnsite, useLocation } from '../../lib/routeUtil';
+import { hostIsOnsite, useLocation, getUrlClass } from '../../lib/routeUtil';
 
 // From react-router-v4
 // https://github.com/ReactTraining/history/blob/master/modules/PathUtils.js
@@ -30,6 +30,7 @@ var parsePath = function parsePath(path) {
 };
 
 const HoverPreviewLink = ({innerHTML, href}) => {
+  const URLClass = getUrlClass()
   // FIXME: This is currently client-side-only because 'URL' is a browser-API
   // class. See the workaround for the same issue in PostsPage.
   const location = useLocation();
@@ -44,8 +45,8 @@ const HoverPreviewLink = ({innerHTML, href}) => {
     return <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
   }
 
-  const currentURL = new URL(location.pathname, Utils.getSiteUrl());
-  const linkTargetAbsolute = new URL(href, currentURL);
+  const currentURL = new URLClass(location.pathname, Utils.getSiteUrl());
+  const linkTargetAbsolute = new URLClass(href, currentURL);
   
   if (hostIsOnsite(linkTargetAbsolute.host) || !Meteor.isClient) {
     const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;

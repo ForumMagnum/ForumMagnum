@@ -1,6 +1,6 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { withLocation } from '../../../lib/routeUtil';
+import { withLocation, getUrlClass } from '../../../lib/routeUtil';
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
 import { withStyles } from '@material-ui/core/styles';
@@ -208,13 +208,10 @@ const getContentType = (post) => {
 // properties from that. (There is a URL class which theoretically would work,
 // but it doesn't have the hostname field on IE11 and it's missing entirely on
 // Opera Mini.)
-let URLClass = null;
-if (Meteor.isServer) {
-  URLClass = require('url').URL
-}
+const URLClass = getUrlClass()
 
 function getProtocol(url) {
-  if (URLClass)
+  if (Meteor.isServer)
     return new URLClass(url).protocol;
 
   // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
@@ -224,7 +221,7 @@ function getProtocol(url) {
 }
 
 function getHostname(url) {
-  if (URLClass)
+  if (Meteor.isServer)
     return new URLClass(url).hostname;
 
   // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript

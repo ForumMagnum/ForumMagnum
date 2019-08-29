@@ -99,6 +99,13 @@ export const withNavigation = (WrappedComponent) => {
   );
 }
 
+export const getUrlClass = () => {
+  if (Meteor.isServer) {
+    return require('url').URL
+  } else {
+    return URL
+  }
+}
 
 export const hostIsOnsite = (host) => {
   let isOnsite = false
