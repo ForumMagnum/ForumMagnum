@@ -107,14 +107,30 @@ class PostActions extends Component {
     })
   }
 
-  
+  handleApproveUser = async () => {
+    const { currentUser, post, updateUser } = this.props
+    await updateUser({
+      selector: {_id: post.userId},
+      data: {reviewedByUserId: currentUser._id}
+    })
+  }
+
   render() {
     const { classes, post, currentUser } = this.props
     const { MoveToDraft, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo } = Components
     const postAuthor = post.user;
     
     return (
-      <div className={classes.actions}>
+      <div className={classes.actions}>        
+        { Posts.canEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
+          <MenuItem>
+            <ListItemIcon>
+              <EditIcon />
+            </ListItemIcon>
+            Edit
+          </MenuItem>
+        </Link>}
+        <ReportPostMenuItem post={post}/>
         { post.isRead
           ? <div onClick={this.handleMarkAsUnread}>
               <MenuItem>
@@ -151,6 +167,9 @@ class PostActions extends Component {
 
         <ReportPostMenuItem post={post}/>
 
+        <SuggestCurated post={post}/>
+        <MoveToDraft post={post}/>
+        <DeleteDraft post={post}/>
         { Users.canDo(currentUser, "posts.edit.all") &&
           <span>
             { !post.meta &&
@@ -182,6 +201,14 @@ class PostActions extends Component {
                  </MenuItem>
                </div>
             }
+
+            { post.authorIsUnreviewed &&
+               <div onClick={this.handleApproveUser}>
+                 <MenuItem>
+                   Approve New User
+                 </MenuItem>
+               </div>
+            }
           </span>
         }
         <SuggestAlignment post={post}/>
@@ -198,9 +225,6 @@ class PostActions extends Component {
             </MenuItem>
           </div>
         }
-        <SuggestCurated post={post}/>
-        <MoveToDraft post={post}/>
-        <DeleteDraft post={post}/>
       </div>
     )
   }

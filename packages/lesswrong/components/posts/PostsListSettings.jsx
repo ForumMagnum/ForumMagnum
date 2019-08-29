@@ -98,13 +98,16 @@ const styles = theme => ({
     overflow: "hidden",
   },
   menuItem: {
-    display: "block",
-    cursor: "pointer",
-    color: theme.palette.grey[500],
-    marginLeft: theme.spacing.unit*1.5,
-    whiteSpace: "nowrap",
-    '&:hover': {
-      color: theme.palette.grey[600],
+    '&&': {
+      // Increase specifity to remove import-order conflict with MetaInfo
+      display: "block",
+      cursor: "pointer",
+      color: theme.palette.grey[500],
+      marginLeft: theme.spacing.unit*1.5,
+      whiteSpace: "nowrap",
+      '&:hover': {
+        color: theme.palette.grey[600],
+      },
     },
   },
   selectionList: {
@@ -115,9 +118,12 @@ const styles = theme => ({
     }
   },
   selectionTitle: {
-    display: "block",
-    fontStyle: "italic",
-    marginBottom: theme.spacing.unit/2
+    '&&': {
+      // Increase specifity to remove import-order conflict with MetaInfo
+      display: "block",
+      fontStyle: "italic",
+      marginBottom: theme.spacing.unit/2
+    },
   },
   selected: {
     color: theme.palette.grey[900],

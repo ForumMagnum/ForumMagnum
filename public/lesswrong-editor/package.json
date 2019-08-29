@@ -1,0 +1,106 @@
+{
+  "name": "@lesswrong/lesswrong-editor",
+  "version": "0.1.0",
+  "description": "The balloon editor build of CKEditor 5 with a block toolbar – the best browser-based rich text editor.",
+  "keywords": [
+    "wysiwyg",
+    "rich text",
+    "editor",
+    "html",
+    "contentEditable",
+    "editing",
+    "operational transformation",
+    "ot",
+    "collaboration",
+    "collaborative",
+    "real-time",
+    "framework",
+    "ckeditor5-build",
+    "ckeditor",
+    "ckeditor5",
+    "ckeditor 5"
+  ],
+  "main": "./build/ckeditor.js",
+  "files": [
+    "build"
+  ],
+  "dependencies": {
+    "@ckeditor/ckeditor5-adapter-ckfinder": "^11.0.3",
+    "@ckeditor/ckeditor5-alignment": "^11.1.2",
+    "@ckeditor/ckeditor5-autoformat": "^11.0.3",
+    "@ckeditor/ckeditor5-autosave": "^11.0.4",
+    "@ckeditor/ckeditor5-basic-styles": "^11.1.2",
+    "@ckeditor/ckeditor5-block-quote": "^11.1.1",
+    "@ckeditor/ckeditor5-ckfinder": "^11.0.3",
+    "@ckeditor/ckeditor5-easy-image": "^11.0.3",
+    "@ckeditor/ckeditor5-editor-balloon": "^12.2.1",
+    "@ckeditor/ckeditor5-essentials": "^11.0.3",
+    "@ckeditor/ckeditor5-font": "^11.2.0",
+    "@ckeditor/ckeditor5-heading": "^11.0.3",
+    "@ckeditor/ckeditor5-highlight": "^11.0.3",
+    "@ckeditor/ckeditor5-image": "^13.1.1",
+    "@ckeditor/ckeditor5-link": "^11.1.0",
+    "@ckeditor/ckeditor5-list": "^12.0.3",
+    "@ckeditor/ckeditor5-media-embed": "^11.1.2",
+    "@ckeditor/ckeditor5-paragraph": "^11.0.3",
+    "@ckeditor/ckeditor5-paste-from-office": "^11.0.3",
+    "@ckeditor/ckeditor5-react": "^1.1.3",
+    "@ckeditor/ckeditor5-real-time-collaboration": "^12.3.0",
+    "@ckeditor/ckeditor5-remove-format": "^10.0.2",
+    "@ckeditor/ckeditor5-table": "^13.0.1",
+    "ckeditor5-math-preview": "^1.1.2",
+    "react": "^16.8.4",
+    "react-dom": "^16.8.4"
+  },
+  "devDependencies": {
+    "@babel/core": "7.2.2",
+    "@babel/plugin-proposal-class-properties": "^7.4.0",
+    "@babel/preset-react": "^7.0.0",
+    "@ckeditor/ckeditor5-dev-utils": "^12.0.1",
+    "@ckeditor/ckeditor5-dev-webpack-plugin": "^8.0.1",
+    "@ckeditor/ckeditor5-theme-lark": "^14.1.0",
+    "babel-eslint": "^10.0.1",
+    "babel-loader": "8.0.5",
+    "eslint-config-ckeditor5": "^1.0.13",
+    "eslint-plugin-ckeditor5-rules": "0.0.3",
+    "eslint-plugin-react": "^7.12.4",
+    "postcss-loader": "3.0.0",
+    "raw-loader": "^2.0.0",
+    "style-loader": "0.23.1",
+    "uglifyjs-webpack-plugin": "^1.2.7",
+    "webpack": "^4.39.2",
+    "webpack-cli": "^3.2.3"
+  },
+  "engines": {
+    "node": ">=8.0.0",
+    "npm": ">=5.7.1"
+  },
+  "author": "CKSource (http://cksource.com/)",
+  "license": "GPL-2.0-or-later",
+  "homepage": "https://ckeditor.com/ckeditor-5",
+  "bugs": {
+    "url": "https://github.com/ckeditor/ckeditor5-build-balloon-block/issues"
+  },
+  "scripts": {
+    "build": "webpack --mode production",
+    "lint": "eslint --quiet '**/*.js'",
+    "preversion": "npm run build; if [ -n \"$(git status src/ckeditor.js build/ --porcelain)\" ]; then git add -u src/ckeditor.js build/ && git commit -m 'Internal: Build.'; fi"
+  },
+  "lint-staged": {
+    "**/*.js": [
+      "eslint --quiet"
+    ]
+  },
+  "eslintIgnore": [
+    "build/**",
+    "packages/**"
+  ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "directories": {
+    "test": "tests"
+  }
+}

@@ -50,7 +50,7 @@ const SequencesHome = ({classes}) => {
         <Typography variant="body1" className={classes.listDescription}>
           Sequences are collections of posts that are curated by the community and
           are structured similarly to books. This is the place where you can find
-          the best posts on LessWrong in easy to read formats.
+          the best posts in easy to read formats.
         </Typography>
       </div>
     </SingleColumnSection>
