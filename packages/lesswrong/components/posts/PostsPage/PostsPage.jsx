@@ -278,7 +278,7 @@ class PostsPage extends Component {
 
       return (
         <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
-          <HeadTags url={Posts.getPageUrl(post, true)} title={post.title} description={description}/>
+          <HeadTags url={Posts.getPageUrl(post, true)} canonicalUrl={post.canonicalSource} title={post.title} description={description}/>
           {/* Header/Title */}
           <div className={classes.title}>
             <div className={classes.post}>
