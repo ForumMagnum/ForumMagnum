@@ -8,7 +8,7 @@ const CKCommentEditor = ({ data, onSave, onInit }) => {
   return <div>
     <CKEditor
       editor={ CommentEditor }
-      data="Start writing here"
+      data={data}
       onInit={ editor => {
           // Uncomment the line below and the import above to activate the debugger
           // CKEditorInspector.attach(editor)
