@@ -16,7 +16,7 @@ const styles = theme => ({
     opacity: .4,
   },
   loading: {
-    '&:after': {
+    '&&:after': {
       content: "''",
       marginLeft: 0,
       marginRight: 0,
@@ -25,7 +25,7 @@ const styles = theme => ({
   loadMore: {
     flexGrow: 1,
     textAlign: "left",
-    '&:after': {
+    '&&:after': {
       content: "''",
       marginLeft: 0,
       marginRight: 0,
@@ -62,7 +62,7 @@ const PostsList2 = ({ children, results, loading, count, totalCount, loadMore, n
       {error && <Error error={Utils.decodeIntlError(error)} />}
       {loading && showLoading && dimWhenLoading && <Loading />}
       {results && !results.length && showNoResults && <PostsNoResults />}
-      
+
       {results && results.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} showQuestionTag={terms.filter!=="questions"} terms={terms} index={i}/> )}
       <SectionFooter>
         {(showLoadMore) &&
@@ -100,7 +100,6 @@ const options = {
   queryName: 'postsListQuery',
   fragmentName: 'PostsList',
   enableTotal: false,
-  enableCache: true,
   fetchPolicy: 'cache-and-network',
   ssr: true
 };

@@ -70,10 +70,10 @@ class PostSubmit extends PureComponent {
         >
           {saveDraftLabel}
         </Button>
-
+        
         <Button
           type="submit"
-          onClick={() => collectionName === "posts" && updateCurrentValues({draft: false})}
+          onClick={() => collectionName === "Posts" && updateCurrentValues({draft: false})}
           className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
           variant={collectionName=="users" ? "outlined" : undefined}
         >

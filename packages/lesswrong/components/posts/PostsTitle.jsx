@@ -85,23 +85,23 @@ const PostsTitle = ({currentUser, post, classes, sticky, read, expandOnHover, to
 
   const unwrappedTitle = <React.Fragment>
       {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
-  
+
       {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
-  
+
       {shared && <span className={classes.tag}>[Shared]</span>}
-  
+
       {post.question && shouldRenderQuestionTag && <span className={classes.tag}>[Question]</span>}
-  
+
       {post.url && <span className={classes.tag}>[Link]</span>}
-  
+
       {post.isEvent && shouldRenderEventsTag && <span className={classes.tag}>[Event]</span>}
-  
+
       <span>{post.title}</span>
     </React.Fragment>
-  
+
   const titleWithTooltip = tooltip
     ? (<Tooltip
-        title={<PostsItemTooltip post={post} />}
+        title={<PostsItemTooltip post={post} showTitle={false} />}
         classes={{tooltip:classes.tooltip}}
         TransitionProps={{ timeout: 0 }}
         placement="left-start"
@@ -111,7 +111,7 @@ const PostsTitle = ({currentUser, post, classes, sticky, read, expandOnHover, to
         <span>{unwrappedTitle}</span>
       </Tooltip>)
     : unwrappedTitle
-  
+
   return <span className={classNames(
     classes.root,
     {
@@ -127,8 +127,6 @@ const PostsTitle = ({currentUser, post, classes, sticky, read, expandOnHover, to
     </span>
   </span>
 }
-
-PostsTitle.displayName = "PostsTitle";
 
 registerComponent('PostsTitle', PostsTitle, withUser,
   withStyles(styles, { name: "PostsTitle" })

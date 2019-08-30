@@ -22,6 +22,4 @@ SunshineListTitle.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-SunshineListTitle.displayName = "SunshineListTitle";
-
 registerComponent('SunshineListTitle', SunshineListTitle, withStyles(styles, { name: 'SunshineListTitle'}));

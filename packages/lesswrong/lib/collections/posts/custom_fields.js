@@ -6,6 +6,7 @@ import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { getWithLoader } from '../../loaders.js';
 import { postHasModerationGuidelines } from './helpers';
+import moment from 'moment';
 
 export const formGroups = {
   adminOptions: {
@@ -945,6 +946,32 @@ addFieldsDict(Posts, {
         ];
       }
     },
+  },
+  
+  recentComments: resolverOnlyField({
+    type: Array,
+    graphQLtype: "[Comment]",
+    viewableBy: ['guests'],
+    graphqlArguments: 'commentsLimit: Int, maxAgeHours: Int, af: Boolean',
+    resolver: async (post, { commentsLimit=5, maxAgeHours=18, af=false }, { currentUser, Comments }) => {
+      const timeCutoff = moment().subtract(maxAgeHours, 'hours').toDate();
+      const comments = Comments.find({
+        ...Comments.defaultView({}).selector,
+        postId: post._id,
+        score: {$gt:0},
+        deletedPublic: false,
+        postedAt: {$gt: timeCutoff},
+        ...(af ? {af:true} : {}),
+      }, {
+        limit: commentsLimit,
+        sort: {postedAt:-1}
+      }).fetch();
+      return accessFilterMultiple(currentUser, Comments, comments);
+    }
+  }),
+  'recentComments.$': {
+    type: Object,
+    foreignKey: 'Comments',
   },
 });
 

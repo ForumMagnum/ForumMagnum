@@ -7,30 +7,24 @@ export * from './default_resolvers.js';
 
 export * from './components.js';
 
-export { default as Layout } from './components/Layout.jsx';
 export * from './components/App.jsx';
 export { default as Icon } from './components/Icon.jsx';
 export { default as ShowIf } from './components/ShowIf.jsx';
-export { default as Error404 } from './components/Error404.jsx';
 export { default as DynamicLoading } from './components/DynamicLoading.jsx';
-export { default as HeadTags } from './components/HeadTags.jsx';
 export { default as Datatable } from './components/Datatable.jsx';
-export { default as Flash } from './components/Flash.jsx';
 export { default as RouterHook } from './components/RouterHook.jsx';
 export { default as ScrollToTop } from './components/ScrollToTop.jsx';
 
 export { default as withAccess } from './containers/withAccess.js';
 export { default as withMessages } from './containers/withMessages.js';
-export { default as withMulti } from './containers/withMulti.js';
-export { default as withSingle } from './containers/withSingle.js';
+export { default as withMulti, useMulti } from './containers/withMulti.js';
+export { default as withSingle, useSingle } from './containers/withSingle.js';
 export { default as withCreate } from './containers/withCreate.js';
-export { default as withUpdate } from './containers/withUpdate.js';
+export { default as withUpdate, useUpdate } from './containers/withUpdate.js';
 export { default as withDelete } from './containers/withDelete.js';
 export { default as withCurrentUser } from './containers/withCurrentUser.js';
 export { default as withMutation } from './containers/withMutation.js';
 export { default as withSiteData } from './containers/withSiteData.js';
-
-export { default as withComponents } from './containers/withComponents';
 
 export { default as MessageContext } from './messages.js';
 

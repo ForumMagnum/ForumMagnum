@@ -4,7 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import mapProps from 'recompose/mapProps';
 import { withLocation } from '../../lib/routeUtil';
 import Sequences from '../../lib/collections/sequences/collection.js';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet';
 import { withStyles } from '@material-ui/core/styles';
 import { styles } from '../common/HeaderSubtitle';
 
@@ -39,6 +39,7 @@ registerComponent("SequencesPageTitle", SequencesPageTitle,
   [withDocument, {
     collection: Sequences,
     fragmentName: "SequencesPageFragment",
+    fetchPolicy: 'cache-only',
     ssr: true,
   }],
   withStyles(styles, {name: "SequencesPageTitle"})

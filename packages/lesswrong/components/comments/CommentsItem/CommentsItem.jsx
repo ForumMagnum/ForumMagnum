@@ -90,7 +90,7 @@ export const styles = theme => ({
   },
   deleted: {
     backgroundColor: "#ffefef",
-  },
+  }
 })
 
 class CommentsItem extends Component {
@@ -155,9 +155,9 @@ class CommentsItem extends Component {
   }
 
   render() {
-    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, collapsed, scrollIntoView, isParentComment, parentCommentId } = this.props
+    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, collapsed, isParentComment, parentCommentId, scrollIntoView } = this.props
 
-    const { ShowParentComment, CommentsItemDate, CommentUserName } = Components
+    const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon } = Components
 
     if (!comment || !post) {
       return null;
@@ -189,16 +189,17 @@ class CommentsItem extends Component {
 
         <div className={classes.body}>
           <div className={classes.meta}>
-            { !this.state.showParent && parentCommentId!=comment.parentCommentId &&
+            { !parentCommentId && !comment.parentCommentId && isParentComment &&
+              <div className={classes.usernameSpacing}>○</div>
+            }
+            <CommentShortformIcon comment={comment} post={post} />
+            { parentCommentId!=comment.parentCommentId &&
               <ShowParentComment
                 comment={comment} nestingLevel={nestingLevel}
                 active={this.state.showParent}
                 onClick={this.toggleShowParent}
                 placeholderIfMissing={isParentComment}
               />
-            }
-            { !this.state.showParent && !parentCommentId && !comment.parentCommentId && isParentComment &&
-              <div className={classes.usernameSpacing}>○</div>
             }
             { (postPage || this.props.collapsed) && <a className={classes.collapse} onClick={this.props.toggleCollapse}>
               [<span>{this.props.collapsed ? "+" : "-"}</span>]

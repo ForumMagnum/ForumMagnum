@@ -63,7 +63,7 @@ class CommunityHome extends Component {
     const { classes } = this.props;
     const { query } = this.props.location; // From withLocation
     const filters = query?.filters || [];
-    const { TabNavigationMenu, SingleColumnSection, SectionTitle, PostsList2, SectionButton, GroupFormLink } = Components
+    const { SingleColumnSection, SectionTitle, PostsList2, SectionButton, GroupFormLink } = Components
 
     const postsListTerms = {
       view: 'nearbyEvents',
@@ -87,7 +87,6 @@ class CommunityHome extends Component {
     }
     return (
       <React.Fragment>
-        <TabNavigationMenu />
         <Components.CommunityMapWrapper
           terms={mapEventTerms}
         />
@@ -105,7 +104,7 @@ class CommunityHome extends Component {
           </SingleColumnSection>
           <SingleColumnSection>
             <SectionTitle title="Events">
-              {this.props.currentUser && <Link to={{pathname:"/newPost", query: {eventForm: true}}}>
+              {this.props.currentUser && <Link to={{pathname:"/newPost", search: `?eventForm=true`}}>
                 <SectionButton>
                   <EventIcon />
                   New Event

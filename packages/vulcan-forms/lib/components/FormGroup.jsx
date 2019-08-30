@@ -1,10 +1,9 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Components, Utils } from 'meteor/vulcan:core';
+import { Components, Utils, registerComponent, mergeWithComponents } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
-import { registerComponent, mergeWithComponents } from 'meteor/vulcan:core';
 
 const headerStyles = theme => ({
   formSectionHeading: {
@@ -133,7 +132,7 @@ class FormGroup extends PureComponent {
     });
 
   render() {
-    const { name, fields, formComponents, label, defaultStyle, flexStyle } = this.props;
+    const { name, fields, formComponents, label, defaultStyle, flexStyle, formProps } = this.props;
     const { collapsed } = this.state;
     const FormComponents = mergeWithComponents(formComponents);
     const groupStyling = !(name === 'default' || defaultStyle)
@@ -162,6 +161,7 @@ class FormGroup extends PureComponent {
             clearFieldErrors={this.props.clearFieldErrors}
             formType={this.props.formType}
             currentUser={this.props.currentUser}
+            formProps={formProps}
             formComponents={FormComponents}
           />
         ))}

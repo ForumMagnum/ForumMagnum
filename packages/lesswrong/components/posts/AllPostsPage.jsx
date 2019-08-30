@@ -7,6 +7,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { getBeforeDefault, getAfterDefault, timeframeToTimeBlock } from './timeframeUtils'
+import withTimezone from '../common/withTimezone';
 
 const styles = theme => ({
   timeframe: {
@@ -15,17 +16,11 @@ const styles = theme => ({
       padding: 0,
     }
   },
-  settingsIcon: {},
   title: {
     cursor: "pointer",
     '&:hover $settingsIcon, &:hover $sortedBy': {
       color: theme.palette.grey[800]
     }
-  },
-  sortedBy: {
-    marginLeft: theme.spacing.unit,
-    fontStyle: "italic",
-    display: "inline-block"
   }
 });
 
@@ -73,7 +68,7 @@ class AllPostsPage extends Component {
   }
 
   renderPostsList = ({currentTimeframe, currentFilter, currentSorting, currentShowLowKarma}) => {
-    const { classes } = this.props
+    const { timezone, classes } = this.props
     const { showSettings } = this.state
     const {PostsTimeframeList, PostsList2} = Components
 
@@ -102,8 +97,8 @@ class AllPostsPage extends Component {
         }}
         numTimeBlocks={numTimeBlocks}
         dimWhenLoading={showSettings}
-        after={getAfterDefault(numTimeBlocks, timeBlock)}
-        before={getBeforeDefault(timeBlock)}
+        after={getAfterDefault({numTimeBlocks, timeBlock, timezone})}
+        before={getBeforeDefault({timeBlock, timezone})}
       />
     </div>
   }
@@ -112,7 +107,7 @@ class AllPostsPage extends Component {
     const { classes, currentUser } = this.props
     const { query } = this.props.location;
     const { showSettings } = this.state
-    const { SingleColumnSection, SectionTitle, SettingsIcon, MetaInfo, TabNavigationMenu, PostsListSettings } = Components
+    const { SingleColumnSection, SectionTitle, SettingsIcon, PostsListSettings } = Components
 
     const currentTimeframe = query.timeframe ||
       (currentUser && currentUser.allPostsTimeframe) ||
@@ -129,15 +124,11 @@ class AllPostsPage extends Component {
 
     return (
       <React.Fragment>
-        <TabNavigationMenu />
         <SingleColumnSection>
           <Tooltip title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`} placement="top-end">
             <div className={classes.title} onClick={this.toggleSettings}>
               <SectionTitle title="All Posts">
-                <SettingsIcon className={classes.settingsIcon}/>
-                <MetaInfo className={classes.sortedBy}>
-                  Sorted by { sortings[currentSorting] }
-                </MetaInfo>
+                <SettingsIcon label={`Sorted by ${ sortings[currentSorting] }`}/>
               </SectionTitle>
             </div>
           </Tooltip>
@@ -168,5 +159,6 @@ registerComponent(
   withStyles(styles, {name:"AllPostsPage"}),
   withLocation,
   withUser,
+  withTimezone,
   [withUpdate, withUpdateOptions]
 );

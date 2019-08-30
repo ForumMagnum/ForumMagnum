@@ -1,6 +1,6 @@
 import { getSetting } from 'meteor/vulcan:core'
 import { viewFieldNullOrMissing } from 'meteor/vulcan:lib';
-import { Comments } from './index';
+import { Comments } from './collection.js';
 import moment from 'moment';
 import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionUtils';
 
@@ -281,6 +281,7 @@ Comments.addView('shortform', function (terms) {
   return {
     selector: {
       shortform: true,
+      deleted: false,
       parentCommentId: viewFieldNullOrMissing,
     },
     options: {sort: {lastSubthreadActivity: -1, postedAt: -1}}

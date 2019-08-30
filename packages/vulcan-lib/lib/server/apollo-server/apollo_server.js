@@ -21,13 +21,17 @@ import { graphiqlMiddleware, getGraphiqlConfig } from './graphiql';
 import getPlaygroundConfig from './playground';
 
 import initGraphQL from './initGraphQL';
-import './settings';
 import { engineConfig } from './engine';
 import { computeContextFromReq } from './context.js';
 
 import { GraphQLSchema } from '../../modules/graphql.js';
 
-import { enableSSR } from '../apollo-ssr';
+import { populateComponentsApp, populateRoutesApp } from 'meteor/vulcan:lib';
+// onPageLoad is mostly equivalent to an Express middleware
+// excepts it is tailored to handle Meteor server side rendering
+import { onPageLoad } from 'meteor/server-render';
+
+import makePageRenderer from '../apollo-ssr/renderPage';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
 
@@ -35,6 +39,21 @@ import { getApolloApplyMiddlewareOptions, getApolloServerOptions } from './setti
 
 import { getSetting } from '../../modules/settings.js';
 import { formatError } from 'apollo-errors';
+
+//import timber from 'timber';
+const timberApiKey = getSetting('timber.apiKey');
+
+const sentryUrl = getSetting('sentry.url');
+const sentryEnvironment = getSetting('sentry.environment');
+const sentryRelease = getSetting('sentry.release');
+import Sentry from '@sentry/node';
+
+if (sentryUrl) {
+  Sentry.init({ dsn: sentryUrl, environment: sentryEnvironment, release: sentryRelease });
+} else {
+  // eslint-disable-next-line no-console
+  console.warn("Sentry is not configured. To activate error reporting, please set the sentry.url variable in your settings file.");
+}
 
 export const setupGraphQLMiddlewares = (apolloServer, config, apolloApplyMiddlewareOptions) => {
   // IMPORTANT: order matters !
@@ -52,7 +71,7 @@ export const setupGraphQLMiddlewares = (apolloServer, config, apolloApplyMiddlew
   // parse request (order matters)
   WebApp.connectHandlers.use(
     config.path,
-    bodyParser.json({ limit: getSetting('apolloServer.jsonParserOptions.limit') })
+    bodyParser.json({ limit: '50mb' })
   );
   WebApp.connectHandlers.use(config.path, bodyParser.text({ type: 'application/graphql' }));
 
@@ -106,7 +125,7 @@ export const createApolloServer = ({
   return apolloServer;
 };
 
-export const onStart = () => {
+Meteor.startup(() => {
   // Vulcan specific options
   const config = {
     path: '/graphql',
@@ -133,20 +152,39 @@ export const onStart = () => {
     apolloServerOptions: {
       engine: engineConfig,
       schema: GraphQLSchema.executableSchema,
-      formatError,
+      formatError: (e) => {
+        Sentry.captureException(e);
+        return formatError(e);
+      },
       tracing: getSetting('apolloTracing', Meteor.isDevelopment),
       cacheControl: true,
       context: ({ req }) => computeContextFromReq(req),
       ...getApolloServerOptions(),
     },
   });
+  
+  WebApp.connectHandlers.use(Sentry.Handlers.requestHandler());
+  WebApp.connectHandlers.use(Sentry.Handlers.errorHandler());
+  
+  if (timberApiKey) {
+    // eslint-disable-next-line no-console
+    console.info("Starting timber integration");
+    /*WebApp.connectHandlers.use(timber.middlewares.express({
+      capture_request_body: true,
+      capture_response_body: true,
+    }));*/
+  }
+  
   // NOTE: order matters here
   // /graphql middlewares (request parsing)
   setupGraphQLMiddlewares(apolloServer, config, apolloApplyMiddlewareOptions);
   //// other middlewares (dev tools etc.)
-  if (Meteor.isDevelopment) {
-    setupToolsMiddlewares(config);
-  }
-  // ssr
-  enableSSR();
-};
+  // LW: Made available in production environment
+  setupToolsMiddlewares(config);
+  
+  // init the application components and routes, including components & routes from 3rd-party packages
+  populateComponentsApp();
+  populateRoutesApp();
+  // render the page
+  onPageLoad(makePageRenderer);
+});

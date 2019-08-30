@@ -1,10 +1,10 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
+import React, { useEffect, useState } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { withApollo } from 'react-apollo';
 import Users from 'meteor/vulcan:users';
 import withUser from '../common/withUser';
+import { useLocation } from '../../lib/routeUtil'
 
 const styles = theme => ({
   root: {
@@ -12,29 +12,18 @@ const styles = theme => ({
   }
 });
 
-class AccountsVerifyEmail extends PureComponent {
-  constructor(props) {
-    super(props)
-    this.state = {
-      pending: true,
-      error: null
-    }
-  }
+const AccountsVerifyEmail = ({currentUser, classes, client}) => {
+  const { params } = useLocation()
+  const [error, setError] = useState(null)
+  const [success, setSuccess] = useState(false)
 
-  componentDidMount() {
-    const token = this.props.params.token;
-    Accounts.verifyEmail(token, (verifyEmailResult) => {
+  useEffect(() => {
+    Accounts.verifyEmail(params.token, (verifyEmailResult) => {
       if(verifyEmailResult && verifyEmailResult.error) {
-        this.setState({
-          pending: false,
-          error: verifyEmailResult.reason
-        });
+        setError(verifyEmailResult.reason)
       } else {
-        this.setState({
-          pending: false,
-          error: null
-        });
-
+        setError(null)
+        setSuccess(true)
         // Reset the Apollo cache. Unfortunately there isn't
         // really a more granular way to do this (see
         // https://github.com/apollographql/apollo-feature-requests/issues/4 ).
@@ -43,50 +32,39 @@ class AccountsVerifyEmail extends PureComponent {
         // to the "Edit Account" page, you won't see a
         // widget telling you your address is still
         // unverified.
-        this.props.client.resetStore();
+        client.resetStore();
       }
     });
+  })
+
+  if (success) {
+    return <div className={classes.root}>
+      Your email address has been verified.
+    </div>
   }
 
-  render() {
-    const { currentUser, classes } = this.props;
-    
-    if(this.state.pending) {
+  
+  if(error) {
+    if (Users.emailAddressIsVerified(currentUser)) {
       return (
         <div className={classes.root}>
-          <Components.Loading />
+          Your email address is already verified.
         </div>
       );
-    } else if(this.state.error) {
-      if (Users.emailAddressIsVerified(currentUser)) {
-        return (
-          <div className={classes.root}>
-            Your email address is already verified.
-          </div>
-        );
-      } else {
-        return (
-          <div className={classes.root}>
-            {this.state.error}
-          </div>
-        );
-      }
     } else {
       return (
         <div className={classes.root}>
-          Your email address has been verified.
+          {error}
         </div>
       );
     }
-  }
+  } 
+  return (
+    <div className={classes.root}>
+      <Components.Loading />
+    </div>
+  );
 }
-
-AccountsVerifyEmail.propTypes = {
-  currentUser: PropTypes.object,
-  params: PropTypes.object,
-};
-
-AccountsVerifyEmail.displayName = 'AccountsEnrollAccount';
 
 // Shadows AccountsVerifyEmail in meteor/vulcan:accounts
 registerComponent('AccountsVerifyEmail', AccountsVerifyEmail,

@@ -16,6 +16,10 @@ export const addStrings = (language, strings) => {
   };
 };
 
+function replaceAll(target, search, replacement) {
+  return target.replace(new RegExp(search, 'g'), replacement);
+}
+
 export const getString = ({id, values, defaultMessage, locale}) => {
   const messages = Strings[locale] || {};
   let message = messages[id];
@@ -32,8 +36,7 @@ export const getString = ({id, values, defaultMessage, locale}) => {
 
   if (message && values) {
     Object.keys(values).forEach(key => {
-      // note: see replaceAll definition in vulcan:lib/utils
-      message = message.replaceAll(`{${key}}`, values[key]);
+      message = replaceAll(message, `{${key}}`, values[key]);
     });
   }
   return message;

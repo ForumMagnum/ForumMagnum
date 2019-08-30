@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components } from 'meteor/vulcan:core';
-import { registerComponent, mergeWithComponents } from 'meteor/vulcan:core';
+import { Components, registerComponent, mergeWithComponents } from 'meteor/vulcan:core';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import SimpleSchema from 'simpl-schema';
@@ -15,7 +14,7 @@ class FormComponent extends Component {
     this.state = {};
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     if (this.showCharsRemaining()) {
       const value = this.getValue();
       this.updateCharacterCount(value);
@@ -78,12 +77,9 @@ class FormComponent extends Component {
       'textarea',
       'checkbox',
       'checkboxgroup',
-      'radiogroup',
       'select',
-      'selectmultiple',
       'datetime',
       'date',
-      'time',
       'text'
     ].includes(inputType);
     return !isStandardInput;
@@ -264,29 +260,14 @@ class FormComponent extends Component {
         case 'checkboxgroup':
           return FormComponents.FormComponentCheckboxGroup;
 
-        case 'radiogroup':
-          return FormComponents.FormComponentRadioGroup;
-
         case 'select':
           return FormComponents.FormComponentSelect;
-
-        case 'selectmultiple':
-          return FormComponents.FormComponentSelectMultiple;
 
         case 'datetime':
           return FormComponents.FormComponentDateTime;
 
         case 'date':
           return FormComponents.FormComponentDate;
-
-        case 'date2':
-          return FormComponents.FormComponentDate2;
-
-        case 'time':
-          return FormComponents.FormComponentTime;
-
-        case 'statictext':
-          return FormComponents.FormComponentStaticText;
 
         default:
           if (this.props.input && FormComponents[this.props.input]) {

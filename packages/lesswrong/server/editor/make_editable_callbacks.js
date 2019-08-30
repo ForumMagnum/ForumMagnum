@@ -1,5 +1,5 @@
 /* global Random */
-import { Utils } from 'meteor/vulcan:core';
+import { Utils, addCallback } from 'meteor/vulcan:core';
 import { Connectors } from 'meteor/vulcan:lib';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../draftConvert';
@@ -20,7 +20,6 @@ mdi.use(markdownItMathjax())
 mdi.use(markdownItContainer, 'spoiler')
 mdi.use(markdownItFootnote)
 
-import { addCallback } from 'meteor/vulcan:core';
 import { mjpage }  from 'mathjax-node-page'
 
 function mjPagePromise(html, beforeSerializationCallback) {
@@ -41,6 +40,11 @@ export function htmlToMarkdown(html) {
   return turndownService.turndown(html)
 }
 
+export function ckEditorMarkupToMarkdown(markup) {
+  // Sanitized CKEditor markup is just html
+  return turndownService.turndown(Utils.sanitize(markup))
+}
+
 export function markdownToHtmlNoLaTeX(markdown) {
   const randomId = Random.id()
   return mdi.render(markdown, {docId: randomId})
@@ -51,10 +55,35 @@ export async function markdownToHtml(markdown) {
   return await mjPagePromise(html, Utils.trimEmptyLatexParagraphs)
 }
 
+export function removeCKEditorSuggestions(markup) {
+  // First we remove all suggested deletion and modify formatting tags
+  const markupWithoutDeletionsAndModifications = markup.replace(
+    /<suggestion\s*id="[a-zA-Z0-9:]+"\s*suggestion-type="(deletion|formatInline:[a-zA-Z0-9]+|formatBlock:[a-zA-Z0-9]+)" type="(start|end)"><\/suggestion>/g,
+    ''
+  )
+  // Then we remove everything between suggested insertions
+  const markupWithoutInsertions = markupWithoutDeletionsAndModifications.replace(
+    /<suggestion\s*id="([a-zA-Z0-9:]+)"\s*suggestion-type="insertion" type="start"><\/suggestion>.*<suggestion\s*id="\1"\s*suggestion-type="insertion"\s*type="end"><\/suggestion>/g,
+    ''
+  ) 
+  return markupWithoutInsertions
+}
+
+export async function ckEditorMarkupToHtml(markup) {
+  // First we remove any unaccepted suggestions from the markup
+  const markupWithoutSuggestions = removeCKEditorSuggestions(markup)
+  // Sanitized CKEditor markup is just html
+  const html = Utils.sanitize(markupWithoutSuggestions)
+  // Render any LaTeX tags we might have in the HTML
+  return await mjPagePromise(html, Utils.trimEmptyLatexParagraphs)
+}
+
 async function dataToHTML(data, type, sanitize = false) {
   switch (type) {
     case "html":
       return sanitize ? Utils.sanitize(data) : data
+    case "ckEditorMarkup":
+      return await ckEditorMarkupToHtml(data)
     case "draftJS":
       return await draftJSToHtmlWithLatex(data)
     case "markdown":
@@ -71,6 +100,9 @@ export function dataToMarkdown(data, type) {
     }
     case "html": {
       return htmlToMarkdown(data)
+    }
+    case "ckEditorMarkup": {
+      return ckEditorMarkupToMarkdown(data)
     }
     case "draftJS": {
       try {

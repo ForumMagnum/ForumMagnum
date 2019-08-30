@@ -10,17 +10,16 @@
  * @see https://github.com/apollographql/apollo-server/issues/420
  */
 
-//import deepmerge from 'deepmerge';
 import DataLoader from 'dataloader';
 import { Collections } from '../../modules/collections.js';
 import { runCallbacks } from '../../modules/callbacks.js';
 import findByIds from '../../modules/findbyids.js';
 import { GraphQLSchema } from '../../modules/graphql.js';
-import _merge from 'lodash/merge';
 import { getUser } from 'meteor/apollo';
 import { getHeaderLocale } from '../intl.js';
 import { getSetting } from '../../modules/settings.js';
 import Cookies from 'universal-cookie';
+import Sentry from '@sentry/node';
 
 // initial request will get the login token from a cookie, subsequent requests from
 // the header
@@ -32,6 +31,15 @@ const setupAuthToken = (user, context) => {
   if (user) {
     context.userId = user._id;
     context.currentUser = user;
+    
+    Sentry.configureScope(scope => {
+      scope.setUser({
+        id: user._id,
+        email: user.email,
+        username: user.username
+      });
+    });
+    
     // identify user to any server-side analytics providers
     runCallbacks('events.identify', user);
   } else {
@@ -82,8 +90,12 @@ export const computeContextFromUser = async (user, headers) => {
   return context;
 }
 
+export const getUserFromReq = async (req) => {
+  return getUser(getAuthToken(req));
+}
+
 // Returns a function called on every request to compute context
 export const computeContextFromReq = async (req) => {
-  const user = await getUser(getAuthToken(req));
+  const user = await getUserFromReq(req);
   return computeContextFromUser(user, req.headers);
 };

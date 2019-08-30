@@ -1,7 +1,6 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { withLocation } from '../../../lib/routeUtil';
+import { withLocation, getUrlClass } from '../../../lib/routeUtil';
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
 import { withStyles } from '@material-ui/core/styles';
@@ -23,6 +22,9 @@ const MAX_COLUMN_WIDTH = 720
 const styles = theme => ({
   root: {
     position: "relative",
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 20
+    }
   },
   tocActivated: {
     // Check for support for template areas before applying
@@ -192,18 +194,34 @@ const styles = theme => ({
   }
 })
 
+const getContentType = (post) => {
+  if (getSetting('forumType') === 'EAForum') {
+    return (post.frontpageDate && 'frontpage') ||
+    (post.meta && 'meta') ||
+    'personal'
+  }
+  return post.frontpageDate ? 'frontpage' : 'personal'
+}
+
 // On the server, use the 'url' library for parsing hostname out of feed URLs.
 // On the client, we instead create an <a> tag, set its href, and extract
 // properties from that. (There is a URL class which theoretically would work,
 // but it doesn't have the hostname field on IE11 and it's missing entirely on
 // Opera Mini.)
-let URLClass = null;
-if (Meteor.isServer) {
-  URLClass = require('url').URL
+const URLClass = getUrlClass()
+
+function getProtocol(url) {
+  if (Meteor.isServer)
+    return new URLClass(url).protocol;
+
+  // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
+  var parser = document.createElement('a');
+  parser.href = url;
+  return parser.protocol;
 }
 
 function getHostname(url) {
-  if (URLClass)
+  if (Meteor.isServer)
     return new URLClass(url).hostname;
 
   // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
@@ -219,24 +237,24 @@ class PostsPage extends Component {
     const { params } = this.props.location;
     return params.sequenceId || post?.canonicalSequenceId;
   }
-  
+
   shouldHideAsSpam() {
     const { post, currentUser } = this.props;
-    
+
     // Logged-out users shouldn't be able to see spam posts
     if (post.authorIsUnreviewed && !currentUser) {
       return true;
     }
-    
+
     return false;
   }
-  
+
   render() {
-    const { post, refetch, currentUser, classes } = this.props
+    const { post, refetch, currentUser, classes, location: { query: { commentId }} } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, ContentType,
       LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
-      TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate } = Components
+      TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink } = Components
 
     if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
@@ -249,16 +267,19 @@ class PostsPage extends Component {
       const sequenceId = this.getSequenceId();
       const sectionData = post.tableOfContents;
       const htmlWithAnchors = (sectionData && sectionData.html) ? sectionData.html : html
-      const feedLink = post.feed && post.feed.url && getHostname(post.feed.url)
+      const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
+      const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;
       const { major } = extractVersionsFromSemver(post.version)
       const hasMajorRevision = major > 1
+      const contentType = getContentType(post)
 
       return (
         <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
-          <HeadTags url={Posts.getPageUrl(post, true)} title={post.title} description={description}/>
+          <HeadTags url={Posts.getPageUrl(post, true)} canonicalUrl={post.canonicalSource} title={post.title} description={description}/>
           {/* Header/Title */}
           <div className={classes.title}>
             <div className={classes.post}>
+              <CommentPermalink documentId={commentId} post={post}/>
               {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
               <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
               <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}>
@@ -269,11 +290,11 @@ class PostsPage extends Component {
                       <PostsAuthors post={post}/>
                     </span>
                     <span className={classes.postType}>
-                      <ContentType frontpage={post.frontpageDate}/>
+                      <ContentType type={contentType}/>
                     </span>
                     { post.feed && post.feed.user &&
-                      <Tooltip title={`Crossposted from ${feedLink}`}>
-                        <a href={`http://${feedLink}`} className={classes.feedName}>
+                      <Tooltip title={`Crossposted from ${feedLinkDescription}`}>
+                        <a href={feedLink} className={classes.feedName}>
                           {post.feed.nickname}
                         </a>
                       </Tooltip>
@@ -368,10 +389,6 @@ class PostsPage extends Component {
       });
     }
   }
-}
-
-PostsPage.propTypes = {
-  document: PropTypes.object,
 }
 
 registerComponent(

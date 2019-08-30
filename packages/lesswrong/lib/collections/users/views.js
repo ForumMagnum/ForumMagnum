@@ -67,8 +67,8 @@ Users.addView("usersWithBannedUsers", function () {
   }
 })
 
-Users.addView("sunshineNewUsers", function () {
-  let reCaptchaSelector = {signUpReCaptchaRating: {$gt: 0.3}}
+Users.addView("sunshineNewUsers", function (terms) {
+  let reCaptchaSelector = terms.ignoreRecaptcha ? {} : {signUpReCaptchaRating: {$gt: 0.3}}
   if (!getSetting('requireReCaptcha')) {
     reCaptchaSelector = {
       $or: [
@@ -77,17 +77,18 @@ Users.addView("sunshineNewUsers", function () {
       ]
     }
   }
+  const bioSelector = terms.includeBioOnlyUsers ? {$exists: true} : {}
   return {
     selector: {
       $or: [
         { voteCount: {$gt: 12}},
         { commentCount: {$gt: 0}},
         { postCount: {$gt: 0}, ...reCaptchaSelector},
-        { bio: {$exists: true}},
+        { bio: {...bioSelector}},
       ],
       reviewedByUserId: {$exists: false},
       banned: {$exists: false},
-    }, 
+    },
     options: {
       sort: {
         commentCount: -1,

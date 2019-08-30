@@ -27,14 +27,14 @@ const styles = theme => ({
     "&:hover": {
       background: "rgba(0,0,0, 0.05)",
     },
-    color: theme.palette.secondary.main
+    color: theme.palette.lwTertiary.main
   },
   cancelButton: {
     color: theme.palette.grey[400]
   }
 });
 
-const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, currentUser, fragment = "CommentsList"}) => {
+const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, currentUser, fragment = "CommentsList", formProps}) => {
   prefilledProps = {
     ...prefilledProps,
     af: Comments.defaultToAlignment(currentUser, post, parentComment),
@@ -105,6 +105,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
         }}
         alignmentForumPost={post?.af}
         addFields={currentUser?[]:["contents"]}
+        formProps={formProps}
       />
     </div>
   );
@@ -122,4 +123,4 @@ CommentsNewForm.propTypes = {
   prefilledProps: PropTypes.object
 };
 
-registerComponent('CommentsNewForm', CommentsNewForm, withUser, withStyles(styles), withErrorBoundary);
+registerComponent('CommentsNewForm', CommentsNewForm, withUser, withStyles(styles, {name: "CommentsNewForm"}), withErrorBoundary);

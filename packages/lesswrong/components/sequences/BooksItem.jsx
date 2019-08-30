@@ -49,7 +49,8 @@ class BooksItem extends Component {
   render() {
     const { book, classes, canEdit } = this.props;
     const { html = "" } = book.contents || {}
-    const { SingleColumnSection, SectionTitle, SectionButton, SequencesGrid, SequencesPostsList, Divider } = Components
+    const { SingleColumnSection, SectionTitle, SectionButton, SequencesGrid,
+      SequencesPostsList, Divider, ContentItemBody } = Components
     if (this.state.edit) {
       return <Components.BooksEditForm
                 documentId={book._id}
@@ -62,7 +63,7 @@ class BooksItem extends Component {
             {canEdit && <SectionButton><a onClick={this.showEdit}>Edit</a></SectionButton>}
           </SectionTitle>
           {html  && <div className={classes.description}>
-            <div dangerouslySetInnerHTML={{__html: html}}/>
+            <ContentItemBody dangerouslySetInnerHTML={{__html: html}}/>
           </div>}
 
           {book.posts && !!book.posts.length && <div className={classes.posts}>

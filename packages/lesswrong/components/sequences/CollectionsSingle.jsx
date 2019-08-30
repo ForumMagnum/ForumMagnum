@@ -7,6 +7,4 @@ const CollectionsSingle = () => {
   return <Components.CollectionsPage documentId={params._id} />
 };
 
-CollectionsSingle.displayName = "CollectionsSingle";
-
 registerComponent('CollectionsSingle', CollectionsSingle);

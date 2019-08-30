@@ -46,18 +46,28 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment CommentPermalink on Comment {
+    ...CommentsList
+    parentComment {
+      ...CommentsList
+    }
+  }
+`);
+
+registerFragment(`
   fragment ShortformComments on Comment {
     ...CommentsList
     post {
       _id
       slug
       title
+      draft
     }
   }
 `)
 
 registerFragment(`
-  fragment ShortformCommentsList on Comment {
+  fragment CommentWithReplies on Comment {
     ...CommentsList
     lastSubthreadActivity
     latestChildren {
@@ -68,6 +78,7 @@ registerFragment(`
       _id
       slug
       lastVisitedAt
+      draft
     }
   }
 `);

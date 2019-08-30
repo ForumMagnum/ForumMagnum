@@ -66,10 +66,14 @@ const UsersEditForm = (props) => {
     })
   )
 
+  // Since there are two urls from which this component can be rendered, with different terms, we have to
+  // check both slug and documentId
+  const isCurrentUser = (props.terms.slug && props.terms.slug === props.currentUser.slug) || (props.terms.documentId && props.terms.documentId === props.currentUser._id)
+
   return (
     <div className={classes.root}>
       <Typography variant="display2" className={classes.header}><FormattedMessage id="users.edit_account"/></Typography>
-      {props.currentUser._id === terms.documentId && <Button
+      {isCurrentUser && <Button
         color="secondary"
         variant="outlined"
         className={classes.resetButton}
@@ -102,8 +106,6 @@ UsersEditForm.propTypes = {
 UsersEditForm.contextTypes = {
   intl: intlShape
 };
-
-UsersEditForm.displayName = 'UsersEditForm';
 
 registerComponent('UsersEditForm', UsersEditForm,
   withMessages, withUser, withApollo,

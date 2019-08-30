@@ -8,6 +8,7 @@ import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 import { postBodyStyles } from '../../themes/stylePiping'
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
+import qs from 'qs'
 
 const styles = theme => ({
   root: {
@@ -34,6 +35,7 @@ const styles = theme => ({
     ...theme.typography.body2,
     display: "inline-block",
     color: "rgba(0,0,0,0.7)",
+    maxWidth: 260
   },
   groupLinks: {
     display: "inline-block",
@@ -56,7 +58,7 @@ class LocalGroupPage extends Component {
     const { params } = this.props.location;
     const { groupId } = params;
     const { CommunityMapWrapper, SingleColumnSection, SectionTitle, GroupLinks, PostsList2, Loading,
-      SectionButton, SubscribeTo, SectionFooter, GroupFormLink } = Components
+      SectionButton, SubscribeTo, SectionFooter, GroupFormLink, ContentItemBody } = Components
     if (!group) return <Loading />
     const { html = ""} = group.contents || {}
     const htmlBody = {__html: html}
@@ -84,13 +86,13 @@ class LocalGroupPage extends Component {
                 </span>
                 {Posts.options.mutations.new.check(currentUser) &&
                   <SectionButton>
-                    <Link to={{pathname:"/newPost", query: {eventForm: true, groupId}}} className={classes.leftAction}>
+                    <Link to={{pathname:"/newPost", search: `?${qs.stringify({eventForm: true, groupId})}`}} className={classes.leftAction}>
                       Create new event
                     </Link>
                   </SectionButton>}
                 {Posts.options.mutations.new.check(this.props.currentUser) &&
                   <SectionButton>
-                    <Link to={{pathname:"/newPost", query: {groupId}}} className={classes.leftAction}>
+                    <Link to={{pathname:"/newPost", search: `?${qs.stringify({groupId})}`}} className={classes.leftAction}>
                       Create new group post
                     </Link>
                   </SectionButton>}
@@ -98,7 +100,7 @@ class LocalGroupPage extends Component {
                 && <span className={classes.leftAction}><GroupFormLink documentId={groupId} label="Edit group" /></span>}
               </SectionFooter>
             </div>
-            <div dangerouslySetInnerHTML={htmlBody} className={classes.groupDescriptionBody}/>
+            <ContentItemBody dangerouslySetInnerHTML={htmlBody} className={classes.groupDescriptionBody}/>
           </div>
           <PostsList2 terms={{view: 'groupPosts', groupId: groupId}} />
         </SingleColumnSection>

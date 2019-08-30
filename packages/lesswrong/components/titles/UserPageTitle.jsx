@@ -4,7 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import Users from 'meteor/vulcan:users';
 import mapProps from 'recompose/mapProps';
 import { withLocation } from '../../lib/routeUtil';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet';
 import { withStyles } from '@material-ui/core/styles';
 import { styles } from '../common/HeaderSubtitle';
 import { getUserFromResults } from '../users/UsersProfile';
@@ -40,6 +40,7 @@ registerComponent("UserPageTitle", UserPageTitle,
   [withList, {
     collection: Users,
     fragmentName: "UsersMinimumInfo",
+    fetchPolicy: 'cache-only',
     ssr: true,
   }],
   withStyles(styles, {name: "UserPageTitle"})

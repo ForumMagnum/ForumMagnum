@@ -2,9 +2,8 @@ import Users from "meteor/vulcan:users";
 import { getSetting, Utils } from "meteor/vulcan:core"
 import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences } from '../../modules/utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
-import { addUniversalFields } from '../../collectionUtils'
+import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 import SimpleSchema from 'simpl-schema'
-import { schemaDefaultValue } from '../../collectionUtils';
 
 
 export const formGroups = {
@@ -34,6 +33,12 @@ export const formGroups = {
     order: 25,
     label: "Admin Options",
     startCollapsed: true,
+  },
+  truncationOptions: {
+    name: "truncationOptions",
+    order: 9,
+    label: "Comment Truncation Options",
+    startCollapsed: false,
   },
 }
 
@@ -214,6 +219,14 @@ addFieldsDict(Users, {
   email: {
     order: 20,
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+  },
+  hideNavigationSidebar: {
+    type: Boolean,
+    optional: true,
+    canRead: Users.owns,
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: Users.owns,
+    hidden: true,
   },
   currentFrontpageFilter: {
     type: String,
@@ -666,7 +679,7 @@ addFieldsDict(Users, {
     canRead: [Users.owns, 'sunshineRegiment', 'admins'],
     resolver: (user, args, context) => !!user.reviewedByUserId,
   }),
-  
+
   // A number from 0 to 1, where 0 is almost certainly spam, and 1 is almost
   // certainly not-spam. This is the same scale as ReCaptcha, except that it
   // also includes post-signup activity like moderator approval, upvotes, etc.
@@ -682,7 +695,7 @@ addFieldsDict(Users, {
     resolver: (user, args, context) => {
       const isReviewed = !!user.reviewedByUserId;
       const { karma, signUpReCaptchaRating } = user;
-      
+
       if (user.deleteContent && user.banned) return 0.0;
       else if (Users.isAdmin(user)) return 1.0;
       else if (isReviewed && karma>=20) return 1.0;
@@ -771,28 +784,43 @@ addFieldsDict(Users, {
     order: 39,
   },
 
-  noCollapseCommentsPosts: {
+  noSingleLineComments: {
     order: 70,
     type: Boolean,
     optional: true,
+    group: formGroups.truncationOptions,
     defaultValue: false,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     control: 'checkbox',
-    label: "Do not collapse comments (in large threads on Post Pages)"
+    label: "Do not collapse comments to Single Line"
+  },
+
+  noCollapseCommentsPosts: {
+    order: 70,
+    type: Boolean,
+    optional: true,
+    group: formGroups.truncationOptions,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    control: 'checkbox',
+    label: "Do not truncate comments (in large threads on Post Pages)"
   },
 
   noCollapseCommentsFrontpage: {
     order: 70,
     type: Boolean,
     optional: true,
+    group: formGroups.truncationOptions,
     defaultValue: false,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     control: 'checkbox',
-    label: "Do not collapse comments (on home page)"
+    label: "Do not truncate comments (on home page)"
   },
 
   shortformFeedId: {
@@ -828,7 +856,7 @@ addFieldsDict(Users, {
     group: formGroups.adminOptions,
     order: 0,
   },
-  
+
   partiallyReadSequences: {
     type: Array,
     canRead: [Users.owns],
@@ -840,7 +868,7 @@ addFieldsDict(Users, {
     type: partiallyReadSequenceItem,
     optional: true,
   },
-  
+
   beta: {
     type: Boolean,
     optional: true,
@@ -848,6 +876,14 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     tooltip: "Get early access to new in-development features",
     label: "Opt into experimental features"
+  },
+  defaultToCKEditor: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    group: formGroups.adminOptions,
+    label: "Activate CKEditor by default"
   },
   // ReCaptcha v3 Integration
   // From 0 to 1. Lower is spammier, higher is humaner.

@@ -37,6 +37,6 @@ export const QueryLink = reactRouter.withRouter(({query, location, staticContext
   const newSearchString = merge ? qs.stringify({...parseQuery(location), ...query}) : qs.stringify(query)
   return <reactRouterDom.Link
     {...rest}
-    to={{search: newSearchString}}
+    to={{...location, search: newSearchString}}
   />
 })

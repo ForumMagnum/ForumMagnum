@@ -37,10 +37,9 @@ const styles = theme => ({
 
 const SequencesHome = ({classes}) => {
 
-  const { SingleColumnSection, SectionTitle, TabNavigationMenu, Divider, SequencesNewButton } = Components
+  const { SingleColumnSection, SectionTitle, Divider, SequencesNewButton } = Components
   // TODO: decide on terms for community sequences
   return <React.Fragment>
-    <TabNavigationMenu />
     {/* Title */}
     <SingleColumnSection>
       <div className={classes.header}>
@@ -51,7 +50,7 @@ const SequencesHome = ({classes}) => {
         <Typography variant="body1" className={classes.listDescription}>
           Sequences are collections of posts that are curated by the community and
           are structured similarly to books. This is the place where you can find
-          the best posts on LessWrong in easy to read formats.
+          the best posts in easy to read formats.
         </Typography>
       </div>
     </SingleColumnSection>
@@ -73,7 +72,7 @@ const SequencesHome = ({classes}) => {
       </div>
       <Divider />
     </SingleColumnSection>
-    
+
     <SingleColumnSection>
       <SectionTitle  title="Community Sequences" >
         <SequencesNewButton />

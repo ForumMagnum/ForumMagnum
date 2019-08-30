@@ -84,9 +84,7 @@ class HomeLatestPosts extends PureComponent {
 
     return (
       <SingleColumnSection>
-        <SectionTitle title={<Tooltip title={latestTitle} placement="left-start"><span>Latest Posts</span></Tooltip>}/>
-        <PostsList2 terms={recentPostsTerms}>
-          <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
+        <SectionTitle title={<Tooltip title={latestTitle} placement="left-start"><span>Latest Posts</span></Tooltip>}>
           <Tooltip title={personalBlogpostTooltip}>
             <div>
               <SectionFooterCheckbox 
@@ -96,6 +94,9 @@ class HomeLatestPosts extends PureComponent {
                 />
             </div>
           </Tooltip>
+        </SectionTitle>
+        <PostsList2 terms={recentPostsTerms}>
+          <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
         </PostsList2>
       </SingleColumnSection>
     )

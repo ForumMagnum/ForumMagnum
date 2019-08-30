@@ -5,6 +5,7 @@ import { commentBodyStyles, postBodyStyles } from '../../themes/stylePiping'
 import withHover from '../common/withHover';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
+import { Comments } from '../../lib/collections/comments'
 import { isMobile } from '../../lib/modules/utils/isMobile.js'
 
 const styles = theme => ({
@@ -98,28 +99,34 @@ const styles = theme => ({
       backgroundColor: "#f3f3f3",
     }
   },
+  expandTip: {
+    textAlign: "right",
+    fontSize: "1rem",
+    color: theme.palette.lwTertiary.main
+  }
 })
 
 const SingleLineComment = ({comment, classes, nestingLevel, hover, parentCommentId}) => {
   if (!comment) return null
-  const { baseScore } = comment
+
   const { plaintextMainText } = comment.contents
-  const { BetaTag, CommentBody, ShowParentComment, UsersName } = Components
+  const { CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon } = Components
 
   const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile()
 
   return (
     <div className={classes.root}>
       <div className={classNames(classes.commentInfo, {[classes.isAnswer]: comment.answer, [classes.odd]:((nestingLevel%2) !== 0)})}>
+        <CommentShortformIcon comment={comment} simple={true} />
+
         { parentCommentId!=comment.parentCommentId &&
           <ShowParentComment comment={comment} nestingLevel={nestingLevel} />
         }
         <span className={classes.karma}>
-          {baseScore || 0}
+          {Comments.getKarma(comment)}
         </span>
         <span className={classes.username}>
-          {comment.answer && "Answer by "}
-          <UsersName user={comment.user} simple={true}/>
+          <CommentUserName comment={comment} simple={true}/>
         </span>
         <span className={classes.date}>
           <Components.FormatDate date={comment.postedAt} tooltip={false}/>
@@ -128,7 +135,7 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
       </div>
       {displayHoverOver && <span className={classNames(classes.highlight)}>
         <CommentBody truncated comment={comment}/>
-        <BetaTag />
+        <div className={classes.expandTip}>[Click to expand all comments in this thread]</div>
       </span>}
     </div>
   )

@@ -1,4 +1,7 @@
-import {Components, getComponent} from './components';
+import { Components } from './components';
+import { Picker } from 'meteor/meteorhacks:picker'
+import cookieParser from 'cookie-parser'
+
 
 export const Routes = {}; // will be populated on startup (see vulcan:routing)
 export const RoutesTable = {}; // storage for infos about routes themselves
@@ -8,7 +11,7 @@ export const RoutesTable = {}; // storage for infos about routes themselves
  RoutesTable.foobar = {
  name: 'foobar',
  path: '/xyz',
- component: getComponent('FooBar')
+ component: 'FooBar'
  componentName: 'FooBar' // optional
  }
 
@@ -60,13 +63,20 @@ export const extendRoute = (routeName, routeProps) => {
   }
 };
 
+if (Picker) Picker.middleware(cookieParser())
+/// Add a route which renders by putting things into the http response body
+/// directly, rather than using all the Meteor/Apollo/etc stuff.
+export const addStaticRoute = (url, handler) => {
+  Picker.route(url, handler);
+}
+
 
 /**
  A route is defined in the list like: (same as above)
  RoutesTable.foobar = {
  name: 'foobar',
  path: '/xyz',
- component: getComponent('FooBar')
+ component: 'FooBar'
  componentName: 'FooBar' // optional
  }
 
@@ -111,23 +121,11 @@ export const addAsChildRoute = (parentRouteName, addedRoutes) => {
 
 export const getRoute = name => {
   const routeDef = RoutesTable[name];
-
-  // components should be loaded by now (populateComponentsApp function), we can grab the component in the lookup table and assign it to the route
-  if (!routeDef.component && routeDef.componentName) {
-    routeDef.component = getComponent(routeDef.componentName);
-  }
-
   return routeDef;
 };
 
 export const getChildRoute = (name, index) => {
   const routeDef = RoutesTable[name]['childRoutes'][index];
-
-  // components should be loaded by now (populateComponentsApp function), we can grab the component in the lookup table and assign it to the route
-  if (!routeDef.component && routeDef.componentName) {
-    routeDef.component = getComponent(routeDef.componentName);
-  }
-
   return routeDef;
 };
 

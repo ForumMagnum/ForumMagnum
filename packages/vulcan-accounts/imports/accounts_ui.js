@@ -29,7 +29,7 @@ Accounts.ui._options = {
   onVerifyEmailHook: () => redirect(`${Accounts.ui._options.profilePath}`),
   onSignedInHook: () => redirect(`${Accounts.ui._options.homeRoutePath}`),
   onSignedOutHook: () => redirect(`${Accounts.ui._options.homeRoutePath}`),
-  emailPattern: new RegExp('[^@]+@[^@\.]{2,}\.[^\.@]+'),
+  emailPattern: new RegExp('[^@]+@[^@\\.]{2,}\\.[^\\.@]+'),
 };
 
 /**

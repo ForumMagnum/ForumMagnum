@@ -30,6 +30,7 @@ const styles = theme => ({
   highlight: {
     marginTop: theme.spacing.unit,
     marginBottom: theme.spacing.unit*2,
+    wordBreak: 'break-all',
     fontSize: "1.1rem",
     [theme.breakpoints.down('sm')]: {
       display: "none"
@@ -68,7 +69,7 @@ const getPostCategory = (post) => {
     return post.question ? `Question` : `Personal Blogpost`
 }
 
-const PostsItemTooltip = ({ post, classes, author, }) => {
+const PostsItemTooltip = ({ showTitle, post, classes, author, }) => {
   const { PostsUserAndCoauthors } = Components
   const postCategory = getPostCategory(post)
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
@@ -76,6 +77,9 @@ const PostsItemTooltip = ({ post, classes, author, }) => {
   const highlight = truncate(htmlHighlight, 600)
 
   return <div className={classes.root}>
+    {showTitle && <div className={classes.tooltipTitle}>
+      {post.title}
+    </div>}
     <div className={classes.tooltipInfo}>
       {postCategory}
       { author && post.user && <span> by <PostsUserAndCoauthors post={post}/></span>}
@@ -88,8 +92,6 @@ const PostsItemTooltip = ({ post, classes, author, }) => {
   </div>
 
 }
-
-PostsItemTooltip.displayName = "PostsItemTooltip";
 
 registerComponent('PostsItemTooltip', PostsItemTooltip, withUser,
   withStyles(styles, { name: "PostsItemTooltip" })

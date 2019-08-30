@@ -192,5 +192,11 @@ Posts.canDelete = (currentUser, post) => {
 }
 
 export const postHasModerationGuidelines = (post) => {
-  return !!(post.moderationGuidelines_latest || post.moderationStyle);
+  if (post.moderationStyle)
+    return true;
+  
+  // Because of a bug in Vulcan that doesn't adequately deal with nested fields in document validation,
+  // we check for originalContents instead of html here, which causes some problems with empty strings, but 
+  // should overall be fine
+  return !!post.moderationGuidelines_latest?.originalContents;
 }
