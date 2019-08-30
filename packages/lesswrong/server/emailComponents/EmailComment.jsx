@@ -4,6 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { Components, registerComponent, useSingle } from 'meteor/vulcan:core';
 import './EmailFormatDate.jsx';
 import './EmailPostAuthors.jsx';
+import './EmailContentItemBody.jsx';
 
 const styles = theme => ({
   comment: {
@@ -38,9 +39,7 @@ const EmailComment = ({commentId, classes}) => {
         {comment.post.title}
       </a>
     </div>
-    <div dangerouslySetInnerHTML={{
-      __html: comment.contents.html
-    }} />
+    <EmailContentItemBody dangerouslySetInnerHTML={{ __html: comment.contents.html }}/>
   </div>;
 }
 

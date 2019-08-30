@@ -61,10 +61,10 @@ export const NewPostNotification = registerNotificationType({
   },
   getIcon() {
     return <PostsIcon style={iconStyles}/>
-  }
+  },
   getUserSettings(user) {
     // TODO
-  }
+  },
 });
 
 // Vulcan notification that we don't really use
@@ -76,10 +76,10 @@ export const PostApprovedNotification = registerNotificationType({
   },
   getIcon() {
     return <AllIcon style={iconStyles} />
-  }
+  },
   getUserSettings(user) {
     // TODO
-  }
+  },
 });
 
 export const NewEventNotification = registerNotificationType({
@@ -94,10 +94,10 @@ export const NewEventNotification = registerNotificationType({
   },
   getIcon() {
     return <AllIcon style={iconStyles} />
-  }
+  },
   getUserSettings(user) {
     // TODO
-  }
+  },
 });
 
 export const NewGroupPostNotification = registerNotificationType({
@@ -112,10 +112,10 @@ export const NewGroupPostNotification = registerNotificationType({
   },
   getIcon() {
     return <AllIcon style={iconStyles} />
-  }
+  },
   getUserSettings(user) {
     // TODO
-  }
+  },
 });
 
 // New comment on a post you're subscribed to.
@@ -127,10 +127,10 @@ export const NewCommentNotification = registerNotificationType({
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
-  }
+  },
   getUserSettings(user) {
-    // TODO
-  }
+    return user.notificationCommentsOnSubscribedPost;
+  },
 });
 
 // Reply to a comment you're subscribed to.
@@ -142,10 +142,10 @@ export const NewReplyNotification = registerNotificationType({
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
-  }
+  },
   getUserSettings(user) {
-    // TODO
-  }
+    return user.notificationRepliesToSubscribedComments;
+  },
 });
 
 // Reply to a comment you are the author of.
@@ -157,10 +157,10 @@ export const NewReplyToYouNotification = registerNotificationType({
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
-  }
+  },
   getUserSettings(user) {
-    // TODO
-  }
+    return user.notificationRepliesToMyComments;
+  },
 });
 
 // Vulcan notification that we don't really use
@@ -172,10 +172,10 @@ export const NewUserNotification = registerNotificationType({
   },
   getIcon() {
     return <AllIcon style={iconStyles} />
-  }
+  },
   getUserSettings(user) {
     // TODO
-  }
+  },
 });
 
 export const NewMessageNotification = registerNotificationType({
@@ -187,10 +187,10 @@ export const NewMessageNotification = registerNotificationType({
   },
   getIcon() {
     return <MessagesIcon style={iconStyles}/>
-  }
+  },
   getUserSettings(user) {
     // TODO
-  }
+  },
 });
 
 export const EmailVerificationRequiredNotification = registerNotificationType({
@@ -200,10 +200,10 @@ export const EmailVerificationRequiredNotification = registerNotificationType({
   },
   getIcon() {
     return <AllIcon style={iconStyles} />
-  }
+  },
   getUserSettings(user) {
     // TODO
-  }
+  },
 });
 
 
