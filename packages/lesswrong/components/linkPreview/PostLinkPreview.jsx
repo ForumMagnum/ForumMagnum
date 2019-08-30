@@ -4,6 +4,8 @@ import { Posts } from '../../lib/collections/posts';
 import { Link } from 'react-router-dom';
 import Tooltip from '@material-ui/core/Tooltip';
 import { usePostBySlug, usePostByLegacyId } from '../posts/usePost.js';
+import { withStyles } from '@material-ui/core/styles';
+import { postHighlightStyles } from '../../themes/stylePiping'
 
 const PostLinkPreview = ({href, targetLocation, innerHTML}) => {
   const postID = targetLocation.params._id;
@@ -53,24 +55,68 @@ const PostLinkPreviewLegacy = ({href, targetLocation, innerHTML}) => {
 }
 registerComponent('PostLinkPreviewLegacy', PostLinkPreviewLegacy);
 
-const PostLinkPreviewWithPost = ({href, innerHTML, post, error}) => {
+const postsLinkPreviewCardStyles = theme => ({
+  tooltip: {
+  }
+})
+
+// COPY PASTE from Tooltip. Make sure to cleanup
+const PostsLinkPreviewCard = ({classes, post}) => {  
+  const { PostsUserAndCoauthors } = Components
+  const postCategory = getPostCategory(post)
+  const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
+
+  const highlight = truncate(htmlHighlight, 600)
+
+  return <div className={classes.root}>
+    <div>
+      {post.title}
+    </div>
+    <div className={classes.tooltipInfo}>
+      {postCategory}
+      { author && post.user && <span> by <PostsUserAndCoauthors post={post}/></span>}
+    </div>
+    <div dangerouslySetInnerHTML={{__html:highlight}}
+      className={classes.highlight} />
+    {(wordCount > 0) && <div className={classes.tooltipInfo}>
+      {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
+    </div>}
+  </div>
+}
+registerComponent('PostsLinkPreviewCard', PostsLinkPreviewCard, withStyles(postsLinkPreviewCardStyles, {name:"PostsLinkPreviewCard"}));
+
+
+// COPY PASTE from SingleLineComment
+const postLinkPreviewWithPostStyles = theme => ({
+  tooltip: {
+    backgroundColor: "white",
+    color: theme.palette.grey[900],
+    opacity: 1,
+    width: 650,
+    ...postHighlightStyles(theme),
+    padding: theme.spacing.unit*1.5,
+    border: "solid 1px rgba(0,0,0,.1)",
+    boxShadow: "0 0 10px rgba(0,0,0,.2)",
+    '& img': {
+      maxHeight: "200px"
+    }
+  }
+})
+
+const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, error}) => {
   const linkElement = <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}}/>;
   if (!post) {
     return linkElement;
   }
-  
   
   return (
     <Tooltip
       title={
         error
           ? error
-          : <Components.PostsItemTooltip
-              post={post}
-              showTitle={true}
-              author={true}
-            />
+          : <Components.postsLinkPreviewCardStyles post={post} />
       }
+      classes={{tooltip:classes.tooltip}}
       TransitionProps={{ timeout: 0 }}
       placement="bottom-start"
       enterDelay={0}
@@ -80,4 +126,4 @@ const PostLinkPreviewWithPost = ({href, innerHTML, post, error}) => {
     </Tooltip>
   );
 }
-registerComponent('PostLinkPreviewWithPost', PostLinkPreviewWithPost);
+registerComponent('PostLinkPreviewWithPost', PostLinkPreviewWithPost, withStyles(postLinkPreviewWithPostStyles, {name:"PostLinkPreviewWithPost"}));

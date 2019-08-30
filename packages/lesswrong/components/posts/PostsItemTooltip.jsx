@@ -53,7 +53,7 @@ const styles = theme => ({
   },
 })
 
-const getPostCategory = (post) => {
+export const getPostCategory = (post) => {
   const categories = [];
   const postOrQuestion = post.question ? "Question" : "Post"
 
