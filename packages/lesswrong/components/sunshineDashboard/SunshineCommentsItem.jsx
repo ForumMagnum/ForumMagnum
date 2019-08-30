@@ -71,7 +71,7 @@ class SunshineCommentsItem extends Component {
         <div className="sunshine-sidebar-item new-comment">
           <Components.SidebarHoverOver
             hoverOverComponent={
-              <Typography variant="body2">
+              <Typography variant="body1">
                 <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
                   Commented on post: <strong>{ comment.post.title }</strong>
                 </Link>

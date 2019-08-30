@@ -51,7 +51,7 @@ const MessageItem = ({currentUser, message, classes}) => {
   const colorClassName = classNames({[classes.whiteMeta]: isCurrentUser})
   
   return (
-    <Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
+    <Typography variant="body1" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
       <div className={classes.meta}>
         {message.user && <Components.MetaInfo>
           <span className={colorClassName}><Components.UsersName user={message.user}/></span>

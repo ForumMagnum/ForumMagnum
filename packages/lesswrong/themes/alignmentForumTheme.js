@@ -57,16 +57,16 @@ const theme = createLWTheme({
     link: {
       underlinePosition: "72%",
     },
-    title: {
+    h6: {
       fontWeight: 500,
     },
-    display2: {
+    h3: {
       fontWeight: 500
     },
-    display3: {
+    h2: {
       fontWeight: 500
     },
-    body1: {
+    body2: {
       linkUnderlinePosition: "90%",
     },
   },

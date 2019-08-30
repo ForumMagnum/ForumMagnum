@@ -41,7 +41,7 @@ class SunshineNewCommentsItem extends Component {
     return (
         <Components.SunshineListItem hover={hover}>
           <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
-            <Typography variant="body2">
+            <Typography variant="body1">
               <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
                 Commented on post: <strong>{ comment.post.title }</strong>
               </Link>

@@ -9,7 +9,7 @@ const styles = theme => ({
     marginBottom: 150,
   },
   permalinkLabel: {
-    ...theme.typography.body2,
+    ...theme.typography.body1,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
     marginBottom: theme.spacing.unit*2,
@@ -19,7 +19,7 @@ const styles = theme => ({
     }
   },
   seeInContext: {
-    ...theme.typography.body2,
+    ...theme.typography.body1,
     ...theme.typography.commentStyle,
     textAlign: "right",
     color: theme.palette.lwTertiary.main,

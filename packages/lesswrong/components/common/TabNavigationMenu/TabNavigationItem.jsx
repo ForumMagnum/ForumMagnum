@@ -50,7 +50,7 @@ const styles = theme => ({
     display: "inline",
   },
   navText: {
-    ...theme.typography.body2,
+    ...theme.typography.body1,
     color: theme.palette.grey[600],
     textTransform: "none !important",
   },

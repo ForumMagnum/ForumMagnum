@@ -6,7 +6,7 @@ import classNames from 'classnames'
 
 const styles = (theme) => ({
   root: {
-    ...theme.typography.body2,
+    ...theme.typography.body1,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[700],
     display: "inline-block",
@@ -14,7 +14,7 @@ const styles = (theme) => ({
 })
 
 const SectionSubtitle = ({children, classes, className}) => {
-  return <Typography component='span' variant='subheading' className={classNames(classes.root, className)}>
+  return <Typography component='span' variant='subtitle1' className={classNames(classes.root, className)}>
     {children}
   </Typography>
 }

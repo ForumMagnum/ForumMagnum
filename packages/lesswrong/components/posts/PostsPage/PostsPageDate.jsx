@@ -10,7 +10,7 @@ const styles = theme => ({
     marginLeft: 20,
     display: 'inline-block',
     color: theme.palette.grey[600],
-    fontSize: theme.typography.body2.fontSize,
+    fontSize: theme.typography.body1.fontSize,
   },
   mobileDate: {
     [theme.breakpoints.up('md')]: {

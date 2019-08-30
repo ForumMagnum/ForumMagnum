@@ -135,10 +135,10 @@ class KarmaChangeNotifierSettings extends PureComponent {
     const {timeOfDay, dayOfWeek} = this.getBatchingTimeLocalTZ();
     
     return <div>
-      <Typography variant="body1">
+      <Typography variant="body2">
         Vote Notifications
       </Typography>
-      <Typography variant="body2">
+      <Typography variant="body1">
         Shows upvotes and downvotes to your posts and comments on top of the
         page. By default, this is on but only updates once per day, to avoid
         creating a distracting temptation to frequently recheck it. Can be
@@ -155,7 +155,7 @@ class KarmaChangeNotifierSettings extends PureComponent {
             value={key}
             control={<Radio className={classes.radioButton} />}
             label={
-              <Typography className={classes.inline} variant="body2" component="label">
+              <Typography className={classes.inline} variant="body1" component="label">
                 {timingChoice.label}
               </Typography>
             }
@@ -167,7 +167,7 @@ class KarmaChangeNotifierSettings extends PureComponent {
       </RadioGroup>
       
       { (settings.updateFrequency==="daily" || settings.updateFrequency==="weekly") &&
-        <Typography variant="body2">
+        <Typography variant="body1">
           Batched updates occur at <Select
             value={timeOfDay}
             onChange={(event) => this.setBatchingTimeOfDay(event.target.value, timezone)}
@@ -210,7 +210,7 @@ class KarmaChangeNotifierSettings extends PureComponent {
             checked={settings.showNegativeKarma}
             onChange={(event, checked) => this.setNegativeKarmaFilter(checked)}
           />
-          <Typography variant="body2" className={classes.inline} component="label">
+          <Typography variant="body1" className={classes.inline} component="label">
             Show negative karma notifications
           </Typography>
         </div>

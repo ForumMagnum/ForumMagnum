@@ -14,7 +14,7 @@ const styles = theme => ({
     display: 'inline-block',
     color: theme.palette.grey[600],
     whiteSpace: "no-wrap",
-    fontSize: theme.typography.body2.fontSize,
+    fontSize: theme.typography.body1.fontSize,
   },
   icon: {
     fontSize: "1.3rem",
@@ -152,7 +152,7 @@ const ContentType = ({classes, type, label}) => {
     throw new Error('ContentType requires type property')
   }
   const contentData = contentTypes[getSetting('forumType')][type]
-  return <Typography variant="body1" component="span" className={classes.root}>
+  return <Typography variant="body2" component="span" className={classes.root}>
     <Tooltip title={<React.Fragment>
       <div className={classes.tooltipTitle}>{contentData.tooltipTitle}</div>
       {contentData.tooltipBody}

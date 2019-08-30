@@ -14,7 +14,7 @@ const styles = theme => ({
 
 const PostsPageEventData = ({classes, post, currentUser}) => {
   const { location, contactInfo } = post
-  return <Typography variant="body2" className={classes.metadata}>
+  return <Typography variant="body1" className={classes.metadata}>
       <div className={classes.eventTimes}> <Components.EventTime post={post} dense={false} /> </div>
       { location && <div className={classes.eventLocation}> {location} </div> }
       { contactInfo && <div className={classes.eventContact}> Contact: {contactInfo} </div> }

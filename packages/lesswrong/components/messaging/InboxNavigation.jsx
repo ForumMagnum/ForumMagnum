@@ -28,7 +28,7 @@ const InboxNavigation = ({results, loading, updateConversation}) => {
         <SectionTitle title="Your Conversations"/>
         {results?.length ?
           results.map(conversation => <ConversationItem key={conversation._id} conversation={conversation} updateConversation={updateConversation} />) :
-          loading ? <Loading /> : <Typography variant="body2">You are all done! You have no more open conversations. Go and be free.</Typography>
+          loading ? <Loading /> : <Typography variant="body1">You are all done! You have no more open conversations. Go and be free.</Typography>
         }
         <SectionFooter>
           <SectionFooterCheckbox

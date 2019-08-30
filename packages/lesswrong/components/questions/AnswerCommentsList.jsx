@@ -92,7 +92,7 @@ class AnswerCommentsList extends PureComponent {
       const nestedComments = unflattenComments(results);
       return (
         <div>
-          {!commenting && <Typography variant="body2" onClick={()=>this.setState({commenting: true})} className={classNames(classes.newComment)}>
+          {!commenting && <Typography variant="body1" onClick={()=>this.setState({commenting: true})} className={classNames(classes.newComment)}>
               <a>Add Comment</a>
             </Typography>}
           { commenting &&
@@ -132,7 +132,7 @@ class AnswerCommentsList extends PureComponent {
             />
           </div>
           {(results && results.length && results.length < totalCount) ?
-            <Typography variant="body2" onClick={this.loadMoreComments} className={classes.loadMore}>
+            <Typography variant="body1" onClick={this.loadMoreComments} className={classes.loadMore}>
               <a>Showing {results.length}/{totalCount} comments. Click to load All.</a>
             </Typography> : null}
         </div>

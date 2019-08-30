@@ -4,12 +4,12 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   author: {
-    ...theme.typography.body2,
+    ...theme.typography.body1,
     fontWeight: 600,
     marginRight: 10
   },
   authorAnswer: {
-    ...theme.typography.body2,
+    ...theme.typography.body1,
     fontFamily: theme.typography.postStyle.fontFamily,
     fontWeight: 600,
     marginRight: 10,

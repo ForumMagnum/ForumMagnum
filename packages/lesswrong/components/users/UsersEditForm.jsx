@@ -72,7 +72,7 @@ const UsersEditForm = (props) => {
 
   return (
     <div className={classes.root}>
-      <Typography variant="display2" className={classes.header}><FormattedMessage id="users.edit_account"/></Typography>
+      <Typography variant="h3" className={classes.header}><FormattedMessage id="users.edit_account"/></Typography>
       {isCurrentUser && <Button
         color="secondary"
         variant="outlined"

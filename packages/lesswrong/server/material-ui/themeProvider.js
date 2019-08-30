@@ -1,7 +1,8 @@
 import React from 'react';
 import { addCallback } from 'meteor/vulcan:core';
-import JssProvider from 'react-jss/lib/JssProvider';
-import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles';
+import { StylesProvider } from '@material-ui/styles';
+import { MuiThemeProvider } from '@material-ui/core/styles';
+import { createGenerateClassName } from '@material-ui/styles';
 import forumTheme from '../../themes/forumTheme'
 import { SheetsRegistry } from 'react-jss/lib/jss';
 import JssCleanup from '../../components/themes/JssCleanup';
@@ -20,20 +21,18 @@ MuiThemeProviderWrapper.contextTypes = {
 };
 
 function wrapWithMuiTheme (app, { context }) {
-  const sheetsRegistry = new SheetsRegistry();
-  context.sheetsRegistry = sheetsRegistry;
   const generateClassName = createGenerateClassName({
     dangerouslyUseGlobalCSS: true
   });
 
   return (
-    <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
+    <StylesProvider generateClassName={generateClassName}>
       <MuiThemeProviderWrapper theme={forumTheme} sheetsManager={new Map()}>
         <JssCleanup>
           {app}
         </JssCleanup>
       </MuiThemeProviderWrapper>
-    </JssProvider>
+    </StylesProvider>
   );
 }
 

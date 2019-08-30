@@ -10,7 +10,7 @@ const styles = theme => ({
   showChildren: {
     padding: 4,
     paddingLeft: 12,
-    ...theme.typography.body2,
+    ...theme.typography.body1,
     color: theme.palette.lwTertiary.main,
     display: "block",
     fontSize: 14,

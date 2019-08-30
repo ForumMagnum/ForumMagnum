@@ -7,7 +7,7 @@ import withDialog from '../common/withDialog';
 
 const styles = theme => ({
   root: {
-    ...theme.typography.body2,
+    ...theme.typography.body1,
     color: theme.palette.primary.main,
   },
 });

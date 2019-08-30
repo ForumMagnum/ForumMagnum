@@ -18,7 +18,7 @@ const PostsItem2MetaInfo = ({children, className, classes}) => {
   return <Typography
     component='span'
     className={classNames(classes.metaInfo, className)}
-    variant='body2'>
+    variant='body1'>
       {children}
   </Typography>
 }

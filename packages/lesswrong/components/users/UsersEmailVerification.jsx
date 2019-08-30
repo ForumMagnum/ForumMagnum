@@ -8,7 +8,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 
 const styles = theme => ({
   root: {
-    ...theme.typography.body2,
+    ...theme.typography.body1,
     marginLeft: theme.spacing.unit
   },
   verifyEmailButton: {

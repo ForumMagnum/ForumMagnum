@@ -43,12 +43,12 @@ const createLWTheme = (theme) => {
   // Defines sensible typography defaults that can be
   // cleanly overriden
 
-  const body1FontSize = {
+  const body2FontSize = {
     fontSize: '1.4rem',
     lineHeight: '2rem'
   }
 
-  const body2FontSize = {
+  const body1FontSize = {
     fontSize: '1.1rem',
     lineHeight: '1.5rem',
   }
@@ -67,38 +67,39 @@ const createLWTheme = (theme) => {
         xl: 1400,
       },
     },
-    spacing: {
+    /*spacing: {
       unit: spacingUnit
-    },
+    },*/
+    spacing: 8,
     typography: {
       postStyle: {
         fontFamily: typography.fontFamily,
       },
-      body1: body1FontSize,
-      body2: {
+      body2: body2FontSize,
+      body1: {
         fontWeight: 400,
         linkUnderlinePosition: "72%",
-        ...body2FontSize
+        ...body1FontSize
       },
-      display1: {
+      h4: {
         color: grey[800],
         fontSize: '2rem',
         marginTop: '1em'
       },
-      display2: {
+      h3: {
         color: grey[800],
         fontSize: '2.8rem',
         marginTop: '1em'
       },
-      display3: {
+      h2: {
         color: grey[800],
         marginTop: '1.2em',
         fontSize: '3rem'
       },
-      display4: {
+      h1: {
         color: grey[800],
       },
-      title: {
+      h6: {
         fontSize: 18,
         fontWeight: 400,
         marginBottom: 3,
@@ -114,7 +115,7 @@ const createLWTheme = (theme) => {
         paddingLeft: spacingUnit*2,
         borderLeft: `solid 3px ${grey[300]}`,
         margin: 0,
-        ...body1FontSize
+        ...body2FontSize
       },
       commentBlockquote: {
         fontWeight: 400,
@@ -125,7 +126,7 @@ const createLWTheme = (theme) => {
         borderLeft: `solid 3px ${grey[300]}`,
         margin: 0,
         marginLeft: spacingUnit*1.5,
-        ...body2FontSize
+        ...body1FontSize
       },
       codeblock: {
         backgroundColor: grey[100],
@@ -160,7 +161,7 @@ const createLWTheme = (theme) => {
         marginTop: '.5em',
         fontWeight:500,
       },
-      subheading: {
+      subtitle1: {
         fontSize:15,
         color: grey[600]
       },

@@ -41,7 +41,7 @@ const styles = theme => ({
     }
   },
   navText: {
-    ...theme.typography.body2,
+    ...theme.typography.body1,
     color: theme.palette.grey[700],
     fontSize: '.8rem',
   },

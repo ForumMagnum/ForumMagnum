@@ -218,7 +218,7 @@ class Header extends PureComponent {
           <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
             <Toolbar>
               {this.renderNavigationMenuButton()}
-              <Typography className={classes.title} variant="title" color="textSecondary">
+              <Typography className={classes.title} variant="h6" color="textSecondary">
                 <Hidden smDown implementation="css">
                   <Link to="/" className={classes.titleLink}>
                     {getSetting('forumSettings.headerTitle', 'LESSWRONG')}
@@ -268,4 +268,4 @@ const withUpdateOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-registerComponent('Header', Header, withErrorBoundary, [withUpdate, withUpdateOptions], withUser, withStyles(styles, { name: 'Header'}), withTheme());
+registerComponent('Header', Header, withErrorBoundary, [withUpdate, withUpdateOptions], withUser, withStyles(styles, { name: 'Header'}), withTheme);

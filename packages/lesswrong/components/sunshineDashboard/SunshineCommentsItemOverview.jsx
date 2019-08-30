@@ -22,7 +22,7 @@ class SunshineCommentsItemOverview extends Component {
     const commentExcerpt = markdown && markdown.substring(0,38);
     return (
       <div>
-        <Typography variant="body2">
+        <Typography variant="body1">
           <Link to={comment.post && Posts.getPageUrl(comment.post) + "#" + comment._id} className={classes.comment}>
             { comment.deleted ? <span>COMMENT DELETED</span>
               : <span>{ commentExcerpt }</span>

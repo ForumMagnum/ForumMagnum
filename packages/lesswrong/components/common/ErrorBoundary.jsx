@@ -34,7 +34,7 @@ class ErrorBoundary extends React.Component {
       return <Typography
           className={classes.errorText}
           align="center"
-          variant="body1">
+          variant="body2">
         Error: {this.state.error}
       </Typography>
     }

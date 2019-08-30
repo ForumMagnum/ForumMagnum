@@ -106,7 +106,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }) => {
   const { posts, comments, updateFrequency } = karmaChanges
   const noKarmaChanges = !((posts && (posts.length > 0)) || (comments && (comments.length > 0)))
   return (
-    <Typography variant="body2">
+    <Typography variant="body1">
       {noKarmaChanges ?
         <span className={classes.title}>{ karmaNotificationTimingChoices[updateFrequency].emptyText }</span>
         :

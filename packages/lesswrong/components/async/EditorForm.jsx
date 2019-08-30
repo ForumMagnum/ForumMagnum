@@ -191,4 +191,4 @@ EditorForm.propTypes = {
   onChange: PropTypes.func
 }
 
-export default withTheme()(EditorForm);
+export default withTheme(EditorForm);

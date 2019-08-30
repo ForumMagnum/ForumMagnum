@@ -22,7 +22,7 @@ const styles = theme => ({
     lineHeight: 1,
   },
   secondarySymbol: {
-    fontFamily: theme.typography.body1.fontFamily,
+    fontFamily: theme.typography.body2.fontFamily,
   },
   secondaryScore: {
     fontSize: '1.1rem',

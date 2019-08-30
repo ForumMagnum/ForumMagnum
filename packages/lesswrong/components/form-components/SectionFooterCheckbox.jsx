@@ -8,7 +8,7 @@ const styles = theme => ({
   root: {
     cursor: "pointer",
     ...theme.typography.commentStyle,
-    ...theme.typography.body2,
+    ...theme.typography.body1,
     [theme.breakpoints.down('xs')]: {
       marginBottom: theme.spacing.unit*2,
       flex: `1 0 100%`,

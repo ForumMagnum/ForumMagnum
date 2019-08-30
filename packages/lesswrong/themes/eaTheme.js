@@ -67,12 +67,12 @@ const theme = createLWTheme({
       "https://fonts.googleapis.com/css?family=Merriweather+Sans:300,400,500,600,700",
     ],
     fontFamily: sansSerifStack,
-    body1: {
+    body2: {
       ...basicText,
       fontSize: "1.2rem",
       fontFamily: serifStack,
     },
-    body2: {
+    body1: {
       fontSize: "1.1rem",
       lineHeight: "1.5em"
     },
@@ -86,24 +86,24 @@ const theme = createLWTheme({
     commentStyle: {
       fontFamily: sansSerifStack,
     },
-    headline: {
+    h5: {
       fontFamily: serifStack,
     },
-    subheading: {
+    subtitle1: {
       fontFamily: titleStack
     },
-    title: {
+    h6: {
       color: grey[800],
       fontFamily: titleStack,
       fontWeight: 500,
       marginBottom: 5,
     },
-    display2: {
+    h3: {
       color: grey[800],
       fontFamily: titleStack,
       fontWeight: 600
     },
-    display3: {
+    h2: {
       color: grey[800],
       fontFamily: titleStack,
       fontWeight: 500

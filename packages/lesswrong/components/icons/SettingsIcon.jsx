@@ -18,7 +18,7 @@ const styles = (theme) => ({
     marginRight: theme.spacing.unit,
   },
   label: {
-    ...theme.typography.body2,
+    ...theme.typography.body1,
     fontSize: 14,
     color: theme.palette.grey[600],
     fontStyle: "italic"

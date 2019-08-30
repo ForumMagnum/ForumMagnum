@@ -36,7 +36,7 @@ const spoilerStyles = theme => ({
 
 export const postBodyStyles = (theme, fontSize) => {
   return {
-    ...theme.typography.body1,
+    ...theme.typography.body2,
     ...theme.typography.postStyle,
     wordBreak: "break-word",
     ...spoilerStyles(theme),
@@ -48,28 +48,28 @@ export const postBodyStyles = (theme, fontSize) => {
     },
     '& blockquote': {
       ...theme.typography.blockquote,
-      ...theme.typography.body1,
+      ...theme.typography.body2,
       ...theme.typography.postStyle
     },
     '& li': {
-      ...theme.typography.body1,
+      ...theme.typography.body2,
       ...theme.typography.li,
       ...theme.typography.postStyle
     },
     '& h1': {
-      ...theme.typography.display2,
+      ...theme.typography.h3,
       ...theme.typography.postStyle
     },
     '& h2': {
-      ...theme.typography.display1,
+      ...theme.typography.h4,
       ...theme.typography.postStyle,
     },
     '& h3': {
-      ...theme.typography.display1,
+      ...theme.typography.h4,
       ...theme.typography.postStyle,
     },
     '& h4': {
-      ...theme.typography.body1,
+      ...theme.typography.body2,
       ...theme.typography.postStyle,
       fontWeight:600,
     },
@@ -112,8 +112,8 @@ export const postBodyStyles = (theme, fontSize) => {
           "97%"
         ),
         background: (
-          (theme.typography.body1 && theme.typography.body1.backgroundColor) ||
-          (theme.typography.body1 && theme.typography.body1.background) ||
+          (theme.typography.body2 && theme.typography.body2.backgroundColor) ||
+          (theme.typography.body2 && theme.typography.body2.background) ||
           "#fff"
         )
       })
@@ -126,16 +126,16 @@ export const commentBodyStyles = theme => {
     marginTop: ".5em",
     marginBottom: ".25em",
     wordBreak: "break-word",
-    ...theme.typography.body2,
+    ...theme.typography.body1,
     ...theme.typography.commentStyle,
     ...spoilerStyles(theme),
     '& blockquote': {
       ...theme.typography.commentBlockquote,
-      ...theme.typography.body2,
+      ...theme.typography.body1,
       ...theme.typography.commentStyle
     },
     '& li': {
-      ...theme.typography.body2,
+      ...theme.typography.body1,
       ...theme.typography.commentStyle
     },
     '& h1, & h2, & h3': {
@@ -172,19 +172,19 @@ export const commentBodyStyles = theme => {
 
 export const postHighlightStyles = theme => {
   const postHighlightStyles = {
-    ...theme.typography.body2,
+    ...theme.typography.body1,
     ...theme.typography.postStyle,
     fontSize: "1.25rem",
     lineHeight: "1.8rem",
     '& blockquote': {
-      ...theme.typography.body2,
+      ...theme.typography.body1,
       ...theme.typography.postStyle,
       '& > p': {
         margin:0
       },
     },
     '& li': {
-      ...theme.typography.body2,
+      ...theme.typography.body1,
       ...theme.typography.postStyle,
     },
     '& h1, & h2, & h3': {

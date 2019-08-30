@@ -116,7 +116,7 @@ class Answer extends Component {
       <div className={classes.root}>
         { comment.deleted ?
           <div className={classes.deletedSection} id={comment._id}>
-            <Typography variant="body2" className={classes.deleted}>
+            <Typography variant="body1" className={classes.deleted}>
               Answer was deleted
             </Typography>
             <span className={classes.menu}>
@@ -132,10 +132,10 @@ class Answer extends Component {
           <div>
             <div className={classes.answer}>
               <div className={classes.answerHeader}>
-                {comment.user && <Typography variant="body1" id={comment._id} className={classes.author}>
+                {comment.user && <Typography variant="body2" id={comment._id} className={classes.author}>
                   { <UsersName user={comment.user} />}
                 </Typography >}
-                <Typography variant="subheading" className={classes.date}>
+                <Typography variant="subtitle1" className={classes.date}>
                   <CommentsItemDate comment={comment} post={post}/>
                 </Typography>
                 <span className={classes.vote}><Components.CommentsVote comment={comment}/></span>

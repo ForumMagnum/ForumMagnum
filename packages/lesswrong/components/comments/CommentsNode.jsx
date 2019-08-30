@@ -95,7 +95,7 @@ const styles = theme => ({
     }
   },
   highlightAnimation: {
-    animation: `higlight-animation ${HIGHLIGHT_DURATION}s ease-in-out 0s;`
+    animation: `$higlight-animation ${HIGHLIGHT_DURATION}s ease-in-out 0s;`
   },
   gapIndicator: {
     border: `solid 1px ${theme.palette.grey[300]}`,

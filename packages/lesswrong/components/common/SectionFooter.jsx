@@ -45,7 +45,7 @@ class SectionFooter extends PureComponent {
   render() {
     const {children, classes } = this.props
     return (
-      <Typography variant="body2" className={classes.root}>
+      <Typography variant="body1" className={classes.root}>
         { children }
       </Typography>
     )

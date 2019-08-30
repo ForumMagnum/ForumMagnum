@@ -40,7 +40,7 @@ class FormComponentCheckbox extends Component {
           disabled={disabled}
           disableRipple
         />
-        <Typography className={classes.inline} variant="body2" component="label">{label}</Typography>
+        <Typography className={classes.inline} variant="body1" component="label">{label}</Typography>
     </div>
   }
 }

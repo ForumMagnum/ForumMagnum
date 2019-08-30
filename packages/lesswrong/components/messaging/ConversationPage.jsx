@@ -51,8 +51,8 @@ class ConversationPage extends Component {
 
     return (
       <SingleColumnSection>
-        <Typography variant="body2" className={classes.backButton}><Link to="/inbox"> Go back to Inbox </Link></Typography>
-        <Typography variant="display2" className={classes.conversationTitle}>
+        <Typography variant="body1" className={classes.backButton}><Link to="/inbox"> Go back to Inbox </Link></Typography>
+        <Typography variant="h3" className={classes.conversationTitle}>
           { Conversations.getTitle(conversation, currentUser)}
         </Typography>
         <ConversationDetails conversation={conversation}/>

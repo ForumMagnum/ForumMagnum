@@ -49,7 +49,7 @@ class ModerationGuidelinesEditForm extends PureComponent {
           Moderation Guidelines Edit Form
         </DialogTitle>
         <DialogContent>
-          <Typography variant="body2">
+          <Typography variant="body1">
             Edit the moderation guidelines specific to this post:
           </Typography>
           {/* TODO: fix unerlying issues so we don't need this weird addFields hack. Fields does not parse properly for non-admins */}

@@ -16,6 +16,7 @@ import Head from './components/Head';
 import ApolloState from './components/ApolloState';
 import AppGenerator from './components/AppGenerator';
 import Sentry from '@sentry/node';
+import { ServerStyleSheets } from '@material-ui/styles';
 
 const makePageRenderer = async sink => {
   const req = sink.request;
@@ -89,8 +90,11 @@ const renderRequest = async (req, user) => {
     console.error(err); // eslint-disable-line no-console
   }
   const afterPrerenderTime = new Date();
+  const sheets = new ServerStyleSheets();
   try {
-    htmlContent = await ReactDOM.renderToString(WrappedApp);
+    htmlContent = await ReactDOM.renderToString(
+      sheets.collect(WrappedApp)
+    );
   } catch (err) {
     console.error(`Error while rendering React tree. date: ${new Date().toString()} url: ${JSON.stringify(req.url)}`); // eslint-disable-line no-console
     console.error(err); // eslint-disable-line no-console
@@ -109,11 +113,7 @@ const renderRequest = async (req, user) => {
     <ApolloState initialState={initialState} />
   );
   
-  // HACK: The sheets registry is created in a router.server.wrapper callback. The
-  // resulting styles are extracted here, rather than in a callback, because the type
-  // signature of the callback didn't fit.
-  const sheetsRegistry = context.sheetsRegistry;
-  const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
+  const jssSheets = `<style id="jss-server-side">${sheets.toString()}</style>`
   
   const finishedTime = new Date();
   const prerenderTime = afterPrerenderTime - startTime

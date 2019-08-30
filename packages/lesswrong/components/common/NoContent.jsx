@@ -11,7 +11,7 @@ const styles = (theme) => ({
 })
 
 const NoContent = ({children, classes}) => {
-  return <Typography variant='body2' className={classes.root}>
+  return <Typography variant='body1' className={classes.root}>
     {children}
   </Typography>
 }

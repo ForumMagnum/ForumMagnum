@@ -30,7 +30,7 @@ const PostsSearchHit = ({hit, clickAction, classes}) => {
       to={Posts.getPageUrl(hit)}
       target={Posts.getLinkTarget(hit)}
     >
-        <Typography variant="title">
+        <Typography variant="h6">
           {hit.title}
         </Typography>
         {hit.authorDisplayName && <Components.MetaInfo>

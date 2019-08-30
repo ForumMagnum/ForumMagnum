@@ -275,5 +275,5 @@ const withUpdateOptions = {
 
 registerComponent(
   'Layout', Layout, withLocation, withCookies, [withUpdate, withUpdateOptions],
-  withStyles(styles, { name: "Layout" }), withTheme()
+  withStyles(styles, { name: "Layout" }), withTheme
 );

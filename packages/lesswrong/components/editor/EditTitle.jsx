@@ -7,7 +7,7 @@ import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
-    ...theme.typography.display3,
+    ...theme.typography.h2,
     ...theme.typography.postStyle,
     ...theme.typography.headerStyle,
     width: "100%",
@@ -20,7 +20,7 @@ const styles = theme => ({
     }
   },
   question: {
-    fontSize: theme.typography.display1.fontSize,
+    fontSize: theme.typography.h4.fontSize,
     height: 65,
     paddingTop: theme.spacing.unit*1.5,
     lineHeight: '1.2em',

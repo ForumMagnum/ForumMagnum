@@ -38,14 +38,14 @@ const styles = theme => ({
     '& .ais-Pagination-item--nextPage .ais-Pagination-link':{
       fontSize:0,
       '&:before': {
-        fontSize: theme.typography.body2.fontSize,
+        fontSize: theme.typography.body1.fontSize,
         content: '"Next"'
       }
     },
     '& .ais-Pagination-item--previousPage .ais-Pagination-link':{
       fontSize:0,
       '&:before': {
-        fontSize: theme.typography.body2.fontSize,
+        fontSize: theme.typography.body1.fontSize,
         content: '"Prev"'
       }
     },

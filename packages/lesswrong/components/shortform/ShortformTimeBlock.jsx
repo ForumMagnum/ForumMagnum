@@ -9,7 +9,7 @@ const styles = theme => ({
     marginTop: 12,
   },
   shortformTag: {
-    ...theme.typography.body2,
+    ...theme.typography.body1,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[700],
     marginBottom: 8,

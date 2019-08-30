@@ -44,10 +44,10 @@ const SequencesHome = ({classes}) => {
     <SingleColumnSection>
       <div className={classes.header}>
         <div className={classes.listTitle}>
-          <Typography variant="display3" className={classes.library}>The Library</Typography>
+          <Typography variant="h2" className={classes.library}>The Library</Typography>
         </div>
         {/* Description */}
-        <Typography variant="body1" className={classes.listDescription}>
+        <Typography variant="body2" className={classes.listDescription}>
           Sequences are collections of posts that are curated by the community and
           are structured similarly to books. This is the place where you can find
           the best posts in easy to read formats.

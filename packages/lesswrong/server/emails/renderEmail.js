@@ -3,9 +3,10 @@ import { renderToString } from 'react-dom/server';
 import { ApolloProvider, getDataFromTree } from 'react-apollo';
 import Juice from 'juice';
 import { createClient, computeContextFromUser } from 'meteor/vulcan:lib';
-import JssProvider from 'react-jss/lib/JssProvider';
+import { StylesProvider } from '@material-ui/styles';
 import { SheetsRegistry } from 'react-jss/lib/jss';
-import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles';
+import { MuiThemeProvider } from '@material-ui/core/styles';
+import { createGenerateClassName } from '@material-ui/styles';
 import htmlToText from 'html-to-text';
 import { getSetting, newMutation } from 'meteor/vulcan:core';
 import { UserContext } from '../../components/common/withUser';
@@ -131,7 +132,7 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
   
   const wrappedBodyComponent = (
     <ApolloProvider client={apolloClient}>
-    <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
+    <StylesProvider registry={sheetsRegistry} generateClassName={generateClassName}>
     <MuiThemeProvider theme={forumTheme} sheetsManager={new Map()}>
     <UserContext.Provider value={user}>
     <TimezoneContext.Provider value={timezone}>
@@ -139,7 +140,7 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
     </TimezoneContext.Provider>
     </UserContext.Provider>
     </MuiThemeProvider>
-    </JssProvider>
+    </StylesProvider>
     </ApolloProvider>
   );
   

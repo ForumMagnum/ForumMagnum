@@ -6,7 +6,7 @@ import { queryIsUpdating } from './queryStatusUtils'
 
 const styles = theme => ({
   root: {
-    ...theme.typography.body2,
+    ...theme.typography.body1,
     ...theme.typography.commentStyle,
     color: theme.palette.lwTertiary.main,
   },

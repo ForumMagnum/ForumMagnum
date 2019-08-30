@@ -59,19 +59,19 @@ const theme = createLWTheme({
       fontFamily: serifStack,
       linkUnderlinePosition: "72%",
     },
-    body2: {
+    body1: {
       fontSize: "1.16rem"
     },
     commentStyle: {
       fontFamily: sansSerifStack
     },
-    headline: {
+    h5: {
       fontFamily: serifStack,
     },
-    subheading: {
+    subtitle1: {
       fontFamily: serifStack,
     },
-    title: {
+    h6: {
       fontFamily: serifStack,
       fontWeight: 500,
     }

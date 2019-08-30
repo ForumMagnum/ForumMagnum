@@ -41,7 +41,7 @@ class AFSuggestUsersItem extends Component {
       return (
           <C.SunshineListItem hover={hover}>
             <C.SidebarHoverOver hover={hover} anchorEl={anchorEl} width={250}>
-              <Typography variant="body2">
+              <Typography variant="body1">
                 <Link to={Users.getProfileUrl(user)}>
                   { user.displayName }
                 </Link>

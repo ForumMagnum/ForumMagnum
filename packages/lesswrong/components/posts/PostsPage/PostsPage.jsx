@@ -114,7 +114,7 @@ const styles = theme => ({
     marginLeft: 20,
     color: theme.palette.grey[600],
     whiteSpace: "no-wrap",
-    fontSize: theme.typography.body2.fontSize,
+    fontSize: theme.typography.body1.fontSize,
   },
   actions: {
     display: 'inline-block',
@@ -163,7 +163,7 @@ const styles = theme => ({
     ...theme.typography.postStyle,
   },
   feedName: {
-    fontSize: theme.typography.body2.fontSize,
+    fontSize: theme.typography.body1.fontSize,
     marginLeft: 20,
     display: 'inline-block',
     color: theme.palette.grey[600],

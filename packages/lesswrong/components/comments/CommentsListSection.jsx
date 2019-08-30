@@ -42,7 +42,7 @@ const styles = theme => ({
   },
   newCommentLabel: {
     ...theme.typography.commentStyle,
-    ...theme.typography.body2,
+    ...theme.typography.body1,
     fontWeight: 600,
     marginTop: 12
   },
@@ -91,7 +91,7 @@ class CommentsListSection extends Component {
     const suggestedHighlightDates = [moment().subtract(1, 'day'), moment().subtract(1, 'week'), moment().subtract(1, 'month'), moment().subtract(1, 'year')]
     return <CommentsListMeta>
       <Typography
-        variant="body2"
+        variant="body1"
         color="textSecondary"
         component='span'
         className={classes.inline}>
@@ -107,7 +107,7 @@ class CommentsListSection extends Component {
         }
       </Typography>
       <Typography
-        variant="body2"
+        variant="body1"
         color="textSecondary"
         component='span'
         className={classes.inline}

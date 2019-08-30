@@ -14,7 +14,7 @@ import qs from 'qs'
 const styles = theme => ({
   root: {
     margin: 0,
-    ...theme.typography.display3,
+    ...theme.typography.h2,
     ...theme.typography.postStyle,
     ...theme.typography.headerStyle,
     color: theme.palette.text.primary,

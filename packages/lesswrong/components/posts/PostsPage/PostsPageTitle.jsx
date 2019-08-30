@@ -7,7 +7,7 @@ import { Posts } from '../../../lib/collections/posts';
 
 const styles = theme => ({
   root: {
-    ...theme.typography.display3,
+    ...theme.typography.h2,
     ...theme.typography.postStyle,
     ...theme.typography.headerStyle,
     margin: "0 !important",
@@ -32,17 +32,17 @@ const PostsPageTitle = ({classes, post}) => {
   
   return (
     <div>
-      {post.question && !parentPost && <Typography variant="title">
+      {post.question && !parentPost && <Typography variant="h6">
         <Link to="/questions" className={classes.question}>
           [ Question ] 
         </Link>
       </Typography>}
-      {post.question && parentPost && <Typography variant="title">
+      {post.question && parentPost && <Typography variant="h6">
         <Link to={Posts.getPageUrl(parentPost)} className={classes.question}>
           [ Parent Question — {parentPost.title} ]
         </Link>
       </Typography>}
-      <Typography variant="display3" className={classes.root}>
+      <Typography variant="h2" className={classes.root}>
         {post.draft && <span className={classes.draft}>[Draft] </span>}
         {post.title}
       </Typography>

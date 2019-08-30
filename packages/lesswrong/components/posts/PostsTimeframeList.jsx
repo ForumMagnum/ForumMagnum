@@ -113,7 +113,7 @@ class PostsTimeframeList extends PureComponent {
             displayShortform={displayShortform}
           />
         )}
-        <Typography variant="body1" className={classes.loadMore} onClick={this.loadMoreTimeBlocks}>
+        <Typography variant="body2" className={classes.loadMore} onClick={this.loadMoreTimeBlocks}>
           <a>{loadMoreTimeframeMessages[timeframe]}</a>
         </Typography>
       </div>

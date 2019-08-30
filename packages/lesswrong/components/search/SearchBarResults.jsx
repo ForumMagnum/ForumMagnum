@@ -115,7 +115,7 @@ class SearchBarResults extends Component {
           <div item xs={12} sm={4} md={3} className={classes.searchList}>
             <Index indexName={algoliaIndexNames.Users}>
               <div className={classes.header} onClick={this.loadMoreUsers}>
-                <Typography variant="body1">Users</Typography>
+                <Typography variant="body2">Users</Typography>
                 {/* <Components.SearchPagination /> */}
                 <div className={classes.loadMore}>
                   {type === "users" ? "Fewer" : "More"} Users
@@ -130,7 +130,7 @@ class SearchBarResults extends Component {
           <div className={classes.searchList}>
             <Index indexName={algoliaIndexNames.Posts}>
               <div className={classes.header} onClick={this.loadMorePosts}>
-                <Typography variant="body1">Posts</Typography>
+                <Typography variant="body2">Posts</Typography>
                 {/* <Components.SearchPagination /> */}
                 <div className={classes.loadMore}>
                   {type === "posts" ? "Fewer" : "More"} Posts
@@ -146,7 +146,7 @@ class SearchBarResults extends Component {
           <div className={classes.searchList}>
             <Index indexName={algoliaIndexNames.Comments}>
               <div className={classes.header} onClick={this.loadMoreComments}>
-                <Typography variant="body1">Comments</Typography>
+                <Typography variant="body2">Comments</Typography>
                 <div className={classes.loadMore}>
                   {type === "comments" ? "Fewer" : "More"} Comments
                 </div>

@@ -63,7 +63,7 @@ const styles = theme => ({
       marginRight: 6
     },
     '& strong': {
-      fontWeight: theme.typography.body2.fontWeight
+      fontWeight: theme.typography.body1.fontWeight
     }
   },
   highlight: {
@@ -85,11 +85,11 @@ const styles = theme => ({
   },
   isAnswer: {
     ...postBodyStyles(theme),
-    fontSize: theme.typography.body2.fontSize,
-    lineHeight: theme.typography.body2.lineHeight,
+    fontSize: theme.typography.body1.fontSize,
+    lineHeight: theme.typography.body1.lineHeight,
     '& a, & a:hover': {
       textShadow:"none",
-      color: theme.typography.body1.color,
+      color: theme.typography.body2.color,
       backgroundImage: "none"
     }
   },

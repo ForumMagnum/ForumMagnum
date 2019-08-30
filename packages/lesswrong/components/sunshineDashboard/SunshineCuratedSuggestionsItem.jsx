@@ -61,7 +61,7 @@ class SunshineCuratedSuggestionsItem extends Component {
     return (
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
-          <Typography variant="title">
+          <Typography variant="h6">
             <Link to={Posts.getPageUrl(post)}>
               { post.title }
             </Link>

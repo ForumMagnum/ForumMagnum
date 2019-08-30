@@ -13,7 +13,7 @@ const styles = theme => ({
 });
 
 const PostsNoResults = ({classes}) =>
-  <Typography variant="body2" className={classes.root}>
+  <Typography variant="body1" className={classes.root}>
     <FormattedMessage id="posts.no_results"/>
   </Typography>;
 

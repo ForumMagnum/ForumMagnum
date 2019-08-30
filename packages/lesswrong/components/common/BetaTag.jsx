@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = (theme) => ({
   root: {
     paddingLeft: 4,
-    ...theme.typography.body2,
+    ...theme.typography.body1,
     ...theme.typography.commentStyle,
     fontSize: ".9rem",
     color: theme.palette.grey[600],

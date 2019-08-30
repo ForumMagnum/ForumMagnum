@@ -23,7 +23,7 @@ const MetaInfo = ({children, classes, button, className}) => {
   return <Typography
     component='span'
     className={classNames(classes.root, {[classes.button]: button}, className)}
-    variant='body2'>
+    variant='body1'>
       {children}
   </Typography>
 }

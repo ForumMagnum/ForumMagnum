@@ -89,7 +89,7 @@ const styles = theme => ({
     }
   },
   title: {
-    ...theme.typography.body1,
+    ...theme.typography.body2,
     ...theme.typography.postStyle,
   }
 })

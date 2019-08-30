@@ -19,7 +19,7 @@ const SidebarInfo = ({children, classes, className}) => {
   return <Typography
     component='span'
     className={classNames(classes.root, className)}
-    variant='body2'>
+    variant='body1'>
       {children}
   </Typography>
 }

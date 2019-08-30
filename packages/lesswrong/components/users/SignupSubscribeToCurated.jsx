@@ -7,7 +7,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = theme => ({
   root: {
-    ...theme.typography.body2,
+    ...theme.typography.body1,
     marginBottom: 10,
   },
   checkbox: {

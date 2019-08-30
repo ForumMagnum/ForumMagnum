@@ -32,7 +32,7 @@ const styles = theme => ({
     }
   },
   groupLocation: {
-    ...theme.typography.body2,
+    ...theme.typography.body1,
     display: "inline-block",
     color: "rgba(0,0,0,0.7)",
     maxWidth: 260

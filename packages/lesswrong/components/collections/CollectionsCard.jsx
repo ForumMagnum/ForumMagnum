@@ -85,13 +85,13 @@ class CollectionsCard extends PureComponent {
               />
             </div>
           </Hidden>
-          <Typography variant="title" className={classNames(classes.title, {[classes.mergeTitle]: mergeTitle})}>
+          <Typography variant="h6" className={classNames(classes.title, {[classes.mergeTitle]: mergeTitle})}>
             <Link to={url}>{collection.title}</Link>
           </Typography>
-          <Typography variant="subheading" className={classes.author}>
+          <Typography variant="subtitle1" className={classes.author}>
             by <UsersName documentId={collection.userId}/>
           </Typography>
-          <Typography variant="body2" className={classes.text}>
+          <Typography variant="body1" className={classes.text}>
             {collection.summary}
           </Typography>
         </div>

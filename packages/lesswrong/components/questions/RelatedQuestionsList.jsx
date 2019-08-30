@@ -36,7 +36,7 @@ const styles = theme => ({
     }
   },
   header: {
-    ...theme.typography.body2,
+    ...theme.typography.body1,
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit/2,
     color: theme.palette.grey[700]

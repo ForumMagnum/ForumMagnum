@@ -60,7 +60,7 @@ const styles = theme => ({
     backgroundColor: "rgba(0,0,0,0.5)",
   },
   meta: {
-    ...theme.typography.body2,
+    ...theme.typography.body1,
     ...sectionFooterLeftStyles
   },
   metaItem: {
@@ -142,7 +142,7 @@ class SequencesPage extends Component {
       <SingleColumnSection>
         <div className={classes.content}>
           <div className={classes.titleWrapper}>
-            <Typography variant='display2' className={classes.title}>
+            <Typography variant='h3' className={classes.title}>
               {document.draft && <span>[Draft] </span>}{document.title}
             </Typography>
           </div>

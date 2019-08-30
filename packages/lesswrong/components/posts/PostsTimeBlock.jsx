@@ -124,7 +124,7 @@ class PostsTimeBlock extends Component {
 
     return (
       <div className={classes.root}>
-        <Typography variant="headline" className={classes.timeBlockTitle}>
+        <Typography variant="h5" className={classes.timeBlockTitle}>
           {['yearly', 'monthly'].includes(timeframe) && <div>
             {this.getTitle(startDate, timeframe, null)}
           </div>}

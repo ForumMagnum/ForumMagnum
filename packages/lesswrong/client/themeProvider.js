@@ -1,7 +1,8 @@
 import React from 'react';
 import { addCallback } from 'meteor/vulcan:core';
-import JssProvider from 'react-jss/lib/JssProvider';
-import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles';
+import { StylesProvider } from '@material-ui/styles';
+import { MuiThemeProvider } from '@material-ui/core/styles';
+import { createGenerateClassName } from '@material-ui/styles';
 import forumTheme from '../themes/forumTheme';
 import JssCleanup from '../components/themes/JssCleanup';
 
@@ -12,13 +13,13 @@ function wrapWithMuiTheme (app) {
   });
   
   return (
-    <JssProvider generateClassName={generateClassName}>
+    <StylesProvider generateClassName={generateClassName}>
       <MuiThemeProvider theme={forumTheme}>
         <JssCleanup>
           {app}
         </JssCleanup>
       </MuiThemeProvider>
-    </JssProvider>
+    </StylesProvider>
   );
 }
 

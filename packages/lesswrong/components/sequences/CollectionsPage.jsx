@@ -77,7 +77,7 @@ class CollectionsPage extends Component {
       return (<div className={classes.root}>
         <SingleColumnSection>
           <div className={classes.header}>
-            <Typography variant="display3" className={classes.title}>{collection.title}</Typography>
+            <Typography variant="h2" className={classes.title}>{collection.title}</Typography>
 
             {canEdit && <SectionButton><a onClick={this.showEdit}>Edit</a></SectionButton>}
 

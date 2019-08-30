@@ -48,7 +48,7 @@ class SectionTitle extends PureComponent {
     return (
       <div className={classes.root}>
         { dividers && title && <div className={classes.leftDivider}/>}
-        <Typography variant='display1' className={classNames(classes.title, className)}>
+        <Typography variant='h4' className={classNames(classes.title, className)}>
           {title}
         </Typography>
         { dividers && <div className={classNames(classes.rightDivider, {[classes.noTitle]: !title, [classes.rightMargin]: !!children})}/>}

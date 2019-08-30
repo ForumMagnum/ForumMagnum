@@ -6,7 +6,7 @@ import { iconWidth } from './TabNavigationItem'
 
 const styles = (theme) => ({
   root: {
-    ...theme.typography.body2,
+    ...theme.typography.body1,
     display: "block",
     paddingBottom: theme.spacing.unit,
     // padding reflects how large an icon+padding is

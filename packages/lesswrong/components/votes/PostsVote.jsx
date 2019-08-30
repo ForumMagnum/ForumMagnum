@@ -71,7 +71,7 @@ class PostsVote extends PureComponent {
               placement="right"
               classes={{tooltip: classes.tooltip}}
             >
-              <Typography variant="headline" className={classes.voteScore}>{baseScore || 0}</Typography>
+              <Typography variant="h5" className={classes.voteScore}>{baseScore || 0}</Typography>
             </Tooltip>
 
             {!!post.af && !!post.afBaseScore && getSetting('forumType') !== 'AlignmentForum' &&
@@ -81,7 +81,7 @@ class PostsVote extends PureComponent {
                 classes={{tooltip: classes.tooltip}}
               >
                 <Typography
-                  variant="headline"
+                  variant="h5"
                   className={classNames(classes.voteScore, classes.secondaryVoteScore)}>
                   Ω {post.afBaseScore}
                 </Typography>

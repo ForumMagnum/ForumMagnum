@@ -7,7 +7,7 @@ import classNames from 'classnames';
 const styles = theme => ({
   root: {
     position: "relative",
-    ...theme.typography.body2,
+    ...theme.typography.body1,
     ...theme.typography.commentsStyle,
     direction:"ltr",
   },
@@ -95,7 +95,7 @@ class TableOfContentsRow extends PureComponent
 
     if (divider) return <div className={classes.divider} />
 
-    return <Typography variant="body2"
+    return <Typography variant="body1"
       className={classNames(
         classes.root,
         this.levelToClassName(indentLevel),

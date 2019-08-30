@@ -74,13 +74,13 @@ class BigCollectionsCard extends PureComponent {
           <Components.CloudinaryImage publicId={collection.imageId} />
         </div>
         <div className={classes.content} style={cardContentStyle}>
-          <Typography variant="title" className={classes.title}>
+          <Typography variant="h6" className={classes.title}>
             <Link to={url}>{collection.title}</Link>
           </Typography>
-          <Typography variant="subheading" className={classes.author}>
+          <Typography variant="subtitle1" className={classes.author}>
             by <UsersName documentId={collection.userId}/>
           </Typography>
-          <Typography variant="body2" className={classes.text}>
+          <Typography variant="body1" className={classes.text}>
             {collection.summary}
           </Typography>
         </div>
