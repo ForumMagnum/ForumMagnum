@@ -207,6 +207,7 @@ class App extends PureComponent {
       runCallbacks('events.identify', nextProps.currentUser);
     }
   }
+  
   render() {
     const { flash } = this;
     const { messages } = this.state;

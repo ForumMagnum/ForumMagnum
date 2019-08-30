@@ -23,10 +23,14 @@ const styles = theme => ({
     marginBottom: theme.spacing.unit*1.5,
     fontWeight: 600,
     fontSize: "1.2rem",
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    },
   },
   highlight: {
     marginTop: theme.spacing.unit,
     marginBottom: theme.spacing.unit*2,
+    wordBreak: 'break-all',
     fontSize: "1.1rem",
     [theme.breakpoints.down('sm')]: {
       display: "none"

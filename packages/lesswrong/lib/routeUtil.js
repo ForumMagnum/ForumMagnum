@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import qs from 'qs';
-import { NavigationContext, LocationContext, SubscribeLocationContext, ServerRequestStatusContext, Utils } from 'meteor/vulcan:core';
+import { NavigationContext, LocationContext, SubscribeLocationContext, ServerRequestStatusContext } from 'meteor/vulcan:core';
 
 // Given the props of a component which has withRouter, return the parsed query
 // from the URL.
@@ -99,10 +99,33 @@ export const withNavigation = (WrappedComponent) => {
   );
 }
 
+export const getUrlClass = () => {
+  if (Meteor.isServer) {
+    return require('url').URL
+  } else {
+    return URL
+  }
+}
 
-export const hostIsOffsite = (host) => {
-  // FIXME: This is currently client-side-only because 'URL' is a browser-API
-  // class. See the workaround for the same issue in PostsPage.
-  const siteUrlHost = new URL(Utils.getSiteUrl()).host;
-  return host !== siteUrlHost;
+export const hostIsOnsite = (host) => {
+  let isOnsite = false
+  const domainWhitelist = [
+    "lesswrong.com", 
+    "lesserwrong.com", 
+    "lessestwrong.com", 
+    "alignmentforum.org", 
+    "alignment-forum.com", 
+    "greaterwrong.com",
+    "localhost:3000"
+  ]
+
+  domainWhitelist.forEach((domain) => {
+    if (host === domain) isOnsite = true;
+    // If the domain differs only by the addition or removal of a "www."
+    // subdomain, count it as the same.
+    if ("www."+host === domain) isOnsite = true;
+    if (host === "www."+domain) isOnsite = true;
+  })
+
+  return isOnsite
 }

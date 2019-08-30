@@ -147,6 +147,21 @@ addRoute([
   }
 ]);
 
+
+// Because the EA Forum was identical except for the change from /lw/ to /ea/
+const legacyRouteAcronym = getSetting('legacyRouteAcronym', 'lw')
+
+addRoute([
+  // Legacy (old-LW, also old-EAF) routes
+  // Note that there are also server-side-only routes in server/legacy-redirects/routes.js.
+  {
+    name: 'post.legacy',
+    path: `/:section(r)?/:subreddit(all|discussion|lesswrong)?/${legacyRouteAcronym}/:id/:slug?`,
+    componentName: "LegacyPostRedirect",
+    previewComponentName: "PostLinkPreviewLegacy",
+  }
+]);
+
 if (getSetting('forumType') === 'LessWrong') {
   addRoute([
     {

@@ -28,6 +28,7 @@ const styles = theme => ({
 })
 
 const refreshDisplayMode = ( editor, sidebarElement ) => {
+  if (!sidebarElement) return null
   const annotations = editor.plugins.get( 'Annotations' );
 
   if ( window.innerWidth < 1000 ) {
