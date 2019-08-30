@@ -49,7 +49,7 @@ const CommentsItemDate = ({comment, post, showPostTitle, classes, scrollOnClick,
   const date = <span>
     <Components.FormatDate date={comment.postedAt} format={comment.answer && "MMM DD, YYYY"}/>
     <Icon className={classNames("material-icons", classes.icon)}> link </Icon>
-    {showPostTitle && post.title && <span className={classes.postTitle}> { post.title }</span>}
+    {showPostTitle && post.title && <span className={classes.postTitle}> {post.draft && "[Draft]"} {post.title}</span>}
   </span>
 
   return (

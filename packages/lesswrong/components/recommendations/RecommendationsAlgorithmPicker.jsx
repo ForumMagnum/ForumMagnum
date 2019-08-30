@@ -59,15 +59,15 @@ const RecommendationsAlgorithmPicker = ({ currentUser, settings, configName, upd
   return <div>
     {(configName === "frontpage") && <div> 
       <Checkbox
-        checked={settings.hideContinueReading}
-        onChange={(ev, checked) => applyChange({ ...settings, hideContinueReading: checked })}
-      /> Hide Continue Reading
+        checked={!settings.hideContinueReading}
+        onChange={(ev, checked) => applyChange({ ...settings, hideContinueReading: !checked })}
+      /> Show 'Continue Reading' (when you have partially finished sequences)
     </div>}
     {(configName === "frontpage") && <div> 
       <Checkbox
-        checked={settings.hideFrontpage}
-        onChange={(ev, checked) => applyChange({ ...settings, hideFrontpage: checked })}
-      /> Hide Frontpage Recommendations
+        checked={!settings.hideFrontpage}
+        onChange={(ev, checked) => applyChange({ ...settings, hideFrontpage: !checked })}
+      /> Show 'From the Archives' recommendations
     </div>}
     <div>
       <Checkbox

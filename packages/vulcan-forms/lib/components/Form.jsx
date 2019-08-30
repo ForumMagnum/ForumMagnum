@@ -1051,6 +1051,7 @@ class SmartForm extends Component {
     currentUser: this.props.currentUser,
     disabled: this.state.disabled,
     formComponents: mergeWithComponents(this.props.formComponents),
+    formProps: this.props.formProps
   });
 
   getFormSubmitProps = () => ({

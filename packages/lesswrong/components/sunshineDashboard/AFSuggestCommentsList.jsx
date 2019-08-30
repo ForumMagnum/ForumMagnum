@@ -43,7 +43,6 @@ const withListOptions = {
   collection: Comments,
   queryName: 'SuggestionAlignmentListQuery',
   fragmentName: 'SuggestAlignmentComment',
-  enableCache: true,
   fetchPolicy: 'cache-and-network',
 };
 

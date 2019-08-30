@@ -87,7 +87,7 @@ registerFragment(`
     services
     pageUrl
     locale
-    
+    defaultToCKEditor
     voteBanned
     banned
     isReviewed
@@ -406,6 +406,7 @@ registerFragment(`
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
     sunshineShowNewUserContent
+    defaultToCKEditor
   }
 `);
 
@@ -616,6 +617,7 @@ registerFragment(`
     html
     markdown
     draftJS
+    ckEditorMarkup
     wordCount
     htmlHighlight
     plaintextDescription

@@ -44,7 +44,7 @@ const standaloneNavMenuRouteNames = {
   ],
   // TODO-PR-Q: I left this mimicking current behavior, it's possible you'd
   // rather just have an empty list
-  'AlignmentForum': ['allPosts', 'questions', 'Shortform'],
+  'AlignmentForum': ['alignment.home', 'sequencesHome', 'allPosts', 'questions', 'Shortform'],
   'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform'],
 }
 
@@ -195,8 +195,15 @@ class Layout extends PureComponent {
       }
     }
 
-    const standaloneNavigation = standaloneNavMenuRouteNames[getSetting('forumType')]
-      .includes(location.currentRoute.name)
+    // Check whether the current route is one which should have standalone
+    // navigation on the side. If there is no current route (ie, a 404 page),
+    // then it should.
+    // FIXME: This is using route names, but it would be better if this was
+    // a property on routes themselves.
+    const standaloneNavigation = !location.currentRoute ||
+      standaloneNavMenuRouteNames[getSetting('forumType')]
+        .includes(location.currentRoute.name)
+    
     return (
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>

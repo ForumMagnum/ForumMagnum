@@ -19,6 +19,7 @@ import moment from 'moment';
 import { withRouter, matchPath } from 'react-router';
 import MessageContext from '../messages.js';
 import qs from 'qs'
+import Sentry from '@sentry/node';
 
 export const LocationContext = React.createContext("location");
 export const SubscribeLocationContext = React.createContext("subscribeLocation");
@@ -36,6 +37,42 @@ export function parseQuery(location) {
     query = query.substr(1);
 
   return qs.parse(query);
+}
+
+export function parseRoute(location) {
+  const routeNames = Object.keys(Routes);
+  let currentRoute = null;
+  let params={};
+  for (let routeName of routeNames) {
+    const route = Routes[routeName];
+    const match = matchPath(location.pathname, { path: route.path, exact: true, strict: false });
+    if (match) {
+      currentRoute = route;
+      params = match.params;
+    }
+  }
+  
+  // If the route is unparseable, that's a 404. Only log this in Sentry if
+  // we're on the client, not if this is SSR. This is a compromise between
+  // catching broken links, and spam in Sentry; crawlers and bots that try lots
+  // of invalid URLs generally won't execute Javascript (especially after
+  // getting a 404 status), so this should only log when someone reaches a
+  // 404 with an actual browser.
+  // Unfortunately that also means it doesn't look broken resource links (ie
+  // images), but we can't really distinguish between "post contained a broken
+  // image link and it mattered" and "bot tried a weird URL and it didn't
+  // resolve to anything".
+  if (!currentRoute && Meteor.isClient) {
+    Sentry.captureException(new Error(`404 not found: ${location.pathname}`));
+  }
+  
+  const RouteComponent = currentRoute ? Components[currentRoute.componentName] : Components.Error404;
+  return {
+    currentRoute, RouteComponent, location, params,
+    pathname: location.pathname,
+    hash: location.hash,
+    query: parseQuery(location),
+  };
 }
 
 class App extends PureComponent {
@@ -171,36 +208,14 @@ class App extends PureComponent {
     }
   }
 
-  parseRoute(location) {
-    const routeNames = Object.keys(Routes);
-    let currentRoute = null;
-    let params={};
-    for (let routeName of routeNames) {
-      const route = Routes[routeName];
-      const match = matchPath(location.pathname, { path: route.path, exact: true, strict: false });
-      if (match) {
-        currentRoute = route;
-        params = match.params;
-      }
-    }
-
-    const RouteComponent = currentRoute ? Components[currentRoute.componentName] : Components.Error404;
-    return {
-      currentRoute, RouteComponent, location, params,
-      pathname: location.pathname,
-      hash: location.hash,
-      query: parseQuery(location),
-    };
-  }
-
   render() {
     const { flash } = this;
     const { messages } = this.state;
     const { currentUser, serverRequestStatus } = this.props;
 
     // Parse the location into a route/params/query/etc.
-    const location = this.parseRoute(this.props.location);
-
+    const location = parseRoute(this.props.location);
+    
     // Reuse the container objects for location and navigation context, so that
     // they will be reference-stable and won't trigger spurious rerenders.
     if (!this.locationContext) {

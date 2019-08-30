@@ -281,6 +281,7 @@ Comments.addView('shortform', function (terms) {
   return {
     selector: {
       shortform: true,
+      deleted: false,
       parentCommentId: viewFieldNullOrMissing,
     },
     options: {sort: {lastSubthreadActivity: -1, postedAt: -1}}
