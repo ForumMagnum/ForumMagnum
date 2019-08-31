@@ -61,6 +61,7 @@ const styles = theme => ({
       display: "none"
     },
     '& a': {
+      // hide link-styling because it's infuriating that you can't actually click on them
       color: "unset",
       textDecorationColor: "none",
       textShadow: "none",
