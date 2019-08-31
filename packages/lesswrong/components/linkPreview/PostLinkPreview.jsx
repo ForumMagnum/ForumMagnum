@@ -2,7 +2,6 @@ import React from 'react';
 import { Components, registerComponent, useSingle } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import { Link } from 'react-router-dom';
-import Tooltip from '@material-ui/core/Tooltip';
 import { usePostBySlug, usePostByLegacyId } from '../posts/usePost.js';
 import { withStyles } from '@material-ui/core/styles';
 

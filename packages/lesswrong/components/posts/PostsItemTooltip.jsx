@@ -118,7 +118,7 @@ const getPostCategory = (post) => {
 }
 
 const PostsItemTooltip = ({ showTitle, post, classes, showAuthor, showCategory, showKarma, showComments, wide=false, hideOnMobile=false, truncateLimit=600 }) => {
-  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody } = Components
+  const { PostsUserAndCoauthors, PostsTitle } = Components
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
   const highlight = truncate(htmlHighlight, truncateLimit)
