@@ -3,7 +3,9 @@ import { Components, registerComponent, useSingle } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import { Link } from 'react-router-dom';
 import { usePostBySlug, usePostByLegacyId } from '../posts/usePost.js';
+import withHover from '../common/withHover';
 import { withStyles } from '@material-ui/core/styles';
+import Popper from '@material-ui/core/Popper';
 
 const PostLinkPreview = ({href, targetLocation, innerHTML}) => {
   const postID = targetLocation.params._id;
@@ -60,12 +62,6 @@ const postLinkPreviewWithPostStyles = theme => ({
       display:"block"
     }
   },
-  popper: {
-    opacity: 1,
-  },
-  tooltip: {
-    background: "none",
-  },
   hoverOver: {
     display: "none",
     position: "absolute",
@@ -77,20 +73,19 @@ const postLinkPreviewWithPostStyles = theme => ({
   }
 })
 
-const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, error}) => {
+const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hover}) => {
   const { PostsItemTooltip } = Components
   const linkElement = <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}}/>;
   if (!post) {
     return linkElement;
   }
-  
   return (
     <span className={classes.root}>
-      <div className={classes.hoverOver}>
+      <Popper open={hover} anchorEl={anchorEl} placement="bottom">
         <PostsItemTooltip post={post} showCategory showAuthor showKarma showComments showTitle wide truncateLimit={900}/>
-      </div>
+      </Popper>
       {linkElement}
     </span>
   );
 }
-registerComponent('PostLinkPreviewWithPost', PostLinkPreviewWithPost, withStyles(postLinkPreviewWithPostStyles, {name:"PostLinkPreviewWithPost"}));
+registerComponent('PostLinkPreviewWithPost', PostLinkPreviewWithPost, withStyles(postLinkPreviewWithPostStyles, {name:"PostLinkPreviewWithPost"}), withHover);

@@ -182,6 +182,7 @@ const createLWTheme = (theme) => {
       sequencesPageContent: 1,
       sequencesImageScrim: 1,
       postsVote: 1,
+      linkHoverOverIndicator: 1,
       singleLineCommentMeta: 2,
       postItemTitle: 2,
       sidebarHoverOver: 2,

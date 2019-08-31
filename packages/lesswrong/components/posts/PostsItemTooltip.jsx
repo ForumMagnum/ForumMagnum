@@ -30,7 +30,12 @@ const styles = theme => ({
     },
   },
   wide: {
-    [theme.breakpoints.up('sm')]: {
+    [theme.breakpoints.down('sm')]: {
+      width: `calc(100% - ${theme.spacing.unit*4}px)`,
+      marginLeft: theme.spacing.unit,
+      marginRight: theme.spacing.unit
+    },
+    [theme.breakpoints.up('md')]: {
       width: 550,
     },
   },
