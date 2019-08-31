@@ -122,22 +122,22 @@ const getPostCategory = (post) => {
     return post.question ? `Question` : `Personal Blogpost`
 }
 
-const PostsItemTooltip = ({ showTitle, post, classes, showAuthor, showCategory, showKarma, showComments, wide=false, hideOnMobile=false, truncateLimit=600 }) => {
+const PostsItemTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMobile=false, truncateLimit=600 }) => {
   const { PostsUserAndCoauthors, PostsTitle } = Components
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
   const highlight = truncate(htmlHighlight, truncateLimit)
-  const renderCommentCount = showComments && (Posts.getCommentCount(post) > 0)
+  const renderCommentCount = showAllinfo && (Posts.getCommentCount(post) > 0)
   return <div className={classNames(classes.root, {[classes.wide]: wide, [classes.hideOnMobile]: hideOnMobile})}>
-    {showTitle && <PostsTitle post={post} tooltip={false}/>}
+    {showAllinfo && <PostsTitle post={post} tooltip={false}/>}
     <div className={classes.tooltipInfo}>
-      { showCategory && getPostCategory(post)}
-      { showAuthor && post.user && <span> by <PostsUserAndCoauthors post={post} simple/></span>}
+      { getPostCategory(post)}
+      { showAllinfo && post.user && <span> by <PostsUserAndCoauthors post={post} simple/></span>}
       { renderCommentCount && <span className={classes.comments}>
         <CommentIcon className={classes.commentIcon}/> 
           {Posts.getCommentCountStr(post)}
       </span>}
-      { showKarma && <span className={classes.karma}>{Posts.getKarma(post)} karma</span>}
+      { showAllinfo && <span className={classes.karma}>{Posts.getKarma(post)} karma</span>}
     </div>
     <div className={classes.highlight} dangerouslySetInnerHTML={{__html:highlight}} />
     {(wordCount > 0) && <div className={classes.tooltipInfo}>
