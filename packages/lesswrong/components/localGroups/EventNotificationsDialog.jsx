@@ -20,7 +20,7 @@ const suggestionToGoogleMapsLocation = (suggestion) => {
   return suggestion ? suggestion.gmaps : null
 }
 
-const styles = theme => ({
+export const sharedStyles = theme => ({
   removeButton: {
     color: theme.palette.error.main,
     marginRight: 'auto',
@@ -64,6 +64,10 @@ const styles = theme => ({
       },
     },
   },
+})
+
+const styles = theme => ({
+  ...sharedStyles(theme),
   distanceSection: {
     marginTop: 30,
     display: 'flex'
@@ -99,6 +103,8 @@ const styles = theme => ({
   }
 })
 
+const MAX_NOTIFICATION_RADIUS = 300
+const MAX_NOTIFICATION_RADIUS_STEPSIZE = 5
 const EventNotificationsDialog = ({ onClose, currentUser, classes }) => {
   const [ location, setLocation ] = useState(currentUser?.nearbyEventsNotificationsLocation || currentUser?.mapLocation || currentUser?.googleLocation)
   const [ label, setLabel ] = useState(currentUser?.nearbyEventsNotificationsLocation?.formatted_address || currentUser?.mapLocation?.formatted_address || currentUser?.googleLocation?.formatted_address)
@@ -145,9 +151,9 @@ const EventNotificationsDialog = ({ onClose, currentUser, classes }) => {
           <Slider
             className={classes.slider}
             value={distance}
-            step={5}
+            step={MAX_NOTIFICATION_RADIUS_STEPSIZE}
             min={0}
-            max={300}
+            max={MAX_NOTIFICATION_RADIUS}
             onChange={(e, value) => setDistance(value)}
             aria-labelledby="input-slider"
           />
@@ -157,11 +163,11 @@ const EventNotificationsDialog = ({ onClose, currentUser, classes }) => {
             margin="dense"
             onChange={(e) => setDistance(e.target.value)}
             endAdornment={<InputAdornment disableTypography className={classes.inputAdornment} position="end">km</InputAdornment>}
-            onBlur={() => setDistance(distance > 1000 ? 1000 : (distance < 0 ? 0 : distance))}
+            onBlur={() => setDistance(distance > MAX_NOTIFICATION_RADIUS ? MAX_NOTIFICATION_RADIUS : (distance < 0 ? 0 : distance))}
             inputProps={{
-              step: 10,
+              step: MAX_NOTIFICATION_RADIUS_STEPSIZE,
               min: 0,
-              max: 1000,
+              max: MAX_NOTIFICATION_RADIUS,
               type: 'number',
               'aria-labelledby': 'input-slider',
             }}
