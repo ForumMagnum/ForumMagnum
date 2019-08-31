@@ -12,6 +12,8 @@ const styles = theme => ({
   root: {
     width: 305,
     backgroundColor: "white",
+    position: "relative",
+    zIndex: theme.zIndexes.postHoverOver,
     [theme.breakpoints.up('sm')]: {
       marginTop: theme.spacing.unit,
       marginBottom: theme.spacing.unit,
