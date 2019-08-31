@@ -55,11 +55,26 @@ const PostLinkPreviewLegacy = ({href, targetLocation, innerHTML}) => {
 registerComponent('PostLinkPreviewLegacy', PostLinkPreviewLegacy);
 
 const postLinkPreviewWithPostStyles = theme => ({
+  root: {
+    position: "relative",
+    '&:hover $hoverOver': {
+      display:"block"
+    }
+  },
   popper: {
     opacity: 1,
   },
   tooltip: {
     background: "none",
+  },
+  hoverOver: {
+    display: "none",
+    position: "absolute",
+    zIndex: 5,
+    top: 20,
+    [theme.breakpoints.up('sm')]: {
+      marginLeft: 50
+    }
   }
 })
 
@@ -71,20 +86,12 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, error}) => {
   }
   
   return (
-    <Tooltip
-      title={
-        error
-          ? error
-          : <PostsItemTooltip post={post} showCategory showAuthor showKarma showComments showTitle wide truncateLimit={900}/>
-      }
-      classes={{tooltip:classes.tooltip, popper: classes.popper}}
-      TransitionProps={{ timeout: 0 }}
-      placement="bottom-start"
-      enterDelay={0}
-      PopperProps={{ style: { pointerEvents: 'none' } }}
-    >
+    <span className={classes.root}>
+      <div className={classes.hoverOver}>
+        <PostsItemTooltip post={post} showCategory showAuthor showKarma showComments showTitle wide truncateLimit={900}/>
+      </div>
       {linkElement}
-    </Tooltip>
+    </span>
   );
 }
 registerComponent('PostLinkPreviewWithPost', PostLinkPreviewWithPost, withStyles(postLinkPreviewWithPostStyles, {name:"PostLinkPreviewWithPost"}));
