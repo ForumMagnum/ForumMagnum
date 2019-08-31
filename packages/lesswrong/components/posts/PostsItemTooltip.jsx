@@ -86,7 +86,7 @@ const styles = theme => ({
       float: "right"
     },
     [theme.breakpoints.down('xs')]: {
-      display: "block",
+      display: "inline-block",
       marginRight: theme.spacing.unit*2,
     },
   },
@@ -95,7 +95,7 @@ const styles = theme => ({
       float: "right"
     },
     [theme.breakpoints.down('xs')]: {
-      display: "block",
+      display: "inline-block",
       float: "left"
     },
   }
@@ -132,7 +132,7 @@ const PostsItemTooltip = ({ showTitle, post, classes, showAuthor, showCategory, 
         <CommentIcon className={classes.commentIcon}/> 
           {Posts.getCommentCountStr(post)}
       </span>}
-      { showKarma && <span className={classes.comments}>{Posts.getKarma(post)} karma</span>}
+      { showKarma && <span className={classes.karma}>{Posts.getKarma(post)} karma</span>}
     </div>
     <div className={classes.highlight} dangerouslySetInnerHTML={{__html:highlight}} />
     {(wordCount > 0) && <div className={classes.tooltipInfo}>
