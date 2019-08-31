@@ -1,107 +1,39 @@
 /* global google */
-import React, { PureComponent } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { Marker, InfoWindow } from "react-google-maps"
-import { Link } from '../../lib/reactRouterWrapper.js';
-import CloseIcon from '@material-ui/icons/Close';
-import { withStyles } from '@material-ui/core/styles';
 
-// Shared with LocalEventMarker
-export const styles = theme => ({
-  mapInfoWindow: {
-    width: "250px",
-    maxHeight: "250px",
-    overflowX: "hidden",
-    overflowY: "auto",
-  },
-  closeIcon: {
-    position: "absolute",
-    right: 5,
-    top: 5,
-    color: "rgba(0,0,0,0.5)",
-    height: "15px",
-    width: "15px",
-  },
-  groupMarkerName: {
-    fontSize: "15px",
-    marginTop: "3.5px",
-    marginBottom: "0px",
-    marginRight: 10
-  },
-  markerBody: {
-    marginTop: 10,
-    marginBottom: 10,
-  },
-  contactInfo: {
-    marginBottom: "10px",
-    marginTop: "10px",
-    fontWeight: 400,
-    color: "rgba(0,0,0,0.6)",
-  },
-  markerPageLink: {
-    fontWeight: 400,
-    color: "rgba(0,0,0,0.4)",
-  },
-  linksWrapper: {
-    position: "absolute",
-    right: 10,
-  },
-});
+const getCircleIcon = (google) => ({
+  path: "M8.67 -0.98C8.67 -0.98 0.8 -8.68 0.8 -8.68 0.36 -9.11 -0.36 -9.11 -0.8 -8.68 -0.8 -8.68 -8.67 -0.98 -8.67 -0.98 -9.11 -0.55 -9.11 0.15 -8.67 0.58 -8.23 1.01 -7.52 1.01 -7.08 0.58 -7.08 0.58 -6.75 0.26 -6.75 0.26 -6.75 3.12 -6.75 5.55 -6.75 8.6 -6.75 8.6 -2.25 8.6 -2.25 8.6 -2.25 8.6 -2.25 2 -2.25 2 -2.25 2 2.25 2 2.25 2 2.25 2 2.25 8.6 2.25 8.6 2.25 8.6 6.75 8.6 6.75 8.6 6.75 5.55 6.75 3.12 6.75 0.26 6.75 0.26 7.08 0.58 7.08 0.58 7.3 0.79 7.59 0.9 7.88 0.9 8.16 0.9 8.45 0.79 8.67 0.58 9.11 0.15 9.11 -0.55 8.67 -0.98zM-2.95 13.58",
+  fillColor: "#588f27",
+  fillOpacity: 0.9,
+  scale: 1,
+  strokeWeight: 1,
+  strokeColor: "#FFFFFF",
+})
 
-class LocalGroupMarker extends PureComponent {
-  // March 13th 2018: If this is still around in six months, probably time to say goodbye
-  // getIconColor = () => {
-  //   const type = this.props.group && this.props.group.type;
-  //   switch (type) {
-  //     case 'LW':
-  //       return "#588f27";
-  //     case 'SSC':
-  //       return "#88ACB8";
-  //     case 'EA':
-  //       return '#1d879c';
-  //     default:
-  //       return '#444444';
-  //   }
-  // }
+const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, infoOpen, location }) => {
+  const { html = "" } = group.contents || {}
+  const { StyledMapMarker, GroupLinks } = Components
+  const htmlBody = {__html: html};
+  const circleIcon = getCircleIcon(google)
 
-  render() {
-    const { group, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes } = this.props;
-    const { geometry: {location: {lat, lng}}} = location;
-    const { html = "" } = group.contents || {}
-    const htmlBody = {__html: html};
-
-    var circleIcon = {
-        path: google.maps.SymbolPath.CIRCLE,
-        fillColor: "#588f27",
-        fillOpacity: 0.9,
-        scale: 7,
-        strokeWeight: 1,
-        strokeColor: "#FFFFFF",
-    };
-
-    return(
-      <Marker
-        onClick={() => handleMarkerClick(group._id)}
-        key={group._id}
-        icon={circleIcon}
-        position={{lat:lat, lng:lng}}
-      >
-        {infoOpen &&
-          <InfoWindow>
-            <div className={classes.mapInfoWindow}>
-              <a><CloseIcon className={classes.closeIcon} onClick={() => handleInfoWindowClose(group._id)}/></a>
-              <Link to={'/groups/'+group._id}><h5 className={classes.groupMarkerName}> [Group] {group.name} </h5></Link>
-              <div dangerouslySetInnerHTML={htmlBody} className={classes.markerBody}></div>
-              {group.contactInfo && <div className={classes.contactInfo}>{group.contactInfo}</div>}
-              <Link className={classes.markerPageLink} to={'/groups/'+group._id}> Full link </Link>
-              <div className={classes.linksWrapper}><Components.GroupLinks document={group}/></div>
-            </div>
-          </InfoWindow>
-        }
-      </Marker>
-    )
-  }
+  return (
+    <StyledMapMarker
+      location={location}
+      handleOpen={() => handleMarkerClick(group._id)}
+      handleClose={() => handleInfoWindowClose(group._id)}
+      infoOpen={infoOpen}
+      icon={circleIcon}
+      link={`/groups/${group._id}`}
+      title={` [Group] ${group.name}`}
+      metaInfo={group.contactInfo}
+      cornerLinks={<GroupLinks document={group}/>}
+      key={group._id}
+    >
+      <div dangerouslySetInnerHTML={htmlBody} />
+    </StyledMapMarker>
+  )
 }
 
 LocalGroupMarker.propTypes = {
@@ -109,4 +41,4 @@ LocalGroupMarker.propTypes = {
   location: PropTypes.object.isRequired,
 }
 
-registerComponent("LocalGroupMarker", LocalGroupMarker, withStyles(styles, { name: "LocalGroupMarker" }));
+registerComponent("LocalGroupMarker", LocalGroupMarker);

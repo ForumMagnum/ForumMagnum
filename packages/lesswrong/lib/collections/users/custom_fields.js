@@ -1,6 +1,6 @@
 import Users from "meteor/vulcan:users";
 import { getSetting, Utils } from "meteor/vulcan:core"
-import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, denormalizedField } from '../../modules/utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 import SimpleSchema from 'simpl-schema'
@@ -654,6 +654,88 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
+    hidden: true,
+    optional: true
+  },
+
+  mapLocation: {
+    type: Object,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    label: "Your location on the community map",
+    control: 'LocationFormComponent',
+    blackbox: true,
+    optional: true,
+    order: 43,
+  },
+
+  mapLocationSet: {
+    type: Boolean, 
+    canRead: ['guests'],
+    ...denormalizedField({
+      needsUpdate: data => ('mapLocation' in data),
+      getValue: async (user) => {
+        return !!user.mapLocation
+      }
+    }),
+  },
+
+  mapMarkerText: {
+    type: String,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    label: "Your text on the community map",
+    control: "MuiTextField",
+    optional: true,
+    order: 44
+  },
+
+  htmlMapMarkerText: {
+    type: String,
+    canRead: ['guests'],
+    optional: true, 
+    denormalized: true
+  },
+
+  nearbyEventsNotifications: {
+    type: Boolean,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    optional: true,
+    ...schemaDefaultValue(false),
+  },
+
+  nearbyEventsNotificationsLocation: {
+    type: Object,
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    control: 'LocationFormComponent',
+    blackbox: true,
+    optional: true,
+  },
+
+  nearbyEventsNotificationsRadius: {
+    type: Number,
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    optional: true
+  },
+
+  nearbyPeopleNotificationThreshold: {
+    type: Number,
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     hidden: true,
     optional: true
   },
