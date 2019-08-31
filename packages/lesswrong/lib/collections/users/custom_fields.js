@@ -5,7 +5,7 @@ import { makeEditable } from '../../editor/make_editable.js'
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 import SimpleSchema from 'simpl-schema'
 
-
+export const MAX_NOTIFICATION_RADIUS = 300
 export const formGroups = {
   moderationGroup: {
     order:60,
@@ -728,7 +728,9 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     hidden: true,
-    optional: true
+    optional: true,
+    min: 0,
+    max: MAX_NOTIFICATION_RADIUS
   },
 
   nearbyPeopleNotificationThreshold: {

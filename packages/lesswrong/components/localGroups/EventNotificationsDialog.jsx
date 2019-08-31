@@ -15,6 +15,7 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import FormLabel from '@material-ui/core/FormLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import { geoSuggestStyles } from '../form-components/LocationFormComponent'
+import { MAX_NOTIFICATION_RADIUS } from '../../lib/collections/users/custom_fields'
 
 const suggestionToGoogleMapsLocation = (suggestion) => {
   return suggestion ? suggestion.gmaps : null
@@ -103,7 +104,6 @@ const styles = theme => ({
   }
 })
 
-const MAX_NOTIFICATION_RADIUS = 300
 const MAX_NOTIFICATION_RADIUS_STEPSIZE = 5
 const EventNotificationsDialog = ({ onClose, currentUser, classes }) => {
   const [ location, setLocation ] = useState(currentUser?.nearbyEventsNotificationsLocation || currentUser?.mapLocation || currentUser?.googleLocation)
