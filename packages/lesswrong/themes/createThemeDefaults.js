@@ -17,6 +17,7 @@ export const linkStyle = ({theme, underlinePosition="97%", background}) => {
     backgroundSize: "4px 1px",
     backgroundRepeat: "repeat-x",
     backgroundPosition:  `0% ${underlinePosition}`,
+    textDecorationLine: "none",
     textShadow: `
       .03em 0 ${background || theme.palette.background.default},
       -.03em 0 ${background || theme.palette.background.default},

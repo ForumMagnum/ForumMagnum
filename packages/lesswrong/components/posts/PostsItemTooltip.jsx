@@ -3,38 +3,48 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles'
 import { truncate } from '../../lib/editor/ellipsize';
 import withUser from "../common/withUser";
+import { postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
+import classNames from 'classnames';
+import { Posts } from '../../lib/collections/posts';
+import CommentIcon from '@material-ui/icons/ModeComment';
 
 const styles = theme => ({
-  tooltip:{
-    position: "relative",
-    left: -30,
-  },
   root: {
+    width: 305,
+    backgroundColor: "white",
     [theme.breakpoints.up('sm')]: {
       marginTop: theme.spacing.unit,
       marginBottom: theme.spacing.unit,
     },
+    ...postHighlightStyles(theme),
+    padding: theme.spacing.unit*1.5,
+    border: "solid 1px rgba(0,0,0,.1)",
+    boxShadow: "0 0 10px rgba(0,0,0,.2)",
+    '& img': {
+      maxHeight: "200px"
+    },
+  },
+  hideOnMobile: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    },
+  },
+  wide: {
+    width: 550
   },
   tooltipInfo: {
-    fontStyle: "italic"
+    fontStyle: "italic",
+    ...commentBodyStyles(theme),
+    color: theme.palette.grey[600]
   },
-  tooltipTitle: {
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit*1.5,
-    fontWeight: 600,
-    fontSize: "1.2rem",
-    [theme.breakpoints.down('sm')]: {
-      display: "none"
-    },
+  right: {
+    float: "right"
   },
   highlight: {
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit*2,
-    wordBreak: 'break-all',
+    marginTop: theme.spacing.unit*2.5,
+    marginBottom: theme.spacing.unit*2.5,
+    wordBreak: 'break-word',
     fontSize: "1.1rem",
-    [theme.breakpoints.down('sm')]: {
-      display: "none"
-    },
     '& img': {
       display:"none"
     },
@@ -50,10 +60,26 @@ const styles = theme => ({
     '& hr': {
       display: "none"
     },
+    '& a': {
+      color: "unset",
+      textDecorationColor: "none",
+      textShadow: "none",
+      backgroundImage: "none",
+      underline: "none"
+    },
   },
+  commentIcon: {
+    height: 15,
+    width: 15,
+    color: theme.palette.grey[400],
+    position: "relative",
+    top: 3,
+    marginRight: 6,
+    marginLeft: 12
+  }
 })
 
-export const getPostCategory = (post) => {
+const getPostCategory = (post) => {
   const categories = [];
   const postOrQuestion = post.question ? "Question" : "Post"
 
@@ -69,23 +95,24 @@ export const getPostCategory = (post) => {
     return post.question ? `Question` : `Personal Blogpost`
 }
 
-const PostsItemTooltip = ({ showTitle, post, classes, author, }) => {
-  const { PostsUserAndCoauthors } = Components
-  const postCategory = getPostCategory(post)
+const PostsItemTooltip = ({ showTitle, post, classes, showAuthor, showCategory, showKarma, showComments, wide=false, hideOnMobile=false, truncateLimit=600 }) => {
+  const { PostsUserAndCoauthors, PostsTitle } = Components
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
-  const highlight = truncate(htmlHighlight, 600)
-
-  return <div className={classes.root}>
-    {showTitle && <div className={classes.tooltipTitle}>
-      {post.title}
-    </div>}
+  const highlight = truncate(htmlHighlight, truncateLimit)
+  const renderCommentCount = showComments && (Posts.getCommentCount(post) > 0)
+  return <div className={classNames(classes.root, {[classes.wide]: wide, [classes.hideOnMobile]: hideOnMobile})}>
+    {showTitle && <PostsTitle post={post}/>}
     <div className={classes.tooltipInfo}>
-      {postCategory}
-      { author && post.user && <span> by <PostsUserAndCoauthors post={post}/></span>}
+      { showCategory && getPostCategory(post)}
+      { showAuthor && post.user && <span> by <PostsUserAndCoauthors post={post}/></span>}
+      { renderCommentCount && <span className={classes.right}>
+        <CommentIcon className={classes.commentIcon}/> 
+          {Posts.getCommentCountStr(post)}
+      </span>}
+      { showKarma && <span className={classes.right}>{Posts.getKarma(post)} karma</span>}
     </div>
-    <div dangerouslySetInnerHTML={{__html:highlight}}
-      className={classes.highlight} />
+    <div dangerouslySetInnerHTML={{__html:highlight}} className={classes.highlight} />
     {(wordCount > 0) && <div className={classes.tooltipInfo}>
       {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
     </div>}
