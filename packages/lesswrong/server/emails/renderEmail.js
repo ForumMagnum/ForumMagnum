@@ -2,7 +2,7 @@ import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { ApolloProvider, getDataFromTree } from 'react-apollo';
 import Juice from 'juice';
-import { createClient, computeContextFromUser } from 'meteor/vulcan:lib';
+import { createClient, computeContextFromUser, UserContextWrapper } from 'meteor/vulcan:lib';
 import JssProvider from 'react-jss/lib/JssProvider';
 import { SheetsRegistry } from 'react-jss/lib/jss';
 import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles';
@@ -131,6 +131,7 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
   
   const wrappedBodyComponent = (
     <ApolloProvider client={apolloClient}>
+    <UserContextWrapper>
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
     <MuiThemeProvider theme={forumTheme} sheetsManager={new Map()}>
     <UserContext.Provider value={user}>
@@ -140,6 +141,7 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
     </UserContext.Provider>
     </MuiThemeProvider>
     </JssProvider>
+    </UserContextWrapper>
     </ApolloProvider>
   );
   

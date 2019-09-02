@@ -4,6 +4,7 @@
 import React from 'react';
 import { ApolloProvider } from 'react-apollo';
 import { StaticRouter } from 'react-router';
+import { UserContextWrapper } from '../../../modules/withCurrentUser.js';
 
 import { Components } from 'meteor/vulcan:lib';
 
@@ -20,12 +21,14 @@ const AppGenerator = ({ req, apolloClient, serverRequestStatus }) => {
   const cookies = new Cookies(req.cookies); // req.universalCookies;
   const App = (
     <ApolloProvider client={apolloClient}>
+    <UserContextWrapper>
       {/* We do not use the context for StaticRouter here, and instead are using our own context provider */}
       <StaticRouter location={req.url} context={{}}>
         <CookiesProvider cookies={cookies}>
           <Components.App serverRequestStatus={serverRequestStatus}/>
         </CookiesProvider>
       </StaticRouter>
+    </UserContextWrapper>
     </ApolloProvider>
   );
   return App;

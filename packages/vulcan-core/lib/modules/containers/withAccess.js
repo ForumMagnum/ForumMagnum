@@ -1,6 +1,5 @@
 import React, {PureComponent} from 'react';
-import {Components} from 'meteor/vulcan:lib';
-import withCurrentUser from './withCurrentUser';
+import {Components, withCurrentUser} from 'meteor/vulcan:lib';
 import {withRouter} from 'react-router';
 import Users from 'meteor/vulcan:users';
 

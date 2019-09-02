@@ -6,12 +6,12 @@ import {
   runCallbacks,
   detectLocale,
   getHasIntlFields,
-  Routes
+  Routes,
+  withCurrentUser
 } from 'meteor/vulcan:lib';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { IntlProvider, intlShape } from 'meteor/vulcan:i18n';
-import withCurrentUser from '../containers/withCurrentUser.js';
 import withUpdate from '../containers/withUpdate.js';
 import withSiteData from '../containers/withSiteData.js';
 import { withApollo } from 'react-apollo';
