@@ -1,4 +1,3 @@
-/* global google */
 import React, { useState } from 'react';
 import { Components, registerComponent, useMulti, getSetting } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
