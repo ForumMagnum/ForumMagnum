@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
+import withUser from '../common/withUser';
 
 const scrollIndicatorColor = "#ddd";
 const scrollIndicatorHoverColor = "#888";
@@ -198,7 +199,8 @@ class ContentItemBody extends Component {
   };
   
   markHoverableLinks = () => {
-    if(this.bodyRef?.current) {
+    const { currentUser } = this.props
+    if(this.bodyRef?.current && currentUser?.beta) {
       const linkTags = [...this.bodyRef.current.getElementsByTagName("a")];
       for (let linkTag of linkTags) {
         const tagContentsHTML = linkTag.innerHTML;
@@ -220,6 +222,6 @@ class ContentItemBody extends Component {
   }
 }
 
-registerComponent('ContentItemBody', ContentItemBody,
+registerComponent('ContentItemBody', ContentItemBody, withUser,
   withStyles(styles, { name: "ContentItemBody" })
 );

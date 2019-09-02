@@ -4,7 +4,6 @@ import { Posts } from '../../lib/collections/posts';
 import { Link } from 'react-router-dom';
 import { usePostBySlug, usePostByLegacyId } from '../posts/usePost.js';
 import withHover from '../common/withHover';
-import { withStyles } from '@material-ui/core/styles';
 import Popper from '@material-ui/core/Popper';
 
 const PostLinkPreview = ({href, targetLocation, innerHTML}) => {

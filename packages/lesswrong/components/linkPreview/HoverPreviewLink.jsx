@@ -39,7 +39,6 @@ const styles = theme => ({
     top: -5,
     fontSize: 8,
     display: "inline-block",
-    zIndex: theme.zIndexes.linkHoverOverIndicator,
     fontWeight: 700,
     color: theme.palette.primary.main
   }
