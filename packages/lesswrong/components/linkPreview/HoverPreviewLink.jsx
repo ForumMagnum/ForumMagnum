@@ -2,7 +2,6 @@ import React from 'react';
 import { Components, registerComponent, parseRoute, Utils } from 'meteor/vulcan:core';
 import { Link } from 'react-router-dom';
 import { hostIsOnsite, useLocation, getUrlClass } from '../../lib/routeUtil';
-import { withStyles } from '@material-ui/core/styles';
 
 // From react-router-v4
 // https://github.com/ReactTraining/history/blob/master/modules/PathUtils.js
@@ -30,21 +29,7 @@ var parsePath = function parsePath(path) {
   };
 };
 
-const styles = theme => ({
-  root: {
-    position: "relative",
-  },
-  indicator: {
-    position: "relative",
-    top: -5,
-    fontSize: 8,
-    display: "inline-block",
-    fontWeight: 700,
-    color: theme.palette.primary.main
-  }
-})
-
-const HoverPreviewLink = ({classes, innerHTML, href}) => {
+const HoverPreviewLink = ({ innerHTML, href}) => {
   const URLClass = getUrlClass()
   const location = useLocation();
   
@@ -69,10 +54,7 @@ const HoverPreviewLink = ({classes, innerHTML, href}) => {
       const PreviewComponent = parsedUrl.currentRoute?.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;
       
       if (PreviewComponent) {
-        return <span className={classes.root}>
-          <PreviewComponent href={onsiteUrl} targetLocation={parsedUrl} innerHTML={innerHTML}/>
-          <span className={classes.indicator}>LW</span>
-        </span>
+        return <PreviewComponent href={onsiteUrl} targetLocation={parsedUrl} innerHTML={innerHTML}/>
       } else {
         return <Link to={onsiteUrl} dangerouslySetInnerHTML={{__html: innerHTML}} />
       }
@@ -80,4 +62,4 @@ const HoverPreviewLink = ({classes, innerHTML, href}) => {
   }
   return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
 }
-registerComponent('HoverPreviewLink', HoverPreviewLink, withStyles(styles, {name:"HoverPreviewLink"}));
+registerComponent('HoverPreviewLink', HoverPreviewLink);

@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { usePostBySlug, usePostByLegacyId } from '../posts/usePost.js';
 import withHover from '../common/withHover';
 import Popper from '@material-ui/core/Popper';
+import { withStyles } from '@material-ui/core/styles';
 
 const PostLinkPreview = ({href, targetLocation, innerHTML}) => {
   const postID = targetLocation.params._id;
@@ -54,19 +55,44 @@ const PostLinkPreviewLegacy = ({href, targetLocation, innerHTML}) => {
 }
 registerComponent('PostLinkPreviewLegacy', PostLinkPreviewLegacy);
 
-const PostLinkPreviewWithPost = ({href, innerHTML, post, anchorEl, hover}) => {
+const styles = theme => ({
+  popper: {
+    zIndex: 5,
+    position: "absolute"
+  },
+  link: {
+    position: "relative",
+    marginRight: 12,
+  },
+  indicator: {
+    position: "absolute",
+    top: -1,
+    width: 20,
+    fontSize: 8,
+    display: "inline-block",
+    fontWeight: 700,
+    color: theme.palette.primary.main,
+    cursor: "pointer",
+  }
+})
+
+const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hover}) => {
   const { PostsItemTooltip } = Components
-  const linkElement = <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}}/>;
+  const linkElement = <span className={classes.linkElement}>
+      <Link className={classes.link} to={href}>
+        {innerHTML}<span className={classes.indicator}>LW</span>
+      </Link>
+    </span>
   if (!post) {
     return linkElement;
   }
   return (
     <span>
-      <Popper open={hover} anchorEl={anchorEl} placement="bottom">
+      <Popper open={hover} anchorEl={anchorEl} placement="bottom" className={classes.popper}>
         <PostsItemTooltip post={post} showAllinfo wide truncateLimit={900}/>
       </Popper>
       {linkElement}
     </span>
   );
 }
-registerComponent('PostLinkPreviewWithPost', PostLinkPreviewWithPost, withHover);
+registerComponent('PostLinkPreviewWithPost', PostLinkPreviewWithPost, withHover, withStyles(styles, {name:"PostLinkPreviewWithPost"}));

@@ -90,6 +90,13 @@ class ContentItemBody extends Component {
     this.markScrollableLaTeX();
     this.markHoverableLinks();
   }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.dangerouslySetInnerHTML?.__html !== this.props.dangerouslySetInnerHTML?.__html) {
+      this.markScrollableLaTeX();
+      this.markHoverableLinks();
+    } 
+  }
   
   render() {
     return (<React.Fragment>

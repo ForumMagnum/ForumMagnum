@@ -65,18 +65,18 @@ const styles = theme => ({
     '& hr': {
       display: "none"
     },
-    '& a': {
-      // hide link-styling because it's infuriating that you can't actually click on them
-      color: "unset",
-      textDecorationColor: "none",
-      textShadow: "none",
-      backgroundImage: "none",
-      underline: "none",
-      '&:hover': {
-        color: "unset",
-        opacity: "unset"
-      }
-    },
+    // '& a': {
+    //   // hide link-styling because it's infuriating that you can't actually click on them
+    //   color: "unset",
+    //   textDecorationColor: "none",
+    //   textShadow: "none",
+    //   backgroundImage: "none",
+    //   underline: "none",
+    //   '&:hover': {
+    //     color: "unset",
+    //     opacity: "unset"
+    //   }
+    // },
   },
   commentIcon: {
     height: 15,
@@ -124,7 +124,7 @@ const getPostCategory = (post) => {
 }
 
 const PostsItemTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMobile=false, truncateLimit=600 }) => {
-  const { PostsUserAndCoauthors, PostsTitle } = Components
+  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody } = Components
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
   const highlight = truncate(htmlHighlight, truncateLimit)
@@ -140,7 +140,7 @@ const PostsItemTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMobile
       </span>}
       { showAllinfo && <span className={classes.karma}>{Posts.getKarma(post)} karma</span>}
     </div>
-    <div className={classes.highlight} dangerouslySetInnerHTML={{__html:highlight}} />
+    <ContentItemBody className={classes.highlight} dangerouslySetInnerHTML={{__html:highlight}} />
     {(wordCount > 0) && <div className={classes.tooltipInfo}>
       {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
     </div>}
