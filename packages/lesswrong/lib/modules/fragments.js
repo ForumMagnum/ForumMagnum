@@ -126,6 +126,7 @@ registerFragment(`
     viewUnreviewedComments
     sunshineShowNewUserContent
     recommendationSettings
+    theme
   }
 `);
 

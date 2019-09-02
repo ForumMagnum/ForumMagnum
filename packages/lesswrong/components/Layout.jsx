@@ -48,6 +48,10 @@ const standaloneNavMenuRouteNames = {
 }
 
 const styles = theme => ({
+  wrapper: {
+    minHeight: "100vh",
+    background: "white",
+  },
   main: {
     margin: '50px auto 15px auto',
     [theme.breakpoints.down('sm')]: {
@@ -212,7 +216,7 @@ class Layout extends PureComponent {
         })
       }}>
       <TableOfContentsContext.Provider value={this.setToC}>
-        <div className={classNames("wrapper", {'alignment-forum': getSetting('forumType') === 'AlignmentForum'}) } id="wrapper">
+        <div className={classNames(classes.wrapper, {'alignment-forum': getSetting('forumType') === 'AlignmentForum'}) } id="wrapper">
           <DialogManager>
           <div>
             <CssBaseline />

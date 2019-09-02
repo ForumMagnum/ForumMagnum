@@ -3,6 +3,7 @@ import { getSetting, Utils } from "meteor/vulcan:core"
 import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences } from '../../modules/utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
+import { customThemes } from '../../../themes/customThemes.js';
 import SimpleSchema from 'simpl-schema'
 
 
@@ -931,7 +932,18 @@ addFieldsDict(Users, {
     type: String,
     optional: true,
     canRead: ['guests'],
-  }
+  },
+  
+  theme: {
+    label: "Theme",
+    type: String,
+    optional: true,
+    allowedValues: Object.keys(customThemes),
+    canRead: [Users.owns, 'admins'],
+    canUpdate: [Users.owns, 'admins'],
+    canCreate: [Users.owns, 'admins'],
+    control: "ThemePicker",
+  },
 });
 
 export const makeEditableOptionsModeration = {

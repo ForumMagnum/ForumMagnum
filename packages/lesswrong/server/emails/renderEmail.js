@@ -17,7 +17,7 @@ import StyleValidator from '../vendor/react-html-email/src/StyleValidator.js';
 
 // TODO: We probably want to use a different theme than this for rendering
 // emails.
-import { getForumTheme } from '../../themes/forumTheme'
+import { getEmailTheme } from '../../themes/forumTheme'
 
 // How many characters to wrap the plain-text version of the email to
 const plainTextWordWrap = 80;

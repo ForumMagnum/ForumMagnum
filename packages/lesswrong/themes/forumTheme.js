@@ -1,4 +1,6 @@
 import { getSetting } from 'meteor/vulcan:core'
+import { customThemes } from './customThemes.js';
+import deepmerge from 'deepmerge';
 
 let forumTheme
 switch (getSetting('forumType')) {
@@ -15,10 +17,16 @@ switch (getSetting('forumType')) {
     forumTheme = lwTheme
 }
 
-export const getForumTheme = ({user, cookies}) => {
+const getUncustomizedTheme = () => {
   return forumTheme;
+}
+
+export const getForumTheme = ({user, cookies}) => {
+  const customThemeName = user?.theme || "default";
+  const customTheme = customThemes[customThemeName];
+  return deepmerge(getUncustomizedTheme(), customTheme);
 };
 
 export const getEmailTheme = ({user}) => {
-  return forumTheme;
+  return getUncustomizedTheme();
 }

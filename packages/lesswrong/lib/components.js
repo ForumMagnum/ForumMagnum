@@ -354,6 +354,7 @@ importComponent("FormComponentDate", () => require('../components/form-component
 importComponent("FormComponentDateTime", () => require('../components/form-components/FormComponentDateTime.jsx'));
 importComponent("FormComponentNumber", () => require('../components/form-components/FormComponentNumber.jsx'));
 importComponent("WrappedSmartForm", () => require('../components/form-components/WrappedSmartForm.jsx'));
+importComponent("ThemePicker", () => require('../components/form-components/ThemePicker.jsx'));
 
 
 
