@@ -19,6 +19,7 @@ const AppGenerator = ({ apolloClient }) => {
     </UserContextWrapper>
     </ApolloProvider>
   );
+
   // run user registered callbacks to wrap the app
   const WrappedApp = runCallbacks({
     name: 'router.client.wrapper', 

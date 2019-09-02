@@ -15,7 +15,7 @@ import Cookies from 'universal-cookie';
 // see client-side vulcan:core/lib/client/start.jsx implementation
 // we do the same server side
 
-const AppGenerator = ({ req, apolloClient, serverRequestStatus }) => {
+const AppGenerator = ({ req, apolloClient, context, serverRequestStatus }) => {
   // TODO: universalCookies should be defined here, but it isn't
   // @see https://github.com/meteor/meteor-feature-requests/issues/174#issuecomment-441047495
   const cookies = new Cookies(req.cookies); // req.universalCookies;
@@ -31,6 +31,14 @@ const AppGenerator = ({ req, apolloClient, serverRequestStatus }) => {
     </UserContextWrapper>
     </ApolloProvider>
   );
-  return App;
+  
+  // run user registered callbacks that wraps the React app
+  const WrappedApp = runCallbacks({
+    name: 'router.server.wrapper',
+    iterator: App,
+    properties: { req, context, apolloClient },
+  });
+  
+  return WrappedApp;
 };
 export default AppGenerator;

@@ -52,14 +52,10 @@ const renderRequest = async (req, user) => {
   // middlewares at this point
   // @see https://github.com/meteor/meteor-feature-requests/issues/174#issuecomment-441047495
 
-  const App = <AppGenerator req={req} apolloClient={client} serverRequestStatus={serverRequestStatus} />;
-
-  // run user registered callbacks that wraps the React app
-  const WrappedApp = runCallbacks({
-    name: 'router.server.wrapper',
-    iterator: App,
-    properties: { req, context, apolloClient: client },
-  });
+  const App = <AppGenerator
+    req={req} apolloClient={client} context={context}
+    serverRequestStatus={serverRequestStatus}
+  />;
 
   let htmlContent = '';
   // LESSWRONG: Split a call to renderToStringWithData into getDataFromTree
