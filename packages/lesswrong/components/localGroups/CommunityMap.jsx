@@ -94,14 +94,14 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
   </div>
 }
   
-const getPersonIcon = google => ({
+const personIcon = {
   path: "M6.46 5.3C7.52 3.81 5.49 2.11 3.15 1.19 2.26 1.8 1.17 2.17 0 2.17 -1.17 2.17 -2.25 1.8 -3.14 1.19 -5.48 2.11 -7.52 3.81 -6.46 5.3 -4.62 7.9 4.62 7.9 6.46 5.3zM4.58 -3.18C4.58 -0.71 2.53 1.3 0 1.3 -2.52 1.3 -4.57 -0.71 -4.57 -3.18 -4.57 -5.65 -2.52 -7.65 0 -7.65 4.24 -7.63 4.58 -3.18 4.58 -3.18zM3.61 -6.58M-12.78 -12.21",
   fillColor: '#588f27',
   fillOpacity: 0.9,
   scale: 1.25,
   strokeWeight: 1,
   strokeColor: "#FFFFFF"
-})
+}
 
 const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindows}) => {
   return <MarkerClusterer
@@ -114,7 +114,7 @@ const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindow
         handleOpen={() => handleClick(user._id)}
         handleClose={() => handleClose(user._id)}
         infoOpen={openWindows.includes(user._id)}
-        icon={getPersonIcon(google)}
+        icon={personIcon}
         link={Users.getProfileUrl(user)}
         title={` [User] ${Users.getDisplayName(user)} `}
         key={ user._id }

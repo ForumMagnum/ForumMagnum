@@ -201,7 +201,6 @@ if (getSetting('hasEvents', true)) {
   importComponent("LocalGroupSingle", () => require('../components/localGroups/LocalGroupSingle.jsx'));
   importComponent("GroupFormLink", () => require('../components/localGroups/GroupFormLink.jsx'));
   importComponent("SmallMapPreview", () => require('../components/localGroups/SmallMapPreview.jsx'));
-  importComponent("SmallMapPreviewWrapper", () => require('../components/localGroups/SmallMapPreviewWrapper.jsx'));
   importComponent("GroupLinks", () => require('../components/localGroups/GroupLinks.jsx'));
   importComponent("LocalGroupsList", () => require('../components/localGroups/LocalGroupsList.jsx'));
   importComponent("LocalGroupsItem", () => require('../components/localGroups/LocalGroupsItem.jsx'));
