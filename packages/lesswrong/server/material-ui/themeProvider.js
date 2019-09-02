@@ -1,36 +1,47 @@
 import React from 'react';
-import { addCallback } from 'meteor/vulcan:core';
+import { Components, registerComponent, addCallback, withUser } from 'meteor/vulcan:core';
 import JssProvider from 'react-jss/lib/JssProvider';
 import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles';
-import forumTheme from '../../themes/forumTheme'
+import { getForumTheme } from '../../themes/forumTheme'
 import { SheetsRegistry } from 'react-jss/lib/jss';
+import { withCookies } from 'react-cookie'
 import PropTypes from 'prop-types'
 
-const MuiThemeProviderWrapper = (props, context) => {
+const ThemeWrapper = ({children, sheetsManager, currentUser, cookies, sheetsRegistry}, context) => {
+  const generateClassName = createGenerateClassName({
+    dangerouslyUseGlobalCSS: true
+  });
+  
+  const theme = getForumTheme({ user: currentUser, cookies});
+
   // If isGetDataFromTree is present in the context, suppress generation of JSS
   // styles. See Vulcan/packages/vulcan-lib/lib/server/apollo-ssr/renderPage.js
   // for an explanation of why we're doing this.
-  return <MuiThemeProvider {...props} disableStylesGeneration={!!context.isGetDataFromTree}>
-    {props.children}
-  </MuiThemeProvider>
+  return (
+    <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
+      <MuiThemeProvider
+        theme={theme}
+        sheetsManager={sheetsManager}
+        disableStylesGeneration={!!context.isGetDataFromTree}
+      >
+        {children}
+      </MuiThemeProvider>
+    </JssProvider>
+  )
 }
-MuiThemeProviderWrapper.contextTypes = {
+ThemeWrapper.contextTypes = {
   isGetDataFromTree: PropTypes.bool
 };
+registerComponent("ThemeWrapper", ThemeWrapper, withUser, withCookies);
 
 function wrapWithMuiTheme (app, { context }) {
   const sheetsRegistry = new SheetsRegistry();
   context.sheetsRegistry = sheetsRegistry;
-  const generateClassName = createGenerateClassName({
-    dangerouslyUseGlobalCSS: true
-  });
-
+  
   return (
-    <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
-      <MuiThemeProviderWrapper theme={forumTheme} sheetsManager={new Map()}>
-        {app}
-      </MuiThemeProviderWrapper>
-    </JssProvider>
+    <Components.ThemeWrapper sheetsManager={new Map()} sheetsRegistry={sheetsRegistry}>
+      {app}
+    </Components.ThemeWrapper>
   );
 }
 

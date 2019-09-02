@@ -6,7 +6,7 @@ import { ApolloProvider } from 'react-apollo';
 import { StaticRouter } from 'react-router';
 import { UserContextWrapper } from '../../../modules/withCurrentUser.js';
 
-import { Components } from 'meteor/vulcan:lib';
+import { Components, runCallbacks } from 'meteor/vulcan:lib';
 
 import { CookiesProvider } from 'react-cookie';
 

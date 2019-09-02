@@ -1,21 +1,32 @@
 import React from 'react';
-import { addCallback } from 'meteor/vulcan:core';
+import { Components, registerComponent, addCallback, withUser } from 'meteor/vulcan:core';
 import JssProvider from 'react-jss/lib/JssProvider';
 import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles';
-import forumTheme from '../themes/forumTheme';
+import { getForumTheme } from '../themes/forumTheme';
+import { withCookies } from 'react-cookie'
 
-
-function wrapWithMuiTheme (app) {
+const ThemeWrapper = ({children, currentUser, cookies}) => {
   const generateClassName = createGenerateClassName({
     dangerouslyUseGlobalCSS: true
   });
   
+  const theme = getForumTheme({ user: currentUser, cookies});
+  
   return (
     <JssProvider generateClassName={generateClassName}>
-      <MuiThemeProvider theme={forumTheme}>
-        {app}
+      <MuiThemeProvider theme={theme}>
+        {children}
       </MuiThemeProvider>
     </JssProvider>
+  );
+}
+registerComponent("ThemeWrapper", ThemeWrapper, withUser, withCookies);
+
+function wrapWithMuiTheme (app) {
+  return (
+    <Components.ThemeWrapper>
+      {app}
+    </Components.ThemeWrapper>
   );
 }
 

@@ -79,14 +79,14 @@ const renderRequest = async (req, user) => {
     // a context variable isGetDataFromTree, and if that's present and true,
     // we suppress JSS style generation.
   try {
-    await getDataFromTree(WrappedApp, {isGetDataFromTree: true});
+    await getDataFromTree(App, {isGetDataFromTree: true});
   } catch(err) {
     console.error(`Error while fetching Apollo Data. date: ${new Date().toString()} url: ${JSON.stringify(req.url)}`); // eslint-disable-line no-console
     console.error(err); // eslint-disable-line no-console
   }
   const afterPrerenderTime = new Date();
   try {
-    htmlContent = await ReactDOM.renderToString(WrappedApp);
+    htmlContent = await ReactDOM.renderToString(App);
   } catch (err) {
     console.error(`Error while rendering React tree. date: ${new Date().toString()} url: ${JSON.stringify(req.url)}`); // eslint-disable-line no-console
     console.error(err); // eslint-disable-line no-console

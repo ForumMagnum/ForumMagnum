@@ -17,7 +17,7 @@ import StyleValidator from '../vendor/react-html-email/src/StyleValidator.js';
 
 // TODO: We probably want to use a different theme than this for rendering
 // emails.
-import forumTheme from '../../themes/forumTheme'
+import { getForumTheme } from '../../themes/forumTheme'
 
 // How many characters to wrap the plain-text version of the email to
 const plainTextWordWrap = 80;
@@ -129,11 +129,13 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
   // accordingly so that time zones on posts/comments/etc are in that timezone.
   const timezone = moment.tz.guess();
   
+  const theme = getEmailTheme({user});
+  
   const wrappedBodyComponent = (
     <ApolloProvider client={apolloClient}>
     <UserContextWrapper>
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
-    <MuiThemeProvider theme={forumTheme} sheetsManager={new Map()}>
+    <MuiThemeProvider theme={theme} sheetsManager={new Map()}>
     <UserContext.Provider value={user}>
     <TimezoneContext.Provider value={timezone}>
       {bodyComponent}

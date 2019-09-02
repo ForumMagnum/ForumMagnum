@@ -15,5 +15,10 @@ switch (getSetting('forumType')) {
     forumTheme = lwTheme
 }
 
-const forumThemeExport = forumTheme;
-export default forumThemeExport
+export const getForumTheme = ({user, cookies}) => {
+  return forumTheme;
+};
+
+export const getEmailTheme = ({user}) => {
+  return forumTheme;
+}
