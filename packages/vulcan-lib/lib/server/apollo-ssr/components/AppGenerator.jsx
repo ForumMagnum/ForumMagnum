@@ -19,26 +19,32 @@ const AppGenerator = ({ req, apolloClient, context, serverRequestStatus }) => {
   // TODO: universalCookies should be defined here, but it isn't
   // @see https://github.com/meteor/meteor-feature-requests/issues/174#issuecomment-441047495
   const cookies = new Cookies(req.cookies); // req.universalCookies;
+  
+  const RoutedApp = (
+    <StaticRouter location={req.url} context={{}}>
+      <Components.App serverRequestStatus={serverRequestStatus}/>
+    </StaticRouter>
+  );
+
+  // run user registered callbacks that wraps the React app
+  const WrappedApp = runCallbacks({
+    name: 'router.server.wrapper',
+    iterator: RoutedApp,
+    properties: { req, context, apolloClient },
+  });
+
   const App = (
     <ApolloProvider client={apolloClient}>
     <UserContextWrapper>
-      {/* We do not use the context for StaticRouter here, and instead are using our own context provider */}
-      <StaticRouter location={req.url} context={{}}>
-        <CookiesProvider cookies={cookies}>
-          <Components.App serverRequestStatus={serverRequestStatus}/>
-        </CookiesProvider>
-      </StaticRouter>
+    <CookiesProvider cookies={cookies}>
+    {/* We do not use the context for StaticRouter here, and instead are using our own context provider */}
+      {WrappedApp}
+    </CookiesProvider>
     </UserContextWrapper>
     </ApolloProvider>
   );
   
-  // run user registered callbacks that wraps the React app
-  const WrappedApp = runCallbacks({
-    name: 'router.server.wrapper',
-    iterator: App,
-    properties: { req, context, apolloClient },
-  });
   
-  return WrappedApp;
+  return App;
 };
 export default AppGenerator;
