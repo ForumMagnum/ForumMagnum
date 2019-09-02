@@ -4,7 +4,6 @@ import JssProvider from 'react-jss/lib/JssProvider';
 import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles';
 import forumTheme from '../../themes/forumTheme'
 import { SheetsRegistry } from 'react-jss/lib/jss';
-import JssCleanup from '../../components/themes/JssCleanup';
 import PropTypes from 'prop-types'
 
 const MuiThemeProviderWrapper = (props, context) => {
@@ -29,9 +28,7 @@ function wrapWithMuiTheme (app, { context }) {
   return (
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
       <MuiThemeProviderWrapper theme={forumTheme} sheetsManager={new Map()}>
-        <JssCleanup>
-          {app}
-        </JssCleanup>
+        {app}
       </MuiThemeProviderWrapper>
     </JssProvider>
   );

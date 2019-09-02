@@ -28,5 +28,9 @@ Meteor.startup(() => {
   onPageLoad(() => {
     ReactDOM.hydrate(<Main />, document.getElementById('react-app'));
     runCallbacks({ name: 'client.hydrate.after', iterator: null});
+    
+    const jssStyles = document.getElementById('jss-server-side');
+    if (jssStyles && jssStyles.parentNode)
+      jssStyles.parentNode.removeChild(jssStyles);
   });
 });
