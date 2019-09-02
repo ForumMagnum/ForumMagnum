@@ -68,7 +68,7 @@ const styles = theme => ({
     marginRight: theme.spacing.unit
   },
   popper: {
-    opacity: 1,
+    opacity: 1, // this is because Tooltip has a default opacity less than 1
   },
   tooltip: {
     position: "relative",
