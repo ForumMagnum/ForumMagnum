@@ -31,7 +31,7 @@ const MarkerWithInfoWindow = ({position, markerIcon, onMarkerClick, onInfoWindow
       clusterer={clusterer}
     >
       {infoOpen &&
-        <InfoWindow position={position} options={{pixelOffset: new google.maps.Size(0, -25)}}>
+        <InfoWindow position={position} options={{pixelOffset: new google.maps.Size(0, -18)}}>
           <div className={classes.mapInfoWindow}>
             <a><CloseIcon className={classes.closeIcon} onClick={onInfoWindowClose}/></a>
             {children}
