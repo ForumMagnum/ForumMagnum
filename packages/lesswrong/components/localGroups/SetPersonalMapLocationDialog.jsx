@@ -20,9 +20,12 @@ const styles = theme => ({
 })
 
 const SetPersonalMapLocationDialog = ({ onClose, currentUser, classes }) => {
-  const [ location, setLocation ] = useState(currentUser?.mapLocation || currentUser?.googleLocation)
-  const [ label, setLabel ] = useState(currentUser?.mapLocation?.formatted_address || currentUser?.googleLocation?.formatted_address)
-  const [ mapText, setMapText ] = useState(currentUser?.mapMarkerText || currentUser?.bio)
+  const { mapLocation, googleLocation, mapMarkerText, bio } = currentUser || {}
+
+  const [ location, setLocation ] = useState(mapLocation || googleLocation)
+  const [ label, setLabel ] = useState(mapLocation?.formatted_address || googleLocation?.formatted_address)
+  const [ mapText, setMapText ] = useState(mapMarkerText || bio)
+  
   const { mutate } = useUpdate({
     collection: Users,
     fragmentName: 'UsersCurrent',

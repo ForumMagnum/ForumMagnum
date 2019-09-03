@@ -107,11 +107,15 @@ const styles = theme => ({
 
 const MAX_NOTIFICATION_RADIUS_STEPSIZE = 5
 const EventNotificationsDialog = ({ onClose, currentUser, classes }) => {
-  const [ location, setLocation ] = useState(currentUser?.nearbyEventsNotificationsLocation || currentUser?.mapLocation || currentUser?.googleLocation)
-  const [ label, setLabel ] = useState(currentUser?.nearbyEventsNotificationsLocation?.formatted_address || currentUser?.mapLocation?.formatted_address || currentUser?.googleLocation?.formatted_address)
-  const [ distance, setDistance ] = useState(currentUser?.nearbyEventsNotificationsRadius || 50)
-  const [ notifyPeopleThreshold, setNotifyPeopleThreshold ] = useState(currentUser?.nearbyPeopleNotificationThreshold || 10)
-  const [ notifyPeopleCheckboxState, setNotifyPeopleCheckboxState ] = useState(!!currentUser?.nearbyPeopleNotificationThreshold)
+
+  const { nearbyEventsNotificationsLocation, mapLocation, googleLocation, nearbyEventsNotificationsRadius, nearbyPeopleNotificationThreshold } = currentUser || {}
+
+  const [ location, setLocation ] = useState(nearbyEventsNotificationsLocation || mapLocation || googleLocation)
+  const [ label, setLabel ] = useState(nearbyEventsNotificationsLocation?.formatted_address || mapLocation?.formatted_address || googleLocation?.formatted_address)
+  const [ distance, setDistance ] = useState(nearbyEventsNotificationsRadius || 50)
+  const [ notifyPeopleThreshold, setNotifyPeopleThreshold ] = useState(nearbyPeopleNotificationThreshold || 10)
+  const [ notifyPeopleCheckboxState, setNotifyPeopleCheckboxState ] = useState(!!nearbyPeopleNotificationThreshold)
+  
   const { mutate } = useUpdate({
     collection: Users,
     fragmentName: 'UsersCurrent',
