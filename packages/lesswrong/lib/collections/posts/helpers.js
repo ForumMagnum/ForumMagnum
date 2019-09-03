@@ -137,7 +137,7 @@ ${Posts.getLink(post, true, false)}
  */
 Posts.getPageUrl = function(post, isAbsolute = false, sequenceId=null) {
   const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
-  
+
   // LESSWRONG – included event and group post urls
   if (sequenceId) {
     return `${prefix}/s/${sequenceId}/p/${post._id}`;
