@@ -75,6 +75,7 @@ const styles = theme => ({
     color: theme.palette.grey[500],
     // Dark Magick
     // https://giphy.com/gifs/psychedelic-art-phazed-12GGadpt5aIUQE
+    // Without this code, there's a weird thing where if you try to click the placeholder text, instead of focusing on the editor element, it... doesn't. This is overriding something habryka did to make spoiler tags work. We discussed this for awhile and this seemed like the best option.
     pointerEvents: "none",
     "& *": {
       pointerEvents: "none",
