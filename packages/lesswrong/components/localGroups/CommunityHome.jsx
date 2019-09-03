@@ -90,7 +90,7 @@ class CommunityHome extends Component {
                   {currentUser?.mapLocation ? "Edit my location on the map" : "Add me to the map"}
                 </a>
                 <a onClick={this.openEventNotificationsForm}>
-                  {currentUser?.nearbyEventsNotifications ? `Edit my event/groups notification settings` : `Notify me of events/groups nearby`} [Beta]
+                  {currentUser?.nearbyEventsNotifications ? `Edit my event/groups notification settings` : `Sign up for event/group notifications`} [Beta]
                 </a>
               </SectionFooter>
           </SingleColumnSection>

@@ -18,7 +18,7 @@ class SmallMapPreview extends Component {
   constructor(props, context) {
     super(props);
     this.state = {
-      openWindows: [this.getDocument()?._id],
+      openWindows: [],
     }
   }
 
