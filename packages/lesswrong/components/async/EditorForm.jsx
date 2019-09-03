@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import Editor, { composeDecorators } from 'draft-js-plugins-editor';
 import createInlineToolbarPlugin, { Separator } from 'draft-js-inline-toolbar-plugin';
 import createImagePlugin from 'draft-js-image-plugin';
@@ -159,13 +158,7 @@ class EditorForm extends Component {
     return (
       <div>
         <NoSsr>
-        <div
-          className={classNames(
-            { "content-editor-is-empty": !(editorState && editorState.getCurrentContent && editorState.getCurrentContent().hasText()) },
-            this.props.className
-          )}
-          onClick={this.focus}
-        >
+        <div className={this.props.className} onClick={this.focus}>
           <Editor
             editorState={editorState}
             onChange={onChange}

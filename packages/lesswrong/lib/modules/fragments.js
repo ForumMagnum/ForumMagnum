@@ -113,6 +113,14 @@ registerFragment(`
     location
     googleLocation
     mongoLocation
+    mapLocation
+    mapLocationSet
+    mapMarkerText
+    htmlMapMarkerText
+    nearbyEventsNotifications
+    nearbyEventsNotificationsLocation
+    nearbyEventsNotificationsRadius
+    nearbyPeopleNotificationThreshold
     emailSubscribedToCurated
     unsubscribeFromAll
     emails
@@ -400,12 +408,17 @@ registerFragment(`
     bannedUserIds
     location
     googleLocation
+    mapLocation
+    mapLocationSet
+    mapMarkerText
+    htmlMapMarkerText
     mongoLocation
     shortformFeedId
     viewUnreviewedComments
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
     sunshineShowNewUserContent
+    defaultToCKEditor
   }
 `);
 

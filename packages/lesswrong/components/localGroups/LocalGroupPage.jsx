@@ -11,9 +11,7 @@ import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import qs from 'qs'
 
 const styles = theme => ({
-  root: {
-    marginTop: 500,
-  },
+  root: {},
   groupInfo: {
     ...sectionFooterLeftStyles
   },
@@ -58,7 +56,7 @@ class LocalGroupPage extends Component {
     const { params } = this.props.location;
     const { groupId } = params;
     const { CommunityMapWrapper, SingleColumnSection, SectionTitle, GroupLinks, PostsList2, Loading,
-      SectionButton, SubscribeTo, SectionFooter, GroupFormLink } = Components
+      SectionButton, SubscribeTo, SectionFooter, GroupFormLink, ContentItemBody } = Components
     if (!group) return <Loading />
     const { html = ""} = group.contents || {}
     const htmlBody = {__html: html}
@@ -100,7 +98,7 @@ class LocalGroupPage extends Component {
                 && <span className={classes.leftAction}><GroupFormLink documentId={groupId} label="Edit group" /></span>}
               </SectionFooter>
             </div>
-            <div dangerouslySetInnerHTML={htmlBody} className={classes.groupDescriptionBody}/>
+            <ContentItemBody dangerouslySetInnerHTML={htmlBody} className={classes.groupDescriptionBody}/>
           </div>
           <PostsList2 terms={{view: 'groupPosts', groupId: groupId}} />
         </SingleColumnSection>

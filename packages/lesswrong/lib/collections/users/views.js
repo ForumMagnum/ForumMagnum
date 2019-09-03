@@ -102,3 +102,12 @@ ensureIndex(Users, {voteCount: 1, reviewedByUserId: 1, banned: 1})
 ensureIndex(Users, {commentCount: 1, reviewedByUserId: 1, banned: 1})
 ensureIndex(Users, {postCount: 1, signUpReCaptchaRating: 1, reviewedByUserId: 1, banned: 1})
 ensureIndex(Users, {bio: 1, reviewedByUserId: 1, banned: 1})
+
+Users.addView("usersMapLocations", function () {
+  return {
+    selector: {
+      mapLocationSet: true
+    },
+  }
+})
+ensureIndex(Users, {mapLocationSet: 1})

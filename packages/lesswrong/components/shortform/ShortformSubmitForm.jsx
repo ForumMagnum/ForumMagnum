@@ -15,9 +15,17 @@ const ShortformSubmitForm = ({ classes, successCallback}) => {
   return (
     <div className={classes.root}>
       <CommentsNewForm
-        prefilledProps={{shortform: true}}
+        prefilledProps={{
+          shortform: true, 
+        }}
         successCallback={successCallback}
         type="comment"
+        formProps={{
+          editorHintText: <div>
+            <div>Write your thoughts here! What have you been thinking about?</div>
+            <div>Exploratory, draft-stage, rough, and rambly thoughts are all welcome on Shortform.</div>
+          </div>
+        }}
       />
     </div>
   );

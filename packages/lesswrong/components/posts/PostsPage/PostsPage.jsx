@@ -1,6 +1,6 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { withLocation } from '../../../lib/routeUtil';
+import { withLocation, getUrlClass } from '../../../lib/routeUtil';
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
 import { withStyles } from '@material-ui/core/styles';
@@ -208,13 +208,10 @@ const getContentType = (post) => {
 // properties from that. (There is a URL class which theoretically would work,
 // but it doesn't have the hostname field on IE11 and it's missing entirely on
 // Opera Mini.)
-let URLClass = null;
-if (Meteor.isServer) {
-  URLClass = require('url').URL
-}
+const URLClass = getUrlClass()
 
 function getProtocol(url) {
-  if (URLClass)
+  if (Meteor.isServer)
     return new URLClass(url).protocol;
 
   // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
@@ -224,7 +221,7 @@ function getProtocol(url) {
 }
 
 function getHostname(url) {
-  if (URLClass)
+  if (Meteor.isServer)
     return new URLClass(url).hostname;
 
   // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
@@ -254,7 +251,7 @@ class PostsPage extends Component {
 
   render() {
     const { post, refetch, currentUser, classes, location: { query: { commentId }} } = this.props
-    const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, ContentType,
+    const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreview, ContentType,
       LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
       TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink } = Components
@@ -278,7 +275,7 @@ class PostsPage extends Component {
 
       return (
         <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
-          <HeadTags url={Posts.getPageUrl(post, true)} title={post.title} description={description}/>
+          <HeadTags url={Posts.getPageUrl(post, true)} canonicalUrl={post.canonicalSource} title={post.title} description={description}/>
           {/* Header/Title */}
           <div className={classes.title}>
             <div className={classes.post}>
@@ -330,7 +327,7 @@ class PostsPage extends Component {
             <div className={classes.post}>
               {/* Body */}
               <div className={classes.postBody}>
-                { post.isEvent && <SmallMapPreviewWrapper post={post} /> }
+                { post.isEvent && <SmallMapPreview post={post} /> }
                 <div className={classes.postContent}>
                   <AlignmentCrosspostMessage post={post} />
                   { post.authorIsUnreviewed && <div className={classes.unreviewed}>This post is awaiting moderator approval</div>}

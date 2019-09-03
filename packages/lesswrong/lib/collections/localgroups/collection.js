@@ -44,6 +44,7 @@ export const makeEditableOptions = {
       editableBy: ['members'],
       insertableBy: ['members']
     },
+    hintText: "Short description"
   }
 
 makeEditable({
