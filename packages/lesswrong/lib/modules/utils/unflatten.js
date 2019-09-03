@@ -17,12 +17,12 @@ function unflattenCommentsRec(array, parent, tree)
   tree = typeof tree !== "undefined" ? tree : [];
 
   let children = [];
-  let commentDict = {}
-  array.forEach((node) => {
-    commentDict[node.item._id] = true
-  })
-
   if (typeof parent === "undefined") {
+    let commentDict = {}
+    array.forEach((node) => {
+      commentDict[node.item._id] = true
+    })
+  
     children = _.filter(array, node => {  
       // if there *is* a parent, we return all its child nodes, either:
 
