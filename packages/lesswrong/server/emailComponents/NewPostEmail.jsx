@@ -27,7 +27,7 @@ const styles = theme => ({
 });
 
 const NewPostEmail = ({document, classes, reason}) => {
-  const { EmailPostAuthors, EmailFormatDate } = Components;
+  const { EmailPostAuthors, EmailFormatDate, EmailContentItemBody } = Components;
   return (<React.Fragment>
     <div className={classes.heading}>
       <h1>

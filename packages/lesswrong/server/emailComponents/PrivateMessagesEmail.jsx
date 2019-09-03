@@ -12,7 +12,7 @@ const styles = theme => ({
 });
 
 const PrivateMessagesEmail = ({conversation, messages, participantsById, classes}) => {
-  const { EmailUsername, EmailFormatDate } = Components;
+  const { EmailUsername, EmailFormatDate, EmailContentItemBody } = Components;
   const sitename = getSetting('title');
   const conversationLink = Conversations.getPageUrl(conversation, true);
   

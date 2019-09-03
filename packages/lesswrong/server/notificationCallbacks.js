@@ -13,7 +13,7 @@ import './emailComponents/NewPostEmail.jsx';
 import './emailComponents/PrivateMessagesEmail.jsx';
 import { EventDebouncer } from './debouncer.js';
 import { UnsubscribeAllToken } from './emails/emailTokens.js';
-import { getNotificationTypes, getNotificationTypeByName } from '../lib/notificationTypes.jsx';
+import { getNotificationTypeByName } from '../lib/notificationTypes.jsx';
 import { notificationDebouncers } from './notificationBatching.js';
 
 import { Components, addCallback, newMutation } from 'meteor/vulcan:core';
