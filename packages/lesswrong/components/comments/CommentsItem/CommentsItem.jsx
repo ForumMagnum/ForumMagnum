@@ -155,13 +155,15 @@ class CommentsItem extends Component {
   }
 
   render() {
-    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, collapsed, isParentComment, parentCommentId, scrollIntoView } = this.props
+    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, collapsed, isParentComment, parentCommentId, scrollIntoView, showShowParent=true } = this.props
 
     const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon } = Components
 
     if (!comment || !post) {
       return null;
     }
+
+    const renderShowParent = showShowParent && (parentCommentId!=comment.parentCommentId)
     
     return (
       <div className={
@@ -193,7 +195,7 @@ class CommentsItem extends Component {
               <div className={classes.usernameSpacing}>○</div>
             }
             <CommentShortformIcon comment={comment} post={post} />
-            { parentCommentId!=comment.parentCommentId &&
+            { renderShowParent &&
               <ShowParentComment
                 comment={comment} nestingLevel={nestingLevel}
                 active={this.state.showParent}

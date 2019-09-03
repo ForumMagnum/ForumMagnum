@@ -65,7 +65,7 @@ const styles = theme => ({
   isSingleLine: {
     marginBottom: -1,
     '&.comments-node-root':{
-      marginBottom: 4,
+      marginBottom: 8,
     }
   },
   commentHidden: {
@@ -94,28 +94,35 @@ const styles = theme => ({
   highlightAnimation: {
     animation: `higlight-animation ${HIGHLIGHT_DURATION}s ease-in-out 0s;`
   },
+  nodeWithGapIndicator: {
+    marginBottom: 1
+  },
   gapIndicator: {
-    marginTop: 5,
-    border: `solid 1px ${theme.palette.grey[300]}`,
-    backgroundColor: theme.palette.grey[100],
+    marginTop: 8,
+    borderLeft: `solid 1px ${theme.palette.grey[400]}`,
+    borderTop: `solid 1px ${theme.palette.grey[400]}`,
+    backgroundColor: theme.palette.grey[300],
     marginLeft: theme.spacing.unit,
   },
-  gapIndicatorText: {
-    fontSize: 10,
+  gapIndicatorButtons: {
+    marginLeft: 8,
+    marginBottom: -3,
+    display: "inline-block",
+    position: "relative",
+    top: -6,
+  },
+  gapIndicatorButton :{
+    fontSize: 11,
     paddingTop: 2,
     paddingBottom: 2,
     paddingLeft: 6,
     paddingRight: 6,
-    marginLeft: 8,
-    marginBottom: -2,
-    display: "inline-block",
-    position: "relative",
-    top: -6,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[700],
     backgroundColor: "white",
-    border: `solid 1px ${theme.palette.grey[300]}`,
+    border: `solid 1px ${theme.palette.grey[400]}`,
     borderRadius: 2,
+    marginRight: theme.spacing.unit
   }
 })
 
@@ -264,9 +271,9 @@ class CommentsNode extends Component {
     const { comment, children, nestingLevel=1, highlightDate, updateComment, post,
       muiTheme, postPage, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments,
-      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand } = this.props;
+      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand, loadAll } = this.props;
 
-    const { SingleLineComment, CommentsItem, RepliesToCommentList } = Components
+    const { SingleLineComment, CommentsItem, RepliesToCommentList, ShowParentComment } = Components
 
     if (!comment || !post)
       return null;
@@ -279,7 +286,7 @@ class CommentsNode extends Component {
 
     const hiddenReadComment = hideReadComments && !newComment
 
-    const updatedNestingLevel = nestingLevel + (!!gapIndicator ? 1 : 0)
+    const updatedNestingLevel = nestingLevel + (gapIndicator ? 1 : 0)
 
     const nodeClass = classNames(
       "comments-node",
@@ -310,15 +317,27 @@ class CommentsNode extends Component {
         [classes.isSingleLine]: this.isSingleLine(),
         [classes.commentHidden]: hiddenReadComment,
         [classes.shortformTop]: postPage && shortform && (updatedNestingLevel===1),
+        [classes.nodeWithGapIndicator]: gapIndicator
       }
     )
 
     const passedThroughItemProps = { post, postPage, comment, updateComment, showPostTitle, collapsed, refetch }
-    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, updateComment, condensed, hideReadComments, refetch, scrollOnExpand }
+    const passedThroughNodeProps = { post, loadAll, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, updateComment, condensed, hideReadComments, refetch, scrollOnExpand }
 
     return (
-        <div className={gapIndicator && classes.gapIndicator}>
-          {gapIndicator && <div className={classes.gapIndicatorText}>omitted comments</div>}
+        <div className={gapIndicator ? classes.gapIndicator : null}>
+          {gapIndicator && <div className={classes.gapIndicatorButtons} >
+            {/* <span 
+              className={classes.gapIndicatorButton} 
+              onClick={(event) => loadAll(event, comment)}>
+                <ShowParentComment comment={comment} nestingLevel={nestingLevel} />
+            </span> */}
+            <span 
+              className={classes.gapIndicatorButton} 
+              onClick={(event) => loadAll(event, comment)}>
+                Load All
+            </span>
+          </div>}
           <div className={nodeClass}
             onClick={(event) => this.handleExpand(event)}
             id={!noHash ? comment._id : undefined}
@@ -326,10 +345,12 @@ class CommentsNode extends Component {
             {!hiddenReadComment && comment._id && <div ref={this.scrollTargetRef}>
               {this.isSingleLine()
                 ? <SingleLineComment
+                    showShowParent={!gapIndicator}
                     comment={comment} nestingLevel={updatedNestingLevel}
                     parentCommentId={parentCommentId}
                   />
                 : <CommentsItem
+                    showShowParent={!gapIndicator}
                     truncated={this.isTruncated()}
                     nestingLevel={updatedNestingLevel}
                     parentCommentId={parentCommentId}

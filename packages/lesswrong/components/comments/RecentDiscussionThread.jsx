@@ -1,11 +1,14 @@
-import React, { PureComponent } from 'react';
+import React, { useState, PureComponent } from 'react';
 import {
   Components,
   registerComponent,
+  useMulti,
+  useMultiNotHookTho
 } from 'meteor/vulcan:core';
 
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { Posts } from '../../lib/collections/posts';
+import { Comments } from '../../lib/collections/comments';
 import classNames from 'classnames';
 import { unflattenComments } from '../../lib/modules/utils/unflatten';
 import withUser from '../common/withUser';
@@ -94,94 +97,117 @@ const styles = theme => ({
   }
 })
 
-class RecentDiscussionThread extends PureComponent {
-  state = { showHighlight: false, readStatus: false, markedAsVisitedAt: null, expandAllThreads: false }
+const RecentDiscussionThread = ({ post, comments, updateComment, currentUser, classes, isRead, refetch, expandAllThreads, recordPostView }) => {
 
-  showHighlight = () => {
-    this.setState(prevState => ({showHighlight:!prevState.showHighlight}));
-    this.markAsRead()
+  const [ showHighlight, setShowHighlight ] = useState(false)
+  const [ readStatus, setReadStatus ] = useState(false)
+  const [ markedAsVisitedAt, setMarkedAsVisitedAt ] = useState(null)
+  const [ allComments, setAllComments ] = useState(comments)
+  
+  const { results, loading, error, loadMore } = useMulti({
+    terms: {
+      view: "postCommentsNew",
+      postId: post._id
+    },
+    collection: Comments,
+    queryName: 'RecentDiscussionExpandQuery',
+    fragmentName: 'CommentsList',
+    limit: 1,
+    enableTotal: false,
+  })
+
+  const handleMarkAsRead = async () => {
+    setReadStatus(true)
+    setMarkedAsVisitedAt(new Date)
+    recordPostView({post: post})
   }
 
-  markAsRead = async () => {
-    this.setState({readStatus:true, markedAsVisitedAt: new Date()});
-    this.props.recordPostView({post:this.props.post})
+
+  const handleShowHighlight = () => {
+    setShowHighlight(!showHighlight)
+    handleMarkAsRead()
+  }
+  const loadAll = (event, comment) => {
+    loadMore()
+    const topLevelCommentId = comment.topLevelCommentId || comment._id
+    const newComments = _.filter(results, (c) => c.topLevelCommentId === results)
+    console.log("newComments", comment, newComments)
+    setAllComments([...allComments, ...newComments])
   }
 
-  render() {
-    const { post, comments, updateComment, currentUser, classes, isRead, refetch } = this.props
-    const { readStatus, showHighlight, markedAsVisitedAt } = this.state
-    const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle } = Components
+  const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle } = Components
 
-    const lastCommentId = comments && comments[0]?._id
-    const nestedComments = unflattenComments(comments);
+  const lastCommentId = comments && comments[0]?._id
+  console.log("allComments", allComments)
+  const nestedComments = unflattenComments(allComments);
 
-    const lastVisitedAt = markedAsVisitedAt || post.lastVisitedAt
+  const lastVisitedAt = markedAsVisitedAt || post.lastVisitedAt
 
-    if (comments && !comments.length && post.commentCount != null) {
-      // New posts should render (to display their highlight).
-      // Posts with at least one comment should only render if that those comments meet the frontpage filter requirements
-      return null
-    }
+  if (comments && !comments.length && post.commentCount != null) {
+    // New posts should render (to display their highlight).
+    // Posts with at least one comment should only render if that those comments meet the frontpage filter requirements
+    return null
+  }
 
-    const highlightClasses = classNames({
-      [classes.noComments]: post.commentCount === null
-    })
+  const highlightClasses = classNames({
+    [classes.noComments]: post.commentCount === null
+  })
 
-    return (
-      <div className={classes.root}>
-        <div className={(currentUser && !(isRead || readStatus)) ? classes.unreadPost : null}>
-          <div className={classes.postItem}>
-            <Link className={classes.title} to={Posts.getPageUrl(post)}>
-              <PostsTitle wrap post={post} />
-            </Link>
+  return (
+    <div className={classes.root}>
+      <div className={(currentUser && !(isRead || readStatus)) ? classes.unreadPost : null}>
+        <div className={classes.postItem}>
+          <Link className={classes.title} to={Posts.getPageUrl(post)}>
+            <PostsTitle wrap post={post} />
+          </Link>
 
-            <div className={classes.threadMeta} onClick={this.showHighlight}>
-              <PostsItemMeta post={post}/>
-              <ShowOrHideHighlightButton
-                className={classes.showHighlight}
-                open={showHighlight}/>
-            </div>
+          <div className={classes.threadMeta} onClick={handleShowHighlight}>
+            <PostsItemMeta post={post}/>
+            <ShowOrHideHighlightButton
+              className={classes.showHighlight}
+              open={showHighlight}/>
           </div>
-          { showHighlight ?
-            <div className={highlightClasses}>
-              <PostsHighlight post={post} />
-            </div>
-            : <div className={highlightClasses} onClick={this.showHighlight}>
-                { (!isRead || post.commentCount === null) &&
-                  <ContentItemBody
-                    className={classes.postHighlight}
-                    dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents && post.contents.htmlHighlight)}}/>}
-              </div>
-          }
         </div>
-        <div className={classes.content}>
-          <div className={classes.commentsList}>
-            {nestedComments.map(comment =>
-              <div key={comment.item._id}>
-                <CommentsNode
-                  startThreadTruncated={true}
-                  expandAllThreads={this.props.expandAllThreads}
-                  nestingLevel={1}
-                  lastCommentId={lastCommentId}
-                  currentUser={currentUser}
-                  comment={comment.item}
-                  markAsRead={this.markAsRead}
-                  highlightDate={lastVisitedAt}
-                  //eslint-disable-next-line react/no-children-prop
-                  children={comment.children}
-                  key={comment.item._id}
-                  updateComment={updateComment}
-                  post={post}
-                  refetch={refetch}
-                  condensed
-                />
-              </div>
-            )}
+        { showHighlight ?
+          <div className={highlightClasses}>
+            <PostsHighlight post={post} />
           </div>
+          : <div className={highlightClasses} onClick={handleShowHighlight}>
+              { (!isRead || post.commentCount === null) &&
+                <ContentItemBody
+                  className={classes.postHighlight}
+                  dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents && post.contents.htmlHighlight)}}/>}
+            </div>
+        }
+      </div>
+      <div className={classes.content}>
+        <div className={classes.commentsList}>
+          {nestedComments.map(comment =>
+            <div key={comment.item._id}>
+              <CommentsNode
+                loadAll={loadAll}
+                startThreadTruncated={true}
+                expandAllThreads={expandAllThreads}
+                nestingLevel={1}
+                lastCommentId={lastCommentId}
+                currentUser={currentUser}
+                comment={comment.item}
+                markAsRead={handleMarkAsRead}
+                highlightDate={lastVisitedAt}
+                //eslint-disable-next-line react/no-children-prop
+                children={comment.children}
+                key={comment.item._id}
+                updateComment={updateComment}
+                post={post}
+                refetch={refetch}
+                condensed
+              />
+            </div>
+          )}
         </div>
       </div>
-    )
-  }
+    </div>
+  )
 }
 
 registerComponent(
