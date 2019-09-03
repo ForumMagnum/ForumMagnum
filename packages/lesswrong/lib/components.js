@@ -189,6 +189,10 @@ if (getSetting('hasEvents', true)) {
   importComponent("CommunityMap", () => require('../components/localGroups/CommunityMap.jsx'));
   importComponent("CommunityMapFilter", () => require('../components/localGroups/CommunityMapFilter.jsx'));
   importComponent("CommunityMapWrapper", () => require('../components/localGroups/CommunityMapWrapper.jsx'));
+  importComponent("SetPersonalMapLocationDialog", () => require('../components/localGroups/SetPersonalMapLocationDialog.jsx'));
+  importComponent("EventNotificationsDialog", () => require('../components/localGroups/EventNotificationsDialog.jsx'));
+  importComponent("MarkerWithInfoWindow", () => require('../components/localGroups/MarkerWithInfoWindow.jsx'));
+  importComponent("StyledMapMarker", () => require('../components/localGroups/StyledMapMarker.jsx'));
   importComponent("EventTime", () => require('../components/localGroups/EventTime.jsx'));
   importComponent("EventVicinity", () => require('../components/localGroups/EventVicinity.jsx'));
   importComponent("LocalGroupMarker", () => require('../components/localGroups/LocalGroupMarker.jsx'));
@@ -197,7 +201,6 @@ if (getSetting('hasEvents', true)) {
   importComponent("LocalGroupSingle", () => require('../components/localGroups/LocalGroupSingle.jsx'));
   importComponent("GroupFormLink", () => require('../components/localGroups/GroupFormLink.jsx'));
   importComponent("SmallMapPreview", () => require('../components/localGroups/SmallMapPreview.jsx'));
-  importComponent("SmallMapPreviewWrapper", () => require('../components/localGroups/SmallMapPreviewWrapper.jsx'));
   importComponent("GroupLinks", () => require('../components/localGroups/GroupLinks.jsx'));
   importComponent("LocalGroupsList", () => require('../components/localGroups/LocalGroupsList.jsx'));
   importComponent("LocalGroupsItem", () => require('../components/localGroups/LocalGroupsItem.jsx'));
