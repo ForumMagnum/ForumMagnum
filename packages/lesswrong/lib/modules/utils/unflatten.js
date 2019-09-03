@@ -6,8 +6,6 @@
 // with React's ability to detect whether updates are needed.
 export function unflattenComments(comments)
 {
-  console.log("beginning unflatten")
-  console.log("")
   const resultsRestructured = _.map(comments, comment => { return { item:comment, children:[] }});
   return unflattenCommentsRec(resultsRestructured);
 }
@@ -25,18 +23,6 @@ function unflattenCommentsRec(array, parent, tree)
   })
 
   if (typeof parent === "undefined") {
-    children = _.filter(array, node => {
-      // if there is no parent, we're at the root level, so we return all root nodes
-      // there are two types of root nodes:
-
-      // pure root nodes: if a node has no parentCommentId at all, it's definitely a top level comment
-      if (!node.item.parentCommentId) return true
-      
-      // locally root nodes: if neither a node's direct parent or topLevelComment is present in the array
-      if (!commentDict[node.item.parentCommentId] && !commentDict[node.item.topLevelCommentId]) return true
-    })
-  } else {
-<<<<<<< HEAD
     children = _.filter(array, node => {  
       // if there *is* a parent, we return all its child nodes, either:
 
@@ -47,19 +33,6 @@ function unflattenCommentsRec(array, parent, tree)
       if ((node.item.topLevelCommentId === parent.item._id) && !commentDict[node.item.parentCommentId]) {
         return true
       }
-
-=======
-    // if there *is* a parent, we return all its child nodes
-    // (i.e. nodes whose parentId is equal to the parent's id.)
-    children = _.filter(array, node => {
-      if (node.item.parentCommentId === parent.item._id) {
-        return true
-      }
-      if ((node.item.topLevelCommentId === parent.item._id)) {
-        console.log(array)
-        return false
-      }
->>>>>>> WIP unflatten topLevel
     })
   }
 
