@@ -24,9 +24,16 @@ function unflattenCommentsRec(array, parent, tree)
   })
 
   if (typeof parent === "undefined") {
-    // if there is no parent, we're at the root level
-    // so we return all root nodes (i.e. nodes with no parent)
-    children = _.filter(array, node => (!node.item.parentCommentId || !commentDict[node.item.parentCommentId]));
+    children = _.filter(array, node => {
+      // if there is no parent, we're at the root level, so we return all root nodes
+      // there are two types of root nodes:
+
+      // pure root nodes: if a node has no parentCommentId at all, it's definitely a top level comment
+      if (!node.item.parentCommentId) return true
+      
+      // locally root nodes: if neither a node's direct parent or topLevelComment is present in the array
+      if (!commentDict[node.item.parentCommentId] && !commentDict[node.item.topLevelCommentId]) return true
+    })
   } else {
   
     children = _.filter(array, node => {  
