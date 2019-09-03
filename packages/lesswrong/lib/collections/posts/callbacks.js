@@ -188,8 +188,7 @@ addCallback("posts.edit.async", MoveCommentsFromConvertedComment );
 
 function PostsNewConvertedFrom (post, user) {
   const comment = Comments.findOne({_id:post.convertedFromCommentId})
-  const canEditComment = Users.canDo(user, 'comments.edit.own') && Users.owns(user, comment)
-  if (post.convertedFromCommentId && canEditComment) {
+  if (post.convertedFromCommentId && Comments.options.mutations.update.check(user, comment)) {
     Comments.update(
       { _id: post.convertedFromCommentId },
       { $set: {
