@@ -29,7 +29,7 @@ var parsePath = function parsePath(path) {
   };
 };
 
-const HoverPreviewLink = ({innerHTML, href}) => {
+const HoverPreviewLink = ({ innerHTML, href}) => {
   const URLClass = getUrlClass()
   const location = useLocation();
   

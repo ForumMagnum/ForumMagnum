@@ -66,6 +66,15 @@ const styles = theme => ({
   },
   tag: {
     marginRight: theme.spacing.unit
+  },
+  popper: {
+    opacity: 1, // this is because Tooltip has a default opacity less than 1
+  },
+  tooltip: {
+    position: "relative",
+    left: -50,
+    top: -27,
+    background: "none",
   }
 })
 
@@ -101,8 +110,8 @@ const PostsTitle = ({currentUser, post, classes, sticky, read, expandOnHover, to
 
   const titleWithTooltip = tooltip
     ? (<Tooltip
-        title={<PostsItemTooltip post={post} showTitle={false} />}
-        classes={{tooltip:classes.tooltip}}
+        title={<PostsItemTooltip post={post} />}
+        classes={{tooltip:classes.tooltip, popper: classes.popper}}
         TransitionProps={{ timeout: 0 }}
         placement="left-start"
         enterDelay={0}
