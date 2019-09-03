@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = theme => ({
   root: {
     marginLeft: 12,
-    marginRight: 12,
+    marginRight: 12
   }
 }) 
 
