@@ -210,7 +210,7 @@ class ContentItemBody extends Component {
     if(this.bodyRef?.current && currentUser?.beta) {
       const linkTags = [...this.bodyRef.current.getElementsByTagName("a")];
       for (let linkTag of linkTags) {
-        const tagContentsHTML = linkTag.textContent;
+        const tagContentsHTML = linkTag.innerHTML;
         const href = linkTag.getAttribute("href");
         const replacementElement = <Components.HoverPreviewLink href={href} innerHTML={tagContentsHTML} />
         this.replaceElement(linkTag, replacementElement);
