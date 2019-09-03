@@ -190,3 +190,8 @@ Posts.canDelete = (currentUser, post) => {
   }
   return Users.owns(currentUser, post) && post.draft
 }
+
+Posts.getKarma = (post) => {
+  const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
+  return baseScore || 0
+}

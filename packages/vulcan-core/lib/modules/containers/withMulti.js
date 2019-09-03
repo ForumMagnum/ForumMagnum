@@ -223,7 +223,7 @@ export function useMulti({
   const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraQueries, extraVariables });
   const resolverName = collection.options.multiResolverName;
   
-  const {data, error, loading} = useQuery(query, {
+  const {data, error, loading, refetch} = useQuery(query, {
     variables: {
       input: {
         terms: { ...terms, limit: limit },
@@ -242,7 +242,7 @@ export function useMulti({
     loadingMore: loading && hasRequestedMore,
     results: data && data[resolverName] && data[resolverName].results,
     totalCount: data && data[resolverName] && data[resolverName].totalCount,
-    refetch: data && data.refetch,
+    refetch,
     error,
     count: data && data.results && data.results.length,
     loadMore: () => {

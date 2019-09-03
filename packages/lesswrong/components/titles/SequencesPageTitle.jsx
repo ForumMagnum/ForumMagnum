@@ -11,7 +11,7 @@ import { styles } from '../common/HeaderSubtitle';
 const SequencesPageTitle = ({location, isSubtitle, siteName, loading, document, classes}) => {
   if (!document || loading) return null;
   const sequence = document;
-  
+  const titleString = `${sequence.title} - ${siteName}`
   if (isSubtitle) {
     return (<span className={classes.subtitle}>
       <Link to={Sequences.getPageUrl(sequence, false)}>
@@ -19,7 +19,10 @@ const SequencesPageTitle = ({location, isSubtitle, siteName, loading, document, 
       </Link>
     </span>);
   } else {
-    return <Helmet><title>{`${sequence.title} - ${siteName}`}</title></Helmet>
+    return <Helmet>
+      <title>{titleString}</title>
+      <meta property='og:title' content={titleString}/>
+    </Helmet>
   }
   
   // TODO: An earlier implementation of this had a special case for the core

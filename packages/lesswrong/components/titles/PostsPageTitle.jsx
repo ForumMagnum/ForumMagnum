@@ -11,9 +11,13 @@ import { styles } from '../common/HeaderSubtitle';
 const PostsPageHeaderTitle = ({location, isSubtitle, siteName, loading, document, classes}) => {
   if (!document || loading) return null;
   const post = document;
+  const titleString = `${post.title} - ${siteName}`
   
   if (!isSubtitle)
-    return <Helmet><title>{`${post.title} - ${siteName}`}</title></Helmet>
+    return <Helmet>
+      <title>{titleString}</title>
+      <meta property='og:title' content={titleString}/>
+    </Helmet>
   
   if (getSetting('forumType') !== 'AlignmentForum' && post.af) {
     // TODO: A (broken) bit of an earlier iteration of the header subtitle

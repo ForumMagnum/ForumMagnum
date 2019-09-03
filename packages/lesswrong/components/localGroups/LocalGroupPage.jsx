@@ -11,9 +11,7 @@ import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import qs from 'qs'
 
 const styles = theme => ({
-  root: {
-    marginTop: 500,
-  },
+  root: {},
   groupInfo: {
     ...sectionFooterLeftStyles
   },

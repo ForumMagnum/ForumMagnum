@@ -300,7 +300,7 @@ describe('User moderation fields --', async () => {
   });
 })
 
-describe('PostsEdit bannedUserIds permissions --', async ()=> {
+/*describe('PostsEdit bannedUserIds permissions --', async ()=> {
   let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
   it("PostsEdit bannedUserIds should succeed if user in trustLevel1, owns post and has moderationGuidelines set on the post", async () => {
     const user = await createDummyUser({moderationStyle:"easy-going", groups:["trustLevel1"]})
@@ -371,7 +371,7 @@ describe('PostsEdit bannedUserIds permissions --', async ()=> {
     await response.should.be.rejected;
     assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   })
-})
+})*/
 
 describe('UsersEdit bannedUserIds permissions --', async ()=> {
   let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);

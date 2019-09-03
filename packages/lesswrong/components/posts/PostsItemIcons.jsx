@@ -15,6 +15,7 @@ const styles = theme => ({
   iconSet: {
     marginLeft: theme.spacing.unit,
     marginRight: theme.spacing.unit,
+    lineHeight: "1.0rem",
   },
   postIcon: {
     marginRight: 4,

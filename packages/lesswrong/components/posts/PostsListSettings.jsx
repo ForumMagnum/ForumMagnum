@@ -126,10 +126,13 @@ const styles = theme => ({
     },
   },
   selected: {
-    color: theme.palette.grey[900],
-    '&:hover': {
+    // Increase specifity to remove import-order conflict with MetaInfo
+    '&&': {
       color: theme.palette.grey[900],
-    },
+      '&:hover': {
+        color: theme.palette.grey[900],
+      },
+    }
   },
   checkbox: {
     padding: "1px 12px 0 0"
