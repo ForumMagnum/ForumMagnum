@@ -66,7 +66,7 @@ const styles = theme => ({
   },
   indicator: {
     position: "absolute",
-    top: -1,
+    bottom: 6,
     width: 20,
     fontSize: 8,
     display: "inline-block",
