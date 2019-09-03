@@ -127,18 +127,18 @@ const RecentDiscussionThread = ({ post, comments, updateComment, currentUser, cl
     setShowHighlight(!showHighlight)
     handleMarkAsRead()
   }
-  const loadAll = (event, comment) => {
-    loadMore()
+  const loadAll = async (event, comment) => {
+    event.stopPropagation()
+    await loadMore()
     const topLevelCommentId = comment.topLevelCommentId || comment._id
-    const newComments = _.filter(results, (c) => c.topLevelCommentId === results)
-    console.log("newComments", comment, newComments)
-    setAllComments([...allComments, ...newComments])
+    const newComments = _.filter(results, (c) => c.topLevelCommentId === topLevelCommentId)
+    const newAllComments = _.uniqBy([...allComments, ...newComments], '_id')
+    setAllComments(newAllComments)
   }
 
   const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle } = Components
 
   const lastCommentId = comments && comments[0]?._id
-  console.log("allComments", allComments)
   const nestedComments = unflattenComments(allComments);
 
   const lastVisitedAt = markedAsVisitedAt || post.lastVisitedAt
