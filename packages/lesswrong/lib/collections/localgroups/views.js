@@ -9,7 +9,10 @@ Localgroups.addDefaultView(terms => {
     selector.types = {$in: [terms.filters]};
   }
   return {
-    selector
+    selector: {
+      ...selector, 
+      inactive: false
+    }
   };
 });
 
