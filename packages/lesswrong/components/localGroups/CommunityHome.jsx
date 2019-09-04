@@ -102,7 +102,9 @@ class CommunityHome extends Component {
               ? <Components.Loading />
               : <Components.LocalGroupsList
                   terms={groupsListTerms}
-                  showHeader={false} />
+                  showHeader={false} >
+                    <Link to={"/allGroups"}>Show All Groups</Link>
+                </Components.LocalGroupsList>
             }
           </SingleColumnSection>
           <SingleColumnSection>
