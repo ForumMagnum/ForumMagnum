@@ -16,6 +16,16 @@ Localgroups.addDefaultView(terms => {
   };
 });
 
+Localgroups.addView("userGroups", function (terms) {
+  return {
+    selector: {
+      organizerIds: terms.userId,
+      inactive: true
+    }
+  };
+});
+ensureIndex(Localgroups, { createdAt: -1 });
+
 Localgroups.addView("all", function (terms) {
   return {
     options: {sort: {createdAt: -1}}
