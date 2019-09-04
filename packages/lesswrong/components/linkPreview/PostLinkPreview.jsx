@@ -4,7 +4,7 @@ import { Posts } from '../../lib/collections/posts';
 import { Link } from 'react-router-dom';
 import { usePostBySlug, usePostByLegacyId } from '../posts/usePost.js';
 import withHover from '../common/withHover';
-import Popper from '@material-ui/core/Popper';
+import Card from '@material-ui/core/Card';
 import { withStyles } from '@material-ui/core/styles';
 
 const PostLinkPreview = ({href, targetLocation, innerHTML}) => {
@@ -56,10 +56,6 @@ const PostLinkPreviewLegacy = ({href, targetLocation, innerHTML}) => {
 registerComponent('PostLinkPreviewLegacy', PostLinkPreviewLegacy);
 
 const styles = theme => ({
-  popper: {
-    zIndex: 5,
-    position: "absolute"
-  },
   link: {
     position: "relative",
     marginRight: 12,
@@ -77,7 +73,7 @@ const styles = theme => ({
 })
 
 const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hover}) => {
-  const { PostsItemTooltip } = Components
+  const { PostsItemTooltip, LWPopper } = Components
   const linkElement = <span className={classes.linkElement}>
       <Link className={classes.link} to={href}>
         <span dangerouslySetInnerHTML={{__html: innerHTML}}></span>{}<span className={classes.indicator}>LW</span>
@@ -88,11 +84,34 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hove
   }
   return (
     <span>
-      <Popper open={hover} anchorEl={anchorEl} placement="bottom" className={classes.popper}>
+      <LWPopper open={hover} anchorEl={anchorEl} placement="bottom">
         <PostsItemTooltip post={post} showAllinfo wide truncateLimit={900}/>
-      </Popper>
+      </LWPopper>
       {linkElement}
     </span>
   );
 }
 registerComponent('PostLinkPreviewWithPost', PostLinkPreviewWithPost, withHover, withStyles(styles, {name:"PostLinkPreviewWithPost"}));
+
+const offsiteStyles = theme => ({
+  hovercard: {
+    padding: theme.spacing.unit,
+  },
+})
+
+const OffsitePreviewWithPost = ({classes, href, innerHTML, anchorEl, hover}) => {
+  const { LWPopper } = Components
+  return (
+    <span>
+      <LWPopper open={hover} anchorEl={anchorEl} placement="bottom">
+        <Card>
+          <div className={classes.hovercard}>
+            {href}
+          </div>
+        </Card>
+      </LWPopper>
+      <a to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
+    </span>
+  );
+}
+registerComponent('OffsitePreviewWithPost', OffsitePreviewWithPost, withHover, withStyles(offsiteStyles, {name:"OffsitePreviewWithPost"}));

@@ -13,6 +13,8 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
+import Popper from '@material-ui/core/Popper';
+import withHover from "../common/withHover";
 
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
@@ -293,9 +295,9 @@ class PostsItem2 extends PureComponent {
   render() {
     const { classes, post, sequenceId, chapter, currentUser, index, terms, resumeReading,
       showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true,
-      defaultToShowUnreadComments=false, dismissRecommendation, isRead, dense } = this.props
+      defaultToShowUnreadComments=false, dismissRecommendation, isRead, dense, hover, anchorEl } = this.props
     const { showComments } = this.state
-    const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
+    const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltip, LWPopper } = Components
 
     const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -313,6 +315,18 @@ class PostsItem2 extends PureComponent {
 
     return (
       <div className={classes.root} ref={this.postsItemRef}>
+        <LWPopper
+          open={hover}
+          anchorEl={anchorEl}
+          placement="left-start"
+          modifiers={{
+            flip: {
+              behavior: "counterclockwise"
+            },
+          }}
+        >
+          <PostsItemTooltip post={post} />
+        </LWPopper>
         <div className={classNames(
           classes.background,
           {
@@ -426,4 +440,5 @@ registerComponent(
   withUser,
   withRecordPostView,
   withErrorBoundary,
+  withHover
 );
