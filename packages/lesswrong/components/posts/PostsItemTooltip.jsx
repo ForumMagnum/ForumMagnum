@@ -64,19 +64,7 @@ const styles = theme => ({
     },
     '& hr': {
       display: "none"
-    },
-    // '& a': {
-    //   // hide link-styling because it's infuriating that you can't actually click on them
-    //   color: "unset",
-    //   textDecorationColor: "none",
-    //   textShadow: "none",
-    //   backgroundImage: "none",
-    //   underline: "none",
-    //   '&:hover': {
-    //     color: "unset",
-    //     opacity: "unset"
-    //   }
-    // },
+    }
   },
   commentIcon: {
     height: 15,
