@@ -1,5 +1,5 @@
-import { Components, registerComponent, withMessages, withDocument, useSingle, useUpdate } from 'meteor/vulcan:core';
-import React, { Component } from 'react';
+import { Components, registerComponent, withMessages, useSingle } from 'meteor/vulcan:core';
+import React from 'react';
 import { Localgroups } from '../../lib/index.js';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { withLocation } from '../../lib/routeUtil';
