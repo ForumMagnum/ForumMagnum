@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent, parseRoute, Utils } from 'meteor/vulcan:core';
 import { Link } from 'react-router-dom';
 import { hostIsOnsite, useLocation, getUrlClass } from '../../lib/routeUtil';
+import 'whatwg-fetch'
 
 // From react-router-v4
 // https://github.com/ReactTraining/history/blob/master/modules/PathUtils.js
@@ -32,7 +33,7 @@ var parsePath = function parsePath(path) {
 const HoverPreviewLink = ({ innerHTML, href}) => {
   const URLClass = getUrlClass()
   const location = useLocation();
-  
+
   // Invalid link with no href? Don't transform it.
   if (!href) {
     return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
@@ -60,6 +61,8 @@ const HoverPreviewLink = ({ innerHTML, href}) => {
           return <Link to={onsiteUrl} dangerouslySetInnerHTML={{__html: innerHTML}} />
         }
       }
+    } else {
+      return <Components.OffsitePreviewWithPost href={href} innerHTML={innerHTML}/>
     }
     return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
   } catch (err) {

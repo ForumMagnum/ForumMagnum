@@ -63,6 +63,7 @@ importComponent("HoverOver", () => require('../components/common/HoverOver.jsx')
 importComponent("ErrorBoundary", () => require('../components/common/ErrorBoundary.jsx'));
 importComponent("CloudinaryImage", () => require('../components/common/CloudinaryImage.jsx'));
 importComponent("ContentItemBody", () => require('../components/common/ContentItemBody.jsx'));
+importComponent("LWPopper", () => require('../components/common/LWPopper.jsx'));
 importComponent("Footer", () => require('../components/common/Footer.jsx'));
 importComponent("LoadMore", () => require('../components/common/LoadMore.jsx'));
 importComponent("ReCaptcha", () => require('../components/common/ReCaptcha.jsx'));
@@ -86,7 +87,7 @@ importComponent("SubscribeWidget", () => require('../components/common/Subscribe
 importComponent("SubscribeDialog", () => require('../components/common/SubscribeDialog.jsx'));
 
 importComponent("HoverPreviewLink", () => require('../components/linkPreview/HoverPreviewLink.jsx'));
-importComponent(["PostLinkPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "PostLinkPreviewWithPost"], () => require('../components/linkPreview/PostLinkPreview.jsx'));
+importComponent(["PostLinkPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "PostLinkPreviewWithPost", "OffsitePreviewWithPost"], () => require('../components/linkPreview/PostLinkPreview.jsx'));
 
 importComponent("AccountsVerifyEmail", () => require('../components/users/AccountsVerifyEmail.jsx'));
 importComponent("AccountsEnrollAccount", () => require('../components/users/EnrollAccount.jsx'));
