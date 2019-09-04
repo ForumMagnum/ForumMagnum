@@ -52,16 +52,18 @@ const styles = theme => ({
 
 const LocalGroupPage = ({ classes, documentId: groupId, currentUser }) => {
   const { CommunityMapWrapper, SingleColumnSection, SectionTitle, GroupLinks, PostsList2, Loading,
-    SectionButton, SubscribeTo, SectionFooter, GroupFormLink, ContentItemBody } = Components
+    SectionButton, SubscribeTo, SectionFooter, GroupFormLink, ContentItemBody, Error404 } = Components
 
-  const { document: group } = useSingle({
+  const { document: group, loading } = useSingle({
     collection: Localgroups,
     queryName: 'LocalGroupPageQuery',
     fragmentName: 'localGroupsHomeFragment',
     documentId: groupId
   })
 
-  if (!group) return <Loading />
+  if (loading) return <Loading />
+  if (!group && !loading) return <Error404 />
+  
   const { html = ""} = group.contents || {}
   const htmlBody = {__html: html}
 
