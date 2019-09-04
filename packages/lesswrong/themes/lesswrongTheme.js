@@ -47,6 +47,8 @@ const palette = {
   }
 }
 
+const body2FontSize = "1.16rem"
+
 const theme = createLWTheme({
   palette: palette,
   typography: {
@@ -113,7 +115,11 @@ const theme = createLWTheme({
         paddingTop: 8,
         paddingBottom: 8
       }
+    },
+    MuiFormControlLabel: {
+      fontSize: body2FontSize
     }
+
   }
 });
 

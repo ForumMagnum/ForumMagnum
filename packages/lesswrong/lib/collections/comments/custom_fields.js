@@ -204,6 +204,20 @@ addFieldsDict(Comments, {
     canUpdate: ['admins'],
     ...schemaDefaultValue(false),
   },
+
+  // Used with the 'convert comment to post' feature"
+  convertedToPostId: {
+    ...foreignKeyField({
+      idFieldName: "convertedToPostId",
+      resolverName: "convertedToPost",
+      collectionName: "Posts",
+      type: "Post",
+    }),
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+  },
 });
 
 export const makeEditableOptions = {

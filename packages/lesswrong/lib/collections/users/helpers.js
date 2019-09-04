@@ -81,6 +81,15 @@ Users.canCommentLock = (user, post) => {
   )
 }
 
+Users.canMoveChildComments = (user, comment) => {
+  if (Users.canDo(user, 'comments.moveConvertedCommentChildren.all')) {
+    return true
+  }
+  if ((Users.owns(user, comment) && comment.shortform && !comment.topLevelCommentId)) {
+    return true
+  }
+}
+
 Users.userIsBannedFromPost = (user, post) => {
   if (!post) return false;
   const postAuthor = post.user || Users.findOne(post.userId)

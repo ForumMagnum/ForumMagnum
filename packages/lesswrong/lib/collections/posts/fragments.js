@@ -77,6 +77,18 @@ registerFragment(`
     moderationStyle
     submitToFrontpage
     shortform
+    convertedFromCommentId
+    moveCommentsFromConvertedComment
+    convertedFromComment {
+      _id
+      shortform
+      topLevelCommentId
+      post {
+        _id
+        slug
+        title
+      }
+    }
     canonicalSource
   }
 `);
