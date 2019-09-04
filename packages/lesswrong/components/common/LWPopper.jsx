@@ -23,7 +23,6 @@ const styles = theme => ({
 
 // this is a thin wrapper over MuiPopper so that we can set the zIndex however we want
 const LWPopper = ({classes, children, tooltip=false, ...props}) => {
-  console.log("qwer", props.modifiers)
   return (
     <Popper className={classNames(classes.popper, {[classes.tooltip]:tooltip})} {...props}>
       <span>{ children }</span>
