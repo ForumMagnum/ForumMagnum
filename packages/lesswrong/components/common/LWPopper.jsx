@@ -9,13 +9,14 @@ const styles = theme => ({
     zIndex: theme.zIndexes.lwPopper
   },
   tooltip: {
-    backgroundColor: theme.palette.grey[800],
+    backgroundColor: "rgba(75,75,75,.85)",
     borderRadius: 3,
     ...theme.typography.commentStyle,
     ...theme.typography.body2,
     fontSize: "1rem",
     padding: theme.spacing.unit,
     color: "white",
+    position: "relative",
     zIndex: theme.zIndexes.lwPopperTooltip,
   }
 })
