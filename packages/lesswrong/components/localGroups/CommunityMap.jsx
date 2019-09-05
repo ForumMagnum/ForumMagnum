@@ -19,7 +19,7 @@ const styles = theme => ({
     width: mapsWidth,
     height: mapsHeight,
     // We give this a negative margin to make sure that the map is flush with the top
-    marginTop: -64,
+    marginTop: -50,
     [theme.breakpoints.down('sm')]: {
       marginTop: 0,
       marginLeft: -8
