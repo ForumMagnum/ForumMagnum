@@ -22,7 +22,7 @@ const styles = theme => ({
     '& img': {
       maxHeight: "200px"
     },
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('lg')]: {
       display: "none"
     },
   },

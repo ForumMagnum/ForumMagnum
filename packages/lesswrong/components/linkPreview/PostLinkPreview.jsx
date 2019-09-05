@@ -96,6 +96,12 @@ registerComponent('PostLinkPreviewWithPost', PostLinkPreviewWithPost, withHover,
 const offsiteStyles = theme => ({
   hovercard: {
     padding: theme.spacing.unit,
+    paddingLeft: theme.spacing.unit*1.5,
+    paddingRight: theme.spacing.unit*1.5,
+    ...theme.typography.body2,
+    fontSize: "1.1rem",
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[600]
   },
 })
 
