@@ -24,7 +24,7 @@ Localgroups.addView("userGroups", function (terms) {
     }
   };
 });
-ensureIndex(Localgroups, { createdAt: -1 });
+ensureIndex(Localgroups, { organizerIds: 1, inactive: 1 });
 
 Localgroups.addView("all", function (terms) {
   return {
@@ -53,7 +53,7 @@ Localgroups.addView("nearby", function (terms) {
     }
   };
 });
-ensureIndex(Localgroups, { mongoLocation: "2dsphere" });
+ensureIndex(Localgroups, { mongoLocation: "2dsphere", inactive: 1 });
 
 Localgroups.addView("single", function (terms) {
   return {
