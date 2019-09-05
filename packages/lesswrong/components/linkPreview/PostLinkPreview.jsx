@@ -66,7 +66,7 @@ const styles = theme => ({
   },
   indicator: {
     position: "absolute",
-    top: -1,
+    bottom: 6,
     width: 20,
     fontSize: 8,
     display: "inline-block",
@@ -80,7 +80,7 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hove
   const { PostsItemTooltip } = Components
   const linkElement = <span className={classes.linkElement}>
       <Link className={classes.link} to={href}>
-        {innerHTML}<span className={classes.indicator}>LW</span>
+        <span dangerouslySetInnerHTML={{__html: innerHTML}}></span>{}<span className={classes.indicator}>LW</span>
       </Link>
     </span>
   if (!post) {

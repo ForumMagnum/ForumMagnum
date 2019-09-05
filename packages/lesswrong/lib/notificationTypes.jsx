@@ -206,4 +206,18 @@ export const EmailVerificationRequiredNotification = registerNotificationType({
   },
 });
 
+export const PostSharedWithUserNotification = registerNotificationType({
+  name: "postSharedWithUser",
+  getMessage({documentType, documentId}) {
+    let document = getDocument(documentType, documentId);
+    return `You have been shared on the ${document.draft ? "draft" : "post"} ${document.title}`;
+  },
+  getIcon() {
+    return <AllIcon style={iconStyles} />
+  },
+  getUserSettings(user) {
+    // TODO
+  },
+});
+
 

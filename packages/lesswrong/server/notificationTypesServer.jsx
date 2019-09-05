@@ -138,3 +138,17 @@ export const EmailVerificationRequiredNotification = serverRegisterNotificationT
     throw new Error("emailVerificationRequired notification should never be emailed");
   },
 });
+
+export const PostSharedWithUserNotification = serverRegisterNotificationType({
+  name: "postSharedWithUser",
+  canCombineEmails: false,
+  emailSubject: ({ user, notifications }) => {
+    let document = getDocument(documentType, documentId);
+    return `You have been shared on the ${document.draft ? "draft" : "post"} ${document.title}`;
+  },
+  emailBody: ({ user, notifications }) => {
+    let document = getDocument(documentType, documentId);
+    // TODO: Proper template, link etc
+    return `You have been shared on the ${document.draft ? "draft" : "post"} ${document.title}`;
+  },
+});

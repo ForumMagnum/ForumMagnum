@@ -9,8 +9,14 @@ Test if a document is matched by a given selector
 
 */
 export const belongsToSet = (document, selector) => {
-  const mingoQuery = new Mingo.Query(selector);
-  return mingoQuery.test(document);
+  try {
+    const mingoQuery = new Mingo.Query(selector);
+    return mingoQuery.test(document);
+  } catch(err) {
+    // eslint-disable-next-line no-console
+    console.error(err)
+    return false
+  }  
 };
 
 /*
@@ -53,10 +59,16 @@ Reorder results according to a sort
 
 */
 export const reorderSet = (queryData, sort, selector) => {
-  const mingoQuery = new Mingo.Query(selector);
-  const cursor = mingoQuery.find(queryData.results);
-  queryData.results = cursor.sort(sort).all();
-  return queryData;
+  try {
+    const mingoQuery = new Mingo.Query(selector);
+    const cursor = mingoQuery.find(queryData.results);
+    queryData.results = cursor.sort(sort).all();
+    return queryData;  
+  } catch(err) {
+    // eslint-disable-next-line no-console
+    console.error(err)
+    return queryData
+  }
 };
 
 /*
