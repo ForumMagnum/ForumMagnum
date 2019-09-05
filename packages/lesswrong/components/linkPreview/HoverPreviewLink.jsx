@@ -49,7 +49,7 @@ const HoverPreviewLink = ({ innerHTML, href}) => {
     
     if (hostIsOnsite(linkTargetAbsolute.host) || Meteor.isServer) {
       const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
-      const parsedUrl = parseRoute(parsePath(linkTargetAbsolute.pathname));
+      const parsedUrl = parseRoute(parsePath(onsiteUrl));
       
       if (parsedUrl?.currentRoute) {
         const PreviewComponent = parsedUrl.currentRoute?.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;
@@ -57,11 +57,11 @@ const HoverPreviewLink = ({ innerHTML, href}) => {
         if (PreviewComponent) {
           return <PreviewComponent href={onsiteUrl} targetLocation={parsedUrl} innerHTML={innerHTML}/>
         } else {
-          return <Link to={onsiteUrl} dangerouslySetInnerHTML={{__html: innerHTML}} />
+          return <Components.DefaultPreview href={href} innerHTML={innerHTML} onSite/>
         }
       }
     } else {
-      return <Components.OffsitePreviewWithPost href={href} innerHTML={innerHTML}/>
+      return <Components.DefaultPreview href={href} innerHTML={innerHTML}/>
     }
     return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
   } catch (err) {

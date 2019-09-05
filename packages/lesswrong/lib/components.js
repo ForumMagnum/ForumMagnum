@@ -87,7 +87,7 @@ importComponent("SubscribeWidget", () => require('../components/common/Subscribe
 importComponent("SubscribeDialog", () => require('../components/common/SubscribeDialog.jsx'));
 
 importComponent("HoverPreviewLink", () => require('../components/linkPreview/HoverPreviewLink.jsx'));
-importComponent(["PostLinkPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "PostLinkPreviewWithPost", "OffsitePreviewWithPost"], () => require('../components/linkPreview/PostLinkPreview.jsx'));
+importComponent(["PostLinkPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "PostLinkPreviewWithPost", "DefaultPreview"], () => require('../components/linkPreview/PostLinkPreview.jsx'));
 
 importComponent("AccountsVerifyEmail", () => require('../components/users/AccountsVerifyEmail.jsx'));
 importComponent("AccountsEnrollAccount", () => require('../components/users/EnrollAccount.jsx'));
