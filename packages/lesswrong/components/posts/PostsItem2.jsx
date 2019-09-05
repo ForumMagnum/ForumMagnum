@@ -321,7 +321,7 @@ class PostsItem2 extends PureComponent {
           placement="left-start"
           modifiers={{
             flip: {
-              behavior: ["left", "bottom-end"]
+              behavior: ["left", "bottom"]
             },
             preventOverflow: {
               boundariesElement: 'viewport',
