@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components, registerComponent, useSingle } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
+import { Comments } from '../../lib/collections/comments';
 import { Link } from 'react-router-dom';
 import { usePostBySlug, usePostByLegacyId } from '../posts/usePost.js';
 import withHover from '../common/withHover';
@@ -9,7 +10,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 const PostLinkPreview = ({href, targetLocation, innerHTML}) => {
   const postID = targetLocation.params._id;
-  
+
   const { document: post, error } = useSingle({
     collection: Posts,
     queryName: "postLinkPreview",
@@ -101,7 +102,7 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hove
 }
 registerComponent('PostLinkPreviewWithPost', PostLinkPreviewWithPost, withHover, withStyles(styles, {name:"PostLinkPreviewWithPost"}));
 
-const offsiteStyles = theme => ({
+const defaultPreviewStyles = theme => ({
   hovercard: {
     padding: theme.spacing.unit,
     paddingLeft: theme.spacing.unit*1.5,
@@ -113,7 +114,7 @@ const offsiteStyles = theme => ({
   },
 })
 
-const OffsitePreviewWithPost = ({classes, href, innerHTML, anchorEl, hover}) => {
+const DefaultPreview = ({classes, href, innerHTML, anchorEl, hover, onsite=false}) => {
   const { LWPopper } = Components
   return (
     <span>
@@ -124,8 +125,12 @@ const OffsitePreviewWithPost = ({classes, href, innerHTML, anchorEl, hover}) => 
           </div>
         </Card>
       </LWPopper>
-      <a to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
+
+      {onsite ?
+        <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} /> 
+        :
+        <a to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />}
     </span>
   );
 }
-registerComponent('OffsitePreviewWithPost', OffsitePreviewWithPost, withHover, withStyles(offsiteStyles, {name:"OffsitePreviewWithPost"}));
+registerComponent('DefaultPreview', DefaultPreview, withHover, withStyles(defaultPreviewStyles, {name:"DefaultPreview"}));
