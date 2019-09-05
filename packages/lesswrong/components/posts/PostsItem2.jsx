@@ -323,6 +323,11 @@ class PostsItem2 extends PureComponent {
           anchorEl={anchorEl}
           onMouseEnter={stopHover}
           placement="left-start"
+          modifiers={{
+            flip: {
+              enabled: false
+            }
+          }}
         >
           <PostsItemTooltip post={post} />
         </LWPopper>

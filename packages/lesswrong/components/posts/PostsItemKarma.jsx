@@ -8,7 +8,7 @@ const PostsItemKarma = ({post, hover, anchorEl}) => {
   const { LWPopper } = Components
   return (
     <span>
-      <LWPopper open={hover} anchorEl={anchorEl} tooltip placement="bottom-start">
+      <LWPopper open={hover} anchorEl={anchorEl} tooltip placement="top-start">
         <div>
           <div>
             This post has { baseScore || 0 } karma ({ post.voteCount} votes)

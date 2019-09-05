@@ -11,7 +11,7 @@ import Card from '@material-ui/core/Card';
 
 const styles = theme => ({
   root: {
-    width: 305,
+    width: 290,
     position: "relative",
     [theme.breakpoints.up('sm')]: {
       marginTop: theme.spacing.unit,
@@ -19,10 +19,12 @@ const styles = theme => ({
     },
     ...postHighlightStyles(theme),
     padding: theme.spacing.unit*1.5,
+    paddingTop: theme.spacing.unit,
+    paddingBottom: theme.spacing.unit,
     '& img': {
       maxHeight: "200px"
     },
-    [theme.breakpoints.down('lg')]: {
+    [theme.breakpoints.down('md')]: {
       display: "none"
     },
   },
