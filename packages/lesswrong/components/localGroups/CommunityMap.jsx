@@ -35,7 +35,7 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
   const { query } = useLocation()
   const groupQueryTerms = groupTerms || {view: "all", filters: query?.filters || []}
   const [ openWindows, setOpenWindows ] = useState(initialOpenWindows)
-  const handleClick = (id) => { setOpenWindows([...openWindows, id]) }
+  const handleClick = (id) => { setOpenWindows([id]) }
   const handleClose = (id) => { setOpenWindows(_.without(openWindows, id))}
 
   const { results: events = [] } = useMulti({
