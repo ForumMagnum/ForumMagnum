@@ -16,7 +16,7 @@ Localgroups.addDefaultView(terms => {
   };
 });
 
-Localgroups.addView("userGroups", function (terms) {
+Localgroups.addView("userInactiveGroups", function (terms) {
   return {
     selector: {
       organizerIds: terms.userId,
