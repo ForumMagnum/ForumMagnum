@@ -1,12 +1,11 @@
 import Users from "meteor/vulcan:users";
 import { getSetting, Utils } from "meteor/vulcan:core"
-import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, denormalizedField } from '../../modules/utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
-import { addUniversalFields } from '../../collectionUtils'
+import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 import SimpleSchema from 'simpl-schema'
-import { schemaDefaultValue } from '../../collectionUtils';
 
-
+export const MAX_NOTIFICATION_RADIUS = 300
 export const formGroups = {
   moderationGroup: {
     order:60,
@@ -34,6 +33,12 @@ export const formGroups = {
     order: 25,
     label: "Admin Options",
     startCollapsed: true,
+  },
+  truncationOptions: {
+    name: "truncationOptions",
+    order: 9,
+    label: "Comment Truncation Options",
+    startCollapsed: false,
   },
 }
 
@@ -215,7 +220,23 @@ addFieldsDict(Users, {
     order: 20,
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
   },
+  hideNavigationSidebar: {
+    type: Boolean,
+    optional: true,
+    canRead: Users.owns,
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: Users.owns,
+    hidden: true,
+  },
   currentFrontpageFilter: {
+    type: String,
+    optional: true,
+    canRead: Users.owns,
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: Users.owns,
+    hidden: true,
+  },
+  allPostsTimeframe: {
     type: String,
     optional: true,
     canRead: Users.owns,
@@ -230,15 +251,6 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: Users.owns,
     hidden: true,
-  },
-  // TODO: After initial deploy, remove allPostsView here and in fragments
-  allPostsView: {
-    type: String,
-    optional: true,
-    hidden: true,
-    canRead: Users.owns,
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    canCreate: Users.owns,
   },
   allPostsSorting: {
     type: String,
@@ -632,7 +644,8 @@ addFieldsDict(Users, {
     label: "Group Location",
     control: 'LocationFormComponent',
     blackbox: true,
-    optional: true
+    optional: true,
+    order: 42,
   },
 
   location: {
@@ -641,6 +654,90 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
+    hidden: true,
+    optional: true
+  },
+
+  mapLocation: {
+    type: Object,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    label: "Your location on the community map",
+    control: 'LocationFormComponent',
+    blackbox: true,
+    optional: true,
+    order: 43,
+  },
+
+  mapLocationSet: {
+    type: Boolean, 
+    canRead: ['guests'],
+    ...denormalizedField({
+      needsUpdate: data => ('mapLocation' in data),
+      getValue: async (user) => {
+        return !!user.mapLocation
+      }
+    }),
+  },
+
+  mapMarkerText: {
+    type: String,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    label: "Your text on the community map",
+    control: "MuiTextField",
+    optional: true,
+    order: 44
+  },
+
+  htmlMapMarkerText: {
+    type: String,
+    canRead: ['guests'],
+    optional: true, 
+    denormalized: true
+  },
+
+  nearbyEventsNotifications: {
+    type: Boolean,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    optional: true,
+    ...schemaDefaultValue(false),
+  },
+
+  nearbyEventsNotificationsLocation: {
+    type: Object,
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    control: 'LocationFormComponent',
+    blackbox: true,
+    optional: true,
+  },
+
+  nearbyEventsNotificationsRadius: {
+    type: Number,
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    optional: true,
+    min: 0,
+    max: MAX_NOTIFICATION_RADIUS
+  },
+
+  nearbyPeopleNotificationThreshold: {
+    type: Number,
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     hidden: true,
     optional: true
   },
@@ -666,7 +763,7 @@ addFieldsDict(Users, {
     canRead: [Users.owns, 'sunshineRegiment', 'admins'],
     resolver: (user, args, context) => !!user.reviewedByUserId,
   }),
-  
+
   // A number from 0 to 1, where 0 is almost certainly spam, and 1 is almost
   // certainly not-spam. This is the same scale as ReCaptcha, except that it
   // also includes post-signup activity like moderator approval, upvotes, etc.
@@ -682,7 +779,7 @@ addFieldsDict(Users, {
     resolver: (user, args, context) => {
       const isReviewed = !!user.reviewedByUserId;
       const { karma, signUpReCaptchaRating } = user;
-      
+
       if (user.deleteContent && user.banned) return 0.0;
       else if (Users.isAdmin(user)) return 1.0;
       else if (isReviewed && karma>=20) return 1.0;
@@ -767,31 +864,47 @@ addFieldsDict(Users, {
     optional: true,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment'],
-    hidden: !['LessWrong', 'AlignmentForum'].includes(getSetting('forumType'))
+    hidden: !['LessWrong', 'AlignmentForum'].includes(getSetting('forumType')),
+    order: 39,
+  },
+
+  noSingleLineComments: {
+    order: 70,
+    type: Boolean,
+    optional: true,
+    group: formGroups.truncationOptions,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    control: 'checkbox',
+    label: "Do not collapse comments to Single Line"
   },
 
   noCollapseCommentsPosts: {
     order: 70,
     type: Boolean,
     optional: true,
+    group: formGroups.truncationOptions,
     defaultValue: false,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     control: 'checkbox',
-    label: "Do not collapse comments (in large threads on Post Pages)"
+    label: "Do not truncate comments (in large threads on Post Pages)"
   },
 
   noCollapseCommentsFrontpage: {
     order: 70,
     type: Boolean,
     optional: true,
+    group: formGroups.truncationOptions,
     defaultValue: false,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     control: 'checkbox',
-    label: "Do not collapse comments (on home page)"
+    label: "Do not truncate comments (on home page)"
   },
 
   shortformFeedId: {
@@ -827,16 +940,7 @@ addFieldsDict(Users, {
     group: formGroups.adminOptions,
     order: 0,
   },
-  // TODO: Remove this after april fools
-  blockedGPT2: {
-    type: Boolean,
-    optional: true,
-    canRead: ['guests'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    hidden: getSetting('forumType') !== 'LessWrong',
-    label: "Auto-collapse comments from GPT2"
-  },
-  
+
   partiallyReadSequences: {
     type: Array,
     canRead: [Users.owns],
@@ -848,7 +952,7 @@ addFieldsDict(Users, {
     type: partiallyReadSequenceItem,
     optional: true,
   },
-  
+
   beta: {
     type: Boolean,
     optional: true,
@@ -856,6 +960,14 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     tooltip: "Get early access to new in-development features",
     label: "Opt into experimental features"
+  },
+  defaultToCKEditor: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    group: formGroups.adminOptions,
+    label: "Activate CKEditor by default"
   },
   // ReCaptcha v3 Integration
   // From 0 to 1. Lower is spammier, higher is humaner.
@@ -919,8 +1031,7 @@ export const makeEditableOptionsModeration = {
     viewableBy: ['guests'],
     editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
     insertableBy: [Users.owns, 'sunshineRegiment', 'admins']
-  },
-  deactivateNewCallback: true, // Fix to avoid triggering the editable operations on incomplete users during creation
+  }
 }
 
 makeEditable({

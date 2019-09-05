@@ -5,19 +5,22 @@ The Navigation for the Inbox components
 */
 
 import React from 'react';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { Components, registerComponent, withList, withUpdate } from 'meteor/vulcan:core';
 import Conversations from '../../lib/collections/conversations/collection.js';
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
+import qs from 'qs'
 
-const InboxNavigation = ({results, loading, updateConversation, location, router}) => {
+const InboxNavigation = ({results, loading, updateConversation}) => {
+  const location = useLocation();
+  const { query } = location;
+  const { history } = useNavigation();
+  
   const { SectionTitle, SingleColumnSection, ConversationItem, Loading, SectionFooter, SectionFooterCheckbox } = Components
-  if (loading) return <Loading />
-
-  const showArchive = location?.query?.showArchive === "true"
+  const showArchive = query?.showArchive === "true"
   const checkboxClick = () => {
-    router.push({...location, query: {showArchive: !showArchive}})
+    history.push({...location, search: `?${qs.stringify({showArchive: !showArchive})}`})
   }
 
   return (
@@ -25,7 +28,7 @@ const InboxNavigation = ({results, loading, updateConversation, location, router
         <SectionTitle title="Your Conversations"/>
         {results?.length ?
           results.map(conversation => <ConversationItem key={conversation._id} conversation={conversation} updateConversation={updateConversation} />) :
-          <Typography variant="body2">You are all done! You have no more open conversations. Go and be free.</Typography>
+          loading ? <Loading /> : <Typography variant="body2">You are all done! You have no more open conversations. Go and be free.</Typography>
         }
         <SectionFooter>
           <SectionFooterCheckbox
@@ -42,8 +45,8 @@ const conversationOptions = {
   collection: Conversations,
   queryName: 'conversationsListQuery',
   fragmentName: 'conversationsListFragment',
+  fetchPolicy: 'cache-and-network',
   limit: 200,
-  enableTotal: false,
 };
 
 const withUpdateOptions = {
@@ -52,4 +55,4 @@ const withUpdateOptions = {
 };
 
 registerComponent('InboxNavigation', InboxNavigation, [withList, conversationOptions],
-  withUser, withRouter,[withUpdate, withUpdateOptions]);
+  withUser, [withUpdate, withUpdateOptions]);

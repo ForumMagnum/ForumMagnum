@@ -1,6 +1,6 @@
 import { getSetting } from 'meteor/vulcan:core'
 import { viewFieldNullOrMissing } from 'meteor/vulcan:lib';
-import { Comments } from './index';
+import { Comments } from './collection.js';
 import moment from 'moment';
 import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionUtils';
 
@@ -258,11 +258,43 @@ ensureIndex(Comments, {topLevelCommentId:1});
 // Used in findCommentByLegacyAFId
 ensureIndex(Comments, {agentFoundationsId:1});
 
+Comments.addView('topShortform', function (terms) {
+  const timeRange = ((terms.before || terms.after)
+    ? { postedAt: {
+      ...(terms.before && {$lt: new Date(terms.before)}),
+      ...(terms.after && {$gte: new Date(terms.after)})
+    } }
+    : null
+  );
+  
+  return {
+    selector: {
+      shortform: true,
+      parentCommentId: viewFieldNullOrMissing,
+      ...timeRange
+    },
+    options: {sort: {baseScore: -1, postedAt: -1}}
+  };
+});
+
 Comments.addView('shortform', function (terms) {
   return {
-    selector: { shortform: true, parentCommentId: { $exists: false } },
+    selector: {
+      shortform: true,
+      deleted: false,
+      parentCommentId: viewFieldNullOrMissing,
+    },
     options: {sort: {lastSubthreadActivity: -1, postedAt: -1}}
   };
+});
+
+Comments.addView('repliesToCommentThread', function (terms) {
+  return {
+    selector: {
+      topLevelCommentId: terms.topLevelCommentId
+    },
+    options: {sort: {baseScore: -1}}
+  }
 });
 
 // Will be used for experimental shortform display on AllPosts page
@@ -271,7 +303,7 @@ ensureIndex(Comments, {shortform:1, topLevelCommentId: 1, lastSubthreadActivity:
 Comments.addView('shortformLatestChildren', function (terms) {
   return {
     selector: { topLevelCommentId: terms.comment._id} ,
-    options: {sort: {postedAt: -1}, limit: 3}
+    options: {sort: {postedAt: -1}, limit: 500}
   };
 });
 

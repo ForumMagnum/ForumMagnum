@@ -54,6 +54,7 @@ registerFragment(`
         slug
         title
         lastVisitedAt
+        isRead
         excerpt
         baseScore
         score

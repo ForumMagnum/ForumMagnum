@@ -8,6 +8,7 @@ import './server/rss-integration/callbacks.js';
 import './server/database-import/force_batch_update_scores.js';
 import './server/database-import/cleanup_scripts.js';
 import './server/robots.js';
+import './server/ckEditorToken';
 
 // Scripts
 import './server/scripts/sscImport.js';
@@ -15,7 +16,6 @@ import './server/scripts/hpmorImport.js';
 import './server/scripts/algoliaExport.js';
 import './server/scripts/algoliaConfigureIndexes.js';
 import './server/scripts/brokenLinksReport.js';
-import './server/scripts/exportForAprilFoolsTraining.js';
 import './server/scripts/fixBodyField.js';
 import './server/scripts/fixKarmaField.js';
 import './server/scripts/fixEmailField.js';
@@ -52,6 +52,7 @@ import './server/posts/index.js';
 
 import './server/debouncer.js';
 import './server/logging.js';
+import './server/markAsUnread.js';
 import './server/rss.js';
 import './server/akismet.js';
 import './server/votingCron.js';
@@ -87,6 +88,7 @@ import './lib/collections/posts/serverSchema.js';
 import './lib/collections/users/serverSchema.js';
 
 import './lib/events/server.js';
+import './lib/events/callbacks_async.js';
 import './lib/modules/connection_logs.js';
 
 

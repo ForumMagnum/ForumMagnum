@@ -3,11 +3,10 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { commentBodyStyles, postBodyStyles } from '../../themes/stylePiping'
 import withHover from '../common/withHover';
-import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
+import { Comments } from '../../lib/collections/comments'
 import { isMobile } from '../../lib/modules/utils/isMobile.js'
-import { commentExcerptFromHTML } from '../../lib/editor/ellipsize'
 
 const styles = theme => ({
   root: {
@@ -100,35 +99,43 @@ const styles = theme => ({
       backgroundColor: "#f3f3f3",
     }
   },
+  expandTip: {
+    textAlign: "right",
+    fontSize: "1rem",
+    color: theme.palette.lwTertiary.main
+  }
 })
 
-const SingleLineComment = ({comment, classes, nestingLevel, hover}) => {
-  const { voteCount, baseScore } = comment
-  const { BetaTag, CommentBody, ShowParentComment } = Components
-  
-  const singleLineHtml = commentExcerptFromHTML(comment)
+const SingleLineComment = ({comment, classes, nestingLevel, hover, parentCommentId}) => {
+  if (!comment) return null
+
+  const { plaintextMainText } = comment.contents
+  const { CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon } = Components
+
   const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile()
 
   return (
     <div className={classes.root}>
       <div className={classNames(classes.commentInfo, {[classes.isAnswer]: comment.answer, [classes.odd]:((nestingLevel%2) !== 0)})}>
-        <ShowParentComment comment={comment} nestingLevel={nestingLevel} />
-        <Tooltip title={`This comment has ${baseScore} karma (${voteCount} ${voteCount == 1 ? "Vote" : "Votes"})`} placement="bottom">
-          <span className={classes.karma}>
+        <CommentShortformIcon comment={comment} simple={true} />
 
-            {baseScore || 0}
-          </span>
-        </Tooltip>
+        { parentCommentId!=comment.parentCommentId &&
+          <ShowParentComment comment={comment} nestingLevel={nestingLevel} />
+        }
+        <span className={classes.karma}>
+          {Comments.getKarma(comment)}
+        </span>
         <span className={classes.username}>
-          {comment.answer && "Answer by "}{comment.user?.displayName || "[deleted]"}
+          <CommentUserName comment={comment} simple={true}/>
         </span>
         <span className={classes.date}>
-          <Components.FormatDate date={comment.postedAt}/>
+          <Components.FormatDate date={comment.postedAt} tooltip={false}/>
         </span>
-        {(comment.baseScore > -5) && <span className={classes.truncatedHighlight} dangerouslySetInnerHTML={{__html: singleLineHtml}} />}      </div>
+        {(comment.baseScore > -5) && <span className={classes.truncatedHighlight}> {plaintextMainText} </span>}      
+      </div>
       {displayHoverOver && <span className={classNames(classes.highlight)}>
         <CommentBody truncated comment={comment}/>
-        <BetaTag />
+        <div className={classes.expandTip}>[Click to expand all comments in this thread]</div>
       </span>}
     </div>
   )

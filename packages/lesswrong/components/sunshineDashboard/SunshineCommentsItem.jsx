@@ -1,4 +1,4 @@
-import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Comments } from '../../lib/collections/comments';
 import Users from 'meteor/vulcan:users';
@@ -24,7 +24,7 @@ const styles = theme => ({
         color: "rgba(0,0,0,.4) !important",
       },
     },
-  
+
     "&.clear, &.purge": {
       "&:hover .sunshine-sidebar-posts-item-delete-overlay": {
         background: "rgba(255,50,0,.2)",
@@ -42,26 +42,24 @@ const styles = theme => ({
 class SunshineCommentsItem extends Component {
 
   handleReview = () => {
-    const { currentUser, comment, editMutation } = this.props
-    editMutation({
-      documentId: comment._id,
-      set: {reviewedByUserId : currentUser._id},
-      unset: {}
+    const { currentUser, comment, updateComment } = this.props
+    updateComment({
+      selector: {_id: comment._id},
+      data: {reviewedByUserId : currentUser._id}
     })
   }
 
   handleDelete = () => {
-    const { currentUser, comment, editMutation } = this.props
+    const { currentUser, comment, updateComment } = this.props
     if (confirm("Are you sure you want to immediately delete this comment?")) {
-      editMutation({
-        documentId: comment._id,
+      updateComment({
+        selector: {_id: comment._id},
         set: {
           deleted: true,
           deletedDate: new Date(),
           deletedByUserId: currentUser._id,
           deletedReason: "spam"
-        },
-        unset: {}
+        }
       })
     }
   }
@@ -116,9 +114,9 @@ class SunshineCommentsItem extends Component {
   }
 }
 
-const withEditOptions = {
+const withUpdateOptions = {
   collection: Comments,
   fragmentName: 'SelectCommentsList',
 }
-registerComponent('SunshineCommentsItem', SunshineCommentsItem, [withEdit, withEditOptions], withUser, withErrorBoundary,
+registerComponent('SunshineCommentsItem', SunshineCommentsItem, [withUpdate, withUpdateOptions], withUser, withErrorBoundary,
   withStyles(styles, { name: "SunshineCommentsItem" }));

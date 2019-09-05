@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   lengthLimited: {
-    maxWidth: 300,
+    maxWidth: 310,
     textOverflow: "ellipsis",
     overflowX: "hidden",
     [theme.breakpoints.down('sm')]: {
@@ -17,14 +17,14 @@ const styles = theme => ({
   },
 });
 
-const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes}) => {
+const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=false}) => {
   if (!post.user || post.hideAuthor)
     return <Components.UserNameDeleted/>;
   
   return <div className={abbreviateIfLong ? classes.lengthLimited : classes.lengthUnlimited}>
-    {<Components.UsersName user={post.user} />}
+    {<Components.UsersName user={post.user} simple={simple} />}
     {post.coauthors.map(coauthor =>
-      <React.Fragment key={coauthor._id}>, <Components.UsersName user={coauthor} /></React.Fragment>)}
+      <React.Fragment key={coauthor._id}>, <Components.UsersName user={coauthor} simple={simple}  /></React.Fragment>)}
   </div>;
 };
 

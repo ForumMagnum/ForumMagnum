@@ -5,10 +5,10 @@ import { FormattedMessage, intlShape } from 'meteor/vulcan:i18n';
 import Users from 'meteor/vulcan:users';
 import Button from '@material-ui/core/Button';
 import { Accounts } from 'meteor/accounts-base';
-import { withRouter } from '../../lib/reactRouterWrapper.js'
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import { withApollo } from 'react-apollo'
+import { useNavigation } from '../../lib/routeUtil';
 
 import { withStyles } from '@material-ui/core/styles';
 
@@ -36,8 +36,8 @@ const styles = theme => ({
 })
 
 const UsersEditForm = (props) => {
-
   const { classes, terms, currentUser, client } = props
+  const { history } = useNavigation();
 
   if(!terms.slug && !terms.documentId) {
     // No user specified and not logged in
@@ -52,14 +52,35 @@ const UsersEditForm = (props) => {
     return <FormattedMessage id="app.noPermission"/>;
   }
 
+  // currentUser will not be the user being edited in the case where current
+  // user is an admin. This component does not have access to the user email at
+  // all in admin mode unfortunately. In the fullness of time we could fix that,
+  // currently we disable it below
+  const requestPasswordReset = () => Accounts.forgotPassword(
+    { email: props.currentUser.email },
+    (error) => props.flash({
+      messageString: error ?
+      error.reason :
+      // TODO: This doesn't seem to display
+      "Sent password reset email to " + props.currentUser.email
+    })
+  )
+
+  // Since there are two urls from which this component can be rendered, with different terms, we have to
+  // check both slug and documentId
+  const isCurrentUser = (props.terms.slug && props.terms.slug === props.currentUser.slug) || (props.terms.documentId && props.terms.documentId === props.currentUser._id)
+
   return (
     <div className={classes.root}>
       <Typography variant="display2" className={classes.header}><FormattedMessage id="users.edit_account"/></Typography>
-      <Button color="secondary" variant="outlined" className={classes.resetButton } onClick={() => Accounts.forgotPassword({ email: props.currentUser.email },
-          (error) => props.flash({ messageString: error ? error.reason : "Sent password reset email to " + props.currentUser.email }))
-        }>
+      {isCurrentUser && <Button
+        color="secondary"
+        variant="outlined"
+        className={classes.resetButton}
+        onClick={requestPasswordReset}
+      >
         Reset Password
-      </Button>
+      </Button>}
 
       <Components.WrappedSmartForm
         collection={Users}
@@ -67,10 +88,10 @@ const UsersEditForm = (props) => {
         successCallback={user => {
           props.flash({ id: 'users.edit_success', properties: {name: Users.getDisplayName(user)}, type: 'success'})
           client.resetStore()
-          props.router.push(Users.getProfileUrl(user));
+          history.push(Users.getProfileUrl(user));
         }}
         queryFragment={getFragment('UsersEdit')}
-        mutationFragment={getFragment('UsersProfile')}
+        mutationFragment={getFragment('UsersEdit')}
         showRemove={false}
       />
     </div>
@@ -86,9 +107,7 @@ UsersEditForm.contextTypes = {
   intl: intlShape
 };
 
-UsersEditForm.displayName = 'UsersEditForm';
-
 registerComponent('UsersEditForm', UsersEditForm,
-  withMessages, withUser, withApollo, withRouter,
+  withMessages, withUser, withApollo,
   withStyles(styles, { name: "UsersEditForm" })
 );

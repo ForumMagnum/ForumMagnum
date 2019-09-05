@@ -1,32 +1,40 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
-import moment from 'moment';
 import { withStyles } from '@material-ui/core/styles';
+import {getAfterDefault, getBeforeDefault} from './timeframeUtils'
+import withTimezone from '../common/withTimezone';
 
 const styles = theme => ({
   daily: {
     padding: theme.spacing.unit
   }
 })
-const EventsPast = ({ classes }) => {
-  const { SingleColumnSection, SectionTitle, PostsDailyList } = Components
-  const numberOfDays = getSetting('forum.numberOfDays', 5);
+const EventsPast = ({ timezone, classes }) => {
+  const { SingleColumnSection, SectionTitle, PostsTimeframeList } = Components
+  const numberOfDays = getSetting('forum.numberOfDays');
   const terms = {
     view: 'pastEvents',
     timeField: 'startTime',
-    after: moment().utc().subtract(numberOfDays - 1, 'days').format('YYYY-MM-DD'),
-    before: moment().utc().add(1, 'days').format('YYYY-MM-DD'),
   };
 
   return (
     <SingleColumnSection>
       <SectionTitle title="Past Events by Day"/>
       <div className={classes.daily}>
-        <PostsDailyList terms={terms} days={numberOfDays}/>
+        <PostsTimeframeList
+          timeframe={'daily'}
+          after={getAfterDefault({
+            numTimeBlocks: numberOfDays,
+            timeBlock: 'day',
+            timezone: timezone
+          })}
+          before={getBeforeDefault({timeBlock: 'day', timezone: timezone})}
+          postListParameters={terms}
+          displayShortform={false}
+        />
       </div>
     </SingleColumnSection>
   )
 }
 
-EventsPast.displayName = 'EventsPast';
-registerComponent('EventsPast', EventsPast, withStyles(styles, {name: "EventsPast"}));
+registerComponent('EventsPast', EventsPast, withTimezone, withStyles(styles, {name: "EventsPast"}));

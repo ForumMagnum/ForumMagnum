@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 
 class SunshineNewUsersList extends Component {
   render () {
-    const { results, totalCount } = this.props
+    const { results, totalCount, allowContentPreview } = this.props
     const { SunshineListCount, SunshineListTitle, SunshineNewUsersItem } = Components
     if (results && results.length && Users.canDo(this.props.currentUser, "posts.moderate.all")) {
       return (
@@ -16,7 +16,7 @@ class SunshineNewUsersList extends Component {
           </SunshineListTitle>
           {this.props.results.map(user =>
             <div key={user._id} >
-              <SunshineNewUsersItem user={user}/>
+              <SunshineNewUsersItem user={user} allowContentPreview={allowContentPreview}/>
             </div>
           )}
         </div>

@@ -9,13 +9,13 @@ const schema = {
     type: Date,
     optional: true,
     onInsert: (document, currentUser) => new Date(),
-    viewableBy: ['members'],
+    viewableBy: ['guests'],
   },
   type: {
     // "subQuestion"
     type: String,
     optional: true,
-    viewableBy: ['members'],
+    viewableBy: ['guests'],
     insertableBy: ['members'],
     editableBy: ['members'],
   },
@@ -26,7 +26,7 @@ const schema = {
       collectionName: "Posts",
       type: "Post",
     }),
-    viewableBy: ['members'],
+    viewableBy: ['guests'],
     insertableBy: ['members'],
   },
   targetPostId: {
@@ -36,7 +36,7 @@ const schema = {
       collectionName: "Posts",
       type: "Post",
     }),
-    viewableBy: ['members'],
+    viewableBy: ['guests'],
     insertableBy: ['members'],
   },
   order: {

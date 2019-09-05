@@ -14,8 +14,6 @@ import PropTypes from 'prop-types';
 import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
 
-import { POSTED_AT_WIDTH } from './PostsItemDate.jsx';
-
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 export const COMMENTS_WIDTH = 48
@@ -30,11 +28,6 @@ const styles = (theme) => ({
     },
     '&:hover $actions': {
       opacity: .2,
-    }
-  },
-  fixedHeight: {
-    [theme.breakpoints.up('md')]: {
-      height: 48,
     }
   },
   postsItem: {
@@ -100,6 +93,7 @@ const styles = (theme) => ({
     },
     '&:hover': {
       opacity: 1,
+      overflow: "unset",
     }
   },
   author: {
@@ -126,17 +120,6 @@ const styles = (theme) => ({
       marginLeft: 0,
     }
   },
-  postedAt: {
-    '&&': {
-      width: POSTED_AT_WIDTH,
-      fontWeight: 300,
-      fontSize: "1rem",
-      color: "rgba(0,0,0,.9)",
-      [theme.breakpoints.down('sm')]: {
-        width: "auto",
-      }
-    }
-  },
   newCommentsSection: {
     width: "100%",
     paddingLeft: theme.spacing.unit*2,
@@ -147,10 +130,6 @@ const styles = (theme) => ({
     [theme.breakpoints.down('sm')]: {
       padding: 0,
     }
-  },
-  closeComments: {
-    color: theme.palette.grey[500],
-    textAlign: "right",
   },
   commentsIcon: {
     width: COMMENTS_WIDTH,
@@ -174,10 +153,6 @@ const styles = (theme) => ({
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
-  },
-  actionsMenu: {
-    position: "absolute",
-    top: 0,
   },
   mobileSecondRowSpacer: {
     [theme.breakpoints.up('md')]: {
@@ -268,6 +243,10 @@ const styles = (theme) => ({
       height: "100%",
       width: 'auto'
     },
+  },
+  dense: {
+    paddingTop: 7,
+    paddingBottom:8
   }
 })
 
@@ -281,7 +260,7 @@ class PostsItem2 extends PureComponent {
   }
 
   toggleComments = (scroll) => {
-    this.props.recordPostView({...this.props, document:this.props.post})
+    this.props.recordPostView({post:this.props.post})
     this.setState((prevState) => {
       if (scroll) {
         this.postsItemRef.current.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"})
@@ -304,21 +283,19 @@ class PostsItem2 extends PureComponent {
   }
 
   hasUnreadComments = () => {
-    const { post } = this.props
-    const { lastVisitedAt } = post
+    const { post, isRead } = this.props
     const { readComments } = this.state
     const lastCommentedAt = Posts.getLastCommentedAt(post)
-    const read = lastVisitedAt;
-    const newComments = lastVisitedAt < lastCommentedAt;
-    return (read && newComments && !readComments)
+    const newComments = post.lastVisitedAt < lastCommentedAt;
+    return (isRead && newComments && !readComments)
   }
 
   render() {
     const { classes, post, sequenceId, chapter, currentUser, index, terms, resumeReading,
       showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true,
-      defaultToShowUnreadComments=false, dismissRecommendation } = this.props
+      defaultToShowUnreadComments=false, dismissRecommendation, isRead, dense } = this.props
     const { showComments } = this.state
-    const { PostsItemComments, PostsItemKarma, PostsItemTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
+    const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
 
     const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -344,16 +321,17 @@ class PostsItem2 extends PureComponent {
             [classes.firstItem]: (index===0) && showComments,
             "personalBlogpost": !post.frontpageDate,
             [classes.hasResumeReading]: !!resumeReading,
-            [classes.fixedHeight]: !renderComments,
           }
         )}>
-          <div className={classes.postsItem}>
+          <div className={classNames(classes.postsItem, {
+            [classes.dense]: dense
+            })}>
             <PostsItem2MetaInfo className={classes.karma}>
               <PostsItemKarma post={post} />
             </PostsItem2MetaInfo>
 
             <Link to={postLink} className={classes.title}>
-              <PostsItemTitle post={post} postItem2 expandOnHover={!renderComments} read={post.lastVisitedAt} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
+              <PostsTitle post={post} expandOnHover={!renderComments} read={isRead} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
             </Link>
 
             {(resumeReading?.sequence || resumeReading?.collection) &&
@@ -383,7 +361,7 @@ class PostsItem2 extends PureComponent {
             <div className={classes.mobileSecondRowSpacer}/>
 
             {<div className={classes.mobileActions}>
-              {!resumeReading && <PostsPageActions post={post} menuClassName={classes.actionsMenu} />}
+              {!resumeReading && <PostsPageActions post={post} />}
             </div>}
 
             {showIcons && <Hidden mdUp implementation="css">
@@ -406,7 +384,7 @@ class PostsItem2 extends PureComponent {
             {resumeReading &&
               <div className={classes.sequenceImage}>
                 <img className={classes.sequenceImageImg}
-                  src={`http://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
+                  src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
                     resumeReading.sequence?.gridImageId
                       || resumeReading.collection?.gridImageId
                       || "sequences/vnyzzznenju0hzdv6pqb.jpg"
@@ -417,7 +395,7 @@ class PostsItem2 extends PureComponent {
 
           {<div className={classes.actions}>
             {dismissButton}
-            {!resumeReading && <PostsPageActions post={post} vertical menuClassName={classes.actionsMenu} />}
+            {!resumeReading && <PostsPageActions post={post} vertical />}
           </div>}
 
           {renderComments && <div className={classes.newCommentsSection} onClick={() => this.toggleComments(true)}>

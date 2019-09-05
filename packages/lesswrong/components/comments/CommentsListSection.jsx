@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
 import {
   Components,
   registerComponent
@@ -22,27 +21,14 @@ const styles = theme => ({
     margin: "0px auto 15px auto",
     ...theme.typography.commentStyle,
 
-    "& .content-editor-is-empty": {
-      fontSize: "15px !important",
-    },
     background: "white",
     position: "relative"
-  },
-
-  meta: {
-    fontSize: 14,
-    clear: 'both',
-    overflow: 'auto',
-    paddingBottom: 5,
-    display: 'flex',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
   },
   inline: {
     display: 'inline'
   },
-  link: {
-    color: theme.palette.secondary.main,
+  button: {
+    color: theme.palette.lwTertiary.main,
   },
   newComment: {
     padding: theme.spacing.unit*1.5,
@@ -101,13 +87,14 @@ class CommentsListSection extends Component {
   renderTitleComponent = () => {
     const { commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, post, currentUser, classes } = this.props;
     const { anchorEl, highlightDate } = this.state
+    const { CommentsListMeta } = Components
     const suggestedHighlightDates = [moment().subtract(1, 'day'), moment().subtract(1, 'week'), moment().subtract(1, 'month'), moment().subtract(1, 'year')]
-    return <div className={this.props.classes.meta}>
+    return <CommentsListMeta>
       <Typography
         variant="body2"
         color="textSecondary"
         component='span'
-        className={this.props.classes.inline}>
+        className={classes.inline}>
         {
           (commentCount < totalComments) ?
             <span>
@@ -123,9 +110,9 @@ class CommentsListSection extends Component {
         variant="body2"
         color="textSecondary"
         component='span'
-        className={this.props.classes.inline}
+        className={classes.inline}
       >
-        Highlighting new comments since <a className={classes.link} onClick={this.handleClick}>
+        Highlighting new comments since <a className={classes.button} onClick={this.handleClick}>
           <Components.CalendarDate date={highlightDate}/>
         </a>
         <Menu
@@ -144,12 +131,11 @@ class CommentsListSection extends Component {
           })}
         </Menu>
       </Typography>
-    </div>
+    </CommentsListMeta>
   }
 
   render() {
     const { currentUser, comments, post, classes, totalComments, parentAnswerId, startThreadTruncated, newForm=true, guidelines=true } = this.props;
-
     // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
     return (
@@ -190,7 +176,7 @@ class CommentsListSection extends Component {
 }
 
 registerComponent("CommentsListSection", CommentsListSection,
-  withUser, withRouter,
+  withUser,
   withStyles(styles, { name: "CommentsListSection" })
 );
 export default CommentsListSection

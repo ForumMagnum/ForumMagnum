@@ -2,7 +2,7 @@ import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Users from 'meteor/vulcan:users';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from 'react-router-dom';
 import Tooltip from '@material-ui/core/Tooltip';
 import { truncate } from '../../lib/editor/ellipsize';
 import DescriptionIcon from '@material-ui/icons/Description';
@@ -34,7 +34,9 @@ const styles = theme => ({
   }
 })
 
-const UsersNameDisplay = ({user, classes, nofollow=false}) => {
+// Given a user (which may not be null), render the user name as a link with a
+// tooltip. This should not be used directly; use UsersName instead.
+const UsersNameDisplay = ({user, classes, nofollow=false, simple=false}) => {
   if (!user) return <Components.UserDeleted/>
   const { FormatDate } = Components
   const { htmlBio } = user
@@ -54,6 +56,10 @@ const UsersNameDisplay = ({user, classes, nofollow=false}) => {
     { truncatedBio && <div className={classes.bio } dangerouslySetInnerHTML={{__html: truncatedBio}}/>}
   </div>
 
+  if (simple) {
+    return <span className={classes.userName}>{Users.getDisplayName(user)}</span>
+  }
+
   return <Tooltip title={tooltip}>
     <Link to={Users.getProfileUrl(user)} className={classes.userName}
       {...(nofollow ? {rel:"nofollow"} : {})}
@@ -66,7 +72,5 @@ const UsersNameDisplay = ({user, classes, nofollow=false}) => {
 UsersNameDisplay.propTypes = {
   user: PropTypes.object.isRequired,
 }
-
-UsersNameDisplay.displayName = 'UsersNameDisplay';
 
 registerComponent('UsersNameDisplay', UsersNameDisplay, withStyles(styles, {name: "UsersNameDisplay"}));

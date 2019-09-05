@@ -44,7 +44,8 @@ const filters = {
   },
   "meta": {
     meta: true
-  }
+  },
+  "includeMetaAndPersonal": {}
 }
 if (getSetting('forumType') === 'EAForum') filters.frontpage.meta = {$ne: true}
 
@@ -64,6 +65,10 @@ const sortings = {
 
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
+ *
+ * NB: Specifying "before" into posts views is a bit of a misnomer at present,
+ * as it is *inclusive*. The parameters callback that handles it outputs
+ * ~ $lt: before.endOf('day').
  */
 Posts.addDefaultView(terms => {
   const validFields = _.pick(terms, 'userId', 'meta', 'groupId', 'af','question', 'authorIsUnreviewed');
@@ -77,6 +82,7 @@ Posts.addDefaultView(terms => {
       draft: false,
       isFuture: false,
       unlisted: false,
+      shortform: false,
       authorIsUnreviewed: false,
       hiddenRelatedQuestion: false,
       groupId: viewFieldNullOrMissing,
@@ -85,6 +91,9 @@ Posts.addDefaultView(terms => {
     },
     options: {},
   }
+  // TODO: Use default threshold in default view
+  // TODO: Looks like a bug in cases where karmaThreshold = 0, because we'd
+  // still want to filter.
   if (terms.karmaThreshold && terms.karmaThreshold !== "0") {
     params.selector.baseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
     params.selector.maxBaseScore = {$gte: parseInt(terms.karmaThreshold, 10)}
@@ -124,7 +133,7 @@ export function augmentForDefaultView(indexFields)
 {
   return combineIndexWithDefaultViewIndex({
     viewFields: indexFields,
-    prefix: {status:1, isFuture:1, draft:1, unlisted:1, hiddenRelatedQuestion:1, authorIsUnreviewed:1, groupId:1 },
+    prefix: {status:1, isFuture:1, draft:1, unlisted:1, shortform: 1, hiddenRelatedQuestion:1, authorIsUnreviewed:1, groupId:1 },
     suffix: { _id:1, meta:1, isEvent:1, af:1, frontpageDate:1, curatedDate:1, postedAt:1, baseScore:1 },
   });
 }
@@ -140,6 +149,7 @@ Posts.addView("userPosts", terms => {
     selector: {
       userId: viewFieldAllowAny,
       hiddenRelatedQuestion: viewFieldAllowAny,
+      shortform: viewFieldAllowAny,
       groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
       $or: [{userId: terms.userId}, {coauthorUserIds: terms.userId}],
     },
@@ -249,9 +259,19 @@ Posts.addView("old", terms => ({
 }))
 // Covered by the same index as `new`
 
+Posts.addView("timeframe", terms => ({
+  options: {limit: terms.limit}
+}))
+ensureIndex(Posts,
+  augmentForDefaultView({ postedAt:1, baseScore:1}),
+  {
+    name: "posts.postedAt_baseScore",
+  }
+);
+
 Posts.addView("daily", terms => ({
   options: {
-    sort: {score: -1}
+    sort: {baseScore: -1}
   }
 }));
 ensureIndex(Posts,
@@ -484,12 +504,23 @@ Posts.addView("slugPost", terms => ({
 }));
 ensureIndex(Posts, {"slug": "hashed"});
 
+Posts.addView("legacyIdPost", terms => ({
+  selector: {
+    legacyId: ""+parseInt(terms.legacyId, 36)
+  },
+  options: {
+    limit: 1
+  }
+}));
+ensureIndex(Posts, {legacyId: "hashed"});
+
 Posts.addView("recentDiscussionThreadsList", terms => {
   return {
     selector: {
       baseScore: {$gt:0},
       hideFrontpageComments: false,
       hiddenRelatedQuestion: viewFieldAllowAny,
+      shortform: viewFieldAllowAny,
       groupId: null,
     },
     options: {
@@ -624,6 +655,7 @@ Posts.addView("groupPosts", function (terms) {
     selector: {
       isEvent: null,
       groupId: terms.groupId,
+      authorIsUnreviewed: viewFieldAllowAny
     },
     options: {
       sort: {
@@ -741,7 +773,6 @@ ensureIndex(Posts,
 ensureIndex(Posts, {userId:1, createdAt:-1});
 
 // Used in routes
-ensureIndex(Posts, {legacyId: "hashed"});
 ensureIndex(Posts, {agentFoundationsId: "hashed"});
 
 // Used in checkScheduledPosts cronjob

@@ -41,8 +41,8 @@ class ChaptersItem extends Component {
 
   render() {
     const { chapter, classes, canEdit } = this.props;
-    const { ChaptersEditForm, SingleColumnSection, SectionTitle, SectionFooter, 
-      SectionButton, SequencesPostsList } = Components
+    const { ChaptersEditForm, SingleColumnSection, SectionTitle, SectionFooter,
+      SectionButton, SequencesPostsList, ContentItemBody } = Components
     const { html = "" } = chapter.contents
     if (this.state.edit) return ( 
       <ChaptersEditForm
@@ -58,12 +58,12 @@ class ChaptersItem extends Component {
           {canEdit && editButton}
         </SectionTitle>}
         {html && <div className={classes.description}>
-          <div dangerouslySetInnerHTML={{__html: html}}/> 
+          <ContentItemBody dangerouslySetInnerHTML={{__html: html}}/> 
         </div>}
         <div className={classes.posts}>
           <SequencesPostsList posts={chapter.posts} chapter={chapter} />
         </div>
-        {!chapter.title && <SectionFooter>{editButton}</SectionFooter>}
+        {!chapter.title && canEdit && <SectionFooter>{editButton}</SectionFooter>}
       </SingleColumnSection>
     )
   }

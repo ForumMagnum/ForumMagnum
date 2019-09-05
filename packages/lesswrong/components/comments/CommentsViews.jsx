@@ -1,23 +1,24 @@
 import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { withLocation, withNavigation } from '../../lib/routeUtil.js';
 import Users from 'meteor/vulcan:users';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Comments } from '../../lib/collections/comments'
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
+import qs from 'qs'
 
 const viewNames = {
-  'postCommentsTop': 'magical algorithm',
-  'postCommentsNew': 'most recent',
+  'postCommentsTop': 'top scoring',
+  'postCommentsNew': 'newest',
   'postCommentsOld': 'oldest',
   'postCommentsBest': 'highest karma',
   'postCommentsDeleted': 'deleted',
   'postCommentsSpam': 'spam',
   'postCommentsReported': 'reported',
-  'postLWComments': 'magical algorithm (include LW)',
+  'postLWComments': 'top scoring (include LW)',
 }
 
 const styles = theme => ({
@@ -25,7 +26,7 @@ const styles = theme => ({
     display: 'inline'
   },
   link: {
-    color: theme.palette.secondary.main,
+    color: theme.palette.lwTertiary.main,
   }
 })
 
@@ -42,10 +43,13 @@ class CommentsViews extends Component {
   };
 
   handleViewClick = (view) => {
-    const { router, post } = this.props
-    const currentQuery = (!_.isEmpty(router.location.query) && router.location.query) ||  {view: 'postCommentsTop'}
+    const { post } = this.props;
+    const { history, location } = this.props; // From withNavigation, withLocation
+    const { query } = location;
+    const currentQuery = _.isEmpty(query) ? {view: 'postCommentsTop'} : query
     this.setState({ anchorEl: null })
-    router.replace({...router.location, query: {...currentQuery, view: view, postId: post ? post._id : undefined}})
+    const newQuery = {...currentQuery, view: view, postId: post ? post._id : undefined}
+    history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
   };
 
   handleClose = () => {
@@ -53,12 +57,13 @@ class CommentsViews extends Component {
   }
 
   render() {
-    const { currentUser, classes, router, post } = this.props
+    const { currentUser, classes, post } = this.props
+    const { query } = this.props.location;
     const { anchorEl } = this.state
     let views = ["postCommentsTop", "postCommentsNew", "postCommentsOld"]
     const adminViews = ["postCommentsDeleted", "postCommentsSpam", "postCommentsReported"]
     const afViews = ["postLWComments"]
-    const currentView = _.clone(router.location.query).view ||  Comments.getDefaultView(post, currentUser)
+    const currentView = query?.view || Comments.getDefaultView(post, currentUser)
 
     if (Users.canDo(currentUser, "comments.softRemove.all")) {
       views = views.concat(adminViews);
@@ -96,16 +101,13 @@ CommentsViews.propTypes = {
   currentUser: PropTypes.object,
   post: PropTypes.object.isRequired,
   defaultView: PropTypes.string,
-  router: PropTypes.object.isRequired
 };
 
 CommentsViews.defaultProps = {
   defaultView: "postCommentsTop"
 };
 
-CommentsViews.displayName = "CommentsViews";
-
 registerComponent('CommentsViews', CommentsViews,
-  withRouter, withUser,
+  withLocation, withNavigation, withUser,
   withStyles(styles, { name: "CommentsViews" })
 );

@@ -1,5 +1,5 @@
 import { Posts } from '../posts'
-import { Comments } from './index'
+import { Comments } from './collection.js'
 import Users from "meteor/vulcan:users"
 import { getSetting } from 'meteor/vulcan:core'
 
@@ -23,9 +23,14 @@ Comments.getPageUrl = function(comment, isAbsolute = false) {
   return `${Posts.getPageUrl(post, isAbsolute)}#${comment._id}`;
 };
 
-Comments.getPageUrlFromIds = function(postId, postSlug, commentId, isAbsolute=false) {
+Comments.getPageUrlFromIds = function({postId, postSlug, commentId, permalink=true, isAbsolute=false}) {
   const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
-  return `${prefix}/posts/${postId}/${postSlug?postSlug:""}#${commentId}`;
+
+  if (permalink) {
+    return `${prefix}/posts/${postId}/${postSlug?postSlug:""}?commentId=${commentId}`;
+  } else {
+    return `${prefix}/posts/${postId}/${postSlug?postSlug:""}#${commentId}`;
+  }
 }
 
 // URL for RSS feed of all direct replies
@@ -37,12 +42,17 @@ Comments.getRSSUrl = function(comment, isAbsolute = false) {
 Comments.defaultToAlignment = (currentUser, post, comment) => {
   if (getSetting('forumType') === 'AlignmentForum') { return true }
   if (comment) {
-    return (Users.canDo(currentUser, "comments.alignment.new") && post.af && comment.af)
+    return (Users.canDo(currentUser, "comments.alignment.new") && post?.af && comment.af)
   } else {
-    return (Users.canDo(currentUser, "comments.alignment.new") && post.af)
+    return (Users.canDo(currentUser, "comments.alignment.new") && post?.af)
   }
 }
 
 Comments.getDefaultView = (post, currentUser) => {
   return (post && post.commentSortOrder) || (currentUser && currentUser.commentSorting) || "postCommentsTop"
+}
+
+Comments.getKarma = (comment) => {
+  const baseScore = getSetting('forumType') === 'AlignmentForum' ? comment.afBaseScore : comment.baseScore
+  return baseScore || 0
 }

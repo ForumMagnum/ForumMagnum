@@ -21,6 +21,7 @@ const styles = theme => ({
     paddingRight: theme.spacing.unit*1.5,
     borderRadius:5,
     marginBottom:theme.spacing.unit*1.5,
+    wordWrap: "break-word"
   },
   backgroundIsCurrent: {
     backgroundColor: grey[700],
@@ -59,7 +60,7 @@ const MessageItem = ({currentUser, message, classes}) => {
           <span className={colorClassName}><Components.FormatDate date={message.createdAt}/></span>
         </Components.MetaInfo>}
       </div>
-      <div dangerouslySetInnerHTML={htmlBody} className={classes.messageBody}></div>
+      <Components.ContentItemBody dangerouslySetInnerHTML={htmlBody} className={classes.messageBody} />
     </Typography>
   )
 }

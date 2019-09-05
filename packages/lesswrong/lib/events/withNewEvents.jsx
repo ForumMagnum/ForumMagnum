@@ -16,7 +16,7 @@ function withNewEvents(WrappedComponent) {
       this.recordEvent = this.recordEvent.bind(this);
       this.closeAllEvents = this.closeAllEvents.bind(this);
     }
-    
+
     // Don't update on changes to state.events (which is this component's
     // only state), because that doesn't affect rendering at all and gets
     // modified in mount events.
@@ -25,7 +25,7 @@ function withNewEvents(WrappedComponent) {
         return true;
       return false;
     }
-    
+
     // Record an event in the LWEvents table, eg a post-view. This is passed to
     // the wrapped component as a prop named recordEvent.
     //   name: (string) The type of the event.
@@ -34,7 +34,7 @@ function withNewEvents(WrappedComponent) {
     //     user leaves the page, or closeAllEvents is called.
     //   properties: (JSON) Other properties to attach to the LWEvent record.
     recordEvent(name, closeOnLeave, properties) {
-      const newMutation = this.props.newMutation;
+      const { createLWEvent } = this.props
       const { userId, documentId, important, intercom, ...rest} = properties;
       let event = {
         userId,
@@ -56,12 +56,12 @@ function withNewEvents(WrappedComponent) {
           return prevState;
         });
       }
-      newMutation({document: event});
+      createLWEvent({data: event});
       return eventId;
     }
 
     closeEvent(eventId, properties = {}) {
-      const newMutation = this.props.newMutation;
+      const { createLWEvent } = this.props;
       let event = this.state.events[eventId];
       // Update properties with current time and duration in ms
       let currentTime = new Date();
@@ -71,14 +71,14 @@ function withNewEvents(WrappedComponent) {
         ...event.properties,
         ...properties,
       };
-      newMutation({document: event});
+      createLWEvent({data: event});
       this.setState(prevState => {
         prevState.events = _.omit(prevState.events, eventId);
         return prevState;
       });
       return eventId;
     }
-    
+
     // Record a close-event in the LWEvents table for any events that were
     // created with recordEvent and which haven't been closed yet. This is
     // passed to the wrapped component as a prop named closeAllEvents.
