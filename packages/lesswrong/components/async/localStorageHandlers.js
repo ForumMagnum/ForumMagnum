@@ -18,7 +18,7 @@ function getBrowserLocalStorage() {
 //   verify: Whether to prompt before restoring a draft (as opposed to just
 //     always restoring it).
 // }
-const defaulGetDocumentStorageId = (doc, name) => {
+export const defaulGetDocumentStorageId = (doc, name) => {
   const { _id, conversationId } = doc
   if (_id && name) { return {id: `${_id}${name}`, verify: true}}
   if (_id) { return {id: _id, verify: true }}

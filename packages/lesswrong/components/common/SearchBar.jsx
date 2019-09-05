@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import Icon from '@material-ui/core/Icon'
 import Portal from '@material-ui/core/Portal';
 import { addCallback, removeCallback } from 'meteor/vulcan:lib';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { withLocation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { algoliaIndexNames } from '../../lib/algoliaIndexNames.js';
 
@@ -164,6 +164,7 @@ class SearchBar extends Component {
     const alignmentForum = getSetting('forumType') === 'AlignmentForum';
 
     const { searchResultsArea, classes } = this.props
+    const { location } = this.props; // From withLocation
     const { searchOpen, inputOpen } = this.state
 
     if(!algoliaAppId) {
@@ -219,4 +220,4 @@ SearchBar.defaultProps = {
   color: "rgba(0, 0, 0, 0.6)"
 }
 
-registerComponent("SearchBar", SearchBar, withStyles(styles, {name: "SearchBar"}), withRouter, withErrorBoundary);
+registerComponent("SearchBar", SearchBar, withStyles(styles, {name: "SearchBar"}), withLocation, withErrorBoundary);

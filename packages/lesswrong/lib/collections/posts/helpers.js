@@ -98,25 +98,6 @@ Posts.current = function () {
 };
 
 /**
- * @summary Check to see if a post is a link to a video
- * @param {Object} post
- */
-Posts.isVideo = function (post) {
-  return post.media && post.media.type === 'video';
-};
-
-/**
- * @summary Get the complete thumbnail url whether it is hosted on Embedly or on an external website, or locally in the app.
- * @param {Object} post
- */
-Posts.getThumbnailUrl = (post) => {
-  const thumbnailUrl = post.thumbnailUrl;
-  if (!!thumbnailUrl) {
-    return thumbnailUrl.indexOf('//') > -1 ? Utils.addHttp(thumbnailUrl) : Utils.getSiteUrl().slice(0,-1) + thumbnailUrl;
-  }
-};
-
-/**
  * @summary Get URL for sharing on Twitter.
  * @param {Object} post
  */
@@ -208,4 +189,9 @@ Posts.canDelete = (currentUser, post) => {
     return true
   }
   return Users.owns(currentUser, post) && post.draft
+}
+
+Posts.getKarma = (post) => {
+  const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
+  return baseScore || 0
 }

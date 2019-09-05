@@ -87,7 +87,7 @@ class PostsTimeframeList extends PureComponent {
   }
 
   render() {
-    const { timezone, classes, postListParameters } = this.props
+    const { timezone, classes, postListParameters, displayShortform } = this.props
     const { timeframe, after, before, dim } = this.state
     const { PostsTimeBlock } = Components
 
@@ -104,14 +104,13 @@ class PostsTimeframeList extends PureComponent {
             terms={{
               ...postListParameters,
               // NB: 'before', as a parameter for a posts view, is inclusive
-              before: moment.tz(date, timezone)
-                .endOf(timeBlock).format('YYYY-MM-DD'),
-              after: moment.tz(date, timezone)
-                .startOf(timeBlock).format('YYYY-MM-DD'),
+              before: moment.tz(date, timezone).endOf(timeBlock),
+              after: moment.tz(date, timezone).startOf(timeBlock),
               limit: 16
             }}
             timeBlockLoadComplete={this.timeBlockLoadComplete}
             hideIfEmpty={index===0}
+            displayShortform={displayShortform}
           />
         )}
         <Typography variant="body1" className={classes.loadMore} onClick={this.loadMoreTimeBlocks}>

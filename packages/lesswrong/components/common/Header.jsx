@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent, withUpdate, getSetting } from 'meteor/vulcan:core';
-import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from 'react-router-dom';
 import NoSSR from 'react-no-ssr';
 import Headroom from 'react-headroom'
 import { withStyles, withTheme } from '@material-ui/core/styles';
@@ -12,9 +12,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import TocIcon from '@material-ui/icons/Toc';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
-import { withApollo } from 'react-apollo';
 import Users from 'meteor/vulcan:users';
-import getHeaderSubtitleData from '../../lib/modules/utils/getHeaderSubtitleData';
 import grey from '@material-ui/core/colors/grey';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -50,22 +48,11 @@ const styles = theme => ({
   },
   titleLink: {
     color: getHeaderTextColor(theme),
-    verticalAlign: 'middle',
     fontSize: 19,
-    position: "relative",
-    display: 'inline-flex',
-    alignItems: 'center',
-    top: 3,
     '&:hover, &:focus, &:active': {
       textDecoration: 'none',
       opacity: 0.7,
     }
-  },
-  subtitle: {
-    marginLeft: '1em',
-    paddingLeft: '1em',
-    textTransform: 'uppercase',
-    borderLeft: `1px solid ${grey[400]}`,
   },
   menuButton: {
     marginLeft: -theme.spacing.unit,
@@ -127,12 +114,16 @@ const styles = theme => ({
   },
 });
 
-class Header extends Component {
+class Header extends PureComponent {
   state = {
     navigationOpen: false,
     notificationOpen: false,
     notificationHasOpened: false,
     searchOpen: false,
+<<<<<<< HEAD
+=======
+    unFixed: true
+>>>>>>> master
   }
 
   setNavigationOpen = (open) => {
@@ -145,10 +136,9 @@ class Header extends Component {
 
   handleSetNotificationDrawerOpen = (isOpen) => {
     if (isOpen) {
-      this.props.editMutation({
-        documentId: this.props.currentUser._id,
-        set: {lastNotificationsCheck: new Date()},
-        unset: {}
+      this.props.updateUser({
+        selector: {_id: this.props.currentUser._id},
+        data: {lastNotificationsCheck: new Date()}
       })
       this.setState({
         notificationOpen: true,
@@ -172,11 +162,12 @@ class Header extends Component {
 
   renderNavigationMenuButton = () => {
     const {standaloneNavigationPresent, toggleStandaloneNavigation, classes, toc} = this.props
+    const { unFixed } = this.state
     return <React.Fragment>
       <IconButton
         className={classNames(
           classes.menuButton,
-          {[classes.hideOnDesktop]: standaloneNavigationPresent}
+          {[classes.hideOnDesktop]: standaloneNavigationPresent && unFixed}
         )}
         color="inherit"
         aria-label="Menu"
@@ -194,7 +185,7 @@ class Header extends Component {
           </span>
         ) : <MenuIcon />}
       </IconButton>
-      {standaloneNavigationPresent && <IconButton
+      {standaloneNavigationPresent && unFixed && <IconButton
         className={classNames(
           classes.menuButton,
           classes.hideOnMobile
@@ -209,17 +200,13 @@ class Header extends Component {
   }
 
   render() {
-    // TODO;(EA Forum) Will need to trim some props
-    const { currentUser, classes, location, routes, params, client, theme, searchResultsArea, toc } = this.props
+    const { currentUser, classes, theme, toc, searchResultsArea } = this.props
     const { notificationOpen, notificationHasOpened, navigationOpen, searchOpen } = this.state
-    const routeName = routes[1].name
-    const query = location && location.query
-    const { subtitleLink = "", subtitleText = "" } = getHeaderSubtitleData(routeName, query, params, client) || {}
     const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
 
     const {
       SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
-      NotificationsMenu, KarmaChangeNotifier
+      NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle
     } = Components;
 
     return (
@@ -231,9 +218,11 @@ class Header extends Component {
             classes.headroom,
             { [classes.headroomPinnedOpen]: searchOpen }
           )}
+          onUnfix={() => this.setState({unFixed: true})}
+          onUnpin={() => this.setState({unFixed: false})}
         >
           <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
-            <Toolbar disableGutters>
+            <Toolbar>
               {this.renderNavigationMenuButton()}
               <Typography className={classes.title} variant="title" color="textSecondary">
                 <Hidden smDown implementation="css">
@@ -241,11 +230,7 @@ class Header extends Component {
                     <div className={classes.siteLogo}><Components.SiteLogo/></div>
                     {getSetting('forumSettings.headerTitle', 'LESSWRONG')}
                   </Link>
-                  {subtitleLink && <span className={classes.subtitle}>
-                    <Link to={subtitleLink} className={classes.titleLink}>
-                      {subtitleText}
-                    </Link>
-                  </span>}
+                  <HeaderSubtitle />
                 </Hidden>
                 <Hidden mdUp implementation="css">
                   <Link to="/" className={classes.titleLink}>
@@ -255,12 +240,12 @@ class Header extends Component {
                 </Hidden>
               </Typography>
               <div className={classes.rightHeaderItems}>
-                <NoSSR onSSR={<div className={classes.searchSSRStandin} />}>
+                <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
                   <SearchBar onSetIsActive={this.setSearchOpen} searchResultsArea={searchResultsArea} />
                 </NoSSR>
                 {currentUser && <div className={searchOpen ? classes.hideOnMobile : undefined}>
-                  <UsersMenu color={getHeaderTextColor(theme)} />
-                </div>}
+                    <UsersMenu color={getHeaderTextColor(theme)} />
+                  </div>}
                 {!currentUser && <UsersAccountMenu color={getHeaderTextColor(theme)} />}
                 {currentUser && <KarmaChangeNotifier documentId={currentUser._id}/>}
                 {currentUser && <NotificationsMenuButton color={getHeaderTextColor(theme)} toggle={this.handleNotificationToggle} terms={{view: 'userNotifications', userId: currentUser._id}} open={notificationOpen}/>}
@@ -280,24 +265,15 @@ class Header extends Component {
   }
 }
 
-Header.displayName = "Header";
-
 Header.propTypes = {
   currentUser: PropTypes.object,
   classes: PropTypes.object.isRequired,
-  routes: PropTypes.array.isRequired,
-  location: PropTypes.object.isRequired,
-  params: PropTypes.object,
-  client: PropTypes.object.isRequired,
   searchResultsArea: PropTypes.object,
 };
-
-// TODO;(EA Forum) Rename to edit
 
 const withUpdateOptions = {
   collection: Users,
   fragmentName: 'UsersCurrent',
 };
 
-// TODO;(EA Forum) remove withApollo
-registerComponent('Header', Header, withErrorBoundary, withRouter, withApollo, [withUpdate, withUpdateOptions], withUser, withStyles(styles, { name: 'Header'}), withTheme());
+registerComponent('Header', Header, withErrorBoundary, [withUpdate, withUpdateOptions], withUser, withStyles(styles, { name: 'Header'}), withTheme());

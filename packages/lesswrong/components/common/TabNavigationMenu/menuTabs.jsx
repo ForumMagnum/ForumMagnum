@@ -75,7 +75,8 @@ export default {
       showOnCompressed: true,
     }, {
       id: 'questions',
-      title: 'Questions',
+      title: 'Open Questions',
+      mobileTitle: 'Questions',
       link: '/questions',
       icon: questionsGlobeIcon,
       tooltip: <div>
@@ -121,7 +122,8 @@ export default {
       subItem: true,
     }, {
       id: 'events',
-      title: 'Community', // Events hide on mobile
+      title: 'Community Events', // Events hide on mobile
+      mobileTitle: 'Community',
       link: '/community',
       icon: communityGlobeIcon,
       tooltip: 'Find a meetup near you.',
@@ -176,6 +178,14 @@ export default {
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
+      id: 'library',
+      title: 'Library',
+      link: '/library',
+      iconComponent: BookIcon,
+      tooltip: "Curated collections of the AI Alignment Forum's best writing.",
+      showOnMobileStandalone: true,
+      showOnCompressed: true,
+    }, {
       id: 'questions',
       title: 'Questions',
       link: '/questions',
@@ -199,22 +209,12 @@ export default {
       id: 'divider',
       divider: true,
     }, {
-      id: 'shortform',
-      title: 'Shortform [Beta]',
-      link: '/shortform',
-      subItem: true,
-    }, {
       id: 'about',
       title: 'About',
       link: '/about',
       subItem: true,
       compressedIconComponent: Info,
       showOnCompressed: true,
-    }, {
-      id: 'faq',
-      title: 'FAQ',
-      link: '/faq',
-      subItem: true,
     }
   ],
   EAForum: [

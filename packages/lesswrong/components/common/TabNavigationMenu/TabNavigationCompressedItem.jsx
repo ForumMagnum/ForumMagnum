@@ -1,4 +1,4 @@
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import MenuItem from '@material-ui/core/MenuItem';

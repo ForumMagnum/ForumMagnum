@@ -141,18 +141,18 @@ addCallback("votes.clear.client", clearAlignmentKarmaClientCallback);
 
 async function MoveToAFUpdatesUserAFKarma (document, oldDocument) {
   if (document.af && !oldDocument.af) {
-    Users.update({_id:document.userId}, {
-      $inc: {afKarma: document.afBaseScore},
+    await Users.update({_id:document.userId}, {
+      $inc: {afKarma: document.afBaseScore || 0},
       $addToSet: {groups: 'alignmentVoters'}
     })
   } else if (!document.af && oldDocument.af) {
     const documentUser = Users.findOne({_id:document.userId})
     const newAfKarma = (documentUser.afKarma || 0) - (document.afBaseScore || 0)
     if (newAfKarma > 0) {
-      Users.update({_id:document.userId}, {$inc: {afKarma: -document.afBaseScore}})
+      await Users.update({_id:document.userId}, {$inc: {afKarma: -document.afBaseScore || 0}})
     } else {
-      Users.update({_id:document.userId}, {
-        $inc: {afKarma: -document.afBaseScore},
+      await Users.update({_id:document.userId}, {
+        $inc: {afKarma: -document.afBaseScore || 0},
         $pull: {groups: 'alignmentVoters'}
       })
     }

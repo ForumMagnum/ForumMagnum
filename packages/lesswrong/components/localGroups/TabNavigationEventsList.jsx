@@ -3,7 +3,7 @@ import { registerComponent, Components, withList } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import Tooltip from '@material-ui/core/Tooltip';
 import MenuItem from '@material-ui/core/MenuItem';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles'
 import moment from 'moment';
 import withTimezone from '../common/withTimezone';
@@ -21,6 +21,9 @@ const styles = theme => ({
     paddingBottom: 0,
     paddingLeft: 0,
     paddingRight: 0,
+    '&:hover': {
+      backgroundColor: 'transparent' // Prevent MUI default behavior of rendering solid background on hover
+    }
   },
   displayTime: {
     fontSize: ".85rem",
@@ -141,7 +144,6 @@ const options = {
   queryName: 'postsListQuery',
   fragmentName: 'PostsList',
   enableTotal: false,
-  enableCache: true,
   fetchPolicy: 'cache-and-network',
   ssr: true
 };

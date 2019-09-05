@@ -1,7 +1,6 @@
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import classNames from 'classnames';
 
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'

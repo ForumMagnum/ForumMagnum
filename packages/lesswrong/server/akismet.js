@@ -70,7 +70,7 @@ async function checkPostForSpamWithAkismet(post, currentUser) {
   if (akismetKey) {
     const spam = await checkForAkismetSpam({document: post,type: "post"})
     if (spam) {
-      if (((currentUser && currentUser.karma) || 0) < SPAM_KARMA_THRESHOLD) {
+      if (((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) && !currentUser.reviewedByUserId) {
         // eslint-disable-next-line no-console
         console.log("Deleting post from user below spam threshold", post)
         editMutation({
@@ -94,7 +94,7 @@ async function checkCommentForSpamWithAkismet(comment, currentUser) {
     if (akismetKey) {
       const spam = await checkForAkismetSpam({document: comment, type: "comment"})
       if (spam) {
-        if ((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) {
+        if (((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) && !currentUser.reviewedByUserId) {
           // eslint-disable-next-line no-console
           console.log("Deleting comment from user below spam threshold", comment)
           await editMutation({

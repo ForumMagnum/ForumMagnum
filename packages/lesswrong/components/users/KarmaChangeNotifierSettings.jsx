@@ -53,7 +53,7 @@ export const karmaNotificationTimingChoices = {
 
 class KarmaChangeNotifierSettings extends PureComponent {
   setUpdateFrequency = (updateFrequency) => {
-    const oldSettings = this.props.value
+    const oldSettings = this.props.value || {}
     const settings = { ...oldSettings, updateFrequency:updateFrequency };
     this.context.updateCurrentValues({
       [this.props.path]: settings
@@ -68,7 +68,7 @@ class KarmaChangeNotifierSettings extends PureComponent {
     };
     const newTimeGMT = this.convertTimezone(newTimeLocalTZ.timeOfDay, newTimeLocalTZ.dayOfWeek, tz, "GMT");
     
-    const oldSettings = this.props.value
+    const oldSettings = this.props.value || {}
     const newSettings = {
       ...oldSettings,
       timeOfDayGMT: newTimeGMT.timeOfDay,
@@ -87,7 +87,7 @@ class KarmaChangeNotifierSettings extends PureComponent {
     };
     const newTimeGMT = this.convertTimezone(newTimeLocalTZ.timeOfDay, newTimeLocalTZ.dayOfWeek, tz, "GMT");
     
-    const oldSettings = this.props.value
+    const oldSettings = this.props.value || {}
     const newSettings = {
       ...oldSettings,
       timeOfDayGMT: newTimeGMT.timeOfDay,
@@ -99,7 +99,7 @@ class KarmaChangeNotifierSettings extends PureComponent {
   }
 
   setNegativeKarmaFilter = (value) => {
-    const oldSettings = this.props.value
+    const oldSettings = this.props.value || {}
     const newSettings = {
       ...oldSettings,
       showNegativeKarma: value
@@ -122,7 +122,7 @@ class KarmaChangeNotifierSettings extends PureComponent {
   }
   
   getBatchingTimeLocalTZ = () => {
-    const settings = this.props.value
+    const settings = this.props.value || {}
     const { timeOfDayGMT, dayOfWeekGMT } = settings;
     const { timeOfDay, dayOfWeek } = this.convertTimezone(timeOfDayGMT, dayOfWeekGMT, "GMT", this.props.timezone);
     return { timeOfDay, dayOfWeek };
@@ -130,7 +130,7 @@ class KarmaChangeNotifierSettings extends PureComponent {
   
   render() {
     const { timezone, classes } = this.props;
-    const settings = this.props.value
+    const settings = this.props.value || {}
     
     const {timeOfDay, dayOfWeek} = this.getBatchingTimeLocalTZ();
     

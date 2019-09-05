@@ -29,7 +29,7 @@ class PostsRevisionSelector extends Component {
     this.setState({anchorEl: null})
   }
   render() {
-    const { classes, post } = this.props
+    const { classes, post, format } = this.props
     const { anchorEl } = this.state
     const { PostsRevisionsList } = Components
     const tooltip = anchorEl ? null : <span>
@@ -40,7 +40,10 @@ class PostsRevisionSelector extends Component {
       <Tooltip title={tooltip}>
         <span onClick={this.openMenu} className={classes.button}>
           <HistoryIcon className={classes.icon}/>
-          <span>{moment(new Date(post.postedAt)).format("Do MMM YYYY")}</span>
+          <span>{ format ? 
+            moment(new Date(post.postedAt)).format(format) :
+            moment(new Date(post.postedAt)).fromNow()
+          }</span>
         </span>
       </Tooltip>
       <Menu

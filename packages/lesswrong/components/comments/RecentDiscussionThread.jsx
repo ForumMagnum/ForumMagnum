@@ -2,19 +2,15 @@ import React, { PureComponent } from 'react';
 import {
   Components,
   registerComponent,
-  withList,
-  Loading,
 } from 'meteor/vulcan:core';
 
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { Posts } from '../../lib/collections/posts';
-import { Comments } from '../../lib/collections/comments'
 import classNames from 'classnames';
 import { unflattenComments } from '../../lib/modules/utils/unflatten';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import withRecordPostView from '../common/withRecordPostView';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
 
 import { withStyles } from '@material-ui/core/styles';
 import { postExcerptFromHTML } from '../../lib/editor/ellipsize'
@@ -49,21 +45,21 @@ const styles = theme => ({
     marginTop:theme.spacing.unit*2,
     marginBottom:theme.spacing.unit*2,
   },
-  unreadDot: {
-    fontFamily: theme.typography.fontFamily,
-    color: theme.palette.primary.light,
-    fontSize: 30,
-    lineHeight:0,
-    position: "relative",
-    top:5.5,
-    marginLeft:2,
-    marginRight:5
+  unreadPost: {
+    borderLeft: `solid 5px ${theme.palette.primary.light}`,
+    paddingLeft: theme.spacing.unit*1.5,
+    cursor: "pointer",
+    '&:hover': {
+      borderLeft: `solid 5px ${theme.palette.primary.main}`,
+    }
   },
   postHighlight: {
     ...postHighlightStyles(theme),
     marginTop:5,
     maxWidth:600,
     marginBottom:16,
+    maxHeight: 1000,
+    overflow: "hidden",
     '& a, & a:hover, & a:focus, & a:active, & a:visited': {
       backgroundColor: "none"
     }
@@ -99,37 +95,29 @@ const styles = theme => ({
 })
 
 class RecentDiscussionThread extends PureComponent {
-  state = { showHighlight: false, readStatus: false, markedAsVisitedAt: null }
+  state = { showHighlight: false, readStatus: false, markedAsVisitedAt: null, expandAllThreads: false }
 
   showHighlight = () => {
     this.setState(prevState => ({showHighlight:!prevState.showHighlight}));
     this.markAsRead()
   }
-  
+
   markAsRead = async () => {
-    this.setState({readStatus:true, markedAsVisitedAt: new Date()});
-    this.props.recordPostView({...this.props, document:this.props.post})
+    this.setState({readStatus:true, markedAsVisitedAt: new Date(), expandAllThreads: true});
+    this.props.recordPostView({post:this.props.post})
   }
 
   render() {
-    const { post, postCount, results, loading, editMutation, currentUser, classes, data: {refetch}
-  } = this.props
+    const { post, comments, updateComment, currentUser, classes, isRead, refetch } = this.props
     const { readStatus, showHighlight, markedAsVisitedAt } = this.state
-
     const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle } = Components
 
-    const lastCommentId = results && results[0]?._id
-
-    const nestedComments = unflattenComments(results)
+    const lastCommentId = comments && comments[0]?._id
+    const nestedComments = unflattenComments(comments);
 
     const lastVisitedAt = markedAsVisitedAt || post.lastVisitedAt
 
-    // Only show the loading widget if this is the first post in the recent discussion section, so that the users don't see a bunch of loading components while the comments load
-    if (loading && postCount === 0) {
-      return  <Loading />
-    } else if (loading && postCount !== 0) {
-      return null
-    } else if (results && !results.length && post.commentCount != null) {
+    if (comments && !comments.length && post.commentCount != null) {
       // New posts should render (to display their highlight).
       // Posts with at least one comment should only render if that those comments meet the frontpage filter requirements
       return null
@@ -141,37 +129,39 @@ class RecentDiscussionThread extends PureComponent {
 
     return (
       <div className={classes.root}>
-        <div className={classes.postItem}>
-          <Link className={classes.title} to={Posts.getPageUrl(post)}>
-            <PostsTitle wrap post={post} />
-          </Link>
+        <div className={(currentUser && !(isRead || readStatus)) ? classes.unreadPost : null}>
+          <div className={classes.postItem}>
+            <Link className={classes.title} to={Posts.getPageUrl(post)}>
+              <PostsTitle wrap post={post} tooltip={false}/>
+            </Link>
 
-          <div className={classes.threadMeta} onClick={this.showHighlight}>
-            {currentUser && !(post.lastVisitedAt || readStatus) &&
-              <span title="Unread" className={classes.unreadDot}>•</span>}
-            <PostsItemMeta post={post}/>
-            <ShowOrHideHighlightButton
-              className={classes.showHighlight}
-              open={showHighlight}/>
+            <div className={classes.threadMeta} onClick={this.showHighlight}>
+              <PostsItemMeta post={post}/>
+              <ShowOrHideHighlightButton
+                className={classes.showHighlight}
+                open={showHighlight}/>
+            </div>
           </div>
-        </div>
-        <div className={classes.content}>
           { showHighlight ?
             <div className={highlightClasses}>
               <PostsHighlight post={post} />
             </div>
             : <div className={highlightClasses} onClick={this.showHighlight}>
-                { (!post.lastVisitedAt || post.commentCount === null) &&
+                { (!isRead || post.commentCount === null) &&
                   <ContentItemBody
                     className={classes.postHighlight}
                     dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents && post.contents.htmlHighlight)}}/>}
               </div>
           }
+        </div>
+        <div className={classes.content}>
           <div className={classes.commentsList}>
             {nestedComments.map(comment =>
               <div key={comment.item._id}>
                 <CommentsNode
                   startThreadTruncated={true}
+                  expandAllThreads={this.props.expandAllThreads || this.state.expandAllThreads}
+                  scrollOnExpand
                   nestingLevel={1}
                   lastCommentId={lastCommentId}
                   currentUser={currentUser}
@@ -181,9 +171,9 @@ class RecentDiscussionThread extends PureComponent {
                   //eslint-disable-next-line react/no-children-prop
                   children={comment.children}
                   key={comment.item._id}
-                  editMutation={editMutation}
-                  refetch={refetch}
+                  updateComment={updateComment}
                   post={post}
+                  refetch={refetch}
                   condensed
                 />
               </div>
@@ -195,24 +185,11 @@ class RecentDiscussionThread extends PureComponent {
   }
 }
 
-const commentsOptions = {
-  collection: Comments,
-  queryName: 'selectCommentsListQuery',
-  fragmentName: 'CommentsList',
-  enableTotal: false,
-  pollInterval: 0,
-  enableCache: true,
-  fetchPolicy: 'cache-and-network',
-  limit: 12,
-};
-
 registerComponent(
   'RecentDiscussionThread',
   RecentDiscussionThread,
-  [withList, commentsOptions],
   withUser,
   withStyles(styles, { name: "RecentDiscussionThread" }),
   withRecordPostView,
-  withErrorBoundary,
-  withRouter
+  withErrorBoundary
 );

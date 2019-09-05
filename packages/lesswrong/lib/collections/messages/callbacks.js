@@ -5,8 +5,8 @@ import { addCallback } from 'meteor/vulcan:core'
 
 addEditableCallbacks({collection: Messages, options: makeEditableOptions})
 
-function unArchiveConversations({insertedDocument}) {
-  Conversations.update({_id:insertedDocument.conversationId}, {$set: {archivedByIds: []}});
+function unArchiveConversations({document}) {
+  Conversations.update({_id:document.conversationId}, {$set: {archivedByIds: []}});
 }
 
 addCallback('message.create.async', unArchiveConversations)

@@ -1,9 +1,8 @@
 import { Posts } from "../posts";
 import { Comments } from './collection'
-import { addCallback, runCallbacksAsync, newMutation, editMutation, removeMutation, getSetting, Utils } from 'meteor/vulcan:core';
+import { addCallback, runCallbacksAsync, newMutation, editMutation, removeMutation, getSetting } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import { performVoteServer } from '../../../server/voteServer.js';
-import { createError } from 'apollo-errors';
 import Messages from '../messages/collection.js';
 import Conversations from '../conversations/collection.js';
 
@@ -171,7 +170,7 @@ function CommentsNewRateLimit (comment, user) {
 
     // check that user waits more than 15 seconds between comments
     if((timeSinceLastComment < commentInterval)) {
-      throw new Error(Utils.encodeIntlError({id: 'comments.rate_limit_error', value: commentInterval-timeSinceLastComment}));
+      throw new Error(`Please wait ${commentInterval-timeSinceLastComment} seconds before commenting again.`);
     }
   }
   return comment;
@@ -211,8 +210,7 @@ addCallback("comments.moderate.async", ModerateCommentsPostUpdate);
 function NewCommentsEmptyCheck (comment) {
   const { data } = (comment.contents && comment.contents.originalContents) || {}
   if (!data) {
-    const EmptyCommentError = createError('comments.comment_empty_error', {message: 'You cannot submit an empty comment'});
-    throw new EmptyCommentError({data: {break: true, value: comment}});
+    throw new Error("You cannot submit an empty comment");
   }
   return comment;
 }

@@ -1,7 +1,7 @@
 import { Components, registerComponent, getSetting, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { withLocation } from '../../lib/routeUtil';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
@@ -20,17 +20,11 @@ const styles = theme => ({
       padding: 0,
     }
   },
-  settingsIcon: {},
   title: {
     cursor: "pointer",
     '&:hover $settingsIcon, &:hover $sortedBy': {
       color: theme.palette.grey[800]
     }
-  },
-  sortedBy: {
-    marginLeft: theme.spacing.unit,
-    fontStyle: "italic",
-    display: "inline-block"
   }
 });
 
@@ -114,11 +108,11 @@ class AllPostsPage extends Component {
   }
 
   render() {
-    const { classes, router, currentUser } = this.props
+    const { classes, currentUser } = this.props
+    const { query } = this.props.location;
     const { showSettings } = this.state
-    const { SingleColumnSection, SectionTitle, SettingsIcon, MetaInfo, PostsListSettings } = Components
+    const { SingleColumnSection, SectionTitle, SettingsIcon, PostsListSettings } = Components
 
-    const query = _.clone(router.location.query) || {}
     const currentTimeframe = query.timeframe ||
       (currentUser && currentUser.allPostsTimeframe) ||
       'daily'
@@ -138,10 +132,7 @@ class AllPostsPage extends Component {
           <Tooltip title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`} placement="top-end">
             <div className={classes.title} onClick={this.toggleSettings}>
               <SectionTitle title="All Posts">
-                <SettingsIcon className={classes.settingsIcon}/>
-                <MetaInfo className={classes.sortedBy}>
-                  Sorted by { sortings[currentSorting] }
-                </MetaInfo>
+                <SettingsIcon label={`Sorted by ${ sortings[currentSorting] }`}/>
               </SectionTitle>
             </div>
           </Tooltip>
@@ -170,7 +161,7 @@ registerComponent(
   'AllPostsPage',
   AllPostsPage,
   withStyles(styles, {name:"AllPostsPage"}),
-  withRouter,
+  withLocation,
   withUser,
   withTimezone,
   [withUpdate, withUpdateOptions]

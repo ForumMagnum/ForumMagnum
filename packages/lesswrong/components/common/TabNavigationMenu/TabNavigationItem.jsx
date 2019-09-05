@@ -1,11 +1,11 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
-import { withRouter } from '../../../lib/reactRouterWrapper.js';
 import { withStyles } from '@material-ui/core/styles';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper.js';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
+import { useLocation } from '../../../lib/routeUtil.js';
 
 export const iconWidth = 30
 
@@ -24,8 +24,8 @@ const styles = theme => ({
       opacity:.6,
       backgroundColor: 'transparent' // Prevent MUI default behavior of rendering solid background on hover
     },
-    paddingTop: theme.spacing.unit*1.5,
-    paddingBottom: theme.spacing.unit*1.5,
+    paddingTop: theme.spacing.unit*2,
+    paddingBottom: theme.spacing.unit*2,
     paddingLeft: theme.spacing.unit*2,
     paddingRight: theme.spacing.unit*2,
     display: "flex",
@@ -63,9 +63,9 @@ const styles = theme => ({
   },
 })
 
-const TabNavigationItem = ({tab, onClick, location, classes}) => {
+const TabNavigationItem = ({tab, onClick, classes}) => {
   const { TabNavigationSubItem } = Components
-  const { pathname } = location
+  const { pathname } = useLocation()
 
   return <Tooltip placement='right-start' title={tab.tooltip || ''}>
     <MenuItem
@@ -77,6 +77,7 @@ const TabNavigationItem = ({tab, onClick, location, classes}) => {
         [classes.subItemOverride]: tab.subItem,
         [classes.selected]: pathname === tab.link,
       })}}
+      disableTouchRipple
     >
       {(tab.icon || tab.iconComponent) && <span
         className={classNames(classes.icon, {[classes.homeIcon]: tab.id === 'home'})}
@@ -98,5 +99,5 @@ const TabNavigationItem = ({tab, onClick, location, classes}) => {
 
 registerComponent(
   'TabNavigationItem', TabNavigationItem,
-  withRouter, withStyles(styles, { name: 'TabNavigationItem'})
+  withStyles(styles, { name: 'TabNavigationItem'})
 );

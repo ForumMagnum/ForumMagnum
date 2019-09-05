@@ -1,4 +1,5 @@
 import { foreignKeyField } from '../../modules/utils/schemaUtils'
+import { schemaDefaultValue } from '../../collectionUtils';
 
 const schema = {
   _id: {
@@ -75,6 +76,16 @@ const schema = {
     insertableBy: ['members'],
     editableBy: ['admins'],
     optional: true,
+  },
+  setCanonicalUrl: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    optional: true,
+    control: "checkbox",
+    label: "Set the canonical url tag on crossposted posts",
+    ...schemaDefaultValue(false)
   }
 };
 

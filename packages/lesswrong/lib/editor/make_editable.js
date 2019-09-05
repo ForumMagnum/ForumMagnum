@@ -1,3 +1,4 @@
+import React from 'react';
 import Users from 'meteor/vulcan:users'
 import { Utils } from 'meteor/vulcan:core'
 import { ContentType } from '../collections/revisions/schema'
@@ -33,8 +34,8 @@ const defaultOptions = {
   enableMarkDownEditor: true
 }
 
-export let editableCollections = new Set()
-export let editableCollectionsFields = {}
+export const editableCollections = new Set()
+export const editableCollectionsFields = {}
 
 export const makeEditable = ({collection, options = {}}) => {
   options = {...defaultOptions, ...options}
@@ -45,6 +46,17 @@ export const makeEditable = ({collection, options = {}}) => {
     formGroup,
     permissions,
     fieldName = "",
+    hintText = <div>
+      <div>
+        Write here. Select text for formatting options.
+      </div>
+      <div>
+        We support LaTeX: Cmd-4 for inline, Cmd-M for block-level (Ctrl on Windows).
+      </div>
+      <div>
+        You can switch between rich text and markdown in your user settings.
+      </div>
+  </div>,
     order,
     enableMarkDownEditor
   } = options
@@ -92,7 +104,7 @@ export const makeEditable = ({collection, options = {}}) => {
           }
         },
         form: {
-          hintText:"Plain Markdown Editor",
+          hintText: hintText,
           multiLine:true,
           fullWidth:true,
           disableUnderline:true,

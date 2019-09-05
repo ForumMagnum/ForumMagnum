@@ -161,20 +161,6 @@ const theme = createLWTheme({
         padding: ".7rem",
       }
     },
-    PostsTimeBlock: {
-      divider: {
-        display: 'none'
-      }
-    },
-    ContentType: {
-      root: {
-        color: grey[800],
-        fontWeight: 600
-      },
-      icon: {
-        color: grey[800]
-      }
-    },
     SunshineSidebar: {
       root: {
         top: 30
@@ -223,6 +209,20 @@ const theme = createLWTheme({
     },
     TabNavigationMenuSubItem: {
       root: {
+        color: grey[800]
+      }
+    },
+    PostsTimeBlock: {
+      divider: {
+        display: 'none'
+      }
+    },
+    ContentType: {
+      root: {
+        color: grey[800],
+        fontWeight: 600
+      },
+      icon: {
         color: grey[800]
       }
     }

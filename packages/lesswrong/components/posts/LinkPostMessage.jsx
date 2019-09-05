@@ -2,7 +2,6 @@ import { registerComponent } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { Link } from '../../lib/reactRouterWrapper.js';
 import grey from '@material-ui/core/colors/grey';
 import PropTypes from 'prop-types';
 
@@ -24,12 +23,10 @@ const LinkPostMessage = ({post, classes}) => {
 
   return (
     <div className={classes.root}>
-      This is a linkpost for <Link to={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</Link>
+      This is a linkpost for <a href={Posts.getLink(post)} target={Posts.getLinkTarget(post)}>{post.url}</a>
     </div>
   );
 }
-
-LinkPostMessage.displayName = "LinkPostMessage";
 
 LinkPostMessage.propTypes = {
   post: PropTypes.object.isRequired,

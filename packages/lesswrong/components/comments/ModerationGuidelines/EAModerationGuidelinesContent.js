@@ -8,7 +8,7 @@ const generalGuidelines = `
   <p>
     <b>Try to be clear, on-topic, and kind.</b> Keep your comments accurate and clear. Focus on
     the question at hand. And when you criticize someone’s point, consider doing so
-    <a href="http://effective-altruism.com/ea/dy/supportive_scepticism_in_practice/">
+    <a href="https://effective-altruism.com/ea/dy/supportive_scepticism_in_practice/">
     supportively</a>.
   </p>
   <p>

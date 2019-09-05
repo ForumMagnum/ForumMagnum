@@ -1,4 +1,4 @@
-import { newMutation } from 'meteor/vulcan:core';
+import { newMutation, runQuery } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { Posts } from '../lib/collections/posts'
 import { Comments } from '../lib/collections/comments'
@@ -6,7 +6,6 @@ import Conversations from '../lib/collections/conversations/collection.js';
 import Messages from '../lib/collections/messages/collection.js';
 import {ContentState, convertToRaw} from 'draft-js';
 import { Random } from 'meteor/random';
-import { runQuery } from 'meteor/vulcan:core';
 import { setOnGraphQLError } from 'meteor/vulcan:lib';
 
 
@@ -112,7 +111,11 @@ const isPermissionsFlavoredError = (error) => {
     return true;
   }
 
-  if (!error.message) return false;
+  if (!error.message)
+    return false;
+  if (isPermissionsFlavoredErrorString(error.message))
+    return true;
+  
   let errorData = null;
   try {
     errorData = JSON.parse(error.message);
@@ -121,8 +124,14 @@ const isPermissionsFlavoredError = (error) => {
   }
   if (!errorData) return false;
   if (Array.isArray(errorData)) errorData = errorData[0];
-  let id = errorData.id;
-  switch (id)
+  if (isPermissionsFlavoredErrorString(errorData)) return true;
+  if (isPermissionsFlavoredErrorString(errorData.id)) return true;
+  
+  return false;
+};
+
+const isPermissionsFlavoredErrorString = (str) => {
+  switch (str)
   {
   case 'errors.disallowed_property_detected':
   case 'app.operation_not_allowed':
@@ -132,7 +141,7 @@ const isPermissionsFlavoredError = (error) => {
   default:
     return false;
   }
-};
+}
 
 
 export const createDefaultUser = async() => {

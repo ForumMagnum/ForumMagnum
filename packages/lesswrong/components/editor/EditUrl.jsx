@@ -66,7 +66,6 @@ class EditUrl extends Component {
       <div className={classes.root}>
         <div>
           <span className={classNames(classes.input, {[classes.hideInput]: !active})}>
-            <div className="mui-text-field">
               <Input
                 className={classes.innerInput}
                 value={(document && document[path]) || defaultValue || ""}
@@ -77,7 +76,6 @@ class EditUrl extends Component {
                 classes={{input: classes.input}}
                 startAdornment={active ? startAdornmentActive : startAdornmentInactive}
               />
-            </div>
           </span>
         </div>
       </div>

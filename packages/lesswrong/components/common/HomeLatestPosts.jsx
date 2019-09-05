@@ -3,17 +3,20 @@ import React, { PureComponent } from 'react';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
-import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.js';
+import { withLocation, withNavigation } from '../../lib/routeUtil';
+import qs from 'qs'
 
 class HomeLatestPosts extends PureComponent {
 
   toggleFilter = () => {
-    const { updateUser, currentUser, router } = this.props
+    const { updateUser, currentUser } = this.props
+    const { location, history } = this.props // From withLocation, withNavigation
+    const { query, pathname } = location;
+    let newQuery = _.isEmpty(query) ? {view: "magic"} : query
+    const currentFilter = newQuery.filter || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
+    const newFilter = (currentFilter === "frontpage") ? "includeMetaAndPersonal" : "frontpage"
 
-    let query = _.clone(router.location.query) || {view: "magic"}
-    const currentFilter = query.filter || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
-
-    const newFilter = (currentFilter === "frontpage") ? "frontpageAndMeta" : "frontpage"
     if (currentUser) {
       updateUser({
         selector: { _id: currentUser._id},
@@ -22,16 +25,16 @@ class HomeLatestPosts extends PureComponent {
         },
       })
     }
-    query.filter = newFilter
-    const location = { pathname: router.location.pathname, query };
-    router.replace(location);
+
+    newQuery.filter = newFilter
+    const newLocation = { pathname: pathname, search: qs.stringify(newQuery)};
+    history.replace(newLocation);
   }
 
   render () {
-    const { currentUser, router } = this.props;
+    const { currentUser, location } = this.props;
+    const { query } = location;
     const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox } = Components
-
-    const query = _.clone(router.location.query) || {}
     const currentFilter = query.filter || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
     const limit = parseInt(query.limit) || 10
 
@@ -62,9 +65,7 @@ class HomeLatestPosts extends PureComponent {
 
     return (
       <SingleColumnSection>
-        <SectionTitle title={<Tooltip title={latestTitle} placement="left-start"><span>Latest Posts</span></Tooltip>}/>
-        <PostsList2 terms={recentPostsTerms}>
-          <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
+        <SectionTitle title={<Tooltip title={latestTitle} placement="left-start"><span>Latest Posts</span></Tooltip>}>
           <Tooltip title={personalBlogpostTooltip}>
             <div>
               <SectionFooterCheckbox
@@ -74,6 +75,9 @@ class HomeLatestPosts extends PureComponent {
               />
             </div>
           </Tooltip>
+        </SectionTitle>
+        <PostsList2 terms={recentPostsTerms}>
+          <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
         </PostsList2>
       </SingleColumnSection>
     )
@@ -85,4 +89,6 @@ const withUpdateOptions = {
   fragmentName: 'UsersCurrent',
 }
 
-registerComponent('HomeLatestPosts', HomeLatestPosts, withUser, withRouter, [withUpdate, withUpdateOptions]);
+registerComponent('HomeLatestPosts', HomeLatestPosts,
+  withUser, withLocation, withNavigation,
+  [withUpdate, withUpdateOptions]);

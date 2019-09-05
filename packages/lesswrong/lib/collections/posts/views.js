@@ -44,7 +44,8 @@ const filters = {
   },
   "meta": {
     meta: true
-  }
+  },
+  "includeMetaAndPersonal": {}
 }
 if (getSetting('forumType') === 'EAForum') filters.frontpage.meta = {$ne: true}
 
@@ -503,6 +504,16 @@ Posts.addView("slugPost", terms => ({
 }));
 ensureIndex(Posts, {"slug": "hashed"});
 
+Posts.addView("legacyIdPost", terms => ({
+  selector: {
+    legacyId: ""+parseInt(terms.legacyId, 36)
+  },
+  options: {
+    limit: 1
+  }
+}));
+ensureIndex(Posts, {legacyId: "hashed"});
+
 Posts.addView("recentDiscussionThreadsList", terms => {
   return {
     selector: {
@@ -644,6 +655,7 @@ Posts.addView("groupPosts", function (terms) {
     selector: {
       isEvent: null,
       groupId: terms.groupId,
+      authorIsUnreviewed: viewFieldAllowAny
     },
     options: {
       sort: {
@@ -761,7 +773,6 @@ ensureIndex(Posts,
 ensureIndex(Posts, {userId:1, createdAt:-1});
 
 // Used in routes
-ensureIndex(Posts, {legacyId: "hashed"});
 ensureIndex(Posts, {agentFoundationsId: "hashed"});
 
 // Used in checkScheduledPosts cronjob

@@ -60,8 +60,10 @@ class ModerationGuidelinesEditForm extends PureComponent {
             queryFragment={getFragment("PostsEdit")}
             mutationFragment={getFragment("PostsPage")}
             successCallback={onClose}
-            SubmitComponent={SubmitComponent}
-            GroupComponent={FormGroupComponent}
+            formComponents={{
+              FormSubmit: SubmitComponent,
+              FormGroupLayout: Components.DefaultStyleFormGroup
+            }}
           />
         </DialogContent>
       </Dialog>
@@ -69,26 +71,6 @@ class ModerationGuidelinesEditForm extends PureComponent {
   }
 }
 
-const FormGroupComponent = (props) => {
-  return <React.Fragment>
-    {props.fields.map(field => (
-      <Components.FormComponent
-        key={field.name}
-        disabled={props.disabled}
-        {...field}
-        errors={props.errors}
-        throwError={props.throwError}
-        currentValues={props.currentValues}
-        updateCurrentValues={props.updateCurrentValues}
-        deletedValues={props.deletedValues}
-        addToDeletedValues={props.addToDeletedValues}
-        clearFieldErrors={props.clearFieldErrors}
-        formType={props.formType}
-        currentUser={props.currentUser}
-      />
-    ))}
-  </React.Fragment>
-}
 
 ModerationGuidelinesEditForm.propTypes = {
   postId: PropTypes.string,
