@@ -62,8 +62,8 @@ const LocalGroupPage = ({ classes, documentId: groupId, currentUser }) => {
   })
 
   if (loading) return <Loading />
-  if (!group && !loading) return <Error404 />
-  
+  if (!group) return <Error404 />
+
   const { html = ""} = group.contents || {}
   const htmlBody = {__html: html}
 
