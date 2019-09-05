@@ -13,7 +13,6 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
-import Popper from '@material-ui/core/Popper';
 import withHover from "../common/withHover";
 
 export const MENU_WIDTH = 18
