@@ -6,6 +6,59 @@ import withUser from '../common/withUser';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import AddLocationIcon from '@material-ui/icons/AddLocation';
+import { withStyles } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import Tooltip from '@material-ui/core/Tooltip';
+import classNames from 'classnames';
+
+
+const styles = theme => ({
+  root: {
+    display: 'flex',
+    marginTop: 20
+  },
+  inactiveButton: {
+    '&&': {
+      color: theme.palette.error.main,
+    }
+  },
+  submit: {
+    '&&': {
+      marginLeft: 'auto'
+    }
+  },
+  formButton: {
+    paddingBottom: "2px",
+    fontSize: "16px",
+    marginLeft: "5px",
+    "&:hover": {
+      background: "rgba(0,0,0, 0.05)",
+    },
+    color: theme.palette.lwTertiary.main
+  },
+})
+
+const SubmitComponent = withStyles(styles, {name: "GroupFormLinkSubmit"})(({submitLabel = "Submit", classes, updateCurrentValues, document, formType}) => 
+{
+  return <div className={classes.root}>
+    {formType === 'edit' && <Tooltip title={document.inactive ? "Display the group on maps and lists again" : "This will hide the group from all maps and lists"}>
+      <Button
+        type="submit"
+        onClick={() => updateCurrentValues({inactive: !document.inactive})}
+        className={classNames(classes.formButton, classes.inactiveButton)}
+      >
+       {document.inactive ? "Reactivate group" : "Mark group as inactive"} 
+      </Button>
+    </Tooltip>}
+    
+    <Button
+      type="submit"
+      className={classNames(classes.formButton, classes.submit)}
+    >
+      {submitLabel}
+    </Button>
+  </div>
+})
 
 class GroupFormLink extends Component {
   constructor(props, context) {
@@ -51,6 +104,9 @@ class GroupFormLink extends Component {
             documentId={documentId}
             queryFragment={getFragment('localGroupsEdit')}
             mutationFragment={getFragment('localGroupsHomeFragment')}
+            formComponents={{
+              FormSubmit: SubmitComponent
+            }}
             prefilledProps={documentId ? {} : {organizerIds: [currentUser._id]}} // If edit form, do not prefill organizerIds
             successCallback={group => {
               this.handleCloseGroupForm();

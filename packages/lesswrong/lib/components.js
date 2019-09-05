@@ -206,6 +206,7 @@ if (getSetting('hasEvents', true)) {
   importComponent("LocalGroupsList", () => require('../components/localGroups/LocalGroupsList.jsx'));
   importComponent("LocalGroupsItem", () => require('../components/localGroups/LocalGroupsItem.jsx'));
   importComponent("TabNavigationEventsList", () => require('../components/localGroups/TabNavigationEventsList.jsx'));
+  importComponent("AllGroupsPage", () => require('../components/localGroups/AllGroupsPage.jsx'));
 }
 
 // comments
