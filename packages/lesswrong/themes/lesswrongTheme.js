@@ -114,12 +114,6 @@ const theme = createLWTheme({
         paddingBottom: 8
       }
     },
-    MuiPopper: {
-      root: {
-        position: "absolute",
-        zIndex: 10000,
-      }
-    },
     MuiCard: {
       root: {
         borderRadius: 1,

@@ -33,11 +33,12 @@ const styles = theme => ({
   },
 });
 
-const PostsItemDate = ({post, classes, hover, anchorEl}) => {
+const PostsItemDate = ({post, classes, hover, anchorEl, stopHover}) => {
   const { PostsItem2MetaInfo, EventTime, FormatDate, LWPopper } = Components;
+
   if (post.isEvent && post.startTime) {
     return <PostsItem2MetaInfo className={classes.startTime}>
-      <LWPopper anchorEl={anchorEl} tooltip placement="top">
+      <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip placement="top">
         <span>Event starts at <EventTime post={post} /></span>
       </LWPopper>
       <FormatDate date={post.startTime} format={"MMM Do"}/>
@@ -46,7 +47,7 @@ const PostsItemDate = ({post, classes, hover, anchorEl}) => {
 
   if (post.isEvent && !post.startTime) {
     return <PostsItem2MetaInfo className={classes.startTime}>
-      <LWPopper anchorEl={anchorEl} tooltip placement="top">
+      <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip placement="top">
         <span>To Be Determined</span>
       </LWPopper>
       <span>TBD</span>
@@ -55,7 +56,7 @@ const PostsItemDate = ({post, classes, hover, anchorEl}) => {
 
   if (post.curatedDate) {
     return <PostsItem2MetaInfo className={classes.postedAt}>
-      <LWPopper anchorEl={anchorEl} tooltip placement="top">
+      <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover}  tooltip placement="top">
         <div>
           <div>Curated on <ExpandedDate date={post.curatedDate}/></div>
           <div>Posted on <ExpandedDate date={post.postedAt}/></div>
@@ -66,7 +67,7 @@ const PostsItemDate = ({post, classes, hover, anchorEl}) => {
   }
 
   return <PostsItem2MetaInfo className={classes.postedAt}>
-      <LWPopper anchorEl={anchorEl} tooltip placement="top">
+      <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip placement="top">
         <ExpandedDate date={post.postedAt}/>
       </LWPopper>
       <span>{moment(new Date(post.postedAt)).fromNow()}</span>

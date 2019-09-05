@@ -22,10 +22,17 @@ const styles = theme => ({
 })
 
 // this is a thin wrapper over MuiPopper so that we can set the zIndex however we want
-const LWPopper = ({classes, children, tooltip=false, ...props}) => {
+const LWPopper = ({classes, children, onMouseEnter, tooltip=false, modifiers, ...props}) => {
+  const newModifiers = {computeStyle: { gpuAcceleration: false}, ...modifiers}
   return (
-    <Popper className={classNames(classes.popper, {[classes.tooltip]:tooltip})} {...props}>
-      <span>{ children }</span>
+    <Popper 
+      className={classNames(classes.popper, {[classes.tooltip]:tooltip})} 
+      modifiers={newModifiers} 
+      {...props}
+    >
+      <span onMouseEnter={onMouseEnter}>
+        { children }
+      </span>
     </Popper>
   )
 };

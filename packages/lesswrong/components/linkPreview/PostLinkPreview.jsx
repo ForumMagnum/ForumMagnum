@@ -84,7 +84,17 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hove
   }
   return (
     <span>
-      <LWPopper open={hover} anchorEl={anchorEl} placement="bottom">
+      <LWPopper 
+        open={hover} 
+        anchorEl={anchorEl} 
+        placement="bottom"
+        modifiers={{
+          flip: {
+            behavior: ["bottom", "top", "bottom"],
+            boundariesElement: 'viewport'
+          }
+        }}
+      >
         <PostsItemTooltip post={post} showAllinfo wide truncateLimit={900}/>
       </LWPopper>
       {linkElement}

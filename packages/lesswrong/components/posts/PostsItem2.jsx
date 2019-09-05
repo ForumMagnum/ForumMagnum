@@ -20,7 +20,7 @@ export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 export const COMMENTS_WIDTH = 48
 
-const COMMENTS_BACKGROUND_COLOR = "rgba(0,0,0,.1)"
+const COMMENTS_BACKGROUND_COLOR = "#efefef"
 
 const styles = (theme) => ({
   root: {
@@ -38,6 +38,9 @@ const styles = (theme) => ({
     paddingBottom: 10,
     alignItems: "center",
     flexWrap: "nowrap",
+    '&:hover': {
+      backgroundColor: "#efefef"
+    },
     [theme.breakpoints.down('sm')]: {
       flexWrap: "wrap",
       paddingTop: theme.spacing.unit,
@@ -295,7 +298,7 @@ class PostsItem2 extends PureComponent {
   render() {
     const { classes, post, sequenceId, chapter, currentUser, index, terms, resumeReading,
       showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true,
-      defaultToShowUnreadComments=false, dismissRecommendation, isRead, dense, hover, anchorEl } = this.props
+      defaultToShowUnreadComments=false, dismissRecommendation, isRead, dense, hover, anchorEl, stopHover } = this.props
     const { showComments } = this.state
     const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltip, LWPopper } = Components
 
@@ -318,15 +321,8 @@ class PostsItem2 extends PureComponent {
         <LWPopper
           open={hover}
           anchorEl={anchorEl}
+          onMouseEnter={stopHover}
           placement="left-start"
-          modifiers={{
-            flip: {
-              behavior: ["left", "bottom"]
-            },
-            preventOverflow: {
-              boundariesElement: 'viewport',
-            },
-          }}
         >
           <PostsItemTooltip post={post} />
         </LWPopper>
