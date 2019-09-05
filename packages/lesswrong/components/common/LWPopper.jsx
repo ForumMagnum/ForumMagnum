@@ -9,7 +9,7 @@ const styles = theme => ({
     zIndex: theme.zIndexes.lwPopper
   },
   tooltip: {
-    backgroundColor: "rgba(0,0,0,.6)",
+    backgroundColor: theme.palette.grey[800],
     borderRadius: 3,
     ...theme.typography.commentStyle,
     ...theme.typography.body2,
@@ -29,9 +29,9 @@ const LWPopper = ({classes, children, onMouseEnter, tooltip=false, modifiers, ..
       modifiers={newModifiers} 
       {...props}
     >
-      <span className={tooltip ? classes.tooltip : null} onMouseEnter={onMouseEnter}>
+      <div className={tooltip ? classes.tooltip : null} onMouseEnter={onMouseEnter}>
         { children }
-      </span>
+      </div>
     </Popper>
   )
 };

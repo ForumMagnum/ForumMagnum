@@ -43,7 +43,7 @@ const PostsItemDate = ({post, classes, hover, anchorEl, stopHover}) => {
       <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip placement="top">
         <span>Event starts at <EventTime post={post} /></span>
       </LWPopper>
-      <FormatDate date={post.startTime} format={"MMM Do"}/>
+      <FormatDate date={post.startTime} format={"MMM Do"} tooltip={false}/>
     </PostsItem2MetaInfo>
   }
 
@@ -58,7 +58,7 @@ const PostsItemDate = ({post, classes, hover, anchorEl, stopHover}) => {
 
   if (post.curatedDate) {
     return <PostsItem2MetaInfo className={classes.postedAt}>
-      <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover}  tooltip placement="top">
+      <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip placement="top">
         <div>
           <div>Curated on <ExpandedDate date={post.curatedDate}/></div>
           <div>Posted on <ExpandedDate date={post.postedAt}/></div>

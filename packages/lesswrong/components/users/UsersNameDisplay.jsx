@@ -15,6 +15,9 @@ const styles = theme => ({
   userName: {
     whiteSpace: "nowrap"
   },
+  tooltip: {
+    maxWidth: 250,
+  },
   joined: {
     fontStyle: "italic", 
     marginBottom: theme.spacing.unit
@@ -63,7 +66,7 @@ const UsersNameDisplay = ({user, classes, nofollow=false, simple=false, hover, a
   return <Link to={Users.getProfileUrl(user)} className={classes.userName}
       {...(nofollow ? {rel:"nofollow"} : {})}
     >
-      <LWPopper placement="bottom" open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip>
+      <LWPopper className={classes.tooltip} placement="top" open={true} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip>
         {tooltip}
       </LWPopper>
       {Users.getDisplayName(user)}
