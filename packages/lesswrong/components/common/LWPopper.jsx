@@ -2,7 +2,6 @@ import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Popper from '@material-ui/core/Popper'
-import classNames from 'classnames';
 
 const styles = theme => ({
   popper: {
@@ -26,11 +25,11 @@ const LWPopper = ({classes, children, onMouseEnter, tooltip=false, modifiers, ..
   const newModifiers = {computeStyle: { gpuAcceleration: false}, ...modifiers}
   return (
     <Popper 
-      className={classNames(classes.popper, {[classes.tooltip]:tooltip})} 
+      className={classes.popper} 
       modifiers={newModifiers} 
       {...props}
     >
-      <span onMouseEnter={onMouseEnter}>
+      <span className={tooltip ? classes.tooltip : null} onMouseEnter={onMouseEnter}>
         { children }
       </span>
     </Popper>
