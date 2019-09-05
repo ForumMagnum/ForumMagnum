@@ -3,8 +3,17 @@ import React from 'react';
 import withUser from '../common/withUser';
 import Users from 'meteor/vulcan:users';
 import { useLocation } from '../../lib/routeUtil';
+import { withStyles } from '@material-ui/core/styles';
 
-const Home2 = ({currentUser}) => {
+const styles = theme => ({
+  map: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none'
+    }
+  }
+})
+
+const Home2 = ({currentUser, classes}) => {
   const { RecentDiscussionThreadsList, HomeLatestPosts, RecommendationsAndCurated, CommunityMapWrapper } = Components
 
   const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
@@ -16,7 +25,10 @@ const Home2 = ({currentUser}) => {
   return (
     <React.Fragment>
       {shouldRenderSidebar && <Components.SunshineSidebar/>}
-      <CommunityMapWrapper terms={mapEventTerms} />
+      {!currentUser?.hideFrontpageMap && <div className={classes.map}>
+        <CommunityMapWrapper terms={mapEventTerms} />
+      </div>}
+      
       <RecommendationsAndCurated configName="frontpage" />
       <HomeLatestPosts />
       <RecentDiscussionThreadsList
@@ -29,4 +41,4 @@ const Home2 = ({currentUser}) => {
   )
 }
 
-registerComponent('Home2', Home2, withUser);
+registerComponent('Home2', Home2, withUser, withStyles(styles, {name: "Home2"}));
