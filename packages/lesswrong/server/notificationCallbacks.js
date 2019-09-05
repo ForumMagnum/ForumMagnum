@@ -7,14 +7,13 @@ import Localgroups from '../lib/collections/localgroups/collection.js';
 import Users from 'meteor/vulcan:users';
 import { Posts } from '../lib/collections/posts';
 import { Comments } from '../lib/collections/comments'
-import { renderAndSendEmail, reasonUserCantReceiveEmails } from './emails/renderEmail.js';
+import { reasonUserCantReceiveEmails } from './emails/renderEmail.js';
 import './emailComponents/EmailWrapper.jsx';
 import './emailComponents/NewPostEmail.jsx';
 import './emailComponents/PrivateMessagesEmail.jsx';
 import { EventDebouncer } from './debouncer.js';
-import { UnsubscribeAllToken } from './emails/emailTokens.js';
 import { getNotificationTypeByName } from '../lib/notificationTypes.jsx';
-import { notificationDebouncers } from './notificationBatching.js';
+import { notificationDebouncers, wrapAndSendEmail } from './notificationBatching.js';
 
 import { Components, addCallback, newMutation } from 'meteor/vulcan:core';
 
@@ -129,19 +128,6 @@ const createNotification = async (userId, notificationType, documentType, docume
       af: false, //TODO: Handle AF vs non-AF notifications
     });
   }
-}
-
-export const wrapAndSendEmail = async ({user, subject, body}) => {
-  const unsubscribeAllLink = await UnsubscribeAllToken.generateLink(user._id);
-  await renderAndSendEmail({
-    user,
-    subject: subject,
-    bodyComponent: <Components.EmailWrapper
-      user={user} unsubscribeAllLink={unsubscribeAllLink}
-    >
-      {body}
-    </Components.EmailWrapper>
-  });
 }
 
 const sendPostByEmail = async (users, postId, reason) => {

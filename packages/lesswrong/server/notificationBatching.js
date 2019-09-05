@@ -1,10 +1,13 @@
+import React from 'react';
 import { Notifications } from '../lib/collections/notifications/collection.js';
 import { getNotificationTypes } from '../lib/notificationTypes.jsx';
 import { getNotificationTypeByNameServer } from './notificationTypesServer.jsx';
 import { EventDebouncer } from './debouncer.js';
-import { wrapAndSendEmail } from './notificationCallbacks.js';
 import toDictionary from '../lib/modules/utils/toDictionary.js';
 import Users from 'meteor/vulcan:users';
+import { Components } from 'meteor/vulcan:core';
+import { UnsubscribeAllToken } from './emails/emailTokens.js';
+import { renderAndSendEmail } from './emails/renderEmail.js';
 
 // string (notification type name) => Debouncer
 export const notificationDebouncers = toDictionary(getNotificationTypes(),
@@ -51,4 +54,17 @@ const sendNotificationBatch = async ({ userId, notificationType, notificationIds
       });
     }
   }
+}
+
+export const wrapAndSendEmail = async ({user, subject, body}) => {
+  const unsubscribeAllLink = await UnsubscribeAllToken.generateLink(user._id);
+  await renderAndSendEmail({
+    user,
+    subject: subject,
+    bodyComponent: <Components.EmailWrapper
+      user={user} unsubscribeAllLink={unsubscribeAllLink}
+    >
+      {body}
+    </Components.EmailWrapper>
+  });
 }
