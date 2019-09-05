@@ -2,7 +2,8 @@ import { Posts } from '../posts'
 import { Comments } from './collection.js'
 import Users from "meteor/vulcan:users"
 import { getSetting } from 'meteor/vulcan:core'
-
+import { accessFilterMultiple } from '../../modules/utils/schemaUtils'
+import moment from 'moment';
 
 /**
  * @summary Get a comment author's name
@@ -50,6 +51,28 @@ Comments.defaultToAlignment = (currentUser, post, comment) => {
 
 Comments.getDefaultView = (post, currentUser) => {
   return (post && post.commentSortOrder) || (currentUser && currentUser.commentSorting) || "postCommentsTop"
+}
+
+Comments.getLatest = async ({ post, currentUser, commentsLimit, maxAgeHours, af}) => {
+  const timeCutoff = moment().subtract(maxAgeHours, 'hours').toDate();
+  const comments = Comments.find({
+    ...Comments.defaultView({}).selector,
+    postId: post._id,
+    score: {$gt:0},
+    deletedPublic: false,
+    postedAt: {$gt: timeCutoff},
+    ...(af ? {af:true} : {}),
+  }, {
+    limit: commentsLimit,
+    sort: {postedAt:-1}
+  }).fetch();
+
+  const topLevelCommentIds = _.uniq(comments.map((comment)=>comment.topLevelCommentId))
+  const commentIds = comments.map((comment)=>comment._id)
+  const newTopLevelCommentIds = _.difference(topLevelCommentIds, commentIds)
+  const newTopLevelComments = Comments.find({_id:{$in: newTopLevelCommentIds}}).fetch()
+
+  return accessFilterMultiple(currentUser, Comments, [...comments, ...newTopLevelComments]);
 }
 
 Comments.getKarma = (comment) => {

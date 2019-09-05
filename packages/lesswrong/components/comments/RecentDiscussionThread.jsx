@@ -103,7 +103,7 @@ class RecentDiscussionThread extends PureComponent {
   }
 
   markAsRead = async () => {
-    this.setState({readStatus:true, markedAsVisitedAt: new Date(), expandAllThreads: true});
+    this.setState({readStatus:true, markedAsVisitedAt: new Date()});
     this.props.recordPostView({post:this.props.post})
   }
 
@@ -160,8 +160,7 @@ class RecentDiscussionThread extends PureComponent {
               <div key={comment.item._id}>
                 <CommentsNode
                   startThreadTruncated={true}
-                  expandAllThreads={this.props.expandAllThreads || this.state.expandAllThreads}
-                  scrollOnExpand
+                  expandAllThreads={this.props.expandAllThreads}
                   nestingLevel={1}
                   lastCommentId={lastCommentId}
                   currentUser={currentUser}

@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
-import { unflattenComments, addGapIndicators } from '../../lib/modules/utils/unflatten';
+import { unflattenComments } from '../../lib/modules/utils/unflatten';
 import withRecordPostView from '../common/withRecordPostView';
 import { withStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -40,9 +40,6 @@ class CommentWithReplies extends PureComponent {
     const extraChildrenCount = (comment.latestChildren.length > renderedChildren.length) && (comment.latestChildren.length - renderedChildren.length)
 
     let nestedComments = unflattenComments(renderedChildren)
-    if (extraChildrenCount > 0) {
-      nestedComments = addGapIndicators(nestedComments)
-    }
 
     const lastVisitedAt = markedAsVisitedAt || comment.post.lastVisitedAt
 

@@ -511,6 +511,7 @@ class EditorFormComponent extends Component {
   render() {
     const { editorOverride } = this.state
     const { document, currentUser, formType, classes, fieldName } = this.props
+    
     const currentEditorType = this.getCurrentEditorType()
 
     if (!document) return null;
