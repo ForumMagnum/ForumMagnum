@@ -11,6 +11,7 @@ export const START_TIME_WIDTH = 72
 const styles = theme => ({
   postedAt: {
     '&&': {
+      cursor: "pointer",
       width: POSTED_AT_WIDTH,
       fontWeight: 300,
       fontSize: "1rem",
@@ -22,6 +23,7 @@ const styles = theme => ({
   },
   startTime: {
     '&&': {
+      cursor: "pointer",
       width: START_TIME_WIDTH,
       fontWeight: 300,
       fontSize: "1rem",

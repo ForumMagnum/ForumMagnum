@@ -62,11 +62,9 @@ const styles = theme => ({
   },
   indicator: {
     position: "absolute",
-    bottom: 6,
     width: 20,
     fontSize: 8,
     display: "inline-block",
-    fontWeight: 700,
     color: theme.palette.primary.main,
     cursor: "pointer",
   }
