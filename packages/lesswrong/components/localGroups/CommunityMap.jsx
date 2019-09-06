@@ -14,6 +14,7 @@ import EventIcon from '@material-ui/icons/Event';
 import PersonIcon from '@material-ui/icons/Person';
 import withDialog from '../common/withDialog'
 import withUser from '../common/withUser.js';
+import classNames from 'classnames';
 
 const mapsAPIKey = getSetting('googleMaps.apiKey', null);
 
@@ -32,32 +33,24 @@ const styles = theme => ({
     }
   },
   communityMap: {},
-  addGroup: {
+  mapButton: {
     position: 'absolute',
-    top: 130,
     right: 10,
     padding: 10,
     display: "flex",
     alignItems: "center",
-    cursor: "pointer"
+    cursor: "pointer",
+    borderRadius: 2,
+    width: 120
+  },
+  addGroup: {
+    top: 130,
   },
   addEvent: {
-    position: 'absolute',
     top: 182,
-    right: 10,
-    padding: 10,
-    display: "flex",
-    alignItems: "center",
-    cursor: "pointer"
   },
   addMyself: {
-    position: 'absolute',
     top: 235,
-    right: 10,
-    padding: 10,
-    display: "flex",
-    alignItems: "center",
-    cursor: "pointer"
   },
   buttonText: {
     marginLeft: 10,
@@ -134,19 +127,22 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
           <PersonalMapLocationMarkers users={users} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />
           <Components.CommunityMapFilter />
           <Paper 
-            className={classes.addGroup} 
+            elevation={1}
+            className={classNames(classes.mapButton, classes.addGroup)} 
             onClick={createFallBackDialogHandler(openDialog, "GroupFormDialog", currentUser)}
           >
             <AddLocationIcon /> <span className={classes.buttonText}>New Group</span>
           </Paper>
           <Paper 
-            className={classes.addEvent}
+            elevation={1}
+            className={classNames(classes.mapButton, classes.addEvent)}
             onClick={() => history.push({ pathname: 'newPost', search: `?eventForm=true`})}
           >
             <EventIcon /> <span className={classes.buttonText}> New Event </span>
           </Paper>
           <Paper 
-            className={classes.addMyself}
+            elevation={1}
+            className={classNames(classes.mapButton, classes.addMyself)}
             onClick={createFallBackDialogHandler(openDialog, "SetPersonalMapLocationDialog", currentUser)}
           >
             <PersonIcon /> <span className={classes.buttonText}> Add Myself </span>
