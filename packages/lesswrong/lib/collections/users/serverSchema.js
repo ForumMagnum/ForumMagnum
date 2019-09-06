@@ -11,5 +11,14 @@ addFieldsDict(Users, {
         return await markdownToHtml(user.bio);
       }
     })
-  }
+  },
+  htmlMapMarkerText: {
+    ...denormalizedField({
+      needsUpdate: (data) => ('mapMarkerText' in data),
+      getValue: async (user) => {
+        if (!user.mapMarkerText) return "";
+        return await markdownToHtml(user.mapMarkerText);
+      }
+    })
+  },
 });

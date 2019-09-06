@@ -132,7 +132,7 @@ class RecentDiscussionThread extends PureComponent {
         <div className={(currentUser && !(isRead || readStatus)) ? classes.unreadPost : null}>
           <div className={classes.postItem}>
             <Link className={classes.title} to={Posts.getPageUrl(post)}>
-              <PostsTitle wrap post={post} />
+              <PostsTitle wrap post={post} tooltip={false}/>
             </Link>
 
             <div className={classes.threadMeta} onClick={this.showHighlight}>

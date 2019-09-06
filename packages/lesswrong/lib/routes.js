@@ -241,6 +241,13 @@ if (getSetting('hasEvents', true)) {
     },
 
     {
+      name: 'AllLocalGroups',
+      path: '/allgroups',
+      componentName: 'AllGroupsPage',
+      title: "All Local Groups"
+    },
+
+    {
       name:'Localgroups.single',
       path: '/groups/:groupId',
       componentName: 'LocalGroupSingle',

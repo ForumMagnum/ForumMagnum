@@ -191,6 +191,7 @@ Posts.canDelete = (currentUser, post) => {
   return Users.owns(currentUser, post) && post.draft
 }
 
+
 export const postHasModerationGuidelines = (post) => {
   if (post.moderationStyle)
     return true;
@@ -199,4 +200,9 @@ export const postHasModerationGuidelines = (post) => {
   // we check for originalContents instead of html here, which causes some problems with empty strings, but 
   // should overall be fine
   return !!post.moderationGuidelines_latest?.originalContents;
+}
+
+Posts.getKarma = (post) => {
+  const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
+  return baseScore || 0
 }

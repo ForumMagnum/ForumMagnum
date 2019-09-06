@@ -113,6 +113,15 @@ registerFragment(`
     location
     googleLocation
     mongoLocation
+    mapLocation
+    mapLocationSet
+    mapMarkerText
+    htmlMapMarkerText
+    nearbyEventsNotifications
+    nearbyEventsNotificationsLocation
+    nearbyEventsNotificationsRadius
+    nearbyPeopleNotificationThreshold
+    hideFrontpageMap
     emailSubscribedToCurated
     unsubscribeFromAll
     emails
@@ -400,6 +409,10 @@ registerFragment(`
     bannedUserIds
     location
     googleLocation
+    mapLocation
+    mapLocationSet
+    mapMarkerText
+    htmlMapMarkerText
     mongoLocation
     shortformFeedId
     viewUnreviewedComments
@@ -470,6 +483,8 @@ registerFragment(`
     karmaChangeNotifierSettings
 
     recommendationSettings
+
+    hideFrontpageMap
   }
 `)
 

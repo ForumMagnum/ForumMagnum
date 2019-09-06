@@ -1060,6 +1060,8 @@ class SmartForm extends Component {
     revertLabel: this.props.revertLabel,
     cancelCallback: this.props.cancelCallback,
     revertCallback: this.props.revertCallback,
+    updateCurrentValues: this.updateCurrentValues,
+    formType: this.getFormType(),
     document: this.getDocument(),
     deleteDocument:
       (this.getFormType() === 'edit' &&

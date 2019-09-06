@@ -1,5 +1,4 @@
-import { registerMigration, migrateDocuments } from './migrationUtils';
-import { forEachDocumentBatchInCollection } from '../queryUtil.js';
+import { registerMigration, migrateDocuments, forEachDocumentBatchInCollection } from './migrationUtils';
 import { getCollection } from 'meteor/vulcan:core'
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable';
 import { Revisions } from '../../lib/index';
@@ -25,7 +24,7 @@ registerMigration({
     {
       const collection = getCollection(collectionName);
       // eslint-disable-next-line no-console
-      console.log("Updating ${collectionName}.${fieldName}_latest");
+      console.log(`Updating ${collectionName}.${fieldName}_latest`);
       await forEachDocumentBatchInCollection({
         collection: collection,
         filter: {

@@ -35,6 +35,7 @@ const styles = theme => ({
     boxShadow: "0 1px 1px rgba(0, 0, 0, 0.05), 0 1px 1px rgba(0, 0, 0, 0.05)",
   },
   root: {
+    height: 64,
     flexGrow: 1,
     "@media print": {
       display: "none"
