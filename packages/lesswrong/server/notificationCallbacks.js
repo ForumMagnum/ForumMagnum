@@ -17,6 +17,7 @@ import { Components, addCallback, newMutation } from 'meteor/vulcan:core';
 
 import React from 'react';
 import keyBy from 'lodash/keyBy';
+import Sentry from '@sentry/node';
 
 const createNotifications = async (userIds, notificationType, documentType, documentId) => {
   return Promise.all(
