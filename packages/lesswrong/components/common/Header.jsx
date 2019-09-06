@@ -52,7 +52,9 @@ const styles = theme => ({
     '&:hover, &:focus, &:active': {
       textDecoration: 'none',
       opacity: 0.7,
-    }
+    },
+    display: 'inline-flex',
+    alignItems: 'center',
   },
   menuButton: {
     marginLeft: -theme.spacing.unit,
@@ -120,10 +122,7 @@ class Header extends PureComponent {
     notificationOpen: false,
     notificationHasOpened: false,
     searchOpen: false,
-<<<<<<< HEAD
-=======
     unFixed: true
->>>>>>> master
   }
 
   setNavigationOpen = (open) => {
