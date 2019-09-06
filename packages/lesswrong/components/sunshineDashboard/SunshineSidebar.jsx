@@ -7,7 +7,6 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { defineComponent } from '../defineComponent';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
@@ -16,7 +15,7 @@ const styles = theme => ({
     top:0,
     right:0,
     width:250,
-    marginTop:63,
+    marginTop:505,
     zIndex: theme.zIndexes.sunshineSidebar,
     display:"none",
     [theme.breakpoints.up('lg')]: {

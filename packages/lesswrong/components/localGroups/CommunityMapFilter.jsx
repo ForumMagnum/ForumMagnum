@@ -14,7 +14,8 @@ const styles = theme => ({
     position: "absolute",
     top: "10px",
     padding: "10px 10px 5px 10px",
-    right: "10px"
+    right: "10px",
+    borderRadius: 2
   },
   filters: {
   },
