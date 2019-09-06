@@ -81,6 +81,9 @@ const styles = theme => ({
       marginBottom: 0
     }
   },
+  hoverPreview: {
+    marginBottom: 0
+  },
   children: {
     position: "relative"
   },
@@ -250,7 +253,7 @@ class CommentsNode extends Component {
     const { comment, children, nestingLevel=1, highlightDate, updateComment, post,
       muiTheme, postPage, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments,
-      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand } = this.props;
+      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand, hoverPreview } = this.props;
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList } = Components
 
@@ -294,6 +297,7 @@ class CommentsNode extends Component {
         [classes.isSingleLine]: this.isSingleLine(),
         [classes.commentHidden]: hiddenReadComment,
         [classes.shortformTop]: postPage && shortform && (updatedNestingLevel===1),
+        [classes.hoverPreview]: hoverPreview,
       }
     )
 

@@ -24,15 +24,23 @@ const styles = theme => ({
     '& img': {
       maxHeight: "200px"
     },
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    },
+  },
+  hideOnMedium: {
     [theme.breakpoints.down('md')]: {
       display: "none"
     },
   },
   wide: {
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       width: `calc(100% - ${theme.spacing.unit*4}px)`,
       marginLeft: theme.spacing.unit,
       marginRight: theme.spacing.unit
+    },
+    [theme.breakpoints.up('sm')]: {
+      width: 450,
     },
     [theme.breakpoints.up('md')]: {
       width: 550,
@@ -109,14 +117,14 @@ const getPostCategory = (post) => {
     return post.question ? `Question` : `Personal Blogpost`
 }
 
-const PostsItemTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMobile=true, truncateLimit=600 }) => {
+const PostsItemTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMedium=true, truncateLimit=600 }) => {
   const { PostsUserAndCoauthors, PostsTitle, ContentItemBody } = Components
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
   const highlight = truncate(htmlHighlight, truncateLimit)
   const renderCommentCount = showAllinfo && (Posts.getCommentCount(post) > 0)
   return <Card>
-    <div className={classNames(classes.root, {[classes.wide]: wide})}>
+    <div className={classNames(classes.root, {[classes.wide]: wide, [classes.hideOnMedium]: hideOnMedium})}>
       {showAllinfo && <PostsTitle post={post} tooltip={false}/>}
       <div className={classes.tooltipInfo}>
         { getPostCategory(post)}

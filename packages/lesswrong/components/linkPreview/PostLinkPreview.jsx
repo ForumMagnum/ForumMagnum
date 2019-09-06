@@ -132,7 +132,7 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hove
           }
         }}
       >
-        <PostsItemTooltip post={post} showAllinfo wide truncateLimit={900}/>
+        <PostsItemTooltip post={post} showAllinfo wide truncateLimit={900} hideOnMedium={false}/>
       </LWPopper>
       {linkElement}
     </span>
@@ -144,7 +144,7 @@ const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post,
   const { CommentsNode, LWPopper } = Components
   const linkElement = <span className={classes.linkElement}>
       <Link className={classes.link} to={href}>
-        <span dangerouslySetInnerHTML={{__html: innerHTML}}></span>{}<span className={classes.indicator}>LW</span>
+        <span dangerouslySetInnerHTML={{__html: innerHTML}}></span>{" "}<span className={classes.indicator}>LW</span>
       </Link>
     </span>
 
