@@ -20,7 +20,7 @@ const PostLinkPreview = ({href, targetLocation, innerHTML}) => {
     documentId: postID,
   });
   
-  return <Components.PostLinkPreviewWithPost post={post} error={error} href={href} innerHTML={innerHTML} />
+  return <Components.PostLinkPreviewVariantCheck post={post} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} />
 }
 registerComponent('PostLinkPreview', PostLinkPreview);
 
@@ -32,11 +32,10 @@ const PostLinkPreviewSequencePost = ({href, targetLocation, innerHTML}) => {
     queryName: "postLinkPreview",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-then-network',
-    
     documentId: postID,
   });
   
-  return <Components.PostLinkPreviewWithPost post={post} error={error} href={href} innerHTML={innerHTML} />
+  return <Components.PostLinkPreviewVariantCheck post={post} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} />
 }
 registerComponent('PostLinkPreviewSequencePost', PostLinkPreviewSequencePost);
 
@@ -44,7 +43,7 @@ const PostLinkPreviewSlug = ({href, targetLocation, innerHTML}) => {
   const slug = targetLocation.params.slug;
   const { post, error } = usePostBySlug({ slug });
   
-  return <Components.PostLinkPreviewWithPost href={href} innerHTML={innerHTML} post={post} error={error} />
+  return <Components.PostLinkPreviewVariantCheck href={href} innerHTML={innerHTML} post={post} targetLocation={targetLocation} error={error} />
 }
 registerComponent('PostLinkPreviewSlug', PostLinkPreviewSlug);
 
@@ -52,9 +51,28 @@ const PostLinkPreviewLegacy = ({href, targetLocation, innerHTML}) => {
   const legacyId = targetLocation.params.id;
   const { post, error } = usePostByLegacyId({ legacyId });
   
-  return <Components.PostLinkPreviewWithPost href={href} innerHTML={innerHTML} post={post} error={error} />
+  return <Components.PostLinkPreviewVariantCheck href={href} innerHTML={innerHTML} post={post} targetLocation={targetLocation} error={error} />
 }
 registerComponent('PostLinkPreviewLegacy', PostLinkPreviewLegacy);
+
+const PostLinkPreviewVariantCheck = ({ href, innerHTML, post, targetLocation, comment, commentId, error }) => {
+
+  if (targetLocation.params.commentId) {
+    return <PostLinkCommentPreview commentId={targetLocation.params.commentId} href={href} innerHTML={innerHTML} post={post} />
+  }
+  if (targetLocation.hash) {
+    const commentId = targetLocation.hash.split("#")[1] 
+    return <PostLinkCommentPreview commentId={commentId} href={href} innerHTML={innerHTML} post={post} />
+  }
+
+  if (commentId) {
+    return <Components.PostLinkCommentPreview commentId={commentId} href={href} innerHTML={innerHTML}/>
+  }
+
+  return <Components.PostLinkPreviewWithPost href={href} innerHTML={innerHTML} post={post} error={error} />
+}
+registerComponent('PostLinkPreviewVariantCheck', PostLinkPreviewVariantCheck);
+
 
 const styles = theme => ({
   link: {
@@ -70,6 +88,26 @@ const styles = theme => ({
     cursor: "pointer",
   }
 })
+
+
+const PostLinkCommentPreview = ({href, commentId, post, innerHTML}) => {
+
+  const { document: comment, error } = useSingle({
+    collection: Comments,
+    queryName: "commentLinkPreview",
+    fragmentName: 'CommentsList',
+    fetchPolicy: 'cache-then-network',
+    documentId: commentId,
+  });
+  
+  if (comment) {
+    return <Components.CommentLinkPreviewWithComment comment={comment} post={post} error={error} href={href} innerHTML={innerHTML} />
+  }
+  return <PostLinkPreview />
+
+}
+registerComponent('PostLinkCommentPreview', PostLinkCommentPreview);
+
 
 const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hover}) => {
   const { PostsItemTooltip, LWPopper } = Components
@@ -101,6 +139,45 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hove
   );
 }
 registerComponent('PostLinkPreviewWithPost', PostLinkPreviewWithPost, withHover, withStyles(styles, {name:"PostLinkPreviewWithPost"}));
+
+const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post, anchorEl, hover}) => {
+  const { CommentsNode, LWPopper } = Components
+  const linkElement = <span className={classes.linkElement}>
+      <Link className={classes.link} to={href}>
+        <span dangerouslySetInnerHTML={{__html: innerHTML}}></span>{}<span className={classes.indicator}>LW</span>
+      </Link>
+    </span>
+
+  if (!comment) {
+    return linkElement;
+  }
+  return (
+    <span>
+      <LWPopper 
+        open={hover} 
+        anchorEl={anchorEl} 
+        placement="bottom"
+        modifiers={{
+          flip: {
+            behavior: ["bottom", "top", "bottom"],
+            boundariesElement: 'viewport'
+          } 
+        }}
+      >
+        <Card style={{maxWidth:600}}>
+          <CommentsNode
+            truncated
+            comment={comment}
+            post={post}
+            showPostTitle
+          />
+        </Card>
+      </LWPopper>
+      {linkElement}
+    </span>
+  );
+}
+registerComponent('CommentLinkPreviewWithComment', CommentLinkPreviewWithComment, withHover, withStyles(styles, {name:"CommentLinkPreviewWithComment"}));
 
 const defaultPreviewStyles = theme => ({
   hovercard: {
