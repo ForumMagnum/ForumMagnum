@@ -53,6 +53,9 @@ import './collections/reports/views.js'
 // LWEvents
 import { LWEvents } from './collections/lwevents/index.js';
 
+// DatabaseMetadata
+import './collections/databaseMetadata/collection.js';
+
 // DebouncerEvents
 import './collections/debouncerEvents/collection.js';
 
