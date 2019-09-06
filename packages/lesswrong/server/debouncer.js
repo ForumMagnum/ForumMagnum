@@ -139,6 +139,11 @@ export const dispatchPendingEvents = async () => {
       try {
         await dispatchEvent(eventToHandle);
       } catch (e) {
+        DebouncerEvents.update({
+          _id: eventToHandle._id
+        }, {
+          $set: { failed: true }
+        });
         Sentry.captureException(new Error(`Exception thrown while handling debouncer event ${eventToHandle._id}: ${e}`));
         Sentry.captureException(e);
       }
