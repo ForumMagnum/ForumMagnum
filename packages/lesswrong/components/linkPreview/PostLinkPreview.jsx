@@ -103,7 +103,7 @@ const PostLinkCommentPreview = ({href, commentId, post, innerHTML}) => {
   if (comment) {
     return <Components.CommentLinkPreviewWithComment comment={comment} post={post} error={error} href={href} innerHTML={innerHTML} />
   }
-  return <PostLinkPreview />
+  return <Components.PostLinkPreviewWithPost href={href} innerHTML={innerHTML} post={post} error={error} />
 
 }
 registerComponent('PostLinkCommentPreview', PostLinkCommentPreview);
@@ -170,6 +170,7 @@ const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post,
             comment={comment}
             post={post}
             showPostTitle
+            hoverPreview
           />
         </Card>
       </LWPopper>
