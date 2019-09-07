@@ -75,6 +75,7 @@ const styles = theme => ({
     color: theme.palette.grey[500],
     // Dark Magick
     // https://giphy.com/gifs/psychedelic-art-phazed-12GGadpt5aIUQE
+    // Without this code, there's a weird thing where if you try to click the placeholder text, instead of focusing on the editor element, it... doesn't. This is overriding something habryka did to make spoiler tags work. We discussed this for awhile and this seemed like the best option.
     pointerEvents: "none",
     "& *": {
       pointerEvents: "none",
@@ -460,16 +461,16 @@ class EditorFormComponent extends Component {
     }
   }
 
-  renderPlaintextEditor = () => {
-    const { markdownValue } = this.state
+  renderPlaintextEditor = (editorType) => {
+    const { markdownValue, htmlValue } = this.state
     const { classes, multiLine, fullWidth, disableUnderline, startAdornment, form: { commentStyles }, label } = this.props
-    const value = markdownValue || ""
+    const value = (editorType === "html" ? htmlValue : markdownValue) || ""
     return <div>
         { this.renderPlaceholder(!value) }
         <Input
           className={classNames(classes.markdownEditor, this.getBodyStyles(), {[classes.questionWidth]: document.question})}
           value={value}
-          onChange={this.setMarkdown}
+          onChange={editorType === "html" ? this.setHtml : this.setMarkdown}
           multiline={multiLine}
           rows={commentStyles ? commentEditorHeightRows : postEditorHeightRows}
           rowsMax={99999}

@@ -2,7 +2,6 @@ import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles'
 import classNames from 'classnames';
-import Tooltip from '@material-ui/core/Tooltip';
 import withUser from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';
 
@@ -36,8 +35,8 @@ const styles = theme => ({
         overflow: "visible",
         textOverflow: "unset",
         position: "absolute",
-        background: "white",
-        borderImage: "linear-gradient(to right, white, rgba(255,255,255,0)) 1 100%",
+        background: "#efefef",
+        borderImage: "linear-gradient(to right, #efefef, rgba(255,255,255,0)) 1 100%",
         borderRightWidth: 20,
         borderRightStyle: "solid",
         backgroundClip: "padding-box",
@@ -85,41 +84,12 @@ const stickyIcon = <svg fill="#000000" height="15" viewBox="0 0 10 15" width="10
 
 const PostsTitle = ({currentUser, post, classes, sticky, read, expandOnHover, tooltip=true, showQuestionTag=true, wrap=false}) => {
   const { pathname } = useLocation();
-  const { PostsItemIcons, PostsItemTooltip } = Components
+  const { PostsItemIcons } = Components
 
   const shared = post.draft && (post.userId !== currentUser._id)
 
   const shouldRenderQuestionTag = (pathname !== "/questions") && showQuestionTag
   const shouldRenderEventsTag = pathname !== "/community"
-
-  const unwrappedTitle = <React.Fragment>
-      {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
-
-      {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
-
-      {shared && <span className={classes.tag}>[Shared]</span>}
-
-      {post.question && shouldRenderQuestionTag && <span className={classes.tag}>[Question]</span>}
-
-      {post.url && <span className={classes.tag}>[Link]</span>}
-
-      {post.isEvent && shouldRenderEventsTag && <span className={classes.tag}>[Event]</span>}
-
-      <span>{post.title}</span>
-    </React.Fragment>
-
-  const titleWithTooltip = tooltip
-    ? (<Tooltip
-        title={<PostsItemTooltip post={post} />}
-        classes={{tooltip:classes.tooltip, popper: classes.popper}}
-        TransitionProps={{ timeout: 0 }}
-        placement="left-start"
-        enterDelay={0}
-        PopperProps={{ style: { pointerEvents: 'none' } }}
-      >
-        <span>{unwrappedTitle}</span>
-      </Tooltip>)
-    : unwrappedTitle
 
   return <span className={classNames(
     classes.root,
@@ -129,7 +99,19 @@ const PostsTitle = ({currentUser, post, classes, sticky, read, expandOnHover, to
       [classes.wrap]: wrap
     }
   )}>
-    {titleWithTooltip}
+    {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
+
+    {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
+
+    {shared && <span className={classes.tag}>[Shared]</span>}
+
+    {post.question && shouldRenderQuestionTag && <span className={classes.tag}>[Question]</span>}
+
+    {post.url && <span className={classes.tag}>[Link]</span>}
+
+    {post.isEvent && shouldRenderEventsTag && <span className={classes.tag}>[Event]</span>}
+
+    <span>{post.title}</span>
 
     <span className={classes.hideSmDown}>
       <PostsItemIcons post={post}/>

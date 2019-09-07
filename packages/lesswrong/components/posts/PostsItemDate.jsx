@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import { ExpandedDate } from '../common/FormatDate.jsx';
-import Tooltip from '@material-ui/core/Tooltip';
+import withHover from '../common/withHover.jsx';
 import moment from 'moment-timezone';
 
 export const POSTED_AT_WIDTH = 38
@@ -11,6 +11,7 @@ export const START_TIME_WIDTH = 72
 const styles = theme => ({
   postedAt: {
     '&&': {
+      cursor: "pointer",
       width: POSTED_AT_WIDTH,
       fontWeight: 300,
       fontSize: "1rem",
@@ -22,6 +23,7 @@ const styles = theme => ({
   },
   startTime: {
     '&&': {
+      cursor: "pointer",
       width: START_TIME_WIDTH,
       fontWeight: 300,
       fontSize: "1rem",
@@ -33,43 +35,46 @@ const styles = theme => ({
   },
 });
 
-const PostsItemDate = ({post, classes}) => {
-  const { PostsItem2MetaInfo, EventTime, FormatDate } = Components;
-  
-  if (post.isEvent)
-  {
-    return (<PostsItem2MetaInfo className={classes.startTime}>
-      {post.startTime
-        ? <Tooltip title={<span>Event starts at <EventTime post={post} /></span>}>
-            <FormatDate date={post.startTime} format={"MMM Do"}/>
-          </Tooltip>
-        : <Tooltip title={<span>To Be Determined</span>}>
-            <span>TBD</span>
-          </Tooltip>}
-    </PostsItem2MetaInfo>);
+const PostsItemDate = ({post, classes, hover, anchorEl, stopHover}) => {
+  const { PostsItem2MetaInfo, EventTime, FormatDate, LWPopper } = Components;
+
+  if (post.isEvent && post.startTime) {
+    return <PostsItem2MetaInfo className={classes.startTime}>
+      <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip placement="top">
+        <span>Event starts at <EventTime post={post} /></span>
+      </LWPopper>
+      <FormatDate date={post.startTime} format={"MMM Do"} tooltip={false}/>
+    </PostsItem2MetaInfo>
   }
-  else if (post.curatedDate)
-  {
-    return (<PostsItem2MetaInfo className={classes.postedAt}>
-      <Tooltip title={<div>
-        <div>Curated on <ExpandedDate date={post.curatedDate}/></div>
-        <div>Posted on <ExpandedDate date={post.postedAt}/></div>
-      </div>}>
-        <span>{moment(new Date(post.curatedDate)).fromNow()}</span>
-      </Tooltip>
-    </PostsItem2MetaInfo>);
+
+  if (post.isEvent && !post.startTime) {
+    return <PostsItem2MetaInfo className={classes.startTime}>
+      <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip placement="top">
+        <span>To Be Determined</span>
+      </LWPopper>
+      <span>TBD</span>
+    </PostsItem2MetaInfo>
   }
-  else
-  {
-    return (<PostsItem2MetaInfo className={classes.postedAt}>
-      <Tooltip title={
+
+  if (post.curatedDate) {
+    return <PostsItem2MetaInfo className={classes.postedAt}>
+      <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip placement="top">
+        <div>
+          <div>Curated on <ExpandedDate date={post.curatedDate}/></div>
+          <div>Posted on <ExpandedDate date={post.postedAt}/></div>
+        </div>
+      </LWPopper>
+      <span>{moment(new Date(post.curatedDate)).fromNow()}</span>
+    </PostsItem2MetaInfo>
+  }
+
+  return <PostsItem2MetaInfo className={classes.postedAt}>
+      <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip placement="top">
         <ExpandedDate date={post.postedAt}/>
-      }>
-        <span>{moment(new Date(post.postedAt)).fromNow()}</span>
-      </Tooltip>
-    </PostsItem2MetaInfo>);
-  }
+      </LWPopper>
+      <span>{moment(new Date(post.postedAt)).fromNow()}</span>
+    </PostsItem2MetaInfo>
 }
 
-registerComponent("PostsItemDate", PostsItemDate,
+registerComponent("PostsItemDate", PostsItemDate, withHover,
   withStyles(styles, {name: "PostsItemDate"}));

@@ -1,14 +1,14 @@
 import { registerMigration, fillDefaultValues } from './migrationUtils';
 
-import { Posts } from '../../lib/collections/posts/collection.js';
+import { Localgroups } from '../../lib/collections/localgroups/collection.js';
 
 registerMigration({
-  name: "setDefaultShortformValue",
+  name: "setDefaultGroupActiveStatus",
   idempotent: true,
   action: async () => {
     await fillDefaultValues({
-      collection: Posts,
-      fieldName: "shortform",
+      collection: Localgroups,
+      fieldName: "inactive",
     });
   },
 });

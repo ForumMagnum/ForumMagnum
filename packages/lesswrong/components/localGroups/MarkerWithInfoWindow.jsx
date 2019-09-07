@@ -1,3 +1,4 @@
+/* global google */
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { Marker, InfoWindow } from "@react-google-maps/api"
@@ -30,7 +31,7 @@ const MarkerWithInfoWindow = ({position, markerIcon, onMarkerClick, onInfoWindow
       clusterer={clusterer}
     >
       {infoOpen &&
-        <InfoWindow position={position}>
+        <InfoWindow position={position} options={{pixelOffset: new google.maps.Size(0, -18)}}>
           <div className={classes.mapInfoWindow}>
             <a><CloseIcon className={classes.closeIcon} onClick={onInfoWindowClose}/></a>
             {children}
@@ -39,6 +40,5 @@ const MarkerWithInfoWindow = ({position, markerIcon, onMarkerClick, onInfoWindow
       }
     </Marker>
 }
-  
-  registerComponent("MarkerWithInfoWindow", MarkerWithInfoWindow, withStyles(styles, { name: "MarkerWithInfoWindow" }));
-  
+
+registerComponent("MarkerWithInfoWindow", MarkerWithInfoWindow, withStyles(styles, { name: "MarkerWithInfoWindow" }));

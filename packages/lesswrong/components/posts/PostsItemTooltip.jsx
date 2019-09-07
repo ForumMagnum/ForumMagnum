@@ -7,11 +7,11 @@ import { postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping
 import classNames from 'classnames';
 import { Posts } from '../../lib/collections/posts';
 import CommentIcon from '@material-ui/icons/ModeComment';
+import Card from '@material-ui/core/Card';
 
 const styles = theme => ({
   root: {
-    width: 305,
-    backgroundColor: "white",
+    width: 290,
     position: "relative",
     [theme.breakpoints.up('sm')]: {
       marginTop: theme.spacing.unit,
@@ -19,22 +19,28 @@ const styles = theme => ({
     },
     ...postHighlightStyles(theme),
     padding: theme.spacing.unit*1.5,
-    border: "solid 1px rgba(0,0,0,.2)",
-    boxShadow: "0 0 10px rgba(0,0,0,.2)",
+    paddingTop: theme.spacing.unit,
+    paddingBottom: theme.spacing.unit,
     '& img': {
       maxHeight: "200px"
     },
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    },
   },
-  hideOnMobile: {
-    [theme.breakpoints.down('sm')]: {
+  hideOnMedium: {
+    [theme.breakpoints.down('md')]: {
       display: "none"
     },
   },
   wide: {
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       width: `calc(100% - ${theme.spacing.unit*4}px)`,
       marginLeft: theme.spacing.unit,
       marginRight: theme.spacing.unit
+    },
+    [theme.breakpoints.up('sm')]: {
+      width: 450,
     },
     [theme.breakpoints.up('md')]: {
       width: 550,
@@ -64,19 +70,7 @@ const styles = theme => ({
     },
     '& hr': {
       display: "none"
-    },
-    // '& a': {
-    //   // hide link-styling because it's infuriating that you can't actually click on them
-    //   color: "unset",
-    //   textDecorationColor: "none",
-    //   textShadow: "none",
-    //   backgroundImage: "none",
-    //   underline: "none",
-    //   '&:hover': {
-    //     color: "unset",
-    //     opacity: "unset"
-    //   }
-    // },
+    }
   },
   commentIcon: {
     height: 15,
@@ -123,28 +117,30 @@ const getPostCategory = (post) => {
     return post.question ? `Question` : `Personal Blogpost`
 }
 
-const PostsItemTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMobile=false, truncateLimit=600 }) => {
+const PostsItemTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMedium=true, truncateLimit=600 }) => {
   const { PostsUserAndCoauthors, PostsTitle, ContentItemBody } = Components
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
   const highlight = truncate(htmlHighlight, truncateLimit)
   const renderCommentCount = showAllinfo && (Posts.getCommentCount(post) > 0)
-  return <div className={classNames(classes.root, {[classes.wide]: wide, [classes.hideOnMobile]: hideOnMobile})}>
-    {showAllinfo && <PostsTitle post={post} tooltip={false}/>}
-    <div className={classes.tooltipInfo}>
-      { getPostCategory(post)}
-      { showAllinfo && post.user && <span> by <PostsUserAndCoauthors post={post} simple/></span>}
-      { renderCommentCount && <span className={classes.comments}>
-        <CommentIcon className={classes.commentIcon}/> 
-          {Posts.getCommentCountStr(post)}
-      </span>}
-      { showAllinfo && <span className={classes.karma}>{Posts.getKarma(post)} karma</span>}
+  return <Card>
+    <div className={classNames(classes.root, {[classes.wide]: wide, [classes.hideOnMedium]: hideOnMedium})}>
+      {showAllinfo && <PostsTitle post={post} tooltip={false}/>}
+      <div className={classes.tooltipInfo}>
+        { getPostCategory(post)}
+        { showAllinfo && post.user && <span> by <PostsUserAndCoauthors post={post} simple/></span>}
+        { renderCommentCount && <span className={classes.comments}>
+          <CommentIcon className={classes.commentIcon}/> 
+            {Posts.getCommentCountStr(post)}
+        </span>}
+        { showAllinfo && <span className={classes.karma}>{Posts.getKarma(post)} karma</span>}
+      </div>
+      <ContentItemBody className={classes.highlight} dangerouslySetInnerHTML={{__html:highlight}} />
+      {(wordCount > 0) && <div className={classes.tooltipInfo}>
+        {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
+      </div>}
     </div>
-    <ContentItemBody className={classes.highlight} dangerouslySetInnerHTML={{__html:highlight}} />
-    {(wordCount > 0) && <div className={classes.tooltipInfo}>
-      {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
-    </div>}
-  </div>
+  </Card>
 
 }
 

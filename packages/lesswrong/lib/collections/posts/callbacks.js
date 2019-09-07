@@ -199,3 +199,4 @@ function PostsNewConvertedFrom (post, user) {
   return post
 }
 addCallback("posts.new.after", PostsNewConvertedFrom);
+
