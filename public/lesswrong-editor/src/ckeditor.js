@@ -36,7 +36,7 @@ import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
 import Underline from '@ckeditor/ckeditor5-basic-styles/src/underline';
 import UploadAdapter from '@ckeditor/ckeditor5-adapter-ckfinder/src/uploadadapter';
 import BlockToolbar from '@ckeditor/ckeditor5-ui/src/toolbar/block/blocktoolbar';
-import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave'
+import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave';
 
 import MathpreviewPlugin from 'ckeditor5-math-preview/src/mathpreview';
 
@@ -198,6 +198,6 @@ CommentEditor.defaultConfig = {
 	},
 };
 
-console.log( 'Exporting editors: ', CommentEditor, PostEditor )
+console.log( 'Exporting editors: ', CommentEditor, PostEditor );
 
 export const Editors = { CommentEditor, PostEditor };
