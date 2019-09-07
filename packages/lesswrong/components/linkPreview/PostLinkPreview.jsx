@@ -207,7 +207,7 @@ const DefaultPreview = ({classes, href, innerHTML, anchorEl, hover, onsite=false
       {onsite ?
         <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} /> 
         :
-        <a to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />}
+        <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />}
     </span>
   );
 }
