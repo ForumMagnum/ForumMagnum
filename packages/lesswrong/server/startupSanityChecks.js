@@ -12,10 +12,10 @@ Meteor.startup(() => {
   // both must contain IDs and they must match.
   if (expectedDatabaseId || databaseIdObject) {
     if (expectedDatabaseId !== databaseIdObject?.value) {
-      console.error("Database ID in config file and in database don't match.");
-      console.error(`    Database ID: ${databaseIdObject?.value}`);
-      console.error(`    Expected database ID: ${expectedDatabaseId}`);
-      console.error("If you are connecting to a production DB, you must use a matching config file. If you are *not* connecting to a production DB, you should not use a production config file.");
+      console.error("Database ID in config file and in database don't match."); // eslint-disable-line no-console
+      console.error(`    Database ID: ${databaseIdObject?.value}`); // eslint-disable-line no-console
+      console.error(`    Expected database ID: ${expectedDatabaseId}`); // eslint-disable-line no-console
+      console.error("If you are connecting to a production DB, you must use a matching config file. If you are *not* connecting to a production DB, you should not use a production config file."); // eslint-disable-line no-console
       process.exit(1);
     }
   }

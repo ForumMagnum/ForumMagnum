@@ -9,3 +9,5 @@ export const DatabaseMetadata = createCollection({
   schema
 });
 addUniversalFields({collection: DatabaseMetadata});
+
+ensureIndex(DatabaseMetadata, { name:1 });
