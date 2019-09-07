@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent, useMulti, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, useMulti, getSetting, useUpdate } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import { Localgroups } from '../../lib/index.js';
 import { Posts } from '../../lib/collections/posts';
@@ -12,6 +12,8 @@ import Paper from '@material-ui/core/Paper';
 import AddLocationIcon from '@material-ui/icons/AddLocation';
 import EventIcon from '@material-ui/icons/Event';
 import PersonIcon from '@material-ui/icons/Person';
+import CloseIcon from '@material-ui/icons/Close';
+import Tooltip from '@material-ui/core/Tooltip';
 import withDialog from '../common/withDialog'
 import withUser from '../common/withUser.js';
 import classNames from 'classnames';
@@ -52,6 +54,12 @@ const styles = theme => ({
   addMyself: {
     top: 235,
   },
+  hideMap: {
+    width: 34,
+    right: 10, 
+    top: 10,
+    padding: 5
+  },
   buttonText: {
     marginLeft: 10,
     fontWeight: 500,
@@ -68,13 +76,28 @@ const createFallBackDialogHandler = (openDialog, dialogName, currentUser) => {
 // Make these variables have file-scope references to avoid rerending the scripts or map
 const libraries = ['places']
 const defaultCenter = {lat: 37.871853, lng: -122.258423}
-const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center = defaultCenter, zoom = 3, classes, showUsers, openDialog, currentUser }) => {
+const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center = defaultCenter, zoom = 3, classes, showUsers, openDialog, currentUser, showHideMap = false }) => {
   const { query } = useLocation()
   const { history } = useNavigation()
   const groupQueryTerms = groupTerms || {view: "all", filters: query?.filters || []}
   const [ openWindows, setOpenWindows ] = useState(initialOpenWindows)
   const handleClick = (id) => { setOpenWindows([id]) }
   const handleClose = (id) => { setOpenWindows(_.without(openWindows, id))}
+  const { mutate: updateUser } = useUpdate({
+    collection: Users,
+    fragmentName: 'UsersCurrent',
+  })
+
+  const handleHideMap = () => {
+    if (currentUser) { 
+      updateUser({
+        selector: {_id: currentUser._id},
+        data: { hideFrontpageMap: true }
+      })
+    } else {
+      openDialog({componentName: "LoginPopup"})
+    }
+  }
 
   const { results: events = [] } = useMulti({
     terms: eventTerms,
@@ -125,7 +148,7 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
           <LocalEventsMapMarkers events={events} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />
           <LocalGroupsMapMarkers groups={groups} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />
           <PersonalMapLocationMarkers users={users} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />
-          <Components.CommunityMapFilter />
+          <Components.CommunityMapFilter showHideMap={showHideMap} />
           <Paper 
             elevation={1}
             className={classNames(classes.mapButton, classes.addGroup)} 
@@ -147,6 +170,15 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
           >
             <PersonIcon /> <span className={classes.buttonText}> Add Myself </span>
           </Paper>
+          {showHideMap && <Tooltip title="Hide the map from the frontpage">
+            <Paper 
+              elevation={1}
+              className={classNames(classes.mapButton, classes.hideMap)} 
+              onClick={handleHideMap}
+            >
+              <CloseIcon /> 
+            </Paper>
+          </Tooltip>}
         </GoogleMap>
       </LoadScriptNext>}
     </NoSSR>
@@ -155,7 +187,7 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
 
 const personIcon = {
   path: "M6.46 5.3C7.52 3.81 5.49 2.11 3.15 1.19 2.26 1.8 1.17 2.17 0 2.17 -1.17 2.17 -2.25 1.8 -3.14 1.19 -5.48 2.11 -7.52 3.81 -6.46 5.3 -4.62 7.9 4.62 7.9 6.46 5.3zM4.58 -3.18C4.58 -0.71 2.53 1.3 0 1.3 -2.52 1.3 -4.57 -0.71 -4.57 -3.18 -4.57 -5.65 -2.52 -7.65 0 -7.65 4.24 -7.63 4.58 -3.18 4.58 -3.18zM3.61 -6.58M-12.78 -12.21",
-  fillColor: '#588f27',
+  fillColor: '#3f51b5',
   fillOpacity: 0.9,
   scale: 1.25,
   strokeWeight: 1,
@@ -212,5 +244,7 @@ const LocalGroupsMapMarkers = ({groups, handleClick, handleClose, openWindows}) 
     )
   })
 }
+
+
 
 registerComponent("CommunityMap", CommunityMap, withStyles(styles, {name: "CommunityMap"}), withDialog, withUser)

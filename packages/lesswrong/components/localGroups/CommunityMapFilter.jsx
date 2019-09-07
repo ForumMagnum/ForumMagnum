@@ -5,6 +5,7 @@ import { registerComponent } from 'meteor/vulcan:core';
 import Checkbox from '@material-ui/core/Checkbox';
 import { groupTypes } from '../../lib/collections/localgroups/groupTypes';
 import { withStyles } from '@material-ui/core/styles';
+import classNames from 'classnames'
 import qs from 'qs'
 
 const availableFilters = _.map(groupTypes, t => t.shortName);
@@ -16,6 +17,9 @@ const styles = theme => ({
     padding: "10px 10px 5px 10px",
     right: "10px",
     borderRadius: 2
+  },
+  showHideMap: {
+    right: 48
   },
   filters: {
   },
@@ -58,8 +62,8 @@ class CommunityMapFilter extends Component {
   }
 
   render() {
-    const { classes } = this.props;
-    return <Paper className={classes.root} elevation={1}>
+    const { classes, showHideMap } = this.props;
+    return <Paper className={classNames(classes.root, {[classes.showHideMap]: showHideMap})} elevation={1}>
       <div className={classes.filters}>
         {availableFilters.map(value => {
           return <React.Fragment key={value}>
