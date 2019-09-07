@@ -40,6 +40,5 @@ const MarkerWithInfoWindow = ({position, markerIcon, onMarkerClick, onInfoWindow
       }
     </Marker>
 }
-  
-  registerComponent("MarkerWithInfoWindow", MarkerWithInfoWindow, withStyles(styles, { name: "MarkerWithInfoWindow" }));
-  
+
+registerComponent("MarkerWithInfoWindow", MarkerWithInfoWindow, withStyles(styles, { name: "MarkerWithInfoWindow" }));
