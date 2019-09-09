@@ -27,7 +27,6 @@ const PostsNewForm = ({currentUser, flash, classes}) => {
     isEvent: query && !!query.eventForm,
     types: query && query.ssc ? ['SSC'] : [],
     meta: query && !!query.meta,
-    frontpageDate: af ? new Date() : null,
     af: af || (query && !!query.af),
     groupId: query && query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,

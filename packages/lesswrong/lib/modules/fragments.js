@@ -121,6 +121,7 @@ registerFragment(`
     nearbyEventsNotificationsLocation
     nearbyEventsNotificationsRadius
     nearbyPeopleNotificationThreshold
+    hideFrontpageMap
     emailSubscribedToCurated
     unsubscribeFromAll
     emails
@@ -482,6 +483,8 @@ registerFragment(`
     karmaChangeNotifierSettings
 
     recommendationSettings
+
+    hideFrontpageMap
   }
 `)
 
