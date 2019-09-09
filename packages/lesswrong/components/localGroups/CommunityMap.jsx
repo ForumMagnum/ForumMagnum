@@ -60,6 +60,9 @@ const styles = theme => ({
     right: 10,
     display: "flex",
     flexDirection: "column"
+  },
+  filters: {
+    width: 100
   }
 });
 
@@ -156,7 +159,7 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
             <PersonalMapLocationMarkers users={users} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />
             <Paper 
               elevation={1}
-              className={classes.mapButton}
+              className={classNames(classes.mapButton, classes.filters)}
             >
               <Components.CommunityMapFilter showHideMap={showHideMap} />
             </Paper>
