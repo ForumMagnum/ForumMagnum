@@ -36,34 +36,30 @@ const styles = theme => ({
   },
   communityMap: {},
   mapButton: {
-    position: 'absolute',
-    right: 10,
     padding: 10,
     display: "flex",
     alignItems: "center",
     cursor: "pointer",
     borderRadius: 2,
-    width: 120
-  },
-  addGroup: {
-    top: 130,
-  },
-  addEvent: {
-    top: 182,
-  },
-  addMyself: {
-    top: 235,
+    width: 120,
+    marginBottom: theme.spacing.unit
   },
   hideMap: {
     width: 34,
-    right: 10, 
-    top: 10,
     padding: 5
   },
   buttonText: {
     marginLeft: 10,
     fontWeight: 500,
     fontFamily: "Roboto",
+  },
+  mapButtons: {
+    alignItems: "flex-end",
+    position: "absolute",
+    top: 10,
+    right: 10,
+    display: "flex",
+    flexDirection: "column"
   }
 });
 
@@ -145,40 +141,47 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
             streetViewControl: false
           }}
         >
-          <LocalEventsMapMarkers events={events} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />
-          <LocalGroupsMapMarkers groups={groups} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />
-          <PersonalMapLocationMarkers users={users} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />
-          <Components.CommunityMapFilter showHideMap={showHideMap} />
-          <Paper 
-            elevation={1}
-            className={classNames(classes.mapButton, classes.addGroup)} 
-            onClick={createFallBackDialogHandler(openDialog, "GroupFormDialog", currentUser)}
-          >
-            <AddLocationIcon /> <span className={classes.buttonText}>New Group</span>
-          </Paper>
-          <Paper 
-            elevation={1}
-            className={classNames(classes.mapButton, classes.addEvent)}
-            onClick={() => history.push({ pathname: 'newPost', search: `?eventForm=true`})}
-          >
-            <EventIcon /> <span className={classes.buttonText}> New Event </span>
-          </Paper>
-          <Paper 
-            elevation={1}
-            className={classNames(classes.mapButton, classes.addMyself)}
-            onClick={createFallBackDialogHandler(openDialog, "SetPersonalMapLocationDialog", currentUser)}
-          >
-            <PersonIcon /> <span className={classes.buttonText}> Add Myself </span>
-          </Paper>
-          {showHideMap && <Tooltip title="Hide the map from the frontpage">
+          <div className={classes.mapButtons}>
+            {showHideMap && <Tooltip title="Hide the map from the frontpage">
+              <Paper 
+                elevation={1}
+                className={classNames(classes.mapButton, classes.hideMap)} 
+                onClick={handleHideMap}
+              >
+                <CloseIcon /> 
+              </Paper>
+            </Tooltip>}
+            <LocalEventsMapMarkers events={events} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />
+            <LocalGroupsMapMarkers groups={groups} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />
+            <PersonalMapLocationMarkers users={users} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />
             <Paper 
               elevation={1}
-              className={classNames(classes.mapButton, classes.hideMap)} 
-              onClick={handleHideMap}
+              className={classes.mapButton}
             >
-              <CloseIcon /> 
+              <Components.CommunityMapFilter showHideMap={showHideMap} />
             </Paper>
-          </Tooltip>}
+            <Paper 
+              elevation={1}
+              className={classes.mapButton} 
+              onClick={createFallBackDialogHandler(openDialog, "GroupFormDialog", currentUser)}
+            >
+              <AddLocationIcon /> <span className={classes.buttonText}>New Group</span>
+            </Paper>
+            <Paper 
+              elevation={1}
+              className={classes.mapButton}
+              onClick={() => history.push({ pathname: 'newPost', search: `?eventForm=true`})}
+            >
+              <EventIcon /> <span className={classes.buttonText}> New Event </span>
+            </Paper>
+            <Paper 
+              elevation={1}
+              className={classes.mapButton}
+              onClick={createFallBackDialogHandler(openDialog, "SetPersonalMapLocationDialog", currentUser)}
+            >
+              <PersonIcon /> <span className={classes.buttonText}> Add Myself </span>
+            </Paper>
+          </div>
         </GoogleMap>
       </LoadScriptNext>}
     </NoSSR>

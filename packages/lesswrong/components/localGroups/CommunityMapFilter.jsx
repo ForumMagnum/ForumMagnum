@@ -12,14 +12,10 @@ const availableFilters = _.map(groupTypes, t => t.shortName);
 
 const styles = theme => ({
   root: {
-    position: "absolute",
-    top: "10px",
+    width: 120,
     padding: "10px 10px 5px 10px",
-    right: "10px",
-    borderRadius: 2
-  },
-  showHideMap: {
-    right: 48
+    borderRadius: 2,
+    marginBottom: theme.spacing.unit
   },
   filters: {
   },
@@ -62,9 +58,8 @@ class CommunityMapFilter extends Component {
   }
 
   render() {
-    const { classes, showHideMap } = this.props;
-    return <Paper className={classNames(classes.root, {[classes.showHideMap]: showHideMap})} elevation={1}>
-      <div className={classes.filters}>
+    const { classes } = this.props;
+    return <div className={classes.filters}>
         {availableFilters.map(value => {
           return <React.Fragment key={value}>
             <Checkbox
@@ -79,7 +74,6 @@ class CommunityMapFilter extends Component {
           </React.Fragment>
         })}
       </div>
-    </Paper>
   }
 }
 
