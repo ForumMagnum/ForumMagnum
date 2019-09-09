@@ -54,7 +54,7 @@ export const recomputeDenormalizedValues = async ({collectionName, fieldName=nul
     if (!getValue) {
       throw new Error(`${collectionName}.${fieldName} is missing its getValue function`)
     }
-    
+
     await runDenormalizedFieldMigration({ collection, fieldName, getValue, validateOnly })
   } else {
     const denormalizedFields = getFieldsWithAttribute(schema, 'canAutoDenormalize')
@@ -63,10 +63,10 @@ export const recomputeDenormalizedValues = async ({collectionName, fieldName=nul
       console.log(`${collectionName} does not have any fields with "canAutoDenormalize", not computing denormalized values`)
       return;
     }
-    
+
     // eslint-disable-next-line no-console
     console.log(`Recomputing denormalized values for ${collection.collectionName} in fields: ${denormalizedFields}`);
-    
+
     for (let j=0; j<denormalizedFields.length; j++) {
       const fieldName = denormalizedFields[j];
       const getValue = schema[fieldName].getValue
@@ -81,7 +81,7 @@ Vulcan.recomputeDenormalizedValues = recomputeDenormalizedValues;
 
 async function runDenormalizedFieldMigration({ collection, fieldName, getValue, validateOnly }) {
   let numDifferent = 0;
-  
+
   await migrateDocuments({
     description: `Recomputing denormalized values for ${collection.collectionName} field ${fieldName}`,
     collection,
@@ -106,7 +106,7 @@ async function runDenormalizedFieldMigration({ collection, fieldName, getValue, 
 
       const nonEmptyUpdates = _.without(updates, null)
       numDifferent += nonEmptyUpdates.length;
-      
+
       // eslint-disable-next-line no-console
       console.log(`${nonEmptyUpdates.length} documents in batch with changing denormalized value`)
       if (!validateOnly) {
@@ -117,10 +117,18 @@ async function runDenormalizedFieldMigration({ collection, fieldName, getValue, 
             { ordered: false }
           );
         }
+      } else {
+        // TODO: This is a hack, but better than leaving it. We're basically
+        // breaking the expected API from migrateDocuments by supporting a
+        // validateOnly option, so it does not offer us good hooks to do this.
+        throw new Error([
+          'Abort! validateOnly means the document will not change and the migration will never',
+          'complete. This error is expected behavior to cause the migration to end.'
+        ].join(' '))
       }
     },
   });
-  
+
   // eslint-disable-next-line no-console
   console.log(`${numDifferent} total documents had wrong denormalized value`)
 }

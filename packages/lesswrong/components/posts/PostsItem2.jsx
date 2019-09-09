@@ -13,13 +13,17 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
+<<<<<<< HEAD
 import { loadEventComponent } from '../utils.js';
+=======
+import withHover from "../common/withHover";
+>>>>>>> lw-devel
 
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 export const COMMENTS_WIDTH = 48
 
-const COMMENTS_BACKGROUND_COLOR = "rgba(0,0,0,.1)"
+const COMMENTS_BACKGROUND_COLOR = "#efefef"
 
 const styles = (theme) => ({
   root: {
@@ -37,6 +41,9 @@ const styles = (theme) => ({
     paddingBottom: 10,
     alignItems: "center",
     flexWrap: "nowrap",
+    '&:hover': {
+      backgroundColor: "#efefef"
+    },
     [theme.breakpoints.down('sm')]: {
       flexWrap: "wrap",
       paddingTop: theme.spacing.unit,
@@ -294,9 +301,9 @@ class PostsItem2 extends PureComponent {
   render() {
     const { classes, post, sequenceId, chapter, currentUser, index, terms, resumeReading,
       showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true,
-      defaultToShowUnreadComments=false, dismissRecommendation, isRead, dense } = this.props
+      defaultToShowUnreadComments=false, dismissRecommendation, isRead, dense, hover, anchorEl, stopHover } = this.props
     const { showComments } = this.state
-    const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
+    const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltip, LWPopper } = Components
     const EventVicinity = loadEventComponent('EventVicinity')
 
     const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
@@ -315,6 +322,14 @@ class PostsItem2 extends PureComponent {
 
     return (
       <div className={classes.root} ref={this.postsItemRef}>
+        <LWPopper
+          open={hover}
+          anchorEl={anchorEl}
+          onMouseEnter={stopHover}
+          placement="left-start"
+        >
+          <PostsItemTooltip post={post} />
+        </LWPopper>
         <div className={classNames(
           classes.background,
           {
@@ -428,4 +443,5 @@ registerComponent(
   withUser,
   withRecordPostView,
   withErrorBoundary,
+  withHover
 );

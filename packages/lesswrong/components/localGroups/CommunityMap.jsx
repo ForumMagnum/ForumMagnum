@@ -4,10 +4,17 @@ import { withStyles } from '@material-ui/core/styles';
 import { Localgroups } from '../../lib/index.js';
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
-import { useLocation } from '../../lib/routeUtil';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
 import mapStyle from './mapStyles.js';
 import { GoogleMap, LoadScriptNext, MarkerClusterer } from "@react-google-maps/api"
 import NoSSR from 'react-no-ssr';
+import Paper from '@material-ui/core/Paper';
+import AddLocationIcon from '@material-ui/icons/AddLocation';
+import EventIcon from '@material-ui/icons/Event';
+import PersonIcon from '@material-ui/icons/Person';
+import withDialog from '../common/withDialog'
+import withUser from '../common/withUser.js';
+import classNames from 'classnames';
 
 const mapsAPIKey = getSetting('googleMaps.apiKey', null);
 
@@ -19,23 +26,54 @@ const styles = theme => ({
     width: mapsWidth,
     height: mapsHeight,
     // We give this a negative margin to make sure that the map is flush with the top
-    marginTop: -64,
+    marginTop: -50,
     [theme.breakpoints.down('sm')]: {
       marginTop: 0,
       marginLeft: -8
     }
   },
-  communityMap: {}
+  communityMap: {},
+  mapButton: {
+    position: 'absolute',
+    right: 10,
+    padding: 10,
+    display: "flex",
+    alignItems: "center",
+    cursor: "pointer",
+    borderRadius: 2,
+    width: 120
+  },
+  addGroup: {
+    top: 130,
+  },
+  addEvent: {
+    top: 182,
+  },
+  addMyself: {
+    top: 235,
+  },
+  buttonText: {
+    marginLeft: 10,
+    fontWeight: 500,
+    fontFamily: "Roboto",
+  }
 });
+
+const createFallBackDialogHandler = (openDialog, dialogName, currentUser) => {
+  return () => openDialog({
+    componentName: currentUser ? dialogName : "LoginPopup",
+  });
+}
 
 // Make these variables have file-scope references to avoid rerending the scripts or map
 const libraries = ['places']
 const defaultCenter = {lat: 37.871853, lng: -122.258423}
-const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center = defaultCenter, zoom = 3, classes, showUsers }) => {
+const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center = defaultCenter, zoom = 3, classes, showUsers, openDialog, currentUser }) => {
   const { query } = useLocation()
+  const { history } = useNavigation()
   const groupQueryTerms = groupTerms || {view: "all", filters: query?.filters || []}
   const [ openWindows, setOpenWindows ] = useState(initialOpenWindows)
-  const handleClick = (id) => { setOpenWindows([...openWindows, id]) }
+  const handleClick = (id) => { setOpenWindows([id]) }
   const handleClose = (id) => { setOpenWindows(_.without(openWindows, id))}
 
   const { results: events = [] } = useMulti({
@@ -80,13 +118,35 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
             styles: mapStyle,
             keyboardShortcuts: false,
             mapTypeControl: false,
-            fullscreenControl: false
+            fullscreenControl: false,
+            streetViewControl: false
           }}
         >
           <LocalEventsMapMarkers events={events} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />
           <LocalGroupsMapMarkers groups={groups} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />
           <PersonalMapLocationMarkers users={users} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />
           <Components.CommunityMapFilter />
+          <Paper 
+            elevation={1}
+            className={classNames(classes.mapButton, classes.addGroup)} 
+            onClick={createFallBackDialogHandler(openDialog, "GroupFormDialog", currentUser)}
+          >
+            <AddLocationIcon /> <span className={classes.buttonText}>New Group</span>
+          </Paper>
+          <Paper 
+            elevation={1}
+            className={classNames(classes.mapButton, classes.addEvent)}
+            onClick={() => history.push({ pathname: 'newPost', search: `?eventForm=true`})}
+          >
+            <EventIcon /> <span className={classes.buttonText}> New Event </span>
+          </Paper>
+          <Paper 
+            elevation={1}
+            className={classNames(classes.mapButton, classes.addMyself)}
+            onClick={createFallBackDialogHandler(openDialog, "SetPersonalMapLocationDialog", currentUser)}
+          >
+            <PersonIcon /> <span className={classes.buttonText}> Add Myself </span>
+          </Paper>
         </GoogleMap>
       </LoadScriptNext>}
     </NoSSR>
@@ -153,4 +213,4 @@ const LocalGroupsMapMarkers = ({groups, handleClick, handleClose, openWindows}) 
   })
 }
 
-registerComponent("CommunityMap", CommunityMap, withStyles(styles, {name: "CommunityMap"}))
+registerComponent("CommunityMap", CommunityMap, withStyles(styles, {name: "CommunityMap"}), withDialog, withUser)

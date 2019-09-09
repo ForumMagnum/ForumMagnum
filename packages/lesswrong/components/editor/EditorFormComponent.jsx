@@ -461,16 +461,16 @@ class EditorFormComponent extends Component {
     }
   }
 
-  renderPlaintextEditor = () => {
-    const { markdownValue } = this.state
+  renderPlaintextEditor = (editorType) => {
+    const { markdownValue, htmlValue } = this.state
     const { classes, multiLine, fullWidth, disableUnderline, startAdornment, form: { commentStyles }, label } = this.props
-    const value = markdownValue || ""
+    const value = (editorType === "html" ? htmlValue : markdownValue) || ""
     return <div>
         { this.renderPlaceholder(!value) }
         <Input
           className={classNames(classes.markdownEditor, this.getBodyStyles(), {[classes.questionWidth]: document.question})}
           value={value}
-          onChange={this.setMarkdown}
+          onChange={editorType === "html" ? this.setHtml : this.setMarkdown}
           multiline={multiLine}
           rows={commentStyles ? commentEditorHeightRows : postEditorHeightRows}
           rowsMax={99999}
