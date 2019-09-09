@@ -13,6 +13,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
+import { loadEventComponent } from '../utils.js';
 
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
@@ -295,7 +296,8 @@ class PostsItem2 extends PureComponent {
       showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true,
       defaultToShowUnreadComments=false, dismissRecommendation, isRead, dense } = this.props
     const { showComments } = this.state
-    const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
+    const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
+    const EventVicinity = loadEventComponent('EventVicinity')
 
     const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
