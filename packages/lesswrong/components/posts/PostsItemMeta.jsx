@@ -6,7 +6,6 @@ import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 import moment from 'moment';
 import withTimezone from '../common/withTimezone';
-import { loadEventComponent } from '../utils';
 
 const styles = theme => ({
   read: {
@@ -28,9 +27,7 @@ const PostsItemMeta = ({classes, currentUser, post, read}) => {
   const { wordCount = 0 } = post.contents || {}
   const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
   const afBaseScore = getSetting('forumType') !== 'AlignmentForum' && post.af ? post.afBaseScore : null
-  const { MetaInfo, FormatDate, PostsStats, PostsUserAndCoauthors } = Components;
-  const EventTime = loadEventComponent('EventTime')
-  const EventVicinity = loadEventComponent('EventVicinity')
+  const { MetaInfo, FormatDate, EventTime, EventVicinity, PostsStats, PostsUserAndCoauthors } = Components;
   return <span className={classNames({[classes.read]:read})}>
 
       <MetaInfo>
