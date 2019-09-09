@@ -36,12 +36,12 @@ const styles = theme => ({
 });
 
 const PostsItemDate = ({post, classes, hover, anchorEl, stopHover}) => {
-  const { PostsItem2MetaInfo, EventTime, FormatDate, LWPopper } = Components;
+  const { PostsItem2MetaInfo, FormatDate, LWPopper } = Components;
 
   if (post.isEvent && post.startTime) {
     return <PostsItem2MetaInfo className={classes.startTime}>
       <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip placement="top">
-        <span>Event starts at <EventTime post={post} /></span>
+        <span>Event starts at <Components.EventTime post={post} /></span>
       </LWPopper>
       <FormatDate date={post.startTime} format={"MMM Do"} tooltip={false}/>
     </PostsItem2MetaInfo>
