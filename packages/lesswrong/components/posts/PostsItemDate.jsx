@@ -4,6 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { ExpandedDate } from '../common/FormatDate.jsx';
 import Tooltip from '@material-ui/core/Tooltip';
 import moment from 'moment-timezone';
+import { loadEventComponent } from '../utils.js';
 
 export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
@@ -34,8 +35,9 @@ const styles = theme => ({
 });
 
 const PostsItemDate = ({post, classes}) => {
-  const { PostsItem2MetaInfo, EventTime, FormatDate } = Components;
-  
+  const { PostsItem2MetaInfo, FormatDate } = Components;
+  const EventTime = loadEventComponent('EventTime')
+
   if (post.isEvent)
   {
     return (<PostsItem2MetaInfo className={classes.startTime}>

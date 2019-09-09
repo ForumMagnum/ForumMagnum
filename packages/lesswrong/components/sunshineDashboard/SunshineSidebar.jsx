@@ -7,7 +7,6 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { defineComponent } from '../defineComponent';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
@@ -71,7 +70,7 @@ class SunshineSidebar extends Component {
             <SunshineReportedContentList terms={{view:"sunshineSidebarReports", limit: 30}}/>
             {!!currentUser.viewUnreviewedComments && <SunshineNewCommentsList terms={{view:"sunshineNewCommentsList"}}/>}
             <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions"}}/>
-          </div>}        
+          </div>}
           { currentUser.groups && currentUser.groups.includes('alignmentForumAdmins') && <div>
             <AFSuggestUsersList terms={{view:"alignmentSuggestedUsers"}}/>
             <AFSuggestPostsList terms={{view:"alignmentSuggestedPosts"}}/>

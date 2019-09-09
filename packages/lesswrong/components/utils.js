@@ -24,7 +24,11 @@ export function defineComponent({name, component, split, styles, hocs})
   }
 }
 
-// TODO; doc
+// Load event component only after checking for hasEvents
+//
+// hasEvents being false leads to the components not existing. Some components
+// will try to destructure the components anyway and then only use them
+// conditionally. Allow them to do that without causing an error.
 export const loadEventComponent = (componentName) => {
   if (getSetting('hasEvents', true)) {
     return Components[componentName]
