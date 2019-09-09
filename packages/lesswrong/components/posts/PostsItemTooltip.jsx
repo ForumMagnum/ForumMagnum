@@ -1,4 +1,4 @@
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles'
 import { truncate } from '../../lib/editor/ellipsize';
@@ -107,6 +107,8 @@ const styles = theme => ({
   }
 })
 
+const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
+
 const getPostCategory = (post) => {
   const categories = [];
   const postOrQuestion = post.question ? "Question" : "Post"
@@ -114,9 +116,9 @@ const getPostCategory = (post) => {
   if (post.isEvent) categories.push(`Event`)
   if (post.curatedDate) categories.push(`Curated ${postOrQuestion}`)
   if (post.af) categories.push(`AI Alignment Forum ${postOrQuestion}`);
-  if (post.meta) categories.push(`Meta ${postOrQuestion}`)
+  if (post.meta) categories.push(`${metaName} ${postOrQuestion}`)
   if (post.frontpageDate && !post.curatedDate && !post.af) categories.push(`Frontpage ${postOrQuestion}`)
-  
+
   if (categories.length > 0)
     return categories.join(', ');
   else
@@ -135,7 +137,7 @@ const PostsItemTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMobile
       { getPostCategory(post)}
       { showAllinfo && post.user && <span> by <PostsUserAndCoauthors post={post} simple/></span>}
       { renderCommentCount && <span className={classes.comments}>
-        <CommentIcon className={classes.commentIcon}/> 
+        <CommentIcon className={classes.commentIcon}/>
           {Posts.getCommentCountStr(post)}
       </span>}
       { showAllinfo && <span className={classes.karma}>{Posts.getKarma(post)} karma</span>}
