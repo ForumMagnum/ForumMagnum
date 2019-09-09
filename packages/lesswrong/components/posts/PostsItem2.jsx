@@ -13,11 +13,8 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
-<<<<<<< HEAD
 import { loadEventComponent } from '../utils.js';
-=======
 import withHover from "../common/withHover";
->>>>>>> lw-devel
 
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
