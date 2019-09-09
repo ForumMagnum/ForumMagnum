@@ -15,7 +15,7 @@ import { EventDebouncer } from './debouncer.js';
 import { getNotificationTypeByName } from '../lib/notificationTypes.jsx';
 import { notificationDebouncers, wrapAndSendEmail } from './notificationBatching.js';
 
-import { Components, addCallback, newMutation } from 'meteor/vulcan:core';
+import { Components, addCallback, createMutator } from 'meteor/vulcan:core';
 
 import React from 'react';
 import keyBy from 'lodash/keyBy';
@@ -108,19 +108,32 @@ const createNotification = async (userId, notificationType, documentType, docume
     message: notificationMessage(notificationType, documentType, documentId),
     type: notificationType,
     link: getLink(notificationType, documentType, documentId),
-    waitingForBatch: true,
   }
 
-  if (notificationTypeSettings.channel === "onsite" || notificationTypeSettings.channel === "both") {
-    const createdNotification = await newMutation({
-      action: 'notifications.new',
+  if (notificationTypeSettings.channel === "onsite" || notificationTypeSettings.channel === "both")
+  {
+    createMutator({
       collection: Notifications,
-      document: notificationData,
+      document: {
+        ...notificationData,
+        emailed: false,
+        waitingForBatch: notificationTypeSettings.batchingFrequency !== "realtime",
+      },
       currentUser: user,
       validate: false
     });
   }
   if (notificationTypeSettings.channel === "email" || notificationTypeSettings.channel === "both") {
+    const createdNotification = await createMutator({
+      collection: Notifications,
+      document: {
+        ...notificationData,
+        emailed: true,
+        waitingForBatch: true,
+      },
+      currentUser: user,
+      validate: false
+    });
     await notificationDebouncers[notificationType].recordEvent({
       key: {notificationType, userId},
       data: createdNotification.data._id,

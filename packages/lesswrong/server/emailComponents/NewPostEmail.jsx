@@ -5,6 +5,7 @@ import { Components, registerComponent, withDocument } from 'meteor/vulcan:core'
 import './EmailFormatDate.jsx';
 import './EmailPostAuthors.jsx';
 import './EmailContentItemBody.jsx';
+import './EmailPostDate.jsx';
 
 const styles = theme => ({
   heading: {
@@ -27,7 +28,7 @@ const styles = theme => ({
 });
 
 const NewPostEmail = ({document, classes, reason}) => {
-  const { EmailPostAuthors, EmailFormatDate, EmailContentItemBody } = Components;
+  const { EmailPostAuthors, EmailContentItemBody, EmailPostDate } = Components;
   return (<React.Fragment>
     <div className={classes.heading}>
       <h1>
@@ -38,8 +39,14 @@ const NewPostEmail = ({document, classes, reason}) => {
       
       <EmailPostAuthors post={document}/><br/>
       <div className="postDate">
-        <EmailFormatDate date={document.postedAt}/>
+        <EmailPostDate post={document}/>
       </div><br/>
+      {document.location && <div>
+        {document.location}
+      </div>}
+      {document.contactInfo && <div>
+        Contact: {document.contactInfo}
+      </div>}
     </div>
     
     <EmailContentItemBody className="post-body" dangerouslySetInnerHTML={{

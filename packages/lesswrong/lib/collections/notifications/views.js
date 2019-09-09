@@ -9,6 +9,7 @@ Notifications.addDefaultView(function (terms) {
   return {
     selector: {
       ...alignmentForum,
+      emailed: false,
       waitingForBatch: false,
     },
     options: {limit: 1000},
@@ -26,7 +27,7 @@ Notifications.addView("userNotifications", (terms) => {
     options: {sort: {createdAt: -1}}
   }
 });
-ensureIndex(Notifications, {userId:1, createdAt:-1});
+ensureIndex(Notifications, {userId:1, emailed:1, waitingForBatch:1, createdAt:-1, type:1});
 
 Notifications.addView("unreadUserNotifications", (terms) => {
   return {
