@@ -40,6 +40,10 @@ const styles = theme => ({
       display: "none"
     }
   },
+  titleSubtitleContainer: {
+    display: 'flex',
+    alignItems: 'center'
+  },
   title: {
     flex: 1,
     position: "relative",
@@ -225,11 +229,13 @@ class Header extends PureComponent {
               {this.renderNavigationMenuButton()}
               <Typography className={classes.title} variant="title" color="textSecondary">
                 <Hidden smDown implementation="css">
-                  <Link to="/" className={classes.titleLink}>
-                    <div className={classes.siteLogo}><Components.SiteLogo/></div>
-                    {getSetting('forumSettings.headerTitle', 'LESSWRONG')}
-                  </Link>
-                  <HeaderSubtitle />
+                  <div className={classes.titleSubtitleContainer}>
+                    <Link to="/" className={classes.titleLink}>
+                      <div className={classes.siteLogo}><Components.SiteLogo/></div>
+                      {getSetting('forumSettings.headerTitle', 'LESSWRONG')}
+                    </Link>
+                    <HeaderSubtitle />
+                  </div>
                 </Hidden>
                 <Hidden mdUp implementation="css">
                   <Link to="/" className={classes.titleLink}>
