@@ -295,7 +295,7 @@ class PostsItem2 extends PureComponent {
       showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true,
       defaultToShowUnreadComments=false, dismissRecommendation, isRead, dense } = this.props
     const { showComments } = this.state
-    const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
+    const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
 
     const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -353,7 +353,7 @@ class PostsItem2 extends PureComponent {
             </PostsItem2MetaInfo>}
 
             { post.isEvent && <PostsItem2MetaInfo className={classes.event}>
-              <EventVicinity post={post} />
+              <Components.EventVicinity post={post} />
             </PostsItem2MetaInfo>}
 
             {showPostedAt && !resumeReading && <Components.PostsItemDate post={post}/>}
