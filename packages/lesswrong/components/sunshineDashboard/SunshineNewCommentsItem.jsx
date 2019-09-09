@@ -53,7 +53,7 @@ class SunshineNewCommentsItem extends Component {
               <Components.SidebarAction title="Mark as Reviewed" onClick={this.handleReview}>
                 done
               </Components.SidebarAction>
-              <Components.SidebarAction title="Spam/Eugin (delete immediately)" onClick={this.handleDelete} warningHighlight>
+              <Components.SidebarAction title="Spam (delete immediately)" onClick={this.handleDelete} warningHighlight>
                 clear
               </Components.SidebarAction>
             </Components.SidebarActionMenu>}

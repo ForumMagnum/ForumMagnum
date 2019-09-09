@@ -81,7 +81,7 @@ class SunshineSidebar extends Component {
             <KeyboardArrowDownIcon
               className={classes.toggle}
               onClick={this.toggleUnderbelly}/>
-            <SunshineListTitle>Hide the Underbelly</SunshineListTitle>
+            <SunshineListTitle>Hide Low Priority</SunshineListTitle>
           </div>
           :
           <div>
@@ -89,7 +89,7 @@ class SunshineSidebar extends Component {
               className={classes.toggle}
               onClick={this.toggleUnderbelly}
             />
-            <SunshineListTitle>Show the Underbelly</SunshineListTitle>
+            <SunshineListTitle>Show Low Priority</SunshineListTitle>
           </div>}
         { showUnderbelly && <div>
           <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 30, ignoreRecaptcha: true, includeBioOnlyUsers: true}} allowContentPreview={false}/>
