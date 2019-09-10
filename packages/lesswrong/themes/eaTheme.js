@@ -127,7 +127,13 @@ const theme = createLWTheme({
     },
     Header: {
       appBar: {
-        padding: "1em"
+        padding: ".8em",
+        '@media (min-width: 960px)': {
+          paddingLeft: "1.5em",
+          paddingRight: "1.5em",
+          paddingTop: "1em",
+          paddingBottom: "1em"
+        }
       }
     },
     MetaInfo: {
