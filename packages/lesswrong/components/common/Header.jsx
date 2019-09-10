@@ -226,7 +226,7 @@ class Header extends PureComponent {
           onUnpin={() => this.setState({unFixed: false})}
         >
           <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
-            <Toolbar>
+            <Toolbar disableGutters>
               {this.renderNavigationMenuButton()}
               <Typography className={classes.title} variant="title" color="textSecondary">
                 <Hidden smDown implementation="css">

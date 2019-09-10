@@ -12,9 +12,7 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = theme => ({
   root: {
     position:"absolute",
-    // TODO JP just hacked this, should actually figure out how to get it to
-    // float beneath the header properly
-    top:30,
+    top:0,
     right:0,
     width:250,
     marginTop:505,
@@ -72,7 +70,7 @@ class SunshineSidebar extends Component {
             <SunshineReportedContentList terms={{view:"sunshineSidebarReports", limit: 30}}/>
             {!!currentUser.viewUnreviewedComments && <SunshineNewCommentsList terms={{view:"sunshineNewCommentsList"}}/>}
             <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions"}}/>
-          </div>}        
+          </div>}
           { currentUser.groups && currentUser.groups.includes('alignmentForumAdmins') && <div>
             <AFSuggestUsersList terms={{view:"alignmentSuggestedUsers"}}/>
             <AFSuggestPostsList terms={{view:"alignmentSuggestedPosts"}}/>
