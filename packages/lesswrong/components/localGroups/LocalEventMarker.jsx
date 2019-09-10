@@ -3,15 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
-
-const getArrowIcon = google => ({
-  path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-  fillColor: '#2b6a99',
-  fillOpacity: 0.9,
-  scale: 5,
-  strokeWeight: 1,
-  strokeColor: "#FFFFFF"
-})
+import { getArrowIcon } from './Icons'
 
 const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }) => {
   const { html = "" } = event.contents || {}

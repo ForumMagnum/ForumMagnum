@@ -9,11 +9,9 @@ import mapStyle from './mapStyles.js';
 import { GoogleMap, LoadScriptNext, MarkerClusterer } from "@react-google-maps/api"
 import NoSSR from 'react-no-ssr';
 import Paper from '@material-ui/core/Paper';
-import AddLocationIcon from '@material-ui/icons/AddLocation';
-import EventIcon from '@material-ui/icons/Event';
-import PersonIcon from '@material-ui/icons/Person';
-import CloseIcon from '@material-ui/icons/Close';
-import Tooltip from '@material-ui/core/Tooltip';
+import { personGoogleIcon } from './Icons'
+
+
 import withDialog from '../common/withDialog'
 import withUser from '../common/withUser.js';
 import classNames from 'classnames';
@@ -59,44 +57,33 @@ const styles = theme => ({
     top: 10,
     right: 10,
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "column",
+    [theme.breakpoints.down('md')]: {
+      top: 24
+    }
   },
   filters: {
     width: 100
   }
 });
 
-const createFallBackDialogHandler = (openDialog, dialogName, currentUser) => {
-  return () => openDialog({
-    componentName: currentUser ? dialogName : "LoginPopup",
-  });
-}
+
 
 // Make these variables have file-scope references to avoid rerending the scripts or map
 const libraries = ['places']
 const defaultCenter = {lat: 37.871853, lng: -122.258423}
 const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center = defaultCenter, zoom = 3, classes, showUsers, openDialog, currentUser, showHideMap = false }) => {
   const { query } = useLocation()
-  const { history } = useNavigation()
   const groupQueryTerms = groupTerms || {view: "all", filters: query?.filters || []}
+
   const [ openWindows, setOpenWindows ] = useState(initialOpenWindows)
   const handleClick = (id) => { setOpenWindows([id]) }
   const handleClose = (id) => { setOpenWindows(_.without(openWindows, id))}
-  const { mutate: updateUser } = useUpdate({
-    collection: Users,
-    fragmentName: 'UsersCurrent',
-  })
 
-  const handleHideMap = () => {
-    if (currentUser) { 
-      updateUser({
-        selector: {_id: currentUser._id},
-        data: { hideFrontpageMap: true }
-      })
-    } else {
-      openDialog({componentName: "LoginPopup"})
-    }
-  }
+  const [ showEvents, setShowEvents ] = useState(true)
+  const [ showGroups, setShowGroups ] = useState(true)
+  const [ showIndividuals, setShowIndividuals ] = useState(true)
+  
 
   const { results: events = [] } = useMulti({
     terms: eventTerms,
@@ -144,46 +131,16 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
             streetViewControl: false
           }}
         >
+          {showEvents && <LocalEventsMapMarkers events={events} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
+          {showGroups && <LocalGroupsMapMarkers groups={groups} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
+          {showIndividuals && <PersonalMapLocationMarkers users={users} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
           <div className={classes.mapButtons}>
-            {showHideMap && <Tooltip title="Hide the map from the frontpage">
-              <Paper 
-                elevation={1}
-                className={classNames(classes.mapButton, classes.hideMap)} 
-                onClick={handleHideMap}
-              >
-                <CloseIcon /> 
-              </Paper>
-            </Tooltip>}
-            <LocalEventsMapMarkers events={events} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />
-            <LocalGroupsMapMarkers groups={groups} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />
-            <PersonalMapLocationMarkers users={users} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />
-            <Paper 
-              elevation={1}
-              className={classNames(classes.mapButton, classes.filters)}
-            >
-              <Components.CommunityMapFilter showHideMap={showHideMap} />
-            </Paper>
-            <Paper 
-              elevation={1}
-              className={classes.mapButton} 
-              onClick={createFallBackDialogHandler(openDialog, "GroupFormDialog", currentUser)}
-            >
-              <AddLocationIcon /> <span className={classes.buttonText}>New Group</span>
-            </Paper>
-            <Paper 
-              elevation={1}
-              className={classes.mapButton}
-              onClick={() => history.push({ pathname: 'newPost', search: `?eventForm=true`})}
-            >
-              <EventIcon /> <span className={classes.buttonText}> New Event </span>
-            </Paper>
-            <Paper 
-              elevation={1}
-              className={classes.mapButton}
-              onClick={createFallBackDialogHandler(openDialog, "SetPersonalMapLocationDialog", currentUser)}
-            >
-              <PersonIcon /> <span className={classes.buttonText}> Add Myself </span>
-            </Paper>
+            <Components.CommunityMapFilter 
+              showHideMap={showHideMap} 
+              toggleEvents={() => setShowEvents(!showEvents)} showEvents={showEvents}
+              toggleGroups={() => setShowGroups(!showGroups)} showGroups={showGroups}
+              toggleIndividuals={() => setShowIndividuals(!showIndividuals)} showIndividuals={showIndividuals}
+            />
           </div>
         </GoogleMap>
       </LoadScriptNext>}
@@ -191,14 +148,7 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
   </div>
 }
 
-const personIcon = {
-  path: "M6.46 5.3C7.52 3.81 5.49 2.11 3.15 1.19 2.26 1.8 1.17 2.17 0 2.17 -1.17 2.17 -2.25 1.8 -3.14 1.19 -5.48 2.11 -7.52 3.81 -6.46 5.3 -4.62 7.9 4.62 7.9 6.46 5.3zM4.58 -3.18C4.58 -0.71 2.53 1.3 0 1.3 -2.52 1.3 -4.57 -0.71 -4.57 -3.18 -4.57 -5.65 -2.52 -7.65 0 -7.65 4.24 -7.63 4.58 -3.18 4.58 -3.18zM3.61 -6.58M-12.78 -12.21",
-  fillColor: '#3f51b5',
-  fillOpacity: 0.9,
-  scale: 1.25,
-  strokeWeight: 1,
-  strokeColor: "#FFFFFF"
-}
+
 
 const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindows}) => {
   return <MarkerClusterer
@@ -211,7 +161,7 @@ const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindow
         handleOpen={() => handleClick(user._id)}
         handleClose={() => handleClose(user._id)}
         infoOpen={openWindows.includes(user._id)}
-        icon={personIcon}
+        icon={personGoogleIcon}
         link={Users.getProfileUrl(user)}
         title={` [User] ${Users.getDisplayName(user)} `}
         key={ user._id }
