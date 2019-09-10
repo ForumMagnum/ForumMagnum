@@ -118,6 +118,13 @@ const theme = createLWTheme({
         backgroundColor: "white",
       }
     },
+    Layout: {
+      main: {
+        '@media (max-width: 959.95px)': {
+          marginTop: 0
+        }
+      }
+    },
     Header: {
       appBar: {
         padding: "1em"
@@ -173,7 +180,7 @@ const theme = createLWTheme({
     },
     NavigationStandalone: {
       sidebar: {
-        paddingTop: 30,
+        top: 26,
       },
       footerBar: {
         backgroundColor: grey[200],
@@ -210,6 +217,12 @@ const theme = createLWTheme({
     TabNavigationMenuSubItem: {
       root: {
         color: grey[800]
+      }
+    },
+    SunshineSidebar: {
+      root: {
+        top: 30,
+        marginTop: 63
       }
     },
     PostsTimeBlock: {
