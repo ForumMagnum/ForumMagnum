@@ -1,20 +1,16 @@
 import React, { useState } from 'react';
-import { Components, registerComponent, useMulti, getSetting, useUpdate } from 'meteor/vulcan:core';
+import { Components, registerComponent, useMulti, getSetting } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import { Localgroups } from '../../lib/index.js';
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
-import { useLocation, useNavigation } from '../../lib/routeUtil';
+import { useLocation } from '../../lib/routeUtil';
 import mapStyle from './mapStyles.js';
 import { GoogleMap, LoadScriptNext, MarkerClusterer } from "@react-google-maps/api"
 import NoSSR from 'react-no-ssr';
-import Paper from '@material-ui/core/Paper';
 import { personGoogleIcon } from './Icons'
-
-
 import withDialog from '../common/withDialog'
 import withUser from '../common/withUser.js';
-import classNames from 'classnames';
 
 const mapsAPIKey = getSetting('googleMaps.apiKey', null);
 
