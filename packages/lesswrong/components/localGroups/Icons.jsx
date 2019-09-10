@@ -1,4 +1,3 @@
-/* global google */
 import React from 'react';
 
 
