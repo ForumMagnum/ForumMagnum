@@ -241,6 +241,11 @@ const theme = createLWTheme({
       icon: {
         color: grey[800]
       }
+    },
+    PostLinkPreviewWithPost: {
+      indicator: {
+        bottom: 3
+      }
     }
   }
 });
