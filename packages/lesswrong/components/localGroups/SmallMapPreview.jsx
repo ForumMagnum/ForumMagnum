@@ -53,9 +53,9 @@ class SmallMapPreview extends Component {
         <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
       </Helmet>
       <ReactMapGL
+        {...viewport}
         width="100%"
         height="100%"
-        {...viewport}
         mapStyle={"mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
         onViewportChange={viewport => this.setState({ viewport })}
         mapboxApiAccessToken={mapboxAPIKey}
