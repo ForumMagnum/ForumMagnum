@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent, useSingle } from 'meteor/vulcan:core';
+import { Components, registerComponent, useSingle, getSetting } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import { Link } from 'react-router-dom';
 import { usePostBySlug, usePostByLegacyId } from '../posts/usePost.js';
@@ -76,11 +76,13 @@ const styles = theme => ({
   }
 })
 
+const siteTwoLetter = getSetting('forumType') === 'EAForum' ? 'EA' : 'LW'
+
 const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hover}) => {
   const { PostsItemTooltip } = Components
   const linkElement = <span className={classes.linkElement}>
       <Link className={classes.link} to={href}>
-        <span dangerouslySetInnerHTML={{__html: innerHTML}}></span>{}<span className={classes.indicator}>LW</span>
+        <span dangerouslySetInnerHTML={{__html: innerHTML}}></span>{}<span className={classes.indicator}>{siteTwoLetter}</span>
       </Link>
     </span>
   if (!post) {
