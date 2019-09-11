@@ -198,6 +198,8 @@ const createLWTheme = (theme) => {
       header: 1300,
       karmaChangeNotifier: 1400,
       notificationsMenu: 1500,
+      lwPopper: 10000,
+      lwPopperTooltip: 10001,
       searchBar: 100000,
     },
     voting: {

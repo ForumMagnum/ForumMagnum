@@ -3,17 +3,20 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Users from 'meteor/vulcan:users';
 import { Link } from 'react-router-dom';
-import Tooltip from '@material-ui/core/Tooltip';
 import { truncate } from '../../lib/editor/ellipsize';
 import DescriptionIcon from '@material-ui/icons/Description';
 import MessageIcon from '@material-ui/icons/Message';
 import { withStyles } from '@material-ui/core/styles';
 import { BookIcon } from '../icons/bookIcon'
+import withHover from '../common/withHover'
 import classNames from 'classnames';
 
 const styles = theme => ({
   userName: {
     whiteSpace: "nowrap"
+  },
+  tooltip: {
+    maxWidth: 250,
   },
   joined: {
     fontStyle: "italic", 
@@ -36,9 +39,9 @@ const styles = theme => ({
 
 // Given a user (which may not be null), render the user name as a link with a
 // tooltip. This should not be used directly; use UsersName instead.
-const UsersNameDisplay = ({user, classes, nofollow=false, simple=false}) => {
+const UsersNameDisplay = ({user, classes, nofollow=false, simple=false, hover, anchorEl, stopHover}) => {
   if (!user) return <Components.UserDeleted/>
-  const { FormatDate } = Components
+  const { FormatDate, LWPopper } = Components
   const { htmlBio } = user
 
   const truncatedBio = truncate(htmlBio, 500)
@@ -46,7 +49,7 @@ const UsersNameDisplay = ({user, classes, nofollow=false, simple=false}) => {
   const commentCount = Users.getCommentCount(user)
   const sequenceCount = user.sequenceCount; // TODO: Counts LW sequences on Alignment Forum
 
-  const tooltip = <div>
+  const tooltip = <span>
     <div className={classes.joined}>Joined on <FormatDate date={user.createdAt} format="MMM Do YYYY" /></div>
     { !!sequenceCount && <div>
         <BookIcon className={classNames(classes.icon, classes.bookIcon)}/> { sequenceCount } sequences
@@ -54,23 +57,24 @@ const UsersNameDisplay = ({user, classes, nofollow=false, simple=false}) => {
     { !!postCount && <div><DescriptionIcon className={classes.icon} /> { postCount } posts</div>}
     { !!commentCount && <div><MessageIcon className={classes.icon}  /> { commentCount } comments</div>}
     { truncatedBio && <div className={classes.bio } dangerouslySetInnerHTML={{__html: truncatedBio}}/>}
-  </div>
+  </span>
 
   if (simple) {
     return <span className={classes.userName}>{Users.getDisplayName(user)}</span>
   }
 
-  return <Tooltip title={tooltip}>
-    <Link to={Users.getProfileUrl(user)} className={classes.userName}
+  return <Link to={Users.getProfileUrl(user)} className={classes.userName}
       {...(nofollow ? {rel:"nofollow"} : {})}
     >
+      <LWPopper className={classes.tooltip} placement="top" open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip>
+        {tooltip}
+      </LWPopper>
       {Users.getDisplayName(user)}
     </Link>
-  </Tooltip>
 }
 
 UsersNameDisplay.propTypes = {
   user: PropTypes.object.isRequired,
 }
 
-registerComponent('UsersNameDisplay', UsersNameDisplay, withStyles(styles, {name: "UsersNameDisplay"}));
+registerComponent('UsersNameDisplay', UsersNameDisplay, withStyles(styles, {name: "UsersNameDisplay"}), withHover);

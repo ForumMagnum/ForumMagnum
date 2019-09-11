@@ -7,9 +7,11 @@
   "scripts": {
     "prestart": "bash prestart_lesswrong.sh",
     "start": "meteor --settings settings-dev.json",
+    "start-prod-db": "../LessWrong-Credentials/run-local-dev-proddb.sh",
     "debug": "meteor --settings settings-dev.json --inspect run",
     "start-af": "meteor --settings settings-af.json",
     "start-af-second": "MONGO_URL=mongodb://localhost:3001/meteor meteor --settings settings-af.json --port 3030",
+    "start-af-prod-db": "../LessWrong-Credentials/run-local-dev-af-proddb.sh",
     "debug-af": "meteor --settings settings-af.json --inspect run",
     "lint": "eslint --max-warnings 0 --cache --ext .jsx,js packages",
     "test-watch": "TEST_WATCH=1 meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings sample_settings.json --port 3200 --full-app",

@@ -17,6 +17,7 @@ import { Components, addCallback, newMutation } from 'meteor/vulcan:core';
 
 import React from 'react';
 import keyBy from 'lodash/keyBy';
+import Sentry from '@sentry/node';
 
 const createNotifications = async (userIds, notificationType, documentType, documentId) => {
   return Promise.all(
@@ -48,17 +49,21 @@ const sendPostByEmail = async (users, postId, reason) => {
 
   for(let user of users) {
     if(!reasonUserCantReceiveEmails(user)) {
-      const unsubscribeAllLink = await UnsubscribeAllToken.generateLink(user._id);
-      await renderAndSendEmail({
-        user,
-        subject: post.title,
-        bodyComponent: <Components.EmailWrapper
-          user={user}
-          unsubscribeAllLink={unsubscribeAllLink}
-        >
-          <Components.NewPostEmail documentId={post._id} reason={reason}/>
-        </Components.EmailWrapper>
-      });
+      try {
+        const unsubscribeAllLink = await UnsubscribeAllToken.generateLink(user._id);
+        await renderAndSendEmail({
+          user,
+          subject: post.title,
+          bodyComponent: <Components.EmailWrapper
+            user={user}
+            unsubscribeAllLink={unsubscribeAllLink}
+          >
+            <Components.NewPostEmail documentId={post._id} reason={reason}/>
+          </Components.EmailWrapper>
+        });
+      } catch(e) {
+        Sentry.captureException(e);
+      }
     } else {
       //eslint-disable-next-line no-console
       console.log(`Skipping user ${user.username} when emailing: ${reasonUserCantReceiveEmails(user)}`);

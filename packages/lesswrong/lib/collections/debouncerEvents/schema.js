@@ -13,6 +13,9 @@ const schema = {
   dispatched: {
     type: Boolean,
   },
+  failed: {
+    type: Boolean,
+  },
   
   delayTime: {
     type: Date,
