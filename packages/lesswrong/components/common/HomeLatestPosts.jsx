@@ -15,7 +15,7 @@ class HomeLatestPosts extends PureComponent {
     const { query, pathname } = location;
     let newQuery = _.isEmpty(query) ? {view: "magic"} : query
     const currentFilter = newQuery.filter || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
-    const newFilter = (currentFilter === "frontpage") ? "includeMetaAndPersonal" : "frontpage"
+    const newFilter = (currentFilter === "frontpage") ? "frontpageAndMeta" : "frontpage"
 
     if (currentUser) {
       updateUser({
