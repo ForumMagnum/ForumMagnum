@@ -40,14 +40,14 @@ export const GroupIconSVG = ({ className }) => <svg xmlns="http://www.w3.org/200
 </svg>
 
 
-export const getArrowIcon = google => ({
+export const arrowIcon = {
   path: "M-7.58 -20.04C-7.58 -20.04 0.019999999999999574 4.09 0.019999999999999574 4.09 0.019999999999999574 4.09 7.5 -20.09 7.5 -20.09 7.5 -20.09 -0.009999999999999787 -15.22 -0.009999999999999787 -15.22 -0.009999999999999787 -15.22 -7.58 -20.04 -7.58 -20.04zM21.990000000000002 -2.6799999999999997",
   fillColor: '#2b6a99',
   fillOpacity: 0.9,
   scale: 1,
   strokeWeight: 1,
   strokeColor: "#FFFFFF"
-})
+}
 
 export const ArrowSVG = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} version="1.1" x="0px" y="0px" viewBox="6 4 22 23">
   <g>

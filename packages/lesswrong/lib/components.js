@@ -192,8 +192,7 @@ if (getSetting('hasEvents', true)) {
   importComponent("CommunityMapWrapper", () => require('../components/localGroups/CommunityMapWrapper.jsx'));
   importComponent("SetPersonalMapLocationDialog", () => require('../components/localGroups/SetPersonalMapLocationDialog.jsx'));
   importComponent("EventNotificationsDialog", () => require('../components/localGroups/EventNotificationsDialog.jsx'));
-  importComponent("MarkerWithInfoWindow", () => require('../components/localGroups/MarkerWithInfoWindow.jsx'));
-  importComponent("StyledMapMarker", () => require('../components/localGroups/StyledMapMarker.jsx'));
+  importComponent("StyledMapPopup", () => require('../components/localGroups/StyledMapPopup.jsx'));
   importComponent("EventTime", () => require('../components/localGroups/EventTime.jsx'));
   importComponent("EventVicinity", () => require('../components/localGroups/EventVicinity.jsx'));
   importComponent("LocalGroupMarker", () => require('../components/localGroups/LocalGroupMarker.jsx'));
