@@ -56,9 +56,8 @@ const PostLinkPreviewLegacy = ({href, targetLocation, innerHTML}) => {
 registerComponent('PostLinkPreviewLegacy', PostLinkPreviewLegacy);
 
 const PostLinkPreviewVariantCheck = ({ href, innerHTML, post, targetLocation, comment, commentId, error }) => {
-
-  if (targetLocation.params.commentId) {
-    return <PostLinkCommentPreview commentId={targetLocation.params.commentId} href={href} innerHTML={innerHTML} post={post} />
+  if (targetLocation.query.commentId) {
+    return <PostLinkCommentPreview commentId={targetLocation.query.commentId} href={href} innerHTML={innerHTML} post={post} />
   }
   if (targetLocation.hash) {
     const commentId = targetLocation.hash.split("#")[1] 
@@ -171,6 +170,7 @@ const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post,
             post={post}
             showPostTitle
             hoverPreview
+            forceNotSingleLine
           />
         </Card>
       </LWPopper>
@@ -207,7 +207,7 @@ const DefaultPreview = ({classes, href, innerHTML, anchorEl, hover, onsite=false
       {onsite ?
         <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} /> 
         :
-        <a to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />}
+        <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />}
     </span>
   );
 }
