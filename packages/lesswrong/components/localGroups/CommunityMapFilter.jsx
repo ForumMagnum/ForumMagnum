@@ -28,12 +28,17 @@ const styles = theme => ({
   filters: {
     borderTopLeftRadius: 4,
     borderTopRightRadius: 4,
-    overflow: 'hidden'
+    overflow: 'hidden',
   },
   filter: {
     padding: 8,
+    paddingLeft: 10,
+    paddingRight: 10,
     display: 'inline-block',
-    cursor: "pointer"
+    cursor: "pointer",
+    '&:hover': {
+      backgroundColor: theme.palette.grey[200]
+    }
   },
   firstFilter: {
     paddingLeft: 16
@@ -42,7 +47,10 @@ const styles = theme => ({
     paddingRight: 16
   },
   filterChecked: {
-    backgroundColor: theme.palette.primary.main
+    backgroundColor: theme.palette.grey[500],
+    '&:hover': {
+      backgroundColor: theme.palette.grey[400]
+    }
   },
   checkbox: {
     padding: 0,
@@ -148,7 +156,7 @@ const styles = theme => ({
     display: 'none',
     [theme.breakpoints.down('sm')]: {
       display: 'block'
-    }
+    },
   },
   mobileFilterActive: {
     fill: 'rgba(0,0,0,0.3)'
