@@ -4,8 +4,6 @@ import {
   registerComponent,
 } from 'meteor/vulcan:core';
 
-import { Link } from '../../lib/reactRouterWrapper.js';
-import { Posts } from '../../lib/collections/posts';
 import classNames from 'classnames';
 import { unflattenComments } from '../../lib/modules/utils/unflatten';
 import withUser from '../common/withUser';
@@ -87,10 +85,6 @@ const styles = theme => ({
       marginLeft: 0,
       marginRight: 0
     }
-  },
-  title: {
-    ...theme.typography.body1,
-    ...theme.typography.postStyle,
   }
 })
 
@@ -131,10 +125,7 @@ class RecentDiscussionThread extends PureComponent {
       <div className={classes.root}>
         <div className={(currentUser && !(isRead || readStatus)) ? classes.unreadPost : null}>
           <div className={classes.postItem}>
-            <Link className={classes.title} to={Posts.getPageUrl(post)}>
-              <PostsTitle wrap post={post} tooltip={false}/>
-            </Link>
-
+            <PostsTitle wrap post={post} tooltip={false}/>
             <div className={classes.threadMeta} onClick={this.showHighlight}>
               <PostsItemMeta post={post}/>
               <ShowOrHideHighlightButton
