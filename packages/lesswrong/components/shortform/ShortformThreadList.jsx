@@ -1,12 +1,18 @@
 import React from 'react';
-import { Components, registerComponent, withList, Loading } from 'meteor/vulcan:core';
+import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import { Comments } from '../../lib/collections/comments';
 import withUser from '../common/withUser';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { withStyles } from '@material-ui/core/styles';
 
-const ShortformThreadList = ({ results, loading, loadMore, networkStatus, data: {refetch} }) => {
+const styles = theme => ({
+  shortformItem: {
+    marginTop: theme.spacing.unit*4
+  }
+})
 
-  const { LoadMore, ShortformThread, ShortformSubmitForm } = Components
+const ShortformThreadList = ({ classes, results, loading, loadMore, networkStatus, data: {refetch} }) => {
+
+  const { LoadMore, CommentWithReplies, ShortformSubmitForm, Loading } = Components
 
   if (!loading && results && !results.length) {
     return null
@@ -20,7 +26,9 @@ const ShortformThreadList = ({ results, loading, loadMore, networkStatus, data: 
       {loading || !results ? <Loading /> :
       <div>
         {results.map((comment, i) => {
-          return <ShortformThread key={comment._id} comment={comment} refetch={refetch}/>
+          return <div key={comment._id} className={classes.shortformItem}>
+            <CommentWithReplies comment={comment} refetch={refetch}/>
+          </div>
         })}
         { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
         { loadingMore && <Loading />}
@@ -31,10 +39,11 @@ const ShortformThreadList = ({ results, loading, loadMore, networkStatus, data: 
 const discussionThreadsOptions = {
   collection: Comments,
   queryName: 'ShortformThreadListQuery',
-  fragmentName: 'ShortformCommentsList',
+  fragmentName: 'CommentWithReplies',
+  fetchPolicy: 'cache-and-network',
   enableTotal: false,
   pollInterval: 0,
-  enableCache: true,
+  ssr: true,
 };
 
-registerComponent('ShortformThreadList', ShortformThreadList, [withList, discussionThreadsOptions], withUser, withRouter);
+registerComponent('ShortformThreadList', ShortformThreadList, withStyles(styles, {name:"ShortformThreadList"}), [withList, discussionThreadsOptions], withUser);

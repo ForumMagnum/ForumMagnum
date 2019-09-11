@@ -22,7 +22,6 @@ const options = {
   queryName: 'LastVisitListFragment',
   fragmentName: 'lastEventFragment',
   enableTotal: false,
-  enableCache: true,
 };
 
 registerComponent("LastVisitList", LastVisitList, withUser, [withList, options]);

@@ -30,11 +30,11 @@ const EventsPast = ({ timezone, classes }) => {
           })}
           before={getBeforeDefault({timeBlock: 'day', timezone: timezone})}
           postListParameters={terms}
+          displayShortform={false}
         />
       </div>
     </SingleColumnSection>
   )
 }
 
-EventsPast.displayName = 'EventsPast';
 registerComponent('EventsPast', EventsPast, withTimezone, withStyles(styles, {name: "EventsPast"}));

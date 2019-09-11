@@ -1,40 +1,44 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { getSetting } from 'meteor/vulcan:lib';
-import React, { PureComponent } from 'react';
+import React from 'react';
 import withUser from '../common/withUser';
-import { SplitComponent } from 'meteor/vulcan:routing';
 import Users from 'meteor/vulcan:users';
-import AddBoxIcon from '@material-ui/icons/AddBox';
+import { useLocation } from '../../lib/routeUtil';
+import { withStyles } from '@material-ui/core/styles';
 
-// TODO;(EA Forum) Confirm we match after merge
-
-class Home2 extends PureComponent {
-
-  render () {
-    const { currentUser } = this.props
-
-    const { SingleColumnSection, SectionTitle, RecentDiscussionThreadsList, CommentsNewForm, HomeLatestPosts, RecommendationsAndCurated, SectionButton } = Components
-
-    const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
-        Users.canDo(currentUser, 'alignment.sidebar')
-
-    return (
-      <React.Fragment>
-        {shouldRenderSidebar && <SplitComponent name="SunshineSidebar" />}
-
-        <Components.HeadTags image={getSetting('siteImage')} />
-
-        <RecommendationsAndCurated configName="frontpage" />
-
-        <HomeLatestPosts />
-
-        <SingleColumnSection>
-          <SectionTitle title="Recent Discussion" />
-          <RecentDiscussionThreadsList terms={{view: 'recentDiscussionThreadsList', limit:20}}/>
-        </SingleColumnSection>
-      </React.Fragment>
-    )
+const styles = theme => ({
+  map: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none'
+    }
   }
+})
+
+const Home2 = ({currentUser, classes}) => {
+  const { RecentDiscussionThreadsList, HomeLatestPosts, RecommendationsAndCurated, CommunityMapWrapper } = Components
+
+  const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
+      Users.canDo(currentUser, 'alignment.sidebar')
+  const { lat, lng } = Users.getLocation(currentUser)
+  const { query } = useLocation()
+  const mapEventTerms = { view: 'nearbyEvents', lat, lng, filters: query?.filters || []}
+
+  return (
+    <React.Fragment>
+      {shouldRenderSidebar && <Components.SunshineSidebar/>}
+      {!currentUser?.hideFrontpageMap && <div className={classes.map}>
+        <CommunityMapWrapper terms={mapEventTerms} />
+      </div>}
+
+      <RecommendationsAndCurated configName="frontpage" />
+      <HomeLatestPosts />
+      <RecentDiscussionThreadsList
+        terms={{view: 'recentDiscussionThreadsList', limit:20}}
+        commentsLimit={4}
+        maxAgeHours={18}
+        af={false}
+      />
+    </React.Fragment>
+  )
 }
 
-registerComponent('Home2', Home2, withUser);
+registerComponent('Home2', Home2, withUser, withStyles(styles, {name: "Home2"}));

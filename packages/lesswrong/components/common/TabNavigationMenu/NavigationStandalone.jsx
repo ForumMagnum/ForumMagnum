@@ -15,8 +15,7 @@ const styles = theme => ({
     },
     top: -15,
     left:0,
-    paddingTop: 20,
-    width:260,
+    paddingTop: 30,
     backgroundColor: "#ffffffd4",
   },
   footerBar: {

@@ -1,5 +1,6 @@
 import { arrayOfForeignKeysField } from '../../modules/utils/schemaUtils'
 import { localGroupTypeFormOptions } from './groupTypes';
+import { schemaDefaultValue } from '../../collectionUtils';
 
 const schema = {
   _id: {
@@ -13,7 +14,6 @@ const schema = {
     viewableBy: ['guests'],
     onInsert: (document) => new Date(),
   },
-
 
   name: {
     type: String,
@@ -65,6 +65,7 @@ const schema = {
     editableBy: ['members'],
     control: 'MultiSelectButtons',
     label: "Group Type:",
+    defaultValue: ["LW"],
     minCount: 1, // Ensure that at least one type is selected
     form: {
       options: localGroupTypeFormOptions
@@ -132,6 +133,16 @@ const schema = {
     control: "MuiInput",
     optional: true,
   },
+
+  inactive: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    hidden: true,
+    optional: true,
+    ...schemaDefaultValue(false),
+  }
 };
 
 export default schema;

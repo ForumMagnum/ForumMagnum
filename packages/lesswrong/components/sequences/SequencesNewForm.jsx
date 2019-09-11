@@ -1,22 +1,24 @@
 import { Components, registerComponent, getFragment, withMessages } from 'meteor/vulcan:core';
 import React from 'react';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { useNavigation } from '../../lib/routeUtil';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import withUser from '../common/withUser';
 
-const SequencesNewForm = (props, context) => {
-  if (props.currentUser) {
+const SequencesNewForm = ({ currentUser, flash, redirect, cancelCallback, removeSuccessCallback}) => {
+  const { history } = useNavigation();
+  
+  if (currentUser) {
     return (
       <div className="sequences-new-form">
         <Components.WrappedSmartForm
           collection={Sequences}
           successCallback={(sequence) => {
-            props.router.push({pathname: props.redirect || '/s/' + sequence._id });
-            props.flash({messageString: "Successfully created Sequence", type: "success"});
+            history.push({pathname: redirect || '/s/' + sequence._id });
+            flash({messageString: "Successfully created Sequence", type: "success"});
           }}
-          cancelCallback={props.cancelCallback}
-          removeSuccessCallback={props.removeSuccessCallback}
-          prefilledProps={{userId: props.currentUser._id}}
+          cancelCallback={cancelCallback}
+          removeSuccessCallback={removeSuccessCallback}
+          prefilledProps={{userId: currentUser._id}}
           queryFragment={getFragment('SequencesEdit')}
           mutationFragment={getFragment('SequencesPageFragment')}
         />
@@ -27,4 +29,4 @@ const SequencesNewForm = (props, context) => {
   }
 }
 
-registerComponent('SequencesNewForm', SequencesNewForm, withMessages, withRouter, withUser);
+registerComponent('SequencesNewForm', SequencesNewForm, withMessages, withUser);

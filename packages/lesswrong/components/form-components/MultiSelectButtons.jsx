@@ -38,10 +38,6 @@ const styles = theme => ({
 
 
 class MultiSelectButtons extends Component {
-  constructor(props, context) {
-    super(props,context);
-  }
-
   handleClick = (option) => {
     const { value } = this.props;
 
@@ -85,10 +81,6 @@ class MultiSelectButtons extends Component {
 MultiSelectButtons.contextTypes = {
   updateCurrentValues: PropTypes.func,
 };
-
-MultiSelectButtons.defaultProps = {
-
-}
 
 registerComponent("MultiSelectButtons", MultiSelectButtons,
   withStyles(styles, { name: "MultiSelectButtons" }));

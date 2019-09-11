@@ -44,8 +44,6 @@ const LoadMore = ({ loadMore, count, totalCount, classes, disabled=false, networ
   )
 }
 
-LoadMore.displayName = "LoadMore";
-
 registerComponent('LoadMore', LoadMore,
   withStyles(styles, { name: "LoadMore" })
 );

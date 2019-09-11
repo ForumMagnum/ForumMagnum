@@ -29,6 +29,7 @@ registerFragment(`
     feedId
     feedLink
     lastVisitedAt
+    isRead
     lastCommentedAt
     canonicalCollectionSlug
     curatedDate
@@ -76,6 +77,7 @@ registerFragment(`
     moderationStyle
     submitToFrontpage
     shortform
+    canonicalSource
   }
 `);
 
@@ -177,8 +179,15 @@ registerFragment(`
 `)
 
 registerFragment(`
-  fragment PostsWithNavigation on Post {
+  fragment PostsWithNavigationAndRevision on Post {
     ...PostsRevision
+    ...PostSequenceNavigation
+  }
+`)
+
+registerFragment(`
+  fragment PostsWithNavigation on Post {
+    ...PostsPage
     ...PostSequenceNavigation
   }
 `)
@@ -227,6 +236,7 @@ registerFragment(`
 registerFragment(`
   fragment PostsEdit on Post {
     ...PostsPage
+    shareWithUsers
     moderationGuidelines {
       ...RevisionEdit
     }
@@ -266,6 +276,15 @@ registerFragment(`
     contents {
       htmlHighlight
       wordCount
+    }
+  }
+`);
+
+registerFragment(`
+  fragment PostsRecentDiscussion on Post {
+    ...PostsList
+    recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
+      ...CommentsList
     }
   }
 `);

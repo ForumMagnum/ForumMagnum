@@ -1,4 +1,4 @@
-import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Comments } from '../../lib/collections/comments';
 import { Link } from '../../lib/reactRouterWrapper.js'
@@ -13,27 +13,25 @@ import withErrorBoundary from '../common/withErrorBoundary'
 class SunshineNewCommentsItem extends Component {
 
   handleReview = () => {
-    const { currentUser, comment, editMutation, refetchComments } = this.props
-    editMutation({
-      documentId: comment._id,
-      set: {reviewedByUserId : currentUser._id},
-      unset: {}
-    }).then(() => refetchComments())
+    const { currentUser, comment, updateComment } = this.props
+    updateComment({
+      selector: {_id: comment._id},
+      data: {reviewedByUserId : currentUser._id}
+    })
   }
 
   handleDelete = () => {
-    const { currentUser, comment, editMutation } = this.props
+    const { currentUser, comment, updateComment } = this.props
     if (confirm("Are you sure you want to immediately delete this comment?")) {
       window.open(Users.getProfileUrl(comment.user), '_blank');
-      editMutation({
-        documentId: comment._id,
-        set: {
+      updateComment({
+        selector: {_id: comment._id},
+        data: {
           deleted: true,
           deletedDate: new Date(),
           deletedByUserId: currentUser._id,
           deletedReason: "spam"
-        },
-        unset: {}
+        }
       })
     }
   }
@@ -55,7 +53,7 @@ class SunshineNewCommentsItem extends Component {
               <Components.SidebarAction title="Mark as Reviewed" onClick={this.handleReview}>
                 done
               </Components.SidebarAction>
-              <Components.SidebarAction title="Spam/Eugin (delete immediately)" onClick={this.handleDelete} warningHighlight>
+              <Components.SidebarAction title="Spam (delete immediately)" onClick={this.handleDelete} warningHighlight>
                 clear
               </Components.SidebarAction>
             </Components.SidebarActionMenu>}
@@ -66,15 +64,14 @@ class SunshineNewCommentsItem extends Component {
 
 SunshineNewCommentsItem.propTypes = {
   currentUser: PropTypes.object.isRequired,
-  editMutation: PropTypes.func.isRequired,
+  updateComment: PropTypes.func.isRequired,
   comment: PropTypes.object.isRequired,
   hover: PropTypes.bool.isRequired,
-  anchorEl: PropTypes.object,
-  refetchComments: PropTypes.func.isRequired,
+  anchorEl: PropTypes.object
 }
 
-const withEditOptions = {
+const withUpdateOptions = {
   collection: Comments,
   fragmentName: 'SelectCommentsList',
 }
-registerComponent('SunshineNewCommentsItem', SunshineNewCommentsItem, [withEdit, withEditOptions], withUser, withHover, withErrorBoundary);
+registerComponent('SunshineNewCommentsItem', SunshineNewCommentsItem, [withUpdate, withUpdateOptions], withUser, withHover, withErrorBoundary);

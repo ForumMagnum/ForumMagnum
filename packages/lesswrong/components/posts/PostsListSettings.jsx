@@ -6,7 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
-import { Link } from '../../lib/reactRouterWrapper.js'
+import { QueryLink } from '../../lib/reactRouterWrapper.js'
 
 import withUser from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
@@ -100,13 +100,16 @@ const styles = theme => ({
     overflow: "hidden",
   },
   menuItem: {
-    display: "block",
-    cursor: "pointer",
-    color: theme.palette.grey[500],
-    marginLeft: theme.spacing.unit*1.5,
-    whiteSpace: "nowrap",
-    '&:hover': {
-      color: theme.palette.grey[600],
+    '&&': {
+      // Increase specifity to remove import-order conflict with MetaInfo
+      display: "block",
+      cursor: "pointer",
+      color: theme.palette.grey[500],
+      marginLeft: theme.spacing.unit*1.5,
+      whiteSpace: "nowrap",
+      '&:hover': {
+        color: theme.palette.grey[600],
+      },
     },
   },
   selectionList: {
@@ -117,15 +120,21 @@ const styles = theme => ({
     }
   },
   selectionTitle: {
-    display: "block",
-    fontStyle: "italic",
-    marginBottom: theme.spacing.unit/2
+    '&&': {
+      // Increase specifity to remove import-order conflict with MetaInfo
+      display: "block",
+      fontStyle: "italic",
+      marginBottom: theme.spacing.unit/2
+    },
   },
   selected: {
-    color: theme.palette.grey[900],
-    '&:hover': {
+    // Increase specifity to remove import-order conflict with MetaInfo
+    '&&': {
       color: theme.palette.grey[900],
-    },
+      '&:hover': {
+        color: theme.palette.grey[900],
+      },
+    }
   },
   checkbox: {
     padding: "1px 12px 0 0"
@@ -151,11 +160,12 @@ const SettingsColumn = ({type, title, options, currentOption, classes, setSettin
     {Object.entries(options).map(([name, optionValue]) => {
       const label = _.isString(optionValue) ? optionValue : optionValue.label
       return (
-        <Link
+        <QueryLink
           key={name}
           onClick={() => setSetting(type, name)}
           // TODO: Can the query have an ordering that matches the column ordering?
-          to={loc=> ({...loc, query: {...loc.query, [type]: name}})}
+          query={{ [type]: name }}
+          merge
         >
           <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentOption === name})}>
             {optionValue.tooltip ?
@@ -165,7 +175,7 @@ const SettingsColumn = ({type, title, options, currentOption, classes, setSettin
               <span>{ label }</span>
             }
           </MetaInfo>
-        </Link>
+        </QueryLink>
       )
     })}
   </div>
@@ -229,17 +239,18 @@ class PostsListSettings extends Component {
         />
 
         <Tooltip title={<div><div>By default, posts below -10 karma are hidden.</div><div>Toggle to show them.</div></div>} placement="right-start">
-          <Link
+          <QueryLink
             className={classes.checkboxGroup}
             onClick={() => this.setSetting('showLowKarma', !currentShowLowKarma)}
-            to={loc=> ({...loc, query: {...loc.query, karmaThreshold: (currentShowLowKarma ? DEFAULT_LOW_KARMA_THRESHOLD : MAX_LOW_KARMA_THRESHOLD)}})}
+            query={{karmaThreshold: (currentShowLowKarma ? DEFAULT_LOW_KARMA_THRESHOLD : MAX_LOW_KARMA_THRESHOLD)}}
+            merge
           >
             <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentShowLowKarma} />
 
             <MetaInfo className={classes.checkboxLabel}>
               Show Low Karma
             </MetaInfo>
-          </Link>
+          </QueryLink>
         </Tooltip>
       </div>
     );
@@ -249,8 +260,6 @@ class PostsListSettings extends Component {
 PostsListSettings.propTypes = {
   currentUser: PropTypes.object,
 };
-
-PostsListSettings.displayName = 'PostsListSettings';
 
 const withUpdateOptions = {
   collection: Users,

@@ -7,7 +7,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 
 import { Posts } from '../../lib/collections/posts/collection.js'
 import withUser from '../common/withUser';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { withNavigation } from '../../lib/routeUtil';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -20,7 +20,7 @@ const styles = theme => ({
 
 class NewQuestionDialog extends PureComponent {
   render() {
-    const { onClose, currentUser, router, flash, fullScreen, classes } = this.props
+    const { onClose, currentUser, history, flash, fullScreen, classes } = this.props
     const { PostSubmit } = Components
     const QuestionSubmit = (props) => {
       return <div className={classes.formSubmit}>
@@ -45,11 +45,13 @@ class NewQuestionDialog extends PureComponent {
             }}
             cancelCallback={onClose}
             successCallback={post => {
-              router.push({pathname: Posts.getPageUrl(post)});
+              history.push({pathname: Posts.getPageUrl(post)});
               flash({ id: 'posts.created_message', properties: { title: post.title }, type: 'success'});
               onClose()
             }}
-            SubmitComponent={QuestionSubmit}
+            formComponents={{
+              FormSubmit: QuestionSubmit,
+            }}
           />
         </DialogContent>
       </Dialog>
@@ -62,4 +64,4 @@ NewQuestionDialog.propTypes = {
   onClose: PropTypes.func.isRequired,
 }
 
-registerComponent('NewQuestionDialog', NewQuestionDialog, withUser, withRouter, withMessages, withMobileDialog(), withStyles(styles, { name: "NewQuestionDialog" }))
+registerComponent('NewQuestionDialog', NewQuestionDialog, withUser, withNavigation, withMessages, withMobileDialog(), withStyles(styles, { name: "NewQuestionDialog" }))

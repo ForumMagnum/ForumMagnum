@@ -159,9 +159,9 @@ SimpleSchema.extendOptions(['canAutoDenormalize'])
 // those collections)
 export function denormalizedField({ needsUpdate, getValue }) {
   return {
-    onUpdate: async ({data, newDocument}) => {
+    onUpdate: async ({data, document}) => {
       if (!needsUpdate || needsUpdate(data)) {
-        return await getValue(newDocument)
+        return await getValue(document)
       }
     },
     onCreate: async ({newDocument}) => {
@@ -210,22 +210,22 @@ export function denormalizedCountOfReferences({ collectionName, fieldName,
     // need to increment a count, we may need to do both with them cancelling
     // out, or we may need to both but on different documents.
     addCallback(`${foreignCollectionCallbackPrefix}.update.after`,
-      async (newDoc, {document, currentUser, collection}) => {
+      async (newDoc, {oldDocument, currentUser, collection}) => {
         const countingCollection = getCollection(collectionName);
-        if (filterFn(newDoc) && !filterFn(document)) {
+        if (filterFn(newDoc) && !filterFn(oldDocument)) {
           // The old doc didn't count, but the new doc does. Increment on the new doc.
           await countingCollection.update(newDoc[foreignFieldName], {
             $inc: { [fieldName]: 1 }
           });
-        } else if (!filterFn(newDoc) && filterFn(document)) {
+        } else if (!filterFn(newDoc) && filterFn(oldDocument)) {
           // The old doc counted, but the new doc doesn't. Decrement on the old doc.
-          await countingCollection.update(document[foreignFieldName], {
+          await countingCollection.update(oldDocument[foreignFieldName], {
             $inc: { [fieldName]: -1 }
           });
-        } else if(filterFn(newDoc) && document[foreignFieldName] !== newDoc[foreignFieldName]) {
+        } else if(filterFn(newDoc) && oldDocument[foreignFieldName] !== newDoc[foreignFieldName]) {
           // The old and new doc both count, but the reference target has changed.
           // Decrement on one doc and increment on the other.
-          await countingCollection.update(document[foreignFieldName], {
+          await countingCollection.update(oldDocument[foreignFieldName], {
             $inc: { [fieldName]: -1 }
           });
           await countingCollection.update(newDoc[foreignFieldName], {

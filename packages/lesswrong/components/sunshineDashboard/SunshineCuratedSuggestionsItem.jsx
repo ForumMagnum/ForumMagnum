@@ -1,4 +1,4 @@
-import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
@@ -12,51 +12,47 @@ import withErrorBoundary from '../common/withErrorBoundary'
 class SunshineCuratedSuggestionsItem extends Component {
 
   handleCurate = () => {
-    const { currentUser, post, editMutation } = this.props
-    editMutation({
-      documentId: post._id,
-      set: {
+    const { currentUser, post, updatePost } = this.props
+    updatePost({
+      selector: {_id: post._id},
+      data: {
         reviewForCuratedUserId: currentUser._id,
         curatedDate: new Date(),
-      },
-      unset: {}
+      }
     })
   }
 
   handleDisregardForCurated = () => {
-    const { currentUser, post, editMutation } = this.props
-    editMutation({
-      documentId: post._id,
-      set: {
+    const { currentUser, post, updatePost } = this.props
+    updatePost({
+      selector: {_id: post._id},
+      data: {
         reviewForCuratedUserId: currentUser._id,
-      },
-      unset: {}
+      }
     })
   }
 
   handleSuggestCurated = () => {
-    const { currentUser, post, editMutation } = this.props
+    const { currentUser, post, updatePost } = this.props
     let suggestUserIds = _.clone(post.suggestForCuratedUserIds) || []
     if (!suggestUserIds.includes(currentUser._id)) {
       suggestUserIds.push(currentUser._id)
     }
-    editMutation({
-      documentId: post._id,
-      set: {suggestForCuratedUserIds:suggestUserIds},
-      unset: {}
+    updatePost({
+      selector: {_id: post._id},
+      data: {suggestForCuratedUserIds:suggestUserIds}
     })
   }
 
   handleUnsuggestCurated = () => {
-    const { currentUser, post, editMutation } = this.props
+    const { currentUser, post, updatePost } = this.props
     let suggestUserIds = _.clone(post.suggestForCuratedUserIds) || []
     if (suggestUserIds.includes(currentUser._id)) {
       suggestUserIds = _.without(suggestUserIds, currentUser._id);
     }
-    editMutation({
-      documentId: post._id,
-      set: {suggestForCuratedUserIds:suggestUserIds},
-      unset: {}
+    updatePost({
+      selector: {_id: post._id},
+      data: {suggestForCuratedUserIds:suggestUserIds}
     })
   }
 
@@ -117,13 +113,13 @@ class SunshineCuratedSuggestionsItem extends Component {
 
 SunshineCuratedSuggestionsItem.propTypes = {
   currentUser: PropTypes.object.isRequired,
-  editMutation: PropTypes.func.isRequired,
+  updatePost: PropTypes.func.isRequired,
   post: PropTypes.object.isRequired,
   hover: PropTypes.bool.isRequired,
   anchorEl: PropTypes.object,
 }
 
-const withEditOptions = {
+const withUpdateOptions = {
   collection: Posts,
   fragmentName: 'PostsList',
 }
@@ -131,7 +127,7 @@ const withEditOptions = {
 registerComponent(
   'SunshineCuratedSuggestionsItem',
   SunshineCuratedSuggestionsItem,
-  [withEdit, withEditOptions],
+  [withUpdate, withUpdateOptions],
   withUser,
   withHover,
   withErrorBoundary

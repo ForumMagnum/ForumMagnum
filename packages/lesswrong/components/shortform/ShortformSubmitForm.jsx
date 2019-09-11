@@ -1,19 +1,46 @@
 import React from 'react';
-import withUser from '../common/withUser';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { withStyles } from '@material-ui/core/styles';
 
-const ShortformSubmitForm = ({currentUser, successCallback}) => {
+const styles = theme => ({
+  root: {
+    marginLeft: 12,
+    marginRight: 12
+  }
+}) 
+
+const forumHintText = {
+  LessWrong: <div>
+    <div>Write your thoughts here! What have you been thinking about?</div>
+    <div>Exploratory, draft-stage, rough, and rambly thoughts are all welcome on Shortform.</div>
+  </div>,
+  AlignmentForum: <div>
+    <div>Write your thoughts here! What have you been thinking about?</div>
+    <div>Exploratory, draft-stage, rough, and rambly thoughts are all welcome on Shortform.</div>
+  </div>,
+  EAForum: <div>
+    <div>Write your brief or quickly written post here.</div>
+    <div>Exploratory, draft-stage, rough, and off-the-cuff thoughts are all welcome on Shortform.</div>
+  </div>
+}
+
+const ShortformSubmitForm = ({ classes, successCallback}) => {
   const { CommentsNewForm } = Components;
 
   return (
-    <CommentsNewForm
-      prefilledProps={{shortform: true}}
-      fragment={"ShortformCommentsList"}
-      successCallback={successCallback}
-      type="comment"
-    />
-    
+    <div className={classes.root}>
+      <CommentsNewForm
+        prefilledProps={{
+          shortform: true, 
+        }}
+        successCallback={successCallback}
+        type="comment"
+        formProps={{
+          editorHintText: forumHintText[getSetting('forumType', 'LessWrong')]
+        }}
+      />
+    </div>
   );
 }
 
-registerComponent('ShortformSubmitForm', ShortformSubmitForm, withUser);
+registerComponent('ShortformSubmitForm', ShortformSubmitForm, withStyles(styles, {name:"ShortformSubmitForm"}));

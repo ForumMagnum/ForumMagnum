@@ -27,14 +27,14 @@ const styles = theme => ({
     "&:hover": {
       background: "rgba(0,0,0, 0.05)",
     },
-    color: theme.palette.secondary.main
+    color: theme.palette.lwTertiary.main
   },
   cancelButton: {
     color: theme.palette.grey[400]
   }
 });
 
-const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, currentUser, fragment = "CommentsList"}) => {
+const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, currentUser, fragment = "CommentsList", formProps}) => {
   prefilledProps = {
     ...prefilledProps,
     af: Comments.defaultToAlignment(currentUser, post, parentComment),
@@ -99,35 +99,18 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
         cancelCallback={cancelCallback}
         prefilledProps={prefilledProps}
         layout="elementOnly"
-        GroupComponent={FormGroupComponent}
-        SubmitComponent={SubmitComponent}
+        formComponents={{
+          FormSubmit: SubmitComponent,
+          FormGroupLayout: Components.DefaultStyleFormGroup
+        }}
         alignmentForumPost={post?.af}
         addFields={currentUser?[]:["contents"]}
+        formProps={formProps}
       />
     </div>
   );
 };
 
-const FormGroupComponent = (props) => {
-  return <React.Fragment>
-    {props.fields.map(field => (
-      <Components.FormComponent
-        key={field.name}
-        disabled={props.disabled}
-        {...field}
-        errors={props.errors}
-        throwError={props.throwError}
-        currentValues={props.currentValues}
-        updateCurrentValues={props.updateCurrentValues}
-        deletedValues={props.deletedValues}
-        addToDeletedValues={props.addToDeletedValues}
-        clearFieldErrors={props.clearFieldErrors}
-        formType={props.formType}
-        currentUser={props.currentUser}
-      />
-    ))}
-  </React.Fragment>
-}
 
 
 
@@ -140,4 +123,4 @@ CommentsNewForm.propTypes = {
   prefilledProps: PropTypes.object
 };
 
-registerComponent('CommentsNewForm', CommentsNewForm, withUser, withStyles(styles), withErrorBoundary);
+registerComponent('CommentsNewForm', CommentsNewForm, withUser, withStyles(styles, {name: "CommentsNewForm"}), withErrorBoundary);

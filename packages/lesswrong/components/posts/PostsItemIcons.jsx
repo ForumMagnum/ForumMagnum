@@ -15,19 +15,25 @@ const styles = theme => ({
   iconSet: {
     marginLeft: theme.spacing.unit,
     marginRight: theme.spacing.unit,
+    lineHeight: "1.0rem",
   },
   postIcon: {
     marginRight: 4,
   },
   icon: {
-    fontSize: "1.2rem",
-    color: theme.palette.grey[500],
-    position: "relative",
-    top: 3,
+    // note: the specificity seems necessary to successfully override the OmegaIcon styling.
+    // not sure if this is best way to do this
+    '&&': {
+      fontSize: "1.2rem",
+      color: theme.palette.grey[500],
+      position: "relative",
+      top: 3,
+    }
   },
   alignmentIcon: {
-    fontSize: "1rem",
-    top: 0,
+    '&&':{
+      top: 0,
+    }
   },
 });
 

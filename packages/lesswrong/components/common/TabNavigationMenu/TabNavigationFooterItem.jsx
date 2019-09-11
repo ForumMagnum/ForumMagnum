@@ -1,8 +1,8 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
-import { withRouter } from '../../../lib/reactRouterWrapper.js';
 import { withStyles } from '@material-ui/core/styles';
 import { Link } from '../../../lib/reactRouterWrapper.js';
+import { useLocation } from '../../../lib/routeUtil.js';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 
@@ -53,9 +53,9 @@ const styles = theme => ({
   },
 })
 
-const TabNavigationFooterItem = ({tab, classes, location}) => {
+const TabNavigationFooterItem = ({tab, classes}) => {
   const { TabNavigationSubItem } = Components
-  const { pathname } = location
+  const { pathname } = useLocation()
 
   return <Tooltip placement='right-start' title={tab.tooltip || ''}>
     <Link
@@ -70,10 +70,10 @@ const TabNavigationFooterItem = ({tab, classes, location}) => {
       </span>}
       {tab.subItem ?
         <TabNavigationSubItem>
-          {tab.title}
+          { tab.mobileTitle || tab.title }
         </TabNavigationSubItem> :
         <span className={classes.navText}>
-          {tab.title}
+          { tab.mobileTitle || tab.title }
         </span>
       }
     </Link>
@@ -82,5 +82,5 @@ const TabNavigationFooterItem = ({tab, classes, location}) => {
 
 registerComponent(
   'TabNavigationFooterItem', TabNavigationFooterItem,
-  withRouter, withStyles(styles, { name: 'TabNavigationFooterItem'})
+  withStyles(styles, { name: 'TabNavigationFooterItem'})
 );

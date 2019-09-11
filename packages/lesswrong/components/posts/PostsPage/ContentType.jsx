@@ -67,7 +67,6 @@ const contentTypes = {
       Icon: SubjectIcon
     }
   },
-  // TODO-PR: LW, do you want this to be a different section?
   AlignmentForum: {
     frontpage: {
       tooltipTitle: 'Frontpage Post',
@@ -110,15 +109,15 @@ const contentTypes = {
     frontpage: {
       tooltipTitle: 'Frontpage Post',
       tooltipBody: <div>
-        Material selected by moderators as especially interesting or useful to
-        people with interest in doing good effectively.
+        Posts about ideas that are relevant to doing good effectively and don’t
+        require background knowledge of the EA community.
       </div>,
       Icon: HomeIcon
     },
     meta: {
       tooltipTitle: 'Community Post',
       tooltipBody: <div>
-        Posts with topical content or relating to the EA community itself.
+        Posts about EA philosophy, the EA community, or the Forum itself.
       </div>,
       Icon: GroupIcon
     },
@@ -126,13 +125,13 @@ const contentTypes = {
       tooltipTitle: 'Personal Blog Post',
       tooltipBody: <React.Fragment>
         <div>
-          Members can write whatever they want on their personal blog. Personal
-          blogposts are a good fit for:
+          Users can write whatever they want on their personal blog. This category
+          is a good fit for:
         </div>
         <ul>
-          <li>Niche topics</li>
-          <li>Topics that are difficult to discuss rationally</li>
-          <li>Personal ramblings</li>
+          <li>topics that aren't closely related to EA</li>
+          <li>topics that are difficult to discuss rationally</li>
+          <li>topics of interest to a small fraction of the Forum’s readers (e.g. local events)</li>
         </ul>
       </React.Fragment>,
       Icon: PersonIcon
@@ -140,8 +139,8 @@ const contentTypes = {
     shortform: {
       tooltipTitle: 'Shortform',
       tooltipBody: <div>
-        Writing that is short in length, or written in a short amount of time.
-        Off-the-cuff thoughts, brainstorming, early stage drafts, etc.
+        Writing that is brief, or written very quickly. Perfect for off-the-cuff
+        thoughts, brainstorming, early stage drafts, etc.
       </div>,
       Icon: SubjectIcon
     }

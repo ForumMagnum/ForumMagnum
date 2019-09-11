@@ -9,9 +9,22 @@ Localgroups.addDefaultView(terms => {
     selector.types = {$in: [terms.filters]};
   }
   return {
-    selector
+    selector: {
+      ...selector, 
+      inactive: false
+    }
   };
 });
+
+Localgroups.addView("userInactiveGroups", function (terms) {
+  return {
+    selector: {
+      organizerIds: terms.userId,
+      inactive: true
+    }
+  };
+});
+ensureIndex(Localgroups, { organizerIds: 1, inactive: 1 });
 
 Localgroups.addView("all", function (terms) {
   return {
@@ -40,7 +53,7 @@ Localgroups.addView("nearby", function (terms) {
     }
   };
 });
-ensureIndex(Localgroups, { mongoLocation: "2dsphere" });
+ensureIndex(Localgroups, { mongoLocation: "2dsphere", inactive: 1 });
 
 Localgroups.addView("single", function (terms) {
   return {

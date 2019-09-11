@@ -118,9 +118,22 @@ const theme = createLWTheme({
         backgroundColor: "white",
       }
     },
+    Layout: {
+      main: {
+        '@media (max-width: 959.95px)': {
+          marginTop: 0
+        }
+      }
+    },
     Header: {
       appBar: {
-        padding: "1em"
+        padding: ".8em",
+        '@media (min-width: 960px)': {
+          paddingLeft: "1.5em",
+          paddingRight: "1.5em",
+          paddingTop: "1em",
+          paddingBottom: "1em"
+        }
       }
     },
     MetaInfo: {
@@ -161,20 +174,6 @@ const theme = createLWTheme({
         padding: ".7rem",
       }
     },
-    PostsTimeBlock: {
-      divider: {
-        display: 'none'
-      }
-    },
-    ContentType: {
-      root: {
-        color: grey[800],
-        fontWeight: 600
-      },
-      icon: {
-        color: grey[800]
-      }
-    },
     SunshineSidebar: {
       root: {
         top: 30
@@ -187,7 +186,7 @@ const theme = createLWTheme({
     },
     NavigationStandalone: {
       sidebar: {
-        paddingTop: 30,
+        top: 26,
       },
       footerBar: {
         backgroundColor: grey[200],
@@ -224,6 +223,31 @@ const theme = createLWTheme({
     TabNavigationMenuSubItem: {
       root: {
         color: grey[800]
+      }
+    },
+    SunshineSidebar: {
+      root: {
+        top: 30,
+        marginTop: 63
+      }
+    },
+    PostsTimeBlock: {
+      divider: {
+        display: 'none'
+      }
+    },
+    ContentType: {
+      root: {
+        color: grey[800],
+        fontWeight: 600
+      },
+      icon: {
+        color: grey[800]
+      }
+    },
+    PostLinkPreviewWithPost: {
+      indicator: {
+        bottom: 3
       }
     }
   }

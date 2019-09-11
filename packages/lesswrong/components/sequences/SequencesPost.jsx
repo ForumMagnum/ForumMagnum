@@ -1,10 +1,13 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { useLocation } from '../../lib/routeUtil';
 
-const SequencesPost = ({params, router}) => {
-  const version = router.location && router.location.query && router.location.query.revision
-  return <Components.PostsPage documentId={params.postId} sequenceId={params.sequenceId} version={version} />
+const SequencesPost = () => {
+  const { query, params } = useLocation();
+  const { postId, sequenceId } = params;
+  
+  const version = query.revision
+  return <Components.PostsPageWrapper documentId={postId} sequenceId={sequenceId} version={version} />
 };
 
-registerComponent('SequencesPost', SequencesPost, withRouter);
+registerComponent('SequencesPost', SequencesPost);

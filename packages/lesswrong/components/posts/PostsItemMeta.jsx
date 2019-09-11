@@ -27,7 +27,7 @@ const PostsItemMeta = ({classes, currentUser, post, read}) => {
   const { wordCount = 0 } = post.contents || {}
   const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
   const afBaseScore = getSetting('forumType') !== 'AlignmentForum' && post.af ? post.afBaseScore : null
-  const { MetaInfo, FormatDate, EventTime, EventVicinity, PostsStats, PostsUserAndCoauthors } = Components;
+  const { MetaInfo, FormatDate, PostsStats, PostsUserAndCoauthors } = Components;
   return <span className={classNames({[classes.read]:read})}>
 
       <MetaInfo>
@@ -43,7 +43,7 @@ const PostsItemMeta = ({classes, currentUser, post, read}) => {
 
       { post.isEvent && <MetaInfo>
         {post.startTime
-          ? <Tooltip title={<EventTime post={post} />}>
+          ? <Tooltip title={<Components.EventTime post={post} />}>
               <DateWithoutTime date={post.startTime} />
             </Tooltip>
           : <Tooltip title={<span>To Be Determined</span>}>
@@ -52,7 +52,7 @@ const PostsItemMeta = ({classes, currentUser, post, read}) => {
       </MetaInfo>}
 
       { post.isEvent && <MetaInfo>
-        <EventVicinity post={post} />
+        <Components.EventVicinity post={post} />
       </MetaInfo>}
 
       { post.user && <MetaInfo>

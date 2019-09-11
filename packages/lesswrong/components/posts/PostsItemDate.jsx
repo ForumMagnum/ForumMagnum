@@ -34,13 +34,13 @@ const styles = theme => ({
 });
 
 const PostsItemDate = ({post, classes}) => {
-  const { PostsItem2MetaInfo, EventTime, FormatDate } = Components;
-  
+  const { PostsItem2MetaInfo, FormatDate } = Components;
+
   if (post.isEvent)
   {
     return (<PostsItem2MetaInfo className={classes.startTime}>
       {post.startTime
-        ? <Tooltip title={<span>Event starts at <EventTime post={post} /></span>}>
+        ? <Tooltip title={<span>Event starts at <Components.EventTime post={post} /></span>}>
             <FormatDate date={post.startTime} format={"MMM Do"}/>
           </Tooltip>
         : <Tooltip title={<span>To Be Determined</span>}>

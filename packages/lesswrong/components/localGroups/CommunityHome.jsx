@@ -4,25 +4,26 @@ import {
   withMessages,
 } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { withRouter, Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.js';
 import Users from 'meteor/vulcan:users';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 import EventIcon from '@material-ui/icons/Event';
+import { withLocation } from '../../lib/routeUtil';
+import Typography from '@material-ui/core/Typography';
+import withDialog from '../common/withDialog'
 
 const styles = theme => ({
-  content: {
-    marginTop: 460,
+  welcomeText: {
+    margin: 12
   }
-});
+})
 
 class CommunityHome extends Component {
   constructor(props, context) {
     super(props);
     this.state = {
-      newGroupFormOpen: false,
-      newEventFormOpen: false,
-      currentUserLocation: Users.getLocation(props.currentUser),
+      currentUserLocation: Users.getLocation(props.currentUser)
     }
   }
 
@@ -34,34 +35,25 @@ class CommunityHome extends Component {
     }
   }
 
-  handleOpenNewGroupForm = () => {
-    this.setState({
-      newGroupFormOpen: true,
-    })
+  openSetPersonalLocationForm = () => {
+    const { openDialog, currentUser } = this.props
+    openDialog({
+      componentName: currentUser ? "SetPersonalMapLocationDialog" : "LoginPopup",
+    });
   }
 
-  handleCloseNewGroupForm = () => {
-    this.setState({
-      newGroupFormOpen: false,
-    })
-  }
-
-  handleOpenNewEventForm = () => {
-    this.setState({
-      newEventFormOpen: true,
-    })
-  }
-
-  handleCloseNewEventForm = () => {
-    this.setState({
-      newEventFormOpen: false,
-    })
+  openEventNotificationsForm = () => {
+    const { openDialog, currentUser } = this.props
+    openDialog({
+      componentName: currentUser ? "EventNotificationsDialog" : "LoginPopup",
+    });
   }
 
   render() {
-    const {classes, router} = this.props;
-    const filters = (router.location.query && router.location.query.filters) || [];
-    const { SingleColumnSection, SectionTitle, PostsList2, SectionButton, GroupFormLink } = Components
+    const { classes, currentUser } = this.props;
+    const { query } = this.props.location; // From withLocation
+    const filters = query?.filters || [];
+    const { SingleColumnSection, SectionTitle, PostsList2, SectionButton, GroupFormLink, SectionFooter } = Components
 
     const postsListTerms = {
       view: 'nearbyEvents',
@@ -88,7 +80,20 @@ class CommunityHome extends Component {
         <Components.CommunityMapWrapper
           terms={mapEventTerms}
         />
-        <div className={classes.content}>
+          <SingleColumnSection>
+            <SectionTitle title="Welcome to the Community Section"/>
+            <Typography variant="body2" className={classes.welcomeText}>
+              On the map above you can find nearby events (blue arrows), local groups (green house icons) and other users who have added themselves to the map (colored clusters and green person icons)
+            </Typography>
+              <SectionFooter>
+                <a onClick={this.openSetPersonalLocationForm}>
+                  {currentUser?.mapLocation ? "Edit my location on the map" : "Add me to the map"}
+                </a>
+                <a onClick={this.openEventNotificationsForm}>
+                  {currentUser?.nearbyEventsNotifications ? `Edit my event/groups notification settings` : `Sign up for event/group notifications`} [Beta]
+                </a>
+              </SectionFooter>
+          </SingleColumnSection>
           <SingleColumnSection>
             <SectionTitle title="Local Groups">
               {this.props.currentUser && <GroupFormLink />}
@@ -97,12 +102,14 @@ class CommunityHome extends Component {
               ? <Components.Loading />
               : <Components.LocalGroupsList
                   terms={groupsListTerms}
-                  showHeader={false} />
+                  showHeader={false} >
+                    <Link to={"/allGroups"}>View All Groups</Link>
+                </Components.LocalGroupsList>
             }
           </SingleColumnSection>
           <SingleColumnSection>
             <SectionTitle title="Events">
-              {this.props.currentUser && <Link to={{pathname:"/newPost", query: {eventForm: true}}}>
+              {this.props.currentUser && <Link to={{pathname:"/newPost", search: `?eventForm=true`}}>
                 <SectionButton>
                   <EventIcon />
                   New Event
@@ -114,17 +121,14 @@ class CommunityHome extends Component {
               <Link to="/upcomingEvents">View Upcoming Events</Link>
             </PostsList2>
           </SingleColumnSection>
-
           <SingleColumnSection>
             <SectionTitle title="Resources"/>
             <PostsList2 terms={{view: 'communityResourcePosts'}} showLoadMore={false} />
           </SingleColumnSection>
-        </div>
       </React.Fragment>
     )
   }
 }
 
 registerComponent('CommunityHome', CommunityHome,
-  withUser, withMessages, withRouter,
-  withStyles(styles, { name: "CommunityHome" }));
+  withUser, withMessages, withLocation, withStyles(styles, {name: "CommunityMapWrapper"}), withDialog);

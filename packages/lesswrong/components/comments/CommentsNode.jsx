@@ -1,5 +1,5 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withRouter } from '../../lib/reactRouterWrapper.js';
+import { withLocation } from '../../lib/routeUtil';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -9,6 +9,7 @@ import withUser from '../common/withUser';
 import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
+const HIGHLIGHT_DURATION = 3
 
 const styles = theme => ({
   node: {
@@ -66,7 +67,7 @@ const styles = theme => ({
     borderBottom: "none",
     borderTop: "solid 1px rgba(0,0,0,.15)",
     '&.comments-node-root':{
-      marginBottom: 6,
+      marginBottom: -1,
       borderBottom: "solid 1px rgba(0,0,0,.2)",
     }
   },
@@ -83,6 +84,25 @@ const styles = theme => ({
   children: {
     position: "relative"
   },
+  '@keyframes higlight-animation': {
+    from: {
+      backgroundColor: theme.palette.grey[300],
+      borderColor: "black"
+    },
+    to: { 
+      backgroundColor: "none",
+      borderColor: "rgba(0,0,0,.15)"
+    }
+  },
+  highlightAnimation: {
+    animation: `higlight-animation ${HIGHLIGHT_DURATION}s ease-in-out 0s;`
+  },
+  gapIndicator: {
+    border: `solid 1px ${theme.palette.grey[300]}`,
+    backgroundColor: theme.palette.grey[100],
+    marginLeft: theme.spacing.unit,
+    paddingTop: theme.spacing.unit,
+  }
 })
 
 class CommentsNode extends Component {
@@ -94,7 +114,7 @@ class CommentsNode extends Component {
       truncated: this.beginTruncated(),
       singleLine: this.beginSingleLine(),
       truncatedStateSet: false,
-      finishedScroll: false,
+      highlighted: false,
     };
     this.scrollTargetRef = React.createRef();
   }
@@ -112,7 +132,7 @@ class CommentsNode extends Component {
   }
   
   beginSingleLine = () => {
-    const { currentUser, comment, condensed, lastCommentId, forceSingleLine, shortform, nestingLevel, postPage } = this.props
+    const { comment, condensed, lastCommentId, forceSingleLine, shortform, nestingLevel, postPage } = this.props
     const mostRecent = lastCommentId === comment._id
     const lowKarmaOrCondensed = (comment.baseScore < 10 || condensed)
     const shortformAndTop = (nestingLevel === 1) && shortform
@@ -123,7 +143,6 @@ class CommentsNode extends Component {
     
     return (
       this.isTruncated() &&
-      currentUser?.beta &&
       lowKarmaOrCondensed &&
       !(mostRecent && condensed) &&
       !(shortformAndTop) && 
@@ -132,37 +151,51 @@ class CommentsNode extends Component {
   }
 
   componentDidMount() {
-    const { router, comment, post } = this.props
-    let commentHash = router.location.hash;
-    const self = this;
+    const { comment, post, location } = this.props
+    let commentHash = location.hash;
     if (comment && commentHash === ("#" + comment._id) && post) {
-      setTimeout(function () { //setTimeout make sure we execute this after the element has properly rendered
-        self.scrollIntoView()
+      setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
+        this.scrollIntoView()
       }, 0);
     }
   }
 
-  scrollIntoView = (event) => {
-    this.scrollTargetRef.current?.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
-    this.setState({finishedScroll: true});
+  isInViewport() {
+    if (!this.scrollTargetRef) return false;
+    const top = this.scrollTargetRef.current?.getBoundingClientRect().top;
+    return (top >= 0) && (top <= window.innerHeight);
+  }
+
+  scrollIntoView = (behavior="smooth") => {
+    if (!this.isInViewport()) {
+      this.scrollTargetRef.current?.scrollIntoView({behavior: behavior, block: "center", inline: "nearest"});
+    }
+    this.setState({highlighted: true})
+    setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
+      this.setState({highlighted: false})
+    }, HIGHLIGHT_DURATION*1000);
   }
 
   toggleCollapse = () => {
     this.setState({collapsed: !this.state.collapsed});
   }
 
-  unTruncate = (event) => {
+  handleExpand = async (event) => {
+    const { markAsRead, scrollOnExpand } = this.props
     event.stopPropagation()
     if (this.isTruncated() || this.isSingleLine()) {
-      this.props.markAsRead && this.props.markAsRead()
+      markAsRead && await markAsRead()
       this.setState({truncated: false, singleLine: false, truncatedStateSet: true});
+      if (scrollOnExpand) {
+        this.scrollIntoView("auto") // should scroll instantly
+      }
     }
   }
 
   shouldComponentUpdate(nextProps, nextState) {
     if (!shallowEqual(this.state, nextState))
       return true;
-    if (!shallowEqualExcept(this.props, nextProps, ["editMutation", "post", "children"]))
+    if (!shallowEqualExcept(this.props, nextProps, ["updateComment", "post", "children"]))
       return true;
     if (this.commentTreesDiffer(this.props.children, nextProps.children))
       return true;
@@ -201,121 +234,129 @@ class CommentsNode extends Component {
   }
 
   isSingleLine = () => {
-    const { forceSingleLine } = this.props
+    const { forceSingleLine, postPage, currentUser } = this.props
     const { singleLine } = this.state
-    if (!singleLine) return false;
+    if (!singleLine || currentUser?.noSingleLineComments) return false;
     if (forceSingleLine)
       return true;
+    
+    // highlighted new comments on post page should always be expanded (and it needs to live here instead of "beginSingleLine" since the highlight status can change after the fact)
+    const postPageAndNew = this.isNewComment() && postPage 
 
-    return this.isTruncated() && !this.isNewComment();
+    return this.isTruncated() && !postPageAndNew
   }
 
   render() {
-    const { comment, children, nestingLevel=1, highlightDate, editMutation, post,
-      muiTheme, router, postPage, classes, child, showPostTitle, unreadComments,
+    const { comment, children, nestingLevel=1, highlightDate, updateComment, post,
+      muiTheme, postPage, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments,
-      loadChildrenSeparately, shortform, refetch, parentCommentId } = this.props;
+      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand } = this.props;
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList } = Components
 
     if (!comment || !post)
       return null;
 
-    const { collapsed, finishedScroll } = this.state
+    const { collapsed, highlighted } = this.state
 
     const newComment = this.isNewComment()
 
     const hiddenReadComment = hideReadComments && !newComment
+
+    const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
 
     const nodeClass = classNames(
       "comments-node",
       classes.node,
       {
         "af":comment.af,
-        "comments-node-root" : nestingLevel === 1,
-        "comments-node-even" : nestingLevel % 2 === 0,
-        "comments-node-odd"  : nestingLevel % 2 !== 0,
-        "comments-node-linked" : router.location.hash === "#" + comment._id && finishedScroll,
-        "comments-node-its-getting-nested-here": nestingLevel > 8,
-        "comments-node-so-take-off-all-your-margins": nestingLevel > 12,
-        "comments-node-im-getting-so-nested": nestingLevel > 16,
-        "comments-node-im-gonna-drop-my-margins": nestingLevel > 20,
-        "comments-node-what-are-you-even-arguing-about": nestingLevel > 24,
-        "comments-node-are-you-sure-this-is-a-good-idea": nestingLevel > 28,
-        "comments-node-seriously-what-the-fuck": nestingLevel > 32,
-        "comments-node-are-you-curi-and-lumifer-specifically": nestingLevel > 36,
-        "comments-node-cuz-i-guess-that-makes-sense-but-like-really-tho": nestingLevel > 40,
+        "comments-node-root" : updatedNestingLevel === 1,
+        "comments-node-even" : updatedNestingLevel % 2 === 0,
+        "comments-node-odd"  : updatedNestingLevel % 2 !== 0,
+        [classes.highlightAnimation] : highlighted,
+        "comments-node-its-getting-nested-here": updatedNestingLevel > 8,
+        "comments-node-so-take-off-all-your-margins": updatedNestingLevel > 12,
+        "comments-node-im-getting-so-nested": updatedNestingLevel > 16,
+        "comments-node-im-gonna-drop-my-margins": updatedNestingLevel > 20,
+        "comments-node-what-are-you-even-arguing-about": updatedNestingLevel > 24,
+        "comments-node-are-you-sure-this-is-a-good-idea": updatedNestingLevel > 28,
+        "comments-node-seriously-what-the-fuck": updatedNestingLevel > 32,
+        "comments-node-are-you-curi-and-lumifer-specifically": updatedNestingLevel > 36,
+        "comments-node-cuz-i-guess-that-makes-sense-but-like-really-tho": updatedNestingLevel > 40,
         [classes.child]: child && (!hideReadComments || comment.children?.length),
         [classes.new]: newComment,
         [classes.deleted]: comment.deleted,
         [classes.isAnswer]: comment.answer,
         [classes.answerChildComment]: parentAnswerId,
         [classes.childAnswerComment]: child && parentAnswerId,
-        [classes.oddAnswerComment]: (nestingLevel % 2 !== 0) && parentAnswerId,
+        [classes.oddAnswerComment]: (updatedNestingLevel % 2 !== 0) && parentAnswerId,
         [classes.answerLeafComment]: !(children && children.length),
         [classes.isSingleLine]: this.isSingleLine(),
         [classes.commentHidden]: hiddenReadComment,
-        [classes.shortformTop]: shortform && (nestingLevel===1)
+        [classes.shortformTop]: postPage && shortform && (updatedNestingLevel===1),
       }
     )
 
-    const passedThroughItemProps = { post, postPage, comment, editMutation, nestingLevel, showPostTitle, collapsed, refetch }
-    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, editMutation, condensed, hideReadComments, refetch }
+    const passedThroughItemProps = { post, postPage, comment, updateComment, showPostTitle, collapsed, refetch }
+    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, updateComment, condensed, hideReadComments, refetch, scrollOnExpand }
 
     return (
-        <div className={nodeClass}
-          onClick={(event) => this.unTruncate(event)}
-          id={comment._id}
-         >
-          {!hiddenReadComment && <div ref={this.scrollTargetRef}>
-            {this.isSingleLine()
-              ? <SingleLineComment
-                  comment={comment} nestingLevel={nestingLevel}
-                  parentCommentId={parentCommentId}
-                />
-              : <CommentsItem
-                  truncated={this.isTruncated()}
-                  parentCommentId={parentCommentId}
-                  parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
-                  toggleCollapse={this.toggleCollapse}
-                  key={comment._id}
-                  scrollIntoView={this.scrollIntoView}
-                  { ...passedThroughItemProps}
-                />
-            }
-          </div>}
-          
-          {!collapsed && children && children.length>0 && <div className={classes.children}>
-            <div className={classes.parentScroll} onClick={this.scrollIntoView}/>
-            {children && children.map(child =>
-              <Components.CommentsNode child
-                comment={child.item}
-                parentCommentId={comment._id}
-                parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
-                nestingLevel={nestingLevel+1}
-                truncated={this.isTruncated()}
-                //eslint-disable-next-line react/no-children-prop
-                children={child.children}
-                key={child.item._id}
-                
-                { ...passedThroughNodeProps}
-              />)}
-          </div>}
-          
-          {!this.isSingleLine() && loadChildrenSeparately &&
-            <div className="comments-children">
+        <div className={comment.gapIndicator && classes.gapIndicator}>
+          <div className={nodeClass}
+            onClick={(event) => this.handleExpand(event)}
+            id={!noHash ? comment._id : undefined}
+          >
+            {!hiddenReadComment && comment._id && <div ref={this.scrollTargetRef}>
+              {this.isSingleLine()
+                ? <SingleLineComment
+                    comment={comment} nestingLevel={updatedNestingLevel}
+                    parentCommentId={parentCommentId}
+                  />
+                : <CommentsItem
+                    truncated={this.isTruncated()}
+                    nestingLevel={updatedNestingLevel}
+                    parentCommentId={parentCommentId}
+                    parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
+                    toggleCollapse={this.toggleCollapse}
+                    key={comment._id}
+                    scrollIntoView={this.scrollIntoView}
+                    { ...passedThroughItemProps}
+                  />
+              }
+            </div>}
+            
+            {!collapsed && children && children.length>0 && <div className={classes.children}>
               <div className={classes.parentScroll} onClick={this.scrollIntoView}/>
-              <RepliesToCommentList
-                terms={{
-                  view: "repliesToCommentThread",
-                  topLevelCommentId: comment._id,
-                  limit: 500
-                }}
-                parentCommentId={comment._id}
-                post={post}
-              />
-            </div>
-          }
+              { showExtraChildrenButton }
+              {children && children.map(child =>
+                <Components.CommentsNode child
+                  comment={child.item}
+                  parentCommentId={comment._id}
+                  parentAnswerId={parentAnswerId || (comment.answer && comment._id)}
+                  nestingLevel={updatedNestingLevel+1}
+                  truncated={this.isTruncated()}
+                  //eslint-disable-next-line react/no-children-prop
+                  children={child.children}
+                  key={child.item._id}
+                  { ...passedThroughNodeProps}
+                />)}
+            </div>}
+            
+            {!this.isSingleLine() && loadChildrenSeparately &&
+              <div className="comments-children">
+                <div className={classes.parentScroll} onClick={this.scrollIntoView}/>
+                <RepliesToCommentList
+                  terms={{
+                    view: "repliesToCommentThread",
+                    topLevelCommentId: comment._id,
+                    limit: 500
+                  }}
+                  parentCommentId={comment._id}
+                  post={post}
+                />
+              </div>
+            }
+          </div>
         </div>
     )
   }
@@ -323,12 +364,11 @@ class CommentsNode extends Component {
 
 CommentsNode.propTypes = {
   comment: PropTypes.object.isRequired, // the current comment
-  router: PropTypes.object.isRequired
 };
 
 registerComponent('CommentsNode', CommentsNode,
-  withUser, 
-  withRouter,
+  withUser,
+  withLocation,
   withErrorBoundary,
   withStyles(styles, { name: "CommentsNode" })
 );

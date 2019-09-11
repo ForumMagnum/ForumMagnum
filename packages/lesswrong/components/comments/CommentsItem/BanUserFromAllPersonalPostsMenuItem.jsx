@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, withMessages, withEdit } from 'meteor/vulcan:core';
+import { registerComponent, withMessages, withUpdate } from 'meteor/vulcan:core';
 import MenuItem from '@material-ui/core/MenuItem';
 import Users from 'meteor/vulcan:users';
 import withUser from '../../common/withUser';
@@ -13,10 +13,9 @@ class BanUserFromAllPersonalPostsMenuItem extends PureComponent {
       if (!bannedPersonalUserIds.includes(commentUserId)) {
         bannedPersonalUserIds.push(commentUserId)
       }
-      this.props.editMutation({
-        documentId: this.props.currentUser._id,
-        set: {bannedPersonalUserIds:bannedPersonalUserIds},
-        unset: {}
+      this.props.updateUser({
+        selector: { _id: this.props.currentUser._id },
+        data: {bannedPersonalUserIds:bannedPersonalUserIds},
       }).then(()=>this.props.flash({messageString: `User ${this.props.comment.user.displayName} is now banned from commenting on any of your personal blog posts`}))
     }
   }
@@ -33,11 +32,11 @@ class BanUserFromAllPersonalPostsMenuItem extends PureComponent {
   }
 }
 
-const withEditOptions = {
+const withUpdateOptions = {
   collection: Users,
   fragmentName: 'UsersProfile',
 };
 
 
-registerComponent('BanUserFromAllPersonalPostsMenuItem', BanUserFromAllPersonalPostsMenuItem, withMessages, [withEdit, withEditOptions], withUser);
+registerComponent('BanUserFromAllPersonalPostsMenuItem', BanUserFromAllPersonalPostsMenuItem, withMessages, [withUpdate, withUpdateOptions], withUser);
 export default BanUserFromAllPersonalPostsMenuItem;

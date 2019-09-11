@@ -1,38 +1,38 @@
-import { registerComponent, withEdit } from 'meteor/vulcan:core';
+import { registerComponent, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
 import withUser from '../common/withUser';
+import MenuItem from '@material-ui/core/MenuItem';
 
 class SuggestAlignment extends Component {
   render() {
-    const { currentUser, post, editMutation, Container } = this.props;
-
+    const { currentUser, post, updatePost } = this.props;
     const userHasSuggested = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser._id)
 
     if (Users.canSuggestPostForAlignment({currentUser, post})) {
       return <div>
-          { userHasSuggested ?
-            <div  onClick={() => Posts.unSuggestForAlignment({currentUser, post, editMutation})}>
-              <Container>
-                Ω Unsuggest for Alignment
-              </Container>
-            </div>
-            :
-            <div  onClick={() => Posts.suggestForAlignment({currentUser, post, editMutation})}>
-              <Container>
-                Ω Suggest for Alignment
-              </Container>
-            </div>
-          }
-        </div>
+        { userHasSuggested ?
+          <div  onClick={() => Posts.unSuggestForAlignment({currentUser, post, updatePost})}>
+            <MenuItem>
+              Ω Unsuggest for Alignment
+            </MenuItem>
+          </div>
+          :
+          <div  onClick={() => Posts.suggestForAlignment({currentUser, post, updatePost})}>
+            <MenuItem>
+              Ω Suggest for Alignment
+            </MenuItem>
+          </div>
+        }
+      </div>
     } else {
       return null
     }
   }
 }
 
-const withEditOptions = {
+const withUpdateOptions = {
   collection: Posts,
   fragmentName: 'PostsList',
 }
@@ -40,6 +40,6 @@ const withEditOptions = {
 registerComponent(
   'SuggestAlignment',
   SuggestAlignment,
-  [withEdit, withEditOptions],
+  [withUpdate, withUpdateOptions],
   withUser
 );

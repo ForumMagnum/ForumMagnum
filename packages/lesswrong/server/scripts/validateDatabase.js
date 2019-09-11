@@ -1,6 +1,6 @@
 /* global Vulcan */
 import { Collections, getCollection } from 'meteor/vulcan:lib';
-import { forEachDocumentBatchInCollection } from '../queryUtil';
+import { forEachDocumentBatchInCollection } from '../migrations/migrationUtils.js';
 
 // customValidators: Mapping from collection name to array of
 // {validatorName,validateBatch} tuples.
@@ -123,9 +123,9 @@ export async function validateCollection(collection)
             foreignField = foreignKeySpec.field;
             foreignCollectionName = foreignKeySpec.collection
             if (typeof foreignField !== "string")
-              throw new Error("Expected a field name in foreignKey constraint for ${collectionName}.${fieldName}, value wasn't a string");
+              throw new Error(`Expected a field name in foreignKey constraint for ${collectionName}.${fieldName}, value wasn't a string`);
             if (typeof foreignCollectionName !== "string")
-              throw new Error("Expected a collection name in foreignKey constraint for ${collectionName}.${fieldName}, value wasn't a string");
+              throw new Error(`Expected a collection name in foreignKey constraint for ${collectionName}.${fieldName}, value wasn't a string`);
           }
           const foreignCollection = getCollection(foreignCollectionName);
           

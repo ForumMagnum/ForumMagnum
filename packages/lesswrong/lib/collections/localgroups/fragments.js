@@ -17,6 +17,7 @@ registerFragment(`
     contactInfo
     facebookLink
     website
+    inactive
   }
 `);
 

@@ -1,8 +1,7 @@
 import { Components, registerComponent, getSetting, withUpdate } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
-import { withRouter } from '../lib/reactRouterWrapper.js';
 import Users from 'meteor/vulcan:users';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import classNames from 'classnames'
 import Intercom from 'react-intercom';
@@ -11,11 +10,12 @@ import { withCookies } from 'react-cookie'
 import LogRocket from 'logrocket'
 
 import { withStyles, withTheme } from '@material-ui/core/styles';
-import getHeaderSubtitleData from '../lib/modules/utils/getHeaderSubtitleData';
+import { withLocation } from '../lib/routeUtil';
 import { UserContext } from './common/withUser';
 import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
+import { PostsReadContext } from './common/withRecordPostView';
 
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
 const googleTagManagerId = getSetting('googleTagManager.apiKey')
@@ -44,7 +44,7 @@ const standaloneNavMenuRouteNames = {
   ],
   // TODO-PR-Q: I left this mimicking current behavior, it's possible you'd
   // rather just have an empty list
-  'AlignmentForum': ['allPosts', 'questions', 'Shortform'],
+  'AlignmentForum': ['alignment.home', 'sequencesHome', 'allPosts', 'questions', 'Shortform'],
   'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform'],
 }
 
@@ -158,8 +158,10 @@ class Layout extends PureComponent {
   }
 
   componentDidMount() {
+    const { cookies } = this.props;
     const newTimezone = moment.tz.guess();
     if(this.state.timezone !== newTimezone) {
+      cookies.set('timezone', newTimezone);
       this.setState({
         timezone: newTimezone
       });
@@ -168,8 +170,7 @@ class Layout extends PureComponent {
   }
 
   render () {
-    // TODO;(EA Forum) remove unncecssary params
-    const {currentUser, currentRoute, location, params, client, children, classes, theme} = this.props;
+    const {currentUser, location, children, classes, theme, messages} = this.props;
     const {hideNavigationSidebar} = this.state
 
     const showIntercom = currentUser => {
@@ -194,25 +195,30 @@ class Layout extends PureComponent {
       }
     }
 
-    const routeName = currentRoute.name
-    const query = location && location.query
-    const { subtitleText = currentRoute.title || "" } = getHeaderSubtitleData(routeName, query, params, client) || {}
-    const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
-    const title = subtitleText ? `${subtitleText} - ${siteName}` : siteName;
-    // console.log('routeName', routeName)
-    const standaloneNavigation = standaloneNavMenuRouteNames[getSetting('forumType')].includes(routeName)
-    // console.log('standaloneNavigation', standaloneNavigation)
+    // Check whether the current route is one which should have standalone
+    // navigation on the side. If there is no current route (ie, a 404 page),
+    // then it should.
+    // FIXME: This is using route names, but it would be better if this was
+    // a property on routes themselves.
+    const standaloneNavigation = !location.currentRoute ||
+      standaloneNavMenuRouteNames[getSetting('forumType')]
+        .includes(location.currentRoute.name)
 
     return (
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
+      <PostsReadContext.Provider value={{
+        postsRead: this.state.postsRead,
+        setPostRead: (postId, isRead) => this.setState({
+          postsRead: {...this.state.postsRead, [postId]: isRead}
+        })
+      }}>
       <TableOfContentsContext.Provider value={this.setToC}>
         <div className={classNames("wrapper", {'alignment-forum': getSetting('forumType') === 'AlignmentForum'}) } id="wrapper">
           <DialogManager>
           <div>
             <CssBaseline />
             <Helmet>
-              <title>{title}</title>
               <link name="material-icons" rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
               <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@7.0.0/themes/reset-min.css"/>
               <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
@@ -244,22 +250,23 @@ class Layout extends PureComponent {
             <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
             <div className={classes.main}>
               <Components.ErrorBoundary>
-                <Components.FlashMessages />
+                <Components.FlashMessages messages={messages} />
               </Components.ErrorBoundary>
-              {children}
+              <Components.ErrorBoundary>
+                {children}
+              </Components.ErrorBoundary>
             </div>
             <Components.Footer />
           </div>
           </DialogManager>
         </div>
       </TableOfContentsContext.Provider>
+      </PostsReadContext.Provider>
       </TimezoneContext.Provider>
       </UserContext.Provider>
     )
   }
 }
-
-Layout.displayName = "Layout";
 
 const withUpdateOptions = {
   collection: Users,
@@ -267,6 +274,6 @@ const withUpdateOptions = {
 }
 
 registerComponent(
-  'Layout', Layout, withRouter, withCookies, [withUpdate, withUpdateOptions],
+  'Layout', Layout, withLocation, withCookies, [withUpdate, withUpdateOptions],
   withStyles(styles, { name: "Layout" }), withTheme()
 );

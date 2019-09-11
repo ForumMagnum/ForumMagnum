@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
 import { withDismissRecommendation } from './withDismissRecommendation';
-import { Link } from '../../lib/reactRouterWrapper.js'
 
 const MAX_ENTRIES = 3;
 
@@ -77,9 +76,9 @@ class ContinueReadingList extends Component {
       })}
       
       <SectionFooter>
-        {showAllLink && <Link onClick={this.showAll}>
+        {showAllLink && <a onClick={this.showAll}>
           Show All
-        </Link>}
+        </a>}
         <LoginPopupButton title={saveLeftOffTooltip}>
           Log in to save where you left off
         </LoginPopupButton>
