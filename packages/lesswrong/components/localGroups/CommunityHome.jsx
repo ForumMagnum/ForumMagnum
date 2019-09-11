@@ -83,7 +83,7 @@ class CommunityHome extends Component {
           <SingleColumnSection>
             <SectionTitle title="Welcome to the Community Section"/>
             <Typography variant="body2" className={classes.welcomeText}>
-              On the map above you can find nearby events (blue arrows), local groups (green house icons) and other users who have added themselves to the map (colored clusters and green person icons)
+              On the map above you can find nearby events (blue arrows), local groups (green house icons) and other users who have added themselves to the map (purple person icons)
             </Typography>
               <SectionFooter>
                 <a onClick={this.openSetPersonalLocationForm}>

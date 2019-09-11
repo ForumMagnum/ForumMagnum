@@ -72,3 +72,6 @@ registerSetting('ckEditor.environmentId', null, 'Environment Id for CKEditor col
 registerSetting('ckEditor.secretKey', null, 'Secret Key for CKEditor collaboration features')
 registerSetting('ckEditor.webSocketUrl', null, 'Web socket Url for CKEditor collaboration features')
 registerSetting('ckEditor.uploadUrl', null, 'Upload URL for CKEditor image upload')
+
+// Mapbox API Key
+registerSetting('mapbox.apiKey', null, 'API Key for the mapbox map and tile requests')

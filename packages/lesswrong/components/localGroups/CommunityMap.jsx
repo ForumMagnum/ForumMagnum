@@ -1,18 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent, useMulti, getSetting } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import { Localgroups } from '../../lib/index.js';
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
 import { useLocation } from '../../lib/routeUtil';
-import mapStyle from './mapStyles.js';
-import { GoogleMap, LoadScriptNext, MarkerClusterer } from "@react-google-maps/api"
-import NoSSR from 'react-no-ssr';
-import { personGoogleIcon } from './Icons'
+import { PersonSVG } from './Icons'
 import withDialog from '../common/withDialog'
 import withUser from '../common/withUser.js';
+import ReactMapGL, { Marker } from 'react-map-gl';
+import { Helmet } from 'react-helmet'
 
-const mapsAPIKey = getSetting('googleMaps.apiKey', null);
+const mapboxAPIKey = getSetting('mapbox.apiKey', null);
 
 const mapsHeight = 440
 const mapsWidth = "100vw"
@@ -66,19 +65,30 @@ const styles = theme => ({
 
 
 // Make these variables have file-scope references to avoid rerending the scripts or map
-const libraries = ['places']
 const defaultCenter = {lat: 37.871853, lng: -122.258423}
 const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center = defaultCenter, zoom = 3, classes, showUsers, openDialog, currentUser, showHideMap = false }) => {
   const { query } = useLocation()
   const groupQueryTerms = groupTerms || {view: "all", filters: query?.filters || []}
 
   const [ openWindows, setOpenWindows ] = useState(initialOpenWindows)
-  const handleClick = (id) => { setOpenWindows([id]) }
-  const handleClose = (id) => { setOpenWindows(_.without(openWindows, id))}
+  const handleClick = useCallback(
+    (id) => { setOpenWindows([id]) }
+    , []
+  )
+  const handleClose = useCallback(
+    (id) => { setOpenWindows(_.without(openWindows, id))}
+    , [openWindows]
+  )
 
   const [ showEvents, setShowEvents ] = useState(true)
   const [ showGroups, setShowGroups ] = useState(true)
   const [ showIndividuals, setShowIndividuals ] = useState(true)
+
+  const [ viewport, setViewport ] = useState({
+    latitude: center.lat,
+    longitude: center.lng,
+    zoom: 2
+  })
   
 
   const { results: events = [] } = useMulti({
@@ -108,66 +118,84 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
     ssr: true
   })
 
+  const renderedMarkers = useMemo(() => {
+    return <React.Fragment>
+      {showEvents && <LocalEventsMapMarkers events={events} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
+      {showGroups && <LocalGroupsMapMarkers groups={groups} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
+      {showIndividuals && <PersonalMapLocationMarkers users={users} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
+      <div className={classes.mapButtons}>
+        <Components.CommunityMapFilter 
+          showHideMap={showHideMap} 
+          toggleEvents={() => setShowEvents(!showEvents)} showEvents={showEvents}
+          toggleGroups={() => setShowGroups(!showGroups)} showGroups={showGroups}
+          toggleIndividuals={() => setShowIndividuals(!showIndividuals)} showIndividuals={showIndividuals}
+        />
+      </div>
+    </React.Fragment>
+  }, [showEvents, events, handleClick, handleClose, openWindows, showGroups, groups, showIndividuals, users, classes.mapButtons, showHideMap])
+
   return <div className={classes.root}>
-    <NoSSR>
-      {Meteor.isClient && <LoadScriptNext googleMapsApiKey={mapsAPIKey} libraries={libraries}>
-        <GoogleMap
-          center={center}
-          zoom={zoom}
-          mapContainerStyle={{
-            height: `${mapsHeight}px`,
-            width: mapsWidth
-          }}
-          mapContainerClassName={classes.communityMap}
-          options={{
-            styles: mapStyle,
-            keyboardShortcuts: false,
-            mapTypeControl: false,
-            fullscreenControl: false,
-            streetViewControl: false
-          }}
-        >
-          {showEvents && <LocalEventsMapMarkers events={events} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
-          {showGroups && <LocalGroupsMapMarkers groups={groups} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
-          {showIndividuals && <PersonalMapLocationMarkers users={users} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
-          <div className={classes.mapButtons}>
-            <Components.CommunityMapFilter 
-              showHideMap={showHideMap} 
-              toggleEvents={() => setShowEvents(!showEvents)} showEvents={showEvents}
-              toggleGroups={() => setShowGroups(!showGroups)} showGroups={showGroups}
-              toggleIndividuals={() => setShowIndividuals(!showIndividuals)} showIndividuals={showIndividuals}
-            />
-          </div>
-        </GoogleMap>
-      </LoadScriptNext>}
-    </NoSSR>
+      <Helmet> 
+        <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
+      </Helmet>
+      <ReactMapGL
+        width="100%"
+        height="100%"
+        {...viewport}
+        mapStyle={"mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
+        onViewportChange={viewport => setViewport(viewport)}
+        mapboxApiAccessToken={mapboxAPIKey}
+      >
+        {renderedMarkers}
+      </ReactMapGL>
   </div>
 }
 
 
 
-const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindows}) => {
-  return <MarkerClusterer
-    options={{imagePath:"/m"}}
-  >
-    { (clusterer) => users.map((user) => {
+
+const personalMapMarkerStyles = theme => ({
+  icon: {
+    height: 15,
+    width: 15,
+    fill: '#3f51b5',
+    opacity: 0.8
+  }
+})
+const PersonalMapLocationMarkers = withStyles(personalMapMarkerStyles, {name: "PersonalMapLocationMarkers"})(
+  ({users, handleClick, handleClose, openWindows, classes}) => {
+  const { StyledMapPopup } = Components
+  return <React.Fragment>
+    {users.map(user => {
+      const location = user.mapLocation
+      if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
+      const { geometry: {location: {lat, lng}}} = location
       const htmlBody = {__html: user.htmlMapMarkerText};
-      return <Components.StyledMapMarker 
-        location={user.mapLocation}
-        handleOpen={() => handleClick(user._id)}
-        handleClose={() => handleClose(user._id)}
-        infoOpen={openWindows.includes(user._id)}
-        icon={personGoogleIcon}
-        link={Users.getProfileUrl(user)}
-        title={` [User] ${Users.getDisplayName(user)} `}
-        key={ user._id }
-        clusterer={clusterer}
-      >
-        <div dangerouslySetInnerHTML={htmlBody} />
-      </Components.StyledMapMarker>
+      return <React.Fragment key={user._id}>
+        <Marker
+          latitude={lat}
+          longitude={lng}
+          offsetLeft={-8}
+          offsetTop={-20}
+        >
+          <span onClick={() => handleClick(user._id)}>
+            <PersonSVG className={classes.icon}/>
+          </span>
+        </Marker>
+        {openWindows.includes(user._id) && 
+          <StyledMapPopup
+            lat={lat}
+            lng={lng}
+            link={Users.getProfileUrl(user)}
+            title={` [User] ${Users.getDisplayName(user)} `}
+            onClose={() => handleClose(user._id)}
+          >
+            <div dangerouslySetInnerHTML={htmlBody} />
+          </StyledMapPopup>}
+      </React.Fragment>
     })}
-  </MarkerClusterer>
-}
+  </React.Fragment>
+})
 
 const LocalEventsMapMarkers = ({events, handleClick, handleClose, openWindows}) => {
   return events.map((event) => {
