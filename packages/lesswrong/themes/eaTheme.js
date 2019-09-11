@@ -173,7 +173,8 @@ const theme = createLWTheme({
     },
     SunshineSidebar: {
       root: {
-        top: 30
+        top: 30,
+        marginTop: 63
       }
     },
     PostsPageTitle: {
@@ -220,12 +221,6 @@ const theme = createLWTheme({
     TabNavigationMenuSubItem: {
       root: {
         color: grey[800]
-      }
-    },
-    SunshineSidebar: {
-      root: {
-        top: 30,
-        marginTop: 63
       }
     },
     PostsTimeBlock: {
