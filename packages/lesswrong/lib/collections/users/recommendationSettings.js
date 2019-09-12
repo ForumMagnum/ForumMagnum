@@ -1,8 +1,9 @@
+import { getSetting } from 'meteor/vulcan:core'
 import SimpleSchema from 'simpl-schema'
 import { addFieldsDict } from '../../modules/utils/schemaUtils'
 import Users from "meteor/vulcan:users";
 
-export const defaultAlgorithmSettings = {
+const baseDefaultAlgorithmSettings = {
   method: "top",
   count: 10,
   scoreOffset: 0,
@@ -12,6 +13,10 @@ export const defaultAlgorithmSettings = {
   curatedModifier: 50,
   onlyUnread: true,
 };
+
+export const defaultAlgorithmSettings = getSetting('forumType', 'LessWrong') === 'EAForum' ?
+  {...baseDefaultAlgorithmSettings, metaModifier: 0} :
+  baseDefaultAlgorithmSettings
 
 export const slotSpecificRecommendationSettingDefaults = {
   frontpage: {
