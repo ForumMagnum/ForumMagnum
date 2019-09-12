@@ -299,7 +299,7 @@ class PostsItem2 extends PureComponent {
       showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true,
       defaultToShowUnreadComments=false, dismissRecommendation, isRead, dense, hover, anchorEl, stopHover } = this.props
     const { showComments } = this.state
-    const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltip, LWPopper } = Components
+    const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsPreviewTooltip, LWPopper } = Components
 
     const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -323,7 +323,7 @@ class PostsItem2 extends PureComponent {
           onMouseEnter={stopHover}
           placement="left-start"
         >
-          <PostsItemTooltip post={post} />
+          <PostsPreviewTooltip post={post} />
         </LWPopper>
         <div className={classNames(
           classes.background,
@@ -342,9 +342,9 @@ class PostsItem2 extends PureComponent {
               <PostsItemKarma post={post} />
             </PostsItem2MetaInfo>
 
-            <Link to={postLink} className={classes.title}>
-              <PostsTitle post={post} expandOnHover={!renderComments} read={isRead} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
-            </Link>
+            <span className={classes.title}>
+              <PostsTitle postLink={postLink} post={post} expandOnHover={!renderComments} read={isRead} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
+            </span>
 
             {(resumeReading?.sequence || resumeReading?.collection) &&
               <div className={classes.nextUnreadIn}>
