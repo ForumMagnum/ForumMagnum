@@ -1,4 +1,4 @@
-import { addGraphQLResolvers, addGraphQLQuery, addGraphQLMutation, addGraphQLSchema } from 'meteor/vulcan:core';
+import { addGraphQLResolvers, addGraphQLQuery, addGraphQLMutation, addGraphQLSchema, getSetting } from 'meteor/vulcan:core';
 import { Posts } from '../lib/collections/posts';
 import { WeightedList } from './weightedList.js';
 import { accessFilterMultiple } from '../lib/modules/utils/schemaUtils.js';
@@ -60,8 +60,8 @@ const recommendablePostFilter = {$or:
       // too big for performance reasons.
       baseScore: {$gt: MINIMUM_BASE_SCORE},
 
-      // Don't recommend meta posts
-      meta: false,
+      // Don't recommend meta posts (Unless you're the EA Forum and are handling this elsewhere)
+      meta: getSetting('EAForum', 'LessWrong') !== 'EAForum' ? false : null,
 
       // Enforce the disableRecommendation flag
       disableRecommendation: {$ne: true},
@@ -103,6 +103,7 @@ const allRecommendablePosts = async ({currentUser, onlyUnread}) => {
 //     included), and returns a number. The posts with the highest scoreFn
 //     return value will be the ones returned.
 const topPosts = async ({count, currentUser, onlyUnread, scoreFn}) => {
+  // TODO; Can we do this on mongo
   const unreadPostsMetadata  = await allRecommendablePosts({currentUser, onlyUnread});
 
   const unreadTopPosts = _.first(
@@ -146,14 +147,28 @@ const samplePosts = async ({count, currentUser, onlyUnread, sampleWeightFn}) => 
   ).fetch();
 }
 
+// TODO; move to other file
+// Return category of post {'curated', 'frontpage', 'personal'} (+ 'meta' if EAForum)
+const getCategoryOfPost = post => {
+  if (post.curatedDate) return 'curated'
+  if (post.frontpageDate) return 'frontpage'
+  if (getSetting('forumType', 'LessWrong') === 'EAForum' && post.meta) return 'meta'
+  return 'personal'
+}
+
+const modifierNames = {
+  curated: 'curatedModifier',
+  frontpage: 'frontpageModifier',
+  meta: 'metaModifier', // Only used by EA Forum
+  personal: 'personalBlogpostModifier',
+}
+
 const getRecommendedPosts = async ({count, algorithm, currentUser}) => {
+  console.log('algorithm', algorithm)
   const scoreFn = post => {
-    const sectionModifier = post.curatedDate
-      ? algorithm.curatedModifier
-      : (post.frontpageDate
-        ? algorithm.frontpageModifier
-        : algorithm.personalBlogpostModifier);
+    const sectionModifier = algorithm[modifierNames[getCategoryOfPost(post)]]
     const weight = sectionModifier + Math.pow(post.baseScore - algorithm.scoreOffset, algorithm.scoreExponent)
+    console.log('score weight', weight)
     return Math.max(0, weight);
   }
 
