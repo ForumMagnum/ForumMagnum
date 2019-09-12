@@ -6,15 +6,24 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }) => {
   const { document: post, refetch, loading, error } = useSingle({
     collection: Posts,
     queryName: 'postsSingleQuery',
-    fragmentName: (version || sequenceId) ? 'PostsWithNavigation' : 'PostsPage',
     enableTotal: false,
-    enableCache: true,
     ssr: true,
-    extraVariables: (version || sequenceId) ? {
-      version: 'String',
-      sequenceId: 'String',
-    } : undefined,
-    extraVariablesValues: (version || sequenceId) ? { version, sequenceId } : {},
+    
+    ...(version ? {
+      fragmentName: 'PostsWithNavigationAndRevision',
+      extraVariables: {
+        version: 'String',
+        sequenceId: 'String',
+      },
+      extraVariablesValues: { version, sequenceId },
+    } : {
+      fragmentName: 'PostsWithNavigation',
+      extraVariables: {
+        sequenceId: 'String',
+      },
+      extraVariablesValues: { sequenceId },
+    }),
+    
     documentId
   })
 

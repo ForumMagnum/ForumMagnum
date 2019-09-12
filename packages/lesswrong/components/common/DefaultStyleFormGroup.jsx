@@ -7,4 +7,4 @@ const DefaultStyleFormGroup = (props) => {
     </React.Fragment>
   }
   
-  registerComponent('DefaultStyleFormGroup', DefaultStyleFormGroup)
+registerComponent('DefaultStyleFormGroup', DefaultStyleFormGroup)

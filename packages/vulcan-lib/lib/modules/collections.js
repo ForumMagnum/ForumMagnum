@@ -2,11 +2,13 @@ import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import { addGraphQLCollection, addToGraphQLContext } from './graphql.js';
 import { Utils } from './utils.js';
-import { runCallbacks, runCallbacksAsync, registerCallback, addCallback } from './callbacks.js';
+import { runCallbacks, runCallbacksAsync } from './callbacks.js';
 import { getSetting, registerSetting } from './settings.js';
 import { registerFragment, getDefaultFragmentText } from './fragments.js';
 import escapeStringRegexp from 'escape-string-regexp';
-import { validateIntlField, getIntlString, isIntlField, schemaHasIntlFields } from './intl';
+import { validateIntlField, getIntlString, isIntlField } from './intl';
+import { Collections } from './getCollection.js';
+export * from './getCollection.js';
 
 const wrapAsync = Meteor.wrapAsync ? Meteor.wrapAsync : Meteor._wrapAsync;
 // import { debug } from './debug.js';
@@ -25,15 +27,8 @@ export const viewFieldNullOrMissing = {nullOrMissing:true};
 export const viewFieldAllowAny = {allowAny:true};
 
 // will be set to `true` if there is one or more intl schema fields
-export let hasIntlFields = false;
-
-export const Collections = [];
-
-export const getCollection = name =>
-  Collections.find(
-    ({ options: { collectionName } }) =>
-      name === collectionName || name === collectionName.toLowerCase()
-  );
+let hasIntlFields = false;
+export const getHasIntlFields = () => hasIntlFields
 
 // TODO: find more reliable way to get collection name from type name?
 export const getCollectionName = typeName => Utils.pluralize(typeName);

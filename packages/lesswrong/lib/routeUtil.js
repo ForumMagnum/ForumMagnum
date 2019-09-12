@@ -1,5 +1,4 @@
-import React from 'react';
-import { useContext } from 'react';
+import React, { useContext } from 'react';
 import qs from 'qs';
 import { NavigationContext, LocationContext, SubscribeLocationContext, ServerRequestStatusContext } from 'meteor/vulcan:core';
 
@@ -98,4 +97,35 @@ export const withNavigation = (WrappedComponent) => {
       }
     </NavigationContext.Consumer>
   );
+}
+
+export const getUrlClass = () => {
+  if (Meteor.isServer) {
+    return require('url').URL
+  } else {
+    return URL
+  }
+}
+
+export const hostIsOnsite = (host) => {
+  let isOnsite = false
+  const domainWhitelist = [
+    "lesswrong.com", 
+    "lesserwrong.com", 
+    "lessestwrong.com", 
+    "alignmentforum.org", 
+    "alignment-forum.com", 
+    "greaterwrong.com",
+    "localhost:3000"
+  ]
+
+  domainWhitelist.forEach((domain) => {
+    if (host === domain) isOnsite = true;
+    // If the domain differs only by the addition or removal of a "www."
+    // subdomain, count it as the same.
+    if ("www."+host === domain) isOnsite = true;
+    if (host === "www."+domain) isOnsite = true;
+  })
+
+  return isOnsite
 }

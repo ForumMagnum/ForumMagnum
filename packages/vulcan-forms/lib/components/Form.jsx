@@ -53,13 +53,9 @@ import isObject from 'lodash/isObject';
 import mapValues from 'lodash/mapValues';
 import pickBy from 'lodash/pickBy';
 
-import { convertSchema, formProperties } from '../modules/schema_utils';
+import { convertSchema, formProperties, getEditableFields, getInsertableFields } from '../modules/schema_utils';
 import { isEmptyValue } from '../modules/utils';
 import { getParentPath } from '../modules/path_utils';
-import {
-  getEditableFields,
-  getInsertableFields
-} from '../modules/schema_utils.js';
 import withCollectionProps from './withCollectionProps';
 import { callbackProps } from './propTypes';
 
@@ -1055,6 +1051,7 @@ class SmartForm extends Component {
     currentUser: this.props.currentUser,
     disabled: this.state.disabled,
     formComponents: mergeWithComponents(this.props.formComponents),
+    formProps: this.props.formProps
   });
 
   getFormSubmitProps = () => ({
@@ -1063,6 +1060,8 @@ class SmartForm extends Component {
     revertLabel: this.props.revertLabel,
     cancelCallback: this.props.cancelCallback,
     revertCallback: this.props.revertCallback,
+    updateCurrentValues: this.updateCurrentValues,
+    formType: this.getFormType(),
     document: this.getDocument(),
     deleteDocument:
       (this.getFormType() === 'edit' &&
@@ -1087,7 +1086,7 @@ class SmartForm extends Component {
         <FormComponents.FormErrors {...this.getFormErrorsProps()} />
 
         {this.getFieldGroups().map(group => (
-          <FormComponents.FormGroup {...this.getFormGroupProps(group)} />
+          <FormComponents.FormGroup {...this.getFormGroupProps(group)} key={group.name} />
         ))}
 
         {this.props.repeatErrors && <FormComponents.FormErrors {...this.getFormErrorsProps()} />}

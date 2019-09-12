@@ -1,6 +1,6 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
-import { withLocation } from '../../../lib/routeUtil';
+import { withLocation, getUrlClass } from '../../../lib/routeUtil';
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
 import { withStyles } from '@material-ui/core/styles';
@@ -25,6 +25,9 @@ const MAX_COLUMN_WIDTH = 720
 const styles = theme => ({
   root: {
     position: "relative",
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 20
+    }
   },
   tocActivated: {
     // Check for support for template areas before applying
@@ -45,8 +48,7 @@ const styles = theme => ({
       `,
     },
     [theme.breakpoints.down('sm')]: {
-      display: 'block',
-      marginTop: 20
+      display: 'block'
     }
   },
   title: {
@@ -210,13 +212,20 @@ const getContentType = (post) => {
 // properties from that. (There is a URL class which theoretically would work,
 // but it doesn't have the hostname field on IE11 and it's missing entirely on
 // Opera Mini.)
-let URLClass = null;
-if (Meteor.isServer) {
-  URLClass = require('url').URL
+const URLClass = getUrlClass()
+
+function getProtocol(url) {
+  if (Meteor.isServer)
+    return new URLClass(url).protocol;
+
+  // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
+  var parser = document.createElement('a');
+  parser.href = url;
+  return parser.protocol;
 }
 
 function getHostname(url) {
-  if (URLClass)
+  if (Meteor.isServer)
     return new URLClass(url).hostname;
 
   // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
@@ -247,7 +256,7 @@ class PostsPage extends Component {
 
   render() {
     const { post, refetch, currentUser, classes, location: { query: { commentId }} } = this.props
-    const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, ContentType,
+    const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreview, ContentType,
       LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
       TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink } = Components
@@ -263,14 +272,15 @@ class PostsPage extends Component {
       const sequenceId = this.getSequenceId();
       const sectionData = post.tableOfContents;
       const htmlWithAnchors = (sectionData && sectionData.html) ? sectionData.html : html
-      const feedLink = post.feed && post.feed.url && getHostname(post.feed.url)
+      const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
+      const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;
       const { major } = extractVersionsFromSemver(post.version)
       const hasMajorRevision = major > 1
       const contentType = getContentType(post)
 
       return (
         <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
-          <HeadTags url={Posts.getPageUrl(post, true)} title={post.title} description={description}/>
+          <HeadTags url={Posts.getPageUrl(post, true)} canonicalUrl={post.canonicalSource} title={post.title} description={description}/>
           {/* Header/Title */}
           <div className={classes.title}>
             <div className={classes.post}>
@@ -288,8 +298,8 @@ class PostsPage extends Component {
                       <ContentType type={contentType}/>
                     </span>
                     { post.feed && post.feed.user &&
-                      <Tooltip title={`Crossposted from ${feedLink}`}>
-                        <a href={`http://${feedLink}`} className={classes.feedName}>
+                      <Tooltip title={`Crossposted from ${feedLinkDescription}`}>
+                        <a href={feedLink} className={classes.feedName}>
                           {post.feed.nickname}
                         </a>
                       </Tooltip>
@@ -322,7 +332,7 @@ class PostsPage extends Component {
             <div className={classes.post}>
               {/* Body */}
               <div className={classes.postBody}>
-                { post.isEvent && <SmallMapPreviewWrapper post={post} /> }
+                { post.isEvent && <SmallMapPreview post={post} /> }
                 <div className={classes.postContent}>
                   <AlignmentCrosspostMessage post={post} />
                   { post.authorIsUnreviewed && <div className={classes.unreviewed}>This post is awaiting moderator approval</div>}

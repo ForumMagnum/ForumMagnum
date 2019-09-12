@@ -11,7 +11,8 @@ const styles = (theme) => ({
   },
   iconWithLabelGroup: {
     display: "flex",
-    alignItems: "center"
+    alignItems: "center",
+    cursor: "pointer"
   },
   iconWithLabel: {
     marginRight: theme.spacing.unit,
@@ -26,8 +27,8 @@ const styles = (theme) => ({
 
 const SettingsIcon = ({classes, className, onClick, label}) => {
   if (label) {
-    return <span className={classes.iconWithLabelGroup}>
-      <Settings className={classNames(classes.icon, classes.iconWithLabel, className)} onClick={onClick}/> 
+    return <span className={classes.iconWithLabelGroup} onClick={onClick}>
+      <Settings className={classNames(classes.icon, classes.iconWithLabel, className)}/> 
       <span className={classes.label}>{ label }</span>
     </span>
   }

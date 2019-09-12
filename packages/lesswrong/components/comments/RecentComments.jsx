@@ -37,7 +37,6 @@ registerComponent('RecentComments', RecentComments,
     fragmentName: 'SelectCommentsList',
     enableTotal: false,
     pollInterval: 0,
-    enableCache: true,
   }],
   [withEdit, {
     collection: Comments,

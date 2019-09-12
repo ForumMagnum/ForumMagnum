@@ -11,11 +11,15 @@ import { styles } from '../common/HeaderSubtitle';
 const PostsPageHeaderTitle = ({location, isSubtitle, siteName, loading, document, classes}) => {
   if (!document || loading) return null;
   const post = document;
+  const titleString = `${post.title} - ${siteName}`
   
   if (!isSubtitle)
-    return <Helmet><title>{`${post.title} - ${siteName}`}</title></Helmet>
+    return <Helmet>
+      <title>{titleString}</title>
+      <meta property='og:title' content={titleString}/>
+    </Helmet>
   
-  if (getSetting('forumType') !== 'AlignmentForum' && post?.af) {
+  if (getSetting('forumType') !== 'AlignmentForum' && post.af) {
     // TODO: A (broken) bit of an earlier iteration of the header subtitle
     // tried to made AF posts have a subtitle which said "AGI Alignment" and
     // linked to /alignment. But that bit of code was broken, and also that URL
@@ -23,13 +27,13 @@ const PostsPageHeaderTitle = ({location, isSubtitle, siteName, loading, document
     // back? (alignment-forum.org isn't necessarily good to link to, because
     // it's invite-only.)
     return null;
-  } else if (post?.frontpageDate) {
+  } else if (post.frontpageDate) {
     return null;
-  } else if (post?.meta) {
+  } else if (post.meta) {
     return (<span className={classes.subtitle}>
       <Link to="/meta">Meta</Link>
     </span>);
-  } else if (post?.userId) {
+  } else if (post.userId) {
     // TODO: For personal blogposts, put the user in the sutitle. There was an
     // attempt to do this in a previous implementation, which didn't work.
     return null;
@@ -48,6 +52,7 @@ registerComponent("PostsPageHeaderTitle", PostsPageHeaderTitle,
   [withDocument, {
     collection: Posts,
     fragmentName: "PostsBase",
+    fetchPolicy: 'cache-only',
     ssr: true,
   }],
   withStyles(styles, {name: "PostsPageHeaderTitle"})

@@ -37,7 +37,7 @@ const palette = {
     main: '#5f9b65',
   },
   lwTertiary: {
-    main: "#558391"
+    main: "#69886e"
   },
   error: {
     main: deepOrange[900]
@@ -112,6 +112,13 @@ const theme = createLWTheme({
       root: {
         paddingTop: 8,
         paddingBottom: 8
+      }
+    },
+    MuiCard: {
+      root: {
+        borderRadius: 1,
+        border: `solid 1px rgba(0,0,0,.2)`,
+        boxShadow: "0 0 10px rgba(0,0,0,.2)",
       }
     }
   }

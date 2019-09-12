@@ -21,9 +21,6 @@ const styles = theme => ({
     margin: "0px auto 15px auto",
     ...theme.typography.commentStyle,
 
-    "& .content-editor-is-empty": {
-      fontSize: "15px !important",
-    },
     background: "white",
     position: "relative"
   },

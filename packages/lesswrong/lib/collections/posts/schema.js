@@ -460,6 +460,15 @@ const schema = {
     denormalized: true,
     ...schemaDefaultValue(false),
   },
+
+  canonicalSource: {
+    type: String,
+    optional: true,
+    hidden: true,
+    viewableBy: ['guests'],
+    insertableBy: ['admins'],
+    editableBy: ['admins'],
+  }
 };
 
 export default schema;

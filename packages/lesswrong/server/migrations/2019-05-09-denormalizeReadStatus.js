@@ -1,5 +1,4 @@
-import { registerMigration } from './migrationUtils';
-import { forEachDocumentBatchInCollection } from '../queryUtil.js';
+import { forEachDocumentBatchInCollection, registerMigration } from './migrationUtils';
 import { LWEvents } from '../../lib/collections/lwevents'
 import { ReadStatuses } from '../../lib/collections/readStatus/collection.js'
 

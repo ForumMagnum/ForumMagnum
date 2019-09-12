@@ -1,7 +1,6 @@
 import { createCollection } from 'meteor/vulcan:core';
-import { addUniversalFields } from '../../collectionUtils'
+import { addUniversalFields, ensureIndex } from '../../collectionUtils'
 import { foreignKeyField } from '../../modules/utils/schemaUtils'
-import { ensureIndex } from '../../collectionUtils';
 
 const schema = {
   _id: {

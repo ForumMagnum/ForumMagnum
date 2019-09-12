@@ -2,20 +2,21 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { Utils, getSetting, Head } from 'meteor/vulcan:lib';
+import { Utils, registerSetting, getSetting, Head } from 'meteor/vulcan:lib';
 import compose from 'lodash/flowRight';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { withApollo } from 'react-apollo';
 
-const TitleComponent = ({titleString}) => {
-  const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
-  return <Helmet>
-    <title>{`${titleString} - ${siteName}`}</title>
-  </Helmet>
-}
+registerSetting('logoUrl', null, 'Absolute URL for the logo image');
+registerSetting('title', 'My App', 'App title');
+registerSetting('tagline', null, 'App tagline');
+registerSetting('description');
+registerSetting('siteImage', null, 'An image used to represent the site on social media');
+registerSetting('faviconUrl', '/img/favicon.ico', 'Favicon absolute URL');
 
 const HeadTags = (props) => {
     const url = props.url || Utils.getSiteUrl();
+    const canonicalUrl = props.canonicalUrl || url
     const description = props.description || getSetting('tagline') || getSetting('description');
     const { currentRoute, pathname } = useSubscribedLocation();
     const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
@@ -52,7 +53,7 @@ const HeadTags = (props) => {
           { /* <meta name='twitter:title' content={title}/> */ }
           <meta name='twitter:description' content={description}/>
 
-          <link rel='canonical' href={url}/>
+          <link rel='canonical' href={canonicalUrl}/>
           <link name='favicon' rel='shortcut icon' href={getSetting('faviconUrl', '/img/favicon.ico')}/>
 
           {Head.meta.map((tag, index) => <meta key={index} {...tag}/>)}
@@ -78,7 +79,6 @@ const HeadTags = (props) => {
 
 HeadTags.propTypes = {
   url: PropTypes.string,
-  title: PropTypes.string,
   description: PropTypes.string,
   image: PropTypes.string,
 };

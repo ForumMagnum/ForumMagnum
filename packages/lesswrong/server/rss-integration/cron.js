@@ -52,6 +52,7 @@ addCronJob({
           var post = {
             title: newPost.title,
             userId: feed.userId,
+            canonicalSource: feed.setCanonicalUrl ? newPost.link : undefined,
             contents: {
               originalContents: {
                 type: "html",

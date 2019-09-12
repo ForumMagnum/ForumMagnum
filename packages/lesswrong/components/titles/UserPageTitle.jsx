@@ -16,6 +16,7 @@ const UserPageTitle = ({location, isSubtitle, siteName, loading, results, classe
   if (!user) return null;
   const userLink = Users.getProfileUrl(user);
   const userNameString = user.displayName || user.slug;
+  const titleString = `${userNameString} - ${siteName}`
   
   if (isSubtitle) {
     return (<span className={classes.subtitle}>
@@ -24,7 +25,10 @@ const UserPageTitle = ({location, isSubtitle, siteName, loading, results, classe
       </Link>
     </span>);
   } else {
-    return <Helmet><title>{`${userNameString} - ${siteName}`}</title></Helmet>
+    return <Helmet>
+      <title>{titleString}</title>
+      <meta property='og:title' content={titleString}/>
+    </Helmet>
   }
 }
 registerComponent("UserPageTitle", UserPageTitle,
@@ -40,6 +44,7 @@ registerComponent("UserPageTitle", UserPageTitle,
   [withList, {
     collection: Users,
     fragmentName: "UsersMinimumInfo",
+    fetchPolicy: 'cache-only',
     ssr: true,
   }],
   withStyles(styles, {name: "UserPageTitle"})

@@ -13,11 +13,11 @@ import './emailComponents/PrivateMessagesEmail.jsx';
 import { EventDebouncer } from './debouncer.js';
 import { UnsubscribeAllToken } from './emails/emailTokens.js';
 
-import { addCallback, newMutation } from 'meteor/vulcan:core';
+import { Components, addCallback, newMutation } from 'meteor/vulcan:core';
 
-import { Components } from 'meteor/vulcan:core';
 import React from 'react';
 import keyBy from 'lodash/keyBy';
+import Sentry from '@sentry/node';
 
 const createNotifications = async (userIds, notificationType, documentType, documentId) => {
   return Promise.all(
@@ -49,17 +49,21 @@ const sendPostByEmail = async (users, postId, reason) => {
 
   for(let user of users) {
     if(!reasonUserCantReceiveEmails(user)) {
-      const unsubscribeAllLink = await UnsubscribeAllToken.generateLink(user._id);
-      await renderAndSendEmail({
-        user,
-        subject: post.title,
-        bodyComponent: <Components.EmailWrapper
-          user={user}
-          unsubscribeAllLink={unsubscribeAllLink}
-        >
-          <Components.NewPostEmail documentId={post._id} reason={reason}/>
-        </Components.EmailWrapper>
-      });
+      try {
+        const unsubscribeAllLink = await UnsubscribeAllToken.generateLink(user._id);
+        await renderAndSendEmail({
+          user,
+          subject: post.title,
+          bodyComponent: <Components.EmailWrapper
+            user={user}
+            unsubscribeAllLink={unsubscribeAllLink}
+          >
+            <Components.NewPostEmail documentId={post._id} reason={reason}/>
+          </Components.EmailWrapper>
+        });
+      } catch(e) {
+        Sentry.captureException(e);
+      }
     } else {
       //eslint-disable-next-line no-console
       console.log(`Skipping user ${user.username} when emailing: ${reasonUserCantReceiveEmails(user)}`);
@@ -124,6 +128,8 @@ const notificationMessage = (notificationType, documentType, documentId) => {
       return Users.findOne(document.userId).displayName + ' sent you a new message' + (conversation.title ? (' in the conversation ' + conversation.title) : "") + '!';
     case "emailVerificationRequired":
       return "Verify your email address to activate email subscriptions.";
+    case "postSharedWithUser":
+      return `You have been shared on the ${document.draft ? "draft" : "post"} ${document.title}`
     default:
       //eslint-disable-next-line no-console
       console.error("Invalid notification type");
@@ -372,3 +378,21 @@ addCallback("messages.new.async", messageNewNotification);
 export async function bellNotifyEmailVerificationRequired (user) {
   await createNotifications([user._id], 'emailVerificationRequired', null, null);
 }
+
+async function PostsEditNotifyUsersSharedOnPost (newPost, oldPost) {
+  if (!_.isEqual(newPost.shareWithUsers, oldPost.shareWithUsers)) {
+    // Right now this only creates notifications when users are shared (and not when they are "unshared")
+    // because currently notifications are hidden from you if you don't have view-access to a post.
+    // TODO: probably fix that, such that users can see when they've lost access to post. [but, eh, I'm not sure this matters that much]
+    const sharedUsers = _.difference(newPost.shareWithUsers || [], oldPost.shareWithUsers || [])
+    createNotifications(sharedUsers, "postSharedWithUser", "post", newPost._id)
+  }
+}
+addCallback("posts.edit.async", PostsEditNotifyUsersSharedOnPost);
+
+async function PostsNewNotifyUsersSharedOnPost (post) {
+  if (post.shareWithUsers?.length) {
+    createNotifications(post.shareWithUsers, "postSharedWithUser", "post", post._id)
+  }
+}
+addCallback("posts.new.async", PostsNewNotifyUsersSharedOnPost);

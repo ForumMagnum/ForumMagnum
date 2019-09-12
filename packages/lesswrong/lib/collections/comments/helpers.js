@@ -1,5 +1,5 @@
 import { Posts } from '../posts'
-import { Comments } from './index'
+import { Comments } from './collection.js'
 import Users from "meteor/vulcan:users"
 import { getSetting } from 'meteor/vulcan:core'
 
@@ -50,4 +50,9 @@ Comments.defaultToAlignment = (currentUser, post, comment) => {
 
 Comments.getDefaultView = (post, currentUser) => {
   return (post && post.commentSortOrder) || (currentUser && currentUser.commentSorting) || "postCommentsTop"
+}
+
+Comments.getKarma = (comment) => {
+  const baseScore = getSetting('forumType') === 'AlignmentForum' ? comment.afBaseScore : comment.baseScore
+  return baseScore || 0
 }

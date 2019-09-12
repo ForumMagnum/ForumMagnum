@@ -66,3 +66,9 @@ registerSetting('hideUnreviewedAuthorComments', false, 'Hide comments by unrevie
 // LogRocket settings
 registerSetting('logRocket.apiKey', null, 'LogRocket API Key')
 registerSetting('logRocket.sampleDensity', 5, 'Tracking 1 of n users (1 means all users are tracked)')
+
+// CKEditor settings
+registerSetting('ckEditor.environmentId', null, 'Environment Id for CKEditor collaboration features')
+registerSetting('ckEditor.secretKey', null, 'Secret Key for CKEditor collaboration features')
+registerSetting('ckEditor.webSocketUrl', null, 'Web socket Url for CKEditor collaboration features')
+registerSetting('ckEditor.uploadUrl', null, 'Upload URL for CKEditor image upload')

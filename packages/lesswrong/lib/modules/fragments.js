@@ -1,7 +1,19 @@
-import { registerFragment, extendFragment } from 'meteor/vulcan:core';
+import { registerFragment } from 'meteor/vulcan:core';
 
-extendFragment('UsersAdmin', `
-  karma
+registerFragment(`
+  fragment UsersAdmin on User {
+    _id
+    username
+    createdAt
+    isAdmin
+    displayName
+    email
+    slug
+    groups
+    services
+    
+    karma
+  }
 `);
 
 registerFragment(`
@@ -60,46 +72,70 @@ registerFragment(`
   }
 `);
 
-extendFragment('UsersCurrent', `
-  ...UsersMinimumInfo
-  voteBanned
-  banned
-  isReviewed
-  nullifyVotes
-  hideIntercom
-  hideNavigationSidebar
-  currentFrontpageFilter
-  allPostsTimeframe
-  allPostsSorting
-  allPostsFilter
-  allPostsShowLowKarma
-  allPostsOpenSettings
-  lastNotificationsCheck
-  subscribedItems
-  groups
-  bannedUserIds
-  moderationStyle
-  moderationGuidelines {
-    ...RevisionEdit
+registerFragment(`
+  fragment UsersCurrent on User {
+    ...UsersMinimumInfo
+  
+    _id
+    username
+    createdAt
+    isAdmin
+    displayName
+    email
+    slug
+    groups
+    services
+    pageUrl
+    locale
+    defaultToCKEditor
+    voteBanned
+    banned
+    isReviewed
+    nullifyVotes
+    hideIntercom
+    hideNavigationSidebar
+    currentFrontpageFilter
+    allPostsTimeframe
+    allPostsSorting
+    allPostsFilter
+    allPostsShowLowKarma
+    allPostsOpenSettings
+    lastNotificationsCheck
+    subscribedItems
+    groups
+    bannedUserIds
+    moderationStyle
+    moderationGuidelines {
+      ...RevisionEdit
+    }
+    markDownPostEditor
+    commentSorting
+    location
+    googleLocation
+    mongoLocation
+    mapLocation
+    mapLocationSet
+    mapMarkerText
+    htmlMapMarkerText
+    nearbyEventsNotifications
+    nearbyEventsNotificationsLocation
+    nearbyEventsNotificationsRadius
+    nearbyPeopleNotificationThreshold
+    hideFrontpageMap
+    emailSubscribedToCurated
+    unsubscribeFromAll
+    emails
+    whenConfirmationEmailSent
+    noCollapseCommentsFrontpage
+    noCollapseCommentsPosts
+    noSingleLineComments
+    karmaChangeNotifierSettings
+    karmaChangeLastOpened
+    shortformFeedId
+    viewUnreviewedComments
+    sunshineShowNewUserContent
+    recommendationSettings
   }
-  markDownPostEditor
-  commentSorting
-  location
-  googleLocation
-  mongoLocation
-  emailSubscribedToCurated
-  unsubscribeFromAll
-  emails
-  whenConfirmationEmailSent
-  noCollapseCommentsFrontpage
-  noCollapseCommentsPosts
-  noSingleLineComments
-  karmaChangeNotifierSettings
-  karmaChangeLastOpened
-  shortformFeedId
-  viewUnreviewedComments
-  sunshineShowNewUserContent
-  recommendationSettings
 `);
 
 registerFragment(`
@@ -373,12 +409,17 @@ registerFragment(`
     bannedUserIds
     location
     googleLocation
+    mapLocation
+    mapLocationSet
+    mapMarkerText
+    htmlMapMarkerText
     mongoLocation
     shortformFeedId
     viewUnreviewedComments
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
     sunshineShowNewUserContent
+    defaultToCKEditor
   }
 `);
 
@@ -442,6 +483,8 @@ registerFragment(`
     karmaChangeNotifierSettings
 
     recommendationSettings
+
+    hideFrontpageMap
   }
 `)
 
@@ -589,6 +632,7 @@ registerFragment(`
     html
     markdown
     draftJS
+    ckEditorMarkup
     wordCount
     htmlHighlight
     plaintextDescription

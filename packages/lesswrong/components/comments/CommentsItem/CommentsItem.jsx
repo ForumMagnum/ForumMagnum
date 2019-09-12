@@ -187,21 +187,21 @@ class CommentsItem extends Component {
                 nestingLevel={nestingLevel - 1}
                 truncated={false}
                 key={comment.parentCommentId}
-              />
-            </div>
-          )}
-          <div className={classes.body}>
-            <div className={classes.meta}>
-              { !parentCommentId && !comment.parentCommentId && isParentComment &&
-                <div className={classes.usernameSpacing}>○</div>
-              }
-              <CommentShortformIcon comment={comment} post={post} postPage={postPage}/>
-              { parentCommentId!=comment.parentCommentId &&
-                <ShowParentComment
-                  comment={comment} nestingLevel={nestingLevel}
-                  active={this.state.showParent}
-                  onClick={this.toggleShowParent}
-                  placeholderIfMissing={isParentComment}
+            />
+          </div>
+        )}
+        <div className={classes.body}>
+          <div className={classes.meta}>
+            { !parentCommentId && !comment.parentCommentId && isParentComment &&
+              <div className={classes.usernameSpacing}>○</div>
+            }
+            <CommentShortformIcon comment={comment} post={post} postPage={postPage}/>
+            { parentCommentId!=comment.parentCommentId &&
+              <ShowParentComment
+                comment={comment} nestingLevel={nestingLevel}
+                active={this.state.showParent}
+                onClick={this.toggleShowParent}
+                placeholderIfMissing={isParentComment}
                 />
               }
               { (postPage || this.props.collapsed) && <a className={classes.collapse} onClick={this.props.toggleCollapse}>

@@ -504,6 +504,16 @@ Posts.addView("slugPost", terms => ({
 }));
 ensureIndex(Posts, {"slug": "hashed"});
 
+Posts.addView("legacyIdPost", terms => ({
+  selector: {
+    legacyId: ""+parseInt(terms.legacyId, 36)
+  },
+  options: {
+    limit: 1
+  }
+}));
+ensureIndex(Posts, {legacyId: "hashed"});
+
 Posts.addView("recentDiscussionThreadsList", terms => {
   return {
     selector: {
@@ -569,7 +579,7 @@ Posts.addView("nearbyEvents", function (terms) {
     }
   };
   if(Array.isArray(terms.filters) && terms.filters.length) {
-    query.types = {$in: terms.filters};
+    query.selector.types = {$in: terms.filters};
   } else if (typeof terms.filters === "string") { //If there is only single value we can't distinguish between Array and value
     query.selector.types = {$in: [terms.filters]};
   }
@@ -763,7 +773,6 @@ ensureIndex(Posts,
 ensureIndex(Posts, {userId:1, createdAt:-1});
 
 // Used in routes
-ensureIndex(Posts, {legacyId: "hashed"});
 ensureIndex(Posts, {agentFoundationsId: "hashed"});
 
 // Used in checkScheduledPosts cronjob

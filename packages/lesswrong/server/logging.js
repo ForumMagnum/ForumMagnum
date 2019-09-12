@@ -1,3 +1,5 @@
+import Sentry from '@sentry/node';
+
 //import { getSetting, addCallback } from 'meteor/vulcan:core';
 //import timber from 'timber';
 
@@ -18,6 +20,8 @@ addCallback('graphql.init.before', initializeTimber)*/
 // callbacks. The default node behavior is to silently ignore these exceptions,
 // which is terrible and has led to unnoticed bugs in the past.
 process.on("unhandledRejection", r => {
+  Sentry.captureException(r);
+  
   //eslint-disable-next-line no-console
   console.log(r);
   

@@ -1,6 +1,7 @@
-import { replaceComponent, withMessages } from 'meteor/vulcan:core';
+import { registerComponent, withMessages } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
+import Button from '@material-ui/core/Button';
 import { intlShape } from 'meteor/vulcan:i18n';
 
 class FlashMessages extends Component {
@@ -30,8 +31,9 @@ class FlashMessages extends Component {
         <Snackbar
           open={messages[0] && !messages[0].hide}
           message={messageObject && messageObject.message}
-          autoHideDuration={2000}
+          autoHideDuration={6000}
           onClose={clear}
+          action={messageObject?.action && <Button onClick={messageObject?.action} color="primary">{messageObject?.actionName || "UNDO"}</Button>}
         />
       </div>
     );
@@ -42,4 +44,4 @@ FlashMessages.contextTypes = {
   intl: intlShape
 }
 
-replaceComponent('FlashMessages', FlashMessages, withMessages);
+registerComponent('FlashMessages', FlashMessages, withMessages);

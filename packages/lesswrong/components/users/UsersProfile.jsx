@@ -190,7 +190,7 @@ class UsersProfile extends Component {
       return <Components.Error404/>
     }
 
-    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsIcon } = Components
+    const { SingleColumnSection, SectionTitle, SequencesNewButton, PostsListSettings, PostsList2, SectionFooter, NewConversationButton, SubscribeTo, DialogGroup, SectionButton, SettingsIcon, ContentItemBody } = Components
 
     const user = document;
 
@@ -228,7 +228,7 @@ class UsersProfile extends Component {
 
           <SectionFooter>
             { this.renderMeta() }
-            { user.twitterUsername &&  <a href={"http://twitter.com/" + user.twitterUsername}>
+            { user.twitterUsername &&  <a href={"https://twitter.com/" + user.twitterUsername}>
               @{user.twitterUsername}
             </a>}
             { currentUser && currentUser.isAdmin &&
@@ -250,7 +250,7 @@ class UsersProfile extends Component {
             </Link>}
           </SectionFooter>
 
-          { user.bio && <div className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} /> }
+          { user.bio && <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} /> }
 
         </SingleColumnSection>
 
@@ -275,8 +275,8 @@ class UsersProfile extends Component {
           </SectionTitle>
           <Components.PostsList2 terms={draftTerms}/>
           <Components.PostsList2 terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
+          <Components.LocalGroupsList terms={{view: 'userInactiveGroups', userId: currentUser._id}} showHeader={false} />
         </SingleColumnSection> }
-
         {/* Posts Section */}
         <SingleColumnSection>
           <div className={classes.title} onClick={() => this.setState({showSettings: !showSettings})}>

@@ -5,6 +5,7 @@ import { commentBodyStyles, postBodyStyles } from '../../themes/stylePiping'
 import withHover from '../common/withHover';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
+import { Comments } from '../../lib/collections/comments'
 import { isMobile } from '../../lib/modules/utils/isMobile.js'
 
 const styles = theme => ({
@@ -107,20 +108,22 @@ const styles = theme => ({
 
 const SingleLineComment = ({comment, classes, nestingLevel, hover, parentCommentId}) => {
   if (!comment) return null
-  const { baseScore } = comment
+
   const { plaintextMainText } = comment.contents
-  const { CommentBody, ShowParentComment, CommentUserName } = Components
+  const { CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon } = Components
 
   const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile()
 
   return (
     <div className={classes.root}>
       <div className={classNames(classes.commentInfo, {[classes.isAnswer]: comment.answer, [classes.odd]:((nestingLevel%2) !== 0)})}>
+        <CommentShortformIcon comment={comment} simple={true} />
+
         { parentCommentId!=comment.parentCommentId &&
           <ShowParentComment comment={comment} nestingLevel={nestingLevel} />
         }
         <span className={classes.karma}>
-          {baseScore || 0}
+          {Comments.getKarma(comment)}
         </span>
         <span className={classes.username}>
           <CommentUserName comment={comment} simple={true}/>

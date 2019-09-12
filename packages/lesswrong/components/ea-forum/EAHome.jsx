@@ -1,26 +1,33 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
-import React from 'react';
-import withUser from '../common/withUser';
+import { Components, registerComponent } from 'meteor/vulcan:core'
+import React, { PureComponent } from 'react'
+import withUser from '../common/withUser'
+import Users from 'meteor/vulcan:users'
 
-const EAHome = ({currentUser}) => {
-  const { SingleColumnSection, SectionTitle, RecentDiscussionThreadsList, HomeLatestPosts } = Components
+class EAHome extends PureComponent {
+  render () {
+    const { currentUser } = this.props
+    const { RecentDiscussionThreadsList, HomeLatestPosts, ConfigurableRecommendationsList, } = Components
 
-  const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
-  return (
-    <React.Fragment>
-      <HomeLatestPosts />
+    const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all')
+    const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
 
-      <SingleColumnSection>
-        <SectionTitle title="Recent Discussion" />
+    return (
+      <React.Fragment>
+        {shouldRenderSidebar && <Components.SunshineSidebar/>}
+
+        <HomeLatestPosts />
+
+        <ConfigurableRecommendationsList configName="frontpage-ea" />
+
         <RecentDiscussionThreadsList
-          terms={{view: 'recentDiscussionThreadsList', limit:6}}
+          terms={{view: 'recentDiscussionThreadsList', limit:20}}
           commentsLimit={recentDiscussionCommentsPerPost}
           maxAgeHours={18}
           af={false}
         />
-      </SingleColumnSection>
-    </React.Fragment>
-  )
-};
+      </React.Fragment>
+    )
+  }
+}
 
-registerComponent('EAHome', EAHome, withUser);
+registerComponent('EAHome', EAHome, withUser)

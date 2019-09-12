@@ -25,8 +25,16 @@ function setToken(loginToken, expires) {
 }
 
 function initToken() {
-  const loginToken = global.localStorage['Meteor.loginToken'];
-  const loginTokenExpires = new Date(global.localStorage['Meteor.loginTokenExpires']);
+  let loginToken, loginTokenExpires;
+  try {
+    // Get Meteor.loginToken from localStorage. This is wrapped in a try-catch
+    // because some browsers (especially mobile browsers) don't have
+    // localStorage, and throw a wide variety of Sentry-polluting errors here.
+    loginToken = global.localStorage['Meteor.loginToken'];
+    loginTokenExpires = new Date(global.localStorage['Meteor.loginTokenExpires']);
+  } catch(e) {
+    return;
+  }
 
   if (loginToken) {
     setToken(loginToken, loginTokenExpires);
