@@ -241,7 +241,12 @@ const theme = createLWTheme({
       indicator: {
         bottom: 3
       }
-    }
+    },
+    CommentPermalink: {
+      root: {
+        marginBottom: 24
+      }
+    },
   }
 });
 
