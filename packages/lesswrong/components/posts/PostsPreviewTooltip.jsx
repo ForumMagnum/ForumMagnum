@@ -17,7 +17,6 @@ const styles = theme => ({
       marginTop: theme.spacing.unit,
       marginBottom: theme.spacing.unit,
     },
-    ...postHighlightStyles(theme),
     padding: theme.spacing.unit*1.5,
     paddingTop: theme.spacing.unit,
     paddingBottom: theme.spacing.unit,
@@ -52,6 +51,7 @@ const styles = theme => ({
     color: theme.palette.grey[600]
   },
   highlight: {
+    ...postHighlightStyles(theme),
     marginTop: theme.spacing.unit*2.5,
     marginBottom: theme.spacing.unit*2.5,
     wordBreak: 'break-word',
@@ -98,6 +98,9 @@ const styles = theme => ({
       display: "inline-block",
       float: "left"
     },
+  },
+  comment: {
+    marginTop: theme.spacing.unit*1.5
   }
 })
 
@@ -117,15 +120,16 @@ const getPostCategory = (post) => {
     return post.question ? `Question` : `Personal Blogpost`
 }
 
-const PostsItemTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMedium=true, truncateLimit=600 }) => {
-  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody } = Components
+const PostsPreviewTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMedium=true, truncateLimit=600, comment }) => {
+  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode } = Components
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
   const highlight = truncate(htmlHighlight, truncateLimit)
   const renderCommentCount = showAllinfo && (Posts.getCommentCount(post) > 0)
+  const renderWordCount = !comment && (wordCount > 0)
   return <Card>
     <div className={classNames(classes.root, {[classes.wide]: wide, [classes.hideOnMedium]: hideOnMedium})}>
-      {showAllinfo && <PostsTitle post={post} tooltip={false}/>}
+      {showAllinfo && <PostsTitle post={post} tooltip={false} wrap/>}
       <div className={classes.tooltipInfo}>
         { getPostCategory(post)}
         { showAllinfo && post.user && <span> by <PostsUserAndCoauthors post={post} simple/></span>}
@@ -135,8 +139,18 @@ const PostsItemTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMedium
         </span>}
         { showAllinfo && <span className={classes.karma}>{Posts.getKarma(post)} karma</span>}
       </div>
-      <ContentItemBody className={classes.highlight} dangerouslySetInnerHTML={{__html:highlight}} />
-      {(wordCount > 0) && <div className={classes.tooltipInfo}>
+      {comment ? 
+          <div className={classes.comment}>
+            <CommentsNode
+            truncated
+            comment={comment}
+            post={post}
+            hoverPreview
+            forceNotSingleLine
+          /></div> :
+          <ContentItemBody className={classes.highlight} dangerouslySetInnerHTML={{__html:highlight}} />
+          }
+      {renderWordCount && <div className={classes.tooltipInfo}>
         {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
       </div>}
     </div>
@@ -144,6 +158,6 @@ const PostsItemTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMedium
 
 }
 
-registerComponent('PostsItemTooltip', PostsItemTooltip, withUser,
-  withStyles(styles, { name: "PostsItemTooltip" })
+registerComponent('PostsPreviewTooltip', PostsPreviewTooltip, withUser,
+  withStyles(styles, { name: "PostsPreviewTooltip" })
 );
