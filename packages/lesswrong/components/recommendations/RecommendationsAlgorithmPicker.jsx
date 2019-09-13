@@ -39,13 +39,13 @@ export function getRecommendationSettings({settings, currentUser, configName})
   }
 }
 
-const forumIncludeExtraModifier = {
-  LessWrong: 'personalBlogpostModifier',
-  AlignmentForum: 'personalBlogpostModifier',
-  EAForum: 'metaModifier'
+const forumIncludeExtra = {
+  LessWrong: 'includePersonal',
+  AlignmentForum: 'includePersonal',
+  EAForum: 'includeMeta'
 }
 
-const includeExtraModifier = forumIncludeExtraModifier[getSetting('forumType', 'LessWrong')]
+const includeExtra = forumIncludeExtra[getSetting('forumType', 'LessWrong')]
 
 const RecommendationsAlgorithmPicker = ({ currentUser, settings, configName, updateUser, onChange, showAdvanced }) => {
   function applyChange(newSettings) {
@@ -88,8 +88,8 @@ const RecommendationsAlgorithmPicker = ({ currentUser, settings, configName, upd
     <div>
       <Checkbox
         disabled={!currentUser}
-        checked={settings[includeExtraModifier] !== 0}
-        onChange={(ev, checked) => applyChange({ ...settings, [includeExtraModifier]: defaultAlgorithmSettings.frontpageModifier * checked })}
+        checked={settings[includeExtra]}
+        onChange={(ev, checked) => applyChange({ ...settings, [includeExtra]: checked })}
       /> Show ########
     </div>
     {showAdvanced && <div>
