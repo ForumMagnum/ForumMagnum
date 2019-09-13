@@ -179,21 +179,4 @@ const deferredRender = async (sink, getRenderPromise) => {
   sink.appendToHead(jssSheetsStream);
 }
 
-const sendToSink = (sink, {
-  ssrBody, head, serializedApolloState, jssSheets,
-  status, redirectUrl,
-}) => {
-  if (status) {
-    sink.setStatusCode(status);
-  }
-  if (redirectUrl) {
-    sink.redirect(redirectUrl, status||301);
-  }
-  
-  sink.appendToBody(ssrBody);
-  sink.appendToHead(head);
-  sink.appendToBody(serializedApolloState);
-  sink.appendToHead(jssSheets);
-}
-
 export default makePageRenderer;

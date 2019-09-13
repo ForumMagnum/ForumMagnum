@@ -1,2 +1,5 @@
 packages/_*
 packages/vulcan-*/**/*.test.js
+packages/boilerplate-generator
+packages/webapp
+packages/server-render
