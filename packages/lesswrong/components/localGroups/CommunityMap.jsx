@@ -65,7 +65,7 @@ const styles = theme => ({
 
 
 // Make these variables have file-scope references to avoid rerending the scripts or map
-const defaultCenter = {lat: 37.871853, lng: -122.258423}
+const defaultCenter = {lat: 39.5, lng: -43.636047}
 const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center = defaultCenter, zoom = 3, classes, showUsers, openDialog, currentUser, showHideMap = false }) => {
   const { query } = useLocation()
   const groupQueryTerms = groupTerms || {view: "all", filters: query?.filters || []}
