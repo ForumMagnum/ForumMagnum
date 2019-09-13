@@ -9,7 +9,6 @@ import ReactDOM from 'react-dom/server';
 import { getDataFromTree } from 'react-apollo';
 import { getUserFromReq, computeContextFromUser } from '../apollo-server/context.js';
 
-import { runCallbacks } from '../../modules/callbacks';
 import { createClient } from './apolloClient';
 import { cachedPageRender, recordCacheBypass, getCacheHitRate } from './pageCache';
 import Head from './components/Head';
