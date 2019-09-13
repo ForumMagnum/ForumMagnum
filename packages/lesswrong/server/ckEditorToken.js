@@ -5,10 +5,10 @@ import Users from 'meteor/vulcan:users';
 import { getSetting } from 'meteor/vulcan:core';
 import jwt from 'jsonwebtoken'
 
-const environmentId = getSetting('ckEditor.environmentId', null)
-const secretKey = getSetting('ckEditor.secretKey', null)
-
 addStaticRoute('/ckeditor-token', async ({ query }, req, res, next) => {
+  const environmentId = getSetting('ckEditor.environmentId', null)
+  const secretKey = getSetting('ckEditor.secretKey', null)
+  
   const documentId = req.headers['document-id']
   const userId = req.headers['user-id']
   const formType = req.headers['form-type']
@@ -18,8 +18,8 @@ addStaticRoute('/ckeditor-token', async ({ query }, req, res, next) => {
   const user = await getUserFromReq(req)
   const post = await Posts.findOne(documentId)
   
-  const canEdit = Posts.canEdit(user, post)  
-  const canView = Posts.checkAccess(user, post)
+  const canEdit = post && Posts.canEdit(user, post)  
+  const canView = post && Posts.checkAccess(user, post)
 
   let permissions = {}
   if (formType === "new" && userId) {

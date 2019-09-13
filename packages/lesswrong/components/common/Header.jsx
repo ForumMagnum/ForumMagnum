@@ -35,10 +35,15 @@ const styles = theme => ({
     boxShadow: "0 1px 1px rgba(0, 0, 0, 0.05), 0 1px 1px rgba(0, 0, 0, 0.05)",
   },
   root: {
+    height: 64,
     flexGrow: 1,
     "@media print": {
       display: "none"
     }
+  },
+  titleSubtitleContainer: {
+    display: 'flex',
+    alignItems: 'center'
   },
   title: {
     flex: 1,
@@ -220,10 +225,12 @@ class Header extends PureComponent {
               {this.renderNavigationMenuButton()}
               <Typography className={classes.title} variant="title" color="textSecondary">
                 <Hidden smDown implementation="css">
-                  <Link to="/" className={classes.titleLink}>
-                    {getSetting('forumSettings.headerTitle', 'LESSWRONG')}
-                  </Link>
-                  <HeaderSubtitle />
+                  <div className={classes.titleSubtitleContainer}>
+                    <Link to="/" className={classes.titleLink}>
+                      {getSetting('forumSettings.headerTitle', 'LESSWRONG')}
+                    </Link>
+                    <HeaderSubtitle />
+                  </div>
                 </Hidden>
                 <Hidden mdUp implementation="css">
                   <Link to="/" className={classes.titleLink}>

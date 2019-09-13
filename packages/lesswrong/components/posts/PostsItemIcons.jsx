@@ -15,6 +15,7 @@ const styles = theme => ({
   iconSet: {
     marginLeft: theme.spacing.unit,
     marginRight: theme.spacing.unit,
+    lineHeight: "1.0rem",
   },
   postIcon: {
     marginRight: 4,
@@ -45,26 +46,26 @@ const PostsItemIcons = ({post, classes}) => {
 
   return <span className={classes.iconSet}>
     {post.curatedDate && <span className={classes.postIcon}>
-      <Tooltip title="Curated Post">
+      <Tooltip title="Curated Post" placement="right">
         <StarIcon className={classes.icon}/>
       </Tooltip>
     </span>}
 
     {isPersonalBlogpost && <span className={classes.postIcon}>
-      <Tooltip title="Personal Blogpost">
+      <Tooltip title="Personal Blogpost" placement="right">
         <PersonIcon className={classes.icon}/>
       </Tooltip>
     </span>}
 
     {post.meta && <span className={classes.postIcon}>
-      <Tooltip title={MetaTitle}>
+      <Tooltip title={MetaTitle} placement="right">
         <MetaIcon className={classes.icon}/>
       </Tooltip>
     </span>}
 
     {getSetting('forumType') !== 'AlignmentForum' && post.af &&
       <span className={classes.postIcon}>
-        <Tooltip title="Crossposted from AlignmentForum.org">
+        <Tooltip title="Crossposted from AlignmentForum.org" placement="right">
           <span><OmegaIcon className={classNames(classes.icon, classes.alignmentIcon)}/></span>
         </Tooltip>
       </span>

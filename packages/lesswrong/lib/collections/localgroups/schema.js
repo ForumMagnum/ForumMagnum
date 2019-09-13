@@ -1,5 +1,6 @@
 import { arrayOfForeignKeysField } from '../../modules/utils/schemaUtils'
 import { localGroupTypeFormOptions } from './groupTypes';
+import { schemaDefaultValue } from '../../collectionUtils';
 
 const schema = {
   _id: {
@@ -13,7 +14,6 @@ const schema = {
     viewableBy: ['guests'],
     onInsert: (document) => new Date(),
   },
-
 
   name: {
     type: String,
@@ -133,6 +133,16 @@ const schema = {
     control: "MuiInput",
     optional: true,
   },
+
+  inactive: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    hidden: true,
+    optional: true,
+    ...schemaDefaultValue(false),
+  }
 };
 
 export default schema;

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
 import { withRecommendations } from './withRecommendations';
 
@@ -11,7 +11,7 @@ class RecommendationsList extends Component {
       return <PostsLoading/>
     
     const improvedRecommendationsTooltip = <div>
-      LessWrong keeps track of what recommended posts logged-in users have read. Login to get recommended posts you haven't read before.
+      {getSetting('forumType', 'LessWrong') !== 'LessWrong' && 'The '}{getSetting('title')} keeps track of what recommended posts logged-in users have read. Login to get recommended posts you haven't read before.
     </div>
 
     return <div>

@@ -579,7 +579,7 @@ Posts.addView("nearbyEvents", function (terms) {
     }
   };
   if(Array.isArray(terms.filters) && terms.filters.length) {
-    query.types = {$in: terms.filters};
+    query.selector.types = {$in: terms.filters};
   } else if (typeof terms.filters === "string") { //If there is only single value we can't distinguish between Array and value
     query.selector.types = {$in: [terms.filters]};
   }

@@ -251,7 +251,7 @@ class PostsPage extends Component {
 
   render() {
     const { post, refetch, currentUser, classes, location: { query: { commentId }} } = this.props
-    const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, SmallMapPreviewWrapper, ContentType,
+    const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, ContentType,
       LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
       TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink } = Components
@@ -327,7 +327,7 @@ class PostsPage extends Component {
             <div className={classes.post}>
               {/* Body */}
               <div className={classes.postBody}>
-                { post.isEvent && <SmallMapPreviewWrapper post={post} /> }
+                { post.isEvent && <Components.SmallMapPreview post={post} /> }
                 <div className={classes.postContent}>
                   <AlignmentCrosspostMessage post={post} />
                   { post.authorIsUnreviewed && <div className={classes.unreviewed}>This post is awaiting moderator approval</div>}
