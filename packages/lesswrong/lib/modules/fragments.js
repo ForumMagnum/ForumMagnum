@@ -424,6 +424,25 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment UsersMapEntry on User {
+    # vulcan:users
+    ...UsersMinimumInfo
+    createdAt
+    isAdmin
+    groups
+    # example-forum
+    location
+    googleLocation
+    mapLocation
+    mapLocationSet
+    mapMarkerText
+    htmlMapMarkerText
+    mongoLocation
+  }
+`);
+
+
+registerFragment(`
   fragment UsersEdit on User {
     ...UsersProfile
     # Moderation Guidelines editor information

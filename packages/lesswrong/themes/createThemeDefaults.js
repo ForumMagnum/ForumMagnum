@@ -188,6 +188,7 @@ const createLWTheme = (theme) => {
       singleLineCommentHover: 3,
       questionPageWhitescreen: 3,
       textbox: 4,
+      styledMapPopup: 5,
       nextUnread: 999,
       sunshineSidebar: 1000,
       postItemMenu: 1001,
