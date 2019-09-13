@@ -48,11 +48,9 @@ class ConfigurableRecommendationsList extends PureComponent {
           settings={settings}
           onChange={(newSettings) => this.changeSettings(newSettings)}
         /> }
-      <NoSSR>
-        <RecommendationsList
-          algorithm={settings}
-        />
-      </NoSSR>
+      <RecommendationsList
+        algorithm={settings}
+      />
     </SingleColumnSection>
   }
 }
