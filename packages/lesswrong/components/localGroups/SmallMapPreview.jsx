@@ -26,7 +26,7 @@ class SmallMapPreview extends Component {
       viewport: {
         latitude: center.lat,
         longitude: center.lng,
-        zoom: this.props.zoom || 11
+        zoom: this.props.zoom || 13
       }
     }
   }
