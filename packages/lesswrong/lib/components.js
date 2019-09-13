@@ -233,6 +233,7 @@ importComponent("CommentBody", () => require('../components/comments/CommentsIte
 importComponent("CommentsMenu", () => require('../components/comments/CommentsItem/CommentsMenu.jsx'));
 importComponent("CommentOutdatedWarning", () => require('../components/comments/CommentsItem/CommentOutdatedWarning'));
 importComponent("CommentsItemDate", () => require('../components/comments/CommentsItem/CommentsItemDate'));
+importComponent("ToggleIsModeratorComment", () => require('../components/comments/CommentsItem/ToggleIsModeratorComment'));
 
 importComponent("CommentWithReplies", () => require('../components/comments/CommentWithReplies'));
 importComponent("CommentPermalink", () => require('../components/comments/CommentPermalink.jsx'));
