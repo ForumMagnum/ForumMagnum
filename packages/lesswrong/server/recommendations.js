@@ -47,15 +47,18 @@ const pipelineFilterUnread = ({currentUser}) => {
   ];
 }
 
-// // TODO;
-// const inclusionsExclusionsCriteria = {
-//   includeMeta: {true: {}, fasle: {meta: false}}, // Only changed by the EA Forum
-//   includePersonal: {frontpageDate: {$exists: true}},
-// }
-
-// TODO;
-// Wait, I hear you say. This isn't elegant at all. Like, surely there's a way to define a table of possible exclusion criteria and you can deterministically combine them without writing out each individual case combinatorially. . ... Yeah, I appreciate
-const exclusions = algorithm => {
+// Given an algorithm with a set of inclusion criteria, return a mongoDB
+// selector that only allows the included posts
+//
+// You can think of what it's doing is taking the inclusion criteria, figuring
+// out what's *not* included, and then writing an inclusion selector that
+// excludes what's not desired.
+//
+// Wait, I hear you say. This isn't elegant at all. Like, surely there's a way
+// to define a table of possible exclusion criteria and you can
+// deterministically combine them without writing out each individual case
+// combinatorially. . ... Yeah .... Sometimes life is hard.
+const getInclusionSelector = algorithm => {
   if (algorithm.includePersonal) {
     if (algorithm.includeMeta) {
       return {}
@@ -66,27 +69,6 @@ const exclusions = algorithm => {
     return {$or: [{frontpageDate: {$exists: true}}, {meta: true}]}
   }
   return {$and: [{frontpageDate: {$exists: true}}, {meta: false}]}
-  // --
-  // let result = {}
-  // for (let inclusionName in inclusionsExclusionsCriteria) {
-  //   if (!algorithm[inclusionName]) {
-  //     result = {...result, ...inclusionsExclusionsCriteria[inclusionName]}
-  //   }
-  // }
-  // console.log('exclusion result', result)
-  // return result
-  // --
-  // const applicableInclusionsExclusionsCriteria = _.filter(
-  //   inclusionsExclusionsCriteria,
-  //   (_val, inclusionName) => !algorithm[inclusionName]
-  // )
-  // console.log('applicable', applicableInclusionsExclusionsCriteria)
-  // const result = _.map(
-  //   applicableInclusionsExclusionsCriteria,
-  //   (exclusionCriterion, _key) => exclusionCriterion
-  // )
-  // console.log('exclusion result', result)
-  // return result
 }
 
 // A filter (mongodb selector) for which posts should be considered at all as
@@ -103,11 +85,7 @@ const recommendablePostFilter = algorithm => ({$or:
       // too big for performance reasons.
       baseScore: {$gt: MINIMUM_BASE_SCORE},
 
-      // // Don't recommend meta posts (Unless you're the EA Forum and are handling this elsewhere)
-      // ...(getSetting('forumType') !== 'EAForum' ? {meta: false} : {}),
-
-      // TODO;
-      ...exclusions(algorithm),
+      ...getInclusionSelector(algorithm),
 
       // Enforce the disableRecommendation flag
       disableRecommendation: {$ne: true},
@@ -125,7 +103,7 @@ ensureIndex(Posts, {defaultRecommendation: 1})
 // onlyUnread is true and currentUser is nonnull, posts that the user has
 // already read are filtered out.
 const allRecommendablePosts = async ({currentUser, algorithm}) => {
-  const aggregatePipeline = [
+  return await Posts.aggregate([
     // Filter to recommendable posts
     { $match: {
       ...recommendablePostFilter(algorithm),
@@ -136,9 +114,7 @@ const allRecommendablePosts = async ({currentUser, algorithm}) => {
 
     // Project out fields other than _id and scoreRelevantFields
     { $project: {_id:1, ...scoreRelevantFields} },
-  ]
-  console.log('aggregatePipeline', JSON.stringify(aggregatePipeline[0].$match.$or[0]))
-  return await Posts.aggregate(aggregatePipeline).toArray();
+  ]).toArray();
 }
 
 // Returns the top-rated posts (rated by scoreFn) to recommend to a user.
@@ -146,15 +122,12 @@ const allRecommendablePosts = async ({currentUser, algorithm}) => {
 //     aren't enough recommendable unread posts in the database.
 //   currentUser: The user who is requesting the recommendations, or null if
 //     logged out.
-//   onlyUnread: Whether to exclude posts which currentUser has already read.
-// TODO;
+//   algorithm: Used for inclusion criteria
 //   scoreFn: Function which takes a post (with at least scoreRelevantFields
 //     included), and returns a number. The posts with the highest scoreFn
 //     return value will be the ones returned.
 const topPosts = async ({count, currentUser, algorithm, scoreFn}) => {
-  // TODO; Can we do this on mongo
   const recommendablePostsMetadata  = await allRecommendablePosts({currentUser, algorithm});
-  console.log('recommendablePostsMetadata', recommendablePostsMetadata)
 
   const unreadTopPosts = _.first(
     _.sortBy(recommendablePostsMetadata, post => -scoreFn(post)),
@@ -174,8 +147,7 @@ const topPosts = async ({count, currentUser, algorithm, scoreFn}) => {
 //     aren't enough recommendable unread posts in the database.
 //   currentUser: The user who is requesting the recommendations, or null if
 //     logged out.
-//   onlyUnread: Whether to exclude posts which currentUser has already read.
-// TODO;
+//   algorithm: Used for inclusion criteria
 //   sampleWeightFn: Function which takes a post (with at least
 //     scoreRelevantFields included), and returns a number. Higher numbers are
 //     more likely to be recommended.
@@ -198,23 +170,17 @@ const samplePosts = async ({count, currentUser, algorithm, sampleWeightFn}) => {
   ).fetch();
 }
 
-const modifierNames = {
-  curated: 'curatedModifier',
-  frontpage: 'frontpageModifier',
-  meta: 'metaModifier', // Only used by EA Forum
-  personal: 'personalBlogpostModifier',
+const getModifierName = post => {
+  if (post.curatedDate) return 'curatedModifier'
+  if (post.frontpageDate) return 'frontpageModifier'
+  if (getSetting('forumType') === 'EAForum' && post.meta) return 'metaModifier'
+  return 'personalBlogpostModifier'
 }
 
 const getRecommendedPosts = async ({count, algorithm, currentUser}) => {
-  console.log('algorithm', algorithm)
   const scoreFn = post => {
-    const category = Posts.getCategory(post)
-    const sectionModifier = algorithm[modifierNames[category]]
-    // console.log('post', post)
-    // console.log('category', Posts.getCategory(post))
-    // console.log('sectionModifier', sectionModifier)
+    const sectionModifier = algorithm[getModifierName(post)]
     const weight = sectionModifier + Math.pow(post.baseScore - algorithm.scoreOffset, algorithm.scoreExponent)
-    // console.log('score weight', weight)
     return Math.max(0, weight);
   }
 
