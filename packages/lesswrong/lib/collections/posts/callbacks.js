@@ -1,4 +1,4 @@
-import { addCallback, runCallbacks, runCallbacksAsync, newMutation, updateMutator } from 'meteor/vulcan:core';
+import { addCallback, runCallbacks, runCallbacksAsync, newMutation, editMutation } from 'meteor/vulcan:core';
 import { Posts } from './collection';
 import { Comments } from '../comments/collection';
 import Users from 'meteor/vulcan:users';
@@ -163,11 +163,6 @@ function MoveCommentsFromConvertedComment (newPost, oldPost, user) {
   // either by building a recursive function that grabs children here, or changing comment architecture to 
   // make it easier to grab all children-comments of an arbitrary comment at once
   if (published && moveComments && userHasPermission) {
-    updateMutator({
-      collection: Comments,
-      selector: { topLevelCommentId: newPost.convertedFromCommentId },
-      
-    })
 
     const childrenOfTopLevelComment = Comments.find().fetch()
     childrenOfTopLevelComment.forEach((comment) => {
@@ -179,7 +174,7 @@ function MoveCommentsFromConvertedComment (newPost, oldPost, user) {
           topLevelCommentId: null,
           shortform: false
         },
-        currentUser: user
+        currentUser: user,
         validate: false,
       })
     })
