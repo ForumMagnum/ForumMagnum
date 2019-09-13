@@ -16,6 +16,9 @@ export const defaultAlgorithmSettings = {
 export const slotSpecificRecommendationSettingDefaults = {
   frontpage: {
     count: 4
+  },
+  frontpageEA: {
+    count: 5
   }
 };
 

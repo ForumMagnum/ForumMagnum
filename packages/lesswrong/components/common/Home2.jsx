@@ -26,7 +26,7 @@ const Home2 = ({currentUser, classes}) => {
     <React.Fragment>
       {shouldRenderSidebar && <Components.SunshineSidebar/>}
       {!currentUser?.hideFrontpageMap && <div className={classes.map}>
-        <CommunityMapWrapper terms={mapEventTerms} />
+        <CommunityMapWrapper terms={mapEventTerms} showHideMap />
       </div>}
       
       <RecommendationsAndCurated configName="frontpage" />
