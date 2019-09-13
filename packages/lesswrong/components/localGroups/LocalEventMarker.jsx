@@ -18,10 +18,10 @@ const styles = theme => ({
 const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }) => {
   if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
   const { geometry: {location: {lat, lng}}} = location
-  const { html = "" } = event.contents || {}
+  const { htmlHighlight = "" } = event.contents || {}
   const { GroupLinks, StyledMapPopup } = Components
   
-  const htmlBody = {__html: html};
+  const htmlBody = {__html: htmlHighlight};
 
   return <React.Fragment>
     <Marker
