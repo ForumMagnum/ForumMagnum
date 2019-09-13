@@ -4,7 +4,6 @@ import { WeightedList } from './weightedList.js';
 import { accessFilterMultiple } from '../lib/modules/utils/schemaUtils.js';
 import { setUserPartiallyReadSequences } from './partiallyReadSequences.js';
 import { ensureIndex } from '../lib/collectionUtils';
-import moment from 'moment'
 
 const MINIMUM_BASE_SCORE = 50
 
