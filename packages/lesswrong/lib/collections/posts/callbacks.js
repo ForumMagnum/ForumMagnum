@@ -1,4 +1,4 @@
-import { addCallback, runCallbacks, runCallbacksAsync, newMutation } from 'meteor/vulcan:core';
+import { addCallback, runCallbacks, runCallbacksAsync, newMutation, updateMutator } from 'meteor/vulcan:core';
 import { Posts } from './collection';
 import { Comments } from '../comments/collection';
 import Users from 'meteor/vulcan:users';
@@ -163,24 +163,36 @@ function MoveCommentsFromConvertedComment (newPost, oldPost, user) {
   // either by building a recursive function that grabs children here, or changing comment architecture to 
   // make it easier to grab all children-comments of an arbitrary comment at once
   if (published && moveComments && userHasPermission) {
-    Comments.update(
-      { topLevelCommentId: newPost.convertedFromCommentId },
-      { $set: {
-        postId: newPost._id,
-        topLevelCommentId: null,
-        shortform: false
-      } },
-      { multi: true }
-    );
-    Comments.update(
-      { parentCommentId: newPost.convertedFromCommentId },
-      { $set: {
-        postId: newPost._id,
-        parentCommentId: null,
-        shortform: false
-      } },
-      { multi: true }
-    );
+    updateMutator({
+      collection: Comments,
+      selector: { topLevelCommentId: newPost.convertedFromCommentId },
+      
+    })
+
+    const childrenOfTopLevelComment = Comments.find().fetch()
+    childrenOfTopLevelComment.forEach((comment) => {
+      editMutation({
+        collection: Comments,
+        documentId: comment.postId,
+        set: {
+          postId: newPost._id,
+          topLevelCommentId: null,
+          shortform: false
+        },
+        currentUser: user
+        validate: false,
+      })
+    })
+    // const childrenOfParentComment = Comments.find({ topLevelCommentId: newPost.convertedFromCommentId }).fetch()
+    // Comments.update(
+    //   { parentCommentId: newPost.convertedFromCommentId },
+    //   { $set: {
+    //     postId: newPost._id,
+    //     parentCommentId: null,
+    //     shortform: false
+    //   } },
+    //   { multi: true }
+    // );
   }
   return newPost;
 }
