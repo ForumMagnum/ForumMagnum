@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import NoSSR from 'react-no-ssr';
 import Tooltip from '@material-ui/core/Tooltip';
 import withUser from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper'
@@ -48,11 +47,9 @@ class ConfigurableRecommendationsList extends PureComponent {
           settings={settings}
           onChange={(newSettings) => this.changeSettings(newSettings)}
         /> }
-      <NoSSR>
-        <RecommendationsList
-          algorithm={settings}
-        />
-      </NoSSR>
+      <RecommendationsList
+        algorithm={settings}
+      />
     </SingleColumnSection>
   }
 }
