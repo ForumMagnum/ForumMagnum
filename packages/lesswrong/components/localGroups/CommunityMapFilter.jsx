@@ -219,7 +219,7 @@ class CommunityMapFilter extends Component {
   }
 
   render() {
-    const { classes, openDialog, currentUser, showHideMap, toggleGroups, showGroups, toggleEvents, showEvents, toggleIndividuals, showIndividuals } = this.props;
+    const { classes, openDialog, currentUser, showHideMap, toggleGroups, showGroups, toggleEvents, showEvents, toggleIndividuals, showIndividuals, history } = this.props;
   
     return <Paper>
         <div className={classes.filters}>
