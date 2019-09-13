@@ -204,6 +204,16 @@ addFieldsDict(Comments, {
     canUpdate: ['admins'],
     ...schemaDefaultValue(false),
   },
+  
+  moderatorHat: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
+    hidden: true,
+  },
 });
 
 export const makeEditableOptions = {
