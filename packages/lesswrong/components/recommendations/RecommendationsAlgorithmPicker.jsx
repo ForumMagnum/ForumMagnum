@@ -40,9 +40,9 @@ export function getRecommendationSettings({settings, currentUser, configName})
 }
 
 const forumIncludeExtra = {
-  LessWrong: 'includePersonal',
-  AlignmentForum: 'includePersonal',
-  EAForum: 'includeMeta'
+  LessWrong: {humanName: 'Include Personal', machineName: 'includePersonal'},
+  AlignmentForum: {humanName: 'Include Personal', machineName: 'includePersonal'},
+  EAForum: {humanName: 'Include Community', machineName: 'includeMeta'},
 }
 
 const includeExtra = forumIncludeExtra[getSetting('forumType', 'LessWrong')]
@@ -88,9 +88,9 @@ const RecommendationsAlgorithmPicker = ({ currentUser, settings, configName, upd
     <div>
       <Checkbox
         disabled={!currentUser}
-        checked={settings[includeExtra]}
-        onChange={(ev, checked) => applyChange({ ...settings, [includeExtra]: checked })}
-      /> Show ########
+        checked={settings[includeExtra.machineName]}
+        onChange={(ev, checked) => applyChange({ ...settings, [includeExtra.machineName]: checked })}
+      /> {includeExtra.humanName}
     </div>
     {showAdvanced && <div>
       <div>{"Algorithm "}
