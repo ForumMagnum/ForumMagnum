@@ -25,7 +25,7 @@ const CommentsMenu = ({children, classes, className, comment, post, showEdit, ic
   const [anchorEl, setAnchorEl] = useState(null);
   const currentUser = useCurrentUser();
   
-  const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, CommentsPermalinkMenuItem, CreateDraftPostMenuItem } = Components
+  const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, CommentsPermalinkMenuItem, CreateDraftPostMenuItem, ToggleIsModeratorComment } = Components
   
   if (!currentUser) return null
   
@@ -53,6 +53,7 @@ const CommentsMenu = ({children, classes, className, comment, post, showEdit, ic
         <BanUserFromAllPostsMenuItem comment={comment} post={post}/>
         <BanUserFromAllPersonalPostsMenuItem comment={comment} post={post}/>
         <CreateDraftPostMenuItem comment={comment} post={post}/>
+        <ToggleIsModeratorComment comment={comment}/>
         {children}
       </Menu>
     </span>

@@ -138,6 +138,7 @@ importComponent("MoveToDraft", () => require('../components/posts/MoveToDraft.js
 importComponent("SuggestAlignment", () => require('../components/posts/SuggestAlignment.jsx'));
 importComponent("PostsItemMeta", () => require('../components/posts/PostsItemMeta.jsx'));
 importComponent("PostsItem2", () => require('../components/posts/PostsItem2.jsx'));
+importComponent("PostsItemTooltipWrapper", () => require('../components/posts/PostsItemTooltipWrapper.jsx'));
 importComponent("PostsItem2MetaInfo", () => require('../components/posts/PostsItem2MetaInfo.jsx'));
 importComponent("PostsTitle", () => require('../components/posts/PostsTitle.jsx'));
 importComponent("PostsPreviewTooltip", () => require('../components/posts/PostsPreviewTooltip.jsx'));
@@ -192,8 +193,7 @@ if (getSetting('hasEvents', true)) {
   importComponent("CommunityMapWrapper", () => require('../components/localGroups/CommunityMapWrapper.jsx'));
   importComponent("SetPersonalMapLocationDialog", () => require('../components/localGroups/SetPersonalMapLocationDialog.jsx'));
   importComponent("EventNotificationsDialog", () => require('../components/localGroups/EventNotificationsDialog.jsx'));
-  importComponent("MarkerWithInfoWindow", () => require('../components/localGroups/MarkerWithInfoWindow.jsx'));
-  importComponent("StyledMapMarker", () => require('../components/localGroups/StyledMapMarker.jsx'));
+  importComponent("StyledMapPopup", () => require('../components/localGroups/StyledMapPopup.jsx'));
   importComponent("EventTime", () => require('../components/localGroups/EventTime.jsx'));
   importComponent("EventVicinity", () => require('../components/localGroups/EventVicinity.jsx'));
   importComponent("LocalGroupMarker", () => require('../components/localGroups/LocalGroupMarker.jsx'));
@@ -236,6 +236,7 @@ importComponent("CommentBody", () => require('../components/comments/CommentsIte
 importComponent("CommentsMenu", () => require('../components/comments/CommentsItem/CommentsMenu.jsx'));
 importComponent("CommentOutdatedWarning", () => require('../components/comments/CommentsItem/CommentOutdatedWarning'));
 importComponent("CommentsItemDate", () => require('../components/comments/CommentsItem/CommentsItemDate'));
+importComponent("ToggleIsModeratorComment", () => require('../components/comments/CommentsItem/ToggleIsModeratorComment'));
 
 importComponent("CommentWithReplies", () => require('../components/comments/CommentWithReplies'));
 importComponent("CommentPermalink", () => require('../components/comments/CommentPermalink.jsx'));

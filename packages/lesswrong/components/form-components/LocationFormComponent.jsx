@@ -1,6 +1,5 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { registerComponent } from 'meteor/vulcan:core';
+import React, { useState, useEffect } from 'react';
+import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import Geosuggest from 'react-geosuggest';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
@@ -80,26 +79,42 @@ const styles = theme => ({
   }
 });
 
-class LocationFormComponent extends Component {
-  constructor(props, context) {
-    super(props,context);
-    this.state = {
-      location: (props.document && props.document.location) || ""
+const mapsAPIKey = getSetting('googleMaps.apiKey', null);
+export const useGoogleMaps = (identifier, libraries = ['places']) => {
+  const [ mapsLoaded, setMapsLoaded ] = useState(window?.google)
+  const callbackName = `${identifier}_googleMapsLoaded`
+  useEffect(() => {
+    window[callbackName] = () => setMapsLoaded(true)
+  })
+  const tagId = `${identifier}_googleMapsScriptTag`
+  if (Meteor.isClient) {
+    if (!document.getElementById(tagId)) {
+      var tag = document.createElement('script');
+      tag.async = false;
+      tag.id = tagId
+      tag.src = `https://maps.googleapis.com/maps/api/js?key=${mapsAPIKey}&libraries=${libraries}&callback=${callbackName}`;
+      document.body.appendChild(tag);
     }
   }
+  if (!mapsLoaded) return [ mapsLoaded ]
+  else return [ mapsLoaded, window?.google ]
+}
 
-  componentDidMount() {
-    const { document } = this.props;
-    this.context.updateCurrentValues({
+const LocationFormComponent = ({document, updateCurrentValues, classes}) => {
+  const location = document?.location || ""
+  const [ mapsLoaded ] = useGoogleMaps("LocationFormComponent")
+  useEffect(() => {
+    updateCurrentValues({
       location: (document && document.location) || "",
       googleLocation: document && document.googleLocation,
       mongoLocation: document && document.mongoLocation
     })
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  handleSuggestSelect = (suggestion) => {
+  const handleSuggestSelect = (suggestion) => {
     if (suggestion && suggestion.gmaps) {
-      this.context.updateCurrentValues({
+      updateCurrentValues({
         location: suggestion.label,
         googleLocation: suggestion.gmaps,
         mongoLocation: {
@@ -110,27 +125,19 @@ class LocationFormComponent extends Component {
     }
   }
 
-  render() {
-    const { document, classes } = this.props;
-    if (document) {
-      return <div className={classes.root}>
-        <Geosuggest
-          placeholder="Location"
-          onSuggestSelect={this.handleSuggestSelect}
-          initialValue={this.state.location}
-        />
-      </div>
-    } else {
-      return null
-    }
 
+  if (document && mapsLoaded) {
+    return <div className={classes.root}>
+      <Geosuggest
+        placeholder="Location"
+        onSuggestSelect={handleSuggestSelect}
+        initialValue={location}
+      />
+    </div>
+  } else {
+    return null
   }
 }
-
-LocationFormComponent.contextTypes = {
-  updateCurrentValues: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
-};
 
 // TODO: This is not using the field name provided by the form. It definitely
 // doesn't work in nested contexts, and might be making a lie out of our schema.

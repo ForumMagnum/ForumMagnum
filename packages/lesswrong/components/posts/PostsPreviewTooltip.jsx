@@ -1,4 +1,4 @@
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles'
 import { truncate } from '../../lib/editor/ellipsize';
@@ -28,7 +28,11 @@ const styles = theme => ({
     },
   },
   hideOnMedium: {
-    [theme.breakpoints.down('md')]: {
+    // TODO: figure out more elegant way of handling this breakpoint
+    // 
+    // the purpose of this breakpoint is to ensure that the PostsItem hover preview
+    // disappears right as it starts to overlap the post item
+    '@media only screen and (max-width: 1350px)': {
       display: "none"
     },
   },
@@ -104,6 +108,8 @@ const styles = theme => ({
   }
 })
 
+const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
+
 const getPostCategory = (post) => {
   const categories = [];
   const postOrQuestion = post.question ? "Question" : "Post"
@@ -111,9 +117,9 @@ const getPostCategory = (post) => {
   if (post.isEvent) categories.push(`Event`)
   if (post.curatedDate) categories.push(`Curated ${postOrQuestion}`)
   if (post.af) categories.push(`AI Alignment Forum ${postOrQuestion}`);
-  if (post.meta) categories.push(`Meta ${postOrQuestion}`)
+  if (post.meta) categories.push(`${metaName} ${postOrQuestion}`)
   if (post.frontpageDate && !post.curatedDate && !post.af) categories.push(`Frontpage ${postOrQuestion}`)
-  
+
   if (categories.length > 0)
     return categories.join(', ');
   else
@@ -127,14 +133,13 @@ const PostsPreviewTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMed
   const highlight = truncate(htmlHighlight, truncateLimit)
   const renderCommentCount = showAllinfo && (Posts.getCommentCount(post) > 0)
   const renderWordCount = !comment && (wordCount > 0)
-  return <Card>
-    <div className={classNames(classes.root, {[classes.wide]: wide, [classes.hideOnMedium]: hideOnMedium})}>
+  return <Card className={classNames(classes.root, {[classes.wide]: wide, [classes.hideOnMedium]: hideOnMedium})}>
       {showAllinfo && <PostsTitle post={post} tooltip={false} wrap/>}
       <div className={classes.tooltipInfo}>
         { getPostCategory(post)}
         { showAllinfo && post.user && <span> by <PostsUserAndCoauthors post={post} simple/></span>}
         { renderCommentCount && <span className={classes.comments}>
-          <CommentIcon className={classes.commentIcon}/> 
+          <CommentIcon className={classes.commentIcon}/>
             {Posts.getCommentCountStr(post)}
         </span>}
         { showAllinfo && <span className={classes.karma}>{Posts.getKarma(post)} karma</span>}
@@ -153,7 +158,6 @@ const PostsPreviewTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMed
       {renderWordCount && <div className={classes.tooltipInfo}>
         {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
       </div>}
-    </div>
   </Card>
 
 }

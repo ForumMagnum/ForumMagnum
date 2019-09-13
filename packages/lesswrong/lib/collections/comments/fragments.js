@@ -49,6 +49,7 @@ registerFragment(`
       slug
       draft
     }
+    moderatorHat
   }
 `);
 
