@@ -114,7 +114,7 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
     terms: {view: "usersMapLocations"},
     collection: Users,
     queryName: "usersMapLocationQuery",
-    fragmentName: "UsersProfile",
+    fragmentName: "UsersMapEntry",
     limit: 500,
     ssr: true
   })
