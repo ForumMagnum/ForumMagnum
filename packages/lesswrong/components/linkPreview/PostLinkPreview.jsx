@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent, useSingle } from 'meteor/vulcan:core';
+import { Components, registerComponent, useSingle, getSetting } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments';
 import { Link } from 'react-router-dom';
@@ -88,7 +88,6 @@ const styles = theme => ({
   }
 })
 
-
 const PostLinkCommentPreview = ({href, commentId, post, innerHTML}) => {
 
   const { document: comment, error } = useSingle({
@@ -107,12 +106,13 @@ const PostLinkCommentPreview = ({href, commentId, post, innerHTML}) => {
 }
 registerComponent('PostLinkCommentPreview', PostLinkCommentPreview);
 
+const siteTwoLetter = getSetting('forumType') === 'EAForum' ? 'EA' : 'LW'
 
 const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hover}) => {
-  const { PostsItemTooltip, LWPopper } = Components
+  const { PostsPreviewTooltip, LWPopper } = Components
   const linkElement = <span className={classes.linkElement}>
       <Link className={classes.link} to={href}>
-        <span dangerouslySetInnerHTML={{__html: innerHTML}}></span>{}<span className={classes.indicator}>LW</span>
+        <span dangerouslySetInnerHTML={{__html: innerHTML}}></span>{}<span className={classes.indicator}>{siteTwoLetter}</span>
       </Link>
     </span>
   if (!post) {
@@ -131,7 +131,7 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hove
           }
         }}
       >
-        <PostsItemTooltip post={post} showAllinfo wide truncateLimit={900} hideOnMedium={false}/>
+        <PostsPreviewTooltip post={post} showAllinfo wide truncateLimit={900} hideOnMedium={false}/>
       </LWPopper>
       {linkElement}
     </span>
@@ -140,7 +140,7 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hove
 registerComponent('PostLinkPreviewWithPost', PostLinkPreviewWithPost, withHover, withStyles(styles, {name:"PostLinkPreviewWithPost"}));
 
 const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post, anchorEl, hover}) => {
-  const { CommentsNode, LWPopper } = Components
+  const { PostsPreviewTooltip, LWPopper } = Components
   const linkElement = <span className={classes.linkElement}>
       <Link className={classes.link} to={href}>
         <span dangerouslySetInnerHTML={{__html: innerHTML}}></span>{" "}<span className={classes.indicator}>LW</span>
@@ -163,16 +163,7 @@ const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post,
           } 
         }}
       >
-        <Card style={{maxWidth:600}}>
-          <CommentsNode
-            truncated
-            comment={comment}
-            post={post}
-            showPostTitle
-            hoverPreview
-            forceNotSingleLine
-          />
-        </Card>
+        <PostsPreviewTooltip post={post} comment={comment} showAllinfo wide truncateLimit={900} hideOnMedium={false}/>
       </LWPopper>
       {linkElement}
     </span>

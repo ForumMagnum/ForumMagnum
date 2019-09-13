@@ -5,10 +5,12 @@ import Icon from '@material-ui/core/Icon';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 
+const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
+
 const categoryTooltips = {
   "brightness_1": "Read Status",
   "star": "Curated Content",
-  "details": "Meta Post",
+  "details": `${metaName} Post`,
   "perm_identity": "Personal Blogpost",
   "supervisor_account": "Frontpage Content",
 }
@@ -35,7 +37,7 @@ const styles = theme => ({
     justifyContent: "center",
     alignItems: "center",
     cursor: "pointer",
-  
+
     "&:hover": {
       backgroundColor: "rgba(0,0,0,.05)",
     }
