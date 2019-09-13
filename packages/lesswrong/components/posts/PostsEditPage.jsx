@@ -12,7 +12,6 @@ class PostsEditPage extends PureComponent {
     const mapsAPIKey = getSetting('googleMaps.apiKey', null);
     
     return <div>
-      {eventForm && <Helmet><script src={`https://maps.googleapis.com/maps/api/js?key=${mapsAPIKey}&libraries=places`}/></Helmet>}
       <Components.PostsEditForm documentId={postId} eventForm={eventForm}/>
     </div>
   }
