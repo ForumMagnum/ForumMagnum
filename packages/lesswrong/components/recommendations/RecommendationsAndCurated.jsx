@@ -78,6 +78,7 @@ class RecommendationsAndCurated extends PureComponent {
       <div><em>(Click to see more recommendations)</em></div>
     </div>
 
+    // TODO; uh, I think we may be overriding here
     const frontpageRecommendationSettings = {
       ...settings,
       ...defaultFrontpageSettings

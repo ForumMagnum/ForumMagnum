@@ -195,3 +195,11 @@ Posts.getKarma = (post) => {
   const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
   return baseScore || 0
 }
+
+// Return category of post {'curated', 'frontpage', 'personal'} (+ 'meta' if EAForum)
+Posts.getCategory = post => {
+  if (post.curatedDate) return 'curated'
+  if (post.frontpageDate) return 'frontpage'
+  if (getSetting('forumType') === 'EAForum' && post.meta) return 'meta'
+  return 'personal'
+}

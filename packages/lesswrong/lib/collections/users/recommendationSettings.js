@@ -9,6 +9,8 @@ const baseDefaultAlgorithmSettings = {
   scoreOffset: 0,
   scoreExponent: 3,
   personalBlogpostModifier: 0,
+  includePersonal: false,
+  includeMeta: false,
   frontpageModifier: 10,
   curatedModifier: 50,
   onlyUnread: true,
