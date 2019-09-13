@@ -203,16 +203,19 @@ class CommunityMapFilter extends Component {
   }
 
   handleHideMap = () => {
-    const { currentUser, openDialog, updateUser, flash } = this.props
+    const { currentUser, updateUser, flash, setShowMap } = this.props
+    let undoAction
     if (currentUser) { 
       updateUser({
         selector: {_id: currentUser._id},
         data: { hideFrontpageMap: true }
       })
-      flash({messageString: "Hid map from Frontpage", action: () => updateUser({selector: {_id: currentUser._id}, data: {hideFrontpageMap: false}})})
+      undoAction = () => updateUser({selector: {_id: currentUser._id}, data: {hideFrontpageMap: false}})
     } else {
-      openDialog({componentName: "LoginPopup"})
+      setShowMap(false)
+      undoAction = () => setShowMap(true)
     }
+    flash({messageString: "Hid map from Frontpage", action: undoAction})
   }
 
   render() {

@@ -83,6 +83,7 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
   const [ showEvents, setShowEvents ] = useState(true)
   const [ showGroups, setShowGroups ] = useState(true)
   const [ showIndividuals, setShowIndividuals ] = useState(true)
+  const [ showMap, setShowMap ] = useState(true)
 
   const [ viewport, setViewport ] = useState({
     latitude: center.lat,
@@ -129,10 +130,13 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
           toggleEvents={() => setShowEvents(!showEvents)} showEvents={showEvents}
           toggleGroups={() => setShowGroups(!showGroups)} showGroups={showGroups}
           toggleIndividuals={() => setShowIndividuals(!showIndividuals)} showIndividuals={showIndividuals}
+          setShowMap={setShowMap}
         />
       </div>
     </React.Fragment>
   }, [showEvents, events, handleClick, handleClose, openWindows, showGroups, groups, showIndividuals, users, classes.mapButtons, showHideMap])
+
+  if (!showMap) return null
 
   return <div className={classes.root}>
       <Helmet> 
