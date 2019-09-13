@@ -138,6 +138,7 @@ importComponent("MoveToDraft", () => require('../components/posts/MoveToDraft.js
 importComponent("SuggestAlignment", () => require('../components/posts/SuggestAlignment.jsx'));
 importComponent("PostsItemMeta", () => require('../components/posts/PostsItemMeta.jsx'));
 importComponent("PostsItem2", () => require('../components/posts/PostsItem2.jsx'));
+importComponent("PostsItemTooltipWrapper", () => require('../components/posts/PostsItemTooltipWrapper.jsx'));
 importComponent("PostsItem2MetaInfo", () => require('../components/posts/PostsItem2MetaInfo.jsx'));
 importComponent("PostsTitle", () => require('../components/posts/PostsTitle.jsx'));
 importComponent("PostsPreviewTooltip", () => require('../components/posts/PostsPreviewTooltip.jsx'));

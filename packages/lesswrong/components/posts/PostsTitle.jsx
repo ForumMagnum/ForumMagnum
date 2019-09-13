@@ -33,6 +33,7 @@ const styles = theme => ({
   },
   expandOnHover: {
     [theme.breakpoints.up('md')]: {
+      width: "100%",
       '&:hover': {
         overflow: "visible",
         textOverflow: "unset",
@@ -92,10 +93,10 @@ const PostsTitle = ({currentUser, post, postLink, classes, sticky, read, expandO
     classes.root,
     {
       [classes.read]: read,
-      [classes.expandOnHover]: expandOnHover,
       [classes.wrap]: wrap
     }
   )}>
+    <span className={classNames({[classes.expandOnHover]: expandOnHover})}/>
     {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
 
     {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
