@@ -63,6 +63,7 @@ importComponent("HoverOver", () => require('../components/common/HoverOver.jsx')
 importComponent("ErrorBoundary", () => require('../components/common/ErrorBoundary.jsx'));
 importComponent("CloudinaryImage", () => require('../components/common/CloudinaryImage.jsx'));
 importComponent("ContentItemBody", () => require('../components/common/ContentItemBody.jsx'));
+importComponent("LWPopper", () => require('../components/common/LWPopper.jsx'));
 importComponent("Footer", () => require('../components/common/Footer.jsx'));
 importComponent("LoadMore", () => require('../components/common/LoadMore.jsx'));
 importComponent("ReCaptcha", () => require('../components/common/ReCaptcha.jsx'));
@@ -86,7 +87,7 @@ importComponent("SubscribeWidget", () => require('../components/common/Subscribe
 importComponent("SubscribeDialog", () => require('../components/common/SubscribeDialog.jsx'));
 
 importComponent("HoverPreviewLink", () => require('../components/linkPreview/HoverPreviewLink.jsx'));
-importComponent(["PostLinkPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "PostLinkPreviewWithPost"], () => require('../components/linkPreview/PostLinkPreview.jsx'));
+importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "PostLinkPreviewWithPost", "DefaultPreview"], () => require('../components/linkPreview/PostLinkPreview.jsx'));
 
 importComponent("AccountsVerifyEmail", () => require('../components/users/AccountsVerifyEmail.jsx'));
 importComponent("AccountsEnrollAccount", () => require('../components/users/EnrollAccount.jsx'));
@@ -139,7 +140,7 @@ importComponent("PostsItemMeta", () => require('../components/posts/PostsItemMet
 importComponent("PostsItem2", () => require('../components/posts/PostsItem2.jsx'));
 importComponent("PostsItem2MetaInfo", () => require('../components/posts/PostsItem2MetaInfo.jsx'));
 importComponent("PostsTitle", () => require('../components/posts/PostsTitle.jsx'));
-importComponent("PostsItemTooltip", () => require('../components/posts/PostsItemTooltip.jsx'));
+importComponent("PostsPreviewTooltip", () => require('../components/posts/PostsPreviewTooltip.jsx'));
 importComponent("PostsItemComments", () => require('../components/posts/PostsItemComments.jsx'));
 importComponent("PostsItemWrapper", () => require('../components/posts/PostsItemWrapper.jsx'));
 importComponent("PostsItemKarma", () => require('../components/posts/PostsItemKarma.jsx'));
@@ -189,6 +190,9 @@ if (getSetting('hasEvents', true)) {
   importComponent("CommunityMap", () => require('../components/localGroups/CommunityMap.jsx'));
   importComponent("CommunityMapFilter", () => require('../components/localGroups/CommunityMapFilter.jsx'));
   importComponent("CommunityMapWrapper", () => require('../components/localGroups/CommunityMapWrapper.jsx'));
+  importComponent("SetPersonalMapLocationDialog", () => require('../components/localGroups/SetPersonalMapLocationDialog.jsx'));
+  importComponent("EventNotificationsDialog", () => require('../components/localGroups/EventNotificationsDialog.jsx'));
+  importComponent("StyledMapPopup", () => require('../components/localGroups/StyledMapPopup.jsx'));
   importComponent("EventTime", () => require('../components/localGroups/EventTime.jsx'));
   importComponent("EventVicinity", () => require('../components/localGroups/EventVicinity.jsx'));
   importComponent("LocalGroupMarker", () => require('../components/localGroups/LocalGroupMarker.jsx'));
@@ -197,11 +201,12 @@ if (getSetting('hasEvents', true)) {
   importComponent("LocalGroupSingle", () => require('../components/localGroups/LocalGroupSingle.jsx'));
   importComponent("GroupFormLink", () => require('../components/localGroups/GroupFormLink.jsx'));
   importComponent("SmallMapPreview", () => require('../components/localGroups/SmallMapPreview.jsx'));
-  importComponent("SmallMapPreviewWrapper", () => require('../components/localGroups/SmallMapPreviewWrapper.jsx'));
   importComponent("GroupLinks", () => require('../components/localGroups/GroupLinks.jsx'));
   importComponent("LocalGroupsList", () => require('../components/localGroups/LocalGroupsList.jsx'));
   importComponent("LocalGroupsItem", () => require('../components/localGroups/LocalGroupsItem.jsx'));
   importComponent("TabNavigationEventsList", () => require('../components/localGroups/TabNavigationEventsList.jsx'));
+  importComponent("AllGroupsPage", () => require('../components/localGroups/AllGroupsPage.jsx'));
+  importComponent("GroupFormDialog", () => require('../components/localGroups/GroupFormDialog.jsx'));
 }
 
 // comments

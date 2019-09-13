@@ -1,12 +1,12 @@
 import Users from "meteor/vulcan:users";
 import { getSetting, Utils } from "meteor/vulcan:core"
-import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, denormalizedField } from '../../modules/utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 import { customThemes } from '../../../themes/customThemes.js';
 import SimpleSchema from 'simpl-schema'
 
-
+export const MAX_NOTIFICATION_RADIUS = 300
 export const formGroups = {
   moderationGroup: {
     order:60,
@@ -657,6 +657,100 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     hidden: true,
     optional: true
+  },
+
+  mapLocation: {
+    type: Object,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    label: "Your location on the community map",
+    control: 'LocationFormComponent',
+    blackbox: true,
+    optional: true,
+    order: 43,
+  },
+
+  mapLocationSet: {
+    type: Boolean, 
+    canRead: ['guests'],
+    ...denormalizedField({
+      needsUpdate: data => ('mapLocation' in data),
+      getValue: async (user) => {
+        return !!user.mapLocation
+      }
+    }),
+  },
+
+  mapMarkerText: {
+    type: String,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    label: "Your text on the community map",
+    control: "MuiTextField",
+    optional: true,
+    order: 44
+  },
+
+  htmlMapMarkerText: {
+    type: String,
+    canRead: ['guests'],
+    optional: true, 
+    denormalized: true
+  },
+
+  nearbyEventsNotifications: {
+    type: Boolean,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    optional: true,
+    ...schemaDefaultValue(false),
+  },
+
+  nearbyEventsNotificationsLocation: {
+    type: Object,
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    control: 'LocationFormComponent',
+    blackbox: true,
+    optional: true,
+  },
+
+  nearbyEventsNotificationsRadius: {
+    type: Number,
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    optional: true,
+    min: 0,
+    max: MAX_NOTIFICATION_RADIUS
+  },
+
+  nearbyPeopleNotificationThreshold: {
+    type: Number,
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    optional: true
+  },
+
+  hideFrontpageMap: {
+    type: Boolean, 
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    optional: true, 
+    order: 43,
+    label: "Hide the frontpage map"
   },
 
   // Set after a moderator has approved or purged a new user. NB: reviewed does

@@ -28,6 +28,8 @@ Lesswrong2 is built on top of four major open-source libraries.
 
 ### Installation
 
+**Warning: This text is now out of date**
+
 LessWrong is a fork of VulcanJS's example-forum. We've had to make *some* changes to VulcanJS itself as well as their example-forum. We try to keep the changes to each codebase distinct, and have factored our web app into two repos.
 
 I recommend starting by creating a folder to store both of them:

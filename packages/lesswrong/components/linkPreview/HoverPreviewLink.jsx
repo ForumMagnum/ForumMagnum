@@ -29,10 +29,10 @@ var parsePath = function parsePath(path) {
   };
 };
 
-const HoverPreviewLink = ({innerHTML, href}) => {
+const HoverPreviewLink = ({ innerHTML, href}) => {
   const URLClass = getUrlClass()
   const location = useLocation();
-  
+
   // Invalid link with no href? Don't transform it.
   if (!href) {
     return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
@@ -43,23 +43,32 @@ const HoverPreviewLink = ({innerHTML, href}) => {
     return <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
   }
 
-  const currentURL = new URLClass(location.pathname, Utils.getSiteUrl());
-  const linkTargetAbsolute = new URLClass(href, currentURL);
-  
-  if (hostIsOnsite(linkTargetAbsolute.host) || Meteor.isServer) {
-    const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
-    const parsedUrl = parseRoute(parsePath(linkTargetAbsolute.pathname));
+  try {
+    const currentURL = new URLClass(location.pathname, Utils.getSiteUrl());
+    const linkTargetAbsolute = new URLClass(href, currentURL);
     
-    if (parsedUrl?.currentRoute) {
-      const PreviewComponent = parsedUrl.currentRoute?.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;
+    if (hostIsOnsite(linkTargetAbsolute.host) || Meteor.isServer) {
+      const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
+      const parsedUrl = parseRoute(parsePath(onsiteUrl));
       
-      if (PreviewComponent) {
-        return <PreviewComponent href={onsiteUrl} targetLocation={parsedUrl} innerHTML={innerHTML}/>
-      } else {
-        return <Link to={onsiteUrl} dangerouslySetInnerHTML={{__html: innerHTML}} />
+      if (parsedUrl?.currentRoute) {
+        const PreviewComponent = parsedUrl.currentRoute?.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;
+        
+        if (PreviewComponent) {
+          return <PreviewComponent href={onsiteUrl} targetLocation={parsedUrl} innerHTML={innerHTML}/>
+        } else {
+          return <Components.DefaultPreview href={href} innerHTML={innerHTML} onSite/>
+        }
       }
+    } else {
+      return <Components.DefaultPreview href={href} innerHTML={innerHTML}/>
     }
+    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
+  } catch (err) {
+    console.error(err) // eslint-disable-line
+    console.error(href, innerHTML) // eslint-disable-line
+    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
   }
-  return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
+
 }
 registerComponent('HoverPreviewLink', HoverPreviewLink);

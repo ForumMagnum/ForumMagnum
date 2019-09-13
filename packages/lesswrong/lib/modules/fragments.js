@@ -113,6 +113,15 @@ registerFragment(`
     location
     googleLocation
     mongoLocation
+    mapLocation
+    mapLocationSet
+    mapMarkerText
+    htmlMapMarkerText
+    nearbyEventsNotifications
+    nearbyEventsNotificationsLocation
+    nearbyEventsNotificationsRadius
+    nearbyPeopleNotificationThreshold
+    hideFrontpageMap
     emailSubscribedToCurated
     unsubscribeFromAll
     emails
@@ -401,6 +410,10 @@ registerFragment(`
     bannedUserIds
     location
     googleLocation
+    mapLocation
+    mapLocationSet
+    mapMarkerText
+    htmlMapMarkerText
     mongoLocation
     shortformFeedId
     viewUnreviewedComments
@@ -410,6 +423,25 @@ registerFragment(`
     defaultToCKEditor
   }
 `);
+
+registerFragment(`
+  fragment UsersMapEntry on User {
+    # vulcan:users
+    ...UsersMinimumInfo
+    createdAt
+    isAdmin
+    groups
+    # example-forum
+    location
+    googleLocation
+    mapLocation
+    mapLocationSet
+    mapMarkerText
+    htmlMapMarkerText
+    mongoLocation
+  }
+`);
+
 
 registerFragment(`
   fragment UsersEdit on User {
@@ -471,6 +503,8 @@ registerFragment(`
     karmaChangeNotifierSettings
 
     recommendationSettings
+
+    hideFrontpageMap
   }
 `)
 

@@ -17,7 +17,7 @@ class EAHome extends PureComponent {
 
         <HomeLatestPosts />
 
-        <ConfigurableRecommendationsList configName="frontpage-ea" />
+        {currentUser?.isAdmin && <ConfigurableRecommendationsList configName="frontpageEA" />}
 
         <RecentDiscussionThreadsList
           terms={{view: 'recentDiscussionThreadsList', limit:20}}

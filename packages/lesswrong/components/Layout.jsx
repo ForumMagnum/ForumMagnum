@@ -71,6 +71,10 @@ const styles = theme => ({
         marginBottom: 0,
       }
     },
+    '.mapboxgl-popup': {
+      willChange: 'auto !important',
+      zIndex: theme.zIndexes.styledMapPopup
+    }
   },
   searchResultsArea: {
     position: "absolute",
