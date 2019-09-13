@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import NoSSR from 'react-no-ssr';
 import Tooltip from '@material-ui/core/Tooltip';
 import withUser from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper'
