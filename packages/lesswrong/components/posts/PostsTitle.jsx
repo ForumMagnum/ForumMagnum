@@ -96,7 +96,7 @@ const PostsTitle = ({currentUser, post, postLink, classes, sticky, read, expandO
       [classes.wrap]: wrap
     }
   )}>
-    <div className={classNames({[classes.expandOnHover]: expandOnHover})}/>
+    <span className={classNames({[classes.expandOnHover]: expandOnHover})}/>
     {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
 
     {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
