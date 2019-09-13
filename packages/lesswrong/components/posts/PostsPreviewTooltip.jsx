@@ -28,7 +28,11 @@ const styles = theme => ({
     },
   },
   hideOnMedium: {
-    [theme.breakpoints.down('md')]: {
+    // TODO: figure out more elegant way of handling this breakpoint
+    // 
+    // the purpose of this breakpoint is to ensure that the PostsItem hover preview
+    // disappears right as it starts to overlap the post item
+    '@media only screen and (max-width: 1350px)': {
       display: "none"
     },
   },
@@ -129,8 +133,7 @@ const PostsPreviewTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMed
   const highlight = truncate(htmlHighlight, truncateLimit)
   const renderCommentCount = showAllinfo && (Posts.getCommentCount(post) > 0)
   const renderWordCount = !comment && (wordCount > 0)
-  return <Card>
-    <div className={classNames(classes.root, {[classes.wide]: wide, [classes.hideOnMedium]: hideOnMedium})}>
+  return <Card className={classNames(classes.root, {[classes.wide]: wide, [classes.hideOnMedium]: hideOnMedium})}>
       {showAllinfo && <PostsTitle post={post} tooltip={false} wrap/>}
       <div className={classes.tooltipInfo}>
         { getPostCategory(post)}
@@ -155,7 +158,6 @@ const PostsPreviewTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMed
       {renderWordCount && <div className={classes.tooltipInfo}>
         {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
       </div>}
-    </div>
   </Card>
 
 }
