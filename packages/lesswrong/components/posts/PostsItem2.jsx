@@ -96,7 +96,6 @@ const styles = (theme) => ({
     },
     '&:hover': {
       opacity: 1,
-      overflow: "unset",
     }
   },
   author: {
