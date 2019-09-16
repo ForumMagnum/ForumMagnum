@@ -104,7 +104,7 @@ export const draftToHTML = convertToHTML({
      return <hr className="dividerBlock" />
     }
     if (type === 'spoiler') {
-     return <p className="spoiler" />
+     return <p className="new-spoiler" />
     }
     if (type === 'unstyled') {
       if (block.text === ' ' || block.text === '') return <br />;
