@@ -29,6 +29,7 @@ registerMigration({
         collection: collection,
         filter: {
           [fieldName]: {$exists: true},
+          [`${fieldName}_latest`]: {$exists: false},
         },
         batchSize: 1000,
         callback: async (documents) => {
@@ -41,21 +42,28 @@ registerMigration({
                   fieldName: fieldName,
                   version: doc[fieldName].version,
                 }, {}, {_id: 1});
-                updates.push({
-                  updateOne: {
-                    filter: { _id: doc._id },
-                    update: {
-                      $set: {
-                        [`${fieldName}_latest`]: latestRev._id
+                if (latestRev) {
+                  updates.push({
+                    updateOne: {
+                      filter: { _id: doc._id },
+                      update: {
+                        $set: {
+                          [`${fieldName}_latest`]: latestRev._id
+                        }
                       }
                     }
-                  }
-                });
+                  });
+                } else {
+                  // eslint-disable-next-line no-console
+                  console.log(`Warning: document is missing its corresponding revision object`);
+                }
               }
             })
           );
           
           if (updates.length > 0) {
+            // eslint-disable-next-line no-console
+            console.log(`Updating ${updates.length} documents in ${collectionName}`);
             await collection.rawCollection().bulkWrite(updates, { ordered: false });
           }
         }

@@ -6,6 +6,7 @@ import { highlightFromHTML, truncate } from '../../editor/ellipsize';
 import { addFieldsDict } from '../../modules/utils/schemaUtils'
 import { JSDOM } from 'jsdom'
 import { Utils } from 'meteor/vulcan:core';
+import { revisionCacheComputedField } from '../../../server/revisionsCache.js';
 import htmlToText from 'html-to-text'
 import sanitizeHtml from 'sanitize-html';
 
@@ -89,32 +90,42 @@ addFieldsDict(Revisions, {
     type: String,
     resolveAs: {
       type: 'String',
-      resolver: ({html}) => highlightFromHTML(html)
+      resolver: async (revision, args, { Revisions }) => {
+        const {html} = revision;
+        return await revisionCacheComputedField(revision._id, "htmlHighlight", Revisions.loader,
+          () => highlightFromHTML(html));
+      }
     }
   },
   plaintextDescription: {
     type: String,
     resolveAs: {
       type: 'String',
-      resolver: ({html}) => {
-        const truncatedHtml = truncate(Utils.sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
-        return htmlToText
-          .fromString(truncatedHtml)
-          .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
-      } 
+      resolver: async (revision, args, { Revisions }) => {
+        const {html} = revision;
+        return await revisionCacheComputedField(revision._id, "plaintextDescription", Revisions.loader, () => {
+          const truncatedHtml = truncate(Utils.sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
+          return htmlToText
+            .fromString(truncatedHtml)
+            .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
+        });
+      }
     }
   },
   // Plaintext version, except that specially-formatted blocks like blockquotes are filtered out, for use in highly-abridged displays like SingleLineComment.
   plaintextMainText: {
-    type: String, 
+    type: String,
     resolveAs: {
       type: 'String',
-      resolver: ({html}) => {
-        const mainTextHtml = sanitizeHtml(html, { nonTextTags: nonMainTextTags })
-        const truncatedHtml = truncate(mainTextHtml, PLAINTEXT_HTML_TRUNCATION_LENGTH)
-        return htmlToText
-          .fromString(truncatedHtml)
-          .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
+      resolver: async (revision, args, { Revisions }) => {
+        const {html} = revision;
+        return await revisionCacheComputedField(revision._id, "plaintextMainText", Revisions.loader, () => {
+          const mainTextHtml = sanitizeHtml(html, { nonTextTags: nonMainTextTags })
+          const truncatedHtml = truncate(mainTextHtml, PLAINTEXT_HTML_TRUNCATION_LENGTH)
+          return htmlToText
+            .fromString(truncatedHtml)
+            .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
+        });
       }
     }
   }
