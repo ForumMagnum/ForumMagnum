@@ -1,9 +1,11 @@
 import React, { PureComponent } from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import Tooltip from '@material-ui/core/Tooltip';
 import withUser from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper'
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
+
+const recommendedName = getSetting('forumType') === 'EAForum' ? 'Community Favorites' : 'Recommended'
 
 class ConfigurableRecommendationsList extends PureComponent {
   state = {
@@ -35,7 +37,7 @@ class ConfigurableRecommendationsList extends PureComponent {
           title={`A weighted, randomized sample of the highest karma posts${settings.onlyUnread ? " that you haven't read yet" : ""}.`}
         >
           <Link to={'/recommendations'}>
-            Recommended
+            {recommendedName}
           </Link>
         </Tooltip>}
       >
