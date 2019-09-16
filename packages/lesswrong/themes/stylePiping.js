@@ -19,6 +19,9 @@ const spoilerStyles = theme => ({
   '&:hover .spoiler': {
     color: 'white',
   },
+  // Note: ".spoiler" is the old class Oli originally used. ".spoilers" is a new class 
+  // that is applied in make_editable_callbacks.js to groups of adjaecent spoiler paragraphs.
+  // (see the make_editable_callbacks.js file for details)
   '& div.spoilers': {
     color: 'black',
     backgroundColor: 'currentColor',
