@@ -164,11 +164,11 @@ function MoveCommentsFromConvertedComment (newPost, oldPost, user) {
   // make it easier to grab all children-comments of an arbitrary comment at once
   if (published && moveComments && userHasPermission) {
 
-    const childrenOfTopLevelComment = Comments.find().fetch()
+    const childrenOfTopLevelComment = Comments.find({topLevelCommentId: comment._id}).fetch()
     childrenOfTopLevelComment.forEach((comment) => {
       editMutation({
         collection: Comments,
-        documentId: comment.postId,
+        documentId: comment._id,
         set: {
           postId: newPost._id,
           topLevelCommentId: null,
@@ -178,16 +178,18 @@ function MoveCommentsFromConvertedComment (newPost, oldPost, user) {
         validate: false,
       })
     })
-    // const childrenOfParentComment = Comments.find({ topLevelCommentId: newPost.convertedFromCommentId }).fetch()
-    // Comments.update(
-    //   { parentCommentId: newPost.convertedFromCommentId },
-    //   { $set: {
-    //     postId: newPost._id,
-    //     parentCommentId: null,
-    //     shortform: false
-    //   } },
-    //   { multi: true }
-    // );
+    const childrenOfParentComment = Comments.find({ parentCommentId: newPost.convertedFromCommentId }).fetch()
+    childrenOfParentComment.forEach((comment) => {
+      editMutation({
+        collection: Comments,
+        documentId: comment._id,
+        set: {
+          parentCommentId: null,
+        },
+        currentUser: user,
+        validate: false,
+      })
+    })
   }
   return newPost;
 }

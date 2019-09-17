@@ -24,10 +24,10 @@ class CreateDraftPostMenuItem extends PureComponent {
   render() {
     const { comment, currentUser } = this.props 
 
-    if (comment.convertedToPostId && !comment.convertedToPost.draft) { return null }
+    if (comment.convertedToPostId && !comment.convertedToPost?.draft) { return null }
     if (!Users.owns(currentUser, comment) && !Users.canDo(currentUser, 'comments.edit.all')) { return null }
 
-    if (comment.convertedToPostId && comment.convertedToPost.draft) {
+    if (comment.convertedToPostId && comment.convertedToPost?.draft) {
       const goToDraftTooltip = <div>
         You have previously created a draft post based on this comment.
       </div>
@@ -35,7 +35,7 @@ class CreateDraftPostMenuItem extends PureComponent {
         <Link to={Posts.getPageUrl(comment.convertedToPost)}>
           <Tooltip title={goToDraftTooltip}>
             <MenuItem>
-              Go to Draft Post
+              Go to Converted Draft Post
             </MenuItem>
           </Tooltip>
         </Link>
@@ -50,7 +50,7 @@ class CreateDraftPostMenuItem extends PureComponent {
     return (
       <Tooltip title={tooltip}>
         <MenuItem onClick={this.showConvertDialog}>
-          Create Draft Post
+          Convert to Post (create draft)
         </MenuItem>
       </Tooltip>
     )
