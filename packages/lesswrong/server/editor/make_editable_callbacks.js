@@ -54,7 +54,7 @@ const cheerioWrapAll = (toWrap, wrapper, $) => {
   return section;                 // This is what jQuery would return, IIRC.
 }
 
-const spoilerClass = 'spoiler-v2'
+const spoilerClass = 'spoiler-v2' // this is the second iteration of a spoiler-tag that we've implemented. Changing the name for backwards-and-forwards compatibility
 function wrapSpoilerTags(html) {
   const $ = cheerio.load(html)
   $(`.${spoilerClass}`).not(`.${spoilerClass}+.${spoilerClass}`).each(function(){

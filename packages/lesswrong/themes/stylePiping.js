@@ -34,7 +34,7 @@ const spoilerStyles = theme => ({
     color: 'inherit',
     border: 'none',
   },
-  '& p.new-spoiler': {
+  '& p.spoiler-v2': {
     margin: 0,
     padding: '0.5em 0em'
   },
