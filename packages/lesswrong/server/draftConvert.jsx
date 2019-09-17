@@ -104,7 +104,7 @@ export const draftToHTML = convertToHTML({
      return <hr className="dividerBlock" />
     }
     if (type === 'spoiler') {
-     return <p className="new-spoiler" />
+     return <p className="spoiler-v2" /> // this is the second iteration of a spoiler-tag that we've implemented. Changing the name for backwards-and-forwards compatibility
     }
     if (type === 'unstyled') {
       if (block.text === ' ' || block.text === '') return <br />;

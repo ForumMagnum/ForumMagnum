@@ -54,7 +54,7 @@ const cheerioWrapAll = (toWrap, wrapper, $) => {
   return section;                 // This is what jQuery would return, IIRC.
 }
 
-const spoilerClass = 'new-spoiler'
+const spoilerClass = 'spoiler-v2'
 function wrapSpoilerTags(html) {
   const $ = cheerio.load(html)
   $(`.${spoilerClass}`).not(`.${spoilerClass}+.${spoilerClass}`).each(function(){
