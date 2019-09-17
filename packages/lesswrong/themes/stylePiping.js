@@ -14,24 +14,50 @@ const spoilerStyles = theme => ({
     minHeight: theme.typography.commentStyle.fontSize,
     '& .public-DraftStyleDefault-block': {
       margin: 0,
-    },
-  },
-  '& .spoiler:before': {
-    content: '"spoiler (hover/select to reveal)"',
-    color: 'white',
-    position: 'absolute',
-    left: 20
-  },
-  '& .spoiler:after': {
-    content: '"\\00a0"',
+    }
   },
   '&:hover .spoiler': {
     color: 'white',
   },
-  '&:hover .spoiler:before': {
+  // Note: ".spoiler" is the old class Oli originally used. ".spoilers" is a new class 
+  // that is applied in make_editable_callbacks.js to groups of adjaecent spoiler paragraphs.
+  // (see the make_editable_callbacks.js file for details)
+  '& div.spoilers': {
     color: 'black',
-    content: '""'
+    backgroundColor: 'currentColor',
+    transition: 'none',
+    textShadow: 'none',
+    margin: '1em 0',
+    overflow: 'auto',
   },
+  '& .spoilers *': {
+    color: 'inherit',
+    border: 'none',
+  },
+  '& p.spoiler-v2': {
+    margin: 0,
+    padding: '0.5em 0em'
+  },
+  '& .spoilers:hover': {
+    color: 'unset',
+    backgroundColor: 'unset',
+    textShadow: 'unset',
+    transition: `
+      color 0.1s ease-out 0.1s,
+      background-color 0.1s ease-out 0.1s,
+      text-shadow 0.1s ease-out 0.1s;
+    `
+  },
+  '& .spoilers::selection, & .spoilers ::selection': {
+    color: `#fff`,
+    backgroundColor: `#000`
+  },
+  '& .spoilers:not(:hover)::selection, & .spoilers:not(:hover) ::selection': {
+    backgroundColor: 'transparent'
+  },
+  '& .spoilers > p:hover ~ p': {
+    backgroundColor: 'currentColor'
+  }
 })
 
 export const postBodyStyles = (theme, fontSize) => {
