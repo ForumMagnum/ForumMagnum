@@ -1,4 +1,4 @@
-import { addGraphQLResolvers, addGraphQLQuery, addGraphQLMutation, addGraphQLSchema } from 'meteor/vulcan:core';
+import { addGraphQLResolvers, addGraphQLQuery, addGraphQLMutation, addGraphQLSchema, getSetting } from 'meteor/vulcan:core';
 import { Posts } from '../lib/collections/posts';
 import { WeightedList } from './weightedList.js';
 import { accessFilterMultiple } from '../lib/modules/utils/schemaUtils.js';
@@ -46,9 +46,33 @@ const pipelineFilterUnread = ({currentUser}) => {
   ];
 }
 
+// Given an algorithm with a set of inclusion criteria, return a mongoDB
+// selector that only allows the included posts
+//
+// You can think of what it's doing is taking the inclusion criteria, figuring
+// out what's *not* included, and then writing an inclusion selector that
+// excludes what's not desired.
+//
+// Wait, I hear you say. This isn't elegant at all. Like, surely there's a way
+// to define a table of possible exclusion criteria and you can
+// deterministically combine them without writing out each individual case
+// combinatorially. . ... Yeah .... Sometimes life is hard.
+const getInclusionSelector = algorithm => {
+  if (algorithm.includePersonal) {
+    if (algorithm.includeMeta) {
+      return {}
+    }
+    return {meta: false}
+  }
+  if (algorithm.includeMeta) {
+    return {$or: [{frontpageDate: {$exists: true}}, {meta: true}]}
+  }
+  return {$and: [{frontpageDate: {$exists: true}}, {meta: false}]}
+}
+
 // A filter (mongodb selector) for which posts should be considered at all as
 // recommendations.
-const recommendablePostFilter = {$or:
+const recommendablePostFilter = algorithm => ({$or:
   [
     {
       // Gets the selector from the default Posts view, which includes things like
@@ -60,8 +84,7 @@ const recommendablePostFilter = {$or:
       // too big for performance reasons.
       baseScore: {$gt: MINIMUM_BASE_SCORE},
 
-      // Don't recommend meta posts
-      meta: false,
+      ...getInclusionSelector(algorithm),
 
       // Enforce the disableRecommendation flag
       disableRecommendation: {$ne: true},
@@ -70,7 +93,7 @@ const recommendablePostFilter = {$or:
       defaultRecommendation: true
     }
   ]
-}
+})
 
 ensureIndex(Posts, {defaultRecommendation: 1})
 
@@ -78,15 +101,15 @@ ensureIndex(Posts, {defaultRecommendation: 1})
 // scoreRelevantFields included (but other fields projected away). If
 // onlyUnread is true and currentUser is nonnull, posts that the user has
 // already read are filtered out.
-const allRecommendablePosts = async ({currentUser, onlyUnread}) => {
+const allRecommendablePosts = async ({currentUser, algorithm}) => {
   return await Posts.aggregate([
     // Filter to recommendable posts
     { $match: {
-      ...recommendablePostFilter,
+      ...recommendablePostFilter(algorithm),
     } },
 
     // If onlyUnread, filter to just unread posts
-    ...(onlyUnread ? pipelineFilterUnread({currentUser}) : []),
+    ...(algorithm.onlyUnread ? pipelineFilterUnread({currentUser}) : []),
 
     // Project out fields other than _id and scoreRelevantFields
     { $project: {_id:1, ...scoreRelevantFields} },
@@ -98,15 +121,15 @@ const allRecommendablePosts = async ({currentUser, onlyUnread}) => {
 //     aren't enough recommendable unread posts in the database.
 //   currentUser: The user who is requesting the recommendations, or null if
 //     logged out.
-//   onlyUnread: Whether to exclude posts which currentUser has already read.
+//   algorithm: Used for inclusion criteria
 //   scoreFn: Function which takes a post (with at least scoreRelevantFields
 //     included), and returns a number. The posts with the highest scoreFn
 //     return value will be the ones returned.
-const topPosts = async ({count, currentUser, onlyUnread, scoreFn}) => {
-  const unreadPostsMetadata  = await allRecommendablePosts({currentUser, onlyUnread});
+const topPosts = async ({count, currentUser, algorithm, scoreFn}) => {
+  const recommendablePostsMetadata  = await allRecommendablePosts({currentUser, algorithm});
 
   const unreadTopPosts = _.first(
-    _.sortBy(unreadPostsMetadata, post => -scoreFn(post)),
+    _.sortBy(recommendablePostsMetadata, post => -scoreFn(post)),
     count);
   const unreadTopPostIds = _.map(unreadTopPosts, p=>p._id);
 
@@ -123,19 +146,19 @@ const topPosts = async ({count, currentUser, onlyUnread, scoreFn}) => {
 //     aren't enough recommendable unread posts in the database.
 //   currentUser: The user who is requesting the recommendations, or null if
 //     logged out.
-//   onlyUnread: Whether to exclude posts which currentUser has already read.
+//   algorithm: Used for inclusion criteria
 //   sampleWeightFn: Function which takes a post (with at least
 //     scoreRelevantFields included), and returns a number. Higher numbers are
 //     more likely to be recommended.
-const samplePosts = async ({count, currentUser, onlyUnread, sampleWeightFn}) => {
-  const unreadPostsMetadata  = await allRecommendablePosts({currentUser, onlyUnread});
+const samplePosts = async ({count, currentUser, algorithm, sampleWeightFn}) => {
+  const recommendablePostsMetadata  = await allRecommendablePosts({currentUser, algorithm});
 
-  const numPostsToReturn = Math.max(0, Math.min(unreadPostsMetadata.length, count))
+  const numPostsToReturn = Math.max(0, Math.min(recommendablePostsMetadata.length, count))
 
-  const defaultRecommendations = unreadPostsMetadata.filter(p=> !!p.defaultRecommendation).map(p=>p._id)
+  const defaultRecommendations = recommendablePostsMetadata.filter(p=> !!p.defaultRecommendation).map(p=>p._id)
 
   const sampledPosts = new WeightedList(
-    _.map(unreadPostsMetadata, post => [post._id, sampleWeightFn(post)])
+    _.map(recommendablePostsMetadata, post => [post._id, sampleWeightFn(post)])
   ).pop(Math.max(numPostsToReturn - defaultRecommendations.length, 0))
 
   const recommendedPosts = _.first([...defaultRecommendations, ...sampledPosts], numPostsToReturn)
@@ -146,13 +169,16 @@ const samplePosts = async ({count, currentUser, onlyUnread, sampleWeightFn}) => 
   ).fetch();
 }
 
+const getModifierName = post => {
+  if (post.curatedDate) return 'curatedModifier'
+  if (post.frontpageDate) return 'frontpageModifier'
+  if (getSetting('forumType') === 'EAForum' && post.meta) return 'metaModifier'
+  return 'personalBlogpostModifier'
+}
+
 const getRecommendedPosts = async ({count, algorithm, currentUser}) => {
   const scoreFn = post => {
-    const sectionModifier = post.curatedDate
-      ? algorithm.curatedModifier
-      : (post.frontpageDate
-        ? algorithm.frontpageModifier
-        : algorithm.personalBlogpostModifier);
+    const sectionModifier = algorithm[getModifierName(post)]
     const weight = sectionModifier + Math.pow(post.baseScore - algorithm.scoreOffset, algorithm.scoreExponent)
     return Math.max(0, weight);
   }
@@ -161,15 +187,13 @@ const getRecommendedPosts = async ({count, algorithm, currentUser}) => {
   switch(algorithm.method) {
     case "top": {
       return await topPosts({
-        count, currentUser,
-        onlyUnread: algorithm.onlyUnread,
+        count, currentUser, algorithm,
         scoreFn
       });
     }
     case "sample": {
       return await samplePosts({
-        count, currentUser,
-        onlyUnread: algorithm.onlyUnread,
+        count, currentUser, algorithm,
         sampleWeightFn: scoreFn,
       });
     }
