@@ -134,7 +134,7 @@ const PostsPreviewTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMed
   const renderCommentCount = showAllinfo && (Posts.getCommentCount(post) > 0)
   const renderWordCount = !comment && (wordCount > 0)
   return <Card className={classNames(classes.root, {[classes.wide]: wide, [classes.hideOnMedium]: hideOnMedium})}>
-      {showAllinfo && <PostsTitle post={post} tooltip={false} wrap/>}
+      <PostsTitle post={post} tooltip={false} wrap/>
       <div className={classes.tooltipInfo}>
         { getPostCategory(post)}
         { showAllinfo && post.user && <span> by <PostsUserAndCoauthors post={post} simple/></span>}
