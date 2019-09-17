@@ -171,7 +171,6 @@ function MoveCommentsFromConvertedComment (newPost, oldPost, user) {
         documentId: comment._id,
         set: {
           postId: newPost._id,
-          topLevelCommentId: null,
           shortform: false
         },
         currentUser: user,
