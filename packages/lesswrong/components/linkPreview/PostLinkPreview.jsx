@@ -179,7 +179,11 @@ const defaultPreviewStyles = theme => ({
     ...theme.typography.body2,
     fontSize: "1.1rem",
     ...theme.typography.commentStyle,
-    color: theme.palette.grey[600]
+    color: theme.palette.grey[600],
+    maxWidth: 500,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap'
   },
 })
 
