@@ -39,6 +39,13 @@ export const linkStyle = ({theme, underlinePosition="97%", background}) => {
   })
 }
 
+export const removeLinkStyle = {
+  color: "unset",
+  backgroundImage: "unset",
+  textShadow: "unset",
+  textDecoration: "unset"
+}
+
 const createLWTheme = (theme) => {
   // Defines sensible typography defaults that can be
   // cleanly overriden

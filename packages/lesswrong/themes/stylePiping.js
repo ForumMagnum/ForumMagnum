@@ -1,8 +1,10 @@
-import { linkStyle } from './createThemeDefaults'
+import { linkStyle, removeLinkStyle } from './createThemeDefaults'
 import deepmerge from 'deepmerge';
 import isPlainObject from 'is-plain-object';
 
-const spoilerStyles = theme => ({
+const spoilerBackground = "black"
+
+const spoilerStyles = (theme, originalLinkStyle) => ({
   '& p.spoiler': {
     margin: 0,
   },
@@ -23,12 +25,15 @@ const spoilerStyles = theme => ({
   // that is applied in make_editable_callbacks.js to groups of adjaecent spoiler paragraphs.
   // (see the make_editable_callbacks.js file for details)
   '& div.spoilers': {
-    color: 'black',
+    color: spoilerBackground,
     backgroundColor: 'currentColor',
     transition: 'none',
     textShadow: 'none',
     margin: '1em 0',
     overflow: 'auto',
+    '& a, & a:hover, & a:focus': {
+      ...removeLinkStyle
+    }
   },
   '& .spoilers *': {
     color: 'inherit',
@@ -46,7 +51,10 @@ const spoilerStyles = theme => ({
       color 0.1s ease-out 0.1s,
       background-color 0.1s ease-out 0.1s,
       text-shadow 0.1s ease-out 0.1s;
-    `
+    `,
+    '& a, & a:hover, & a:focus': {
+      ...originalLinkStyle
+    }
   },
   '& .spoilers::selection, & .spoilers ::selection': {
     color: `#fff`,
@@ -56,16 +64,28 @@ const spoilerStyles = theme => ({
     backgroundColor: 'transparent'
   },
   '& .spoilers > p:hover ~ p': {
-    backgroundColor: 'currentColor'
+    backgroundColor: 'currentColor',
+    '& a, & a:hover, & a:focus': {
+      ...removeLinkStyle
+    }
   }
 })
 
-export const postBodyStyles = (theme, fontSize) => {
+export const postBodyStyles = (theme) => {
+  const postLinkStyles = linkStyle({
+    theme: theme,
+    underlinePosition: ((theme.typography.postStyle?.linkUnderlinePosition) || "97%"),
+    background: (
+      (theme.typography.body1?.backgroundColor) ||
+      (theme.typography.body1?.background) ||
+      "#fff"
+    )
+  })
   return {
     ...theme.typography.body1,
     ...theme.typography.postStyle,
     wordBreak: "break-word",
-    ...spoilerStyles(theme),
+    ...spoilerStyles(theme, postLinkStyles),
     '& pre': {
       ...theme.typography.codeblock
     },
@@ -131,30 +151,25 @@ export const postBodyStyles = (theme, fontSize) => {
       display: 'none'
     },
     '& a, & a:hover, & a:active': {
-      ...linkStyle({
-        theme: theme,
-        underlinePosition: (
-          (theme.typography.postStyle && theme.typography.postStyle.linkUnderlinePosition) ||
-          "97%"
-        ),
-        background: (
-          (theme.typography.body1 && theme.typography.body1.backgroundColor) ||
-          (theme.typography.body1 && theme.typography.body1.background) ||
-          "#fff"
-        )
-      })
+      ...postLinkStyles
     },
   }
 }
 
 export const commentBodyStyles = theme => {
+  const commentLinkStyles = {
+    color: theme.palette.primary.main,
+    backgroundImage: "none",
+    textShadow: "none",
+    textDecoration: "none",
+  }
   const commentBodyStyles = {
     marginTop: ".5em",
     marginBottom: ".25em",
     wordBreak: "break-word",
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    ...spoilerStyles(theme),
+    ...spoilerStyles(theme, commentLinkStyles),
     '& blockquote': {
       ...theme.typography.commentBlockquote,
       ...theme.typography.body2,
@@ -183,14 +198,10 @@ export const commentBodyStyles = theme => {
       color: 'white',
     },
     '& a, & a:hover, & a:active': {
-      backgroundImage: "none",
-      textShadow: "none",
-      textDecoration: "none",
+      ...commentLinkStyles
     },
     '& pre code a, & pre code a:hover, & pre code a:active': {
-      backgroundImage: "none",
-      textShadow: "none",
-      textDecoration: "none",
+      ...commentLinkStyles
     }
   }
   return deepmerge(postBodyStyles(theme), commentBodyStyles, {isMergeableObject:isPlainObject})
