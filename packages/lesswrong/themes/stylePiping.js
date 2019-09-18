@@ -256,6 +256,9 @@ export const ckEditorStyles = theme => {
             content: '"\\25B6"'
           }
         },
+        '& .ck-comment__input': {
+          paddingLeft: theme.spacing.unit*2
+        },
         '& .ck-annotation__main, & .ck-comment__input, & .ck-thread__input': {
           width : "100%"
         },
