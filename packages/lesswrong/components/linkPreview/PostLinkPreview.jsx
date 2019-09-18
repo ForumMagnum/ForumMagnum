@@ -75,8 +75,10 @@ registerComponent('PostLinkPreviewVariantCheck', PostLinkPreviewVariantCheck);
 
 const styles = theme => ({
   link: {
-    position: "relative",
-    marginRight: 12,
+    '&&': {
+      position: "relative",
+      color: theme.palette.secondary.main
+    }
   },
   indicator: {
     position: "absolute",
@@ -111,9 +113,7 @@ const siteTwoLetter = getSetting('forumType') === 'EAForum' ? 'EA' : 'LW'
 const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hover}) => {
   const { PostsPreviewTooltip, LWPopper } = Components
   const linkElement = <span className={classes.linkElement}>
-      <Link className={classes.link} to={href}>
-        <span dangerouslySetInnerHTML={{__html: innerHTML}}></span>{}<span className={classes.indicator}>{siteTwoLetter}</span>
-      </Link>
+      <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}}/>
     </span>
   if (!post) {
     return linkElement;
@@ -142,9 +142,7 @@ registerComponent('PostLinkPreviewWithPost', PostLinkPreviewWithPost, withHover,
 const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post, anchorEl, hover}) => {
   const { PostsPreviewTooltip, LWPopper } = Components
   const linkElement = <span className={classes.linkElement}>
-      <Link className={classes.link} to={href}>
-        <span dangerouslySetInnerHTML={{__html: innerHTML}}></span>{" "}<span className={classes.indicator}>LW</span>
-      </Link>
+      <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}}/>
     </span>
 
   if (!comment) {

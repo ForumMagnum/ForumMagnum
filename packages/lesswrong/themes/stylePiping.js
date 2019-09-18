@@ -1,4 +1,3 @@
-import { linkStyle } from './createThemeDefaults'
 import deepmerge from 'deepmerge';
 import isPlainObject from 'is-plain-object';
 
@@ -131,18 +130,8 @@ export const postBodyStyles = (theme, fontSize) => {
       display: 'none'
     },
     '& a, & a:hover, & a:active': {
-      ...linkStyle({
-        theme: theme,
-        underlinePosition: (
-          (theme.typography.postStyle && theme.typography.postStyle.linkUnderlinePosition) ||
-          "97%"
-        ),
-        background: (
-          (theme.typography.body1 && theme.typography.body1.backgroundColor) ||
-          (theme.typography.body1 && theme.typography.body1.background) ||
-          "#fff"
-        )
-      })
+      fontWeight: 600,
+      color: "#5f9a9b"
     },
   }
 }
