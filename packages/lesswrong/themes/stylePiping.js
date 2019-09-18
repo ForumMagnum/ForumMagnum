@@ -23,7 +23,7 @@ const spoilerStyles = (theme, originalLinkStyle) => ({
   // that is applied in make_editable_callbacks.js to groups of adjaecent spoiler paragraphs.
   // (see the make_editable_callbacks.js file for details)
   '& div.spoilers': {
-    color: "black",
+    color: 'black',
     backgroundColor: 'currentColor',
     transition: 'none',
     textShadow: 'none',
