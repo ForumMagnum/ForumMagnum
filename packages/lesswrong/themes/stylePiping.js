@@ -56,7 +56,7 @@ const spoilerStyles = theme => ({
     backgroundColor: 'transparent'
   },
   '& .spoilers > p:hover ~ p': {
-    backgroundColor: 'currentColor'
+    backgroundColor: 'black'
   }
 })
 
