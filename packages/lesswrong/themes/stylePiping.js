@@ -1,6 +1,8 @@
 import deepmerge from 'deepmerge';
 import isPlainObject from 'is-plain-object';
 
+const externalLinkColor = "#4b719c"
+
 const spoilerStyles = theme => ({
   '& p.spoiler': {
     margin: 0,
@@ -131,7 +133,7 @@ export const postBodyStyles = (theme, fontSize) => {
     },
     '& a, & a:hover, & a:active': {
       fontWeight: 600,
-      color: "#5f9a9b"
+      color: externalLinkColor
     },
   }
 }
@@ -175,6 +177,8 @@ export const commentBodyStyles = theme => {
       backgroundImage: "none",
       textShadow: "none",
       textDecoration: "none",
+      color: externalLinkColor,
+      fontWeight: 'inherit'
     },
     '& pre code a, & pre code a:hover, & pre code a:active': {
       backgroundImage: "none",
