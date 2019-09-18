@@ -108,8 +108,6 @@ const PostLinkCommentPreview = ({href, commentId, post, innerHTML}) => {
 }
 registerComponent('PostLinkCommentPreview', PostLinkCommentPreview);
 
-const siteTwoLetter = getSetting('forumType') === 'EAForum' ? 'EA' : 'LW'
-
 const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hover}) => {
   const { PostsPreviewTooltip, LWPopper } = Components
   const linkElement = <span className={classes.linkElement}>
