@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import qs from 'qs';
-import { NavigationContext, LocationContext, SubscribeLocationContext, ServerRequestStatusContext } from 'meteor/vulcan:core';
+import { NavigationContext, LocationContext, SubscribeLocationContext, ServerRequestStatusContext, getSetting } from 'meteor/vulcan:core';
 
 // Given the props of a component which has withRouter, return the parsed query
 // from the URL.
@@ -107,17 +107,33 @@ export const getUrlClass = () => {
   }
 }
 
+const LwAfDomainWhitelist = [
+  "lesswrong.com",
+  "lesserwrong.com",
+  "lessestwrong.com",
+  "alignmentforum.org",
+  "alignment-forum.com",
+  "greaterwrong.com",
+  "localhost:3000",
+  "localhost:8300"
+]
+
+const forumDomainWhitelist = {
+  LessWrong: LwAfDomainWhitelist,
+  AlignmentForum: LwAfDomainWhitelist,
+  EAForum: [
+    'forum.effectivealtruism.org',
+    'forum-staging.effectivealtruism.org',
+    'ea.greaterwrong.com',
+    'localhost:3000',
+    'localhost:8300'
+  ]
+}
+
+const domainWhitelist = forumDomainWhitelist[getSetting('forumType')]
+
 export const hostIsOnsite = (host) => {
   let isOnsite = false
-  const domainWhitelist = [
-    "lesswrong.com", 
-    "lesserwrong.com", 
-    "lessestwrong.com", 
-    "alignmentforum.org", 
-    "alignment-forum.com", 
-    "greaterwrong.com",
-    "localhost:3000"
-  ]
 
   domainWhitelist.forEach((domain) => {
     if (host === domain) isOnsite = true;

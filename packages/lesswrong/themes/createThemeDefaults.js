@@ -188,6 +188,7 @@ const createLWTheme = (theme) => {
       singleLineCommentHover: 3,
       questionPageWhitescreen: 3,
       textbox: 4,
+      styledMapPopup: 5,
       nextUnread: 999,
       sunshineSidebar: 1000,
       postItemMenu: 1001,
@@ -197,6 +198,8 @@ const createLWTheme = (theme) => {
       header: 1300,
       karmaChangeNotifier: 1400,
       notificationsMenu: 1500,
+      lwPopper: 10000,
+      lwPopperTooltip: 10001,
       searchBar: 100000,
     },
     voting: {

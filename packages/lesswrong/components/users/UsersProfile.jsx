@@ -279,7 +279,7 @@ class UsersProfile extends Component {
           </SectionTitle>
           <Components.PostsList2 terms={draftTerms}/>
           <Components.PostsList2 terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
-          <Components.LocalGroupsList terms={{view: 'userInactiveGroups', userId: currentUser._id}} showHeader={false} />
+          {getSetting('hasEvents', true) && <Components.LocalGroupsList terms={{view: 'userInactiveGroups', userId: currentUser._id}} showHeader={false} />}
         </SingleColumnSection> }
         {/* Posts Section */}
         <SingleColumnSection>

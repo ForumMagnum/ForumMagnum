@@ -2,7 +2,6 @@ import { Components, registerComponent, getFragment, withMessages, getSetting } 
 import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Helmet } from 'react-helmet';
 import withUser from '../common/withUser'
 import { withStyles } from '@material-ui/core/styles';
 import { useLocation, useNavigation } from '../../lib/routeUtil.js';
@@ -20,14 +19,12 @@ const PostsNewForm = ({currentUser, flash, classes}) => {
   const { history } = useNavigation();
   
   const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox } = Components
-  const mapsAPIKey = getSetting('googleMaps.apiKey', null);
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = getSetting('forumType') === 'AlignmentForum'
   const prefilledProps = {
     isEvent: query && !!query.eventForm,
     types: query && query.ssc ? ['SSC'] : [],
     meta: query && !!query.meta,
-    frontpageDate: af ? new Date() : null,
     af: af || (query && !!query.af),
     groupId: query && query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
@@ -47,7 +44,6 @@ const PostsNewForm = ({currentUser, flash, classes}) => {
 
   return (
     <div className="posts-new-form">
-      {prefilledProps.isEvent && <Helmet><script src={`https://maps.googleapis.com/maps/api/js?key=${mapsAPIKey}&libraries=places`}/></Helmet>}
       <NoSsr>
         <WrappedSmartForm
           collection={Posts}

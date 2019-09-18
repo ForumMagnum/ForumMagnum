@@ -92,6 +92,7 @@ const getNotificationTiming = (typeSettings) => {
         dayOfWeekGMT: typeSettings.dayOfWeekGMT,
       };
     default:
+      // eslint-disable-next-line no-console
       console.error(`Unrecognized batching frequency: ${typeSettings.batchingFrequency}`);
       return { type: "none" };
   }

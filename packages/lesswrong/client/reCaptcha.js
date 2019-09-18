@@ -5,5 +5,4 @@ const reCaptchaSiteKey = getSetting('reCaptcha.apiKey')
 const script = document.createElement('script')
 script.src = `https://www.google.com/recaptcha/api.js?render=${reCaptchaSiteKey}`
 document.body.appendChild(script)
-    
-  
+

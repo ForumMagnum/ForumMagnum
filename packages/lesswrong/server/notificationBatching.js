@@ -8,6 +8,7 @@ import Users from 'meteor/vulcan:users';
 import { Components } from 'meteor/vulcan:core';
 import { UnsubscribeAllToken } from './emails/emailTokens.js';
 import { renderAndSendEmail } from './emails/renderEmail.js';
+import Sentry from '@sentry/node';
 
 // string (notification type name) => Debouncer
 export const notificationDebouncers = toDictionary(getNotificationTypes(),
@@ -57,14 +58,18 @@ const sendNotificationBatch = async ({ userId, notificationType, notificationIds
 }
 
 export const wrapAndSendEmail = async ({user, subject, body}) => {
-  const unsubscribeAllLink = await UnsubscribeAllToken.generateLink(user._id);
-  await renderAndSendEmail({
-    user,
-    subject: subject,
-    bodyComponent: <Components.EmailWrapper
-      user={user} unsubscribeAllLink={unsubscribeAllLink}
-    >
-      {body}
-    </Components.EmailWrapper>
-  });
+  try {
+    const unsubscribeAllLink = await UnsubscribeAllToken.generateLink(user._id);
+    await renderAndSendEmail({
+      user,
+      subject: subject,
+      bodyComponent: <Components.EmailWrapper
+        user={user} unsubscribeAllLink={unsubscribeAllLink}
+      >
+        {body}
+      </Components.EmailWrapper>
+    });
+  } catch(e) {
+    Sentry.captureException(e);
+  }
 }
