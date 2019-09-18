@@ -64,7 +64,7 @@ const spoilerStyles = (theme, originalLinkStyle) => ({
     backgroundColor: 'transparent'
   },
   '& .spoilers > p:hover ~ p': {
-    backgroundColor: 'currentColor',
+    backgroundColor: 'black',
     '& a, & a:hover, & a:focus': {
       ...removeLinkStyle
     }
