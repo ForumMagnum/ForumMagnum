@@ -2,8 +2,6 @@ import { linkStyle, removeLinkStyle } from './createThemeDefaults'
 import deepmerge from 'deepmerge';
 import isPlainObject from 'is-plain-object';
 
-const spoilerBackground = "black"
-
 const spoilerStyles = (theme, originalLinkStyle) => ({
   '& p.spoiler': {
     margin: 0,
@@ -25,7 +23,7 @@ const spoilerStyles = (theme, originalLinkStyle) => ({
   // that is applied in make_editable_callbacks.js to groups of adjaecent spoiler paragraphs.
   // (see the make_editable_callbacks.js file for details)
   '& div.spoilers': {
-    color: spoilerBackground,
+    color: "black",
     backgroundColor: 'currentColor',
     transition: 'none',
     textShadow: 'none',
