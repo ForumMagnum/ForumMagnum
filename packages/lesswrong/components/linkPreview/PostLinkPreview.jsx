@@ -75,16 +75,12 @@ registerComponent('PostLinkPreviewVariantCheck', PostLinkPreviewVariantCheck);
 
 const styles = theme => ({
   link: {
-    position: "relative",
-    marginRight: 12,
-  },
-  indicator: {
-    position: "absolute",
-    width: 20,
-    fontSize: 8,
-    display: "inline-block",
-    color: theme.palette.primary.main,
-    cursor: "pointer",
+    '&:after': {
+      content: '"°"',
+      marginLeft: 2,
+      marginRight: 1,
+      color: theme.palette.primary.main
+    }
   }
 })
 
@@ -106,13 +102,11 @@ const PostLinkCommentPreview = ({href, commentId, post, innerHTML}) => {
 }
 registerComponent('PostLinkCommentPreview', PostLinkCommentPreview);
 
-const siteTwoLetter = getSetting('forumType') === 'EAForum' ? 'EA' : 'LW'
-
 const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hover}) => {
   const { PostsPreviewTooltip, LWPopper } = Components
   const linkElement = <span className={classes.linkElement}>
       <Link className={classes.link} to={href}>
-        <span dangerouslySetInnerHTML={{__html: innerHTML}}></span>{}<span className={classes.indicator}>{siteTwoLetter}</span>
+        <span dangerouslySetInnerHTML={{__html: innerHTML}}/>
       </Link>
     </span>
   if (!post) {
@@ -143,7 +137,7 @@ const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post,
   const { PostsPreviewTooltip, LWPopper } = Components
   const linkElement = <span className={classes.linkElement}>
       <Link className={classes.link} to={href}>
-        <span dangerouslySetInnerHTML={{__html: innerHTML}}></span>{" "}<span className={classes.indicator}>LW</span>
+        <span dangerouslySetInnerHTML={{__html: innerHTML}}/>
       </Link>
     </span>
 
