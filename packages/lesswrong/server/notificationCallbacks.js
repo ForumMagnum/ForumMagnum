@@ -14,6 +14,7 @@ import './emailComponents/PrivateMessagesEmail.jsx';
 import { EventDebouncer } from './debouncer.js';
 import { getNotificationTypeByName } from '../lib/notificationTypes.jsx';
 import { notificationDebouncers, wrapAndSendEmail } from './notificationBatching.js';
+import { defaultNotificationTypeSettings } from '../lib/collections/users/custom_fields.js';
 
 import { Components, addCallback, createMutator } from 'meteor/vulcan:core';
 
@@ -100,7 +101,8 @@ const getNotificationTiming = (typeSettings) => {
 
 const createNotification = async (userId, notificationType, documentType, documentId) => {
   let user = Users.findOne({ _id:userId });
-  const notificationTypeSettings = getNotificationTypeByName(notificationType).getUserSettings(user);
+  const userSettingField = getNotificationTypeByName(notificationType).userSettingField;
+  const notificationTypeSettings = userSettingField ? user[userSettingField] : defaultNotificationTypeSettings;
 
   let notificationData = {
     userId: userId,

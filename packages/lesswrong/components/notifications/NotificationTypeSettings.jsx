@@ -5,22 +5,24 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
+import Typography from '@material-ui/core/Typography';
+import { defaultNotificationTypeSettings } from '../../lib/collections/users/custom_fields.js';
+import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes.jsx';
 
 const styles = theme => ({
-  label: {
+  root: {
+    padding: 8,
+  },
+  label: {},
+  settings: {
+    paddingLeft: 20,
   },
 })
 
-const defaultValue = {
-  channel: "none",
-  batchingFrequency: "realtime",
-  timeOfDayGMT: 12,
-  dayOfWeekGMT: "Monday",
-};
-
 const NotificationTypeSettings = ({ path, value, label, classes }, context) => {
   const { BatchTimePicker } = Components;
-  const currentValue = { ...defaultValue, ...value };
+  const currentValue = { ...defaultNotificationTypeSettings, ...value };
+  const notificationType = getNotificationTypeByUserSetting(path);
   
   const modifyValue = (changes) => {
     context.updateCurrentValues({
@@ -28,20 +30,20 @@ const NotificationTypeSettings = ({ path, value, label, classes }, context) => {
     });
   }
   
-  return <div>
-    <div>
-      <span className={classes.label}>{label}: </span>
+  return <div className={classes.root}>
+    <Typography variant="body1" className={classes.label}>{label}</Typography>
+    <Typography variant="body2" component="div" className={classes.settings}>
       <Select
         value={currentValue.channel}
         onChange={(event) =>
           modifyValue({ channel: event.target.value })}
       >
-        <MenuItem value="none">Don't notify</MenuItem>
+        {!notificationType.mustBeEnabled && <MenuItem value="none">Don't notify</MenuItem>}
         <MenuItem value="onsite">Notify me on-site</MenuItem>
         <MenuItem value="email">Notify me by email</MenuItem>
         <MenuItem value="both">Notify both on-site and by email</MenuItem>
       </Select>
-      { currentValue.channel !== "none" && <span>
+      { currentValue.channel !== "none" && <React.Fragment>
         {" "}
         <Select
           value={currentValue.batchingFrequency}
@@ -52,17 +54,17 @@ const NotificationTypeSettings = ({ path, value, label, classes }, context) => {
           <MenuItem value="daily">daily</MenuItem>
           <MenuItem value="weekly">weekly</MenuItem>
         </Select>
-      </span>}
-      { (currentValue.channel !== "none" && (currentValue.batchingFrequency==="daily" || currentValue.batchingFrequency==="weekly")) && <span>
+      </React.Fragment>}
+      { (currentValue.channel !== "none" && (currentValue.batchingFrequency==="daily" || currentValue.batchingFrequency==="weekly")) && <React.Fragment>
         {" at "}
         <BatchTimePicker
           mode={currentValue.batchingFrequency}
           value={{timeOfDayGMT: currentValue.timeOfDayGMT, dayOfWeekGMT: currentValue.dayOfWeekGMT}}
           onChange={newBatchTime => modifyValue(newBatchTime)}
         />
-      </span>}
-    </div>
-  </div>;
+      </React.Fragment>}
+    </Typography>
+  </div>
 }
 
 

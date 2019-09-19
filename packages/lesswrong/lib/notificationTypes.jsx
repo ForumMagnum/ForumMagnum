@@ -11,6 +11,7 @@ import CommentsIcon from '@material-ui/icons/ModeComment';
 import MessagesIcon from '@material-ui/icons/Forum';
 
 const notificationTypes = {};
+const notificationTypesByUserSetting = {};
 
 export const getNotificationTypes = () => {
   return Object.keys(notificationTypes);
@@ -23,9 +24,15 @@ export const getNotificationTypeByName = (name) => {
     throw new Error(`Invalid notification type: ${name}`);
 }
 
+export const getNotificationTypeByUserSetting = (settingName) => {
+  return notificationTypesByUserSetting[settingName];
+}
+
 const registerNotificationType = (notificationTypeClass) => {
   const name = notificationTypeClass.name;
   notificationTypes[name] = notificationTypeClass;
+  if (notificationTypeClass.userSettingField)
+    notificationTypesByUserSetting[notificationTypeClass.userSettingField] = notificationTypeClass;
   return notificationTypeClass;
 }
 
@@ -55,6 +62,7 @@ const iconStyles = {
 
 export const NewPostNotification = registerNotificationType({
   name: "newPost",
+  userSettingField: null, //TODO
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId);
     return Posts.getAuthorName(document) + ' has created a new post: ' + document.title;
@@ -62,14 +70,12 @@ export const NewPostNotification = registerNotificationType({
   getIcon() {
     return <PostsIcon style={iconStyles}/>
   },
-  getUserSettings(user) {
-    // TODO
-  },
 });
 
 // Vulcan notification that we don't really use
 export const PostApprovedNotification = registerNotificationType({
   name: "postApproved",
+  userSettingField: null, //TODO
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId);
     return 'Your post "' + document.title + '" has been approved';
@@ -77,13 +83,11 @@ export const PostApprovedNotification = registerNotificationType({
   getIcon() {
     return <AllIcon style={iconStyles} />
   },
-  getUserSettings(user) {
-    // TODO
-  },
 });
 
 export const NewEventNotification = registerNotificationType({
   name: "newEvent",
+  userSettingField: null, //TODO
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId);
     let group = {}
@@ -95,13 +99,11 @@ export const NewEventNotification = registerNotificationType({
   getIcon() {
     return <AllIcon style={iconStyles} />
   },
-  getUserSettings(user) {
-    // TODO
-  },
 });
 
 export const NewGroupPostNotification = registerNotificationType({
   name: "newGroupPost",
+  userSettingField: "notificationPostsInGroups",
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId);
     let group = {}
@@ -113,14 +115,12 @@ export const NewGroupPostNotification = registerNotificationType({
   getIcon() {
     return <AllIcon style={iconStyles} />
   },
-  getUserSettings(user) {
-    // TODO
-  },
 });
 
 // New comment on a post you're subscribed to.
 export const NewCommentNotification = registerNotificationType({
   name: "newComment",
+  userSettingField: "notificationCommentsOnSubscribedPost",
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId);
     return Comments.getAuthorName(document) + ' left a new comment on "' + Posts.findOne(document.postId).title + '"';
@@ -128,14 +128,12 @@ export const NewCommentNotification = registerNotificationType({
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
   },
-  getUserSettings(user) {
-    return user.notificationCommentsOnSubscribedPost;
-  },
 });
 
 // Reply to a comment you're subscribed to.
 export const NewReplyNotification = registerNotificationType({
   name: "newReply",
+  userSettingField: "notificationRepliesToSubscribedComments",
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId);
     return Comments.getAuthorName(document) + ' replied to a comment on "' + Posts.findOne(document.postId).title + '"';
@@ -143,14 +141,12 @@ export const NewReplyNotification = registerNotificationType({
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
   },
-  getUserSettings(user) {
-    return user.notificationRepliesToSubscribedComments;
-  },
 });
 
 // Reply to a comment you are the author of.
 export const NewReplyToYouNotification = registerNotificationType({
   name: "newReplyToYou",
+  userSettingField: "notificationRepliesToMyComments",
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId);
     return Comments.getAuthorName(document) + ' replied to your comment on "' + Posts.findOne(document.postId).title + '"';
@@ -158,14 +154,12 @@ export const NewReplyToYouNotification = registerNotificationType({
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
   },
-  getUserSettings(user) {
-    return user.notificationRepliesToMyComments;
-  },
 });
 
 // Vulcan notification that we don't really use
 export const NewUserNotification = registerNotificationType({
   name: "newUser",
+  userSettingField: null,
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId);
     return document.displayName + ' just signed up!';
@@ -173,13 +167,12 @@ export const NewUserNotification = registerNotificationType({
   getIcon() {
     return <AllIcon style={iconStyles} />
   },
-  getUserSettings(user) {
-    // TODO
-  },
 });
 
 export const NewMessageNotification = registerNotificationType({
   name: "newMessage",
+  userSettingField: "notificationPrivateMessage",
+  mustBeEnabled: true,
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId);
     let conversation = Conversations.findOne(document.conversationId);
@@ -188,35 +181,29 @@ export const NewMessageNotification = registerNotificationType({
   getIcon() {
     return <MessagesIcon style={iconStyles}/>
   },
-  getUserSettings(user) {
-    // TODO
-  },
 });
 
 export const EmailVerificationRequiredNotification = registerNotificationType({
   name: "emailVerificationRequired",
+  userSettingField: null,
   getMessage({documentType, documentId}) {
     return "Verify your email address to activate email subscriptions.";
   },
   getIcon() {
     return <AllIcon style={iconStyles} />
   },
-  getUserSettings(user) {
-    // TODO
-  },
 });
 
 export const PostSharedWithUserNotification = registerNotificationType({
   name: "postSharedWithUser",
+  userSettingField: null, //TODO
+  mustBeEnabled: true,
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId);
     return `You have been shared on the ${document.draft ? "draft" : "post"} ${document.title}`;
   },
   getIcon() {
     return <AllIcon style={iconStyles} />
-  },
-  getUserSettings(user) {
-    // TODO
   },
 });
 

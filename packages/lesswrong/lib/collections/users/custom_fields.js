@@ -61,6 +61,13 @@ export const karmaChangeNotifierDefaultSettings = {
   showNegativeKarma: false,
 };
 
+export const defaultNotificationTypeSettings = {
+  channel: "onsite",
+  batchingFrequency: "realtime",
+  timeOfDayGMT: 12,
+  dayOfWeekGMT: "Monday",
+};
+
 const karmaChangeSettingsType = new SimpleSchema({
   updateFrequency: {
     type: String,
@@ -102,6 +109,15 @@ const notificationTypeSettings = new SimpleSchema({
     optional: true,
   },
 })
+
+const notificationTypeSettingsField = {
+  type: notificationTypeSettings,
+  group: formGroups.notifications,
+  control: "NotificationTypeSettings",
+  canRead: [Users.owns, 'admins'],
+  canUpdate: [Users.owns, 'admins'],
+  canCreate: [Users.owns, 'admins'],
+};
 
 const partiallyReadSequenceItem = new SimpleSchema({
   sequenceId: {
@@ -529,7 +545,7 @@ addFieldsDict(Users, {
 
   // Obsolete notifications settings
   auto_subscribe_to_my_posts: {
-    label: "Notifications for Comments on My Posts",
+    label: "Auto-subscribe to comments on my posts",
     group: formGroups.notifications,
     type: Boolean,
     optional: true,
@@ -540,7 +556,7 @@ addFieldsDict(Users, {
     ...schemaDefaultValue(true),
   },
   auto_subscribe_to_my_comments: {
-    label: "Notifications for Replies to My Comments",
+    label: "Auto-subscribe to replies to my comments",
     group: formGroups.notifications,
     type: Boolean,
     optional: true,
@@ -551,7 +567,7 @@ addFieldsDict(Users, {
     ...schemaDefaultValue(true),
   },
   autoSubscribeAsOrganizer: {
-    label: "Notifications for posts and meetups in groups I organize",
+    label: "Auto-subscribe to posts and meetups in groups I organize",
     group: formGroups.notifications,
     type: Boolean,
     optional: true,
@@ -563,31 +579,24 @@ addFieldsDict(Users, {
   },
   
   notificationCommentsOnSubscribedPost: {
-    type: notificationTypeSettings,
-    label: "Notifications for comments on subscribed posts",
-    group: formGroups.notifications,
-    control: "NotificationTypeSettings",
-    canRead: [Users.owns, 'admins'],
-    canUpdate: [Users.owns, 'admins'],
-    canCreate: [Users.owns, 'admins'],
+    label: "Comments on subscribed posts",
+    ...notificationTypeSettingsField,
   },
   notificationRepliesToMyComments: {
-    type: notificationTypeSettings,
-    label: "Notifications for replies to my comments",
-    group: formGroups.notifications,
-    control: "NotificationTypeSettings",
-    canRead: [Users.owns, 'admins'],
-    canUpdate: [Users.owns, 'admins'],
-    canCreate: [Users.owns, 'admins'],
+    label: "Replies to my comments",
+    ...notificationTypeSettingsField,
+  },
+  notificationRepliesToSubscribedComments: {
+    label: "Replies to subscribed comments",
+    ...notificationTypeSettingsField,
   },
   notificationPostsInGroups: {
-    type: notificationTypeSettings,
-    label: "Notifications for posts in groups",
-    group: formGroups.notifications,
-    control: "NotificationTypeSettings",
-    canRead: [Users.owns, 'admins'],
-    canUpdate: [Users.owns, 'admins'],
-    canCreate: [Users.owns, 'admins'],
+    label: "Posts in groups",
+    ...notificationTypeSettingsField,
+  },
+  notificationPrivateMessage: {
+    label: "Private messages",
+    ...notificationTypeSettingsField,
   },
 
   // Karma-change notifier settings

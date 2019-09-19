@@ -14,9 +14,13 @@ import moment from 'moment-timezone';
 import { convertTimeOfWeekTimezone } from '../../lib/modules/utils/timeUtil.js';
 
 const styles = theme => ({
+  root: {
+    paddingLeft: 8,
+    paddingRight: 8,
+  },
   radioGroup: {
     marginTop: 4,
-    marginLeft: 12,
+    paddingLeft: 24,
   },
   radioButton: {
     padding: 4,
@@ -25,8 +29,11 @@ const styles = theme => ({
     display: "inline",
   },
   checkbox: {
-    marginLeft: -10,
-  }
+    paddingRight: 4,
+  },
+  showNegative: {
+    paddingLeft: 2,
+  },
 });
 
 export const karmaNotificationTimingChoices = {
@@ -102,7 +109,40 @@ class KarmaChangeNotifierSettings extends PureComponent {
     
     const {timeOfDay, dayOfWeek} = this.getBatchingTimeLocalTZ();
     
-    return <div>
+    const batchTimingChoices = <span>
+      { (settings.updateFrequency==="daily" || settings.updateFrequency==="weekly") &&
+        <React.Fragment>
+          {" at "}<Select
+            value={timeOfDay}
+            onChange={(event) => this.setBatchingTimeOfDay(event.target.value, timezone)}
+          >
+            { _.range(24).map(hour =>
+                <MenuItem key={hour} value={hour}>{hour}:00</MenuItem>
+              )
+            }
+          </Select>
+          
+          {moment().tz(timezone).format("z")}
+          
+          { settings.updateFrequency==="weekly" && <React.Fragment>
+              {" on "}<Select value={dayOfWeek}
+                onChange={(event) => this.setBatchingDayOfWeek(event.target.value, timezone)}
+              >
+                <MenuItem value="Sunday">Sunday</MenuItem>
+                <MenuItem value="Monday">Monday</MenuItem>
+                <MenuItem value="Tuesday">Tuesday</MenuItem>
+                <MenuItem value="Wednesday">Wednesday</MenuItem>
+                <MenuItem value="Thursday">Thursday</MenuItem>
+                <MenuItem value="Friday">Friday</MenuItem>
+                <MenuItem value="Saturday">Saturday</MenuItem>
+              </Select>
+            </React.Fragment>
+          }
+        </React.Fragment>
+      }
+    </span>
+    
+    return <div className={classes.root}>
       <Typography variant="body1">
         Vote Notifications
       </Typography>
@@ -123,8 +163,9 @@ class KarmaChangeNotifierSettings extends PureComponent {
             value={key}
             control={<Radio className={classes.radioButton} />}
             label={
-              <Typography className={classes.inline} variant="body2" component="label">
+              <Typography className={classes.inline} variant="body2" component="span">
                 {timingChoice.label}
+                {(settings.updateFrequency === key) ? batchTimingChoices : null}
               </Typography>
             }
             classes={{
@@ -134,45 +175,13 @@ class KarmaChangeNotifierSettings extends PureComponent {
         )}
       </RadioGroup>
       
-      { (settings.updateFrequency==="daily" || settings.updateFrequency==="weekly") &&
-        <Typography variant="body2">
-          Batched updates occur at <Select
-            value={timeOfDay}
-            onChange={(event) => this.setBatchingTimeOfDay(event.target.value, timezone)}
-          >
-            { _.range(24).map(hour =>
-                <MenuItem key={hour} value={hour}>{hour}:00</MenuItem>
-              )
-            }
-            
-          </Select>
-          
-          {moment().tz(timezone).format("z")}
-          {" "}
-          
-          { settings.updateFrequency==="weekly" && <span>
-              on <Select value={dayOfWeek}
-                onChange={(event) => this.setBatchingDayOfWeek(event.target.value, timezone)}
-              >
-                <MenuItem value="Sunday">Sunday</MenuItem>
-                <MenuItem value="Monday">Monday</MenuItem>
-                <MenuItem value="Tuesday">Tuesday</MenuItem>
-                <MenuItem value="Wednesday">Wednesday</MenuItem>
-                <MenuItem value="Thursday">Thursday</MenuItem>
-                <MenuItem value="Friday">Friday</MenuItem>
-                <MenuItem value="Saturday">Saturday</MenuItem>
-              </Select>
-            </span>
-          }
-        </Typography>
-      }
       { (settings.updateFrequency==="realtime") && <span>
         Warning: Immediate karma updates may lead to over-updating on tiny amounts
         of feedback, and to checking the site frequently when you'd rather be
         doing something else.
       </span> }
       {
-        <div>
+        <div className={classes.showNegative}>
           <Checkbox
             classes={{root: classes.checkbox}}
             checked={settings.showNegativeKarma}
