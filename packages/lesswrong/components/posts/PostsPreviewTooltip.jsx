@@ -30,7 +30,7 @@ const styles = theme => ({
   hideOnMedium: {
     // TODO: figure out more elegant way of handling this breakpoint
     // 
-    // This collection of breakpoints attempts to keep the 
+    // This collection of breakpoints attempts to keep the preview fitting on the page even on 13" monitors and half-screen pages, until it starts looking just silly
     '@media only screen and (max-width: 1350px)': {
       width: 280,
     },
