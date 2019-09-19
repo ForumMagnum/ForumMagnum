@@ -507,7 +507,7 @@ registerFragment(`
 
     recommendationSettings
     
-    notificationCommentsOnMyPost
+    notificationCommentsOnSubscribedPost
     notificationRepliesToMyComments
     notificationPostsInGroups
 

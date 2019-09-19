@@ -35,6 +35,8 @@ importComponent("NotificationsItem", () => require('../components/notifications/
 importComponent("NotificationsMenuButton", () => require('../components/notifications/NotificationsMenuButton.jsx'));
 importComponent("SubscribeTo", () => require('../components/notifications/SubscribeTo.jsx'));
 importComponent("NotificationTypeSettings", () => require('../components/notifications/NotificationTypeSettings.jsx'));
+importComponent("NotificationEmailPreviewPage", () => require('../components/notifications/NotificationEmailPreviewPage.jsx'));
+importComponent("EmailPreview", () => require('../components/notifications/EmailPreview.jsx'));
 
 importComponent("Layout", () => require('../components/Layout.jsx'));
 
@@ -303,7 +305,7 @@ importComponent("SidebarActionMenu", () => require('../components/sunshineDashbo
 importComponent("SidebarAction", () => require('../components/sunshineDashboard/SidebarAction.jsx'));
 importComponent("SunshineListCount", () => require('../components/sunshineDashboard/SunshineListCount.jsx'));
 importComponent("LastCuratedDate", () => require('../components/sunshineDashboard/LastCuratedDate'));
-importComponent(["EmailHistory", "EmailHistoryPage", "EmailPreview"], () => require('../components/sunshineDashboard/EmailHistory.jsx'));
+importComponent(["EmailHistory", "EmailHistoryPage"], () => require('../components/sunshineDashboard/EmailHistory.jsx'));
 
 // SequenceEditor
 importComponent("EditSequenceTitle", () => require('../components/sequenceEditor/EditSequenceTitle.jsx'));

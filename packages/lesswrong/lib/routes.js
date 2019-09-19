@@ -314,6 +314,11 @@ addRoute([
     path: '/debug/emailHistory',
     componentName: 'EmailHistoryPage'
   },
+  {
+    name: 'notificationEmailPreview',
+    path: '/debug/notificationEmailPreview',
+    componentName: 'NotificationEmailPreviewPage'
+  },
 ]);
 
 switch (getSetting('forumType')) {

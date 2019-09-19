@@ -11,25 +11,28 @@ const styles = theme => ({
   },
 })
 
+const defaultValue = {
+  channel: "none",
+  batchingFrequency: "realtime",
+  timeOfDayGMT: 12,
+  dayOfWeekGMT: "Monday",
+};
+
 const NotificationTypeSettings = ({ path, value, label, classes }, context) => {
   const { BatchTimePicker } = Components;
+  const currentValue = { ...defaultValue, ...value };
   
   const modifyValue = (changes) => {
     context.updateCurrentValues({
-      [path]: { ...value, ...changes }
+      [path]: { ...currentValue, ...changes }
     });
   }
-  
-  const channel = value?.channel || "none";
-  const batchingFrequency = value?.batchingFrequency || "realtime";
-  const timeOfDayGMT = value?.timeOfDayGMT || 12;
-  const dayOfWeekGMT = value?.dayOfWeekGMT || "Monday";
   
   return <div>
     <div>
       <span className={classes.label}>{label}: </span>
       <Select
-        value={channel}
+        value={currentValue.channel}
         onChange={(event) =>
           modifyValue({ channel: event.target.value })}
       >
@@ -38,10 +41,10 @@ const NotificationTypeSettings = ({ path, value, label, classes }, context) => {
         <MenuItem value="email">Notify me by email</MenuItem>
         <MenuItem value="both">Notify both on-site and by email</MenuItem>
       </Select>
-      { channel !== "none" && <span>
+      { currentValue.channel !== "none" && <span>
         {" "}
         <Select
-          value={batchingFrequency}
+          value={currentValue.batchingFrequency}
           onChange={(event) =>
             modifyValue({ batchingFrequency: event.target.value })}
         >
@@ -50,11 +53,11 @@ const NotificationTypeSettings = ({ path, value, label, classes }, context) => {
           <MenuItem value="weekly">weekly</MenuItem>
         </Select>
       </span>}
-      { (channel !== "none" && (batchingFrequency==="daily" || batchingFrequency==="weekly")) && <span>
+      { (currentValue.channel !== "none" && (currentValue.batchingFrequency==="daily" || currentValue.batchingFrequency==="weekly")) && <span>
         {" at "}
         <BatchTimePicker
-          mode={batchingFrequency}
-          value={{timeOfDayGMT, dayOfWeekGMT}}
+          mode={currentValue.batchingFrequency}
+          value={{timeOfDayGMT: currentValue.timeOfDayGMT, dayOfWeekGMT: currentValue.dayOfWeekGMT}}
           onChange={newBatchTime => modifyValue(newBatchTime)}
         />
       </span>}
