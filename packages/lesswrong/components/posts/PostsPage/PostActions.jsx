@@ -121,7 +121,25 @@ class PostActions extends Component {
     const postAuthor = post.user;
     
     return (
-      <div className={classes.actions}>        
+      <div className={classes.actions}>
+        {currentUser && post.group && <MenuItem>
+          <SubscribeTo document={post.group}
+            subscribeMessage={"Subscribe to "+post.group.name}
+            unsubscribeMessage={"Unsubscribe from "+post.group.name}/>
+        </MenuItem>}
+        
+        {currentUser && postAuthor._id!==currentUser._id && <MenuItem>
+          <SubscribeTo document={postAuthor}
+            subscribeMessage={"Subscribe to "+Users.getDisplayName(postAuthor)}
+            unsubscribeMessage={"Unsubscribe from "+Users.getDisplayName(postAuthor)}/>
+        </MenuItem>}
+        
+        {currentUser && <MenuItem>
+          <SubscribeTo document={post}
+            subscribeMessage="Subscribe to Replies"
+            unsubscribeMessage="Unsubscribe from Replies"/>
+        </MenuItem>}
+
         { Posts.canEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
           <MenuItem>
             <ListItemIcon>
@@ -153,18 +171,6 @@ class PostActions extends Component {
           </MenuItem>
         </Link>}
         
-        {currentUser && postAuthor._id!==currentUser._id && <MenuItem>
-          <SubscribeTo document={postAuthor}
-            subscribeMessage="Subscribe to Author"
-            unsubscribeMessage="Unsubscribe from Author"/>
-        </MenuItem>}
-        
-        {currentUser && <MenuItem>
-          <SubscribeTo document={post}
-            subscribeMessage="Subscribe to Replies"
-            unsubscribeMessage="Unsubscribe from Replies"/>
-        </MenuItem>}
-
         <ReportPostMenuItem post={post}/>
 
         <SuggestCurated post={post}/>

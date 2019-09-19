@@ -41,12 +41,20 @@ const CommentsMenu = ({children, classes, className, comment, post, showEdit, ic
         open={Boolean(anchorEl)}
         anchorEl={anchorEl}
       >
-        <MenuItem>
-          <SubscribeTo document={comment.user}
-            subscribeMessage="Subscribe to Author"
-            unsubscribeMessage="Unsubscribe from Author"
-          />
-        </MenuItem>
+        {comment.user._id !== currentUser._id && [
+          <MenuItem>
+            <SubscribeTo document={comment}
+              subscribeMessage="Subscribe to Comment Replies"
+              unsubscribeMessage="Unsubscribe from Comment Replies"
+            />
+          </MenuItem>,
+          <MenuItem>
+            <SubscribeTo document={comment.user}
+              subscribeMessage={"Subscribe to "+Users.getDisplayName(comment.user)}
+              unsubscribeMessage={"Unsubscribe from "+Users.getDisplayName(comment.user)}
+            />
+          </MenuItem>
+        ]}
         <EditCommentMenuItem comment={comment} showEdit={showEdit}/>
         <ReportCommentMenuItem comment={comment}/>
         <CommentsPermalinkMenuItem comment={comment} post={post} />
