@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent, useSingle, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, useSingle } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments';
 import { Link } from 'react-router-dom';
@@ -76,15 +76,14 @@ registerComponent('PostLinkPreviewVariantCheck', PostLinkPreviewVariantCheck);
 const styles = theme => ({
   link: {
     position: "relative",
-    marginRight: 12,
-  },
-  indicator: {
-    position: "absolute",
-    width: 20,
-    fontSize: 8,
-    display: "inline-block",
-    color: theme.palette.primary.main,
-    cursor: "pointer",
+    marginRight: 6,
+    '&:after': {
+      content: '"°"',
+      marginLeft: 1,
+      marginRight: 1,
+      color: theme.palette.primary.main,
+      position: "absolute"
+    }
   }
 })
 
@@ -106,17 +105,11 @@ const PostLinkCommentPreview = ({href, commentId, post, innerHTML}) => {
 }
 registerComponent('PostLinkCommentPreview', PostLinkCommentPreview);
 
-const siteTwoLetter = getSetting('forumType') === 'EAForum' ? 'EA' : 'LW'
-
 const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hover}) => {
   const { PostsPreviewTooltip, LWPopper } = Components
-  const linkElement = <span className={classes.linkElement}>
-      <Link className={classes.link} to={href}>
-        <span dangerouslySetInnerHTML={{__html: innerHTML}}></span>{}<span className={classes.indicator}>{siteTwoLetter}</span>
-      </Link>
-    </span>
+
   if (!post) {
-    return linkElement;
+    return <Link to={href}  dangerouslySetInnerHTML={{__html: innerHTML}}/>;
   }
   return (
     <span>
@@ -133,7 +126,7 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hove
       >
         <PostsPreviewTooltip post={post} showAllinfo wide truncateLimit={900} hideOnMedium={false}/>
       </LWPopper>
-      {linkElement}
+      <Link className={classes.link} to={href}  dangerouslySetInnerHTML={{__html: innerHTML}}/>
     </span>
   );
 }
@@ -141,14 +134,10 @@ registerComponent('PostLinkPreviewWithPost', PostLinkPreviewWithPost, withHover,
 
 const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post, anchorEl, hover}) => {
   const { PostsPreviewTooltip, LWPopper } = Components
-  const linkElement = <span className={classes.linkElement}>
-      <Link className={classes.link} to={href}>
-        <span dangerouslySetInnerHTML={{__html: innerHTML}}></span>{" "}<span className={classes.indicator}>LW</span>
-      </Link>
-    </span>
 
   if (!comment) {
-    return linkElement;
+    return <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}}/>
+    ;
   }
   return (
     <span>
@@ -165,7 +154,7 @@ const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post,
       >
         <PostsPreviewTooltip post={post} comment={comment} showAllinfo wide truncateLimit={900} hideOnMedium={false}/>
       </LWPopper>
-      {linkElement}
+      <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}}/>
     </span>
   );
 }
