@@ -4,6 +4,7 @@ import { getSetting, Utils } from 'meteor/vulcan:core';
 import { Votes } from '../votes';
 import { Comments } from '../comments'
 import { Posts } from '../posts'
+import { postHasModerationGuidelines } from '../posts/helpers';
 
 // Overwrite user display name getter from Vulcan
 Users.getDisplayName = (user) => {
@@ -50,19 +51,13 @@ Users.canModeratePost = (user, post) => {
     (
       Users.canDo(user,"posts.moderate.own") &&
       Users.owns(user, post) &&
-      // Because of a bug in Vulcan that doesn't adequately deal with nested fields in document validation,
-      // we check for originalContents instead of html here, which causes some problems with empty strings, but 
-      // should overall be fine
-    ((post.moderationGuidelines?.originalContents) || post.moderationStyle)
+      postHasModerationGuidelines(post)
     )
     ||
     (
       Users.canDo(user, "posts.moderate.own.personal") &&
       Users.owns(user, post) &&
-      // Because of a bug in Vulcan that doesn't adequately deal with nested fields in document validation,
-      // we check for originalContents instead of html here, which causes some problems with empty strings, but 
-      // should overall be fine
-      ((post.moderationGuidelines?.originalContents) || post.moderationStyle) &&
+      postHasModerationGuidelines(post) &&
       !post.frontpageDate
     )
   )

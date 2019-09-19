@@ -191,6 +191,17 @@ Posts.canDelete = (currentUser, post) => {
   return Users.owns(currentUser, post) && post.draft
 }
 
+
+export const postHasModerationGuidelines = (post) => {
+  if (post.moderationStyle)
+    return true;
+  
+  // Because of a bug in Vulcan that doesn't adequately deal with nested fields in document validation,
+  // we check for originalContents instead of html here, which causes some problems with empty strings, but 
+  // should overall be fine
+  return !!post.moderationGuidelines_latest?.originalContents;
+}
+
 Posts.getKarma = (post) => {
   const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
   return baseScore || 0

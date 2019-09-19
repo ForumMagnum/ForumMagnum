@@ -1,4 +1,4 @@
-import { Utils, getSetting } from 'meteor/vulcan:core';
+import { getSetting } from 'meteor/vulcan:core';
 import cheerio from 'cheerio';
 import { Comments } from '../comments/collection.js'
 import { Posts } from './collection';
@@ -41,7 +41,7 @@ const headingSelector = _.keys(headingTags).join(",");
 //       {title: "Conclusion", anchor: "conclusion", level: 1},
 //     ]
 //   }
-export function extractTableOfContents(postHTML)
+function extractTableOfContents(postHTML)
 {
   if (!postHTML) return null;
   const postBody = cheerio.load(postHTML);
@@ -206,8 +206,8 @@ async function getTocComments (document) {
   return [{anchor:"comments", level:0, title: Posts.getCommentCountStr(document, commentCount)}]
 }
 
-const getTableOfContentsData = async (document, args, options) => {
-  const { html } = document.contents || {}
+export const getTableOfContentsData = async (document, revision) => {
+  const { html } = revision.contents || {}
   const tableOfContents = extractTableOfContents(html)
   let tocSections = tableOfContents?.sections || []
   
@@ -224,6 +224,3 @@ const getTableOfContentsData = async (document, args, options) => {
     }
   }
 }
-
-Utils.getTableOfContentsData = getTableOfContentsData;
-Utils.extractTableOfContents = extractTableOfContents;
