@@ -5,7 +5,7 @@ import Users from "meteor/vulcan:users";
 import { performVoteServer } from '../../../server/voteServer.js';
 import Messages from '../messages/collection.js';
 import Conversations from '../conversations/collection.js';
-
+import recordPostView from '../../../components/common/withRecordPostView.jsx';
 import { addEditableCallbacks } from '../../../server/editor/make_editable_callbacks.js'
 import { makeEditableOptions } from './custom_fields.js'
 
@@ -411,3 +411,14 @@ async function updateTopLevelCommentLastCommentedAt (comment) {
   return comment;
 }
 addCallback("comment.create.after", updateTopLevelCommentLastCommentedAt)
+
+async function createPostViewOnComment (comment, currentUser) {
+  console.log("comment", comment)
+  console.log("currentUser", currentUser)
+  // If a user makes a comment, they shouldn't see that comment as "unread" when they next view it's post-item
+  if (comment.topLevelCommentId) {
+    recordPostView({post, postsRead, setPostRead, increasePostViewCount, currentUser, recordEvent})
+  }
+  return comment;
+}
+addCallback("comment.create.after", createPostViewOnComment)
