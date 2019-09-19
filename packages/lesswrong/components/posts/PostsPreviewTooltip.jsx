@@ -30,11 +30,19 @@ const styles = theme => ({
   hideOnMedium: {
     // TODO: figure out more elegant way of handling this breakpoint
     // 
-    // the purpose of this breakpoint is to ensure that the PostsItem hover preview
-    // disappears right as it starts to overlap the post item
+    // This collection of breakpoints attempts to keep the 
     '@media only screen and (max-width: 1350px)': {
-      display: "none"
+      width: 280,
     },
+    '@media only screen and (max-width: 1330px)': {
+      width: 260,
+    },
+    '@media only screen and (max-width: 1300px)': {
+      width: 240,
+    },
+    '@media only screen and (max-width: 1270px)': {
+      display: "none"
+    }
   },
   wide: {
     [theme.breakpoints.down('xs')]: {

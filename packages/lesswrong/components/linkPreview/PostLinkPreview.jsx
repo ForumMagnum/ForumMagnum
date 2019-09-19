@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent, useSingle, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, useSingle } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments';
 import { Link } from 'react-router-dom';
