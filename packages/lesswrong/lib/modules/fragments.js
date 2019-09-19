@@ -509,7 +509,10 @@ registerFragment(`
     
     notificationCommentsOnSubscribedPost
     notificationRepliesToMyComments
+    notificationRepliesToSubscribedComments
     notificationPostsInGroups
+    notificationPrivateMessage
+    notificationSharedWithMe
 
     hideFrontpageMap
   }
