@@ -467,7 +467,6 @@ async function PostsEditNotifyUsersSharedOnPost (newPost, oldPost) {
     const sharedUsers = _.difference(newPost.shareWithUsers || [], oldPost.shareWithUsers || [])
     createNotifications(sharedUsers, "postSharedWithUser", "post", newPost._id)
   }
-  createNotifications(newPost.shareWithUsers, "postSharedWithUser", "post", newPost._id) //DEBUG
 }
 addCallback("posts.edit.async", PostsEditNotifyUsersSharedOnPost);
 
