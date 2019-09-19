@@ -75,11 +75,14 @@ registerComponent('PostLinkPreviewVariantCheck', PostLinkPreviewVariantCheck);
 
 const styles = theme => ({
   link: {
+    position: "relative",
+    marginRight: 6,
     '&:after': {
       content: '"°"',
-      marginLeft: 2,
+      marginLeft: 1,
       marginRight: 1,
-      color: theme.palette.primary.main
+      color: theme.palette.primary.main,
+      position: "absolute"
     }
   }
 })
@@ -104,13 +107,9 @@ registerComponent('PostLinkCommentPreview', PostLinkCommentPreview);
 
 const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hover}) => {
   const { PostsPreviewTooltip, LWPopper } = Components
-  const linkElement = <span className={classes.linkElement}>
-      <Link className={classes.link} to={href}>
-        <span dangerouslySetInnerHTML={{__html: innerHTML}}/>
-      </Link>
-    </span>
+
   if (!post) {
-    return linkElement;
+    return <Link to={href}  dangerouslySetInnerHTML={{__html: innerHTML}}/>;
   }
   return (
     <span>
@@ -127,7 +126,7 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hove
       >
         <PostsPreviewTooltip post={post} showAllinfo wide truncateLimit={900} hideOnMedium={false}/>
       </LWPopper>
-      {linkElement}
+      <Link className={classes.link} to={href}  dangerouslySetInnerHTML={{__html: innerHTML}}/>
     </span>
   );
 }
@@ -135,14 +134,10 @@ registerComponent('PostLinkPreviewWithPost', PostLinkPreviewWithPost, withHover,
 
 const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post, anchorEl, hover}) => {
   const { PostsPreviewTooltip, LWPopper } = Components
-  const linkElement = <span className={classes.linkElement}>
-      <Link className={classes.link} to={href}>
-        <span dangerouslySetInnerHTML={{__html: innerHTML}}/>
-      </Link>
-    </span>
 
   if (!comment) {
-    return linkElement;
+    return <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}}/>
+    ;
   }
   return (
     <span>
@@ -159,7 +154,7 @@ const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post,
       >
         <PostsPreviewTooltip post={post} comment={comment} showAllinfo wide truncateLimit={900} hideOnMedium={false}/>
       </LWPopper>
-      {linkElement}
+      <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}}/>
     </span>
   );
 }

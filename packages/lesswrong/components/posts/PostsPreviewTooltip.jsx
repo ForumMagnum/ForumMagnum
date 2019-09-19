@@ -49,6 +49,9 @@ const styles = theme => ({
       width: 550,
     },
   },
+  title: {
+    marginBottom: -6
+  },
   tooltipInfo: {
     fontStyle: "italic",
     ...commentBodyStyles(theme),
@@ -56,7 +59,7 @@ const styles = theme => ({
   },
   highlight: {
     ...postHighlightStyles(theme),
-    marginTop: theme.spacing.unit*2.5,
+    marginTop: theme.spacing.unit*3,
     marginBottom: theme.spacing.unit*2.5,
     wordBreak: 'break-word',
     fontSize: "1.1rem",
@@ -134,7 +137,9 @@ const PostsPreviewTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMed
   const renderCommentCount = showAllinfo && (Posts.getCommentCount(post) > 0)
   const renderWordCount = !comment && (wordCount > 0)
   return <Card className={classNames(classes.root, {[classes.wide]: wide, [classes.hideOnMedium]: hideOnMedium})}>
-      <PostsTitle post={post} tooltip={false} wrap/>
+      <div className={classes.title}>
+        <PostsTitle post={post} tooltip={false} wrap/>
+      </div>
       <div className={classes.tooltipInfo}>
         { getPostCategory(post)}
         { showAllinfo && post.user && <span> by <PostsUserAndCoauthors post={post} simple/></span>}
