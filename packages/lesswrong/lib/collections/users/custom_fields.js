@@ -110,14 +110,16 @@ const notificationTypeSettings = new SimpleSchema({
   },
 })
 
-const notificationTypeSettingsField = {
+const notificationTypeSettingsField = (overrideSettings) => ({
   type: notificationTypeSettings,
+  optional: true,
   group: formGroups.notifications,
   control: "NotificationTypeSettings",
   canRead: [Users.owns, 'admins'],
   canUpdate: [Users.owns, 'admins'],
   canCreate: [Users.owns, 'admins'],
-};
+  ...schemaDefaultValue({ ...defaultNotificationTypeSettings, ...overrideSettings })
+});
 
 const partiallyReadSequenceItem = new SimpleSchema({
   sequenceId: {
@@ -580,23 +582,27 @@ addFieldsDict(Users, {
   
   notificationCommentsOnSubscribedPost: {
     label: "Comments on subscribed posts",
-    ...notificationTypeSettingsField,
+    ...notificationTypeSettingsField(),
   },
   notificationRepliesToMyComments: {
     label: "Replies to my comments",
-    ...notificationTypeSettingsField,
+    ...notificationTypeSettingsField(),
   },
   notificationRepliesToSubscribedComments: {
     label: "Replies to subscribed comments",
-    ...notificationTypeSettingsField,
+    ...notificationTypeSettingsField(),
   },
   notificationPostsInGroups: {
-    label: "Posts in groups",
-    ...notificationTypeSettingsField,
+    label: "Posts/events in subscribed groups",
+    ...notificationTypeSettingsField({ channel: "both" }),
   },
   notificationPrivateMessage: {
     label: "Private messages",
-    ...notificationTypeSettingsField,
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
+  notificationSharedWithMe: {
+    label: "Draft shared with me",
+    ...notificationTypeSettingsField({ channel: "both" }),
   },
 
   // Karma-change notifier settings

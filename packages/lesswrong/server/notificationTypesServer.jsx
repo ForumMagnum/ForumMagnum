@@ -170,8 +170,10 @@ export const PostSharedWithUserNotification = serverRegisterNotificationType({
     return `You have been shared on the ${post.draft ? "draft" : "post"} ${post.title}`;
   },
   emailBody: ({ user, notifications }) => {
-    let post = Posts.findOne(notifications[0].documentId);
-    // TODO: Proper template, link etc
-    return `You have been shared on the ${post.draft ? "draft" : "post"} ${post.title}`;
+    const post = Posts.findOne(notifications[0].documentId);
+    const link = Posts.getLink(post, true);
+    return <p>
+      You have been shared on the {post.draft ? "draft" : "post"} <a href={link}>{post.title}</a>.
+    </p>
   },
 });

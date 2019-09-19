@@ -196,7 +196,7 @@ export const EmailVerificationRequiredNotification = registerNotificationType({
 
 export const PostSharedWithUserNotification = registerNotificationType({
   name: "postSharedWithUser",
-  userSettingField: null, //TODO
+  userSettingField: "notificationSharedWithMe",
   mustBeEnabled: true,
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId);

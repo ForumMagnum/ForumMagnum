@@ -102,7 +102,7 @@ const getNotificationTiming = (typeSettings) => {
 const createNotification = async (userId, notificationType, documentType, documentId) => {
   let user = Users.findOne({ _id:userId });
   const userSettingField = getNotificationTypeByName(notificationType).userSettingField;
-  const notificationTypeSettings = userSettingField ? user[userSettingField] : defaultNotificationTypeSettings;
+  const notificationTypeSettings = (userSettingField && user[userSettingField]) ? user[userSettingField] : defaultNotificationTypeSettings;
 
   let notificationData = {
     userId: userId,
@@ -467,6 +467,7 @@ async function PostsEditNotifyUsersSharedOnPost (newPost, oldPost) {
     const sharedUsers = _.difference(newPost.shareWithUsers || [], oldPost.shareWithUsers || [])
     createNotifications(sharedUsers, "postSharedWithUser", "post", newPost._id)
   }
+  createNotifications(newPost.shareWithUsers, "postSharedWithUser", "post", newPost._id) //DEBUG
 }
 addCallback("posts.edit.async", PostsEditNotifyUsersSharedOnPost);
 
