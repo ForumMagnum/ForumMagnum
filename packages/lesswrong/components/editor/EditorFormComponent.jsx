@@ -455,7 +455,6 @@ class EditorFormComponent extends Component {
     const { Loading } = Components
     const CKEditor = this.ckEditor
     const value = ckEditorValue || ckEditorReference?.getData()
-    console.log(value)
     if (!this.state.ckEditorLoaded || !CKEditor) {
       return <Loading />
     } else {
