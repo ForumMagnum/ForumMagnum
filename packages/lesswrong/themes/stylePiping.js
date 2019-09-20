@@ -36,6 +36,9 @@ const spoilerStyles = (theme) => ({
     overflow: 'auto',
     '&:not(:hover)': {
       ...hideSpoilers,
+    },
+    '&:hover': {
+      background: theme.palette.grey[100]
     }
   },
   '& p.spoiler-v2': {
@@ -51,15 +54,6 @@ const spoilerStyles = (theme) => ({
 })
 
 export const postBodyStyles = (theme) => {
-  const postLinkStyles = linkStyle({
-    theme: theme,
-    underlinePosition: ((theme.typography.postStyle?.linkUnderlinePosition) || "97%"),
-    background: (
-      (theme.typography.body1?.backgroundColor) ||
-      (theme.typography.body1?.background) ||
-      "#fff"
-    )
-  })
   return {
     ...theme.typography.body1,
     ...theme.typography.postStyle,
@@ -130,18 +124,12 @@ export const postBodyStyles = (theme) => {
       display: 'none'
     },
     '& a, & a:hover, & a:active': {
-      ...postLinkStyles
+      color: theme.palette.primary.bright || theme.palette.primary.main
     },
   }
 }
 
 export const commentBodyStyles = theme => {
-  const commentLinkStyles = {
-    color: theme.palette.primary.main,
-    backgroundImage: "none",
-    textShadow: "none",
-    textDecoration: "none",
-  }
   const commentBodyStyles = {
     marginTop: ".5em",
     marginBottom: ".25em",
@@ -177,12 +165,6 @@ export const commentBodyStyles = theme => {
       content: '"spoiler (hover/select to reveal)"',
       color: 'white',
     },
-    '& a, & a:hover, & a:active': {
-      ...commentLinkStyles
-    },
-    '& pre code a, & pre code a:hover, & pre code a:active': {
-      ...commentLinkStyles
-    }
   }
   return deepmerge(postBodyStyles(theme), commentBodyStyles, {isMergeableObject:isPlainObject})
 }

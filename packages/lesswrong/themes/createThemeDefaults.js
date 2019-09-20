@@ -141,13 +141,6 @@ const createLWTheme = (theme) => {
         padding: '1rem',
         whiteSpace: 'pre-wrap',
         margin: "1em 0",
-        '& a, & a:hover, & a:active': {
-          ...linkStyle({
-            theme,
-            underlinePosition: (typography.codeblock && typography.codeblock.linkUnderlinePosition) || "97%",
-            background: (typography.codeblock && typography.codeblock.backgroundColor) || grey[100]
-          }),
-        },
       },
       code: {
         fontFamily: monoStack,
