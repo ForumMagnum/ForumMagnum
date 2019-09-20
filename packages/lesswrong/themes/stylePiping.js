@@ -36,11 +36,11 @@ const spoilerStyles = theme => ({
   },
   '& p.spoiler-v2': {
     margin: 0,
-    padding: '0.5em 0em'
+    padding: '0.5em 8px'
   },
   '& .spoilers:hover': {
     color: 'unset',
-    backgroundColor: 'unset',
+    backgroundColor: "rgba(0,0,0,.2)",
     textShadow: 'unset',
     transition: `
       color 0.1s ease-out 0.1s,
