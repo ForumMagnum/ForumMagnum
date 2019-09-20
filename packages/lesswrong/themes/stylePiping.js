@@ -230,16 +230,36 @@ export const postHighlightStyles = theme => {
   return deepmerge(postBodyStyles(theme), postHighlightStyles, {isMergeableObject:isPlainObject})
 }
 
+export const pValue = {
+  marginTop: "1em",
+  marginBottom: "1em",
+  '&:first-of-type': {
+    marginTop: 0,
+  },
+  '&:last-of-type': {
+    marginBottom: 0,
+  }
+}
+
 export const ckEditorStyles = theme => {
   return {
     '& .ck': {
+      '& code .public-DraftStyleDefault-block': {
+        marginTop: 0,
+        marginBottom: 0,  
+      },
+      '& blockquote .public-DraftStyleDefault-block': {
+        marginTop: 0,
+        marginBottom: 0,
+      },
       '--ck-spacing-standard': `${theme.spacing.unit}px`,
       '&.ck-content': {
         marginLeft: -theme.spacing.unit,
         '--ck-focus-outer-shadow-geometry': "none",
         '--ck-focus-ring': "solid 1px rgba(0,0,0,0)",
         '--ck-focus-outer-shadow': "none",
-        '--ck-inner-shadow': "none"
+        '--ck-inner-shadow': "none",
+        '& p': pValue
       },
       '&.ck-sidebar, &.ck-presence-list': { //\u25B6
         '& li': {
@@ -253,8 +273,14 @@ export const ckEditorStyles = theme => {
         '& .ck-comment:after': {
           display:"none"
         },
-        '& .ck-annotation__info-name, & .ck-annotation__info-time, & .ck-comment__input, & .ck-thread__comment-count, & .ck-annotation__main p, & .ck-annotation__info-name, & .ck-annotation__info-time, & .ck-presence-list__counter': {
+        '& .ck-annotation__info-name, & .ck-annotation__info-time, & .ck-comment__input, & .ck-thread__comment-count, & .ck-annotation__main p, & .ck-annotation__info-name, & .ck-annotation__info-time, & .ck-presence-list__counter, &.ck-presence-list': {
           ...commentBodyStyles(theme),
+        },
+        '&.ck-presence-list': {
+          '--ck-user-avatar-size': '20px',
+          '& .ck-user': {
+            marginTop: 11
+          }
         },
         '& .ck-thread__comment-count': {
           paddingLeft: theme.spacing.unit*2,

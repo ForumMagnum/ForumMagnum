@@ -59,9 +59,15 @@ const styles = theme => ({
   },
   postEditorHeight: {
     minHeight: postEditorHeight,
+    '& .ck.ck-content': {
+      minHeight: postEditorHeight,
+    }
   },
   commentEditorHeight: {
     minHeight: commentEditorHeight,
+    '& .ck.ck-content': {
+      minHeight: commentEditorHeight,
+    }
   },
   errorTextColor: {
     color: theme.palette.error.main
@@ -102,7 +108,7 @@ class EditorFormComponent extends Component {
 
   async componentDidMount() {
     const { currentUser, form } = this.props
-    if (currentUser?.isAdmin) {
+    if (currentUser?.beta) {
       let EditorModule = await (form?.commentEditor ? import('../async/CKCommentEditor') : import('../async/CKPostEditor'))
       const Editor = EditorModule.default
       this.ckEditor = Editor
@@ -375,7 +381,7 @@ class EditorFormComponent extends Component {
   }
 
   getUserDefaultEditor = (user) => {
-    if (user?.defaultToCKEditor) return "ckEditorMarkup"
+    if (user?.beta) return "ckEditorMarkup"
     if (Users.useMarkdownPostEditor(user)) return "markdown"
     return "draftJS"
   }
@@ -400,13 +406,13 @@ class EditorFormComponent extends Component {
 
   renderEditorTypeSelect = () => {
     const { currentUser, classes } = this.props
-    if (!currentUser || !currentUser.isAdmin) return null
+    if (!currentUser || (!currentUser.isAdmin && !currentUser.beta)) return null
     return <Select
       value={this.getCurrentEditorType()}
       onChange={(e) => this.handleEditorOverride(e.target.value)}
       className={classes.updateTypeSelect}
       >
-      <MenuItem value={'html'}>HTML</MenuItem>
+      {currentUser.isAdmin  && <MenuItem value={'html'}>HTML</MenuItem>}
       <MenuItem value={'markdown'}>Markdown</MenuItem>
       <MenuItem value={'draftJS'}>Draft-JS</MenuItem>
       <MenuItem value={'ckEditorMarkup'}>CK Editor</MenuItem>
@@ -444,20 +450,26 @@ class EditorFormComponent extends Component {
   }
 
   renderCkEditor = () => {
-    const { ckEditorValue } = this.state
+    const { ckEditorValue, ckEditorReference } = this.state
     const { document, currentUser, formType } = this.props
     const { Loading } = Components
     const CKEditor = this.ckEditor
+    const value = ckEditorValue || ckEditorReference?.getData()
+    console.log(value)
     if (!this.state.ckEditorLoaded || !CKEditor) {
       return <Loading />
     } else {
-      return <CKEditor 
-            data={ckEditorValue}
+      return <div className={this.getHeightClass()}>
+          { this.renderPlaceholder(!value)}
+          <CKEditor 
+            data={value}
             documentId={document._id}
             formType={formType}
             userId={currentUser._id}
+            onChange={(event, editor) => this.setState({ckEditorValue: editor.getData()})}//this.setState({ckEditorValue: a}
             onInit={editor => this.setState({ckEditorReference: editor})}
           />
+        </div>
     }
   }
 

@@ -43,6 +43,11 @@ import MathpreviewPlugin from 'ckeditor5-math-preview/src/mathpreview';
 class CommentEditor extends BalloonBlockEditorBase {}
 class PostEditor extends BalloonBlockEditorBase {}
 
+// NOTE: If you make changes to this file, you must:
+// 1. navigate in your terminal to the corresponding folder ('cd ./public/lesswrong-editor')
+// 2. 'yarn run build'
+// 3. other people might need to run 'yarn install' to properly integrate the build file into the rest of the build
+
 PostEditor.builtinPlugins = [
 	Autosave,
 	Alignment,
@@ -61,7 +66,7 @@ PostEditor.builtinPlugins = [
 	ImageCaption,
 	ImageStyle,
 	ImageToolbar,
-	ImageUpload,
+  ImageUpload,
 	Italic,
 	Link,
 	List,
@@ -113,12 +118,14 @@ PostEditor.defaultConfig = {
 	],
 	image: {
 		toolbar: [
-			'imageStyle:full',
-			'imageStyle:side',
+      'imageStyle:alignLeft',
+      'imageStyle:alignCenter',
+      'imageStyle:alignRight',
+      'imageStyle:full',
 			'|',
 			'imageTextAlternative',
 			'|',
-			'comment'
+			'comment',
 		]
 	},
 	table: {
@@ -146,7 +153,7 @@ CommentEditor.builtinPlugins = [
 	Heading,
 	Image,
 	ImageCaption,
-	ImageStyle,
+  ImageStyle,
 	ImageToolbar,
 	ImageUpload,
 	Italic,
@@ -182,9 +189,6 @@ CommentEditor.defaultConfig = {
 	],
 	image: {
 		toolbar: [
-			'imageStyle:full',
-			'imageStyle:side',
-			'|',
 			'imageTextAlternative'
 		]
 	},
