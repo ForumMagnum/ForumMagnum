@@ -124,7 +124,7 @@ export const postBodyStyles = (theme) => {
       display: 'none'
     },
     '& a, & a:hover, & a:active': {
-      color: theme.palette.primary.bright || theme.palette.primary.main
+      color: theme.palette.primary.main
     },
   }
 }
