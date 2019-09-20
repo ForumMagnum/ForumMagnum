@@ -1,4 +1,3 @@
-import { linkStyle, removeLinkStyle } from './createThemeDefaults'
 import deepmerge from 'deepmerge';
 import isPlainObject from 'is-plain-object';
 
@@ -6,7 +5,7 @@ const hideSpoilers = {
   backgroundColor: 'black',
   color: 'black',
   '& a, & a:hover, & a:focus': {
-    ...removeLinkStyle
+    color: 'black'
   },
   '& code': {
     backgroundColor: 'black',
