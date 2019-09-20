@@ -37,7 +37,7 @@ const spoilerStyles = (theme) => ({
       ...hideSpoilers,
     },
     '&:hover': {
-      background: theme.palette.grey[100]
+      background: 'rgba(0,0,0,.12)' // This leaves a light grey background over the revealed-spoiler to make it more obvious where it started.
     }
   },
   '& p.spoiler-v2': {
