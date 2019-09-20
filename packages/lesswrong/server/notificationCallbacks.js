@@ -130,6 +130,10 @@ const notificationMessage = (notificationType, documentType, documentId) => {
       return "Verify your email address to activate email subscriptions.";
     case "postSharedWithUser":
       return `You have been shared on the ${document.draft ? "draft" : "post"} ${document.title}`
+    case "newEventInRadius":
+      return `A new event has been created within your notification radius: ${document.title}`
+    case "editedEventInRadius":
+      return `The event ${document.title} changed locations`
     default:
       //eslint-disable-next-line no-console
       console.error("Invalid notification type");
@@ -396,3 +400,45 @@ async function PostsNewNotifyUsersSharedOnPost (post) {
   }
 }
 addCallback("posts.new.async", PostsNewNotifyUsersSharedOnPost);
+
+async function getUsersWhereLocationIsInNotificationRadius(location) {
+  return await Users.rawCollection().aggregate([
+    {
+      "$geoNear": {
+        "near": location, 
+        "spherical": true,
+        "distanceField": "distance",
+        "distanceMultiplier": 0.001,
+        "maxDistance": 300000, // 300km is maximum distance we allow to set in the UI
+        "key": "nearbyEventsNotificationsMongoLocation"
+      }
+    },
+    {
+      "$match": {
+        "$expr": {
+            "$gt": ["$nearbyEventsNotificationsRadius", "$distance"]
+        }
+      }
+    }
+  ]).toArray()
+}
+
+async function PostsNewMeetupNotifications ({document: newPost}) {
+  if (newPost.isEvent && newPost.mongoLocation && !newPost.draft) {
+    const usersToNotify = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
+    const userIds = usersToNotify.map(user => user._id)
+    createNotifications(userIds, "newEventInRadius", "post", newPost._id)
+  }
+}
+
+addCallback("post.create.async", PostsNewMeetupNotifications)
+
+async function PostsEditMeetupNotifications ({document: newPost, oldDocument: oldPost}) {
+  if (((!newPost.draft && oldPost.draft) || (newPost.mongoLocation && !newPost.mongoLocation)) && newPost.mongoLocation && newPost.isEvent) {
+    const usersToNotify = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
+    const userIds = usersToNotify.map(user => user._id)
+    createNotifications(userIds, "newEventInRadius", "post", newPost._id)
+  }
+}
+
+addCallback("post.update.async", PostsEditMeetupNotifications)
