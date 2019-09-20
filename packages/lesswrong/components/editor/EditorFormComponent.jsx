@@ -14,6 +14,7 @@ import EditorForm from '../async/EditorForm'
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import withErrorBoundary from '../common/withErrorBoundary';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const postEditorHeight = 250;
 const commentEditorHeight = 100;
@@ -405,18 +406,22 @@ class EditorFormComponent extends Component {
   }
 
   renderEditorTypeSelect = () => {
-    const { currentUser, classes } = this.props
+    const { currentUser } = this.props
     if (!currentUser || (!currentUser.isAdmin && !currentUser.beta)) return null
-    return <Select
-      value={this.getCurrentEditorType()}
-      onChange={(e) => this.handleEditorOverride(e.target.value)}
-      className={classes.updateTypeSelect}
-      >
-      {currentUser.isAdmin  && <MenuItem value={'html'}>HTML</MenuItem>}
-      <MenuItem value={'markdown'}>Markdown</MenuItem>
-      <MenuItem value={'draftJS'}>Draft-JS</MenuItem>
-      <MenuItem value={'ckEditorMarkup'}>CK Editor [Beta]</MenuItem>
-    </Select>
+    return (
+      <Tooltip title="Warning! Changing format will erase your content" placement="top">
+        <Select
+            value={this.getCurrentEditorType()}
+            onChange={(e) => this.handleEditorOverride(e.target.value)}
+            disableUnderline
+            >
+            {currentUser.isAdmin  && <MenuItem value={'html'}>HTML [Admin Only]</MenuItem>}
+            <MenuItem value={'markdown'}>Markdown</MenuItem>
+            <MenuItem value={'draftJS'}>Draft-JS</MenuItem>
+            <MenuItem value={'ckEditorMarkup'}>CK Editor [Beta]</MenuItem>
+          </Select>
+      </Tooltip>
+    )
   }
 
   getBodyStyles = () => {
