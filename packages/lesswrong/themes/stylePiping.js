@@ -2,70 +2,51 @@ import { linkStyle, removeLinkStyle } from './createThemeDefaults'
 import deepmerge from 'deepmerge';
 import isPlainObject from 'is-plain-object';
 
-const spoilerStyles = (theme, originalLinkStyle) => ({
+const hideSpoilers = {
+  backgroundColor: 'black',
+  color: 'black',
+  '& a, & a:hover, & a:focus': {
+    ...removeLinkStyle
+  },
+  '& code': {
+    backgroundColor: 'black',
+  }
+}
+
+const spoilerStyles = (theme) => ({
   '& p.spoiler': {
     margin: 0,
   },
   '& .spoiler': {
-    backgroundColor: 'black',
     padding: 8,
-    color: 'black',
     pointerEvents: 'auto',
     minHeight: theme.typography.commentStyle.fontSize,
     '& .public-DraftStyleDefault-block': {
       margin: 0,
+    },
+    '&:not(:hover)': { // using ':not(:hover)' means we don't need to manually reset elements with special colors or backgrounds, instead they just automatically stay the same if we're not hovering
+      ...hideSpoilers,
     }
-  },
-  '&:hover .spoiler': {
-    color: 'white',
   },
   // Note: ".spoiler" is the old class Oli originally used. ".spoilers" is a new class 
   // that is applied in make_editable_callbacks.js to groups of adjaecent spoiler paragraphs.
   // (see the make_editable_callbacks.js file for details)
   '& div.spoilers': {
-    color: 'black',
-    backgroundColor: 'currentColor',
-    transition: 'none',
-    textShadow: 'none',
     margin: '1em 0',
     overflow: 'auto',
-    '& a, & a:hover, & a:focus': {
-      ...removeLinkStyle
+    '&:not(:hover)': {
+      ...hideSpoilers,
     }
-  },
-  '& .spoilers *': {
-    color: 'inherit',
-    border: 'none',
   },
   '& p.spoiler-v2': {
     margin: 0,
-    padding: '0.5em 0em'
-  },
-  '& .spoilers:hover': {
-    color: 'unset',
-    backgroundColor: 'unset',
-    textShadow: 'unset',
-    transition: `
-      color 0.1s ease-out 0.1s,
-      background-color 0.1s ease-out 0.1s,
-      text-shadow 0.1s ease-out 0.1s;
-    `,
-    '& a, & a:hover, & a:focus': {
-      ...originalLinkStyle
-    }
-  },
-  '& .spoilers::selection, & .spoilers ::selection': {
-    color: `#fff`,
-    backgroundColor: `#000`
+    padding: '0.5em 8px'
   },
   '& .spoilers:not(:hover)::selection, & .spoilers:not(:hover) ::selection': {
     backgroundColor: 'transparent'
   },
   '& .spoilers > p:hover ~ p': {
-    backgroundColor: 'black',
-    '& a, & a:hover, & a:focus': {
-      ...removeLinkStyle
-    }
+    ...hideSpoilers
   }
 })
 
@@ -83,7 +64,7 @@ export const postBodyStyles = (theme) => {
     ...theme.typography.body1,
     ...theme.typography.postStyle,
     wordBreak: "break-word",
-    ...spoilerStyles(theme, postLinkStyles),
+    ...spoilerStyles(theme),
     '& pre': {
       ...theme.typography.codeblock
     },
@@ -167,7 +148,8 @@ export const commentBodyStyles = theme => {
     wordBreak: "break-word",
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    ...spoilerStyles(theme, commentLinkStyles),
+
+    ...spoilerStyles(theme),
     '& blockquote': {
       ...theme.typography.commentBlockquote,
       ...theme.typography.body2,
@@ -299,6 +281,15 @@ export const editorStyles = (theme, styleFunction) => ({
     '& blockquote .public-DraftStyleDefault-block': {
       marginTop: 0,
       marginBottom: 0,
+    },
+    // Using '*' selectors is a bit dangerous, as is using '!important'
+    // This is necessary to catch spoiler-selectors on 'code' elemenents, as implemented in draft-js, 
+    // which involved nested spans with manually set style attributes, which can't be overwritten except via 'important'
+    //
+    // This selector isn't necessary on rendered posts/comments, just the draft-js editor.
+    // To minimize potential damage from */important it's only applied here.
+    '& .spoiler:not(:hover) *': {
+      backgroundColor: "black !important"
     },
     ...styleFunction(theme),
     ...ckEditorStyles(theme)
