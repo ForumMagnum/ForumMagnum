@@ -316,6 +316,16 @@ addRoute([
   },
 ]);
 
+addRoute([
+  // GreaterWrong comment (mostly for use with hover previews)
+  {
+    path:'/posts/:_id/:slug/comment/:comment_id?',
+    name: 'comment.greaterwrong',
+    componentName: "PostsSingle",
+    previewComponentName: "PostCommentLinkPreviewGreaterWrong",
+  }
+]);
+
 switch (getSetting('forumType')) {
   case 'AlignmentForum':
     addRoute([

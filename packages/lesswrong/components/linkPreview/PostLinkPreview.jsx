@@ -55,6 +55,23 @@ const PostLinkPreviewLegacy = ({href, targetLocation, innerHTML}) => {
 }
 registerComponent('PostLinkPreviewLegacy', PostLinkPreviewLegacy);
 
+const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, innerHTML}) => {
+  const postId = targetLocation.params._id;
+  const commentId = targetLocation.params.comment_id;
+
+  const { document: post } = useSingle({
+    collection: Posts,
+    queryName: "postLinkPreview",
+    fragmentName: 'PostsList',
+    fetchPolicy: 'cache-then-network',
+    
+    documentId: postId,
+  });
+  
+  return <Components.PostLinkCommentPreview href={href} innerHTML={innerHTML} commentId={commentId} post={post}/>
+}
+registerComponent('PostCommentLinkPreviewGreaterWrong', PostCommentLinkPreviewGreaterWrong);
+
 const PostLinkPreviewVariantCheck = ({ href, innerHTML, post, targetLocation, comment, commentId, error }) => {
   if (targetLocation.query.commentId) {
     return <PostLinkCommentPreview commentId={targetLocation.query.commentId} href={href} innerHTML={innerHTML} post={post} />
