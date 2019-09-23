@@ -30,11 +30,19 @@ const styles = theme => ({
   hideOnMedium: {
     // TODO: figure out more elegant way of handling this breakpoint
     // 
-    // the purpose of this breakpoint is to ensure that the PostsItem hover preview
-    // disappears right as it starts to overlap the post item
+    // This collection of breakpoints attempts to keep the preview fitting on the page even on 13" monitors and half-screen pages, until it starts looking just silly
     '@media only screen and (max-width: 1350px)': {
-      display: "none"
+      width: 280,
     },
+    '@media only screen and (max-width: 1330px)': {
+      width: 260,
+    },
+    '@media only screen and (max-width: 1300px)': {
+      width: 240,
+    },
+    '@media only screen and (max-width: 1270px)': {
+      display: "none"
+    }
   },
   wide: {
     [theme.breakpoints.down('xs')]: {
@@ -49,6 +57,9 @@ const styles = theme => ({
       width: 550,
     },
   },
+  title: {
+    marginBottom: -6
+  },
   tooltipInfo: {
     fontStyle: "italic",
     ...commentBodyStyles(theme),
@@ -56,7 +67,7 @@ const styles = theme => ({
   },
   highlight: {
     ...postHighlightStyles(theme),
-    marginTop: theme.spacing.unit*2.5,
+    marginTop: theme.spacing.unit*3,
     marginBottom: theme.spacing.unit*2.5,
     wordBreak: 'break-word',
     fontSize: "1.1rem",
@@ -134,7 +145,9 @@ const PostsPreviewTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMed
   const renderCommentCount = showAllinfo && (Posts.getCommentCount(post) > 0)
   const renderWordCount = !comment && (wordCount > 0)
   return <Card className={classNames(classes.root, {[classes.wide]: wide, [classes.hideOnMedium]: hideOnMedium})}>
-      <PostsTitle post={post} tooltip={false} wrap/>
+      <div className={classes.title}>
+        <PostsTitle post={post} tooltip={false} wrap/>
+      </div>
       <div className={classes.tooltipInfo}>
         { getPostCategory(post)}
         { showAllinfo && post.user && <span> by <PostsUserAndCoauthors post={post} simple/></span>}
