@@ -57,7 +57,7 @@ registerComponent('PostLinkPreviewLegacy', PostLinkPreviewLegacy);
 
 const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, innerHTML}) => {
   const postId = targetLocation.params._id;
-  const commentId = targetLocation.params.comment_id;
+  const commentId = targetLocation.params.commentId;
 
   const { document: post } = useSingle({
     collection: Posts,
