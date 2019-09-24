@@ -530,7 +530,7 @@ class EditorFormComponent extends Component {
     const currentEditorType = this.getCurrentEditorType()
 
     if (!document) return null;
-
+    
     const editorWarning =
       !editorOverride
       && formType !== "new"

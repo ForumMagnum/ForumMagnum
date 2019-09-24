@@ -203,6 +203,4 @@ CommentEditor.defaultConfig = {
 	// },
 };
 
-console.log( 'Exporting editors: ', CommentEditor, PostEditor )
-
 export const Editors = { CommentEditor, PostEditor };
