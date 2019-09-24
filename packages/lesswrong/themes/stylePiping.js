@@ -230,7 +230,7 @@ export const postHighlightStyles = theme => {
   return deepmerge(postBodyStyles(theme), postHighlightStyles, {isMergeableObject:isPlainObject})
 }
 
-export const pValue = {
+export const pBodyStyle = {
   marginTop: "1em",
   marginBottom: "1em",
   '&:first-of-type': {
@@ -259,7 +259,7 @@ export const ckEditorStyles = theme => {
         '--ck-focus-ring': "solid 1px rgba(0,0,0,0)",
         '--ck-focus-outer-shadow': "none",
         '--ck-inner-shadow': "none",
-        '& p': pValue
+        '& p': pBodyStyle
       },
       '&.ck-sidebar, &.ck-presence-list': { //\u25B6
         '& li': {

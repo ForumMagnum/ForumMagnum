@@ -16,7 +16,7 @@ import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
 import { PostsReadContext } from './common/withRecordPostView';
-import { pValue } from '../themes/stylePiping';
+import { pBodyStyle } from '../themes/stylePiping';
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
 const googleTagManagerId = getSetting('googleTagManager.apiKey')
 
@@ -58,7 +58,7 @@ const styles = theme => ({
     },
   },
   '@global': {
-    p: pValue,
+    p: pBodyStyle,
     '.mapboxgl-popup': {
       willChange: 'auto !important',
       zIndex: theme.zIndexes.styledMapPopup

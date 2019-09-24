@@ -46,7 +46,8 @@ class PostEditor extends BalloonBlockEditorBase {}
 // NOTE: If you make changes to this file, you must:
 // 1. navigate in your terminal to the corresponding folder ('cd ./public/lesswrong-editor')
 // 2. 'yarn run build'
-// 3. other people might need to run 'yarn install' to properly integrate the build file into the rest of the build
+// 3. navigate back to main folder (i.e. 'cd ../..')
+// 4. run 'yarn add ./public/lesswrong-editor'.
 
 PostEditor.builtinPlugins = [
 	Autosave,
@@ -93,8 +94,8 @@ PostEditor.defaultConfig = {
 		'numberedList',
 		'imageUpload',
 		'blockQuote',
-		'insertTable',
-		'mediaEmbed',
+		// 'insertTable',         these don't work yet, although I aim to fix them soon – Ray
+		// 'mediaEmbed',
 		'|',
 		'undo',
 		'redo',
@@ -128,17 +129,17 @@ PostEditor.defaultConfig = {
 			'comment',
 		]
 	},
-	table: {
-		contentToolbar: [
-			'tableColumn',
-			'tableRow',
-			'mergeTableCells'
-		],
-		tableToolbar: [ 'comment' ]
-	},
-	mediaEmbed: {
-		toolbar: [ 'comment' ]
-	},
+	// table: {
+	// 	contentToolbar: [
+	// 		'tableColumn',
+	// 		'tableRow',
+	// 		'mergeTableCells'
+	// 	],
+	// 	tableToolbar: [ 'comment' ]
+	// },
+	// mediaEmbed: {
+	// 	toolbar: [ 'comment' ]
+	// },
 };
 
 CommentEditor.builtinPlugins = [
@@ -163,25 +164,22 @@ CommentEditor.builtinPlugins = [
 	PasteFromOffice,
 	RemoveFormat,
 	Strikethrough,
-	Table,
+	// Table,
 	Underline,
 	UploadAdapter,
 	MathpreviewPlugin
 ];
 
 CommentEditor.defaultConfig = {
-	blockToolbar: [
-		'heading',
+	toolbar: [
+    'heading',
+		'bold',
+		'italic',
+    'underline',
 		'|',
 		'bulletedList',
 		'numberedList',
-		'imageUpload',
 		'blockQuote',
-	],
-	toolbar: [
-		'bold',
-		'italic',
-		'underline',
 		'|',
 		'link',
 		'|',
@@ -192,14 +190,14 @@ CommentEditor.defaultConfig = {
 			'imageTextAlternative'
 		]
 	},
-	table: {
-		contentToolbar: [
-			'tableColumn',
-			'tableRow',
-			'mergeTableCells'
-		],
-		tableToolbar: [ 'comment' ]
-	},
+	// table: {
+	// 	contentToolbar: [
+	// 		'tableColumn',
+	// 		'tableRow',
+	// 		'mergeTableCells'
+	// 	],
+	// 	tableToolbar: [ 'comment' ]
+	// },
 };
 
 console.log( 'Exporting editors: ', CommentEditor, PostEditor )
