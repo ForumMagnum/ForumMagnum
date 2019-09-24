@@ -23,7 +23,7 @@ import ImageUpload from '@ckeditor/ckeditor5-image/src/imageupload';
 import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
 import Link from '@ckeditor/ckeditor5-link/src/link';
 import List from '@ckeditor/ckeditor5-list/src/list';
-import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
+// import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
 import Paragraph from '@ckeditor/ckeditor5-paragraph/src/paragraph';
 import PasteFromOffice from '@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice';
 import PresenceList from '@ckeditor/ckeditor5-real-time-collaboration/src/presencelist';
@@ -31,8 +31,8 @@ import RealTimeCollaborativeComments from '@ckeditor/ckeditor5-real-time-collabo
 import RealTimeCollaborativeTrackChanges from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativetrackchanges';
 import RemoveFormat from '@ckeditor/ckeditor5-remove-format/src/removeformat';
 import Strikethrough from '@ckeditor/ckeditor5-basic-styles/src/strikethrough';
-import Table from '@ckeditor/ckeditor5-table/src/table';
-import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
+// import Table from '@ckeditor/ckeditor5-table/src/table';
+// import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
 import Underline from '@ckeditor/ckeditor5-basic-styles/src/underline';
 import UploadAdapter from '@ckeditor/ckeditor5-adapter-ckfinder/src/uploadadapter';
 import BlockToolbar from '@ckeditor/ckeditor5-ui/src/toolbar/block/blocktoolbar';
@@ -71,7 +71,7 @@ PostEditor.builtinPlugins = [
 	Italic,
 	Link,
 	List,
-	MediaEmbed,
+	// MediaEmbed,
 	Paragraph,
 	PasteFromOffice,
 	PresenceList,
@@ -79,8 +79,8 @@ PostEditor.builtinPlugins = [
 	RealTimeCollaborativeTrackChanges,
 	RemoveFormat,
 	Strikethrough,
-	Table,
-	TableToolbar,
+	// Table,
+	// TableToolbar,
 	Underline,
 	UploadAdapter,
 	MathpreviewPlugin
@@ -95,7 +95,7 @@ PostEditor.defaultConfig = {
 		'imageUpload',
 		'blockQuote',
 		// 'insertTable',         these don't work yet, although I aim to fix them soon – Ray
-		'mediaEmbed',
+		// 'mediaEmbed',
 		'|',
 		'undo',
 		'redo',
