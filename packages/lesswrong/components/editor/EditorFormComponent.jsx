@@ -216,6 +216,9 @@ class EditorFormComponent extends Component {
           break
         case "ckEditorMarkup":
           if (!ckEditorReference) throw Error("Can't submit ckEditorMarkup without attached CK Editor")
+          this.context.addToSuccessForm((s) => {
+            this.state.ckEditorReference.setData('')
+          })
           data = ckEditorReference.getData()
           break
         default:
@@ -461,9 +464,6 @@ class EditorFormComponent extends Component {
     const CKEditor = this.ckEditor
     const value = ckEditorValue || ckEditorReference?.getData()
 
-    this.context.addToSuccessForm((s) => {
-      this.state.ckEditorReference.setData('')
-    })
     if (!this.state.ckEditorLoaded || !CKEditor) {
       return <Loading />
     } else {
@@ -532,7 +532,7 @@ class EditorFormComponent extends Component {
     const { editorOverride } = this.state
     const { document, currentUser, formType, classes, fieldName } = this.props
     const currentEditorType = this.getCurrentEditorType()
-    
+
     if (!document) return null;
     
     const editorWarning =
