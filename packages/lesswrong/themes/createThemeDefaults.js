@@ -10,42 +10,6 @@ const monoStack = [
   'monospace'
 ].join(',')
 
-export const linkStyle = ({theme, underlinePosition="97%", background}) => {
-  return ({
-    color: theme.palette.secondary.main,
-    backgroundImage: `linear-gradient(to right, ${theme.palette.secondary.main} 72%, transparent 72%)`,
-    backgroundSize: "4px 1px",
-    backgroundRepeat: "repeat-x",
-    backgroundPosition:  `0% ${underlinePosition}`,
-    textShadow: `
-      .03em 0 ${background || theme.palette.background.default},
-      -.03em 0 ${background || theme.palette.background.default},
-      0 .03em ${background || theme.palette.background.default},
-      0 -.03em ${background || theme.palette.background.default},
-      .06em 0 ${background || theme.palette.background.default},
-      -.06em 0 ${background || theme.palette.background.default},
-      .09em 0 ${background || theme.palette.background.default},
-      -.09em 0 ${background || theme.palette.background.default},
-      .12em 0 ${background || theme.palette.background.default},
-      -.12em 0 ${background || theme.palette.background.default},
-      .15em 0 ${background || theme.palette.background.default},
-      -.15em 0 ${background || theme.palette.background.default}
-    `,
-    textDecoration: "none",
-
-    "*, *:after, &:after, *:before, &:before": {
-        textShadow: "none"
-    },
-  })
-}
-
-export const removeLinkStyle = {
-  color: "unset",
-  backgroundImage: "unset",
-  textShadow: "unset",
-  textDecoration: "unset"
-}
-
 const createLWTheme = (theme) => {
   // Defines sensible typography defaults that can be
   // cleanly overriden
@@ -141,13 +105,6 @@ const createLWTheme = (theme) => {
         padding: '1rem',
         whiteSpace: 'pre-wrap',
         margin: "1em 0",
-        '& a, & a:hover, & a:active': {
-          ...linkStyle({
-            theme,
-            underlinePosition: (typography.codeblock && typography.codeblock.linkUnderlinePosition) || "97%",
-            background: (typography.codeblock && typography.codeblock.backgroundColor) || grey[100]
-          }),
-        },
       },
       code: {
         fontFamily: monoStack,

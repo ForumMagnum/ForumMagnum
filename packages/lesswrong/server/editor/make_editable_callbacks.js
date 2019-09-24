@@ -47,6 +47,7 @@ const cheerioWrapAll = (toWrap, wrapper, $) => {
   let  marker = $('<div>');
   marker = marker.insertBefore(toWrap.first()); // in jQuery marker would remain current
   toWrap.each(function(k, v) {                  // in Cheerio, we update with the output.
+    $(v).remove();
     section.append($(v));
   });
   section.insertBefore(marker); 
@@ -55,12 +56,38 @@ const cheerioWrapAll = (toWrap, wrapper, $) => {
 }
 
 const spoilerClass = 'spoiler-v2' // this is the second iteration of a spoiler-tag that we've implemented. Changing the name for backwards-and-forwards compatibility
+
+/// Given HTML which possibly contains elements tagged with with a spoiler class
+/// (ie, hidden until mouseover), parse the HTML, and wrap consecutive elements
+/// that all have a spoiler tag in a shared spoiler element (so that the
+/// mouse-hover will reveal all of them together).
 function wrapSpoilerTags(html) {
   const $ = cheerio.load(html)
-  $(`.${spoilerClass}`).not(`.${spoilerClass}+.${spoilerClass}`).each(function(){
-    const nodes = $(this).nextUntil(`:not(.${spoilerClass})`).addBack();
-    cheerioWrapAll(nodes, '<div class="spoilers" />', $)
+  
+  // Iterate through spoiler elements, collecting them into groups. We do this
+  // the hard way, because cheerio's sibling-selectors don't seem to work right.
+  let spoilerBlockGroups = [];
+  let currentBlockGroup = [];
+  $(`.${spoilerClass}`).each(function() {
+    const element = this;
+    if (!(element?.previousSibling && $(element.previousSibling).hasClass(spoilerClass))) {
+      if (currentBlockGroup.length > 0) {
+        spoilerBlockGroups.push(currentBlockGroup);
+        currentBlockGroup = [];
+      }
+    }
+    currentBlockGroup.push(element);
   });
+  if (currentBlockGroup.length > 0) {
+    spoilerBlockGroups.push(currentBlockGroup);
+  }
+  
+  // Having collected the elements into groups, wrap each group.
+  for (let spoilerBlockGroup of spoilerBlockGroups) {
+    cheerioWrapAll($(spoilerBlockGroup), '<div class="spoilers" />', $);
+  }
+  
+  // Serialize back to HTML.
   return $.html()
 }
 

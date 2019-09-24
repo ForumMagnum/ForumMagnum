@@ -13,12 +13,13 @@ const styles = theme => ({
   }
 })
 
+const defaultCenter = {lat: 39.5, lng: -43.636047}
 const Home2 = ({currentUser, classes}) => {
   const { RecentDiscussionThreadsList, HomeLatestPosts, RecommendationsAndCurated, CommunityMapWrapper } = Components
 
   const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
       Users.canDo(currentUser, 'alignment.sidebar')
-  const { lat, lng } = Users.getLocation(currentUser)
+  const { lat, lng } = defaultCenter
   const { query } = useLocation()
   const mapEventTerms = { view: 'nearbyEvents', lat, lng, filters: query?.filters || []}
   
