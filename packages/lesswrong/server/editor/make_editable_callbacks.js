@@ -132,7 +132,6 @@ export function removeCKEditorSuggestions(markup) {
 }
 
 export async function ckEditorMarkupToHtml(markup) {
-  console.log("ckEditorMarkupToHtml")
   // First we remove any unaccepted suggestions from the markup
   const markupWithoutSuggestions = removeCKEditorSuggestions(markup)
   // Sanitized CKEditor markup is just html
@@ -142,7 +141,6 @@ export async function ckEditorMarkupToHtml(markup) {
 }
 
 async function dataToHTML(data, type, sanitize = false) {
-  console.log("dataToHTML")
   switch (type) {
     case "html":
       return sanitize ? Utils.sanitize(data) : data
