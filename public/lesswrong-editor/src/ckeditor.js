@@ -95,7 +95,7 @@ PostEditor.defaultConfig = {
 		'imageUpload',
 		'blockQuote',
 		// 'insertTable',         these don't work yet, although I aim to fix them soon – Ray
-		// 'mediaEmbed',
+		'mediaEmbed',
 		'|',
 		'undo',
 		'redo',

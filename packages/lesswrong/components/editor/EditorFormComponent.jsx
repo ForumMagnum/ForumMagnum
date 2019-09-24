@@ -409,7 +409,7 @@ class EditorFormComponent extends Component {
     const { currentUser } = this.props
     if (!currentUser || (!currentUser.isAdmin && !currentUser.beta)) return null
     return (
-      <Tooltip title="Warning! Changing format will erase your content" placement="top">
+      <Tooltip title="Warning! Changing format will erase your content" placement="left">
         <Select
             value={this.getCurrentEditorType()}
             onChange={(e) => this.handleEditorOverride(e.target.value)}

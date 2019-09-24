@@ -97,10 +97,16 @@ addFieldsDict(Revisions, {
     resolveAs: {
       type: 'String',
       resolver: ({html}) => {
-        const truncatedHtml = truncate(Utils.sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
-        return htmlToText
-          .fromString(truncatedHtml)
-          .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
+        console.log("plaintextDescription")
+        try {
+          const truncatedHtml = truncate(Utils.sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
+          console.log("truncatedHtml")
+          return htmlToText
+            .fromString(truncatedHtml)
+            .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
+        } catch (err) {
+          console.log("error", err)
+        }
       } 
     }
   },
