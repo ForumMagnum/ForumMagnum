@@ -460,6 +460,10 @@ class EditorFormComponent extends Component {
     const { Loading } = Components
     const CKEditor = this.ckEditor
     const value = ckEditorValue || ckEditorReference?.getData()
+
+    this.context.addToSuccessForm((s) => {
+      this.state.ckEditorReference.setData('')
+    })
     if (!this.state.ckEditorLoaded || !CKEditor) {
       return <Loading />
     } else {
@@ -528,7 +532,7 @@ class EditorFormComponent extends Component {
     const { editorOverride } = this.state
     const { document, currentUser, formType, classes, fieldName } = this.props
     const currentEditorType = this.getCurrentEditorType()
-
+    
     if (!document) return null;
     
     const editorWarning =
