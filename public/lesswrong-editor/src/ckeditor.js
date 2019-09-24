@@ -94,7 +94,7 @@ PostEditor.defaultConfig = {
 		'imageUpload',
 		'blockQuote',
 		'insertTable',
-		'mediaEmbed',
+		// 'mediaEmbed', // currently this doesn't work reliably. I'd like to fix it soon but commenting out for now
 		'|',
 		'undo',
 		'redo',
@@ -145,7 +145,7 @@ CommentEditor.builtinPlugins = [
 	Autosave,
 	Alignment,
 	Autoformat,
-	BlockQuote,
+  BlockQuote,
 	Bold,
 	CKFinder,
 	EasyImage,
@@ -170,20 +170,15 @@ CommentEditor.builtinPlugins = [
 ];
 
 CommentEditor.defaultConfig = {
-	blockToolbar: [
-		'heading',
-		'|',
-		'bulletedList',
-		'numberedList',
-		'imageUpload',
-		'blockQuote',
-	],
 	toolbar: [
+    'heading',
 		'bold',
 		'italic',
-		'underline',
 		'|',
-		'link',
+    'link',
+    'bulletedList',
+		'numberedList',
+		'blockQuote',
 		'|',
 		'mathpreview'
 	],
@@ -191,7 +186,13 @@ CommentEditor.defaultConfig = {
 		toolbar: [
 			'imageTextAlternative'
 		]
-	},
+  },
+  heading: {
+    options: [
+      { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+      { model: 'heading3', view: 'h3', title: 'Heading', class: 'ck-heading_heading3' },
+    ]
+  },
 	table: {
 		contentToolbar: [
 			'tableColumn',
