@@ -5,7 +5,6 @@ export const getCKEditorDocumentId = (documentId, userId, formType) => {
 }
 
 export function generateTokenRequest(documentId, userId, formType) {
-  console.log("generateTokenRequest", documentId, userId)
   return () => {
     return new Promise( ( resolve, reject ) => {
         const xhr = new XMLHttpRequest();
