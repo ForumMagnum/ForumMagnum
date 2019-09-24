@@ -470,12 +470,12 @@ class EditorFormComponent extends Component {
             documentId={document._id}
             formType={formType}
             userId={currentUser._id}
-            onChange={(event, editor) => this.setState({ckEditorValue: editor.getData()})}//this.setState({ckEditorValue: a}
+            onChange={(event, editor) => this.setState({ckEditorValue: editor.getData()})}
             onInit={editor => this.setState({ckEditorReference: editor})}
           />
         </div>
     }
-  }
+  } 
 
   renderPlaintextEditor = (editorType) => {
     const { markdownValue, htmlValue } = this.state
