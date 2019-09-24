@@ -43,6 +43,9 @@ import MathpreviewPlugin from 'ckeditor5-math-preview/src/mathpreview';
 class CommentEditor extends BalloonBlockEditorBase {}
 class PostEditor extends BalloonBlockEditorBase {}
 
+// Tables and MediaEmbeds are commented out for now, but will be added back in as soon as some minor
+// minor issues are debugged.
+
 // NOTE: If you make changes to this file, you must:
 // 1. navigate in your terminal to the corresponding folder ('cd ./public/lesswrong-editor')
 // 2. 'yarn run build'
