@@ -225,6 +225,14 @@ Comments.addView('questionAnswers', function (terms) {
 });
 
 // Used in legacy routes
+Comments.addView("legacyIdComment", terms => ({
+  selector: {
+    legacyId: ""+parseInt(terms.legacyId, 36)
+  },
+  options: {
+    limit: 1
+  }
+}));
 ensureIndex(Comments, {legacyId: "hashed"});
 
 // Used in scoring cron job
