@@ -250,14 +250,12 @@ class App extends PureComponent {
         <MessageContext.Provider value={{ messages, flash, clear: this.clear }}>
           <Components.HeadTags image={getSetting('siteImage')} />
           <Components.ScrollToTop />
-          <div className={`locale-${this.getLocale()}`}>
-            <Components.Layout currentUser={currentUser} messages={messages}>
-              {this.props.currentUserLoading
-                ? <Components.Loading />
-                : <RouteComponent />
-              }
-            </Components.Layout>
-          </div>
+          <Components.Layout currentUser={currentUser} messages={messages}>
+            {this.props.currentUserLoading
+              ? <Components.Loading />
+              : <RouteComponent />
+            }
+          </Components.Layout>
         </MessageContext.Provider>
       </IntlProvider>
       </ServerRequestStatusContext.Provider>
