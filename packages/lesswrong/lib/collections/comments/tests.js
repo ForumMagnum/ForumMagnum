@@ -1,6 +1,6 @@
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
-import { runQuery, waitUntilCallbacksFinished  } from 'meteor/vulcan:core';
+import { runQuery } from 'meteor/vulcan:core';
 import { createDummyUser, createDummyPost, createDummyComment, userUpdateFieldFails, userUpdateFieldSucceeds, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../../../testing/utils.js'
 
 
