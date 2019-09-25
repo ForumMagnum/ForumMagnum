@@ -1,6 +1,6 @@
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
-import { runQuery } from 'meteor/vulcan:core';
+import { runQuery, waitUntilCallbacksFinished  } from 'meteor/vulcan:core';
 import { createDummyUser, createDummyPost, createDummyComment, userUpdateFieldFails, userUpdateFieldSucceeds, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../../../testing/utils.js'
 
 
@@ -12,9 +12,15 @@ describe('createComment – ', async function() {
   this.timeout(10000)
   it('should return data if a user is provided', async function() {
     const user = await createDummyUser()
+    const post = await createDummyPost()
     const query = `
       mutation {
-        createComment(data:{ contents: { originalContents: { type: "markdown", data: "test" } } }){
+        createComment(
+          data: {
+            contents: { originalContents: { type: "markdown", data: "test" } }
+            postId: "${post._id}"
+          }
+        ){
           data {
             contents {
               markdown
