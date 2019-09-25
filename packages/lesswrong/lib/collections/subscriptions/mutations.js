@@ -26,7 +26,7 @@ export const performSubscriptionAction = async (action, collection, itemId, user
     collectionName,
     type: defaultSubscriptionTypeTable[collectionName]
   }
-  newMutation({
+  await newMutation({
     collection: Subscriptions,
     document: newSubscription,
     validate: true,

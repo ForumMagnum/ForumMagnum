@@ -4,7 +4,6 @@ import { createDummyUser, createDummyPost, createDummyConversation, createDummyM
 import { performSubscriptionAction } from '../subscriptions/mutations.js';
 
 import Users from 'meteor/vulcan:users';
-// import { Comments } from '../comments' // commented out along with a flaky test (see below)
 import Notifications from './collection.js';
 import Comments from '../comments/collection.js';
 import { waitUntilCallbacksFinished } from 'meteor/vulcan:core';
@@ -16,7 +15,7 @@ describe('notification generation', async () => {
   it("generates notifications for new posts", async (done) => {
     const user = await createDummyUser()
     const otherUser = await createDummyUser()
-    performSubscriptionAction('subscribe', Users, user._id, otherUser)
+    await performSubscriptionAction('subscribe', Users, user._id, otherUser)
     await waitUntilCallbacksFinished();
     await createDummyPost(user);
     await waitUntilCallbacksFinished();
@@ -57,7 +56,7 @@ describe('notification generation', async () => {
     await waitUntilCallbacksFinished();
     const comment = await createDummyComment(user2, {postId: post._id});
     await waitUntilCallbacksFinished();
-    performSubscriptionAction('subscribe', Comments, comment._id, user3)
+    await performSubscriptionAction('subscribe', Comments, comment._id, user3)
     await waitUntilCallbacksFinished();
     await createDummyComment(user1, {postId: post._id, parentCommentId: comment._id});
     await waitUntilCallbacksFinished();
