@@ -327,7 +327,6 @@ addCallback("posts.edit.async", PostsCurateNotification);
 
 // add new comment notification callback on comment submit
 async function CommentsNewNotifications(comment) {
-  // note: dummy content has disableNotifications set to true
   if(Meteor.isServer && !comment.disableNotifications) {
     // keep track of whom we've notified (so that we don't notify the same user twice for one comment,
     // if e.g. they're both the author of the post and the author of a comment being replied to)
@@ -353,7 +352,7 @@ async function CommentsNewNotifications(comment) {
 
       // Separately notify author of comment with different notification, if
       // they are subscribed, and are NOT the author of the comment
-      if (subscribedUsers.includes(parentComment.userId) && parentComment.userId !== comment.userId) {
+      if (subscribedUserIds.includes(parentComment.userId) && parentComment.userId !== comment.userId) {
         await createNotifications([parentComment.userId], 'newReplyToYou', 'comment', comment._id);
         notifiedUsers = [...notifiedUsers, parentComment.userId];
       }
