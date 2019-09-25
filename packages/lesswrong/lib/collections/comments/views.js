@@ -163,11 +163,7 @@ Comments.addView("recentComments", function (terms) {
 ensureIndex(Comments, augmentForDefaultView({ postedAt: -1 }));
 
 Comments.addView("recentDiscussionThread", function (terms) {
-  // TODO-Q: Is this in fact necessary? This can lead to the Recent Discussions
-  //         list being empty, which looks worse than having a few slightly-older
-  //         posts there. Can we either set it to be a longer timeframe (say, a week)
-  //         or drop it entirely (as the sort/limit clause should do the job anyway)
-  const eighteenHoursAgo = moment().subtract(18, 'hours').toDate();
+  const eighteenHoursAgo = moment().subtract(36, 'hours').toDate();
   return {
     selector: {
       postId: terms.postId,
@@ -270,7 +266,7 @@ Comments.addView('topShortform', function (terms) {
     } }
     : null
   );
-  
+
   return {
     selector: {
       shortform: true,

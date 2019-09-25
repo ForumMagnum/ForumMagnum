@@ -14,8 +14,7 @@ const styles = theme => ({
     color: theme.palette.text.primary,
     [theme.breakpoints.down('sm')]: {
       fontSize: '2.5rem',
-    },
-    lineHeight: '1.25em'
+    }
   },
   draft: {
     color: theme.palette.grey[500]
@@ -30,12 +29,12 @@ const styles = theme => ({
 const PostsPageTitle = ({classes, post}) => {
   const parentPost = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)?.[0]?.sourcePost
 
-  
+
   return (
     <div>
       {post.question && !parentPost && <Typography variant="title">
         <Link to="/questions" className={classes.question}>
-          [ Question ] 
+          [ Question ]
         </Link>
       </Typography>}
       {post.question && parentPost && <Typography variant="title">
