@@ -21,9 +21,10 @@ const styles = theme => ({
 class NewQuestionDialog extends PureComponent {
   render() {
     const { onClose, currentUser, history, flash, fullScreen, classes } = this.props
-    const { PostSubmit } = Components
+    const { PostSubmit, SubmitToFrontpageCheckbox } = Components
     const QuestionSubmit = (props) => {
       return <div className={classes.formSubmit}>
+        <SubmitToFrontpageCheckbox {...props}/>
         <PostSubmit {...props} />
       </div>
     }
