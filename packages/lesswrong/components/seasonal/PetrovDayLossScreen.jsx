@@ -1,0 +1,39 @@
+import { registerComponent } from 'meteor/vulcan:core';
+import React from 'react';
+// import withUser from '../common/withUser';
+import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import { Link } from '../../lib/reactRouterWrapper.js';
+
+const styles = theme => ({
+  root: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100vh",
+    zIndex: theme.zIndexes.petrovDayLoss,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    background: "black url('../mushroomCloud.jpg') no-repeat fixed center",
+    ...theme.typography.commentStyle
+  },
+  link: {
+    textShadow: "0 0 15 rgba(0,0,0,.2)"
+  },
+})
+
+const PetrovDayLossScreen = ({classes}) => {
+  return (
+    <div className={classes.root}>
+      <Typography variant="display1" className={classes.title}>
+        <Link to={"/posts/QtyKq4BDyuJ3tysoK/9-26-is-petrov-day"}>Petrov Day</Link>
+      </Typography>
+      <Link className={classes.link} to={"/posts/QtyKq4BDyuJ3tysoK/9-26-is-petrov-day"}>What happened?</Link>
+    </div>
+  )
+}
+
+registerComponent('PetrovDayLossScreen', PetrovDayLossScreen, withStyles(styles, {name: "PetrovDayLossScreen"}));
