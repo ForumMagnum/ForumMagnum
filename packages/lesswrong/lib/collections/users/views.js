@@ -273,7 +273,7 @@ Users.addView("areWeNuked", function () {
     },
   }
 })
-ensureIndex(Users, {petrovCodesEntered: 1})
+ensureIndex(Users, {petrovCodesEnteredHashed: 1})
 
 
 
