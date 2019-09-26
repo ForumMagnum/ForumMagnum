@@ -460,28 +460,6 @@ jobs:
 
     working_directory: ~/app/lesswrong
     steps:
-      - attach_workspace:
-         at: ~/
-      # if certain cached files (packages, etc) are presetn, don't redownload them, restore the cached version
-      - restore_cache:
-          key: build-temp-{{ checksum ".meteor/release" }}-{{ checksum ".circleci/config.yml" }}
-      - restore_cache:
-          key: meteor-release-{{ checksum ".meteor/release" }}-{{ checksum ".circleci/config.yml" }}
-      - restore_cache:
-          key: meteor-packages-{{ checksum ".meteor/versions" }}-{{ checksum ".circleci/config.yml" }}
-      - restore_cache:
-          key: npm-packages-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
-      - run:
-          name: restore cached meteor bin
-          command: |
-            if [ -e ~/build-temp/meteor-bin ]
-            then
-                echo "Cached Meteor bin found, restoring it"
-                sudo cp ~/build-temp/meteor-bin /usr/local/bin/meteor
-            else
-                echo "No cached Meteor bin found."
-            fi
-      # if there is no cached meteor version, install it
       - run:
           name: install Meteor
           command: |
@@ -532,8 +510,6 @@ workflows:
           filters:
             branches:
               only: devel
-          requires:
-            - build
       - deploy_prod:
           filters:
             branches:
