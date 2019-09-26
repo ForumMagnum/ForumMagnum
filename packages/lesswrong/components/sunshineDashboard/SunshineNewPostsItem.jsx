@@ -1,4 +1,4 @@
-import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
+import { Components, registerComponent, withUpdate, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
@@ -22,12 +22,16 @@ class SunshineNewPostsItem extends Component {
     })
   }
 
-  handleFrontpage = () => {
+  handlePromote = destination => () => {
     const { currentUser, post, updatePost } = this.props
+    destinationData = {
+      'frontpage': {frontpageDate: new Date()},
+      'community': {meta: true}
+    }[destination]
     updatePost({
       selector: { _id: post._id},
       data: {
-        frontpageDate: new Date(),
+        ...destinationData,
         reviewedByUserId: currentUser._id,
         authorIsUnreviewed: false
       },
@@ -97,8 +101,11 @@ class SunshineNewPostsItem extends Component {
           <Components.SidebarAction title="Leave on Personal Blog" onClick={this.handleReview}>
             done
           </Components.SidebarAction>
-          {post.submitToFrontpage && <Components.SidebarAction title="Move to Frontpage" onClick={this.handleFrontpage}>
+          {post.submitToFrontpage && <Components.SidebarAction title="Move to Frontpage" onClick={this.handlePromote('frontpage')}>
             thumb_up
+          </Components.SidebarAction>}
+          {getSetting('forumType') === 'EAForum' && post.submitToFrontpage && <Components.SidebarAction title="Move to Community" onClick={this.handlePromote('community')}>
+            group
           </Components.SidebarAction>}
           <Components.SidebarAction title="Move to Drafts" onClick={this.handleDelete} warningHighlight>
             clear
