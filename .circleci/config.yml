@@ -533,7 +533,7 @@ workflows:
             branches:
               only: devel
           requires:
-            - test
+            - build
       - deploy_prod:
           filters:
             branches:
