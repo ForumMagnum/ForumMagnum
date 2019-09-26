@@ -153,7 +153,7 @@ jobs:
       - run:
           name: testing
           environment:
-            TOOL_NODE_FLAGS: --max_old_space_size=2800 
+            TOOL_NODE_FLAGS: --max_old_space_size=2500 
           command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=400" meteor yarn test
   deploy_prod_fast:
     docker:
@@ -226,7 +226,7 @@ jobs:
             meteor json -I -f settings.json -e "this.public.sentry.release=\"$SENTRY_VERSION\""
       - deploy:
           environment:
-            TOOL_NODE_FLAGS: --max_old_space_size=2800
+            TOOL_NODE_FLAGS: --max_old_space_size=2500
           command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=400" meteor mup deploy --config mup.secret
   deploy_prod:
     docker:
@@ -299,7 +299,7 @@ jobs:
             meteor json -I -f settings.json -e "this.public.sentry.release=\"$SENTRY_VERSION\""
       - deploy:
           environment:
-            TOOL_NODE_FLAGS: --max_old_space_size=2800
+            TOOL_NODE_FLAGS: --max_old_space_size=2500
           command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=400" meteor mup deploy --config mup.secret
   deploy_af:
     docker:
@@ -372,7 +372,7 @@ jobs:
             meteor json -I -f settings.json -e "this.public.sentry.release=\"$SENTRY_VERSION\""
       - deploy:
           environment:
-            TOOL_NODE_FLAGS: --max_old_space_size=2800
+            TOOL_NODE_FLAGS: --max_old_space_size=2500
           command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=400" meteor mup deploy --config mup.secret
   deploy_baserates:
     docker:
@@ -444,7 +444,7 @@ jobs:
             meteor json -I -f settings.json -e "this.public.sentry.release=\"$SENTRY_VERSION\""
       - deploy:
           environment:
-            TOOL_NODE_FLAGS: --max_old_space_size=2800
+            TOOL_NODE_FLAGS: --max_old_space_size=2500
           command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=400" meteor mup deploy --config mup.secret
   deploy_staging:
     docker:
@@ -517,7 +517,7 @@ jobs:
             meteor json -I -f settings.json -e "this.public.sentry.release=\"$SENTRY_VERSION\""
       - deploy:
           environment:
-            TOOL_NODE_FLAGS: --max_old_space_size=2800
+            TOOL_NODE_FLAGS: --max_old_space_size=2500
           command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=400" meteor mup deploy --config mup.secret
 
 workflows:
