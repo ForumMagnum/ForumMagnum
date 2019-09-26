@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, withUpdate } from 'meteor/vulcan:core';
+import { registerComponent, withUpdate, getSetting } from 'meteor/vulcan:core';
 import Input from '@material-ui/core/Input';
 import Checkbox from '@material-ui/core/Checkbox';
 import deepmerge from 'deepmerge';
@@ -39,6 +39,14 @@ export function getRecommendationSettings({settings, currentUser, configName})
   }
 }
 
+const forumIncludeExtra = {
+  LessWrong: {humanName: 'Include Personal Blogposts', machineName: 'includePersonal'},
+  AlignmentForum: {humanName: 'Include Personal Blogposts', machineName: 'includePersonal'},
+  EAForum: {humanName: 'Include Community', machineName: 'includeMeta'},
+}
+
+const includeExtra = forumIncludeExtra[getSetting('forumType', 'LessWrong')]
+
 const RecommendationsAlgorithmPicker = ({ currentUser, settings, configName, updateUser, onChange, showAdvanced }) => {
   function applyChange(newSettings) {
     if (currentUser) {
@@ -75,6 +83,14 @@ const RecommendationsAlgorithmPicker = ({ currentUser, settings, configName, upd
         checked={settings.onlyUnread && currentUser}
         onChange={(ev, checked) => applyChange({ ...settings, onlyUnread: checked })}
       /> Only show unread posts {!currentUser && "(Requires login)"}
+    </div>
+    {/* Include personal blogposts (LW) or meta (EA Forum) */}
+    <div>
+      <Checkbox
+        disabled={!currentUser}
+        checked={settings[includeExtra.machineName]}
+        onChange={(ev, checked) => applyChange({ ...settings, [includeExtra.machineName]: checked })}
+      /> {includeExtra.humanName}
     </div>
     {showAdvanced && <div>
       <div>{"Algorithm "}

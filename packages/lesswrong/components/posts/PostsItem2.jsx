@@ -18,7 +18,7 @@ export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 export const COMMENTS_WIDTH = 48
 
-const COMMENTS_BACKGROUND_COLOR = "rgba(0,0,0,.1)"
+const COMMENTS_BACKGROUND_COLOR = "#efefef"
 
 const styles = (theme) => ({
   root: {
@@ -36,6 +36,9 @@ const styles = (theme) => ({
     paddingBottom: 10,
     alignItems: "center",
     flexWrap: "nowrap",
+    '&:hover': {
+      backgroundColor: "#efefef"
+    },
     [theme.breakpoints.down('sm')]: {
       flexWrap: "wrap",
       paddingTop: theme.spacing.unit,
@@ -93,7 +96,6 @@ const styles = (theme) => ({
     },
     '&:hover': {
       opacity: 1,
-      overflow: "unset",
     }
   },
   author: {
@@ -295,7 +297,7 @@ class PostsItem2 extends PureComponent {
       showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true,
       defaultToShowUnreadComments=false, dismissRecommendation, isRead, dense } = this.props
     const { showComments } = this.state
-    const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, EventVicinity, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo } = Components
+    const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper } = Components
 
     const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -323,75 +325,77 @@ class PostsItem2 extends PureComponent {
             [classes.hasResumeReading]: !!resumeReading,
           }
         )}>
-          <div className={classNames(classes.postsItem, {
-            [classes.dense]: dense
-            })}>
-            <PostsItem2MetaInfo className={classes.karma}>
-              <PostsItemKarma post={post} />
-            </PostsItem2MetaInfo>
+          <PostsItemTooltipWrapper post={post}>
+            <div className={classNames(classes.postsItem, {
+              [classes.dense]: dense
+              })}>
+              <PostsItem2MetaInfo className={classes.karma}>
+                <PostsItemKarma post={post} />
+              </PostsItem2MetaInfo>
 
-            <Link to={postLink} className={classes.title}>
-              <PostsTitle post={post} expandOnHover={!renderComments} read={isRead} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
-            </Link>
+              <span className={classes.title}>
+                <PostsTitle postLink={postLink} post={post} expandOnHover={!renderComments} read={isRead} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
+              </span>
 
-            {(resumeReading?.sequence || resumeReading?.collection) &&
-              <div className={classes.nextUnreadIn}>
-                {resumeReading.numRead ? "Next unread in " : "First post in "}<Link to={
-                  resumeReading.sequence
-                    ? Sequences.getPageUrl(resumeReading.sequence)
-                    : Collections.getPageUrl(resumeReading.collection)
-                }>
-                  {resumeReading.sequence ? resumeReading.sequence.title : resumeReading.collection?.title}
-                </Link>
-                {" "}
-                {(resumeReading.numRead>0) && <span>({resumeReading.numRead}/{resumeReading.numTotal} read)</span>}
-              </div>
-            }
+              {(resumeReading?.sequence || resumeReading?.collection) &&
+                <div className={classes.nextUnreadIn}>
+                  {resumeReading.numRead ? "Next unread in " : "First post in "}<Link to={
+                    resumeReading.sequence
+                      ? Sequences.getPageUrl(resumeReading.sequence)
+                      : Collections.getPageUrl(resumeReading.collection)
+                  }>
+                    {resumeReading.sequence ? resumeReading.sequence.title : resumeReading.collection?.title}
+                  </Link>
+                  {" "}
+                  {(resumeReading.numRead>0) && <span>({resumeReading.numRead}/{resumeReading.numTotal} read)</span>}
+                </div>
+              }
 
-            { post.user && !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
-              <PostsUserAndCoauthors post={post} abbreviateIfLong={true} />
-            </PostsItem2MetaInfo>}
+              { post.user && !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
+                <PostsUserAndCoauthors post={post} abbreviateIfLong={true} />
+              </PostsItem2MetaInfo>}
 
-            { post.isEvent && <PostsItem2MetaInfo className={classes.event}>
-              <EventVicinity post={post} />
-            </PostsItem2MetaInfo>}
+              { post.isEvent && <PostsItem2MetaInfo className={classes.event}>
+                <Components.EventVicinity post={post} />
+              </PostsItem2MetaInfo>}
 
-            {showPostedAt && !resumeReading && <Components.PostsItemDate post={post}/>}
+              {showPostedAt && !resumeReading && <Components.PostsItemDate post={post}/>}
 
-            <div className={classes.mobileSecondRowSpacer}/>
+              <div className={classes.mobileSecondRowSpacer}/>
 
-            {<div className={classes.mobileActions}>
-              {!resumeReading && <PostsPageActions post={post} />}
-            </div>}
-
-            {showIcons && <Hidden mdUp implementation="css">
-              <PostsItemIcons post={post}/>
-            </Hidden>}
-
-            {!resumeReading && <div className={classes.commentsIcon}>
-              <PostsItemComments
-                post={post}
-                onClick={() => this.toggleComments(false)}
-                unreadComments={unreadComments}
-              />
-
-            </div>}
-
-            <div className={classes.mobileDismissButton}>
-              {dismissButton}
-            </div>
-
-            {resumeReading &&
-              <div className={classes.sequenceImage}>
-                <img className={classes.sequenceImageImg}
-                  src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
-                    resumeReading.sequence?.gridImageId
-                      || resumeReading.collection?.gridImageId
-                      || "sequences/vnyzzznenju0hzdv6pqb.jpg"
-                  }`}
-                />
+              {<div className={classes.mobileActions}>
+                {!resumeReading && <PostsPageActions post={post} />}
               </div>}
-          </div>
+
+              {showIcons && <Hidden mdUp implementation="css">
+                <PostsItemIcons post={post}/>
+              </Hidden>}
+
+              {!resumeReading && <div className={classes.commentsIcon}>
+                <PostsItemComments
+                  post={post}
+                  onClick={() => this.toggleComments(false)}
+                  unreadComments={unreadComments}
+                />
+
+              </div>}
+
+              <div className={classes.mobileDismissButton}>
+                {dismissButton}
+              </div>
+
+              {resumeReading &&
+                <div className={classes.sequenceImage}>
+                  <img className={classes.sequenceImageImg}
+                    src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
+                      resumeReading.sequence?.gridImageId
+                        || resumeReading.collection?.gridImageId
+                        || "sequences/vnyzzznenju0hzdv6pqb.jpg"
+                    }`}
+                  />
+                </div>}
+            </div>
+          </PostsItemTooltipWrapper>
 
           {<div className={classes.actions}>
             {dismissButton}
@@ -425,5 +429,5 @@ registerComponent(
   withStyles(styles, { name: "PostsItem2" }),
   withUser,
   withRecordPostView,
-  withErrorBoundary,
+  withErrorBoundary
 );

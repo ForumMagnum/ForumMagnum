@@ -135,6 +135,9 @@ registerFragment(`
     viewUnreviewedComments
     sunshineShowNewUserContent
     recommendationSettings
+    petrovPressedButtonDate
+    petrovCodesEnteredDate
+    petrovCodesEntered
   }
 `);
 
@@ -142,7 +145,7 @@ registerFragment(`
   fragment UserKarmaChanges on User {
     _id
     karmaChanges {
-      totalChange
+      totalChange 
       updateFrequency
       startDate
       endDate
@@ -422,6 +425,25 @@ registerFragment(`
     defaultToCKEditor
   }
 `);
+
+registerFragment(`
+  fragment UsersMapEntry on User {
+    # vulcan:users
+    ...UsersMinimumInfo
+    createdAt
+    isAdmin
+    groups
+    # example-forum
+    location
+    googleLocation
+    mapLocation
+    mapLocationSet
+    mapMarkerText
+    htmlMapMarkerText
+    mongoLocation
+  }
+`);
+
 
 registerFragment(`
   fragment UsersEdit on User {

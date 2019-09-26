@@ -78,6 +78,8 @@ class RecommendationsAndCurated extends PureComponent {
       <div><em>(Click to see more recommendations)</em></div>
     </div>
 
+    // defaultFrontpageSettings does not contain anything that overrides a user
+    // editable setting, so the reverse ordering here is fine
     const frontpageRecommendationSettings = {
       ...settings,
       ...defaultFrontpageSettings

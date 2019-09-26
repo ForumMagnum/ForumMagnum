@@ -2,6 +2,7 @@
 import { getSetting } from 'meteor/vulcan:core';
 import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection.js';
 import { addCronJob } from './cronUtil.js';
+import Sentry from '@sentry/node';
 
 let eventDebouncersByName = {};
 
@@ -135,7 +136,17 @@ export const dispatchPendingEvents = async () => {
     eventToHandle = queryResult.value;
     
     if (eventToHandle) {
-      await dispatchEvent(eventToHandle);
+      try {
+        await dispatchEvent(eventToHandle);
+      } catch (e) {
+        DebouncerEvents.update({
+          _id: eventToHandle._id
+        }, {
+          $set: { failed: true }
+        });
+        Sentry.captureException(new Error(`Exception thrown while handling debouncer event ${eventToHandle._id}: ${e}`));
+        Sentry.captureException(e);
+      }
     }
     
     // Keep checking for more events to handle so long as one was handled.

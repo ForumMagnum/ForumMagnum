@@ -81,6 +81,17 @@ const styles = theme => ({
       marginBottom: 0
     }
   },
+  hoverPreview: {
+    marginBottom: 0
+  },
+  moderatorHat: {
+    "&.comments-node-even": {
+      background: "#ffedb9",
+    },
+    "&.comments-node-odd": {
+      background: "#ffedb9",
+    },
+  },
   children: {
     position: "relative"
   },
@@ -234,11 +245,12 @@ class CommentsNode extends Component {
   }
 
   isSingleLine = () => {
-    const { forceSingleLine, postPage, currentUser } = this.props
+    const { forceSingleLine, forceNotSingleLine, postPage, currentUser } = this.props
     const { singleLine } = this.state
+    
     if (!singleLine || currentUser?.noSingleLineComments) return false;
-    if (forceSingleLine)
-      return true;
+    if (forceSingleLine) return true;
+    if (forceNotSingleLine) return false
     
     // highlighted new comments on post page should always be expanded (and it needs to live here instead of "beginSingleLine" since the highlight status can change after the fact)
     const postPageAndNew = this.isNewComment() && postPage 
@@ -250,7 +262,7 @@ class CommentsNode extends Component {
     const { comment, children, nestingLevel=1, highlightDate, updateComment, post,
       muiTheme, postPage, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments,
-      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand } = this.props;
+      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand, hoverPreview } = this.props;
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList } = Components
 
@@ -294,6 +306,8 @@ class CommentsNode extends Component {
         [classes.isSingleLine]: this.isSingleLine(),
         [classes.commentHidden]: hiddenReadComment,
         [classes.shortformTop]: postPage && shortform && (updatedNestingLevel===1),
+        [classes.hoverPreview]: hoverPreview,
+        [classes.moderatorHat]: comment.moderatorHat,
       }
     )
 
