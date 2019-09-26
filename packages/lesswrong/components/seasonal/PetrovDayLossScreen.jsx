@@ -36,7 +36,7 @@ const PetrovDayLossScreen = ({classes}) => {
       <Typography variant="display3" className={classes.title}>
         <Link to={"/posts/QtyKq4BDyuJ3tysoK/9-26-is-petrov-day"}>Petrov Day</Link>
       </Typography>
-      <Link className={classes.link} to={"/posts/QtyKq4BDyuJ3tysoK/9-26-is-petrov-day"}>What happened?</Link>
+      <Link className={classes.link} to={"/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019"}>What happened?</Link>
     </div>
   )
 }

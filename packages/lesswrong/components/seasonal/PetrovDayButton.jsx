@@ -171,7 +171,7 @@ const PetrovDayButton = ({classes, refetch}) => {
             Launch
           </Button>
         }
-        <Link to={"/posts/QtyKq4BDyuJ3tysoK/9-26-is-petrov-day"} className={classes.link}>
+        <Link to={"/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019"} className={classes.link}>
           What is this button about?
         </Link>
       </div>
