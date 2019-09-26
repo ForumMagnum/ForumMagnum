@@ -447,16 +447,16 @@ jobs:
             TOOL_NODE_FLAGS: --max_old_space_size=2500
           command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=600" meteor mup deploy --config mup.secret
   deploy_staging:
-    docker:
-      - image: circleci/openjdk:8-jdk-browsers
-        environment:
-          # lang settings required for Meteor's Mongo
-          LANG: C.UTF-8
-          LANGUAGE: C.UTF-8
-          LC_ALL: C.UTF-8
-          LC_NUMERIC: en_US.UTF-8
-          METEOR_BIN_TMP_DIR: /home/circleci/build-temp/
-          METEOR_BIN_TMP_FILE: meteor-bin-temp
+    macos:
+      xcode: "10.2.0"
+    environment:
+      # lang settings required for Meteor's Mongo
+      LANG: C.UTF-8
+      LANGUAGE: C.UTF-8
+      LC_ALL: C.UTF-8
+      LC_NUMERIC: en_US.UTF-8
+      METEOR_BIN_TMP_DIR: /home/circleci/build-temp/
+      METEOR_BIN_TMP_FILE: meteor-bin-temp
 
     working_directory: ~/app/lesswrong
     steps:
