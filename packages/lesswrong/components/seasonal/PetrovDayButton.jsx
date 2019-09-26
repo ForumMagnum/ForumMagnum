@@ -10,6 +10,8 @@ import Button from '@material-ui/core/Button';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { useCurrentUser } from '../common/withUser';
 import Users from 'meteor/vulcan:users';
+import withNewEvents from '../../lib/events/withNewEvents.jsx';
+
 
 const styles = theme => ({
   root: {
@@ -84,7 +86,7 @@ const styles = theme => ({
   }
 })
 
-const PetrovDayButton = ({classes, refetch}) => {
+const PetrovDayButton = ({classes, refetch, recordEvent}) => {
   const currentUser = useCurrentUser()
   const { petrovPressedButtonDate, petrovCodesEntered } = currentUser || []
   const [pressed, setPressed] = useState(petrovPressedButtonDate)
@@ -101,6 +103,10 @@ const PetrovDayButton = ({classes, refetch}) => {
       selector: {_id: currentUser._id},
       data: { petrovPressedButtonDate: new Date() }
     });
+  }
+
+  const registerLoggedOutPress = () => {
+    recordEvent('loggedOutPetrovPress');
   }
 
   const updateLaunchCode = (event) => {
@@ -152,7 +158,7 @@ const PetrovDayButton = ({classes, refetch}) => {
           :
           <div className={classes.button}>
             <Components.LoginPopupButton title={"Log in if you'd like to push the button"}>
-              <div>
+              <div onClick={registerLoggedOutPress}>
                 <img className={classes.buttonDefault} src={"../petrovButtonUnpressedDefault.png"}/>
                 <img className={classes.buttonHover} src={"../petrovButtonUnpressedHover.png"}/>
               </div>
@@ -179,4 +185,6 @@ const PetrovDayButton = ({classes, refetch}) => {
   )
 }
 
-registerComponent('PetrovDayButton', PetrovDayButton, withStyles(styles, {name: "PetrovDayButton"}));
+registerComponent('PetrovDayButton', PetrovDayButton, withStyles(styles, {name: "PetrovDayButton"}),
+  withNewEvents
+);
