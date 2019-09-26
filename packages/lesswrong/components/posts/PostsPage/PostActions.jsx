@@ -1,15 +1,25 @@
 import React, { Component } from 'react'
 import { withStyles } from '@material-ui/core/styles';
-import { registerComponent, Components, withUpdate, withMutation } from 'meteor/vulcan:core';
+import { registerComponent, Components, withUpdate, withMutation, getSetting } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users'
 import withUser from '../../common/withUser'
 import { Posts } from '../../../lib/collections/posts';
 import withSetAlignmentPost from "../../alignment-forum/withSetAlignmentPost";
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper.js';
+import Tooltip from '@material-ui/core/Tooltip';
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import EditIcon from '@material-ui/icons/Edit'
+import WarningIcon from '@material-ui/icons/Warning'
 import qs from 'qs'
+
+const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
+
+const NotFPSubmittedWarning = () => <Tooltip
+  title='user did not select "Moderators may promote to Frontpage" option'
+>
+  <WarningIcon />
+</Tooltip>
 
 const styles = theme => ({
   root: {
@@ -149,7 +159,8 @@ class PostActions extends Component {
             { !post.meta &&
               <div onClick={this.handleMoveToMeta}>
                 <MenuItem>
-                  Move to Meta
+                  Move to {metaName}
+                  {getSetting('forumType') === 'EAForum' && !post.submitToFrontpage && <NotFPSubmittedWarning />}
                 </MenuItem>
               </div>
             }
@@ -157,6 +168,7 @@ class PostActions extends Component {
               <div onClick={this.handleMoveToFrontpage}>
                 <MenuItem>
                   Move to Frontpage
+                  {!post.submitToFrontpage && <NotFPSubmittedWarning />}
                 </MenuItem>
               </div>
             }
