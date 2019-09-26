@@ -760,7 +760,8 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     optional: true, 
     order: 43,
-    label: "Hide the frontpage map"
+    label: "Hide the frontpage map",
+    hidden: true
   },
 
   // Set after a moderator has approved or purged a new user. NB: reviewed does
