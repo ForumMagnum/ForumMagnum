@@ -154,7 +154,7 @@ jobs:
           name: testing
           environment:
             TOOL_NODE_FLAGS: --max_old_space_size=2500 
-          command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=600" meteor yarn test
+          command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=400" meteor yarn test
   deploy_prod_fast:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -227,7 +227,7 @@ jobs:
       - deploy:
           environment:
             TOOL_NODE_FLAGS: --max_old_space_size=2500
-          command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=600" meteor mup deploy --config mup.secret
+          command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=400" meteor mup deploy --config mup.secret
   deploy_prod:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -300,7 +300,7 @@ jobs:
       - deploy:
           environment:
             TOOL_NODE_FLAGS: --max_old_space_size=2500
-          command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=600" meteor mup deploy --config mup.secret
+          command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=400" meteor mup deploy --config mup.secret
   deploy_af:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -373,7 +373,7 @@ jobs:
       - deploy:
           environment:
             TOOL_NODE_FLAGS: --max_old_space_size=2500
-          command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=600" meteor mup deploy --config mup.secret
+          command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=400" meteor mup deploy --config mup.secret
   deploy_baserates:
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -445,21 +445,43 @@ jobs:
       - deploy:
           environment:
             TOOL_NODE_FLAGS: --max_old_space_size=2500
-          command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=600" meteor mup deploy --config mup.secret
+          command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=400" meteor mup deploy --config mup.secret
   deploy_staging:
-    macos:
-      xcode: "10.2.0"
-    environment:
-      # lang settings required for Meteor's Mongo
-      LANG: C.UTF-8
-      LANGUAGE: C.UTF-8
-      LC_ALL: C.UTF-8
-      LC_NUMERIC: en_US.UTF-8
-      METEOR_BIN_TMP_DIR: /home/circleci/build-temp/
-      METEOR_BIN_TMP_FILE: meteor-bin-temp
+    docker:
+      - image: circleci/openjdk:8-jdk-browsers
+        environment:
+          # lang settings required for Meteor's Mongo
+          LANG: C.UTF-8
+          LANGUAGE: C.UTF-8
+          LC_ALL: C.UTF-8
+          LC_NUMERIC: en_US.UTF-8
+          METEOR_BIN_TMP_DIR: /home/circleci/build-temp/
+          METEOR_BIN_TMP_FILE: meteor-bin-temp
 
     working_directory: ~/app/lesswrong
     steps:
+      - attach_workspace:
+         at: ~/
+      # if certain cached files (packages, etc) are presetn, don't redownload them, restore the cached version
+      - restore_cache:
+          key: build-temp-{{ checksum ".meteor/release" }}-{{ checksum ".circleci/config.yml" }}
+      - restore_cache:
+          key: meteor-release-{{ checksum ".meteor/release" }}-{{ checksum ".circleci/config.yml" }}
+      - restore_cache:
+          key: meteor-packages-{{ checksum ".meteor/versions" }}-{{ checksum ".circleci/config.yml" }}
+      - restore_cache:
+          key: npm-packages-{{ checksum "package.json" }}-{{ checksum ".circleci/config.yml" }}
+      - run:
+          name: restore cached meteor bin
+          command: |
+            if [ -e ~/build-temp/meteor-bin ]
+            then
+                echo "Cached Meteor bin found, restoring it"
+                sudo cp ~/build-temp/meteor-bin /usr/local/bin/meteor
+            else
+                echo "No cached Meteor bin found."
+            fi
+      # if there is no cached meteor version, install it
       - run:
           name: install Meteor
           command: |
@@ -496,7 +518,7 @@ jobs:
       - deploy:
           environment:
             TOOL_NODE_FLAGS: --max_old_space_size=2500
-          command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=600" meteor mup deploy --config mup.secret
+          command: NODE_OPTIONS="$NODE_OPTIONS --max_old_space_size=400" meteor mup deploy --config mup.secret
 
 workflows:
   version: 2
@@ -510,6 +532,8 @@ workflows:
           filters:
             branches:
               only: devel
+          requires:
+            - test
       - deploy_prod:
           filters:
             branches:
