@@ -21,14 +21,19 @@ const styles = theme => ({
     ...theme.typography.commentStyle
   },
   link: {
-    textShadow: "0 0 15 rgba(0,0,0,.2)"
+    textShadow: "0 0 15 rgba(0,0,0,.2)",
+    color: "white"
   },
+  title: {
+    color: "white",
+    marginBottom: theme.spacing.unit*5
+  }
 })
 
 const PetrovDayLossScreen = ({classes}) => {
   return (
     <div className={classes.root}>
-      <Typography variant="display1" className={classes.title}>
+      <Typography variant="display3" className={classes.title}>
         <Link to={"/posts/QtyKq4BDyuJ3tysoK/9-26-is-petrov-day"}>Petrov Day</Link>
       </Typography>
       <Link className={classes.link} to={"/posts/QtyKq4BDyuJ3tysoK/9-26-is-petrov-day"}>What happened?</Link>
