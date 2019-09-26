@@ -68,8 +68,8 @@ Users.canModeratePost = (user, post) => {
   if (
     Users.canDo(user, "posts.moderate.own.personal") &&
     Users.owns(user, post) &&
-    postHasModerationGuidelines &&
-    isPersonalBlogpost
+    postHasModerationGuidelines(post) &&
+    isPersonalBlogpost(post)
   ) {
     return true
   }
