@@ -2,7 +2,6 @@ import { Components, registerComponent, getFragment, withMessages, getSetting } 
 import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Helmet } from 'react-helmet';
 import withUser from '../common/withUser'
 import { withStyles } from '@material-ui/core/styles';
 import { useLocation, useNavigation } from '../../lib/routeUtil.js';
@@ -18,9 +17,8 @@ const styles = theme => ({
 const PostsNewForm = ({currentUser, flash, classes}) => {
   const { query } = useLocation();
   const { history } = useNavigation();
-
+  
   const { PostSubmit, WrappedSmartForm, WrappedLoginForm } = Components
-  const mapsAPIKey = getSetting('googleMaps.apiKey', null);
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = getSetting('forumType') === 'AlignmentForum'
   const prefilledProps = {
@@ -45,7 +43,6 @@ const PostsNewForm = ({currentUser, flash, classes}) => {
 
   return (
     <div className="posts-new-form">
-      {prefilledProps.isEvent && <Helmet><script src={`https://maps.googleapis.com/maps/api/js?key=${mapsAPIKey}&libraries=places`}/></Helmet>}
       <NoSsr>
         <WrappedSmartForm
           collection={Posts}

@@ -42,6 +42,7 @@ registerFragment(`
     reviewedByUserId
     shortform
     lastSubthreadActivity
+    moderatorHat
   }
 `);
 

@@ -63,6 +63,7 @@ importComponent("HoverOver", () => require('../components/common/HoverOver.jsx')
 importComponent("ErrorBoundary", () => require('../components/common/ErrorBoundary.jsx'));
 importComponent("CloudinaryImage", () => require('../components/common/CloudinaryImage.jsx'));
 importComponent("ContentItemBody", () => require('../components/common/ContentItemBody.jsx'));
+importComponent("LWPopper", () => require('../components/common/LWPopper.jsx'));
 importComponent("Footer", () => require('../components/common/Footer.jsx'));
 importComponent("LoadMore", () => require('../components/common/LoadMore.jsx'));
 importComponent("ReCaptcha", () => require('../components/common/ReCaptcha.jsx'));
@@ -89,7 +90,7 @@ importComponent("SubscribeWidget", () => require('../components/common/Subscribe
 importComponent("SubscribeDialog", () => require('../components/common/SubscribeDialog.jsx'));
 
 importComponent("HoverPreviewLink", () => require('../components/linkPreview/HoverPreviewLink.jsx'));
-importComponent(["PostLinkPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "PostLinkPreviewWithPost"], () => require('../components/linkPreview/PostLinkPreview.jsx'));
+importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview"], () => require('../components/linkPreview/PostLinkPreview.jsx'));
 
 importComponent("AccountsVerifyEmail", () => require('../components/users/AccountsVerifyEmail.jsx'));
 importComponent("AccountsEnrollAccount", () => require('../components/users/EnrollAccount.jsx'));
@@ -140,9 +141,10 @@ importComponent("MoveToDraft", () => require('../components/posts/MoveToDraft.js
 importComponent("SuggestAlignment", () => require('../components/posts/SuggestAlignment.jsx'));
 importComponent("PostsItemMeta", () => require('../components/posts/PostsItemMeta.jsx'));
 importComponent("PostsItem2", () => require('../components/posts/PostsItem2.jsx'));
+importComponent("PostsItemTooltipWrapper", () => require('../components/posts/PostsItemTooltipWrapper.jsx'));
 importComponent("PostsItem2MetaInfo", () => require('../components/posts/PostsItem2MetaInfo.jsx'));
 importComponent("PostsTitle", () => require('../components/posts/PostsTitle.jsx'));
-importComponent("PostsItemTooltip", () => require('../components/posts/PostsItemTooltip.jsx'));
+importComponent("PostsPreviewTooltip", () => require('../components/posts/PostsPreviewTooltip.jsx'));
 importComponent("PostsItemComments", () => require('../components/posts/PostsItemComments.jsx'));
 importComponent("PostsItemWrapper", () => require('../components/posts/PostsItemWrapper.jsx'));
 importComponent("PostsItemKarma", () => require('../components/posts/PostsItemKarma.jsx'));
@@ -194,8 +196,7 @@ if (getSetting('hasEvents', true)) {
   importComponent("CommunityMapWrapper", () => require('../components/localGroups/CommunityMapWrapper.jsx'));
   importComponent("SetPersonalMapLocationDialog", () => require('../components/localGroups/SetPersonalMapLocationDialog.jsx'));
   importComponent("EventNotificationsDialog", () => require('../components/localGroups/EventNotificationsDialog.jsx'));
-  importComponent("MarkerWithInfoWindow", () => require('../components/localGroups/MarkerWithInfoWindow.jsx'));
-  importComponent("StyledMapMarker", () => require('../components/localGroups/StyledMapMarker.jsx'));
+  importComponent("StyledMapPopup", () => require('../components/localGroups/StyledMapPopup.jsx'));
   importComponent("EventTime", () => require('../components/localGroups/EventTime.jsx'));
   importComponent("EventVicinity", () => require('../components/localGroups/EventVicinity.jsx'));
   importComponent("LocalGroupMarker", () => require('../components/localGroups/LocalGroupMarker.jsx'));
@@ -235,6 +236,7 @@ importComponent("CommentBody", () => require('../components/comments/CommentsIte
 importComponent("CommentsMenu", () => require('../components/comments/CommentsItem/CommentsMenu.jsx'));
 importComponent("CommentOutdatedWarning", () => require('../components/comments/CommentsItem/CommentOutdatedWarning'));
 importComponent("CommentsItemDate", () => require('../components/comments/CommentsItem/CommentsItemDate'));
+importComponent("ToggleIsModeratorComment", () => require('../components/comments/CommentsItem/ToggleIsModeratorComment'));
 
 importComponent("CommentWithReplies", () => require('../components/comments/CommentWithReplies'));
 importComponent("CommentPermalink", () => require('../components/comments/CommentPermalink.jsx'));
@@ -363,6 +365,8 @@ importComponent("FormComponentDateTime", () => require('../components/form-compo
 importComponent("FormComponentNumber", () => require('../components/form-components/FormComponentNumber.jsx'));
 importComponent("WrappedSmartForm", () => require('../components/form-components/WrappedSmartForm.jsx'));
 
+importComponent("PetrovDayButton", () => require('../components/seasonal/PetrovDayButton.jsx'));
+importComponent("PetrovDayLossScreen", () => require('../components/seasonal/PetrovDayLossScreen.jsx'));
 
 
 import '../components/alignment-forum/withSetAlignmentPost.jsx';

@@ -40,9 +40,9 @@ export function getRecommendationSettings({settings, currentUser, configName})
 }
 
 const forumIncludeExtra = {
-  LessWrong: {humanName: 'Include Personal', machineName: 'includePersonal'},
-  AlignmentForum: {humanName: 'Include Personal', machineName: 'includePersonal'},
-  EAForum: {humanName: 'Include Community', machineName: 'includeMeta'},
+  LessWrong: {humanName: 'Include Personal Blogposts', machineName: 'includePersonal'},
+  AlignmentForum: {humanName: 'Include Personal Blogposts', machineName: 'includePersonal'},
+  EAForum: {humanName: 'Include Community Posts', machineName: 'includeMeta'},
 }
 
 const includeExtra = forumIncludeExtra[getSetting('forumType', 'LessWrong')]

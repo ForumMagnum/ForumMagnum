@@ -1,24 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent, useMulti, getSetting } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import { Localgroups } from '../../lib/index.js';
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
-import { useLocation, useNavigation } from '../../lib/routeUtil';
-import mapStyle from './mapStyles.js';
-import { GoogleMap, LoadScriptNext, MarkerClusterer } from "@react-google-maps/api"
-import NoSSR from 'react-no-ssr';
-import Paper from '@material-ui/core/Paper';
-import AddLocationIcon from '@material-ui/icons/AddLocation';
-import EventIcon from '@material-ui/icons/Event';
-import PersonIcon from '@material-ui/icons/Person';
+import { useLocation } from '../../lib/routeUtil';
+import { PersonSVG } from './Icons'
 import withDialog from '../common/withDialog'
 import withUser from '../common/withUser.js';
-import classNames from 'classnames';
+import ReactMapGL, { Marker } from 'react-map-gl';
+import { Helmet } from 'react-helmet'
 
-const mapsAPIKey = getSetting('googleMaps.apiKey', null);
+const mapboxAPIKey = getSetting('mapbox.apiKey', null);
 
-const mapsHeight = 440
+export const mapsHeight = 440
 const mapsWidth = "100vw"
 
 const styles = theme => ({
@@ -30,51 +25,73 @@ const styles = theme => ({
     [theme.breakpoints.down('sm')]: {
       marginTop: 0,
       marginLeft: -8
-    }
+    },
+    position: "relative"
   },
   communityMap: {},
   mapButton: {
-    position: 'absolute',
-    right: 10,
     padding: 10,
     display: "flex",
     alignItems: "center",
     cursor: "pointer",
     borderRadius: 2,
-    width: 120
+    width: 120,
+    marginBottom: theme.spacing.unit
   },
-  addGroup: {
-    top: 130,
-  },
-  addEvent: {
-    top: 182,
-  },
-  addMyself: {
-    top: 235,
+  hideMap: {
+    width: 34,
+    padding: 5
   },
   buttonText: {
     marginLeft: 10,
     fontWeight: 500,
     fontFamily: "Roboto",
+  },
+  mapButtons: {
+    alignItems: "flex-end",
+    position: "absolute",
+    top: 10,
+    right: 10,
+    display: "flex",
+    flexDirection: "column",
+    [theme.breakpoints.down('md')]: {
+      top: 24
+    }
+  },
+  filters: {
+    width: 100
   }
 });
 
-const createFallBackDialogHandler = (openDialog, dialogName, currentUser) => {
-  return () => openDialog({
-    componentName: currentUser ? dialogName : "LoginPopup",
-  });
-}
+
 
 // Make these variables have file-scope references to avoid rerending the scripts or map
-const libraries = ['places']
-const defaultCenter = {lat: 37.871853, lng: -122.258423}
-const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center = defaultCenter, zoom = 3, classes, showUsers, openDialog, currentUser }) => {
+const defaultCenter = {lat: 39.5, lng: -43.636047}
+const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center = defaultCenter, zoom = 3, classes, showUsers, openDialog, currentUser, showHideMap = false, petrovButton, petrovRefetch }) => {
   const { query } = useLocation()
-  const { history } = useNavigation()
   const groupQueryTerms = groupTerms || {view: "all", filters: query?.filters || []}
+
   const [ openWindows, setOpenWindows ] = useState(initialOpenWindows)
-  const handleClick = (id) => { setOpenWindows([id]) }
-  const handleClose = (id) => { setOpenWindows(_.without(openWindows, id))}
+  const handleClick = useCallback(
+    (id) => { setOpenWindows([id]) }
+    , []
+  )
+  const handleClose = useCallback(
+    (id) => { setOpenWindows(_.without(openWindows, id))}
+    , [openWindows]
+  )
+
+  const [ showEvents, setShowEvents ] = useState(true)
+  const [ showGroups, setShowGroups ] = useState(true)
+  const [ showIndividuals, setShowIndividuals ] = useState(true)
+  const [ showMap, setShowMap ] = useState(true)
+
+  const [ viewport, setViewport ] = useState({
+    latitude: center.lat,
+    longitude: center.lng,
+    zoom: 2
+  })
+  
 
   const { results: events = [] } = useMulti({
     terms: eventTerms,
@@ -98,92 +115,93 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
     terms: {view: "usersMapLocations"},
     collection: Users,
     queryName: "usersMapLocationQuery",
-    fragmentName: "UsersProfile",
+    fragmentName: "UsersMapEntry",
     limit: 500,
     ssr: true
   })
 
+  const renderedMarkers = useMemo(() => {
+    return <React.Fragment>
+      {showEvents && <LocalEventsMapMarkers events={events} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
+      {showGroups && <LocalGroupsMapMarkers groups={groups} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
+      {showIndividuals && <PersonalMapLocationMarkers users={users} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />}
+      <div className={classes.mapButtons}>
+        <Components.CommunityMapFilter 
+          showHideMap={showHideMap} 
+          toggleEvents={() => setShowEvents(!showEvents)} showEvents={showEvents}
+          toggleGroups={() => setShowGroups(!showGroups)} showGroups={showGroups}
+          toggleIndividuals={() => setShowIndividuals(!showIndividuals)} showIndividuals={showIndividuals}
+          setShowMap={setShowMap}
+        />
+      </div>
+    </React.Fragment>
+  }, [showEvents, events, handleClick, handleClose, openWindows, showGroups, groups, showIndividuals, users, classes.mapButtons, showHideMap])
+
+  if (!showMap) return null
+
   return <div className={classes.root}>
-    <NoSSR>
-      {Meteor.isClient && <LoadScriptNext googleMapsApiKey={mapsAPIKey} libraries={libraries}>
-        <GoogleMap
-          center={center}
-          zoom={zoom}
-          mapContainerStyle={{
-            height: `${mapsHeight}px`,
-            width: mapsWidth
-          }}
-          mapContainerClassName={classes.communityMap}
-          options={{
-            styles: mapStyle,
-            keyboardShortcuts: false,
-            mapTypeControl: false,
-            fullscreenControl: false,
-            streetViewControl: false
-          }}
-        >
-          <LocalEventsMapMarkers events={events} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />
-          <LocalGroupsMapMarkers groups={groups} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />
-          <PersonalMapLocationMarkers users={users} handleClick={handleClick} handleClose={handleClose} openWindows={openWindows} />
-          <Components.CommunityMapFilter />
-          <Paper 
-            elevation={1}
-            className={classNames(classes.mapButton, classes.addGroup)} 
-            onClick={createFallBackDialogHandler(openDialog, "GroupFormDialog", currentUser)}
-          >
-            <AddLocationIcon /> <span className={classes.buttonText}>New Group</span>
-          </Paper>
-          <Paper 
-            elevation={1}
-            className={classNames(classes.mapButton, classes.addEvent)}
-            onClick={() => history.push({ pathname: 'newPost', search: `?eventForm=true`})}
-          >
-            <EventIcon /> <span className={classes.buttonText}> New Event </span>
-          </Paper>
-          <Paper 
-            elevation={1}
-            className={classNames(classes.mapButton, classes.addMyself)}
-            onClick={createFallBackDialogHandler(openDialog, "SetPersonalMapLocationDialog", currentUser)}
-          >
-            <PersonIcon /> <span className={classes.buttonText}> Add Myself </span>
-          </Paper>
-        </GoogleMap>
-      </LoadScriptNext>}
-    </NoSSR>
+      <Helmet> 
+        <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
+      </Helmet>
+      <ReactMapGL
+        {...viewport}
+        width="100%"
+        height="100%"
+        mapStyle={"mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
+        onViewportChange={viewport => setViewport(viewport)}
+        mapboxApiAccessToken={mapboxAPIKey}
+      >
+        {renderedMarkers}
+      </ReactMapGL>
+      {petrovButton && <Components.PetrovDayButton refetch={petrovRefetch}/>}
   </div>
 }
 
-const personIcon = {
-  path: "M6.46 5.3C7.52 3.81 5.49 2.11 3.15 1.19 2.26 1.8 1.17 2.17 0 2.17 -1.17 2.17 -2.25 1.8 -3.14 1.19 -5.48 2.11 -7.52 3.81 -6.46 5.3 -4.62 7.9 4.62 7.9 6.46 5.3zM4.58 -3.18C4.58 -0.71 2.53 1.3 0 1.3 -2.52 1.3 -4.57 -0.71 -4.57 -3.18 -4.57 -5.65 -2.52 -7.65 0 -7.65 4.24 -7.63 4.58 -3.18 4.58 -3.18zM3.61 -6.58M-12.78 -12.21",
-  fillColor: '#588f27',
-  fillOpacity: 0.9,
-  scale: 1.25,
-  strokeWeight: 1,
-  strokeColor: "#FFFFFF"
-}
 
-const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindows}) => {
-  return <MarkerClusterer
-    options={{imagePath:"/m"}}
-  >
-    { (clusterer) => users.map((user) => {
+
+
+const personalMapMarkerStyles = theme => ({
+  icon: {
+    height: 15,
+    width: 15,
+    fill: '#3f51b5',
+    opacity: 0.8
+  }
+})
+const PersonalMapLocationMarkers = withStyles(personalMapMarkerStyles, {name: "PersonalMapLocationMarkers"})(
+  ({users, handleClick, handleClose, openWindows, classes}) => {
+  const { StyledMapPopup } = Components
+  return <React.Fragment>
+    {users.map(user => {
+      const location = user.mapLocation
+      if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
+      const { geometry: {location: {lat, lng}}} = location
       const htmlBody = {__html: user.htmlMapMarkerText};
-      return <Components.StyledMapMarker 
-        location={user.mapLocation}
-        handleOpen={() => handleClick(user._id)}
-        handleClose={() => handleClose(user._id)}
-        infoOpen={openWindows.includes(user._id)}
-        icon={personIcon}
-        link={Users.getProfileUrl(user)}
-        title={` [User] ${Users.getDisplayName(user)} `}
-        key={ user._id }
-        clusterer={clusterer}
-      >
-        <div dangerouslySetInnerHTML={htmlBody} />
-      </Components.StyledMapMarker>
+      return <React.Fragment key={user._id}>
+        <Marker
+          latitude={lat}
+          longitude={lng}
+          offsetLeft={-8}
+          offsetTop={-20}
+        >
+          <span onClick={() => handleClick(user._id)}>
+            <PersonSVG className={classes.icon}/>
+          </span>
+        </Marker>
+        {openWindows.includes(user._id) && 
+          <StyledMapPopup
+            lat={lat}
+            lng={lng}
+            link={Users.getProfileUrl(user)}
+            title={` [User] ${Users.getDisplayName(user)} `}
+            onClose={() => handleClose(user._id)}
+          >
+            <div dangerouslySetInnerHTML={htmlBody} />
+          </StyledMapPopup>}
+      </React.Fragment>
     })}
-  </MarkerClusterer>
-}
+  </React.Fragment>
+})
 
 const LocalEventsMapMarkers = ({events, handleClick, handleClose, openWindows}) => {
   return events.map((event) => {
@@ -212,5 +230,7 @@ const LocalGroupsMapMarkers = ({groups, handleClick, handleClose, openWindows}) 
     )
   })
 }
+
+
 
 registerComponent("CommunityMap", CommunityMap, withStyles(styles, {name: "CommunityMap"}), withDialog, withUser)
