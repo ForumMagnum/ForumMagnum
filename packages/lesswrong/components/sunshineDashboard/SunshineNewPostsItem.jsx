@@ -24,7 +24,7 @@ class SunshineNewPostsItem extends Component {
 
   handlePromote = destination => () => {
     const { currentUser, post, updatePost } = this.props
-    destinationData = {
+    const destinationData = {
       'frontpage': {frontpageDate: new Date()},
       'community': {meta: true}
     }[destination]

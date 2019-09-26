@@ -55,9 +55,6 @@ const styles = theme => ({
       paddingRight: theme.spacing.unit*3,
     }
   },
-  checkboxRoot: {
-    display: 'flex',
-  },
   checkboxLabel: {
     fontWeight:500,
     fontFamily: theme.typography.commentStyle.fontFamily,
