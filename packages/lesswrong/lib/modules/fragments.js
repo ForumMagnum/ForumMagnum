@@ -135,6 +135,9 @@ registerFragment(`
     viewUnreviewedComments
     sunshineShowNewUserContent
     recommendationSettings
+    petrovPressedButtonDate
+    petrovCodesEnteredDate
+    petrovCodesEntered
   }
 `);
 
@@ -142,7 +145,7 @@ registerFragment(`
   fragment UserKarmaChanges on User {
     _id
     karmaChanges {
-      totalChange
+      totalChange 
       updateFrequency
       startDate
       endDate
