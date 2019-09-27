@@ -11,6 +11,7 @@ turndownService.remove('style') // Make sure we don't add the content of style t
 
 import markdownIt from 'markdown-it'
 import markdownItMathjax from './markdown-mathjax.js'
+import cheerio from 'cheerio';
 import markdownItContainer from 'markdown-it-container'
 import markdownItFootnote from 'markdown-it-footnote'
 
@@ -21,6 +22,8 @@ mdi.use(markdownItFootnote)
 
 import { mjpage }  from 'mathjax-node-page'
 
+
+
 function mjPagePromise(html, beforeSerializationCallback) {
   // Takes in HTML and replaces LaTeX with CommonHTML snippets
   // https://github.com/pkra/mathjax-node-page
@@ -30,9 +33,69 @@ function mjPagePromise(html, beforeSerializationCallback) {
   })
 }
 
+// Adapted from: https://github.com/cheeriojs/cheerio/issues/748
+const cheerioWrapAll = (toWrap, wrapper, $) => {
+  if (toWrap.length < 1) {
+    return toWrap;
+  } 
+
+  if (toWrap.length < 2 && $.wrap) { // wrap not defined in npm version,
+    return $.wrap(wrapper);      // and git version fails testing.
+  }
+
+  const section = $(wrapper);
+  let  marker = $('<div>');
+  marker = marker.insertBefore(toWrap.first()); // in jQuery marker would remain current
+  toWrap.each(function(k, v) {                  // in Cheerio, we update with the output.
+    $(v).remove();
+    section.append($(v));
+  });
+  section.insertBefore(marker); 
+  marker.remove();
+  return section;                 // This is what jQuery would return, IIRC.
+}
+
+const spoilerClass = 'spoiler-v2' // this is the second iteration of a spoiler-tag that we've implemented. Changing the name for backwards-and-forwards compatibility
+
+/// Given HTML which possibly contains elements tagged with with a spoiler class
+/// (ie, hidden until mouseover), parse the HTML, and wrap consecutive elements
+/// that all have a spoiler tag in a shared spoiler element (so that the
+/// mouse-hover will reveal all of them together).
+function wrapSpoilerTags(html) {
+  const $ = cheerio.load(html)
+  
+  // Iterate through spoiler elements, collecting them into groups. We do this
+  // the hard way, because cheerio's sibling-selectors don't seem to work right.
+  let spoilerBlockGroups = [];
+  let currentBlockGroup = [];
+  $(`.${spoilerClass}`).each(function() {
+    const element = this;
+    if (!(element?.previousSibling && $(element.previousSibling).hasClass(spoilerClass))) {
+      if (currentBlockGroup.length > 0) {
+        spoilerBlockGroups.push(currentBlockGroup);
+        currentBlockGroup = [];
+      }
+    }
+    currentBlockGroup.push(element);
+  });
+  if (currentBlockGroup.length > 0) {
+    spoilerBlockGroups.push(currentBlockGroup);
+  }
+  
+  // Having collected the elements into groups, wrap each group.
+  for (let spoilerBlockGroup of spoilerBlockGroups) {
+    cheerioWrapAll($(spoilerBlockGroup), '<div class="spoilers" />', $);
+  }
+  
+  // Serialize back to HTML.
+  return $.html()
+}
+
+
 export async function draftJSToHtmlWithLatex(draftJS) {
   const draftJSWithLatex = await Utils.preProcessLatex(draftJS)
-  return draftToHTML(convertFromRaw(draftJSWithLatex))
+  const html = draftToHTML(convertFromRaw(draftJSWithLatex))
+  return wrapSpoilerTags(html)
 }
 
 export function htmlToMarkdown(html) {

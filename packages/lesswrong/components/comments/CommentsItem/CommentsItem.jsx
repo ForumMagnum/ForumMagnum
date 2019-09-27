@@ -90,7 +90,10 @@ export const styles = theme => ({
   },
   deleted: {
     backgroundColor: "#ffefef",
-  }
+  },
+  moderatorHat: {
+    marginRight: 8,
+  },
 })
 
 class CommentsItem extends Component {
@@ -212,6 +215,9 @@ class CommentsItem extends Component {
               scrollIntoView={scrollIntoView}
               scrollOnClick={postPage && !isParentComment}
             />
+            {comment.moderatorHat && <span className={classes.moderatorHat}>
+              Moderator Comment
+            </span>}
             <Components.CommentsVote comment={comment} currentUser={currentUser} />
 
             {!isParentComment && this.renderMenu()}

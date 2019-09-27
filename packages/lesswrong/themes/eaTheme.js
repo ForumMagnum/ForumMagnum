@@ -176,7 +176,8 @@ const theme = createLWTheme({
     },
     SunshineSidebar: {
       root: {
-        top: 30
+        top: 30,
+        marginTop: 63
       }
     },
     PostsPageTitle: {

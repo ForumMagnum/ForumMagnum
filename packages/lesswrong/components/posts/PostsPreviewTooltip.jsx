@@ -7,38 +7,58 @@ import { postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping
 import classNames from 'classnames';
 import { Posts } from '../../lib/collections/posts';
 import CommentIcon from '@material-ui/icons/ModeComment';
+import Card from '@material-ui/core/Card';
 
 const styles = theme => ({
   root: {
-    width: 305,
-    backgroundColor: "white",
+    width: 290,
     position: "relative",
     [theme.breakpoints.up('sm')]: {
       marginTop: theme.spacing.unit,
       marginBottom: theme.spacing.unit,
     },
-    ...postHighlightStyles(theme),
     padding: theme.spacing.unit*1.5,
-    border: "solid 1px rgba(0,0,0,.2)",
-    boxShadow: "0 0 10px rgba(0,0,0,.2)",
+    paddingTop: theme.spacing.unit,
+    paddingBottom: theme.spacing.unit,
     '& img': {
       maxHeight: "200px"
     },
-  },
-  hideOnMobile: {
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       display: "none"
     },
   },
+  hideOnMedium: {
+    // TODO: figure out more elegant way of handling this breakpoint
+    // 
+    // This collection of breakpoints attempts to keep the preview fitting on the page even on 13" monitors and half-screen pages, until it starts looking just silly
+    '@media only screen and (max-width: 1350px)': {
+      width: 280,
+    },
+    '@media only screen and (max-width: 1330px)': {
+      width: 260,
+    },
+    '@media only screen and (max-width: 1300px)': {
+      width: 240,
+    },
+    '@media only screen and (max-width: 1270px)': {
+      display: "none"
+    }
+  },
   wide: {
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       width: `calc(100% - ${theme.spacing.unit*4}px)`,
       marginLeft: theme.spacing.unit,
       marginRight: theme.spacing.unit
     },
+    [theme.breakpoints.up('sm')]: {
+      width: 450,
+    },
     [theme.breakpoints.up('md')]: {
       width: 550,
     },
+  },
+  title: {
+    marginBottom: -6
   },
   tooltipInfo: {
     fontStyle: "italic",
@@ -46,7 +66,8 @@ const styles = theme => ({
     color: theme.palette.grey[600]
   },
   highlight: {
-    marginTop: theme.spacing.unit*2.5,
+    ...postHighlightStyles(theme),
+    marginTop: theme.spacing.unit*3,
     marginBottom: theme.spacing.unit*2.5,
     wordBreak: 'break-word',
     fontSize: "1.1rem",
@@ -92,6 +113,9 @@ const styles = theme => ({
       display: "inline-block",
       float: "left"
     },
+  },
+  comment: {
+    marginTop: theme.spacing.unit*1.5
   }
 })
 
@@ -113,31 +137,44 @@ const getPostCategory = (post) => {
     return post.question ? `Question` : `Personal Blogpost`
 }
 
-const PostsItemTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMobile=false, truncateLimit=600 }) => {
-  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody } = Components
+const PostsPreviewTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMedium=true, truncateLimit=600, comment }) => {
+  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode } = Components
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
   const highlight = truncate(htmlHighlight, truncateLimit)
   const renderCommentCount = showAllinfo && (Posts.getCommentCount(post) > 0)
-  return <div className={classNames(classes.root, {[classes.wide]: wide, [classes.hideOnMobile]: hideOnMobile})}>
-    {showAllinfo && <PostsTitle post={post} tooltip={false}/>}
-    <div className={classes.tooltipInfo}>
-      { getPostCategory(post)}
-      { showAllinfo && post.user && <span> by <PostsUserAndCoauthors post={post} simple/></span>}
-      { renderCommentCount && <span className={classes.comments}>
-        <CommentIcon className={classes.commentIcon}/>
-          {Posts.getCommentCountStr(post)}
-      </span>}
-      { showAllinfo && <span className={classes.karma}>{Posts.getKarma(post)} karma</span>}
-    </div>
-    <ContentItemBody className={classes.highlight} dangerouslySetInnerHTML={{__html:highlight}} />
-    {(wordCount > 0) && <div className={classes.tooltipInfo}>
-      {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
-    </div>}
-  </div>
+  const renderWordCount = !comment && (wordCount > 0)
+  return <Card className={classNames(classes.root, {[classes.wide]: wide, [classes.hideOnMedium]: hideOnMedium})}>
+      <div className={classes.title}>
+        <PostsTitle post={post} tooltip={false} wrap/>
+      </div>
+      <div className={classes.tooltipInfo}>
+        { getPostCategory(post)}
+        { showAllinfo && post.user && <span> by <PostsUserAndCoauthors post={post} simple/></span>}
+        { renderCommentCount && <span className={classes.comments}>
+          <CommentIcon className={classes.commentIcon}/>
+            {Posts.getCommentCountStr(post)}
+        </span>}
+        { showAllinfo && <span className={classes.karma}>{Posts.getKarma(post)} karma</span>}
+      </div>
+      {comment ? 
+          <div className={classes.comment}>
+            <CommentsNode
+            truncated
+            comment={comment}
+            post={post}
+            hoverPreview
+            forceNotSingleLine
+          /></div> :
+          <ContentItemBody className={classes.highlight} dangerouslySetInnerHTML={{__html:highlight}} />
+          }
+      {renderWordCount && <div className={classes.tooltipInfo}>
+        {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
+      </div>}
+  </Card>
 
 }
 
-registerComponent('PostsItemTooltip', PostsItemTooltip, withUser,
-  withStyles(styles, { name: "PostsItemTooltip" })
+registerComponent('PostsPreviewTooltip', PostsPreviewTooltip, withUser,
+  withStyles(styles, { name: "PostsPreviewTooltip" })
 );
