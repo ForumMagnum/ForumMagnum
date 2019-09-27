@@ -340,6 +340,8 @@ class EditorFormComponent extends Component {
         return this.state.htmlValue;
       case "ckEditorMarkup":
         return this.state.ckEditorValue;
+      case "ckEditorMarkupCollaboration":
+        return this.state.ckEditorValue;
     }
   }
 
@@ -351,6 +353,7 @@ class EditorFormComponent extends Component {
       case "markdown": return "md_";
       case "html":     return "html_";
       case "ckEditorMarkup": return "ckeditor_";
+      case "ckEditorMarkupCollaboration": return "ckeditor_";
     }
   }
 
@@ -422,6 +425,7 @@ class EditorFormComponent extends Component {
             <MenuItem value={'markdown'}>Markdown</MenuItem>
             <MenuItem value={'draftJS'}>Draft-JS</MenuItem>
             <MenuItem value={'ckEditorMarkup'}>CK Editor [Beta]</MenuItem>
+            <MenuItem value={'ckEditorMarkupCollaboration'}>CK Editor Collaboration [Beta]</MenuItem>
           </Select>
       </Tooltip>
     )
@@ -437,7 +441,9 @@ class EditorFormComponent extends Component {
   renderEditorComponent = (currentEditorType) => {
     switch (currentEditorType) {
       case "ckEditorMarkup":
-        return this.renderCkEditor(currentEditorType)
+        return this.renderCkEditor(false)
+      case "ckEditorMarkupCollaboration":
+        return this.renderCkEditor(true)
       case "draftJS":
         return this.renderDraftJSEditor(currentEditorType)
       case "markdown":
@@ -457,7 +463,7 @@ class EditorFormComponent extends Component {
     }
   }
 
-  renderCkEditor = () => {
+  renderCkEditor = (collaboration) => {
     const { ckEditorValue, ckEditorReference } = this.state
     const { document, currentUser, formType } = this.props
     const { Loading } = Components
@@ -471,6 +477,7 @@ class EditorFormComponent extends Component {
           { this.renderPlaceholder(!value)}
           <CKEditor 
             data={value}
+            annotations
             documentId={document._id}
             formType={formType}
             userId={currentUser._id}

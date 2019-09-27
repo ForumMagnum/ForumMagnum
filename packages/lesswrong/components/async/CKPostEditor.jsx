@@ -48,7 +48,7 @@ const refreshDisplayMode = ( editor, sidebarElement ) => {
 }
 
 
-const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, onInit, classes }) => {
+const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, onInit, classes, annotations }) => {
   // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
   useEffect(() => {
@@ -69,14 +69,15 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
       onChange={onChange}
       editor={ PostEditor }
       onInit={ editor => {
-          // Uncomment this line and the import above to activate the CKEDItor debugger
-          // CKEditorInspector.attach(editor)
+          if (annotations) {
+            // Uncomment this line and the import above to activate the CKEDItor debugger
+            // CKEditorInspector.attach(editor)
 
-          // We listen to the current window size to determine how to show comments
-          window.addEventListener( 'resize', () => refreshDisplayMode(editor, sidebarRef.current) );
-          // We then call the method once to determine the current window size
-          refreshDisplayMode(editor, sidebarRef.current)
-
+            // We listen to the current window size to determine how to show comments
+            window.addEventListener( 'resize', () => refreshDisplayMode(editor, sidebarRef.current) );
+            // We then call the method once to determine the current window size
+            refreshDisplayMode(editor, sidebarRef.current)
+          }
           onInit(editor)
       } }
       config={{
