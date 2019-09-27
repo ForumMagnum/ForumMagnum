@@ -15,11 +15,9 @@ import qs from 'qs'
 
 const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
 
-const NotFPSubmittedWarning = () => <Tooltip
-  title='user did not select "Moderators may promote to Frontpage" option'
->
-  <WarningIcon />
-</Tooltip>
+const NotFPSubmittedWarning = ({className}) => <div className={className}>
+  {' '}<WarningIcon fontSize='inherit' />
+</div>
 
 const styles = theme => ({
   root: {
@@ -34,6 +32,10 @@ const styles = theme => ({
       maxWidth: '80%'
     }
   },
+  promoteWarning: {
+    fontSize: 20,
+    marginLeft: 4,
+  }
 })
 
 class PostActions extends Component {
@@ -158,18 +160,30 @@ class PostActions extends Component {
           <span>
             { !post.meta &&
               <div onClick={this.handleMoveToMeta}>
-                <MenuItem>
-                  Move to {metaName}
-                  {getSetting('forumType') === 'EAForum' && !post.submitToFrontpage && <NotFPSubmittedWarning />}
-                </MenuItem>
+                <Tooltip title={
+                  getSetting('forumType') === 'EAForum' && post.submitToFrontpage ?
+                    '' :
+                    'user did not select "Moderators may promote to Frontpage" option'
+                }>
+                  <MenuItem>
+                    Move to {metaName}
+                    {getSetting('forumType') === 'EAForum' && !post.submitToFrontpage && <NotFPSubmittedWarning className={classes.promoteWarning} />}
+                  </MenuItem>
+                </Tooltip>
               </div>
             }
             { !post.frontpageDate &&
               <div onClick={this.handleMoveToFrontpage}>
-                <MenuItem>
-                  Move to Frontpage
-                  {!post.submitToFrontpage && <NotFPSubmittedWarning />}
-                </MenuItem>
+                <Tooltip title={
+                  post.submitToFrontpage ?
+                    '' :
+                    'user did not select "Moderators may promote to Frontpage" option'
+                }>
+                  <MenuItem>
+                    Move to Frontpage
+                    {!post.submitToFrontpage && <NotFPSubmittedWarning className={classes.promoteWarning} />}
+                  </MenuItem>
+                </Tooltip>
               </div>
             }
             { (post.frontpageDate || post.meta || post.curatedDate) &&
