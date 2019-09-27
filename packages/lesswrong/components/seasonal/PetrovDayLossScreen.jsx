@@ -5,6 +5,10 @@ import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import { Link } from '../../lib/reactRouterWrapper.js';
 
+// This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
+// see this post:
+// https://www.lesswrong.com/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019
+
 const styles = theme => ({
   root: {
     position: "absolute",
