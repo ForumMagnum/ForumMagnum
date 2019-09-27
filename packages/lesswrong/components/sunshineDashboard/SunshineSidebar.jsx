@@ -69,7 +69,7 @@ class SunshineSidebar extends Component {
             <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 30}}/>
             <SunshineReportedContentList terms={{view:"sunshineSidebarReports", limit: 30}}/>
             {!!currentUser.viewUnreviewedComments && <SunshineNewCommentsList terms={{view:"sunshineNewCommentsList"}}/>}
-            <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions"}}/>
+            <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 50}}/>
           </div>}        
           { currentUser.groups && currentUser.groups.includes('alignmentForumAdmins') && <div>
             <AFSuggestUsersList terms={{view:"alignmentSuggestedUsers"}}/>
