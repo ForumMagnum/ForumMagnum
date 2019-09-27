@@ -11,6 +11,10 @@ import { Link } from '../../lib/reactRouterWrapper.js';
 import { useCurrentUser } from '../common/withUser';
 import Users from 'meteor/vulcan:users';
 
+// This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
+// see this post:
+// https://www.lesswrong.com/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019
+
 const styles = theme => ({
   root: {
     ...theme.typography.commentStyle,

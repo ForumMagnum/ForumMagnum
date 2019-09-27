@@ -19,9 +19,10 @@ class PostsEditForm extends PureComponent {
     const { documentId, document, eventForm, classes, flash, history } = this.props;
     const { params } = this.props.location; // From withLocation
     const isDraft = document && document.draft;
-    const { WrappedSmartForm, PostSubmit } = Components
+    const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox } = Components
     const EditPostsSubmit = (props) => {
       return <div className={classes.formSubmit}>
+        {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
         <PostSubmit
           saveDraftLabel={isDraft ? "Save as draft" : "Move to Drafts"}
           {...props}

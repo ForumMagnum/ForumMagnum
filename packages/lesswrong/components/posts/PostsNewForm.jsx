@@ -17,8 +17,8 @@ const styles = theme => ({
 const PostsNewForm = ({currentUser, flash, classes}) => {
   const { query } = useLocation();
   const { history } = useNavigation();
-  
-  const { PostSubmit, WrappedSmartForm, WrappedLoginForm } = Components
+
+  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = getSetting('forumType') === 'AlignmentForum'
   const prefilledProps = {
@@ -37,6 +37,7 @@ const PostsNewForm = ({currentUser, flash, classes}) => {
   }
   const NewPostsSubmit = (props) => {
     return <div className={classes.formSubmit}>
+      {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
       <PostSubmit {...props} />
     </div>
   }

@@ -54,8 +54,6 @@ const FILTERS_ALL = {
       tooltip: "Posts relating to LessWrong itself"
     },
   },
-  // Note: this may diverge from LW and that's fine. The important thing is that
-  // when LW edits theirs, there's no merge conflict.
   "EAForum": {
     all: {
       label: "All Posts",

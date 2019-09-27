@@ -157,7 +157,6 @@ addFieldsDict(Users, {
     canRead: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
-    hidden: true,
   },
 
   // Legacy: Boolean used to indicate that post was imported from old LW database
@@ -345,9 +344,8 @@ addFieldsDict(Users, {
     group: formGroups.moderationGroup,
     label: "Style",
     canRead: ['guests'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    canCreate: [Users.owns, 'sunshineRegiment', 'admins'],
-    hidden: true,
+    canUpdate: ['members', 'sunshineRegiment', 'admins'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
     blackbox: true,
     order: 55,
     form: {
@@ -366,11 +364,10 @@ addFieldsDict(Users, {
     type: Boolean,
     optional: true,
     group: formGroups.moderationGroup,
-    label: "I'm happy for LW site moderators to help enforce my policy",
+    label: "I'm happy for site moderators to help enforce my policy",
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
-    hidden: true,
     control: 'checkbox',
     order: 55,
   },
@@ -383,7 +380,6 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
-    hidden: true,
     control: 'checkbox',
     order: 56,
   },
@@ -754,11 +750,11 @@ addFieldsDict(Users, {
   },
 
   hideFrontpageMap: {
-    type: Boolean, 
+    type: Boolean,
     canRead: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    optional: true, 
+    optional: true,
     order: 43,
     label: "Hide the frontpage map",
     hidden: true
@@ -989,6 +985,7 @@ addFieldsDict(Users, {
     control: 'datetime',
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true
   },
   petrovCodesEnteredDate: {
     type: Date,
@@ -996,12 +993,14 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     control: 'datetime',
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true
   },
   petrovCodesEntered: {
     type: String,
     optional: true,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true
   },
   petrovCodesEnteredHashed: {
     type: String,
@@ -1081,10 +1080,9 @@ export const makeEditableOptionsModeration = {
   fieldName: "moderationGuidelines",
   permissions: {
     viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins'],
+    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
     insertableBy: [Users.owns, 'sunshineRegiment', 'admins']
-  },
-  hidden: true
+  }
 }
 
 makeEditable({
