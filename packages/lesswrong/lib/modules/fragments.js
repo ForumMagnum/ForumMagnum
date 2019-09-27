@@ -135,9 +135,6 @@ registerFragment(`
     viewUnreviewedComments
     sunshineShowNewUserContent
     recommendationSettings
-    // petrovPressedButtonDate
-    // petrovCodesEnteredDate
-    // petrovCodesEntered
   }
 `);
 
