@@ -42,6 +42,7 @@ import MathpreviewPlugin from 'ckeditor5-math-preview/src/mathpreview';
 
 class CommentEditor extends BalloonBlockEditorBase {}
 class PostEditor extends BalloonBlockEditorBase {}
+class PostEditorRealtime extends BalloonBlockEditorBase {}
 
 // Tables and MediaEmbeds are commented out for now, but will be added back in as soon as some minor
 // minor issues are debugged.
@@ -52,7 +53,7 @@ class PostEditor extends BalloonBlockEditorBase {}
 // 3. navigate back to main folder (i.e. 'cd ../..')
 // 4. run 'yarn add ./public/lesswrong-editor'.
 
-PostEditor.builtinPlugins = [
+const postEditorPlugins = [
 	Autosave,
 	Alignment,
 	Autoformat,
@@ -77,9 +78,6 @@ PostEditor.builtinPlugins = [
 	// MediaEmbed,
 	Paragraph,
 	PasteFromOffice,
-	PresenceList,
-	RealTimeCollaborativeComments,
-	RealTimeCollaborativeTrackChanges,
 	RemoveFormat,
 	Strikethrough,
 	// Table,
@@ -87,9 +85,20 @@ PostEditor.builtinPlugins = [
 	Underline,
 	UploadAdapter,
 	MathpreviewPlugin
+]
+
+PostEditor.builtinPlugins = [
+  ...postEditorPlugins
 ];
 
-PostEditor.defaultConfig = {
+PostEditorRealtime.builtinPlugins = [
+  ...postEditorPlugins,
+	RealTimeCollaborativeComments,
+  RealTimeCollaborativeTrackChanges,
+  PresenceList
+];
+
+const postEditorConfig = {
 	blockToolbar: [
 		'heading',
 		'|',
@@ -143,6 +152,10 @@ PostEditor.defaultConfig = {
 	// mediaEmbed: {
 	// 	toolbar: [ 'comment' ]
 	// },
+}
+
+PostEditor.defaultConfig = {
+  ...postEditorConfig
 };
 
 CommentEditor.builtinPlugins = [
