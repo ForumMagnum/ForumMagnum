@@ -246,11 +246,6 @@ const theme = createLWTheme({
         color: grey[800]
       }
     },
-    PostLinkPreviewWithPost: {
-      indicator: {
-        bottom: 3
-      }
-    },
     CommentPermalink: {
       root: {
         marginBottom: 24
