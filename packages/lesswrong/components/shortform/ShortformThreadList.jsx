@@ -11,12 +11,7 @@ const styles = theme => ({
 })
 
 const ShortformThreadList = ({ classes, results, loading, loadMore, networkStatus, data: {refetch} }) => {
-
   const { LoadMore, CommentWithReplies, ShortformSubmitForm, Loading } = Components
-
-  if (!loading && results && !results.length) {
-    return null
-  }
 
   const loadingMore = networkStatus === 2;
 

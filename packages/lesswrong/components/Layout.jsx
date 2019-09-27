@@ -220,7 +220,6 @@ class Layout extends PureComponent {
       <TableOfContentsContext.Provider value={this.setToC}>
         <div className={classNames("wrapper", {'alignment-forum': getSetting('forumType') === 'AlignmentForum'}) } id="wrapper">
           <DialogManager>
-          <div>
             <CssBaseline />
             <Helmet>
               <link name="material-icons" rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
@@ -261,7 +260,6 @@ class Layout extends PureComponent {
               </Components.ErrorBoundary>
             </div>
             <Components.Footer />
-          </div>
           </DialogManager>
         </div>
       </TableOfContentsContext.Provider>

@@ -14,9 +14,8 @@ function wrapWithMuiTheme (app) {
   return (
     <JssProvider generateClassName={generateClassName}>
       <MuiThemeProvider theme={forumTheme}>
-        <JssCleanup>
-          {app}
-        </JssCleanup>
+        {app}
+        <JssCleanup />
       </MuiThemeProvider>
     </JssProvider>
   );
