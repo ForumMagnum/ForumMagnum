@@ -365,8 +365,8 @@ importComponent("FormComponentDateTime", () => require('../components/form-compo
 importComponent("FormComponentNumber", () => require('../components/form-components/FormComponentNumber.jsx'));
 importComponent("WrappedSmartForm", () => require('../components/form-components/WrappedSmartForm.jsx'));
 
-importComponent("PetrovDayButton", () => require('../components/seasonal/PetrovDayButton.jsx'));
-importComponent("PetrovDayLossScreen", () => require('../components/seasonal/PetrovDayLossScreen.jsx'));
+// importComponent("PetrovDayButton", () => require('../components/seasonal/PetrovDayButton.jsx'));
+// importComponent("PetrovDayLossScreen", () => require('../components/seasonal/PetrovDayLossScreen.jsx'));
 
 
 import '../components/alignment-forum/withSetAlignmentPost.jsx';

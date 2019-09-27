@@ -153,7 +153,6 @@ const createLWTheme = (theme) => {
       questionPageWhitescreen: 3,
       textbox: 4,
       styledMapPopup: 5,
-      petrovDayButton: 6,
       nextUnread: 999,
       sunshineSidebar: 1000,
       postItemMenu: 1001,
@@ -166,7 +165,8 @@ const createLWTheme = (theme) => {
       lwPopper: 10000,
       lwPopperTooltip: 10001,
       searchBar: 100000,
-      petrovDayLoss: 1000000
+      // petrovDayButton: 6,
+      // petrovDayLoss: 1000000
     },
     voting: {
       strongVoteDelay: 1000,

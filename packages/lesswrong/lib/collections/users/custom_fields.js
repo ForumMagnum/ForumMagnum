@@ -989,6 +989,7 @@ addFieldsDict(Users, {
     control: 'datetime',
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true
   },
   petrovCodesEnteredDate: {
     type: Date,
@@ -996,12 +997,14 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     control: 'datetime',
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true
   },
   petrovCodesEntered: {
     type: String,
     optional: true,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true
   },
   petrovCodesEnteredHashed: {
     type: String,

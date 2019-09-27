@@ -67,7 +67,7 @@ const styles = theme => ({
 
 // Make these variables have file-scope references to avoid rerending the scripts or map
 const defaultCenter = {lat: 39.5, lng: -43.636047}
-const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center = defaultCenter, zoom = 3, classes, showUsers, openDialog, currentUser, showHideMap = false, petrovButton, petrovRefetch }) => {
+const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center = defaultCenter, zoom = 3, classes, showUsers, openDialog, currentUser, showHideMap = false, petrovButton }) => {
   const { query } = useLocation()
   const groupQueryTerms = groupTerms || {view: "all", filters: query?.filters || []}
 
@@ -153,12 +153,9 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
       >
         {renderedMarkers}
       </ReactMapGL>
-      {petrovButton && <Components.PetrovDayButton refetch={petrovRefetch}/>}
+      {petrovButton && <Components.PetrovDayButton />}
   </div>
 }
-
-
-
 
 const personalMapMarkerStyles = theme => ({
   icon: {
