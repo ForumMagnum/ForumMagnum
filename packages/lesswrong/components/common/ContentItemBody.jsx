@@ -105,6 +105,7 @@ class ContentItemBody extends Component {
       // Don't let exceptions escape from here. This ensures that, if client-side
       // modifications crash, the post/comment text still remains visible.
       Sentry.captureException(e);
+      // eslint-disable-next-line no-console
       console.error(e);
     }
   }
