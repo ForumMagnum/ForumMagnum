@@ -4,6 +4,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
+import Sentry from '@sentry/node';
 
 const scrollIndicatorColor = "#ddd";
 const scrollIndicatorHoverColor = "#888";
@@ -87,15 +88,29 @@ class ContentItemBody extends Component {
   }
 
   componentDidMount () {
-    this.markScrollableLaTeX();
-    this.markHoverableLinks();
+    try {
+      this.markScrollableLaTeX();
+      this.markHoverableLinks();
+    } catch(e) {
+      // Don't let exceptions escape from here. This ensures that, if client-side
+      // modifications crash, the post/comment text still remains visible.
+      Sentry.captureException(e);
+      console.error(e);
+    }
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.dangerouslySetInnerHTML?.__html !== this.props.dangerouslySetInnerHTML?.__html) {
-      this.markScrollableLaTeX();
-      this.markHoverableLinks();
-    } 
+      try {
+        this.markScrollableLaTeX();
+        this.markHoverableLinks();
+      } catch(e) {
+        // Don't let exceptions escape from here. This ensures that, if client-side
+        // modifications crash, the post/comment text still remains visible.
+        Sentry.captureException(e);
+        console.error(e);
+      }
+    }
   }
   
   render() {
