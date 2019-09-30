@@ -6,6 +6,13 @@ import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 import { customThemes } from '../../../themes/customThemes.js';
 import SimpleSchema from 'simpl-schema'
 
+export const hashPetrovCode = (code) => {
+  const crypto = Npm.require('crypto');
+  var hash = crypto.createHash('sha256');
+  hash.update(code);
+  return hash.digest('base64');
+};
+
 export const MAX_NOTIFICATION_RADIUS = 300
 export const formGroups = {
   moderationGroup: {
@@ -971,6 +978,39 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     tooltip: "Get early access to new in-development features",
     label: "Opt into experimental features"
+  },
+  petrovPressedButtonDate: {
+    type: Date,
+    optional: true,
+    control: 'datetime',
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true
+  },
+  petrovCodesEnteredDate: {
+    type: Date,
+    optional: true,
+    canRead: ['guests'],
+    control: 'datetime',
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true
+  },
+  petrovCodesEntered: {
+    type: String,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true
+  },
+  petrovCodesEnteredHashed: {
+    type: String,
+    optional: true,
+    ...denormalizedField({
+      needsUpdate: data => ('petrovCodesEntered' in data),
+      getValue: async (user) => {
+        return hashPetrovCode(user.petrovCodesEntered)
+      }
+    }),
   },
   defaultToCKEditor: {
     type: Boolean,

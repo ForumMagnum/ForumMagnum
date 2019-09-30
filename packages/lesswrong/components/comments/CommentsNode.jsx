@@ -84,6 +84,14 @@ const styles = theme => ({
   hoverPreview: {
     marginBottom: 0
   },
+  moderatorHat: {
+    "&.comments-node-even": {
+      background: "#ffedb9",
+    },
+    "&.comments-node-odd": {
+      background: "#ffedb9",
+    },
+  },
   children: {
     position: "relative"
   },
@@ -299,6 +307,7 @@ class CommentsNode extends Component {
         [classes.commentHidden]: hiddenReadComment,
         [classes.shortformTop]: postPage && shortform && (updatedNestingLevel===1),
         [classes.hoverPreview]: hoverPreview,
+        [classes.moderatorHat]: comment.moderatorHat,
       }
     )
 

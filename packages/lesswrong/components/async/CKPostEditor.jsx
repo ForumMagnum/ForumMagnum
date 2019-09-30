@@ -48,7 +48,7 @@ const refreshDisplayMode = ( editor, sidebarElement ) => {
 }
 
 
-const CKPostEditor = ({ data, onSave, documentId, userId, formType, onInit, classes }) => {
+const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, onInit, classes }) => {
   // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
   useEffect(() => {
@@ -62,10 +62,11 @@ const CKPostEditor = ({ data, onSave, documentId, userId, formType, onInit, clas
     <Helmet> 
       <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS_HTML' async></script>
     </Helmet>
-    <div ref={presenceListRef} />
     {/* Because of a bug in CKEditor, we call preventDefault on all click events coming out of the sidebar. See: https://github.com/ckeditor/ckeditor5/issues/1992 */}
     <div ref={sidebarRef} className={classes.sidebar} onClick={(e) => e.preventDefault()}/>
     {layoutReady && <CKEditor
+      data={data || ""}
+      onChange={onChange}
       editor={ PostEditor }
       onInit={ editor => {
           // Uncomment this line and the import above to activate the CKEDItor debugger
@@ -99,6 +100,7 @@ const CKPostEditor = ({ data, onSave, documentId, userId, formType, onInit, clas
         initialData: data
       }}
     />}
+    <div ref={presenceListRef} />
   </div>
 }
 export default withStyles(styles)(CKPostEditor)

@@ -15,7 +15,7 @@ import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
 import { PostsReadContext } from './common/withRecordPostView';
-
+import { pBodyStyle } from '../themes/stylePiping';
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
 const googleTagManagerId = getSetting('googleTagManager.apiKey')
 
@@ -61,16 +61,7 @@ const styles = theme => ({
     },
   },
   '@global': {
-    p: {
-      marginTop: "1em",
-      marginBottom: "1em",
-      '&:first-of-type': {
-        marginTop: 0,
-      },
-      '&:last-of-type': {
-        marginBottom: 0,
-      }
-    },
+    p: pBodyStyle,
     '.mapboxgl-popup': {
       willChange: 'auto !important',
       zIndex: theme.zIndexes.styledMapPopup
@@ -222,7 +213,6 @@ class Layout extends PureComponent {
       <TableOfContentsContext.Provider value={this.setToC}>
         <div className={classNames(classes.wrapper, {'alignment-forum': getSetting('forumType') === 'AlignmentForum'}) } id="wrapper">
           <DialogManager>
-          <div>
             <CssBaseline />
             <Helmet>
               <link name="material-icons" rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
@@ -263,7 +253,6 @@ class Layout extends PureComponent {
               </Components.ErrorBoundary>
             </div>
             <Components.Footer />
-          </div>
           </DialogManager>
         </div>
       </TableOfContentsContext.Provider>

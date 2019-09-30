@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent, parseRoute, Utils } from 'meteor/vulcan:core';
 import { Link } from 'react-router-dom';
 import { hostIsOnsite, useLocation, getUrlClass } from '../../lib/routeUtil';
+import Sentry from '@sentry/node';
 
 // From react-router-v4
 // https://github.com/ReactTraining/history/blob/master/modules/PathUtils.js
@@ -29,7 +30,7 @@ var parsePath = function parsePath(path) {
   };
 };
 
-const HoverPreviewLink = ({ innerHTML, href}) => {
+const HoverPreviewLink = ({ innerHTML, href }) => {
   const URLClass = getUrlClass()
   const location = useLocation();
 
@@ -49,7 +50,14 @@ const HoverPreviewLink = ({ innerHTML, href}) => {
     
     if (hostIsOnsite(linkTargetAbsolute.host) || Meteor.isServer) {
       const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
-      const parsedUrl = parseRoute(parsePath(onsiteUrl));
+      const parsedUrl = parseRoute({
+        location: parsePath(onsiteUrl),
+        onError: (pathname) => {
+          if (Meteor.isClient) {
+            Sentry.captureException(new Error(`Broken link from ${location.pathname} to ${pathname}`));
+          }
+        }
+      });
       
       if (parsedUrl?.currentRoute) {
         const PreviewComponent = parsedUrl.currentRoute?.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;

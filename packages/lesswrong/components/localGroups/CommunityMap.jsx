@@ -13,7 +13,7 @@ import { Helmet } from 'react-helmet'
 
 const mapboxAPIKey = getSetting('mapbox.apiKey', null);
 
-const mapsHeight = 440
+export const mapsHeight = 440
 const mapsWidth = "100vw"
 
 const styles = theme => ({
@@ -25,7 +25,8 @@ const styles = theme => ({
     [theme.breakpoints.down('sm')]: {
       marginTop: 0,
       marginLeft: -8
-    }
+    },
+    position: "relative"
   },
   communityMap: {},
   mapButton: {
@@ -66,7 +67,7 @@ const styles = theme => ({
 
 // Make these variables have file-scope references to avoid rerending the scripts or map
 const defaultCenter = {lat: 39.5, lng: -43.636047}
-const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center = defaultCenter, zoom = 3, classes, showUsers, openDialog, currentUser, showHideMap = false }) => {
+const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center = defaultCenter, zoom = 3, classes, showUsers, openDialog, currentUser, showHideMap = false, petrovButton }) => {
   const { query } = useLocation()
   const groupQueryTerms = groupTerms || {view: "all", filters: query?.filters || []}
 
@@ -152,11 +153,9 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
       >
         {renderedMarkers}
       </ReactMapGL>
+      {petrovButton && <Components.PetrovDayButton />}
   </div>
 }
-
-
-
 
 const personalMapMarkerStyles = theme => ({
   icon: {

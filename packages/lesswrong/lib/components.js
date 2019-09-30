@@ -87,7 +87,7 @@ importComponent("SubscribeWidget", () => require('../components/common/Subscribe
 importComponent("SubscribeDialog", () => require('../components/common/SubscribeDialog.jsx'));
 
 importComponent("HoverPreviewLink", () => require('../components/linkPreview/HoverPreviewLink.jsx'));
-importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "PostLinkPreviewWithPost", "DefaultPreview"], () => require('../components/linkPreview/PostLinkPreview.jsx'));
+importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview"], () => require('../components/linkPreview/PostLinkPreview.jsx'));
 
 importComponent("AccountsVerifyEmail", () => require('../components/users/AccountsVerifyEmail.jsx'));
 importComponent("AccountsEnrollAccount", () => require('../components/users/EnrollAccount.jsx'));
@@ -138,6 +138,7 @@ importComponent("MoveToDraft", () => require('../components/posts/MoveToDraft.js
 importComponent("SuggestAlignment", () => require('../components/posts/SuggestAlignment.jsx'));
 importComponent("PostsItemMeta", () => require('../components/posts/PostsItemMeta.jsx'));
 importComponent("PostsItem2", () => require('../components/posts/PostsItem2.jsx'));
+importComponent("PostsItemTooltipWrapper", () => require('../components/posts/PostsItemTooltipWrapper.jsx'));
 importComponent("PostsItem2MetaInfo", () => require('../components/posts/PostsItem2MetaInfo.jsx'));
 importComponent("PostsTitle", () => require('../components/posts/PostsTitle.jsx'));
 importComponent("PostsPreviewTooltip", () => require('../components/posts/PostsPreviewTooltip.jsx'));
@@ -232,6 +233,7 @@ importComponent("CommentBody", () => require('../components/comments/CommentsIte
 importComponent("CommentsMenu", () => require('../components/comments/CommentsItem/CommentsMenu.jsx'));
 importComponent("CommentOutdatedWarning", () => require('../components/comments/CommentsItem/CommentOutdatedWarning'));
 importComponent("CommentsItemDate", () => require('../components/comments/CommentsItem/CommentsItemDate'));
+importComponent("ToggleIsModeratorComment", () => require('../components/comments/CommentsItem/ToggleIsModeratorComment'));
 
 importComponent("CommentWithReplies", () => require('../components/comments/CommentWithReplies'));
 importComponent("CommentPermalink", () => require('../components/comments/CommentPermalink.jsx'));
@@ -244,6 +246,7 @@ importComponent("CommentsList", () => require('../components/comments/CommentsLi
 importComponent("CommentsListMeta", () => require('../components/comments/CommentsListMeta.jsx'));
 importComponent("CommentsNode", () => require('../components/comments/CommentsNode.jsx'));
 importComponent("CommentsViews", () => require('../components/comments/CommentsViews.jsx'));
+importComponent("LegacyCommentRedirect", () => require('../components/comments/LegacyCommentRedirect.jsx'));
 importComponent("RecentComments", () => require('../components/comments/RecentComments.jsx'));
 
 importComponent("ParentCommentSingle", () => require('../components/comments/ParentCommentSingle.jsx'));
@@ -361,6 +364,8 @@ importComponent("FormComponentNumber", () => require('../components/form-compone
 importComponent("WrappedSmartForm", () => require('../components/form-components/WrappedSmartForm.jsx'));
 importComponent("ThemePicker", () => require('../components/form-components/ThemePicker.jsx'));
 
+// importComponent("PetrovDayButton", () => require('../components/seasonal/PetrovDayButton.jsx'));
+// importComponent("PetrovDayLossScreen", () => require('../components/seasonal/PetrovDayLossScreen.jsx'));
 
 
 import '../components/alignment-forum/withSetAlignmentPost.jsx';

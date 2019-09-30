@@ -8,6 +8,8 @@ import { Helmet } from 'react-helmet';
 import { withStyles } from '@material-ui/core/styles';
 import { styles } from '../common/HeaderSubtitle';
 
+const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
+
 const PostsPageHeaderTitle = ({location, isSubtitle, siteName, loading, document, classes}) => {
   if (!document || loading) return null;
   const post = document;
@@ -31,7 +33,7 @@ const PostsPageHeaderTitle = ({location, isSubtitle, siteName, loading, document
     return null;
   } else if (post.meta) {
     return (<span className={classes.subtitle}>
-      <Link to="/meta">Meta</Link>
+      <Link to="/meta">{metaName}</Link>
     </span>);
   } else if (post.userId) {
     // TODO: For personal blogposts, put the user in the sutitle. There was an
