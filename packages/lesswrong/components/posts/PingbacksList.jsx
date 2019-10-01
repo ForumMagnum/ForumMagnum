@@ -26,7 +26,6 @@ const PingbacksList = ({postId}) => {
   
   if (loading)
     return <Components.Loading/>
-  console.log(results);
   
   if (results) {
     if (results.length > 0) {
