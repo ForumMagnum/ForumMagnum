@@ -45,7 +45,7 @@ const sendNotificationBatch = async ({ userId, notificationIds }) => {
   if (!notifications.length)
     throw new Error("Failed to find notifications");
   
-  const emails = notificationBatchToEmails({
+  const emails = await notificationBatchToEmails({
     user, notifications
   });
   
