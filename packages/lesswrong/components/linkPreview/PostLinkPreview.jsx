@@ -1,9 +1,10 @@
 import React from 'react';
-import { Components, registerComponent, useSingle, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, useSingle } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments';
 import { Link } from 'react-router-dom';
 import { usePostBySlug, usePostByLegacyId } from '../posts/usePost.js';
+import { useCommentByLegacyId } from '../comments/useComment.js';
 import withHover from '../common/withHover';
 import Card from '@material-ui/core/Card';
 import { withStyles } from '@material-ui/core/styles';
@@ -55,6 +56,39 @@ const PostLinkPreviewLegacy = ({href, targetLocation, innerHTML}) => {
 }
 registerComponent('PostLinkPreviewLegacy', PostLinkPreviewLegacy);
 
+const CommentLinkPreviewLegacy = ({href, targetLocation, innerHTML}) => {
+  const legacyPostId = targetLocation.params.id;
+  const legacyCommentId = targetLocation.params.commentId;
+  
+  const { post, loading: loadingPost, error: postError } = usePostByLegacyId({ legacyId: legacyPostId });
+  const { comment, loading: loadingComment, error: commentError } = useCommentByLegacyId({ legacyId: legacyCommentId });
+  const error = postError || commentError;
+  const loading = loadingPost || loadingComment;
+
+  if (comment) {
+    return <Components.CommentLinkPreviewWithComment comment={comment} post={post} loading={loading} error={error} href={href} innerHTML={innerHTML} />
+  }
+  return <Components.PostLinkPreviewWithPost href={href} innerHTML={innerHTML} post={post} loading={loading} error={error} />
+}
+registerComponent('CommentLinkPreviewLegacy', CommentLinkPreviewLegacy);
+
+const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, innerHTML}) => {
+  const postId = targetLocation.params._id;
+  const commentId = targetLocation.params.commentId;
+
+  const { document: post } = useSingle({
+    collection: Posts,
+    queryName: "postLinkPreview",
+    fragmentName: 'PostsList',
+    fetchPolicy: 'cache-then-network',
+    
+    documentId: postId,
+  });
+  
+  return <Components.PostLinkCommentPreview href={href} innerHTML={innerHTML} commentId={commentId} post={post}/>
+}
+registerComponent('PostCommentLinkPreviewGreaterWrong', PostCommentLinkPreviewGreaterWrong);
+
 const PostLinkPreviewVariantCheck = ({ href, innerHTML, post, targetLocation, comment, commentId, error }) => {
   if (targetLocation.query.commentId) {
     return <PostLinkCommentPreview commentId={targetLocation.query.commentId} href={href} innerHTML={innerHTML} post={post} />
@@ -76,15 +110,14 @@ registerComponent('PostLinkPreviewVariantCheck', PostLinkPreviewVariantCheck);
 const styles = theme => ({
   link: {
     position: "relative",
-    marginRight: 12,
-  },
-  indicator: {
-    position: "absolute",
-    width: 20,
-    fontSize: 8,
-    display: "inline-block",
-    color: theme.palette.primary.main,
-    cursor: "pointer",
+    marginRight: 6,
+    '&:after': {
+      content: '"°"',
+      marginLeft: 1,
+      marginRight: 1,
+      color: theme.palette.primary.main,
+      position: "absolute"
+    }
   }
 })
 
@@ -106,17 +139,11 @@ const PostLinkCommentPreview = ({href, commentId, post, innerHTML}) => {
 }
 registerComponent('PostLinkCommentPreview', PostLinkCommentPreview);
 
-const siteTwoLetter = getSetting('forumType') === 'EAForum' ? 'EA' : 'LW'
-
 const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hover}) => {
   const { PostsPreviewTooltip, LWPopper } = Components
-  const linkElement = <span className={classes.linkElement}>
-      <Link className={classes.link} to={href}>
-        <span dangerouslySetInnerHTML={{__html: innerHTML}}></span>{}<span className={classes.indicator}>{siteTwoLetter}</span>
-      </Link>
-    </span>
+
   if (!post) {
-    return linkElement;
+    return <Link to={href}  dangerouslySetInnerHTML={{__html: innerHTML}}/>;
   }
   return (
     <span>
@@ -133,7 +160,7 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hove
       >
         <PostsPreviewTooltip post={post} showAllinfo wide truncateLimit={900} hideOnMedium={false}/>
       </LWPopper>
-      {linkElement}
+      <Link className={classes.link} to={href}  dangerouslySetInnerHTML={{__html: innerHTML}}/>
     </span>
   );
 }
@@ -141,14 +168,10 @@ registerComponent('PostLinkPreviewWithPost', PostLinkPreviewWithPost, withHover,
 
 const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post, anchorEl, hover}) => {
   const { PostsPreviewTooltip, LWPopper } = Components
-  const linkElement = <span className={classes.linkElement}>
-      <Link className={classes.link} to={href}>
-        <span dangerouslySetInnerHTML={{__html: innerHTML}}></span>{" "}<span className={classes.indicator}>LW</span>
-      </Link>
-    </span>
 
   if (!comment) {
-    return linkElement;
+    return <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}}/>
+    ;
   }
   return (
     <span>
@@ -165,7 +188,7 @@ const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post,
       >
         <PostsPreviewTooltip post={post} comment={comment} showAllinfo wide truncateLimit={900} hideOnMedium={false}/>
       </LWPopper>
-      {linkElement}
+      <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}}/>
     </span>
   );
 }

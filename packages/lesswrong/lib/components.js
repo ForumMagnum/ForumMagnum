@@ -91,7 +91,7 @@ importComponent("SubscribeWidget", () => require('../components/common/Subscribe
 importComponent("SubscribeDialog", () => require('../components/common/SubscribeDialog.jsx'));
 
 importComponent("HoverPreviewLink", () => require('../components/linkPreview/HoverPreviewLink.jsx'));
-importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "PostLinkPreviewWithPost", "DefaultPreview"], () => require('../components/linkPreview/PostLinkPreview.jsx'));
+importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview"], () => require('../components/linkPreview/PostLinkPreview.jsx'));
 
 importComponent("AccountsVerifyEmail", () => require('../components/users/AccountsVerifyEmail.jsx'));
 importComponent("AccountsEnrollAccount", () => require('../components/users/EnrollAccount.jsx'));
@@ -250,6 +250,7 @@ importComponent("CommentsList", () => require('../components/comments/CommentsLi
 importComponent("CommentsListMeta", () => require('../components/comments/CommentsListMeta.jsx'));
 importComponent("CommentsNode", () => require('../components/comments/CommentsNode.jsx'));
 importComponent("CommentsViews", () => require('../components/comments/CommentsViews.jsx'));
+importComponent("LegacyCommentRedirect", () => require('../components/comments/LegacyCommentRedirect.jsx'));
 importComponent("RecentComments", () => require('../components/comments/RecentComments.jsx'));
 
 importComponent("ParentCommentSingle", () => require('../components/comments/ParentCommentSingle.jsx'));
@@ -366,6 +367,8 @@ importComponent("FormComponentDateTime", () => require('../components/form-compo
 importComponent("FormComponentNumber", () => require('../components/form-components/FormComponentNumber.jsx'));
 importComponent("WrappedSmartForm", () => require('../components/form-components/WrappedSmartForm.jsx'));
 
+// importComponent("PetrovDayButton", () => require('../components/seasonal/PetrovDayButton.jsx'));
+// importComponent("PetrovDayLossScreen", () => require('../components/seasonal/PetrovDayLossScreen.jsx'));
 
 
 import '../components/alignment-forum/withSetAlignmentPost.jsx';

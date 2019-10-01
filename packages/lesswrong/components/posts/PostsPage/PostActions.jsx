@@ -1,15 +1,23 @@
 import React, { Component } from 'react'
 import { withStyles } from '@material-ui/core/styles';
-import { registerComponent, Components, withUpdate, withMutation } from 'meteor/vulcan:core';
+import { registerComponent, Components, withUpdate, withMutation, getSetting } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users'
 import withUser from '../../common/withUser'
 import { Posts } from '../../../lib/collections/posts';
 import withSetAlignmentPost from "../../alignment-forum/withSetAlignmentPost";
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper.js';
+import Tooltip from '@material-ui/core/Tooltip';
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import EditIcon from '@material-ui/icons/Edit'
+import WarningIcon from '@material-ui/icons/Warning'
 import qs from 'qs'
+
+const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
+
+const NotFPSubmittedWarning = ({className}) => <div className={className}>
+  {' '}<WarningIcon fontSize='inherit' />
+</div>
 
 const styles = theme => ({
   root: {
@@ -24,6 +32,10 @@ const styles = theme => ({
       maxWidth: '80%'
     }
   },
+  promoteWarning: {
+    fontSize: 20,
+    marginLeft: 4,
+  }
 })
 
 class PostActions extends Component {
@@ -169,16 +181,30 @@ class PostActions extends Component {
           <span>
             { !post.meta &&
               <div onClick={this.handleMoveToMeta}>
-                <MenuItem>
-                  Move to Meta
-                </MenuItem>
+                <Tooltip title={
+                  getSetting('forumType') === 'EAForum' && post.submitToFrontpage ?
+                    '' :
+                    'user did not select "Moderators may promote to Frontpage" option'
+                }>
+                  <MenuItem>
+                    Move to {metaName}
+                    {getSetting('forumType') === 'EAForum' && !post.submitToFrontpage && <NotFPSubmittedWarning className={classes.promoteWarning} />}
+                  </MenuItem>
+                </Tooltip>
               </div>
             }
             { !post.frontpageDate &&
               <div onClick={this.handleMoveToFrontpage}>
-                <MenuItem>
-                  Move to Frontpage
-                </MenuItem>
+                <Tooltip title={
+                  post.submitToFrontpage ?
+                    '' :
+                    'user did not select "Moderators may promote to Frontpage" option'
+                }>
+                  <MenuItem>
+                    Move to Frontpage
+                    {!post.submitToFrontpage && <NotFPSubmittedWarning className={classes.promoteWarning} />}
+                  </MenuItem>
+                </Tooltip>
               </div>
             }
             { (post.frontpageDate || post.meta || post.curatedDate) &&
