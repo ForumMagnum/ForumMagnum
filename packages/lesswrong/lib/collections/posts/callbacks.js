@@ -1,4 +1,4 @@
-import { addCallback, runCallbacks, runCallbacksAsync, newMutation } from 'meteor/vulcan:core';
+import { addCallback, runCallbacks, runCallbacksAsync, newMutation, editMutation } from 'meteor/vulcan:core';
 import { Posts } from './collection';
 import { Comments } from '../comments/collection';
 import Users from 'meteor/vulcan:users';
@@ -150,3 +150,61 @@ function UpdatePostShortform (newPost, oldPost) {
   return newPost;
 }
 addCallback("posts.edit.async", UpdatePostShortform );
+
+function MoveCommentsFromConvertedComment (newPost, oldPost, user) {
+  const published = newPost.draft === false  && !!oldPost.draft
+  const moveComments = newPost.convertedFromCommentId && newPost.moveCommentsFromConvertedComment
+  const comment = Comments.findOne({_id: newPost.convertedFromCommentId})
+  const userHasPermission = Users.canMoveChildComments(user, comment)
+  
+  // This currently is intended to work on top-level shortform comments. 
+
+  // TODO — build a version of this that works on children of non-top-level comments,
+  // either by building a recursive function that grabs children here, or changing comment architecture to 
+  // make it easier to grab all children-comments of an arbitrary comment at once
+  if (published && moveComments && userHasPermission) {
+
+    const childrenOfTopLevelComment = Comments.find({topLevelCommentId: comment._id}).fetch()
+    childrenOfTopLevelComment.forEach((comment) => {
+      editMutation({
+        collection: Comments,
+        documentId: comment._id,
+        set: {
+          postId: newPost._id,
+          shortform: false
+        },
+        currentUser: user,
+        validate: false,
+      })
+    })
+    const childrenOfParentComment = Comments.find({ parentCommentId: newPost.convertedFromCommentId }).fetch()
+    childrenOfParentComment.forEach((comment) => {
+      editMutation({
+        collection: Comments,
+        documentId: comment._id,
+        set: {
+          parentCommentId: null,
+        },
+        currentUser: user,
+        validate: false,
+      })
+    })
+  }
+  return newPost;
+}
+addCallback("posts.edit.async", MoveCommentsFromConvertedComment );
+
+function PostsNewConvertedFrom (post, user) {
+  const comment = Comments.findOne({_id:post.convertedFromCommentId})
+  if (post.convertedFromCommentId && Comments.options.mutations.update.check(user, comment)) {
+    Comments.update(
+      { _id: post.convertedFromCommentId },
+      { $set: {
+        convertedToPostId: post._id,
+      }},
+    );
+  }
+  return post
+}
+addCallback("posts.new.after", PostsNewConvertedFrom);
+

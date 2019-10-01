@@ -26,7 +26,8 @@ Users.groups.members.can(membersActions);
 
 const adminActions = [
   'comments.edit.all',
-  'comments.remove.all'
+  'comments.remove.all',
+  'comments.moveConvertedCommentChildren.all'
 ];
 Users.groups.admins.can(adminActions);
 
@@ -35,7 +36,8 @@ Users.groups.admins.can(adminActions);
 const sunshineRegimentActions = [
   'comments.softRemove.all',
   'comments.replyOnBlocked.all',
-  'comments.edit.all'
+  'comments.edit.all',
+  'comments.moveConvertedCommentChildren.all'
 ];
 Users.groups.sunshineRegiment.can(sunshineRegimentActions);
 
