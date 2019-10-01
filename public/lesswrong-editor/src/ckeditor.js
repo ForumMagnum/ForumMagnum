@@ -136,7 +136,7 @@ const postEditorConfig = {
       'imageTextAlternative',
 			'comment',
     ],
-    styles: [ 'full', 'alignLeft', 'alignCenter', 'alignRight', ]
+    // styles: [ 'full', 'alignLeft', 'alignCenter', 'alignRight', ]
 	},
 	// table: {
 	// 	contentToolbar: [
