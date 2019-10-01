@@ -42,7 +42,7 @@ import MathpreviewPlugin from 'ckeditor5-math-preview/src/mathpreview';
 
 class CommentEditor extends BalloonBlockEditorBase {}
 class PostEditor extends BalloonBlockEditorBase {}
-class PostEditorRealtime extends BalloonBlockEditorBase {}
+class PostEditorCollaboration extends BalloonBlockEditorBase {}
 
 // Tables and MediaEmbeds are commented out for now, but will be added back in as soon as some minor
 // minor issues are debugged.
@@ -85,13 +85,13 @@ const postEditorPlugins = [
 	Underline,
 	UploadAdapter,
 	MathpreviewPlugin
-]
+];
 
 PostEditor.builtinPlugins = [
   ...postEditorPlugins
 ];
 
-PostEditorRealtime.builtinPlugins = [
+PostEditorCollaboration.builtinPlugins = [
   ...postEditorPlugins,
 	RealTimeCollaborativeComments,
   RealTimeCollaborativeTrackChanges,
@@ -125,21 +125,18 @@ const postEditorConfig = {
 		'|',
 		'link',
 		'|',
-		'comment',
-		'|',
-		'mathpreview'
+    'mathpreview',
+    'comment',
 	],
 	image: {
 		toolbar: [
-      'imageStyle:alignLeft',
-      'imageStyle:alignCenter',
-      'imageStyle:alignRight',
-      'imageStyle:full',
-			'|',
-			'imageTextAlternative',
-			'|',
+      // 'imageStyle:alignLeft',
+      // 'imageStyle:alignCenter',
+      // 'imageStyle:alignRight',
+      'imageTextAlternative',
 			'comment',
-		]
+    ],
+    styles: [ 'full', 'alignLeft', 'alignCenter', 'alignRight', ]
 	},
 	// table: {
 	// 	contentToolbar: [
@@ -152,9 +149,13 @@ const postEditorConfig = {
 	// mediaEmbed: {
 	// 	toolbar: [ 'comment' ]
 	// },
-}
+};
 
 PostEditor.defaultConfig = {
+  ...postEditorConfig
+};
+
+PostEditorCollaboration.defaultConfig = {
   ...postEditorConfig
 };
 
@@ -216,4 +217,4 @@ CommentEditor.defaultConfig = {
 	// },
 };
 
-export const Editors = { CommentEditor, PostEditor };
+export const Editors = { CommentEditor, PostEditor, PostEditorCollaboration };

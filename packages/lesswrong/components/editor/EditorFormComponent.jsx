@@ -473,17 +473,20 @@ class EditorFormComponent extends Component {
     if (!this.state.ckEditorLoaded || !CKEditor) {
       return <Loading />
     } else {
+      const editorProps = {
+        data: value,
+        documentId: document._id,
+        formType: formType,
+        userId: currentUser._id,
+        onChange: (event, editor) => this.setState({ckEditorValue: editor.getData()}),
+        onInit: editor => this.setState({ckEditorReference: editor})
+      }
       return <div className={this.getHeightClass()}>
           { this.renderPlaceholder(!value)}
-          <CKEditor 
-            data={value}
-            annotations
-            documentId={document._id}
-            formType={formType}
-            userId={currentUser._id}
-            onChange={(event, editor) => this.setState({ckEditorValue: editor.getData()})}
-            onInit={editor => this.setState({ckEditorReference: editor})}
-          />
+          {collaboration ? 
+            <CKEditor key="ck-collaborate" { ...editorProps } collaboration />
+            : 
+            <CKEditor key="ck-default" { ...editorProps } />}
         </div>
     }
   } 

@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react'
 import CKEditor from '@ckeditor/ckeditor5-react';
-import { PostEditor } from '@lesswrong/lesswrong-editor';
+import { PostEditor, PostEditorCollaboration } from '@lesswrong/lesswrong-editor';
 import { getSetting } from 'meteor/vulcan:core';
 import { getCKEditorDocumentId, generateTokenRequest } from '../../lib/ckEditorUtils'
 import { withStyles } from '@material-ui/core/styles';
@@ -48,7 +48,7 @@ const refreshDisplayMode = ( editor, sidebarElement ) => {
 }
 
 
-const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, onInit, classes, annotations }) => {
+const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, onInit, classes, collaboration }) => {
   // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
   useEffect(() => {
@@ -67,9 +67,9 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
     {layoutReady && <CKEditor
       data={data || ""}
       onChange={onChange}
-      editor={ PostEditor }
+      editor={ collaboration ? PostEditorCollaboration : PostEditor }
       onInit={ editor => {
-          if (annotations) {
+          if (collaboration) {
             // Uncomment this line and the import above to activate the CKEDItor debugger
             // CKEditorInspector.attach(editor)
 
