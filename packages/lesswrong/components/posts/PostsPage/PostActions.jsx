@@ -136,8 +136,8 @@ class PostActions extends Component {
         
         {currentUser && <MenuItem>
           <SubscribeTo document={post}
-            subscribeMessage="Subscribe to Replies"
-            unsubscribeMessage="Unsubscribe from Replies"/>
+            subscribeMessage="Subscribe to Comments"
+            unsubscribeMessage="Unsubscribe from Comments"/>
         </MenuItem>}
 
         { Posts.canEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
