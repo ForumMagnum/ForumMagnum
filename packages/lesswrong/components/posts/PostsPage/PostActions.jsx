@@ -128,7 +128,7 @@ class PostActions extends Component {
             unsubscribeMessage={"Unsubscribe from "+post.group.name}/>
         </MenuItem>}
         
-        {currentUser && postAuthor._id!==currentUser._id && <MenuItem>
+        {currentUser && postAuthor && postAuthor._id !== currentUser._id && <MenuItem>
           <SubscribeTo document={postAuthor}
             subscribeMessage={"Subscribe to "+Users.getDisplayName(postAuthor)}
             unsubscribeMessage={"Unsubscribe from "+Users.getDisplayName(postAuthor)}/>
