@@ -302,6 +302,7 @@ addRoute([
     titleComponentName: 'PostsPageHeaderTitle',
     subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreview',
+    getPingback: (parsedUrl) => ({ Posts: [parsedUrl.params._id] })
   },
   {
     name: 'admin',

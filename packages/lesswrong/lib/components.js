@@ -136,6 +136,7 @@ importComponent("SuggestCurated", () => require('../components/posts/SuggestCura
 importComponent("DeleteDraft", () => require('../components/posts/DeleteDraft.jsx'));
 importComponent("MoveToDraft", () => require('../components/posts/MoveToDraft.jsx'));
 importComponent("SuggestAlignment", () => require('../components/posts/SuggestAlignment.jsx'));
+importComponent("PingbacksList", () => require('../components/posts/PingbacksList.jsx'));
 importComponent("PostsItemMeta", () => require('../components/posts/PostsItemMeta.jsx'));
 importComponent("PostsItem2", () => require('../components/posts/PostsItem2.jsx'));
 importComponent("PostsItemTooltipWrapper", () => require('../components/posts/PostsItemTooltipWrapper.jsx'));

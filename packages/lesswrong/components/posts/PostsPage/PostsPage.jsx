@@ -149,6 +149,10 @@ const styles = theme => ({
       maxWidth: MAX_COLUMN_WIDTH
     }
   },
+  pingbacks: {
+    maxWidth: 640,
+    margin: 'auto',
+  },
   inline: {
     display: 'inline-block'
   },
@@ -254,7 +258,8 @@ class PostsPage extends Component {
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, ContentType,
       LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
-      TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink } = Components
+      TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink,
+      PingbacksList } = Components
 
     if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
@@ -351,6 +356,10 @@ class PostsPage extends Component {
               </div>}
             {sequenceId && <div className={classes.bottomNavigation}>
               <BottomNavigation post={post}/>
+            </div>}
+            
+            {currentUser?.beta && <div className={classes.pingbacks}>
+              <PingbacksList postId={post._id}/>
             </div>}
 
             {/* Answers Section */}

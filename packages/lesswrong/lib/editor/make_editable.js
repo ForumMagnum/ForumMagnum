@@ -2,7 +2,7 @@ import React from 'react';
 import Users from 'meteor/vulcan:users'
 import { Utils } from 'meteor/vulcan:core'
 import { ContentType } from '../collections/revisions/schema'
-import { accessFilterMultiple } from '../modules/utils/schemaUtils.js';
+import { accessFilterMultiple, addFieldsDict } from '../modules/utils/schemaUtils.js';
 import SimpleSchema from 'simpl-schema'
 
 const RevisionStorageType = new SimpleSchema({
@@ -58,7 +58,8 @@ export const makeEditable = ({collection, options = {}}) => {
       </div>
   </div>,
     order,
-    enableMarkDownEditor
+    enableMarkDownEditor,
+    pingbacks = false,
   } = options
 
   editableCollections.add(collection.options.collectionName)
@@ -271,4 +272,15 @@ export const makeEditable = ({collection, options = {}}) => {
     //   }
     // },
   ])
+  if (pingbacks) {
+    addFieldsDict(collection, {
+      pingbacks: {
+        type: Object,
+        blackbox: true,
+        viewableBy: 'guests',
+        optional: true,
+        hidden: true,
+      }
+    });
+  }
 }

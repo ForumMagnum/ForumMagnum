@@ -6,7 +6,7 @@ import Sentry from '@sentry/node';
 
 // From react-router-v4
 // https://github.com/ReactTraining/history/blob/master/modules/PathUtils.js
-var parsePath = function parsePath(path) {
+export const parsePath = function parsePath(path) {
   var pathname = path || '/';
   var search = '';
   var hash = '';

@@ -988,7 +988,8 @@ addFieldsDict(Posts, {
 export const makeEditableOptions = {
   formGroup: formGroups.content,
   adminFormGroup: formGroups.adminOptions,
-  order: 25
+  order: 25,
+  pingbacks: true,
 }
 
 makeEditable({
