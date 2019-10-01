@@ -161,17 +161,6 @@ class PostActions extends Component {
               </MenuItem>
             </div>
         }
-        
-        { Posts.canEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
-          <MenuItem>
-            <ListItemIcon>
-              <EditIcon />
-            </ListItemIcon>
-            Edit
-          </MenuItem>
-        </Link>}
-        
-        <ReportPostMenuItem post={post}/>
 
         <SuggestCurated post={post}/>
         <MoveToDraft post={post}/>
