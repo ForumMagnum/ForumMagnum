@@ -142,8 +142,8 @@ class PostActions extends Component {
         
         {currentUser && postAuthor._id!==currentUser._id && <MenuItem>
           <SubscribeTo document={postAuthor}
-            subscribeMessage={"Subscribe to "+Users.getDisplayName(postAuthor)}
-            unsubscribeMessage={"Unsubscribe from "+Users.getDisplayName(postAuthor)}/>
+            subscribeMessage={"Subscribe to posts by "+Users.getDisplayName(postAuthor)}
+            unsubscribeMessage={"Unsubscribe from posts by "+Users.getDisplayName(postAuthor)}/>
         </MenuItem>}
         
         {currentUser && <MenuItem>
