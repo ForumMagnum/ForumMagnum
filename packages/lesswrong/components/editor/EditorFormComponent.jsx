@@ -87,6 +87,9 @@ const styles = theme => ({
     "& *": {
       pointerEvents: "none",
     }
+  },
+  placeholderCollaborationPadding: {
+    top: 26
   }
 })
 
@@ -340,8 +343,6 @@ class EditorFormComponent extends Component {
         return this.state.htmlValue;
       case "ckEditorMarkup":
         return this.state.ckEditorValue;
-      case "ckEditorMarkupCollaboration":
-        return this.state.ckEditorValue;
     }
   }
 
@@ -353,7 +354,6 @@ class EditorFormComponent extends Component {
       case "markdown": return "md_";
       case "html":     return "html_";
       case "ckEditorMarkup": return "ckeditor_";
-      case "ckEditorMarkupCollaboration": return "ckeditor_";
     }
   }
 
@@ -425,7 +425,6 @@ class EditorFormComponent extends Component {
             <MenuItem value={'markdown'}>Markdown</MenuItem>
             <MenuItem value={'draftJS'}>Draft-JS</MenuItem>
             <MenuItem value={'ckEditorMarkup'}>CK Editor [Beta]</MenuItem>
-            <MenuItem value={'ckEditorMarkupCollaboration'}>CK Editor Collaboration [Beta]</MenuItem>
           </Select>
       </Tooltip>
     )
@@ -441,11 +440,9 @@ class EditorFormComponent extends Component {
   renderEditorComponent = (currentEditorType) => {
     switch (currentEditorType) {
       case "ckEditorMarkup":
-        return this.renderCkEditor(false)
-      case "ckEditorMarkupCollaboration":
-        return this.renderCkEditor(true)
+        return this.renderCkEditor()
       case "draftJS":
-        return this.renderDraftJSEditor(currentEditorType)
+        return this.renderDraftJSEditor()
       case "markdown":
         return this.renderPlaintextEditor(currentEditorType)
       case "html":
@@ -453,23 +450,23 @@ class EditorFormComponent extends Component {
     }
   }
 
-  renderPlaceholder = (showPlaceholder) => {
+  renderPlaceholder = (showPlaceholder, collaboration) => {
     const { classes, formProps, hintText, placeholder, label  } = this.props
 
     if (showPlaceholder) {
-      return <div className={classNames(this.getBodyStyles(), classes.placeholder)}>
+      return <div className={classNames(this.getBodyStyles(), classes.placeholder, {[classes.placeholderCollaborationPadding]: collaboration})}>
         { formProps?.editorHintText || hintText || placeholder || label }
       </div>
     }
   }
 
-  renderCkEditor = (collaboration) => {
+  renderCkEditor = () => {
     const { ckEditorValue, ckEditorReference } = this.state
     const { document, currentUser, formType } = this.props
     const { Loading } = Components
     const CKEditor = this.ckEditor
     const value = ckEditorValue || ckEditorReference?.getData()
-
+  
     if (!this.state.ckEditorLoaded || !CKEditor) {
       return <Loading />
     } else {
@@ -481,9 +478,10 @@ class EditorFormComponent extends Component {
         onChange: (event, editor) => this.setState({ckEditorValue: editor.getData()}),
         onInit: editor => this.setState({ckEditorReference: editor})
       }
+      const collaboration = document?._id && document?.shareWithUsers?.length
       return <div className={this.getHeightClass()}>
-          { this.renderPlaceholder(!value)}
-          {collaboration ? 
+          { this.renderPlaceholder(!value, collaboration)}
+          { collaboration ? 
             <CKEditor key="ck-collaborate" { ...editorProps } collaboration />
             : 
             <CKEditor key="ck-default" { ...editorProps } />}
