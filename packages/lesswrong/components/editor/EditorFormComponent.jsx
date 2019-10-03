@@ -478,7 +478,10 @@ class EditorFormComponent extends Component {
         onChange: (event, editor) => this.setState({ckEditorValue: editor.getData()}),
         onInit: editor => this.setState({ckEditorReference: editor})
       }
-      const collaboration = document?._id && document?.shareWithUsers?.length
+
+      // requires _id because before the draft is saved, ckEditor loses track of what you were writing when turning collaborate on and off (and, meanwhile, you can't actually link people to a shared draft before it's saved anyhow)
+      const collaboration = document?._id && document?.shareWithUsers?.length 
+      
       return <div className={this.getHeightClass()}>
           { this.renderPlaceholder(!value, collaboration)}
           { collaboration ? 
