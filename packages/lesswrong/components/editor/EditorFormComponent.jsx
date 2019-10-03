@@ -88,8 +88,8 @@ const styles = theme => ({
       pointerEvents: "none",
     }
   },
-  placeholderCollaborationPadding: {
-    top: 26
+  placeholderCollaborationSpacing: {
+    top: 35
   }
 })
 
@@ -219,7 +219,7 @@ class EditorFormComponent extends Component {
           break
         case "ckEditorMarkup":
           if (!ckEditorReference) throw Error("Can't submit ckEditorMarkup without attached CK Editor")
-          this.context.addToSuccessForm((s) => {
+          this.context.addToSuccessForm((s) => { // TODO: resolve some errors that are triggered here when in collaborative mode
             this.state.ckEditorReference.setData('')
           })
           data = ckEditorReference.getData()
@@ -454,7 +454,7 @@ class EditorFormComponent extends Component {
     const { classes, formProps, hintText, placeholder, label  } = this.props
 
     if (showPlaceholder) {
-      return <div className={classNames(this.getBodyStyles(), classes.placeholder, {[classes.placeholderCollaborationPadding]: collaboration})}>
+      return <div className={classNames(this.getBodyStyles(), classes.placeholder, {[classes.placeholderCollaborationSpacing]: collaboration})}>
         { formProps?.editorHintText || hintText || placeholder || label }
       </div>
     }
@@ -479,6 +479,9 @@ class EditorFormComponent extends Component {
         onInit: editor => this.setState({ckEditorReference: editor})
       }
 
+      // if shared with one or more users, collaborative editing is automatically turned on.
+      // (note: this costs a small amount of money per document) 
+      //
       // requires _id because before the draft is saved, ckEditor loses track of what you were writing when turning collaborate on and off (and, meanwhile, you can't actually link people to a shared draft before it's saved anyhow)
       const collaboration = document?._id && document?.shareWithUsers?.length 
       
