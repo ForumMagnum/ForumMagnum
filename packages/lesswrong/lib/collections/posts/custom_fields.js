@@ -1,3 +1,4 @@
+import React from 'react';
 import { Posts } from './collection';
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
@@ -862,6 +863,7 @@ addFieldsDict(Posts, {
     }, 'sunshineRegiment', 'admins'],
     optional: true,
     label: "Enable Collaboration",
+    tooltip: <div><div>After saving the document at least once, other users you've shared the doc with will be able to collaborate on this post in realtime.</div><div>[BETA]</div></div>,
     group: formGroups.options
   },
 
