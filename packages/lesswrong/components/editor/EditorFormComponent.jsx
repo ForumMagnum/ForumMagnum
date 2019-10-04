@@ -219,7 +219,7 @@ class EditorFormComponent extends Component {
           break
         case "ckEditorMarkup":
           if (!ckEditorReference) throw Error("Can't submit ckEditorMarkup without attached CK Editor")
-          this.context.addToSuccessForm((s) => { // TODO: resolve some errors that are triggered here when in collaborative mode
+          this.context.addToSuccessForm((s) => {
             this.state.ckEditorReference.setData('')
           })
           data = ckEditorReference.getData()
