@@ -479,11 +479,12 @@ class EditorFormComponent extends Component {
         onInit: editor => this.setState({ckEditorReference: editor})
       }
 
-      // if shared with one or more users, collaborative editing is automatically turned on.
-      // (note: this costs a small amount of money per document) 
+      // if enableCollaboration is turned on and the post has been saved at least once, it will render the collaborative ckEditor (note: this costs a small amount of money per document) 
       //
       // requires _id because before the draft is saved, ckEditor loses track of what you were writing when turning collaborate on and off (and, meanwhile, you can't actually link people to a shared draft before it's saved anyhow)
-      const collaboration = document?._id && document?.shareWithUsers?.length 
+      // TODO: figure out a better solution to this problem.
+      
+      const collaboration = document?._id && document?.enableCollaboration
       
       return <div className={this.getHeightClass()}>
           { this.renderPlaceholder(!value, collaboration)}
