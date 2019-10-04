@@ -130,13 +130,9 @@ const postEditorConfig = {
 	],
 	image: {
 		toolbar: [
-      // 'imageStyle:alignLeft',
-      // 'imageStyle:alignCenter',
-      // 'imageStyle:alignRight',
       'imageTextAlternative',
 			'comment',
     ],
-    // styles: [ 'full', 'alignLeft', 'alignCenter', 'alignRight', ]
 	},
 	// table: {
 	// 	contentToolbar: [
