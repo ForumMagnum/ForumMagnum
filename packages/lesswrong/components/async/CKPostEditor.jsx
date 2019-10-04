@@ -62,9 +62,12 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
     <Helmet> 
       <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS_HTML' async></script>
     </Helmet>
-    {/* Because of a bug in CKEditor, we call preventDefault on all click events coming out of the sidebar. See: https://github.com/ckeditor/ckeditor5/issues/1992 */}
+
     <div ref={presenceListRef} />
+    
+    {/* Because of a bug in CKEditor, we call preventDefault on all click events coming out of the sidebar. See: https://github.com/ckeditor/ckeditor5/issues/1992 */}
     <div ref={sidebarRef} className={classes.sidebar} onClick={(e) => e.preventDefault()}/>
+
     {layoutReady && <CKEditor
       data={data || ""}
       onChange={onChange}
