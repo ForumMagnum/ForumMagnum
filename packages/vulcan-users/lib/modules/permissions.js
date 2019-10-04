@@ -284,7 +284,6 @@ Users.canCreateField = function (user, field) {
  * @param {Object} field - The field being edited or inserted
  */
 Users.canUpdateField = function (user, field, document) {
-  const isTitle = (field.label === "Title")
   const canUpdate = field.canUpdate || field.editableBy; //OpenCRUD backwards compatibility
 
   if (canUpdate) {
