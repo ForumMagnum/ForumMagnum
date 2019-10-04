@@ -241,14 +241,14 @@ export const ckEditorStyles = theme => {
         },
         '& .ck-annotation__info-name, & .ck-annotation__info-time, & .ck-comment__input, & .ck-thread__comment-count, & .ck-annotation__main p, & .ck-annotation__info-name, & .ck-annotation__info-time, & .ck-presence-list__counter, &.ck-presence-list': {
           ...commentBodyStyles(theme),
-          marginTop: -10,
+          marginTop: 0,
           alignItems: "flex-start",
           marginBottom: 12
         },
         '&.ck-presence-list': {
           '--ck-user-avatar-size': '20px',
           '& .ck-user': {
-            marginTop: -10
+            marginTop: 0
           }
         },
         '& .ck-thread__comment-count': {

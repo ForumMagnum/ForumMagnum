@@ -141,7 +141,7 @@ class PostActions extends Component {
           </MenuItem>
         </Link>}
         { Users.canCollaborate(currentUser, post) && 
-          <Link to={{pathname:'/collaborateOnPost/', search:`?${qs.stringify({postId: post._id})}`}}>
+          <Link to={{pathname:'/collaborateOnPost', search:`?${qs.stringify({postId: post._id})}`}}>
             <MenuItem>
               <ListItemIcon>
                 <EditIcon />
