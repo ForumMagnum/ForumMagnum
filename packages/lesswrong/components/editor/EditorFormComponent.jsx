@@ -89,7 +89,7 @@ const styles = theme => ({
     }
   },
   placeholderCollaborationSpacing: {
-    top: 50
+    top: 60
   }
 })
 
