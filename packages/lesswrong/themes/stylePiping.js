@@ -222,7 +222,10 @@ export const ckEditorStyles = theme => {
         '--ck-focus-ring': "solid 1px rgba(0,0,0,0)",
         '--ck-focus-outer-shadow': "none",
         '--ck-inner-shadow': "none",
-        '& p': pBodyStyle
+        '& p': {
+          marginTop: '1em',
+          marginBottom: '1em'
+        }
       },
       '&.ck-sidebar, &.ck-presence-list': { //\u25B6
         '& li': {

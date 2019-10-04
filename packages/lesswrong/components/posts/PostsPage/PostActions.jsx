@@ -140,6 +140,16 @@ class PostActions extends Component {
             Edit
           </MenuItem>
         </Link>}
+        { Users.canCollaborate(currentUser, post) && 
+          <Link to={{pathname:'/collaborateOnPost/', search:`?${qs.stringify({postId: post._id})}`}}>
+            <MenuItem>
+              <ListItemIcon>
+                <EditIcon />
+              </ListItemIcon>
+              Collaborative Editing
+            </MenuItem>
+          </Link>
+        }
         <ReportPostMenuItem post={post}/>
         { post.isRead
           ? <div onClick={this.handleMarkAsUnread}>

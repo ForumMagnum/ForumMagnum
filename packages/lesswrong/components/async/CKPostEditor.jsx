@@ -79,7 +79,7 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
             // We then call the method once to determine the current window size
             refreshDisplayMode(editor, sidebarRef.current)
           }
-          onInit(editor)
+          if (onInit) onInit(editor)
       } }
       config={{
         autosave: {

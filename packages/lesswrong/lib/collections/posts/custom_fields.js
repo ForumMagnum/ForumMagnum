@@ -72,8 +72,9 @@ addFieldsDict(Posts, {
   title: {
     order: 10,
     placeholder: "Title",
+    label: "Title",
     control: 'EditTitle',
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins']
+    editableBy: ['sunshineRegiment', 'admins']
   },
 
   // Legacy: Boolean used to indicate that post was imported from old LW database
@@ -850,6 +851,19 @@ addFieldsDict(Posts, {
 
   status: {
     group: formGroups.adminOptions,
+  },
+
+  enableCollaboration: {
+    type: Boolean,
+    order: 14,
+    viewableBy: ['guests'],
+    insertableBy: ['members'],
+    editableBy: [(currentUser, document) => {
+      return Users.owns(currentUser, document) && currentUser.beta
+    }, 'sunshineRegiment', 'ad  mins'],
+    optional: true,
+    label: "Enable Collaboration",
+    group: formGroups.options
   },
 
   shareWithUsers: {

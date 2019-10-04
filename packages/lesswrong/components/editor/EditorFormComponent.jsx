@@ -89,7 +89,7 @@ const styles = theme => ({
     }
   },
   placeholderCollaborationSpacing: {
-    top: 35
+    top: 50
   }
 })
 
@@ -472,9 +472,9 @@ class EditorFormComponent extends Component {
     } else {
       const editorProps = {
         data: value,
-        documentId: document._id,
+        documentId: document?._id,
         formType: formType,
-        userId: currentUser._id,
+        userId: currentUser?._id,
         onChange: (event, editor) => this.setState({ckEditorValue: editor.getData()}),
         onInit: editor => this.setState({ckEditorReference: editor})
       }
