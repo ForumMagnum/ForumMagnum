@@ -53,6 +53,9 @@ import './collections/reports/views.js'
 // LWEvents
 import { LWEvents } from './collections/lwevents/index.js';
 
+// DatabaseMetadata
+import './collections/databaseMetadata/collection.js';
+
 // DebouncerEvents
 import './collections/debouncerEvents/collection.js';
 
@@ -109,12 +112,12 @@ import './collections/posts/helpers.js';
 import Revisions from './collections/revisions/collection.js'
 //
 // Users
+import './collections/users/permissions.js';
 import './collections/users/helpers.js';
 import './collections/users/custom_fields.js';
 import './collections/users/recommendationSettings.js';
 import './collections/users/karmaChangesGraphQL.js';
 import './collections/users/views.js';
-import './collections/users/permissions.js';
 
 // Comments
 import { Comments } from './collections/comments'

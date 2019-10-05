@@ -650,7 +650,7 @@
   dependencies:
     uuid ">=2.2.1"
 
-"@lesswrong/lesswrong-editor@file:public/lesswrong-editor":
+"@lesswrong/lesswrong-editor@./public/lesswrong-editor":
   version "0.1.0"
   dependencies:
     "@ckeditor/ckeditor5-adapter-ckfinder" "^11.0.3"

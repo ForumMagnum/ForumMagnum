@@ -35,7 +35,15 @@ async function conflictingIndexExists(collection, index, options)
   if (!options.name)
     return false;
   
-  let existingIndexes = await collection.rawCollection().indexes();
+  let existingIndexes;
+  try {
+    existingIndexes = await collection.rawCollection().indexes();
+  } catch(e) {
+    // If the database is uninitialized (eg, running unit tests starting with a
+    // blank DB), this will fail. But the collection will be created by the
+    // ensureIndex operation.
+    return false;
+  }
   
   for (let existingIndex of existingIndexes) {
     if (existingIndex.name === options.name) {
