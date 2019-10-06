@@ -142,7 +142,7 @@ registerFragment(`
   fragment UserKarmaChanges on User {
     _id
     karmaChanges {
-      totalChange
+      totalChange 
       updateFrequency
       startDate
       endDate

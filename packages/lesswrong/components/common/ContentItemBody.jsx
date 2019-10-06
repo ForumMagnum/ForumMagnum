@@ -4,6 +4,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
+import Sentry from '@sentry/node';
 
 const scrollIndicatorColor = "#ddd";
 const scrollIndicatorHoverColor = "#888";
@@ -87,15 +88,26 @@ class ContentItemBody extends Component {
   }
 
   componentDidMount () {
-    this.markScrollableLaTeX();
-    this.markHoverableLinks();
+    this.applyLocalModifications();
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.dangerouslySetInnerHTML?.__html !== this.props.dangerouslySetInnerHTML?.__html) {
+      this.applyLocalModifications();
+    }
+  }
+  
+  applyLocalModifications() {
+    try {
       this.markScrollableLaTeX();
       this.markHoverableLinks();
-    } 
+    } catch(e) {
+      // Don't let exceptions escape from here. This ensures that, if client-side
+      // modifications crash, the post/comment text still remains visible.
+      Sentry.captureException(e);
+      // eslint-disable-next-line no-console
+      console.error(e);
+    }
   }
   
   render() {
@@ -116,6 +128,17 @@ class ContentItemBody extends Component {
     </React.Fragment>);
   }
   
+  // Given an HTMLCollection, return an array of the elements inside it. Note
+  // that this is covering for a browser-specific incompatibility: in Edge 17
+  // and earlier, HTMLCollection has `length` and `item` but isn't iterable.
+  htmlCollectionToArray(collection) {
+    if (!collection) return [];
+    let ret = [];
+    for (let i=0; i<collection.length; i++)
+      ret.push(collection.item(i));
+    return ret;
+  }
+  
   // Find LaTeX elements inside the body, check whether they're wide enough to
   // need horizontal scroll, and if so, give them
   // `classes.hasHorizontalScroll`. 1They will have a scrollbar regardless;
@@ -127,7 +150,7 @@ class ContentItemBody extends Component {
     const { classes } = this.props;
     
     if(!Meteor.isServer && this.bodyRef && this.bodyRef.current) {
-      let latexBlocks = this.bodyRef.current.getElementsByClassName("mjx-chtml");
+      let latexBlocks = this.htmlCollectionToArray(this.bodyRef.current.getElementsByClassName("mjx-chtml"));
       for(let i=0; i<latexBlocks.length; i++) {
         let latexBlock = latexBlocks[i];
         if (!latexBlock.classList.contains("MJXc-display")) {
@@ -206,9 +229,8 @@ class ContentItemBody extends Component {
   };
   
   markHoverableLinks = () => {
-    const { currentUser } = this.props
-    if(this.bodyRef?.current && currentUser?.beta) {
-      const linkTags = [...this.bodyRef.current.getElementsByTagName("a")];
+    if(this.bodyRef?.current) {
+      const linkTags = this.htmlCollectionToArray(this.bodyRef.current.getElementsByTagName("a"));
       for (let linkTag of linkTags) {
         const tagContentsHTML = linkTag.innerHTML;
         const href = linkTag.getAttribute("href");

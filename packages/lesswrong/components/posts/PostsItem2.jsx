@@ -13,7 +13,6 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
-import withHover from "../common/withHover";
 
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
@@ -97,7 +96,6 @@ const styles = (theme) => ({
     },
     '&:hover': {
       opacity: 1,
-      overflow: "unset",
     }
   },
   author: {
@@ -297,9 +295,9 @@ class PostsItem2 extends PureComponent {
   render() {
     const { classes, post, sequenceId, chapter, currentUser, index, terms, resumeReading,
       showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true,
-      defaultToShowUnreadComments=false, dismissRecommendation, isRead, dense, hover, anchorEl, stopHover } = this.props
+      defaultToShowUnreadComments=false, dismissRecommendation, isRead, dense } = this.props
     const { showComments } = this.state
-    const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsPreviewTooltip, LWPopper } = Components
+    const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper } = Components
 
     const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -317,14 +315,6 @@ class PostsItem2 extends PureComponent {
 
     return (
       <div className={classes.root} ref={this.postsItemRef}>
-        <LWPopper
-          open={hover}
-          anchorEl={anchorEl}
-          onMouseEnter={stopHover}
-          placement="left-start"
-        >
-          <PostsPreviewTooltip post={post} />
-        </LWPopper>
         <div className={classNames(
           classes.background,
           {
@@ -335,75 +325,77 @@ class PostsItem2 extends PureComponent {
             [classes.hasResumeReading]: !!resumeReading,
           }
         )}>
-          <div className={classNames(classes.postsItem, {
-            [classes.dense]: dense
-            })}>
-            <PostsItem2MetaInfo className={classes.karma}>
-              <PostsItemKarma post={post} />
-            </PostsItem2MetaInfo>
+          <PostsItemTooltipWrapper post={post}>
+            <div className={classNames(classes.postsItem, {
+              [classes.dense]: dense
+              })}>
+              <PostsItem2MetaInfo className={classes.karma}>
+                <PostsItemKarma post={post} />
+              </PostsItem2MetaInfo>
 
-            <span className={classes.title}>
-              <PostsTitle postLink={postLink} post={post} expandOnHover={!renderComments} read={isRead} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
-            </span>
+              <span className={classes.title}>
+                <PostsTitle postLink={postLink} post={post} expandOnHover={!renderComments} read={isRead} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
+              </span>
 
-            {(resumeReading?.sequence || resumeReading?.collection) &&
-              <div className={classes.nextUnreadIn}>
-                {resumeReading.numRead ? "Next unread in " : "First post in "}<Link to={
-                  resumeReading.sequence
-                    ? Sequences.getPageUrl(resumeReading.sequence)
-                    : Collections.getPageUrl(resumeReading.collection)
-                }>
-                  {resumeReading.sequence ? resumeReading.sequence.title : resumeReading.collection?.title}
-                </Link>
-                {" "}
-                {(resumeReading.numRead>0) && <span>({resumeReading.numRead}/{resumeReading.numTotal} read)</span>}
-              </div>
-            }
+              {(resumeReading?.sequence || resumeReading?.collection) &&
+                <div className={classes.nextUnreadIn}>
+                  {resumeReading.numRead ? "Next unread in " : "First post in "}<Link to={
+                    resumeReading.sequence
+                      ? Sequences.getPageUrl(resumeReading.sequence)
+                      : Collections.getPageUrl(resumeReading.collection)
+                  }>
+                    {resumeReading.sequence ? resumeReading.sequence.title : resumeReading.collection?.title}
+                  </Link>
+                  {" "}
+                  {(resumeReading.numRead>0) && <span>({resumeReading.numRead}/{resumeReading.numTotal} read)</span>}
+                </div>
+              }
 
-            { post.user && !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
-              <PostsUserAndCoauthors post={post} abbreviateIfLong={true} />
-            </PostsItem2MetaInfo>}
+              { post.user && !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
+                <PostsUserAndCoauthors post={post} abbreviateIfLong={true} />
+              </PostsItem2MetaInfo>}
 
-            { post.isEvent && <PostsItem2MetaInfo className={classes.event}>
-              <Components.EventVicinity post={post} />
-            </PostsItem2MetaInfo>}
+              { post.isEvent && <PostsItem2MetaInfo className={classes.event}>
+                <Components.EventVicinity post={post} />
+              </PostsItem2MetaInfo>}
 
-            {showPostedAt && !resumeReading && <Components.PostsItemDate post={post}/>}
+              {showPostedAt && !resumeReading && <Components.PostsItemDate post={post}/>}
 
-            <div className={classes.mobileSecondRowSpacer}/>
+              <div className={classes.mobileSecondRowSpacer}/>
 
-            {<div className={classes.mobileActions}>
-              {!resumeReading && <PostsPageActions post={post} />}
-            </div>}
-
-            {showIcons && <Hidden mdUp implementation="css">
-              <PostsItemIcons post={post}/>
-            </Hidden>}
-
-            {!resumeReading && <div className={classes.commentsIcon}>
-              <PostsItemComments
-                post={post}
-                onClick={() => this.toggleComments(false)}
-                unreadComments={unreadComments}
-              />
-
-            </div>}
-
-            <div className={classes.mobileDismissButton}>
-              {dismissButton}
-            </div>
-
-            {resumeReading &&
-              <div className={classes.sequenceImage}>
-                <img className={classes.sequenceImageImg}
-                  src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
-                    resumeReading.sequence?.gridImageId
-                      || resumeReading.collection?.gridImageId
-                      || "sequences/vnyzzznenju0hzdv6pqb.jpg"
-                  }`}
-                />
+              {<div className={classes.mobileActions}>
+                {!resumeReading && <PostsPageActions post={post} />}
               </div>}
-          </div>
+
+              {showIcons && <Hidden mdUp implementation="css">
+                <PostsItemIcons post={post}/>
+              </Hidden>}
+
+              {!resumeReading && <div className={classes.commentsIcon}>
+                <PostsItemComments
+                  post={post}
+                  onClick={() => this.toggleComments(false)}
+                  unreadComments={unreadComments}
+                />
+
+              </div>}
+
+              <div className={classes.mobileDismissButton}>
+                {dismissButton}
+              </div>
+
+              {resumeReading &&
+                <div className={classes.sequenceImage}>
+                  <img className={classes.sequenceImageImg}
+                    src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
+                      resumeReading.sequence?.gridImageId
+                        || resumeReading.collection?.gridImageId
+                        || "sequences/vnyzzznenju0hzdv6pqb.jpg"
+                    }`}
+                  />
+                </div>}
+            </div>
+          </PostsItemTooltipWrapper>
 
           {<div className={classes.actions}>
             {dismissButton}
@@ -437,6 +429,5 @@ registerComponent(
   withStyles(styles, { name: "PostsItem2" }),
   withUser,
   withRecordPostView,
-  withErrorBoundary,
-  withHover
+  withErrorBoundary
 );

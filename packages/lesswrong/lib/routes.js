@@ -159,6 +159,12 @@ addRoute([
     path: `/:section(r)?/:subreddit(all|discussion|lesswrong)?/${legacyRouteAcronym}/:id/:slug?`,
     componentName: "LegacyPostRedirect",
     previewComponentName: "PostLinkPreviewLegacy",
+  },
+  {
+    name: 'comment.legacy',
+    path: `/${legacyRouteAcronym}/:id/:slug/:commentId`,
+    componentName: "LegacyCommentRedirect",
+    previewComponentName: "CommentLinkPreviewLegacy",
   }
 ]);
 
@@ -314,6 +320,22 @@ addRoute([
     path: '/debug/emailHistory',
     componentName: 'EmailHistoryPage'
   },
+]);
+
+addRoute([
+  // GreaterWrong comment (mostly for use with hover previews)
+  // TODO: Make this properly show the comment as if it were a regular permalink
+  // (not high priority because it's only relevant when greaterwrong links to things AND
+  // someone wants to manually copy/paste switch the link, switching the url from greaterwrong
+  // to lesswrong)
+  {
+    path:'/posts/:_id/:slug/comment/:commentId?',
+    name: 'comment.greaterwrong',
+    componentName: "PostsSingle",
+    titleComponentName: 'PostsPageHeaderTitle',
+    subtitleComponentName: 'PostsPageHeaderTitle',
+    previewComponentName: "PostCommentLinkPreviewGreaterWrong",
+  }
 ]);
 
 switch (getSetting('forumType')) {

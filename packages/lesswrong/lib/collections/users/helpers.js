@@ -40,6 +40,13 @@ Users.canEditUsersBannedUserIds = (currentUser, targetUser) => {
   )
 }
 
+const isPersonalBlogpost = post => {
+  if (getSetting('forumType') === 'EAForum') {
+    return !(post.frontpageDate || post.meta)
+  }
+  return !post.frontpageDate
+}
+
 Users.canModeratePost = (user, post) => {
   if (Users.canDo(user,"posts.moderate.all")) {
     return true
@@ -47,19 +54,29 @@ Users.canModeratePost = (user, post) => {
   if (!user || !post) {
     return false
   }
+  // Users who can moderate their personal posts can moderate any post that
+  // meets all of the following:
+  //  1) they own
+  //  2) has moderation guidelins
+  //  3) is not on the frontpage
+  if (
+    Users.canDo(user, "posts.moderate.own.personal") &&
+    Users.owns(user, post) &&
+    postHasModerationGuidelines(post) &&
+    isPersonalBlogpost(post)
+  ) {
+    return true
+  }
+  // Users who can moderate all of their own posts (even those on the frontpage)
+  // can moderate any post that meets all of the following:
+  //  1) they own
+  //  2) has moderation guidelines
+  // We have now checked all the possible conditions for posting, if they fail
+  // this, check they cannot moderate this post
   return !!(
-    (
-      Users.canDo(user,"posts.moderate.own") &&
-      Users.owns(user, post) &&
-      postHasModerationGuidelines(post)
-    )
-    ||
-    (
-      Users.canDo(user, "posts.moderate.own.personal") &&
-      Users.owns(user, post) &&
-      postHasModerationGuidelines(post) &&
-      !post.frontpageDate
-    )
+    Users.canDo(user,"posts.moderate.own") &&
+    Users.owns(user, post) &&
+    postHasModerationGuidelines(post)
   )
 }
 
