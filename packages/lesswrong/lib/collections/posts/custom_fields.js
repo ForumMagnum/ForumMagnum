@@ -1,4 +1,3 @@
-import React from 'react';
 import { Posts } from './collection';
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'

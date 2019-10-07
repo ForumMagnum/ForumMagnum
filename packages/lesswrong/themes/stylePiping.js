@@ -223,8 +223,7 @@ export const ckEditorStyles = theme => {
         '--ck-focus-outer-shadow': "none",
         '--ck-inner-shadow': "none",
         '& p': {
-          marginTop: '1em',
-          marginBottom: '1em'
+          ...pBodyStyle
         }
       },
       '&.ck-sidebar, &.ck-presence-list': { //\u25B6
