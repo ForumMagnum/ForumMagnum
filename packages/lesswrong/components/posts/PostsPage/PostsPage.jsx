@@ -333,7 +333,7 @@ class PostsPage extends Component {
                   { post.authorIsUnreviewed && <div className={classes.unreviewed}>This post is awaiting moderator approval</div>}
                   <LinkPostMessage post={post} />
                   {query.revision && <PostsRevisionMessage post={post} />}
-                  { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}}/> }
+                  { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
                 </div>
               </div>
             </div>

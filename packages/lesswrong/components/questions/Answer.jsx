@@ -158,6 +158,7 @@ class Answer extends Component {
                 <ContentItemBody
                   className={classes.postContent}
                   dangerouslySetInnerHTML={{__html:html}}
+                  description={`comment ${comment._id} on post ${post._id}`}
                 />
               }
             </div>

@@ -40,7 +40,16 @@ const linkIsExcludedFromPreview = (url) => {
   return false;
 }
 
-const HoverPreviewLink = ({ innerHTML, href }) => {
+// A link, which will have a hover preview auto-selected and attached. Used from
+// ContentItemBody as a replacement for <a> tags in user-provided content.
+// Props
+//   innerHTML: The contents of the original <a> tag, which get wrapped in a
+//     new link and preview.
+//   href: The link destination, the href attribute on the original <a> tag.
+//   contentSourceDescription: (Optional) A human-readabe string describing
+//     where this content came from. Used in error logging only, not displayed
+//     to users.
+const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription }) => {
   const URLClass = getUrlClass()
   const location = useLocation();
 
@@ -64,7 +73,10 @@ const HoverPreviewLink = ({ innerHTML, href }) => {
         location: parsePath(onsiteUrl),
         onError: (pathname) => {
           if (Meteor.isClient) {
-            Sentry.captureException(new Error(`Broken link from ${location.pathname} to ${pathname}`));
+            if (contentSourceDescription)
+              Sentry.captureException(new Error(`Broken link from ${contentSourceDescription} to ${pathname}`));
+            else
+              Sentry.captureException(new Error(`Broken link from ${location.pathname} to ${pathname}`));
           }
         }
       });
