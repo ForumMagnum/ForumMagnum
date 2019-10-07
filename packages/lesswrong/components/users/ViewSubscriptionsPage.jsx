@@ -13,8 +13,8 @@ const styles = {
   },
 };
 
-const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, renderDocument}) => {
-  const { SubscribedItem } = Components;
+const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, noSubscriptionsMessage, renderDocument, title}) => {
+  const { SubscribedItem, SectionTitle } = Components;
   const currentUser = useCurrentUser();
   
   const { results, loading } = useMulti({
@@ -45,12 +45,15 @@ const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, rend
         renderDocument={renderDocument}
       />
     )}
+    {results.length===0 && <div>
+      {noSubscriptionsMessage}
+    </div>}
   </div>
 }
 registerComponent("SubscriptionsList", SubscriptionsList);
 
 const SubscribedItem = ({collectionName, fragmentName, subscription, renderDocument, classes}) => {
-  const { Loading } = Components;
+  const { Loading, SubscribeTo } = Components;
   const { document, loading, error } = useSingle({
     documentId: subscription.documentId,
     collectionName, fragmentName,
@@ -64,7 +67,12 @@ const SubscribedItem = ({collectionName, fragmentName, subscription, renderDocum
     <div className={classes.subscribedItemDescription}>
     {renderDocument(document)}
     </div>
-    <div>Unsubscribe</div>
+    <SubscribeTo
+      document={document}
+      subscriptionType={subscription.type}
+      subscribeMessage="Resubscribe"
+      unsubscribeMessage="Unsubscribe"
+    />
   </div>
   
 }
@@ -72,7 +80,14 @@ registerComponent("SubscribedItem", SubscribedItem,
   withStyles(styles, {name: "SubscribedItem"}));
 
 const ViewSubscriptionsPage = ({classes}) => {
-  const { SingleColumnSection, SectionTitle, SubscriptionsList, UsersNameDisplay } = Components;
+  const { SingleColumnSection, SubscriptionsList, UsersNameDisplay } = Components;
+  const currentUser = useCurrentUser();
+  
+  if (!currentUser) {
+    return <SingleColumnSection>
+      Log in to manage your subscriptions.
+    </SingleColumnSection>;
+  }
   
   return <SingleColumnSection>
     <SubscriptionsList
@@ -81,17 +96,26 @@ const ViewSubscriptionsPage = ({classes}) => {
       subscriptionType="newPosts"
       fragmentName="UsersMinimumInfo"
       renderDocument={user => <UsersNameDisplay user={user}/>}
+      noSubscriptionsMessage="You are not subscribed to any users' posts."
     />
     
     <SubscriptionsList
       title="Subscribed to Comments on Posts"
       collectionName="Posts"
-      subscriptionType=""
-      fragmentName=""
-      renderDocument={post => post.title}/>}
+      subscriptionType="newComments"
+      fragmentName="PostsList"
+      renderDocument={post => post.title}
+      noSubscriptionsMessage="You are not subscribed to comments on any posts."
     />
     
-    <SectionTitle title="Subscribed to Comments on Posts"/>
+    <SubscriptionsList
+      title="Subscribed to Local Groups"
+      collectionName="LocalGroups"
+      subscriptionType="newEvents"
+      fragmentName=""
+      renderDocument={group => group.title}
+      noSubscriptionsMessage="You are not subscribed to any local groups."
+    />
   </SingleColumnSection>;
 }
 
