@@ -10,3 +10,16 @@ Subscriptions.addView("subscriptionState", function (terms) {
   };
 });
 ensureIndex(Subscriptions, {userId: 1, documentId: 1, collectionName: 1, type: 1, createdAt: 1});
+
+Subscriptions.addView("subscriptionsOfType", function (terms) {
+  return {
+    selector: {
+      userId: terms.userId,
+      collectionName: terms.collectionName,
+      type: terms.subcriptionType,
+      deleted: false,
+      state: "subscribed",
+    },
+    options: {sort: {createdAt: -1}}
+  };
+});

@@ -105,6 +105,7 @@ importComponent("UsersNameWrapper", () => require('../components/users/UsersName
 importComponent("UsersNameDisplay", () => require('../components/users/UsersNameDisplay.jsx'));
 importComponent("UsersSingle", () => require('../components/users/UsersSingle.jsx'));
 importComponent("UsersEmailVerification", () => require('../components/users/UsersEmailVerification.jsx'));
+importComponent("ViewSubscriptionsPage", () => require('../components/users/ViewSubscriptionsPage.jsx'));
 importComponent("EmailConfirmationRequiredCheckbox", () => require('../components/users/EmailConfirmationRequiredCheckbox.jsx'));
 importComponent("LoginPage", () => require('../components/users/LoginPage.jsx'));
 importComponent("LoginPopupButton", () => require('../components/users/LoginPopupButton.jsx'));

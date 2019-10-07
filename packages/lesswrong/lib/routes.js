@@ -33,6 +33,12 @@ addRoute([
     componentName: 'UsersAccount'
   },
   {
+    name:'users.manageSubscriptions',
+    path:'/manageSubscriptions',
+    componentName: 'ViewSubscriptionsPage',
+    title: "Manage Subscriptions",
+  },
+  {
     name:'users.edit',
     path:'/users/:slug/edit',
     componentName: 'UsersAccount'
