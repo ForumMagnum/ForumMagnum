@@ -157,17 +157,21 @@ const PostsPreviewTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMed
         </span>}
         { showAllinfo && <span className={classes.karma}>{Posts.getKarma(post)} karma</span>}
       </div>
-      {comment ? 
-          <div className={classes.comment}>
+      {comment
+        ? <div className={classes.comment}>
             <CommentsNode
             truncated
             comment={comment}
             post={post}
             hoverPreview
             forceNotSingleLine
-          /></div> :
-          <ContentItemBody className={classes.highlight} dangerouslySetInnerHTML={{__html:highlight}} />
-          }
+          /></div>
+        : <ContentItemBody
+            className={classes.highlight}
+            dangerouslySetInnerHTML={{__html:highlight}}
+            description={`post ${post._id}`}
+          />
+      }
       {renderWordCount && <div className={classes.tooltipInfo}>
         {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
       </div>}

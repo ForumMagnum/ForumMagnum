@@ -63,7 +63,10 @@ class BooksItem extends Component {
             {canEdit && <SectionButton><a onClick={this.showEdit}>Edit</a></SectionButton>}
           </SectionTitle>
           {html  && <div className={classes.description}>
-            <ContentItemBody dangerouslySetInnerHTML={{__html: html}}/>
+            <ContentItemBody
+              dangerouslySetInnerHTML={{__html: html}}
+              description={`book ${book._id}`}
+            />
           </div>}
 
           {book.posts && !!book.posts.length && <div className={classes.posts}>
