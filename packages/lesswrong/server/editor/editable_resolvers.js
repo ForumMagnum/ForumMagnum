@@ -46,6 +46,7 @@ export function addEditableResolvers ({collection, options = {}}) {
     },
     [Utils.camelCaseify(`${fieldName}Revisions`)]: {
       type: Object,
+      optional: true,
       resolveAs: {
         type: '[Revision]',
         arguments: 'limit: Int = 5',
@@ -59,6 +60,7 @@ export function addEditableResolvers ({collection, options = {}}) {
     },
     [Utils.camelCaseify(`${fieldName}Version`)]: {
       type: String,
+      optional: true,
       resolveAs: {
         type: "String",
         

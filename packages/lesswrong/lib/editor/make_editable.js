@@ -101,11 +101,13 @@ export const makeEditable = ({collection, options = {}}) => {
     
     [Utils.camelCaseify(`${fieldName}Revisions`)]: {
       type: Object,
+      optional: true,
       viewableBy: ['guests'],
     },
     
     [Utils.camelCaseify(`${fieldName}Version`)]: {
       type: String,
+      optional: true,
       viewableBy: ['guests'],
     },
   });
