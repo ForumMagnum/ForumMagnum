@@ -159,7 +159,7 @@ class SequencesPage extends Component {
           </SectionFooter>
           
           <div className={classes.description}>
-            {html && <ContentItemBody dangerouslySetInnerHTML={{__html: html}}/>}
+            {html && <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`sequence ${document._id}`}/>}
           </div>
           <div>
             <ChaptersList terms={{view: "SequenceChapters", sequenceId: document._id}} canEdit={canEdit} />
