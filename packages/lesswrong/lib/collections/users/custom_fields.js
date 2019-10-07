@@ -599,6 +599,10 @@ addFieldsDict(Users, {
     label: "Replies to subscribed comments",
     ...notificationTypeSettingsField(),
   },
+  notificationSubscribedUserPost: {
+    label: "Posts by subscribed users",
+    ...notificationTypeSettingsField(),
+  },
   notificationPostsInGroups: {
     label: "Posts/events in subscribed groups",
     ...notificationTypeSettingsField({ channel: "both" }),

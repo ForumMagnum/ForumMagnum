@@ -62,7 +62,7 @@ const iconStyles = {
 
 export const NewPostNotification = registerNotificationType({
   name: "newPost",
-  userSettingField: null, //TODO
+  userSettingField: "notificationSubscribedUserPost",
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId);
     return Posts.getAuthorName(document) + ' has created a new post: ' + document.title;
