@@ -30,6 +30,16 @@ var parsePath = function parsePath(path) {
   };
 };
 
+const linkIsExcludedFromPreview = (url) => {
+  // Don't try to preview links that go directly to images. The usual use case
+  // for such links is an image where you click for a larger version.
+  if (url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.jpeg') || url.endsWith('.gif')) {
+    return true;
+  }
+  
+  return false;
+}
+
 const HoverPreviewLink = ({ innerHTML, href }) => {
   const URLClass = getUrlClass()
   const location = useLocation();
@@ -48,8 +58,8 @@ const HoverPreviewLink = ({ innerHTML, href }) => {
     const currentURL = new URLClass(location.pathname, Utils.getSiteUrl());
     const linkTargetAbsolute = new URLClass(href, currentURL);
     
-    if (hostIsOnsite(linkTargetAbsolute.host) || Meteor.isServer) {
-      const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
+    const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
+    if (!linkIsExcludedFromPreview(onsiteUrl) && (hostIsOnsite(linkTargetAbsolute.host) || Meteor.isServer)) {
       const parsedUrl = parseRoute({
         location: parsePath(onsiteUrl),
         onError: (pathname) => {
