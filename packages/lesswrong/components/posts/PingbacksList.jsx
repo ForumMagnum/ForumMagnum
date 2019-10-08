@@ -11,19 +11,6 @@ const styles = theme => ({
   },
   list: {
     marginTop: theme.spacing.unit
-  },
-  link: {
-    ...theme.typography.postStyle,
-    fontSize: "1.3rem",
-    lineHeight: "1.8rem",
-    marginTop: theme.spacing.unit/2,
-    marginBottom: theme.spacing.unit/2,
-    display: "flex",
-    alignItems: "center",
-  },
-  karma: {
-    width: 42,
-    justifyContent: "center",
   }
 });
 
