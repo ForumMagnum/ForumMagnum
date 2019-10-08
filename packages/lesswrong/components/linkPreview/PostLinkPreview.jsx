@@ -158,7 +158,7 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hove
           }
         }}
       >
-        <PostsPreviewTooltip post={post} showAllinfo wide truncateLimit={900}/>
+        <PostsPreviewTooltip post={post} showAllinfo truncateLimit={900}/>
       </LWPopper>
       <Link className={classes.link} to={href}  dangerouslySetInnerHTML={{__html: innerHTML}}/>
     </span>

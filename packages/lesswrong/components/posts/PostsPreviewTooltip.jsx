@@ -102,7 +102,7 @@ const getPostCategory = (post) => {
     return post.question ? `Question` : `Personal Blogpost`
 }
 
-const PostsPreviewTooltip = ({ showAllinfo, post, classes, wide=false, truncateLimit=600, comment }) => {
+const PostsPreviewTooltip = ({ showAllinfo, post, classes, truncateLimit=600, comment }) => {
   const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode } = Components
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
