@@ -12,10 +12,6 @@ const styles = theme => ({
   root: {
     width: 450,
     position: "relative",
-    // [theme.breakpoints.up('sm')]: {
-    //   marginTop: theme.spacing.unit,
-    //   marginBottom: theme.spacing.unit,
-    // },
     padding: theme.spacing.unit*1.5,
     paddingTop: theme.spacing.unit,
     paddingBottom: theme.spacing.unit,
