@@ -10,7 +10,7 @@ import Card from '@material-ui/core/Card';
 
 const styles = theme => ({
   root: {
-    width: 450,
+    width: 500,
     position: "relative",
     padding: theme.spacing.unit*1.5,
     paddingTop: theme.spacing.unit,
