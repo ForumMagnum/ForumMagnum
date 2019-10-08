@@ -149,10 +149,6 @@ const styles = theme => ({
       maxWidth: MAX_COLUMN_WIDTH
     }
   },
-  pingbacks: {
-    maxWidth: 650 + (theme.spacing.unit*4),
-    margin: 'auto',
-  },
   inline: {
     display: 'inline-block'
   },
@@ -358,7 +354,7 @@ class PostsPage extends Component {
               <BottomNavigation post={post}/>
             </div>}
             
-            {currentUser?.beta && <div className={classes.pingbacks}>
+            {currentUser?.beta && <div className={classes.post}>
               <PingbacksList postId={post._id}/>
             </div>}
 
