@@ -60,7 +60,7 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription }) => {
   
   // Within-page relative link?
   if (href.startsWith("#")) {
-    return <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
+    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
   }
 
   try {
