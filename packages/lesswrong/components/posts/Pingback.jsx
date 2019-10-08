@@ -7,6 +7,7 @@ import { KARMA_WIDTH } from './PostsItem2';
 const styles = theme => ({
   root: {
     display: "flex",
+    marginBottom: 2,
   },
   karma: {
     width: KARMA_WIDTH
