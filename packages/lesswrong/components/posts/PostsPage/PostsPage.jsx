@@ -150,7 +150,7 @@ const styles = theme => ({
     }
   },
   pingbacks: {
-    maxWidth: 640,
+    maxWidth: 650 + (theme.spacing.unit*4),
     margin: 'auto',
   },
   inline: {

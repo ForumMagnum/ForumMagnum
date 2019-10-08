@@ -6,10 +6,27 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   root: {
+    marginBottom: theme.spacing.unit*4
   },
+  list: {
+    marginTop: theme.spacing.unit
+  },
+  link: {
+    ...theme.typography.postStyle,
+    fontSize: "1.3rem",
+    lineHeight: "1.8rem",
+    marginTop: theme.spacing.unit/2,
+    marginBottom: theme.spacing.unit/2,
+    display: "flex",
+    alignItems: "center",
+  },
+  karma: {
+    width: 42,
+    justifyContent: "center",
+  }
 });
 
-const PingbacksList = ({postId}) => {
+const PingbacksList = ({classes, postId}) => {
   const { results, loading } = useMulti({
     terms: {
       view: "pingbackPosts",
@@ -23,17 +40,23 @@ const PingbacksList = ({postId}) => {
     ssr: true
   });
   const currentUser = useCurrentUser();
-  
+
+  const { SectionSubtitle, Pingback, Loading } = Components
+
   if (loading)
-    return <Components.Loading/>
+    return <Loading/>
   
   if (results) {
     if (results.length > 0) {
-      return <div>
-        <div>Pingbacks</div>
-        {results.map((post, i) =>
-          <Components.PostsItem2 key={post._id} index={i} post={post} currentUser={currentUser} />
-        )}
+      return <div className={classes.root}>
+        <SectionSubtitle>This post was referenced by:</SectionSubtitle>
+        <div className={classes.list}>
+          {results.map((post, i) => 
+            <div key={post._id} >
+              <Pingback post={post} currentUser={currentUser}/>
+            </div>
+          )}
+        </div>
       </div>
     }
   }

@@ -11,7 +11,7 @@ import Card from '@material-ui/core/Card';
 
 const styles = theme => ({
   root: {
-    width: 290,
+    width: 450,
     position: "relative",
     [theme.breakpoints.up('sm')]: {
       marginTop: theme.spacing.unit,
@@ -56,6 +56,9 @@ const styles = theme => ({
     [theme.breakpoints.up('md')]: {
       width: 550,
     },
+  },
+  medium: {
+    width: 450
   },
   title: {
     marginBottom: -6
@@ -137,14 +140,14 @@ const getPostCategory = (post) => {
     return post.question ? `Question` : `Personal Blogpost`
 }
 
-const PostsPreviewTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMedium=true, truncateLimit=600, comment }) => {
+const PostsPreviewTooltip = ({ showAllinfo, post, classes, wide=false, medium=false, hideOnMedium=true, truncateLimit=600, comment }) => {
   const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode } = Components
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
   const highlight = truncate(htmlHighlight, truncateLimit)
   const renderCommentCount = showAllinfo && (Posts.getCommentCount(post) > 0)
   const renderWordCount = !comment && (wordCount > 0)
-  return <Card className={classNames(classes.root, {[classes.wide]: wide, [classes.hideOnMedium]: hideOnMedium})}>
+  return <Card className={classNames(classes.root, {[classes.wide]: wide, [classes.medium]: medium,[classes.hideOnMedium]: hideOnMedium})}>
       <div className={classes.title}>
         <PostsTitle post={post} tooltip={false} wrap/>
       </div>

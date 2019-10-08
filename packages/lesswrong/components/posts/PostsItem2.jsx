@@ -67,7 +67,7 @@ const styles = (theme) => ({
     borderTop: "solid 1px rgba(0,0,0,.2)"
   },
   karma: {
-    width: 42,
+    width: KARMA_WIDTH,
     justifyContent: "center",
     [theme.breakpoints.down('sm')]:{
       width: "unset",
