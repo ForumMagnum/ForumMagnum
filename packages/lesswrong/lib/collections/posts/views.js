@@ -751,6 +751,14 @@ ensureIndex(Posts,
   }
 );
 
+Posts.addView("userBookmarks", function (terms) {
+  return {
+    selector: {
+      _id: {$in: terms.currentUser.bookmarkedPostIds}
+    },
+  }
+})
+
 Posts.addView("afRecentDiscussionThreadsList", terms => {
   return {
     selector: {
@@ -786,3 +794,4 @@ ensureIndex(Posts,
   augmentForDefaultView({ meta:1, disableRecommendation:1, baseScore:1, curatedDate:1, frontpageDate:1 }),
   { name: "posts.recommendable" }
 );
+

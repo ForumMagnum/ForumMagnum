@@ -129,7 +129,7 @@ class PostActions extends Component {
 
   render() {
     const { classes, post, currentUser } = this.props
-    const { MoveToDraft, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft } = Components
+    const { MoveToDraft, BookmarkMenuItem, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft } = Components
     return (
       <div className={classes.actions}>        
         { Posts.canEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
@@ -140,6 +140,7 @@ class PostActions extends Component {
             Edit
           </MenuItem>
         </Link>}
+        <BookmarkMenuItem post={post}/>
         <ReportPostMenuItem post={post}/>
         { post.isRead
           ? <div onClick={this.handleMarkAsUnread}>
