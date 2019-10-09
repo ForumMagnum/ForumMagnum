@@ -1,4 +1,4 @@
-import { registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
@@ -6,18 +6,25 @@ import { Link } from 'react-router-dom';
 import Users from 'meteor/vulcan:users';
 import { withApollo } from 'react-apollo';
 
-import Menu from '@material-ui/core/Menu';
+import Paper from '@material-ui/core/Paper';
+import Divider from '@material-ui/core/Divider';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import SettingsIcon from '@material-ui/icons/Settings';
+import EmailIcon from '@material-ui/icons/Email';
+
 import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
 import { withStyles } from '@material-ui/core/styles';
 
 import withUser from '../common/withUser';
 import withDialog from '../common/withDialog'
+import withHover from '../common/withHover'
 
 const styles = theme => ({
   root: {
     marginTop: 5,
-    wordBreak: 'break-all'
+    wordBreak: 'break-all',
+    position: "relative"
   },
   userButtonRoot: {
     // Mui default is 16px, so we're halving it to bring it into line with the
@@ -30,12 +37,12 @@ const styles = theme => ({
     fontSize: '16px',
     fontWeight: 400,
   },
+  icon: {
+
+  },
   notAMember: {
     marginLeft: 5,
     opacity: 0.9
-  },
-  menu: {
-    marginTop: theme.spacing.unit*5
   }
 })
 
@@ -62,7 +69,9 @@ class UsersMenu extends PureComponent {
   }
 
   render() {
-    let { currentUser, client, classes, color, openDialog } = this.props;
+    let { currentUser, client, classes, color, openDialog, hover, anchorEl } = this.props;
+
+    const { LWPopper } = Components
 
     if (!currentUser) return null;
 
@@ -72,21 +81,23 @@ class UsersMenu extends PureComponent {
 
     return (
       <div className={classes.root}>
-        <Button onClick={this.handleClick} classes={{root: classes.userButtonRoot}}>
-          <span className={classes.userButtonContents} style={{ color: color }}>
-            {Users.getDisplayName(currentUser)}
-            {getSetting('forumType') === 'AlignmentForum' && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
-          </span>
-        </Button>
-        <Menu
-          className={classes.menu}
-          open={this.state.open}
-          anchorEl={this.state.anchorEl}
-          onClose={this.handleRequestClose}
+        <Link to={`/users/${currentUser.slug}`}>
+          <Button classes={{root: classes.userButtonRoot}}>
+            <span className={classes.userButtonContents} style={{ color: color }}>
+              {Users.getDisplayName(currentUser)}
+              {getSetting('forumType') === 'AlignmentForum' && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
+            </span>
+          </Button>
+        </Link>
+        <LWPopper
+          open={hover}
+          anchorEl={anchorEl}
+          placement="bottom"
         >
+          <Paper>
             {showNewButtons &&
               <MenuItem onClick={()=>openDialog({componentName:"NewQuestionDialog"})}>
-                Ask Question [Beta]
+                New Question
               </MenuItem>
             }
             {showNewButtons && <Link to={`/newPost`}>
@@ -98,24 +109,32 @@ class UsersMenu extends PureComponent {
                 New Shortform [Beta]
               </MenuItem>
             }
+            {showNewButtons && <Divider/>}
             { getSetting('forumType') === 'AlignmentForum' && !isAfMember && <MenuItem onClick={() => openDialog({componentName: "AFApplicationForm"})}>
               Apply for Membership
             </MenuItem> }
-            <Link to={`/users/${currentUser.slug}`}>
-              <MenuItem>Profile</MenuItem>
-            </Link>
             <Link to={`/account`}>
               <MenuItem>
-                Edit User Settings
+                <ListItemIcon>
+                  <SettingsIcon/>
+                </ListItemIcon>
+                Edit Settings
               </MenuItem>
             </Link>
             <Link to={`/inbox`}>
-              <MenuItem>Private Messages</MenuItem>
+              <MenuItem>
+                <ListItemIcon>
+                  <EmailIcon/>
+                </ListItemIcon>
+                Private Messages
+              </MenuItem>
             </Link>
+            <Divider/>
             <MenuItem onClick={() => Meteor.logout(() => client.resetStore())}>
               Log Out
             </MenuItem>
-        </Menu>
+          </Paper>
+        </LWPopper>
       </div>
     )
   }
@@ -130,5 +149,5 @@ UsersMenu.defaultProps = {
 }
 
 registerComponent('UsersMenu', UsersMenu,
-  withUser, withApollo, withDialog, withStyles(styles, { name: "UsersMenu" })
+  withUser, withApollo, withHover, withDialog, withStyles(styles, { name: "UsersMenu" })
 );
