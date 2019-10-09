@@ -90,11 +90,11 @@ export const NewCommentNotification = serverRegisterNotificationType({
     }
   },
   emailBody: ({ user, notifications }) => {
-    const { EmailComment } = Components;
-    return <div>
-      {notifications.map(notification =>
-        <EmailComment key={notification._id} commentId={notification.documentId}/>)}
-    </div>;
+    const commentIds = notifications.map(n => n.documentId);
+    const commentsRaw = Comments.find({_id: {$in: commentIds}});
+    const comments = accessFilterMultiple(user, Comments, commentsRaw);
+    
+    return <Components.EmailCommentBatch comments={comments}/>;
   },
 });
 
@@ -107,15 +107,15 @@ export const NewReplyNotification = serverRegisterNotificationType({
     } else {
       const comment = Comments.findOne(notifications[0].documentId);
       const author = Users.findOne(comment.userId);
-      return `${author.dislpayName} replied to comments you're subscribed to`;
+      return `${Users.getDisplayName(author)} replied to a comment you're subscribed to`;
     }
   },
   emailBody: ({ user, notifications }) => {
-    const { EmailComment } = Components;
-    return <div>
-      {notifications.map(notification =>
-        <EmailComment key={notification._id} commentId={notification.documentId}/>)}
-    </div>;
+    const commentIds = notifications.map(n => n.documentId);
+    const commentsRaw = Comments.find({_id: {$in: commentIds}});
+    const comments = accessFilterMultiple(user, Comments, commentsRaw);
+    
+    return <Components.EmailCommentBatch comments={comments}/>;
   },
 });
 
@@ -123,14 +123,20 @@ export const NewReplyToYouNotification = serverRegisterNotificationType({
   name: "newReplyToYou",
   canCombineEmails: true,
   emailSubject: ({ user, notifications }) => {
-    return `${notifications.length} replies to your comments`;
+    if (notifications.length > 1) {
+      return `${notifications.length} replies to your comments`;
+    } else {
+      const comment = Comments.findOne(notifications[0].documentId);
+      const author = Users.findOne(comment.userId);
+      return `${Users.getDisplayName(author)} replied to your comment`;
+    }
   },
   emailBody: ({ user, notifications }) => {
-    const { EmailComment } = Components;
-    return <div>
-      {notifications.map(notification =>
-        <EmailComment key={notification._id} commentId={notification.documentId}/>)}
-    </div>;
+    const commentIds = notifications.map(n => n.documentId);
+    const commentsRaw = Comments.find({_id: {$in: commentIds}});
+    const comments = accessFilterMultiple(user, Comments, commentsRaw);
+    
+    return <Components.EmailCommentBatch comments={comments}/>;
   },
 });
 

@@ -3,6 +3,7 @@ import { Comments } from '../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles';
 import { Components, registerComponent, useSingle } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts/collection.js';
+import keyBy from 'lodash/keyBy';
 import './EmailFormatDate.jsx';
 import './EmailPostAuthors.jsx';
 import './EmailContentItemBody.jsx';
@@ -11,6 +12,39 @@ const styles = theme => ({
   comment: {
   },
 });
+
+const EmailCommentBatch = ({comments, classes}) => {
+  const { EmailComment, EmailCommentsOnPostHeader } = Components;
+  const commentsByPostId = keyBy(comments, comment=>comment.postId);
+  
+  return <div>
+    {_.keys(commentsByPostId).map(postId => <div key={postId}>
+      <EmailCommentsOnPostHeader postId={postId}/>
+      {commentsByPostId[postId].map(notification =>
+        <EmailComment key={notification._id} commentId={notification.documentId}/>)}
+    </div>)}
+  </div>;
+}
+
+registerComponent("EmailCommentBatch", EmailCommentBatch,
+  withStyles(styles, {name: "EmailCommentBatch"})
+);
+
+const EmailCommentsOnPostHeader = ({postId}) => {
+  const { document: post } = useSingle({
+    documentId: postId,
+    collection: Posts,
+    fragmentName: "PostsList",
+  });
+  if (!post)
+    return null;
+  
+  return <div>
+    New comments on <a href={Posts.getPageUrl(post, true)}>{post.title}</a>
+  </div>;
+}
+
+registerComponent("EmailCommentsOnPostHeader", EmailCommentsOnPostHeader);
 
 const EmailComment = ({commentId, classes}) => {
   const { EmailUsername, EmailFormatDate, EmailContentItemBody } = Components;
