@@ -14,7 +14,7 @@ const styles = {
 };
 
 const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, noSubscriptionsMessage, renderDocument, title}) => {
-  const { SubscribedItem, SectionTitle } = Components;
+  const { SubscribedItem, SectionTitle, Loading } = Components;
   const currentUser = useCurrentUser();
   
   const { results, loading } = useMulti({
@@ -31,6 +31,8 @@ const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, noSu
   
   if (!currentUser)
     return null;
+  if (loading)
+    return <Loading/>
   if (!results)
     return null;
   
@@ -54,13 +56,13 @@ registerComponent("SubscriptionsList", SubscriptionsList);
 
 const SubscribedItem = ({collectionName, fragmentName, subscription, renderDocument, classes}) => {
   const { Loading, SubscribeTo } = Components;
-  const { document, loading, error } = useSingle({
+  const { document, loading } = useSingle({
     documentId: subscription.documentId,
     collectionName, fragmentName,
     queryName: "SubscribedDocumentQuery",
   });
   
-  if (loading)
+  if (!document || loading)
     return <Loading/>
   
   return <div className={classes.subscribedItem}>
