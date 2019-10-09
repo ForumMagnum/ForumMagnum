@@ -6,6 +6,18 @@ import Users from 'meteor/vulcan:users';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = theme => ({
+  personalBlogpostsCheckboxLabel: {
+    display: "inline-block",
+    verticalAlign: "middle",
+    
+    [theme.breakpoints.down("xs")]: {
+      width: 105,
+    },
+  },
+});
 
 class HomeLatestPosts extends PureComponent {
 
@@ -32,7 +44,7 @@ class HomeLatestPosts extends PureComponent {
   }
 
   render () {
-    const { currentUser, location } = this.props;
+    const { currentUser, location, classes } = this.props;
     const { query } = location;
     const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox } = Components
     const currentFilter = query.filter || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
@@ -87,10 +99,10 @@ class HomeLatestPosts extends PureComponent {
         <SectionTitle title={<Tooltip title={latestTitle} placement="left-start"><span>Latest Posts</span></Tooltip>}>
           <Tooltip title={personalBlogpostTooltip}>
             <div>
-              <SectionFooterCheckbox 
-                onClick={this.toggleFilter} 
-                value={!(currentFilter === "frontpage")} 
-                label={"Include Personal Blogposts"} 
+              <SectionFooterCheckbox
+                onClick={this.toggleFilter}
+                value={!(currentFilter === "frontpage")}
+                label={<div className={classes.personalBlogpostsCheckboxLabel}>Include Personal Blogposts</div>}
                 />
             </div>
           </Tooltip>
@@ -110,4 +122,5 @@ const withUpdateOptions = {
 
 registerComponent('HomeLatestPosts', HomeLatestPosts,
   withUser, withLocation, withNavigation,
-  [withUpdate, withUpdateOptions]);
+  [withUpdate, withUpdateOptions],
+  withStyles(styles, {name: "HomeLatestPosts"}));
