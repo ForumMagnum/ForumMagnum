@@ -25,7 +25,7 @@ registerSetting('forum.outsideLinksPointTo', 'link', 'Whether to point RSS links
 registerSetting('forum.requirePostsApproval', false, 'Require posts to be approved manually');
 registerSetting('twitterAccount', null, 'Twitter account associated with the app');
 registerSetting('siteUrl', null, 'Main site URL');
-registerSetting('siteNameWithArticle', 'LessWrong', 'Your site name may be referred to as "The Alignment Forum" or simply "LessWrong". Use this setting to prevent something like "view on Alignment Forum. Leave the article uncapitalized ("the Alignment Forum") and capitalize if necessary.')
+registerSetting('siteNameWithArticle', 'LessWrong', 'Your site name may be referred to as "The Alignment Forum" or simply "LessWrong". Use this setting to prevent something like "view on Alignment Forum". Leave the article uncapitalized ("the Alignment Forum") and capitalize if necessary.')
 
 // posts/schema.js
 registerSetting('forum.postExcerptLength', 30, 'Length of posts excerpts in words');
