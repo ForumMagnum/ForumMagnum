@@ -379,59 +379,6 @@ async function CommentsNewNotifications(comment) {
 }
 addCallback("comments.new.async", CommentsNewNotifications);
 
-async function sendPrivateMessagesEmail(conversationId, messageIds) {
-  const conversation = await Conversations.findOne(conversationId);
-  const participants = await Users.find({_id: {$in: conversation.participantIds}}).fetch();
-  const participantsById = keyBy(participants, u=>u._id);
-  const messages = await Messages.find(
-    {_id: {$in: messageIds}},
-    { sort: {createdAt:1} })
-    .fetch();
-  
-  for (const recipientUser of participants)
-  {
-    // TODO: Gradual rollout--only email admins with this. Remove later when
-    // this is more tested.
-    if (!Users.isAdmin(recipientUser))
-      continue;
-    
-    // If this user is responsible for every message that would be in the
-    // email, don't send it to them (you only want emails that contain at
-    // least one message that's not your own; your own messages are optional
-    // context).
-    if (!_.some(messages, message=>message.userId !== recipientUser._id))
-      continue;
-    
-    const otherParticipants = _.filter(participants, u=>u._id != recipientUser._id);
-    const subject = `Private message conversation with ${otherParticipants.map(u=>u.displayName).join(', ')}`;
-    
-    if(!reasonUserCantReceiveEmails(recipientUser)) {
-      await wrapAndSendEmail({
-        user: recipientUser,
-        subject: subject,
-        body: <Components.PrivateMessagesEmail
-          conversation={conversation}
-          messages={messages}
-          participantsById={participantsById}
-        />
-      });
-    } else {
-      //eslint-disable-next-line no-console
-      console.log(`Skipping user ${recipientUser.username} when emailing: ${reasonUserCantReceiveEmails(recipientUser)}`);
-    }
-  }
-}
-
-const privateMessagesDebouncer = new EventDebouncer({
-  name: "privateMessage",
-  defaultTiming: {
-    type: "delayed",
-    delayMinutes: 15,
-    maxDelayMinutes: 30,
-  },
-  callback: sendPrivateMessagesEmail
-});
-
 async function messageNewNotification(message) {
   const conversationId = message.conversationId;
   const conversation = Conversations.findOne(conversationId);
@@ -442,15 +389,8 @@ async function messageNewNotification(message) {
   // to see your own messages.)
   const recipientIds = conversation.participantIds.filter((id) => (id !== message.userId));
 
-  // Create on-site notification
+  // Create notification
   await createNotifications(recipientIds, 'newMessage', 'message', message._id);
-  
-  // Generate debounced email notifications
-  privateMessagesDebouncer.recordEvent({
-    key: conversationId,
-    data: message._id,
-    af: conversation.af,
-  });
 }
 addCallback("messages.new.async", messageNewNotification);
 

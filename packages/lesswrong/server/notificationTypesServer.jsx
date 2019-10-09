@@ -3,8 +3,13 @@ import { Components } from 'meteor/vulcan:core';
 import { Posts } from '../lib/collections/posts/collection.js';
 import { Comments } from '../lib/collections/comments/collection.js';
 import { Localgroups } from '../lib/collections/localgroups/collection.js';
+import { Messages } from '../lib/collections/messages/collection.js';
+import { Conversations } from '../lib/collections/conversations/collection.js';
+import { accessFilterMultiple } from '../lib/modules/utils/schemaUtils.js';
+import keyBy from 'lodash/keyBy';
 import Users from 'meteor/vulcan:users';
 import './emailComponents/EmailComment.jsx';
+import './emailComponents/PrivateMessagesEmail.jsx';
 
 const notificationTypes = {};
 
@@ -141,11 +146,42 @@ export const NewUserNotification = serverRegisterNotificationType({
 
 export const NewMessageNotification = serverRegisterNotificationType({
   name: "newMessage",
-  emailSubject: ({ user, notifications }) => {
-    return "LessWrong notification"; // TODO
+  loadData: function({ user, notifications }) {
+    // Load messages
+    const messageIds = notifications.map(notification => notification.documentId);
+    const messagesRaw = Messages.find({ _id: {$in: messageIds} }).fetch();
+    const messages = accessFilterMultiple(user, Messages, messagesRaw);
+    
+    // Load conversations
+    const messagesByConversationId = keyBy(messages, message=>message.conversationId);
+    const conversationIds = _.keys(messagesByConversationId);
+    const conversationsRaw = Conversations.find({ _id: {$in: conversationIds} }).fetch();
+    const conversations = accessFilterMultiple(user, Conversations, conversationsRaw);
+    
+    // Load participant users
+    const participantIds = _.uniq(_.flatten(conversations.map(conversation => conversation.participantIds), true));
+    const participantsRaw = Users.find({ _id: {$in: participantIds} }).fetch();
+    const participants = accessFilterMultiple(user, Users, participantsRaw);
+    const participantsById = keyBy(participants, u=>u._id);
+    const otherParticipants = _.filter(participants, id=>id!=user._id);
+    
+    return { conversations, messages, participantsById, otherParticipants };
   },
-  emailBody: ({ user, notifications }) => {
-    // TODO
+  emailSubject: function({ user, notifications }) {
+    const { conversations, otherParticipants } = this.loadData({ user, notifications });
+    
+    const otherParticipantNames = otherParticipants.map(u=>Users.getDisplayName(u)).join(', ');
+    
+    return `Private message conversation${conversations.length>1 ? 's' : ''} with ${otherParticipantNames}`;
+  },
+  emailBody: function({ user, notifications }) {
+    const { conversations, messages, participantsById } = this.loadData({ user, notifications });
+    
+    return <Components.PrivateMessagesEmail
+      conversations={conversations}
+      messages={messages}
+      participantsById={participantsById}
+    />
   },
 });
 
