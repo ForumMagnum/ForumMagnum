@@ -1,5 +1,4 @@
 import { registerComponent, useUpdate } from 'meteor/vulcan:core';
-import { Posts } from '../../lib/collections/posts';
 import React, { useState } from 'react';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
