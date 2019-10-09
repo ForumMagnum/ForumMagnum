@@ -40,9 +40,6 @@ const styles = theme => ({
     fontSize: '16px',
     fontWeight: 400,
   },
-  icon: {
-
-  },
   notAMember: {
     marginLeft: 5,
     opacity: 0.9
