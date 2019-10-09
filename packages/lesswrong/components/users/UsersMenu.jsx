@@ -136,7 +136,7 @@ class UsersMenu extends PureComponent {
                 Private Messages
               </MenuItem>
             </Link>
-            {currentUser?.shortformFeedId &&
+            {currentUser.shortformFeedId &&
               <Link to={Posts.getPageUrl({_id:currentUser.shortformFeedId, slug: "shortform"})}>
                 <MenuItem>
                   <ListItemIcon>
