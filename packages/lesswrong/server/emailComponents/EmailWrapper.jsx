@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import { Utils } from 'meteor/vulcan:lib';
 import { withStyles } from '@material-ui/core/styles';
 import { emailBodyStyles } from '../../themes/stylePiping'
@@ -13,6 +13,7 @@ const styles = theme => ({
 // wrapper.handlebars in Vulcan-Starter.
 const EmailWrapper = ({user, unsubscribeAllLink, children, classes}) => {
   const accountLink = `${Utils.getSiteUrl()}account`
+  const siteNameWithArticle = getSetting('siteNameWithArticle')
   
   return (
     <body bgcolor="white" leftmargin="0" topmargin="0" marginWidth="0" marginHeight="0">
@@ -34,7 +35,8 @@ const EmailWrapper = ({user, unsubscribeAllLink, children, classes}) => {
                 </tr>
                 <tr><td>
                   <br/><br/>
-    <a href={unsubscribeAllLink}>Unsubscribe</a> (from all emails from LessWrong) {/* TODO; */}
+                  <a href={unsubscribeAllLink}>Unsubscribe</a>
+                  (from all emails from {siteNameWithArticle})
                   or <a href={accountLink}>Change your notifications settings</a><br/><br/>
                 </td></tr>
               </table>
