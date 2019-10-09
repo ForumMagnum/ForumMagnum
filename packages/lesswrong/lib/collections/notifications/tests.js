@@ -83,8 +83,19 @@ describe('notification generation', async () => {
     done();
   });
   it("generates notifications for new private messages", async (done) => {
-    const user = await createDummyUser()
-    const otherUser = await createDummyUser()
+    const user = await createDummyUser({
+      notificationPrivateMessage: {
+        // Set notification channel to onsite (default is "both") so that there's one notification in the database rather than two
+        channel: "onsite",
+        batchingFrequency: "realtime",
+      },
+    })
+    const otherUser = await createDummyUser({
+      notificationPrivateMessage: {
+        channel: "onsite",
+        batchingFrequency: "realtime",
+      },
+    })
     const conversation = await createDummyConversation(user, {participantIds: [user._id, otherUser._id]});
     const message1 = await createDummyMessage(user, {conversationId: conversation._id});
     await createDummyMessage(otherUser, {conversationId: conversation._id});
