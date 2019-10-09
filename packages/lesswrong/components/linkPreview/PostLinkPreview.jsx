@@ -178,7 +178,7 @@ const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post,
       <LWPopper 
         open={hover} 
         anchorEl={anchorEl} 
-        placement="bottom"
+        placement="bottom-start"
         modifiers={{
           flip: {
             behavior: ["bottom-start", "top-end", "bottom-start"],
