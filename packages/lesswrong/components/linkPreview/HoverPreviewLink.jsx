@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent, parseRoute, Utils } from 'meteor/vulcan:core';
-import { Link } from 'react-router-dom';
 import { hostIsOnsite, useLocation, getUrlClass } from '../../lib/routeUtil';
 import Sentry from '@sentry/node';
 
