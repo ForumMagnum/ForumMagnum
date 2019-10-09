@@ -11,11 +11,14 @@ import Divider from '@material-ui/core/Divider';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import SettingsIcon from '@material-ui/icons/Settings';
 import EmailIcon from '@material-ui/icons/Email';
+import NotesIcon from '@material-ui/icons/Notes';
+import PersonIcon from '@material-ui/icons/Person';
 
 import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
 import { withStyles } from '@material-ui/core/styles';
 
+import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
 import withDialog from '../common/withDialog'
 import withHover from '../common/withHover'
@@ -78,7 +81,6 @@ class UsersMenu extends PureComponent {
     const showNewButtons = getSetting('forumType') !== 'AlignmentForum' || Users.canDo(currentUser, 'posts.alignment.new')
     const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
 
-
     return (
       <div className={classes.root}>
         <Link to={`/users/${currentUser.slug}`}>
@@ -113,6 +115,14 @@ class UsersMenu extends PureComponent {
             { getSetting('forumType') === 'AlignmentForum' && !isAfMember && <MenuItem onClick={() => openDialog({componentName: "AFApplicationForm"})}>
               Apply for Membership
             </MenuItem> }
+            <Link to={`/users/${currentUser.slug}`}>
+              <MenuItem>
+                <ListItemIcon>
+                  <PersonIcon/>
+                </ListItemIcon>
+                User Profile
+              </MenuItem>
+            </Link>
             <Link to={`/account`}>
               <MenuItem>
                 <ListItemIcon>
@@ -129,6 +139,16 @@ class UsersMenu extends PureComponent {
                 Private Messages
               </MenuItem>
             </Link>
+            {currentUser?.shortformFeedId &&
+              <Link to={Posts.getPageUrl({_id:currentUser.shortformFeedId, slug: "shortform"})}>
+                <MenuItem>
+                  <ListItemIcon>
+                    <NotesIcon />
+                  </ListItemIcon>
+                  Shortform Page
+                </MenuItem>
+              </Link>
+            }
             <Divider/>
             <MenuItem onClick={() => Meteor.logout(() => client.resetStore())}>
               Log Out
