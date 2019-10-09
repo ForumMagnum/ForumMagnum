@@ -86,6 +86,7 @@ export const getErrors = error => {
     const graphQLError = error.graphQLErrors[0];
     const data = (graphQLError && graphQLError.extensions && graphQLError.extensions.exception && graphQLError.extensions.exception.data) ||
                  graphQLError.data
+                 
     if (data && !isEmpty(data)) {
       if (data.errors) {
         // 2. there are multiple errors on the data.errors object
