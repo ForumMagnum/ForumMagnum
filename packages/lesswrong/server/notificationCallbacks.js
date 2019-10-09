@@ -353,7 +353,7 @@ const privateMessagesDebouncer = new EventDebouncer({
   callback: sendPrivateMessagesEmail
 });
 
-function messageNewNotification(message) {
+async function messageNewNotification(message) {
   const conversationId = message.conversationId;
   const conversation = Conversations.findOne(conversationId);
   
@@ -367,7 +367,7 @@ function messageNewNotification(message) {
   createNotifications(recipients, 'newMessage', 'message', message._id);
   
   // Generate debounced email notifications
-  privateMessagesDebouncer.recordEvent({
+  await privateMessagesDebouncer.recordEvent({
     key: conversationId,
     data: message._id,
     af: conversation.af,

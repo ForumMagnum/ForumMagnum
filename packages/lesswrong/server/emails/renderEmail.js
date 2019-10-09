@@ -58,9 +58,6 @@ const emailGlobalCss = `
   }
   
   /* Global styles that apply eg inside of posts */
-  a {
-    color: #5f9b65;
-  }
   blockquote {
     border-left: solid 3px #e0e0e0;
     padding: .75em 2em;
@@ -209,7 +206,7 @@ export async function sendEmail(renderedEmail)
     
     Email.send(renderedEmail); // From meteor's 'email' package
   } else {
-    console.log("//////// Pretending to send email (not production and enableDevelopmentEmails is false)"); //eslint-disable-line
+    console.log("//////// Pretending to send email"); //eslint-disable-line
     console.log("to: " + renderedEmail.to); //eslint-disable-line
     console.log("subject: " + renderedEmail.subject); //eslint-disable-line
     console.log("//////// HTML version"); //eslint-disable-line
