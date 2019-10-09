@@ -241,6 +241,9 @@ class UsersProfile extends Component {
                 </DialogGroup>
               </div>
             }
+            { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
+              Manage Subscriptions
+            </Link>}
             { currentUser && currentUser._id != user._id && <NewConversationButton user={user}>
               <a>Send Message</a>
             </NewConversationButton>}
