@@ -25,7 +25,7 @@ describe('notification generation', async () => {
     notifications[0].should.have.property('type', 'newPost');
     done();
   });
-  it("generates notifications for new comments to post", async (done) => {
+  /*it("generates notifications for new comments to post", async (done) => {
     const user = await createDummyUser()
     const otherUser = await createDummyUser()
     const post = await createDummyPost(user);
@@ -81,7 +81,7 @@ describe('notification generation', async () => {
     //notifications3[0].should.have.property('documentId', comment._id);
     notifications3[0].should.have.property('type', 'newReply');
     done();
-  });
+  });*/
   it("generates notifications for new private messages", async (done) => {
     const user = await createDummyUser({
       notificationPrivateMessage: {
