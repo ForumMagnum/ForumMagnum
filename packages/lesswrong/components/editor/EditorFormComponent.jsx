@@ -385,7 +385,7 @@ class EditorFormComponent extends Component {
   }
 
   getUserDefaultEditor = (user) => {
-    if (user?.beta) return "ckEditorMarkup"
+    //if (user?.beta) return "ckEditorMarkup"
     if (Users.useMarkdownPostEditor(user)) return "markdown"
     return "draftJS"
   }
@@ -410,7 +410,7 @@ class EditorFormComponent extends Component {
 
   renderEditorTypeSelect = () => {
     const { currentUser } = this.props
-    if (!currentUser || (!currentUser.isAdmin && !currentUser.beta)) return null
+    if (!currentUser || !currentUser.isAdmin) return null
     return (
       <Tooltip title="Warning! Changing format will erase your content" placement="left">
         <Select

@@ -1131,9 +1131,9 @@ addFieldsDict(Users, {
       const basicSlug = Utils.slugify(displayName);
       return Utils.getUnusedSlugByCollectionName('Users', basicSlug, true);
     },
-    onUpdate: async ({data, document}) => {
+    onUpdate: async ({data, oldDocument}) => {
       //Make sure to update this callback for Apollo2 upgrade
-      if (data.slug && data.slug !== document.slug) {
+      if (data.slug && data.slug !== oldDocument.slug) {
         const slugIsUsed = await Utils.slugIsUsed("Users", data.slug)
         if (slugIsUsed) {
           throw Error(`Specified slug is already used: ${data.slug}`)
@@ -1145,10 +1145,10 @@ addFieldsDict(Users, {
     type: Array,
     optional: true,
     canRead: ['guests'],
-    onUpdate: ({data, document}) => {
+    onUpdate: ({data, oldDocument}) => {
       // Make sure to update this callback for Apollo2 upgrade
-      if (data.slug && data.slug !== document.slug)  {
-        return [...(document.oldSlugs || []), document.slug]
+      if (data.slug && data.slug !== oldDocument.slug)  {
+        return [...(oldDocument.oldSlugs || []), oldDocument.slug]
       }
     }
   },

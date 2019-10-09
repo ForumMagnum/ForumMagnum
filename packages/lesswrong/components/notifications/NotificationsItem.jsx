@@ -5,6 +5,7 @@ import React, { Component } from 'react';
 import ListItem from '@material-ui/core/ListItem';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { getNotificationTypeByName } from '../../lib/notificationTypes.jsx';
+import { getUrlClass } from '../../lib/routeUtil';
 
 const styles = theme => ({
   root: {
@@ -67,6 +68,7 @@ class NotificationsItem extends Component {
 
   render() {
     const { classes, notification, lastNotificationsCheck } = this.props;
+    const UrlClass = getUrlClass()
 
     return (
       <ListItem
@@ -80,7 +82,16 @@ class NotificationsItem extends Component {
             [classes.unread]: !(notification.createdAt < lastNotificationsCheck || this.state.clicked)
           }
         )}
-        onClick={() => this.setState({clicked: true})}
+        onClick={() => {
+          this.setState({clicked: true})
+          // we also check whether it's a relative link, and if so, scroll to the item
+          const url = new UrlClass(notification.link)
+          const hash = url.hash
+          if (hash) {
+            const element = document.getElementById(hash.substr(1))
+            if (element) element.scrollIntoView({behavior: "smooth"});
+          }
+        }}
       >
         {getNotificationTypeByName(notification.type).getIcon()}
         <div className={classes.notificationLabelWrapper}>

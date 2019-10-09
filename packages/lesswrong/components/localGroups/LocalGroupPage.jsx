@@ -110,7 +110,11 @@ const LocalGroupPage = ({ classes, documentId: groupId, currentUser }) => {
               }
             </SectionFooter>
           </div>
-          <ContentItemBody dangerouslySetInnerHTML={htmlBody} className={classes.groupDescriptionBody}/>
+          <ContentItemBody
+            dangerouslySetInnerHTML={htmlBody}
+            className={classes.groupDescriptionBody}
+            description={`group ${groupId}`}
+          />
         </div>
         <PostsList2 terms={{view: 'groupPosts', groupId: groupId}} />
       </SingleColumnSection>
