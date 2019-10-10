@@ -43,6 +43,9 @@ const styles = theme => ({
   notAMember: {
     marginLeft: 5,
     opacity: 0.9
+  },
+  icon: {
+    color: theme.palette.grey[500]
   }
 })
 
@@ -91,7 +94,7 @@ class UsersMenu extends PureComponent {
         <LWPopper
           open={hover}
           anchorEl={anchorEl}
-          placement="bottom"
+          placement="bottom-start"
         >
           <Paper>
             {showNewButtons &&
@@ -115,7 +118,7 @@ class UsersMenu extends PureComponent {
             <Link to={`/users/${currentUser.slug}`}>
               <MenuItem>
                 <ListItemIcon>
-                  <PersonIcon/>
+                  <PersonIcon className={classes.icon}/>
                 </ListItemIcon>
                 User Profile
               </MenuItem>
@@ -123,7 +126,7 @@ class UsersMenu extends PureComponent {
             <Link to={`/account`}>
               <MenuItem>
                 <ListItemIcon>
-                  <SettingsIcon/>
+                  <SettingsIcon className={classes.icon}/>
                 </ListItemIcon>
                 Edit Settings
               </MenuItem>
@@ -131,7 +134,7 @@ class UsersMenu extends PureComponent {
             <Link to={`/inbox`}>
               <MenuItem>
                 <ListItemIcon>
-                  <EmailIcon/>
+                  <EmailIcon className={classes.icon}/>
                 </ListItemIcon>
                 Private Messages
               </MenuItem>
@@ -140,7 +143,7 @@ class UsersMenu extends PureComponent {
               <Link to={Posts.getPageUrl({_id:currentUser.shortformFeedId, slug: "shortform"})}>
                 <MenuItem>
                   <ListItemIcon>
-                    <NotesIcon />
+                    <NotesIcon className={classes.icon} />
                   </ListItemIcon>
                   Shortform Page
                 </MenuItem>
