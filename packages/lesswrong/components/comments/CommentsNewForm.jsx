@@ -38,9 +38,6 @@ const styles = theme => ({
   },
   moderationGuidelinesWrapper: {
     backgroundColor: "rgba(0,0,0,.07)",
-    [theme.breakpoints.down('md')]: {
-      marginLeft: -theme.spacing.unit // compensating for comment form default spacing rules
-    }
   }
 });
 
