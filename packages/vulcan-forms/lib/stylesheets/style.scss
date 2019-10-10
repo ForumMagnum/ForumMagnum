@@ -190,31 +190,6 @@ div.ReactTags__suggestions mark{
   }
 }
 
-.form-component-clear{
-  position: absolute;
-  top: 11px;
-  right: 0px;
-  background: $light-grey;
-  color: #fff;
-  border-radius: 100%;
-  height: 16px;
-  width: 16px;
-  border: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  span{
-    font-size: 8px;
-    display: block;
-    line-height: 1;
-  }
-  &:hover{
-    text-decoration: none;
-    background: $medium-grey;
-    color: #fff;
-  }
-}
-
 .form-nested-item{
   border: 1px solid $light-grey;
   padding: 10px;

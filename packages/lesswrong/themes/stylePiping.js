@@ -278,8 +278,7 @@ export const ckEditorStyles = theme => {
 
 export const editorStyles = (theme, styleFunction) => ({
     '& .public-DraftStyleDefault-block': {
-      marginTop: '1em',
-      marginBottom: '1em',
+      ...pBodyStyle
     },
     '& code .public-DraftStyleDefault-block': {
       marginTop: 0,
