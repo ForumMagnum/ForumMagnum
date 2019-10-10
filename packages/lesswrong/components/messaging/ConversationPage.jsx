@@ -15,6 +15,9 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { Link } from '../../lib/reactRouterWrapper.js';
 
 const styles = theme => ({
+  conversationSection: {
+    maxWidth: 550,
+  },
   conversationTitle: {
     ...theme.typography.commentStyle,
     marginTop: theme.spacing.unit,
@@ -51,22 +54,24 @@ class ConversationPage extends Component {
 
     return (
       <SingleColumnSection>
-        <Typography variant="body2" className={classes.backButton}><Link to="/inbox"> Go back to Inbox </Link></Typography>
-        <Typography variant="display2" className={classes.conversationTitle}>
-          { Conversations.getTitle(conversation, currentUser)}
-        </Typography>
-        <ConversationDetails conversation={conversation}/>
-        {this.renderMessages(results, currentUser)}
-        <div className={classes.editor}>
-          <WrappedSmartForm
-            collection={Messages}
-            prefilledProps={ {conversationId: conversation._id} }
-            mutationFragment={getFragment("messageListFragment")}
-            errorCallback={(message) => {
-              //eslint-disable-next-line no-console
-              console.error("Failed to send", message)
-            }}
-          />
+        <div className={classes.conversationSection}>
+          <Typography variant="body2" className={classes.backButton}><Link to="/inbox"> Go back to Inbox </Link></Typography>
+          <Typography variant="display2" className={classes.conversationTitle}>
+            { Conversations.getTitle(conversation, currentUser)}
+          </Typography>
+          <ConversationDetails conversation={conversation}/>
+          {this.renderMessages(results, currentUser)}
+          <div className={classes.editor}>
+            <WrappedSmartForm
+              collection={Messages}
+              prefilledProps={ {conversationId: conversation._id} }
+              mutationFragment={getFragment("messageListFragment")}
+              errorCallback={(message) => {
+                //eslint-disable-next-line no-console
+                console.error("Failed to send", message)
+              }}
+            />
+          </div>
         </div>
       </SingleColumnSection>
     )
