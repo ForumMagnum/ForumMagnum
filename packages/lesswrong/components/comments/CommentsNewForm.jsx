@@ -4,13 +4,11 @@ import PropTypes from 'prop-types';
 import { Comments } from '../../lib/collections/comments';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import Button from '@material-ui/core/Button';
-import Card from '@material-ui/core/Card';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import withDialog from '../common/withDialog';
-import withHover from '../common/withHover';
 
 const styles = theme => ({
   root: {

@@ -1,6 +1,5 @@
-import { registerComponent, withDocument, useSingle } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
 import React, { useState } from 'react';
-import { Posts } from '../../../lib/collections/posts';
 import { withStyles } from '@material-ui/core/styles';
 import withNewEvents from '../../../lib/events/withNewEvents.jsx';
 import withUser from '../../common/withUser';
