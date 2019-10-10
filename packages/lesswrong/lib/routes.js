@@ -159,6 +159,12 @@ addRoute([
     path: `/:section(r)?/:subreddit(all|discussion|lesswrong)?/${legacyRouteAcronym}/:id/:slug?`,
     componentName: "LegacyPostRedirect",
     previewComponentName: "PostLinkPreviewLegacy",
+  },
+  {
+    name: 'comment.legacy',
+    path: `/${legacyRouteAcronym}/:id/:slug/:commentId`,
+    componentName: "LegacyCommentRedirect",
+    previewComponentName: "CommentLinkPreviewLegacy",
   }
 ]);
 

@@ -29,9 +29,8 @@ function wrapWithMuiTheme (app, { context }) {
   return (
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
       <MuiThemeProviderWrapper theme={forumTheme} sheetsManager={new Map()}>
-        <JssCleanup>
-          {app}
-        </JssCleanup>
+        {app}
+        <JssCleanup/>
       </MuiThemeProviderWrapper>
     </JssProvider>
   );

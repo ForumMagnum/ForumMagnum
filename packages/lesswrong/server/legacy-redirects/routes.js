@@ -77,7 +77,7 @@ function findCommentByLegacyAFId(legacyId) {
     res.statusCode = 404
     res.end("Please provide a URL");
   }
-});*/
+});
 
 // Route for old comment links
 addStaticRoute(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug/:commentId`, (params, req, res, next) => {
@@ -105,7 +105,7 @@ addStaticRoute(subredditPrefixRoute+`/${legacyRouteAcronym}/:id/:slug/:commentId
     res.statusCode = 404
     res.end(`No legacy post found with: id=${params.id} slug=${params.slug}`);
   }
-});
+});*/
 
 // Route for old user links
 addStaticRoute('/user/:slug/:category?/:filter?', (params, req, res, next) => {
