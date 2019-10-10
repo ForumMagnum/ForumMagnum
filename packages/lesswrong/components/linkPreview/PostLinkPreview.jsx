@@ -4,6 +4,7 @@ import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments';
 import { Link } from 'react-router-dom';
 import { usePostBySlug, usePostByLegacyId } from '../posts/usePost.js';
+import { useCommentByLegacyId } from '../comments/useComment.js';
 import withHover from '../common/withHover';
 import Card from '@material-ui/core/Card';
 import { withStyles } from '@material-ui/core/styles';
@@ -54,6 +55,22 @@ const PostLinkPreviewLegacy = ({href, targetLocation, innerHTML}) => {
   return <Components.PostLinkPreviewVariantCheck href={href} innerHTML={innerHTML} post={post} targetLocation={targetLocation} error={error} />
 }
 registerComponent('PostLinkPreviewLegacy', PostLinkPreviewLegacy);
+
+const CommentLinkPreviewLegacy = ({href, targetLocation, innerHTML}) => {
+  const legacyPostId = targetLocation.params.id;
+  const legacyCommentId = targetLocation.params.commentId;
+  
+  const { post, loading: loadingPost, error: postError } = usePostByLegacyId({ legacyId: legacyPostId });
+  const { comment, loading: loadingComment, error: commentError } = useCommentByLegacyId({ legacyId: legacyCommentId });
+  const error = postError || commentError;
+  const loading = loadingPost || loadingComment;
+
+  if (comment) {
+    return <Components.CommentLinkPreviewWithComment comment={comment} post={post} loading={loading} error={error} href={href} innerHTML={innerHTML} />
+  }
+  return <Components.PostLinkPreviewWithPost href={href} innerHTML={innerHTML} post={post} loading={loading} error={error} />
+}
+registerComponent('CommentLinkPreviewLegacy', CommentLinkPreviewLegacy);
 
 const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, innerHTML}) => {
   const postId = targetLocation.params._id;

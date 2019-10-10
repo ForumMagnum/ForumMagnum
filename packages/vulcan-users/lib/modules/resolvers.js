@@ -39,8 +39,13 @@ const resolvers = {
       options.skip = terms.offset;
       const users = await Connectors.find(Users, selector, options);
 
+      // restrict documents via checkAccess
+      const viewableUsers = Users.checkAccess
+      ? _.filter(users, doc => Users.checkAccess(currentUser, doc))
+      : users;
+
       // restrict documents fields
-      const restrictedUsers = Users.restrictViewableFields(currentUser, Users, users);
+      const restrictedUsers = Users.restrictViewableFields(currentUser, Users, viewableUsers);
 
       // prime the cache
       restrictedUsers.forEach(user => Users.loader.prime(user._id, user));
@@ -72,6 +77,9 @@ const resolvers = {
         : slug
         ? await Connectors.get(Users, { slug })
         : await Connectors.get(Users);
+      if (Users.checkAccess) {
+        if (!Users.checkAccess(currentUser, user)) return null
+      }
       return { result: Users.restrictViewableFields(currentUser, Users, user) };
     },
   },
