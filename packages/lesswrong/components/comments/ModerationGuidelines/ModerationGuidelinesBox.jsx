@@ -58,7 +58,7 @@ const styles = theme => ({
   }
 })
 
-const ModerationGuidelinesBox = ({classes, document, recordEvent, currentUser}) => {
+const ModerationGuidelinesBox = ({classes, document, recordEvent, currentUser, openDialog}) => {
 
   const [expanded, setExpanded] = useState(false)
 
@@ -111,7 +111,6 @@ const ModerationGuidelinesBox = ({classes, document, recordEvent, currentUser}) 
   const openEditDialog = (e) => {
     e.preventDefault()
     e.stopPropagation()
-    const { document, openDialog } = this.props;
     openDialog({
       componentName: "ModerationGuidelinesEditForm",
       componentProps: {
