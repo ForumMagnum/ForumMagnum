@@ -1,10 +1,10 @@
-import { Components, registerComponent, withMulti, Utils } from 'meteor/vulcan:core';
+import { Components, registerComponent, useMulti, Utils } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Posts } from '../../lib/collections/posts';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import classNames from 'classnames';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles'
 
 const Error = ({error}) => <div>
@@ -33,8 +33,24 @@ const styles = theme => ({
   }
 })
 
-const PostsList2 = ({ children, results, loading, count, totalCount, loadMore, networkStatus, paginationTerms, currentUser, dimWhenLoading, error, classes, terms, showLoading = true, showLoadMore = true, showNoResults = true}) => {
-
+const PostsList2 = ({
+  children, terms,
+  dimWhenLoading = false,
+  showLoading = true, showLoadMore = true, showNoResults = true,
+  classes,
+}) => {
+  const currentUser = useCurrentUser();
+  const { results, loading, error, count, totalCount, loadMore, limit } = useMulti({
+    terms: terms,
+    
+    collection: Posts,
+    queryName: 'postsListQuery',
+    fragmentName: 'PostsList',
+    enableTotal: false,
+    fetchPolicy: 'cache-and-network',
+    ssr: true
+  });
+  
   // TODO-Q: Is there a composable way to check whether this is the second
   //         time that networkStatus === 1, in order to prevent the loading
   //         indicator showing up on initial pageload?
@@ -50,8 +66,6 @@ const PostsList2 = ({ children, results, loading, count, totalCount, loadMore, n
   const { Loading, PostsItem2, LoadMore, PostsNoResults, SectionFooter } = Components
 
   if (!results && loading) return <Loading />
-
-  const limit = (paginationTerms && paginationTerms.limit) || 10
 
   // We don't actually know if there are more posts here,
   // but if this condition fails to meet we know that there definitely are no more posts
@@ -83,25 +97,13 @@ const PostsList2 = ({ children, results, loading, count, totalCount, loadMore, n
 }
 
 PostsList2.propTypes = {
-  results: PropTypes.array,
   terms: PropTypes.object,
-  loading: PropTypes.bool,
-  count: PropTypes.number,
-  totalCount: PropTypes.number,
-  loadMore: PropTypes.func,
   dimWhenLoading: PropTypes.bool,
   showLoading: PropTypes.bool,
   showLoadMore: PropTypes.bool,
-  showNoResults:  PropTypes.bool,
+  showNoResults: PropTypes.bool,
+  classes: PropTypes.object.isRequired,
 };
 
-const options = {
-  collection: Posts,
-  queryName: 'postsListQuery',
-  fragmentName: 'PostsList',
-  enableTotal: false,
-  fetchPolicy: 'cache-and-network',
-  ssr: true
-};
-
-registerComponent('PostsList2', PostsList2, withUser, [withMulti, options], withStyles(styles, {name:"PostsList2"}));
+registerComponent('PostsList2', PostsList2,
+  withStyles(styles, {name:"PostsList2"}));
