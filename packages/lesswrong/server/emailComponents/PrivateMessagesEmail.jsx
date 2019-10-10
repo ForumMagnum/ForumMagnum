@@ -12,13 +12,13 @@ const styles = theme => ({
 
 const PrivateMessagesEmail = ({conversation, messages, participantsById, classes}) => {
   const { EmailUsername, EmailFormatDate } = Components;
-  const sitename = getSetting('title');
+  const siteNameWithArticle = getSetting('siteNameWithArticle')
   const conversationLink = Conversations.getPageUrl(conversation, true);
   
   return (<React.Fragment>
     <p>
       You received {messages.length>1 ? "private messages" : "a private message"}.
-      {" "}<a href={conversationLink}>View this conversation on {sitename}</a>.
+      {" "}<a href={conversationLink}>View this conversation on {siteNameWithArticle}</a>.
     </p>
     
     {messages.map((message,i) => <div className={classes.message} key={i}>
