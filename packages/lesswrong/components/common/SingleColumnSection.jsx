@@ -1,6 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
+import classNames from 'classnames';
 
 export const SECTION_WIDTH = 765
 
@@ -13,11 +14,11 @@ const styles = (theme) => ({
   }
 })
 
-const SingleColumnSection = ({classes, children}) => {
+const SingleColumnSection = ({classes, className, children}) => {
 
   return (
     <Components.ErrorBoundary>
-      <div className={classes.root}>
+      <div className={classNames(classes.root, className)}>
         { children }
       </div>
     </Components.ErrorBoundary>

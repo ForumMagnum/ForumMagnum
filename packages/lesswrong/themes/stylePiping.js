@@ -105,7 +105,7 @@ const baseBodyStyles = theme => ({
 
 export const postBodyStyles = (theme) => {
   return {
-    ...baseBodyStyles,
+    ...baseBodyStyles(theme),
     ...spoilerStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
     '& .footnotes': {
@@ -286,7 +286,7 @@ export const ckEditorStyles = theme => {
 export const editorStyles = (theme, styleFunction) => ({
     '& .public-DraftStyleDefault-block': {
       marginTop: '1em',
-      marginBottom: '1em',
+      marginBottom: '1em',  
     },
     '& code .public-DraftStyleDefault-block': {
       marginTop: 0,
