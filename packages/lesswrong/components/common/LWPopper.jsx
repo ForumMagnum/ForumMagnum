@@ -8,6 +8,10 @@ const styles = theme => ({
     position: "absolute",
     zIndex: theme.zIndexes.lwPopper
   },
+  default: {
+    position: "relative",
+    zIndex: theme.zIndexes.lwPopperTooltip,
+  },
   tooltip: {
     backgroundColor: "rgba(75,75,75,.85)",
     borderRadius: 3,
@@ -30,7 +34,7 @@ const LWPopper = ({classes, children, onMouseEnter, tooltip=false, modifiers, ..
       modifiers={newModifiers} 
       {...props}
     >
-      <div className={tooltip ? classes.tooltip : null} onMouseEnter={onMouseEnter}>
+      <div className={tooltip ? classes.tooltip : classes.default} onMouseEnter={onMouseEnter}>
         { children }
       </div>
     </Popper>

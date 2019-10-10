@@ -84,13 +84,9 @@ export const styles = theme => ({
     fontSize: 12,
   },
   replyForm: {
-    marginTop: 15,
-    // weird padding is compensating for the formGroup padding that comes witih the comment field
-    [theme.breakpoints.down('md')]: {
-      paddingLeft: theme.spacing.unit
-    },
-    paddingBottom: 10,
-    marginBottom: 10,
+    marginTop: 2,
+    marginBottom: 8,
+    padding: 10,
     border: "solid 1px rgba(0,0,0,.2)",
   },
   deleted: {

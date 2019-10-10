@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent, } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
-import Icon from '@material-ui/core/Icon';
+import SubdirectoryArrowLeftIcon from '@material-ui/icons/SubdirectoryArrowLeft';
 
 const styles = theme => ({
   button: {
@@ -28,15 +28,11 @@ const ShowOrHideHighlightButton = ({open, className, classes}) =>
     { open
       ? <Components.MetaInfo>
           Hide Highlight
-          <Icon className={classNames(classes.button, classes.hideButton)}>
-            subdirectory_arrow_left
-          </Icon>
+          <SubdirectoryArrowLeftIcon className={classNames(classes.button, classes.hideButton)}/>
         </Components.MetaInfo>
       : <Components.MetaInfo>
           Show Highlight
-          <Icon className={classNames(classes.button, classes.showButton)}>
-            subdirectory_arrow_left
-          </Icon>
+          <SubdirectoryArrowLeftIcon className={classNames(classes.button, classes.showButton)}/>
         </Components.MetaInfo>
     }
   </span>

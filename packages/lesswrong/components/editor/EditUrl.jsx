@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent } from 'meteor/vulcan:core';
-import Icon from '@material-ui/core/Icon';
 import { withStyles } from '@material-ui/core/styles';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import classNames from 'classnames'
 import Input from '@material-ui/core/Input';
+import LinkIcon from '@material-ui/icons/Link'
+import LinkOffIcon from '@material-ui/icons/LinkOff';
 
 const styles = theme => ({
   root: {
@@ -57,10 +58,10 @@ class EditUrl extends Component {
     const { classes, document, path, defaultValue, label, hintText, placeholder } = this.props;
     
     const startAdornmentInactive = <InputAdornment className={classes.button} onClick={this.toggleEditor} position="start">
-      <Icon>link</Icon>
+      <LinkIcon/>
     </InputAdornment>
     const startAdornmentActive = <InputAdornment className={classes.button} onClick={this.toggleEditor} position="start">
-      <Icon>link_off</Icon></InputAdornment>
+      <LinkOffIcon/></InputAdornment>
     
     return (
       <div className={classes.root}>

@@ -308,11 +308,6 @@ async function sendPrivateMessagesEmail(conversationId, messageIds) {
   
   for (const recipientUser of participants)
   {
-    // TODO: Gradual rollout--only email admins with this. Remove later when
-    // this is more tested.
-    if (!Users.isAdmin(recipientUser))
-      continue;
-    
     // If this user is responsible for every message that would be in the
     // email, don't send it to them (you only want emails that contain at
     // least one message that's not your own; your own messages are optional
@@ -353,7 +348,7 @@ const privateMessagesDebouncer = new EventDebouncer({
   callback: sendPrivateMessagesEmail
 });
 
-function messageNewNotification(message) {
+async function messageNewNotification(message) {
   const conversationId = message.conversationId;
   const conversation = Conversations.findOne(conversationId);
   
@@ -367,7 +362,7 @@ function messageNewNotification(message) {
   createNotifications(recipients, 'newMessage', 'message', message._id);
   
   // Generate debounced email notifications
-  privateMessagesDebouncer.recordEvent({
+  await privateMessagesDebouncer.recordEvent({
     key: conversationId,
     data: message._id,
     af: conversation.af,
