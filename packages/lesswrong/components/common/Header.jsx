@@ -35,7 +35,13 @@ const styles = theme => ({
     boxShadow: "0 1px 1px rgba(0, 0, 0, 0.05), 0 1px 1px rgba(0, 0, 0, 0.05)",
   },
   root: {
+    // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
+    // Headroom and top-pads the page) has to match.
     height: 64,
+    [theme.breakpoints.down('xs')]: {
+      height: 56,
+    },
+    
     flexGrow: 1,
     "@media print": {
       display: "none"

@@ -66,7 +66,7 @@ function getGraphQLQueryFromOptions({
 }
 
 export default function withMulti({
-  limit = 10,
+  limit = 10, // Only used as a fallback if terms.limit is not specified
   pollInterval = getSetting('pollInterval', 0), //LESSWRONG: Polling defaults disabled
   enableTotal = false, //LESSWRONG: enableTotal defaults false
   enableCache = false,
@@ -211,10 +211,10 @@ export function useMulti({
   fetchPolicy,
   collectionName, collection,
   fragmentName, fragment,
-  limit:initialLimit = 10,
+  limit:initialLimit = 10, // Only used as a fallback if terms.limit is not specified
   itemsPerPage = 10,
 }) {
-  const [ limit, setLimit ] = useState(initialLimit);
+  const [ limit, setLimit ] = useState((terms && terms.limit) || initialLimit);
   const [ hasRequestedMore, setHasRequestedMore ] = useState(false);
   
   ({ collectionName, collection } = extractCollectionInfo({ collectionName, collection }));
