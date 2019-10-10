@@ -13,7 +13,7 @@ import Hidden from '@material-ui/core/Hidden';
 
 const styles = theme => ({
   section: {
-    marginTop: -8,
+    marginTop: -12,
   },
   continueReadingList: {
     marginBottom: theme.spacing.unit*2,
@@ -24,13 +24,14 @@ const styles = theme => ({
   },
   subtitle: {
     [theme.breakpoints.down('sm')]:{
-      marginBottom: theme.spacing.unit*1.5,
+      marginBottom: 0,
     },
     marginBottom: theme.spacing.unit,
   },
   footerWrapper: {
     display: "flex",
     justifyContent: "flex-end",
+    marginTop: 12,
   },
   footer: {
     color: theme.palette.lwTertiary.main,

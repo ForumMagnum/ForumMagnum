@@ -5,7 +5,7 @@ import { withRecommendations } from './withRecommendations';
 
 class RecommendationsList extends Component {
   render() {
-    const { recommendations, recommendationsLoading } = this.props;
+    const { recommendations, recommendationsLoading, currentUser } = this.props;
     const { PostsItem2, PostsLoading, SectionFooter, LoginPopupButton } = Components;
     if (recommendationsLoading || !recommendations)
       return <PostsLoading/>
@@ -19,11 +19,11 @@ class RecommendationsList extends Component {
         <PostsItem2 post={post} key={post._id}/>)}
       {recommendations.length===0 &&
         <span>There are no more recommendations left.</span>}
-      {(recommendations.length > 0) && <SectionFooter>
-          <LoginPopupButton title={improvedRecommendationsTooltip}>
-            Log in for improved recommendations
-          </LoginPopupButton>
-        </SectionFooter>}
+      {!currentUser && <SectionFooter>
+        <LoginPopupButton title={improvedRecommendationsTooltip}>
+          Log in for improved recommendations
+        </LoginPopupButton>
+      </SectionFooter>}
     </div>
   }
 }

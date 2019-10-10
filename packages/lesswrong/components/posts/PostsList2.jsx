@@ -64,7 +64,7 @@ const PostsList2 = ({ children, results, loading, count, totalCount, loadMore, n
       {results && !results.length && showNoResults && <PostsNoResults />}
 
       {results && results.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} showQuestionTag={terms.filter!=="questions"} terms={terms} index={i}/> )}
-      <SectionFooter>
+      {(showLoadMore || children?.length) && <SectionFooter>
         {(showLoadMore) &&
           <div className={classes.loadMore}>
             <LoadMore
@@ -77,7 +77,7 @@ const PostsList2 = ({ children, results, loading, count, totalCount, loadMore, n
           </div>
         }
         { children }
-      </SectionFooter>
+      </SectionFooter>}
     </div>
   )
 }
