@@ -12,6 +12,9 @@ import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
 
 const styles = theme => ({
+  section: {
+    marginTop: -8,
+  },
   continueReadingList: {
     marginBottom: theme.spacing.unit*2,
   },
@@ -102,7 +105,7 @@ class RecommendationsAndCurated extends PureComponent {
     const renderContinueReading = continueReading && continueReading.length>0 && !settings.hideContinueReading
     const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
-    return <SingleColumnSection>
+    return <SingleColumnSection className={classes.section}>
       <SectionTitle title="Recommendations">
         <Tooltip title="Customize your recommendations">
           <SettingsIcon onClick={this.toggleSettings} label="Settings"/> 
