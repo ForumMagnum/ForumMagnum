@@ -139,7 +139,7 @@ class UsersMenu extends PureComponent {
                 Private Messages
               </MenuItem>
             </Link>
-            {currentUser.bookmarkedPostIds?.length && <Link to={`/bookmarks`}>
+            {(currentUser.bookmarkedPostIds?.length > 0) && <Link to={`/bookmarks`}>
               <MenuItem>
                 <ListItemIcon>
                   <BookmarksIcon className={classes.icon}/>
