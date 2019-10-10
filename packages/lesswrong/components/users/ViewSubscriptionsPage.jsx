@@ -4,16 +4,17 @@ import { withStyles } from '@material-ui/core/styles';
 import { Subscriptions } from '../../lib/collections/subscriptions/collection.js';
 import { useCurrentUser } from '../common/withUser.js';
 
-const styles = {
+const styles = theme => ({
   subscribedItem: {
     display: "flex",
+    ...theme.typography.commentStyle
   },
   subscribedItemDescription: {
     flexGrow: 1,
   },
-};
+});
 
-const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, noSubscriptionsMessage, renderDocument, title}) => {
+const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, noSubscriptionsMessage, renderDocument, title, classes}) => {
   const { SubscribedItem, SectionTitle, Loading } = Components;
   const currentUser = useCurrentUser();
   
@@ -47,12 +48,12 @@ const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, noSu
         renderDocument={renderDocument}
       />
     )}
-    {results.length===0 && <div>
+    {results.length===0 && <div className={classes.subscribedItem}>
       {noSubscriptionsMessage}
     </div>}
   </div>
 }
-registerComponent("SubscriptionsList", SubscriptionsList);
+registerComponent("SubscriptionsList", SubscriptionsList, withStyles(styles, {name: "SubscriptionsList"}));
 
 const SubscribedItem = ({collectionName, fragmentName, subscription, renderDocument, classes}) => {
   const { Loading, SubscribeTo } = Components;
