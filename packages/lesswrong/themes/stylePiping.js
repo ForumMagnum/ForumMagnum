@@ -105,7 +105,7 @@ const baseBodyStyles = theme => ({
 
 export const postBodyStyles = (theme) => {
   return {
-    ...baseBodyStyles,
+    ...baseBodyStyles(theme),
     ...spoilerStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
     '& .footnotes': {
