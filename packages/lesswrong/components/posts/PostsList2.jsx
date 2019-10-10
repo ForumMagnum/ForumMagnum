@@ -1,10 +1,9 @@
 import { Components, registerComponent, useMulti, Utils } from 'meteor/vulcan:core';
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Posts } from '../../lib/collections/posts';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import classNames from 'classnames';
-import { useCurrentUser } from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles'
 
 const Error = ({error}) => <div>
@@ -33,13 +32,29 @@ const styles = theme => ({
   }
 })
 
+// A list of posts, defined by a query that returns them.
+//
+// Props:
+//  * children: Child elements will be put in a footer section
+//  * terms: The search terms used to select the posts that will be shown.
+//  * dimWhenLoading: Apply a style that grays out the list while it's in a
+//    loading state (default false)
+//  * showLoading: Display a loading spinner while loading (default true)
+//  * showLoadMore: Show a Load More link in the footer if there are potentially
+//    more posts (default true)
+//  * showNoResults: Show a placeholder if there are no results (otherwise
+//    render only whiteness) (default true)
+//  * hideLastUnread: If the initial set of posts ends with N consecutive
+//    already-read posts, hide the last N-1 of them. Used for abbreviating
+//    read posts from the Recently Curated section on the front page.
 const PostsList2 = ({
   children, terms,
   dimWhenLoading = false,
   showLoading = true, showLoadMore = true, showNoResults = true,
+  hideLastUnread = false,
   classes,
 }) => {
-  const currentUser = useCurrentUser();
+  const [haveLoadedMore, setHaveLoadedMore] = useState(false);
   const { results, loading, error, count, totalCount, loadMore, limit } = useMulti({
     terms: terms,
     
@@ -70,6 +85,22 @@ const PostsList2 = ({
   // We don't actually know if there are more posts here,
   // but if this condition fails to meet we know that there definitely are no more posts
   const maybeMorePosts = !!(results && results.length && (results.length >= limit))
+  
+  let hidePosts = null;
+  if (hideLastUnread && results?.length && !haveLoadedMore) {
+    // If the list ends with N sequential read posts, hide N-1 of them.
+    let numUnreadAtEnd = 0;
+    for (let i=results.length-1; i>=0; i--) {
+      // FIXME: This uses the initial-load version of the read-status, and won't
+      // update based on the client-side read status cache.
+      if (results[i].isRead) numUnreadAtEnd++;
+      else break;
+    }
+    if (numUnreadAtEnd > 1) {
+      const numHiddenAtEnd = numUnreadAtEnd - 1;
+      hidePosts = [..._.times(results.length-numHiddenAtEnd, i=>false), ..._.times(numHiddenAtEnd, i=>true)];
+    }
+  }
 
   return (
     <div className={classNames({[classes.itemIsLoading]: loading && dimWhenLoading})}>
@@ -77,12 +108,22 @@ const PostsList2 = ({
       {loading && showLoading && dimWhenLoading && <Loading />}
       {results && !results.length && showNoResults && <PostsNoResults />}
 
-      {results && results.map((post, i) => <PostsItem2 key={post._id} post={post} currentUser={currentUser} showQuestionTag={terms.filter!=="questions"} terms={terms} index={i}/> )}
+      {results && results.map((post, i) =>
+        (hidePosts && hidePosts[i])
+          ? null
+          : <PostsItem2 key={post._id}
+              post={post} terms={terms} index={i}
+              showQuestionTag={terms.filter!=="questions"}
+            />
+      )}
       {(showLoadMore || children?.length) && <SectionFooter>
         {(showLoadMore) &&
           <div className={classes.loadMore}>
             <LoadMore
-              loadMore={loadMore}
+              loadMore={() => {
+                loadMore();
+                setHaveLoadedMore(true);
+              }}
               disabled={!maybeMorePosts}
               count={count}
               totalCount={totalCount}
@@ -102,6 +143,7 @@ PostsList2.propTypes = {
   showLoading: PropTypes.bool,
   showLoadMore: PropTypes.bool,
   showNoResults: PropTypes.bool,
+  hideLastUnread: PropTypes.bool,
   classes: PropTypes.object.isRequired,
 };
 
