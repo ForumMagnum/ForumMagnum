@@ -116,7 +116,7 @@ const PostsList2 = ({
               showQuestionTag={terms.filter!=="questions"}
             />
       )}
-      {(showLoadMore || children?.length) && <SectionFooter>
+      {(showLoadMore || children?.length>0) && <SectionFooter>
         {(showLoadMore) &&
           <div className={classes.loadMore}>
             <LoadMore
