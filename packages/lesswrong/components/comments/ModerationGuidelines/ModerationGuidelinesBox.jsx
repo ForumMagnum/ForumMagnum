@@ -74,7 +74,7 @@ const ModerationGuidelinesBox = ({classes, document, recordEvent, currentUser, o
         important: false,
         intercom: true,
         documentId: document && document.userId,
-        targetState: !this.state.open
+        targetState: !expanded
       };
       recordEvent('toggled-user-moderation-guidelines', false, eventProperties);
     }
