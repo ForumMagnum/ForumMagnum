@@ -751,14 +751,6 @@ ensureIndex(Posts,
   }
 );
 
-Posts.addView("userBookmarks", function (terms) {
-  return {
-    selector: {
-      _id: {$in: terms.currentUser.bookmarkedPostIds}
-    },
-  }
-})
-
 Posts.addView("afRecentDiscussionThreadsList", terms => {
   return {
     selector: {
