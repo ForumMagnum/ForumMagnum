@@ -7,7 +7,7 @@ import { communityGlobeIcon } from '../../icons/communityGlobeIcon';
 import { BookIcon } from '../../icons/bookIcon'
 import { allPostsIcon } from '../../icons/allPostsIcon';
 
-import LocalLibrary from '@material-ui/icons/LocalLibrary'
+import Home from '@material-ui/icons/Home'
 import Search from '@material-ui/icons/Search'
 import Group from '@material-ui/icons/Group'
 import Sort from '@material-ui/icons/Sort'
@@ -222,7 +222,7 @@ export default {
       id: 'home',
       title: 'Home',
       link: '/',
-      iconComponent: LocalLibrary,
+      iconComponent: Home,
       tooltip: 'See recent posts on strategies for doing the most good, plus recent activity from all across the Forum.',
       showOnMobileStandalone: true,
       showOnCompressed: true,
