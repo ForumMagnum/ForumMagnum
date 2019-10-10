@@ -13,6 +13,9 @@ import withDialog from '../common/withDialog';
 const styles = theme => ({
   root: {
   },
+  form: {
+    padding: 10,
+  },
   modNote: {
     paddingTop: '4px',
     color: theme.palette.grey[800]
@@ -34,8 +37,6 @@ const styles = theme => ({
     color: theme.palette.grey[400]
   },
   moderationGuidelinesWrapper: {
-    marginTop: 10,
-    marginBottom: -10,
     backgroundColor: "rgba(0,0,0,.07)",
     [theme.breakpoints.down('md')]: {
       marginLeft: -theme.spacing.unit // compensating for comment form default spacing rules
@@ -100,6 +101,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
   const commentWillBeHidden = getSetting('hideUnreviewedAuthorComments') && currentUser && !currentUser.isReviewed
   return (
     <div className={classes.root} onFocus={()=>setShowGuidelines(true)}>
+      <div className={classes.form}>
       {commentWillBeHidden && <div className={classes.modNote}><em>
         A moderator will need to review your account before your comments will show up.
       </em></div>}
@@ -119,6 +121,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
         addFields={currentUser?[]:["contents"]}
         formProps={formProps}
       />
+      </div>
       {showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
         <ModerationGuidelinesBox document={post} />
       </div>}

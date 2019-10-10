@@ -30,11 +30,6 @@ const styles = theme => ({
     color: theme.palette.lwTertiary.main,
   },
   newComment: {
-    // weird padding is compensating for the formGroup padding that comes witih the comment field
-    [theme.breakpoints.down('md')]: {
-      paddingLeft: theme.spacing.unit
-    },
-    paddingBottom: 10,
     border: 'solid 1px rgba(0,0,0,.2)',
     position: 'relative',
     marginBottom: "1.3em",
