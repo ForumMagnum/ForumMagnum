@@ -360,7 +360,7 @@ class PostsPage extends Component {
             </div>}
             {/* Comments Section */}
             <div className={classes.commentsSection}>
-              <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question} guidelines={!post.question}/>
+              <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question}/>
             </div>
           </div>
           <div className={classes.gap2}/>

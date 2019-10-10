@@ -277,6 +277,9 @@ registerFragment(`
       htmlHighlight
       wordCount
     }
+    moderationGuidelines {
+      ...RevisionEdit
+    }
   }
 `);
 

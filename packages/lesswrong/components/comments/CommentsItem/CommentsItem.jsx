@@ -85,7 +85,12 @@ export const styles = theme => ({
   },
   replyForm: {
     marginTop: 15,
-    padding: 10,
+    // weird padding is compensating for the formGroup padding that comes witih the comment field
+    [theme.breakpoints.down('md')]: {
+      paddingLeft: theme.spacing.unit
+    },
+    paddingBottom: 10,
+    marginBottom: 10,
     border: "solid 1px rgba(0,0,0,.2)",
   },
   deleted: {
@@ -305,7 +310,6 @@ class CommentsItem extends Component {
   renderReply = () => {
     const { post, comment, classes, parentAnswerId, nestingLevel=1 } = this.props
     const levelClass = (nestingLevel + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
-
     return (
       <div className={classNames(classes.replyForm, levelClass)}>
         <Components.CommentsNewForm
