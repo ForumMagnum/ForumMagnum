@@ -13,7 +13,6 @@ import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuideli
 
 const styles = theme => ({
   root: {
-    cursor: "pointer",
     padding: theme.spacing.unit*2,
     position:"relative"
   },
@@ -30,6 +29,7 @@ const styles = theme => ({
     color: 'rgba(179,90,49,.8)',
   },
   'editButton': {
+    cursor: "pointer",
     position: 'absolute',
     right: 16,
     height: '0.8em'
@@ -52,13 +52,13 @@ const styles = theme => ({
       marginBottom: '.4em'
     },
     '& .dividerBlock': {
-      marginTop: theme.spacing.unit,
-      marginBottom: theme.spacing.unit
+      marginTop: theme.spacing.unit*1.5,
+      marginBottom: theme.spacing.unit*1.5
     }
   }
 })
 
-const ModerationGuidelinesBox = ({classes, document, recordEvent, currentUser}) => {
+const ModerationGuidelinesBox = ({classes, document, recordEvent, currentUser, openDialog}) => {
 
   const [expanded, setExpanded] = useState(false)
 
@@ -74,7 +74,7 @@ const ModerationGuidelinesBox = ({classes, document, recordEvent, currentUser}) 
         important: false,
         intercom: true,
         documentId: document && document.userId,
-        targetState: !this.state.open
+        targetState: !expanded
       };
       recordEvent('toggled-user-moderation-guidelines', false, eventProperties);
     }
@@ -83,9 +83,9 @@ const ModerationGuidelinesBox = ({classes, document, recordEvent, currentUser}) 
   const getModerationGuidelines = (document, classes) => {
     const moderationStyle = document.moderationStyle || (document.user && document.user.moderationStyle)
     const truncatiseOptions = {
-      TruncateLength: 275,
+      TruncateLength: 300,
       TruncateBy: "characters",
-      Suffix: "... (Read More)",
+      Suffix: "... <a>(Read More)</a>",
       Strict: false
     }
     const { html = "" } = document.moderationGuidelines || {}
@@ -111,7 +111,6 @@ const ModerationGuidelinesBox = ({classes, document, recordEvent, currentUser}) 
   const openEditDialog = (e) => {
     e.preventDefault()
     e.stopPropagation()
-    const { document, openDialog } = this.props;
     openDialog({
       componentName: "ModerationGuidelinesEditForm",
       componentProps: {
@@ -121,7 +120,7 @@ const ModerationGuidelinesBox = ({classes, document, recordEvent, currentUser}) 
   } 
     
   const { combinedGuidelines, truncatedGuidelines } = getModerationGuidelines(document, classes)
-  const displayedGuidelines = open ? combinedGuidelines : truncatedGuidelines
+  const displayedGuidelines = expanded ? combinedGuidelines : truncatedGuidelines
 
   const expandable = combinedGuidelines.trim().length !== truncatedGuidelines.trim().length
 
