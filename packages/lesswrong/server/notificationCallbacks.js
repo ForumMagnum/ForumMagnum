@@ -307,12 +307,7 @@ async function sendPrivateMessagesEmail(conversationId, messageIds) {
     .fetch();
   
   for (const recipientUser of participants)
-  {
-    // TODO: Gradual rollout--only email admins with this. Remove later when
-    // this is more tested.
-    if (!Users.isAdmin(recipientUser))
-      continue;
-    
+  {    
     // If this user is responsible for every message that would be in the
     // email, don't send it to them (you only want emails that contain at
     // least one message that's not your own; your own messages are optional

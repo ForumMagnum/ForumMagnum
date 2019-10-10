@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent, parseRoute, Utils } from 'meteor/vulcan:core';
-import { Link } from 'react-router-dom';
 import { hostIsOnsite, useLocation, getUrlClass } from '../../lib/routeUtil';
 import Sentry from '@sentry/node';
 
@@ -60,7 +59,7 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription }) => {
   
   // Within-page relative link?
   if (href.startsWith("#")) {
-    return <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
+    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
   }
 
   try {

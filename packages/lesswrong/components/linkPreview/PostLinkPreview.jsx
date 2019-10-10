@@ -150,10 +150,10 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hove
       <LWPopper 
         open={hover} 
         anchorEl={anchorEl} 
-        placement="bottom"
+        placement="bottom-start"
         modifiers={{
           flip: {
-            behavior: ["bottom", "top", "bottom"],
+            behavior: ["bottom-start", "top-end", "bottom-start"],
             boundariesElement: 'viewport'
           }
         }}
@@ -178,10 +178,10 @@ const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post,
       <LWPopper 
         open={hover} 
         anchorEl={anchorEl} 
-        placement="bottom"
+        placement="bottom-start"
         modifiers={{
           flip: {
-            behavior: ["bottom", "top", "bottom"],
+            behavior: ["bottom-start", "top-end", "bottom-start"],
             boundariesElement: 'viewport'
           } 
         }}
@@ -214,7 +214,7 @@ const DefaultPreview = ({classes, href, innerHTML, anchorEl, hover, onsite=false
   const { LWPopper } = Components
   return (
     <span>
-      <LWPopper open={hover} anchorEl={anchorEl} placement="bottom">
+      <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
         <Card>
           <div className={classes.hovercard}>
             {href}
