@@ -4,7 +4,8 @@ import PropTypes from 'prop-types';
 import { InstantSearch, SearchBox, connectMenu } from 'react-instantsearch-dom';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
-import Icon from '@material-ui/core/Icon'
+import SearchIcon from '@material-ui/icons/Search';
+import CloseIcon from '@material-ui/icons/Close';
 import Portal from '@material-ui/core/Portal';
 import { addCallback, removeCallback } from 'meteor/vulcan:lib';
 import { withLocation } from '../../lib/routeUtil';
@@ -193,11 +194,11 @@ class SearchBar extends Component {
             {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
             {userRefinement && <VirtualMenu attribute='authorSlug' defaultRefinement={userRefinement} />}
             <div onClick={this.handleSearchTap}>
-              <Icon className={classes.searchIcon}>search</Icon>
+              <SearchIcon className={classes.searchIcon}/>
               { inputOpen && <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} /> }
             </div>
             { searchOpen && <div className={classes.searchBarClose} onClick={this.closeSearch}>
-              <Icon className={classes.closeSearchIcon}>close</Icon>
+              <CloseIcon className={classes.closeSearchIcon}/>
             </div>}
             <div>
               { searchOpen && <Portal container={searchResultsArea.current}>

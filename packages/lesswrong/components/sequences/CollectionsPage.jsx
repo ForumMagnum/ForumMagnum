@@ -82,7 +82,7 @@ class CollectionsPage extends Component {
             {canEdit && <SectionButton><a onClick={this.showEdit}>Edit</a></SectionButton>}
 
             <div className={classes.description}>
-              {html && <ContentItemBody dangerouslySetInnerHTML={{__html: html}}/>}
+              {html && <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`collection ${document._id}`}/>}
             </div>
 
             <Button

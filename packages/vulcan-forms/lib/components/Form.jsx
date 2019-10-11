@@ -924,7 +924,7 @@ class SmartForm extends Component {
     // eslint-disable-next-line no-console
     console.log('// graphQL Error');
     // eslint-disable-next-line no-console
-    console.log(error);
+    console.log(JSON.stringify(error));
 
     // run mutation failure callbacks on error, we do not allow the callbacks to change the error
     runCallbacks({ callbacks: this.failureFormCallbacks, iterator: error, properties: { error, form: this } });

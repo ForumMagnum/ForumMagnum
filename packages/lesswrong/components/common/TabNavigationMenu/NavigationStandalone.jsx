@@ -13,9 +13,9 @@ const styles = theme => ({
     [theme.breakpoints.down('md')]: {
       display: "none"
     },
-    top: -15,
+    top: 0,
     left:0,
-    paddingTop: 30,
+    paddingTop: 15,
     backgroundColor: "#ffffffd4",
   },
   footerBar: {

@@ -8,7 +8,10 @@ import withUser from '../common/withUser';
 import withHover from '../common/withHover'
 import PropTypes from 'prop-types';
 import withErrorBoundary from '../common/withErrorBoundary'
-
+import PlusOneIcon from '@material-ui/icons/PlusOne';
+import UndoIcon from '@material-ui/icons/Undo';
+import StarIcon from '@material-ui/icons/Star';
+import ClearIcon from '@material-ui/icons/Clear';
 class SunshineCuratedSuggestionsItem extends Component {
 
   handleCurate = () => {
@@ -92,18 +95,18 @@ class SunshineCuratedSuggestionsItem extends Component {
         { hover && <Components.SidebarActionMenu>
           { !post.suggestForCuratedUserIds || !post.suggestForCuratedUserIds.includes(currentUser._id) ?
             <Components.SidebarAction title="Endorse Curation" onClick={this.handleSuggestCurated}>
-              plus_one
+              <PlusOneIcon/>
             </Components.SidebarAction>
             :
             <Components.SidebarAction title="Unendorse Curation" onClick={this.handleUnsuggestCurated}>
-              undo
+              <UndoIcon/>
             </Components.SidebarAction>
           }
           <Components.SidebarAction title="Curate Post" onClick={this.handleCurate}>
-            star
+            <StarIcon/>
           </Components.SidebarAction>
           <Components.SidebarAction title="Remove from Curation Suggestions" onClick={this.handleDisregardForCurated}>
-            clear
+            <ClearIcon/>
           </Components.SidebarAction>
         </Components.SidebarActionMenu>}
       </Components.SunshineListItem>
