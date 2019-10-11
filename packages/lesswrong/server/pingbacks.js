@@ -7,7 +7,10 @@ import deepmerge from 'deepmerge';
 export const htmlToPingbacks = async (html) => {
   const URLClass = getUrlClass()
   const links = extractLinks(html);
-  const pingbacks = [];
+  
+  // collection name => array of distinct referenced document IDs in that
+  // collection, in order of first appearance.
+  const pingbacks = {};
   
   for (let link of links)
   {
@@ -29,14 +32,17 @@ export const htmlToPingbacks = async (html) => {
       
       if (parsedUrl?.currentRoute?.getPingback) {
         const pingback = await parsedUrl.currentRoute.getPingback(parsedUrl);
-        if (pingback)
-          pingbacks.push(pingback);
+        if (pingback) {
+          if (!(pingback.collectionName in pingbacks))
+            pingbacks[pingback.collectionName] = [];
+          if (!_.find(pingbacks[pingback.collectionName], pingback.documentId))
+            pingbacks[pingback.collectionName].push(pingback.documentId);
+        }
       }
     }
   }
   
-  const result = pingbacks.length>1 ? deepmerge.all(pingbacks) : pingbacks.length==1 ? pingbacks[0] : {};
-  return result;
+  return pingbacks;
 };
 
 const extractLinks = (html) => {

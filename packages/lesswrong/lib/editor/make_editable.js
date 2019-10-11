@@ -276,13 +276,20 @@ export const makeEditable = ({collection, options = {}}) => {
   ])
   if (pingbacks) {
     addFieldsDict(collection, {
+      // Dictionary from collection name to array of distinct referenced
+      // document IDs in that collection, in order of appearance
       pingbacks: {
         type: Object,
-        blackbox: true,
         viewableBy: 'guests',
         optional: true,
         hidden: true,
-      }
+      },
+      "pingbacks.$": {
+        type: Array,
+      },
+      "pingbacks.$.$": {
+        type: String,
+      },
     });
   }
 }
