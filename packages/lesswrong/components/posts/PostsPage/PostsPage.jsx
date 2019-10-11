@@ -23,7 +23,7 @@ const styles = theme => ({
   root: {
     position: "relative",
     [theme.breakpoints.down('sm')]: {
-      marginTop: 20
+      marginTop: 12
     }
   },
   tocActivated: {
@@ -338,7 +338,7 @@ class PostsPage extends Component {
                   { post.authorIsUnreviewed && <div className={classes.unreviewed}>This post is awaiting moderator approval</div>}
                   <LinkPostMessage post={post} />
                   {query.revision && <PostsRevisionMessage post={post} />}
-                  { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}}/> }
+                  { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
                 </div>
               </div>
             </div>

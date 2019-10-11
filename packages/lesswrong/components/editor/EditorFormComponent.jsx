@@ -132,7 +132,7 @@ class EditorFormComponent extends Component {
         ckEditorValue: editorType === "ckEditorMarkup" ? this.initializeText(value.originalContents.data) : null
       }
     }
-
+    
     // Otherwise, just set it to the value of the document
     const { draftJS, html, markdown, ckEditorMarkup } = document[fieldName] || {}
     return {
@@ -357,10 +357,11 @@ class EditorFormComponent extends Component {
   renderEditorWarning = () => {
     const { classes, currentUser, document, fieldName, value } = this.props
     const { type } = (value && value.originalContents) || (document[fieldName] && document[fieldName].originalContents) || {}
-    return <Typography variant="body2" color="primary">
+    const defaultType = this.getUserDefaultEditor(currentUser)
+    return <Typography variant="body2" color="error">
       This document was last edited in {type} format. Showing {this.getCurrentEditorType()} editor.
-      <a className={classes.errorTextColor} onClick={() => this.handleEditorOverride()}> Click here </a>
-      to switch to {this.getUserDefaultEditor(currentUser)} editor (your default editor).
+      <a className={classes.errorTextColor} onClick={() => this.handleEditorOverride(defaultType)}> Click here </a>
+      to switch to {defaultType} editor (your default editor).
     </Typography>
   }
 
@@ -385,7 +386,7 @@ class EditorFormComponent extends Component {
   }
 
   getUserDefaultEditor = (user) => {
-    if (user?.beta) return "ckEditorMarkup"
+    //if (user?.beta) return "ckEditorMarkup"
     if (Users.useMarkdownPostEditor(user)) return "markdown"
     return "draftJS"
   }
@@ -410,7 +411,7 @@ class EditorFormComponent extends Component {
 
   renderEditorTypeSelect = () => {
     const { currentUser } = this.props
-    if (!currentUser || (!currentUser.isAdmin && !currentUser.beta)) return null
+    if (!currentUser || !currentUser.isAdmin) return null
     return (
       <Tooltip title="Warning! Changing format will erase your content" placement="left">
         <Select

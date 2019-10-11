@@ -71,6 +71,7 @@ importComponent("DefaultStyleFormGroup", () => require('../components/common/Def
 importComponent("LinkCard", () => require('../components/common/LinkCard.jsx'));
 importComponent("Error404", () => require('../components/common/Error404.jsx'));
 importComponent("PermanentRedirect", () => require('../components/common/PermanentRedirect.jsx'));
+importComponent("SeparatorBullet", () => require('../components/common/SeparatorBullet.jsx'));
 
 importComponent("TabNavigationMenu", () => require('../components/common/TabNavigationMenu/TabNavigationMenu.jsx'));
 import '../components/common/TabNavigationMenu/TabNavigationMenuFooter.jsx';

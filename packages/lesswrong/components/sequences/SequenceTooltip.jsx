@@ -23,7 +23,9 @@ const SequenceTooltip = ({ sequence, classes }) => {
     
     <ContentItemBody
       className={classes.sequenceDescriptionHighlight}
-      dangerouslySetInnerHTML={{__html: truncatedDescription}}/>
+      dangerouslySetInnerHTML={{__html: truncatedDescription}}
+      description={`sequence ${sequence._id}`}
+    />
   </div>;
 }
 

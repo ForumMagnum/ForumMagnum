@@ -2,7 +2,7 @@ import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import Input from '@material-ui/core/Input';
 import InputAdornment from '@material-ui/core/InputAdornment';
-import Icon from '@material-ui/core/Icon'
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
@@ -19,7 +19,7 @@ const UsersSearchInput = ({ inputProps, classes }) => {
     className={classes.input}
     startAdornment={
       <InputAdornment position="start">
-        <Icon>person_add</Icon>
+        <PersonAddIcon/>
       </InputAdornment>
     }
   />

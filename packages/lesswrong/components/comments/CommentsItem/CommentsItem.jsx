@@ -84,7 +84,8 @@ export const styles = theme => ({
     fontSize: 12,
   },
   replyForm: {
-    marginTop: 15,
+    marginTop: 2,
+    marginBottom: 8,
     padding: 10,
     border: "solid 1px rgba(0,0,0,.2)",
   },
