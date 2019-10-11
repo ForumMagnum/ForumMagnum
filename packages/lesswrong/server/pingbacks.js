@@ -2,7 +2,6 @@ import cheerio from 'cheerio';
 import { parsePath } from '../components/linkPreview/HoverPreviewLink.jsx';
 import { parseRoute } from 'meteor/vulcan:core';
 import { hostIsOnsite, getUrlClass } from '../lib/routeUtil';
-import deepmerge from 'deepmerge';
 
 export const htmlToPingbacks = async (html) => {
   const URLClass = getUrlClass()
