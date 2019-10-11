@@ -300,9 +300,9 @@ class PostsItem2 extends PureComponent {
   render() {
     const { classes, post, sequenceId, chapter, currentUser, index, terms, resumeReading,
       showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true,
-      defaultToShowUnreadComments=false, dismissRecommendation, isRead, dense, hideOnSmallScreens } = this.props
+      defaultToShowUnreadComments=false, dismissRecommendation, isRead, dense, hideOnSmallScreens, bookmark } = this.props
     const { showComments } = this.state
-    const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper } = Components
+    const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper, BookmarkButton } = Components
 
     const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -382,8 +382,9 @@ class PostsItem2 extends PureComponent {
                   onClick={() => this.toggleComments(false)}
                   unreadComments={unreadComments}
                 />
-
               </div>}
+
+              {bookmark && <BookmarkButton post={post}/>}
 
               <div className={classes.mobileDismissButton}>
                 {dismissButton}
