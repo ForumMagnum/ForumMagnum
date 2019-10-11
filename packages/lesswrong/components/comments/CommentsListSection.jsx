@@ -12,7 +12,6 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import withUser from '../common/withUser';
-import { commentBodyStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
   root: {
@@ -31,8 +30,6 @@ const styles = theme => ({
     color: theme.palette.lwTertiary.main,
   },
   newComment: {
-    padding: theme.spacing.unit*1.5,
-    paddingTop: 0,
     border: 'solid 1px rgba(0,0,0,.2)',
     position: 'relative',
     marginBottom: "1.3em",
@@ -41,20 +38,12 @@ const styles = theme => ({
     }
   },
   newCommentLabel: {
+    paddingLeft: theme.spacing.unit*1.5,
     ...theme.typography.commentStyle,
     ...theme.typography.body2,
     fontWeight: 600,
     marginTop: 12
-  },
-  moderationGuidelinesWrapper: {
-    ...commentBodyStyles(theme),
-    verticalAlign: 'top',
-    display: 'block',
-    padding: '10px 0px',
-    borderTop: '1px solid rgba(0,0,0,0.2)',
-    borderBottom: '1px solid rgba(0,0,0,0.2)',
-    marginBottom: 30,
-  },
+  }
 })
 
 class CommentsListSection extends Component {
@@ -135,14 +124,11 @@ class CommentsListSection extends Component {
   }
 
   render() {
-    const { currentUser, comments, post, classes, totalComments, parentAnswerId, startThreadTruncated, newForm=true, guidelines=true } = this.props;
+    const { currentUser, comments, post, classes, totalComments, parentAnswerId, startThreadTruncated, newForm=true } = this.props;
     // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
     return (
       <div className={classes.root}>
-        {guidelines && <div className={classes.moderationGuidelinesWrapper}>
-          <Components.ModerationGuidelinesBox documentId={post._id} showModeratorAssistance />
-        </div>}
         { this.props.totalComments ? this.renderTitleComponent() : null }
         <div id="comments"/>
 
