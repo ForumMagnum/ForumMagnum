@@ -1,14 +1,12 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
-import Icon from '@material-ui/core/Icon';
 import Tooltip from '@material-ui/core/Tooltip';
 import PropTypes from 'prop-types';
 
 const styles = (theme) => ({
   root: {
     marginRight: theme.spacing.unit*2,
-    fontSize:"1.5em",
     cursor:"pointer",
     opacity:.4,
     "&:hover": {
@@ -35,10 +33,10 @@ const styles = (theme) => ({
 
 const SidebarAction = ({children, classes, title, warningHighlight, onClick}) => {
   return <Tooltip title={title} placement="bottom" classes={{tooltip: classes.tooltip}} enterDelay={200}>
-          <Icon onClick={onClick} className={classes.root}>
+          <div onClick={onClick} className={classes.root}>
             {children}
             {warningHighlight && <div className={classes.warningHighlight}/>}
-          </Icon>
+          </div>
         </Tooltip>
 }
 

@@ -25,12 +25,13 @@ const styles = theme => ({
   link: {
   },
   icon: {
-    fontSize: "0.9rem !important",
+    fontSize: "0.9rem",
     transform: "rotate(-45deg)",
     verticalAlign: "middle",
-    color: "rgba(0,0,0,0.5) !important",
-    margin: "0 3px",
-    paddingBottom: 2,
+    color: "rgba(0,0,0,0.5)",
+    margin: "0 2px",
+    position: "relative",
+    top: -2
   },
 });
 
@@ -48,7 +49,7 @@ const CommentsItemDate = ({comment, post, showPostTitle, classes, scrollOnClick,
 
   const date = <span>
     <Components.FormatDate date={comment.postedAt} format={comment.answer && "MMM DD, YYYY"}/>
-    <LinkIcon className={classNames("material-icons", classes.icon)}/>
+    <LinkIcon className={classes.icon}/>
     {showPostTitle && post.title && <span className={classes.postTitle}> {post.draft && "[Draft]"} {post.title}</span>}
   </span>
 
