@@ -206,7 +206,7 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
 
   } else {
 
-    await checkRateLimit({ document, collection, voteType, user });
+    await checkRateLimit({ document, user });
 
     // console.log('action: vote')
 
@@ -230,7 +230,7 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
   return document;
 }
 
-const getVotingRateLimits = async (user) => {
+const getVotingRateLimits = async () => {
   return {
     perDay: 100,
     perHour: 30,
@@ -240,12 +240,12 @@ const getVotingRateLimits = async (user) => {
 
 // Check whether a given vote would exceed voting rate limits, and if so, throw
 // an error. Otherwise do nothing.
-const checkRateLimit = async ({ document, collection, voteType, user }) => {
+const checkRateLimit = async ({ document, user }) => {
   // No rate limit on self-votes
   if(document.userId === user._id)
     return;
 
-  const rateLimits = await getVotingRateLimits(user);
+  const rateLimits = await getVotingRateLimits();
 
   // Retrieve all non-cancelled votes cast by this user in the past 24 hours
   const oneDayAgo = moment().subtract(1, 'days').toDate();

@@ -283,7 +283,7 @@ let numCallbacksPending = 0;
 
 // When starting an async callback, assign it an ID, record the fact that it's
 // running, and return the ID.
-function markCallbackStarted(description)
+function markCallbackStarted()
 {
   if (numCallbacksPending > 1000) {
     // eslint-disable-next-line no-console
