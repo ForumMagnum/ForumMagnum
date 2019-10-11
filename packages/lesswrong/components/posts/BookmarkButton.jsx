@@ -6,8 +6,16 @@ import Bookmark from '@material-ui/icons/Bookmark'
 import BookmarkBorder from '@material-ui/icons/BookmarkBorder'
 import withUser from '../common/withUser';
 import Users from 'meteor/vulcan:users';
+import Tooltip from '@material-ui/core/Tooltip';
+import { withStyles } from '@material-ui/core/styles'
 
-const BookmarkMenuItem = ({post, currentUser}) => {
+const styles = theme => ({
+  icon: {
+    cursor: "pointer"
+  }
+})
+
+const BookmarkButton = ({classes, post, currentUser, menuItem, placement="left"}) => {
 
   const [bookmarked, setBookmarked] = useState(currentUser?.bookmarkedPostIds?.includes(post._id))
 
@@ -33,26 +41,36 @@ const BookmarkMenuItem = ({post, currentUser}) => {
       data: { bookmarkedPostIds: _.without(bookmarkIds, post._id) }
     });
   }
-  if (bookmarked) {
+
+  if (bookmarked && menuItem) {
     return (
       <MenuItem onClick={handleUnBookmark}>
         <ListItemIcon>
-          <BookmarkBorder/>
+          <Bookmark/>
         </ListItemIcon>
         Un-bookmark
       </MenuItem>
     )
-  } else {
+  }
+  if (!bookmarked && menuItem) {
     return (
       <MenuItem onClick={handleBookmark}>
         <ListItemIcon>
-          <Bookmark />
+          <BookmarkBorder />
         </ListItemIcon>
         Bookmark
       </MenuItem>
     )
   }
-
+  if (!menuItem) {
+    return (
+      <Tooltip title={bookmarked ? "Un-bookmark": "Bookmark this post"} placement={placement}>
+        <span>
+          {bookmarked ? <Bookmark className={classes.icon} onClick={handleUnBookmark}/> : <BookmarkBorder className={classes.icon} onClick={handleBookmark}/>}
+        </span>
+      </Tooltip>
+    )
+  }
 }
 
-registerComponent('BookmarkMenuItem', BookmarkMenuItem, withUser);
+registerComponent('BookmarkButton', BookmarkButton, withUser, withStyles(styles, {name:"BookmarkButton"}));
