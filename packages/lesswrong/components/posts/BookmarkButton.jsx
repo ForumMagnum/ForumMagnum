@@ -1,4 +1,4 @@
-import { Components, registerComponent, useUpdate } from 'meteor/vulcan:core';
+import { registerComponent, useUpdate } from 'meteor/vulcan:core';
 import React, { useState } from 'react';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -20,7 +20,6 @@ const styles = theme => ({
 const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right", openDialog}) => {
 
   const [bookmarked, setBookmarked] = useState(currentUser?.bookmarkedPostIds?.includes(post._id))
-  const { LoginPopupButton } = Components
 
   const {mutate: updateUser} = useUpdate({
     collection: Users,
