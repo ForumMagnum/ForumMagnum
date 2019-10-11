@@ -54,14 +54,14 @@ const CommentsItemDate = ({comment, post, showPostTitle, classes, scrollOnClick,
   </span>
 
   return (
-    <div className={classNames(classes.root, {
+    <span className={classNames(classes.root, {
       [classes.date]: !comment.answer,
       [classes.answerDate]: comment.answer,
     })}>
       {scrollOnClick ? <a href={url} onClick={handleLinkClick}>{ date } </a>
         : <Link to={url}>{ date }</Link>
       }
-    </div>
+    </span>
   );
 }
 
