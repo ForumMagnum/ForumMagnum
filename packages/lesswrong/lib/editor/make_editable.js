@@ -2,7 +2,7 @@ import React from 'react';
 import Users from 'meteor/vulcan:users'
 import { Utils } from 'meteor/vulcan:core'
 import { ContentType } from '../collections/revisions/schema'
-import { accessFilterMultiple } from '../modules/utils/schemaUtils.js';
+import { accessFilterMultiple, addFieldsDict } from '../modules/utils/schemaUtils.js';
 import SimpleSchema from 'simpl-schema'
 
 const RevisionStorageType = new SimpleSchema({
@@ -36,6 +36,7 @@ const defaultOptions = {
 
 export const editableCollections = new Set()
 export const editableCollectionsFields = {}
+export const editableCollectionsFieldOptions = {};
 
 export const makeEditable = ({collection, options = {}}) => {
   options = {...defaultOptions, ...options}
@@ -58,14 +59,19 @@ export const makeEditable = ({collection, options = {}}) => {
       </div>
   </div>,
     order,
-    enableMarkDownEditor
+    enableMarkDownEditor,
+    pingbacks = false,
   } = options
 
   editableCollections.add(collection.options.collectionName)
   editableCollectionsFields[collection.options.collectionName] = [
-    ...(editableCollectionsFields[collection.options.collectionName] || []), 
+    ...(editableCollectionsFields[collection.options.collectionName] || []),
     fieldName || "contents"
-  ] 
+  ]
+  editableCollectionsFieldOptions[collection.options.collectionName] = {
+    ...editableCollectionsFieldOptions[collection.options.collectionName],
+    [fieldName || "contents"]: options,
+  };
 
   collection.addField([
     { 
@@ -74,9 +80,6 @@ export const makeEditable = ({collection, options = {}}) => {
         type: RevisionStorageType,
         inputType: 'UpdateRevisionDataInput',
         optional: true,
-        viewableBy: ['guests'],
-        editableBy: ['members'],
-        insertableBy: ['members'],
         group: formGroup,
         ...permissions,
         order,
@@ -271,4 +274,22 @@ export const makeEditable = ({collection, options = {}}) => {
     //   }
     // },
   ])
+  if (pingbacks) {
+    addFieldsDict(collection, {
+      // Dictionary from collection name to array of distinct referenced
+      // document IDs in that collection, in order of appearance
+      pingbacks: {
+        type: Object,
+        viewableBy: 'guests',
+        optional: true,
+        hidden: true,
+      },
+      "pingbacks.$": {
+        type: Array,
+      },
+      "pingbacks.$.$": {
+        type: String,
+      },
+    });
+  }
 }

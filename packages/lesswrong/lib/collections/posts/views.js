@@ -787,3 +787,18 @@ ensureIndex(Posts,
   { name: "posts.recommendable" }
 );
 
+Posts.addView("pingbackPosts", terms => {
+  return {
+    selector: {
+      "pingbacks.Posts": terms.postId,
+    },
+    options: {
+      sort: { baseScore: -1 },
+    },
+  }
+});
+ensureIndex(Posts,
+  augmentForDefaultView({ "pingback.Posts": 1 }),
+  { name: "posts.pingbackPosts" }
+);
+
