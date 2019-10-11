@@ -6,8 +6,8 @@ import SubdirectoryArrowLeftIcon from '@material-ui/icons/SubdirectoryArrowLeft'
 
 const styles = theme => ({
   button: {
-    color: "rgba(0,0,0,.5) !important",
-    fontSize: "12px !important",
+    color: "rgba(0,0,0,.5)",
+    fontSize: "12px",
     left: 4,
     transition: "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
   },

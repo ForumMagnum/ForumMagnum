@@ -8,8 +8,8 @@ import { withStyles } from '@material-ui/core/styles';
 const styles = theme => ({
   input: {
     // this needs to be here because of Bootstrap. I am sorry :(
-    padding: "6px 0 7px !important",
-    fontSize: "13px !important"
+    padding: "6px 0 7px",
+    fontSize: "13px"
   }
 })
 

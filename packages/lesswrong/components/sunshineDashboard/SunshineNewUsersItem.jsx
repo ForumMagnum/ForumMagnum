@@ -11,6 +11,8 @@ import withHover from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
 import red from '@material-ui/core/colors/red';
 import { withStyles } from '@material-ui/core/styles';
+import DoneIcon from '@material-ui/icons/Done';
+import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 
 const styles = theme => ({
   negativeKarma: {
@@ -104,10 +106,10 @@ class SunshineNewUsersItem extends Component {
           }
           { hover && <SidebarActionMenu>
             <SidebarAction title="Review" onClick={this.handleReview}>
-              done
+              <DoneIcon />
             </SidebarAction>
             <SidebarAction warningHighlight={true} title="Purge User (delete and ban)" onClick={this.handlePurge}>
-              delete_forever
+              <DeleteForeverIcon />
             </SidebarAction>
           </SidebarActionMenu>}
         </SunshineListItem>
