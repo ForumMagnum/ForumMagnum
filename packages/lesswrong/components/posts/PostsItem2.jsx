@@ -249,6 +249,11 @@ const styles = (theme) => ({
   dense: {
     paddingTop: 7,
     paddingBottom:8
+  }, 
+  hideOnSmallScreens: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none'
+    }
   }
 })
 
@@ -295,7 +300,7 @@ class PostsItem2 extends PureComponent {
   render() {
     const { classes, post, sequenceId, chapter, currentUser, index, terms, resumeReading,
       showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true,
-      defaultToShowUnreadComments=false, dismissRecommendation, isRead, dense } = this.props
+      defaultToShowUnreadComments=false, dismissRecommendation, isRead, dense, hideOnSmallScreens } = this.props
     const { showComments } = this.state
     const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper } = Components
 
@@ -314,7 +319,7 @@ class PostsItem2 extends PureComponent {
     const cloudinaryCloudName = getSetting('cloudinary.cloudName', 'lesswrong-2-0')
 
     return (
-      <div className={classes.root} ref={this.postsItemRef}>
+      <div className={classNames(classes.root, {[classes.hideOnSmallScreens]: hideOnSmallScreens})} ref={this.postsItemRef}>
         <div className={classNames(
           classes.background,
           {
