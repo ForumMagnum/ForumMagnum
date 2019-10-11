@@ -436,7 +436,7 @@ addFieldsDict(Users, {
 
   bookmarkedPostIds: {
     type: Array,
-    canRead: ['guests'],
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     optional: true,
     hidden: true,

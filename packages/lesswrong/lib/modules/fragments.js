@@ -142,6 +142,7 @@ registerFragment(`
 registerFragment(`
   fragment UserBookmarks on User {
     _id
+    bookmarkedPostIds
     bookmarkedPosts {
       ...PostsList
     }
