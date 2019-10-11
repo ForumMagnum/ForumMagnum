@@ -1,4 +1,4 @@
-import { registerComponent, useUpdate } from 'meteor/vulcan:core';
+import { Components, registerComponent, useUpdate } from 'meteor/vulcan:core';
 import React, { useState } from 'react';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -18,6 +18,7 @@ const styles = theme => ({
 const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right"}) => {
 
   const [bookmarked, setBookmarked] = useState(currentUser?.bookmarkedPostIds?.includes(post._id))
+  const { LoginPopupButton } = Components
 
   const {mutate: updateUser} = useUpdate({
     collection: Users,
@@ -47,19 +48,23 @@ const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right"
 
   if (menuItem) {
     return (
-      <MenuItem onClick={toggleBookmark}>
-        <ListItemIcon>
-          { icon }
-        </ListItemIcon>
-        {title}
-      </MenuItem>
+      <LoginPopupButton>
+        <MenuItem onClick={toggleBookmark}>
+          <ListItemIcon>
+            { icon }
+          </ListItemIcon>
+          {title}
+        </MenuItem>
+      </LoginPopupButton>
     )
   } else {
     return (
       <Tooltip title={title} placement={placement}>
-        <span onClick={toggleBookmark} className={classes.icon}>
-        { icon }
-        </span>
+        <LoginPopupButton>
+          <span onClick={toggleBookmark} className={classes.icon}>
+          { icon }
+          </span>
+        </LoginPopupButton>
       </Tooltip>
     )
   }

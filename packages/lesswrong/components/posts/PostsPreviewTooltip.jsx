@@ -179,7 +179,7 @@ const PostsPreviewTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMed
         <span>
           {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
         </span>
-        { showAllinfo && <span className={classes.bookmarkButton}><BookmarkButton post={post} placement="left"/></span>}
+        { showAllinfo && <span className={classes.bookmarkButton}><BookmarkButton post={post} /></span>}
       </div>}
   </Card>
 
