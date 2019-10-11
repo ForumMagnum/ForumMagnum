@@ -74,7 +74,7 @@ const baseBodyStyles = theme => ({
   },
   '& h1': {
     ...theme.typography.display2,
-    ...theme.typography.postStyle
+    ...theme.typography.headerStyle,
   },
   // If a post starts with a header, it should still be flush with the top of
   // the container
@@ -84,15 +84,15 @@ const baseBodyStyles = theme => ({
   },
   '& h2': {
     ...theme.typography.display1,
-    ...theme.typography.postStyle,
+    ...theme.typography.headerStyle,
   },
   '& h2:first-child': {
     marginTop: 0,
     marginBlockStart: 0,
   },
   '& h3': {
-    ...theme.typography.display1,
-    ...theme.typography.postStyle,
+    ...theme.typography.display1a,
+    ...theme.typography.headerStyle,
   },
   '& h3:first-child': {
     marginTop: 0,
@@ -118,7 +118,11 @@ const baseBodyStyles = theme => ({
 })
 
 export const postBodyStyles = (theme) => {
-  return {
+  // console.log('theme', JSON.stringify(theme))
+  console.log('display1', theme.typography.display1)
+  console.log('poststyle', theme.typography.postStyle)
+  console.log('headerStyle', theme.typography.headerStyle)
+  const result = {
     ...baseBodyStyles(theme),
     ...spoilerStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
@@ -144,6 +148,8 @@ export const postBodyStyles = (theme) => {
       display: 'none'
     },
   }
+  console.log('result', JSON.stringify(result))
+  return result
 }
 
 export const commentBodyStyles = theme => {

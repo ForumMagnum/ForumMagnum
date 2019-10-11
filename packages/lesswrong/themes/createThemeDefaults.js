@@ -45,11 +45,19 @@ const createLWTheme = (theme) => {
       postStyle: {
         fontFamily: typography.fontFamily,
       },
+      // postHeaderStyle: {
+      //   fontFamily: typography.fontFamily,
+      // },
       body1: body1FontSize,
       body2: {
         fontWeight: 400,
         linkUnderlinePosition: "72%",
         ...body2FontSize
+      },
+      display1a: {
+        color: grey[800],
+        fontSize: '2rem',
+        marginTop: '1em'
       },
       display1: {
         color: grey[800],

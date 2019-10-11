@@ -98,15 +98,36 @@ const theme = createLWTheme({
       fontWeight: 500,
       marginBottom: 5,
     },
+    // used by h3
+    display1a: {
+      color: grey[800],
+      fontFamily: titleStack,
+      fontWeight: 600,
+      fontSize: '1.6rem',
+      lineHeight: '1.25em',
+    },
+    // used by h2
+    display1: {
+      color: grey[800],
+      fontFamily: titleStack,
+      fontWeight: 600,
+      fontSize: '2rem',
+      lineHeight: '1.25em',
+    },
+    // used by h1
     display2: {
       color: grey[800],
       fontFamily: titleStack,
-      fontWeight: 600
+      fontWeight: 600,
+      fontSize: '2.4rem',
+      lineHeight: '1.25em',
     },
+    // used by page title
     display3: {
       color: grey[800],
       fontFamily: titleStack,
-      fontWeight: 500
+      fontWeight: 600,
+      lineHeight: '1.25em'
     }
   },
   overrides: {
@@ -177,11 +198,11 @@ const theme = createLWTheme({
         marginTop: 63
       }
     },
-    PostsPageTitle: {
-      root: {
-        lineHeight: '1.25em'
-      }
-    },
+    // PostsPageTitle: {
+    //   root: {
+    //     lineHeight: '1.25em'
+    //   }
+    // },
     NavigationStandalone: {
       sidebar: {
         top: 26,

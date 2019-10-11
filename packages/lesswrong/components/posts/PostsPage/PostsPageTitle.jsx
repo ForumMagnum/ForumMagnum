@@ -5,26 +5,30 @@ import Typography from '@material-ui/core/Typography';
 import { Link } from 'react-router-dom';
 import { Posts } from '../../../lib/collections/posts';
 
-const styles = theme => ({
-  root: {
-    ...theme.typography.display3,
-    ...theme.typography.postStyle,
-    ...theme.typography.headerStyle,
-    margin: "0 !important",
-    color: theme.palette.text.primary,
-    [theme.breakpoints.down('sm')]: {
-      fontSize: '2.5rem',
+const styles = theme => {
+  // Bold titles need a little personal space
+  const margin = theme.typography.display3.fontWeight >= 600 ? 20 : 0
+  return {
+    root: {
+      ...theme.typography.postStyle,
+      ...theme.typography.display3,
+      ...theme.typography.headerStyle,
+      margin: `${margin} !important`,
+      color: theme.palette.text.primary,
+      [theme.breakpoints.down('sm')]: {
+        fontSize: '2.5rem',
+      }
+    },
+    draft: {
+      color: theme.palette.grey[500]
+    },
+    question: {
+      color: theme.palette.grey[600],
+      display: "block",
+      marginTop: "1em"
     }
-  },
-  draft: {
-    color: theme.palette.grey[500]
-  },
-  question: {
-    color: theme.palette.grey[600],
-    display: "block",
-    marginTop: "1em"
   }
-})
+}
 
 const PostsPageTitle = ({classes, post}) => {
   const parentPost = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)?.[0]?.sourcePost
