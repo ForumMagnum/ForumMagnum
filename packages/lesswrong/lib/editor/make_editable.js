@@ -36,6 +36,7 @@ const defaultOptions = {
 
 export const editableCollections = new Set()
 export const editableCollectionsFields = {}
+export const editableCollectionsFieldOptions = {};
 
 export const makeEditable = ({collection, options = {}}) => {
   options = {...defaultOptions, ...options}
@@ -64,9 +65,13 @@ export const makeEditable = ({collection, options = {}}) => {
 
   editableCollections.add(collection.options.collectionName)
   editableCollectionsFields[collection.options.collectionName] = [
-    ...(editableCollectionsFields[collection.options.collectionName] || []), 
+    ...(editableCollectionsFields[collection.options.collectionName] || []),
     fieldName || "contents"
-  ] 
+  ]
+  editableCollectionsFieldOptions[collection.options.collectionName] = {
+    ...editableCollectionsFieldOptions[collection.options.collectionName],
+    [fieldName || "contents"]: options,
+  };
 
   collection.addField([
     { 
@@ -75,9 +80,6 @@ export const makeEditable = ({collection, options = {}}) => {
         type: RevisionStorageType,
         inputType: 'UpdateRevisionDataInput',
         optional: true,
-        viewableBy: ['guests'],
-        editableBy: ['members'],
-        insertableBy: ['members'],
         group: formGroup,
         ...permissions,
         order,
