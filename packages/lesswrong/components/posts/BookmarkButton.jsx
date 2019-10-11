@@ -5,6 +5,8 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Bookmark from '@material-ui/icons/Bookmark'
 import BookmarkBorder from '@material-ui/icons/BookmarkBorder'
 import withUser from '../common/withUser';
+import withDialog from '../common/withDialog';
+import withErrorBoundary from '../common/withErrorBoundary';
 import Users from 'meteor/vulcan:users';
 import Tooltip from '@material-ui/core/Tooltip';
 import { withStyles } from '@material-ui/core/styles'
@@ -15,7 +17,7 @@ const styles = theme => ({
   }
 })
 
-const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right"}) => {
+const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right", openDialog}) => {
 
   const [bookmarked, setBookmarked] = useState(currentUser?.bookmarkedPostIds?.includes(post._id))
   const { LoginPopupButton } = Components
@@ -25,7 +27,16 @@ const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right"
     fragmentName: 'UserBookmarks',
   });
 
-  const toggleBookmark = () => {
+  const toggleBookmark = (event) => {
+    if (!currentUser) {
+      openDialog({
+        componentName: "LoginPopup",
+        componentProps: {}
+      });
+      event.preventDefault();
+      return
+    }
+
     if (bookmarked) {
       setBookmarked(false)
       const bookmarkIds = currentUser.bookmarkedPostIds || []
@@ -48,26 +59,22 @@ const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right"
 
   if (menuItem) {
     return (
-      <LoginPopupButton>
-        <MenuItem onClick={toggleBookmark}>
-          <ListItemIcon>
-            { icon }
-          </ListItemIcon>
-          {title}
-        </MenuItem>
-      </LoginPopupButton>
+      <MenuItem onClick={toggleBookmark}>
+        <ListItemIcon>
+          { icon }
+        </ListItemIcon>
+        {title}
+      </MenuItem>
     )
   } else {
     return (
       <Tooltip title={title} placement={placement}>
-        <LoginPopupButton>
-          <span onClick={toggleBookmark} className={classes.icon}>
-          { icon }
-          </span>
-        </LoginPopupButton>
+        <span onClick={toggleBookmark} className={classes.icon}>
+        { icon }
+        </span>
       </Tooltip>
     )
   }
 }
 
-registerComponent('BookmarkButton', BookmarkButton, withUser, withStyles(styles, {name:"BookmarkButton"}));
+registerComponent('BookmarkButton', BookmarkButton, withUser, withErrorBoundary, withStyles(styles, {name:"BookmarkButton"}), withDialog);
