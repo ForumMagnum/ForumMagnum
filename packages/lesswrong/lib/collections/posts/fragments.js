@@ -278,7 +278,7 @@ registerFragment(`
       wordCount
     }
     moderationGuidelines {
-      ...RevisionEdit
+      ...RevisionDisplay
     }
   }
 `);
