@@ -23,50 +23,43 @@ const BookmarkButton = ({classes, post, currentUser, menuItem, placement="left"}
     collection: Users,
     fragmentName: 'UsersCurrent',
   });
+
+  const toggleBookmark = () => {
+    if (bookmarked) {
+      setBookmarked(false)
+      const bookmarkIds = currentUser.bookmarkedPostIds || []
+      updateUser({
+        selector: {_id: currentUser._id},
+        data: { bookmarkedPostIds: _.without(bookmarkIds, post._id) }
+      });
+    } else {
+      setBookmarked(true)
+      const bookmarkIds = currentUser.bookmarkedPostIds || []
+      updateUser({
+        selector: {_id: currentUser._id},
+        data: { bookmarkedPostIds: _.uniq([...bookmarkIds, post._id]) }
+      });
+    }
+  }
+
+  const icon = bookmarked ? <Bookmark/> : <BookmarkBorder/>
+  const title = bookmarked ? "Un-bookmark" : "Bookmark"
   
-  const handleBookmark = () => {
-    setBookmarked(true)
-    const bookmarkIds = currentUser.bookmarkedPostIds || []
-    updateUser({
-      selector: {_id: currentUser._id},
-      data: { bookmarkedPostIds: _.uniq([...bookmarkIds, post._id]) }
-    });
-  }
-
-  const handleUnBookmark = () => {
-    setBookmarked(false)
-    const bookmarkIds = currentUser.bookmarkedPostIds || []
-    updateUser({
-      selector: {_id: currentUser._id},
-      data: { bookmarkedPostIds: _.without(bookmarkIds, post._id) }
-    });
-  }
-
-  if (bookmarked && menuItem) {
+  if (menuItem) {
     return (
-      <MenuItem onClick={handleUnBookmark}>
+      <MenuItem onClick={toggleBookmark}>
         <ListItemIcon>
-          <Bookmark/>
+          { icon }
         </ListItemIcon>
-        Un-bookmark
-      </MenuItem>
-    )
-  }
-  if (!bookmarked && menuItem) {
-    return (
-      <MenuItem onClick={handleBookmark}>
-        <ListItemIcon>
-          <BookmarkBorder />
-        </ListItemIcon>
-        Bookmark
+        {title}
       </MenuItem>
     )
   }
   if (!menuItem) {
     return (
-      <Tooltip title={bookmarked ? "Un-bookmark": "Bookmark this post"} placement={placement}>
-        <span>
-          {bookmarked ? <Bookmark className={classes.icon} onClick={handleUnBookmark}/> : <BookmarkBorder className={classes.icon} onClick={handleBookmark}/>}
+      <Tooltip title={title} placement={placement}>
+        <span onClick={toggleBookmark} className={classes.icon}>
+        { icon }
         </span>
       </Tooltip>
     )
