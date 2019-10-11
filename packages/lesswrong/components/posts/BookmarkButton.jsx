@@ -21,7 +21,7 @@ const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right"
 
   const {mutate: updateUser} = useUpdate({
     collection: Users,
-    fragmentName: 'UsersCurrent',
+    fragmentName: 'UserBookmarks',
   });
 
   const toggleBookmark = () => {
