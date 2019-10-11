@@ -15,7 +15,7 @@ const styles = theme => ({
   }
 })
 
-const BookmarkButton = ({classes, post, currentUser, menuItem, placement="left"}) => {
+const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right"}) => {
 
   const [bookmarked, setBookmarked] = useState(currentUser?.bookmarkedPostIds?.includes(post._id))
 
@@ -44,7 +44,7 @@ const BookmarkButton = ({classes, post, currentUser, menuItem, placement="left"}
 
   const icon = bookmarked ? <Bookmark/> : <BookmarkBorder/>
   const title = bookmarked ? "Un-bookmark" : "Bookmark"
-  
+
   if (menuItem) {
     return (
       <MenuItem onClick={toggleBookmark}>
@@ -54,8 +54,7 @@ const BookmarkButton = ({classes, post, currentUser, menuItem, placement="left"}
         {title}
       </MenuItem>
     )
-  }
-  if (!menuItem) {
+  } else {
     return (
       <Tooltip title={title} placement={placement}>
         <span onClick={toggleBookmark} className={classes.icon}>

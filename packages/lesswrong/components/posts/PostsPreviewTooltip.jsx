@@ -63,13 +63,7 @@ const styles = theme => ({
   tooltipInfo: {
     fontStyle: "italic",
     ...commentBodyStyles(theme),
-    color: theme.palette.grey[600],
-    display: "flex",
-    alignItems: "center"
-  },
-  bookmarkButton: {
-    marginTop: 4,
-    marginRight: theme.spacing.unit
+    color: theme.palette.grey[600]
   },
   highlight: {
     ...postHighlightStyles(theme),
@@ -102,19 +96,29 @@ const styles = theme => ({
     marginRight: 6,
     marginLeft: 12
   },
-  rightInfo: {
-    marginLeft: "auto"
-  },
   comments: {
-    marginRight: theme.spacing.unit*2,
-  },
-  karma: {
+    [theme.breakpoints.up('sm')]: {
+      float: "right"
+    },
     [theme.breakpoints.down('xs')]: {
       display: "inline-block",
+      marginRight: theme.spacing.unit*2,
+    },
+  },
+  karma: {
+    [theme.breakpoints.up('sm')]: {
+      float: "right"
+    },
+    [theme.breakpoints.down('xs')]: {
+      display: "inline-block",
+      float: "left"
     },
   },
   comment: {
     marginTop: theme.spacing.unit*1.5
+  },
+  bookmarkButton: {
+    float: "right"
   }
 })
 
@@ -148,18 +152,13 @@ const PostsPreviewTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMed
         <PostsTitle post={post} tooltip={false} wrap/>
       </div>
       <div className={classes.tooltipInfo}>
-        { showAllinfo && <span className={classes.bookmarkButton}><BookmarkButton post={post} placement="left"/></span>}
-        <div>
-          { getPostCategory(post)}
-          { showAllinfo && post.user && <span> by <PostsUserAndCoauthors post={post} simple/></span>}
-        </div>
-        <div className={classes.rightInfo}>
-          { renderCommentCount && <span className={classes.comments}>
-            <CommentIcon className={classes.commentIcon}/>
-              {Posts.getCommentCountStr(post)}
-          </span>}
-          { showAllinfo && <span className={classes.karma}>{Posts.getKarma(post)} karma</span>}
-        </div>
+        { getPostCategory(post)}
+        { showAllinfo && post.user && <span> by <PostsUserAndCoauthors post={post} simple/></span>}
+        { renderCommentCount && <span className={classes.comments}>
+          <CommentIcon className={classes.commentIcon}/>
+            {Posts.getCommentCountStr(post)}
+        </span>}
+        { showAllinfo && <span className={classes.karma}>{Posts.getKarma(post)} karma</span>}
       </div>
       {comment
         ? <div className={classes.comment}>
@@ -177,7 +176,10 @@ const PostsPreviewTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMed
           />
       }
       {renderWordCount && <div className={classes.tooltipInfo}>
-        {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
+        <span>
+          {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
+        </span>
+        { showAllinfo && <span className={classes.bookmarkButton}><BookmarkButton post={post} placement="left"/></span>}
       </div>}
   </Card>
 
