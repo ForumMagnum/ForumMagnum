@@ -110,7 +110,11 @@ const PostsList2 = ({
 
       {results && results.map((post, i) =>
         (hidePosts && hidePosts[i])
-          ? null
+          ? <PostsItem2 key={post._id}
+             post={post} terms={terms} index={i}
+             showQuestionTag={terms.filter!=="questions"}
+             hideOnSmallScreens
+            />
           : <PostsItem2 key={post._id}
               post={post} terms={terms} index={i}
               showQuestionTag={terms.filter!=="questions"}

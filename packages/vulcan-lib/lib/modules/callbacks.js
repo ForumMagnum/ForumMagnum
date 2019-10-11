@@ -287,7 +287,7 @@ function markCallbackStarted(description)
 {
   if (numCallbacksPending > 1000) {
     // eslint-disable-next-line no-console
-    console.log(`Warning: Excessively many background callbacks running (numCallbacksPending=${numCallbacksPending})`);
+    console.log(`Warning: Excessively many background callbacks running (numCallbacksPending=${numCallbacksPending}) while trying to add callback ${description}`);
   }
   numCallbacksPending++;
   
