@@ -1,5 +1,5 @@
 import { Components, registerComponent, getFragment, getSetting } from 'meteor/vulcan:core';
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Comments } from '../../lib/collections/comments';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
@@ -13,6 +13,9 @@ import withDialog from '../common/withDialog';
 const styles = theme => ({
   root: {
   },
+  form: {
+    padding: 10,
+  },
   modNote: {
     paddingTop: '4px',
     color: theme.palette.grey[800]
@@ -25,12 +28,16 @@ const styles = theme => ({
     fontSize: "16px",
     marginLeft: "5px",
     "&:hover": {
-      background: "rgba(0,0,0, 0.05)",
+      opacity: .5,
+      background: "none"
     },
     color: theme.palette.lwTertiary.main
   },
   cancelButton: {
     color: theme.palette.grey[400]
+  },
+  moderationGuidelinesWrapper: {
+    backgroundColor: "rgba(0,0,0,.07)",
   }
 });
 
@@ -39,6 +46,10 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
     ...prefilledProps,
     af: Comments.defaultToAlignment(currentUser, post, parentComment),
   };
+  
+  const [showGuidelines, setShowGuidelines] = useState()
+  
+  const { ModerationGuidelinesBox, WrappedSmartForm } = Components
   
   if (post) {
     prefilledProps = {
@@ -85,14 +96,14 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
   }
 
   const commentWillBeHidden = getSetting('hideUnreviewedAuthorComments') && currentUser && !currentUser.isReviewed
-
   return (
-    <div className={classes.root}>
+    <div className={classes.root} onFocus={()=>setShowGuidelines(true)}>
+      <div className={classes.form}>
       {commentWillBeHidden && <div className={classes.modNote}><em>
         A moderator will need to review your account before your comments will show up.
       </em></div>}
 
-      <Components.WrappedSmartForm
+      <WrappedSmartForm
         collection={Comments}
         mutationFragment={getFragment(fragment)}
         successCallback={successCallback}
@@ -107,6 +118,10 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
         addFields={currentUser?[]:["contents"]}
         formProps={formProps}
       />
+      </div>
+      {showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
+        <ModerationGuidelinesBox document={post} />
+      </div>}
     </div>
   );
 };
