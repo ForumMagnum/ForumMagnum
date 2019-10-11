@@ -8,7 +8,6 @@ import classNames from 'classnames';
 const styles = theme => ({
   root: {
     ...theme.typography.display3,
-    ...theme.typography.postStyle,
     ...theme.typography.headerStyle,
     width: "100%",
     resize: "none",

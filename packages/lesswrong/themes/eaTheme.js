@@ -99,10 +99,11 @@ const theme = createLWTheme({
       marginBottom: 5,
     },
     // used by h3
+    // TODO; increment all
     display1a: {
       color: grey[800],
       fontFamily: titleStack,
-      fontWeight: 600,
+      fontWeight: 700,
       fontSize: '1.6rem',
       lineHeight: '1.25em',
     },
@@ -110,7 +111,7 @@ const theme = createLWTheme({
     display1: {
       color: grey[800],
       fontFamily: titleStack,
-      fontWeight: 600,
+      fontWeight: 700,
       fontSize: '2rem',
       lineHeight: '1.25em',
     },
@@ -118,7 +119,7 @@ const theme = createLWTheme({
     display2: {
       color: grey[800],
       fontFamily: titleStack,
-      fontWeight: 600,
+      fontWeight: 700,
       fontSize: '2.4rem',
       lineHeight: '1.25em',
     },
@@ -126,7 +127,7 @@ const theme = createLWTheme({
     display3: {
       color: grey[800],
       fontFamily: titleStack,
-      fontWeight: 600,
+      fontWeight: 700,
       lineHeight: '1.25em'
     }
   },

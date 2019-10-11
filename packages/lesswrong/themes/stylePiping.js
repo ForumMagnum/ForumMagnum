@@ -119,9 +119,9 @@ const baseBodyStyles = theme => ({
 
 export const postBodyStyles = (theme) => {
   // console.log('theme', JSON.stringify(theme))
-  console.log('display1', theme.typography.display1)
-  console.log('poststyle', theme.typography.postStyle)
-  console.log('headerStyle', theme.typography.headerStyle)
+  // console.log('display1', theme.typography.display1)
+  // console.log('poststyle', theme.typography.postStyle)
+  // console.log('headerStyle', theme.typography.headerStyle)
   const result = {
     ...baseBodyStyles(theme),
     ...spoilerStyles(theme),
@@ -148,7 +148,7 @@ export const postBodyStyles = (theme) => {
       display: 'none'
     },
   }
-  console.log('result', JSON.stringify(result))
+  // console.log('result', JSON.stringify(result))
   return result
 }
 
