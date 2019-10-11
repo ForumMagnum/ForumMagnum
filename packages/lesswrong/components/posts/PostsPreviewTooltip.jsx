@@ -116,6 +116,9 @@ const styles = theme => ({
   },
   comment: {
     marginTop: theme.spacing.unit*1.5
+  },
+  bookmarkButton: {
+    float: "right"
   }
 })
 
@@ -138,7 +141,7 @@ const getPostCategory = (post) => {
 }
 
 const PostsPreviewTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMedium=true, truncateLimit=600, comment }) => {
-  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode } = Components
+  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton } = Components
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
   const highlight = truncate(htmlHighlight, truncateLimit)
@@ -173,7 +176,10 @@ const PostsPreviewTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMed
           />
       }
       {renderWordCount && <div className={classes.tooltipInfo}>
-        {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
+        <span>
+          {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
+        </span>
+        { showAllinfo && <span className={classes.bookmarkButton}><BookmarkButton post={post} /></span>}
       </div>}
   </Card>
 

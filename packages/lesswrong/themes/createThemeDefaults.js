@@ -164,6 +164,7 @@ const createLWTheme = (theme) => {
       notificationsMenu: 1500,
       lwPopper: 10000,
       lwPopperTooltip: 10001,
+      loginDialog: 10002,
       searchBar: 100000,
       // petrovDayButton: 6,
       // petrovDayLoss: 1000000
