@@ -144,6 +144,13 @@ addRoute([
     componentName: 'PostsSingleSlug',
     previewComponentName: 'PostLinkPreviewSlug',
     ...rationalitySubtitle
+  },
+  {
+    name: 'bookmarks',
+    path: '/bookmarks',
+    componentName: 'BookmarksPage',
+    titleComponentName: 'UserPageTitle',
+    subtitleComponentName: 'UserPageTitle',
   }
 ]);
 

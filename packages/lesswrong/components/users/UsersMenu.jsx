@@ -13,7 +13,7 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import EmailIcon from '@material-ui/icons/Email';
 import NotesIcon from '@material-ui/icons/Notes';
 import PersonIcon from '@material-ui/icons/Person';
-
+import BookmarksIcon from '@material-ui/icons/Bookmarks';
 import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
 import { withStyles } from '@material-ui/core/styles';
@@ -139,6 +139,14 @@ class UsersMenu extends PureComponent {
                 Private Messages
               </MenuItem>
             </Link>
+            {(currentUser.bookmarkedPostIds?.length > 0) && <Link to={`/bookmarks`}>
+              <MenuItem>
+                <ListItemIcon>
+                  <BookmarksIcon className={classes.icon}/>
+                </ListItemIcon>
+                Bookmarks
+              </MenuItem>
+            </Link>}
             {currentUser.shortformFeedId &&
               <Link to={Posts.getPageUrl({_id:currentUser.shortformFeedId, slug: "shortform"})}>
                 <MenuItem>
