@@ -254,6 +254,12 @@ const styles = (theme) => ({
     [theme.breakpoints.down('sm')]: {
       display: 'none'
     }
+  },
+  bookmark: {
+    marginLeft: theme.spacing.unit/2,
+    marginRight: theme.spacing.unit*1.5,
+    position: "relative",
+    top: 2,
   }
 })
 
@@ -384,7 +390,9 @@ class PostsItem2 extends PureComponent {
                 />
               </div>}
 
-              {bookmark && <BookmarkButton post={post}/>}
+              {bookmark && <div className={classes.bookmark}>
+                <BookmarkButton post={post}/>
+              </div>}
 
               <div className={classes.mobileDismissButton}>
                 {dismissButton}
