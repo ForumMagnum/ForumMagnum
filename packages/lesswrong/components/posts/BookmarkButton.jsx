@@ -20,7 +20,7 @@ const styles = theme => ({
 
 const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right", openDialog}) => {
 
-  const [bookmarked, setBookmarked] = useState(currentUser?.bookmarkedPostIds?.includes(post._id))
+  const [bookmarked, setBookmarked] = useState(_.pluck((currentUser?.bookmarkedPostsMetadata || []), 'postId')?.includes(post._id))
 
   const {mutate: updateUser} = useUpdate({
     collection: Users,
@@ -39,17 +39,21 @@ const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right"
 
     if (bookmarked) {
       setBookmarked(false)
-      const bookmarkIds = currentUser.bookmarkedPostIds || []
+      const bookmarks = currentUser.bookmarkedPostsMetadata || []
+      const newBookmarks = _.without(bookmarks, _.findWhere(bookmarks, {postId: post._id}))
+
       updateUser({
         selector: {_id: currentUser._id},
-        data: { bookmarkedPostIds: _.without(bookmarkIds, post._id) }
+        data: { bookmarkedPostsMetadata: newBookmarks
+      }
       });
     } else {
       setBookmarked(true)
-      const bookmarkIds = currentUser.bookmarkedPostIds || []
+      const bookmarks = currentUser.bookmarkedPostsMetadata || []
+      const newBookmarks = _.uniq([...bookmarks, {postId: post._id}])
       updateUser({
         selector: {_id: currentUser._id},
-        data: { bookmarkedPostIds: _.uniq([...bookmarkIds, post._id]) }
+        data: { bookmarkedPostsMetadata: newBookmarks }
       });
     }
   }

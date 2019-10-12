@@ -135,14 +135,14 @@ registerFragment(`
     viewUnreviewedComments
     sunshineShowNewUserContent
     recommendationSettings
-    bookmarkedPostIds
+    bookmarkedPostsMetadata
   }
 `);
 
 registerFragment(`
   fragment UserBookmarks on User {
     _id
-    bookmarkedPostIds
+    bookmarkedPostsMetadata
     bookmarkedPosts {
       ...PostsList
     }
