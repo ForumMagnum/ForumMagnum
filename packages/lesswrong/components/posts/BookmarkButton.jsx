@@ -50,10 +50,9 @@ const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right"
     } else {
       setBookmarked(true)
       const bookmarks = currentUser.bookmarkedPostsMetadata || []
-      const newBookmarks = _.uniq([...bookmarks, {postId: post._id}])
       updateUser({
         selector: {_id: currentUser._id},
-        data: { bookmarkedPostsMetadata: newBookmarks }
+        data: { bookmarkedPostsMetadata: [...bookmarks, {postId: post._id}] }
       });
     }
   }

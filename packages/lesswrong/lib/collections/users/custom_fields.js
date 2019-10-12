@@ -440,6 +440,11 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     optional: true,
     hidden: true,
+    onUpdate: ({data, currentUser, oldDocument}) => {
+      if (data?.bookmarkedPostsMetadata) {
+        return _.uniq(data?.bookmarkedPostsMetadata, 'postId')
+      }
+    },
     ...arrayOfForeignKeysField({
       idFieldName: "bookmarkedPostsMetadata",
       resolverName: "bookmarkedPosts",
