@@ -13,14 +13,13 @@ const BookmarksList = ({currentUser, limit=50 }) => {
     fragmentName: 'UserBookmarks',
     fetchPolicy: 'cache-then-network',
     documentId: currentUser._id,
-    ssr: true
   });
 
   let bookmarkedPosts = user?.bookmarkedPosts || []
   bookmarkedPosts = bookmarkedPosts.slice(0, limit)
 
   if (loading) return <Loading/>
-  console.log(bookmarkedPosts)
+
   return (
     <div>
       {bookmarkedPosts.map((post) => <PostsItem2 key={post._id} post={post} bookmark/>)}
