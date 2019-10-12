@@ -13,7 +13,8 @@ import { withStyles } from '@material-ui/core/styles'
 
 const styles = theme => ({
   icon: {
-    cursor: "pointer"
+    cursor: "pointer",
+    color: theme.palette.grey[500]
   }
 })
 
