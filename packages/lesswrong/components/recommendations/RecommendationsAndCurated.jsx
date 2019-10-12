@@ -108,7 +108,7 @@ class RecommendationsAndCurated extends PureComponent {
       ...defaultFrontpageSettings
     }
 
-    const renderBookmarks = (currentUser?.bookmarkedPostIds?.length > 0) && !settings.hideBookmarks
+    const renderBookmarks = (currentUser?.bookmarkedPostsMetadata?.length > 0) && !settings.hideBookmarks
     const renderContinueReading = (continueReading?.length > 0) && !settings.hideContinueReading
     const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 

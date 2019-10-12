@@ -434,21 +434,31 @@ addFieldsDict(Users, {
     optional: true
   },
 
-  bookmarkedPostIds: {
+  bookmarkedPostsMetadata: {
     type: Array,
     canRead: [Users.owns, 'sunshineRegiment', 'admins'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     optional: true,
     hidden: true,
+    onUpdate: ({data, currentUser, oldDocument}) => {
+      if (data?.bookmarkedPostsMetadata) {
+        return _.uniq(data?.bookmarkedPostsMetadata, 'postId')
+      }
+    },
     ...arrayOfForeignKeysField({
-      idFieldName: "bookmarkedPostIds",
+      idFieldName: "bookmarkedPostsMetadata",
       resolverName: "bookmarkedPosts",
       collectionName: "Posts",
-      type: "Post"
+      type: "Post",
+      getKey: (obj) => obj.postId
     }),
   },
 
-  "bookmarkedPostIds.$": {
+  "bookmarkedPostsMetadata.$": {
+    type: Object,
+    optional: true
+  },
+  "bookmarkedPostsMetadata.$.postId": {
     type: String,
     foreignKey: "Posts",
     optional: true
