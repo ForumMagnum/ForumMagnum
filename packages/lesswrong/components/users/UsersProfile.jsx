@@ -4,6 +4,7 @@ import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link } from 'react-router-dom';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
 import Users from "meteor/vulcan:users";
+import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
@@ -219,6 +220,7 @@ class UsersProfile extends Component {
     const currentSorting = query.sortedBy || query.view ||  "new"
     const currentFilter = query.filter ||  "all"
     const ownPage = currentUser && currentUser._id === user._id
+    const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
 
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -289,7 +291,7 @@ class UsersProfile extends Component {
             hidden={false}
             currentSorting={currentSorting}
             currentFilter={currentFilter}
-            currentShowLowKarma={true}
+            currentShowLowKarma={currentShowLowKarma}
             sortings={sortings}
           />}
           <PostsList2 terms={terms} />
