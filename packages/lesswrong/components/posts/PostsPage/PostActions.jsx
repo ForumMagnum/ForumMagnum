@@ -129,7 +129,7 @@ class PostActions extends Component {
 
   render() {
     const { classes, post, currentUser } = this.props
-    const { MoveToDraft, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo } = Components
+    const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo } = Components
     const postAuthor = post.user;
     
     return (
@@ -160,6 +160,7 @@ class PostActions extends Component {
             Edit
           </MenuItem>
         </Link>}
+        <BookmarkButton post={post} menuItem/>
         <ReportPostMenuItem post={post}/>
         { post.isRead
           ? <div onClick={this.handleMarkAsUnread}>

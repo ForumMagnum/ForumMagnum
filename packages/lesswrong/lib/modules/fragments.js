@@ -138,6 +138,17 @@ registerFragment(`
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
+    bookmarkedPostsMetadata
+  }
+`);
+
+registerFragment(`
+  fragment UserBookmarks on User {
+    _id
+    bookmarkedPostsMetadata
+    bookmarkedPosts {
+      ...PostsList
+    }
   }
 `);
 

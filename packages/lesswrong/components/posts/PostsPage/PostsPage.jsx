@@ -23,7 +23,7 @@ const styles = theme => ({
   root: {
     position: "relative",
     [theme.breakpoints.down('sm')]: {
-      marginTop: 20
+      marginTop: 12
     }
   },
   tocActivated: {
@@ -254,7 +254,8 @@ class PostsPage extends Component {
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, ContentType,
       LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
-      TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink } = Components
+      TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink,
+      PingbacksList } = Components
 
     if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
@@ -352,6 +353,10 @@ class PostsPage extends Component {
             {sequenceId && <div className={classes.bottomNavigation}>
               <BottomNavigation post={post}/>
             </div>}
+            
+            {currentUser?.beta && <div className={classes.post}>
+              <PingbacksList postId={post._id}/>
+            </div>}
 
             {/* Answers Section */}
             {post.question && <div className={classes.post}>
@@ -360,7 +365,7 @@ class PostsPage extends Component {
             </div>}
             {/* Comments Section */}
             <div className={classes.commentsSection}>
-              <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question} guidelines={!post.question}/>
+              <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question}/>
             </div>
           </div>
           <div className={classes.gap2}/>

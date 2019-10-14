@@ -58,9 +58,6 @@ const emailGlobalCss = `
   }
   
   /* Global styles that apply eg inside of posts */
-  a {
-    color: #5f9b65;
-  }
   blockquote {
     border-left: solid 3px #e0e0e0;
     padding: .75em 2em;

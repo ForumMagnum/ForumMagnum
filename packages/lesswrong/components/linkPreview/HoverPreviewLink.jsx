@@ -1,12 +1,11 @@
 import React from 'react';
 import { Components, registerComponent, parseRoute, Utils } from 'meteor/vulcan:core';
-import { Link } from 'react-router-dom';
 import { hostIsOnsite, useLocation, getUrlClass } from '../../lib/routeUtil';
 import Sentry from '@sentry/node';
 
 // From react-router-v4
 // https://github.com/ReactTraining/history/blob/master/modules/PathUtils.js
-var parsePath = function parsePath(path) {
+export const parsePath = function parsePath(path) {
   var pathname = path || '/';
   var search = '';
   var hash = '';
@@ -60,7 +59,7 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription }) => {
   
   // Within-page relative link?
   if (href.startsWith("#")) {
-    return <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
+    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
   }
 
   try {

@@ -282,6 +282,9 @@ registerFragment(`
       htmlHighlight
       wordCount
     }
+    moderationGuidelines {
+      ...RevisionDisplay
+    }
   }
 `);
 

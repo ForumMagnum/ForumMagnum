@@ -1,6 +1,5 @@
-import { registerComponent, withDocument } from 'meteor/vulcan:core';
-import React, { PureComponent } from 'react';
-import { Posts } from '../../../lib/collections/posts';
+import { registerComponent } from 'meteor/vulcan:core';
+import React, { useState } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import withNewEvents from '../../../lib/events/withNewEvents.jsx';
 import withUser from '../../common/withUser';
@@ -14,12 +13,8 @@ import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuideli
 
 const styles = theme => ({
   root: {
-    padding: '8px 14px 1px 14px',
-    cursor: 'pointer',
-    position:"relative",
-    '&:hover': {
-      backgroundColor: 'rgba(0,0,0,0.05)'
-    }
+    padding: theme.spacing.unit*2,
+    position:"relative"
   },
   assistance: {
     color: 'rgba(0,0,0,0.6)',
@@ -34,6 +29,7 @@ const styles = theme => ({
     color: 'rgba(179,90,49,.8)',
   },
   'editButton': {
+    cursor: "pointer",
     position: 'absolute',
     right: 16,
     height: '0.8em'
@@ -45,46 +41,55 @@ const styles = theme => ({
     marginBottom: 4,
   },
   moderationGuidelines: {
-    '& p': {
+    ...theme.typography.commentStyle,
+    fontSize: "1.1rem",
+    '& p, & ul': {
       marginTop: '.6em',
       marginBottom: '.6em'
+    },
+    '& li': {
+      marginTop: '.4em',
+      marginBottom: '.4em'
+    },
+    '& .dividerBlock': {
+      marginTop: theme.spacing.unit*1.5,
+      marginBottom: theme.spacing.unit*1.5
     }
   }
 })
 
-class ModerationGuidelinesBox extends PureComponent {
-  constructor(props, context) {
-    super(props);
-    this.state = {
-      open: props && props.document && props.document.showModerationGuidelines,
-    }
-  }
+const ModerationGuidelinesBox = ({classes, document, recordEvent, currentUser, openDialog}) => {
 
-  handleClick = () => {
-    const { currentUser, recordEvent, document } = this.props
-    this.setState({open: !this.state.open})
+  const [expanded, setExpanded] = useState(false)
+
+  if (!document) return null
+
+  const handleClick = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setExpanded(!expanded)
     if (currentUser) {
       const eventProperties = {
         userId: currentUser._id,
         important: false,
         intercom: true,
         documentId: document && document.userId,
-        targetState: !this.state.open
+        targetState: !expanded
       };
       recordEvent('toggled-user-moderation-guidelines', false, eventProperties);
     }
   }
 
-  getModerationGuidelines = (document, classes) => {
+  const getModerationGuidelines = (document, classes) => {
     const moderationStyle = document.moderationStyle || (document.user && document.user.moderationStyle)
     const truncatiseOptions = {
-      TruncateLength: 250,
+      TruncateLength: 300,
       TruncateBy: "characters",
-      Suffix: "... (Read More)",
+      Suffix: "... <a>(Read More)</a>",
       Strict: false
     }
-    const { html = "" } = document.moderationGuidelines
-    const userGuidelines = `${document.user ? `<b>${document.user.displayName + "'s commenting guidelines"}</b>: <span class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle] || ""}</span> <br/>` : ""}
+    const { html = "" } = document.moderationGuidelines || {}
+    const userGuidelines = `${document.user ? `<p><em>${document.user.displayName + "'s commenting guidelines"}</em></p><p class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle] || ""}</p>` : ""}
     ${html || ""}`
 
     const combinedGuidelines = `
@@ -103,57 +108,46 @@ class ModerationGuidelinesBox extends PureComponent {
     return { combinedGuidelines, truncatedGuidelines }
   }
 
-  openEditDialog = (e) => {
+  const openEditDialog = (e) => {
     e.preventDefault()
     e.stopPropagation()
-    const { document, openDialog } = this.props;
     openDialog({
       componentName: "ModerationGuidelinesEditForm",
       componentProps: {
         postId: document._id,
       }
     });
-  }
-
-  render() {
-    const { document, classes, currentUser } = this.props;
-    const { open } = this.state
-    if (!document) return null
+  } 
     
-    const { combinedGuidelines, truncatedGuidelines } = this.getModerationGuidelines(document, classes)
-    const displayedGuidelines = open ? combinedGuidelines : truncatedGuidelines
-    return (
-      <div className={classes.root} onClick={this.handleClick}>
-        {Users.canModeratePost(currentUser, document) &&
-          <span onClick={this.openEditDialog}>
-            <Tooltip title="Edit moderation guidelines">
-              <Edit className={classes.editButton} />
-            </Tooltip>
-          </span>
-        }
-        <div className={classes.moderationGuidelines}>
-          <div dangerouslySetInnerHTML={{__html: displayedGuidelines}}/>
-          {open && (displayedGuidelines.length > 250) && <a className={classes.collapse}>(Click to Collapse)</a>}
-        </div>
+  const { combinedGuidelines, truncatedGuidelines } = getModerationGuidelines(document, classes)
+  const displayedGuidelines = expanded ? combinedGuidelines : truncatedGuidelines
+
+  const expandable = combinedGuidelines.trim().length !== truncatedGuidelines.trim().length
+
+  return (
+    <div className={classes.root} onClick={expandable ? handleClick : null}>
+      {Users.canModeratePost(currentUser, document) &&
+        <span onClick={openEditDialog}>
+          <Tooltip title="Edit moderation guidelines">
+            <Edit className={classes.editButton} />
+          </Tooltip>
+        </span>
+      }
+      <div className={classes.moderationGuidelines}>
+        <div dangerouslySetInnerHTML={{__html: displayedGuidelines}}/>
+        {expanded && expandable && <a className={classes.collapse}>(Click to Collapse)</a>}
       </div>
-    )
-  }
+    </div>
+  )
 }
 
 const moderationStyleLookup = {
-  'norm-enforcing': "Norm Enforcing - I try to enforce particular rules (see below)",
-  'reign-of-terror': "Reign of Terror - I delete anything I judge to be annoying or counterproductive",
+  'norm-enforcing': "Norm Enforcing - I try to enforce particular rules",
+  'reign-of-terror': "Reign of Terror - I delete anything I judge to be counterproductive",
   'easy-going': "Easy Going - I just delete obvious spam and trolling."
 }
 
-const queryOptions = {
-  collection: Posts,
-  queryName: 'postsSingleQuery',
-  fragmentName: 'PostsPage',
-  fetchPolicy: 'cache-only'
-};
-
-registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBox, [withDocument, queryOptions], withStyles(styles, {name: 'ModerationGuidelinesBox'}),
+registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBox, withStyles(styles, {name: 'ModerationGuidelinesBox'}),
   withNewEvents,
   withUser,
   withDialog,

@@ -52,54 +52,61 @@ const spoilerStyles = (theme) => ({
   }
 })
 
-export const postBodyStyles = (theme) => {
-  return {
+const baseBodyStyles = theme => ({
+  ...theme.typography.body1,
+  ...theme.typography.postStyle,
+  wordBreak: "break-word",
+  '& pre': {
+    ...theme.typography.codeblock
+  },
+  '& code': {
+    ...theme.typography.code
+  },
+  '& blockquote': {
+    ...theme.typography.blockquote,
+    ...theme.typography.body1,
+    ...theme.typography.postStyle
+  },
+  '& li': {
+    ...theme.typography.body1,
+    ...theme.typography.li,
+    ...theme.typography.postStyle
+  },
+  '& h1': {
+    ...theme.typography.display2,
+    ...theme.typography.postStyle
+  },
+  '& h2': {
+    ...theme.typography.display1,
+    ...theme.typography.postStyle,
+  },
+  '& h3': {
+    ...theme.typography.display1,
+    ...theme.typography.postStyle,
+  },
+  '& h4': {
     ...theme.typography.body1,
     ...theme.typography.postStyle,
-    wordBreak: "break-word",
+    fontWeight:600,
+  },
+  '& img': {
+    maxWidth: "100%"
+  },
+  '& sup': {
+    verticalAlign: 'baseline',
+    top: '-0.6em',
+    fontSize: '65%',
+    position: 'relative'
+  },
+  '& a, & a:hover, & a:active': {
+    color: theme.palette.primary.main
+  },
+})
+
+export const postBodyStyles = (theme) => {
+  return {
+    ...baseBodyStyles(theme),
     ...spoilerStyles(theme),
-    '& pre': {
-      ...theme.typography.codeblock
-    },
-    '& code': {
-      ...theme.typography.code
-    },
-    '& blockquote': {
-      ...theme.typography.blockquote,
-      ...theme.typography.body1,
-      ...theme.typography.postStyle
-    },
-    '& li': {
-      ...theme.typography.body1,
-      ...theme.typography.li,
-      ...theme.typography.postStyle
-    },
-    '& h1': {
-      ...theme.typography.display2,
-      ...theme.typography.postStyle
-    },
-    '& h2': {
-      ...theme.typography.display1,
-      ...theme.typography.postStyle,
-    },
-    '& h3': {
-      ...theme.typography.display1,
-      ...theme.typography.postStyle,
-    },
-    '& h4': {
-      ...theme.typography.body1,
-      ...theme.typography.postStyle,
-      fontWeight:600,
-    },
-    '& img': {
-      maxWidth: "100%"
-    },
-    '& sup': {
-      verticalAlign: 'baseline',
-      top: '-0.6em',
-      fontSize: '65%',
-      position: 'relative'
-    },
     // Used for R:A-Z imports as well as markdown-it-footnotes
     '& .footnotes': {
       marginTop: 40,
@@ -121,9 +128,6 @@ export const postBodyStyles = (theme) => {
     // Hiding the footnote-separator that markdown-it adds by default
     '& .footnotes-sep': {
       display: 'none'
-    },
-    '& a, & a:hover, & a:active': {
-      color: theme.palette.primary.main
     },
   }
 }
@@ -167,6 +171,9 @@ export const commentBodyStyles = theme => {
   }
   return deepmerge(postBodyStyles(theme), commentBodyStyles, {isMergeableObject:isPlainObject})
 }
+
+// Currently emails have only the basics
+export const emailBodyStyles = baseBodyStyles
 
 export const postHighlightStyles = theme => {
   const postHighlightStyles = {
@@ -279,7 +286,7 @@ export const ckEditorStyles = theme => {
 export const editorStyles = (theme, styleFunction) => ({
     '& .public-DraftStyleDefault-block': {
       marginTop: '1em',
-      marginBottom: '1em',
+      marginBottom: '1em',  
     },
     '& code .public-DraftStyleDefault-block': {
       marginTop: 0,
