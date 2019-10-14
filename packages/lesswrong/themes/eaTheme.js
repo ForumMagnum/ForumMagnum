@@ -103,7 +103,7 @@ const theme = createLWTheme({
     display1a: {
       color: grey[800],
       fontFamily: titleStack,
-      fontWeight: 700,
+      fontWeight: 500,
       fontSize: '1.6rem',
       lineHeight: '1.25em',
     },
@@ -111,7 +111,7 @@ const theme = createLWTheme({
     display1: {
       color: grey[800],
       fontFamily: titleStack,
-      fontWeight: 700,
+      fontWeight: 500,
       fontSize: '2rem',
       lineHeight: '1.25em',
     },
@@ -119,7 +119,7 @@ const theme = createLWTheme({
     display2: {
       color: grey[800],
       fontFamily: titleStack,
-      fontWeight: 700,
+      fontWeight: 500,
       fontSize: '2.4rem',
       lineHeight: '1.25em',
     },
@@ -127,7 +127,7 @@ const theme = createLWTheme({
     display3: {
       color: grey[800],
       fontFamily: titleStack,
-      fontWeight: 700,
+      fontWeight: 500,
       lineHeight: '1.25em'
     }
   },
@@ -135,6 +135,12 @@ const theme = createLWTheme({
     MuiAppBar: {
       colorDefault: {
         backgroundColor: "white",
+      }
+    },
+    MuiTooltip: {
+      tooltip: {
+        fontSize: "1rem",
+        padding: ".7rem",
       }
     },
     Layout: {
@@ -145,6 +151,12 @@ const theme = createLWTheme({
       }
     },
     Header: {
+      root: {
+        height: 77,
+        [defaultTheme.breakpoints.down('xs')]: {
+          height: 77, // TODO;
+        },
+      },
       appBar: {
         padding: ".8em",
         '@media (min-width: 960px)': {
@@ -153,7 +165,7 @@ const theme = createLWTheme({
           paddingTop: "1em",
           paddingBottom: "1em"
         }
-      }
+      },
     },
     MetaInfo: {
       root: {
@@ -187,16 +199,17 @@ const theme = createLWTheme({
         }
       },
     },
-    MuiTooltip: {
-      tooltip: {
-        fontSize: "1rem",
-        padding: ".7rem",
-      }
-    },
     SunshineSidebar: {
       root: {
         top: 30,
         marginTop: 63
+      }
+    },
+    HomeLatestPosts: {
+      personalBlogpostsCheckboxLabel: {
+        [defaultTheme.breakpoints.down("xs")]: {
+          fontSize: "1rem",
+        },
       }
     },
     // PostsPageTitle: {
