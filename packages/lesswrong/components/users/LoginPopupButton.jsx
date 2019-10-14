@@ -13,6 +13,10 @@ const styles = theme => ({
 });
 
 const LoginPopupButton = ({classes, currentUser, openDialog, children, title}) => {
+  // This component is intended only for buttons whose sole purpose is logging a user in 
+  // (not wrapped around other buttons with other functionality. For that, just add
+  // openDialog + "LoginPopup" to their functionality
+
   if (currentUser) return null
 
   return (

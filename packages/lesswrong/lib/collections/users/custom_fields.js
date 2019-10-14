@@ -1,6 +1,6 @@
 import Users from "meteor/vulcan:users";
 import { getSetting, Utils } from "meteor/vulcan:core"
-import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, denormalizedField } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, arrayOfForeignKeysField, denormalizedField } from '../../modules/utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 import SimpleSchema from 'simpl-schema'
@@ -431,6 +431,36 @@ addFieldsDict(Users, {
   "bannedPersonalUserIds.$": {
     type: String,
     foreignKey: "Users",
+    optional: true
+  },
+
+  bookmarkedPostsMetadata: {
+    type: Array,
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    hidden: true,
+    onUpdate: ({data, currentUser, oldDocument}) => {
+      if (data?.bookmarkedPostsMetadata) {
+        return _.uniq(data?.bookmarkedPostsMetadata, 'postId')
+      }
+    },
+    ...arrayOfForeignKeysField({
+      idFieldName: "bookmarkedPostsMetadata",
+      resolverName: "bookmarkedPosts",
+      collectionName: "Posts",
+      type: "Post",
+      getKey: (obj) => obj.postId
+    }),
+  },
+
+  "bookmarkedPostsMetadata.$": {
+    type: Object,
+    optional: true
+  },
+  "bookmarkedPostsMetadata.$.postId": {
+    type: String,
+    foreignKey: "Posts",
     optional: true
   },
 

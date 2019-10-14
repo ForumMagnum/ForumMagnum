@@ -144,6 +144,13 @@ addRoute([
     componentName: 'PostsSingleSlug',
     previewComponentName: 'PostLinkPreviewSlug',
     ...rationalitySubtitle
+  },
+  {
+    name: 'bookmarks',
+    path: '/bookmarks',
+    componentName: 'BookmarksPage',
+    titleComponentName: 'UserPageTitle',
+    subtitleComponentName: 'UserPageTitle',
   }
 ]);
 
@@ -302,6 +309,7 @@ addRoute([
     titleComponentName: 'PostsPageHeaderTitle',
     subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreview',
+    getPingback: (parsedUrl) => ({ collectionName: "Posts", documentId: parsedUrl.params._id })
   },
   {
     name: 'admin',
