@@ -80,7 +80,8 @@ const baseBodyStyles = theme => ({
   // the container
   '& h1:first-child': {
     marginTop: 0,
-    marginBlockStart: 0,
+    // Otherwise the line height lowers it noticeably
+    marginBlockStart: '-3px',
   },
   '& h2': {
     ...theme.typography.display1,
@@ -88,7 +89,7 @@ const baseBodyStyles = theme => ({
   },
   '& h2:first-child': {
     marginTop: 0,
-    marginBlockStart: 0,
+    marginBlockStart: '-2px',
   },
   '& h3': {
     ...theme.typography.display1a,
@@ -118,11 +119,7 @@ const baseBodyStyles = theme => ({
 })
 
 export const postBodyStyles = (theme) => {
-  // console.log('theme', JSON.stringify(theme))
-  // console.log('display1', theme.typography.display1)
-  // console.log('poststyle', theme.typography.postStyle)
-  // console.log('headerStyle', theme.typography.headerStyle)
-  const result = {
+  return {
     ...baseBodyStyles(theme),
     ...spoilerStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
@@ -148,8 +145,6 @@ export const postBodyStyles = (theme) => {
       display: 'none'
     },
   }
-  // console.log('result', JSON.stringify(result))
-  return result
 }
 
 export const commentBodyStyles = theme => {

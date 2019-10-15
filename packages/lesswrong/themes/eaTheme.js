@@ -145,6 +145,7 @@ const theme = createLWTheme({
     },
     Layout: {
       main: {
+        margin: '30px auto 15px auto',
         '@media (max-width: 959.95px)': {
           marginTop: 0
         }
@@ -152,9 +153,9 @@ const theme = createLWTheme({
     },
     Header: {
       root: {
-        height: 77,
+        height: 90,
         [defaultTheme.breakpoints.down('xs')]: {
-          height: 77, // TODO;
+          height: 77,
         },
       },
       appBar: {
