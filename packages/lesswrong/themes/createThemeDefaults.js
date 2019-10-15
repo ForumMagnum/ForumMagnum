@@ -45,15 +45,15 @@ const createLWTheme = (theme) => {
       postStyle: {
         fontFamily: typography.fontFamily,
       },
-      // postHeaderStyle: {
-      //   fontFamily: typography.fontFamily,
-      // },
       body1: body1FontSize,
       body2: {
         fontWeight: 400,
         linkUnderlinePosition: "72%",
         ...body2FontSize
       },
+      // used by h3
+      // TODO: We could increase the numbers of the displayN up by one, but
+      // that sounds merge-conflict-y
       display1a: {
         color: grey[800],
         fontSize: '2rem',

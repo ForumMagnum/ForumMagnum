@@ -10,7 +10,7 @@ const styles = theme => {
   const margin = theme.typography.display3.fontWeight >= 600 ?
     {marginTop: '0 !important', marginBottom: '.2em !important', marginLeft: '0 !important', marginRight: '.2em !important'} :
     {margin: '0 !important'}
-  const result = {
+  return {
     root: {
       ...theme.typography.postStyle,
       ...theme.typography.display3,
@@ -30,8 +30,6 @@ const styles = theme => {
       marginTop: "1em"
     }
   }
-  console.log('PPTitle result theme', result)
-  return result
 }
 
 const PostsPageTitle = ({classes, post}) => {

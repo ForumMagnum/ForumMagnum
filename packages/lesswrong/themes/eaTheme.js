@@ -99,7 +99,6 @@ const theme = createLWTheme({
       marginBottom: 5,
     },
     // used by h3
-    // TODO; increment all
     display1a: {
       color: grey[800],
       fontFamily: titleStack,
@@ -213,11 +212,6 @@ const theme = createLWTheme({
         },
       }
     },
-    // PostsPageTitle: {
-    //   root: {
-    //     lineHeight: '1.25em'
-    //   }
-    // },
     NavigationStandalone: {
       sidebar: {
         top: 26,
