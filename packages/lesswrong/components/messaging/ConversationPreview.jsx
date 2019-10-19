@@ -45,10 +45,10 @@ const ConversationPreview = ({classes, conversationId, currentUser}) => {
     ssr: true
   });
   
-  if (!conversationId)
+  if (!conversation) return null
 
-  // messages.reverse() would modifiy the original array, which causes rendering bugs 
-  // Instead, create a new array using the spread operator"
+  // using a spread operator instead of naively "messages.reverse()" to avoid modifying the 
+  // original array, which coud cause rendering bugs (reversing the order every time the component re-renders)
   const reversedMessages = [...messages].reverse()
 
   return <Card className={classes.root}>
