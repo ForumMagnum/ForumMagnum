@@ -103,7 +103,6 @@ class NotificationsItem extends Component {
         });
         return <Card><PostsPreviewTooltipSingleWithComment postId={parsedPostPath?.params?._id} commentId={notification.documentId} /></Card>
       case 'message':
-        // WARNING: DOES NOT WORK DO NOT MERGE
         const parsedConversationPath = parseRoute({
           location: parsePath(notification.link),
           onError: (pathname) => {
