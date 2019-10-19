@@ -9,3 +9,12 @@ Messages.addView("messagesConversation", function (terms) {
   };
 });
 ensureIndex(Messages, { conversationId:1, createdAt:1 });
+
+// latest messages for a conversation preview
+Messages.addView("conversationPreview", function (terms) {
+  return {
+    selector: {conversationId: terms.conversationId},
+    options: {sort: {createdAt: -1}}
+  };
+});
+// uses messagesConversation

@@ -1,26 +1,29 @@
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent, Components, parseRoute } from 'meteor/vulcan:core';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import React, { Component } from 'react';
-import ListItem from '@material-ui/core/ListItem';
 import { Link } from '../../lib/reactRouterWrapper.js';
+import Card from '@material-ui/core/Card';
 import AllIcon from '@material-ui/icons/Notifications';
 import PostsIcon from '@material-ui/icons/Description';
 import CommentsIcon from '@material-ui/icons/ModeComment';
-import MessagesIcon from '@material-ui/icons/Forum';
+import MailIcon from '@material-ui/icons/Mail';
 import { getUrlClass } from '../../lib/routeUtil';
+import withHover from '../common/withHover';
+import withErrorBoundary from '../common/withErrorBoundary';
+import Sentry from '@sentry/node';
+import { parsePath } from '../linkPreview/HoverPreviewLink';
 
 const styles = theme => ({
   root: {
     "&:hover": {
       backgroundColor: "rgba(0,0,0,0.02) !important",
     },
-    
-    fontFamily: "freight-sans-pro, sans-serif",
-    
-    display: "block",
+    display: "flex",
+    alignItems: "center",
     padding: 0,
-    
+    borderBottom: "solid 1px rgba(0,0,0,.1)",
+
     // Disable MUI's hover-highlight-color animation that conflicts with having
     // a non-default background color and looks glitchy.
     transition: "none",
@@ -35,19 +38,13 @@ const styles = theme => ({
   unread: {
     backgroundColor: "inherit !important",
   },
-  
-  notificationLabelWrapper: {
-    marginLeft: 0,
-    padding: "16px 16px 16px 72px",
-    position: "relative",
-  },
   notificationLabel: {
+    ...theme.typography.commentStyles,
+    ...theme.typography.body2,
     fontSize: "14px",
     lineHeight: "18px",
+    paddingRight: theme.spacing.unit*2,
     color: "rgba(0,0,0, 0.54)",
-    
-    height: 36,
-    margin: "4px 0px 0px",
     
     // Two-line ellipsis hack. Webkit-specific (doesn't work in Firefox),
     // inherited from old-Material-UI (where it also doesn't work in Firefox,
@@ -62,9 +59,8 @@ const styles = theme => ({
 });
 
 const iconStyles = {
-  position: "absolute",
-  marginTop: '24px',
-  marginLeft: '21px'
+  margin: 16,
+  fontSize: 20,
 }
 
 class NotificationsItem extends Component {
@@ -84,20 +80,59 @@ class NotificationsItem extends Component {
       case 'newReplyToYou':
         return <CommentsIcon style={iconStyles}/>
       case 'newMessage':
-        return <MessagesIcon style={iconStyles}/>
+        return <MailIcon style={iconStyles}/>
       default:
         return <AllIcon style={iconStyles} />
     }
   }
 
+  renderPreview = () => {
+    const { notification } = this.props
+    const { PostsPreviewTooltipSingle, PostsPreviewTooltipSingleWithComment, ConversationPreview } = Components
+    switch (notification.documentType) {
+      case 'post':
+        return <Card><PostsPreviewTooltipSingle postId={notification.documentId} /></Card>
+      case 'comment':
+        const parsedPostPath = parseRoute({
+          location: parsePath(notification.link),
+          onError: (pathname) => {
+            if (Meteor.isClient) {
+              Sentry.captureException(new Error(`Broken link from ${location.pathname} to ${pathname}`));
+            }
+          }
+        });
+        console.log(parsedPostPath)
+        return <Card><PostsPreviewTooltipSingleWithComment postId={parsedPostPath?.params?._id} commentId={notification.documentId} /></Card>
+      case 'message':
+        // WARNING: DOES NOT WORK DO NOT MERGE
+        const parsedConversationPath = parseRoute({
+          location: parsePath(notification.link),
+          onError: (pathname) => {
+            if (Meteor.isClient) {
+              Sentry.captureException(new Error(`Broken link from ${location.pathname} to ${pathname}`));
+            }
+          }
+        });
+        console.log(parsedConversationPath)
+        return <Card>
+          <ConversationPreview conversationId={parsedConversationPath?.params?._id} />
+        </Card>
+      default:
+        return null
+      // case 'newMessage':
+      //   return <MailIcon style={iconStyles}/>
+      // default:
+      //   return <AllIcon style={iconStyles} />
+    }
+  }
+
   render() {
-    const { classes, notification, lastNotificationsCheck } = this.props;
+    const { classes, notification, lastNotificationsCheck, hover, anchorEl } = this.props;
+    const { LWPopper } = Components
     const UrlClass = getUrlClass()
 
     return (
-      <ListItem
-        button={true}
-        component={Link}
+      <Link
         to={notification.link}
         className={classNames(
           classes.root,
@@ -117,16 +152,17 @@ class NotificationsItem extends Component {
           }
         }}
       >
+        <LWPopper open={hover} anchorEl={anchorEl} placement="left-start">
+          {this.renderPreview()}
+        </LWPopper>
         {this.renderNotificationIcon(notification.type)}
-        <div className={classes.notificationLabelWrapper}>
-          <div className={classes.notificationLabel}>
-            {notification.message}
-          </div>
+        <div className={classes.notificationLabel}>
+          {notification.message}
         </div>
-      </ListItem>
+      </Link>
     )
   }
 
 }
 
-registerComponent('NotificationsItem', NotificationsItem, withStyles(styles, {name: "NotificationsItem"}));
+registerComponent('NotificationsItem', NotificationsItem, withStyles(styles, {name: "NotificationsItem"}), withHover, withErrorBoundary);

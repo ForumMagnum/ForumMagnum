@@ -9,7 +9,7 @@ import AllIcon from '@material-ui/icons/Notifications';
 import ClearIcon from '@material-ui/icons/Clear';
 import PostsIcon from '@material-ui/icons/Description';
 import CommentsIcon from '@material-ui/icons/ModeComment';
-import MessagesIcon from '@material-ui/icons/Forum';
+import MailIcon from '@material-ui/icons/Mail';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -109,7 +109,7 @@ class NotificationsMenu extends Component {
                 classes={{ root: classes.badgeContainer, badge: classes.badge }}
                 badgeContent={(newMessages && newMessages.length) || ""}
               >
-                <MessagesIcon classes={{root: classes.icon}} />
+                <MailIcon classes={{root: classes.icon}} />
               </Badge>
             ),
             terms: {view: 'userNotifications', type: "newMessage"},
