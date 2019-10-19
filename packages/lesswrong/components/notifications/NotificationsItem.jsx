@@ -1,4 +1,4 @@
-import { registerComponent, Components, parseRoute } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import React, { Component } from 'react';
@@ -11,8 +11,7 @@ import MailIcon from '@material-ui/icons/Mail';
 import { getUrlClass } from '../../lib/routeUtil';
 import withHover from '../common/withHover';
 import withErrorBoundary from '../common/withErrorBoundary';
-import Sentry from '@sentry/node';
-import { parsePath } from '../linkPreview/HoverPreviewLink';
+import { parseRouteWithErrors } from '../linkPreview/HoverPreviewLink';
 
 const styles = theme => ({
   root: {
@@ -89,30 +88,16 @@ class NotificationsItem extends Component {
   renderPreview = () => {
     const { notification } = this.props
     const { PostsPreviewTooltipSingle, PostsPreviewTooltipSingleWithComment, ConversationPreview } = Components
+    const parsedPath = parseRouteWithErrors(notification.link)
+
     switch (notification.documentType) {
       case 'post':
         return <Card><PostsPreviewTooltipSingle postId={notification.documentId} /></Card>
       case 'comment':
-        const parsedPostPath = parseRoute({
-          location: parsePath(notification.link),
-          onError: (pathname) => {
-            if (Meteor.isClient) {
-              Sentry.captureException(new Error(`Broken link from ${location.pathname} to ${pathname}`));
-            }
-          }
-        });
-        return <Card><PostsPreviewTooltipSingleWithComment postId={parsedPostPath?.params?._id} commentId={notification.documentId} /></Card>
+        return <Card><PostsPreviewTooltipSingleWithComment postId={parsedPath?.params?._id} commentId={notification.documentId} /></Card>
       case 'message':
-        const parsedConversationPath = parseRoute({
-          location: parsePath(notification.link),
-          onError: (pathname) => {
-            if (Meteor.isClient) {
-              Sentry.captureException(new Error(`Broken link from ${location.pathname} to ${pathname}`));
-            }
-          }
-        });
         return <Card>
-          <ConversationPreview conversationId={parsedConversationPath?.params?._id} />
+          <ConversationPreview conversationId={parsedPath?.params?._id} />
         </Card>
       default:
         return null
