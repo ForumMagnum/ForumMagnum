@@ -116,10 +116,6 @@ class NotificationsItem extends Component {
         </Card>
       default:
         return null
-      // case 'newMessage':
-      //   return <MailIcon style={iconStyles}/>
-      // default:
-      //   return <AllIcon style={iconStyles} />
     }
   }
 
