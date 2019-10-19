@@ -101,7 +101,6 @@ class NotificationsItem extends Component {
             }
           }
         });
-        console.log(parsedPostPath)
         return <Card><PostsPreviewTooltipSingleWithComment postId={parsedPostPath?.params?._id} commentId={notification.documentId} /></Card>
       case 'message':
         // WARNING: DOES NOT WORK DO NOT MERGE
@@ -113,7 +112,6 @@ class NotificationsItem extends Component {
             }
           }
         });
-        console.log(parsedConversationPath)
         return <Card>
           <ConversationPreview conversationId={parsedConversationPath?.params?._id} />
         </Card>

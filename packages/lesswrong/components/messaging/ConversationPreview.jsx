@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent, useSingle, useMulti, getFragment } from 'meteor/vulcan:core';
+import { Components, registerComponent, useSingle, useMulti } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import Messages from "../../lib/collections/messages/collection.js";
 import Conversations from '../../lib/collections/conversations/collection.js';
