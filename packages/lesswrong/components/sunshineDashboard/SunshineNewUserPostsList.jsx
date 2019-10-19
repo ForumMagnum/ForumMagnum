@@ -28,7 +28,7 @@ const SunshineNewUserPostsList = ({loading, results, classes, truncated}) => {
       {results.map(post=><div className={classes.post} key={post._id}>
         <MetaInfo>
           <Link to={`/posts/${post._id}`}>
-            Post: {post.title}
+            {post.deleted && "[Deleted] "}Post: {post.title}
           </Link>
         </MetaInfo>
         <div className={classes.postBody} dangerouslySetInnerHTML={{__html: (post.contents && post.contents.htmlHighlight)}} />
