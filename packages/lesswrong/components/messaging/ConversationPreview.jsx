@@ -45,8 +45,6 @@ const ConversationPreview = ({classes, conversationId, currentUser}) => {
     ssr: true
   });
   
-  if (!conversation) return null
-
   // using a spread operator instead of naively "messages.reverse()" to avoid modifying the 
   // original array, which coud cause rendering bugs (reversing the order every time the component re-renders)
   const reversedMessages = [...messages].reverse()
@@ -55,7 +53,7 @@ const ConversationPreview = ({classes, conversationId, currentUser}) => {
     { conversation && <div className={classes.title}>{ Conversations.getTitle(conversation, currentUser) }</div>}
     { conversationLoading && <Loading />}
     
-    { reversedMessages.map((message) => (<MessageItem key={message._id} currentUser={currentUser} message={message} />))}
+    { conversation && reversedMessages.map((message) => (<MessageItem key={message._id} currentUser={currentUser} message={message} />))}
   </Card>
 }
 
