@@ -135,6 +135,17 @@ registerFragment(`
     viewUnreviewedComments
     sunshineShowNewUserContent
     recommendationSettings
+    bookmarkedPostsMetadata
+  }
+`);
+
+registerFragment(`
+  fragment UserBookmarks on User {
+    _id
+    bookmarkedPostsMetadata
+    bookmarkedPosts {
+      ...PostsList
+    }
   }
 `);
 

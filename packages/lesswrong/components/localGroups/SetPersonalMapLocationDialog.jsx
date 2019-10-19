@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { registerComponent, useUpdate } from 'meteor/vulcan:core';
+import { registerComponent, useUpdate, Components } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
 import Users from "meteor/vulcan:users";
 import Dialog from '@material-ui/core/Dialog';
@@ -11,6 +11,7 @@ import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import { sharedStyles } from './EventNotificationsDialog'
+import { useGoogleMaps } from '../form-components/LocationFormComponent'
 const suggestionToGoogleMapsLocation = (suggestion) => {
   return suggestion ? suggestion.gmaps : null
 }
@@ -21,7 +22,9 @@ const styles = theme => ({
 
 const SetPersonalMapLocationDialog = ({ onClose, currentUser, classes }) => {
   const { mapLocation, googleLocation, mapMarkerText, bio } = currentUser || {}
-
+  const { Loading } = Components
+  
+  const [ mapsLoaded ] = useGoogleMaps("SetPersonalMapLocationDialog")
   const [ location, setLocation ] = useState(mapLocation || googleLocation)
   const [ label, setLabel ] = useState(mapLocation?.formatted_address || googleLocation?.formatted_address)
   const [ mapText, setMapText ] = useState(mapMarkerText || bio)
@@ -45,14 +48,14 @@ const SetPersonalMapLocationDialog = ({ onClose, currentUser, classes }) => {
             Is this the location you want to display for yourself on the map?
         </Typography>
         <div className={classes.geoSuggest}>
-          <Geosuggest
+          {mapsLoaded ? <Geosuggest
             placeholder="Location"
             onSuggestSelect={(suggestion) => { 
               setLocation(suggestionToGoogleMapsLocation(suggestion))
               setLabel(suggestion?.label)
             }}
             initialValue={label}
-          />
+          /> : <Loading/>}
         </div>
         <TextField
             label="Description (Make sure to mention whether you want to organize events)"

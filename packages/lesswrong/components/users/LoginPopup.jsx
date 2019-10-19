@@ -5,6 +5,9 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   dialog: {
+    zIndex: theme.zIndexes.loginDialog
+  },
+  paper: {
     // Remove left/right margins so that the login form fits on small phone
     // screens. (It's fixed-width horizontally centered anyways so this is
     // fine.)
@@ -30,8 +33,9 @@ class LoginPopup extends PureComponent {
       <Dialog
         open={true}
         onClose={onClose}
+        className={classes.dialog}
         classes={{
-          paper: classes.dialog
+          paper: classes.paper
         }}
       >
         <Components.WrappedLoginForm

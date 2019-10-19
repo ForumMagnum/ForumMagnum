@@ -43,18 +43,18 @@ const groupLayoutStyles = theme => ({
     border: `solid 1px ${theme.palette.grey[400]}`,
     marginBottom: theme.spacing.unit,
   },
-  formSectionFields: {
+  formSectionBody: {
+    paddingTop: theme.spacing.unit,
+    paddingBottom: theme.spacing.unit,
+    borderTop: `solid 1px ${theme.palette.grey[300]}`,
+  },
+  formSectionPadding: {
     paddingRight: theme.spacing.unit*2,
     paddingLeft: theme.spacing.unit*2,
     [theme.breakpoints.down('md')]: {
       paddingLeft: theme.spacing.unit/2,
       paddingRight: theme.spacing.unit/2,
     },
-  },
-  formSectionBody: {
-    paddingTop: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
-    borderTop: `solid 1px ${theme.palette.grey[300]}`,
   },
   flex: {
     display: "flex",
@@ -63,19 +63,20 @@ const groupLayoutStyles = theme => ({
   }
 });
 
-const FormGroupLayout = ({ children, label, heading, collapsed, hasErrors, groupStyling, flexStyle, classes }) => {
+const FormGroupLayout = ({ children, label, heading, collapsed, hasErrors, groupStyling, paddingStyling, flexStyle, classes }) => {
   return <div className={classNames(
-    {[classes.formSection]: groupStyling},
+    { [classes.formSectionPadding]: paddingStyling,
+      [classes.formSection]: groupStyling},
     `form-section-${Utils.slugify(label)}`)}
   >
     {heading}
     <div
       className={classNames(
-        classes.formSectionFields,
         {
           'form-section-collapsed': collapsed && !hasErrors,
           [classes.formSectionBody]: groupStyling,
           [classes.flex]: flexStyle,
+          [classes.formSectionPadding]: groupStyling,
         }
       )}
     >
@@ -132,7 +133,7 @@ class FormGroup extends PureComponent {
     });
 
   render() {
-    const { name, fields, formComponents, label, defaultStyle, flexStyle, formProps } = this.props;
+    const { name, fields, formComponents, label, defaultStyle, flexStyle, paddingStyle, formProps } = this.props;
     const { collapsed } = this.state;
     const FormComponents = mergeWithComponents(formComponents);
     const groupStyling = !(name === 'default' || defaultStyle)
@@ -144,6 +145,7 @@ class FormGroup extends PureComponent {
         collapsed={collapsed}
         heading={groupStyling ? this.renderHeading(FormComponents) : null}
         groupStyling={groupStyling}
+        paddingStyling={paddingStyle}
         hasErrors={this.hasErrors()}
         flexStyle={flexStyle}
       >

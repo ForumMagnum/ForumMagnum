@@ -58,7 +58,10 @@ class ChaptersItem extends Component {
           {canEdit && editButton}
         </SectionTitle>}
         {html && <div className={classes.description}>
-          <ContentItemBody dangerouslySetInnerHTML={{__html: html}}/> 
+          <ContentItemBody
+            dangerouslySetInnerHTML={{__html: html}}
+            description={`chapter ${chapter._id}`}
+          />
         </div>}
         <div className={classes.posts}>
           <SequencesPostsList posts={chapter.posts} chapter={chapter} />

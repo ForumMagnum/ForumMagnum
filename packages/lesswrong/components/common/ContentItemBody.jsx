@@ -79,6 +79,14 @@ const styles = theme => ({
 //
 // This doesn't apply styling (other than for the decorators it adds) because
 // it's shared between entity types, which have styling that differs.
+//
+// Props:
+//    className <string>: Name of an additional CSS class to apply to this element.
+//    dangerouslySetInnerHTML: Follows the same convention as
+//      dangerouslySetInnerHTML on a div, ie, you set the HTML content of this
+//      by passing dangerouslySetInnerHTML={{__html: "<p>foo</p>"}}.
+//    description: (Optional) A human-readable string describing where this
+//      content came from. Used in error logging only, not displayed to users.
 class ContentItemBody extends Component {
   constructor(props) {
     super(props);
@@ -234,7 +242,7 @@ class ContentItemBody extends Component {
       for (let linkTag of linkTags) {
         const tagContentsHTML = linkTag.innerHTML;
         const href = linkTag.getAttribute("href");
-        const replacementElement = <Components.HoverPreviewLink href={href} innerHTML={tagContentsHTML} />
+        const replacementElement = <Components.HoverPreviewLink href={href} innerHTML={tagContentsHTML} contentSourceDescription={this.props.description}/>
         this.replaceElement(linkTag, replacementElement);
       }
       this.setState({updatedElements: true})

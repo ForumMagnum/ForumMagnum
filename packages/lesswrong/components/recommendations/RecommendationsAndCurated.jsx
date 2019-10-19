@@ -8,8 +8,13 @@ import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { withContinueReading } from './withContinueReading';
+import Typography from '@material-ui/core/Typography';
+import Hidden from '@material-ui/core/Hidden';
 
 const styles = theme => ({
+  section: {
+    marginTop: -12,
+  },
   continueReadingList: {
     marginBottom: theme.spacing.unit*2,
   },
@@ -19,10 +24,23 @@ const styles = theme => ({
   },
   subtitle: {
     [theme.breakpoints.down('sm')]:{
-      marginBottom: theme.spacing.unit*1.5,
+      marginBottom: 0,
     },
     marginBottom: theme.spacing.unit,
   },
+  footerWrapper: {
+    display: "flex",
+    justifyContent: "flex-end",
+    marginTop: 12,
+  },
+  footer: {
+    color: theme.palette.lwTertiary.main,
+    flexGrow: 1,
+    maxWidth: 450,
+    
+    display: "flex",
+    justifyContent: "space-around",
+  }
 });
 
 const defaultFrontpageSettings = {
@@ -52,7 +70,7 @@ class RecommendationsAndCurated extends PureComponent {
   render() {
     const { continueReading, classes, currentUser } = this.props;
     const { showSettings } = this.state
-    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, RecommendationsList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SubSection } = Components;
+    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, RecommendationsList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SubSection, SeparatorBullet, BookmarksList } = Components;
 
     const configName = "frontpage"
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
@@ -70,6 +88,11 @@ class RecommendationsAndCurated extends PureComponent {
       <div>The next posts in sequences you've started reading, but not finished.</div>
     </div>
 
+    const bookmarksTooltip = <div>
+      <div>Individual posts that you've bookmarked</div>
+      <div><em>(Click to see all)</em></div>
+    </div>
+
     const allTimeTooltip = <div>
       <div>
         A weighted, randomized sample of the highest karma posts
@@ -85,10 +108,11 @@ class RecommendationsAndCurated extends PureComponent {
       ...defaultFrontpageSettings
     }
 
-    const renderContinueReading = continueReading && continueReading.length>0 && !settings.hideContinueReading
+    const renderBookmarks = (currentUser?.bookmarkedPostsMetadata?.length > 0) && !settings.hideBookmarks
+    const renderContinueReading = (continueReading?.length > 0) && !settings.hideContinueReading
     const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
-    return <SingleColumnSection>
+    return <SingleColumnSection className={classes.section}>
       <SectionTitle title="Recommendations">
         <Tooltip title="Customize your recommendations">
           <SettingsIcon onClick={this.toggleSettings} label="Settings"/> 
@@ -117,6 +141,22 @@ class RecommendationsAndCurated extends PureComponent {
           </SubSection>
         </React.Fragment>}
 
+      {renderBookmarks && <React.Fragment>
+        <div>
+            <Tooltip placement="top-start" title={bookmarksTooltip}>
+              <Link to={"/bookmarks"}>
+                <SectionSubtitle className={classes.subtitle}>
+                  Bookmarks
+                </SectionSubtitle>
+              </Link>
+            </Tooltip>
+            <BetaTag />
+          </div>
+          <SubSection className={classes.continueReadingList}>
+            <BookmarksList limit={3} />
+          </SubSection>
+      </React.Fragment>}
+
       {!settings.hideFrontpage && <div>
         <div>
           <Tooltip placement="top-start" title={allTimeTooltip}>
@@ -141,11 +181,20 @@ class RecommendationsAndCurated extends PureComponent {
         </Link>
       </Tooltip>
       <SubSection>
-        <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false}>
-          <Link to={curatedUrl}>View All Curated Posts</Link>
-          <SubscribeWidget view={"curated"} />
-        </PostsList2>
+        <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
       </SubSection>
+      <div className={classes.footerWrapper}>
+        <Typography component="div" variant="body2" className={classes.footer}>
+          <Link to={curatedUrl}>
+            { /* On very small screens, use shorter link text ("More Curated"
+                 instead of "View All Curated Posts") to avoid wrapping */ }
+            <Hidden smUp implementation="css">More Curated</Hidden>
+            <Hidden xsDown implementation="css">View All Curated Posts</Hidden>
+          </Link>
+          <SeparatorBullet/>
+          <SubscribeWidget view={"curated"} />
+        </Typography>
+      </div>
     </SingleColumnSection>
   }
 }

@@ -7,8 +7,11 @@ import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import withHover from '../common/withHover'
 import PropTypes from 'prop-types';
-import withErrorBoundary from '../common/withErrorBoundary'
-
+import withErrorBoundary from '../common/withErrorBoundary';
+import DoneIcon from '@material-ui/icons/Done';
+import ClearIcon from '@material-ui/icons/Clear';
+import ThumbUpIcon from '@material-ui/icons/ThumbUp';
+import GroupIcon from '@material-ui/icons/Group';
 class SunshineNewPostsItem extends Component {
 
   handleReview = () => {
@@ -99,16 +102,16 @@ class SunshineNewPostsItem extends Component {
         </div>
         { hover && <Components.SidebarActionMenu>
           <Components.SidebarAction title="Leave on Personal Blog" onClick={this.handleReview}>
-            done
+            <DoneIcon />
           </Components.SidebarAction>
           {post.submitToFrontpage && <Components.SidebarAction title="Move to Frontpage" onClick={this.handlePromote('frontpage')}>
-            thumb_up
+            <ThumbUpIcon />
           </Components.SidebarAction>}
           {getSetting('forumType') === 'EAForum' && post.submitToFrontpage && <Components.SidebarAction title="Move to Community" onClick={this.handlePromote('community')}>
-            group
+            <GroupIcon />
           </Components.SidebarAction>}
           <Components.SidebarAction title="Move to Drafts" onClick={this.handleDelete} warningHighlight>
-            clear
+            <ClearIcon />
           </Components.SidebarAction>
         </Components.SidebarActionMenu>}
       </Components.SunshineListItem>

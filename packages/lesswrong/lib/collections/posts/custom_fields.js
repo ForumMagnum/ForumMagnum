@@ -10,6 +10,11 @@ import { getWithLoader } from '../../loaders.js';
 import moment from 'moment';
 
 export const formGroups = {
+  default: {
+    name: "default",
+    order: 0,
+    paddingStyle: true
+  },
   adminOptions: {
     name: "adminOptions",
     order: 25,
@@ -32,12 +37,14 @@ export const formGroups = {
     order:10,
     name: "options",
     defaultStyle: true,
+    paddingStyle: true,
     flexStyle: true
   },
   content: { //TODO – should this be 'contents'? is it needed?
     order:20,
     name: "Content",
     defaultStyle: true,
+    paddingStyle: true,
   },
   canonicalSequence: {
     order:30,
@@ -73,7 +80,8 @@ addFieldsDict(Posts, {
     order: 10,
     placeholder: "Title",
     control: 'EditTitle',
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins']
+    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
+    group: formGroups.default,
   },
 
   // Legacy: Boolean used to indicate that post was imported from old LW database
@@ -1002,7 +1010,8 @@ addFieldsDict(Posts, {
 export const makeEditableOptions = {
   formGroup: formGroups.content,
   adminFormGroup: formGroups.adminOptions,
-  order: 25
+  order: 25,
+  pingbacks: true,
 }
 
 makeEditable({

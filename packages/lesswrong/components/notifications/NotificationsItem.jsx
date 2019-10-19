@@ -8,6 +8,7 @@ import AllIcon from '@material-ui/icons/Notifications';
 import PostsIcon from '@material-ui/icons/Description';
 import CommentsIcon from '@material-ui/icons/ModeComment';
 import MessagesIcon from '@material-ui/icons/Forum';
+import { getUrlClass } from '../../lib/routeUtil';
 
 const styles = theme => ({
   root: {
@@ -91,6 +92,7 @@ class NotificationsItem extends Component {
 
   render() {
     const { classes, notification, lastNotificationsCheck } = this.props;
+    const UrlClass = getUrlClass()
 
     return (
       <ListItem
@@ -104,7 +106,16 @@ class NotificationsItem extends Component {
             [classes.unread]: !(notification.createdAt < lastNotificationsCheck || this.state.clicked)
           }
         )}
-        onClick={() => this.setState({clicked: true})}
+        onClick={() => {
+          this.setState({clicked: true})
+          // we also check whether it's a relative link, and if so, scroll to the item
+          const url = new UrlClass(notification.link)
+          const hash = url.hash
+          if (hash) {
+            const element = document.getElementById(hash.substr(1))
+            if (element) element.scrollIntoView({behavior: "smooth"});
+          }
+        }}
       >
         {this.renderNotificationIcon(notification.type)}
         <div className={classes.notificationLabelWrapper}>

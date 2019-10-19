@@ -250,7 +250,7 @@ class UsersProfile extends Component {
             </Link>}
           </SectionFooter>
 
-          { user.bio && <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} /> }
+          { user.bio && <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} /> }
 
         </SingleColumnSection>
 

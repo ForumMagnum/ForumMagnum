@@ -1,6 +1,6 @@
 import Users from "meteor/vulcan:users";
 import { getSetting, Utils } from "meteor/vulcan:core"
-import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, denormalizedField } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, arrayOfForeignKeysField, denormalizedField } from '../../modules/utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 import SimpleSchema from 'simpl-schema'
@@ -14,6 +14,11 @@ export const hashPetrovCode = (code) => {
 
 export const MAX_NOTIFICATION_RADIUS = 300
 export const formGroups = {
+  default: {
+    name: "default",
+    order: 0,
+    paddingStyle: true
+  },
   moderationGroup: {
     order:60,
     name: "moderation",
@@ -176,7 +181,8 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    order: 65,
+    order: 43,
+    group: formGroups.default,
     control: "select",
     form: {
       // TODO – maybe factor out??
@@ -204,6 +210,7 @@ addFieldsDict(Users, {
     defaultValue: false,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    group: formGroups.default,
     canCreate: ['members'],
     control: 'checkbox',
     label: "Hide Intercom"
@@ -220,11 +227,13 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     control: 'checkbox',
+    group: formGroups.default,
     label: "Activate Markdown Editor"
   },
 
   email: {
     order: 20,
+    group: formGroups.default,
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
   },
   hideNavigationSidebar: {
@@ -300,6 +309,7 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canRead: ['guests'],
+    group: formGroups.default,
     order: 40,
     searchable: true,
     form: {
@@ -421,6 +431,36 @@ addFieldsDict(Users, {
   "bannedPersonalUserIds.$": {
     type: String,
     foreignKey: "Users",
+    optional: true
+  },
+
+  bookmarkedPostsMetadata: {
+    type: Array,
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    hidden: true,
+    onUpdate: ({data, currentUser, oldDocument}) => {
+      if (data?.bookmarkedPostsMetadata) {
+        return _.uniq(data?.bookmarkedPostsMetadata, 'postId')
+      }
+    },
+    ...arrayOfForeignKeysField({
+      idFieldName: "bookmarkedPostsMetadata",
+      resolverName: "bookmarkedPosts",
+      collectionName: "Posts",
+      type: "Post",
+      getKey: (obj) => obj.postId
+    }),
+  },
+
+  "bookmarkedPostsMetadata.$": {
+    type: Object,
+    optional: true
+  },
+  "bookmarkedPostsMetadata.$.postId": {
+    type: String,
+    foreignKey: "Posts",
     optional: true
   },
 
@@ -585,6 +625,11 @@ addFieldsDict(Users, {
   displayName: {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
+    group: formGroups.default,
+  },
+
+  username: {
+    hidden: true
   },
 
   // frontpagePostCount: count of how many posts of yours were posted on the frontpage
@@ -647,6 +692,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    group: formGroups.default,
     hidden: !getSetting('hasEvents', true),
     label: "Group Location",
     control: 'LocationFormComponent',
@@ -755,7 +801,9 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     optional: true, 
-    order: 43,
+    order: 44,
+    group: formGroups.default,
+    hidden: true,
     label: "Hide the frontpage map"
   },
 
@@ -879,6 +927,7 @@ addFieldsDict(Users, {
   fullName: {
     type: String,
     optional: true,
+    group: formGroups.default,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment'],
     hidden: !['LessWrong', 'AlignmentForum'].includes(getSetting('forumType')),
@@ -976,6 +1025,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     tooltip: "Get early access to new in-development features",
+    group: formGroups.default,
     label: "Opt into experimental features"
   },
   petrovPressedButtonDate: {
@@ -1040,9 +1090,9 @@ addFieldsDict(Users, {
       const basicSlug = Utils.slugify(displayName);
       return Utils.getUnusedSlugByCollectionName('Users', basicSlug, true);
     },
-    onUpdate: async ({data, document}) => {
+    onUpdate: async ({data, oldDocument}) => {
       //Make sure to update this callback for Apollo2 upgrade
-      if (data.slug && data.slug !== document.slug) {
+      if (data.slug && data.slug !== oldDocument.slug) {
         const slugIsUsed = await Utils.slugIsUsed("Users", data.slug)
         if (slugIsUsed) {
           throw Error(`Specified slug is already used: ${data.slug}`)
@@ -1054,10 +1104,10 @@ addFieldsDict(Users, {
     type: Array,
     optional: true,
     canRead: ['guests'],
-    onUpdate: ({data, document}) => {
+    onUpdate: ({data, oldDocument}) => {
       // Make sure to update this callback for Apollo2 upgrade
-      if (data.slug && data.slug !== document.slug)  {
-        return [...(document.oldSlugs || []), document.slug]
+      if (data.slug && data.slug !== oldDocument.slug)  {
+        return [...(oldDocument.oldSlugs || []), oldDocument.slug]
       }
     }
   },

@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles'
 import { Link } from '../../../lib/reactRouterWrapper.js';
-import Icon from '@material-ui/core/Icon';
+import LinkIcon from '@material-ui/icons/Link';
 import { Comments } from "../../../lib/collections/comments";
 import classNames from 'classnames';
 import { useNavigation, useLocation } from '../../../lib/routeUtil';
@@ -25,12 +25,13 @@ const styles = theme => ({
   link: {
   },
   icon: {
-    fontSize: "0.9rem !important",
+    fontSize: "0.9rem",
     transform: "rotate(-45deg)",
     verticalAlign: "middle",
-    color: "rgba(0,0,0,0.5) !important",
-    margin: "0 3px",
-    paddingBottom: 2,
+    color: "rgba(0,0,0,0.5)",
+    margin: "0 2px",
+    position: "relative",
+    top: -2
   },
 });
 
@@ -48,19 +49,19 @@ const CommentsItemDate = ({comment, post, showPostTitle, classes, scrollOnClick,
 
   const date = <span>
     <Components.FormatDate date={comment.postedAt} format={comment.answer && "MMM DD, YYYY"}/>
-    <Icon className={classNames("material-icons", classes.icon)}> link </Icon>
+    <LinkIcon className={classes.icon}/>
     {showPostTitle && post.title && <span className={classes.postTitle}> {post.draft && "[Draft]"} {post.title}</span>}
   </span>
 
   return (
-    <div className={classNames(classes.root, {
+    <span className={classNames(classes.root, {
       [classes.date]: !comment.answer,
       [classes.answerDate]: comment.answer,
     })}>
       {scrollOnClick ? <a href={url} onClick={handleLinkClick}>{ date } </a>
         : <Link to={url}>{ date }</Link>
       }
-    </div>
+    </span>
   );
 }
 
