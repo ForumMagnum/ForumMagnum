@@ -41,7 +41,7 @@ const NotificationTypeSettings = ({ path, value, label, classes }, context) => {
         {!notificationType.mustBeEnabled && <MenuItem value="none">Don't notify</MenuItem>}
         <MenuItem value="onsite">Notify me on-site</MenuItem>
         <MenuItem value="email">Notify me by email</MenuItem>
-        <MenuItem value="both">Notify both on-site and by email</MenuItem>
+        <MenuItem value="both">Notify me both on-site and by email</MenuItem>
       </Select>
       { currentValue.channel !== "none" && <React.Fragment>
         {" "}
