@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import Conversations from './collections/conversations/collection.js';
 import { Posts } from './collections/posts';
 import { Comments } from './collections/comments'

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Components, withMessages, registerComponent, Utils, useMulti, withCreate } from 'meteor/vulcan:core';
 import { Subscriptions } from '../../lib/collections/subscriptions/collection'
 import { defaultSubscriptionTypeTable } from '../../lib/collections/subscriptions/mutations'
@@ -23,8 +23,8 @@ const SubscribeTo = ({
   const { results, loading } = useMulti({
     terms: {
       view: "subscriptionState",
-      documentId: document._id,
-      userId: currentUser._id,
+      documentId: document?._id,
+      userId: currentUser?._id,
       subscriptionType,
       collectionName,
       limit: 1

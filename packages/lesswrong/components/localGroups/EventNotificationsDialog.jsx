@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { registerComponent, useUpdate } from 'meteor/vulcan:core';
+import { registerComponent, useUpdate, Components } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
 import Users from "meteor/vulcan:users";
 import Dialog from '@material-ui/core/Dialog';
@@ -14,9 +14,10 @@ import Input from '@material-ui/core/Input';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import FormLabel from '@material-ui/core/FormLabel';
 import Checkbox from '@material-ui/core/Checkbox';
-import { geoSuggestStyles } from '../form-components/LocationFormComponent'
+import { geoSuggestStyles, useGoogleMaps } from '../form-components/LocationFormComponent'
 import { MAX_NOTIFICATION_RADIUS } from '../../lib/collections/users/custom_fields'
 import { Link } from '../../lib/reactRouterWrapper.js';
+
 
 const suggestionToGoogleMapsLocation = (suggestion) => {
   return suggestion ? suggestion.gmaps : null
@@ -107,9 +108,10 @@ const styles = theme => ({
 
 const MAX_NOTIFICATION_RADIUS_STEPSIZE = 5
 const EventNotificationsDialog = ({ onClose, currentUser, classes }) => {
-
+  const { Loading } = Components
   const { nearbyEventsNotificationsLocation, mapLocation, googleLocation, nearbyEventsNotificationsRadius, nearbyPeopleNotificationThreshold } = currentUser || {}
 
+  const [ mapsLoaded ] = useGoogleMaps("EventNotificationsDialog")
   const [ location, setLocation ] = useState(nearbyEventsNotificationsLocation || mapLocation || googleLocation)
   const [ label, setLabel ] = useState(nearbyEventsNotificationsLocation?.formatted_address || mapLocation?.formatted_address || googleLocation?.formatted_address)
   const [ distance, setDistance ] = useState(nearbyEventsNotificationsRadius || 50)
@@ -153,14 +155,15 @@ const EventNotificationsDialog = ({ onClose, currentUser, classes }) => {
           </em></p>
         </Typography>
         <div className={classes.geoSuggest}>
-          <Geosuggest
+          {mapsLoaded ? <Geosuggest
             placeholder="Location"
             onSuggestSelect={(suggestion) => { 
               setLocation(suggestionToGoogleMapsLocation(suggestion))
               setLabel(suggestion?.label)
             }}
             initialValue={label}
-          />
+          /> : <Loading/>}
+          
         </div>
         <FormLabel className={classes.distanceHeader} component="legend">Notification Radius</FormLabel>
         <div className={classes.distanceSection}>
