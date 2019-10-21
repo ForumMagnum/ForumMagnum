@@ -17,4 +17,3 @@ Messages.addView("conversationPreview", function (terms) {
     options: {sort: {createdAt: -1}}
   };
 });
-// uses messagesConversation
