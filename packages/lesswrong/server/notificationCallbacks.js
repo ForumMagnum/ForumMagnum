@@ -389,15 +389,8 @@ async function messageNewNotification(message) {
   // to see your own messages.)
   const recipientIds = conversation.participantIds.filter((id) => (id !== message.userId));
 
-  // Create on-site notification
-  await createNotifications(recipients, 'newMessage', 'message', message._id);
-  
-  // Generate debounced email notifications
-  await privateMessagesDebouncer.recordEvent({
-    key: conversationId,
-    data: message._id,
-    af: conversation.af,
-  });
+  // Create notification
+  await createNotifications(recipientIds, 'newMessage', 'message', message._id);
 }
 addCallback("messages.new.async", messageNewNotification);
 
