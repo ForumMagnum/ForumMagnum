@@ -20,7 +20,6 @@ Messages.getLink = (message) => {
   return `/inbox/${message.conversationId}`;
 };
 
-
 /**
 * @summary Check whether User is subscribed to a document
 * @param {Object} user
@@ -41,6 +40,7 @@ Users.isSubscribedTo = (user, document) => {
     return false;
   }
 };
+
 // LESSWRONG version of getting unused slug. Modified to also include "oldSlugs" array
 Utils.getUnusedSlug = function (collection, slug, useOldSlugs = false, documentId) {
   let suffix = '';

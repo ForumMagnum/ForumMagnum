@@ -34,6 +34,9 @@ importComponent("NotificationsList", () => require('../components/notifications/
 importComponent("NotificationsItem", () => require('../components/notifications/NotificationsItem.jsx'));
 importComponent("NotificationsMenuButton", () => require('../components/notifications/NotificationsMenuButton.jsx'));
 importComponent("SubscribeTo", () => require('../components/notifications/SubscribeTo.jsx'));
+importComponent("NotificationTypeSettings", () => require('../components/notifications/NotificationTypeSettings.jsx'));
+importComponent("NotificationEmailPreviewPage", () => require('../components/notifications/NotificationEmailPreviewPage.jsx'));
+importComponent("EmailPreview", () => require('../components/notifications/EmailPreview.jsx'));
 
 importComponent("Layout", () => require('../components/Layout.jsx'));
 
@@ -48,6 +51,7 @@ importComponent("Home2", () => require('../components/common/Home2.jsx'));
 importComponent("HomeLatestPosts", () => require('../components/common/HomeLatestPosts'));
 importComponent("Meta", () => require('../components/common/Meta.jsx'));
 importComponent("AllComments", () => require('../components/common/AllComments.jsx'));
+importComponent("BatchTimePicker", () => require('../components/common/BatchTimePicker.jsx'));
 importComponent("SingleColumnSection", () => require('../components/common/SingleColumnSection'));
 importComponent("SectionTitle", () => require('../components/common/SectionTitle.jsx'));
 importComponent("SectionSubtitle", () => require('../components/common/SectionSubtitle.jsx'));
@@ -104,6 +108,7 @@ importComponent("UsersNameWrapper", () => require('../components/users/UsersName
 importComponent("UsersNameDisplay", () => require('../components/users/UsersNameDisplay.jsx'));
 importComponent("UsersSingle", () => require('../components/users/UsersSingle.jsx'));
 importComponent("UsersEmailVerification", () => require('../components/users/UsersEmailVerification.jsx'));
+importComponent("ViewSubscriptionsPage", () => require('../components/users/ViewSubscriptionsPage.jsx'));
 importComponent("EmailConfirmationRequiredCheckbox", () => require('../components/users/EmailConfirmationRequiredCheckbox.jsx'));
 importComponent("LoginPage", () => require('../components/users/LoginPage.jsx'));
 importComponent("LoginPopupButton", () => require('../components/users/LoginPopupButton.jsx'));
@@ -308,7 +313,7 @@ importComponent("SidebarActionMenu", () => require('../components/sunshineDashbo
 importComponent("SidebarAction", () => require('../components/sunshineDashboard/SidebarAction.jsx'));
 importComponent("SunshineListCount", () => require('../components/sunshineDashboard/SunshineListCount.jsx'));
 importComponent("LastCuratedDate", () => require('../components/sunshineDashboard/LastCuratedDate'));
-importComponent(["EmailHistory", "EmailHistoryPage", "EmailPreview"], () => require('../components/sunshineDashboard/EmailHistory.jsx'));
+importComponent(["EmailHistory", "EmailHistoryPage"], () => require('../components/sunshineDashboard/EmailHistory.jsx'));
 
 // SequenceEditor
 importComponent("EditSequenceTitle", () => require('../components/sequenceEditor/EditSequenceTitle.jsx'));

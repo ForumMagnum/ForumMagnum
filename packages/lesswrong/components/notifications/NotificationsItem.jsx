@@ -4,10 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import React, { Component } from 'react';
 import ListItem from '@material-ui/core/ListItem';
 import { Link } from '../../lib/reactRouterWrapper.js';
-import AllIcon from '@material-ui/icons/Notifications';
-import PostsIcon from '@material-ui/icons/Description';
-import CommentsIcon from '@material-ui/icons/ModeComment';
-import MessagesIcon from '@material-ui/icons/Forum';
+import { getNotificationTypeByName } from '../../lib/notificationTypes.jsx';
 import { getUrlClass } from '../../lib/routeUtil';
 
 const styles = theme => ({
@@ -61,32 +58,11 @@ const styles = theme => ({
   },
 });
 
-const iconStyles = {
-  position: "absolute",
-  marginTop: '24px',
-  marginLeft: '21px'
-}
-
 class NotificationsItem extends Component {
   constructor(props) {
     super(props)
     this.state = {
       clicked: false,
-    }
-  }
-
-  renderNotificationIcon = (notificationType) => {
-    switch (notificationType) {
-      case 'newPost':
-        return <PostsIcon style={iconStyles}/>
-      case 'newComment':
-      case 'newReply':
-      case 'newReplyToYou':
-        return <CommentsIcon style={iconStyles}/>
-      case 'newMessage':
-        return <MessagesIcon style={iconStyles}/>
-      default:
-        return <AllIcon style={iconStyles} />
     }
   }
 
@@ -117,7 +93,7 @@ class NotificationsItem extends Component {
           }
         }}
       >
-        {this.renderNotificationIcon(notification.type)}
+        {getNotificationTypeByName(notification.type).getIcon()}
         <div className={classes.notificationLabelWrapper}>
           <div className={classes.notificationLabel}>
             {notification.message}

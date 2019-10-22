@@ -96,7 +96,8 @@ export function useSingle({ collectionName,
   const resolverName = getResolverNameFromOptions({ collectionName, collection })
   const { data, ...rest } = useQuery(query, { 
     variables: { input: { selector: { documentId } }, ...extraVariablesValues }, 
-    fetchPolicy 
+    fetchPolicy,
+    ssr: true,
   })
   const document = data && data[resolverName] && data[resolverName].result
   return { document, data, ...rest }
