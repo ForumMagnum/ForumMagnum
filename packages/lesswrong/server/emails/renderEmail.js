@@ -225,7 +225,10 @@ export async function renderAndSendEmail(emailProps)
   
   const renderedEmail = await generateEmail(emailProps);
   sendEmail(renderedEmail);
-  
+  logSentEmail(renderedEmail, user);
+}
+
+export function logSentEmail(renderedEmail, user) {
   // Replace user (object reference) in renderedEmail so we can log it in LWEvents
   const emailJson = {
     ...renderedEmail,

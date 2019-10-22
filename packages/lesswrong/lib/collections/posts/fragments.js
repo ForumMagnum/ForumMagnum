@@ -81,6 +81,11 @@ registerFragment(`
 
     shareWithUsers
     enableCollaboration
+    
+    group {
+      _id
+      name
+    }
   }
 `);
 

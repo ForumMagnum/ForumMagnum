@@ -5,6 +5,7 @@ import Menu from '@material-ui/core/Menu';
 import Divider from '@material-ui/core/Divider';
 import { useCurrentUser } from '../../common/withUser';
 import Users from 'meteor/vulcan:users';
+import MenuItem from '@material-ui/core/MenuItem';
 
 import { withStyles } from '@material-ui/core/styles';
 
@@ -25,7 +26,7 @@ const CommentsMenu = ({children, classes, className, comment, post, showEdit, ic
   const [anchorEl, setAnchorEl] = useState(null);
   const currentUser = useCurrentUser();
   
-  const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, CommentsPermalinkMenuItem, ToggleIsModeratorComment } = Components
+  const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, SubscribeTo, CommentsPermalinkMenuItem, ToggleIsModeratorComment } = Components
   
   if (!currentUser) return null
   
@@ -40,6 +41,20 @@ const CommentsMenu = ({children, classes, className, comment, post, showEdit, ic
         open={Boolean(anchorEl)}
         anchorEl={anchorEl}
       >
+        <MenuItem>
+          <SubscribeTo document={comment}
+            subscribeMessage="Subscribe to Comment Replies"
+            unsubscribeMessage="Unsubscribe from Comment Replies"
+          />
+        </MenuItem>
+        {comment?.user?._id && (comment?.user?._id !== currentUser._id) &&
+          <MenuItem>
+            <SubscribeTo document={comment.user}
+              subscribeMessage={"Subscribe to posts by "+Users.getDisplayName(comment.user)}
+              unsubscribeMessage={"Unsubscribe from posts by "+Users.getDisplayName(comment.user)}
+            />
+          </MenuItem>
+        }
         <EditCommentMenuItem comment={comment} showEdit={showEdit}/>
         <ReportCommentMenuItem comment={comment}/>
         <CommentsPermalinkMenuItem comment={comment} post={post} />
