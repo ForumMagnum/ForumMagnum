@@ -425,7 +425,7 @@ class EditorFormComponent extends Component {
             {currentUser.isAdmin  && <MenuItem value={'html'}>HTML [Admin Only]</MenuItem>}
             <MenuItem value={'markdown'}>Markdown</MenuItem>
             <MenuItem value={'draftJS'}>Draft-JS</MenuItem>
-            <MenuItem value={'ckEditorMarkup'}>CK Editor [Beta]</MenuItem>
+            <MenuItem value={'ckEditorMarkup'}>LessWrong Docs [Beta]</MenuItem>
           </Select>
       </Tooltip>
     )

@@ -9,7 +9,6 @@ import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
 import BlockQuote from '@ckeditor/ckeditor5-block-quote/src/blockquote';
 import Bold from '@ckeditor/ckeditor5-basic-styles/src/bold';
 import CKFinder from '@ckeditor/ckeditor5-ckfinder/src/ckfinder';
-import EasyImage from '@ckeditor/ckeditor5-easy-image/src/easyimage';
 import Essentials from '@ckeditor/ckeditor5-essentials/src/essentials';
 import FontFamily from '@ckeditor/ckeditor5-font/src/fontfamily';
 import FontSize from '@ckeditor/ckeditor5-font/src/fontsize';
@@ -61,7 +60,6 @@ const postEditorPlugins = [
 	BlockQuote,
 	Bold,
 	CKFinder,
-	EasyImage,
 	Essentials,
 	FontFamily,
 	FontSize,
@@ -115,6 +113,7 @@ const postEditorConfig = {
 		'trackChanges'
 	],
 	toolbar: [
+		'heading',
 		'bold',
 		'italic',
 		'underline',
@@ -162,7 +161,6 @@ CommentEditor.builtinPlugins = [
 	BlockQuote,
 	Bold,
 	CKFinder,
-	EasyImage,
 	Essentials,
 	Heading,
 	Image,
