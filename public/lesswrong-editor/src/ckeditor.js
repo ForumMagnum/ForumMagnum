@@ -19,6 +19,7 @@ import ImageCaption from '@ckeditor/ckeditor5-image/src/imagecaption';
 import ImageStyle from '@ckeditor/ckeditor5-image/src/imagestyle';
 import ImageToolbar from '@ckeditor/ckeditor5-image/src/imagetoolbar';
 import ImageUpload from '@ckeditor/ckeditor5-image/src/imageupload';
+import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
 import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
 import Link from '@ckeditor/ckeditor5-link/src/link';
 import List from '@ckeditor/ckeditor5-list/src/list';
@@ -52,6 +53,14 @@ class PostEditorCollaboration extends BalloonBlockEditorBase {}
 // 3. navigate back to main folder (i.e. 'cd ../..')
 // 4. run 'yarn add ./public/lesswrong-editor'.
 
+const headingOptions = {
+  options: [
+    { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+    { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+    { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+  ]
+}
+
 const postEditorPlugins = [
 	Autosave,
 	Alignment,
@@ -70,6 +79,7 @@ const postEditorPlugins = [
 	ImageStyle,
 	ImageToolbar,
   ImageUpload,
+  ImageResize,
 	Italic,
 	Link,
 	List,
@@ -132,7 +142,8 @@ const postEditorConfig = {
       'imageTextAlternative',
 			'comment',
     ],
-	},
+  },
+  heading: headingOptions
 	// table: {
 	// 	contentToolbar: [
 	// 		'tableColumn',
@@ -200,7 +211,8 @@ CommentEditor.defaultConfig = {
 		toolbar: [
 			'imageTextAlternative'
 		]
-	},
+  },
+  heading: headingOptions
 	// table: {
 	// 	contentToolbar: [
 	// 		'tableColumn',
