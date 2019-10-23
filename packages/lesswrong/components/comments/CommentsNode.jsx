@@ -262,7 +262,7 @@ class CommentsNode extends Component {
     const { comment, children, nestingLevel=1, highlightDate, updateComment, post,
       muiTheme, postPage, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments,
-      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand, hoverPreview, autoScroll } = this.props;
+      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand, hoverPreview } = this.props;
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList } = Components
 
@@ -312,7 +312,7 @@ class CommentsNode extends Component {
     )
 
     const passedThroughItemProps = { post, postPage, comment, updateComment, showPostTitle, collapsed, refetch }
-    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, updateComment, condensed, hideReadComments, refetch, scrollOnExpand, autoScroll }
+    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, updateComment, condensed, hideReadComments, refetch, scrollOnExpand }
 
     return (
         <div className={comment.gapIndicator && classes.gapIndicator}>
