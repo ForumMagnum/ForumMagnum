@@ -165,6 +165,11 @@ Utils.slugify = function (s) {
     slug = 'edit-1';
   }
 
+  // If there is nothing in the string that can be slugified, just call it unicode
+  if (slug === "") {
+    slug = "unicode"
+  }
+
   return slug;
 };
 Utils.getUnusedSlug = function (collection, slug) {
