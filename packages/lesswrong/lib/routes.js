@@ -80,6 +80,11 @@ addRoute([
     path: '/editPost',
     componentName: 'PostsEditPage'
   },
+  {
+    name: 'collaboratePost',
+    path: '/collaborateOnPost',
+    componentName: 'PostCollaborationEditor'
+  },
 
   // Sequences
   {

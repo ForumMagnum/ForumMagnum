@@ -26,6 +26,10 @@ Users.isSharedOn = (currentUser, document) => {
   return (currentUser && document.shareWithUsers && document.shareWithUsers.includes(currentUser._id))
 }
 
+Users.canCollaborate = (currentUser, document) => {
+  return Users.isSharedOn(currentUser, document)
+}
+
 Users.canEditUsersBannedUserIds = (currentUser, targetUser) => {
   if (Users.canDo(currentUser,"posts.moderate.all")) {
     return true
