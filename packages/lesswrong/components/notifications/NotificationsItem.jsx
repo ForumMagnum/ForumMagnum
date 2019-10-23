@@ -34,6 +34,11 @@ const styles = theme => ({
   unread: {
     backgroundColor: "inherit !important",
   },
+  preview: {
+    [theme.breakpoints.down('xs')]: {
+      display:"none"
+    }
+  },
   notificationLabel: {
     ...theme.typography.commentStyles,
     ...theme.typography.body2,
@@ -107,8 +112,18 @@ class NotificationsItem extends Component {
           }
         }}
       >
-        <LWPopper open={hover} anchorEl={anchorEl} placement="left-start">
-          {this.renderPreview()}
+        <LWPopper 
+          open={hover} 
+          anchorEl={anchorEl} 
+          placement="left-start"
+          modifiers={{
+            flip: {
+              behavior: ["left-start"],
+              boundariesElement: 'viewport'
+            } 
+          }}
+        >
+          <span className={classes.preview}>{this.renderPreview()}</span>
         </LWPopper>
         {getNotificationTypeByName(notification.type).getIcon()}
         <div className={classes.notificationLabel}>
