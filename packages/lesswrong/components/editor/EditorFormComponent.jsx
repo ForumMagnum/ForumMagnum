@@ -417,7 +417,7 @@ class EditorFormComponent extends Component {
 
   renderEditorTypeSelect = () => {
     const { currentUser } = this.props
-    if (!currentUser || !currentUser.beta) return null
+    if (!currentUser || (!currentUser.beta && !currentUser.isAdmin)) return null
     return (
       <Tooltip title="Warning! Changing format will erase your content" placement="left">
         <Select
