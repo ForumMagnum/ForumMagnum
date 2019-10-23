@@ -12,7 +12,7 @@ import classNames from 'classnames';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import withRecordPostView from '../../common/withRecordPostView';
 import withNewEvents from '../../../lib/events/withNewEvents.jsx';
-import { userHasPingbacks } from '../../../lib/betas.js';
+import { userHasPingbacks, userHasTagging } from '../../../lib/betas.js';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 const DEFAULT_TOC_MARGIN = 100
@@ -337,7 +337,7 @@ class PostsPage extends Component {
                   {query.revision && <PostsRevisionMessage post={post} />}
                   { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
                 </div>
-                <Components.FooterTagList post={post}/>
+                {userHasTagging(currentUser) && <Components.FooterTagList post={post}/>}
               </div>
             </div>
 
