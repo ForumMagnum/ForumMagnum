@@ -15,6 +15,7 @@ export const algoliaConfigureIndexes = async () => {
   let postsIndex = client.initIndex(algoliaIndexNames.Posts);
   let usersIndex = client.initIndex(algoliaIndexNames.Users);
   let sequencesIndex = client.initIndex(algoliaIndexNames.Sequences);
+  let tagsIndex = client.initIndex(algoliaIndexNames.Tags);
   
   await algoliaSetIndexSettingsAndWait(commentsIndex, {
     searchableAttributes: [
@@ -43,6 +44,13 @@ export const algoliaConfigureIndexes = async () => {
       'title',
       'plaintextDescription',
       'unordered(authorDisplayName)',
+      'unordered(_id)',
+    ],
+  });
+  await algoliaSetIndexSettingsAndWait(tagsIndex, {
+    searchableAttributes: [
+      'name',
+      'description',
       'unordered(_id)',
     ],
   });

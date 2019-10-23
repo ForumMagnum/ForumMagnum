@@ -1,4 +1,5 @@
 import { Posts } from '../../lib/collections/posts';
+import { Tags } from '../../lib/collections/tags/collection.js';
 import { Comments } from '../../lib/collections/comments'
 import Users from 'meteor/vulcan:users';
 import RSSFeeds from '../../lib/collections/rssfeeds/collection.js';
@@ -12,6 +13,7 @@ import keyBy from 'lodash/keyBy';
 import chunk from 'lodash/chunk';
 
 const COMMENT_MAX_SEARCH_CHARACTERS = 2000
+const TAG_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS;
 
 Comments.toAlgolia = (comment) => {
   if (comment.deleted) return null;
@@ -44,7 +46,7 @@ Comments.toAlgolia = (comment) => {
     algoliaComment.postSlug = parentPost.slug;
   }
   let body = ""
-  if (comment.contents && comment.contents.originalContents && comment.contents.originalContents.type) {
+  if (comment.contents?.originalContents?.type) {
     const { data, type } = comment.contents.originalContents
     body = dataToMarkdown(data, type)
   }
@@ -136,7 +138,7 @@ Posts.toAlgolia = (post) => {
   }
   let postBatch = [];
   let body = ""
-  if (post.contents && post.contents.originalContents && post.contents.originalContents.type) {
+  if (post.contents?.originalContents?.type) {
     const { data, type } = post.contents.originalContents
     body = dataToMarkdown(data, type)
   }
@@ -156,6 +158,27 @@ Posts.toAlgolia = (post) => {
     }));
   }
   return postBatch;
+}
+
+Tags.toAlgolia = (tag) => {
+  console.log("Tags.toAlgolia called");
+  if (tag.deleted) return null;
+  
+  let description = ""
+  if (tag.description?.originalContents?.type) {
+    const { data, type } = tag.description.originalContents
+    description = dataToMarkdown(data, type)
+  }
+  //  Limit tag description  size to ensure we stay below Algolia search Limit
+  //  TODO: Actually limit by encoding size as opposed to characters
+  description = description.slice(0, TAG_MAX_SEARCH_CHARACTERS)
+  
+  return [{
+    _id: tag._id,
+    name: tag.name,
+    description,
+    baseScore: tag.baseScore,
+  }];
 }
 
 
@@ -361,7 +384,11 @@ export async function algoliaDocumentExport({ documents, collection, updateFunct
   //   return null
   // }
   let client = getAlgoliaAdminClient();
-  if (!client) return;
+  if (!client) {
+    console.log("Skipping Algolia update (no Algolia client)");
+    return;
+  }
+  console.log(`Using index ${algoliaIndexNames[collection.collectionName]}`);
   let algoliaIndex = client.initIndex(algoliaIndexNames[collection.collectionName]);
   
   let totalErrors = [];
@@ -389,6 +416,7 @@ export function subBatchArray (arr, maxSize) {
 
 export async function algoliaIndexDocumentBatch({ documents, collection, algoliaIndex, errors, updateFunction })
 {
+  console.log(`In algoliaIndexDocumentBatch with ${documents.length} documents`);
   let importBatch = [];
   let itemsToDelete = [];
 
@@ -404,10 +432,12 @@ export async function algoliaIndexDocumentBatch({ documents, collection, algolia
   }
 
   if (importBatch.length > 0) {
+    console.log("In algoliaIndexDocumentBatch importBatch");
     const subBatches = subBatchArray(importBatch, 1000)
     for (const subBatch of subBatches) {
       let err
       try {
+        console.log(`Adding to index: ${JSON.stringify(subBatch)}`);
         err = await addOrUpdateIfNeeded(algoliaIndex, _.map(subBatch, _.clone));
       } catch (uncaughtErr) {
         err = uncaughtErr
@@ -417,6 +447,7 @@ export async function algoliaIndexDocumentBatch({ documents, collection, algolia
   }
   
   if (itemsToDelete.length > 0) {
+    console.log("In algoliaIndexDocumentBatch itemsToDelete");
     const err = await deleteIfPresent(algoliaIndex, itemsToDelete);
     if (err) errors.push(err)
   }

@@ -336,10 +336,12 @@ class PostsPage extends Component {
                   {query.revision && <PostsRevisionMessage post={post} />}
                   { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
                 </div>
+                <Components.FooterTagList post={post}/>
               </div>
             </div>
 
             {/* Footer */}
+            
             {(wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
               <div className={classes.footerSection}>
                 <div className={classes.voteBottom}>

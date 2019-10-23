@@ -310,6 +310,17 @@ importComponent("SunshineListCount", () => require('../components/sunshineDashbo
 importComponent("LastCuratedDate", () => require('../components/sunshineDashboard/LastCuratedDate'));
 importComponent(["EmailHistory", "EmailHistoryPage", "EmailPreview"], () => require('../components/sunshineDashboard/EmailHistory.jsx'));
 
+importComponent("AddTag", () => require('../components/tagging/AddTag.jsx'));
+importComponent("TagPage", () => require('../components/tagging/TagPage.jsx'));
+importComponent("TagPageTitle", () => require('../components/tagging/TagPageTitle.jsx'));
+importComponent("FooterTagList", () => require('../components/tagging/FooterTagList.jsx'));
+importComponent("FooterTag", () => require('../components/tagging/FooterTag.jsx'));
+importComponent("NewTagPage", () => require('../components/tagging/NewTagPage.jsx'));
+importComponent("EditTagPage", () => require('../components/tagging/EditTagPage.jsx'));
+importComponent("AllTagsPage", () => require('../components/tagging/AllTagsPage.jsx'));
+importComponent("TagRelCard", () => require('../components/tagging/TagRelCard.jsx'));
+importComponent("TagSearchHit", () => require('../components/tagging/TagSearchHit.jsx'));
+
 // SequenceEditor
 importComponent("EditSequenceTitle", () => require('../components/sequenceEditor/EditSequenceTitle.jsx'));
 

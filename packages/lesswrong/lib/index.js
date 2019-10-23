@@ -90,6 +90,14 @@ import './collections/collections/helpers.js';
 import './modules/alignment-forum/posts/fragments.js';
 import './modules/alignment-forum/users/fragments.js';
 
+import './collections/tagRels/collection.js';
+import './collections/tagRels/views.js';
+import './collections/tagRels/fragments.js';
+
+import './collections/tags/collection.js';
+import './collections/tags/views.js';
+import './collections/tags/fragments.js';
+
 import './collections/chapters/views.js';
 
 import './collections/sequences/permissions.js';

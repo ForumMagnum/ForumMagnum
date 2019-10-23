@@ -151,7 +151,33 @@ addRoute([
     componentName: 'BookmarksPage',
     titleComponentName: 'UserPageTitle',
     subtitleComponentName: 'UserPageTitle',
-  }
+  },
+  
+  // Tags
+  {
+    name: 'tags',
+    path: '/tag/:tag',
+    componentName: 'TagPage',
+    titleComponentName: 'TagPageTitle',
+  },
+  {
+    name: 'tagEdit',
+    path: '/tag/:tag/edit',
+    componentName: 'EditTagPage',
+    titleComponentName: 'TagPageTitle',
+  },
+  {
+    name: 'tagCreate',
+    path: '/tag/create',
+    componentName: 'NewTagPage',
+    title: "New Tag",
+  },
+  {
+    name: 'tagIndex',
+    path: '/tags',
+    componentName: 'AllTagsPage',
+    title: "All Tags",
+  },
 ]);
 
 
