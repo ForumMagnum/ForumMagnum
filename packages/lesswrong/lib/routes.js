@@ -83,7 +83,7 @@ addRoute([
   {
     name: 'collaboratePost',
     path: '/collaborateOnPost',
-    componentName: 'PostCollaboration'
+    componentName: 'PostCollaborationEditor'
   },
 
   // Sequences

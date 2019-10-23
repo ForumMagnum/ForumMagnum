@@ -26,7 +26,8 @@ const styles = theme => ({
   }
 })
 
-const PostCollaboration = ({ classes, currentUser}) => {
+// Editor that _only_ gives people access to the ckEditor, without any other post options
+const PostCollaborationEditor = ({ classes, currentUser}) => {
   const { SingleColumnSection } = Components
 
   const { query: { postId } } = useLocation();
@@ -52,4 +53,4 @@ const PostCollaboration = ({ classes, currentUser}) => {
   </SingleColumnSection>
 };
 
-registerComponent('PostCollaboration', PostCollaboration, withStyles(styles, {name:"PostCollaboration"}), withUser);
+registerComponent('PostCollaborationEditor', PostCollaborationEditor, withStyles(styles, {name:"PostCollaborationEditor"}), withUser);

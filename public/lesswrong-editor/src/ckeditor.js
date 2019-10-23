@@ -54,12 +54,12 @@ class PostEditorCollaboration extends BalloonBlockEditorBase {}
 // 4. run 'yarn add ./public/lesswrong-editor'.
 
 const headingOptions = {
-  options: [
-    { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
-    { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
-    { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
-  ]
-}
+	options: [
+		{ model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+		{ model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+		{ model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+	]
+};
 
 const postEditorPlugins = [
 	Autosave,
@@ -78,8 +78,8 @@ const postEditorPlugins = [
 	ImageCaption,
 	ImageStyle,
 	ImageToolbar,
-  ImageUpload,
-  ImageResize,
+	ImageUpload,
+	ImageResize,
 	Italic,
 	Link,
 	List,
@@ -96,14 +96,14 @@ const postEditorPlugins = [
 ];
 
 PostEditor.builtinPlugins = [
-  ...postEditorPlugins
+	...postEditorPlugins
 ];
 
 PostEditorCollaboration.builtinPlugins = [
-  ...postEditorPlugins,
+	...postEditorPlugins,
 	RealTimeCollaborativeComments,
-  RealTimeCollaborativeTrackChanges,
-  PresenceList
+	RealTimeCollaborativeTrackChanges,
+	PresenceList
 ];
 
 const postEditorConfig = {
@@ -134,16 +134,16 @@ const postEditorConfig = {
 		'|',
 		'link',
 		'|',
-    'mathpreview',
-    'comment',
+		'mathpreview',
+		'comment',
 	],
 	image: {
 		toolbar: [
-      'imageTextAlternative',
+			'imageTextAlternative',
 			'comment',
-    ],
-  },
-  heading: headingOptions
+		],
+	},
+	heading: headingOptions
 	// table: {
 	// 	contentToolbar: [
 	// 		'tableColumn',
@@ -158,11 +158,11 @@ const postEditorConfig = {
 };
 
 PostEditor.defaultConfig = {
-  ...postEditorConfig
+	...postEditorConfig
 };
 
 PostEditorCollaboration.defaultConfig = {
-  ...postEditorConfig
+	...postEditorConfig
 };
 
 CommentEditor.builtinPlugins = [
@@ -176,7 +176,7 @@ CommentEditor.builtinPlugins = [
 	Heading,
 	Image,
 	ImageCaption,
-  ImageStyle,
+	ImageStyle,
 	ImageToolbar,
 	ImageUpload,
 	Italic,
@@ -194,10 +194,10 @@ CommentEditor.builtinPlugins = [
 
 CommentEditor.defaultConfig = {
 	toolbar: [
-    'heading',
+		'heading',
 		'bold',
 		'italic',
-    'underline',
+		'underline',
 		'|',
 		'bulletedList',
 		'numberedList',
@@ -211,8 +211,8 @@ CommentEditor.defaultConfig = {
 		toolbar: [
 			'imageTextAlternative'
 		]
-  },
-  heading: headingOptions
+	},
+	heading: headingOptions
 	// table: {
 	// 	contentToolbar: [
 	// 		'tableColumn',

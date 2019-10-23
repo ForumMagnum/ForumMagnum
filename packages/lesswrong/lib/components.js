@@ -168,7 +168,7 @@ importComponent("PostsCommentsThread", () => require('../components/posts/PostsC
 importComponent("PostsNewForm", () => require('../components/posts/PostsNewForm.jsx'));
 importComponent("PostsEditForm", () => require('../components/posts/PostsEditForm.jsx'));
 importComponent("PostsEditPage", () => require('../components/posts/PostsEditPage.jsx'));
-importComponent("PostCollaboration", () => require('../components/posts/PostCollaboration.jsx'));
+importComponent("PostCollaborationEditor", () => require('../components/posts/PostCollaborationEditor.jsx'));
 
 importComponent("PostsGroupDetails", () => require('../components/posts/PostsGroupDetails.jsx'));
 importComponent("PostsStats", () => require('../components/posts/PostsStats.jsx'));
