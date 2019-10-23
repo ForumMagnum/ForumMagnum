@@ -67,7 +67,7 @@ const styles = theme => ({
     borderBottom: "none",
     borderTop: "solid 1px rgba(0,0,0,.15)",
     '&.comments-node-root':{
-      marginBottom: -1,
+      marginBottom: 4,
       borderBottom: "solid 1px rgba(0,0,0,.2)",
     }
   },
@@ -162,9 +162,9 @@ class CommentsNode extends Component {
   }
 
   componentDidMount() {
-    const { comment, post, location } = this.props
+    const { comment, post, location, postPage } = this.props
     let commentHash = location.hash;
-    if (comment && commentHash === ("#" + comment._id) && post) {
+    if (comment && commentHash === ("#" + comment._id) && post && postPage) {
       setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
         this.scrollIntoView()
       }, 0);

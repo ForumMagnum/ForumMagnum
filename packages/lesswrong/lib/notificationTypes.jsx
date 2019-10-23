@@ -8,7 +8,7 @@ import Users from 'meteor/vulcan:users';
 import AllIcon from '@material-ui/icons/Notifications';
 import PostsIcon from '@material-ui/icons/Description';
 import CommentsIcon from '@material-ui/icons/ModeComment';
-import MessagesIcon from '@material-ui/icons/Forum';
+import MailIcon from '@material-ui/icons/Mail';
 
 const notificationTypes = {};
 const notificationTypesByUserSetting = {};
@@ -55,9 +55,8 @@ const getDocument = (documentType, documentId) => {
 }
 
 const iconStyles = {
-  position: "absolute",
-  marginTop: '24px',
-  marginLeft: '21px'
+  margin: 16,
+  fontSize: 20,
 }
 
 export const NewPostNotification = registerNotificationType({
@@ -179,7 +178,7 @@ export const NewMessageNotification = registerNotificationType({
     return Users.findOne(document.userId).displayName + ' sent you a new message' + (conversation.title ? (' in the conversation ' + conversation.title) : "") + '!';
   },
   getIcon() {
-    return <MessagesIcon style={iconStyles}/>
+    return <MailIcon style={iconStyles}/>
   },
 });
 

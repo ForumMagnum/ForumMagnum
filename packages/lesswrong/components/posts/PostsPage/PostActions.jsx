@@ -134,24 +134,6 @@ class PostActions extends Component {
     
     return (
       <div className={classes.actions}>
-        {currentUser && post.group && <MenuItem>
-          <SubscribeTo document={post.group}
-            subscribeMessage={"Subscribe to "+post.group.name}
-            unsubscribeMessage={"Unsubscribe from "+post.group.name}/>
-        </MenuItem>}
-        
-        {currentUser && postAuthor && postAuthor._id !== currentUser._id && <MenuItem>
-          <SubscribeTo document={postAuthor}
-            subscribeMessage={"Subscribe to posts by "+Users.getDisplayName(postAuthor)}
-            unsubscribeMessage={"Unsubscribe from posts by "+Users.getDisplayName(postAuthor)}/>
-        </MenuItem>}
-        
-        {currentUser && <MenuItem>
-          <SubscribeTo document={post}
-            subscribeMessage="Subscribe to Comments"
-            unsubscribeMessage="Unsubscribe from Comments"/>
-        </MenuItem>}
-
         { Posts.canEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
           <MenuItem>
             <ListItemIcon>
@@ -160,6 +142,34 @@ class PostActions extends Component {
             Edit
           </MenuItem>
         </Link>}
+        { Users.canCollaborate(currentUser, post) && 
+          <Link to={{pathname:'/collaborateOnPost', search:`?${qs.stringify({postId: post._id})}`}}>
+            <MenuItem>
+              <ListItemIcon>
+                <EditIcon />
+              </ListItemIcon>
+              Collaborative Editing
+            </MenuItem>
+          </Link>
+        }
+        {currentUser && post.group && <MenuItem>
+          <SubscribeTo document={post.group} showIcon
+            subscribeMessage={"Subscribe to "+post.group.name}
+            unsubscribeMessage={"Unsubscribe from "+post.group.name}/>
+        </MenuItem>}
+        
+        {currentUser && postAuthor && postAuthor._id !== currentUser._id && <MenuItem>
+          <SubscribeTo document={postAuthor} showIcon
+            subscribeMessage={"Subscribe to posts by "+Users.getDisplayName(postAuthor)}
+            unsubscribeMessage={"Unsubscribe from posts by "+Users.getDisplayName(postAuthor)}/>
+        </MenuItem>}
+        
+        {currentUser && <MenuItem>
+          <SubscribeTo document={post} showIcon
+            subscribeMessage="Subscribe to comments"
+            unsubscribeMessage="Unsubscribe from comments"/>
+        </MenuItem>}
+
         <BookmarkButton post={post} menuItem/>
         <ReportPostMenuItem post={post}/>
         { post.isRead
