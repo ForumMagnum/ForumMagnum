@@ -161,7 +161,6 @@ Posts.toAlgolia = (post) => {
 }
 
 Tags.toAlgolia = (tag) => {
-  console.log("Tags.toAlgolia called");
   if (tag.deleted) return null;
   
   let description = ""
@@ -169,8 +168,8 @@ Tags.toAlgolia = (tag) => {
     const { data, type } = tag.description.originalContents
     description = dataToMarkdown(data, type)
   }
-  //  Limit tag description  size to ensure we stay below Algolia search Limit
-  //  TODO: Actually limit by encoding size as opposed to characters
+  // Limit tag description  size to ensure we stay below Algolia search Limit
+  // TODO: Actually limit by encoding size as opposed to characters
   description = description.slice(0, TAG_MAX_SEARCH_CHARACTERS)
   
   return [{
@@ -385,10 +384,8 @@ export async function algoliaDocumentExport({ documents, collection, updateFunct
   // }
   let client = getAlgoliaAdminClient();
   if (!client) {
-    console.log("Skipping Algolia update (no Algolia client)");
     return;
   }
-  console.log(`Using index ${algoliaIndexNames[collection.collectionName]}`);
   let algoliaIndex = client.initIndex(algoliaIndexNames[collection.collectionName]);
   
   let totalErrors = [];
@@ -416,7 +413,6 @@ export function subBatchArray (arr, maxSize) {
 
 export async function algoliaIndexDocumentBatch({ documents, collection, algoliaIndex, errors, updateFunction })
 {
-  console.log(`In algoliaIndexDocumentBatch with ${documents.length} documents`);
   let importBatch = [];
   let itemsToDelete = [];
 
@@ -432,12 +428,10 @@ export async function algoliaIndexDocumentBatch({ documents, collection, algolia
   }
 
   if (importBatch.length > 0) {
-    console.log("In algoliaIndexDocumentBatch importBatch");
     const subBatches = subBatchArray(importBatch, 1000)
     for (const subBatch of subBatches) {
       let err
       try {
-        console.log(`Adding to index: ${JSON.stringify(subBatch)}`);
         err = await addOrUpdateIfNeeded(algoliaIndex, _.map(subBatch, _.clone));
       } catch (uncaughtErr) {
         err = uncaughtErr
@@ -447,7 +441,6 @@ export async function algoliaIndexDocumentBatch({ documents, collection, algolia
   }
   
   if (itemsToDelete.length > 0) {
-    console.log("In algoliaIndexDocumentBatch itemsToDelete");
     const err = await deleteIfPresent(algoliaIndex, itemsToDelete);
     if (err) errors.push(err)
   }

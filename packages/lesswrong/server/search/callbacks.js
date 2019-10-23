@@ -44,7 +44,6 @@ addCallback("sequences.new.async", sequenceAlgoliaIndex)
 addCallback("sequences.edit.async", sequenceAlgoliaIndex);
 
 async function tagAlgoliaIndex(tag) {
-  console.log("In tagAlgoliaIndex");
   await algoliaDocumentExport({
     documents: [tag],
     collection: Tags,

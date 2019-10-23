@@ -9,9 +9,6 @@ addGraphQLResolvers({
       if (!postId) throw new Error("Missing argument: postId");
       if (!tagId) throw new Error("Missing argument: tagId");
       
-      console.log(`In addOrUpvoteTag(tagId: ${tagId}, postId: ${postId})`);
-      console.log(`currentUser: ${currentUser?.displayName}`);
-      
       // Validate that tagId and postId refer to valid non-deleted documents
       // and that this user can see both.
       // TODO
@@ -19,7 +16,6 @@ addGraphQLResolvers({
       // Check whether this document already has this tag applied
       const existingTagRel = TagRels.findOne({ tagId, postId });
       if (!existingTagRel) {
-        console.log("Tag relation does not exist; creating");
         const tagRel = await newMutation({
           collection: TagRels,
           document: { tagId, postId },

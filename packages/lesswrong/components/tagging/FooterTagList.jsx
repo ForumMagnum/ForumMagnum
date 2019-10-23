@@ -56,10 +56,6 @@ const FooterTagList = ({post, classes}) => {
     }
     ${getFragment("TagRelFragment")}
   `);
-  /*const {create: createTagRel} = useCreate({
-    collection: TagRels,
-    fragmentName: "TagRelFragment",
-  });*/
   
   if (loading || !results)
     return <Components.Loading/>;
@@ -89,21 +85,16 @@ const FooterTagList = ({post, classes}) => {
             <Components.AddTag
               post={post}
               onTagSelected={tag => {
-                console.log(`Selected tag: ${tag.name}`);
                 setAnchorEl(null);
                 setIsOpen(false);
-                console.log(`tagId: ${tag._id}, postId: ${post._id}`);
                 mutate({
                   variables: {
                     tagId: tag._id,
                     postId: post._id,
                   },
+                  // TODO: Figure out how to do client-side store updating here
                   //update: cacheUpdateGenerator("TagRel", "create")
                 });
-                /*createTagRel({
-                  tagId: tag._id,
-                  postId: post._id,
-                });*/
               }}
             />
           </Paper>

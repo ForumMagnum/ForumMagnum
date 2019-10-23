@@ -22,7 +22,6 @@ function normalizeTagName(name) {
 }
 
 addCallback("tags.create.validate", ({ document: tag }) => {
-  console.log(`Validating tag ${tag.name}`);
   if (!isValidTagName(tag.name))
     throw new Error("Invalid tag name (use only letters, digits and dash)");
   
