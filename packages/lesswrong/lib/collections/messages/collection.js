@@ -28,7 +28,7 @@ const options = {
   },
 }
 
-const Messages = createCollection({
+export const Messages = createCollection({
   collectionName: 'Messages',
   typeName: 'Message',
   schema,

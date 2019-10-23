@@ -8,6 +8,7 @@ import AllIcon from '@material-ui/icons/Notifications';
 import PostsIcon from '@material-ui/icons/Description';
 import CommentsIcon from '@material-ui/icons/ModeComment';
 import MailIcon from '@material-ui/icons/Mail';
+import { getNotificationTypeByName } from '../../lib/notificationTypes.jsx';
 import { getUrlClass } from '../../lib/routeUtil';
 import withHover from '../common/withHover';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -57,31 +58,11 @@ const styles = theme => ({
   },
 });
 
-const iconStyles = {
-  margin: 16,
-  fontSize: 20,
-}
-
 class NotificationsItem extends Component {
   constructor(props) {
     super(props)
     this.state = {
       clicked: false,
-    }
-  }
-
-  renderNotificationIcon = (notificationType) => {
-    switch (notificationType) {
-      case 'newPost':
-        return <PostsIcon style={iconStyles}/>
-      case 'newComment':
-      case 'newReply':
-      case 'newReplyToYou':
-        return <CommentsIcon style={iconStyles}/>
-      case 'newMessage':
-        return <MailIcon style={iconStyles}/>
-      default:
-        return <AllIcon style={iconStyles} />
     }
   }
 
@@ -133,7 +114,7 @@ class NotificationsItem extends Component {
         <LWPopper open={hover} anchorEl={anchorEl} placement="left-start">
           {this.renderPreview()}
         </LWPopper>
-        {this.renderNotificationIcon(notification.type)}
+        {getNotificationTypeByName(notification.type).getIcon()}
         <div className={classes.notificationLabel}>
           {notification.message}
         </div>

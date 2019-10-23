@@ -78,6 +78,11 @@ registerFragment(`
     submitToFrontpage
     shortform
     canonicalSource
+    
+    group {
+      _id
+      name
+    }
   }
 `);
 

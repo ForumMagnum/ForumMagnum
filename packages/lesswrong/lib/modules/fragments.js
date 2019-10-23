@@ -103,7 +103,6 @@ registerFragment(`
     allPostsShowLowKarma
     allPostsOpenSettings
     lastNotificationsCheck
-    subscribedItems
     groups
     bannedUserIds
     moderationStyle
@@ -137,6 +136,10 @@ registerFragment(`
     viewUnreviewedComments
     sunshineShowNewUserContent
     recommendationSettings
+    
+    auto_subscribe_to_my_posts
+    auto_subscribe_to_my_comments
+    autoSubscribeAsOrganizer
     bookmarkedPostsMetadata
   }
 `);
@@ -431,6 +434,7 @@ registerFragment(`
     viewUnreviewedComments
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
+    autoSubscribeAsOrganizer
     sunshineShowNewUserContent
     defaultToCKEditor
   }
@@ -515,6 +519,13 @@ registerFragment(`
     karmaChangeNotifierSettings
 
     recommendationSettings
+    
+    notificationCommentsOnSubscribedPost
+    notificationRepliesToMyComments
+    notificationRepliesToSubscribedComments
+    notificationPostsInGroups
+    notificationPrivateMessage
+    notificationSharedWithMe
 
     hideFrontpageMap
   }

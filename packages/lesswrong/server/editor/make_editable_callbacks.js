@@ -256,7 +256,7 @@ export function addEditableCallbacks({collection, options = {}}) {
     }
     return doc
   }
-
+  
   if (!deactivateNewCallback) {
     addCallback(`${typeName.toLowerCase()}.create.before`, editorSerializationNew);
   }
