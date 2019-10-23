@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withMutation } from 'meteor/vulcan:core';
+import { useCurrentUser } from './withUser.js';
 import compose from 'recompose/compose';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
 
@@ -45,20 +46,18 @@ export const withRecordPostView = (Component) => {
   }
   
   function ComponentWithRecordPostView(props) {
-    return (<PostsReadContext.Consumer>
-      { (postsReadContext) => {
-        const {postsRead,setPostRead} = postsReadContext;
-        const {post, increasePostViewCount, currentUser, recordEvent} = props;
-        return <Component
-          {...props}
-          recordPostView={recordPostView({post, postsRead, setPostRead, increasePostViewCount, currentUser, recordEvent})}
-          isRead={post && ((post._id in postsRead)
-              ? postsRead[post._id]
-              : post.isRead)
-          }
-        />
-      }}
-    </PostsReadContext.Consumer>);
+    const postsReadContext = useContext(PostsReadContext);
+    const currentUser = useCurrentUser();
+    
+    const {postsRead, setPostRead} = postsReadContext;
+    const {post, increasePostViewCount, recordEvent} = props;
+    const isRead = post && ((post._id in postsRead) ? postsRead[post._id] : post.isRead)
+    
+    return <Component
+      {...props}
+      recordPostView={recordPostView({post, postsRead, setPostRead, increasePostViewCount, currentUser, recordEvent})}
+      isRead={isRead}
+    />
   }
   
   return compose(
