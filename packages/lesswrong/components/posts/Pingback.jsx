@@ -29,7 +29,7 @@ const Pingback = ({classes, post, hover, anchorEl, stopHover}) => {
           } 
         }}
       >
-        <PostsPreviewTooltip post={post} showAllinfo truncateLimit={900}/>
+        <PostsPreviewTooltip post={post} showAllInfo truncateLimit={900}/>
       </LWPopper>
       <PostsItem2MetaInfo className={classes.karma}>
         <PostsItemKarma post={post} />

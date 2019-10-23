@@ -1,23 +1,25 @@
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import React, { Component } from 'react';
-import ListItem from '@material-ui/core/ListItem';
 import { Link } from '../../lib/reactRouterWrapper.js';
+import Card from '@material-ui/core/Card';
 import { getNotificationTypeByName } from '../../lib/notificationTypes.jsx';
 import { getUrlClass } from '../../lib/routeUtil';
+import withHover from '../common/withHover';
+import withErrorBoundary from '../common/withErrorBoundary';
+import { parseRouteWithErrors } from '../linkPreview/HoverPreviewLink';
 
 const styles = theme => ({
   root: {
     "&:hover": {
       backgroundColor: "rgba(0,0,0,0.02) !important",
     },
-    
-    fontFamily: "freight-sans-pro, sans-serif",
-    
-    display: "block",
+    display: "flex",
+    alignItems: "center",
     padding: 0,
-    
+    borderBottom: "solid 1px rgba(0,0,0,.1)",
+
     // Disable MUI's hover-highlight-color animation that conflicts with having
     // a non-default background color and looks glitchy.
     transition: "none",
@@ -32,19 +34,18 @@ const styles = theme => ({
   unread: {
     backgroundColor: "inherit !important",
   },
-  
-  notificationLabelWrapper: {
-    marginLeft: 0,
-    padding: "16px 16px 16px 72px",
-    position: "relative",
+  preview: {
+    [theme.breakpoints.down('xs')]: {
+      display:"none"
+    }
   },
   notificationLabel: {
+    ...theme.typography.commentStyles,
+    ...theme.typography.body2,
     fontSize: "14px",
     lineHeight: "18px",
+    paddingRight: theme.spacing.unit*2,
     color: "rgba(0,0,0, 0.54)",
-    
-    height: 36,
-    margin: "4px 0px 0px",
     
     // Two-line ellipsis hack. Webkit-specific (doesn't work in Firefox),
     // inherited from old-Material-UI (where it also doesn't work in Firefox,
@@ -66,14 +67,32 @@ class NotificationsItem extends Component {
     }
   }
 
+  renderPreview = () => {
+    const { notification } = this.props
+    const { PostsPreviewTooltipSingle, PostsPreviewTooltipSingleWithComment, ConversationPreview } = Components
+    const parsedPath = parseRouteWithErrors(notification.link)
+
+    switch (notification.documentType) {
+      case 'post':
+        return <Card><PostsPreviewTooltipSingle postId={notification.documentId} /></Card>
+      case 'comment':
+        return <Card><PostsPreviewTooltipSingleWithComment postId={parsedPath?.params?._id} commentId={notification.documentId} /></Card>
+      case 'message':
+        return <Card>
+          <ConversationPreview conversationId={parsedPath?.params?._id} />
+        </Card>
+      default:
+        return null
+    }
+  }
+
   render() {
-    const { classes, notification, lastNotificationsCheck } = this.props;
+    const { classes, notification, lastNotificationsCheck, hover, anchorEl } = this.props;
+    const { LWPopper } = Components
     const UrlClass = getUrlClass()
 
     return (
-      <ListItem
-        button={true}
-        component={Link}
+      <Link
         to={notification.link}
         className={classNames(
           classes.root,
@@ -93,16 +112,27 @@ class NotificationsItem extends Component {
           }
         }}
       >
+        <LWPopper 
+          open={hover} 
+          anchorEl={anchorEl} 
+          placement="left-start"
+          modifiers={{
+            flip: {
+              behavior: ["left-start"],
+              boundariesElement: 'viewport'
+            } 
+          }}
+        >
+          <span className={classes.preview}>{this.renderPreview()}</span>
+        </LWPopper>
         {getNotificationTypeByName(notification.type).getIcon()}
-        <div className={classes.notificationLabelWrapper}>
-          <div className={classes.notificationLabel}>
-            {notification.message}
-          </div>
+        <div className={classes.notificationLabel}>
+          {notification.message}
         </div>
-      </ListItem>
+      </Link>
     )
   }
 
 }
 
-registerComponent('NotificationsItem', NotificationsItem, withStyles(styles, {name: "NotificationsItem"}));
+registerComponent('NotificationsItem', NotificationsItem, withStyles(styles, {name: "NotificationsItem"}), withHover, withErrorBoundary);

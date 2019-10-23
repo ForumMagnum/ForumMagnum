@@ -802,4 +802,3 @@ ensureIndex(Posts,
   augmentForDefaultView({ "pingback.Posts": 1 }),
   { name: "posts.pingbackPosts" }
 );
-
