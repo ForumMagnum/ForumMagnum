@@ -41,7 +41,9 @@ registerFragment(`
     _id
     userId
     currentUserVotes {
-      ...VoteFragment
+      _id
+      voteType
+      power
     }
     baseScore
     afBaseScore

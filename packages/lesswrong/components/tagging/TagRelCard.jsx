@@ -6,6 +6,9 @@ import { useCurrentUser } from '../common/withUser';
 import { TagRels } from '../../lib/collections/tagRels/collection.js';
 
 const styles = theme => ({
+  root: {
+    padding: 16,
+  },
   tagName: {
   },
   relevanceLabel: {
@@ -18,7 +21,7 @@ const TagRelCard = ({tagRel, vote, classes}) => {
   const currentUser = useCurrentUser();
   const { VoteButton } = Components;
   
-  return <div>
+  return <div className={classes.root}>
     <div className={classes.tagName}>{tagRel.tag.name}</div>
     
     <span className={classes.relevanceLabel}>
