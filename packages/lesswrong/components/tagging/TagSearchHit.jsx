@@ -4,15 +4,17 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = {
   root: {
+    display: "block",
     padding: 8,
+    cursor: "pointer",
   },
 };
 
 const TagSearchHit = ({hit, onClick, classes}) => {
   return (
-    <div className={classes.root} onClick={onClick} >
+    <a className={classes.root} onClick={onClick} >
       {hit.name}
-    </div>
+    </a>
   );
 }
 

@@ -16,12 +16,12 @@ Tags.addView('allTagsAlphabetical', terms => {
   }
 });
 
-Tags.addView('tagByName', terms => {
+Tags.addView('tagBySlug', terms => {
   return {
     selector: {
-      name: terms.name,
+      slug: terms.slug,
     },
   };
 });
 
-ensureIndex(Tags, {name:1, deleted:1});
+ensureIndex(Tags, {slug:1, deleted:1});

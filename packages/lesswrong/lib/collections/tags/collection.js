@@ -13,6 +13,20 @@ const schema = {
     type: String,
     viewableBy: ['guests'],
     insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins'],
+  },
+  slug: {
+    type: String,
+    optional: true,
+    viewableBy: ['guests'],
+    onInsert: (tag) => {
+      return Utils.getUnusedSlugByCollectionName("Tags", Utils.slugify(tag.name))
+    },
+    onEdit: (modifier, tag) => {
+      if (modifier.$set.title) {
+        return Utils.getUnusedSlugByCollectionName("Tags", Utils.slugify(modifier.$set.name), false, tag._id)
+      }
+    }
   },
   deleted: {
     type: Boolean,

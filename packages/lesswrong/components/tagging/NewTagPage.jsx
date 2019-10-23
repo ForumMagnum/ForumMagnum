@@ -27,7 +27,7 @@ const NewTagPage = () => {
         collection={Tags}
         mutationFragment={getFragment('TagFragment')}
         successCallback={tag => {
-          history.push(`/tag/${tag.name}`); //TODO: Util function for tag URL
+          history.push(`/tag/${tag.slug}`); //TODO: Util function for tag URL
         }}
       />
     </SingleColumnSection>

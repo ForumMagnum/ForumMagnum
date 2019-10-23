@@ -1,12 +1,6 @@
-import { newMutation, addGraphQLSchema, addGraphQLMutation, addGraphQLResolvers } from 'meteor/vulcan:core';
+import { newMutation, addGraphQLMutation, addGraphQLResolvers } from 'meteor/vulcan:core';
 import { TagRels } from '../../lib/collections/tagRels/collection.js';
-
-addGraphQLSchema(`
-  type AddOrUpvoteTagResult {
-    tag: Tag!
-    tagRel: TagRel!
-  }
-`);
+import { performVoteServer } from '../voteServer.js';
 
 addGraphQLResolvers({
   Mutation: {
@@ -26,18 +20,24 @@ addGraphQLResolvers({
       const existingTagRel = TagRels.findOne({ tagId, postId });
       if (!existingTagRel) {
         console.log("Tag relation does not exist; creating");
-        await newMutation({
+        const tagRel = await newMutation({
           collection: TagRels,
           document: { tagId, postId },
           validate: false,
           currentUser,
         });
-        // TODO
+        return tagRel;
+      } else {
+        // Upvote the tag
+        const votedTagRel = await performVoteServer({
+          document: existingTagRel,
+          voteType: 'smallUpvote',
+          collection: TagRels,
+          user: currentUser
+        });
+        return votedTagRel;
       }
-      
-      // Now upvote the tag
-      // TODO
     }
   }
 });
-addGraphQLMutation('addOrUpvoteTag(tagId: String, postId: String): AddOrUpvoteTagResult');
+addGraphQLMutation('addOrUpvoteTag(tagId: String, postId: String): TagRel');

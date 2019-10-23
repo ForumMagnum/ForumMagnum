@@ -1,6 +1,9 @@
 import { addCallback } from 'meteor/vulcan:core';
 import { Tags, tagDescriptionEditableOptions } from '../../lib/collections/tags/collection.js';
+import { TagRels } from '../../lib/collections/tagRels/collection.js';
 import { addEditableCallbacks } from '../editor/make_editable_callbacks.js'
+import Users from 'meteor/vulcan:users';
+import { performVoteServer } from '../voteServer.js';
 
 function isValidTagName(name) {
   // Name must be nonempty and use only a restricted set of characters
@@ -58,6 +61,13 @@ addCallback("tags.update.validate", ({ oldDocument, newDocument }) => {
   }
   
   return newDocument;
+});
+
+addCallback("tagRels.new.after", async (tagRel) => {
+  // When you add a tag, vote for it as relevant
+  var tagCreator = Users.findOne(tagRel.userId);
+  const votedTagRel = await performVoteServer({ document: tagRel, voteType: 'smallUpvote', collection: TagRels, user: tagCreator })
+  return {...tagRel, ...votedTagRel};
 });
 
 addEditableCallbacks({

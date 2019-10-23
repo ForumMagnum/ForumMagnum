@@ -156,13 +156,13 @@ addRoute([
   // Tags
   {
     name: 'tags',
-    path: '/tag/:tag',
+    path: '/tag/:slug',
     componentName: 'TagPage',
     titleComponentName: 'TagPageTitle',
   },
   {
     name: 'tagEdit',
-    path: '/tag/:tag/edit',
+    path: '/tag/:slug/edit',
     componentName: 'EditTagPage',
     titleComponentName: 'TagPageTitle',
   },

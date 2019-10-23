@@ -2,6 +2,7 @@ import { getDefaultResolvers, getDefaultMutations, createCollection } from 'mete
 import { addUniversalFields } from '../../collectionUtils'
 import { foreignKeyField } from '../../modules/utils/schemaUtils'
 import { makeVoteable } from '../../modules/make_voteable.js';
+import Users from 'meteor/vulcan:users';
 
 const schema = {
   _id: {

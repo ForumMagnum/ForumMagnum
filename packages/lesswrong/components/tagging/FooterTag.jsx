@@ -53,7 +53,7 @@ const styles = theme => ({
 
 const FooterTag = ({tagRel, tag, hover, anchorEl, classes}) => {
   return (<span>
-    <Link to={`/tag/${tag.name}`} className={classes.root}>
+    <Link to={`/tag/${tag.slug}`} className={classes.root}>
       <span className={classes.score}>{tagRel.baseScore}</span>
       <span className={classes.name}>{tag.name}</span>
     </Link>

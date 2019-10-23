@@ -213,6 +213,7 @@ export function useMulti({
   fragmentName, fragment,
   limit:initialLimit = 10, // Only used as a fallback if terms.limit is not specified
   itemsPerPage = 10,
+  skip = false,
 }) {
   const [ limit, setLimit ] = useState((terms && terms.limit) || initialLimit);
   const [ hasRequestedMore, setHasRequestedMore ] = useState(false);
@@ -233,7 +234,8 @@ export function useMulti({
     },
     pollInterval,
     fetchPolicy,
-    ssr
+    ssr,
+    skip,
   });
   
   return {

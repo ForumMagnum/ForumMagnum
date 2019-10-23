@@ -1,5 +1,5 @@
 import React, { useState }  from 'react';
-import { Components, registerComponent, useMulti, getFragment, useCreate } from 'meteor/vulcan:core';
+import { Components, registerComponent, useMulti, getFragment } from 'meteor/vulcan:core';
 import { useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import { withStyles } from '@material-ui/core/styles';
@@ -51,15 +51,9 @@ const FooterTagList = ({post, classes}) => {
   const [mutate] = useMutation(gql`
     mutation addOrUpvoteTag($tagId: String, $postId: String) {
       addOrUpvoteTag(tagId: $tagId, postId: $postId) {
-        tag {
-          ...TagFragment
-        }
-        tagRel {
-          ...TagRelFragment
-        }
+        ...TagRelFragment
       }
     }
-    ${getFragment("TagFragment")}
     ${getFragment("TagRelFragment")}
   `);
   /*const {create: createTagRel} = useCreate({
@@ -104,7 +98,7 @@ const FooterTagList = ({post, classes}) => {
                     tagId: tag._id,
                     postId: post._id,
                   },
-                  //update: cacheUpdateGenerator() //TODO
+                  //update: cacheUpdateGenerator("TagRel", "create")
                 });
                 /*createTagRel({
                   tagId: tag._id,

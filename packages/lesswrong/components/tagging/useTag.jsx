@@ -1,11 +1,11 @@
 import { useMulti } from 'meteor/vulcan:core';
 import { Tags } from '../../lib/collections/tags/collection.js';
 
-export const useTag = (tagName) => {
+export const useTagBySlug = (slug) => {
   const { results, loading, error } = useMulti({
     terms: {
-      view: "tagByName",
-      name: tagName
+      view: "tagBySlug",
+      slug: slug
     },
     collection: Tags,
     fragmentName: "TagFragment",
@@ -26,5 +26,3 @@ export const useTag = (tagName) => {
     };
   }
 }
-
-export default useTag;

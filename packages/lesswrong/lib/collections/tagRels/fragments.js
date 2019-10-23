@@ -9,6 +9,7 @@ registerFragment(`
     tag {
       _id
       name
+      slug
     }
     post {
       ...PostsList
@@ -28,6 +29,7 @@ registerFragment(`
     tag {
       _id
       name
+      slug
     }
     currentUserVotes {
       ...VoteFragment
@@ -40,6 +42,11 @@ registerFragment(`
     __typename
     _id
     userId
+    tag {
+      _id
+      name
+      slug
+    }
     currentUserVotes {
       _id
       voteType

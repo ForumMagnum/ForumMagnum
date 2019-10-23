@@ -24,8 +24,8 @@ const AllTagsPage = () => {
       {loading && <Loading/>}
       {results && results.map(tag => {
         return <div key={tag._id}>
-          <Link to={`/tag/${tag.name}`}>
-            #{tag.name}
+          <Link to={`/tag/${tag.slug}`}>
+            {tag.name}
           </Link>
         </div>
       })}

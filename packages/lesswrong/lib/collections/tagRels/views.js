@@ -4,7 +4,7 @@ import { ensureIndex } from '../../collectionUtils';
 TagRels.addView('postsWithTag', terms => {
   return {
     selector: {
-      tagName: terms.postId, //FIXME: Not denormalized
+      tagId: terms.tagId,
     },
   }
 });

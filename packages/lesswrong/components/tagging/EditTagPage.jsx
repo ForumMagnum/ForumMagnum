@@ -2,13 +2,13 @@ import React from 'react';
 import { registerComponent, Components, getFragment } from 'meteor/vulcan:core';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
 import { Tags } from '../../lib/collections/tags/collection.js';
-import { useTag } from './useTag.jsx';
+import { useTagBySlug } from './useTag.jsx';
 
 const EditTagPage = () => {
   const { params } = useLocation();
   const { history } = useNavigation();
-  const { tag: tagName } = params;
-  const { tag, loading } = useTag(tagName);
+  const { slug } = params;
+  const { tag, loading } = useTagBySlug(slug);
   
   if (loading)
     return <Components.Loading/>
@@ -17,14 +17,14 @@ const EditTagPage = () => {
   
   return (
     <Components.SingleColumnSection>
-      <Components.SectionTitle title={`Edit Tag #${tagName}`}/>
+      <Components.SectionTitle title={`Edit Tag #${tag.name}`}/>
       <Components.WrappedSmartForm
         collection={Tags}
         documentId={tag._id}
         queryFragment={getFragment('TagEditFragment')}
         mutationFragment={getFragment('TagEditFragment')}
         successCallback={tag => {
-          history.push(`/tag/${tagName}`); //TODO: Util function for tag URL
+          history.push(`/tag/${tag.name}`); //TODO: Util function for tag URL
         }}
       />
     </Components.SingleColumnSection>
