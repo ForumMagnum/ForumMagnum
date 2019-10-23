@@ -252,6 +252,7 @@ export const ckEditorStyles = theme => {
           marginBottom: 12
         },
         '&.ck-presence-list': {
+          marginBottom: 32,
           '--ck-user-avatar-size': '20px',
           '& .ck-user': {
             marginTop: 0
