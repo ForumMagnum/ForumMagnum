@@ -67,7 +67,7 @@ const styles = theme => ({
     borderBottom: "none",
     borderTop: "solid 1px rgba(0,0,0,.15)",
     '&.comments-node-root':{
-      marginBottom: -1,
+      marginBottom: 4,
       borderBottom: "solid 1px rgba(0,0,0,.2)",
     }
   },
