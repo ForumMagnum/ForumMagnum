@@ -229,7 +229,9 @@ export const ckEditorStyles = theme => {
         '--ck-focus-ring': "solid 1px rgba(0,0,0,0)",
         '--ck-focus-outer-shadow': "none",
         '--ck-inner-shadow': "none",
-        '& p': pBodyStyle
+        '& p': {
+          ...pBodyStyle
+        }
       },
       '&.ck-sidebar, &.ck-presence-list': { //\u25B6
         '& li': {
@@ -245,11 +247,15 @@ export const ckEditorStyles = theme => {
         },
         '& .ck-annotation__info-name, & .ck-annotation__info-time, & .ck-comment__input, & .ck-thread__comment-count, & .ck-annotation__main p, & .ck-annotation__info-name, & .ck-annotation__info-time, & .ck-presence-list__counter, &.ck-presence-list': {
           ...commentBodyStyles(theme),
+          marginTop: 0,
+          alignItems: "flex-start",
+          marginBottom: 12
         },
         '&.ck-presence-list': {
+          marginBottom: 32,
           '--ck-user-avatar-size': '20px',
           '& .ck-user': {
-            marginTop: 11
+            marginTop: 0
           }
         },
         '& .ck-thread__comment-count': {

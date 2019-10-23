@@ -21,8 +21,6 @@ import {
   runQuery
 } from 'meteor/vulcan:core';
 
-import { performSubscriptionAction } from '../lib/subscriptions/mutations.js';
-
 
 function updateConversationActivity (message) {
   // Update latest Activity timestamp on conversation when new message is added
@@ -37,32 +35,6 @@ function updateConversationActivity (message) {
   });
 }
 addCallback("messages.new.async", updateConversationActivity);
-
-/**
- * @summary Add default subscribers to the new post.
- */
-function PostsNewSubscriptions (post) {
-  // Subscribe the post's author to comment notifications for the post
-  // (if they have the proper setting turned on)
-  const postAuthor = Users.findOne(post.userId);
-  if (Users.getSetting(postAuthor, "auto_subscribe_to_my_posts", true)) {
-    performSubscriptionAction('subscribe', Posts, post._id, postAuthor);
-  }
-}
-addCallback("posts.new.async", PostsNewSubscriptions);
-
-/**
- * @summary Add default subscribers to the new comment.
- */
-function CommentsNewSubscriptions (comment) {
-  // Subscribe the comment's author to reply notifications for the comment
-  // (if they have the proper setting turned on)
-  const commentAuthor = Users.findOne(comment.userId);
-  if (Users.getSetting(commentAuthor, "auto_subscribe_to_my_comments", true)) {
-    performSubscriptionAction('subscribe', Comments, comment._id, commentAuthor);
-  }
-}
-addCallback("comments.new.async", CommentsNewSubscriptions);
 
 function userEditVoteBannedCallbacksAsync(user, oldUser) {
   if (user.voteBanned && !oldUser.voteBanned) {

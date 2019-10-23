@@ -2,6 +2,7 @@
 import { getSetting } from 'meteor/vulcan:core';
 import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection.js';
 import { addCronJob } from './cronUtil.js';
+import moment from 'moment-timezone';
 import Sentry from '@sentry/node';
 
 let eventDebouncersByName = {};
@@ -27,30 +28,53 @@ let eventDebouncersByName = {};
 //  * When a debounced event happens, it goes into a "pending" state
 //  * When the callback fires, it handles all pending events that share a name
 //    and key, and moves them out of the pending the state
-//  * A callback fires when either:
-//    * It has been delayMinutes since the most recent event, or
-//    * It has been maxDelayMinutes since the oldest event
+//  * A callback fires when either delayTime or upperBoundTime is passed
+//
+// There are several different possible timing rules. In some cases, these
+// correspond to user configuration, so different (name,key) pairs can have
+// different timing rules. A timing rule is an object with a string field "type"
+// plus other fields depending on the type. The possible timing rules are:
+//
+//   none:
+//     Events fire on the next cron-tick after they're added (up to 1min).
+//   delayed:
+//     * delayMinutes: number
+//     * maxDelayMinutes: number
+//     Events fire when either it has
+//     been delayMinutes since any event was added to the group, or
+//     maxDelayMinutes since the first event was added to the group
+//   daily:
+//     * timeOfDayGMT: number
+//     There is a day-boundary once per day, at timeOfDayGMT. Events fire
+//     when the current time and the oldest event in the group are on opposite
+//     sides of a day-boundary.
+//   weekly:
+//     * timeOfDayGMT: number
+//     * dayOfWeekGMT: string
+//     As daily, except that in addition to timeOfDayGMT there is also a
+//     dayOfWeekGMT, which is a string like "Saturday".
+//
+// The timing rule is specified when each event is being added. If an event
+// would be added to a group with a different timing rule, that group fires
+// according to whichever timing rule would make it fire soonest.
 //
 // Constructor parameters:
 //  * name: (String) - Used to identify this event type in the database. Must
 //    be unique across EventDebouncers.
-//  * delayMinutes: (Number)
-//  * maxDelayMinutes: (Optional Number)
+//  * defaultTiming: (Object, optional) - If an event is added with no timing
+//    rule specified, this timing rule is used. If this argument is omitted,
+//    then a timing rule is required when adding an event.
 //  * callback: (key:JSON, events: Array[JSONObject])=>None
 export class EventDebouncer
 {
-  constructor({ name, delayMinutes, maxDelayMinutes=null, callback }) {
-    if (!name || !callback || !delayMinutes)
+  constructor({ name, defaultTiming, callback }) {
+    if (!name || !callback)
       throw new Error("EventDebouncer constructor: missing required argument");
     if (name in eventDebouncersByName)
       throw new Error(`Duplicate name for EventDebouncer: ${name}`);
     
-    if (!maxDelayMinutes)
-      maxDelayMinutes = delayMinutes;
-    
     this.name = name;
-    this.delayMinutes = delayMinutes;
-    this.maxDelayMinutes = maxDelayMinutes;
+    this.defaultTiming = defaultTiming;
     this.callback = callback;
     eventDebouncersByName[name] = this;
   }
@@ -58,15 +82,16 @@ export class EventDebouncer
   // Add a debounced event.
   //
   // Parameters:
-  //  * name: (String)
   //  * key: (JSON)
   //  * data: (JSON)
+  //  * timing: (Object)
   //  * af: (bool)
-  recordEvent = async ({key, data, af=false}) => {
-    const now = new Date();
-    const msPerMin = 60*1000;
-    const newDelayTime = new Date(now.getTime() + (this.delayMinutes * msPerMin));
-    const newUpperBoundTime = new Date(now.getTime() + (this.maxDelayMinutes * msPerMin));
+  recordEvent = async ({key, data, timing=null, af=false}) => {
+    const timingRule = timing || this.defaultTiming;
+    if (!timingRule) {
+      throw new Error("EventDebouncer.recordEvent: missing timing argument and no defaultTiming set.");
+    }
+    const { newDelayTime, newUpperBoundTime } = this.parseTiming(timingRule);
     
     // On rawCollection because minimongo doesn't support $max/$min on Dates
     await DebouncerEvents.rawCollection().update({
@@ -85,6 +110,36 @@ export class EventDebouncer
     });
   }
   
+  parseTiming = (timing) => {
+    const now = new Date();
+    const msPerMin = 60*1000;
+    
+    switch(timing.type) {
+      case "none":
+        return {
+          newDelayTime: now,
+          newUpperBoundTime: now
+        }
+      case "delayed":
+        return {
+          newDelayTime: new Date(now.getTime() + (timing.delayMinutes * msPerMin)),
+          newUpperBoundTime: new Date(now.getTime() + (timing.maxDelayMinutes * msPerMin)),
+        };
+      case "daily":
+        const nextDailyBatchTime = getDailyBatchTimeAfter(now, timing.timeOfDayGMT);
+        return {
+          newDelayTime: nextDailyBatchTime,
+          newUpperBoundTime: nextDailyBatchTime,
+        }
+      case "weekly":
+        const nextWeeklyBatchTime = getWeeklyBatchTimeAfter(now, timing.timeOfDayGMT, timing.dayOfWeekGMT);
+        return {
+          newDelayTime: nextWeeklyBatchTime,
+          newUpperBoundTime: nextWeeklyBatchTime,
+        }
+    }
+  }
+  
   _dispatchEvent = async (key, events) => {
     try {
       //eslint-disable-next-line no-console
@@ -96,6 +151,35 @@ export class EventDebouncer
       console.error(e);
     }
   };
+}
+
+// Get the earliest time after now which matches the given time of day. Limited
+// to one-minute precision.
+export const getDailyBatchTimeAfter = (now, timeOfDayGMT) => {
+  let todaysBatch = moment(now).tz("GMT");
+  todaysBatch.set('hour', Math.floor(timeOfDayGMT));
+  todaysBatch.set('minute', 60*(timeOfDayGMT%1));
+  todaysBatch.set('second', 0);
+  todaysBatch.set('millisecond', 0);
+  
+  if (todaysBatch.isBefore(now)) {
+    return moment(todaysBatch).add(1, 'days').toDate();
+  } else {
+    return todaysBatch.toDate();
+  }
+}
+
+// Get the earliest time after now which matches the given time of day and day
+// of the week. One-minute precision.
+export const getWeeklyBatchTimeAfter = (now, timeOfDayGMT, dayOfWeekGMT) => {
+  const nextDailyBatch = moment(getDailyBatchTimeAfter(now, timeOfDayGMT)).tz("GMT");
+  
+  // Target day of the week, as an integer 0-6
+  const nextDailyBatchDayOfWeekNum = nextDailyBatch.day();
+  const targetDayOfWeekNum = moment().day(dayOfWeekGMT).day();
+  const daysOfWeekDifference = ((targetDayOfWeekNum - nextDailyBatchDayOfWeekNum ) + 7) % 7;
+  const nextWeeklyBatch = nextDailyBatch.add(daysOfWeekDifference, 'days');
+  return nextWeeklyBatch.toDate();
 }
 
 const dispatchEvent = async (event) => {
@@ -153,9 +237,11 @@ export const dispatchPendingEvents = async () => {
   } while (eventToHandle);
 };
 
-// Dispatch any pending debounced events, independent of their timers. You
-// would do this interactively if you're testing and don't want to wait.
-export const forcePendingEvents = async () => {
+// Given a Date, dispatch any pending debounced events that would fire on or
+// before then. If no date is given, dispatch any pending events, regardless of
+// their timer. You would do this interactively if you're testing and don't
+// want to wait.
+export const forcePendingEvents = async (upToDate=null) => {
   let eventToHandle = null;
   const af = getSetting('forumType') === 'AlignmentForum'
   

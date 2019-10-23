@@ -33,6 +33,12 @@ addRoute([
     componentName: 'UsersAccount'
   },
   {
+    name:'users.manageSubscriptions',
+    path:'/manageSubscriptions',
+    componentName: 'ViewSubscriptionsPage',
+    title: "Manage Subscriptions",
+  },
+  {
     name:'users.edit',
     path:'/users/:slug/edit',
     componentName: 'UsersAccount'
@@ -73,6 +79,11 @@ addRoute([
     name: 'editPost',
     path: '/editPost',
     componentName: 'PostsEditPage'
+  },
+  {
+    name: 'collaboratePost',
+    path: '/collaborateOnPost',
+    componentName: 'PostCollaborationEditor'
   },
 
   // Sequences
@@ -353,6 +364,11 @@ addRoute([
     name: 'emailHistory',
     path: '/debug/emailHistory',
     componentName: 'EmailHistoryPage'
+  },
+  {
+    name: 'notificationEmailPreview',
+    path: '/debug/notificationEmailPreview',
+    componentName: 'NotificationEmailPreviewPage'
   },
 ]);
 

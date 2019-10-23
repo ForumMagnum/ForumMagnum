@@ -15,7 +15,7 @@ const options = {
         Users.canDo(user, 'posts.alignment.suggest')) {
       return true
     }
-    return Users.owns(user, document) ? Users.canDo(user, 'posts.edit.own') : Users.canDo(user, `posts.edit.all`)
+    return Posts.canEdit(user, document)
   },
 
   removeCheck: (user, document) => {
