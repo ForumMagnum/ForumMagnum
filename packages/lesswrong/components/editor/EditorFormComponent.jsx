@@ -414,7 +414,7 @@ class EditorFormComponent extends Component {
 
   renderEditorTypeSelect = () => {
     const { currentUser } = this.props
-    if (!currentUser || !currentUser.isAdmin) return null
+    if (!currentUser || !currentUser.beta) return null
     return (
       <Tooltip title="Warning! Changing format will erase your content" placement="left">
         <Select
@@ -480,12 +480,12 @@ class EditorFormComponent extends Component {
         onInit: editor => this.setState({ckEditorReference: editor})
       }
 
-      // if enableCollaboration is turned on and the post has been saved at least once, it will render the collaborative ckEditor (note: this costs a small amount of money per document) 
+      // if document is shared with at least one user, it will render the collaborative ckEditor (note: this costs a small amount of money per document) 
       //
       // requires _id because before the draft is saved, ckEditor loses track of what you were writing when turning collaborate on and off (and, meanwhile, you can't actually link people to a shared draft before it's saved anyhow)
       // TODO: figure out a better solution to this problem.
       
-      const collaboration = document?._id && document?.enableCollaboration
+      const collaboration = document?._id && document?.shareWithUsers
       
       return <div className={this.getHeightClass()}>
           { this.renderPlaceholder(!value, collaboration)}

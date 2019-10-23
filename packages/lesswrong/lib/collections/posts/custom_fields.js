@@ -860,19 +860,6 @@ addFieldsDict(Posts, {
     group: formGroups.adminOptions,
   },
 
-  enableCollaboration: {
-    type: Boolean,
-    order: 14,
-    viewableBy: ['guests'],
-    insertableBy: [(currentUser) => currentUser.beta],
-    editableBy: [(currentUser, document) => {
-      return Users.owns(currentUser, document) && currentUser.beta
-    }, 'sunshineRegiment', 'admins'],
-    optional: true,
-    label: "Enable Collaboration",
-    tooltip: "After saving the document at least once, other users you've shared the doc with will be able to collaborate on this post in realtime.",
-    group: formGroups.options
-  },
 
   shareWithUsers: {
     type: Array,

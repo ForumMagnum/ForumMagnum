@@ -27,7 +27,7 @@ Users.isSharedOn = (currentUser, document) => {
 }
 
 Users.canCollaborate = (currentUser, document) => {
-  return Users.isSharedOn(currentUser, document) && document.enableCollaboration
+  return Users.isSharedOn(currentUser, document)
 }
 
 Users.canEditUsersBannedUserIds = (currentUser, targetUser) => {

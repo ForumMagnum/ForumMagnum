@@ -80,7 +80,6 @@ registerFragment(`
     canonicalSource
 
     shareWithUsers
-    enableCollaboration
     
     group {
       _id
