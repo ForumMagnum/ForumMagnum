@@ -520,7 +520,7 @@ Posts.addView("recentDiscussionThreadsList", terms => {
       baseScore: {$gt:0},
       hideFrontpageComments: false,
       hiddenRelatedQuestion: viewFieldAllowAny,
-      shortform: viewFieldAllowAny,
+      shortform: null,
       groupId: null,
     },
     options: {
@@ -756,6 +756,8 @@ Posts.addView("afRecentDiscussionThreadsList", terms => {
     selector: {
       baseScore: {$gt:0},
       hideFrontpageComments: false,
+      hiddenRelatedQuestion: viewFieldAllowAny,
+      shortform: viewFieldAllowAny,
       af: true,
     },
     options: {
