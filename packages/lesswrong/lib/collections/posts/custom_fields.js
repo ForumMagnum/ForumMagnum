@@ -860,7 +860,6 @@ addFieldsDict(Posts, {
     group: formGroups.adminOptions,
   },
 
-
   shareWithUsers: {
     type: Array,
     order: 15,
