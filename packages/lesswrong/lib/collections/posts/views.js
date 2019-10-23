@@ -520,7 +520,7 @@ Posts.addView("recentDiscussionThreadsList", terms => {
       baseScore: {$gt:0},
       hideFrontpageComments: false,
       hiddenRelatedQuestion: viewFieldAllowAny,
-      shortform: null,
+      shortform: viewFieldAllowAny,
       groupId: null,
     },
     options: {
