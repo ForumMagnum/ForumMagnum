@@ -60,7 +60,7 @@ const styles = theme => ({
   },
   postEditorHeight: {
     minHeight: postEditorHeight,
-    '& .ck.ck-content': {
+    '& > div > .ck.ck-content': {
       minHeight: postEditorHeight,
     }
   },
