@@ -13,7 +13,7 @@ const styles = theme => ({
     fontSize: "15px",
     width: 350,
     [theme.breakpoints.down('sm')]: {
-      width: "100%",
+      width: "calc(100% - 30px)",
     },
   },
   fullWidth: {
