@@ -130,9 +130,9 @@ class EditorFormComponent extends Component {
     {
       return {
         draftJSValue: editorType === "draftJS" ? this.initializeDraftJS(value.originalContents.data) : null,
-        markdownValue: editorType === "markdown" ? this.initializeText(value.originalContents.data) : null,
-        htmlValue: editorType === "html" ? this.initializeText(value.originalContents.data) : null,
-        ckEditorValue: editorType === "ckEditorMarkup" ? this.initializeText(value.originalContents.data) : null
+        markdownValue: editorType === "markdown" ? this.initializeText(value.originalContents.data, editorType) : null,
+        htmlValue: editorType === "html" ? this.initializeText(value.originalContents.data, editorType) : null,
+        ckEditorValue: editorType === "ckEditorMarkup" ? this.initializeText(value.originalContents.data, editorType) : null
       }
     }
     
@@ -140,9 +140,9 @@ class EditorFormComponent extends Component {
     const { draftJS, html, markdown, ckEditorMarkup } = document[fieldName] || {}
     return {
       draftJSValue: editorType === "draftJS" ? this.initializeDraftJS(draftJS) : null,
-      markdownValue: editorType === "markdown" ? this.initializeText(markdown) : null,
-      htmlValue: editorType === "html" ? this.initializeText(html) : null,
-      ckEditorValue: editorType === "ckEditorMarkup" ? this.initializeText(ckEditorMarkup) : null
+      markdownValue: editorType === "markdown" ? this.initializeText(markdown, editorType) : null,
+      htmlValue: editorType === "html" ? this.initializeText(html, editorType) : null,
+      ckEditorValue: editorType === "ckEditorMarkup" ? this.initializeText(ckEditorMarkup, editorType) : null
     }
   }
 
@@ -190,9 +190,9 @@ class EditorFormComponent extends Component {
     return EditorState.createEmpty();
   }
 
-  initializeText = (originalContents) => {
+  initializeText = (originalContents, editorType) => {
     const { document, name } = this.props
-    const savedState = this.getStorageHandlers().get({doc: document, name, prefix:this.getLSKeyPrefix()})
+    const savedState = this.getStorageHandlers().get({doc: document, name, prefix:this.getLSKeyPrefix(editorType)})
     if (savedState) {
       return savedState;
     }
@@ -348,8 +348,8 @@ class EditorFormComponent extends Component {
 
   // Get an editor-type-specific prefix to use on localStorage keys, to prevent
   // drafts written with different editors from having conflicting names.
-  getLSKeyPrefix = () => {
-    switch(this.getCurrentEditorType()) {
+  getLSKeyPrefix = (editorType) => {
+    switch(editorType || this.getCurrentEditorType()) {
       case "draftJS":  return "";
       case "markdown": return "md_";
       case "html":     return "html_";
@@ -470,6 +470,9 @@ class EditorFormComponent extends Component {
     const { Loading } = Components
     const CKEditor = this.ckEditor
     const value = ckEditorValue || ckEditorReference?.getData()
+    if (typeof(value) === "string") {
+
+    } 
   
     if (!this.state.ckEditorLoaded || !CKEditor) {
       return <Loading />
