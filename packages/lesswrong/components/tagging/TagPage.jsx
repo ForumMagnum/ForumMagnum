@@ -54,7 +54,7 @@ const TagPage = ({classes}) => {
       There are no posts with this tag yet.
     </div>}
     {results && results.map((result,i) =>
-      <PostsItem2 key={result.post._id} post={result.post} index={i} />
+      <PostsItem2 key={result.post._id} tagRel={result} post={result.post} index={i} />
     )}
   </SingleColumnSection>
 }

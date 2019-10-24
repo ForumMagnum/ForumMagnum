@@ -30,6 +30,10 @@ const styles = (theme) => ({
       opacity: .2,
     }
   },
+  background: {
+    transition: "3s",
+    width: "100%",
+  },
   postsItem: {
     display: "flex",
     paddingTop: 10,
@@ -44,10 +48,6 @@ const styles = (theme) => ({
       paddingTop: theme.spacing.unit,
       paddingBottom: theme.spacing.unit,
     },
-  },
-  background: {
-    transition: "3s",
-    width: "100%",
   },
   hasResumeReading: {
     ...theme.typography.body,
@@ -249,7 +249,14 @@ const styles = (theme) => ({
   dense: {
     paddingTop: 7,
     paddingBottom:8
-  }, 
+  },
+  withRelevanceVoting: {
+    marginLeft: 50,
+    
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: 35,
+    },
+  },
   hideOnSmallScreens: {
     [theme.breakpoints.down('sm')]: {
       display: 'none'
@@ -282,6 +289,7 @@ const PostsItem2 = ({
   recordPostView,
   post, isRead,
   sequenceId, chapter, index, terms, resumeReading,
+  tagRel=null,
   showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true,
   defaultToShowUnreadComments=false, dismissRecommendation, dense, hideOnSmallScreens, bookmark,
   classes,
@@ -323,19 +331,23 @@ const PostsItem2 = ({
   )
 
   return (
-    <div className={classNames(classes.root, {[classes.hideOnSmallScreens]: hideOnSmallScreens})}>
-      <div className={classNames(
-        classes.background,
-        {
-          [classes.bottomBorder]: showBottomBorder,
-          [classes.commentsBackground]: renderComments,
-          [classes.firstItem]: (index===0) && showComments,
-          [classes.hasResumeReading]: !!resumeReading,
-        }
-      )}>
+    <div className={classNames(
+      classes.root,
+      classes.background,
+      {
+        [classes.hideOnSmallScreens]: hideOnSmallScreens,
+        [classes.bottomBorder]: showBottomBorder,
+        [classes.commentsBackground]: renderComments,
+        [classes.firstItem]: (index===0) && showComments,
+        [classes.hasResumeReading]: !!resumeReading,
+      })}
+    >
+        {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} post={post} />}
+
         <PostsItemTooltipWrapper post={post}>
           <div className={classNames(classes.postsItem, {
-            [classes.dense]: dense
+            [classes.dense]: dense,
+            [classes.withRelevanceVoting]: !!tagRel,
           })}>
             <PostsItem2MetaInfo className={classes.karma}>
               <PostsItemKarma post={post} />
@@ -423,7 +435,6 @@ const PostsItem2 = ({
             hideReadComments={condensedAndHiddenComments}
           />
         </div>}
-      </div>
     </div>
   )
 };

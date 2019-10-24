@@ -329,6 +329,7 @@ importComponent("EditTagPage", () => require('../components/tagging/EditTagPage.
 importComponent("AllTagsPage", () => require('../components/tagging/AllTagsPage.jsx'));
 importComponent("TagRelCard", () => require('../components/tagging/TagRelCard.jsx'));
 importComponent("TagSearchHit", () => require('../components/tagging/TagSearchHit.jsx'));
+importComponent("PostsItemTagRelevance", () => require('../components/tagging/PostsItemTagRelevance.jsx'));
 
 // SequenceEditor
 importComponent("EditSequenceTitle", () => require('../components/sequenceEditor/EditSequenceTitle.jsx'));
