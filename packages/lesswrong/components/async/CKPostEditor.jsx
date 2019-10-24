@@ -58,8 +58,6 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
   const sidebarRef = useRef(null)
   const presenceListRef = useRef(null)
 
-  const initData = typeof(data) === "string" ? data : ""
-
   return <div>
     {/* We load Mathjax by inserting a script tag into the header. Not the most elegant, but should be fine */}
     <Helmet> 
@@ -72,7 +70,7 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
     <div ref={sidebarRef} className={classes.sidebar} onClick={(e) => e.preventDefault()}/>
 
     {layoutReady && <CKEditor
-      data={initData}
+      data={data || ""}
       onChange={onChange}
       editor={ collaboration ? PostEditorCollaboration : PostEditor }
       onInit={ editor => {
@@ -105,7 +103,7 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
         presenceList: {
           container: presenceListRef.current
         },
-        initialData: initData
+        initialData: data
       }}
     />}
   </div>
