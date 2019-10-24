@@ -59,6 +59,16 @@ const schema = {
     editableBy: ['members'],
     ...schemaDefaultValue(false),
   },
+  emailed: {
+    type: Boolean,
+    ...schemaDefaultValue(false),
+    viewableBy: Users.owns,
+  },
+  waitingForBatch: {
+    type: Boolean,
+    ...schemaDefaultValue(false),
+    viewableBy: Users.owns,
+  },
 };
 
 export default schema;

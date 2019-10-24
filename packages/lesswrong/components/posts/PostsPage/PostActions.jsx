@@ -1,15 +1,23 @@
 import React, { Component } from 'react'
 import { withStyles } from '@material-ui/core/styles';
-import { registerComponent, Components, withUpdate, withMutation } from 'meteor/vulcan:core';
+import { registerComponent, Components, withUpdate, withMutation, getSetting } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users'
 import withUser from '../../common/withUser'
 import { Posts } from '../../../lib/collections/posts';
 import withSetAlignmentPost from "../../alignment-forum/withSetAlignmentPost";
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper.js';
+import Tooltip from '@material-ui/core/Tooltip';
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import EditIcon from '@material-ui/icons/Edit'
+import WarningIcon from '@material-ui/icons/Warning'
 import qs from 'qs'
+
+const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
+
+const NotFPSubmittedWarning = ({className}) => <div className={className}>
+  {' '}<WarningIcon fontSize='inherit' />
+</div>
 
 const styles = theme => ({
   root: {
@@ -24,6 +32,10 @@ const styles = theme => ({
       maxWidth: '80%'
     }
   },
+  promoteWarning: {
+    fontSize: 20,
+    marginLeft: 4,
+  }
 })
 
 class PostActions extends Component {
@@ -117,9 +129,11 @@ class PostActions extends Component {
 
   render() {
     const { classes, post, currentUser } = this.props
-    const { MoveToDraft, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft } = Components
+    const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo } = Components
+    const postAuthor = post.user;
+    
     return (
-      <div className={classes.actions}>        
+      <div className={classes.actions}>
         { Posts.canEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
           <MenuItem>
             <ListItemIcon>
@@ -128,6 +142,35 @@ class PostActions extends Component {
             Edit
           </MenuItem>
         </Link>}
+        { Users.canCollaborate(currentUser, post) && 
+          <Link to={{pathname:'/collaborateOnPost', search:`?${qs.stringify({postId: post._id})}`}}>
+            <MenuItem>
+              <ListItemIcon>
+                <EditIcon />
+              </ListItemIcon>
+              Collaborative Editing
+            </MenuItem>
+          </Link>
+        }
+        {currentUser && post.group && <MenuItem>
+          <SubscribeTo document={post.group} showIcon
+            subscribeMessage={"Subscribe to "+post.group.name}
+            unsubscribeMessage={"Unsubscribe from "+post.group.name}/>
+        </MenuItem>}
+        
+        {currentUser && postAuthor && postAuthor._id !== currentUser._id && <MenuItem>
+          <SubscribeTo document={postAuthor} showIcon
+            subscribeMessage={"Subscribe to posts by "+Users.getDisplayName(postAuthor)}
+            unsubscribeMessage={"Unsubscribe from posts by "+Users.getDisplayName(postAuthor)}/>
+        </MenuItem>}
+        
+        {currentUser && <MenuItem>
+          <SubscribeTo document={post} showIcon
+            subscribeMessage="Subscribe to comments"
+            unsubscribeMessage="Unsubscribe from comments"/>
+        </MenuItem>}
+
+        <BookmarkButton post={post} menuItem/>
         <ReportPostMenuItem post={post}/>
         { post.isRead
           ? <div onClick={this.handleMarkAsUnread}>
@@ -141,6 +184,7 @@ class PostActions extends Component {
               </MenuItem>
             </div>
         }
+
         <SuggestCurated post={post}/>
         <MoveToDraft post={post}/>
         <DeleteDraft post={post}/>
@@ -148,16 +192,30 @@ class PostActions extends Component {
           <span>
             { !post.meta &&
               <div onClick={this.handleMoveToMeta}>
-                <MenuItem>
-                  Move to Meta
-                </MenuItem>
+                <Tooltip title={
+                  getSetting('forumType') === 'EAForum' && post.submitToFrontpage ?
+                    '' :
+                    'user did not select "Moderators may promote to Frontpage" option'
+                }>
+                  <MenuItem>
+                    Move to {metaName}
+                    {getSetting('forumType') === 'EAForum' && !post.submitToFrontpage && <NotFPSubmittedWarning className={classes.promoteWarning} />}
+                  </MenuItem>
+                </Tooltip>
               </div>
             }
             { !post.frontpageDate &&
               <div onClick={this.handleMoveToFrontpage}>
-                <MenuItem>
-                  Move to Frontpage
-                </MenuItem>
+                <Tooltip title={
+                  post.submitToFrontpage ?
+                    '' :
+                    'user did not select "Moderators may promote to Frontpage" option'
+                }>
+                  <MenuItem>
+                    Move to Frontpage
+                    {!post.submitToFrontpage && <NotFPSubmittedWarning className={classes.promoteWarning} />}
+                  </MenuItem>
+                </Tooltip>
               </div>
             }
             { (post.frontpageDate || post.meta || post.curatedDate) &&

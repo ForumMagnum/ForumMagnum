@@ -17,8 +17,6 @@ import './modules/accounts/configuration.js';
 import './modules/voting/new_vote_types.js';
 import './modules/voting/callbacks.js';
 
-// Subscriptions
-import './collections/subscription_fields.js';
 //MomentJS configuration
 import '../components/momentjs.js';
 
@@ -28,7 +26,6 @@ import './collections/comments/fragments.js';
 
 // Notifications
 import Notifications from './collections/notifications/collection.js';
-import './collections/notifications/custom_fields.js';
 import './collections/notifications/views.js';
 import './collections/notifications/permissions.js';
 import './collections/notifications/seed.js';
@@ -52,6 +49,9 @@ import './collections/reports/views.js'
 
 // LWEvents
 import { LWEvents } from './collections/lwevents/index.js';
+
+// DatabaseMetadata
+import './collections/databaseMetadata/collection.js';
 
 // DebouncerEvents
 import './collections/debouncerEvents/collection.js';
@@ -95,8 +95,7 @@ import './collections/books/permissions.js';
 
 
 // Subscriptions
-import './subscriptions/mutations.js';
-import './subscriptions/permissions.js';
+import './collections/subscriptions';
 
 
 // Posts
@@ -109,12 +108,12 @@ import './collections/posts/helpers.js';
 import Revisions from './collections/revisions/collection.js'
 //
 // Users
+import './collections/users/permissions.js';
 import './collections/users/helpers.js';
 import './collections/users/custom_fields.js';
 import './collections/users/recommendationSettings.js';
 import './collections/users/karmaChangesGraphQL.js';
 import './collections/users/views.js';
-import './collections/users/permissions.js';
 
 // Comments
 import { Comments } from './collections/comments'

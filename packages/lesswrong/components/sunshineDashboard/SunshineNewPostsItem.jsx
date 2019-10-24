@@ -1,4 +1,4 @@
-import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
+import { Components, registerComponent, withUpdate, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
@@ -7,8 +7,11 @@ import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import withHover from '../common/withHover'
 import PropTypes from 'prop-types';
-import withErrorBoundary from '../common/withErrorBoundary'
-
+import withErrorBoundary from '../common/withErrorBoundary';
+import DoneIcon from '@material-ui/icons/Done';
+import ClearIcon from '@material-ui/icons/Clear';
+import ThumbUpIcon from '@material-ui/icons/ThumbUp';
+import GroupIcon from '@material-ui/icons/Group';
 class SunshineNewPostsItem extends Component {
 
   handleReview = () => {
@@ -22,12 +25,16 @@ class SunshineNewPostsItem extends Component {
     })
   }
 
-  handleFrontpage = () => {
+  handlePromote = destination => () => {
     const { currentUser, post, updatePost } = this.props
+    const destinationData = {
+      'frontpage': {frontpageDate: new Date()},
+      'community': {meta: true}
+    }[destination]
     updatePost({
       selector: { _id: post._id},
       data: {
-        frontpageDate: new Date(),
+        ...destinationData,
         reviewedByUserId: currentUser._id,
         authorIsUnreviewed: false
       },
@@ -95,13 +102,16 @@ class SunshineNewPostsItem extends Component {
         </div>
         { hover && <Components.SidebarActionMenu>
           <Components.SidebarAction title="Leave on Personal Blog" onClick={this.handleReview}>
-            done
+            <DoneIcon />
           </Components.SidebarAction>
-          {post.submitToFrontpage && <Components.SidebarAction title="Move to Frontpage" onClick={this.handleFrontpage}>
-            thumb_up
+          {post.submitToFrontpage && <Components.SidebarAction title="Move to Frontpage" onClick={this.handlePromote('frontpage')}>
+            <ThumbUpIcon />
+          </Components.SidebarAction>}
+          {getSetting('forumType') === 'EAForum' && post.submitToFrontpage && <Components.SidebarAction title="Move to Community" onClick={this.handlePromote('community')}>
+            <GroupIcon />
           </Components.SidebarAction>}
           <Components.SidebarAction title="Move to Drafts" onClick={this.handleDelete} warningHighlight>
-            clear
+            <ClearIcon />
           </Components.SidebarAction>
         </Components.SidebarActionMenu>}
       </Components.SunshineListItem>

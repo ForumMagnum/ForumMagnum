@@ -4,19 +4,14 @@ import { withStyles } from '@material-ui/core/styles'
 import { truncate } from '../../lib/editor/ellipsize';
 import withUser from "../common/withUser";
 import { postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
-import classNames from 'classnames';
 import { Posts } from '../../lib/collections/posts';
 import CommentIcon from '@material-ui/icons/ModeComment';
 import Card from '@material-ui/core/Card';
 
 const styles = theme => ({
   root: {
-    width: 290,
+    width: 500,
     position: "relative",
-    [theme.breakpoints.up('sm')]: {
-      marginTop: theme.spacing.unit,
-      marginBottom: theme.spacing.unit,
-    },
     padding: theme.spacing.unit*1.5,
     paddingTop: theme.spacing.unit,
     paddingBottom: theme.spacing.unit,
@@ -25,36 +20,6 @@ const styles = theme => ({
     },
     [theme.breakpoints.down('xs')]: {
       display: "none"
-    },
-  },
-  hideOnMedium: {
-    // TODO: figure out more elegant way of handling this breakpoint
-    // 
-    // This collection of breakpoints attempts to keep the preview fitting on the page even on 13" monitors and half-screen pages, until it starts looking just silly
-    '@media only screen and (max-width: 1350px)': {
-      width: 280,
-    },
-    '@media only screen and (max-width: 1330px)': {
-      width: 260,
-    },
-    '@media only screen and (max-width: 1300px)': {
-      width: 240,
-    },
-    '@media only screen and (max-width: 1270px)': {
-      display: "none"
-    }
-  },
-  wide: {
-    [theme.breakpoints.down('xs')]: {
-      width: `calc(100% - ${theme.spacing.unit*4}px)`,
-      marginLeft: theme.spacing.unit,
-      marginRight: theme.spacing.unit
-    },
-    [theme.breakpoints.up('sm')]: {
-      width: 450,
-    },
-    [theme.breakpoints.up('md')]: {
-      width: 550,
     },
   },
   title: {
@@ -116,6 +81,9 @@ const styles = theme => ({
   },
   comment: {
     marginTop: theme.spacing.unit*1.5
+  },
+  bookmarkButton: {
+    float: "right"
   }
 })
 
@@ -137,39 +105,50 @@ const getPostCategory = (post) => {
     return post.question ? `Question` : `Personal Blogpost`
 }
 
-const PostsPreviewTooltip = ({ showAllinfo, post, classes, wide=false, hideOnMedium=true, truncateLimit=600, comment }) => {
-  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode } = Components
+const PostsPreviewTooltip = ({ showAllInfo, post, classes, truncateLimit=600, comment }) => {
+  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton } = Components
+
+  if (!post) return null
+
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
   const highlight = truncate(htmlHighlight, truncateLimit)
-  const renderCommentCount = showAllinfo && (Posts.getCommentCount(post) > 0)
+  const renderCommentCount = showAllInfo && (Posts.getCommentCount(post) > 0)
   const renderWordCount = !comment && (wordCount > 0)
-  return <Card className={classNames(classes.root, {[classes.wide]: wide, [classes.hideOnMedium]: hideOnMedium})}>
+
+  return <Card className={classes.root}>
       <div className={classes.title}>
         <PostsTitle post={post} tooltip={false} wrap/>
       </div>
       <div className={classes.tooltipInfo}>
         { getPostCategory(post)}
-        { showAllinfo && post.user && <span> by <PostsUserAndCoauthors post={post} simple/></span>}
+        { showAllInfo && post.user && <span> by <PostsUserAndCoauthors post={post} simple/></span>}
         { renderCommentCount && <span className={classes.comments}>
           <CommentIcon className={classes.commentIcon}/>
             {Posts.getCommentCountStr(post)}
         </span>}
-        { showAllinfo && <span className={classes.karma}>{Posts.getKarma(post)} karma</span>}
+        { showAllInfo && <span className={classes.karma}>{Posts.getKarma(post)} karma</span>}
       </div>
-      {comment ? 
-          <div className={classes.comment}>
+      {comment
+        ? <div className={classes.comment}>
             <CommentsNode
             truncated
             comment={comment}
             post={post}
             hoverPreview
             forceNotSingleLine
-          /></div> :
-          <ContentItemBody className={classes.highlight} dangerouslySetInnerHTML={{__html:highlight}} />
-          }
+          /></div>
+        : <ContentItemBody
+            className={classes.highlight}
+            dangerouslySetInnerHTML={{__html:highlight}}
+            description={`post ${post._id}`}
+          />
+      }
       {renderWordCount && <div className={classes.tooltipInfo}>
-        {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
+        <span>
+          {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
+        </span>
+        { showAllInfo && <span className={classes.bookmarkButton}><BookmarkButton post={post} /></span>}
       </div>}
   </Card>
 

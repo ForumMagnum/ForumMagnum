@@ -25,7 +25,7 @@ const HeadTags = (props) => {
     const titleString = currentRoute?.title || currentRoute?.subtitle;
     
     return (
-      <div>
+      <React.Fragment>
         { TitleComponent
             ? <TitleComponent siteName={siteName} isSubtitle={false} />
             : <Helmet><title>
@@ -73,7 +73,7 @@ const HeadTags = (props) => {
           return <HeadComponent key={index} />
         })}
 
-      </div>
+      </React.Fragment>
     );
 }
 

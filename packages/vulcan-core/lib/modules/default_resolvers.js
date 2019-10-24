@@ -69,7 +69,7 @@ export function getDefaultResolvers(options) {
         debug({ selector, options });
 
         const docs = await Connectors.find(collection, selector, options);
-
+        
         // if collection has a checkAccess function defined, remove any documents that doesn't pass the check
         const viewableDocs = collection.checkAccess
           ? _.filter(docs, doc => collection.checkAccess(currentUser, doc))

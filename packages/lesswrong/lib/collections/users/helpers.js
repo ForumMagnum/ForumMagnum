@@ -26,6 +26,10 @@ Users.isSharedOn = (currentUser, document) => {
   return (currentUser && document.shareWithUsers && document.shareWithUsers.includes(currentUser._id))
 }
 
+Users.canCollaborate = (currentUser, document) => {
+  return Users.isSharedOn(currentUser, document)
+}
+
 Users.canEditUsersBannedUserIds = (currentUser, targetUser) => {
   if (Users.canDo(currentUser,"posts.moderate.all")) {
     return true
@@ -39,6 +43,20 @@ Users.canEditUsersBannedUserIds = (currentUser, targetUser) => {
   )
 }
 
+const postHasModerationGuidelines = post => {
+  // Because of a bug in Vulcan that doesn't adequately deal with nested fields
+  // in document validation, we check for originalContents instead of html here,
+  // which causes some problems with empty strings, but should overall be fine
+  return post.moderationGuidelines?.originalContents || post.moderationStyle
+}
+
+const isPersonalBlogpost = post => {
+  if (getSetting('forumType') === 'EAForum') {
+    return !(post.frontpageDate || post.meta)
+  }
+  return !post.frontpageDate
+}
+
 Users.canModeratePost = (user, post) => {
   if (Users.canDo(user,"posts.moderate.all")) {
     return true
@@ -46,25 +64,29 @@ Users.canModeratePost = (user, post) => {
   if (!user || !post) {
     return false
   }
+  // Users who can moderate their personal posts can moderate any post that
+  // meets all of the following:
+  //  1) they own
+  //  2) has moderation guidelins
+  //  3) is not on the frontpage
+  if (
+    Users.canDo(user, "posts.moderate.own.personal") &&
+    Users.owns(user, post) &&
+    postHasModerationGuidelines(post) &&
+    isPersonalBlogpost(post)
+  ) {
+    return true
+  }
+  // Users who can moderate all of their own posts (even those on the frontpage)
+  // can moderate any post that meets all of the following:
+  //  1) they own
+  //  2) has moderation guidelines
+  // We have now checked all the possible conditions for posting, if they fail
+  // this, check they cannot moderate this post
   return !!(
-    (
-      Users.canDo(user,"posts.moderate.own") &&
-      Users.owns(user, post) &&
-      // Because of a bug in Vulcan that doesn't adequately deal with nested fields in document validation,
-      // we check for originalContents instead of html here, which causes some problems with empty strings, but 
-      // should overall be fine
-    ((post.moderationGuidelines?.originalContents) || post.moderationStyle)
-    )
-    ||
-    (
-      Users.canDo(user, "posts.moderate.own.personal") &&
-      Users.owns(user, post) &&
-      // Because of a bug in Vulcan that doesn't adequately deal with nested fields in document validation,
-      // we check for originalContents instead of html here, which causes some problems with empty strings, but 
-      // should overall be fine
-      ((post.moderationGuidelines?.originalContents) || post.moderationStyle) &&
-      !post.frontpageDate
-    )
+    Users.canDo(user,"posts.moderate.own") &&
+    Users.owns(user, post) &&
+    postHasModerationGuidelines(post)
   )
 }
 

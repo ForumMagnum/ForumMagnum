@@ -7,7 +7,7 @@ import moment from 'moment';
 import { Link } from 'react-router-dom';
 import without from 'lodash/without';
 
-const getLabel = (field, fieldName, collection, intl) => {
+const getLabel = (fieldName, collection, intl) => {
   const schema = collection && collection.simpleSchema()._schema;
   return intl.formatLabel ? intl.formatLabel({ fieldName: fieldName, collectionName: collection && collection._name, schema: schema }): fieldName;
 };
@@ -163,7 +163,7 @@ const Card = ({ title, className, collection, document, currentUser, fields, sho
         <tbody>
           {canEdit ? <CardEdit collection={collection} document={document} /> : null}
           {fieldNames.map((fieldName, index) =>
-            <CardItem key={index} value={document[fieldName]} typeName={getTypeName(document[fieldName], fieldName, collection)} label={getLabel(document[fieldName], fieldName, collection, intl)} />
+            <CardItem key={index} value={document[fieldName]} typeName={getTypeName(document[fieldName], fieldName, collection)} label={getLabel(fieldName, collection, intl)} />
           )}
         </tbody>
       </table>

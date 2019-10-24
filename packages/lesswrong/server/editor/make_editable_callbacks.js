@@ -5,6 +5,7 @@ import { draftToHTML } from '../draftConvert';
 import Revisions from '../../lib/collections/revisions/collection'
 import { extractVersionsFromSemver } from '../../lib/editor/utils'
 import { ensureIndex } from '../../lib/collectionUtils'
+import { htmlToPingbacks } from '../pingbacks.js';
 import TurndownService from 'turndown';
 const turndownService = new TurndownService()
 turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
@@ -47,6 +48,7 @@ const cheerioWrapAll = (toWrap, wrapper, $) => {
   let  marker = $('<div>');
   marker = marker.insertBefore(toWrap.first()); // in jQuery marker would remain current
   toWrap.each(function(k, v) {                  // in Cheerio, we update with the output.
+    $(v).remove();
     section.append($(v));
   });
   section.insertBefore(marker); 
@@ -55,12 +57,38 @@ const cheerioWrapAll = (toWrap, wrapper, $) => {
 }
 
 const spoilerClass = 'spoiler-v2' // this is the second iteration of a spoiler-tag that we've implemented. Changing the name for backwards-and-forwards compatibility
+
+/// Given HTML which possibly contains elements tagged with with a spoiler class
+/// (ie, hidden until mouseover), parse the HTML, and wrap consecutive elements
+/// that all have a spoiler tag in a shared spoiler element (so that the
+/// mouse-hover will reveal all of them together).
 function wrapSpoilerTags(html) {
   const $ = cheerio.load(html)
-  $(`.${spoilerClass}`).not(`.${spoilerClass}+.${spoilerClass}`).each(function(){
-    const nodes = $(this).nextUntil(`:not(.${spoilerClass})`).addBack();
-    cheerioWrapAll(nodes, '<div class="spoilers" />', $)
+  
+  // Iterate through spoiler elements, collecting them into groups. We do this
+  // the hard way, because cheerio's sibling-selectors don't seem to work right.
+  let spoilerBlockGroups = [];
+  let currentBlockGroup = [];
+  $(`.${spoilerClass}`).each(function() {
+    const element = this;
+    if (!(element?.previousSibling && $(element.previousSibling).hasClass(spoilerClass))) {
+      if (currentBlockGroup.length > 0) {
+        spoilerBlockGroups.push(currentBlockGroup);
+        currentBlockGroup = [];
+      }
+    }
+    currentBlockGroup.push(element);
   });
+  if (currentBlockGroup.length > 0) {
+    spoilerBlockGroups.push(currentBlockGroup);
+  }
+  
+  // Having collected the elements into groups, wrap each group.
+  for (let spoilerBlockGroup of spoilerBlockGroups) {
+    cheerioWrapAll($(spoilerBlockGroup), '<div class="spoilers" />', $);
+  }
+  
+  // Serialize back to HTML.
   return $.html()
 }
 
@@ -195,8 +223,12 @@ ensureIndex(Revisions, {documentId: 1, version: 1, fieldName: 1, editedAt: 1})
 export function addEditableCallbacks({collection, options = {}}) {
   const {
     fieldName = "contents",
-    deactivateNewCallback // Because of Meteor shenannigans we don't have access to the full user object when a new user is created, and this creates
-    // bugs when we register callbacks that trigger on new user creation. So we allow the deactivation of the new callbacks.
+    pingbacks = false,
+    // Because of Meteor shenannigans we don't have access to the full user
+    // object when a new user is created, and this creates bugs when we register
+    // callbacks that trigger on new user creation. So we allow the deactivation
+    // of the new callbacks.
+    deactivateNewCallback,
   } = options
 
   const { typeName } = collection.options
@@ -210,11 +242,21 @@ export function addEditableCallbacks({collection, options = {}}) {
       const version = getInitialVersion(doc)
       const userId = currentUser._id
       const editedAt = new Date()
-      return {...doc, [fieldName]: {...doc[fieldName], html, version, userId, editedAt, wordCount, updateType: 'initial'}}  
+      return {
+        ...doc,
+        [fieldName]: {
+          ...doc[fieldName],
+          html, version, userId, editedAt, wordCount,
+          updateType: 'initial'
+        },
+        ...(pingbacks ? {
+          pingbacks: await htmlToPingbacks(html),
+        } : null),
+      }
     }
     return doc
   }
-
+  
   if (!deactivateNewCallback) {
     addCallback(`${typeName.toLowerCase()}.create.before`, editorSerializationNew);
   }
@@ -234,8 +276,17 @@ export function addEditableCallbacks({collection, options = {}}) {
       const version = await getNextVersion(document._id, updateType, fieldName, newDocument.draft)
       const userId = currentUser._id
       const editedAt = new Date()
-      return {...docData, [fieldName]: {...docData[fieldName], html, version, userId, editedAt, wordCount}}
-    } 
+      return {
+        ...docData,
+        [fieldName]: {
+          ...docData[fieldName],
+          html, version, userId, editedAt, wordCount
+        },
+        ...(pingbacks ? {
+          pingbacks: await htmlToPingbacks(html),
+        } : null),
+      }
+    }
     return docData
   }
   

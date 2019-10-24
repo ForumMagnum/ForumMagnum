@@ -1,12 +1,24 @@
 import Users from "meteor/vulcan:users";
 import { getSetting, Utils } from "meteor/vulcan:core"
-import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, denormalizedField, googleLocationToMongoLocation } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation } from '../../modules/utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 import SimpleSchema from 'simpl-schema'
 
+export const hashPetrovCode = (code) => {
+  const crypto = Npm.require('crypto');
+  var hash = crypto.createHash('sha256');
+  hash.update(code);
+  return hash.digest('base64');
+};
+
 export const MAX_NOTIFICATION_RADIUS = 300
 export const formGroups = {
+  default: {
+    name: "default",
+    order: 0,
+    paddingStyle: true
+  },
   moderationGroup: {
     order:60,
     name: "moderation",
@@ -61,6 +73,13 @@ export const karmaChangeNotifierDefaultSettings = {
   showNegativeKarma: false,
 };
 
+export const defaultNotificationTypeSettings = {
+  channel: "onsite",
+  batchingFrequency: "realtime",
+  timeOfDayGMT: 12,
+  dayOfWeekGMT: "Monday",
+};
+
 const karmaChangeSettingsType = new SimpleSchema({
   updateFrequency: {
     type: String,
@@ -83,6 +102,36 @@ const karmaChangeSettingsType = new SimpleSchema({
     optional: true,
   }
 })
+
+const notificationTypeSettings = new SimpleSchema({
+  channel: {
+    type: String,
+    allowedValues: ["none", "onsite", "email", "both"],
+  },
+  batchingFrequency: {
+    type: String,
+    allowedValues: ['realtime', 'daily', 'weekly'],
+  },
+  timeOfDayGMT: {
+    type: Number,
+    optional: true,
+  },
+  dayOfWeekGMT: {
+    type: String,
+    optional: true,
+  },
+})
+
+const notificationTypeSettingsField = (overrideSettings) => ({
+  type: notificationTypeSettings,
+  optional: true,
+  group: formGroups.notifications,
+  control: "NotificationTypeSettings",
+  canRead: [Users.owns, 'admins'],
+  canUpdate: [Users.owns, 'admins'],
+  canCreate: [Users.owns, 'admins'],
+  ...schemaDefaultValue({ ...defaultNotificationTypeSettings, ...overrideSettings })
+});
 
 const partiallyReadSequenceItem = new SimpleSchema({
   sequenceId: {
@@ -169,7 +218,8 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    order: 65,
+    order: 43,
+    group: formGroups.default,
     control: "select",
     form: {
       // TODO – maybe factor out??
@@ -197,6 +247,7 @@ addFieldsDict(Users, {
     defaultValue: false,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    group: formGroups.default,
     canCreate: ['members'],
     control: 'checkbox',
     label: "Hide Intercom"
@@ -213,11 +264,13 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     control: 'checkbox',
+    group: formGroups.default,
     label: "Activate Markdown Editor"
   },
 
   email: {
     order: 20,
+    group: formGroups.default,
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
   },
   hideNavigationSidebar: {
@@ -293,6 +346,7 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canRead: ['guests'],
+    group: formGroups.default,
     order: 40,
     searchable: true,
     form: {
@@ -417,6 +471,36 @@ addFieldsDict(Users, {
     optional: true
   },
 
+  bookmarkedPostsMetadata: {
+    type: Array,
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    hidden: true,
+    onUpdate: ({data, currentUser, oldDocument}) => {
+      if (data?.bookmarkedPostsMetadata) {
+        return _.uniq(data?.bookmarkedPostsMetadata, 'postId')
+      }
+    },
+    ...arrayOfForeignKeysField({
+      idFieldName: "bookmarkedPostsMetadata",
+      resolverName: "bookmarkedPosts",
+      collectionName: "Posts",
+      type: "Post",
+      getKey: (obj) => obj.postId
+    }),
+  },
+
+  "bookmarkedPostsMetadata.$": {
+    type: Object,
+    optional: true
+  },
+  "bookmarkedPostsMetadata.$.postId": {
+    type: String,
+    foreignKey: "Posts",
+    optional: true
+  },
+
   // Legacy ID: ID used in the original LessWrong database
   legacyId: {
     type: String,
@@ -508,14 +592,68 @@ addFieldsDict(Users, {
     optional: true,
   },
 
-  // New Notifications settings
+  // Obsolete notifications settings
   auto_subscribe_to_my_posts: {
+    label: "Auto-subscribe to comments on my posts",
     group: formGroups.notifications,
-    label: "Notifications for Comments on My Posts"
+    type: Boolean,
+    optional: true,
+    control: "checkbox",
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(true),
   },
   auto_subscribe_to_my_comments: {
+    label: "Auto-subscribe to replies to my comments",
     group: formGroups.notifications,
-    label: "Notifications For Replies to My Comments",
+    type: Boolean,
+    optional: true,
+    control: "checkbox",
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(true),
+  },
+  autoSubscribeAsOrganizer: {
+    label: "Auto-subscribe to posts and meetups in groups I organize",
+    group: formGroups.notifications,
+    type: Boolean,
+    optional: true,
+    control: "checkbox",
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(true),
+  },
+  
+  notificationCommentsOnSubscribedPost: {
+    label: "Comments on subscribed posts",
+    ...notificationTypeSettingsField(),
+  },
+  notificationRepliesToMyComments: {
+    label: "Replies to my comments",
+    ...notificationTypeSettingsField(),
+  },
+  notificationRepliesToSubscribedComments: {
+    label: "Replies to subscribed comments",
+    ...notificationTypeSettingsField(),
+  },
+  notificationSubscribedUserPost: {
+    label: "Posts by subscribed users",
+    ...notificationTypeSettingsField(),
+  },
+  notificationPostsInGroups: {
+    label: "Posts/events in subscribed groups",
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
+  notificationPrivateMessage: {
+    label: "Private messages",
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
+  notificationSharedWithMe: {
+    label: "Draft shared with me",
+    ...notificationTypeSettingsField({ channel: "both" }),
   },
 
   // Karma-change notifier settings
@@ -578,6 +716,11 @@ addFieldsDict(Users, {
   displayName: {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
+    group: formGroups.default,
+  },
+
+  username: {
+    hidden: true
   },
 
   // frontpagePostCount: count of how many posts of yours were posted on the frontpage
@@ -643,6 +786,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    group: formGroups.default,
     hidden: !getSetting('hasEvents', true),
     label: "Group Location",
     control: 'LocationFormComponent',
@@ -764,7 +908,9 @@ addFieldsDict(Users, {
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     optional: true, 
-    order: 43,
+    order: 44,
+    group: formGroups.default,
+    hidden: true,
     label: "Hide the frontpage map"
   },
 
@@ -888,6 +1034,7 @@ addFieldsDict(Users, {
   fullName: {
     type: String,
     optional: true,
+    group: formGroups.default,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment'],
     hidden: !['LessWrong', 'AlignmentForum'].includes(getSetting('forumType')),
@@ -985,7 +1132,41 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     tooltip: "Get early access to new in-development features",
+    group: formGroups.default,
     label: "Opt into experimental features"
+  },
+  petrovPressedButtonDate: {
+    type: Date,
+    optional: true,
+    control: 'datetime',
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true
+  },
+  petrovCodesEnteredDate: {
+    type: Date,
+    optional: true,
+    canRead: ['guests'],
+    control: 'datetime',
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true
+  },
+  petrovCodesEntered: {
+    type: String,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true
+  },
+  petrovCodesEnteredHashed: {
+    type: String,
+    optional: true,
+    ...denormalizedField({
+      needsUpdate: data => ('petrovCodesEntered' in data),
+      getValue: async (user) => {
+        return hashPetrovCode(user.petrovCodesEntered)
+      }
+    }),
   },
   defaultToCKEditor: {
     type: Boolean,
@@ -1016,9 +1197,9 @@ addFieldsDict(Users, {
       const basicSlug = Utils.slugify(displayName);
       return Utils.getUnusedSlugByCollectionName('Users', basicSlug, true);
     },
-    onUpdate: async ({data, document}) => {
+    onUpdate: async ({data, oldDocument}) => {
       //Make sure to update this callback for Apollo2 upgrade
-      if (data.slug && data.slug !== document.slug) {
+      if (data.slug && data.slug !== oldDocument.slug) {
         const slugIsUsed = await Utils.slugIsUsed("Users", data.slug)
         if (slugIsUsed) {
           throw Error(`Specified slug is already used: ${data.slug}`)
@@ -1030,10 +1211,10 @@ addFieldsDict(Users, {
     type: Array,
     optional: true,
     canRead: ['guests'],
-    onUpdate: ({data, document}) => {
+    onUpdate: ({data, oldDocument}) => {
       // Make sure to update this callback for Apollo2 upgrade
-      if (data.slug && data.slug !== document.slug)  {
-        return [...(document.oldSlugs || []), document.slug]
+      if (data.slug && data.slug !== oldDocument.slug)  {
+        return [...(oldDocument.oldSlugs || []), oldDocument.slug]
       }
     }
   },

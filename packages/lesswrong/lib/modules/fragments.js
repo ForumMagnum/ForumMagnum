@@ -63,6 +63,8 @@ registerFragment(`
 registerFragment(`
   fragment NotificationsList on Notification {
     _id
+    documentId
+    documentType
     userId
     createdAt
     link
@@ -101,7 +103,6 @@ registerFragment(`
     allPostsShowLowKarma
     allPostsOpenSettings
     lastNotificationsCheck
-    subscribedItems
     groups
     bannedUserIds
     moderationStyle
@@ -135,6 +136,21 @@ registerFragment(`
     viewUnreviewedComments
     sunshineShowNewUserContent
     recommendationSettings
+    
+    auto_subscribe_to_my_posts
+    auto_subscribe_to_my_comments
+    autoSubscribeAsOrganizer
+    bookmarkedPostsMetadata
+  }
+`);
+
+registerFragment(`
+  fragment UserBookmarks on User {
+    _id
+    bookmarkedPostsMetadata
+    bookmarkedPosts {
+      ...PostsList
+    }
   }
 `);
 
@@ -142,7 +158,7 @@ registerFragment(`
   fragment UserKarmaChanges on User {
     _id
     karmaChanges {
-      totalChange
+      totalChange 
       updateFrequency
       startDate
       endDate
@@ -418,6 +434,7 @@ registerFragment(`
     viewUnreviewedComments
     auto_subscribe_to_my_posts
     auto_subscribe_to_my_comments
+    autoSubscribeAsOrganizer
     sunshineShowNewUserContent
     defaultToCKEditor
   }
@@ -502,6 +519,13 @@ registerFragment(`
     karmaChangeNotifierSettings
 
     recommendationSettings
+    
+    notificationCommentsOnSubscribedPost
+    notificationRepliesToMyComments
+    notificationRepliesToSubscribedComments
+    notificationPostsInGroups
+    notificationPrivateMessage
+    notificationSharedWithMe
 
     hideFrontpageMap
   }

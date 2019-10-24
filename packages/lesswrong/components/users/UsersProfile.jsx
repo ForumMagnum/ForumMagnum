@@ -4,6 +4,7 @@ import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link } from 'react-router-dom';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
 import Users from "meteor/vulcan:users";
+import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
@@ -219,6 +220,7 @@ class UsersProfile extends Component {
     const currentSorting = query.sortedBy || query.view ||  "new"
     const currentFilter = query.filter ||  "all"
     const ownPage = currentUser && currentUser._id === user._id
+    const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
 
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -241,16 +243,23 @@ class UsersProfile extends Component {
                 </DialogGroup>
               </div>
             }
+            { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
+              Manage Subscriptions
+            </Link>}
             { currentUser && currentUser._id != user._id && <NewConversationButton user={user}>
               <a>Send Message</a>
             </NewConversationButton>}
-            { currentUser && currentUser._id !== user._id && <SubscribeTo document={user} /> }
+            { currentUser && currentUser._id !== user._id && <SubscribeTo
+              document={user}
+              subscribeMessage="Subscribe to this user's posts"
+              unsubscribeMessage="Unsubscribe from this user's posts"
+            /> }
             {Users.canEdit(currentUser, user) && <Link to={Users.getEditUrl(user)}>
               <FormattedMessage id="users.edit_account"/>
             </Link>}
           </SectionFooter>
 
-          { user.bio && <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} /> }
+          { user.bio && <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} /> }
 
         </SingleColumnSection>
 
@@ -289,7 +298,7 @@ class UsersProfile extends Component {
             hidden={false}
             currentSorting={currentSorting}
             currentFilter={currentFilter}
-            currentShowLowKarma={true}
+            currentShowLowKarma={currentShowLowKarma}
             sortings={sortings}
           />}
           <PostsList2 terms={terms} />

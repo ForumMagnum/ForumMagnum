@@ -141,7 +141,10 @@ class RecentDiscussionThread extends PureComponent {
                 { (!isRead || post.commentCount === null) &&
                   <ContentItemBody
                     className={classes.postHighlight}
-                    dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents && post.contents.htmlHighlight)}}/>}
+                    dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents && post.contents.htmlHighlight)}}
+                    description={`post ${post._id}`}
+                  />
+                }
               </div>
           }
         </div>

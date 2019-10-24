@@ -21,14 +21,15 @@ const generateIdResolverSingle = ({collectionName, fieldName}) => {
   }
 }
 
-const generateIdResolverMulti = ({collectionName, fieldName}) => {
+const generateIdResolverMulti = ({collectionName, fieldName, getKey = (a=>a)}) => {
   return async (doc, args, context) => {
     if (!doc[fieldName]) return []
+    const keys = doc[fieldName].map(getKey)
 
     const { currentUser } = context
     const collection = context[collectionName]
 
-    const resolvedDocs = await collection.loader.loadMany(doc[fieldName])
+    const resolvedDocs = await collection.loader.loadMany(keys)
 
     return accessFilterMultiple(currentUser, collection, resolvedDocs);
   }
@@ -83,7 +84,7 @@ export const foreignKeyField = ({idFieldName, resolverName, collectionName, type
   }
 }
 
-export const arrayOfForeignKeysField = ({idFieldName, resolverName, collectionName, type}) => {
+export const arrayOfForeignKeysField = ({idFieldName, resolverName, collectionName, type, getKey}) => {
   if (!idFieldName || !resolverName || !collectionName || !type)
     throw new Error("Missing argument to foreignKeyField");
   
@@ -94,7 +95,8 @@ export const arrayOfForeignKeysField = ({idFieldName, resolverName, collectionNa
       type: `[${type}]`,
       resolver: generateIdResolverMulti({
         collectionName,
-        fieldName: idFieldName
+        fieldName: idFieldName,
+        getKey
       }),
       addOriginalField: true
     },

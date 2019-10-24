@@ -2,6 +2,8 @@ import { getSetting} from 'meteor/vulcan:core';
 
 export * from './lib/index.js';
 
+import './server/startupSanityChecks.js';
+
 import './server/database-import/database_import_new.js';
 import './server/rss-integration/cron.js';
 import './server/rss-integration/callbacks.js';
@@ -79,6 +81,7 @@ import './lib/collections/users/validate_login.js';
 import './lib/collections/users/callbacks.js';
 import './lib/collections/bans/callbacks.js';
 import './lib/collections/posts/tableOfContents.js';
+import './lib/collections/subscriptions/callbacks.js';
 if (getSetting('hasEvents', true)) {
   import './lib/collections/localgroups/callbacks.js';
 }

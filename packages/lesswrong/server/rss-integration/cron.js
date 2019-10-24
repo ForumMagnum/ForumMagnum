@@ -21,7 +21,7 @@ addCronJob({
       feedparser.parse(url).then( currentPosts => {
         let newPosts = currentPosts.filter(function (post) {
           return !previousPosts.some(prevPost => {
-            return post.link === prevPost.link
+            return post.guid === prevPost.guid
           })
         })
 

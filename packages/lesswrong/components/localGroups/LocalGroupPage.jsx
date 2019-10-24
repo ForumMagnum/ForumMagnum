@@ -78,7 +78,12 @@ const LocalGroupPage = ({ classes, documentId: groupId, currentUser }) => {
       <SingleColumnSection>
         <SectionTitle title={`${group.inactive ? "[Inactive] " : " "}${group.name}`}>
           {currentUser && <SectionButton>
-            <SubscribeTo document={group} />
+            <SubscribeTo
+              showIcon
+              document={group}
+              subscribeMessage="Subscribe to group"
+              unsubscribeMessage="Unsubscribe from group"
+            />
           </SectionButton>}
         </SectionTitle>
         <div className={classes.groupDescription}>
@@ -106,7 +111,11 @@ const LocalGroupPage = ({ classes, documentId: groupId, currentUser }) => {
               }
             </SectionFooter>
           </div>
-          <ContentItemBody dangerouslySetInnerHTML={htmlBody} className={classes.groupDescriptionBody}/>
+          <ContentItemBody
+            dangerouslySetInnerHTML={htmlBody}
+            className={classes.groupDescriptionBody}
+            description={`group ${groupId}`}
+          />
         </div>
         <PostsList2 terms={{view: 'groupPosts', groupId: groupId}} />
       </SingleColumnSection>

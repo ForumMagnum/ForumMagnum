@@ -4,6 +4,7 @@ import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments';
 import { Link } from 'react-router-dom';
 import { usePostBySlug, usePostByLegacyId } from '../posts/usePost.js';
+import { useCommentByLegacyId } from '../comments/useComment.js';
 import withHover from '../common/withHover';
 import Card from '@material-ui/core/Card';
 import { withStyles } from '@material-ui/core/styles';
@@ -54,6 +55,39 @@ const PostLinkPreviewLegacy = ({href, targetLocation, innerHTML}) => {
   return <Components.PostLinkPreviewVariantCheck href={href} innerHTML={innerHTML} post={post} targetLocation={targetLocation} error={error} />
 }
 registerComponent('PostLinkPreviewLegacy', PostLinkPreviewLegacy);
+
+const CommentLinkPreviewLegacy = ({href, targetLocation, innerHTML}) => {
+  const legacyPostId = targetLocation.params.id;
+  const legacyCommentId = targetLocation.params.commentId;
+  
+  const { post, loading: loadingPost, error: postError } = usePostByLegacyId({ legacyId: legacyPostId });
+  const { comment, loading: loadingComment, error: commentError } = useCommentByLegacyId({ legacyId: legacyCommentId });
+  const error = postError || commentError;
+  const loading = loadingPost || loadingComment;
+
+  if (comment) {
+    return <Components.CommentLinkPreviewWithComment comment={comment} post={post} loading={loading} error={error} href={href} innerHTML={innerHTML} />
+  }
+  return <Components.PostLinkPreviewWithPost href={href} innerHTML={innerHTML} post={post} loading={loading} error={error} />
+}
+registerComponent('CommentLinkPreviewLegacy', CommentLinkPreviewLegacy);
+
+const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, innerHTML}) => {
+  const postId = targetLocation.params._id;
+  const commentId = targetLocation.params.commentId;
+
+  const { document: post } = useSingle({
+    collection: Posts,
+    queryName: "postLinkPreview",
+    fragmentName: 'PostsList',
+    fetchPolicy: 'cache-then-network',
+    
+    documentId: postId,
+  });
+  
+  return <Components.PostLinkCommentPreview href={href} innerHTML={innerHTML} commentId={commentId} post={post}/>
+}
+registerComponent('PostCommentLinkPreviewGreaterWrong', PostCommentLinkPreviewGreaterWrong);
 
 const PostLinkPreviewVariantCheck = ({ href, innerHTML, post, targetLocation, comment, commentId, error }) => {
   if (targetLocation.query.commentId) {
@@ -116,15 +150,15 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hove
       <LWPopper 
         open={hover} 
         anchorEl={anchorEl} 
-        placement="bottom"
+        placement="bottom-start"
         modifiers={{
           flip: {
-            behavior: ["bottom", "top", "bottom"],
+            behavior: ["bottom-start", "top-end", "bottom-start"],
             boundariesElement: 'viewport'
           }
         }}
       >
-        <PostsPreviewTooltip post={post} showAllinfo wide truncateLimit={900} hideOnMedium={false}/>
+        <PostsPreviewTooltip post={post} showAllInfo truncateLimit={900}/>
       </LWPopper>
       <Link className={classes.link} to={href}  dangerouslySetInnerHTML={{__html: innerHTML}}/>
     </span>
@@ -144,15 +178,15 @@ const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post,
       <LWPopper 
         open={hover} 
         anchorEl={anchorEl} 
-        placement="bottom"
+        placement="bottom-start"
         modifiers={{
           flip: {
-            behavior: ["bottom", "top", "bottom"],
+            behavior: ["bottom-start", "top-end", "bottom-start"],
             boundariesElement: 'viewport'
           } 
         }}
       >
-        <PostsPreviewTooltip post={post} comment={comment} showAllinfo wide truncateLimit={900} hideOnMedium={false}/>
+        <PostsPreviewTooltip post={post} comment={comment} showAllInfo wide truncateLimit={900}/>
       </LWPopper>
       <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}}/>
     </span>
@@ -180,7 +214,7 @@ const DefaultPreview = ({classes, href, innerHTML, anchorEl, hover, onsite=false
   const { LWPopper } = Components
   return (
     <span>
-      <LWPopper open={hover} anchorEl={anchorEl} placement="bottom">
+      <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
         <Card>
           <div className={classes.hovercard}>
             {href}
