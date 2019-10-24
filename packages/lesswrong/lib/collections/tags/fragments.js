@@ -5,6 +5,7 @@ registerFragment(`
     _id
     name
     slug
+    postCount
     description {
       html
     }
@@ -16,6 +17,7 @@ registerFragment(`
     _id
     name
     slug
+    postCount
     description {
       ...RevisionEdit
     }

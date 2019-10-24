@@ -1,5 +1,6 @@
 import { createCollection, getDefaultResolvers, getDefaultMutations } from 'meteor/vulcan:core';
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
+import { denormalizedCountOfReferences } from '../../modules/utils/schemaUtils';
 import { makeEditable } from '../../editor/make_editable.js'
 import Users from 'meteor/vulcan:users';
 
@@ -27,6 +28,17 @@ const schema = {
         return Utils.getUnusedSlugByCollectionName("Tags", Utils.slugify(modifier.$set.name), false, tag._id)
       }
     }
+  },
+  postCount: {
+    ...denormalizedCountOfReferences({
+      fieldName: "postCount",
+      collectionName: "Tags",
+      foreignCollectionName: "TagRels",
+      foreignTypeName: "TagRel",
+      foreignFieldName: "tagId",
+      //filterFn: tagRel => tagRel.baseScore > 0, //TODO: Didn't work with filter; votes are bypassing the relevant callback?
+    }),
+    viewableBy: ['guests'],
   },
   deleted: {
     type: Boolean,
