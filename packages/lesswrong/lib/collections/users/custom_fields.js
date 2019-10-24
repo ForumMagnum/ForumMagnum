@@ -655,7 +655,7 @@ addFieldsDict(Users, {
     label: "Draft shared with me",
     ...notificationTypeSettingsField({ channel: "both" }),
   },
-  notificationNewEventInRadius: {
+  notificationEventInRadius: {
     label: "New Events in my notification radius",
     ...notificationTypeSettingsField({ channel: "both" }),
   },
