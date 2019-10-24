@@ -13,6 +13,12 @@ Utils.sanitize = function(s) {
     allowedAttributes:  {
       ...sanitizeHtml.defaults.allowedAttributes,
       'figure': ['style']
+    },
+    allowedStyles: {
+      ...sanitizeHtml.defaults.allowedStyles,
+      'figure': {
+        'width': [/^\d+(?:px|em|%)$/]
+      }
     }
   });
 };
