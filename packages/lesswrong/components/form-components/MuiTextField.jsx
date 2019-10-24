@@ -12,7 +12,7 @@ const styles = theme => ({
   textField: {
     fontSize: "15px",
     width: 350,
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
       width: "100%",
     },
   },
