@@ -13,7 +13,7 @@ const styles = theme => ({
     fontSize: "15px",
     width: 350,
     [theme.breakpoints.down('sm')]: {
-      width: "calc(100% - 30px)",
+      width: "calc(100% - 30px)", // leaving 30px so that the "clear" button for select forms has room
     },
   },
   fullWidth: {
