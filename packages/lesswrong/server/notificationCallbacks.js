@@ -442,7 +442,8 @@ async function PostsNewMeetupNotifications ({document: newPost}) {
   if (newPost.isEvent && newPost.mongoLocation && !newPost.draft) {
     const usersToNotify = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
     const userIds = usersToNotify.map(user => user._id)
-    createNotifications(userIds, "newEventInRadius", "post", newPost._id)
+    const usersIdsWithoutAuthor = userIds.filter(id => id !== newPost.userId)
+    createNotifications(usersIdsWithoutAuthor, "newEventInRadius", "post", newPost._id)
   }
 }
 
@@ -452,7 +453,8 @@ async function PostsEditMeetupNotifications ({document: newPost, oldDocument: ol
   if (((!newPost.draft && oldPost.draft) || (newPost.mongoLocation && !newPost.mongoLocation)) && newPost.mongoLocation && newPost.isEvent) {
     const usersToNotify = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
     const userIds = usersToNotify.map(user => user._id)
-    createNotifications(userIds, "editedEventInRadius", "post", newPost._id)
+    const usersIdsWithoutAuthor = userIds.filter(id => id !== newPost.userId)
+    createNotifications(usersIdsWithoutAuthor, "editedEventInRadius", "post", newPost._id)
   }
 }
 
