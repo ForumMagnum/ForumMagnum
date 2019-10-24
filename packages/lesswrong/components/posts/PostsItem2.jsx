@@ -265,6 +265,18 @@ const styles = (theme) => ({
 
 const dismissRecommendationTooltip = "Don't remind me to finish reading this sequence unless I visit it again";
 
+const cloudinaryCloudName = getSetting('cloudinary.cloudName', 'lesswrong-2-0')
+
+const isSticky = (post, terms) => {
+  if (post && terms && terms.forum) {
+    return (
+      post.sticky ||
+      (terms.af && post.afSticky) ||
+      (terms.meta && post.metaSticky)
+    )
+  }
+}
+
 const PostsItem2 = ({
   defaultToShowComments=false,
   recordPostView,
@@ -276,7 +288,6 @@ const PostsItem2 = ({
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
-  const postsItemRef = React.useRef(null);
   const currentUser = useCurrentUser();
   
   const toggleComments = React.useCallback(
@@ -287,16 +298,6 @@ const PostsItem2 = ({
     },
     [post, recordPostView, setShowComments, showComments, setReadComments]
   );
-
-  const isSticky = (post, terms) => {
-    if (post && terms && terms.forum) {
-      return (
-        post.sticky ||
-        (terms.af && post.afSticky) ||
-        (terms.meta && post.metaSticky)
-      )
-    }
-  }
 
   const hasUnreadComments = () => {
     const lastCommentedAt = Posts.getLastCommentedAt(post)
@@ -315,22 +316,20 @@ const PostsItem2 = ({
   const renderComments = showComments || (defaultToShowUnreadComments && unreadComments)
   const condensedAndHiddenComments = defaultToShowUnreadComments && unreadComments && !showComments
 
-  const dismissButton = (currentUser && resumeReading && <Tooltip title={dismissRecommendationTooltip} placement="right">
+  const dismissButton = (currentUser && resumeReading &&
+    <Tooltip title={dismissRecommendationTooltip} placement="right">
       <CloseIcon onClick={() => dismissRecommendation()}/>
     </Tooltip>
   )
 
-  const cloudinaryCloudName = getSetting('cloudinary.cloudName', 'lesswrong-2-0')
-
   return (
-    <div className={classNames(classes.root, {[classes.hideOnSmallScreens]: hideOnSmallScreens})} ref={postsItemRef}>
+    <div className={classNames(classes.root, {[classes.hideOnSmallScreens]: hideOnSmallScreens})}>
       <div className={classNames(
         classes.background,
         {
           [classes.bottomBorder]: showBottomBorder,
           [classes.commentsBackground]: renderComments,
           [classes.firstItem]: (index===0) && showComments,
-          "personalBlogpost": !post.frontpageDate,
           [classes.hasResumeReading]: !!resumeReading,
         }
       )}>
