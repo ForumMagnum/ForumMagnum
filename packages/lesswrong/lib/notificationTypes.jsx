@@ -8,6 +8,7 @@ import Users from 'meteor/vulcan:users';
 import AllIcon from '@material-ui/icons/Notifications';
 import PostsIcon from '@material-ui/icons/Description';
 import CommentsIcon from '@material-ui/icons/ModeComment';
+import EventIcon from '@material-ui/icons/Event';
 import MailIcon from '@material-ui/icons/Mail';
 
 const notificationTypes = {};
@@ -206,4 +207,26 @@ export const PostSharedWithUserNotification = registerNotificationType({
   },
 });
 
+export const NewEventInNotificationRadiusNotification = registerNotificationType({
+  name: "newEventInRadius",
+  userSettingField: "notificationEventInRadius",
+  getMessage({documentType, documentId}) {
+    let document = getDocument(documentType, documentId)
+    return `A new event has been created within your notification radius: ${document.title}`
+  },
+  getIcon() {
+    return <EventIcon style={iconStyles} />
+  }
+})
 
+export const EditedEventInNotificationRadiusNotification = registerNotificationType({
+  name: "editedEventInRadius",
+  userSettingField: "notificationEventInRadius",
+  getMessage({documentType, documentId}) {
+    let document = getDocument(documentType, documentId)
+    return `The event ${document.title} changed locations`
+  },
+  getIcon() {
+    return <EventIcon style={iconStyles} />
+  }
+})

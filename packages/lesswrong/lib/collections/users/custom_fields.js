@@ -655,6 +655,10 @@ addFieldsDict(Users, {
     label: "Draft shared with me",
     ...notificationTypeSettingsField({ channel: "both" }),
   },
+  notificationNewEventInRadius: {
+    label: "New Events in my notification radius",
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
 
   // Karma-change notifier settings
   karmaChangeNotifierSettings: {
