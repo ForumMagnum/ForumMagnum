@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react'
 import CKEditor from '@ckeditor/ckeditor5-react';
-import { PostEditor } from '@lesswrong/lesswrong-editor';
+import { PostEditor, PostEditorCollaboration } from '@lesswrong/lesswrong-editor';
 import { getSetting } from 'meteor/vulcan:core';
 import { getCKEditorDocumentId, generateTokenRequest } from '../../lib/ckEditorUtils'
 import { withStyles } from '@material-ui/core/styles';
@@ -48,7 +48,7 @@ const refreshDisplayMode = ( editor, sidebarElement ) => {
 }
 
 
-const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, onInit, classes }) => {
+const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, onInit, classes, collaboration }) => {
   // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
   useEffect(() => {
@@ -62,22 +62,27 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
     <Helmet> 
       <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS_HTML' async></script>
     </Helmet>
+
+    <div ref={presenceListRef} />
+    
     {/* Because of a bug in CKEditor, we call preventDefault on all click events coming out of the sidebar. See: https://github.com/ckeditor/ckeditor5/issues/1992 */}
     <div ref={sidebarRef} className={classes.sidebar} onClick={(e) => e.preventDefault()}/>
+
     {layoutReady && <CKEditor
       data={data || ""}
       onChange={onChange}
-      editor={ PostEditor }
+      editor={ collaboration ? PostEditorCollaboration : PostEditor }
       onInit={ editor => {
-          // Uncomment this line and the import above to activate the CKEDItor debugger
-          // CKEditorInspector.attach(editor)
+          if (collaboration) {
+            // Uncomment this line and the import above to activate the CKEDItor debugger
+            // CKEditorInspector.attach(editor)
 
-          // We listen to the current window size to determine how to show comments
-          window.addEventListener( 'resize', () => refreshDisplayMode(editor, sidebarRef.current) );
-          // We then call the method once to determine the current window size
-          refreshDisplayMode(editor, sidebarRef.current)
-
-          onInit(editor)
+            // We listen to the current window size to determine how to show comments
+            window.addEventListener( 'resize', () => refreshDisplayMode(editor, sidebarRef.current) );
+            // We then call the method once to determine the current window size
+            refreshDisplayMode(editor, sidebarRef.current)
+          }
+          if (onInit) onInit(editor)
       } }
       config={{
         autosave: {
@@ -100,7 +105,6 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
         initialData: data
       }}
     />}
-    <div ref={presenceListRef} />
   </div>
 }
 export default withStyles(styles)(CKPostEditor)

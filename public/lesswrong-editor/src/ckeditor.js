@@ -9,7 +9,6 @@ import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
 import BlockQuote from '@ckeditor/ckeditor5-block-quote/src/blockquote';
 import Bold from '@ckeditor/ckeditor5-basic-styles/src/bold';
 import CKFinder from '@ckeditor/ckeditor5-ckfinder/src/ckfinder';
-import EasyImage from '@ckeditor/ckeditor5-easy-image/src/easyimage';
 import Essentials from '@ckeditor/ckeditor5-essentials/src/essentials';
 import FontFamily from '@ckeditor/ckeditor5-font/src/fontfamily';
 import FontSize from '@ckeditor/ckeditor5-font/src/fontsize';
@@ -20,6 +19,7 @@ import ImageCaption from '@ckeditor/ckeditor5-image/src/imagecaption';
 import ImageStyle from '@ckeditor/ckeditor5-image/src/imagestyle';
 import ImageToolbar from '@ckeditor/ckeditor5-image/src/imagetoolbar';
 import ImageUpload from '@ckeditor/ckeditor5-image/src/imageupload';
+import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
 import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
 import Link from '@ckeditor/ckeditor5-link/src/link';
 import List from '@ckeditor/ckeditor5-list/src/list';
@@ -42,7 +42,7 @@ import MathpreviewPlugin from 'ckeditor5-math-preview/src/mathpreview';
 
 class CommentEditor extends BalloonBlockEditorBase {}
 class PostEditor extends BalloonBlockEditorBase {}
-class PostEditorRealtime extends BalloonBlockEditorBase {}
+class PostEditorCollaboration extends BalloonBlockEditorBase {}
 
 // Tables and MediaEmbeds are commented out for now, but will be added back in as soon as some minor
 // minor issues are debugged.
@@ -53,6 +53,14 @@ class PostEditorRealtime extends BalloonBlockEditorBase {}
 // 3. navigate back to main folder (i.e. 'cd ../..')
 // 4. run 'yarn add ./public/lesswrong-editor'.
 
+const headingOptions = {
+	options: [
+		{ model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+		{ model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+		{ model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+	]
+};
+
 const postEditorPlugins = [
 	Autosave,
 	Alignment,
@@ -61,7 +69,6 @@ const postEditorPlugins = [
 	BlockQuote,
 	Bold,
 	CKFinder,
-	EasyImage,
 	Essentials,
 	FontFamily,
 	FontSize,
@@ -71,7 +78,8 @@ const postEditorPlugins = [
 	ImageCaption,
 	ImageStyle,
 	ImageToolbar,
-  ImageUpload,
+	ImageUpload,
+	ImageResize,
 	Italic,
 	Link,
 	List,
@@ -85,17 +93,17 @@ const postEditorPlugins = [
 	Underline,
 	UploadAdapter,
 	MathpreviewPlugin
-]
-
-PostEditor.builtinPlugins = [
-  ...postEditorPlugins
 ];
 
-PostEditorRealtime.builtinPlugins = [
-  ...postEditorPlugins,
+PostEditor.builtinPlugins = [
+	...postEditorPlugins
+];
+
+PostEditorCollaboration.builtinPlugins = [
+	...postEditorPlugins,
 	RealTimeCollaborativeComments,
-  RealTimeCollaborativeTrackChanges,
-  PresenceList
+	RealTimeCollaborativeTrackChanges,
+	PresenceList
 ];
 
 const postEditorConfig = {
@@ -115,6 +123,7 @@ const postEditorConfig = {
 		'trackChanges'
 	],
 	toolbar: [
+		'heading',
 		'bold',
 		'italic',
 		'underline',
@@ -125,22 +134,16 @@ const postEditorConfig = {
 		'|',
 		'link',
 		'|',
+		'mathpreview',
 		'comment',
-		'|',
-		'mathpreview'
 	],
 	image: {
 		toolbar: [
-      'imageStyle:alignLeft',
-      'imageStyle:alignCenter',
-      'imageStyle:alignRight',
-      'imageStyle:full',
-			'|',
 			'imageTextAlternative',
-			'|',
 			'comment',
-		]
+		],
 	},
+	heading: headingOptions
 	// table: {
 	// 	contentToolbar: [
 	// 		'tableColumn',
@@ -152,10 +155,14 @@ const postEditorConfig = {
 	// mediaEmbed: {
 	// 	toolbar: [ 'comment' ]
 	// },
-}
+};
 
 PostEditor.defaultConfig = {
-  ...postEditorConfig
+	...postEditorConfig
+};
+
+PostEditorCollaboration.defaultConfig = {
+	...postEditorConfig
 };
 
 CommentEditor.builtinPlugins = [
@@ -165,12 +172,11 @@ CommentEditor.builtinPlugins = [
 	BlockQuote,
 	Bold,
 	CKFinder,
-	EasyImage,
 	Essentials,
 	Heading,
 	Image,
 	ImageCaption,
-  ImageStyle,
+	ImageStyle,
 	ImageToolbar,
 	ImageUpload,
 	Italic,
@@ -188,10 +194,10 @@ CommentEditor.builtinPlugins = [
 
 CommentEditor.defaultConfig = {
 	toolbar: [
-    'heading',
+		'heading',
 		'bold',
 		'italic',
-    'underline',
+		'underline',
 		'|',
 		'bulletedList',
 		'numberedList',
@@ -206,6 +212,7 @@ CommentEditor.defaultConfig = {
 			'imageTextAlternative'
 		]
 	},
+	heading: headingOptions
 	// table: {
 	// 	contentToolbar: [
 	// 		'tableColumn',
@@ -216,4 +223,4 @@ CommentEditor.defaultConfig = {
 	// },
 };
 
-export const Editors = { CommentEditor, PostEditor };
+export const Editors = { CommentEditor, PostEditor, PostEditorCollaboration };

@@ -715,7 +715,8 @@ Posts.addView("sunshineNewUsersPosts", function (terms) {
     selector: {
       status: null, // allow sunshines to see posts marked as spam
       userId: terms.userId,
-      authorIsUnreviewed: null
+      authorIsUnreviewed: null,
+      groupId: null,
     },
     options: {
       sort: {
@@ -801,4 +802,3 @@ ensureIndex(Posts,
   augmentForDefaultView({ "pingback.Posts": 1 }),
   { name: "posts.pingbackPosts" }
 );
-
