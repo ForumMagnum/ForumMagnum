@@ -331,11 +331,6 @@ addRoute([
 ]);
 
 addRoute([
-  // GreaterWrong comment (mostly for use with hover previews)
-  // TODO: Make this properly show the comment as if it were a regular permalink
-  // (not high priority because it's only relevant when greaterwrong links to things AND
-  // someone wants to manually copy/paste switch the link, switching the url from greaterwrong
-  // to lesswrong)
   {
     path:'/posts/:_id/:slug/comment/:commentId?',
     name: 'comment.greaterwrong',
