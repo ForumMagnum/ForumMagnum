@@ -59,6 +59,11 @@ const theme = createLWTheme({
       fontFamily: serifStack,
       linkUnderlinePosition: "72%",
     },
+    caption: {
+      // captions should be relative to their surrounding content, so they are unopinionated about fontFamily and use ems instead of rems
+      fontFamily: "unset",
+      fontSize: '.85em'
+    },
     body2: {
       fontSize: "1.16rem"
     },
