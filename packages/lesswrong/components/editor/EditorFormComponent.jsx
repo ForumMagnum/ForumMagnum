@@ -22,7 +22,7 @@ const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
 
 const styles = theme => ({
-  root: {
+  editor: {
     position: 'relative',
   },
   postBodyStyles: {
@@ -62,6 +62,9 @@ const styles = theme => ({
     minHeight: postEditorHeight,
     '& .ck.ck-content': {
       minHeight: postEditorHeight,
+    },
+    '& .ck-sidebar .ck-content': {
+      minHeight: "unset"
     }
   },
   commentEditorHeight: {
@@ -561,14 +564,16 @@ class EditorFormComponent extends Component {
       && document[fieldName].originalContents.type !== this.getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
 
-    return <div className={classNames(classes.root, this.getBodyStyles())}>
-      { editorWarning }
-      <div>
-        { this.renderEditorComponent(currentEditorType) }
+    return <div>
+        { editorWarning }
+        <div className={classNames(classes.editor, this.getBodyStyles())}>
+          <div>
+            { this.renderEditorComponent(currentEditorType) }
+          </div>
+          { this.renderUpdateTypeSelect() }
+          { this.renderEditorTypeSelect() }
+        </div>
       </div>
-      { this.renderUpdateTypeSelect() }
-      { this.renderEditorTypeSelect() }
-    </div>
   }
 }
 
