@@ -18,13 +18,14 @@ addGraphQLResolvers({
       if (!existingTagRel) {
         const tagRel = await newMutation({
           collection: TagRels,
-          document: { tagId, postId },
+          document: { tagId, postId, userId: currentUser._id },
           validate: false,
           currentUser,
         });
-        return tagRel;
+        return tagRel.data;
       } else {
         // Upvote the tag
+        // TODO: Don't *remove* an upvote in this case
         const votedTagRel = await performVoteServer({
           document: existingTagRel,
           voteType: 'smallUpvote',

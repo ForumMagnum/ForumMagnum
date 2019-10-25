@@ -1,5 +1,5 @@
 import React, { useState }  from 'react';
-import { Components, registerComponent, useMulti, getFragment } from 'meteor/vulcan:core';
+import { Components, registerComponent, useMulti, getFragment, cacheUpdateGenerator, updateEachQueryResultOfType, handleUpdateMutation } from 'meteor/vulcan:core';
 import { useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import { withStyles } from '@material-ui/core/styles';
@@ -55,7 +55,15 @@ const FooterTagList = ({post, classes}) => {
       }
     }
     ${getFragment("TagRelFragment")}
-  `);
+  `, {
+    update: (store, mutationResult) => {
+      updateEachQueryResultOfType({
+        func: handleUpdateMutation,
+        document: mutationResult.data.addOrUpvoteTag,
+        store, typeName: "TagRel",
+      });
+    }
+  });
   
   if (loading || !results)
     return <Components.Loading/>;
@@ -92,8 +100,6 @@ const FooterTagList = ({post, classes}) => {
                     tagId: tag._id,
                     postId: post._id,
                   },
-                  // TODO: Figure out how to do client-side store updating here
-                  //update: cacheUpdateGenerator("TagRel", "create")
                 });
               }}
             />

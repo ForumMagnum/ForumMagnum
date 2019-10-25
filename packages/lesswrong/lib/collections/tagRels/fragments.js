@@ -6,11 +6,13 @@ registerFragment(`
     baseScore
     afBaseScore
     userId
+    tagId
     tag {
       _id
       name
       slug
     }
+    postId
     post {
       ...PostsList
     }
@@ -26,6 +28,7 @@ registerFragment(`
     baseScore
     afBaseScore
     userId
+    postId
     tag {
       _id
       name
@@ -42,11 +45,13 @@ registerFragment(`
     __typename
     _id
     userId
+    tagId
     tag {
       _id
       name
       slug
     }
+    postId
     currentUserVotes {
       _id
       voteType
