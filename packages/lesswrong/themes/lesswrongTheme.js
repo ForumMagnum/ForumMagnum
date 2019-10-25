@@ -65,6 +65,10 @@ const theme = createLWTheme({
     commentStyle: {
       fontFamily: sansSerifStack
     },
+    errorStyle: {
+      color: palette.error.main,
+      fontFamily: sansSerifStack
+    },
     headline: {
       fontFamily: serifStack,
     },
