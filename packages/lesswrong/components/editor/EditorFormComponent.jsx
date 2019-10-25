@@ -154,12 +154,12 @@ class EditorFormComponent extends Component {
     return getLSHandlers(form && form.getLocalStorageId)
   }
 
-  initializeDraftJS = (draftJS) => {
+  initializeDraftJS = (draftJS, editorType) => {
     const { document, name } = this.props
     let state = {}
 
     // Check whether we have a state from a previous session saved (in localstorage)
-    const savedState = this.getStorageHandlers().get({doc: document, name, prefix:this.getLSKeyPrefix()})
+    const savedState = this.getStorageHandlers().get({doc: document, name, prefix:this.getLSKeyPrefix(editorType)})
     if (savedState) {
       try {
         // eslint-disable-next-line no-console
