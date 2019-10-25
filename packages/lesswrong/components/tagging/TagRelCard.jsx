@@ -10,11 +10,19 @@ const styles = theme => ({
   root: {
     padding: 16,
   },
-  tagName: {
-  },
   relevanceLabel: {
+    marginRight: 8,
+  },
+  voteButton: {
+    display: "inline-block",
+    fontSize: 25,
+  },
+  description: {
+    ...postBodyStyles(theme),
   },
   score: {
+    marginLeft: 4,
+    marginRight: 4,
   },
 });
 
@@ -35,33 +43,41 @@ const TagRelCard = ({tagRel, vote, classes}) => {
   });
   
   return <div className={classes.root}>
-    <div className={classes.tagName}>{tagRel.tag.name}</div>
-    
     <span className={classes.relevanceLabel}>
       Relevance
     </span>
     
-    <VoteButton
-      orientation="left"
-      color="error"
-      voteType="Downvote"
-      document={tagRel}
-      currentUser={currentUser}
-      collection={TagRels}
-      vote={vote}
-    />
+    {<ContentItemBody
+      dangerouslySetInnerHTML={{__html: tagRel.tag.description?.html}}
+      description={`tag ${tag.name}`}
+      className={classes.description}
+    />}
+    
+    <div className={classes.voteButton}>
+      <VoteButton
+        orientation="left"
+        color="error"
+        voteType="Downvote"
+        document={tagRel}
+        currentUser={currentUser}
+        collection={TagRels}
+        vote={vote}
+      />
+    </div>
     <span className={classes.score}>
       {tagRel.baseScore}
     </span>
-    <VoteButton
-      orientation="right"
-      color="secondary"
-      voteType="Upvote"
-      document={tagRel}
-      currentUser={currentUser}
-      collection={TagRels}
-      vote={vote}
-    />
+    <div className={classes.voteButton}>
+      <VoteButton
+        orientation="right"
+        color="secondary"
+        voteType="Upvote"
+        document={tagRel}
+        currentUser={currentUser}
+        collection={TagRels}
+        vote={vote}
+      />
+    </div>
     
     {loading && <Loading/>}
     {results && results.map((result,i) =>
