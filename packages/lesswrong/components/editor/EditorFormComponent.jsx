@@ -222,9 +222,11 @@ class EditorFormComponent extends Component {
           break
         case "ckEditorMarkup":
           if (!ckEditorReference) throw Error("Can't submit ckEditorMarkup without attached CK Editor")
-          this.context.addToSuccessForm((s) => {
-            this.state.ckEditorReference.setData('')
-          })
+          if (!this.isDocumentCollaborative()) {
+            this.context.addToSuccessForm((s) => {
+              this.state.ckEditorReference.setData('')
+            }) 
+          }
           data = ckEditorReference.getData()
           break
         default:
@@ -467,6 +469,11 @@ class EditorFormComponent extends Component {
     }
   }
 
+  isDocumentCollaborative = () => {
+    const { document } = this.props
+    return document?._id && document?.shareWithUsers
+  }
+
   renderCkEditor = () => {
     const { ckEditorValue, ckEditorReference } = this.state
     const { document, currentUser, formType } = this.props
@@ -491,7 +498,7 @@ class EditorFormComponent extends Component {
       // requires _id because before the draft is saved, ckEditor loses track of what you were writing when turning collaborate on and off (and, meanwhile, you can't actually link people to a shared draft before it's saved anyhow)
       // TODO: figure out a better solution to this problem.
       
-      const collaboration = document?._id && document?.shareWithUsers
+      const collaboration = this.isDocumentCollaborative()
       
       return <div className={this.getHeightClass()}>
           { this.renderPlaceholder(!value, collaboration)}
