@@ -304,9 +304,17 @@ class EditorFormComponent extends Component {
 
   setMarkdown = (e) => {
     const newContent = e.target.value
-    const changed = (this.state.htmlValue !== newContent);
+    const changed = (this.state.markdownValue !== newContent);
     this.setState({markdownValue: newContent})
 
+    if (changed)
+      this.afterChange();
+  }
+
+  setCkEditor = (editor) => {
+    const newContent = editor.getData()
+    const changed = (this.state.ckEditorValue !== newContent);
+    this.setState({ckEditorValue: newContent})
     if (changed)
       this.afterChange();
   }
@@ -489,7 +497,7 @@ class EditorFormComponent extends Component {
         documentId: document?._id,
         formType: formType,
         userId: currentUser?._id,
-        onChange: (event, editor) => this.setState({ckEditorValue: editor.getData()}),
+        onChange: (event, editor) => this.setCkEditor(editor),
         onInit: editor => this.setState({ckEditorReference: editor})
       }
 
