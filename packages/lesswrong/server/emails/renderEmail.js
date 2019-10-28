@@ -216,18 +216,6 @@ export async function sendEmail(renderedEmail)
   }
 }
 
-export async function renderAndSendEmail(emailProps)
-{
-  const { user } = emailProps;
-  if (user.unsubscribeFromAll) {
-    return;
-  }
-  
-  const renderedEmail = await generateEmail(emailProps);
-  sendEmail(renderedEmail);
-  logSentEmail(renderedEmail, user);
-}
-
 export function logSentEmail(renderedEmail, user) {
   // Replace user (object reference) in renderedEmail so we can log it in LWEvents
   const emailJson = {
