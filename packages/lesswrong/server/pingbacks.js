@@ -41,7 +41,7 @@ export const htmlToPingbacks = async (html) => {
         }
       }
     } catch (err) {
-      console.error(link) // eslint-disable-line
+      console.error("failed to create pingback for link: ", link) // eslint-disable-line
       console.error(err) // eslint-disable-line
     }
   }  
