@@ -14,7 +14,6 @@ import Users from 'meteor/vulcan:users';
 import moment from 'moment-timezone';
 import LWEvents from '../../lib/collections/lwevents/collection'
 import StyleValidator from '../vendor/react-html-email/src/StyleValidator.js';
-import fs from 'fs'
 
 import forumTheme from '../../themes/forumTheme'
 
@@ -206,11 +205,6 @@ export async function sendEmail(renderedEmail)
     
     Email.send(renderedEmail); // From meteor's 'email' package
   } else {
-    // TODO; final remove
-    const saveEmail = true
-    if (saveEmail) {
-      fs.writeFileSync('/Users/jpaddison/Desktop/email.html', renderedEmail.html)
-    }
     console.log("//////// Pretending to send email (not production and enableDevelopmentEmails is false)"); //eslint-disable-line
     console.log("to: " + renderedEmail.to); //eslint-disable-line
     console.log("subject: " + renderedEmail.subject); //eslint-disable-line
