@@ -29,7 +29,7 @@ const SubscribeTo = ({
 }) => {
   const currentUser = useCurrentUser();
   
-  const documentType = Utils.getCollectionNameFromTypename(document.__typename);
+  const documentType = Utils.getCollectionNameFromTypename(document?.__typename);
   const collectionName = Utils.capitalize(documentType);
   const subscriptionType = overrideSubscriptionType || defaultSubscriptionTypeTable[collectionName];
   
@@ -77,7 +77,7 @@ const SubscribeTo = ({
       
       const newSubscription = {
         state: isSubscribed() ? 'suppressed' : 'subscribed',
-        documentId: document._id,
+        documentId: document?._id,
         collectionName,
         type: subscriptionType,
       }
