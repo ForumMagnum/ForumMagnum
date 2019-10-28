@@ -66,8 +66,6 @@ const emailGlobalCss = `
   }
 `;
 
-// TODO; Is the @media not working?
-
 function addEmailBoilerplate({ css, title, body })
 {
   return `
@@ -128,7 +126,6 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
   // accordingly so that time zones on posts/comments/etc are in that timezone.
   const timezone = moment.tz.guess();
   
-  // console.log('bodyComponent', bodyComponent)
   const wrappedBodyComponent = (
     <ApolloProvider client={apolloClient}>
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
@@ -151,23 +148,15 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
   
   // Render the REACT tree to an HTML string
   const body = renderToString(wrappedBodyComponent);
-  // console.log('body', body)
   
   // Get JSS styles, which were added to sheetsRegistry as a byproduct of
   // renderToString.
   const css = sheetsRegistry.toString();
-  // console.log('css', css)
   const html = boilerplateGenerator({ css, body, title:subject })
-  
-  // console.log('html', html)
-  // console.log('css', css)
   
   // Since emails can't use <style> tags, only inline styles, use the Juice
   // library to convert accordingly.
   const inlinedHTML = Juice(html, { preserveMediaQueries: true });
-  
-  console.log('inlinedHTML', inlinedHTML)
-
   
   // Generate a plain-text representation, based on the React representation
   const plaintext = htmlToText.fromString(html, {
@@ -210,14 +199,14 @@ function validateSheets(sheetsRegistry)
 
 export async function sendEmail(renderedEmail)
 {
-  console.log('sendEmail')
-  // if (process.env.NODE_ENV === 'production' || getSetting('enableDevelopmentEmails', false)) {
+  if (process.env.NODE_ENV === 'production' || getSetting('enableDevelopmentEmails', false)) {
     console.log("//////// Sending email..."); //eslint-disable-line
     console.log("to: " + renderedEmail.to); //eslint-disable-line
     console.log("subject: " + renderedEmail.subject); //eslint-disable-line
     
     Email.send(renderedEmail); // From meteor's 'email' package
-  // } else {
+  } else {
+    // TODO; final remove
     const saveEmail = true
     if (saveEmail) {
       fs.writeFileSync('/Users/jpaddison/Desktop/email.html', renderedEmail.html)
@@ -229,15 +218,12 @@ export async function sendEmail(renderedEmail)
     console.log(renderedEmail.html); //eslint-disable-line
     console.log("//////// Plain-text version"); //eslint-disable-line
     console.log(renderedEmail.text); //eslint-disable-line
-  // }
+  }
 }
 
-// TODO; this is now unused
 export async function renderAndSendEmail(emailProps)
 {
-  console.log('renderAndSendEmail')
   const { user } = emailProps;
-  // TODO; does this
   if (user.unsubscribeFromAll) {
     return;
   }

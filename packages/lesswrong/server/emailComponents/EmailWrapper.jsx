@@ -4,14 +4,6 @@ import { Utils } from 'meteor/vulcan:lib';
 import { withStyles } from '@material-ui/core/styles';
 import { emailBodyStyles } from '../../themes/stylePiping'
 
-// const styles = theme => {
-//   // console.log('theme', theme)
-//   const emailStyles = emailBodyStyles(theme)
-//   // console.log('emailStyles', emailStyles)
-//   return {
-//     root: emailStyles
-//   }
-// }
 const styles = theme => ({
   root: emailBodyStyles(theme)
 })
@@ -43,11 +35,9 @@ const EmailWrapper = ({user, unsubscribeAllLink, children, classes}) => {
                 </tr>
                 <tr><td className="container-padding">
                   <br/><br/>
-                  <p>
-                    <a href={unsubscribeAllLink}>Unsubscribe</a>{' '}
-                    (from all emails from {siteNameWithArticle})
-                    or <a href={accountLink}>Change your notifications settings</a>
-                  </p>
+                  <a href={unsubscribeAllLink}>Unsubscribe</a>{' '}
+                  (from all emails from {siteNameWithArticle})
+                  or <a href={accountLink}>Change your notifications settings</a>
                   <br/><br/>
                 </td></tr>
               </table>

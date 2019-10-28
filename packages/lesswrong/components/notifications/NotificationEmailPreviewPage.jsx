@@ -48,6 +48,4 @@ const NotificationEmailPreviewPage = () => {
   );
 }
 
-// TODO; this is cute, but I don't think it's handling the media queries right
-
 registerComponent("NotificationEmailPreviewPage", NotificationEmailPreviewPage);

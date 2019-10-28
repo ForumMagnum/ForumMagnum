@@ -21,7 +21,6 @@ export const notificationDebouncers = toDictionary(getNotificationTypes(),
         delayMinutes: 15,
       },
       callback: ({ userId, notificationType }, notificationIds) => {
-        console.log('callback')
         sendNotificationBatch({userId, notificationIds});
       }
     });
@@ -49,7 +48,6 @@ const sendNotificationBatch = async ({ userId, notificationIds }) => {
   const emails = await notificationBatchToEmails({
     user, notifications
   });
-  // console.log('emails', emails)
   
   for (let email of emails) {
     await wrapAndSendEmail(email);
@@ -89,21 +87,17 @@ export const wrapAndRenderEmail = async ({user, subject, body}) => {
 }
 
 export const wrapAndSendEmail = async ({user, subject, body}) => {
-  console.log('wrapAndSend')
   try {
     const email = await wrapAndRenderEmail({ user, subject, body });
     await sendEmail(email);
     await logSentEmail(email, user);
   } catch(e) {
-    console.error(e)
-    // TODO; sentry in devel
     Sentry.captureException(e);
   }
 }
 
 addGraphQLResolvers({
   Query: {
-    // TODO; what this
     async EmailPreview(root, {notificationIds}, context) {
       const { currentUser } = context;
       if (!Users.isAdmin(currentUser)) {
