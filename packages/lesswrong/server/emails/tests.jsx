@@ -17,6 +17,7 @@ const unitTestBoilerplateGenerator = ({css,title,body}) => {
 }
 
 async function renderTestEmail({ user=null, subject="Unit test email", bodyComponent, boilerplateGenerator }) {
+  // TODO; using unused function
   return await generateEmail({
     user: user || await createDummyUser(),
     subject: "Unit test email",

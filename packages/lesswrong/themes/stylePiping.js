@@ -181,7 +181,16 @@ export const commentBodyStyles = theme => {
 }
 
 // Currently emails have only the basics
-export const emailBodyStyles = baseBodyStyles
+export const emailBodyStyles = theme => {
+  const baseStyles = baseBodyStyles(theme)
+  const emailStyles = {
+    ...baseStyles,
+    // fontSize: 16,
+  }
+  console.log('emailStyles', emailStyles)
+  return emailStyles
+}
+// export const emailBodyStyles = baseBodyStyles
 
 export const postHighlightStyles = theme => {
   const postHighlightStyles = {

@@ -145,6 +145,8 @@ export class EventDebouncer
       //eslint-disable-next-line no-console
       console.log(`Handling ${events.length} grouped ${this.name} events`);
       
+      // console.log('this.callback', this.callback)
+      
       await this.callback(key, events);
     } catch(e) {
       //eslint-disable-next-line no-console
@@ -242,6 +244,7 @@ export const dispatchPendingEvents = async () => {
 // their timer. You would do this interactively if you're testing and don't
 // want to wait.
 export const forcePendingEvents = async (upToDate=null) => {
+  console.log('forcePendingEvents')
   let eventToHandle = null;
   const af = getSetting('forumType') === 'AlignmentForum'
   
@@ -254,6 +257,7 @@ export const forcePendingEvents = async (upToDate=null) => {
       { $set: { dispatched: true } },
     );
     eventToHandle = queryResult.value;
+    // console.log('eventToHandle', eventToHandle)
     
     if (eventToHandle) {
       await dispatchEvent(eventToHandle);

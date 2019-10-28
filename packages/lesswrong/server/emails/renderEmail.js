@@ -14,9 +14,8 @@ import Users from 'meteor/vulcan:users';
 import moment from 'moment-timezone';
 import LWEvents from '../../lib/collections/lwevents/collection'
 import StyleValidator from '../vendor/react-html-email/src/StyleValidator.js';
+import fs from 'fs'
 
-// TODO: We probably want to use a different theme than this for rendering
-// emails.
 import forumTheme from '../../themes/forumTheme'
 
 // How many characters to wrap the plain-text version of the email to
@@ -30,6 +29,7 @@ export const emailDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transi
 // specific dysfunctional email clients (like the ".ExternalClass" and
 // ".yshortcuts" entries.)
 const emailGlobalCss = `
+  html {font-size: 13px;}
   .ReadMsgBody { width: 100%; background-color: #ebebeb;}
   .ExternalClass {width: 100%; background-color: #ebebeb;}
   .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div {line-height:100%;}
@@ -44,7 +44,7 @@ const emailGlobalCss = `
     table[class="container"] {
       width: 95% !important;
     }
-    .main-container{
+    .wrapper{
       font-size: 14px !important;
     }
   }
@@ -65,6 +65,8 @@ const emailGlobalCss = `
     color: rgba(0,0,0, 0.87);
   }
 `;
+
+// TODO; Is the @media not working?
 
 function addEmailBoilerplate({ css, title, body })
 {
@@ -126,6 +128,7 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
   // accordingly so that time zones on posts/comments/etc are in that timezone.
   const timezone = moment.tz.guess();
   
+  // console.log('bodyComponent', bodyComponent)
   const wrappedBodyComponent = (
     <ApolloProvider client={apolloClient}>
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
@@ -148,15 +151,23 @@ export async function generateEmail({user, subject, bodyComponent, boilerplateGe
   
   // Render the REACT tree to an HTML string
   const body = renderToString(wrappedBodyComponent);
+  // console.log('body', body)
   
   // Get JSS styles, which were added to sheetsRegistry as a byproduct of
   // renderToString.
   const css = sheetsRegistry.toString();
+  // console.log('css', css)
   const html = boilerplateGenerator({ css, body, title:subject })
+  
+  // console.log('html', html)
+  // console.log('css', css)
   
   // Since emails can't use <style> tags, only inline styles, use the Juice
   // library to convert accordingly.
   const inlinedHTML = Juice(html, { preserveMediaQueries: true });
+  
+  console.log('inlinedHTML', inlinedHTML)
+
   
   // Generate a plain-text representation, based on the React representation
   const plaintext = htmlToText.fromString(html, {
@@ -199,13 +210,18 @@ function validateSheets(sheetsRegistry)
 
 export async function sendEmail(renderedEmail)
 {
-  if (process.env.NODE_ENV === 'production' || getSetting('enableDevelopmentEmails', false)) {
+  console.log('sendEmail')
+  // if (process.env.NODE_ENV === 'production' || getSetting('enableDevelopmentEmails', false)) {
     console.log("//////// Sending email..."); //eslint-disable-line
     console.log("to: " + renderedEmail.to); //eslint-disable-line
     console.log("subject: " + renderedEmail.subject); //eslint-disable-line
     
     Email.send(renderedEmail); // From meteor's 'email' package
-  } else {
+  // } else {
+    const saveEmail = true
+    if (saveEmail) {
+      fs.writeFileSync('/Users/jpaddison/Desktop/email.html', renderedEmail.html)
+    }
     console.log("//////// Pretending to send email (not production and enableDevelopmentEmails is false)"); //eslint-disable-line
     console.log("to: " + renderedEmail.to); //eslint-disable-line
     console.log("subject: " + renderedEmail.subject); //eslint-disable-line
@@ -213,12 +229,15 @@ export async function sendEmail(renderedEmail)
     console.log(renderedEmail.html); //eslint-disable-line
     console.log("//////// Plain-text version"); //eslint-disable-line
     console.log(renderedEmail.text); //eslint-disable-line
-  }
+  // }
 }
 
+// TODO; this is now unused
 export async function renderAndSendEmail(emailProps)
 {
+  console.log('renderAndSendEmail')
   const { user } = emailProps;
+  // TODO; does this
   if (user.unsubscribeFromAll) {
     return;
   }

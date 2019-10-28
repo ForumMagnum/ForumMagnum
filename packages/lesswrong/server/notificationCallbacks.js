@@ -100,6 +100,7 @@ const getNotificationTiming = (typeSettings) => {
 }
 
 const createNotification = async (userId, notificationType, documentType, documentId) => {
+  console.log('createNotification')
   let user = Users.findOne({ _id:userId });
   const userSettingField = getNotificationTypeByName(notificationType).userSettingField;
   const notificationTypeSettings = (userSettingField && user[userSettingField]) ? user[userSettingField] : defaultNotificationTypeSettings;
@@ -127,6 +128,7 @@ const createNotification = async (userId, notificationType, documentType, docume
     });
   }
   if (notificationTypeSettings.channel === "email" || notificationTypeSettings.channel === "both") {
+    console.log('email notification')
     const createdNotification = await createMutator({
       collection: Notifications,
       document: {
@@ -143,6 +145,8 @@ const createNotification = async (userId, notificationType, documentType, docume
       timing: getNotificationTiming(notificationTypeSettings),
       af: false, //TODO: Handle AF vs non-AF notifications
     });
+    console.log('about to force')
+    await Vulcan.forcePendingEvents()
   }
 }
 
@@ -316,6 +320,7 @@ const curationEmailDelay = new EventDebouncer({
 
 function PostsCurateNotification (post, oldPost) {
   if(post.curatedDate && !oldPost.curatedDate) {
+    console.log('recording evet')
     curationEmailDelay.recordEvent({
       key: post._id,
       data: null,
