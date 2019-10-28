@@ -20,24 +20,29 @@ export const htmlToPingbacks = async (html) => {
     // by an absolute link).
     const linkTargetAbsolute = new URLClass(link, 'http://example.com/');
     
-    if (hostIsOnsite(linkTargetAbsolute.host)) {
-      const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
-      const parsedUrl = parseRoute({
-        location: parsePath(onsiteUrl),
-        onError: (pathname) => {
-          // Ignore malformed links
-        }
-      });
-      
-      if (parsedUrl?.currentRoute?.getPingback) {
-        const pingback = await parsedUrl.currentRoute.getPingback(parsedUrl);
-        if (pingback) {
-          if (!(pingback.collectionName in pingbacks))
-            pingbacks[pingback.collectionName] = [];
-          if (!_.find(pingbacks[pingback.collectionName], pingback.documentId))
-            pingbacks[pingback.collectionName].push(pingback.documentId);
+    try {
+      if (hostIsOnsite(linkTargetAbsolute.host)) {
+        const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
+        const parsedUrl = parseRoute({
+          location: parsePath(onsiteUrl),
+          onError: (pathname) => {
+            // Ignore malformed links
+          }
+        });
+        
+        if (parsedUrl?.currentRoute?.getPingback) {
+          const pingback = await parsedUrl.currentRoute.getPingback(parsedUrl);
+          if (pingback) {
+            if (!(pingback.collectionName in pingbacks))
+              pingbacks[pingback.collectionName] = [];
+            if (!_.find(pingbacks[pingback.collectionName], pingback.documentId))
+              pingbacks[pingback.collectionName].push(pingback.documentId);
+          }
         }
       }
+    } catch (err) {
+      console.error(err) // eslint-disable-line
+      console.error(link) // eslint-disable-line
     }
   }
   
