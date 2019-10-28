@@ -29,7 +29,7 @@ export const htmlToPingbacks = async (html) => {
             // Ignore malformed links
           }
         });
-        
+        console.log(a)
         if (parsedUrl?.currentRoute?.getPingback) {
           const pingback = await parsedUrl.currentRoute.getPingback(parsedUrl);
           if (pingback) {
@@ -41,7 +41,7 @@ export const htmlToPingbacks = async (html) => {
         }
       }
     } catch (err) {
-      console.error("failed to create pingback for link: ", link) // eslint-disable-line
+      console.error("failed to create pingback for link:", link) // eslint-disable-line
       console.error(err) // eslint-disable-line
     }
   }  
