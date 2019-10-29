@@ -76,8 +76,8 @@ const styles = theme => ({
   errorTextColor: {
     color: theme.palette.error.main
   },
-  updateTypeSelect: {
-    marginBottom: 10
+  select: {
+    marginRight: theme.spacing.unit
   },
   placeholder: {
     position: "absolute",
@@ -106,6 +106,7 @@ class EditorFormComponent extends Component {
       editorOverride: null,
       ckEditorLoaded: null,
       updateType: 'minor',
+      revision: '',
       ckEditorReference: null,
       ...this.getEditorStatesFromType(editorType)
     }
@@ -420,7 +421,8 @@ class EditorFormComponent extends Component {
     return <Select
       value={this.state.updateType}
       onChange={this.handleUpdateTypeSelect}
-      className={classes.updateTypeSelect}
+      className={classes.select}
+      disableUnderline
       >
       <MenuItem value={'major'}>Major Update</MenuItem>
       <MenuItem value={'minor'}>Minor Update</MenuItem>
@@ -428,12 +430,44 @@ class EditorFormComponent extends Component {
     </Select>
   }
 
+  getCurrentRevision = () => {
+    console.log(this.state.revision)
+    return this.state.revision
+  }
+
+  handleUpdateRevision = (e) => {
+    console.log(e.target)
+    this.setState({revision: e.target.value})
+  }
+
+  renderVersionSelect = () => {
+    const { document, classes, currentUser } = this.props 
+    
+    if (!currentUser || (!currentUser.isAdmin && !currentUser.isAdmin)) return null
+    
+    const { PostsRevisionsList } = Components
+
+    return (
+      <Tooltip title="Select a past revision of this document" placement="left">
+        <Select
+          className={classes.select}
+          value={this.getCurrentRevision()}
+          onChange={(e) => this.handleUpdateRevision(e)}
+          disableUnderline
+          >
+          <PostsRevisionsList documentId={document._id}/>
+        </Select>
+      </Tooltip>
+    )
+  }
+
   renderEditorTypeSelect = () => {
-    const { currentUser } = this.props
+    const { classes, currentUser } = this.props
     if (!currentUser || (!currentUser.isAdmin && !currentUser.isAdmin)) return null
     return (
       <Tooltip title="Warning! Changing format will erase your content" placement="left">
         <Select
+            className={classes.select}
             value={this.getCurrentEditorType()}
             onChange={(e) => this.handleEditorOverride(e.target.value)}
             disableUnderline
@@ -585,6 +619,7 @@ class EditorFormComponent extends Component {
           <div>
             { this.renderEditorComponent(currentEditorType) }
           </div>
+          { this.renderVersionSelect() }
           { this.renderUpdateTypeSelect() }
           { this.renderEditorTypeSelect() }
         </div>

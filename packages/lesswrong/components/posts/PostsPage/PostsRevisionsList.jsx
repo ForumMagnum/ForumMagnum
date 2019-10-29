@@ -8,17 +8,27 @@ import { QueryLink } from '../../../lib/reactRouterWrapper.js';
 
 const styles = theme => ({
   version: {
-    marginRight: 5
+    marginRight: theme.spacing.unit,
+    fontWeight: 600,
   }
 })
 
 const PostsRevisionsList = ({document, loading, classes}) => {
+
+  const { document, loading } = useSingle({
+    collection: Posts,
+    queryName: "postLinkPreview",
+    fragmentName: 'PostsList',
+    fetchPolicy: 'cache-then-network',
+    
+    documentId: postID,
+  });
   const { FormatDate } = Components
   if (loading || !document) {return <MenuItem disabled> Loading... </MenuItem>} 
   const { revisions } = document
   return <React.Fragment>
     {revisions.map(({editedAt, version, user}) => 
-    <MenuItem key={version} component={QueryLink} query={{revision: version}} merge>
+    <MenuItem key={version} value={version}>
       <span className={classes.version}>v{version}</span> <FormatDate date={editedAt}/>
     </MenuItem>)}
   </React.Fragment>
