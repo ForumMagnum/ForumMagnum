@@ -37,7 +37,7 @@ const SubscribeTo = ({
   const { results, loading } = useMulti({
     terms: {
       view: "subscriptionState",
-      documentId: document?._id,
+      documentId: document._id,
       userId: currentUser?._id,
       subscriptionType,
       collectionName,
@@ -91,7 +91,7 @@ const SubscribeTo = ({
   }
 
   // can't subscribe to yourself
-  if (!currentUser || !document || (collectionName === 'Users' && document._id === currentUser._id)) {
+  if (!currentUser || (collectionName === 'Users' && document._id === currentUser._id)) {
     return null;
   }
 
