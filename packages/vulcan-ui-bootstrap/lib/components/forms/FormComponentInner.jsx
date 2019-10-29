@@ -55,7 +55,6 @@ class FormComponentInner extends PureComponent {
       errors,
       showCharsRemaining,
       charsRemaining,
-      renderComponent,
       formComponents,
     } = this.props;
 
