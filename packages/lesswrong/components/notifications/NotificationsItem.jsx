@@ -2,10 +2,9 @@ import { registerComponent, Components } from 'meteor/vulcan:core';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import React, { Component } from 'react';
-import { Link } from '../../lib/reactRouterWrapper.js';
 import Card from '@material-ui/core/Card';
 import { getNotificationTypeByName } from '../../lib/notificationTypes.jsx';
-import { getUrlClass } from '../../lib/routeUtil';
+import { getUrlClass, withNavigation } from '../../lib/routeUtil';
 import withHover from '../common/withHover';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { parseRouteWithErrors } from '../linkPreview/HoverPreviewLink';
@@ -87,13 +86,13 @@ class NotificationsItem extends Component {
   }
 
   render() {
-    const { classes, notification, lastNotificationsCheck, hover, anchorEl } = this.props;
+    const { classes, notification, lastNotificationsCheck, hover, anchorEl, history } = this.props;
     const { LWPopper } = Components
     const UrlClass = getUrlClass()
 
     return (
-      <Link
-        to={notification.link}
+      <a
+        href={notification.link}
         className={classNames(
           classes.root,
           {
@@ -101,7 +100,11 @@ class NotificationsItem extends Component {
             [classes.unread]: !(notification.createdAt < lastNotificationsCheck || this.state.clicked)
           }
         )}
-        onClick={() => {
+        onClick={(e) => {
+          // Do manual navigation since we also want to do a bunch of other stuff
+          e.preventDefault()
+          history.push(notification.link)
+
           this.setState({clicked: true})
           // we also check whether it's a relative link, and if so, scroll to the item
           const url = new UrlClass(notification.link)
@@ -129,10 +132,10 @@ class NotificationsItem extends Component {
         <div className={classes.notificationLabel}>
           {notification.message}
         </div>
-      </Link>
+      </a>
     )
   }
 
 }
 
-registerComponent('NotificationsItem', NotificationsItem, withStyles(styles, {name: "NotificationsItem"}), withHover, withErrorBoundary);
+registerComponent('NotificationsItem', NotificationsItem, withStyles(styles, {name: "NotificationsItem"}), withHover, withErrorBoundary, withNavigation);

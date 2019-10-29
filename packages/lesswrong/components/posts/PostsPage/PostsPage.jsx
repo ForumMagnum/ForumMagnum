@@ -116,6 +116,16 @@ const styles = theme => ({
     whiteSpace: "no-wrap",
     fontSize: theme.typography.body2.fontSize,
   },
+  wordCount: {
+    display: 'none',
+    marginLeft: 20,
+    color: theme.palette.grey[600],
+    whiteSpace: "no-wrap",
+    fontSize: theme.typography.body2.fontSize,
+    [theme.breakpoints.down('sm')]: {
+      display: 'inline'
+    }
+  },
   actions: {
     display: 'inline-block',
     marginLeft: 15,
@@ -301,6 +311,9 @@ class PostsPage extends Component {
                       </Tooltip>
                     }
                     {!post.isEvent && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
+                    {!!wordCount && !post.isEvent &&  <Tooltip title={`${wordCount} words`}>
+                        <span className={classes.wordCount}>{parseInt(wordCount/300) || 1 } min read</span>
+                    </Tooltip>}
                     {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
                     <a className={classes.commentsLink} href={"#comments"}>{ Posts.getCommentCountStr(post)}</a>
                     <span className={classes.actions}>
