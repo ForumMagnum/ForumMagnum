@@ -29,7 +29,6 @@ export const htmlToPingbacks = async (html) => {
             // Ignore malformed links
           }
         });
-        console.log(a)
         if (parsedUrl?.currentRoute?.getPingback) {
           const pingback = await parsedUrl.currentRoute.getPingback(parsedUrl);
           if (pingback) {
