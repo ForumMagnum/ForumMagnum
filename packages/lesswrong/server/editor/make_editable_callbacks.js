@@ -5,6 +5,7 @@ import { draftToHTML } from '../draftConvert';
 import Revisions from '../../lib/collections/revisions/collection'
 import { extractVersionsFromSemver } from '../../lib/editor/utils'
 import { ensureIndex } from '../../lib/collectionUtils'
+import { htmlToPingbacks } from '../pingbacks.js';
 import TurndownService from 'turndown';
 const turndownService = new TurndownService()
 turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
@@ -222,8 +223,12 @@ ensureIndex(Revisions, {documentId: 1, version: 1, fieldName: 1, editedAt: 1})
 export function addEditableCallbacks({collection, options = {}}) {
   const {
     fieldName = "contents",
-    deactivateNewCallback // Because of Meteor shenannigans we don't have access to the full user object when a new user is created, and this creates
-    // bugs when we register callbacks that trigger on new user creation. So we allow the deactivation of the new callbacks.
+    pingbacks = false,
+    // Because of Meteor shenannigans we don't have access to the full user
+    // object when a new user is created, and this creates bugs when we register
+    // callbacks that trigger on new user creation. So we allow the deactivation
+    // of the new callbacks.
+    deactivateNewCallback,
   } = options
 
   const { typeName } = collection.options
@@ -237,11 +242,21 @@ export function addEditableCallbacks({collection, options = {}}) {
       const version = getInitialVersion(doc)
       const userId = currentUser._id
       const editedAt = new Date()
-      return {...doc, [fieldName]: {...doc[fieldName], html, version, userId, editedAt, wordCount, updateType: 'initial'}}  
+      return {
+        ...doc,
+        [fieldName]: {
+          ...doc[fieldName],
+          html, version, userId, editedAt, wordCount,
+          updateType: 'initial'
+        },
+        ...(pingbacks ? {
+          pingbacks: await htmlToPingbacks(html),
+        } : null),
+      }
     }
     return doc
   }
-
+  
   if (!deactivateNewCallback) {
     addCallback(`${typeName.toLowerCase()}.create.before`, editorSerializationNew);
   }
@@ -261,8 +276,17 @@ export function addEditableCallbacks({collection, options = {}}) {
       const version = await getNextVersion(document._id, updateType, fieldName, newDocument.draft)
       const userId = currentUser._id
       const editedAt = new Date()
-      return {...docData, [fieldName]: {...docData[fieldName], html, version, userId, editedAt, wordCount}}
-    } 
+      return {
+        ...docData,
+        [fieldName]: {
+          ...docData[fieldName],
+          html, version, userId, editedAt, wordCount
+        },
+        ...(pingbacks ? {
+          pingbacks: await htmlToPingbacks(html),
+        } : null),
+      }
+    }
     return docData
   }
   

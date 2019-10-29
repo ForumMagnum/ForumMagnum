@@ -1,6 +1,6 @@
 import Users from "meteor/vulcan:users";
 import { getSetting, Utils } from "meteor/vulcan:core"
-import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, denormalizedField } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, arrayOfForeignKeysField, denormalizedField } from '../../modules/utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 import SimpleSchema from 'simpl-schema'
@@ -73,6 +73,13 @@ export const karmaChangeNotifierDefaultSettings = {
   showNegativeKarma: false,
 };
 
+export const defaultNotificationTypeSettings = {
+  channel: "onsite",
+  batchingFrequency: "realtime",
+  timeOfDayGMT: 12,
+  dayOfWeekGMT: "Monday",
+};
+
 const karmaChangeSettingsType = new SimpleSchema({
   updateFrequency: {
     type: String,
@@ -95,6 +102,36 @@ const karmaChangeSettingsType = new SimpleSchema({
     optional: true,
   }
 })
+
+const notificationTypeSettings = new SimpleSchema({
+  channel: {
+    type: String,
+    allowedValues: ["none", "onsite", "email", "both"],
+  },
+  batchingFrequency: {
+    type: String,
+    allowedValues: ['realtime', 'daily', 'weekly'],
+  },
+  timeOfDayGMT: {
+    type: Number,
+    optional: true,
+  },
+  dayOfWeekGMT: {
+    type: String,
+    optional: true,
+  },
+})
+
+const notificationTypeSettingsField = (overrideSettings) => ({
+  type: notificationTypeSettings,
+  optional: true,
+  group: formGroups.notifications,
+  control: "NotificationTypeSettings",
+  canRead: [Users.owns, 'admins'],
+  canUpdate: [Users.owns, 'admins'],
+  canCreate: [Users.owns, 'admins'],
+  ...schemaDefaultValue({ ...defaultNotificationTypeSettings, ...overrideSettings })
+});
 
 const partiallyReadSequenceItem = new SimpleSchema({
   sequenceId: {
@@ -434,6 +471,36 @@ addFieldsDict(Users, {
     optional: true
   },
 
+  bookmarkedPostsMetadata: {
+    type: Array,
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    hidden: true,
+    onUpdate: ({data, currentUser, oldDocument}) => {
+      if (data?.bookmarkedPostsMetadata) {
+        return _.uniq(data?.bookmarkedPostsMetadata, 'postId')
+      }
+    },
+    ...arrayOfForeignKeysField({
+      idFieldName: "bookmarkedPostsMetadata",
+      resolverName: "bookmarkedPosts",
+      collectionName: "Posts",
+      type: "Post",
+      getKey: (obj) => obj.postId
+    }),
+  },
+
+  "bookmarkedPostsMetadata.$": {
+    type: Object,
+    optional: true
+  },
+  "bookmarkedPostsMetadata.$.postId": {
+    type: String,
+    foreignKey: "Posts",
+    optional: true
+  },
+
   // Legacy ID: ID used in the original LessWrong database
   legacyId: {
     type: String,
@@ -525,14 +592,68 @@ addFieldsDict(Users, {
     optional: true,
   },
 
-  // New Notifications settings
+  // Obsolete notifications settings
   auto_subscribe_to_my_posts: {
+    label: "Auto-subscribe to comments on my posts",
     group: formGroups.notifications,
-    label: "Notifications for Comments on My Posts"
+    type: Boolean,
+    optional: true,
+    control: "checkbox",
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(true),
   },
   auto_subscribe_to_my_comments: {
+    label: "Auto-subscribe to replies to my comments",
     group: formGroups.notifications,
-    label: "Notifications For Replies to My Comments",
+    type: Boolean,
+    optional: true,
+    control: "checkbox",
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(true),
+  },
+  autoSubscribeAsOrganizer: {
+    label: "Auto-subscribe to posts and meetups in groups I organize",
+    group: formGroups.notifications,
+    type: Boolean,
+    optional: true,
+    control: "checkbox",
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(true),
+  },
+  
+  notificationCommentsOnSubscribedPost: {
+    label: "Comments on subscribed posts",
+    ...notificationTypeSettingsField(),
+  },
+  notificationRepliesToMyComments: {
+    label: "Replies to my comments",
+    ...notificationTypeSettingsField(),
+  },
+  notificationRepliesToSubscribedComments: {
+    label: "Replies to subscribed comments",
+    ...notificationTypeSettingsField(),
+  },
+  notificationSubscribedUserPost: {
+    label: "Posts by subscribed users",
+    ...notificationTypeSettingsField(),
+  },
+  notificationPostsInGroups: {
+    label: "Posts/events in subscribed groups",
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
+  notificationPrivateMessage: {
+    label: "Private messages",
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
+  notificationSharedWithMe: {
+    label: "Draft shared with me",
+    ...notificationTypeSettingsField({ channel: "both" }),
   },
 
   // Karma-change notifier settings

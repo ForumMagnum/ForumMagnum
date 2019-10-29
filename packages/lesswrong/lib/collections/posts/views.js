@@ -514,14 +514,17 @@ Posts.addView("legacyIdPost", terms => ({
 }));
 ensureIndex(Posts, {legacyId: "hashed"});
 
+const recentDiscussionFilter = {
+  baseScore: {$gt:0},
+  hideFrontpageComments: false,
+  hiddenRelatedQuestion: viewFieldAllowAny,
+  shortform: viewFieldAllowAny,
+  groupId: null,
+}
 Posts.addView("recentDiscussionThreadsList", terms => {
   return {
     selector: {
-      baseScore: {$gt:0},
-      hideFrontpageComments: false,
-      hiddenRelatedQuestion: viewFieldAllowAny,
-      shortform: viewFieldAllowAny,
-      groupId: null,
+      ...recentDiscussionFilter
     },
     options: {
       sort: {lastCommentedAt:-1},
@@ -532,6 +535,22 @@ Posts.addView("recentDiscussionThreadsList", terms => {
 ensureIndex(Posts,
   augmentForDefaultView({ lastCommentedAt:-1, baseScore:1, hideFrontpageComments:1 }),
   { name: "posts.recentDiscussionThreadsList", }
+);
+
+Posts.addView("afRecentDiscussionThreadsList", terms => {
+  return {
+    selector: {
+      ...recentDiscussionFilter
+    },
+    options: {
+      sort: {afLastCommentedAt:-1},
+      limit: terms.limit || 12,
+    }
+  }
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ hideFrontpageComments:1, afLastCommentedAt:-1, baseScore:1 }),
+  { name: "posts.afRecentDiscussionThreadsList", }
 );
 
 Posts.addView("shortformDiscussionThreadsList", terms => {
@@ -715,7 +734,8 @@ Posts.addView("sunshineNewUsersPosts", function (terms) {
     selector: {
       status: null, // allow sunshines to see posts marked as spam
       userId: terms.userId,
-      authorIsUnreviewed: null
+      authorIsUnreviewed: null,
+      groupId: null,
     },
     options: {
       sort: {
@@ -751,23 +771,7 @@ ensureIndex(Posts,
   }
 );
 
-Posts.addView("afRecentDiscussionThreadsList", terms => {
-  return {
-    selector: {
-      baseScore: {$gt:0},
-      hideFrontpageComments: false,
-      af: true,
-    },
-    options: {
-      sort: {afLastCommentedAt:-1},
-      limit: terms.limit || 12,
-    }
-  }
-})
-ensureIndex(Posts,
-  augmentForDefaultView({ hideFrontpageComments:1, afLastCommentedAt:-1, baseScore:1 }),
-  { name: "posts.afRecentDiscussionThreadsList", }
-);
+
 
 // Used in Posts.find() in various places
 ensureIndex(Posts, {userId:1, createdAt:-1});
@@ -785,4 +789,19 @@ ensureIndex(Posts, {inactive:1,postedAt:1});
 ensureIndex(Posts,
   augmentForDefaultView({ meta:1, disableRecommendation:1, baseScore:1, curatedDate:1, frontpageDate:1 }),
   { name: "posts.recommendable" }
+);
+
+Posts.addView("pingbackPosts", terms => {
+  return {
+    selector: {
+      "pingbacks.Posts": terms.postId,
+    },
+    options: {
+      sort: { baseScore: -1 },
+    },
+  }
+});
+ensureIndex(Posts,
+  augmentForDefaultView({ "pingback.Posts": 1 }),
+  { name: "posts.pingbackPosts" }
 );

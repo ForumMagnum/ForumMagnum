@@ -5,7 +5,7 @@ import Sentry from '@sentry/node';
 
 // From react-router-v4
 // https://github.com/ReactTraining/history/blob/master/modules/PathUtils.js
-var parsePath = function parsePath(path) {
+export const parsePath = function parsePath(path) {
   var pathname = path || '/';
   var search = '';
   var hash = '';
@@ -28,6 +28,20 @@ var parsePath = function parsePath(path) {
     hash: hash === '#' ? '' : hash
   };
 };
+
+export const parseRouteWithErrors = (onsiteUrl, contentSourceDescription) => {
+  return parseRoute({
+    location: parsePath(onsiteUrl),
+    onError: (pathname) => {
+      if (Meteor.isClient) {
+        if (contentSourceDescription)
+          Sentry.captureException(new Error(`Broken link from ${contentSourceDescription} to ${pathname}`));
+        else
+          Sentry.captureException(new Error(`Broken link from ${location.pathname} to ${pathname}`));
+      }
+    }
+  });
+}
 
 const linkIsExcludedFromPreview = (url) => {
   // Don't try to preview links that go directly to images. The usual use case
@@ -68,17 +82,7 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription }) => {
     
     const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
     if (!linkIsExcludedFromPreview(onsiteUrl) && (hostIsOnsite(linkTargetAbsolute.host) || Meteor.isServer)) {
-      const parsedUrl = parseRoute({
-        location: parsePath(onsiteUrl),
-        onError: (pathname) => {
-          if (Meteor.isClient) {
-            if (contentSourceDescription)
-              Sentry.captureException(new Error(`Broken link from ${contentSourceDescription} to ${pathname}`));
-            else
-              Sentry.captureException(new Error(`Broken link from ${location.pathname} to ${pathname}`));
-          }
-        }
-      });
+      const parsedUrl = parseRouteWithErrors(onsiteUrl, contentSourceDescription)
       
       if (parsedUrl?.currentRoute) {
         const PreviewComponent = parsedUrl.currentRoute?.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;

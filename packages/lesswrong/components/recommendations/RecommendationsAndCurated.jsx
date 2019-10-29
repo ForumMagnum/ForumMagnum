@@ -70,7 +70,7 @@ class RecommendationsAndCurated extends PureComponent {
   render() {
     const { continueReading, classes, currentUser } = this.props;
     const { showSettings } = this.state
-    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, RecommendationsList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SubSection, SeparatorBullet } = Components;
+    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, RecommendationsList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SubSection, SeparatorBullet, BookmarksList } = Components;
 
     const configName = "frontpage"
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
@@ -88,6 +88,11 @@ class RecommendationsAndCurated extends PureComponent {
       <div>The next posts in sequences you've started reading, but not finished.</div>
     </div>
 
+    const bookmarksTooltip = <div>
+      <div>Individual posts that you've bookmarked</div>
+      <div><em>(Click to see all)</em></div>
+    </div>
+
     const allTimeTooltip = <div>
       <div>
         A weighted, randomized sample of the highest karma posts
@@ -103,7 +108,8 @@ class RecommendationsAndCurated extends PureComponent {
       ...defaultFrontpageSettings
     }
 
-    const renderContinueReading = continueReading && continueReading.length>0 && !settings.hideContinueReading
+    const renderBookmarks = (currentUser?.bookmarkedPostsMetadata?.length > 0) && !settings.hideBookmarks
+    const renderContinueReading = (continueReading?.length > 0) && !settings.hideContinueReading
     const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
     return <SingleColumnSection className={classes.section}>
@@ -134,6 +140,22 @@ class RecommendationsAndCurated extends PureComponent {
             <ContinueReadingList continueReading={continueReading} />
           </SubSection>
         </React.Fragment>}
+
+      {renderBookmarks && <React.Fragment>
+        <div>
+            <Tooltip placement="top-start" title={bookmarksTooltip}>
+              <Link to={"/bookmarks"}>
+                <SectionSubtitle className={classes.subtitle}>
+                  Bookmarks
+                </SectionSubtitle>
+              </Link>
+            </Tooltip>
+            <BetaTag />
+          </div>
+          <SubSection className={classes.continueReadingList}>
+            <BookmarksList limit={3} />
+          </SubSection>
+      </React.Fragment>}
 
       {!settings.hideFrontpage && <div>
         <div>
