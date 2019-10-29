@@ -10,7 +10,7 @@ registerMigration({
     for (let collectionName of editableCollections) {
       for (let editableField of editableCollectionsFields[collectionName]) {
         if (editableCollectionsFieldOptions[collectionName][editableField].pingbacks) {
-          updatePingbacks(collectionName, editableField);
+          await updatePingbacks(collectionName, editableField);
         }
       }
     }
@@ -21,7 +21,7 @@ const updatePingbacks = async (collectionName, fieldName) => {
   const collection = getCollection(collectionName);
   // eslint-disable-next-line no-console
   console.log(`Updating pingbacks for ${collectionName}.${fieldName}`);
-  
+  let updatedDocuments = 0
   await forEachDocumentBatchInCollection({
     collection: collection,
     batchSize: 1000,
@@ -48,6 +48,9 @@ const updatePingbacks = async (collectionName, fieldName) => {
       if (updates.length > 0) {
         await collection.rawCollection().bulkWrite(updates, {ordered: false});
       }
+      updatedDocuments = updatedDocuments + documents.length
+      // eslint-disable-next-line no-console
+      console.log("updated documents: ", updatedDocuments)
     }
   });
 }
