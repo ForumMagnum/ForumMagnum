@@ -436,7 +436,7 @@ class EditorFormComponent extends Component {
   }
 
   handleUpdateRevision = (e) => {
-    console.log(e.target)
+    console.log(e, e.target, e.target.value)
     this.setState({revision: e.target.value})
   }
 
@@ -445,17 +445,19 @@ class EditorFormComponent extends Component {
     
     if (!currentUser || (!currentUser.isAdmin && !currentUser.isAdmin)) return null
     
-    const { PostsRevisionsList } = Components
-
+    const { PostsRevisionsList, FormatDate } = Components
     return (
       <Tooltip title="Select a past revision of this document" placement="left">
         <Select
           className={classes.select}
           value={this.getCurrentRevision()}
-          onChange={(e) => this.handleUpdateRevision(e)}
+          onChange={this.handleUpdateRevision}
           disableUnderline
           >
-          <PostsRevisionsList documentId={document._id}/>
+            {document.revisions.map(({editedAt, version, user}) => 
+            <MenuItem key={version} value={version}>
+              <span className={classes.version}>v{version}</span> <FormatDate date={editedAt}/>
+            </MenuItem>)}
         </Select>
       </Tooltip>
     )

@@ -249,6 +249,10 @@ registerFragment(`
     contents {
       ...RevisionEdit
     }
+    revisions {
+      version
+      editedAt
+    }
   }
 `);
 
