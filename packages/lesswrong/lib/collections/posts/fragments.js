@@ -182,6 +182,10 @@ registerFragment(`
     contents(version: $version) {
       ...RevisionDisplay
     }
+    revisions {
+      version
+      editedAt
+    }
   }
 `)
 
@@ -248,10 +252,6 @@ registerFragment(`
     }
     contents {
       ...RevisionEdit
-    }
-    revisions {
-      version
-      editedAt
     }
   }
 `);

@@ -106,7 +106,7 @@ class EditorFormComponent extends Component {
       editorOverride: null,
       ckEditorLoaded: null,
       updateType: 'minor',
-      revision: '',
+      version: '',
       ckEditorReference: null,
       ...this.getEditorStatesFromType(editorType)
     }
@@ -431,36 +431,25 @@ class EditorFormComponent extends Component {
   }
 
   getCurrentRevision = () => {
-    console.log(this.state.revision)
-    return this.state.revision
+    return this.state.version || this.props.document.version
   }
 
-  handleUpdateRevision = (e) => {
-    console.log(e, e.target, e.target.value)
-    this.setState({revision: e.target.value})
+  handleUpdateRevision = (document, version) => {
+    console.log(version)
+    this.setState({version: version})
   }
 
   renderVersionSelect = () => {
     const { document, classes, currentUser } = this.props 
     
     if (!currentUser || (!currentUser.isAdmin && !currentUser.isAdmin)) return null
-    
-    const { PostsRevisionsList, FormatDate } = Components
-    return (
-      <Tooltip title="Select a past revision of this document" placement="left">
-        <Select
-          className={classes.select}
-          value={this.getCurrentRevision()}
-          onChange={this.handleUpdateRevision}
-          disableUnderline
-          >
-            {document.revisions.map(({editedAt, version, user}) => 
-            <MenuItem key={version} value={version}>
-              <span className={classes.version}>v{version}</span> <FormatDate date={editedAt}/>
-            </MenuItem>)}
-        </Select>
-      </Tooltip>
-    )
+
+    return <Components.SelectVersion 
+              key={this.getCurrentRevision()}
+              documentId={document._id} 
+              revisionVersion={this.getCurrentRevision()} 
+              onChange={this.handleUpdateRevision}
+            />
   }
 
   renderEditorTypeSelect = () => {
