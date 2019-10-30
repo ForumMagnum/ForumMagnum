@@ -52,6 +52,24 @@ const spoilerStyles = (theme) => ({
   }
 })
 
+const tableStyles = {
+  borderCollapse: "collapse",
+  borderSpacing: 0,
+  border: "1px double #b3b3b3",
+  margin: "auto"
+}
+
+const tableCellStyles = {
+  minWidth: "2em",
+  padding: ".4em",
+  border: "1px double #d9d9d9",
+}
+
+const tableHeadingStyles = {
+  background: "#fafafa",
+  fontWeight: 700
+}
+
 const baseBodyStyles = theme => ({
   ...theme.typography.body1,
   ...theme.typography.postStyle,
@@ -100,6 +118,15 @@ const baseBodyStyles = theme => ({
   },
   '& a, & a:hover, & a:active': {
     color: theme.palette.primary.main
+  },
+  '& table': {
+    ...tableStyles
+  },
+  '& td, & th': {
+    ...tableCellStyles
+  },
+  '& th': {
+    ...tableHeadingStyles
   },
   '& figure': {
     margin: '1em auto',
@@ -239,6 +266,15 @@ export const ckEditorStyles = theme => {
         '--ck-inner-shadow': "none",
         '& p': {
           ...pBodyStyle
+        },
+        '& .table table': {
+          ...tableStyles
+        },
+        '& .table table td, & .table table th': {
+          ...tableCellStyles
+        },
+        '& .table table th': {
+          ...tableHeadingStyles
         },
         '.ck-editor__editable.ck-blurred .ck-widget.ck-widget_selected, .ck-editor__editable.ck-blurred .ck-widget.ck-widget_selected': {
           outline: "none"
