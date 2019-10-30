@@ -39,18 +39,21 @@ import BlockToolbar from '@ckeditor/ckeditor5-ui/src/toolbar/block/blocktoolbar'
 import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave';
 
 // import MathpreviewPlugin from 'ckeditor5-math-preview/src/mathpreview';
+// current version of MathpreviewPlugin (1.1.3) breaks ckeditor
 
 class CommentEditor extends BalloonBlockEditorBase {}
 class PostEditor extends BalloonBlockEditorBase {}
 class PostEditorCollaboration extends BalloonBlockEditorBase {}
-
-// MediaEmbeds are commented out for now (will be added back in once we decide how to render them)
 
 // NOTE: If you make changes to this file, you must:
 // 1. navigate in your terminal to the corresponding folder ('cd ./public/lesswrong-editor')
 // 2. 'yarn run build'
 // 3. navigate back to main folder (i.e. 'cd ../..')
 // 4. run 'yarn add ./public/lesswrong-editor'.
+//
+// alternately, if you're starting in the root directory and want to do it all in one go:
+//
+// cd ./public/lesswrong-editor; yarn install; yarn run build; cd ../..; yarn add ./public/lesswrong-editor;
 
 const headingOptions = {
 	options: [
@@ -114,7 +117,7 @@ const postEditorConfig = {
 		'imageUpload',
 		'blockQuote',
 		'insertTable',
-		// 'mediaEmbed', //these don't work yet, although I aim to fix them soon - Ray
+		// 'mediaEmbed',
 		'|',
 		'undo',
 		'redo',
