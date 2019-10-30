@@ -4,22 +4,22 @@
  */
 
 import BalloonBlockEditorBase from '@ckeditor/ckeditor5-editor-balloon/src/ballooneditor';
-import Alignment from '@ckeditor/ckeditor5-alignment/src/alignment';
+// import Alignment from '@ckeditor/ckeditor5-alignment/src/alignment';
 import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
 import BlockQuote from '@ckeditor/ckeditor5-block-quote/src/blockquote';
 import Bold from '@ckeditor/ckeditor5-basic-styles/src/bold';
 import CKFinder from '@ckeditor/ckeditor5-ckfinder/src/ckfinder';
 import Essentials from '@ckeditor/ckeditor5-essentials/src/essentials';
-import FontFamily from '@ckeditor/ckeditor5-font/src/fontfamily';
-import FontSize from '@ckeditor/ckeditor5-font/src/fontsize';
+// import FontFamily from '@ckeditor/ckeditor5-font/src/fontfamily';
+// import FontSize from '@ckeditor/ckeditor5-font/src/fontsize';
 import Heading from '@ckeditor/ckeditor5-heading/src/heading';
-import Highlight from '@ckeditor/ckeditor5-highlight/src/highlight';
+// import Highlight from '@ckeditor/ckeditor5-highlight/src/highlight';
 import Image from '@ckeditor/ckeditor5-image/src/image';
 import ImageCaption from '@ckeditor/ckeditor5-image/src/imagecaption';
 import ImageStyle from '@ckeditor/ckeditor5-image/src/imagestyle';
 import ImageToolbar from '@ckeditor/ckeditor5-image/src/imagetoolbar';
 import ImageUpload from '@ckeditor/ckeditor5-image/src/imageupload';
-import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
+// import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
 import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
 import Link from '@ckeditor/ckeditor5-link/src/link';
 import List from '@ckeditor/ckeditor5-list/src/list';
@@ -29,16 +29,40 @@ import PasteFromOffice from '@ckeditor/ckeditor5-paste-from-office/src/pastefrom
 import PresenceList from '@ckeditor/ckeditor5-real-time-collaboration/src/presencelist';
 import RealTimeCollaborativeComments from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativecomments';
 import RealTimeCollaborativeTrackChanges from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativetrackchanges';
-import RemoveFormat from '@ckeditor/ckeditor5-remove-format/src/removeformat';
-import Strikethrough from '@ckeditor/ckeditor5-basic-styles/src/strikethrough';
-// import Table from '@ckeditor/ckeditor5-table/src/table';
-// import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
-import Underline from '@ckeditor/ckeditor5-basic-styles/src/underline';
+// import RemoveFormat from '@ckeditor/ckeditor5-remove-format/src/removeformat';
+// import Strikethrough from '@ckeditor/ckeditor5-basic-styles/src/strikethrough';
+import Table from '@ckeditor/ckeditor5-table/src/table';
+import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
+// import Underline from '@ckeditor/ckeditor5-basic-styles/src/underline';
 import UploadAdapter from '@ckeditor/ckeditor5-adapter-ckfinder/src/uploadadapter';
 import BlockToolbar from '@ckeditor/ckeditor5-ui/src/toolbar/block/blocktoolbar';
-import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave'
+// import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave';
 
-import MathpreviewPlugin from 'ckeditor5-math-preview/src/mathpreview';
+// import Essentials from '@ckeditor/ckeditor5-essentials/src/essentials';
+// import UploadAdapter from '@ckeditor/ckeditor5-adapter-ckfinder/src/uploadadapter';
+// import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
+// import BlockToolbar from '@ckeditor/ckeditor5-ui/src/toolbar/block/blocktoolbar';
+// import Bold from '@ckeditor/ckeditor5-basic-styles/src/bold';
+// import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
+// import BlockQuote from '@ckeditor/ckeditor5-block-quote/src/blockquote';
+// import CKFinder from '@ckeditor/ckeditor5-ckfinder/src/ckfinder';
+// import EasyImage from '@ckeditor/ckeditor5-easy-image/src/easyimage';
+// import Heading from '@ckeditor/ckeditor5-heading/src/heading';
+// import Image from '@ckeditor/ckeditor5-image/src/image';
+// import ImageCaption from '@ckeditor/ckeditor5-image/src/imagecaption';
+// import ImageStyle from '@ckeditor/ckeditor5-image/src/imagestyle';
+// import ImageToolbar from '@ckeditor/ckeditor5-image/src/imagetoolbar';
+// import ImageUpload from '@ckeditor/ckeditor5-image/src/imageupload';
+// import Indent from '@ckeditor/ckeditor5-indent/src/indent';
+// import Link from '@ckeditor/ckeditor5-link/src/link';
+// import List from '@ckeditor/ckeditor5-list/src/list';
+// import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
+// import Paragraph from '@ckeditor/ckeditor5-paragraph/src/paragraph';
+// import PasteFromOffice from '@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice';
+// import Table from '@ckeditor/ckeditor5-table/src/table';
+// import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
+
+// import MathpreviewPlugin from 'ckeditor5-math-preview/src/mathpreview';
 
 class CommentEditor extends BalloonBlockEditorBase {}
 class PostEditor extends BalloonBlockEditorBase {}
@@ -62,37 +86,37 @@ const headingOptions = {
 };
 
 const postEditorPlugins = [
-	Autosave,
-	Alignment,
+	// Autosave,
+	// Alignment,
 	Autoformat,
 	BlockToolbar,
 	BlockQuote,
 	Bold,
 	CKFinder,
 	Essentials,
-	FontFamily,
-	FontSize,
+	// FontFamily,
+	// FontSize,
 	Heading,
-	Highlight,
+	// Highlight,
 	Image,
 	ImageCaption,
 	ImageStyle,
 	ImageToolbar,
 	ImageUpload,
-	ImageResize,
+	// ImageResize,
 	Italic,
 	Link,
 	List,
 	// MediaEmbed,
 	Paragraph,
 	PasteFromOffice,
-	RemoveFormat,
-	Strikethrough,
-	// Table,
-	// TableToolbar,
-	Underline,
+	// RemoveFormat,
+	// Strikethrough,
+	Table,
+	TableToolbar,
+	// Underline,
 	UploadAdapter,
-	MathpreviewPlugin
+	// MathpreviewPlugin
 ];
 
 PostEditor.builtinPlugins = [
@@ -114,8 +138,8 @@ const postEditorConfig = {
 		'numberedList',
 		'imageUpload',
 		'blockQuote',
-		// 'insertTable',         these don't work yet, although I aim to fix them soon – Ray
-		// 'mediaEmbed',
+		'insertTable',
+		// 'mediaEmbed', //these don't work yet, although I aim to fix them soon - Ray
 		'|',
 		'undo',
 		'redo',
@@ -143,15 +167,15 @@ const postEditorConfig = {
 			'comment',
 		],
 	},
-	heading: headingOptions
-	// table: {
-	// 	contentToolbar: [
-	// 		'tableColumn',
-	// 		'tableRow',
-	// 		'mergeTableCells'
-	// 	],
-	// 	tableToolbar: [ 'comment' ]
-	// },
+	heading: headingOptions,
+	table: {
+		contentToolbar: [
+			'tableColumn',
+			'tableRow',
+			'mergeTableCells'
+		],
+		tableToolbar: [ 'comment' ]
+	},
 	// mediaEmbed: {
 	// 	toolbar: [ 'comment' ]
 	// },
@@ -166,8 +190,8 @@ PostEditorCollaboration.defaultConfig = {
 };
 
 CommentEditor.builtinPlugins = [
-	Autosave,
-	Alignment,
+	// Autosave,
+	// Alignment,
 	Autoformat,
 	BlockQuote,
 	Bold,
@@ -184,12 +208,12 @@ CommentEditor.builtinPlugins = [
 	List,
 	Paragraph,
 	PasteFromOffice,
-	RemoveFormat,
-	Strikethrough,
+	// RemoveFormat,
+	// Strikethrough,
 	// Table,
-	Underline,
+	// Underline,
 	UploadAdapter,
-	MathpreviewPlugin
+	// MathpreviewPlugin
 ];
 
 CommentEditor.defaultConfig = {
@@ -212,15 +236,15 @@ CommentEditor.defaultConfig = {
 			'imageTextAlternative'
 		]
 	},
-	heading: headingOptions
-	// table: {
-	// 	contentToolbar: [
-	// 		'tableColumn',
-	// 		'tableRow',
-	// 		'mergeTableCells'
-	// 	],
-	// 	tableToolbar: [ 'comment' ]
-	// },
+	heading: headingOptions,
+	table: {
+		contentToolbar: [
+			'tableColumn',
+			'tableRow',
+			'mergeTableCells'
+		],
+		tableToolbar: [ 'comment' ]
+	},
 };
 
 export const Editors = { CommentEditor, PostEditor, PostEditorCollaboration };
