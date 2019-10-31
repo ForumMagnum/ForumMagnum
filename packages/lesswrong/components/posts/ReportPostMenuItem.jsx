@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import Users from 'meteor/vulcan:users';
 import withUser from '../common/withUser';
 import withDialog from '../common/withDialog'
-import Report from '@material-ui/icons/Report';
+import ReportOutlinedIcon from '@material-ui/icons/ReportOutlined';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 
 class ReportPostMenuItem extends PureComponent {
@@ -30,7 +30,7 @@ class ReportPostMenuItem extends PureComponent {
 
     return <MenuItem onClick={this.showReport}>
       <ListItemIcon>
-        <Report />
+        <ReportOutlinedIcon />
       </ListItemIcon>
       Report
     </MenuItem>

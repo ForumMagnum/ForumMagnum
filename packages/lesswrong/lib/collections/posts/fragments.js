@@ -78,6 +78,13 @@ registerFragment(`
     submitToFrontpage
     shortform
     canonicalSource
+
+    shareWithUsers
+    
+    group {
+      _id
+      name
+    }
   }
 `);
 
@@ -236,7 +243,6 @@ registerFragment(`
 registerFragment(`
   fragment PostsEdit on Post {
     ...PostsPage
-    shareWithUsers
     moderationGuidelines {
       ...RevisionEdit
     }

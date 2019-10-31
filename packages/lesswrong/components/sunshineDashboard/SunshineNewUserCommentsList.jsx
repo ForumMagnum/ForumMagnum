@@ -1,5 +1,6 @@
 import { Components, registerComponent, withMulti } from 'meteor/vulcan:core';
 import React from 'react';
+import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles'
 import { commentBodyStyles } from '../../themes/stylePiping'
@@ -21,14 +22,13 @@ const SunshineNewUserCommentsList = ({loading, results, classes, truncated}) => 
 
   if (!results && loading && !truncated) return <Loading />
   if (!results) return null 
-
   return (
     <div>
       {loading && !truncated && <Loading />}
       {results.map(comment=><div className={classes.comment} key={comment._id}>
         <MetaInfo>
-          <Link to={`/posts/${comment.postId}`}>
-            Comment made <FormatDate date={comment.postedAt}/> {comment.status}
+          <Link to={Posts.getPageUrl(comment.post) + "#" + comment._id}>
+            {comment.deleted && "[Deleted] "}Comment on '{comment.post.title}' (<FormatDate date={comment.postedAt}/>) {comment.status}
           </Link>
         </MetaInfo>
         {!truncated && <div><MetaInfo>{comment.deleted && `[Comment deleted${comment.deletedReason ? ` because "${comment.deletedReason}"` : ""}]`}</MetaInfo></div>}
@@ -40,7 +40,7 @@ const SunshineNewUserCommentsList = ({loading, results, classes, truncated}) => 
 
 const withMultiOptions = {
   collection: Comments,
-  fragmentName: 'CommentsList',
+  fragmentName: 'SelectCommentsList',
   fetchPolicy: 'cache-and-network',
 }
 

@@ -17,8 +17,6 @@ import './modules/accounts/configuration.js';
 import './modules/voting/new_vote_types.js';
 import './modules/voting/callbacks.js';
 
-// Subscriptions
-import './collections/subscription_fields.js';
 //MomentJS configuration
 import '../components/momentjs.js';
 
@@ -28,10 +26,8 @@ import './collections/comments/fragments.js';
 
 // Notifications
 import Notifications from './collections/notifications/collection.js';
-import './collections/notifications/custom_fields.js';
 import './collections/notifications/views.js';
 import './collections/notifications/permissions.js';
-import './collections/notifications/seed.js';
 // Inbox
 import Messages from './collections/messages/collection.js'
 import './collections/messages/views.js';
@@ -98,8 +94,7 @@ import './collections/books/permissions.js';
 
 
 // Subscriptions
-import './subscriptions/mutations.js';
-import './subscriptions/permissions.js';
+import './collections/subscriptions';
 
 
 // Posts

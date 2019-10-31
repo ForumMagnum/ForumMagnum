@@ -1,9 +1,16 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
+import { withStyles } from '@material-ui/core/styles';
+import classNames from 'classnames';
 
-const FormErrors = ({ errors }) => (
-  <div className="form-errors">
+const styles = theme => ({
+  root: {
+    ...theme.typography.errorStyle
+  }
+})
+
+const FormErrors = ({ classes, errors }) => (
+  <div className={classNames(classes.root, "form-errors")}>
     {!!errors.length && (
       <Components.Alert className="flash-message" variant="danger">
         <ul>
@@ -17,7 +24,7 @@ const FormErrors = ({ errors }) => (
     )}
   </div>
 );
-registerComponent('FormErrors', FormErrors);
+registerComponent('FormErrors', FormErrors, withStyles(styles, {name:"FormErrors"}));
 
 // /*
 

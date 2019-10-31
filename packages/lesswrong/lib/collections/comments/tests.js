@@ -12,9 +12,15 @@ describe('createComment – ', async function() {
   this.timeout(10000)
   it('should return data if a user is provided', async function() {
     const user = await createDummyUser()
+    const post = await createDummyPost()
     const query = `
       mutation {
-        createComment(data:{ contents: { originalContents: { type: "markdown", data: "test" } } }){
+        createComment(
+          data: {
+            contents: { originalContents: { type: "markdown", data: "test" } }
+            postId: "${post._id}"
+          }
+        ){
           data {
             contents {
               markdown

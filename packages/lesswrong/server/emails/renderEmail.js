@@ -15,8 +15,6 @@ import moment from 'moment-timezone';
 import LWEvents from '../../lib/collections/lwevents/collection'
 import StyleValidator from '../vendor/react-html-email/src/StyleValidator.js';
 
-// TODO: We probably want to use a different theme than this for rendering
-// emails.
 import forumTheme from '../../themes/forumTheme'
 
 // How many characters to wrap the plain-text version of the email to
@@ -30,6 +28,7 @@ export const emailDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transi
 // specific dysfunctional email clients (like the ".ExternalClass" and
 // ".yshortcuts" entries.)
 const emailGlobalCss = `
+  html {font-size: 13px;}
   .ReadMsgBody { width: 100%; background-color: #ebebeb;}
   .ExternalClass {width: 100%; background-color: #ebebeb;}
   .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div {line-height:100%;}
@@ -44,7 +43,7 @@ const emailGlobalCss = `
     table[class="container"] {
       width: 95% !important;
     }
-    .main-container{
+    .wrapper{
       font-size: 14px !important;
     }
   }
@@ -216,16 +215,7 @@ export async function sendEmail(renderedEmail)
   }
 }
 
-export async function renderAndSendEmail(emailProps)
-{
-  const { user } = emailProps;
-  if (user.unsubscribeFromAll) {
-    return;
-  }
-  
-  const renderedEmail = await generateEmail(emailProps);
-  sendEmail(renderedEmail);
-  
+export function logSentEmail(renderedEmail, user) {
   // Replace user (object reference) in renderedEmail so we can log it in LWEvents
   const emailJson = {
     ...renderedEmail,
