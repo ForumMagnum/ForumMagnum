@@ -28,16 +28,17 @@ const EmailWrapper = ({user, unsubscribeAllLink, children, classes}) => {
               {/* 600px container (white background) */}
               <table border="0" width="600" cellPadding="0" cellSpacing="0" className="container" bgcolor="#ffffff">
                 <tr>
-                  <td className="main-container container-padding" bgcolor="#ffffff">
+                  <td className="container-padding" bgcolor="#ffffff">
                     <br/>
                     {children}
                   </td>
                 </tr>
-                <tr><td>
+                <tr><td className="container-padding">
                   <br/><br/>
-                  <a href={unsubscribeAllLink}>Unsubscribe</a>
+                  <a href={unsubscribeAllLink}>Unsubscribe</a>{' '}
                   (from all emails from {siteNameWithArticle})
-                  or <a href={accountLink}>Change your notifications settings</a><br/><br/>
+                  or <a href={accountLink}>Change your notifications settings</a>
+                  <br/><br/>
                 </td></tr>
               </table>
             </td>
