@@ -3,6 +3,8 @@ import { Components, registerComponent, useMulti, useSingle } from 'meteor/vulca
 import { withStyles } from '@material-ui/core/styles';
 import { Subscriptions } from '../../lib/collections/subscriptions/collection.js';
 import { useCurrentUser } from '../common/withUser.js';
+import { Link } from '../../lib/reactRouterWrapper.js';
+import { Comments } from '../../lib/collections/comments/collection.js';
 
 const styles = theme => ({
   subscribedItem: {
@@ -110,15 +112,28 @@ const ViewSubscriptionsPage = ({classes}) => {
       renderDocument={post => post.title}
       noSubscriptionsMessage="You are not subscribed to comments on any posts."
     />
-    
+
+    <SubscriptionsList
+      title="Subscribed to Comment Replies"
+      collectionName="Comments"
+      subscriptionType="newReplies"
+      fragmentName="ShortformComments"
+      renderDocument={comment => <Link to={Comments.getPageUrlFromIds({postId: comment?.post?._id, postSlug: comment?.post?.slug, commentId: comment?._id, permalink: true})}>
+        author: {comment?.author} post: {comment?.post?.title}
+      </Link>}
+      noSubscriptionsMessage="You are not subscribed to any comment replies."
+    />
+
     <SubscriptionsList
       title="Subscribed to Local Groups"
-      collectionName="LocalGroups"
+      collectionName="Localgroups"
       subscriptionType="newEvents"
-      fragmentName=""
-      renderDocument={group => group.title}
+      fragmentName="localGroupsBase"
+      renderDocument={group => group.name}
       noSubscriptionsMessage="You are not subscribed to any local groups."
     />
+    
+    
   </SingleColumnSection>;
 }
 

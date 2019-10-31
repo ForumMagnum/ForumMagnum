@@ -128,4 +128,3 @@ addGraphQLSchema(`
   }
 `);
 addGraphQLQuery("EmailPreview(notificationIds: [String!]): [EmailPreview]");
-

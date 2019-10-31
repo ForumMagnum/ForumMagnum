@@ -63,6 +63,8 @@ registerFragment(`
 registerFragment(`
   fragment NotificationsList on Notification {
     _id
+    documentId
+    documentType
     userId
     createdAt
     link
@@ -521,6 +523,7 @@ registerFragment(`
     notificationCommentsOnSubscribedPost
     notificationRepliesToMyComments
     notificationRepliesToSubscribedComments
+    notificationSubscribedUserPost
     notificationPostsInGroups
     notificationPrivateMessage
     notificationSharedWithMe

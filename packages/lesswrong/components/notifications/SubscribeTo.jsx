@@ -4,6 +4,18 @@ import { Subscriptions } from '../../lib/collections/subscriptions/collection'
 import { defaultSubscriptionTypeTable } from '../../lib/collections/subscriptions/mutations'
 import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil.js';
 import { useCurrentUser } from '../common/withUser';
+import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
+import NotificationsIcon from '@material-ui/icons/Notifications';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import { withStyles } from '@material-ui/core/styles';
+import classNames from 'classnames';
+
+const styles = theme => ({
+  root: {
+    display: "flex",
+    alignItems: "center"
+  }
+})
 
 const SubscribeTo = ({
   document,
@@ -12,6 +24,8 @@ const SubscribeTo = ({
   flash, // From withMessages HoC
   subscribeMessage, unsubscribeMessage,
   className="",
+  classes,
+  showIcon
 }) => {
   const currentUser = useCurrentUser();
   
@@ -23,7 +37,7 @@ const SubscribeTo = ({
   const { results, loading } = useMulti({
     terms: {
       view: "subscriptionState",
-      documentId: document?._id,
+      documentId: document._id,
       userId: currentUser?._id,
       subscriptionType,
       collectionName,
@@ -77,12 +91,13 @@ const SubscribeTo = ({
   }
 
   // can't subscribe to yourself
-  if (!currentUser || !document || (collectionName === 'Users' && document._id === currentUser._id)) {
+  if (!currentUser || (collectionName === 'Users' && document._id === currentUser._id)) {
     return null;
   }
 
-  return <a className={className} onClick={onSubscribe}>
-    { isSubscribed() ? unsubscribeMessage : subscribeMessage }
+  return <a className={classNames(className, classes.root)} onClick={onSubscribe}>
+    {showIcon && <ListItemIcon>{isSubscribed() ? <NotificationsIcon /> : <NotificationsNoneIcon /> }</ListItemIcon>}
+    { isSubscribed() ? unsubscribeMessage : subscribeMessage}
   </a>
 }
 
@@ -91,7 +106,8 @@ registerComponent('SubscribeTo', SubscribeTo,
   [withCreate, {
     collection: Subscriptions,
     fragmentName: 'SubscriptionState',
-  }]
+  }],
+  withStyles(styles, {name: "SubscribeTo"})
 );
 
 
