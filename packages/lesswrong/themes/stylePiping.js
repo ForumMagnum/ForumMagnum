@@ -238,7 +238,11 @@ export const ckEditorStyles = theme => {
         '--ck-focus-outer-shadow': "none",
         '--ck-inner-shadow': "none",
         '& p': {
-          ...pBodyStyle
+          marginTop: "1em",
+          marginBottom: "1em",
+          '&:first-of-type': {
+            marginTop: 0,
+          }
         },
         '.ck-editor__editable.ck-blurred .ck-widget.ck-widget_selected, .ck-editor__editable.ck-blurred .ck-widget.ck-widget_selected': {
           outline: "none"
