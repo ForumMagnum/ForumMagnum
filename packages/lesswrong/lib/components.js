@@ -41,6 +41,7 @@ importComponent("EmailPreview", () => require('../components/notifications/Email
 
 importComponent("Layout", () => require('../components/Layout.jsx'));
 
+importComponent("AnalyticsClient", () => require('../components/common/AnalyticsClient.jsx'));
 importComponent("CalendarDate", () => require('../components/common/CalendarDate.jsx'));
 importComponent("FormatDate", () => require('../components/common/FormatDate.jsx'));
 importComponent("BetaTag", () => require('../components/common/BetaTag.jsx'));

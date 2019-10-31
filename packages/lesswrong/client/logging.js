@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/browser';
 import { getSetting, addCallback } from 'meteor/vulcan:core'
+import { captureEvent } from '../lib/analyticsEvents.js';
 
 const sentryUrl = getSetting('sentry.url');
 const sentryEnvironment = getSetting('sentry.environment');
@@ -28,3 +29,15 @@ function addUserIdToGoogleAnalytics(user) {
 }
 
 addCallback('events.identify', addUserIdToGoogleAnalytics)
+
+window.addEventListener('load', ev => {
+  captureEvent("pageLoadFinished", {
+    url: document.location?.href,
+    referrer: document.referrer,
+    performance: {
+      memory: window.performance?.memory?.usedJSHeapSize,
+      timeOrigin: window.performance?.timeOrigin,
+      timing: window.performance?.timing,
+    },
+  });
+});
