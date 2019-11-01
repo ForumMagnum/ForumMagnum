@@ -15,6 +15,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import withErrorBoundary from '../common/withErrorBoundary';
 import Tooltip from '@material-ui/core/Tooltip';
+import { userHasCkEditor } from '../../lib/betas.js';
 
 const postEditorHeight = 250;
 const commentEditorHeight = 100;
@@ -111,11 +112,13 @@ class EditorFormComponent extends Component {
     }
     this.hasUnsavedData = false;
     this.throttledSaveBackup = _.throttle(this.saveBackup, autosaveInterval, {leading:false});
+    this.throttledSetCkEditor = _.throttle(this.setCkEditor, autosaveInterval);
+
   }
 
   async componentDidMount() {
     const { currentUser, form } = this.props
-    if (currentUser?.isAdmin) {
+    if (userHasCkEditor(currentUser)) {
       let EditorModule = await (form?.commentEditor ? import('../async/CKCommentEditor') : import('../async/CKPostEditor'))
       const Editor = EditorModule.default
       this.ckEditor = Editor
@@ -405,7 +408,7 @@ class EditorFormComponent extends Component {
   }
 
   getUserDefaultEditor = (user) => {
-    //if (user?.beta) return "ckEditorMarkup"
+    //if (userHasCkEditor(user)) return "ckEditorMarkup"
     if (Users.useMarkdownPostEditor(user)) return "markdown"
     return "draftJS"
   }
@@ -430,7 +433,7 @@ class EditorFormComponent extends Component {
 
   renderEditorTypeSelect = () => {
     const { currentUser } = this.props
-    if (!currentUser || (!currentUser.isAdmin && !currentUser.isAdmin)) return null
+    if (!currentUser || (!userHasCkEditor(currentUser) && !currentUser.isAdmin)) return null
     return (
       <Tooltip title="Warning! Changing format will erase your content" placement="left">
         <Select
@@ -497,7 +500,7 @@ class EditorFormComponent extends Component {
         documentId: document?._id,
         formType: formType,
         userId: currentUser?._id,
-        onChange: (event, editor) => this.setCkEditor(editor),
+        onChange: (event, editor) => this.throttledSetCkEditor(editor),
         onInit: editor => this.setState({ckEditorReference: editor})
       }
 

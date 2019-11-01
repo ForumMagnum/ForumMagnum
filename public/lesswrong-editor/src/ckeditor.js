@@ -31,27 +31,29 @@ import RealTimeCollaborativeComments from '@ckeditor/ckeditor5-real-time-collabo
 import RealTimeCollaborativeTrackChanges from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativetrackchanges';
 import RemoveFormat from '@ckeditor/ckeditor5-remove-format/src/removeformat';
 import Strikethrough from '@ckeditor/ckeditor5-basic-styles/src/strikethrough';
-// import Table from '@ckeditor/ckeditor5-table/src/table';
-// import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
+import Table from '@ckeditor/ckeditor5-table/src/table';
+import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
 import Underline from '@ckeditor/ckeditor5-basic-styles/src/underline';
 import UploadAdapter from '@ckeditor/ckeditor5-adapter-ckfinder/src/uploadadapter';
 import BlockToolbar from '@ckeditor/ckeditor5-ui/src/toolbar/block/blocktoolbar';
-import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave'
+import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave';
 
-import MathpreviewPlugin from 'ckeditor5-math-preview/src/mathpreview';
+// import MathpreviewPlugin from 'ckeditor5-math-preview/src/mathpreview';
+// current version of MathpreviewPlugin (1.1.3) breaks ckeditor
 
 class CommentEditor extends BalloonBlockEditorBase {}
 class PostEditor extends BalloonBlockEditorBase {}
 class PostEditorCollaboration extends BalloonBlockEditorBase {}
-
-// Tables and MediaEmbeds are commented out for now, but will be added back in as soon as some minor
-// minor issues are debugged.
 
 // NOTE: If you make changes to this file, you must:
 // 1. navigate in your terminal to the corresponding folder ('cd ./public/lesswrong-editor')
 // 2. 'yarn run build'
 // 3. navigate back to main folder (i.e. 'cd ../..')
 // 4. run 'yarn add ./public/lesswrong-editor'.
+//
+// alternately, if you're starting in the root directory and want to do it all in one go:
+//
+// cd ./public/lesswrong-editor; yarn install; yarn run build; cd ../..; yarn add ./public/lesswrong-editor;
 
 const headingOptions = {
 	options: [
@@ -88,11 +90,11 @@ const postEditorPlugins = [
 	PasteFromOffice,
 	RemoveFormat,
 	Strikethrough,
-	// Table,
-	// TableToolbar,
+	Table,
+	TableToolbar,
 	Underline,
 	UploadAdapter,
-	MathpreviewPlugin
+	// MathpreviewPlugin
 ];
 
 PostEditor.builtinPlugins = [
@@ -114,7 +116,7 @@ const postEditorConfig = {
 		'numberedList',
 		'imageUpload',
 		'blockQuote',
-		// 'insertTable',         these don't work yet, although I aim to fix them soon – Ray
+		'insertTable',
 		// 'mediaEmbed',
 		'|',
 		'undo',
@@ -143,15 +145,15 @@ const postEditorConfig = {
 			'comment',
 		],
 	},
-	heading: headingOptions
-	// table: {
-	// 	contentToolbar: [
-	// 		'tableColumn',
-	// 		'tableRow',
-	// 		'mergeTableCells'
-	// 	],
-	// 	tableToolbar: [ 'comment' ]
-	// },
+	heading: headingOptions,
+	table: {
+		contentToolbar: [
+			'tableColumn',
+			'tableRow',
+			'mergeTableCells'
+		],
+		tableToolbar: [ 'comment' ]
+	},
 	// mediaEmbed: {
 	// 	toolbar: [ 'comment' ]
 	// },
@@ -186,10 +188,10 @@ CommentEditor.builtinPlugins = [
 	PasteFromOffice,
 	RemoveFormat,
 	Strikethrough,
-	// Table,
+	Table,
 	Underline,
 	UploadAdapter,
-	MathpreviewPlugin
+	// MathpreviewPlugin
 ];
 
 CommentEditor.defaultConfig = {
@@ -212,15 +214,15 @@ CommentEditor.defaultConfig = {
 			'imageTextAlternative'
 		]
 	},
-	heading: headingOptions
-	// table: {
-	// 	contentToolbar: [
-	// 		'tableColumn',
-	// 		'tableRow',
-	// 		'mergeTableCells'
-	// 	],
-	// 	tableToolbar: [ 'comment' ]
-	// },
+	heading: headingOptions,
+	table: {
+		contentToolbar: [
+			'tableColumn',
+			'tableRow',
+			'mergeTableCells'
+		],
+		tableToolbar: [ 'comment' ]
+	},
 };
 
 export const Editors = { CommentEditor, PostEditor, PostEditorCollaboration };
