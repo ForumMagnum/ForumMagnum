@@ -10,6 +10,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import Users from 'meteor/vulcan:users';
 import Tooltip from '@material-ui/core/Tooltip';
 import { withStyles } from '@material-ui/core/styles'
+import { captureEvent } from '../../lib/analyticsEvents.js';
 
 const styles = theme => ({
   icon: {
@@ -54,6 +55,7 @@ const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right"
         selector: {_id: currentUser._id},
         data: { bookmarkedPostsMetadata: [...bookmarks, {postId: post._id}] }
       });
+      captureEvent("bookmarkSet", {"postId": post._id})
     }
   }
 
