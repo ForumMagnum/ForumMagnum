@@ -113,6 +113,8 @@ class EditorFormComponent extends Component {
     }
     this.hasUnsavedData = false;
     this.throttledSaveBackup = _.throttle(this.saveBackup, autosaveInterval, {leading:false});
+    this.throttledSetCkEditor = _.throttle(this.setCkEditor, autosaveInterval);
+
   }
 
   async componentDidMount() {
@@ -523,7 +525,7 @@ class EditorFormComponent extends Component {
         documentId: document?._id,
         formType: formType,
         userId: currentUser?._id,
-        onChange: (event, editor) => this.setCkEditor(editor),
+        onChange: (event, editor) => this.throttledSetCkEditor(editor),
         onInit: editor => this.setState({ckEditorReference: editor})
       }
 
