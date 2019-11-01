@@ -18,6 +18,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { karmaNotificationTimingChoices } from './KarmaChangeNotifierSettings'
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments';
+import { captureEvent } from '../../lib/analyticsEvents.js';
+
 
 const styles = theme => ({
   root: {
@@ -162,6 +164,7 @@ class KarmaChangeNotifier extends PureComponent {
       anchorEl: event.currentTarget,
       karmaChangeLastOpened: new Date()
     });
+    captureEvent("karmaNotifierOpen")
   }
 
   handleToggle = (e) => {
