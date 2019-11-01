@@ -256,8 +256,9 @@ function fixUsernameOnGithubLogin(user) {
   if (user.services && user.services.github) {
     //eslint-disable-next-line no-console
     console.info("Github login detected, setting username and slug manually");
-    user.username = user.services.github.username;
-    user.slug = user.services.github.username;
+    user.username = user.services.github.username
+    const basicSlug = Utils.slugify(user.services.github.username)
+    user.slug = Utils.getUnusedSlugByCollectionName('Users', basicSlug)
   }
   return user;
 }

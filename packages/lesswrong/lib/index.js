@@ -28,7 +28,6 @@ import './collections/comments/fragments.js';
 import Notifications from './collections/notifications/collection.js';
 import './collections/notifications/views.js';
 import './collections/notifications/permissions.js';
-import './collections/notifications/seed.js';
 // Inbox
 import Messages from './collections/messages/collection.js'
 import './collections/messages/views.js';

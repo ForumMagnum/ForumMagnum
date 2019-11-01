@@ -117,6 +117,16 @@ const styles = theme => ({
     whiteSpace: "no-wrap",
     fontSize: theme.typography.body2.fontSize,
   },
+  wordCount: {
+    display: 'none',
+    marginLeft: 20,
+    color: theme.palette.grey[600],
+    whiteSpace: "no-wrap",
+    fontSize: theme.typography.body2.fontSize,
+    [theme.breakpoints.down('sm')]: {
+      display: 'inline'
+    }
+  },
   actions: {
     display: 'inline-block',
     marginLeft: 15,
@@ -251,7 +261,7 @@ class PostsPage extends Component {
   }
 
   render() {
-    const { post, refetch, currentUser, classes, location: { query: { commentId }} } = this.props
+    const { post, refetch, currentUser, classes, location: { query, params } } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, ContentType,
       LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
@@ -262,7 +272,6 @@ class PostsPage extends Component {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
     } else {
       const { html, plaintextDescription, markdown, wordCount = 0 } = post.contents || {}
-      const { query } = this.props.location;
       const view = _.clone(query).view || Comments.getDefaultView(post, currentUser)
       const description = plaintextDescription ? plaintextDescription : (markdown && markdown.substring(0, 300))
       const commentTerms = _.isEmpty(query.view) ? {view: view, limit: 500} : {...query, limit:500}
@@ -275,6 +284,7 @@ class PostsPage extends Component {
       const hasMajorRevision = major > 1
       const contentType = getContentType(post)
 
+      const commentId = query.commentId || params.commentId
       return (
         <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
           <HeadTags url={Posts.getPageUrl(post, true)} canonicalUrl={post.canonicalSource} title={post.title} description={description}/>
@@ -302,6 +312,9 @@ class PostsPage extends Component {
                       </Tooltip>
                     }
                     {!post.isEvent && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
+                    {!!wordCount && !post.isEvent &&  <Tooltip title={`${wordCount} words`}>
+                        <span className={classes.wordCount}>{parseInt(wordCount/300) || 1 } min read</span>
+                    </Tooltip>}
                     {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
                     <a className={classes.commentsLink} href={"#comments"}>{ Posts.getCommentCountStr(post)}</a>
                     <span className={classes.actions}>

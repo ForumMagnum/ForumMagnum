@@ -8,8 +8,18 @@ Utils.sanitize = function(s) {
       'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul',
       'ol', 'nl', 'li', 'b', 'i', 'strong', 'em', 'strike',
       'code', 'hr', 'br', 'div', 'table', 'thead', 'caption',
-      'tbody', 'tr', 'th', 'td', 'pre', 'img'
-    ]
+      'tbody', 'tr', 'th', 'td', 'pre', 'img', 'figure', 'figcaption'
+    ],
+    allowedAttributes:  {
+      ...sanitizeHtml.defaults.allowedAttributes,
+      'figure': ['style']
+    },
+    allowedStyles: {
+      ...sanitizeHtml.defaults.allowedStyles,
+      'figure': {
+        'width': [/^\d+(?:px|em|%)$/]
+      }
+    }
   });
 };
 
