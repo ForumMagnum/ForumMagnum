@@ -436,15 +436,15 @@ class EditorFormComponent extends Component {
   }
 
   handleUpdateRevision = (document, version) => {
-    console.log(version)
     this.setState({version: version})
   }
 
   renderVersionSelect = () => {
-    const { document, classes, currentUser } = this.props 
+    const { document, currentUser } = this.props 
     
-    if (!currentUser || (!currentUser.isAdmin && !currentUser.isAdmin)) return null
+    if (!userHasCkEditor(currentUser)) return null
 
+    if (!this.getCurrentRevision()) return null
     return <Components.SelectVersion 
               key={this.getCurrentRevision()}
               documentId={document._id} 
@@ -455,7 +455,7 @@ class EditorFormComponent extends Component {
 
   renderEditorTypeSelect = () => {
     const { currentUser, classes } = this.props
-    if (!currentUser || (!userHasCkEditor(currentUser) && !currentUser.isAdmin)) return null
+    if (!userHasCkEditor(currentUser) && !currentUser?.isAdmin) return null
     return (
       <Tooltip title="Warning! Changing format will erase your content" placement="left">
         <Select
