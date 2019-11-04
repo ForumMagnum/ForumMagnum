@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import { Utils } from 'meteor/vulcan:lib';
 import { withStyles } from '@material-ui/core/styles';
-import { emailBodyStyles } from '../../themes/stylePiping'
+// import { emailBodyStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
   // root: emailBodyStyles(theme)
