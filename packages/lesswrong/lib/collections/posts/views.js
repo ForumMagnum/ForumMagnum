@@ -433,11 +433,11 @@ Posts.addView("drafts", terms => {
     }
 }});
 ensureIndex(Posts,
-  augmentForDefaultView({ userId: 1, hideAuthor: 1, deletedDraft: 1, createdAt: -1 }),
+  augmentForDefaultView({ userId: 1, hideAuthor: 1, deletedDraft: 1, modifiedAt: -1 }),
   { name: "posts.userId_createdAt" }
 );
 ensureIndex(Posts,
-  augmentForDefaultView({ shareWithUsers: 1, deletedDraft: 1, createdAt: -1 }),
+  augmentForDefaultView({ shareWithUsers: 1, deletedDraft: 1, modifiedAt: -1 }),
   { name: "posts.userId_shareWithUsers" }
 );
 
