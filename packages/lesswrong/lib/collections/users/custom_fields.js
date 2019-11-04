@@ -602,6 +602,7 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    beforeComponent: "ManageSubscriptionsLink",
     ...schemaDefaultValue(true),
   },
   auto_subscribe_to_my_comments: {

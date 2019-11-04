@@ -79,6 +79,7 @@ const LocalGroupPage = ({ classes, documentId: groupId, currentUser }) => {
         <SectionTitle title={`${group.inactive ? "[Inactive] " : " "}${group.name}`}>
           {currentUser && <SectionButton>
             <SubscribeTo
+              showIcon
               document={group}
               subscribeMessage="Subscribe to group"
               unsubscribeMessage="Unsubscribe from group"

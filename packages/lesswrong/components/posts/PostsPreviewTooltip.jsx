@@ -105,25 +105,29 @@ const getPostCategory = (post) => {
     return post.question ? `Question` : `Personal Blogpost`
 }
 
-const PostsPreviewTooltip = ({ showAllinfo, post, classes, truncateLimit=600, comment }) => {
+const PostsPreviewTooltip = ({ showAllInfo, post, classes, truncateLimit=600, comment }) => {
   const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton } = Components
+
+  if (!post) return null
+
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
   const highlight = truncate(htmlHighlight, truncateLimit)
-  const renderCommentCount = showAllinfo && (Posts.getCommentCount(post) > 0)
+  const renderCommentCount = showAllInfo && (Posts.getCommentCount(post) > 0)
   const renderWordCount = !comment && (wordCount > 0)
+
   return <Card className={classes.root}>
       <div className={classes.title}>
         <PostsTitle post={post} tooltip={false} wrap/>
       </div>
       <div className={classes.tooltipInfo}>
         { getPostCategory(post)}
-        { showAllinfo && post.user && <span> by <PostsUserAndCoauthors post={post} simple/></span>}
+        { showAllInfo && post.user && <span> by <PostsUserAndCoauthors post={post} simple/></span>}
         { renderCommentCount && <span className={classes.comments}>
           <CommentIcon className={classes.commentIcon}/>
             {Posts.getCommentCountStr(post)}
         </span>}
-        { showAllinfo && <span className={classes.karma}>{Posts.getKarma(post)} karma</span>}
+        { showAllInfo && <span className={classes.karma}>{Posts.getKarma(post)} karma</span>}
       </div>
       {comment
         ? <div className={classes.comment}>
@@ -144,7 +148,7 @@ const PostsPreviewTooltip = ({ showAllinfo, post, classes, truncateLimit=600, co
         <span>
           {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
         </span>
-        { showAllinfo && <span className={classes.bookmarkButton}><BookmarkButton post={post} /></span>}
+        { showAllInfo && <span className={classes.bookmarkButton}><BookmarkButton post={post} /></span>}
       </div>}
   </Card>
 

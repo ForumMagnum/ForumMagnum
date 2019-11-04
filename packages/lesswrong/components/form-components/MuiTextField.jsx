@@ -12,8 +12,8 @@ const styles = theme => ({
   textField: {
     fontSize: "15px",
     width: 350,
-    [theme.breakpoints.down('md')]: {
-      width: "100%",
+    [theme.breakpoints.down('sm')]: {
+      width: "calc(100% - 30px)", // leaving 30px so that the "clear" button for select forms has room
     },
   },
   fullWidth: {
