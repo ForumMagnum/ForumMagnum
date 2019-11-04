@@ -447,8 +447,7 @@ class EditorFormComponent extends Component {
 
   handleUpdateVersion = async (document) => {
     if (!document) return
-    const editorType = document?.contents?.originalContents?.type
-    await this.handleEditorOverride(editorType)
+    const editorType = document.contents?.originalContents?.type
     this.setState({
       ...this.getEditorStatesFromType(editorType, document.contents)
     })

@@ -47,6 +47,14 @@ const palette = {
   }
 }
 
+export const sharedOverrides = {
+  MuiSelect: {
+    selectMenu: {
+      paddingLeft: 8
+    }
+  }
+}
+
 const theme = createLWTheme({
   palette: palette,
   typography: {
@@ -130,11 +138,7 @@ const theme = createLWTheme({
         boxShadow: "0 0 10px rgba(0,0,0,.2)",
       }
     },
-    MuiSelect: {
-      selectMenu: {
-        paddingLeft: 8
-      }
-    }
+    ...sharedOverrides
   }
 });
 
