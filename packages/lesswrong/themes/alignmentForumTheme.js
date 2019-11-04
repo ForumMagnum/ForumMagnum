@@ -121,6 +121,11 @@ const theme = createLWTheme({
       root: {
         fontWeight: 500,
       }
+    },
+    MuiSelect: {
+      selectMenu: {
+        paddingLeft: theme.spacing.unit
+      }
     }
   }
 });

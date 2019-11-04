@@ -190,6 +190,22 @@ registerFragment(`
 `)
 
 registerFragment(`
+  fragment PostsRevisionEdit on Post {
+    ...PostsDetails
+
+    # Content & Revisions
+    version
+    contents(version: $version) {
+      ...RevisionEdit
+    }
+    revisions {
+      version
+      editedAt
+    }
+  }
+`)
+
+registerFragment(`
   fragment PostsWithNavigationAndRevision on Post {
     ...PostsRevision
     ...PostSequenceNavigation
@@ -255,8 +271,6 @@ registerFragment(`
     }
   }
 `);
-
-
 
 registerFragment(`
   fragment EditModerationGuidelines on Post {

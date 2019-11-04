@@ -78,7 +78,7 @@ const styles = theme => ({
     color: theme.palette.error.main
   },
   select: {
-    marginRight: theme.spacing.unit
+    marginLeft: theme.spacing.unit*1.5
   },
   placeholder: {
     position: "absolute",
@@ -127,26 +127,30 @@ class EditorFormComponent extends Component {
     }
   }
 
-  getEditorStatesFromType = (editorType) => {
+  getEditorStatesFromType = (editorType, contents) => {
     const { document, fieldName, value } = this.props
     const { editorOverride } = this.state || {} // Provide default value, since we can call this before state is initialized
+
+    // if contents are manually specified, use those:
+    const newValue = contents || value
+
     // Initialize the editor to whatever the canonicalContent is
-    if (value && value.originalContents && value.originalContents.data
+    if (newValue && newValue.originalContents && newValue.originalContents.data
         && !editorOverride
-        && editorType === value.originalContents.type)
+        && editorType === newValue.originalContents.type)
     {
       return {
-        draftJSValue: editorType === "draftJS" ? this.initializeDraftJS(value.originalContents.data) : null,
-        markdownValue: editorType === "markdown" ? this.initializeText(value.originalContents.data, editorType) : null,
-        htmlValue: editorType === "html" ? this.initializeText(value.originalContents.data, editorType) : null,
-        ckEditorValue: editorType === "ckEditorMarkup" ? this.initializeText(value.originalContents.data, editorType) : null
+        draftJSValue: editorType === "draftJS" ? this.initializeDraftJS(newValue.originalContents.data, editorType) : null,
+        markdownValue: editorType === "markdown" ? this.initializeText(newValue.originalContents.data, editorType) : null,
+        htmlValue: editorType === "html" ? this.initializeText(newValue.originalContents.data, editorType) : null,
+        ckEditorValue: editorType === "ckEditorMarkup" ? this.initializeText(newValue.originalContents.data, editorType) : null
       }
     }
     
     // Otherwise, just set it to the value of the document
     const { draftJS, html, markdown, ckEditorMarkup } = document[fieldName] || {}
     return {
-      draftJSValue: editorType === "draftJS" ? this.initializeDraftJS(draftJS) : null,
+      draftJSValue: editorType === "draftJS" ? this.initializeDraftJS(draftJS, editorType) : null,
       markdownValue: editorType === "markdown" ? this.initializeText(markdown, editorType) : null,
       htmlValue: editorType === "html" ? this.initializeText(html, editorType) : null,
       ckEditorValue: editorType === "ckEditorMarkup" ? this.initializeText(ckEditorMarkup, editorType) : null
@@ -437,8 +441,17 @@ class EditorFormComponent extends Component {
     return this.state.version || this.props.document.version
   }
 
-  handleUpdateRevision = (document, version) => {
-    this.setState({version: version})
+  handleUpdateVersionNumber = (version) => {    
+    this.setState({ version: version })
+  }
+
+  handleUpdateVersion = async (document) => {
+    if (!document) return
+    const editorType = document?.contents?.originalContents?.type
+    await this.handleEditorOverride(editorType)
+    this.setState({
+      ...this.getEditorStatesFromType(editorType, document.contents)
+    })
   }
 
   renderVersionSelect = () => {
@@ -451,7 +464,8 @@ class EditorFormComponent extends Component {
               key={this.getCurrentRevision()}
               documentId={document._id} 
               revisionVersion={this.getCurrentRevision()} 
-              onChange={this.handleUpdateRevision}
+              updateVersionNumber={this.handleUpdateVersionNumber}
+              updateVersion={this.handleUpdateVersion}
             />
   }
 
