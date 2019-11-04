@@ -78,7 +78,7 @@ const styles = theme => ({
     color: theme.palette.error.main
   },
   select: {
-    marginLeft: theme.spacing.unit*1.5
+    marginRight: theme.spacing.unit*1.5
   },
   placeholder: {
     position: "absolute",
@@ -454,18 +454,20 @@ class EditorFormComponent extends Component {
   }
 
   renderVersionSelect = () => {
-    const { document, currentUser } = this.props 
+    const { classes, document, currentUser } = this.props 
     
     if (!userHasCkEditor(currentUser)) return null
 
     if (!this.getCurrentRevision()) return null
-    return <Components.SelectVersion 
-              key={this.getCurrentRevision()}
-              documentId={document._id} 
-              revisionVersion={this.getCurrentRevision()} 
-              updateVersionNumber={this.handleUpdateVersionNumber}
-              updateVersion={this.handleUpdateVersion}
-            />
+    return <span className={classes.select}>
+        <Components.SelectVersion 
+          key={this.getCurrentRevision()}
+          documentId={document._id} 
+          revisionVersion={this.getCurrentRevision()} 
+          updateVersionNumber={this.handleUpdateVersionNumber}
+          updateVersion={this.handleUpdateVersion}
+        />
+      </span>
   }
 
   renderEditorTypeSelect = () => {
