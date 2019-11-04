@@ -429,7 +429,7 @@ Posts.addView("drafts", terms => {
       hiddenRelatedQuestion: viewFieldAllowAny,
     },
     options: {
-      sort: {createdAt: -1}
+      sort: {modifiedAt: -1}
     }
 }});
 ensureIndex(Posts,

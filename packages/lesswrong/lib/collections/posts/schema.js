@@ -57,6 +57,13 @@ const schema = {
       }
     }
   },
+  // Timestamp of last post modification
+  modifiedAt: {
+    type: Date,
+    optional: true,
+    viewableBy: ['guests'],
+    onInsert: () => new Date(),
+  },
   // URL
   url: {
     type: String,

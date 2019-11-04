@@ -11,6 +11,7 @@ registerFragment(`
     slug
     postedAt
     createdAt
+    modifiedAt
     sticky
     metaSticky
     status
