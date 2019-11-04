@@ -9,12 +9,6 @@ import { makeEditableOptions, makeEditableOptionsModeration } from './custom_fie
 import { PostRelations } from '../postRelations/index';
 const MINIMUM_APPROVAL_KARMA = 5
 
-function PostsEditSetModifiedAt (data) {
-  data.modifiedAt = new Date()
-  return data;
-}
-addCallback("post.update.before", PostsEditSetModifiedAt);
-
 function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
   if (data.draft === false && post.draft) {
     data = runCallbacks("post.undraft.before", data, post);
