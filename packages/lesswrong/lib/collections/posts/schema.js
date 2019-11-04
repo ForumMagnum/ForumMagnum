@@ -61,7 +61,6 @@ const schema = {
     type: Date,
     optional: true,
     viewableBy: ['guests'],
-    onInsert: () => new Date(),
     ...denormalizedField({
       getValue: () => {
         return new Date()
