@@ -28,7 +28,6 @@ export const emailDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transi
 // specific dysfunctional email clients (like the ".ExternalClass" and
 // ".yshortcuts" entries.)
 const emailGlobalCss = `
-  html {font-size: 13px;}
   .ReadMsgBody { width: 100%; background-color: #ebebeb;}
   .ExternalClass {width: 100%; background-color: #ebebeb;}
   .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div {line-height:100%;}
@@ -57,6 +56,9 @@ const emailGlobalCss = `
   }
   
   /* Global styles that apply eg inside of posts */
+  a {
+    color: #5f9b65
+  }
   blockquote {
     border-left: solid 3px #e0e0e0;
     padding: .75em 2em;
