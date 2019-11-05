@@ -60,7 +60,6 @@ class ContinueReadingList extends Component {
       return <PostsLoading/>
     
     const { entries, showAllLink } = this.limitResumeReading(continueReading);
-    
     const saveLeftOffTooltip = <div>
       Logging in helps you keep track of which sequences you've started reading, so that you can continue reading them when you return to LessWrong.
     </div>
@@ -90,11 +89,12 @@ class ContinueReadingList extends Component {
   }
 
   componentDidMount() {
-    const entries = this.limitResumeReading(this.props.continueReading)
+    const { continueReading } = this.props
+    const { entries } = this.limitResumeReading(continueReading)
     entries.map(resumeReading => {
       const { nextPost, sequence, collection } = resumeReading;
       captureEvent("continueReadingDisplayed", {
-        "post": nextPost, 
+        "postId": nextPost?._id, 
         "sequenceId": sequence?._id, 
         "collection": collection?._id})
     });

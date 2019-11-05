@@ -14,7 +14,6 @@ import PropTypes from 'prop-types';
 import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
 import { captureEvent } from '../../lib/analyticsEvents.js';
-import { list } from '../../../../node_modules/postcss/lib/postcss.js';
 
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
@@ -307,9 +306,9 @@ class PostsItem2 extends PureComponent {
   }
 
   captureClick = () => {
-    const { postId, listContext } = this.props
+    const { post, listContext } = this.props
     if (["fromTheArchives", "continueReading"].includes(listContext)) {
-      captureEvent("postItemClick", {"postId": postId, "listContext": listContext});
+      captureEvent("postItemClick", {"postId": post?._id, "listContext": listContext});
     }
   }
 
@@ -354,8 +353,8 @@ class PostsItem2 extends PureComponent {
                 <PostsItemKarma post={post} />
               </PostsItem2MetaInfo>
 
-              <span className={classes.title}>
-                <PostsTitle postLink={postLink} post={post} expandOnHover={!renderComments} read={isRead} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag} onClick={this.captureClick} />
+              <span className={classes.title} onClick={this.captureClick}>
+                <PostsTitle postLink={postLink} post={post} expandOnHover={!renderComments} read={isRead} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
               </span>
 
               {(resumeReading?.sequence || resumeReading?.collection) &&

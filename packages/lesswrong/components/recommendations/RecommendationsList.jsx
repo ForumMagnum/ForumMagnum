@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
 import { withRecommendations } from './withRecommendations';
+import { captureEvent } from '../../lib/analyticsEvents';
 
 class RecommendationsList extends Component {
   render() {
@@ -29,6 +30,13 @@ class RecommendationsList extends Component {
         </LoginPopupButton>
       </SectionFooter>}
     </div>
+  }
+
+  componentDidMount() {
+    const { recommendations } = this.props
+    recommendations.map(post =>
+        captureEvent("fromTheArchivesDisplayed", {"postId": post?._id})
+      );
   }
 }
 
