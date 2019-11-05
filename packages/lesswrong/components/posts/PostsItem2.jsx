@@ -40,13 +40,15 @@ const styles = (theme) => ({
     paddingBottom: 10,
     alignItems: "center",
     flexWrap: "nowrap",
-    '&:hover': {
-      backgroundColor: "#efefef"
-    },
     [theme.breakpoints.down('sm')]: {
       flexWrap: "wrap",
       paddingTop: theme.spacing.unit,
       paddingBottom: theme.spacing.unit,
+    },
+  },
+  withGrayHover: {
+    '&:hover': {
+      backgroundColor: "#efefef"
     },
   },
   hasResumeReading: {
@@ -342,9 +344,10 @@ const PostsItem2 = ({
         [classes.hasResumeReading]: !!resumeReading,
       })}
     >
-        {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} post={post} />}
+      <PostsItemTooltipWrapper post={post}>
+        <div className={classes.withGrayHover}>
+          {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} post={post} />}
 
-        <PostsItemTooltipWrapper post={post}>
           <div className={classNames(classes.postsItem, {
             [classes.dense]: dense,
             [classes.withRelevanceVoting]: !!tagRel,
@@ -418,23 +421,24 @@ const PostsItem2 = ({
                 />
               </div>}
           </div>
-        </PostsItemTooltipWrapper>
+        </div>
+      </PostsItemTooltipWrapper>
 
-        {<div className={classes.actions}>
-          {dismissButton}
-          {!resumeReading && <PostsPageActions post={post} vertical />}
-        </div>}
+      {<div className={classes.actions}>
+        {dismissButton}
+        {!resumeReading && <PostsPageActions post={post} vertical />}
+      </div>}
 
-        {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>
-          <Components.PostsItemNewCommentsWrapper
-            currentUser={currentUser}
-            highlightDate={post.lastVisitedAt}
-            terms={{view:"postCommentsUnread", limit:7, postId: post._id}}
-            post={post}
-            condensed={condensedAndHiddenComments}
-            hideReadComments={condensedAndHiddenComments}
-          />
-        </div>}
+      {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>
+        <Components.PostsItemNewCommentsWrapper
+          currentUser={currentUser}
+          highlightDate={post.lastVisitedAt}
+          terms={{view:"postCommentsUnread", limit:7, postId: post._id}}
+          post={post}
+          condensed={condensedAndHiddenComments}
+          hideReadComments={condensedAndHiddenComments}
+        />
+      </div>}
     </div>
   )
 };
