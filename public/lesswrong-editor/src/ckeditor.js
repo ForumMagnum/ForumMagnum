@@ -112,16 +112,9 @@ PostEditorCollaboration.builtinPlugins = [
 
 const postEditorConfig = {
 	blockToolbar: [
-		'heading',
-		'|',
-		'bulletedList',
-		'numberedList',
 		'imageUpload',
-		'blockQuote',
 		'insertTable',
 		// 'mediaEmbed',
-		'|',
-		'trackChanges'
 	],
 	toolbar: [
 		'heading',
