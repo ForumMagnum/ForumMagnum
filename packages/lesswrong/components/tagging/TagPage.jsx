@@ -12,17 +12,18 @@ import { postBodyStyles } from '../../themes/stylePiping'
 const styles = theme => ({
   description: {
     ...postBodyStyles(theme),
+    marginBottom: 16,
   },
 });
 
 const TagPage = ({classes}) => {
-  const { SingleColumnSection, SectionTitle, PostsItem2, Loading, ContentItemBody } = Components;
+  const { SingleColumnSection, SectionTitle, SectionFooter, PostsItem2, Loading, ContentItemBody } = Components;
   const currentUser = useCurrentUser();
   const { params } = useLocation();
   const { slug } = params;
   const { tag, loading: loadingTag } = useTagBySlug(slug);
   
-  const { results, loading: loadingPosts } = useMulti({
+  const { results, loadMoreProps } = useMulti({
     skip: !(tag?._id),
     terms: {
       view: "postsWithTag",
@@ -44,7 +45,7 @@ const TagPage = ({classes}) => {
     <SectionTitle title={`Posts Tagged #${tag.name}`}>
       {Users.isAdmin(currentUser) && <Link to={`/tag/${tag.slug}/edit`}>Edit</Link>}
     </SectionTitle>
-    {(loadingTag || loadingPosts) && <Loading/>}
+    {loadingTag && <Loading/>}
     {tag && <ContentItemBody
       dangerouslySetInnerHTML={{__html: tag.description?.html}}
       description={`tag ${tag.name}`}
@@ -54,8 +55,11 @@ const TagPage = ({classes}) => {
       There are no posts with this tag yet.
     </div>}
     {results && results.map((result,i) =>
-      <PostsItem2 key={result.post._id} tagRel={result} post={result.post} index={i} />
+      result.post && <PostsItem2 key={result.post._id} tagRel={result} post={result.post} index={i} />
     )}
+    <SectionFooter>
+      <Components.LoadMore {...loadMoreProps} />
+    </SectionFooter>
   </SingleColumnSection>
 }
 
