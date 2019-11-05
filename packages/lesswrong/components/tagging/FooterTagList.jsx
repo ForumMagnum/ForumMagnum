@@ -7,22 +7,24 @@ import { TagRels } from '../../lib/collections/tagRels/collection.js';
 import Paper from '@material-ui/core/Paper';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 
-const styles = {
+const styles = theme => ({
   root: {
     marginTop: 16,
     marginBottom: 16,
   },
   tagsLabel: {
+    fontSize: "1.2rem",
+    ...theme.typography.postStyle,
     verticalAlign: "baseline",
   },
   addTagButton: {
     border: "1px solid #888",
     borderRadius: 15,
     display: "inline-block",
-    width: 30,
-    height: 30,
+    width: 26,
+    height: 26,
     textAlign: "center",
-    paddingTop: 5,
+    paddingTop: 4,
     verticalAlign: "middle",
     
     "&:hover": {
@@ -30,7 +32,7 @@ const styles = {
       borderColor: "black",
     },
   },
-};
+});
 
 const FooterTagList = ({post, classes}) => {
   const [isOpen, setIsOpen] = useState(false);
