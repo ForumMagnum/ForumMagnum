@@ -15,7 +15,7 @@ const TagPageTitle = ({isSubtitle}) => {
     return null;
   } else {
     return <Helmet>
-      <title>{tag.name} tag</title>
+      <title>{`${tag.name} tag`}</title>
       <meta property='og:title' content={`Posts tagged ${tag.name}`}/>
     </Helmet>
   }
