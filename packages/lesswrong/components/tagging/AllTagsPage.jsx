@@ -4,10 +4,13 @@ import { Tags } from '../../lib/collections/tags/collection.js';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import AddBoxIcon from '@material-ui/icons/AddBox';
 
 const styles = theme => ({
-  tag: {},
-  createTagButton: {},
+  tag: {
+    display: "list-item",
+  },
 });
 
 const AllTagsPage = ({classes}) => {
@@ -22,20 +25,24 @@ const AllTagsPage = ({classes}) => {
     limit: 100,
     ssr: true,
   });
-  const { SingleColumnSection, SectionTitle, Loading } = Components;
+  const { SingleColumnSection, SectionTitle, SectionButton, Loading } = Components;
   
   return (
     <SingleColumnSection>
-      <SectionTitle title="All Tags"/>
+      <SectionTitle title="All Tags">
+        {currentUser?.isAdmin && <SectionButton>
+          <AddBoxIcon/>
+          <Link to="/tag/create">New Tag</Link>
+        </SectionButton>}
+      </SectionTitle>
       {loading && <Loading/>}
       {results && <ul>{results.map(tag => {
-        return <li key={tag._id} className={classes.tag}>
+        return <Typography key={tag._id} variant="body2" component="li" className={classes.tag}>
           <Link to={`/tag/${tag.slug}`}>
             {tag.name} ({tag.postCount})
           </Link>
-        </li>
+        </Typography>
       })}</ul>}
-      {currentUser?.isAdmin && <Link className={classes.createTagButton} to="/tag/create">Create New Tag</Link>}
     </SingleColumnSection>
   );
 }
