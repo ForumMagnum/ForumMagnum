@@ -1,4 +1,4 @@
-import { createCollection, getDefaultResolvers, getDefaultMutations } from 'meteor/vulcan:core';
+import { createCollection, getDefaultResolvers, getDefaultMutations, Utils } from 'meteor/vulcan:core';
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 import { denormalizedCountOfReferences } from '../../modules/utils/schemaUtils';
 import { makeEditable } from '../../editor/make_editable.js'

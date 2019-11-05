@@ -3,7 +3,6 @@ import { registerComponent, Components } from 'meteor/vulcan:core';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { withStyles } from '@material-ui/core/styles';
 import withHover from '../common/withHover';
-import Card from '@material-ui/core/Card';
 
 const styles = theme => ({
   root: {
@@ -57,11 +56,11 @@ const FooterTag = ({tagRel, tag, hover, anchorEl, classes}) => {
       <span className={classes.score}>{tagRel.baseScore}</span>
       <span className={classes.name}>{tag.name}</span>
     </Link>
-    <Components.LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
-      <Card><div className={classes.hovercard}>
+    <Components.PopperCard open={hover} anchorEl={anchorEl}>
+      <div className={classes.hovercard}>
         <Components.TagRelCard tagRel={tagRel}/>
-      </div></Card>
-    </Components.LWPopper>
+      </div>
+    </Components.PopperCard>
   </span>);
 }
 

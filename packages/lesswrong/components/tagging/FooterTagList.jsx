@@ -1,5 +1,5 @@
 import React, { useState }  from 'react';
-import { Components, registerComponent, useMulti, getFragment, cacheUpdateGenerator, updateEachQueryResultOfType, handleUpdateMutation } from 'meteor/vulcan:core';
+import { Components, registerComponent, useMulti, getFragment, updateEachQueryResultOfType, handleUpdateMutation } from 'meteor/vulcan:core';
 import { useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import { withStyles } from '@material-ui/core/styles';

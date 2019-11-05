@@ -5,6 +5,7 @@ import { withVote } from '../votes/withVote';
 import { useCurrentUser } from '../common/withUser';
 import { TagRels } from '../../lib/collections/tagRels/collection.js';
 import { Link } from '../../lib/reactRouterWrapper.js';
+import { postBodyStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
   root: {
@@ -28,7 +29,7 @@ const styles = theme => ({
 
 const TagRelCard = ({tagRel, vote, classes}) => {
   const currentUser = useCurrentUser();
-  const { VoteButton, Loading, PostsItem2 } = Components;
+  const { VoteButton, Loading, PostsItem2, ContentItemBody } = Components;
   
   const { results, loading } = useMulti({
     terms: {
@@ -49,7 +50,7 @@ const TagRelCard = ({tagRel, vote, classes}) => {
     
     {<ContentItemBody
       dangerouslySetInnerHTML={{__html: tagRel.tag.description?.html}}
-      description={`tag ${tag.name}`}
+      description={`tag ${tagRel.tag.name}`}
       className={classes.description}
     />}
     
