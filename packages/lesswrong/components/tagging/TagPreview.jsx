@@ -46,7 +46,6 @@ const TagPreview = ({href, targetLocation, innerHTML, classes, hover, anchorEl})
           className={classes.tagDescription}
           dangerouslySetInnerHTML={{__html: tag.description?.htmlHighlight}}
           description={`tag ${tag.name}`}
-          className={classes.description}
         />}
         {(loadingPosts || loadingTag) && <Loading/>}
         {results && results.map((result,i) =>

@@ -31,16 +31,15 @@ const styles = theme => ({
     marginLeft: 4,
     marginRight: 4,
   },
-  description: {},
 });
 
 const previewPostCount = 3;
 
 const TagRelCard = ({tagRel, vote, classes}) => {
   const currentUser = useCurrentUser();
-  const { VoteButton, Loading, PostsItem2, ContentItemBody, SectionFooter, PostsListPlaceholder } = Components;
+  const { VoteButton, PostsItem2, ContentItemBody, SectionFooter, PostsListPlaceholder } = Components;
   
-  const { results, loading } = useMulti({
+  const { results } = useMulti({
     terms: {
       view: "postsWithTag",
       tagId: tagRel.tag._id,
