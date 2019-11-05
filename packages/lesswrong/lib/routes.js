@@ -120,6 +120,8 @@ addRoute([
     name: 'sequencesPost',
     path: '/s/:sequenceId/p/:postId',
     componentName: 'SequencesPost',
+    titleComponentName: 'PostsPageHeaderTitle',
+    subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreviewSequencePost',
   },
 

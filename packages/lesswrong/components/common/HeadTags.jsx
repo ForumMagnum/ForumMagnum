@@ -22,7 +22,7 @@ const HeadTags = (props) => {
     const siteName = getSetting('forumSettings.tabTitle', 'LessWrong 2.0');
     
     const TitleComponent = currentRoute?.titleComponentName ? Components[currentRoute.titleComponentName] : null;
-    const titleString = currentRoute?.title || currentRoute?.subtitle;
+    const titleString = currentRoute?.title || props.title || currentRoute?.subtitle;
     
     return (
       <React.Fragment>
