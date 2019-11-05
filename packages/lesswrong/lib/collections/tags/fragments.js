@@ -8,6 +8,7 @@ registerFragment(`
     postCount
     description {
       html
+      htmlHighlight
     }
   }
 `);

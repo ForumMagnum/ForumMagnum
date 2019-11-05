@@ -13,13 +13,17 @@ const styles = theme => ({
   },
   tagTitle: {
   },
+  tagDescription: {
+  },
 });
+
+const previewPostCount = 4;
 
 const TagPreview = ({href, targetLocation, innerHTML, classes, hover, anchorEl}) => {
   const { params } = targetLocation;
   const { slug } = params;
   const { tag, loading: loadingTag } = useTagBySlug(slug);
-  const { PopperCard, PostsItem2, Loading } = Components;
+  const { PopperCard, PostsItem2, SectionFooter, Loading, ContentItemBody } = Components;
   
   const { results, loading: loadingPosts } = useMulti({
     skip: !(tag?._id),
@@ -30,7 +34,7 @@ const TagPreview = ({href, targetLocation, innerHTML, classes, hover, anchorEl})
     collection: TagRels,
     queryName: "tagPageQuery",
     fragmentName: "TagRelFragment",
-    limit: 4,
+    limit: previewPostCount,
     ssr: true,
   });
   
@@ -38,11 +42,19 @@ const TagPreview = ({href, targetLocation, innerHTML, classes, hover, anchorEl})
     <PopperCard open={hover} anchorEl={anchorEl}>
       <div className={classes.card}>
         <h2 className={classes.tagTitle}>{tag?.name}</h2>
+        {tag && <ContentItemBody
+          className={classes.tagDescription}
+          dangerouslySetInnerHTML={{__html: tag.description?.htmlHighlight}}
+          description={`tag ${tag.name}`}
+          className={classes.description}
+        />}
         {(loadingPosts || loadingTag) && <Loading/>}
         {results && results.map((result,i) =>
-          <PostsItem2 key={result.post._id} post={result.post} index={i} />
+          <PostsItem2 key={result.post._id} tagRel={result} post={result.post} index={i} />
         )}
-        <Link to={`/tag/${slug}`}>See All</Link>
+        <SectionFooter>
+          <Link to={`/tag/${slug}`}>See All</Link>
+        </SectionFooter>
       </div>
     </PopperCard>
     <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />

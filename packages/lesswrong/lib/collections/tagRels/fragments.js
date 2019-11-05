@@ -11,6 +11,9 @@ registerFragment(`
       _id
       name
       slug
+      description {
+        htmlHighlight
+      }
     }
     postId
     post {
@@ -33,6 +36,9 @@ registerFragment(`
       _id
       name
       slug
+      description {
+        htmlHighlight
+      }
     }
     currentUserVotes {
       ...VoteFragment

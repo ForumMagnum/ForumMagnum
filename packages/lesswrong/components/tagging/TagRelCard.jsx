@@ -31,6 +31,7 @@ const styles = theme => ({
     marginLeft: 4,
     marginRight: 4,
   },
+  description: {},
 });
 
 const previewPostCount = 3;
@@ -57,7 +58,7 @@ const TagRelCard = ({tagRel, vote, classes}) => {
     </span>
     
     {<ContentItemBody
-      dangerouslySetInnerHTML={{__html: tagRel.tag.description?.html}}
+      dangerouslySetInnerHTML={{__html: tagRel.tag.description?.htmlHighlight}}
       description={`tag ${tagRel.tag.name}`}
       className={classes.description}
     />}
@@ -90,7 +91,7 @@ const TagRelCard = ({tagRel, vote, classes}) => {
     
     {!results && <PostsListPlaceholder count={previewPostCount}/>}
     {results && results.map((result,i) =>
-      <PostsItem2 key={result.post._id} post={result.post} index={i} />
+      <PostsItem2 key={result.post._id} tagRel={result} post={result.post} index={i} />
     )}
     <SectionFooter>
       <Link to={`/tag/${tagRel.tag.slug}`}>See All</Link>
