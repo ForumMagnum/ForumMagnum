@@ -253,9 +253,12 @@ export const ckEditorStyles = theme => {
         marginTop: 0,
         marginBottom: 0,  
       },
-      '& blockquote .public-DraftStyleDefault-block': {
-        marginTop: 0,
-        marginBottom: 0,
+      '& blockquote': {
+        fontStyle: "unset",
+        '& .public-DraftStyleDefault-block': {
+          marginTop: 0,
+          marginBottom: 0,
+        }
       },
       '--ck-spacing-standard': `${theme.spacing.unit}px`,
       '&.ck-content': {
