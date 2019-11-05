@@ -287,13 +287,47 @@ const isSticky = (post, terms) => {
 }
 
 const PostsItem2 = ({
-  defaultToShowComments=false,
-  recordPostView,
-  post, isRead,
-  sequenceId, chapter, index, terms, resumeReading,
+  // post: The post displayed.
+  post,
+  // tagRel: (Optional) The relationship between this post and a tag. If
+  // provided, UI will be shown with the score and voting on this post's
+  // relevance to that tag.
   tagRel=null,
-  showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true,
-  defaultToShowUnreadComments=false, dismissRecommendation, dense, hideOnSmallScreens, bookmark,
+  // defaultToShowComments: (bool) If set, comments will be expanded by default.
+  defaultToShowComments=false,
+  // sequenceId, chapter: If set, these will be used for making a nicer URL.
+  sequenceId, chapter,
+  // index: If this is part of a list of PostsItems, its index (starting from
+  // zero) into that list. Used for special casing some styling at start of
+  // the list.
+  index,
+  // terms: If this is part of a list generated from a query, the terms of that
+  // query. Used for figuring out which sticky icons to apply, if any.
+  terms,
+  // resumeReading: If this is a Resume Reading suggestion, the corresponding
+  // partiallyReadSequenceItem (see schema in users/custom_fields.js). Used for
+  // the sequence-image background.
+  resumeReading,
+  // dismissRecommendation: If this is a Resume Reading suggestion, a callback
+  // to dismiss it.
+  dismissRecommendation,
+  showBottomBorder=true,
+  showQuestionTag=true,
+  showIcons=true,
+  showPostedAt=true,
+  defaultToShowUnreadComments=false,
+  // dense: (bool) Slightly reduce margins to make this denser. Used on the
+  // All Posts page.
+  dense,
+  // hideOnSmallScreens: (bool) If set, don't show this on 'sm' and 'xs' screen
+  // sizes. Used for hiding already-read curated posts on space-constrained
+  // mobile devices.
+  hideOnSmallScreens,
+  // bookmark: (bool) Whether this is a bookmark. Adds a clickable bookmark
+  // icon.
+  bookmark,
+  // recordPostView, isRead: From the withRecordPostView HoC.
+  recordPostView, isRead,
   classes,
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
