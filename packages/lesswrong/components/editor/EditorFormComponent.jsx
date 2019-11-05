@@ -15,6 +15,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import withErrorBoundary from '../common/withErrorBoundary';
 import Tooltip from '@material-ui/core/Tooltip';
+import { userHasCkEditor } from '../../lib/betas.js';
 
 const postEditorHeight = 250;
 const commentEditorHeight = 100;
@@ -111,11 +112,13 @@ class EditorFormComponent extends Component {
     }
     this.hasUnsavedData = false;
     this.throttledSaveBackup = _.throttle(this.saveBackup, autosaveInterval, {leading:false});
+    this.throttledSetCkEditor = _.throttle(this.setCkEditor, autosaveInterval);
+
   }
 
   async componentDidMount() {
     const { currentUser, form } = this.props
-    if (currentUser?.beta) {
+    if (userHasCkEditor(currentUser)) {
       let EditorModule = await (form?.commentEditor ? import('../async/CKCommentEditor') : import('../async/CKPostEditor'))
       const Editor = EditorModule.default
       this.ckEditor = Editor
@@ -133,9 +136,9 @@ class EditorFormComponent extends Component {
     {
       return {
         draftJSValue: editorType === "draftJS" ? this.initializeDraftJS(value.originalContents.data) : null,
-        markdownValue: editorType === "markdown" ? this.initializeText(value.originalContents.data) : null,
-        htmlValue: editorType === "html" ? this.initializeText(value.originalContents.data) : null,
-        ckEditorValue: editorType === "ckEditorMarkup" ? this.initializeText(value.originalContents.data) : null
+        markdownValue: editorType === "markdown" ? this.initializeText(value.originalContents.data, editorType) : null,
+        htmlValue: editorType === "html" ? this.initializeText(value.originalContents.data, editorType) : null,
+        ckEditorValue: editorType === "ckEditorMarkup" ? this.initializeText(value.originalContents.data, editorType) : null
       }
     }
     
@@ -143,9 +146,9 @@ class EditorFormComponent extends Component {
     const { draftJS, html, markdown, ckEditorMarkup } = document[fieldName] || {}
     return {
       draftJSValue: editorType === "draftJS" ? this.initializeDraftJS(draftJS) : null,
-      markdownValue: editorType === "markdown" ? this.initializeText(markdown) : null,
-      htmlValue: editorType === "html" ? this.initializeText(html) : null,
-      ckEditorValue: editorType === "ckEditorMarkup" ? this.initializeText(ckEditorMarkup) : null
+      markdownValue: editorType === "markdown" ? this.initializeText(markdown, editorType) : null,
+      htmlValue: editorType === "html" ? this.initializeText(html, editorType) : null,
+      ckEditorValue: editorType === "ckEditorMarkup" ? this.initializeText(ckEditorMarkup, editorType) : null
     }
   }
 
@@ -154,12 +157,12 @@ class EditorFormComponent extends Component {
     return getLSHandlers(form && form.getLocalStorageId)
   }
 
-  initializeDraftJS = (draftJS) => {
+  initializeDraftJS = (draftJS, editorType) => {
     const { document, name } = this.props
     let state = {}
 
     // Check whether we have a state from a previous session saved (in localstorage)
-    const savedState = this.getStorageHandlers().get({doc: document, name, prefix:this.getLSKeyPrefix()})
+    const savedState = this.getStorageHandlers().get({doc: document, name, prefix:this.getLSKeyPrefix(editorType)})
     if (savedState) {
       try {
         // eslint-disable-next-line no-console
@@ -193,9 +196,9 @@ class EditorFormComponent extends Component {
     return EditorState.createEmpty();
   }
 
-  initializeText = (originalContents) => {
+  initializeText = (originalContents, editorType) => {
     const { document, name } = this.props
-    const savedState = this.getStorageHandlers().get({doc: document, name, prefix:this.getLSKeyPrefix()})
+    const savedState = this.getStorageHandlers().get({doc: document, name, prefix:this.getLSKeyPrefix(editorType)})
     if (savedState) {
       return savedState;
     }
@@ -222,9 +225,11 @@ class EditorFormComponent extends Component {
           break
         case "ckEditorMarkup":
           if (!ckEditorReference) throw Error("Can't submit ckEditorMarkup without attached CK Editor")
-          this.context.addToSuccessForm((s) => {
-            this.state.ckEditorReference.setData('')
-          })
+          if (!this.isDocumentCollaborative()) {
+            this.context.addToSuccessForm((s) => {
+              this.state.ckEditorReference.setData('')
+            }) 
+          }
           data = ckEditorReference.getData()
           break
         default:
@@ -302,9 +307,17 @@ class EditorFormComponent extends Component {
 
   setMarkdown = (e) => {
     const newContent = e.target.value
-    const changed = (this.state.htmlValue !== newContent);
+    const changed = (this.state.markdownValue !== newContent);
     this.setState({markdownValue: newContent})
 
+    if (changed)
+      this.afterChange();
+  }
+
+  setCkEditor = (editor) => {
+    const newContent = editor.getData()
+    const changed = (this.state.ckEditorValue !== newContent);
+    this.setState({ckEditorValue: newContent})
     if (changed)
       this.afterChange();
   }
@@ -351,8 +364,8 @@ class EditorFormComponent extends Component {
 
   // Get an editor-type-specific prefix to use on localStorage keys, to prevent
   // drafts written with different editors from having conflicting names.
-  getLSKeyPrefix = () => {
-    switch(this.getCurrentEditorType()) {
+  getLSKeyPrefix = (editorType) => {
+    switch(editorType || this.getCurrentEditorType()) {
       case "draftJS":  return "";
       case "markdown": return "md_";
       case "html":     return "html_";
@@ -395,7 +408,7 @@ class EditorFormComponent extends Component {
   }
 
   getUserDefaultEditor = (user) => {
-    //if (user?.beta) return "ckEditorMarkup"
+    //if (userHasCkEditor(user)) return "ckEditorMarkup"
     if (Users.useMarkdownPostEditor(user)) return "markdown"
     return "draftJS"
   }
@@ -420,7 +433,7 @@ class EditorFormComponent extends Component {
 
   renderEditorTypeSelect = () => {
     const { currentUser } = this.props
-    if (!currentUser || (!currentUser.beta && !currentUser.isAdmin)) return null
+    if (!currentUser || (!userHasCkEditor(currentUser) && !currentUser.isAdmin)) return null
     return (
       <Tooltip title="Warning! Changing format will erase your content" placement="left">
         <Select
@@ -467,6 +480,11 @@ class EditorFormComponent extends Component {
     }
   }
 
+  isDocumentCollaborative = () => {
+    const { document } = this.props
+    return document?._id && document?.shareWithUsers
+  }
+
   renderCkEditor = () => {
     const { ckEditorValue, ckEditorReference } = this.state
     const { document, currentUser, formType } = this.props
@@ -482,7 +500,7 @@ class EditorFormComponent extends Component {
         documentId: document?._id,
         formType: formType,
         userId: currentUser?._id,
-        onChange: (event, editor) => this.setState({ckEditorValue: editor.getData()}),
+        onChange: (event, editor) => this.throttledSetCkEditor(editor),
         onInit: editor => this.setState({ckEditorReference: editor})
       }
 
@@ -491,7 +509,7 @@ class EditorFormComponent extends Component {
       // requires _id because before the draft is saved, ckEditor loses track of what you were writing when turning collaborate on and off (and, meanwhile, you can't actually link people to a shared draft before it's saved anyhow)
       // TODO: figure out a better solution to this problem.
       
-      const collaboration = document?._id && document?.shareWithUsers
+      const collaboration = this.isDocumentCollaborative()
       
       return <div className={this.getHeightClass()}>
           { this.renderPlaceholder(!value, collaboration)}

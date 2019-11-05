@@ -26,7 +26,7 @@ export const htmlToDraft = convertFromHTML({
     // }
   },
   htmlToBlock: (nodeName, node, lastList, inBlock) => {
-    if ((nodeName === 'figure' && node.firstChild.nodeName === 'IMG') || (nodeName === 'img' && inBlock !== 'atomic')) {
+    if ((nodeName === 'figure' && node.firstChild?.nodeName === 'IMG') || (nodeName === 'img' && inBlock !== 'atomic')) {
         return 'atomic';
     }
     // if (nodeName === 'blockquote') {

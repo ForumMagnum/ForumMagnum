@@ -9,7 +9,6 @@ class FormComponentInner extends PureComponent {
     if (['datetime', 'time', 'select', 'radiogroup'].includes(this.props.input)) {
       return (
         <a
-          href="javascript:void(0)"
           className="form-component-clear"
           title={this.context.intl.formatMessage({ id: 'forms.clear_field' })}
           onClick={this.props.clearField}
@@ -56,7 +55,6 @@ class FormComponentInner extends PureComponent {
       errors,
       showCharsRemaining,
       charsRemaining,
-      renderComponent,
       formComponents,
     } = this.props;
 
