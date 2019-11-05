@@ -255,6 +255,7 @@ export const ckEditorStyles = theme => {
       },
       '& blockquote': {
         fontStyle: "unset",
+        ...theme.typography.blockquote,
         '& .public-DraftStyleDefault-block': {
           marginTop: 0,
           marginBottom: 0,
