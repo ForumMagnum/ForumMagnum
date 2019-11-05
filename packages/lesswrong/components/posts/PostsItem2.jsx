@@ -13,6 +13,8 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
+import { captureEvent } from '../../lib/analyticsEvents.js';
+import { list } from '../../../../node_modules/postcss/lib/postcss.js';
 
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
@@ -270,6 +272,7 @@ class PostsItem2 extends PureComponent {
     super(props)
     this.state = { showComments: props.defaultToShowComments, readComments: false}
     this.postsItemRef = React.createRef();
+    this.listContext = props.listContext
   }
 
   toggleComments = (scroll) => {
@@ -301,6 +304,13 @@ class PostsItem2 extends PureComponent {
     const lastCommentedAt = Posts.getLastCommentedAt(post)
     const newComments = post.lastVisitedAt < lastCommentedAt;
     return (isRead && newComments && !readComments)
+  }
+
+  captureClick = () => {
+    const { postId, listContext } = this.props
+    if (["fromTheArchives", "continueReading"].includes(listContext)) {
+      captureEvent("postItemClick", {"postId": postId, "listContext": listContext});
+    }
   }
 
   render() {
@@ -345,7 +355,7 @@ class PostsItem2 extends PureComponent {
               </PostsItem2MetaInfo>
 
               <span className={classes.title}>
-                <PostsTitle postLink={postLink} post={post} expandOnHover={!renderComments} read={isRead} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
+                <PostsTitle postLink={postLink} post={post} expandOnHover={!renderComments} read={isRead} sticky={this.isSticky(post, terms)} showQuestionTag={showQuestionTag} onClick={this.captureClick} />
               </span>
 
               {(resumeReading?.sequence || resumeReading?.collection) &&

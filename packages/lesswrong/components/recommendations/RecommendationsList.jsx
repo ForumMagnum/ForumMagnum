@@ -20,7 +20,7 @@ class RecommendationsList extends Component {
 
     return <div>
       {recommendations.map(post =>
-        <PostsItem2 post={post} key={post._id}/>)}
+        <PostsItem2 post={post} key={post._id} listContext={"fromTheArchives"} />)}
       {recommendations.length===0 &&
         <span>There are no more recommendations left.</span>}
       {!currentUser && <SectionFooter>

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
 import { withDismissRecommendation } from './withDismissRecommendation';
+import { captureEvent } from '../../lib/analyticsEvents.js';
 
 const MAX_ENTRIES = 3;
 
@@ -16,7 +17,7 @@ class ContinueReadingList extends Component {
       showAll: true
     });
   }
-  
+
   dismissAndHideRecommendation(postId) {
     this.props.dismissRecommendation({postId: postId});
     this.setState({
@@ -25,6 +26,7 @@ class ContinueReadingList extends Component {
         [postId]: true
       }
     });
+    captureEvent("continueReadingDismissed", {"postId": postId});
   }
   
   limitResumeReading(resumeReadingList) {
@@ -72,6 +74,7 @@ class ContinueReadingList extends Component {
           resumeReading={resumeReading}
           dismissRecommendation={() => this.dismissAndHideRecommendation(nextPost._id)}
           key={sequence?._id || collection?._id}
+          listContext={"continueReading"}
         />
       })}
       
@@ -85,10 +88,23 @@ class ContinueReadingList extends Component {
       </SectionFooter>
     </div>
   }
+
+  componentDidMount() {
+    const entries = this.limitResumeReading(this.props.continueReading)
+    entries.map(resumeReading => {
+      const { nextPost, sequence, collection } = resumeReading;
+      captureEvent("continueReadingDisplayed", {
+        "post": nextPost, 
+        "sequenceId": sequence?._id, 
+        "collection": collection?._id})
+    });
+  }
+
 }
 
 registerComponent('ContinueReadingList', ContinueReadingList,
   withDismissRecommendation,
   withUser
 );
+
 
