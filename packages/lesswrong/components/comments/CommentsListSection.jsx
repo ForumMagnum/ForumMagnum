@@ -132,7 +132,7 @@ class CommentsListSection extends Component {
         { this.props.totalComments ? this.renderTitleComponent() : null }
         <div id="comments"/>
 
-        {newForm && (!currentUser || Users.isAllowedToComment(currentUser, post)) &&
+        {newForm && (!currentUser || Users.isAllowedToComment(currentUser, post)) && !post.draft &&
           <div id="posts-thread-new-comment" className={classes.newComment}>
             <div className={classes.newCommentLabel}><FormattedMessage id="comments.new"/></div>
             <Components.CommentsNewForm
