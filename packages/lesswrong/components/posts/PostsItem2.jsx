@@ -20,7 +20,7 @@ export const COMMENTS_WIDTH = 48
 
 const COMMENTS_BACKGROUND_COLOR = "#efefef"
 
-const styles = (theme) => ({
+export const styles = (theme) => ({
   root: {
     position: "relative",
     [theme.breakpoints.down('sm')]: {

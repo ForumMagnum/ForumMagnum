@@ -10,6 +10,12 @@ import { postBodyStyles } from '../../themes/stylePiping'
 const styles = theme => ({
   root: {
     padding: 16,
+    [theme.breakpoints.down('xs')]: {
+      width: "95vw",
+    },
+    [theme.breakpoints.up('sm')]: {
+      width: 600,
+    }
   },
   relevanceLabel: {
     marginRight: 8,
@@ -27,9 +33,11 @@ const styles = theme => ({
   },
 });
 
+const previewPostCount = 3;
+
 const TagRelCard = ({tagRel, vote, classes}) => {
   const currentUser = useCurrentUser();
-  const { VoteButton, Loading, PostsItem2, ContentItemBody } = Components;
+  const { VoteButton, Loading, PostsItem2, ContentItemBody, SectionFooter, PostsListPlaceholder } = Components;
   
   const { results, loading } = useMulti({
     terms: {
@@ -39,7 +47,7 @@ const TagRelCard = ({tagRel, vote, classes}) => {
     collection: TagRels,
     queryName: "tagRelCardQuery",
     fragmentName: "TagRelFragment",
-    limit: 3,
+    limit: previewPostCount,
     ssr: true,
   });
   
@@ -80,11 +88,13 @@ const TagRelCard = ({tagRel, vote, classes}) => {
       />
     </div>
     
-    {loading && <Loading/>}
+    {!results && <PostsListPlaceholder count={previewPostCount}/>}
     {results && results.map((result,i) =>
       <PostsItem2 key={result.post._id} post={result.post} index={i} />
     )}
-    <Link to={`/tag/${tagRel.tag.slug}`}>See All</Link>
+    <SectionFooter>
+      <Link to={`/tag/${tagRel.tag.slug}`}>See All</Link>
+    </SectionFooter>
     
   </div>
 }

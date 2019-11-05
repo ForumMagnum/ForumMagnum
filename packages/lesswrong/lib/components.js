@@ -131,6 +131,7 @@ importComponent("SettingsIcon", () => require('../components/icons/SettingsIcon.
 // posts
 
 importComponent("PostsHighlight", () => require('../components/posts/PostsHighlight.jsx'));
+importComponent("PostsListPlaceholder", () => require('../components/posts/PostsListPlaceholder.jsx'));
 importComponent("AlignmentCrosspostMessage", () => require('../components/posts/AlignmentCrosspostMessage.jsx'));
 importComponent("LegacyPostRedirect", () => require('../components/posts/LegacyPostRedirect.jsx'));
 importComponent("LinkPostMessage", () => require('../components/posts/LinkPostMessage.jsx'));
