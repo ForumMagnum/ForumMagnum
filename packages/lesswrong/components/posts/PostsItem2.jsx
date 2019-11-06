@@ -308,7 +308,7 @@ class PostsItem2 extends PureComponent {
   captureClick = () => {
     const { post, listContext } = this.props
     if (["fromTheArchives", "continueReading"].includes(listContext)) {
-      captureEvent("postItemClick", {"postId": post?._id, "listContext": listContext});
+      captureEvent("postItemClicked", {"postId": post?._id, "listContext": listContext});
     }
   }
 
