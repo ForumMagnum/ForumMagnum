@@ -9,6 +9,7 @@ import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
 import BlockQuote from '@ckeditor/ckeditor5-block-quote/src/blockquote';
 import Bold from '@ckeditor/ckeditor5-basic-styles/src/bold';
 import CKFinder from '@ckeditor/ckeditor5-ckfinder/src/ckfinder';
+import Comments from '@ckeditor/ckeditor5-comments/src/comments';
 import Essentials from '@ckeditor/ckeditor5-essentials/src/essentials';
 import FontFamily from '@ckeditor/ckeditor5-font/src/fontfamily';
 import FontSize from '@ckeditor/ckeditor5-font/src/fontsize';
@@ -72,6 +73,7 @@ const postEditorPlugins = [
 	BlockQuote,
 	Bold,
 	CKFinder,
+	Comments,
 	Essentials,
 	FontFamily,
 	FontSize,
