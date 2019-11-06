@@ -26,6 +26,7 @@ import List from '@ckeditor/ckeditor5-list/src/list';
 // import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
 import Paragraph from '@ckeditor/ckeditor5-paragraph/src/paragraph';
 import PasteFromOffice from '@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice';
+import Comments from '@ckeditor/ckeditor5-comments/src/comments';
 import PresenceList from '@ckeditor/ckeditor5-real-time-collaboration/src/presencelist';
 import RealTimeCollaborativeComments from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativecomments';
 import RealTimeCollaborativeTrackChanges from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativetrackchanges';
@@ -85,6 +86,7 @@ const postEditorPlugins = [
 	Italic,
 	Link,
 	List,
+	Comments,
 	// MediaEmbed,
 	Paragraph,
 	PasteFromOffice,
