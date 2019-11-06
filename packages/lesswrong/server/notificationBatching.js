@@ -99,8 +99,7 @@ export const wrapAndSendEmail = async ({user, subject, body}) => {
 
 addGraphQLResolvers({
   Query: {
-    async EmailPreview(root, secondArg, context) {
-      const {notificationIds, postId} = secondArg
+    async EmailPreview(root, {notificationIds, postId}, context) {
       const { currentUser } = context;
       if (!Users.isAdmin(currentUser)) {
         throw new Error("This debug feature is only available to admin accounts");
