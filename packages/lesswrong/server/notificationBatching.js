@@ -93,8 +93,6 @@ export const wrapAndSendEmail = async ({user, subject, body}) => {
     await sendEmail(email);
     await logSentEmail(email, user);
   } catch(e) {
-    // TODO; really tho
-    console.error(e)
     Sentry.captureException(e);
   }
 }
@@ -102,12 +100,7 @@ export const wrapAndSendEmail = async ({user, subject, body}) => {
 addGraphQLResolvers({
   Query: {
     async EmailPreview(root, secondArg, context) {
-      // TODO; enforce arg presence
       const {notificationIds, postId} = secondArg
-      console.log('gql')
-      console.log(' secondArg', secondArg)
-      console.log(' postId', postId)
-      console.log(' notificationIds', notificationIds)
       const { currentUser } = context;
       if (!Users.isAdmin(currentUser)) {
         throw new Error("This debug feature is only available to admin accounts");
@@ -128,7 +121,6 @@ addGraphQLResolvers({
           user: currentUser,
           notifications
         });
-        console.log('emails.length', emails.length)
       }
       if (postId) {
         const post = Posts.findOne(postId)

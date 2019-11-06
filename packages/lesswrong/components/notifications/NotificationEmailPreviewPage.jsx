@@ -11,14 +11,15 @@ const parseIds = (urlStr) => {
   return urlStr.split(",");
 }
 
+// TODO-PR-Q: This currently is named NotificationEmailPreviewPage and is
+// available under a similar URL. I can change it to reflect it's generalized
+// usage, but it would probably be a minor bother for anyone used to using it.
+// LMK what you want me to do.
 const NotificationEmailPreviewPage = () => {
   const currentUser = useCurrentUser();
   const { query } = useLocation();
   const notificationIds = parseIds(query?.notificationIds);
   const postId = query?.postId;
-  console.log('NotificationEmailPreviewPage()')
-  console.log(' notificationIds', notificationIds)
-  console.log(' postId', postId)
   const { data, loading } = useQuery(gql`
       query EmailPreviewQuery($notificationIds: [String], $postId: String) {
         EmailPreview(notificationIds: $notificationIds, postId: $postId) { to subject html text }
