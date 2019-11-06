@@ -45,9 +45,9 @@ registerComponent("PostsPageHeaderTitle", PostsPageHeaderTitle,
   withLocation,
   mapProps((props) => {
     const {location} = props;
-    const {params: {_id}} = location;
+    const {params: {_id, postId}} = location;
     return {
-      documentId: _id,
+      documentId: _id || postId,
       ...props
     }
   }),

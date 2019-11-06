@@ -8,8 +8,10 @@
     "prestart": "bash prestart_lesswrong.sh",
     "start": "meteor --settings settings-dev.json",
     "start-prod-db": "../LessWrong-Credentials/run-local-dev-proddb.sh",
+    "start-dev-db": "../LessWrong-Credentials/run-local-dev-devdb.sh",
     "debug": "meteor --settings settings-dev.json --inspect run",
     "start-af": "meteor --settings settings-af.json",
+    "start-af-dev-db": "../LessWrong-Credentials/run-local-dev-af-devdb.sh",
     "start-af-second": "MONGO_URL=mongodb://localhost:3001/meteor meteor --settings settings-af.json --port 3030",
     "start-af-prod-db": "../LessWrong-Credentials/run-local-dev-af-proddb.sh",
     "debug-af": "meteor --settings settings-af.json --inspect run",
@@ -20,6 +22,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.1.2",
+    "@ckeditor/ckeditor5-build-balloon-block": "./public/lesswrong-editor",
     "@ckeditor/ckeditor5-react": "^1.1.3",
     "@google/maps": "^0.5.5",
     "@lesswrong/lesswrong-editor": "./public/lesswrong-editor",
