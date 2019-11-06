@@ -7,6 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper.js';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
 import { withStyles } from '@material-ui/core/styles';
+import { captureEvent } from '../../lib/analyticsEvents';
 
 const styles = theme => ({
   personalBlogpostsCheckboxLabel: {
@@ -28,6 +29,12 @@ class HomeLatestPosts extends PureComponent {
     let newQuery = _.isEmpty(query) ? {view: "magic"} : query
     const currentFilter = newQuery.filter || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
     const newFilter = (currentFilter === "frontpage") ? "includeMetaAndPersonal" : "frontpage"
+
+    if (newFilter === "frontpage") {
+      captureEvent("personalBlogpostsToggled", {"checked": false});
+    } else {
+      captureEvent("personalBlogpostsToggled", {"checked": true});
+    }
 
     if (currentUser) {
       updateUser({
