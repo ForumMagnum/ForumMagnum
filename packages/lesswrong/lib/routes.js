@@ -172,7 +172,7 @@ addRoute([
     path: '/tag/:slug',
     componentName: 'TagPage',
     titleComponentName: 'TagPageTitle',
-    previewComponentName: 'TagPreview',
+    previewComponentName: 'TagHoverPreview',
   },
   {
     name: 'tagEdit',

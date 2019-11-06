@@ -330,6 +330,7 @@ importComponent("NewTagPage", () => require('../components/tagging/NewTagPage.js
 importComponent("EditTagPage", () => require('../components/tagging/EditTagPage.jsx'));
 importComponent("AllTagsPage", () => require('../components/tagging/AllTagsPage.jsx'));
 importComponent("TagPreview", () => require('../components/tagging/TagPreview.jsx'));
+importComponent("TagHoverPreview", () => require('../components/tagging/TagHoverPreview.jsx'));
 importComponent("TagRelCard", () => require('../components/tagging/TagRelCard.jsx'));
 importComponent("TagSearchHit", () => require('../components/tagging/TagSearchHit.jsx'));
 importComponent("PostsItemTagRelevance", () => require('../components/tagging/PostsItemTagRelevance.jsx'));
