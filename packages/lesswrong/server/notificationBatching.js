@@ -126,7 +126,7 @@ addGraphQLResolvers({
         emails = [{
           user: currentUser,
           subject: post.title,
-          body: <Components.NewPostEmail documentId={post._id} reason='cause I said so' />
+          body: <Components.NewPostEmail documentId={post._id} reason='you have the "Email me new posts in Curated" option enabled' />
         }]
       }
       const renderedEmails = await Promise.all(emails.map(async email => await wrapAndRenderEmail(email)));
