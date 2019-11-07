@@ -1,6 +1,9 @@
 import { newMutation, addGraphQLMutation, addGraphQLResolvers } from 'meteor/vulcan:core';
+import { Tags } from '../../lib/collections/tags/collection.js';
 import { TagRels } from '../../lib/collections/tagRels/collection.js';
+import { Posts } from '../../lib/collections/posts/collection.js';
 import { performVoteServer } from '../voteServer.js';
+import { accessFilterSingle } from '../../lib/modules/utils/schemaUtils.js';
 
 addGraphQLResolvers({
   Mutation: {
@@ -11,7 +14,12 @@ addGraphQLResolvers({
       
       // Validate that tagId and postId refer to valid non-deleted documents
       // and that this user can see both.
-      // TODO
+      const post = Posts.findOne({_id: postId});
+      const tag = Tags.findOne({_id: tagId});
+      if (!accessFilterSingle(currentUser, Posts, post))
+        throw new Error("Invalid postId");
+      if (!accessFilterSingle(currentUser, Tags, tag))
+        throw new Error("Invalid tagId");
       
       // Check whether this document already has this tag applied
       const existingTagRel = TagRels.findOne({ tagId, postId });
@@ -30,7 +38,8 @@ addGraphQLResolvers({
           document: existingTagRel,
           voteType: 'smallUpvote',
           collection: TagRels,
-          user: currentUser
+          user: currentUser,
+          toggleIfAlreadyVoted: false,
         });
         return votedTagRel;
       }
