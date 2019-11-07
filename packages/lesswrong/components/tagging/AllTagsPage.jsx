@@ -43,6 +43,9 @@ const AllTagsPage = ({classes}) => {
           </Link>
         </Typography>
       })}</ul>}
+      {results && !results.length && <div>
+        There aren't any tags yet.
+      </div>}
     </SingleColumnSection>
   );
 }

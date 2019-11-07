@@ -17,7 +17,7 @@ const styles = theme => ({
 });
 
 const TagPage = ({classes}) => {
-  const { SingleColumnSection, SectionTitle, SectionFooter, PostsItem2, Loading, ContentItemBody } = Components;
+  const { SingleColumnSection, SectionTitle, SectionFooter, SectionButton, PostsItem2, Loading, ContentItemBody } = Components;
   const currentUser = useCurrentUser();
   const { params } = useLocation();
   const { slug } = params;
@@ -43,7 +43,9 @@ const TagPage = ({classes}) => {
   
   return <SingleColumnSection>
     <SectionTitle title={`Posts Tagged #${tag.name}`}>
-      {Users.isAdmin(currentUser) && <Link to={`/tag/${tag.slug}/edit`}>Edit</Link>}
+      {Users.isAdmin(currentUser) && <SectionButton>
+        <Link to={`/tag/${tag.slug}/edit`}>Edit</Link>
+      </SectionButton>}
     </SectionTitle>
     {loadingTag && <Loading/>}
     {tag && <ContentItemBody
