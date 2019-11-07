@@ -47,12 +47,11 @@ const TagPage = ({classes}) => {
         <Link to={`/tag/${tag.slug}/edit`}>Edit</Link>
       </SectionButton>}
     </SectionTitle>
-    {loadingTag && <Loading/>}
-    {tag && <ContentItemBody
+    <ContentItemBody
       dangerouslySetInnerHTML={{__html: tag.description?.html}}
       description={`tag ${tag.name}`}
       className={classes.description}
-    />}
+    />
     {results && results.length === 0 && <div>
       There are no posts with this tag yet.
     </div>}

@@ -40,7 +40,7 @@ const TagPreview = ({tag, classes}) => {
       <PostsItem2 key={result.post._id} tagRel={result} post={result.post} index={i} />
     )}
     <SectionFooter>
-      <Link to={`/tag/${tag.slug}`}>See All</Link>
+      {tag && <Link to={`/tag/${tag.slug}`}>See All</Link>}
     </SectionFooter>
   </div>)
 }
