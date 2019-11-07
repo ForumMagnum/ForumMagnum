@@ -408,7 +408,7 @@ class EditorFormComponent extends Component {
   }
 
   getUserDefaultEditor = (user) => {
-    //if (userHasCkEditor(user)) return "ckEditorMarkup"
+    if (userHasCkEditor(user)) return "ckEditorMarkup"
     if (Users.useMarkdownPostEditor(user)) return "markdown"
     return "draftJS"
   }
