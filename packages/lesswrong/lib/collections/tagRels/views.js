@@ -5,6 +5,7 @@ TagRels.addView('postsWithTag', terms => {
   return {
     selector: {
       tagId: terms.tagId,
+      baseScore: {$gt: 0},
     },
   }
 });
@@ -13,6 +14,7 @@ TagRels.addView('tagsOnPost', terms => {
   return {
     selector: {
       postId: terms.postId,
+      baseScore: {$gt: 0},
     },
   }
 });
