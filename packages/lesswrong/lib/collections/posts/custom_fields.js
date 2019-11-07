@@ -972,10 +972,10 @@ addFieldsDict(Posts, {
   hideCommentKarma: {
     type: Boolean,
     optional: true,
+    group: formGroups.moderationGroup,
     viewableBy: ['guests'],
-    insertableBy: (currentUser, document) =>
-      Users.ownsAndHasSetting('showHideKarmaOption')(currentUser, document),
-    editableBy: ['admins'],
+    insertableBy: ['admins', Posts.canEditHideCommentKarma],
+    editableBy: ['admins', Posts.canEditHideCommentKarma],
     denormalized: true,
     ...schemaDefaultValue(false),
   },

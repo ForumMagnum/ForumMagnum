@@ -109,6 +109,7 @@ registerFragment(`
     moderationGuidelines {
       ...RevisionEdit
     }
+    showHideKarmaOption
     markDownPostEditor
     commentSorting
     location

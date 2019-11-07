@@ -22,6 +22,7 @@ Users.ownsAndInGroup = (group) => {
   }
 }
 
+// TODO; remove
 Users.ownsAndHasSetting = setting => {
   return (user, document) => {
     console.log('ownsAndHasSetting()')

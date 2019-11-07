@@ -195,3 +195,16 @@ Posts.getKarma = (post) => {
   const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
   return baseScore || 0
 }
+
+// User can add/edit the hideCommentKarma setting if:
+//  1) The user has the requiset setting enabled
+//  And
+//  2) The post does not exist yet
+//  Or if the post does exist
+//  3) The post doesn't have any comments yet
+Posts.canEditHideCommentKarma = (user, post) => {
+  // console.log('canEditHideCommentKarma()')
+  // console.log(' user', user)
+  // console.log(' post', post)
+  return user['showHideKarmaOption'] && (!post || !Posts.getCommentCount(post))
+}
