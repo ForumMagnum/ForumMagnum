@@ -22,6 +22,18 @@ Users.ownsAndInGroup = (group) => {
   }
 }
 
+Users.ownsAndHasSetting = setting => {
+  return (user, document) => {
+    console.log('ownsAndHasSetting()')
+    const result = Users.owns(user, document) && user[setting]
+    console.log(' owns', Users.owns(user, document))
+    console.log(' user', user)
+    console.log(' setting', setting)
+    console.log(' user[setting]', user[setting])
+    return result
+  }
+}
+
 Users.isSharedOn = (currentUser, document) => {
   return (currentUser && document.shareWithUsers && document.shareWithUsers.includes(currentUser._id))
 }

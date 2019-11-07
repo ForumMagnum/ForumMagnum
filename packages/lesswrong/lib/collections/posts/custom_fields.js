@@ -66,6 +66,8 @@ const userHasModerationGuidelines = (currentUser) => {
   return !!(currentUser && ((currentUser.moderationGuidelines && currentUser.moderationGuidelines.html) || currentUser.moderationStyle))
 }
 
+// console.log('Users', Users)
+
 addFieldsDict(Posts, {
   // URL (Overwriting original schema)
   url: {
@@ -964,6 +966,18 @@ addFieldsDict(Posts, {
         ];
       }
     },
+  },
+  
+  // TODO; doc
+  hideCommentKarma: {
+    type: Boolean,
+    optional: true,
+    viewableBy: ['guests'],
+    insertableBy: (currentUser, document) =>
+      Users.ownsAndHasSetting('showHideKarmaOption')(currentUser, document),
+    editableBy: ['admins'],
+    denormalized: true,
+    ...schemaDefaultValue(false),
   },
   
   recentComments: resolverOnlyField({

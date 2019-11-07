@@ -343,7 +343,7 @@ addFieldsDict(Users, {
     type: String,
     optional: true,
     control: "MuiTextField",
-    canCreate: ['members'],
+    canCreate: ['members'], // TODO; Does that mean I can create a bio for someone else?
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canRead: ['guests'],
     group: formGroups.default,
@@ -429,6 +429,20 @@ addFieldsDict(Users, {
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     control: 'checkbox',
     order: 56,
+  },
+
+  // TODO; doc
+  showHideKarmaOption: {
+    type: Boolean,
+    // TODO-PR-Q: My imporesta;lasdf.... TODO;
+    optional: false,
+    label: "Enable option on posts to hide karma visibility",
+    canRead: [Users.owns], // TODO; why not admins?
+    canUpdate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    control: 'checkbox',
+    group: formGroups.default,
+    order: 72,
   },
 
   twitterUsername: {
@@ -1118,7 +1132,8 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     tooltip: "Get early access to new in-development features",
     group: formGroups.default,
-    label: "Opt into experimental features"
+    label: "Opt into experimental features",
+    order: 71,
   },
   petrovPressedButtonDate: {
     type: Date,

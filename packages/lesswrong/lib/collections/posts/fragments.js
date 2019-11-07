@@ -75,6 +75,7 @@ registerFragment(`
     isFuture
     hideAuthor
     moderationStyle
+    hideCommentKarma
     submitToFrontpage
     shortform
     canonicalSource

@@ -222,7 +222,11 @@ class CommentsItem extends Component {
             {comment.moderatorHat && <span className={classes.moderatorHat}>
               Moderator Comment
             </span>}
-            <Components.CommentsVote comment={comment} currentUser={currentUser} />
+            <Components.CommentsVote
+              comment={comment}
+              currentUser={currentUser}
+              hideKarma={post.hideCommentKarma}
+            />
             
             {!isParentComment && this.renderMenu()}
             <span className={classes.outdatedWarning}>

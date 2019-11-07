@@ -488,6 +488,8 @@ registerFragment(`
     collapseModerationGuidelines
     bannedUserIds
     bannedPersonalUserIds
+    # TODO; where is itttt????
+    showHideKarmaOption
 
     # Ban & Purge
     voteBanned
