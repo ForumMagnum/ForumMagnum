@@ -92,15 +92,30 @@ const baseBodyStyles = theme => ({
   },
   '& h1': {
     ...theme.typography.display2,
-    ...theme.typography.postStyle
+    ...theme.typography.headerStyle,
+  },
+  // If a post starts with a header, it should still be flush with the top of
+  // the container
+  '& h1:first-child': {
+    marginTop: 0,
+    // Otherwise the line height lowers it noticeably
+    marginBlockStart: '-3px',
   },
   '& h2': {
     ...theme.typography.display1,
-    ...theme.typography.postStyle,
+    ...theme.typography.headerStyle,
+  },
+  '& h2:first-child': {
+    marginTop: 0,
+    marginBlockStart: '-2px',
   },
   '& h3': {
-    ...theme.typography.display1,
-    ...theme.typography.postStyle,
+    ...theme.typography.display0,
+    ...theme.typography.headerStyle,
+  },
+  '& h3:first-child': {
+    marginTop: 0,
+    marginBlockStart: 0,
   },
   '& h4': {
     ...theme.typography.body1,
