@@ -9,11 +9,13 @@ import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
 import BlockQuote from '@ckeditor/ckeditor5-block-quote/src/blockquote';
 import Bold from '@ckeditor/ckeditor5-basic-styles/src/bold';
 import CKFinder from '@ckeditor/ckeditor5-ckfinder/src/ckfinder';
+import Comments from '@ckeditor/ckeditor5-comments/src/comments';
 import Essentials from '@ckeditor/ckeditor5-essentials/src/essentials';
 import FontFamily from '@ckeditor/ckeditor5-font/src/fontfamily';
 import FontSize from '@ckeditor/ckeditor5-font/src/fontsize';
 import Heading from '@ckeditor/ckeditor5-heading/src/heading';
 import Highlight from '@ckeditor/ckeditor5-highlight/src/highlight';
+import EasyImage from '@ckeditor/ckeditor5-easy-image/src/easyimage';
 import Image from '@ckeditor/ckeditor5-image/src/image';
 import ImageCaption from '@ckeditor/ckeditor5-image/src/imagecaption';
 import ImageStyle from '@ckeditor/ckeditor5-image/src/imagestyle';
@@ -71,6 +73,7 @@ const postEditorPlugins = [
 	BlockQuote,
 	Bold,
 	CKFinder,
+	Comments,
 	Essentials,
 	FontFamily,
 	FontSize,
@@ -80,6 +83,7 @@ const postEditorPlugins = [
 	ImageCaption,
 	ImageStyle,
 	ImageToolbar,
+	EasyImage,
 	ImageUpload,
 	ImageResize,
 	Italic,
@@ -110,33 +114,26 @@ PostEditorCollaboration.builtinPlugins = [
 
 const postEditorConfig = {
 	blockToolbar: [
-		'heading',
-		'|',
-		'bulletedList',
-		'numberedList',
 		'imageUpload',
-		'blockQuote',
 		'insertTable',
 		// 'mediaEmbed',
-		'|',
-		'undo',
-		'redo',
-		'|',
-		'trackChanges'
 	],
 	toolbar: [
 		'heading',
+		'|',
 		'bold',
 		'italic',
 		'underline',
 		'strikethrough',
-		'highlight',
 		'|',
-		'alignment',
+		'blockQuote',
+		'bulletedList',
+		'numberedList',
 		'|',
 		'link',
 		'|',
-		'mathpreview',
+		'trackChanges',
+		// 'mathpreview',
 		'comment',
 	],
 	image: {
@@ -176,6 +173,7 @@ CommentEditor.builtinPlugins = [
 	CKFinder,
 	Essentials,
 	Heading,
+	EasyImage,
 	Image,
 	ImageCaption,
 	ImageStyle,
@@ -197,13 +195,15 @@ CommentEditor.builtinPlugins = [
 CommentEditor.defaultConfig = {
 	toolbar: [
 		'heading',
+		'|',
 		'bold',
 		'italic',
 		'underline',
+		'strikethrough',
 		'|',
+		'blockQuote',
 		'bulletedList',
 		'numberedList',
-		'blockQuote',
 		'|',
 		'link',
 		'|',

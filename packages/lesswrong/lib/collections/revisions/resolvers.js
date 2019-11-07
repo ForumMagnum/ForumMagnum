@@ -109,7 +109,7 @@ addFieldsDict(Revisions, {
         const mainTextHtml = sanitizeHtml(
           html, { 
             allowedTags: _.without(Utils.sanitizeAllowedTags, 'blockquote', 'img'),
-            nonTextTags: ['blockquote', 'img']
+            nonTextTags: ['blockquote', 'img', 'style']
           }
         )
         const truncatedHtml = truncate(mainTextHtml, PLAINTEXT_HTML_TRUNCATION_LENGTH)
