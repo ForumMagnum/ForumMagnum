@@ -66,8 +66,6 @@ const userHasModerationGuidelines = (currentUser) => {
   return !!(currentUser && ((currentUser.moderationGuidelines && currentUser.moderationGuidelines.html) || currentUser.moderationStyle))
 }
 
-// console.log('Users', Users)
-
 addFieldsDict(Posts, {
   // URL (Overwriting original schema)
   url: {
@@ -968,7 +966,7 @@ addFieldsDict(Posts, {
     },
   },
   
-  // TODO; doc
+  // On a post, do not show comment karma
   hideCommentKarma: {
     type: Boolean,
     optional: true,
