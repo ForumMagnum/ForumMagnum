@@ -379,6 +379,12 @@ export function getAlgoliaAdminClient()
 }
 
 export async function algoliaDocumentExport({ documents, collection, updateFunction} ) {
+  if (!(collection.collectionName in algoliaIndexNames)) {
+    // If this is a collection that isn't Algolia-indexed, don't index it. (This
+    // gets called from voting code, which tried to update Algolia indexes to
+    // change baseScore. tagRels have voting, but aren't Algolia-indexed.)
+    return;
+  }
   // if (Meteor.isDevelopment) {  // Only run document export in production environment
   //   return null
   // }
