@@ -77,8 +77,8 @@ const styles = theme => ({
   errorTextColor: {
     color: theme.palette.error.main
   },
-  updateTypeSelect: {
-    marginBottom: 10
+  select: {
+    marginRight: theme.spacing.unit*1.5
   },
   placeholder: {
     position: "absolute",
@@ -107,6 +107,7 @@ class EditorFormComponent extends Component {
       editorOverride: null,
       ckEditorLoaded: null,
       updateType: 'minor',
+      version: '',
       ckEditorReference: null,
       ...this.getEditorStatesFromType(editorType)
     }
@@ -126,26 +127,30 @@ class EditorFormComponent extends Component {
     }
   }
 
-  getEditorStatesFromType = (editorType) => {
+  getEditorStatesFromType = (editorType, contents) => {
     const { document, fieldName, value } = this.props
     const { editorOverride } = this.state || {} // Provide default value, since we can call this before state is initialized
+
+    // if contents are manually specified, use those:
+    const newValue = contents || value
+
     // Initialize the editor to whatever the canonicalContent is
-    if (value && value.originalContents && value.originalContents.data
+    if (newValue && newValue.originalContents && newValue.originalContents.data
         && !editorOverride
-        && editorType === value.originalContents.type)
+        && editorType === newValue.originalContents.type)
     {
       return {
-        draftJSValue: editorType === "draftJS" ? this.initializeDraftJS(value.originalContents.data) : null,
-        markdownValue: editorType === "markdown" ? this.initializeText(value.originalContents.data, editorType) : null,
-        htmlValue: editorType === "html" ? this.initializeText(value.originalContents.data, editorType) : null,
-        ckEditorValue: editorType === "ckEditorMarkup" ? this.initializeText(value.originalContents.data, editorType) : null
+        draftJSValue: editorType === "draftJS" ? this.initializeDraftJS(newValue.originalContents.data, editorType) : null,
+        markdownValue: editorType === "markdown" ? this.initializeText(newValue.originalContents.data, editorType) : null,
+        htmlValue: editorType === "html" ? this.initializeText(newValue.originalContents.data, editorType) : null,
+        ckEditorValue: editorType === "ckEditorMarkup" ? this.initializeText(newValue.originalContents.data, editorType) : null
       }
     }
     
     // Otherwise, just set it to the value of the document
     const { draftJS, html, markdown, ckEditorMarkup } = document[fieldName] || {}
     return {
-      draftJSValue: editorType === "draftJS" ? this.initializeDraftJS(draftJS) : null,
+      draftJSValue: editorType === "draftJS" ? this.initializeDraftJS(draftJS, editorType) : null,
       markdownValue: editorType === "markdown" ? this.initializeText(markdown, editorType) : null,
       htmlValue: editorType === "html" ? this.initializeText(html, editorType) : null,
       ckEditorValue: editorType === "ckEditorMarkup" ? this.initializeText(ckEditorMarkup, editorType) : null
@@ -422,7 +427,8 @@ class EditorFormComponent extends Component {
     return <Select
       value={this.state.updateType}
       onChange={this.handleUpdateTypeSelect}
-      className={classes.updateTypeSelect}
+      className={classes.select}
+      disableUnderline
       >
       <MenuItem value={'major'}>Major Update</MenuItem>
       <MenuItem value={'minor'}>Minor Update</MenuItem>
@@ -430,12 +436,46 @@ class EditorFormComponent extends Component {
     </Select>
   }
 
+  getCurrentRevision = () => {
+    return this.state.version || this.props.document.version
+  }
+
+  handleUpdateVersionNumber = (version) => {    
+    this.setState({ version: version })
+  }
+
+  handleUpdateVersion = async (document) => {
+    if (!document) return
+    const editorType = document.contents?.originalContents?.type
+    this.setState({
+      ...this.getEditorStatesFromType(editorType, document.contents)
+    })
+  }
+
+  renderVersionSelect = () => {
+    const { classes, document, currentUser } = this.props 
+    
+    if (!userHasCkEditor(currentUser)) return null
+
+    if (!this.getCurrentRevision()) return null
+    return <span className={classes.select}>
+        <Components.SelectVersion 
+          key={this.getCurrentRevision()}
+          documentId={document._id} 
+          revisionVersion={this.getCurrentRevision()} 
+          updateVersionNumber={this.handleUpdateVersionNumber}
+          updateVersion={this.handleUpdateVersion}
+        />
+      </span>
+  }
+
   renderEditorTypeSelect = () => {
-    const { currentUser } = this.props
-    if (!currentUser || (!userHasCkEditor(currentUser) && !currentUser.isAdmin)) return null
+    const { currentUser, classes } = this.props
+    if (!userHasCkEditor(currentUser) && !currentUser?.isAdmin) return null
     return (
       <Tooltip title="Warning! Changing format will erase your content" placement="left">
         <Select
+            className={classes.select}
             value={this.getCurrentEditorType()}
             onChange={(e) => this.handleEditorOverride(e.target.value)}
             disableUnderline
@@ -587,6 +627,7 @@ class EditorFormComponent extends Component {
           <div>
             { this.renderEditorComponent(currentEditorType) }
           </div>
+          { this.renderVersionSelect() }
           { this.renderUpdateTypeSelect() }
           { this.renderEditorTypeSelect() }
         </div>
