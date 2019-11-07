@@ -24,7 +24,7 @@ const EditTagPage = () => {
         queryFragment={getFragment('TagEditFragment')}
         mutationFragment={getFragment('TagEditFragment')}
         successCallback={tag => {
-          history.push(`/tag/${tag.name}`); //TODO: Util function for tag URL
+          history.push({pathname: `/tag/${tag.slug}`}); //TODO: Util function for tag URL
         }}
       />
     </Components.SingleColumnSection>

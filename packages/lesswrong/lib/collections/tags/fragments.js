@@ -6,6 +6,7 @@ registerFragment(`
     name
     slug
     postCount
+    deleted
     description {
       html
       htmlHighlight
@@ -19,6 +20,7 @@ registerFragment(`
     name
     slug
     postCount
+    deleted
     description {
       ...RevisionEdit
     }
