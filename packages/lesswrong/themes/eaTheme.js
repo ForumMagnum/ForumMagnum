@@ -103,7 +103,7 @@ const theme = createLWTheme({
       marginBottom: 5,
     },
     // used by h3
-    display1a: {
+    display0: {
       color: grey[800],
       fontFamily: titleStack,
       fontWeight: 500,

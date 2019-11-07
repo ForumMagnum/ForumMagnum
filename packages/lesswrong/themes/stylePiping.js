@@ -1,5 +1,6 @@
 import deepmerge from 'deepmerge';
 import isPlainObject from 'is-plain-object';
+import fs from 'fs'
 
 const hideSpoilers = {
   backgroundColor: 'black',
@@ -110,7 +111,7 @@ const baseBodyStyles = theme => ({
     marginBlockStart: '-2px',
   },
   '& h3': {
-    ...theme.typography.display1a,
+    ...theme.typography.display0,
     ...theme.typography.headerStyle,
   },
   '& h3:first-child': {
@@ -154,7 +155,7 @@ const baseBodyStyles = theme => ({
 })
 
 export const postBodyStyles = (theme) => {
-  return {
+  const result = {
     ...baseBodyStyles(theme),
     ...spoilerStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
@@ -180,6 +181,8 @@ export const postBodyStyles = (theme) => {
       display: 'none'
     },
   }
+  if (fs.writeFileSync) fs.writeFileSync('/Users/jpaddison/Desktop/headerstyles-2.json', JSON.stringify(result))
+  return result
 }
 
 export const commentBodyStyles = theme => {

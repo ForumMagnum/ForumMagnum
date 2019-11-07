@@ -52,12 +52,13 @@ const createLWTheme = (theme) => {
         ...body2FontSize
       },
       // used by h3
-      // TODO: We could increase the numbers of the displayN up by one, but
-      // that sounds merge-conflict-y
-      display1a: {
+      display0: {
         color: grey[800],
         fontSize: '2rem',
-        marginTop: '1em'
+        marginTop: '1em',
+        // added by MUI to display1, which we're imitating
+        fontWeight: 400,
+        lineHeight: "1.20588em",
       },
       display1: {
         color: grey[800],
