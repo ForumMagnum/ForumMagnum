@@ -56,12 +56,6 @@ const TagRelCard = ({tagRel, vote, classes}) => {
       Relevance
     </span>
     
-    {<ContentItemBody
-      dangerouslySetInnerHTML={{__html: tagRel.tag.description?.htmlHighlight}}
-      description={`tag ${tagRel.tag.name}`}
-      className={classes.description}
-    />}
-    
     <div className={classes.voteButton}>
       <VoteButton
         orientation="left"
@@ -87,6 +81,12 @@ const TagRelCard = ({tagRel, vote, classes}) => {
         vote={vote}
       />
     </div>
+    
+    {<ContentItemBody
+      dangerouslySetInnerHTML={{__html: tagRel.tag.description?.htmlHighlight}}
+      description={`tag ${tagRel.tag.name}`}
+      className={classes.description}
+    />}
     
     {!results && <PostsListPlaceholder count={previewPostCount}/>}
     {results && results.map((result,i) =>
