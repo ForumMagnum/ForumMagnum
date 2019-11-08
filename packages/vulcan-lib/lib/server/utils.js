@@ -19,7 +19,7 @@ Utils.sanitize = function(s) {
     allowedStyles: {
       ...sanitizeHtml.defaults.allowedStyles,
       'figure': {
-        'width': [/^\d+(?:px|em|%)$/]
+        'width': [/^(?:\d|\.)+(?:px|em|%)$/]
       }
     }
   });
