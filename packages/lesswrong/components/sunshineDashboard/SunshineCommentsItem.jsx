@@ -3,7 +3,8 @@ import React, { Component } from 'react';
 import { Comments } from '../../lib/collections/comments';
 import Users from 'meteor/vulcan:users';
 import { Link } from '../../lib/reactRouterWrapper.js'
-import Icon from '@material-ui/core/Icon';
+import ClearIcon from '@material-ui/icons/Clear';
+import DoneIcon from '@material-ui/icons/Done';
 import { withStyles } from '@material-ui/core/styles';
 import classnames from 'classnames';
 import Typography from '@material-ui/core/Typography';
@@ -88,20 +89,14 @@ class SunshineCommentsItem extends Component {
                   title="Spam (delete immediately)"
                   to={Users.getProfileUrl(comment.user)}
                   onClick={this.handleDelete}>
-                    <Icon
-                      className={classnames("material-icons", classes.icon)}>
-                        clear
-                    </Icon>
+                    <ClearIcon className={classnames("material-icons", classes.icon)}/>
                     <div className="sunshine-sidebar-posts-item-delete-overlay"/>
                 </Link>
                 <span
                   className={classnames(classes.postAction, "new-comment", "review")}
                   title="Mark as Reviewed"
                   onClick={this.handleReview}>
-                  <Icon
-                    className={classnames("material-icons", classes.icon)}>
-                      done
-                  </Icon>
+                  <DoneIcon className={classnames("material-icons", classes.icon)}/>
                 </span>
               </div>
             </Components.SunshineListItem>

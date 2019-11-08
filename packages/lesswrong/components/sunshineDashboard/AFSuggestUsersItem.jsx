@@ -7,6 +7,7 @@ import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import withHover from '../common/withHover'
 import ClearIcon from '@material-ui/icons/Clear';
+import DoneIcon from '@material-ui/icons/Done';
 import withErrorBoundary from '../common/withErrorBoundary'
 
 class AFSuggestUsersItem extends Component {
@@ -72,7 +73,7 @@ class AFSuggestUsersItem extends Component {
             </div>
             { hover && <C.SidebarActionMenu>
               <C.SidebarAction title="Approve for AF" onClick={this.handleReview}>
-                done
+                <DoneIcon />
               </C.SidebarAction>
               <C.SidebarAction warningHighlight={true} title="Ignore" onClick={this.handleIgnore}>
                 <ClearIcon/>

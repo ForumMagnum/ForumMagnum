@@ -9,7 +9,8 @@ import Users from 'meteor/vulcan:users';
 import PropTypes from 'prop-types';
 import withUser from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
-
+import DoneIcon from '@material-ui/icons/Done';
+import ClearIcon from '@material-ui/icons/Clear';
 class SunshineNewCommentsItem extends Component {
 
   handleReview = () => {
@@ -51,10 +52,10 @@ class SunshineNewCommentsItem extends Component {
           <Components.SunshineCommentsItemOverview comment={comment}/>
             {hover && <Components.SidebarActionMenu>
               <Components.SidebarAction title="Mark as Reviewed" onClick={this.handleReview}>
-                done
+                <DoneIcon/>
               </Components.SidebarAction>
               <Components.SidebarAction title="Spam (delete immediately)" onClick={this.handleDelete} warningHighlight>
-                clear
+                <ClearIcon/>
               </Components.SidebarAction>
             </Components.SidebarActionMenu>}
         </Components.SunshineListItem>

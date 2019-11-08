@@ -1,12 +1,11 @@
 import React from 'react';
 import { Components, registerComponent, parseRoute, Utils } from 'meteor/vulcan:core';
-import { Link } from 'react-router-dom';
 import { hostIsOnsite, useLocation, getUrlClass } from '../../lib/routeUtil';
 import Sentry from '@sentry/node';
 
 // From react-router-v4
 // https://github.com/ReactTraining/history/blob/master/modules/PathUtils.js
-var parsePath = function parsePath(path) {
+export const parsePath = function parsePath(path) {
   var pathname = path || '/';
   var search = '';
   var hash = '';
@@ -30,7 +29,40 @@ var parsePath = function parsePath(path) {
   };
 };
 
-const HoverPreviewLink = ({ innerHTML, href }) => {
+export const parseRouteWithErrors = (onsiteUrl, contentSourceDescription) => {
+  return parseRoute({
+    location: parsePath(onsiteUrl),
+    onError: (pathname) => {
+      if (Meteor.isClient) {
+        if (contentSourceDescription)
+          Sentry.captureException(new Error(`Broken link from ${contentSourceDescription} to ${pathname}`));
+        else
+          Sentry.captureException(new Error(`Broken link from ${location.pathname} to ${pathname}`));
+      }
+    }
+  });
+}
+
+const linkIsExcludedFromPreview = (url) => {
+  // Don't try to preview links that go directly to images. The usual use case
+  // for such links is an image where you click for a larger version.
+  if (url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.jpeg') || url.endsWith('.gif')) {
+    return true;
+  }
+  
+  return false;
+}
+
+// A link, which will have a hover preview auto-selected and attached. Used from
+// ContentItemBody as a replacement for <a> tags in user-provided content.
+// Props
+//   innerHTML: The contents of the original <a> tag, which get wrapped in a
+//     new link and preview.
+//   href: The link destination, the href attribute on the original <a> tag.
+//   contentSourceDescription: (Optional) A human-readabe string describing
+//     where this content came from. Used in error logging only, not displayed
+//     to users.
+const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription }) => {
   const URLClass = getUrlClass()
   const location = useLocation();
 
@@ -41,23 +73,16 @@ const HoverPreviewLink = ({ innerHTML, href }) => {
   
   // Within-page relative link?
   if (href.startsWith("#")) {
-    return <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
+    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
   }
 
   try {
     const currentURL = new URLClass(location.pathname, Utils.getSiteUrl());
     const linkTargetAbsolute = new URLClass(href, currentURL);
     
-    if (hostIsOnsite(linkTargetAbsolute.host) || Meteor.isServer) {
-      const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
-      const parsedUrl = parseRoute({
-        location: parsePath(onsiteUrl),
-        onError: (pathname) => {
-          if (Meteor.isClient) {
-            Sentry.captureException(new Error(`Broken link from ${location.pathname} to ${pathname}`));
-          }
-        }
-      });
+    const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
+    if (!linkIsExcludedFromPreview(onsiteUrl) && (hostIsOnsite(linkTargetAbsolute.host) || Meteor.isServer)) {
+      const parsedUrl = parseRouteWithErrors(onsiteUrl, contentSourceDescription)
       
       if (parsedUrl?.currentRoute) {
         const PreviewComponent = parsedUrl.currentRoute?.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;

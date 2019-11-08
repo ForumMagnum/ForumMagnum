@@ -33,6 +33,12 @@ addRoute([
     componentName: 'UsersAccount'
   },
   {
+    name:'users.manageSubscriptions',
+    path:'/manageSubscriptions',
+    componentName: 'ViewSubscriptionsPage',
+    title: "Manage Subscriptions",
+  },
+  {
     name:'users.edit',
     path:'/users/:slug/edit',
     componentName: 'UsersAccount'
@@ -73,6 +79,11 @@ addRoute([
     name: 'editPost',
     path: '/editPost',
     componentName: 'PostsEditPage'
+  },
+  {
+    name: 'collaboratePost',
+    path: '/collaborateOnPost',
+    componentName: 'PostCollaborationEditor'
   },
 
   // Sequences
@@ -144,6 +155,13 @@ addRoute([
     componentName: 'PostsSingleSlug',
     previewComponentName: 'PostLinkPreviewSlug',
     ...rationalitySubtitle
+  },
+  {
+    name: 'bookmarks',
+    path: '/bookmarks',
+    componentName: 'BookmarksPage',
+    titleComponentName: 'UserPageTitle',
+    subtitleComponentName: 'UserPageTitle',
   }
 ]);
 
@@ -302,6 +320,7 @@ addRoute([
     titleComponentName: 'PostsPageHeaderTitle',
     subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreview',
+    getPingback: (parsedUrl) => ({ collectionName: "Posts", documentId: parsedUrl.params._id })
   },
   {
     name: 'admin',
@@ -320,14 +339,14 @@ addRoute([
     path: '/debug/emailHistory',
     componentName: 'EmailHistoryPage'
   },
+  {
+    name: 'notificationEmailPreview',
+    path: '/debug/notificationEmailPreview',
+    componentName: 'NotificationEmailPreviewPage'
+  },
 ]);
 
 addRoute([
-  // GreaterWrong comment (mostly for use with hover previews)
-  // TODO: Make this properly show the comment as if it were a regular permalink
-  // (not high priority because it's only relevant when greaterwrong links to things AND
-  // someone wants to manually copy/paste switch the link, switching the url from greaterwrong
-  // to lesswrong)
   {
     path:'/posts/:_id/:slug/comment/:commentId?',
     name: 'comment.greaterwrong',

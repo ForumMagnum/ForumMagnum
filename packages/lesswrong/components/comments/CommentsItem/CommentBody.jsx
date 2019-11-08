@@ -85,7 +85,11 @@ class CommentBody extends Component {
   
     return (
       <div className={classes.root}>
-        <ContentItemBody className={bodyClasses} dangerouslySetInnerHTML={{__html: innerHtml }}/>
+        <ContentItemBody
+          className={bodyClasses}
+          dangerouslySetInnerHTML={{__html: innerHtml }}
+          description={`comment ${comment._id}`}
+        />
       </div>
     )
   }

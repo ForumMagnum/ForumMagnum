@@ -1,7 +1,7 @@
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import lolex from 'lolex';
-import { EventDebouncer, dispatchPendingEvents } from '../server/debouncer.js';
+import { EventDebouncer, dispatchPendingEvents, getDailyBatchTimeAfter, getWeeklyBatchTimeAfter } from '../server/debouncer.js';
 import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection.js';
 
 chai.should();
@@ -23,8 +23,11 @@ describe('EventDebouncer', async () => {
       const eventsHandled = {}; // key=>event=>number of times seen
       const testEvent = new EventDebouncer({
         name: "testEvent",
-        delayMinutes: 15,
-        maxDelayMinutes: 30,
+        defaultTiming: {
+          type: "delayed",
+          delayMinutes: 15,
+          maxDelayMinutes: 30,
+        },
         callback: (key, events) => {
           numEventBatchesHandled++;
           events.forEach(ev => {
@@ -87,4 +90,14 @@ describe('EventDebouncer', async () => {
       clock.uninstall();
     }
   });
+  it('times daily batches correctly', async () => {
+    getDailyBatchTimeAfter(new Date("1980-01-01 00:20:00Z"), 3).toString().should.equal(new Date("1980-01-01 03:00:00Z").toString());
+    getDailyBatchTimeAfter(new Date("1980-01-01 05:20:00Z"), 3).toString().should.equal(new Date("1980-01-02 03:00:00Z").toString());
+  });
+  it('times weekly batches correctly', async () => {
+    getWeeklyBatchTimeAfter(new Date("1980-01-01 00:20:00Z"), 3, "Friday").toString().should.equal(new Date("1980-01-04 03:00:00Z").toString());
+    getWeeklyBatchTimeAfter(new Date("1980-01-01 00:20:00Z"), 3, "Tuesday").toString().should.equal(new Date("1980-01-01 03:00:00Z").toString());
+    getWeeklyBatchTimeAfter(new Date("1980-01-01 03:20:00Z"), 3, "Tuesday").toString().should.equal(new Date("1980-01-08 03:00:00Z").toString());
+  });
 });
+

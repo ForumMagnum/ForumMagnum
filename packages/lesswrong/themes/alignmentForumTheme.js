@@ -54,6 +54,10 @@ const theme = createLWTheme({
       fontFamily: sansSerifStack,
       fontVariantNumeric: "lining-nums",
     },
+    errorStyle: {
+      color: palette.error.main,
+      fontFamily: sansSerifStack
+    },
     link: {
       underlinePosition: "72%",
     },

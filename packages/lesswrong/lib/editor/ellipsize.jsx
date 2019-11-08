@@ -13,18 +13,26 @@ export const highlightFromMarkdown = (body, mdi) => {
 }
 
 export const highlightFromHTML = (html) => {
-  return truncatise(html, {
+  if (!html) return ""
+  const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
+  const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
+
+  return truncatise(htmlRemovedStyles, {
     TruncateLength: highlightMaxChars,
     TruncateBy: "characters",
-    Suffix: "...",
+    Suffix: `... ${styles}`,
   });
 };
 
 export const truncate = (html, truncateLength) => {
-  return truncatise(html, {
+  if(!html) return ""
+  const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
+  const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
+
+  return truncatise(htmlRemovedStyles, {
     TruncateLength: Math.floor(truncateLength - (truncateLength/4)) || truncateLength,
     TruncateBy: "characters",
-    Suffix: `...`,
+    Suffix: `... ${styles}`,
   });
 }
 

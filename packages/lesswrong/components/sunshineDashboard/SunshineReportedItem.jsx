@@ -8,7 +8,8 @@ import withHover from '../common/withHover'
 import PropTypes from 'prop-types'
 import withErrorBoundary from '../common/withErrorBoundary'
 import withUser from '../common/withUser'
-
+import DoneIcon from '@material-ui/icons/Done';
+import DeleteIcon from '@material-ui/icons/Delete';
 class SunshineReportedItem extends Component {
 
   handleReview = () => {
@@ -88,10 +89,10 @@ class SunshineReportedItem extends Component {
         </SidebarInfo>
         {hover && <SidebarActionMenu>
           <SidebarAction title="Mark as Reviewed" onClick={this.handleReview}>
-            done
+            <DoneIcon/>
           </SidebarAction>
           <SidebarAction title="Spam (delete immediately)" onClick={this.handleDelete} warningHighlight>
-            delete
+            <DeleteIcon/>
           </SidebarAction>
         </SidebarActionMenu>
         }
