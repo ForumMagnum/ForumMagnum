@@ -8,8 +8,7 @@ const styles = theme => ({
   root: {
     marginLeft: 4,
     marginRight: 4,
-    fontFamily: theme.typography.fontFamily,
-    verticalAlign: "middle",
+    ...theme.typography.commentStyle,
     
     "&:hover": {
       opacity: 1.0,
@@ -38,13 +37,12 @@ const styles = theme => ({
   name: {
     display: "inline-block",
     height: 26,
-    paddingTop: 2,
+    paddingTop: 4,
     paddingLeft: 8,
     paddingRight: 10,
     border: "1px solid #888",
     borderTopRightRadius: 14,
     borderBottomRightRadius: 14,
-    ...theme.typography.postStyle,
     verticalAlign: "middle",
   },
   hovercard: {

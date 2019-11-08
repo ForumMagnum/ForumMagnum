@@ -14,8 +14,8 @@ const styles = theme => ({
   },
   tagsLabel: {
     fontSize: "1.2rem",
-    ...theme.typography.postStyle,
-    verticalAlign: "baseline",
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[600]
   },
   addTagButton: {
     border: "1px solid #888",
@@ -25,7 +25,6 @@ const styles = theme => ({
     height: 26,
     textAlign: "center",
     paddingTop: 4,
-    verticalAlign: "middle",
     
     "&:hover": {
       opacity: 1.0,
@@ -74,7 +73,7 @@ const FooterTagList = ({post, classes}) => {
     <span className={classes.tagsLabel}>Tags: </span>
     
     {results.map((result, i) => <span key={result._id}>
-      {i>0 && ", "}
+      {i>0 && " "}
       <Components.FooterTag tagRel={result} tag={result.tag}/>
     </span>)}
     <a

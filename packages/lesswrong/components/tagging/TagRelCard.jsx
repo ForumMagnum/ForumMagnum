@@ -5,11 +5,14 @@ import { withVote } from '../votes/withVote';
 import { useCurrentUser } from '../common/withUser';
 import { TagRels } from '../../lib/collections/tagRels/collection.js';
 import { Link } from '../../lib/reactRouterWrapper.js';
-import { postBodyStyles } from '../../themes/stylePiping'
+import { commentBodyStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
   root: {
-    padding: 16,
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingTop: 8,
+    paddingBottom: 8,
     [theme.breakpoints.down('xs')]: {
       width: "95vw",
     },
@@ -19,13 +22,15 @@ const styles = theme => ({
   },
   relevanceLabel: {
     marginRight: 8,
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[600]
   },
   voteButton: {
     display: "inline-block",
     fontSize: 25,
   },
   description: {
-    ...postBodyStyles(theme),
+    ...commentBodyStyles(theme),
   },
   score: {
     marginLeft: 4,
