@@ -17,7 +17,7 @@ const styles = theme => ({
 });
 
 const TagPage = ({classes}) => {
-  const { SingleColumnSection, SectionTitle, SectionFooter, SectionButton, PostsItem2, Loading, ContentItemBody } = Components;
+  const { SingleColumnSection, SectionTitle, SectionFooter, SectionButton, PostsItem2, ContentItemBody } = Components;
   const currentUser = useCurrentUser();
   const { params } = useLocation();
   const { slug } = params;

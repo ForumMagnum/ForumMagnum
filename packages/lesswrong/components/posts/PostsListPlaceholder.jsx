@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import { styles } from './PostsItem2.jsx';
