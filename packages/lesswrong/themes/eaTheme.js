@@ -105,15 +105,36 @@ const theme = createLWTheme({
       fontWeight: 500,
       marginBottom: 5,
     },
+    // used by h3
+    display0: {
+      color: grey[800],
+      fontFamily: titleStack,
+      fontWeight: 500,
+      fontSize: '1.6rem',
+      lineHeight: '1.25em',
+    },
+    // used by h2
+    display1: {
+      color: grey[800],
+      fontFamily: titleStack,
+      fontWeight: 500,
+      fontSize: '2rem',
+      lineHeight: '1.25em',
+    },
+    // used by h1
     display2: {
       color: grey[800],
       fontFamily: titleStack,
-      fontWeight: 600
+      fontWeight: 500,
+      fontSize: '2.4rem',
+      lineHeight: '1.25em',
     },
+    // used by page title
     display3: {
       color: grey[800],
       fontFamily: titleStack,
-      fontWeight: 500
+      fontWeight: 500,
+      lineHeight: '1.25em'
     }
   },
   overrides: {
@@ -122,14 +143,27 @@ const theme = createLWTheme({
         backgroundColor: "white",
       }
     },
+    MuiTooltip: {
+      tooltip: {
+        fontSize: "1rem",
+        padding: ".7rem",
+      }
+    },
     Layout: {
       main: {
+        margin: '30px auto 15px auto',
         '@media (max-width: 959.95px)': {
           marginTop: 0
         }
       }
     },
     Header: {
+      root: {
+        height: 90,
+        [defaultTheme.breakpoints.down('xs')]: {
+          height: 77,
+        },
+      },
       appBar: {
         padding: ".8em",
         '@media (min-width: 960px)': {
@@ -138,7 +172,7 @@ const theme = createLWTheme({
           paddingTop: "1em",
           paddingBottom: "1em"
         }
-      }
+      },
     },
     MetaInfo: {
       root: {
@@ -172,21 +206,17 @@ const theme = createLWTheme({
         }
       },
     },
-    MuiTooltip: {
-      tooltip: {
-        fontSize: "1rem",
-        padding: ".7rem",
-      }
-    },
     SunshineSidebar: {
       root: {
         top: 30,
         marginTop: 63
       }
     },
-    PostsPageTitle: {
-      root: {
-        lineHeight: '1.25em'
+    HomeLatestPosts: {
+      personalBlogpostsCheckboxLabel: {
+        [defaultTheme.breakpoints.down("xs")]: {
+          fontSize: "1rem",
+        },
       }
     },
     NavigationStandalone: {
