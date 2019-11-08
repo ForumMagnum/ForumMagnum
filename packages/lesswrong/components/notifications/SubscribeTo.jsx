@@ -1,108 +1,113 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { intlShape, FormattedMessage } from 'meteor/vulcan:i18n';
-import { graphql } from 'react-apollo';
-import compose from 'lodash/flowRight';
-import gql from 'graphql-tag';
-import Users from 'meteor/vulcan:users';
-import { withMessages, registerComponent, Utils } from 'meteor/vulcan:core';
-import withUser from '../common/withUser';
+import React from 'react';
+import { Components, withMessages, registerComponent, Utils, useMulti, withCreate } from 'meteor/vulcan:core';
+import { Subscriptions } from '../../lib/collections/subscriptions/collection'
+import { defaultSubscriptionTypeTable } from '../../lib/collections/subscriptions/mutations'
+import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil.js';
+import { useCurrentUser } from '../common/withUser';
+import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
+import NotificationsIcon from '@material-ui/icons/Notifications';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import { withStyles } from '@material-ui/core/styles';
+import classNames from 'classnames';
 
-// boolean -> unsubscribe || subscribe
-const getSubscribeAction = subscribed => subscribed ? 'unsubscribe' : 'subscribe'
-
-class SubscribeToActionHandler extends Component {
-
-  constructor(props, context) {
-    super(props, context);
-
-    this.onSubscribe = this.onSubscribe.bind(this);
-
-    this.state = {
-      subscribed: !!Users.isSubscribedTo(props.currentUser, props.document, props.documentType),
-    };
+const styles = theme => ({
+  root: {
+    display: "flex",
+    alignItems: "center"
   }
+})
 
-  async onSubscribe(e) {
+const SubscribeTo = ({
+  document,
+  subscriptionType: overrideSubscriptionType,
+  createSubscription, // From withCreate HoC
+  flash, // From withMessages HoC
+  subscribeMessage, unsubscribeMessage,
+  className="",
+  classes,
+  showIcon
+}) => {
+  const currentUser = useCurrentUser();
+  
+  const documentType = Utils.getCollectionNameFromTypename(document.__typename);
+  const collectionName = Utils.capitalize(documentType);
+  const subscriptionType = overrideSubscriptionType || defaultSubscriptionTypeTable[collectionName];
+  
+  // Get existing subscription, if there is one
+  const { results, loading } = useMulti({
+    terms: {
+      view: "subscriptionState",
+      documentId: document._id,
+      userId: currentUser?._id,
+      subscriptionType,
+      collectionName,
+      limit: 1
+    },
+    
+    collection: Subscriptions,
+    queryName: 'subscriptionState',
+    fragmentName: 'SubscriptionState',
+    enableTotal: false,
+    ssr: true
+  });
+  
+  if (loading) {
+    return <Components.Loading/>
+  }
+  
+  const isSubscribed = () => {
+    // Get the last element of the results array, which will be the most recent subscription
+    if (results && results.length > 0) {
+      // Get the newest subscription entry (Mingo doesn't enforce the limit:1)
+      const currentSubscription = _.max(results, result=>new Date(result.createdAt).getTime());
+      
+      if (currentSubscription.state === "subscribed")
+        return true;
+      else if (currentSubscription.state === "suppressed")
+        return false;
+    }
+    return userIsDefaultSubscribed({
+      user: currentUser,
+      subscriptionType, collectionName, document
+    });
+  }
+  const onSubscribe = async (e) => {
     try {
       e.preventDefault();
-
-      const { document, documentType } = this.props;
-      const action = getSubscribeAction(this.state.subscribed);
-
-      // TODO: change the mutation to auto-update the user in the store id:13
-      await this.setState(prevState => ({subscribed: !prevState.subscribed}));
-
-      // mutation name will be for example postsSubscribe
-      await this.props[`${documentType + Utils.capitalize(action)}`]({documentId: document._id});
+      
+      const newSubscription = {
+        state: isSubscribed() ? 'suppressed' : 'subscribed',
+        documentId: document._id,
+        collectionName,
+        type: subscriptionType,
+      }
+      createSubscription({data: newSubscription})
 
       // success message will be for example posts.subscribed
-      this.props.flash(
-        {id: `${documentType}.${action}d`,
-        // handle usual name properties
-        name: document.name || document.title || document.displayName
-      , type: "success"});
-
-
+      flash({messageString: `Successfully ${isSubscribed() ? "unsubscribed" : "subscribed"}`});
     } catch(error) {
-      this.props.flash(error.message, "error");
+      flash({messageString: error.message});
     }
   }
 
-  render() {
-    const { currentUser, document, documentType } = this.props;
-    const { subscribed } = this.state;
-
-    const action = `${documentType}.${getSubscribeAction(subscribed)}`;
-
-    // can't subscribe to yourself
-    if (!currentUser || !document || (documentType === 'users' && document._id === currentUser._id)) {
-      return null;
-    }
-
-    const className = this.props.className || "";
-    return Users.canDo(currentUser, action) ? <a className={className} onClick={this.onSubscribe}><FormattedMessage id={action} /></a> : null;
+  // can't subscribe to yourself
+  if (!currentUser || (collectionName === 'Users' && document._id === currentUser._id)) {
+    return null;
   }
 
+  return <a className={classNames(className, classes.root)} onClick={onSubscribe}>
+    {showIcon && <ListItemIcon>{isSubscribed() ? <NotificationsIcon /> : <NotificationsNoneIcon /> }</ListItemIcon>}
+    { isSubscribed() ? unsubscribeMessage : subscribeMessage}
+  </a>
 }
 
-SubscribeToActionHandler.propTypes = {
-  document: PropTypes.object.isRequired,
-  className: PropTypes.string,
-  currentUser: PropTypes.object,
-}
-
-SubscribeToActionHandler.contextTypes = {
-  intl: intlShape
-};
-
-const subscribeMutationContainer = ({documentType, actionName}) => graphql(gql`
-  mutation ${documentType + actionName}($documentId: String) {
-    ${documentType + actionName}(documentId: $documentId) {
-      _id
-      subscribedItems
-    }
-  }
-`, {
-  props: ({ownProps, mutate}) => ({
-    [documentType + actionName]: vars => {
-      return mutate({
-        variables: vars,
-      });
-    },
-  }),
-});
-
-const SubscribeTo = props => {
-
-  const documentType = Utils.getCollectionNameFromTypename(props.document.__typename);
-
-  const withSubscribeMutations = ['Subscribe', 'Unsubscribe'].map(actionName => subscribeMutationContainer({documentType, actionName}));
-
-  const EnhancedHandler = compose(...withSubscribeMutations)(SubscribeToActionHandler);
-
-  return <EnhancedHandler {...props} documentType={documentType} />;
-}
+registerComponent('SubscribeTo', SubscribeTo,
+  withMessages,
+  [withCreate, {
+    collection: Subscriptions,
+    fragmentName: 'SubscriptionState',
+  }],
+  withStyles(styles, {name: "SubscribeTo"})
+);
 
 
-registerComponent('SubscribeTo', SubscribeTo, withUser, withMessages);

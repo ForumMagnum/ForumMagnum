@@ -55,7 +55,7 @@ export async function getUnrecognizedIndexes()
   return unrecognizedIndexes;
 }
 
-function isMissingIndex(collection, index, actualIndexes)
+function isMissingIndex(index, actualIndexes)
 {
   for (let actualIndex of actualIndexes)
   {
@@ -84,7 +84,7 @@ export async function getMissingIndexes()
     let indexes = await collection.rawCollection().indexes();
     
     for (let expectedIndex of expectedIndexes[collectionName]) {
-      if (isMissingIndex(collection, expectedIndex, indexes)) {
+      if (isMissingIndex(expectedIndex, indexes)) {
         missingIndexes.push({
           collectionName: collectionName,
           index: expectedIndex

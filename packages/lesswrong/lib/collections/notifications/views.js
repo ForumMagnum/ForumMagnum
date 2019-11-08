@@ -1,14 +1,16 @@
-import { getSetting } from 'meteor/vulcan:core';
+// import { getSetting } from 'meteor/vulcan:core';
 import Notifications from './collection.js';
 import { ensureIndex } from '../../collectionUtils';
 
 
 // will be common to all other view unless specific properties are overwritten
 Notifications.addDefaultView(function (terms) {
-  const alignmentForum = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
+  // const alignmentForum = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
   return {
     selector: {
-      ...alignmentForum
+      // ...alignmentForum, TODO: develop better notification system for AlignmentForum that properly filters 
+      emailed: false,
+      waitingForBatch: false,
     },
     options: {limit: 1000},
   };
@@ -25,7 +27,7 @@ Notifications.addView("userNotifications", (terms) => {
     options: {sort: {createdAt: -1}}
   }
 });
-ensureIndex(Notifications, {userId:1, createdAt:-1});
+ensureIndex(Notifications, {userId:1, emailed:1, waitingForBatch:1, createdAt:-1, type:1});
 
 Notifications.addView("unreadUserNotifications", (terms) => {
   return {

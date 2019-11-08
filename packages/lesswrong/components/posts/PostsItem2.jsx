@@ -67,7 +67,7 @@ const styles = (theme) => ({
     borderTop: "solid 1px rgba(0,0,0,.2)"
   },
   karma: {
-    width: 42,
+    width: KARMA_WIDTH,
     justifyContent: "center",
     [theme.breakpoints.down('sm')]:{
       width: "unset",
@@ -249,6 +249,17 @@ const styles = (theme) => ({
   dense: {
     paddingTop: 7,
     paddingBottom:8
+  }, 
+  hideOnSmallScreens: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none'
+    }
+  },
+  bookmark: {
+    marginLeft: theme.spacing.unit/2,
+    marginRight: theme.spacing.unit*1.5,
+    position: "relative",
+    top: 2,
   }
 })
 
@@ -295,9 +306,9 @@ class PostsItem2 extends PureComponent {
   render() {
     const { classes, post, sequenceId, chapter, currentUser, index, terms, resumeReading,
       showBottomBorder=true, showQuestionTag=true, showIcons=true, showPostedAt=true,
-      defaultToShowUnreadComments=false, dismissRecommendation, isRead, dense } = this.props
+      defaultToShowUnreadComments=false, dismissRecommendation, isRead, dense, hideOnSmallScreens, bookmark } = this.props
     const { showComments } = this.state
-    const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper } = Components
+    const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper, BookmarkButton } = Components
 
     const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -314,7 +325,7 @@ class PostsItem2 extends PureComponent {
     const cloudinaryCloudName = getSetting('cloudinary.cloudName', 'lesswrong-2-0')
 
     return (
-      <div className={classes.root} ref={this.postsItemRef}>
+      <div className={classNames(classes.root, {[classes.hideOnSmallScreens]: hideOnSmallScreens})} ref={this.postsItemRef}>
         <div className={classNames(
           classes.background,
           {
@@ -377,7 +388,10 @@ class PostsItem2 extends PureComponent {
                   onClick={() => this.toggleComments(false)}
                   unreadComments={unreadComments}
                 />
+              </div>}
 
+              {bookmark && <div className={classes.bookmark}>
+                <BookmarkButton post={post}/>
               </div>}
 
               <div className={classes.mobileDismissButton}>

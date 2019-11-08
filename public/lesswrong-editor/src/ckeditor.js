@@ -9,7 +9,6 @@ import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
 import BlockQuote from '@ckeditor/ckeditor5-block-quote/src/blockquote';
 import Bold from '@ckeditor/ckeditor5-basic-styles/src/bold';
 import CKFinder from '@ckeditor/ckeditor5-ckfinder/src/ckfinder';
-import EasyImage from '@ckeditor/ckeditor5-easy-image/src/easyimage';
 import Essentials from '@ckeditor/ckeditor5-essentials/src/essentials';
 import FontFamily from '@ckeditor/ckeditor5-font/src/fontfamily';
 import FontSize from '@ckeditor/ckeditor5-font/src/fontsize';
@@ -20,6 +19,7 @@ import ImageCaption from '@ckeditor/ckeditor5-image/src/imagecaption';
 import ImageStyle from '@ckeditor/ckeditor5-image/src/imagestyle';
 import ImageToolbar from '@ckeditor/ckeditor5-image/src/imagetoolbar';
 import ImageUpload from '@ckeditor/ckeditor5-image/src/imageupload';
+import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
 import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
 import Link from '@ckeditor/ckeditor5-link/src/link';
 import List from '@ckeditor/ckeditor5-list/src/list';
@@ -31,27 +31,37 @@ import RealTimeCollaborativeComments from '@ckeditor/ckeditor5-real-time-collabo
 import RealTimeCollaborativeTrackChanges from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativetrackchanges';
 import RemoveFormat from '@ckeditor/ckeditor5-remove-format/src/removeformat';
 import Strikethrough from '@ckeditor/ckeditor5-basic-styles/src/strikethrough';
-// import Table from '@ckeditor/ckeditor5-table/src/table';
-// import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
+import Table from '@ckeditor/ckeditor5-table/src/table';
+import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
 import Underline from '@ckeditor/ckeditor5-basic-styles/src/underline';
 import UploadAdapter from '@ckeditor/ckeditor5-adapter-ckfinder/src/uploadadapter';
 import BlockToolbar from '@ckeditor/ckeditor5-ui/src/toolbar/block/blocktoolbar';
-import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave'
+import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave';
 
-import MathpreviewPlugin from 'ckeditor5-math-preview/src/mathpreview';
+// import MathpreviewPlugin from 'ckeditor5-math-preview/src/mathpreview';
+// current version of MathpreviewPlugin (1.1.3) breaks ckeditor
 
 class CommentEditor extends BalloonBlockEditorBase {}
 class PostEditor extends BalloonBlockEditorBase {}
-class PostEditorRealtime extends BalloonBlockEditorBase {}
-
-// Tables and MediaEmbeds are commented out for now, but will be added back in as soon as some minor
-// minor issues are debugged.
+class PostEditorCollaboration extends BalloonBlockEditorBase {}
 
 // NOTE: If you make changes to this file, you must:
 // 1. navigate in your terminal to the corresponding folder ('cd ./public/lesswrong-editor')
 // 2. 'yarn run build'
 // 3. navigate back to main folder (i.e. 'cd ../..')
 // 4. run 'yarn add ./public/lesswrong-editor'.
+//
+// alternately, if you're starting in the root directory and want to do it all in one go:
+//
+// cd ./public/lesswrong-editor; yarn install; yarn run build; cd ../..; yarn add ./public/lesswrong-editor;
+
+const headingOptions = {
+	options: [
+		{ model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+		{ model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+		{ model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+	]
+};
 
 const postEditorPlugins = [
 	Autosave,
@@ -61,7 +71,6 @@ const postEditorPlugins = [
 	BlockQuote,
 	Bold,
 	CKFinder,
-	EasyImage,
 	Essentials,
 	FontFamily,
 	FontSize,
@@ -71,7 +80,8 @@ const postEditorPlugins = [
 	ImageCaption,
 	ImageStyle,
 	ImageToolbar,
-  ImageUpload,
+	ImageUpload,
+	ImageResize,
 	Italic,
 	Link,
 	List,
@@ -80,22 +90,22 @@ const postEditorPlugins = [
 	PasteFromOffice,
 	RemoveFormat,
 	Strikethrough,
-	// Table,
-	// TableToolbar,
+	Table,
+	TableToolbar,
 	Underline,
 	UploadAdapter,
-	MathpreviewPlugin
-]
-
-PostEditor.builtinPlugins = [
-  ...postEditorPlugins
+	// MathpreviewPlugin
 ];
 
-PostEditorRealtime.builtinPlugins = [
-  ...postEditorPlugins,
+PostEditor.builtinPlugins = [
+	...postEditorPlugins
+];
+
+PostEditorCollaboration.builtinPlugins = [
+	...postEditorPlugins,
 	RealTimeCollaborativeComments,
-  RealTimeCollaborativeTrackChanges,
-  PresenceList
+	RealTimeCollaborativeTrackChanges,
+	PresenceList
 ];
 
 const postEditorConfig = {
@@ -106,7 +116,7 @@ const postEditorConfig = {
 		'numberedList',
 		'imageUpload',
 		'blockQuote',
-		// 'insertTable',         these don't work yet, although I aim to fix them soon – Ray
+		'insertTable',
 		// 'mediaEmbed',
 		'|',
 		'undo',
@@ -115,6 +125,7 @@ const postEditorConfig = {
 		'trackChanges'
 	],
 	toolbar: [
+		'heading',
 		'bold',
 		'italic',
 		'underline',
@@ -125,37 +136,35 @@ const postEditorConfig = {
 		'|',
 		'link',
 		'|',
+		'mathpreview',
 		'comment',
-		'|',
-		'mathpreview'
 	],
 	image: {
 		toolbar: [
-      'imageStyle:alignLeft',
-      'imageStyle:alignCenter',
-      'imageStyle:alignRight',
-      'imageStyle:full',
-			'|',
 			'imageTextAlternative',
-			'|',
 			'comment',
-		]
+		],
 	},
-	// table: {
-	// 	contentToolbar: [
-	// 		'tableColumn',
-	// 		'tableRow',
-	// 		'mergeTableCells'
-	// 	],
-	// 	tableToolbar: [ 'comment' ]
-	// },
+	heading: headingOptions,
+	table: {
+		contentToolbar: [
+			'tableColumn',
+			'tableRow',
+			'mergeTableCells'
+		],
+		tableToolbar: [ 'comment' ]
+	},
 	// mediaEmbed: {
 	// 	toolbar: [ 'comment' ]
 	// },
-}
+};
 
 PostEditor.defaultConfig = {
-  ...postEditorConfig
+	...postEditorConfig
+};
+
+PostEditorCollaboration.defaultConfig = {
+	...postEditorConfig
 };
 
 CommentEditor.builtinPlugins = [
@@ -165,12 +174,11 @@ CommentEditor.builtinPlugins = [
 	BlockQuote,
 	Bold,
 	CKFinder,
-	EasyImage,
 	Essentials,
 	Heading,
 	Image,
 	ImageCaption,
-  ImageStyle,
+	ImageStyle,
 	ImageToolbar,
 	ImageUpload,
 	Italic,
@@ -180,18 +188,18 @@ CommentEditor.builtinPlugins = [
 	PasteFromOffice,
 	RemoveFormat,
 	Strikethrough,
-	// Table,
+	Table,
 	Underline,
 	UploadAdapter,
-	MathpreviewPlugin
+	// MathpreviewPlugin
 ];
 
 CommentEditor.defaultConfig = {
 	toolbar: [
-    'heading',
+		'heading',
 		'bold',
 		'italic',
-    'underline',
+		'underline',
 		'|',
 		'bulletedList',
 		'numberedList',
@@ -206,14 +214,15 @@ CommentEditor.defaultConfig = {
 			'imageTextAlternative'
 		]
 	},
-	// table: {
-	// 	contentToolbar: [
-	// 		'tableColumn',
-	// 		'tableRow',
-	// 		'mergeTableCells'
-	// 	],
-	// 	tableToolbar: [ 'comment' ]
-	// },
+	heading: headingOptions,
+	table: {
+		contentToolbar: [
+			'tableColumn',
+			'tableRow',
+			'mergeTableCells'
+		],
+		tableToolbar: [ 'comment' ]
+	},
 };
 
-export const Editors = { CommentEditor, PostEditor };
+export const Editors = { CommentEditor, PostEditor, PostEditorCollaboration };

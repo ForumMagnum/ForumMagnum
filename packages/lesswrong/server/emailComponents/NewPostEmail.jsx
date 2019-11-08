@@ -4,6 +4,8 @@ import { withStyles } from '@material-ui/core/styles';
 import { Components, registerComponent, withDocument } from 'meteor/vulcan:core';
 import './EmailFormatDate.jsx';
 import './EmailPostAuthors.jsx';
+import './EmailContentItemBody.jsx';
+import './EmailPostDate.jsx';
 
 const styles = theme => ({
   heading: {
@@ -26,7 +28,7 @@ const styles = theme => ({
 });
 
 const NewPostEmail = ({document, classes, reason}) => {
-  const { EmailPostAuthors, EmailFormatDate } = Components;
+  const { EmailPostAuthors, EmailContentItemBody, EmailPostDate } = Components;
   if (!document) return null;
   return (<React.Fragment>
     <div className={classes.heading}>
@@ -38,11 +40,17 @@ const NewPostEmail = ({document, classes, reason}) => {
       
       <EmailPostAuthors post={document}/><br/>
       <div className="postDate">
-        <EmailFormatDate date={document.postedAt}/>
+        <EmailPostDate post={document}/>
       </div><br/>
+      {document.location && <div>
+        {document.location}
+      </div>}
+      {document.contactInfo && <div>
+        Contact: {document.contactInfo}
+      </div>}
     </div>
     
-    <div className="post-body" dangerouslySetInnerHTML={{
+    <EmailContentItemBody className="post-body" dangerouslySetInnerHTML={{
       __html: document.contents.html
     }} />
     

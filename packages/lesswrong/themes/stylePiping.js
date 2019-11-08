@@ -52,54 +52,96 @@ const spoilerStyles = (theme) => ({
   }
 })
 
-export const postBodyStyles = (theme) => {
-  return {
+const tableStyles = {
+  borderCollapse: "collapse",
+  borderSpacing: 0,
+  border: "1px double #b3b3b3",
+  margin: "auto"
+}
+
+const tableCellStyles = {
+  minWidth: "2em",
+  padding: ".4em",
+  border: "1px double #d9d9d9",
+}
+
+const tableHeadingStyles = {
+  background: "#fafafa",
+  fontWeight: 700
+}
+
+const baseBodyStyles = theme => ({
+  ...theme.typography.body1,
+  ...theme.typography.postStyle,
+  wordBreak: "break-word",
+  '& pre': {
+    ...theme.typography.codeblock
+  },
+  '& code': {
+    ...theme.typography.code
+  },
+  '& blockquote': {
+    ...theme.typography.blockquote,
+    ...theme.typography.body1,
+    ...theme.typography.postStyle
+  },
+  '& li': {
+    ...theme.typography.body1,
+    ...theme.typography.li,
+    ...theme.typography.postStyle
+  },
+  '& h1': {
+    ...theme.typography.display2,
+    ...theme.typography.postStyle
+  },
+  '& h2': {
+    ...theme.typography.display1,
+    ...theme.typography.postStyle,
+  },
+  '& h3': {
+    ...theme.typography.display1,
+    ...theme.typography.postStyle,
+  },
+  '& h4': {
     ...theme.typography.body1,
     ...theme.typography.postStyle,
-    wordBreak: "break-word",
+    fontWeight:600,
+  },
+  '& img': {
+    maxWidth: "100%"
+  },
+  '& sup': {
+    verticalAlign: 'baseline',
+    top: '-0.6em',
+    fontSize: '65%',
+    position: 'relative'
+  },
+  '& a, & a:hover, & a:active': {
+    color: theme.palette.primary.main
+  },
+  '& table': {
+    ...tableStyles
+  },
+  '& td, & th': {
+    ...tableCellStyles
+  },
+  '& th': {
+    ...tableHeadingStyles
+  },
+  '& figure': {
+    margin: '1em auto',
+    textAlign: "center"
+  },
+  '& figcaption': {
+    ...theme.typography.caption,
+    ...theme.typography.postStyle
+  }
+})
+
+export const postBodyStyles = (theme) => {
+  return {
+    ...baseBodyStyles(theme),
     ...spoilerStyles(theme),
-    '& pre': {
-      ...theme.typography.codeblock
-    },
-    '& code': {
-      ...theme.typography.code
-    },
-    '& blockquote': {
-      ...theme.typography.blockquote,
-      ...theme.typography.body1,
-      ...theme.typography.postStyle
-    },
-    '& li': {
-      ...theme.typography.body1,
-      ...theme.typography.li,
-      ...theme.typography.postStyle
-    },
-    '& h1': {
-      ...theme.typography.display2,
-      ...theme.typography.postStyle
-    },
-    '& h2': {
-      ...theme.typography.display1,
-      ...theme.typography.postStyle,
-    },
-    '& h3': {
-      ...theme.typography.display1,
-      ...theme.typography.postStyle,
-    },
-    '& h4': {
-      ...theme.typography.body1,
-      ...theme.typography.postStyle,
-      fontWeight:600,
-    },
-    '& img': {
-      maxWidth: "100%"
-    },
-    '& sup': {
-      verticalAlign: 'baseline',
-      top: '-0.6em',
-      fontSize: '65%',
-      position: 'relative'
-    },
     // Used for R:A-Z imports as well as markdown-it-footnotes
     '& .footnotes': {
       marginTop: 40,
@@ -121,9 +163,6 @@ export const postBodyStyles = (theme) => {
     // Hiding the footnote-separator that markdown-it adds by default
     '& .footnotes-sep': {
       display: 'none'
-    },
-    '& a, & a:hover, & a:active': {
-      color: theme.palette.primary.main
     },
   }
 }
@@ -167,6 +206,9 @@ export const commentBodyStyles = theme => {
   }
   return deepmerge(postBodyStyles(theme), commentBodyStyles, {isMergeableObject:isPlainObject})
 }
+
+// Currently emails have only the basics
+export const emailBodyStyles = baseBodyStyles
 
 export const postHighlightStyles = theme => {
   const postHighlightStyles = {
@@ -222,7 +264,29 @@ export const ckEditorStyles = theme => {
         '--ck-focus-ring': "solid 1px rgba(0,0,0,0)",
         '--ck-focus-outer-shadow': "none",
         '--ck-inner-shadow': "none",
-        '& p': pBodyStyle
+        '& p': {
+          marginTop: "1em",
+          marginBottom: "1em",
+          '&:first-of-type': {
+            marginTop: 0,
+          }
+        },
+        '& .table table': {
+          ...tableStyles
+        },
+        '& .table table td, & .table table th': {
+          ...tableCellStyles
+        },
+        '& .table table th': {
+          ...tableHeadingStyles
+        },
+        '.ck-editor__editable.ck-blurred .ck-widget.ck-widget_selected, .ck-editor__editable.ck-blurred .ck-widget.ck-widget_selected': {
+          outline: "none"
+        },
+        '& .image>figcaption': {
+          ...theme.typography.caption,
+          backgroundColor: "unset",
+        },
       },
       '&.ck-sidebar, &.ck-presence-list': { //\u25B6
         '& li': {
@@ -238,11 +302,15 @@ export const ckEditorStyles = theme => {
         },
         '& .ck-annotation__info-name, & .ck-annotation__info-time, & .ck-comment__input, & .ck-thread__comment-count, & .ck-annotation__main p, & .ck-annotation__info-name, & .ck-annotation__info-time, & .ck-presence-list__counter, &.ck-presence-list': {
           ...commentBodyStyles(theme),
+          marginTop: 0,
+          alignItems: "flex-start",
+          marginBottom: 12
         },
         '&.ck-presence-list': {
+          marginBottom: 32,
           '--ck-user-avatar-size': '20px',
           '& .ck-user': {
-            marginTop: 11
+            marginTop: 0
           }
         },
         '& .ck-thread__comment-count': {
@@ -279,7 +347,7 @@ export const ckEditorStyles = theme => {
 export const editorStyles = (theme, styleFunction) => ({
     '& .public-DraftStyleDefault-block': {
       marginTop: '1em',
-      marginBottom: '1em',
+      marginBottom: '1em',  
     },
     '& code .public-DraftStyleDefault-block': {
       marginTop: 0,
