@@ -404,7 +404,6 @@ class EditorFormComponent extends Component {
     }
     // Otherwise, default to rich-text, but maybe show others
     if (originalType) { return originalType }
-    else if (currentUser?.defaultToCKEditor) { return "ckEditorMarkup" }
 
     const defaultEditor = this.getUserDefaultEditor(currentUser)
     if (defaultEditor === "markdown" && !enableMarkDownEditor) return "draftJS"
@@ -413,7 +412,7 @@ class EditorFormComponent extends Component {
   }
 
   getUserDefaultEditor = (user) => {
-    //if (userHasCkEditor(user)) return "ckEditorMarkup"
+    if (userHasCkEditor(user)) return "ckEditorMarkup"
     if (Users.useMarkdownPostEditor(user)) return "markdown"
     return "draftJS"
   }
