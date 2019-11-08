@@ -51,6 +51,15 @@ const createLWTheme = (theme) => {
         linkUnderlinePosition: "72%",
         ...body2FontSize
       },
+      // used by h3
+      display0: {
+        color: grey[800],
+        fontSize: '2rem',
+        marginTop: '1em',
+        // added by MUI to display1, which we're imitating
+        fontWeight: 400,
+        lineHeight: "1.20588em",
+      },
       display1: {
         color: grey[800],
         fontSize: '2rem',
