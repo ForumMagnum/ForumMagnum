@@ -153,7 +153,7 @@ const theme = createLWTheme({
       main: {
         margin: '30px auto 15px auto',
         '@media (max-width: 959.95px)': {
-          marginTop: 0
+          marginTop: 36,
         }
       }
     },
@@ -264,6 +264,11 @@ const theme = createLWTheme({
       root: {
         top: 30,
         marginTop: 63
+      }
+    },
+    PostsPageTitle: {
+      root: {
+        lineHeight: 1.25
       }
     },
     PostsTimeBlock: {
