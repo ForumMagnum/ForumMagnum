@@ -15,5 +15,3 @@ export const defaultGuidelinesLW = `
   <li>If you disagree, try getting curious about what your partner is thinking</li>
   <li>Don't be afraid to say 'oops' and change your mind</li>
 </ul>`
-
-// ea-forum-look-here (you may want to copy something like this over to your own guidelines)
