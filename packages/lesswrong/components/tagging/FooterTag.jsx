@@ -11,6 +11,7 @@ const styles = theme => ({
     paddingBottom: 5,
     ...theme.typography.commentStyle,
     "&:hover": {
+      opacity: 1
     },
   },
   score: {

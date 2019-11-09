@@ -18,11 +18,11 @@ const styles = theme => ({
     },
     [theme.breakpoints.up('sm')]: {
       width: 600,
-    }
+    },
+    ...theme.typography.commentStyle,
   },
   relevanceLabel: {
     marginRight: 8,
-    ...theme.typography.commentStyle,
     color: theme.palette.grey[600]
   },
   voteButton: {
@@ -37,11 +37,10 @@ const styles = theme => ({
     marginRight: 4,
   },
   seeAll: {
-    marginTop: theme.spacing.unit,
+    padding: theme.spacing.unit,
     display: "block",
     textAlign: "right",
-    color: theme.palette.primary.main,
-    ...theme.typography.commentStyle
+    color: theme.palette.primary.main
   }
 });
 
