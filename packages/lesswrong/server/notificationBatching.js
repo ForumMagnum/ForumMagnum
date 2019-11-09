@@ -5,6 +5,7 @@ import { getNotificationTypeByNameServer } from './notificationTypesServer.jsx';
 import { EventDebouncer } from './debouncer.js';
 import toDictionary from '../lib/modules/utils/toDictionary.js';
 import Users from 'meteor/vulcan:users';
+import { Posts } from '../lib/collections/posts';
 import { Components, addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from 'meteor/vulcan:core';
 import { UnsubscribeAllToken } from './emails/emailTokens.js';
 import { generateEmail, sendEmail, logSentEmail } from './emails/renderEmail.js';
@@ -98,22 +99,36 @@ export const wrapAndSendEmail = async ({user, subject, body}) => {
 
 addGraphQLResolvers({
   Query: {
-    async EmailPreview(root, {notificationIds}, context) {
+    async EmailPreview(root, {notificationIds, postId}, context) {
       const { currentUser } = context;
       if (!Users.isAdmin(currentUser)) {
         throw new Error("This debug feature is only available to admin accounts");
       }
-      if (!notificationIds || !notificationIds.length) {
+      if (!notificationIds?.length && !postId) {
         return [];
       }
+      if (notificationIds?.length && postId) {
+        throw new Error("Please only specify notificationIds or postId in the query")
+      }
       
-      const notifications = await Notifications.find(
-        { _id: {$in: notificationIds} }
-      ).fetch();
-      const emails = await notificationBatchToEmails({
-        user: currentUser,
-        notifications
-      });
+      let emails
+      if (notificationIds?.length) {
+        const notifications = await Notifications.find(
+          { _id: {$in: notificationIds} }
+        ).fetch();
+        emails = await notificationBatchToEmails({
+          user: currentUser,
+          notifications
+        });
+      }
+      if (postId) {
+        const post = Posts.findOne(postId)
+        emails = [{
+          user: currentUser,
+          subject: post.title,
+          body: <Components.NewPostEmail documentId={post._id} reason='you have the "Email me new posts in Curated" option enabled' />
+        }]
+      }
       const renderedEmails = await Promise.all(emails.map(async email => await wrapAndRenderEmail(email)));
       return renderedEmails;
     }
@@ -127,4 +142,4 @@ addGraphQLSchema(`
     text: String
   }
 `);
-addGraphQLQuery("EmailPreview(notificationIds: [String!]): [EmailPreview]");
+addGraphQLQuery("EmailPreview(notificationIds: [String], postId: String): [EmailPreview]");

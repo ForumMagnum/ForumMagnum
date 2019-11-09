@@ -6,13 +6,11 @@ const styles = theme => ({
   author: {
     ...theme.typography.body2,
     fontWeight: 600,
-    marginRight: 10
   },
   authorAnswer: {
     ...theme.typography.body2,
     fontFamily: theme.typography.postStyle.fontFamily,
     fontWeight: 600,
-    marginRight: 10,
     '& a, & a:hover': {
       textShadow:"none",
       backgroundImage: "none"
