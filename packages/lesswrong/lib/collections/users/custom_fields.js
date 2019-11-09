@@ -646,6 +646,7 @@ addFieldsDict(Users, {
   },
   notificationPostsInGroups: {
     label: "Posts/events in subscribed groups",
+    hidden: true,
     ...notificationTypeSettingsField({ channel: "both" }),
   },
   notificationPrivateMessage: {
