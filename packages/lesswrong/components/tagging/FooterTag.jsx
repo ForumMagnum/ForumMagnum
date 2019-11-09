@@ -6,51 +6,43 @@ import withHover from '../common/withHover';
 
 const styles = theme => ({
   root: {
-    marginLeft: 4,
     marginRight: 4,
+    paddingTop: 5,
+    paddingBottom: 5,
     ...theme.typography.commentStyle,
-    
     "&:hover": {
-      opacity: 1.0,
-      
-      "& $score": {
-        borderColor: "black",
-      },
-      "& $name": {
-        borderColor: "black",
-      },
     },
   },
   score: {
     display: "inline-block",
-    height: 26,
-    paddingTop: 5,
     paddingLeft: 10,
     paddingRight: 6,
-    background: "#484",
+    paddingTop: 5,
+    paddingBottom: 5,
+    background: "rgba(100,170,110,1)",
     borderTopLeftRadius: 14,
     borderBottomLeftRadius: 14,
     color: "white",
     fontWeight: 400,
-    verticalAlign: "middle",
+    border: "1px solid #aaa",
   },
   name: {
     display: "inline-block",
-    height: 26,
-    paddingTop: 4,
     paddingLeft: 8,
     paddingRight: 10,
-    border: "1px solid #888",
+    paddingTop: 5,
+    paddingBottom: 5,
+    border: "1px solid #aaa",
     borderTopRightRadius: 14,
     borderBottomRightRadius: 14,
-    verticalAlign: "middle",
+    borderLeft: "none"
   },
   hovercard: {
   },
 });
 
 const FooterTag = ({tagRel, tag, hover, anchorEl, classes}) => {
-  return (<span>
+  return (<span className={classes.root}>
     <Link to={`/tag/${tag.slug}`} className={classes.root}>
       <span className={classes.score}>{tagRel.baseScore}</span>
       <span className={classes.name}>{tag.name}</span>

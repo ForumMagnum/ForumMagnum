@@ -12,24 +12,12 @@ const styles = theme => ({
     marginTop: 16,
     marginBottom: 16,
   },
-  tagsLabel: {
-    fontSize: "1.2rem",
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[600]
-  },
   addTagButton: {
-    border: "1px solid #888",
-    borderRadius: 15,
+    ...theme.typography.commentStyle,
     display: "inline-block",
-    width: 26,
     height: 26,
     textAlign: "center",
-    paddingTop: 4,
-    
-    "&:hover": {
-      opacity: 1.0,
-      borderColor: "black",
-    },
+    padding: 4
   },
 });
 
@@ -69,18 +57,15 @@ const FooterTagList = ({post, classes}) => {
   if (loading || !results)
     return <Components.Loading/>;
   
-  return <div className={classes.root}>
-    <span className={classes.tagsLabel}>Tags: </span>
-    
+  return <div className={classes.root}>    
     {results.map((result, i) => <span key={result._id}>
-      {i>0 && " "}
       <Components.FooterTag tagRel={result} tag={result.tag}/>
     </span>)}
     <a
       onClick={(ev) => {setAnchorEl(ev.currentTarget); setIsOpen(true)}}
       className={classes.addTagButton}
     >
-      {"+"}
+      {"+ Add Tag"}
       
       <Components.LWPopper
         open={isOpen}

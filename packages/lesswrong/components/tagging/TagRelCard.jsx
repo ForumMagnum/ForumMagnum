@@ -36,13 +36,20 @@ const styles = theme => ({
     marginLeft: 4,
     marginRight: 4,
   },
+  seeAll: {
+    marginTop: theme.spacing.unit,
+    display: "block",
+    textAlign: "right",
+    color: theme.palette.primary.main,
+    ...theme.typography.commentStyle
+  }
 });
 
 const previewPostCount = 3;
 
 const TagRelCard = ({tagRel, vote, classes}) => {
   const currentUser = useCurrentUser();
-  const { VoteButton, PostsItem2, ContentItemBody, SectionFooter, PostsListPlaceholder } = Components;
+  const { VoteButton, PostsItem2, ContentItemBody, PostsListPlaceholder } = Components;
   
   const { results } = useMulti({
     terms: {
@@ -97,9 +104,7 @@ const TagRelCard = ({tagRel, vote, classes}) => {
     {results && results.map((result,i) =>
       <PostsItem2 key={result.post._id} tagRel={result} post={result.post} index={i} />
     )}
-    <SectionFooter>
-      <Link to={`/tag/${tagRel.tag.slug}`}>See All</Link>
-    </SectionFooter>
+    <Link className={classes.seeAll} to={`/tag/${tagRel.tag.slug}`}>See All</Link>
     
   </div>
 }
