@@ -21,14 +21,12 @@ jobs:
   include:
   - stage: test
     script: ls
-before_deploy: 
-  - curl -O https://raw.githubusercontent.com/m3t/travis_wait/master/travis_wait
-  - chmod 755 travis_wait
 deploy:
+  # Deploy lessestwrong
   - provider: script
     script: 
       cp ./LessWrong-Credentials/mup-lessestwrong.secret ./mup-lessestwrong.secret;
-      ./travis_wait "mup deploy --config mup-lessestwrong.secret --settings ./LessWrong-Credentials/settings-staging-lessestwrong.json"
+      bash ./travis_wait "mup deploy --config mup-lessestwrong.secret --settings ./LessWrong-Credentials/settings-staging-lessestwrong.json"
     on:
       branch: devel
     skip_cleanup: true
@@ -36,9 +34,25 @@ deploy:
   - provider: script
     script: 
       cp ./LessWrong-Credentials/mup-baserates.secret ./mup-baserates.secret;
-      ./travis_wait "mup deploy --config mup-baserates.secret --settings ./LessWrong-Credentials/settings-staging-baserates.json"
+      bash ./travis_wait "mup deploy --config mup-baserates.secret --settings ./LessWrong-Credentials/settings-staging-baserates.json"
     on:
       branch: travisSetup
+    skip_cleanup: true
+  # Deploy production
+  - provider: script
+    script: 
+      cp ./LessWrong-Credentials/mup-production.secret ./mup-production.secret;
+      bash ./travis_wait "mup deploy --config mup-production.secret --settings ./LessWrong-Credentials/settings-production-lesswrong.json"
+    on:
+      branch: master
+    skip_cleanup: true
+  # Deploy Alignment Forum
+  - provider: script
+    script: 
+      cp ./LessWrong-Credentials/mup-af.secret ./mup-af.secret;
+      bash ./travis_wait "mup deploy --config mup-af.secret --settings ./LessWrong-Credentials/settings-production-alignmentforum.json"
+    on:
+      branch: master
     skip_cleanup: true
     
   
