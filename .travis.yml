@@ -20,7 +20,7 @@ env:
 jobs:
   include:
   - stage: test
-    script: ls
+    script: yarn run test
 deploy:
   # Deploy lessestwrong
   - provider: script
