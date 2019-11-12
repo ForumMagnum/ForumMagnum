@@ -496,12 +496,11 @@ class EditorFormComponent extends Component {
           onChange={(e) => this.handleEditorOverride(e.target.value)}
           disableUnderline
           >
-            {editors.map((editorType, i) => {
-              console.log('etitorType', editorType)
-              return <MenuItem value={editorType} key={i}>
+            {editors.map((editorType, i) =>
+              <MenuItem value={editorType} key={i}>
                 {editorTypeToDisplay[editorType].name} {editorTypeToDisplay[editorType].postfix}
               </MenuItem>
-            })}
+            )}
           </Select>
       </Tooltip>
     )
