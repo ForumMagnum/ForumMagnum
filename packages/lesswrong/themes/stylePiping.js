@@ -242,6 +242,10 @@ export const commentBodyStyles = theme => {
       content: '"spoiler (hover/select to reveal)"',
       color: 'white',
     },
+    '& hr': {
+      marginTop: theme.spacing.unit*1.5,
+      marginBottom: theme.spacing.unit*1.5
+    }
   }
   return deepmerge(postBodyStyles(theme), commentBodyStyles, {isMergeableObject:isPlainObject})
 }

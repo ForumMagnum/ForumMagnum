@@ -10,6 +10,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import withDialog from '../../common/withDialog'
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
+import { commentBodyStyles } from '../../../themes/stylePiping'
 
 const styles = theme => ({
   root: {
@@ -41,7 +42,7 @@ const styles = theme => ({
     marginBottom: 4,
   },
   moderationGuidelines: {
-    ...theme.typography.commentStyle,
+    ...commentBodyStyles(theme),
     fontSize: "1.1rem",
     '& p, & ul': {
       marginTop: '.6em',
@@ -50,10 +51,6 @@ const styles = theme => ({
     '& li': {
       marginTop: '.4em',
       marginBottom: '.4em'
-    },
-    '& .dividerBlock': {
-      marginTop: theme.spacing.unit*1.5,
-      marginBottom: theme.spacing.unit*1.5
     }
   }
 })
@@ -94,7 +91,7 @@ const ModerationGuidelinesBox = ({classes, document, recordEvent, currentUser, o
 
     const combinedGuidelines = `
       ${(html || moderationStyle) ? userGuidelines : ""}
-      ${(html && document.frontpageDate) ? '<hr class="dividerBlock"></hr>' : ''}
+      ${(html && document.frontpageDate) ? '<hr/>' : ''}
       ${document.frontpageDate ?
           frontpageGuidelines :
             (
