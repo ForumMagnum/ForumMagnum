@@ -202,9 +202,7 @@ export const postBodyStyles = (theme) => {
     },
     '& hr': {
       ...hrStyles,
-    },
-    
-
+    }
   }
 }
 
