@@ -70,6 +70,24 @@ const tableHeadingStyles = {
   fontWeight: 700
 }
 
+const hrStyles = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "100%",
+  height: "100%",
+  margin: "32px 0",
+  border: "none", /* strip default hr styling */
+  textAlign: "center",
+  '&:after': {
+    marginLeft: 12,
+    color: "rgba(0, 0, 0, 0.26)", /* pick a color */
+    fontSize: "1rem",
+    letterSpacing: "12px", /* increase space between dots */
+    content: '"•••"',
+  }
+}
+
 const baseBodyStyles = theme => ({
   ...theme.typography.body1,
   ...theme.typography.postStyle,
@@ -132,7 +150,10 @@ const baseBodyStyles = theme => ({
     position: 'relative'
   },
   '& a, & a:hover, & a:active': {
-    color: theme.palette.primary.main
+    color: theme.palette.primary.main,
+    '& u': {
+      textDecoration: "none"
+    }
   },
   '& table': {
     ...tableStyles
@@ -179,6 +200,11 @@ export const postBodyStyles = (theme) => {
     '& .footnotes-sep': {
       display: 'none'
     },
+    '& hr': {
+      ...hrStyles,
+    },
+    
+
   }
 }
 
@@ -306,6 +332,9 @@ export const ckEditorStyles = theme => {
           ...theme.typography.caption,
           backgroundColor: "unset",
         },
+        '& hr': {
+          ...hrStyles
+        }
       },
       '&.ck-sidebar, &.ck-presence-list': { //\u25B6
         '& li': {

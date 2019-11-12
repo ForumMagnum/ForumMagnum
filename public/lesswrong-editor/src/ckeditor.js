@@ -13,7 +13,7 @@ import Essentials from '@ckeditor/ckeditor5-essentials/src/essentials';
 import FontFamily from '@ckeditor/ckeditor5-font/src/fontfamily';
 import FontSize from '@ckeditor/ckeditor5-font/src/fontsize';
 import Heading from '@ckeditor/ckeditor5-heading/src/heading';
-import Highlight from '@ckeditor/ckeditor5-highlight/src/highlight';
+import HorizontalLine from '@ckeditor/ckeditor5-horizontal-line/src/horizontalline';
 import EasyImage from '@ckeditor/ckeditor5-easy-image/src/easyimage';
 import Image from '@ckeditor/ckeditor5-image/src/image';
 import ImageCaption from '@ckeditor/ckeditor5-image/src/imagecaption';
@@ -38,12 +38,10 @@ import Underline from '@ckeditor/ckeditor5-basic-styles/src/underline';
 import UploadAdapter from '@ckeditor/ckeditor5-adapter-ckfinder/src/uploadadapter';
 import BlockToolbar from '@ckeditor/ckeditor5-ui/src/toolbar/block/blocktoolbar';
 import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave';
-import Watchdog from '@ckeditor/ckeditor5-watchdog/src/watchdog';
 
 // import MathpreviewPlugin from 'ckeditor5-math-preview/src/mathpreview';
 // current version of MathpreviewPlugin (1.1.3) breaks ckeditor
 
-const watchdog = Watchdog.for( BalloonBlockEditorBase );
 
 class CommentEditor extends BalloonBlockEditorBase {}
 class PostEditor extends BalloonBlockEditorBase {}
@@ -79,7 +77,7 @@ const postEditorPlugins = [
 	FontFamily,
 	FontSize,
 	Heading,
-	Highlight,
+	HorizontalLine,
 	Image,
 	ImageCaption,
 	ImageStyle,
@@ -117,6 +115,7 @@ const postEditorConfig = {
 	blockToolbar: [
 		'imageUpload',
 		'insertTable',
+		'horizontalLine',
 		// 'mediaEmbed',
 	],
 	toolbar: [
@@ -124,14 +123,13 @@ const postEditorConfig = {
 		'|',
 		'bold',
 		'italic',
-		'underline',
 		'strikethrough',
+		'|',
+		'link',
 		'|',
 		'blockQuote',
 		'bulletedList',
 		'numberedList',
-		'|',
-		'link',
 		'|',
 		'trackChanges',
 		// 'mathpreview',
@@ -174,6 +172,7 @@ CommentEditor.builtinPlugins = [
 	CKFinder,
 	Essentials,
 	Heading,
+	HorizontalLine,
 	EasyImage,
 	Image,
 	ImageCaption,
@@ -199,14 +198,13 @@ CommentEditor.defaultConfig = {
 		'|',
 		'bold',
 		'italic',
-		'underline',
 		'strikethrough',
+		'|',
+		'link',
 		'|',
 		'blockQuote',
 		'bulletedList',
 		'numberedList',
-		'|',
-		'link',
 		'|',
 		'mathpreview'
 	],
