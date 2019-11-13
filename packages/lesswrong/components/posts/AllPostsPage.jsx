@@ -91,14 +91,20 @@ class AllPostsPage extends Component {
 
     const numTimeBlocks = timeframeToNumTimeBlocks[currentTimeframe]
     const timeBlock = timeframeToTimeBlock[currentTimeframe]
+    
+    let postListParameters = {
+      view: 'timeframe',
+      ...baseTerms
+    }
+
+    if (!isNaN(parseInt(query.limit))) {
+      postListParameters.limit = parseInt(query.limit)
+    }
+
     return <div className={classes.timeframe}>
       <PostsTimeframeList
         timeframe={currentTimeframe}
-        postListParameters={{
-          view: 'timeframe',
-          limit: parseInt(query.limit),
-          ...baseTerms
-        }}
+        postListParameters={postListParameters}
         numTimeBlocks={numTimeBlocks}
         dimWhenLoading={showSettings}
         after={query.after || getAfterDefault({numTimeBlocks, timeBlock, timezone})}
