@@ -94,11 +94,12 @@ class PostsTimeframeList extends PureComponent {
     const timeBlock = timeframeToTimeBlock[timeframe]
     const dates = getDateRange(after, before, timeBlock)
     
+    const renderLoadMoreTimeBlocks = dates.length && dates.length > 1
     return (
       <div className={classNames({[classes.loading]: dim})}>
         {dates.map((date, index) =>
           <PostsTimeBlock
-            key={date.toString()}
+            key={date.toString()+postListParameters?.limit}
             startDate={moment.tz(date, timezone)}
             timeframe={timeframe}
             terms={{
@@ -113,9 +114,11 @@ class PostsTimeframeList extends PureComponent {
             displayShortform={displayShortform}
           />
         )}
-        <Typography variant="body1" className={classes.loadMore} onClick={this.loadMoreTimeBlocks}>
-          <a>{loadMoreTimeframeMessages[timeframe]}</a>
-        </Typography>
+        {renderLoadMoreTimeBlocks && 
+          <Typography variant="body1" className={classes.loadMore} onClick={this.loadMoreTimeBlocks}>
+            <a>{loadMoreTimeframeMessages[timeframe]}</a>
+          </Typography>
+        }
       </div>
     )
   }
