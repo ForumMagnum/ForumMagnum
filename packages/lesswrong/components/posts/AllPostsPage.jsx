@@ -97,7 +97,7 @@ class AllPostsPage extends Component {
       ...baseTerms
     }
 
-    if (!isNaN(parseInt(query.limit))) {
+    if (parseInt(query.limit)) {
       postListParameters.limit = parseInt(query.limit)
     }
 
