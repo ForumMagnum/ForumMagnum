@@ -78,7 +78,6 @@ const theme = createLWTheme({
     },
     postStyle: {
       ...basicText,
-      linkUnderlinePosition: "92%",
     },
     headerStyle: {
       fontFamily: titleStack
