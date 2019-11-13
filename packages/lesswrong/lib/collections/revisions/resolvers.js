@@ -59,10 +59,6 @@ export function dataToDraftJS(data, type) {
   }
 }
 
-const nonMainTextTags = [
-  'style', 'script', 'textarea', 'noscript', 'blockquote', 'code', 'img'
-]
-
 addFieldsDict(Revisions, {
   markdown: {
     type: String,
@@ -110,7 +106,12 @@ addFieldsDict(Revisions, {
     resolveAs: {
       type: 'String',
       resolver: ({html}) => {
-        const mainTextHtml = sanitizeHtml(html, { nonTextTags: nonMainTextTags })
+        const mainTextHtml = sanitizeHtml(
+          html, { 
+            allowedTags: _.without(Utils.sanitizeAllowedTags, 'blockquote', 'img'),
+            nonTextTags: ['blockquote', 'img', 'style']
+          }
+        )
         const truncatedHtml = truncate(mainTextHtml, PLAINTEXT_HTML_TRUNCATION_LENGTH)
         return htmlToText
           .fromString(truncatedHtml)

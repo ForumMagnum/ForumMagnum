@@ -25,6 +25,7 @@ importComponent("NewConversationButton", () => require('../components/messaging/
 importComponent("EditorFormComponent", () => require('../components/editor/EditorFormComponent.jsx'));
 importComponent("EditTitle", () => require('../components/editor/EditTitle.jsx'));
 importComponent("EditUrl", () => require('../components/editor/EditUrl.jsx'));
+importComponent("SelectVersion", () => require('../components/editor/SelectVersion.jsx'));
 
 // RSS Feed Integration
 importComponent("newFeedButton", () => require('../components/feeds/newFeedButton.jsx'));
@@ -378,6 +379,7 @@ importComponent("FormComponentDate", () => require('../components/form-component
 importComponent("FormComponentDateTime", () => require('../components/form-components/FormComponentDateTime.jsx'));
 importComponent("FormComponentNumber", () => require('../components/form-components/FormComponentNumber.jsx'));
 importComponent("WrappedSmartForm", () => require('../components/form-components/WrappedSmartForm.jsx'));
+importComponent("ManageSubscriptionsLink", () => require('../components/form-components/ManageSubscriptionsLink.jsx'));
 
 // importComponent("PetrovDayButton", () => require('../components/seasonal/PetrovDayButton.jsx'));
 // importComponent("PetrovDayLossScreen", () => require('../components/seasonal/PetrovDayLossScreen.jsx'));

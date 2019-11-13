@@ -3,6 +3,7 @@ import deepOrange from '@material-ui/core/colors/deepOrange';
 import indigo from '@material-ui/core/colors/indigo';
 
 import { createMuiTheme } from '@material-ui/core/styles';
+import { sharedOverrides } from './lesswrongTheme';
 
 const defaultTheme = createMuiTheme()
 
@@ -54,8 +55,9 @@ const theme = createLWTheme({
       fontFamily: sansSerifStack,
       fontVariantNumeric: "lining-nums",
     },
-    link: {
-      underlinePosition: "72%",
+    errorStyle: {
+      color: palette.error.main,
+      fontFamily: sansSerifStack
     },
     title: {
       fontWeight: 500,
@@ -65,10 +67,7 @@ const theme = createLWTheme({
     },
     display3: {
       fontWeight: 500
-    },
-    body1: {
-      linkUnderlinePosition: "90%",
-    },
+    }
   },
   overrides: {
     Header: {
@@ -117,7 +116,8 @@ const theme = createLWTheme({
       root: {
         fontWeight: 500,
       }
-    }
+    },
+    ...sharedOverrides
   }
 });
 

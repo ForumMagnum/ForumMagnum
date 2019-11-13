@@ -12,6 +12,7 @@ import classNames from 'classnames';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import withRecordPostView from '../../common/withRecordPostView';
 import withNewEvents from '../../../lib/events/withNewEvents.jsx';
+import { userHasPingbacks } from '../../../lib/betas.js';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 const DEFAULT_TOC_MARGIN = 100
@@ -115,6 +116,16 @@ const styles = theme => ({
     color: theme.palette.grey[600],
     whiteSpace: "no-wrap",
     fontSize: theme.typography.body2.fontSize,
+  },
+  wordCount: {
+    display: 'none',
+    marginLeft: 20,
+    color: theme.palette.grey[600],
+    whiteSpace: "no-wrap",
+    fontSize: theme.typography.body2.fontSize,
+    [theme.breakpoints.down('sm')]: {
+      display: 'inline'
+    }
   },
   actions: {
     display: 'inline-block',
@@ -301,6 +312,9 @@ class PostsPage extends Component {
                       </Tooltip>
                     }
                     {!post.isEvent && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
+                    {!!wordCount && !post.isEvent &&  <Tooltip title={`${wordCount} words`}>
+                        <span className={classes.wordCount}>{parseInt(wordCount/300) || 1 } min read</span>
+                    </Tooltip>}
                     {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
                     <a className={classes.commentsLink} href={"#comments"}>{ Posts.getCommentCountStr(post)}</a>
                     <span className={classes.actions}>
@@ -354,7 +368,7 @@ class PostsPage extends Component {
               <BottomNavigation post={post}/>
             </div>}
             
-            {currentUser?.beta && <div className={classes.post}>
+            {userHasPingbacks(currentUser) && <div className={classes.post}>
               <PingbacksList postId={post._id}/>
             </div>}
 

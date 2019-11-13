@@ -91,7 +91,7 @@ export const NewCommentNotification = serverRegisterNotificationType({
   },
   emailBody: ({ user, notifications }) => {
     const commentIds = notifications.map(n => n.documentId);
-    const commentsRaw = Comments.find({_id: {$in: commentIds}});
+    const commentsRaw = Comments.find({_id: {$in: commentIds}}).fetch();
     const comments = accessFilterMultiple(user, Comments, commentsRaw);
     
     return <Components.EmailCommentBatch comments={comments}/>;
@@ -112,7 +112,7 @@ export const NewReplyNotification = serverRegisterNotificationType({
   },
   emailBody: ({ user, notifications }) => {
     const commentIds = notifications.map(n => n.documentId);
-    const commentsRaw = Comments.find({_id: {$in: commentIds}});
+    const commentsRaw = Comments.find({_id: {$in: commentIds}}).fetch();
     const comments = accessFilterMultiple(user, Comments, commentsRaw);
     
     return <Components.EmailCommentBatch comments={comments}/>;
@@ -133,7 +133,7 @@ export const NewReplyToYouNotification = serverRegisterNotificationType({
   },
   emailBody: ({ user, notifications }) => {
     const commentIds = notifications.map(n => n.documentId);
-    const commentsRaw = Comments.find({_id: {$in: commentIds}});
+    const commentsRaw = Comments.find({_id: {$in: commentIds}}).fetch();
     const comments = accessFilterMultiple(user, Comments, commentsRaw);
     
     return <Components.EmailCommentBatch comments={comments}/>;

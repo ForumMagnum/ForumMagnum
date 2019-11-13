@@ -1,7 +1,8 @@
-import { addCallback, newMutation } from 'meteor/vulcan:core';
+import { addCallback, newMutation, editMutation } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 import Messages from '../../../collections/messages/collection.js';
 import Conversations from '../../../collections/conversations/collection.js';
+import { Posts } from '../../../collections/posts/collection.js';
 
 const getAlignmentForumAccount = async () => {
   let account = Users.findOne({username: "AI Alignment Forum"});
@@ -21,12 +22,12 @@ const getAlignmentForumAccount = async () => {
   return account;
 }
 
-export async function NewAlignmentUserSendPMAsync (newUser, oldUser, context) {
-  if (newUser.groups &&
-      newUser.groups.includes('alignmentForum') &&
-      (!oldUser.groups ||
-       !(oldUser.groups.includes('alignmentForum')))) {
+function isAlignmentForumMember(user) {
+  return user?.groups?.includes('alignmentForum')
+}
 
+export async function NewAlignmentUserSendPMAsync (newUser, oldUser, context) {
+  if (isAlignmentForumMember(newUser) && !isAlignmentForumMember(oldUser)) {
     const lwAccount = await getAlignmentForumAccount();
     const conversationData = {
       participantIds: [newUser._id, lwAccount._id],
@@ -72,3 +73,21 @@ export async function NewAlignmentUserSendPMAsync (newUser, oldUser, context) {
 }
 
 addCallback("users.edit.async", NewAlignmentUserSendPMAsync);
+
+async function NewAlignmentUserMoveShortform(newUser, oldUser, context) {
+  if (isAlignmentForumMember(newUser) && !isAlignmentForumMember(oldUser)) {
+    if (newUser.shortformFeedId) {
+      editMutation({
+        collection:Posts,
+        documentId: newUser.shortformFeedId,
+        set: {
+          af: true
+        },
+        unset: {},
+        validate: false,
+      })
+    }
+  }
+}
+
+addCallback("users.edit.async", NewAlignmentUserMoveShortform);
