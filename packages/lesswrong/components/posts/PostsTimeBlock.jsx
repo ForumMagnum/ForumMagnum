@@ -11,8 +11,7 @@ import { Posts } from '../../lib/collections/posts';
 import { timeframeToTimeBlock } from './timeframeUtils'
 import { queryIsUpdating } from '../common/queryStatusUtils'
 import withTimezone from '../common/withTimezone';
-import { Link, QueryLink } from '../../lib/reactRouterWrapper.js';
-import { withLocation } from '../../lib/routeUtil';
+import { QueryLink } from '../../lib/reactRouterWrapper.js';
 
 const styles = theme => ({
   root: {
@@ -123,7 +122,7 @@ class PostsTimeBlock extends Component {
       ...type,
       posts: posts?.filter(type.postIsType)
     }))
-    
+
     return (
       <div className={classes.root}>
         <QueryLink merge query={{
@@ -217,6 +216,5 @@ registerComponent('PostsTimeBlock', PostsTimeBlock,
     ssr: true,
   }],
   withTimezone,
-  withLocation,
   withCurrentUser, withStyles(styles, { name: "PostsTimeBlock" })
 );
