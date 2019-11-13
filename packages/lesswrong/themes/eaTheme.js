@@ -78,7 +78,6 @@ const theme = createLWTheme({
     },
     postStyle: {
       ...basicText,
-      linkUnderlinePosition: "92%",
     },
     headerStyle: {
       fontFamily: titleStack
@@ -150,7 +149,7 @@ const theme = createLWTheme({
       main: {
         margin: '30px auto 15px auto',
         '@media (max-width: 959.95px)': {
-          marginTop: 0
+          marginTop: 36,
         }
       }
     },
@@ -255,6 +254,11 @@ const theme = createLWTheme({
     TabNavigationMenuSubItem: {
       root: {
         color: grey[800]
+      }
+    },
+    PostsPageTitle: {
+      root: {
+        lineHeight: 1.25
       }
     },
     PostsTimeBlock: {

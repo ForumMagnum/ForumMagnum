@@ -61,11 +61,9 @@ const theme = createLWTheme({
     fontFamily: sansSerifStack,
     postStyle: {
       fontFamily: serifStack,
-      linkUnderlinePosition: "72%",
     },
     headerStyle: {
       fontFamily: serifStack,
-      linkUnderlinePosition: "72%",
     },
     caption: {
       // captions should be relative to their surrounding content, so they are unopinionated about fontFamily and use ems instead of rems
