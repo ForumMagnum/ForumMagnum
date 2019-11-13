@@ -6,18 +6,24 @@ import { withStyles } from '@material-ui/core/styles';
 import { useCurrentUser } from '../common/withUser.js';
 import { Link } from '../../lib/reactRouterWrapper.js';
 
-const styles = {
+const styles = theme => ({
   root: {
     "& .ais-SearchBox": {
       padding: 8,
     },
+    '& .ais-SearchBox-submit': {
+      position: "absolute",
+      right: 11
+    }
   },
   newTag: {
     display: "block",
     padding: 8,
     cursor: "pointer",
-  },
-};
+    color: theme.palette.grey[600],
+    ...theme.typography.commentStyle
+  }
+});
 
 const AddTag = ({post, onTagSelected, classes}) => {
   const currentUser = useCurrentUser();

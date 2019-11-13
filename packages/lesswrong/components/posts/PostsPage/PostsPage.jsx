@@ -266,7 +266,7 @@ class PostsPage extends Component {
       LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
       TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink,
-      PingbacksList } = Components
+      PingbacksList, FooterTagList } = Components
 
     if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
@@ -350,7 +350,7 @@ class PostsPage extends Component {
                   {query.revision && <PostsRevisionMessage post={post} />}
                   { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
                 </div>
-                {userHasTagging(currentUser) && <Components.FooterTagList post={post}/>}
+                {userHasTagging(currentUser) && <FooterTagList post={post}/>}
               </div>
             </div>
 

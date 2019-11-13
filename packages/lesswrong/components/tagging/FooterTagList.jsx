@@ -14,6 +14,7 @@ const styles = theme => ({
   },
   addTagButton: {
     ...theme.typography.commentStyle,
+    color: theme.palette.grey[600],
     display: "inline-block",
     height: 26,
     textAlign: "center",
@@ -71,6 +72,11 @@ const FooterTagList = ({post, classes}) => {
         open={isOpen}
         anchorEl={anchorEl}
         placement="bottom-start"
+        modifiers={{
+          flip: {
+            enabled: false
+          }
+        }}
       >
         <ClickAwayListener
           onClickAway={() => setIsOpen(false)}
