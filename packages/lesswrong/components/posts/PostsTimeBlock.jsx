@@ -126,8 +126,8 @@ class PostsTimeBlock extends Component {
     return (
       <div className={classes.root}>
         <QueryLink merge query={{
-          afterDate: moment.tz(startDate, timezone).startOf(timeBlock).format("YYYY-MM-DD"), 
-          beforeDate: moment.tz(startDate, timezone).endOf(timeBlock).add(1, 'd').format("YYYY-MM-DD"),
+          after: moment.tz(startDate, timezone).startOf(timeBlock).format("YYYY-MM-DD"), 
+          before: moment.tz(startDate, timezone).endOf(timeBlock).add(1, 'd').format("YYYY-MM-DD"),
           limit: 100
         }}>
           <Typography variant="headline" className={classes.timeBlockTitle}>
