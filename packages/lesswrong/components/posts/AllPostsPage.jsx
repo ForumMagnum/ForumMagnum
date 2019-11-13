@@ -65,7 +65,8 @@ class AllPostsPage extends Component {
   }
 
   renderPostsList = ({currentTimeframe, currentFilter, currentSorting, currentShowLowKarma}) => {
-    const { timezone, classes } = this.props
+    const { timezone, classes, location } = this.props
+    const { query } = location
     const { showSettings } = this.state
     const {PostsTimeframeList, PostsList2} = Components
 
@@ -90,12 +91,13 @@ class AllPostsPage extends Component {
         timeframe={currentTimeframe}
         postListParameters={{
           view: 'timeframe',
+          limit: parseInt(query.limit),
           ...baseTerms
         }}
         numTimeBlocks={numTimeBlocks}
         dimWhenLoading={showSettings}
-        after={getAfterDefault({numTimeBlocks, timeBlock, timezone})}
-        before={getBeforeDefault({timeBlock, timezone})}
+        after={query.afterDate || getAfterDefault({numTimeBlocks, timeBlock, timezone})}
+        before={query.beforeDate  || getBeforeDefault({timeBlock, timezone})}
       />
     </div>
   }

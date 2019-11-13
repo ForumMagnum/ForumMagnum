@@ -93,7 +93,7 @@ class PostsTimeframeList extends PureComponent {
 
     const timeBlock = timeframeToTimeBlock[timeframe]
     const dates = getDateRange(after, before, timeBlock)
-
+    
     return (
       <div className={classNames({[classes.loading]: dim})}>
         {dates.map((date, index) =>
@@ -102,11 +102,11 @@ class PostsTimeframeList extends PureComponent {
             startDate={moment.tz(date, timezone)}
             timeframe={timeframe}
             terms={{
+              limit: 16,
               ...postListParameters,
               // NB: 'before', as a parameter for a posts view, is inclusive
               before: moment.tz(date, timezone).endOf(timeBlock),
               after: moment.tz(date, timezone).startOf(timeBlock),
-              limit: 16
             }}
             timeBlockLoadComplete={this.timeBlockLoadComplete}
             hideIfEmpty={index===0}

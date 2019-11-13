@@ -11,6 +11,8 @@ import { Posts } from '../../lib/collections/posts';
 import { timeframeToTimeBlock } from './timeframeUtils'
 import { queryIsUpdating } from '../common/queryStatusUtils'
 import withTimezone from '../common/withTimezone';
+import { Link, QueryLink } from '../../lib/reactRouterWrapper.js';
+import { withLocation } from '../../lib/routeUtil';
 
 const styles = theme => ({
   root: {
@@ -121,22 +123,28 @@ class PostsTimeBlock extends Component {
       ...type,
       posts: posts?.filter(type.postIsType)
     }))
-
+    
     return (
       <div className={classes.root}>
-        <Typography variant="headline" className={classes.timeBlockTitle}>
-          {['yearly', 'monthly'].includes(timeframe) && <div>
-            {this.getTitle(startDate, timeframe, null)}
-          </div>}
-          {['weekly', 'daily'].includes(timeframe) && <div>
-            <Hidden xsDown implementation="css">
-              {this.getTitle(startDate, timeframe, 'xsDown')}
-            </Hidden>
-            <Hidden smUp implementation="css">
-              {this.getTitle(startDate, timeframe, 'smUp')}
-            </Hidden>
-          </div>}
-        </Typography>
+        <QueryLink merge query={{
+          afterDate: moment.tz(startDate, timezone).startOf(timeBlock).format("YYYY-MM-DD"), 
+          beforeDate: moment.tz(startDate, timezone).endOf(timeBlock).add(1, 'd').format("YYYY-MM-DD"),
+          limit: 100
+        }}>
+          <Typography variant="headline" className={classes.timeBlockTitle}>
+            {['yearly', 'monthly'].includes(timeframe) && <div>
+              {this.getTitle(startDate, timeframe, null)}
+            </div>}
+            {['weekly', 'daily'].includes(timeframe) && <div>
+              <Hidden xsDown implementation="css">
+                {this.getTitle(startDate, timeframe, 'xsDown')}
+              </Hidden>
+              <Hidden smUp implementation="css">
+                {this.getTitle(startDate, timeframe, 'smUp')}
+              </Hidden>
+            </div>}
+          </Typography>
+        </QueryLink>
 
         { loading && <Loading /> }
 
@@ -209,5 +217,6 @@ registerComponent('PostsTimeBlock', PostsTimeBlock,
     ssr: true,
   }],
   withTimezone,
+  withLocation,
   withCurrentUser, withStyles(styles, { name: "PostsTimeBlock" })
 );
