@@ -6,6 +6,7 @@ import withUser from '../../common/withUser'
 import { Posts } from '../../../lib/collections/posts';
 import withSetAlignmentPost from "../../alignment-forum/withSetAlignmentPost";
 import MenuItem from '@material-ui/core/MenuItem';
+import Divider from '@material-ui/core/Divider';
 import { Link } from '../../../lib/reactRouterWrapper.js';
 import Tooltip from '@material-ui/core/Tooltip';
 import ListItemIcon from '@material-ui/core/ListItemIcon'
@@ -129,7 +130,7 @@ class PostActions extends Component {
 
   render() {
     const { classes, post, currentUser } = this.props
-    const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo } = Components
+    const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo, NominatePostMenuItem } = Components
     const postAuthor = post.user;
     
     return (
@@ -142,6 +143,7 @@ class PostActions extends Component {
             Edit
           </MenuItem>
         </Link>}
+        <NominatePostMenuItem post={post} />
         { Users.canCollaborate(currentUser, post) && 
           <Link to={{pathname:'/collaborateOnPost', search:`?${qs.stringify({postId: post._id})}`}}>
             <MenuItem>
@@ -184,7 +186,7 @@ class PostActions extends Component {
               </MenuItem>
             </div>
         }
-
+        <Divider/>
         <SuggestCurated post={post}/>
         <MoveToDraft post={post}/>
         <DeleteDraft post={post}/>

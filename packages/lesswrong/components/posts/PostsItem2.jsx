@@ -391,6 +391,7 @@ const PostsItem2 = ({
 
             <span className={classes.title}>
               <PostsTitle postLink={postLink} post={post} expandOnHover={!renderComments} read={isRead} sticky={isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
+              {post.nominationCount2018}
             </span>
 
             {(resumeReading?.sequence || resumeReading?.collection) &&
