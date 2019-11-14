@@ -19,6 +19,7 @@ addUniversalFields({collection: Revisions})
 // seems acceptable
 Revisions.checkAccess = function (user, revision) {
   if ((user && user._id) === revision.userId) return true
+  if (user.isAdmin) return true
   const { major } = extractVersionsFromSemver(revision.version)
   return major > 0
 }
