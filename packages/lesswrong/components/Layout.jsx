@@ -225,6 +225,7 @@ class Layout extends PureComponent {
             </Helmet>
             
             <Components.AnalyticsClient/>
+            <Components.NavigationEventSender/>
 
             {/* Sign up user for Intercom, if they do not yet have an account */}
             {showIntercom(currentUser)}

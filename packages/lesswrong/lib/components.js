@@ -55,6 +55,7 @@ importComponent("HomeLatestPosts", () => require('../components/common/HomeLates
 importComponent("Meta", () => require('../components/common/Meta.jsx'));
 importComponent("AllComments", () => require('../components/common/AllComments.jsx'));
 importComponent("BatchTimePicker", () => require('../components/common/BatchTimePicker.jsx'));
+importComponent("NavigationEventSender", () => require('../components/common/NavigationEventSender.jsx'));
 importComponent("SingleColumnSection", () => require('../components/common/SingleColumnSection'));
 importComponent("SectionTitle", () => require('../components/common/SectionTitle.jsx'));
 importComponent("SectionSubtitle", () => require('../components/common/SectionSubtitle.jsx'));
