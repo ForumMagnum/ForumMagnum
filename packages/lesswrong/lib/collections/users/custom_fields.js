@@ -438,6 +438,7 @@ addFieldsDict(Users, {
     canRead: [Users.owns, 'admins'],
     canUpdate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
+    hidden: getSetting('forumType') !== 'EAForum',
     control: 'checkbox',
     group: formGroups.default,
     order: 72,
