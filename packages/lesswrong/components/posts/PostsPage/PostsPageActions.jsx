@@ -33,13 +33,13 @@ class PostsPageActions extends PureComponent {
     const { classes, post, currentUser, vertical } = this.props 
     const { anchorEl } = this.state 
     const Icon = vertical ? MoreVertIcon : MoreHorizIcon
-    const {LWPopper, PostActions } = Components
+    const { PopperCard, PostActions } = Components
     if (!currentUser) return null;
 
     return (
       <ClickawayListener onClickAway={this.handleClose}>
         <Icon className={classes.icon} onClick={this.handleClick}/> 
-        <LWPopper
+        <PopperCard
           open={Boolean(anchorEl)}
           anchorEl={anchorEl}
           placement="right-start"
@@ -50,10 +50,8 @@ class PostsPageActions extends PureComponent {
             }
           }}
         >
-          <Card>
-            <PostActions post={post}/>
-          </Card>
-        </LWPopper>
+          <PostActions post={post}/>
+        </PopperCard>
       </ClickawayListener>
     )
   }
