@@ -1,14 +1,15 @@
 import React from 'react';
 import moment from 'moment-timezone';
 import { registerComponent } from 'meteor/vulcan:core';
-import withTimezone from './withTimezone';
+import { useTimezone } from './withTimezone';
 import { convertTimeOfWeekTimezone } from '../../lib/modules/utils/timeUtil.js';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 
 // value: {timeOfDayGMT:int, dayOfWeekGMT:string}
 // onChange: ({ timeOfDayGMT, dayOfWeekGMT })=>Unit
-const BatchTimePicker = ({ mode, value, onChange, timezone }) => {
+const BatchTimePicker = ({ mode, value, onChange}) => {
+  const { timezone } = useTimezone();
   const valueLocal = convertTimeOfWeekTimezone(value.timeOfDayGMT, value.dayOfWeekGMT, "GMT", timezone);
   const { timeOfDay, dayOfWeek } = valueLocal;
   
@@ -53,5 +54,4 @@ const BatchTimePicker = ({ mode, value, onChange, timezone }) => {
   </React.Fragment>;
 }
 
-registerComponent("BatchTimePicker", BatchTimePicker,
-  withTimezone);
+registerComponent("BatchTimePicker", BatchTimePicker);
