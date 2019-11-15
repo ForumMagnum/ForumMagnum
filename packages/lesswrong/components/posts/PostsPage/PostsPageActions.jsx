@@ -3,8 +3,9 @@ import { withStyles } from '@material-ui/core/styles';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
-import Popover from '@material-ui/core/Popover';
 import withUser from '../../common/withUser'
+import ClickawayListener from '@material-ui/core/ClickAwayListener';
+import Card from '@material-ui/core/Card';
 
 const styles = theme => ({
   icon: {
@@ -32,21 +33,28 @@ class PostsPageActions extends PureComponent {
     const { classes, post, currentUser, vertical } = this.props 
     const { anchorEl } = this.state 
     const Icon = vertical ? MoreVertIcon : MoreHorizIcon
-    
+    const {LWPopper, PostActions } = Components
     if (!currentUser) return null;
 
     return (
-      <span>
+      <ClickawayListener onClickAway={this.handleClose}>
         <Icon className={classes.icon} onClick={this.handleClick}/> 
-        <Popover
+        <LWPopper
           open={Boolean(anchorEl)}
           anchorEl={anchorEl}
-          anchorOrigin={{horizontal: 'left', vertical: 'top'}}
-          onClose={this.handleClose}
+          placement="right-start"
+          modifiers={{
+            flip: {
+              boundariesElement: 'viewport',
+              behavior: ['right-start', 'bottom']
+            }
+          }}
         >
-          <Components.PostActions post={post}/>
-        </Popover>
-      </span>
+          <Card>
+            <PostActions post={post}/>
+          </Card>
+        </LWPopper>
+      </ClickawayListener>
     )
   }
 }

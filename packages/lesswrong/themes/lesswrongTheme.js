@@ -47,6 +47,7 @@ const palette = {
   }
 }
 
+// EA
 export const sharedOverrides = {
   MuiSelect: {
     selectMenu: {
@@ -106,6 +107,7 @@ const theme = createLWTheme({
       tooltip: {
         fontSize: "1rem",
         padding: ".7rem",
+        zIndex: 10000000
       }
     },
     MuiDialogContent: {
