@@ -218,7 +218,7 @@ const schema = {
   // users can write comments nominating posts for a particular review period.
   // this field is generally set by a custom dialog,
   // set to the year of the review period (i.e. '2018')
-  nomination: {
+  nominatedForReview: {
     type: String,
     optional: true,
     hidden: true,

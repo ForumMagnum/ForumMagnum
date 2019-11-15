@@ -135,6 +135,7 @@ class PostActions extends Component {
     
     return (
       <div className={classes.actions}>
+        <NominatePostMenuItem post={post} />
         { Posts.canEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
           <MenuItem>
             <ListItemIcon>
@@ -143,7 +144,6 @@ class PostActions extends Component {
             Edit
           </MenuItem>
         </Link>}
-        <NominatePostMenuItem post={post} />
         { Users.canCollaborate(currentUser, post) && 
           <Link to={{pathname:'/collaborateOnPost', search:`?${qs.stringify({postId: post._id})}`}}>
             <MenuItem>
@@ -186,7 +186,6 @@ class PostActions extends Component {
               </MenuItem>
             </div>
         }
-        <Divider/>
         <SuggestCurated post={post}/>
         <MoveToDraft post={post}/>
         <DeleteDraft post={post}/>

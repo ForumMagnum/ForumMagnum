@@ -234,6 +234,7 @@ class CommentsItem extends Component {
               <Components.CommentOutdatedWarning comment={comment} post={post} />
             </span>
           </div>
+          {comment.nominatedForReview && <em>{`Nomination for ${comment.nominatedForReview} Review`}</em>}
           {this.renderBodyOrEditor()}
           {!comment.deleted && !collapsed && this.renderCommentBottom()}
         </div>

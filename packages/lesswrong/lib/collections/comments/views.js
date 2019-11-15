@@ -317,3 +317,15 @@ Comments.addView('shortformLatestChildren', function (terms) {
 
 // Will be used for experimental shortform display on AllPosts page
 ensureIndex(Comments, { topLevelCommentId: 1, postedAt: 1, baseScore:1});
+
+// 
+Comments.addView('nominations2018', function ({userId, postId, nominatedForReview}) {
+  return {
+    selector: { 
+      userId, 
+      postId, 
+      nominatedForReview
+    },
+  };
+});
+ensureIndex(Comments, { userId:1, postId: 1, nominatedForReview: 1});

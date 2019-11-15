@@ -41,7 +41,7 @@ const styles = theme => ({
   }
 });
 
-const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, currentUser, fragment = "CommentsList", formProps}) => {
+const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, removeFields, currentUser, fragment = "CommentsList", formProps, enableGuidelines=true}) => {
   prefilledProps = {
     ...prefilledProps,
     af: Comments.defaultToAlignment(currentUser, post, parentComment),
@@ -116,10 +116,11 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
         }}
         alignmentForumPost={post?.af}
         addFields={currentUser?[]:["contents"]}
+        removeFields={removeFields}
         formProps={formProps}
       />
       </div>
-      {showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
+      {enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
         <ModerationGuidelinesBox document={post} />
       </div>}
     </div>
