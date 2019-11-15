@@ -5,7 +5,6 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import withUser from '../../common/withUser'
 import ClickawayListener from '@material-ui/core/ClickAwayListener';
-import Card from '@material-ui/core/Card';
 
 const styles = theme => ({
   icon: {
