@@ -128,9 +128,12 @@ class EditorFormComponent extends Component {
   }
 
   getEditorStatesFromType = (editorType, contents) => {
-    // TODO; this should check the contents for being null
     const { document, fieldName, value } = this.props
     const { editorOverride } = this.state || {} // Provide default value, since we can call this before state is initialized
+
+    if (!editorType) {
+      throw new Error('getEditorStateFromType must be supplied an editorType')
+    }
 
     // if contents are manually specified, use those:
     const newValue = contents || value
@@ -446,7 +449,10 @@ class EditorFormComponent extends Component {
 
   handleUpdateVersion = async (document) => {
     if (!document) return
-    const editorType = document.contents?.originalContents?.type
+    if (!document.contents?.originalContents) {
+      throw new Error('handleUpdateVersion called with missing document originalContents')
+    }
+    const editorType = document.contents.originalContents.type
     this.setState({
       ...this.getEditorStatesFromType(editorType, document.contents)
     })
