@@ -9,7 +9,6 @@ import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
-import withDialog from '../common/withDialog'
 
 const styles = theme => ({
   root: {
@@ -90,4 +89,4 @@ const GroupFormDialog =  ({ onClose, currentUser, classes, documentId, history, 
   </Dialog>
 }
 
-registerComponent('GroupFormDialog', GroupFormDialog, withUser, withMessages, withNavigation, withDialog);
+registerComponent('GroupFormDialog', GroupFormDialog, withUser, withMessages, withNavigation);

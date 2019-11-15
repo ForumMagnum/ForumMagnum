@@ -8,7 +8,6 @@ import moment from 'moment-timezone';
 /// and also, it never uses relative dates (because they would be relative to
 /// when the email was sent, which may be far from when the email is read.)
 const EmailFormatDate = ({date, format}) => {
-  const { timezone } = useTimezone();
   if (format)
     return <span>{moment(new Date(date)).format(format)}</span>
   else

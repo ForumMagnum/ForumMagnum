@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
-import withDialog from '../common/withDialog';
+import { useDialog } from '../common/withDialog';
 
 const styles = theme => ({
   root: {
@@ -65,7 +65,8 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
     };
   }
 
-  const SubmitComponent = withDialog(({submitLabel = "Submit", openDialog}) => {
+  const SubmitComponent = ({submitLabel = "Submit"}) => {
+    const { openDialog } = useDialog();
     return <div className={classes.submit}>
       {(type === "reply") && <Button
         onClick={cancelCallback}
@@ -89,7 +90,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
         {submitLabel}
       </Button>
     </div>
-  });
+  };
 
   if (currentUser && !Comments.options.mutations.new.check(currentUser, prefilledProps)) {
     return <FormattedMessage id="users.cannot_comment"/>;

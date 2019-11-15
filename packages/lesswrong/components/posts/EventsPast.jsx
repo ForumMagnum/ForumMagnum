@@ -2,7 +2,7 @@ import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import {getAfterDefault, getBeforeDefault} from './timeframeUtils'
-import withTimezone from '../common/withTimezone';
+import { useTimezone } from '../common/withTimezone';
 
 const styles = theme => ({
   daily: {
