@@ -92,7 +92,6 @@ export const makeEditable = ({collection, options = {}}) => {
             const { checkAccess } = Revisions
             if (version) {
               const revision = await Revisions.findOne({documentId: doc._id, version, fieldName: field})
-              // TODO; can we get a test
               if (!revision || !checkAccess(currentUser, revision)) {
                 throw new Error(
                   `No revision found for documentId: ${doc._id}, version: ${version}. ` +
