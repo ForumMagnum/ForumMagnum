@@ -87,7 +87,7 @@ export function useSingle({ collectionName,
   fragmentName, 
   extraVariables, 
   fetchPolicy, 
-  propertyName, 
+  propertyName, // TODO; intentionally unused? (prolly not worth the todo)
   extraQueries, 
   documentId, 
   extraVariablesValues

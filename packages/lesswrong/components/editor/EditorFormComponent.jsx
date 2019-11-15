@@ -128,6 +128,7 @@ class EditorFormComponent extends Component {
   }
 
   getEditorStatesFromType = (editorType, contents) => {
+    // TODO; this should check the contents for being null
     const { document, fieldName, value } = this.props
     const { editorOverride } = this.state || {} // Provide default value, since we can call this before state is initialized
 
@@ -135,8 +136,7 @@ class EditorFormComponent extends Component {
     const newValue = contents || value
 
     // Initialize the editor to whatever the canonicalContent is
-    if (newValue && newValue.originalContents && newValue.originalContents.data
-        && !editorOverride
+    if (newValue?.originalContents?.data && !editorOverride
         && editorType === newValue.originalContents.type)
     {
       return {

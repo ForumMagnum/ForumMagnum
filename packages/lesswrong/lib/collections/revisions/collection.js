@@ -18,6 +18,9 @@ addUniversalFields({collection: Revisions})
 // we will hide those revisions unless they are marked as post-1.0.0 releases. This is not ideal, but
 // seems acceptable
 Revisions.checkAccess = function (user, revision) {
+  if (!revision) {
+    throw new Error('Cannot check access on a missing revision')
+  }
   if ((user && user._id) === revision.userId) return true
   const { major } = extractVersionsFromSemver(revision.version)
   return major > 0
