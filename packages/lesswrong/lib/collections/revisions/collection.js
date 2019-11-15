@@ -2,6 +2,7 @@ import schema from './schema.js';
 import { createCollection, getDefaultResolvers } from 'meteor/vulcan:core';
 import { extractVersionsFromSemver } from '../../editor/utils'
 import { addUniversalFields } from '../../collectionUtils'
+import Users from 'meteor/vulcan:users';
 
 export const Revisions = createCollection({
   collectionName: 'Revisions',
@@ -19,6 +20,7 @@ addUniversalFields({collection: Revisions})
 // seems acceptable
 Revisions.checkAccess = function (user, revision) {
   if ((user && user._id) === revision.userId) return true
+  if (Users.canDo(user, 'posts.view.all')) return true
   const { major } = extractVersionsFromSemver(revision.version)
   return major > 0
 }
