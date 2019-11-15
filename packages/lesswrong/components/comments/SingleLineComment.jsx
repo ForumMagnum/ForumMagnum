@@ -35,6 +35,7 @@ const styles = theme => ({
       color: "rgba(0,0,0,.87)",
     },
     fontWeight: 600,
+    marginRight: 10,
   },
   karma: {
     display:"inline-block",

@@ -13,7 +13,8 @@ import Essentials from '@ckeditor/ckeditor5-essentials/src/essentials';
 import FontFamily from '@ckeditor/ckeditor5-font/src/fontfamily';
 import FontSize from '@ckeditor/ckeditor5-font/src/fontsize';
 import Heading from '@ckeditor/ckeditor5-heading/src/heading';
-import Highlight from '@ckeditor/ckeditor5-highlight/src/highlight';
+import HorizontalLine from '@ckeditor/ckeditor5-horizontal-line/src/horizontalline';
+import EasyImage from '@ckeditor/ckeditor5-easy-image/src/easyimage';
 import Image from '@ckeditor/ckeditor5-image/src/image';
 import ImageCaption from '@ckeditor/ckeditor5-image/src/imagecaption';
 import ImageStyle from '@ckeditor/ckeditor5-image/src/imagestyle';
@@ -40,6 +41,7 @@ import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave';
 
 // import MathpreviewPlugin from 'ckeditor5-math-preview/src/mathpreview';
 // current version of MathpreviewPlugin (1.1.3) breaks ckeditor
+
 
 class CommentEditor extends BalloonBlockEditorBase {}
 class PostEditor extends BalloonBlockEditorBase {}
@@ -75,11 +77,12 @@ const postEditorPlugins = [
 	FontFamily,
 	FontSize,
 	Heading,
-	Highlight,
+	HorizontalLine,
 	Image,
 	ImageCaption,
 	ImageStyle,
 	ImageToolbar,
+	EasyImage,
 	ImageUpload,
 	ImageResize,
 	Italic,
@@ -110,33 +113,26 @@ PostEditorCollaboration.builtinPlugins = [
 
 const postEditorConfig = {
 	blockToolbar: [
-		'heading',
-		'|',
-		'bulletedList',
-		'numberedList',
 		'imageUpload',
-		'blockQuote',
 		'insertTable',
+		'horizontalLine',
 		// 'mediaEmbed',
-		'|',
-		'undo',
-		'redo',
-		'|',
-		'trackChanges'
 	],
 	toolbar: [
 		'heading',
+		'|',
 		'bold',
 		'italic',
-		'underline',
 		'strikethrough',
-		'highlight',
-		'|',
-		'alignment',
 		'|',
 		'link',
 		'|',
-		'mathpreview',
+		'blockQuote',
+		'bulletedList',
+		'numberedList',
+		'|',
+		'trackChanges',
+		// 'mathpreview',
 		'comment',
 	],
 	image: {
@@ -176,6 +172,8 @@ CommentEditor.builtinPlugins = [
 	CKFinder,
 	Essentials,
 	Heading,
+	HorizontalLine,
+	EasyImage,
 	Image,
 	ImageCaption,
 	ImageStyle,
@@ -197,15 +195,16 @@ CommentEditor.builtinPlugins = [
 CommentEditor.defaultConfig = {
 	toolbar: [
 		'heading',
+		'|',
 		'bold',
 		'italic',
-		'underline',
-		'|',
-		'bulletedList',
-		'numberedList',
-		'blockQuote',
+		'strikethrough',
 		'|',
 		'link',
+		'|',
+		'blockQuote',
+		'bulletedList',
+		'numberedList',
 		'|',
 		'mathpreview'
 	],

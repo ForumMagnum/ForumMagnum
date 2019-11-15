@@ -7,4 +7,5 @@ export const algoliaIndexNames = {
   Posts: ALGOLIA_PREFIX+'posts',
   Users: ALGOLIA_PREFIX+'users',
   Sequences: ALGOLIA_PREFIX+'sequences',
+  Tags: ALGOLIA_PREFIX+'tags',
 };

@@ -11,6 +11,7 @@ registerFragment(`
     slug
     postedAt
     createdAt
+    modifiedAt
     sticky
     metaSticky
     status
@@ -183,6 +184,26 @@ registerFragment(`
     contents(version: $version) {
       ...RevisionDisplay
     }
+    revisions {
+      version
+      editedAt
+    }
+  }
+`)
+
+registerFragment(`
+  fragment PostsRevisionEdit on Post {
+    ...PostsDetails
+
+    # Content & Revisions
+    version
+    contents(version: $version) {
+      ...RevisionEdit
+    }
+    revisions {
+      version
+      editedAt
+    }
   }
 `)
 
@@ -252,8 +273,6 @@ registerFragment(`
     }
   }
 `);
-
-
 
 registerFragment(`
   fragment EditModerationGuidelines on Post {

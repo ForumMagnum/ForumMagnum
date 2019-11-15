@@ -89,7 +89,6 @@ registerFragment(`
     services
     pageUrl
     locale
-    defaultToCKEditor
     voteBanned
     banned
     isReviewed
@@ -437,7 +436,6 @@ registerFragment(`
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
     sunshineShowNewUserContent
-    defaultToCKEditor
   }
 `);
 

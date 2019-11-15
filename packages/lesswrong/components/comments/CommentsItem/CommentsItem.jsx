@@ -94,6 +94,9 @@ export const styles = theme => ({
   moderatorHat: {
     marginRight: 8,
   },
+  username: {
+    marginRight: 10,
+  },
 })
 
 class CommentsItem extends Component {
@@ -212,7 +215,9 @@ class CommentsItem extends Component {
               [<span>{this.props.collapsed ? "+" : "-"}</span>]
             </a>
             }
-            <CommentUserName comment={comment}/>
+            <span className={classes.username}>
+              <CommentUserName comment={comment}/>
+            </span>
             <CommentsItemDate
               comment={comment} post={post}
               showPostTitle={showPostTitle}
