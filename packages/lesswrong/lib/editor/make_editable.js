@@ -95,7 +95,7 @@ export const makeEditable = ({collection, options = {}}) => {
               // TODO; can we get a test
               if (!revision || !checkAccess(currentUser, revision)) {
                 throw new Error(
-                  `No revision found for documentId: ${doc_id}, version: ${version}. ` +
+                  `No revision found for documentId: ${doc._id}, version: ${version}. ` +
                   'It either doesn\'t exist or you don\'t have access'
                 )
               }
