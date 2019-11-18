@@ -30,6 +30,7 @@ const NominatePostMenuItem = ({ currentUser, post, onClose, openDialog}) => {
   });
 
   if (currentUser.karma < 1000) return null
+  if (new Date(post.postedAt) > new Date("2019-01-01")) return null
 
   const nominated = !loading && nominations?.length;
 
