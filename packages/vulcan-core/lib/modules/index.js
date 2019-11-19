@@ -14,11 +14,12 @@ export { default as DynamicLoading } from './components/DynamicLoading.jsx';
 export { default as Datatable } from './components/Datatable.jsx';
 export { default as ScrollToTop } from './components/ScrollToTop.jsx';
 
+export * from './containers/cacheUpdates.js';
 export { default as withAccess } from './containers/withAccess.js';
 export { default as withMessages } from './containers/withMessages.js';
 export { default as withMulti, useMulti } from './containers/withMulti.js';
 export { default as withSingle, useSingle } from './containers/withSingle.js';
-export { default as withCreate } from './containers/withCreate.js';
+export { default as withCreate, useCreate } from './containers/withCreate.js';
 export { default as withUpdate, useUpdate } from './containers/withUpdate.js';
 export { default as withDelete } from './containers/withDelete.js';
 export { default as withCurrentUser } from './containers/withCurrentUser.js';

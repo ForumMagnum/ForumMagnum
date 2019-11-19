@@ -27,7 +27,7 @@ Child Props:
 */
 
 import React, { Component } from 'react';
-import { Mutation } from 'react-apollo';
+import { Mutation, useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import { createClientTemplate } from 'meteor/vulcan:core';
 import { extractCollectionInfo, extractFragmentInfo } from 'meteor/vulcan:lib';
@@ -73,3 +73,27 @@ const withCreate = options => {
 };
 
 export default withCreate;
+
+// TODO: Only include in branch if actually used
+export const useCreate = ({
+  collectionName, collection,
+  fragmentName, fragment
+}) => {
+  ({ collectionName, collection } = extractCollectionInfo({collectionName, collection}));
+  ({ fragmentName, fragment } = extractFragmentInfo({fragmentName, fragment}, collectionName));
+
+  const typeName = collection.options.typeName;
+  
+  const query = gql`
+    ${createClientTemplate({ typeName, fragmentName })}
+    ${fragment}
+  `;
+  const [mutate, {loading, error, called, data}] = useMutation(query);
+  const wrappedCreate = (data) => {
+    mutate({
+      variables: { data },
+      update: cacheUpdateGenerator(typeName, 'create')
+    })
+  }
+  return {create: wrappedCreate, loading, error, called, data};
+}
