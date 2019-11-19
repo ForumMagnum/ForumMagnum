@@ -4,7 +4,7 @@ import { useLocation } from '../../lib/routeUtil';
 
 let lastLocation = null;
 
-const NavigationEventSender = ({}) => {
+const NavigationEventSender = () => {
   const location = useLocation();
   
   React.useEffect(() => {
@@ -19,7 +19,7 @@ const NavigationEventSender = ({}) => {
         lastLocation = _.clone(location);
       }
     }
-  }, [location.pathname]);
+  }, [location]);
   
   return null;
 }
