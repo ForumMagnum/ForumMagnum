@@ -296,6 +296,13 @@ async function LWCommentsNewUpvoteOwnComment(comment) {
 }
 addCallback('comments.new.after', LWCommentsNewUpvoteOwnComment);
 
+// TODO; doc
+export function CommentHasHiddenKarma (comment) {
+  const post = Posts.findOne(comment.postId)
+  Comments.update({_id: comment._id}, {$set: {hideKarma: post.hideCommentKarma}})
+}
+addCallback('comments.new.after', CommentHasHiddenKarma);
+
 function NewCommentNeedsReview (comment) {
   const user = Users.findOne({_id:comment.userId})
   const karma = user.karma || 0

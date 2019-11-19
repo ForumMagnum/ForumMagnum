@@ -235,6 +235,23 @@ const schema = {
     }
   },
   
+  hideKarma: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canRead: ['guests'],
+    canCreate: ['members', 'admins'],
+    canUpdate: ['members', 'admins'], // TODO; probs needs work
+    ...denormalizedField({
+      needsUpdate: data => ('postId' in data),
+      getValue: async comment => {
+        const post = await Posts.findOne({_id: comment.postId});
+        if (!post) return false;
+        return !!post.hideCommentKarma;
+      }
+    }),
+  },
+  
   // DEPRECATED field for GreaterWrong backwards compatibility
   wordCount: resolverOnlyField({
     type: Number,
