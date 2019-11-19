@@ -109,6 +109,8 @@ class AllPostsPage extends Component {
         dimWhenLoading={showSettings}
         after={query.after || getAfterDefault({numTimeBlocks, timeBlock, timezone})}
         before={query.before  || getBeforeDefault({timeBlock, timezone})}
+        reverse={query.reverse === "true"}
+        displayShortform={query.includeShortform !== "false"}
       />
     </div>
   }
