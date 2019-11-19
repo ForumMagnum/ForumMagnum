@@ -490,4 +490,10 @@ addRoute([
     path: '/emailToken/:token',
     componentName: 'EmailTokenPage',
   },
+  {
+    name: 'nominations',
+    path: '/nominations',
+    componentName: 'Nominations2018',
+    title: "Nominations 2018 Review",
+  },
 ]);
