@@ -29,10 +29,8 @@ export function captureEvent(eventType, eventProps) {
       // If run from the client, make a graphQL mutation
       pendingAnalyticsEvents.push({
         type: eventType,
-        props: {
-          ...(Meteor.isClient ? AnalyticsUtil.clientContextVars : null),
-          eventProps,
-        }
+        ...(Meteor.isClient ? AnalyticsUtil.clientContextVars : null),
+        ...eventProps,
       });
       throttledFlushClientEvents();
     }
