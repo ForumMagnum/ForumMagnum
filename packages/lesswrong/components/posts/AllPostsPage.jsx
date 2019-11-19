@@ -71,7 +71,7 @@ class AllPostsPage extends Component {
     const {PostsTimeframeList, PostsList2} = Components
 
     const baseTerms = {
-      karmaThreshold: currentShowLowKarma ? MAX_LOW_KARMA_THRESHOLD : DEFAULT_LOW_KARMA_THRESHOLD,
+      karmaThreshold: query.karmaThreshold || (currentShowLowKarma ? MAX_LOW_KARMA_THRESHOLD : DEFAULT_LOW_KARMA_THRESHOLD),
       filter: currentFilter,
       sortedBy: currentSorting,
       after: query.after,
