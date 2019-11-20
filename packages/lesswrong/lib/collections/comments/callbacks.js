@@ -296,7 +296,9 @@ async function LWCommentsNewUpvoteOwnComment(comment) {
 }
 addCallback('comments.new.after', LWCommentsNewUpvoteOwnComment);
 
-// TODO; doc
+// New comments should read their parent post to see if they should hide their
+// karma scores
+// TODO; is this necessary or can we rely on the denormalized value
 export function CommentHasHiddenKarma (comment) {
   const post = Posts.findOne(comment.postId)
   Comments.update({_id: comment._id}, {$set: {hideKarma: post.hideCommentKarma}})

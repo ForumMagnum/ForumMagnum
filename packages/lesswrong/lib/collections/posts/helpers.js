@@ -203,5 +203,5 @@ Posts.getKarma = (post) => {
 //  Or if the post does exist
 //  3) The post doesn't have any comments yet
 Posts.canEditHideCommentKarma = (user, post) => {
-  return user['showHideKarmaOption'] && (!post || !Posts.getCommentCount(post))
+  return user.showHideKarmaOption && (!post || !Posts.getCommentCount(post))
 }
