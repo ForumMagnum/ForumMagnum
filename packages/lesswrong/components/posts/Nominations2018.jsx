@@ -7,7 +7,7 @@ const Nominations2018 = () => {
 
   return (
       <SingleColumnSection>
-        <SectionTitle title="Nominations for the 2018 Review"/>
+        <SectionTitle title="Nominated Posts for the 2018 Review"/>
         <PostsList2 terms={{view:"nominations2018"}}/>
       </SingleColumnSection>
   )
