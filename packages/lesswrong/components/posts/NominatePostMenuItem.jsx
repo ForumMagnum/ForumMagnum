@@ -14,14 +14,13 @@ import { Comments } from "../../lib/collections/comments";
 import { useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
 
-const NominatePostMenuItem = ({ currentUser, post, onClose, openDialog}) => {
+const NominatePostMenuItem = ({ currentUser, post, openDialog}) => {
   const { history } = useNavigation();
 
   const { results: nominations = [], loading } = useMulti({
     terms: {
       view:"nominations2018", 
       postId: post._id, 
-      nominatedForReview: "2018", 
       userId: currentUser._id
     },
     collection: Comments,
@@ -31,6 +30,7 @@ const NominatePostMenuItem = ({ currentUser, post, onClose, openDialog}) => {
 
   if (currentUser.karma < 1000) return null
   if (new Date(post.postedAt) > new Date("2019-01-01")) return null
+  if (new Date(post.postedAt) < new Date("2018-01-01")) return null
 
   const nominated = !loading && nominations?.length;
 

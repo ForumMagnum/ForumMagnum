@@ -809,7 +809,7 @@ ensureIndex(Posts,
 Posts.addView("nominations2018", terms => {
   return {
     selector: {
-      nominationCount2018: { $exists: true }
+      nominationCount2018: { $gt: 0 }
     },
     options: {
       sort: {

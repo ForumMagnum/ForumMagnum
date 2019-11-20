@@ -319,12 +319,12 @@ Comments.addView('shortformLatestChildren', function (terms) {
 ensureIndex(Comments, { topLevelCommentId: 1, postedAt: 1, baseScore:1});
 
 // 
-Comments.addView('nominations2018', function ({userId, postId, nominatedForReview}) {
+Comments.addView('nominations2018', function ({userId, postId}) {
   return {
     selector: { 
       userId, 
       postId, 
-      nominatedForReview
+      nominatedForReview: "2018"
     },
   };
 });
