@@ -4,6 +4,7 @@
  * @see https://github.com/apollographql/GitHunt-React/blob/master/src/server.js
  * @see https://www.apollographql.com/docs/react/features/server-side-rendering.html#renderToStringWithData
  */
+/*global Vulcan*/
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { getDataFromTree } from 'react-apollo';
@@ -19,6 +20,7 @@ import AppGenerator from './components/AppGenerator';
 import Sentry from '@sentry/node';
 
 const makePageRenderer = async sink => {
+  const startTime = new Date();
   const req = sink.request;
   const user = await getUserFromReq(req);
   
@@ -27,11 +29,31 @@ const makePageRenderer = async sink => {
     recordCacheBypass();
     //eslint-disable-next-line no-console
     console.log(`Rendering ${req.url} (logged in request; hit rate=${getCacheHitRate()})`);
-    const rendered = await renderRequest(req, user);
+    const rendered = await renderRequest({
+      req, user, startTime
+    });
     sendToSink(sink, rendered);
+    Vulcan.captureEvent("ssr", {
+      url: req.url.pathname,
+      userId: user._id,
+      clientId: req.cookies && req.cookies.clientId,
+      timings: rendered.timings,
+      cached: false,
+    });
   } else {
-    const rendered = await cachedPageRender(req, (req) => renderRequest(req, null));
+    const rendered = await cachedPageRender(req, (req) => renderRequest({
+      req, user: null, startTime
+    }));
     sendToSink(sink, rendered);
+    Vulcan.captureEvent("ssr", {
+      url: req.url.pathname,
+      userId: null,
+      clientId: req.cookies && req.cookies.clientId,
+      timings: {
+        totalTime: new Date()-startTime,
+      },
+      cached: true,
+    });
   }
 };
 
@@ -48,8 +70,7 @@ webAppConnectHandlersUse(function addClientId(req, res, next) {
   next();
 }, {order: 100});
 
-const renderRequest = async (req, user) => {
-  const startTime = new Date();
+const renderRequest = async ({req, user, startTime}) => {
   const requestContext = await computeContextFromUser(user, req.headers);
   // according to the Apollo doc, client needs to be recreated on every request
   // this avoids caching server side
@@ -130,12 +151,15 @@ const renderRequest = async (req, user) => {
   const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
   
   const finishedTime = new Date();
-  const prerenderTime = afterPrerenderTime - startTime
-  const renderTime = finishedTime - afterPrerenderTime
-  const totalTime = finishedTime - startTime;
+  const timings = {
+    prerenderTime: afterPrerenderTime - startTime,
+    renderTime: finishedTime - afterPrerenderTime,
+    totalTime: finishedTime - startTime
+  };
+  
   // eslint-disable-next-line no-console
-  console.log(`preRender time: ${prerenderTime}; render time: ${renderTime}`);
-  if (totalTime > 3000) {
+  console.log(`preRender time: ${timings.prerenderTime}; render time: ${timings.renderTime}`);
+  if (timings.totalTime > 3000) {
     Sentry.captureException(new Error("SSR time above 3 seconds"));
   }
   
@@ -143,7 +167,7 @@ const renderRequest = async (req, user) => {
     ssrBody, head, serializedApolloState, jssSheets,
     status: serverRequestStatus.status,
     redirectUrl: serverRequestStatus.redirectUrl,
-    renderTime: new Date(),
+    timings,
   };
 }
 

@@ -24,15 +24,16 @@ export function captureEvent(eventType, eventProps) {
     if (Meteor.isServer) {
       // If run from the server, put this directly into the server's write-to-SQL
       // queue.
-      AnalyticsUtil.serverWriteEvent(eventType, eventProps);
+      AnalyticsUtil.serverWriteEvent({
+        type: eventType,
+        ...eventProps
+      });
     } else if (Meteor.isClient) {
       // If run from the client, make a graphQL mutation
       pendingAnalyticsEvents.push({
         type: eventType,
-        props: {
-          ...(Meteor.isClient ? AnalyticsUtil.clientContextVars : null),
-          eventProps,
-        }
+        ...(Meteor.isClient ? AnalyticsUtil.clientContextVars : null),
+        ...eventProps,
       });
       throttledFlushClientEvents();
     }

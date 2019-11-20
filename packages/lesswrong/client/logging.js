@@ -41,3 +41,10 @@ window.addEventListener('load', ev => {
     },
   });
 });
+
+addCallback("router.onUpdate", ({oldLocation, newLocation}) => {
+  captureEvent("navigate", {
+    from: oldLocation.pathname,
+    to: newLocation.pathname,
+  });
+});

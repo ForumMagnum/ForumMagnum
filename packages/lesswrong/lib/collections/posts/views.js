@@ -429,15 +429,15 @@ Posts.addView("drafts", terms => {
       hiddenRelatedQuestion: viewFieldAllowAny,
     },
     options: {
-      sort: {createdAt: -1}
+      sort: {modifiedAt: -1, createdAt: -1}
     }
 }});
 ensureIndex(Posts,
-  augmentForDefaultView({ userId: 1, hideAuthor: 1, deletedDraft: 1, createdAt: -1 }),
+  augmentForDefaultView({ userId: 1, hideAuthor: 1, deletedDraft: 1, modifiedAt: -1, createdAt: -1 }),
   { name: "posts.userId_createdAt" }
 );
 ensureIndex(Posts,
-  augmentForDefaultView({ shareWithUsers: 1, deletedDraft: 1, createdAt: -1 }),
+  augmentForDefaultView({ shareWithUsers: 1, deletedDraft: 1, modifiedAt: -1, createdAt: -1 }),
   { name: "posts.userId_shareWithUsers" }
 );
 

@@ -70,6 +70,24 @@ const tableHeadingStyles = {
   fontWeight: 700
 }
 
+const hrStyles = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "100%",
+  height: "100%",
+  margin: "32px 0",
+  border: "none", /* strip default hr styling */
+  textAlign: "center",
+  '&:after': {
+    marginLeft: 12,
+    color: "rgba(0, 0, 0, 0.26)", /* pick a color */
+    fontSize: "1rem",
+    letterSpacing: "12px", /* increase space between dots */
+    content: '"•••"',
+  }
+}
+
 const baseBodyStyles = theme => ({
   ...theme.typography.body1,
   ...theme.typography.postStyle,
@@ -92,15 +110,30 @@ const baseBodyStyles = theme => ({
   },
   '& h1': {
     ...theme.typography.display2,
-    ...theme.typography.postStyle
+    ...theme.typography.headerStyle,
+  },
+  // If a post starts with a header, it should still be flush with the top of
+  // the container
+  '& h1:first-child': {
+    marginTop: 0,
+    // Otherwise the line height lowers it noticeably
+    marginBlockStart: '-3px',
   },
   '& h2': {
     ...theme.typography.display1,
-    ...theme.typography.postStyle,
+    ...theme.typography.headerStyle,
+  },
+  '& h2:first-child': {
+    marginTop: 0,
+    marginBlockStart: '-2px',
   },
   '& h3': {
-    ...theme.typography.display1,
-    ...theme.typography.postStyle,
+    ...theme.typography.display0,
+    ...theme.typography.headerStyle,
+  },
+  '& h3:first-child': {
+    marginTop: 0,
+    marginBlockStart: 0,
   },
   '& h4': {
     ...theme.typography.body1,
@@ -117,7 +150,10 @@ const baseBodyStyles = theme => ({
     position: 'relative'
   },
   '& a, & a:hover, & a:active': {
-    color: theme.palette.primary.main
+    color: theme.palette.primary.main,
+    '& u': {
+      textDecoration: "none"
+    }
   },
   '& table': {
     ...tableStyles
@@ -164,6 +200,9 @@ export const postBodyStyles = (theme) => {
     '& .footnotes-sep': {
       display: 'none'
     },
+    '& hr': {
+      ...hrStyles,
+    }
   }
 }
 
@@ -203,6 +242,10 @@ export const commentBodyStyles = theme => {
       content: '"spoiler (hover/select to reveal)"',
       color: 'white',
     },
+    '& hr': {
+      marginTop: theme.spacing.unit*1.5,
+      marginBottom: theme.spacing.unit*1.5
+    }
   }
   return deepmerge(postBodyStyles(theme), commentBodyStyles, {isMergeableObject:isPlainObject})
 }
@@ -253,9 +296,13 @@ export const ckEditorStyles = theme => {
         marginTop: 0,
         marginBottom: 0,  
       },
-      '& blockquote .public-DraftStyleDefault-block': {
-        marginTop: 0,
-        marginBottom: 0,
+      '& blockquote': {
+        fontStyle: "unset",
+        ...theme.typography.blockquote,
+        '& .public-DraftStyleDefault-block': {
+          marginTop: 0,
+          marginBottom: 0,
+        }
       },
       '--ck-spacing-standard': `${theme.spacing.unit}px`,
       '&.ck-content': {
@@ -287,6 +334,9 @@ export const ckEditorStyles = theme => {
           ...theme.typography.caption,
           backgroundColor: "unset",
         },
+        '& hr': {
+          ...hrStyles
+        }
       },
       '&.ck-sidebar, &.ck-presence-list': { //\u25B6
         '& li': {

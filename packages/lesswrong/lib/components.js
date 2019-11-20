@@ -25,6 +25,7 @@ importComponent("NewConversationButton", () => require('../components/messaging/
 importComponent("EditorFormComponent", () => require('../components/editor/EditorFormComponent.jsx'));
 importComponent("EditTitle", () => require('../components/editor/EditTitle.jsx'));
 importComponent("EditUrl", () => require('../components/editor/EditUrl.jsx'));
+importComponent("SelectVersion", () => require('../components/editor/SelectVersion.jsx'));
 
 // RSS Feed Integration
 importComponent("newFeedButton", () => require('../components/feeds/newFeedButton.jsx'));
@@ -54,6 +55,7 @@ importComponent("HomeLatestPosts", () => require('../components/common/HomeLates
 importComponent("Meta", () => require('../components/common/Meta.jsx'));
 importComponent("AllComments", () => require('../components/common/AllComments.jsx'));
 importComponent("BatchTimePicker", () => require('../components/common/BatchTimePicker.jsx'));
+importComponent("NavigationEventSender", () => require('../components/common/NavigationEventSender.jsx'));
 importComponent("SingleColumnSection", () => require('../components/common/SingleColumnSection'));
 importComponent("SectionTitle", () => require('../components/common/SectionTitle.jsx'));
 importComponent("SectionSubtitle", () => require('../components/common/SectionSubtitle.jsx'));
@@ -70,6 +72,7 @@ importComponent("ErrorBoundary", () => require('../components/common/ErrorBounda
 importComponent("CloudinaryImage", () => require('../components/common/CloudinaryImage.jsx'));
 importComponent("ContentItemBody", () => require('../components/common/ContentItemBody.jsx'));
 importComponent("LWPopper", () => require('../components/common/LWPopper.jsx'));
+importComponent("PopperCard", () => require('../components/common/PopperCard.jsx'));
 importComponent("Footer", () => require('../components/common/Footer.jsx'));
 importComponent("LoadMore", () => require('../components/common/LoadMore.jsx'));
 importComponent("ReCaptcha", () => require('../components/common/ReCaptcha.jsx'));
@@ -131,6 +134,7 @@ importComponent("SettingsIcon", () => require('../components/icons/SettingsIcon.
 // posts
 
 importComponent("PostsHighlight", () => require('../components/posts/PostsHighlight.jsx'));
+importComponent("PostsListPlaceholder", () => require('../components/posts/PostsListPlaceholder.jsx'));
 importComponent("AlignmentCrosspostMessage", () => require('../components/posts/AlignmentCrosspostMessage.jsx'));
 importComponent("LegacyPostRedirect", () => require('../components/posts/LegacyPostRedirect.jsx'));
 importComponent("LinkPostMessage", () => require('../components/posts/LinkPostMessage.jsx'));
@@ -319,6 +323,20 @@ importComponent("SidebarAction", () => require('../components/sunshineDashboard/
 importComponent("SunshineListCount", () => require('../components/sunshineDashboard/SunshineListCount.jsx'));
 importComponent("LastCuratedDate", () => require('../components/sunshineDashboard/LastCuratedDate'));
 importComponent(["EmailHistory", "EmailHistoryPage"], () => require('../components/sunshineDashboard/EmailHistory.jsx'));
+
+importComponent("AddTag", () => require('../components/tagging/AddTag.jsx'));
+importComponent("TagPage", () => require('../components/tagging/TagPage.jsx'));
+importComponent("TagPageTitle", () => require('../components/tagging/TagPageTitle.jsx'));
+importComponent("FooterTagList", () => require('../components/tagging/FooterTagList.jsx'));
+importComponent("FooterTag", () => require('../components/tagging/FooterTag.jsx'));
+importComponent("NewTagPage", () => require('../components/tagging/NewTagPage.jsx'));
+importComponent("EditTagPage", () => require('../components/tagging/EditTagPage.jsx'));
+importComponent("AllTagsPage", () => require('../components/tagging/AllTagsPage.jsx'));
+importComponent("TagPreview", () => require('../components/tagging/TagPreview.jsx'));
+importComponent("TagHoverPreview", () => require('../components/tagging/TagHoverPreview.jsx'));
+importComponent("TagRelCard", () => require('../components/tagging/TagRelCard.jsx'));
+importComponent("TagSearchHit", () => require('../components/tagging/TagSearchHit.jsx'));
+importComponent("PostsItemTagRelevance", () => require('../components/tagging/PostsItemTagRelevance.jsx'));
 
 // SequenceEditor
 importComponent("EditSequenceTitle", () => require('../components/sequenceEditor/EditSequenceTitle.jsx'));

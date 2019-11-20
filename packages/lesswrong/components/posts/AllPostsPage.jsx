@@ -65,7 +65,8 @@ class AllPostsPage extends Component {
   }
 
   renderPostsList = ({currentTimeframe, currentFilter, currentSorting, currentShowLowKarma}) => {
-    const { timezone, classes } = this.props
+    const { timezone, classes, location } = this.props
+    const { query } = location
     const { showSettings } = this.state
     const {PostsTimeframeList, PostsList2} = Components
 
@@ -73,11 +74,16 @@ class AllPostsPage extends Component {
       karmaThreshold: currentShowLowKarma ? MAX_LOW_KARMA_THRESHOLD : DEFAULT_LOW_KARMA_THRESHOLD,
       filter: currentFilter,
       sortedBy: currentSorting,
+      after: query.after,
+      before: query.before
     }
 
     if (currentTimeframe === 'allTime') {
       return <PostsList2
-        terms={{...baseTerms, limit: 50}}
+        terms={{
+          ...baseTerms, 
+          limit: 50
+        }}
         showHeader={false}
         dimWhenLoading={showSettings}
       />
@@ -85,17 +91,24 @@ class AllPostsPage extends Component {
 
     const numTimeBlocks = timeframeToNumTimeBlocks[currentTimeframe]
     const timeBlock = timeframeToTimeBlock[currentTimeframe]
+    
+    let postListParameters = {
+      view: 'timeframe',
+      ...baseTerms
+    }
+
+    if (parseInt(query.limit)) {
+      postListParameters.limit = parseInt(query.limit)
+    }
+
     return <div className={classes.timeframe}>
       <PostsTimeframeList
         timeframe={currentTimeframe}
-        postListParameters={{
-          view: 'timeframe',
-          ...baseTerms
-        }}
+        postListParameters={postListParameters}
         numTimeBlocks={numTimeBlocks}
         dimWhenLoading={showSettings}
-        after={getAfterDefault({numTimeBlocks, timeBlock, timezone})}
-        before={getBeforeDefault({timeBlock, timezone})}
+        after={query.after || getAfterDefault({numTimeBlocks, timeBlock, timezone})}
+        before={query.before  || getBeforeDefault({timeBlock, timezone})}
       />
     </div>
   }
