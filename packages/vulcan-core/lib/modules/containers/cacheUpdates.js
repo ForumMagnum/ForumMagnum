@@ -21,7 +21,7 @@ export const cacheUpdateGenerator = (typeName, mutationType) => {
   }
 }
 
-const updateEachQueryResultOfType = ({ store, typeName, func, document }) => {
+export const updateEachQueryResultOfType = ({ store, typeName, func, document }) => {
   const watchesToUpdate = findWatchesByTypeName(Array.from(store.watches), typeName)
   watchesToUpdate.forEach(({query, variables }) => {
     const { input: { terms } } = variables
@@ -42,7 +42,7 @@ const getParametersByTypeName = (terms, typeName) => {
   return collection.getParameters(terms /* apolloClient */);
 }
 
-const handleDeleteMutation = ({ document, results, typeName }) => {
+export const handleDeleteMutation = ({ document, results, typeName }) => {
   if (!document) return results;
   results = removeFromSet(results, document);
 
@@ -52,7 +52,7 @@ const handleDeleteMutation = ({ document, results, typeName }) => {
   };
 }
 
-const handleCreateMutation = ({ document, results, parameters: { selector, options }, typeName }) => {
+export const handleCreateMutation = ({ document, results, parameters: { selector, options }, typeName }) => {
   if (!document) return results;
 
   if (belongsToSet(document, selector)) {
@@ -68,7 +68,9 @@ const handleCreateMutation = ({ document, results, parameters: { selector, optio
     __typename: `Multi${typeName}Output`
   };
 }
-const handleUpdateMutation = ({ document, results, parameters: { selector, options }, typeName }) => {
+
+// Theoretically works for upserts
+export const handleUpdateMutation = ({ document, results, parameters: { selector, options }, typeName }) => {
   if (!document) return results;
 
   if (belongsToSet(document, selector)) {

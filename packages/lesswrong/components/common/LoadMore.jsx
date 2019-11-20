@@ -20,7 +20,9 @@ const styles = theme => ({
 })
 
 
-const LoadMore = ({ loadMore, count, totalCount, classes, disabled=false, networkStatus }) => {
+const LoadMore = ({ loadMore, count, totalCount, classes, disabled=false, networkStatus, hidden=false }) => {
+  if (hidden) return null;
+  
   const { Loading } = Components
   const handleClickLoadMore = event => {
     event.preventDefault();
