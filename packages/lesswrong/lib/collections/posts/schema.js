@@ -487,7 +487,7 @@ const schema = {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "postId",
-      filterFn: comment => !comment.deleted && comment.nomination === "2018"
+      filterFn: comment => !comment.deleted && comment.nominatedForReview === "2018"
     }),
     canRead: ['guests'],
   }
