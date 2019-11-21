@@ -19,12 +19,19 @@ const styles = theme => ({
     marginTop: "1em",
     paddingTop: "1em",
     color: theme.palette.grey[600],
-    borderTop: "solid 1px rgba(0,0,0,.15)"
+    borderTop: "solid 1px rgba(0,0,0,.15)",
+    textAlign: "center"
   },
   link: {
     color: theme.palette.primary.main,
     display: "block",
     marginTop: 10
+  },
+  hintText: {
+    '& p': {
+      marginTop: 2,
+      marginBottom: 2
+    }
   }
 })
 
@@ -32,10 +39,10 @@ const styles = theme => ({
 const NominatePostDialog = ({classes, post, onClose}) => {
   const { CommentsNewForm } = Components;
 
-  const hintText = <div>
-    <div>How has this post been useful to you over the past year or two?</div> 
-    <div>Has it influenced your overall thinking, or been useful for particular projects or decisions?</div>
-    <div>The more specific and concrete, the more helpful.</div>
+  const hintText = <div className={classes.hintText}>
+    <p>How has this post been useful to you over the past year or two?</p> 
+    <p>Has it influenced your overall thinking, or been useful for particular projects or decisions?</p>
+    <p>(The more specific and concrete, the more helpful!</p>
   </div>
 
   return (
