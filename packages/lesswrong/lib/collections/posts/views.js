@@ -805,3 +805,22 @@ ensureIndex(Posts,
   augmentForDefaultView({ "pingback.Posts": 1 }),
   { name: "posts.pingbackPosts" }
 );
+
+Posts.addView("nominations2018", terms => {
+  return {
+    selector: {
+      nominationCount2018: { $gt: 0 }
+    },
+    options: {
+      sort: {
+        nominationCount2018: -1
+      },
+      limit: 100
+    }
+  }
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ nominationCount2018:1 }),
+  { name: "posts.nominations2018", }
+);
+
