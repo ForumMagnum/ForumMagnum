@@ -819,3 +819,8 @@ Posts.addView("nominations2018", terms => {
     }
   }
 })
+ensureIndex(Posts,
+  augmentForDefaultView({ nominationCount2018:1 }),
+  { name: "posts.nominations2018", }
+);
+
