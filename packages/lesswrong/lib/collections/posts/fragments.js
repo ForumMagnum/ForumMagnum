@@ -82,6 +82,8 @@ registerFragment(`
 
     shareWithUsers
     
+    nominationCount2018
+
     group {
       _id
       name

@@ -59,9 +59,6 @@ const theme = createLWTheme({
       color: palette.error.main,
       fontFamily: sansSerifStack
     },
-    link: {
-      underlinePosition: "72%",
-    },
     title: {
       fontWeight: 500,
     },
@@ -70,10 +67,7 @@ const theme = createLWTheme({
     },
     display3: {
       fontWeight: 500
-    },
-    body1: {
-      linkUnderlinePosition: "90%",
-    },
+    }
   },
   overrides: {
     Header: {

@@ -1154,6 +1154,7 @@ addFieldsDict(Users, {
     }),
   },
   defaultToCKEditor: {
+    // this fieldis deprecated
     type: Boolean,
     optional: true,
     canRead: ['guests'],

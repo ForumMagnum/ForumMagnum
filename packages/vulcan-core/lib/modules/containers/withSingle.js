@@ -1,4 +1,3 @@
-
 import { graphql, useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
 import { singleClientTemplate, Utils, extractCollectionInfo, extractFragmentInfo } from 'meteor/vulcan:lib';
@@ -90,14 +89,21 @@ export function useSingle({ collectionName,
   propertyName, 
   extraQueries, 
   documentId, 
-  extraVariablesValues
+  extraVariablesValues,
+  skip=false
 }) {
   const query = getGraphQLQueryFromOptions({ extraVariables, extraQueries, collectionName, collection, fragment, fragmentName })
   const resolverName = getResolverNameFromOptions({ collectionName, collection })
-  const { data, ...rest } = useQuery(query, { 
-    variables: { input: { selector: { documentId } }, ...extraVariablesValues }, 
+  const { data, ...rest } = useQuery(query, {
+    variables: {
+      input: {
+        selector: { documentId }
+      },
+      ...extraVariablesValues
+    },
     fetchPolicy,
     ssr: true,
+    skip,
   })
   const document = data && data[resolverName] && data[resolverName].result
   return { document, data, ...rest }

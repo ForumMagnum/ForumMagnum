@@ -192,7 +192,34 @@ addRoute([
     componentName: 'BookmarksPage',
     titleComponentName: 'UserPageTitle',
     subtitleComponentName: 'UserPageTitle',
-  }
+  },
+  
+  // Tags
+  {
+    name: 'tags',
+    path: '/tag/:slug',
+    componentName: 'TagPage',
+    titleComponentName: 'TagPageTitle',
+    previewComponentName: 'TagHoverPreview',
+  },
+  {
+    name: 'tagEdit',
+    path: '/tag/:slug/edit',
+    componentName: 'EditTagPage',
+    titleComponentName: 'TagPageTitle',
+  },
+  {
+    name: 'tagCreate',
+    path: '/tag/create',
+    componentName: 'NewTagPage',
+    title: "New Tag",
+  },
+  {
+    name: 'tagIndex',
+    path: '/tags',
+    componentName: 'AllTagsPage',
+    title: "All Tags",
+  },
 ]);
 
 
@@ -500,5 +527,11 @@ addRoute([
     name: 'emailToken',
     path: '/emailToken/:token',
     componentName: 'EmailTokenPage',
+  },
+  {
+    name: 'nominations',
+    path: '/nominations',
+    componentName: 'Nominations2018',
+    title: "Nominations 2018 Review",
   },
 ]);
