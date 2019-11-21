@@ -1,7 +1,7 @@
 import Users from 'meteor/vulcan:users';
 import { Utils, getCollection } from 'meteor/vulcan:core';
 import moment from 'moment';
-import { foreignKeyField, resolverOnlyField, denormalizedField } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../modules/utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection.js"
 
@@ -478,6 +478,18 @@ const schema = {
     viewableBy: ['guests'],
     insertableBy: ['admins'],
     editableBy: ['admins'],
+  },
+
+  nominationCount2018: {
+    ...denormalizedCountOfReferences({
+      fieldName: "nominationCount2018",
+      collectionName: "Posts",
+      foreignCollectionName: "Comments",
+      foreignTypeName: "comment",
+      foreignFieldName: "postId",
+      filterFn: comment => !comment.deleted && comment.nominatedForReview === "2018"
+    }),
+    canRead: ['guests'],
   }
 };
 

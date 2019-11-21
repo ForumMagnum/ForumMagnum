@@ -48,7 +48,6 @@ const createLWTheme = (theme) => {
       body1: body1FontSize,
       body2: {
         fontWeight: 400,
-        linkUnderlinePosition: "72%",
         ...body2FontSize
       },
       // used by h3

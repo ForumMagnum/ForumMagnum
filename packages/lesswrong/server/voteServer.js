@@ -173,7 +173,7 @@ export const cancelVoteServer = async ({ document, voteType, collection, user, u
 // ### updateDocument
 // if set to true, this will perform its own database updates. If false, will only
 // return an updated document without performing any database operations on it.
-export const performVoteServer = async ({ documentId, document, voteType = 'bigUpvote', collection, voteId = Random.id(), user, updateDocument = true }) => {
+export const performVoteServer = async ({ documentId, document, voteType = 'bigUpvote', collection, voteId = Random.id(), user, updateDocument = true, toggleIfAlreadyVoted = true }) => {
 
   const collectionName = collection.options.collectionName;
   document = document || await Connectors.get(collection, documentId);
@@ -196,13 +196,15 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
 
   if (existingVote) {
 
-    // console.log('action: cancel')
-
-    // runCallbacks(`votes.cancel.sync`, document, collection, user);
-    let voteDocTuple = await cancelVoteServer(voteOptions);
-    voteDocTuple = await runCallbacks(`votes.cancel.sync`, voteDocTuple, collection, user);
-    document = voteDocTuple.newDocument;
-    runCallbacksAsync(`votes.cancel.async`, voteDocTuple, collection, user);
+    if (toggleIfAlreadyVoted) {
+      // console.log('action: cancel')
+  
+      // runCallbacks(`votes.cancel.sync`, document, collection, user);
+      let voteDocTuple = await cancelVoteServer(voteOptions);
+      voteDocTuple = await runCallbacks(`votes.cancel.sync`, voteDocTuple, collection, user);
+      document = voteDocTuple.newDocument;
+      runCallbacksAsync(`votes.cancel.async`, voteDocTuple, collection, user);
+    }
 
   } else {
 
