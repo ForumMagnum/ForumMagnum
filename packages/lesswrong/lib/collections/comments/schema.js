@@ -247,7 +247,7 @@ const schema = {
     hidden: true,
     canRead: ['guests'],
     canCreate: ['members', 'admins'],
-    canUpdate: ['members', 'admins'], // TODO; probs needs work
+    canUpdate: ['admins'],
     ...denormalizedField({
       needsUpdate: data => ('postId' in data),
       getValue: async comment => {
