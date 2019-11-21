@@ -11,7 +11,6 @@ export const PostsReadContext = React.createContext('postsViewed');
 export const withRecordPostView = (Component) => {
   const recordPostView = ({post, postsRead, setPostRead, increasePostViewCount, currentUser, recordEvent}) => async ({extraEventProperties}) => {
     try {
-      console.log("Recording post-view event: ", extraEventProperties, currentUser)
       if (!post) throw new Error("Tried to record view of null post");
       
       // a post id has been found & it's has not been seen yet on this client session
