@@ -3,6 +3,7 @@ import chaiAsPromised from 'chai-as-promised';
 import { runQuery } from 'meteor/vulcan:core';
 import { createDummyUser, createDummyPost, createDummyComment, userUpdateFieldFails, userUpdateFieldSucceeds, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../../../testing/utils.js'
 
+const { assert } = chai
 chai.should();
 chai.use(chaiAsPromised);
 
@@ -97,6 +98,10 @@ describe('attempts to read hideKarma comment', async () => {
 
     const result = await runQuery(query, {id: comment._id}, {currentUser: user})
     const receivedComment = result?.data?.comment?.result
+    if (!receivedComment) {
+      assert.fail('Expected query to return comment')
+      return
+    }
     receivedComment._id.should.equal(comment._id)
     receivedComment.hideKarma.should.equal(true)
     const baseScoreMissing = receivedComment.baseScore === null || receivedComment.baseScore === undefined
@@ -110,6 +115,10 @@ describe('attempts to read hideKarma comment', async () => {
 
     const result = await runQuery(query, {id: comment._id}, {currentUser: user})
     const receivedComment = result?.data?.comment?.result
+    if (!receivedComment) {
+      assert.fail('Expected query to return comment')
+      return
+    }
     receivedComment._id.should.equal(comment._id)
     receivedComment.hideKarma.should.equal(false)
     receivedComment.baseScore.should.equal(1)
@@ -122,6 +131,10 @@ describe('attempts to read hideKarma comment', async () => {
 
     const result = await runQuery(query, {id: comment._id}, {currentUser: user})
     const receivedComment = result?.data?.comment?.result
+    if (!receivedComment) {
+      assert.fail('Expected query to return comment')
+      return
+    }
     receivedComment._id.should.equal(comment._id)
     receivedComment.hideKarma.should.equal(true)
     receivedComment.baseScore.should.equal(1)
