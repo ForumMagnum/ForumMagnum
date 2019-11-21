@@ -24,6 +24,14 @@ const makePageRenderer = async sink => {
   const req = sink.request;
   const user = await getUserFromReq(req);
   
+  // Inject a tab ID into the page, by injecting a script fragment that puts
+  // it into a global variable. In previous versions of Vulcan this would've
+  // been handled by InjectData, but InjectData didn't surive the 1.12 version
+  // upgrade (it injects into the page template in a way that requires a
+  // response object, which the onPageLoad/sink API doesn't offer).
+  const tabId = Random.id();
+  const tabIdHeader = `<script>var tabId = "${tabId}"</script>`;
+  
   if (user) {
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
     recordCacheBypass();
@@ -32,11 +40,15 @@ const makePageRenderer = async sink => {
     const rendered = await renderRequest({
       req, user, startTime
     });
-    sendToSink(sink, rendered);
+    sendToSink(sink, {
+      ...rendered,
+      extraScripts: [tabIdHeader],
+    });
     Vulcan.captureEvent("ssr", {
       url: req.url.pathname,
       userId: user._id,
       clientId: req.cookies && req.cookies.clientId,
+      tabId: tabId,
       timings: rendered.timings,
       cached: false,
     });
@@ -44,11 +56,15 @@ const makePageRenderer = async sink => {
     const rendered = await cachedPageRender(req, (req) => renderRequest({
       req, user: null, startTime
     }));
-    sendToSink(sink, rendered);
+    sendToSink(sink, {
+      ...rendered,
+      extraScripts: [tabIdHeader],
+    });
     Vulcan.captureEvent("ssr", {
       url: req.url.pathname,
       userId: null,
       clientId: req.cookies && req.cookies.clientId,
+      tabId: tabId,
       timings: {
         totalTime: new Date()-startTime,
       },
@@ -57,16 +73,17 @@ const makePageRenderer = async sink => {
   }
 };
 
-// Middleware for assigning a client ID, if one is not currently assigned. Since
-// Meteor doesn't have an API for setting cookies, this calls setHeader on the
-// HTTP response directly, so if other middlewares also want to set cookies,
-// they won't necessarily play nicely together.
+// Middleware for assigning a client ID, if one is not currently assigned.
+// Since Meteor doesn't have an API for setting cookies, this calls setHeader
+// on the HTTP response directly; if other middlewares also want to set
+// cookies, they won't necessarily play nicely together.
 webAppConnectHandlersUse(function addClientId(req, res, next) {
   if (!req.cookies.clientId) {
     const newClientId = Random.id();
     req.cookies.clientId = newClientId;
     res.setHeader("Set-Cookie", `clientId=${newClientId}; Max-Age=315360000`);
   }
+  
   next();
 }, {order: 100});
 
@@ -173,7 +190,7 @@ const renderRequest = async ({req, user, startTime}) => {
 
 const sendToSink = (sink, {
   ssrBody, head, serializedApolloState, jssSheets,
-  status, redirectUrl,
+  status, redirectUrl, extraScripts
 }) => {
   if (status) {
     sink.setStatusCode(status);
@@ -184,6 +201,9 @@ const sendToSink = (sink, {
   
   sink.appendToBody(ssrBody);
   sink.appendToHead(head);
+  if (extraScripts) {
+    sink.appendToHead(extraScripts.join(''));
+  }
   sink.appendToBody(serializedApolloState);
   sink.appendToHead(jssSheets);
 }
