@@ -113,11 +113,13 @@ const PostsList2 = ({
           ? <PostsItem2 key={post._id}
              post={post} terms={terms} index={i}
              showQuestionTag={terms.filter!=="questions"}
+             showNominationCount
              hideOnSmallScreens
             />
           : <PostsItem2 key={post._id}
               post={post} terms={terms} index={i}
               showQuestionTag={terms.filter!=="questions"}
+              showNominationCount
             />
       )}
       {(showLoadMore || children?.length>0) && <SectionFooter>
