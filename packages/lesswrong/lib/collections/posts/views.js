@@ -830,7 +830,7 @@ Posts.addView("nominations2018", terms => {
     },
     options: {
       sort: {
-        nominationCount2018: -1
+        nominationCount2018: 1
       },
       limit: 100
     }

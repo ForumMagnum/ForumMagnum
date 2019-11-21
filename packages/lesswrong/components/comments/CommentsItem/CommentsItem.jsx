@@ -7,6 +7,7 @@ import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/com
 import { withStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import withUser from '../../common/withUser';
+import { Link } from '../../../lib/reactRouterWrapper.js';
 
 // Shared with ParentCommentItem
 export const styles = theme => ({
