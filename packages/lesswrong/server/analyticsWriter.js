@@ -5,6 +5,8 @@ import { AnalyticsUtil } from '../lib/analyticsEvents.js';
 const environment = getSetting("analytics.environment", "misconfigured");
 const connectionString = getSetting("analytics.connectionString", null);
 
+const serverId = Random.id();
+
 const isValidEventAge = (age) => age>=0 && age<=60*60*1000;
 
 addGraphQLResolvers({
@@ -21,15 +23,14 @@ addGraphQLResolvers({
       // events were being captured); in that case, use the time it reached the
       // server instead.
       const serverTime = new Date();
-      const timeOffset = serverTime - clientTime;
       
       for (let event of events) {
         const eventTime = new Date(event.timestamp);
         const age = clientTime - eventTime;
-        const adjustedTimestamp = isValidEventAge(age) ? new Date(clientTime-age) : serverTime;
+        const adjustedTimestamp = isValidEventAge(age) ? new Date(serverTime-age) : serverTime;
         
         let eventCopy = {...event, timestamp: adjustedTimestamp};
-        serverWriteEvent(eventCopy);
+        writeEventToAnalyticsDB(eventCopy);
       }
       return true;
     },
@@ -65,7 +66,7 @@ const getAnalyticsEnvironmentDescription = () => {
 // use captureEvent.
 // Writes an event to the analytics database.
 // TODO: Defer/batch so that this doesn't affect SSR speed?
-export function serverWriteEvent({type, timestamp, props}) {
+function writeEventToAnalyticsDB({type, timestamp, props}) {
   const queryStr = 'insert into raw(environment, event_type, timestamp, event) values ($1,$2,$3,$4)';
   const environment = getAnalyticsEnvironmentDescription();
   const queryValues = [environment, type, timestamp, props];
@@ -81,6 +82,16 @@ export function serverWriteEvent({type, timestamp, props}) {
       }
     })
   }
+}
+
+function serverWriteEvent({type, timestamp, props}) {
+  writeEventToAnalyticsDB({
+    type, timestamp,
+    props: {
+      ...props,
+      serverId: serverId,
+    }
+  });
 }
 
 AnalyticsUtil.serverWriteEvent = serverWriteEvent;
