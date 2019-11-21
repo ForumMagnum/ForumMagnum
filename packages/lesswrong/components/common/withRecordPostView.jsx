@@ -2,6 +2,7 @@ import React from 'react';
 import { withMutation } from 'meteor/vulcan:core';
 import compose from 'recompose/compose';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
+import withUser from '../common/withUser'
 
 export const PostsReadContext = React.createContext('postsViewed');
 
@@ -10,10 +11,11 @@ export const PostsReadContext = React.createContext('postsViewed');
 export const withRecordPostView = (Component) => {
   const recordPostView = ({post, postsRead, setPostRead, increasePostViewCount, currentUser, recordEvent}) => async ({extraEventProperties}) => {
     try {
+      console.log("Recording post-view event: ", extraEventProperties, currentUser)
       if (!post) throw new Error("Tried to record view of null post");
       
       // a post id has been found & it's has not been seen yet on this client session
-      if (post && !postsRead[post._id]) {
+      if (!postsRead[post._id]) {
 
         // Trigger the asynchronous mutation with postId as an argument
         // Deliberately not awaiting, because this should be fire-and-forget
@@ -37,6 +39,7 @@ export const withRecordPostView = (Component) => {
           documentId: post._id,
           postTitle: post.title,
         };
+        
         recordEvent('post-view', true, eventProperties);
       }
     } catch(error) {
@@ -67,6 +70,7 @@ export const withRecordPostView = (Component) => {
       args: {postId: 'String'},
     }),
     withNewEvents,
+    withUser
   )(ComponentWithRecordPostView);
 }
 
