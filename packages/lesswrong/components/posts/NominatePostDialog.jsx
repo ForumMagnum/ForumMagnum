@@ -33,7 +33,7 @@ const NominatePostDialog = ({classes, post, onClose}) => {
   const { CommentsNewForm } = Components;
 
   const hintText = <div>
-    <div>How has this post been useful to your over the past year or two?</div> 
+    <div>How has this post been useful to you over the past year or two?</div> 
     <div>Has it influenced your overall thinking, or been useful for specific projects?</div>
     <div>The more specific and concrete, the more helpful.</div>
   </div>
