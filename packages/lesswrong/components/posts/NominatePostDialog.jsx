@@ -5,6 +5,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Typography from '@material-ui/core/Typography';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
+import { Link } from '../../lib/reactRouterWrapper.js';
 
 const styles = theme => ({
   nominating: {
@@ -18,8 +19,12 @@ const styles = theme => ({
     marginTop: "1em",
     paddingTop: "1em",
     color: theme.palette.grey[600],
-    borderTop: "solid 1px rgba(0,0,0,.15)",
-    textAlign: "center"
+    borderTop: "solid 1px rgba(0,0,0,.15)"
+  },
+  link: {
+    color: theme.palette.primary.main,
+    display: "block",
+    marginTop: 10
   }
 })
 
@@ -57,8 +62,15 @@ const NominatePostDialog = ({classes, post, onClose}) => {
             nominatedForReview: "2018"
           }}
         />
-          <Typography variant="body2" className={classes.text}>
-          This will appear as a comment on the original post. You can edit it afterwards.
+        <Typography variant="body2" className={classes.text}>
+          This will appear as a comment on the original post. You can edit it afterwards. 
+          <Link 
+            className={classes.link}
+            target="_blank"
+            to={"/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review"}
+          >
+            Click here for more information on the 2018 Review
+          </Link>
         </Typography>
       </DialogContent>
     </Dialog>
