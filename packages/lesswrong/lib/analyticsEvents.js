@@ -1,4 +1,13 @@
 /*global Vulcan*/
+import { addGraphQLSchema } from 'meteor/vulcan:core';
+
+addGraphQLSchema(`
+  type AnalyticsEvent {
+    type: String!,
+    timestamp: Date!,
+    props: JSON!
+  }
+`);
 
 // AnalyticsUtil: An object/namespace full of functions which need to bypass
 // the normal import system, because they are client- or server-specific but
@@ -26,14 +35,20 @@ export function captureEvent(eventType, eventProps) {
       // queue.
       AnalyticsUtil.serverWriteEvent({
         type: eventType,
-        ...eventProps
+        timestamp: new Date(),
+        props: {
+          ...eventProps
+        },
       });
     } else if (Meteor.isClient) {
       // If run from the client, make a graphQL mutation
       pendingAnalyticsEvents.push({
         type: eventType,
-        ...(Meteor.isClient ? AnalyticsUtil.clientContextVars : null),
-        ...eventProps,
+        timestamp: new Date(),
+        props: {
+          ...AnalyticsUtil.clientContextVars,
+          ...eventProps,
+        },
       });
       throttledFlushClientEvents();
     }
