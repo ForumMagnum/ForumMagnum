@@ -1,5 +1,6 @@
 /*global Vulcan*/
 import { addGraphQLSchema } from 'meteor/vulcan:core';
+import { RateLimiter } from './rateLimiter.js';
 
 addGraphQLSchema(`
   type AnalyticsEvent {
@@ -42,14 +43,15 @@ export function captureEvent(eventType, eventProps) {
       });
     } else if (Meteor.isClient) {
       // If run from the client, make a graphQL mutation
-      pendingAnalyticsEvents.push({
+      const event = {
         type: eventType,
         timestamp: new Date(),
         props: {
           ...AnalyticsUtil.clientContextVars,
           ...eventProps,
         },
-      });
+      };
+      throttledStoreEvent(event);
       throttledFlushClientEvents();
     }
   } catch(e) {
@@ -57,12 +59,72 @@ export function captureEvent(eventType, eventProps) {
   }
 }
 
+// Analytics events have two rate limits, one denominated in events per second,
+// the other denominated in uncompressed kilobytes per second. Each of these
+// has a burst limit and a steady-state limit. If either rate limit is exceeded,
+// a rateLimitExceeded event is sent instead of the original event.
+//
+// For purposes of calculating rate limits, the size of an event is the JSON
+// string length. This undercounts slightly due to Unicode and protocol
+// overhead, and overcounts greatly due to compression.
+const burstLimitEventCount = 10;
+const burstLimitKB = 20;
+const rateLimitEventsPerSec = 3.0;
+const rateLimitKBps = 5;
+const rateLimitEventIntervalMs = 5000;
+let eventTypeLimiters = {};
+
+const throttledStoreEvent = (event) => {
+  const now = new Date();
+  const eventType = event.type;
+  const eventSize = JSON.stringify(event).length;
+  
+  if (!(eventType in eventTypeLimiters)) {
+    eventTypeLimiters[eventType] = {
+      eventCount: new RateLimiter({
+        burstLimit: burstLimitEventCount,
+        steadyStateLimit: rateLimitEventsPerSec,
+        timestamp: now
+      }),
+      eventBandwidth: new RateLimiter({
+        burstLimit: burstLimitKB*1024,
+        steadyStateLimit: rateLimitKBps*1024,
+        timestamp: now
+      }),
+      exceeded: _.throttle(() => {
+        pendingAnalyticsEvents.push({
+          type: "rateLimitExceeded",
+          timestamp: now,
+          props: {
+            originalType: eventType
+          },
+        });
+      }, rateLimitEventIntervalMs),
+    };
+  }
+  const limiters = eventTypeLimiters[eventType];
+  limiters.eventCount.advanceTime(now);
+  limiters.eventBandwidth.advanceTime(now);
+  
+  if (limiters.eventCount.canConsumeResource(1)
+    && limiters.eventBandwidth.canConsumeResource(eventSize))
+  {
+    limiters.eventCount.consumeResource(1);
+    limiters.eventBandwidth.consumeResource(eventSize);
+    pendingAnalyticsEvents.push(event);
+  } else {
+    limiters.exceeded();
+  }
+};
+
 Vulcan.captureEvent = captureEvent;
 
 let pendingAnalyticsEvents = [];
 
 function flushClientEvents() {
   if (!AnalyticsUtil.clientWriteEvents)
+    return;
+  if (!pendingAnalyticsEvents.length)
     return;
   
   AnalyticsUtil.clientWriteEvents(pendingAnalyticsEvents.map(event => ({
