@@ -3,7 +3,10 @@ import { getWithLoader } from '../loaders.js'
 
 export const VoteableCollections = [];
 
-// TODO; doc
+// options: {
+//   customBaseScoreReadAccess: baseScore can have a customized canRead value.
+//     Option will be bassed directly to the canRead key
+// }
 export const makeVoteable = (collection, options) => {
   options = options || {}
   const {customBaseScoreReadAccess} = options

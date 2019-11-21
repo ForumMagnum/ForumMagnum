@@ -7,7 +7,6 @@ import Localgroups from '../localgroups/collection.js';
 import { addEditableCallbacks } from '../../../server/editor/make_editable_callbacks'
 import { makeEditableOptions, makeEditableOptionsModeration } from './custom_fields.js'
 import { PostRelations } from '../postRelations/index';
-import { CommentHasHiddenKarma } from '../comments/callbacks'
 const MINIMUM_APPROVAL_KARMA = 5
 
 function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
