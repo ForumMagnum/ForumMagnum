@@ -28,6 +28,7 @@ const NominatePostMenuItem = ({ currentUser, post, openDialog}) => {
     fragmentName: "CommentsList"
   });
 
+  if (post.userId === currentUser._id) return null
   if (currentUser.karma < 1000) return null
   if (new Date(post.postedAt) > new Date("2019-01-01")) return null
   if (new Date(post.postedAt) < new Date("2018-01-01")) return null
