@@ -29,14 +29,14 @@ const Recommendations2018Review = ({settings}) => {
         <RecommendationsList algorithm={{...settings, review2018: true, excludeDefaultRecommendations: true}} showLoginPrompt={false} />
       </SubSection>
       <SectionFooter>
+        <Link to={"/nominations"}>
+          View All Nominations
+        </Link>
         <Link to={review2018TopUrl}>
           Top 2018 Posts
         </Link>
         <Link to={review2018MonthlyUrl}>
-          2018 Posts by Month
-        </Link>
-        <Link to={"/nominations"}>
-          All Nominations
+          2018 Posts Monthly
         </Link>
       </SectionFooter>
     </div>

@@ -19,6 +19,7 @@ const styles = theme => ({
     marginBottom: theme.spacing.unit*2,
   },
   curated: {
+    marginTop: theme.spacing.unit,
     display: "block"
   },
   subtitle: {
