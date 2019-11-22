@@ -31,7 +31,15 @@ const defaultOptions = {
   },
   fieldName: "",
   order: 0,
-  enableMarkDownEditor: true
+  enableMarkDownEditor: true,
+  hintText: (
+    <div>
+      <div>Write here. Select text for formatting options.</div>
+      <div>We support LaTeX: Cmd-4 for inline, Cmd-M for block-level (Ctrl on Windows).</div>
+      <div>You can switch between rich text and markdown in your user settings.</div>
+    </div>
+  ),
+  pingbacks: false,
 }
 
 export const editableCollections = new Set()
@@ -46,21 +54,11 @@ export const makeEditable = ({collection, options = {}}) => {
     getLocalStorageId,
     formGroup,
     permissions,
-    fieldName = "",
-    hintText = <div>
-      <div>
-        Write here. Select text for formatting options.
-      </div>
-      <div>
-        We support LaTeX: Cmd-4 for inline, Cmd-M for block-level (Ctrl on Windows).
-      </div>
-      <div>
-        You can switch between rich text and markdown in your user settings.
-      </div>
-  </div>,
+    fieldName,
+    hintText,
     order,
     enableMarkDownEditor,
-    pingbacks = false,
+    pingbacks,
   } = options
 
   editableCollections.add(collection.options.collectionName)
