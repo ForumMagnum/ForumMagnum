@@ -22,6 +22,13 @@ const Recommendations2018Review = ({settings}) => {
 
   if (settings.hideReview) return null
 
+  const algorithm = {
+    ...settings, 
+    review2018: true, 
+    onlyUnread: false,
+    excludeDefaultRecommendations: true
+  }
+
   return (
     <div>
       <Tooltip placement="top-start" title={reviewTooltip}>
@@ -32,7 +39,7 @@ const Recommendations2018Review = ({settings}) => {
         </Link>
       </Tooltip>
       <SubSection>
-        <RecommendationsList algorithm={{...settings, review2018: true, excludeDefaultRecommendations: true}} showLoginPrompt={false} />
+        <RecommendationsList algorithm={algorithm} showLoginPrompt={false} />
       </SubSection>
       <SectionFooter>
         <Link to={"/nominations"}>
