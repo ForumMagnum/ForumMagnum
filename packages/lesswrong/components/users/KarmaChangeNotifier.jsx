@@ -164,7 +164,6 @@ class KarmaChangeNotifier extends PureComponent {
       anchorEl: event.currentTarget,
       karmaChangeLastOpened: new Date()
     });
-    captureEvent("karmaNotifierOpen")
   }
 
   handleToggle = (e) => {
@@ -174,6 +173,7 @@ class KarmaChangeNotifier extends PureComponent {
     } else {
       this.handleOpen(e)
     }
+    captureEvent("karmaNotifierToggle", {"open": !open})
   }
 
   handleClose = (e) => {
