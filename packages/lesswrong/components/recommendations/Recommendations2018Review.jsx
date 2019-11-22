@@ -7,7 +7,7 @@ const Recommendations2018Review = ({settings}) => {
   const { SubSection, SectionSubtitle, RecommendationsList, SectionFooter } = Components
 
   const reviewTooltip = <div>
-    <div>This month, the LessWrong community is reflecting on posts from 2018.</div>
+    <div>The LessWrong community is reflecting on posts from 2018.</div>
     <ul>
       <li>Users with 1000+ karma can nominate posts until the end of December 1st</li>
       <li>During December, users can submit reviews of posts with at least 2 nominations</li>
