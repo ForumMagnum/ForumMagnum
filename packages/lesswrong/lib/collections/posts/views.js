@@ -831,8 +831,7 @@ Posts.addView("nominations2018", terms => {
     options: {
       sort: {
         nominationCount2018: terms.sortByMost ? -1 : 1
-      },
-      limit: 100
+      }
     }
   }
 })

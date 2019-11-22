@@ -52,6 +52,7 @@ const PostsList2 = ({
   dimWhenLoading = false,
   showLoading = true, showLoadMore = true, showNoResults = true,
   hideLastUnread = false,
+  enableTotal=false,
   classes,
 }) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
@@ -61,7 +62,7 @@ const PostsList2 = ({
     collection: Posts,
     queryName: 'postsListQuery',
     fragmentName: 'PostsList',
-    enableTotal: false,
+    enableTotal: enableTotal,
     fetchPolicy: 'cache-and-network',
     ssr: true
   });
@@ -114,12 +115,14 @@ const PostsList2 = ({
              post={post} terms={terms} index={i}
              showQuestionTag={terms.filter!=="questions"}
              showNominationCount
+             dense
              hideOnSmallScreens
             />
           : <PostsItem2 key={post._id}
               post={post} terms={terms} index={i}
               showQuestionTag={terms.filter!=="questions"}
               showNominationCount
+              dense
             />
       )}
       {(showLoadMore || children?.length>0) && <SectionFooter>

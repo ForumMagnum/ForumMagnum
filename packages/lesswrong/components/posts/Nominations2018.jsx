@@ -19,10 +19,15 @@ const Nominations2018 = ({classes}) => {
       <SingleColumnSection>
         <SectionTitle title="Nominated Posts for the 2018 Review">
           <a className={classes.setting} onClick={() => setSortBy(!sortByMost)}>
-            Sort by: {sortByMost ? "most" : "fewest"} Nominations
+            Sort by: {sortByMost ? "most" : "fewest"} nominations
           </a>
         </SectionTitle>
-        <PostsList2 terms={{view:"nominations2018", sortByMost: sortByMost}} showNominationCount/>
+        <PostsList2 
+          terms={{view:"nominations2018", sortByMost: sortByMost, limit: 13}} 
+          showNominationCount
+          enableTotal
+          dense
+        />
       </SingleColumnSection>
       <SingleColumnSection>
         <RecentDiscussionThreadsList

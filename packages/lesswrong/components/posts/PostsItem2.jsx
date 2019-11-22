@@ -448,7 +448,7 @@ const PostsItem2 = ({
             </div>}
 
             {showNominationCount && <div className={classes.nominationCount}>
-              <Tooltip placement="right" title={`This post has ${post.nominationCount2018} nomination${post.nominationCount2018 > 1 && 's'} for the 2018 review`}>
+              <Tooltip placement="right" title={`This post has ${post.nominationCount2018} nomination${post.nominationCount2018 > 1 ? 's' : ''} for the 2018 review`}>
                 <span>{ post.nominationCount2018}</span>
               </Tooltip>
             </div>}

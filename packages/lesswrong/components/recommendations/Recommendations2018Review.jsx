@@ -1,17 +1,10 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import Typography from '@material-ui/core/Typography';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import Tooltip from '@material-ui/core/Tooltip';
-import Hidden from '@material-ui/core/Hidden';
-import { withStyles } from '@material-ui/core/styles';
-
-const styles = theme => ({
-
-})
 
 const Recommendations2018Review = ({settings}) => {
-  const { SubSection, SectionSubtitle, RecommendationsList, SeparatorBullet, SectionFooter } = Components
+  const { SubSection, SectionSubtitle, RecommendationsList, SectionFooter } = Components
 
   const reviewTooltip = <div>
     <div>This month, the LessWrong community is reflecting on posts from 2018</div>
