@@ -55,8 +55,8 @@ const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right"
         selector: {_id: currentUser._id},
         data: { bookmarkedPostsMetadata: [...bookmarks, {postId: post._id}] }
       });
-      captureEvent("bookmarkSet", {"postId": post._id})
     }
+    captureEvent("bookmarkToggle", {"postId": post._id, "bookmarked": !bookmarked})
   }
 
   const icon = bookmarked ? <Bookmark/> : <BookmarkBorder/>

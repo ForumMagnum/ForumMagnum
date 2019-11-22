@@ -30,11 +30,7 @@ class HomeLatestPosts extends PureComponent {
     const currentFilter = newQuery.filter || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
     const newFilter = (currentFilter === "frontpage") ? "includeMetaAndPersonal" : "frontpage"
 
-    if (newFilter === "frontpage") {
-      captureEvent("personalBlogpostsToggled", {"checked": false});
-    } else {
-      captureEvent("personalBlogpostsToggled", {"checked": true});
-    }
+    captureEvent("personalBlogpostsToggled", {"checked": (newFilter !== "frontpage")});
 
     if (currentUser) {
       updateUser({
