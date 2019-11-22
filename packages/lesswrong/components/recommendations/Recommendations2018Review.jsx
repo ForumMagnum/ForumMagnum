@@ -9,8 +9,12 @@ const Recommendations2018Review = ({settings}) => {
   const reviewTooltip = <div>
     <div>This month, the LessWrong community is reflecting on posts from 2018</div>
     <ul>
-      <li>Users with 1000+ karma can nominate posts until</li>
+      <li>Users with 1000+ karma can nominate posts until the end of December 1st</li>
+      <li>During December, users can submit reviews of posts with at least 2 nominations</li>
+      <li>The first week of January, users with 1000+ karma will rank posts with at least 1 review</li>
+      <li></li>
     </ul>
+    <div>Currently this section displays a randomized sample of all posts from 2018, weighted by karma.</div>
   </div>
 
   const review2018TopUrl = "/allPosts?after=2018-01-01&before=2019-01-01&limit=100&timeframe=allTime"
