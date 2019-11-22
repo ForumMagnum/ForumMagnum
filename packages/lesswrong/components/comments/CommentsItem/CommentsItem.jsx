@@ -98,6 +98,11 @@ export const styles = theme => ({
   username: {
     marginRight: 10,
   },
+  nomination: {
+    color: theme.palette.lwTertiary.main,
+    fontStyle: "italic",
+    marginBottom: theme.spacing.unit
+  }
 })
 
 class CommentsItem extends Component {
@@ -235,7 +240,9 @@ class CommentsItem extends Component {
               <Components.CommentOutdatedWarning comment={comment} post={post} />
             </span>
           </div>
-          {comment.nominatedForReview && <Link to={"/nominations"}><em>{`Nomination for ${comment.nominatedForReview} Review`}</em></Link>}
+          {comment.nominatedForReview && <Link to={"/nominations"} className={classes.nomination}>
+            {`Nomination for ${comment.nominatedForReview} Review`}
+          </Link>}
           {this.renderBodyOrEditor()}
           {!comment.deleted && !collapsed && this.renderCommentBottom()}
         </div>
