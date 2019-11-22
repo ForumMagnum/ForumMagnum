@@ -93,14 +93,14 @@ export const makeEditable = ({collection, options = {}}) => {
             return checkAccess(currentUser, revision) ? revision : null
           }
           return {
-            editedAt: (doc[field] && doc[field].editedAt) || new Date(),
-            userId: doc[field] && doc[field].userId,
-            originalContentsType: (doc[field] && doc[field].originalContentsType) || "html",
-            originalContents: (doc[field] && doc[field].originalContents) || {},
-            html: doc[field] && doc[field].html,
-            updateType: doc[field] && doc[field].updateType,
-            version: doc[field] && doc[field].version,
-            wordCount: doc[field] && doc[field].wordCount,
+            editedAt: (doc[field]?.editedAt) || new Date(),
+            userId: doc[field]?.userId,
+            originalContentsType: (doc[field]?.originalContentsType) || "html",
+            originalContents: (doc[field]?.originalContents) || {},
+            html: doc[field]?.html,
+            updateType: doc[field]?.updateType,
+            version: doc[field]?.version,
+            wordCount: doc[field]?.wordCount,
           }
         }
       },
@@ -139,7 +139,7 @@ export const makeEditable = ({collection, options = {}}) => {
       resolveAs: {
         type: 'String',
         resolver: (post) => {
-          return post[fieldName || "contents"] && post[fieldName || "contents"].version
+          return post[fieldName || "contents"]?.version
         }
       }
     }
