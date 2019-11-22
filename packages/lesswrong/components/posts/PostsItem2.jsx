@@ -328,6 +328,8 @@ const PostsItem2 = ({
   bookmark,
   // recordPostView, isRead: From the withRecordPostView HoC.
   recordPostView, isRead,
+  // which list a postItem is displayed in, e.g. latestPosts, Curated, ContinueRead
+  listContext,
   classes,
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
@@ -347,18 +349,11 @@ const PostsItem2 = ({
     const lastCommentedAt = Posts.getLastCommentedAt(post)
     const newComments = post.lastVisitedAt < lastCommentedAt;
     return (isRead && newComments && !readComments)
-  }
-
-  const captureClick = () => {
-      const {post, listContext} = this.props
-      if (["fromTheArchives", "continueReading"].includes(listContext)) {
-          captureEvent("postItemClicked", {"postId": post?._id, "listContext": listContext});
-      }
-  }
+  };
 
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors,
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
-    BookmarkButton } = Components
+    BookmarkButton, AnalyticsTracker } = Components
 
   const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -397,9 +392,9 @@ const PostsItem2 = ({
               <PostsItemKarma post={post} />
             </PostsItem2MetaInfo>
 
-            <span className={classes.title} onClick={this.captureClick}>
+            <AnalyticsTracker eventType={"postItem"} eventProps={{"postId": post?._id, "listContext": listContext, "isSticky": isSticky(post, terms)}} onClick={true} onRender={true}>
               <PostsTitle postLink={postLink} post={post} expandOnHover={!renderComments} read={isRead} sticky={isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
-            </span>
+            </AnalyticsTracker>
 
             {(resumeReading?.sequence || resumeReading?.collection) &&
               <div className={classes.nextUnreadIn}>
