@@ -424,3 +424,5 @@ importComponent("RecommendationsList", () => require('../components/recommendati
 importComponent("RecommendationsPage", () => require('../components/recommendations/RecommendationsPage.jsx'));
 importComponent("RecommendationsAndCurated", () => require('../components/recommendations/RecommendationsAndCurated.jsx'));
 
+// Analytics Tracking
+importComponent("AnalyticsTracker", () => require('../components/common/AnalyticsTracker.jsx'));
