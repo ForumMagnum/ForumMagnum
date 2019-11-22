@@ -53,6 +53,7 @@ const PostsList2 = ({
   showLoading = true, showLoadMore = true, showNoResults = true,
   hideLastUnread = false,
   classes,
+  listContext,
 }) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
   const { results, loading, error, count, totalCount, loadMore, limit } = useMulti({
@@ -114,10 +115,12 @@ const PostsList2 = ({
              post={post} terms={terms} index={i}
              showQuestionTag={terms.filter!=="questions"}
              hideOnSmallScreens
+             listContext={listContext}
             />
           : <PostsItem2 key={post._id}
               post={post} terms={terms} index={i}
               showQuestionTag={terms.filter!=="questions"}
+              listContext={listContext}
             />
       )}
       {(showLoadMore || children?.length>0) && <SectionFooter>

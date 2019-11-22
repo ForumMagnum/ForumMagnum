@@ -22,7 +22,7 @@ const BookmarksList = ({currentUser, limit=50 }) => {
 
   return (
     <div>
-      {bookmarkedPosts.map((post) => <PostsItem2 key={post._id} post={post} bookmark/>)}
+      {bookmarkedPosts.map((post) => <PostsItem2 key={post._id} post={post} bookmark listContext={'bookmarksList'}/>)}
     </div>
   )
 }

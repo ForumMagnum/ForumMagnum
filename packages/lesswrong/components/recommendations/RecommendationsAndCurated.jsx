@@ -181,7 +181,7 @@ class RecommendationsAndCurated extends PureComponent {
         </Link>
       </Tooltip>
       <SubSection>
-        <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
+        <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true} listContext={"curatedPosts"}/>
       </SubSection>
       <div className={classes.footerWrapper}>
         <Typography component="div" variant="body2" className={classes.footer}>
