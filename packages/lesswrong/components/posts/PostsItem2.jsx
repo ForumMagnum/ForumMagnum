@@ -330,6 +330,7 @@ const PostsItem2 = ({
   recordPostView, isRead,
   // which list a postItem is displayed in, e.g. latestPosts, Curated, ContinueRead
   listContext,
+  captureDisplay=true,
   classes,
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
@@ -392,7 +393,7 @@ const PostsItem2 = ({
               <PostsItemKarma post={post} />
             </PostsItem2MetaInfo>
 
-            <AnalyticsTracker eventType={"postItem"} eventProps={{"postId": post?._id, "listContext": listContext, "isSticky": isSticky(post, terms)}} onClick={true} onRender={true}>
+            <AnalyticsTracker eventType={"postItem"} eventProps={{"postId": post?._id, "listContext": listContext, "isSticky": isSticky(post, terms)}} onClick={true} onRender={captureDisplay}>
               <PostsTitle postLink={postLink} post={post} expandOnHover={!renderComments} read={isRead} sticky={isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
             </AnalyticsTracker>
 
