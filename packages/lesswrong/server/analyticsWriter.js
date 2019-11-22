@@ -47,7 +47,7 @@ let analyticsConnectionPool = null;
 // Return the Analytics database connection pool, if configured. If no
 // analytics DB is specified in the server config, returns null instead. The
 // first time this is called, it will block briefly.
-export const getAnalyticsConnection = () => {
+const getAnalyticsConnection = () => {
   if (!connectionString)
     return null;
   if (!analyticsConnectionPool)
