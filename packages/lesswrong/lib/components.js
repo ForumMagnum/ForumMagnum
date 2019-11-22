@@ -425,4 +425,5 @@ importComponent("RecommendationsAlgorithmPicker", () => require('../components/r
 importComponent("RecommendationsList", () => require('../components/recommendations/RecommendationsList.jsx'));
 importComponent("RecommendationsPage", () => require('../components/recommendations/RecommendationsPage.jsx'));
 importComponent("RecommendationsAndCurated", () => require('../components/recommendations/RecommendationsAndCurated.jsx'));
+importComponent("Recommendations2018Review", () => require('../components/recommendations/Recommendations2018Review.jsx'));
 

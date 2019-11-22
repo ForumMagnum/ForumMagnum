@@ -132,7 +132,10 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
         <span className={classes.date}>
           <Components.FormatDate date={comment.postedAt} tooltip={false}/>
         </span>
-        {(comment.baseScore > -5) && <span className={classes.truncatedHighlight}> {plaintextMainText} </span>}      
+        {(comment.baseScore > -5) && <span className={classes.truncatedHighlight}> 
+      { comment.nominatedForReview && <span>[Nomination]{" "}</span>}
+          {plaintextMainText} 
+        </span>}      
       </div>
       {displayHoverOver && <span className={classNames(classes.highlight)}>
         <CommentBody truncated comment={comment}/>
