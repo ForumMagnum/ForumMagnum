@@ -16,6 +16,8 @@ const Recommendations2018Review = ({settings}) => {
   const review2018TopUrl = "/allPosts?after=2018-01-01&before=2019-01-01&limit=100&timeframe=allTime"
   const review2018MonthlyUrl = "/allPosts?after=2018-01-01&before=2019-01-01&limit=14&timeframe=monthly&includeShortform=false&reverse=true"
 
+  if (settings.hideReview) return null
+
   return (
     <div>
       <Tooltip placement="top-start" title={reviewTooltip}>
