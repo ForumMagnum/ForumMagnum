@@ -59,7 +59,7 @@ const pipelineFilterUnread = ({currentUser}) => {
 // combinatorially. . ... Yeah .... Sometimes life is hard.
 const getInclusionSelector = algorithm => {
   if (algorithm.review2018) {
-    return { postedAt: {$gt: new Date("2018-01-01"), $lt: new Date("2019-09-01")}}
+    return { postedAt: {$gt: new Date("2018-01-01"), $lt: new Date("2019-01-01")}}
   }
   if (algorithm.includePersonal) {
     if (algorithm.includeMeta) {
