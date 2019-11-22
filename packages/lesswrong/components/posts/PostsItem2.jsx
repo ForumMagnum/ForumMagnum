@@ -12,6 +12,7 @@ import { useCurrentUser } from "../common/withUser";
 import classNames from 'classnames';
 import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
+import StarOutlinedIcon from '@material-ui/icons/StarOutlined';
 
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
@@ -211,6 +212,9 @@ export const styles = (theme) => ({
     color: theme.palette.grey[600],
     width: 30,
     textAlign: "center"
+  },
+  nominationCountIcon: {
+    opacity: .5
   },
   sequenceImage: {
     position: "relative",
@@ -449,7 +453,10 @@ const PostsItem2 = ({
 
             {showNominationCount && <div className={classes.nominationCount}>
               <Tooltip placement="right" title={`This post has ${post.nominationCount2018} nomination${post.nominationCount2018 > 1 ? 's' : ''} for the 2018 review`}>
-                <span>{ post.nominationCount2018}</span>
+                <span>
+                  { post.nominationCount2018}
+                  <StarOutlinedIcon className={classes.nominationCountIcon}/>
+                </span>
               </Tooltip>
             </div>}
 

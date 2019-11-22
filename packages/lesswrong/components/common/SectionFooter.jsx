@@ -13,7 +13,9 @@ const styles = (theme) => ({
     marginRight: theme.spacing.unit*1.5,
     marginLeft: theme.spacing.unit,
     color: theme.palette.lwTertiary.main,
+    flexWrap: "wrap",
     '& > *': {
+      marginBottom: theme.spacing.unit,
       '&:after': {
         content: '"•"',
         marginLeft: theme.spacing.unit*2,

@@ -17,7 +17,7 @@ import { postBodyStyles } from '../../themes/stylePiping'
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
   display: "flex",
-  '&:after': {
+  '&&:after': {
     content: '""'
   }
 }
@@ -29,7 +29,13 @@ const styles = theme => ({
       margin: 0,
     }
   },
-  meta: sectionFooterLeftStyles,
+  meta: {
+    ...sectionFooterLeftStyles,
+    [theme.breakpoints.down('sm')]: {
+      width: "100%",
+      marginBottom: theme.spacing.unit,
+    }
+  },
   icon: {
     '&$specificalz': {
       fontSize: 18,
@@ -226,22 +232,18 @@ class UsersProfile extends Component {
       <div className={classNames("page", "users-profile", classes.profilePage)}>
         {/* Bio Section */}
         <SingleColumnSection>
-          <SectionTitle title={Users.getDisplayName(user)}>
-            {Users.canEdit(currentUser, user) && <Link to={Users.getEditUrl(user)}>
-              <FormattedMessage id="users.edit_account"/>
-            </Link>}
-          </SectionTitle>
+          <SectionTitle title={Users.getDisplayName(user)}/>
 
           <SectionFooter>
             { this.renderMeta() }
             { user.twitterUsername &&  <a href={"https://twitter.com/" + user.twitterUsername}>
               @{user.twitterUsername}
             </a>}
-            { currentUser && currentUser.isAdmin &&
+            { currentUser?.isAdmin &&
               <div>
                 <DialogGroup
                   actions={[]}
-                  trigger={<span>Register RSS Feed</span>}
+                  trigger={<span>Register RSS</span>}
                 >
                   <div><Components.newFeedButton user={user} /></div>
                 </DialogGroup>
@@ -258,6 +260,9 @@ class UsersProfile extends Component {
               subscribeMessage="Subscribe to posts"
               unsubscribeMessage="Unsubscribe from posts"
             /> }
+            {Users.canEdit(currentUser, user) && <Link to={Users.getEditUrl(user)}>
+              <FormattedMessage id="users.edit_account"/>
+            </Link>}
           </SectionFooter>
 
           { user.bio && <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} /> }
