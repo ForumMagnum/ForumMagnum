@@ -2,8 +2,8 @@ import { addGraphQLMutation, addGraphQLResolvers, getSetting } from 'meteor/vulc
 import { Pool } from 'pg'
 import { AnalyticsUtil } from '../lib/analyticsEvents.js';
 
-const environment = getSetting("analytics.environment", "misconfigured");
 const connectionString = getSetting("analytics.connectionString", null);
+const environmentDescription = Meteor.isDevelopment ? "development" : getSetting("analytics.environment", "misconfigured");
 
 const serverId = Random.id();
 
@@ -55,21 +55,13 @@ const getAnalyticsConnection = () => {
   return analyticsConnectionPool;
 }
 
-const getAnalyticsEnvironmentDescription = () => {
-  if (Meteor.isDevelopment)
-    return "development";
-  else
-    return environment;
-}
-
 // If you want to capture an event, this is not the function you're looking for;
 // use captureEvent.
 // Writes an event to the analytics database.
 // TODO: Defer/batch so that this doesn't affect SSR speed?
 function writeEventToAnalyticsDB({type, timestamp, props}) {
   const queryStr = 'insert into raw(environment, event_type, timestamp, event) values ($1,$2,$3,$4)';
-  const environment = getAnalyticsEnvironmentDescription();
-  const queryValues = [environment, type, timestamp, props];
+  const queryValues = [environmentDescription, type, timestamp, props];
   
   const connection = getAnalyticsConnection();
   if (connection) {

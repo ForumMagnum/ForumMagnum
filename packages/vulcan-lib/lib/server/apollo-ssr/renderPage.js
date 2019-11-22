@@ -42,7 +42,7 @@ const makePageRenderer = async sink => {
     });
     sendToSink(sink, {
       ...rendered,
-      extraScripts: [tabIdHeader],
+      headers: [...rendered.headers, tabIdHeader],
     });
     Vulcan.captureEvent("ssr", {
       url: req.url.pathname,
@@ -58,7 +58,7 @@ const makePageRenderer = async sink => {
     }));
     sendToSink(sink, {
       ...rendered,
-      extraScripts: [tabIdHeader],
+      headers: [...rendered.headers, tabIdHeader],
     });
     Vulcan.captureEvent("ssr", {
       url: req.url.pathname,
@@ -181,7 +181,9 @@ const renderRequest = async ({req, user, startTime}) => {
   }
   
   return {
-    ssrBody, head, serializedApolloState, jssSheets,
+    ssrBody,
+    headers: [head],
+    serializedApolloState, jssSheets,
     status: serverRequestStatus.status,
     redirectUrl: serverRequestStatus.redirectUrl,
     timings,
@@ -189,8 +191,8 @@ const renderRequest = async ({req, user, startTime}) => {
 }
 
 const sendToSink = (sink, {
-  ssrBody, head, serializedApolloState, jssSheets,
-  status, redirectUrl, extraScripts
+  ssrBody, headers, serializedApolloState, jssSheets,
+  status, redirectUrl, extraHeaders
 }) => {
   if (status) {
     sink.setStatusCode(status);
@@ -200,10 +202,8 @@ const sendToSink = (sink, {
   }
   
   sink.appendToBody(ssrBody);
-  sink.appendToHead(head);
-  if (extraScripts) {
-    sink.appendToHead(extraScripts.join(''));
-  }
+  for (let head of headers)
+    sink.appendToHead(head);
   sink.appendToBody(serializedApolloState);
   sink.appendToHead(jssSheets);
 }
