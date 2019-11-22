@@ -23,7 +23,7 @@ const Nominations2018 = ({classes}) => {
           </a>
         </SectionTitle>
         <PostsList2 
-          terms={{view:"nominations2018", sortByMost: sortByMost, limit: 13}} 
+          terms={{view:"nominations2018", sortByMost: sortByMost, limit: 50}} 
           showNominationCount
           enableTotal
           dense

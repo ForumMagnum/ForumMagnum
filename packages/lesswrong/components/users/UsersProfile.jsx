@@ -226,7 +226,11 @@ class UsersProfile extends Component {
       <div className={classNames("page", "users-profile", classes.profilePage)}>
         {/* Bio Section */}
         <SingleColumnSection>
-          <SectionTitle title={Users.getDisplayName(user)}/>
+          <SectionTitle title={Users.getDisplayName(user)}>
+            {Users.canEdit(currentUser, user) && <Link to={Users.getEditUrl(user)}>
+              <FormattedMessage id="users.edit_account"/>
+            </Link>}
+          </SectionTitle>
 
           <SectionFooter>
             { this.renderMeta() }
@@ -254,9 +258,6 @@ class UsersProfile extends Component {
               subscribeMessage="Subscribe to posts"
               unsubscribeMessage="Unsubscribe from posts"
             /> }
-            {Users.canEdit(currentUser, user) && <Link to={Users.getEditUrl(user)}>
-              <FormattedMessage id="users.edit_account"/>
-            </Link>}
           </SectionFooter>
 
           { user.bio && <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} /> }
