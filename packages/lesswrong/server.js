@@ -68,6 +68,9 @@ import './server/recommendations.js';
 import './server/emails/emailTokens.js';
 import './server/partiallyReadSequences.js';
 
+import './server/tagging/tagCallbacks.js';
+import './server/tagging/tagsGraphQL.js';
+
 import './lib/collections/comments/callbacks.js';
 import './lib/collections/comments/graphql.js';
 import './lib/collections/posts/callbacks.js';

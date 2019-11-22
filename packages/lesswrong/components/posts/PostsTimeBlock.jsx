@@ -11,6 +11,7 @@ import { Posts } from '../../lib/collections/posts';
 import { timeframeToTimeBlock } from './timeframeUtils'
 import { queryIsUpdating } from '../common/queryStatusUtils'
 import withTimezone from '../common/withTimezone';
+import { QueryLink } from '../../lib/reactRouterWrapper.js';
 
 const styles = theme => ({
   root: {
@@ -124,19 +125,25 @@ class PostsTimeBlock extends Component {
 
     return (
       <div className={classes.root}>
-        <Typography variant="headline" className={classes.timeBlockTitle}>
-          {['yearly', 'monthly'].includes(timeframe) && <div>
-            {this.getTitle(startDate, timeframe, null)}
-          </div>}
-          {['weekly', 'daily'].includes(timeframe) && <div>
-            <Hidden xsDown implementation="css">
-              {this.getTitle(startDate, timeframe, 'xsDown')}
-            </Hidden>
-            <Hidden smUp implementation="css">
-              {this.getTitle(startDate, timeframe, 'smUp')}
-            </Hidden>
-          </div>}
-        </Typography>
+        <QueryLink merge query={{
+          after: moment.tz(startDate, timezone).startOf(timeBlock).format("YYYY-MM-DD"), 
+          before: moment.tz(startDate, timezone).endOf(timeBlock).add(1, 'd').format("YYYY-MM-DD"),
+          limit: 100
+        }}>
+          <Typography variant="headline" className={classes.timeBlockTitle}>
+            {['yearly', 'monthly'].includes(timeframe) && <div>
+              {this.getTitle(startDate, timeframe, null)}
+            </div>}
+            {['weekly', 'daily'].includes(timeframe) && <div>
+              <Hidden xsDown implementation="css">
+                {this.getTitle(startDate, timeframe, 'xsDown')}
+              </Hidden>
+              <Hidden smUp implementation="css">
+                {this.getTitle(startDate, timeframe, 'smUp')}
+              </Hidden>
+            </div>}
+          </Typography>
+        </QueryLink>
 
         { loading && <Loading /> }
 
