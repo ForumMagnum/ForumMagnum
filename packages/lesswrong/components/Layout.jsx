@@ -159,6 +159,7 @@ class Layout extends PureComponent {
         timezone: newTimezone
       });
     }
+
     this.initializeLogRocket()
   }
 
@@ -222,8 +223,9 @@ class Layout extends PureComponent {
               <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
               <link rel="stylesheet" href="https://use.typekit.net/jvr1gjm.css"/>
             </Helmet>
-            {/* Deactivating this component for now, since it's been causing a good amount of bugs. TODO: Fix this properly */}
-            {/* {currentUser ? <Components.UsersProfileCheck currentUser={currentUser} documentId={currentUser._id} /> : null} */}
+            
+            <Components.AnalyticsClient/>
+            <Components.NavigationEventSender/>
 
             {/* Sign up user for Intercom, if they do not yet have an account */}
             {showIntercom(currentUser)}
