@@ -103,7 +103,7 @@ export function useSingle({ collectionName,
     },
     fetchPolicy,
     ssr: true,
-    skip,
+    skip: skip || !documentId,
   })
   const document = data && data[resolverName] && data[resolverName].result
   return { document, data, ...rest }

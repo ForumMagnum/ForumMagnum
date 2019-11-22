@@ -12,15 +12,18 @@ export const AnalyticsClient = () => {
   const [cookies] = useCookies(['clientId']);
   
   const query = gql`
-    mutation analyticsEventMutation($events: [JSON!]) {
-      analyticsEvent(events: $events)
+    mutation analyticsEventMutation($events: [JSON!], $now: Date) {
+      analyticsEvent(events: $events, now: $now)
     }
   `;
   const [mutate] = useMutation(query);
   
   function flushEvents(events) {
     mutate({
-      variables: {events}
+      variables: {
+        events,
+        now: new Date(),
+      }
     });
   }
  
