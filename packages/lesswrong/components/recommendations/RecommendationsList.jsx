@@ -34,9 +34,6 @@ class RecommendationsList extends Component {
 
   componentDidMount() {
     const { recommendations } = this.props
-    recommendations.map(post =>
-        captureEvent("fromTheArchivesDisplayed", {"postId": post?._id})
-      );
   }
 }
 

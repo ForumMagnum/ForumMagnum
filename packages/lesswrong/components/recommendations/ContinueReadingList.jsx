@@ -93,10 +93,6 @@ class ContinueReadingList extends Component {
     const { entries } = this.limitResumeReading(continueReading)
     entries.map(resumeReading => {
       const { nextPost, sequence, collection } = resumeReading;
-      captureEvent("continueReadingDisplayed", {
-        "postId": nextPost?._id, 
-        "sequenceId": sequence?._id, 
-        "collection": collection?._id})
     });
   }
 
