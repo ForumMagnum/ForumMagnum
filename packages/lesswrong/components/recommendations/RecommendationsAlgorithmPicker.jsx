@@ -16,7 +16,7 @@ const recommendationAlgorithms = [
   {
     name: "sample",
     description: "Weighted sample"
-  },
+  }
 ];
 
 function getDefaultSettings(configName) {

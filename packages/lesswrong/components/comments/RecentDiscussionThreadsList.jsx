@@ -26,7 +26,7 @@ class RecentDiscussionThreadsList extends PureComponent {
   }
 
   render () {
-    const { results, loading, loadMore, networkStatus, updateComment, currentUser, data: { refetch } } = this.props
+    const { results, loading, loadMore, networkStatus, updateComment, currentUser, data: { refetch }, title="Recent Discussion", shortformButton=true } = this.props
     const { showShortformFeed, expandAllThreads } = this.state
     const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, Loading } = Components
     
@@ -40,10 +40,11 @@ class RecentDiscussionThreadsList extends PureComponent {
 
     const expandAll = currentUser?.noCollapseCommentsFrontpage || expandAllThreads
 
+    // TODO: Probably factor out "RecentDiscussionThreadsList" vs "RecentDiscussionSection", rather than making RecentDiscussionThreadsList cover both and be weirdly customizable
     return (
       <SingleColumnSection>
-        <SectionTitle title="Recent Discussion">
-          {currentUser && currentUser.isReviewed && <div onClick={this.toggleShortformFeed}>
+        <SectionTitle title={title}>
+          { currentUser?.isReviewed && shortformButton && <div onClick={this.toggleShortformFeed}>
             <SectionButton>
               <AddBoxIcon />
               New Shortform Post

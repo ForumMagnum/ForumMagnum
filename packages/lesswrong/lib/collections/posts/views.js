@@ -553,6 +553,23 @@ ensureIndex(Posts,
   { name: "posts.afRecentDiscussionThreadsList", }
 );
 
+Posts.addView("2018reviewRecentDiscussionThreadsList", terms => {
+  return {
+    selector: {
+      ...recentDiscussionFilter,
+      nominationCount2018: { $gt: 0 }
+    },
+    options: {
+      sort: {lastCommentedAt:-1},
+      limit: terms.limit || 12,
+    }
+  }
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ nominationCount2018: 1, lastCommentedAt:-1, baseScore:1, hideFrontpageComments:1 }),
+  { name: "posts.2018reviewRecentDiscussionThreadsList", }
+);
+
 Posts.addView("shortformDiscussionThreadsList", terms => {
   return {
     selector: {
@@ -813,9 +830,8 @@ Posts.addView("nominations2018", terms => {
     },
     options: {
       sort: {
-        nominationCount2018: -1
-      },
-      limit: 100
+        nominationCount2018: terms.sortByMost ? -1 : 1
+      }
     }
   }
 })
