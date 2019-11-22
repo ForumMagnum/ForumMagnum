@@ -13,8 +13,8 @@ const Recommendations2018Review = ({settings}) => {
     </ul>
   </div>
 
-  const review2018TopUrl = ""
-  const review2018MonthlyUrl = ""
+  const review2018TopUrl = "/allPosts?after=2018-01-01&before=2019-01-01&limit=100&timeframe=allTime"
+  const review2018MonthlyUrl = "/allPosts?after=2018-01-01&before=2019-01-01&limit=14&timeframe=monthly&includeShortform=false&reverse=true"
 
   return (
     <div>
@@ -26,7 +26,7 @@ const Recommendations2018Review = ({settings}) => {
         </Link>
       </Tooltip>
       <SubSection>
-        <RecommendationsList algorithm={{...settings, review2018: true}} showLoginPrompt={false} />
+        <RecommendationsList algorithm={{...settings, review2018: true, excludeDefaultRecommendations: true}} showLoginPrompt={false} />
       </SubSection>
       <SectionFooter>
         <Link to={review2018TopUrl}>
@@ -34,6 +34,9 @@ const Recommendations2018Review = ({settings}) => {
         </Link>
         <Link to={review2018MonthlyUrl}>
           2018 Posts by Month
+        </Link>
+        <Link to={"/nominations"}>
+          All Nominations
         </Link>
       </SectionFooter>
     </div>
