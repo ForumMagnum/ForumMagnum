@@ -192,7 +192,7 @@ const renderRequest = async ({req, user, startTime}) => {
 
 const sendToSink = (sink, {
   ssrBody, headers, serializedApolloState, jssSheets,
-  status, redirectUrl, extraHeaders
+  status, redirectUrl
 }) => {
   if (status) {
     sink.setStatusCode(status);
