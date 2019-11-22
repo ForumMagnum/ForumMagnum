@@ -1,11 +1,11 @@
 import React from 'react';
 import { registerComponent, runCallbacks } from 'meteor/vulcan:core';
-import { useLocation } from '../../lib/routeUtil';
+import { useSubscribedLocation } from '../../lib/routeUtil';
 
 let lastLocation = null;
 
 const NavigationEventSender = () => {
-  const location = useLocation();
+  const location = useSubscribedLocation();
   
   React.useEffect(() => {
     // Only handle navigation events on the client (they don't apply to SSR)

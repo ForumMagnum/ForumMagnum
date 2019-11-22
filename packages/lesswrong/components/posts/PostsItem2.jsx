@@ -207,6 +207,12 @@ export const styles = (theme) => ({
       color: theme.palette.primary.main,
     },
   },
+  nominationCount: {
+    ...theme.typography.body2,
+    color: theme.palette.grey[600],
+    width: 30,
+    textAlign: "center",
+  },
   sequenceImage: {
     position: "relative",
     marginLeft: -60,
@@ -327,6 +333,8 @@ const PostsItem2 = ({
   // icon.
   bookmark,
   // recordPostView, isRead: From the withRecordPostView HoC.
+  // showNominationCount: (bool) whether this should display it's number of Review nominations
+  showNominationCount,
   recordPostView, isRead,
   // which list a postItem is displayed in, e.g. latestPosts, Curated, ContinueRead
   listContext,
@@ -441,6 +449,14 @@ const PostsItem2 = ({
 
             {bookmark && <div className={classes.bookmark}>
               <BookmarkButton post={post}/>
+            </div>}
+
+            {showNominationCount && <div className={classes.nominationCount}>
+              <Tooltip placement="right" title={`This post has ${post.nominationCount2018} nomination${post.nominationCount2018 > 1 ? 's' : ''} for the 2018 review`}>
+                <span>
+                  { post.nominationCount2018}
+                </span>
+              </Tooltip>
             </div>}
 
             <div className={classes.mobileDismissButton}>

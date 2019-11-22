@@ -6,7 +6,7 @@ import { captureEvent } from '../../lib/analyticsEvents';
 
 class RecommendationsList extends Component {
   render() {
-    const { recommendations, recommendationsLoading, currentUser } = this.props;
+    const { recommendations, recommendationsLoading, currentUser, showLoginPrompt=true } = this.props;
     const { PostsItem2, PostsLoading, SectionFooter, LoginPopupButton } = Components;
     
     const nameWithArticle = getSetting('siteNameWithArticle')
@@ -24,7 +24,7 @@ class RecommendationsList extends Component {
         <PostsItem2 post={post} key={post._id} listContext={"fromTheArchives"} />)}
       {recommendations.length===0 &&
         <span>There are no more recommendations left.</span>}
-      {!currentUser && <SectionFooter>
+      {!currentUser && showLoginPrompt && <SectionFooter>
         <LoginPopupButton title={improvedRecommendationsTooltip}>
           Log in for improved recommendations
         </LoginPopupButton>

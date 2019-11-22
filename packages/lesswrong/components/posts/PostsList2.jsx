@@ -52,8 +52,11 @@ const PostsList2 = ({
   dimWhenLoading = false,
   showLoading = true, showLoadMore = true, showNoResults = true,
   hideLastUnread = false,
+  enableTotal=false,
+  showNominationCount,
   classes,
   listContext,
+  dense,
 }) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
   const { results, loading, error, count, totalCount, loadMore, limit } = useMulti({
@@ -62,7 +65,7 @@ const PostsList2 = ({
     collection: Posts,
     queryName: 'postsListQuery',
     fragmentName: 'PostsList',
-    enableTotal: false,
+    enableTotal: enableTotal,
     fetchPolicy: 'cache-and-network',
     ssr: true
   });
@@ -114,12 +117,16 @@ const PostsList2 = ({
           ? <PostsItem2 key={post._id}
              post={post} terms={terms} index={i}
              showQuestionTag={terms.filter!=="questions"}
+             showNominationCount={showNominationCount}
+             dense={dense}
              hideOnSmallScreens
              listContext={listContext}
             />
           : <PostsItem2 key={post._id}
               post={post} terms={terms} index={i}
               showQuestionTag={terms.filter!=="questions"}
+              showNominationCount={showNominationCount}
+              dense={dense}
               listContext={listContext}
             />
       )}
