@@ -10,8 +10,11 @@ const metaSubtitle = { subtitleLink: "/meta", subtitle: "Meta" };
 
 function getPostPingbackById(parsedUrl, postId) {
   if (parsedUrl.hash) {
-    // TODO: If the URL contains a hash, it leads to a comment. Make a
-    // comment pingback.
+    // If the URL contains a hash, it leads to either a comment or a landmark
+    // within the post.
+    // Future work: If it's a comment ID, make a comment pingback; if it's not
+    // a comment ID, make it a post-pingback but do some special-case thing so
+    // that the preview excerpt starts in the section that's linked to.
     return null;
   } else {
     return ({ collectionName: "Posts", documentId: postId })
