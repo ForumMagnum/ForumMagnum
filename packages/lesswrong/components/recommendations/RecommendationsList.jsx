@@ -21,7 +21,7 @@ class RecommendationsList extends Component {
 
     return <div>
       {recommendations.map(post =>
-        <PostsItem2 post={post} key={post._id} listContext={"fromTheArchives"} />)}
+        <PostsItem2 post={post} key={post._id} listContext={"LessWrong 2018 Review"} />)}
       {recommendations.length===0 &&
         <span>There are no more recommendations left.</span>}
       {!currentUser && showLoginPrompt && <SectionFooter>
