@@ -2,8 +2,17 @@ import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import Tooltip from '@material-ui/core/Tooltip';
+import { withStyles } from '@material-ui/core/styles';
 
-const Recommendations2018Review = ({settings}) => {
+const styles = theme => ({
+  hideOnMobile: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    }
+  },
+})
+
+const Recommendations2018Review = ({classes, settings}) => {
   const { SubSection, SectionSubtitle, RecommendationsList, SectionFooter } = Components
 
   const reviewTooltip = <div>
@@ -22,6 +31,13 @@ const Recommendations2018Review = ({settings}) => {
 
   if (settings.hideReview) return null
 
+  const algorithm = {
+    ...settings, 
+    review2018: true, 
+    onlyUnread: false,
+    excludeDefaultRecommendations: true
+  }
+
   return (
     <div>
       <Tooltip placement="top-start" title={reviewTooltip}>
@@ -32,21 +48,21 @@ const Recommendations2018Review = ({settings}) => {
         </Link>
       </Tooltip>
       <SubSection>
-        <RecommendationsList algorithm={{...settings, review2018: true, excludeDefaultRecommendations: true}} showLoginPrompt={false} />
+        <RecommendationsList algorithm={algorithm} showLoginPrompt={false} />
       </SubSection>
       <SectionFooter>
         <Link to={"/nominations"}>
-          View All Nominations
+          View{" "}<span className={classes.hideOnMobile}>All{" "}</span>Nominations
         </Link>
         <Link to={review2018TopUrl}>
-          Top 2018 Posts
+          Top 2018<span className={classes.hideOnMobile}>{" "}Posts</span>
         </Link>
         <Link to={review2018MonthlyUrl}>
-          2018 Posts Monthly
+          2018<span className={classes.hideOnMobile}>{" "}Posts</span>{" "}Monthly
         </Link>
       </SectionFooter>
     </div>
   )
 }
 
-registerComponent('Recommendations2018Review', Recommendations2018Review);
+registerComponent('Recommendations2018Review', Recommendations2018Review, withStyles(styles, {name:"Recommendations2018Review"}));

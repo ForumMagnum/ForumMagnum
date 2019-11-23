@@ -1,4 +1,5 @@
 import Sentry from '@sentry/node';
+import { captureEvent } from '../lib/analyticsEvents.js';
 
 // Log unhandled promise rejections, eg exceptions escaping from async
 // callbacks. The default node behavior is to silently ignore these exceptions,
@@ -14,3 +15,5 @@ process.on("unhandledRejection", r => {
     console.log(r.stack);
   }
 });
+
+captureEvent("serverStarted", {});

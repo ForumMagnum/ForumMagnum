@@ -250,7 +250,7 @@ export function addEditableCallbacks({collection, options = {}}) {
           updateType: 'initial'
         },
         ...(pingbacks ? {
-          pingbacks: await htmlToPingbacks(html),
+          pingbacks: await htmlToPingbacks(html, null),
         } : null),
       }
     }
@@ -282,7 +282,11 @@ export function addEditableCallbacks({collection, options = {}}) {
           html, version, userId, editedAt, wordCount
         },
         ...(pingbacks ? {
-          pingbacks: await htmlToPingbacks(html),
+          pingbacks: await htmlToPingbacks(html, [{
+              collectionName: collection.collectionName,
+              documentId: document._id,
+            }]
+          ),
         } : null),
       }
     }
