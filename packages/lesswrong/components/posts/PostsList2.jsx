@@ -104,11 +104,7 @@ const PostsList2 = ({
   //Analytics Tracking
   useEffect(()=> {
     if (results) {
-        console.log("firing correctly")
-        console.log(results)
-        console.log(hidePosts)
        const displayedPosts = (hidePosts) ? results.filter((post, i) => hidePosts[i]) : results;
-       console.log(displayedPosts.map( (post) => post._id))
        captureEvent("postsListDisplayed", {"postIds": displayedPosts.map((post) => post._id), "listContext": {listContext}});
     }
   }, [])
