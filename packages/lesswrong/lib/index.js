@@ -164,6 +164,7 @@ import './modules/alignment-forum/users/custom_fields.js';
 import './modules/alignment-forum/users/helpers.js';
 import './modules/alignment-forum/users/views.js';
 
+import './analyticsEvents.js';
 
 //
 export {
