@@ -110,7 +110,7 @@ class HomeLatestPosts extends PureComponent {
             </div>
           </Tooltip>
         </SectionTitle>
-        <PostsList2 terms={recentPostsTerms} listContext={"latestPosts"}>
+        <PostsList2 terms={recentPostsTerms} listContext={"latestPosts"} captureDisplay={false}>
           <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
         </PostsList2>
       </SingleColumnSection>

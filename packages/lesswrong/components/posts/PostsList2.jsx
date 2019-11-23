@@ -1,10 +1,11 @@
 import { Components, registerComponent, useMulti, Utils } from 'meteor/vulcan:core';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Posts } from '../../lib/collections/posts';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles'
+import {captureEvent} from "../../lib/analyticsEvents";
 
 const Error = ({error}) => <div>
   <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
@@ -84,12 +85,6 @@ const PostsList2 = ({
 
   const { Loading, PostsItem2, LoadMore, PostsNoResults, SectionFooter } = Components
 
-  if (!results && loading) return <Loading />
-
-  // We don't actually know if there are more posts here,
-  // but if this condition fails to meet we know that there definitely are no more posts
-  const maybeMorePosts = !!(results && results.length && (results.length >= limit))
-  
   let hidePosts = null;
   if (hideLastUnread && results?.length && !haveLoadedMore) {
     // If the list ends with N sequential read posts, hide N-1 of them.
@@ -106,6 +101,26 @@ const PostsList2 = ({
     }
   }
 
+  //Analytics Tracking
+  useEffect(()=> {
+    if (results) {
+        console.log("firing correctly")
+        console.log(results)
+        console.log(hidePosts)
+       const displayedPosts = (hidePosts) ? results.filter((post, i) => hidePosts[i]) : results;
+       console.log(displayedPosts.map( (post) => post._id))
+       captureEvent("postsListDisplayed", {"postIds": displayedPosts.map((post) => post._id), "listContext": {listContext}});
+    }
+  }, [])
+
+  if (!results && loading) return <Loading />
+
+  // We don't actually know if there are more posts here,
+  // but if this condition fails to meet we know that there definitely are no more posts
+  const maybeMorePosts = !!(results && results.length && (results.length >= limit))
+  
+
+
   return (
     <div className={classNames({[classes.itemIsLoading]: loading && dimWhenLoading})}>
       {error && <Error error={Utils.decodeIntlError(error)} />}
@@ -121,6 +136,7 @@ const PostsList2 = ({
              dense={dense}
              hideOnSmallScreens
              listContext={listContext}
+             captureDisplay={false}
             />
           : <PostsItem2 key={post._id}
               post={post} terms={terms} index={i}
@@ -128,6 +144,7 @@ const PostsList2 = ({
               showNominationCount={showNominationCount}
               dense={dense}
               listContext={listContext}
+              captureDisplay={false}
             />
       )}
       {(showLoadMore || children?.length>0) && <SectionFooter>
