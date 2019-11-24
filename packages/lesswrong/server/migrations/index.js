@@ -29,3 +29,4 @@ import './2019-09-05-setDefaultGroupActiveStatus'
 import './2019-10-10-generatePingbacks'
 import './2019-10-23-setAFShortformValues'
 import './2019-10-23-setDefaultNotificationValues'
+import './2019-11-24-editableLatestRevision1';
