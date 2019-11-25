@@ -27,25 +27,30 @@ const styles = theme => ({
 
 const AddTag = ({post, onTagSelected, classes}) => {
   const currentUser = useCurrentUser();
+  const [searchOpen, setSearchOpen] = React.useState(false);
   const algoliaAppId = getSetting('algolia.appId')
   const algoliaSearchKey = getSetting('algolia.searchKey')
+  const searchStateChanged = React.useCallback((searchState) => {
+    setSearchOpen(searchState.query?.length > 0);
+  }, []);
   
   return <div className={classes.root}>
     <InstantSearch
       indexName={algoliaIndexNames.Tags}
       appId={algoliaAppId}
       apiKey={algoliaSearchKey}
+      onSearchStateChange={searchStateChanged}
     >
       <SearchBox reset={null} focusShortcuts={[]} autoFocus={false}/>
       
-      <Hits hitComponent={({hit}) =>
+      {searchOpen && <Hits hitComponent={({hit}) =>
         <Components.TagSearchHit hit={hit}
           onClick={ev => {
             onTagSelected(hit);
             ev.stopPropagation();
           }}
         />
-      }/>
+      }/>}
     </InstantSearch>
     {currentUser?.isAdmin &&
       <Link to="/tag/create" className={classes.newTag}>
