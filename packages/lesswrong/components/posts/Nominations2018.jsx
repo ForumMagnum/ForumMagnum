@@ -30,7 +30,7 @@ const Nominations2018 = ({classes}) => {
         />
       </SingleColumnSection>
       <SingleColumnSection>
-        {/* for the review, it's more important to see all comments in Recent Discussion */}
+        {/* for the Review, it's more important to see all comments in Recent Discussion */}
         <RecentDiscussionThreadsList
           title="2018 Review Discussion"
           shortformButton={false}
