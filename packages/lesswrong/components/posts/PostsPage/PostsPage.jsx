@@ -12,7 +12,7 @@ import classNames from 'classnames';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import withRecordPostView from '../../common/withRecordPostView';
 import withNewEvents from '../../../lib/events/withNewEvents.jsx';
-import { userHasPingbacks, userHasTagging } from '../../../lib/betas.js';
+import { userHasTagging } from '../../../lib/betas.js';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 const DEFAULT_TOC_MARGIN = 100
@@ -370,9 +370,9 @@ class PostsPage extends Component {
               <BottomNavigation post={post}/>
             </div>}
             
-            {userHasPingbacks(currentUser) && <div className={classes.post}>
+            <div className={classes.post}>
               <PingbacksList postId={post._id}/>
-            </div>}
+            </div>
 
             {/* Answers Section */}
             {post.question && <div className={classes.post}>
