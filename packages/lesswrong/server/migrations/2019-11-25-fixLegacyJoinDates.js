@@ -12,7 +12,7 @@ registerMigration({
       callback: async (users) => {
         let changes = [];
         for (let user of users) {
-          const legacyJoinDate = new Date(user.legacyData?.date);
+          const legacyJoinDate = user.legacyData?.date && new Date(user.legacyData?.date);
           const lw2joinDate = user.createdAt;
           
           if (legacyJoinDate && lw2joinDate && legacyJoinDate<lw2joinDate) {
