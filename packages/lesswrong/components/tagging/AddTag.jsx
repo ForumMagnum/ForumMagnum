@@ -34,14 +34,39 @@ const AddTag = ({post, onTagSelected, classes}) => {
     setSearchOpen(searchState.query?.length > 0);
   }, []);
   
-  return <div className={classes.root}>
+  // When this appears, yield to the event loop once, use getElementsByTagName
+  // to find the search input text box, then focus it.
+  //
+  // Why this hideously complicated thing, rather than just set autoFocus={true}
+  // on the <SearchBox> component? Unfortunately this component gets used inside
+  // Material-UI Poppers, and Poppers have an unfortunate property: they first
+  // render off-screen, then measure the size of their contents, then move
+  // themselves to their correct position. This means that during first-render,
+  // this component is positioned in an off-screen temporary location, and if
+  // you focus the input box then, it will scroll the page to the bottom. In
+  // order to avoid this, we have to defer focusing until Popper is finished,
+  // ie setTimeout(..., 0). Unfortunately again, react-instantsearch's SearchBox
+  // component doesn't expose an API for controlling focus other than at mount
+  // time, so in order to find the text box we want focused, we have to search
+  // the DOM for it.
+  const containerRef = React.useRef(null);
+  React.useEffect(() => {
+    if (containerRef.current) {
+      const input = containerRef.current.getElementsByTagName("input")[0];
+      setTimeout(() => {
+        input.focus();
+      }, 0);
+    }
+  }, []);
+  
+  return <div className={classes.root} ref={containerRef}>
     <InstantSearch
       indexName={algoliaIndexNames.Tags}
       appId={algoliaAppId}
       apiKey={algoliaSearchKey}
       onSearchStateChange={searchStateChanged}
     >
-      <SearchBox reset={null} focusShortcuts={[]} autoFocus={false}/>
+      <SearchBox reset={null} focusShortcuts={[]}/>
       
       {searchOpen && <Hits hitComponent={({hit}) =>
         <Components.TagSearchHit hit={hit}
