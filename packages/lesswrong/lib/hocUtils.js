@@ -6,7 +6,7 @@ import React from 'react';
 // otherwise hookFn is assumed to take no arguments.
 export const hookToHoc = (hookFn, componentPropsToHookParams) => {
   return (Component) => (props) => {
-    const hookProps = componentPropsToHookProps ? hookFn(componentPropsToHookParams(props)) : hookFn();
+    const hookProps = componentPropsToHookParams ? hookFn(componentPropsToHookParams(props)) : hookFn();
     return <Component {...props} {...hookProps}/>;
   }
 }
