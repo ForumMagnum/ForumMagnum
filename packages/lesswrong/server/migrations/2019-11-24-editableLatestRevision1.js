@@ -1,4 +1,4 @@
-import { registerMigration, migrateDocuments, forEachDocumentBatchInCollection } from './migrationUtils';
+import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import { getCollection } from 'meteor/vulcan:core'
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable';
 import { Revisions } from '../../lib/index';
