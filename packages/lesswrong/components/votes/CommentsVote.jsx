@@ -8,7 +8,7 @@ import Users from 'meteor/vulcan:users';
 import moment from 'moment-timezone';
 import withHover from '../common/withHover';
 import withUser from '../common/withUser';
-import { withVote } from './withVote';
+import { useVote } from './withVote';
 
 const styles = theme => ({
   vote: {
@@ -37,7 +37,9 @@ const styles = theme => ({
   }
 })
 
-const CommentsVote = ({ comment, classes, currentUser, hover, vote }) => {
+const CommentsVote = ({ comment, classes, currentUser, hover }) => {
+  const vote = useVote();
+  
   if (!comment) return null;
   const voteCount = comment.voteCount;
   const karma = Comments.getKarma(comment)
@@ -122,5 +124,5 @@ CommentsVote.propTypes = {
 
 registerComponent('CommentsVote', CommentsVote,
   withStyles(styles, { name: "CommentsVote" }),
-  withHover, withUser, withVote
+  withHover, withUser
 );

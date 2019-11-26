@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
-import { withVote } from './withVote';
+import { useVote } from './withVote';
 
 const styles = theme => ({
   upvote: {
@@ -41,7 +41,8 @@ const styles = theme => ({
   },
 })
 
-const PostsVote = ({ post, classes, currentUser, collection, vote }) => {
+const PostsVote = ({ post, classes, currentUser, collection }) => {
+  const vote = useVote();
   const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
 
   return (
@@ -113,6 +114,6 @@ PostsVote.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-registerComponent('PostsVote', PostsVote, withUser, withVote,
+registerComponent('PostsVote', PostsVote, withUser,
   withStyles(styles, { name: "PostsVote" })
 );
