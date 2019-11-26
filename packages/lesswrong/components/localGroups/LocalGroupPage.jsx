@@ -97,12 +97,12 @@ const LocalGroupPage = ({ classes, documentId: groupId, currentUser }) => {
                 <React.Fragment>
                   <SectionButton>
                     <Link to={{pathname:"/newPost", search: `?${qs.stringify({eventForm: true, groupId})}`}} className={classes.leftAction}>
-                      Create new event
+                      New event
                     </Link>
                   </SectionButton>
                   <SectionButton>
                     <Link to={{pathname:"/newPost", search: `?${qs.stringify({groupId})}`}} className={classes.leftAction}>
-                      Create new group post
+                      New group post
                     </Link>
                   </SectionButton>
                 </React.Fragment>}

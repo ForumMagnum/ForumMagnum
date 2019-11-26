@@ -87,17 +87,18 @@ class PostsTimeframeList extends PureComponent {
   }
 
   render() {
-    const { timezone, classes, postListParameters, displayShortform } = this.props
+    const { timezone, classes, postListParameters, displayShortform, reverse } = this.props
     const { timeframe, after, before, dim } = this.state
     const { PostsTimeBlock } = Components
 
     const timeBlock = timeframeToTimeBlock[timeframe]
     const dates = getDateRange(after, before, timeBlock)
-    
+    const orderedDates = reverse ? dates.reverse() : dates
+
     const renderLoadMoreTimeBlocks = dates.length && dates.length > 1
     return (
       <div className={classNames({[classes.loading]: dim})}>
-        {dates.map((date, index) =>
+        {orderedDates.map((date, index) =>
           <PostsTimeBlock
             key={date.toString()+postListParameters?.limit}
             startDate={moment.tz(date, timezone)}

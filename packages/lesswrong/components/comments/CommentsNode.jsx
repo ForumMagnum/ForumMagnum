@@ -259,10 +259,12 @@ class CommentsNode extends Component {
   }
 
   render() {
-    const { comment, children, nestingLevel=1, highlightDate, updateComment, post,
+    const {
+      comment, children, nestingLevel=1, highlightDate, updateComment, post,
       muiTheme, postPage, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments,
-      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand, hoverPreview } = this.props;
+      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand, hoverPreview
+    } = this.props;
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList } = Components
 
@@ -324,7 +326,7 @@ class CommentsNode extends Component {
               {this.isSingleLine()
                 ? <SingleLineComment
                     comment={comment} nestingLevel={updatedNestingLevel}
-                    parentCommentId={parentCommentId}
+                    parentCommentId={parentCommentId} hideKarma={post.hideCommentKarma}
                   />
                 : <CommentsItem
                     truncated={this.isTruncated()}

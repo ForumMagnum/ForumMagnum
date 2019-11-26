@@ -107,7 +107,7 @@ const styles = theme => ({
   }
 })
 
-const SingleLineComment = ({comment, classes, nestingLevel, hover, parentCommentId}) => {
+const SingleLineComment = ({comment, classes, nestingLevel, hover, parentCommentId, hideKarma}) => {
   if (!comment) return null
 
   const { plaintextMainText } = comment.contents
@@ -123,16 +123,19 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
         { parentCommentId!=comment.parentCommentId &&
           <ShowParentComment comment={comment} nestingLevel={nestingLevel} />
         }
-        <span className={classes.karma}>
+        {!hideKarma && <span className={classes.karma}>
           {Comments.getKarma(comment)}
-        </span>
+        </span>}
         <span className={classes.username}>
           <CommentUserName comment={comment} simple={true}/>
         </span>
         <span className={classes.date}>
           <Components.FormatDate date={comment.postedAt} tooltip={false}/>
         </span>
-        {(comment.baseScore > -5) && <span className={classes.truncatedHighlight}> {plaintextMainText} </span>}      
+        {(comment.baseScore > -5) && <span className={classes.truncatedHighlight}> 
+      { comment.nominatedForReview && <span>[Nomination]{" "}</span>}
+          {plaintextMainText} 
+        </span>}      
       </div>
       {displayHoverOver && <span className={classNames(classes.highlight)}>
         <CommentBody truncated comment={comment}/>

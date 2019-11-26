@@ -76,12 +76,15 @@ registerFragment(`
     isFuture
     hideAuthor
     moderationStyle
+    hideCommentKarma
     submitToFrontpage
     shortform
     canonicalSource
 
     shareWithUsers
     
+    nominationCount2018
+
     group {
       _id
       name

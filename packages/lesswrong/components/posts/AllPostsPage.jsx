@@ -71,7 +71,7 @@ class AllPostsPage extends Component {
     const {PostsTimeframeList, PostsList2} = Components
 
     const baseTerms = {
-      karmaThreshold: currentShowLowKarma ? MAX_LOW_KARMA_THRESHOLD : DEFAULT_LOW_KARMA_THRESHOLD,
+      karmaThreshold: query.karmaThreshold || (currentShowLowKarma ? MAX_LOW_KARMA_THRESHOLD : DEFAULT_LOW_KARMA_THRESHOLD),
       filter: currentFilter,
       sortedBy: currentSorting,
       after: query.after,
@@ -109,6 +109,8 @@ class AllPostsPage extends Component {
         dimWhenLoading={showSettings}
         after={query.after || getAfterDefault({numTimeBlocks, timeBlock, timezone})}
         before={query.before  || getBeforeDefault({timeBlock, timezone})}
+        reverse={query.reverse === "true"}
+        displayShortform={query.includeShortform !== "false"}
       />
     </div>
   }

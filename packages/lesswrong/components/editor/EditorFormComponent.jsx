@@ -18,6 +18,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { userHasCkEditor } from '../../lib/betas.js';
 
 const postEditorHeight = 250;
+const questionEditorHeight = 150;
 const commentEditorHeight = 100;
 const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
@@ -72,6 +73,12 @@ const styles = theme => ({
     minHeight: commentEditorHeight,
     '& .ck.ck-content': {
       minHeight: commentEditorHeight,
+    }
+  },
+  questionEditorHeight: {
+    minHeight: questionEditorHeight,
+    '& .ck.ck-content': {
+      minHeight: questionEditorHeight,
     }
   },
   errorTextColor: {
@@ -617,8 +624,10 @@ class EditorFormComponent extends Component {
 
   getHeightClass = () => {
     const { document, classes, form: { commentStyles } } = this.props
-    if (commentStyles || document.question) {
+    if (commentStyles) {
       return classes.commentEditorHeight
+    } else if (document.question) {
+      return classes.questionEditorHeight;
     } else {
       return classes.postEditorHeight
     }
