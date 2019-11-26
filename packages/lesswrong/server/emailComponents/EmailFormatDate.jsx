@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { useTimezone } from '../../components/common/withTimezone';
 import moment from 'moment-timezone';
 
 /// A date, formatted for an email. Unlike FormatDate (which is used on regular
