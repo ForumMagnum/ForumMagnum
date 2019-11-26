@@ -1,4 +1,4 @@
-import { withMessages } from 'meteor/vulcan:core';
+import { withMessages } from '../common/withMessages';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { performVoteClient } from '../../lib/modules/vote.js';

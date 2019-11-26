@@ -1,4 +1,5 @@
-import { Components, registerComponent, getFragment, withMessages } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
+import { withMessages } from '../common/withMessages';
 import React from 'react';
 import { useNavigation } from '../../lib/routeUtil';
 import Sequences from '../../lib/collections/sequences/collection.js';

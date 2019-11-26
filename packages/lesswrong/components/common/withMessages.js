@@ -4,9 +4,9 @@ HoC that provides access to flash messages stored in context
 
 */
 import React from 'react';
-import MessageContext from '../messages.js';
+import MessageContext from 'meteor/vulcan:core';
 
-const withMessages = WrappedComponent => {
+export const withMessages = WrappedComponent => {
   class MessagesComponent extends React.Component {
     render() {
       return (
