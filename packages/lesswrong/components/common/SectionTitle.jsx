@@ -26,7 +26,7 @@ const styles = (theme) => ({
     },
   },
   rightDivider: {
-    flexGrow:1,
+    flexGrow: 1,
     marginLeft: theme.spacing.unit*1.5,
     borderTop: "solid 2px rgba(0,0,0,.5)"
   },
@@ -35,6 +35,9 @@ const styles = (theme) => ({
   },
   noTitle: {
     marginLeft: 0,
+  },
+  children: {
+    // Exists for eaTheme override
   },
   tailDivider: {
     marginLeft: theme.spacing.unit*1.5,
@@ -52,7 +55,7 @@ class SectionTitle extends PureComponent {
           {title}
         </Typography>
         { dividers && <div className={classNames(classes.rightDivider, {[classes.noTitle]: !title, [classes.rightMargin]: !!children})}/>}
-        { children }
+        <div className={classes.children}>{ children }</div>
         { children && dividers && <div className={classes.tailDivider}/>}
       </div>
     )

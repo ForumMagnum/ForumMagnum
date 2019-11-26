@@ -52,6 +52,7 @@ import './server/mapsUtils.js';
 import './server/emails/index.js';
 import './server/posts/index.js';
 
+import './server/analyticsWriter.js';
 import './server/debouncer.js';
 import './server/logging.js';
 import './server/markAsUnread.js';

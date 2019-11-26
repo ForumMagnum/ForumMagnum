@@ -41,7 +41,7 @@ const styles = theme => ({
   }
 });
 
-const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, currentUser, fragment = "CommentsList", formProps}) => {
+const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, removeFields, currentUser, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true}) => {
   prefilledProps = {
     ...prefilledProps,
     af: Comments.defaultToAlignment(currentUser, post, parentComment),
@@ -99,7 +99,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
   const commentWillBeHidden = getSetting('hideUnreviewedAuthorComments') && currentUser && !currentUser.isReviewed
   return (
     <div className={classes.root} onFocus={()=>setShowGuidelines(true)}>
-      <div className={classes.form}>
+      <div className={padding ? classes.form : null}>
       {commentWillBeHidden && <div className={classes.modNote}><em>
         A moderator will need to review your account before your comments will show up.
       </em></div>}
@@ -117,10 +117,11 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
         }}
         alignmentForumPost={post?.af}
         addFields={currentUser?[]:["contents"]}
+        removeFields={removeFields}
         formProps={formProps}
       />
       </div>
-      {showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
+      {enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
         <ModerationGuidelinesBox document={post} />
       </div>}
     </div>

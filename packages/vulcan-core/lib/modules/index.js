@@ -12,7 +12,6 @@ export { default as Icon } from './components/Icon.jsx';
 export { default as ShowIf } from './components/ShowIf.jsx';
 export { default as DynamicLoading } from './components/DynamicLoading.jsx';
 export { default as Datatable } from './components/Datatable.jsx';
-export { default as RouterHook } from './components/RouterHook.jsx';
 export { default as ScrollToTop } from './components/ScrollToTop.jsx';
 
 export * from './containers/cacheUpdates.js';
