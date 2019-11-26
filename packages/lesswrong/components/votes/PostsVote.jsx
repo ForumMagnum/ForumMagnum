@@ -41,72 +41,69 @@ const styles = theme => ({
   },
 })
 
-class PostsVote extends PureComponent {
-  render() {
-    const { post, classes, currentUser, collection, vote } = this.props
-    const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
+const PostsVote = ({ post, classes, currentUser, collection, vote }) => {
+  const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
 
-    return (
-        <div className={classes.voteBlock}>
+  return (
+      <div className={classes.voteBlock}>
+        <Tooltip
+          title="Click-and-hold for strong vote"
+          placement="right"
+          classes={{tooltip: classes.tooltip}}
+        >
+          <div className={classes.upvote}>
+            <Components.VoteButton
+              orientation="up"
+              color="secondary"
+              voteType="Upvote"
+              document={post}
+              currentUser={currentUser}
+              collection={collection}
+              vote={vote}
+            />
+          </div>
+        </Tooltip>
+        <div className={classes.voteScores}>
           <Tooltip
-            title="Click-and-hold for strong vote"
+            title={`${post.voteCount} ${post.voteCount == 1 ? "Vote" : "Votes"}`}
             placement="right"
             classes={{tooltip: classes.tooltip}}
           >
-            <div className={classes.upvote}>
-              <Components.VoteButton
-                orientation="up"
-                color="secondary"
-                voteType="Upvote"
-                document={post}
-                currentUser={currentUser}
-                collection={collection}
-                vote={vote}
-              />
-            </div>
+            <Typography variant="headline" className={classes.voteScore}>{baseScore || 0}</Typography>
           </Tooltip>
-          <div className={classes.voteScores}>
+
+          {!!post.af && !!post.afBaseScore && getSetting('forumType') !== 'AlignmentForum' &&
             <Tooltip
-              title={`${post.voteCount} ${post.voteCount == 1 ? "Vote" : "Votes"}`}
+              title="AI Alignment Forum karma"
               placement="right"
               classes={{tooltip: classes.tooltip}}
             >
-              <Typography variant="headline" className={classes.voteScore}>{baseScore || 0}</Typography>
+              <Typography
+                variant="headline"
+                className={classNames(classes.voteScore, classes.secondaryVoteScore)}>
+                Ω {post.afBaseScore}
+              </Typography>
             </Tooltip>
-
-            {!!post.af && !!post.afBaseScore && getSetting('forumType') !== 'AlignmentForum' &&
-              <Tooltip
-                title="AI Alignment Forum karma"
-                placement="right"
-                classes={{tooltip: classes.tooltip}}
-              >
-                <Typography
-                  variant="headline"
-                  className={classNames(classes.voteScore, classes.secondaryVoteScore)}>
-                  Ω {post.afBaseScore}
-                </Typography>
-              </Tooltip>
-            }
+          }
+        </div>
+        <Tooltip
+          title="Click-and-hold for strong vote"
+          placement="right"
+          classes={{tooltip: classes.tooltip}}
+        >
+          <div className={classes.downvote}>
+            <Components.VoteButton
+              orientation="down"
+              color="error"
+              voteType="Downvote"
+              document={post}
+              currentUser={currentUser}
+              collection={collection}
+              vote={vote}
+            />
           </div>
-          <Tooltip
-            title="Click-and-hold for strong vote"
-            placement="right"
-            classes={{tooltip: classes.tooltip}}
-          >
-            <div className={classes.downvote}>
-              <Components.VoteButton
-                orientation="down"
-                color="error"
-                voteType="Downvote"
-                document={post}
-                currentUser={currentUser}
-                collection={collection}
-                vote={vote}
-              />
-            </div>
-          </Tooltip>
-        </div>)
-    }
+        </Tooltip>
+      </div>)
 }
 
 PostsVote.propTypes = {
