@@ -48,6 +48,6 @@ export const useVote = () => {
       const errorMessage = _.map(e.graphQLErrors, gqlErr=>gqlErr.message).join("; ");
       messages.flash({ messageString: errorMessage });
     }
-  }, [messages, query, mutate]);
+  }, [messages, mutate]);
   return vote;
 }
