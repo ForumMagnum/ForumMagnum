@@ -78,7 +78,6 @@ const theme = createLWTheme({
     },
     postStyle: {
       ...basicText,
-      linkUnderlinePosition: "92%",
     },
     headerStyle: {
       fontFamily: titleStack
@@ -150,7 +149,7 @@ const theme = createLWTheme({
       main: {
         margin: '30px auto 15px auto',
         '@media (max-width: 959.95px)': {
-          marginTop: 0
+          marginTop: 36,
         }
       }
     },
@@ -183,6 +182,20 @@ const theme = createLWTheme({
         paddingLeft:1,
         paddingRight:0,
         fontSize: '50%',
+      },
+    },
+    SectionTitle: {
+      title: {
+        // Super custom width
+        '@media (max-width: 374.95px)': {
+          width: 90
+        },
+      },
+      children: {
+        '@media (max-width: 599.95px)': {
+          width: 137,
+          marginRight: -30,
+        }
       },
     },
     Section: {
@@ -255,6 +268,11 @@ const theme = createLWTheme({
     TabNavigationMenuSubItem: {
       root: {
         color: grey[800]
+      }
+    },
+    PostsPageTitle: {
+      root: {
+        lineHeight: 1.25
       }
     },
     PostsTimeBlock: {

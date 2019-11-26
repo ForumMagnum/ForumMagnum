@@ -7,7 +7,8 @@ import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 
 const RecentDiscussionThreadsList = ({
-  results, loading, loadMore, networkStatus, updateComment, data: { refetch }
+  results, loading, loadMore, networkStatus, updateComment, data: { refetch },
+  title="Recent Discussion", shortformButton=true
 }) => {
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   const [showShortformFeed, setShowShortformFeed] = useState(false);
@@ -39,10 +40,11 @@ const RecentDiscussionThreadsList = ({
 
   const expandAll = currentUser?.noCollapseCommentsFrontpage || expandAllThreads
 
+  // TODO: Probably factor out "RecentDiscussionThreadsList" vs "RecentDiscussionSection", rather than making RecentDiscussionThreadsList cover both and be weirdly customizable
   return (
     <SingleColumnSection>
-      <SectionTitle title="Recent Discussion">
-        {currentUser && currentUser.isReviewed && <div onClick={toggleShortformFeed}>
+      <SectionTitle title={title}>
+        {currentUser?.isReviewed && shortformButton && <div onClick={toggleShortformFeed}>
           <SectionButton>
             <AddBoxIcon />
             New Shortform Post

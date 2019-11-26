@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';
 import { editorStyles, postBodyStyles, postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
@@ -18,6 +18,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { userHasCkEditor } from '../../lib/betas.js';
 
 const postEditorHeight = 250;
+const questionEditorHeight = 150;
 const commentEditorHeight = 100;
 const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
@@ -74,6 +75,12 @@ const styles = theme => ({
       minHeight: commentEditorHeight,
     }
   },
+  questionEditorHeight: {
+    minHeight: questionEditorHeight,
+    '& .ck.ck-content': {
+      minHeight: questionEditorHeight,
+    }
+  },
   errorTextColor: {
     color: theme.palette.error.main
   },
@@ -98,6 +105,15 @@ const styles = theme => ({
 })
 
 const autosaveInterval = 3000; //milliseconds
+const ckEditorName = getSetting('forumType') === 'EAForum' ? 'EA Forum Docs' : 'LessWrong Docs'
+const editorTypeToDisplay = {
+  html: {name: 'HTML', postfix: '[Admin Only]'},
+  ckEditorMarkup: {name: ckEditorName, postfix: '[Beta]'},
+  markdown: {name: 'Markdown'},
+  draftJS: {name: 'Draft-JS'},
+}
+const nonAdminEditors = ['ckEditorMarkup', 'markdown', 'draftJS']
+const adminEditors = ['html', 'ckEditorMarkup', 'markdown', 'draftJS']
 
 class EditorFormComponent extends Component {
   constructor(props) {
@@ -384,9 +400,15 @@ class EditorFormComponent extends Component {
     const defaultType = this.getUserDefaultEditor(currentUser)
     return <div>
         <Typography variant="body2" color="error">
-          This document was last edited in {type} format. Showing {this.getCurrentEditorType()} editor.
-          <a className={classes.errorTextColor} onClick={() => this.handleEditorOverride(defaultType)}> Click here </a>
-          to switch to {defaultType} editor (your default editor).  
+          This document was last edited in {editorTypeToDisplay[type].name} format. Showing the{' '}
+          {editorTypeToDisplay[this.getCurrentEditorType()].name} editor.{' '}
+          <a
+            className={classes.errorTextColor}
+            onClick={() => this.handleEditorOverride(defaultType)}
+          >
+            Click here
+          </a>
+          {' '}to switch to the {editorTypeToDisplay[defaultType].name} editor (your default editor).
         </Typography>
         <br/>
       </div>
@@ -472,18 +494,20 @@ class EditorFormComponent extends Component {
   renderEditorTypeSelect = () => {
     const { currentUser, classes } = this.props
     if (!userHasCkEditor(currentUser) && !currentUser?.isAdmin) return null
+    const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
     return (
       <Tooltip title="Warning! Changing format will erase your content" placement="left">
         <Select
-            className={classes.select}
-            value={this.getCurrentEditorType()}
-            onChange={(e) => this.handleEditorOverride(e.target.value)}
-            disableUnderline
-            >
-            {currentUser.isAdmin  && <MenuItem value={'html'}>HTML [Admin Only]</MenuItem>}
-            <MenuItem value={'markdown'}>Markdown</MenuItem>
-            <MenuItem value={'draftJS'}>Draft-JS</MenuItem>
-            <MenuItem value={'ckEditorMarkup'}>LessWrong Docs [Beta]</MenuItem>
+          className={classes.select}
+          value={this.getCurrentEditorType()}
+          onChange={(e) => this.handleEditorOverride(e.target.value)}
+          disableUnderline
+          >
+            {editors.map((editorType, i) =>
+              <MenuItem value={editorType} key={i}>
+                {editorTypeToDisplay[editorType].name} {editorTypeToDisplay[editorType].postfix}
+              </MenuItem>
+            )}
           </Select>
       </Tooltip>
     )
@@ -600,8 +624,10 @@ class EditorFormComponent extends Component {
 
   getHeightClass = () => {
     const { document, classes, form: { commentStyles } } = this.props
-    if (commentStyles || document.question) {
+    if (commentStyles) {
       return classes.commentEditorHeight
+    } else if (document.question) {
+      return classes.questionEditorHeight;
     } else {
       return classes.postEditorHeight
     }

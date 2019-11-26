@@ -7,6 +7,7 @@ import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/com
 import { withStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import withUser from '../../common/withUser';
+import { Link } from '../../../lib/reactRouterWrapper.js';
 
 // Shared with ParentCommentItem
 export const styles = theme => ({
@@ -97,6 +98,11 @@ export const styles = theme => ({
   username: {
     marginRight: 10,
   },
+  nomination: {
+    color: theme.palette.lwTertiary.main,
+    fontStyle: "italic",
+    marginBottom: theme.spacing.unit
+  }
 })
 
 class CommentsItem extends Component {
@@ -234,6 +240,9 @@ class CommentsItem extends Component {
               <Components.CommentOutdatedWarning comment={comment} post={post} />
             </span>
           </div>
+          {comment.nominatedForReview && <Link to={"/nominations"} className={classes.nomination}>
+            {`Nomination for ${comment.nominatedForReview} Review`}
+          </Link>}
           {this.renderBodyOrEditor()}
           {!comment.deleted && !collapsed && this.renderCommentBottom()}
         </div>

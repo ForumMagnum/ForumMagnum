@@ -271,7 +271,7 @@ export const updateMutator = async ({
   Properties
 
   */
-  const properties = { data, oldDocument, document, currentUser, collection, context, schema };
+  const properties = { data, oldDocument, document, newDocument: document, currentUser, collection, context, schema };
 
   /*
 

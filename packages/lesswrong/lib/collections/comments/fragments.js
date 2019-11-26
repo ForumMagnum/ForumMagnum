@@ -43,6 +43,7 @@ registerFragment(`
     shortform
     lastSubthreadActivity
     moderatorHat
+    nominatedForReview
   }
 `);
 

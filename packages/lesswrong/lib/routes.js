@@ -1,11 +1,39 @@
 import React from 'react';
 import { addRoute, getSetting } from 'meteor/vulcan:core';
+import { Posts } from './collections/posts/collection.js';
 
 const communitySubtitle = { subtitleLink: "/community", subtitle: "Community" };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
 const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
 const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
 const metaSubtitle = { subtitleLink: "/meta", subtitle: "Meta" };
+
+function getPostPingbackById(parsedUrl, postId) {
+  if (parsedUrl.hash) {
+    // If the URL contains a hash, it leads to either a comment or a landmark
+    // within the post.
+    // Future work: If it's a comment ID, make a comment pingback; if it's not
+    // a comment ID, make it a post-pingback but do some special-case thing so
+    // that the preview excerpt starts in the section that's linked to.
+    return null;
+  } else {
+    return ({ collectionName: "Posts", documentId: postId })
+  }
+}
+
+async function getPostPingbackByLegacyId(parsedUrl, legacyId) {
+  const parsedId = parseInt(legacyId, 36);
+  const post = Posts.findOne({"legacyId": parsedId.toString()});
+  if (!post) return null;
+  return getPostPingbackById(parsedUrl, post._id);
+}
+
+async function getPostPingbackBySlug(parsedUrl, slug) {
+  const post = Posts.findOne({slug: slug});
+  if (!post) return null;
+  return getPostPingbackById(parsedUrl, post._id);
+}
+
 
 addRoute([
   // User-profile routes
@@ -83,7 +111,8 @@ addRoute([
   {
     name: 'collaboratePost',
     path: '/collaborateOnPost',
-    componentName: 'PostCollaborationEditor'
+    componentName: 'PostCollaborationEditor',
+    getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.query.postId),
   },
 
   // Sequences
@@ -123,6 +152,7 @@ addRoute([
     titleComponentName: 'PostsPageHeaderTitle',
     subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreviewSequencePost',
+    getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params.postId),
   },
 
   {
@@ -156,7 +186,8 @@ addRoute([
     path: '/rationality/:slug',
     componentName: 'PostsSingleSlug',
     previewComponentName: 'PostLinkPreviewSlug',
-    ...rationalitySubtitle
+    ...rationalitySubtitle,
+    getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
   },
   {
     name: 'bookmarks',
@@ -164,7 +195,34 @@ addRoute([
     componentName: 'BookmarksPage',
     titleComponentName: 'UserPageTitle',
     subtitleComponentName: 'UserPageTitle',
-  }
+  },
+  
+  // Tags
+  {
+    name: 'tags',
+    path: '/tag/:slug',
+    componentName: 'TagPage',
+    titleComponentName: 'TagPageTitle',
+    previewComponentName: 'TagHoverPreview',
+  },
+  {
+    name: 'tagEdit',
+    path: '/tag/:slug/edit',
+    componentName: 'EditTagPage',
+    titleComponentName: 'TagPageTitle',
+  },
+  {
+    name: 'tagCreate',
+    path: '/tag/create',
+    componentName: 'NewTagPage',
+    title: "New Tag",
+  },
+  {
+    name: 'tagIndex',
+    path: '/tags',
+    componentName: 'AllTagsPage',
+    title: "All Tags",
+  },
 ]);
 
 
@@ -179,12 +237,14 @@ addRoute([
     path: `/:section(r)?/:subreddit(all|discussion|lesswrong)?/${legacyRouteAcronym}/:id/:slug?`,
     componentName: "LegacyPostRedirect",
     previewComponentName: "PostLinkPreviewLegacy",
+    getPingback: (parsedUrl) => getPostPingbackByLegacyId(parsedUrl, parsedUrl.params.id),
   },
   {
     name: 'comment.legacy',
     path: `/${legacyRouteAcronym}/:id/:slug/:commentId`,
     componentName: "LegacyCommentRedirect",
     previewComponentName: "CommentLinkPreviewLegacy",
+    // TODO: Pingback comment
   }
 ]);
 
@@ -203,6 +263,7 @@ if (getSetting('forumType') === 'LessWrong') {
       componentName: 'PostsSingleSlug',
       previewComponentName: 'PostLinkPreviewSlug',
       ...hpmorSubtitle,
+      getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     },
 
     {
@@ -218,6 +279,7 @@ if (getSetting('forumType') === 'LessWrong') {
       componentName: 'PostsSingleSlug',
       previewComponentName: 'PostLinkPreviewSlug',
       ...codexSubtitle,
+      getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     },
   ]);
 }
@@ -284,14 +346,16 @@ if (getSetting('hasEvents', true)) {
       path: '/events/:_id/:slug?',
       componentName: 'PostsSingle',
       previewComponentName: 'PostLinkPreview',
-      ...communitySubtitle
+      ...communitySubtitle,
+      getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
     },
     {
       name: 'groups.post',
       path: '/g/:groupId/p/:_id',
       componentName: 'PostsSingle',
       previewComponentName: 'PostLinkPreview',
-      ...communitySubtitle
+      ...communitySubtitle,
+      getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
     },
   ]);
 }
@@ -322,7 +386,7 @@ addRoute([
     titleComponentName: 'PostsPageHeaderTitle',
     subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreview',
-    getPingback: (parsedUrl) => ({ collectionName: "Posts", documentId: parsedUrl.params._id })
+    getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
   },
   {
     name: 'admin',
@@ -356,6 +420,7 @@ addRoute([
     titleComponentName: 'PostsPageHeaderTitle',
     subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: "PostCommentLinkPreviewGreaterWrong",
+    // TODO: Handle pingbacks leading to comments.
   }
 ]);
 
@@ -393,7 +458,8 @@ switch (getSetting('forumType')) {
         name:'about',
         path:'/about',
         componentName: 'PostsSingleRoute',
-        _id:"Y2iqhjAHbXNkwcS8F"
+        _id:"Y2iqhjAHbXNkwcS8F",
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, "Y2iqhjAHbXNkwcS8F"),
       },
       {
         name: 'Community',
@@ -415,13 +481,15 @@ switch (getSetting('forumType')) {
         name: 'about',
         path: '/about',
         componentName: 'PostsSingleRoute',
-        _id:"bJ2haLkcGeLtTWaD5"
+        _id:"bJ2haLkcGeLtTWaD5",
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, "bJ2haLkcGeLtTWaD5"),
       },
       {
         name: 'faq',
         path: '/faq',
         componentName: 'PostsSingleRoute',
-        _id:"2rWKkWuPrgTMpLRbp"
+        _id:"2rWKkWuPrgTMpLRbp",
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, "2rWKkWuPrgTMpLRbp"),
       },
       {
         name: 'Meta',
@@ -462,5 +530,11 @@ addRoute([
     name: 'emailToken',
     path: '/emailToken/:token',
     componentName: 'EmailTokenPage',
+  },
+  {
+    name: 'nominations',
+    path: '/nominations',
+    componentName: 'Nominations2018',
+    title: "Nominations 2018 Review",
   },
 ]);

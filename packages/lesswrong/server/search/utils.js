@@ -1,4 +1,5 @@
 import { Posts } from '../../lib/collections/posts';
+import { Tags } from '../../lib/collections/tags/collection.js';
 import { Comments } from '../../lib/collections/comments'
 import Users from 'meteor/vulcan:users';
 import RSSFeeds from '../../lib/collections/rssfeeds/collection.js';
@@ -12,6 +13,7 @@ import keyBy from 'lodash/keyBy';
 import chunk from 'lodash/chunk';
 
 const COMMENT_MAX_SEARCH_CHARACTERS = 2000
+const TAG_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS;
 
 Comments.toAlgolia = (comment) => {
   if (comment.deleted) return null;
@@ -44,7 +46,7 @@ Comments.toAlgolia = (comment) => {
     algoliaComment.postSlug = parentPost.slug;
   }
   let body = ""
-  if (comment.contents && comment.contents.originalContents && comment.contents.originalContents.type) {
+  if (comment.contents?.originalContents?.type) {
     const { data, type } = comment.contents.originalContents
     body = dataToMarkdown(data, type)
   }
@@ -136,7 +138,7 @@ Posts.toAlgolia = (post) => {
   }
   let postBatch = [];
   let body = ""
-  if (post.contents && post.contents.originalContents && post.contents.originalContents.type) {
+  if (post.contents?.originalContents?.type) {
     const { data, type } = post.contents.originalContents
     body = dataToMarkdown(data, type)
   }
@@ -156,6 +158,26 @@ Posts.toAlgolia = (post) => {
     }));
   }
   return postBatch;
+}
+
+Tags.toAlgolia = (tag) => {
+  if (tag.deleted) return null;
+  
+  let description = ""
+  if (tag.description?.originalContents?.type) {
+    const { data, type } = tag.description.originalContents
+    description = dataToMarkdown(data, type)
+  }
+  // Limit tag description  size to ensure we stay below Algolia search Limit
+  // TODO: Actually limit by encoding size as opposed to characters
+  description = description.slice(0, TAG_MAX_SEARCH_CHARACTERS)
+  
+  return [{
+    _id: tag._id,
+    name: tag.name,
+    description,
+    baseScore: tag.baseScore,
+  }];
 }
 
 
@@ -357,11 +379,19 @@ export function getAlgoliaAdminClient()
 }
 
 export async function algoliaDocumentExport({ documents, collection, updateFunction} ) {
+  if (!(collection.collectionName in algoliaIndexNames)) {
+    // If this is a collection that isn't Algolia-indexed, don't index it. (This
+    // gets called from voting code, which tried to update Algolia indexes to
+    // change baseScore. tagRels have voting, but aren't Algolia-indexed.)
+    return;
+  }
   // if (Meteor.isDevelopment) {  // Only run document export in production environment
   //   return null
   // }
   let client = getAlgoliaAdminClient();
-  if (!client) return;
+  if (!client) {
+    return;
+  }
   let algoliaIndex = client.initIndex(algoliaIndexNames[collection.collectionName]);
   
   let totalErrors = [];
