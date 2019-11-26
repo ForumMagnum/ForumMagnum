@@ -3,6 +3,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import Tooltip from '@material-ui/core/Tooltip';
 import { withStyles } from '@material-ui/core/styles';
+import withUser from '../common/withUser'
 
 const styles = theme => ({
   hideOnMobile: {
@@ -10,10 +11,17 @@ const styles = theme => ({
       display: "none"
     }
   },
+  timeRemaining: {
+    marginTop: 6,
+    marginBottom: 4
+  },
+  learnMore: {
+    color: theme.palette.lwTertiary.main
+  }
 })
 
-const Recommendations2018Review = ({classes, settings}) => {
-  const { SubSection, SectionSubtitle, RecommendationsList, SectionFooter } = Components
+const Recommendations2018Review = ({classes, settings, currentUser}) => {
+  const { SubSection, SectionSubtitle, RecommendationsList, SectionFooter, HoverPreviewLink } = Components
 
   const reviewTooltip = <div>
     <div>The LessWrong community is reflecting on the best posts from 2018.</div>
@@ -41,11 +49,14 @@ const Recommendations2018Review = ({classes, settings}) => {
   return (
     <div>
       <Tooltip placement="top-start" title={reviewTooltip}>
-        <Link to={"/nominations"}>
-          <SectionSubtitle >
-            The LessWrong 2018 Review
-          </SectionSubtitle>
-        </Link>
+        <SectionSubtitle >
+          <Link to={"/nominations"}>
+              The LessWrong 2018 Review
+          </Link>
+          {currentUser?.karma >= 1000 ? <div className={classes.timeRemaining}>
+            <em>You have until Dec 1st to nominate posts. (Posts need 2+ nominations, <span className={classes.learnMore}><HoverPreviewLink href="http://localhost:3000/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review-posts-need-at-least-2-nominations" innerHTML={"learn more"}/></span>)</em>
+          </div> : null}
+        </SectionSubtitle>
       </Tooltip>
       <SubSection>
         <RecommendationsList algorithm={algorithm} showLoginPrompt={false} />
@@ -65,4 +76,4 @@ const Recommendations2018Review = ({classes, settings}) => {
   )
 }
 
-registerComponent('Recommendations2018Review', Recommendations2018Review, withStyles(styles, {name:"Recommendations2018Review"}));
+registerComponent('Recommendations2018Review', Recommendations2018Review, withUser, withStyles(styles, {name:"Recommendations2018Review"}));
