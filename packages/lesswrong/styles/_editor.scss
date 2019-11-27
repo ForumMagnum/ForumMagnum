@@ -220,12 +220,8 @@ figure:after {
 
 
 :root {
-	--ck-sample-base-spacing: 2em;
-	--ck-sample-color-white: #fff;
-	--ck-sample-color-green: #279863;
-	--ck-sample-container-width: 1285px;
-	--ck-sample-sidebar-width: 300px;
-	--ck-sample-editor-min-height: 200px;
-	--ck-z-default: 1301 !important;
+  // This is the only place I could find that successfully overrode the ckEditor zIndex
+  // necessary to ensure it works on modal dialogs
+  // (also tried adding it to Layout.jsx's JSS, and to the styles file in the ckeditor folder)
 	--ck-z-modal: 1301 !important;
 }
