@@ -236,7 +236,7 @@ class EditorFormComponent extends Component {
   }
 
   UNSAFE_componentWillMount() {
-    const { document, fieldName } = this.props
+    const { fieldName } = this.props
     const submitData = (submission) => {
       let data = null
       const { draftJSValue, markdownValue, htmlValue, updateType, ckEditorReference } = this.state
@@ -271,20 +271,10 @@ class EditorFormComponent extends Component {
     }
     this.context.addToSubmitForm(submitData);
 
-    const resetEditor = (result) => {
-      const { name } = this.props;
-      // On Form submit, create a new empty editable
-      this.getStorageHandlers().reset({doc: document, name, prefix:this.getLSKeyPrefix()})
-      this.setState({
-        draftJSValue: EditorState.createEmpty(),
-        htmlValue: null,
-        markdownValue: null,
-        editorOverride: null,
-        ckEditorValue: null
-      });
+    this.context.addToSuccessForm((result) => {
+      this.resetEditor();
       return result;
-    }
-    this.context.addToSuccessForm(resetEditor);
+    });
 
     if (Meteor.isClient && window) {
       this.unloadEventListener = window.addEventListener("beforeunload", (ev) => {
@@ -295,6 +285,19 @@ class EditorFormComponent extends Component {
         }
       });
     }
+  }
+  
+  resetEditor = () => {
+    const { name, document } = this.props;
+    // On Form submit, create a new empty editable
+    this.getStorageHandlers().reset({doc: document, name, prefix:this.getLSKeyPrefix()})
+    this.setState({
+      draftJSValue: EditorState.createEmpty(),
+      htmlValue: null,
+      markdownValue: null,
+      editorOverride: null,
+      ckEditorValue: null
+    });
   }
 
   componentWillUnmount() {
