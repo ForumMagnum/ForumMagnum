@@ -172,6 +172,7 @@ class EditorFormComponent extends Component {
       ckEditorValue: editorType === "ckEditorMarkup" ? this.initializeText(ckEditorMarkup, editorType) : null
     }
   }
+  
 
   getStorageHandlers = () => {
     const { form } = this.props
@@ -294,8 +295,9 @@ class EditorFormComponent extends Component {
       window.removeEventListener(this.unloadEventListener);
     }
   }
+  
 
-  handleEditorOverride = (editorType) => {
+  setEditorType = (editorType) => {
     const { currentUser } = this.props
     const targetEditorType = editorType || this.getUserDefaultEditor(currentUser)
     this.setState({
@@ -341,6 +343,7 @@ class EditorFormComponent extends Component {
     if (changed)
       this.afterChange();
   }
+  
 
   afterChange = () => {
     this.hasUnsavedData = true;
@@ -392,6 +395,7 @@ class EditorFormComponent extends Component {
       case "ckEditorMarkup": return "ckeditor_";
     }
   }
+  
 
   renderEditorWarning = () => {
     const { classes, currentUser, document, fieldName, value } = this.props
@@ -403,7 +407,7 @@ class EditorFormComponent extends Component {
           {editorTypeToDisplay[this.getCurrentEditorType()].name} editor.{' '}
           <a
             className={classes.errorTextColor}
-            onClick={() => this.handleEditorOverride(defaultType)}
+            onClick={() => this.setEditorType(defaultType)}
           >
             Click here
           </a>
@@ -412,6 +416,7 @@ class EditorFormComponent extends Component {
         <br/>
       </div>
   }
+  
 
   getCurrentEditorType = () => {
     const { editorOverride } = this.state || {} // Provide default since we can call this function before we initialize state
@@ -437,6 +442,7 @@ class EditorFormComponent extends Component {
     if (Users.useMarkdownPostEditor(user)) return "markdown"
     return "draftJS"
   }
+  
 
   handleUpdateTypeSelect = (e) => {
     this.setState({ updateType: e.target.value })
@@ -499,7 +505,7 @@ class EditorFormComponent extends Component {
         <Select
           className={classes.select}
           value={this.getCurrentEditorType()}
-          onChange={(e) => this.handleEditorOverride(e.target.value)}
+          onChange={(e) => this.setEditorType(e.target.value)}
           disableUnderline
           >
             {editors.map((editorType, i) =>
@@ -631,6 +637,7 @@ class EditorFormComponent extends Component {
       return classes.postEditorHeight
     }
   }
+  
 
   render() {
     const { editorOverride } = this.state
