@@ -2,14 +2,15 @@ import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import {getAfterDefault, getBeforeDefault} from './timeframeUtils'
-import withTimezone from '../common/withTimezone';
+import { useTimezone } from '../common/withTimezone';
 
 const styles = theme => ({
   daily: {
     padding: theme.spacing.unit
   }
 })
-const EventsPast = ({ timezone, classes }) => {
+const EventsPast = ({ classes }) => {
+  const { timezone } = useTimezone();
   const { SingleColumnSection, SectionTitle, PostsTimeframeList } = Components
   const numberOfDays = getSetting('forum.numberOfDays');
   const terms = {
@@ -37,4 +38,4 @@ const EventsPast = ({ timezone, classes }) => {
   )
 }
 
-registerComponent('EventsPast', EventsPast, withTimezone, withStyles(styles, {name: "EventsPast"}));
+registerComponent('EventsPast', EventsPast, withStyles(styles, {name: "EventsPast"}));
