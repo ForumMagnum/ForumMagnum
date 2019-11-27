@@ -151,7 +151,7 @@ class EditorFormComponent extends Component {
     const newValue = contents || value
 
     // Initialize the editor to whatever the canonicalContent is
-    if (newValue && newValue.originalContents && newValue.originalContents.data
+    if (newValue?.originalContents?.data
         && !editorOverride
         && editorType === newValue.originalContents.type)
     {
@@ -175,7 +175,7 @@ class EditorFormComponent extends Component {
 
   getStorageHandlers = () => {
     const { form } = this.props
-    return getLSHandlers(form && form.getLocalStorageId)
+    return getLSHandlers(form?.getLocalStorageId)
   }
 
   initializeDraftJS = (draftJS, editorType) => {
@@ -396,7 +396,7 @@ class EditorFormComponent extends Component {
 
   renderEditorWarning = () => {
     const { classes, currentUser, document, fieldName, value } = this.props
-    const { type } = (value && value.originalContents) || (document[fieldName] && document[fieldName].originalContents) || {}
+    const { type } = (value?.originalContents) || (document[fieldName]?.originalContents) || {}
     const defaultType = this.getUserDefaultEditor(currentUser)
     return <div>
         <Typography variant="body2" color="error">
@@ -421,7 +421,7 @@ class EditorFormComponent extends Component {
     // If there is an override, return that
     if (editorOverride) { return editorOverride }
     // Then check whether we are directly passed a value in the form context, with a type (as a default value for example)
-    if (value && value.originalContents && value.originalContents.type) {
+    if (value?.originalContents?.type) {
       return value.originalContents.type
     }
     // Otherwise, default to rich-text, but maybe show others
@@ -643,7 +643,7 @@ class EditorFormComponent extends Component {
     const editorWarning =
       !editorOverride
       && formType !== "new"
-      && document[fieldName] && document[fieldName].originalContents && document[fieldName].originalContents.type
+      && document[fieldName]?.originalContents?.type
       && document[fieldName].originalContents.type !== this.getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
 
