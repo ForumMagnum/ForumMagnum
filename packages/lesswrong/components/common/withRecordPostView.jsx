@@ -3,7 +3,6 @@ import { withMutation } from 'meteor/vulcan:core';
 import { useCurrentUser } from './withUser.js';
 import compose from 'recompose/compose';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';
-import withUser from '../common/withUser'
 
 export const PostsReadContext = React.createContext('postsViewed');
 
@@ -68,7 +67,6 @@ export const withRecordPostView = (Component) => {
       args: {postId: 'String'},
     }),
     withNewEvents,
-    withUser
   )(ComponentWithRecordPostView);
 }
 
