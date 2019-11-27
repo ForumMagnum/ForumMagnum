@@ -604,8 +604,6 @@ addFieldsDict(Users, {
     type: String,
     optional: true,
   },
-
-  // Obsolete notifications settings
   auto_subscribe_to_my_posts: {
     label: "Auto-subscribe to comments on my posts",
     group: formGroups.notifications,
