@@ -21,7 +21,6 @@ export const zIndexes = {
   sidebarHoverOver: 2,
   singleLineCommentHover: 3,
   questionPageWhitescreen: 3,
-  muiModal: 3,
   textbox: 4,
   styledMapPopup: 5,
   nextUnread: 999,
@@ -31,6 +30,7 @@ export const zIndexes = {
   tabNavigation: 1101,
   searchResults: 1102,
   header: 1300,
+  ckEditorToolbar: 1301,
   karmaChangeNotifier: 1400,
   notificationsMenu: 1500,
   lwPopper: 10000,
@@ -186,11 +186,6 @@ const createLWTheme = (theme) => {
       strongVoteDelay: 1000,
     },
     overrides: {
-      MuiModal: {
-        root: {
-          zIndex: zIndexes.muiModal
-        }
-      },
       MuiSelect: {
         selectMenu: {
           paddingLeft: spacingUnit

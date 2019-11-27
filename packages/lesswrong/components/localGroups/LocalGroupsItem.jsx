@@ -36,7 +36,6 @@ export const postsItemLikeStyles = theme => ({
     textOverflow: "ellipsis",
     textDecoration: "none",
     whiteSpace: "nowrap",
-    zIndex: "400 !important",
     flexGrow: 1,
     marginRight: theme.spacing.unit * 2,
     [theme.breakpoints.down('sm')]: {

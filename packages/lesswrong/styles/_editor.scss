@@ -217,3 +217,15 @@ figure:after {
     display:none;
   }
 }
+
+
+:root {
+	--ck-sample-base-spacing: 2em;
+	--ck-sample-color-white: #fff;
+	--ck-sample-color-green: #279863;
+	--ck-sample-container-width: 1285px;
+	--ck-sample-sidebar-width: 300px;
+	--ck-sample-editor-min-height: 200px;
+	--ck-z-default: 1301 !important;
+	--ck-z-modal: 1301 !important;
+}
