@@ -310,36 +310,32 @@ class EditorFormComponent extends Component {
     const { draftJSValue } = this.state
     const currentContent = draftJSValue.getCurrentContent()
     const newContent = value.getCurrentContent()
-    const changed = (currentContent !== newContent);
-    this.setState({draftJSValue: value})
-
-    if (changed) {
+    if (currentContent !== newContent) {
+      this.setState({draftJSValue: value})
       this.afterChange();
     }
   }
 
   setHtml = (value) => {
-    const changed = (this.state.htmlValue !== value);
-    this.setState({htmlValue: value})
-
-    if (changed)
+    if (this.state.htmlValue !== value) {
+      this.setState({htmlValue: value});
       this.afterChange();
+    }
   }
 
   setMarkdown = (value) => {
-    const changed = (this.state.markdownValue !== value);
-    this.setState({markdownValue: value})
-
-    if (changed)
+    if (this.state.markdownValue !== value) {
+      this.setState({markdownValue: value})
       this.afterChange();
+    }
   }
 
   setCkEditor = (editor) => {
     const newContent = editor.getData()
-    const changed = (this.state.ckEditorValue !== newContent);
-    this.setState({ckEditorValue: newContent})
-    if (changed)
+    if (this.state.ckEditorValue !== newContent) {
+      this.setState({ckEditorValue: newContent})
       this.afterChange();
+    }
   }
   
 
