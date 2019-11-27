@@ -1,5 +1,6 @@
 import React from 'react';
-import { Components, withMessages, registerComponent, Utils, useMulti, withCreate } from 'meteor/vulcan:core';
+import { Components, registerComponent, Utils, useMulti, withCreate } from 'meteor/vulcan:core';
+import { withMessages } from '../common/withMessages';
 import { Subscriptions } from '../../lib/collections/subscriptions/collection'
 import { defaultSubscriptionTypeTable } from '../../lib/collections/subscriptions/mutations'
 import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil.js';

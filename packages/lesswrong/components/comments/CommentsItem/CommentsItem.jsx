@@ -1,4 +1,5 @@
-import { Components, registerComponent, withMessages } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withMessages } from '../../common/withMessages';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Users from 'meteor/vulcan:users';
@@ -233,7 +234,11 @@ class CommentsItem extends Component {
             {comment.moderatorHat && <span className={classes.moderatorHat}>
               Moderator Comment
             </span>}
-            <Components.CommentsVote comment={comment} currentUser={currentUser} />
+            <Components.CommentsVote
+              comment={comment}
+              currentUser={currentUser}
+              hideKarma={post.hideCommentKarma}
+            />
             
             {!isParentComment && this.renderMenu()}
             <span className={classes.outdatedWarning}>

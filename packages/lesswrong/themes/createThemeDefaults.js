@@ -10,6 +10,37 @@ const monoStack = [
   'monospace'
 ].join(',')
 
+export const zIndexes = {
+  continueReadingImage: -1,
+  commentsMenu: 1,
+  sequencesPageContent: 1,
+  sequencesImageScrim: 1,
+  postsVote: 1,
+  singleLineCommentMeta: 2,
+  postItemTitle: 2,
+  sidebarHoverOver: 2,
+  singleLineCommentHover: 3,
+  questionPageWhitescreen: 3,
+  textbox: 4,
+  styledMapPopup: 5,
+  nextUnread: 999,
+  sunshineSidebar: 1000,
+  postItemMenu: 1001,
+  layout: 1100,
+  tabNavigation: 1101,
+  searchResults: 1102,
+  header: 1300,
+  ckEditorToolbar: 1301,
+  karmaChangeNotifier: 1400,
+  notificationsMenu: 1500,
+  lwPopper: 10000,
+  lwPopperTooltip: 10001,
+  loginDialog: 10002,
+  searchBar: 100000,
+  // petrovDayButton: 6,
+  // petrovDayLoss: 1000000
+}
+
 const createLWTheme = (theme) => {
   // Defines sensible typography defaults that can be
   // cleanly overriden
@@ -149,36 +180,17 @@ const createLWTheme = (theme) => {
       }
     },
     zIndexes: {
-      continueReadingImage: -1,
-      commentsMenu: 1,
-      sequencesPageContent: 1,
-      sequencesImageScrim: 1,
-      postsVote: 1,
-      singleLineCommentMeta: 2,
-      postItemTitle: 2,
-      sidebarHoverOver: 2,
-      singleLineCommentHover: 3,
-      questionPageWhitescreen: 3,
-      textbox: 4,
-      styledMapPopup: 5,
-      nextUnread: 999,
-      sunshineSidebar: 1000,
-      postItemMenu: 1001,
-      layout: 1100,
-      tabNavigation: 1101,
-      searchResults: 1102,
-      header: 1300,
-      karmaChangeNotifier: 1400,
-      notificationsMenu: 1500,
-      lwPopper: 10000,
-      lwPopperTooltip: 10001,
-      loginDialog: 10002,
-      searchBar: 100000,
-      // petrovDayButton: 6,
-      // petrovDayLoss: 1000000
+      ...zIndexes
     },
     voting: {
       strongVoteDelay: 1000,
+    },
+    overrides: {
+      MuiSelect: {
+        selectMenu: {
+          paddingLeft: spacingUnit
+        }
+      }
     }
   }
 

@@ -3,7 +3,7 @@ import { registerComponent, Components } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import { useCurrentUser } from '../common/withUser.js';
 import { TagRels } from '../../lib/collections/tagRels/collection.js';
-import { withVote } from '../votes/withVote';
+import { useVote } from '../votes/withVote';
 import classNames from 'classnames';
 
 const styles = theme => ({
@@ -66,9 +66,10 @@ const styles = theme => ({
   },
 });
 
-const PostsItemTagRelevance = ({tagRel, post, vote, classes}) => {
+const PostsItemTagRelevance = ({tagRel, post, classes}) => {
   const { VoteButton } = Components;
   const currentUser = useCurrentUser();
+  const vote = useVote();
   
   return <Components.PostsItem2MetaInfo className={classes.root}>
     <div className={classNames(classes.voteButton, classes.horizLayoutVoteDown)}>
@@ -124,6 +125,5 @@ const PostsItemTagRelevance = ({tagRel, post, vote, classes}) => {
 }
 
 registerComponent("PostsItemTagRelevance", PostsItemTagRelevance,
-  withVote,
   withStyles(styles, {name: "PostsItemTagRelevance"})
 );

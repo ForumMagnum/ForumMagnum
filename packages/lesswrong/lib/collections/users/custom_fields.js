@@ -431,6 +431,19 @@ addFieldsDict(Users, {
     order: 56,
   },
 
+  showHideKarmaOption: {
+    type: Boolean,
+    optional: false,
+    label: "Enable option on posts to hide karma visibility",
+    canRead: [Users.owns, 'admins'],
+    canUpdate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    hidden: getSetting('forumType') !== 'EAForum',
+    control: 'checkbox',
+    group: formGroups.default,
+    order: 72,
+  },
+
   twitterUsername: {
     hidden: true,
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
@@ -591,8 +604,6 @@ addFieldsDict(Users, {
     type: String,
     optional: true,
   },
-
-  // Obsolete notifications settings
   auto_subscribe_to_my_posts: {
     label: "Auto-subscribe to comments on my posts",
     group: formGroups.notifications,
@@ -1118,7 +1129,8 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     tooltip: "Get early access to new in-development features",
     group: formGroups.default,
-    label: "Opt into experimental features"
+    label: "Opt into experimental features",
+    order: 71,
   },
   petrovPressedButtonDate: {
     type: Date,
