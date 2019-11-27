@@ -150,3 +150,24 @@ function UpdatePostShortform (newPost, oldPost) {
   return newPost;
 }
 addCallback("posts.edit.async", UpdatePostShortform );
+
+// If an admin changes the "hideCommentKarma" setting of a post after it
+// already has comments, update those comments' hideKarma field to have the new
+// setting. This should almost never be used, as we really don't want to
+// surprise users by revealing their supposedly hidden karma.
+async function UpdateCommentHideKarma (newPost, oldPost) {
+  if (newPost.hideCommentKarma === oldPost.hideCommentKarma) return
+
+  const comments = Comments.find({postId: newPost._id})
+  if (!comments.count()) return
+  const updates = comments.map(comment => ({
+    updateOne: {
+      filter: {
+        _id: comment._id,
+      },
+      update: {$set: {hideKarma: newPost.hideCommentKarma}}
+    }
+  }))
+  await Comments.rawCollection().bulkWrite(updates)
+}
+addCallback("posts.edit.async", UpdateCommentHideKarma);

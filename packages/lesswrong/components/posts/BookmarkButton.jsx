@@ -5,7 +5,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Bookmark from '@material-ui/icons/Bookmark'
 import BookmarkBorder from '@material-ui/icons/BookmarkBorder'
 import withUser from '../common/withUser';
-import withDialog from '../common/withDialog';
+import { useDialog } from '../common/withDialog';
 import withErrorBoundary from '../common/withErrorBoundary';
 import Users from 'meteor/vulcan:users';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -19,8 +19,8 @@ const styles = theme => ({
   }
 })
 
-const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right", openDialog}) => {
-
+const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right"}) => {
+  const {openDialog} = useDialog();
   const [bookmarked, setBookmarked] = useState(_.pluck((currentUser?.bookmarkedPostsMetadata || []), 'postId')?.includes(post._id))
 
   const {mutate: updateUser} = useUpdate({
@@ -82,4 +82,4 @@ const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right"
   }
 }
 
-registerComponent('BookmarkButton', BookmarkButton, withUser, withErrorBoundary, withStyles(styles, {name:"BookmarkButton"}), withDialog);
+registerComponent('BookmarkButton', BookmarkButton, withUser, withErrorBoundary, withStyles(styles, {name:"BookmarkButton"}));

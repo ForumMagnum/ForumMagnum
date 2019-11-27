@@ -30,12 +30,13 @@ const Nominations2018 = ({classes}) => {
         />
       </SingleColumnSection>
       <SingleColumnSection>
+        {/* for the Review, it's more important to see all comments in Recent Discussion */}
         <RecentDiscussionThreadsList
           title="2018 Review Discussion"
           shortformButton={false}
           terms={{view: '2018reviewRecentDiscussionThreadsList', limit:20}}
           commentsLimit={4}
-          maxAgeHours={18}
+          maxAgeHours={100} 
           af={false}
         />
       </SingleColumnSection>
