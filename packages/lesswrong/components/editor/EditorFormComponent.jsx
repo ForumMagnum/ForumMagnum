@@ -167,24 +167,25 @@ class EditorFormComponent extends Component {
         && editorType === newValue.originalContents.type)
     {
       return {
-        draftJSValue:  editorType === "draftJS"        ? this.initializeDraftJS(newValue.originalContents.data, editorType) : null,
-        markdownValue: editorType === "markdown"       ? this.initializeText(newValue.originalContents.data, editorType)    : null,
-        htmlValue:     editorType === "html"           ? this.initializeText(newValue.originalContents.data, editorType)    : null,
-        ckEditorValue: editorType === "ckEditorMarkup" ? this.initializeText(newValue.originalContents.data, editorType)    : null
+        draftJSValue:  editorType === "draftJS"        ? this.initializeDraftJS(newValue.originalContents.data) : null,
+        markdownValue: editorType === "markdown"       ? newValue.originalContents.data : null,
+        htmlValue:     editorType === "html"           ? newValue.originalContents.data : null,
+        ckEditorValue: editorType === "ckEditorMarkup" ? newValue.originalContents.data : null
       }
     }
     
     // Otherwise, just set it to the value of the document
     const { draftJS, html, markdown, ckEditorMarkup } = document[fieldName] || {}
     return {
-      draftJSValue:  editorType === "draftJS"        ? this.initializeDraftJS(draftJS, editorType)     : null,
-      markdownValue: editorType === "markdown"       ? this.initializeText(markdown, editorType)       : null,
-      htmlValue:     editorType === "html"           ? this.initializeText(html, editorType)           : null,
-      ckEditorValue: editorType === "ckEditorMarkup" ? this.initializeText(ckEditorMarkup, editorType) : null
+      draftJSValue:  editorType === "draftJS"        ? this.initializeDraftJS(draftJS) : null,
+      markdownValue: editorType === "markdown"       ? markdown       : null,
+      htmlValue:     editorType === "html"           ? html           : null,
+      ckEditorValue: editorType === "ckEditorMarkup" ? ckEditorMarkup : null
     }
   }
   
   getEditorStatesFromLocalStorage = (editorType) => {
+    const { document, name } = this.props;
     const savedState = this.getStorageHandlers().get({doc: document, name, prefix:this.getLSKeyPrefix(editorType)})
     if (!savedState) return null;
     
@@ -217,15 +218,13 @@ class EditorFormComponent extends Component {
     return getLSHandlers(form?.getLocalStorageId)
   }
 
-  initializeDraftJS = (draftJS, editorType) => {
-    const { document, name } = this.props
-    let state = {}
+  initializeDraftJS = (draftJS) => {
+    const { document } = this.props
 
     // Initialize from the database state
     if (draftJS) {
       try {
-        state = EditorState.createWithContent(convertFromRaw(draftJS));
-        return state;
+        return EditorState.createWithContent(convertFromRaw(draftJS));
       } catch(e) {
         // eslint-disable-next-line no-console
         console.error("Invalid document content", document);
@@ -234,10 +233,6 @@ class EditorFormComponent extends Component {
 
     // And lastly, if the field is empty, create an empty draftJS object
     return EditorState.createEmpty();
-  }
-
-  initializeText = (originalContents, editorType) => {
-    return originalContents;
   }
 
   UNSAFE_componentWillMount() {
@@ -281,7 +276,7 @@ class EditorFormComponent extends Component {
       // On Form submit, create a new empty editable
       this.getStorageHandlers().reset({doc: document, name, prefix:this.getLSKeyPrefix()})
       this.setState({
-        draftJSValue: this.initializeDraftJS(),
+        draftJSValue: EditorState.createEmpty(),
         htmlValue: null,
         markdownValue: null,
         editorOverride: null,
