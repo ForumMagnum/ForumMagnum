@@ -414,17 +414,26 @@ class EditorFormComponent extends Component {
 
   getCurrentEditorType = () => {
     const { editorOverride } = this.state || {} // Provide default since we can call this function before we initialize state
-    const { document, currentUser, enableMarkDownEditor, fieldName, value } = this.props
-    const originalType = document?.[fieldName]?.originalContents?.type
+    
     // If there is an override, return that
-    if (editorOverride) { return editorOverride }
-    // Then check whether we are directly passed a value in the form context, with a type (as a default value for example)
+    if (editorOverride)
+      return editorOverride;
+    
+    return this.getInitialEditorType();
+  }
+  
+  getInitialEditorType = () => {
+    const { document, currentUser, enableMarkDownEditor, fieldName, value } = this.props
+    
+    // Check whether we are directly passed a value in the form context, with a type (as a default value for example)
     if (value?.originalContents?.type) {
       return value.originalContents.type
     }
-    // Otherwise, default to rich-text, but maybe show others
-    if (originalType) { return originalType }
+    // Next check whether the document came with a field value with a type specified
+    const originalType = document?.[fieldName]?.originalContents?.type
+    if (originalType) return originalType;
 
+    // Finally pick the editor type from the user's config
     const defaultEditor = this.getUserDefaultEditor(currentUser)
     if (defaultEditor === "markdown" && !enableMarkDownEditor) return "draftJS"
     
