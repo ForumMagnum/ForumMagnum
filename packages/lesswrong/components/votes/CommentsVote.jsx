@@ -8,7 +8,7 @@ import Users from 'meteor/vulcan:users';
 import moment from 'moment-timezone';
 import withHover from '../common/withHover';
 import withUser from '../common/withUser';
-import { withVote } from './withVote';
+import { useVote } from './withVote';
 
 const styles = theme => ({
   vote: {
@@ -37,93 +37,98 @@ const styles = theme => ({
   }
 })
 
-class CommentsVote extends PureComponent {
-  render() {
-    const { comment, classes, currentUser, hover, vote } = this.props
-    if (!comment) return null;
-    const voteCount = comment.voteCount;
-    const karma = Comments.getKarma(comment)
+const CommentsVote = ({ comment, hideKarma, classes, currentUser, hover }) => {
+  const vote = useVote();
+  
+  if (!comment) return null;
+  const voteCount = comment.voteCount;
+  const karma = Comments.getKarma(comment)
 
-    const moveToAfInfo = Users.isAdmin(currentUser) && !!comment.moveToAlignmentUserId && (
-      <div className={classes.tooltipHelp}>
-        {hover && <span>Moved to AF by <Components.UsersName documentId={comment.moveToAlignmentUserId }/> on { comment.afDate && moment(new Date(comment.afDate)).format('YYYY-MM-DD') }</span>}
-      </div>
-    )
+  const moveToAfInfo = Users.isAdmin(currentUser) && !!comment.moveToAlignmentUserId && (
+    <div className={classes.tooltipHelp}>
+      {hover && <span>Moved to AF by <Components.UsersName documentId={comment.moveToAlignmentUserId }/> on { comment.afDate && moment(new Date(comment.afDate)).format('YYYY-MM-DD') }</span>}
+    </div>
+  )
 
-    return (
-      <span className={classes.vote}>
-        {(getSetting('forumType') !== 'AlignmentForum' || !!comment.af) &&
-          <span>
-            <Tooltip
-              title={<div>Downvote<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
-              placement="bottom"
-              >
-              <span>
-                <Components.VoteButton
-                  orientation="left"
-                  color="error"
-                  voteType="Downvote"
-                  document={comment}
-                  currentUser={currentUser}
-                  collection={Comments}
-                  vote={vote}
-                />
-              </span>
-            </Tooltip>
+  return (
+    <span className={classes.vote}>
+      {(getSetting('forumType') !== 'AlignmentForum' || !!comment.af) &&
+        <span>
+          <Tooltip
+            title={<div>Downvote<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
+            placement="bottom"
+            >
+            <span>
+              <Components.VoteButton
+                orientation="left"
+                color="error"
+                voteType="Downvote"
+                document={comment}
+                currentUser={currentUser}
+                collection={Comments}
+                vote={vote}
+              />
+            </span>
+          </Tooltip>
+          {hideKarma ?
+            <Tooltip title={'The author of this post has disabled karma visibility'}>
+              <span>{' '}</span>
+            </Tooltip> :
             <Tooltip title={`This comment has ${karma} karma (${voteCount} ${voteCount == 1 ? "Vote" : "Votes"})`} placement="bottom">
               <span className={classes.voteScore}>
                 {karma}
               </span>
             </Tooltip>
-            <Tooltip
-              title={<div>Upvote<br /><em>For strong upvote, click-and-hold<br /> (Click twice on mobile)</em></div>}
-              placement="bottom">
-              <span>
-                <Components.VoteButton
-                  orientation="right"
-                  color="secondary"
-                  voteType="Upvote"
-                  document={comment}
-                  currentUser={currentUser}
-                  collection={Comments}
-                  vote={vote}
-                />
-              </span>
-            </Tooltip>
+          }
+          <Tooltip
+            title={<div>Upvote<br /><em>For strong upvote, click-and-hold<br /> (Click twice on mobile)</em></div>}
+            placement="bottom">
+            <span>
+              <Components.VoteButton
+                orientation="right"
+                color="secondary"
+                voteType="Upvote"
+                document={comment}
+                currentUser={currentUser}
+                collection={Comments}
+                vote={vote}
+              />
+            </span>
+          </Tooltip>
+        </span>
+      }
+      {!!comment.af && getSetting('forumType') !== 'AlignmentForum' &&
+        <Tooltip placement="bottom" title={
+          <div>
+            <p>AI Alignment Forum Karma</p>
+            { moveToAfInfo }
+          </div>
+        }>
+          <span className={classes.secondaryScore}>
+            <span className={classes.secondarySymbol}>Ω</span>
+            <span className={classes.secondaryScoreNumber}>{comment.afBaseScore || 0}</span>
           </span>
-        }
-        {!!comment.af && getSetting('forumType') !== 'AlignmentForum' &&
-          <Tooltip placement="bottom" title={
-            <div>
-              <p>AI Alignment Forum Karma</p>
-              { moveToAfInfo }
-            </div>
-          }>
-            <span className={classes.secondaryScore}>
-              <span className={classes.secondarySymbol}>Ω</span>
-              <span className={classes.secondaryScoreNumber}>{comment.afBaseScore || 0}</span>
-            </span>
-          </Tooltip>
-        }
-        {!comment.af && (getSetting('forumType') === 'AlignmentForum') &&
-          <Tooltip title="LessWrong Karma" placement="bottom">
-            <span className={classes.secondaryScore}>
-              <span className={classes.secondarySymbol}>LW</span>
-              <span className={classes.secondaryScoreNumber}>{comment.baseScore || 0}</span>
-            </span>
-          </Tooltip>
-        }
-      </span>)
-    }
+        </Tooltip>
+      }
+      {!comment.af && (getSetting('forumType') === 'AlignmentForum') &&
+        <Tooltip title="LessWrong Karma" placement="bottom">
+          <span className={classes.secondaryScore}>
+            <span className={classes.secondarySymbol}>LW</span>
+            <span className={classes.secondaryScoreNumber}>{comment.baseScore || 0}</span>
+          </span>
+        </Tooltip>
+      }
+    </span>)
 }
 
 CommentsVote.propTypes = {
   comment: PropTypes.object.isRequired, // the document to upvote
   currentUser: PropTypes.object, // user might not be logged in, so don't make it required
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  hideKarma: PropTypes.bool,
 };
 
 registerComponent('CommentsVote', CommentsVote,
   withStyles(styles, { name: "CommentsVote" }),
-  withHover, withUser, withVote
+  withHover, withUser
 );

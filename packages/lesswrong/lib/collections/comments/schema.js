@@ -247,6 +247,29 @@ const schema = {
     }
   },
   
+  // Comments store a duplicate of their post's hideCommentKarma data. The
+  // source of truth remains the hideCommentKarma field of the post. If this
+  // field is true, we do not report the baseScore to non-admins. We update it
+  // if (for some reason) this comment gets transferred to a new post. The
+  // trickier case is updating this on post change. For that we rely on the
+  // UpdateCommentHideKarma callback.
+  hideKarma: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canRead: ['guests'],
+    canCreate: ['members', 'admins'],
+    canUpdate: ['admins'],
+    ...denormalizedField({
+      needsUpdate: data => ('postId' in data),
+      getValue: async comment => {
+        const post = await Posts.findOne({_id: comment.postId});
+        if (!post) return false;
+        return !!post.hideCommentKarma;
+      }
+    }),
+  },
+  
   // DEPRECATED field for GreaterWrong backwards compatibility
   wordCount: resolverOnlyField({
     type: Number,

@@ -108,6 +108,7 @@ registerFragment(`
     moderationGuidelines {
       ...RevisionEdit
     }
+    showHideKarmaOption
     markDownPostEditor
     commentSorting
     location
@@ -486,6 +487,7 @@ registerFragment(`
     collapseModerationGuidelines
     bannedUserIds
     bannedPersonalUserIds
+    showHideKarmaOption
 
     # Ban & Purge
     voteBanned

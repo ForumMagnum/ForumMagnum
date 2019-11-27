@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Components } from 'meteor/vulcan:core';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import { hookToHoc } from '../../lib/hocUtils.js';
 
 export const OpenDialogContext = React.createContext('openDialog');
 
@@ -45,18 +46,6 @@ export class DialogManager extends PureComponent {
   }
 }
 
-// Higher-order component for managing dialogs.
-export default function withDialog(Component) {
-  return function WithDialogComponent(props) {
-    return (
-      <OpenDialogContext.Consumer>
-        {dialogFns =>
-          <Component {...props}
-            openDialog={dialogFns.openDialog}
-            closeDialog={dialogFns.closeDialog}
-          />
-        }
-      </OpenDialogContext.Consumer>
-    );
-  }
-}
+export const useDialog = () => React.useContext(OpenDialogContext);
+export const withDialog = hookToHoc(useDialog);
+export default withDialog;

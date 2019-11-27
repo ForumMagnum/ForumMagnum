@@ -213,7 +213,7 @@ export const PostSharedWithUserNotification = serverRegisterNotificationType({
   },
   emailBody: ({ user, notifications }) => {
     const post = Posts.findOne(notifications[0].documentId);
-    const link = Posts.getLink(post, true);
+    const link = Posts.getPageUrl(post, true);
     return <p>
       You have been shared on the {post.draft ? "draft" : "post"} <a href={link}>{post.title}</a>.
     </p>

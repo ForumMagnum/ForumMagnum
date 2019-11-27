@@ -1,4 +1,5 @@
-import { registerComponent, withMessages } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
+import { withMessages } from './withMessages';
 import React, { Component } from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
 import Button from '@material-ui/core/Button';

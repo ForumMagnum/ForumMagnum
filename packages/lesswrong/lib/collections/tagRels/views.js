@@ -7,6 +7,7 @@ TagRels.addView('postsWithTag', terms => {
       tagId: terms.tagId,
       baseScore: {$gt: 0},
     },
+    sort: {baseScore: -1},
   }
 });
 
@@ -16,6 +17,7 @@ TagRels.addView('tagsOnPost', terms => {
       postId: terms.postId,
       baseScore: {$gt: 0},
     },
+    sort: {baseScore: -1},
   }
 });
 
