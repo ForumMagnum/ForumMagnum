@@ -423,7 +423,7 @@ class EditorFormComponent extends Component {
   }
   
   getInitialEditorType = () => {
-    const { document, currentUser, enableMarkDownEditor, fieldName, value } = this.props
+    const { document, currentUser, fieldName, value } = this.props
     
     // Check whether we are directly passed a value in the form context, with a type (as a default value for example)
     if (value?.originalContents?.type) {
@@ -434,10 +434,7 @@ class EditorFormComponent extends Component {
     if (originalType) return originalType;
 
     // Finally pick the editor type from the user's config
-    const defaultEditor = this.getUserDefaultEditor(currentUser)
-    if (defaultEditor === "markdown" && !enableMarkDownEditor) return "draftJS"
-    
-    return defaultEditor
+    return this.getUserDefaultEditor(currentUser)
   }
 
   getUserDefaultEditor = (user) => {

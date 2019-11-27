@@ -31,7 +31,6 @@ const defaultOptions = {
   },
   fieldName: "",
   order: 0,
-  enableMarkDownEditor: true
 }
 
 export const editableCollections = new Set()
@@ -59,7 +58,6 @@ export const makeEditable = ({collection, options = {}}) => {
       </div>
   </div>,
     order,
-    enableMarkDownEditor,
     pingbacks = false,
   } = options
 
@@ -115,7 +113,6 @@ export const makeEditable = ({collection, options = {}}) => {
           commentEditor,
           commentStyles,
           getLocalStorageId,
-          enableMarkDownEditor,
         },
       },
     },
@@ -173,7 +170,6 @@ export const makeEditable = ({collection, options = {}}) => {
           // commentEditor,
           // commentStyles,
           // getLocalStorageId,
-          // enableMarkDownEditor,
     //     },
     //   }
     // },
