@@ -7,7 +7,7 @@ import truncatise from 'truncatise';
 import Edit from '@material-ui/icons/Edit';
 import Users from 'meteor/vulcan:users';
 import Tooltip from '@material-ui/core/Tooltip';
-import withDialog from '../../common/withDialog'
+import { useDialog } from '../../common/withDialog'
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
 import { commentBodyStyles } from '../../../themes/stylePiping'
@@ -55,8 +55,9 @@ const styles = theme => ({
   }
 })
 
-const ModerationGuidelinesBox = ({classes, document, recordEvent, currentUser, openDialog}) => {
+const ModerationGuidelinesBox = ({classes, document, recordEvent, currentUser}) => {
 
+  const {openDialog} = useDialog();
   const [expanded, setExpanded] = useState(false)
 
   if (!document) return null
@@ -114,8 +115,8 @@ const ModerationGuidelinesBox = ({classes, document, recordEvent, currentUser, o
         postId: document._id,
       }
     });
-  } 
-    
+  }
+  
   const { combinedGuidelines, truncatedGuidelines } = getModerationGuidelines(document, classes)
   const displayedGuidelines = expanded ? combinedGuidelines : truncatedGuidelines
 
@@ -147,6 +148,5 @@ const moderationStyleLookup = {
 registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBox, withStyles(styles, {name: 'ModerationGuidelinesBox'}),
   withNewEvents,
   withUser,
-  withDialog,
   withErrorBoundary
 );

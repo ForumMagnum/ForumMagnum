@@ -3,7 +3,6 @@ import deepOrange from '@material-ui/core/colors/deepOrange';
 import indigo from '@material-ui/core/colors/indigo';
 
 import { createMuiTheme } from '@material-ui/core/styles';
-import { sharedOverrides } from './lesswrongTheme';
 
 const defaultTheme = createMuiTheme()
 
@@ -116,8 +115,7 @@ const theme = createLWTheme({
       root: {
         fontWeight: 500,
       }
-    },
-    ...sharedOverrides
+    }
   }
 });
 

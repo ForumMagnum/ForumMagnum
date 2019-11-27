@@ -6,7 +6,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles'
 import moment from 'moment';
-import withTimezone from '../common/withTimezone';
+import { useTimezone } from '../common/withTimezone';
 import { truncate } from '../../lib/editor/ellipsize';
 import classNames from 'classnames';
 
@@ -75,7 +75,8 @@ const styles = theme => ({
 })
 
 
-const TabNavigationEventsList = ({ results, onClick, classes, timezone }) => {
+const TabNavigationEventsList = ({ results, onClick, classes }) => {
+  const { timezone } = useTimezone();
   const { TabNavigationSubItem, EventTime } = Components
 
   if (!results) return null
@@ -148,4 +149,7 @@ const options = {
   ssr: true
 };
 
-registerComponent('TabNavigationEventsList', TabNavigationEventsList, [withList, options], withStyles(styles, {name:"TabNavigationEventsList"}), withTimezone)
+registerComponent('TabNavigationEventsList', TabNavigationEventsList,
+  [withList, options],
+  withStyles(styles, {name:"TabNavigationEventsList"})
+);

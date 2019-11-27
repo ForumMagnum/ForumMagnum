@@ -8,7 +8,7 @@ import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
-import withDialog from '../common/withDialog';
+import { useDialog } from '../common/withDialog';
 
 const styles = theme => ({
   root: {
@@ -20,7 +20,8 @@ const styles = theme => ({
   }
 })
 
-const ConversationDetails = ({conversation, classes, openDialog}) => {
+const ConversationDetails = ({conversation, classes}) => {
+  const { openDialog } = useDialog();
   const { Loading, MetaInfo, UsersName } = Components
   if (!conversation?.participants?.length) return <Loading />
   
@@ -50,4 +51,4 @@ const ConversationDetails = ({conversation, classes, openDialog}) => {
   )
 }
 
-registerComponent('ConversationDetails', ConversationDetails, withUser, withStyles(styles, { name: "ConversationDetails" }), withDialog);
+registerComponent('ConversationDetails', ConversationDetails, withUser, withStyles(styles, { name: "ConversationDetails" }));
