@@ -236,40 +236,7 @@ class EditorFormComponent extends Component {
   }
 
   UNSAFE_componentWillMount() {
-    const { fieldName } = this.props
-    const submitData = (submission) => {
-      let data = null
-      const { draftJSValue, markdownValue, htmlValue, updateType, ckEditorReference } = this.state
-      const type = this.getCurrentEditorType()
-      switch(type) {
-        case "draftJS":
-          const draftJS = draftJSValue.getCurrentContent()
-          data = draftJS.hasText() ? convertToRaw(draftJS) : null
-          break
-        case "markdown":
-          data = markdownValue
-          break
-        case "html":
-          data = htmlValue
-          break
-        case "ckEditorMarkup":
-          if (!ckEditorReference) throw Error("Can't submit ckEditorMarkup without attached CK Editor")
-          if (!this.isDocumentCollaborative()) {
-            this.context.addToSuccessForm((s) => {
-              this.state.ckEditorReference.setData('')
-            }) 
-          }
-          data = ckEditorReference.getData()
-          break
-        default:
-          // eslint-disable-next-line no-console
-          console.error(`Unrecognized editor type: ${type}`);
-          data = "";
-          break;
-      }
-      return {...submission, [fieldName]: data ? {originalContents: {type, data}, updateType} : undefined}
-    }
-    this.context.addToSubmitForm(submitData);
+    this.context.addToSubmitForm(this.submitData);
 
     this.context.addToSuccessForm((result) => {
       this.resetEditor();
@@ -285,6 +252,40 @@ class EditorFormComponent extends Component {
         }
       });
     }
+  }
+  
+  submitData = (submission) => {
+    const { fieldName } = this.props
+    let data = null
+    const { draftJSValue, markdownValue, htmlValue, updateType, ckEditorReference } = this.state
+    const type = this.getCurrentEditorType()
+    switch(type) {
+      case "draftJS":
+        const draftJS = draftJSValue.getCurrentContent()
+        data = draftJS.hasText() ? convertToRaw(draftJS) : null
+        break
+      case "markdown":
+        data = markdownValue
+        break
+      case "html":
+        data = htmlValue
+        break
+      case "ckEditorMarkup":
+        if (!ckEditorReference) throw Error("Can't submit ckEditorMarkup without attached CK Editor")
+        if (!this.isDocumentCollaborative()) {
+          this.context.addToSuccessForm((s) => {
+            this.state.ckEditorReference.setData('')
+          }) 
+        }
+        data = ckEditorReference.getData()
+        break
+      default:
+        // eslint-disable-next-line no-console
+        console.error(`Unrecognized editor type: ${type}`);
+        data = "";
+        break;
+    }
+    return {...submission, [fieldName]: data ? {originalContents: {type, data}, updateType} : undefined}
   }
   
   resetEditor = () => {
