@@ -1,17 +1,12 @@
 import { registerComponent } from 'meteor/vulcan:core';
-import React, { useEffect } from 'react';
-import {captureEvent} from "../../lib/analyticsEvents";
+import React from 'react';
+import { useTracking } from "../../lib/analyticsEvents";
 
-const AnalyticsTracker = ({eventType, eventProps, children, onClick, onRender, skip}) => {
-
+const AnalyticsTracker = ({eventType, eventProps, children, onClick, onRender: onMount, skip}) => {
+  const { captureEvent } = useTracking({onMount, extraData: eventProps})
   const handleClick = () => {
     !skip && onClick && captureEvent(eventType + "Clicked", eventProps)
   }
-
-  useEffect(
-      () => {onRender && captureEvent(eventType + "Displayed", eventProps)},
-      []
-  )
 
   return (
     <span onMouseDown={handleClick}>

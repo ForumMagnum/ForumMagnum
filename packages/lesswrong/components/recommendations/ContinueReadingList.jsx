@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
 import { withDismissRecommendation } from './withDismissRecommendation';
-import { captureEvent } from '../../lib/analyticsEvents.js';
+import { captureEvent, AnalyticsContext } from '../../lib/analyticsEvents.js';
 
 const MAX_ENTRIES = 3;
 
@@ -65,17 +65,19 @@ class ContinueReadingList extends Component {
     </div>
 
     return <div>
-      {entries.map(resumeReading => {
-        const { nextPost, sequence, collection } = resumeReading;
-        return <PostsItem2
-          post={nextPost}
-          sequenceId={sequence?._id}
-          resumeReading={resumeReading}
-          dismissRecommendation={() => this.dismissAndHideRecommendation(nextPost._id)}
-          key={sequence?._id || collection?._id}
-          listContext={"continueReading"}
-        />
-      })}
+      <AnalyticsContext listContext={"continueReading"}>
+        {entries.map(resumeReading => {
+          const { nextPost, sequence, collection } = resumeReading;
+          return <PostsItem2
+            post={nextPost}
+            sequenceId={sequence?._id}
+            resumeReading={resumeReading}
+            dismissRecommendation={() => this.dismissAndHideRecommendation(nextPost._id)}
+            key={sequence?._id || collection?._id}
+          />
+        })}
+      </AnalyticsContext>
+      
       
       <SectionFooter>
         {showAllLink && <a onClick={this.showAll}>

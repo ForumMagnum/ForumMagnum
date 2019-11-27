@@ -1,6 +1,7 @@
 /*global Vulcan*/
 import { addGraphQLSchema } from 'meteor/vulcan:core';
 import { RateLimiter } from './rateLimiter.js';
+import React, { useContext, useEffect } from 'react'
 
 addGraphQLSchema(`
   type AnalyticsEvent {
@@ -30,6 +31,7 @@ export const AnalyticsUtil = {
 };
 
 export function captureEvent(eventType, eventProps) {
+  console.log(eventType, eventProps)
   try {
     if (Meteor.isServer) {
       // If run from the server, put this directly into the server's write-to-SQL
@@ -59,6 +61,38 @@ export function captureEvent(eventType, eventProps) {
   }
 }
 
+
+
+export const ReactTrackingContext = React.createContext({});
+
+export const AnalyticsContext = ({children, ...props}) => {
+  const existingContextData = useContext(ReactTrackingContext)
+  if (existingContextData) {
+    return <ReactTrackingContext.Provider value={{...existingContextData, ...props}}>
+      {children}
+    </ReactTrackingContext.Provider>
+  }
+}
+
+export function useTracking({eventName, onMount = false, extraData = {}, skip = false}) {
+  const trackingContext = useContext(ReactTrackingContext)
+  useEffect(() => {
+    if (typeof onMount === "function") {
+      onMount(trackingContext) && captureEvent(`${eventName}Mounted`, {...trackingContext, ...extraData})
+    } else if (!!onMount) {
+      captureEvent(`${eventName}Mounted`, {...trackingContext, ...extraData})
+    }
+  }, [eventName, onMount, trackingContext, extraData])
+  
+  const track = (name , trackingData) => {
+    captureEvent(name || eventName, {
+      ...trackingContext,
+      ...extraData, 
+      ...trackingData
+    })
+  }
+  return {captureEvent: track}
+}
 // Analytics events have two rate limits, one denominated in events per second,
 // the other denominated in uncompressed kilobytes per second. Each of these
 // has a burst limit and a steady-state limit. If either rate limit is exceeded,

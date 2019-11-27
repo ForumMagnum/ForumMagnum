@@ -12,7 +12,7 @@ import { useCurrentUser } from "../common/withUser";
 import classNames from 'classnames';
 import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
-import { captureEvent } from '../../lib/analyticsEvents.js';
+import { AnalyticsContext } from '../../lib/analyticsEvents.js';
 
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
@@ -402,9 +402,11 @@ const PostsItem2 = ({
               <PostsItemKarma post={post} />
             </PostsItem2MetaInfo>
 
-            <AnalyticsTracker eventType={"postItem"} eventProps={{"postId": post?._id, "listContext": listContext, "isSticky": isSticky(post, terms)}} onClick={true} onRender={captureDisplay}>
-              <PostsTitle postLink={postLink} post={post} expandOnHover={!renderComments} read={isRead} sticky={isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
-            </AnalyticsTracker>
+            <span className={classes.title}>
+              <AnalyticsContext postId={post._id} isSticky={isSticky(post, terms)}>
+                <PostsTitle postLink={postLink} post={post} expandOnHover={!renderComments} read={isRead} sticky={isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
+              </AnalyticsContext>
+            </span>
 
             {(resumeReading?.sequence || resumeReading?.collection) &&
               <div className={classes.nextUnreadIn}>

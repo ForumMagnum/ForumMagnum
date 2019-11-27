@@ -10,7 +10,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import Users from 'meteor/vulcan:users';
 import Tooltip from '@material-ui/core/Tooltip';
 import { withStyles } from '@material-ui/core/styles'
-import { captureEvent } from '../../lib/analyticsEvents.js';
+import { useTracking } from '../../lib/analyticsEvents.js';
 
 const styles = theme => ({
   icon: {
@@ -21,6 +21,7 @@ const styles = theme => ({
 
 const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right"}) => {
   const {openDialog} = useDialog();
+  const { captureEvent } = useTracking()
   const [bookmarked, setBookmarked] = useState(_.pluck((currentUser?.bookmarkedPostsMetadata || []), 'postId')?.includes(post._id))
 
   const {mutate: updateUser} = useUpdate({
