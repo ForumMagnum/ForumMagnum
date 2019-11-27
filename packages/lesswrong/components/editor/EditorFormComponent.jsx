@@ -298,8 +298,8 @@ class EditorFormComponent extends Component {
   
 
   setEditorType = (editorType) => {
-    const { currentUser } = this.props
-    const targetEditorType = editorType || this.getUserDefaultEditor(currentUser)
+    if (!editorType) throw new Error("Missing argument to setEditorType: editorType");
+    const targetEditorType = editorType;
     this.setState({
       editorOverride: targetEditorType,
       ...this.getEditorStatesFromType(targetEditorType)
@@ -318,19 +318,17 @@ class EditorFormComponent extends Component {
     }
   }
 
-  setHtml = (eventOrHtml) => {
-    const newContent = (typeof eventOrHtml === "string") ? eventOrHtml : eventOrHtml.target.value 
-    const changed = (this.state.htmlValue !== newContent);
-    this.setState({htmlValue: newContent})
+  setHtml = (value) => {
+    const changed = (this.state.htmlValue !== value);
+    this.setState({htmlValue: value})
 
     if (changed)
       this.afterChange();
   }
 
-  setMarkdown = (e) => {
-    const newContent = e.target.value
-    const changed = (this.state.markdownValue !== newContent);
-    this.setState({markdownValue: newContent})
+  setMarkdown = (value) => {
+    const changed = (this.state.markdownValue !== value);
+    this.setState({markdownValue: value})
 
     if (changed)
       this.afterChange();
@@ -598,7 +596,12 @@ class EditorFormComponent extends Component {
         <Input
           className={classNames(classes.markdownEditor, this.getBodyStyles(), {[classes.questionWidth]: document.question})}
           value={value}
-          onChange={editorType === "html" ? this.setHtml : this.setMarkdown}
+          onChange={(ev) => {
+            if (editorType === "html")
+              this.setHtml(ev.target.value);
+            else
+              this.setMarkdown(ev.target.value);
+          }}
           multiline={multiLine}
           rows={commentStyles ? commentEditorHeightRows : postEditorHeightRows}
           rowsMax={99999}
