@@ -211,6 +211,7 @@ export const styles = (theme) => ({
     color: theme.palette.grey[600],
     width: 30,
     textAlign: "center",
+    flexShrink: 0
   },
   sequenceImage: {
     position: "relative",

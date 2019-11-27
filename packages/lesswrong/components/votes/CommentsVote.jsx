@@ -37,7 +37,7 @@ const styles = theme => ({
   }
 })
 
-const CommentsVote = ({ comment, classes, currentUser, hover }) => {
+const CommentsVote = ({ comment, hideKarma, classes, currentUser, hover }) => {
   const vote = useVote();
   
   if (!comment) return null;
@@ -70,11 +70,16 @@ const CommentsVote = ({ comment, classes, currentUser, hover }) => {
               />
             </span>
           </Tooltip>
-          <Tooltip title={`This comment has ${karma} karma (${voteCount} ${voteCount == 1 ? "Vote" : "Votes"})`} placement="bottom">
-            <span className={classes.voteScore}>
-              {karma}
-            </span>
-          </Tooltip>
+          {hideKarma ?
+            <Tooltip title={'The author of this post has disabled karma visibility'}>
+              <span>{' '}</span>
+            </Tooltip> :
+            <Tooltip title={`This comment has ${karma} karma (${voteCount} ${voteCount == 1 ? "Vote" : "Votes"})`} placement="bottom">
+              <span className={classes.voteScore}>
+                {karma}
+              </span>
+            </Tooltip>
+          }
           <Tooltip
             title={<div>Upvote<br /><em>For strong upvote, click-and-hold<br /> (Click twice on mobile)</em></div>}
             placement="bottom">
@@ -119,7 +124,8 @@ const CommentsVote = ({ comment, classes, currentUser, hover }) => {
 CommentsVote.propTypes = {
   comment: PropTypes.object.isRequired, // the document to upvote
   currentUser: PropTypes.object, // user might not be logged in, so don't make it required
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  hideKarma: PropTypes.bool,
 };
 
 registerComponent('CommentsVote', CommentsVote,
