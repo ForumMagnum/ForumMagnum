@@ -304,7 +304,6 @@ class EditorFormComponent extends Component {
     })
   }
 
-  changeCount = 0
   setDraftJS = (value) => { // Takes in an editorstate
     const { draftJSValue } = this.state
     const currentContent = draftJSValue.getCurrentContent()
