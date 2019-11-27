@@ -392,8 +392,8 @@ class EditorFormComponent extends Component {
   
 
   renderEditorWarning = () => {
-    const { classes, currentUser, document, fieldName, value } = this.props
-    const { type } = (value?.originalContents) || (document[fieldName]?.originalContents) || {}
+    const { currentUser, classes } = this.props
+    const type = this.getInitialEditorType();
     const defaultType = this.getUserDefaultEditor(currentUser)
     return <div>
         <Typography variant="body2" color="error">
@@ -646,7 +646,7 @@ class EditorFormComponent extends Component {
 
   render() {
     const { editorOverride } = this.state
-    const { document, currentUser, formType, classes, fieldName } = this.props
+    const { document, currentUser, formType, classes } = this.props
     const currentEditorType = this.getCurrentEditorType()
 
     if (!document) return null;
@@ -654,8 +654,7 @@ class EditorFormComponent extends Component {
     const editorWarning =
       !editorOverride
       && formType !== "new"
-      && document[fieldName]?.originalContents?.type
-      && document[fieldName].originalContents.type !== this.getUserDefaultEditor(currentUser)
+      && this.getInitialEditorType() !== this.getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
 
     return <div>
