@@ -147,6 +147,17 @@ class EditorFormComponent extends Component {
     const { document, fieldName, value } = this.props
     const { editorOverride } = this.state || {} // Provide default value, since we can call this before state is initialized
 
+    const savedState = this.getEditorStatesFromLocalStorage(editorType);
+    if (savedState) {
+      return {
+        draftJSValue:  null,
+        markdownValue: null,
+        htmlValue:     null,
+        ckEditorValue: null,
+        ...savedState,
+      };
+    }
+    
     // if contents are manually specified, use those:
     const newValue = contents || value
 
@@ -156,20 +167,47 @@ class EditorFormComponent extends Component {
         && editorType === newValue.originalContents.type)
     {
       return {
-        draftJSValue: editorType === "draftJS" ? this.initializeDraftJS(newValue.originalContents.data, editorType) : null,
-        markdownValue: editorType === "markdown" ? this.initializeText(newValue.originalContents.data, editorType) : null,
-        htmlValue: editorType === "html" ? this.initializeText(newValue.originalContents.data, editorType) : null,
-        ckEditorValue: editorType === "ckEditorMarkup" ? this.initializeText(newValue.originalContents.data, editorType) : null
+        draftJSValue:  editorType === "draftJS"        ? this.initializeDraftJS(newValue.originalContents.data, editorType) : null,
+        markdownValue: editorType === "markdown"       ? this.initializeText(newValue.originalContents.data, editorType)    : null,
+        htmlValue:     editorType === "html"           ? this.initializeText(newValue.originalContents.data, editorType)    : null,
+        ckEditorValue: editorType === "ckEditorMarkup" ? this.initializeText(newValue.originalContents.data, editorType)    : null
       }
     }
     
     // Otherwise, just set it to the value of the document
     const { draftJS, html, markdown, ckEditorMarkup } = document[fieldName] || {}
     return {
-      draftJSValue: editorType === "draftJS" ? this.initializeDraftJS(draftJS, editorType) : null,
-      markdownValue: editorType === "markdown" ? this.initializeText(markdown, editorType) : null,
-      htmlValue: editorType === "html" ? this.initializeText(html, editorType) : null,
+      draftJSValue:  editorType === "draftJS"        ? this.initializeDraftJS(draftJS, editorType)     : null,
+      markdownValue: editorType === "markdown"       ? this.initializeText(markdown, editorType)       : null,
+      htmlValue:     editorType === "html"           ? this.initializeText(html, editorType)           : null,
       ckEditorValue: editorType === "ckEditorMarkup" ? this.initializeText(ckEditorMarkup, editorType) : null
+    }
+  }
+  
+  getEditorStatesFromLocalStorage = (editorType) => {
+    const savedState = this.getStorageHandlers().get({doc: document, name, prefix:this.getLSKeyPrefix(editorType)})
+    if (!savedState) return null;
+    
+    if (editorType === "draftJS") {
+      try {
+        // eslint-disable-next-line no-console
+        console.log("Restoring saved document state: ", savedState);
+        const contentState = convertFromRaw(savedState)
+        if (contentState.hasText()) {
+          return {
+            draftJSValue: EditorState.createWithContent(contentState)
+          };
+        } else {
+          // eslint-disable-next-line no-console
+          console.log("Not restoring empty document state: ", contentState)
+        }
+      } catch(e) {
+        // eslint-disable-next-line no-console
+        console.error(e)
+      }
+      return null;
+    } else {
+      return savedState;
     }
   }
   
@@ -183,27 +221,7 @@ class EditorFormComponent extends Component {
     const { document, name } = this.props
     let state = {}
 
-    // Check whether we have a state from a previous session saved (in localstorage)
-    const savedState = this.getStorageHandlers().get({doc: document, name, prefix:this.getLSKeyPrefix(editorType)})
-    if (savedState) {
-      try {
-        // eslint-disable-next-line no-console
-        console.log("Restoring saved document state: ", savedState);
-        const contentState = convertFromRaw(savedState)
-        if (contentState.hasText()) {
-          return EditorState.createWithContent(contentState)
-        } else {
-          // eslint-disable-next-line no-console
-          console.log("Not restoring empty document state: ", contentState)
-        }
-        
-      } catch(e) {
-        // eslint-disable-next-line no-console
-        console.error(e)
-      }
-    }
-
-    // Otherwise initialize from the database state
+    // Initialize from the database state
     if (draftJS) {
       try {
         state = EditorState.createWithContent(convertFromRaw(draftJS));
@@ -219,12 +237,6 @@ class EditorFormComponent extends Component {
   }
 
   initializeText = (originalContents, editorType) => {
-    const { document, name } = this.props
-    const savedState = this.getStorageHandlers().get({doc: document, name, prefix:this.getLSKeyPrefix(editorType)})
-    if (savedState) {
-      return savedState;
-    }
-
     return originalContents;
   }
 
