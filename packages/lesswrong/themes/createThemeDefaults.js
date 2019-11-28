@@ -132,7 +132,6 @@ const createLWTheme = (theme) => {
         paddingLeft: spacingUnit*2,
         borderLeft: `solid 3px ${grey[300]}`,
         margin: 0,
-        ...body1FontSize
       },
       commentBlockquote: {
         fontWeight: 400,
@@ -143,7 +142,6 @@ const createLWTheme = (theme) => {
         borderLeft: `solid 3px ${grey[300]}`,
         margin: 0,
         marginLeft: spacingUnit*1.5,
-        ...body2FontSize
       },
       codeblock: {
         backgroundColor: grey[100],
