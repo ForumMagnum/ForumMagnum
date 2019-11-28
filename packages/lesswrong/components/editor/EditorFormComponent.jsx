@@ -601,7 +601,7 @@ class EditorFormComponent extends Component {
 
   renderPlaintextEditor = (editorType) => {
     const { markdownValue, htmlValue } = this.state
-    const { classes, multiLine, fullWidth, disableUnderline, startAdornment, form: { commentStyles }, label } = this.props
+    const { classes, multiLine, fullWidth, disableUnderline, form: { commentStyles }, label } = this.props
     const value = (editorType === "html" ? htmlValue : markdownValue) || ""
     return <div>
         { this.renderPlaceholder(!value) }
@@ -619,7 +619,6 @@ class EditorFormComponent extends Component {
           rowsMax={99999}
           fullWidth={fullWidth}
           disableUnderline={disableUnderline}
-          startAdornment={startAdornment}
           label={label}
         />
       </div>
