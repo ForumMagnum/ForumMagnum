@@ -669,9 +669,7 @@ class EditorFormComponent extends Component {
     return <div>
         { editorWarning }
         <div className={classNames(classes.editor, this.getBodyStyles())}>
-          <div>
-            { this.renderEditorComponent(currentEditorType) }
-          </div>
+          { this.renderEditorComponent(currentEditorType) }
           { this.renderVersionSelect() }
           { this.renderUpdateTypeSelect() }
           { this.renderEditorTypeSelect() }
