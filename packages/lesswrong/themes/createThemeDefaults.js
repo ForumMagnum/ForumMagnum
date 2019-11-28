@@ -76,6 +76,13 @@ const createLWTheme = (theme) => {
       postStyle: {
         fontFamily: typography.fontFamily,
       },
+      contentNotice: {
+        fontStyle: "italic",
+        color: grey[600],
+        fontSize:".9em",
+        marginBottom: spacingUnit*2,
+        wordBreak: "break-word"
+      },
       body1: body1FontSize,
       body2: {
         fontWeight: 400,

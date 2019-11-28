@@ -164,14 +164,8 @@ const styles = theme => ({
     display: 'inline-block'
   },
   unreviewed: {
-    fontStyle: "italic",
-    color: theme.palette.grey[600],
-    marginBottom: theme.spacing.unit*2,
-    fontSize:".9em",
-    maxWidth: "100%",
-    overflowX: "hidden",
-    textOverflow: "ellipsis",
-    ...theme.typography.postStyle,
+    ...theme.typography.contentNotice,
+    ...theme.typography.postStyle
   },
   feedName: {
     fontSize: theme.typography.body2.fontSize,
