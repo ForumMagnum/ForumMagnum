@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
 import { withRecommendations } from './withRecommendations';
-import { captureEvent } from '../../lib/analyticsEvents';
+import {AnalyticsContext, captureEvent} from '../../lib/analyticsEvents';
 
 class RecommendationsList extends Component {
   render() {
@@ -20,15 +20,17 @@ class RecommendationsList extends Component {
     </div>
 
     return <div>
-      {recommendations.map(post =>
-        <PostsItem2 post={post} key={post._id} listContext={"LessWrong 2018 Review"} />)}
-      {recommendations.length===0 &&
-        <span>There are no more recommendations left.</span>}
-      {!currentUser && showLoginPrompt && <SectionFooter>
-        <LoginPopupButton title={improvedRecommendationsTooltip}>
-          Log in for improved recommendations
-        </LoginPopupButton>
-      </SectionFooter>}
+      <AnalyticsContext listContext={"LessWrong 2018 Review"}>
+        {recommendations.map(post =>
+          <PostsItem2 post={post} key={post._id}/>)}
+        {recommendations.length===0 &&
+          <span>There are no more recommendations left.</span>}
+        {!currentUser && showLoginPrompt && <SectionFooter>
+          <LoginPopupButton title={improvedRecommendationsTooltip}>
+            Log in for improved recommendations
+          </LoginPopupButton>
+        </SectionFooter>}
+      </AnalyticsContext>
     </div>
   }
 

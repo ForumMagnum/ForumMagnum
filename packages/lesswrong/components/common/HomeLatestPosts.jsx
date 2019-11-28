@@ -7,7 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper.js';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
 import { withStyles } from '@material-ui/core/styles';
-import { captureEvent } from '../../lib/analyticsEvents';
+import {AnalyticsContext, captureEvent} from '../../lib/analyticsEvents';
 
 const styles = theme => ({
   personalBlogpostsCheckboxLabel: {
@@ -110,9 +110,11 @@ class HomeLatestPosts extends PureComponent {
             </div>
           </Tooltip>
         </SectionTitle>
-        <PostsList2 terms={recentPostsTerms} listContext={"latestPosts"} captureDisplay={false}>
-          <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
-        </PostsList2>
+        <AnalyticsContext listContext={"latestPosts"}>
+          <PostsList2 terms={recentPostsTerms}>
+            <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
+          </PostsList2>
+        </AnalyticsContext>
       </SingleColumnSection>
     )
   }

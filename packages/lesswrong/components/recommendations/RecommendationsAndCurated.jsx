@@ -10,6 +10,7 @@ import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { withContinueReading } from './withContinueReading';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
+import {AnalyticsContext} from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   section: {
@@ -184,7 +185,9 @@ class RecommendationsAndCurated extends PureComponent {
         </Link>
       </Tooltip>
       <SubSection>
-        <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true} listContext={"curatedPosts"}/>
+        <AnalyticsContext listContext={"curatedPosts"}>
+        <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
+        </AnalyticsContext>
       </SubSection>
       <div className={classes.footerWrapper}>
         <Typography component="div" variant="body2" className={classes.footer}>
