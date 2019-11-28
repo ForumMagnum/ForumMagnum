@@ -106,9 +106,6 @@ export const makeEditable = ({collection, options = {}}) => {
         },
         form: {
           hintText: hintText,
-          multiLine:true,
-          fullWidth:true,
-          disableUnderline:true,
           fieldName: fieldName || "contents",
           commentEditor,
           commentStyles,

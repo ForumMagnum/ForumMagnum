@@ -601,7 +601,7 @@ class EditorFormComponent extends Component {
 
   renderPlaintextEditor = (editorType) => {
     const { markdownValue, htmlValue } = this.state
-    const { classes, multiLine, fullWidth, disableUnderline, form: { commentStyles }, label } = this.props
+    const { classes, form: { commentStyles }, label } = this.props
     const value = (editorType === "html" ? htmlValue : markdownValue) || ""
     return <div>
         { this.renderPlaceholder(!value) }
@@ -614,11 +614,11 @@ class EditorFormComponent extends Component {
             else
               this.setMarkdown(ev.target.value);
           }}
-          multiline={multiLine}
+          multiline={true}
           rows={commentStyles ? commentEditorHeightRows : postEditorHeightRows}
           rowsMax={99999}
-          fullWidth={fullWidth}
-          disableUnderline={disableUnderline}
+          fullWidth={true}
+          disableUnderline={true}
           label={label}
         />
       </div>
