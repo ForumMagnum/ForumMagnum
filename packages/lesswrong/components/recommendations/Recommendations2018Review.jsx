@@ -54,7 +54,7 @@ const Recommendations2018Review = ({classes, settings, currentUser}) => {
               The LessWrong 2018 Review
           </Link>
           {currentUser?.karma >= 1000 ? <div className={classes.timeRemaining}>
-            <em>You have until Dec 1st to nominate posts. (Posts need 2+ nominations, <span className={classes.learnMore}><HoverPreviewLink href="http://localhost:3000/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review-posts-need-at-least-2-nominations" innerHTML={"learn more"}/></span>)</em>
+            <em>You have until Dec 1st to nominate posts. (Posts need 2+ nominations, <span className={classes.learnMore}><HoverPreviewLink href="http://lesswrong.com/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review-posts-need-at-least-2-nominations" innerHTML={"learn more"}/></span>)</em>
           </div> : null}
         </SectionSubtitle>
       </Tooltip>

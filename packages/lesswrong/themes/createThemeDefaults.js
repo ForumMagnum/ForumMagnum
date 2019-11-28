@@ -25,6 +25,7 @@ export const zIndexes = {
   styledMapPopup: 5,
   nextUnread: 999,
   sunshineSidebar: 1000,
+  commentBoxPopup: 1000,
   postItemMenu: 1001,
   layout: 1100,
   tabNavigation: 1101,
