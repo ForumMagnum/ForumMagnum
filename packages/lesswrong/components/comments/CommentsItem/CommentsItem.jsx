@@ -1,4 +1,5 @@
-import { Components, registerComponent, withMessages } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withMessages } from '../../common/withMessages';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Users from 'meteor/vulcan:users';

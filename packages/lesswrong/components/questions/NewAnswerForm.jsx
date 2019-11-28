@@ -7,7 +7,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import withUser from '../common/withUser'
-import withDialog from '../common/withDialog';
+import { useDialog } from '../common/withDialog';
 
 const styles = theme => ({
   answersForm: {
@@ -34,7 +34,8 @@ const styles = theme => ({
 
 const NewAnswerForm = ({post, classes, currentUser}) => {
 
-  const SubmitComponent = withDialog(({submitLabel = "Submit", openDialog}) => {
+  const SubmitComponent = ({submitLabel = "Submit"}) => {
+    const { openDialog } = useDialog();
     return <div className={classes.submit}>
       <Button
         type="submit"
@@ -52,7 +53,7 @@ const NewAnswerForm = ({post, classes, currentUser}) => {
         {submitLabel}
       </Button>
     </div>
-  });
+  };
 
   const prefilledProps = {
     postId: post._id,
