@@ -64,7 +64,11 @@ const styles = (theme) => ({
     '& li': {
       marginTop: 5,
       marginBottom: 5
-    }
+    },
+  },
+  hidePrompt: {
+    display: "block",
+    textAlign: "right"
   }
 })
 
@@ -103,7 +107,7 @@ const ReviewPostForm = ({classes, post, onClose}) => {
               What followup work would you like to see building on this post?
             </li>
           </ul>
-          <a onClick={() => setShowPrompt(false)}>(hide prompt)</a>
+          <a className={classes.hidePrompt} onClick={() => setShowPrompt(false)}>(hide prompt)</a>
         </div>}
         {!showPrompt && <div onClick={() => setShowPrompt(true)}>Reviews should ideally answer... <a onClick={() => setShowPrompt(false)}>(read more)</a></div>}
       </div>
