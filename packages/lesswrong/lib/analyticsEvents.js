@@ -19,11 +19,11 @@ export const AnalyticsUtil = {
   // with an array of events. Available only on the client and when the react
   // tree is mounted, null otherwise; filled in by Components.AnalyticsClient.
   clientWriteEvents: null,
-  
+
   // clientContextVars: A dictionary of variables that will be added to every
   // analytics event sent from the client. Client-side only.
   clientContextVars: {},
-  
+
   // serverWriteEvent: Write a (single) event to the analytics database. Server-
   // side only, filled in in analyticsWriter.js; null on the client. If no
   // analytics database is configured, does nothing.
@@ -74,20 +74,21 @@ export const AnalyticsContext = ({children, ...props}) => {
   }
 }
 
-export function useTracking({eventName, onMount = false, extraData = {}, skip = false}) {
+export function useTracking({eventType, eventProps = {}, captureOnMount = false,  skip = false}) {
   const trackingContext = useContext(ReactTrackingContext)
   useEffect(() => {
-    if (typeof onMount === "function") {
-      onMount(trackingContext) && captureEvent(`${eventName}Mounted`, {...trackingContext, ...extraData})
-    } else if (!!onMount) {
-      captureEvent(`${eventName}Mounted`, {...trackingContext, ...extraData})
+    const eventData = {...trackingContext, ...eventProps}
+    if (typeof captureOnMount === "function") {
+      captureOnMount(eventData) && captureEvent(`${eventType}Mounted`, eventData)
+    } else if (!!captureOnMount) {
+      captureEvent(`${eventType}Mounted`, eventData)
     }
-  }, [eventName, onMount, trackingContext, extraData])
-  
-  const track = (name , trackingData) => {
-    captureEvent(name || eventName, {
+  }, [])
+
+  const track = (type , trackingData) => {
+    captureEvent(type || eventType, {
       ...trackingContext,
-      ...extraData, 
+      ...eventProps,
       ...trackingData
     })
   }
@@ -112,7 +113,7 @@ const throttledStoreEvent = (event) => {
   const now = new Date();
   const eventType = event.type;
   const eventSize = JSON.stringify(event).length;
-  
+
   if (!(eventType in eventTypeLimiters)) {
     eventTypeLimiters[eventType] = {
       eventCount: new RateLimiter({
@@ -139,7 +140,7 @@ const throttledStoreEvent = (event) => {
   const limiters = eventTypeLimiters[eventType];
   limiters.eventCount.advanceTime(now);
   limiters.eventBandwidth.advanceTime(now);
-  
+
   if (limiters.eventCount.canConsumeResource(1)
     && limiters.eventBandwidth.canConsumeResource(eventSize))
   {
@@ -160,7 +161,7 @@ function flushClientEvents() {
     return;
   if (!pendingAnalyticsEvents.length)
     return;
-  
+
   AnalyticsUtil.clientWriteEvents(pendingAnalyticsEvents.map(event => ({
     ...(Meteor.isClient ? AnalyticsUtil.clientContextVars : null),
     ...event

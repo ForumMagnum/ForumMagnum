@@ -63,7 +63,7 @@ const stickyIcon = <svg fill="#000000" height="15" viewBox="0 0 10 15" width="10
 
 const PostsTitle = ({currentUser, post, postLink, classes, sticky, read, showQuestionTag=true, wrap=false, showIcons=true}) => {
   const { pathname } = useLocation();
-  const { PostsItemIcons, AnalyticsTracker } = Components
+  const { PostsItemIcons } = Components
 
   const shared = post.draft && (post.userId !== currentUser._id)
 
@@ -71,32 +71,30 @@ const PostsTitle = ({currentUser, post, postLink, classes, sticky, read, showQue
   const shouldRenderEventsTag = pathname !== "/community"
 
   const url = postLink || Posts.getPageUrl(post)
-  return <Link to={url} trackingData={{location: "post-title"}} className={classNames(
+  return <Link to={url} className={classNames(
     classes.root,
     {
       [classes.read]: read,
       [classes.wrap]: wrap,
     }
   )}>
-    {/* <AnalyticsTracker eventType={"post-item"} onClick={true}>     */}
-      {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
+    {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
 
-      {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
+    {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
 
-      {shared && <span className={classes.tag}>[Shared]</span>}
+    {shared && <span className={classes.tag}>[Shared]</span>}
 
-      {post.question && shouldRenderQuestionTag && <span className={classes.tag}>[Question]</span>}
+    {post.question && shouldRenderQuestionTag && <span className={classes.tag}>[Question]</span>}
 
-      {post.url && <span className={classes.tag}>[Link]</span>}
+    {post.url && <span className={classes.tag}>[Link]</span>}
 
-      {post.isEvent && shouldRenderEventsTag && <span className={classes.tag}>[Event]</span>}
+    {post.isEvent && shouldRenderEventsTag && <span className={classes.tag}>[Event]</span>}
 
-      <span>{post.title}</span>
+    <span>{post.title}</span>
 
-      {showIcons && <span className={classes.hideSmDown}>
-        <PostsItemIcons post={post}/>
-      </span>}
-    {/* </AnalyticsTracker> */}
+    {showIcons && <span className={classes.hideSmDown}>
+      <PostsItemIcons post={post}/>
+    </span>}
   </Link>
 }
 

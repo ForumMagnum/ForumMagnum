@@ -12,13 +12,13 @@ import { useCurrentUser } from "../common/withUser";
 import classNames from 'classnames';
 import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
-import { AnalyticsContext } from '../../lib/analyticsEvents.js';
 
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 export const COMMENTS_WIDTH = 48
 
 const COMMENTS_BACKGROUND_COLOR = "#efefef"
+const captureOnMountContexts = ['continueReading', 'bookmarks', 'fromTheArchives', 'LessWrong 2018 Review']
 
 export const styles = (theme) => ({
   root: {
@@ -372,6 +372,7 @@ const PostsItem2 = ({
   const renderComments = showComments || (defaultToShowUnreadComments && unreadComments)
   const condensedAndHiddenComments = defaultToShowUnreadComments && unreadComments && !showComments
 
+
   const dismissButton = (currentUser && resumeReading &&
     <Tooltip title={dismissRecommendationTooltip} placement="right">
       <CloseIcon onClick={() => dismissRecommendation()}/>
@@ -403,9 +404,12 @@ const PostsItem2 = ({
             </PostsItem2MetaInfo>
 
             <span className={classes.title}>
-              <AnalyticsContext postId={post._id} isSticky={isSticky(post, terms)}>
-                <PostsTitle postLink={postLink} post={post} expandOnHover={!renderComments} read={isRead} sticky={isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
-              </AnalyticsContext>
+                <AnalyticsTracker eventType={"postItem"}
+                                  eventProps={{postId: post._id, isSticky:isSticky(post, terms)}}
+                                  captureOnClick={true}
+                                  captureOnMount={(eventData => captureOnMountContexts.includes(eventData.listContext))}>
+                  <PostsTitle postLink={postLink} post={post} expandOnHover={!renderComments} read={isRead} sticky={isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
+                </AnalyticsTracker>
             </span>
 
             {(resumeReading?.sequence || resumeReading?.collection) &&

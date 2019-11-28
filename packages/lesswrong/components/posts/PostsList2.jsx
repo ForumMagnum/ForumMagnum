@@ -5,7 +5,7 @@ import { Posts } from '../../lib/collections/posts';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles'
-import {captureEvent} from "../../lib/analyticsEvents";
+import { useTracking } from "../../lib/analyticsEvents";
 
 const Error = ({error}) => <div>
   <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
@@ -56,7 +56,6 @@ const PostsList2 = ({
   enableTotal=false,
   showNominationCount,
   classes,
-  listContext,
   dense,
 }) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
@@ -102,12 +101,9 @@ const PostsList2 = ({
   }
 
   //Analytics Tracking
-  useEffect(()=> {
-    if (results) {
-       const displayedPosts = (hidePosts) ? results.filter((post, i) => hidePosts[i]) : results;
-       captureEvent("postsListDisplayed", {"postIds": displayedPosts.map((post) => post._id), "listContext": {listContext}});
-    }
-  }, [])
+  const displayedPosts = ((hidePosts) ? results.filter((post, i) => hidePosts[i]) : results) || []
+  const postIds = displayedPosts.map((post) => post._id)
+  useTracking({eventType: "postList", eventProps: {postIds}, captureOnMount: eventProps => eventProps.postIds.length})
 
   if (!results && loading) return <Loading />
 
@@ -131,16 +127,12 @@ const PostsList2 = ({
              showNominationCount={showNominationCount}
              dense={dense}
              hideOnSmallScreens
-             listContext={listContext}
-             captureDisplay={false}
             />
           : <PostsItem2 key={post._id}
               post={post} terms={terms} index={i}
               showQuestionTag={terms.filter!=="questions"}
               showNominationCount={showNominationCount}
               dense={dense}
-              listContext={listContext}
-              captureDisplay={false}
             />
       )}
       {(showLoadMore || children?.length>0) && <SectionFooter>
