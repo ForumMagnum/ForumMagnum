@@ -42,8 +42,11 @@ const styles = (theme) => ({
   },
   header: {
     backgroundColor: theme.palette.grey[100],
-    padding: 20,
-    paddingBottom: 8
+    paddingLeft: 20,
+    paddingRight: 20,
+    paddingTop: 14,
+    paddingBottom: 8,
+    position: "relative"
   },
   editor:{
     padding: 20,
@@ -67,8 +70,9 @@ const styles = (theme) => ({
     },
   },
   hidePrompt: {
-    display: "block",
-    textAlign: "right"
+    position: "absolute",
+    right: 10,
+    bottom: 10
   }
 })
 
