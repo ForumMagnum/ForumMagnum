@@ -135,6 +135,24 @@ class EditorFormComponent extends Component {
 
   async componentDidMount() {
     const { currentUser, form } = this.props
+    
+    this.context.addToSubmitForm(this.submitData);
+
+    this.context.addToSuccessForm((result) => {
+      this.resetEditor();
+      return result;
+    });
+
+    if (Meteor.isClient && window) {
+      this.unloadEventListener = window.addEventListener("beforeunload", (ev) => {
+        if (this.hasUnsavedData) {
+          ev.preventDefault();
+          ev.returnValue = 'Are you sure you want to close?';
+          return ev.returnValue
+        }
+      });
+    }
+    
     if (userHasCkEditor(currentUser)) {
       let EditorModule = await (form?.commentEditor ? import('../async/CKCommentEditor') : import('../async/CKPostEditor'))
       const Editor = EditorModule.default
@@ -233,25 +251,6 @@ class EditorFormComponent extends Component {
 
     // And lastly, if the field is empty, create an empty draftJS object
     return EditorState.createEmpty();
-  }
-
-  UNSAFE_componentWillMount() {
-    this.context.addToSubmitForm(this.submitData);
-
-    this.context.addToSuccessForm((result) => {
-      this.resetEditor();
-      return result;
-    });
-
-    if (Meteor.isClient && window) {
-      this.unloadEventListener = window.addEventListener("beforeunload", (ev) => {
-        if (this.hasUnsavedData) {
-          ev.preventDefault();
-          ev.returnValue = 'Are you sure you want to close?';
-          return ev.returnValue
-        }
-      });
-    }
   }
   
   submitData = (submission) => {
