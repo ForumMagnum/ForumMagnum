@@ -20,14 +20,16 @@ const styles = theme => ({
 })
 
 const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right"}) => {
-  const {openDialog} = useDialog();
-  const { captureEvent } = useTracking()
+  const { openDialog } = useDialog();
+  // const { captureEvent } = useTracking()
   const [bookmarked, setBookmarked] = useState(_.pluck((currentUser?.bookmarkedPostsMetadata || []), 'postId')?.includes(post._id))
+  const { captureEvent } = useTracking({eventType: "bookmarkToggle", eventProps: {"postId": post._id, "bookmarked": !bookmarked}})
 
   const {mutate: updateUser} = useUpdate({
     collection: Users,
     fragmentName: 'UserBookmarks',
   });
+
 
   const toggleBookmark = (event) => {
     if (!currentUser) {
@@ -57,7 +59,7 @@ const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right"
         data: { bookmarkedPostsMetadata: [...bookmarks, {postId: post._id}] }
       });
     }
-    captureEvent("bookmarkToggle", {"postId": post._id, "bookmarked": !bookmarked})
+    captureEvent()
   }
 
   const icon = bookmarked ? <Bookmark/> : <BookmarkBorder/>

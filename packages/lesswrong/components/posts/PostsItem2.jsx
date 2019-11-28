@@ -404,10 +404,11 @@ const PostsItem2 = ({
             </PostsItem2MetaInfo>
 
             <span className={classes.title}>
-                <AnalyticsTracker eventType={"postItem"}
-                                  eventProps={{postId: post._id, isSticky:isSticky(post, terms)}}
-                                  captureOnClick={true}
-                                  captureOnMount={(eventData => captureOnMountContexts.includes(eventData.listContext))}>
+                <AnalyticsTracker
+                    eventType={"postItem"}
+                    eventProps={{postId: post._id, isSticky:isSticky(post, terms)}}
+                    captureOnClick={true}
+                    captureOnMount={(eventData => captureOnMountContexts.includes(eventData.listContext))}>
                   <PostsTitle postLink={postLink} post={post} expandOnHover={!renderComments} read={isRead} sticky={isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
                 </AnalyticsTracker>
             </span>
