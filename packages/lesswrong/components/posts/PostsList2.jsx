@@ -101,9 +101,9 @@ const PostsList2 = ({
   }
 
   //Analytics Tracking
-  const displayedPosts = ((hidePosts) ? results.filter((post, i) => hidePosts[i]) : results) || []
-  const postIds = displayedPosts.map((post) => post._id)
-  useTracking({eventType: "postList", eventProps: {postIds}, captureOnMount: eventProps => eventProps.postIds.length})
+  // const displayedPosts = ((hidePosts) ? results.filter((post, i) => hidePosts[i]) : results) || []
+  const postIds = (results||[]).map((post) => post._id)
+  useTracking({eventType: "postList", eventProps: {postIds, hidePosts}, captureOnMount: eventProps => eventProps.postIds.length})
 
   if (!results && loading) return <Loading />
 
