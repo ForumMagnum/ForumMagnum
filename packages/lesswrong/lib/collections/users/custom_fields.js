@@ -433,7 +433,7 @@ addFieldsDict(Users, {
 
   showHideKarmaOption: {
     type: Boolean,
-    optional: false,
+    optional: true,
     label: "Enable option on posts to hide karma visibility",
     canRead: [Users.owns, 'admins'],
     canUpdate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
