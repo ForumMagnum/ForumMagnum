@@ -152,6 +152,8 @@ Meteor.startup(() => {
       schema: GraphQLSchema.executableSchema,
       formatError: (e) => {
         Sentry.captureException(e);
+        // eslint-disable-next-line no-console
+        console.error(e.extensions.exception)
         return formatError(e);
       },
       tracing: getSetting('apolloTracing', Meteor.isDevelopment),
