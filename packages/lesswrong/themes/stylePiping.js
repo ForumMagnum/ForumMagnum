@@ -281,10 +281,10 @@ export const postHighlightStyles = theme => {
 export const pBodyStyle = {
   marginTop: "1em",
   marginBottom: "1em",
-  '&:first-of-type': {
+  '&:first-child': {
     marginTop: 0,
   },
-  '&:last-of-type': {
+  '&:last-child': {
     marginBottom: 0,
   }
 }
@@ -299,6 +299,9 @@ export const ckEditorStyles = theme => {
       '& blockquote': {
         fontStyle: "unset",
         ...theme.typography.blockquote,
+        '& p': {
+          ...pBodyStyle,
+        },
         '& .public-DraftStyleDefault-block': {
           marginTop: 0,
           marginBottom: 0,
