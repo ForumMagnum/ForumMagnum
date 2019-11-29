@@ -99,18 +99,6 @@ class App extends PureComponent {
     moment.locale(locale);
   }
 
-  /*
-
-  Clear messages on route change
-  See https://stackoverflow.com/a/45373907/649299
-
-  */
-  UNSAFE_componentWillMount() {
-    this.unlisten = this.props.history.listen((location, action) => {
-      this.clear();
-    });
-  }
-
   componentWillUnmount() {
       this.unlisten();
   }
@@ -132,6 +120,7 @@ class App extends PureComponent {
 
   */
   clear = () => {
+    console.log("Clear called: ", this.state.messages)
     // When clearing messages, we first set all current messages to have a hide property
     // And only after 500ms set the array to empty, to allow UI elements to show a fade-out animation
     this.setState({
