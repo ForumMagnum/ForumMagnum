@@ -99,18 +99,6 @@ class App extends PureComponent {
     moment.locale(locale);
   }
 
-  /*
-
-  Clear messages on route change
-  See https://stackoverflow.com/a/45373907/649299
-
-  */
-  UNSAFE_componentWillMount() {
-    this.unlisten = this.props.history.listen((location, action) => {
-      this.clear();
-    });
-  }
-
   componentWillUnmount() {
       this.unlisten();
   }
