@@ -25,7 +25,6 @@ export const zIndexes = {
   styledMapPopup: 5,
   nextUnread: 999,
   sunshineSidebar: 1000,
-  commentBoxPopup: 1000,
   postItemMenu: 1001,
   layout: 1100,
   tabNavigation: 1101,
@@ -38,6 +37,7 @@ export const zIndexes = {
   lwPopperTooltip: 10001,
   loginDialog: 10002,
   searchBar: 100000,
+  commentBoxPopup: 10000000000, // has to be higher than Intercom, 
   // petrovDayButton: 6,
   // petrovDayLoss: 1000000
 }

@@ -249,6 +249,12 @@ class CommentsItem extends Component {
               {`Nomination for ${comment.nominatedForReview} Review`}
             </Link>}
           </div>
+          {comment.nominatedForReview && <Link to={"/nominations"} className={classes.nomination}>
+            {`Nomination for ${comment.nominatedForReview} Review`}
+          </Link>}
+          {comment.reviewingForReview && <Link to={"/nominations"} className={classes.nomination}>
+            {`Review for ${comment.reviewingForReview}`}
+          </Link>}
           {this.renderBodyOrEditor()}
           {!comment.deleted && !collapsed && this.renderCommentBottom()}
         </div>

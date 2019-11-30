@@ -50,7 +50,7 @@ const styles = (theme) => ({
   },
   editor:{
     padding: 20,
-    paddingBottom: 5,
+    paddingBottom: 12,
   },
   guidelines: {
     cursor: "default",
@@ -71,8 +71,12 @@ const styles = (theme) => ({
   },
   hidePrompt: {
     position: "absolute",
-    right: 10,
-    bottom: 10
+    right: 14,
+    bottom: 14
+  },
+  moderatorsNote: {
+    fontStyle: "italic",
+    marginTop: 4,
   }
 })
 
@@ -95,7 +99,7 @@ const ReviewPostForm = ({classes, post, onClose}) => {
           <ul>
             <li>Is this post epistemically sound?
               <ul>
-                <li>Does it make accurate claims? Does it carve reality at the joints?</li>
+                <li>Does it make accurate claims? Does it carve reality at the joints? How do you know?</li>
               </ul>
             </li>
             <li>
@@ -111,7 +115,8 @@ const ReviewPostForm = ({classes, post, onClose}) => {
               What followup work would you like to see building on this post?
             </li>
           </ul>
-          <a className={classes.hidePrompt} onClick={() => setShowPrompt(false)}>(hide)</a>
+          <div className={classes.moderatorsNote}>(Moderators may promote reviews to top-level posts)</div>
+          <a className={classes.hidePrompt} onClick={() => setShowPrompt(false)}>(click to hide)</a>
         </div>}
         {!showPrompt && <div onClick={() => setShowPrompt(true)}>Reviews should ideally answer... <a onClick={() => setShowPrompt(false)}>(read more)</a></div>}
       </div>
