@@ -189,6 +189,8 @@ importComponent("PostsUserAndCoauthors", () => require('../components/posts/Post
 importComponent("PostSubmit", () => require('../components/posts/PostSubmit.jsx'));
 importComponent("SubmitToFrontpageCheckbox", () => require('../components/posts/SubmitToFrontpageCheckbox.jsx'));
 importComponent("ReportPostMenuItem", () => require('../components/posts/ReportPostMenuItem.jsx'));
+importComponent("ReviewPostButton", () => require('../components/posts/ReviewPostButton.jsx'));
+importComponent("ReviewPostForm", () => require('../components/posts/ReviewPostForm.jsx'));
 importComponent("PostsItemDate", () => require('../components/posts/PostsItemDate.jsx'));
 
 importComponent("UserPageTitle", () => require('../components/titles/UserPageTitle.jsx'));
