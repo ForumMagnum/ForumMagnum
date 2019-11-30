@@ -537,4 +537,10 @@ addRoute([
     componentName: 'Nominations2018',
     title: "Nominations 2018 Review",
   },
+  {
+    name: 'reviews',
+    path: '/reviews',
+    componentName: 'Reviews2018',
+    title: "Best of 2018 Review Phase",
+  },
 ]);

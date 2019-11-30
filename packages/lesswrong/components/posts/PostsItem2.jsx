@@ -13,11 +13,13 @@ import classNames from 'classnames';
 import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
 
+import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
+
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 export const COMMENTS_WIDTH = 48
 
-const COMMENTS_BACKGROUND_COLOR = "#efefef"
+const COMMENTS_BACKGROUND_COLOR = "#f5f5f5"
 
 export const styles = (theme) => ({
   root: {
@@ -30,11 +32,11 @@ export const styles = (theme) => ({
     }
   },
   background: {
-    transition: "3s",
     width: "100%",
   },
   postsItem: {
     display: "flex",
+    position: "relative",
     paddingTop: 10,
     paddingBottom: 10,
     alignItems: "center",
@@ -62,7 +64,10 @@ export const styles = (theme) => ({
   },
   commentsBackground: {
     backgroundColor: COMMENTS_BACKGROUND_COLOR,
-    transition: "0s",
+    border: "solid 1px #ccc",
+    boxShadow: "0px 2px 3px rgba(0,0,0,.2)",
+    marginTop: -1,
+    marginBottom: 16
   },
   firstItem: {
     borderTop: "solid 1px rgba(0,0,0,.2)"
@@ -127,9 +132,9 @@ export const styles = (theme) => ({
     width: "100%",
     paddingLeft: theme.spacing.unit*2,
     paddingRight: theme.spacing.unit*2,
-    paddingBottom: theme.spacing.unit,
     paddingTop: theme.spacing.unit,
     cursor: "pointer",
+    marginBottom: NEW_COMMENT_MARGIN_BOTTOM,
     [theme.breakpoints.down('sm')]: {
       padding: 0,
     }
@@ -209,9 +214,8 @@ export const styles = (theme) => ({
   nominationCount: {
     ...theme.typography.body2,
     color: theme.palette.grey[600],
-    width: 30,
-    textAlign: "center",
-    flexShrink: 0
+    position: "absolute",
+    bottom: 0
   },
   sequenceImage: {
     position: "relative",
@@ -344,6 +348,7 @@ const PostsItem2 = ({
   
   const toggleComments = React.useCallback(
     () => {
+      console.log("a")
       recordPostView({post})
       setShowComments(!showComments);
       setReadComments(true);
@@ -399,7 +404,7 @@ const PostsItem2 = ({
             </PostsItem2MetaInfo>
 
             <span className={classes.title}>
-              <PostsTitle postLink={postLink} post={post} expandOnHover={!renderComments} read={isRead} sticky={isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
+              <PostsTitle postLink={postLink} post={post} expandOnHover={!renderComments} read={isRead && !renderComments} sticky={isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
             </span>
 
             {(resumeReading?.sequence || resumeReading?.collection) &&
@@ -448,14 +453,6 @@ const PostsItem2 = ({
               <BookmarkButton post={post}/>
             </div>}
 
-            {showNominationCount && <div className={classes.nominationCount}>
-              <Tooltip placement="right" title={`This post has ${post.nominationCount2018} nomination${post.nominationCount2018 > 1 ? 's' : ''} for the 2018 review`}>
-                <span>
-                  { post.nominationCount2018}
-                </span>
-              </Tooltip>
-            </div>}
-
             <div className={classes.mobileDismissButton}>
               {dismissButton}
             </div>
@@ -470,6 +467,10 @@ const PostsItem2 = ({
                   }`}
                 />
               </div>}
+
+            {showNominationCount && <div className={classes.nominationCount}>
+              {post.nominationCount2018} nominations — {post.reviewCount2018} reviews
+            </div>}
           </div>
         </div>
       </PostsItemTooltipWrapper>

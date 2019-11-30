@@ -179,6 +179,7 @@ importComponent("PostsEditForm", () => require('../components/posts/PostsEditFor
 importComponent("PostsEditPage", () => require('../components/posts/PostsEditPage.jsx'));
 importComponent("PostCollaborationEditor", () => require('../components/posts/PostCollaborationEditor.jsx'));
 importComponent("Nominations2018", () => require('../components/posts/Nominations2018.jsx'));
+importComponent("Reviews2018", () => require('../components/posts/Reviews2018.jsx'));
 
 
 importComponent("PostsGroupDetails", () => require('../components/posts/PostsGroupDetails.jsx'));

@@ -10,6 +10,7 @@ const styles = (theme) => ({
     ...theme.typography.commentStyle,
     color: theme.palette.grey[700],
     display: "inline-block",
+    marginBottom: theme.spacing.unit/2
   }
 })
 
