@@ -1,46 +1,37 @@
-import React, { PureComponent } from 'react';
+import React, { useState } from 'react';
 import { Components } from 'meteor/vulcan:core';
 import { hookToHoc } from '../../lib/hocUtils.js';
 
 export const CommentBoxContext = React.createContext('commentBox');
 
-export class CommentBoxManager extends PureComponent {
-  state = {
-    currentDialog: null,
-    componentProps: null
-  };
+export const CommentBoxManager = ({ children }) => {
+  const [ componentName, setComponentName] = useState(null)
+  const [ componentProps, setComponentProps] = useState(null)
 
-  close = () => {
-    this.setState({
-      componentName: null,
-      componentProps: null
-    });
+  const CommentBoxComponent = componentName ? Components[componentName] : null;
+
+  const close = () => {
+    setComponentName(null)
+    setComponentProps(null)
   }
 
-  render() {
-    const { children } = this.props;
-    const { componentName } = this.state;
-    const CommentBoxComponent = componentName ? Components[componentName] : null;
-
-    return (
-      <CommentBoxContext.Provider value={{
-        openCommentBox: ({componentName, componentProps}) => this.setState({
-          componentName: componentName,
-          componentProps: componentProps
-        }),
-        close: this.close
-      }}>
-        {children}
-
-        {this.state.componentName &&
-          <CommentBoxComponent
-            {...this.state.componentProps}
-            onClose={this.close}
-          />
-        }
-      </CommentBoxContext.Provider>
-    );
-  }
+  return (
+    <CommentBoxContext.Provider value={{
+      openCommentBox: ({componentName, componentProps}) => {
+        setComponentName(componentName)
+        setComponentProps(componentProps)
+      },
+      close: this.close
+    }}>
+      {children}
+      {componentName &&
+        <CommentBoxComponent
+          {...componentProps}
+          onClose={close}
+        />
+      }
+    </CommentBoxContext.Provider>
+  );
 }
 
 export const useCommentBox = () => React.useContext(CommentBoxContext);
