@@ -147,8 +147,6 @@ importComponent("PostsTimeframeList", () => require('../components/posts/PostsTi
 importComponent("AllPostsPage", () => require('../components/posts/AllPostsPage.jsx'));
 importComponent("PostsListSettings", () => require('../components/posts/PostsListSettings.jsx'));
 importComponent("SuggestCurated", () => require('../components/posts/SuggestCurated.jsx'));
-importComponent("NominatePostMenuItem", () => require('../components/posts/NominatePostMenuItem.jsx'));
-importComponent("NominatePostDialog", () => require('../components/posts/NominatePostDialog.jsx'));
 importComponent("DeleteDraft", () => require('../components/posts/DeleteDraft.jsx'));
 importComponent("BookmarkButton", () => require('../components/posts/BookmarkButton.jsx'));
 importComponent("MoveToDraft", () => require('../components/posts/MoveToDraft.jsx'));
@@ -178,8 +176,6 @@ importComponent("PostsNewForm", () => require('../components/posts/PostsNewForm.
 importComponent("PostsEditForm", () => require('../components/posts/PostsEditForm.jsx'));
 importComponent("PostsEditPage", () => require('../components/posts/PostsEditPage.jsx'));
 importComponent("PostCollaborationEditor", () => require('../components/posts/PostCollaborationEditor.jsx'));
-importComponent("Nominations2018", () => require('../components/posts/Nominations2018.jsx'));
-importComponent("Reviews2018", () => require('../components/posts/Reviews2018.jsx'));
 
 
 importComponent("PostsGroupDetails", () => require('../components/posts/PostsGroupDetails.jsx'));
@@ -190,8 +186,6 @@ importComponent("PostsUserAndCoauthors", () => require('../components/posts/Post
 importComponent("PostSubmit", () => require('../components/posts/PostSubmit.jsx'));
 importComponent("SubmitToFrontpageCheckbox", () => require('../components/posts/SubmitToFrontpageCheckbox.jsx'));
 importComponent("ReportPostMenuItem", () => require('../components/posts/ReportPostMenuItem.jsx'));
-importComponent("ReviewPostButton", () => require('../components/posts/ReviewPostButton.jsx'));
-importComponent("ReviewPostForm", () => require('../components/posts/ReviewPostForm.jsx'));
 importComponent("PostsItemDate", () => require('../components/posts/PostsItemDate.jsx'));
 
 importComponent("UserPageTitle", () => require('../components/titles/UserPageTitle.jsx'));
@@ -430,5 +424,12 @@ importComponent("RecommendationsAlgorithmPicker", () => require('../components/r
 importComponent("RecommendationsList", () => require('../components/recommendations/RecommendationsList.jsx'));
 importComponent("RecommendationsPage", () => require('../components/recommendations/RecommendationsPage.jsx'));
 importComponent("RecommendationsAndCurated", () => require('../components/recommendations/RecommendationsAndCurated.jsx'));
-importComponent("Recommendations2018Review", () => require('../components/recommendations/Recommendations2018Review.jsx'));
 
+importComponent("FrontpageNominationPhase", () => require('../components/review/FrontpageNominationPhase.jsx'));
+importComponent("FrontpageReviewPhase", () => require('../components/review/FrontpageReviewPhase.jsx'));
+importComponent("Nominations2018", () => require('../components/review/Nominations2018.jsx'));
+importComponent("Reviews2018", () => require('../components/review/Reviews2018.jsx'));
+importComponent("ReviewPostButton", () => require('../components/review/ReviewPostButton.jsx'));
+importComponent("ReviewPostForm", () => require('../components/review/ReviewPostForm.jsx'));
+importComponent("NominatePostMenuItem", () => require('../components/review/NominatePostMenuItem.jsx'));
+importComponent("NominatePostDialog", () => require('../components/review/NominatePostDialog.jsx'));

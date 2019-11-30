@@ -12,7 +12,7 @@ const styles = theme => ({
   }
 })
 
-const Reviews2018 = ({classes}) => {
+const Review2018 = ({classes}) => {
   const [sortByMost, setSortBy] = useState(false);
 
   const { SingleColumnSection, SectionTitle, PostsList2, MetaInfo } = Components
@@ -31,9 +31,9 @@ const Reviews2018 = ({classes}) => {
         <PostsList2 
           terms={{view:"reviews2018", sortByMost: sortByMost, limit: 50}} 
           showNominationCount
+          showReviewCount
           defaultToShowUnreadComments
           enableTotal
-          dense
         />
       </SingleColumnSection>
     </div>

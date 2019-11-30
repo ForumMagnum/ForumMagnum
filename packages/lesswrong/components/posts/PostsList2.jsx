@@ -54,6 +54,7 @@ const PostsList2 = ({
   hideLastUnread = false,
   enableTotal=false,
   showNominationCount,
+  showReviewCount,
   classes,
   dense,
   defaultToShowUnreadComments
@@ -122,7 +123,7 @@ const PostsList2 = ({
 
 
       {orderedResults && orderedResults.map((post, i) => {
-        const props = { post, index: i, terms, showNominationCount, dense, defaultToShowUnreadComments, showQuestionTag: terms.filter!=="questions" }
+        const props = { post, index: i, terms, showNominationCount, showReviewCount, dense, defaultToShowUnreadComments, showQuestionTag: terms.filter!=="questions" }
 
         return (hidePosts && hidePosts[i])
           ? <PostsItem2 key={post._id} index={i} {...props} hideOnSmallScreens />

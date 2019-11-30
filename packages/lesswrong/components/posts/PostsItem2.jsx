@@ -52,22 +52,20 @@ export const styles = (theme) => ({
       backgroundColor: "#efefef"
     },
   },
-  hasResumeReading: {
-    ...theme.typography.body,
-    "& $title": {
-      position: "relative",
+  hasSmallSubtitle: {
+    '&&': {
       top: -5,
-    },
+    }
   },
   bottomBorder: {
     borderBottom: "solid 1px rgba(0,0,0,.2)",
   },
   commentsBackground: {
     backgroundColor: COMMENTS_BACKGROUND_COLOR,
-    border: "solid 1px #ccc",
     boxShadow: "0px 2px 3px rgba(0,0,0,.2)",
     marginTop: -1,
-    marginBottom: 16
+    marginBottom: 16,
+    border: "solid 1px #ccc"
   },
   firstItem: {
     borderTop: "solid 1px rgba(0,0,0,.2)"
@@ -190,13 +188,13 @@ export const styles = (theme) => ({
     }
   },
   nextUnreadIn: {
-    color: theme.palette.grey[800],
+    color: theme.palette.grey[700],
     fontFamily: theme.typography.commentStyle.fontFamily,
 
     [theme.breakpoints.up('md')]: {
       position: "absolute",
       left: 42,
-      top: 28,
+      top: 27,
       zIndex: theme.zIndexes.nextUnread,
     },
     [theme.breakpoints.down('sm')]: {
@@ -206,16 +204,18 @@ export const styles = (theme) => ({
       marginBottom: 3,
       marginLeft: 1,
     },
-
     "& a": {
       color: theme.palette.primary.main,
     },
   },
   nominationCount: {
-    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
-    position: "absolute",
-    bottom: 0
+    [theme.breakpoints.up('sm')]: {
+      position: "absolute",
+      bottom: 2,
+      left: KARMA_WIDTH 
+    }
   },
   sequenceImage: {
     position: "relative",
@@ -339,6 +339,7 @@ const PostsItem2 = ({
   // recordPostView, isRead: From the withRecordPostView HoC.
   // showNominationCount: (bool) whether this should display it's number of Review nominations
   showNominationCount,
+  showReviewCount,
   recordPostView, isRead,
   classes,
 }) => {
@@ -388,7 +389,6 @@ const PostsItem2 = ({
         [classes.bottomBorder]: showBottomBorder,
         [classes.commentsBackground]: renderComments,
         [classes.firstItem]: (index===0) && showComments,
-        [classes.hasResumeReading]: !!resumeReading,
       })}
     >
       <PostsItemTooltipWrapper post={post}>
@@ -397,13 +397,13 @@ const PostsItem2 = ({
 
           <div className={classNames(classes.postsItem, {
             [classes.dense]: dense,
-            [classes.withRelevanceVoting]: !!tagRel,
+            [classes.withRelevanceVoting]: !!tagRel
           })}>
             <PostsItem2MetaInfo className={classes.karma}>
               <PostsItemKarma post={post} />
             </PostsItem2MetaInfo>
 
-            <span className={classes.title}>
+            <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: (!!resumeReading || showNominationCount)})}>
               <PostsTitle postLink={postLink} post={post} expandOnHover={!renderComments} read={isRead && !renderComments} sticky={isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
             </span>
 
@@ -468,8 +468,9 @@ const PostsItem2 = ({
                 />
               </div>}
 
-            {showNominationCount && <div className={classes.nominationCount}>
-              {post.nominationCount2018} nominations — {post.reviewCount2018} reviews
+            {(showNominationCount || showReviewCount) && <div className={classes.nextUnreadIn}>
+              {showNominationCount && <span>{post.nominationCount2018 || 0} nomination{(post.nominationCount2018 === 1) ? "" :"s"}</span>}
+              {showReviewCount && <span>{" "}– {post.reviewCount2018 || 0} review{(post.reviewCount2018 === 1) ? "" :"s"}</span>}
             </div>}
           </div>
         </div>

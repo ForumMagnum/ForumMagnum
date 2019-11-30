@@ -103,7 +103,7 @@ const ReviewPostForm = ({classes, post, onClose}) => {
               </ul>
             </li>
             <li>
-              How has this post proved valuable? (be as comprehensive as possible)
+              Has this post proved valuable? How? (be as comprehensive as possible)
             </li>
             <li>
               Should this be included in the <em>Best of LessWrong 2018</em>? Why or why not?
