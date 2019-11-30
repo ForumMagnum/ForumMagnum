@@ -19,14 +19,13 @@ const styles = theme => ({
     marginBottom: theme.spacing.unit*2,
   },
   curated: {
-    display: "block",
-    marginTop: theme.spacing.unit*2,
+    marginTop: theme.spacing.unit,
+    display: "block"
   },
   subtitle: {
     [theme.breakpoints.down('sm')]:{
       marginBottom: 0,
-    },
-    marginBottom: theme.spacing.unit,
+    }
   },
   footerWrapper: {
     display: "flex",
@@ -70,7 +69,7 @@ class RecommendationsAndCurated extends PureComponent {
   render() {
     const { continueReading, classes, currentUser } = this.props;
     const { showSettings } = this.state
-    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, RecommendationsList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SubSection, SeparatorBullet, BookmarksList } = Components;
+    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SubSection, SeparatorBullet, BookmarksList, Recommendations2018Review } = Components;
 
     const configName = "frontpage"
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
@@ -93,13 +92,14 @@ class RecommendationsAndCurated extends PureComponent {
       <div><em>(Click to see all)</em></div>
     </div>
 
-    const allTimeTooltip = <div>
-      <div>
-        A weighted, randomized sample of the highest karma posts
-        {settings.onlyUnread && " that you haven't read yet"}.
-      </div>
-      <div><em>(Click to see more recommendations)</em></div>
-    </div>
+    // Disabled during 2018 Review
+    // const allTimeTooltip = <div>
+    //   <div>
+    //     A weighted, randomized sample of the highest karma posts
+    //     {settings.onlyUnread && " that you haven't read yet"}.
+    //   </div>
+    //   <div><em>(Click to see more recommendations)</em></div>
+    // </div>
 
     // defaultFrontpageSettings does not contain anything that overrides a user
     // editable setting, so the reverse ordering here is fine
@@ -157,7 +157,10 @@ class RecommendationsAndCurated extends PureComponent {
           </SubSection>
       </React.Fragment>}
 
-      {!settings.hideFrontpage && <div>
+      <Recommendations2018Review settings={frontpageRecommendationSettings} />
+
+      {/* Disabled during 2018 Review */}
+      {/* {!settings.hideFrontpage && <div>
         <div>
           <Tooltip placement="top-start" title={allTimeTooltip}>
             <Link to={"/recommendations"}>
@@ -171,7 +174,7 @@ class RecommendationsAndCurated extends PureComponent {
         <SubSection>
           <RecommendationsList algorithm={frontpageRecommendationSettings} />
         </SubSection>
-      </div>}
+      </div>} */}
 
       <Tooltip placement="top-start" title={curatedTooltip}>
         <Link to={curatedUrl}>

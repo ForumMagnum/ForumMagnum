@@ -145,8 +145,14 @@ export default {
       divider: true,
       showOnCompressed: true,
     }, {
+      id: 'nominations',
+      title: '2018 Review',
+      link: '/nominations',
+      subItem: true,
+    },
+    {
       id: 'shortform',
-      title: 'Shortform [Beta]',
+      title: 'Shortform',
       link: '/shortform',
       subItem: true,
     }, {

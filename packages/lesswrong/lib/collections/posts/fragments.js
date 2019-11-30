@@ -11,6 +11,7 @@ registerFragment(`
     slug
     postedAt
     createdAt
+    modifiedAt
     sticky
     metaSticky
     status
@@ -75,12 +76,16 @@ registerFragment(`
     isFuture
     hideAuthor
     moderationStyle
+    hideCommentKarma
     submitToFrontpage
     shortform
     canonicalSource
 
     shareWithUsers
     
+    nominationCount2018
+    reviewCount2018
+
     group {
       _id
       name
@@ -182,6 +187,26 @@ registerFragment(`
     contents(version: $version) {
       ...RevisionDisplay
     }
+    revisions {
+      version
+      editedAt
+    }
+  }
+`)
+
+registerFragment(`
+  fragment PostsRevisionEdit on Post {
+    ...PostsDetails
+
+    # Content & Revisions
+    version
+    contents(version: $version) {
+      ...RevisionEdit
+    }
+    revisions {
+      version
+      editedAt
+    }
   }
 `)
 
@@ -251,8 +276,6 @@ registerFragment(`
     }
   }
 `);
-
-
 
 registerFragment(`
   fragment EditModerationGuidelines on Post {

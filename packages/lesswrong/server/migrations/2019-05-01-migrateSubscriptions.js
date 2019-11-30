@@ -80,7 +80,7 @@ registerMigration({
               newSubscriptions.push({
                 userId: user._id,
                 state: "subscribed",
-                documentId: userSubscribedTo._id,
+                documentId: userSubscribedTo.itemId,
                 collectionName: "Users",
                 type: "newPosts",
               });

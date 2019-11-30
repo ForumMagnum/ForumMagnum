@@ -111,6 +111,7 @@ export const createApolloServer = ({
   const apolloServer = new ApolloServer({
     // graphql playground (replacement to graphiql), available on the app path
     playground: getPlaygroundConfig(config),
+    introspection: true,
     // context optionbject or a function of the current request (+ maybe some other params)
     debug: Meteor.isDevelopment,
     ...apolloServerOptions,

@@ -3,7 +3,7 @@ import { Comments } from '../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles';
 import { Components, registerComponent, useSingle } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts/collection.js';
-import keyBy from 'lodash/keyBy';
+import groupBy from 'lodash/groupBy';
 import './EmailFormatDate.jsx';
 import './EmailPostAuthors.jsx';
 import './EmailContentItemBody.jsx';
@@ -15,13 +15,13 @@ const styles = theme => ({
 
 const EmailCommentBatch = ({comments, classes}) => {
   const { EmailComment, EmailCommentsOnPostHeader } = Components;
-  const commentsByPostId = keyBy(comments, comment=>comment.postId);
+  const commentsByPostId = groupBy(comments, comment=>comment.postId);
   
   return <div>
     {_.keys(commentsByPostId).map(postId => <div key={postId}>
       <EmailCommentsOnPostHeader postId={postId}/>
-      {commentsByPostId[postId].map(notification =>
-        <EmailComment key={notification._id} commentId={notification.documentId}/>)}
+      {commentsByPostId[postId]?.map(comment =>
+        <EmailComment key={comment._id} commentId={comment._id}/>)}
     </div>)}
   </div>;
 }

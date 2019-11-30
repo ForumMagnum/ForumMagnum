@@ -99,18 +99,6 @@ class App extends PureComponent {
     moment.locale(locale);
   }
 
-  /*
-
-  Clear messages on route change
-  See https://stackoverflow.com/a/45373907/649299
-
-  */
-  UNSAFE_componentWillMount() {
-    this.unlisten = this.props.history.listen((location, action) => {
-      this.clear();
-    });
-  }
-
   componentWillUnmount() {
       this.unlisten();
   }
@@ -228,7 +216,7 @@ class App extends PureComponent {
     // Reuse the container objects for location and navigation context, so that
     // they will be reference-stable and won't trigger spurious rerenders.
     if (!this.locationContext) {
-      this.locationContext = location;
+      this.locationContext = {...location};
     } else {
       Object.assign(this.locationContext, location);
     }
@@ -244,7 +232,7 @@ class App extends PureComponent {
     // subscribeLocationContext changes (by shallow comparison) whenever the
     // URL changes.
     if (!this.subscribeLocationContext || this.subscribeLocationContext.pathname != location.pathname) {
-      this.subscribeLocationContext = location;
+      this.subscribeLocationContext = {...location};
     } else {
       Object.assign(this.subscribeLocationContext, location);
     }

@@ -1085,8 +1085,8 @@ class SmartForm extends Component {
       <FormComponents.FormElement {...this.getFormProps()}>
         <FormComponents.FormErrors {...this.getFormErrorsProps()} />
 
-        {this.getFieldGroups().map(group => (
-          <FormComponents.FormGroup {...this.getFormGroupProps(group)} key={group.name} />
+        {this.getFieldGroups().map((group, i) => (
+          <FormComponents.FormGroup {...this.getFormGroupProps(group)} key={`${i}-${group.name}`} />
         ))}
 
         {this.props.repeatErrors && <FormComponents.FormErrors {...this.getFormErrorsProps()} />}

@@ -202,7 +202,7 @@ function getInitialVersion(document) {
 }
 
 async function getNextVersion(documentId, updateType = 'minor', fieldName, isDraft) {
-  const lastRevision = await Revisions.findOne({documentId: documentId, fieldName}, {sort: {version: -1}}) || {}
+  const lastRevision = await Revisions.findOne({documentId: documentId, fieldName}, {sort: {editedAt: -1}}) || {}
   const { major, minor, patch } = extractVersionsFromSemver(lastRevision.version)
   switch (updateType) {
     case "patch":
@@ -250,7 +250,7 @@ export function addEditableCallbacks({collection, options = {}}) {
           updateType: 'initial'
         },
         ...(pingbacks ? {
-          pingbacks: await htmlToPingbacks(html),
+          pingbacks: await htmlToPingbacks(html, null),
         } : null),
       }
     }
@@ -261,14 +261,13 @@ export function addEditableCallbacks({collection, options = {}}) {
     addCallback(`${typeName.toLowerCase()}.create.before`, editorSerializationNew);
   }
 
-  async function editorSerializationEdit (docData, { document, currentUser }) {
+  async function editorSerializationEdit (docData, { oldDocument: document, newDocument, currentUser }) {
     if (docData[fieldName] && docData[fieldName].originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
       const { data, type } = docData[fieldName].originalContents
       const html = await dataToHTML(data, type, !currentUser.isAdmin)
       const wordCount = await dataToWordCount(data, type)
       const defaultUpdateType = docData[fieldName].updateType || (!document[fieldName] && 'initial') || 'minor'
-      const newDocument = {...document, ...docData}
       const isBeingUndrafted = document.draft && !newDocument.draft
       // When a document is undrafted for the first time, we ensure that this constitutes a major update
       const { major } = extractVersionsFromSemver((document[fieldName] && document[fieldName].version) ? document[fieldName].version : undefined)
@@ -283,7 +282,11 @@ export function addEditableCallbacks({collection, options = {}}) {
           html, version, userId, editedAt, wordCount
         },
         ...(pingbacks ? {
-          pingbacks: await htmlToPingbacks(html),
+          pingbacks: await htmlToPingbacks(html, [{
+              collectionName: collection.collectionName,
+              documentId: document._id,
+            }]
+          ),
         } : null),
       }
     }
@@ -292,9 +295,9 @@ export function addEditableCallbacks({collection, options = {}}) {
   
   addCallback(`${typeName.toLowerCase()}.update.before`, editorSerializationEdit);
 
-  async function editorSerializationCreateRevision(newDoc, { document }) {
+  async function editorSerializationCreateRevision(newDoc, { oldDocument }) {
     if (newDoc[fieldName] && newDoc[fieldName].originalContents && 
-      (newDoc[fieldName].version !== (document && document[fieldName] && document[fieldName].version))) {
+      (newDoc[fieldName].version !== (oldDocument && oldDocument[fieldName] && oldDocument[fieldName].version))) {
       Revisions.insert({
         ...newDoc[fieldName],
         documentId: newDoc._id,

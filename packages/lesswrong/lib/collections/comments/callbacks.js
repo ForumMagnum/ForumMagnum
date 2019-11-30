@@ -42,12 +42,14 @@ async function createShortformPost (comment, currentUser) {
       document: {
         userId: currentUser._id,
         shortform: true,
-        title: `${ currentUser.displayName }'s Shortform`
+        title: `${ currentUser.displayName }'s Shortform`,
+        af: currentUser.groups?.includes('alignmentForum'),
       },
+      currentUser,
       validate: false,
     })
     await editMutation({
-      collection:Users,
+      collection: Users,
       documentId: currentUser._id,
       set: {
         shortformFeedId: post.data._id

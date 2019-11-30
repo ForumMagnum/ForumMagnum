@@ -1,10 +1,9 @@
 import Users from 'meteor/vulcan:users';
 import { Utils, getCollection } from 'meteor/vulcan:core';
 import moment from 'moment';
-import { foreignKeyField, resolverOnlyField } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../modules/utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection.js"
-
 
 const formGroups = {
   // TODO - Figure out why properly moving this from custom_fields to schema was producing weird errors and then fix it
@@ -56,6 +55,17 @@ const schema = {
         return new Date();
       }
     }
+  },
+  // Timestamp of last post modification
+  modifiedAt: {
+    type: Date,
+    optional: true,
+    viewableBy: ['guests'],
+    ...denormalizedField({
+      getValue: () => {
+        return new Date()
+      }
+    }),
   },
   // URL
   url: {
@@ -468,6 +478,30 @@ const schema = {
     viewableBy: ['guests'],
     insertableBy: ['admins'],
     editableBy: ['admins'],
+  },
+
+  nominationCount2018: {
+    ...denormalizedCountOfReferences({
+      fieldName: "nominationCount2018",
+      collectionName: "Posts",
+      foreignCollectionName: "Comments",
+      foreignTypeName: "comment",
+      foreignFieldName: "postId",
+      filterFn: comment => !comment.deleted && comment.nominatedForReview === "2018"
+    }),
+    canRead: ['guests'],
+  },
+
+  reviewCount2018: {
+    ...denormalizedCountOfReferences({
+      fieldName: "reviewCount2018",
+      collectionName: "Posts",
+      foreignCollectionName: "Comments",
+      foreignTypeName: "comment",
+      foreignFieldName: "postId",
+      filterFn: comment => !comment.deleted && comment.reviewingForReview === "2018"
+    }),
+    canRead: ['guests'],
   }
 };
 

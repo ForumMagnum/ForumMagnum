@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 import moment from 'moment';
-import withTimezone from '../common/withTimezone';
+import { useTimezone } from '../common/withTimezone';
 
 const styles = theme => ({
   read: {
@@ -18,10 +18,10 @@ const styles = theme => ({
   },
 })
 
-const DateWithoutTime = withTimezone(
-  ({date, timezone}) =>
-    <span>{moment(date).tz(timezone).format("MMM Do")}</span>
-);
+const DateWithoutTime = ({date}) => {
+  const { timezone } = useTimezone();
+  return <span>{moment(date).tz(timezone).format("MMM Do")}</span>
+}
 
 const PostsItemMeta = ({classes, currentUser, post, read}) => {
   const { wordCount = 0 } = post.contents || {}

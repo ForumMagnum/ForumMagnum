@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';
 import { editorStyles, postBodyStyles, postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
@@ -15,14 +15,16 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import withErrorBoundary from '../common/withErrorBoundary';
 import Tooltip from '@material-ui/core/Tooltip';
+import { userHasCkEditor } from '../../lib/betas.js';
 
 const postEditorHeight = 250;
+const questionEditorHeight = 150;
 const commentEditorHeight = 100;
 const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
 
 const styles = theme => ({
-  root: {
+  editor: {
     position: 'relative',
   },
   postBodyStyles: {
@@ -62,6 +64,9 @@ const styles = theme => ({
     minHeight: postEditorHeight,
     '& .ck.ck-content': {
       minHeight: postEditorHeight,
+    },
+    '& .ck-sidebar .ck-content': {
+      minHeight: "unset"
     }
   },
   commentEditorHeight: {
@@ -70,11 +75,21 @@ const styles = theme => ({
       minHeight: commentEditorHeight,
     }
   },
+  questionEditorHeight: {
+    minHeight: questionEditorHeight,
+    '& .ck.ck-content': {
+      minHeight: questionEditorHeight,
+    }
+  },
+  maxHeight: {
+    maxHeight: "calc(100vh - 450px)",
+    overflow: "scroll"
+  },
   errorTextColor: {
     color: theme.palette.error.main
   },
-  updateTypeSelect: {
-    marginBottom: 10
+  select: {
+    marginRight: theme.spacing.unit*1.5
   },
   placeholder: {
     position: "absolute",
@@ -94,6 +109,15 @@ const styles = theme => ({
 })
 
 const autosaveInterval = 3000; //milliseconds
+const ckEditorName = getSetting('forumType') === 'EAForum' ? 'EA Forum Docs' : 'LessWrong Docs'
+const editorTypeToDisplay = {
+  html: {name: 'HTML', postfix: '[Admin Only]'},
+  ckEditorMarkup: {name: ckEditorName, postfix: '[Beta]'},
+  markdown: {name: 'Markdown'},
+  draftJS: {name: 'Draft-JS'},
+}
+const nonAdminEditors = ['ckEditorMarkup', 'markdown', 'draftJS']
+const adminEditors = ['html', 'ckEditorMarkup', 'markdown', 'draftJS']
 
 class EditorFormComponent extends Component {
   constructor(props) {
@@ -103,16 +127,19 @@ class EditorFormComponent extends Component {
       editorOverride: null,
       ckEditorLoaded: null,
       updateType: 'minor',
+      version: '',
       ckEditorReference: null,
       ...this.getEditorStatesFromType(editorType)
     }
     this.hasUnsavedData = false;
     this.throttledSaveBackup = _.throttle(this.saveBackup, autosaveInterval, {leading:false});
+    this.throttledSetCkEditor = _.throttle(this.setCkEditor, autosaveInterval);
+
   }
 
   async componentDidMount() {
     const { currentUser, form } = this.props
-    if (currentUser?.beta) {
+    if (userHasCkEditor(currentUser)) {
       let EditorModule = await (form?.commentEditor ? import('../async/CKCommentEditor') : import('../async/CKPostEditor'))
       const Editor = EditorModule.default
       this.ckEditor = Editor
@@ -120,29 +147,33 @@ class EditorFormComponent extends Component {
     }
   }
 
-  getEditorStatesFromType = (editorType) => {
+  getEditorStatesFromType = (editorType, contents) => {
     const { document, fieldName, value } = this.props
     const { editorOverride } = this.state || {} // Provide default value, since we can call this before state is initialized
+
+    // if contents are manually specified, use those:
+    const newValue = contents || value
+
     // Initialize the editor to whatever the canonicalContent is
-    if (value && value.originalContents && value.originalContents.data
+    if (newValue && newValue.originalContents && newValue.originalContents.data
         && !editorOverride
-        && editorType === value.originalContents.type)
+        && editorType === newValue.originalContents.type)
     {
       return {
-        draftJSValue: editorType === "draftJS" ? this.initializeDraftJS(value.originalContents.data) : null,
-        markdownValue: editorType === "markdown" ? this.initializeText(value.originalContents.data) : null,
-        htmlValue: editorType === "html" ? this.initializeText(value.originalContents.data) : null,
-        ckEditorValue: editorType === "ckEditorMarkup" ? this.initializeText(value.originalContents.data) : null
+        draftJSValue: editorType === "draftJS" ? this.initializeDraftJS(newValue.originalContents.data, editorType) : null,
+        markdownValue: editorType === "markdown" ? this.initializeText(newValue.originalContents.data, editorType) : null,
+        htmlValue: editorType === "html" ? this.initializeText(newValue.originalContents.data, editorType) : null,
+        ckEditorValue: editorType === "ckEditorMarkup" ? this.initializeText(newValue.originalContents.data, editorType) : null
       }
     }
     
     // Otherwise, just set it to the value of the document
     const { draftJS, html, markdown, ckEditorMarkup } = document[fieldName] || {}
     return {
-      draftJSValue: editorType === "draftJS" ? this.initializeDraftJS(draftJS) : null,
-      markdownValue: editorType === "markdown" ? this.initializeText(markdown) : null,
-      htmlValue: editorType === "html" ? this.initializeText(html) : null,
-      ckEditorValue: editorType === "ckEditorMarkup" ? this.initializeText(ckEditorMarkup) : null
+      draftJSValue: editorType === "draftJS" ? this.initializeDraftJS(draftJS, editorType) : null,
+      markdownValue: editorType === "markdown" ? this.initializeText(markdown, editorType) : null,
+      htmlValue: editorType === "html" ? this.initializeText(html, editorType) : null,
+      ckEditorValue: editorType === "ckEditorMarkup" ? this.initializeText(ckEditorMarkup, editorType) : null
     }
   }
 
@@ -151,12 +182,12 @@ class EditorFormComponent extends Component {
     return getLSHandlers(form && form.getLocalStorageId)
   }
 
-  initializeDraftJS = (draftJS) => {
+  initializeDraftJS = (draftJS, editorType) => {
     const { document, name } = this.props
     let state = {}
 
     // Check whether we have a state from a previous session saved (in localstorage)
-    const savedState = this.getStorageHandlers().get({doc: document, name, prefix:this.getLSKeyPrefix()})
+    const savedState = this.getStorageHandlers().get({doc: document, name, prefix:this.getLSKeyPrefix(editorType)})
     if (savedState) {
       try {
         // eslint-disable-next-line no-console
@@ -190,9 +221,9 @@ class EditorFormComponent extends Component {
     return EditorState.createEmpty();
   }
 
-  initializeText = (originalContents) => {
+  initializeText = (originalContents, editorType) => {
     const { document, name } = this.props
-    const savedState = this.getStorageHandlers().get({doc: document, name, prefix:this.getLSKeyPrefix()})
+    const savedState = this.getStorageHandlers().get({doc: document, name, prefix:this.getLSKeyPrefix(editorType)})
     if (savedState) {
       return savedState;
     }
@@ -219,9 +250,11 @@ class EditorFormComponent extends Component {
           break
         case "ckEditorMarkup":
           if (!ckEditorReference) throw Error("Can't submit ckEditorMarkup without attached CK Editor")
-          this.context.addToSuccessForm((s) => {
-            this.state.ckEditorReference.setData('')
-          })
+          if (!this.isDocumentCollaborative()) {
+            this.context.addToSuccessForm((s) => {
+              this.state.ckEditorReference.setData('')
+            }) 
+          }
           data = ckEditorReference.getData()
           break
         default:
@@ -299,9 +332,17 @@ class EditorFormComponent extends Component {
 
   setMarkdown = (e) => {
     const newContent = e.target.value
-    const changed = (this.state.htmlValue !== newContent);
+    const changed = (this.state.markdownValue !== newContent);
     this.setState({markdownValue: newContent})
 
+    if (changed)
+      this.afterChange();
+  }
+
+  setCkEditor = (editor) => {
+    const newContent = editor.getData()
+    const changed = (this.state.ckEditorValue !== newContent);
+    this.setState({ckEditorValue: newContent})
     if (changed)
       this.afterChange();
   }
@@ -348,8 +389,8 @@ class EditorFormComponent extends Component {
 
   // Get an editor-type-specific prefix to use on localStorage keys, to prevent
   // drafts written with different editors from having conflicting names.
-  getLSKeyPrefix = () => {
-    switch(this.getCurrentEditorType()) {
+  getLSKeyPrefix = (editorType) => {
+    switch(editorType || this.getCurrentEditorType()) {
       case "draftJS":  return "";
       case "markdown": return "md_";
       case "html":     return "html_";
@@ -363,9 +404,15 @@ class EditorFormComponent extends Component {
     const defaultType = this.getUserDefaultEditor(currentUser)
     return <div>
         <Typography variant="body2" color="error">
-          This document was last edited in {type} format. Showing {this.getCurrentEditorType()} editor.
-          <a className={classes.errorTextColor} onClick={() => this.handleEditorOverride(defaultType)}> Click here </a>
-          to switch to {defaultType} editor (your default editor).  
+          This document was last edited in {editorTypeToDisplay[type].name} format. Showing the{' '}
+          {editorTypeToDisplay[this.getCurrentEditorType()].name} editor.{' '}
+          <a
+            className={classes.errorTextColor}
+            onClick={() => this.handleEditorOverride(defaultType)}
+          >
+            Click here
+          </a>
+          {' '}to switch to the {editorTypeToDisplay[defaultType].name} editor (your default editor).
         </Typography>
         <br/>
       </div>
@@ -383,7 +430,6 @@ class EditorFormComponent extends Component {
     }
     // Otherwise, default to rich-text, but maybe show others
     if (originalType) { return originalType }
-    else if (currentUser?.defaultToCKEditor) { return "ckEditorMarkup" }
 
     const defaultEditor = this.getUserDefaultEditor(currentUser)
     if (defaultEditor === "markdown" && !enableMarkDownEditor) return "draftJS"
@@ -392,7 +438,7 @@ class EditorFormComponent extends Component {
   }
 
   getUserDefaultEditor = (user) => {
-    //if (user?.beta) return "ckEditorMarkup"
+    if (userHasCkEditor(user)) return "ckEditorMarkup"
     if (Users.useMarkdownPostEditor(user)) return "markdown"
     return "draftJS"
   }
@@ -407,7 +453,8 @@ class EditorFormComponent extends Component {
     return <Select
       value={this.state.updateType}
       onChange={this.handleUpdateTypeSelect}
-      className={classes.updateTypeSelect}
+      className={classes.select}
+      disableUnderline
       >
       <MenuItem value={'major'}>Major Update</MenuItem>
       <MenuItem value={'minor'}>Minor Update</MenuItem>
@@ -415,20 +462,56 @@ class EditorFormComponent extends Component {
     </Select>
   }
 
+  getCurrentRevision = () => {
+    return this.state.version || this.props.document.version
+  }
+
+  handleUpdateVersionNumber = (version) => {    
+    this.setState({ version: version })
+  }
+
+  handleUpdateVersion = async (document) => {
+    if (!document) return
+    const editorType = document.contents?.originalContents?.type
+    this.setState({
+      ...this.getEditorStatesFromType(editorType, document.contents)
+    })
+  }
+
+  renderVersionSelect = () => {
+    const { classes, document, currentUser } = this.props 
+    
+    if (!userHasCkEditor(currentUser)) return null
+
+    if (!this.getCurrentRevision()) return null
+    return <span className={classes.select}>
+        <Components.SelectVersion 
+          key={this.getCurrentRevision()}
+          documentId={document._id} 
+          revisionVersion={this.getCurrentRevision()} 
+          updateVersionNumber={this.handleUpdateVersionNumber}
+          updateVersion={this.handleUpdateVersion}
+        />
+      </span>
+  }
+
   renderEditorTypeSelect = () => {
-    const { currentUser } = this.props
-    if (!currentUser || (!currentUser.beta && !currentUser.isAdmin)) return null
+    const { currentUser, classes } = this.props
+    if (!userHasCkEditor(currentUser) && !currentUser?.isAdmin) return null
+    const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
     return (
       <Tooltip title="Warning! Changing format will erase your content" placement="left">
         <Select
-            value={this.getCurrentEditorType()}
-            onChange={(e) => this.handleEditorOverride(e.target.value)}
-            disableUnderline
-            >
-            {currentUser.isAdmin  && <MenuItem value={'html'}>HTML [Admin Only]</MenuItem>}
-            <MenuItem value={'markdown'}>Markdown</MenuItem>
-            <MenuItem value={'draftJS'}>Draft-JS</MenuItem>
-            <MenuItem value={'ckEditorMarkup'}>LessWrong Docs [Beta]</MenuItem>
+          className={classes.select}
+          value={this.getCurrentEditorType()}
+          onChange={(e) => this.handleEditorOverride(e.target.value)}
+          disableUnderline
+          >
+            {editors.map((editorType, i) =>
+              <MenuItem value={editorType} key={i}>
+                {editorTypeToDisplay[editorType].name} {editorTypeToDisplay[editorType].postfix}
+              </MenuItem>
+            )}
           </Select>
       </Tooltip>
     )
@@ -464,6 +547,11 @@ class EditorFormComponent extends Component {
     }
   }
 
+  isDocumentCollaborative = () => {
+    const { document } = this.props
+    return document?._id && document?.shareWithUsers
+  }
+
   renderCkEditor = () => {
     const { ckEditorValue, ckEditorReference } = this.state
     const { document, currentUser, formType } = this.props
@@ -479,7 +567,7 @@ class EditorFormComponent extends Component {
         documentId: document?._id,
         formType: formType,
         userId: currentUser?._id,
-        onChange: (event, editor) => this.setState({ckEditorValue: editor.getData()}),
+        onChange: (event, editor) => this.throttledSetCkEditor(editor),
         onInit: editor => this.setState({ckEditorReference: editor})
       }
 
@@ -488,9 +576,9 @@ class EditorFormComponent extends Component {
       // requires _id because before the draft is saved, ckEditor loses track of what you were writing when turning collaborate on and off (and, meanwhile, you can't actually link people to a shared draft before it's saved anyhow)
       // TODO: figure out a better solution to this problem.
       
-      const collaboration = document?._id && document?.shareWithUsers
+      const collaboration = this.isDocumentCollaborative()
       
-      return <div className={this.getHeightClass()}>
+      return <div className={classNames(this.getHeightClass(), this.getMaxHeightClass())}>
           { this.renderPlaceholder(!value, collaboration)}
           { collaboration ? 
             <CKEditor key="ck-collaborate" { ...editorProps } collaboration />
@@ -533,15 +621,22 @@ class EditorFormComponent extends Component {
           editorState={draftJSValue}
           onChange={this.setDraftJS}
           commentEditor={form?.commentEditor}
-          className={classNames(this.getBodyStyles(), this.getHeightClass(), {[classes.questionWidth]: document.question})}
+          className={classNames(this.getBodyStyles(), this.getHeightClass(), this.getMaxHeightClass(), {[classes.questionWidth]: document.question})}
         />
       </div>
   }
 
+  getMaxHeightClass = () => {
+    const { classes, formProps } = this.props 
+    return formProps?.maxHeight ? classes.maxHeight : null
+  } 
+
   getHeightClass = () => {
     const { document, classes, form: { commentStyles } } = this.props
-    if (commentStyles || document.question) {
+    if (commentStyles) {
       return classes.commentEditorHeight
+    } else if (document.question) {
+      return classes.questionEditorHeight;
     } else {
       return classes.postEditorHeight
     }
@@ -561,14 +656,17 @@ class EditorFormComponent extends Component {
       && document[fieldName].originalContents.type !== this.getUserDefaultEditor(currentUser)
       && this.renderEditorWarning()
 
-    return <div className={classNames(classes.root, this.getBodyStyles())}>
-      { editorWarning }
-      <div>
-        { this.renderEditorComponent(currentEditorType) }
+    return <div>
+        { editorWarning }
+        <div className={classNames(classes.editor, this.getBodyStyles())}>
+          <div>
+            { this.renderEditorComponent(currentEditorType) }
+          </div>
+          { this.renderVersionSelect() }
+          { this.renderUpdateTypeSelect() }
+          { this.renderEditorTypeSelect() }
+        </div>
       </div>
-      { this.renderUpdateTypeSelect() }
-      { this.renderEditorTypeSelect() }
-    </div>
   }
 }
 

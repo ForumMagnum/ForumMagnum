@@ -20,7 +20,7 @@ const styles = theme => ({
     fontVariant: 'small-caps',
     lineHeight: '24px',
     color: 'rgba(0,0,0,0.5)',
-    marginTop: -10,
+    marginTop: -2,
   }
 })
 

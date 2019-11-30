@@ -28,7 +28,6 @@ import './collections/comments/fragments.js';
 import Notifications from './collections/notifications/collection.js';
 import './collections/notifications/views.js';
 import './collections/notifications/permissions.js';
-import './collections/notifications/seed.js';
 // Inbox
 import Messages from './collections/messages/collection.js'
 import './collections/messages/views.js';
@@ -86,6 +85,14 @@ import './collections/collections/views.js';
 import './collections/collections/helpers.js';
 import './modules/alignment-forum/posts/fragments.js';
 import './modules/alignment-forum/users/fragments.js';
+
+import './collections/tagRels/collection.js';
+import './collections/tagRels/views.js';
+import './collections/tagRels/fragments.js';
+
+import './collections/tags/collection.js';
+import './collections/tags/views.js';
+import './collections/tags/fragments.js';
 
 import './collections/chapters/views.js';
 
@@ -157,6 +164,7 @@ import './modules/alignment-forum/users/custom_fields.js';
 import './modules/alignment-forum/users/helpers.js';
 import './modules/alignment-forum/users/views.js';
 
+import './analyticsEvents.js';
 
 //
 export {

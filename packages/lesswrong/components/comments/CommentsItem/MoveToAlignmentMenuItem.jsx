@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, withMessages, withUpdate, Components } from 'meteor/vulcan:core';
+import { registerComponent, withUpdate, Components } from 'meteor/vulcan:core';
+import { withMessages } from '../../common/withMessages';
 import MenuItem from '@material-ui/core/MenuItem';
 import { withApollo } from 'react-apollo'
 import { Comments } from "../../../lib/collections/comments";

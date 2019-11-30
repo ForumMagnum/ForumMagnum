@@ -89,7 +89,6 @@ registerFragment(`
     services
     pageUrl
     locale
-    defaultToCKEditor
     voteBanned
     banned
     isReviewed
@@ -109,6 +108,7 @@ registerFragment(`
     moderationGuidelines {
       ...RevisionEdit
     }
+    showHideKarmaOption
     markDownPostEditor
     commentSorting
     location
@@ -436,7 +436,6 @@ registerFragment(`
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
     sunshineShowNewUserContent
-    defaultToCKEditor
   }
 `);
 
@@ -488,6 +487,7 @@ registerFragment(`
     collapseModerationGuidelines
     bannedUserIds
     bannedPersonalUserIds
+    showHideKarmaOption
 
     # Ban & Purge
     voteBanned
@@ -523,6 +523,7 @@ registerFragment(`
     notificationCommentsOnSubscribedPost
     notificationRepliesToMyComments
     notificationRepliesToSubscribedComments
+    notificationSubscribedUserPost
     notificationPostsInGroups
     notificationPrivateMessage
     notificationSharedWithMe
