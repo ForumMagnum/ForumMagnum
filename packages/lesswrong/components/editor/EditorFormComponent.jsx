@@ -82,7 +82,7 @@ const styles = theme => ({
     }
   },
   maxHeight: {
-    maxHeight: "calc(100vh - 400px)",
+    maxHeight: "calc(100vh - 450px)",
     overflow: "scroll"
   },
   errorTextColor: {

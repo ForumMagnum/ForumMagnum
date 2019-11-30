@@ -99,8 +99,7 @@ const ReviewPostForm = ({classes, post, onClose}) => {
           <ul>
             <li>Is this post epistemically sound?
               <ul>
-                <li>Does it make accurate claims? Does it carve reality at the joints?</li>
-                <li>How do you know?</li>
+                <li>Does it make accurate claims? Does it carve reality at the joints? How do you know?</li>
               </ul>
             </li>
             <li>

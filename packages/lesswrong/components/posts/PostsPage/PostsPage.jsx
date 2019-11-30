@@ -165,7 +165,7 @@ const styles = theme => ({
     display: 'inline-block',
     marginRight: SECONDARY_SPACING
   },
-  unreviewed: {
+  contentNotice: {
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle
   },
