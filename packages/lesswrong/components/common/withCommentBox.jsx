@@ -21,7 +21,7 @@ export const CommentBoxManager = ({ children }) => {
         setComponentName(componentName)
         setComponentProps(componentProps)
       },
-      close: this.close
+      close: close
     }}>
       {children}
       {componentName &&
