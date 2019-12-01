@@ -46,11 +46,11 @@ const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
         </div>
       </Tooltip>
       <SubSection>
-        <PostsList2 terms={{view:"reviews2018", limit: 3}} />
+        <PostsList2 terms={{view:"reviews2018", limit: 3}} showLoadMore={false} />
       </SubSection>
       <SectionFooter>
         <Link to={"/reviews"}>
-          View All Nominations
+          View All Nominated Posts
         </Link>
       </SectionFooter>
     </div>

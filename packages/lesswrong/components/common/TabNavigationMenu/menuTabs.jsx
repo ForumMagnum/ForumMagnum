@@ -147,7 +147,7 @@ export default {
     }, {
       id: 'nominations',
       title: '2018 Review',
-      link: '/nominations',
+      link: '/reviews',
       subItem: true,
     },
     {

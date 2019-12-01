@@ -50,7 +50,9 @@ const styles = theme => ({
 const PostsList2 = ({
   children, terms,
   dimWhenLoading = false,
-  showLoading = true, showLoadMore = true, showNoResults = true,
+  showLoading = true, 
+  showLoadMore = true, 
+  showNoResults = true,
   hideLastUnread = false,
   enableTotal=false,
   showNominationCount,

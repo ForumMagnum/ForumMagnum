@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent, useUpdate } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
+import withUser from '../common/withUser';
+import Users from 'meteor/vulcan:users';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = theme => ({
   setting: {
@@ -12,27 +15,46 @@ const styles = theme => ({
   }
 })
 
-const Review2018 = ({classes}) => {
-  const [sortByMost, setSortBy] = useState(false);
+const Reviews2018 = ({classes, currentUser}) => {
+  console.log(currentUser)
+  const [expandUnread, setExpandUnread] = useState(!!(currentUser ? !currentUser.noExpandUnreadCommentsReview : true));
 
-  const { SingleColumnSection, SectionTitle, PostsList2, MetaInfo } = Components
+  const {mutate: updateUser} = useUpdate({
+    collection: Users,
+    fragmentName: 'UsersCurrent',
+  });
+  console.log(expandUnread)
+  const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox } = Components
+
+  const handleSetExpandUnread = () => {
+    const newExpandUnread = !expandUnread
+    updateUser({
+      selector: {_id: currentUser._id},
+      data: { 
+        noExpandUnreadCommentsReview: !newExpandUnread,
+      }
+    });
+    setExpandUnread(newExpandUnread)
+  }
 
   return (
     <div>
       <SingleColumnSection>
         <SectionTitle title="Nominated Posts for the 2018 Review" />
         <div className={classes.settings}>
-          <MetaInfo>
-            <a className={classes.setting} onClick={() => setSortBy(!sortByMost)}>
-              Sort by: {sortByMost ? "most" : "fewest"} nominations
-            </a>
-          </MetaInfo>
+          <Tooltip title="If checked, posts with unread comments will be sorted first" placement="top">
+            <SectionFooterCheckbox
+              onClick={handleSetExpandUnread}
+              value={expandUnread}
+              label={<div className={classes.personalBlogpostsCheckboxLabel}>Expand Unread Comments</div>}
+            />
+          </Tooltip>
         </div>
         <PostsList2 
-          terms={{view:"reviews2018", sortByMost: sortByMost, limit: 50}} 
+          terms={{view:"reviews2018", limit: 100}} 
           showNominationCount
           showReviewCount
-          defaultToShowUnreadComments
+          defaultToShowUnreadComments={expandUnread}
           enableTotal
         />
       </SingleColumnSection>
@@ -40,4 +62,4 @@ const Review2018 = ({classes}) => {
   )
 }
 
-registerComponent('Reviews2018', Reviews2018, withStyles(styles, {name:"Reviews2018"}));
+registerComponent('Reviews2018', Reviews2018, withStyles(styles, {name:"Reviews2018"}), withUser);
