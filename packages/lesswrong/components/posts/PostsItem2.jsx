@@ -463,6 +463,7 @@ const PostsItem2 = ({
             {resumeReading &&
               <div className={classes.sequenceImage}>
                 <img className={classes.sequenceImageImg}
+                  alt="Sequence Image"
                   src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
                     resumeReading.sequence?.gridImageId
                       || resumeReading.collection?.gridImageId
