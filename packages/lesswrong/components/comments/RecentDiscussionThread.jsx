@@ -89,7 +89,7 @@ const styles = theme => ({
 })
 
 class RecentDiscussionThread extends PureComponent {
-  state = { showHighlight: false, readStatus: false, markedAsVisitedAt: null, expandAllThreads: false }
+  state = { showHighlight: false, readStatus: false, markedAsVisitedAt: null, expandAllThreads: false, showSnippet: (!this.props.isRead || this.props.post?.commentCount === null) }
 
   showHighlight = () => {
     this.setState(prevState => ({showHighlight:!prevState.showHighlight}));
@@ -103,7 +103,7 @@ class RecentDiscussionThread extends PureComponent {
 
   render() {
     const { post, comments, updateComment, currentUser, classes, isRead, refetch } = this.props
-    const { readStatus, showHighlight, markedAsVisitedAt } = this.state
+    const { readStatus, showHighlight, markedAsVisitedAt, showSnippet } = this.state
     const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle } = Components
 
     const lastCommentId = comments && comments[0]?._id
@@ -138,7 +138,7 @@ class RecentDiscussionThread extends PureComponent {
               <PostsHighlight post={post} />
             </div>
             : <div className={highlightClasses} onClick={this.showHighlight}>
-                { (!isRead || post.commentCount === null) &&
+                { showSnippet &&
                   <ContentItemBody
                     className={classes.postHighlight}
                     dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents && post.contents.htmlHighlight)}}
