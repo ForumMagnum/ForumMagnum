@@ -109,7 +109,7 @@ const PostsList2 = ({
     }
   }
 
-  orderedResults = results
+  let orderedResults = results
   if (defaultToShowUnreadComments) {
     orderedResults = _.sortBy(results, (post) => { 
       return post.lastVisitedAt >=  Posts.getLastCommentedAt(post);

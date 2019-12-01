@@ -16,7 +16,6 @@ const styles = theme => ({
 })
 
 const Reviews2018 = ({classes, currentUser}) => {
-  console.log(currentUser)
   const [expandUnread, setExpandUnread] = useState(!!(currentUser ? !currentUser.noExpandUnreadCommentsReview : true));
 
   const {mutate: updateUser} = useUpdate({

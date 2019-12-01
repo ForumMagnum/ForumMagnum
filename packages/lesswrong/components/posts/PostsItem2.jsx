@@ -349,7 +349,6 @@ const PostsItem2 = ({
   
   const toggleComments = React.useCallback(
     () => {
-      console.log("a")
       recordPostView({post})
       setShowComments(!showComments);
       setReadComments(true);
