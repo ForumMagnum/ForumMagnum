@@ -39,6 +39,9 @@ const styles = theme => ({
     
     display: "flex",
     justifyContent: "space-around",
+  },
+  sectionSubtitle: {
+    marginBottom: 8
   }
 });
 
@@ -126,7 +129,7 @@ class RecommendationsAndCurated extends PureComponent {
         /> }
 
       {renderContinueReading && <React.Fragment>
-          <div>
+          <div className={classes.sectionSubtitle}>
             <Tooltip placement="top-start" title={currentUser ? continueReadingTooltip : coreReadingTooltip}>
               <Link to={"/library"}>
                 <SectionSubtitle className={classNames(classes.subtitle, classes.continueReading)}>
@@ -134,7 +137,6 @@ class RecommendationsAndCurated extends PureComponent {
                 </SectionSubtitle>
               </Link>
             </Tooltip>
-            <BetaTag />
           </div>
           <SubSection className={classes.continueReadingList}>
             <ContinueReadingList continueReading={continueReading} />
@@ -142,7 +144,7 @@ class RecommendationsAndCurated extends PureComponent {
         </React.Fragment>}
 
       {renderBookmarks && <React.Fragment>
-        <div>
+        <div className={classes.sectionSubtitle}>
             <Tooltip placement="top-start" title={bookmarksTooltip}>
               <Link to={"/bookmarks"}>
                 <SectionSubtitle className={classes.subtitle}>
@@ -175,14 +177,15 @@ class RecommendationsAndCurated extends PureComponent {
           <RecommendationsList algorithm={frontpageRecommendationSettings} />
         </SubSection>
       </div>} */}
-
-      <Tooltip placement="top-start" title={curatedTooltip}>
-        <Link to={curatedUrl}>
-          <SectionSubtitle className={classNames(classes.subtitle, classes.curated)}>
-            Recently Curated
-          </SectionSubtitle>
-        </Link>
-      </Tooltip>
+      <div className={classes.sectionSubtitle}>
+        <Tooltip placement="top-start" title={curatedTooltip}>
+          <Link to={curatedUrl}>
+            <SectionSubtitle className={classNames(classes.subtitle, classes.curated)}>
+              Recently Curated
+            </SectionSubtitle>
+          </Link>
+        </Tooltip>
+      </div>
       <SubSection>
         <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
       </SubSection>

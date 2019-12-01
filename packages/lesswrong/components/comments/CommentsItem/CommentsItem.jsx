@@ -102,7 +102,9 @@ export const styles = theme => ({
   nomination: {
     color: theme.palette.lwTertiary.main,
     fontStyle: "italic",
-    marginBottom: theme.spacing.unit
+    marginBottom: theme.spacing.unit,
+    display: "block",
+    marginTop: theme.spacing.unit*2
   },
   vote: {
     marginLeft: 20

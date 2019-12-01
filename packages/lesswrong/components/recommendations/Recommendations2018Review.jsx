@@ -17,6 +17,9 @@ const styles = theme => ({
   },
   learnMore: {
     color: theme.palette.lwTertiary.main
+  },
+  sectionSubtitle: {
+    marginBottom: 8
   }
 })
 
@@ -48,16 +51,18 @@ const Recommendations2018Review = ({classes, settings, currentUser}) => {
 
   return (
     <div>
-      <Tooltip placement="top-start" title={reviewTooltip}>
-        <SectionSubtitle >
-          <Link to={"/nominations"}>
-              The LessWrong 2018 Review
-          </Link>
-          {currentUser?.karma >= 1000 ? <div className={classes.timeRemaining}>
-            <em>You have until Dec 1st to nominate posts. (Posts need 2+ nominations, <span className={classes.learnMore}><HoverPreviewLink href="http://lesswrong.com/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review-posts-need-at-least-2-nominations" innerHTML={"learn more"}/></span>)</em>
-          </div> : null}
-        </SectionSubtitle>
-      </Tooltip>
+      <div className={classes.sectionSubtitle}>
+        <Tooltip placement="top-start" title={reviewTooltip}>
+          <SectionSubtitle >
+            <Link to={"/nominations"}>
+                The LessWrong 2018 Review
+            </Link>
+            {currentUser?.karma >= 1000 ? <div className={classes.timeRemaining}>
+              <em>You have until Dec 1st to nominate posts. (Posts need 2+ nominations, <span className={classes.learnMore}><HoverPreviewLink href="http://lesswrong.com/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review-posts-need-at-least-2-nominations" innerHTML={"learn more"}/></span>)</em>
+            </div> : null}
+          </SectionSubtitle>
+        </Tooltip>
+      </div>
       <SubSection>
         <RecommendationsList algorithm={algorithm} showLoginPrompt={false} />
       </SubSection>
