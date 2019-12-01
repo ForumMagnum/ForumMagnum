@@ -103,6 +103,9 @@ export const styles = theme => ({
     color: theme.palette.lwTertiary.main,
     fontStyle: "italic",
     marginBottom: theme.spacing.unit
+  },
+  vote: {
+    marginLeft: 20
   }
 })
 
@@ -234,11 +237,14 @@ class CommentsItem extends Component {
             {comment.moderatorHat && <span className={classes.moderatorHat}>
               Moderator Comment
             </span>}
-            <Components.CommentsVote
-              comment={comment}
-              currentUser={currentUser}
-              hideKarma={post.hideCommentKarma}
-            />
+            <span className={classes.vote}>
+              <Components.CommentsVote
+                comment={comment}
+                currentUser={currentUser}
+                hideKarma={post.hideCommentKarma}
+              />
+            </span>
+            
             
             {!isParentComment && this.renderMenu()}
             <span className={classes.outdatedWarning}>
