@@ -144,15 +144,6 @@ const EventNotificationsDialog = ({ onClose, currentUser, classes }) => {
           <p>
             Notify me for events and new groups in this location 
           </p>
-          <p><em>
-            Note:
-            <ul>
-              <li>It may be a week or so before we start sending out notifications (we're still building out the notification backend)</li>
-              <li>
-                If you wish to receive email notifications, <Link to={"/account#emails"}>please verify your email</Link>
-              </li>
-            </ul>
-          </em></p>
         </Typography>
         <div className={classes.geoSuggest}>
           {mapsLoaded ? <Geosuggest
