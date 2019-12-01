@@ -23,7 +23,6 @@ const Reviews2018 = ({classes, currentUser}) => {
     collection: Users,
     fragmentName: 'UsersCurrent',
   });
-  console.log(expandUnread)
   const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox } = Components
 
   const handleSetExpandUnread = () => {
