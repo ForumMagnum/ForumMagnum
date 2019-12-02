@@ -15,7 +15,7 @@ const styles = theme => ({
 });
 
 const PingbacksList = ({classes, postId}) => {
-  const { results, loading } = useMulti({
+  const { results, loading, loadMoreProps } = useMulti({
     terms: {
       view: "pingbackPosts",
       postId: postId,
@@ -29,31 +29,28 @@ const PingbacksList = ({classes, postId}) => {
   });
   const currentUser = useCurrentUser();
 
-  const { SectionSubtitle, Pingback, Loading } = Components
+  const { SectionSubtitle, Pingback, Loading, LoadMore } = Components
 
   if (loading)
     return <Loading/>
+  if (!results || !results.length)
+    return null;
   
-  if (results) {
-    if (results.length > 0) {
-      return <div className={classes.root}>
-        <SectionSubtitle>
-          <Tooltip title="Posts that linked to this post" placement="right">
-            <span>Pingbacks</span>
-          </Tooltip>
-        </SectionSubtitle>
-        <div className={classes.list}>
-          {results.map((post, i) => 
-            <div key={post._id} >
-              <Pingback post={post} currentUser={currentUser}/>
-            </div>
-          )}
+  return <div className={classes.root}>
+    <SectionSubtitle>
+      <Tooltip title="Posts that linked to this post" placement="right">
+        <span>Pingbacks</span>
+      </Tooltip>
+    </SectionSubtitle>
+    <div className={classes.list}>
+      {results.map((post, i) =>
+        <div key={post._id} >
+          <Pingback post={post} currentUser={currentUser}/>
         </div>
-      </div>
-    }
-  }
-  
-  return null;
+      )}
+      <LoadMore {...loadMoreProps}/>
+    </div>
+  </div>
 }
 
 registerComponent("PingbacksList", PingbacksList, withStyles(styles, {name: "PingbacksList"}));
