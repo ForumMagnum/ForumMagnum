@@ -107,7 +107,7 @@ const ReviewPostForm = ({classes, post, onClose}) => {
             </li>
             <li>
               Should this be included in the <em>Best of LessWrong 2018</em>? Why or why not?
-            </li>
+            </li> 
             <li>
               How could this post be improved?
             </li>
@@ -115,7 +115,7 @@ const ReviewPostForm = ({classes, post, onClose}) => {
               What followup work would you like to see building on this post?
             </li>
           </ul>
-          <div className={classes.moderatorsNote}>(Moderators may promote reviews to top-level posts)</div>
+          <div className={classes.moderatorsNote}>It's fine to submit partial reviews. Moderators may promote comprehensive reviews to top-level posts.</div>
           <a className={classes.hidePrompt} onClick={() => setShowPrompt(false)}>(click to hide)</a>
         </div>}
         {!showPrompt && <div onClick={() => setShowPrompt(true)}>Reviews should ideally answer... <a onClick={() => setShowPrompt(false)}>(read more)</a></div>}
