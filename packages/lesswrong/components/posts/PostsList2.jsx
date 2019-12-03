@@ -1,5 +1,5 @@
 import { Components, registerComponent, useMulti, Utils } from 'meteor/vulcan:core';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Posts } from '../../lib/collections/posts';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
@@ -65,7 +65,6 @@ const PostsList2 = ({
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
   const { results, loading, error, count, totalCount, loadMore, limit } = useMulti({
     terms: terms,
-    
     collection: Posts,
     queryName: 'postsListQuery',
     fragmentName: 'PostsList',
@@ -73,20 +72,6 @@ const PostsList2 = ({
     fetchPolicy: 'cache-and-network',
     ssr: true
   });
-  
-  // TODO-Q: Is there a composable way to check whether this is the second
-  //         time that networkStatus === 1, in order to prevent the loading
-  //         indicator showing up on initial pageload?
-  //
-  //         Alternatively, is there a better way of checking that this is
-  //         in fact the best way of checking loading status?
-
-  // TODO-A (2019-2-20): For now, solving this with a flag that determines whether
-  //                     to dim the list during loading, so that the pages where that
-  //                     behavior was more important can work fine. Will probably
-  //                     fix this for real when Apollo 2 comes out
-
-  const { Loading, PostsItem2, LoadMore, PostsNoResults, SectionFooter } = Components
 
   let hidePosts = null;
   if (hideLastUnread && results?.length && !haveLoadedMore) {
@@ -108,6 +93,20 @@ const PostsList2 = ({
   const postIds = (results||[]).map((post) => post._id)
   useTracking({eventType: "postList", eventProps: {postIds, hidePosts}, captureOnMount: eventProps => eventProps.postIds.length})
 
+  // TODO-Q: Is there a composable way to check whether this is the second
+  //         time that networkStatus === 1, in order to prevent the loading
+  //         indicator showing up on initial pageload?
+  //
+  //         Alternatively, is there a better way of checking that this is
+  //         in fact the best way of checking loading status?
+
+  // TODO-A (2019-2-20): For now, solving this with a flag that determines whether
+  //                     to dim the list during loading, so that the pages where that
+  //                     behavior was more important can work fine. Will probably
+  //                     fix this for real when Apollo 2 comes out
+
+  const { Loading, PostsItem2, LoadMore, PostsNoResults, SectionFooter } = Components
+
   if (!results && loading) return <Loading />
 
   // We don't actually know if there are more posts here,
@@ -116,9 +115,10 @@ const PostsList2 = ({
 
   let orderedResults = results
   if (defaultToShowUnreadComments) {
-       orderedResults = _.sortBy(results, (post) => {
-           return !post.lastVisitedAt || (post.lastVisitedAt >=  Posts.getLastCommentedAt(post));
-      })
+    orderedResults = _.sortBy(results, (post) => {
+      return !post.lastVisitedAt || (post.lastVisitedAt >=  Posts.getLastCommentedAt(post));
+    })
+  }
 
   return (
     <div className={classNames({[classes.itemIsLoading]: loading && dimWhenLoading})}>
