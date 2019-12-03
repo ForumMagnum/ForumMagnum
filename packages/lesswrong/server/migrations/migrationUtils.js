@@ -1,3 +1,4 @@
+import Migrations from '../../lib/collections/migrations/collection.js';
 /*global Vulcan*/
 
 // When running migrations with split batches, the fraction of time spent
@@ -43,13 +44,23 @@ export async function runMigration(name)
 {
   if (!(name in availableMigrations))
     throw new Error(`Unrecognized migration: ${name}`);
-  const { name, dateWritten, idempotent, action } = availableMigrations[name];
+  // eslint-disable-next-line no-unused-vars
+  const { dateWritten, idempotent, action } = availableMigrations[name];
   
   // eslint-disable-next-line no-console
   console.log(`Beginning migration: ${name}`);
 
+  const migrationLogId = await Migrations.insert({
+    name: name,
+    started: new Date(),
+  });
+  
   try {
     await action();
+    
+    await Migrations.update({_id: migrationLogId}, {$set: {
+      finished: true, succeeded: true,
+    }});
 
     // eslint-disable-next-line no-console
     console.log(`Finished migration: ${name}`);
@@ -58,6 +69,10 @@ export async function runMigration(name)
     console.error(`FAILED migration: ${name}.`);
     // eslint-disable-next-line no-console
     console.error(e);
+    
+    await Migrations.update({_id: migrationLogId}, {$set: {
+      finished: true, succeeded: false,
+    }});
   }
 }
 
