@@ -14,6 +14,7 @@ import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
 
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
+import {AnalyticsContext} from "../../lib/analyticsEvents";
 
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
@@ -461,7 +462,9 @@ const PostsItem2 = ({
             </div>}
 
             {bookmark && <div className={classes.bookmark}>
-              <BookmarkButton post={post}/>
+              <AnalyticsContext buttonContext={"postItem"}>
+                <BookmarkButton post={post}/>
+              </AnalyticsContext>
             </div>}
 
             <div className={classes.mobileDismissButton}>
