@@ -184,7 +184,7 @@
   "devDependencies": {
     "@ckeditor/ckeditor5-inspector": "^1.3.0",
     "@graphql-codegen/cli": "^1.9.1",
-    "@graphql-codegen/fragment-matcher": "1.13.0",
+    "@graphql-codegen/fragment-matcher": "^1.13.0",
     "autoprefixer": "^6.3.6",
     "babel": "^6.23.0",
     "babel-eslint": "^9.0.0",
