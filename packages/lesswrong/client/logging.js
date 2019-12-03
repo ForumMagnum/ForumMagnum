@@ -1,6 +1,8 @@
 import * as Sentry from '@sentry/browser';
-import { getSetting, addCallback } from 'meteor/vulcan:core'
+import { getSetting, addCallback } from 'meteor/vulcan:core';
 import { captureEvent, AnalyticsUtil } from '../lib/analyticsEvents.js';
+import {browserProperties} from '../lib/modules/utils/browserProperties.js';
+
 /*global tabId*/
 
 const sentryUrl = getSetting('sentry.url');
@@ -35,6 +37,7 @@ window.addEventListener('load', ev => {
   captureEvent("pageLoadFinished", {
     url: document.location?.href,
     referrer: document.referrer,
+    browserProps: browserProperties(),
     performance: {
       memory: window.performance?.memory?.usedJSHeapSize,
       timeOrigin: window.performance?.timeOrigin,
@@ -47,6 +50,8 @@ addCallback("router.onUpdate", ({oldLocation, newLocation}) => {
   captureEvent("navigate", {
     from: oldLocation.pathname,
     to: newLocation.pathname,
+    fromPostId: oldLocation?.params?._id,
+    toPostId: newLocation?.params?._id
   });
 });
 
