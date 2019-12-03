@@ -5,9 +5,10 @@ import { algoliaIndexNames } from '../../lib/algoliaIndexNames.js';
 const UsersSearchAutoComplete = ({clickAction, label}) => {
   return <Components.SearchAutoComplete
     indexName={algoliaIndexNames.Users}
-    clickAction={suggestion => clickAction(suggestion.objectID)}
+    clickAction={clickAction}
     renderSuggestion={hit => <Components.UsersAutoCompleteHit document={hit} />}
     placeholder={label || "Search for Users"}
+    noSearchPlaceholder='User ID'
   />
 }
 

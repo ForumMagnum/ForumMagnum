@@ -5,9 +5,10 @@ import { algoliaIndexNames } from '../../lib/algoliaIndexNames.js';
 const PostsSearchAutoComplete = ({clickAction}) => {
   return <Components.SearchAutoComplete
     indexName={algoliaIndexNames.Posts}
-    clickAction={suggestion => clickAction(suggestion._id)}
+    clickAction={clickAction}
     renderSuggestion={hit => <Components.PostsListEditorSearchHit hit={hit} />}
     placeholder='Search for posts'
+    noSearchPlaceholder='Post ID'
   />
 }
 
