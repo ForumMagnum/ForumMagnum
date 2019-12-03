@@ -4,6 +4,7 @@ import { Collections } from 'meteor/vulcan:core';
 
 registerMigration({
   name: "migrateVotes",
+  dateWritten: "2019-01-04",
   idempotent: true,
   action: async () => {
   

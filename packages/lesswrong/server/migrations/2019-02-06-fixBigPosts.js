@@ -6,6 +6,7 @@ import { editMutation } from 'meteor/vulcan:core';
 
 registerMigration({
   name: "fixBigPosts",
+  dateWritten: "2019-02-06",
   idempotent: true,
   action: async () => {
     await migrateDocuments({

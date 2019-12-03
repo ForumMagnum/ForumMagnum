@@ -5,6 +5,7 @@ import { Posts } from '../../lib/collections/posts';
 
 registerMigration({
   name: "scoreExceededDateFalseToNull",
+  dateWritten: "2019-03-07",
   idempotent: true,
   action: async () => {
     let fieldsToFix = [
@@ -42,6 +43,7 @@ registerMigration({
 
 registerMigration({
   name: "dropUnusedFields1",
+  dateWritten: "2019-03-07",
   idempotent: true,
   action: async () => {
     await dropUnusedField(Posts, "content");

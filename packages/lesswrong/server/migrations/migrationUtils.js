@@ -6,8 +6,14 @@
 // the site down otherwise. See `runThenSleep`.
 const DEFAULT_LOAD_FACTOR = 0.5;
 
-export function registerMigration({ name, idempotent, action })
+export function registerMigration({ name, dateWritten, idempotent, action })
 {
+  if (!name) throw new Error("Missing argument: name");
+  if (!dateWritten)
+    throw new Error(`Migration ${name} is missing required field: dateWritten`);
+  if (!action)
+    throw new Error(`Migration ${name} is missing required field: action`);
+  
   // The 'idempotent' parameter is mostly about forcing you to explicitly think
   // about migrations' idempotency and make them idempotent, and only
   // secondarily to enable the possibility of non-idempotent migrations later.
