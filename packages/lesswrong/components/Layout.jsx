@@ -41,7 +41,7 @@ const hashCode = function(str) {
 const standaloneNavMenuRouteNames = {
   'LessWrong': [
     'home', 'allPosts', 'questions', 'sequencesHome', 'CommunityHome', 'Shortform', 'Codex',
-    'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations'
+    'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews'
   ],
   'AlignmentForum': ['alignment.home', 'sequencesHome', 'allPosts', 'questions', 'Shortform'],
   'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform'],
@@ -52,8 +52,8 @@ const styles = theme => ({
     margin: '50px auto 15px auto',
     [theme.breakpoints.down('sm')]: {
       marginTop: 0,
-      paddingLeft: theme.spacing.unit,
-      paddingRight: theme.spacing.unit,
+      paddingLeft: theme.spacing.unit/2,
+      paddingRight: theme.spacing.unit/2,
     },
   },
   '@global': {

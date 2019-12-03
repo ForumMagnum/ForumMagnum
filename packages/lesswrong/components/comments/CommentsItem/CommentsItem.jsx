@@ -102,7 +102,11 @@ export const styles = theme => ({
   nomination: {
     color: theme.palette.lwTertiary.main,
     fontStyle: "italic",
-    marginBottom: theme.spacing.unit
+    fontSize: "1rem",
+    marginBottom: theme.spacing.unit,
+    [theme.breakpoints.up('sm')]: {
+      marginLeft: theme.spacing.unit
+    }
   }
 })
 
@@ -244,13 +248,13 @@ class CommentsItem extends Component {
             <span className={classes.outdatedWarning}>
               <Components.CommentOutdatedWarning comment={comment} post={post} />
             </span>
-          </div>
-          {comment.nominatedForReview && <Link to={"/nominations"} className={classes.nomination}>
-            {`Nomination for ${comment.nominatedForReview} Review`}
-          </Link>}
-          {comment.reviewingForReview && <Link to={"/nominations"} className={classes.nomination}>
+            {comment.nominatedForReview && <Link to={"/nominations"} className={classes.nomination}>
+              {`Nomination for ${comment.nominatedForReview} Review`}
+            </Link>}
+            {comment.reviewingForReview && <Link to={"/reviews"} className={classes.nomination}>
             {`Review for ${comment.reviewingForReview}`}
           </Link>}
+          </div>
           {this.renderBodyOrEditor()}
           {!comment.deleted && !collapsed && this.renderCommentBottom()}
         </div>

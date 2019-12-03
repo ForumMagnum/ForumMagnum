@@ -26,7 +26,6 @@ const Nominations2018 = ({classes}) => {
           terms={{view:"nominations2018", sortByMost: sortByMost, limit: 50}} 
           showNominationCount
           enableTotal
-          dense
         />
       </SingleColumnSection>
       <SingleColumnSection>

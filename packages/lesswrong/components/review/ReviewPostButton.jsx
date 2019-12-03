@@ -2,9 +2,9 @@ import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import { useCommentBox } from '../common/withCommentBox';
+import { useDialog } from '../common/withDialog';
 import Button from '@material-ui/core/Button';
 import withUser from '../common/withUser';
-import { userHas2018Reviewing } from '../../lib/betas.js';
 
 const styles = (theme) => ({
   root: {
@@ -20,20 +20,27 @@ const styles = (theme) => ({
 
 const ReviewPostButton = ({classes, post, currentUser}) => {
   const { openCommentBox } = useCommentBox();
+  const { openDialog } = useDialog();
 
   const { HoverPreviewLink } = Components
 
   const handleClick = () => {
-    openCommentBox({
-      componentName: "ReviewPostForm",
-      componentProps: {
-        post: post
-      }
-    });
+    if (currentUser) {
+      openCommentBox({
+        componentName: "ReviewPostForm",
+        componentProps: {
+          post: post
+        }
+      });
+    } else {
+      openDialog({
+        componentName: "LoginPopup",
+        componentProps: {}
+      });
+    }
   }
 
   if (post.nominationCount2018 < 2) return null
-  if (!userHas2018Reviewing(currentUser)) return null
 
   return <div className={classes.root}>
     <div className={classes.label}>
