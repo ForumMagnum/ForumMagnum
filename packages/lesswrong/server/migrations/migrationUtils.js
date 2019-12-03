@@ -6,6 +6,14 @@
 // the site down otherwise. See `runThenSleep`.
 const DEFAULT_LOAD_FACTOR = 0.5;
 
+export const availableMigrations = {};
+export const migrationRunners = {};
+
+// Put migration functions in a dictionary Vulcan.migrations to make it
+// accessible in meteor shell, working around awkward inability to import
+// things non-relatively there.
+Vulcan.migrations = migrationRunners;
+
 export function registerMigration({ name, dateWritten, idempotent, action })
 {
   if (!name) throw new Error("Missing argument: name");
@@ -23,29 +31,34 @@ export function registerMigration({ name, dateWritten, idempotent, action })
     throw new Error(`Migration ${name} is not marked as idempotent; it can't use registerMigration unless it's marked as (and is) idempotent.`);
   }
 
-  // Put the migration function in a dictionary Vulcan.migrations to make it
-  // accessible in meteor shell, working around awkward inability to import
-  // things non-relatively there.
-  if (!Vulcan.migrations) {
-    Vulcan.migrations = {};
+  if (name in availableMigrations) {
+    throw new Error(`Duplicate migration or name collision: ${name}`);
   }
+  
+  availableMigrations[name] = { name, dateWritten, idempotent, action };
+  migrationRunners[name] = async () => await runMigration(name);
+}
 
-  Vulcan.migrations[name] = async () => {
+export async function runMigration(name)
+{
+  if (!(name in availableMigrations))
+    throw new Error(`Unrecognized migration: ${name}`);
+  const { name, dateWritten, idempotent, action } = availableMigrations[name];
+  
+  // eslint-disable-next-line no-console
+  console.log(`Beginning migration: ${name}`);
+
+  try {
+    await action();
+
     // eslint-disable-next-line no-console
-    console.log(`Beginning migration: ${name}`);
-
-    try {
-      await action();
-
-      // eslint-disable-next-line no-console
-      console.log(`Finished migration: ${name}`);
-    } catch(e) {
-      // eslint-disable-next-line no-console
-      console.error(`FAILED migration: ${name}.`);
-      // eslint-disable-next-line no-console
-      console.error(e);
-    }
-  };
+    console.log(`Finished migration: ${name}`);
+  } catch(e) {
+    // eslint-disable-next-line no-console
+    console.error(`FAILED migration: ${name}.`);
+    // eslint-disable-next-line no-console
+    console.error(e);
+  }
 }
 
 function sleep(ms)
