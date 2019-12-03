@@ -21,7 +21,6 @@ const styles = theme => ({
 
 const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right"}) => {
   const { openDialog } = useDialog();
-  // const { captureEvent } = useTracking()
   const [bookmarked, setBookmarked] = useState(_.pluck((currentUser?.bookmarkedPostsMetadata || []), 'postId')?.includes(post._id))
   const { captureEvent } = useTracking({eventType: "bookmarkToggle", eventProps: {"postId": post._id, "bookmarked": !bookmarked}})
 

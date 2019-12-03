@@ -1,25 +1,18 @@
 import { registerComponent } from 'meteor/vulcan:core';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useTracking } from "../../lib/analyticsEvents";
 
+const buttonDecoding = {
+  0: 'main_button',
+  1: 'auxilliary_button',
+  2: 'secondary_button',
+}
 const AnalyticsTracker = ({eventType, eventProps, children, captureOnClick, captureOnMount, skip}) => {
   const { captureEvent } = useTracking({eventType, eventProps, captureOnMount})
-  const buttonDecoding  = (code) => {
-    switch (code) {
-      case 0:
-        return 'main_button'
-      case 1:
-        return 'auxilliary_button'
-      case 2:
-        return 'secondary_button'
-      default:
-        return code
-    }
-  }
-  const handleClick = (e) => {
+  const handleClick = useCallback((e) => {
     !skip && captureOnClick && captureEvent(`${eventType}Clicked`,
-        {...eventProps, buttonPressed: buttonDecoding(e.button)})
-  }
+        {...eventProps, buttonPressed: buttonDecoding[e.button] || e.button})
+  }, [eventProps, captureEvent, skip, captureOnClick, eventType])
 
   return (
     <span onMouseDown={handleClick}>

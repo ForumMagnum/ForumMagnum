@@ -31,7 +31,6 @@ export const AnalyticsUtil = {
 };
 
 export function captureEvent(eventType, eventProps) {
-  console.log(eventType, eventProps)
   try {
     if (Meteor.isServer) {
       // If run from the server, put this directly into the server's write-to-SQL
@@ -57,6 +56,7 @@ export function captureEvent(eventType, eventProps) {
       throttledFlushClientEvents();
     }
   } catch(e) {
+    // eslint-disable-next-line no-console
     console.error("Error while capturing analytics event: ", e); //eslint-disable-line
   }
 }
