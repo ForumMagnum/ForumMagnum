@@ -3,8 +3,24 @@ import { registerComponent, Components, getSetting } from 'meteor/vulcan:core'
 import { InstantSearch, Configure } from 'react-instantsearch-dom';
 import { connectAutoComplete } from 'react-instantsearch/connectors';
 import Autosuggest from 'react-autosuggest';
+import { withStyles } from '@material-ui/core/styles';
 
-const SearchAutoComplete = ({ clickAction, placeholder, renderSuggestion, hitsPerPage=7, indexName }) => {
+const styles = theme => ({
+  autoComplete: {
+    "& li": {
+      listStyle: "none",
+    },
+    "& .react-autosuggest__suggestion--highlighted": {
+        backgroundColor: "rgba(0,0,0,0.05)",
+    },
+    "& ul": {
+      marginLeft: 0,
+      paddingLeft: 0,
+    },
+  }
+});
+
+const SearchAutoComplete = ({ clickAction, placeholder, renderSuggestion, hitsPerPage=7, indexName, classes }) => {
   const algoliaAppId = getSetting('algolia.appId')
   const algoliaSearchKey = getSetting('algolia.searchKey')
   
@@ -31,7 +47,7 @@ const SearchAutoComplete = ({ clickAction, placeholder, renderSuggestion, hitsPe
     appId={algoliaAppId}
     apiKey={algoliaSearchKey}
   >
-    <div className="posts-search-auto-complete">
+    <div className={classes.autoComplete}>
       <AutocompleteTextbox onSuggestionSelected={onSuggestionSelected} placeholder={placeholder} renderSuggestion={renderSuggestion} />
       <Configure hitsPerPage={hitsPerPage} />
     </div>
@@ -64,4 +80,5 @@ const AutocompleteTextbox = connectAutoComplete(
   }
 );
 
-registerComponent("SearchAutoComplete", SearchAutoComplete);
+registerComponent("SearchAutoComplete", SearchAutoComplete,
+  withStyles(styles, {name: "SearchAutoComplete"}));
