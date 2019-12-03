@@ -154,7 +154,9 @@ class RecommendationsAndCurated extends PureComponent {
             <BetaTag />
           </div>
           <SubSection className={classes.continueReadingList}>
-            <BookmarksList limit={3} />
+            <AnalyticsContext listContext={"frontpageBookmarksList"}>
+              <BookmarksList limit={3} />
+            </AnalyticsContext>
           </SubSection>
       </React.Fragment>}
 
@@ -186,7 +188,7 @@ class RecommendationsAndCurated extends PureComponent {
       </Tooltip>
       <SubSection>
         <AnalyticsContext listContext={"curatedPosts"}>
-        <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
+          <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
         </AnalyticsContext>
       </SubSection>
       <div className={classes.footerWrapper}>

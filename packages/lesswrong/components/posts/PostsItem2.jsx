@@ -19,9 +19,9 @@ export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 export const COMMENTS_WIDTH = 48
 
-const COMMENTS_BACKGROUND_COLOR = "#efefef"
-const captureOnMountContexts = ['continueReading', 'bookmarks', 'fromTheArchives', 'LessWrong 2018 Review']
 const COMMENTS_BACKGROUND_COLOR = "#f5f5f5"
+
+const captureOnMountContexts = ['continueReading', 'bookmarksPage', 'frontpageBookmarksList', 'fromTheArchives', 'LessWrong 2018 Review']
 
 export const styles = (theme) => ({
   root: {

@@ -3,7 +3,6 @@ import React from 'react';
 import withUser from '../common/withUser';
 import Users from 'meteor/vulcan:users';
 import withErrorBoundary from '../common/withErrorBoundary';
-import {AnalyticsContext} from "../../lib/analyticsEvents";
 
 const BookmarksList = ({currentUser, limit=50 }) => {
   const { PostsItem2, Loading } = Components
@@ -22,11 +21,9 @@ const BookmarksList = ({currentUser, limit=50 }) => {
   if (loading) return <Loading/>
 
   return (
-      <AnalyticsContext listContext={"bookmarks"}>
-        <div>
-            {bookmarkedPosts.map((post) => <PostsItem2 key={post._id} post={post} bookmark/>)}
-        </div>
-      </AnalyticsContext>
+    <div>
+      {bookmarkedPosts.map((post) => <PostsItem2 key={post._id} post={post} bookmark/>)}
+    </div>
   )
 }
 
