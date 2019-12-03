@@ -4,7 +4,6 @@ import Tooltip from '@material-ui/core/Tooltip';
 import withUser from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper'
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
-import { captureEvent } from '../../lib/analyticsEvents';
 
 const recommendedName = getSetting('forumType') === 'EAForum' ? 'Community Favorites' : 'Recommended'
 
@@ -18,16 +17,12 @@ class ConfigurableRecommendationsList extends PureComponent {
     this.setState({
       settingsVisible: !this.state.settingsVisible,
     });
-    if (this.state.settingsVisible) {
-      captureEvent("recommendationSettingsOpened");
-    }
   }
 
   changeSettings = (newSettings) => {
     this.setState({
       settings: newSettings
     });
-    captureEvent("recommendationSettingsChanged");
   }
 
   render() {

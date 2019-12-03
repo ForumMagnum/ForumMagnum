@@ -89,20 +89,10 @@ class ContinueReadingList extends Component {
       </SectionFooter>
     </div>
   }
-
-  componentDidMount() {
-    const { continueReading } = this.props
-    const { entries } = this.limitResumeReading(continueReading)
-    entries.map(resumeReading => {
-      const { nextPost, sequence, collection } = resumeReading;
-    });
-  }
-
 }
 
 registerComponent('ContinueReadingList', ContinueReadingList,
   withDismissRecommendation,
   withUser
 );
-
 

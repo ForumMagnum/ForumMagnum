@@ -9,7 +9,6 @@ import moment from 'moment-timezone';
 import { withCookies } from 'react-cookie'
 import LogRocket from 'logrocket'
 
-
 import { withStyles, withTheme } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents.js'

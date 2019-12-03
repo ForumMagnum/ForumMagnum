@@ -33,10 +33,6 @@ class RecommendationsList extends Component {
       </AnalyticsContext>
     </div>
   }
-
-  componentDidMount() {
-    const { recommendations } = this.props
-  }
 }
 
 registerComponent('RecommendationsList', RecommendationsList,
