@@ -395,6 +395,12 @@ addRoute([
     title: "Admin"
   },
   {
+    name: 'migrations',
+    path: '/admin/migrations',
+    componentName: 'MigrationsDashboard',
+    title: "Migrations"
+  },
+  {
     name: 'moderation',
     path: '/moderation',
     componentName: 'ModerationLog',
