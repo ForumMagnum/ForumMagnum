@@ -29,7 +29,7 @@ const PingbacksList = ({classes, postId}) => {
   });
   const currentUser = useCurrentUser();
 
-  const { SectionSubtitle, Pingback, Loading, LoadMore } = Components
+  const { Pingback, Loading, LoadMore } = Components
 
   if (loading)
     return <Loading/>
@@ -37,11 +37,6 @@ const PingbacksList = ({classes, postId}) => {
     return null;
   
   return <div className={classes.root}>
-    <SectionSubtitle>
-      <Tooltip title="Posts that linked to this post" placement="right">
-        <span>Pingbacks</span>
-      </Tooltip>
-    </SectionSubtitle>
     <div className={classes.list}>
       {results.map((post, i) =>
         <div key={post._id} >
