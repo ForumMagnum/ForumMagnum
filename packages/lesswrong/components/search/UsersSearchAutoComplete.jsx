@@ -1,8 +1,6 @@
 import React from 'react';
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core'
-import { InstantSearch, Configure } from 'react-instantsearch-dom';
-import { connectAutoComplete } from 'react-instantsearch/connectors';
-import Autosuggest from 'react-autosuggest';
+import { InstantSearch } from 'react-instantsearch-dom';
 import { algoliaIndexNames } from '../../lib/algoliaIndexNames.js';
 
 const UsersSearchAutoComplete = ({clickAction, label}) => {
@@ -18,41 +16,12 @@ const UsersSearchAutoComplete = ({clickAction, label}) => {
     appId={algoliaAppId}
     apiKey={algoliaSearchKey}
   >
-    <div>
-      <AutoComplete clickAction={clickAction} label={label}/>
-      <Configure hitsPerPage={7} />
-    </div>
+    <Components.SearchAutoComplete
+      clickAction={suggestion => clickAction(suggestion.objectID)}
+      renderSuggestion={hit => <Components.UsersAutoCompleteHit document={hit} />}
+      placeholder={label || "Search for Users"}
+    />
   </InstantSearch>
 }
-
-const AutoComplete = connectAutoComplete(
-  ({ hits, currentRefinement, refine, clickAction, label }) =>
-  {
-    const onSuggestionSelected = (event, { suggestion }) => {
-      event.preventDefault();
-      event.stopPropagation();
-      clickAction(suggestion.objectID)
-    }
-    return <span>
-      <Autosuggest
-        suggestions={hits}
-        onSuggestionsFetchRequested={({ value }) => refine(value)}
-        onSuggestionsClearRequested={() => refine('')}
-        getSuggestionValue={hit => hit.title}
-        onSuggestionSelected={onSuggestionSelected}
-        renderInputComponent={hit => <Components.UsersSearchInput inputProps={hit}/>}
-        renderSuggestion={hit =>
-          <Components.UsersAutoCompleteHit document={hit} />}
-        inputProps={{
-          placeholder: label || "Search for Users",
-          value: currentRefinement,
-          onChange: () => {},
-        }}
-        highlightFirstSuggestion
-      />
-    </span>
-  }
-
-);
 
 registerComponent("UsersSearchAutoComplete", UsersSearchAutoComplete);
