@@ -25,14 +25,13 @@ const Reviews2018 = ({classes, currentUser}) => {
   const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox } = Components
 
   const handleSetExpandUnread = () => {
-    const newExpandUnread = !expandUnread
     updateUser({
       selector: {_id: currentUser._id},
       data: { 
-        noExpandUnreadCommentsReview: !newExpandUnread,
+        noExpandUnreadCommentsReview: expandUnread,
       }
     });
-    setExpandUnread(newExpandUnread)
+    setExpandUnread(!expandUnread)
   }
 
   return (

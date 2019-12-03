@@ -65,7 +65,11 @@ export const styles = (theme) => ({
     boxShadow: "0px 2px 3px rgba(0,0,0,.2)",
     marginTop: -1,
     marginBottom: 16,
-    border: "solid 1px #ccc"
+    border: "solid 1px #ccc",
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: theme.spacing.unit/2,
+      paddingRight: theme.spacing.unit/2
+    }
   },
   firstItem: {
     borderTop: "solid 1px rgba(0,0,0,.2)"
@@ -187,7 +191,7 @@ export const styles = (theme) => ({
       display: "inline-block"
     }
   },
-  nextUnreadIn: {
+  subtitle: {
     color: theme.palette.grey[700],
     fontFamily: theme.typography.commentStyle.fontFamily,
 
@@ -407,7 +411,7 @@ const PostsItem2 = ({
             </span>
 
             {(resumeReading?.sequence || resumeReading?.collection) &&
-              <div className={classes.nextUnreadIn}>
+              <div className={classes.subtitle}>
                 {resumeReading.numRead ? "Next unread in " : "First post in "}<Link to={
                   resumeReading.sequence
                     ? Sequences.getPageUrl(resumeReading.sequence)
@@ -467,7 +471,7 @@ const PostsItem2 = ({
                 />
               </div>}
 
-            {(showNominationCount || showReviewCount) && <div className={classes.nextUnreadIn}>
+            {(showNominationCount || showReviewCount) && <div className={classes.subtitle}>
               {showNominationCount && <span>{post.nominationCount2018 || 0} nomination{(post.nominationCount2018 === 1) ? "" :"s"}</span>}
               {showReviewCount && <span>{" "}– {post.reviewCount2018 || 0} review{(post.reviewCount2018 === 1) ? "" :"s"}</span>}
             </div>}

@@ -112,10 +112,9 @@ const PostsList2 = ({
   let orderedResults = results
   if (defaultToShowUnreadComments) {
     orderedResults = _.sortBy(results, (post) => { 
-      return post.lastVisitedAt >=  Posts.getLastCommentedAt(post);
+      return post.lastVisitedAt && (post.lastVisitedAt >=  Posts.getLastCommentedAt(post));
     })
   }
-
 
   return (
     <div className={classNames({[classes.itemIsLoading]: loading && dimWhenLoading})}>

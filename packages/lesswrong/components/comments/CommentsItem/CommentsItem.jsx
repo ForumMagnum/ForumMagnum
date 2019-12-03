@@ -251,7 +251,7 @@ class CommentsItem extends Component {
             {comment.nominatedForReview && <Link to={"/nominations"} className={classes.nomination}>
               {`Nomination for ${comment.nominatedForReview} Review`}
             </Link>}
-            {comment.reviewingForReview && <Link to={"/nominations"} className={classes.nomination}>
+            {comment.reviewingForReview && <Link to={"/reviews"} className={classes.nomination}>
             {`Review for ${comment.reviewingForReview}`}
           </Link>}
           </div>
