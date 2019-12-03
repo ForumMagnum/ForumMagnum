@@ -30,7 +30,7 @@ class FlashMessages extends Component {
     return (
       <div className="flash-messages">
         <Snackbar
-          open={messages[0] && !messages[0].hide}
+          open={messageObject && !messageObject.hide}
           message={messageObject && messageObject.message}
           autoHideDuration={6000}
           onClose={clear}

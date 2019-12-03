@@ -30,3 +30,22 @@ Accounts.validateLoginAttempt((attempt) => {
     return true;
   }
 })
+
+
+/* 
+
+Uncomment this section to allow for user-impersonation, by using the
+following console commands: 
+
+Accounts.callLoginMethod({
+  methodArguments: [{userId: <userId>}],
+  userCallback: (err) => {console.log(err)}
+});
+
+DO NOT ACTIVATE THIS IN PRODUCTION. ONLY USE THIS IN A DEVELOPMENT CONTEXT. 
+
+*/
+
+// Accounts.registerLoginHandler('admin', function(loginRequest) {
+//   return { userId : loginRequest.userId };
+// });

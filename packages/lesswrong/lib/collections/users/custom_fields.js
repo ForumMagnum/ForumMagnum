@@ -433,7 +433,7 @@ addFieldsDict(Users, {
 
   showHideKarmaOption: {
     type: Boolean,
-    optional: false,
+    optional: true,
     label: "Enable option on posts to hide karma visibility",
     canRead: [Users.owns, 'admins'],
     canUpdate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
@@ -1220,6 +1220,15 @@ addFieldsDict(Users, {
     type: String,
     optional: true,
     canRead: ['guests'],
+  },
+  noExpandUnreadCommentsReview: {
+    type: Boolean,
+    optional: true,
+    defaultValue: false,
+    hidden: true,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
   }
 });
 

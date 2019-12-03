@@ -44,6 +44,7 @@ registerFragment(`
     lastSubthreadActivity
     moderatorHat
     nominatedForReview
+    reviewingForReview
   }
 `);
 

@@ -14,7 +14,8 @@ Utils.sanitize = function(s) {
     allowedTags: Utils.sanitizeAllowedTags,
     allowedAttributes:  {
       ...sanitizeHtml.defaults.allowedAttributes,
-      'figure': ['style']
+      img: [ 'src' , 'srcset'],
+      figure: ['style']
     },
     allowedStyles: {
       ...sanitizeHtml.defaults.allowedStyles,

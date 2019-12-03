@@ -13,12 +13,15 @@ import classNames from 'classnames';
 import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
 
+import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
+
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 export const COMMENTS_WIDTH = 48
 
 const COMMENTS_BACKGROUND_COLOR = "#efefef"
 const captureOnMountContexts = ['continueReading', 'bookmarks', 'fromTheArchives', 'LessWrong 2018 Review']
+const COMMENTS_BACKGROUND_COLOR = "#f5f5f5"
 
 export const styles = (theme) => ({
   root: {
@@ -31,11 +34,11 @@ export const styles = (theme) => ({
     }
   },
   background: {
-    transition: "3s",
     width: "100%",
   },
   postsItem: {
     display: "flex",
+    position: "relative",
     paddingTop: 10,
     paddingBottom: 10,
     alignItems: "center",
@@ -51,19 +54,24 @@ export const styles = (theme) => ({
       backgroundColor: "#efefef"
     },
   },
-  hasResumeReading: {
-    ...theme.typography.body,
-    "& $title": {
-      position: "relative",
+  hasSmallSubtitle: {
+    '&&': {
       top: -5,
-    },
+    }
   },
   bottomBorder: {
     borderBottom: "solid 1px rgba(0,0,0,.2)",
   },
   commentsBackground: {
     backgroundColor: COMMENTS_BACKGROUND_COLOR,
-    transition: "0s",
+    boxShadow: "0px 2px 3px rgba(0,0,0,.2)",
+    marginTop: -1,
+    marginBottom: 16,
+    border: "solid 1px #ccc",
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: theme.spacing.unit/2,
+      paddingRight: theme.spacing.unit/2
+    }
   },
   firstItem: {
     borderTop: "solid 1px rgba(0,0,0,.2)"
@@ -128,9 +136,9 @@ export const styles = (theme) => ({
     width: "100%",
     paddingLeft: theme.spacing.unit*2,
     paddingRight: theme.spacing.unit*2,
-    paddingBottom: theme.spacing.unit,
     paddingTop: theme.spacing.unit,
     cursor: "pointer",
+    marginBottom: NEW_COMMENT_MARGIN_BOTTOM,
     [theme.breakpoints.down('sm')]: {
       padding: 0,
     }
@@ -185,14 +193,14 @@ export const styles = (theme) => ({
       display: "inline-block"
     }
   },
-  nextUnreadIn: {
-    color: theme.palette.grey[800],
+  subtitle: {
+    color: theme.palette.grey[700],
     fontFamily: theme.typography.commentStyle.fontFamily,
 
     [theme.breakpoints.up('md')]: {
       position: "absolute",
       left: 42,
-      top: 28,
+      top: 27,
       zIndex: theme.zIndexes.nextUnread,
     },
     [theme.breakpoints.down('sm')]: {
@@ -202,17 +210,18 @@ export const styles = (theme) => ({
       marginBottom: 3,
       marginLeft: 1,
     },
-
     "& a": {
       color: theme.palette.primary.main,
     },
   },
   nominationCount: {
-    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
-    width: 30,
-    textAlign: "center",
-    flexShrink: 0
+    [theme.breakpoints.up('sm')]: {
+      position: "absolute",
+      bottom: 2,
+      left: KARMA_WIDTH
+    }
   },
   sequenceImage: {
     position: "relative",
@@ -261,7 +270,7 @@ export const styles = (theme) => ({
   },
   withRelevanceVoting: {
     marginLeft: 50,
-
+    
     [theme.breakpoints.down('sm')]: {
       marginLeft: 35,
     },
@@ -336,16 +345,14 @@ const PostsItem2 = ({
   // recordPostView, isRead: From the withRecordPostView HoC.
   // showNominationCount: (bool) whether this should display it's number of Review nominations
   showNominationCount,
+  showReviewCount,
   recordPostView, isRead,
-  // which list a postItem is displayed in, e.g. latestPosts, Curated, ContinueRead
-  listContext,
-  captureDisplay=true,
   classes,
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
   const currentUser = useCurrentUser();
-
+  
   const toggleComments = React.useCallback(
     () => {
       recordPostView({post})
@@ -359,7 +366,7 @@ const PostsItem2 = ({
     const lastCommentedAt = Posts.getLastCommentedAt(post)
     const newComments = post.lastVisitedAt < lastCommentedAt;
     return (isRead && newComments && !readComments)
-  };
+  }
 
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors,
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
@@ -371,7 +378,6 @@ const PostsItem2 = ({
 
   const renderComments = showComments || (defaultToShowUnreadComments && unreadComments)
   const condensedAndHiddenComments = defaultToShowUnreadComments && unreadComments && !showComments
-
 
   const dismissButton = (currentUser && resumeReading &&
     <Tooltip title={dismissRecommendationTooltip} placement="right">
@@ -388,7 +394,6 @@ const PostsItem2 = ({
         [classes.bottomBorder]: showBottomBorder,
         [classes.commentsBackground]: renderComments,
         [classes.firstItem]: (index===0) && showComments,
-        [classes.hasResumeReading]: !!resumeReading,
       })}
     >
       <PostsItemTooltipWrapper post={post}>
@@ -397,13 +402,13 @@ const PostsItem2 = ({
 
           <div className={classNames(classes.postsItem, {
             [classes.dense]: dense,
-            [classes.withRelevanceVoting]: !!tagRel,
+            [classes.withRelevanceVoting]: !!tagRel
           })}>
             <PostsItem2MetaInfo className={classes.karma}>
               <PostsItemKarma post={post} />
             </PostsItem2MetaInfo>
 
-            <span className={classes.title}>
+            <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: (!!resumeReading || showNominationCount)})}>
                 <AnalyticsTracker
                     eventType={"postItem"}
                     eventProps={{postId: post._id, isSticky:isSticky(post, terms)}}
@@ -414,7 +419,7 @@ const PostsItem2 = ({
             </span>
 
             {(resumeReading?.sequence || resumeReading?.collection) &&
-              <div className={classes.nextUnreadIn}>
+              <div className={classes.subtitle}>
                 {resumeReading.numRead ? "Next unread in " : "First post in "}<Link to={
                   resumeReading.sequence
                     ? Sequences.getPageUrl(resumeReading.sequence)
@@ -459,14 +464,6 @@ const PostsItem2 = ({
               <BookmarkButton post={post}/>
             </div>}
 
-            {showNominationCount && <div className={classes.nominationCount}>
-              <Tooltip placement="right" title={`This post has ${post.nominationCount2018} nomination${post.nominationCount2018 > 1 ? 's' : ''} for the 2018 review`}>
-                <span>
-                  { post.nominationCount2018}
-                </span>
-              </Tooltip>
-            </div>}
-
             <div className={classes.mobileDismissButton}>
               {dismissButton}
             </div>
@@ -481,6 +478,11 @@ const PostsItem2 = ({
                   }`}
                 />
               </div>}
+
+            {(showNominationCount || showReviewCount) && <div className={classes.subtitle}>
+              {showNominationCount && <span>{post.nominationCount2018 || 0} nomination{(post.nominationCount2018 === 1) ? "" :"s"}</span>}
+              {showReviewCount && <span>{" "}– {post.reviewCount2018 || 0} review{(post.reviewCount2018 === 1) ? "" :"s"}</span>}
+            </div>}
           </div>
         </div>
       </PostsItemTooltipWrapper>

@@ -51,12 +51,16 @@ const styles = theme => ({
 const PostsList2 = ({
   children, terms,
   dimWhenLoading = false,
-  showLoading = true, showLoadMore = true, showNoResults = true,
+  showLoading = true,
+  showLoadMore = true,
+  showNoResults = true,
   hideLastUnread = false,
   enableTotal=false,
   showNominationCount,
+  showReviewCount,
   classes,
   dense,
+  defaultToShowUnreadComments
 }) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
   const { results, loading, error, count, totalCount, loadMore, limit } = useMulti({
@@ -101,7 +105,6 @@ const PostsList2 = ({
   }
 
   //Analytics Tracking
-  // const displayedPosts = ((hidePosts) ? results.filter((post, i) => hidePosts[i]) : results) || []
   const postIds = (results||[]).map((post) => post._id)
   useTracking({eventType: "postList", eventProps: {postIds, hidePosts}, captureOnMount: eventProps => eventProps.postIds.length})
 
@@ -110,8 +113,12 @@ const PostsList2 = ({
   // We don't actually know if there are more posts here,
   // but if this condition fails to meet we know that there definitely are no more posts
   const maybeMorePosts = !!(results && results.length && (results.length >= limit))
-  
 
+  let orderedResults = results
+  if (defaultToShowUnreadComments) {
+       orderedResults = _.sortBy(results, (post) => {
+           return !post.lastVisitedAt || (post.lastVisitedAt >=  Posts.getLastCommentedAt(post));
+      })
 
   return (
     <div className={classNames({[classes.itemIsLoading]: loading && dimWhenLoading})}>
@@ -119,22 +126,14 @@ const PostsList2 = ({
       {loading && showLoading && dimWhenLoading && <Loading />}
       {results && !results.length && showNoResults && <PostsNoResults />}
 
-      {results && results.map((post, i) =>
-        (hidePosts && hidePosts[i])
-          ? <PostsItem2 key={post._id}
-             post={post} terms={terms} index={i}
-             showQuestionTag={terms.filter!=="questions"}
-             showNominationCount={showNominationCount}
-             dense={dense}
-             hideOnSmallScreens
-            />
-          : <PostsItem2 key={post._id}
-              post={post} terms={terms} index={i}
-              showQuestionTag={terms.filter!=="questions"}
-              showNominationCount={showNominationCount}
-              dense={dense}
-            />
-      )}
+
+      {orderedResults && orderedResults.map((post, i) => {
+        const props = { post, index: i, terms, showNominationCount, showReviewCount, dense, defaultToShowUnreadComments, showQuestionTag: terms.filter!=="questions" }
+
+        return (hidePosts && hidePosts[i])
+          ? <PostsItem2 key={post._id} index={i} {...props} hideOnSmallScreens />
+          : <PostsItem2 key={post._id} index={i} {...props} />
+      })}
       {(showLoadMore || children?.length>0) && <SectionFooter>
         {(showLoadMore) &&
           <div className={classes.loadMore}>
