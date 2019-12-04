@@ -31,6 +31,7 @@ export const AnalyticsUtil = {
 };
 
 export function captureEvent(eventType, eventProps) {
+  console.log({eventType, eventProps})
   try {
     if (Meteor.isServer) {
       // If run from the server, put this directly into the server's write-to-SQL
@@ -67,8 +68,8 @@ export const ReactTrackingContext = React.createContext({});
 
 export const AnalyticsContext = ({children, ...props}) => {
   const existingContextData = useContext(ReactTrackingContext)
-  if (existingContextData) {
-    return <ReactTrackingContext.Provider value={{...existingContextData, ...props}}>
+  const newContextData = {...existingContextData, ...props}
+    return <ReactTrackingContext.Provider value={newContextData}>
       {children}
     </ReactTrackingContext.Provider>
   }
@@ -79,11 +80,11 @@ export function useTracking({eventType, eventProps = {}, captureOnMount = false,
   useEffect(() => {
     const eventData = {...trackingContext, ...eventProps}
     if (typeof captureOnMount === "function") {
-      captureOnMount(eventData) && captureEvent(`${eventType}Mounted`, eventData)
+      !skip && captureOnMount(eventData) && captureEvent(`${eventType}Mounted`, eventData)
     } else if (!!captureOnMount) {
-      captureEvent(`${eventType}Mounted`, eventData)
+      !skip && captureEvent(`${eventType}Mounted`, eventData)
     }
-  }, [])
+  }, [skip])
 
   const track = (type , trackingData) => {
     captureEvent(type || eventType, {
