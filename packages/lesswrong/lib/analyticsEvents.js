@@ -82,6 +82,7 @@ export function useTracking({eventType, eventProps = {}, captureOnMount = false,
     } else if (!!captureOnMount) {
       !skip && captureEvent(`${eventType}Mounted`, eventData)
     }
+    // eslint-disable-line react-hooks/exhaustive-deps
   }, [skip])
 
   const track = (type , trackingData) => {
