@@ -4,6 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper.js';
 import Tooltip from '@material-ui/core/Tooltip';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser'
+import {AnalyticsContext} from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   timeRemaining: {
@@ -48,7 +49,9 @@ const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
         </div>
       </Tooltip>
       <SubSection>
-        <PostsList2 terms={{view:"reviews2018", limit: 3}} showLoadMore={false} />
+        <AnalyticsContext listContext={"LessWrong 2018 Review NEW"}>
+          <PostsList2 terms={{view:"reviews2018", limit: 3}} showLoadMore={false} />
+        </AnalyticsContext>
       </SubSection>
       <SectionFooter>
         <Link to={"/reviews"}>

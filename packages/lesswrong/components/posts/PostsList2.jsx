@@ -89,9 +89,6 @@ const PostsList2 = ({
     }
   }
 
-  //Analytics Tracking
-  const postIds = (results||[]).map((post) => post._id)
-  useTracking({eventType: "postList", eventProps: {postIds, hidePosts}, captureOnMount: eventProps => eventProps.postIds.length})
 
   // TODO-Q: Is there a composable way to check whether this is the second
   //         time that networkStatus === 1, in order to prevent the loading
@@ -107,7 +104,6 @@ const PostsList2 = ({
 
   const { Loading, PostsItem2, LoadMore, PostsNoResults, SectionFooter } = Components
 
-  if (!results && loading) return <Loading />
 
   // We don't actually know if there are more posts here,
   // but if this condition fails to meet we know that there definitely are no more posts
@@ -119,6 +115,13 @@ const PostsList2 = ({
       return !post.lastVisitedAt || (post.lastVisitedAt >=  Posts.getLastCommentedAt(post));
     })
   }
+
+  //Analytics Tracking
+  const postIds = (orderedResults||[]).map((post) => post._id)
+  console.log({'postIds': postIds})
+  useTracking({eventType: "postList", eventProps: {postIds, hidePosts}, captureOnMount: true}) // eventProps => eventProps.postIds.length})
+
+  if (!orderedResults && loading) return <Loading />
 
   return (
     <div className={classNames({[classes.itemIsLoading]: loading && dimWhenLoading})}>

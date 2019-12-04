@@ -20,7 +20,7 @@ class RecommendationsList extends Component {
     </div>
 
     return <div>
-      <AnalyticsContext listContext={"LessWrong 2018 Review"}>
+      <AnalyticsContext listContext={"LessWrong 2018 Review OLD"}>
         {recommendations.map(post =>
           <PostsItem2 post={post} key={post._id}/>)}
         {recommendations.length===0 &&
