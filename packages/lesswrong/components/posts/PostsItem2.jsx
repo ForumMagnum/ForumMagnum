@@ -352,8 +352,10 @@ const PostsItem2 = ({
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
+  const [markedVisitedAt, setMarkedVisitedAt] = React.useState(false);
+
   const currentUser = useCurrentUser();
-  
+
   const toggleComments = React.useCallback(
     () => {
       recordPostView({post})
@@ -363,28 +365,48 @@ const PostsItem2 = ({
     [post, recordPostView, setShowComments, showComments, setReadComments]
   );
 
+  const markAsRead = () => {
+    recordPostView({post})
+    setMarkedVisitedAt(new Date()) 
+  }
+
+  const compareVisitedAndCommentedAt = (lastVisitedAt, lastCommentedAt) => {
+    const newComments = lastVisitedAt < lastCommentedAt;
+    return (isRead && newComments && !readComments)
+  }
+
   const hasUnreadComments = () => {
     const lastCommentedAt = Posts.getLastCommentedAt(post)
-    const newComments = post.lastVisitedAt < lastCommentedAt;
-    return (isRead && newComments && !readComments)
+    const lastVisitedAt = markedVisitedAt || post.lastVisitedAt
+    return compareVisitedAndCommentedAt(lastVisitedAt, lastCommentedAt)
+  }
+
+  const hadUnreadComments = () => {
+    const lastCommentedAt = Posts.getLastCommentedAt(post)
+    return compareVisitedAndCommentedAt(post.lastVisitedAt, lastCommentedAt)
   }
 
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors,
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
-    BookmarkButton, AnalyticsTracker } = Components
+    BookmarkButton, EventVicinity, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker } = Components
 
   const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
-  const unreadComments = hasUnreadComments()
-
-  const renderComments = showComments || (defaultToShowUnreadComments && unreadComments)
-  const condensedAndHiddenComments = defaultToShowUnreadComments && unreadComments && !showComments
+  const renderComments = showComments || (defaultToShowUnreadComments && hadUnreadComments())
+  const condensedAndHiddenComments = defaultToShowUnreadComments && !showComments
 
   const dismissButton = (currentUser && resumeReading &&
     <Tooltip title={dismissRecommendationTooltip} placement="right">
       <CloseIcon onClick={() => dismissRecommendation()}/>
     </Tooltip>
   )
+
+  const commentTerms = {
+    view:"postsItemComments", 
+    limit:7, 
+    postId: post._id, 
+    after: (defaultToShowUnreadComments && !showComments) ? post.lastVisitedAt : null
+  }
 
   return (
     <div className={classNames(
@@ -437,10 +459,10 @@ const PostsItem2 = ({
             </PostsItem2MetaInfo>}
 
             { post.isEvent && <PostsItem2MetaInfo className={classes.event}>
-              <Components.EventVicinity post={post} />
+              <EventVicinity post={post} />
             </PostsItem2MetaInfo>}
 
-            {showPostedAt && !resumeReading && <Components.PostsItemDate post={post}/>}
+            {showPostedAt && !resumeReading && <PostsItemDate post={post}/>}
 
             <div className={classes.mobileSecondRowSpacer}/>
 
@@ -456,7 +478,7 @@ const PostsItem2 = ({
               <PostsItemComments
                 post={post}
                 onClick={toggleComments}
-                unreadComments={unreadComments}
+                unreadComments={hasUnreadComments()}
               />
             </div>}
 
@@ -495,13 +517,13 @@ const PostsItem2 = ({
       </div>}
 
       {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>
-        <Components.PostsItemNewCommentsWrapper
+        <PostsItemNewCommentsWrapper
           currentUser={currentUser}
-          highlightDate={post.lastVisitedAt}
-          terms={{view:"postCommentsUnread", limit:7, postId: post._id}}
+          highlightDate={markedVisitedAt || post.lastVisitedAt}
+          terms={commentTerms}
           post={post}
           condensed={condensedAndHiddenComments}
-          hideReadComments={condensedAndHiddenComments}
+          markAsRead={markAsRead}
         />
       </div>}
     </div>
