@@ -50,8 +50,8 @@ addCallback("router.onUpdate", ({oldLocation, newLocation}) => {
   captureEvent("navigate", {
     from: oldLocation.pathname,
     to: newLocation.pathname,
-    fromPostId: oldLocation?.params?._id,
-    toPostId: newLocation?.params?._id
+    fromPostId: oldLocation.params?._id,
+    toPostId: newLocation.params?._id
   });
 });
 
