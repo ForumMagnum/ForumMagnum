@@ -247,7 +247,7 @@ addRoute([
   },
   {
     name: 'comment.legacy',
-    path: `/${legacyRouteAcronym}/:id/:slug/:commentId`,
+    path: `/:section(r)?/:subreddit(all|discussion|lesswrong)?/${legacyRouteAcronym}/:id/:slug/:commentId`,
     componentName: "LegacyCommentRedirect",
     previewComponentName: "CommentLinkPreviewLegacy",
     // TODO: Pingback comment
