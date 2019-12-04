@@ -191,7 +191,6 @@ Comments.addView("afRecentDiscussionThread", function (terms) {
 })
 
 Comments.addView("postsItemComments", function (terms) {
-  console.log("Asss", terms.after)
   return {
     selector: {
       postId: terms.postId,

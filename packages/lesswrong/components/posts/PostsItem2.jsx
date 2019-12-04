@@ -365,11 +365,20 @@ const PostsItem2 = ({
     [post, recordPostView, setShowComments, showComments, setReadComments]
   );
 
-  const hasUnreadComments = (initial) => {
-    const lastCommentedAt = Posts.getLastCommentedAt(post)
-    const lastVisitedAt = initial ? post.lastVisitedAt : (markedVisitedAt || post.lastVisitedAt)
+  const compareVisitedAndCommentedAt = (lastVisitedAt, lastCommentedAt) => {
     const newComments = lastVisitedAt < lastCommentedAt;
     return (isRead && newComments && !readComments)
+  }
+
+  const hasUnreadComments = () => {
+    const lastCommentedAt = Posts.getLastCommentedAt(post)
+    const lastVisitedAt = markedVisitedAt || post.lastVisitedAt
+    return compareVisitedAndCommentedAt(lastVisitedAt, lastCommentedAt)
+  }
+
+  const hadUnreadComments = () => {
+    const lastCommentedAt = Posts.getLastCommentedAt(post)
+    return compareVisitedAndCommentedAt(post.lastVisitedAt, lastCommentedAt)
   }
 
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors,
@@ -378,7 +387,7 @@ const PostsItem2 = ({
 
   const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
-  const renderComments = showComments || (defaultToShowUnreadComments && hasUnreadComments(true))
+  const renderComments = showComments || (defaultToShowUnreadComments && hadUnreadComments())
   const condensedAndHiddenComments = defaultToShowUnreadComments && !showComments
 
   const dismissButton = (currentUser && resumeReading &&
@@ -464,7 +473,7 @@ const PostsItem2 = ({
               <PostsItemComments
                 post={post}
                 onClick={toggleComments}
-                unreadComments={hasUnreadComments(false)}
+                unreadComments={hasUnreadComments()}
               />
             </div>}
 
@@ -509,7 +518,7 @@ const PostsItem2 = ({
           terms={commentTerms}
           post={post}
           condensed={condensedAndHiddenComments}
-          markAsRead={() => { recordPostView({post}); setMarkedVisitedAt(new Date) }}
+          markAsRead={() => { recordPostView({post}); setMarkedVisitedAt(new Date()) }}
         />
       </div>}
     </div>
