@@ -365,6 +365,11 @@ const PostsItem2 = ({
     [post, recordPostView, setShowComments, showComments, setReadComments]
   );
 
+  const markAsRead = () => {
+    recordPostView({post})
+    setMarkedVisitedAt(new Date()) 
+  }
+
   const compareVisitedAndCommentedAt = (lastVisitedAt, lastCommentedAt) => {
     const newComments = lastVisitedAt < lastCommentedAt;
     return (isRead && newComments && !readComments)
@@ -518,7 +523,7 @@ const PostsItem2 = ({
           terms={commentTerms}
           post={post}
           condensed={condensedAndHiddenComments}
-          markAsRead={() => { recordPostView({post}); setMarkedVisitedAt(new Date()) }}
+          markAsRead={markAsRead}
         />
       </div>}
     </div>
