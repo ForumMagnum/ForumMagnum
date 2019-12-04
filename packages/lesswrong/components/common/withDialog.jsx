@@ -7,10 +7,10 @@ export const OpenDialogContext = React.createContext('openDialog');
 
 export class DialogManager extends PureComponent {
   state = {
-    currentDialog: null,
+    componentName: null,
     componentProps: null
   };
-
+  
   closeDialog = () => {
     this.setState({
       componentName: null,

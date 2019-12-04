@@ -1220,6 +1220,15 @@ addFieldsDict(Users, {
     type: String,
     optional: true,
     canRead: ['guests'],
+  },
+  noExpandUnreadCommentsReview: {
+    type: Boolean,
+    optional: true,
+    defaultValue: false,
+    hidden: true,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
   }
 });
 

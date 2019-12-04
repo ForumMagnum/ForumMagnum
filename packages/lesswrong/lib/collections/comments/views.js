@@ -181,7 +181,7 @@ Comments.addView("afRecentDiscussionThread", function (terms) {
   return {
     selector: {
       postId: terms.postId,
-      score: {$gt:0},
+      score: {$gt:0}, 
       deletedPublic: false,
       postedAt: {$gt: sevenDaysAgo},
       af: true,
@@ -190,12 +190,13 @@ Comments.addView("afRecentDiscussionThread", function (terms) {
   };
 })
 
-Comments.addView("postCommentsUnread", function (terms) {
+Comments.addView("postsItemComments", function (terms) {
   return {
     selector: {
       postId: terms.postId,
       deleted: false,
-      score: {$gt: 0}
+      score: {$gt: 0},
+      postedAt: terms.after ? {$gt: new Date(terms.after)} : null
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 15},
   };

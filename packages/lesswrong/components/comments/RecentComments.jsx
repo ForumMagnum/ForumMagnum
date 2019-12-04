@@ -1,14 +1,22 @@
 import React from 'react';
-import { Components, registerComponent, withList, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, useMulti, withEdit } from 'meteor/vulcan:core';
 import { Comments } from '../../lib/collections/comments';
 import withUser from '../common/withUser';
 
-const RecentComments = ({results, currentUser, loading, loadMore, networkStatus, updateComment}) => {
-  const loadingMore = networkStatus === 2;
-  if (!loading && results && !results.length) {
+const RecentComments = ({currentUser, updateComment, terms}) => {
+  const { loadingInitial, loadMoreProps, results } = useMulti({
+    terms,
+    collection: Comments,
+    queryName: 'selectCommentsListQuery',
+    fragmentName: 'SelectCommentsList',
+    enableTotal: false,
+    pollInterval: 0,
+    queryLimitName: "recentCommentsLimit"
+  });
+  if (!loadingInitial && results && !results.length) {
     return (<div>No comments found</div>)
   }
-  if (loading || !results) {
+  if (loadingInitial || !results) {
     return <Components.Loading />
   }
   
@@ -25,19 +33,12 @@ const RecentComments = ({results, currentUser, loading, loadMore, networkStatus,
           />
         </div>
       )}
-      {loadMore && <Components.LoadMore loading={loadingMore || loading} loadMore={loadMore}  />}
+      <Components.LoadMore {...loadMoreProps} />
     </div>
   )
 }
 
 registerComponent('RecentComments', RecentComments,
-  [withList, {
-    collection: Comments,
-    queryName: 'selectCommentsListQuery',
-    fragmentName: 'SelectCommentsList',
-    enableTotal: false,
-    pollInterval: 0,
-  }],
   [withEdit, {
     collection: Comments,
     fragmentName: 'SelectCommentsList',

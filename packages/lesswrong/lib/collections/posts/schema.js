@@ -490,6 +490,18 @@ const schema = {
       filterFn: comment => !comment.deleted && comment.nominatedForReview === "2018"
     }),
     canRead: ['guests'],
+  },
+
+  reviewCount2018: {
+    ...denormalizedCountOfReferences({
+      fieldName: "reviewCount2018",
+      collectionName: "Posts",
+      foreignCollectionName: "Comments",
+      foreignTypeName: "comment",
+      foreignFieldName: "postId",
+      filterFn: comment => !comment.deleted && comment.reviewingForReview === "2018"
+    }),
+    canRead: ['guests'],
   }
 };
 

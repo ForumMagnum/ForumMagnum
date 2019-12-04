@@ -165,7 +165,7 @@ const styles = theme => ({
     display: 'inline-block',
     marginRight: SECONDARY_SPACING
   },
-  unreviewed: {
+  contentNotice: {
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle
   },
@@ -266,7 +266,7 @@ class PostsPage extends Component {
       LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
       TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink,
-      PingbacksList, FooterTagList } = Components
+      PingbacksList, FooterTagList, ReviewPostButton } = Components
 
     if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
@@ -346,8 +346,9 @@ class PostsPage extends Component {
               <div className={classes.postBody}>
                 { post.isEvent && <Components.SmallMapPreview post={post} /> }
                 <div className={classes.postContent}>
+                  <ReviewPostButton post={post}/>
                   <AlignmentCrosspostMessage post={post} />
-                  { post.authorIsUnreviewed && <div className={classes.unreviewed}>This post is awaiting moderator approval</div>}
+                  { post.authorIsUnreviewed && <div className={classes.contentNotice}>This post is awaiting moderator approval</div>}
                   <LinkPostMessage post={post} />
                   {query.revision && <PostsRevisionMessage post={post} />}
                   { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
