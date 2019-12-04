@@ -80,6 +80,7 @@ const PostsList2 = ({
   //                     to dim the list during loading, so that the pages where that
   //                     behavior was more important can work fine. Will probably
   //                     fix this for real when Apollo 2 comes out
+  
 
   const { Loading, PostsItem2, LoadMore, PostsNoResults, SectionFooter } = Components
 
