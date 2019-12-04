@@ -11,6 +11,7 @@ import LogRocket from 'logrocket'
 
 import { withStyles, withTheme } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
+import { AnalyticsContext } from '../lib/analyticsEvents.js'
 import { UserContext } from './common/withUser';
 import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
@@ -200,6 +201,7 @@ class Layout extends PureComponent {
         .includes(location.currentRoute.name)
     
     return (
+      <AnalyticsContext>
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
       <PostsReadContext.Provider value={{
@@ -260,6 +262,7 @@ class Layout extends PureComponent {
       </PostsReadContext.Provider>
       </TimezoneContext.Provider>
       </UserContext.Provider>
+      </AnalyticsContext>
     )
   }
 }
