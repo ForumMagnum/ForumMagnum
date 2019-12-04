@@ -14,12 +14,15 @@ import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
 
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
+import {AnalyticsContext} from "../../lib/analyticsEvents";
 
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 export const COMMENTS_WIDTH = 48
 
 const COMMENTS_BACKGROUND_COLOR = "#f5f5f5"
+
+const captureOnMountContexts = ['continueReading', 'bookmarksPage', 'frontpageBookmarksList', 'fromTheArchives']
 
 export const styles = (theme) => ({
   root: {
@@ -218,7 +221,7 @@ export const styles = (theme) => ({
     [theme.breakpoints.up('sm')]: {
       position: "absolute",
       bottom: 2,
-      left: KARMA_WIDTH 
+      left: KARMA_WIDTH
     }
   },
   sequenceImage: {
@@ -371,7 +374,7 @@ const PostsItem2 = ({
 
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors,
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
-    BookmarkButton, EventVicinity, PostsItemDate, PostsItemNewCommentsWrapper } = Components
+    BookmarkButton, EventVicinity, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker } = Components
 
   const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -415,7 +418,12 @@ const PostsItem2 = ({
             </PostsItem2MetaInfo>
 
             <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: (!!resumeReading || showNominationCount)})}>
-              <PostsTitle postLink={postLink} post={post} expandOnHover={!renderComments} read={isRead && !renderComments} sticky={isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
+                <AnalyticsTracker
+                    eventType={"postItem"}
+                    eventProps={{postId: post._id, isSticky:isSticky(post, terms)}}
+                    captureOnMount={(eventData => captureOnMountContexts.includes(eventData.listContext))}>
+                  <PostsTitle postLink={postLink} post={post} expandOnHover={!renderComments} read={isRead} sticky={isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
+                </AnalyticsTracker>
             </span>
 
             {(resumeReading?.sequence || resumeReading?.collection) &&
@@ -461,7 +469,9 @@ const PostsItem2 = ({
             </div>}
 
             {bookmark && <div className={classes.bookmark}>
-              <BookmarkButton post={post}/>
+              <AnalyticsContext buttonContext={"postItem"}>
+                <BookmarkButton post={post}/>
+              </AnalyticsContext>
             </div>}
 
             <div className={classes.mobileDismissButton}>

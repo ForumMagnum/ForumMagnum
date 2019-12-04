@@ -1,6 +1,7 @@
 /*global Vulcan*/
 import { addGraphQLSchema } from 'meteor/vulcan:core';
 import { RateLimiter } from './rateLimiter.js';
+import React, { useContext, useEffect } from 'react'
 
 addGraphQLSchema(`
   type AnalyticsEvent {
@@ -18,11 +19,11 @@ export const AnalyticsUtil = {
   // with an array of events. Available only on the client and when the react
   // tree is mounted, null otherwise; filled in by Components.AnalyticsClient.
   clientWriteEvents: null,
-  
+
   // clientContextVars: A dictionary of variables that will be added to every
   // analytics event sent from the client. Client-side only.
   clientContextVars: {},
-  
+
   // serverWriteEvent: Write a (single) event to the analytics database. Server-
   // side only, filled in in analyticsWriter.js; null on the client. If no
   // analytics database is configured, does nothing.
@@ -55,10 +56,43 @@ export function captureEvent(eventType, eventProps) {
       throttledFlushClientEvents();
     }
   } catch(e) {
+    // eslint-disable-next-line no-console
     console.error("Error while capturing analytics event: ", e); //eslint-disable-line
   }
 }
 
+
+
+export const ReactTrackingContext = React.createContext({});
+
+export const AnalyticsContext = ({children, ...props}) => {
+  const existingContextData = useContext(ReactTrackingContext)
+  const newContextData = {...existingContextData, ...props}
+    return <ReactTrackingContext.Provider value={newContextData}>
+      {children}
+    </ReactTrackingContext.Provider>
+}
+
+export function useTracking({eventType, eventProps = {}, captureOnMount = false,  skip = false}) {
+  const trackingContext = useContext(ReactTrackingContext)
+  useEffect(() => {
+    const eventData = {...trackingContext, ...eventProps}
+    if (typeof captureOnMount === "function") {
+      !skip && captureOnMount(eventData) && captureEvent(`${eventType}Mounted`, eventData)
+    } else if (!!captureOnMount) {
+      !skip && captureEvent(`${eventType}Mounted`, eventData)
+    }
+  }, [skip])
+
+  const track = (type , trackingData) => {
+    captureEvent(type || eventType, {
+      ...trackingContext,
+      ...eventProps,
+      ...trackingData
+    })
+  }
+  return {captureEvent: track}
+}
 // Analytics events have two rate limits, one denominated in events per second,
 // the other denominated in uncompressed kilobytes per second. Each of these
 // has a burst limit and a steady-state limit. If either rate limit is exceeded,
@@ -78,7 +112,7 @@ const throttledStoreEvent = (event) => {
   const now = new Date();
   const eventType = event.type;
   const eventSize = JSON.stringify(event).length;
-  
+
   if (!(eventType in eventTypeLimiters)) {
     eventTypeLimiters[eventType] = {
       eventCount: new RateLimiter({
@@ -105,7 +139,7 @@ const throttledStoreEvent = (event) => {
   const limiters = eventTypeLimiters[eventType];
   limiters.eventCount.advanceTime(now);
   limiters.eventBandwidth.advanceTime(now);
-  
+
   if (limiters.eventCount.canConsumeResource(1)
     && limiters.eventBandwidth.canConsumeResource(eventSize))
   {
@@ -126,7 +160,7 @@ function flushClientEvents() {
     return;
   if (!pendingAnalyticsEvents.length)
     return;
-  
+
   AnalyticsUtil.clientWriteEvents(pendingAnalyticsEvents.map(event => ({
     ...(Meteor.isClient ? AnalyticsUtil.clientContextVars : null),
     ...event
