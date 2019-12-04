@@ -9,6 +9,7 @@ import { htmlToPingbacks } from '../pingbacks.js';
 import TurndownService from 'turndown';
 const turndownService = new TurndownService()
 turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
+import Sentry from '@sentry/node';
 
 import markdownIt from 'markdown-it'
 import markdownItMathjax from './markdown-mathjax.js'
@@ -26,10 +27,25 @@ import { mjpage }  from 'mathjax-node-page'
 
 
 function mjPagePromise(html, beforeSerializationCallback) {
+  let finished = false;
+  
+  setTimeout(() => {
+    if (!finished) {
+      const errorMessage = `Timed out in mjpage when processing html: ${html}`;
+      Sentry.captureException(new Error(errorMessage));
+      //eslint-disable-next-line no-console
+      console.error(errorMessage);
+    }
+  }, 10000);
+  
   // Takes in HTML and replaces LaTeX with CommonHTML snippets
   // https://github.com/pkra/mathjax-node-page
   return new Promise((resolve, reject) => {
-    mjpage(html, {}, {html: true, css: true}, resolve)
+    const resolveAndMarkFinished = (result) => {
+      finished = true;
+      resolve(result);
+    }
+    mjpage(html, {}, {html: true, css: true}, resolveAndMarkFinished)
       .on('beforeSerialization', beforeSerializationCallback);
   })
 }
