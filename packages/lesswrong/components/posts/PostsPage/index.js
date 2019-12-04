@@ -13,3 +13,4 @@ importComponent("ContentType", () => require('./ContentType.jsx'));
 importComponent("PostsRevisionSelector", () => require('./PostsRevisionSelector.jsx'));
 importComponent("PostsRevisionsList", () => require('./PostsRevisionsList.jsx'));
 importComponent("PostsRevisionMessage", () => require('./PostsRevisionMessage.jsx'));
+importComponent("PostFooter", () => require('./PostFooter.jsx'));

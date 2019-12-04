@@ -12,7 +12,6 @@ import classNames from 'classnames';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import withRecordPostView from '../../common/withRecordPostView';
 import withNewEvents from '../../../lib/events/withNewEvents.jsx';
-import { userHasPingbacks, userHasTagging } from '../../../lib/betas.js';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 const DEFAULT_TOC_MARGIN = 100
@@ -153,14 +152,6 @@ const styles = theme => ({
   draft: {
     color: theme.palette.secondary.light
   },
-  bottomNavigation: {
-    width: 640,
-    margin: 'auto',
-    [theme.breakpoints.down('sm')]: {
-      width:'100%',
-      maxWidth: MAX_COLUMN_WIDTH
-    }
-  },
   authors: {
     display: 'inline-block',
     marginRight: SECONDARY_SPACING
@@ -263,10 +254,10 @@ class PostsPage extends Component {
   render() {
     const { post, refetch, currentUser, classes, location: { query, params } } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, ContentType,
-      LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
+      LinkPostMessage, PostsCommentsThread, PostsGroupDetails,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
       TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink,
-      PingbacksList, FooterTagList, ReviewPostButton } = Components
+      PostFooter, ReviewPostButton } = Components
 
     if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
@@ -353,7 +344,6 @@ class PostsPage extends Component {
                   {query.revision && <PostsRevisionMessage post={post} />}
                   { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
                 </div>
-                {userHasTagging(currentUser) && <FooterTagList post={post}/>}
               </div>
             </div>
 
@@ -369,13 +359,8 @@ class PostsPage extends Component {
                     />
                 </div>
               </div>}
-            {sequenceId && <div className={classes.bottomNavigation}>
-              <BottomNavigation post={post}/>
-            </div>}
             
-            {userHasPingbacks(currentUser) && <div className={classes.post}>
-              <PingbacksList postId={post._id}/>
-            </div>}
+            <PostFooter post={post} sequenceId={sequenceId} />
 
             {/* Answers Section */}
             {post.question && <div className={classes.post}>
