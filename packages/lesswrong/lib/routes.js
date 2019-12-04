@@ -51,6 +51,12 @@ addRoute([
     componentName: 'UsersSingle'
   },
   {
+    name: "userOverview",
+    path:'/user/:slug/overview',
+    redirect: (location) => `/users/${location.params.slug}`,
+    componentName: "UsersSingle",
+  },
+  {
     name:'users.single.u',
     path:'/u/:slug',
     componentName: 'UsersSingle'
