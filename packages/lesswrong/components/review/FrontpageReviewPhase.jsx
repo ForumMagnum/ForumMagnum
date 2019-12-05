@@ -57,6 +57,9 @@ const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
         <Link to={"/reviews"}>
           View All Nominated Posts
         </Link>
+        <Link to={`/users/${currentUser.slug}/nominations`}>
+          My Nominations
+        </Link>
       </SectionFooter>
     </div>
   )
