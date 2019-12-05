@@ -12,7 +12,6 @@ import { useCurrentUser } from "../common/withUser";
 import classNames from 'classnames';
 import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
-
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 
@@ -201,7 +200,7 @@ export const styles = (theme) => ({
     [theme.breakpoints.up('md')]: {
       position: "absolute",
       left: 42,
-      top: 27,
+      bottom: 5,
       zIndex: theme.zIndexes.nextUnread,
     },
     [theme.breakpoints.down('sm')]: {
@@ -388,7 +387,7 @@ const PostsItem2 = ({
 
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors,
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
-    BookmarkButton, EventVicinity, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker } = Components
+    BookmarkButton, EventVicinity, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker, ReviewPostButton } = Components
 
   const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -481,6 +480,10 @@ const PostsItem2 = ({
                 unreadComments={hasUnreadComments()}
               />
             </div>}
+
+            {(post.nominationCount2018 >= 2) && <Link to={Posts.getPageUrl(post)}>
+              <ReviewPostButton post={post}/>
+            </Link>}
 
             {bookmark && <div className={classes.bookmark}>
               <AnalyticsContext buttonContext={"postItem"}>
