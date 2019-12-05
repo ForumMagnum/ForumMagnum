@@ -12,7 +12,6 @@ import { useCurrentUser } from "../common/withUser";
 import classNames from 'classnames';
 import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
-import Button from '@material-ui/core/Button';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 
