@@ -12,7 +12,8 @@ const RecentComments = ({currentUser, updateComment, terms, noResultsMessage="No
     fragmentName: 'SelectCommentsList',
     enableTotal: false,
     pollInterval: 0,
-    queryLimitName: "recentCommentsLimit"
+    queryLimitName: "recentCommentsLimit",
+    ssr: true
   });
   if (!loadingInitial && results && !results.length) {
     return (<Typography variant="body2">{noResultsMessage}</Typography>)

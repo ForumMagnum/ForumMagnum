@@ -5,7 +5,7 @@ import Users from 'meteor/vulcan:users';
 
 const UserReviews = () => {
   const { params: { slug } } = useLocation();
-  const { results, loading, error } = useMulti({
+  const { results, loading } = useMulti({
     collection: Users,
     queryName: 'usersSingleQuery',
     fragmentName: 'UsersProfile',
@@ -18,7 +18,7 @@ const UserReviews = () => {
   const { SingleColumnSection, RecentComments, SectionTitle, Loading, Error404 } = Components
 
   if (loading) return <Loading />
-  if (error) return <Error404 />
+  if (!user) return <Error404 />
 
   const nominationTerms = { 
     view: "nominations2018",
