@@ -53,7 +53,6 @@ importComponent("HeadTags", () => require('../components/common/HeadTags.jsx'));
 importComponent("Home2", () => require('../components/common/Home2.jsx'));
 importComponent("HomeLatestPosts", () => require('../components/common/HomeLatestPosts'));
 importComponent("Meta", () => require('../components/common/Meta.jsx'));
-importComponent("AllComments", () => require('../components/common/AllComments.jsx'));
 importComponent("BatchTimePicker", () => require('../components/common/BatchTimePicker.jsx'));
 importComponent("NavigationEventSender", () => require('../components/common/NavigationEventSender.jsx'));
 importComponent("SingleColumnSection", () => require('../components/common/SingleColumnSection'));
@@ -256,6 +255,8 @@ importComponent("CommentOutdatedWarning", () => require('../components/comments/
 importComponent("CommentsItemDate", () => require('../components/comments/CommentsItem/CommentsItemDate'));
 importComponent("ToggleIsModeratorComment", () => require('../components/comments/CommentsItem/ToggleIsModeratorComment'));
 
+importComponent("AllComments", () => require('../components/comments/AllComments.jsx'));
+
 importComponent("CommentWithReplies", () => require('../components/comments/CommentWithReplies'));
 importComponent("CommentPermalink", () => require('../components/comments/CommentPermalink.jsx'));
 importComponent("RecentDiscussionThread", () => require('../components/comments/RecentDiscussionThread.jsx'));
@@ -434,6 +435,7 @@ importComponent("ReviewPostButton", () => require('../components/review/ReviewPo
 importComponent("ReviewPostForm", () => require('../components/review/ReviewPostForm.jsx'));
 importComponent("NominatePostMenuItem", () => require('../components/review/NominatePostMenuItem.jsx'));
 importComponent("NominatePostDialog", () => require('../components/review/NominatePostDialog.jsx'));
+importComponent("UserNominations", () => require('../components/review/UserNominations.jsx'));
 
 // Analytics Tracking
 importComponent("AnalyticsTracker", () => require('../components/common/AnalyticsTracker.jsx'));
