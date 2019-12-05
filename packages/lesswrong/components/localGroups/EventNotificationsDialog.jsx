@@ -16,7 +16,6 @@ import FormLabel from '@material-ui/core/FormLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import { geoSuggestStyles, useGoogleMaps } from '../form-components/LocationFormComponent'
 import { MAX_NOTIFICATION_RADIUS } from '../../lib/collections/users/custom_fields'
-import { Link } from '../../lib/reactRouterWrapper.js';
 
 
 const suggestionToGoogleMapsLocation = (suggestion) => {
