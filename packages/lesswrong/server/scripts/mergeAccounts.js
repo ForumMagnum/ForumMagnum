@@ -172,7 +172,6 @@ async function recomputeKarma(userId) {
     return vote.power
   })
   const totalKarma = totalNonLegacyKarma + (user.legacyKarma || 0)
-  console.log("totalKarma calculated: ", totalKarma)
   return totalKarma
 }
 
