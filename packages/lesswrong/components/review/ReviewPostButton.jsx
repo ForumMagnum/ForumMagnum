@@ -1,28 +1,24 @@
 import React from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
+import { registerComponent } from 'meteor/vulcan:core';
 import { useCommentBox } from '../common/withCommentBox';
 import { useDialog } from '../common/withDialog';
-import Button from '@material-ui/core/Button';
 import withUser from '../common/withUser';
+import { withStyles } from '@material-ui/core/styles';
 
-const styles = (theme) => ({
+const styles = theme => ({
   root: {
-    textAlign: "center",
-    marginBottom: 32
-  },
-  label: {
-    ...theme.typography.postStyle,
-    ...theme.typography.contentNotice,
-    marginBottom: theme.spacing.unit,
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    fontSize: "1rem",
+    color: theme.palette.lwTertiary.main,
+    marginLeft: theme.spacing.unit,
+    marginRight: theme.spacing.unit*1.5
   }
 })
 
-const ReviewPostButton = ({classes, post, currentUser}) => {
+const ReviewPostButton = ({classes, post, currentUser, reviewMessage="Review"}) => {
   const { openCommentBox } = useCommentBox();
   const { openDialog } = useDialog();
-
-  const { HoverPreviewLink } = Components
 
   const handleClick = () => {
     if (currentUser) {
@@ -42,14 +38,11 @@ const ReviewPostButton = ({classes, post, currentUser}) => {
 
   if (post.nominationCount2018 < 2) return null
 
-  return <div className={classes.root}>
-    <div className={classes.label}>
-      This post has been nominated for the <HoverPreviewLink href="http://lesswrong.com/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review-posts-need-at-least-2-nominations" innerHTML={"2018 Review"}/>
-    </div>
-    <Button onClick={handleClick} color="primary">
-      Write a Review
-    </Button>
-  </div>
+  return (
+    <a onClick={handleClick} className={classes.root}>
+      {reviewMessage}
+    </a>
+  )
 }
 
-registerComponent('ReviewPostButton', ReviewPostButton, withStyles(styles, {name:"ReviewPostButton"}), withUser);
+registerComponent('ReviewPostButton', ReviewPostButton, withUser, withStyles(styles, {name:"ReviewPostButton"}));
