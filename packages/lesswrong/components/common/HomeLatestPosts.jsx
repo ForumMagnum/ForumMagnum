@@ -101,7 +101,7 @@ class HomeLatestPosts extends PureComponent {
             <div>
               <SectionFooterCheckbox
                 onClick={this.toggleFilter}
-                value={!(currentFilter === "frontpage")}
+                value={currentFilter !== "frontpage"}
                 label={<div className={classes.personalBlogpostsCheckboxLabel}>Include Personal Blogposts</div>}
                 />
             </div>
