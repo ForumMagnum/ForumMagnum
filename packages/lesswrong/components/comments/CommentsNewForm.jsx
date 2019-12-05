@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
-import withDialog from '../common/withDialog';
+import { useDialog } from '../common/withDialog';
 
 const styles = theme => ({
   root: {
@@ -41,7 +41,7 @@ const styles = theme => ({
   }
 });
 
-const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, currentUser, fragment = "CommentsList", formProps}) => {
+const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, removeFields, currentUser, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true}) => {
   prefilledProps = {
     ...prefilledProps,
     af: Comments.defaultToAlignment(currentUser, post, parentComment),
@@ -65,7 +65,8 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
     };
   }
 
-  const SubmitComponent = withDialog(({submitLabel = "Submit", openDialog}) => {
+  const SubmitComponent = ({submitLabel = "Submit"}) => {
+    const { openDialog } = useDialog();
     return <div className={classes.submit}>
       {(type === "reply") && <Button
         onClick={cancelCallback}
@@ -89,7 +90,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
         {submitLabel}
       </Button>
     </div>
-  });
+  };
 
   if (currentUser && !Comments.options.mutations.new.check(currentUser, prefilledProps)) {
     return <FormattedMessage id="users.cannot_comment"/>;
@@ -98,7 +99,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
   const commentWillBeHidden = getSetting('hideUnreviewedAuthorComments') && currentUser && !currentUser.isReviewed
   return (
     <div className={classes.root} onFocus={()=>setShowGuidelines(true)}>
-      <div className={classes.form}>
+      <div className={padding ? classes.form : null}>
       {commentWillBeHidden && <div className={classes.modNote}><em>
         A moderator will need to review your account before your comments will show up.
       </em></div>}
@@ -116,10 +117,11 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
         }}
         alignmentForumPost={post?.af}
         addFields={currentUser?[]:["contents"]}
+        removeFields={removeFields}
         formProps={formProps}
       />
       </div>
-      {showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
+      {enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
         <ModerationGuidelinesBox document={post} />
       </div>}
     </div>

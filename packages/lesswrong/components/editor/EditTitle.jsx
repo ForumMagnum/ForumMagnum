@@ -8,7 +8,6 @@ import classNames from 'classnames';
 const styles = theme => ({
   root: {
     ...theme.typography.display3,
-    ...theme.typography.postStyle,
     ...theme.typography.headerStyle,
     width: "100%",
     resize: "none",
@@ -17,15 +16,17 @@ const styles = theme => ({
     borderBottom: "solid 1px rgba(0,0,0,.2)",
     '&:focused': {
       borderBottom: "solid 1px rgba(0,0,0,.2)"
-    }
+    },
+    "& textarea": {
+      overflowY: "hidden",
+    },
   },
   question: {
     fontSize: theme.typography.display1.fontSize,
-    height: 65,
+    minHeight: 65,
     paddingTop: theme.spacing.unit*1.5,
     lineHeight: '1.2em',
-    borderBottom: "none"
-  }
+  },
 })
 
 class EditTitle extends Component {
@@ -48,6 +49,7 @@ class EditTitle extends Component {
         })
       }}
       multiline
+      disableUnderline={true}
     />
   }
 }

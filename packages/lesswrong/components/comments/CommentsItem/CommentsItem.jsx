@@ -1,4 +1,5 @@
-import { Components, registerComponent, withMessages } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withMessages } from '../../common/withMessages';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Users from 'meteor/vulcan:users';
@@ -7,6 +8,8 @@ import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/com
 import { withStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import withUser from '../../common/withUser';
+import { Link } from '../../../lib/reactRouterWrapper.js';
+import { Posts } from "../../../lib/collections/posts";
 
 // Shared with ParentCommentItem
 export const styles = theme => ({
@@ -94,6 +97,24 @@ export const styles = theme => ({
   moderatorHat: {
     marginRight: 8,
   },
+  username: {
+    marginRight: 10,
+  },
+  nomination: {
+    color: theme.palette.lwTertiary.main,
+    fontStyle: "italic",
+    fontSize: "1rem",
+    marginBottom: theme.spacing.unit,
+    [theme.breakpoints.up('sm')]: {
+      marginLeft: theme.spacing.unit
+    }
+  },
+  postTitle: {
+    paddingTop: theme.spacing.unit,
+    ...theme.typography.commentStyle,
+    display: "block",
+    color: theme.palette.grey[600]
+  }
 })
 
 class CommentsItem extends Component {
@@ -193,6 +214,8 @@ class CommentsItem extends Component {
             />
           </div>
         )}
+        
+        {showPostTitle && <Link className={classes.postTitle} to={Posts.getPageUrl(comment.post)}>{post.title}</Link>}
 
         <div className={classes.body}>
           <div className={classes.meta}>
@@ -212,22 +235,33 @@ class CommentsItem extends Component {
               [<span>{this.props.collapsed ? "+" : "-"}</span>]
             </a>
             }
-            <CommentUserName comment={comment}/>
+            <span className={classes.username}>
+              <CommentUserName comment={comment}/>
+            </span>
             <CommentsItemDate
               comment={comment} post={post}
-              showPostTitle={showPostTitle}
               scrollIntoView={scrollIntoView}
               scrollOnClick={postPage && !isParentComment}
             />
             {comment.moderatorHat && <span className={classes.moderatorHat}>
               Moderator Comment
             </span>}
-            <Components.CommentsVote comment={comment} currentUser={currentUser} />
+            <Components.CommentsVote
+              comment={comment}
+              currentUser={currentUser}
+              hideKarma={post.hideCommentKarma}
+            />
             
             {!isParentComment && this.renderMenu()}
             <span className={classes.outdatedWarning}>
               <Components.CommentOutdatedWarning comment={comment} post={post} />
             </span>
+            {comment.nominatedForReview && <Link to={"/nominations"} className={classes.nomination}>
+              {`Nomination for ${comment.nominatedForReview} Review`}
+            </Link>}
+            {comment.reviewingForReview && <Link to={"/reviews"} className={classes.nomination}>
+            {`Review for ${comment.reviewingForReview}`}
+          </Link>}
           </div>
           {this.renderBodyOrEditor()}
           {!comment.deleted && !collapsed && this.renderCommentBottom()}

@@ -429,15 +429,15 @@ Posts.addView("drafts", terms => {
       hiddenRelatedQuestion: viewFieldAllowAny,
     },
     options: {
-      sort: {createdAt: -1}
+      sort: {modifiedAt: -1, createdAt: -1}
     }
 }});
 ensureIndex(Posts,
-  augmentForDefaultView({ userId: 1, hideAuthor: 1, deletedDraft: 1, createdAt: -1 }),
+  augmentForDefaultView({ userId: 1, hideAuthor: 1, deletedDraft: 1, modifiedAt: -1, createdAt: -1 }),
   { name: "posts.userId_createdAt" }
 );
 ensureIndex(Posts,
-  augmentForDefaultView({ shareWithUsers: 1, deletedDraft: 1, createdAt: -1 }),
+  augmentForDefaultView({ shareWithUsers: 1, deletedDraft: 1, modifiedAt: -1, createdAt: -1 }),
   { name: "posts.userId_shareWithUsers" }
 );
 
@@ -514,14 +514,17 @@ Posts.addView("legacyIdPost", terms => ({
 }));
 ensureIndex(Posts, {legacyId: "hashed"});
 
+const recentDiscussionFilter = {
+  baseScore: {$gt:0},
+  hideFrontpageComments: false,
+  hiddenRelatedQuestion: viewFieldAllowAny,
+  shortform: viewFieldAllowAny,
+  groupId: null,
+}
 Posts.addView("recentDiscussionThreadsList", terms => {
   return {
     selector: {
-      baseScore: {$gt:0},
-      hideFrontpageComments: false,
-      hiddenRelatedQuestion: viewFieldAllowAny,
-      shortform: viewFieldAllowAny,
-      groupId: null,
+      ...recentDiscussionFilter
     },
     options: {
       sort: {lastCommentedAt:-1},
@@ -532,6 +535,39 @@ Posts.addView("recentDiscussionThreadsList", terms => {
 ensureIndex(Posts,
   augmentForDefaultView({ lastCommentedAt:-1, baseScore:1, hideFrontpageComments:1 }),
   { name: "posts.recentDiscussionThreadsList", }
+);
+
+Posts.addView("afRecentDiscussionThreadsList", terms => {
+  return {
+    selector: {
+      ...recentDiscussionFilter
+    },
+    options: {
+      sort: {afLastCommentedAt:-1},
+      limit: terms.limit || 12,
+    }
+  }
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ hideFrontpageComments:1, afLastCommentedAt:-1, baseScore:1 }),
+  { name: "posts.afRecentDiscussionThreadsList", }
+);
+
+Posts.addView("2018reviewRecentDiscussionThreadsList", terms => {
+  return {
+    selector: {
+      ...recentDiscussionFilter,
+      nominationCount2018: { $gt: 0 }
+    },
+    options: {
+      sort: {lastCommentedAt:-1},
+      limit: terms.limit || 12,
+    }
+  }
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ nominationCount2018: 1, lastCommentedAt:-1, baseScore:1, hideFrontpageComments:1 }),
+  { name: "posts.2018reviewRecentDiscussionThreadsList", }
 );
 
 Posts.addView("shortformDiscussionThreadsList", terms => {
@@ -752,23 +788,7 @@ ensureIndex(Posts,
   }
 );
 
-Posts.addView("afRecentDiscussionThreadsList", terms => {
-  return {
-    selector: {
-      baseScore: {$gt:0},
-      hideFrontpageComments: false,
-      af: true,
-    },
-    options: {
-      sort: {afLastCommentedAt:-1},
-      limit: terms.limit || 12,
-    }
-  }
-})
-ensureIndex(Posts,
-  augmentForDefaultView({ hideFrontpageComments:1, afLastCommentedAt:-1, baseScore:1 }),
-  { name: "posts.afRecentDiscussionThreadsList", }
-);
+
 
 // Used in Posts.find() in various places
 ensureIndex(Posts, {userId:1, createdAt:-1});
@@ -802,3 +822,34 @@ ensureIndex(Posts,
   augmentForDefaultView({ "pingback.Posts": 1 }),
   { name: "posts.pingbackPosts" }
 );
+
+Posts.addView("nominations2018", terms => {
+  return {
+    selector: {
+      nominationCount2018: { $gt: 0 }
+    },
+    options: {
+      sort: {
+        nominationCount2018: terms.sortByMost ? -1 : 1
+      }
+    }
+  }
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ nominationCount2018:1 }),
+  { name: "posts.nominations2018", }
+);
+
+Posts.addView("reviews2018", terms => {
+  return {
+    selector: {
+      nominationCount2018: { $gte: 2 }
+    },
+    options: {
+      sort: {
+        lastCommentedAt: -1
+      }
+    }
+  }
+})
+// Same index as nominations2018

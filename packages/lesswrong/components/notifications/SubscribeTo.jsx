@@ -1,5 +1,6 @@
 import React from 'react';
-import { Components, withMessages, registerComponent, Utils, useMulti, withCreate } from 'meteor/vulcan:core';
+import { Components, registerComponent, Utils, useMulti, withCreate } from 'meteor/vulcan:core';
+import { withMessages } from '../common/withMessages';
 import { Subscriptions } from '../../lib/collections/subscriptions/collection'
 import { defaultSubscriptionTypeTable } from '../../lib/collections/subscriptions/mutations'
 import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil.js';
@@ -37,7 +38,7 @@ const SubscribeTo = ({
   const { results, loading } = useMulti({
     terms: {
       view: "subscriptionState",
-      documentId: document?._id,
+      documentId: document._id,
       userId: currentUser?._id,
       subscriptionType,
       collectionName,
@@ -91,7 +92,7 @@ const SubscribeTo = ({
   }
 
   // can't subscribe to yourself
-  if (!currentUser || !document || (collectionName === 'Users' && document._id === currentUser._id)) {
+  if (!currentUser || (collectionName === 'Users' && document._id === currentUser._id)) {
     return null;
   }
 

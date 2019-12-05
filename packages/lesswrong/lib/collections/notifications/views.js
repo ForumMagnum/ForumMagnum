@@ -1,14 +1,14 @@
-import { getSetting } from 'meteor/vulcan:core';
+// import { getSetting } from 'meteor/vulcan:core';
 import Notifications from './collection.js';
 import { ensureIndex } from '../../collectionUtils';
 
 
 // will be common to all other view unless specific properties are overwritten
 Notifications.addDefaultView(function (terms) {
-  const alignmentForum = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
+  // const alignmentForum = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
   return {
     selector: {
-      ...alignmentForum,
+      // ...alignmentForum, TODO: develop better notification system for AlignmentForum that properly filters 
       emailed: false,
       waitingForBatch: false,
     },

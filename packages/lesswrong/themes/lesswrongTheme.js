@@ -53,16 +53,23 @@ const theme = createLWTheme({
     fontFamily: sansSerifStack,
     postStyle: {
       fontFamily: serifStack,
-      linkUnderlinePosition: "72%",
     },
     headerStyle: {
       fontFamily: serifStack,
-      linkUnderlinePosition: "72%",
+    },
+    caption: {
+      // captions should be relative to their surrounding content, so they are unopinionated about fontFamily and use ems instead of rems
+      fontFamily: "unset",
+      fontSize: '.85em'
     },
     body2: {
       fontSize: "1.16rem"
     },
     commentStyle: {
+      fontFamily: sansSerifStack
+    },
+    errorStyle: {
+      color: palette.error.main,
       fontFamily: sansSerifStack
     },
     headline: {

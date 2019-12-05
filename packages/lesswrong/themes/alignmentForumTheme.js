@@ -54,8 +54,9 @@ const theme = createLWTheme({
       fontFamily: sansSerifStack,
       fontVariantNumeric: "lining-nums",
     },
-    link: {
-      underlinePosition: "72%",
+    errorStyle: {
+      color: palette.error.main,
+      fontFamily: sansSerifStack
     },
     title: {
       fontWeight: 500,
@@ -65,10 +66,7 @@ const theme = createLWTheme({
     },
     display3: {
       fontWeight: 500
-    },
-    body1: {
-      linkUnderlinePosition: "90%",
-    },
+    }
   },
   overrides: {
     Header: {

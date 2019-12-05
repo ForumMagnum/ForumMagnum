@@ -34,7 +34,7 @@ Terms object can have the following properties:
 
 */
 
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { graphql, useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
 import {
@@ -46,6 +46,8 @@ import {
 } from 'meteor/vulcan:lib';
 import compose from 'recompose/compose';
 import withState from 'recompose/withState';
+import qs from 'qs';
+import { LocationContext, NavigationContext } from '../components/App'
 
 function getGraphQLQueryFromOptions({
   collectionName, collection, fragmentName, fragment, extraQueries, extraVariables,
@@ -201,7 +203,6 @@ export default function withMulti({
 export function useMulti({
   terms,
   extraVariablesValues,
-  
   pollInterval = getSetting('pollInterval', 0), //LESSWRONG: Polling defaults disabled
   enableTotal = false, //LESSWRONG: enableTotal defaults false
   enableCache = false,
@@ -213,8 +214,15 @@ export function useMulti({
   fragmentName, fragment,
   limit:initialLimit = 10, // Only used as a fallback if terms.limit is not specified
   itemsPerPage = 10,
+  skip = false,
+  queryLimitName,
 }) {
-  const [ limit, setLimit ] = useState((terms && terms.limit) || initialLimit);
+  // Since we don't have access to useLocation and useNavigation we have to manually reference context here
+  const { query: locationQuery, location } = useContext(LocationContext);
+  const { history } = useContext(NavigationContext)
+
+  const defaultLimit = ((locationQuery && parseInt(locationQuery[queryLimitName])) || (terms && terms.limit) || initialLimit)
+  const [ limit, setLimit ] = useState(defaultLimit);
   const [ hasRequestedMore, setHasRequestedMore ] = useState(false);
   
   ({ collectionName, collection } = extractCollectionInfo({ collectionName, collection }));
@@ -233,22 +241,51 @@ export function useMulti({
     },
     pollInterval,
     fetchPolicy,
-    ssr
+    ssr,
+    skip,
   });
+  
+  const count = (data && data[resolverName] && data[resolverName].results && data[resolverName].results.length) || 0;
+  const totalCount = data && data[resolverName] && data[resolverName].totalCount;
+  
+  // If we did a query to count the total number of results (enableTotal),
+  // show a Load More if we have fewer than that many results. If we didn't do
+  // that, show a Load More if we got at least as many results as requested.
+  // This means that if the total number of results exactly matches the limit,
+  // the last click of Load More won't get any more documents.
+  //
+  // The caller of this function is responsible for showing a Load More button
+  // if showLoadMore returned true.
+  const showLoadMore = enableTotal ? (count < totalCount) : (count >= limit);
+  
+  const loadMore = () => {
+    setHasRequestedMore(true);
+    setLimit(limit+itemsPerPage);
+    if (queryLimitName) {
+      const newQuery = {...locationQuery, [queryLimitName]: limit+itemsPerPage}
+      history.push({...location, search: `?${qs.stringify(newQuery)}`})
+    }
+  };
+  
+  // A bundle of props that you can pass to Components.LoadMore, to make
+  // everything just work.
+  const loadMoreProps = {
+    loadMore, count, totalCount,
+    hidden: !showLoadMore,
+  };
   
   return {
     loading,
     loadingInitial: loading && !hasRequestedMore,
     loadingMore: loading && hasRequestedMore,
     results: data && data[resolverName] && data[resolverName].results,
-    totalCount: data && data[resolverName] && data[resolverName].totalCount,
+    totalCount: totalCount,
     refetch,
     error,
-    count: data && data.results && data.results.length,
-    loadMore: () => {
-      setHasRequestedMore(true);
-      setLimit(limit+itemsPerPage);
-    },
+    count,
+    showLoadMore,
+    loadMoreProps,
+    loadMore,
     limit,
   };
 }

@@ -87,7 +87,7 @@ export const PostApprovedNotification = registerNotificationType({
 
 export const NewEventNotification = registerNotificationType({
   name: "newEvent",
-  userSettingField: null, //TODO
+  userSettingField: "notificationPostsInGroups",
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId);
     let group = {}

@@ -2,10 +2,13 @@ import React from 'react';
 import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import { Utils } from 'meteor/vulcan:lib';
 import { withStyles } from '@material-ui/core/styles';
-import { emailBodyStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
-  root: emailBodyStyles(theme)
+  root: {
+    "& img": {
+      maxWidth: "100%",
+    }
+  },
 })
 
 // Wrapper for top-level formatting of emails, eg controling width and
@@ -28,16 +31,17 @@ const EmailWrapper = ({user, unsubscribeAllLink, children, classes}) => {
               {/* 600px container (white background) */}
               <table border="0" width="600" cellPadding="0" cellSpacing="0" className="container" bgcolor="#ffffff">
                 <tr>
-                  <td className="main-container container-padding" bgcolor="#ffffff">
+                  <td className="container-padding" bgcolor="#ffffff">
                     <br/>
                     {children}
                   </td>
                 </tr>
-                <tr><td>
+                <tr><td className="container-padding">
                   <br/><br/>
-                  <a href={unsubscribeAllLink}>Unsubscribe</a>
+                  <a href={unsubscribeAllLink}>Unsubscribe</a>{' '}
                   (from all emails from {siteNameWithArticle})
-                  or <a href={accountLink}>Change your notifications settings</a><br/><br/>
+                  or <a href={accountLink}>Change your notifications settings</a>
+                  <br/><br/>
                 </td></tr>
               </table>
             </td>
