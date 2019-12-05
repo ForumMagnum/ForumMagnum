@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment, getSetting } from 'meteor/vulcan:core';
 import { withMessages } from '../common/withMessages';
 
 import Dialog from '@material-ui/core/Dialog';
@@ -29,6 +29,8 @@ class NewQuestionDialog extends PureComponent {
         <PostSubmit {...props} />
       </div>
     }
+    const af = getSetting('forumType') === 'AlignmentForum'
+    
     return (
       <Dialog
         open={true}
@@ -43,7 +45,8 @@ class NewQuestionDialog extends PureComponent {
             mutationFragment={getFragment('PostsList')}
             prefilledProps={{
               userId: currentUser._id,
-              question: true
+              question: true,
+              af
             }}
             cancelCallback={onClose}
             successCallback={post => {
