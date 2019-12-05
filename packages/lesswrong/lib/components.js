@@ -435,7 +435,7 @@ importComponent("ReviewPostButton", () => require('../components/review/ReviewPo
 importComponent("ReviewPostForm", () => require('../components/review/ReviewPostForm.jsx'));
 importComponent("NominatePostMenuItem", () => require('../components/review/NominatePostMenuItem.jsx'));
 importComponent("NominatePostDialog", () => require('../components/review/NominatePostDialog.jsx'));
-importComponent("UserNominations", () => require('../components/review/UserNominations.jsx'));
+importComponent("UserReviews", () => require('../components/review/UserReviews.jsx'));
 
 // Analytics Tracking
 importComponent("AnalyticsTracker", () => require('../components/common/AnalyticsTracker.jsx'));

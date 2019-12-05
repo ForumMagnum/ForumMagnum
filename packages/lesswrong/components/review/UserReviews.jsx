@@ -3,7 +3,7 @@ import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import Users from 'meteor/vulcan:users';
 
-const UserNominations = () => {
+const UserReviews = () => {
   const { params: { slug } } = useLocation();
   const { results, loading, error } = useMulti({
     collection: Users,
@@ -43,4 +43,4 @@ const UserNominations = () => {
 
 };
 
-registerComponent('UserNominations', UserNominations);
+registerComponent('UserReviews', UserReviews);

@@ -538,10 +538,10 @@ addRoute([
     title: "2018 Nominations",
   },
   {
-    name: 'userNominations',
-    path:'/users/:slug/nominations',
-    componentName: 'UserNominations',
-    title: "User Nominations",
+    name: 'userReviews',
+    path:'/users/:slug/reviews',
+    componentName: 'UserReviews',
+    title: "User Reviews",
   },
   {
     name: 'reviews',
