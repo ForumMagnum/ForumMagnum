@@ -10,8 +10,7 @@ import keyBy from 'lodash/keyBy';
 import Users from 'meteor/vulcan:users';
 import './emailComponents/EmailComment.jsx';
 import './emailComponents/PrivateMessagesEmail.jsx';
-import moment from 'moment-timezone';
-import { getLocalTime } from './mapsUtils'
+import './emailComponents/EventInRadiusEmail.jsx';
 
 const notificationTypes = {};
 
@@ -222,30 +221,6 @@ export const PostSharedWithUserNotification = serverRegisterNotificationType({
   },
 });
 
-
-const eventTimeFormat = "Do MMMM YYYY h:mm A"
-const getEventEmailBody = async (openingSentence, notifications) => {
-  const post = Posts.findOne(notifications[0].documentId);
-  const link = Posts.getPageUrl(post, true);
-  const eventStartTime = await getLocalTime(post.startTime, post.googleLocation)
-  const eventEndTime = post.endTime && await getLocalTime(post.endTime, post.googleLocation)
-  return <div>
-    <p>
-      {openingSentence}: <a href={link}>{post.title}</a>.
-    </p>
-    <p>
-      Location: {post.location}
-    </p>
-    {/* getLocalTime returns event time in UTC, so we run moment in UTC mode */}
-    <p>
-      Start Time: {moment(eventStartTime).utc().format(eventTimeFormat)}
-    </p>
-    {eventEndTime && <p>
-      End Time: {moment(eventEndTime).utc().format(eventTimeFormat)}
-    </p>}
-  </div>
-}
-
 export const NewEventInRadiusNotification = serverRegisterNotificationType({
   name: "newEventInRadius",
   canCombineEmails: false,
@@ -254,7 +229,10 @@ export const NewEventInRadiusNotification = serverRegisterNotificationType({
     return `A new event has been created in your area: ${post.title}`;
   },
   emailBody: async ({ user, notifications }) => {
-    return getEventEmailBody("A new event has been created in your area", notifications)
+    return <Components.EventInRadiusEmail
+      openingSentence="A new event has been created in your area"
+      postId={notifications[0].documentId}
+    />
   },
 });
 
@@ -266,7 +244,10 @@ export const EditedEventInRadiusNotification = serverRegisterNotificationType({
     return `An event in your area has been edited: ${post.title}`;
   },
   emailBody: async ({ user, notifications }) => {
-    return getEventEmailBody("An event in your area has been edited", notifications)
+    return <Components.EventInRadiusEmail
+      openingSentence="An event in your area has been edited"
+      postId={notifications[0].documentId}
+    />
   },
 });
 

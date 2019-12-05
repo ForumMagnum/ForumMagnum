@@ -50,6 +50,8 @@ registerFragment(`
     mongoLocation
     startTime
     endTime
+    localStartTime
+    localEndTime
     facebookLink
     website
     contactInfo
