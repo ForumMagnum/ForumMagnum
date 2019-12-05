@@ -17,7 +17,7 @@ const styles = theme => ({
 })
 
 const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
-  const { SubSection, SectionSubtitle, SectionFooter, PostsList2, HoverPreviewLink } = Components
+  const { SubSection, SectionSubtitle, SectionFooter, RecommendationsList, HoverPreviewLink } = Components
 
   const reviewTooltip = <div>
     <div>The LessWrong community is reflecting on the best posts from 2018, in three phases</div>
@@ -31,6 +31,13 @@ const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
   </div>
 
   if (settings.hideReview) return null
+
+  const algorithm = {
+    ...settings, 
+    review2018: true, 
+    onlyUnread: false,
+    excludeDefaultRecommendations: true
+  }
 
   return (
     <div>
@@ -50,7 +57,7 @@ const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
       </Tooltip>
       <SubSection>
         <AnalyticsContext listContext={"LessWrong 2018 Review NEW"}>
-          <PostsList2 terms={{view:"reviews2018", limit: 3}} showLoadMore={false} />
+          <RecommendationsList algorithm={algorithm} showLoginPrompt={false} />
         </AnalyticsContext>
       </SubSection>
       <SectionFooter>
