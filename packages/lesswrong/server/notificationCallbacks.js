@@ -15,6 +15,7 @@ import { EventDebouncer } from './debouncer.js';
 import { getNotificationTypeByName } from '../lib/notificationTypes.jsx';
 import { notificationDebouncers, wrapAndSendEmail } from './notificationBatching.js';
 import { defaultNotificationTypeSettings } from '../lib/collections/users/custom_fields.js';
+import { ensureIndex } from '../lib/collectionUtils';
 
 import { Components, addCallback, createMutator } from 'meteor/vulcan:core';
 
@@ -445,6 +446,7 @@ async function getUsersWhereLocationIsInNotificationRadius(location) {
     }
   ]).toArray()
 }
+ensureIndex(Users, {nearbyEventsNotificationsMongoLocation: "2dsphere"}, {name: "users.nearbyEventsNotifications"})
 
 async function PostsNewMeetupNotifications ({document: newPost}) {
   if (newPost.isEvent && newPost.mongoLocation && !newPost.draft) {
@@ -458,7 +460,17 @@ async function PostsNewMeetupNotifications ({document: newPost}) {
 addCallback("post.create.async", PostsNewMeetupNotifications)
 
 async function PostsEditMeetupNotifications ({document: newPost, oldDocument: oldPost}) {
-  if (((!newPost.draft && oldPost.draft) || (newPost.mongoLocation && !newPost.mongoLocation)) && newPost.mongoLocation && newPost.isEvent) {
+  if (
+    (
+      (!newPost.draft && oldPost.draft) || 
+      (newPost.mongoLocation && !newPost.mongoLocation) || 
+      (newPost.startTime !== oldPost.startTime) || 
+      (newPost.endTime !== oldPost.endTime) || 
+      (newPost.contents?.html !== oldPost.contents?.html) ||
+      (newPost.title !== oldPost.title)
+    )
+    && newPost.mongoLocation && newPost.isEvent && !newPost.draft) 
+  {
     const usersToNotify = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
     const userIds = usersToNotify.map(user => user._id)
     const usersIdsWithoutAuthor = userIds.filter(id => id !== newPost.userId)
