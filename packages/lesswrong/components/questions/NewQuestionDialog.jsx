@@ -30,7 +30,7 @@ class NewQuestionDialog extends PureComponent {
       </div>
     }
     const af = getSetting('forumType') === 'AlignmentForum'
-    
+
     return (
       <Dialog
         open={true}
@@ -41,7 +41,7 @@ class NewQuestionDialog extends PureComponent {
         <DialogContent>
           <Components.WrappedSmartForm
             collection={Posts}
-            fields={['title', 'contents', 'question', 'draft', 'submitToFrontpage']}
+            fields={['title', 'contents', 'question', 'draft', 'submitToFrontpage', ...(af ? ['af'] : [])]}
             mutationFragment={getFragment('PostsList')}
             prefilledProps={{
               userId: currentUser._id,
