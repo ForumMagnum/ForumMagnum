@@ -32,6 +32,13 @@ const makePageRenderer = async sink => {
   const tabId = Random.id();
   const tabIdHeader = `<script>var tabId = "${tabId}"</script>`;
   
+  const ssrEventParams = {
+    url: req.url.pathname,
+    clientId: req.cookies && req.cookies.clientId,
+    tabId: tabId,
+    userAgent: req.headers["user-agent"],
+  };
+  
   if (user) {
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
     recordCacheBypass();
@@ -45,10 +52,8 @@ const makePageRenderer = async sink => {
       headers: [...rendered.headers, tabIdHeader],
     });
     Vulcan.captureEvent("ssr", {
-      url: req.url.pathname,
+      ...ssrEventParams,
       userId: user._id,
-      clientId: req.cookies && req.cookies.clientId,
-      tabId: tabId,
       timings: rendered.timings,
       cached: false,
     });
@@ -61,10 +66,8 @@ const makePageRenderer = async sink => {
       headers: [...rendered.headers, tabIdHeader],
     });
     Vulcan.captureEvent("ssr", {
-      url: req.url.pathname,
+      ...ssrEventParams,
       userId: null,
-      clientId: req.cookies && req.cookies.clientId,
-      tabId: tabId,
       timings: {
         totalTime: new Date()-startTime,
       },

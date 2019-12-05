@@ -10,6 +10,7 @@ import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { withContinueReading } from './withContinueReading';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
+import {AnalyticsContext} from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   section: {
@@ -69,7 +70,7 @@ class RecommendationsAndCurated extends PureComponent {
   render() {
     const { continueReading, classes, currentUser } = this.props;
     const { showSettings } = this.state
-    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SubSection, SeparatorBullet, BookmarksList, Recommendations2018Review } = Components;
+    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SubSection, SeparatorBullet, BookmarksList, FrontpageReviewPhase} = Components;
 
     const configName = "frontpage"
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
@@ -153,11 +154,13 @@ class RecommendationsAndCurated extends PureComponent {
             <BetaTag />
           </div>
           <SubSection className={classes.continueReadingList}>
-            <BookmarksList limit={3} />
+            <AnalyticsContext listContext={"frontpageBookmarksList"}>
+              <BookmarksList limit={3} />
+            </AnalyticsContext>
           </SubSection>
       </React.Fragment>}
 
-      <Recommendations2018Review settings={frontpageRecommendationSettings} />
+      <FrontpageReviewPhase settings={frontpageRecommendationSettings} />
 
       {/* Disabled during 2018 Review */}
       {/* {!settings.hideFrontpage && <div>
@@ -184,7 +187,9 @@ class RecommendationsAndCurated extends PureComponent {
         </Link>
       </Tooltip>
       <SubSection>
-        <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
+        <AnalyticsContext listContext={"curatedPosts"}>
+          <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
+        </AnalyticsContext>
       </SubSection>
       <div className={classes.footerWrapper}>
         <Typography component="div" variant="body2" className={classes.footer}>

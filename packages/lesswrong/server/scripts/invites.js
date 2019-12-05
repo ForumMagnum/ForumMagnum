@@ -24,7 +24,7 @@ if (!Meteor.isPackageTest) {
   };
 
   Accounts.emailTemplates.resetPassword.text = (user, url) => {
-    return 'You\'ve requested to reset your password for the LessWrong 2.0.\n\n'
+    return 'You\'ve requested to reset your password for LessWrong.\n\n'
       + 'To reset your password, click on the link below. The link in this email will expire within 2 days.\n \n'
       + url;
   };

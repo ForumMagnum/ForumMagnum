@@ -840,3 +840,16 @@ ensureIndex(Posts,
   { name: "posts.nominations2018", }
 );
 
+Posts.addView("reviews2018", terms => {
+  return {
+    selector: {
+      nominationCount2018: { $gte: 2 }
+    },
+    options: {
+      sort: {
+        lastCommentedAt: -1
+      }
+    }
+  }
+})
+// Same index as nominations2018

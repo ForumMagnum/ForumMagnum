@@ -12,6 +12,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon'
 import EditIcon from '@material-ui/icons/Edit'
 import WarningIcon from '@material-ui/icons/Warning'
 import qs from 'qs'
+import {AnalyticsContext} from "../../../lib/analyticsEvents";
 
 const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
 
@@ -129,12 +130,11 @@ class PostActions extends Component {
 
   render() {
     const { classes, post, currentUser } = this.props
-    const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo, NominatePostMenuItem } = Components
+    const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo } = Components
     const postAuthor = post.user;
     
     return (
       <div className={classes.actions}>
-        <NominatePostMenuItem post={post} />
         { Posts.canEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
           <MenuItem>
             <ListItemIcon>
@@ -171,7 +171,10 @@ class PostActions extends Component {
             unsubscribeMessage="Unsubscribe from comments"/>
         </MenuItem>}
 
-        <BookmarkButton post={post} menuItem/>
+        <AnalyticsContext buttonContext={"postActions"}>
+          <BookmarkButton post={post} menuItem/>
+        </AnalyticsContext>
+
         <ReportPostMenuItem post={post}/>
         { post.isRead
           ? <div onClick={this.handleMarkAsUnread}>

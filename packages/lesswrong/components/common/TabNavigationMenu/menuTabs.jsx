@@ -145,9 +145,9 @@ export default {
       divider: true,
       showOnCompressed: true,
     }, {
-      id: 'nominations',
+      id: 'reviews',
       title: '2018 Review',
-      link: '/nominations',
+      link: '/reviews',
       subItem: true,
     },
     {
