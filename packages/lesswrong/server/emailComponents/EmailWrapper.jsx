@@ -17,7 +17,6 @@ const styles = theme => ({
 const EmailWrapper = ({user, unsubscribeAllLink, children, classes}) => {
   const accountLink = `${Utils.getSiteUrl()}account`
   const siteNameWithArticle = getSetting('siteNameWithArticle')
-  console.log("Rendering EmailWrapper"); //DEBUG
   
   return (
     <body bgcolor="white" leftmargin="0" topmargin="0" marginWidth="0" marginHeight="0">
