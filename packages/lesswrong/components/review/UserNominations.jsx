@@ -28,7 +28,7 @@ const UserNominations = () => {
 
   return (
     <SingleColumnSection>
-      <SectionTitle title="All Comments"/>
+      <SectionTitle title={`${user.displayName}'s 2018 Nominations`}/>
       <RecentComments terms={terms} />
     </SingleColumnSection>
   )

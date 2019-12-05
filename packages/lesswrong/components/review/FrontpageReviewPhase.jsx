@@ -57,9 +57,9 @@ const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
         <Link to={"/reviews"}>
           View All Nominated Posts
         </Link>
-        <Link to={`/users/${currentUser.slug}/nominations`}>
+        {(currentUser && currentUser.karma >= 1000) && <Link to={`/users/${currentUser.slug}/nominations`}>
           My Nominations
-        </Link>
+        </Link>}
       </SectionFooter>
     </div>
   )
