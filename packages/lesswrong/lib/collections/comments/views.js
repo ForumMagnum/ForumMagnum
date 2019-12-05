@@ -330,3 +330,14 @@ Comments.addView('nominations2018', function ({userId, postId}) {
   };
 });
 ensureIndex(Comments, { userId:1, postId: 1, nominatedForReview: 1});
+
+Comments.addView('reviews2018', function ({userId, postId}) {
+  return {
+    selector: { 
+      userId, 
+      postId, 
+      reviewingForReview: "2018"
+    },
+  };
+});
+ensureIndex(Comments, { userId:1, postId: 1, reviewingForReview: 1});

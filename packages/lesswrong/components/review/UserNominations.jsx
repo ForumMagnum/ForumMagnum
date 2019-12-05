@@ -20,16 +20,24 @@ const UserNominations = () => {
   if (loading) return <Loading />
   if (error) return <Error404 />
 
-  const terms = {
+  const nominationTerms = { 
     view: "nominations2018",
+    userId: user._id,
+    limit: 50
+  }
+
+  const reviewTerms = { 
+    view: "reviews2018",
     userId: user._id,
     limit: 50
   }
 
   return (
     <SingleColumnSection>
+      <SectionTitle title={`${user.displayName}'s 2018 Reviews`}/>
+      <RecentComments terms={reviewTerms} noResultsMessage="No Reviews Found"/>
       <SectionTitle title={`${user.displayName}'s 2018 Nominations`}/>
-      <RecentComments terms={terms} />
+      <RecentComments terms={nominationTerms} noResultsMessage="No Nominations Found"/>
     </SingleColumnSection>
   )
 

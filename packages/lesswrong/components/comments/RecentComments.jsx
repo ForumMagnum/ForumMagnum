@@ -2,8 +2,9 @@ import React from 'react';
 import { Components, registerComponent, useMulti, withEdit } from 'meteor/vulcan:core';
 import { Comments } from '../../lib/collections/comments';
 import withUser from '../common/withUser';
+import Typography from '@material-ui/core/Typography';
 
-const RecentComments = ({currentUser, updateComment, terms}) => {
+const RecentComments = ({currentUser, updateComment, terms, noResultsMessage="No Comments Found"}) => {
   const { loadingInitial, loadMoreProps, results } = useMulti({
     terms,
     collection: Comments,
@@ -14,7 +15,7 @@ const RecentComments = ({currentUser, updateComment, terms}) => {
     queryLimitName: "recentCommentsLimit"
   });
   if (!loadingInitial && results && !results.length) {
-    return (<div>No comments found</div>)
+    return (<Typography variant="body2">{noResultsMessage}</Typography>)
   }
   if (loadingInitial || !results) {
     return <Components.Loading />
