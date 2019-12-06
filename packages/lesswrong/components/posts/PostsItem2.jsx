@@ -275,11 +275,6 @@ export const styles = (theme) => ({
       marginLeft: 35,
     },
   },
-  hideOnSmallScreens: {
-    [theme.breakpoints.down('sm')]: {
-      display: 'none'
-    }
-  },
   bookmark: {
     marginLeft: theme.spacing.unit/2,
     marginRight: theme.spacing.unit*1.5,
@@ -335,10 +330,6 @@ const PostsItem2 = ({
   // dense: (bool) Slightly reduce margins to make this denser. Used on the
   // All Posts page.
   dense,
-  // hideOnSmallScreens: (bool) If set, don't show this on 'sm' and 'xs' screen
-  // sizes. Used for hiding already-read curated posts on space-constrained
-  // mobile devices.
-  hideOnSmallScreens,
   // bookmark: (bool) Whether this is a bookmark. Adds a clickable bookmark
   // icon.
   bookmark,
@@ -412,7 +403,6 @@ const PostsItem2 = ({
       classes.root,
       classes.background,
       {
-        [classes.hideOnSmallScreens]: hideOnSmallScreens,
         [classes.bottomBorder]: showBottomBorder,
         [classes.commentsBackground]: renderComments,
         [classes.firstItem]: (index===0) && showComments,
