@@ -10,7 +10,7 @@ import { withCookies } from 'react-cookie'
 import LogRocket from 'logrocket'
 import { Random } from 'meteor/random';
 
-import { withStyles, withTheme } from '@material-ui/core/styles';
+import { withStyles, withTheme, createStyles } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents.js'
 import { UserContext } from './common/withUser';
@@ -49,7 +49,7 @@ const standaloneNavMenuRouteNames: { [forumType: string]: string[] } = {
   'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform'],
 }
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   main: {
     margin: '50px auto 15px auto',
     [theme.breakpoints.down('sm')]: {
@@ -71,7 +71,7 @@ const styles = theme => ({
     top: 0,
     width: "100%",
   },
-})
+}))
 
 class Layout extends PureComponent {
   // FIXME: Declaring these as "any" while working on unrelated Typescript issues, but these should be properly typed
