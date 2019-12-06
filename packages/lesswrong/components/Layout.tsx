@@ -24,7 +24,7 @@ const googleTagManagerId = getSetting('googleTagManager.apiKey')
 
 // From https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
 // Simple hash for randomly sampling users. NOT CRYPTOGRAPHIC.
-const hashCode = function(str) {
+const hashCode = function(str: string): string {
   var hash = 0, i, chr;
   if (str.length === 0) return hash;
   for (i = 0; i < str.length; i++) {

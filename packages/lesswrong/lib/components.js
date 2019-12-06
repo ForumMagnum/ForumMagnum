@@ -40,7 +40,7 @@ importComponent("NotificationTypeSettings", () => require('../components/notific
 importComponent("NotificationEmailPreviewPage", () => require('../components/notifications/NotificationEmailPreviewPage.jsx'));
 importComponent("EmailPreview", () => require('../components/notifications/EmailPreview.jsx'));
 
-importComponent("Layout", () => require('../components/Layout.jsx'));
+importComponent("Layout", () => require('../components/Layout.tsx'));
 
 importComponent("AnalyticsClient", () => require('../components/common/AnalyticsClient.jsx'));
 importComponent("CalendarDate", () => require('../components/common/CalendarDate.jsx'));

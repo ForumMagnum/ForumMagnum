@@ -21,7 +21,7 @@
     "test-prod": "meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings settings.json --port 3200 --full-app --once"
   },
   "dependencies": {
-    "@babel/runtime": "^7.1.2",
+    "@babel/runtime": "^7.7.4",
     "@ckeditor/ckeditor5-build-balloon-block": "./public/lesswrong-editor",
     "@ckeditor/ckeditor5-react": "^1.1.3",
     "@google/maps": "^0.5.5",
@@ -181,14 +181,12 @@
   },
   "private": true,
   "devDependencies": {
+    "@babel/core": "^7.7.4",
+    "@babel/preset-env": "^7.7.4",
+    "@babel/register": "^7.0.0",
     "@ckeditor/ckeditor5-inspector": "^1.3.0",
     "autoprefixer": "^6.3.6",
-    "babel": "^6.23.0",
     "babel-eslint": "^9.0.0",
-    "babel-polyfill": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-es2015": "^6.24.1",
-    "babel-register": "^6.26.0",
     "chai-as-promised": "^7.1.1",
     "eslint": "^5.12.1",
     "eslint-config-ckeditor5": "^2.0.0",
