@@ -7,6 +7,7 @@ import { postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping
 import { Posts } from '../../lib/collections/posts';
 import CommentIcon from '@material-ui/icons/ModeComment';
 import Card from '@material-ui/core/Card';
+import {AnalyticsContext} from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   root: {
@@ -148,7 +149,9 @@ const PostsPreviewTooltip = ({ showAllInfo, post, classes, truncateLimit=600, co
         <span>
           {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
         </span>
-        { showAllInfo && <span className={classes.bookmarkButton}><BookmarkButton post={post} /></span>}
+        <AnalyticsContext buttonContext={"hoverPreview"}>
+          { showAllInfo && <span className={classes.bookmarkButton}><BookmarkButton post={post} /></span>}
+        </AnalyticsContext>
       </div>}
   </Card>
 

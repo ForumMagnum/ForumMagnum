@@ -401,6 +401,12 @@ addRoute([
     title: "Admin"
   },
   {
+    name: 'migrations',
+    path: '/admin/migrations',
+    componentName: 'MigrationsDashboard',
+    title: "Migrations"
+  },
+  {
     name: 'moderation',
     path: '/moderation',
     componentName: 'ModerationLog',
@@ -542,6 +548,12 @@ addRoute([
     path: '/nominations',
     componentName: 'Nominations2018',
     title: "2018 Nominations",
+  },
+  {
+    name: 'userReviews',
+    path:'/users/:slug/reviews',
+    componentName: 'UserReviews',
+    title: "User Reviews",
   },
   {
     name: 'reviews',

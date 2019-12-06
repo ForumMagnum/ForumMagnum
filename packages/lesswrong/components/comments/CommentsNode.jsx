@@ -15,13 +15,6 @@ const styles = theme => ({
   node: {
     cursor: "default",
     // Higher specificity to override child class (variant syntax)
-    '&$new': {
-      borderLeft: `solid 5px ${theme.palette.secondary.light}`,
-      
-      '&:hover': {
-        borderLeft: `solid 5px ${theme.palette.secondary.main}`
-      },
-    },
     '&$deleted': {
       opacity: 0.6
     }
@@ -33,7 +26,14 @@ const styles = theme => ({
     borderTop: `solid 1px ${theme.palette.grey[300]}`,
     borderBottom: `solid 1px ${theme.palette.grey[300]}`,
   },
-  new: {},
+  new: {
+    '&': {
+      borderLeft: `solid 5px ${theme.palette.secondary.light}`,
+      '&:hover': {
+        borderLeft: `solid 5px ${theme.palette.secondary.main}`
+      },
+    }
+  },
   deleted: {},
   parentScroll: {
     position: "absolute",
@@ -344,7 +344,7 @@ class CommentsNode extends Component {
             {!collapsed && children && children.length>0 && <div className={classes.children}>
               <div className={classes.parentScroll} onClick={this.scrollIntoView}/>
               { showExtraChildrenButton }
-              {children && children.map(child =>
+              {children.map(child =>
                 <Components.CommentsNode child
                   comment={child.item}
                   parentCommentId={comment._id}

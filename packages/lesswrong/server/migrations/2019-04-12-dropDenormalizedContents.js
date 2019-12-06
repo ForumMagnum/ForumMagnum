@@ -4,6 +4,7 @@ import { getCollection } from 'meteor/vulcan:core'
 
 registerMigration({
   name: "dropDenormalizedContents",
+  dateWritten: "2019-04-12",
   idempotent: true,
   action: async () => {
     for (let collectionName of editableCollections) {
