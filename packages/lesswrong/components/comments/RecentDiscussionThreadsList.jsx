@@ -28,7 +28,7 @@ class RecentDiscussionThreadsList extends PureComponent {
   render () {
     const { results, loading, loadMore, networkStatus, updateComment, currentUser, data: { refetch }, title="Recent Discussion", shortformButton=true } = this.props
     const { showShortformFeed, expandAllThreads } = this.state
-    const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, Loading } = Components
+    const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, Loading, SectionContent } = Components
     
     const loadingMore = networkStatus === 2;
 
@@ -51,24 +51,26 @@ class RecentDiscussionThreadsList extends PureComponent {
             </SectionButton>
           </div>}
         </SectionTitle>
-        {showShortformFeed && <ShortformSubmitForm successCallback={refetch}/>}
-        <div>
-          {results && <div>
-            {results.map((post, i) =>
-              <Components.RecentDiscussionThread
-                key={post._id}
-                post={post}
-                postCount={i} 
-                refetch={refetch}
-                comments={post.recentComments}
-                expandAllThreads={expandAll}
-                currentUser={currentUser}
-                updateComment={updateComment}/>
-            )}
-          </div>}
-          { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
-          { (loading || loadingMore) && <Loading />}
-        </div>
+        <SectionContent>
+          {showShortformFeed && <ShortformSubmitForm successCallback={refetch}/>}
+          <div>
+            {results && <div>
+              {results.map((post, i) =>
+                <Components.RecentDiscussionThread
+                  key={post._id}
+                  post={post}
+                  postCount={i} 
+                  refetch={refetch}
+                  comments={post.recentComments}
+                  expandAllThreads={expandAll}
+                  currentUser={currentUser}
+                  updateComment={updateComment}/>
+              )}
+            </div>}
+            { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
+            { (loading || loadingMore) && <Loading />}
+          </div>
+        </SectionContent>
       </SingleColumnSection>
     )
   }

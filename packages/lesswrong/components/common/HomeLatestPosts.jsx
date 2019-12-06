@@ -49,7 +49,7 @@ class HomeLatestPosts extends PureComponent {
   render () {
     const { currentUser, location, classes } = this.props;
     const { query } = location;
-    const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox } = Components
+    const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox, SectionContent } = Components
     const currentFilter = query.filter || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
     const limit = parseInt(query.limit) || 10
 
@@ -110,11 +110,13 @@ class HomeLatestPosts extends PureComponent {
             </div>
           </Tooltip>
         </SectionTitle>
-        <AnalyticsContext listContext={"latestPosts"}>
-          <PostsList2 terms={recentPostsTerms}>
-            <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
-          </PostsList2>
-        </AnalyticsContext>
+        <SectionContent>
+          <AnalyticsContext listContext={"latestPosts"}>
+            <PostsList2 terms={recentPostsTerms}>
+              <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
+            </PostsList2>
+          </AnalyticsContext>
+        </SectionContent>
       </SingleColumnSection>
     )
   }

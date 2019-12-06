@@ -57,6 +57,7 @@ importComponent("BatchTimePicker", () => require('../components/common/BatchTime
 importComponent("NavigationEventSender", () => require('../components/common/NavigationEventSender.jsx'));
 importComponent("SingleColumnSection", () => require('../components/common/SingleColumnSection'));
 importComponent("SectionTitle", () => require('../components/common/SectionTitle.jsx'));
+importComponent("SectionContent", () => require('../components/common/SectionContent.jsx'));
 importComponent("SectionSubtitle", () => require('../components/common/SectionSubtitle.jsx'));
 importComponent("SubSection", () => require('../components/common/SubSection.jsx'));
 importComponent("SectionFooter", () => require('../components/common/SectionFooter.jsx'));
