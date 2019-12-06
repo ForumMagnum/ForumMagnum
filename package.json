@@ -5,6 +5,7 @@
     "npm": "^3.0"
   },
   "scripts": {
+    "checktypes": "tsc --noEmit",
     "prestart": "bash prestart_lesswrong.sh",
     "start": "meteor --settings settings-dev.json",
     "start-prod-db": "../LessWrong-Credentials/run-local-dev-proddb.sh",
@@ -171,6 +172,7 @@
     "tlds": "^1.203.1",
     "truncatise": "0.0.7",
     "turndown": "^4.0.2",
+    "typescript": "^3.7.3",
     "underscore": "^1.9.1",
     "universal-cookie": "^4.0.2",
     "universal-cookie-express": "^2.2.0",
