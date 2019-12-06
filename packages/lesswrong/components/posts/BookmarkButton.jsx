@@ -10,6 +10,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import Users from 'meteor/vulcan:users';
 import Tooltip from '@material-ui/core/Tooltip';
 import { withStyles } from '@material-ui/core/styles'
+import { useTracking } from '../../lib/analyticsEvents.js';
 
 const styles = theme => ({
   icon: {
@@ -19,13 +20,15 @@ const styles = theme => ({
 })
 
 const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right"}) => {
-  const {openDialog} = useDialog();
+  const { openDialog } = useDialog();
   const [bookmarked, setBookmarked] = useState(_.pluck((currentUser?.bookmarkedPostsMetadata || []), 'postId')?.includes(post._id))
+  const { captureEvent } = useTracking({eventType: "bookmarkToggle", eventProps: {"postId": post._id, "bookmarked": !bookmarked}})
 
   const {mutate: updateUser} = useUpdate({
     collection: Users,
     fragmentName: 'UserBookmarks',
   });
+
 
   const toggleBookmark = (event) => {
     if (!currentUser) {
@@ -55,6 +58,7 @@ const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right"
         data: { bookmarkedPostsMetadata: [...bookmarks, {postId: post._id}] }
       });
     }
+    captureEvent()
   }
 
   const icon = bookmarked ? <Bookmark/> : <BookmarkBorder/>

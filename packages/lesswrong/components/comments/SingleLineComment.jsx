@@ -120,6 +120,8 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
 
   const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile()
 
+  const renderHighlight = (comment.baseScore > -5) && !comment.deleted
+
   return (
     <div className={classes.root}>
       <div className={classNames(classes.commentInfo, {[classes.isAnswer]: comment.answer, [classes.odd]:((nestingLevel%2) !== 0)})}>
@@ -137,8 +139,8 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
         <span className={classes.date}>
           <Components.FormatDate date={comment.postedAt} tooltip={false}/>
         </span>
-        {(comment.baseScore > -5) && <span className={classes.truncatedHighlight}> 
-      { comment.nominatedForReview && <span className={classes.nomination}>Nomination</span>}
+        {renderHighlight && <span className={classes.truncatedHighlight}> 
+          { comment.nominatedForReview && <span className={classes.nomination}>Nomination</span>}
           {plaintextMainText} 
         </span>}      
       </div>
