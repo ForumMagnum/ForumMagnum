@@ -5,6 +5,7 @@ import { htmlToPingbacks } from '../pingbacks.js';
 
 registerMigration({
   name: "generatePingbacksAgain",
+  dateWritten: "2019-12-05",
   idempotent: true,
   action: async () => {
     for (let collectionName of editableCollections) {

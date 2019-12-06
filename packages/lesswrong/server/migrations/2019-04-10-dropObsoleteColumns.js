@@ -5,6 +5,7 @@ import Users from 'meteor/vulcan:users';
 
 registerMigration({
   name: "dropObsoleteColumns",
+  dateWritten: "2019-04-10",
   idempotent: true,
   action: async () => {
     // Denormalized field from vulcan example-forum, bulky and never used

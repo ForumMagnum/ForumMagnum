@@ -272,3 +272,10 @@ export function denormalizedCountOfReferences({ collectionName, fieldName,
     }
   }
 }
+
+export function googleLocationToMongoLocation(gmaps) {
+  return {
+    type: "Point",
+    coordinates: [gmaps.geometry.location.lng, gmaps.geometry.location.lat]
+  }
+}

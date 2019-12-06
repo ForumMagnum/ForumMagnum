@@ -4,6 +4,7 @@ import Users from 'meteor/vulcan:users';
 
 registerMigration({
   name: "fixLegacyJoinDates",
+  dateWritten: "2019-11-25",
   idempotent: true,
   action: async () => {
     await forEachDocumentBatchInCollection({
