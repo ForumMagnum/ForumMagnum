@@ -108,6 +108,7 @@ registerFragment(`
     moderationGuidelines {
       ...RevisionEdit
     }
+    showHideKarmaOption
     markDownPostEditor
     commentSorting
     location
@@ -140,6 +141,7 @@ registerFragment(`
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
     bookmarkedPostsMetadata
+    noExpandUnreadCommentsReview
   }
 `);
 
@@ -486,6 +488,7 @@ registerFragment(`
     collapseModerationGuidelines
     bannedUserIds
     bannedPersonalUserIds
+    showHideKarmaOption
 
     # Ban & Purge
     voteBanned

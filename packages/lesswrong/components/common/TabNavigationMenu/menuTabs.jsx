@@ -145,8 +145,14 @@ export default {
       divider: true,
       showOnCompressed: true,
     }, {
+      id: 'reviews',
+      title: '2018 Review',
+      link: '/reviews',
+      subItem: true,
+    },
+    {
       id: 'shortform',
-      title: 'Shortform [Beta]',
+      title: 'Shortform',
       link: '/shortform',
       subItem: true,
     }, {

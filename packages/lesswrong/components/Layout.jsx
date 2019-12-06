@@ -11,9 +11,11 @@ import LogRocket from 'logrocket'
 
 import { withStyles, withTheme } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
+import { AnalyticsContext } from '../lib/analyticsEvents.js'
 import { UserContext } from './common/withUser';
 import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
+import { CommentBoxManager } from './common/withCommentBox';
 import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
 import { PostsReadContext } from './common/withRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
@@ -40,7 +42,7 @@ const hashCode = function(str) {
 const standaloneNavMenuRouteNames = {
   'LessWrong': [
     'home', 'allPosts', 'questions', 'sequencesHome', 'CommunityHome', 'Shortform', 'Codex',
-    'HPMOR', 'Rationality', 'Sequences', 'collections'
+    'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews'
   ],
   'AlignmentForum': ['alignment.home', 'sequencesHome', 'allPosts', 'questions', 'Shortform'],
   'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform'],
@@ -51,8 +53,8 @@ const styles = theme => ({
     margin: '50px auto 15px auto',
     [theme.breakpoints.down('sm')]: {
       marginTop: 0,
-      paddingLeft: theme.spacing.unit,
-      paddingRight: theme.spacing.unit,
+      paddingLeft: theme.spacing.unit/2,
+      paddingRight: theme.spacing.unit/2,
     },
   },
   '@global': {
@@ -159,6 +161,7 @@ class Layout extends PureComponent {
         timezone: newTimezone
       });
     }
+
     this.initializeLogRocket()
   }
 
@@ -198,6 +201,7 @@ class Layout extends PureComponent {
         .includes(location.currentRoute.name)
     
     return (
+      <AnalyticsContext>
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
       <PostsReadContext.Provider value={{
@@ -209,52 +213,56 @@ class Layout extends PureComponent {
       <TableOfContentsContext.Provider value={this.setToC}>
         <div className={classNames("wrapper", {'alignment-forum': getSetting('forumType') === 'AlignmentForum'}) } id="wrapper">
           <DialogManager>
-            <CssBaseline />
-            <Helmet>
-              <link name="material-icons" rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
-              <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@7.0.0/themes/reset-min.css"/>
-              <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
-              { theme.typography.fontDownloads &&
-                  theme.typography.fontDownloads.map(
-                    (url)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
-                  )
-              }
-              <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
-              <link rel="stylesheet" href="https://use.typekit.net/jvr1gjm.css"/>
-            </Helmet>
-            {/* Deactivating this component for now, since it's been causing a good amount of bugs. TODO: Fix this properly */}
-            {/* {currentUser ? <Components.UsersProfileCheck currentUser={currentUser} documentId={currentUser._id} /> : null} */}
+            <CommentBoxManager>
+              <CssBaseline />
+              <Helmet>
+                <link name="material-icons" rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@7.0.0/themes/reset-min.css"/>
+                <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
+                { theme.typography.fontDownloads &&
+                    theme.typography.fontDownloads.map(
+                      (url)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
+                    )
+                }
+                <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
+                <link rel="stylesheet" href="https://use.typekit.net/jvr1gjm.css"/>
+              </Helmet>
+              
+              <Components.AnalyticsClient/>
+              <Components.NavigationEventSender/>
 
-            {/* Sign up user for Intercom, if they do not yet have an account */}
-            {showIntercom(currentUser)}
-            <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
-            {/* Google Tag Manager i-frame fallback */}
-            <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerId}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
-            <Components.Header
-              toc={this.state.toc}
-              searchResultsArea={this.searchResultsAreaRef}
-              standaloneNavigationPresent={standaloneNavigation}
-              toggleStandaloneNavigation={this.toggleStandaloneNavigation}
-            />
-            {standaloneNavigation && <Components.NavigationStandalone
-              sidebarHidden={hideNavigationSidebar}
-            />}
-            <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
-            <div className={classes.main}>
-              <Components.ErrorBoundary>
-                <Components.FlashMessages messages={messages} />
-              </Components.ErrorBoundary>
-              <Components.ErrorBoundary>
-                {children}
-              </Components.ErrorBoundary>
-            </div>
-            <Components.Footer />
+              {/* Sign up user for Intercom, if they do not yet have an account */}
+              {showIntercom(currentUser)}
+              <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
+              {/* Google Tag Manager i-frame fallback */}
+              <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerId}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
+              <Components.Header
+                toc={this.state.toc}
+                searchResultsArea={this.searchResultsAreaRef}
+                standaloneNavigationPresent={standaloneNavigation}
+                toggleStandaloneNavigation={this.toggleStandaloneNavigation}
+              />
+              {standaloneNavigation && <Components.NavigationStandalone
+                sidebarHidden={hideNavigationSidebar}
+              />}
+              <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
+              <div className={classes.main}>
+                <Components.ErrorBoundary>
+                  <Components.FlashMessages messages={messages} />
+                </Components.ErrorBoundary>
+                <Components.ErrorBoundary>
+                  {children}
+                </Components.ErrorBoundary>
+              </div>
+              <Components.Footer />
+            </CommentBoxManager>
           </DialogManager>
         </div>
       </TableOfContentsContext.Provider>
       </PostsReadContext.Provider>
       </TimezoneContext.Provider>
       </UserContext.Provider>
+      </AnalyticsContext>
     )
   }
 }

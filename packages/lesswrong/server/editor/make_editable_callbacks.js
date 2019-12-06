@@ -273,7 +273,7 @@ export function addEditableCallbacks({collection, options = {}}) {
         },
         [`${fieldName}_latest`]: firstRevision,
         ...(pingbacks ? {
-          pingbacks: await htmlToPingbacks(html),
+          pingbacks: await htmlToPingbacks(html, null),
         } : null),
       }
     }
@@ -317,7 +317,11 @@ export function addEditableCallbacks({collection, options = {}}) {
         },
         [`${fieldName}_latest`]: newRevision,
         ...(pingbacks ? {
-          pingbacks: await htmlToPingbacks(html),
+          pingbacks: await htmlToPingbacks(html, [{
+              collectionName: collection.collectionName,
+              documentId: document._id,
+            }]
+          ),
         } : null),
       }
     }

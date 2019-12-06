@@ -19,6 +19,7 @@ const DEFAULT_TOC_MARGIN = 100
 const MAX_TOC_WIDTH = 270
 const MIN_TOC_WIDTH = 200
 const MAX_COLUMN_WIDTH = 720
+const SECONDARY_SPACING = 20
 
 const styles = theme => ({
   root: {
@@ -112,24 +113,24 @@ const styles = theme => ({
     fontSize: '1.4rem',
   },
   commentsLink: {
-    marginLeft: 20,
+    marginRight: SECONDARY_SPACING,
     color: theme.palette.grey[600],
     whiteSpace: "no-wrap",
+    display: "inline-block",
     fontSize: theme.typography.body2.fontSize,
   },
   wordCount: {
     display: 'none',
-    marginLeft: 20,
+    marginRight: SECONDARY_SPACING,
     color: theme.palette.grey[600],
     whiteSpace: "no-wrap",
     fontSize: theme.typography.body2.fontSize,
     [theme.breakpoints.down('sm')]: {
-      display: 'inline'
+      display: 'inline-block'
     }
   },
   actions: {
     display: 'inline-block',
-    marginLeft: 15,
     cursor: "pointer",
     color: theme.palette.grey[600],
   },
@@ -160,27 +161,26 @@ const styles = theme => ({
       maxWidth: MAX_COLUMN_WIDTH
     }
   },
-  inline: {
-    display: 'inline-block'
+  authors: {
+    display: 'inline-block',
+    marginRight: SECONDARY_SPACING
   },
-  unreviewed: {
-    fontStyle: "italic",
-    color: theme.palette.grey[600],
-    marginBottom: theme.spacing.unit*2,
-    fontSize:".9em",
-    maxWidth: "100%",
-    overflowX: "hidden",
-    textOverflow: "ellipsis",
-    ...theme.typography.postStyle,
+  contentNotice: {
+    ...theme.typography.contentNotice,
+    ...theme.typography.postStyle
   },
   feedName: {
     fontSize: theme.typography.body2.fontSize,
-    marginLeft: 20,
+    marginRight: SECONDARY_SPACING,
     display: 'inline-block',
     color: theme.palette.grey[600],
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
+  },
+  date: {
+    marginRight: SECONDARY_SPACING,
+    display: 'inline-block',
   },
   commentsSection: {
     minHeight: 'calc(70vh - 100px)',
@@ -201,7 +201,16 @@ const styles = theme => ({
     color: theme.palette.grey[600]
   },
   postType: {
-    marginLeft: 20
+    marginRight: SECONDARY_SPACING
+  },
+  reviewInfo: {
+    textAlign: "center",
+    marginBottom: 32
+  },
+  reviewLabel: {
+    ...theme.typography.postStyle,
+    ...theme.typography.contentNotice,
+    marginBottom: theme.spacing.unit,
   }
 })
 
@@ -266,7 +275,7 @@ class PostsPage extends Component {
       LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
       TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink,
-      PingbacksList, FooterTagList } = Components
+      PingbacksList, FooterTagList, ReviewPostButton, HoverPreviewLink } = Components
 
     if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
@@ -298,7 +307,7 @@ class PostsPage extends Component {
                 <div className={classes.headerLeft}>
                   <PostsPageTitle post={post} />
                   <div className={classes.secondaryInfo}>
-                    <span className={classes.inline}>
+                    <span className={classes.authors}>
                       <PostsAuthors post={post}/>
                     </span>
                     <span className={classes.postType}>
@@ -311,10 +320,12 @@ class PostsPage extends Component {
                         </a>
                       </Tooltip>
                     }
-                    {!post.isEvent && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
                     {!!wordCount && !post.isEvent &&  <Tooltip title={`${wordCount} words`}>
                         <span className={classes.wordCount}>{parseInt(wordCount/300) || 1 } min read</span>
                     </Tooltip>}
+                    {!post.isEvent && <span className={classes.date}>
+                      <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
+                    </span>}
                     {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
                     <a className={classes.commentsLink} href={"#comments"}>{ Posts.getCommentCountStr(post)}</a>
                     <span className={classes.actions}>
@@ -344,8 +355,15 @@ class PostsPage extends Component {
               <div className={classes.postBody}>
                 { post.isEvent && <Components.SmallMapPreview post={post} /> }
                 <div className={classes.postContent}>
+                  {(post.nominationCount2018 >= 2) && <div className={classes.reviewInfo}>
+                    <div className={classes.reviewLabel}>
+                      This post has been nominated for the <HoverPreviewLink href="http://lesswrong.com/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review-posts-need-at-least-2-nominations" innerHTML={"2018 Review"}/>
+                    </div>
+                    <ReviewPostButton post={post} reviewMessage="Write a Review"/>
+                  </div>}
+                  
                   <AlignmentCrosspostMessage post={post} />
-                  { post.authorIsUnreviewed && <div className={classes.unreviewed}>This post is awaiting moderator approval</div>}
+                  { post.authorIsUnreviewed && <div className={classes.contentNotice}>This post is awaiting moderator approval</div>}
                   <LinkPostMessage post={post} />
                   {query.revision && <PostsRevisionMessage post={post} />}
                   { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }

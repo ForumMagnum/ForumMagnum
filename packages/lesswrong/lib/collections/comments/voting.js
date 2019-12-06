@@ -1,4 +1,10 @@
 import { makeVoteable } from '../../modules/make_voteable.js';
 import { Comments } from './collection.js';
+import Users from 'meteor/vulcan:users';
 
-makeVoteable(Comments);
+// Comments have the custom behavior in that they sometimes have hidden karma
+const customBaseScoreReadAccess = (user, comment) => {
+  return Users.canDo(user, 'posts.moderate.all') || !comment.hideKarma
+}
+
+makeVoteable(Comments, {customBaseScoreReadAccess});

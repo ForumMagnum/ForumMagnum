@@ -12,12 +12,16 @@ import { useCurrentUser } from "../common/withUser";
 import classNames from 'classnames';
 import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
+import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
+import {AnalyticsContext} from "../../lib/analyticsEvents";
 
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
 export const COMMENTS_WIDTH = 48
 
-const COMMENTS_BACKGROUND_COLOR = "#efefef"
+const COMMENTS_BACKGROUND_COLOR = "#f5f5f5"
+
+const captureOnMountContexts = ['continueReading', 'bookmarksPage', 'frontpageBookmarksList', 'fromTheArchives']
 
 export const styles = (theme) => ({
   root: {
@@ -30,11 +34,11 @@ export const styles = (theme) => ({
     }
   },
   background: {
-    transition: "3s",
     width: "100%",
   },
   postsItem: {
     display: "flex",
+    position: "relative",
     paddingTop: 10,
     paddingBottom: 10,
     alignItems: "center",
@@ -50,19 +54,24 @@ export const styles = (theme) => ({
       backgroundColor: "#efefef"
     },
   },
-  hasResumeReading: {
-    ...theme.typography.body,
-    "& $title": {
-      position: "relative",
+  hasSmallSubtitle: {
+    '&&': {
       top: -5,
-    },
+    }
   },
   bottomBorder: {
     borderBottom: "solid 1px rgba(0,0,0,.2)",
   },
   commentsBackground: {
     backgroundColor: COMMENTS_BACKGROUND_COLOR,
-    transition: "0s",
+    boxShadow: "0px 2px 3px rgba(0,0,0,.2)",
+    marginTop: -1,
+    marginBottom: 16,
+    border: "solid 1px #ccc",
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: theme.spacing.unit/2,
+      paddingRight: theme.spacing.unit/2
+    }
   },
   firstItem: {
     borderTop: "solid 1px rgba(0,0,0,.2)"
@@ -127,9 +136,9 @@ export const styles = (theme) => ({
     width: "100%",
     paddingLeft: theme.spacing.unit*2,
     paddingRight: theme.spacing.unit*2,
-    paddingBottom: theme.spacing.unit,
     paddingTop: theme.spacing.unit,
     cursor: "pointer",
+    marginBottom: NEW_COMMENT_MARGIN_BOTTOM,
     [theme.breakpoints.down('sm')]: {
       padding: 0,
     }
@@ -184,14 +193,14 @@ export const styles = (theme) => ({
       display: "inline-block"
     }
   },
-  nextUnreadIn: {
-    color: theme.palette.grey[800],
+  subtitle: {
+    color: theme.palette.grey[700],
     fontFamily: theme.typography.commentStyle.fontFamily,
 
     [theme.breakpoints.up('md')]: {
       position: "absolute",
       left: 42,
-      top: 28,
+      bottom: 5,
       zIndex: theme.zIndexes.nextUnread,
     },
     [theme.breakpoints.down('sm')]: {
@@ -201,10 +210,18 @@ export const styles = (theme) => ({
       marginBottom: 3,
       marginLeft: 1,
     },
-
     "& a": {
       color: theme.palette.primary.main,
     },
+  },
+  nominationCount: {
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[600],
+    [theme.breakpoints.up('sm')]: {
+      position: "absolute",
+      bottom: 2,
+      left: KARMA_WIDTH
+    }
   },
   sequenceImage: {
     position: "relative",
@@ -326,13 +343,18 @@ const PostsItem2 = ({
   // icon.
   bookmark,
   // recordPostView, isRead: From the withRecordPostView HoC.
+  // showNominationCount: (bool) whether this should display it's number of Review nominations
+  showNominationCount,
+  showReviewCount,
   recordPostView, isRead,
   classes,
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
+  const [markedVisitedAt, setMarkedVisitedAt] = React.useState(false);
+
   const currentUser = useCurrentUser();
-  
+
   const toggleComments = React.useCallback(
     () => {
       recordPostView({post})
@@ -342,28 +364,48 @@ const PostsItem2 = ({
     [post, recordPostView, setShowComments, showComments, setReadComments]
   );
 
+  const markAsRead = () => {
+    recordPostView({post})
+    setMarkedVisitedAt(new Date()) 
+  }
+
+  const compareVisitedAndCommentedAt = (lastVisitedAt, lastCommentedAt) => {
+    const newComments = lastVisitedAt < lastCommentedAt;
+    return (isRead && newComments && !readComments)
+  }
+
   const hasUnreadComments = () => {
     const lastCommentedAt = Posts.getLastCommentedAt(post)
-    const newComments = post.lastVisitedAt < lastCommentedAt;
-    return (isRead && newComments && !readComments)
+    const lastVisitedAt = markedVisitedAt || post.lastVisitedAt
+    return compareVisitedAndCommentedAt(lastVisitedAt, lastCommentedAt)
+  }
+
+  const hadUnreadComments = () => {
+    const lastCommentedAt = Posts.getLastCommentedAt(post)
+    return compareVisitedAndCommentedAt(post.lastVisitedAt, lastCommentedAt)
   }
 
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors,
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
-    BookmarkButton } = Components
+    BookmarkButton, EventVicinity, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker, ReviewPostButton } = Components
 
   const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
-  const unreadComments = hasUnreadComments()
-
-  const renderComments = showComments || (defaultToShowUnreadComments && unreadComments)
-  const condensedAndHiddenComments = defaultToShowUnreadComments && unreadComments && !showComments
+  const renderComments = showComments || (defaultToShowUnreadComments && hadUnreadComments())
+  const condensedAndHiddenComments = defaultToShowUnreadComments && !showComments
 
   const dismissButton = (currentUser && resumeReading &&
     <Tooltip title={dismissRecommendationTooltip} placement="right">
       <CloseIcon onClick={() => dismissRecommendation()}/>
     </Tooltip>
   )
+
+  const commentTerms = {
+    view:"postsItemComments", 
+    limit:7, 
+    postId: post._id, 
+    after: (defaultToShowUnreadComments && !showComments) ? post.lastVisitedAt : null
+  }
 
   return (
     <div className={classNames(
@@ -374,7 +416,6 @@ const PostsItem2 = ({
         [classes.bottomBorder]: showBottomBorder,
         [classes.commentsBackground]: renderComments,
         [classes.firstItem]: (index===0) && showComments,
-        [classes.hasResumeReading]: !!resumeReading,
       })}
     >
       <PostsItemTooltipWrapper post={post}>
@@ -383,18 +424,23 @@ const PostsItem2 = ({
 
           <div className={classNames(classes.postsItem, {
             [classes.dense]: dense,
-            [classes.withRelevanceVoting]: !!tagRel,
+            [classes.withRelevanceVoting]: !!tagRel
           })}>
             <PostsItem2MetaInfo className={classes.karma}>
               <PostsItemKarma post={post} />
             </PostsItem2MetaInfo>
 
-            <span className={classes.title}>
-              <PostsTitle postLink={postLink} post={post} expandOnHover={!renderComments} read={isRead} sticky={isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
+            <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: (!!resumeReading || showNominationCount)})}>
+                <AnalyticsTracker
+                    eventType={"postItem"}
+                    eventProps={{postId: post._id, isSticky:isSticky(post, terms)}}
+                    captureOnMount={(eventData => captureOnMountContexts.includes(eventData.listContext))}>
+                  <PostsTitle postLink={postLink} post={post} expandOnHover={!renderComments} read={isRead} sticky={isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
+                </AnalyticsTracker>
             </span>
 
             {(resumeReading?.sequence || resumeReading?.collection) &&
-              <div className={classes.nextUnreadIn}>
+              <div className={classes.subtitle}>
                 {resumeReading.numRead ? "Next unread in " : "First post in "}<Link to={
                   resumeReading.sequence
                     ? Sequences.getPageUrl(resumeReading.sequence)
@@ -412,10 +458,10 @@ const PostsItem2 = ({
             </PostsItem2MetaInfo>}
 
             { post.isEvent && <PostsItem2MetaInfo className={classes.event}>
-              <Components.EventVicinity post={post} />
+              <EventVicinity post={post} />
             </PostsItem2MetaInfo>}
 
-            {showPostedAt && !resumeReading && <Components.PostsItemDate post={post}/>}
+            {showPostedAt && !resumeReading && <PostsItemDate post={post}/>}
 
             <div className={classes.mobileSecondRowSpacer}/>
 
@@ -431,12 +477,18 @@ const PostsItem2 = ({
               <PostsItemComments
                 post={post}
                 onClick={toggleComments}
-                unreadComments={unreadComments}
+                unreadComments={hasUnreadComments()}
               />
             </div>}
 
+            {(post.nominationCount2018 >= 2) && <Link to={Posts.getPageUrl(post)}>
+              <ReviewPostButton post={post}/>
+            </Link>}
+
             {bookmark && <div className={classes.bookmark}>
-              <BookmarkButton post={post}/>
+              <AnalyticsContext buttonContext={"postItem"}>
+                <BookmarkButton post={post}/>
+              </AnalyticsContext>
             </div>}
 
             <div className={classes.mobileDismissButton}>
@@ -453,6 +505,11 @@ const PostsItem2 = ({
                   }`}
                 />
               </div>}
+
+            {(showNominationCount || showReviewCount) && <div className={classes.subtitle}>
+              {showNominationCount && <span>{post.nominationCount2018 || 0} nomination{(post.nominationCount2018 === 1) ? "" :"s"}</span>}
+              {showReviewCount && <span>{" "}– {post.reviewCount2018 || 0} review{(post.reviewCount2018 === 1) ? "" :"s"}</span>}
+            </div>}
           </div>
         </div>
       </PostsItemTooltipWrapper>
@@ -463,13 +520,13 @@ const PostsItem2 = ({
       </div>}
 
       {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>
-        <Components.PostsItemNewCommentsWrapper
+        <PostsItemNewCommentsWrapper
           currentUser={currentUser}
-          highlightDate={post.lastVisitedAt}
-          terms={{view:"postCommentsUnread", limit:7, postId: post._id}}
+          highlightDate={markedVisitedAt || post.lastVisitedAt}
+          terms={commentTerms}
           post={post}
           condensed={condensedAndHiddenComments}
-          hideReadComments={condensedAndHiddenComments}
+          markAsRead={markAsRead}
         />
       </div>}
     </div>

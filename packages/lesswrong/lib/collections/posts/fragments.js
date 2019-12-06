@@ -50,6 +50,8 @@ registerFragment(`
     mongoLocation
     startTime
     endTime
+    localStartTime
+    localEndTime
     facebookLink
     website
     contactInfo
@@ -76,6 +78,7 @@ registerFragment(`
     isFuture
     hideAuthor
     moderationStyle
+    hideCommentKarma
     submitToFrontpage
     shortform
     canonicalSource
@@ -83,6 +86,7 @@ registerFragment(`
     shareWithUsers
     
     nominationCount2018
+    reviewCount2018
 
     group {
       _id

@@ -3,7 +3,13 @@ import { getWithLoader } from '../loaders.js'
 
 export const VoteableCollections = [];
 
-export const makeVoteable = collection => {
+// options: {
+//   customBaseScoreReadAccess: baseScore can have a customized canRead value.
+//     Option will be bassed directly to the canRead key
+// }
+export const makeVoteable = (collection, options) => {
+  options = options || {}
+  const {customBaseScoreReadAccess} = options
 
   VoteableCollections.push(collection);
 
@@ -74,7 +80,7 @@ export const makeVoteable = collection => {
       type: Number,
       optional: true,
       defaultValue: 0,
-      canRead: ['guests'],
+      canRead: customBaseScoreReadAccess || ['guests'],
       onInsert: document => {
         // default to 0 if empty
         return document.baseScore || 0;

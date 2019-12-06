@@ -1,6 +1,6 @@
 import Users from "meteor/vulcan:users";
 import { getSetting, Utils } from "meteor/vulcan:core"
-import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, arrayOfForeignKeysField, denormalizedField } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation } from '../../modules/utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 import SimpleSchema from 'simpl-schema'
@@ -431,6 +431,19 @@ addFieldsDict(Users, {
     order: 56,
   },
 
+  showHideKarmaOption: {
+    type: Boolean,
+    optional: true,
+    label: "Enable option on posts to hide karma visibility",
+    canRead: [Users.owns, 'admins'],
+    canUpdate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    hidden: getSetting('forumType') !== 'EAForum',
+    control: 'checkbox',
+    group: formGroups.default,
+    order: 72,
+  },
+
   twitterUsername: {
     hidden: true,
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
@@ -591,8 +604,6 @@ addFieldsDict(Users, {
     type: String,
     optional: true,
   },
-
-  // Obsolete notifications settings
   auto_subscribe_to_my_posts: {
     label: "Auto-subscribe to comments on my posts",
     group: formGroups.notifications,
@@ -654,6 +665,10 @@ addFieldsDict(Users, {
   },
   notificationSharedWithMe: {
     label: "Draft shared with me",
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
+  notificationEventInRadius: {
+    label: "New Events in my notification radius",
     ...notificationTypeSettingsField({ channel: "both" }),
   },
 
@@ -772,11 +787,14 @@ addFieldsDict(Users, {
   mongoLocation: {
     type: Object,
     canRead: ['guests'],
-    canCreate: ['members'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    hidden: true,
     blackbox: true,
-    optional: true
+    optional: true,
+    ...denormalizedField({
+      needsUpdate: data => ('googleLocation' in data),
+      getValue: async (user) => {
+        return googleLocationToMongoLocation(user.googleLocation)
+      }
+    }),
   },
 
   googleLocation: {
@@ -865,6 +883,19 @@ addFieldsDict(Users, {
     control: 'LocationFormComponent',
     blackbox: true,
     optional: true,
+  },
+
+  nearbyEventsNotificationsMongoLocation: {
+    type: Object,
+    canRead: [Users.owns],
+    blackbox: true,
+    optional: true,
+    ...denormalizedField({
+      needsUpdate: data => ('nearbyEventsNotificationsLocation' in data),
+      getValue: async (user) => {
+        return googleLocationToMongoLocation(user.nearbyEventsNotificationsLocation)
+      }
+    }),
   },
 
   nearbyEventsNotificationsRadius: {
@@ -1118,7 +1149,8 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     tooltip: "Get early access to new in-development features",
     group: formGroups.default,
-    label: "Opt into experimental features"
+    label: "Opt into experimental features",
+    order: 71,
   },
   petrovPressedButtonDate: {
     type: Date,
@@ -1208,6 +1240,15 @@ addFieldsDict(Users, {
     type: String,
     optional: true,
     canRead: ['guests'],
+  },
+  noExpandUnreadCommentsReview: {
+    type: Boolean,
+    optional: true,
+    defaultValue: false,
+    hidden: true,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
   }
 });
 
@@ -1246,3 +1287,4 @@ const createDisplayName = user => {
   if (user.email) return user.email.slice(0, user.email.indexOf('@'));
   return undefined;
 }
+

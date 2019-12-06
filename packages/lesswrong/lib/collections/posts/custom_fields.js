@@ -1,9 +1,9 @@
 import { Posts } from './collection';
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
-import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple, resolverOnlyField, denormalizedCountOfReferences, accessFilterSingle } from '../../modules/utils/schemaUtils'
+import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple, resolverOnlyField, denormalizedCountOfReferences, accessFilterSingle, denormalizedField, googleLocationToMongoLocation } from '../../modules/utils/schemaUtils'
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
-import { Utils } from 'meteor/vulcan:core';
+import { Utils, getSetting } from 'meteor/vulcan:core';
 import GraphQLJSON from 'graphql-type-json';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { getWithLoader } from '../../loaders.js';
@@ -739,11 +739,15 @@ addFieldsDict(Posts, {
   mongoLocation: {
     type: Object,
     viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
     hidden: true,
     blackbox: true,
-    optional: true
+    optional: true,
+    ...denormalizedField({
+      needsUpdate: data => ('googleLocation' in data),
+      getValue: async (user) => {
+        return googleLocationToMongoLocation(user.googleLocation)
+      }
+    }),
   },
 
   googleLocation: {
@@ -964,6 +968,19 @@ addFieldsDict(Posts, {
         ];
       }
     },
+  },
+  
+  // On a post, do not show comment karma
+  hideCommentKarma: {
+    type: Boolean,
+    optional: true,
+    group: formGroups.moderationGroup,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', Posts.canEditHideCommentKarma],
+    editableBy: ['admins', Posts.canEditHideCommentKarma],
+    hidden: getSetting('forumType') !== 'EAForum',
+    denormalized: true,
+    ...schemaDefaultValue(false),
   },
   
   recentComments: resolverOnlyField({
