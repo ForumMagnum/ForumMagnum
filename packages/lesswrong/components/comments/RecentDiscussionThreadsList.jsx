@@ -51,26 +51,24 @@ class RecentDiscussionThreadsList extends PureComponent {
             </SectionButton>
           </div>}
         </SectionTitle>
-        <SectionContent>
-          {showShortformFeed && <ShortformSubmitForm successCallback={refetch}/>}
-          <div>
-            {results && <div>
-              {results.map((post, i) =>
-                <Components.RecentDiscussionThread
-                  key={post._id}
-                  post={post}
-                  postCount={i} 
-                  refetch={refetch}
-                  comments={post.recentComments}
-                  expandAllThreads={expandAll}
-                  currentUser={currentUser}
-                  updateComment={updateComment}/>
-              )}
-            </div>}
-            { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
-            { (loading || loadingMore) && <Loading />}
-          </div>
-        </SectionContent>
+        {showShortformFeed && <ShortformSubmitForm successCallback={refetch}/>}
+        <div>
+          {results && <div>
+            {results.map((post, i) =>
+              <Components.RecentDiscussionThread
+                key={post._id}
+                post={post}
+                postCount={i} 
+                refetch={refetch}
+                comments={post.recentComments}
+                expandAllThreads={expandAll}
+                currentUser={currentUser}
+                updateComment={updateComment}/>
+            )}
+          </div>}
+          { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
+          { (loading || loadingMore) && <Loading />}
+        </div>
       </SingleColumnSection>
     )
   }
