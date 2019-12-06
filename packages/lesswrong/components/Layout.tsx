@@ -73,11 +73,25 @@ const styles = createStyles(theme => ({
   },
 }))
 
-class Layout extends PureComponent {
-  // FIXME: Declaring these as "any" while working on unrelated Typescript issues, but these should be properly typed
-  props: any
-  state: any
-  searchResultsAreaRef: any
+interface LayoutProps {
+  cookies: any,
+  currentUser: any,
+  updateUser: any,
+  location: any,
+  classes: any,
+  theme: any
+  messages: any,
+  children: any,
+}
+interface LayoutState {
+  timezone: string,
+  toc: any,
+  postsRead: { [postId:string]: boolean },
+  hideNavigationSidebar: boolean,
+}
+
+class Layout extends PureComponent<LayoutProps,LayoutState> {
+  searchResultsAreaRef: React.RefObject<HTMLDivElement>
   
   constructor (props) {
     super(props);
@@ -91,7 +105,7 @@ class Layout extends PureComponent {
       hideNavigationSidebar: !!(currentUser?.hideNavigationSidebar),
     };
 
-    this.searchResultsAreaRef = React.createRef();
+    this.searchResultsAreaRef = React.createRef<HTMLDivElement>();
   }
 
   setToC = (document, sectionData) => {
