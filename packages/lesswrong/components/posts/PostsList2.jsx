@@ -132,9 +132,7 @@ const PostsList2 = ({
       {orderedResults && orderedResults.map((post, i) => {
         const props = { post, index: i, terms, showNominationCount, showReviewCount, dense, defaultToShowUnreadComments, showQuestionTag: terms.filter!=="questions" }
 
-        return (hidePosts && hidePosts[i])
-          ? <PostsItem2 key={post._id} index={i} {...props} hideOnSmallScreens />
-          : <PostsItem2 key={post._id} index={i} {...props} />
+        if (!(hidePosts && hidePosts[i])) return <PostsItem2 key={post._id} index={i} {...props} />
       })}
       {(showLoadMore || children?.length>0) && <SectionFooter>
         {(showLoadMore) &&
