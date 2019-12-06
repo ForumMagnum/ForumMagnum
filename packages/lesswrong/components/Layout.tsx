@@ -8,6 +8,7 @@ import Intercom from 'react-intercom';
 import moment from 'moment-timezone';
 import { withCookies } from 'react-cookie'
 import LogRocket from 'logrocket'
+import { Random } from 'meteor/random';
 
 import { withStyles, withTheme } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
@@ -24,7 +25,7 @@ const googleTagManagerId = getSetting('googleTagManager.apiKey')
 
 // From https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
 // Simple hash for randomly sampling users. NOT CRYPTOGRAPHIC.
-const hashCode = function(str: string): string {
+const hashCode = function(str: string): number {
   var hash = 0, i, chr;
   if (str.length === 0) return hash;
   for (i = 0; i < str.length; i++) {
@@ -39,7 +40,7 @@ const hashCode = function(str: string): string {
 //
 // Refer to routes.js for the route names. Or console log in the route you'd
 // like to include
-const standaloneNavMenuRouteNames = {
+const standaloneNavMenuRouteNames: { [forumType: string]: string[] } = {
   'LessWrong': [
     'home', 'allPosts', 'questions', 'sequencesHome', 'CommunityHome', 'Shortform', 'Codex',
     'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews'
@@ -73,6 +74,11 @@ const styles = theme => ({
 })
 
 class Layout extends PureComponent {
+  // FIXME: Declaring these as "any" while working on unrelated Typescript issues, but these should be properly typed
+  props: any
+  state: any
+  searchResultsAreaRef: any
+  
   constructor (props) {
     super(props);
     const { cookies, currentUser } = this.props;
@@ -216,7 +222,7 @@ class Layout extends PureComponent {
             <CommentBoxManager>
               <CssBaseline />
               <Helmet>
-                <link name="material-icons" rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
+                <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
                 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@7.0.0/themes/reset-min.css"/>
                 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
                 { theme.typography.fontDownloads &&
