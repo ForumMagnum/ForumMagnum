@@ -32,6 +32,7 @@
     "@material-ui/lab": "^3.0.0-alpha.30",
     "@sentry/browser": "^4.3.4",
     "@sentry/node": "^4.1.1",
+    "@types/node": "8",
     "akismet-api": "^4.2.0",
     "algoliasearch": "^3.29.0",
     "anchorate": "^1.2.3",
