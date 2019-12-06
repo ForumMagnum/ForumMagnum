@@ -17,6 +17,7 @@ import { Revisions } from '../../lib/index';
 
 registerMigration({
   name: "editableAddLatestRevisionField",
+  dateWritten: "2019-11-24",
   idempotent: true,
   action: async () => {
     for (let collectionName of editableCollections)

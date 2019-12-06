@@ -4,6 +4,7 @@ import { Localgroups } from '../../lib/collections/localgroups/collection.js';
 
 registerMigration({
   name: "setDefaultGroupActiveStatus",
+  dateWritten: "2019-09-05",
   idempotent: true,
   action: async () => {
     await fillDefaultValues({

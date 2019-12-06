@@ -34,3 +34,4 @@ import './2019-11-24-editableLatestRevision1';
 import './2019-11-25-fixLegacyJoinDates'
 import './2019-11-27-setDefaultSubscriptionTypes'
 import './2019-11-30-setDefaultEventSubscriptionType'
+import './2019-12-02-trivialMigration'

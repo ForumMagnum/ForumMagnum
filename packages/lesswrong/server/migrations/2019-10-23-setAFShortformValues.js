@@ -7,6 +7,7 @@ import Users from 'meteor/vulcan:users';
 
 registerMigration({
   name: "setAfShortformValues",
+  dateWritten: "2019-10-23",
   idempotent: true,
   action: async () => {
     const afUsers = await Users.find({groups: "alignmentForum"}).fetch()

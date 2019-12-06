@@ -4,6 +4,7 @@ import { ReadStatuses } from '../../lib/collections/readStatus/collection.js'
 
 registerMigration({
   name: "denormalizeReadStatus",
+  dateWritten: "2019-05-09",
   idempotent: true,
   action: async () => {
     await forEachDocumentBatchInCollection({

@@ -292,6 +292,8 @@ importComponent("UsersSearchInput", () => require('../components/search/UsersSea
 importComponent("SearchBarResults", () => require('../components/search/SearchBarResults.jsx'));
 importComponent("SearchPagination", () => require('../components/search/SearchPagination.jsx'));
 
+importComponent("MigrationsDashboard", () => require('../components/admin/migrations/MigrationsDashboard.jsx'));
+importComponent("MigrationsDashboardRow", () => require('../components/admin/migrations/MigrationsDashboardRow.jsx'));
 importComponent("AdminHome", () => require('../components/sunshineDashboard/AdminHome.jsx'));
 importComponent("AdminMetadata", () => require('../components/sunshineDashboard/AdminMetadata.jsx'));
 importComponent("ModerationLog", () => require('../components/sunshineDashboard/ModerationLog.jsx'));

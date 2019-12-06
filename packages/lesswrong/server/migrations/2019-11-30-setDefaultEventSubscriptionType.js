@@ -5,6 +5,7 @@ import Users from 'meteor/vulcan:users';
 
 registerMigration({
   name: "setDefaultEventSubscriptionType",
+  dateWritten: "2019-11-30",
   idempotent: true,
   action: async () => {
     await fillDefaultValues({

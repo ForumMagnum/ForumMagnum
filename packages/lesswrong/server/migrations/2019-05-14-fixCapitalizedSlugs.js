@@ -4,6 +4,7 @@ import { registerMigration, migrateDocuments } from './migrationUtils';
 
 registerMigration({
   name: "fixCapitalizedSlugs",
+  dateWritten: "2019-05-14",
   idempotent: true,
   action: async () => await migrateDocuments({
     description: `lowercase slugs`,
