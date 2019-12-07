@@ -159,7 +159,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     if (logRocketKey) {
       // If the user is logged in, always log their sessions
       if (currentUser) {
-        LogRocket.init()
+        LogRocket.init(logRocketKey)
         return
       }
 
@@ -167,7 +167,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       const clientId = this.getUniqueClientId()
       const hash = hashCode(clientId)
       if (hash % getSetting('logRocket.sampleDensity') === 0) {
-        LogRocket.init(getSetting('logRocket.apiKey'))
+        LogRocket.init(logRocketKey)
       }
     }
   }
