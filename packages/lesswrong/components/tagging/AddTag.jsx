@@ -59,6 +59,18 @@ const AddTag = ({post, onTagSelected, classes}) => {
     }
   }, []);
   
+  if (!algoliaAppId || !algoliaSearchKey) {
+    return <div className={classes.root} ref={containerRef}>
+      <input placeholder="Tag ID" type="text" onKeyPress={ev => {
+        if (ev.charCode===13) {
+          const id = ev.target.value;
+          onTagSelected(id);
+          ev.preventDefault();
+        }
+      }}/>
+    </div>
+  }
+  
   return <div className={classes.root} ref={containerRef}>
     <InstantSearch
       indexName={algoliaIndexNames.Tags}
@@ -71,7 +83,7 @@ const AddTag = ({post, onTagSelected, classes}) => {
       {searchOpen && <Hits hitComponent={({hit}) =>
         <Components.TagSearchHit hit={hit}
           onClick={ev => {
-            onTagSelected(hit);
+            onTagSelected(hit._id);
             ev.stopPropagation();
           }}
         />

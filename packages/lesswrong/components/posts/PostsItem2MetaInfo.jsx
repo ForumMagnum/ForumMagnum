@@ -11,13 +11,13 @@ const styles = theme => ({
     textAlign: "center",
     flexShrink: 0,
     flexGrow: 0,
-  },
+  }
 });
 
-const PostsItem2MetaInfo = ({children, className, classes}) => {
+const PostsItem2MetaInfo = ({children, className, classes, read}) => {
   return <Typography
     component='span'
-    className={classNames(classes.metaInfo, className)}
+    className={classNames(classes.metaInfo, {[classes.read]: read}, className)}
     variant='body2'>
       {children}
   </Typography>
