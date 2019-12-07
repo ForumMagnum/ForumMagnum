@@ -14,6 +14,7 @@ import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
+import { userHasBoldPostItems } from '../../lib/betas.js';
 
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
@@ -420,7 +421,7 @@ const PostsItem2 = ({
             [classes.dense]: dense,
             [classes.withRelevanceVoting]: !!tagRel
           })}>
-            <PostsItem2MetaInfo className={classNames(classes.karma, {[classes.karmaUnread]: !isRead})}>
+            <PostsItem2MetaInfo className={classNames(classes.karma, {[classes.karmaUnread]: !isRead && userHasBoldPostItems(currentUser)})}>
               <PostsItemKarma post={post} read={isRead}/>
             </PostsItem2MetaInfo>
 
@@ -464,7 +465,7 @@ const PostsItem2 = ({
             </div>}
 
             {showIcons && <Hidden mdUp implementation="css">
-              <PostsItemIcons post={post} read={isRead}/>
+              <PostsItemIcons post={post}/>
             </Hidden>}
 
             {!resumeReading && <div className={classes.commentsIcon}>

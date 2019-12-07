@@ -6,6 +6,7 @@ import withUser from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { Posts } from '../../lib/collections/posts';
+import { userHasBoldPostItems } from '../../lib/betas.js';
 
 const styles = theme => ({
   root: {
@@ -21,7 +22,6 @@ const styles = theme => ({
     whiteSpace: "nowrap",
     alignItems: "center",
     fontSize: "1.3rem",
-    fontWeight: 600,
     [theme.breakpoints.down('sm')]: {
       whiteSpace: "unset",
       lineHeight: "1.8rem",
@@ -39,8 +39,19 @@ const styles = theme => ({
   },
   read: {
     color: "rgba(0,0,0,.75)",
+    opacity: .6,
+    '&:hover': {
+      opacity: 1
+    }
+  },
+  adminUnread: {
+    fontWeight: 600,
+    color: "rgba(0,0,0,.92)"
+  },
+  adminRead: {
     fontWeight: 500,
-    textShadow: "none"
+    opacity: 1,
+    color: "rgba(0,0,0,.8)"
   },
   hideSmDown: {
     [theme.breakpoints.down('sm')]: {
@@ -75,6 +86,8 @@ const PostsTitle = ({currentUser, post, postLink, classes, sticky, read, showQue
     {
       [classes.read]: read,
       [classes.wrap]: wrap,
+      [classes.adminUnread]: !read && userHasBoldPostItems(currentUser),
+      [classes.adminRead]: read && userHasBoldPostItems(currentUser),
     }
   )}>
     {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
@@ -92,7 +105,7 @@ const PostsTitle = ({currentUser, post, postLink, classes, sticky, read, showQue
     <span>{post.title}</span>
 
     {showIcons && <span className={classes.hideSmDown}>
-      <PostsItemIcons post={post} read={read}/>
+      <PostsItemIcons post={post}/>
     </span>}
   </Link>
 }
