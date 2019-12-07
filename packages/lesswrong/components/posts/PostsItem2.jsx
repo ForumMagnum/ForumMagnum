@@ -86,6 +86,10 @@ export const styles = (theme) => ({
       marginRight: theme.spacing.unit
     }
   },
+  karmaUnread: {
+    fontWeight: 600,
+    color: 'rgba(0,0,0,.87) !important'
+  },
   title: {
     minHeight: 26,
     flexGrow: 1,
@@ -416,8 +420,8 @@ const PostsItem2 = ({
             [classes.dense]: dense,
             [classes.withRelevanceVoting]: !!tagRel
           })}>
-            <PostsItem2MetaInfo className={classes.karma}>
-              <PostsItemKarma post={post} />
+            <PostsItem2MetaInfo className={classNames(classes.karma, {[classes.karmaUnread]: !isRead})}>
+              <PostsItemKarma post={post} read={isRead}/>
             </PostsItem2MetaInfo>
 
             <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: (!!resumeReading || showNominationCount)})}>
@@ -451,7 +455,7 @@ const PostsItem2 = ({
               <EventVicinity post={post} />
             </PostsItem2MetaInfo>}
 
-            {showPostedAt && !resumeReading && <PostsItemDate post={post}/>}
+            {showPostedAt && !resumeReading && <PostsItemDate post={post} />}
 
             <div className={classes.mobileSecondRowSpacer}/>
 
@@ -460,7 +464,7 @@ const PostsItem2 = ({
             </div>}
 
             {showIcons && <Hidden mdUp implementation="css">
-              <PostsItemIcons post={post}/>
+              <PostsItemIcons post={post} read={isRead}/>
             </Hidden>}
 
             {!resumeReading && <div className={classes.commentsIcon}>

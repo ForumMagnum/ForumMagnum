@@ -8,7 +8,7 @@ const styles = (theme) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    color: theme.palette.grey[700],
+    color: theme.palette.grey[900],
     display: "inline-block",
     marginBottom: theme.spacing.unit/2
   }

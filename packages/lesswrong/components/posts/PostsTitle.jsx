@@ -21,6 +21,7 @@ const styles = theme => ({
     whiteSpace: "nowrap",
     alignItems: "center",
     fontSize: "1.3rem",
+    fontWeight: 600,
     [theme.breakpoints.down('sm')]: {
       whiteSpace: "unset",
       lineHeight: "1.8rem",
@@ -37,11 +38,9 @@ const styles = theme => ({
     top: 2
   },
   read: {
-    opacity: .6,
-    textShadow: "none",
-    '&:hover': {
-      opacity: 1
-    }
+    color: "rgba(0,0,0,.75)",
+    fontWeight: 500,
+    textShadow: "none"
   },
   hideSmDown: {
     [theme.breakpoints.down('sm')]: {
@@ -93,7 +92,7 @@ const PostsTitle = ({currentUser, post, postLink, classes, sticky, read, showQue
     <span>{post.title}</span>
 
     {showIcons && <span className={classes.hideSmDown}>
-      <PostsItemIcons post={post}/>
+      <PostsItemIcons post={post} read={read}/>
     </span>}
   </Link>
 }
