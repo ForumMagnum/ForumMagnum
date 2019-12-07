@@ -5,7 +5,9 @@
     "noImplicitThis": false,
     "strictNullChecks": true,
     "jsx": "react",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "moduleResolution": "node"
   },
   "include": [
     "packages/lesswrong/**/*.ts",
