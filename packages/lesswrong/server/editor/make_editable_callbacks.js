@@ -24,28 +24,22 @@ mdi.use(markdownItFootnote)
 
 import { mjpage }  from 'mathjax-node-page'
 
-
+const mjPageSettings = {
+  fragment: true, 
+  displayErrors: true,
+}
 
 function mjPagePromise(html, beforeSerializationCallback) {
-  let finished = false;
-  
-  setTimeout(() => {
-    if (!finished) {
-      const errorMessage = `Timed out in mjpage when processing html: ${html}`;
-      Sentry.captureException(new Error(errorMessage));
-      //eslint-disable-next-line no-console
-      console.error(errorMessage);
-    }
-  }, 10000);
-  
   // Takes in HTML and replaces LaTeX with CommonHTML snippets
   // https://github.com/pkra/mathjax-node-page
   return new Promise((resolve, reject) => {
-    const resolveAndMarkFinished = (result) => {
-      finished = true;
-      resolve(result);
+    const errorHandler = (id, wrapperNode, sourceFormula, sourceFormat, errors) => {
+      // eslint-disable-next-line no-console
+      console.log("Error in Mathjax handling: ", id, wrapperNode, sourceFormula, sourceFormat, errors)
+      reject(`Error in $${sourceFormula}$: ${errors}`)
     }
-    mjpage(html, {}, {html: true, css: true}, resolveAndMarkFinished)
+    
+    mjpage(html, { mjPageSettings, errorHandler} , {html: true, css: true}, resolve)
       .on('beforeSerialization', beforeSerializationCallback);
   })
 }
