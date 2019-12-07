@@ -282,6 +282,7 @@ importComponent("ShowParentComment", () => require('../components/comments/ShowP
 
 importComponent("PostsListEditorSearchHit", () => require('../components/search/PostsListEditorSearchHit.jsx'));
 importComponent("PostsSearchHit", () => require('../components/search/PostsSearchHit.jsx'));
+importComponent("SearchAutoComplete", () => require('../components/search/SearchAutoComplete.jsx'));
 importComponent("PostsSearchAutoComplete", () => require('../components/search/PostsSearchAutoComplete.jsx'));
 importComponent("CommentsSearchHit", () => require('../components/search/CommentsSearchHit.jsx'));
 importComponent("UsersSearchHit", () => require('../components/search/UsersSearchHit.jsx'));
