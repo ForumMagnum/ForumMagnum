@@ -5,7 +5,7 @@
     "npm": "^3.0"
   },
   "scripts": {
-    "checktypes": "tsc --noEmit",
+    "checktypes": "tsc --noEmit --skipLibCheck",
     "prestart": "bash prestart_lesswrong.sh",
     "start": "meteor --settings settings-dev.json",
     "start-prod-db": "../LessWrong-Credentials/run-local-dev-proddb.sh",
@@ -27,7 +27,7 @@
     "@ckeditor/ckeditor5-react": "^1.1.3",
     "@google/maps": "^0.5.5",
     "@lesswrong/lesswrong-editor": "./public/lesswrong-editor",
-    "@material-ui/core": "3.1.2",
+    "@material-ui/core": "^3.9.2",
     "@material-ui/icons": "^3.0.0",
     "@material-ui/lab": "^3.0.0-alpha.30",
     "@sentry/browser": "^4.3.4",
