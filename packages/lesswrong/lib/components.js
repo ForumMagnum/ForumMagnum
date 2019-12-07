@@ -68,6 +68,7 @@ importComponent("DialogGroup", () => require('../components/common/DialogGroup.j
 importComponent("Divider", () => require('../components/common/Divider.jsx'));
 importComponent("HoverOver", () => require('../components/common/HoverOver.jsx'));
 importComponent("ErrorBoundary", () => require('../components/common/ErrorBoundary.jsx'));
+importComponent("ErrorMessage", () => require('../components/common/ErrorMessage.jsx'));
 importComponent("CloudinaryImage", () => require('../components/common/CloudinaryImage.jsx'));
 importComponent("ContentItemBody", () => require('../components/common/ContentItemBody.jsx'));
 importComponent("LWPopper", () => require('../components/common/LWPopper.jsx'));
