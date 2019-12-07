@@ -25,14 +25,9 @@ const styles = theme => ({
     // not sure if this is best way to do this
     '&&': {
       fontSize: "1.2rem",
-      color: theme.palette.grey[700],
+      color: theme.palette.grey[500],
       position: "relative",
       top: 3,
-    }
-  },
-  read: {
-    '&&&': {
-      color: theme.palette.grey[400],
     }
   },
   alignmentIcon: {
@@ -42,7 +37,7 @@ const styles = theme => ({
   },
 });
 
-const PostsItemIcons = ({post, classes, read}) => {
+const PostsItemIcons = ({post, classes}) => {
   const { OmegaIcon } = Components;
 
   const isPersonalBlogpost = getSetting('forumType') === 'EAForum' ?
@@ -52,13 +47,13 @@ const PostsItemIcons = ({post, classes, read}) => {
   return <span className={classes.iconSet}>
     {post.curatedDate && <span className={classes.postIcon}>
       <Tooltip title="Curated Post" placement="right">
-        <StarIcon className={classNames(classes.icon, {[classes.read]:read})}/>
+        <StarIcon className={classes.icon}/>
       </Tooltip>
     </span>}
 
     {isPersonalBlogpost && <span className={classes.postIcon}>
       <Tooltip title="Personal Blogpost" placement="right">
-        <PersonIcon className={classNames(classes.icon, {[classes.read]:read})}/>
+        <PersonIcon className={classes.icon}/>
       </Tooltip>
     </span>}
 
@@ -71,7 +66,7 @@ const PostsItemIcons = ({post, classes, read}) => {
     {getSetting('forumType') !== 'AlignmentForum' && post.af &&
       <span className={classes.postIcon}>
         <Tooltip title="Crossposted from AlignmentForum.org" placement="right">
-          <span><OmegaIcon className={classNames(classes.icon, classes.alignmentIcon, {[classes.read]: read})}/></span>
+          <span><OmegaIcon className={classNames(classes.icon, classes.alignmentIcon)}/></span>
         </Tooltip>
       </span>
     }
