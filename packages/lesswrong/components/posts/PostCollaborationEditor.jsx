@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil.js';
 import CKPostEditor from '../async/CKPostEditor';
-import { editorStyles, postBodyStyles } from '../../themes/stylePiping'
+import { editorStyles, postBodyStyles } from '../../lib/themes/stylePiping'
 
 const styles = theme => ({
   title: {

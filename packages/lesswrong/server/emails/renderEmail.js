@@ -15,7 +15,7 @@ import moment from 'moment-timezone';
 import LWEvents from '../../lib/collections/lwevents/collection'
 import StyleValidator from '../vendor/react-html-email/src/StyleValidator.js';
 
-import forumTheme from '../../themes/forumTheme'
+import forumTheme from '../../lib/themes/forumTheme'
 
 // How many characters to wrap the plain-text version of the email to
 const plainTextWordWrap = 80;

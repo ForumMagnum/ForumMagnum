@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
-import theme from '../../themes/eaTheme';
+import theme from '../../lib/themes/eaTheme';
 
 const styles = () => ({
   root: {

@@ -2,7 +2,7 @@ import { Components, registerComponent, withMulti } from 'meteor/vulcan:core';
 import React from 'react';
 import { Posts } from '../../lib/collections/posts';
 import { withStyles } from '@material-ui/core/styles'
-import { postHighlightStyles } from '../../themes/stylePiping'
+import { postHighlightStyles } from '../../lib/themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper.js'
 
 const styles = theme => ({

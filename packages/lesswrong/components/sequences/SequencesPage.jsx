@@ -11,7 +11,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
-import { postBodyStyles } from '../../themes/stylePiping'
+import { postBodyStyles } from '../../lib/themes/stylePiping'
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 
 export const sequencesImageScrim = theme => ({

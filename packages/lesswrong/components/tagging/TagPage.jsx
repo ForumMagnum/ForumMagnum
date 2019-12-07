@@ -7,7 +7,7 @@ import Users from 'meteor/vulcan:users';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { useCurrentUser } from '../common/withUser.js';
 import { withStyles } from '@material-ui/core/styles';
-import { postBodyStyles } from '../../themes/stylePiping'
+import { postBodyStyles } from '../../lib/themes/stylePiping'
 
 const styles = theme => ({
   description: {

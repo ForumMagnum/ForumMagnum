@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
-import { postBodyStyles } from '../../themes/stylePiping'
+import { postBodyStyles } from '../../lib/themes/stylePiping'
 
 const styles = theme => ({
   root: {

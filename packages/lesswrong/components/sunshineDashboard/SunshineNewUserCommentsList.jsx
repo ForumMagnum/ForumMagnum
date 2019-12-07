@@ -3,7 +3,7 @@ import React from 'react';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles'
-import { commentBodyStyles } from '../../themes/stylePiping'
+import { commentBodyStyles } from '../../lib/themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper.js'
 
 const styles = theme => ({

@@ -12,7 +12,7 @@ import withRecordPostView from '../common/withRecordPostView';
 
 import { withStyles } from '@material-ui/core/styles';
 import { postExcerptFromHTML } from '../../lib/editor/ellipsize'
-import { postHighlightStyles } from '../../themes/stylePiping'
+import { postHighlightStyles } from '../../lib/themes/stylePiping'
 import { userHasBoldPostItems } from '../../lib/betas.js';
 
 const styles = theme => ({

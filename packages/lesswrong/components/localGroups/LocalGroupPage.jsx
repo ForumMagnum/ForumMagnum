@@ -7,7 +7,7 @@ import { withLocation } from '../../lib/routeUtil';
 import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
-import { postBodyStyles } from '../../themes/stylePiping'
+import { postBodyStyles } from '../../lib/themes/stylePiping'
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import qs from 'qs'
 

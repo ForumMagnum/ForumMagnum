@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';
-import { editorStyles, postBodyStyles, postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
+import { editorStyles, postBodyStyles, postHighlightStyles, commentBodyStyles } from '../../lib/themes/stylePiping'
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import classNames from 'classnames';

@@ -1,7 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { commentBodyStyles, postHighlightStyles } from '../../../themes/stylePiping'
+import { commentBodyStyles, postHighlightStyles } from '../../../lib/themes/stylePiping'
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'

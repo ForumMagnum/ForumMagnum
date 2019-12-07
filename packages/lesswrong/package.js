@@ -25,8 +25,8 @@ Package.onUse( function(api) {
     'vulcan:users',
   ]);
 
-  api.mainModule('client.js', 'client');
-  api.mainModule('server.js', 'server');
+  api.mainModule('client/client.js', 'client');
+  api.mainModule('server/server.js', 'server');
 
   api.addFiles([
     'styles/main.scss',

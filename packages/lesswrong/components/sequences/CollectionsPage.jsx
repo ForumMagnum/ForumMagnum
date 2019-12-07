@@ -7,7 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper.js';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import { postBodyStyles } from '../../themes/stylePiping'
+import { postBodyStyles } from '../../lib/themes/stylePiping'
 
 const styles = theme => ({
   root: {

@@ -1,7 +1,7 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { commentBodyStyles, postBodyStyles } from '../../themes/stylePiping'
+import { commentBodyStyles, postBodyStyles } from '../../lib/themes/stylePiping'
 import withHover from '../common/withHover';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';

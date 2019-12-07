@@ -19,7 +19,7 @@ import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './common/withCommentBox';
 import { TableOfContentsContext } from './posts/TableOfContents/TableOfContents';
 import { PostsReadContext } from './common/withRecordPostView';
-import { pBodyStyle } from '../themes/stylePiping';
+import { pBodyStyle } from '../lib/themes/stylePiping';
 const intercomAppId = getSetting('intercomAppId', 'wtb8z7sj');
 const googleTagManagerId = getSetting('googleTagManager.apiKey')
 

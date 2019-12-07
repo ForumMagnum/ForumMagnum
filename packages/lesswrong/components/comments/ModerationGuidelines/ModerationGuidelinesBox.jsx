@@ -10,7 +10,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { useDialog } from '../../common/withDialog'
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
-import { commentBodyStyles } from '../../../themes/stylePiping'
+import { commentBodyStyles } from '../../../lib/themes/stylePiping'
 
 const styles = theme => ({
   root: {

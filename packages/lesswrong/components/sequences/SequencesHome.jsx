@@ -3,7 +3,7 @@ import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 import Typography from '@material-ui/core/Typography';
-import { postBodyStyles } from '../../themes/stylePiping';
+import { postBodyStyles } from '../../lib/themes/stylePiping';
 
 const styles = theme => ({
   root: {

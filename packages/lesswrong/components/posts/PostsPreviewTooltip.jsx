@@ -3,7 +3,7 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles'
 import { truncate } from '../../lib/editor/ellipsize';
 import withUser from "../common/withUser";
-import { postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
+import { postHighlightStyles, commentBodyStyles } from '../../lib/themes/stylePiping'
 import { Posts } from '../../lib/collections/posts';
 import CommentIcon from '@material-ui/icons/ModeComment';
 import Card from '@material-ui/core/Card';

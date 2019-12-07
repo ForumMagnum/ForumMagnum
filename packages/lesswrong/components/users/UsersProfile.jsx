@@ -12,7 +12,7 @@ import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
-import { postBodyStyles } from '../../themes/stylePiping'
+import { postBodyStyles } from '../../lib/themes/stylePiping'
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
