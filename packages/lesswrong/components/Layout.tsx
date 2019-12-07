@@ -40,7 +40,7 @@ const hashCode = function(str: string): number {
 //
 // Refer to routes.js for the route names. Or console log in the route you'd
 // like to include
-const standaloneNavMenuRouteNames: { [forumType: string]: string[] } = {
+const standaloneNavMenuRouteNames: Record<string,string[]> = {
   'LessWrong': [
     'home', 'allPosts', 'questions', 'sequencesHome', 'CommunityHome', 'Shortform', 'Codex',
     'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews'
@@ -86,7 +86,7 @@ interface LayoutProps {
 interface LayoutState {
   timezone: string,
   toc: any,
-  postsRead: { [postId:string]: boolean },
+  postsRead: Record<string,boolean>,
   hideNavigationSidebar: boolean,
 }
 
