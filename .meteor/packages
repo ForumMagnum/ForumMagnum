@@ -6,29 +6,16 @@
 # the queries going by to look for N+1 selects or similar problems.
 #matb33:collection-hooks
 
-############ Core Packages ############
+############ Vulcan Packages ############
 
 vulcan:core                       # core components and wrappers
 vulcan:forms                      # auto-generated forms
 vulcan:users                      # user management and permissions
-
-############ Features Packages ############
-
 vulcan:admin
-# vulcan:newsletter
 vulcan:events
-# vulcan:subscribe
 vulcan:accounts
-
-############ Theme Packages ############
-
-# vulcan:base-styles            # default styling
 vulcan:ui-bootstrap
-
-############ Language Packages ############
-
 vulcan:i18n-en-us
-# vulcan:i18n-es-es
 
 ############ Accounts Packages ############
 
@@ -40,27 +27,12 @@ accounts-github@1.4.2
 
 ############ Your Packages ############
 
-#tutorial-step-1 - You can follow along with the video here: http://docs.vulcanjs.org/example-simple.html
-# This is where you enable packages.
-
-# example-simple
-# example-movies
-# example-instagram
-
-# example-customization
-# example-permissions
-# example-membership
-# example-interfaces
-# example-reactions
-
-# vulcan:debug
-
-lesswrong
-# webtoken-session
-# internal-graphql
 es5-shim@4.8.0
 meteortesting:mocha
 zodern:standard-minifier-js
 
+ecmascript
 typescript
+fourseven:scss
+practicalmeteor:sinon
 

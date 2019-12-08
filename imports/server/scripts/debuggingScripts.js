@@ -1,7 +1,7 @@
 /* global Vulcan */
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
-import { createDummyMessage, createDummyConversation, createDummyPost, createDummyComment } from '../../testing/utils.js';
+import { createDummyMessage, createDummyConversation, createDummyPost, createDummyComment } from '../createDummyData.js';
 import { performSubscriptionAction } from '../../lib/collections/subscriptions/mutations.js';
 import moment from 'moment';
 
