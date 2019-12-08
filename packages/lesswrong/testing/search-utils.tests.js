@@ -1,5 +1,5 @@
 import { chai } from 'meteor/practicalmeteor:chai';
-import { subBatchArray } from './utils'
+import { subBatchArray } from '../server/search/utils'
 
 chai.should();
 

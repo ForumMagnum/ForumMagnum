@@ -1,6 +1,6 @@
 import { convertFromRaw } from 'draft-js';
-import { draftToHTML } from '../../server/draftConvert'
-import { htmlToDraftServer } from '../collections/revisions/resolvers'
+import { draftToHTML } from '../server/draftConvert'
+import { htmlToDraftServer } from '../lib/collections/revisions/resolvers'
 
 describe("draftToHtml", () => {
   it('correctly translates bold and italic and bold-italic', () => {

@@ -2,10 +2,10 @@ import React from 'react';
 import { withDocument, useSingle } from 'meteor/vulcan:core';
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
-import { createDummyUser, createDummyPost } from '../../testing/utils.js'
-import { emailDoctype, generateEmail } from './renderEmail';
+import { createDummyUser, createDummyPost } from './utils.js'
+import { emailDoctype, generateEmail } from '../server/emails/renderEmail';
 import { withStyles } from '@material-ui/core/styles';
-import { Posts } from '../../lib/collections/posts';
+import { Posts } from '../lib/collections/posts';
 
 chai.should();
 chai.use(chaiAsPromised);
