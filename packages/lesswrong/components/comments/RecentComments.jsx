@@ -7,7 +7,10 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme =>  ({
   root: {
-    margin: theme.spacing.unit*2,
+    marginTop: theme.spacing.unit*2,
+    [theme.breakpoints.up('sm')]: {
+      margin: theme.spacing.unit*2,
+    }
   }
 })
 
