@@ -2,10 +2,10 @@ import React from 'react';
 import Users from 'meteor/vulcan:users'
 import { Utils } from 'meteor/vulcan:core'
 import { ContentType } from '../collections/revisions/schema'
-import { accessFilterMultiple, addFieldsDict } from '../modules/utils/schemaUtils.js';
+import { addFieldsDict } from '../modules/utils/schemaUtils.js';
 import SimpleSchema from 'simpl-schema'
 
-const RevisionStorageType = new SimpleSchema({
+export const RevisionStorageType = new SimpleSchema({
   originalContents: {type: ContentType, optional: true},
   userId: {type: String, optional: true},
   html: {type: String, optional: true, denormalized: true},
@@ -80,28 +80,6 @@ export const makeEditable = ({collection, options = {}}) => {
       ...permissions,
       order,
       control: 'EditorFormComponent',
-      resolveAs: {
-        type: 'Revision',
-        arguments: 'version: String',
-        resolver: async (doc, { version }, { currentUser, Revisions }) => {
-          const field = fieldName || "contents"
-          const { checkAccess } = Revisions
-          if (version) {
-            const revision = await Revisions.findOne({documentId: doc._id, version, fieldName: field})
-            return checkAccess(currentUser, revision) ? revision : null
-          }
-          return {
-            editedAt: (doc[field]?.editedAt) || new Date(),
-            userId: doc[field]?.userId,
-            originalContentsType: (doc[field]?.originalContentsType) || "html",
-            originalContents: (doc[field]?.originalContents) || {},
-            html: doc[field]?.html,
-            updateType: doc[field]?.updateType,
-            version: doc[field]?.version,
-            wordCount: doc[field]?.wordCount,
-          }
-        }
-      },
       form: {
         hintText: hintText,
         multiLine:true,
@@ -119,27 +97,12 @@ export const makeEditable = ({collection, options = {}}) => {
       type: Object,
       viewableBy: ['guests'],
       optional: true,
-      resolveAs: {
-        type: '[Revision]',
-        arguments: 'limit: Int = 5',
-        resolver: async (post, { limit }, { currentUser, Revisions }) => {
-          const field = fieldName || "contents"
-          const resolvedDocs = await Revisions.find({documentId: post._id, fieldName: field}, {sort: {editedAt: -1}, limit}).fetch()
-          return accessFilterMultiple(currentUser, Revisions, resolvedDocs);
-        }
-      }
     },
     
     [Utils.camelCaseify(`${fieldName}Version`)]: {
       type: String,
       viewableBy: ['guests'],
       optional: true,
-      resolveAs: {
-        type: 'String',
-        resolver: (post) => {
-          return post[fieldName || "contents"]?.version
-        }
-      }
     }
   });
   
