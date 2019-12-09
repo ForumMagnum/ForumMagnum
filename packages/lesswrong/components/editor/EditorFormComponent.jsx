@@ -163,22 +163,15 @@ class EditorFormComponent extends Component {
       this.ckEditor = Editor
       this.setState({ckEditorLoaded: true})
     }
+    
+    if (Meteor.isClient) {
+      this.restoreFromLocalStorage();
+    }
   }
 
   getEditorStatesFromType = (editorType, contents) => {
     const { document, fieldName, value } = this.props
     const { editorOverride } = this.state || {} // Provide default value, since we can call this before state is initialized
-
-    const savedState = this.getEditorStatesFromLocalStorage(editorType);
-    if (savedState) {
-      return {
-        draftJSValue:  null,
-        markdownValue: null,
-        htmlValue:     null,
-        ckEditorValue: null,
-        ...savedState,
-      };
-    }
     
     // if contents are manually specified, use those:
     const newValue = contents || value
@@ -230,7 +223,19 @@ class EditorFormComponent extends Component {
       }
       return null;
     } else {
-      return savedState;
+      return {
+        draftJSValue:  editorType === "draftJS"        ? savedState : null,
+        markdownValue: editorType === "markdown"       ? savedState : null,
+        htmlValue:     editorType === "html"           ? savedState : null,
+        ckEditorValue: editorType === "ckEditorMarkup" ? savedState : null
+      }
+    }
+  }
+  
+  restoreFromLocalStorage = () => {
+    const savedState = this.getEditorStatesFromLocalStorage(this.getCurrentEditorType());
+    if (savedState) {
+      this.setState(savedState);
     }
   }
   
@@ -318,6 +323,8 @@ class EditorFormComponent extends Component {
       editorOverride: targetEditorType,
       ...this.getEditorStatesFromType(targetEditorType)
     })
+    
+    this.restoreFromLocalStorage();
   }
 
   setDraftJS = (value) => { // Takes in an editorstate
