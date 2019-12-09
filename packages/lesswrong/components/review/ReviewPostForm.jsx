@@ -73,7 +73,7 @@ const styles = (theme) => ({
   },
   moderatorsNote: {
     fontStyle: "italic",
-    marginTop: 4,
+    marginTop: theme.spacing.unit,
   }
 })
 
