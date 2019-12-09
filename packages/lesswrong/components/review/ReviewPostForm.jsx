@@ -91,20 +91,11 @@ const ReviewPostForm = ({classes, post, onClose}) => {
         {showPrompt && <div>
           Reviews should provide information that help evaluate a post 
           <ul>
-            <li>Is this post epistemically sound?
-              <ul>
-                <li>Does it make accurate claims? Does it carve reality at the joints? How do you know?</li>
-              </ul>
-            </li>
-            <li>
-              Has this post proved valuable? How? (be as comprehensive as possible)
-            </li>
-            <li>
-              How could this post be improved?
-            </li>
-            <li>
-              What followup work would you like to see building on this post?
-            </li>
+            <li>What does this post add to the conversation?</li>
+            <li>How did this post affect you, your thinking, and your actions?</li>
+            <li>Does it make accurate claims? Does it carve reality at the joints? How do you know?</li>
+            <li>Is there a subclaim of this post that you can test?</li>
+            <li>What followup work would you like to see building on this post?</li>
           </ul>
           <div className={classes.moderatorsNote}>Moderators may promote comprehensive reviews to top-level posts.</div>
           <a className={classes.hidePrompt} onClick={() => setShowPrompt(false)}>(click to hide)</a>
