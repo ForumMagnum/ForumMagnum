@@ -841,14 +841,17 @@ ensureIndex(Posts,
 );
 
 Posts.addView("reviews2018", terms => {
+  let sortBy = {}
+  if (terms.sortBy === "fewestReviews") sortBy = {reviewCount2018: 1}
+  if (terms.sortBy === "mostReviews") sortBy = {reviewCount2018: -1}
+  if (terms.sortBy === "lastCommentedAt") sortBy = {lastCommentedAt: -1}
+
   return {
     selector: {
       nominationCount2018: { $gte: 2 }
     },
     options: {
-      sort: {
-        lastCommentedAt: -1
-      }
+      sort: { ...sortBy, nominationCount2018: -1 }
     }
   }
 })

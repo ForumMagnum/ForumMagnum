@@ -320,24 +320,30 @@ Comments.addView('shortformLatestChildren', function (terms) {
 ensureIndex(Comments, { topLevelCommentId: 1, postedAt: 1, baseScore:1});
 
 // 
-Comments.addView('nominations2018', function ({userId, postId}) {
+Comments.addView('nominations2018', function ({userId, postId, sortBy="baseScore"}) {
   return {
     selector: { 
       userId, 
       postId, 
       nominatedForReview: "2018"
     },
+    options: {
+      sort: { [sortBy]:-1 }
+    }
   };
 });
 ensureIndex(Comments, { userId:1, postId: 1, nominatedForReview: 1});
 
-Comments.addView('reviews2018', function ({userId, postId}) {
+Comments.addView('reviews2018', function ({userId, postId, sortBy="baseScore"}) {
   return {
     selector: { 
       userId, 
       postId, 
       reviewingForReview: "2018"
     },
+    options: {
+      sort: { [sortBy]:-1 }
+    }
   };
 });
 ensureIndex(Comments, { userId:1, postId: 1, reviewingForReview: 1});
