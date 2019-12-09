@@ -858,6 +858,7 @@ Posts.addView("reviews2018", terms => {
   }
 })
 ensureIndex(Posts,
-  augmentForDefaultView({ nominationCount2018:1, reviewCount2018: 1, lastCommentedAt: -1 }),
+  // We're filtering on nominationCount greater than 2, so do not need additional indexes
+  augmentForDefaultView({ nominationCount2018:1 }),
   { name: "posts.nominations2018", }
 );

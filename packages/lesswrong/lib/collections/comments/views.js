@@ -353,4 +353,5 @@ Comments.addView('reviews2018', function ({userId, postId, sortBy="top"}) {
     }
   };
 });
-ensureIndex(Comments, { userId:1, postId: 1, reviewingForReview: 1, baseScore: 1, postedAt: -1});
+// Filtering comments down to ones that include "reviewing for review" so further sort indexes not necessary
+ensureIndex(Comments, { userId:1, postId: 1, reviewingForReview: 1 });
