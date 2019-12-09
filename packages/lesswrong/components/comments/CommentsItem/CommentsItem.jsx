@@ -257,7 +257,7 @@ class CommentsItem extends Component {
               <Components.CommentOutdatedWarning comment={comment} post={post} />
             </span>
             {comment.nominatedForReview && <Link to={"/nominations"} className={classes.nomination}>
-              {`Nomination for ${comment.nominatedForReview} Review`}
+              {`Nomination for ${comment.nominatedForReview}`}
             </Link>}
             {comment.reviewingForReview && <Link to={"/reviews"} className={classes.nomination}>
             {`Review for ${comment.reviewingForReview}`}

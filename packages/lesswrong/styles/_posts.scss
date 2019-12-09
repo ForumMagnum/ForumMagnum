@@ -49,19 +49,6 @@
   margin-bottom: $vmargin * 2;
 }
 
-.posts-search-auto-complete {
-  li {
-    list-style: none;
-  }
-  .react-autosuggest__suggestion--highlighted {
-      background-color: rgba(0,0,0,0.05);
-  }
-  ul {
-    margin-left: 0px;
-    padding-left: 0px;
-  }
-}
-
 svg.drag-handle {
     pointer-events: none;
     position: absolute;
