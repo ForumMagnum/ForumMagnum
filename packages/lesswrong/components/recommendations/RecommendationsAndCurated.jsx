@@ -70,7 +70,7 @@ class RecommendationsAndCurated extends PureComponent {
   render() {
     const { continueReading, classes, currentUser } = this.props;
     const { showSettings } = this.state
-    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SubSection, SeparatorBullet, BookmarksList, FrontpageReviewPhase} = Components;
+    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SubSection, SeparatorBullet, BookmarksList, FrontpageReviewPhase } = Components;
 
     const configName = "frontpage"
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
@@ -195,7 +195,7 @@ class RecommendationsAndCurated extends PureComponent {
         <Typography component="div" variant="body2" className={classes.footer}>
           <Link to={curatedUrl}>
             { /* On very small screens, use shorter link text ("More Curated"
-                 instead of "View All Curated Posts") to avoid wrapping */ }
+                instead of "View All Curated Posts") to avoid wrapping */ }
             <Hidden smUp implementation="css">More Curated</Hidden>
             <Hidden xsDown implementation="css">View All Curated Posts</Hidden>
           </Link>

@@ -4,6 +4,7 @@ import { Notifications } from '../../lib/collections/notifications/collection.js
 
 registerMigration({
   name: "setDefaultNotificationValues",
+  dateWritten: "2019-10-23",
   idempotent: true,
   action: async () => {
     await fillDefaultValues({

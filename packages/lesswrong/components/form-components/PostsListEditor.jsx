@@ -95,7 +95,6 @@ class PostsListEditor extends Component {
       />
       <Components.PostsSearchAutoComplete
         clickAction={this.addPostId}
-        HitComponent={Components.PostsListEditorSearchHit}
       />
     </div>
   }
