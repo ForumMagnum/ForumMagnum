@@ -3,8 +3,15 @@ import { Components, registerComponent, useMulti, withEdit } from 'meteor/vulcan
 import { Comments } from '../../lib/collections/comments';
 import withUser from '../common/withUser';
 import Typography from '@material-ui/core/Typography';
+import { withStyles } from '@material-ui/core/styles';
 
-const RecentComments = ({currentUser, updateComment, terms, noResultsMessage="No Comments Found"}) => {
+const styles = theme =>  ({
+  root: {
+    margin: theme.spacing.unit*2,
+  }
+})
+
+const RecentComments = ({classes, currentUser, updateComment, terms, noResultsMessage="No Comments Found"}) => {
   const { loadingInitial, loadMoreProps, results } = useMulti({
     terms,
     collection: Comments,
@@ -23,7 +30,7 @@ const RecentComments = ({currentUser, updateComment, terms, noResultsMessage="No
   }
   
   return (
-    <div className="recent-comments-list">
+    <div className={classes.root}>
       {results.map(comment =>
         <div key={comment._id}>
           <Components.CommentsNode
@@ -45,5 +52,6 @@ registerComponent('RecentComments', RecentComments,
     collection: Comments,
     fragmentName: 'SelectCommentsList',
   }],
-  withUser
+  withUser,
+  withStyles(styles, {name:"RecentComments"})
 );
