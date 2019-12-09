@@ -24,8 +24,8 @@ const styles = theme => ({
 const Reviews2018 = ({classes, currentUser}) => {
   const [expandUnread, setExpandUnread] = useState(!!(currentUser ? !currentUser.noExpandUnreadCommentsReview : true));
   const [sortNominatedPosts, setSortNominatedPosts] = useState("fewestReviews")
-  const [sortNominations, setSortNominations] = useState("baseScore")
-  const [sortReviews, setSortReviews] = useState("baseScore")
+  const [sortNominations, setSortNominations] = useState("top")
+  const [sortReviews, setSortReviews] = useState("top")
 
   const {mutate: updateUser} = useUpdate({
     collection: Users,
