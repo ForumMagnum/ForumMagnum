@@ -3,6 +3,8 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import Paper from "@material-ui/core/Card"
 import CloseIcon from '@material-ui/icons/Close';
+import { Link } from '../../lib/reactRouterWrapper.js';
+import Posts from '../../lib/collections/posts/collection.js';
 
 const styles = (theme) => ({
   root: {
@@ -17,11 +19,6 @@ const styles = (theme) => ({
       right: 0,
       bottom: 0,
     }
-  },
-  reviewing: {
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[700],
-    fontSize: ".9rem"
   },
   title: {
     ...theme.typography.commentStyle,
@@ -86,16 +83,13 @@ const ReviewPostForm = ({classes, post, onClose}) => {
 
   return <Paper className={classes.root}>
     <div className={classes.header}>
-      {/* <div className={classes.reviewing}>
-        Reviewing
-      </div> */}
       <div className={classes.title}>
-        Reviewing "{post.title}"
+        Reviewing "<Link to={Posts.getPageUrl(post)}>{post.title}</Link>"
       </div>
       <CloseIcon className={classes.close} onClick={onClose}/>
       <div className={classes.guidelines}>
         {showPrompt && <div>
-          Reviews should ideally answer:
+          Reviews should provide information that help evaluate a post 
           <ul>
             <li>Is this post epistemically sound?
               <ul>
@@ -106,16 +100,13 @@ const ReviewPostForm = ({classes, post, onClose}) => {
               Has this post proved valuable? How? (be as comprehensive as possible)
             </li>
             <li>
-              Should this be included in the <em>Best of LessWrong 2018</em>? Why or why not?
-            </li> 
-            <li>
               How could this post be improved?
             </li>
             <li>
               What followup work would you like to see building on this post?
             </li>
           </ul>
-          <div className={classes.moderatorsNote}>It's fine to submit partial reviews. Moderators may promote comprehensive reviews to top-level posts.</div>
+          <div className={classes.moderatorsNote}>Moderators may promote comprehensive reviews to top-level posts.</div>
           <a className={classes.hidePrompt} onClick={() => setShowPrompt(false)}>(click to hide)</a>
         </div>}
         {!showPrompt && <div onClick={() => setShowPrompt(true)}>Reviews should ideally answer... <a onClick={() => setShowPrompt(false)}>(read more)</a></div>}
