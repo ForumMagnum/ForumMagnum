@@ -13,7 +13,9 @@ const styles = theme => ({
     color: theme.palette.grey[600]
   },
   settings: {
-    margin: theme.spacing.unit*2,
+    marginLeft: theme.spacing.unit*2,
+    marginRight: theme.spacing.unit*2,
+    marginBottom: theme.spacing.unit*2,
     display: "flex",
     justifyContent: "space-between"
   }
