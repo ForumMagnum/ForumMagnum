@@ -13,9 +13,9 @@ const styles = theme => ({
     color: theme.palette.grey[600]
   },
   settings: {
-    marginBottom: theme.spacing.unit*2,
+    margin: theme.spacing.unit*2,
     display: "flex",
-    justifyContent: "space-around"
+    justifyContent: "space-between"
   }
 })
 
@@ -79,9 +79,9 @@ const Reviews2018 = ({classes, currentUser}) => {
             onChange={(e)=>setSortReviews(e.target.value)}
             disableUnderline
             >
-            <MenuItem value={'baseScore'}>Sorted by Top</MenuItem>
-            <MenuItem value={'postedAt'}>Sorted by New</MenuItem>
-            <MenuItem value={'postId'}>Grouped by Post</MenuItem>
+            <MenuItem value={'top'}>Sorted by Top</MenuItem>
+            <MenuItem value={'new'}>Sorted by New</MenuItem>
+            <MenuItem value={'groupByPost'}>Grouped by Post</MenuItem>
           </Select>
         </SectionTitle>
         <RecentComments terms={{ view: "reviews2018", sortBy: sortReviews}} />
@@ -93,9 +93,9 @@ const Reviews2018 = ({classes, currentUser}) => {
             onChange={(e)=>setSortNominations(e.target.value)}
             disableUnderline
             >
-            <MenuItem value={'baseScore'}>Sorted by Top</MenuItem>
-            <MenuItem value={'postedAt'}>Sorted by New</MenuItem>
-            <MenuItem value={'postId'}>Grouped by Post</MenuItem>
+            <MenuItem value={'top'}>Sorted by Top</MenuItem>
+            <MenuItem value={'new'}>Sorted by New</MenuItem>
+            <MenuItem value={'groupByPost'}>Grouped by Post</MenuItem>
           </Select>
         </SectionTitle>
         <RecentComments terms={{ view: "nominations2018", sortBy: sortNominations}} />

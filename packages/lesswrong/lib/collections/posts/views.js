@@ -841,18 +841,23 @@ ensureIndex(Posts,
 );
 
 Posts.addView("reviews2018", terms => {
-  let sortBy = {}
-  if (terms.sortBy === "fewestReviews") sortBy = {reviewCount2018: 1}
-  if (terms.sortBy === "mostReviews") sortBy = {reviewCount2018: -1}
-  if (terms.sortBy === "lastCommentedAt") sortBy = {lastCommentedAt: -1}
+  
+  const sortings = {
+    "fewestReviews" : {reviewCount2018: 1},
+    "mostReviews" : {reviewCount2018: -1},
+    "lastCommentedAt" :  {lastCommentedAt: -1}
+  }
 
   return {
     selector: {
       nominationCount2018: { $gte: 2 }
     },
     options: {
-      sort: { ...sortBy, nominationCount2018: -1 }
+      sort: { ...sortings[terms.sortBy], nominationCount2018: -1 }
     }
   }
 })
-// Same index as nominations2018
+ensureIndex(Posts,
+  augmentForDefaultView({ nominationCount2018:1, reviewCount2018: 1, lastCommentedAt: -1 }),
+  { name: "posts.nominations2018", }
+);

@@ -334,7 +334,14 @@ Comments.addView('nominations2018', function ({userId, postId, sortBy="baseScore
 });
 ensureIndex(Comments, { userId:1, postId: 1, nominatedForReview: 1});
 
-Comments.addView('reviews2018', function ({userId, postId, sortBy="baseScore"}) {
+Comments.addView('reviews2018', function ({userId, postId, sortBy="top"}) {
+  
+  const sortings = {
+    "top" : { baseScore: 1},
+    "groupByPost" : {postId: 1},
+    "new" :  { postedAt: -1}
+  }
+
   return {
     selector: { 
       userId, 
@@ -342,8 +349,8 @@ Comments.addView('reviews2018', function ({userId, postId, sortBy="baseScore"}) 
       reviewingForReview: "2018"
     },
     options: {
-      sort: { [sortBy]:-1 }
+      sort: { ...sortings[sortBy], top: 1, postedAt: -1 }
     }
   };
 });
-ensureIndex(Comments, { userId:1, postId: 1, reviewingForReview: 1});
+ensureIndex(Comments, { userId:1, postId: 1, reviewingForReview: 1, baseScore: 1, postedAt: -1});
