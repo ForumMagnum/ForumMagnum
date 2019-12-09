@@ -841,15 +841,21 @@ ensureIndex(Posts,
 );
 
 Posts.addView("reviews2018", terms => {
+  
+  const sortings = {
+    "fewestReviews" : {reviewCount2018: 1},
+    "mostReviews" : {reviewCount2018: -1},
+    "lastCommentedAt" :  {lastCommentedAt: -1}
+  }
+
   return {
     selector: {
       nominationCount2018: { $gte: 2 }
     },
     options: {
-      sort: {
-        lastCommentedAt: -1
-      }
+      sort: { ...sortings[terms.sortBy], nominationCount2018: -1 }
     }
   }
 })
-// Same index as nominations2018
+// We're filtering on nominationCount greater than 2, so do not need additional indexes
+// using nominations2018
