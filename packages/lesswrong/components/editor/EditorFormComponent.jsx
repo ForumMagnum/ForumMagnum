@@ -81,6 +81,10 @@ const styles = theme => ({
       minHeight: questionEditorHeight,
     }
   },
+  maxHeight: {
+    maxHeight: "calc(100vh - 450px)",
+    overflow: "scroll"
+  },
   errorTextColor: {
     color: theme.palette.error.main
   },
@@ -589,7 +593,7 @@ class EditorFormComponent extends Component {
       
       const collaboration = this.isDocumentCollaborative()
       
-      return <div className={this.getHeightClass()}>
+      return <div className={classNames(this.getHeightClass(), this.getMaxHeightClass())}>
           { this.renderPlaceholder(!value, collaboration)}
           { collaboration ? 
             <CKEditor key="ck-collaborate" { ...editorProps } collaboration />
@@ -636,10 +640,15 @@ class EditorFormComponent extends Component {
           editorState={draftJSValue}
           onChange={this.setDraftJS}
           commentEditor={form?.commentEditor}
-          className={classNames(this.getBodyStyles(), this.getHeightClass(), {[classes.questionWidth]: document.question})}
+          className={classNames(this.getBodyStyles(), this.getHeightClass(), this.getMaxHeightClass(), {[classes.questionWidth]: document.question})}
         />
       </div>
   }
+
+  getMaxHeightClass = () => {
+    const { classes, formProps } = this.props 
+    return formProps?.maxHeight ? classes.maxHeight : null
+  } 
 
   getHeightClass = () => {
     const { document, classes, form: { commentStyles } } = this.props

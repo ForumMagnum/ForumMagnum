@@ -2,18 +2,12 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { QueryLink } from '../../../lib/reactRouterWrapper.js';
-import grey from '@material-ui/core/colors/grey';
 import PropTypes from 'prop-types';
 
 const styles = theme => ({
   root: {
-    color: grey[600],
-    marginBottom: theme.spacing.unit*2,
-    fontSize:".9em",
-    maxWidth: "100%",
-    overflowX: "hidden",
-    textOverflow: "ellipsis",
-    ...theme.typography.postStyle,
+    ...theme.typography.contentNotice,
+    ...theme.typography.postStyle
   },
 })
 

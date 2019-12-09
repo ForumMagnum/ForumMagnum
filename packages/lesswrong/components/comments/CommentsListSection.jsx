@@ -13,6 +13,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import withUser from '../common/withUser';
 
+export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
+
 const styles = theme => ({
   root: {
     fontWeight: 400,
@@ -32,7 +34,7 @@ const styles = theme => ({
   newComment: {
     border: 'solid 1px rgba(0,0,0,.2)',
     position: 'relative',
-    marginBottom: "1.3em",
+    marginBottom: NEW_COMMENT_MARGIN_BOTTOM,
     "@media print": {
       display: "none"
     }

@@ -4,6 +4,7 @@ import { Posts } from '../../lib/collections/posts/collection.js';
 
 registerMigration({
   name: "setDefaultShortformValue",
+  dateWritten: "2019-07-25",
   idempotent: true,
   action: async () => {
     await fillDefaultValues({

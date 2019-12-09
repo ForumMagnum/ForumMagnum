@@ -226,6 +226,14 @@ const schema = {
     canCreate: ['members', 'admins'],
     canUpdate: [Users.owns, 'admins'],
   },
+  reviewingForReview: {
+    type: String,
+    optional: true,
+    hidden: true,
+    canRead: ['guests'],
+    canCreate: ['members', 'admins'],
+    canUpdate: [Users.owns, 'admins'],
+  },
 
   lastSubthreadActivity: {
     type: Date,

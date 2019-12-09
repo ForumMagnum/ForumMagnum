@@ -1,49 +1,50 @@
 import { registerMigration, fillDefaultValues } from './migrationUtils';
+import Users from 'meteor/vulcan:users';
 
-import { Notifications } from '../../lib/collections/notifications/collection.js';
 
 registerMigration({
   name: "setDefaultSubscriptionTypes",
+  dateWritten: "2019-11-27",
   idempotent: true,
   action: async () => {
     await fillDefaultValues({
-      collection: Notifications,
+      collection: Users,
       fieldName: "auto_subscribe_to_my_posts",
     });
     await fillDefaultValues({
-      collection: Notifications,
+      collection: Users,
       fieldName: "auto_subscribe_to_my_comments",
     });
     await fillDefaultValues({
-      collection: Notifications,
+      collection: Users,
       fieldName: "autoSubscribeAsOrganizer",
     });
     await fillDefaultValues({
-      collection: Notifications,
+      collection: Users,
       fieldName: "notificationCommentsOnSubscribedPost",
     });
     await fillDefaultValues({
-      collection: Notifications,
+      collection: Users,
       fieldName: "notificationRepliesToMyComments",
     });
     await fillDefaultValues({
-      collection: Notifications,
+      collection: Users,
       fieldName: "notificationRepliesToSubscribedComments",
     });
     await fillDefaultValues({
-      collection: Notifications,
+      collection: Users,
       fieldName: "notificationSubscribedUserPost",
     });
     await fillDefaultValues({
-      collection: Notifications,
+      collection: Users,
       fieldName: "notificationPostsInGroups",
     });
     await fillDefaultValues({
-      collection: Notifications,
+      collection: Users,
       fieldName: "notificationPrivateMessage",
     });
     await fillDefaultValues({
-      collection: Notifications,
+      collection: Users,
       fieldName: "notificationSharedWithMe",
     });
   },

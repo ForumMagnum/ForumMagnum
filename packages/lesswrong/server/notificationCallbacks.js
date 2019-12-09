@@ -15,6 +15,7 @@ import { EventDebouncer } from './debouncer.js';
 import { getNotificationTypeByName } from '../lib/notificationTypes.jsx';
 import { notificationDebouncers, wrapAndSendEmail } from './notificationBatching.js';
 import { defaultNotificationTypeSettings } from '../lib/collections/users/custom_fields.js';
+import { ensureIndex } from '../lib/collectionUtils';
 
 import { Components, addCallback, createMutator } from 'meteor/vulcan:core';
 
@@ -423,3 +424,58 @@ async function PostsNewNotifyUsersSharedOnPost (post) {
   }
 }
 addCallback("posts.new.async", PostsNewNotifyUsersSharedOnPost);
+
+async function getUsersWhereLocationIsInNotificationRadius(location) {
+  return await Users.rawCollection().aggregate([
+    {
+      "$geoNear": {
+        "near": location, 
+        "spherical": true,
+        "distanceField": "distance",
+        "distanceMultiplier": 0.001,
+        "maxDistance": 300000, // 300km is maximum distance we allow to set in the UI
+        "key": "nearbyEventsNotificationsMongoLocation"
+      }
+    },
+    {
+      "$match": {
+        "$expr": {
+            "$gt": ["$nearbyEventsNotificationsRadius", "$distance"]
+        }
+      }
+    }
+  ]).toArray()
+}
+ensureIndex(Users, {nearbyEventsNotificationsMongoLocation: "2dsphere"}, {name: "users.nearbyEventsNotifications"})
+
+async function PostsNewMeetupNotifications ({document: newPost}) {
+  if (newPost.isEvent && newPost.mongoLocation && !newPost.draft) {
+    const usersToNotify = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
+    const userIds = usersToNotify.map(user => user._id)
+    const usersIdsWithoutAuthor = userIds.filter(id => id !== newPost.userId)
+    createNotifications(usersIdsWithoutAuthor, "newEventInRadius", "post", newPost._id)
+  }
+}
+
+addCallback("post.create.async", PostsNewMeetupNotifications)
+
+async function PostsEditMeetupNotifications ({document: newPost, oldDocument: oldPost}) {
+  if (
+    (
+      (!newPost.draft && oldPost.draft) || 
+      (newPost.mongoLocation && !newPost.mongoLocation) || 
+      (newPost.startTime !== oldPost.startTime) || 
+      (newPost.endTime !== oldPost.endTime) || 
+      (newPost.contents?.html !== oldPost.contents?.html) ||
+      (newPost.title !== oldPost.title)
+    )
+    && newPost.mongoLocation && newPost.isEvent && !newPost.draft) 
+  {
+    const usersToNotify = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
+    const userIds = usersToNotify.map(user => user._id)
+    const usersIdsWithoutAuthor = userIds.filter(id => id !== newPost.userId)
+    createNotifications(usersIdsWithoutAuthor, "editedEventInRadius", "post", newPost._id)
+  }
+}
+
+addCallback("post.update.async", PostsEditMeetupNotifications)

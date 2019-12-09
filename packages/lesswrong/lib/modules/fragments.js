@@ -141,6 +141,7 @@ registerFragment(`
     auto_subscribe_to_my_comments
     autoSubscribeAsOrganizer
     bookmarkedPostsMetadata
+    noExpandUnreadCommentsReview
   }
 `);
 
