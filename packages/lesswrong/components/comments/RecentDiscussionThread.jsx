@@ -137,7 +137,7 @@ const RecentDiscussionThread = ({
     <div className={classes.root}>
       <div className={(currentUser && !(isRead || readStatus)) ? classes.unreadPost : null}>
         <div className={classes.postItem}>
-          <PostsTitle wrap post={post} tooltip={false}/>
+          <PostsTitle wrap post={post} tooltip={false} read={userHasBoldPostItems(currentUser)} />
           <div className={classes.threadMeta} onClick={showHighlight}>
             <PostsItemMeta post={post}/>
             <ShowOrHideHighlightButton

@@ -30,6 +30,12 @@ Comments.addDefaultView(terms => {
   });
 })
 
+const sortings = {
+  "top" : { baseScore: 1},
+  "groupByPost" : {postId: 1},
+  "new" :  { postedAt: -1}
+}
+
 export function augmentForDefaultView(indexFields)
 {
   return combineIndexWithDefaultViewIndex({
@@ -319,25 +325,35 @@ Comments.addView('shortformLatestChildren', function (terms) {
 // Will be used for experimental shortform display on AllPosts page
 ensureIndex(Comments, { topLevelCommentId: 1, postedAt: 1, baseScore:1});
 
-// 
-Comments.addView('nominations2018', function ({userId, postId}) {
+Comments.addView('nominations2018', function ({userId, postId, sortBy="top"}) {
   return {
     selector: { 
       userId, 
       postId, 
       nominatedForReview: "2018"
     },
+    options: {
+      sort: { ...sortings[sortBy], top: 1, postedAt: -1 }
+    }
   };
 });
-ensureIndex(Comments, { userId:1, postId: 1, nominatedForReview: 1});
+ensureIndex(Comments,
+  augmentForDefaultView({ userId:1, postId: 1, nominatedForReview: 1}),
+  { name: "comments.nominations2018" }
+);
 
-Comments.addView('reviews2018', function ({userId, postId}) {
+Comments.addView('reviews2018', function ({userId, postId, sortBy="top"}) {
+
   return {
     selector: { 
       userId, 
       postId, 
       reviewingForReview: "2018"
     },
+    options: {
+      sort: { ...sortings[sortBy], top: 1, postedAt: -1 }
+    }
   };
 });
-ensureIndex(Comments, { userId:1, postId: 1, reviewingForReview: 1});
+// Filtering comments down to ones that include "reviewing for review" so further sort indexes not necessary
+// Uses same index as nominations2018

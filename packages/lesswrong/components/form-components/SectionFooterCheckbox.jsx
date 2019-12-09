@@ -23,8 +23,7 @@ const styles = theme => ({
     '& svg': {
       height: "1.3rem",
       width: "1.3rem",
-      position: "relative",
-      top: -2
+      position: "relative"
     }
   },
   checked: {
