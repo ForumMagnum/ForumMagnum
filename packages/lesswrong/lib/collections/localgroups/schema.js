@@ -84,8 +84,8 @@ const schema = {
     blackbox: true,
     ...denormalizedField({
       needsUpdate: data => ('googleLocation' in data),
-      getValue: async (user) => {
-        return googleLocationToMongoLocation(user.googleLocation)
+      getValue: async (localgroup) => {
+        if (localgroup.googleLocation) return googleLocationToMongoLocation(localgroup.googleLocation)
       }
     }),
   },
