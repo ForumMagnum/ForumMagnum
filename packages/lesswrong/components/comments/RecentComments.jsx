@@ -14,7 +14,7 @@ const styles = theme =>  ({
   }
 })
 
-const RecentComments = ({classes, currentUser, updateComment, terms, noResultsMessage="No Comments Found"}) => {
+const RecentComments = ({classes, currentUser, updateComment, terms, truncated, noResultsMessage="No Comments Found"}) => {
   const { loadingInitial, loadMoreProps, results } = useMulti({
     terms,
     collection: Comments,
@@ -42,6 +42,9 @@ const RecentComments = ({classes, currentUser, updateComment, terms, noResultsMe
             post={comment.post}
             updateComment={updateComment}
             showPostTitle
+            startThreadTruncated={truncated}
+            forceNotSingleLine
+            condensed={false}
           />
         </div>
       )}

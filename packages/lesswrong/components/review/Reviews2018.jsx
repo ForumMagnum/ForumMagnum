@@ -17,7 +17,11 @@ const styles = theme => ({
     marginRight: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit*2,
     display: "flex",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    [theme.breakpoints.down('xs')]: {
+      flexDirection: "column",
+      alignItems: "flex-end"
+    }
   }
 })
 
@@ -86,7 +90,7 @@ const Reviews2018 = ({classes, currentUser}) => {
             <MenuItem value={'groupByPost'}>Grouped by Post</MenuItem>
           </Select>
         </SectionTitle>
-        <RecentComments terms={{ view: "reviews2018", sortBy: sortReviews}} />
+        <RecentComments terms={{ view: "reviews2018", sortBy: sortReviews}} truncated/>
       </SingleColumnSection>
       <SingleColumnSection>
         <SectionTitle title="Nominations">
@@ -100,7 +104,7 @@ const Reviews2018 = ({classes, currentUser}) => {
             <MenuItem value={'groupByPost'}>Grouped by Post</MenuItem>
           </Select>
         </SectionTitle>
-        <RecentComments terms={{ view: "nominations2018", sortBy: sortNominations}} />
+        <RecentComments terms={{ view: "nominations2018", sortBy: sortNominations}} truncated/>
       </SingleColumnSection>
     </div>
   )
