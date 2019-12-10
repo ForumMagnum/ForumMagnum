@@ -143,7 +143,7 @@ class CommentsNode extends Component {
   }
   
   beginSingleLine = () => {
-    const { comment, condensed, lastCommentId, forceSingleLine, shortform, nestingLevel, postPage } = this.props
+    const { comment, condensed, lastCommentId, forceSingleLine, shortform, nestingLevel, postPage, forceNotSingleLine } = this.props
     const mostRecent = lastCommentId === comment._id
     const lowKarmaOrCondensed = (comment.baseScore < 10 || condensed)
     const shortformAndTop = (nestingLevel === 1) && shortform
@@ -156,8 +156,9 @@ class CommentsNode extends Component {
       this.isTruncated() &&
       lowKarmaOrCondensed &&
       !(mostRecent && condensed) &&
-      !(shortformAndTop) && 
-      !(postPageAndTop)
+      !shortformAndTop && 
+      !postPageAndTop && 
+      !forceNotSingleLine
     )
   }
 
