@@ -339,7 +339,7 @@ Comments.addView('nominations2018', function ({userId, postId, sortBy="top"}) {
 });
 // Filtering comments down to ones that include "nominated for Review" so further sort indexes not necessary
 ensureIndex(Comments,
-  augmentForDefaultView({ nominatedForReview: 1}),
+  augmentForDefaultView({ nominatedForReview: 1, userId: 1, postId: 1 }),
   { name: "comments.nominations2018" }
 );
 
@@ -361,4 +361,3 @@ ensureIndex(Comments,
   augmentForDefaultView({ reviewingForReview: 1}),
   { name: "comments.reviews2018" }
 );
-
