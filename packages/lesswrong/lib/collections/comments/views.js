@@ -31,7 +31,7 @@ Comments.addDefaultView(terms => {
 })
 
 const sortings = {
-  "top" : { baseScore: 1},
+  "top" : { baseScore: -1},
   "groupByPost" : {postId: 1},
   "new" :  { postedAt: -1}
 }
@@ -333,7 +333,7 @@ Comments.addView('nominations2018', function ({userId, postId, sortBy="top"}) {
       nominatedForReview: "2018"
     },
     options: {
-      sort: { ...sortings[sortBy], top: 1, postedAt: -1 }
+      sort: { ...sortings[sortBy], top: -1, postedAt: -1 }
     }
   };
 });
@@ -343,7 +343,7 @@ ensureIndex(Comments,
 );
 
 Comments.addView('reviews2018', function ({userId, postId, sortBy="top"}) {
-
+  
   return {
     selector: { 
       userId, 
@@ -351,7 +351,7 @@ Comments.addView('reviews2018', function ({userId, postId, sortBy="top"}) {
       reviewingForReview: "2018"
     },
     options: {
-      sort: { ...sortings[sortBy], top: 1, postedAt: -1 }
+      sort: { ...sortings[sortBy], top: -1, postedAt: -1 }
     }
   };
 });
