@@ -30,14 +30,14 @@ export const zIndexes = {
   tabNavigation: 1101,
   searchResults: 1102,
   header: 1300,
-  ckEditorToolbar: 1301,
   karmaChangeNotifier: 1400,
   notificationsMenu: 1500,
   lwPopper: 10000,
   lwPopperTooltip: 10001,
   loginDialog: 10002,
   searchBar: 100000,
-  commentBoxPopup: 10000000000, // has to be higher than Intercom, 
+  // commentBoxPopup: 10000000001, // has to be higher than Intercom, (note: the css had to be applied in an scss file, "_editor.scss", but the position is listed here for ease of reference)
+  ckEditorToolbar: 10000000002, // has to be higher than commentBoxPopup, 
   // petrovDayButton: 6,
   // petrovDayLoss: 1000000
 }
