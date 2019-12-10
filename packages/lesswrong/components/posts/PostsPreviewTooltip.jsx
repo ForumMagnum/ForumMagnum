@@ -8,6 +8,7 @@ import { Posts } from '../../lib/collections/posts';
 import CommentIcon from '@material-ui/icons/ModeComment';
 import Card from '@material-ui/core/Card';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
+import { userHasBoldPostItems } from '../../lib/betas.js';
 
 const styles = theme => ({
   root: {
@@ -106,7 +107,7 @@ const getPostCategory = (post) => {
     return post.question ? `Question` : `Personal Blogpost`
 }
 
-const PostsPreviewTooltip = ({ showAllInfo, post, classes, truncateLimit=600, comment }) => {
+const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, truncateLimit=600, comment }) => {
   const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton } = Components
 
   if (!post) return null
@@ -119,7 +120,7 @@ const PostsPreviewTooltip = ({ showAllInfo, post, classes, truncateLimit=600, co
 
   return <Card className={classes.root}>
       <div className={classes.title}>
-        <PostsTitle post={post} tooltip={false} wrap/>
+        <PostsTitle post={post} tooltip={false} wrap read={userHasBoldPostItems(currentUser)} />
       </div>
       <div className={classes.tooltipInfo}>
         { getPostCategory(post)}

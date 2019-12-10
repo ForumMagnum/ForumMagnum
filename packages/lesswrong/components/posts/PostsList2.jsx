@@ -40,6 +40,7 @@ const styles = theme => ({
 //  * terms: The search terms used to select the posts that will be shown.
 //  * dimWhenLoading: Apply a style that grays out the list while it's in a
 //    loading state (default false)
+//  * topLoading: show the loading state at the top of the list in addition to the bottom
 //  * showLoading: Display a loading spinner while loading (default true)
 //  * showLoadMore: Show a Load More link in the footer if there are potentially
 //    more posts (default true)
@@ -51,6 +52,7 @@ const styles = theme => ({
 const PostsList2 = ({
   children, terms,
   dimWhenLoading = false,
+  topLoading = false,
   showLoading = true,
   showLoadMore = true,
   showNoResults = true,
@@ -125,16 +127,14 @@ const PostsList2 = ({
   return (
     <div className={classNames({[classes.itemIsLoading]: loading && dimWhenLoading})}>
       {error && <Error error={Utils.decodeIntlError(error)} />}
-      {loading && showLoading && dimWhenLoading && <Loading />}
+      {loading && showLoading && (topLoading || dimWhenLoading) && <Loading />}
       {results && !results.length && showNoResults && <PostsNoResults />}
 
 
       {orderedResults && orderedResults.map((post, i) => {
         const props = { post, index: i, terms, showNominationCount, showReviewCount, dense, defaultToShowUnreadComments, showQuestionTag: terms.filter!=="questions" }
 
-        return (hidePosts && hidePosts[i])
-          ? <PostsItem2 key={post._id} index={i} {...props} hideOnSmallScreens />
-          : <PostsItem2 key={post._id} index={i} {...props} />
+        if (!(hidePosts && hidePosts[i])) return <PostsItem2 key={post._id} index={i} {...props} />
       })}
       {(showLoadMore || children?.length>0) && <SectionFooter>
         {(showLoadMore) &&

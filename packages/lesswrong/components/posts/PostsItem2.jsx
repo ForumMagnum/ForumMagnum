@@ -14,6 +14,7 @@ import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
+import { userHasBoldPostItems } from '../../lib/betas.js';
 
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
@@ -85,6 +86,10 @@ export const styles = (theme) => ({
       marginLeft: 2,
       marginRight: theme.spacing.unit
     }
+  },
+  karmaUnread: {
+    fontWeight: 600,
+    color: 'rgba(0,0,0,.87) !important'
   },
   title: {
     minHeight: 26,
@@ -275,11 +280,6 @@ export const styles = (theme) => ({
       marginLeft: 35,
     },
   },
-  hideOnSmallScreens: {
-    [theme.breakpoints.down('sm')]: {
-      display: 'none'
-    }
-  },
   bookmark: {
     marginLeft: theme.spacing.unit/2,
     marginRight: theme.spacing.unit*1.5,
@@ -335,10 +335,6 @@ const PostsItem2 = ({
   // dense: (bool) Slightly reduce margins to make this denser. Used on the
   // All Posts page.
   dense,
-  // hideOnSmallScreens: (bool) If set, don't show this on 'sm' and 'xs' screen
-  // sizes. Used for hiding already-read curated posts on space-constrained
-  // mobile devices.
-  hideOnSmallScreens,
   // bookmark: (bool) Whether this is a bookmark. Adds a clickable bookmark
   // icon.
   bookmark,
@@ -412,7 +408,6 @@ const PostsItem2 = ({
       classes.root,
       classes.background,
       {
-        [classes.hideOnSmallScreens]: hideOnSmallScreens,
         [classes.bottomBorder]: showBottomBorder,
         [classes.commentsBackground]: renderComments,
         [classes.firstItem]: (index===0) && showComments,
@@ -426,8 +421,8 @@ const PostsItem2 = ({
             [classes.dense]: dense,
             [classes.withRelevanceVoting]: !!tagRel
           })}>
-            <PostsItem2MetaInfo className={classes.karma}>
-              <PostsItemKarma post={post} />
+            <PostsItem2MetaInfo className={classNames(classes.karma, {[classes.karmaUnread]: !isRead && userHasBoldPostItems(currentUser)})}>
+              <PostsItemKarma post={post} read={isRead}/>
             </PostsItem2MetaInfo>
 
             <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: (!!resumeReading || showNominationCount)})}>
@@ -461,7 +456,7 @@ const PostsItem2 = ({
               <EventVicinity post={post} />
             </PostsItem2MetaInfo>}
 
-            {showPostedAt && !resumeReading && <PostsItemDate post={post}/>}
+            {showPostedAt && !resumeReading && <PostsItemDate post={post} />}
 
             <div className={classes.mobileSecondRowSpacer}/>
 

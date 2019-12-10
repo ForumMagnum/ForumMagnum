@@ -84,12 +84,12 @@ const FooterTagList = ({post, classes}) => {
           <Paper>
             <Components.AddTag
               post={post}
-              onTagSelected={tag => {
+              onTagSelected={tagId => {
                 setAnchorEl(null);
                 setIsOpen(false);
                 mutate({
                   variables: {
-                    tagId: tag._id,
+                    tagId: tagId,
                     postId: post._id,
                   },
                 });

@@ -141,6 +141,7 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
         </span>
         {renderHighlight && <span className={classes.truncatedHighlight}> 
           { comment.nominatedForReview && <span className={classes.nomination}>Nomination</span>}
+          { comment.reviewingForReview && <span className={classes.nomination}>Review</span>}
           {plaintextMainText} 
         </span>}      
       </div>
