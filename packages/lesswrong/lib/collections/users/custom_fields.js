@@ -792,7 +792,7 @@ addFieldsDict(Users, {
     ...denormalizedField({
       needsUpdate: data => ('googleLocation' in data),
       getValue: async (user) => {
-        return googleLocationToMongoLocation(user.googleLocation)
+        if (user.googleLocation) return googleLocationToMongoLocation(user.googleLocation)
       }
     }),
   },
@@ -893,7 +893,7 @@ addFieldsDict(Users, {
     ...denormalizedField({
       needsUpdate: data => ('nearbyEventsNotificationsLocation' in data),
       getValue: async (user) => {
-        return googleLocationToMongoLocation(user.nearbyEventsNotificationsLocation)
+        if (user.nearbyEventsNotificationsLocation) return googleLocationToMongoLocation(user.nearbyEventsNotificationsLocation)
       }
     }),
   },
