@@ -337,8 +337,9 @@ Comments.addView('nominations2018', function ({userId, postId, sortBy="top"}) {
     }
   };
 });
+// Filtering comments down to ones that include "nominated for Review" so further sort indexes not necessary
 ensureIndex(Comments,
-  augmentForDefaultView({ userId:1, postId: 1, nominatedForReview: 1}),
+  augmentForDefaultView({ nominatedForReview: 1, userId: 1, postId: 1 }),
   { name: "comments.nominations2018" }
 );
 
@@ -356,4 +357,7 @@ Comments.addView('reviews2018', function ({userId, postId, sortBy="top"}) {
   };
 });
 // Filtering comments down to ones that include "reviewing for review" so further sort indexes not necessary
-// Uses same index as nominations2018
+ensureIndex(Comments,
+  augmentForDefaultView({ reviewingForReview: 1, userId: 1, postId: 1 }),
+  { name: "comments.reviews2018" }
+);
