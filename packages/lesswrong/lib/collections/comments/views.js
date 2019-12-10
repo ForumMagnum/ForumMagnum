@@ -358,6 +358,6 @@ Comments.addView('reviews2018', function ({userId, postId, sortBy="top"}) {
 });
 // Filtering comments down to ones that include "reviewing for review" so further sort indexes not necessary
 ensureIndex(Comments,
-  augmentForDefaultView({ reviewingForReview: 1}),
+  augmentForDefaultView({ reviewingForReview: 1, userId: 1, postId: 1 }),
   { name: "comments.reviews2018" }
 );
