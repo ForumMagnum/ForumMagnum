@@ -31,7 +31,6 @@ const defaultOptions = {
   },
   fieldName: "",
   order: 0,
-  enableMarkDownEditor: true,
   hintText: (
     <div>
       <div>Write here. Select text for formatting options.</div>
@@ -57,8 +56,7 @@ export const makeEditable = ({collection, options = {}}) => {
     fieldName,
     hintText,
     order,
-    enableMarkDownEditor,
-    pingbacks,
+    pingbacks = false,
   } = options
 
   editableCollections.add(collection.options.collectionName)
@@ -104,14 +102,10 @@ export const makeEditable = ({collection, options = {}}) => {
       },
       form: {
         hintText: hintText,
-        multiLine:true,
-        fullWidth:true,
-        disableUnderline:true,
         fieldName: fieldName || "contents",
         commentEditor,
         commentStyles,
         getLocalStorageId,
-        enableMarkDownEditor,
       },
     },
     
