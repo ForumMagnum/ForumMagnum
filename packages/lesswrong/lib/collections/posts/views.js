@@ -553,6 +553,23 @@ ensureIndex(Posts,
   { name: "posts.afRecentDiscussionThreadsList", }
 );
 
+Posts.addView("2018reviewRecentDiscussionThreadsList", terms => {
+  return {
+    selector: {
+      ...recentDiscussionFilter,
+      nominationCount2018: { $gt: 0 }
+    },
+    options: {
+      sort: {lastCommentedAt:-1},
+      limit: terms.limit || 12,
+    }
+  }
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ nominationCount2018: 1, lastCommentedAt:-1, baseScore:1, hideFrontpageComments:1 }),
+  { name: "posts.2018reviewRecentDiscussionThreadsList", }
+);
+
 Posts.addView("shortformDiscussionThreadsList", terms => {
   return {
     selector: {
@@ -805,3 +822,40 @@ ensureIndex(Posts,
   augmentForDefaultView({ "pingback.Posts": 1 }),
   { name: "posts.pingbackPosts" }
 );
+
+Posts.addView("nominations2018", terms => {
+  return {
+    selector: {
+      nominationCount2018: { $gt: 0 }
+    },
+    options: {
+      sort: {
+        nominationCount2018: terms.sortByMost ? -1 : 1
+      }
+    }
+  }
+})
+ensureIndex(Posts,
+  augmentForDefaultView({ nominationCount2018:1 }),
+  { name: "posts.nominations2018", }
+);
+
+Posts.addView("reviews2018", terms => {
+  
+  const sortings = {
+    "fewestReviews" : {reviewCount2018: 1},
+    "mostReviews" : {reviewCount2018: -1},
+    "lastCommentedAt" :  {lastCommentedAt: -1}
+  }
+
+  return {
+    selector: {
+      nominationCount2018: { $gte: 2 }
+    },
+    options: {
+      sort: { ...sortings[terms.sortBy], nominationCount2018: -1 }
+    }
+  }
+})
+// We're filtering on nominationCount greater than 2, so do not need additional indexes
+// using nominations2018

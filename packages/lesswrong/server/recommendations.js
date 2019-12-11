@@ -58,6 +58,17 @@ const pipelineFilterUnread = ({currentUser}) => {
 // deterministically combine them without writing out each individual case
 // combinatorially. . ... Yeah .... Sometimes life is hard.
 const getInclusionSelector = algorithm => {
+  if (algorithm.review2018) {
+    return { 
+      nominationCount2018: {$gte: 2}
+    }
+  }
+  if (algorithm.nomination2018) {
+    return { 
+      postedAt: {$gt: new Date("2018-01-01"), $lt: new Date("2019-01-01")},
+      meta: false
+    }
+  }
   if (algorithm.includePersonal) {
     if (algorithm.includeMeta) {
       return {}
@@ -155,7 +166,7 @@ const samplePosts = async ({count, currentUser, algorithm, sampleWeightFn}) => {
 
   const numPostsToReturn = Math.max(0, Math.min(recommendablePostsMetadata.length, count))
 
-  const defaultRecommendations = recommendablePostsMetadata.filter(p=> !!p.defaultRecommendation).map(p=>p._id)
+  const defaultRecommendations = algorithm.excludeDefaultRecommendations ? [] : recommendablePostsMetadata.filter(p=> !!p.defaultRecommendation).map(p=>p._id)
 
   const sampledPosts = new WeightedList(
     _.map(recommendablePostsMetadata, post => [post._id, sampleWeightFn(post)])

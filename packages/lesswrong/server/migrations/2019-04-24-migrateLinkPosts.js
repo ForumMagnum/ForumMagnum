@@ -3,6 +3,7 @@ import { Posts } from '../../lib/collections/posts'
 
 registerMigration({
   name: "migrateLinkPosts",
+  dateWritten: "2019-04-24",
   idempotent: true,
   action: async () => {
     // Get posts which were linkposts in legacy, but aren't linkposts now.

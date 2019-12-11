@@ -10,6 +10,7 @@ import keyBy from 'lodash/keyBy';
 import Users from 'meteor/vulcan:users';
 import './emailComponents/EmailComment.jsx';
 import './emailComponents/PrivateMessagesEmail.jsx';
+import './emailComponents/EventInRadiusEmail.jsx';
 
 const notificationTypes = {};
 
@@ -213,9 +214,40 @@ export const PostSharedWithUserNotification = serverRegisterNotificationType({
   },
   emailBody: ({ user, notifications }) => {
     const post = Posts.findOne(notifications[0].documentId);
-    const link = Posts.getLink(post, true);
+    const link = Posts.getPageUrl(post, true);
     return <p>
       You have been shared on the {post.draft ? "draft" : "post"} <a href={link}>{post.title}</a>.
     </p>
   },
 });
+
+export const NewEventInRadiusNotification = serverRegisterNotificationType({
+  name: "newEventInRadius",
+  canCombineEmails: false,
+  emailSubject: ({ user, notifications }) => {
+    let post = Posts.findOne(notifications[0].documentId);
+    return `A new event has been created in your area: ${post.title}`;
+  },
+  emailBody: async ({ user, notifications }) => {
+    return <Components.EventInRadiusEmail
+      openingSentence="A new event has been created in your area"
+      postId={notifications[0].documentId}
+    />
+  },
+});
+
+export const EditedEventInRadiusNotification = serverRegisterNotificationType({
+  name: "editedEventInRadius",
+  canCombineEmails: false,
+  emailSubject: ({ user, notifications }) => {
+    let post = Posts.findOne(notifications[0].documentId);
+    return `An event in your area has been edited: ${post.title}`;
+  },
+  emailBody: async ({ user, notifications }) => {
+    return <Components.EventInRadiusEmail
+      openingSentence="An event in your area has been edited"
+      postId={notifications[0].documentId}
+    />
+  },
+});
+

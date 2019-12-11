@@ -4,6 +4,7 @@ import { isUnbackedCollection } from '../../lib/collectionUtils';
 
 registerMigration({
   name: "addSchemaVersionEverywhere",
+  dateWritten: "2019-02-04",
   idempotent: true,
   action: async () => {
     for (let collection of Collections) {

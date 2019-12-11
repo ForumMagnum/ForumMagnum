@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { Comments } from '../../lib/collections/comments'
 import { isMobile } from '../../lib/modules/utils/isMobile.js'
+import { styles as commentsItemStyles } from './CommentsItem/CommentsItem';
 
 const styles = theme => ({
   root: {
@@ -104,16 +105,22 @@ const styles = theme => ({
     textAlign: "right",
     fontSize: "1rem",
     color: theme.palette.lwTertiary.main
+  },
+  nomination: {
+    ...commentsItemStyles(theme).nomination,
+    marginRight: theme.spacing.unit
   }
 })
 
-const SingleLineComment = ({comment, classes, nestingLevel, hover, parentCommentId}) => {
+const SingleLineComment = ({comment, classes, nestingLevel, hover, parentCommentId, hideKarma}) => {
   if (!comment) return null
 
   const { plaintextMainText } = comment.contents
   const { CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon } = Components
 
   const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile()
+
+  const renderHighlight = (comment.baseScore > -5) && !comment.deleted
 
   return (
     <div className={classes.root}>
@@ -123,16 +130,20 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
         { parentCommentId!=comment.parentCommentId &&
           <ShowParentComment comment={comment} nestingLevel={nestingLevel} />
         }
-        <span className={classes.karma}>
+        {!hideKarma && <span className={classes.karma}>
           {Comments.getKarma(comment)}
-        </span>
+        </span>}
         <span className={classes.username}>
           <CommentUserName comment={comment} simple={true}/>
         </span>
         <span className={classes.date}>
           <Components.FormatDate date={comment.postedAt} tooltip={false}/>
         </span>
-        {(comment.baseScore > -5) && <span className={classes.truncatedHighlight}> {plaintextMainText} </span>}      
+        {renderHighlight && <span className={classes.truncatedHighlight}> 
+          { comment.nominatedForReview && <span className={classes.nomination}>Nomination</span>}
+          { comment.reviewingForReview && <span className={classes.nomination}>Review</span>}
+          {plaintextMainText} 
+        </span>}      
       </div>
       {displayHoverOver && <span className={classNames(classes.highlight)}>
         <CommentBody truncated comment={comment}/>

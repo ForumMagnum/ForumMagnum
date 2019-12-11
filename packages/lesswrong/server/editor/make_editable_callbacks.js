@@ -1,5 +1,5 @@
 /* global Random */
-import { Utils, addCallback } from 'meteor/vulcan:core';
+import { Utils, addCallback, Connectors } from 'meteor/vulcan:core';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../draftConvert';
 import Revisions from '../../lib/collections/revisions/collection'
@@ -220,6 +220,18 @@ async function getNextVersion(documentId, updateType = 'minor', fieldName, isDra
 
 ensureIndex(Revisions, {documentId: 1, version: 1, fieldName: 1, editedAt: 1})
 
+async function buildRevision({ originalContents, currentUser }) {
+  const { data, type } = originalContents;
+  const html = await dataToHTML(data, type, !currentUser.isAdmin)
+  const wordCount = await dataToWordCount(data, type)
+  
+  return {
+    html, wordCount, originalContents,
+    editedAt: new Date(),
+    userId: currentUser._id,
+  };
+}
+
 export function addEditableCallbacks({collection, options = {}}) {
   const {
     fieldName = "contents",
@@ -233,8 +245,8 @@ export function addEditableCallbacks({collection, options = {}}) {
 
   const { typeName } = collection.options
 
-  async function editorSerializationNew (doc, { currentUser }) {
-    if (doc[fieldName] && doc[fieldName].originalContents) {
+  async function editorSerializationBeforeCreate (doc, { currentUser }) {
+    if (doc[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
       const { data, type } = doc[fieldName].originalContents
       const html = await dataToHTML(data, type, !currentUser.isAdmin)
@@ -242,6 +254,16 @@ export function addEditableCallbacks({collection, options = {}}) {
       const version = getInitialVersion(doc)
       const userId = currentUser._id
       const editedAt = new Date()
+      
+      const firstRevision = await Connectors.create(Revisions, {
+        ...await buildRevision({
+          originalContents: doc[fieldName].originalContents,
+          currentUser,
+        }),
+        version,
+        updateType: 'initial'
+      });
+      
       return {
         ...doc,
         [fieldName]: {
@@ -249,8 +271,9 @@ export function addEditableCallbacks({collection, options = {}}) {
           html, version, userId, editedAt, wordCount,
           updateType: 'initial'
         },
+        [`${fieldName}_latest`]: firstRevision,
         ...(pingbacks ? {
-          pingbacks: await htmlToPingbacks(html),
+          pingbacks: await htmlToPingbacks(html, null),
         } : null),
       }
     }
@@ -258,17 +281,16 @@ export function addEditableCallbacks({collection, options = {}}) {
   }
   
   if (!deactivateNewCallback) {
-    addCallback(`${typeName.toLowerCase()}.create.before`, editorSerializationNew);
+    addCallback(`${typeName.toLowerCase()}.create.before`, editorSerializationBeforeCreate);
   }
 
-  async function editorSerializationEdit (docData, { document, currentUser }) {
-    if (docData[fieldName] && docData[fieldName].originalContents) {
+  async function editorSerializationEdit (docData, { oldDocument: document, newDocument, currentUser }) {
+    if (docData[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
       const { data, type } = docData[fieldName].originalContents
       const html = await dataToHTML(data, type, !currentUser.isAdmin)
       const wordCount = await dataToWordCount(data, type)
       const defaultUpdateType = docData[fieldName].updateType || (!document[fieldName] && 'initial') || 'minor'
-      const newDocument = {...document, ...docData}
       const isBeingUndrafted = document.draft && !newDocument.draft
       // When a document is undrafted for the first time, we ensure that this constitutes a major update
       const { major } = extractVersionsFromSemver((document[fieldName] && document[fieldName].version) ? document[fieldName].version : undefined)
@@ -276,14 +298,30 @@ export function addEditableCallbacks({collection, options = {}}) {
       const version = await getNextVersion(document._id, updateType, fieldName, newDocument.draft)
       const userId = currentUser._id
       const editedAt = new Date()
+      
+      const newRevision = await Connectors.create(Revisions, {
+        documentId: document._id,
+        ...await buildRevision({
+          originalContents: newDocument[fieldName].originalContents,
+          currentUser,
+        }),
+        version,
+        updateType
+      });
+      
       return {
         ...docData,
         [fieldName]: {
           ...docData[fieldName],
           html, version, userId, editedAt, wordCount
         },
+        [`${fieldName}_latest`]: newRevision,
         ...(pingbacks ? {
-          pingbacks: await htmlToPingbacks(html),
+          pingbacks: await htmlToPingbacks(html, [{
+              collectionName: collection.collectionName,
+              documentId: document._id,
+            }]
+          ),
         } : null),
       }
     }
@@ -292,18 +330,17 @@ export function addEditableCallbacks({collection, options = {}}) {
   
   addCallback(`${typeName.toLowerCase()}.update.before`, editorSerializationEdit);
 
-  async function editorSerializationCreateRevision(newDoc, { document }) {
-    if (newDoc[fieldName] && newDoc[fieldName].originalContents && 
-      (newDoc[fieldName].version !== (document && document[fieldName] && document[fieldName].version))) {
-      Revisions.insert({
-        ...newDoc[fieldName],
-        documentId: newDoc._id,
-        fieldName
-      })
-    }
+  async function editorSerializationAfterCreate(newDoc, { oldDocument }) {
+    // Update revision to point to the document that owns it.
+    const revisionID = newDoc[`${fieldName}_latest`];
+    await Revisions.update(
+      { _id: revisionID },
+      { $set: { documentId: newDoc._id } }
+    );
+    
     return newDoc
   }
   
-  addCallback(`${typeName.toLowerCase()}.create.after`, editorSerializationCreateRevision)
-  addCallback(`${typeName.toLowerCase()}.update.after`, editorSerializationCreateRevision)
+  addCallback(`${typeName.toLowerCase()}.create.after`, editorSerializationAfterCreate)
+  //addCallback(`${typeName.toLowerCase()}.update.after`, editorSerializationAfterCreateOrUpdate)
 }

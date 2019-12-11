@@ -3,6 +3,7 @@ import Users from 'meteor/vulcan:users'
 
 registerMigration({
   name: "renameAllPostsSorting",
+  dateWritten: "2019-06-13",
   idempotent: true,
   action: async () => {
     await migrateDocuments({

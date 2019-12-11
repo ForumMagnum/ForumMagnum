@@ -49,7 +49,6 @@ export const useLocation = () => {
 // React Hook which returns the server-side server request status, used to set 404s or redirects
 // The relevant handling happens in the renderPage function
 // This hook only works on the server and will throw an error when called on the client
-
 export const useServerRequestStatus = () => {
   return useContext(ServerRequestStatusContext)
 }

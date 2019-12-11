@@ -215,6 +215,26 @@ const schema = {
     }),
   },
 
+  // users can write comments nominating posts for a particular review period.
+  // this field is generally set by a custom dialog,
+  // set to the year of the review period (i.e. '2018')
+  nominatedForReview: {
+    type: String,
+    optional: true,
+    hidden: true,
+    canRead: ['guests'],
+    canCreate: ['members', 'admins'],
+    canUpdate: [Users.owns, 'admins'],
+  },
+  reviewingForReview: {
+    type: String,
+    optional: true,
+    hidden: true,
+    canRead: ['guests'],
+    canCreate: ['members', 'admins'],
+    canUpdate: [Users.owns, 'admins'],
+  },
+
   lastSubthreadActivity: {
     type: Date,
     denormalized: true,
@@ -233,6 +253,29 @@ const schema = {
       const post = await Posts.findOne({_id: newDocument.postId})
       return (post && post.contents && post.contents.version) || "1.0.0"
     }
+  },
+  
+  // Comments store a duplicate of their post's hideCommentKarma data. The
+  // source of truth remains the hideCommentKarma field of the post. If this
+  // field is true, we do not report the baseScore to non-admins. We update it
+  // if (for some reason) this comment gets transferred to a new post. The
+  // trickier case is updating this on post change. For that we rely on the
+  // UpdateCommentHideKarma callback.
+  hideKarma: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canRead: ['guests'],
+    canCreate: ['members', 'admins'],
+    canUpdate: ['admins'],
+    ...denormalizedField({
+      needsUpdate: data => ('postId' in data),
+      getValue: async comment => {
+        const post = await Posts.findOne({_id: comment.postId});
+        if (!post) return false;
+        return !!post.hideCommentKarma;
+      }
+    }),
   },
   
   // DEPRECATED field for GreaterWrong backwards compatibility

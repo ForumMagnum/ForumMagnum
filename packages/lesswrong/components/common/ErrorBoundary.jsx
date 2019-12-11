@@ -1,14 +1,6 @@
-import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
+import { registerComponent, Components } from 'meteor/vulcan:core';
 import * as Sentry from '@sentry/browser';
-
-const styles = theme => ({
-  errorText: {
-    color: theme.palette.error.main,
-  }
-})
 
 
 class ErrorBoundary extends React.Component {
@@ -28,15 +20,8 @@ class ErrorBoundary extends React.Component {
   }
 
   render() {
-    const { classes } = this.props;
     if (this.state.error) {
-      // You can render any custom fallback UI
-      return <Typography
-          className={classes.errorText}
-          align="center"
-          variant="body1">
-        Error: {this.state.error}
-      </Typography>
+      return <Components.ErrorMessage message={this.state.error}/>
     }
     if (this.props.children)
       return this.props.children;
@@ -45,4 +30,4 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-registerComponent("ErrorBoundary", ErrorBoundary, withStyles(styles, { name: "ErrorBoundary" }));
+registerComponent("ErrorBoundary", ErrorBoundary);

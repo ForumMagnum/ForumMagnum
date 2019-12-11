@@ -5,6 +5,7 @@ import { migrateDocuments, registerMigration } from '../migrations/migrationUtil
 
 registerMigration({
   name: "fillMissingValues",
+  dateWritten: "2018-12-26",
   idempotent: true,
   action: async () => {
     for(let collection of Collections) {

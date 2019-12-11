@@ -7,6 +7,7 @@ import { Subscriptions } from '../../lib/collections/subscriptions/collection.js
 
 registerMigration({
   name: "migrateSubscriptions",
+  dateWritten: "2019-05-01",
   idempotent: true,
   action: async () => {
     let numCommentSubscriptions = 0;
@@ -80,7 +81,7 @@ registerMigration({
               newSubscriptions.push({
                 userId: user._id,
                 state: "subscribed",
-                documentId: userSubscribedTo._id,
+                documentId: userSubscribedTo.itemId,
                 collectionName: "Users",
                 type: "newPosts",
               });

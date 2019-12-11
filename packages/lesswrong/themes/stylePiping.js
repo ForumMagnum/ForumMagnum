@@ -70,6 +70,24 @@ const tableHeadingStyles = {
   fontWeight: 700
 }
 
+const hrStyles = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "100%",
+  height: "100%",
+  margin: "32px 0",
+  border: "none", /* strip default hr styling */
+  textAlign: "center",
+  '&:after': {
+    marginLeft: 12,
+    color: "rgba(0, 0, 0, 0.26)", /* pick a color */
+    fontSize: "1rem",
+    letterSpacing: "12px", /* increase space between dots */
+    content: '"•••"',
+  }
+}
+
 const baseBodyStyles = theme => ({
   ...theme.typography.body1,
   ...theme.typography.postStyle,
@@ -132,7 +150,10 @@ const baseBodyStyles = theme => ({
     position: 'relative'
   },
   '& a, & a:hover, & a:active': {
-    color: theme.palette.primary.main
+    color: theme.palette.primary.main,
+    '& u': {
+      textDecoration: "none"
+    }
   },
   '& table': {
     ...tableStyles
@@ -179,6 +200,9 @@ export const postBodyStyles = (theme) => {
     '& .footnotes-sep': {
       display: 'none'
     },
+    '& hr': {
+      ...hrStyles,
+    }
   }
 }
 
@@ -218,11 +242,18 @@ export const commentBodyStyles = theme => {
       content: '"spoiler (hover/select to reveal)"',
       color: 'white',
     },
+    '& hr': {
+      marginTop: theme.spacing.unit*1.5,
+      marginBottom: theme.spacing.unit*1.5
+    }
   }
   return deepmerge(postBodyStyles(theme), commentBodyStyles, {isMergeableObject:isPlainObject})
 }
 
-// Currently emails have only the basics
+// FIXME: Emails currently don't use this, because the expectations around font size and
+// typography are very different in an email. But some subset of these styles should
+// actually be applied, eg spoiler-tag handling, even though font selection shouldn't
+// be.
 export const emailBodyStyles = baseBodyStyles
 
 export const postHighlightStyles = theme => {
@@ -253,10 +284,10 @@ export const postHighlightStyles = theme => {
 export const pBodyStyle = {
   marginTop: "1em",
   marginBottom: "1em",
-  '&:first-of-type': {
+  '&:first-child': {
     marginTop: 0,
   },
-  '&:last-of-type': {
+  '&:last-child': {
     marginBottom: 0,
   }
 }
@@ -271,6 +302,9 @@ export const ckEditorStyles = theme => {
       '& blockquote': {
         fontStyle: "unset",
         ...theme.typography.blockquote,
+        '& p': {
+          ...pBodyStyle,
+        },
         '& .public-DraftStyleDefault-block': {
           marginTop: 0,
           marginBottom: 0,
@@ -306,6 +340,9 @@ export const ckEditorStyles = theme => {
           ...theme.typography.caption,
           backgroundColor: "unset",
         },
+        '& hr': {
+          ...hrStyles
+        }
       },
       '&.ck-sidebar, &.ck-presence-list': { //\u25B6
         '& li': {

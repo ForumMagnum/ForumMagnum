@@ -46,21 +46,6 @@ $lw-green: #588f27;
   }
 }
 
-.recent-comments-list {
-  max-width: 700px;
-  margin:-2px 10px;
-
-  @include max-small() {
-    margin:-2px 20px;
-  }
-  @include max-tiny() {
-    margin:0px;
-    .comments-item {
-      padding:0px 7px;
-    }
-  }
-}
-
 .comments-load-more {
   margin-left: 10px;
 }

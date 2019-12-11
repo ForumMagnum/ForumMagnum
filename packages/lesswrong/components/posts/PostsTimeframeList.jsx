@@ -42,6 +42,7 @@ class PostsTimeframeList extends PureComponent {
       // during which time the PTL has asked for 1200 days worth of posts.
       timeframe: props.timeframe,
       dim: props.dimWhenLoading,
+      displayedNumTimeBlocks: props.numTimeBlocks
     };
   }
 
@@ -67,14 +68,28 @@ class PostsTimeframeList extends PureComponent {
 
   loadMoreTimeBlocks = (e) => {
     e.preventDefault();
-    const { timeframe, numTimeBlocks } = this.props
+    const { timeframe, numTimeBlocks, reverse } = this.props
     const timeBlock = timeframeToTimeBlock[timeframe]
-    const loadMoreAfter = moment(this.state.after, 'YYYY-MM-DD')
-      .subtract(numTimeBlocks, timeBlock)
-      .format('YYYY-MM-DD');
-    this.setState({
-      after: loadMoreAfter,
-    });
+    const displayedNumTimeBlocks = this.state.displayedNumTimeBlocks + numTimeBlocks
+    if (reverse) {
+      // If the list is reversed, down means going later in time
+      const loadMoreBefore = moment(this.state.before, 'YYYY-MM-DD')
+        .add(numTimeBlocks, timeBlock)
+        .format('YYYY-MM-DD');
+      this.setState({
+        before: loadMoreBefore,
+        displayedNumTimeBlocks
+      });
+    } else {
+      // Otherwise, go back earlier in time
+      const loadMoreAfter = moment(this.state.after, 'YYYY-MM-DD')
+        .subtract(numTimeBlocks, timeBlock)
+        .format('YYYY-MM-DD');
+      this.setState({
+        after: loadMoreAfter,
+        displayedNumTimeBlocks
+      });
+    }
   }
 
   // Calculating when all the components have loaded looks like a mess of
@@ -87,35 +102,39 @@ class PostsTimeframeList extends PureComponent {
   }
 
   render() {
-    const { timezone, classes, postListParameters, displayShortform } = this.props
-    const { timeframe, after, before, dim } = this.state
+    const { timezone, classes, postListParameters, displayShortform, reverse } = this.props
+    const { timeframe, after, before, dim, displayedNumTimeBlocks } = this.state
     const { PostsTimeBlock } = Components
 
     const timeBlock = timeframeToTimeBlock[timeframe]
     const dates = getDateRange(after, before, timeBlock)
+    const orderedDates = reverse ? dates.reverse() : dates
 
+    const renderLoadMoreTimeBlocks = dates.length && dates.length > 1
     return (
       <div className={classNames({[classes.loading]: dim})}>
-        {dates.map((date, index) =>
+        {orderedDates.slice(0, displayedNumTimeBlocks).map((date, index) =>
           <PostsTimeBlock
-            key={date.toString()}
+            key={date.toString()+postListParameters?.limit}
             startDate={moment.tz(date, timezone)}
             timeframe={timeframe}
             terms={{
+              limit: 16,
               ...postListParameters,
               // NB: 'before', as a parameter for a posts view, is inclusive
               before: moment.tz(date, timezone).endOf(timeBlock),
               after: moment.tz(date, timezone).startOf(timeBlock),
-              limit: 16
             }}
             timeBlockLoadComplete={this.timeBlockLoadComplete}
             hideIfEmpty={index===0}
             displayShortform={displayShortform}
           />
         )}
-        <Typography variant="body1" className={classes.loadMore} onClick={this.loadMoreTimeBlocks}>
-          <a>{loadMoreTimeframeMessages[timeframe]}</a>
-        </Typography>
+        {renderLoadMoreTimeBlocks && 
+          <Typography variant="body1" className={classes.loadMore} onClick={this.loadMoreTimeBlocks}>
+            <a>{loadMoreTimeframeMessages[timeframe]}</a>
+          </Typography>
+        }
       </div>
     )
   }

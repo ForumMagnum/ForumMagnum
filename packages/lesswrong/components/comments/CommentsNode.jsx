@@ -15,13 +15,6 @@ const styles = theme => ({
   node: {
     cursor: "default",
     // Higher specificity to override child class (variant syntax)
-    '&$new': {
-      borderLeft: `solid 5px ${theme.palette.secondary.light}`,
-      
-      '&:hover': {
-        borderLeft: `solid 5px ${theme.palette.secondary.main}`
-      },
-    },
     '&$deleted': {
       opacity: 0.6
     }
@@ -33,7 +26,14 @@ const styles = theme => ({
     borderTop: `solid 1px ${theme.palette.grey[300]}`,
     borderBottom: `solid 1px ${theme.palette.grey[300]}`,
   },
-  new: {},
+  new: {
+    '&': {
+      borderLeft: `solid 5px ${theme.palette.secondary.light}`,
+      '&:hover': {
+        borderLeft: `solid 5px ${theme.palette.secondary.main}`
+      },
+    }
+  },
   deleted: {},
   parentScroll: {
     position: "absolute",
@@ -143,7 +143,7 @@ class CommentsNode extends Component {
   }
   
   beginSingleLine = () => {
-    const { comment, condensed, lastCommentId, forceSingleLine, shortform, nestingLevel, postPage } = this.props
+    const { comment, condensed, lastCommentId, forceSingleLine, shortform, nestingLevel, postPage, forceNotSingleLine } = this.props
     const mostRecent = lastCommentId === comment._id
     const lowKarmaOrCondensed = (comment.baseScore < 10 || condensed)
     const shortformAndTop = (nestingLevel === 1) && shortform
@@ -156,8 +156,9 @@ class CommentsNode extends Component {
       this.isTruncated() &&
       lowKarmaOrCondensed &&
       !(mostRecent && condensed) &&
-      !(shortformAndTop) && 
-      !(postPageAndTop)
+      !shortformAndTop && 
+      !postPageAndTop && 
+      !forceNotSingleLine
     )
   }
 
@@ -259,10 +260,12 @@ class CommentsNode extends Component {
   }
 
   render() {
-    const { comment, children, nestingLevel=1, highlightDate, updateComment, post,
+    const {
+      comment, children, nestingLevel=1, highlightDate, updateComment, post,
       muiTheme, postPage, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments,
-      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand, hoverPreview } = this.props;
+      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand, hoverPreview
+    } = this.props;
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList } = Components
 
@@ -324,7 +327,7 @@ class CommentsNode extends Component {
               {this.isSingleLine()
                 ? <SingleLineComment
                     comment={comment} nestingLevel={updatedNestingLevel}
-                    parentCommentId={parentCommentId}
+                    parentCommentId={parentCommentId} hideKarma={post.hideCommentKarma}
                   />
                 : <CommentsItem
                     truncated={this.isTruncated()}
@@ -342,7 +345,7 @@ class CommentsNode extends Component {
             {!collapsed && children && children.length>0 && <div className={classes.children}>
               <div className={classes.parentScroll} onClick={this.scrollIntoView}/>
               { showExtraChildrenButton }
-              {children && children.map(child =>
+              {children.map(child =>
                 <Components.CommentsNode child
                   comment={child.item}
                   parentCommentId={comment._id}

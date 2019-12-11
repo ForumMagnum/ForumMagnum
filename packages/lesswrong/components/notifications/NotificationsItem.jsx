@@ -1,4 +1,4 @@
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components, Utils } from 'meteor/vulcan:core';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import React, { Component } from 'react';
@@ -107,7 +107,7 @@ class NotificationsItem extends Component {
 
           this.setState({clicked: true})
           // we also check whether it's a relative link, and if so, scroll to the item
-          const url = new UrlClass(notification.link)
+          const url = new UrlClass(notification.link, Utils.getSiteUrl())
           const hash = url.hash
           if (hash) {
             const element = document.getElementById(hash.substr(1))

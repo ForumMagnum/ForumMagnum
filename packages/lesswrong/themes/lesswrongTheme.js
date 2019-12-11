@@ -47,25 +47,15 @@ const palette = {
   }
 }
 
-export const sharedOverrides = {
-  MuiSelect: {
-    selectMenu: {
-      paddingLeft: 8
-    }
-  }
-}
-
 const theme = createLWTheme({
   palette: palette,
   typography: {
     fontFamily: sansSerifStack,
     postStyle: {
       fontFamily: serifStack,
-      linkUnderlinePosition: "72%",
     },
     headerStyle: {
       fontFamily: serifStack,
-      linkUnderlinePosition: "72%",
     },
     caption: {
       // captions should be relative to their surrounding content, so they are unopinionated about fontFamily and use ems instead of rems
@@ -137,8 +127,7 @@ const theme = createLWTheme({
         border: `solid 1px rgba(0,0,0,.2)`,
         boxShadow: "0 0 10px rgba(0,0,0,.2)",
       }
-    },
-    ...sharedOverrides
+    }
   }
 });
 
