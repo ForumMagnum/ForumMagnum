@@ -51,7 +51,7 @@ const styles = theme => ({
   adminRead: {
     fontWeight: 500,
     opacity: 1,
-    color: "rgba(0,0,0,.8)"
+    color: "rgba(0,0,0,.75)"
   },
   hideSmDown: {
     [theme.breakpoints.down('sm')]: {
