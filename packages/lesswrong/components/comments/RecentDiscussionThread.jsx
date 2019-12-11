@@ -98,6 +98,7 @@ const RecentDiscussionThread = ({
   const [readStatus, setReadStatus] = useState(false);
   const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState(null);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
+  const [showSnippet] = useState(!isRead || post.commentCount === null); // This state should never change after mount, so we don't grab the setter from useState
   
   const markAsRead = useCallback(
     () => {
@@ -150,7 +151,7 @@ const RecentDiscussionThread = ({
             <PostsHighlight post={post} />
           </div>
           : <div className={highlightClasses} onClick={showHighlight}>
-              { (!isRead || post.commentCount === null) &&
+              { showSnippet &&
                 <ContentItemBody
                   className={classes.postHighlight}
                   dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents && post.contents.htmlHighlight)}}
@@ -205,7 +206,7 @@ const RecentDiscussionThread = ({
 
   render() {
     const { post, comments, updateComment, currentUser, classes, isRead, refetch } = this.props
-    const { readStatus, highlightVisible, markedAsVisitedAt } = this.state
+    const { readStatus, showHighlight, markedAsVisitedAt, showSnippet } = this.state
     const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle } = Components
 
     const lastCommentId = comments && comments[0]?._id
@@ -240,7 +241,7 @@ const RecentDiscussionThread = ({
               <PostsHighlight post={post} />
             </div>
             : <div className={highlightClasses} onClick={this.showHighlight}>
-                { (!isRead || post.commentCount === null) &&
+                { showSnippet &&
                   <ContentItemBody
                     className={classes.postHighlight}
                     dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents && post.contents.htmlHighlight)}}
