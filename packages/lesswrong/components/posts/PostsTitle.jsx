@@ -38,20 +38,20 @@ const styles = theme => ({
     top: 2
   },
   read: {
-    opacity: .6,
+    color: "rgba(0,0,0,.55)",
     '&:hover': {
-      opacity: 1
+      color: "rgba(0,0,0,.87)",
     }
   },
   adminUnread: {
     fontWeight: 500,
-    color: "rgba(0,0,0,.8)",
-    textShadow: "0.3px 0.3px 0px rgba(0,0,0,.8)"
+    color: "rgba(0,0,0,.87)",
+    textShadow: "0.4px 0.4px 0px rgba(0,0,0,.87)"
   },
   adminRead: {
     fontWeight: 500,
     opacity: 1,
-    color: "rgba(0,0,0,.75)"
+    color: "rgba(0,0,0,.75)",
   },
   hideSmDown: {
     [theme.breakpoints.down('sm')]: {
