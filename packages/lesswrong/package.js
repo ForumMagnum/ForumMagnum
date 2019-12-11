@@ -10,6 +10,7 @@ Package.onUse( function(api) {
 
   api.use([
     'ecmascript',
+    'typescript',
     'promise',
     'fourseven:scss',
 
@@ -32,7 +33,7 @@ Package.onUse( function(api) {
   ], ['client']);
 
   Npm.depends({
-    "@babel/core": "7.4.3",
+    "@babel/core": "7.7.4",
     "@babel/plugin-proposal-optional-chaining": "7.2.0",
     "@babel/plugin-syntax-optional-chaining": "7.2.0"
   })
@@ -51,7 +52,7 @@ Package.onTest(function(api) {
   ]);
 
   Npm.depends({
-    "@babel/core": "7.4.3",
+    "@babel/core": "7.7.4",
     "@babel/plugin-proposal-optional-chaining": "7.2.0",
     "@babel/plugin-syntax-optional-chaining": "7.2.0"
   })

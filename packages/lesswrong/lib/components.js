@@ -40,7 +40,7 @@ importComponent("NotificationTypeSettings", () => require('../components/notific
 importComponent("NotificationEmailPreviewPage", () => require('../components/notifications/NotificationEmailPreviewPage.jsx'));
 importComponent("EmailPreview", () => require('../components/notifications/EmailPreview.jsx'));
 
-importComponent("Layout", () => require('../components/Layout.jsx'));
+importComponent("Layout", () => require('../components/Layout.tsx'));
 
 importComponent("AnalyticsClient", () => require('../components/common/AnalyticsClient.jsx'));
 importComponent("CalendarDate", () => require('../components/common/CalendarDate.jsx'));
@@ -154,7 +154,7 @@ importComponent("SuggestAlignment", () => require('../components/posts/SuggestAl
 importComponent("Pingback", () => require('../components/posts/Pingback.jsx'));
 importComponent("PingbacksList", () => require('../components/posts/PingbacksList.jsx'));
 importComponent("PostsItemMeta", () => require('../components/posts/PostsItemMeta.jsx'));
-importComponent("PostsItem2", () => require('../components/posts/PostsItem2.jsx'));
+importComponent("PostsItem2", () => require('../components/posts/PostsItem2.tsx'));
 importComponent("PostsItemTooltipWrapper", () => require('../components/posts/PostsItemTooltipWrapper.jsx'));
 importComponent("PostsItem2MetaInfo", () => require('../components/posts/PostsItem2MetaInfo.jsx'));
 importComponent("PostsTitle", () => require('../components/posts/PostsTitle.jsx'));

@@ -8,8 +8,9 @@ import Intercom from 'react-intercom';
 import moment from 'moment-timezone';
 import { withCookies } from 'react-cookie'
 import LogRocket from 'logrocket'
+import { Random } from 'meteor/random';
 
-import { withStyles, withTheme } from '@material-ui/core/styles';
+import { withStyles, withTheme, createStyles } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents.js'
 import { UserContext } from './common/withUser';
@@ -24,7 +25,7 @@ const googleTagManagerId = getSetting('googleTagManager.apiKey')
 
 // From https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
 // Simple hash for randomly sampling users. NOT CRYPTOGRAPHIC.
-const hashCode = function(str) {
+const hashCode = function(str: string): number {
   var hash = 0, i, chr;
   if (str.length === 0) return hash;
   for (i = 0; i < str.length; i++) {
@@ -39,7 +40,7 @@ const hashCode = function(str) {
 //
 // Refer to routes.js for the route names. Or console log in the route you'd
 // like to include
-const standaloneNavMenuRouteNames = {
+const standaloneNavMenuRouteNames: Record<string,string[]> = {
   'LessWrong': [
     'home', 'allPosts', 'questions', 'sequencesHome', 'CommunityHome', 'Shortform', 'Codex',
     'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews'
@@ -48,7 +49,7 @@ const standaloneNavMenuRouteNames = {
   'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform'],
 }
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   main: {
     margin: '50px auto 15px auto',
     [theme.breakpoints.down('sm')]: {
@@ -70,9 +71,28 @@ const styles = theme => ({
     top: 0,
     width: "100%",
   },
-})
+}))
 
-class Layout extends PureComponent {
+interface LayoutProps {
+  cookies: any,
+  currentUser: any,
+  updateUser: any,
+  location: any,
+  classes: any,
+  theme: any
+  messages: any,
+  children: any,
+}
+interface LayoutState {
+  timezone: string,
+  toc: any,
+  postsRead: Record<string,boolean>,
+  hideNavigationSidebar: boolean,
+}
+
+class Layout extends PureComponent<LayoutProps,LayoutState> {
+  searchResultsAreaRef: React.RefObject<HTMLDivElement>
+  
   constructor (props) {
     super(props);
     const { cookies, currentUser } = this.props;
@@ -85,7 +105,7 @@ class Layout extends PureComponent {
       hideNavigationSidebar: !!(currentUser?.hideNavigationSidebar),
     };
 
-    this.searchResultsAreaRef = React.createRef();
+    this.searchResultsAreaRef = React.createRef<HTMLDivElement>();
   }
 
   setToC = (document, sectionData) => {
@@ -139,7 +159,7 @@ class Layout extends PureComponent {
     if (logRocketKey) {
       // If the user is logged in, always log their sessions
       if (currentUser) {
-        LogRocket.init()
+        LogRocket.init(logRocketKey)
         return
       }
 
@@ -147,7 +167,7 @@ class Layout extends PureComponent {
       const clientId = this.getUniqueClientId()
       const hash = hashCode(clientId)
       if (hash % getSetting('logRocket.sampleDensity') === 0) {
-        LogRocket.init(getSetting('logRocket.apiKey'))
+        LogRocket.init(logRocketKey)
       }
     }
   }
@@ -216,7 +236,7 @@ class Layout extends PureComponent {
             <CommentBoxManager>
               <CssBaseline />
               <Helmet>
-                <link name="material-icons" rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
+                <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
                 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@7.0.0/themes/reset-min.css"/>
                 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
                 { theme.typography.fontDownloads &&
