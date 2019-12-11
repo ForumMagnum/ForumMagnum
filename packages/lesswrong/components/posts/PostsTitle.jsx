@@ -45,8 +45,8 @@ const styles = theme => ({
   },
   adminUnread: {
     fontWeight: 500,
-    color: "rgba(0,0,0,.87)",
-    textShadow: "0.3px 0.3px 0px rgba(0,0,0,.87)"
+    color: "rgba(0,0,0,.8)",
+    textShadow: "0.3px 0.3px 0px rgba(0,0,0,.8)"
   },
   adminRead: {
     fontWeight: 500,
