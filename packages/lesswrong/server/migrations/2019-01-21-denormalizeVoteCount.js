@@ -5,6 +5,7 @@ import mapValues from 'lodash/mapValues';
 
 registerMigration({
   name: "denormalizeVoteCount",
+  dateWritten: "2019-01-21",
   idempotent: true,
   action: async () => {
     for (let collection of VoteableCollections)

@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Components,
   registerComponent,
@@ -13,6 +13,7 @@ import withRecordPostView from '../common/withRecordPostView';
 import { withStyles } from '@material-ui/core/styles';
 import { postExcerptFromHTML } from '../../lib/editor/ellipsize'
 import { postHighlightStyles } from '../../themes/stylePiping'
+import { userHasBoldPostItems } from '../../lib/betas.js';
 
 const styles = theme => ({
   root: {
@@ -88,11 +89,113 @@ const styles = theme => ({
   }
 })
 
-class RecentDiscussionThread extends PureComponent {
-  state = { showHighlight: false, readStatus: false, markedAsVisitedAt: null, expandAllThreads: false, showSnippet: (!this.props.isRead || this.props.post?.commentCount === null) }
+const RecentDiscussionThread = ({
+  post, recordPostView,
+  comments, updateComment, currentUser, classes, isRead, refetch,
+  expandAllThreads: initialExpandAllThreads,
+}) => {
+  const [highlightVisible, setHighlightVisible] = useState(false);
+  const [readStatus, setReadStatus] = useState(false);
+  const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState(null);
+  const [expandAllThreads, setExpandAllThreads] = useState(false);
+  const [showSnippet] = useState(!isRead || post.commentCount === null); // This state should never change after mount, so we don't grab the setter from useState
+  
+  const markAsRead = useCallback(
+    () => {
+      setReadStatus(true);
+      setMarkedAsVisitedAt(new Date());
+      setExpandAllThreads(true);
+      recordPostView({post})
+    },
+    [setReadStatus, setMarkedAsVisitedAt, setExpandAllThreads, recordPostView, post]
+  );
+  const showHighlight = useCallback(
+    () => {
+      setHighlightVisible(!highlightVisible);
+      markAsRead();
+    },
+    [setHighlightVisible, highlightVisible, markAsRead]
+  );
+  
+  const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle } = Components
+
+  const lastCommentId = comments && comments[0]?._id
+  const nestedComments = unflattenComments(comments);
+
+  const lastVisitedAt = markedAsVisitedAt || post.lastVisitedAt
+
+  if (comments && !comments.length && post.commentCount != null) {
+    // New posts should render (to display their highlight).
+    // Posts with at least one comment should only render if that those comments meet the frontpage filter requirements
+    return null
+  }
+
+  const highlightClasses = classNames({
+    [classes.noComments]: post.commentCount === null
+  })
+
+  return (
+    <div className={classes.root}>
+      <div className={(currentUser && !(isRead || readStatus)) ? classes.unreadPost : null}>
+        <div className={classes.postItem}>
+          <PostsTitle wrap post={post} tooltip={false} read={userHasBoldPostItems(currentUser)} />
+          <div className={classes.threadMeta} onClick={showHighlight}>
+            <PostsItemMeta post={post}/>
+            <ShowOrHideHighlightButton
+              className={classes.showHighlight}
+              open={highlightVisible}/>
+          </div>
+        </div>
+        { highlightVisible ?
+          <div className={highlightClasses}>
+            <PostsHighlight post={post} />
+          </div>
+          : <div className={highlightClasses} onClick={showHighlight}>
+              { showSnippet &&
+                <ContentItemBody
+                  className={classes.postHighlight}
+                  dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents && post.contents.htmlHighlight)}}
+                  description={`post ${post._id}`}
+                />
+              }
+            </div>
+        }
+      </div>
+      <div className={classes.content}>
+        <div className={classes.commentsList}>
+          {nestedComments.map(comment =>
+            <div key={comment.item._id}>
+              <CommentsNode
+                startThreadTruncated={true}
+                expandAllThreads={initialExpandAllThreads || expandAllThreads}
+                scrollOnExpand
+                nestingLevel={1}
+                lastCommentId={lastCommentId}
+                currentUser={currentUser}
+                comment={comment.item}
+                markAsRead={markAsRead}
+                highlightDate={lastVisitedAt}
+                //eslint-disable-next-line react/no-children-prop
+                children={comment.children}
+                key={comment.item._id}
+                updateComment={updateComment}
+                post={post}
+                refetch={refetch}
+                condensed
+              />
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+};
+
+/*class RecentDiscussionThread extends PureComponent {
+  state = { highlightVisible: false, readStatus: false, markedAsVisitedAt: null, expandAllThreads: false }
 
   showHighlight = () => {
-    this.setState(prevState => ({showHighlight:!prevState.showHighlight}));
+    this.setState(prevState => ({highlightVisible:!prevState.highlightVisible}));
     this.markAsRead()
   }
 
@@ -125,15 +228,15 @@ class RecentDiscussionThread extends PureComponent {
       <div className={classes.root}>
         <div className={(currentUser && !(isRead || readStatus)) ? classes.unreadPost : null}>
           <div className={classes.postItem}>
-            <PostsTitle wrap post={post} tooltip={false}/>
+            <PostsTitle wrap post={post} tooltip={false} read={userHasBoldPostItems(currentUser)}/>
             <div className={classes.threadMeta} onClick={this.showHighlight}>
               <PostsItemMeta post={post}/>
               <ShowOrHideHighlightButton
                 className={classes.showHighlight}
-                open={showHighlight}/>
+                open={highlightVisible}/>
             </div>
           </div>
-          { showHighlight ?
+          { highlightVisible ?
             <div className={highlightClasses}>
               <PostsHighlight post={post} />
             </div>
@@ -177,7 +280,7 @@ class RecentDiscussionThread extends PureComponent {
       </div>
     )
   }
-}
+}*/
 
 registerComponent(
   'RecentDiscussionThread',

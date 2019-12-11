@@ -60,6 +60,11 @@ const pipelineFilterUnread = ({currentUser}) => {
 const getInclusionSelector = algorithm => {
   if (algorithm.review2018) {
     return { 
+      nominationCount2018: {$gte: 2}
+    }
+  }
+  if (algorithm.nomination2018) {
+    return { 
       postedAt: {$gt: new Date("2018-01-01"), $lt: new Date("2019-01-01")},
       meta: false
     }

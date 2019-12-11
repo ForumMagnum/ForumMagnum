@@ -19,5 +19,4 @@ const shippedFeature = (user) => true; // eslint-disable-line no-unused-vars
 export const userHasPingbacks = optInOnly;
 export const userHasCkEditor = adminOnly;
 export const userHasTagging = adminOnly;
-export const userHas2018Reviewing = adminOnly;
-
+export const userHasBoldPostItems = adminOnly

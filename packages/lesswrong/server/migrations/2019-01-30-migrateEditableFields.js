@@ -34,6 +34,7 @@ const TARGET_SCHEMA_VERSION = 2
 
 registerMigration({
   name: "migrateEditableFields",
+  dateWritten: "2019-01-30",
   idempotent: true,
   action: async () => {
     for (let collectionName of editableCollections) {

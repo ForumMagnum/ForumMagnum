@@ -3,6 +3,7 @@ import Users from 'meteor/vulcan:users';
 
 registerMigration({
   name: "confirmLegacyEmails",
+  dateWritten: "2019-04-10",
   idempotent: true,
   action: async () => {
     forEachDocumentBatchInCollection({

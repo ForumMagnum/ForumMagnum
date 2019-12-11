@@ -11,6 +11,7 @@ import LogRocket from 'logrocket'
 
 import { withStyles, withTheme } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
+import { AnalyticsContext } from '../lib/analyticsEvents.js'
 import { UserContext } from './common/withUser';
 import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
@@ -41,7 +42,7 @@ const hashCode = function(str) {
 const standaloneNavMenuRouteNames = {
   'LessWrong': [
     'home', 'allPosts', 'questions', 'sequencesHome', 'CommunityHome', 'Shortform', 'Codex',
-    'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations'
+    'HPMOR', 'Rationality', 'Sequences', 'collections', 'nominations', 'reviews'
   ],
   'AlignmentForum': ['alignment.home', 'sequencesHome', 'allPosts', 'questions', 'Shortform'],
   'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform'],
@@ -52,8 +53,8 @@ const styles = theme => ({
     margin: '50px auto 15px auto',
     [theme.breakpoints.down('sm')]: {
       marginTop: 0,
-      paddingLeft: theme.spacing.unit,
-      paddingRight: theme.spacing.unit,
+      paddingLeft: theme.spacing.unit/2,
+      paddingRight: theme.spacing.unit/2,
     },
   },
   '@global': {
@@ -200,6 +201,7 @@ class Layout extends PureComponent {
         .includes(location.currentRoute.name)
     
     return (
+      <AnalyticsContext>
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
       <PostsReadContext.Provider value={{
@@ -260,6 +262,7 @@ class Layout extends PureComponent {
       </PostsReadContext.Provider>
       </TimezoneContext.Provider>
       </UserContext.Provider>
+      </AnalyticsContext>
     )
   }
 }
