@@ -35,7 +35,7 @@ const styles = theme => ({
   },
 });
 
-const CommentsItemDate = ({comment, post, showPostTitle, classes, scrollOnClick, scrollIntoView }) => {
+const CommentsItemDate = ({comment, post, classes, scrollOnClick, scrollIntoView }) => {
   const { history } = useNavigation();
   const { location } = useLocation();
 
@@ -50,7 +50,6 @@ const CommentsItemDate = ({comment, post, showPostTitle, classes, scrollOnClick,
   const date = <span>
     <Components.FormatDate date={comment.postedAt} format={comment.answer && "MMM DD, YYYY"}/>
     <LinkIcon className={classes.icon}/>
-    {showPostTitle && post.title && <span className={classes.postTitle}> {post.draft && "[Draft]"} {post.title}</span>}
   </span>
 
   return (

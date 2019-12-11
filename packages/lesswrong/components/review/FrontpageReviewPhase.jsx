@@ -4,6 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper.js';
 import Tooltip from '@material-ui/core/Tooltip';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser'
+import {AnalyticsContext} from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   timeRemaining: {
@@ -16,7 +17,7 @@ const styles = theme => ({
 })
 
 const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
-  const { SubSection, SectionSubtitle, SectionFooter, PostsList2, HoverPreviewLink } = Components
+  const { SubSection, SectionSubtitle, SectionFooter, RecommendationsList, HoverPreviewLink } = Components
 
   const reviewTooltip = <div>
     <div>The LessWrong community is reflecting on the best posts from 2018, in three phases</div>
@@ -31,6 +32,13 @@ const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
 
   if (settings.hideReview) return null
 
+  const algorithm = {
+    ...settings, 
+    review2018: true, 
+    onlyUnread: false,
+    excludeDefaultRecommendations: true
+  }
+
   return (
     <div>
       <Tooltip placement="top-start" title={reviewTooltip}>
@@ -39,19 +47,26 @@ const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
             <Link to={"/reviews"}>
               The LessWrong 2018 Review
             </Link>
-            {currentUser?.karma >= 1000 ? <div className={classes.timeRemaining}>
-            <em>You have until Dec 31st to review posts (<span className={classes.learnMore}><HoverPreviewLink href="/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review" innerHTML={"learn more"}/></span>)</em>
-          </div> : null}
+            <div className={classes.timeRemaining}>
+              <em>You have until Dec 31st to review posts (<span className={classes.learnMore}>
+                <HoverPreviewLink href="/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review" innerHTML={"learn more"}/>
+              </span>)</em>
+            </div>
           </SectionSubtitle>
         </div>
       </Tooltip>
       <SubSection>
-        <PostsList2 terms={{view:"reviews2018", limit: 3}} showLoadMore={false} />
+        <AnalyticsContext listContext={"LessWrong 2018 Review NEW"}>
+          <RecommendationsList algorithm={algorithm} showLoginPrompt={false} />
+        </AnalyticsContext>
       </SubSection>
       <SectionFooter>
         <Link to={"/reviews"}>
-          View All Nominated Posts
+          Reviews Dashboard
         </Link>
+        {(currentUser && currentUser.karma >= 1000) && <Link to={`/users/${currentUser.slug}/reviews`}>
+          My Reviews
+        </Link>}
       </SectionFooter>
     </div>
   )

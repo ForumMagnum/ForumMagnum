@@ -1,6 +1,6 @@
 import Users from "meteor/vulcan:users";
 import { getSetting, Utils } from "meteor/vulcan:core"
-import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, arrayOfForeignKeysField, denormalizedField } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation } from '../../modules/utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 import SimpleSchema from 'simpl-schema'
@@ -667,6 +667,10 @@ addFieldsDict(Users, {
     label: "Draft shared with me",
     ...notificationTypeSettingsField({ channel: "both" }),
   },
+  notificationEventInRadius: {
+    label: "New Events in my notification radius",
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
 
   // Karma-change notifier settings
   karmaChangeNotifierSettings: {
@@ -783,11 +787,14 @@ addFieldsDict(Users, {
   mongoLocation: {
     type: Object,
     canRead: ['guests'],
-    canCreate: ['members'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    hidden: true,
     blackbox: true,
-    optional: true
+    optional: true,
+    ...denormalizedField({
+      needsUpdate: data => ('googleLocation' in data),
+      getValue: async (user) => {
+        if (user.googleLocation) return googleLocationToMongoLocation(user.googleLocation)
+      }
+    }),
   },
 
   googleLocation: {
@@ -876,6 +883,19 @@ addFieldsDict(Users, {
     control: 'LocationFormComponent',
     blackbox: true,
     optional: true,
+  },
+
+  nearbyEventsNotificationsMongoLocation: {
+    type: Object,
+    canRead: [Users.owns],
+    blackbox: true,
+    optional: true,
+    ...denormalizedField({
+      needsUpdate: data => ('nearbyEventsNotificationsLocation' in data),
+      getValue: async (user) => {
+        if (user.nearbyEventsNotificationsLocation) return googleLocationToMongoLocation(user.nearbyEventsNotificationsLocation)
+      }
+    }),
   },
 
   nearbyEventsNotificationsRadius: {
@@ -1267,3 +1287,4 @@ const createDisplayName = user => {
   if (user.email) return user.email.slice(0, user.email.indexOf('@'));
   return undefined;
 }
+

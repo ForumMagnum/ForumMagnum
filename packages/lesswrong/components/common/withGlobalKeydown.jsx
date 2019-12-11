@@ -35,3 +35,15 @@ const withGlobalKeydown = (WrappedComponent) => {
 }
 
 export default withGlobalKeydown
+
+export const useGlobalKeydown = (keyboardHandlerFn) => {
+  React.useEffect(() => {
+    if (Meteor.isClient) {
+      document.addEventListener('keydown', keyboardHandlerFn)
+      
+      return function cleanup() {
+        document.removeEventListener('keydown', keyboardHandlerFn);
+      };
+    }
+  });
+}

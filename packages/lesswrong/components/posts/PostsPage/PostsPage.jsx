@@ -202,6 +202,15 @@ const styles = theme => ({
   },
   postType: {
     marginRight: SECONDARY_SPACING
+  },
+  reviewInfo: {
+    textAlign: "center",
+    marginBottom: 32
+  },
+  reviewLabel: {
+    ...theme.typography.postStyle,
+    ...theme.typography.contentNotice,
+    marginBottom: theme.spacing.unit,
   }
 })
 
@@ -266,7 +275,7 @@ class PostsPage extends Component {
       LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
       TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink,
-      PingbacksList, FooterTagList, ReviewPostButton } = Components
+      PingbacksList, FooterTagList, ReviewPostButton, HoverPreviewLink } = Components
 
     if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
@@ -346,7 +355,13 @@ class PostsPage extends Component {
               <div className={classes.postBody}>
                 { post.isEvent && <Components.SmallMapPreview post={post} /> }
                 <div className={classes.postContent}>
-                  <ReviewPostButton post={post}/>
+                  {(post.nominationCount2018 >= 2) && <div className={classes.reviewInfo}>
+                    <div className={classes.reviewLabel}>
+                      This post has been nominated for the <HoverPreviewLink href="http://lesswrong.com/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review-posts-need-at-least-2-nominations" innerHTML={"2018 Review"}/>
+                    </div>
+                    <ReviewPostButton post={post} reviewMessage="Write a Review"/>
+                  </div>}
+                  
                   <AlignmentCrosspostMessage post={post} />
                   { post.authorIsUnreviewed && <div className={classes.contentNotice}>This post is awaiting moderator approval</div>}
                   <LinkPostMessage post={post} />
