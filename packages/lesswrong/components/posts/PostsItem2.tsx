@@ -88,7 +88,6 @@ export const styles = createStyles((theme) => ({
     }
   },
   karmaUnread: {
-    fontWeight: 600,
     color: 'rgba(0,0,0,.87) !important'
   },
   title: {

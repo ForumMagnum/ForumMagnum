@@ -31,7 +31,7 @@ const styles = theme => ({
   },
   wrap: {
     whiteSpace: "normal",
-  },
+  },  
   sticky: {
     paddingRight: theme.spacing.unit,
     position: "relative",
@@ -44,8 +44,9 @@ const styles = theme => ({
     }
   },
   adminUnread: {
-    fontWeight: 600,
-    color: "rgba(0,0,0,.8)"
+    fontWeight: 500,
+    color: "rgba(0,0,0,.87)",
+    textShadow: "0.3px 0.3px 0px rgba(0,0,0,.87)"
   },
   adminRead: {
     fontWeight: 500,
