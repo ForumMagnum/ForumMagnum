@@ -8,7 +8,6 @@ import { Posts } from '../../lib/collections/posts';
 import CommentIcon from '@material-ui/icons/ModeComment';
 import Card from '@material-ui/core/Card';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { userHasBoldPostItems } from '../../lib/betas.js';
 
 const styles = theme => ({
   root: {
@@ -120,7 +119,7 @@ const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, truncate
 
   return <Card className={classes.root}>
       <div className={classes.title}>
-        <PostsTitle post={post} tooltip={false} wrap read={userHasBoldPostItems(currentUser)} />
+        <PostsTitle post={post} tooltip={false} wrap />
       </div>
       <div className={classes.tooltipInfo}>
         { getPostCategory(post)}

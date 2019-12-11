@@ -6,7 +6,6 @@ import withUser from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { Posts } from '../../lib/collections/posts';
-import { userHasBoldPostItems } from '../../lib/betas.js';
 
 const styles = theme => ({
   root: {
@@ -44,15 +43,6 @@ const styles = theme => ({
       opacity: 1
     }
   },
-  adminUnread: {
-    fontWeight: 600,
-    color: "rgba(0,0,0,.8)"
-  },
-  adminRead: {
-    fontWeight: 500,
-    opacity: 1,
-    color: "rgba(0,0,0,.8)"
-  },
   hideSmDown: {
     [theme.breakpoints.down('sm')]: {
       display: "none",
@@ -86,8 +76,6 @@ const PostsTitle = ({currentUser, post, postLink, classes, sticky, read, showQue
     {
       [classes.read]: read,
       [classes.wrap]: wrap,
-      [classes.adminUnread]: !read && userHasBoldPostItems(currentUser),
-      [classes.adminRead]: read && userHasBoldPostItems(currentUser),
     }
   )}>
     {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
