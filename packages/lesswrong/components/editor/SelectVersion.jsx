@@ -24,6 +24,20 @@ const SelectVersion = ({classes, documentId, revisionVersion, updateVersionNumbe
     documentId
   })
 
+  // the updateVersion function is implemented a bit weirdly.
+  
+  // Naively, you want for the select menu, "onChange -> change the text to the currentVersion"
+  // We don't want to grab _all_ the versions on initial pageload because there might be a lot and they might be large.
+  // So we only want to grab one version at a time.
+  // The version needs to be grabbed via a hook. 
+  // Hooks need to be run at the beginning of a component
+  
+  // In order to cause the hook to re-run, SelectVersion needs to send a signal back to EditorFormComponent (to update the 'version number' state, which in turn updates this component's props which causes it to re-render, this time fetching the revision corresponding to the new version number)
+
+  // after the hook has finished grabbing the new revision, it propagates uses the useEffect trigger to propogate it back to the EditorFormComponent.
+
+  // this all seems pretty convoluted, but Oli and I spent a few hours trying to get to get to a simpler implementation and it wasn't obvious how. Oli made some cursory attempt to implement a deferred hook in hopes that would streamline things, but says that it didn't end up helping. He had some sense that refactoring EditorFormComponent might make it easier.
+
   useEffect(() => {
     updateVersion(document)
   }, [documentId, document, updateVersion])
