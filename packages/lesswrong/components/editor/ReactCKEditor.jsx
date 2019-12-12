@@ -103,6 +103,10 @@ export default class CKEditor extends React.Component {
     })
     this.watchdog.setDestructor(editor => editor.destroy())
     this.watchdog.create(this.domContainer.current, this.props.config)
+    // eslint-disable-next-line no-console
+    this.watchdog.on( 'error', () => { console.log( 'Editor crashed.' ) } );
+    // eslint-disable-next-line no-console
+    this.watchdog.on( 'restart', () => { console.log( 'Editor was restarted.' ) } );
   }
     
   _destroyEditor() {
