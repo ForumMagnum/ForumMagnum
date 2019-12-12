@@ -38,6 +38,8 @@ const SelectVersion = ({classes, documentId, revisionVersion, updateVersionNumbe
 
   // this all seems pretty convoluted, but Oli and I spent a few hours trying to get to get to a simpler implementation and it wasn't obvious how. Oli made some cursory attempt to implement a deferred hook in hopes that would streamline things, but says that it didn't end up helping. He had some sense that refactoring EditorFormComponent might make it easier.
 
+  // at first I tried implementing this without the useEffect trigger, but that just resulted in the update causing the _last_ selected revision to get restored.
+
   useEffect(() => {
     updateVersion(document)
   }, [documentId, document, updateVersion])
