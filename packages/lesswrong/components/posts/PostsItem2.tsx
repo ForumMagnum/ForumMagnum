@@ -1,6 +1,6 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper.js';
 import { Posts } from "../../lib/collections/posts";
 import { Sequences } from "../../lib/collections/sequences/collection.js";
@@ -24,7 +24,7 @@ const COMMENTS_BACKGROUND_COLOR = "#f5f5f5"
 
 const captureOnMountContexts = ['continueReading', 'bookmarksPage', 'frontpageBookmarksList', 'fromTheArchives']
 
-export const styles = (theme) => ({
+export const styles = createStyles((theme) => ({
   root: {
     position: "relative",
     [theme.breakpoints.down('sm')]: {
@@ -286,7 +286,7 @@ export const styles = (theme) => ({
     position: "relative",
     top: 2,
   }
-})
+}))
 
 const dismissRecommendationTooltip = "Don't remind me to finish reading this sequence unless I visit it again";
 
@@ -347,7 +347,7 @@ const PostsItem2 = ({
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
-  const [markedVisitedAt, setMarkedVisitedAt] = React.useState(false);
+  const [markedVisitedAt, setMarkedVisitedAt] = React.useState<Date|null>(null);
 
   const currentUser = useCurrentUser();
 

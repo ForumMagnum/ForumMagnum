@@ -39,6 +39,7 @@ const styles = (theme) => ({
     marginLeft: 0,
   },
   children: {
+    ...theme.typography.commentStyle
     // Exists for eaTheme override
   },
   tailDivider: {

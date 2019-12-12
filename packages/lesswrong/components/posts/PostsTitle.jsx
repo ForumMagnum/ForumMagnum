@@ -38,7 +38,6 @@ const styles = theme => ({
     top: 2
   },
   read: {
-    color: "rgba(0,0,0,.75)",
     opacity: .6,
     '&:hover': {
       opacity: 1
@@ -46,7 +45,7 @@ const styles = theme => ({
   },
   adminUnread: {
     fontWeight: 600,
-    color: "rgba(0,0,0,.92)"
+    color: "rgba(0,0,0,.8)"
   },
   adminRead: {
     fontWeight: 500,

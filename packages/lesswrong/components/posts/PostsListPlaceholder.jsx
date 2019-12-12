@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
-import { styles } from './PostsItem2.jsx';
+import { styles } from './PostsItem2.tsx';
 
 const PostsListPlaceholder = ({count, classes}) => {
   let placeholders = [];
