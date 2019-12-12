@@ -31,7 +31,7 @@ const styles = theme => ({
   },
   wrap: {
     whiteSpace: "normal",
-  },  
+  },
   sticky: {
     paddingRight: theme.spacing.unit,
     position: "relative",
