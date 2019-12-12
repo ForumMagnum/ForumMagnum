@@ -1,5 +1,5 @@
 import React from 'react'
-import CKEditor from '@ckeditor/ckeditor5-react';
+import CKEditor from '../editor/ReactCKEditor';
 import { CommentEditor } from '@lesswrong/lesswrong-editor';
 import { generateTokenRequest } from '../../lib/ckEditorUtils'
 import { getSetting } from 'meteor/vulcan:core';
