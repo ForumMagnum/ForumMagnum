@@ -1,12 +1,6 @@
-/**
-* @license Copyright (c) 2003-2019, CKSource - Frederico Knabben. All rights reserved.
-* For licensing, see LICENSE.md.
-*/
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Watchdog } from '@lesswrong/lesswrong-editor'
-import { cosmiconfig } from 'cosmiconfig';
 
 export default class CKEditor extends React.Component {
   constructor( props ) {
@@ -43,7 +37,6 @@ export default class CKEditor extends React.Component {
   
   // Destroy the editor before unmouting the component.
   componentWillUnmount() {
-    console.log("Unmounting ReactCKEditor")
     this._destroyEditor();
   }
   
@@ -138,19 +131,19 @@ export default class CKEditor extends React.Component {
   }
 }
   
-  // Properties definition.
-  CKEditor.propTypes = {
-    editor: PropTypes.func.isRequired,
-    data: PropTypes.string,
-    config: PropTypes.object,
-    onChange: PropTypes.func,
-    onInit: PropTypes.func,
-    onFocus: PropTypes.func,
-    onBlur: PropTypes.func,
-    disabled: PropTypes.bool
-  };
-  
-  // Default values for non-required properties.
-  CKEditor.defaultProps = {
-    config: {}
-  };
+// Properties definition.
+CKEditor.propTypes = {
+  editor: PropTypes.func.isRequired,
+  data: PropTypes.string,
+  config: PropTypes.object,
+  onChange: PropTypes.func,
+  onInit: PropTypes.func,
+  onFocus: PropTypes.func,
+  onBlur: PropTypes.func,
+  disabled: PropTypes.bool
+};
+
+// Default values for non-required properties.
+CKEditor.defaultProps = {
+  config: {}
+};
