@@ -56,7 +56,7 @@ const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
         </div>
       </Tooltip>
       <SubSection>
-        <AnalyticsContext listContext={"LessWrong 2018 Review NEW"}>
+        <AnalyticsContext listContext={"LessWrong 2018 Review"} capturePostItemOnMount>
           <RecommendationsList algorithm={algorithm} showLoginPrompt={false} />
         </AnalyticsContext>
       </SubSection>

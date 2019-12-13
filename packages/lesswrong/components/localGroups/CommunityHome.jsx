@@ -9,6 +9,7 @@ import EventIcon from '@material-ui/icons/Event';
 import { withLocation } from '../../lib/routeUtil';
 import Typography from '@material-ui/core/Typography';
 import withDialog from '../common/withDialog'
+import {AnalyticsContext} from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   welcomeText: {
@@ -113,14 +114,18 @@ class CommunityHome extends Component {
                 </SectionButton>
               </Link>}
             </SectionTitle>
-            <PostsList2 terms={postsListTerms}>
-              <Link to="/pastEvents">View Past Events</Link>
-              <Link to="/upcomingEvents">View Upcoming Events</Link>
-            </PostsList2>
+            <AnalyticsContext listContext={"communityEvents"}>
+              <PostsList2 terms={postsListTerms}>
+                <Link to="/pastEvents">View Past Events</Link>
+                <Link to="/upcomingEvents">View Upcoming Events</Link>
+              </PostsList2>
+            </AnalyticsContext>
           </SingleColumnSection>
           <SingleColumnSection>
             <SectionTitle title="Resources"/>
-            <PostsList2 terms={{view: 'communityResourcePosts'}} showLoadMore={false} />
+            <AnalyticsContext listContext={"communityResources"}>
+              <PostsList2 terms={{view: 'communityResourcePosts'}} showLoadMore={false} />
+            </AnalyticsContext>
           </SingleColumnSection>
       </React.Fragment>
     )

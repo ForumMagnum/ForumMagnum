@@ -154,7 +154,7 @@ class RecommendationsAndCurated extends PureComponent {
             <BetaTag />
           </div>
           <SubSection className={classes.continueReadingList}>
-            <AnalyticsContext listContext={"frontpageBookmarksList"}>
+            <AnalyticsContext listContext={"frontpageBookmarksList"} capturePostItemOnMount>
               <BookmarksList limit={3} />
             </AnalyticsContext>
           </SubSection>
@@ -175,7 +175,9 @@ class RecommendationsAndCurated extends PureComponent {
           <BetaTag />
         </div>
         <SubSection>
-          <RecommendationsList algorithm={frontpageRecommendationSettings} />
+          <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
+            <RecommendationsList algorithm={frontpageRecommendationSettings} />
+          </AnalyticsContext>
         </SubSection>
       </div>} */}
 

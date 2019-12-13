@@ -13,6 +13,7 @@ import classNames from 'classnames';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import { postBodyStyles } from '../../themes/stylePiping'
+import {AnalyticsContext} from "../../lib/analyticsEvents";
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -288,8 +289,10 @@ class UsersProfile extends Component {
               </SectionButton>
             </Link>
           </SectionTitle>
-          <Components.PostsList2 terms={draftTerms}/>
-          <Components.PostsList2 terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
+          <AnalyticsContext listContext={"userPageDrafts"}>
+            <Components.PostsList2 terms={draftTerms}/>
+            <Components.PostsList2 terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
+          </AnalyticsContext>
           {getSetting('hasEvents', true) && <Components.LocalGroupsList terms={{view: 'userInactiveGroups', userId: currentUser._id}} showHeader={false} />}
         </SingleColumnSection> }
         {/* Posts Section */}
@@ -307,7 +310,9 @@ class UsersProfile extends Component {
             currentShowLowKarma={currentShowLowKarma}
             sortings={sortings}
           />}
-          <PostsList2 terms={terms} />
+          <AnalyticsContext listContext={"userPagePosts"}>
+            <PostsList2 terms={terms} />
+          </AnalyticsContext>
         </SingleColumnSection>
 
         {/* Comments Sections */}

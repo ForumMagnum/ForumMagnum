@@ -22,8 +22,6 @@ export const COMMENTS_WIDTH = 48
 
 const COMMENTS_BACKGROUND_COLOR = "#f5f5f5"
 
-const captureOnMountContexts = ['continueReading', 'bookmarksPage', 'frontpageBookmarksList', 'fromTheArchives']
-
 export const styles = createStyles((theme) => ({
   root: {
     position: "relative",
@@ -429,7 +427,7 @@ const PostsItem2 = ({
                 <AnalyticsTracker
                     eventType={"postItem"}
                     eventProps={{postId: post._id, isSticky:isSticky(post, terms)}}
-                    captureOnMount={(eventData => captureOnMountContexts.includes(eventData.listContext))}>
+                    captureOnMount={(eventData) => eventData.capturePostItemOnMount}>
                   <PostsTitle postLink={postLink} post={post} expandOnHover={!renderComments} read={isRead} sticky={isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
                 </AnalyticsTracker>
             </span>

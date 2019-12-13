@@ -76,7 +76,7 @@ export const AnalyticsContext = ({children, ...props}) => {
 export function useTracking({eventType, eventProps = {}, captureOnMount = false,  skip = false}) {
   const trackingContext = useContext(ReactTrackingContext)
   useEffect(() => {
-    const eventData = {...trackingContext, ...eventProps}
+    const eventData = {...trackingContext, ..._.omit(eventProps, 'capturePostItemOnMount')}
     if (typeof captureOnMount === "function") {
       !skip && captureOnMount(eventData) && captureEvent(`${eventType}Mounted`, eventData)
     } else if (!!captureOnMount) {

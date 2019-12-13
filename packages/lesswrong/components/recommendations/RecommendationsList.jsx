@@ -20,17 +20,15 @@ class RecommendationsList extends Component {
     </div>
 
     return <div>
-      <AnalyticsContext listContext={"LessWrong 2018 Review OLD"}>
-        {recommendations.map(post =>
-          <PostsItem2 post={post} key={post._id}/>)}
-        {recommendations.length===0 &&
-          <span>There are no more recommendations left.</span>}
-        {!currentUser && showLoginPrompt && <SectionFooter>
-          <LoginPopupButton title={improvedRecommendationsTooltip}>
-            Log in for improved recommendations
-          </LoginPopupButton>
-        </SectionFooter>}
-      </AnalyticsContext>
+      {recommendations.map(post =>
+        <PostsItem2 post={post} key={post._id}/>)}
+      {recommendations.length===0 &&
+        <span>There are no more recommendations left.</span>}
+      {!currentUser && showLoginPrompt && <SectionFooter>
+        <LoginPopupButton title={improvedRecommendationsTooltip}>
+          Log in for improved recommendations
+        </LoginPopupButton>
+      </SectionFooter>}
     </div>
   }
 }
