@@ -8,6 +8,7 @@ import { JSDOM } from 'jsdom'
 import { Utils } from 'meteor/vulcan:core';
 import htmlToText from 'html-to-text'
 import sanitizeHtml from 'sanitize-html';
+import { revisionCacheComputedField } from '../../../server/revisionsCache.ts';
 
 const PLAINTEXT_HTML_TRUNCATION_LENGTH = 4000
 const PLAINTEXT_DESCRIPTION_LENGTH = 2000
@@ -64,14 +65,34 @@ addFieldsDict(Revisions, {
     type: String,
     resolveAs: {
       type: 'String',
-      resolver: ({originalContents: {data, type}}) => dataToMarkdown(data, type)
+      resolver: (revision, args, context) => {
+        return revisionCacheComputedField({
+          revision,
+          fieldName: "markdown",
+          loader: context.Revisions.loader,
+          computeField: rev => {
+            const {originalContents: { data, type }} = rev;
+            return dataToMarkdown(data, type);
+          }
+        });
+      }
     }
   },
   draftJS: {
     type: Object,
     resolveAs: {
       type: 'JSON',
-      resolver: ({originalContents: {data, type}}) => dataToDraftJS(data, type)
+      resolver: (revision, args, context) => {
+        return revisionCacheComputedField({
+          revision,
+          fieldName: "draftJS",
+          loader: context.Revisions.loader,
+          computeField: rev => {
+            const { originalContents: { data, type } } = rev;
+            return dataToDraftJS(data, type);
+          }
+        });
+      }
     }
   },
   ckEditorMarkup: {
@@ -85,37 +106,56 @@ addFieldsDict(Revisions, {
     type: String,
     resolveAs: {
       type: 'String',
-      resolver: ({html}) => highlightFromHTML(html)
+      resolver: (revision, args, context) => {
+        const { html } = revision;
+        return highlightFromHTML(html);
+      }
     }
   },
   plaintextDescription: {
     type: String,
     resolveAs: {
       type: 'String',
-      resolver: ({html}) => {
-        const truncatedHtml = truncate(Utils.sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
-        return htmlToText
-          .fromString(truncatedHtml)
-          .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
-      } 
+      resolver: (revision, args, context) => {
+        return revisionCacheComputedField({
+          revision,
+          fieldName: "plaintextDescription",
+          loader: context.Revisions.loader,
+          computeField: rev => {
+            const { html } = rev;
+            const truncatedHtml = truncate(Utils.sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
+            return htmlToText
+              .fromString(truncatedHtml)
+              .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
+          }
+        });
+      }
     }
   },
   // Plaintext version, except that specially-formatted blocks like blockquotes are filtered out, for use in highly-abridged displays like SingleLineComment.
   plaintextMainText: {
-    type: String, 
+    type: String,
     resolveAs: {
       type: 'String',
-      resolver: ({html}) => {
-        const mainTextHtml = sanitizeHtml(
-          html, { 
-            allowedTags: _.without(Utils.sanitizeAllowedTags, 'blockquote', 'img'),
-            nonTextTags: ['blockquote', 'img', 'style']
+      resolver: (revision, args, context) => {
+        return revisionCacheComputedField({
+          revision,
+          fieldName: "plaintextMainText",
+          loader: context.Revisions.loader,
+          computeField: rev => {
+            const { html } = rev
+            const mainTextHtml = sanitizeHtml(
+              html, {
+                allowedTags: _.without(Utils.sanitizeAllowedTags, 'blockquote', 'img'),
+                nonTextTags: ['blockquote', 'img', 'style']
+              }
+            )
+            const truncatedHtml = truncate(mainTextHtml, PLAINTEXT_HTML_TRUNCATION_LENGTH)
+            return htmlToText
+              .fromString(truncatedHtml)
+              .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
           }
-        )
-        const truncatedHtml = truncate(mainTextHtml, PLAINTEXT_HTML_TRUNCATION_LENGTH)
-        return htmlToText
-          .fromString(truncatedHtml)
-          .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
+        });
       }
     }
   }

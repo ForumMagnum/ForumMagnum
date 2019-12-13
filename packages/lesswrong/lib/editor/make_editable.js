@@ -87,6 +87,12 @@ export const makeEditable = ({collection, options = {}}) => {
       },
     },
     
+    [fieldName ? `${fieldName}_latest` : "contents_latest"]: {
+      type: String,
+      viewableBy: ['guests'],
+      optional: true,
+    },
+    
     [Utils.camelCaseify(`${fieldName}Revisions`)]: {
       type: Object,
       viewableBy: ['guests'],
