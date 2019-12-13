@@ -88,8 +88,12 @@ export const styles = createStyles((theme) => ({
     }
   },
   karmaUnread: {
-    fontWeight: 600,
-    color: 'rgba(0,0,0,.87) !important'
+    textShadow: "0.4px 0.4px 0px rgba(0,0,0,.6)",
+    color: 'rgba(0,0,0,.6) !important',
+    [theme.breakpoints.down('sm')]: {
+      textShadow: "none",
+      color: theme.palette.grey[600]
+    }
   },
   title: {
     minHeight: 26,
