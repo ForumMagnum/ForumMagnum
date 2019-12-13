@@ -51,7 +51,7 @@ class HomeLatestPosts extends PureComponent {
     const { query } = location;
     const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox } = Components
     const currentFilter = query.filter || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
-    const limit = parseInt(query.limit) || 10
+    const limit = parseInt(query.limit) || 15
 
     const recentPostsTerms = {
       ...query,
@@ -111,7 +111,7 @@ class HomeLatestPosts extends PureComponent {
           </Tooltip>
         </SectionTitle>
         <AnalyticsContext listContext={"latestPosts"}>
-          <PostsList2 terms={recentPostsTerms}>
+          <PostsList2 terms={recentPostsTerms} dense>
             <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
           </PostsList2>
         </AnalyticsContext>
