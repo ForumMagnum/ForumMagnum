@@ -1,4 +1,4 @@
-import { Components, registerComponent, withList } from 'meteor/vulcan:core';
+import { Components, registerComponent, useList } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Comments } from '../../lib/collections/comments';
@@ -29,7 +29,16 @@ const styles = theme => ({
   },
 })
 
-const AnswersList = ({results, classes, post}) => {
+const AnswersList = ({terms, post, classes}) => {
+  const { results } = useList({
+    terms,
+    collection: Comments,
+    queryName: 'AnswersListQuery',
+    fragmentName: 'CommentsList',
+    fetchPolicy: 'cache-and-network',
+    enableTotal: true,
+    ssr: true
+  });
   const { Answer, SectionTitle } = Components
 
   if (results && results.length) {
@@ -48,20 +57,4 @@ const AnswersList = ({results, classes, post}) => {
   }
 };
 
-AnswersList.propTypes = {
-  classes: PropTypes.object.isRequired,
-  post: PropTypes.object.isRequired,
-  loading: PropTypes.bool,
-  results: PropTypes.array,
-};
-
-const listOptions = {
-  collection: Comments,
-  queryName: 'AnswersListQuery',
-  fragmentName: 'CommentsList',
-  fetchPolicy: 'cache-and-network',
-  enableTotal: true,
-  ssr: true
-}
-
-registerComponent('AnswersList', AnswersList, [withList, listOptions], withStyles(styles, {name: "AnswersList"}));
+registerComponent('AnswersList', AnswersList, withStyles(styles, {name: "AnswersList"}));
