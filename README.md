@@ -28,39 +28,17 @@ Lesswrong2 is built on top of four major open-source libraries.
 
 ### Installation
 
-**Warning: This text is now out of date**
-
-LessWrong is a fork of VulcanJS's example-forum. We've had to make *some* changes to VulcanJS itself as well as their example-forum. We try to keep the changes to each codebase distinct, and have factored our web app into two repos.
-
-I recommend starting by creating a folder to store both of them:
-
-    mkdir lesswrongSuite
-    cd lesswrongSuite
-
-Clone the two repos:
-
     git clone https://github.com/LessWrong2/Lesswrong2
-    git clone https://github.com/LessWrong2/Vulcan.git
-
-You'll mostly be working in Lesswrong2.
-
-Install node dependencies in each of the repo folders:
-
     cd Lesswrong2
-    npm install
-    
-    cd ../Vulcan
-    npm install
-
+    yarn install
 
 Start the development server:
 
-    cd ../Lesswrong2
     npm start
 
 You should now have a local version running at [http://localhost:3000](http://localhost:3000/).
 
-If it is NOT working, there is most likely some issues with your `npm install` process. If you are terminal-savvy you can attempt to resolve that yourself based on error messages. If you'd like help, you can ping the LessWrong team either by creating a github issue or pinging us on intercom on LessWrong itself. You may find some help in the [README for Vulcan-Starter](https://github.com/VulcanJS/Vulcan-Starter)
+If it is NOT working, there is most likely some issues with your `yarm install` process. If you are terminal-savvy you can attempt to resolve that yourself based on error messages. If you'd like help, you can ping the LessWrong team either by creating a github issue or pinging us on intercom on LessWrong itself. You may find some help in the [README for Vulcan-Starter](https://github.com/VulcanJS/Vulcan-Starter)
 
 It will start out with an empty database. (This means that some of the hardcoded links on the frontpage, such as Eliezer’s Sequences or the Codex, will not work). You can create users via the normal sign up process (entering a fake email is fine). The first user you’ll create will be an admin, so you’ll probably want to create at least two users to check how the site looks for non-admins.
 
