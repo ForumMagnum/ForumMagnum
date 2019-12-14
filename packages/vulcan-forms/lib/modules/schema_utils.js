@@ -195,7 +195,6 @@ export const schemaProperties = [
   'insertableBy', // OpenCRUD backwards compatibility
   'editableBy', // OpenCRUD backwards compatibility
   'resolveAs',
-  'searchable',
   'description',
   'beforeComponent',
   'afterComponent',
