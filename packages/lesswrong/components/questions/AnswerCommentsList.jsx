@@ -132,7 +132,7 @@ const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}) => 
           startThreadTruncated
         />
       </div>
-      {(results && results.length && results.length < totalCount) ?
+      {(results.length && results.length < totalCount) ?
         <Typography variant="body2" onClick={loadMoreComments} className={classes.loadMore}>
           <a>Showing {results.length}/{totalCount} comments. Click to load All.</a>
         </Typography> : null}

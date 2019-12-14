@@ -111,7 +111,6 @@ const PostsVote = ({ post, classes, collection }) => {
 PostsVote.propTypes = {
   post: PropTypes.object.isRequired, // the document to upvote
   collection: PropTypes.object.isRequired, // the collection containing the document
-  currentUser: PropTypes.object, // user might not be logged in, so don't make it required
   classes: PropTypes.object.isRequired
 };
 

@@ -1,6 +1,5 @@
 import { Components, registerComponent, useList } from 'meteor/vulcan:core';
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Comments } from '../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles'
 

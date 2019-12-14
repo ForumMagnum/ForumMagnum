@@ -124,7 +124,6 @@ const CommentsVote = ({ comment, hideKarma, classes, hover }) => {
 
 CommentsVote.propTypes = {
   comment: PropTypes.object.isRequired, // the document to upvote
-  currentUser: PropTypes.object, // user might not be logged in, so don't make it required
   classes: PropTypes.object.isRequired,
   hideKarma: PropTypes.bool,
 };
