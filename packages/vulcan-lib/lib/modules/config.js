@@ -15,7 +15,6 @@ Vulcan.VERSION = '1.13.0';
 
 SimpleSchema.extendOptions([
   'hidden', // hidden: true means the field is never shown in a form no matter what
-  'mustComplete', // mustComplete: true means the field is required to have a complete profile
   'form', // extra form properties
   'inputProperties', // extra form properties
   'input', // SmartForm control (String or React component)
