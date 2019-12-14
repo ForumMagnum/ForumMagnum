@@ -1,7 +1,7 @@
 import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withLocation, withNavigation } from '../../lib/routeUtil.js';
+import { withLocation, withNavigation } from '../../lib/routeUtil';
 import Users from 'meteor/vulcan:users';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
