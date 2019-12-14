@@ -281,10 +281,6 @@ export const GraphQLSchema = {
         //     type: '[IntlValueInput]',
         //   });
         // }
-
-        if (field.orderable) {
-          fields.orderBy.push(fieldName);
-        }
       }
     });
     return fields;
