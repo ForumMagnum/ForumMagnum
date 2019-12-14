@@ -130,18 +130,6 @@ Users.getEmail = function(user) {
 //  User Checks   //
 ////////////////////
 
-/**
- * @summary Check if the user has completed their profile.
- * @param {Object} user
- */
-Users.hasCompletedProfile = function(user) {
-  if (!user) return false;
-
-  return _.every(Users.getRequiredFields(), function(fieldName) {
-    return !!Utils.getNestedProperty(user, fieldName);
-  });
-};
-
 ///////////////////
 // Other Helpers //
 ///////////////////

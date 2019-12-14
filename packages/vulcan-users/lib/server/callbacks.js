@@ -5,11 +5,6 @@
   // Callbacks                                        //
   //////////////////////////////////////////////////////
 
-  function hasCompletedProfile (user) {
-    return Users.hasCompletedProfile(user);
-  }
-  addCallback('users.profileCompleted.sync', hasCompletedProfile);
-
   // remove this to get rid of dependency on vulcan:email
 
   // function usersNewAdminUserCreationNotification (user) {
@@ -71,12 +66,4 @@
     return modifier;
   }
   addCallback('users.edit.sync', usersEditCheckEmail);
-
-  // when a user is edited, check if their profile is now complete
-  function usersCheckCompletion (newUser, oldUser) {
-    if (!Users.hasCompletedProfile(oldUser) && Users.hasCompletedProfile(newUser)) {
-      runCallbacksAsync('users.profileCompleted.async', newUser);
-    }
-  }
-  addCallback('users.edit.async', usersCheckCompletion);
 
