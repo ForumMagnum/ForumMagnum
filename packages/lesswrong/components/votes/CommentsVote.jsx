@@ -7,7 +7,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
 import moment from 'moment-timezone';
 import withHover from '../common/withHover';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import { useVote } from './withVote';
 
 const styles = theme => ({
@@ -37,7 +37,8 @@ const styles = theme => ({
   }
 })
 
-const CommentsVote = ({ comment, hideKarma, classes, currentUser, hover }) => {
+const CommentsVote = ({ comment, hideKarma, classes, hover }) => {
+  const currentUser = useCurrentUser();
   const vote = useVote();
   
   if (!comment) return null;
@@ -129,6 +130,6 @@ CommentsVote.propTypes = {
 };
 
 registerComponent('CommentsVote', CommentsVote,
+  withHover,
   withStyles(styles, { name: "CommentsVote" }),
-  withHover, withUser
 );
