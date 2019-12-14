@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import qs from 'qs';
 import { NavigationContext, LocationContext, SubscribeLocationContext, ServerRequestStatusContext, getSetting } from 'meteor/vulcan:core';
+import { Meteor } from 'meteor/meteor';
 
 // Given the props of a component which has withRouter, return the parsed query
 // from the URL.
