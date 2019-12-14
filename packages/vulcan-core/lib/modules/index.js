@@ -23,7 +23,6 @@ export { default as withUpdate, useUpdate } from './containers/withUpdate.js';
 export { default as withDelete } from './containers/withDelete.js';
 export { default as withCurrentUser } from './containers/withCurrentUser.js';
 export { default as withMutation } from './containers/withMutation.js';
-export { default as withSiteData } from './containers/withSiteData.js';
 
 export { default as MessageContext } from './messages.js';
 

@@ -13,7 +13,6 @@ import PropTypes from 'prop-types';
 import { IntlProvider, intlShape } from 'meteor/vulcan:i18n';
 import withCurrentUser from '../containers/withCurrentUser.js';
 import withUpdate from '../containers/withUpdate.js';
-import withSiteData from '../containers/withSiteData.js';
 import { withApollo } from 'react-apollo';
 import moment from 'moment';
 import { withRouter, matchPath } from 'react-router';
@@ -280,8 +279,8 @@ const updateOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-//registerComponent('App', App, withCurrentUser, withSiteData, [withUpdate, updateOptions], withApollo, withCookies, withRouter);
+//registerComponent('App', App, withCurrentUser, [withUpdate, updateOptions], withApollo, withCookies, withRouter);
 // TODO LESSWRONG-Temporarily omit withCookies until it's debugged
-registerComponent('App', App, withCurrentUser, withSiteData, [withUpdate, updateOptions], withApollo, withRouter);
+registerComponent('App', App, withCurrentUser, [withUpdate, updateOptions], withApollo, withRouter);
 
 export default App;
