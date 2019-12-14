@@ -39,9 +39,6 @@ Users.getUserName = function(user) {
     return null;
   }
 };
-Users.getUserNameById = function(userId) {
-  return Users.getUserName(Users.findOne(userId));
-};
 
 /**
  * @summary Get a user's display name (not unique, can take special characters and spaces)
@@ -102,9 +99,6 @@ Users.getTwitterName = function(user) {
   }
   return null;
 };
-Users.getTwitterNameById = function(userId) {
-  return Users.getTwitterName(Users.findOne(userId));
-};
 
 /**
  * @summary Get a user's GitHub name
@@ -120,10 +114,6 @@ Users.getGitHubName = function(user) {
   }
   return null;
 };
-Users.getGitHubNameById = function(userId) {
-  return Users.getGitHubName(Users.findOne(userId));
-};
-
 /**
  * @summary Get a user's email
  * @param {Object} user
@@ -133,24 +123,6 @@ Users.getEmail = function(user) {
     return user.email;
   } else {
     return null;
-  }
-};
-Users.getEmailById = function(userId) {
-  return Users.getEmail(Users.findOne(userId));
-};
-
-/**
- * @summary Get a user setting
- * @param {Object} user
- * @param {String} settingName
- * @param {Object} defaultValue
- */
-Users.getSetting = function(user = null, settingName, defaultValue = null) {
-  if (user) {
-    const settingValue = Users.getProperty(user, settingName);
-    return typeof settingValue === 'undefined' ? defaultValue : settingValue;
-  } else {
-    return defaultValue;
   }
 };
 
@@ -196,57 +168,11 @@ Users.numberOfItemsInPast24Hours = function(user, collection) {
   return items.count();
 };
 
-Users.getProperty = function(object, property) {
-  // recursive function to get nested properties
-  var array = property.split('.');
-  if (array.length > 1) {
-    var parent = array.shift();
-    // if our property is not at this level, call function again one level deeper if we can go deeper, else return undefined
-    return typeof object[parent] === 'undefined'
-      ? undefined
-      : this.getProperty(object[parent], array.join('.'));
-  } else {
-    // else return property
-    return object[array[0]];
-  }
-};
-
-// Users.setSetting = (user, settingName, value) => {
-//   // all users settings should begin with the prexi : user.setting namespace, so add "" if needed
-//   var field = settingName.slice(0,2) === "" ? settingName : "" + settingName;
-
-//   var modifier = {$set: {}};
-//   modifier.$set[field] = value;
-
-//   Users.update(user._id, modifier);
-// }
-
 ////////////////////
 // More Helpers   //
 ////////////////////
 
 // helpers that don't take a user as argument
-
-/**
- * @summary @method Users.getRequiredFields
- * Get a list of all fields required for a profile to be complete.
- */
-Users.getRequiredFields = function() {
-  var schema = Users.simpleSchema()._schema;
-  var fields = _.filter(_.keys(schema), function(fieldName) {
-    var field = schema[fieldName];
-    return !!field.mustComplete;
-  });
-  return fields;
-};
-
-// Users.adminUsers = function (options) {
-//   return this.find({isAdmin : true}, options).fetch();
-// };
-
-// Users.getCurrentUserEmail = function () {
-//   return Meteor.user() ? Users.getEmail(Meteor.user()) : '';
-// };
 
 Users.findByEmail = function(email) {
   return Users.findOne({ email: email });
