@@ -1,10 +1,10 @@
-import { Components, registerComponent, withList } from 'meteor/vulcan:core';
+import { Components, registerComponent, useMulti } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Comments } from '../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles'
 import { unflattenComments } from "../../lib/modules/utils/unflatten";
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
 
@@ -47,9 +47,20 @@ const styles = theme => ({
 
 export const ABRIDGE_COMMENT_COUNT = 500;
 
-const AnswerCommentsList = ({lastEvent, loadMore, currentUser, results, loading, loadingMore, classes, totalCount, post, parentAnswer}) => {
+const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}) => {
+  const currentUser = useCurrentUser();
   const [commenting, setCommenting] = React.useState(false);
   const [loadedMore, setLoadedMore] = React.useState(false);
+  
+  const { loadMore, results, loading, loadingMore, totalCount } = useMulti({
+    terms,
+    collection: Comments,
+    queryName: 'AnswersCommentListQuery',
+    fragmentName: 'CommentsList',
+    fetchPolicy: 'cache-and-network',
+    enableTotal: true,
+  });
+  
   const highlightDate =
     (lastEvent && lastEvent.properties && lastEvent.properties.createdAt
       && new Date(lastEvent.properties.createdAt))
@@ -133,16 +144,6 @@ AnswerCommentsList.propTypes = {
   classes: PropTypes.object.isRequired,
   post: PropTypes.object.isRequired,
   parentAnswer: PropTypes.object,
-  loading: PropTypes.bool,
-  results: PropTypes.array,
 };
 
-const listOptions = {
-  collection: Comments,
-  queryName: 'AnswersCommentListQuery',
-  fragmentName: 'CommentsList',
-  fetchPolicy: 'cache-and-network',
-  enableTotal: true,
-}
-
-registerComponent('AnswerCommentsList', AnswerCommentsList, [withList, listOptions], withStyles(styles, {name: "AnswerCommentsList"}), withUser);
+registerComponent('AnswerCommentsList', AnswerCommentsList, withStyles(styles, {name: "AnswerCommentsList"}));
