@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Watchdog } from '@lesswrong/lesswrong-editor'
-Copied from: https://github.com/ckeditor/ckeditor5-react/blob/master/src/ckeditor.jsx
+// Copied from: https://github.com/ckeditor/ckeditor5-react/blob/master/src/ckeditor.jsx
 export default class CKEditor extends React.Component {
   constructor( props ) {
     super( props );
