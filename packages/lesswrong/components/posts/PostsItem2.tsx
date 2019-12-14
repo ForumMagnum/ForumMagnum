@@ -1,7 +1,7 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles, createStyles } from '@material-ui/core/styles';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 import { Posts } from "../../lib/collections/posts";
 import { Sequences } from "../../lib/collections/sequences/collection.js";
 import { Collections } from "../../lib/collections/collections/collection.js";

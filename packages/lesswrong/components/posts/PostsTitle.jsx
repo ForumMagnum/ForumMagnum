@@ -4,7 +4,7 @@ import { withStyles } from '@material-ui/core/styles'
 import classNames from 'classnames';
 import withUser from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 import { Posts } from '../../lib/collections/posts';
 import { userHasBoldPostItems } from '../../lib/betas.js';
 

@@ -3,7 +3,7 @@ import { Components, registerComponent, useMulti, useSingle } from 'meteor/vulca
 import { withStyles } from '@material-ui/core/styles';
 import { Subscriptions } from '../../lib/collections/subscriptions/collection.js';
 import { useCurrentUser } from '../common/withUser.js';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 import { Comments } from '../../lib/collections/comments/collection.js';
 
 const styles = theme => ({

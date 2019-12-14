@@ -4,12 +4,16 @@ export const Link = reactRouter3.Link;
 
 export const withRouter = reactRouter3.withRouter;*/
 
-import React from 'react';
+import React, {useCallback} from 'react';
+import { useTracking } from '../lib/analyticsEvents';
+// packages/lesswrong/lib/reactRouterWrapper.jsx
+// packages/lesswrong/lib/analyticsEvents.js
 
 import * as reactRouter from 'react-router';
 import * as reactRouterDom from 'react-router-dom';
 import { parseQuery } from './routeUtil'
 import qs from 'qs'
+
 
 export const withRouter = (WrappedComponent) => {
   const WithRouterWrapper = (props) => {
@@ -24,12 +28,18 @@ export const withRouter = (WrappedComponent) => {
 }
 
 export const Link = (props) => {
+
+  const handleClick = () => {
+    console.log("clickFired")
+    useTracking({eventType: "linkClicked", eventProps:{to: props.to}})
+  }
+
   if (!(typeof props.to === "string" || typeof props.to === "object")) {
     // eslint-disable-next-line no-console
     console.error("Props 'to' for Link components only accepts strings or objects, passed type: ", typeof props.to)
     return <span>Broken Link</span>
   }
-  return <reactRouterDom.Link {...props}/>
+  return <reactRouterDom.Link {...props} onMouseDown={handleClick}/>
 }
 
 export const QueryLink = reactRouter.withRouter(({query, location, staticContext, merge=false, ...rest}) => {

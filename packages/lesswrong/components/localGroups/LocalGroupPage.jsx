@@ -2,7 +2,7 @@ import { Components, registerComponent, useSingle } from 'meteor/vulcan:core';
 import { withMessages } from '../common/withMessages';
 import React from 'react';
 import { Localgroups } from '../../lib/index.js';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 import { withLocation } from '../../lib/routeUtil';
 import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';

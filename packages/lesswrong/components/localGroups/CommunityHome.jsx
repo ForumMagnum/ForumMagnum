@@ -1,7 +1,7 @@
 import { Components, registerComponent, } from 'meteor/vulcan:core';
 import { withMessages } from '../common/withMessages';
 import React, { Component } from 'react';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 import Users from 'meteor/vulcan:users';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';

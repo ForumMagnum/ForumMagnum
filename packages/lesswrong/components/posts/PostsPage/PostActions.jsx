@@ -6,7 +6,7 @@ import withUser from '../../common/withUser'
 import { Posts } from '../../../lib/collections/posts';
 import withSetAlignmentPost from "../../alignment-forum/withSetAlignmentPost";
 import MenuItem from '@material-ui/core/MenuItem';
-import { Link } from '../../../lib/reactRouterWrapper.js';
+import { Link } from '../../../lib/reactRouterWrapper.jsx';
 import Tooltip from '@material-ui/core/Tooltip';
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import EditIcon from '@material-ui/icons/Edit'

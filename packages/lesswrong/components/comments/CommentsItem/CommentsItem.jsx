@@ -8,7 +8,7 @@ import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/com
 import { withStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import withUser from '../../common/withUser';
-import { Link } from '../../../lib/reactRouterWrapper.js';
+import { Link } from '../../../lib/reactRouterWrapper.jsx';
 import { Posts } from "../../../lib/collections/posts";
 
 // Shared with ParentCommentItem
