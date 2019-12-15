@@ -38,9 +38,9 @@ const styles = theme => ({
     top: 2
   },
   read: {
-    opacity: .6,
+    color: "rgba(0,0,0,.55)",
     '&:hover': {
-      opacity: 1
+      color: "rgba(0,0,0,.87)",
     }
   },
   adminUnread: {
@@ -50,7 +50,6 @@ const styles = theme => ({
   },
   adminRead: {
     fontWeight: 500,
-    opacity: 1,
     color: "rgba(0,0,0,.75)",
   },
   hideSmDown: {
