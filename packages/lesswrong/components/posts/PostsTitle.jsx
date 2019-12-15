@@ -44,13 +44,14 @@ const styles = theme => ({
     }
   },
   adminUnread: {
-    fontWeight: 600,
-    color: "rgba(0,0,0,.8)"
+    fontWeight: 500,
+    color: "rgba(0,0,0,.87)",
+    textShadow: "0.2px 0.2px 0px rgba(0,0,0,.87)"
   },
   adminRead: {
     fontWeight: 500,
     opacity: 1,
-    color: "rgba(0,0,0,.8)"
+    color: "rgba(0,0,0,.75)",
   },
   hideSmDown: {
     [theme.breakpoints.down('sm')]: {
