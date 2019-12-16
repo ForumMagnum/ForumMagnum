@@ -1,7 +1,6 @@
 import { Utils } from 'meteor/vulcan:lib';
 import Users from './collection.js';
 import moment from 'moment';
-import _ from 'underscore';
 
 ////////////////////
 //  User Getters  //
