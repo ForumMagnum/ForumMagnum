@@ -99,7 +99,6 @@ vulcan:forms@1.13.0
 vulcan:i18n@1.13.0
 vulcan:i18n-en-us@1.13.0
 vulcan:lib@1.13.0
-vulcan:ui-bootstrap@1.13.0
 vulcan:users@1.13.0
 webapp@1.7.5
 webapp-hashing@1.0.9

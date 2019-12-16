@@ -8,7 +8,6 @@ declare module 'meteor/vulcan:forms';
 declare module 'meteor/vulcan:i18n';
 declare module 'meteor/vulcan:i18n-en-us';
 declare module 'meteor/vulcan:lib';
-declare module 'meteor/vulcan:ui-bootstrap';
 declare module 'meteor/vulcan:users';
 declare module 'meteor/random';
 

@@ -443,3 +443,18 @@ importComponent("UserReviews", () => require('../components/review/UserReviews.j
 
 // Analytics Tracking
 importComponent("AnalyticsTracker", () => require('../components/common/AnalyticsTracker.jsx'));
+
+// vulcan:ui-bootstrap
+importComponent("FormComponentCheckboxGroup", () => require('../components/vulcan-ui-bootstrap/forms/Checkboxgroup.jsx'));
+importComponent("FormComponentEmail", () => require('../components/vulcan-ui-bootstrap/forms/Email.jsx'));
+importComponent("FormComponentInner", () => require('../components/vulcan-ui-bootstrap/forms/FormComponentInner.jsx'));
+importComponent("FormControl", () => require('../components/vulcan-ui-bootstrap/forms/FormControl.jsx'));
+importComponent("FormElement", () => require('../components/vulcan-ui-bootstrap/forms/FormElement.jsx'));
+importComponent("FormItem", () => require('../components/vulcan-ui-bootstrap/forms/FormItem.jsx'));
+importComponent("FormComponentTextarea", () => require('../components/vulcan-ui-bootstrap/forms/Textarea.jsx'));
+importComponent("FormComponentUrl", () => require('../components/vulcan-ui-bootstrap/forms/Url.jsx'));
+importComponent("Alert", () => require('../components/vulcan-ui-bootstrap/ui/Alert.jsx'));
+importComponent("Button", () => require('../components/vulcan-ui-bootstrap/ui/Button.jsx'));
+importComponent("Modal", () => require('../components/vulcan-ui-bootstrap/ui/Modal.jsx'));
+importComponent("ModalTrigger", () => require('../components/vulcan-ui-bootstrap/ui/ModalTrigger.jsx'));
+
