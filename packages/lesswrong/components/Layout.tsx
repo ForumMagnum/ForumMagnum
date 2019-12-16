@@ -73,23 +73,6 @@ const styles = createStyles(theme => ({
   },
 }))
 
-interface LayoutProps {
-  cookies: any,
-  currentUser: any,
-  updateUser: any,
-  location: any,
-  classes: any,
-  theme: any
-  messages: any,
-  children: any,
-}
-interface LayoutState {
-  timezone: string,
-  toc: any,
-  postsRead: Record<string,boolean>,
-  hideNavigationSidebar: boolean,
-}
-
 class Layout extends PureComponent<LayoutProps,LayoutState> {
   searchResultsAreaRef: React.RefObject<HTMLDivElement>
   
@@ -284,6 +267,28 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       </UserContext.Provider>
       </AnalyticsContext>
     )
+  }
+}
+
+declare global {
+  interface LayoutProps {
+    cookies: any,
+    currentUser: any,
+    updateUser: any,
+    location: any,
+    classes: any,
+    theme: any
+    messages: any,
+    children: any,
+  }
+  interface LayoutState {
+    timezone: string,
+    toc: any,
+    postsRead: Record<string,boolean>,
+    hideNavigationSidebar: boolean,
+  }
+  interface ComponentTypes {
+    Layout: typeof Layout
   }
 }
 
