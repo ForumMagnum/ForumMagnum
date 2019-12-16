@@ -22,13 +22,13 @@ const PostsItemKarma: React.FC<PostsItemKarmaProps> = ({post, hover, anchorEl}) 
   )
 };
 
+interface PostsItemKarmaProps {
+  post: any,
+  read: boolean,
+  hover?: any,
+  anchorEl?: any,
+}
 declare global {
-  interface PostsItemKarmaProps {
-    post: any,
-    read: boolean,
-    hover?: any,
-    anchorEl?: any,
-  }
   interface ComponentTypes {
     PostsItemKarma: typeof PostsItemKarma,
   }

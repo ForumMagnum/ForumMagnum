@@ -533,31 +533,31 @@ const PostsItem2: React.FC<PostsItem2Props> = ({
   )
 };
 
+interface PostsItem2Props {
+  post: any,
+  tagRel?: any,
+  defaultToShowComments: boolean,
+  sequenceId?: string,
+  chapter?: any,
+  index?: number,
+  terms?: any,
+  resumeReading?: any,
+  dismissRecommendation?: any,
+  showBottomBorder?: boolean,
+  showQuestionTag?: boolean,
+  showIcons?: boolean,
+  showPostedAt?: boolean,
+  defaultToShowUnreadComments?: boolean,
+  dense?: boolean,
+  bookmark?: boolean,
+  showNominationCount?: boolean,
+  showReviewCount?: boolean,
+  
+  recordPostView?: any,
+  isRead?: boolean,
+  classes?: any,
+}
 declare global {
-  interface PostsItem2Props {
-    post: any,
-    tagRel?: any,
-    defaultToShowComments: boolean,
-    sequenceId?: string,
-    chapter?: any,
-    index?: number,
-    terms?: any,
-    resumeReading?: any,
-    dismissRecommendation?: any,
-    showBottomBorder?: boolean,
-    showQuestionTag?: boolean,
-    showIcons?: boolean,
-    showPostedAt?: boolean,
-    defaultToShowUnreadComments?: boolean,
-    dense?: boolean,
-    bookmark?: boolean,
-    showNominationCount?: boolean,
-    showReviewCount?: boolean,
-    
-    recordPostView?: any,
-    isRead?: boolean,
-    classes?: any,
-  }
   interface ComponentTypes {
     PostsItem2: typeof PostsItem2
   }
