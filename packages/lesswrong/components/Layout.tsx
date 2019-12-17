@@ -287,6 +287,12 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   }
 }
 
+declare global {
+  interface ComponentTypes {
+    Layout: typeof Layout
+  }
+}
+
 const withUpdateOptions = {
   collection: Users,
   fragmentName: 'UsersCurrent',
