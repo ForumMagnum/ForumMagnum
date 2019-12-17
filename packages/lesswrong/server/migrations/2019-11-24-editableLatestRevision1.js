@@ -73,7 +73,7 @@ registerMigration({
   }
 });
 
-/*registerMigration({
+registerMigration({
   name: "editableDropDenormalizedField",
   idempotent: true,
   action: async () => {
@@ -105,4 +105,4 @@ registerMigration({
       });
     }
   }
-});*/
+});
