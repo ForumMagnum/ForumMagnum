@@ -13,7 +13,6 @@ const titleStack = [
 ].join(',')
 
 const serifStack = [
-  'GreekFallback', // Ensures that greek letters render consistently
   'Merriweather',
   'Baskerville',
   'Libre Baskerville',

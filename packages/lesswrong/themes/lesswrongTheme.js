@@ -21,7 +21,6 @@ const sansSerifStack = [
 ].join(',')
 
 const serifStack = [
-  'GreekFallback', // Ensures that greek letters render consistently
   'warnock-pro',
   'Palatino',
   '"Palatino Linotype"',
