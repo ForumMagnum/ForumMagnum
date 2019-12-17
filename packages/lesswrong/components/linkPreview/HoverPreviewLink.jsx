@@ -1,33 +1,7 @@
 import React from 'react';
-import { Components, registerComponent, parseRoute, Utils } from 'meteor/vulcan:core';
+import { Components, registerComponent, parseRoute, parsePath, Utils } from 'meteor/vulcan:core';
 import { hostIsOnsite, useLocation, getUrlClass } from '../../lib/routeUtil';
 import Sentry from '@sentry/node';
-
-// From react-router-v4
-// https://github.com/ReactTraining/history/blob/master/modules/PathUtils.js
-export const parsePath = function parsePath(path) {
-  var pathname = path || '/';
-  var search = '';
-  var hash = '';
-  
-  var hashIndex = pathname.indexOf('#');
-  if (hashIndex !== -1) {
-    hash = pathname.substr(hashIndex);
-    pathname = pathname.substr(0, hashIndex);
-  }
-  
-  var searchIndex = pathname.indexOf('?');
-  if (searchIndex !== -1) {
-    search = pathname.substr(searchIndex);
-    pathname = pathname.substr(0, searchIndex);
-  }
-  
-  return {
-    pathname: pathname,
-    search: search === '?' ? '' : search,
-    hash: hash === '#' ? '' : hash
-  };
-};
 
 export const parseRouteWithErrors = (onsiteUrl, contentSourceDescription) => {
   return parseRoute({
@@ -77,18 +51,19 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription }) => {
   }
 
   try {
-    const currentURL = new URLClass(location.pathname, Utils.getSiteUrl());
+    const currentURL = new URLClass(location.url, Utils.getSiteUrl());
     const linkTargetAbsolute = new URLClass(href, currentURL);
     
     const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
     if (!linkIsExcludedFromPreview(onsiteUrl) && (hostIsOnsite(linkTargetAbsolute.host) || Meteor.isServer)) {
       const parsedUrl = parseRouteWithErrors(onsiteUrl, contentSourceDescription)
+      const destinationUrl = parsedUrl.url;
       
       if (parsedUrl?.currentRoute) {
         const PreviewComponent = parsedUrl.currentRoute?.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;
         
         if (PreviewComponent) {
-          return <PreviewComponent href={onsiteUrl} targetLocation={parsedUrl} innerHTML={innerHTML}/>
+          return <PreviewComponent href={destinationUrl} targetLocation={parsedUrl} innerHTML={innerHTML}/>
         } else {
           return <Components.DefaultPreview href={href} innerHTML={innerHTML} onSite/>
         }

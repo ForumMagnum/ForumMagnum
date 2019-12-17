@@ -36,8 +36,8 @@ export const addRoute = (routeOrRouteArray, parentRouteName) => {
       const routeWithSamePath = _.findWhere(RoutesTable, { path });
 
       if (routeWithSamePath) {
-        // delete the route registered with same path
-        delete RoutesTable[routeWithSamePath.name];
+        // Don't allow shadowing/replacing routes
+        throw new Error(`Conflicting routes with name ${name}`);
       }
 
       // register the new route
