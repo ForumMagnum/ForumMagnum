@@ -36,18 +36,18 @@ const linkIsExcludedFromPreview = (url) => {
 //   contentSourceDescription: (Optional) A human-readabe string describing
 //     where this content came from. Used in error logging only, not displayed
 //     to users.
-const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription }) => {
+const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id }) => {
   const URLClass = getUrlClass()
   const location = useLocation();
 
   // Invalid link with no href? Don't transform it.
   if (!href) {
-    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
+    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id}/>
   }
   
   // Within-page relative link?
   if (href.startsWith("#")) {
-    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
+    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} />
   }
 
   try {
@@ -59,23 +59,23 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription }) => {
       const parsedUrl = parseRouteWithErrors(onsiteUrl, contentSourceDescription)
       const destinationUrl = parsedUrl.url;
       
-      if (parsedUrl?.currentRoute) {
-        const PreviewComponent = parsedUrl.currentRoute?.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;
+      if (parsedUrl.currentRoute) {
+        const PreviewComponent = parsedUrl.currentRoute.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;
         
         if (PreviewComponent) {
-          return <PreviewComponent href={destinationUrl} targetLocation={parsedUrl} innerHTML={innerHTML}/>
+          return <PreviewComponent href={destinationUrl} targetLocation={parsedUrl} innerHTML={innerHTML} id={id}/>
         } else {
-          return <Components.DefaultPreview href={href} innerHTML={innerHTML} onSite/>
+          return <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} onSite/>
         }
       }
     } else {
-      return <Components.DefaultPreview href={href} innerHTML={innerHTML}/>
+      return <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} />
     }
-    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
+    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} />
   } catch (err) {
     console.error(err) // eslint-disable-line
     console.error(href, innerHTML) // eslint-disable-line
-    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
+    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id}/>
   }
 
 }
