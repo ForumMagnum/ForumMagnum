@@ -7,6 +7,7 @@ import { createMuiTheme } from '@material-ui/core/styles';
 const defaultTheme = createMuiTheme()
 
 const sansSerifStack = [
+  'GreekFallback', // Ensures that greek letters render consistently
   '"freight-sans-pro"',
   'Frutiger',
   '"Frutiger Linotype"',
