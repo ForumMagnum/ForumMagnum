@@ -8,6 +8,7 @@ import { useCommentByLegacyId } from '../comments/useComment.js';
 import withHover from '../common/withHover';
 import Card from '@material-ui/core/Card';
 import { withStyles } from '@material-ui/core/styles';
+import { looksLikeDbIdString } from '../../lib/routeUtil.js';
 
 const PostLinkPreview = ({href, targetLocation, innerHTML}) => {
   const postID = targetLocation.params._id;
@@ -94,8 +95,10 @@ const PostLinkPreviewVariantCheck = ({ href, innerHTML, post, targetLocation, co
     return <PostLinkCommentPreview commentId={targetLocation.query.commentId} href={href} innerHTML={innerHTML} post={post} />
   }
   if (targetLocation.hash) {
-    const commentId = targetLocation.hash.split("#")[1] 
-    return <PostLinkCommentPreview commentId={commentId} href={href} innerHTML={innerHTML} post={post} />
+    const commentId = targetLocation.hash.split("#")[1]
+    if (looksLikeDbIdString(commentId)) {
+      return <PostLinkCommentPreview commentId={commentId} href={href} innerHTML={innerHTML} post={post} />
+    }
   }
 
   if (commentId) {
