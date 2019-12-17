@@ -306,7 +306,7 @@ const isSticky = (post, terms) => {
   }
 }
 
-const PostsItem2: React.FC<PostsItem2Props> = ({
+const PostsItem2 = ({
   // post: The post displayed.
   post,
   // tagRel: (Optional) The relationship between this post and a tag. If
@@ -349,6 +349,29 @@ const PostsItem2: React.FC<PostsItem2Props> = ({
   recordPostView,
   isRead=false,
   classes,
+}: {
+  post: any,
+  tagRel?: any,
+  defaultToShowComments: boolean,
+  sequenceId?: string,
+  chapter?: any,
+  index?: number,
+  terms?: any,
+  resumeReading?: any,
+  dismissRecommendation?: any,
+  showBottomBorder?: boolean,
+  showQuestionTag?: boolean,
+  showIcons?: boolean,
+  showPostedAt?: boolean,
+  defaultToShowUnreadComments?: boolean,
+  dense?: boolean,
+  bookmark?: boolean,
+  showNominationCount?: boolean,
+  showReviewCount?: boolean,
+  
+  recordPostView?: any,
+  isRead?: boolean,
+  classes?: any,
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
@@ -533,30 +556,6 @@ const PostsItem2: React.FC<PostsItem2Props> = ({
   )
 };
 
-interface PostsItem2Props {
-  post: any,
-  tagRel?: any,
-  defaultToShowComments: boolean,
-  sequenceId?: string,
-  chapter?: any,
-  index?: number,
-  terms?: any,
-  resumeReading?: any,
-  dismissRecommendation?: any,
-  showBottomBorder?: boolean,
-  showQuestionTag?: boolean,
-  showIcons?: boolean,
-  showPostedAt?: boolean,
-  defaultToShowUnreadComments?: boolean,
-  dense?: boolean,
-  bookmark?: boolean,
-  showNominationCount?: boolean,
-  showReviewCount?: boolean,
-  
-  recordPostView?: any,
-  isRead?: boolean,
-  classes?: any,
-}
 declare global {
   interface ComponentTypes {
     PostsItem2: typeof PostsItem2
