@@ -86,8 +86,12 @@ export const styles = createStyles((theme) => ({
     }
   },
   karmaUnread: {
-    fontWeight: 600,
-    color: 'rgba(0,0,0,.87) !important'
+    textShadow: "0.4px 0.4px 0px rgba(0,0,0,.6)",
+    color: 'rgba(0,0,0,.6) !important',
+    [theme.breakpoints.down('sm')]: {
+      textShadow: "none",
+      color: theme.palette.grey[600]
+    }
   },
   title: {
     minHeight: 26,
@@ -332,16 +336,40 @@ const PostsItem2 = ({
   defaultToShowUnreadComments=false,
   // dense: (bool) Slightly reduce margins to make this denser. Used on the
   // All Posts page.
-  dense,
+  dense=false,
   // bookmark: (bool) Whether this is a bookmark. Adds a clickable bookmark
   // icon.
-  bookmark,
+  bookmark=false,
   // recordPostView, isRead: From the withRecordPostView HoC.
   // showNominationCount: (bool) whether this should display it's number of Review nominations
-  showNominationCount,
-  showReviewCount,
-  recordPostView, isRead,
+  showNominationCount=false,
+  showReviewCount=false,
+  recordPostView,
+  isRead=false,
   classes,
+}: {
+  post: any,
+  tagRel?: any,
+  defaultToShowComments: boolean,
+  sequenceId?: string,
+  chapter?: any,
+  index?: number,
+  terms?: any,
+  resumeReading?: any,
+  dismissRecommendation?: any,
+  showBottomBorder?: boolean,
+  showQuestionTag?: boolean,
+  showIcons?: boolean,
+  showPostedAt?: boolean,
+  defaultToShowUnreadComments?: boolean,
+  dense?: boolean,
+  bookmark?: boolean,
+  showNominationCount?: boolean,
+  showReviewCount?: boolean,
+  
+  recordPostView?: any,
+  isRead?: boolean,
+  classes?: any,
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
@@ -381,7 +409,7 @@ const PostsItem2 = ({
 
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors,
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
-    BookmarkButton, EventVicinity, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker, ReviewPostButton } = Components
+    BookmarkButton, EventVicinity, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker, ReviewPostButton } = (Components as ComponentTypes)
 
   const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -420,7 +448,7 @@ const PostsItem2 = ({
             [classes.withRelevanceVoting]: !!tagRel
           })}>
             <PostsItem2MetaInfo className={classNames(classes.karma, {[classes.karmaUnread]: !isRead && userHasBoldPostItems(currentUser)})}>
-              <PostsItemKarma post={post} read={isRead}/>
+              <PostsItemKarma post={post} read={isRead} />
             </PostsItem2MetaInfo>
 
             <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: (!!resumeReading || showNominationCount)})}>
@@ -535,6 +563,12 @@ const PostsItem2 = ({
     </div>
   )
 };
+
+declare global {
+  interface ComponentTypes {
+    PostsItem2: typeof PostsItem2
+  }
+}
 
 registerComponent('PostsItem2', PostsItem2,
   withStyles(styles, { name: "PostsItem2" }),

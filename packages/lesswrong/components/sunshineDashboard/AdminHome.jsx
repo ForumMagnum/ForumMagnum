@@ -71,9 +71,6 @@ addAdminColumn([
     order:4,
   },
 ])
-// Remove the ID and posts field from the users, so that the users fit in page reasonably
-delete getAdminColumns()[0]
-delete getAdminColumns()[1]
 
 const eventColumns = [
   {
