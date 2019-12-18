@@ -424,12 +424,22 @@ const PostsItem2 = ({
             </PostsItem2MetaInfo>
 
             <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: (!!resumeReading || showNominationCount)})}>
+              <AnalyticsContext postId={post._id} isSticky={isSticky(post, terms)}>
                 <AnalyticsTracker
                     eventType={"postItem"}
-                    eventProps={{postId: post._id, isSticky:isSticky(post, terms)}}
-                    captureOnMount={(eventData) => eventData.capturePostItemOnMount}>
-                  <PostsTitle postLink={postLink} post={post} expandOnHover={!renderComments} read={isRead} sticky={isSticky(post, terms)} showQuestionTag={showQuestionTag}/>
+                    captureOnMount={(eventData) => eventData.capturePostItemOnMount}
+                    captureOnClick={false}
+                >
+                  <PostsTitle
+                      postLink={postLink}
+                      post={post}
+                      expandOnHover={!renderComments}
+                      read={isRead}
+                      sticky={isSticky(post, terms)}
+                      showQuestionTag={showQuestionTag}
+                  />
                 </AnalyticsTracker>
+              </AnalyticsContext>
             </span>
 
             {(resumeReading?.sequence || resumeReading?.collection) &&

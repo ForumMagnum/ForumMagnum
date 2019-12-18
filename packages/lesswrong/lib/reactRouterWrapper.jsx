@@ -27,11 +27,12 @@ export const withRouter = (WrappedComponent) => {
   return reactRouter.withRouter(WithRouterWrapper);
 }
 
-export const Link = (props) => {
 
-  const handleClick = () => {
+export const Link = (props) => {
+  const { captureEvent } = useTracking({eventType: "linkClicked", eventProps: {to: props.to}})
+  const handleClick = (e) => {
     console.log("clickFired")
-    useTracking({eventType: "linkClicked", eventProps:{to: props.to}})
+    captureEvent(undefined, {buttonPressed: e.button})
   }
 
   if (!(typeof props.to === "string" || typeof props.to === "object")) {

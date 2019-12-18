@@ -7,6 +7,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper.jsx';
 import { Posts } from '../../lib/collections/posts';
 import { userHasBoldPostItems } from '../../lib/betas.js';
+import {AnalyticsContext} from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   root: {
@@ -80,33 +81,35 @@ const PostsTitle = ({currentUser, post, postLink, classes, sticky, read, showQue
   const shouldRenderEventsTag = pathname !== "/community"
 
   const url = postLink || Posts.getPageUrl(post)
-  return <Link to={url} className={classNames(
-    classes.root,
-    {
-      [classes.read]: read,
-      [classes.wrap]: wrap,
-      [classes.adminUnread]: !read && userHasBoldPostItems(currentUser),
-      [classes.adminRead]: read && userHasBoldPostItems(currentUser),
-    }
-  )}>
-    {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
+  return <AnalyticsContext linkContext={"postItem"}>
+        <Link to={url} className={classNames(
+        classes.root,
+        {
+          [classes.read]: read,
+          [classes.wrap]: wrap,
+          [classes.adminUnread]: !read && userHasBoldPostItems(currentUser),
+          [classes.adminRead]: read && userHasBoldPostItems(currentUser),
+        }
+      )}>
+        {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
 
-    {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
+        {sticky && <span className={classes.sticky}>{stickyIcon}</span>}
 
-    {shared && <span className={classes.tag}>[Shared]</span>}
+        {shared && <span className={classes.tag}>[Shared]</span>}
 
-    {post.question && shouldRenderQuestionTag && <span className={classes.tag}>[Question]</span>}
+        {post.question && shouldRenderQuestionTag && <span className={classes.tag}>[Question]</span>}
 
-    {post.url && <span className={classes.tag}>[Link]</span>}
+        {post.url && <span className={classes.tag}>[Link]</span>}
 
-    {post.isEvent && shouldRenderEventsTag && <span className={classes.tag}>[Event]</span>}
+        {post.isEvent && shouldRenderEventsTag && <span className={classes.tag}>[Event]</span>}
 
-    <span>{post.title}</span>
+        <span>{post.title}</span>
 
-    {showIcons && <span className={classes.hideSmDown}>
-      <PostsItemIcons post={post}/>
-    </span>}
-  </Link>
+        {showIcons && <span className={classes.hideSmDown}>
+          <PostsItemIcons post={post}/>
+        </span>}
+      </Link>
+    </AnalyticsContext>
 }
 
 registerComponent('PostsTitle', PostsTitle, withUser,
