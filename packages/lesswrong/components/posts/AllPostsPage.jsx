@@ -145,25 +145,27 @@ class AllPostsPage extends Component {
 
     return (
       <React.Fragment>
-        <SingleColumnSection>
-          <Tooltip title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`} placement="top-end">
-            <div className={classes.title} onClick={this.toggleSettings}>
-              <SectionTitle title="All Posts">
-                <SettingsIcon label={`Sorted by ${ sortings[currentSorting] }`}/>
-              </SectionTitle>
-            </div>
-          </Tooltip>
-          <PostsListSettings
-            hidden={!showSettings}
-            currentTimeframe={currentTimeframe}
-            currentSorting={currentSorting}
-            currentFilter={currentFilter}
-            currentShowLowKarma={currentShowLowKarma}
-            persistentSettings
-            showTimeframe
-          />
-          {this.renderPostsList({currentTimeframe, currentSorting, currentFilter, currentShowLowKarma})}
-        </SingleColumnSection>
+        <AnalyticsContext pageContext="allPostsPage">
+          <SingleColumnSection>
+            <Tooltip title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`} placement="top-end">
+              <div className={classes.title} onClick={this.toggleSettings}>
+                <SectionTitle title="All Posts">
+                  <SettingsIcon label={`Sorted by ${ sortings[currentSorting] }`}/>
+                </SectionTitle>
+              </div>
+            </Tooltip>
+            <PostsListSettings
+              hidden={!showSettings}
+              currentTimeframe={currentTimeframe}
+              currentSorting={currentSorting}
+              currentFilter={currentFilter}
+              currentShowLowKarma={currentShowLowKarma}
+              persistentSettings
+              showTimeframe
+            />
+            {this.renderPostsList({currentTimeframe, currentSorting, currentFilter, currentShowLowKarma})}
+          </SingleColumnSection>
+        </AnalyticsContext>
       </React.Fragment>
     )
   }

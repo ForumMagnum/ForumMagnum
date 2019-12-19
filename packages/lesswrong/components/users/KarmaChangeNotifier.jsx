@@ -6,7 +6,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import Popper from '@material-ui/core/Popper';
 import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
-import { Link } from 'react-router-dom';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 import Users from 'meteor/vulcan:users';
 import Typography from '@material-ui/core/Typography';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
@@ -19,6 +19,7 @@ import { karmaNotificationTimingChoices } from './KarmaChangeNotifierSettings'
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments';
 import { captureEvent } from '../../lib/analyticsEvents.js';
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 
 const styles = theme => ({
@@ -216,7 +217,8 @@ class KarmaChangeNotifier extends PureComponent {
     const newKarmaChangesSinceLastVisit = (new Date(karmaChangeLastOpened || 0) - new Date(endDate || 0)) < 0
     const starIsHollow = ((comments.length===0 && posts.length===0) || this.state.cleared || !newKarmaChangesSinceLastVisit)
 
-    return <div className={classes.root}>
+    return <AnalyticsContext pageSection="karmaChangeNotifer">
+      <div className={classes.root}>
         <IconButton onClick={this.handleToggle} className={classes.karmaNotifierButton}>
           {starIsHollow
             ? <StarBorderIcon className={classes.starIcon}/>
@@ -247,6 +249,7 @@ class KarmaChangeNotifier extends PureComponent {
           </ClickAwayListener>
         </Popper>
       </div>
+    </AnalyticsContext>
   }
 }
 

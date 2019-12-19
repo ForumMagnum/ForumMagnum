@@ -75,58 +75,60 @@ class CommunityHome extends Component {
     }
     return (
       <React.Fragment>
-        <Components.CommunityMapWrapper
-          terms={mapEventTerms}
-        />
-          <SingleColumnSection>
-            <SectionTitle title="Welcome to the Community Section"/>
-            <Typography variant="body2" className={classes.welcomeText}>
-              On the map above you can find nearby events (blue arrows), local groups (green house icons) and other users who have added themselves to the map (purple person icons)
-            </Typography>
-              <SectionFooter>
-                <a onClick={this.openSetPersonalLocationForm}>
-                  {currentUser?.mapLocation ? "Edit my location on the map" : "Add me to the map"}
-                </a>
-                <a onClick={this.openEventNotificationsForm}>
-                  {currentUser?.nearbyEventsNotifications ? `Edit my event/groups notification settings` : `Sign up for event/group notifications`} [Beta]
-                </a>
-              </SectionFooter>
-          </SingleColumnSection>
-          <SingleColumnSection>
-            <SectionTitle title="Local Groups">
-              {this.props.currentUser && <GroupFormLink />}
-            </SectionTitle>
-            { this.state.currentUserLocation.loading
-              ? <Components.Loading />
-              : <Components.LocalGroupsList
-                  terms={groupsListTerms}
-                  showHeader={false} >
-                    <Link to={"/allGroups"}>View All Groups</Link>
-                </Components.LocalGroupsList>
-            }
-          </SingleColumnSection>
-          <SingleColumnSection>
-            <SectionTitle title="Events">
-              {this.props.currentUser && <Link to={{pathname:"/newPost", search: `?eventForm=true`}}>
-                <SectionButton>
-                  <EventIcon />
-                  New Event
-                </SectionButton>
-              </Link>}
-            </SectionTitle>
-            <AnalyticsContext listContext={"communityEvents"}>
-              <PostsList2 terms={postsListTerms}>
-                <Link to="/pastEvents">View Past Events</Link>
-                <Link to="/upcomingEvents">View Upcoming Events</Link>
-              </PostsList2>
-            </AnalyticsContext>
-          </SingleColumnSection>
-          <SingleColumnSection>
-            <SectionTitle title="Resources"/>
-            <AnalyticsContext listContext={"communityResources"}>
-              <PostsList2 terms={{view: 'communityResourcePosts'}} showLoadMore={false} />
-            </AnalyticsContext>
-          </SingleColumnSection>
+        <AnalyticsContext pageContext="communityHome">
+          <Components.CommunityMapWrapper
+            terms={mapEventTerms}
+          />
+            <SingleColumnSection>
+              <SectionTitle title="Welcome to the Community Section"/>
+              <Typography variant="body2" className={classes.welcomeText}>
+                On the map above you can find nearby events (blue arrows), local groups (green house icons) and other users who have added themselves to the map (purple person icons)
+              </Typography>
+                <SectionFooter>
+                  <a onClick={this.openSetPersonalLocationForm}>
+                    {currentUser?.mapLocation ? "Edit my location on the map" : "Add me to the map"}
+                  </a>
+                  <a onClick={this.openEventNotificationsForm}>
+                    {currentUser?.nearbyEventsNotifications ? `Edit my event/groups notification settings` : `Sign up for event/group notifications`} [Beta]
+                  </a>
+                </SectionFooter>
+            </SingleColumnSection>
+            <SingleColumnSection>
+              <SectionTitle title="Local Groups">
+                {this.props.currentUser && <GroupFormLink />}
+              </SectionTitle>
+              { this.state.currentUserLocation.loading
+                ? <Components.Loading />
+                : <Components.LocalGroupsList
+                    terms={groupsListTerms}
+                    showHeader={false} >
+                      <Link to={"/allGroups"}>View All Groups</Link>
+                  </Components.LocalGroupsList>
+              }
+            </SingleColumnSection>
+            <SingleColumnSection>
+              <SectionTitle title="Events">
+                {this.props.currentUser && <Link to={{pathname:"/newPost", search: `?eventForm=true`}}>
+                  <SectionButton>
+                    <EventIcon />
+                    New Event
+                  </SectionButton>
+                </Link>}
+              </SectionTitle>
+              <AnalyticsContext listContext={"communityEvents"}>
+                <PostsList2 terms={postsListTerms}>
+                  <Link to="/pastEvents">View Past Events</Link>
+                  <Link to="/upcomingEvents">View Upcoming Events</Link>
+                </PostsList2>
+              </AnalyticsContext>
+            </SingleColumnSection>
+            <SingleColumnSection>
+              <SectionTitle title="Resources"/>
+              <AnalyticsContext listContext={"communityResources"}>
+                <PostsList2 terms={{view: 'communityResourcePosts'}} showLoadMore={false} />
+              </AnalyticsContext>
+            </SingleColumnSection>
+        </AnalyticsContext>
       </React.Fragment>
     )
   }
