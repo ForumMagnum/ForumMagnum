@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent, useSingle } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments';
-import { Link } from 'react-router-dom';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 import { usePostBySlug, usePostByLegacyId } from '../posts/usePost.js';
 import { useCommentByLegacyId } from '../comments/useComment.js';
 import withHover from '../common/withHover';
