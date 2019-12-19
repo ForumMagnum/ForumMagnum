@@ -10,7 +10,7 @@
 const adminOnly = (user) => user?.isAdmin; // eslint-disable-line no-unused-vars
 const optInOnly = (user) => user?.beta; // eslint-disable-line no-unused-vars
 const shippedFeature = (user) => true; // eslint-disable-line no-unused-vars
-
+const disabled = (user) => false; // eslint-disable-line no-unused-vars
 
 //////////////////////////////////////////////////////////////////////////////
 // Features in progress                                                     //
@@ -19,4 +19,4 @@ const shippedFeature = (user) => true; // eslint-disable-line no-unused-vars
 export const userHasPingbacks = optInOnly;
 export const userHasCkEditor = adminOnly;
 export const userHasTagging = adminOnly;
-export const userHasBoldPostItems = false
+export const userHasBoldPostItems = disabled
