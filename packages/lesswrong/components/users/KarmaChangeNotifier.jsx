@@ -175,7 +175,7 @@ class KarmaChangeNotifier extends PureComponent {
     } else {
       this.handleOpen(e)
     }
-    captureEvent("karmaNotifierToggle", {"open": !open})
+    captureEvent("karmaNotifierToggle", {open: !open})
   }
 
   handleClose = (e) => {

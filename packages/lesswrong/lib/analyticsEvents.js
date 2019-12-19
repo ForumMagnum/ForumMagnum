@@ -75,7 +75,7 @@ export const AnalyticsContext = ({children, ...props}) => {
     </ReactTrackingContext.Provider>
 }
 
-export function useTracking({eventType, eventProps = {}, captureOnMount = false,  skip = false}) {
+export function useTracking({eventType="unnamed", eventProps = {}, captureOnMount = false,  skip = false}={}) {
   const trackingContext = useContext(ReactTrackingContext)
   useEffect(() => {
     const eventData = {...trackingContext, ...eventProps}
