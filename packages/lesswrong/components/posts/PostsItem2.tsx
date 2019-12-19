@@ -87,12 +87,17 @@ export const styles = createStyles((theme) => ({
       marginRight: theme.spacing.unit
     }
   },
-  karmaUnread: {
+  metaUnread: {
     textShadow: "0.4px 0.4px 0px rgba(0,0,0,.6)",
     color: 'rgba(0,0,0,.6) !important',
     [theme.breakpoints.down('sm')]: {
       textShadow: "none",
       color: theme.palette.grey[600]
+    }
+  },
+  postedAtUnread: {
+    '& span': {
+      fontWeight: 400
     }
   },
   title: {
@@ -449,7 +454,7 @@ const PostsItem2 = ({
             [classes.dense]: dense,
             [classes.withRelevanceVoting]: !!tagRel
           })}>
-            <PostsItem2MetaInfo className={classNames(classes.karma, {[classes.karmaUnread]: !isRead && userHasBoldPostItems(currentUser)})}>
+            <PostsItem2MetaInfo className={classNames(classes.karma, {[classes.metaUnread]: !isRead && userHasBoldPostItems(currentUser)})}>
               <PostsItemKarma post={post} read={isRead} />
             </PostsItem2MetaInfo>
 
@@ -476,15 +481,15 @@ const PostsItem2 = ({
               </div>
             }
 
-            { post.user && !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
+            { post.user && !post.isEvent && <PostsItem2MetaInfo className={classNames(classes.author, {[classes.metaUnread]: !isRead && userHasBoldPostItems(currentUser)})}>
               <PostsUserAndCoauthors post={post} abbreviateIfLong={true} />
             </PostsItem2MetaInfo>}
 
-            { post.isEvent && <PostsItem2MetaInfo className={classes.event}>
+            { post.isEvent && <PostsItem2MetaInfo className={classNames(classes.event, {[classes.metaUnread]: !isRead && userHasBoldPostItems(currentUser)})}>
               <EventVicinity post={post} />
             </PostsItem2MetaInfo>}
 
-            {showPostedAt && !resumeReading && <PostsItemDate post={post} />}
+            {showPostedAt && !resumeReading && <span className={classNames({[classes.postedAtUnread]: !isRead && userHasBoldPostItems(currentUser)})}><PostsItemDate post={post} /></span>}
 
             <div className={classes.mobileSecondRowSpacer}/>
 
