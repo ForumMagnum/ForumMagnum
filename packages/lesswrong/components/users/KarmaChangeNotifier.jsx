@@ -18,7 +18,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { karmaNotificationTimingChoices } from './KarmaChangeNotifierSettings'
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments';
-import { captureEvent } from '../../lib/analyticsEvents.js';
+import { withTracking } from '../../lib/analyticsEvents.js';
 
 
 const styles = theme => ({
@@ -168,6 +168,7 @@ class KarmaChangeNotifier extends PureComponent {
 
   handleToggle = (e) => {
     const { open } = this.state
+    const { captureEvent } = this.props
     if (open) {
       this.handleClose() // When closing from toggle, force a close by not providing an event
     } else {
@@ -261,5 +262,6 @@ registerComponent('KarmaChangeNotifier', KarmaChangeNotifier,
     collection: Users,
     fragmentName: 'UsersCurrent',
   }],
-  withStyles(styles, {name: 'KarmaChangeNotifier'})
+  withStyles(styles, {name: 'KarmaChangeNotifier'}),
+  withTracking
 );

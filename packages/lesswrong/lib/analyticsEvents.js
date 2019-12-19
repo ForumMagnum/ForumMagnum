@@ -2,6 +2,7 @@
 import { addGraphQLSchema } from 'meteor/vulcan:core';
 import { RateLimiter } from './rateLimiter.js';
 import React, { useContext, useEffect } from 'react'
+import { hookToHoc } from './hocUtils.js'
 
 addGraphQLSchema(`
   type AnalyticsEvent {
@@ -94,6 +95,9 @@ export function useTracking({eventType, eventProps = {}, captureOnMount = false,
   }
   return {captureEvent: track}
 }
+
+export const withTracking = hookToHoc(useTracking)
+
 // Analytics events have two rate limits, one denominated in events per second,
 // the other denominated in uncompressed kilobytes per second. Each of these
 // has a burst limit and a steady-state limit. If either rate limit is exceeded,
