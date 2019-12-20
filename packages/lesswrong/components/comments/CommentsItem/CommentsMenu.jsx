@@ -55,7 +55,7 @@ const CommentsMenu = ({children, classes, className, comment, post, showEdit, ic
             unsubscribeMessage="Unsubscribe from comment replies"
           />
         </MenuItem>
-        {comment?.user?._id && (comment?.user?._id !== currentUser._id) &&
+        {comment.user._id && (comment.user._id !== currentUser._id) &&
           <MenuItem>
             <SubscribeTo document={comment.user} showIcon
               subscribeMessage={"Subscribe to posts by "+Users.getDisplayName(comment.user)}

@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
 import { withRecommendations } from './withRecommendations';
-import { AnalyticsContext } from '../../lib/analyticsEvents';
 
 class RecommendationsList extends Component {
   render() {

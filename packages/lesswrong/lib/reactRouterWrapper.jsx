@@ -4,11 +4,8 @@ export const Link = reactRouter3.Link;
 
 export const withRouter = reactRouter3.withRouter;*/
 
-import React, {useCallback} from 'react';
+import React from 'react';
 import { useTracking } from '../lib/analyticsEvents';
-// packages/lesswrong/lib/reactRouterWrapper.jsx
-// packages/lesswrong/lib/analyticsEvents.js
-
 import * as reactRouter from 'react-router';
 import * as reactRouterDom from 'react-router-dom';
 import { parseQuery } from './routeUtil'
