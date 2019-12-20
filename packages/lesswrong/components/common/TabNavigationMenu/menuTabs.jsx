@@ -36,7 +36,7 @@ const EventsList = ({currentUser, onClick}) => {
     }
   }
   return <span>
-    <AnalyticsContext subContext="menuEventsList">
+    <AnalyticsContext pageSubSectionContext="menuEventsList">
       <TabNavigationEventsList onClick={onClick} terms={eventsListTerms} />
     </AnalyticsContext>
   </span>

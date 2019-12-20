@@ -171,9 +171,7 @@ class PostActions extends Component {
             unsubscribeMessage="Unsubscribe from comments"/>
         </MenuItem>}
 
-        <AnalyticsContext buttonContext={"postActions"}>
-          <BookmarkButton post={post} menuItem/>
-        </AnalyticsContext>
+        <BookmarkButton post={post} menuItem/>
 
         <ReportPostMenuItem post={post}/>
         { post.isRead
