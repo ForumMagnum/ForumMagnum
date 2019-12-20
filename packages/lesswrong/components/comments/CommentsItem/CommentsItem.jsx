@@ -10,6 +10,7 @@ import withErrorBoundary from '../../common/withErrorBoundary';
 import withUser from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper.jsx';
 import { Posts } from "../../../lib/collections/posts";
+import {AnalyticsContext} from "../../../lib/analyticsEvents";
 
 // Shared with ParentCommentItem
 export const styles = theme => ({
@@ -277,11 +278,13 @@ class CommentsItem extends Component {
     return (
       <span className={classes.metaRight}>
         <span className={classes.menu}>
-          <CommentsMenu
-            comment={comment}
-            post={post}
-            showEdit={this.setShowEdit}
-          />
+          <AnalyticsContext pageElementContext="tripleDotMenu">
+            <CommentsMenu
+              comment={comment}
+              post={post}
+              showEdit={this.setShowEdit}
+            />
+          </AnalyticsContext>
         </span>
       </span>
     )

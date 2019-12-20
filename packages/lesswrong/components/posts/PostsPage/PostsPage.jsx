@@ -333,7 +333,9 @@ class PostsPage extends Component {
                         {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
                         <a className={classes.commentsLink} href={"#comments"}>{ Posts.getCommentCountStr(post)}</a>
                         <span className={classes.actions}>
+                          <AnalyticsContext pageElementContext="tripleDotMenu">
                             <PostsPageActions post={post} />
+                          </AnalyticsContext>
                         </span>
                       </div>
                     </div>
@@ -350,9 +352,7 @@ class PostsPage extends Component {
                 </div>
               </div>
               <div className={classes.toc}>
-                <AnalyticsContext pageSectionContext="TableOfContents">
-                  <TableOfContents sectionData={sectionData} document={post} />
-                </AnalyticsContext>
+                <TableOfContents sectionData={sectionData} document={post} />
               </div>
               <div className={classes.gap1}/>
               <div className={classes.content}>
