@@ -38,7 +38,7 @@ Start the development server:
 
 You should now have a local version running at [http://localhost:3000](http://localhost:3000/).
 
-If it is NOT working, there is most likely some issues with your `yarm install` process. If you are terminal-savvy you can attempt to resolve that yourself based on error messages. If you'd like help, you can ping the LessWrong team either by creating a github issue or pinging us on intercom on LessWrong itself. You may find some help in the [README for Vulcan-Starter](https://github.com/VulcanJS/Vulcan-Starter)
+If it is NOT working, there is most likely some issues with your `yarn install` process. If you are terminal-savvy you can attempt to resolve that yourself based on error messages. If you'd like help, you can ping the LessWrong team either by creating a github issue or pinging us on intercom on LessWrong itself. You may find some help in the [README for Vulcan-Starter](https://github.com/VulcanJS/Vulcan-Starter)
 
 It will start out with an empty database. (This means that some of the hardcoded links on the frontpage, such as Eliezer’s Sequences or the Codex, will not work). You can create users via the normal sign up process (entering a fake email is fine). The first user you’ll create will be an admin, so you’ll probably want to create at least two users to check how the site looks for non-admins.
 
