@@ -6,6 +6,7 @@ import LinkIcon from '@material-ui/icons/Link';
 import { Comments } from "../../../lib/collections/comments";
 import classNames from 'classnames';
 import { useNavigation, useLocation } from '../../../lib/routeUtil';
+import { useTracking } from '../../../lib/analyticsEvents';
 
 const styles = theme => ({
   root: {
@@ -38,12 +39,14 @@ const styles = theme => ({
 const CommentsItemDate = ({comment, post, classes, scrollOnClick, scrollIntoView }) => {
   const { history } = useNavigation();
   const { location } = useLocation();
+  const { captureEvent } = useTracking();
 
    const handleLinkClick = (event) => {
     event.preventDefault()
     history.replace({...location, hash: "#" + comment._id})
     scrollIntoView();
-  };
+    captureEvent("linkClicked", {buttonPressed: event.button, furtherContext: "dateIcon"})
+   };
 
   const url = Comments.getPageUrlFromIds({postId: post._id, postSlug: post.slug, commentId: comment._id, permalink: false})
 
