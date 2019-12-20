@@ -134,7 +134,6 @@ class Header extends PureComponent {
   }
 
   setNavigationOpen = (open) => {
-    console.log({"navigation": open})
     const { captureEvent } = this.props
     this.setState({navigationOpen: open})
     captureEvent("navigationBarToggle", {open: open})
