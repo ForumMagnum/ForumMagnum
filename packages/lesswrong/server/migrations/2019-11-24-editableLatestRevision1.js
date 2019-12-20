@@ -73,9 +73,10 @@ registerMigration({
   }
 });
 
-/*registerMigration({
+registerMigration({
   name: "editableDropDenormalizedField",
   idempotent: true,
+  dateWritten: "2019-12-16",
   action: async () => {
     for (let collectionName of editableCollections)
     for (let fieldName of editableCollectionsFields[collectionName])
@@ -105,4 +106,4 @@ registerMigration({
       });
     }
   }
-});*/
+});

@@ -6,6 +6,7 @@ import Revisions from '../../lib/collections/revisions/collection'
 import { extractVersionsFromSemver } from '../../lib/editor/utils'
 import { ensureIndex } from '../../lib/collectionUtils'
 import { htmlToPingbacks } from '../pingbacks.js';
+import { addEditableResolvers } from './editableResolvers.js';
 import TurndownService from 'turndown';
 const turndownService = new TurndownService()
 turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
@@ -233,6 +234,8 @@ async function buildRevision({ originalContents, currentUser }) {
 }
 
 export function addEditableCallbacks({collection, options = {}}) {
+  addEditableResolvers({collection, options});
+  
   const {
     fieldName = "contents",
     pingbacks = false,
