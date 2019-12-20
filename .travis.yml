@@ -35,9 +35,6 @@ deploy:
     script: 
       cp ./LessWrong-Credentials/mup-baserates.secret ./mup-baserates.secret;
       bash ./travis_wait "mup deploy --config mup-baserates.secret --settings ./LessWrong-Credentials/settings-staging-baserates.json"
-    on:
-      branch: devel
-    skip_cleanup: true
   # Deploy production
   - provider: script
     script: 
