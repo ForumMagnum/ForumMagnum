@@ -227,7 +227,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         .includes(location.currentRoute.name)
     
     return (
-      <AnalyticsContext>
+      <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
       <PostsReadContext.Provider value={{
