@@ -28,7 +28,14 @@ Lesswrong2 is built on top of four major open-source libraries.
 
 ### Installation
 
+LessWrong is a fork of VulcanJS's example-forum. We've made significant changes to VulcanJS itself as well as their example-forum.
+
+Clone our repo:
+
     git clone https://github.com/LessWrong2/Lesswrong2
+
+Install dependencies:
+
     cd Lesswrong2
     yarn install
 
