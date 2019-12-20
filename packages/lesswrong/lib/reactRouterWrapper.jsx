@@ -31,7 +31,6 @@ export const withRouter = (WrappedComponent) => {
 export const Link = (props) => {
   const { captureEvent } = useTracking({eventType: "linkClicked", eventProps: {to: props.to}})
   const handleClick = (e) => {
-    console.log("clickFired")
     captureEvent(undefined, {buttonPressed: e.button})
   }
 
