@@ -6,7 +6,7 @@ import Divider from '@material-ui/core/Divider';
 import { useCurrentUser } from '../../common/withUser';
 import Users from 'meteor/vulcan:users';
 import MenuItem from '@material-ui/core/MenuItem';
-
+import { useTracking } from "../../../lib/analyticsEvents";
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
@@ -25,6 +25,7 @@ const styles = theme => ({
 const CommentsMenu = ({children, classes, className, comment, post, showEdit, icon}) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const currentUser = useCurrentUser();
+  const { captureEvent } = useTracking({eventType: "commentMenuClicked", eventProps: {commentId: comment._id, itemType: "comment"}})
   
   const { EditCommentMenuItem, ReportCommentMenuItem, DeleteCommentMenuItem, RetractCommentMenuItem, BanUserFromPostMenuItem, BanUserFromAllPostsMenuItem, MoveToAlignmentMenuItem, SuggestAlignmentMenuItem, BanUserFromAllPersonalPostsMenuItem, MoveToAnswersMenuItem, SubscribeTo, CommentsPermalinkMenuItem, ToggleIsModeratorComment } = Components
   
@@ -32,18 +33,24 @@ const CommentsMenu = ({children, classes, className, comment, post, showEdit, ic
   
   return (
     <span className={className}>
-      <span onClick={event => setAnchorEl(event.currentTarget)}>
+      <span onClick={event => {
+        captureEvent("commentMenuClicked", {open: true})
+        setAnchorEl(event.currentTarget)
+      }}>
         {icon ? icon : <MoreVertIcon
           className={classes.icon}/>}
       </span>
       <Menu
-        onClick={event => setAnchorEl(null)}
+        onClick={event => {
+          captureEvent("commentMenuClicked", {open: false})
+          setAnchorEl(null)
+        }}
         open={Boolean(anchorEl)}
         anchorEl={anchorEl}
       >
         <EditCommentMenuItem comment={comment} showEdit={showEdit}/>
         <MenuItem>
-          <SubscribeTo document={comment} showIcon
+          <SubscribeTo document={co(mment} showIcon
             subscribeMessage="Subscribe to comment replies"
             unsubscribeMessage="Unsubscribe from comment replies"
           />
