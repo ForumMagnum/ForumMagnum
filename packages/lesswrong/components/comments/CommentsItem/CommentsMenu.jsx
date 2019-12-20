@@ -50,7 +50,7 @@ const CommentsMenu = ({children, classes, className, comment, post, showEdit, ic
       >
         <EditCommentMenuItem comment={comment} showEdit={showEdit}/>
         <MenuItem>
-          <SubscribeTo document={co(mment} showIcon
+          <SubscribeTo document={comment} showIcon
             subscribeMessage="Subscribe to comment replies"
             unsubscribeMessage="Unsubscribe from comment replies"
           />
