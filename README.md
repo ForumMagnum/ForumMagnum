@@ -28,34 +28,19 @@ Lesswrong2 is built on top of four major open-source libraries.
 
 ### Installation
 
-**Warning: This text is now out of date**
+LessWrong is a fork of VulcanJS's example-forum. We've had to make *some* changes to VulcanJS itself as well as their example-forum.
 
-LessWrong is a fork of VulcanJS's example-forum. We've had to make *some* changes to VulcanJS itself as well as their example-forum. We try to keep the changes to each codebase distinct, and have factored our web app into two repos.
-
-I recommend starting by creating a folder to store both of them:
-
-    mkdir lesswrongSuite
-    cd lesswrongSuite
-
-Clone the two repos:
+Clone our repo:
 
     git clone https://github.com/LessWrong2/Lesswrong2
-    git clone https://github.com/LessWrong2/Vulcan.git
 
-You'll mostly be working in Lesswrong2.
-
-Install node dependencies in each of the repo folders:
+Install node dependencies:
 
     cd Lesswrong2
     npm install
-    
-    cd ../Vulcan
-    npm install
-
 
 Start the development server:
 
-    cd ../Lesswrong2
     npm start
 
 You should now have a local version running at [http://localhost:3000](http://localhost:3000/).

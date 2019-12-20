@@ -488,12 +488,14 @@ class EditorFormComponent extends Component {
     return this.state.version || this.props.document.version
   }
 
-  handleUpdateVersionNumber = (version) => {    
+  handleUpdateVersionNumber = (version) => {   
+    // see SelectVersion component for additional details 
     this.setState({ version: version })
   }
 
   handleUpdateVersion = async (document) => {
-    if (!document) return
+    // see SelectVersion component for additional details
+    if (!document?.contents) return
     const editorType = document.contents?.originalContents?.type
     this.setState({
       ...this.getEditorStatesFromType(editorType, document.contents)

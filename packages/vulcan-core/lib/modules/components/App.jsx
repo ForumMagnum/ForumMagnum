@@ -13,7 +13,6 @@ import PropTypes from 'prop-types';
 import { IntlProvider, intlShape } from 'meteor/vulcan:i18n';
 import withCurrentUser from '../containers/withCurrentUser.js';
 import withUpdate from '../containers/withUpdate.js';
-import withSiteData from '../containers/withSiteData.js';
 import { withApollo } from 'react-apollo';
 import moment from 'moment';
 import { withRouter, matchPath } from 'react-router';
@@ -25,6 +24,32 @@ export const LocationContext = React.createContext("location");
 export const SubscribeLocationContext = React.createContext("subscribeLocation");
 export const NavigationContext = React.createContext("navigation");
 export const ServerRequestStatusContext = React.createContext("serverRequestStatus");
+
+// From react-router-v4
+// https://github.com/ReactTraining/history/blob/master/modules/PathUtils.js
+export const parsePath = function parsePath(path) {
+  var pathname = path || '/';
+  var search = '';
+  var hash = '';
+  
+  var hashIndex = pathname.indexOf('#');
+  if (hashIndex !== -1) {
+    hash = pathname.substr(hashIndex);
+    pathname = pathname.substr(0, hashIndex);
+  }
+  
+  var searchIndex = pathname.indexOf('?');
+  if (searchIndex !== -1) {
+    search = pathname.substr(searchIndex);
+    pathname = pathname.substr(0, searchIndex);
+  }
+  
+  return {
+    pathname: pathname,
+    search: search === '?' ? '' : search,
+    hash: hash === '#' ? '' : hash
+  };
+};
 
 export function parseQuery(location) {
   let query = location && location.search;
@@ -42,7 +67,7 @@ export function parseQuery(location) {
 // Match a string against the routes table, and parse the route components.
 // If there is no match, returns a special 404 route, and calls onError if
 // provided.
-export function parseRoute({location, onError=null}) {
+export function parseRoute({location, followRedirects=true, onError=null}) {
   const routeNames = Object.keys(Routes);
   let currentRoute = null;
   let params={};
@@ -76,12 +101,28 @@ export function parseRoute({location, onError=null}) {
   }
   
   const RouteComponent = currentRoute ? Components[currentRoute.componentName] : Components.Error404;
-  return {
+  const result = {
     currentRoute, RouteComponent, location, params,
     pathname: location.pathname,
+    url: location.pathname + location.search + location.hash,
     hash: location.hash,
     query: parseQuery(location),
   };
+  
+  if (currentRoute && currentRoute.redirect) {
+    const redirectTo = currentRoute.redirect(result);
+    if (redirectTo) {
+      return {
+        ...parseRoute({
+          location: parsePath(redirectTo),
+          onError
+        }),
+        redirected: true,
+      };
+    }
+  }
+  
+  return result;
 }
 
 class App extends PureComponent {
@@ -213,6 +254,10 @@ class App extends PureComponent {
     // Parse the location into a route/params/query/etc.
     const location = parseRoute({location: this.props.location});
     
+    if (location.redirected) {
+      return <Components.PermanentRedirect url={location.url}/>
+    }
+    
     // Reuse the container objects for location and navigation context, so that
     // they will be reference-stable and won't trigger spurious rerenders.
     if (!this.locationContext) {
@@ -280,8 +325,8 @@ const updateOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-//registerComponent('App', App, withCurrentUser, withSiteData, [withUpdate, updateOptions], withApollo, withCookies, withRouter);
+//registerComponent('App', App, withCurrentUser, [withUpdate, updateOptions], withApollo, withCookies, withRouter);
 // TODO LESSWRONG-Temporarily omit withCookies until it's debugged
-registerComponent('App', App, withCurrentUser, withSiteData, [withUpdate, updateOptions], withApollo, withRouter);
+registerComponent('App', App, withCurrentUser, [withUpdate, updateOptions], withApollo, withRouter);
 
 export default App;

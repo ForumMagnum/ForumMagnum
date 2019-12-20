@@ -32,6 +32,7 @@ scratch
 .meteor/local
 .meteor/meteorite
 mup*
+!mup*.enc
 
 packages_update.py
 
