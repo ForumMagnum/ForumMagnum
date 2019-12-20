@@ -17,7 +17,7 @@ const Home2 = ({currentUser}) => {
           {shouldRenderSidebar && <Components.SunshineSidebar/>}
           <RecommendationsAndCurated configName="frontpage" />
           <HomeLatestPosts />
-          <AnalyticsContext subSectionContext="recentDiscussion">
+          <AnalyticsContext pageSectionContext="recentDiscussion">
               <RecentDiscussionThreadsList
                 terms={{view: 'recentDiscussionThreadsList', limit:20}}
                 commentsLimit={4}

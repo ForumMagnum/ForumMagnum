@@ -262,7 +262,7 @@ class Header extends PureComponent {
                       <SearchBar onSetIsActive={this.setSearchOpen} searchResultsArea={searchResultsArea} />
                     </NoSSR>
                     {currentUser && <div className={searchOpen ? classes.hideOnMobile : undefined}>
-                        <AnalyticsContext subSectionContext="usersMenu">
+                        <AnalyticsContext pageSectionContext="usersMenu">
                           <UsersMenu color={getHeaderTextColor(theme)} />
                         </AnalyticsContext>
                       </div>}
