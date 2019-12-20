@@ -17,12 +17,14 @@ const Home2 = ({currentUser}) => {
           {shouldRenderSidebar && <Components.SunshineSidebar/>}
           <RecommendationsAndCurated configName="frontpage" />
           <HomeLatestPosts />
-          <RecentDiscussionThreadsList
-            terms={{view: 'recentDiscussionThreadsList', limit:20}}
-            commentsLimit={4}
-            maxAgeHours={18}
-            af={false}
-          />
+          <AnalyticsContext subSectionContext="recentDiscussion">
+              <RecentDiscussionThreadsList
+                terms={{view: 'recentDiscussionThreadsList', limit:20}}
+                commentsLimit={4}
+                maxAgeHours={18}
+                af={false}
+              />
+          </AnalyticsContext>
         </React.Fragment>
       </AnalyticsContext>
   )

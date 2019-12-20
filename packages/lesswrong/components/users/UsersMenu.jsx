@@ -22,6 +22,7 @@ import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
 import withDialog from '../common/withDialog'
 import withHover from '../common/withHover'
+import {captureEvent} from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   root: {
@@ -158,7 +159,10 @@ class UsersMenu extends PureComponent {
               </Link>
             }
             <Divider/>
-            <MenuItem onClick={() => Meteor.logout(() => client.resetStore())}>
+            <MenuItem onClick={() => {
+              captureEvent("logOutClicked")
+              Meteor.logout(() => client.resetStore())
+            }}>
               Log Out
             </MenuItem>
           </Paper>
