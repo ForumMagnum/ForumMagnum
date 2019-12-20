@@ -12,7 +12,6 @@ import ListItemIcon from '@material-ui/core/ListItemIcon'
 import EditIcon from '@material-ui/icons/Edit'
 import WarningIcon from '@material-ui/icons/Warning'
 import qs from 'qs'
-import {AnalyticsContext} from "../../../lib/analyticsEvents";
 
 const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
 

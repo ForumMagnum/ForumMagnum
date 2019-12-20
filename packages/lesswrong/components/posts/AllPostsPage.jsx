@@ -106,10 +106,10 @@ class AllPostsPage extends Component {
 
     return <div className={classes.timeframe}>
       <AnalyticsContext
-          listContext={"allPostsPage"}
-          // timeframe={currentTimeframe}
-          terms={postListParameters}
-          capturePostItemOnMount>
+        listContext={"allPostsPage"}
+        terms={postListParameters}
+        capturePostItemOnMount
+      >
         <PostsTimeframeList
           timeframe={currentTimeframe}
           postListParameters={postListParameters}
