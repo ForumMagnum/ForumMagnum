@@ -9,7 +9,7 @@ before_install:
 - yarn install
 - command -v meteor >/dev/null 2>&1 || curl https://install.meteor.com | /bin/sh
 before_script:
-- tar xvf credentials.tar.gz --strip-components=1 
+- tar xvf credentials.tar.gz --strip-components=1
 - export PATH=$HOME/.meteor:$PATH
 - yarn global add mup https://github.com/jimrandomh/mup-aws-beanstalk
 - yarn global add json
@@ -22,34 +22,24 @@ jobs:
   - stage: test
     script: yarn run test
 deploy:
-  # Deploy lessestwrong
-  - provider: script
-    script: 
-      cp ./LessWrong-Credentials/mup-lessestwrong.secret ./mup-lessestwrong.secret;
-      bash ./travis_wait "mup deploy --config mup-lessestwrong.secret --settings ./LessWrong-Credentials/settings-staging-lessestwrong.json"
-    on:
-      branch: devel
-    skip_cleanup: true
-  # Deploy baserates
-  - provider: script
-    script: 
-      cp ./LessWrong-Credentials/mup-baserates.secret ./mup-baserates.secret;
-      bash ./travis_wait "mup deploy --config mup-baserates.secret --settings ./LessWrong-Credentials/settings-staging-baserates.json"
-  # Deploy production
-  - provider: script
-    script: 
-      cp ./LessWrong-Credentials/mup-production.secret ./mup-production.secret;
-      bash ./travis_wait "mup deploy --config mup-production.secret --settings ./LessWrong-Credentials/settings-production-lesswrong.json"
-    on:
-      branch: master
-    skip_cleanup: true
-  # Deploy Alignment Forum
-  - provider: script
-    script: 
-      cp ./LessWrong-Credentials/mup-af.secret ./mup-af.secret;
-      bash ./travis_wait "mup deploy --config mup-af.secret --settings ./LessWrong-Credentials/settings-production-alignmentforum.json"
-    on:
-      branch: master
-    skip_cleanup: true
-    
-  
+- provider: script
+  script: cp ./LessWrong-Credentials/mup-lessestwrong.secret ./mup-lessestwrong.secret;
+    bash ./travis_wait "mup deploy --config mup-lessestwrong.secret --settings ./LessWrong-Credentials/settings-staging-lessestwrong.json"
+  on:
+    branch: devel
+  skip_cleanup: true
+- provider: script
+  script: cp ./LessWrong-Credentials/mup-baserates.secret ./mup-baserates.secret;
+    bash ./travis_wait "mup deploy --config mup-baserates.secret --settings ./LessWrong-Credentials/settings-staging-baserates.json"
+- provider: script
+  script: cp ./LessWrong-Credentials/mup-production.secret ./mup-production.secret;
+    bash ./travis_wait "mup deploy --config mup-production.secret --settings ./LessWrong-Credentials/settings-production-lesswrong.json"
+  on:
+    branch: master
+  skip_cleanup: true
+- provider: script
+  script: cp ./LessWrong-Credentials/mup-af.secret ./mup-af.secret; bash ./travis_wait
+    "mup deploy --config mup-af.secret --settings ./LessWrong-Credentials/settings-production-alignmentforum.json"
+  on:
+    branch: master
+  skip_cleanup: true
