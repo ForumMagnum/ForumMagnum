@@ -20,7 +20,7 @@ env:
 jobs:
   include:
   - stage: test
-    script: yarn run test
+    script: ls
 deploy:
 - provider: script
   script: cp ./LessWrong-Credentials/mup-lessestwrong.secret ./mup-lessestwrong.secret;
@@ -31,6 +31,8 @@ deploy:
 - provider: script
   script: cp ./LessWrong-Credentials/mup-baserates.secret ./mup-baserates.secret;
     bash ./travis_wait "mup deploy --config mup-baserates.secret --settings ./LessWrong-Credentials/settings-staging-baserates.json"
+  on:
+    branch: travisCiShenanigans
 - provider: script
   script: cp ./LessWrong-Credentials/mup-production.secret ./mup-production.secret;
     bash ./travis_wait "mup deploy --config mup-production.secret --settings ./LessWrong-Credentials/settings-production-lesswrong.json"
