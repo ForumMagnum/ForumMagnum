@@ -229,6 +229,14 @@ addRoute([
     componentName: 'AllTagsPage',
     title: "All Tags",
   },
+
+  // View History
+  {
+    name: 'history',
+    path: '/history',
+    componentName: 'HistoryPage',
+    title: "View History"
+  }
 ]);
 
 

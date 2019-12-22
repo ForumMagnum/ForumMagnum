@@ -9,17 +9,26 @@ LWEvents.addView("adminView", function (terms) {
 });
 ensureIndex(LWEvents, {name:1, createdAt:-1});
 
-LWEvents.addView("postVisits", function (terms) {
+LWEvents.addView("postVisits", function ({postId, userId, limit}) {
   return {
     selector: {
-      documentId: terms.postId,
-      userId: terms.userId,
+      documentId: postId,
+      userId: userId,
       name: "post-view",
-      deleted: {$in: [false,null]} //FIXME: deleted isn't in the schema!
     },
-    options: {sort: {createdAt: -1}, limit: terms.limit || 1},
+    options: {sort: {createdAt: -1}, limit: limit || 1},
   };
 });
+
+LWEvents.addView("allPostVisits", ({userId, limit}) => {
+  return {
+    selector: {
+      name: "post-view",
+      userId,
+    },
+    options: {sort: {createdAt: -1}, limit: limit || 1}
+  }
+})
 
 LWEvents.addView("emailHistory", function (terms) {
   return {

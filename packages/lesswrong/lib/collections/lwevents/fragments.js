@@ -24,3 +24,13 @@ registerFragment(`
     properties
   }
 `);
+
+registerFragment(`
+  fragment personalHistoryFragment on LWEvent {
+    _id
+    userId
+    name
+    documentId
+    properties
+  }
+`);
