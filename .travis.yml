@@ -25,6 +25,7 @@ deploy:
   # Deploy lessestwrong
   - provider: script
     script: 
+      yarn;
       cp ./LessWrong-Credentials/mup-lessestwrong.secret ./mup-lessestwrong.secret;
       bash ./travis_wait "mup deploy --config mup-lessestwrong.secret --settings ./LessWrong-Credentials/settings-staging-lessestwrong.json"
     on:
@@ -37,11 +38,12 @@ deploy:
       cp ./LessWrong-Credentials/mup-baserates.secret ./mup-baserates.secret;
       bash ./travis_wait "mup deploy --config mup-baserates.secret --settings ./LessWrong-Credentials/settings-staging-baserates.json"
     on:
-      branch: travisCiShenanigans
+      branch: devel
     skip_cleanup: true
   # Deploy production
   - provider: script
     script: 
+      yarn;
       cp ./LessWrong-Credentials/mup-production.secret ./mup-production.secret;
       bash ./travis_wait "mup deploy --config mup-production.secret --settings ./LessWrong-Credentials/settings-production-lesswrong.json"
     on:
@@ -50,6 +52,7 @@ deploy:
   # Deploy Alignment Forum
   - provider: script
     script: 
+      yarn;
       cp ./LessWrong-Credentials/mup-af.secret ./mup-af.secret;
       bash ./travis_wait "mup deploy --config mup-af.secret --settings ./LessWrong-Credentials/settings-production-alignmentforum.json"
     on:
