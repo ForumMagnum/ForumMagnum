@@ -21,6 +21,10 @@ deploy:
     script: 
       openssl aes-256-cbc -K $encrypted_f7bd7c62657c_key -iv $encrypted_f7bd7c62657c_iv -in credentials.tar.gz.enc -out credentials.tar.gz -d;
       tar xvf credentials.tar.gz --strip-components=1;
+      yarn;
+      yarn global add mup https://github.com/jimrandomh/mup-aws-beanstalk;
+      yarn global add json;
+      yarn global add @sentry/cli;
       cp ./LessWrong-Credentials/mup-lessestwrong.secret ./mup-lessestwrong.secret;
       bash ./travis_wait "mup deploy --config mup-lessestwrong.secret --settings ./LessWrong-Credentials/settings-staging-lessestwrong.json"
     on:
@@ -37,12 +41,16 @@ deploy:
       cp ./LessWrong-Credentials/mup-baserates.secret ./mup-baserates.secret;
       bash ./travis_wait "mup deploy --config mup-baserates.secret --settings ./LessWrong-Credentials/settings-staging-baserates.json"
     on:
-      branch: travisCiShenanigans
+      branch: devel
   # Deploy production
   - provider: script
     script: 
       openssl aes-256-cbc -K $encrypted_f7bd7c62657c_key -iv $encrypted_f7bd7c62657c_iv -in credentials.tar.gz.enc -out credentials.tar.gz -d;
       tar xvf credentials.tar.gz --strip-components=1;
+      yarn;
+      yarn global add mup https://github.com/jimrandomh/mup-aws-beanstalk;
+      yarn global add json;
+      yarn global add @sentry/cli;
       cp ./LessWrong-Credentials/mup-production.secret ./mup-production.secret;
       bash ./travis_wait "mup deploy --config mup-production.secret --settings ./LessWrong-Credentials/settings-production-lesswrong.json"
     on:
@@ -52,6 +60,10 @@ deploy:
     script: 
       openssl aes-256-cbc -K $encrypted_f7bd7c62657c_key -iv $encrypted_f7bd7c62657c_iv -in credentials.tar.gz.enc -out credentials.tar.gz -d;
       tar xvf credentials.tar.gz --strip-components=1;
+      yarn;
+      yarn global add mup https://github.com/jimrandomh/mup-aws-beanstalk;
+      yarn global add json;
+      yarn global add @sentry/cli;
       cp ./LessWrong-Credentials/mup-af.secret ./mup-af.secret;
       bash ./travis_wait "mup deploy --config mup-af.secret --settings ./LessWrong-Credentials/settings-production-alignmentforum.json"
     on:
