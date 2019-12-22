@@ -24,7 +24,10 @@ jobs:
   include:
   - stage: test
     script: ls
-    if: env(RUN_TESTS)=1
+    env: RUN_TESTS=0
+  - stage: test
+    script: yarn run test
+    env: RUN_TESTS=1
 deploy:
   # Deploy lessestwrong
   - provider: script
