@@ -24,7 +24,7 @@ env:
 jobs:
   include:
   - stage: test
-    script: if $DEPLOY = false; then npm run test fi
+    script: if "$DEPLOY" = false; then npm run test fi
 deploy:
 - provider: script
   script: cp ./LessWrong-Credentials/mup-lessestwrong.secret ./mup-lessestwrong.secret;
