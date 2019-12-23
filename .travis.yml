@@ -29,7 +29,7 @@ deploy:
     script: 
       bash ./deploy.sh ./LessWrong-Credentials/settings-staging-baserates.json ./LessWrong-Credentials/mup-baserates.secret
     on:
-      branch: travisCiShenanigans
+      branch: devel
   # Deploy production
   - provider: script
     script: 
