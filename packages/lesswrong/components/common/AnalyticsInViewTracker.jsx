@@ -8,7 +8,7 @@ const AnalyticsInViewTracker = ({eventType, eventProps, observerProps, children,
 
     const { captureEvent } = useTracking()
     useEffect(() => {
-        !!entry && captureEvent(eventType||"inViewEvent", {
+        !skip && !!entry && captureEvent(eventType||"inViewEvent", {
             ...eventProps,
             ...observerProps,
             ...{ time, isIntersecting, intersectionRatio }
