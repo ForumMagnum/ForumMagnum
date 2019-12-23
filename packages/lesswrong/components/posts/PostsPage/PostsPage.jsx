@@ -276,7 +276,7 @@ class PostsPage extends Component {
       LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
       TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink,
-      PingbacksList, FooterTagList, ReviewPostButton, HoverPreviewLink } = Components
+      PingbacksList, FooterTagList, ReviewPostButton, HoverPreviewLink, AnalyticsInViewTracker } = Components
 
     if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
@@ -404,20 +404,22 @@ class PostsPage extends Component {
                   </AnalyticsContext>
                 </div>}
 
-                {/* Answers Section */}
-                {post.question && <div className={classes.post}>
-                  <div id="answers"/>
-                  <AnalyticsContext pageSectionContext="answersSection">
-                    <PostsPageQuestionContent terms={{...commentTerms, postId: post._id}} post={post} refetch={refetch}/>
-                  </AnalyticsContext>
-                </div>}
-                {/* Comments Section */}
-                <div className={classes.commentsSection}>
-                    <AnalyticsContext pageSectionContext="commentsSection">
-                      <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question}/>
+                <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
+                  {/* Answers Section */}
+                  {post.question && <div className={classes.post}>
+                    <div id="answers"/>
+                    <AnalyticsContext pageSectionContext="answersSection">
+                      <PostsPageQuestionContent terms={{...commentTerms, postId: post._id}} post={post} refetch={refetch}/>
                     </AnalyticsContext>
-                </div>
-              </div>
+                  </div>}
+                  {/* Comments Section */}
+                  <div className={classes.commentsSection}>
+                      <AnalyticsContext pageSectionContext="commentsSection">
+                        <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question}/>
+                      </AnalyticsContext>
+                  </div>
+                </AnalyticsInViewTracker>
+            </div>
               <div className={classes.gap2}/>
             </div>
           </AnalyticsContext>
@@ -453,5 +455,5 @@ registerComponent(
   withStyles(styles, { name: "PostsPage" }),
   withRecordPostView,
   withNewEvents,
-  withErrorBoundary,
+  withErrorBoundary
 );

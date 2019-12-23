@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import Hidden from '@material-ui/core/Hidden';
+import { withTracking } from "../../lib/analyticsEvents";
 
 class SubscribeWidget extends Component {
   state = {
@@ -10,6 +11,7 @@ class SubscribeWidget extends Component {
 
   openDialog(method) {
     this.setState({ dialogOpen: true, method });
+    this.props.captureEvent("subscribeButtonsClicked", {method: method, dialogOpen: true})
   }
 
   render() {
@@ -40,4 +42,4 @@ class SubscribeWidget extends Component {
   }
 }
 
-registerComponent("SubscribeWidget", SubscribeWidget);
+registerComponent("SubscribeWidget", SubscribeWidget, withTracking);

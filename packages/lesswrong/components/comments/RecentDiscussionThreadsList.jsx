@@ -28,7 +28,7 @@ const RecentDiscussionThreadsList = ({
     [setShowShortformFeed, showShortformFeed]
   );
   
-  const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, Loading } = Components
+  const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, Loading, AnalyticsInViewTracker } = Components
   
   const loadingMore = networkStatus === 2;
 
@@ -66,8 +66,10 @@ const RecentDiscussionThreadsList = ({
               updateComment={updateComment}/>
           )}
         </div>}
-        { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
-        { (loading || loadingMore) && <Loading />}
+        <AnalyticsInViewTracker eventProps={{inViewType: "loadMoreButton"}}>
+            { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
+            { (loading || loadingMore) && <Loading />}
+        </AnalyticsInViewTracker>
       </div>
     </SingleColumnSection>
   )
