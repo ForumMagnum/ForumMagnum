@@ -382,18 +382,17 @@ class PostsPage extends Component {
                 </div>
 
                 {/* Footer */}
-                <AnalyticsInViewTracker eventProps={{inViewType: "lowerVoteButtons"}} >
-                  {(wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
+
+                {(wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
                   <div className={classes.footerSection}>
-                      <div className={classes.voteBottom}>
-                        <PostsVote
-                          collection={Posts}
-                          post={post}
-                          currentUser={currentUser}
-                          />
-                      </div>
+                    <div className={classes.voteBottom}>
+                      <PostsVote
+                        collection={Posts}
+                        post={post}
+                        currentUser={currentUser}
+                        />
+                    </div>
                   </div>}
-                </AnalyticsInViewTracker>
                 {sequenceId && <div className={classes.bottomNavigation}>
                   <AnalyticsContext pageSectionContext="bottomSequenceNavigation">
                     <BottomNavigation post={post}/>
