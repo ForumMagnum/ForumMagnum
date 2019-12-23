@@ -6,7 +6,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const Home2 = () => {
   const currentUser = useCurrentUser();
-  const { RecentDiscussionThreadsList, HomeLatestPosts, RecommendationsAndCurated } = Components
+  const { RecentDiscussionThreadsList, HomeLatestPosts, RecommendationsAndCurated, AnalyticsInViewTracker } = Components
 
   const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
       Users.canDo(currentUser, 'alignment.sidebar')
@@ -16,14 +16,21 @@ const Home2 = () => {
         <React.Fragment>
           {shouldRenderSidebar && <Components.SunshineSidebar/>}
           <RecommendationsAndCurated configName="frontpage" />
-          <HomeLatestPosts />
+          <AnalyticsInViewTracker
+              eventProps={{inViewType: "latestPosts"}}
+              observerProps={{threshold:[0, 0.5, 1]}}
+          >
+              <HomeLatestPosts />
+          </AnalyticsInViewTracker>
           <AnalyticsContext pageSectionContext="recentDiscussion">
-              <RecentDiscussionThreadsList
-                terms={{view: 'recentDiscussionThreadsList', limit:20}}
-                commentsLimit={4}
-                maxAgeHours={18}
-                af={false}
-              />
+              <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
+                  <RecentDiscussionThreadsList
+                    terms={{view: 'recentDiscussionThreadsList', limit:20}}
+                    commentsLimit={4}
+                    maxAgeHours={18}
+                    af={false}
+                  />
+              </AnalyticsInViewTracker>
           </AnalyticsContext>
         </React.Fragment>
       </AnalyticsContext>

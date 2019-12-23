@@ -14,6 +14,7 @@ import withRecordPostView from '../../common/withRecordPostView';
 import withNewEvents from '../../../lib/events/withNewEvents.jsx';
 import { userHasPingbacks, userHasTagging } from '../../../lib/betas.js';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import { AnalyticsInViewTracker } from '../../common/AnalyticsInViewTracker';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 const DEFAULT_TOC_MARGIN = 100
@@ -276,7 +277,7 @@ class PostsPage extends Component {
       LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
       TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink,
-      PingbacksList, FooterTagList, ReviewPostButton, HoverPreviewLink } = Components
+      PingbacksList, FooterTagList, ReviewPostButton, HoverPreviewLink, AnalyticsInViewTracker } = Components
 
     if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
@@ -381,17 +382,18 @@ class PostsPage extends Component {
                 </div>
 
                 {/* Footer */}
-
-                {(wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
+                <AnalyticsInViewTracker eventProps={{inViewType: "lowerVoteButtons"}} >
+                  {(wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
                   <div className={classes.footerSection}>
-                    <div className={classes.voteBottom}>
-                      <PostsVote
-                        collection={Posts}
-                        post={post}
-                        currentUser={currentUser}
-                        />
-                    </div>
+                      <div className={classes.voteBottom}>
+                        <PostsVote
+                          collection={Posts}
+                          post={post}
+                          currentUser={currentUser}
+                          />
+                      </div>
                   </div>}
+                </AnalyticsInViewTracker>
                 {sequenceId && <div className={classes.bottomNavigation}>
                   <AnalyticsContext pageSectionContext="bottomSequenceNavigation">
                     <BottomNavigation post={post}/>
@@ -404,20 +406,22 @@ class PostsPage extends Component {
                   </AnalyticsContext>
                 </div>}
 
-                {/* Answers Section */}
-                {post.question && <div className={classes.post}>
-                  <div id="answers"/>
-                  <AnalyticsContext pageSectionContext="answersSection">
-                    <PostsPageQuestionContent terms={{...commentTerms, postId: post._id}} post={post} refetch={refetch}/>
-                  </AnalyticsContext>
-                </div>}
-                {/* Comments Section */}
-                <div className={classes.commentsSection}>
-                    <AnalyticsContext pageSectionContext="commentsSection">
-                      <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question}/>
+                <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
+                  {/* Answers Section */}
+                  {post.question && <div className={classes.post}>
+                    <div id="answers"/>
+                    <AnalyticsContext pageSectionContext="answersSection">
+                      <PostsPageQuestionContent terms={{...commentTerms, postId: post._id}} post={post} refetch={refetch}/>
                     </AnalyticsContext>
-                </div>
-              </div>
+                  </div>}
+                  {/* Comments Section */}
+                  <div className={classes.commentsSection}>
+                      <AnalyticsContext pageSectionContext="commentsSection">
+                        <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question}/>
+                      </AnalyticsContext>
+                  </div>
+                </AnalyticsInViewTracker>
+            </div>
               <div className={classes.gap2}/>
             </div>
           </AnalyticsContext>
@@ -453,5 +457,5 @@ registerComponent(
   withStyles(styles, { name: "PostsPage" }),
   withRecordPostView,
   withNewEvents,
-  withErrorBoundary,
+  withErrorBoundary
 );
