@@ -14,7 +14,6 @@ import withRecordPostView from '../../common/withRecordPostView';
 import withNewEvents from '../../../lib/events/withNewEvents.jsx';
 import { userHasPingbacks, userHasTagging } from '../../../lib/betas.js';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { AnalyticsInViewTracker } from '../../common/AnalyticsInViewTracker';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 const DEFAULT_TOC_MARGIN = 100
