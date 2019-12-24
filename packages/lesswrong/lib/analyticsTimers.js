@@ -26,7 +26,7 @@ const usePageVisibility = () => {
   return { pageIsHidden: document?.hidden, pageVisibilityState: document?.visibilityState }
 }
 
-export const useIdleActivityTimer = (timeout=60) => {
+export const useIdleActivityTimer = (timeoutInSeconds=60) => {
     const { captureEvent } = useTracking("activityDetection")
     const [userIsActive, setUserIsActive] = useState(true)
     const countdownTimer = useRef(null)
@@ -47,7 +47,7 @@ export const useIdleActivityTimer = (timeout=60) => {
         }
         setUserIsActive(true)
         clearTimeout(countdownTimer.current)
-        countdownTimer.current = setTimeout(inactivityAlert, timeout)
+        countdownTimer.current = setTimeout(inactivityAlert, timeoutInSeconds*1000) //setTimeout uses milliseconds
     }
 
     useEffect(() => {
@@ -60,11 +60,11 @@ export const useIdleActivityTimer = (timeout=60) => {
 
 export const withIdleTimer = hookToHoc(useIdleActivityTimer)
 
-export function useCountUpTimer (increments=[10, 30], switchIncrement=60) {
+export function useCountUpTimer (incrementsInSeconds=[10, 30], switchIncrement=60) {
     const { captureEvent } = useTracking("timerEvent")
     const [seconds, setSeconds] = useState(0)
     const [isActive, setIsActive] = useState(true)
-    const [smallIncrement, largeIncrement] = increments
+    const [smallIncrementInSeconds, largeIncrementInSeconds] = incrementsInSeconds
 
     function setTimerState(state) {
         setIsActive(state)
@@ -77,15 +77,15 @@ export function useCountUpTimer (increments=[10, 30], switchIncrement=60) {
 
     useEffect(() => {
         let interval = null;
-        let increment = smallIncrement
+        let increment = smallIncrementInSeconds
 
         if (isActive) {
-            if (seconds < switchIncrement ) {increment = smallIncrement}
-            else {increment = largeIncrement}
+            if (seconds < switchIncrement ) {increment = smallIncrementInSeconds}
+            else {increment = largeIncrementInSeconds}
             interval = setInterval(() => {
                 setSeconds(seconds => seconds + increment)
                 captureEvent("timerEvent", {seconds, increment: increment})
-            }, increment)
+            }, increment*1000) //setInterval uses milliseconds
         } else if (!isActive && seconds !== 0) {
             clearInterval(interval)
         }
