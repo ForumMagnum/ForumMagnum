@@ -69,6 +69,9 @@ const styles = createStyles(theme => ({
       fontFamily: "GreekFallback",
       src: "local('Arial')",
       unicodeRange: 'U+0370-03FF, U+1F00-1FFF' // Unicode range for greek characters
+    },
+    'body': {
+      backgroundColor: "#FAFAFA"
     }
   },
   searchResultsArea: {
