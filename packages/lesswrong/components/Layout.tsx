@@ -12,7 +12,7 @@ import { Random } from 'meteor/random';
 
 import { withStyles, withTheme, createStyles } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
-import { AnalyticsContext } from '../lib/analyticsEvents.js'
+import { AnalyticsContext, withBeforeUnloadTracking } from '../lib/analyticsEvents.js'
 import { withCountUpTimerActive } from '../lib/analyticsTimers.js';
 import { UserContext } from './common/withUser';
 import { TimezoneContext } from './common/withTimezone';
@@ -307,5 +307,5 @@ const withUpdateOptions = {
 
 registerComponent(
   'Layout', Layout, withLocation, withCookies, [withUpdate, withUpdateOptions], withCountUpTimerActive,
-  withStyles(styles, { name: "Layout" }), withTheme()
+    withBeforeUnloadTracking, withStyles(styles, { name: "Layout" }), withTheme()
 );
