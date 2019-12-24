@@ -21,13 +21,13 @@ export const useIdleActivityTimer = (timeout=60000) => {
 
 
     function inactivityAlert() {
-        captureEvent("activity-inactive", {state: "inactive"})
+        captureEvent("activityDetection", {state: "inactive"})
         setUserIsActive(false)
     }
 
     function reset() {
         if (!userIsActive) {
-            captureEvent("activity-resumed", {state: "activity-resumed"})
+            captureEvent("activityDetection", {state: "active"})
         }
         setUserIsActive(true)
         clearTimeout(countdownTimer.current)
