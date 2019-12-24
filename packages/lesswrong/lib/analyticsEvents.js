@@ -116,6 +116,23 @@ export function useIsInView({rootMargin='0px', threshold=0}={}) {
   return { ref, entry }
 }
 
+export function useBeforeUnloadTracking () {
+  const { captureEvent } = useTracking("beforeUnload222")
+
+  const trackBeforeUnload = (e) => {
+    e.preventDefault()
+  }
+
+  useEffect(() => {
+    console.log("beforeUnload effect has run")
+    window.addEventListener("beforeunload", trackBeforeUnload)
+    return window.removeEventListener("beforeunload", trackBeforeUnload)
+    }, [])
+
+}
+
+export const withBeforeUnloadTracking = hookToHoc(useBeforeUnloadTracking)
+
 
 // Analytics events have two rate limits, one denominated in events per second,
 // the other denominated in uncompressed kilobytes per second. Each of these
