@@ -10,7 +10,23 @@ const useWindowEvent = (event, callback) => {
     }, [event, callback])
 };
 
-export const useIdleActivityTimer = (timeout=60000) => {
+const usePageVisibility = () => {
+  const { captureEvent } = useTracking()
+
+  function handleVisibilityChange(e) {
+    captureEvent("pageVisibilityChange", {hidden: document.hidden, visibilityState: document.visibilityState})
+    console.log({hidden: document.hidden, visibilityState: document.visibilityState})
+  }
+
+  useEffect(() => {
+    window.addEventListener("visibilitychange", handleVisibilityChange)
+    return () => window.removeEventListener("visibilitychange", handleVisibilityChange)
+    }, []
+  )
+  return { pageIsHidden: document?.hidden, pageVisibilityState: document?.visibilityState }
+}
+
+export const useIdleActivityTimer = (timeout=60) => {
     const { captureEvent } = useTracking("activityDetection")
     const [userIsActive, setUserIsActive] = useState(true)
     const countdownTimer = useRef(null)
@@ -44,13 +60,13 @@ export const useIdleActivityTimer = (timeout=60000) => {
 
 export const withIdleTimer = hookToHoc(useIdleActivityTimer)
 
-export function useCountUpTimer (increments=[10000, 30000], switchIncrement=60000) {
+export function useCountUpTimer (increments=[10, 30], switchIncrement=60) {
     const { captureEvent } = useTracking("timerEvent")
     const [seconds, setSeconds] = useState(0)
     const [isActive, setIsActive] = useState(true)
     const [smallIncrement, largeIncrement] = increments
 
-    function toggle(state) {
+    function setTimerState(state) {
         setIsActive(state)
     }
 
@@ -68,7 +84,7 @@ export function useCountUpTimer (increments=[10000, 30000], switchIncrement=6000
             else {increment = largeIncrement}
             interval = setInterval(() => {
                 setSeconds(seconds => seconds + increment)
-                captureEvent("timerEvent", {seconds, increment})
+                captureEvent("timerEvent", {seconds, increment: increment})
             }, increment)
         } else if (!isActive && seconds !== 0) {
             clearInterval(interval)
@@ -76,19 +92,20 @@ export function useCountUpTimer (increments=[10000, 30000], switchIncrement=6000
         return () => clearInterval(interval)
     }, [isActive, seconds])
 
-    return { seconds, isActive, toggle, reset }
+    return { seconds, isActive, setTimerState, reset }
 }
 
 export const withCountUpTimer = hookToHoc(useCountUpTimer)
 
 export function useCountUpTimerActive () {
-    const { toggle } = useCountUpTimer([10000, 30000])
-    const { userIsActive } = useIdleActivityTimer(60000)
+    const { pageIsHidden } = usePageVisibility()
+    const { setTimerState } = useCountUpTimer([10, 30], 60)
+    const { userIsActive } = useIdleActivityTimer(60)
 
-    useEffect(() => {
-        toggle(userIsActive)
-        }, [userIsActive])
-    // return { seconds, isActive, userIsActive, toggle}
+  useEffect(() => {
+        setTimerState(userIsActive && !pageIsHidden)
+        }, [userIsActive, pageIsHidden])
+    // return { seconds, isActive, userIsActive, setTimerState}
 }
 
 export const withCountUpTimerActive = hookToHoc(useCountUpTimerActive)
