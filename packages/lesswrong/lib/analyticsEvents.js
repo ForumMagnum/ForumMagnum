@@ -32,7 +32,6 @@ export const AnalyticsUtil = {
 };
 
 export function captureEvent(eventType, eventProps) {
-  console.log({eventType, eventProps})
   try {
     if (Meteor.isServer) {
       // If run from the server, put this directly into the server's write-to-SQL
@@ -104,7 +103,6 @@ export function useIsInView({rootMargin='0px', threshold=0}={}) {
   const ref = useRef()
   useEffect(() => {
     const observer = new IntersectionObserver(([ entry ]) => {
-      // console.log({"entryWithin": entry}) // save for debuggin
       setEntry(entry)
     }, {
       rootMargin,
