@@ -45,17 +45,19 @@ export function useBeforeUnloadTracking() {
 
 export function usePageVisibility() {
   const { captureEvent } = useTracking()
-  const pageIsVisible = useRef(!document.hidden)
+  const [pageIsVisible, setPageIsVisible] = useState(!document.hidden)
+  const [pageVisibilityState, setPageVisibilityState] = useState(document.visibilityState)
 
   function handleVisibilityChange() {
-    console.log({isVisible: !document.hidden, visibilityState: document.visibilityState});
-    captureEvent("pageVisibilityChange", {isVisible: !document.hidden, visibilityState: document.visibilityState});
-    useRef.current = !document.hidden
+    setPageIsVisible(!document.hidden)
+    setPageVisibilityState(document.visibilityState)
+    console.log({isVisible: pageIsVisible, visibilityState: pageVisibilityState});
+    captureEvent("pageVisibilityChange", {isVisible: pageIsVisible, visibilityState: pageVisibilityState});
   }
 
   useEventListener('visibilitychange', handleVisibilityChange)
 
-  return { pageIsVisible, pageVisibilityState: document.visibilityState }
+  return { pageIsVisible, pageVisibilityState }
 }
 
 export function useIdleActivityTimer(timeoutInSeconds=60) {
@@ -133,15 +135,14 @@ export const withCountUpTimerActive = hookToHoc(useCountUpTimerActive)
 
 export function useCombinedAnalyticsHooks() {
   useBeforeUnloadTracking()
-  const { pageIsVisible } = usePageVisibility()
+  const { pageIsVisible, pageVisibilityState } = usePageVisibility()
   const { userIsActive } = useIdleActivityTimer(60)
   const { setTimerState } = useCountUpTimer([10, 30], 60)
 
   useEffect( () => {
     setTimerState(userIsActive && pageIsVisible)
-    console.log({combined: {timerActive: userIsActive && pageIsVisible.current, userIsActive, pageIsVisible: pageIsVisible.current,
-        pageVisibilityStatus: document.visibilityState}})
-  }, [pageIsVisible.current, userIsActive, document.hidden])
+    console.log({combined: {timerActive: userIsActive && pageIsVisible.current, userIsActive, pageIsVisible, pageVisibilityState}})
+  }, [pageIsVisible.current, userIsActive,])
 
 }
 
