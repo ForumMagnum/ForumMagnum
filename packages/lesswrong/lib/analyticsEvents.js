@@ -117,16 +117,17 @@ export function useIsInView({rootMargin='0px', threshold=0}={}) {
 }
 
 export function useBeforeUnloadTracking () {
-  const { captureEvent } = useTracking("beforeUnload222")
+  const { captureEvent } = useTracking()
 
   const trackBeforeUnload = (e) => {
-    e.preventDefault()
+    // e.preventDefault()
+    captureEvent("beforeUnloadFired", e)
   }
 
   useEffect(() => {
     console.log("beforeUnload effect has run")
     window.addEventListener("beforeunload", trackBeforeUnload)
-    return window.removeEventListener("beforeunload", trackBeforeUnload)
+    return () => window.removeEventListener("beforeunload", trackBeforeUnload)
     }, [])
 
 }
