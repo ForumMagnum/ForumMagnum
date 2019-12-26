@@ -1,36 +1,46 @@
-import React, { Component } from 'react';
-import { hookToHoc } from '../../lib/hocUtils.js';
-import { withTracking } from '../../lib/analyticsEvents'
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useTracking } from "../../lib/analyticsEvents";
+import {hookToHoc} from "../../lib/hocUtils";
 
-export const HoverOpenContext = React.createContext('hoverOpen')
+export function useHover() {
+    const [hover, setHover] = useState(true)
+    const [anchorEl, setAnchorEl] = useState(null)
 
-const HoverManagerComponent = (WrappedComponent) => {
-  return class HoverableComponent extends Component {
-    state = { hover: false, anchorEl: null }
+    const ref = useRef()
 
-    handleMouseOver = (event) => {
-      this.setState({ hover: true, anchorEl: event.currentTarget})
-      this.captureEvent("hoverEventTriggered")
-    }
+    const { captureEvent } = useTracking()
 
-    handleMouseLeave = () => {
-      this.setState({ hover: false, anchorEl: null })
-    }
+    const handleMouseOver = useCallback((event) => {
+        setHover(true)
+        setAnchorEl(event.currentTarget)
+        console.log("mouseover triggered")
+        captureEvent("hoverEventTriggered")
+    },[] )
 
-    render () {
-      const props = { hover: this.state.hover, anchorEl: this.state.anchorEl, ...this.props, stopHover: this.handleMouseLeave }
-      return (
-          <HoverOpenContext.Provider value={
-            <span onMouseOver={this.handleMouseOver} onMouseLeave={this.handleMouseLeave}>
-            <WrappedComponent {...props} />
-            </span>
-          }/>
-      )
-    }
-  }
+    const handleMouseLeave = useCallback(() => {
+        setHover(false)
+        setAnchorEl(null)
+        console.log("mouseleaver triggered")
+    },[])
+
+    useEffect(() => {
+            const node = ref?.current?.props.ref;
+            console.log(node)
+            console.log({node: ref.current})
+            if (node) {
+                console.log("node branch executed")
+                console.log(node)
+                node.addEventListener('mouseover', handleMouseOver)
+                node.addEventListener('mouseleave', handleMouseLeave)
+                return () => {
+                    node.addEventListener('mouseover', handleMouseOver)
+                    node.addEventListener('mouseleave', handleMouseLeave)
+                }
+            }
+        },[ref])
+
+      return { ref, hover, anchorEl, stopHover: handleMouseLeave }
 }
 
-export const HoverManager = withTracking(HoverManagerComponent)
-export const useHover = () => React.useContext(HoverOpenContext)
 export const withHover = hookToHoc(useHover)
 export default withHover
