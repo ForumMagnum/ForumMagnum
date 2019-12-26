@@ -1,26 +1,46 @@
-import React, { Component } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useTracking } from "../../lib/analyticsEvents";
+import {hookToHoc} from "../../lib/hocUtils";
 
-const withHover = (WrappedComponent) => {
-  return class HoverableComponent extends Component {
-    state = { hover: false, anchorEl: null }
+export function useHover() {
+    const [hover, setHover] = useState(true)
+    const [anchorEl, setAnchorEl] = useState(null)
 
-    handleMouseOver = (event) => {
-      this.setState({ hover: true, anchorEl: event.currentTarget})
-    }
+    const ref = useRef()
 
-    handleMouseLeave = () => {
-      this.setState({ hover: false, anchorEl: null })
-    }
+    const { captureEvent } = useTracking()
 
-    render () {
-      const props = { hover: this.state.hover, anchorEl: this.state.anchorEl, ...this.props, stopHover: this.handleMouseLeave }
-      return (
-        <span onMouseOver={this.handleMouseOver} onMouseLeave={this.handleMouseLeave}>
-          <WrappedComponent { ...props } />
-        </span>
-      )
-    }
-  }
+    const handleMouseOver = useCallback((event) => {
+        setHover(true)
+        setAnchorEl(event.currentTarget)
+        console.log("mouseover triggered")
+        captureEvent("hoverEventTriggered")
+    },[] )
+
+    const handleMouseLeave = useCallback(() => {
+        setHover(false)
+        setAnchorEl(null)
+        console.log("mouseleaver triggered")
+    },[])
+
+    useEffect(() => {
+            const node = ref?.current?.props.ref;
+            console.log(node)
+            console.log({node: ref.current})
+            if (node) {
+                console.log("node branch executed")
+                console.log(node)
+                node.addEventListener('mouseover', handleMouseOver)
+                node.addEventListener('mouseleave', handleMouseLeave)
+                return () => {
+                    node.addEventListener('mouseover', handleMouseOver)
+                    node.addEventListener('mouseleave', handleMouseLeave)
+                }
+            }
+        },[ref])
+
+      return { ref, hover, anchorEl, stopHover: handleMouseLeave }
 }
 
+export const withHover = hookToHoc(useHover)
 export default withHover
