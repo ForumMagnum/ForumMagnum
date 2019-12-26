@@ -6,33 +6,47 @@ export const withHover = (WrappedComponent) => {
         const [hover, setHover] = useState(true)
         const [anchorEl, setAnchorEl] = useState(null)
         const delayTimer = useRef(null)
-        const [mouseOverStart, setMouseOverStart] = useState()
-        const [mouseOverEnd, setMouseOverEnd] = useState()
+        const mouseOverStart = useRef()
+        const mouseOverEnd = useRef()
+
 
         const { captureEvent } = useTracking({eventType:"hoverEventTriggered"})
 
-        const captureHoverEvent  = () => {
-            const currentTime = new Date()
-            hover && captureEvent("hoverEventTriggered",
-                {timerId: delayTimer.current,
-                    timeSinceMouseOver: currentTime - mouseOverStart,
-                    timeFromMouseLeave: currentTime - mouseOverEnd})}
-        
-        const handleMouseOver = (event) => {
-            setMouseOverStart(new Date())
+        const captureHoverEvent = useCallback(() => {
+            captureEvent("hoverEventTriggered",
+                {hover,
+                    timerId: delayTimer.current,
+                    // mouseOverStart: mouseOverStart.current,
+                    // mouseOverEnd: mouseOverEnd.current,
+                    hoverDuration: mouseOverEnd.current - mouseOverStart.current,
+                timeToCapture: new Date() - mouseOverStart.current})
+            clearTimeout(delayTimer.current)
+        },[hover, delayTimer, mouseOverStart, mouseOverEnd])
+
+        const handleMouseOver = useCallback((event) => {
             setHover(true)
             setAnchorEl(event.currentTarget)
-            delayTimer.current = setTimeout(captureHoverEvent,3000)
+            mouseOverEnd.current = undefined
+            mouseOverStart.current = new Date()
+            clearTimeout(delayTimer.current)
+            delayTimer.current = setTimeout(captureHoverEvent,500)
             console.log({event: "mouseEnterTriggered", timerId: delayTimer.current})
-        }
+        }, [delayTimer, captureHoverEvent])
 
-        const handleMouseLeave = () => {
-            setMouseOverEnd(new Date())
-            console.log({event: "mouseLeaveTriggered", timerId: delayTimer.current, diff: new Date() - mouseOverStart})
+        const handleMouseLeave = useCallback(() => {
             setHover(false)
             setAnchorEl(null)
             clearTimeout(delayTimer.current)
-        }
+            mouseOverEnd.current = new Date()
+            const hoverDuration = mouseOverEnd.current - mouseOverStart.current
+            console.log({event: "mouseLeaveTriggered", timerId: delayTimer.current,
+                // mouseOverStart: mouseOverStart.current,
+                // mouseOverEnd: mouseOverEnd.current,
+                hoverDuration})
+            delayTimer.current = null
+            if ( hoverDuration > 1000 ) captureEvent("longHoverEventComplete", {hoverDuration})
+            mouseOverStart.current = undefined
+        }, [delayTimer, mouseOverStart])
 
 
         const allProps = { hover, anchorEl, stopHover: handleMouseLeave, ...props }
