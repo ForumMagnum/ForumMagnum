@@ -226,9 +226,11 @@ const DefaultPreview = ({classes, href, innerHTML, anchorEl, hover, onsite=false
       </LWPopper>
 
       {onsite ?
-        <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} /> 
-        :
-        <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} />}
+          <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id}/>
+          :
+          <Components.AnalyticsTracker eventType="link" eventProps={{to: href, externalLink: true}}>
+            <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id}/>
+          </Components.AnalyticsTracker>}
     </span>
   );
 }
