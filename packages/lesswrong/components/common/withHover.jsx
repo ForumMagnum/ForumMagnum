@@ -1,28 +1,41 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, {useState, useRef, useCallback} from 'react';
 import { useTracking } from "../../lib/analyticsEvents";
 
 export const withHover = (WrappedComponent) => {
     return (props) => {
         const [hover, setHover] = useState(true)
         const [anchorEl, setAnchorEl] = useState(null)
+        const delayTimer = useRef(null)
+        const [mouseOverStart, setMouseOverStart] = useState()
+        const [mouseOverEnd, setMouseOverEnd] = useState()
 
-        const {captureEvent} = useTracking()
+        const { captureEvent } = useTracking({eventType:"hoverEventTriggered"})
 
-        const handleMouseOver = useCallback((event) => {
+        const captureHoverEvent  = () => {
+            const currentTime = new Date()
+            hover && captureEvent("hoverEventTriggered",
+                {timerId: delayTimer.current,
+                    timeSinceMouseOver: currentTime - mouseOverStart,
+                    timeFromMouseLeave: currentTime - mouseOverEnd})}
+        
+        const handleMouseOver = (event) => {
+            setMouseOverStart(new Date())
             setHover(true)
             setAnchorEl(event.currentTarget)
-            console.log("mouseover triggered")
-            captureEvent("hoverEventTriggered")
-        }, [])
+            delayTimer.current = setTimeout(captureHoverEvent,3000)
+            console.log({event: "mouseEnterTriggered", timerId: delayTimer.current})
+        }
 
-        const handleMouseLeave = useCallback(() => {
+        const handleMouseLeave = () => {
+            setMouseOverEnd(new Date())
+            console.log({event: "mouseLeaveTriggered", timerId: delayTimer.current, diff: new Date() - mouseOverStart})
             setHover(false)
             setAnchorEl(null)
-            console.log("mouseleaver triggered")
-        }, [])
+            clearTimeout(delayTimer.current)
+        }
 
 
-        const allProps = {hover, anchorEl, stopHover: handleMouseLeave, ...props}
+        const allProps = { hover, anchorEl, stopHover: handleMouseLeave, ...props }
 
         return (
             <span onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave}>
