@@ -1,46 +1,35 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useTracking } from "../../lib/analyticsEvents";
-import {hookToHoc} from "../../lib/hocUtils";
 
-export function useHover() {
-    const [hover, setHover] = useState(true)
-    const [anchorEl, setAnchorEl] = useState(null)
+export const withHover = (WrappedComponent) => {
+    return (props) => {
+        const [hover, setHover] = useState(true)
+        const [anchorEl, setAnchorEl] = useState(null)
 
-    const ref = useRef()
+        const {captureEvent} = useTracking()
 
-    const { captureEvent } = useTracking()
+        const handleMouseOver = useCallback((event) => {
+            setHover(true)
+            setAnchorEl(event.currentTarget)
+            console.log("mouseover triggered")
+            captureEvent("hoverEventTriggered")
+        }, [])
 
-    const handleMouseOver = useCallback((event) => {
-        setHover(true)
-        setAnchorEl(event.currentTarget)
-        console.log("mouseover triggered")
-        captureEvent("hoverEventTriggered")
-    },[] )
+        const handleMouseLeave = useCallback(() => {
+            setHover(false)
+            setAnchorEl(null)
+            console.log("mouseleaver triggered")
+        }, [])
 
-    const handleMouseLeave = useCallback(() => {
-        setHover(false)
-        setAnchorEl(null)
-        console.log("mouseleaver triggered")
-    },[])
 
-    useEffect(() => {
-            const node = ref?.current?.props.ref;
-            console.log(node)
-            console.log({node: ref.current})
-            if (node) {
-                console.log("node branch executed")
-                console.log(node)
-                node.addEventListener('mouseover', handleMouseOver)
-                node.addEventListener('mouseleave', handleMouseLeave)
-                return () => {
-                    node.addEventListener('mouseover', handleMouseOver)
-                    node.addEventListener('mouseleave', handleMouseLeave)
-                }
-            }
-        },[ref])
+        const allProps = {hover, anchorEl, stopHover: handleMouseLeave, ...props}
 
-      return { ref, hover, anchorEl, stopHover: handleMouseLeave }
+        return (
+            <span onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave}>
+                <WrappedComponent { ...allProps }/>
+            </span>
+        )
+    }
 }
 
-export const withHover = hookToHoc(useHover)
 export default withHover
