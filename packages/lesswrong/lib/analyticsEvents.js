@@ -32,7 +32,7 @@ export const AnalyticsUtil = {
 };
 
 export function captureEvent(eventType, eventProps) {
-  // console.log({eventType, eventProps}) //useful during development
+  console.log({eventType, eventProps}) //useful during development
   try {
     if (Meteor.isServer) {
       // If run from the server, put this directly into the server's write-to-SQL
