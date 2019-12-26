@@ -30,10 +30,15 @@ export const styles = createStyles((theme) => ({
     },
     '&:hover $actions': {
       opacity: .2,
-    }
+    }, 
+    marginBottom: 3
   },
   background: {
     width: "100%",
+    backgroundColor: "white"
+  },
+  read: {
+    backgroundColor: 'inherit'
   },
   postsItem: {
     display: "flex",
@@ -126,7 +131,8 @@ export const styles = createStyles((theme) => ({
       width: "unset",
       marginLeft: 0,
       flex: "unset"
-    }
+    },
+    zIndex: 1
   },
   event: {
     maxWidth: 250,
@@ -233,7 +239,6 @@ export const styles = createStyles((theme) => ({
   sequenceImage: {
     position: "relative",
     marginLeft: -60,
-    zIndex: theme.zIndexes.continueReadingImage,
     opacity: 0.6,
     height: 48,
     width: 146,
@@ -329,7 +334,6 @@ const PostsItem2 = ({
   // dismissRecommendation: If this is a Resume Reading suggestion, a callback
   // to dismiss it.
   dismissRecommendation,
-  showBottomBorder=true,
   showQuestionTag=true,
   showIcons=true,
   showPostedAt=true,
@@ -357,7 +361,6 @@ const PostsItem2 = ({
   terms?: any,
   resumeReading?: any,
   dismissRecommendation?: any,
-  showBottomBorder?: boolean,
   showQuestionTag?: boolean,
   showIcons?: boolean,
   showPostedAt?: boolean,
@@ -435,9 +438,9 @@ const PostsItem2 = ({
           classes.root,
           classes.background,
           {
-            [classes.bottomBorder]: showBottomBorder,
             [classes.commentsBackground]: renderComments,
             [classes.firstItem]: (index===0) && showComments,
+            [classes.read]: isRead
           })}
         >
           <PostsItemTooltipWrapper post={post}>

@@ -71,7 +71,7 @@ const styles = createStyles(theme => ({
       unicodeRange: 'U+0370-03FF, U+1F00-1FFF' // Unicode range for greek characters
     },
     'body': {
-      backgroundColor: "#FAFAFA"
+      backgroundColor: "#F8F8F8"
     }
   },
   searchResultsArea: {

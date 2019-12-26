@@ -95,7 +95,6 @@ const RelatedQuestionsList = ({ post, currentUser, classes }) => {
               showQuestionTag={false}
               showPostedAt={false}
               showIcons={false}
-              showBottomBorder={!showSubQuestions}
               defaultToShowUnreadComments={true}
             />
             {showSubQuestions && <div className={classes.subSubQuestions}>
