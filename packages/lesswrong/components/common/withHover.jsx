@@ -3,7 +3,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 
 export const withHover = (WrappedComponent) => {
     return (props) => {
-        const [hover, setHover] = useState(true)
+        const [hover, setHover] = useState(false)
         const [anchorEl, setAnchorEl] = useState(null)
         const delayTimer = useRef(null)
         const mouseOverStart = useRef()
