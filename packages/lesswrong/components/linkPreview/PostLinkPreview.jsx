@@ -8,7 +8,8 @@ import { useCommentByLegacyId } from '../comments/useComment.js';
 import withHover from '../common/withHover';
 import Card from '@material-ui/core/Card';
 import { withStyles } from '@material-ui/core/styles';
-import { looksLikeDbIdString } from '../../lib/routeUtil';
+import { looksLikeDbIdString } from '../../lib/routeUtil.js';
+import {AnalyticsContext} from "../../lib/analyticsEvents";
 
 const PostLinkPreview = ({href, targetLocation, innerHTML, id}) => {
   const postID = targetLocation.params._id;
@@ -226,7 +227,7 @@ const DefaultPreview = ({classes, href, innerHTML, anchorEl, hover, onsite=false
       </LWPopper>
 
       {onsite ?
-        <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} /> 
+        <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} />
         :
         <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} />}
     </span>

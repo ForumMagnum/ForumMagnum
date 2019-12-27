@@ -10,6 +10,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { BookIcon } from '../icons/bookIcon'
 import withHover from '../common/withHover'
 import classNames from 'classnames';
+import {AnalyticsContext} from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   userName: {
@@ -63,14 +64,16 @@ const UsersNameDisplay = ({user, classes, nofollow=false, simple=false, hover, a
     return <span className={classes.userName}>{Users.getDisplayName(user)}</span>
   }
 
-  return <Link to={Users.getProfileUrl(user)} className={classes.userName}
-      {...(nofollow ? {rel:"nofollow"} : {})}
-    >
-      <LWPopper className={classes.tooltip} placement="top" open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip>
-        {tooltip}
-      </LWPopper>
-      {Users.getDisplayName(user)}
-    </Link>
+  return <AnalyticsContext pageElementContext="UserNameDisplay" userId={user._id}>
+      <Link to={Users.getProfileUrl(user)} className={classes.userName}
+        {...(nofollow ? {rel:"nofollow"} : {})}
+      >
+        <LWPopper className={classes.tooltip} placement="top" open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip>
+          {tooltip}
+        </LWPopper>
+        {Users.getDisplayName(user)}
+      </Link>
+  </AnalyticsContext>
 }
 
 UsersNameDisplay.propTypes = {
