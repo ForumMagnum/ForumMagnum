@@ -1,26 +1,50 @@
-import React, { Component } from 'react';
+import React, {useState, useRef } from 'react';
+import { useTracking } from "../../lib/analyticsEvents";
 
-const withHover = (WrappedComponent) => {
-  return class HoverableComponent extends Component {
-    state = { hover: false, anchorEl: null }
+export const withHover = (WrappedComponent) => {
+    return (props) => {
+        const [hover, setHover] = useState(false)
+        const [anchorEl, setAnchorEl] = useState(null)
+        const delayTimer = useRef(null)
+        const mouseOverStart = useRef()
 
-    handleMouseOver = (event) => {
-      this.setState({ hover: true, anchorEl: event.currentTarget})
+
+        const { captureEvent } = useTracking({eventType:"hoverEventTriggered"})
+
+        const captureHoverEvent = () => {
+            captureEvent("hoverEventTriggered", {timeToCapture: new Date() - mouseOverStart.current})
+            clearTimeout(delayTimer.current)
+        }
+
+        const handleMouseOver = (event) => {
+            setHover(true)
+            setAnchorEl(event.currentTarget)
+            mouseOverStart.current = new Date()
+            clearTimeout(delayTimer.current)
+            delayTimer.current = setTimeout(captureHoverEvent,1000)
+            // console.log({event: "mouseEnterTriggered", timerId: delayTimer.current})
+        }
+
+        const handleMouseLeave = () => {
+            setHover(false)
+            setAnchorEl(null)
+            clearTimeout(delayTimer.current)
+            const hoverDuration = new Date() - mouseOverStart.current
+            // console.log({event: "mouseLeaveTriggered", timerId: delayTimer.current, hoverDuration})
+            //TODO: rename "longHoverEventTriggered -> hoverEventTriggered
+            if ( hoverDuration > 2500 ) captureEvent("longHoverEventTriggered", {hoverEventType: "longHoverEvent", hoverDuration})
+            mouseOverStart.current = undefined
+        }
+
+
+        const allProps = { hover, anchorEl, stopHover: handleMouseLeave, ...props }
+
+        return (
+            <span onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave}>
+                <WrappedComponent { ...allProps }/>
+            </span>
+        )
     }
-
-    handleMouseLeave = () => {
-      this.setState({ hover: false, anchorEl: null })
-    }
-
-    render () {
-      const props = { hover: this.state.hover, anchorEl: this.state.anchorEl, ...this.props, stopHover: this.handleMouseLeave }
-      return (
-        <span onMouseOver={this.handleMouseOver} onMouseLeave={this.handleMouseLeave}>
-          <WrappedComponent { ...props } />
-        </span>
-      )
-    }
-  }
 }
 
 export default withHover

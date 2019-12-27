@@ -9,6 +9,7 @@ import withHover from '../common/withHover';
 import Card from '@material-ui/core/Card';
 import { withStyles } from '@material-ui/core/styles';
 import { looksLikeDbIdString } from '../../lib/routeUtil.js';
+import {AnalyticsContext} from "../../lib/analyticsEvents";
 
 const PostLinkPreview = ({href, targetLocation, innerHTML, id}) => {
   const postID = targetLocation.params._id;
@@ -216,20 +217,24 @@ const defaultPreviewStyles = theme => ({
 const DefaultPreview = ({classes, href, innerHTML, anchorEl, hover, onsite=false, id}) => {
   const { LWPopper } = Components
   return (
-    <span>
-      <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
-        <Card>
-          <div className={classes.hovercard}>
-            {href}
-          </div>
-        </Card>
-      </LWPopper>
+      <AnalyticsContext pageElementContext="linkPreview" hoverPreviewType="DefaultPreview" href={href} onsite={onsite} id={id}>
+        <span>
+          <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
+            <Card>
+              <div className={classes.hovercard}>
+                {href}
+              </div>
+            </Card>
+          </LWPopper>
 
-      {onsite ?
-        <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} /> 
-        :
-        <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} />}
-    </span>
+          {onsite ?
+              <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id}/>
+              :
+              <Components.AnalyticsTracker eventType="link" eventProps={{to: href, externalLink: true}}>
+                <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id}/>
+              </Components.AnalyticsTracker>}
+        </span>
+      </AnalyticsContext>
   );
 }
 registerComponent('DefaultPreview', DefaultPreview, withHover, withStyles(defaultPreviewStyles, {name:"DefaultPreview"}));
