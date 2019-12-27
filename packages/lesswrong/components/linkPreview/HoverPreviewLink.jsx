@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent, parseRoute, parsePath, Utils } from 'meteor/vulcan:core';
 import { hostIsOnsite, useLocation, getUrlClass } from '../../lib/routeUtil';
 import Sentry from '@sentry/node';
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 export const parseRouteWithErrors = (onsiteUrl, contentSourceDescription) => {
   return parseRoute({
@@ -63,9 +64,12 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id }) => 
         const PreviewComponent = parsedUrl.currentRoute.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;
         
         if (PreviewComponent) {
-          return <PreviewComponent href={destinationUrl} targetLocation={parsedUrl} innerHTML={innerHTML} id={id}/>
+          return <AnalyticsContext pageElementContext="linkPreview" href={destinationUrl} type={parsedUrl.currentRoute.previewComponentName} id={parsedUrl?.params?._id}>
+                    <PreviewComponent href={destinationUrl} targetLocation={parsedUrl} innerHTML={innerHTML} id={id}/>
+                 </AnalyticsContext>
         } else {
           return <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} onSite/>
+
         }
       }
     } else {
