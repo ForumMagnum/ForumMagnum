@@ -217,7 +217,7 @@ const defaultPreviewStyles = theme => ({
 const DefaultPreview = ({classes, href, innerHTML, anchorEl, hover, onsite=false, id}) => {
   const { LWPopper } = Components
   return (
-      <AnalyticsContext pageElementContext="linkPreview" type="DefaultPreview" href={href} onsite={onsite} id={id}>
+      <AnalyticsContext pageElementContext="linkPreview" hoverPreviewType="DefaultPreview" href={href} onsite={onsite} id={id}>
         <span>
           <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
             <Card>

@@ -64,7 +64,7 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id }) => 
         const PreviewComponent = parsedUrl.currentRoute.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;
         
         if (PreviewComponent) {
-          return <AnalyticsContext pageElementContext="linkPreview" href={destinationUrl} type={parsedUrl.currentRoute.previewComponentName} id={parsedUrl?.params?._id}>
+          return <AnalyticsContext pageElementContext="linkPreview" href={destinationUrl} hoverPreviewType={parsedUrl.currentRoute.previewComponentName} id={parsedUrl?.params?._id}>
                     <PreviewComponent href={destinationUrl} targetLocation={parsedUrl} innerHTML={innerHTML} id={id}/>
                  </AnalyticsContext>
         } else {
