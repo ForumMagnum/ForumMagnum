@@ -12,6 +12,7 @@ import Search from '@material-ui/icons/Search'
 import Group from '@material-ui/icons/Group'
 import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info'
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 const EventsList = ({currentUser, onClick}) => {
   const { TabNavigationEventsList } = Components
@@ -35,7 +36,9 @@ const EventsList = ({currentUser, onClick}) => {
     }
   }
   return <span>
-    <TabNavigationEventsList onClick={onClick} terms={eventsListTerms} />
+    <AnalyticsContext pageSubSectionContext="menuEventsList">
+      <TabNavigationEventsList onClick={onClick} terms={eventsListTerms} />
+    </AnalyticsContext>
   </span>
 }
 

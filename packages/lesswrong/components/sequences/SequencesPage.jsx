@@ -13,6 +13,7 @@ import withUser from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/modules/utils/theme';
 import { postBodyStyles } from '../../themes/stylePiping'
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
+import {AnalyticsContext} from "../../lib/analyticsEvents";
 
 export const sequencesImageScrim = theme => ({
   position: 'absolute',
@@ -162,7 +163,9 @@ class SequencesPage extends Component {
             {html && <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`sequence ${document._id}`}/>}
           </div>
           <div>
-            <ChaptersList terms={{view: "SequenceChapters", sequenceId: document._id}} canEdit={canEdit} />
+            <AnalyticsContext listContext={"sequencePage"} sequenceId={document._id} capturePostItemOnMount>
+              <ChaptersList terms={{view: "SequenceChapters", sequenceId: document._id}} canEdit={canEdit} />
+            </AnalyticsContext>
             {canCreateChapter ? <ChaptersNewForm prefilledProps={{sequenceId: document._id}}/> : null}
           </div>
         </div>

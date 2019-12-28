@@ -8,7 +8,7 @@ const BookmarksPage = () => {
 
   return (
     <SingleColumnSection>
-        <AnalyticsContext listContext={'bookmarksPage'}>
+        <AnalyticsContext listContext={"bookmarksPage"} capturePostItemOnMount>
             <SectionTitle title="Bookmarks"/>
             <BookmarksList />
         </AnalyticsContext>

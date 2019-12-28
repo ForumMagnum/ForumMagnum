@@ -4,7 +4,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { TagRels } from '../../lib/collections/tagRels/collection.js';
 import { useTagBySlug } from './useTag.jsx';
 import Users from 'meteor/vulcan:users';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 import { useCurrentUser } from '../common/withUser.js';
 import { withStyles } from '@material-ui/core/styles';
 import { postBodyStyles } from '../../themes/stylePiping'

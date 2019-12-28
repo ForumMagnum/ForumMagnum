@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 import Tooltip from '@material-ui/core/Tooltip';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser'
@@ -56,7 +56,7 @@ const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
         </div>
       </Tooltip>
       <SubSection>
-        <AnalyticsContext listContext={"LessWrong 2018 Review NEW"}>
+        <AnalyticsContext listContext={"LessWrong 2018 Review"} capturePostItemOnMount>
           <RecommendationsList algorithm={algorithm} showLoginPrompt={false} />
         </AnalyticsContext>
       </SubSection>

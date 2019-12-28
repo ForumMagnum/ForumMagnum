@@ -11,7 +11,7 @@ import { Posts } from '../../lib/collections/posts';
 import { timeframeToTimeBlock } from './timeframeUtils'
 import { queryIsUpdating } from '../common/queryStatusUtils'
 import withTimezone from '../common/withTimezone';
-import { QueryLink } from '../../lib/reactRouterWrapper.js';
+import { QueryLink } from '../../lib/reactRouterWrapper.jsx';
 import withUser from '../common/withUser.js';
 
 const styles = theme => ({

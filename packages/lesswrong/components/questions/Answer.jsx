@@ -8,6 +8,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import withUser from '../common/withUser'
 import { ABRIDGE_COMMENT_COUNT } from './AnswerCommentsList';
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   postContent: {
@@ -130,38 +131,40 @@ class Answer extends Component {
           </div>
           :
           <div>
-            <div className={classes.answer}>
-              <div className={classes.answerHeader}>
-                {comment.user && <Typography variant="body1" id={comment._id} className={classes.author}>
-                  { <UsersName user={comment.user} />}
-                </Typography >}
-                <Typography variant="subheading" className={classes.date}>
-                  <CommentsItemDate comment={comment} post={post}/>
-                </Typography>
-                <span className={classes.vote}><Components.CommentsVote comment={comment}/></span>
-                <span className={classes.menu}>
-                  <CommentsMenu
-                    showEdit={this.showEdit}
+            <AnalyticsContext pageElementContext="answerItem">
+              <div className={classes.answer}>
+                <div className={classes.answerHeader}>
+                  {comment.user && <Typography variant="body1" id={comment._id} className={classes.author}>
+                    { <UsersName user={comment.user} />}
+                  </Typography >}
+                  <Typography variant="subheading" className={classes.date}>
+                    <CommentsItemDate comment={comment} post={post}/>
+                  </Typography>
+                  <span className={classes.vote}><Components.CommentsVote comment={comment}/></span>
+                  <span className={classes.menu}>
+                    <CommentsMenu
+                      showEdit={this.showEdit}
+                      comment={comment}
+                      post={post}
+                      icon={<MoreHorizIcon className={classes.menuIcon}/>}
+                    />
+                  </span>
+                </div>
+                { showEdit ?
+                  <Components.CommentsEditForm
                     comment={comment}
-                    post={post}
-                    icon={<MoreHorizIcon className={classes.menuIcon}/>}
+                    successCallback={this.hideEdit}
+                    cancelCallback={this.hideEdit}
                   />
-                </span>
+                  :
+                  <ContentItemBody
+                    className={classes.postContent}
+                    dangerouslySetInnerHTML={{__html:html}}
+                    description={`comment ${comment._id} on post ${post._id}`}
+                  />
+                }
               </div>
-              { showEdit ?
-                <Components.CommentsEditForm
-                  comment={comment}
-                  successCallback={this.hideEdit}
-                  cancelCallback={this.hideEdit}
-                />
-                :
-                <ContentItemBody
-                  className={classes.postContent}
-                  dangerouslySetInnerHTML={{__html:html}}
-                  description={`comment ${comment._id} on post ${post._id}`}
-                />
-              }
-            </div>
+            </AnalyticsContext>
             <AnswerCommentsList
               terms={{view:"repliesToAnswer", parentAnswerId: comment._id, limit: ABRIDGE_COMMENT_COUNT}}
               post={post}
