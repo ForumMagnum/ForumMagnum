@@ -281,24 +281,6 @@ export const GraphQLSchema = {
         //     type: '[IntlValueInput]',
         //   });
         // }
-
-        if (field.selectable) {
-          fields.selector.push({
-            name: fieldName,
-            type: inputFieldType,
-          });
-        }
-
-        if (field.selectable && field.unique) {
-          fields.selectorUnique.push({
-            name: fieldName,
-            type: inputFieldType,
-          });
-        }
-
-        if (field.orderable) {
-          fields.orderBy.push(fieldName);
-        }
       }
     });
     return fields;

@@ -1,10 +1,12 @@
-import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { useEffect } from 'react';
 import { STATES } from 'meteor/vulcan:accounts'
 import { useLocation } from '../../lib/routeUtil'
+import { useCurrentUser } from '../common/withUser.js';
 
 
-const AccountsEnrollAccount = ({currentUser}) => {
+const AccountsEnrollAccount = () => {
+    const currentUser = useCurrentUser();
     const { params } = useLocation()
     useEffect(() => {
       Accounts._loginButtonsSession.set('enrollAccountToken', params.token);
@@ -25,4 +27,4 @@ const AccountsEnrollAccount = ({currentUser}) => {
     }
 }
 
-registerComponent('AccountsEnrollAccount', AccountsEnrollAccount, withCurrentUser);
+registerComponent('AccountsEnrollAccount', AccountsEnrollAccount);
