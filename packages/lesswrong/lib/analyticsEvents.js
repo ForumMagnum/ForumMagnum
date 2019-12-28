@@ -64,7 +64,6 @@ export function captureEvent(eventType, eventProps) {
 }
 
 
-
 export const ReactTrackingContext = React.createContext({});
 
 export const AnalyticsContext = ({children, ...props}) => {
