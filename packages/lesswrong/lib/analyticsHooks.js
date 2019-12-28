@@ -38,6 +38,7 @@ function useEventListener(eventName, handler, element = window){
 }
 
 export function useBeforeUnloadTracking() {
+
   const { captureEvent } = useTracking()
   const trackBeforeUnload = () => captureEvent("beforeUnloadFired")
 
