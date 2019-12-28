@@ -19,6 +19,7 @@ function useEventListener(eventName, handler, element = window){
       // Make sure element supports addEventListener
       // On
       const isSupported = element && element.addEventListener;
+      // eslint-disable-next-line no-console
       if (!isSupported) console.log("Error: eventListener not available");
 
       // Create event listener that calls handler function stored in ref
@@ -49,10 +50,11 @@ export function usePageVisibility() {
   const [pageVisibilityState, setPageVisibilityState] = useState(document.visibilityState)
 
   function handleVisibilityChange() {
-    setPageIsVisible(!document.hidden)
-    setPageVisibilityState(document.visibilityState)
-    console.log({isVisible: pageIsVisible, visibilityState: pageVisibilityState});
-    captureEvent("pageVisibilityChange", {isVisible: pageIsVisible, visibilityState: pageVisibilityState});
+    const isVisible = !document.hidden
+    const visibilityState = document.visibilityState
+    setPageIsVisible(isVisible) //these aren't accessible till re-render or something
+    setPageVisibilityState(visibilityState)
+    captureEvent("pageVisibilityChange", {isVisible, visibilityState});
   }
 
   useEventListener('visibilitychange', handleVisibilityChange)
@@ -60,9 +62,9 @@ export function usePageVisibility() {
   return { pageIsVisible, pageVisibilityState }
 }
 
-export function useIdleActivityTimer(timeoutInSeconds=60) {
-    const { captureEvent } = useTracking("activityDetection")
-    const [userIsActive, setUserIsActive] = useState(true)
+export function useIdlenessDetection(timeoutInSeconds=60) {
+    const { captureEvent } = useTracking("idlenessDetection")
+    const [userIsIdle, setUserIsIdle] = useState(false)
     const countdownTimer = useRef(null)
 
     useEventListener("mousemove", reset)
@@ -71,20 +73,16 @@ export function useIdleActivityTimer(timeoutInSeconds=60) {
 
 
     function inactivityAlert() {
-        captureEvent("activityDetection", {state: "inactive"})
-        console.log({"activityDetection": {state: "inactive"}})
-
-        setUserIsActive(false)
+        captureEvent("idlenessDetection", {state: "inactive"})
+        setUserIsIdle(true)
     }
 
     function reset() {
-        if (!userIsActive) {
-            captureEvent("activityDetection", {state: "active"})
-          console.log({"activityDetection": {state: "active"}})
-        }
-        setUserIsActive(true)
-        clearTimeout(countdownTimer.current)
-        countdownTimer.current = setTimeout(inactivityAlert, timeoutInSeconds*1000) //setTimeout uses milliseconds
+      const prevUserIsIdle = userIsIdle //so can do this real quick?
+      setUserIsIdle(false)
+      clearTimeout(countdownTimer.current)
+      countdownTimer.current = setTimeout(inactivityAlert, timeoutInSeconds*1000) //setTimeout uses milliseconds
+      if (prevUserIsIdle) captureEvent("idlenessDetection", {state: "active"})
     }
 
     useEffect(() => {
@@ -92,57 +90,49 @@ export function useIdleActivityTimer(timeoutInSeconds=60) {
         return () => clearTimeout(countdownTimer.current)
     }, [])
 
-    return { userIsActive }
-};
+    return { userIsIdle }
+}
 
 
 export function useCountUpTimer (incrementsInSeconds=[10, 30], switchIncrement=60) {
     const { captureEvent } = useTracking("timerEvent")
     const [seconds, setSeconds] = useState(0)
-    const [isActive, setIsActive] = useState(true)
+    const [timerIsActive, setTimerIsActive] = useState(true)
     const [smallIncrementInSeconds, largeIncrementInSeconds] = incrementsInSeconds
+    const intervalTimer = useRef(null)
 
-    function setTimerState(state) {
-        setIsActive(state)
-    }
 
     function reset() {
         setSeconds(0)
-        setIsActive(false)
+        setTimerIsActive(false)
     }
 
     useEffect(() => {
-        let interval = null;
-        let increment = smallIncrementInSeconds
-
-        if (isActive) {
-            if (seconds < switchIncrement ) {increment = smallIncrementInSeconds}
-            else {increment = largeIncrementInSeconds}
-            interval = setInterval(() => {
-                setSeconds(seconds => seconds + increment)
-                captureEvent("timerEvent", {seconds, increment: increment})
+        if (timerIsActive) {
+            const  increment = (seconds < switchIncrement ) ? smallIncrementInSeconds : largeIncrementInSeconds
+            intervalTimer.current = setInterval(() => {
+              setSeconds(seconds + increment)
+              captureEvent("timerEvent", {seconds: seconds + increment, increment: increment})
             }, increment*1000) //setInterval uses milliseconds
-        } else if (!isActive && seconds !== 0) {
-            clearInterval(interval)
+        } else if (!timerIsActive && seconds !== 0) {
+            clearInterval(intervalTimer.current)
         }
-        return () => clearInterval(interval)
-    }, [isActive, seconds])
+        return () => clearInterval(intervalTimer.current)
+    }, [timerIsActive, setTimerIsActive, seconds])
 
-    return { seconds, isActive, setTimerState, reset }
+    return { seconds, isActive: timerIsActive, setTimerIsActive, reset }
 }
 
-export const withCountUpTimerActive = hookToHoc(useCountUpTimerActive)
 
 export function useCombinedAnalyticsHooks() {
   useBeforeUnloadTracking()
-  const { pageIsVisible, pageVisibilityState } = usePageVisibility()
-  const { userIsActive } = useIdleActivityTimer(60)
-  const { setTimerState } = useCountUpTimer([10, 30], 60)
+  const { pageIsVisible } = usePageVisibility()
+  const { userIsIdle } = useIdlenessDetection(60)
+  const { setTimerIsActive } = useCountUpTimer([10, 30], 60)
 
   useEffect( () => {
-    setTimerState(userIsActive && pageIsVisible)
-    console.log({combined: {timerActive: userIsActive && pageIsVisible.current, userIsActive, pageIsVisible, pageVisibilityState}})
-  }, [pageIsVisible.current, userIsActive,])
+    setTimerIsActive(pageIsVisible && !userIsIdle); //disable timer whenever tab hidden or user inactive
+  }, [pageIsVisible, userIsIdle])
 
 }
 
