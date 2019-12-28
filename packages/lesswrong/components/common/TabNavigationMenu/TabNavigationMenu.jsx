@@ -6,6 +6,7 @@ import { iconWidth } from './TabNavigationItem'
 
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 const styles = (theme) => {
   return {
@@ -13,7 +14,7 @@ const styles = (theme) => {
       display: "flex",
       flexDirection: "column",
       justifyContent: "space-around",
-      maxWidth: 260,
+      maxWidth: 250,
     },
     divider: {
       width: 50,
@@ -30,27 +31,28 @@ const TabNavigationMenu = ({onClickSection, classes, currentUser}) => {
   const customComponentProps = {currentUser}
 
   return (
-    <div className={classes.root}>
-      {menuTabs[getSetting('forumType')].map(tab => {
-        if (tab.divider) {
-          return <div key={tab.id} className={classes.divider} />
-        }
-        if (tab.customComponent) {
-          return <tab.customComponent
-            key={tab.id}
-            onClick={onClickSection}
-            {...customComponentProps}
-          />
-        }
+      <AnalyticsContext pageSectionContext="navigationMenu">
+        <div className={classes.root}>
+          {menuTabs[getSetting('forumType')].map(tab => {
+            if (tab.divider) {
+              return <div key={tab.id} className={classes.divider} />
+            }
+            if (tab.customComponent) {
+              return <tab.customComponent
+                key={tab.id}
+                onClick={onClickSection}
+                {...customComponentProps}
+              />
+            }
 
-        return <TabNavigationItem
-          key={tab.id}
-          tab={tab}
-          onClick={onClickSection}
-        />
-      })}
-    </div>
-  )
+            return <TabNavigationItem
+              key={tab.id}
+              tab={tab}
+              onClick={onClickSection}
+            />
+          })}
+        </div>
+    </AnalyticsContext>  )
 };
 
 registerComponent(

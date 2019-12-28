@@ -3,7 +3,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import Paper from "@material-ui/core/Card"
 import CloseIcon from '@material-ui/icons/Close';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 import Posts from '../../lib/collections/posts/collection.js';
 
 const styles = (theme) => ({

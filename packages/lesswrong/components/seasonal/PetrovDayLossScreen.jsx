@@ -3,7 +3,7 @@ import React from 'react';
 // import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
 // see this post:

@@ -63,6 +63,12 @@ const styles = createStyles(theme => ({
     '.mapboxgl-popup': {
       willChange: 'auto !important',
       zIndex: theme.zIndexes.styledMapPopup
+    },
+    // Font fallback to ensure that all greek letters just directly render as Arial
+    '@font-face': {
+      fontFamily: "GreekFallback",
+      src: "local('Arial')",
+      unicodeRange: 'U+0370-03FF, U+1F00-1FFF' // Unicode range for greek characters
     }
   },
   searchResultsArea: {
@@ -221,7 +227,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         .includes(location.currentRoute.name)
     
     return (
-      <AnalyticsContext>
+      <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
       <PostsReadContext.Provider value={{
@@ -284,6 +290,12 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       </UserContext.Provider>
       </AnalyticsContext>
     )
+  }
+}
+
+declare global {
+  interface ComponentTypes {
+    Layout: typeof Layout
   }
 }
 
