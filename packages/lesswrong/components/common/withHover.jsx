@@ -3,7 +3,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 
 export const withHover = (WrappedComponent) => {
     return (props) => {
-        const [hover, setHover] = useState(true)
+        const [hover, setHover] = useState(false)
         const [anchorEl, setAnchorEl] = useState(null)
         const delayTimer = useRef(null)
         const mouseOverStart = useRef()
@@ -21,7 +21,7 @@ export const withHover = (WrappedComponent) => {
             setAnchorEl(event.currentTarget)
             mouseOverStart.current = new Date()
             clearTimeout(delayTimer.current)
-            delayTimer.current = setTimeout(captureHoverEvent,1000)
+            delayTimer.current = setTimeout(captureHoverEvent,500)
             // console.log({event: "mouseEnterTriggered", timerId: delayTimer.current})
         }
 
