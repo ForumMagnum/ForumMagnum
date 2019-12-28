@@ -57,6 +57,10 @@ export function usePageVisibility() {
     captureEvent("pageVisibilityChange", {isVisible, visibilityState});
   }
 
+  useEffect(() => {
+    captureEvent("pageVisibilityChange", {isVisible: pageIsVisible, visibilityState: pageVisibilityState});
+  }, [])
+
   useEventListener('visibilitychange', handleVisibilityChange)
 
   return { pageIsVisible, pageVisibilityState }
@@ -93,7 +97,6 @@ export function useIdlenessDetection(timeoutInSeconds=60) {
     return { userIsIdle }
 }
 
-
 export function useCountUpTimer (incrementsInSeconds=[10, 30], switchIncrement=60) {
     const { captureEvent } = useTracking("timerEvent")
     const [seconds, setSeconds] = useState(0)
@@ -122,7 +125,6 @@ export function useCountUpTimer (incrementsInSeconds=[10, 30], switchIncrement=6
 
     return { seconds, isActive: timerIsActive, setTimerIsActive, reset }
 }
-
 
 export function useCombinedAnalyticsHooks() {
   useBeforeUnloadTracking()
