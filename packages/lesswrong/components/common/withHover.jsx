@@ -21,7 +21,7 @@ export const withHover = (WrappedComponent) => {
             setAnchorEl(event.currentTarget)
             mouseOverStart.current = new Date()
             clearTimeout(delayTimer.current)
-            delayTimer.current = setTimeout(captureHoverEvent,1000)
+            delayTimer.current = setTimeout(captureHoverEvent,500)
             // console.log({event: "mouseEnterTriggered", timerId: delayTimer.current})
         }
 
@@ -32,7 +32,7 @@ export const withHover = (WrappedComponent) => {
             const hoverDuration = new Date() - mouseOverStart.current
             // console.log({event: "mouseLeaveTriggered", timerId: delayTimer.current, hoverDuration})
             //TODO: rename "longHoverEventTriggered -> hoverEventTriggered
-            if ( hoverDuration > 2500 ) captureEvent("longHoverEventTriggered", {hoverEventType: "longHoverEvent", hoverDuration})
+            if ( hoverDuration > 2000 ) captureEvent("longHoverEventTriggered", {hoverEventType: "longHoverEvent", hoverDuration})
             mouseOverStart.current = undefined
         }
 
