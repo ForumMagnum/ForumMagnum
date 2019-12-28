@@ -3,7 +3,7 @@ import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import Users from 'meteor/vulcan:users';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
@@ -154,7 +154,7 @@ class RecommendationsAndCurated extends PureComponent {
             <BetaTag />
           </div>
           <SubSection className={classes.continueReadingList}>
-            <AnalyticsContext listContext={"frontpageBookmarksList"}>
+            <AnalyticsContext listContext={"frontpageBookmarksList"} capturePostItemOnMount>
               <BookmarksList limit={3} />
             </AnalyticsContext>
           </SubSection>
@@ -175,7 +175,9 @@ class RecommendationsAndCurated extends PureComponent {
           <BetaTag />
         </div>
         <SubSection>
-          <RecommendationsList algorithm={frontpageRecommendationSettings} />
+          <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
+            <RecommendationsList algorithm={frontpageRecommendationSettings} />
+          </AnalyticsContext>
         </SubSection>
       </div>} */}
 

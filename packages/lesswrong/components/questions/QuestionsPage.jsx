@@ -1,6 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 import { withLocation } from '../../lib/routeUtil';
 import withDialog from '../common/withDialog'
 import withUser from '../common/withUser'

@@ -242,7 +242,8 @@ class ContentItemBody extends Component {
       for (let linkTag of linkTags) {
         const tagContentsHTML = linkTag.innerHTML;
         const href = linkTag.getAttribute("href");
-        const replacementElement = <Components.HoverPreviewLink href={href} innerHTML={tagContentsHTML} contentSourceDescription={this.props.description}/>
+        const id = linkTag.getAttribute("id");
+        const replacementElement = <Components.HoverPreviewLink href={href} innerHTML={tagContentsHTML} contentSourceDescription={this.props.description} id={id}/>
         this.replaceElement(linkTag, replacementElement);
       }
       this.setState({updatedElements: true})

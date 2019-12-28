@@ -4,7 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import NotesIcon from '@material-ui/icons/Notes';
 import Tooltip from '@material-ui/core/Tooltip';
 import { Comments } from "../../../lib/collections/comments";
-import { Link } from '../../../lib/reactRouterWrapper.js';
+import { Link } from '../../../lib/reactRouterWrapper.jsx';
 
 const styles = theme => ({
   icon: {

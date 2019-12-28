@@ -1,14 +1,9 @@
-  import Users from '../modules/collection.js';
-  import { addCallback, Utils, runCallbacksAsync } from 'meteor/vulcan:lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
+import Users from '../modules/collection.js';
+import { addCallback, Utils } from 'meteor/vulcan:lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
 
   //////////////////////////////////////////////////////
   // Callbacks                                        //
   //////////////////////////////////////////////////////
-
-  function hasCompletedProfile (user) {
-    return Users.hasCompletedProfile(user);
-  }
-  addCallback('users.profileCompleted.sync', hasCompletedProfile);
 
   // remove this to get rid of dependency on vulcan:email
 
@@ -71,12 +66,4 @@
     return modifier;
   }
   addCallback('users.edit.sync', usersEditCheckEmail);
-
-  // when a user is edited, check if their profile is now complete
-  function usersCheckCompletion (newUser, oldUser) {
-    if (!Users.hasCompletedProfile(oldUser) && Users.hasCompletedProfile(newUser)) {
-      runCallbacksAsync('users.profileCompleted.async', newUser);
-    }
-  }
-  addCallback('users.edit.async', usersCheckCompletion);
 

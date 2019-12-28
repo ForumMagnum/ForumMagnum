@@ -4,7 +4,7 @@ import { withStyles } from '@material-ui/core/styles'
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 import { Posts } from '../../lib/collections/posts';
 import { userHasBoldPostItems } from '../../lib/betas.js';
 
@@ -46,7 +46,7 @@ const styles = theme => ({
   adminUnread: {
     fontWeight: 500,
     color: "rgba(0,0,0,.87)",
-    textShadow: "0.4px 0.4px 0px rgba(0,0,0,.87)"
+    textShadow: "0.2px 0.2px 0px rgba(0,0,0,.87)"
   },
   adminRead: {
     fontWeight: 500,

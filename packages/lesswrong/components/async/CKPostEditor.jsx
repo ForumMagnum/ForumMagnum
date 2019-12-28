@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react'
-import CKEditor from '@ckeditor/ckeditor5-react';
+import CKEditor from '../editor/ReactCKEditor';
 import { PostEditor, PostEditorCollaboration } from '@lesswrong/lesswrong-editor';
 import { getSetting } from 'meteor/vulcan:core';
 import { getCKEditorDocumentId, generateTokenRequest } from '../../lib/ckEditorUtils'

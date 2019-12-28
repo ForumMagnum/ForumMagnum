@@ -3,7 +3,7 @@ import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
 import { withStyles } from '@material-ui/core/styles';
