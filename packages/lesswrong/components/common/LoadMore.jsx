@@ -22,7 +22,7 @@ const styles = theme => ({
 
 
 const LoadMore = ({ loadMore, count, totalCount, classes, disabled=false, networkStatus, hidden=false }) => {
-  const { captureEvent } = useTracking()
+  const { captureEvent } = useTracking("loadMoreClicked")
 
   if (hidden) return null;
   
