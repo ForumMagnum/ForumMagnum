@@ -300,80 +300,82 @@ class PostsPage extends Component {
             <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
               <HeadTags url={Posts.getPageUrl(post, true)} canonicalUrl={post.canonicalSource} title={post.title} description={description}/>
               {/* Header/Title */}
-              <div className={classes.title}>
-                <div className={classes.post}>
-                  {commentId && <CommentPermalink documentId={commentId} post={post}/>}
-                  {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
-                  <AnalyticsContext pageSectionContext="topSequenceNavigation">
-                    <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
-                  </AnalyticsContext>
-                  <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}>
-                    <div className={classes.headerLeft}>
-                      <PostsPageTitle post={post} />
-                      <div className={classes.secondaryInfo}>
-                        <span className={classes.authors}>
-                          <PostsAuthors post={post}/>
-                        </span>
-                        <span className={classes.postType}>
-                          <ContentType type={contentType}/>
-                        </span>
-                        { post.feed && post.feed.user &&
-                          <Tooltip title={`Crossposted from ${feedLinkDescription}`}>
-                            <a href={feedLink} className={classes.feedName}>
-                              {post.feed.nickname}
-                            </a>
-                          </Tooltip>
-                        }
-                        {!!wordCount && !post.isEvent &&  <Tooltip title={`${wordCount} words`}>
-                            <span className={classes.wordCount}>{parseInt(wordCount/300) || 1 } min read</span>
-                        </Tooltip>}
-                        {!post.isEvent && <span className={classes.date}>
-                          <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
-                        </span>}
-                        {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
-                        <a className={classes.commentsLink} href={"#comments"}>{ Posts.getCommentCountStr(post)}</a>
-                        <span className={classes.actions}>
-                          <AnalyticsContext pageElementContext="tripleDotMenu">
-                            <PostsPageActions post={post} />
-                          </AnalyticsContext>
-                        </span>
+              <AnalyticsContext pageSectionContext="postHeader">
+                <div className={classes.title}>
+                  <div className={classes.post}>
+                    {commentId && <CommentPermalink documentId={commentId} post={post}/>}
+                    {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
+                    <AnalyticsContext pageSectionContext="topSequenceNavigation">
+                      <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
+                    </AnalyticsContext>
+                    <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}>
+                      <div className={classes.headerLeft}>
+                        <PostsPageTitle post={post} />
+                        <div className={classes.secondaryInfo}>
+                          <span className={classes.authors}>
+                            <PostsAuthors post={post}/>
+                          </span>
+                          <span className={classes.postType}>
+                            <ContentType type={contentType}/>
+                          </span>
+                          { post.feed && post.feed.user &&
+                            <Tooltip title={`Crossposted from ${feedLinkDescription}`}>
+                              <a href={feedLink} className={classes.feedName}>
+                                {post.feed.nickname}
+                              </a>
+                            </Tooltip>
+                          }
+                          {!!wordCount && !post.isEvent &&  <Tooltip title={`${wordCount} words`}>
+                              <span className={classes.wordCount}>{parseInt(wordCount/300) || 1 } min read</span>
+                          </Tooltip>}
+                          {!post.isEvent && <span className={classes.date}>
+                            <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
+                          </span>}
+                          {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
+                          <a className={classes.commentsLink} href={"#comments"}>{ Posts.getCommentCountStr(post)}</a>
+                          <span className={classes.actions}>
+                            <AnalyticsContext pageElementContext="tripleDotMenu">
+                              <PostsPageActions post={post} />
+                            </AnalyticsContext>
+                          </span>
+                        </div>
+                      </div>
+                      <div className={classes.headerVote}>
+                        <PostsVote
+                          collection={Posts}
+                          post={post}
+                          currentUser={currentUser}
+                          />
                       </div>
                     </div>
-                    <div className={classes.headerVote}>
-                      <PostsVote
-                        collection={Posts}
-                        post={post}
-                        currentUser={currentUser}
-                        />
-                    </div>
+                    <hr className={classes.divider}/>
+                    {post.isEvent && <PostsPageEventData post={post}/>}
                   </div>
-                  <hr className={classes.divider}/>
-                  {post.isEvent && <PostsPageEventData post={post}/>}
                 </div>
-              </div>
-              <div className={classes.toc}>
-                <TableOfContents sectionData={sectionData} document={post} />
-              </div>
-              <div className={classes.gap1}/>
-              <div className={classes.content}>
-                <div className={classes.post}>
-                  {/* Body */}
-                  <div className={classes.postBody}>
-                    { post.isEvent && <Components.SmallMapPreview post={post} /> }
-                    <div className={classes.postContent}>
-                      {(post.nominationCount2018 >= 2) && <div className={classes.reviewInfo}>
-                        <div className={classes.reviewLabel}>
-                          This post has been nominated for the <HoverPreviewLink href="http://lesswrong.com/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review-posts-need-at-least-2-nominations" innerHTML={"2018 Review"}/>
-                        </div>
-                        <ReviewPostButton post={post} reviewMessage="Write a Review"/>
-                      </div>}
+                </AnalyticsContext>
+                <div className={classes.toc}>
+                  <TableOfContents sectionData={sectionData} document={post} />
+                </div>
+                <div className={classes.gap1}/>
+                <div className={classes.content}>
+                  <div className={classes.post}>
+                    {/* Body */}
+                    <div className={classes.postBody}>
+                      { post.isEvent && <Components.SmallMapPreview post={post} /> }
+                      <div className={classes.postContent}>
+                        {(post.nominationCount2018 >= 2) && <div className={classes.reviewInfo}>
+                          <div className={classes.reviewLabel}>
+                            This post has been nominated for the <HoverPreviewLink href="http://lesswrong.com/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review-posts-need-at-least-2-nominations" innerHTML={"2018 Review"}/>
+                          </div>
+                          <ReviewPostButton post={post} reviewMessage="Write a Review"/>
+                        </div>}
 
-                      <AlignmentCrosspostMessage post={post} />
-                      { post.authorIsUnreviewed && <div className={classes.contentNotice}>This post is awaiting moderator approval</div>}
-                      <LinkPostMessage post={post} />
-                      {query.revision && <PostsRevisionMessage post={post} />}
-                      <AnalyticsContext pageSectionContext="postBody">
-                        { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
+                        <AlignmentCrosspostMessage post={post} />
+                        { post.authorIsUnreviewed && <div className={classes.contentNotice}>This post is awaiting moderator approval</div>}
+                        <LinkPostMessage post={post} />
+                        {query.revision && <PostsRevisionMessage post={post} />}
+                        <AnalyticsContext pageSectionContext="postBody">
+                          { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
                       </AnalyticsContext>
                     </div>
                     {userHasTagging(currentUser) && <FooterTagList post={post}/>}

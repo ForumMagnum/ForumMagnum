@@ -8,12 +8,14 @@ export const withHover = (WrappedComponent) => {
         const [anchorEl, setAnchorEl] = useState(null)
         const delayTimer = useRef(null)
         const mouseOverStart = useRef()
+        const [hoverTrackingProps, setHoverTrackingProps] = useState()
 
 
         const { captureEvent } = useTracking({eventType:"hoverEventTriggered"})
 
         const captureHoverEvent = () => {
-            !isMobile() && captureEvent("hoverEventTriggered", {timeToCapture: new Date() - mouseOverStart.current})
+            !isMobile() && captureEvent("hoverEventTriggered",
+                {...{timeToCapture: new Date() - mouseOverStart.current}, ...hoverTrackingProps})
             clearTimeout(delayTimer.current)
         }
 
@@ -36,7 +38,7 @@ export const withHover = (WrappedComponent) => {
         }
 
 
-        const allProps = { hover, anchorEl, stopHover: handleMouseLeave, ...props }
+        const allProps = { hover, anchorEl, stopHover: handleMouseLeave, hoverTrackingProps, setHoverTrackingProps, ...props }
 
         return (
             <span onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave}>
