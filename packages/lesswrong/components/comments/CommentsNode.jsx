@@ -7,6 +7,7 @@ import { withStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../common/withErrorBoundary';
 import withUser from '../common/withUser';
 import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
+import {AnalyticsContext} from "../../lib/analyticsEvents"
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 const HIGHLIGHT_DURATION = 3
@@ -267,7 +268,7 @@ class CommentsNode extends Component {
       loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand, hoverPreview
     } = this.props;
 
-    const { SingleLineComment, CommentsItem, RepliesToCommentList } = Components
+    const { SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker } = Components
 
     if (!comment || !post)
       return null;
@@ -325,10 +326,16 @@ class CommentsNode extends Component {
           >
             {!hiddenReadComment && comment._id && <div ref={this.scrollTargetRef}>
               {this.isSingleLine()
-                ? <SingleLineComment
-                    comment={comment} nestingLevel={updatedNestingLevel}
-                    parentCommentId={parentCommentId} hideKarma={post.hideCommentKarma}
-                  />
+                ? <AnalyticsContext singleLineComment commentId={comment._id}>
+                    <AnalyticsTracker eventType="singeLineComment">
+                      <SingleLineComment
+                        comment={comment}
+                        nestingLevel={updatedNestingLevel}
+                        parentCommentId={parentCommentId}
+                        hideKarma={post.hideCommentKarma}
+                      />
+                    </AnalyticsTracker>
+                  </AnalyticsContext>
                 : <CommentsItem
                     truncated={this.isTruncated()}
                     nestingLevel={updatedNestingLevel}

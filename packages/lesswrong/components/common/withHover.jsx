@@ -1,5 +1,6 @@
 import React, {useState, useRef } from 'react';
 import { useTracking } from "../../lib/analyticsEvents";
+import { isMobile } from '../../lib/modules/utils/isMobile.js'
 
 export const withHover = (WrappedComponent) => {
     return (props) => {
@@ -12,7 +13,7 @@ export const withHover = (WrappedComponent) => {
         const { captureEvent } = useTracking({eventType:"hoverEventTriggered"})
 
         const captureHoverEvent = () => {
-            captureEvent("hoverEventTriggered", {timeToCapture: new Date() - mouseOverStart.current})
+            !isMobile() && captureEvent("hoverEventTriggered", {timeToCapture: new Date() - mouseOverStart.current})
             clearTimeout(delayTimer.current)
         }
 
