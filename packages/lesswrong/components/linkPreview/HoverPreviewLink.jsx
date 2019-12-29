@@ -21,11 +21,9 @@ export const parseRouteWithErrors = (onsiteUrl, contentSourceDescription) => {
 const linkIsExcludedFromPreview = (url) => {
   // Don't try to preview links that go directly to images. The usual use case
   // for such links is an image where you click for a larger version.
-  if (url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.jpeg') || url.endsWith('.gif')) {
-    return true;
-  }
+  return !!(url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.jpeg') || url.endsWith('.gif'));
   
-  return false;
+
 }
 
 // A link, which will have a hover preview auto-selected and attached. Used from
@@ -54,6 +52,8 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id }) => 
   try {
     const currentURL = new URLClass(location.url, Utils.getSiteUrl());
     const linkTargetAbsolute = new URLClass(href, currentURL);
+
+    const defaultContextProps = {pageElementContext:"linkPreview", href, hoverPreviewType: "DefaultPreview", onsite:false}
     
     const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
     if (!linkIsExcludedFromPreview(onsiteUrl) && (hostIsOnsite(linkTargetAbsolute.host) || Meteor.isServer)) {
@@ -64,16 +64,20 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id }) => 
         const PreviewComponent = parsedUrl.currentRoute.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;
         
         if (PreviewComponent) {
-          return <AnalyticsContext pageElementContext="linkPreview" href={destinationUrl} hoverPreviewType={parsedUrl.currentRoute.previewComponentName} id={parsedUrl?.params?._id}>
+          return <AnalyticsContext {...defaultContextProps} href={destinationUrl} hoverPreviewType={parsedUrl.currentRoute.previewComponentName} onsite>
                     <PreviewComponent href={destinationUrl} targetLocation={parsedUrl} innerHTML={innerHTML} id={id}/>
                  </AnalyticsContext>
         } else {
-          return <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} onSite/>
+          return <AnalyticsContext {...defaultContextProps} onsite>
+            <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} onsite/>
+          </AnalyticsContext>
 
         }
       }
     } else {
-      return <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} />
+      return <AnalyticsContext {...defaultContextProps}>
+        <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} />
+      </AnalyticsContext>
     }
     return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} />
   } catch (err) {
