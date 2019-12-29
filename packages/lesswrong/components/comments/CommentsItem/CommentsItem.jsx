@@ -193,7 +193,7 @@ class CommentsItem extends Component {
     }
     
     return (
-        <AnalyticsContext pageElementContext="commentItem">
+        <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
           <div className={
             classNames(
               classes.root,
