@@ -296,7 +296,7 @@ class PostsPage extends Component {
 
       const commentId = query.commentId || params.commentId
       return (
-          <AnalyticsContext pageContext="postsPage">
+          <AnalyticsContext pageContext="postsPage" postId={post._id}>
             <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
               <HeadTags url={Posts.getPageUrl(post, true)} canonicalUrl={post.canonicalSource} title={post.title} description={description}/>
               {/* Header/Title */}
