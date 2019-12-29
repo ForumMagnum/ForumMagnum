@@ -1,5 +1,6 @@
 import React, {useState, useRef } from 'react';
 import { useTracking } from "../../lib/analyticsEvents";
+import { isMobile } from '../../lib/modules/utils/isMobile.js'
 
 export const withHover = (WrappedComponent) => {
     return (props) => {
@@ -7,12 +8,14 @@ export const withHover = (WrappedComponent) => {
         const [anchorEl, setAnchorEl] = useState(null)
         const delayTimer = useRef(null)
         const mouseOverStart = useRef()
+        const [hoverTrackingProps, setHoverTrackingProps] = useState()
 
 
         const { captureEvent } = useTracking({eventType:"hoverEventTriggered"})
 
         const captureHoverEvent = () => {
-            captureEvent("hoverEventTriggered", {timeToCapture: new Date() - mouseOverStart.current})
+            !isMobile() && captureEvent("hoverEventTriggered",
+                {...{timeToCapture: new Date() - mouseOverStart.current}, ...hoverTrackingProps})
             clearTimeout(delayTimer.current)
         }
 
@@ -22,7 +25,6 @@ export const withHover = (WrappedComponent) => {
             mouseOverStart.current = new Date()
             clearTimeout(delayTimer.current)
             delayTimer.current = setTimeout(captureHoverEvent,500)
-            // console.log({event: "mouseEnterTriggered", timerId: delayTimer.current})
         }
 
         const handleMouseLeave = () => {
@@ -30,13 +32,12 @@ export const withHover = (WrappedComponent) => {
             setAnchorEl(null)
             clearTimeout(delayTimer.current)
             const hoverDuration = new Date() - mouseOverStart.current
-            // console.log({event: "mouseLeaveTriggered", timerId: delayTimer.current, hoverDuration})
             if ( hoverDuration > 2000 ) captureEvent("hoverEventTriggered", {hoverEventType: "longHoverEvent", hoverDuration})
             mouseOverStart.current = undefined
         }
 
 
-        const allProps = { hover, anchorEl, stopHover: handleMouseLeave, ...props }
+        const allProps = { hover, anchorEl, stopHover: handleMouseLeave, hoverTrackingProps, setHoverTrackingProps, ...props }
 
         return (
             <span onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave}>
