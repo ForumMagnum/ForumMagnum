@@ -13,7 +13,6 @@ import { Random } from 'meteor/random';
 import { withStyles, withTheme, createStyles } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents.js'
-import { withCombinedAnalyticsHooks } from '../lib/analyticsHooks.js';
 import { UserContext } from './common/withUser';
 import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
@@ -239,51 +238,53 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       }}>
       <TableOfContentsContext.Provider value={this.setToC}>
         <div className={classNames("wrapper", {'alignment-forum': getSetting('forumType') === 'AlignmentForum'}) } id="wrapper">
-          <DialogManager>
-            <CommentBoxManager>
-              <CssBaseline />
-              <Helmet>
-                <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
-                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@7.0.0/themes/reset-min.css"/>
-                <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
-                { theme.typography.fontDownloads &&
-                    theme.typography.fontDownloads.map(
-                      (url)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
-                    )
-                }
-                <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
-                <link rel="stylesheet" href="https://use.typekit.net/jvr1gjm.css"/>
-              </Helmet>
+          <Components.AnalyticsPageInitializer>
+            <DialogManager>
+              <CommentBoxManager>
+                <CssBaseline />
+                <Helmet>
+                  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
+                  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@7.0.0/themes/reset-min.css"/>
+                  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
+                  { theme.typography.fontDownloads &&
+                      theme.typography.fontDownloads.map(
+                        (url)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
+                      )
+                  }
+                  <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
+                  <link rel="stylesheet" href="https://use.typekit.net/jvr1gjm.css"/>
+                </Helmet>
 
-              <Components.AnalyticsClient/>
-              <Components.NavigationEventSender/>
+                <Components.AnalyticsClient/>
+                <Components.NavigationEventSender/>
 
-              {/* Sign up user for Intercom, if they do not yet have an account */}
-              {showIntercom(currentUser)}
-              <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
-              {/* Google Tag Manager i-frame fallback */}
-              <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerId}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
-              <Components.Header
-                toc={this.state.toc}
-                searchResultsArea={this.searchResultsAreaRef}
-                standaloneNavigationPresent={standaloneNavigation}
-                toggleStandaloneNavigation={this.toggleStandaloneNavigation}
-              />
-              {standaloneNavigation && <Components.NavigationStandalone
-                sidebarHidden={hideNavigationSidebar}
-              />}
-              <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
-              <div className={classes.main}>
-                <Components.ErrorBoundary>
-                  <Components.FlashMessages messages={messages} />
-                </Components.ErrorBoundary>
-                <Components.ErrorBoundary>
-                  {children}
-                </Components.ErrorBoundary>
-              </div>
-              <Components.Footer />
-            </CommentBoxManager>
-          </DialogManager>
+                {/* Sign up user for Intercom, if they do not yet have an account */}
+                {showIntercom(currentUser)}
+                <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
+                {/* Google Tag Manager i-frame fallback */}
+                <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerId}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
+                <Components.Header
+                  toc={this.state.toc}
+                  searchResultsArea={this.searchResultsAreaRef}
+                  standaloneNavigationPresent={standaloneNavigation}
+                  toggleStandaloneNavigation={this.toggleStandaloneNavigation}
+                />
+                {standaloneNavigation && <Components.NavigationStandalone
+                  sidebarHidden={hideNavigationSidebar}
+                />}
+                <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
+                <div className={classes.main}>
+                  <Components.ErrorBoundary>
+                    <Components.FlashMessages messages={messages} />
+                  </Components.ErrorBoundary>
+                  <Components.ErrorBoundary>
+                    {children}
+                  </Components.ErrorBoundary>
+                </div>
+                <Components.Footer />
+              </CommentBoxManager>
+            </DialogManager>
+          </Components.AnalyticsPageInitializer>
         </div>
       </TableOfContentsContext.Provider>
       </PostsReadContext.Provider>
@@ -306,6 +307,6 @@ const withUpdateOptions = {
 }
 
 registerComponent(
-  'Layout', Layout, withLocation, withCookies, [withUpdate, withUpdateOptions], withCombinedAnalyticsHooks,
+  'Layout', Layout, withLocation, withCookies, [withUpdate, withUpdateOptions],
     withStyles(styles, { name: "Layout" }), withTheme()
 );

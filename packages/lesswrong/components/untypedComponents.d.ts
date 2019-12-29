@@ -404,6 +404,8 @@ interface ComponentTypes {
   NominatePostDialog: any
   UserReviews: any
   AnalyticsTracker: any
+  AnalyticsInViewTracker: any
+  AnalyticsPageInitializer: any
   
   // vulcan-accounts components
   AccountsButton: any

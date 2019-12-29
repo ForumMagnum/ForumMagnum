@@ -444,3 +444,4 @@ importComponent("UserReviews", () => require('../components/review/UserReviews.j
 // Analytics Tracking
 importComponent("AnalyticsTracker", () => require('../components/common/AnalyticsTracker.jsx'));
 importComponent("AnalyticsInViewTracker", () => require('../components/common/AnalyticsInViewTracker.jsx'));
+importComponent("AnalyticsPageInitializer", () => require('../components/common/AnalyticsPageInitializer.jsx'));

@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useTracking } from "./analyticsEvents";
-import { hookToHoc } from "./hocUtils";
+import React, { useEffect, useState, useRef, useContext } from 'react';
+import { registerComponent } from 'meteor/vulcan:core';
+import { useTracking, ReactTrackingContext } from "./analyticsEvents";
 
 function useEventListener(eventName, handler, element = window){
   // Create a ref that stores handler
@@ -37,20 +37,24 @@ function useEventListener(eventName, handler, element = window){
   );
 }
 
-export function useBeforeUnloadTracking() {
 
-  const { captureEvent } = useTracking()
+function useBeforeUnloadTracking() {
+  const { captureEvent } = useTracking("beforeUnloadTracking")
   const trackBeforeUnload = () => captureEvent("beforeUnloadFired")
 
   useEventListener('beforeunload', trackBeforeUnload)
 }
 
-export function usePageVisibility() {
-  const { captureEvent } = useTracking()
+
+function usePageVisibility() {
+  const trackingContext = useContext(ReactTrackingContext)
+  console.log({pageVisibilityTrackingContext: trackingContext})
+  const { captureEvent } = useTracking("pageVisibilityTracking")
   const [pageIsVisible, setPageIsVisible] = useState(!document.hidden)
   const [pageVisibilityState, setPageVisibilityState] = useState(document.visibilityState)
 
-  function handleVisibilityChange() {
+
+function handleVisibilityChange() {
     const isVisible = !document.hidden
     const visibilityState = document.visibilityState
     setPageIsVisible(isVisible) //these aren't accessible till re-render or something
@@ -67,7 +71,10 @@ export function usePageVisibility() {
   return { pageIsVisible, pageVisibilityState }
 }
 
-export function useIdlenessDetection(timeoutInSeconds=60) {
+
+function useIdlenessDetection(timeoutInSeconds=60) {
+    const trackingContext = useContext(ReactTrackingContext)
+    console.log({idlenessTrackingContext: trackingContext})
     const { captureEvent } = useTracking("idlenessDetection")
     const [userIsIdle, setUserIsIdle] = useState(false)
     const countdownTimer = useRef(null)
@@ -98,7 +105,10 @@ export function useIdlenessDetection(timeoutInSeconds=60) {
     return { userIsIdle }
 }
 
-export function useCountUpTimer (incrementsInSeconds=[10, 30], switchIncrement=60) {
+
+function useCountUpTimer (incrementsInSeconds=[10, 30], switchIncrement=60) {
+    const trackingContext = useContext(ReactTrackingContext)
+    console.log({CountUpTimerTrackingContext: trackingContext})
     const { captureEvent } = useTracking("timerEvent")
     const [seconds, setSeconds] = useState(0)
     const [timerIsActive, setTimerIsActive] = useState(true)
@@ -127,16 +137,22 @@ export function useCountUpTimer (incrementsInSeconds=[10, 30], switchIncrement=6
     return { seconds, isActive: timerIsActive, setTimerIsActive, reset }
 }
 
-export function useCombinedAnalyticsHooks() {
-  useBeforeUnloadTracking()
-  const { pageIsVisible } = usePageVisibility()
-  const { userIsIdle } = useIdlenessDetection(60)
-  const { setTimerIsActive } = useCountUpTimer([10, 30], 60)
 
-  useEffect( () => {
-    setTimerIsActive(pageIsVisible && !userIsIdle); //disable timer whenever tab hidden or user inactive
-  }, [pageIsVisible, userIsIdle])
+const AnalyticsPageInitializer = ({children}) => {
+    useBeforeUnloadTracking()
+    const { pageIsVisible } = usePageVisibility()
+    const { userIsIdle } = useIdlenessDetection(60)
+    const { setTimerIsActive } = useCountUpTimer([10, 30], 60)
 
-}
+    useEffect(() => {
+      setTimerIsActive(pageIsVisible && !userIsIdle); //disable timer whenever tab hidden or user inactive
+    }, [pageIsVisible, userIsIdle])
 
-export const withCombinedAnalyticsHooks = hookToHoc(useCombinedAnalyticsHooks)
+  return (
+    <span>
+      { children }
+    </span>
+  )
+};
+
+registerComponent('AnalyticsPageInitializer', AnalyticsPageInitializer)
