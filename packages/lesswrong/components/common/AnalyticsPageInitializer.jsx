@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef, useContext } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { useTracking, ReactTrackingContext } from "./analyticsEvents";
+import { useTracking } from "../../lib/analyticsEvents";
 
 function useEventListener(eventName, handler, element = window){
   // Create a ref that stores handler
@@ -47,8 +47,6 @@ function useBeforeUnloadTracking() {
 
 
 function usePageVisibility() {
-  const trackingContext = useContext(ReactTrackingContext)
-  console.log({pageVisibilityTrackingContext: trackingContext})
   const { captureEvent } = useTracking("pageVisibilityTracking")
   const [pageIsVisible, setPageIsVisible] = useState(!document.hidden)
   const [pageVisibilityState, setPageVisibilityState] = useState(document.visibilityState)
@@ -73,8 +71,6 @@ function handleVisibilityChange() {
 
 
 function useIdlenessDetection(timeoutInSeconds=60) {
-    const trackingContext = useContext(ReactTrackingContext)
-    console.log({idlenessTrackingContext: trackingContext})
     const { captureEvent } = useTracking("idlenessDetection")
     const [userIsIdle, setUserIsIdle] = useState(false)
     const countdownTimer = useRef(null)
@@ -107,8 +103,6 @@ function useIdlenessDetection(timeoutInSeconds=60) {
 
 
 function useCountUpTimer (incrementsInSeconds=[10, 30], switchIncrement=60) {
-    const trackingContext = useContext(ReactTrackingContext)
-    console.log({CountUpTimerTrackingContext: trackingContext})
     const { captureEvent } = useTracking("timerEvent")
     const [seconds, setSeconds] = useState(0)
     const [timerIsActive, setTimerIsActive] = useState(true)
