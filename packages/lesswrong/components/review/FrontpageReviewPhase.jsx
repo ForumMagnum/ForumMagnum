@@ -33,7 +33,13 @@ const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
   if (settings.hideReview) return null
 
   const algorithm = {
-    ...settings, 
+    method: "sample",
+    count: 3,
+    scoreOffset: 0,
+    scoreExponent: 0,
+    personalBlogpostModifier: 0,
+    frontpageModifier: 0,
+    curatedModifier: 0,
     review2018: true, 
     onlyUnread: false,
     excludeDefaultRecommendations: true
