@@ -152,7 +152,6 @@ const schema = {
     type: String,
     optional: true,
     regEx: SimpleSchema.RegEx.Email,
-    mustComplete: true,
     input: 'text',
     canCreate: ['members'],
     canUpdate: ['members'],

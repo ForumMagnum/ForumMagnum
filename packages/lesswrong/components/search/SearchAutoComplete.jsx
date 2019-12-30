@@ -20,7 +20,7 @@ const styles = theme => ({
   }
 });
 
-const SearchAutoComplete = ({ clickAction, placeholder, renderSuggestion, hitsPerPage=7, indexName, classes }) => {
+const SearchAutoComplete = ({ clickAction, placeholder, renderSuggestion, hitsPerPage=7, indexName, classes, renderInputComponent }) => {
   const algoliaAppId = getSetting('algolia.appId')
   const algoliaSearchKey = getSetting('algolia.searchKey')
   
@@ -48,7 +48,7 @@ const SearchAutoComplete = ({ clickAction, placeholder, renderSuggestion, hitsPe
     apiKey={algoliaSearchKey}
   >
     <div className={classes.autoComplete}>
-      <AutocompleteTextbox onSuggestionSelected={onSuggestionSelected} placeholder={placeholder} renderSuggestion={renderSuggestion} />
+      <AutocompleteTextbox onSuggestionSelected={onSuggestionSelected} placeholder={placeholder} renderSuggestion={renderSuggestion} renderInputComponent={renderInputComponent}/>
       <Configure hitsPerPage={hitsPerPage} />
     </div>
   </InstantSearch>
@@ -59,7 +59,7 @@ const AutocompleteTextbox = connectAutoComplete(
     // From connectAutoComplete HoC
     hits, currentRefinement, refine,
     // FromSearchAutoComplete
-    onSuggestionSelected, placeholder, renderSuggestion,
+    onSuggestionSelected, placeholder, renderSuggestion, renderInputComponent
   }) => {
     return (
       <Autosuggest
@@ -68,6 +68,7 @@ const AutocompleteTextbox = connectAutoComplete(
         onSuggestionsFetchRequested={({ value }) => refine(value)}
         onSuggestionsClearRequested={() => refine('')}
         getSuggestionValue={hit => hit.title}
+        renderInputComponent={renderInputComponent}
         renderSuggestion={renderSuggestion}
         inputProps={{
           placeholder: placeholder,

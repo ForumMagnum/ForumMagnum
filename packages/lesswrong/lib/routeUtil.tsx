@@ -1,10 +1,11 @@
 import React, { useContext } from 'react';
 import qs from 'qs';
 import { NavigationContext, LocationContext, SubscribeLocationContext, ServerRequestStatusContext, getSetting } from 'meteor/vulcan:core';
+import { Meteor } from 'meteor/meteor';
 
 // Given the props of a component which has withRouter, return the parsed query
 // from the URL.
-export function parseQuery(location) {
+export function parseQuery(location): Record<string,string> {
   let query = location?.search;
   if (!query) return {};
   
@@ -15,6 +16,16 @@ export function parseQuery(location) {
     query = query.substr(1);
     
   return qs.parse(query);
+}
+
+type RouterLocation = {
+  currentRoute: any,
+  RouteComponent: any,
+  location: any,
+  pathname: string,
+  hash: string,
+  params: Record<string,string>,
+  query: Record<string,string>,
 }
 
 // React Hook which returns the page location (parsed URL and route).
@@ -42,7 +53,7 @@ export function parseQuery(location) {
 // }
 // Does not trigger rerenders on navigation events. If you want your component
 // to rerender on navigations, use useSubscribedLocation instead.
-export const useLocation = () => {
+export const useLocation = (): RouterLocation => {
   return useContext(LocationContext);
 }
 
@@ -55,7 +66,7 @@ export const useServerRequestStatus = () => {
 
 // React Hook which returns the page location, formatted as in useLocation, and
 // triggers a rerender whenever navigation occurs.
-export const useSubscribedLocation = () => {
+export const useSubscribedLocation = (): RouterLocation => {
   return useContext(SubscribeLocationContext);
 }
 
@@ -98,7 +109,7 @@ export const withNavigation = (WrappedComponent) => {
   );
 }
 
-export const getUrlClass = () => {
+export const getUrlClass = (): typeof URL => {
   if (Meteor.isServer) {
     return require('url').URL
   } else {
@@ -106,7 +117,7 @@ export const getUrlClass = () => {
   }
 }
 
-const LwAfDomainWhitelist = [
+const LwAfDomainWhitelist: Array<string> = [
   "lesswrong.com",
   "lesserwrong.com",
   "lessestwrong.com",
@@ -117,7 +128,7 @@ const LwAfDomainWhitelist = [
   "localhost:8300"
 ]
 
-const forumDomainWhitelist = {
+const forumDomainWhitelist: Record<string, Array<string>> = {
   LessWrong: LwAfDomainWhitelist,
   AlignmentForum: LwAfDomainWhitelist,
   EAForum: [
@@ -129,9 +140,9 @@ const forumDomainWhitelist = {
   ]
 }
 
-const domainWhitelist = forumDomainWhitelist[getSetting('forumType')]
+const domainWhitelist: Array<string> = forumDomainWhitelist[getSetting('forumType')]
 
-export const hostIsOnsite = (host) => {
+export const hostIsOnsite = (host: string): boolean => {
   let isOnsite = false
 
   domainWhitelist.forEach((domain) => {
@@ -143,4 +154,12 @@ export const hostIsOnsite = (host) => {
   })
 
   return isOnsite
+}
+
+// Returns whether a string could, conservatively, possibly be a database ID.
+// Used for disambiguating hashes, which in some URL formats could either point
+// to an anchor within a post, or a comment on that post.
+// A string could possibly be an ID if is in the range of meteor's `Random.id`.
+export const looksLikeDbIdString = (str) => {
+  return /^[a-zA-Z0-9]{17}$/.test(str);
 }

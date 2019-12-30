@@ -20,8 +20,8 @@ const styles = theme => ({
     fontFamily: 'freight-sans-pro, sans-serif',
     fontSize: "12px",
     fontWeight: 500,
-    right: "1px",
-    top: "1px",
+    right: "11px",
+    top: "11px",
     pointerEvents: "none",
   },
   buttonOpen: {
@@ -40,7 +40,6 @@ const NotificationsMenuButton = (props) => {
       (x) => !currentUser.lastNotificationsCheck || x.createdAt > currentUser.lastNotificationsCheck
     );
   }
-
 
   const buttonClass = open ? classes.buttonOpen : classes.buttonClosed;
   const notificationIconStyle = {

@@ -819,7 +819,7 @@ Posts.addView("pingbackPosts", terms => {
   }
 });
 ensureIndex(Posts,
-  augmentForDefaultView({ "pingback.Posts": 1 }),
+  augmentForDefaultView({ "pingback.Posts": 1, baseScore: 1 }),
   { name: "posts.pingbackPosts" }
 );
 

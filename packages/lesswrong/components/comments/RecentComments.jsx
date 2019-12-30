@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent, useMulti, withEdit } from 'meteor/vulcan:core';
 import { Comments } from '../../lib/collections/comments';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -14,7 +14,8 @@ const styles = theme =>  ({
   }
 })
 
-const RecentComments = ({classes, currentUser, updateComment, terms, truncated, noResultsMessage="No Comments Found"}) => {
+const RecentComments = ({classes, updateComment, terms, truncated, noResultsMessage="No Comments Found"}) => {
+  const currentUser = useCurrentUser();
   const { loadingInitial, loadMoreProps, results } = useMulti({
     terms,
     collection: Comments,
@@ -58,6 +59,5 @@ registerComponent('RecentComments', RecentComments,
     collection: Comments,
     fragmentName: 'SelectCommentsList',
   }],
-  withUser,
   withStyles(styles, {name:"RecentComments"})
 );

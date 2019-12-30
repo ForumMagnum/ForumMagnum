@@ -174,7 +174,6 @@ export const schemaProperties = [
   'defaultValue',
   'autoValue',
   'hidden', // hidden: true means the field is never shown in a form no matter what
-  'mustComplete', // mustComplete: true means the field is required to have a complete profile
   'form', // form placeholder
   'inputProperties', // form placeholder
   'control', // SmartForm control (String or React component)
@@ -222,7 +221,6 @@ export const formProperties = [
   'custom',
   'defaultValue',
   'autoValue',
-  'mustComplete', // mustComplete: true means the field is required to have a complete profile
   'form', // form placeholder
   'inputProperties', // form placeholder
   'control', // SmartForm control (String or React component)

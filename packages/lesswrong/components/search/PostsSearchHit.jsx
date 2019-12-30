@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 import { Snippet} from 'react-instantsearch-dom';
 import { withStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';

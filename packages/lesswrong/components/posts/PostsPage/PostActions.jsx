@@ -6,13 +6,12 @@ import withUser from '../../common/withUser'
 import { Posts } from '../../../lib/collections/posts';
 import withSetAlignmentPost from "../../alignment-forum/withSetAlignmentPost";
 import MenuItem from '@material-ui/core/MenuItem';
-import { Link } from '../../../lib/reactRouterWrapper.js';
+import { Link } from '../../../lib/reactRouterWrapper.jsx';
 import Tooltip from '@material-ui/core/Tooltip';
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import EditIcon from '@material-ui/icons/Edit'
 import WarningIcon from '@material-ui/icons/Warning'
 import qs from 'qs'
-import {AnalyticsContext} from "../../../lib/analyticsEvents";
 
 const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
 
@@ -171,9 +170,7 @@ class PostActions extends Component {
             unsubscribeMessage="Unsubscribe from comments"/>
         </MenuItem>}
 
-        <AnalyticsContext buttonContext={"postActions"}>
-          <BookmarkButton post={post} menuItem/>
-        </AnalyticsContext>
+        <BookmarkButton post={post} menuItem/>
 
         <ReportPostMenuItem post={post}/>
         { post.isRead

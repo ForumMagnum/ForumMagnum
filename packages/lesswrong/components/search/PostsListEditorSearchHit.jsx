@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent} from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 
 import { withStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
@@ -26,7 +26,7 @@ const PostsListEditorSearchHit = ({hit, clickAction, classes}) => {
   return (
     <div className={classes.root}>
       <div>
-        <Components.PostsTitle post={hit} />
+        <Components.PostsTitle post={hit} isLink={false}/>
       </div>
       {hit.authorDisplayName && <Components.MetaInfo>
         {hit.authorDisplayName}

@@ -4,7 +4,8 @@ import { registerComponent, Components } from 'meteor/vulcan:core';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Popover from '@material-ui/core/Popover';
-import withUser from '../../common/withUser'
+import withUser from '../../common/withUser';
+import { withTracking } from '../../../lib/analyticsEvents';
 
 const styles = theme => ({
   icon: {
@@ -21,10 +22,13 @@ class PostsPageActions extends PureComponent {
 
   handleClick = (e) => {
     const { anchorEl } = this.state
+    const { captureEvent, post } = this.props
+    captureEvent("tripleDotClick", {open: true, itemType: "post", postId: post._id})
     this.setState({anchorEl: anchorEl ? null : e.target})
   }
 
   handleClose = (e) => {
+    this.props.captureEvent("tripleDotClick", {open: false, itemType: "post"})
     this.setState({anchorEl: null})
   }
 
@@ -54,5 +58,6 @@ class PostsPageActions extends PureComponent {
 
 registerComponent('PostsPageActions', PostsPageActions,
   withStyles(styles, {name: "PostsPageActions"}),
-  withUser
+  withUser,
+  withTracking
 )
