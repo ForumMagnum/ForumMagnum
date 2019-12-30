@@ -8,7 +8,7 @@ import { useCommentByLegacyId } from '../comments/useComment.js';
 import withHover from '../common/withHover';
 import Card from '@material-ui/core/Card';
 import { withStyles } from '@material-ui/core/styles';
-import { looksLikeDbIdString } from '../../lib/routeUtil.js';
+import { looksLikeDbIdString } from '../../lib/routeUtil';
 
 const PostLinkPreview = ({href, targetLocation, innerHTML, id}) => {
   const postID = targetLocation.params._id;

@@ -5,7 +5,6 @@ import { Utils } from './utils.js';
 import { runCallbacks, runCallbacksAsync } from './callbacks.js';
 import { getSetting, registerSetting } from './settings.js';
 import { registerFragment, getDefaultFragmentText } from './fragments.js';
-import escapeStringRegexp from 'escape-string-regexp';
 import { validateIntlField, getIntlString, isIntlField } from './intl';
 import { Collections } from './getCollection.js';
 export * from './getCollection.js';
