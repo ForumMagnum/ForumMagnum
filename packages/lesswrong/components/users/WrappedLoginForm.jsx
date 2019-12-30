@@ -10,7 +10,7 @@ class WrappedLoginForm extends Component
   setReCaptchaToken = (token) => {
     this.setState({reCaptchaToken: token})
   }
-  
+
   render() {
     const customSignupFields = ['EAForum', 'AlignmentForum'].includes(getSetting('forumType'))
       ? []
@@ -22,7 +22,9 @@ class WrappedLoginForm extends Component
           renderCustom: Components.SignupSubscribeToCurated
         }
       ]
-  
+
+    console.log(this.props.onPostSignUpHook)
+
     return <React.Fragment>
       {getSetting('reCaptcha.apiKey')
         && <Components.ReCaptcha verifyCallback={this.setReCaptchaToken} action="login/signup"/>}

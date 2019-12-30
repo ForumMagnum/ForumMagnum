@@ -36,6 +36,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
     const resetStoreAndThen = hook => {
       return () => {
         props.client.resetStore().then(() => {
+          console.log("resetStoreAndThen run")
           hook();
         });
       };
@@ -45,8 +46,10 @@ export class AccountsLoginFormInner extends TrackerComponent {
       return () => {
         props.client.resetStore().then(() => {
           if(Callbacks['users.postlogin']) { // execute any post-sign-in callbacks
+          console.log("runCallbacks branch run")
           runCallbacks('users.postlogin');
           } else { // or else execute the hook
+            console.log("hook branch run of postLogInAndThen")
             hook();
           }
         });
@@ -74,7 +77,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
       onSignedInHook: resetStoreAndThen(postLogInAndThen(props.onSignedInHook || defaultHooks.onSignedInHook)),
       onSignedOutHook: resetStoreAndThen(props.onSignedOutHook || defaultHooks.onSignedOutHook),
       onPreSignUpHook: props.onPreSignUpHook || defaultHooks.onPreSignUpHook,
-      onPostSignUpHook: resetStoreAndThen(postLogInAndThen(props.onPostSignUpHook || defaultHooks.onPostSignUpHook)),
+      onPostSignUpHook: resetStoreAndThen(postLogInAndThen(props.onPostSignUpHook)), // || defaultHooks.onPostSignUpHook)),
     };
   }
 
@@ -892,6 +895,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
           self.props.handlers.switchToProfile();
           // self.setState({ formState: STATES.PROFILE, password: null });
           let currentUser = Accounts.user();
+          console.log("just successfully signed up!")
           loginResultCallback(self.state.onPostSignUpHook.bind(self, _options, currentUser));
           self.clearDefaultFieldValues();
         }
