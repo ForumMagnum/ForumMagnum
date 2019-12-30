@@ -9,7 +9,6 @@
 ############ Core Packages ############
 
 vulcan:core                       # core components and wrappers
-vulcan:forms                      # auto-generated forms
 vulcan:users                      # user management and permissions
 
 ############ Features Packages ############

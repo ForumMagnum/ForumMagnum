@@ -46,7 +46,7 @@ import {
   getReadableFields,
   getCreateableFields,
   getUpdateableFields
-} from '../modules/schema_utils';
+} from '../../lib/vulcan-forms/schema_utils';
 
 import withCollectionProps from './withCollectionProps';
 import { callbackProps } from './propTypes';

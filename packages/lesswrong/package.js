@@ -19,7 +19,6 @@ Package.onUse( function(api) {
 
     // vulcan packages
     'vulcan:accounts',
-    'vulcan:forms',
     'vulcan:users',
   ]);
 
