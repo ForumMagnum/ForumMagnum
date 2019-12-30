@@ -1,5 +1,6 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
+import { withTracking } from "../../lib/analyticsEvents"
 
 class WrappedLoginForm extends Component
 {
@@ -23,16 +24,27 @@ class WrappedLoginForm extends Component
         }
       ]
 
-    console.log(this.props.onPostSignUpHook)
+    //wrap any existing hooks with analytics tracking
+      const addTrackingToHook = (hook, hookType) => {
+        return (hookParams) => {
+          this.props.captureEvent("accountHookEvent", {hookType})
+          if (hook) hook(hookParams)
+      }}
+
+    const onPreSignUpHook = (options) => {
+      const reCaptchaToken = this.state.reCaptchaToken
+      return {...options, profile: {...options.profile, reCaptchaToken}}
+    }
 
     return <React.Fragment>
       {getSetting('reCaptcha.apiKey')
         && <Components.ReCaptcha verifyCallback={this.setReCaptchaToken} action="login/signup"/>}
       <Components.AccountsLoginForm
-        onPreSignUpHook={(options) => {
-          const reCaptchaToken = this.state.reCaptchaToken
-          return {...options, profile: {...options.profile, reCaptchaToken}}
-        }}
+        onSubmitHook={addTrackingToHook(this.props.onSubmitHook, "onSubmitHook")}
+        onPreSignUpHook={addTrackingToHook(onPreSignUpHook, "onPostSignUpHook")}
+        onPostSignUpHook={addTrackingToHook(this.props.onPostSignUpHook, "onPostSignUpHook")}
+        onSignedInHook={addTrackingToHook(this.props.onSignedInHook, "onSignedInHook")}
+        onSignedOutHook={addTrackingToHook(this.props.onSignedOutHook, "onSignedOutHook")}
         customSignupFields={customSignupFields}
         {...this.props}
       />
@@ -40,4 +52,4 @@ class WrappedLoginForm extends Component
   }
 }
 
-registerComponent('WrappedLoginForm', WrappedLoginForm);
+registerComponent('WrappedLoginForm', WrappedLoginForm, withTracking);

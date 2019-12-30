@@ -2,7 +2,6 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import Dialog from '@material-ui/core/Dialog';
 import { withStyles } from '@material-ui/core/styles';
-import { withTracking } from "../../lib/analyticsEvents"
 
 const styles = theme => ({
   dialog: {
@@ -40,22 +39,13 @@ class LoginPopup extends PureComponent {
         }}
       >
         <Components.WrappedLoginForm
-          onSignedInHook={() => {
-            console.log("onSignedInHook from in LoginPopup.jsx")
-            this.props.captureEvent("onSignedInHook fired in LoginPopup.jsx")
-            onClose()
-          }}
-          onPostSignUpHook={() => {
-             console.log("onPostSignUpHook from in LoginPopup.jsx")
-              this.props.captureEvent("onPostSignUpHook fired in LoginPopup.jsx")
-             onClose()
-          }
-          }
+          onSignedInHook={() => onClose()}
+          onPostSignUpHook={() => onClose()}
         />
       </Dialog>
     );
   }
 }
 
-registerComponent('LoginPopup', LoginPopup, withTracking,
+registerComponent('LoginPopup', LoginPopup,
   withStyles(styles, {name: "LoginPopup"}));

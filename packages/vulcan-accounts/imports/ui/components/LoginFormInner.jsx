@@ -50,8 +50,6 @@ export class AccountsLoginFormInner extends TrackerComponent {
           if (Callbacks['users.postlogin']) { // execute any post-sign-in callbacks
             runCallbacks('users.postlogin');
           } else { // or else execute the hook
-            console.log("hook branch run of postLogInAndThen")
-            console.log(hook)
             hook();
           }
           removeResetStoreCallback(resetStoreCallback);
@@ -79,17 +77,14 @@ export class AccountsLoginFormInner extends TrackerComponent {
       waiting: false,
       formState: props.formState ? props.formState : (currentUser ? STATES.PROFILE : STATES.SIGN_IN),
       onSubmitHook: props.onSubmitHook || Accounts.ui._options.onSubmitHook,
-      onSignedInHook: resetStoreAndThen(postLogInAndThen(props.onSignedInHook)), // || defaultHooks.onSignedInHook)),
+      onSignedInHook: resetStoreAndThen(postLogInAndThen(props.onSignedInHook || defaultHooks.onSignedInHook)),
       onSignedOutHook: resetStoreAndThen(props.onSignedOutHook || defaultHooks.onSignedOutHook),
       onPreSignUpHook: props.onPreSignUpHook || defaultHooks.onPreSignUpHook,
-      // onPostSignUpHook: resetStoreAndThen(postLogInAndThen(props.onPostSignUpHook)), // || defaultHooks.onPostSignUpHook)),
-      onPostSignUpHook: resetStoreAndThen(postLogInAndThen(props.onPostSignUpHook)), // || defaultHooks.onPostSignUpHook)),
+      onPostSignUpHook: resetStoreAndThen(postLogInAndThen(props.onPostSignUpHook || defaultHooks.onPostSignUpHook)),
     };
   }
 
   componentDidMount() {
-    console.log(this.props)
-
     let changeState = Session.get(KEY_PREFIX + 'state');
     switch (changeState) {
       case 'enrollAccountToken':
@@ -885,8 +880,6 @@ export class AccountsLoginFormInner extends TrackerComponent {
 
     const doSignUp = (_options) => {
       Accounts.createUser(_options, (error) => {
-        self.setState({waiting: false});
-
         if (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -903,10 +896,8 @@ export class AccountsLoginFormInner extends TrackerComponent {
         else {
           onSubmitHook(null, formState);
           self.props.handlers.switchToProfile();
-          self.clearDefaultFieldValues()
           // self.setState({ formState: STATES.PROFILE, password: null });
           let currentUser = Accounts.user();
-          console.log("just successfully signed up!")
           loginResultCallback(self.state.onPostSignUpHook.bind(self, _options, currentUser));
           self.clearDefaultFieldValues();
         }
