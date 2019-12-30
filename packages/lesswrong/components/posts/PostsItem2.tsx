@@ -240,7 +240,7 @@ export const styles = createStyles((theme) => ({
     position: "relative",
     marginLeft: -60,
     opacity: 0.6,
-    height: 48,
+    height: 46,
     width: 146,
 
     // Negative margins that are the opposite of the padding on postsItem, since
@@ -269,7 +269,7 @@ export const styles = createStyles((theme) => ({
     }
   },
   sequenceImageImg: {
-    height: 48,
+    height: 46,
     width: 146,
     [theme.breakpoints.down('sm')]: {
       height: "100%",

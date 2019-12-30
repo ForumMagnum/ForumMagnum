@@ -179,7 +179,7 @@ class SubscribeDialog extends Component {
   }
 
   render() {
-    const { classes, fullScreen, onClose, open, currentUser } = this.props;
+    const { classes, fullScreen, onClose, currentUser } = this.props;
     const { view, threshold, method, copiedRSSLink, subscribedByEmail } = this.state;
 
     const viewSelector = <FormControl key="viewSelector" className={classes.viewSelector}>
@@ -200,7 +200,7 @@ class SubscribeDialog extends Component {
     return (
       <Dialog
         fullScreen={fullScreen}
-        open={open}
+        open={true}
         onClose={onClose}
       >
         <Tabs

@@ -16,10 +16,11 @@ import { userHasPingbacks, userHasTagging } from '../../../lib/betas.js';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
-const DEFAULT_TOC_MARGIN = 100
+const DEFAULT_TOC_MARGIN = 150
 const MAX_TOC_WIDTH = 270
 const MIN_TOC_WIDTH = 200
-const MAX_COLUMN_WIDTH = 720
+const POST_CONTENT_PADDING = 44
+const MAX_COLUMN_WIDTH = 720 + (2*POST_CONTENT_PADDING)
 const SECONDARY_SPACING = 20
 
 const styles = theme => ({
@@ -27,7 +28,21 @@ const styles = theme => ({
     position: "relative",
     [theme.breakpoints.down('sm')]: {
       marginTop: 12
-    }
+    },
+    '@supports (grid-template-areas: "title")': {
+      display: 'grid',
+      gridTemplateColumns: `
+        1fr
+        minmax(0px, ${DEFAULT_TOC_MARGIN}px)
+        minmax(min-content, ${MAX_COLUMN_WIDTH}px)
+        minmax(0px, ${DEFAULT_TOC_MARGIN}px)
+        1fr
+      `,
+      gridTemplateAreas: `
+        "... .... title   .... ..."
+        "... gap1 content gap2 ..."
+      `,
+    },
   },
   tocActivated: {
     // Check for support for template areas before applying
@@ -52,7 +67,8 @@ const styles = theme => ({
   },
   title: {
     gridArea: 'title',
-    marginBottom: 32
+    padding: POST_CONTENT_PADDING,
+    paddingTop: POST_CONTENT_PADDING-theme.spacing.unit
   },
   toc: {
     '@supports (grid-template-areas: "title")': {
@@ -65,9 +81,19 @@ const styles = theme => ({
     width: MAX_TOC_WIDTH,
     left: -DEFAULT_TOC_MARGIN,
   },
-  content: { gridArea: 'content' },
+  content: { 
+    gridArea: 'content',
+    padding: POST_CONTENT_PADDING,
+    paddingTop: 0
+  },
   gap1: { gridArea: 'gap1'},
   gap2: { gridArea: 'gap2'},
+  contentBackground: { 
+    gridColumn: 'title',
+    gridRow: 'span title / content',
+    backgroundColor: 'white',
+    boxShadow: `0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)`
+  },
   post: {
     maxWidth: 650 + (theme.spacing.unit*4),
     marginLeft: 'auto',
@@ -298,7 +324,8 @@ class PostsPage extends Component {
       return (
           <AnalyticsContext pageContext="postsPage">
             <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
-              <HeadTags url={Posts.getPageUrl(post, true)} canonicalUrl={post.canonicalSource} title={post.title} description={description}/>
+              <HeadTags url={Posts.getPageUrl(post, true)} canonicalUrl={post.canonicalSource} title={post.title} description={description || ""}/>
+              <div className={classes.contentBackground} />
               {/* Header/Title */}
               <div className={classes.title}>
                 <div className={classes.post}>

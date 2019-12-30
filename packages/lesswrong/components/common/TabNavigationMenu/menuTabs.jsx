@@ -54,6 +54,7 @@ const EventsList = ({currentUser, onClick}) => {
 //   id: string, required, uniqe; for React map keys. `divider` is a keyword id
 //   title: string; user facing description
 //   link: string
+//   dialog: string (alternative to link to open dialog)
 //   // One of the following 3
 //   icon: already-rendered-Component
 //   iconComponent: Component-ready-for-rendering
@@ -148,6 +149,13 @@ export default {
       divider: true,
       showOnCompressed: true,
     }, {
+      id: 'subscribe',
+      title: 'Subscribe (Email/RSS)',
+      dialog: "SubscribeDialog",
+      dialogProps: {view: "curated", method: "rss"},
+      tooltip: 'Subscribe to new posts via Email and RSS',
+      subItem: true
+    }, {
       id: 'reviews',
       title: '2018 Review',
       link: '/reviews',
@@ -157,11 +165,6 @@ export default {
       id: 'shortform',
       title: 'Shortform',
       link: '/shortform',
-      subItem: true,
-    }, {
-      id: 'meta',
-      title: 'Meta',
-      link: '/meta',
       subItem: true,
     }, {
       id: 'about',

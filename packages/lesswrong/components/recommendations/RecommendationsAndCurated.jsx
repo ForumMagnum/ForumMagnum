@@ -3,44 +3,18 @@ import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import Users from 'meteor/vulcan:users';
-import { Link } from '../../lib/reactRouterWrapper.jsx';
-import Tooltip from '@material-ui/core/Tooltip';
-import classNames from 'classnames';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { withContinueReading } from './withContinueReading';
-import Typography from '@material-ui/core/Typography';
-import Hidden from '@material-ui/core/Hidden';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   section: {
     marginTop: -12,
   },
-  continueReadingList: {
-    marginBottom: theme.spacing.unit*2,
-  },
   curated: {
     marginTop: theme.spacing.unit,
     display: "block"
   },
-  subtitle: {
-    [theme.breakpoints.down('sm')]:{
-      marginBottom: 0,
-    }
-  },
-  footerWrapper: {
-    display: "flex",
-    justifyContent: "flex-end",
-    marginTop: 12,
-  },
-  footer: {
-    color: theme.palette.lwTertiary.main,
-    flexGrow: 1,
-    maxWidth: 450,
-    
-    display: "flex",
-    justifyContent: "space-around",
-  }
 });
 
 const defaultFrontpageSettings = {
@@ -55,45 +29,33 @@ const defaultFrontpageSettings = {
 
 
 class RecommendationsAndCurated extends PureComponent {
-  state = { showSettings: false, stateSettings: null }
-
-  toggleSettings = () => {
-    this.setState(prevState => ({showSettings: !prevState.showSettings}))
-  }
-
-  changeSettings = (newSettings) => {
-    this.setState({
-      settings: newSettings
-    });
-  }
 
   render() {
     const { continueReading, classes, currentUser } = this.props;
-    const { showSettings } = this.state
-    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SubSection, SeparatorBullet, BookmarksList, FrontpageReviewPhase } = Components;
+    const { SingleColumnSection, ContinueReadingList, PostsList2, RecommendationsList, SectionTitle, SubSection, BookmarksList } = Components;
 
     const configName = "frontpage"
-    const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
+    const settings = getRecommendationSettings({currentUser, configName})
 
-    const curatedTooltip = <div>
-      <div>Every few days, LessWrong moderators manually curate posts that are well written and informative.</div>
-      <div><em>(Click to see more curated posts)</em></div>
-    </div>
+    // const curatedTooltip = <div>
+    //   <div>Every few days, LessWrong moderators manually curate posts that are well written and informative.</div>
+    //   <div><em>(Click to see more curated posts)</em></div>
+    // </div>
 
-    const coreReadingTooltip = <div>
-      <div>Collections of posts that form the core background knowledge of the LessWrong community</div>
-    </div>
+    // const coreReadingTooltip = <div>
+    //   <div>Collections of posts that form the core background knowledge of the LessWrong community</div>
+    // </div>
 
-    const continueReadingTooltip = <div>
-      <div>The next posts in sequences you've started reading, but not finished.</div>
-    </div>
+    // const continueReadingTooltip = <div>
+    //   <div>The next posts in sequences you've started reading, but not finished.</div>
+    // </div>
 
-    const bookmarksTooltip = <div>
-      <div>Individual posts that you've bookmarked</div>
-      <div><em>(Click to see all)</em></div>
-    </div>
+    // const bookmarksTooltip = <div>
+    //   <div>Individual posts that you've bookmarked</div>
+    //   <div><em>(Click to see all)</em></div>
+    // </div>
 
-    // Disabled during 2018 Review
+    // // Disabled during 2018 Review
     // const allTimeTooltip = <div>
     //   <div>
     //     A weighted, randomized sample of the highest karma posts
@@ -111,100 +73,42 @@ class RecommendationsAndCurated extends PureComponent {
 
     const renderBookmarks = (currentUser?.bookmarkedPostsMetadata?.length > 0) && !settings.hideBookmarks
     const renderContinueReading = (continueReading?.length > 0) && !settings.hideContinueReading
-    const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
+    // const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
     return <SingleColumnSection className={classes.section}>
-      <SectionTitle title="Recommendations">
-        <Tooltip title="Customize your recommendations">
-          <SettingsIcon onClick={this.toggleSettings} label="Settings"/> 
-        </Tooltip>
-      </SectionTitle>
-      {showSettings &&
-        <RecommendationsAlgorithmPicker
-          configName={configName}
-          settings={frontpageRecommendationSettings}
-          onChange={(newSettings) => this.changeSettings(newSettings)}
-        /> }
+      <SectionTitle title="Recommendations"/>
 
-      {renderContinueReading && <React.Fragment>
-          <div>
-            <Tooltip placement="top-start" title={currentUser ? continueReadingTooltip : coreReadingTooltip}>
-              <Link to={"/library"}>
-                <SectionSubtitle className={classNames(classes.subtitle, classes.continueReading)}>
-                  {currentUser ? "Continue Reading" : "Core Reading" }
-                </SectionSubtitle>
-              </Link>
-            </Tooltip>
-            <BetaTag />
-          </div>
-          <SubSection className={classes.continueReadingList}>
+      {
+        renderContinueReading && 
+          <SubSection>
             <ContinueReadingList continueReading={continueReading} />
           </SubSection>
-        </React.Fragment>}
+      }
 
-      {renderBookmarks && <React.Fragment>
-        <div>
-            <Tooltip placement="top-start" title={bookmarksTooltip}>
-              <Link to={"/bookmarks"}>
-                <SectionSubtitle className={classes.subtitle}>
-                  Bookmarks
-                </SectionSubtitle>
-              </Link>
-            </Tooltip>
-            <BetaTag />
-          </div>
-          <SubSection className={classes.continueReadingList}>
+      {
+        renderBookmarks && 
+          <SubSection>
             <AnalyticsContext listContext={"frontpageBookmarksList"} capturePostItemOnMount>
               <BookmarksList limit={3} />
             </AnalyticsContext>
           </SubSection>
-      </React.Fragment>}
-
-      <FrontpageReviewPhase settings={frontpageRecommendationSettings} />
+      }
 
       {/* Disabled during 2018 Review */}
-      {/* {!settings.hideFrontpage && <div>
-        <div>
-          <Tooltip placement="top-start" title={allTimeTooltip}>
-            <Link to={"/recommendations"}>
-              <SectionSubtitle className={classNames(classes.subtitle, classes.fromTheArchives)} >
-                From the Archives
-              </SectionSubtitle>
-            </Link>
-          </Tooltip>
-          <BetaTag />
-        </div>
-        <SubSection>
-          <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
-            <RecommendationsList algorithm={frontpageRecommendationSettings} />
-          </AnalyticsContext>
-        </SubSection>
-      </div>} */}
+      {
+        !settings.hideFrontpage &&
+          <SubSection>
+            <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
+              <RecommendationsList algorithm={frontpageRecommendationSettings} />
+            </AnalyticsContext>
+          </SubSection>
+      }
 
-      <Tooltip placement="top-start" title={curatedTooltip}>
-        <Link to={curatedUrl}>
-          <SectionSubtitle className={classNames(classes.subtitle, classes.curated)}>
-            Recently Curated
-          </SectionSubtitle>
-        </Link>
-      </Tooltip>
       <SubSection>
         <AnalyticsContext listContext={"curatedPosts"}>
           <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
         </AnalyticsContext>
       </SubSection>
-      <div className={classes.footerWrapper}>
-        <Typography component="div" variant="body2" className={classes.footer}>
-          <Link to={curatedUrl}>
-            { /* On very small screens, use shorter link text ("More Curated"
-                instead of "View All Curated Posts") to avoid wrapping */ }
-            <Hidden smUp implementation="css">More Curated</Hidden>
-            <Hidden xsDown implementation="css">View All Curated Posts</Hidden>
-          </Link>
-          <SeparatorBullet/>
-          <SubscribeWidget view={"curated"} />
-        </Typography>
-      </div>
     </SingleColumnSection>
   }
 }

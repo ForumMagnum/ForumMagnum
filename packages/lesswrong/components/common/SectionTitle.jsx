@@ -4,8 +4,6 @@ import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames'
 
-const borderStyle = "solid 3px rgba(0,0,0,.5)"
-
 const styles = (theme) => ({
   root: {
     display: "flex",
@@ -19,33 +17,13 @@ const styles = (theme) => ({
     fontFamily: theme.typography.postStyle.fontFamily,
     fontStyle: "italic"
   },
-  leftDivider: {
-    borderTop: borderStyle,
-    width: theme.spacing.unit*4,
-    marginRight: theme.spacing.unit*1.5,
-    [theme.breakpoints.down('sm')]: {
-      width: theme.spacing.unit*2,
-    },
-  },
-  rightDivider: {
-    flexGrow: 1,
-    marginLeft: theme.spacing.unit*1.5,
-    borderTop: borderStyle
-  },
-  rightMargin: {
-    marginRight: theme.spacing.unit*1.5
-  },
   noTitle: {
     marginLeft: 0,
   },
   children: {
-    ...theme.typography.commentStyle
+    ...theme.typography.commentStyle,
+    marginLeft: 'auto'
     // Exists for eaTheme override
-  },
-  tailDivider: {
-    marginLeft: theme.spacing.unit*1.5,
-    borderTop: borderStyle,
-    width: theme.spacing.unit*4,
   },
 })
 class SectionTitle extends PureComponent {
@@ -53,11 +31,9 @@ class SectionTitle extends PureComponent {
     const {children, classes, className, title, dividers=true} = this.props
     return (
       <div className={classes.root}>
-        { dividers && title && <div className={classes.leftDivider}/>}
         <Typography variant='display1' className={classNames(classes.title, className)}>
           {title}
         </Typography>
-        { dividers && <div className={classNames(classes.rightDivider, {[classes.noTitle]: !title, [classes.rightMargin]: !!children})}/>}
         <div className={classes.children}>{ children }</div>
         { children && dividers && <div className={classes.tailDivider}/>}
       </div>

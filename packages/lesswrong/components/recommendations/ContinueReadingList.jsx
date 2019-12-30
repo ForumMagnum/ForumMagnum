@@ -9,13 +9,6 @@ const MAX_ENTRIES = 3;
 class ContinueReadingList extends Component {
   state = {
     dismissedRecommendations: {},
-    showAll: false,
-  }
-  
-  showAll = () => {
-    this.setState({
-      showAll: true
-    });
   }
 
   dismissAndHideRecommendation(postId) {
@@ -40,29 +33,24 @@ class ContinueReadingList extends Component {
     sorted.reverse(); //in-place
     
     // Limit to the three most recent
-    if (this.state.showAll || sorted.length <= MAX_ENTRIES) {
+    if (sorted.length <= MAX_ENTRIES) {
       return {
         entries: sorted,
-        showAllLink: false,
       };
     } else {
       return {
         entries: sorted.slice(0, MAX_ENTRIES),
-        showAllLink: true,
       }
     }
   } 
   
   render() {
     const { continueReading, continueReadingLoading } = this.props;
-    const { PostsItem2, PostsLoading, SectionFooter, LoginPopupButton } = Components;
+    const { PostsItem2, PostsLoading } = Components;
     if (continueReadingLoading || !continueReading)
       return <PostsLoading/>
     
-    const { entries, showAllLink } = this.limitResumeReading(continueReading);
-    const saveLeftOffTooltip = <div>
-      Logging in helps you keep track of which sequences you've started reading, so that you can continue reading them when you return to LessWrong.
-    </div>
+    const { entries } = this.limitResumeReading(continueReading);
 
     return <div>
       <AnalyticsContext listContext={"continueReading"} capturePostItemOnMount>
@@ -77,16 +65,6 @@ class ContinueReadingList extends Component {
           />
         })}
       </AnalyticsContext>
-      
-      
-      <SectionFooter>
-        {showAllLink && <a onClick={this.showAll}>
-          Show All
-        </a>}
-        <LoginPopupButton title={saveLeftOffTooltip}>
-          Log in to save where you left off
-        </LoginPopupButton>
-      </SectionFooter>
     </div>
   }
 }

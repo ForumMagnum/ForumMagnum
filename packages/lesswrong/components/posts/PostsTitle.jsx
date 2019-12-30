@@ -21,7 +21,7 @@ const styles = theme => ({
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
     alignItems: "center",
-    fontSize: "1.3rem",
+    fontSize: "1.4rem",
     [theme.breakpoints.down('sm')]: {
       whiteSpace: "unset",
       lineHeight: "1.8rem",
@@ -38,7 +38,7 @@ const styles = theme => ({
     top: 2
   },
   read: {
-    color: "rgba(0,0,0,.55)",
+    color: "rgba(0,0,0,.75)",
     '&:hover': {
       color: "rgba(0,0,0,.87)",
     }

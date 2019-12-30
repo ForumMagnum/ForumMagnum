@@ -75,7 +75,6 @@ interface ComponentTypes {
   TabNavigationSubItem: any
   NavigationDrawer: any
   NavigationStandalone: any
-  SubscribeWidget: any
   SubscribeDialog: any
   HoverPreviewLink: any
   PostLinkPreview: any

@@ -7,6 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper.jsx';
 import { withStyles } from '@material-ui/core/styles'
 import moment from 'moment';
 import { useTimezone } from '../common/withTimezone';
+import withUser from '../common/withUser'
 import { truncate } from '../../lib/editor/ellipsize';
 import classNames from 'classnames';
 
@@ -75,11 +76,11 @@ const styles = theme => ({
 })
 
 
-const TabNavigationEventsList = ({ results, onClick, classes }) => {
+const TabNavigationEventsList = ({ results, onClick, classes, currentUser }) => {
   const { timezone } = useTimezone();
   const { TabNavigationSubItem, EventTime } = Components
 
-  if (!results) return null
+  if (!results || !currentUser?.mongoLocation) return null
 
   return (
     <div>
@@ -151,5 +152,6 @@ const options = {
 
 registerComponent('TabNavigationEventsList', TabNavigationEventsList,
   [withList, options],
-  withStyles(styles, {name:"TabNavigationEventsList"})
+  withStyles(styles, {name:"TabNavigationEventsList"}),
+  withUser
 );

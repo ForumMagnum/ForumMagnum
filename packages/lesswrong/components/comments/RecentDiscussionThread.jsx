@@ -21,6 +21,9 @@ const styles = theme => ({
     marginBottom: theme.spacing.unit*4,
     position: "relative",
     minHeight: 50,
+    padding: theme.spacing.unit*2,
+    paddingBottom: 1,
+    backgroundColor: 'white'
   },
   postStyle: theme.typography.postStyle,
   postBody: {
@@ -76,11 +79,7 @@ const styles = theme => ({
   showHighlight: {
     opacity: 0,
   },
-  content :{
-    [theme.breakpoints.up('lg')]: {
-      marginLeft: theme.spacing.unit*3,
-    }
-  },
+  content :{},
   commentsList: {
     [theme.breakpoints.down('md')]: {
       marginLeft: 0,

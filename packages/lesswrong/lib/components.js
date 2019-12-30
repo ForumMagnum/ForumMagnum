@@ -93,7 +93,6 @@ import '../components/common/TabNavigationMenu/NavigationDrawer.jsx';
 import '../components/common/TabNavigationMenu/NavigationStandalone.jsx';
 
 // Outgoing RSS Feed builder
-importComponent("SubscribeWidget", () => require('../components/common/SubscribeWidget.jsx'));
 importComponent("SubscribeDialog", () => require('../components/common/SubscribeDialog.jsx'));
 
 importComponent("HoverPreviewLink", () => require('../components/linkPreview/HoverPreviewLink.jsx'));

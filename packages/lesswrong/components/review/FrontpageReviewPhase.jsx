@@ -7,10 +7,6 @@ import withUser from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 
 const styles = theme => ({
-  timeRemaining: {
-    marginTop: 6,
-    marginBottom: 4
-  },
   learnMore: {
     color: theme.palette.lwTertiary.main
   }
@@ -47,11 +43,6 @@ const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
             <Link to={"/reviews"}>
               The LessWrong 2018 Review
             </Link>
-            <div className={classes.timeRemaining}>
-              <em>You have until Dec 31st to review posts (<span className={classes.learnMore}>
-                <HoverPreviewLink href="/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review" innerHTML={"learn more"}/>
-              </span>)</em>
-            </div>
           </SectionSubtitle>
         </div>
       </Tooltip>
@@ -60,14 +51,6 @@ const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
           <RecommendationsList algorithm={algorithm} showLoginPrompt={false} />
         </AnalyticsContext>
       </SubSection>
-      <SectionFooter>
-        <Link to={"/reviews"}>
-          Reviews Dashboard
-        </Link>
-        {(currentUser && currentUser.karma >= 1000) && <Link to={`/users/${currentUser.slug}/reviews`}>
-          My Reviews
-        </Link>}
-      </SectionFooter>
     </div>
   )
 }

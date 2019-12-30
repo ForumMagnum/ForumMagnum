@@ -99,20 +99,19 @@ class HomeLatestPosts extends PureComponent {
 
     return (
       <SingleColumnSection>
-        <SectionTitle title={<Tooltip title={latestTitle} placement="left-start"><span>Latest Posts</span></Tooltip>}>
-          <Tooltip title={personalBlogpostTooltip}>
-            <div>
-              <SectionFooterCheckbox
-                onClick={this.toggleFilter}
-                value={currentFilter !== "frontpage"}
-                label={<div className={classes.personalBlogpostsCheckboxLabel}>Include Personal Blogposts</div>}
-                />
-            </div>
-          </Tooltip>
-        </SectionTitle>
+        <SectionTitle title={<Tooltip title={latestTitle} placement="left-start"><span>Latest Posts</span></Tooltip>}/>
         <AnalyticsContext listContext={"latestPosts"}>
           <PostsList2 terms={recentPostsTerms}>
             <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
+            <Tooltip title={personalBlogpostTooltip}>
+              <div>
+                <SectionFooterCheckbox
+                  onClick={this.toggleFilter}
+                  value={currentFilter !== "frontpage"}
+                  label={<div className={classes.personalBlogpostsCheckboxLabel}>Include Personal Blogposts</div>}
+                  />
+              </div>
+            </Tooltip>
           </PostsList2>
         </AnalyticsContext>
       </SingleColumnSection>

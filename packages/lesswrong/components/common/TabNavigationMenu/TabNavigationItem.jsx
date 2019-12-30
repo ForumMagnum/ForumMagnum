@@ -6,6 +6,7 @@ import { Link } from '../../../lib/reactRouterWrapper.jsx';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 import { useLocation } from '../../../lib/routeUtil.js';
+import { useDialog } from '../withDialog';
 
 export const iconWidth = 30
 
@@ -66,11 +67,12 @@ const styles = theme => ({
 const TabNavigationItem = ({tab, onClick, classes}) => {
   const { TabNavigationSubItem } = Components
   const { pathname } = useLocation()
+  const { openDialog } = useDialog()
 
   return <Tooltip placement='right-start' title={tab.tooltip || ''}>
     <MenuItem
-      onClick={onClick}
-      component={Link} to={tab.link}
+      onClick={tab.dialog ? () => openDialog({componentName: "SubscribeDialog", componentProps: tab.dialogProps}) : onClick}
+      component={tab.dialog ? 'span' : Link} to={tab.link}
       disableGutters
       classes={{root: classNames({
         [classes.navButton]: !tab.subItem,
