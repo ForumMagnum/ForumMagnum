@@ -168,6 +168,7 @@ import './modules/alignment-forum/users/helpers.js';
 import './modules/alignment-forum/users/views.js';
 
 import './analyticsEvents.js';
+import './vulcan-i18n-en-us.js';
 
 //
 export {

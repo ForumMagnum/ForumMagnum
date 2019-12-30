@@ -21,11 +21,6 @@ vulcan:accounts
 
 # vulcan:base-styles            # default styling
 
-############ Language Packages ############
-
-vulcan:i18n-en-us
-# vulcan:i18n-es-es
-
 ############ Accounts Packages ############
 
 accounts-password@1.5.1
