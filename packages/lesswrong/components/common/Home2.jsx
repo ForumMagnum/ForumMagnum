@@ -1,11 +1,11 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import Users from 'meteor/vulcan:users';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
-const Home2 = ({currentUser}) => {
-
+const Home2 = () => {
+  const currentUser = useCurrentUser();
   const { RecentDiscussionThreadsList, HomeLatestPosts, RecommendationsAndCurated } = Components
 
   const shouldRenderSidebar = Users.canDo(currentUser, 'posts.moderate.all') ||
@@ -30,4 +30,4 @@ const Home2 = ({currentUser}) => {
   )
 }
 
-registerComponent('Home2', Home2, withUser);
+registerComponent('Home2', Home2);

@@ -1,7 +1,7 @@
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import withUser from '../withUser';
+import { useCurrentUser } from '../withUser';
 import { iconWidth } from './TabNavigationItem'
 
 // -- See here for all the tab content --
@@ -26,7 +26,8 @@ const styles = (theme) => {
   }
 }
 
-const TabNavigationMenu = ({onClickSection, classes, currentUser}) => {
+const TabNavigationMenu = ({onClickSection, classes}) => {
+  const currentUser = useCurrentUser();
   const { TabNavigationItem } = Components
   const customComponentProps = {currentUser}
 
@@ -57,5 +58,5 @@ const TabNavigationMenu = ({onClickSection, classes, currentUser}) => {
 
 registerComponent(
   'TabNavigationMenu', TabNavigationMenu,
-  withUser, withStyles(styles, { name: 'TabNavigationMenu'})
+  withStyles(styles, { name: 'TabNavigationMenu'})
 );
