@@ -48,7 +48,7 @@ const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
               The LessWrong 2018 Review
             </Link>
             <div className={classes.timeRemaining}>
-              <em>You have until Dec 31st to review posts (<span className={classes.learnMore}>
+              <em>You have until Jan 13th to review posts (<span className={classes.learnMore}>
                 <HoverPreviewLink href="/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review" innerHTML={"learn more"}/>
               </span>)</em>
             </div>
