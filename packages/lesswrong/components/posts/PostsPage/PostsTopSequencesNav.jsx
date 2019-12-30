@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Link } from '../../../lib/reactRouterWrapper.jsx';
-import { withNavigation } from '../../../lib/routeUtil.js';
+import { withNavigation } from '../../../lib/routeUtil';
 import withGlobalKeydown from '../../common/withGlobalKeydown';
 import { withStyles } from '@material-ui/core/styles';
 import { Sequences } from '../../../lib/collections/sequences/collection.js';
