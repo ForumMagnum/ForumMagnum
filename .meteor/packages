@@ -15,7 +15,6 @@ vulcan:users                      # user management and permissions
 ############ Features Packages ############
 
 # vulcan:newsletter
-vulcan:events
 # vulcan:subscribe
 vulcan:accounts
 
