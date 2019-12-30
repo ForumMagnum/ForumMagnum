@@ -41,7 +41,6 @@ SimpleSchema.extendOptions([
   'editableBy', // who can edit the field (OpenCRUD backwards compatibility)
 
   'resolveAs', // field-level resolver
-  'searchable', // whether a field is searchable
   'description', // description/help
   'beforeComponent', // before form component
   'afterComponent', // after form component
