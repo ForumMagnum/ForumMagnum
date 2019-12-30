@@ -111,7 +111,7 @@ class HomeLatestPosts extends PureComponent {
           </Tooltip>
         </SectionTitle>
         <AnalyticsContext listContext={"latestPosts"}>
-          <PostsList2 terms={recentPostsTerms} dense>
+          <PostsList2 terms={recentPostsTerms}>
             <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
           </PostsList2>
         </AnalyticsContext>
