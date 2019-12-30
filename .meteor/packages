@@ -51,8 +51,6 @@ accounts-github@1.4.2
 # example-interfaces
 # example-reactions
 
-# vulcan:debug
-
 lesswrong
 # webtoken-session
 # internal-graphql
