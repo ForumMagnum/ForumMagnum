@@ -2,7 +2,7 @@ import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Users from 'meteor/vulcan:users';
-import { Link } from 'react-router-dom';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 import { truncate } from '../../lib/editor/ellipsize';
 import DescriptionIcon from '@material-ui/icons/Description';
 import MessageIcon from '@material-ui/icons/Message';

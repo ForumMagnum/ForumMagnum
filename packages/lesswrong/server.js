@@ -43,7 +43,9 @@ import './server/scripts/fillMissing.js';
 import './server/scripts/recomputeDenormalized.js';
 import './server/scripts/validateDatabase.js';
 import './server/scripts/validateMakeEditableDenormalization.js';
+import './server/scripts/mergeAccounts.js';
 import './server/migrations';
+import './server/migrations/migrationsDashboardGraphql.js';
 
 import './server/legacy-redirects/routes.js';
 import './server/material-ui/themeProvider';

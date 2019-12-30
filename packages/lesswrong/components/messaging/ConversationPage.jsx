@@ -12,7 +12,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Conversations from '../../lib/collections/conversations/collection.js';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 
 const styles = theme => ({
   conversationSection: {

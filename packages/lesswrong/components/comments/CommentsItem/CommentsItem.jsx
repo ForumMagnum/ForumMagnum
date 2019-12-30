@@ -8,8 +8,9 @@ import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/com
 import { withStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import withUser from '../../common/withUser';
-import { Link } from '../../../lib/reactRouterWrapper.js';
+import { Link } from '../../../lib/reactRouterWrapper.jsx';
 import { Posts } from "../../../lib/collections/posts";
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 // Shared with ParentCommentItem
 export const styles = theme => ({
@@ -192,82 +193,84 @@ class CommentsItem extends Component {
     }
     
     return (
-      <div className={
-        classNames(
-          classes.root,
-          "comments-item",
-          "recent-comments-node",
-          {
-            [classes.deleted]: comment.deleted && !comment.deletedPublic,
-          },
-        )}
-      >
-        { comment.parentCommentId && this.state.showParent && (
-          <div className={classes.firstParentComment}>
-            <Components.ParentCommentSingle
-              post={post}
-              currentUser={currentUser}
-              documentId={comment.parentCommentId}
-              nestingLevel={nestingLevel - 1}
-              truncated={false}
-              key={comment.parentCommentId}
-            />
-          </div>
-        )}
-        
-        {showPostTitle && <Link className={classes.postTitle} to={Posts.getPageUrl(comment.post)}>{post.title}</Link>}
+        <AnalyticsContext pageElementContext="commentItem">
+          <div className={
+            classNames(
+              classes.root,
+              "comments-item",
+              "recent-comments-node",
+              {
+                [classes.deleted]: comment.deleted && !comment.deletedPublic,
+              },
+            )}
+          >
+            { comment.parentCommentId && this.state.showParent && (
+              <div className={classes.firstParentComment}>
+                <Components.ParentCommentSingle
+                  post={post}
+                  currentUser={currentUser}
+                  documentId={comment.parentCommentId}
+                  nestingLevel={nestingLevel - 1}
+                  truncated={false}
+                  key={comment.parentCommentId}
+                />
+              </div>
+            )}
 
-        <div className={classes.body}>
-          <div className={classes.meta}>
-            { !parentCommentId && !comment.parentCommentId && isParentComment &&
-              <div className={classes.usernameSpacing}>○</div>
-            }
-            <CommentShortformIcon comment={comment} post={post} />
-            { parentCommentId!=comment.parentCommentId &&
-              <ShowParentComment
-                comment={comment} nestingLevel={nestingLevel}
-                active={this.state.showParent}
-                onClick={this.toggleShowParent}
-                placeholderIfMissing={isParentComment}
-              />
-            }
-            { (postPage || this.props.collapsed) && <a className={classes.collapse} onClick={this.props.toggleCollapse}>
-              [<span>{this.props.collapsed ? "+" : "-"}</span>]
-            </a>
-            }
-            <span className={classes.username}>
-              <CommentUserName comment={comment}/>
-            </span>
-            <CommentsItemDate
-              comment={comment} post={post}
-              scrollIntoView={scrollIntoView}
-              scrollOnClick={postPage && !isParentComment}
-            />
-            {comment.moderatorHat && <span className={classes.moderatorHat}>
-              Moderator Comment
-            </span>}
-            <Components.CommentsVote
-              comment={comment}
-              currentUser={currentUser}
-              hideKarma={post.hideCommentKarma}
-            />
-            
-            {!isParentComment && this.renderMenu()}
-            <span className={classes.outdatedWarning}>
-              <Components.CommentOutdatedWarning comment={comment} post={post} />
-            </span>
-            {comment.nominatedForReview && <Link to={"/nominations"} className={classes.nomination}>
-              {`Nomination for ${comment.nominatedForReview} Review`}
-            </Link>}
-            {comment.reviewingForReview && <Link to={"/reviews"} className={classes.nomination}>
-            {`Review for ${comment.reviewingForReview}`}
-          </Link>}
+            {showPostTitle && <Link className={classes.postTitle} to={Posts.getPageUrl(comment.post)}>{post.title}</Link>}
+
+            <div className={classes.body}>
+              <div className={classes.meta}>
+                { !parentCommentId && !comment.parentCommentId && isParentComment &&
+                  <div className={classes.usernameSpacing}>○</div>
+                }
+                <CommentShortformIcon comment={comment} post={post} />
+                { parentCommentId!=comment.parentCommentId &&
+                  <ShowParentComment
+                    comment={comment} nestingLevel={nestingLevel}
+                    active={this.state.showParent}
+                    onClick={this.toggleShowParent}
+                    placeholderIfMissing={isParentComment}
+                  />
+                }
+                { (postPage || this.props.collapsed) && <a className={classes.collapse} onClick={this.props.toggleCollapse}>
+                  [<span>{this.props.collapsed ? "+" : "-"}</span>]
+                </a>
+                }
+                <span className={classes.username}>
+                  <CommentUserName comment={comment}/>
+                </span>
+                <CommentsItemDate
+                  comment={comment} post={post}
+                  scrollIntoView={scrollIntoView}
+                  scrollOnClick={postPage && !isParentComment}
+                />
+                {comment.moderatorHat && <span className={classes.moderatorHat}>
+                  Moderator Comment
+                </span>}
+                <Components.CommentsVote
+                  comment={comment}
+                  currentUser={currentUser}
+                  hideKarma={post.hideCommentKarma}
+                />
+
+                {!isParentComment && this.renderMenu()}
+                <span className={classes.outdatedWarning}>
+                  <Components.CommentOutdatedWarning comment={comment} post={post} />
+                </span>
+                {comment.nominatedForReview && <Link to={"/nominations"} className={classes.nomination}>
+                  {`Nomination for ${comment.nominatedForReview}`}
+                </Link>}
+                {comment.reviewingForReview && <Link to={"/reviews"} className={classes.nomination}>
+                {`Review for ${comment.reviewingForReview}`}
+              </Link>}
+              </div>
+              {this.renderBodyOrEditor()}
+              {!comment.deleted && !collapsed && this.renderCommentBottom()}
+            </div>
+            { this.state.showReply && !this.props.collapsed && this.renderReply() }
           </div>
-          {this.renderBodyOrEditor()}
-          {!comment.deleted && !collapsed && this.renderCommentBottom()}
-        </div>
-        { this.state.showReply && !this.props.collapsed && this.renderReply() }
-      </div>
+        </AnalyticsContext>
     )
   }
   
@@ -277,11 +280,13 @@ class CommentsItem extends Component {
     return (
       <span className={classes.metaRight}>
         <span className={classes.menu}>
-          <CommentsMenu
-            comment={comment}
-            post={post}
-            showEdit={this.setShowEdit}
-          />
+          <AnalyticsContext pageElementContext="tripleDotMenu">
+            <CommentsMenu
+              comment={comment}
+              post={post}
+              showEdit={this.setShowEdit}
+            />
+          </AnalyticsContext>
         </span>
       </span>
     )

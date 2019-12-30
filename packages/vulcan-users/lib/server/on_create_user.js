@@ -87,13 +87,6 @@ function onCreateUserCallback(options, user) {
   // OpenCRUD backwards compatibility
   runCallbacksAsync('users.new.async', user);
 
-  // check if all required fields have been filled in. If so, run profile completion callbacks
-  if (Users.hasCompletedProfile(user)) {
-    runCallbacksAsync('user.profileCompleted.async', user);
-    // OpenCRUD backwards compatibility
-    runCallbacksAsync('users.profileCompleted.async', user);
-  }
-
   debug(`Modified User: ${JSON.stringify(user)}`);
   debugGroupEnd();
   debug('--------------- end \x1b[35m onCreateUser ---------------');

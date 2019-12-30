@@ -40,7 +40,7 @@ importComponent("NotificationTypeSettings", () => require('../components/notific
 importComponent("NotificationEmailPreviewPage", () => require('../components/notifications/NotificationEmailPreviewPage.jsx'));
 importComponent("EmailPreview", () => require('../components/notifications/EmailPreview.jsx'));
 
-importComponent("Layout", () => require('../components/Layout.jsx'));
+importComponent("Layout", () => require('../components/Layout.tsx'));
 
 importComponent("AnalyticsClient", () => require('../components/common/AnalyticsClient.jsx'));
 importComponent("CalendarDate", () => require('../components/common/CalendarDate.jsx'));
@@ -68,6 +68,7 @@ importComponent("DialogGroup", () => require('../components/common/DialogGroup.j
 importComponent("Divider", () => require('../components/common/Divider.jsx'));
 importComponent("HoverOver", () => require('../components/common/HoverOver.jsx'));
 importComponent("ErrorBoundary", () => require('../components/common/ErrorBoundary.jsx'));
+importComponent("ErrorMessage", () => require('../components/common/ErrorMessage.jsx'));
 importComponent("CloudinaryImage", () => require('../components/common/CloudinaryImage.jsx'));
 importComponent("ContentItemBody", () => require('../components/common/ContentItemBody.jsx'));
 importComponent("LWPopper", () => require('../components/common/LWPopper.jsx'));
@@ -153,7 +154,7 @@ importComponent("SuggestAlignment", () => require('../components/posts/SuggestAl
 importComponent("Pingback", () => require('../components/posts/Pingback.jsx'));
 importComponent("PingbacksList", () => require('../components/posts/PingbacksList.jsx'));
 importComponent("PostsItemMeta", () => require('../components/posts/PostsItemMeta.jsx'));
-importComponent("PostsItem2", () => require('../components/posts/PostsItem2.jsx'));
+importComponent("PostsItem2", () => require('../components/posts/PostsItem2.tsx'));
 importComponent("PostsItemTooltipWrapper", () => require('../components/posts/PostsItemTooltipWrapper.jsx'));
 importComponent("PostsItem2MetaInfo", () => require('../components/posts/PostsItem2MetaInfo.jsx'));
 importComponent("PostsTitle", () => require('../components/posts/PostsTitle.jsx'));
@@ -161,7 +162,7 @@ importComponent("PostsPreviewTooltip", () => require('../components/posts/PostsP
 importComponent("PostsPreviewTooltipSingle", () => require('../components/posts/PostsPreviewTooltipSingle.jsx'));
 importComponent("PostsItemComments", () => require('../components/posts/PostsItemComments.jsx'));
 importComponent("PostsItemWrapper", () => require('../components/posts/PostsItemWrapper.jsx'));
-importComponent("PostsItemKarma", () => require('../components/posts/PostsItemKarma.jsx'));
+importComponent("PostsItemKarma", () => require('../components/posts/PostsItemKarma.tsx'));
 importComponent("PostsItemMetaInfo", () => require('../components/posts/PostsItemMetaInfo.jsx'));
 importComponent("PostsItemNewCommentsWrapper", () => require('../components/posts/PostsItemNewCommentsWrapper.jsx'));
 importComponent("PostsItemIcons", () => require('../components/posts/PostsItemIcons.jsx'));
@@ -281,6 +282,7 @@ importComponent("ShowParentComment", () => require('../components/comments/ShowP
 
 importComponent("PostsListEditorSearchHit", () => require('../components/search/PostsListEditorSearchHit.jsx'));
 importComponent("PostsSearchHit", () => require('../components/search/PostsSearchHit.jsx'));
+importComponent("SearchAutoComplete", () => require('../components/search/SearchAutoComplete.jsx'));
 importComponent("PostsSearchAutoComplete", () => require('../components/search/PostsSearchAutoComplete.jsx'));
 importComponent("CommentsSearchHit", () => require('../components/search/CommentsSearchHit.jsx'));
 importComponent("UsersSearchHit", () => require('../components/search/UsersSearchHit.jsx'));
@@ -292,6 +294,8 @@ importComponent("UsersSearchInput", () => require('../components/search/UsersSea
 importComponent("SearchBarResults", () => require('../components/search/SearchBarResults.jsx'));
 importComponent("SearchPagination", () => require('../components/search/SearchPagination.jsx'));
 
+importComponent("MigrationsDashboard", () => require('../components/admin/migrations/MigrationsDashboard.jsx'));
+importComponent("MigrationsDashboardRow", () => require('../components/admin/migrations/MigrationsDashboardRow.jsx'));
 importComponent("AdminHome", () => require('../components/sunshineDashboard/AdminHome.jsx'));
 importComponent("AdminMetadata", () => require('../components/sunshineDashboard/AdminMetadata.jsx'));
 importComponent("ModerationLog", () => require('../components/sunshineDashboard/ModerationLog.jsx'));
@@ -439,3 +443,18 @@ importComponent("UserReviews", () => require('../components/review/UserReviews.j
 
 // Analytics Tracking
 importComponent("AnalyticsTracker", () => require('../components/common/AnalyticsTracker.jsx'));
+
+// vulcan:ui-bootstrap
+importComponent("FormComponentCheckboxGroup", () => require('../components/vulcan-ui-bootstrap/forms/Checkboxgroup.jsx'));
+importComponent("FormComponentEmail", () => require('../components/vulcan-ui-bootstrap/forms/Email.jsx'));
+importComponent("FormComponentInner", () => require('../components/vulcan-ui-bootstrap/forms/FormComponentInner.jsx'));
+importComponent("FormControl", () => require('../components/vulcan-ui-bootstrap/forms/FormControl.jsx'));
+importComponent("FormElement", () => require('../components/vulcan-ui-bootstrap/forms/FormElement.jsx'));
+importComponent("FormItem", () => require('../components/vulcan-ui-bootstrap/forms/FormItem.jsx'));
+importComponent("FormComponentTextarea", () => require('../components/vulcan-ui-bootstrap/forms/Textarea.jsx'));
+importComponent("FormComponentUrl", () => require('../components/vulcan-ui-bootstrap/forms/Url.jsx'));
+importComponent("Alert", () => require('../components/vulcan-ui-bootstrap/ui/Alert.jsx'));
+importComponent("Button", () => require('../components/vulcan-ui-bootstrap/ui/Button.jsx'));
+importComponent("Modal", () => require('../components/vulcan-ui-bootstrap/ui/Modal.jsx'));
+importComponent("ModalTrigger", () => require('../components/vulcan-ui-bootstrap/ui/ModalTrigger.jsx'));
+

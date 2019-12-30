@@ -51,6 +51,12 @@ addRoute([
     componentName: 'UsersSingle'
   },
   {
+    name: "userOverview",
+    path:'/user/:slug/overview',
+    redirect: (location) => `/users/${location.params.slug}`,
+    componentName: "UsersSingle",
+  },
+  {
     name:'users.single.u',
     path:'/u/:slug',
     componentName: 'UsersSingle'
@@ -241,7 +247,7 @@ addRoute([
   },
   {
     name: 'comment.legacy',
-    path: `/${legacyRouteAcronym}/:id/:slug/:commentId`,
+    path: `/:section(r)?/:subreddit(all|discussion|lesswrong)?/${legacyRouteAcronym}/:id/:slug/:commentId`,
     componentName: "LegacyCommentRedirect",
     previewComponentName: "CommentLinkPreviewLegacy",
     // TODO: Pingback comment
@@ -393,6 +399,12 @@ addRoute([
     path: '/admin',
     componentName: 'AdminHome',
     title: "Admin"
+  },
+  {
+    name: 'migrations',
+    path: '/admin/migrations',
+    componentName: 'MigrationsDashboard',
+    title: "Migrations"
   },
   {
     name: 'moderation',

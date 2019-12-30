@@ -23,7 +23,6 @@ vulcan:accounts
 ############ Theme Packages ############
 
 # vulcan:base-styles            # default styling
-vulcan:ui-bootstrap
 
 ############ Language Packages ############
 
@@ -61,3 +60,6 @@ lesswrong
 es5-shim@4.8.0
 meteortesting:mocha
 zodern:standard-minifier-js
+
+typescript
+

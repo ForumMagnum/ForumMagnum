@@ -1,4 +1,4 @@
-import { arrayOfForeignKeysField } from '../../modules/utils/schemaUtils'
+import { arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation } from '../../modules/utils/schemaUtils'
 import { localGroupTypeFormOptions } from './groupTypes';
 import { schemaDefaultValue } from '../../collectionUtils';
 
@@ -17,7 +17,6 @@ const schema = {
 
   name: {
     type: String,
-    searchable: true,
     viewableBy: ['guests'],
     editableBy: ['members'],
     order:10,
@@ -80,10 +79,14 @@ const schema = {
   mongoLocation: {
     type: Object,
     viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
     hidden: true,
     blackbox: true,
+    ...denormalizedField({
+      needsUpdate: data => ('googleLocation' in data),
+      getValue: async (localgroup) => {
+        if (localgroup.googleLocation) return googleLocationToMongoLocation(localgroup.googleLocation)
+      }
+    }),
   },
 
   googleLocation: {
@@ -98,7 +101,6 @@ const schema = {
 
   location: {
     type: String,
-    searchable: true,
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],

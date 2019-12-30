@@ -6,6 +6,7 @@ import { Revisions } from '../../lib/index';
 
 registerMigration({
   name: "computeWordCounts",
+  dateWritten: "2019-02-14",
   idempotent: true,
   action: async () => {
     // Fill in wordCount in the Revisions table

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
+import {AnalyticsContext} from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   description: {
@@ -64,7 +65,9 @@ class ChaptersItem extends Component {
           />
         </div>}
         <div className={classes.posts}>
-          <SequencesPostsList posts={chapter.posts} chapter={chapter} />
+          <AnalyticsContext chapter={chapter._id} capturePostItemOnMount>
+            <SequencesPostsList posts={chapter.posts} chapter={chapter} />
+          </AnalyticsContext>
         </div>
         {!chapter.title && canEdit && <SectionFooter>{editButton}</SectionFooter>}
       </SingleColumnSection>

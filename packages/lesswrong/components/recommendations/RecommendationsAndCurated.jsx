@@ -3,7 +3,7 @@ import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import Users from 'meteor/vulcan:users';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
@@ -70,7 +70,7 @@ class RecommendationsAndCurated extends PureComponent {
   render() {
     const { continueReading, classes, currentUser } = this.props;
     const { showSettings } = this.state
-    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SubSection, SeparatorBullet, BookmarksList, FrontpageReviewPhase} = Components;
+    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SubSection, SeparatorBullet, BookmarksList, FrontpageReviewPhase } = Components;
 
     const configName = "frontpage"
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
@@ -154,7 +154,7 @@ class RecommendationsAndCurated extends PureComponent {
             <BetaTag />
           </div>
           <SubSection className={classes.continueReadingList}>
-            <AnalyticsContext listContext={"frontpageBookmarksList"}>
+            <AnalyticsContext listContext={"frontpageBookmarksList"} capturePostItemOnMount>
               <BookmarksList limit={3} />
             </AnalyticsContext>
           </SubSection>
@@ -175,7 +175,9 @@ class RecommendationsAndCurated extends PureComponent {
           <BetaTag />
         </div>
         <SubSection>
-          <RecommendationsList algorithm={frontpageRecommendationSettings} />
+          <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
+            <RecommendationsList algorithm={frontpageRecommendationSettings} />
+          </AnalyticsContext>
         </SubSection>
       </div>} */}
 
@@ -195,7 +197,7 @@ class RecommendationsAndCurated extends PureComponent {
         <Typography component="div" variant="body2" className={classes.footer}>
           <Link to={curatedUrl}>
             { /* On very small screens, use shorter link text ("More Curated"
-                 instead of "View All Curated Posts") to avoid wrapping */ }
+                instead of "View All Curated Posts") to avoid wrapping */ }
             <Hidden smUp implementation="css">More Curated</Hidden>
             <Hidden xsDown implementation="css">View All Curated Posts</Hidden>
           </Link>
