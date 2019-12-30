@@ -3,7 +3,7 @@ import { registerComponent, Components, withList } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import Tooltip from '@material-ui/core/Tooltip';
 import MenuItem from '@material-ui/core/MenuItem';
-import { Link } from 'react-router-dom';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 import { withStyles } from '@material-ui/core/styles'
 import moment from 'moment';
 import { useTimezone } from '../common/withTimezone';

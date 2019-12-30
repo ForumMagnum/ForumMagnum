@@ -6,7 +6,7 @@ import {
 
 import classNames from 'classnames';
 import { unflattenComments } from '../../lib/modules/utils/unflatten';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import withRecordPostView from '../common/withRecordPostView';
 
@@ -91,9 +91,10 @@ const styles = theme => ({
 
 const RecentDiscussionThread = ({
   post, recordPostView,
-  comments, updateComment, currentUser, classes, isRead, refetch,
+  comments, updateComment, classes, isRead, refetch,
   expandAllThreads: initialExpandAllThreads,
 }) => {
+  const currentUser = useCurrentUser();
   const [highlightVisible, setHighlightVisible] = useState(false);
   const [readStatus, setReadStatus] = useState(false);
   const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState(null);
@@ -285,7 +286,6 @@ const RecentDiscussionThread = ({
 registerComponent(
   'RecentDiscussionThread',
   RecentDiscussionThread,
-  withUser,
   withStyles(styles, { name: "RecentDiscussionThread" }),
   withRecordPostView,
   withErrorBoundary

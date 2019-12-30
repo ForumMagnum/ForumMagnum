@@ -155,3 +155,11 @@ export const hostIsOnsite = (host: string): boolean => {
 
   return isOnsite
 }
+
+// Returns whether a string could, conservatively, possibly be a database ID.
+// Used for disambiguating hashes, which in some URL formats could either point
+// to an anchor within a post, or a comment on that post.
+// A string could possibly be an ID if is in the range of meteor's `Random.id`.
+export const looksLikeDbIdString = (str) => {
+  return /^[a-zA-Z0-9]{17}$/.test(str);
+}

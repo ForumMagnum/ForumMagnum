@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/browser';
 import { getSetting, addCallback } from 'meteor/vulcan:core';
 import { captureEvent, AnalyticsUtil } from '../lib/analyticsEvents.js';
-import {browserProperties} from '../lib/modules/utils/browserProperties.js';
+import { browserProperties } from '../lib/modules/utils/browserProperties.js';
 
 /*global tabId*/
 
@@ -50,8 +50,6 @@ addCallback("router.onUpdate", ({oldLocation, newLocation}) => {
   captureEvent("navigate", {
     from: oldLocation.pathname,
     to: newLocation.pathname,
-    fromPostId: oldLocation.params?._id,
-    toPostId: newLocation.params?._id
   });
 });
 

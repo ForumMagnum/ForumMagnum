@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 import Tooltip from '@material-ui/core/Tooltip';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser'
@@ -33,7 +33,13 @@ const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
   if (settings.hideReview) return null
 
   const algorithm = {
-    ...settings, 
+    method: "sample",
+    count: 3,
+    scoreOffset: 0,
+    scoreExponent: 0,
+    personalBlogpostModifier: 0,
+    frontpageModifier: 0,
+    curatedModifier: 0,
     review2018: true, 
     onlyUnread: false,
     excludeDefaultRecommendations: true
@@ -48,7 +54,7 @@ const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
               The LessWrong 2018 Review
             </Link>
             <div className={classes.timeRemaining}>
-              <em>You have until Dec 31st to review posts (<span className={classes.learnMore}>
+              <em>You have until Dec 31st to review and edit posts (<span className={classes.learnMore}>
                 <HoverPreviewLink href="/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review" innerHTML={"learn more"}/>
               </span>)</em>
             </div>
@@ -56,7 +62,7 @@ const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
         </div>
       </Tooltip>
       <SubSection>
-        <AnalyticsContext listContext={"LessWrong 2018 Review NEW"}>
+        <AnalyticsContext listContext={"LessWrong 2018 Review"} capturePostItemOnMount>
           <RecommendationsList algorithm={algorithm} showLoginPrompt={false} />
         </AnalyticsContext>
       </SubSection>
