@@ -91,7 +91,6 @@ typescript@3.7.0
 underscore@1.0.10
 url@1.2.0
 vulcan:accounts@1.13.0
-vulcan:admin@1.13.0
 vulcan:core@1.13.0
 vulcan:debug@1.13.0
 vulcan:events@1.13.0
