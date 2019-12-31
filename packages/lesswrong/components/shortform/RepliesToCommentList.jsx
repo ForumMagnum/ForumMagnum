@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { Components, registerComponent, withList } from 'meteor/vulcan:core';
 import { Comments } from "../../lib/collections/comments";
 import withUser from '../common/withUser';
-import { unflattenComments } from "../../lib/modules/utils/unflatten";
+import { unflattenComments } from "../../lib/utils/unflatten";
 
 
 class RepliesToCommentList extends PureComponent {

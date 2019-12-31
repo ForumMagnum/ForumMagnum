@@ -1,4 +1,4 @@
-import { foreignKeyField } from '../../modules/utils/schemaUtils'
+import { foreignKeyField } from '../../utils/schemaUtils'
 import SimpleSchema from 'simpl-schema'
 
 export const ContentType = new SimpleSchema({

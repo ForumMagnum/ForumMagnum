@@ -5,7 +5,7 @@ import {
 } from 'meteor/vulcan:core';
 
 import classNames from 'classnames';
-import { unflattenComments } from '../../lib/modules/utils/unflatten';
+import { unflattenComments } from '../../lib/utils/unflatten';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import withRecordPostView from '../common/withRecordPostView';

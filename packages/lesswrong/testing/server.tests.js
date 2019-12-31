@@ -16,8 +16,8 @@ import '../lib/collections/posts/tests.js';
 import '../lib/collections/users/tests.js';
 import '../lib/collections/notifications/tests.js';
 
-import '../lib/modules/alignment-forum/posts/tests.js';
-import '../lib/modules/alignment-forum/users/tests.js';
+import '../lib/alignment-forum/posts/tests';
+import '../lib/alignment-forum/users/tests';
 
 import '../server/emails/tests.jsx';
 import '../lib/editor/utils.test.js';

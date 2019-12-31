@@ -1,4 +1,4 @@
-import { arrayOfForeignKeysField, denormalizedCountOfReferences } from '../../modules/utils/schemaUtils'
+import { arrayOfForeignKeysField, denormalizedCountOfReferences } from '../../utils/schemaUtils'
 
 const schema = {
   _id: {

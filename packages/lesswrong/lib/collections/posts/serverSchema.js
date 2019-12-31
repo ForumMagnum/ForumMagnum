@@ -1,5 +1,5 @@
 import { Posts } from './collection';
-import { addFieldsDict, denormalizedField } from '../../modules/utils/schemaUtils'
+import { addFieldsDict, denormalizedField } from '../../utils/schemaUtils'
 import { getLocalTime } from '../../../server/mapsUtils'
 
 addFieldsDict(Posts, {

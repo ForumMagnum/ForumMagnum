@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
-import { unflattenComments, addGapIndicators } from '../../lib/modules/utils/unflatten';
+import { unflattenComments, addGapIndicators } from '../../lib/utils/unflatten';
 import withRecordPostView from '../common/withRecordPostView';
 import { withStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../common/withErrorBoundary';

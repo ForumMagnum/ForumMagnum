@@ -2,7 +2,7 @@ import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Comments } from "../../lib/collections/comments";
-import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
+import { shallowEqual, shallowEqualExcept } from '../../lib/utils/componentUtils';
 import { Posts } from '../../lib/collections/posts';
 import withGlobalKeydown from '../common/withGlobalKeydown';
 import Tooltip from '@material-ui/core/Tooltip';

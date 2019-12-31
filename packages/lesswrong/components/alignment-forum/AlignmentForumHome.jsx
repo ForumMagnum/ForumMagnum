@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper.jsx';
 import Users from "meteor/vulcan:users";
 import withUser from '../common/withUser';
-import { legacyBreakpoints } from '../../lib/modules/utils/theme';
+import { legacyBreakpoints } from '../../lib/utils/theme';
 import { withStyles } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
 

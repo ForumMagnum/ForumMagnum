@@ -2,7 +2,7 @@ import React from 'react';
 import Users from 'meteor/vulcan:users'
 import { Utils } from 'meteor/vulcan:core'
 import { ContentType } from '../collections/revisions/schema'
-import { accessFilterMultiple, addFieldsDict } from '../modules/utils/schemaUtils.js';
+import { accessFilterMultiple, addFieldsDict } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'
 
 const RevisionStorageType = new SimpleSchema({

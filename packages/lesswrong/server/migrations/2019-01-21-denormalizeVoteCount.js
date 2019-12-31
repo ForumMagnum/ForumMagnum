@@ -1,5 +1,5 @@
 import Votes from '../../lib/collections/votes/collection.js';
-import { VoteableCollections } from '../../lib/modules/make_voteable';
+import { VoteableCollections } from '../../lib/make_voteable';
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import mapValues from 'lodash/mapValues';
 

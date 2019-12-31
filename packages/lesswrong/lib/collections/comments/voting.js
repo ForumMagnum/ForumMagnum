@@ -1,4 +1,4 @@
-import { makeVoteable } from '../../modules/make_voteable.js';
+import { makeVoteable } from '../../make_voteable';
 import { Comments } from './collection.js';
 import Users from 'meteor/vulcan:users';
 

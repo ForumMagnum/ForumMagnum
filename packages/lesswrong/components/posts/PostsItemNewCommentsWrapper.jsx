@@ -1,7 +1,7 @@
 import React from 'react';
 import { withList, Components, registerComponent} from 'meteor/vulcan:core';
 import { Comments } from '../../lib/collections/comments';
-import { unflattenComments } from '../../lib/modules/utils/unflatten';
+import { unflattenComments } from '../../lib/utils/unflatten';
 
 const PostsItemNewCommentsWrapper = ({ loading, results, currentUser, highlightDate, post, condensed, hideReadComments, markAsRead }) => {
 
