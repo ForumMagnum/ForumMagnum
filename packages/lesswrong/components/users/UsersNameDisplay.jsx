@@ -40,7 +40,10 @@ const styles = theme => ({
 
 // Given a user (which may not be null), render the user name as a link with a
 // tooltip. This should not be used directly; use UsersName instead.
-const UsersNameDisplay = ({user, classes, nofollow=false, simple=false, hover, anchorEl, stopHover}) => {
+const UsersNameDisplay = ({user, classes, nofollow=false, simple=false, hover, anchorEl, stopHover,
+                            hoverTrackingProps, setHoverTrackingProps}) => {
+  if (!hoverTrackingProps)  setHoverTrackingProps({pageSubElementContext: "userNameDisplay", userId: user._id})
+
   if (!user) return <Components.UserDeleted/>
   const { FormatDate, LWPopper } = Components
   const { htmlBio } = user
@@ -64,7 +67,7 @@ const UsersNameDisplay = ({user, classes, nofollow=false, simple=false, hover, a
     return <span className={classes.userName}>{Users.getDisplayName(user)}</span>
   }
 
-  return <AnalyticsContext pageElementContext="UserNameDisplay" userId={user._id}>
+  return <AnalyticsContext pageElementContext="userNameDisplay" userId={user._id}>
       <Link to={Users.getProfileUrl(user)} className={classes.userName}
         {...(nofollow ? {rel:"nofollow"} : {})}
       >
