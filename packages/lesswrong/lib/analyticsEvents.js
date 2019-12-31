@@ -13,7 +13,7 @@ addGraphQLSchema(`
 `);
 
 // AnalyticsUtil: An object/namespace full of functions which need to bypass
-// the normal import system, because they are client- or server-specific but
+// the normal import, because they are client- or server-specific but
 // are used by code which isn't.
 export const AnalyticsUtil = {
   // clientWriteEvents: Send a graphQL mutation from the client to the server
@@ -32,7 +32,6 @@ export const AnalyticsUtil = {
 };
 
 export function captureEvent(eventType, eventProps) {
-  console.log({eventType, eventProps})
   try {
     if (Meteor.isServer) {
       // If run from the server, put this directly into the server's write-to-SQL
