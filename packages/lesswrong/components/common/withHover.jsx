@@ -1,4 +1,4 @@
-import React, {useState, useRef, useCallback} from 'react';
+import React, {useState, useRef } from 'react';
 import { useTracking } from "../../lib/analyticsEvents";
 
 export const withHover = (WrappedComponent) => {
@@ -31,7 +31,7 @@ export const withHover = (WrappedComponent) => {
             clearTimeout(delayTimer.current)
             const hoverDuration = new Date() - mouseOverStart.current
             // console.log({event: "mouseLeaveTriggered", timerId: delayTimer.current, hoverDuration})
-            if ( hoverDuration > 2500 ) captureEvent("longHoverEventTriggered", {type: "longHoverEvent", hoverDuration})
+            if ( hoverDuration > 2000 ) captureEvent("hoverEventTriggered", {hoverEventType: "longHoverEvent", hoverDuration})
             mouseOverStart.current = undefined
         }
 
