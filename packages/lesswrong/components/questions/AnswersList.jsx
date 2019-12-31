@@ -1,4 +1,4 @@
-import { Components, registerComponent, useList } from 'meteor/vulcan:core';
+import { Components, registerComponent, useMulti } from 'meteor/vulcan:core';
 import React from 'react';
 import { Comments } from '../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles'
@@ -29,7 +29,7 @@ const styles = theme => ({
 })
 
 const AnswersList = ({terms, post, classes}) => {
-  const { results } = useList({
+  const { results } = useMulti({
     terms,
     collection: Comments,
     queryName: 'AnswersListQuery',
