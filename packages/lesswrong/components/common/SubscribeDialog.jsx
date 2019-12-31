@@ -21,6 +21,7 @@ import Select from '@material-ui/core/Select';
 import { withStyles } from '@material-ui/core/styles';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
 import withUser from '../common/withUser';
+import { withTracking } from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   thresholdSelector: {
@@ -133,7 +134,7 @@ class SubscribeDialog extends Component {
     })
 
     this.setState({ subscribedByEmail: true });
-
+    this.props.captureEvent("subscribedByEmail")
   }
 
   emailSubscriptionEnabled() {
@@ -273,7 +274,10 @@ class SubscribeDialog extends Component {
           { method === "rss" &&
             <CopyToClipboard
               text={rssTermsToUrl(this.rssTerms())}
-              onCopy={ (text, result) => this.setState({ copiedRSSLink: result }) }
+              onCopy={ (text, result) => {
+                this.setState({ copiedRSSLink: result })
+                this.props.captureEvent("rssLinkCopied")
+              }}
             >
               <Button color="primary">{copiedRSSLink ? "Copied!" : "Copy Link"}</Button>
             </CopyToClipboard> }
@@ -304,5 +308,6 @@ const withUpdateOptions = {
 registerComponent("SubscribeDialog", SubscribeDialog,
   withMobileDialog(),
   withUser,
+  withTracking,
   [withUpdate, withUpdateOptions],
   withStyles(styles, { name: "SubscribeDialog" }));

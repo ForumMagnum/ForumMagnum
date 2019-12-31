@@ -9,7 +9,7 @@ import withHover from '../common/withHover';
 import Card from '@material-ui/core/Card';
 import { withStyles } from '@material-ui/core/styles';
 import { looksLikeDbIdString } from '../../lib/routeUtil.js';
-import {AnalyticsContext} from "../../lib/analyticsEvents";
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const PostLinkPreview = ({href, targetLocation, innerHTML, id}) => {
   const postID = targetLocation.params._id;
