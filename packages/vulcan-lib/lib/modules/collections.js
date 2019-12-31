@@ -5,7 +5,6 @@ import { Utils } from './utils.js';
 import { runCallbacks, runCallbacksAsync } from './callbacks.js';
 import { getSetting, registerSetting } from './settings.js';
 import { registerFragment, getDefaultFragmentText } from './fragments.js';
-import escapeStringRegexp from 'escape-string-regexp';
 import { validateIntlField, getIntlString, isIntlField } from './intl';
 import { Collections } from './getCollection.js';
 export * from './getCollection.js';
@@ -344,32 +343,6 @@ export const createCollection = options => {
           delete parameters.options.sort[key];
         }
       });
-    }
-
-    if (terms.query) {
-
-      const query = escapeStringRegexp(terms.query);
-      const currentSchema = collection.simpleSchema()._schema;
-      const searchableFieldNames = _.filter(
-        _.keys(currentSchema),
-        fieldName => currentSchema[fieldName].searchable
-      );
-      if (searchableFieldNames.length) {
-        parameters = Utils.deepExtend(true, parameters, {
-          selector: {
-            $or: searchableFieldNames.map(fieldName => ({
-              [fieldName]: { $regex: query, $options: 'i' },
-            })),
-          },
-        });
-      } else {
-        // eslint-disable-next-line no-console
-        console.warn(
-          `Warning: terms.query is set but schema ${
-            collection.options.typeName
-          } has no searchable field. Set "searchable: true" for at least one field to enable search.`
-        );
-      }
     }
 
     // limit number of items to 1000 by default

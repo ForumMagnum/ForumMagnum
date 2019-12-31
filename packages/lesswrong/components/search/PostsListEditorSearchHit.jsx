@@ -26,7 +26,7 @@ const PostsListEditorSearchHit = ({hit, clickAction, classes}) => {
   return (
     <div className={classes.root}>
       <div>
-        <Components.PostsTitle post={hit} />
+        <Components.PostsTitle post={hit} isLink={false}/>
       </div>
       {hit.authorDisplayName && <Components.MetaInfo>
         {hit.authorDisplayName}

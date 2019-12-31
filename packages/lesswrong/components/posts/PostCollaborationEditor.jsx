@@ -3,7 +3,7 @@ import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
-import { useLocation } from '../../lib/routeUtil.js';
+import { useLocation } from '../../lib/routeUtil';
 import CKPostEditor from '../async/CKPostEditor';
 import { editorStyles, postBodyStyles } from '../../themes/stylePiping'
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { useLocation } from '../../lib/routeUtil.js';
+import { useLocation } from '../../lib/routeUtil';
 import { usePostByLegacyId } from '../posts//usePost.js';
 import { useCommentByLegacyId } from './useComment.js';
 import { Comments } from '../../lib/collections/comments/collection.js';

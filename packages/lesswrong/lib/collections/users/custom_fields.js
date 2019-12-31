@@ -348,7 +348,6 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     group: formGroups.default,
     order: 40,
-    searchable: true,
     form: {
       hintText:"Bio",
       rows:4,
@@ -813,7 +812,6 @@ addFieldsDict(Users, {
 
   location: {
     type: String,
-    searchable: true,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],

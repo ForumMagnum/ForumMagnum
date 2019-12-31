@@ -1,5 +1,5 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { useLocation } from '../../lib/routeUtil.js';
+import { useLocation } from '../../lib/routeUtil';
 import React from 'react';
 
 const PostsSingle = () => {
