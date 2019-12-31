@@ -10,7 +10,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { BookIcon } from '../icons/bookIcon'
 import withHover from '../common/withHover'
 import classNames from 'classnames';
-import {AnalyticsContext} from "../../lib/analyticsEvents";
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   userName: {
