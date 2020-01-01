@@ -73,6 +73,7 @@ const Reviews2018 = ({classes, currentUser}) => {
           terms={{view:"reviews2018", sortBy: sortNominatedPosts, limit: 100}} 
           showNominationCount
           showReviewCount
+          showPostedAt={false}
           topLoading
           defaultToShowUnreadComments={expandUnread}
           enableTotal

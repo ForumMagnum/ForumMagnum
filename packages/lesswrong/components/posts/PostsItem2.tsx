@@ -271,6 +271,9 @@ export const styles = createStyles((theme) => ({
       width: 'auto'
     },
   },
+  reviewCounts: {
+    display: "block"
+  },
   dense: {
     paddingTop: 7,
     paddingBottom:8
@@ -407,7 +410,7 @@ const PostsItem2 = ({
     return compareVisitedAndCommentedAt(post.lastVisitedAt, lastCommentedAt)
   }
 
-  const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors,
+  const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
     BookmarkButton, EventVicinity, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker, ReviewPostButton } = (Components as ComponentTypes)
 
@@ -452,7 +455,7 @@ const PostsItem2 = ({
                   <PostsItemKarma post={post} read={isRead} />
                 </PostsItem2MetaInfo>
 
-                <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: (!!resumeReading || showNominationCount)})}>
+                <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading})}>
                   <AnalyticsTracker
                       eventType={"postItem"}
                       captureOnMount={(eventData) => eventData.capturePostItemOnMount}
@@ -511,6 +514,16 @@ const PostsItem2 = ({
                   />
                 </div>}
 
+                {/* {showNominationCount && <PostsItem2MetaInfo>{post.nominationCount2018 || 0}</PostsItem2MetaInfo>}
+                {showReviewCount && <PostsItem2MetaInfo>{post.reviewCount2018 || 0}</PostsItem2MetaInfo>} */}
+
+                {(showNominationCount || showReviewCount) && <LWTooltip title={`${post.nominationCount2018 || 0} nomination${(post.nominationCount2018 === 1) ? "" :"s"}, ${post.reviewCount2018 || 0} review${(post.nominationCount2018 === 1) ? "" :"s"}, `}>
+                  <PostsItem2MetaInfo className={classes.reviewCounts}>
+                    {showNominationCount && <span>{post.nominationCount2018 || 0}</span>}
+                    {showReviewCount && <span>{" "}/ {post.reviewCount2018 || 0}</span>}
+                  </PostsItem2MetaInfo>
+                </LWTooltip>}
+
                 {(post.nominationCount2018 >= 2) && <Link to={Posts.getPageUrl(post)}>
                   <ReviewPostButton post={post}/>
                 </Link>}
@@ -518,6 +531,11 @@ const PostsItem2 = ({
                 {bookmark && <div className={classes.bookmark}>
                   <BookmarkButton post={post}/>
                 </div>}
+
+                {/* {(showNominationCount || showReviewCount) && <div className={classes.subtitle}>
+                  {showNominationCount && <span>{post.karma || 0} nomination{(post.nominationCount2018 === 1) ? "" :"s"}</span>}
+                  {showReviewCount && <span>{" "}– {post.reviewCount2018 || 0} review{(post.reviewCount2018 === 1) ? "" :"s"}</span>}
+                </div>} */}
 
                 <div className={classes.mobileDismissButton}>
                   {dismissButton}
@@ -534,10 +552,6 @@ const PostsItem2 = ({
                     />
                   </div>}
 
-                {(showNominationCount || showReviewCount) && <div className={classes.subtitle}>
-                  {showNominationCount && <span>{post.nominationCount2018 || 0} nomination{(post.nominationCount2018 === 1) ? "" :"s"}</span>}
-                  {showReviewCount && <span>{" "}– {post.reviewCount2018 || 0} review{(post.reviewCount2018 === 1) ? "" :"s"}</span>}
-                </div>}
               </div>
             </div>
           </PostsItemTooltipWrapper>
