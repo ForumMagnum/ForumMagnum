@@ -272,7 +272,10 @@ export const styles = createStyles((theme) => ({
     },
   },
   reviewCounts: {
-    display: "block"
+    width: 50
+  },
+  noReviews: {
+    color: theme.palette.grey[400]
   },
   dense: {
     paddingTop: 7,
@@ -432,6 +435,8 @@ const PostsItem2 = ({
     after: (defaultToShowUnreadComments && !showComments) ? post.lastVisitedAt : null
   }
 
+  const reviewCountsTooltip = `${post.nominationCount2018 || 0} nomination${(post.nominationCount2018 === 1) ? "" :"s"} / ${post.reviewCount2018 || 0} review${(post.nominationCount2018 === 1) ? "" :"s"}`
+
   return (
       <AnalyticsContext pageElementContext="postItem" postId={post._id} isSticky={isSticky(post, terms)}>
         <div className={classNames(
@@ -517,11 +522,13 @@ const PostsItem2 = ({
                 {/* {showNominationCount && <PostsItem2MetaInfo>{post.nominationCount2018 || 0}</PostsItem2MetaInfo>}
                 {showReviewCount && <PostsItem2MetaInfo>{post.reviewCount2018 || 0}</PostsItem2MetaInfo>} */}
 
-                {(showNominationCount || showReviewCount) && <LWTooltip title={`${post.nominationCount2018 || 0} nomination${(post.nominationCount2018 === 1) ? "" :"s"}, ${post.reviewCount2018 || 0} review${(post.nominationCount2018 === 1) ? "" :"s"}, `}>
+                {(showNominationCount || showReviewCount) && <LWTooltip title={reviewCountsTooltip} placement="top">
+                  
                   <PostsItem2MetaInfo className={classes.reviewCounts}>
                     {showNominationCount && <span>{post.nominationCount2018 || 0}</span>}
-                    {showReviewCount && <span>{" "}/ {post.reviewCount2018 || 0}</span>}
+                    {showReviewCount && <span>{" "}<span className={classes.noReviews}>{" "}/{" "}</span>{post.reviewCount2018 || <span className={classes.noReviews}>0</span>}</span>}
                   </PostsItem2MetaInfo>
+                  
                 </LWTooltip>}
 
                 {(post.nominationCount2018 >= 2) && <Link to={Posts.getPageUrl(post)}>
@@ -531,11 +538,6 @@ const PostsItem2 = ({
                 {bookmark && <div className={classes.bookmark}>
                   <BookmarkButton post={post}/>
                 </div>}
-
-                {/* {(showNominationCount || showReviewCount) && <div className={classes.subtitle}>
-                  {showNominationCount && <span>{post.karma || 0} nomination{(post.nominationCount2018 === 1) ? "" :"s"}</span>}
-                  {showReviewCount && <span>{" "}– {post.reviewCount2018 || 0} review{(post.reviewCount2018 === 1) ? "" :"s"}</span>}
-                </div>} */}
 
                 <div className={classes.mobileDismissButton}>
                   {dismissButton}
