@@ -132,7 +132,7 @@ function useCountUpTimer (incrementsInSeconds=[10, 30], switchIncrement=60) {
 }
 
 
-const AnalyticsPageInitializer = ({children}) => {
+const AnalyticsPageInitializer = () => {
     useBeforeUnloadTracking()
     const { pageIsVisible } = usePageVisibility()
     const { userIsIdle } = useIdlenessDetection(60)
@@ -142,11 +142,7 @@ const AnalyticsPageInitializer = ({children}) => {
       setTimerIsActive(pageIsVisible && !userIsIdle); //disable timer whenever tab hidden or user inactive
     }, [pageIsVisible, userIsIdle])
 
-  return (
-    <span>
-      { children }
-    </span>
-  )
+  return <span/>
 };
 
 registerComponent('AnalyticsPageInitializer', AnalyticsPageInitializer)
