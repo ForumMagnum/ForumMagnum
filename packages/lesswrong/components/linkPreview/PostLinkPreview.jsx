@@ -228,7 +228,7 @@ const DefaultPreview = ({classes, href, innerHTML, anchorEl, hover, onsite=false
         {onsite ?
             <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id}/>
             :
-            <Components.AnalyticsTracker eventType="link" eventProps={{to: href, externalLink: true}}>
+            <Components.AnalyticsTracker eventType="link" eventProps={{to: href}}>
               <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id}/>
             </Components.AnalyticsTracker>}
       </span>
