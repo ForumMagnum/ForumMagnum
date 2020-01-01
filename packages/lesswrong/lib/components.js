@@ -72,6 +72,7 @@ importComponent("ErrorMessage", () => require('../components/common/ErrorMessage
 importComponent("CloudinaryImage", () => require('../components/common/CloudinaryImage.jsx'));
 importComponent("ContentItemBody", () => require('../components/common/ContentItemBody.jsx'));
 importComponent("LWPopper", () => require('../components/common/LWPopper.jsx'));
+importComponent("LWTooltip", () => require('../components/common/LWTooltip.jsx'));
 importComponent("PopperCard", () => require('../components/common/PopperCard.jsx'));
 importComponent("Footer", () => require('../components/common/Footer.jsx'));
 importComponent("LoadMore", () => require('../components/common/LoadMore.jsx'));
