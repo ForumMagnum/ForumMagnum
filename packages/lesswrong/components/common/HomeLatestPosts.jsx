@@ -85,7 +85,7 @@ const HomeLatestPosts = ({ classes }) =>
     </div>
     <ul>
       <li>Usefulness, novelty and relevance</li>
-      <li>Timeless content (minimize reference to current events</li>
+      <li>Timeless content (minimize reference to current events)</li>
       <li>Explain, rather than persuade</li>
     </ul>
     <div>
@@ -104,7 +104,7 @@ const HomeLatestPosts = ({ classes }) =>
 
   return (
     <SingleColumnSection>
-      <SectionTitle title={<LWTooltip title={latestTitle} placement="left-start"><span>Latest Posts</span></LWTooltip>}>
+      <SectionTitle title={<LWTooltip title={latestTitle} placement="top"><span>Latest Posts</span></LWTooltip>}>
         <LWTooltip title={personalBlogpostTooltip}>
           <div>
             <SectionFooterCheckbox

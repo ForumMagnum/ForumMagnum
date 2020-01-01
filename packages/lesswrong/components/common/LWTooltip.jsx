@@ -1,10 +1,17 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import withHover from './withHover';
+import { withStyles } from '@material-ui/core/styles';
 
-const LWTooltip = ({children, title, placement="bottom-start", hover, anchorEl, stopHover}) => {
+const styles = {
+  root: {
+    display: "inline-block"
+  }
+}
+
+const LWTooltip = ({classes, children, title, placement="bottom-start", hover, anchorEl, stopHover}) => {
   const { LWPopper } = Components
-  return <span>
+  return <span className={classes.root}>
     <LWPopper placement={placement} open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip>
       {title}
     </LWPopper> 
@@ -12,6 +19,6 @@ const LWTooltip = ({children, title, placement="bottom-start", hover, anchorEl, 
   </span>
 }
 
-registerComponent("LWTooltip", LWTooltip, withHover);
+registerComponent("LWTooltip", LWTooltip, withHover, withStyles(styles, {name:"withStyles"}));
 
 
