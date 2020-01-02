@@ -119,7 +119,7 @@
     "markdown-it-footnote": "^3.0.1",
     "mathjax": "^2.7.5",
     "mathjax-node": "^2.1.1",
-    "mathjax-node-page": "^3.0.0",
+    "mathjax-node-page": "3.2.0",
     "meteor-node-stubs": "0.4.1",
     "mingo": "^2.2.11",
     "moment": "^2.22.2",
