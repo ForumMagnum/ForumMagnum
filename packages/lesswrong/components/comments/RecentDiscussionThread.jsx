@@ -106,7 +106,7 @@ const RecentDiscussionThread = ({
       setReadStatus(true);
       setMarkedAsVisitedAt(new Date());
       setExpandAllThreads(true);
-      recordPostView({post})
+      recordPostView({post, extraEventProperties: {type: "recentDiscussionClick"}})
     },
     [setReadStatus, setMarkedAsVisitedAt, setExpandAllThreads, recordPostView, post]
   );
