@@ -331,8 +331,9 @@ class EditorFormComponent extends Component {
     const { draftJSValue } = this.state
     const currentContent = draftJSValue.getCurrentContent()
     const newContent = value.getCurrentContent()
+    this.setState({draftJSValue: value})
+    
     if (currentContent !== newContent) {
-      this.setState({draftJSValue: value})
       this.afterChange();
     }
   }
