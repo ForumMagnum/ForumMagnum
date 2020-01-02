@@ -519,14 +519,11 @@ const PostsItem2 = ({
                   />
                 </div>}
 
-                {/* {showNominationCount && <PostsItem2MetaInfo>{post.nominationCount2018 || 0}</PostsItem2MetaInfo>}
-                {showReviewCount && <PostsItem2MetaInfo>{post.reviewCount2018 || 0}</PostsItem2MetaInfo>} */}
-
                 {(showNominationCount || showReviewCount) && <LWTooltip title={reviewCountsTooltip} placement="top">
                   
                   <PostsItem2MetaInfo className={classes.reviewCounts}>
                     {showNominationCount && <span>{post.nominationCount2018 || 0}</span>}
-                    {showReviewCount && <span>{" "}<span className={classes.noReviews}>{" "}/{" "}</span>{post.reviewCount2018 || <span className={classes.noReviews}>0</span>}</span>}
+                    {showReviewCount && <span>{" "}<span className={classes.noReviews}>{" "}-{" "}</span>{post.reviewCount2018 || <span className={classes.noReviews}>0</span>}</span>}
                   </PostsItem2MetaInfo>
                   
                 </LWTooltip>}

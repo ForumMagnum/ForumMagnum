@@ -85,6 +85,8 @@ const styles = theme => ({
     marginTop: theme.spacing.unit*1.5
   },
   bookmarkButton: {
+    position: "relative",
+    top: -3,
     float: "right"
   },
   date: {
