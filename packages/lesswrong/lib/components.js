@@ -127,6 +127,7 @@ importComponent("SignupSubscribeToCurated", () => require('../components/users/S
 importComponent("UserNameDeleted", () => require('../components/users/UserNameDeleted.jsx'));
 importComponent("WrappedLoginForm", () => require('../components/users/WrappedLoginForm.jsx'));
 importComponent("ResendVerificationEmailPage", () => require('../components/users/ResendVerificationEmailPage.jsx'));
+importComponent("ReviewVotingPage", () => require('../components/users/ReviewVotingPage.tsx'))
 
 importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon.jsx'));
 importComponent("SettingsIcon", () => require('../components/icons/SettingsIcon.jsx'));
