@@ -28,8 +28,8 @@ const styles = theme => ({
 const Reviews2018 = ({classes, currentUser}) => {
   const [expandUnread, setExpandUnread] = useState(!!(currentUser ? !currentUser.noExpandUnreadCommentsReview : true));
   const [sortNominatedPosts, setSortNominatedPosts] = useState("fewestReviews")
+  const [sortReviews, setSortReviews] = useState("new")
   const [sortNominations, setSortNominations] = useState("top")
-  const [sortReviews, setSortReviews] = useState("top")
 
   const {mutate: updateUser} = useUpdate({
     collection: Users,
@@ -73,7 +73,9 @@ const Reviews2018 = ({classes, currentUser}) => {
           terms={{view:"reviews2018", sortBy: sortNominatedPosts, limit: 100}} 
           showNominationCount
           showReviewCount
+          showPostedAt={false}
           topLoading
+          dense
           defaultToShowUnreadComments={expandUnread}
           enableTotal
         />
