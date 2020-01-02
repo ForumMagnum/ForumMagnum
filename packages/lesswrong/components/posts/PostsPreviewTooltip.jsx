@@ -108,7 +108,7 @@ const getPostCategory = (post) => {
 }
 
 const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, truncateLimit=600, comment }) => {
-  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, FormatDate } = Components
+  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton } = Components
 
   if (!post) return null
 
@@ -149,7 +149,7 @@ const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, truncate
         }
         {renderWordCount && <div className={classes.tooltipInfo}>
           <span>
-            {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
+            {wordCount} words ({Math.ceil(wordCount/300)} min read)
           </span>
           { showAllInfo && <span className={classes.bookmarkButton}><BookmarkButton post={post} /></span>}
         </div>}
