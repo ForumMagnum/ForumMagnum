@@ -85,13 +85,7 @@ const styles = theme => ({
     marginTop: theme.spacing.unit*1.5
   },
   bookmarkButton: {
-    position: "relative",
-    top: -3,
     float: "right"
-  },
-  date: {
-    float: "right",
-    marginRight: theme.spacing.unit*2
   }
 })
 
@@ -158,9 +152,6 @@ const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, truncate
             {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
           </span>
           { showAllInfo && <span className={classes.bookmarkButton}><BookmarkButton post={post} /></span>}
-          <span className={classes.date}>
-            <FormatDate date={post.postedAt} format="Do MMM YYYY" tooltip={false} />
-          </span>
         </div>}
     </Card>
   </AnalyticsContext>
