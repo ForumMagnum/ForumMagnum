@@ -14,7 +14,7 @@ const styles = theme => ({
     marginLeft: theme.spacing.unit,
     marginRight: theme.spacing.unit*1.5,
     '&:hover': {
-      opacity: .5
+      opacity: .8
     }
   }
 })
