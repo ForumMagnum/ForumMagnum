@@ -6,62 +6,53 @@ import RemoveIcon from '@material-ui/icons/Close';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
-  display: "block",
-  marginLeft: 30,
-  
-  itemBox: {
-    "&:hover $remove": {
-      opacity: 1,
-    },
-  },
-  title: {
-    display: "inline",
-    marginRight: 10,
-    fontSize: 20,
-    lineHeight: 1.25,
-  },
-  meta: {
-    display: "inline-block",
-    color: "rgba(0,0,0,0.5)",
-    "& div": {
-      display: "inline-block",
-      marginRight: 5,
+  root: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    '&:hover': {
+      '& $removeIcon': {
+        opacity: 1,
+      }
     }
   },
-  remove: {
-    opacity: 0,
-    position: "absolute",
-    right: 0,
-    cursor: "pointer"
+  title: {
+    maxWidth: 450,
+    overflowX: "hidden",
+    textOverflow: "ellipsis"
+  },
+  meta: {
+    marginRight: theme.spacing.unit*1.5,
+  },
+  dragHandle: {
+    pointerEvents: "none",
+    color: "rgba(0,0,0,0.5)",
+    marginRight: theme.spacing.unit,
+    cursor: "pointer",
   },
   removeIcon: {
-    color: "rgba(0,0,0,0.3) !important"
-  },
+    opacity: 0,
+    color: "rgba(0,0,0,0.3)",
+    marginLeft: "auto"
+  }
 });
 
 const PostsItemWrapper = ({document, loading, classes, ...props}) => {
+  const { PostsTitle, PostsItem2MetaInfo } = Components
+
   if (document && !loading) {
-    return <div>
-      <DragIcon className="drag-handle"/>
-      <div className={classes.itemBox}>
-        <div className={classes.title}>
-          {document.title}
-        </div>
-        <div className={classes.meta}>
-          <div className="posts-list-edit-item-author">
-            {document.user.displayName}
-          </div>
-          <div className="posts-list-edit-item-karma">
-            {document.baseScore} points
-          </div>
-          <div className="posts-list-edit-item-comments">
-            {document.commentCount} comments
-          </div>
-          <div className={classes.remove}>
-            <RemoveIcon className={classes.removeIcon} onClick={() => props.removeItem(document._id)} />
-          </div>
-        </div>
-      </div>
+    return <div className={classes.root}>
+      <DragIcon className={classes.dragHandle}/>
+      <span className={classes.title}>
+        <PostsTitle post={document} isLink={false}/>
+      </span>
+      <PostsItem2MetaInfo className={classes.meta}>
+        {document.user.displayName}
+      </PostsItem2MetaInfo>
+      <PostsItem2MetaInfo className={classes.meta}>
+        {document.baseScore} points
+      </PostsItem2MetaInfo>
+      <RemoveIcon className={classes.removeIcon} onClick={() => props.removeItem(document._id)} />
     </div>
   } else {
     return <Components.Loading />

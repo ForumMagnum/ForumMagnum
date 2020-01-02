@@ -197,11 +197,11 @@ Posts.getKarma = (post) => {
 }
 
 // User can add/edit the hideCommentKarma setting if:
-//  1) The user has the requiset setting enabled
+//  1) The user is logged in and has the requisite setting enabled
 //  And
 //  2) The post does not exist yet
 //  Or if the post does exist
 //  3) The post doesn't have any comments yet
 Posts.canEditHideCommentKarma = (user, post) => {
-  return user.showHideKarmaOption && (!post || !Posts.getCommentCount(post))
+  return user?.showHideKarmaOption && (!post || !Posts.getCommentCount(post))
 }

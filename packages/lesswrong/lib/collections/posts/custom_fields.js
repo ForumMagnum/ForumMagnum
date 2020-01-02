@@ -765,7 +765,6 @@ addFieldsDict(Posts, {
 
   location: {
     type: String,
-    searchable: true,
     viewableBy: ['guests'],
     editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],

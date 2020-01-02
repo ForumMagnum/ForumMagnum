@@ -2,7 +2,12 @@ import { registerComponent, getSetting, Components } from 'meteor/vulcan:core';
 import React from 'react';
 import withHover from '../common/withHover';
 
-const PostsItemKarma = ({post, hover, anchorEl}) => {
+const PostsItemKarma = ({post, hover, anchorEl}: {
+  post: any,
+  read: boolean,
+  hover?: any,
+  anchorEl?: any,
+}) => {
   const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
   const afBaseScore = getSetting('forumType') !== 'AlignmentForum' && post.af ? post.afBaseScore : null
   const { LWPopper } = Components
@@ -20,5 +25,11 @@ const PostsItemKarma = ({post, hover, anchorEl}) => {
     </span>
   )
 };
+
+declare global {
+  interface ComponentTypes {
+    PostsItemKarma: typeof PostsItemKarma,
+  }
+}
 
 registerComponent('PostsItemKarma', PostsItemKarma, withHover);

@@ -40,7 +40,7 @@ importComponent("NotificationTypeSettings", () => require('../components/notific
 importComponent("NotificationEmailPreviewPage", () => require('../components/notifications/NotificationEmailPreviewPage.jsx'));
 importComponent("EmailPreview", () => require('../components/notifications/EmailPreview.jsx'));
 
-importComponent("Layout", () => require('../components/Layout.jsx'));
+importComponent("Layout", () => require('../components/Layout.tsx'));
 
 importComponent("AnalyticsClient", () => require('../components/common/AnalyticsClient.jsx'));
 importComponent("CalendarDate", () => require('../components/common/CalendarDate.jsx'));
@@ -72,6 +72,7 @@ importComponent("ErrorMessage", () => require('../components/common/ErrorMessage
 importComponent("CloudinaryImage", () => require('../components/common/CloudinaryImage.jsx'));
 importComponent("ContentItemBody", () => require('../components/common/ContentItemBody.jsx'));
 importComponent("LWPopper", () => require('../components/common/LWPopper.jsx'));
+importComponent("LWTooltip", () => require('../components/common/LWTooltip.jsx'));
 importComponent("PopperCard", () => require('../components/common/PopperCard.jsx'));
 importComponent("Footer", () => require('../components/common/Footer.jsx'));
 importComponent("LoadMore", () => require('../components/common/LoadMore.jsx'));
@@ -154,7 +155,7 @@ importComponent("SuggestAlignment", () => require('../components/posts/SuggestAl
 importComponent("Pingback", () => require('../components/posts/Pingback.jsx'));
 importComponent("PingbacksList", () => require('../components/posts/PingbacksList.jsx'));
 importComponent("PostsItemMeta", () => require('../components/posts/PostsItemMeta.jsx'));
-importComponent("PostsItem2", () => require('../components/posts/PostsItem2.jsx'));
+importComponent("PostsItem2", () => require('../components/posts/PostsItem2.tsx'));
 importComponent("PostsItemTooltipWrapper", () => require('../components/posts/PostsItemTooltipWrapper.jsx'));
 importComponent("PostsItem2MetaInfo", () => require('../components/posts/PostsItem2MetaInfo.jsx'));
 importComponent("PostsTitle", () => require('../components/posts/PostsTitle.jsx'));
@@ -162,7 +163,7 @@ importComponent("PostsPreviewTooltip", () => require('../components/posts/PostsP
 importComponent("PostsPreviewTooltipSingle", () => require('../components/posts/PostsPreviewTooltipSingle.jsx'));
 importComponent("PostsItemComments", () => require('../components/posts/PostsItemComments.jsx'));
 importComponent("PostsItemWrapper", () => require('../components/posts/PostsItemWrapper.jsx'));
-importComponent("PostsItemKarma", () => require('../components/posts/PostsItemKarma.jsx'));
+importComponent("PostsItemKarma", () => require('../components/posts/PostsItemKarma.tsx'));
 importComponent("PostsItemMetaInfo", () => require('../components/posts/PostsItemMetaInfo.jsx'));
 importComponent("PostsItemNewCommentsWrapper", () => require('../components/posts/PostsItemNewCommentsWrapper.jsx'));
 importComponent("PostsItemIcons", () => require('../components/posts/PostsItemIcons.jsx'));
@@ -443,3 +444,18 @@ importComponent("UserReviews", () => require('../components/review/UserReviews.j
 
 // Analytics Tracking
 importComponent("AnalyticsTracker", () => require('../components/common/AnalyticsTracker.jsx'));
+
+// vulcan:ui-bootstrap
+importComponent("FormComponentCheckboxGroup", () => require('../components/vulcan-ui-bootstrap/forms/Checkboxgroup.jsx'));
+importComponent("FormComponentEmail", () => require('../components/vulcan-ui-bootstrap/forms/Email.jsx'));
+importComponent("FormComponentInner", () => require('../components/vulcan-ui-bootstrap/forms/FormComponentInner.jsx'));
+importComponent("FormControl", () => require('../components/vulcan-ui-bootstrap/forms/FormControl.jsx'));
+importComponent("FormElement", () => require('../components/vulcan-ui-bootstrap/forms/FormElement.jsx'));
+importComponent("FormItem", () => require('../components/vulcan-ui-bootstrap/forms/FormItem.jsx'));
+importComponent("FormComponentTextarea", () => require('../components/vulcan-ui-bootstrap/forms/Textarea.jsx'));
+importComponent("FormComponentUrl", () => require('../components/vulcan-ui-bootstrap/forms/Url.jsx'));
+importComponent("Alert", () => require('../components/vulcan-ui-bootstrap/ui/Alert.jsx'));
+importComponent("Button", () => require('../components/vulcan-ui-bootstrap/ui/Button.jsx'));
+importComponent("Modal", () => require('../components/vulcan-ui-bootstrap/ui/Modal.jsx'));
+importComponent("ModalTrigger", () => require('../components/vulcan-ui-bootstrap/ui/ModalTrigger.jsx'));
+

@@ -3,7 +3,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { registerComponent, Components, withSingle } from 'meteor/vulcan:core';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Posts } from '../../../lib/collections/posts/collection'
-import { QueryLink } from '../../../lib/reactRouterWrapper.js';
+import { QueryLink } from '../../../lib/reactRouterWrapper.jsx';
 
 
 const styles = theme => ({

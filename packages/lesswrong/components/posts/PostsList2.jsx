@@ -121,7 +121,7 @@ const PostsList2 = ({
 
   //Analytics Tracking
   const postIds = (orderedResults||[]).map((post) => post._id)
-  useTracking({eventType: "postList", eventProps: {postIds, hidePosts}, captureOnMount: eventProps => eventProps.postIds.length, skip: !postIds.length})
+  useTracking({eventType: "postList", eventProps: {postIds, hidePosts}, captureOnMount: eventProps => eventProps.postIds.length, skip: !postIds.length||loading})
 
   if (!orderedResults && loading) return <Loading />
 

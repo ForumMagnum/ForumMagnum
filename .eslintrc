@@ -89,7 +89,7 @@
   "settings": {
     "import/resolver": {
       "meteor": {
-        "extensions": [ ".js", ".jsx" ]
+        "extensions": [ ".js", ".jsx", ".ts", ".tsx" ]
       }
     },
     "import/core-modules": [

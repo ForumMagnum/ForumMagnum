@@ -106,6 +106,7 @@ class NotificationsItem extends Component {
           history.push(notification.link)
 
           this.setState({clicked: true})
+          
           // we also check whether it's a relative link, and if so, scroll to the item
           const url = new UrlClass(notification.link, Utils.getSiteUrl())
           const hash = url.hash

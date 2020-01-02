@@ -17,7 +17,6 @@ const schema = {
 
   name: {
     type: String,
-    searchable: true,
     viewableBy: ['guests'],
     editableBy: ['members'],
     order:10,
@@ -102,7 +101,6 @@ const schema = {
 
   location: {
     type: String,
-    searchable: true,
     viewableBy: ['guests'],
     editableBy: ['members'],
     insertableBy: ['members'],

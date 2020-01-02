@@ -3,7 +3,7 @@ import { registerComponent } from 'meteor/vulcan:core';
 import MenuItem from '@material-ui/core/MenuItem';
 import LinkIcon from '@material-ui/icons/Link';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-import { Link } from '../../../lib/reactRouterWrapper.js';
+import { Link } from '../../../lib/reactRouterWrapper.jsx';
 import { Comments } from "../../../lib/collections/comments";
 
 const CommentsPermalinkMenuItem = ({comment, post}) => {

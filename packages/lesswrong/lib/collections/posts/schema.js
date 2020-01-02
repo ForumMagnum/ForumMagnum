@@ -77,7 +77,6 @@ const schema = {
     editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
     control: 'url',
     order: 10,
-    searchable: true,
     query: `
       SiteData{
         logoUrl
@@ -95,7 +94,6 @@ const schema = {
     editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
     control: 'text',
     order: 20,
-    searchable: true
   },
   // Slug
   slug: {
@@ -116,7 +114,6 @@ const schema = {
     type: String,
     optional: true,
     viewableBy: ['guests'],
-    searchable: true,
   },
   // Count of how many times the post's page was viewed
   viewCount: {

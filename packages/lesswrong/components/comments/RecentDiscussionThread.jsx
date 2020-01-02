@@ -6,7 +6,7 @@ import {
 
 import classNames from 'classnames';
 import { unflattenComments } from '../../lib/modules/utils/unflatten';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import withRecordPostView from '../common/withRecordPostView';
 
@@ -91,20 +91,22 @@ const styles = theme => ({
 
 const RecentDiscussionThread = ({
   post, recordPostView,
-  comments, updateComment, currentUser, classes, isRead, refetch,
+  comments, updateComment, classes, isRead, refetch,
   expandAllThreads: initialExpandAllThreads,
 }) => {
+  const currentUser = useCurrentUser();
   const [highlightVisible, setHighlightVisible] = useState(false);
   const [readStatus, setReadStatus] = useState(false);
   const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState(null);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
+  const [showSnippet] = useState(!isRead || post.commentCount === null); // This state should never change after mount, so we don't grab the setter from useState
   
   const markAsRead = useCallback(
     () => {
       setReadStatus(true);
       setMarkedAsVisitedAt(new Date());
       setExpandAllThreads(true);
-      recordPostView({post})
+      recordPostView({post, extraEventProperties: {type: "recentDiscussionClick"}})
     },
     [setReadStatus, setMarkedAsVisitedAt, setExpandAllThreads, recordPostView, post]
   );
@@ -150,7 +152,7 @@ const RecentDiscussionThread = ({
             <PostsHighlight post={post} />
           </div>
           : <div className={highlightClasses} onClick={showHighlight}>
-              { (!isRead || post.commentCount === null) &&
+              { showSnippet &&
                 <ContentItemBody
                   className={classes.postHighlight}
                   dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents && post.contents.htmlHighlight)}}
@@ -205,7 +207,7 @@ const RecentDiscussionThread = ({
 
   render() {
     const { post, comments, updateComment, currentUser, classes, isRead, refetch } = this.props
-    const { readStatus, highlightVisible, markedAsVisitedAt } = this.state
+    const { readStatus, showHighlight, markedAsVisitedAt, showSnippet } = this.state
     const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle } = Components
 
     const lastCommentId = comments && comments[0]?._id
@@ -240,7 +242,7 @@ const RecentDiscussionThread = ({
               <PostsHighlight post={post} />
             </div>
             : <div className={highlightClasses} onClick={this.showHighlight}>
-                { (!isRead || post.commentCount === null) &&
+                { showSnippet &&
                   <ContentItemBody
                     className={classes.postHighlight}
                     dangerouslySetInnerHTML={{__html: postExcerptFromHTML(post.contents && post.contents.htmlHighlight)}}
@@ -284,7 +286,6 @@ const RecentDiscussionThread = ({
 registerComponent(
   'RecentDiscussionThread',
   RecentDiscussionThread,
-  withUser,
   withStyles(styles, { name: "RecentDiscussionThread" }),
   withRecordPostView,
   withErrorBoundary

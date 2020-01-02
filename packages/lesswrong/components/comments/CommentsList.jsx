@@ -6,7 +6,7 @@ import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/compon
 import { Posts } from '../../lib/collections/posts';
 import withGlobalKeydown from '../common/withGlobalKeydown';
 import Tooltip from '@material-ui/core/Tooltip';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 import { withStyles } from '@material-ui/core/styles';
 import { TRUNCATION_KARMA_THRESHOLD } from '../../lib/editor/ellipsize'
 

@@ -2,7 +2,7 @@ import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
-import { Link } from 'react-router-dom';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 import Users from 'meteor/vulcan:users';
 import { withApollo } from 'react-apollo';
 
@@ -22,6 +22,7 @@ import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
 import withDialog from '../common/withDialog'
 import withHover from '../common/withHover'
+import {captureEvent} from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   root: {
@@ -158,7 +159,10 @@ class UsersMenu extends PureComponent {
               </Link>
             }
             <Divider/>
-            <MenuItem onClick={() => Meteor.logout(() => client.resetStore())}>
+            <MenuItem onClick={() => {
+              captureEvent("logOutClicked")
+              Meteor.logout(() => client.resetStore())
+            }}>
               Log Out
             </MenuItem>
           </Paper>

@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import withHover from '../common/withHover';
 import { withStyles } from '@material-ui/core/styles';
-import { KARMA_WIDTH } from './PostsItem2';
+import { KARMA_WIDTH } from './PostsItem2.tsx';
 
 const styles = theme => ({
   root: {

@@ -8,7 +8,7 @@ const styles = theme => ({
   root: {
     position: "relative",
     ...theme.typography.body2,
-    ...theme.typography.commentsStyle,
+    ...theme.typography.commentStyle,
     direction:"ltr",
   },
 
