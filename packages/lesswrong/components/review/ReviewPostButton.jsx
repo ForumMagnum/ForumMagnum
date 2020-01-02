@@ -12,7 +12,10 @@ const styles = theme => ({
     fontSize: "1rem",
     color: theme.palette.lwTertiary.main,
     marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit*1.5
+    marginRight: theme.spacing.unit*1.5,
+    '&:hover': {
+      opacity: .8
+    }
   }
 })
 
@@ -39,9 +42,9 @@ const ReviewPostButton = ({classes, post, currentUser, reviewMessage="Review"}) 
   if (post.nominationCount2018 < 2) return null
 
   return (
-    <a onClick={handleClick} className={classes.root}>
+    <span onClick={handleClick} className={classes.root}>
       {reviewMessage}
-    </a>
+    </span>
   )
 }
 

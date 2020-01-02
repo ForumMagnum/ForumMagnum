@@ -385,7 +385,7 @@ const PostsItem2 = ({
 
   const toggleComments = React.useCallback(
     () => {
-      recordPostView({post})
+      recordPostView({post, extraEventProperties: {type: "toggleComments"}})
       setShowComments(!showComments);
       setReadComments(true);
     },
@@ -393,7 +393,7 @@ const PostsItem2 = ({
   );
 
   const markAsRead = () => {
-    recordPostView({post})
+    recordPostView({post, extraEventProperties: {type: "markAsRead"}})
     setMarkedVisitedAt(new Date()) 
   }
 
