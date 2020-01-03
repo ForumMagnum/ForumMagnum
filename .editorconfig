@@ -2,7 +2,7 @@
 
 root = true
 
-[*.{js,html}]
+[*.{js,html,jsx,tsx}]
 
 charset = utf-8
 end_of_line = lf
