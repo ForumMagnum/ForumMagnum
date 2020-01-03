@@ -3,12 +3,12 @@ import { withList, Components, registerComponent} from 'meteor/vulcan:core';
 import { Comments } from '../../lib/collections/comments';
 import { unflattenComments } from '../../lib/modules/utils/unflatten';
 
-const PostsItemNewCommentsWrapper = ({ loading, results, currentUser, highlightDate, post, condensed, hideReadComments, markAsRead }) => {
+const PostsItemNewCommentsWrapper = ({ loading, results, currentUser, highlightDate, post, condensed, hideReadComments, markAsRead, forceSingleLine, hideSingleLineDate, hideSingleLineMeta }) => {
 
-  const { Loading, CommentsList } = Components
+  const { Loading, CommentsList, NoContent } = Components
 
   if (!loading && results && !results.length) {
-    return <div>No comments found</div>
+    return <NoContent>No comments found</NoContent>
   } else {
     const lastCommentId = results && results[0]?._id
     const nestedComments = unflattenComments(results);
@@ -22,7 +22,10 @@ const PostsItemNewCommentsWrapper = ({ loading, results, currentUser, highlightD
           post={post}
           lastCommentId={lastCommentId}
           condensed={condensed}
+          forceSingleLine={forceSingleLine}
+          hideSingleLineDate={hideSingleLineDate}
           hideReadComments={hideReadComments}
+          hideSingleLineMeta={hideSingleLineMeta}
           markAsRead={markAsRead}
         />
         {loading && <Loading/>}
@@ -41,3 +44,4 @@ const options = {
 };
 
 registerComponent('PostsItemNewCommentsWrapper', PostsItemNewCommentsWrapper, [withList, options]);
+// withStyles(styles, {name:"PostsItemNewCommentsWrapper"})

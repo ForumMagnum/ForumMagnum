@@ -10,97 +10,22 @@ import IconButton from '@material-ui/core/IconButton';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 import TextField from '@material-ui/core/TextField';
 import { find, reject, sortBy, sumBy } from 'lodash'
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components, useMulti } from 'meteor/vulcan:core';
 import { Paper } from '@material-ui/core';
-
-const PostsToRate = [
-["Causal Abstraction Toy Model: Medical Sensor", "15"],
-["Generalizing Experimental Results by Leveraging Knowledge of Mechanisms", "43"],
-["ToL: Methods and Success", "9"],
-["ToL: This ONE WEIRD Trick to make you a GENIUS at Topology!", "11"],
-["What's an important (new) idea you haven't had time to argue for yet?", "6"],
-["ToL: The Topological Connection", "12"],
-["ToL: Introduction", "11"],
-["ToL: Foundations", "11"],
-["Applications of Economic Models to Physiology?", "36"],
-["Predictive coding = RL + SL + Bayes + MPC", "19"],
-["Review  On the Chatham House Rule (Ben Pace, Dec 2019)", "40"],
-["Review  Meta-Honesty (Ben Pace, Dec 2019)", "27"],
-["Were vaccines relevant to 20th century US mortality improvements?", "17"],
-["Bayesian examination", "74"],
-["Is Rationalist Self-Improvement Real?", "126"],
-["Who are some people you met that were the most extreme on some axis?", "5"],
-["What are some things you would do (more) if you were less averse to being/looking weird?", "13"],
-["Long Bets by Confidence Level", "22"],
-["What are the best arguments and/or plans for doing work in  AI policy ?", "14"],
-["The Review Phase: Helping LessWrongers Evaluate Old Posts", "48"],
-["Books on the zeitgeist of science during Lord Kelvin's time.", "32"],
-["What determines the balance between intelligence signaling and virtue signaling?", "47"],
-["Counterfactuals: Smoking Lesion vs. Newcomb's", "9"],
-["Progress and preservation in IDA", "12"],
-["Confabulation", "39"],
-["The Anatomy & Sensory Experiences of Chakras & Qi?", "2"],
-["What do the Charter Cities Institute likely mean when they refer to long term problems with the use of eminent domain?", "7"],
-["The Lesson To Unlearn", "39"],
-["Ungendered Spanish", "20"],
-["The 5 Main Muscles Made Easy.", "4"],
-["What is a reasonably complete set of the different meanings of  hard work ?", "8"],
-["The New Age of Social Engineering", "19"],
-["What subfields of mathematics are most useful for what subfields of AI?", "5"],
-["What is Abstraction?", "20"],
-["New things I understand (or think I do)", "7"],
-["Comment on Coherence arguments do not imply goal directed behavior", "20"],
-["Is there a website for tracking fads?", "8"],
-["The Actionable Version of  Keep Your Identity Small ", "60"],
-["Understanding “Deep Double Descent”", "99"],
-["Tapping Out In Two", "14"],
-["Values, Valence, and Alignment", "12"],
-["LW Team Updates - December 2019", "41"],
-["To Be Decided #3", "4"],
-["LW For External Comments?", "51"],
-["Reading list: Starting links and books on studying ontology and causality", "14"],
-["Is there a scientific method? Physics, Biology and Beyond", "9"],
-["The Devil Made Me Write This Post Explaining Why He Probably Didn't Hide Dinosaur Bones", "-1"],
-["Linkpost: Searching Along the Trail of Crumbs", "8"],
-["Oracles: reject all deals - break superrationality, with superrationality ", "20"],
-["What is an Evidential Decision Theory agent?", "10"],
-["Multiple conditions must be met to gain causal effect", "9"],
-["Triangle SSC Meetup-December 18th", "4"],
-["Seeking Power is Provably Instrumentally Convergent in MDPs", "101"],
-["Elementary Statistics", "12"],
-["Connectome-Specific Harmonic Waves", "15"],
-["What are some non-purely-sampling ways to do deep RL?", "15"],
-["Karate Kid and Realistic Expectations for Disagreement Resolution", "80"],
-["Recent Progress in the Theory of Neural Networks", "60"],
-["Paper-Reading for Gears", "68"],
-["On decision-prediction fixed points", "3"],
-["What additional features would you like on LessWrong?", "6"],
-["AN #76 : How dataset size affects robustness, and benchmarking safe exploration by measuring constraint violations", "13"],
-["2019 Winter Solstice Collection", "34"],
-["Fully  acausal trade", "16"],
-["If giving unsolicited feedback was a social norm, what feedback would you often give?", "8"],
-["In which ways have you self-improved that made you feel bad for not having done it earlier?", "14"],
-["A letter on optimism about human progress", "35"],
-["Symbiotic Wars", "23"],
-["Long-lasting Effects of Suspensions?", "16"],
-["(Reinventing wheels) Maybe our world has become more people-shaped.", "5"],
-["BrienneYudkowsky's Shortform", "17"],
-["Russian x-risks newsletter #2, fall 2019", "22"],
-["Searching Along the Trail of Crumbs", "10"],
-["MIRI’s 2019 Fundraiser", "60"],
-["Open & Welcome Thread - December 2019", "12"],
-]
+import { Posts } from '../../lib/collections/posts';
+import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
-    padding: 40,
     display: 'grid',
     gridTemplateColumns: `
-    1.5fr
+    1fr
+    minmax(${300}px, ${740}px)
+    minmax(${100}px, ${300}px)
     1fr
     `,
     gridTemplateAreas: `
-    "voting results"
+    "... voting results ..."
     `,
   },
   title: {
@@ -110,10 +35,24 @@ const styles = theme => ({
     gridArea: "voting"
   },
   results: {
+    padding: theme.spacing.unit*2,
     gridArea: "results"
+  },
+  result: {
+    ...theme.typography.smallText,
+    ...theme.typography.commentStyle,
+    lineHeight: "1.3rem",
+    marginBottom: 10
   },
   votingBox: {
     maxWidth: 700
+  },
+  postItem: {
+
+  },
+  convert: {
+    marginTop: theme.spacing.unit,
+    width: "100%",
   }
 });
 
@@ -125,38 +64,41 @@ function reducer(state: vote[], { title, score }: vote):vote[] {
 
 type vote = {title: string, score: number, type?: string}
 const ReviewVotingPage = ({classes}) => {
+  const { results } = useMulti({
+    terms: {view:"reviews2018", limit: 100},
+    collection: Posts,
+    queryName: 'postsListQuery',
+    fragmentName: 'PostsList',
+    fetchPolicy: 'cache-and-network',
+    ssr: true
+  });
+
   const [votes, dispatchVote]:[vote[], React.Dispatch<vote>] = useReducer(reducer, [])
   const [quadraticVotes, setQuadraticVotes] = useState<Map<string, number>>(new Map())
   const [useQuadratic, setUseQuadratic] = useState(false)
+  const [expandedPostId, setExpandedPostId] = useState(null)
+
   return (
       <div className={classes.root}>
         <Paper className={classes.voting}>
-          <Table>
-            <TableHead>
-              <TableRow>
-              <TableCell> Title </TableCell>
-              <TableCell> Voting </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {PostsToRate.map(([title]) => {
-                return <VoteTableRow key={title} title={title} dispatch={dispatchVote} quadraticVotes={quadraticVotes} setQuadraticVotes={setQuadraticVotes} useQuadratic={useQuadratic}/>
-              })}
-            </TableBody>
-          </Table>
+          {results?.map(post => {
+              return <VoteTableRow key={post._id} post={post} dispatch={dispatchVote} quadraticVotes={quadraticVotes} setQuadraticVotes=  {setQuadraticVotes} useQuadratic={useQuadratic} setExpandedPostId={setExpandedPostId} expandedPostId={expandedPostId}/>
+            })}
         </Paper>
         <div className={classes.results}>
           {useQuadratic && computeTotalCost(quadraticVotes)}
           {votes.map(({title}: {title: string}) => {
-            return <div key={title}>
+            return <div className={classes.result} key={title}>
                 {title}
             </div>
           })}
-        </div>
-        <Button onClick={() => {
+        <Button className={classes.convert} onClick={() => {
             setQuadraticVotes(votesToQuadraticVotes(votes))
             setUseQuadratic(true)
-        }}> Convert to Quadratic </Button>
+        }}> 
+          Convert to Quadratic 
+        </Button>
+        </div>
       </div>
   );
   }
@@ -195,48 +137,131 @@ return sumBy(voteArray, ([,score]) => sumOf1ToN(score))
 }
 
 const voteRowStyles = theme => ({
+  root: {
+    padding: theme.spacing.unit*1.5,
+    paddingTop: 10,
+    paddingBottom: 10,
+    borderBottom: "solid 1px rgba(0,0,0,.15)",
+    position: "relative",
+    '&:hover': {
+      '& $expand': {
+        display: "block"
+      }
+    }
+  },
   voteIcon: {
       padding: 0
+  },
+  postVote: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center"
+  },
+  post: {
+    paddingRight: theme.spacing.unit*2,
+  },
+  expand: {
+    display:"none",
+    position: "absolute",
+    bottom: 2,
+    fontSize: 10,
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[400]
+  },
+  expanded: {
+    background: "rgba(0,0,0,.05)"
+  },
+  expandedInfo: {
+    display: "flex",
+    justifyContent: "space-between"
+  },
+  comments: {
+    marginTop: theme.spacing.unit*1.5,
+    width: "60%",
+  },
+  reason: {
+    marginTop: theme.spacing.unit,
+    width: "calc(40% - 8px)"
+  },
+  commentsSubtitle: {
+    fontSize: 10,
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[700],
+    marginBottom: 4
+  },
+  closeButton: {
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    width: "60%",
+    marginLeft: "auto",
+    padding: theme.spacing.unit,
+    textAlign: "center",
+    color: theme.palette.grey[600],
+    '&:hover': {
+      backgroundColor: "rgba(0,0,0,.1)"
+    }
   }
 })
 
 const VoteTableRow = withStyles(voteRowStyles, {name: "VoteTableRow"})((
-  {title, dispatch, setQuadraticVotes, quadraticVotes, useQuadratic, classes}:
-  {title: string, dispatch: React.Dispatch<vote>, quadraticVotes: Map<string, number>, setQuadraticVotes: any, useQuadratic: boolean, classes:any }
+  {post, dispatch, setQuadraticVotes, quadraticVotes, useQuadratic, classes, setExpandedPostId, expandedPostId }:
+  {post: object, dispatch: React.Dispatch<vote>, quadraticVotes: Map<string, number>, setQuadraticVotes: any, useQuadratic: boolean, classes:any, setExpandedPostId: Function, expandedPostId: string }
 ) => {
-  const [expanded, setExpanded] = useState(false)
-  return <>
-      <TableRow>
-      <TableCell>
-          <IconButton className={classes.voteIcon}> 
-          <ArrowRightIcon onClick={ev => {setExpanded(!expanded)}} /> 
-          </IconButton>
-          {title}
-      </TableCell>
-      <TableCell>
-          {useQuadratic ? 
-          <QuadraticVotingButtons title={title} votes={quadraticVotes} setVotes={setQuadraticVotes} /> :
-          <VotingButtons title={title} dispatch={dispatch} />
-          }
-      </TableCell>
-      </TableRow>
-      {expanded && 
-      <TableRow>
-          <TableCell colSpan={2}>
-          <TextField
+  const { PostsTitle, PostsItemNewCommentsWrapper } = Components
+
+  const expanded = expandedPostId === post._id
+
+  return <div className={classNames(classes.root, {[classes.expanded]: expanded})} onClick={()=>setExpandedPostId(post._id)}>
+      <div className={classes.postVote} >
+        <div className={classes.post}>
+          <PostsTitle post={post} showIcons={false} wrap isLink={false}/>
+          {!expanded && <div className={classes.expand}>Click to expand</div>}
+        </div>
+        <div>
+            {useQuadratic ? 
+            <QuadraticVotingButtons title={post.title} votes={quadraticVotes} setVotes={setQuadraticVotes} /> :
+            <VotingButtons title={post.title} dispatch={dispatch} />
+            }
+        </div>
+      </div>
+      {expanded && <div>
+        <div className={classes.expandedInfo}>
+          <div className={classes.reason}>
+            <TextField
               id="standard-multiline-static"
-              label="Comment"
+              label="Why did you vote this way?"
+              fullWidth
               multiline
               rows="4"
-              defaultValue="Default Value"
-          />
-          </TableCell>
-      </TableRow>
-      }
-  </>
+            />
+          </div>
+          <div className={classes.comments}>
+            <div className={classes.commentsSubtitle}>Reviews</div>
+            <PostsItemNewCommentsWrapper terms={{view:"reviews2018", postId: post._id}} post={post} forceSingleLine hideSingleLineDate hideSingleLineMeta/>
+            <div className={classes.commentsSubtitle}>Nominations</div>
+            <PostsItemNewCommentsWrapper terms={{view:"nominations2018", postId: post._id}} post={post} forceSingleLine hideSingleLineDate hideSingleLineMeta/>
+          </div>
+        </div>
+        <div className={classes.closeButton} onClick={()=>setExpandedPostId(null)}>Close</div>
+      </div>}
+  </div>
 })
 
-const VotingButtons = ({title, dispatch}: {title: string, dispatch: any}) => {
+const votingButtonStyles = theme => ({
+  button: {
+    padding: theme.spacing.unit,
+    ...theme.typography.smallText,
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[700],
+    cursor: "pointer"
+  },
+  highlighted: {
+    backgroundColor: "rgba(0,0,0,.075)",
+    borderRadius: 3
+  }
+})
+
+const VotingButtons = withStyles(votingButtonStyles, {name: "VotingButtons"})(({classes, title, dispatch}: {classes: object, title: string, dispatch: any}) => {
 const [selection, setSelection] = useState("Neutral")
 const createClickHandler = (index:number, text: string) => {
     return () => {
@@ -245,11 +270,11 @@ const createClickHandler = (index:number, text: string) => {
     }
 }
 return <div>
-    {["No", "Neutral", "Decent", "Important", "Crucial"].map((text, i) => {
-    return <Button onClick={createClickHandler(i, text)} key={`${text}-${i}`} color={selection === text ? "primary" : "secondary"} >{text}</Button>
+    {["No", "Neutral", "Good", "Important", "Crucial"].map((text, i) => {
+    return <span className={classNames(classes.button, {[classes.highlighted]:selection === text})} onClick={createClickHandler(i, text)} key={`${text}-${i}`} >{text}</span>
     })}
 </div>
-}
+})
 
 const QuadraticVotingButtons = ({title, setVotes, votes}: {title: string, setVotes: any, votes: Map<string, number>}) => {
   const createClickHandler = (title: string, type: 'buy' | 'sell') => {
