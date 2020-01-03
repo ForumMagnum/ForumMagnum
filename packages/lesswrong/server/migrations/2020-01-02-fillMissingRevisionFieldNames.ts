@@ -9,6 +9,8 @@ registerMigration({
   idempotent: true,
   action: async () => {
     for (let { collectionName, fieldName } of collectionsWithExactlyOneEditableField()) {
+      // eslint-disable-next-line no-console
+      console.log(`Filling in fieldName for collection: ${collectionName}, field: ${fieldName}`);
       const collection = getCollection(collectionName);
       await forEachDocumentBatchInCollection({
         collection, batchSize: 1000,
@@ -31,7 +33,7 @@ function collectionsWithExactlyOneEditableField(): Array<{collectionName:string,
     if (editableCollectionsFields[collectionName].length === 1) {
       result.push({
         collectionName,
-        fieldName: editableCollectionsFields[0],
+        fieldName: editableCollectionsFields[collectionName][0],
       });
     }
   }
