@@ -269,6 +269,7 @@ export function addEditableCallbacks({collection, options = {}}) {
           originalContents: doc[fieldName].originalContents,
           currentUser,
         }),
+        fieldName,
         version,
         updateType: 'initial'
       });
@@ -314,6 +315,7 @@ export function addEditableCallbacks({collection, options = {}}) {
           originalContents: newDocument[fieldName].originalContents,
           currentUser,
         }),
+        fieldName,
         version,
         updateType
       });
