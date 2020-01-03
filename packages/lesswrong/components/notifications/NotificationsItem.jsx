@@ -139,4 +139,6 @@ class NotificationsItem extends Component {
 
 }
 
-registerComponent('NotificationsItem', NotificationsItem, withStyles(styles, {name: "NotificationsItem"}), withHover, withErrorBoundary, withNavigation);
+registerComponent('NotificationsItem', NotificationsItem, withStyles(styles, {name: "NotificationsItem"}),
+  withHover({pageElementContext: "linkPreview", pageElementSubContext: "notificationItem"}),
+  withErrorBoundary, withNavigation);

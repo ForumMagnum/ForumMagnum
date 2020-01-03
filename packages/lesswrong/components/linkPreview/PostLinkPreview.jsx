@@ -167,7 +167,7 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hove
     </span>
   );
 }
-registerComponent('PostLinkPreviewWithPost', PostLinkPreviewWithPost, withHover, withStyles(styles, {name:"PostLinkPreviewWithPost"}));
+registerComponent('PostLinkPreviewWithPost', PostLinkPreviewWithPost, withHover(), withStyles(styles, {name:"PostLinkPreviewWithPost"}));
 
 const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post, anchorEl, hover, id}) => {
   const { PostsPreviewTooltip, LWPopper } = Components
@@ -195,7 +195,7 @@ const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post,
     </span>
   );
 }
-registerComponent('CommentLinkPreviewWithComment', CommentLinkPreviewWithComment, withHover, withStyles(styles, {name:"CommentLinkPreviewWithComment"}));
+registerComponent('CommentLinkPreviewWithComment', CommentLinkPreviewWithComment, withHover(), withStyles(styles, {name:"CommentLinkPreviewWithComment"}));
 
 const defaultPreviewStyles = theme => ({
   hovercard: {
@@ -234,4 +234,8 @@ const DefaultPreview = ({classes, href, innerHTML, anchorEl, hover, onsite=false
       </span>
   );
 }
-registerComponent('DefaultPreview', DefaultPreview, withHover, withStyles(defaultPreviewStyles, {name:"DefaultPreview"}));
+registerComponent('DefaultPreview',
+  DefaultPreview,
+  withHover({pageElementContext: "linkPreview", hoverPreviewType: "DefaultPreview"},
+    ({href, onsite})=>({href, onsite})),
+  withStyles(defaultPreviewStyles, {name:"DefaultPreview"}));

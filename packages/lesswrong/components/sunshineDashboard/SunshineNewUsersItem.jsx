@@ -129,4 +129,4 @@ const withUpdateOptions = {
   collection: Users,
   fragmentName: 'SunshineUsersList',
 }
-registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, [withUpdate, withUpdateOptions], withUser, withHover, withErrorBoundary, withStyles(styles, {name:"SunshineNewUsersItem"}));
+registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, [withUpdate, withUpdateOptions], withUser, withHover(), withErrorBoundary, withStyles(styles, {name:"SunshineNewUsersItem"}));

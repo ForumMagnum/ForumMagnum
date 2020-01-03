@@ -40,9 +40,7 @@ const styles = theme => ({
 
 // Given a user (which may not be null), render the user name as a link with a
 // tooltip. This should not be used directly; use UsersName instead.
-const UsersNameDisplay = ({user, classes, nofollow=false, simple=false, hover, anchorEl, stopHover,
-                            hoverTrackingProps, setHoverTrackingProps}) => {
-  if (!hoverTrackingProps)  setHoverTrackingProps({pageSubElementContext: "userNameDisplay", userId: user._id})
+const UsersNameDisplay = ({user, classes, nofollow=false, simple=false, hover, anchorEl, stopHover}) => {
 
   if (!user) return <Components.UserDeleted/>
   const { FormatDate, LWPopper } = Components
@@ -83,4 +81,5 @@ UsersNameDisplay.propTypes = {
   user: PropTypes.object.isRequired,
 }
 
-registerComponent('UsersNameDisplay', UsersNameDisplay, withStyles(styles, {name: "UsersNameDisplay"}), withHover);
+registerComponent('UsersNameDisplay', UsersNameDisplay, withStyles(styles, {name: "UsersNameDisplay"}),
+  withHover({pageElementContext: "linkPreview",  pageSubElementContext: "userNameDisplay"}, ({user})=>({userId: user._id})));

@@ -53,8 +53,6 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id }) => 
     const currentURL = new URLClass(location.url, Utils.getSiteUrl());
     const linkTargetAbsolute = new URLClass(href, currentURL);
 
-    const defaultContextProps = {pageElementContext:"linkPreview", href, hoverPreviewType: "DefaultPreview", onsite:false}
-    
     const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
     if (!linkIsExcludedFromPreview(onsiteUrl) && (hostIsOnsite(linkTargetAbsolute.host) || Meteor.isServer)) {
       const parsedUrl = parseRouteWithErrors(onsiteUrl, contentSourceDescription)
@@ -64,20 +62,15 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id }) => 
         const PreviewComponent = parsedUrl.currentRoute.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;
         
         if (PreviewComponent) {
-          return <AnalyticsContext {...defaultContextProps} href={destinationUrl} hoverPreviewType={parsedUrl.currentRoute.previewComponentName} onsite>
+          return <AnalyticsContext pageElementConetext="linkPreview" href={destinationUrl} hoverPreviewType={parsedUrl.currentRoute.previewComponentName} onsite>
                     <PreviewComponent href={destinationUrl} targetLocation={parsedUrl} innerHTML={innerHTML} id={id}/>
                  </AnalyticsContext>
         } else {
-          return <AnalyticsContext {...defaultContextProps} onsite>
-            <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} onsite/>
-          </AnalyticsContext>
-
+          return <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} onsite/>
         }
       }
     } else {
-      return <AnalyticsContext {...defaultContextProps}>
-        <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} />
-      </AnalyticsContext>
+      return <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} />
     }
     return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} />
   } catch (err) {

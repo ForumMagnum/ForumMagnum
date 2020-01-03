@@ -27,5 +27,5 @@ const TagHoverPreview = ({href, targetLocation, innerHTML, classes, hover, ancho
   </span>;
 }
 
-registerComponent("TagHoverPreview", TagHoverPreview, withHover,
+registerComponent("TagHoverPreview", TagHoverPreview, withHover(),
   withStyles(styles, {name: "TagHoverPreview"}));

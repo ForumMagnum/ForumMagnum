@@ -76,5 +76,5 @@ const PostsItemDate = ({post, classes, hover, anchorEl, stopHover}) => {
     </PostsItem2MetaInfo>
 }
 
-registerComponent("PostsItemDate", PostsItemDate, withHover,
+registerComponent("PostsItemDate", PostsItemDate, withHover(),
   withStyles(styles, {name: "PostsItemDate"}));

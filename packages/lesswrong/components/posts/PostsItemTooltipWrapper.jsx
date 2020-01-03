@@ -22,4 +22,5 @@ const PostsItemTooltipWrapper = ({hover, anchorEl, stopHover, children, post}) =
     </React.Fragment>
 }
 
-registerComponent('PostsItemTooltipWrapper', PostsItemTooltipWrapper, withHover)
+registerComponent('PostsItemTooltipWrapper', PostsItemTooltipWrapper,
+  withHover({pageElementContext: "postItemTooltip"}, (post) => ({postId: post._id})))
