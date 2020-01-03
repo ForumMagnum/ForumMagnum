@@ -1,7 +1,6 @@
 import { Components, registerComponent, useUpdate } from 'meteor/vulcan:core';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
-import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
 import { Link } from '../../lib/reactRouterWrapper.jsx';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
@@ -13,7 +12,7 @@ const styles = theme => ({
   personalBlogpostsCheckboxLabel: {
     display: "inline-block",
     verticalAlign: "middle",
-    
+
     [theme.breakpoints.down("xs")]: {
       width: 105,
     },
@@ -25,12 +24,12 @@ const HomeLatestPosts = ({ classes }) =>
   const currentUser = useCurrentUser();
   const location = useLocation();
   const { history } = useNavigation();
-  
+
   const {mutate: updateUser} = useUpdate({
     collection: Users,
     fragmentName: 'UsersCurrent',
   });
-  
+
   const toggleFilter = React.useCallback(() => {
     const { query, pathname } = location;
     let newQuery = _.isEmpty(query) ? {view: "magic"} : query
