@@ -2,18 +2,20 @@ import React, {useState, useRef, useCallback } from 'react';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isMobile } from '../../lib/modules/utils/isMobile.js'
 
-export const withHover = (WrappedComponent) => {
+export const withHover = (trackingData, propsToTrackingData=()=>{}) =>
+  (WrappedComponent) => {
     return (props) => {
         const [hover, setHover] = useState(false)
         const [anchorEl, setAnchorEl] = useState(null)
         const delayTimer = useRef(null)
         const mouseOverStart = useRef()
-        const [hoverTrackingProps, setHoverTrackingProps] = useState()
 
+        const { captureEvent } = useTracking({eventType:"hoverEventTriggered",
+            eventProps: {...trackingData, ...propsToTrackingData(props)}})
 
         const captureHoverEvent = useCallback(() => {
             !isMobile() && captureEvent("hoverEventTriggered",
-                {...{timeToCapture: new Date() - mouseOverStart.current}, ...hoverTrackingProps})
+                {timeToCapture: new Date() - mouseOverStart.current})
             clearTimeout(delayTimer.current)
         }, [captureEvent])
 
@@ -36,7 +38,7 @@ export const withHover = (WrappedComponent) => {
         },[captureEvent])
 
 
-        const allProps = { hover, anchorEl, stopHover: handleMouseLeave, hoverTrackingProps, setHoverTrackingProps, ...props }
+        const allProps = { hover, anchorEl, stopHover: handleMouseLeave, ...props }
 
         return (
             <span onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave}>
