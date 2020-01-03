@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import { useTracking } from "../../lib/analyticsEvents";
 
-function useEventListener(eventName, handler, element = window){
+function useEventListener(eventName, handler){
   // Create a ref that stores handler
   const savedHandler = useRef();
 
@@ -16,24 +16,24 @@ function useEventListener(eventName, handler, element = window){
 
   useEffect(
     () => {
-      // Make sure element supports addEventListener
-      // On
-      const isSupported = element && element.addEventListener;
-      // eslint-disable-next-line no-console
-      if (!isSupported) console.log("Error: eventListener not available");
+      if (Meteor.isClient) {
 
-      // Create event listener that calls handler function stored in ref
-      const eventListener = event => savedHandler.current(event);
+        // eslint-disable-next-line no-console
+        if (!window.addEventListener) console.log("Error: eventListener not available");
 
-      // Add event listener
-      element.addEventListener(eventName, eventListener);
+        // Create event listener that calls handler function stored in ref
+        const eventListener = event => savedHandler.current(event);
 
-      // Remove event listener on cleanup
-      return () => {
-        element.removeEventListener(eventName, eventListener);
-      };
+        // Add event listener
+        window.addEventListener(eventName, eventListener);
+
+        // Remove event listener on cleanup
+        return () => {
+          window.removeEventListener(eventName, eventListener);
+        };
+      }
     },
-    [eventName, element] // Re-run if eventName or element changes
+    [eventName] // Re-run if eventName or element changes
   );
 }
 
@@ -48,20 +48,23 @@ function useBeforeUnloadTracking() {
 
 function usePageVisibility() {
   const { captureEvent } = useTracking("pageVisibilityTracking")
-  const [pageIsVisible, setPageIsVisible] = useState(!document.hidden)
-  const [pageVisibilityState, setPageVisibilityState] = useState(document.visibilityState)
+  const doc = (Meteor.isClient)? document : null
+  const [pageIsVisible, setPageIsVisible] = useState(!doc?.hidden)
+  const [pageVisibilityState, setPageVisibilityState] = useState(doc?.visibilityState)
 
-
-function handleVisibilityChange() {
-    const isVisible = !document.hidden
-    const visibilityState = document.visibilityState
-    setPageIsVisible(isVisible) //these aren't accessible till re-render or something
-    setPageVisibilityState(visibilityState)
-    captureEvent("pageVisibilityChange", {isVisible, visibilityState});
-  }
+  function handleVisibilityChange() {
+      const isVisible = !doc?.hidden
+      const visibilityState = doc?.visibilityState
+      setPageIsVisible(isVisible) //these aren't accessible till re-render or something
+      setPageVisibilityState(visibilityState)
+      setPageVisibilityState(visibilityState)
+      setPageVisibilityState(visibilityState)
+      captureEvent("pageVisibilityChange", {isVisible, visibilityState});
+    }
 
   useEffect(() => {
     captureEvent("pageVisibilityChange", {isVisible: pageIsVisible, visibilityState: pageVisibilityState});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEventListener('visibilitychange', handleVisibilityChange)
@@ -75,28 +78,28 @@ function useIdlenessDetection(timeoutInSeconds=60) {
     const [userIsIdle, setUserIsIdle] = useState(false)
     const countdownTimer = useRef(null)
 
-    useEventListener("mousemove", reset)
-    useEventListener("keypress", reset)
-    useEventListener("scroll", reset)
-
-
-    function inactivityAlert() {
+    const inactivityAlert = useCallback(() => {
         captureEvent("idlenessDetection", {state: "inactive"})
         setUserIsIdle(true)
-    }
+    }, [captureEvent, setUserIsIdle])
 
-    function reset() {
+    const reset= useCallback(()=>{
       const prevUserIsIdle = userIsIdle //so can do this real quick?
       setUserIsIdle(false)
       clearTimeout(countdownTimer.current)
       countdownTimer.current = setTimeout(inactivityAlert, timeoutInSeconds*1000) //setTimeout uses milliseconds
       if (prevUserIsIdle) captureEvent("idlenessDetection", {state: "active"})
-    }
+    }, [userIsIdle, setUserIsIdle, captureEvent, inactivityAlert, timeoutInSeconds])
 
-    useEffect(() => {
+
+  useEventListener("mousemove", reset)
+  useEventListener("keypress", reset)
+  useEventListener("scroll", reset)
+
+  useEffect(() => {
         reset()
         return () => clearTimeout(countdownTimer.current)
-    }, [])
+    }, [reset])
 
     return { userIsIdle }
 }
@@ -126,7 +129,7 @@ function useCountUpTimer (incrementsInSeconds=[10, 30], switchIncrement=60) {
             clearInterval(intervalTimer.current)
         }
         return () => clearInterval(intervalTimer.current)
-    }, [timerIsActive, setTimerIsActive, seconds])
+    }, [timerIsActive, setTimerIsActive, seconds, captureEvent, smallIncrementInSeconds, largeIncrementInSeconds, switchIncrement])
 
     return { seconds, isActive: timerIsActive, setTimerIsActive, reset }
 }
@@ -140,7 +143,7 @@ const AnalyticsPageInitializer = () => {
 
     useEffect(() => {
       setTimerIsActive(pageIsVisible && !userIsIdle); //disable timer whenever tab hidden or user inactive
-    }, [pageIsVisible, userIsIdle])
+    }, [pageIsVisible, userIsIdle, setTimerIsActive])
 
   return <span/>
 };
