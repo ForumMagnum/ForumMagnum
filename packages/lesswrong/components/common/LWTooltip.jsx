@@ -15,11 +15,13 @@ const LWTooltip = ({classes, children, title, placement="bottom-start", hover, a
   return <span className={classes.root}>
     <LWPopper placement={placement} open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip>
       {title}
-    </LWPopper> 
+    </LWPopper>
     {children}
   </span>
 }
 
-registerComponent("LWTooltip", LWTooltip, withHover, withStyles(styles, {name:"withStyles"}));
+registerComponent("LWTooltip", LWTooltip,
+  withHover({pageElementContext: "tooltipHovered"}, ({title}) => ({title})),
+  withStyles(styles, {name:"withStyles"}));
 
 
