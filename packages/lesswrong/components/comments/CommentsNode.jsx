@@ -87,10 +87,10 @@ const styles = theme => ({
   },
   moderatorHat: {
     "&.comments-node-even": {
-      background: "#ffedb9",
+      background: "#5f9b651c",
     },
     "&.comments-node-odd": {
-      background: "#ffedb9",
+      background: "#5f9b651c",
     },
   },
   children: {

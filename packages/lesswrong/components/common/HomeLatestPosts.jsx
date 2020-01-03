@@ -54,7 +54,7 @@ const HomeLatestPosts = ({ classes }) =>
   }, [updateUser, location, history, currentUser]);
 
   const { query } = location;
-  const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox } = Components
+  const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox, LWTooltip } = Components
   const currentFilter = query.filter || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
   const limit = parseInt(query.limit) || 10
 
@@ -85,7 +85,7 @@ const HomeLatestPosts = ({ classes }) =>
     </div>
     <ul>
       <li>Usefulness, novelty and relevance</li>
-      <li>Timeless content (minimize reference to current events</li>
+      <li>Timeless content (minimize reference to current events)</li>
       <li>Explain, rather than persuade</li>
     </ul>
     <div>
@@ -104,8 +104,8 @@ const HomeLatestPosts = ({ classes }) =>
 
   return (
     <SingleColumnSection>
-      <SectionTitle title={<Tooltip title={latestTitle} placement="left-start"><span>Latest Posts</span></Tooltip>}>
-        <Tooltip title={personalBlogpostTooltip}>
+      <SectionTitle title={<LWTooltip title={latestTitle} placement="top"><span>Latest Posts</span></LWTooltip>}>
+        <LWTooltip title={personalBlogpostTooltip}>
           <div>
             <SectionFooterCheckbox
               onClick={toggleFilter}
@@ -113,7 +113,7 @@ const HomeLatestPosts = ({ classes }) =>
               label={<div className={classes.personalBlogpostsCheckboxLabel}>Include Personal Blogposts</div>}
               />
           </div>
-        </Tooltip>
+        </LWTooltip>
       </SectionTitle>
       <AnalyticsContext listContext={"latestPosts"}>
         <PostsList2 terms={recentPostsTerms}>
