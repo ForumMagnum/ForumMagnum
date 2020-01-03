@@ -136,7 +136,7 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
         <span className={classes.username}>
           <CommentUserName comment={comment} simple={true}/>
         </span>
-        {!hideSingleLineDate && <span className={classes.date}>
+        {!hideSingleLineMeta && <span className={classes.date}>
           <Components.FormatDate date={comment.postedAt} tooltip={false}/>
         </span>}
         {renderHighlight && <span className={classes.truncatedHighlight}> 
