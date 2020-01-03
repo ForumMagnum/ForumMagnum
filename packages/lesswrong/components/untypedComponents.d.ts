@@ -19,6 +19,7 @@ interface ComponentTypes {
   SelectVersion: any
   newFeedButton: any
   editFeedButton: any
+  LWTooltip: any
   NotificationsMenu: any
   NotificationsList: any
   NotificationsItem: any
