@@ -57,8 +57,6 @@ function usePageVisibility() {
       const visibilityState = doc?.visibilityState
       setPageIsVisible(isVisible) //these aren't accessible till re-render or something
       setPageVisibilityState(visibilityState)
-      setPageVisibilityState(visibilityState)
-      setPageVisibilityState(visibilityState)
       captureEvent("pageVisibilityChange", {isVisible, visibilityState});
     }
 
@@ -99,7 +97,8 @@ function useIdlenessDetection(timeoutInSeconds=60) {
   useEffect(() => {
         reset()
         return () => clearTimeout(countdownTimer.current)
-    }, [reset])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     return { userIsIdle }
 }
