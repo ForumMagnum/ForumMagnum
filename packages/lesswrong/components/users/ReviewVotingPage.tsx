@@ -48,7 +48,9 @@ const styles = theme => ({
     padding: 16,
     marginBottom: 10,
     position: "fixed",
-    maxWidth: 500
+    maxWidth: 500,
+    maxHeight: "60vh",
+    overflowY: "scroll"
   },
   header: {
     gridArea: "title",
@@ -58,9 +60,8 @@ const styles = theme => ({
   comments: {
   },
   reason: {
-    margin: theme.spacing.unit*1.5,
+    marginBottom: theme.spacing.unit*1.5,
     position: "relative",
-    minHeight: 300
   },
 });
 
@@ -101,7 +102,6 @@ const ReviewVotingPage = ({classes}) => {
 
   return (
       <div className={classes.root}>
-        <h1 className={classes.header}>Rate the most important posts of 2018?</h1>
         <div className={classes.mainColumn}>
           {/* {votes.length && <Paper>
             {votes.filter(vote => vote.score !== 1).sort((a,b) => a.score - b.score).reverse().map(({postId}) => {
@@ -110,6 +110,7 @@ const ReviewVotingPage = ({classes}) => {
               </div>
             })}
           </Paper>} */}
+          <h1 className={classes.header}>Rate the most important posts of 2018?</h1>
           <Button className={classes.convert} onClick={() => {
               votesToQuadraticVotes(votes).forEach(dispatchQuadraticVote)
               setUseQuadratic(true)
@@ -148,7 +149,7 @@ const ReviewVotingPage = ({classes}) => {
                 <div className={classes.reason}>
                   <TextField
                     id="standard-multiline-static"
-                    label={`Why did you vote this on ${expandedPost.title}? (Optional)"`}
+                    label={`Explanation for your vote on "${expandedPost.title}?" (Optional)"`}
                     fullWidth
                     multiline
                     rows="4"
@@ -249,25 +250,8 @@ const voteRowStyles = theme => ({
     ...theme.typography.commentStyle,
     color: theme.palette.grey[400]
   },
-  expandedInfo: {
-    display: "flex",
-    justifyContent: "space-between"
-  },
   expanded: {
     background: "#eee"
-  },
-  closeButton: {
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
-    padding: theme.spacing.unit,
-    position: "absolute",
-    bottom: 0,
-    right: 0,
-    textAlign: "right",
-    color: theme.palette.primary.main,
-    '&:hover': {
-      backgroundColor: "rgba(0,0,0,.1)"
-    }
   }
 })
 

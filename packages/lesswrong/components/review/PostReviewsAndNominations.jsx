@@ -6,11 +6,11 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   title: {
-    fontSize: 10,
+    fontSize: "1rem",
     ...theme.typography.commentStyle,
     color: theme.palette.grey[700],
-    marginTop: 12,
-    marginBottom: 4
+    marginTop: 20,
+    marginBottom: 12
   }
 })
 
@@ -28,7 +28,7 @@ const PostReviewsAndNominations = ({ classes, title, loading, results, post }) =
   const nestedComments = unflattenComments(results);
   return (
     <div>
-      {title && <div className={classes.title}>{title} for {post.title}</div>}
+      {title && <div className={classes.title}>{title} for "{post.title}"</div>}
       <CommentsList
         comments={nestedComments}
         startThreadTruncated={true}
