@@ -1,6 +1,6 @@
-import { markdownToHtml } from '../../../server/editor/make_editable_callbacks.js';
+import { markdownToHtml } from '../editor/make_editable_callbacks.js';
 import Users from 'meteor/vulcan:users';
-import { addFieldsDict, denormalizedField } from '../../modules/utils/schemaUtils'
+import { addFieldsDict, denormalizedField } from '../../lib/modules/utils/schemaUtils'
 
 addFieldsDict(Users, {
   htmlBio: {

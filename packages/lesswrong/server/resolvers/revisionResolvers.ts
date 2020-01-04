@@ -1,13 +1,14 @@
-import Revisions from './collection'
-import { htmlToDraft } from '../../../server/draftConvert';
+import Revisions from '../../lib/collections/revisions/collection'
+import { htmlToDraft } from '../draftConvert';
 import { convertToRaw } from 'draft-js';
-import { markdownToHtmlNoLaTeX, dataToMarkdown } from '../../../server/editor/make_editable_callbacks'
-import { highlightFromHTML, truncate } from '../../editor/ellipsize';
-import { addFieldsDict } from '../../modules/utils/schemaUtils'
+import { markdownToHtmlNoLaTeX, dataToMarkdown } from '../editor/make_editable_callbacks'
+import { highlightFromHTML, truncate } from '../../lib/editor/ellipsize';
+import { addFieldsDict } from '../../lib/modules/utils/schemaUtils'
 import { JSDOM } from 'jsdom'
 import { Utils } from 'meteor/vulcan:core';
 import htmlToText from 'html-to-text'
 import sanitizeHtml from 'sanitize-html';
+import * as _ from 'underscore';
 
 const PLAINTEXT_HTML_TRUNCATION_LENGTH = 4000
 const PLAINTEXT_DESCRIPTION_LENGTH = 2000
@@ -22,13 +23,13 @@ function domBuilder(html) {
 
 export function htmlToDraftServer(...args) {
   // We have to add this type definition to the global object to allow draft-convert to properly work on the server
-  global.HTMLElement = new JSDOM().window.HTMLElement
+  (global as any).HTMLElement = new JSDOM().window.HTMLElement
   // And alas, it looks like we have to add this global. This seems quite bad, and I am not fully sure what to do about it.
-  global.document = new JSDOM().window.document
+  (global as any).document = new JSDOM().window.document
   const result = htmlToDraft(...args) 
   // We do however at least remove it right afterwards
-  delete global.document
-  delete global.HTMLElement
+  delete (global as any).document
+  delete (global as any).HTMLElement
   return result
 }
 

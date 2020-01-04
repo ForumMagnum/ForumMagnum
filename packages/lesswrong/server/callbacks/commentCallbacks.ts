@@ -1,13 +1,14 @@
-import { Posts } from "../posts";
-import { Comments } from './collection'
+import { Posts } from "../../lib/collections/posts/collection";
+import { Comments } from '../../lib/collections/comments/collection'
 import { addCallback, runCallbacksAsync, newMutation, editMutation, removeMutation, getSetting } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
-import { performVoteServer } from '../../../server/voteServer.js';
-import Messages from '../messages/collection.js';
-import Conversations from '../conversations/collection.js';
+import { performVoteServer } from '../voteServer';
+import Messages from '../../lib/collections/messages/collection';
+import Conversations from '../../lib/collections/conversations/collection';
 
-import { addEditableCallbacks } from '../../../server/editor/make_editable_callbacks.js'
-import { makeEditableOptions } from './custom_fields.js'
+import { addEditableCallbacks } from '../editor/make_editable_callbacks'
+import { makeEditableOptions } from '../../lib/collections/comments/custom_fields'
+import * as _ from 'underscore';
 
 const MINIMUM_APPROVAL_KARMA = 5
 

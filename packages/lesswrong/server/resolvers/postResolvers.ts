@@ -1,6 +1,6 @@
-import { Posts } from './collection';
-import { addFieldsDict, denormalizedField } from '../../modules/utils/schemaUtils'
-import { getLocalTime } from '../../../server/mapsUtils'
+import { Posts } from '../../lib/collections/posts/collection';
+import { addFieldsDict, denormalizedField } from '../../lib/modules/utils/schemaUtils'
+import { getLocalTime } from '../mapsUtils'
 
 addFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the

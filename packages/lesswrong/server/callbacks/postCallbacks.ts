@@ -1,12 +1,12 @@
 import { addCallback, runCallbacks, runCallbacksAsync, newMutation } from 'meteor/vulcan:core';
-import { Posts } from './collection';
-import { Comments } from '../comments/collection';
+import { Posts } from '../../lib/collections/posts/collection';
+import { Comments } from '../../lib/collections/comments/collection';
 import Users from 'meteor/vulcan:users';
-import { performVoteServer } from '../../../server/voteServer.js';
-import Localgroups from '../localgroups/collection.js';
-import { addEditableCallbacks } from '../../../server/editor/make_editable_callbacks'
-import { makeEditableOptions, makeEditableOptionsModeration } from './custom_fields.js'
-import { PostRelations } from '../postRelations/index';
+import { performVoteServer } from '../voteServer';
+import Localgroups from '../../lib/collections/localgroups/collection';
+import { addEditableCallbacks } from '../editor/make_editable_callbacks'
+import { makeEditableOptions, makeEditableOptionsModeration } from '../../lib/collections/posts/custom_fields'
+import { PostRelations } from '../../lib/collections/postRelations/collection';
 const MINIMUM_APPROVAL_KARMA = 5
 
 function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
@@ -44,7 +44,7 @@ addCallback("post.undraft.before", PostsSetPostedAt);
 
 function increaseMaxBaseScore ({newDocument, vote}, collection, user, context) {
   if (vote.collectionName === "Posts" && newDocument.baseScore > (newDocument.maxBaseScore || 0)) {
-    let thresholdTimestamp = {};
+    let thresholdTimestamp: any = {};
     if (!newDocument.scoreExceeded2Date && newDocument.baseScore >= 2) {
       thresholdTimestamp.scoreExceeded2Date = new Date();
     }

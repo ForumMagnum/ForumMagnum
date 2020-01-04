@@ -1,8 +1,8 @@
 import { addCallback, newMutation } from 'meteor/vulcan:core';
-import { Posts } from '../posts';
+import { Posts } from '../../lib/collections/posts/collection';
 
-import { Localgroups, makeEditableOptions } from './collection'
-import { addEditableCallbacks } from '../../../server/editor/make_editable_callbacks.js'
+import { Localgroups, makeEditableOptions } from '../../lib/collections/localgroups/collection'
+import { addEditableCallbacks } from '../editor/make_editable_callbacks.js'
 
 function GroupsNewDefaultPost (group, { currentUser }) {
   const newFields = {
