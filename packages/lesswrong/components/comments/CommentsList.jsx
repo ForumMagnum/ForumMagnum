@@ -103,7 +103,7 @@ class CommentsList extends Component {
   }
 
   render() {
-    const { comments, currentUser, highlightDate, updateComment, post, postPage, totalComments, condensed, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1, hideReadComments, lastCommentId, markAsRead, parentCommentId=null } = this.props;
+    const { comments, currentUser, highlightDate, updateComment, post, postPage, totalComments, condensed, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1, hideReadComments, lastCommentId, markAsRead, parentCommentId=null, forceSingleLine, hideSingleLineMeta } = this.props;
 
     const { expandAllThreads } = this.state
     const { lastVisitedAt } = post
@@ -134,6 +134,8 @@ class CommentsList extends Component {
                 postPage={postPage}
                 parentAnswerId={parentAnswerId}
                 condensed={condensed}
+                forceSingleLine={forceSingleLine}
+                hideSingleLineMeta={hideSingleLineMeta}
                 hideReadComments={hideReadComments}
                 shortform={post.shortform}
                 child={defaultNestingLevel > 1}
