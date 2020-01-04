@@ -6,6 +6,7 @@ import { sumBy } from 'lodash'
 import { registerComponent, Components, useMulti, useCreate } from 'meteor/vulcan:core';
 import { Paper } from '@material-ui/core';
 import { Posts } from '../../lib/collections/posts';
+import { useCurrentUser } from '../common/withUser';
 import { ReviewVotes } from '../../lib/collections/reviewVotes/collection';
 import classNames from 'classnames';
 import * as _ from "underscore"
@@ -90,6 +91,10 @@ const ReviewVotingPage = ({classes}) => {
     collection: ReviewVotes,
     fragmentName: "reviewVoteFragment", 
   })
+
+  const currentUser = useCurrentUser()
+  console.log(currentUser)
+  if (!currentUser || !currentUser.isAdmin) return null
 
   const votes:vote[] = filterForMostRecent(dbVotes?.filter(vote => vote.type === "qualitative") || [])
   const dispatchVote = ({postId, score}) => createVote({postId, score, type: "qualitative"})
