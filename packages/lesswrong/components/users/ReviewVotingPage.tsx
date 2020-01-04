@@ -14,7 +14,7 @@ const styles = theme => ({
   root: {
     display: 'grid',
     gridTemplateColumns: `
-      1fr minmax(${300}px, ${740}px) minmax(${100}px, ${300}px) 1fr
+      1fr minmax(${300}px, ${740}px) minmax(${100}px, ${400}px) 1fr
     `,
     gridTemplateAreas: `
     "... title ... ..."
@@ -43,6 +43,9 @@ const styles = theme => ({
   convert: {
     marginTop: theme.spacing.unit,
     width: "100%",
+  },
+  expandedInfo: {
+    background: "rgba(0,0,0,.1)"
   },
   header: {
     gridArea: "title",
@@ -107,21 +110,17 @@ const ReviewVotingPage = ({classes}) => {
           </Paper>
         </div>
         <div className={classes.results}>
-          {useQuadratic && computeTotalCost(quadraticVotes)}
-          {votes.filter(vote => vote.score !== 1).sort((a,b) => a.score - b.score).reverse().map(({postId}) => {
-            return <div className={classes.result} key={postId}>
-                {results.find(post => post._id === postId)?.title || "Couldn't find title"}
-            </div>
-          })}
-
-          <Button className={classes.convert} onClick={() => {
-              votesToQuadraticVotes(votes).forEach(dispatchQuadraticVote)
-              setUseQuadratic(true)
-          }}> 
-            Convert to Quadratic 
-          </Button>
           {expandedPost && <div>
             <div className={classes.expandedInfo}>
+                <div className={classes.reason}>
+                  <TextField
+                    id="standard-multiline-static"
+                    label="Why did you vote this way? (Optional)"
+                    fullWidth
+                    multiline
+                    rows="4"
+                  />
+                </div>
                 <div className={classes.comments}>
                   <Components.PostReviewsAndNominations 
                     title="Nominations"
@@ -134,18 +133,21 @@ const ReviewVotingPage = ({classes}) => {
                     post={expandedPost} 
                   />
                 </div>
-                <div className={classes.reason}>
-                  <TextField
-                    id="standard-multiline-static"
-                    label="Why did you vote this way? (Optional)"
-                    fullWidth
-                    multiline
-                    rows="4"
-                  />
-                  <div className={classes.closeButton} onClick={()=>setExpandedPost(null)}>Close</div>
-                </div>
               </div>
             </div>}
+            {useQuadratic && computeTotalCost(quadraticVotes)}
+            {votes.filter(vote => vote.score !== 1).sort((a,b) => a.score - b.score).reverse().map(({postId}) => {
+              return <div className={classes.result} key={postId}>
+                  {results.find(post => post._id === postId)?.title || "Couldn't find title"}
+              </div>
+            })}
+
+            <Button className={classes.convert} onClick={() => {
+                votesToQuadraticVotes(votes).forEach(dispatchQuadraticVote)
+                setUseQuadratic(true)
+            }}> 
+              Convert to Quadratic 
+            </Button>
         </div>
       </div>
   );
