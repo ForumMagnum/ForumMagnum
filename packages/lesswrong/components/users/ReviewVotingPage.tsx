@@ -100,6 +100,7 @@ const ReviewVotingPage = ({classes}) => {
                       quadraticVotes={quadraticVotes} 
                       dispatchQuadraticVote={dispatchQuadraticVote} 
                       useQuadratic={useQuadratic} 
+                      expandedPostId={expandedPost?._id}
                     />
                   </div>
               })}
@@ -220,12 +221,12 @@ const voteRowStyles = theme => ({
     ...theme.typography.commentStyle,
     color: theme.palette.grey[400]
   },
-  expanded: {
-    background: "rgba(0,0,0,.05)"
-  },
   expandedInfo: {
     display: "flex",
     justifyContent: "space-between"
+  },
+  expanded: {
+    background: "rgba(0,0,0,.1)"
   },
   comments: {
     marginTop: theme.spacing.unit*1.5,
@@ -258,7 +259,7 @@ const VoteTableRow = withStyles(voteRowStyles, {name: "VoteTableRow"})((
 ) => {
   const { PostsTitle, LWTooltip, PostsPreviewTooltip } = Components
 
-  return <div className={classNames(classes.root, {[classes.expanded]: expanded})}>
+  return <div className={classNames(classes.root, {[classes.expanded]: expandedPostId === post._id})}>
     <div>
       <div className={classes.postVote} >
         <div className={classes.post}>
