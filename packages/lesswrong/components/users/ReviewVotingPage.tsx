@@ -56,6 +56,7 @@ function reducer(state: vote[], { title, score }: vote):vote[] {
 }
 
 type vote = {title: string, score: number, type?: string}
+
 const ReviewVotingPage = ({classes}) => {
   const { results } = useMulti({
     terms: {view:"reviews2018", limit: 100},
@@ -170,26 +171,23 @@ const voteRowStyles = theme => ({
   },
   comments: {
     marginTop: theme.spacing.unit*1.5,
-    width: "60%",
+    width: "calc(100% - 275px)",
   },
   reason: {
-    marginTop: theme.spacing.unit,
-    width: "calc(40% - 8px)"
-  },
-  commentsSubtitle: {
-    fontSize: 10,
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[700],
-    marginBottom: 4
+    marginTop: theme.spacing.unit*1.5,
+    width: 252,
+    position: "relative",
+    minHeight: 200
   },
   closeButton: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    width: "60%",
-    marginLeft: "auto",
     padding: theme.spacing.unit,
-    textAlign: "center",
-    color: theme.palette.grey[600],
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    textAlign: "right",
+    color: theme.palette.primary.main,
     '&:hover': {
       backgroundColor: "rgba(0,0,0,.1)"
     }
@@ -200,14 +198,17 @@ const VoteTableRow = withStyles(voteRowStyles, {name: "VoteTableRow"})((
   {post, dispatch, setQuadraticVotes, quadraticVotes, useQuadratic, classes, setExpandedPostId, expandedPostId }:
   {post: object, dispatch: React.Dispatch<vote>, quadraticVotes: Map<string, number>, setQuadraticVotes: any, useQuadratic: boolean, classes:any, setExpandedPostId: Function, expandedPostId: string }
 ) => {
-  const { PostsTitle, PostsItemNewCommentsWrapper } = Components
+  const { PostsTitle, PostReviewsAndNominations, LWTooltip, PostsPreviewTooltip } = Components
 
   const expanded = expandedPostId === post._id
 
-  return <div className={classNames(classes.root, {[classes.expanded]: expanded})} onClick={()=>setExpandedPostId(post._id)}>
+  return <div className={classNames(classes.root, {[classes.expanded]: expanded})}>
+    <div onClick={()=>setExpandedPostId(post._id)}>
       <div className={classes.postVote} >
         <div className={classes.post}>
-          <PostsTitle post={post} showIcons={false} wrap isLink={false}/>
+          <LWTooltip title={<PostsPreviewTooltip post={post}/>}>
+            <PostsTitle post={post} showIcons={false} wrap isLink={false}/>
+          </LWTooltip>
           {!expanded && <div className={classes.expand}>Click to expand</div>}
         </div>
         <div>
@@ -217,26 +218,33 @@ const VoteTableRow = withStyles(voteRowStyles, {name: "VoteTableRow"})((
             }
         </div>
       </div>
-      {expanded && <div>
+    </div>
+    {expanded && <div>
         <div className={classes.expandedInfo}>
+          <div className={classes.comments}>
+            <PostReviewsAndNominations 
+              title="Nominations"
+              terms={{view:"nominations2018", postId: post._id}} 
+              post={post} 
+            />
+            <PostReviewsAndNominations 
+              title="Reviews"
+              terms={{view:"reviews2018", postId: post._id}} 
+              post={post} 
+            />
+          </div>
           <div className={classes.reason}>
             <TextField
               id="standard-multiline-static"
-              label="Why did you vote this way?"
+              label="Why did you vote this way? (Optional)"
               fullWidth
               multiline
               rows="4"
             />
-          </div>
-          <div className={classes.comments}>
-            <div className={classes.commentsSubtitle}>Reviews</div>
-            <PostsItemNewCommentsWrapper terms={{view:"reviews2018", postId: post._id}} post={post} forceSingleLine hideSingleLineDate hideSingleLineMeta/>
-            <div className={classes.commentsSubtitle}>Nominations</div>
-            <PostsItemNewCommentsWrapper terms={{view:"nominations2018", postId: post._id}} post={post} forceSingleLine hideSingleLineDate hideSingleLineMeta/>
+            <div className={classes.closeButton} onClick={()=>setExpandedPostId(null)}>Submit</div>
           </div>
         </div>
-        <div className={classes.closeButton} onClick={()=>setExpandedPostId(null)}>Close</div>
-      </div>}
+    </div>}
   </div>
 })
 
@@ -269,7 +277,19 @@ return <div>
 </div>
 })
 
-const QuadraticVotingButtons = ({title, setVotes, votes}: {title: string, setVotes: any, votes: Map<string, number>}) => {
+const quadraticVotingButtonStyles = theme => ({
+  vote: {
+    ...theme.typography.commentStyle,
+    fontSize: "1.5rem",
+    fontWeight: 600
+  },
+  score: {
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle
+  }
+})
+
+const QuadraticVotingButtons = withStyles(quadraticVotingButtonStyles, {name: "QuadraticVotingButtons"})(({classes, title, setVotes, votes}: {title: string, setVotes: any, votes: Map<string, number>}) => {
   const createClickHandler = (title: string, type: 'buy' | 'sell') => {
       return () => {
       const newScore = (votes.get(title) || 0) + (type === 'buy' ? 1 : -1)
@@ -277,10 +297,10 @@ const QuadraticVotingButtons = ({title, setVotes, votes}: {title: string, setVot
       }
   } 
   return <div>
-      <Button onClick={createClickHandler(title, 'sell')}>Sell (-1)</Button>
-      <Button>{votes.get(title) || 0}</Button>
-      <Button onClick={createClickHandler(title, 'buy')}>Buy (+1)</Button>
+    <span className={classes.vote} onClick={createClickHandler(title, 'sell')}>+</span>
+    <span className={classes.score}>{votes.get(title) || 0}</span>
+    <span className={classes.vote} onClick={createClickHandler(title, 'buy')}>-</span>
   </div>
-}
+})
 
 registerComponent('ReviewVotingPage', ReviewVotingPage,withStyles(styles, {name: "ReviewVotingPage"}));
