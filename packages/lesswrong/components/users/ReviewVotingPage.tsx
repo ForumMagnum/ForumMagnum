@@ -89,7 +89,7 @@ const ReviewVotingPage = ({classes}) => {
   const dispatchQuadraticVote = ({postId, score}) => createVote({postId, score, type: "quadratic"})
 
   const [useQuadratic, setUseQuadratic] = useState(false)
-  const [expandedPost, setExpandedPost] = useState(null)
+  const [expandedPost, setExpandedPost] = useState<any>(null)
 
   return (
       <div className={classes.root}>
@@ -97,18 +97,25 @@ const ReviewVotingPage = ({classes}) => {
         <div className={classes.mainColumn}>
           <Paper>
             {results?.map(post => {
+                const voteForPost = useQuadratic && quadraticVotes.find(vote => vote.postId === post._id)
+                return [post, voteForPost]
+              })
+              .sort(([post1, vote1], [post2, vote2]) => (vote1?.score || 0) - (vote2?.score || 0))
+              .reverse()
+              .map(([post, vote]) => {
                 return <div key={post._id} onClick={()=>setExpandedPost(post)}>
-                    <VoteTableRow 
-                      post={post} 
-                      dispatch={dispatchVote} 
-                      votes={votes}
-                      quadraticVotes={quadraticVotes} 
-                      dispatchQuadraticVote={dispatchQuadraticVote} 
-                      useQuadratic={useQuadratic} 
-                      expandedPostId={expandedPost?._id}
-                    />
-                  </div>
-              })}
+                  <VoteTableRow 
+                    post={post} 
+                    dispatch={dispatchVote} 
+                    votes={votes}
+                    quadraticVotes={quadraticVotes} 
+                    dispatchQuadraticVote={dispatchQuadraticVote} 
+                    useQuadratic={useQuadratic} 
+                    expandedPostId={expandedPost?._id}
+                  />
+                </div>
+              })
+            }
           </Paper>
         </div>
         <div className={classes.results}>
@@ -143,7 +150,6 @@ const ReviewVotingPage = ({classes}) => {
                   {results.find(post => post._id === postId)?.title || "Couldn't find title"}
               </div>
             })}
-
             <Button className={classes.convert} onClick={() => {
                 votesToQuadraticVotes(votes).forEach(dispatchQuadraticVote)
                 setUseQuadratic(true)
