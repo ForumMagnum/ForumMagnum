@@ -45,7 +45,9 @@ const styles = theme => ({
     width: "100%",
   },
   expandedInfo: {
-    background: "rgba(0,0,0,.1)"
+    background: "rgba(0,0,0,.1)",
+    padding: 10,
+    marginBottom: 10
   },
   header: {
     gridArea: "title",
