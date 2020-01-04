@@ -176,7 +176,7 @@ const votesToQuadraticVotes = (votes:vote[]):vote[] => {
   return votes.map(({postId, score}) => {
       const scaledScore = linearScoreScaling[score]
       const scaledCost = scaledScore * Math.min(VOTE_BUDGET/sumScaled, MAX_SCALING)
-      const newScore = Math.sign(scaledCost) * Math.floor(inverseSumOf1ToN(scaledCost))
+      const newScore = Math.sign(scaledCost) * Math.floor(inverseSumOf1ToN(Math.abs(scaledCost)))
       return {postId, score: newScore, type: "quadratic"}
   })
 }
@@ -312,7 +312,7 @@ const indexToTermsLookup = {
 
 const VotingButtons = withStyles(votingButtonStyles, {name: "VotingButtons"})(({classes, postId, dispatch, votes}: {classes: any, postId: string, dispatch: any, votes: vote[]}) => {
   const voteForCurrentPost = votes.find(vote => vote.postId === postId)
-  const [selection, setSelection] = useState(voteForCurrentPost?.score || 1)
+  const [selection, setSelection] = useState(voteForCurrentPost?.score === 0 ? 0 : (voteForCurrentPost?.score || 1))
   const createClickHandler = (index:number) => {
     return () => {
       setSelection(index)
