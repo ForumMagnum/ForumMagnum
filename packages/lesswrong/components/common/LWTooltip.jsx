@@ -10,10 +10,10 @@ const styles = {
   }
 }
 
-const LWTooltip = ({classes, children, title, placement="bottom-start", hover, anchorEl, stopHover}) => {
+const LWTooltip = ({classes, children, title, placement="bottom-start", hover, anchorEl, stopHover, tooltip=true}) => {
   const { LWPopper } = Components
   return <span className={classes.root}>
-    <LWPopper placement={placement} open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip>
+    <LWPopper placement={placement} open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip={tooltip}>
       {title}
     </LWPopper> 
     {children}

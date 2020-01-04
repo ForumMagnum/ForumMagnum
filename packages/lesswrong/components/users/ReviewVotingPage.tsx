@@ -12,19 +12,14 @@ const styles = theme => ({
   root: {
     display: 'grid',
     gridTemplateColumns: `
-    1fr
-    minmax(${300}px, ${740}px)
-    minmax(${100}px, ${300}px)
-    1fr
+      1fr minmax(${300}px, ${740}px) minmax(${100}px, ${300}px) 1fr
     `,
     gridTemplateAreas: `
+    "... title ... ..."
     "... voting results ..."
     `,
   },
-  title: {
-    gridArea: "title"
-  },
-  voting: {
+  mainColumn: {
     gridArea: "voting"
   },
   results: {
@@ -46,6 +41,11 @@ const styles = theme => ({
   convert: {
     marginTop: theme.spacing.unit,
     width: "100%",
+  },
+  header: {
+    gridArea: "title",
+    ...theme.typography.display3,
+    ...theme.typography.postStyle
   }
 });
 
@@ -74,11 +74,14 @@ const ReviewVotingPage = ({classes}) => {
 
   return (
       <div className={classes.root}>
-        <Paper className={classes.voting}>
-          {results?.map(post => {
-              return <VoteTableRow key={post._id} post={post} dispatch={dispatchVote} quadraticVotes={quadraticVotes} setQuadraticVotes=  {setQuadraticVotes} useQuadratic={useQuadratic} setExpandedPostId={setExpandedPostId} expandedPostId={expandedPostId}/>
-            })}
-        </Paper>
+        <h1 className={classes.header}>Rate the most important posts of 2018?</h1>
+        <div className={classes.mainColumn}>
+          <Paper>
+            {results?.map(post => {
+                return <VoteTableRow key={post._id} post={post} dispatch={dispatchVote} quadraticVotes={quadraticVotes} setQuadraticVotes=  {setQuadraticVotes} useQuadratic={useQuadratic} setExpandedPostId={setExpandedPostId} expandedPostId={expandedPostId}/>
+              })}
+          </Paper>
+        </div>
         <div className={classes.results}>
           {useQuadratic && computeTotalCost(quadraticVotes)}
           {votes.map(({title}: {title: string}) => {
@@ -206,7 +209,7 @@ const VoteTableRow = withStyles(voteRowStyles, {name: "VoteTableRow"})((
     <div onClick={()=>setExpandedPostId(post._id)}>
       <div className={classes.postVote} >
         <div className={classes.post}>
-          <LWTooltip title={<PostsPreviewTooltip post={post}/>}>
+          <LWTooltip title={<PostsPreviewTooltip post={post}/>} tooltip={false}>
             <PostsTitle post={post} showIcons={false} wrap isLink={false}/>
           </LWTooltip>
           {!expanded && <div className={classes.expand}>Click to expand</div>}
@@ -281,10 +284,13 @@ const quadraticVotingButtonStyles = theme => ({
   vote: {
     ...theme.typography.commentStyle,
     fontSize: "1.5rem",
-    fontWeight: 600
+    fontWeight: 600,
+    verticalAlign: "middle",
+    padding: 10,
+    cursor: "pointer"
   },
   score: {
-    ...theme.typography.body2,
+    ...theme.typography.body1,
     ...theme.typography.commentStyle
   }
 })
@@ -297,9 +303,9 @@ const QuadraticVotingButtons = withStyles(quadraticVotingButtonStyles, {name: "Q
       }
   } 
   return <div>
-    <span className={classes.vote} onClick={createClickHandler(title, 'sell')}>+</span>
+    <span className={classes.vote} onClick={createClickHandler(title, 'sell')}>–</span>
     <span className={classes.score}>{votes.get(title) || 0}</span>
-    <span className={classes.vote} onClick={createClickHandler(title, 'buy')}>-</span>
+    <span className={classes.vote} onClick={createClickHandler(title, 'buy')}>+</span>
   </div>
 })
 
