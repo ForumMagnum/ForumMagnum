@@ -36,13 +36,13 @@ const schema = {
   },
   score: {
     type: SimpleSchema.Integer, 
-    viewablyBy: ['guests'],
+    viewableBy: ['guests'],
     insertableBy: ['members']
   },
   type: {
     type: String, 
     allowedValues: ['qualitative', 'quadratic'],
-    viewablyBy: ['guests'],
+    viewableBy: ['guests'],
     insertableBy: ['members']
   },
   deleted: {
