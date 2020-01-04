@@ -1,12 +1,14 @@
-import React, { useState, useReducer } from 'react';
+import React, { useState } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-import { find, reject, sortBy, sumBy } from 'lodash'
-import { registerComponent, Components, useMulti } from 'meteor/vulcan:core';
+import { sumBy } from 'lodash'
+import { registerComponent, Components, useMulti, useCreate } from 'meteor/vulcan:core';
 import { Paper } from '@material-ui/core';
 import { Posts } from '../../lib/collections/posts';
+import { ReviewVotes } from '../../lib/collections/reviewVotes/collection';
 import classNames from 'classnames';
+import * as _ from "underscore"
 
 const styles = theme => ({
   root: {
@@ -49,13 +51,7 @@ const styles = theme => ({
   }
 });
 
-function reducer(state: vote[], { title, score }: vote):vote[] {
-  if (find(state, ['title', title])) state = reject(state, ['title', title])
-  if (score === 1) return state
-  return sortBy([...state, {title, score}], ['score', 'title']).reverse()
-}
-
-type vote = {title: string, score: number, type?: string}
+type vote = {postId: string, score: number, type?: string}
 
 const ReviewVotingPage = ({classes}) => {
   const { results } = useMulti({
@@ -67,10 +63,28 @@ const ReviewVotingPage = ({classes}) => {
     ssr: true
   });
 
-  const [votes, dispatchVote]:[vote[], React.Dispatch<vote>] = useReducer(reducer, [])
-  const [quadraticVotes, setQuadraticVotes] = useState<Map<string, number>>(new Map())
+  const { results: dbVotes } = useMulti({
+    terms: {view: "reviewVotesFromUser", limit: 100},
+    collection: ReviewVotes,
+    queryName: "reviewVoteQuery",
+    fragmentName: "reviewVoteFragment",
+    fetchPolicy: 'cache-and-network',
+    ssr: true
+  })
+
+  const { create: createVote } = useCreate({
+    collection: ReviewVotes,
+    fragmentName: "reviewVoteFragment", 
+  })
+
+  const votes:vote[] = filterForMostRecent(dbVotes?.filter(vote => vote.type === "qualitative") || [])
+  const dispatchVote = ({postId, score}) => createVote({postId, score, type: "qualitative"})
+
+  const quadraticVotes:vote[] = filterForMostRecent(dbVotes?.filter(vote => vote.type === "quadratic") || [])
+  const dispatchQuadraticVote = ({postId, score}) => createVote({postId, score, type: "quadratic"})
+
   const [useQuadratic, setUseQuadratic] = useState(false)
-  const [expandedPostId, setExpandedPostId] = useState(null)
+  const [expandedPost, setExpandedPost] = useState(null)
 
   return (
       <div className={classes.root}>
@@ -78,23 +92,59 @@ const ReviewVotingPage = ({classes}) => {
         <div className={classes.mainColumn}>
           <Paper>
             {results?.map(post => {
-                return <VoteTableRow key={post._id} post={post} dispatch={dispatchVote} quadraticVotes={quadraticVotes} setQuadraticVotes=  {setQuadraticVotes} useQuadratic={useQuadratic} setExpandedPostId={setExpandedPostId} expandedPostId={expandedPostId}/>
+                return <div key={post._id} onClick={()=>setExpandedPost(post)}>
+                    <VoteTableRow 
+                      post={post} 
+                      dispatch={dispatchVote} 
+                      votes={votes}
+                      quadraticVotes={quadraticVotes} 
+                      dispatchQuadraticVote={dispatchQuadraticVote} 
+                      useQuadratic={useQuadratic} 
+                    />
+                  </div>
               })}
           </Paper>
         </div>
         <div className={classes.results}>
           {useQuadratic && computeTotalCost(quadraticVotes)}
-          {votes.map(({title}: {title: string}) => {
-            return <div className={classes.result} key={title}>
-                {title}
+          {votes.filter(vote => vote.score !== 1).sort((a,b) => a.score - b.score).reverse().map(({postId}) => {
+            return <div className={classes.result} key={postId}>
+                {results.find(post => post._id === postId)?.title || "Couldn't find title"}
             </div>
           })}
-        <Button className={classes.convert} onClick={() => {
-            setQuadraticVotes(votesToQuadraticVotes(votes))
-            setUseQuadratic(true)
-        }}> 
-          Convert to Quadratic 
-        </Button>
+
+          <Button className={classes.convert} onClick={() => {
+              votesToQuadraticVotes(votes).forEach(dispatchQuadraticVote)
+              setUseQuadratic(true)
+          }}> 
+            Convert to Quadratic 
+          </Button>
+          {expandedPost && <div>
+            <div className={classes.expandedInfo}>
+                <div className={classes.comments}>
+                  <Components.PostReviewsAndNominations 
+                    title="Nominations"
+                    terms={{view:"nominations2018", postId: expandedPost._id}} 
+                    post={expandedPost} 
+                  />
+                  <Components.PostReviewsAndNominations 
+                    title="Reviews"
+                    terms={{view:"reviews2018", postId: expandedPost._id}} 
+                    post={expandedPost} 
+                  />
+                </div>
+                <div className={classes.reason}>
+                  <TextField
+                    id="standard-multiline-static"
+                    label="Why did you vote this way? (Optional)"
+                    fullWidth
+                    multiline
+                    rows="4"
+                  />
+                  <div className={classes.closeButton} onClick={()=>setExpandedPost(null)}>Close</div>
+                </div>
+              </div>
+            </div>}
         </div>
       </div>
   );
@@ -110,27 +160,32 @@ const linearScoreScaling = {
 
 const VOTE_BUDGET = 500
 const MAX_SCALING = 6
-const votesToQuadraticVotes = (votes:vote[]):Map<string, number> => {
-const sumScaled = sumBy(votes, vote => Math.abs(linearScoreScaling[vote.score]))
-return new Map(votes.map(({title, score}) => {
-    const scaledScore = linearScoreScaling[score]
-    const scaledCost = scaledScore * Math.min(VOTE_BUDGET/sumScaled, MAX_SCALING)
-    const newScore = Math.sign(scaledCost) * Math.floor(inverseSumOf1ToN(scaledCost))
-    return [title, newScore]
-}))
+const votesToQuadraticVotes = (votes:vote[]):vote[] => {
+  const sumScaled = sumBy(votes, vote => Math.abs(linearScoreScaling[vote.score]))
+  return votes.map(({postId, score}) => {
+      const scaledScore = linearScoreScaling[score]
+      const scaledCost = scaledScore * Math.min(VOTE_BUDGET/sumScaled, MAX_SCALING)
+      const newScore = Math.sign(scaledCost) * Math.floor(inverseSumOf1ToN(scaledCost))
+      return {postId, score: newScore, type: "quadratic"}
+  })
 }
 
 const inverseSumOf1ToN = (x:number) => {
-return Math.sign(x)*(1/2 * (Math.sqrt(8 * Math.abs(x) + 1) - 1))
+  return Math.sign(x)*(1/2 * (Math.sqrt(8 * Math.abs(x) + 1) - 1))
 }
 
 const sumOf1ToN = (x:number) => {
-return x*(x+1)/2
+  return x*(x+1)/2
 }
 
-const computeTotalCost = (votes: Map<string, number>) => {
-const voteArray = [...votes]
-return sumBy(voteArray, ([,score]) => sumOf1ToN(score))
+const computeTotalCost = (votes: vote[]) => {
+  return sumBy(votes, ({score}) => sumOf1ToN(score))
+}
+
+const filterForMostRecent = (votes: vote[]):vote[] => {
+  const groupedVotes = _.groupBy(votes, vote => vote.postId)
+  const filteredVotes = Object.keys(groupedVotes).map(key => _.max(groupedVotes[key], vote => new Date(vote.createdAt).getTime()))
+  return filteredVotes
 }
 
 const voteRowStyles = theme => ({
@@ -198,56 +253,27 @@ const voteRowStyles = theme => ({
 })
 
 const VoteTableRow = withStyles(voteRowStyles, {name: "VoteTableRow"})((
-  {post, dispatch, setQuadraticVotes, quadraticVotes, useQuadratic, classes, setExpandedPostId, expandedPostId }:
-  {post: object, dispatch: React.Dispatch<vote>, quadraticVotes: Map<string, number>, setQuadraticVotes: any, useQuadratic: boolean, classes:any, setExpandedPostId: Function, expandedPostId: string }
+  {post, dispatch, dispatchQuadraticVote, quadraticVotes, useQuadratic, classes, expandedPostId, votes }:
+  {post: any, dispatch: React.Dispatch<vote>, quadraticVotes: vote[], dispatchQuadraticVote: any, useQuadratic: boolean, classes:any, setExpandedPostId: Function, expandedPostId: string, votes: vote[] }
 ) => {
-  const { PostsTitle, PostReviewsAndNominations, LWTooltip, PostsPreviewTooltip } = Components
-
-  const expanded = expandedPostId === post._id
+  const { PostsTitle, LWTooltip, PostsPreviewTooltip } = Components
 
   return <div className={classNames(classes.root, {[classes.expanded]: expanded})}>
-    <div onClick={()=>setExpandedPostId(post._id)}>
+    <div>
       <div className={classes.postVote} >
         <div className={classes.post}>
           <LWTooltip title={<PostsPreviewTooltip post={post}/>} tooltip={false}>
             <PostsTitle post={post} showIcons={false} wrap isLink={false}/>
           </LWTooltip>
-          {!expanded && <div className={classes.expand}>Click to expand</div>}
         </div>
         <div>
             {useQuadratic ? 
-            <QuadraticVotingButtons title={post.title} votes={quadraticVotes} setVotes={setQuadraticVotes} /> :
-            <VotingButtons title={post.title} dispatch={dispatch} />
+              <QuadraticVotingButtons postId={post._id} votes={quadraticVotes} vote={dispatchQuadraticVote} /> :
+              <VotingButtons postId={post._id} dispatch={dispatch} votes={votes} />
             }
         </div>
       </div>
     </div>
-    {expanded && <div>
-        <div className={classes.expandedInfo}>
-          <div className={classes.comments}>
-            <PostReviewsAndNominations 
-              title="Nominations"
-              terms={{view:"nominations2018", postId: post._id}} 
-              post={post} 
-            />
-            <PostReviewsAndNominations 
-              title="Reviews"
-              terms={{view:"reviews2018", postId: post._id}} 
-              post={post} 
-            />
-          </div>
-          <div className={classes.reason}>
-            <TextField
-              id="standard-multiline-static"
-              label="Why did you vote this way? (Optional)"
-              fullWidth
-              multiline
-              rows="4"
-            />
-            <div className={classes.closeButton} onClick={()=>setExpandedPostId(null)}>Submit</div>
-          </div>
-        </div>
-    </div>}
   </div>
 })
 
@@ -265,19 +291,28 @@ const votingButtonStyles = theme => ({
   }
 })
 
-const VotingButtons = withStyles(votingButtonStyles, {name: "VotingButtons"})(({classes, title, dispatch}: {classes: object, title: string, dispatch: any}) => {
-const [selection, setSelection] = useState("Neutral")
-const createClickHandler = (index:number, text: string) => {
-    return () => {
-    setSelection(text)
-    dispatch({title, score: index})
-    }
+const indexToTermsLookup = {
+  0: "No",
+  1: "Neutral",
+  2: "Good",
+  3: "Important",
+  4: "Crucial"
 }
-return <div>
-    {["No", "Neutral", "Good", "Important", "Crucial"].map((text, i) => {
-    return <span className={classNames(classes.button, {[classes.highlighted]:selection === text})} onClick={createClickHandler(i, text)} key={`${text}-${i}`} >{text}</span>
-    })}
-</div>
+
+const VotingButtons = withStyles(votingButtonStyles, {name: "VotingButtons"})(({classes, postId, dispatch, votes}: {classes: any, postId: string, dispatch: any, votes: vote[]}) => {
+  const voteForCurrentPost = votes.find(vote => vote.postId === postId)
+  const [selection, setSelection] = useState(voteForCurrentPost?.score || 1)
+  const createClickHandler = (index:number) => {
+    return () => {
+      setSelection(index)
+      dispatch({postId, score: index})
+    }
+  }
+  return <div>
+      {[0,1,2,3,4,5].map((i) => {
+      return <span className={classNames(classes.button, {[classes.highlighted]:selection === i})} onClick={createClickHandler(i)} key={`${indexToTermsLookup[i]}-${i}`} >{indexToTermsLookup[i]}</span>
+      })}
+  </div>
 })
 
 const quadraticVotingButtonStyles = theme => ({
@@ -295,17 +330,18 @@ const quadraticVotingButtonStyles = theme => ({
   }
 })
 
-const QuadraticVotingButtons = withStyles(quadraticVotingButtonStyles, {name: "QuadraticVotingButtons"})(({classes, title, setVotes, votes}: {title: string, setVotes: any, votes: Map<string, number>}) => {
-  const createClickHandler = (title: string, type: 'buy' | 'sell') => {
+const QuadraticVotingButtons = withStyles(quadraticVotingButtonStyles, {name: "QuadraticVotingButtons"})(({classes, postId, vote, votes}: {classes: any, postId: string, vote: any, votes: vote[]}) => {
+  const voteForCurrentPost = votes.find(vote => vote.postId === postId)
+  const createClickHandler = (postId: string, type: 'buy' | 'sell') => {
       return () => {
-      const newScore = (votes.get(title) || 0) + (type === 'buy' ? 1 : -1)
-      setVotes(new Map([...votes, [title, newScore]]))
+        const newScore = (voteForCurrentPost?.score || 0) + (type === 'buy' ? 1 : -1)
+        vote({postId, score: newScore})
       }
   } 
   return <div>
-    <span className={classes.vote} onClick={createClickHandler(title, 'sell')}>–</span>
-    <span className={classes.score}>{votes.get(title) || 0}</span>
-    <span className={classes.vote} onClick={createClickHandler(title, 'buy')}>+</span>
+    <span className={classes.vote} onClick={createClickHandler(postId, 'sell')}>–</span>
+    <span className={classes.score}>{voteForCurrentPost?.score || 0}</span>
+    <span className={classes.vote} onClick={createClickHandler(postId, 'buy')}>+</span>
   </div>
 })
 

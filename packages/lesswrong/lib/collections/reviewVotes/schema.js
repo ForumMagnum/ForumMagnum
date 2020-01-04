@@ -7,6 +7,7 @@ const schema = {
   _id: {
     type: String,
     viewableBy: ['guests'],
+    optional: true
   },
   createdAt: {
     type: Date,
@@ -23,6 +24,7 @@ const schema = {
     }),
     onCreate: ({currentUser}) => currentUser._id,
     viewableBy: ['guests'],
+    optional: true
   },
   postId: {
     ...foreignKeyField({
@@ -49,6 +51,7 @@ const schema = {
     type: Boolean,
     viewableBy: ['guests'],
     ...schemaDefaultValue(false),
+    optional: true
   }
 };
 

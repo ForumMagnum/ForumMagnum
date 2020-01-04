@@ -3,7 +3,7 @@ import Users from 'meteor/vulcan:users';
 import { createCollection, getDefaultResolvers, getDefaultMutations} from 'meteor/vulcan:core';
 import { addUniversalFields } from '../../collectionUtils'
 
-const ReviewVotes = createCollection({
+export const ReviewVotes = createCollection({
   collectionName: 'ReviewVotes',
   typeName: 'ReviewVote',
   schema,

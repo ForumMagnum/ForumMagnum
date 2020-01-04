@@ -2,8 +2,8 @@ import ReviewVotes from './collection'
 import { addCallback, editMutation } from 'meteor/vulcan:core';
 
 async function markOldVoteAsDeleted(newVote) {
-  const {userId, postId} = newVote
-  const oldVotes = await ReviewVotes.find({postId, userId}).fetch()
+  const {userId, postId, type} = newVote
+  const oldVotes = await ReviewVotes.find({postId, userId, type}).fetch()
   oldVotes.forEach(vote => {
     editMutation({
       collection:ReviewVotes,
@@ -15,6 +15,7 @@ async function markOldVoteAsDeleted(newVote) {
       validate: false,
     })
   })
+  return newVote
 }
 
 addCallback('reviewVote.create.before', markOldVoteAsDeleted);
