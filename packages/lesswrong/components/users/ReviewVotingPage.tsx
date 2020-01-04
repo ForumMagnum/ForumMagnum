@@ -14,7 +14,7 @@ const styles = theme => ({
   root: {
     display: 'grid',
     gridTemplateColumns: `
-      1fr minmax(${300}px, ${740}px) minmax(${100}px, ${400}px) 1fr
+      1fr minmax(${300}px, ${740}px) minmax(${100}px, ${500}px) 1fr
     `,
     gridTemplateAreas: `
     "... title ... ..."
@@ -25,14 +25,14 @@ const styles = theme => ({
     gridArea: "voting"
   },
   results: {
-    padding: theme.spacing.unit*2,
     gridArea: "results"
   },
   result: {
     ...theme.typography.smallText,
     ...theme.typography.commentStyle,
     lineHeight: "1.3rem",
-    marginBottom: 10
+    marginBottom: 10,
+    position: "relative"
   },
   votingBox: {
     maxWidth: 700
@@ -45,15 +45,23 @@ const styles = theme => ({
     width: "100%",
   },
   expandedInfo: {
-    background: "rgba(0,0,0,.1)",
-    padding: 10,
-    marginBottom: 10
+    padding: 16,
+    marginBottom: 10,
+    position: "fixed",
+    maxWidth: 500
   },
   header: {
     gridArea: "title",
     ...theme.typography.display3,
     ...theme.typography.postStyle
-  }
+  },
+  comments: {
+  },
+  reason: {
+    margin: theme.spacing.unit*1.5,
+    position: "relative",
+    minHeight: 300
+  },
 });
 
 type vote = {postId: string, score: number, type?: string}
@@ -95,9 +103,25 @@ const ReviewVotingPage = ({classes}) => {
       <div className={classes.root}>
         <h1 className={classes.header}>Rate the most important posts of 2018?</h1>
         <div className={classes.mainColumn}>
+          {/* {votes.length && <Paper>
+            {votes.filter(vote => vote.score !== 1).sort((a,b) => a.score - b.score).reverse().map(({postId}) => {
+              return <div className={classes.result} key={postId}>
+                  {results.find(post => post._id === postId)?.title || "Couldn't find title"}
+              </div>
+            })}
+          </Paper>} */}
+          <Button className={classes.convert} onClick={() => {
+              votesToQuadraticVotes(votes).forEach(dispatchQuadraticVote)
+              setUseQuadratic(true)
+          }}> 
+            Convert to Quadratic 
+          </Button>
           <Paper>
             {results?.map(post => {
-                const voteForPost = useQuadratic && quadraticVotes.find(vote => vote.postId === post._id)
+                const voteForPost = useQuadratic ? 
+                    quadraticVotes.find(vote => vote.postId === post._id) : 
+                    votes.find(vote => vote.postId === post._id)
+                    
                 return [post, voteForPost]
               })
               .sort(([post1, vote1], [post2, vote2]) => (vote1?.score || 0) - (vote2?.score || 0))
@@ -124,7 +148,7 @@ const ReviewVotingPage = ({classes}) => {
                 <div className={classes.reason}>
                   <TextField
                     id="standard-multiline-static"
-                    label="Why did you vote this way? (Optional)"
+                    label={`Why did you vote this on ${expandedPost.title}? (Optional)"`}
                     fullWidth
                     multiline
                     rows="4"
@@ -145,17 +169,11 @@ const ReviewVotingPage = ({classes}) => {
               </div>
             </div>}
             {useQuadratic && computeTotalCost(quadraticVotes)}
-            {votes.filter(vote => vote.score !== 1).sort((a,b) => a.score - b.score).reverse().map(({postId}) => {
+            {/* {votes.filter(vote => vote.score !== 1).sort((a,b) => a.score - b.score).reverse().map(({postId}) => {
               return <div className={classes.result} key={postId}>
                   {results.find(post => post._id === postId)?.title || "Couldn't find title"}
               </div>
-            })}
-            <Button className={classes.convert} onClick={() => {
-                votesToQuadraticVotes(votes).forEach(dispatchQuadraticVote)
-                setUseQuadratic(true)
-            }}> 
-              Convert to Quadratic 
-            </Button>
+            })} */}
         </div>
       </div>
   );
@@ -236,17 +254,7 @@ const voteRowStyles = theme => ({
     justifyContent: "space-between"
   },
   expanded: {
-    background: "rgba(0,0,0,.1)"
-  },
-  comments: {
-    marginTop: theme.spacing.unit*1.5,
-    width: "calc(100% - 275px)",
-  },
-  reason: {
-    marginTop: theme.spacing.unit*1.5,
-    width: 252,
-    position: "relative",
-    minHeight: 200
+    background: "#eee"
   },
   closeButton: {
     ...theme.typography.body2,
