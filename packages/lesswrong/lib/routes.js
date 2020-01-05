@@ -204,10 +204,9 @@ addRoute([
     name: 'bookmarks',
     path: '/bookmarks',
     componentName: 'BookmarksPage',
-    titleComponentName: 'UserPageTitle',
-    subtitleComponentName: 'UserPageTitle',
+    title: 'Bookmarks',
   },
-  
+
   // Tags
   {
     name: 'tags',
