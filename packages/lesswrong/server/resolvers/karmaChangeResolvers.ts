@@ -1,7 +1,53 @@
-import Votes from './collections/votes/collection.js';
+import Users from "meteor/vulcan:users";
+import { addGraphQLSchema, addGraphQLResolvers, getSetting } from 'meteor/vulcan:core';
+import { addFieldsDict } from '../../lib/modules/utils/schemaUtils'
+import Votes from '../../lib/collections/votes/collection.js';
 import moment from 'moment-timezone';
 import htmlToText from 'html-to-text';
 import sumBy from 'lodash/sumBy';
+
+addFieldsDict(Users, {
+  karmaChanges: {
+    type: 'KarmaChanges',
+    resolveAs: {
+      arguments: 'startDate: Date, endDate: Date',
+      type: 'KarmaChanges',
+      resolver: async (document, {startDate,endDate}, {currentUser}) => {
+        if (!currentUser)
+          return null;
+        
+        // Grab new current user, because the current user gets set at the beginning of the request, which
+        // is out of date in this case, because we are depending on recent mutations being reflected on the current user
+        const newCurrentUser = await Users.findOne(currentUser._id)
+        
+        const settings = newCurrentUser.karmaChangeNotifierSettings
+        const now = new Date();
+        
+        // If date range isn't specified, infer it from user settings
+        if (!startDate || !endDate) {
+          // If the user has karmaChanges disabled, don't return anything
+          if (settings.updateFrequency === "disabled") return null
+          const lastOpened = newCurrentUser.karmaChangeLastOpened;
+          const lastBatchStart = newCurrentUser.karmaChangeBatchStart;
+          
+          const {start, end} = getKarmaChangeDateRange({settings, lastOpened, lastBatchStart, now}) as any
+          startDate = start;
+          endDate = end;
+        }
+        
+        const nextBatchDate = getKarmaChangeNextBatchDate({settings, now});
+        
+        const alignmentForum = getSetting('forumType') === 'AlignmentForum';
+        return getKarmaChanges({
+          user: document,
+          startDate, endDate,
+          nextBatchDate,
+          af: alignmentForum,
+        });
+      },
+    },
+  },
+});
 
 const COMMENT_DESCRIPTION_LENGTH = 500;
 
@@ -31,7 +77,7 @@ const COMMENT_DESCRIPTION_LENGTH = 500;
 //     },
 //   ]
 // }
-export async function getKarmaChanges({user, startDate, endDate, nextBatchDate, af=false})
+async function getKarmaChanges({user, startDate, endDate, nextBatchDate, af=false})
 {
   if (!user) throw new Error("Missing required argument: user");
   if (!startDate) throw new Error("Missing required argument: startDate");
@@ -125,7 +171,9 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate, 
   };
 }
 
-export function getKarmaChangeDateRange({settings, now, lastOpened=null, lastBatchStart=null})
+function getKarmaChangeDateRange({settings, now, lastOpened=null, lastBatchStart=null}: {
+  settings: any, now: any, lastOpened?: any, lastBatchStart?: any
+}): any
 {
   // Greatest date prior to lastOpened at which the time of day matches
   // settings.timeOfDay.
@@ -228,7 +276,7 @@ export function getKarmaChangeDateRange({settings, now, lastOpened=null, lastBat
   }
 }
 
-export function getKarmaChangeNextBatchDate({settings, now})
+function getKarmaChangeNextBatchDate({settings, now})
 {
   switch(settings.updateFrequency) {
     case "disabled":

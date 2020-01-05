@@ -92,6 +92,7 @@ if (getSetting('hasEvents', true)) {
   import './server/callbacks/localgroupCallbacks';
 }
 
+import './server/resolvers/karmaChangeResolvers';
 import './server/resolvers/revisionResolvers';
 import './server/resolvers/postResolvers';
 import './server/resolvers/userResolvers';

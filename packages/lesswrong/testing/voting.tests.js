@@ -5,7 +5,7 @@ import { performVoteServer } from '../server/voteServer.js';
 import { batchUpdateScore } from '../server/updateScores.js';
 import { createDummyUser, createDummyPost, } from './utils.js'
 import { Posts } from '../lib/collections/posts'
-import { getKarmaChanges, getKarmaChangeDateRange } from '../lib/karmaChanges.js';
+import { getKarmaChanges, getKarmaChangeDateRange } from '../server/resolvers/karmaChangeResolvers'
 import { Utils, waitUntilCallbacksFinished } from 'meteor/vulcan:core';
 import lolex from 'lolex';
 
