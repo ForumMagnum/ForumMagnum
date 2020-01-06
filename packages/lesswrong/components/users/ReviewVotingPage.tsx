@@ -92,8 +92,10 @@ const ReviewVotingPage = ({classes}) => {
     fragmentName: "reviewVoteFragment", 
   })
 
+  const [useQuadratic, setUseQuadratic] = useState(false)
+  const [expandedPost, setExpandedPost] = useState<any>(null)
+
   const currentUser = useCurrentUser()
-  console.log(currentUser)
   if (!currentUser || !currentUser.isAdmin) return null
 
   const votes:vote[] = filterForMostRecent(dbVotes?.filter(vote => vote.type === "qualitative") || [])
@@ -102,8 +104,7 @@ const ReviewVotingPage = ({classes}) => {
   const quadraticVotes:vote[] = filterForMostRecent(dbVotes?.filter(vote => vote.type === "quadratic") || [])
   const dispatchQuadraticVote = ({postId, score}) => createVote({postId, score, type: "quadratic"})
 
-  const [useQuadratic, setUseQuadratic] = useState(false)
-  const [expandedPost, setExpandedPost] = useState<any>(null)
+  
 
   return (
       <div className={classes.root}>
@@ -130,7 +131,7 @@ const ReviewVotingPage = ({classes}) => {
                     
                 return [post, voteForPost]
               })
-              .sort(([post1, vote1], [post2, vote2]) => (vote1?.score || 0) - (vote2?.score || 0))
+              .sort(([post1, vote1], [post2, vote2]) => (vote1 ? vote1.score : 1) - (vote2 ? vote2.score : 1))
               .reverse()
               .map(([post, vote]) => {
                 return <div key={post._id} onClick={()=>setExpandedPost(post)}>
@@ -309,7 +310,7 @@ const indexToTermsLookup = {
 
 const VotingButtons = withStyles(votingButtonStyles, {name: "VotingButtons"})(({classes, postId, dispatch, votes}: {classes: any, postId: string, dispatch: any, votes: vote[]}) => {
   const voteForCurrentPost = votes.find(vote => vote.postId === postId)
-  const [selection, setSelection] = useState(voteForCurrentPost?.score === 0 ? 0 : (voteForCurrentPost?.score || 1))
+  const [selection, setSelection] = useState(voteForCurrentPost ? voteForCurrentPost.score : 1)
   const createClickHandler = (index:number) => {
     return () => {
       setSelection(index)
@@ -317,8 +318,8 @@ const VotingButtons = withStyles(votingButtonStyles, {name: "VotingButtons"})(({
     }
   }
   return <div>
-      {[0,1,2,3,4,5].map((i) => {
-      return <span className={classNames(classes.button, {[classes.highlighted]:selection === i})} onClick={createClickHandler(i)} key={`${indexToTermsLookup[i]}-${i}`} >{indexToTermsLookup[i]}</span>
+      {[0,1,2,3,4].map((i) => {
+        return <span className={classNames(classes.button, {[classes.highlighted]:selection === i})} onClick={createClickHandler(i)} key={`${indexToTermsLookup[i]}-${i}`} >{indexToTermsLookup[i]}</span>
       })}
   </div>
 })
