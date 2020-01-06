@@ -14,7 +14,7 @@ const AnalyticsInViewTracker = ({eventType, eventProps, observerProps, children,
   useEffect(() => {
     if (!skip && !!entry) {
       const {time, isIntersecting, intersectionRatio} = entry
-      !skip && !!entry && captureInViewEvent(undefined, {time, isIntersecting, intersectionRatio})
+      captureInViewEvent(undefined, {time, isIntersecting, intersectionRatio})
     }
   }, [entry, captureInViewEvent, skip])
 
