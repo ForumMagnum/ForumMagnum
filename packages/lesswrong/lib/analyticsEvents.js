@@ -104,6 +104,8 @@ export function useIsInView({rootMargin='0px', threshold=0}={}) {
   const observer = useRef(null)
 
   useEffect(() => {
+    if (!window.IntersectionObserver) return null;
+
     if (observer.current && node) observer.current.disconnect()
 
     observer.current = new window.IntersectionObserver(([ entry ]) => {
