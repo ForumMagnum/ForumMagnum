@@ -1,5 +1,5 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import { editableCollections, editableCollectionsFields, editableCollectionsFieldOptions } from '../../lib/editor/make_editable.js';
+import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable.js';
 import { getCollection } from 'meteor/vulcan:lib';
 import Revisions from '../../lib/collections/revisions/collection'
 
