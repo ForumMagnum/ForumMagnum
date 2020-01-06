@@ -112,7 +112,7 @@ const styles = theme => ({
   }
 })
 
-const SingleLineComment = ({comment, classes, nestingLevel, hover, parentCommentId, hideKarma}) => {
+const SingleLineComment = ({comment, classes, nestingLevel, hover, parentCommentId, hideKarma, hideSingleLineDate, hideSingleLineMeta}) => {
   if (!comment) return null
 
   const { plaintextMainText } = comment.contents
@@ -136,12 +136,12 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
         <span className={classes.username}>
           <CommentUserName comment={comment} simple={true}/>
         </span>
-        <span className={classes.date}>
+        {!hideSingleLineMeta && <span className={classes.date}>
           <Components.FormatDate date={comment.postedAt} tooltip={false}/>
-        </span>
+        </span>}
         {renderHighlight && <span className={classes.truncatedHighlight}> 
-          { comment.nominatedForReview && <span className={classes.nomination}>Nomination</span>}
-          { comment.reviewingForReview && <span className={classes.nomination}>Review</span>}
+          { comment.nominatedForReview && !hideSingleLineMeta && <span className={classes.nomination}>Nomination</span>}
+          { comment.reviewingForReview && !hideSingleLineMeta && <span className={classes.nomination}>Review</span>}
           {plaintextMainText} 
         </span>}      
       </div>

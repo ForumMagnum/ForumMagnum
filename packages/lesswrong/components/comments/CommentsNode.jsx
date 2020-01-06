@@ -101,7 +101,7 @@ const styles = theme => ({
       backgroundColor: theme.palette.grey[300],
       borderColor: "black"
     },
-    to: { 
+    to: {
       backgroundColor: "none",
       borderColor: "rgba(0,0,0,.15)"
     }
@@ -142,23 +142,23 @@ class CommentsNode extends Component {
   beginTruncated = () => {
     return this.props.startThreadTruncated
   }
-  
+
   beginSingleLine = () => {
     const { comment, condensed, lastCommentId, forceSingleLine, shortform, nestingLevel, postPage, forceNotSingleLine } = this.props
     const mostRecent = lastCommentId === comment._id
     const lowKarmaOrCondensed = (comment.baseScore < 10 || condensed)
     const shortformAndTop = (nestingLevel === 1) && shortform
     const postPageAndTop = (nestingLevel === 1) && postPage
-    
+
     if (forceSingleLine)
       return true;
-    
+
     return (
       this.isTruncated() &&
       lowKarmaOrCondensed &&
       !(mostRecent && condensed) &&
-      !shortformAndTop && 
-      !postPageAndTop && 
+      !shortformAndTop &&
+      !postPageAndTop &&
       !forceNotSingleLine
     )
   }
@@ -237,7 +237,7 @@ class CommentsNode extends Component {
     // const { truncatedStateSet } = this.state
 
     const truncatedStateUnset = !this.state || !this.state.truncatedStateSet
-    
+
     return !expandAllThreads && (this.state?.truncated || ((this.props.truncated && truncatedStateUnset) || (startThreadTruncated && truncatedStateUnset)))
   }
 
@@ -249,13 +249,13 @@ class CommentsNode extends Component {
   isSingleLine = () => {
     const { forceSingleLine, forceNotSingleLine, postPage, currentUser } = this.props
     const { singleLine } = this.state
-    
+
     if (!singleLine || currentUser?.noSingleLineComments) return false;
     if (forceSingleLine) return true;
     if (forceNotSingleLine) return false
-    
+
     // highlighted new comments on post page should always be expanded (and it needs to live here instead of "beginSingleLine" since the highlight status can change after the fact)
-    const postPageAndNew = this.isNewComment() && postPage 
+    const postPageAndNew = this.isNewComment() && postPage
 
     return this.isTruncated() && !postPageAndNew
   }
@@ -265,7 +265,7 @@ class CommentsNode extends Component {
       comment, children, nestingLevel=1, highlightDate, updateComment, post,
       muiTheme, postPage, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments,
-      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand, hoverPreview
+      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand, hoverPreview, hideSingleLineMeta
     } = this.props;
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker } = Components
@@ -316,7 +316,7 @@ class CommentsNode extends Component {
     )
 
     const passedThroughItemProps = { post, postPage, comment, updateComment, showPostTitle, collapsed, refetch }
-    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, updateComment, condensed, hideReadComments, refetch, scrollOnExpand }
+    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, updateComment, condensed, hideReadComments, refetch, scrollOnExpand, hideSingleLineMeta }
 
     return (
         <div className={comment.gapIndicator && classes.gapIndicator}>
@@ -333,6 +333,7 @@ class CommentsNode extends Component {
                         nestingLevel={updatedNestingLevel}
                         parentCommentId={parentCommentId}
                         hideKarma={post.hideCommentKarma}
+                        hideSingleLineMeta={hideSingleLineMeta}
                       />
                     </AnalyticsTracker>
                   </AnalyticsContext>
@@ -348,7 +349,7 @@ class CommentsNode extends Component {
                   />
               }
             </div>}
-            
+
             {!collapsed && children && children.length>0 && <div className={classes.children}>
               <div className={classes.parentScroll} onClick={this.scrollIntoView}/>
               { showExtraChildrenButton }
@@ -365,7 +366,7 @@ class CommentsNode extends Component {
                   { ...passedThroughNodeProps}
                 />)}
             </div>}
-            
+
             {!this.isSingleLine() && loadChildrenSeparately &&
               <div className="comments-children">
                 <div className={classes.parentScroll} onClick={this.scrollIntoView}/>

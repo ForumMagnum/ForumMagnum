@@ -369,7 +369,7 @@ class PostsPage extends Component {
                       </div>}
 
                       <AlignmentCrosspostMessage post={post} />
-                      { post.authorIsUnreviewed && <div className={classes.contentNotice}>This post is awaiting moderator approval</div>}
+                      { post.authorIsUnreviewed && !post.draft && <div className={classes.contentNotice}>This post is awaiting moderator approval</div>}
                       <LinkPostMessage post={post} />
                       {query.revision && <PostsRevisionMessage post={post} />}
                       <AnalyticsContext pageSectionContext="postBody">

@@ -120,6 +120,11 @@ addRoute([
     componentName: 'PostCollaborationEditor',
     getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.query.postId),
   },
+  {
+    name:'reviewVoting',
+    path: '/reviewVoting',
+    componentName: "ReviewVotingPage"
+  },
 
   // Sequences
   {
@@ -199,10 +204,9 @@ addRoute([
     name: 'bookmarks',
     path: '/bookmarks',
     componentName: 'BookmarksPage',
-    titleComponentName: 'UserPageTitle',
-    subtitleComponentName: 'UserPageTitle',
+    title: 'Bookmarks',
   },
-  
+
   // Tags
   {
     name: 'tags',
