@@ -73,6 +73,12 @@ import Chapters from './collections/chapters/collection.js';
 import Books from './collections/books/collection.js';
 import Collections from './collections/collections/collection.js';
 
+// ReviewVotes
+import ReviewVotes from './collections/reviewVotes/collection.js'
+import './collections/reviewVotes/views.js'
+import './collections/reviewVotes/fragments.js'
+
+
 import Localgroups from './collections/localgroups/collection.js'
 import './collections/localgroups/views.js';
 import './collections/localgroups/permissions.js';
@@ -185,5 +191,6 @@ export {
   Bans,
   Localgroups,
   Comments,
-  Revisions
+  Revisions, 
+  ReviewVotes
 }

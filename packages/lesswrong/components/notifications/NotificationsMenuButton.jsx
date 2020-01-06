@@ -20,8 +20,8 @@ const styles = theme => ({
     fontFamily: 'freight-sans-pro, sans-serif',
     fontSize: "12px",
     fontWeight: 500,
-    right: "11px",
-    top: "11px",
+    right: "1px",
+    top: "1px",
     pointerEvents: "none",
   },
   buttonOpen: {

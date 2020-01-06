@@ -23,13 +23,22 @@ mdi.use(markdownItFootnote)
 
 import { mjpage }  from 'mathjax-node-page'
 
-
+const mjPageSettings = {
+  fragment: true, 
+  displayErrors: true,
+}
 
 function mjPagePromise(html, beforeSerializationCallback) {
   // Takes in HTML and replaces LaTeX with CommonHTML snippets
   // https://github.com/pkra/mathjax-node-page
   return new Promise((resolve, reject) => {
-    mjpage(html, {}, {html: true, css: true}, resolve)
+    const errorHandler = (id, wrapperNode, sourceFormula, sourceFormat, errors) => {
+      // eslint-disable-next-line no-console
+      console.log("Error in Mathjax handling: ", id, wrapperNode, sourceFormula, sourceFormat, errors)
+      reject(`Error in $${sourceFormula}$: ${errors}`)
+    }
+    
+    mjpage(html, { mjPageSettings, errorHandler} , {html: true, css: true}, resolve)
       .on('beforeSerialization', beforeSerializationCallback);
   })
 }
@@ -260,6 +269,7 @@ export function addEditableCallbacks({collection, options = {}}) {
           originalContents: doc[fieldName].originalContents,
           currentUser,
         }),
+        fieldName,
         version,
         updateType: 'initial'
       });
@@ -305,6 +315,7 @@ export function addEditableCallbacks({collection, options = {}}) {
           originalContents: newDocument[fieldName].originalContents,
           currentUser,
         }),
+        fieldName,
         version,
         updateType
       });

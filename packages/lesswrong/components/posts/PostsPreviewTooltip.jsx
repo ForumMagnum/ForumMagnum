@@ -149,9 +149,9 @@ const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, truncate
         }
         {renderWordCount && <div className={classes.tooltipInfo}>
           <span>
-            {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
+            {wordCount} words ({Math.ceil(wordCount/300)} min read)
           </span>
-            { showAllInfo && <span className={classes.bookmarkButton}><BookmarkButton post={post} /></span>}
+          { showAllInfo && <span className={classes.bookmarkButton}><BookmarkButton post={post} /></span>}
         </div>}
     </Card>
   </AnalyticsContext>

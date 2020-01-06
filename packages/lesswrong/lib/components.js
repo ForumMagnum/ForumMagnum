@@ -72,6 +72,7 @@ importComponent("ErrorMessage", () => require('../components/common/ErrorMessage
 importComponent("CloudinaryImage", () => require('../components/common/CloudinaryImage.jsx'));
 importComponent("ContentItemBody", () => require('../components/common/ContentItemBody.jsx'));
 importComponent("LWPopper", () => require('../components/common/LWPopper.jsx'));
+importComponent("LWTooltip", () => require('../components/common/LWTooltip.jsx'));
 importComponent("PopperCard", () => require('../components/common/PopperCard.jsx'));
 importComponent("Footer", () => require('../components/common/Footer.jsx'));
 importComponent("LoadMore", () => require('../components/common/LoadMore.jsx'));
@@ -127,6 +128,7 @@ importComponent("SignupSubscribeToCurated", () => require('../components/users/S
 importComponent("UserNameDeleted", () => require('../components/users/UserNameDeleted.jsx'));
 importComponent("WrappedLoginForm", () => require('../components/users/WrappedLoginForm.jsx'));
 importComponent("ResendVerificationEmailPage", () => require('../components/users/ResendVerificationEmailPage.jsx'));
+importComponent("ReviewVotingPage", () => require('../components/users/ReviewVotingPage.tsx'))
 
 importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon.jsx'));
 importComponent("SettingsIcon", () => require('../components/icons/SettingsIcon.jsx'));
@@ -440,6 +442,8 @@ importComponent("ReviewPostForm", () => require('../components/review/ReviewPost
 importComponent("NominatePostMenuItem", () => require('../components/review/NominatePostMenuItem.jsx'));
 importComponent("NominatePostDialog", () => require('../components/review/NominatePostDialog.jsx'));
 importComponent("UserReviews", () => require('../components/review/UserReviews.jsx'));
+importComponent("PostReviewsAndNominations", () => require('../components/review/PostReviewsAndNominations.jsx'));
+
 
 // Analytics Tracking
 importComponent("AnalyticsTracker", () => require('../components/common/AnalyticsTracker.jsx'));
