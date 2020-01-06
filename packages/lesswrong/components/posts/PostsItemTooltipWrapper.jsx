@@ -23,4 +23,4 @@ const PostsItemTooltipWrapper = ({hover, anchorEl, stopHover, children, post}) =
 }
 
 registerComponent('PostsItemTooltipWrapper', PostsItemTooltipWrapper,
-  withHover({pageElementContext: "postItemTooltip"}, ({post}) => ({postId: post._id})))
+  withHover({pageElementContext: "postItemTooltip"}, ({post}) => ({postId: post?._id})))

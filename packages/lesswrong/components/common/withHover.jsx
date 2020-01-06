@@ -42,8 +42,8 @@ export const withHover = (trackingData, propsToTrackingData=()=>{}) =>
 
       return (
         <span onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave}>
-                <WrappedComponent { ...allProps }/>
-            </span>
+          <WrappedComponent {...allProps}/>
+        </span>
       )
     }
   }
