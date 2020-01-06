@@ -12,7 +12,7 @@ Package.onUse( function(api) {
     'ecmascript',
     'typescript',
     'promise',
-    'fourseven:scss',
+    'fourseven:scss@4.12.0',
 
     // vulcan core
     'vulcan:core',
