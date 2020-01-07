@@ -5,7 +5,7 @@ import { ReviewVotes } from './collection'
 
 addGraphQLResolvers({
   Mutation: {
-    submitReviewVote: async (root, { postId, qualitativeScore, quadraticScore }, { currentUser }) => {
+    submitReviewVote: async (root, { postId, qualitativeScore, quadraticScore, comment }, { currentUser }) => {
       if (!currentUser) throw new Error("You must be logged in to submit a review vote");
       if (!postId) throw new Error("Missing argument: postId");
       
@@ -18,7 +18,7 @@ addGraphQLResolvers({
       if (!existingVote) {
         const newVote = await newMutation({
           collection: ReviewVotes,
-          document: { postId, qualitativeScore, quadraticScore },
+          document: { postId, qualitativeScore, quadraticScore, comment },
           validate: false,
           currentUser,
         });
@@ -29,7 +29,7 @@ addGraphQLResolvers({
         const updatedVote = await editMutation({
             collection: ReviewVotes,
             documentId: existingVote._id,
-            set: { postId, qualitativeScore, quadraticScore },
+            set: { postId, qualitativeScore, quadraticScore, comment },
             unset: {},
             validate: false,
         });
@@ -38,4 +38,4 @@ addGraphQLResolvers({
     }
   }
 });
-addGraphQLMutation('submitReviewVote(postId: String, qualitativeScore: Int, quadraticScore: Int): ReviewVote');
+addGraphQLMutation('submitReviewVote(postId: String, qualitativeScore: Int, quadraticScore: Int, comment: String): ReviewVote');

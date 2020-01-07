@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
@@ -121,8 +121,8 @@ const ReviewVotingPage = ({classes}) => {
   })
 
   const [submitVote] = useMutation(gql`
-    mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticScore: Int) {
-      submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticScore: $quadraticScore) {
+    mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticScore: Int, $comment: String) {
+      submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticScore: $quadraticScore, comment: $comment) {
         ...reviewVoteFragment
       }
     }
@@ -214,12 +214,10 @@ const ReviewVotingPage = ({classes}) => {
             <div className={classes.expandedInfo}>
               <div className={classes.reason}>
                 <div className={classes.reasonTitle}>Anonymous thoughts on "{expandedPost.title}"</div>
-                <TextField
-                  id="standard-multiline-static"
-                  placeholder="(Optional) Write here any special considerations that affected your vote. These will appear anonymously in a 2018 Review roundup. The moderation team will take them as input for the final decisions of what posts to include in the book."
-                  fullWidth
-                  multiline
-                  rows="4"
+                <CommentTextField 
+                  startValue={getVoteForPost(dbVotes, expandedPost._id)?.comment}  
+                  updateValue={(value) => submitVote({variables: {comment: value, postId: expandedPost._id}})}
+                  postId={expandedPost._id}
                 />
               </div>
               <div className={classes.comments}>
@@ -247,6 +245,33 @@ const ReviewVotingPage = ({classes}) => {
   );
 }
 
+function getVoteForPost(votes, postId) {
+  return votes.find(vote => vote.postId === postId)
+}
+
+function CommentTextField({startValue, updateValue, postId}) {
+  const [text, setText] = useState(startValue)
+  useEffect(() => {
+    setText(startValue)
+  }, [postId])
+  const debouncedUpdateValue = useCallback(_.debounce((value) => {
+    console.log("calling debounced update value")
+    updateValue(value)
+  }, 500), [postId])
+  return <TextField
+    id="standard-multiline-static"
+    placeholder="(Optional) Write here any special considerations that affected your vote. These will appear anonymously in a 2018 Review roundup. The moderation team will take them as input for the final decisions of what posts to include in the book."
+    defaultValue={startValue}
+    onChange={(event) => {
+      setText(event.target.value)
+      debouncedUpdateValue(event.target.value)
+    }}
+    value={text || ""}
+    fullWidth
+    multiline
+    rows="4"
+  />
+}
 function getPostOrder(posts, votes) {
   return posts.map((post, i) => {
     const voteForPost = votes.find(vote => vote.postId === post._id)

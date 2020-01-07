@@ -1,6 +1,6 @@
 import schema from './schema.js';
 import Users from 'meteor/vulcan:users';
-import { createCollection, getDefaultResolvers, getDefaultMutations} from 'meteor/vulcan:core';
+import { createCollection, getDefaultResolvers } from 'meteor/vulcan:core';
 import { addUniversalFields } from '../../collectionUtils'
 
 export const ReviewVotes = createCollection({
@@ -8,7 +8,6 @@ export const ReviewVotes = createCollection({
   typeName: 'ReviewVote',
   schema,
   resolvers: getDefaultResolvers('ReviewVotes'),
-  mutations: getDefaultMutations('ReviewVotes'),
 });
 
 addUniversalFields({collection: ReviewVotes})

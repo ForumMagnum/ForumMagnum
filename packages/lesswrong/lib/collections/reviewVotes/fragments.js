@@ -8,5 +8,6 @@ registerFragment(`
     postId
     qualitativeScore
     quadraticScore
+    comment
   }
 `)

@@ -34,24 +34,24 @@ const schema = {
       type: "Post",
     }),
     viewableBy: ['guests'],
-    insertableBy: ['members'],
   },
   qualitativeScore: {
     type: SimpleSchema.Integer, 
     viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
     optional: true,
     ...schemaDefaultValue(1)
   },
   quadraticScore: {
     type: SimpleSchema.Integer, 
     viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
     optional: true,
     ...schemaDefaultValue(0)
   },
+  comment: {
+    type: String,
+    viewableBy: ['guests'],
+    optional: true
+  }
 };
 
 export default schema;
