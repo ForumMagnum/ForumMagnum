@@ -5,6 +5,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
+import { reviewAlgorithm } from "./FrontpageReviewPhase";
 
 const styles = theme => ({
   timeRemaining: {
@@ -12,32 +13,19 @@ const styles = theme => ({
     marginBottom: 4
   },
   learnMore: {
-    color: theme.palette.lwTertiary.main
+    color: theme.palette.primary.main
   }
 })
 
-export const reviewAlgorithm = {
-  method: "sample",
-  count: 3,
-  scoreOffset: 0,
-  scoreExponent: 0,
-  personalBlogpostModifier: 0,
-  frontpageModifier: 0,
-  curatedModifier: 0,
-  review2018: true, 
-  onlyUnread: false,
-  excludeDefaultRecommendations: true
-}
-
-const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
+const FrontpageVotingPhase = ({classes, settings, currentUser}) => {
   const { SubSection, SectionSubtitle, SectionFooter, RecommendationsList, HoverPreviewLink } = Components
 
   const reviewTooltip = <div>
     <div>The LessWrong community is reflecting on the best posts from 2018, in three phases</div>
     <ul>
       <li><em>Nomination</em> (Nov 21 – Dec 1st)</li>
-      <li><em>Review</em> (Dec 2nd – 31st)</li>
-      <li><em>Voting</em> (Jan 1st – 7th</li>
+      <li><em>Review</em> (Dec 2nd – Jan 20th)</li>
+      <li><em>Voting</em> (Jan 7th – 20th</li>
       <li>The LessWrong moderation team will incorporate that information, along with their judgment, into a "Best of 2018" book.</li>
     </ul>
     <div>(Currently this section shows 2018 posts with at least 2 nominations)</div>
@@ -51,10 +39,10 @@ const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
         <div>
           <SectionSubtitle >
             <Link to={"/reviews"}>
-              The LessWrong 2018 Review
+              The 2018 Review (Voting Phase)
             </Link>
             <div className={classes.timeRemaining}>
-              <em>You have until Jan 13th to review and edit posts (<span className={classes.learnMore}>
+              <em><Link to="/reviewVoting" className={classes.learnMore}>Cast your votes</Link>, review and finish editing old posts by Jan 20th (<span className={classes.learnMore}>
                 <HoverPreviewLink href="/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review" innerHTML={"learn more"}/>
               </span>)</em>
             </div>
@@ -62,11 +50,14 @@ const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
         </div>
       </Tooltip>
       <SubSection>
-        <AnalyticsContext listContext={"LessWrong 2018 Review"} capturePostItemOnMount>
+        <AnalyticsContext listContext={"Voting on the LW 2018 Review"} capturePostItemOnMount>
           <RecommendationsList algorithm={reviewAlgorithm} showLoginPrompt={false} />
         </AnalyticsContext>
       </SubSection>
       <SectionFooter>
+        <Link to={"/reviewVoting"}>
+          My Votes
+        </Link>
         <Link to={"/reviews"}>
           Reviews Dashboard
         </Link>
@@ -78,4 +69,4 @@ const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
   )
 }
 
-registerComponent('FrontpageReviewPhase', FrontpageReviewPhase, withUser, withStyles(styles, {name:"FrontpageReviewPhase"}));
+registerComponent('FrontpageVotingPhase', FrontpageVotingPhase, withUser, withStyles(styles, {name:"FrontpageVotingPhase"}));

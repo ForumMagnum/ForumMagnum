@@ -435,6 +435,7 @@ importComponent("RecommendationsAndCurated", () => require('../components/recomm
 // 2018 Review Components
 importComponent("FrontpageNominationPhase", () => require('../components/review/FrontpageNominationPhase.jsx'));
 importComponent("FrontpageReviewPhase", () => require('../components/review/FrontpageReviewPhase.jsx'));
+importComponent("FrontpageVotingPhase", () => require('../components/review/FrontpageVotingPhase.jsx'));
 importComponent("Nominations2018", () => require('../components/review/Nominations2018.jsx'));
 importComponent("Reviews2018", () => require('../components/review/Reviews2018.jsx'));
 importComponent("ReviewPostButton", () => require('../components/review/ReviewPostButton.jsx'));
