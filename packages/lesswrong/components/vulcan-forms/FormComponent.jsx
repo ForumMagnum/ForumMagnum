@@ -4,7 +4,7 @@ import { Components, registerComponent, mergeWithComponents } from 'meteor/vulca
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import SimpleSchema from 'simpl-schema';
-import { isEmptyValue, getNullValue } from '../modules/utils.js';
+import { isEmptyValue, getNullValue } from '../../lib/vulcan-forms/utils.js';
 import Tooltip from '@material-ui/core/Tooltip';
 
 class FormComponent extends Component {

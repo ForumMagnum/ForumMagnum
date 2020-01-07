@@ -53,9 +53,9 @@ import isObject from 'lodash/isObject';
 import mapValues from 'lodash/mapValues';
 import pickBy from 'lodash/pickBy';
 
-import { convertSchema, formProperties, getEditableFields, getInsertableFields } from '../modules/schema_utils';
-import { isEmptyValue } from '../modules/utils';
-import { getParentPath } from '../modules/path_utils';
+import { convertSchema, formProperties, getEditableFields, getInsertableFields } from '../../lib/vulcan-forms/schema_utils';
+import { isEmptyValue } from '../../lib/vulcan-forms/utils';
+import { getParentPath } from '../../lib/vulcan-forms/path_utils';
 import withCollectionProps from './withCollectionProps';
 import { callbackProps } from './propTypes';
 
