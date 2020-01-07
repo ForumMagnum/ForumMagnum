@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import { sumBy } from 'lodash'
-import { registerComponent, Components, useMulti, useCreate, useUpdate, getFragment, updateEachQueryResultOfType, handleUpdateMutation } from 'meteor/vulcan:core';
+import { registerComponent, Components, useMulti, getFragment, updateEachQueryResultOfType, handleUpdateMutation } from 'meteor/vulcan:core';
 import { useMutation } from 'react-apollo';
 import { Paper } from '@material-ui/core';
 import { Posts } from '../../lib/collections/posts';
@@ -12,22 +12,31 @@ import { ReviewVotes } from '../../lib/collections/reviewVotes/collection';
 import classNames from 'classnames';
 import * as _ from "underscore"
 import gql from 'graphql-tag';
+import { commentBodyStyles } from '../../themes/stylePiping';
+import CachedIcon from '@material-ui/icons/Cached';
+import KeyboardTabIcon from '@material-ui/icons/KeyboardTab';
 
 const styles = theme => ({
   root: {
     display: 'grid',
     gridTemplateColumns: `
-      1fr minmax(${300}px, ${740}px) minmax(${100}px, ${500}px) 1fr
+      1fr minmax(300px, 740px) minmax(50px, 0.5fr) minmax(100px, 600px) 1fr
     `,
     gridTemplateAreas: `
-    "... title ... ..."
-    "... voting results ..."
+    "... title  ... ....... ..."
+    "... voting ... results ..."
     `,
+    paddingBottom: 175
   },
-  mainColumn: {
+  instructions: {
+    ...theme.typography.body2,
+    ...commentBodyStyles(theme),
+    maxWidth: 545
+  },
+  leftColumn: {
     gridArea: "voting"
   },
-  results: {
+  rightColumn: {
     gridArea: "results"
   },
   result: {
@@ -40,36 +49,57 @@ const styles = theme => ({
   votingBox: {
     maxWidth: 700
   },
-  postItem: {
-
+  menu: {
+    position: "sticky",
+    top:0,
+    display: "flex",
+    justifyContent: "space-between",
+    backgroundColor: "white",
+    zIndex: theme.zIndexes.reviewVotingMenu,
+    padding: theme.spacing.unit,
+    background: "#ddd",
+    borderBottom: "solid 1px rgba(0,0,0,.15)"
   },
-  convert: {
-    marginTop: theme.spacing.unit,
-    width: "100%",
+  menuIcon: {
+    marginLeft: theme.spacing.unit
+  },
+  expandedInfoWrapper: {
+    position: "sticky",
+    top: 0,
+    paddingTop: 100,
   },
   expandedInfo: {
-    padding: 16,
-    marginBottom: 10,
-    position: "fixed",
-    maxWidth: 500,
-    maxHeight: "60vh",
+    height: "80vh",
+    maxWidth: 600,
+    overflowY: "scroll",
   },
   header: {
     gridArea: "title",
     ...theme.typography.display3,
-    ...theme.typography.postStyle
+    ...theme.typography.commentStyle,
+    marginTop: 0,
   },
   comments: {
   },
   reason: {
     marginBottom: theme.spacing.unit*1.5,
     position: "relative",
+    border: "solid 1px rgba(0,0,0,.3)",
+    padding: theme.spacing.unit*2
   },
+  reasonTitle: {
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    fontWeight: 600,
+    marginBottom: theme.spacing.unit
+  }
 });
 
 type vote = {postId: string, score: number, type?: string}
 type quadraticVote = vote & {type: "quadratic"}
 type linearVote = vote & {type: "qualitative", score: 0|1|2|3|4}
+
+
 
 const ReviewVotingPage = ({classes}) => {
   const { results: posts } = useMulti({
@@ -91,8 +121,8 @@ const ReviewVotingPage = ({classes}) => {
   })
 
   const [submitVote] = useMutation(gql`
-    mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quantitativeScore: Int) {
-      submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quantitativeScore: $quantitativeScore) {
+    mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticScore: Int) {
+      submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticScore: $quadraticScore) {
         ...reviewVoteFragment
       }
     }
@@ -110,37 +140,45 @@ const ReviewVotingPage = ({classes}) => {
   const [useQuadratic, setUseQuadratic] = useState(false)
   const [expandedPost, setExpandedPost] = useState<any>(null)
 
+  const votes = dbVotes?.map(({qualitativeScore, postId}) => ({postId, score: qualitativeScore, type: "qualitative"})) as linearVote[]
+  const dispatchQualitativeVote = async ({postId, score}) => await submitVote({variables: {postId, qualitativeScore: score}})
+
+  const quadraticVotes = dbVotes?.map(({quadraticScore, postId}) => ({postId, score: quadraticScore, type: "quadratic"})) as quadraticVote[]
+  const dispatchQuadraticVote = async ({postId, score}) => await submitVote({variables: {postId, quadraticScore: score}})
+
+  const { PostReviewsAndNominations, LWTooltip } = Components
+
+  const [postOrder, setPostOrder] = useState<Map<number, number> | undefined>(undefined)
+  const reSortPosts = () => setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes))) 
+
+  useEffect(() => {
+    if (!!posts) setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes)))
+  }, [!!posts, useQuadratic])
+
   const currentUser = useCurrentUser()
   if (!currentUser || !currentUser.isAdmin) return null
 
-  const votes = dbVotes?.map(({qualitativeScore, postId}) => ({postId, score: qualitativeScore, type: "qualitative"})) as linearVote[]
-  const dispatchQualitativeVote = ({postId, score}) => submitVote({variables: {postId, qualitativeScore: score}})
-
-  const quadraticVotes = dbVotes?.map(({quadraticScore, postId}) => ({postId, score: quadraticScore, type: "quadratic"})) as quadraticVote[]
-  const dispatchQuadraticVote = ({postId, score}) => submitVote({variables: {postId, quadraticScore: score}})
-
   return (
       <div className={classes.root}>
-        <div className={classes.mainColumn}>
-          {/* {votes.length && <Paper>
-            {votes.filter(vote => vote.score !== 1).sort((a,b) => a.score - b.score).reverse().map(({postId}) => {
-              return <div className={classes.result} key={postId}>
-                  {results.find(post => post._id === postId)?.title || "Couldn't find title"}
-              </div>
-            })}
-          </Paper>} */}
-          <h1 className={classes.header}>Rate the most important posts of 2018?</h1>
-          <Button className={classes.convert} onClick={() => {
-              votesToQuadraticVotes(votes, posts).forEach(dispatchQuadraticVote)
-              setUseQuadratic(true)
-          }}> 
-            Convert to Quadratic 
-          </Button>
+        <div className={classes.leftColumn}>
+          <div className={classes.menu}>
+            <LWTooltip title="Sorts the list of post by vote-strength">
+              <Button onClick={reSortPosts}>
+                Re-Sort <CachedIcon className={classes.menuIcon} />
+              </Button>
+            </LWTooltip>
+            <LWTooltip title="WARNING: Once you switch to quadratic-voting, you cannot go back to default-voting without losing your quadratic data.">
+              <Button className={classes.convert} onClick={async () => {
+                  await Promise.all(votesToQuadraticVotes(votes, posts).map(dispatchQuadraticVote))
+                  setUseQuadratic(true)
+              }}> 
+                Convert to Quadratic <KeyboardTabIcon className={classes.menuIcon} /> 
+              </Button>
+            </LWTooltip>
+            <Button disabled={!expandedPost} onClick={()=>setExpandedPost(null)}>Show Instructions</Button>
+          </div>
           <Paper>
-            {posts?.length > 0 && createPostVoteTuples(posts, useQuadratic ? quadraticVotes : votes)
-              .sort(([post1, vote1], [post2, vote2]) => (vote1 ? vote1.score : 1) - (vote2 ? vote2.score : 1))
-              .reverse()
-              .map(([post, vote]) => {
+            {!!posts && !!postOrder && applyOrdering(posts, postOrder).map((post) => {
                 return <div key={post._id} onClick={()=>setExpandedPost(post)}>
                   <VoteTableRow 
                     post={post} 
@@ -152,37 +190,53 @@ const ReviewVotingPage = ({classes}) => {
                     expandedPostId={expandedPost?._id}
                   />
                 </div>
-              })
-            }
+              })}
           </Paper>
         </div>
-        <div className={classes.results}>
-          {expandedPost && <div>
+        <div className={classes.rightColumn}>
+          {!expandedPost && <div className={classes.expandedInfoWrapper}>
+            <h1 className={classes.header}>Rate the most important posts of 2018</h1>
+            <div className={classes.instructions}>
+              <p>Your vote should reflect each post’s overall level of importance (with whatever weightings seem right to you for “usefulness”, “accuracy”, and “following good norms”).</p>
+              <p>The default voting method is to rate each post with the following five options:</p>
+              <ul>
+                <li><b>No</b> – Misleading, harmful or low quality.</li>
+                <li><b>Neutral</b> – You wouldn't personally recommend it, but seems fine if others do. <em>(If you don’t have strong opinions about a post, leaving it ‘neutral’ is fine)</em></li>
+                <li><b>Good</b> – Useful ideas that I still think about sometimes.</li>
+                <li><b>Important</b> – A key insight or excellent distillation.</li>
+                <li><b>Crucial</b> – One of the most significant posts of 2018.</li>
+              </ul>
+              <p>Alternatively, you can directly use the quadratic voting system to fine-tune your votes. (Quadratic voting gives you a limited number of “points” to spend on votes, allowing you to vote multiple times, with each additional vote on an item costing more. See here for details)</p>
+              <p>You can either skip directly to the underlying quadratic voting system, or use the No / Neutral / Good / Important / Crucial buttons to roughly assign some initial points.</p>
+            </div>
+          </div>}
+          {expandedPost && <div className={classes.expandedInfoWrapper}>
             <div className={classes.expandedInfo}>
-                <div className={classes.reason}>
-                  <TextField
-                    id="standard-multiline-static"
-                    label={`Explanation for your vote on "${expandedPost.title}?" (Optional)"`}
-                    fullWidth
-                    multiline
-                    rows="4"
-                  />
-                </div>
-                <div className={classes.comments}>
-                  <Components.PostReviewsAndNominations 
-                    title="Nominations"
-                    terms={{view:"nominations2018", postId: expandedPost._id}} 
-                    post={expandedPost} 
-                  />
-                  <Components.PostReviewsAndNominations 
-                    title="Reviews"
-                    terms={{view:"reviews2018", postId: expandedPost._id}} 
-                    post={expandedPost} 
-                  />
-                </div>
+              <div className={classes.reason}>
+                <div className={classes.reasonTitle}>Anonymous thoughts on "{expandedPost.title}"</div>
+                <TextField
+                  id="standard-multiline-static"
+                  placeholder="(Optional) Write here any special considerations that affected your vote. These will appear anonymously in a 2018 Review roundup. The moderation team will take them as input for the final decisions of what posts to include in the book."
+                  fullWidth
+                  multiline
+                  rows="4"
+                />
               </div>
-            </div>}
-            {useQuadratic && computeTotalCost(quadraticVotes)}
+              <div className={classes.comments}>
+                <PostReviewsAndNominations 
+                  title="Nominations"
+                  terms={{view:"nominations2018", postId: expandedPost._id}} 
+                  post={expandedPost} 
+                />
+                <PostReviewsAndNominations 
+                  title="Reviews"
+                  terms={{view:"reviews2018", postId: expandedPost._id}} 
+                  post={expandedPost} 
+                />
+              </div>
+            </div>
+          </div>}
+          {useQuadratic && computeTotalCost(quadraticVotes)}
             {/* {votes.filter(vote => vote.score !== 1).sort((a,b) => a.score - b.score).reverse().map(({postId}) => {
               return <div className={classes.result} key={postId}>
                   {results.find(post => post._id === postId)?.title || "Couldn't find title"}
@@ -191,7 +245,26 @@ const ReviewVotingPage = ({classes}) => {
         </div>
       </div>
   );
-  }
+}
+
+function getPostOrder(posts, votes) {
+  return posts.map((post, i) => {
+    const voteForPost = votes.find(vote => vote.postId === post._id)
+    return [post, voteForPost, i]
+  })
+  .sort(([post1, vote1], [post2, vote2]) => (vote1 ? vote1.score : 1) - (vote2 ? vote2.score : 1))
+  .reverse()
+  .map(([post,vote,originalIndex], sortedIndex) => [sortedIndex, originalIndex])
+}
+
+function applyOrdering<T extends any>(array:T[], order:Map<number, number>):T[] {
+  const newArray = array.map((value, i) => {
+    const newIndex = order.get(i)
+    if (typeof newIndex !== 'number') throw Error(`Can't find value for key: ${i}`)
+    return array[newIndex]
+  })
+  return newArray
+}
 
 const linearScoreScaling = {
   0: -4, 
@@ -204,9 +277,8 @@ const linearScoreScaling = {
 const VOTE_BUDGET = 500
 const MAX_SCALING = 6
 const votesToQuadraticVotes = (votes:linearVote[], posts: any[]):quadraticVote[] => {
-  const sumScaled = sumBy(votes, vote => Math.abs(linearScoreScaling[vote ? vote.score : 1]))
+  const sumScaled = sumBy(votes, vote => Math.abs(linearScoreScaling[vote ? vote.score : 1]) || 0)
   return createPostVoteTuples(posts, votes).map(([post, vote]) => {
-    console.log("creatingPostVoteTuples")
     if (vote) {
       const newScore = computeQuadraticVoteScore(vote.score, sumScaled)
       return {postId: post._id, score: newScore, type: "quadratic"}
@@ -217,13 +289,9 @@ const votesToQuadraticVotes = (votes:linearVote[], posts: any[]):quadraticVote[]
 }
 
 const computeQuadraticVoteScore = (linearScore: 0|1|2|3|4, totalCost: number) => {
-  console.log(linearScore)
   const scaledScore = linearScoreScaling[linearScore]
-  console.log("scaledScore: ", scaledScore)
   const scaledCost = scaledScore * Math.min(VOTE_BUDGET/totalCost, MAX_SCALING)
-  console.log("scaledCost: ", scaledCost)
   const newScore = Math.sign(scaledCost) * Math.floor(inverseSumOf1ToN(Math.abs(scaledCost)))
-  console.log("newScore: ", newScore)
   return newScore
 }
 
@@ -269,6 +337,7 @@ const voteRowStyles = theme => ({
   },
   post: {
     paddingRight: theme.spacing.unit*2,
+    maxWidth: "calc(100% - 100px)"
   },
   expand: {
     display:"none",
@@ -285,7 +354,7 @@ const voteRowStyles = theme => ({
 
 const VoteTableRow = withStyles(voteRowStyles, {name: "VoteTableRow"})((
   {post, dispatch, dispatchQuadraticVote, quadraticVotes, useQuadratic, classes, expandedPostId, votes }:
-  {post: any, dispatch: React.Dispatch<vote>, quadraticVotes: vote[], dispatchQuadraticVote: any, useQuadratic: boolean, classes:any, setExpandedPostId: Function, expandedPostId: string, votes: vote[] }
+  {post: any, dispatch: React.Dispatch<vote>, quadraticVotes: vote[], dispatchQuadraticVote: any, useQuadratic: boolean, classes:any, expandedPostId: string, votes: vote[] }
 ) => {
   const { PostsTitle, LWTooltip, PostsPreviewTooltip } = Components
 
@@ -293,8 +362,8 @@ const VoteTableRow = withStyles(voteRowStyles, {name: "VoteTableRow"})((
     <div>
       <div className={classes.postVote} >
         <div className={classes.post}>
-          <LWTooltip title={<PostsPreviewTooltip post={post}/>} tooltip={false}>
-            <PostsTitle post={post} showIcons={false} wrap isLink={false}/>
+          <LWTooltip title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
+            <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap />
           </LWTooltip>
         </div>
         <div>
@@ -361,7 +430,7 @@ const quadraticVotingButtonStyles = theme => ({
   }
 })
 
-const QuadraticVotingButtons = withStyles(quadraticVotingButtonStyles, {name: "QuadraticVotingButtons"})(({classes, postId, vote, votes}: {classes: any, postId: string, vote: any, votes: vote[]}) => {
+const QuadraticVotingButtons = withStyles(quadraticVotingButtonStyles, {name: "QuadraticVotingButtons"})(({classes, postId, vote, votes }: {classes: any, postId: string, vote: any, votes: vote[]}) => {
   const voteForCurrentPost = votes.find(vote => vote.postId === postId)
   const createClickHandler = (postId: string, type: 'buy' | 'sell') => {
       return () => {

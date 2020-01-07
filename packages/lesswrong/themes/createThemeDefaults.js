@@ -18,6 +18,7 @@ export const zIndexes = {
   postsVote: 1,
   singleLineCommentMeta: 2,
   postItemTitle: 2,
+  reviewVotingMenu: 3,
   sidebarHoverOver: 2,
   singleLineCommentHover: 3,
   questionPageWhitescreen: 3,
