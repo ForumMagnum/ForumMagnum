@@ -276,7 +276,7 @@ class PostsPage extends Component {
       LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
       TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink,
-      PingbacksList, FooterTagList, ReviewPostButton, HoverPreviewLink } = Components
+      PingbacksList, FooterTagList, ReviewPostButton, HoverPreviewLink, AnalyticsInViewTracker } = Components
 
     if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
@@ -296,11 +296,11 @@ class PostsPage extends Component {
 
       const commentId = query.commentId || params.commentId
       return (
-          <AnalyticsContext pageContext="postsPage">
+          <AnalyticsContext pageContext="postsPage" postId={post._id}>
             <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
               <HeadTags url={Posts.getPageUrl(post, true)} canonicalUrl={post.canonicalSource} title={post.title} description={description}/>
               {/* Header/Title */}
-              <div className={classes.title}>
+              <AnalyticsContext pageSectionContext="postHeader"><div className={classes.title}>
                 <div className={classes.post}>
                   {commentId && <CommentPermalink documentId={commentId} post={post}/>}
                   {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
@@ -350,7 +350,7 @@ class PostsPage extends Component {
                   <hr className={classes.divider}/>
                   {post.isEvent && <PostsPageEventData post={post}/>}
                 </div>
-              </div>
+              </div></AnalyticsContext>
               <div className={classes.toc}>
                 <TableOfContents sectionData={sectionData} document={post} />
               </div>
@@ -404,19 +404,21 @@ class PostsPage extends Component {
                   </AnalyticsContext>
                 </div>}
 
-                {/* Answers Section */}
-                {post.question && <div className={classes.post}>
-                  <div id="answers"/>
-                  <AnalyticsContext pageSectionContext="answersSection">
-                    <PostsPageQuestionContent terms={{...commentTerms, postId: post._id}} post={post} refetch={refetch}/>
-                  </AnalyticsContext>
-                </div>}
-                {/* Comments Section */}
-                <div className={classes.commentsSection}>
+                <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
+                  {/* Answers Section */}
+                  {post.question && <div className={classes.post}>
+                    <div id="answers"/>
+                    <AnalyticsContext pageSectionContext="answersSection">
+                      <PostsPageQuestionContent terms={{...commentTerms, postId: post._id}} post={post} refetch={refetch}/>
+                    </AnalyticsContext>
+                  </div>}
+                  {/* Comments Section */}
+                  <div className={classes.commentsSection}>
                     <AnalyticsContext pageSectionContext="commentsSection">
                       <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question}/>
                     </AnalyticsContext>
-                </div>
+                  </div>
+                </AnalyticsInViewTracker>
               </div>
               <div className={classes.gap2}/>
             </div>
@@ -453,5 +455,5 @@ registerComponent(
   withStyles(styles, { name: "PostsPage" }),
   withRecordPostView,
   withNewEvents,
-  withErrorBoundary,
+  withErrorBoundary
 );

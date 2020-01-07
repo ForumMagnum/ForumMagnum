@@ -132,4 +132,4 @@ const withUpdateOptions = {
   fragmentName: 'PostsList',
 }
 
-registerComponent('SunshineNewPostsItem', SunshineNewPostsItem, [withUpdate, withUpdateOptions], withUser, withHover, withErrorBoundary);
+registerComponent('SunshineNewPostsItem', SunshineNewPostsItem, [withUpdate, withUpdateOptions], withUser, withHover(), withErrorBoundary);

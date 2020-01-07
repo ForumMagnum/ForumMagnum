@@ -160,7 +160,9 @@ class RecommendationsAndCurated extends PureComponent {
           </SubSection>
       </React.Fragment>}
 
-      <FrontpageReviewPhase settings={frontpageRecommendationSettings} />
+      <AnalyticsContext pageSectionContext="LessWrong 2018 Review">
+        <FrontpageReviewPhase settings={frontpageRecommendationSettings} />
+      </AnalyticsContext>
 
       {/* Disabled during 2018 Review */}
       {/* {!settings.hideFrontpage && <div>
@@ -181,30 +183,32 @@ class RecommendationsAndCurated extends PureComponent {
         </SubSection>
       </div>} */}
 
-      <Tooltip placement="top-start" title={curatedTooltip}>
-        <Link to={curatedUrl}>
-          <SectionSubtitle className={classNames(classes.subtitle, classes.curated)}>
-            Recently Curated
-          </SectionSubtitle>
-        </Link>
-      </Tooltip>
-      <SubSection>
-        <AnalyticsContext listContext={"curatedPosts"}>
-          <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
-        </AnalyticsContext>
-      </SubSection>
-      <div className={classes.footerWrapper}>
-        <Typography component="div" variant="body2" className={classes.footer}>
+      <AnalyticsContext pageSectionContext={"curatedPosts"}>
+          <Tooltip placement="top-start" title={curatedTooltip}>
           <Link to={curatedUrl}>
-            { /* On very small screens, use shorter link text ("More Curated"
-                instead of "View All Curated Posts") to avoid wrapping */ }
-            <Hidden smUp implementation="css">More Curated</Hidden>
-            <Hidden xsDown implementation="css">View All Curated Posts</Hidden>
+            <SectionSubtitle className={classNames(classes.subtitle, classes.curated)}>
+              Recently Curated
+            </SectionSubtitle>
           </Link>
-          <SeparatorBullet/>
-          <SubscribeWidget view={"curated"} />
-        </Typography>
-      </div>
+        </Tooltip>
+        <SubSection>
+          <AnalyticsContext listContext={"curatedPosts"}>
+            <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
+          </AnalyticsContext>
+        </SubSection>
+        <div className={classes.footerWrapper}>
+          <Typography component="div" variant="body2" className={classes.footer}>
+            <Link to={curatedUrl}>
+              { /* On very small screens, use shorter link text ("More Curated"
+                  instead of "View All Curated Posts") to avoid wrapping */ }
+              <Hidden smUp implementation="css">More Curated</Hidden>
+              <Hidden xsDown implementation="css">View All Curated Posts</Hidden>
+            </Link>
+            <SeparatorBullet/>
+            <SubscribeWidget view={"curated"} />
+          </Typography>
+        </div>
+    </AnalyticsContext>
     </SingleColumnSection>
   }
 }

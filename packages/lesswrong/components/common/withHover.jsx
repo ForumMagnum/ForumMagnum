@@ -1,26 +1,51 @@
-import React, { Component } from 'react';
+import React, {useState, useRef, useCallback } from 'react';
+import { useTracking } from "../../lib/analyticsEvents";
+import { isMobile } from '../../lib/utils/isMobile'
 
-const withHover = (WrappedComponent) => {
-  return class HoverableComponent extends Component {
-    state = { hover: false, anchorEl: null }
+export const withHover = (trackingData, propsToTrackingData=()=>{}) =>
+  (WrappedComponent) => {
+    return (props) => {
+      const [hover, setHover] = useState(false)
+      const [anchorEl, setAnchorEl] = useState(null)
+      const delayTimer = useRef(null)
+      const mouseOverStart = useRef()
 
-    handleMouseOver = (event) => {
-      this.setState({ hover: true, anchorEl: event.currentTarget})
-    }
+      const { captureEvent } = useTracking({eventType:"hoverEventTriggered",
+        eventProps: {...trackingData, ...propsToTrackingData(props)}})
 
-    handleMouseLeave = () => {
-      this.setState({ hover: false, anchorEl: null })
-    }
+      const captureHoverEvent = useCallback(() => {
+        !isMobile() && captureEvent("hoverEventTriggered",
+          {timeToCapture: new Date() - mouseOverStart.current})
+        clearTimeout(delayTimer.current)
+      }, [captureEvent])
 
-    render () {
-      const props = { hover: this.state.hover, anchorEl: this.state.anchorEl, ...this.props, stopHover: this.handleMouseLeave }
+      const handleMouseOver = useCallback((event) => {
+        setHover(true)
+        setAnchorEl(event.currentTarget)
+        mouseOverStart.current = new Date()
+        clearTimeout(delayTimer.current)
+        delayTimer.current = setTimeout(captureHoverEvent,500)
+      }, [captureHoverEvent])
+
+      const handleMouseLeave = useCallback(() => {
+        setHover(false)
+        setAnchorEl(null)
+        clearTimeout(delayTimer.current)
+        const hoverDuration = new Date() - mouseOverStart.current
+        if ( hoverDuration > 2000 ) captureEvent("hoverEventTriggered",
+          {hoverEventType: "longHoverEvent", hoverDuration})
+        mouseOverStart.current = undefined
+      },[captureEvent])
+
+
+      const allProps = { hover, anchorEl, stopHover: handleMouseLeave, ...props }
+
       return (
-        <span onMouseOver={this.handleMouseOver} onMouseLeave={this.handleMouseLeave}>
-          <WrappedComponent { ...props } />
+        <span onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave}>
+          <WrappedComponent {...allProps}/>
         </span>
       )
     }
   }
-}
 
 export default withHover

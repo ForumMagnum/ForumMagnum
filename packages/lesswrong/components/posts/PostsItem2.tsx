@@ -13,7 +13,7 @@ import classNames from 'classnames';
 import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
-import {AnalyticsContext} from "../../lib/analyticsEvents";
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { userHasBoldPostItems } from '../../lib/betas.js';
 
 export const MENU_WIDTH = 18

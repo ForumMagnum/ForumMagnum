@@ -12,7 +12,7 @@ import { Random } from 'meteor/random';
 
 import { withStyles, withTheme, createStyles } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
-import { AnalyticsContext } from '../lib/analyticsEvents.js'
+import { AnalyticsContext } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
 import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
@@ -85,7 +85,7 @@ interface LayoutProps {
   updateUser: any,
   location: any,
   classes: any,
-  theme: any
+  theme: any,
   messages: any,
   children: any,
 }
@@ -253,8 +253,9 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
                 <link rel="stylesheet" href="https://use.typekit.net/jvr1gjm.css"/>
               </Helmet>
-              
+
               <Components.AnalyticsClient/>
+              <Components.AnalyticsPageInitializer/>
               <Components.NavigationEventSender/>
 
               {/* Sign up user for Intercom, if they do not yet have an account */}
@@ -306,5 +307,5 @@ const withUpdateOptions = {
 
 registerComponent(
   'Layout', Layout, withLocation, withCookies, [withUpdate, withUpdateOptions],
-  withStyles(styles, { name: "Layout" }), withTheme()
+    withStyles(styles, { name: "Layout" }), withTheme()
 );

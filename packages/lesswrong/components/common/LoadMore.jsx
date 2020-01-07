@@ -3,6 +3,7 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import { queryIsUpdating } from './queryStatusUtils'
+import {useTracking} from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   root: {
@@ -21,12 +22,15 @@ const styles = theme => ({
 
 
 const LoadMore = ({ loadMore, count, totalCount, classes, disabled=false, networkStatus, hidden=false }) => {
+  const { captureEvent } = useTracking("loadMoreClicked")
+
   if (hidden) return null;
   
   const { Loading } = Components
   const handleClickLoadMore = event => {
     event.preventDefault();
     loadMore();
+    captureEvent("loadMoreClicked")
   }
 
   if (networkStatus && queryIsUpdating(networkStatus)) {

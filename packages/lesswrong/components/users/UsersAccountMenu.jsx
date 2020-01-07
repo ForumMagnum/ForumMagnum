@@ -28,7 +28,7 @@ class UsersAccountMenu extends PureComponent {
 
   handleClick = (event) => {
     event.preventDefault();
-    this.props.captureEvent("loginButton", {open: true})
+    this.props.captureEvent("loginButtonClicked", {open: true})
     this.setState({
       open:true,
       anchorEl: event.currentTarget,
@@ -36,7 +36,7 @@ class UsersAccountMenu extends PureComponent {
   };
 
   handleRequestClose = () => {
-    this.props.captureEvent("loginButton", {open: false})
+    this.props.captureEvent("loginButtonClicked", {open: false})
     this.setState({
       open: false,
     });

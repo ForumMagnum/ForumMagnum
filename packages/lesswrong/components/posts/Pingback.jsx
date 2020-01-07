@@ -38,4 +38,4 @@ const Pingback = ({classes, post, hover, anchorEl, stopHover}) => {
   </div>
 }
 
-registerComponent("Pingback", Pingback, withStyles(styles, {name: "Pingback"}), withHover);
+registerComponent("Pingback", Pingback, withStyles(styles, {name: "Pingback"}), withHover());

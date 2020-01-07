@@ -12,7 +12,7 @@ const styles = theme => ({
   personalBlogpostsCheckboxLabel: {
     display: "inline-block",
     verticalAlign: "middle",
-    
+
     [theme.breakpoints.down("xs")]: {
       width: 105,
     },
@@ -24,19 +24,19 @@ const HomeLatestPosts = ({ classes }) =>
   const currentUser = useCurrentUser();
   const location = useLocation();
   const { history } = useNavigation();
-  
+
   const {mutate: updateUser} = useUpdate({
     collection: Users,
     fragmentName: 'UsersCurrent',
   });
-  
+
   const toggleFilter = React.useCallback(() => {
     const { query, pathname } = location;
     let newQuery = _.isEmpty(query) ? {view: "magic"} : query
     const currentFilter = newQuery.filter || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
     const newFilter = (currentFilter === "frontpage") ? "includeMetaAndPersonal" : "frontpage"
 
-    captureEvent("personalBlogpostsToggled", {"checked": (newFilter !== "frontpage")});
+    captureEvent("personalBlogpostsToggled", {state: (newFilter !== "frontpage")});
 
     if (currentUser) {
       updateUser({
