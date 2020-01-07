@@ -42,7 +42,7 @@ const FrontpageVotingPhase = ({classes, settings, currentUser}) => {
               The 2018 Review (Voting Phase)
             </Link>
             <div className={classes.timeRemaining}>
-              <em><Link to="/reviewVoting" className={classes.learnMore}>Cast your votes</Link>, review and finish editing old posts by Jan 20th (<span className={classes.learnMore}>
+              <em><Link to="/reviewVoting" className={classes.learnMore}>Cast your votes</Link>, as well as finish reviewing and editing posts by Jan 20th (<span className={classes.learnMore}>
                 <HoverPreviewLink href="/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review" innerHTML={"learn more"}/>
               </span>)</em>
             </div>
