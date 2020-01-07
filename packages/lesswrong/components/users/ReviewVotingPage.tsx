@@ -3,13 +3,15 @@ import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import { sumBy } from 'lodash'
-import { registerComponent, Components, useMulti, useCreate } from 'meteor/vulcan:core';
+import { registerComponent, Components, useMulti, useCreate, useUpdate, getFragment, updateEachQueryResultOfType, handleUpdateMutation } from 'meteor/vulcan:core';
+import { useMutation } from 'react-apollo';
 import { Paper } from '@material-ui/core';
 import { Posts } from '../../lib/collections/posts';
 import { useCurrentUser } from '../common/withUser';
 import { ReviewVotes } from '../../lib/collections/reviewVotes/collection';
 import classNames from 'classnames';
 import * as _ from "underscore"
+import gql from 'graphql-tag';
 
 const styles = theme => ({
   root: {
@@ -51,7 +53,6 @@ const styles = theme => ({
     position: "fixed",
     maxWidth: 500,
     maxHeight: "60vh",
-    overflowY: "scroll"
   },
   header: {
     gridArea: "title",
@@ -67,9 +68,11 @@ const styles = theme => ({
 });
 
 type vote = {postId: string, score: number, type?: string}
+type quadraticVote = vote & {type: "quadratic"}
+type linearVote = vote & {type: "qualitative", score: 0|1|2|3|4}
 
 const ReviewVotingPage = ({classes}) => {
-  const { results } = useMulti({
+  const { results: posts } = useMulti({
     terms: {view:"reviews2018", limit: 100},
     collection: Posts,
     queryName: 'postsListQuery',
@@ -87,10 +90,22 @@ const ReviewVotingPage = ({classes}) => {
     ssr: true
   })
 
-  const { create: createVote } = useCreate({
-    collection: ReviewVotes,
-    fragmentName: "reviewVoteFragment", 
-  })
+  const [submitVote] = useMutation(gql`
+    mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quantitativeScore: Int) {
+      submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quantitativeScore: $quantitativeScore) {
+        ...reviewVoteFragment
+      }
+    }
+    ${getFragment("reviewVoteFragment")}
+  `, {
+    update: (store, mutationResult) => {
+      updateEachQueryResultOfType({
+        func: handleUpdateMutation,
+        document: mutationResult.data.submitReviewVote,
+        store, typeName: "ReviewVote",
+      });
+    }
+  });
 
   const [useQuadratic, setUseQuadratic] = useState(false)
   const [expandedPost, setExpandedPost] = useState<any>(null)
@@ -98,13 +113,11 @@ const ReviewVotingPage = ({classes}) => {
   const currentUser = useCurrentUser()
   if (!currentUser || !currentUser.isAdmin) return null
 
-  const votes:vote[] = filterForMostRecent(dbVotes?.filter(vote => vote.type === "qualitative") || [])
-  const dispatchVote = ({postId, score}) => createVote({postId, score, type: "qualitative"})
+  const votes = dbVotes?.map(({qualitativeScore, postId}) => ({postId, score: qualitativeScore, type: "qualitative"})) as linearVote[]
+  const dispatchQualitativeVote = ({postId, score}) => submitVote({variables: {postId, qualitativeScore: score}})
 
-  const quadraticVotes:vote[] = filterForMostRecent(dbVotes?.filter(vote => vote.type === "quadratic") || [])
-  const dispatchQuadraticVote = ({postId, score}) => createVote({postId, score, type: "quadratic"})
-
-  
+  const quadraticVotes = dbVotes?.map(({quadraticScore, postId}) => ({postId, score: quadraticScore, type: "quadratic"})) as quadraticVote[]
+  const dispatchQuadraticVote = ({postId, score}) => submitVote({variables: {postId, quadraticScore: score}})
 
   return (
       <div className={classes.root}>
@@ -118,26 +131,20 @@ const ReviewVotingPage = ({classes}) => {
           </Paper>} */}
           <h1 className={classes.header}>Rate the most important posts of 2018?</h1>
           <Button className={classes.convert} onClick={() => {
-              votesToQuadraticVotes(votes).forEach(dispatchQuadraticVote)
+              votesToQuadraticVotes(votes, posts).forEach(dispatchQuadraticVote)
               setUseQuadratic(true)
           }}> 
             Convert to Quadratic 
           </Button>
           <Paper>
-            {results?.map(post => {
-                const voteForPost = useQuadratic ? 
-                    quadraticVotes.find(vote => vote.postId === post._id) : 
-                    votes.find(vote => vote.postId === post._id)
-                    
-                return [post, voteForPost]
-              })
+            {posts?.length > 0 && createPostVoteTuples(posts, useQuadratic ? quadraticVotes : votes)
               .sort(([post1, vote1], [post2, vote2]) => (vote1 ? vote1.score : 1) - (vote2 ? vote2.score : 1))
               .reverse()
               .map(([post, vote]) => {
                 return <div key={post._id} onClick={()=>setExpandedPost(post)}>
                   <VoteTableRow 
                     post={post} 
-                    dispatch={dispatchVote} 
+                    dispatch={dispatchQualitativeVote} 
                     votes={votes}
                     quadraticVotes={quadraticVotes} 
                     dispatchQuadraticVote={dispatchQuadraticVote} 
@@ -196,14 +203,28 @@ const linearScoreScaling = {
 
 const VOTE_BUDGET = 500
 const MAX_SCALING = 6
-const votesToQuadraticVotes = (votes:vote[]):vote[] => {
-  const sumScaled = sumBy(votes, vote => Math.abs(linearScoreScaling[vote.score]))
-  return votes.map(({postId, score}) => {
-      const scaledScore = linearScoreScaling[score]
-      const scaledCost = scaledScore * Math.min(VOTE_BUDGET/sumScaled, MAX_SCALING)
-      const newScore = Math.sign(scaledCost) * Math.floor(inverseSumOf1ToN(Math.abs(scaledCost)))
-      return {postId, score: newScore, type: "quadratic"}
+const votesToQuadraticVotes = (votes:linearVote[], posts: any[]):quadraticVote[] => {
+  const sumScaled = sumBy(votes, vote => Math.abs(linearScoreScaling[vote ? vote.score : 1]))
+  return createPostVoteTuples(posts, votes).map(([post, vote]) => {
+    console.log("creatingPostVoteTuples")
+    if (vote) {
+      const newScore = computeQuadraticVoteScore(vote.score, sumScaled)
+      return {postId: post._id, score: newScore, type: "quadratic"}
+    } else {
+      return {postId: post._id, score: 0, type: "quadratic"}
+    }
   })
+}
+
+const computeQuadraticVoteScore = (linearScore: 0|1|2|3|4, totalCost: number) => {
+  console.log(linearScore)
+  const scaledScore = linearScoreScaling[linearScore]
+  console.log("scaledScore: ", scaledScore)
+  const scaledCost = scaledScore * Math.min(VOTE_BUDGET/totalCost, MAX_SCALING)
+  console.log("scaledCost: ", scaledCost)
+  const newScore = Math.sign(scaledCost) * Math.floor(inverseSumOf1ToN(Math.abs(scaledCost)))
+  console.log("newScore: ", newScore)
+  return newScore
 }
 
 const inverseSumOf1ToN = (x:number) => {
@@ -218,10 +239,11 @@ const computeTotalCost = (votes: vote[]) => {
   return sumBy(votes, ({score}) => sumOf1ToN(score))
 }
 
-const filterForMostRecent = (votes: vote[]):vote[] => {
-  const groupedVotes = _.groupBy(votes, vote => vote.postId)
-  const filteredVotes = Object.keys(groupedVotes).map(key => _.max(groupedVotes[key], vote => new Date(vote.createdAt).getTime()))
-  return filteredVotes
+function createPostVoteTuples<K extends any,T extends vote> (posts: K[], votes: T[]):[K, T | undefined][] {
+  return posts.map(post => {
+    const voteForPost = votes.find(vote => vote.postId === post._id)
+    return [post, voteForPost]
+  })
 }
 
 const voteRowStyles = theme => ({

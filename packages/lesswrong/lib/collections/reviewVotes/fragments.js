@@ -6,8 +6,7 @@ registerFragment(`
     createdAt
     userId
     postId
-    score
-    type
-    deleted
+    qualitativeScore
+    quadraticScore
   }
 `)

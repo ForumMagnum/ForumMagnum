@@ -36,23 +36,22 @@ const schema = {
     viewableBy: ['guests'],
     insertableBy: ['members'],
   },
-  score: {
+  qualitativeScore: {
     type: SimpleSchema.Integer, 
     viewableBy: ['guests'],
-    insertableBy: ['members']
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    optional: true,
+    ...schemaDefaultValue(1)
   },
-  type: {
-    type: String, 
-    allowedValues: ['qualitative', 'quadratic'],
+  quadraticScore: {
+    type: SimpleSchema.Integer, 
     viewableBy: ['guests'],
-    insertableBy: ['members']
+    insertableBy: ['members'],
+    editableBy: ['members'],
+    optional: true,
+    ...schemaDefaultValue(0)
   },
-  deleted: {
-    type: Boolean,
-    viewableBy: ['guests'],
-    ...schemaDefaultValue(false),
-    optional: true
-  }
 };
 
 export default schema;
