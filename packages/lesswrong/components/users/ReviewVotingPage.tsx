@@ -17,14 +17,13 @@ import CachedIcon from '@material-ui/icons/Cached';
 import KeyboardTabIcon from '@material-ui/icons/KeyboardTab';
 
 const styles = theme => ({
-  root: {
+  grid: {
     display: 'grid',
     gridTemplateColumns: `
       1fr minmax(300px, 740px) minmax(50px, 0.5fr) minmax(100px, 600px) 1fr
     `,
     gridTemplateAreas: `
-    "... title  ... ....... ..."
-    "... voting ... results ..."
+    "... leftColumn ... rightColumn ..."
     `,
     paddingBottom: 175
   },
@@ -34,10 +33,16 @@ const styles = theme => ({
     maxWidth: 545
   },
   leftColumn: {
-    gridArea: "voting"
+    gridArea: "leftColumn",
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    }
   },
   rightColumn: {
-    gridArea: "results"
+    gridArea: "rightColumn",
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    }
   },
   result: {
     ...theme.typography.smallText,
@@ -104,6 +109,16 @@ const styles = theme => ({
   },
   excessVotes: {
     color: theme.palette.error
+  },
+  mobileMessage: {
+    width: "100%",
+    textAlign: "center",
+    paddingTop: 50,
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    [theme.breakpoints.up('md')]: {
+      display: "none"
+    }
   }
 });
 
@@ -150,6 +165,7 @@ const ReviewVotingPage = ({classes}) => {
   });
 
   const [useQuadratic, setUseQuadratic] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [expandedPost, setExpandedPost] = useState<any>(null)
 
   const votes = dbVotes?.map(({qualitativeScore, postId}) => ({postId, score: qualitativeScore, type: "qualitative"})) as linearVote[]
@@ -173,26 +189,33 @@ const ReviewVotingPage = ({classes}) => {
   const voteTotal = useQuadratic ? computeTotalCost(quadraticVotes) : 0
 
   return (
-      <div className={classes.root}>
+    <div>
+      <div className={classes.mobileMessage}>
+        <p></p>Voting is not available on small screens</div>
+      <div className={classes.grid}>
         <div className={classes.leftColumn}>
           <div className={classes.menu}>
-            {(postsLoading || dbVotesLoading) && <Loading/>}
             <LWTooltip title="Sorts the list of post by vote-strength">
               <Button onClick={reSortPosts}>
                 Re-Sort <CachedIcon className={classes.menuIcon} />
               </Button>
             </LWTooltip>
+            {(postsLoading || dbVotesLoading || loading) && <Loading/>}
             {!useQuadratic && <LWTooltip title="WARNING: Once you switch to quadratic-voting, you cannot go back to default-voting without losing your quadratic data.">
               <Button className={classes.convert} onClick={async () => {
+                  setLoading(true)
                   await Promise.all(votesToQuadraticVotes(votes, posts).map(dispatchQuadraticVote))
                   setUseQuadratic(true)
+                  setLoading(false)
               }}> 
                 Convert to Quadratic <KeyboardTabIcon className={classes.menuIcon} /> 
               </Button>
             </LWTooltip>}
-            {useQuadratic && <div className={classNames(classes.voteTotal, {[classes.excessVotes]: voteTotal > 500})}>
-              {voteTotal}/500
-            </div>}
+            {useQuadratic && <LWTooltip title={`You have ${500 - voteTotal} points remaining`}>
+                <div className={classNames(classes.voteTotal, {[classes.excessVotes]: voteTotal > 500})}>
+                  {voteTotal}/500
+                </div>
+            </LWTooltip>}
             <Button disabled={!expandedPost} onClick={()=>setExpandedPost(null)}>Show Instructions</Button>
           </div>
           <Paper>
@@ -255,6 +278,7 @@ const ReviewVotingPage = ({classes}) => {
           </div>}
         </div>
       </div>
+    </div>
   );
 }
 
@@ -393,7 +417,9 @@ const VoteTableRow = withStyles(voteRowStyles, {name: "VoteTableRow"})((
   {post, dispatch, dispatchQuadraticVote, quadraticVotes, useQuadratic, classes, expandedPostId, votes }:
   {post: any, dispatch: React.Dispatch<vote>, quadraticVotes: vote[], dispatchQuadraticVote: any, useQuadratic: boolean, classes:any, expandedPostId: string, votes: vote[] }
 ) => {
-  const { PostsTitle, LWTooltip, PostsPreviewTooltip } = Components
+  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo } = Components
+
+  const currentUser = useCurrentUser()
 
   return <div className={classNames(classes.root, {[classes.expanded]: expandedPostId === post._id})}>
     <div>
@@ -403,12 +429,13 @@ const VoteTableRow = withStyles(voteRowStyles, {name: "VoteTableRow"})((
             <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap />
           </LWTooltip>
         </div>
-        <div>
+        {post.userId !== currentUser._id && <div>
             {useQuadratic ? 
               <QuadraticVotingButtons postId={post._id} votes={quadraticVotes} vote={dispatchQuadraticVote} /> :
               <VotingButtons postId={post._id} dispatch={dispatch} votes={votes} />
             }
-        </div>
+        </div>}
+        {post.userId === currentUser._id && <MetaInfo>You cannot vote on your own posts</MetaInfo>}
       </div>
     </div>
   </div>
