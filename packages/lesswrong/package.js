@@ -40,6 +40,7 @@ Package.onTest(function(api) {
   api.use('lesswrong');
 
   api.use([
+    'typescript',
     'fourseven:scss',
     'vulcan:core',
     'vulcan:users',

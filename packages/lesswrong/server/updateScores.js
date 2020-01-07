@@ -1,5 +1,5 @@
 import { Connectors } from 'meteor/vulcan:core';
-import { recalculateScore } from '../lib/modules/scoring.js';
+import { recalculateScore } from '../lib/scoring.ts';
 
 /*
 

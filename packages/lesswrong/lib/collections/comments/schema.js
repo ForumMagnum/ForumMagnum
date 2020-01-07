@@ -1,5 +1,5 @@
 import Users from 'meteor/vulcan:users';
-import { foreignKeyField, resolverOnlyField, denormalizedField } from '../../../lib/modules/utils/schemaUtils';
+import { foreignKeyField, resolverOnlyField, denormalizedField } from '../../../lib/utils/schemaUtils';
 import { Posts } from '../posts/collection'
 import { schemaDefaultValue } from '../../collectionUtils';
 

@@ -1,7 +1,6 @@
 import { Components, registerComponent, useUpdate } from 'meteor/vulcan:core';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
-import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
 import { Link } from '../../lib/reactRouterWrapper.jsx';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
