@@ -34,23 +34,22 @@ const schema = {
       type: "Post",
     }),
     viewableBy: ['guests'],
-    insertableBy: ['members'],
   },
-  score: {
+  qualitativeScore: {
     type: SimpleSchema.Integer, 
     viewableBy: ['guests'],
-    insertableBy: ['members']
+    optional: true,
+    ...schemaDefaultValue(1)
   },
-  type: {
-    type: String, 
-    allowedValues: ['qualitative', 'quadratic'],
+  quadraticScore: {
+    type: SimpleSchema.Integer, 
     viewableBy: ['guests'],
-    insertableBy: ['members']
+    optional: true,
+    ...schemaDefaultValue(0)
   },
-  deleted: {
-    type: Boolean,
+  comment: {
+    type: String,
     viewableBy: ['guests'],
-    ...schemaDefaultValue(false),
     optional: true
   }
 };

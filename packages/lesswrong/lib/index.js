@@ -77,6 +77,7 @@ import Collections from './collections/collections/collection.js';
 import ReviewVotes from './collections/reviewVotes/collection.js'
 import './collections/reviewVotes/views.js'
 import './collections/reviewVotes/fragments.js'
+import './collections/reviewVotes/mutations.js'
 
 
 import Localgroups from './collections/localgroups/collection.js'

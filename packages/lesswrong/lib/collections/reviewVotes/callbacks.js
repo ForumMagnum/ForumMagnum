@@ -1,21 +1,11 @@
 import ReviewVotes from './collection'
-import { addCallback, editMutation } from 'meteor/vulcan:core';
+import { addCallback } from 'meteor/vulcan:core';
 
-async function markOldVoteAsDeleted(newVote) {
-  const {userId, postId, type} = newVote
-  const oldVotes = await ReviewVotes.find({postId, userId, type}).fetch()
-  oldVotes.forEach(vote => {
-    editMutation({
-      collection:ReviewVotes,
-      documentId: vote._id,
-      set: {
-        deleted: true
-      },
-      unset: {},
-      validate: false,
-    })
-  })
-  return newVote
+async function ensureUniqueVotes(errors, {newDocument: newVote}) {
+  const {userId, postId} = newVote
+  const oldVote = await ReviewVotes.findOne({postId, userId})
+  if (oldVote) throw Error("You can't have two review votes of the same type on the same document")
+  return errors
 }
 
-addCallback('reviewVote.create.before', markOldVoteAsDeleted);
+addCallback('reviewVote.create.validate', ensureUniqueVotes);
