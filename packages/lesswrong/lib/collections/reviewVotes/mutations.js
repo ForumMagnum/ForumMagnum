@@ -1,5 +1,5 @@
 import { newMutation, editMutation, addGraphQLMutation, addGraphQLResolvers } from 'meteor/vulcan:core';
-import { accessFilterSingle } from '../../modules/utils/schemaUtils';
+import { accessFilterSingle } from '../../utils/schemaUtils';
 import { Posts } from '../posts/collection'
 import { ReviewVotes } from './collection'
 

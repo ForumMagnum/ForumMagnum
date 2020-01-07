@@ -129,6 +129,7 @@ type linearVote = vote & {type: "qualitative", score: 0|1|2|3|4}
 
 
 const ReviewVotingPage = ({classes}) => {
+  const currentUser = useCurrentUser()
   const { results: posts, loading: postsLoading } = useMulti({
     terms: {view:"reviews2018", limit: 100},
     collection: Posts,
@@ -139,7 +140,7 @@ const ReviewVotingPage = ({classes}) => {
   });
 
   const { results: dbVotes, loading: dbVotesLoading } = useMulti({
-    terms: {view: "reviewVotesFromUser", limit: 100},
+    terms: {view: "reviewVotesFromUser", limit: 100, userId: currentUser?._id},
     collection: ReviewVotes,
     queryName: "reviewVoteQuery",
     fragmentName: "reviewVoteFragment",
@@ -183,7 +184,7 @@ const ReviewVotingPage = ({classes}) => {
     if (!!posts) setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes)))
   }, [!!posts, useQuadratic])
 
-  const currentUser = useCurrentUser()
+  
   if (!currentUser || !currentUser.isAdmin) return null
 
   const voteTotal = useQuadratic ? computeTotalCost(quadraticVotes) : 0
