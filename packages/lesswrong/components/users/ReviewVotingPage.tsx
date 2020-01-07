@@ -213,7 +213,7 @@ const ReviewVotingPage = ({classes}) => {
   }, [!!posts, useQuadratic])
 
   
-  if (!currentUser || !currentUser.isAdmin) return null
+  if (!currentUser || currentUser.karma < 1000) return null
 
   const voteTotal = useQuadratic ? computeTotalCost(quadraticVotes) : 0
 

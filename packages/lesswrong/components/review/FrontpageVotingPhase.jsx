@@ -55,13 +55,13 @@ const FrontpageVotingPhase = ({classes, settings, currentUser}) => {
         </AnalyticsContext>
       </SubSection>
       <SectionFooter>
-        <Link to={"/reviewVoting"}>
+        {(currentUser && currentUser.karma >= 1000) && <Link to={`/reviewVoting`}>
           My Votes
-        </Link>
+        </Link>}
         <Link to={"/reviews"}>
           Reviews Dashboard
         </Link>
-        {(currentUser && currentUser.karma >= 1000) && <Link to={`/users/${currentUser.slug}/reviews`}>
+        {currentUser && <Link to={`/users/${currentUser.slug}/reviews`}>
           My Reviews
         </Link>}
       </SectionFooter>
