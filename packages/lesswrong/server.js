@@ -88,6 +88,7 @@ import './lib/collections/users/callbacks.js';
 import './lib/collections/bans/callbacks.js';
 import './lib/collections/posts/tableOfContents.js';
 import './lib/collections/subscriptions/callbacks.js';
+import './lib/collections/reviewVotes/callbacks.js';
 if (getSetting('hasEvents', true)) {
   import './lib/collections/localgroups/callbacks.js';
 }

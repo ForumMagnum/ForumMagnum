@@ -86,10 +86,10 @@ const styles = theme => ({
   },
   moderatorHat: {
     "&.comments-node-even": {
-      background: "#ffedb9",
+      background: "#5f9b651c",
     },
     "&.comments-node-odd": {
-      background: "#ffedb9",
+      background: "#5f9b651c",
     },
   },
   children: {
@@ -264,7 +264,7 @@ class CommentsNode extends Component {
       comment, children, nestingLevel=1, highlightDate, updateComment, post,
       muiTheme, postPage, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments,
-      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand, hoverPreview
+      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand, hoverPreview, hideSingleLineMeta
     } = this.props;
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList } = Components
@@ -315,7 +315,7 @@ class CommentsNode extends Component {
     )
 
     const passedThroughItemProps = { post, postPage, comment, updateComment, showPostTitle, collapsed, refetch }
-    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, updateComment, condensed, hideReadComments, refetch, scrollOnExpand }
+    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, updateComment, condensed, hideReadComments, refetch, scrollOnExpand, hideSingleLineMeta }
 
     return (
         <div className={comment.gapIndicator && classes.gapIndicator}>
@@ -328,6 +328,7 @@ class CommentsNode extends Component {
                 ? <SingleLineComment
                     comment={comment} nestingLevel={updatedNestingLevel}
                     parentCommentId={parentCommentId} hideKarma={post.hideCommentKarma}
+                    hideSingleLineMeta={hideSingleLineMeta}
                   />
                 : <CommentsItem
                     truncated={this.isTruncated()}
