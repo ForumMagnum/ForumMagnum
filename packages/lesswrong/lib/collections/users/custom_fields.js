@@ -1150,6 +1150,13 @@ addFieldsDict(Users, {
     label: "Opt into experimental features",
     order: 71,
   },
+  reviewVotesQuadratic: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true
+  },
   petrovPressedButtonDate: {
     type: Date,
     optional: true,
