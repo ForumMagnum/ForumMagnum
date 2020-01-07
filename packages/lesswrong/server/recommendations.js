@@ -1,7 +1,7 @@
 import { addGraphQLResolvers, addGraphQLQuery, addGraphQLMutation, addGraphQLSchema, getSetting } from 'meteor/vulcan:core';
 import { Posts } from '../lib/collections/posts';
 import { WeightedList } from './weightedList.js';
-import { accessFilterMultiple } from '../lib/modules/utils/schemaUtils.js';
+import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { setUserPartiallyReadSequences } from './partiallyReadSequences.js';
 import { ensureIndex } from '../lib/collectionUtils';
 

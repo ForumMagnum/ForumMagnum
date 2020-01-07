@@ -99,7 +99,7 @@ import './lib/collections/users/serverSchema.js';
 
 import './lib/events/server.js';
 import './lib/events/callbacks_async.js';
-import './lib/modules/connection_logs.js';
+import './server/connection_logs';
 
 
 // Algolia Search Integration

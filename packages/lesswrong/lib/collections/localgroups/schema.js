@@ -1,4 +1,4 @@
-import { arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation } from '../../modules/utils/schemaUtils'
+import { arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation } from '../../utils/schemaUtils'
 import { localGroupTypeFormOptions } from './groupTypes';
 import { schemaDefaultValue } from '../../collectionUtils';
 

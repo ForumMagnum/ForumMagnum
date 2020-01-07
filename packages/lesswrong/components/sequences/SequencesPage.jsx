@@ -10,7 +10,7 @@ import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
-import { legacyBreakpoints } from '../../lib/modules/utils/theme';
+import { legacyBreakpoints } from '../../lib/utils/theme';
 import { postBodyStyles } from '../../themes/stylePiping'
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import {AnalyticsContext} from "../../lib/analyticsEvents";

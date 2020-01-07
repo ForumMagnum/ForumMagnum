@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../common/withErrorBoundary';
 import withUser from '../common/withUser';
-import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
+import { shallowEqual, shallowEqualExcept } from '../../lib/utils/componentUtils';
 import { AnalyticsContext } from "../../lib/analyticsEvents"
 
 const KARMA_COLLAPSE_THRESHOLD = -4;

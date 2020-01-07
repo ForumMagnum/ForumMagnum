@@ -464,3 +464,5 @@ importComponent("Button", () => require('../components/vulcan-ui-bootstrap/ui/Bu
 importComponent("Modal", () => require('../components/vulcan-ui-bootstrap/ui/Modal.jsx'));
 importComponent("ModalTrigger", () => require('../components/vulcan-ui-bootstrap/ui/ModalTrigger.jsx'));
 
+// vulcan:forms
+import './vulcan-forms/components.js';

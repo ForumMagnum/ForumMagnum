@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { registerComponent, withUpdate } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
-import { rssTermsToUrl } from "../../lib/modules/rss_urls.js";
+import { rssTermsToUrl } from "../../lib/rss_urls";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';

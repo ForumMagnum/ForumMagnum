@@ -1,7 +1,7 @@
 import Users from 'meteor/vulcan:users';
 import { Utils, getCollection } from 'meteor/vulcan:core';
 import moment from 'moment';
-import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection.js"
 

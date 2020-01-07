@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
-import { legacyBreakpoints } from '../../lib/modules/utils/theme';
+import { legacyBreakpoints } from '../../lib/utils/theme';
 import Typography from '@material-ui/core/Typography';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { AnalyticsContext } from "../../lib/analyticsEvents";

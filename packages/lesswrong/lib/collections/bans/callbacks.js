@@ -1,6 +1,6 @@
 import { Accounts } from 'meteor/accounts-base';
 import { Bans } from './collection.js';
-import { ForwardedWhitelist } from '../../modules/forwarded_whitelist.js';
+import { ForwardedWhitelist } from '../../../server/forwarded_whitelist';
 // Check during login whether the user currently has their login disabled
 
 
