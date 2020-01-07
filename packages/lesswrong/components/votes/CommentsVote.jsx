@@ -129,6 +129,6 @@ CommentsVote.propTypes = {
 };
 
 registerComponent('CommentsVote', CommentsVote,
-  withHover,
+  withHover(),
   withStyles(styles, { name: "CommentsVote" }),
 );

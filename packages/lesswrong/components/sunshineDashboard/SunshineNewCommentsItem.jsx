@@ -75,4 +75,4 @@ const withUpdateOptions = {
   collection: Comments,
   fragmentName: 'SelectCommentsList',
 }
-registerComponent('SunshineNewCommentsItem', SunshineNewCommentsItem, [withUpdate, withUpdateOptions], withUser, withHover, withErrorBoundary);
+registerComponent('SunshineNewCommentsItem', SunshineNewCommentsItem, [withUpdate, withUpdateOptions], withUser, withHover(), withErrorBoundary);

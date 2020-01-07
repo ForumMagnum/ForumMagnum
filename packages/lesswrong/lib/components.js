@@ -447,6 +447,8 @@ importComponent("PostReviewsAndNominations", () => require('../components/review
 
 // Analytics Tracking
 importComponent("AnalyticsTracker", () => require('../components/common/AnalyticsTracker.jsx'));
+importComponent("AnalyticsInViewTracker", () => require('../components/common/AnalyticsInViewTracker.jsx'));
+importComponent("AnalyticsPageInitializer", () => require('../components/common/AnalyticsPageInitializer.jsx'));
 
 // vulcan:ui-bootstrap
 importComponent("FormComponentCheckboxGroup", () => require('../components/vulcan-ui-bootstrap/forms/Checkboxgroup.jsx'));

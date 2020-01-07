@@ -181,5 +181,5 @@ UsersMenu.defaultProps = {
 }
 
 registerComponent('UsersMenu', UsersMenu,
-  withUser, withApollo, withHover, withDialog, withStyles(styles, { name: "UsersMenu" })
+  withUser, withApollo, withHover(), withDialog, withStyles(styles, { name: "UsersMenu" })
 );

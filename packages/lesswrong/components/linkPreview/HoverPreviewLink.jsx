@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent, parseRoute, parsePath, Utils } from 'meteor/vulcan:core';
 import { hostIsOnsite, useLocation, getUrlClass } from '../../lib/routeUtil';
 import Sentry from '@sentry/node';
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 export const parseRouteWithErrors = (onsiteUrl, contentSourceDescription) => {
   return parseRoute({
@@ -20,11 +21,9 @@ export const parseRouteWithErrors = (onsiteUrl, contentSourceDescription) => {
 const linkIsExcludedFromPreview = (url) => {
   // Don't try to preview links that go directly to images. The usual use case
   // for such links is an image where you click for a larger version.
-  if (url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.jpeg') || url.endsWith('.gif')) {
-    return true;
-  }
-  
-  return false;
+  return !!(url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.jpeg') || url.endsWith('.gif'));
+
+
 }
 
 // A link, which will have a hover preview auto-selected and attached. Used from
@@ -44,7 +43,7 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id }) => 
   if (!href) {
     return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id}/>
   }
-  
+
   // Within-page relative link?
   if (href.startsWith("#")) {
     return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} />
@@ -53,19 +52,21 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id }) => 
   try {
     const currentURL = new URLClass(location.url, Utils.getSiteUrl());
     const linkTargetAbsolute = new URLClass(href, currentURL);
-    
+
     const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
     if (!linkIsExcludedFromPreview(onsiteUrl) && (hostIsOnsite(linkTargetAbsolute.host) || Meteor.isServer)) {
       const parsedUrl = parseRouteWithErrors(onsiteUrl, contentSourceDescription)
       const destinationUrl = parsedUrl.url;
-      
+
       if (parsedUrl.currentRoute) {
         const PreviewComponent = parsedUrl.currentRoute.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;
-        
+
         if (PreviewComponent) {
-          return <PreviewComponent href={destinationUrl} targetLocation={parsedUrl} innerHTML={innerHTML} id={id}/>
+          return <AnalyticsContext pageElementContext="linkPreview" href={destinationUrl} hoverPreviewType={parsedUrl.currentRoute.previewComponentName} onsite>
+            <PreviewComponent href={destinationUrl} targetLocation={parsedUrl} innerHTML={innerHTML} id={id}/>
+          </AnalyticsContext>
         } else {
-          return <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} onSite/>
+          return <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} onsite/>
         }
       }
     } else {
