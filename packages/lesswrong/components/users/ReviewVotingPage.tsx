@@ -53,6 +53,7 @@ const styles = theme => ({
     position: "sticky",
     top:0,
     display: "flex",
+    alignItems: "center",
     justifyContent: "space-between",
     backgroundColor: "white",
     zIndex: theme.zIndexes.reviewVotingMenu,
@@ -74,9 +75,13 @@ const styles = theme => ({
     overflowY: "scroll",
   },
   header: {
-    gridArea: "title",
     ...theme.typography.display3,
     ...theme.typography.commentStyle,
+    marginTop: 0,
+  },
+  postHeader: {
+    ...theme.typography.display1,
+    ...theme.typography.postStyle,
     marginTop: 0,
   },
   comments: {
@@ -92,6 +97,13 @@ const styles = theme => ({
     ...theme.typography.commentStyle,
     fontWeight: 600,
     marginBottom: theme.spacing.unit
+  },
+  voteTotal: {
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+  },
+  excessVotes: {
+    color: theme.palette.error
   }
 });
 
@@ -102,7 +114,7 @@ type linearVote = vote & {type: "qualitative", score: 0|1|2|3|4}
 
 
 const ReviewVotingPage = ({classes}) => {
-  const { results: posts } = useMulti({
+  const { results: posts, loading: postsLoading } = useMulti({
     terms: {view:"reviews2018", limit: 100},
     collection: Posts,
     queryName: 'postsListQuery',
@@ -111,7 +123,7 @@ const ReviewVotingPage = ({classes}) => {
     ssr: true
   });
 
-  const { results: dbVotes } = useMulti({
+  const { results: dbVotes, loading: dbVotesLoading } = useMulti({
     terms: {view: "reviewVotesFromUser", limit: 100},
     collection: ReviewVotes,
     queryName: "reviewVoteQuery",
@@ -146,7 +158,7 @@ const ReviewVotingPage = ({classes}) => {
   const quadraticVotes = dbVotes?.map(({quadraticScore, postId}) => ({postId, score: quadraticScore, type: "quadratic"})) as quadraticVote[]
   const dispatchQuadraticVote = async ({postId, score}) => await submitVote({variables: {postId, quadraticScore: score}})
 
-  const { PostReviewsAndNominations, LWTooltip } = Components
+  const { PostReviewsAndNominations, LWTooltip, Loading } = Components
 
   const [postOrder, setPostOrder] = useState<Map<number, number> | undefined>(undefined)
   const reSortPosts = () => setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes))) 
@@ -158,23 +170,29 @@ const ReviewVotingPage = ({classes}) => {
   const currentUser = useCurrentUser()
   if (!currentUser || !currentUser.isAdmin) return null
 
+  const voteTotal = useQuadratic ? computeTotalCost(quadraticVotes) : 0
+
   return (
       <div className={classes.root}>
         <div className={classes.leftColumn}>
           <div className={classes.menu}>
+            {(postsLoading || dbVotesLoading) && <Loading/>}
             <LWTooltip title="Sorts the list of post by vote-strength">
               <Button onClick={reSortPosts}>
                 Re-Sort <CachedIcon className={classes.menuIcon} />
               </Button>
             </LWTooltip>
-            <LWTooltip title="WARNING: Once you switch to quadratic-voting, you cannot go back to default-voting without losing your quadratic data.">
+            {!useQuadratic && <LWTooltip title="WARNING: Once you switch to quadratic-voting, you cannot go back to default-voting without losing your quadratic data.">
               <Button className={classes.convert} onClick={async () => {
                   await Promise.all(votesToQuadraticVotes(votes, posts).map(dispatchQuadraticVote))
                   setUseQuadratic(true)
               }}> 
                 Convert to Quadratic <KeyboardTabIcon className={classes.menuIcon} /> 
               </Button>
-            </LWTooltip>
+            </LWTooltip>}
+            {useQuadratic && <div className={classNames(classes.voteTotal, {[classes.excessVotes]: voteTotal > 500})}>
+              {voteTotal}/500
+            </div>}
             <Button disabled={!expandedPost} onClick={()=>setExpandedPost(null)}>Show Instructions</Button>
           </div>
           <Paper>
@@ -212,8 +230,9 @@ const ReviewVotingPage = ({classes}) => {
           </div>}
           {expandedPost && <div className={classes.expandedInfoWrapper}>
             <div className={classes.expandedInfo}>
+              <h2 className={classes.postHeader}>{expandedPost.title}</h2>
               <div className={classes.reason}>
-                <div className={classes.reasonTitle}>Anonymous thoughts on "{expandedPost.title}"</div>
+                <div className={classes.reasonTitle}>Anonymous Comments (optional)</div>
                 <CommentTextField 
                   startValue={getVoteForPost(dbVotes, expandedPost._id)?.comment}  
                   updateValue={(value) => submitVote({variables: {comment: value, postId: expandedPost._id}})}
@@ -234,12 +253,6 @@ const ReviewVotingPage = ({classes}) => {
               </div>
             </div>
           </div>}
-          {useQuadratic && computeTotalCost(quadraticVotes)}
-            {/* {votes.filter(vote => vote.score !== 1).sort((a,b) => a.score - b.score).reverse().map(({postId}) => {
-              return <div className={classes.result} key={postId}>
-                  {results.find(post => post._id === postId)?.title || "Couldn't find title"}
-              </div>
-            })} */}
         </div>
       </div>
   );
@@ -255,12 +268,11 @@ function CommentTextField({startValue, updateValue, postId}) {
     setText(startValue)
   }, [postId])
   const debouncedUpdateValue = useCallback(_.debounce((value) => {
-    console.log("calling debounced update value")
     updateValue(value)
   }, 500), [postId])
   return <TextField
     id="standard-multiline-static"
-    placeholder="(Optional) Write here any special considerations that affected your vote. These will appear anonymously in a 2018 Review roundup. The moderation team will take them as input for the final decisions of what posts to include in the book."
+    placeholder="Write any special considerations that affected your vote. These will appear anonymously in a 2018 Review roundup. The moderation team will take them as input for the final decisions of what posts to include in the book."
     defaultValue={startValue}
     onChange={(event) => {
       setText(event.target.value)
@@ -441,12 +453,16 @@ const VotingButtons = withStyles(votingButtonStyles, {name: "VotingButtons"})(({
 })
 
 const quadraticVotingButtonStyles = theme => ({
+  root: {
+    display: "flex",
+    alignItems: "center"
+  },
   vote: {
+    ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    fontSize: "1.5rem",
     fontWeight: 600,
-    verticalAlign: "middle",
-    padding: 10,
+    paddingLeft: 10,
+    paddingRight: 10,
     cursor: "pointer"
   },
   score: {
@@ -463,7 +479,7 @@ const QuadraticVotingButtons = withStyles(quadraticVotingButtonStyles, {name: "Q
         vote({postId, score: newScore})
       }
   } 
-  return <div>
+  return <div className={classes.root}>
     <span className={classes.vote} onClick={createClickHandler(postId, 'sell')}>–</span>
     <span className={classes.score}>{voteForCurrentPost?.score || 0}</span>
     <span className={classes.vote} onClick={createClickHandler(postId, 'buy')}>+</span>
