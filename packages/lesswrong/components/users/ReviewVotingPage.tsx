@@ -149,8 +149,8 @@ const ReviewVotingPage = ({classes}) => {
   })
 
   const [submitVote] = useMutation(gql`
-    mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticScore: Int, $comment: String) {
-      submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticScore: $quadraticScore, comment: $comment) {
+    mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticChange: Int, $setQuadraticScore: Int, $comment: String) {
+      submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticChange: $quadraticChange, comment: $comment, setQuadraticScore: $setQuadraticScore) {
         ...reviewVoteFragment
       }
     }
@@ -173,7 +173,7 @@ const ReviewVotingPage = ({classes}) => {
   const dispatchQualitativeVote = async ({postId, score}) => await submitVote({variables: {postId, qualitativeScore: score}})
 
   const quadraticVotes = dbVotes?.map(({quadraticScore, postId}) => ({postId, score: quadraticScore, type: "quadratic"})) as quadraticVote[]
-  const dispatchQuadraticVote = async ({postId, score}) => await submitVote({variables: {postId, quadraticScore: score}})
+  const dispatchQuadraticVote = async ({postId, change, set}) => await submitVote({variables: {postId, quadraticChange: change, setQuadraticScore: set}})
 
   const { PostReviewsAndNominations, LWTooltip, Loading } = Components
 
@@ -338,14 +338,14 @@ const linearScoreScaling = {
 
 const VOTE_BUDGET = 500
 const MAX_SCALING = 6
-const votesToQuadraticVotes = (votes:linearVote[], posts: any[]):quadraticVote[] => {
+const votesToQuadraticVotes = (votes:linearVote[], posts: any[]):{postId: String, change: number}[] => {
   const sumScaled = sumBy(votes, vote => Math.abs(linearScoreScaling[vote ? vote.score : 1]) || 0)
   return createPostVoteTuples(posts, votes).map(([post, vote]) => {
     if (vote) {
       const newScore = computeQuadraticVoteScore(vote.score, sumScaled)
-      return {postId: post._id, score: newScore, type: "quadratic"}
+      return {postId: post._id, set: newScore}
     } else {
-      return {postId: post._id, score: 0, type: "quadratic"}
+      return {postId: post._id, set: 0}
     }
   })
 }
@@ -503,8 +503,7 @@ const QuadraticVotingButtons = withStyles(quadraticVotingButtonStyles, {name: "Q
   const voteForCurrentPost = votes.find(vote => vote.postId === postId)
   const createClickHandler = (postId: string, type: 'buy' | 'sell') => {
       return () => {
-        const newScore = (voteForCurrentPost?.score || 0) + (type === 'buy' ? 1 : -1)
-        vote({postId, score: newScore})
+        vote({postId, change: (type === 'buy' ? 1 : -1)})
       }
   } 
   return <div className={classes.root}>
