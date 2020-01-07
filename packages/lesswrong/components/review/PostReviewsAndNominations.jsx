@@ -16,9 +16,7 @@ const styles = theme => ({
 
 const PostReviewsAndNominations = ({ classes, title, loading, results, post }) => {
 
-  const { Loading, CommentsList } = Components
-
-  
+  const { Loading, CommentsList, SubSection } = Components
 
   if (!loading && results && !results.length) {
     return null
@@ -29,15 +27,17 @@ const PostReviewsAndNominations = ({ classes, title, loading, results, post }) =
   return (
     <div>
       {title && <div className={classes.title}>{title} for "{post.title}"</div>}
-      <CommentsList
-        comments={nestedComments}
-        startThreadTruncated={true}
-        post={post}
-        lastCommentId={lastCommentId}
-        forceSingleLine
-        hideSingleLineMeta
-      />
-      {loading && <Loading/>}
+      <SubSection>
+        <CommentsList
+          comments={nestedComments}
+          startThreadTruncated={true}
+          post={post}
+          lastCommentId={lastCommentId}
+          forceSingleLine
+          hideSingleLineMeta
+        />
+        {loading && <Loading/>}
+      </SubSection>
     </div>
   );
 };
