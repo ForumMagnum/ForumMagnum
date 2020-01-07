@@ -1,6 +1,6 @@
 import React, {useState, useRef, useCallback } from 'react';
 import { useTracking } from "../../lib/analyticsEvents";
-import { isMobile } from '../../lib/utils/isMobile.js'
+import { isMobile } from '../../lib/utils/isMobile'
 
 export const withHover = (trackingData, propsToTrackingData=()=>{}) =>
   (WrappedComponent) => {
