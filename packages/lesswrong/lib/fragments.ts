@@ -142,6 +142,7 @@ registerFragment(`
     autoSubscribeAsOrganizer
     bookmarkedPostsMetadata
     noExpandUnreadCommentsReview
+    reviewVotesQuadratic
   }
 `);
 

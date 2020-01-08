@@ -3,8 +3,9 @@ import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import { sumBy } from 'lodash'
-import { registerComponent, Components, useMulti, getFragment, updateEachQueryResultOfType, handleUpdateMutation } from 'meteor/vulcan:core';
+import { registerComponent, Components, useMulti, getFragment, updateEachQueryResultOfType, handleUpdateMutation, useUpdate } from 'meteor/vulcan:core';
 import { useMutation } from 'react-apollo';
+import Users from 'meteor/vulcan:users';
 import { Paper } from '@material-ui/core';
 import { Posts } from '../../lib/collections/posts';
 import { useCurrentUser } from '../common/withUser';
@@ -15,6 +16,7 @@ import gql from 'graphql-tag';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import CachedIcon from '@material-ui/icons/Cached';
 import KeyboardTabIcon from '@material-ui/icons/KeyboardTab';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 
 const styles = theme => ({
   grid: {
@@ -69,6 +71,10 @@ const styles = theme => ({
   menuIcon: {
     marginLeft: theme.spacing.unit
   },
+  returnToBasicIcon: {
+    transform: "rotate(180deg)",
+    marginRight: theme.spacing.unit
+  },
   expandedInfoWrapper: {
     position: "sticky",
     top: 0,
@@ -108,7 +114,7 @@ const styles = theme => ({
     ...theme.typography.commentStyle,
   },
   excessVotes: {
-    color: theme.palette.error
+    color: theme.palette.error.main
   },
   mobileMessage: {
     width: "100%",
@@ -148,6 +154,11 @@ const ReviewVotingPage = ({classes}) => {
     ssr: true
   })
 
+  const {mutate: updateUser} = useUpdate({
+    collection: Users,
+    fragmentName: 'UsersCurrent',
+  });
+
   const [submitVote] = useMutation(gql`
     mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticChange: Int, $setQuadraticScore: Int, $comment: String) {
       submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticChange: $quadraticChange, comment: $comment, setQuadraticScore: $setQuadraticScore) {
@@ -165,11 +176,27 @@ const ReviewVotingPage = ({classes}) => {
     }
   });
 
-  const [useQuadratic, setUseQuadratic] = useState(false)
+  const [useQuadratic, setUseQuadratic] = useState(currentUser?.reviewVotesQuadratic)
   const [loading, setLoading] = useState(false)
   const [expandedPost, setExpandedPost] = useState<any>(null)
 
   const votes = dbVotes?.map(({_id, qualitativeScore, postId}) => ({_id, postId, score: qualitativeScore, type: "qualitative"})) as linearVote[]
+  const handleSetUseQuadratic = (newUseQuadratic) => {
+    if (!newUseQuadratic) {
+      if (!confirm("WARNING: This will discard your quadratic vote data. Are you sure you want to return to basic voting?")) {
+        return
+      }
+    }
+
+    setUseQuadratic(newUseQuadratic)
+    updateUser({
+      selector: {_id: currentUser._id},
+      data: { 
+        reviewVotesQuadratic: newUseQuadratic,
+      }
+    });
+  }
+
   const dispatchQualitativeVote = async ({postId, score}) => await submitVote({variables: {postId, qualitativeScore: score}})
 
   const quadraticVotes = dbVotes?.map(({_id, quadraticScore, postId}) => ({_id, postId, score: quadraticScore, type: "quadratic"})) as quadraticVote[]
@@ -218,11 +245,18 @@ const ReviewVotingPage = ({classes}) => {
             {!useQuadratic && <LWTooltip title="WARNING: Once you switch to quadratic-voting, you cannot go back to default-voting without losing your quadratic data.">
               <Button className={classes.convert} onClick={async () => {
                   setLoading(true)
+                  handleSetUseQuadratic(true)
                   await Promise.all(votesToQuadraticVotes(votes, posts).map(dispatchQuadraticVote))
-                  setUseQuadratic(true)
                   setLoading(false)
               }}> 
                 Convert to Quadratic <KeyboardTabIcon className={classes.menuIcon} /> 
+              </Button>
+            </LWTooltip>}
+            {useQuadratic && <LWTooltip title="Discard your quadratic data and return to default voting.">
+              <Button className={classes.convert} onClick={async () => {
+                  handleSetUseQuadratic(false)
+              }}> 
+                <KeyboardTabIcon className={classes.returnToBasicIcon} />  Return to Basic Voting
               </Button>
             </LWTooltip>}
             {useQuadratic && <LWTooltip title={`You have ${500 - voteTotal} points remaining`}>
@@ -252,17 +286,18 @@ const ReviewVotingPage = ({classes}) => {
           {!expandedPost && <div className={classes.expandedInfoWrapper}>
             <h1 className={classes.header}>Rate the most important posts of 2018</h1>
             <div className={classes.instructions}>
-              <p>Your vote should reflect each post’s overall level of importance (with whatever weightings seem right to you for “usefulness”, “accuracy”, and “following good norms”).</p>
-              <p>The default voting method is to rate each post with the following five options:</p>
+              <p> Your vote should reflect each post’s overall level of importance (with whatever weightings seem right to you for “usefulness”, “accuracy”, “following good norms”, and other virtues).</p>
+              <p>Voting is done in two passes. First, roughly sort each post into one of the following buckets:</p>
               <ul>
                 <li><b>No</b> – Misleading, harmful or low quality.</li>
                 <li><b>Neutral</b> – You wouldn't personally recommend it, but seems fine if others do. <em>(If you don’t have strong opinions about a post, leaving it ‘neutral’ is fine)</em></li>
                 <li><b>Good</b> – Useful ideas that I still think about sometimes.</li>
                 <li><b>Important</b> – A key insight or excellent distillation.</li>
-                <li><b>Crucial</b> – One of the most significant posts of 2018.</li>
+                <li><b>Crucial</b> – One of the most significant posts of 2018, for LessWrong to discuss and build upon over the coming years.</li>
               </ul>
-              <p>Alternatively, you can directly use the quadratic voting system to fine-tune your votes. (Quadratic voting gives you a limited number of “points” to spend on votes, allowing you to vote multiple times, with each additional vote on an item costing more. See here for details)</p>
-              <p>You can either skip directly to the underlying quadratic voting system, or use the No / Neutral / Good / Important / Crucial buttons to roughly assign some initial points.</p>
+              <p>After that, click “Convert to Quadratic”, and you will then have the option to use the quadratic voting system to fine-tune your votes. (Quadratic voting gives you a limited number of “points” to spend on votes, allowing you to vote multiple times, with each additional vote on an item costing more. See <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this post</Link> for details.)</p>
+              <p>If you’re having difficulties, please message the LessWrong Team using Intercom, the circle at the bottom right corner of the screen, or leave a comment on <Link to="/posts/zLhSjwXHnTg9QBzqH/the-final-vote-for-lw-2018-review">this post</Link>.</p>
+              <p>The vote closes on Jan 20th. If you leave this page and come back, your votes will be saved.</p>
             </div>
           </div>}
           {expandedPost && <div className={classes.expandedInfoWrapper}>
@@ -310,7 +345,7 @@ function CommentTextField({startValue, updateValue, postId}) {
   }, 500), [postId])
   return <TextField
     id="standard-multiline-static"
-    placeholder="Write any special considerations that affected your vote. These will appear anonymously in a 2018 Review roundup. The moderation team will take them as input for the final decisions of what posts to include in the book."
+    placeholder="What considerations affected your vote? These will appear anonymously in a 2018 Review roundup. The moderation team will take them as input for the final decisions of what posts to include in the Best of 2018 book."
     defaultValue={startValue}
     onChange={(event) => {
       setText(event.target.value)
