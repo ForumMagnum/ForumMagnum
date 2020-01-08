@@ -10,9 +10,11 @@ import Card from '@material-ui/core/Card';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { userHasBoldPostItems } from '../../lib/betas.js';
 
+export const POST_PREVIEW_WIDTH = 500
+
 const styles = theme => ({
   root: {
-    width: 500,
+    width: POST_PREVIEW_WIDTH,
     position: "relative",
     padding: theme.spacing.unit*1.5,
     paddingTop: theme.spacing.unit,
