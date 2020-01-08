@@ -221,8 +221,8 @@ const ReviewVotingPage = ({classes}) => {
   const reSortPosts = () => setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes))) 
 
   useEffect(() => {
-    if (!!posts) setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes)))
-  }, [!!posts, useQuadratic])
+    if (!!posts && useQuadratic ? !!quadraticVotes : !!votes) setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes)))
+  }, [!!posts, useQuadratic, !!quadraticVotes, !!votes])
 
   
   if (!currentUser || currentUser.karma < 1000) return null
