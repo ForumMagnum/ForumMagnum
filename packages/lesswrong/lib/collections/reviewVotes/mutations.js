@@ -1,4 +1,4 @@
-import { newMutation, editMutation, addGraphQLMutation, addGraphQLResolvers } from 'meteor/vulcan:core';
+import { newMutation, addGraphQLMutation, addGraphQLResolvers } from 'meteor/vulcan:core';
 import { accessFilterSingle } from '../../utils/schemaUtils';
 import { Posts } from '../posts/collection'
 import { ReviewVotes } from './collection'
@@ -25,16 +25,22 @@ addGraphQLResolvers({
         });
         return newVote.data;
       } else {
-        // Upvote the tag
-        // TODO: Don't *remove* an upvote in this case
-        const updatedVote = await editMutation({
-            collection: ReviewVotes,
-            documentId: existingVote._id,
-            set: { postId, qualitativeScore, quadraticScore: newQuadraticScore, comment },
-            unset: {},
-            validate: false,
-        });
-        return updatedVote.data;
+        await ReviewVotes.update(
+          {_id: existingVote._id}, 
+          {
+            $set: {
+              postId, 
+              qualitativeScore, 
+              comment, 
+              quadraticScore: setQuadraticScore
+            },
+            ...(quadraticChange && {$inc: {
+              quadraticScore: quadraticChange
+            }})
+          }
+        )
+        const newVote = await ReviewVotes.findOne({_id: existingVote._id})
+        return newVote;
       }
     }
   }
