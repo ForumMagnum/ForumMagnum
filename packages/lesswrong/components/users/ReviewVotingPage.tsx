@@ -116,12 +116,14 @@ const styles = theme => ({
   excessVotes: {
     color: theme.palette.error.main
   },
-  mobileMessage: {
+  message: {
     width: "100%",
     textAlign: "center",
     paddingTop: 50,
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
+  },
+  mobileOnly: {
     [theme.breakpoints.up('md')]: {
       display: "none"
     }
@@ -224,18 +226,19 @@ const ReviewVotingPage = ({classes}) => {
     if (!!posts && useQuadratic ? !!quadraticVotes : !!votes) setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes)))
   }, [!!posts, useQuadratic, !!quadraticVotes, !!votes])
 
-  
-  if (!currentUser || currentUser.karma < 1000) return (
-    <div className={classes.mobileMessage}>
-      Only users with 1000 karma can vote on the LessWrong Review
-    </div>
-  )
+  if (!currentUser || currentUser.karma < 1000) {
+    return (
+      <div className={classes.message}>
+        Only users with 1000 karma can vote on the LessWrong Review
+      </div>
+    ) 
+  }
 
   const voteTotal = useQuadratic ? computeTotalCost(quadraticVotes) : 0
 
   return (
     <div>
-      <div className={classes.mobileMessage}>
+      <div className={classNames(classes.mobileOnly, classes.message)}>
         Voting is not available on small screens
       </div>
       <div className={classes.grid}>
