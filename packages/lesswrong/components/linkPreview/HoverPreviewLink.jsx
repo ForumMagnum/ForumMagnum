@@ -66,7 +66,7 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id }) => 
             <PreviewComponent href={destinationUrl} targetLocation={parsedUrl} innerHTML={innerHTML} id={id}/>
           </AnalyticsContext>
         } else {
-          return <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} onsite/>
+          return <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} />
         }
       }
     } else {
