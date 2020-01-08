@@ -245,8 +245,8 @@ const ReviewVotingPage = ({classes}) => {
             {!useQuadratic && <LWTooltip title="WARNING: Once you switch to quadratic-voting, you cannot go back to default-voting without losing your quadratic data.">
               <Button className={classes.convert} onClick={async () => {
                   setLoading(true)
-                  handleSetUseQuadratic(true)
                   await Promise.all(votesToQuadraticVotes(votes, posts).map(dispatchQuadraticVote))
+                  handleSetUseQuadratic(true)
                   setLoading(false)
               }}> 
                 Convert to Quadratic <KeyboardTabIcon className={classes.menuIcon} /> 
