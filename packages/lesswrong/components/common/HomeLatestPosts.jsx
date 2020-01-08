@@ -55,7 +55,7 @@ const HomeLatestPosts = ({ classes }) =>
   const { query } = location;
   const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox, LWTooltip } = Components
   const currentFilter = query.filter || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
-  const limit = parseInt(query.limit) || 10
+  const limit = parseInt(query.limit) || 15
 
   const recentPostsTerms = {
     ...query,
