@@ -70,7 +70,7 @@ class RecommendationsAndCurated extends PureComponent {
   render() {
     const { continueReading, classes, currentUser } = this.props;
     const { showSettings } = this.state
-    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SubSection, SeparatorBullet, BookmarksList, FrontpageReviewPhase } = Components;
+    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SubSection, SeparatorBullet, BookmarksList, FrontpageVotingPhase } = Components;
 
     const configName = "frontpage"
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
@@ -161,7 +161,7 @@ class RecommendationsAndCurated extends PureComponent {
       </React.Fragment>}
 
       <AnalyticsContext pageSectionContext="LessWrong 2018 Review">
-        <FrontpageReviewPhase settings={frontpageRecommendationSettings} />
+        <FrontpageVotingPhase settings={frontpageRecommendationSettings} />
       </AnalyticsContext>
 
       {/* Disabled during 2018 Review */}
