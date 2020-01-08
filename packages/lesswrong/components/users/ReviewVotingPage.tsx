@@ -334,20 +334,16 @@ const ReviewVotingPage = ({classes}) => {
                 />
               </div>
               <div className={classes.comments}>
-                <AnalyticsContext pageSectionContext="Nominations">
-                  <PostReviewsAndNominations
-                    title="Nominations"
-                    terms={{view:"nominations2018", postId: expandedPost._id}}
-                    post={expandedPost}
-                  />
-                </AnalyticsContext>
-                <AnalyticsContext pageSectionContext="Reviews">
-                  <PostReviewsAndNominations
-                    title="Reviews"
-                    terms={{view:"reviews2018", postId: expandedPost._id}}
-                    post={expandedPost}
-                  />
-                </AnalyticsContext>
+                <PostReviewsAndNominations
+                  title="Nominations"
+                  terms={{view:"nominations2018", postId: expandedPost._id}}
+                  post={expandedPost}
+                />
+                <PostReviewsAndNominations
+                  title="Reviews"
+                  terms={{view:"reviews2018", postId: expandedPost._id}}
+                  post={expandedPost}
+                />
               </div>
             </div>
           </div>}
