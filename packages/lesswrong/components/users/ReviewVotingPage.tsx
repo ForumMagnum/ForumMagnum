@@ -130,7 +130,7 @@ const styles = theme => ({
 
 type vote = {_id: string, postId: string, score: number, type?: string}
 type quadraticVote = vote & {type: "quadratic"}
-type linearVote = vote & {type: "qualitative", score: 0|1|2|3|4}
+type qualitativeVote = vote & {type: "qualitative", score: 0|1|2|3|4}
 
 
 
@@ -180,7 +180,7 @@ const ReviewVotingPage = ({classes}) => {
   const [loading, setLoading] = useState(false)
   const [expandedPost, setExpandedPost] = useState<any>(null)
 
-  const votes = dbVotes?.map(({_id, qualitativeScore, postId}) => ({_id, postId, score: qualitativeScore, type: "qualitative"})) as linearVote[]
+  const votes = dbVotes?.map(({_id, qualitativeScore, postId}) => ({_id, postId, score: qualitativeScore, type: "qualitative"})) as qualitativeVote[]
   const handleSetUseQuadratic = (newUseQuadratic) => {
     if (!newUseQuadratic) {
       if (!confirm("WARNING: This will discard your quadratic vote data. Are you sure you want to return to basic voting?")) {
@@ -376,7 +376,7 @@ function applyOrdering<T extends any>(array:T[], order:Map<number, number>):T[] 
   return newArray
 }
 
-const linearScoreScaling = {
+const qualitativeScoreScaling = {
   0: -4, 
   1: 0,
   2: 1,
@@ -386,8 +386,8 @@ const linearScoreScaling = {
 
 const VOTE_BUDGET = 500
 const MAX_SCALING = 6
-const votesToQuadraticVotes = (votes:linearVote[], posts: any[]):{postId: String, change?: number, set?: number, _id?: string, previousValue?: number}[] => {
-  const sumScaled = sumBy(votes, vote => Math.abs(linearScoreScaling[vote ? vote.score : 1]) || 0)
+const votesToQuadraticVotes = (votes:qualitativeVote[], posts: any[]):{postId: String, change?: number, set?: number, _id?: string, previousValue?: number}[] => {
+  const sumScaled = sumBy(votes, vote => Math.abs(qualitativeScoreScaling[vote ? vote.score : 1]) || 0)
   return createPostVoteTuples(posts, votes).map(([post, vote]) => {
     if (vote) {
       const newScore = computeQuadraticVoteScore(vote.score, sumScaled)
@@ -398,8 +398,8 @@ const votesToQuadraticVotes = (votes:linearVote[], posts: any[]):{postId: String
   })
 }
 
-const computeQuadraticVoteScore = (linearScore: 0|1|2|3|4, totalCost: number) => {
-  const scaledScore = linearScoreScaling[linearScore]
+const computeQuadraticVoteScore = (qualitativeScore: 0|1|2|3|4, totalCost: number) => {
+  const scaledScore = qualitativeScoreScaling[qualitativeScore]
   const scaledCost = scaledScore * Math.min(VOTE_BUDGET/totalCost, MAX_SCALING)
   const newScore = Math.sign(scaledCost) * Math.floor(inverseSumOf1ToN(Math.abs(scaledCost)))
   return newScore
