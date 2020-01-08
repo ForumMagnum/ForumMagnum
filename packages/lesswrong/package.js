@@ -12,16 +12,13 @@ Package.onUse( function(api) {
     'ecmascript',
     'typescript',
     'promise',
-    'fourseven:scss',
+    'fourseven:scss@4.12.0',
 
     // vulcan core
     'vulcan:core',
 
     // vulcan packages
     'vulcan:accounts',
-    'vulcan:forms',
-    'vulcan:events',
-    'vulcan:admin',
     'vulcan:users',
   ]);
 
@@ -43,6 +40,7 @@ Package.onTest(function(api) {
   api.use('lesswrong');
 
   api.use([
+    'typescript',
     'fourseven:scss',
     'vulcan:core',
     'vulcan:users',

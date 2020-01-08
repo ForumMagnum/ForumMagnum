@@ -57,5 +57,5 @@ const FooterTag = ({tagRel, tag, hover, anchorEl, classes}) => {
 }
 
 registerComponent("FooterTag", FooterTag,
-  withHover,
+  withHover(),
   withStyles(styles, {name: "FooterTag"}));

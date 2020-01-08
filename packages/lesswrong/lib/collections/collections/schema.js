@@ -1,4 +1,4 @@
-import { foreignKeyField, resolverOnlyField } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
 
 const schema = {
 

@@ -121,7 +121,7 @@ const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, truncate
   return <AnalyticsContext pageElementContext="hoverPreview">
       <Card className={classes.root}>
         <div className={classes.title}>
-          <PostsTitle post={post} tooltip={false} wrap read={userHasBoldPostItems(currentUser)} />
+          <PostsTitle post={post} tooltip={false} wrap showIcons={false} read={userHasBoldPostItems(currentUser)} />
         </div>
         <div className={classes.tooltipInfo}>
           { getPostCategory(post)}

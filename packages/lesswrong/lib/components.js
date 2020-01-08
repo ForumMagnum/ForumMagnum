@@ -128,6 +128,7 @@ importComponent("SignupSubscribeToCurated", () => require('../components/users/S
 importComponent("UserNameDeleted", () => require('../components/users/UserNameDeleted.jsx'));
 importComponent("WrappedLoginForm", () => require('../components/users/WrappedLoginForm.jsx'));
 importComponent("ResendVerificationEmailPage", () => require('../components/users/ResendVerificationEmailPage.jsx'));
+importComponent("ReviewVotingPage", () => require('../components/users/ReviewVotingPage.tsx'))
 
 importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon.jsx'));
 importComponent("SettingsIcon", () => require('../components/icons/SettingsIcon.jsx'));
@@ -434,6 +435,7 @@ importComponent("RecommendationsAndCurated", () => require('../components/recomm
 // 2018 Review Components
 importComponent("FrontpageNominationPhase", () => require('../components/review/FrontpageNominationPhase.jsx'));
 importComponent("FrontpageReviewPhase", () => require('../components/review/FrontpageReviewPhase.jsx'));
+importComponent("FrontpageVotingPhase", () => require('../components/review/FrontpageVotingPhase.jsx'));
 importComponent("Nominations2018", () => require('../components/review/Nominations2018.jsx'));
 importComponent("Reviews2018", () => require('../components/review/Reviews2018.jsx'));
 importComponent("ReviewPostButton", () => require('../components/review/ReviewPostButton.jsx'));
@@ -441,9 +443,13 @@ importComponent("ReviewPostForm", () => require('../components/review/ReviewPost
 importComponent("NominatePostMenuItem", () => require('../components/review/NominatePostMenuItem.jsx'));
 importComponent("NominatePostDialog", () => require('../components/review/NominatePostDialog.jsx'));
 importComponent("UserReviews", () => require('../components/review/UserReviews.jsx'));
+importComponent("PostReviewsAndNominations", () => require('../components/review/PostReviewsAndNominations.jsx'));
+
 
 // Analytics Tracking
 importComponent("AnalyticsTracker", () => require('../components/common/AnalyticsTracker.jsx'));
+importComponent("AnalyticsInViewTracker", () => require('../components/common/AnalyticsInViewTracker.jsx'));
+importComponent("AnalyticsPageInitializer", () => require('../components/common/AnalyticsPageInitializer.jsx'));
 
 // vulcan:ui-bootstrap
 importComponent("FormComponentCheckboxGroup", () => require('../components/vulcan-ui-bootstrap/forms/Checkboxgroup.jsx'));
@@ -459,3 +465,5 @@ importComponent("Button", () => require('../components/vulcan-ui-bootstrap/ui/Bu
 importComponent("Modal", () => require('../components/vulcan-ui-bootstrap/ui/Modal.jsx'));
 importComponent("ModalTrigger", () => require('../components/vulcan-ui-bootstrap/ui/ModalTrigger.jsx'));
 
+// vulcan:forms
+import './vulcan-forms/components.js';

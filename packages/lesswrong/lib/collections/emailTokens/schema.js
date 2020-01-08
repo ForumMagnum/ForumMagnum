@@ -1,4 +1,4 @@
-import { foreignKeyField } from '../../../lib/modules/utils/schemaUtils';
+import { foreignKeyField } from '../../../lib/utils/schemaUtils';
 
 const schema = {
   _id: {

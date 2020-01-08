@@ -1,6 +1,6 @@
 import { getSetting } from 'meteor/vulcan:core'
 import SimpleSchema from 'simpl-schema'
-import { addFieldsDict } from '../../modules/utils/schemaUtils'
+import { addFieldsDict } from '../../utils/schemaUtils'
 import Users from "meteor/vulcan:users";
 
 const baseDefaultAlgorithmSettings = {

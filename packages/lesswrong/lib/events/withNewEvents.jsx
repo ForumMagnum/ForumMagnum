@@ -2,7 +2,7 @@ import { withNew } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import uuid from 'uuid/v4';
 import { LWEvents } from '../collections/lwevents/collection.js';
-import { shallowEqual } from '../modules/utils/componentUtils';
+import { shallowEqual } from '../utils/componentUtils';
 
 
 // HoC that passes functions for recording events to child

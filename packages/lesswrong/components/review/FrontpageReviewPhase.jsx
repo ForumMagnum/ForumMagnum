@@ -16,6 +16,19 @@ const styles = theme => ({
   }
 })
 
+export const reviewAlgorithm = {
+  method: "sample",
+  count: 3,
+  scoreOffset: 0,
+  scoreExponent: 0,
+  personalBlogpostModifier: 0,
+  frontpageModifier: 0,
+  curatedModifier: 0,
+  review2018: true, 
+  onlyUnread: false,
+  excludeDefaultRecommendations: true
+}
+
 const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
   const { SubSection, SectionSubtitle, SectionFooter, RecommendationsList, HoverPreviewLink } = Components
 
@@ -31,19 +44,6 @@ const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
   </div>
 
   if (settings.hideReview) return null
-
-  const algorithm = {
-    method: "sample",
-    count: 3,
-    scoreOffset: 0,
-    scoreExponent: 0,
-    personalBlogpostModifier: 0,
-    frontpageModifier: 0,
-    curatedModifier: 0,
-    review2018: true, 
-    onlyUnread: false,
-    excludeDefaultRecommendations: true
-  }
 
   return (
     <div>
@@ -63,14 +63,14 @@ const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
       </Tooltip>
       <SubSection>
         <AnalyticsContext listContext={"LessWrong 2018 Review"} capturePostItemOnMount>
-          <RecommendationsList algorithm={algorithm} showLoginPrompt={false} />
+          <RecommendationsList algorithm={reviewAlgorithm} showLoginPrompt={false} />
         </AnalyticsContext>
       </SubSection>
       <SectionFooter>
         <Link to={"/reviews"}>
           Reviews Dashboard
         </Link>
-        {(currentUser && currentUser.karma >= 1000) && <Link to={`/users/${currentUser.slug}/reviews`}>
+        {currentUser && <Link to={`/users/${currentUser.slug}/reviews`}>
           My Reviews
         </Link>}
       </SectionFooter>

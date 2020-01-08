@@ -10,16 +10,29 @@ const styles = {
   }
 }
 
-const LWTooltip = ({classes, children, title, placement="bottom-start", hover, anchorEl, stopHover}) => {
+const LWTooltip = ({classes, children, title, placement="bottom-start", hover, anchorEl, stopHover, tooltip=true, flip=true}) => {
   const { LWPopper } = Components
   return <span className={classes.root}>
-    <LWPopper placement={placement} open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip>
+    <LWPopper 
+      placement={placement} 
+      open={hover} 
+      anchorEl={anchorEl} 
+      onMouseEnter={stopHover} 
+      tooltip={tooltip}
+      modifiers={{
+        flip: {
+          enabled: flip
+        }
+      }}
+    >
       {title}
-    </LWPopper> 
+    </LWPopper>
     {children}
   </span>
 }
 
-registerComponent("LWTooltip", LWTooltip, withHover, withStyles(styles, {name:"withStyles"}));
+registerComponent("LWTooltip", LWTooltip,
+  withHover({pageElementContext: "tooltipHovered"}, ({title}) => ({title})),
+  withStyles(styles, {name:"withStyles"}));
 
 

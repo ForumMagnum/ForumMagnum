@@ -1,7 +1,7 @@
 import Collections from './collection.js';
 import Books from '../books/collection.js';
 import Sequences from '../sequences/collection.js';
-import toDictionary from '../../modules/utils/toDictionary.js';
+import toDictionary from '../../utils/toDictionary';
 
 Collections.getAllPostIDs = async (collectionID) => {
   const books = await Books.find({collectionId: collectionID}).fetch();

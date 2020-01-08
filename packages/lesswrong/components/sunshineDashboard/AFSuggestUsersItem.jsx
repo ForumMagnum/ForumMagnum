@@ -99,4 +99,4 @@ const withUpdateOptions = {
   collection: Users,
   fragmentName: 'SunshineUsersList',
 }
-registerComponent('AFSuggestUsersItem', AFSuggestUsersItem, [withUpdate, withUpdateOptions], withUser, withHover, withErrorBoundary);
+registerComponent('AFSuggestUsersItem', AFSuggestUsersItem, [withUpdate, withUpdateOptions], withUser, withHover(), withErrorBoundary);

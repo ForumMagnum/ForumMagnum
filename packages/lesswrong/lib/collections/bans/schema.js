@@ -1,5 +1,5 @@
 import SimpleSchema from 'simpl-schema';
-import { foreignKeyField } from '../../modules/utils/schemaUtils'
+import { foreignKeyField } from '../../utils/schemaUtils'
 
 const schema = {
   _id: {

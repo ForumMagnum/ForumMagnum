@@ -2,7 +2,7 @@ import React from 'react';
 import moment from 'moment-timezone';
 import { registerComponent } from 'meteor/vulcan:core';
 import { useTimezone } from './withTimezone';
-import { convertTimeOfWeekTimezone } from '../../lib/modules/utils/timeUtil.js';
+import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 

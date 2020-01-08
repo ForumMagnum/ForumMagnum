@@ -39,7 +39,7 @@ const styles = theme => ({
 const CommentsItemDate = ({comment, post, classes, scrollOnClick, scrollIntoView }) => {
   const { history } = useNavigation();
   const { location } = useLocation();
-  const { captureEvent } = useTracking();
+  const { captureEvent } = useTracking("dateIconLinkClick");
 
    const handleLinkClick = (event) => {
     event.preventDefault()

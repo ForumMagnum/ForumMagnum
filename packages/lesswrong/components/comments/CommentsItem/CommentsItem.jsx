@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
-import { shallowEqual, shallowEqualExcept } from '../../../lib/modules/utils/componentUtils';
+import { shallowEqual, shallowEqualExcept } from '../../../lib/utils/componentUtils';
 import { withStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import withUser from '../../common/withUser';
@@ -193,7 +193,7 @@ class CommentsItem extends Component {
     }
     
     return (
-        <AnalyticsContext pageElementContext="commentItem">
+        <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
           <div className={
             classNames(
               classes.root,

@@ -46,5 +46,5 @@ const TagSearchHit = ({hit, onClick, hover, anchorEl, classes}) => {
 }
 
 registerComponent("TagSearchHit", TagSearchHit,
-  withHover,
+  withHover(),
   withStyles(styles, {name: "TagSearchHit"}));

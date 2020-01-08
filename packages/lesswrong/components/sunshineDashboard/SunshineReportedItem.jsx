@@ -127,6 +127,6 @@ registerComponent(
   [withUpdate, withCommentUpdateOptions],
   [withUpdate, withPostUpdateOptions],
   withUser,
-  withHover,
+  withHover(),
   withErrorBoundary
 );

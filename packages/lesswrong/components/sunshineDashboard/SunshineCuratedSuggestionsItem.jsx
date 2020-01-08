@@ -132,6 +132,6 @@ registerComponent(
   SunshineCuratedSuggestionsItem,
   [withUpdate, withUpdateOptions],
   withUser,
-  withHover,
+  withHover(),
   withErrorBoundary
 );

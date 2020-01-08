@@ -12,7 +12,7 @@ Callbacks to:
 
 import { Posts } from '../../../lib/collections/posts'
 import { Connectors, addCallback, getSetting, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
-import Events from 'meteor/vulcan:events';
+import { track } from '../../../lib/vulcanEvents.js';
 
 //////////////////////////////////////////////////////
 // posts.edit.sync                                  //
@@ -63,7 +63,7 @@ addCallback('users.remove.async', UsersRemoveDeletePosts);
 
 function PostsClickTracking(post, ip) {
   if (getSetting('forum.trackClickEvents', true)) {
-    Events.track('post.click', { title: post.title, postId: post._id });
+    track('post.click', { title: post.title, postId: post._id });
     Connectors.update(Posts, post._id, { $inc: { clickCount: 1 } });
   }
 }
