@@ -474,7 +474,7 @@ const VoteTableRow = withStyles(voteRowStyles, {name: "VoteTableRow"})((
     <div>
       <div className={classes.postVote} >
         <div className={classes.post}>
-          <LWTooltip title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
+          <LWTooltip title={<PostsPreviewTooltip showAllInfo post={post}/>} tooltip={false} flip={false}>
             <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap />
           </LWTooltip>
         </div>
