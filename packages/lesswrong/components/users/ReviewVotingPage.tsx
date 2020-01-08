@@ -498,24 +498,24 @@ const VoteTableRow = withStyles(voteRowStyles, {name: "VoteTableRow"})((
   const currentUser = useCurrentUser()
 
   return <AnalyticsContext pageElementContext="voteTableRow">
-  <div className={classNames(classes.root, {[classes.expanded]: expandedPostId === post._id})}>
-    <div>
-      <div className={classes.postVote} >
-        <div className={classes.post}>
-          <LWTooltip title={<PostsPreviewTooltip showAllInfo post={post}/>} tooltip={false} flip={false}>
-            <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap />
-          </LWTooltip>
+    <div className={classNames(classes.root, {[classes.expanded]: expandedPostId === post._id})}>
+      <div>
+        <div className={classes.postVote} >
+          <div className={classes.post}>
+            <LWTooltip title={<PostsPreviewTooltip showAllInfo post={post}/>} tooltip={false} flip={false}>
+              <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap />
+            </LWTooltip>
+          </div>
+          {post.userId !== currentUser._id && <div>
+              {useQuadratic ?
+                <QuadraticVotingButtons postId={post._id} votes={quadraticVotes} vote={dispatchQuadraticVote} /> :
+                <VotingButtons postId={post._id} dispatch={dispatch} votes={votes} />
+              }
+          </div>}
+          {post.userId === currentUser._id && <MetaInfo>You cannot vote on your own posts</MetaInfo>}
         </div>
-        {post.userId !== currentUser._id && <div>
-            {useQuadratic ?
-              <QuadraticVotingButtons postId={post._id} votes={quadraticVotes} vote={dispatchQuadraticVote} /> :
-              <VotingButtons postId={post._id} dispatch={dispatch} votes={votes} />
-            }
-        </div>}
-        {post.userId === currentUser._id && <MetaInfo>You cannot vote on your own posts</MetaInfo>}
       </div>
     </div>
-  </div>
   </AnalyticsContext>
 })
 
