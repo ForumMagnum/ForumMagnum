@@ -5,7 +5,7 @@ import { ReviewVotes } from './collection'
 
 addGraphQLResolvers({
   Mutation: {
-    submitReviewVote: async (root, { postId, qualitativeScore, quadraticChange, setQuadraticScore, comment }, { currentUser }) => {
+    submitReviewVote: async (root, { postId, qualitativeScore, quadraticChange, newQuadraticScore, comment }, { currentUser }) => {
       if (!currentUser) throw new Error("You must be logged in to submit a review vote");
       if (!postId) throw new Error("Missing argument: postId");
       
@@ -15,11 +15,11 @@ addGraphQLResolvers({
       
       // Check whether this post already has a review vote
       const existingVote = ReviewVotes.findOne({ postId, userId: currentUser._id });
-      const newQuadraticScore = (typeof setQuadraticScore !== 'undefined' ) ? setQuadraticScore : (existingVote?.quadraticScore || 0) + (quadraticChange || 0)
       if (!existingVote) {
+        const finalQuadraticScore = (typeof newQuadraticScore !== 'undefined' ) ? newQuadraticScore : (existingVote?.quadraticScore || 0) + (quadraticChange || 0)
         const newVote = await newMutation({
           collection: ReviewVotes,
-          document: { postId, qualitativeScore, quadraticScore: newQuadraticScore, comment },
+          document: { postId, qualitativeScore, quadraticScore: finalQuadraticScore, comment },
           validate: false,
           currentUser,
         });
@@ -32,7 +32,7 @@ addGraphQLResolvers({
               postId, 
               qualitativeScore, 
               comment, 
-              quadraticScore: setQuadraticScore
+              quadraticScore: newQuadraticScore
             },
             ...(quadraticChange && {$inc: {
               quadraticScore: quadraticChange
@@ -45,4 +45,4 @@ addGraphQLResolvers({
     }
   }
 });
-addGraphQLMutation('submitReviewVote(postId: String, qualitativeScore: Int, quadraticChange: Int, setQuadraticScore: Int, comment: String): ReviewVote');
+addGraphQLMutation('submitReviewVote(postId: String, qualitativeScore: Int, quadraticChange: Int, newQuadraticScore: Int, comment: String): ReviewVote');

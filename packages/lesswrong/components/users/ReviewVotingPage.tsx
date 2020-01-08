@@ -160,8 +160,8 @@ const ReviewVotingPage = ({classes}) => {
   });
 
   const [submitVote] = useMutation(gql`
-    mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticChange: Int, $setQuadraticScore: Int, $comment: String) {
-      submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticChange: $quadraticChange, comment: $comment, setQuadraticScore: $setQuadraticScore) {
+    mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticChange: Int, $newQuadraticScore: Int, $comment: String) {
+      submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticChange: $quadraticChange, comment: $comment, newQuadraticScore: $newQuadraticScore) {
         ...reviewVoteFragment
       }
     }
@@ -203,7 +203,7 @@ const ReviewVotingPage = ({classes}) => {
   const dispatchQuadraticVote = async ({_id, postId, change, set}) => {
     const existingVote = _id && dbVotes.find(vote => vote._id === _id)
     await submitVote({
-      variables: {postId, quadraticChange: change, setQuadraticScore: set},
+      variables: {postId, quadraticChange: change, newQuadraticScore: set},
       optimisticResponse: _id && {
         __typename: "Mutation",
         submitReviewVote: {
