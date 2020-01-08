@@ -128,7 +128,7 @@ const styles = theme => ({
   }
 });
 
-type vote = {postId: string, score: number, type?: string}
+type vote = {_id: string, postId: string, score: number, type?: string}
 type quadraticVote = vote & {type: "quadratic"}
 type linearVote = vote & {type: "qualitative", score: 0|1|2|3|4}
 
@@ -160,8 +160,8 @@ const ReviewVotingPage = ({classes}) => {
   });
 
   const [submitVote] = useMutation(gql`
-    mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticScore: Int, $comment: String) {
-      submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticScore: $quadraticScore, comment: $comment) {
+    mutation submitReviewVote($postId: String, $qualitativeScore: Int, $quadraticChange: Int, $newQuadraticScore: Int, $comment: String) {
+      submitReviewVote(postId: $postId, qualitativeScore: $qualitativeScore, quadraticChange: $quadraticChange, comment: $comment, newQuadraticScore: $newQuadraticScore) {
         ...reviewVoteFragment
       }
     }
@@ -180,8 +180,8 @@ const ReviewVotingPage = ({classes}) => {
   const [loading, setLoading] = useState(false)
   const [expandedPost, setExpandedPost] = useState<any>(null)
 
+  const votes = dbVotes?.map(({_id, qualitativeScore, postId}) => ({_id, postId, score: qualitativeScore, type: "qualitative"})) as linearVote[]
   const handleSetUseQuadratic = (newUseQuadratic) => {
-
     if (!newUseQuadratic) {
       if (!confirm("WARNING: This will discard your quadratic vote data. Are you sure you want to return to basic voting?")) {
         return
@@ -197,11 +197,23 @@ const ReviewVotingPage = ({classes}) => {
     });
   }
 
-  const votes = dbVotes?.map(({qualitativeScore, postId}) => ({postId, score: qualitativeScore, type: "qualitative"})) as linearVote[]
   const dispatchQualitativeVote = async ({postId, score}) => await submitVote({variables: {postId, qualitativeScore: score}})
 
-  const quadraticVotes = dbVotes?.map(({quadraticScore, postId}) => ({postId, score: quadraticScore, type: "quadratic"})) as quadraticVote[]
-  const dispatchQuadraticVote = async ({postId, score}) => await submitVote({variables: {postId, quadraticScore: score}})
+  const quadraticVotes = dbVotes?.map(({_id, quadraticScore, postId}) => ({_id, postId, score: quadraticScore, type: "quadratic"})) as quadraticVote[]
+  const dispatchQuadraticVote = async ({_id, postId, change, set}) => {
+    const existingVote = _id && dbVotes.find(vote => vote._id === _id)
+    await submitVote({
+      variables: {postId, quadraticChange: change, newQuadraticScore: set},
+      optimisticResponse: _id && {
+        __typename: "Mutation",
+        submitReviewVote: {
+          __typename: "ReviewVote",
+          ...existingVote,
+          quadraticScore: (typeof set !== 'undefined') ? set : (existingVote.quadraticScore + (change || 0))
+        }
+      }
+    })
+  }
 
   const { PostReviewsAndNominations, LWTooltip, Loading } = Components
 
@@ -233,8 +245,8 @@ const ReviewVotingPage = ({classes}) => {
             {!useQuadratic && <LWTooltip title="WARNING: Once you switch to quadratic-voting, you cannot go back to default-voting without losing your quadratic data.">
               <Button className={classes.convert} onClick={async () => {
                   setLoading(true)
-                  handleSetUseQuadratic(true)
                   await Promise.all(votesToQuadraticVotes(votes, posts).map(dispatchQuadraticVote))
+                  handleSetUseQuadratic(true)
                   setLoading(false)
               }}> 
                 Convert to Quadratic <KeyboardTabIcon className={classes.menuIcon} /> 
@@ -374,14 +386,14 @@ const linearScoreScaling = {
 
 const VOTE_BUDGET = 500
 const MAX_SCALING = 6
-const votesToQuadraticVotes = (votes:linearVote[], posts: any[]):quadraticVote[] => {
+const votesToQuadraticVotes = (votes:linearVote[], posts: any[]):{postId: String, change?: number, set?: number, _id?: string, previousValue?: number}[] => {
   const sumScaled = sumBy(votes, vote => Math.abs(linearScoreScaling[vote ? vote.score : 1]) || 0)
   return createPostVoteTuples(posts, votes).map(([post, vote]) => {
     if (vote) {
       const newScore = computeQuadraticVoteScore(vote.score, sumScaled)
-      return {postId: post._id, score: newScore, type: "quadratic"}
+      return {postId: post._id, set: newScore}
     } else {
-      return {postId: post._id, score: 0, type: "quadratic"}
+      return {postId: post._id, set: 0}
     }
   })
 }
@@ -537,16 +549,15 @@ const quadraticVotingButtonStyles = theme => ({
 
 const QuadraticVotingButtons = withStyles(quadraticVotingButtonStyles, {name: "QuadraticVotingButtons"})(({classes, postId, vote, votes }: {classes: any, postId: string, vote: any, votes: vote[]}) => {
   const voteForCurrentPost = votes.find(vote => vote.postId === postId)
-  const createClickHandler = (postId: string, type: 'buy' | 'sell') => {
+  const createClickHandler = (postId: string, type: 'buy' | 'sell', voteId: string | undefined, score: number | undefined) => {
       return () => {
-        const newScore = (voteForCurrentPost?.score || 0) + (type === 'buy' ? 1 : -1)
-        vote({postId, score: newScore})
+        vote({postId, change: (type === 'buy' ? 1 : -1), _id: voteId, previousValue: score})
       }
   } 
   return <div className={classes.root}>
-    <span className={classes.vote} onClick={createClickHandler(postId, 'sell')}>–</span>
+    <span className={classes.vote} onClick={createClickHandler(postId, 'sell', voteForCurrentPost?._id, voteForCurrentPost?.score)}>–</span>
     <span className={classes.score}>{voteForCurrentPost?.score || 0}</span>
-    <span className={classes.vote} onClick={createClickHandler(postId, 'buy')}>+</span>
+    <span className={classes.vote} onClick={createClickHandler(postId, 'buy', voteForCurrentPost?._id, voteForCurrentPost?.score)}>+</span>
   </div>
 })
 
