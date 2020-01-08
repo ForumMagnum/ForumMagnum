@@ -123,7 +123,7 @@ const styles = theme => ({
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
   },
-  mobileOnly: {
+  hideOnMobile: {
     [theme.breakpoints.up('md')]: {
       display: "none"
     }
@@ -238,7 +238,7 @@ const ReviewVotingPage = ({classes}) => {
 
   return (
     <div>
-      <div className={classNames(classes.mobileOnly, classes.message)}>
+      <div className={classNames(classes.hideOnMobile, classes.message)}>
         Voting is not available on small screens
       </div>
       <div className={classes.grid}>
