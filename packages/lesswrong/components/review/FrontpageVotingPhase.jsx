@@ -25,7 +25,7 @@ const FrontpageVotingPhase = ({classes, settings, currentUser}) => {
     <ul>
       <li><em>Nomination</em> (Nov 21 – Dec 1st)</li>
       <li><em>Review</em> (Dec 2nd – Jan 20th)</li>
-      <li><em>Voting</em> (Jan 7th – 20th</li>
+      <li><em>Voting</em> (Jan 7th – 19th</li>
       <li>The LessWrong moderation team will incorporate that information, along with their judgment, into a "Best of 2018" book.</li>
     </ul>
     <div>(Currently this section shows 2018 posts with at least 2 nominations)</div>
@@ -41,11 +41,11 @@ const FrontpageVotingPhase = ({classes, settings, currentUser}) => {
             <Link to={"/reviews"}>
               The 2018 Review (Voting Phase)
             </Link>
-            <div className={classes.timeRemaining}>
-              <em><Link to="/reviewVoting" className={classes.learnMore}>Cast your votes</Link>, as well as finish reviewing and editing posts by Jan 20th (<span className={classes.learnMore}>
+            {(currentUser && currentUser.karma >= 1000) && <div className={classes.timeRemaining}>
+              <em><Link to="/reviewVoting" className={classes.learnMore}>Cast your votes</Link>, as well as finish reviewing and editing posts by Jan 19th (<span className={classes.learnMore}>
                 <HoverPreviewLink href="/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review" innerHTML={"learn more"}/>
               </span>)</em>
-            </div>
+            </div>}
           </SectionSubtitle>
         </div>
       </Tooltip>
