@@ -8,7 +8,7 @@ import algoliasearch from 'algoliasearch';
 import { getSetting } from 'meteor/vulcan:core';
 import htmlToText from 'html-to-text';
 import { dataToMarkdown } from '../editor/make_editable_callbacks'
-import { algoliaIndexNames } from '../../lib/algoliaIndexNames.js';
+import { algoliaIndexNames } from '../../lib/algoliaUtil';
 import keyBy from 'lodash/keyBy';
 import chunk from 'lodash/chunk';
 
