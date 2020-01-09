@@ -36,8 +36,8 @@ const FrontpageVotingPhase = ({classes, settings, currentUser}) => {
     <div>The LessWrong community is reflecting on the best posts from 2018, in three phases</div>
     <ul>
       <li><em>Nomination</em> (Nov 21 – Dec 1st)</li>
-      <li><em>Review</em> (Dec 2nd – Jan 2(I 0th)</li>
-      <li><em>Voting</em> (Jan 7th – 19th</li>
+      <li><em>Review</em> (Dec 2nd – Jan 19th)</li>
+      <li><em>Voting</em> (Jan 7th – 19th)</li>
       <li>The LessWrong moderation team will incorporate that information, along with their judgment, into a "Best of 2018" book.</li>
     </ul>
     <div>(Currently this section shows 2018 posts with at least 2 nominations)</div>
