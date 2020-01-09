@@ -103,11 +103,6 @@ const styles = theme => ({
       backgroundColor: "#f3f3f3",
     }
   },
-  expandTip: {
-    textAlign: "right",
-    fontSize: "1rem",
-    color: theme.palette.grey[500]
-  },
   nomination: {
     ...commentsItemStyles(theme).nomination,
     marginRight: theme.spacing.unit
@@ -148,7 +143,6 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
         </span>}      
       </div>
       {displayHoverOver && <span className={classNames(classes.highlight)}>
-        <div className={classes.expandTip}>Click to expand all comments in this thread</div>
         <CommentBody truncated comment={comment}/>
       </span>}
     </div>
