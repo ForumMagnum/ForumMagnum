@@ -14,6 +14,18 @@ const styles = theme => ({
   },
   learnMore: {
     color: theme.palette.primary.main
+  },
+  cta: {
+    background: theme.palette.primary.dark,
+    opacity: .7,
+    color: "white",
+    paddingTop: 6,
+    paddingBottom: 6,
+    paddingLeft: 12,
+    paddingRight: 12,
+    borderRadius: 3,
+    textTransform: "uppercase",
+    fontSize: "1rem"
   }
 })
 
@@ -39,10 +51,10 @@ const FrontpageVotingPhase = ({classes, settings, currentUser}) => {
         <div>
           <SectionSubtitle >
             <Link to={"/reviews"}>
-              The 2018 Review (Voting Phase)
+              2018 Review Voting Phase
             </Link>
             {(currentUser && currentUser.karma >= 1000) && <div className={classes.timeRemaining}>
-              <em><Link to="/reviewVoting" className={classes.learnMore}>Cast your votes</Link>, as well as finish reviewing and editing posts by Jan 19th (<span className={classes.learnMore}>
+              <em>Deadline for voting, reviewing and editing posts is Jan 19th (<span className={classes.learnMore}>
                 <HoverPreviewLink href="/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review" innerHTML={"learn more"}/>
               </span>)</em>
             </div>}
@@ -55,14 +67,14 @@ const FrontpageVotingPhase = ({classes, settings, currentUser}) => {
         </AnalyticsContext>
       </SubSection>
       <SectionFooter>
-        {(currentUser && currentUser.karma >= 1000) && <Link to={`/reviewVoting`}>
-          My Votes
-        </Link>}
         <Link to={"/reviews"}>
           Reviews Dashboard
         </Link>
         {currentUser && <Link to={`/users/${currentUser.slug}/reviews`}>
           My Reviews
+        </Link>}
+        {(currentUser && currentUser.karma >= 1000) && <Link to={`/reviewVoting`} className={classes.cta}>
+          Vote on Best 2018 Posts
         </Link>}
       </SectionFooter>
     </div>
