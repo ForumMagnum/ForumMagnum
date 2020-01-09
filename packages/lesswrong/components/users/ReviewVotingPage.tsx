@@ -131,7 +131,8 @@ const styles = theme => ({
     }
   },
   writeAReview: {
-    textAlign: "center"
+    paddingLeft: 15,
+    paddingTop: 12
   }
 });
 
