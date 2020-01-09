@@ -41,20 +41,22 @@ class PostsPageActions extends PureComponent {
 
     return (
       <ClickawayListener onClickAway={this.handleClose}>
-        <Icon className={classes.icon} onClick={this.handleClick}/> 
-        <PopperCard
-          open={Boolean(anchorEl)}
-          anchorEl={anchorEl}
-          placement="right-start"
-          modifiers={{
-            flip: {
-              boundariesElement: 'viewport',
-              behavior: ['right-start', 'bottom']
-            }
-          }}
-        >
-          <PostActions post={post}/>
-        </PopperCard>
+        <div>
+          <Icon className={classes.icon} onClick={this.handleClick}/> 
+          <PopperCard
+            open={Boolean(anchorEl)}
+            anchorEl={anchorEl}
+            placement="right-start"
+            modifiers={{
+              flip: {
+                boundariesElement: 'viewport',
+                behavior: ['right-start', 'bottom']
+              }
+            }}
+          >
+            <PostActions post={post}/>
+          </PopperCard>
+        </div>
       </ClickawayListener>
     )
   }
