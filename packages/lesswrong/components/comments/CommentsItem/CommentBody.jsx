@@ -28,37 +28,8 @@ const styles = theme => ({
   root: {
     position: "relative",
     '& .read-more': {
-      position: "relative",
       fontSize: ".85em",
-    },
-    '& .read-more-default': {
-      display: "inline-block",
-      minWidth: 125,
-      color: "rgba(0,0,0,.4)",
-    },
-    '& .read-more-tooltip': {
-      display:"none",
-    },
-    "&:hover .read-more-tooltip": {
-      display:"inline-block"
-
-    },
-    '&:hover .read-more-default': {
-      display:"none"
-    },
-    '& .read-more-f-tooltip': {
-      display: "none",
-      position: "absolute",
-      background: "rgba(0,0,0,.6)",
-      color: "white",
-      padding: "7px 10px",
-      width:156,
-      borderRadius: 5,
-      top: -60,
-      left:0,
-    },
-    '& .read-more:hover .read-more-f-tooltip': {
-      display: "inline-block"
+      color: theme.palette.grey[600]
     }
   },
   retracted: {
