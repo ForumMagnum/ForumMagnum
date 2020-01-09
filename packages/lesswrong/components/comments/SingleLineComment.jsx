@@ -72,10 +72,11 @@ const styles = theme => ({
     ...commentBodyStyles(theme),
     backgroundColor: "white",
     padding: theme.spacing.unit*1.5,
+    paddingTop: theme.spacing.unit,
     width: "inherit",
     maxWidth: 625,
     position: "absolute",
-    top: "calc(100% - 20px)",
+    top: "calc(100% - 35px)",
     right: 0,
     zIndex: 5,
     border: "solid 1px rgba(0,0,0,.1)",
@@ -105,7 +106,7 @@ const styles = theme => ({
   expandTip: {
     textAlign: "right",
     fontSize: "1rem",
-    color: theme.palette.lwTertiary.main
+    color: theme.palette.grey[500]
   },
   nomination: {
     ...commentsItemStyles(theme).nomination,
@@ -113,13 +114,13 @@ const styles = theme => ({
   }
 })
 
-const SingleLineComment = ({comment, classes, nestingLevel, hover, parentCommentId, hideKarma, hideSingleLineDate, hideSingleLineMeta}) => {
+const SingleLineComment = ({comment, classes, nestingLevel, hover, parentCommentId, hideKarma, enableHoverPreview=true, hideSingleLineMeta}) => {
   if (!comment) return null
 
   const { plaintextMainText } = comment.contents
   const { CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon } = Components
 
-  const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile()
+  const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile() && enableHoverPreview
 
   const renderHighlight = (comment.baseScore > -5) && !comment.deleted
 
@@ -147,8 +148,8 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
         </span>}      
       </div>
       {displayHoverOver && <span className={classNames(classes.highlight)}>
+        <div className={classes.expandTip}>Click to expand all comments in this thread</div>
         <CommentBody truncated comment={comment}/>
-        <div className={classes.expandTip}>[Click to expand all comments in this thread]</div>
       </span>}
     </div>
   )
