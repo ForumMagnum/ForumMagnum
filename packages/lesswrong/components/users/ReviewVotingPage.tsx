@@ -99,7 +99,6 @@ const styles = theme => ({
   comments: {
   },
   reason: {
-    marginBottom: 10,
     position: "relative",
     border: "solid 1px rgba(0,0,0,.3)",
     padding: theme.spacing.unit*2
@@ -134,6 +133,7 @@ const styles = theme => ({
     paddingLeft: 12,
     paddingBottom: 8,
     border: "solid 1px rgba(0,0,0,.3)",
+    marginBottom: 8,
     '& span': {
       fontWeight: 600,
       fontSize: "1.2rem",
@@ -339,15 +339,15 @@ const ReviewVotingPage = ({classes}) => {
           </div>}
           {expandedPost && <div className={classes.expandedInfoWrapper}>
             <div className={classes.expandedInfo}>
+              <div className={classes.writeAReview}><ReviewPostButton post={expandedPost} reviewMessage={`Write a public review for "${expandedPost.title}"`}/></div>
               <div className={classes.reason}>
-                <div className={classes.reasonTitle}>Comment anonymously on "{expandedPost.title}" (optional)</div>
+                <div className={classes.reasonTitle}>Comment anonymously (optional)</div>
                 <CommentTextField
                   startValue={getVoteForPost(dbVotes, expandedPost._id)?.comment}
                   updateValue={(value) => submitVote({variables: {comment: value, postId: expandedPost._id}})}
                   postId={expandedPost._id}
                 />
               </div>
-              <div className={classes.writeAReview}><ReviewPostButton post={expandedPost} reviewMessage={`Write a public review for "${expandedPost.title}"`}/></div>
               <div className={classes.comments}>
                 <PostReviewsAndNominations
                   title="nomination"

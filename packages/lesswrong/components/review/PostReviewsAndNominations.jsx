@@ -30,7 +30,7 @@ const PostReviewsAndNominations = ({ classes, title, loading, results, post, sin
         {loading && <Loading/>}
         {results && results.length}{" "}
         {title}
-        {(results && results.length > 1) && "s"} for "{post.title}"
+        {(results && results.length > 1) && "s"}
       </div>}
       <SubSection>
         <CommentsList
