@@ -16,7 +16,8 @@ import gql from 'graphql-tag';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import CachedIcon from '@material-ui/icons/Cached';
 import KeyboardTabIcon from '@material-ui/icons/KeyboardTab';
-import { Link } from '../../lib/reactRouterWrapper.jsx';
+import { Link } from '../../lib/reactRouterWrapper';
+import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 
 const styles = theme => ({
   grid: {
@@ -136,6 +137,7 @@ type qualitativeVote = vote & {type: "qualitative", score: 0|1|2|3|4}
 
 const ReviewVotingPage = ({classes}) => {
   const currentUser = useCurrentUser()
+  const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   const { results: posts, loading: postsLoading } = useMulti({
     terms: {view:"reviews2018", limit: 100},
     collection: Posts,
@@ -191,7 +193,7 @@ const ReviewVotingPage = ({classes}) => {
     setUseQuadratic(newUseQuadratic)
     updateUser({
       selector: {_id: currentUser._id},
-      data: { 
+      data: {
         reviewVotesQuadratic: newUseQuadratic,
       }
     });
@@ -218,7 +220,10 @@ const ReviewVotingPage = ({classes}) => {
   const { PostReviewsAndNominations, LWTooltip, Loading } = Components
 
   const [postOrder, setPostOrder] = useState<Map<number, number> | undefined>(undefined)
-  const reSortPosts = () => setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes))) 
+  const reSortPosts = () => {
+    setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes)))
+    captureEvent(undefined, {eventSubType: "postsResorted"})
+  }
 
   useEffect(() => {
     if (!!posts && useQuadratic ? !!quadraticVotes : !!votes) setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes)))
@@ -229,12 +234,13 @@ const ReviewVotingPage = ({classes}) => {
       <div className={classes.message}>
         Only users with 1000 karma can vote on the LessWrong Review
       </div>
-    ) 
+    )
   }
 
   const voteTotal = useQuadratic ? computeTotalCost(quadraticVotes) : 0
 
   return (
+    <AnalyticsContext pageContext="ReviewVotingPage">
     <div>
       <div className={classNames(classes.hideOnMobile, classes.message)}>
         Voting is not available on small screens
@@ -253,15 +259,17 @@ const ReviewVotingPage = ({classes}) => {
                   setLoading(true)
                   await Promise.all(votesToQuadraticVotes(votes, posts).map(dispatchQuadraticVote))
                   handleSetUseQuadratic(true)
+                  captureEvent(undefined, {eventSubType: "quadraticVotingSet", quadraticVoting:true})
                   setLoading(false)
-              }}> 
-                Convert to Quadratic <KeyboardTabIcon className={classes.menuIcon} /> 
+              }}>
+                Convert to Quadratic <KeyboardTabIcon className={classes.menuIcon} />
               </Button>
             </LWTooltip>}
             {useQuadratic && <LWTooltip title="Discard your quadratic data and return to default voting.">
               <Button className={classes.convert} onClick={async () => {
                   handleSetUseQuadratic(false)
-              }}> 
+                  captureEvent(undefined, {eventSubType: "quadraticVotingSet", quadraticVoting:false})
+              }}>
                 <KeyboardTabIcon className={classes.returnToBasicIcon} />  Return to Basic Voting
               </Button>
             </LWTooltip>}
@@ -270,18 +278,24 @@ const ReviewVotingPage = ({classes}) => {
                   {voteTotal}/500
                 </div>
             </LWTooltip>}
-            <Button disabled={!expandedPost} onClick={()=>setExpandedPost(null)}>Show Instructions</Button>
+            <Button disabled={!expandedPost} onClick={()=>{
+              setExpandedPost(null)
+              captureEvent(undefined, {eventSubType: "showInstructionsClicked"})
+            }}>Show Instructions</Button>
           </div>
           <Paper>
             {!!posts && !!postOrder && applyOrdering(posts, postOrder).map((post) => {
-                return <div key={post._id} onClick={()=>setExpandedPost(post)}>
-                  <VoteTableRow 
-                    post={post} 
-                    dispatch={dispatchQualitativeVote} 
+                return <div key={post._id} onClick={()=>{
+                  setExpandedPost(post)
+                  captureEvent(undefined, {eventSubType: "voteTableRowClicked", postId: post._id})}}
+                >
+                  <VoteTableRow
+                    post={post}
+                    dispatch={dispatchQualitativeVote}
                     votes={votes}
-                    quadraticVotes={quadraticVotes} 
-                    dispatchQuadraticVote={dispatchQuadraticVote} 
-                    useQuadratic={useQuadratic} 
+                    quadraticVotes={quadraticVotes}
+                    dispatchQuadraticVote={dispatchQuadraticVote}
+                    useQuadratic={useQuadratic}
                     expandedPostId={expandedPost?._id}
                   />
                 </div>
@@ -311,22 +325,22 @@ const ReviewVotingPage = ({classes}) => {
               <h2 className={classes.postHeader}>{expandedPost.title}</h2>
               <div className={classes.reason}>
                 <div className={classes.reasonTitle}>Anonymous Comments (optional)</div>
-                <CommentTextField 
-                  startValue={getVoteForPost(dbVotes, expandedPost._id)?.comment}  
+                <CommentTextField
+                  startValue={getVoteForPost(dbVotes, expandedPost._id)?.comment}
                   updateValue={(value) => submitVote({variables: {comment: value, postId: expandedPost._id}})}
                   postId={expandedPost._id}
                 />
               </div>
               <div className={classes.comments}>
-                <PostReviewsAndNominations 
+                <PostReviewsAndNominations
                   title="Nominations"
-                  terms={{view:"nominations2018", postId: expandedPost._id}} 
-                  post={expandedPost} 
+                  terms={{view:"nominations2018", postId: expandedPost._id}}
+                  post={expandedPost}
                 />
-                <PostReviewsAndNominations 
+                <PostReviewsAndNominations
                   title="Reviews"
-                  terms={{view:"reviews2018", postId: expandedPost._id}} 
-                  post={expandedPost} 
+                  terms={{view:"reviews2018", postId: expandedPost._id}}
+                  post={expandedPost}
                 />
               </div>
             </div>
@@ -334,6 +348,7 @@ const ReviewVotingPage = ({classes}) => {
         </div>
       </div>
     </div>
+    </AnalyticsContext>
   );
 }
 
@@ -383,7 +398,7 @@ function applyOrdering<T extends any>(array:T[], order:Map<number, number>):T[] 
 }
 
 const qualitativeScoreScaling = {
-  0: -4, 
+  0: -4,
   1: 0,
   2: 1,
   3: 4,
@@ -476,24 +491,26 @@ const VoteTableRow = withStyles(voteRowStyles, {name: "VoteTableRow"})((
 
   const currentUser = useCurrentUser()
 
-  return <div className={classNames(classes.root, {[classes.expanded]: expandedPostId === post._id})}>
-    <div>
-      <div className={classes.postVote} >
-        <div className={classes.post}>
-          <LWTooltip title={<PostsPreviewTooltip showAllInfo post={post}/>} tooltip={false} flip={false}>
-            <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap />
-          </LWTooltip>
+  return <AnalyticsContext pageElementContext="voteTableRow">
+    <div className={classNames(classes.root, {[classes.expanded]: expandedPostId === post._id})}>
+      <div>
+        <div className={classes.postVote} >
+          <div className={classes.post}>
+            <LWTooltip title={<PostsPreviewTooltip showAllInfo post={post}/>} tooltip={false} flip={false}>
+              <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap />
+            </LWTooltip>
+          </div>
+          {post.userId !== currentUser._id && <div>
+              {useQuadratic ?
+                <QuadraticVotingButtons postId={post._id} votes={quadraticVotes} vote={dispatchQuadraticVote} /> :
+                <VotingButtons postId={post._id} dispatch={dispatch} votes={votes} />
+              }
+          </div>}
+          {post.userId === currentUser._id && <MetaInfo>You cannot vote on your own posts</MetaInfo>}
         </div>
-        {post.userId !== currentUser._id && <div>
-            {useQuadratic ? 
-              <QuadraticVotingButtons postId={post._id} votes={quadraticVotes} vote={dispatchQuadraticVote} /> :
-              <VotingButtons postId={post._id} dispatch={dispatch} votes={votes} />
-            }
-        </div>}
-        {post.userId === currentUser._id && <MetaInfo>You cannot vote on your own posts</MetaInfo>}
       </div>
     </div>
-  </div>
+  </AnalyticsContext>
 })
 
 const votingButtonStyles = theme => ({
@@ -559,7 +576,7 @@ const QuadraticVotingButtons = withStyles(quadraticVotingButtonStyles, {name: "Q
       return () => {
         vote({postId, change: (type === 'buy' ? 1 : -1), _id: voteId, previousValue: score})
       }
-  } 
+  }
   return <div className={classes.root}>
     <span className={classes.vote} onClick={createClickHandler(postId, 'sell', voteForCurrentPost?._id, voteForCurrentPost?.score)}>–</span>
     <span className={classes.score}>{voteForCurrentPost?.score || 0}</span>
