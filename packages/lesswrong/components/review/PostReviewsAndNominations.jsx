@@ -35,6 +35,7 @@ const PostReviewsAndNominations = ({ classes, title, loading, results, post }) =
           lastCommentId={lastCommentId}
           forceSingleLine
           hideSingleLineMeta
+          enableHoverPreview={false}
         />
         {loading && <Loading/>}
       </SubSection>
