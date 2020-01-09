@@ -78,6 +78,9 @@ def packagesFileToDependencyRoots(packagesFileName):
     f.close()
     return packagesJson[dependencies]
 
+def rightalign(num, width):
+    return (' ' * (width-len(str(num)))) + str(num)
+
 #def getAdjustedPackageSizes(sizesByDirectory, dependencyRoots, dependencyGraph):
 #    #TODO
 #    return {}
@@ -86,6 +89,6 @@ sizesByFilename = bundleFilesToSizeMap()
 sizesByDirectory = sumSizesInDirectories(sizesByFilename)
 
 for path in sorted(list(sizesByDirectory.keys())):
-    print("%s: %s" % (path, sizesByDirectory[path]))
+    print("%s %s" % (rightalign(sizesByDirectory[path], 10), path))
 
 
