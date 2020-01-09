@@ -39,7 +39,7 @@ const styles = theme => ({
 
 class CommentBody extends Component {
   render () {
-    const { comment, currentUser, classes, collapsed, truncated, postPage, showTruncatedMessage=true } = this.props
+    const { comment, currentUser, classes, collapsed, truncated, postPage } = this.props
     const { ContentItemBody, CommentDeletedMetadata } = Components
     const { html = "" } = comment.contents || {}
 
@@ -52,7 +52,7 @@ class CommentBody extends Component {
     if (comment.deleted) { return <CommentDeletedMetadata documentId={comment._id}/> }
     if (collapsed) { return null }
 
-    const innerHtml = truncated ? commentExcerptFromHTML(comment, currentUser, postPage, showTruncatedMessage) : html
+    const innerHtml = truncated ? commentExcerptFromHTML(comment, currentUser, postPage) : html
   
     return (
       <div className={classes.root}>
