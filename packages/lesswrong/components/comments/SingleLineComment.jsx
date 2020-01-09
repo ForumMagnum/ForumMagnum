@@ -76,7 +76,7 @@ const styles = theme => ({
     width: "inherit",
     maxWidth: 625,
     position: "absolute",
-    top: "calc(100% - 35px)",
+    top: "calc(100% - 20px)",
     right: 0,
     zIndex: 5,
     border: "solid 1px rgba(0,0,0,.1)",
