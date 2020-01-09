@@ -33,7 +33,8 @@ const styles = theme => ({
   instructions: {
     ...theme.typography.body2,
     ...commentBodyStyles(theme),
-    maxWidth: 545
+    maxWidth: 545,
+    paddingBottom: 100
   },
   leftColumn: {
     gridArea: "leftColumn",
@@ -46,9 +47,6 @@ const styles = theme => ({
     [theme.breakpoints.down('sm')]: {
       display: "none"
     },
-    height: "80vh",
-    maxWidth: 600,
-    overflowY: "scroll",
   },
   result: {
     ...theme.typography.smallText,
@@ -59,6 +57,11 @@ const styles = theme => ({
   },
   votingBox: {
     maxWidth: 700
+  },
+  expandedInfo: {
+    height: "80vh",
+    maxWidth: 600,
+    overflowY: "scroll",
   },
   menu: {
     position: "sticky",
@@ -304,20 +307,22 @@ const ReviewVotingPage = ({classes}) => {
         </div>
         <div className={classes.rightColumn}>
           {!expandedPost && <div className={classes.expandedInfoWrapper}>
-            <h1 className={classes.header}>Rate the most important posts of 2018</h1>
-            <div className={classes.instructions}>
-              <p> Your vote should reflect each post’s overall level of importance (with whatever weightings seem right to you for “usefulness”, “accuracy”, “following good norms”, and other virtues).</p>
-              <p>Voting is done in two passes. First, roughly sort each post into one of the following buckets:</p>
-              <ul>
-                <li><b>No</b> – Misleading, harmful or low quality.</li>
-                <li><b>Neutral</b> – You wouldn't personally recommend it, but seems fine if others do. <em>(If you don’t have strong opinions about a post, leaving it ‘neutral’ is fine)</em></li>
-                <li><b>Good</b> – Useful ideas that I still think about sometimes.</li>
-                <li><b>Important</b> – A key insight or excellent distillation.</li>
-                <li><b>Crucial</b> – One of the most significant posts of 2018, for LessWrong to discuss and build upon over the coming years.</li>
-              </ul>
-              <p>After that, click “Convert to Quadratic”, and you will then have the option to use the quadratic voting system to fine-tune your votes. (Quadratic voting gives you a limited number of “points” to spend on votes, allowing you to vote multiple times, with each additional vote on an item costing more. See <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this post</Link> for details.)</p>
-              <p>If you’re having difficulties, please message the LessWrong Team using Intercom, the circle at the bottom right corner of the screen, or leave a comment on <Link to="/posts/zLhSjwXHnTg9QBzqH/the-final-vote-for-lw-2018-review">this post</Link>.</p>
-              <p>The vote closes on Jan 20th. If you leave this page and come back, your votes will be saved.</p>
+            <div className={classes.expandedInfo}>
+              <h1 className={classes.header}>Rate the most important posts of 2018</h1>
+              <div className={classes.instructions}>
+                <p> Your vote should reflect each post’s overall level of importance (with whatever weightings seem right to you for “usefulness”, “accuracy”, “following good norms”, and other virtues).</p>
+                <p>Voting is done in two passes. First, roughly sort each post into one of the following buckets:</p>
+                <ul>
+                  <li><b>No</b> – Misleading, harmful or low quality.</li>
+                  <li><b>Neutral</b> – You wouldn't personally recommend it, but seems fine if others do. <em>(If you don’t have strong opinions about a post, leaving it ‘neutral’ is fine)</em></li>
+                  <li><b>Good</b> – Useful ideas that I still think about sometimes.</li>
+                  <li><b>Important</b> – A key insight or excellent distillation.</li>
+                  <li><b>Crucial</b> – One of the most significant posts of 2018, for LessWrong to discuss and build upon over the coming years.</li>
+                </ul>
+                <p>After that, click “Convert to Quadratic”, and you will then have the option to use the quadratic voting system to fine-tune your votes. (Quadratic voting gives you a limited number of “points” to spend on votes, allowing you to vote multiple times, with each additional vote on an item costing more. See <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this post</Link> for details.)</p>
+                <p>If you’re having difficulties, please message the LessWrong Team using Intercom, the circle at the bottom right corner of the screen, or leave a comment on <Link to="/posts/zLhSjwXHnTg9QBzqH/the-final-vote-for-lw-2018-review">this post</Link>.</p>
+                <p>The vote closes on Jan 20th. If you leave this page and come back, your votes will be saved.</p>
+              </div>
             </div>
           </div>}
           {expandedPost && <div className={classes.expandedInfoWrapper}>
