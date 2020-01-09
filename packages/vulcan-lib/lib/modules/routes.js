@@ -1,6 +1,4 @@
 import { Components } from './components';
-import { Picker } from 'meteor/meteorhacks:picker'
-import cookieParser from 'cookie-parser'
 
 
 export const Routes = {}; // will be populated on startup (see vulcan:routing)
@@ -54,13 +52,6 @@ export const extendRoute = (routeName, routeProps) => {
     };
   }
 };
-
-if (Picker) Picker.middleware(cookieParser())
-/// Add a route which renders by putting things into the http response body
-/// directly, rather than using all the Meteor/Apollo/etc stuff.
-export const addStaticRoute = (url, handler) => {
-  Picker.route(url, handler);
-}
 
 
 /**

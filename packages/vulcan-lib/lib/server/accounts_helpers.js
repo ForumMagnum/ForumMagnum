@@ -1,11 +1,3 @@
-const crypto = Npm.require('crypto');
-
-export const _hashLoginToken = (loginToken) => {
-  var hash = crypto.createHash('sha256');
-  hash.update(loginToken);
-  return hash.digest('base64');
-};
-
 export const _tokenExpiration = (when) => {
   // We pass when through the Date constructor for backwards compatibility;
   // `when` used to be a number.

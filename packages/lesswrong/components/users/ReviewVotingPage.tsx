@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-import { sumBy } from 'lodash'
+import sumBy from 'lodash/sumBy'
 import { registerComponent, Components, useMulti, getFragment, updateEachQueryResultOfType, handleUpdateMutation, useUpdate } from 'meteor/vulcan:core';
 import { useMutation } from 'react-apollo';
 import Users from 'meteor/vulcan:users';
