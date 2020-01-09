@@ -13,6 +13,7 @@ const styles = theme => ({
     color: theme.palette.lwTertiary.main,
     marginLeft: theme.spacing.unit,
     marginRight: theme.spacing.unit*1.5,
+    cursor: "pointer",
     '&:hover': {
       opacity: .8
     }

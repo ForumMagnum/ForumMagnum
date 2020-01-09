@@ -314,7 +314,7 @@ const ReviewVotingPage = ({classes}) => {
             <div className={classes.expandedInfo}>
               <h1 className={classes.header}>Rate the most important posts of 2018</h1>
               <div className={classes.instructions}>
-                <p> Your vote should reflect each post’s overall level of importance (with whatever weightings seem right to you for “usefulness”, “accuracy”, “following good norms”, and other virtues).</p>
+                <p> Your vote should reflect a post’s overall level of importance (with whatever weightings seem right to you for “usefulness”, “accuracy”, “following good norms”, and other virtues).</p>
                 <p>Voting is done in two passes. First, roughly sort each post into one of the following buckets:</p>
                 <ul>
                   <li><b>No</b> – Misleading, harmful or low quality.</li>
