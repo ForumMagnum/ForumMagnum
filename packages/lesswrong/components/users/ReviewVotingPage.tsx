@@ -126,6 +126,9 @@ const styles = theme => ({
     [theme.breakpoints.up('md')]: {
       display: "none"
     }
+  },
+  writeAReview: {
+    textAlign: "center"
   }
 });
 
@@ -217,7 +220,7 @@ const ReviewVotingPage = ({classes}) => {
     })
   }
 
-  const { PostReviewsAndNominations, LWTooltip, Loading } = Components
+  const { PostReviewsAndNominations, LWTooltip, Loading, ReviewPostButton } = Components
 
   const [postOrder, setPostOrder] = useState<Map<number, number> | undefined>(undefined)
   const reSortPosts = () => {
@@ -342,6 +345,7 @@ const ReviewVotingPage = ({classes}) => {
                   terms={{view:"reviews2018", postId: expandedPost._id}}
                   post={expandedPost}
                 />
+                <div className={classes.writeAReview}><ReviewPostButton post={expandedPost} reviewMessage="Write a Public Review"/></div>
               </div>
             </div>
           </div>}
