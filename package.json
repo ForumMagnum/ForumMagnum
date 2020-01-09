@@ -124,7 +124,6 @@
     "meteor-node-stubs": "0.4.1",
     "mingo": "^2.2.11",
     "moment": "^2.22.2",
-    "moment-timezone": "^0.5.21",
     "mz": "^2.7.0",
     "optics-agent": "^1.1.6",
     "papaparse": "^4.6.2",

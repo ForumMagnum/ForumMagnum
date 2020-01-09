@@ -1,5 +1,5 @@
 import Votes from './collections/votes/collection.js';
-import moment from 'moment-timezone';
+import moment from './moment-timezone';
 import htmlToText from 'html-to-text';
 import sumBy from 'lodash/sumBy';
 

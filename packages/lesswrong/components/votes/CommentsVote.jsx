@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { Comments } from "../../lib/collections/comments";
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
-import moment from 'moment-timezone';
+import moment from '../../lib/moment-timezone';
 import withHover from '../common/withHover';
 import { useCurrentUser } from '../common/withUser';
 import { useVote } from './withVote';
