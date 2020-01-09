@@ -72,7 +72,6 @@ const styles = theme => ({
     ...commentBodyStyles(theme),
     backgroundColor: "white",
     padding: theme.spacing.unit*1.5,
-    paddingTop: theme.spacing.unit,
     width: "inherit",
     maxWidth: 625,
     position: "absolute",
