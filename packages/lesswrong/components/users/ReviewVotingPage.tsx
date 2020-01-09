@@ -22,7 +22,7 @@ const styles = theme => ({
   grid: {
     display: 'grid',
     gridTemplateColumns: `
-      1fr minmax(300px, 740px) minmax(50px, 0.5fr) minmax(100px, 600px) 1fr
+      minmax(10px, 0.5fr) minmax(300px, 740px) minmax(30px, 0.5fr) minmax(100px, 600px) minmax(30px, 0.5fr)
     `,
     gridTemplateAreas: `
     "... leftColumn ... rightColumn ..."
@@ -44,7 +44,10 @@ const styles = theme => ({
     gridArea: "rightColumn",
     [theme.breakpoints.down('sm')]: {
       display: "none"
-    }
+    },
+    height: "80vh",
+    maxWidth: 600,
+    overflowY: "scroll",
   },
   result: {
     ...theme.typography.smallText,
@@ -79,11 +82,6 @@ const styles = theme => ({
     position: "sticky",
     top: 0,
     paddingTop: 100,
-  },
-  expandedInfo: {
-    height: "80vh",
-    maxWidth: 600,
-    overflowY: "scroll",
   },
   header: {
     ...theme.typography.display3,

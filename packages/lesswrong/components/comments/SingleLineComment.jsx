@@ -102,24 +102,19 @@ const styles = theme => ({
       backgroundColor: "#f3f3f3",
     }
   },
-  expandTip: {
-    textAlign: "right",
-    fontSize: "1rem",
-    color: theme.palette.lwTertiary.main
-  },
   nomination: {
     ...commentsItemStyles(theme).nomination,
     marginRight: theme.spacing.unit
   }
 })
 
-const SingleLineComment = ({comment, classes, nestingLevel, hover, parentCommentId, hideKarma, hideSingleLineDate, hideSingleLineMeta}) => {
+const SingleLineComment = ({comment, classes, nestingLevel, hover, parentCommentId, hideKarma, enableHoverPreview=true, hideSingleLineMeta}) => {
   if (!comment) return null
 
   const { plaintextMainText } = comment.contents
   const { CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon } = Components
 
-  const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile()
+  const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile() && enableHoverPreview
 
   const renderHighlight = (comment.baseScore > -5) && !comment.deleted
 
@@ -148,7 +143,6 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
       </div>
       {displayHoverOver && <span className={classNames(classes.highlight)}>
         <CommentBody truncated comment={comment}/>
-        <div className={classes.expandTip}>[Click to expand all comments in this thread]</div>
       </span>}
     </div>
   )
