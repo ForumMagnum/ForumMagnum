@@ -1,5 +1,5 @@
 import Users from 'meteor/vulcan:users'
-import { foreignKeyField } from '../../modules/utils/schemaUtils'
+import { foreignKeyField } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils'
 
 export const subscriptionTypes = {

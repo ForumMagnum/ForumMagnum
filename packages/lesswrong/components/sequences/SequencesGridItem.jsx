@@ -9,7 +9,7 @@ import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
-import { legacyBreakpoints } from '../../lib/modules/utils/theme';
+import { legacyBreakpoints } from '../../lib/utils/theme';
 
 const styles = theme => ({
   root: {

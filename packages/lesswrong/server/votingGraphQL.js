@@ -1,6 +1,6 @@
 import { addCallback, addGraphQLSchema, addGraphQLResolvers, addGraphQLMutation } from 'meteor/vulcan:core';
 import { performVoteServer } from './voteServer.js';
-import { VoteableCollections } from '../lib/modules/make_voteable.js';
+import { VoteableCollections } from '../lib/make_voteable';
 
 function CreateVoteableUnionType() {
   const voteableSchema = VoteableCollections.length ? `union Voteable = ${VoteableCollections.map(collection => collection.typeName).join(' | ')}` : '';

@@ -5,7 +5,7 @@ import { Comments } from '../lib/collections/comments/collection.js';
 import { Localgroups } from '../lib/collections/localgroups/collection.js';
 import { Messages } from '../lib/collections/messages/collection.js';
 import { Conversations } from '../lib/collections/conversations/collection.js';
-import { accessFilterMultiple } from '../lib/modules/utils/schemaUtils.js';
+import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import keyBy from 'lodash/keyBy';
 import Users from 'meteor/vulcan:users';
 import './emailComponents/EmailComment.jsx';

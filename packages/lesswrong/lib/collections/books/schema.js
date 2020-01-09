@@ -1,4 +1,4 @@
-import { arrayOfForeignKeysField } from '../../modules/utils/schemaUtils'
+import { arrayOfForeignKeysField } from '../../utils/schemaUtils'
 
 const schema = {
 

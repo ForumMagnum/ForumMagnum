@@ -10,9 +10,11 @@ import Card from '@material-ui/core/Card';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { userHasBoldPostItems } from '../../lib/betas.js';
 
+export const POST_PREVIEW_WIDTH = 500
+
 const styles = theme => ({
   root: {
-    width: 500,
+    width: POST_PREVIEW_WIDTH,
     position: "relative",
     padding: theme.spacing.unit*1.5,
     paddingTop: theme.spacing.unit,
@@ -121,7 +123,7 @@ const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, truncate
   return <AnalyticsContext pageElementContext="hoverPreview">
       <Card className={classes.root}>
         <div className={classes.title}>
-          <PostsTitle post={post} tooltip={false} wrap read={userHasBoldPostItems(currentUser)} />
+          <PostsTitle post={post} tooltip={false} wrap showIcons={false} read={userHasBoldPostItems(currentUser)} />
         </div>
         <div className={classes.tooltipInfo}>
           { getPostCategory(post)}
@@ -149,9 +151,9 @@ const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, truncate
         }
         {renderWordCount && <div className={classes.tooltipInfo}>
           <span>
-            {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
+            {wordCount} words ({Math.ceil(wordCount/300)} min read)
           </span>
-            { showAllInfo && <span className={classes.bookmarkButton}><BookmarkButton post={post} /></span>}
+          { showAllInfo && <span className={classes.bookmarkButton}><BookmarkButton post={post} /></span>}
         </div>}
     </Card>
   </AnalyticsContext>

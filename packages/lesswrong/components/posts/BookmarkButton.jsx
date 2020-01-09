@@ -47,8 +47,7 @@ const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right"
 
       updateUser({
         selector: {_id: currentUser._id},
-        data: { bookmarkedPostsMetadata: newBookmarks
-      }
+        data: { bookmarkedPostsMetadata: newBookmarks }
       });
     } else {
       setBookmarked(true)

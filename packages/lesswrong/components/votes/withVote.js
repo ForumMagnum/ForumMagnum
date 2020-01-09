@@ -2,8 +2,8 @@ import React from 'react';
 import { useMessages } from '../common/withMessages';
 import { useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
-import { performVoteClient } from '../../lib/modules/vote.js';
-import { VoteableCollections } from '../../lib/modules/make_voteable.js';
+import { performVoteClient } from '../../lib/voting/vote';
+import { VoteableCollections } from '../../lib/make_voteable';
 import { getFragmentText } from 'meteor/vulcan:lib';
 
 const getVoteMutationQuery = () => {

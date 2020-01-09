@@ -95,6 +95,6 @@ registerComponent(
   AFSuggestCommentsItem,
   [withUpdate, withUpdateOptions],
   withUser,
-  withHover,
+  withHover(),
   withErrorBoundary
 );

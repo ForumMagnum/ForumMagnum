@@ -1,7 +1,6 @@
 import { Components, registerComponent, useUpdate } from 'meteor/vulcan:core';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
-import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
 import { Link } from '../../lib/reactRouterWrapper.jsx';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
@@ -13,7 +12,7 @@ const styles = theme => ({
   personalBlogpostsCheckboxLabel: {
     display: "inline-block",
     verticalAlign: "middle",
-    
+
     [theme.breakpoints.down("xs")]: {
       width: 105,
     },
@@ -25,19 +24,19 @@ const HomeLatestPosts = ({ classes }) =>
   const currentUser = useCurrentUser();
   const location = useLocation();
   const { history } = useNavigation();
-  
+
   const {mutate: updateUser} = useUpdate({
     collection: Users,
     fragmentName: 'UsersCurrent',
   });
-  
+
   const toggleFilter = React.useCallback(() => {
     const { query, pathname } = location;
     let newQuery = _.isEmpty(query) ? {view: "magic"} : query
     const currentFilter = newQuery.filter || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
     const newFilter = (currentFilter === "frontpage") ? "includeMetaAndPersonal" : "frontpage"
 
-    captureEvent("personalBlogpostsToggled", {"checked": (newFilter !== "frontpage")});
+    captureEvent("personalBlogpostsToggled", {state: (newFilter !== "frontpage")});
 
     if (currentUser) {
       updateUser({
@@ -54,9 +53,9 @@ const HomeLatestPosts = ({ classes }) =>
   }, [updateUser, location, history, currentUser]);
 
   const { query } = location;
-  const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox } = Components
+  const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox, LWTooltip } = Components
   const currentFilter = query.filter || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
-  const limit = parseInt(query.limit) || 10
+  const limit = parseInt(query.limit) || 13
 
   const recentPostsTerms = {
     ...query,
@@ -85,7 +84,7 @@ const HomeLatestPosts = ({ classes }) =>
     </div>
     <ul>
       <li>Usefulness, novelty and relevance</li>
-      <li>Timeless content (minimize reference to current events</li>
+      <li>Timeless content (minimize reference to current events)</li>
       <li>Explain, rather than persuade</li>
     </ul>
     <div>
@@ -104,8 +103,8 @@ const HomeLatestPosts = ({ classes }) =>
 
   return (
     <SingleColumnSection>
-      <SectionTitle title={<Tooltip title={latestTitle} placement="left-start"><span>Latest Posts</span></Tooltip>}>
-        <Tooltip title={personalBlogpostTooltip}>
+      <SectionTitle title={<LWTooltip title={latestTitle} placement="top"><span>Latest Posts</span></LWTooltip>}>
+        <LWTooltip title={personalBlogpostTooltip}>
           <div>
             <SectionFooterCheckbox
               onClick={toggleFilter}
@@ -113,7 +112,7 @@ const HomeLatestPosts = ({ classes }) =>
               label={<div className={classes.personalBlogpostsCheckboxLabel}>Include Personal Blogposts</div>}
               />
           </div>
-        </Tooltip>
+        </LWTooltip>
       </SectionTitle>
       <AnalyticsContext listContext={"latestPosts"}>
         <PostsList2 terms={recentPostsTerms}>

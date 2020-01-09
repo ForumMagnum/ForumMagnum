@@ -57,7 +57,7 @@ export default class CKEditor extends React.Component {
     
   _initializeEditor() {
     this.watchdog.setCreator((el, config) => {
-      this.props.editor
+      return this.props.editor
         .create( el , config )
         .then( editor => {
           this.editor = editor;
@@ -93,6 +93,7 @@ export default class CKEditor extends React.Component {
               this.props.onBlur( event, editor );
             }
           } );
+          return editor
         } )
         .catch( error => {
           // eslint-disable-next-line no-console

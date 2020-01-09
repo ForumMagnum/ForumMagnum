@@ -112,6 +112,6 @@ registerComponent(
   AFSuggestPostsItem,
   [withUpdate, withUpdateOptions],
   withUser,
-  withHover,
+  withHover(),
   withErrorBoundary
 );

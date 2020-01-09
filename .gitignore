@@ -23,6 +23,7 @@ settings*.json
 .tern-project
 
 scratch
+tmp
 .vscode/*
 .deploy
 .deploy/*

@@ -300,8 +300,7 @@ class UsersProfile extends Component {
           <SingleColumnSection>
             <div className={classes.title} onClick={() => this.setState({showSettings: !showSettings})}>
               <SectionTitle title={`${Users.getDisplayName(user)}'s Posts`}>
-                <SettingsIcon/>
-                <div className={classes.settingsText}>Sorted by { sortings[currentSorting] }</div>
+                <SettingsIcon label={`Sorted by ${ sortings[currentSorting]}`}/>
               </SectionTitle>
             </div>
             {showSettings && <PostsListSettings

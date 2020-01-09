@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Comments } from '../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles'
-import { unflattenComments } from "../../lib/modules/utils/unflatten";
+import { unflattenComments } from "../../lib/utils/unflatten";
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';

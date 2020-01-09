@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { shallowEqual } from '../../lib/modules/utils/componentUtils';
+import { shallowEqual } from '../../lib/utils/componentUtils';
 
 const withGlobalKeydown = (WrappedComponent) => {
   return class ListeningComponent extends Component {

@@ -1,7 +1,7 @@
 /*global Vulcan*/
 import { addGraphQLSchema } from 'meteor/vulcan:core';
 import { RateLimiter } from './rateLimiter.js';
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState, useRef } from 'react'
 import { hookToHoc } from './hocUtils.js'
 
 addGraphQLSchema(`
@@ -32,7 +32,6 @@ export const AnalyticsUtil = {
 };
 
 export function captureEvent(eventType, eventProps) {
-  // console.log({eventType, eventProps}) //useful during development
   try {
     if (Meteor.isServer) {
       // If run from the server, put this directly into the server's write-to-SQL
@@ -62,7 +61,6 @@ export function captureEvent(eventType, eventProps) {
     console.error("Error while capturing analytics event: ", e); //eslint-disable-line
   }
 }
-
 
 
 export const ReactTrackingContext = React.createContext({});
@@ -98,6 +96,35 @@ export function useTracking({eventType="unnamed", eventProps = {}, captureOnMoun
 }
 
 export const withTracking = hookToHoc(useTracking)
+
+export function useIsInView({rootMargin='0px', threshold=0}={}) {
+  const [entry, setEntry] = useState(null)
+  const [node, setNode] = useState(null)
+
+  const observer = useRef(null)
+
+  useEffect(() => {
+    if (!window.IntersectionObserver) return
+
+    if (observer.current && node) observer.current.disconnect()
+
+    observer.current = new window.IntersectionObserver(([ entry ]) => {
+      setEntry(entry)
+    }, {
+      rootMargin,
+      threshold
+    })
+
+    const { current: currentObserver } = observer
+
+    if (node) currentObserver.observe(node)
+
+    return () => currentObserver.disconnect()
+  }, [node, rootMargin, threshold])
+
+  return { setNode, entry }
+}
+
 
 // Analytics events have two rate limits, one denominated in events per second,
 // the other denominated in uncompressed kilobytes per second. Each of these

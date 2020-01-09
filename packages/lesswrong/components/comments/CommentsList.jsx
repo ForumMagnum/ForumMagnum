@@ -2,7 +2,7 @@ import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Comments } from "../../lib/collections/comments";
-import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
+import { shallowEqual, shallowEqualExcept } from '../../lib/utils/componentUtils';
 import { Posts } from '../../lib/collections/posts';
 import withGlobalKeydown from '../common/withGlobalKeydown';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -103,7 +103,7 @@ class CommentsList extends Component {
   }
 
   render() {
-    const { comments, currentUser, highlightDate, updateComment, post, postPage, totalComments, condensed, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1, hideReadComments, lastCommentId, markAsRead, parentCommentId=null } = this.props;
+    const { comments, currentUser, highlightDate, updateComment, post, postPage, totalComments, condensed, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1, hideReadComments, lastCommentId, markAsRead, parentCommentId=null, forceSingleLine, hideSingleLineMeta, enableHoverPreview } = this.props;
 
     const { expandAllThreads } = this.state
     const { lastVisitedAt } = post
@@ -134,6 +134,9 @@ class CommentsList extends Component {
                 postPage={postPage}
                 parentAnswerId={parentAnswerId}
                 condensed={condensed}
+                forceSingleLine={forceSingleLine}
+                hideSingleLineMeta={hideSingleLineMeta}
+                enableHoverPreview={enableHoverPreview}
                 hideReadComments={hideReadComments}
                 shortform={post.shortform}
                 child={defaultNestingLevel > 1}

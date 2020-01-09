@@ -3,7 +3,7 @@ import { Tags } from '../../lib/collections/tags/collection.js';
 import { TagRels } from '../../lib/collections/tagRels/collection.js';
 import { Posts } from '../../lib/collections/posts/collection.js';
 import { performVoteServer } from '../voteServer.js';
-import { accessFilterSingle } from '../../lib/modules/utils/schemaUtils.js';
+import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 
 addGraphQLResolvers({
   Mutation: {

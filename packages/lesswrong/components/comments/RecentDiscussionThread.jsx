@@ -5,7 +5,7 @@ import {
 } from 'meteor/vulcan:core';
 
 import classNames from 'classnames';
-import { unflattenComments } from '../../lib/modules/utils/unflatten';
+import { unflattenComments } from '../../lib/utils/unflatten';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import withRecordPostView from '../common/withRecordPostView';
@@ -106,7 +106,7 @@ const RecentDiscussionThread = ({
       setReadStatus(true);
       setMarkedAsVisitedAt(new Date());
       setExpandAllThreads(true);
-      recordPostView({post})
+      recordPostView({post, extraEventProperties: {type: "recentDiscussionClick"}})
     },
     [setReadStatus, setMarkedAsVisitedAt, setExpandAllThreads, recordPostView, post]
   );
