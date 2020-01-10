@@ -15,11 +15,13 @@ import markdownItMathjax from './markdown-mathjax.js'
 import cheerio from 'cheerio';
 import markdownItContainer from 'markdown-it-container'
 import markdownItFootnote from 'markdown-it-footnote'
+import markdownItSub from 'markdown-it-sub'
 
 const mdi = markdownIt({linkify: true})
 mdi.use(markdownItMathjax())
 mdi.use(markdownItContainer, 'spoiler')
 mdi.use(markdownItFootnote)
+mdi.use(markdownItSub)
 
 import { mjpage }  from 'mathjax-node-page'
 
