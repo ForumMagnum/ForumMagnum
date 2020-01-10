@@ -75,7 +75,7 @@ import './server/tagging/tagCallbacks.js';
 import './server/tagging/tagsGraphQL.js';
 
 import './server/callbacks/commentCallbacks';
-import './lib/collections/comments/graphql.js';
+import './server/resolvers/commentResolvers';
 import './server/callbacks/postCallbacks';
 import './lib/collections/posts/validate.js';
 import './server/callbacks/chapterCallbacks';
@@ -98,9 +98,9 @@ import './server/callbacks/alignment-forum/alignmentPostCallbacks';
 import './server/callbacks/alignment-forum/alignmentUserCallbacks';
 import './server/callbacks/votingCallbacks';
 
-import './lib/collections/revisions/resolvers.js';
-import './lib/collections/posts/serverSchema.js';
-import './lib/collections/users/serverSchema.js';
+import './server/resolvers/revisionResolvers';
+import './server/resolvers/postResolvers';
+import './server/resolvers/userResolvers';
 
 import './lib/events/server.js';
 import './server/callbacks/intercomCallbacks';

@@ -1,9 +1,3 @@
-/*
-
-GraphQL config
-
-*/
-
 import { addGraphQLMutation, addGraphQLResolvers, runCallbacks, runCallbacksAsync, Utils } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
 
@@ -15,7 +9,7 @@ const specificResolvers = {
 
       if (Users.canModeratePost(context.currentUser, post)) {
 
-        let set = {deleted: deleted}
+        let set: Record<string,any> = {deleted: deleted}
         if (deleted) {
           set.deletedPublic = deletedPublic;
           set.deletedDate = comment.deletedDate || new Date();
