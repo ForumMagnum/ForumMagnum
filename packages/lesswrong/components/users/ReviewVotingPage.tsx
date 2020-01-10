@@ -34,7 +34,7 @@ const styles = theme => ({
     ...theme.typography.body2,
     ...commentBodyStyles(theme),
     maxWidth: 545,
-    paddingBottom: 100
+    paddingBottom: 35
   },
   leftColumn: {
     gridArea: "leftColumn",
@@ -59,7 +59,7 @@ const styles = theme => ({
     maxWidth: 700
   },
   expandedInfo: {
-    height: "80vh",
+    height: "calc(100vh - 80px)",
     maxWidth: 600,
     overflowY: "scroll",
   },
@@ -84,8 +84,7 @@ const styles = theme => ({
   },
   expandedInfoWrapper: {
     position: "sticky",
-    top: 0,
-    paddingTop: 100,
+    top: 0
   },
   header: {
     ...theme.typography.display3,
@@ -100,7 +99,6 @@ const styles = theme => ({
   comments: {
   },
   reason: {
-    marginBottom: theme.spacing.unit*1.5,
     position: "relative",
     border: "solid 1px rgba(0,0,0,.3)",
     padding: theme.spacing.unit*2
@@ -131,8 +129,18 @@ const styles = theme => ({
     }
   },
   writeAReview: {
-    paddingLeft: 15,
-    paddingTop: 12
+    paddingTop: 8,
+    paddingLeft: 12,
+    paddingBottom: 8,
+    border: "solid 1px rgba(0,0,0,.3)",
+    marginBottom: 8,
+    '& span': {
+      fontWeight: 600,
+      fontSize: "1.2rem",
+      color: "rgba(0,0,0,.87)",
+      width: "100%",
+      display: "block"
+    }
   }
 });
 
@@ -331,9 +339,9 @@ const ReviewVotingPage = ({classes}) => {
           </div>}
           {expandedPost && <div className={classes.expandedInfoWrapper}>
             <div className={classes.expandedInfo}>
-              <h2 className={classes.postHeader}>{expandedPost.title}</h2>
+              <div className={classes.writeAReview}><ReviewPostButton post={expandedPost} reviewMessage={`Write a public review for "${expandedPost.title}"`}/></div>
               <div className={classes.reason}>
-                <div className={classes.reasonTitle}>Anonymous Comments (optional)</div>
+                <div className={classes.reasonTitle}>Comment anonymously (optional)</div>
                 <CommentTextField
                   startValue={getVoteForPost(dbVotes, expandedPost._id)?.comment}
                   updateValue={(value) => submitVote({variables: {comment: value, postId: expandedPost._id}})}
@@ -342,16 +350,16 @@ const ReviewVotingPage = ({classes}) => {
               </div>
               <div className={classes.comments}>
                 <PostReviewsAndNominations
-                  title="Nominations"
+                  title="nomination"
+                  singleLine
                   terms={{view:"nominations2018", postId: expandedPost._id}}
                   post={expandedPost}
                 />
                 <PostReviewsAndNominations
-                  title="Reviews"
+                  title="review"
                   terms={{view:"reviews2018", postId: expandedPost._id}}
                   post={expandedPost}
                 />
-                <div className={classes.writeAReview}><ReviewPostButton post={expandedPost} reviewMessage="Write a Public Review"/></div>
               </div>
             </div>
           </div>}
@@ -385,7 +393,7 @@ function CommentTextField({startValue, updateValue, postId}) {
     value={text || ""}
     fullWidth
     multiline
-    rows="4"
+    rows="3"
   />
 }
 function getPostOrder(posts, votes) {
@@ -486,7 +494,8 @@ const voteRowStyles = theme => ({
     bottom: 2,
     fontSize: 10,
     ...theme.typography.commentStyle,
-    color: theme.palette.grey[400]
+    color: theme.palette.grey[400],
+    paddingBottom: 35
   },
   expanded: {
     background: "#eee"
