@@ -4,11 +4,6 @@ import { schemaDefaultValue } from '../../collectionUtils';
 import SimpleSchema from 'simpl-schema'
 
 const schema = {
-  _id: {
-    type: String,
-    viewableBy: ['guests'],
-    optional: true
-  },
   createdAt: {
     type: Date,
     optional: true,

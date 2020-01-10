@@ -1,11 +1,6 @@
 import { arrayOfForeignKeysField, denormalizedCountOfReferences } from '../../utils/schemaUtils'
 
 const schema = {
-  _id: {
-    optional: true,
-    type: String,
-    viewableBy: ['members'],
-  },
   createdAt: {
     optional: true,
     type: Date,

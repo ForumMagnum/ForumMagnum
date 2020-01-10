@@ -1,11 +1,6 @@
 import { foreignKeyField } from '../../utils/schemaUtils'
 
 const schema = {
-  _id: {
-    type: String,
-    viewableBy: ['guests'],
-    optional: true,
-  },
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",

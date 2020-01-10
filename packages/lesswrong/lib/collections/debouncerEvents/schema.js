@@ -1,9 +1,5 @@
 
 const schema = {
-  _id: {
-    type: String,
-  },
-  
   name: {
     type: String,
   },

@@ -15,11 +15,6 @@ import { schemaDefaultValue } from '../../collectionUtils';
 //
 
 const schema = {
-  _id: {
-    type: String,
-    canRead: ['guests'],
-  },
-
   // The id of the document that was voted on
   documentId: {
     type: String,

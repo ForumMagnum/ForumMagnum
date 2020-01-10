@@ -5,10 +5,6 @@ import { makeVoteable } from '../../make_voteable';
 import Users from 'meteor/vulcan:users';
 
 const schema = {
-  _id: {
-    type: String,
-    viewableBy: ['guests'],
-  },
   tagId: {
     ...foreignKeyField({
       idFieldName: "tagId",

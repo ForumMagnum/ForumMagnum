@@ -5,11 +5,6 @@ import { makeEditable } from '../../editor/make_editable.js'
 import Users from 'meteor/vulcan:users';
 
 const schema = {
-  _id: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-  },
   name: {
     type: String,
     viewableBy: ['guests'],

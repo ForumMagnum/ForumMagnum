@@ -3,11 +3,6 @@ import { localGroupTypeFormOptions } from './groupTypes';
 import { schemaDefaultValue } from '../../collectionUtils';
 
 const schema = {
-  _id: {
-    optional: true,
-    type: String,
-    viewableBy: ['guests'],
-  },
   createdAt: {
     optional: true,
     type: Date,
