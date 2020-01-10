@@ -74,23 +74,23 @@ import './server/partiallyReadSequences.js';
 import './server/tagging/tagCallbacks.js';
 import './server/tagging/tagsGraphQL.js';
 
-import './lib/collections/comments/callbacks.js';
+import './server/callbacks/commentCallbacks';
 import './lib/collections/comments/graphql.js';
-import './lib/collections/posts/callbacks.js';
+import './server/callbacks/postCallbacks';
 import './lib/collections/posts/validate.js';
-import './lib/collections/chapters/callbacks.js';
-import './lib/collections/sequences/callbacks.js';
-import './lib/collections/books/callbacks.js';
-import './lib/collections/collections/callbacks.js';
-import './lib/collections/messages/callbacks.js';
+import './server/callbacks/chapterCallbacks';
+import './server/callbacks/sequenceCallbacks';
+import './server/callbacks/bookCallbacks';
+import './server/callbacks/collectionCallbacks';
+import './server/callbacks/messageCallbacks';
 import './lib/collections/users/validate_login.js';
-import './lib/collections/users/callbacks.js';
-import './lib/collections/bans/callbacks.js';
+import './server/callbacks/userCallbacks';
+import './server/callbacks/banCallbacks';
 import './lib/collections/posts/tableOfContents.js';
-import './lib/collections/subscriptions/callbacks.js';
-import './lib/collections/reviewVotes/callbacks.js';
+import './server/callbacks/subscriptionCallbacks';
+import './server/callbacks/reviewVoteCallbacks';
 if (getSetting('hasEvents', true)) {
-  import './lib/collections/localgroups/callbacks.js';
+  import './server/callbacks/localgroupCallbacks';
 }
 
 import './lib/collections/revisions/resolvers.js';

@@ -1,7 +1,7 @@
 import { addCallback } from 'meteor/vulcan:core';
-import Chapters from '../chapters/collection.js'
-import Sequences, { makeEditableOptions } from './collection.js'
-import { addEditableCallbacks } from '../../../server/editor/make_editable_callbacks.js';
+import Chapters from '../../lib/collections/chapters/collection'
+import Sequences, { makeEditableOptions } from '../../lib/collections/sequences/collection'
+import { addEditableCallbacks } from '../editor/make_editable_callbacks';
 
 function SequenceNewCreateChapter (sequence) {
   if (sequence._id && !sequence.chaptersDummy) {

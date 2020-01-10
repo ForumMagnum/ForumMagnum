@@ -1,14 +1,16 @@
 import Users from "meteor/vulcan:users";
 import { addCallback, getSetting, editMutation } from 'meteor/vulcan:core';
-import { Posts } from '../posts'
-import { Comments } from '../comments'
+import { Posts } from '../../lib/collections/posts'
+import { Comments } from '../../lib/collections/comments'
 import request from 'request';
-import { bellNotifyEmailVerificationRequired } from '../../../server/notificationCallbacks.js';
+import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks.js';
+import { Meteor } from 'meteor/meteor';
+import { Accounts } from 'meteor/accounts-base';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
-import { addEditableCallbacks } from '../../../server/editor/make_editable_callbacks.js'
-import { makeEditableOptionsModeration } from './custom_fields.js'
+import { addEditableCallbacks } from '../editor/make_editable_callbacks.js'
+import { makeEditableOptionsModeration } from '../../lib/collections/users/custom_fields.js'
 
 function updateTrustedStatus ({newDocument, vote}) {
 
@@ -87,7 +89,7 @@ function clearKarmaChangeBatchOnSettingsChange (modifier, user)
 addCallback("users.edit.sync", clearKarmaChangeBatchOnSettingsChange);
 
 const reCaptchaSecret = getSetting('reCaptcha.secret')
-const getCaptchaRating = async (token) => {
+const getCaptchaRating = async (token): Promise<string> => {
   // Make an HTTP POST request to get reply text
   return new Promise((resolve, reject) => {
     request.post({url: 'https://www.google.com/recaptcha/api/siteverify',

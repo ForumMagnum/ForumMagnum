@@ -1,4 +1,4 @@
-import ReviewVotes from './collection'
+import ReviewVotes from '../../lib/collections/reviewVotes/collection'
 import { addCallback } from 'meteor/vulcan:core';
 
 async function ensureUniqueVotes(errors, {newDocument: newVote}) {

@@ -1,5 +1,5 @@
 import { addCallback } from 'meteor/vulcan:core';
-import { Subscriptions } from './collection'
+import { Subscriptions } from '../../lib/collections/subscriptions/collection'
 
 async function deleteOldSubscriptions(subscription) {
   const { userId, documentId, collectionName, type } = subscription

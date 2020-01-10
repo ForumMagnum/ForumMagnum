@@ -1,8 +1,9 @@
-import { makeEditableOptions, Chapters } from './collection.js'
-import { addEditableCallbacks } from '../../../server/editor/make_editable_callbacks.js';
-import { Sequences } from '../sequences/collection.js';
-import { Posts } from '../posts/collection.js'
+import { makeEditableOptions, Chapters } from '../../lib/collections/chapters/collection'
+import { addEditableCallbacks } from '../editor/make_editable_callbacks';
+import { Sequences } from '../../lib/collections/sequences/collection';
+import { Posts } from '../../lib/collections/posts/collection'
 import { addCallback } from 'meteor/vulcan:core';
+import * as _ from 'underscore';
 
 addEditableCallbacks({collection: Chapters, options: makeEditableOptions})
 
