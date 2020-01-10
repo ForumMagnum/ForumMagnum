@@ -14,7 +14,7 @@ const styles = theme => ({
   }
 })
 
-const PostReviewsAndNominations = ({ classes, title, loading, results, post }) => {
+const PostReviewsAndNominations = ({ classes, title, loading, results, post, singleLine }) => {
 
   const { Loading, CommentsList, SubSection } = Components
 
@@ -26,18 +26,23 @@ const PostReviewsAndNominations = ({ classes, title, loading, results, post }) =
   const nestedComments = unflattenComments(results);
   return (
     <div>
-      {title && <div className={classes.title}>{title} for "{post.title}"</div>}
+      {title && <div className={classes.title}>
+        {loading && <Loading/>}
+        {results && results.length}{" "}
+        {title}
+        {(results && results.length > 1) && "s"}
+      </div>}
       <SubSection>
         <CommentsList
           comments={nestedComments}
           startThreadTruncated={true}
           post={post}
           lastCommentId={lastCommentId}
-          forceSingleLine
-          hideSingleLineMeta
+          forceSingleLine={singleLine}
+          forceNotSingleLine={!singleLine}
+          hideSingleLineMeta={singleLine}
           enableHoverPreview={false}
         />
-        {loading && <Loading/>}
       </SubSection>
     </div>
   );
