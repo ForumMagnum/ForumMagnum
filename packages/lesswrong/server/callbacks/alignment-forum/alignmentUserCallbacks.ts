@@ -1,8 +1,8 @@
 import { addCallback, newMutation, editMutation } from 'meteor/vulcan:core';
 import Users from "meteor/vulcan:users";
-import Messages from '../../collections/messages/collection.js';
-import Conversations from '../../collections/conversations/collection.js';
-import { Posts } from '../../collections/posts/collection.js';
+import Messages from '../../../lib/collections/messages/collection';
+import Conversations from '../../../lib/collections/conversations/collection';
+import { Posts } from '../../../lib/collections/posts/collection';
 
 const getAlignmentForumAccount = async () => {
   let account = Users.findOne({username: "AI Alignment Forum"});

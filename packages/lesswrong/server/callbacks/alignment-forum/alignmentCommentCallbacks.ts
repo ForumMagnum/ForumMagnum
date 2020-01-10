@@ -1,5 +1,5 @@
-import { Posts } from "../../collections/posts";
-import { Comments } from '../../collections/comments'
+import { Posts } from "../../../lib/collections/posts";
+import { Comments } from '../../../lib/collections/comments'
 import { addCallback, editMutation } from 'meteor/vulcan:core';
 import * as _ from 'underscore';
 

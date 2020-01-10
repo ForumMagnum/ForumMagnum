@@ -157,19 +157,16 @@ import './alignment-forum/permissions';
 import './alignment-forum/graphql';
 
 import './alignment-forum/posts/custom_fields';
-import './alignment-forum/posts/callbacks';
 import './alignment-forum/posts/helpers';
 import './alignment-forum/posts/views';
 
 import './alignment-forum/comments/custom_fields';
-import './alignment-forum/comments/callbacks';
 import './alignment-forum/comments/helpers';
 import './alignment-forum/comments/views';
 import './alignment-forum/comments/fragments';
 
 import './alignment-forum/sequences/custom_fields'
 
-import './alignment-forum/users/callbacks';
 import './alignment-forum/users/custom_fields';
 import './alignment-forum/users/helpers';
 import './alignment-forum/users/views';
