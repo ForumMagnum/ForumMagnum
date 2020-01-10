@@ -333,7 +333,7 @@ const ReviewVotingPage = ({classes}) => {
                 </ul>
                 <p>After that, click “Convert to Quadratic”, and you will then have the option to use the quadratic voting system to fine-tune your votes. (Quadratic voting gives you a limited number of “points” to spend on votes, allowing you to vote multiple times, with each additional vote on an item costing more. See <Link to="/posts/qQ7oJwnH9kkmKm2dC/feedback-request-quadratic-voting-for-the-2018-review">this post</Link> for details.)</p>
                 <p>If you’re having difficulties, please message the LessWrong Team using Intercom, the circle at the bottom right corner of the screen, or leave a comment on <Link to="/posts/zLhSjwXHnTg9QBzqH/the-final-vote-for-lw-2018-review">this post</Link>.</p>
-                <p>The vote closes on Jan 20th. If you leave this page and come back, your votes will be saved.</p>
+                <p>The vote closes on Jan 19th. If you leave this page and come back, your votes will be saved.</p>
               </div>
             </div>
           </div>}
