@@ -15,7 +15,6 @@ import './accounts/configuration';
 
 // ## Voting
 import './voting/new_vote_types';
-import './voting/callbacks';
 
 //MomentJS configuration
 import '../components/momentjs.js';
@@ -152,7 +151,6 @@ import './components.js';
 import './collections/postRelations';
 
 // Alignment Forum
-import './alignment-forum/callbacks';
 import './alignment-forum/permissions';
 import './alignment-forum/graphql';
 

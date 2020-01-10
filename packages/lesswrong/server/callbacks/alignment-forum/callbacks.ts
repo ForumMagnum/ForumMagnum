@@ -1,7 +1,7 @@
 import Users from "meteor/vulcan:users";
-import { Votes } from '../collections/votes';
+import { Votes } from '../../../lib/collections/votes';
 import { addCallback } from 'meteor/vulcan:core';
-import { getVotePower } from '../voting/new_vote_types'
+import { getVotePower } from '../../../lib/voting/new_vote_types'
 import { getCollection } from 'meteor/vulcan:lib';
 
 export const recalculateAFBaseScore = async (document) => {

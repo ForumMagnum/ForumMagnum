@@ -92,16 +92,18 @@ import './server/callbacks/reviewVoteCallbacks';
 if (getSetting('hasEvents', true)) {
   import './server/callbacks/localgroupCallbacks';
 }
+import './server/callbacks/alignment-forum/callbacks';
 import './server/callbacks/alignment-forum/alignmentCommentCallbacks';
 import './server/callbacks/alignment-forum/alignmentPostCallbacks';
 import './server/callbacks/alignment-forum/alignmentUserCallbacks';
+import './server/callbacks/votingCallbacks';
 
 import './lib/collections/revisions/resolvers.js';
 import './lib/collections/posts/serverSchema.js';
 import './lib/collections/users/serverSchema.js';
 
 import './lib/events/server.js';
-import './lib/events/callbacks_async.js';
+import './server/callbacks/intercomCallbacks';
 import './server/connection_logs';
 
 
