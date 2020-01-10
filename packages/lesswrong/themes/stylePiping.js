@@ -88,10 +88,6 @@ const hrStyles = {
   }
 }
 
-const subStyles = {
-  
-}
-
 const baseBodyStyles = theme => ({
   ...theme.typography.body1,
   ...theme.typography.postStyle,
