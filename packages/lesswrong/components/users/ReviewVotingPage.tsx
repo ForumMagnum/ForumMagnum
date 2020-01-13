@@ -157,7 +157,7 @@ const generatePermutation = (count: number, user): Array<number> => {
   let remaining = _.range(count);
   let result: Array<number> = [];
   while(remaining.length > 0) {
-    let idx = rng.int32() % remaining.length;
+    let idx = Math.floor(rng() * remaining.length);
     result.push(remaining[idx]);
     remaining.splice(idx, 1);
   }
@@ -250,7 +250,7 @@ const ReviewVotingPage = ({classes}) => {
 
   const [postOrder, setPostOrder] = useState<Map<number, number> | undefined>(undefined)
   const reSortPosts = () => {
-    setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes)), currentUser)
+    setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes, currentUser)))
     captureEvent(undefined, {eventSubType: "postsResorted"})
   }
 
@@ -412,13 +412,22 @@ function CommentTextField({startValue, updateValue, postId}) {
 }
 function getPostOrder(posts, votes, currentUser) {
   const randomPermutation = generatePermutation(posts.length, currentUser);
-  return posts.map((post, i) => {
-    const voteForPost = votes.find(vote => vote.postId === post._id)
-    return [post, voteForPost, i]
-  })
-  .sort(([post1, vote1], [post2, vote2]) => (vote1 ? vote1.score : 1) - (vote2 ? vote2.score : 1))
-  .reverse()
-  .map(([post,vote,originalIndex], sortedIndex) => [sortedIndex, originalIndex])
+  const result = posts.map(
+    (post, i) => {
+      const voteForPost = votes.find(vote => vote.postId === post._id)
+      const  voteScore = voteForPost ? voteForPost.score : 1;
+      return [post, voteForPost, voteScore, i, randomPermutation[i]]
+    })
+    .sort(([post1, vote1, voteScore1, i1, permuted1], [post2, vote2, voteScore2, i2, permuted2]) => {
+      const sortCriteria1 = [voteScore1, permuted1];
+      const sortCriteria2 = [voteScore2, permuted2];
+      if (sortCriteria1<sortCriteria2) return -1;
+      else if (sortCriteria1>sortCriteria2) return 1;
+      else return 0;
+    })
+    .reverse()
+    .map(([post,vote,voteScore,originalIndex,permuted], sortedIndex) => [sortedIndex, originalIndex])
+  return result;
 }
 
 function applyOrdering<T extends any>(array:T[], order:Map<number, number>):T[] {
