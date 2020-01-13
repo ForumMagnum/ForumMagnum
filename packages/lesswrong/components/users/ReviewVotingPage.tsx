@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import sumBy from 'lodash/sumBy'
@@ -18,8 +18,9 @@ import CachedIcon from '@material-ui/icons/Cached';
 import KeyboardTabIcon from '@material-ui/icons/KeyboardTab';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
+import seedrandom from '../../lib/seedrandom';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   grid: {
     display: 'grid',
     gridTemplateColumns: `
@@ -142,13 +143,26 @@ const styles = theme => ({
       display: "block"
     }
   }
-});
+}));
 
 type vote = {_id: string, postId: string, score: number, type?: string}
 type quadraticVote = vote & {type: "quadratic"}
 type qualitativeVote = vote & {type: "qualitative", score: 0|1|2|3|4}
 
 
+const generatePermutation = (count: number, user): Array<number> => {
+  const seed = user?._id || "";
+  const rng = seedrandom(seed);
+  
+  let remaining = _.range(count);
+  let result: Array<number> = [];
+  while(remaining.length > 0) {
+    let idx = rng.int32() % remaining.length;
+    result.push(remaining[idx]);
+    remaining.splice(idx, 1);
+  }
+  return result;
+}
 
 const ReviewVotingPage = ({classes}) => {
   const currentUser = useCurrentUser()
@@ -161,7 +175,7 @@ const ReviewVotingPage = ({classes}) => {
     fetchPolicy: 'cache-and-network',
     ssr: true
   });
-
+  
   const { results: dbVotes, loading: dbVotesLoading } = useMulti({
     terms: {view: "reviewVotesFromUser", limit: 100, userId: currentUser?._id},
     collection: ReviewVotes,
@@ -236,12 +250,12 @@ const ReviewVotingPage = ({classes}) => {
 
   const [postOrder, setPostOrder] = useState<Map<number, number> | undefined>(undefined)
   const reSortPosts = () => {
-    setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes)))
+    setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes)), currentUser)
     captureEvent(undefined, {eventSubType: "postsResorted"})
   }
 
   useEffect(() => {
-    if (!!posts && useQuadratic ? !!quadraticVotes : !!votes) setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes)))
+    if (!!posts && useQuadratic ? !!quadraticVotes : !!votes) setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes, currentUser)))
   }, [!!posts, useQuadratic, !!quadraticVotes, !!votes])
 
   if (!currentUser || currentUser.karma < 1000) {
@@ -396,7 +410,8 @@ function CommentTextField({startValue, updateValue, postId}) {
     rows="3"
   />
 }
-function getPostOrder(posts, votes) {
+function getPostOrder(posts, votes, currentUser) {
+  const randomPermutation = generatePermutation(posts.length, currentUser);
   return posts.map((post, i) => {
     const voteForPost = votes.find(vote => vote.postId === post._id)
     return [post, voteForPost, i]
@@ -463,7 +478,7 @@ function createPostVoteTuples<K extends any,T extends vote> (posts: K[], votes: 
   })
 }
 
-const voteRowStyles = theme => ({
+const voteRowStyles = createStyles(theme => ({
   root: {
     padding: theme.spacing.unit*1.5,
     paddingTop: 10,
@@ -500,7 +515,7 @@ const voteRowStyles = theme => ({
   expanded: {
     background: "#eee"
   }
-})
+}));
 
 const VoteTableRow = withStyles(voteRowStyles, {name: "VoteTableRow"})((
   {post, dispatch, dispatchQuadraticVote, quadraticVotes, useQuadratic, classes, expandedPostId, votes }:
