@@ -101,7 +101,9 @@ const styles = theme => ({
   reason: {
     position: "relative",
     border: "solid 1px rgba(0,0,0,.3)",
-    padding: theme.spacing.unit*2
+    padding: theme.spacing.unit*1.5,
+    paddingLeft: theme.spacing.unit*2,
+    paddingBottom: theme.spacing.unit
   },
   reasonTitle: {
     ...theme.typography.body2,
@@ -129,7 +131,7 @@ const styles = theme => ({
     }
   },
   writeAReview: {
-    paddingTop: 8,
+    paddingTop: 12,
     paddingLeft: 12,
     paddingBottom: 8,
     border: "solid 1px rgba(0,0,0,.3)",
@@ -339,7 +341,16 @@ const ReviewVotingPage = ({classes}) => {
           </div>}
           {expandedPost && <div className={classes.expandedInfoWrapper}>
             <div className={classes.expandedInfo}>
-              <div className={classes.writeAReview}><ReviewPostButton post={expandedPost} reviewMessage={`Write a public review for "${expandedPost.title}"`}/></div>
+              <div className={classes.writeAReview}>
+                <ReviewPostButton post={expandedPost} reviewMessage={<div>
+                  <div>Write a public review for "{expandedPost.title}"</div>
+                  <TextField
+                    placeholder="Any thoughts about this post you want to share with other voters?"
+                    fullWidth
+                    disabled
+                  />
+                </div>}/>
+              </div>
               <div className={classes.reason}>
                 <div className={classes.reasonTitle}>Comment anonymously (optional)</div>
                 <CommentTextField
@@ -384,7 +395,7 @@ function CommentTextField({startValue, updateValue, postId}) {
   }, 500), [postId])
   return <TextField
     id="standard-multiline-static"
-    placeholder="What considerations affected your vote? These will appear anonymously in a 2018 Review roundup. The moderation team will take them as input for the final decisions of what posts to include in the Best of 2018 book."
+    placeholder="What considerations affected your vote? These will appear anonymously in a 2018 Review roundup. The moderation team will take them as input for final decisions of what posts to include in the Best of 2018."
     defaultValue={startValue}
     onChange={(event) => {
       setText(event.target.value)
@@ -393,7 +404,7 @@ function CommentTextField({startValue, updateValue, postId}) {
     value={text || ""}
     fullWidth
     multiline
-    rows="3"
+    rows="2"
   />
 }
 function getPostOrder(posts, votes) {
@@ -540,10 +551,15 @@ const votingButtonStyles = theme => ({
     color: theme.palette.grey[700],
     cursor: "pointer"
   },
-  highlighted: {
+  selectionHighlight: {
+    backgroundColor: "rgba(0,0,0,.5)",
+    color: "white",
+    borderRadius: 3
+  },
+  defaultHighlight: {
     backgroundColor: "rgba(0,0,0,.075)",
     borderRadius: 3
-  }
+  },
 })
 
 const indexToTermsLookup = {
@@ -556,16 +572,18 @@ const indexToTermsLookup = {
 
 const VotingButtons = withStyles(votingButtonStyles, {name: "VotingButtons"})(({classes, postId, dispatch, votes}: {classes: any, postId: string, dispatch: any, votes: vote[]}) => {
   const voteForCurrentPost = votes.find(vote => vote.postId === postId)
-  const [selection, setSelection] = useState(voteForCurrentPost ? voteForCurrentPost.score : 1)
+  const score = voteForCurrentPost?.score
+  const [selection, setSelection] = useState(voteForCurrentPost ? score : 1)
   const createClickHandler = (index:number) => {
     return () => {
       setSelection(index)
       dispatch({postId, score: index})
     }
   }
+
   return <div>
       {[0,1,2,3,4].map((i) => {
-        return <span className={classNames(classes.button, {[classes.highlighted]:selection === i})} onClick={createClickHandler(i)} key={`${indexToTermsLookup[i]}-${i}`} >{indexToTermsLookup[i]}</span>
+        return <span className={classNames(classes.button, {[classes.selectionHighlight]:selection === i && score, [classes.defaultHighlight]: selection === i && !score})} onClick={createClickHandler(i)} key={`${indexToTermsLookup[i]}-${i}`} >{indexToTermsLookup[i]}</span>
       })}
   </div>
 })
