@@ -111,7 +111,7 @@ const HomeLatestPosts = ({ classes }) =>
     <SingleColumnSection>
       <SectionTitle title={<LWTooltip title={latestTitle} placement="top"><span>Latest Posts</span></LWTooltip>}>
         <LWTooltip title={personalBlogpostTooltip}>
-          <div> {/* TODO; Add classname personalBlogpostsCheckboxLabel if needed */}
+          <div className={classes.personalBlogpostsCheckbox}>
             <SectionFooterCheckbox
               onClick={toggleFilter}
               value={currentFilter !== "frontpage"}

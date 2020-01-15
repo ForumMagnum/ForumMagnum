@@ -62,11 +62,6 @@ const styles = theme => ({
       color: theme.palette.grey[800]
     }
   },
-  // TODO; probably unnecessary
-  // settings: {
-  //   display: 'flex',
-  //   alignItems: 'center',
-  // },
   settingsText: {
     marginLeft: theme.spacing.unit,
     fontStyle: "italic",
