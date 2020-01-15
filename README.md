@@ -23,7 +23,7 @@ Lesswrong2 is built on top of four major open-source libraries.
   * MacOS or Linux
     * Known to work on MacOS 10.13 and Ubuntu 16.04, should work on others
   * Node
-    * see `.nvmrc` for the required node version
+    * Try using node version 12.14.0 to start (current as of 2020-01-15). Run `meteor node -v` after installation to find the up-to-date version.
     * You can use [Node Version Manager](https://github.com/creationix/nvm) to install the appropriate version of Node
 
 ### Installation
