@@ -80,6 +80,8 @@ class CommentsListSection extends Component {
     const { anchorEl, highlightDate } = this.state
     const { CommentsListMeta } = Components
     const suggestedHighlightDates = [moment().subtract(1, 'day'), moment().subtract(1, 'week'), moment().subtract(1, 'month'), moment().subtract(1, 'year')]
+    const newLimit = commentCount + (loadMoreCount || commentCount)
+    console.log("newLimit: ", newLimit)
     return <CommentsListMeta>
       <Typography
         variant="body2"
@@ -90,7 +92,7 @@ class CommentsListSection extends Component {
           (commentCount < totalComments) ?
             <span>
               Rendering {commentCount}/{totalComments} comments, sorted by <Components.CommentsViews post={this.props.post} />
-              {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments({limit: commentCount + (loadMoreCount || commentCount)})}> (show more) </a>}
+              {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments(newLimit)}> (show more) </a>}
             </span> :
             <span>
               { totalComments } comments, sorted by <Components.CommentsViews post={this.props.post} />
