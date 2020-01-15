@@ -149,6 +149,13 @@ const baseBodyStyles = theme => ({
     fontSize: '65%',
     position: 'relative'
   },
+  '& sub': {
+    fontSize: '70%',
+    verticalAlign: 'baseline', // We use vertical align baseline to prevent sub-aligned text from changing the line-height, which looks ugly
+    position: 'relative',
+    top: '0.2em',
+    paddingRight: '0.07em'
+  },
   '& a, & a:hover, & a:active': {
     color: theme.palette.primary.main,
     '& u': {
