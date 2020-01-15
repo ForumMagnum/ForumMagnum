@@ -102,6 +102,7 @@ class HomeLatestPosts extends PureComponent {
         <SectionTitle title={<Tooltip title={latestTitle} placement="left-start"><span>Latest Posts</span></Tooltip>}>
           <Tooltip title={personalBlogpostTooltip}>
             <div>
+              {/* TODO; Center this */}
               <SectionFooterCheckbox
                 onClick={this.toggleFilter}
                 value={currentFilter !== "frontpage"}
