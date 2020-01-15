@@ -13,6 +13,7 @@ import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import withRecordPostView from '../../common/withRecordPostView';
 import withNewEvents from '../../../lib/events/withNewEvents.jsx';
 import { userHasPingbacks, userHasTagging } from '../../../lib/betas.js';
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 const DEFAULT_TOC_MARGIN = 100
@@ -275,7 +276,7 @@ class PostsPage extends Component {
       LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
       TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink,
-      PingbacksList, FooterTagList, ReviewPostButton, HoverPreviewLink } = Components
+      PingbacksList, FooterTagList, ReviewPostButton, HoverPreviewLink, AnalyticsInViewTracker } = Components
 
     if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
@@ -295,115 +296,133 @@ class PostsPage extends Component {
 
       const commentId = query.commentId || params.commentId
       return (
-        <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
-          <HeadTags url={Posts.getPageUrl(post, true)} canonicalUrl={post.canonicalSource} title={post.title} description={description}/>
-          {/* Header/Title */}
-          <div className={classes.title}>
-            <div className={classes.post}>
-              {commentId && <CommentPermalink documentId={commentId} post={post}/>}
-              {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
-              <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
-              <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}>
-                <div className={classes.headerLeft}>
-                  <PostsPageTitle post={post} />
-                  <div className={classes.secondaryInfo}>
-                    <span className={classes.authors}>
-                      <PostsAuthors post={post}/>
-                    </span>
-                    <span className={classes.postType}>
-                      <ContentType type={contentType}/>
-                    </span>
-                    { post.feed && post.feed.user &&
-                      <Tooltip title={`Crossposted from ${feedLinkDescription}`}>
-                        <a href={feedLink} className={classes.feedName}>
-                          {post.feed.nickname}
-                        </a>
-                      </Tooltip>
-                    }
-                    {!!wordCount && !post.isEvent &&  <Tooltip title={`${wordCount} words`}>
-                        <span className={classes.wordCount}>{parseInt(wordCount/300) || 1 } min read</span>
-                    </Tooltip>}
-                    {!post.isEvent && <span className={classes.date}>
-                      <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
-                    </span>}
-                    {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
-                    <a className={classes.commentsLink} href={"#comments"}>{ Posts.getCommentCountStr(post)}</a>
-                    <span className={classes.actions}>
-                        <PostsPageActions post={post} />
-                    </span>
+          <AnalyticsContext pageContext="postsPage" postId={post._id}>
+            <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
+              <HeadTags url={Posts.getPageUrl(post, true)} canonicalUrl={post.canonicalSource} title={post.title} description={description}/>
+              {/* Header/Title */}
+              <AnalyticsContext pageSectionContext="postHeader"><div className={classes.title}>
+                <div className={classes.post}>
+                  {commentId && <CommentPermalink documentId={commentId} post={post}/>}
+                  {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
+                  <AnalyticsContext pageSectionContext="topSequenceNavigation">
+                    <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
+                  </AnalyticsContext>
+                  <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}>
+                    <div className={classes.headerLeft}>
+                      <PostsPageTitle post={post} />
+                      <div className={classes.secondaryInfo}>
+                        <span className={classes.authors}>
+                          <PostsAuthors post={post}/>
+                        </span>
+                        <span className={classes.postType}>
+                          <ContentType type={contentType}/>
+                        </span>
+                        { post.feed && post.feed.user &&
+                          <Tooltip title={`Crossposted from ${feedLinkDescription}`}>
+                            <a href={feedLink} className={classes.feedName}>
+                              {post.feed.nickname}
+                            </a>
+                          </Tooltip>
+                        }
+                        {!!wordCount && !post.isEvent &&  <Tooltip title={`${wordCount} words`}>
+                            <span className={classes.wordCount}>{parseInt(wordCount/300) || 1 } min read</span>
+                        </Tooltip>}
+                        {!post.isEvent && <span className={classes.date}>
+                          <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
+                        </span>}
+                        {post.types && post.types.length > 0 && <Components.GroupLinks document={post} />}
+                        <a className={classes.commentsLink} href={"#comments"}>{ Posts.getCommentCountStr(post)}</a>
+                        <span className={classes.actions}>
+                          <AnalyticsContext pageElementContext="tripleDotMenu">
+                            <PostsPageActions post={post} />
+                          </AnalyticsContext>
+                        </span>
+                      </div>
+                    </div>
+                    <div className={classes.headerVote}>
+                      <PostsVote
+                        collection={Posts}
+                        post={post}
+                        currentUser={currentUser}
+                        />
+                    </div>
+                  </div>
+                  <hr className={classes.divider}/>
+                  {post.isEvent && <PostsPageEventData post={post}/>}
+                </div>
+              </div></AnalyticsContext>
+              <div className={classes.toc}>
+                <TableOfContents sectionData={sectionData} document={post} />
+              </div>
+              <div className={classes.gap1}/>
+              <div className={classes.content}>
+                <div className={classes.post}>
+                  {/* Body */}
+                  <div className={classes.postBody}>
+                    { post.isEvent && <Components.SmallMapPreview post={post} /> }
+                    <div className={classes.postContent}>
+                      {(post.nominationCount2018 >= 2) && <div className={classes.reviewInfo}>
+                        <div className={classes.reviewLabel}>
+                          This post has been nominated for the <HoverPreviewLink href="http://lesswrong.com/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review-posts-need-at-least-2-nominations" innerHTML={"2018 Review"}/>
+                        </div>
+                        <ReviewPostButton post={post} reviewMessage="Write a Review"/>
+                      </div>}
+
+                      <AlignmentCrosspostMessage post={post} />
+                      { post.authorIsUnreviewed && !post.draft && <div className={classes.contentNotice}>This post is awaiting moderator approval</div>}
+                      <LinkPostMessage post={post} />
+                      {query.revision && <PostsRevisionMessage post={post} />}
+                      <AnalyticsContext pageSectionContext="postBody">
+                        { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
+                      </AnalyticsContext>
+                    </div>
+                    {userHasTagging(currentUser) && <FooterTagList post={post}/>}
                   </div>
                 </div>
-                <div className={classes.headerVote}>
-                  <PostsVote
-                    collection={Posts}
-                    post={post}
-                    currentUser={currentUser}
-                    />
-                </div>
-              </div>
-              <hr className={classes.divider}/>
-              {post.isEvent && <PostsPageEventData post={post}/>}
-            </div>
-          </div>
-          <div className={classes.toc}>
-            <TableOfContents sectionData={sectionData} document={post} />
-          </div>
-          <div className={classes.gap1}/>
-          <div className={classes.content}>
-            <div className={classes.post}>
-              {/* Body */}
-              <div className={classes.postBody}>
-                { post.isEvent && <Components.SmallMapPreview post={post} /> }
-                <div className={classes.postContent}>
-                  {(post.nominationCount2018 >= 2) && <div className={classes.reviewInfo}>
-                    <div className={classes.reviewLabel}>
-                      This post has been nominated for the <HoverPreviewLink href="http://lesswrong.com/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review-posts-need-at-least-2-nominations" innerHTML={"2018 Review"}/>
+
+                {/* Footer */}
+
+                {(wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
+                  <div className={classes.footerSection}>
+                    <div className={classes.voteBottom}>
+                      <PostsVote
+                        collection={Posts}
+                        post={post}
+                        currentUser={currentUser}
+                        />
                     </div>
-                    <ReviewPostButton post={post} reviewMessage="Write a Review"/>
                   </div>}
-                  
-                  <AlignmentCrosspostMessage post={post} />
-                  { post.authorIsUnreviewed && <div className={classes.contentNotice}>This post is awaiting moderator approval</div>}
-                  <LinkPostMessage post={post} />
-                  {query.revision && <PostsRevisionMessage post={post} />}
-                  { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
-                </div>
-                {userHasTagging(currentUser) && <FooterTagList post={post}/>}
+                {sequenceId && <div className={classes.bottomNavigation}>
+                  <AnalyticsContext pageSectionContext="bottomSequenceNavigation">
+                    <BottomNavigation post={post}/>
+                  </AnalyticsContext>
+                </div>}
+
+                {userHasPingbacks(currentUser) && <div className={classes.post}>
+                  <AnalyticsContext pageSectionContext="pingbacks">
+                    <PingbacksList postId={post._id}/>
+                  </AnalyticsContext>
+                </div>}
+
+                <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
+                  {/* Answers Section */}
+                  {post.question && <div className={classes.post}>
+                    <div id="answers"/>
+                    <AnalyticsContext pageSectionContext="answersSection">
+                      <PostsPageQuestionContent terms={{...commentTerms, postId: post._id}} post={post} refetch={refetch}/>
+                    </AnalyticsContext>
+                  </div>}
+                  {/* Comments Section */}
+                  <div className={classes.commentsSection}>
+                    <AnalyticsContext pageSectionContext="commentsSection">
+                      <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question}/>
+                    </AnalyticsContext>
+                  </div>
+                </AnalyticsInViewTracker>
               </div>
+              <div className={classes.gap2}/>
             </div>
-
-            {/* Footer */}
-            
-            {(wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
-              <div className={classes.footerSection}>
-                <div className={classes.voteBottom}>
-                  <PostsVote
-                    collection={Posts}
-                    post={post}
-                    currentUser={currentUser}
-                    />
-                </div>
-              </div>}
-            {sequenceId && <div className={classes.bottomNavigation}>
-              <BottomNavigation post={post}/>
-            </div>}
-            
-            {userHasPingbacks(currentUser) && <div className={classes.post}>
-              <PingbacksList postId={post._id}/>
-            </div>}
-
-            {/* Answers Section */}
-            {post.question && <div className={classes.post}>
-              <div id="answers"/>
-              <PostsPageQuestionContent terms={{...commentTerms, postId: post._id}} post={post} refetch={refetch}/>
-            </div>}
-            {/* Comments Section */}
-            <div className={classes.commentsSection}>
-              <PostsCommentsThread terms={{...commentTerms, postId: post._id}} post={post} newForm={!post.question}/>
-            </div>
-          </div>
-          <div className={classes.gap2}/>
-        </div>
+          </AnalyticsContext>
       );
     }
   }
@@ -436,5 +455,5 @@ registerComponent(
   withStyles(styles, { name: "PostsPage" }),
   withRecordPostView,
   withNewEvents,
-  withErrorBoundary,
+  withErrorBoundary
 );

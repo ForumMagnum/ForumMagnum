@@ -1,7 +1,7 @@
 import { Posts } from './collection';
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
-import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple, resolverOnlyField, denormalizedCountOfReferences, accessFilterSingle, denormalizedField, googleLocationToMongoLocation } from '../../modules/utils/schemaUtils'
+import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple, resolverOnlyField, denormalizedCountOfReferences, accessFilterSingle, denormalizedField, googleLocationToMongoLocation } from '../../utils/schemaUtils'
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { Utils, getSetting } from 'meteor/vulcan:core';
 import GraphQLJSON from 'graphql-type-json';
@@ -765,7 +765,6 @@ addFieldsDict(Posts, {
 
   location: {
     type: String,
-    searchable: true,
     viewableBy: ['guests'],
     editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],

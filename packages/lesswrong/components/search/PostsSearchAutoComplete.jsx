@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core'
-import { algoliaIndexNames } from '../../lib/algoliaIndexNames.js';
+import { algoliaIndexNames } from '../../lib/algoliaUtil';
 
 const PostsSearchAutoComplete = ({clickAction}) => {
   return <Components.SearchAutoComplete

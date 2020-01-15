@@ -1,9 +1,9 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
 import classnames from 'classnames';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 import { withStyles } from '@material-ui/core/styles';
-import { legacyBreakpoints } from '../../lib/modules/utils/theme';
+import { legacyBreakpoints } from '../../lib/utils/theme';
 import { Posts } from '../../lib/collections/posts/collection.js';
 
 const styles = theme => ({

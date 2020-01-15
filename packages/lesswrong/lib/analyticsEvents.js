@@ -1,7 +1,8 @@
 /*global Vulcan*/
 import { addGraphQLSchema } from 'meteor/vulcan:core';
 import { RateLimiter } from './rateLimiter.js';
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState, useRef } from 'react'
+import { hookToHoc } from './hocUtils.js'
 
 addGraphQLSchema(`
   type AnalyticsEvent {
@@ -62,7 +63,6 @@ export function captureEvent(eventType, eventProps) {
 }
 
 
-
 export const ReactTrackingContext = React.createContext({});
 
 export const AnalyticsContext = ({children, ...props}) => {
@@ -73,7 +73,7 @@ export const AnalyticsContext = ({children, ...props}) => {
     </ReactTrackingContext.Provider>
 }
 
-export function useTracking({eventType, eventProps = {}, captureOnMount = false,  skip = false}) {
+export function useTracking({eventType="unnamed", eventProps = {}, captureOnMount = false,  skip = false}={}) {
   const trackingContext = useContext(ReactTrackingContext)
   useEffect(() => {
     const eventData = {...trackingContext, ...eventProps}
@@ -94,6 +94,38 @@ export function useTracking({eventType, eventProps = {}, captureOnMount = false,
   }
   return {captureEvent: track}
 }
+
+export const withTracking = hookToHoc(useTracking)
+
+export function useIsInView({rootMargin='0px', threshold=0}={}) {
+  const [entry, setEntry] = useState(null)
+  const [node, setNode] = useState(null)
+
+  const observer = useRef(null)
+
+  useEffect(() => {
+    if (!window.IntersectionObserver) return
+
+    if (observer.current && node) observer.current.disconnect()
+
+    observer.current = new window.IntersectionObserver(([ entry ]) => {
+      setEntry(entry)
+    }, {
+      rootMargin,
+      threshold
+    })
+
+    const { current: currentObserver } = observer
+
+    if (node) currentObserver.observe(node)
+
+    return () => currentObserver.disconnect()
+  }, [node, rootMargin, threshold])
+
+  return { setNode, entry }
+}
+
+
 // Analytics events have two rate limits, one denominated in events per second,
 // the other denominated in uncompressed kilobytes per second. Each of these
 // has a burst limit and a steady-state limit. If either rate limit is exceeded,

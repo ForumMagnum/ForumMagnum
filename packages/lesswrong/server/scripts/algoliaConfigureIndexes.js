@@ -1,6 +1,6 @@
 /* global Vulcan */
 import { getAlgoliaAdminClient, algoliaSetIndexSettingsAndWait } from '../search/utils';
-import { algoliaIndexNames } from '../../lib/algoliaIndexNames';
+import { algoliaIndexNames } from '../../lib/algoliaUtil';
 
 export const algoliaConfigureIndexes = async () => {
   let client = getAlgoliaAdminClient();

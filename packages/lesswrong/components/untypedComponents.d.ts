@@ -19,6 +19,7 @@ interface ComponentTypes {
   SelectVersion: any
   newFeedButton: any
   editFeedButton: any
+  LWTooltip: any
   NotificationsMenu: any
   NotificationsList: any
   NotificationsItem: any
@@ -404,6 +405,8 @@ interface ComponentTypes {
   NominatePostDialog: any
   UserReviews: any
   AnalyticsTracker: any
+  AnalyticsInViewTracker: any
+  AnalyticsPageInitializer: any
   
   // vulcan-accounts components
   AccountsButton: any

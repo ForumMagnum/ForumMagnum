@@ -15,11 +15,39 @@ import { Collections } from '../../modules/collections.js';
 import { runCallbacks } from '../../modules/callbacks.js';
 import findByIds from '../../modules/findbyids.js';
 import { GraphQLSchema } from '../../modules/graphql.js';
-import { getUser } from 'meteor/apollo';
 import { getHeaderLocale } from '../intl.js';
 import { getSetting } from '../../modules/settings.js';
 import Cookies from 'universal-cookie';
 import Sentry from '@sentry/node';
+
+// From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
+const getUser = async loginToken => {
+  if (loginToken) {
+    check(loginToken, String)
+
+    const hashedToken = Accounts._hashLoginToken(loginToken)
+
+    const user = await Meteor.users.rawCollection().findOne({
+      'services.resume.loginTokens.hashedToken': hashedToken
+    })
+
+    if (user) {
+      // find the right login token corresponding, the current user may have
+      // several sessions logged on different browsers / computers
+      const tokenInformation = user.services.resume.loginTokens.find(
+        tokenInfo => tokenInfo.hashedToken === hashedToken
+      )
+
+      const expiresAt = Accounts._tokenExpiration(tokenInformation.when)
+
+      const isExpired = expiresAt < new Date()
+
+      if (!isExpired) {
+        return user
+      }
+    }
+  }
+}
 
 // initial request will get the login token from a cookie, subsequent requests from
 // the header

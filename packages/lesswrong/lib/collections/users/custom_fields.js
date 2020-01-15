@@ -1,6 +1,6 @@
 import Users from "meteor/vulcan:users";
 import { getSetting, Utils } from "meteor/vulcan:core"
-import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation } from '../../utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable.js'
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 import SimpleSchema from 'simpl-schema'
@@ -348,7 +348,6 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     group: formGroups.default,
     order: 40,
-    searchable: true,
     form: {
       hintText:"Bio",
       rows:4,
@@ -813,7 +812,6 @@ addFieldsDict(Users, {
 
   location: {
     type: String,
-    searchable: true,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
@@ -1151,6 +1149,13 @@ addFieldsDict(Users, {
     group: formGroups.default,
     label: "Opt into experimental features",
     order: 71,
+  },
+  reviewVotesQuadratic: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true
   },
   petrovPressedButtonDate: {
     type: Date,

@@ -10,9 +10,11 @@ import Card from '@material-ui/core/Card';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { userHasBoldPostItems } from '../../lib/betas.js';
 
+export const POST_PREVIEW_WIDTH = 500
+
 const styles = theme => ({
   root: {
-    width: 500,
+    width: POST_PREVIEW_WIDTH,
     position: "relative",
     padding: theme.spacing.unit*1.5,
     paddingTop: theme.spacing.unit,
@@ -118,43 +120,43 @@ const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, truncate
   const renderCommentCount = showAllInfo && (Posts.getCommentCount(post) > 0)
   const renderWordCount = !comment && (wordCount > 0)
 
-  return <Card className={classes.root}>
-      <div className={classes.title}>
-        <PostsTitle post={post} tooltip={false} wrap read={userHasBoldPostItems(currentUser)} />
-      </div>
-      <div className={classes.tooltipInfo}>
-        { getPostCategory(post)}
-        { showAllInfo && post.user && <span> by <PostsUserAndCoauthors post={post} simple/></span>}
-        { renderCommentCount && <span className={classes.comments}>
-          <CommentIcon className={classes.commentIcon}/>
-            {Posts.getCommentCountStr(post)}
-        </span>}
-        { showAllInfo && <span className={classes.karma}>{Posts.getKarma(post)} karma</span>}
-      </div>
-      {comment
-        ? <div className={classes.comment}>
-            <CommentsNode
-            truncated
-            comment={comment}
-            post={post}
-            hoverPreview
-            forceNotSingleLine
-          /></div>
-        : <ContentItemBody
-            className={classes.highlight}
-            dangerouslySetInnerHTML={{__html:highlight}}
-            description={`post ${post._id}`}
-          />
-      }
-      {renderWordCount && <div className={classes.tooltipInfo}>
-        <span>
-          {wordCount} words (approx. {Math.ceil(wordCount/300)} min read)
-        </span>
-        <AnalyticsContext buttonContext={"hoverPreview"}>
+  return <AnalyticsContext pageElementContext="hoverPreview">
+      <Card className={classes.root}>
+        <div className={classes.title}>
+          <PostsTitle post={post} tooltip={false} wrap showIcons={false} read={userHasBoldPostItems(currentUser)} />
+        </div>
+        <div className={classes.tooltipInfo}>
+          { getPostCategory(post)}
+          { showAllInfo && post.user && <span> by <PostsUserAndCoauthors post={post} simple/></span>}
+          { renderCommentCount && <span className={classes.comments}>
+            <CommentIcon className={classes.commentIcon}/>
+              {Posts.getCommentCountStr(post)}
+          </span>}
+          { showAllInfo && <span className={classes.karma}>{Posts.getKarma(post)} karma</span>}
+        </div>
+        {comment
+          ? <div className={classes.comment}>
+              <CommentsNode
+              truncated
+              comment={comment}
+              post={post}
+              hoverPreview
+              forceNotSingleLine
+            /></div>
+          : <ContentItemBody
+              className={classes.highlight}
+              dangerouslySetInnerHTML={{__html:highlight}}
+              description={`post ${post._id}`}
+            />
+        }
+        {renderWordCount && <div className={classes.tooltipInfo}>
+          <span>
+            {wordCount} words ({Math.ceil(wordCount/300)} min read)
+          </span>
           { showAllInfo && <span className={classes.bookmarkButton}><BookmarkButton post={post} /></span>}
-        </AnalyticsContext>
-      </div>}
-  </Card>
+        </div>}
+    </Card>
+  </AnalyticsContext>
 
 }
 

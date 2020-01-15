@@ -1,39 +1,38 @@
-import React, { PureComponent } from 'react';
-import { withList, Components, registerComponent } from 'meteor/vulcan:core';
+import React from 'react';
+import { useMulti, Components, registerComponent } from 'meteor/vulcan:core';
 import { Comments } from '../../lib/collections/comments';
-import { unflattenComments } from "../../lib/modules/utils/unflatten";
+import { unflattenComments } from "../../lib/utils/unflatten";
 
-class PostsCommentsThread extends PureComponent {
-  render() {
-    const {loading, results, loadMore, networkStatus, totalCount, post, newForm=true } = this.props;
-    const loadingMore = networkStatus === 2;
-    if (loading) {
-      return <Components.Loading/>
-    } else {
-      const nestedComments = unflattenComments(results);
-      return (
-          <Components.CommentsListSection
-            comments={nestedComments}
-            postId={post._id}
-            lastEvent={post.lastVisitedAt}
-            loadMoreComments={loadMore}
-            totalComments={totalCount}
-            commentCount={(results && results.length) || 0}
-            loadingMoreComments={loadingMore}
-            post={post}
-            newForm={newForm}
-          />
-      );
-    }
+const PostsCommentsThread = ({
+  post, terms, newForm=true
+}) => {
+  const { loading, results, loadMore, loadingMore, totalCount } = useMulti({
+    terms,
+    collection: Comments,
+    queryName: 'PostCommentsThreadQuery',
+    fragmentName: 'CommentsList',
+    fetchPolicy: 'cache-and-network',
+    enableTotal: true,
+  });
+  
+  if (loading && !results) {
+    return <Components.Loading/>
+  } else {
+    const nestedComments = unflattenComments(results);
+    return (
+      <Components.CommentsListSection
+        comments={nestedComments}
+        postId={post._id}
+        lastEvent={post.lastVisitedAt}
+        loadMoreComments={loadMore}
+        totalComments={totalCount}
+        commentCount={(results && results.length) || 0}
+        loadingMoreComments={loadingMore}
+        post={post}
+        newForm={newForm}
+      />
+    );
   }
 }
 
-const options = {
-  collection: Comments,
-  queryName: 'PostCommentsThreadQuery',
-  fragmentName: 'CommentsList',
-  fetchPolicy: 'cache-and-network',
-  enableTotal: true,
-};
-
-registerComponent('PostsCommentsThread', PostsCommentsThread, [withList, options]);
+registerComponent('PostsCommentsThread', PostsCommentsThread);

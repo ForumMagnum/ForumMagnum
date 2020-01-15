@@ -65,7 +65,7 @@ class ContinueReadingList extends Component {
     </div>
 
     return <div>
-      <AnalyticsContext listContext={"continueReading"}>
+      <AnalyticsContext listContext={"continueReading"} capturePostItemOnMount>
         {entries.map(resumeReading => {
           const { nextPost, sequence, collection } = resumeReading;
           return <PostsItem2

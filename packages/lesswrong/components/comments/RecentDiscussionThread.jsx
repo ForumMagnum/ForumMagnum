@@ -5,8 +5,8 @@ import {
 } from 'meteor/vulcan:core';
 
 import classNames from 'classnames';
-import { unflattenComments } from '../../lib/modules/utils/unflatten';
-import withUser from '../common/withUser';
+import { unflattenComments } from '../../lib/utils/unflatten';
+import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import withRecordPostView from '../common/withRecordPostView';
 
@@ -91,9 +91,10 @@ const styles = theme => ({
 
 const RecentDiscussionThread = ({
   post, recordPostView,
-  comments, updateComment, currentUser, classes, isRead, refetch,
+  comments, updateComment, classes, isRead, refetch,
   expandAllThreads: initialExpandAllThreads,
 }) => {
+  const currentUser = useCurrentUser();
   const [highlightVisible, setHighlightVisible] = useState(false);
   const [readStatus, setReadStatus] = useState(false);
   const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState(null);
@@ -105,7 +106,7 @@ const RecentDiscussionThread = ({
       setReadStatus(true);
       setMarkedAsVisitedAt(new Date());
       setExpandAllThreads(true);
-      recordPostView({post})
+      recordPostView({post, extraEventProperties: {type: "recentDiscussionClick"}})
     },
     [setReadStatus, setMarkedAsVisitedAt, setExpandAllThreads, recordPostView, post]
   );
@@ -285,7 +286,6 @@ const RecentDiscussionThread = ({
 registerComponent(
   'RecentDiscussionThread',
   RecentDiscussionThread,
-  withUser,
   withStyles(styles, { name: "RecentDiscussionThread" }),
   withRecordPostView,
   withErrorBoundary

@@ -2,7 +2,7 @@ import { registerComponent } from 'meteor/vulcan:core';
 import React, { useState } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import withNewEvents from '../../../lib/events/withNewEvents.jsx';
-import withUser from '../../common/withUser';
+import { useCurrentUser } from '../../common/withUser';
 import truncatise from 'truncatise';
 import Edit from '@material-ui/icons/Edit';
 import Users from 'meteor/vulcan:users';
@@ -55,8 +55,8 @@ const styles = theme => ({
   }
 })
 
-const ModerationGuidelinesBox = ({classes, document, recordEvent, currentUser}) => {
-
+const ModerationGuidelinesBox = ({classes, document, recordEvent}) => {
+  const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
   const [expanded, setExpanded] = useState(false)
 
@@ -147,6 +147,5 @@ const moderationStyleLookup = {
 
 registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBox, withStyles(styles, {name: 'ModerationGuidelinesBox'}),
   withNewEvents,
-  withUser,
   withErrorBoundary
 );

@@ -32,4 +32,4 @@ declare global {
   }
 }
 
-registerComponent('PostsItemKarma', PostsItemKarma, withHover);
+registerComponent('PostsItemKarma', PostsItemKarma, withHover());

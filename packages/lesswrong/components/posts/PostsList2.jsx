@@ -57,6 +57,7 @@ const PostsList2 = ({
   showLoadMore = true,
   showNoResults = true,
   hideLastUnread = false,
+  showPostedAt = true,
   enableTotal=false,
   showNominationCount,
   showReviewCount,
@@ -103,6 +104,7 @@ const PostsList2 = ({
   //                     to dim the list during loading, so that the pages where that
   //                     behavior was more important can work fine. Will probably
   //                     fix this for real when Apollo 2 comes out
+  
 
   const { Loading, PostsItem2, LoadMore, PostsNoResults, SectionFooter } = Components
 
@@ -120,7 +122,7 @@ const PostsList2 = ({
 
   //Analytics Tracking
   const postIds = (orderedResults||[]).map((post) => post._id)
-  useTracking({eventType: "postList", eventProps: {postIds, hidePosts}, captureOnMount: eventProps => eventProps.postIds.length, skip: !postIds.length})
+  useTracking({eventType: "postList", eventProps: {postIds, hidePosts}, captureOnMount: eventProps => eventProps.postIds.length, skip: !postIds.length||loading})
 
   if (!orderedResults && loading) return <Loading />
 
@@ -132,7 +134,7 @@ const PostsList2 = ({
 
 
       {orderedResults && orderedResults.map((post, i) => {
-        const props = { post, index: i, terms, showNominationCount, showReviewCount, dense, defaultToShowUnreadComments, showQuestionTag: terms.filter!=="questions" }
+        const props = { post, index: i, terms, showNominationCount, showReviewCount, dense, defaultToShowUnreadComments, showPostedAt, showQuestionTag: terms.filter!=="questions" }
 
         if (!(hidePosts && hidePosts[i])) return <PostsItem2 key={post._id} index={i} {...props} />
       })}

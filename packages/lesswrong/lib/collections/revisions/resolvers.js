@@ -3,7 +3,7 @@ import { htmlToDraft } from '../../../server/draftConvert';
 import { convertToRaw } from 'draft-js';
 import { markdownToHtmlNoLaTeX, dataToMarkdown } from '../../../server/editor/make_editable_callbacks'
 import { highlightFromHTML, truncate } from '../../editor/ellipsize';
-import { addFieldsDict } from '../../modules/utils/schemaUtils'
+import { addFieldsDict } from '../../utils/schemaUtils'
 import { JSDOM } from 'jsdom'
 import { Utils } from 'meteor/vulcan:core';
 import htmlToText from 'html-to-text'

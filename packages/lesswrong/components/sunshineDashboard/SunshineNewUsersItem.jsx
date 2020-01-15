@@ -2,7 +2,7 @@
 import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';
-import { Link } from '../../lib/reactRouterWrapper.js'
+import { Link } from '../../lib/reactRouterWrapper.jsx'
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import Typography from '@material-ui/core/Typography';
@@ -129,4 +129,4 @@ const withUpdateOptions = {
   collection: Users,
   fragmentName: 'SunshineUsersList',
 }
-registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, [withUpdate, withUpdateOptions], withUser, withHover, withErrorBoundary, withStyles(styles, {name:"SunshineNewUsersItem"}));
+registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, [withUpdate, withUpdateOptions], withUser, withHover(), withErrorBoundary, withStyles(styles, {name:"SunshineNewUsersItem"}));

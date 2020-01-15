@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Components, registerComponent, withList, withUpdate } from 'meteor/vulcan:core';
+import { Components, registerComponent, useMulti, useUpdate } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
 import { useCurrentUser } from '../common/withUser';
@@ -7,13 +7,36 @@ import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 
 const RecentDiscussionThreadsList = ({
-  results, loading, loadMore, networkStatus, updateComment, data: { refetch },
+  terms, commentsLimit, maxAgeHours, af,
   title="Recent Discussion", shortformButton=true
 }) => {
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   const [showShortformFeed, setShowShortformFeed] = useState(false);
   const currentUser = useCurrentUser();
   
+  const {mutate: updateComment} = useUpdate({
+    collection: Comments,
+    fragmentName: 'CommentsList',
+  });
+  const { results, loading, loadMore, loadingMore, refetch } = useMulti({
+    terms,
+    collection: Posts,
+    queryName: 'selectCommentsListQuery',
+    fragmentName: 'PostsRecentDiscussion',
+    fetchPolicy: 'cache-and-network',
+    enableTotal: false,
+    pollInterval: 0,
+    extraVariables: {
+      commentsLimit: 'Int',
+      maxAgeHours: 'Int',
+      af: 'Boolean',
+    },
+    extraVariablesValues: {
+      commentsLimit, maxAgeHours, af
+    },
+    ssr: true,
+  });
+
   useGlobalKeydown(ev => {
     const F_Key = 70
     if ((event.metaKey || event.ctrlKey) && event.keyCode == F_Key) {
@@ -28,9 +51,7 @@ const RecentDiscussionThreadsList = ({
     [setShowShortformFeed, showShortformFeed]
   );
   
-  const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, Loading } = Components
-  
-  const loadingMore = networkStatus === 2;
+  const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, Loading, AnalyticsInViewTracker } = Components
 
   const { LoadMore } = Components
 
@@ -66,30 +87,13 @@ const RecentDiscussionThreadsList = ({
               updateComment={updateComment}/>
           )}
         </div>}
-        { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
-        { (loading || loadingMore) && <Loading />}
+        <AnalyticsInViewTracker eventProps={{inViewType: "loadMoreButton"}}>
+            { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
+            { (loading || loadingMore) && <Loading />}
+        </AnalyticsInViewTracker>
       </div>
     </SingleColumnSection>
   )
 }
 
-registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList,
-  [withList, {
-    collection: Posts,
-    queryName: 'selectCommentsListQuery',
-    fragmentName: 'PostsRecentDiscussion',
-    fetchPolicy: 'cache-and-network',
-    enableTotal: false,
-    pollInterval: 0,
-    extraVariables: {
-      commentsLimit: 'Int',
-      maxAgeHours: 'Int',
-      af: 'Boolean',
-    },
-    ssr: true,
-  }],
-  [withUpdate, {
-    collection: Comments,
-    fragmentName: 'CommentsList',
-  }],
-);
+registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList);

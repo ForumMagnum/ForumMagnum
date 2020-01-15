@@ -1,17 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
-  withCurrentUser, Components, withList, registerComponent, getSetting
+  Components, withList, registerComponent, getSetting
 } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
 import { withStyles } from '@material-ui/core/styles';
-import moment from 'moment-timezone';
+import moment from '../../lib/moment-timezone';
 import { Posts } from '../../lib/collections/posts';
 import { timeframeToTimeBlock } from './timeframeUtils'
 import { queryIsUpdating } from '../common/queryStatusUtils'
 import withTimezone from '../common/withTimezone';
-import { QueryLink } from '../../lib/reactRouterWrapper.js';
+import { QueryLink } from '../../lib/reactRouterWrapper.jsx';
+import withUser from '../common/withUser.js';
 
 const styles = theme => ({
   root: {
@@ -216,5 +217,5 @@ registerComponent('PostsTimeBlock', PostsTimeBlock,
     ssr: true,
   }],
   withTimezone,
-  withCurrentUser, withStyles(styles, { name: "PostsTimeBlock" })
+  withUser, withStyles(styles, { name: "PostsTimeBlock" })
 );
