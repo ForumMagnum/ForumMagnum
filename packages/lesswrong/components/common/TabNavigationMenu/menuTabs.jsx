@@ -76,19 +76,19 @@ export default {
       tooltip: 'Latest posts, comments and curated content.',
       showOnMobileStandalone: true,
       showOnCompressed: true,
-    }, {	
-      id: 'questions',	
-      title: 'Open Questions',	
-      mobileTitle: 'Questions',	
-      link: '/questions',	
-      icon: questionsGlobeIcon,	
-      tooltip: <div>	
-        <div>• Ask simple newbie questions.</div>	
-        <div>• Collaborate on open research questions.</div>	
-        <div>• Pose and resolve confusions.</div>	
-      </div>,	
-      showOnMobileStandalone: true,	
-      showOnCompressed: true,	
+    }, {
+      id: 'questions',
+      title: 'Open Questions',
+      mobileTitle: 'Questions',
+      link: '/questions',
+      icon: questionsGlobeIcon,
+      tooltip: <div>
+        <div>• Ask simple newbie questions.</div>
+        <div>• Collaborate on open research questions.</div>
+        <div>• Pose and resolve confusions.</div>
+      </div>,
+      showOnMobileStandalone: true,
+      showOnCompressed: true,
     }, {
       id: 'library',
       title: 'Library',
