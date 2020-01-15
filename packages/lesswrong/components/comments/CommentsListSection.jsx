@@ -81,7 +81,6 @@ class CommentsListSection extends Component {
     const { CommentsListMeta } = Components
     const suggestedHighlightDates = [moment().subtract(1, 'day'), moment().subtract(1, 'week'), moment().subtract(1, 'month'), moment().subtract(1, 'year')]
     const newLimit = commentCount + (loadMoreCount || commentCount)
-    console.log("newLimit: ", newLimit)
     return <CommentsListMeta>
       <Typography
         variant="body2"
