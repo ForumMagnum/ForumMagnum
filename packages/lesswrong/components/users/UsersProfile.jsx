@@ -61,6 +61,10 @@ const styles = theme => ({
       color: theme.palette.grey[800]
     }
   },
+  settings: {
+    display: 'flex',
+    alignItems: 'center',
+  },
   settingsText: {
     marginLeft: theme.spacing.unit,
     fontStyle: "italic",
@@ -296,8 +300,10 @@ class UsersProfile extends Component {
         <SingleColumnSection>
           <div className={classes.title} onClick={() => this.setState({showSettings: !showSettings})}>
             <SectionTitle title={`${Users.getDisplayName(user)}'s Posts`}>
-              <SettingsIcon/>
-              <div className={classes.settingsText}>Sorted by { sortings[currentSorting] }</div>
+              <div className={classes.settings}>
+                <SettingsIcon/>
+                <div className={classes.settingsText}>Sorted by { sortings[currentSorting] }</div>
+              </div>
             </SectionTitle>
           </div>
           {showSettings && <PostsListSettings

@@ -186,20 +186,29 @@ const theme = createLWTheme({
         fontSize: '50%',
       },
     },
-    // SectionTitle: {
-    //   title: {
-    //     // Super custom width
-    //     '@media (max-width: 374.95px)': {
-    //       width: 90
-    //     },
-    //   },
-    //   children: {
-    //     '@media (max-width: 599.95px)': {
-    //       width: 137,
-    //       marginRight: -30,
-    //     }
-    //   },
-    // },
+    SectionTitle: {
+      leftDivider: {
+        '@media (max-width: 959.95px)': {
+          display: 'none'
+        }
+      },
+      rightDivider: {
+        '@media (max-width: 959.95px)': {
+          display: 'none'
+        }
+      },
+      children: {
+        '@media (max-width: 959.95px)': {
+          marginRight: 8,
+          marginLeft: 16,
+        }
+      },
+      tailDivider: {
+        '@media (max-width: 959.95px)': {
+          display: 'none'
+        }
+      },
+    },
     Section: {
       sectionTitle: {
         fontWeight:600,
