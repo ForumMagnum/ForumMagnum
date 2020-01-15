@@ -129,6 +129,7 @@ class EditorFormComponent extends Component {
       updateType: 'minor',
       version: '',
       ckEditorReference: null,
+      loading: true,
       ...this.getEditorStatesFromType(editorType)
     }
     this.hasUnsavedData = false;
@@ -166,6 +167,7 @@ class EditorFormComponent extends Component {
     
     if (Meteor.isClient) {
       this.restoreFromLocalStorage();
+      this.setState({loading: false})
     }
   }
 
@@ -673,8 +675,9 @@ class EditorFormComponent extends Component {
   
 
   render() {
-    const { editorOverride } = this.state
+    const { editorOverride, loading } = this.state
     const { document, currentUser, formType, classes } = this.props
+    const { Loading } = Components
     const currentEditorType = this.getCurrentEditorType()
 
     if (!document) return null;
@@ -688,7 +691,7 @@ class EditorFormComponent extends Component {
     return <div>
         { editorWarning }
         <div className={classNames(classes.editor, this.getBodyStyles())}>
-          { this.renderEditorComponent(currentEditorType) }
+          { loading ? <Loading/> : this.renderEditorComponent(currentEditorType) }
           { this.renderVersionSelect() }
           { this.renderUpdateTypeSelect() }
           { this.renderEditorTypeSelect() }

@@ -3,7 +3,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import { ExpandedDate } from '../common/FormatDate.jsx';
 import withHover from '../common/withHover.jsx';
-import moment from 'moment-timezone';
+import moment from '../../lib/moment-timezone';
 
 export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
