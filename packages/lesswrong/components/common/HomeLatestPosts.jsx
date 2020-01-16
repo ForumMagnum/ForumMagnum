@@ -13,7 +13,9 @@ const styles = theme => ({
     // Hackily counteract margin from SectionFooterCheckbox
     // We probably shouldn't be using SectionFOOTERCheckbox in the SectionTitle,
     // but will probably refactor soon so won't bother fixing.
-    marginBottom: -16,
+    [theme.breakpoints.down('xs')]: {
+      marginBottom: -16,
+    }
   },
   personalBlogpostsCheckboxLabel: {
     display: "inline-block",
