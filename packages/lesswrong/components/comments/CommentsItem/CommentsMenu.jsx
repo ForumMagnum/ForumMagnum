@@ -50,6 +50,15 @@ const CommentsMenu = ({children, classes, className, comment, post, showEdit, ic
         anchorEl={anchorEl}
       >
         <EditCommentMenuItem comment={comment} showEdit={showEdit}/>
+        {comment.shortform && !comment.topLevelCommentId && (comment.user?._id && (comment.user._id !== currentUser._id)) &&
+          <MenuItem>
+            <SubscribeTo document={post} showIcon
+              subscriptionType={subscriptionTypes.newShortform}
+              subscribeMessage={`Subscribe to ${post.title}`}
+              unsubscribeMessage={`Unsubscribe from ${post.title}`}
+            />
+          </MenuItem>
+        }
         <MenuItem>
           <SubscribeTo document={comment} showIcon
             subscribeMessage="Subscribe to comment replies"
@@ -61,15 +70,6 @@ const CommentsMenu = ({children, classes, className, comment, post, showEdit, ic
             <SubscribeTo document={comment.user} showIcon
               subscribeMessage={"Subscribe to posts by "+Users.getDisplayName(comment.user)}
               unsubscribeMessage={"Unsubscribe from posts by "+Users.getDisplayName(comment.user)}
-            />
-          </MenuItem>
-        }
-        {comment.shortform && !comment.topLevelCommentId && (comment.user?._id && (comment.user._id !== currentUser._id)) &&
-          <MenuItem>
-            <SubscribeTo document={post} showIcon
-              subscriptionType={subscriptionTypes.newShortform}
-              subscribeMessage={`Subscribe to ${post.title}`}
-              unsubscribeMessage={`Unsubscribe from ${post.title}`}
             />
           </MenuItem>
         }

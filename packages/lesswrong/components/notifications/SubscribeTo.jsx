@@ -43,7 +43,7 @@ const SubscribeTo = ({
       view: "subscriptionState",
       documentId: document._id,
       userId: currentUser?._id,
-      subscriptionType,
+      type: subscriptionType,
       collectionName,
       limit: 1
     },

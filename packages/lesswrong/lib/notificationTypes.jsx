@@ -130,6 +130,18 @@ export const NewCommentNotification = registerNotificationType({
   },
 });
 
+export const NewShortformNotification = registerNotificationType({
+  name: "newShortform",
+  userSettingField: "notificationShortform",
+  getMessage({documentType, documentId}) {
+    let document = getDocument(documentType, documentId);
+    return 'New comment on "' + Posts.findOne(document.postId).title + '"';
+  },
+  getIcon() {
+    return <CommentsIcon style={iconStyles}/>
+  },
+});
+
 // Reply to a comment you're subscribed to.
 export const NewReplyNotification = registerNotificationType({
   name: "newReply",

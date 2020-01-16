@@ -159,7 +159,17 @@ class PostActions extends Component {
             subscribeMessage={"Subscribe to "+post.group.name}
             unsubscribeMessage={"Unsubscribe from "+post.group.name}/>
         </MenuItem>}
-        
+
+        {post.shortform && (post.userId !== currentUser._id) &&
+          <MenuItem>
+            <SubscribeTo document={post} showIcon
+              subscriptionType={subscriptionTypes.newShortform}
+              subscribeMessage={`Subscribe to ${post.title}`}
+              unsubscribeMessage={`Unsubscribe from ${post.title}`}
+            />
+          </MenuItem>
+        }
+
         {currentUser && postAuthor && postAuthor._id !== currentUser._id && <MenuItem>
           <SubscribeTo document={postAuthor} showIcon
             subscribeMessage={"Subscribe to posts by "+Users.getDisplayName(postAuthor)}
@@ -170,13 +180,6 @@ class PostActions extends Component {
           <SubscribeTo document={post} showIcon
             subscribeMessage="Subscribe to comments"
             unsubscribeMessage="Unsubscribe from comments"/>
-        </MenuItem>}
-
-        {currentUser && <MenuItem>
-          <SubscribeTo document={post} showIcon
-            subscriptionType={subscriptionTypes.newShortform}
-            subscribeMessage="Subscribe to shortform"
-            unsubscribeMessage="Unsubscribe from shortform"/>
         </MenuItem>}
 
         <BookmarkButton post={post} menuItem/>
