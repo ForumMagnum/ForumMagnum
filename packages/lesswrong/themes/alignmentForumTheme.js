@@ -85,13 +85,6 @@ const theme = createLWTheme({
         fontVariantNumeric: "lining-nums",
       }
     },
-    Section: {
-      sectionTitle: {
-        [defaultTheme.breakpoints.up('md')]: {
-          top: 8,
-        }
-      }
-    },
     SectionTitle: {
       leftDivider: {
         width: 18,

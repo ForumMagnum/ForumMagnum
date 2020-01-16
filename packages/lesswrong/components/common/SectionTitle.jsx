@@ -24,13 +24,16 @@ const styles = (theme) => ({
     width: theme.spacing.unit*4,
     marginRight: theme.spacing.unit*1.5,
     [theme.breakpoints.down('sm')]: {
-      width: theme.spacing.unit*2,
+      display: 'none'
     },
   },
   rightDivider: {
     flexGrow: 1,
     marginLeft: theme.spacing.unit*1.5,
-    borderTop: borderStyle
+    borderTop: borderStyle,
+    [theme.breakpoints.down('sm')]: {
+      display: 'none'
+    },
   },
   rightMargin: {
     marginRight: theme.spacing.unit*1.5
@@ -39,12 +42,19 @@ const styles = (theme) => ({
     marginLeft: 0,
   },
   children: {
-    ...theme.typography.commentStyle
+    ...theme.typography.commentStyle,
+    [theme.breakpoints.down('sm')]: {
+      marginRight: 8,
+      marginLeft: 16,
+    },
   },
   tailDivider: {
     marginLeft: theme.spacing.unit*1.5,
     borderTop: borderStyle,
     width: theme.spacing.unit*4,
+    [theme.breakpoints.down('sm')]: {
+      display: 'none'
+    },
   },
 })
 class SectionTitle extends PureComponent {

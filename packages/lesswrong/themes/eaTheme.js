@@ -186,47 +186,6 @@ const theme = createLWTheme({
         fontSize: '50%',
       },
     },
-    SectionTitle: {
-      leftDivider: {
-        '@media (max-width: 959.95px)': {
-          display: 'none'
-        }
-      },
-      rightDivider: {
-        '@media (max-width: 959.95px)': {
-          display: 'none'
-        }
-      },
-      children: {
-        '@media (max-width: 959.95px)': {
-          marginRight: 8,
-          marginLeft: 16,
-        }
-      },
-      tailDivider: {
-        '@media (max-width: 959.95px)': {
-          display: 'none'
-        }
-      },
-    },
-    Section: {
-      sectionTitle: {
-        fontWeight:600,
-        [defaultTheme.breakpoints.down('sm')]: {
-          border: "none",
-          paddingTop:0,
-        },
-        [defaultTheme.breakpoints.up('md')]: {
-          top: 0,
-          '&:before': "none"
-        }
-      },
-      sectionTitleTop: {
-        [defaultTheme.breakpoints.up('md')]: {
-          marginBottom: 16
-        }
-      },
-    },
     SunshineSidebar: {
       root: {
         top: 30,
