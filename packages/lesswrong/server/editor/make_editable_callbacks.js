@@ -103,11 +103,42 @@ function wrapSpoilerTags(html) {
   return $.html()
 }
 
+const trimLeadingAndTrailingWhiteSpace = (html) => {
+  const $ = cheerio.load(`<div id="root">${html}</div>`)
+  const topLevelElements = $('#root').children().get()
+  // Iterate once forward until we find non-empty paragraph to trim leading empty paragraphs
+  removeLeadingEmptyParagraphsAndBreaks(topLevelElements, $)
+  // Then iterate backwards to trim trailing empty paragraphs
+  removeLeadingEmptyParagraphsAndBreaks(topLevelElements.reverse(), $)
+  return $("#root").html()
+}
+
+const removeLeadingEmptyParagraphsAndBreaks = (elements, $) => {
+   for (const elem of elements) {
+    if (isEmptyParagraphOrBreak(elem)) {
+      $(elem).remove()
+    } else {
+      break
+    }
+  }
+}
+
+const isEmptyParagraphOrBreak = (elem) => {
+  if (elem.name === "p") {
+    if (elem.children?.length === 0) return true
+    if (elem.children && elem.children[0]?.type === "text" && elem.children[0]?.data.trim() === "") return true
+    return false
+  }
+  if (elem.name === "br") return true
+  return false
+}
+
 
 export async function draftJSToHtmlWithLatex(draftJS) {
   const draftJSWithLatex = await Utils.preProcessLatex(draftJS)
   const html = draftToHTML(convertFromRaw(draftJSWithLatex))
-  return wrapSpoilerTags(html)
+  const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
+  return wrapSpoilerTags(trimmedHtml)
 }
 
 export function htmlToMarkdown(html) {
@@ -121,7 +152,8 @@ export function ckEditorMarkupToMarkdown(markup) {
 
 export function markdownToHtmlNoLaTeX(markdown) {
   const randomId = Random.id()
-  return mdi.render(markdown, {docId: randomId})
+  const renderedMarkdown = mdi.render(markdown, {docId: randomId})
+  return trimLeadingAndTrailingWhiteSpace(renderedMarkdown)
 }
 
 export async function markdownToHtml(markdown) {
@@ -148,8 +180,9 @@ export async function ckEditorMarkupToHtml(markup) {
   const markupWithoutSuggestions = removeCKEditorSuggestions(markup)
   // Sanitized CKEditor markup is just html
   const html = Utils.sanitize(markupWithoutSuggestions)
+  const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
   // Render any LaTeX tags we might have in the HTML
-  return await mjPagePromise(html, Utils.trimEmptyLatexParagraphs)
+  return await mjPagePromise(trimmedHtml, Utils.trimEmptyLatexParagraphs)
 }
 
 async function dataToHTML(data, type, sanitize = false) {
