@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import moment from 'moment-timezone';
+import moment from '../../lib/moment-timezone';
 
 const eventTimeFormat = "Do MMMM YYYY h:mm A"
 
