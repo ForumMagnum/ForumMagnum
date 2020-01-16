@@ -2,7 +2,7 @@ language: node_js
 cache: false
 python: 3.7
 node_js:
-- 8
+- 12
 before_install:
 - yarn install
 - command -v meteor >/dev/null 2>&1 || curl https://install.meteor.com | /bin/sh
