@@ -2,8 +2,6 @@ import createLWTheme from './createThemeDefaults';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 import indigo from '@material-ui/core/colors/indigo';
 
-import { createMuiTheme } from '@material-ui/core/styles';
-
 const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently
   '"freight-sans-pro"',
