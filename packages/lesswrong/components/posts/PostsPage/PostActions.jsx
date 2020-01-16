@@ -12,6 +12,8 @@ import ListItemIcon from '@material-ui/core/ListItemIcon'
 import EditIcon from '@material-ui/icons/Edit'
 import WarningIcon from '@material-ui/icons/Warning'
 import qs from 'qs'
+import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
+
 
 const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
 
@@ -168,6 +170,13 @@ class PostActions extends Component {
           <SubscribeTo document={post} showIcon
             subscribeMessage="Subscribe to comments"
             unsubscribeMessage="Unsubscribe from comments"/>
+        </MenuItem>}
+
+        {currentUser && <MenuItem>
+          <SubscribeTo document={post} showIcon
+            subscriptionType={subscriptionTypes.newShortform}
+            subscribeMessage="Subscribe to shortform"
+            unsubscribeMessage="Unsubscribe from shortform"/>
         </MenuItem>}
 
         <BookmarkButton post={post} menuItem/>
