@@ -8,8 +8,6 @@ export * from './default_resolvers.js';
 export * from './components.js';
 
 export * from './components/App.jsx';
-export { default as ShowIf } from './components/ShowIf.jsx';
-export { default as DynamicLoading } from './components/DynamicLoading.jsx';
 export { default as Datatable } from './components/Datatable.jsx';
 export { default as ScrollToTop } from './components/ScrollToTop.jsx';
 
