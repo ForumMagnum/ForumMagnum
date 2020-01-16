@@ -1,6 +1,14 @@
 import { TagRels } from './collection.js';
 import { ensureIndex } from '../../collectionUtils';
 
+TagRels.addDefaultView(terms => {
+  return {
+    selector: {
+      deleted: false,
+    },
+  };
+});
+
 TagRels.addView('postsWithTag', terms => {
   return {
     selector: {
