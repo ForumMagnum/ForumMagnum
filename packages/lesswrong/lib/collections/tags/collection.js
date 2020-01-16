@@ -33,7 +33,7 @@ const schema = {
       return Utils.getUnusedSlugByCollectionName("Tags", Utils.slugify(tag.name))
     },
     onEdit: (modifier, tag) => {
-      if (modifier.$set.title) {
+      if (modifier.$set.name) {
         return Utils.getUnusedSlugByCollectionName("Tags", Utils.slugify(modifier.$set.name), false, tag._id)
       }
     }
