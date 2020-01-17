@@ -204,10 +204,9 @@ class PostActions extends Component {
           <span>
             { !post.meta &&
               <div onClick={this.handleMoveToMeta}>
-                <Tooltip title={
+                <Tooltip placement="left" title={
                   getSetting('forumType') === 'EAForum' && post.submitToFrontpage ?
-                    '' :
-                    'user did not select "Moderators may promote to Frontpage" option'
+                    'user did not select "Moderators may promote to Frontpage" option':''
                 }>
                   <MenuItem>
                     Move to {metaName}
@@ -218,7 +217,7 @@ class PostActions extends Component {
             }
             { !post.frontpageDate &&
               <div onClick={this.handleMoveToFrontpage}>
-                <Tooltip title={
+                <Tooltip placement="left" title={
                   post.submitToFrontpage ?
                     '' :
                     'user did not select "Moderators may promote to Frontpage" option'
