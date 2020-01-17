@@ -5,7 +5,7 @@ import { Helmet } from 'react-helmet';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import classNames from 'classnames'
 import Intercom from 'react-intercom';
-import moment from 'moment-timezone';
+import moment from '../lib/moment-timezone';
 import { withCookies } from 'react-cookie'
 import LogRocket from 'logrocket'
 import { Random } from 'meteor/random';

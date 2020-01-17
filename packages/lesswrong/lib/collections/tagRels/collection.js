@@ -1,5 +1,5 @@
 import { getDefaultResolvers, getDefaultMutations, createCollection } from 'meteor/vulcan:core';
-import { addUniversalFields } from '../../collectionUtils'
+import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 import { foreignKeyField } from '../../utils/schemaUtils'
 import { makeVoteable } from '../../make_voteable';
 import Users from 'meteor/vulcan:users';
@@ -24,6 +24,14 @@ const schema = {
     }),
     canRead: ['guests'],
     canCreate: ['members'],
+  },
+  deleted: {
+    type: Boolean,
+    viewableBy: ['guests'],
+    editableBy: ['admins'],
+    hidden: true,
+    optional: true,
+    ...schemaDefaultValue(false),
   },
   // The user who first tagged the post with this tag
   userId: {
@@ -62,6 +70,15 @@ export const TagRels = createCollection({
     },
   }),
 });
+
+TagRels.checkAccess = (currentUser, tagRel) => {
+  if (Users.isAdmin(currentUser))
+    return true;
+  else if (tagRel.deleted)
+    return false;
+  else
+    return true;
+}
 
 addUniversalFields({collection: TagRels})
 makeVoteable(TagRels);

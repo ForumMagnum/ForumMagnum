@@ -4,6 +4,15 @@ import { denormalizedCountOfReferences } from '../../utils/schemaUtils';
 import { makeEditable } from '../../editor/make_editable.js'
 import Users from 'meteor/vulcan:users';
 
+const formGroups = {
+  advancedOptions: {
+    name: "advancedOptions",
+    order: 20,
+    label: "Advanced Options",
+    startCollapsed: true,
+  },
+};
+
 const schema = {
   name: {
     type: String,
@@ -19,7 +28,7 @@ const schema = {
       return Utils.getUnusedSlugByCollectionName("Tags", Utils.slugify(tag.name))
     },
     onEdit: (modifier, tag) => {
-      if (modifier.$set.title) {
+      if (modifier.$set.name) {
         return Utils.getUnusedSlugByCollectionName("Tags", Utils.slugify(modifier.$set.name), false, tag._id)
       }
     }
@@ -38,8 +47,9 @@ const schema = {
   deleted: {
     type: Boolean,
     viewableBy: ['guests'],
-    hidden: true,
+    editableBy: ['admins'],
     optional: true,
+    group: formGroups.advancedOptions,
     ...schemaDefaultValue(false),
   },
 };

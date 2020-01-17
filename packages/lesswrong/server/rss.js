@@ -5,7 +5,7 @@ import { Comments } from '../lib/collections/comments';
 import { Utils, getSetting } from 'meteor/vulcan:core';
 import { addStaticRoute } from 'meteor/vulcan:lib';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
-import moment from 'moment-timezone';
+import moment from '../lib/moment-timezone';
 
 // LESSWRONG - this import wasn't needed until fixing author below.
 import Users from 'meteor/vulcan:users';

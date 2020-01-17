@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import sumBy from 'lodash/sumBy'
@@ -18,8 +18,9 @@ import CachedIcon from '@material-ui/icons/Cached';
 import KeyboardTabIcon from '@material-ui/icons/KeyboardTab';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
+import seedrandom from '../../lib/seedrandom';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   grid: {
     display: 'grid',
     gridTemplateColumns: `
@@ -101,7 +102,9 @@ const styles = theme => ({
   reason: {
     position: "relative",
     border: "solid 1px rgba(0,0,0,.3)",
-    padding: theme.spacing.unit*2
+    padding: theme.spacing.unit*1.5,
+    paddingLeft: theme.spacing.unit*2,
+    paddingBottom: theme.spacing.unit
   },
   reasonTitle: {
     ...theme.typography.body2,
@@ -129,7 +132,7 @@ const styles = theme => ({
     }
   },
   writeAReview: {
-    paddingTop: 8,
+    paddingTop: 12,
     paddingLeft: 12,
     paddingBottom: 8,
     border: "solid 1px rgba(0,0,0,.3)",
@@ -142,13 +145,26 @@ const styles = theme => ({
       display: "block"
     }
   }
-});
+}));
 
 type vote = {_id: string, postId: string, score: number, type?: string}
 type quadraticVote = vote & {type: "quadratic"}
 type qualitativeVote = vote & {type: "qualitative", score: 0|1|2|3|4}
 
 
+const generatePermutation = (count: number, user): Array<number> => {
+  const seed = user?._id || "";
+  const rng = seedrandom(seed);
+  
+  let remaining = _.range(count);
+  let result: Array<number> = [];
+  while(remaining.length > 0) {
+    let idx = Math.floor(rng() * remaining.length);
+    result.push(remaining[idx]);
+    remaining.splice(idx, 1);
+  }
+  return result;
+}
 
 const ReviewVotingPage = ({classes}) => {
   const currentUser = useCurrentUser()
@@ -161,7 +177,7 @@ const ReviewVotingPage = ({classes}) => {
     fetchPolicy: 'cache-and-network',
     ssr: true
   });
-
+  
   const { results: dbVotes, loading: dbVotesLoading } = useMulti({
     terms: {view: "reviewVotesFromUser", limit: 100, userId: currentUser?._id},
     collection: ReviewVotes,
@@ -236,12 +252,12 @@ const ReviewVotingPage = ({classes}) => {
 
   const [postOrder, setPostOrder] = useState<Map<number, number> | undefined>(undefined)
   const reSortPosts = () => {
-    setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes)))
+    setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes, currentUser)))
     captureEvent(undefined, {eventSubType: "postsResorted"})
   }
 
   useEffect(() => {
-    if (!!posts && useQuadratic ? !!quadraticVotes : !!votes) setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes)))
+    if (!!posts && useQuadratic ? !!quadraticVotes : !!votes) setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes, currentUser)))
   }, [!!posts, useQuadratic, !!quadraticVotes, !!votes])
 
   if (!currentUser || currentUser.karma < 1000) {
@@ -339,7 +355,16 @@ const ReviewVotingPage = ({classes}) => {
           </div>}
           {expandedPost && <div className={classes.expandedInfoWrapper}>
             <div className={classes.expandedInfo}>
-              <div className={classes.writeAReview}><ReviewPostButton post={expandedPost} reviewMessage={`Write a public review for "${expandedPost.title}"`}/></div>
+              <div className={classes.writeAReview}>
+                <ReviewPostButton post={expandedPost} reviewMessage={<div>
+                  <div>Write a public review for "{expandedPost.title}"</div>
+                  <TextField
+                    placeholder="Any thoughts about this post you want to share with other voters?"
+                    fullWidth
+                    disabled
+                  />
+                </div>}/>
+              </div>
               <div className={classes.reason}>
                 <div className={classes.reasonTitle}>Comment anonymously (optional)</div>
                 <CommentTextField
@@ -384,7 +409,7 @@ function CommentTextField({startValue, updateValue, postId}) {
   }, 500), [postId])
   return <TextField
     id="standard-multiline-static"
-    placeholder="What considerations affected your vote? These will appear anonymously in a 2018 Review roundup. The moderation team will take them as input for the final decisions of what posts to include in the Best of 2018 book."
+    placeholder="What considerations affected your vote? These will appear anonymously in a 2018 Review roundup. The moderation team will take them as input for final decisions of what posts to include in the Best of 2018."
     defaultValue={startValue}
     onChange={(event) => {
       setText(event.target.value)
@@ -393,17 +418,27 @@ function CommentTextField({startValue, updateValue, postId}) {
     value={text || ""}
     fullWidth
     multiline
-    rows="3"
+    rows="2"
   />
 }
-function getPostOrder(posts, votes) {
-  return posts.map((post, i) => {
-    const voteForPost = votes.find(vote => vote.postId === post._id)
-    return [post, voteForPost, i]
-  })
-  .sort(([post1, vote1], [post2, vote2]) => (vote1 ? vote1.score : 1) - (vote2 ? vote2.score : 1))
-  .reverse()
-  .map(([post,vote,originalIndex], sortedIndex) => [sortedIndex, originalIndex])
+function getPostOrder(posts, votes, currentUser) {
+  const randomPermutation = generatePermutation(posts.length, currentUser);
+  const result = posts.map(
+    (post, i) => {
+      const voteForPost = votes.find(vote => vote.postId === post._id)
+      const  voteScore = voteForPost ? voteForPost.score : 1;
+      return [post, voteForPost, voteScore, i, randomPermutation[i]]
+    })
+    .sort(([post1, vote1, voteScore1, i1, permuted1], [post2, vote2, voteScore2, i2, permuted2]) => {
+      const sortCriteria1 = [voteScore1, permuted1];
+      const sortCriteria2 = [voteScore2, permuted2];
+      if (sortCriteria1<sortCriteria2) return -1;
+      else if (sortCriteria1>sortCriteria2) return 1;
+      else return 0;
+    })
+    .reverse()
+    .map(([post,vote,voteScore,originalIndex,permuted], sortedIndex) => [sortedIndex, originalIndex])
+  return result;
 }
 
 function applyOrdering<T extends any>(array:T[], order:Map<number, number>):T[] {
@@ -463,7 +498,7 @@ function createPostVoteTuples<K extends any,T extends vote> (posts: K[], votes: 
   })
 }
 
-const voteRowStyles = theme => ({
+const voteRowStyles = createStyles(theme => ({
   root: {
     padding: theme.spacing.unit*1.5,
     paddingTop: 10,
@@ -500,7 +535,7 @@ const voteRowStyles = theme => ({
   expanded: {
     background: "#eee"
   }
-})
+}));
 
 const VoteTableRow = withStyles(voteRowStyles, {name: "VoteTableRow"})((
   {post, dispatch, dispatchQuadraticVote, quadraticVotes, useQuadratic, classes, expandedPostId, votes }:
@@ -540,10 +575,15 @@ const votingButtonStyles = theme => ({
     color: theme.palette.grey[700],
     cursor: "pointer"
   },
-  highlighted: {
+  selectionHighlight: {
+    backgroundColor: "rgba(0,0,0,.5)",
+    color: "white",
+    borderRadius: 3
+  },
+  defaultHighlight: {
     backgroundColor: "rgba(0,0,0,.075)",
     borderRadius: 3
-  }
+  },
 })
 
 const indexToTermsLookup = {
@@ -556,16 +596,18 @@ const indexToTermsLookup = {
 
 const VotingButtons = withStyles(votingButtonStyles, {name: "VotingButtons"})(({classes, postId, dispatch, votes}: {classes: any, postId: string, dispatch: any, votes: vote[]}) => {
   const voteForCurrentPost = votes.find(vote => vote.postId === postId)
-  const [selection, setSelection] = useState(voteForCurrentPost ? voteForCurrentPost.score : 1)
+  const score = voteForCurrentPost?.score
+  const [selection, setSelection] = useState(voteForCurrentPost ? score : 1)
   const createClickHandler = (index:number) => {
     return () => {
       setSelection(index)
       dispatch({postId, score: index})
     }
   }
+
   return <div>
       {[0,1,2,3,4].map((i) => {
-        return <span className={classNames(classes.button, {[classes.highlighted]:selection === i})} onClick={createClickHandler(i)} key={`${indexToTermsLookup[i]}-${i}`} >{indexToTermsLookup[i]}</span>
+        return <span className={classNames(classes.button, {[classes.selectionHighlight]:selection === i && score, [classes.defaultHighlight]: selection === i && !score})} onClick={createClickHandler(i)} key={`${indexToTermsLookup[i]}-${i}`} >{indexToTermsLookup[i]}</span>
       })}
   </div>
 })

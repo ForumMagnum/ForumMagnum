@@ -445,7 +445,6 @@ interface ComponentTypes {
   DatatableCell: any
   DatatableCellLayout: any
   DatatableDefaultCell: any
-  DynamicLoading: any
   EditButton: any
   EditForm: any
   Icon: any
@@ -453,7 +452,6 @@ interface ComponentTypes {
   NewButton: any
   NewForm: any
   ScrollToTop: any
-  ShowIf: any
   
   // vulcan-debug components
   AdminLayout: any

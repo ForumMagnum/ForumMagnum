@@ -78,7 +78,7 @@ const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}) => 
       event.stopPropagation()
       if (totalCount > ABRIDGE_COMMENT_COUNT) {
         setLoadedMore(true);
-        loadMore({limit: 10000})
+        loadMore(10000)
       }
     },
     [totalCount, setLoadedMore, loadMore]

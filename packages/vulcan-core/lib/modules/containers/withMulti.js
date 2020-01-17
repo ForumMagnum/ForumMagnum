@@ -258,11 +258,12 @@ export function useMulti({
   // if showLoadMore returned true.
   const showLoadMore = enableTotal ? (count < totalCount) : (count >= limit);
   
-  const loadMore = () => {
+  const loadMore = (limitOverride) => {
     setHasRequestedMore(true);
-    setLimit(limit+itemsPerPage);
+    const newLimit = limitOverride || (limit+itemsPerPage)
+    setLimit(newLimit);
     if (queryLimitName) {
-      const newQuery = {...locationQuery, [queryLimitName]: limit+itemsPerPage}
+      const newQuery = {...locationQuery, [queryLimitName]: newLimit}
       history.push({...location, search: `?${qs.stringify(newQuery)}`})
     }
   };
