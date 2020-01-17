@@ -3,14 +3,19 @@ import { useLocation } from '../../lib/routeUtil';
 import { Helmet } from 'react-helmet';
 import { registerComponent } from 'meteor/vulcan:core';
 import { useTagBySlug } from './useTag.jsx';
+import { Link } from '../../lib/reactRouterWrapper';
+import { styles } from '../common/HeaderSubtitle';
+import { withStyles } from '@material-ui/core/styles';
 
-const TagPageTitle = ({isSubtitle}) => {
+const TagPageTitle = ({isSubtitle, classes}) => {
   const { params } = useLocation();
   const { slug } = params;
   const { tag } = useTagBySlug(slug);
   
   if (isSubtitle) {
-    return null;
+    return (<span className={classes.subtitle}>
+      <Link to="/tags">Tags</Link>
+    </span>);
   } else if (!tag) {
     return null;
   } else {
@@ -21,4 +26,6 @@ const TagPageTitle = ({isSubtitle}) => {
   }
 }
 
-registerComponent("TagPageTitle", TagPageTitle);
+registerComponent("TagPageTitle", TagPageTitle,
+  withStyles(styles, {name: "PostsPageHeaderTitle"})
+);

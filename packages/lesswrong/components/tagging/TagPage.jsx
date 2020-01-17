@@ -17,13 +17,13 @@ const styles = theme => ({
 });
 
 const TagPage = ({classes}) => {
-  const { SingleColumnSection, SectionTitle, SectionFooter, SectionButton, PostsItem2, ContentItemBody } = Components;
+  const { SingleColumnSection, SectionTitle, SectionFooter, SectionButton, PostsItem2, ContentItemBody, Loading, Error404 } = Components;
   const currentUser = useCurrentUser();
   const { params } = useLocation();
   const { slug } = params;
   const { tag, loading: loadingTag } = useTagBySlug(slug);
   
-  const { results, loadMoreProps } = useMulti({
+  const { results, loading: loadingPosts, loadMoreProps } = useMulti({
     skip: !(tag?._id),
     terms: {
       view: "postsWithTag",
@@ -37,9 +37,9 @@ const TagPage = ({classes}) => {
   });
   
   if (loadingTag)
-    return <Components.Loading/>
+    return <Loading/>
   if (!tag)
-    return <Components.Error404/>
+    return <Error404/>
   
   return <SingleColumnSection>
     <SectionTitle title={`Posts Tagged #${tag.name}`}>
@@ -55,6 +55,7 @@ const TagPage = ({classes}) => {
     {results && results.length === 0 && <div>
       There are no posts with this tag yet.
     </div>}
+    {loadingPosts && <Loading/>}
     {results && results.map((result,i) =>
       result.post && <PostsItem2 key={result.post._id} tagRel={result} post={result.post} index={i} />
     )}
