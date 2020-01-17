@@ -9,6 +9,14 @@ import { withStyles } from '@material-ui/core/styles';
 import {AnalyticsContext, captureEvent} from '../../lib/analyticsEvents';
 
 const styles = theme => ({
+  personalBlogpostsCheckbox: {
+    // Hackily counteract margin from SectionFooterCheckbox
+    // We probably shouldn't be using SectionFOOTERCheckbox in the SectionTitle,
+    // but will probably refactor soon so won't bother fixing.
+    [theme.breakpoints.down('xs')]: {
+      marginBottom: -16,
+    }
+  },
   personalBlogpostsCheckboxLabel: {
     display: "inline-block",
     verticalAlign: "middle",
@@ -105,7 +113,7 @@ const HomeLatestPosts = ({ classes }) =>
     <SingleColumnSection>
       <SectionTitle title={<LWTooltip title={latestTitle} placement="top"><span>Latest Posts</span></LWTooltip>}>
         <LWTooltip title={personalBlogpostTooltip}>
-          <div>
+          <div className={classes.personalBlogpostsCheckbox}>
             <SectionFooterCheckbox
               onClick={toggleFilter}
               value={currentFilter !== "frontpage"}
