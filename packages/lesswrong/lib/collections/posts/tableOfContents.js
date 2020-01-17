@@ -215,7 +215,7 @@ const getTableOfContentsData = async ({document, version, currentUser}) => {
       return null;
     html = revision?.html;
   } else {
-    html = document?.contents;
+    html = document?.contents?.html;
   }
   
   const tableOfContents = extractTableOfContents(html)
