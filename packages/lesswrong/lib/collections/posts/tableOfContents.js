@@ -2,6 +2,7 @@ import { Utils, getSetting } from 'meteor/vulcan:core';
 import cheerio from 'cheerio';
 import { Comments } from '../comments/collection.js'
 import { Posts } from './collection';
+import { Revisions } from '../revisions/collection';
 import { questionAnswersSort } from '../comments/views';
 
 // Number of headings below which a table of contents won't be generated.
@@ -206,8 +207,17 @@ async function getTocComments (document) {
   return [{anchor:"comments", level:0, title: Posts.getCommentCountStr(document, commentCount)}]
 }
 
-const getTableOfContentsData = async (document, args, options) => {
-  const { html } = document.contents || {}
+const getTableOfContentsData = async ({document, version, currentUser}) => {
+  let html;
+  if (version) {
+    const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "contents"})
+    if (!Revisions.checkAccess(currentUser, revision))
+      return null;
+    html = revision?.html;
+  } else {
+    html = document?.contents;
+  }
+  
   const tableOfContents = extractTableOfContents(html)
   let tocSections = tableOfContents?.sections || []
   
