@@ -126,7 +126,7 @@ const removeLeadingEmptyParagraphsAndBreaks = (elements, $) => {
 const isEmptyParagraphOrBreak = (elem) => {
   if (elem.name === "p") {
     if (elem.children?.length === 0) return true
-    if (elem.children && elem.children[0]?.type === "text" && elem.children[0]?.data.trim() === "") return true
+    if (elem.children?.length === 1 && elem.children[0]?.type === "text" && elem.children[0]?.data.trim() === "") return true
     return false
   }
   if (elem.name === "br") return true
