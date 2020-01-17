@@ -4,7 +4,6 @@
 // import './collections.js';
 import './deep.js';
 import './deep_extend.js';
-// import './intl_polyfill.js';
 // import './graphql.js';
 
 export * from './components.js';
