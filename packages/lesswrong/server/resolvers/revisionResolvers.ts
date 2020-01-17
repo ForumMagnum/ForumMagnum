@@ -23,9 +23,11 @@ function domBuilder(html) {
 
 export function htmlToDraftServer(...args) {
   // We have to add this type definition to the global object to allow draft-convert to properly work on the server
-  (global as any).HTMLElement = new JSDOM().window.HTMLElement
+  const jsdom = new JSDOM();
+  const globalHTMLElement = jsdom.window.HTMLElement;
+  (global as any).HTMLElement = globalHTMLElement;
   // And alas, it looks like we have to add this global. This seems quite bad, and I am not fully sure what to do about it.
-  (global as any).document = new JSDOM().window.document
+  (global as any).document = jsdom.window.document
   const result = htmlToDraft(...args) 
   // We do however at least remove it right afterwards
   delete (global as any).document
