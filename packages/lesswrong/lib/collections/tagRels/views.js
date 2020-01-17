@@ -1,13 +1,23 @@
 import { TagRels } from './collection.js';
 import { ensureIndex } from '../../collectionUtils';
 
+TagRels.addDefaultView(terms => {
+  return {
+    selector: {
+      deleted: false,
+    },
+    options: {
+      sort: {baseScore: -1},
+    },
+  };
+});
+
 TagRels.addView('postsWithTag', terms => {
   return {
     selector: {
       tagId: terms.tagId,
       baseScore: {$gt: 0},
     },
-    sort: {baseScore: -1},
   }
 });
 
@@ -17,7 +27,6 @@ TagRels.addView('tagsOnPost', terms => {
       postId: terms.postId,
       baseScore: {$gt: 0},
     },
-    sort: {baseScore: -1},
   }
 });
 
