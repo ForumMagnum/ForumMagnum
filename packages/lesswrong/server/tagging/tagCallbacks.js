@@ -59,11 +59,9 @@ addCallback("tag.update.validate", (validationErrors, {oldDocument, newDocument}
 });
 
 addCallback("tag.update.after", async (newDoc, {oldDocument}) => {
-  console.log("In tags.update.after");
   // If this is soft deleting a tag, then cascade to also soft delete any
   // tagRels that go with it.
   if (newDoc.deleted && !oldDocument.deleted) {
-    console.log("Updating tagRel deleted status");
     TagRels.update({ tagId: newDoc._id }, { $set: { deleted: true } }, { multi: true });
   }
   return newDoc;

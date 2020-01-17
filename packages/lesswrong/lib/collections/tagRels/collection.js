@@ -78,7 +78,7 @@ export const TagRels = createCollection({
 TagRels.checkAccess = (currentUser, tagRel) => {
   if (Users.isAdmin(currentUser))
     return true;
-  else if (tag.deleted)
+  else if (tagRel.deleted)
     return false;
   else
     return true;
