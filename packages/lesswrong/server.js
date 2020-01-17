@@ -101,6 +101,7 @@ import './server/callbacks/votingCallbacks';
 import './server/resolvers/revisionResolvers';
 import './server/resolvers/postResolvers';
 import './server/resolvers/userResolvers';
+import './server/resolvers/karmaChangeResolvers';
 
 import './lib/events/server.js';
 import './server/callbacks/intercomCallbacks';
