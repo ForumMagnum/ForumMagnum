@@ -10,10 +10,23 @@ export const recalculateBaseScore = (document, power) => {
   return votes.reduce((sum, vote) => { return vote.power + sum}, 0)
 }
 
+export const getDate = (item) => {
+  if (item) {
+    if (item.frontpageDate) {
+      return item.frontpageDate.valueOf()
+    }
+    if (item.postedAt) {
+      return item.postedAt.valueOf()
+    }
+  }
+}
+
 export const recalculateScore = item => {
   // Age Check
-  if (item.postedAt) {
-    const postedAt = item.postedAt.valueOf();
+
+  const postedAt = getDate(item)
+  if (postedAt) {
+
     const now = new Date().getTime();
     const age = now - postedAt;
     const ageInHours = age / (60 * 60 * 1000);

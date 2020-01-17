@@ -1,5 +1,5 @@
 import { Connectors } from 'meteor/vulcan:core';
-import { recalculateScore } from '../lib/scoring.ts';
+import { recalculateScore, getDate } from '../lib/scoring.ts';
 
 /*
 
@@ -11,7 +11,7 @@ Returns how many documents have been updated (1 or 0).
 export const updateScore = async ({collection, item, forceUpdate}) => {
 
   // Age Check
-  const postedAt = item && item.postedAt && item.postedAt.valueOf();
+  const postedAt = getDate(item)
   const now = new Date().getTime();
   const age = now - postedAt;
   const ageInHours = age / (60 * 60 * 1000);
