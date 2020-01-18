@@ -4,7 +4,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
-import Sentry from '@sentry/node';
+import Sentry from '@sentry/browser';
 
 const scrollIndicatorColor = "#ddd";
 const scrollIndicatorHoverColor = "#888";

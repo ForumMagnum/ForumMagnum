@@ -18,7 +18,7 @@ import moment from 'moment';
 import { withRouter, matchPath } from 'react-router';
 import MessageContext from '../messages.js';
 import qs from 'qs'
-import Sentry from '@sentry/node';
+import Sentry from '@sentry/browser';
 
 export const LocationContext = React.createContext("location");
 export const SubscribeLocationContext = React.createContext("subscribeLocation");

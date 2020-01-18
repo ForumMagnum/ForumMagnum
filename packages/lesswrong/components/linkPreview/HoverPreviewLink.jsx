@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent, parseRoute, parsePath, Utils } from 'meteor/vulcan:core';
 import { hostIsOnsite, useLocation, getUrlClass } from '../../lib/routeUtil';
-import Sentry from '@sentry/node';
+import Sentry from '@sentry/browser';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 export const parseRouteWithErrors = (onsiteUrl, contentSourceDescription) => {
