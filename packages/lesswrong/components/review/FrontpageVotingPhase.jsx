@@ -45,8 +45,6 @@ const FrontpageVotingPhase = ({classes, settings, currentUser}) => {
 
   if (settings.hideReview) return null
 
-
-
   return (
     <div>
       <Tooltip placement="top-start" title={reviewTooltip}>
