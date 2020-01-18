@@ -86,7 +86,7 @@ import './server/callbacks/messageCallbacks';
 import './lib/collections/users/validate_login.js';
 import './server/callbacks/userCallbacks';
 import './server/callbacks/banCallbacks';
-import './lib/collections/posts/tableOfContents.js';
+import './server/tableOfContents';
 import './server/callbacks/subscriptionCallbacks';
 import './server/callbacks/reviewVoteCallbacks';
 if (getSetting('hasEvents', true)) {
