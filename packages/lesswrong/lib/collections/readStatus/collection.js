@@ -3,9 +3,6 @@ import { addUniversalFields, ensureIndex } from '../../collectionUtils'
 import { foreignKeyField } from '../../utils/schemaUtils'
 
 const schema = {
-  _id: {
-    type: String,
-  },
   postId: {
     ...foreignKeyField({
       idFieldName: "postId",

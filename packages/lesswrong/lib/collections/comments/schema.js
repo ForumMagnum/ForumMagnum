@@ -4,12 +4,6 @@ import { Posts } from '../posts/collection'
 import { schemaDefaultValue } from '../../collectionUtils';
 
 const schema = {
-  // ID
-  _id: {
-    type: String,
-    optional: true,
-    canRead: ['guests'],
-  },
   // The `_id` of the parent comment, if there is one
   parentCommentId: {
     ...foreignKeyField({

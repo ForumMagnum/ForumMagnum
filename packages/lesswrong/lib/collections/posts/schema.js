@@ -21,12 +21,6 @@ const formGroups = {
 };
 
 const schema = {
-  // ID
-  _id: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-  },
   // Timestamp of post creation
   createdAt: {
     type: Date,
