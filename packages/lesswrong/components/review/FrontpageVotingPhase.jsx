@@ -74,7 +74,7 @@ const FrontpageVotingPhase = ({classes, settings, currentUser}) => {
           My Reviews
         </Link>}
         {(currentUser && currentUser.karma >= 1000) && <Link to={`/reviewVoting`} className={classes.cta}>
-        Vote Ends Sunday
+          Vote Ends Sunday
         </Link>}
       </SectionFooter>
     </div>
