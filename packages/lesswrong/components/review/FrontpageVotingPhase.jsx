@@ -16,7 +16,7 @@ const styles = theme => ({
     color: theme.palette.primary.main
   },
   cta: {
-    background: theme.palette.primary.dark,
+    background: theme.palette.primary.main,
     opacity: .7,
     color: "white",
     paddingTop: 6,
@@ -74,7 +74,7 @@ const FrontpageVotingPhase = ({classes, settings, currentUser}) => {
           My Reviews
         </Link>}
         {(currentUser && currentUser.karma >= 1000) && <Link to={`/reviewVoting`} className={classes.cta}>
-          Vote on Best 2018 Posts
+        Vote Ends Sunday
         </Link>}
       </SectionFooter>
     </div>
