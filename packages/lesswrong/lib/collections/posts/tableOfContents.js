@@ -3,6 +3,8 @@ import cheerio from 'cheerio';
 import { Comments } from '../comments/collection.js'
 import { Posts } from './collection';
 import { questionAnswersSort } from '../comments/views';
+import { truncate, answerTocExcerptFromHTML } from '../../editor/ellipsize';
+import htmlToText from 'html-to-text'
 
 // Number of headings below which a table of contents won't be generated.
 const MIN_HEADINGS_FOR_TOC = 3;
@@ -174,12 +176,24 @@ async function getTocAnswers (document) {
     answersTerms.af = true
   }
   const answers = await Comments.find(answersTerms, {sort:questionAnswersSort}).fetch()
-  const answerSections = answers.map((answer) => ({
-    title: `${answer.baseScore} ${answer.author}`,
-    answer: answer,
-    anchor: answer._id,
-    level: 2
-  }))
+  const answerSections = answers.map((answer) => {
+    const { html = "" } = answer.contents || {}
+    const highlight = truncate(html, 900)
+    let shortHighlight = htmlToText.fromString(answerTocExcerptFromHTML(html), {ignoreImage:true, ignoreHref:true})
+    
+    return {
+      title: `${answer.baseScore} ${answer.author}`,
+      answer: {
+        baseScore: answer.baseScore,
+        voteCount: answer.voteCount,
+        postedAt: answer.postedAt,
+        author: answer.author,
+        highlight, shortHighlight,
+      },
+      anchor: answer._id,
+      level: 2
+    };
+  })
 
   if (answerSections.length) {
     return [
