@@ -99,6 +99,7 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
     },
     {
       $project: {
+        frontpageDate: 1,
         postedAt: 1,
         baseScore: 1,
         score: 1,
@@ -129,6 +130,7 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
     },
     {
       $project: {
+        frontpageDate: 1,
         postedAt: 1,
         baseScore: 1,
         score: 1,
