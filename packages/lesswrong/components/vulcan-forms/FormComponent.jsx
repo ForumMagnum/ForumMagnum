@@ -60,7 +60,7 @@ class FormComponent extends Component {
   */
   getPath = props => {
     const p = props || this.props;
-    return p.intlInput ? `${p.path}_intl` : p.path;
+    return p.path;
   };
 
   /*
@@ -295,9 +295,7 @@ class FormComponent extends Component {
   render() {
     const FormComponents = mergeWithComponents(this.props.formComponents);
 
-    if (this.props.intlInput) {
-      return <FormComponents.FormIntl {...this.props} />;
-    } else if (!this.props.input && this.props.nestedInput) {
+    if (!this.props.input && this.props.nestedInput) {
       if (this.isArrayField()) {
         return (
           <FormComponents.FormNestedArray

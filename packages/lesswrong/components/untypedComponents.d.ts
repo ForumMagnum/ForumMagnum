@@ -472,9 +472,6 @@ interface ComponentTypes {
   FormGroup: any
   IconRight: any
   IconDown: any
-  FormIntlLayout: any
-  FormIntlItemLayout: any
-  FormIntl: any
   FormNestedArray: any
   IconAdd: any
   IconRemove: any

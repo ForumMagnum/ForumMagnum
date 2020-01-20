@@ -5,7 +5,6 @@ import {
   Strings,
   runCallbacks,
   detectLocale,
-  getHasIntlFields,
   Routes
 } from 'meteor/vulcan:lib';
 import React, { PureComponent } from 'react';
@@ -215,7 +214,7 @@ class App extends PureComponent {
   };
 
   setLocale = async locale => {
-    const { cookies, updateUser, client, currentUser } = this.props;
+    const { cookies, updateUser, currentUser } = this.props;
     this.setState({ locale });
     cookies.remove('locale', { path: '/' });
     cookies.set('locale', locale, { path: '/' });
@@ -224,9 +223,6 @@ class App extends PureComponent {
       await updateUser({ selector: { documentId: currentUser._id }, data: { locale } });
     }
     moment.locale(locale);
-    if (getHasIntlFields()) {
-      client.resetStore();
-    }
   };
 
   getChildContext() {

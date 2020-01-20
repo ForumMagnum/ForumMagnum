@@ -5,7 +5,6 @@ import { Utils } from './utils.js';
 import { runCallbacks } from './callbacks.js';
 import { getSetting, registerSetting } from './settings.js';
 import { registerFragment, getDefaultFragmentText } from './fragments.js';
-import { validateIntlField, getIntlString, isIntlField } from './intl';
 import { Collections } from './getCollection.js';
 export * from './getCollection.js';
 
@@ -24,10 +23,6 @@ export const viewFieldNullOrMissing = {nullOrMissing:true};
 // When used in a view, set the query so that any value for this field is
 // permitted, overriding constraints from the default view if they exist.
 export const viewFieldAllowAny = {allowAny:true};
-
-// will be set to `true` if there is one or more intl schema fields
-let hasIntlFields = false;
-export const getHasIntlFields = () => hasIntlFields
 
 // TODO: find more reliable way to get collection name from type name?
 export const getCollectionName = typeName => Utils.pluralize(typeName);
@@ -161,42 +156,6 @@ export const createCollection = options => {
 
   // add views
   collection.views = [];
-
-  // generate foo_intl fields
-  Object.keys(schema).forEach(fieldName => {
-    const fieldSchema = schema[fieldName];
-    if (isIntlField(fieldSchema)) {
-
-      // we have at least one intl field
-      hasIntlFields = true;
-
-      // remove `intl` to avoid treating new _intl field as a field to internationalize
-      // eslint-disable-next-line no-unused-vars
-      const { intl, ...propertiesToCopy } = schema[fieldName];
-
-      schema[`${fieldName}_intl`] = {
-        ...propertiesToCopy, // copy properties from regular field
-        hidden: true,
-        type: Array,
-        isIntlData: true,
-      };
-
-      delete schema[`${fieldName}_intl`].intl;
-
-      schema[`${fieldName}_intl.$`] = {
-        type: getIntlString(),
-      };
-
-      // if original field is required, enable custom validation function instead of `optional` property
-      if (!schema[fieldName].optional) {
-        schema[`${fieldName}_intl`].optional = true;
-        schema[`${fieldName}_intl`].custom = validateIntlField;
-      }
-
-      // make original non-intl field optional
-      schema[fieldName].optional = true;
-    }
-  });
 
   if (schema) {
     // attach schema to collection
