@@ -95,7 +95,6 @@
     "import": "0.0.6",
     "intercom-client": "^2.10.2",
     "intl": "^1.2.4",
-    "intl-locales-supported": "1.4.5",
     "jsdom": "^13.1.0",
     "jsonwebtoken": "^8.5.1",
     "juice": "^1.11.0",
