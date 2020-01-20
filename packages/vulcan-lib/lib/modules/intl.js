@@ -4,8 +4,6 @@ import { debug } from 'meteor/vulcan:lib';
 
 export const Strings = {};
 
-export const Domains = {};
-
 export const addStrings = (language, strings) => {
   if (typeof Strings[language] === 'undefined') {
     Strings[language] = {};
@@ -40,10 +38,6 @@ export const getString = ({id, values, defaultMessage, locale}) => {
     });
   }
   return message;
-};
-
-export const registerDomain = (locale, domain) => {
-  Domains[domain] = locale;
 };
 
 export const defaultLocale = getSetting('locale', 'en');
@@ -86,12 +80,6 @@ export const getIntlString = () => {
   return IntlString;
 };
 
-/*
-
-Check if a schema has at least one intl field
-
-*/
-export const schemaHasIntlFields = schema => Object.keys(schema).some(fieldName => isIntlField(schema[fieldName]));
 
 /*
 
