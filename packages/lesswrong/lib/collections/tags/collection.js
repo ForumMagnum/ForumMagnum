@@ -14,11 +14,6 @@ const formGroups = {
 };
 
 const schema = {
-  _id: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-  },
   name: {
     type: String,
     viewableBy: ['guests'],

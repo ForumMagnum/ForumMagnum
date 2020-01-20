@@ -27,7 +27,8 @@ class PostsPageActions extends PureComponent {
     this.setState({anchorEl: anchorEl ? null : e.target})
   }
 
-  handleClose = (e) => {
+  handleClose = () => {
+    if (!this.state.anchorEl) return
     this.props.captureEvent("tripleDotClick", {open: false, itemType: "post"})
     this.setState({anchorEl: null})
   }
@@ -40,7 +41,6 @@ class PostsPageActions extends PureComponent {
     if (!currentUser) return null;
 
     return (
-      <ClickawayListener onClickAway={this.handleClose}>
         <div>
           <Icon className={classes.icon} onClick={this.handleClick}/> 
           <PopperCard
@@ -54,10 +54,11 @@ class PostsPageActions extends PureComponent {
               }
             }}
           >
-            <PostActions post={post}/>
+            <ClickawayListener onClickAway={this.handleClose}>
+              <PostActions post={post}/>
+            </ClickawayListener>
           </PopperCard>
         </div>
-      </ClickawayListener>
     )
   }
 }

@@ -12,11 +12,6 @@ export const subscriptionTypes = {
 }
 
 const schema = {
-  _id: {
-    optional: true,
-    type: String,
-    canRead: [Users.owns],
-  },
   createdAt: {
     type: Date,
     optional: true,

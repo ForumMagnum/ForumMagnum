@@ -10,12 +10,6 @@ export const formGroups = {
 }
 
 const schema = {
-  _id: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-  },
-
   createdAt: {
     type: Date,
     optional: true,

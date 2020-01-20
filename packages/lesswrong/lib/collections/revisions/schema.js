@@ -15,10 +15,6 @@ export const ContentType = new SimpleSchema({
 SimpleSchema.extendOptions([ 'inputType' ]);
 
 const schema = {
-  _id: {
-    type: String,
-    viewableBy: ['guests'],
-  },
   documentId: {
     type: String,
   },

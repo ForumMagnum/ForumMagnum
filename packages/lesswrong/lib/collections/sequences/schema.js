@@ -5,12 +5,6 @@ const schema = {
 
   // default properties
 
-  _id: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-  },
-
   createdAt: {
     type: Date,
     optional: true,
