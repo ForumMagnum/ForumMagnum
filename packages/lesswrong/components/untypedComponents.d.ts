@@ -58,6 +58,7 @@ interface ComponentTypes {
   CloudinaryImage: any
   ContentItemBody: any
   LWPopper: any
+  LWTooltip: any
   PopperCard: any
   Footer: any
   LoadMore: any
