@@ -26,7 +26,7 @@ import { computeContextFromReq } from './context.js';
 
 import { GraphQLSchema } from '../../modules/graphql.js';
 
-import { populateComponentsApp, populateRoutesApp } from 'meteor/vulcan:lib';
+import { populateComponentsApp } from 'meteor/vulcan:lib';
 // onPageLoad is mostly equivalent to an Express middleware
 // excepts it is tailored to handle Meteor server side rendering
 import { onPageLoad } from 'meteor/server-render';
@@ -175,7 +175,6 @@ Meteor.startup(() => {
   
   // init the application components and routes, including components & routes from 3rd-party packages
   populateComponentsApp();
-  populateRoutesApp();
   // render the page
   onPageLoad(makePageRenderer);
 });
