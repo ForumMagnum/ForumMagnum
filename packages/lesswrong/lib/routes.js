@@ -120,11 +120,12 @@ addRoute([
     componentName: 'PostCollaborationEditor',
     getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.query.postId),
   },
-  {
-    name:'reviewVoting',
-    path: '/reviewVoting',
-    componentName: "ReviewVotingPage"
-  },
+  // disabled except during review voting phase
+  // {
+  //   name:'reviewVoting',
+  //   path: '/reviewVoting',
+  //   componentName: "ReviewVotingPage"
+  // },
 
   // Sequences
   {
