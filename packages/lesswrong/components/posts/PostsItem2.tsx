@@ -528,9 +528,9 @@ const PostsItem2 = ({
                   
                 </LWTooltip>}
 
-                {(post.nominationCount2018 >= 2) && <Link to={Posts.getPageUrl(post)}>
+                {/* {(post.nominationCount2018 >= 2) && <Link to={Posts.getPageUrl(post)}>
                   <ReviewPostButton post={post}/>
-                </Link>}
+                </Link>} */}
 
                 {bookmark && <div className={classes.bookmark}>
                   <BookmarkButton post={post}/>
