@@ -2,8 +2,6 @@ import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
-import { truncate, answerTocExcerptFromHTML } from '../../../lib/editor/ellipsize';
-import htmlToText from 'html-to-text'
 
 const styles = (theme) => ({
   root: {
@@ -41,10 +39,6 @@ const styles = (theme) => ({
 
 const AnswerTocRow = ({classes, answer}) => {
   const { FormatDate } = Components
-  const { html = "" } = answer.contents || {}
-
-  const highlight = truncate(html, 900)
-  let shortHighlight = htmlToText.fromString(answerTocExcerptFromHTML(html), {ignoreImage:true, ignoreHref:true})
 
   const tooltip = <div>
       <div className={classes.tooltipKarma}>
@@ -55,7 +49,7 @@ const AnswerTocRow = ({classes, answer}) => {
           Posted <FormatDate date={answer.postedAt} tooltip={false} /> ago
         </div>
       </div>
-      <div dangerouslySetInnerHTML={{__html:highlight}} className={classes.tooltip} />
+      <div dangerouslySetInnerHTML={{__html:answer.highlight}} className={classes.tooltip} />
     </div>
   return <div>
     <Tooltip title={tooltip} placement="right-start">
@@ -66,7 +60,7 @@ const AnswerTocRow = ({classes, answer}) => {
         <span className={classes.firstLine}>
           <div className={classes.author}>{answer.author}</div> 
           <div>
-            { shortHighlight }
+            { answer.shortHighlight }
           </div>
         </span>
       </span>

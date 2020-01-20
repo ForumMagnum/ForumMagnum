@@ -1,14 +1,9 @@
-import Votes from './collections/votes/collection.js';
-import moment from './moment-timezone';
+import Votes from '../lib/collections/votes/collection';
+import moment from '../lib/moment-timezone';
 import htmlToText from 'html-to-text';
 import sumBy from 'lodash/sumBy';
 
 const COMMENT_DESCRIPTION_LENGTH = 500;
-
-// This file is mostly server-side, but lives in an included-with-client-bundle
-// directory because we don't have a good way to make resolvers, or imports
-// used by resolvers, be server specific.
-
 
 // Given a user and a date range, get a summary of karma changes that occurred
 // during that date range.
