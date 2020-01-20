@@ -2,7 +2,7 @@ import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import { addGraphQLCollection, addToGraphQLContext } from './graphql.js';
 import { Utils } from './utils.js';
-import { runCallbacks, runCallbacksAsync } from './callbacks.js';
+import { runCallbacks } from './callbacks.js';
 import { getSetting, registerSetting } from './settings.js';
 import { registerFragment, getDefaultFragmentText } from './fragments.js';
 import { validateIntlField, getIntlString, isIntlField } from './intl';
@@ -213,9 +213,6 @@ export const createCollection = options => {
     addGraphQLCollection(collection);
   }
 
-  runCallbacksAsync({ name: '*.collection.async', properties: { options } });
-  runCallbacksAsync({ name: `${collectionName}.collection.async`, properties: { options } });
-
   // ------------------------------------- Default Fragment -------------------------------- //
 
   const defaultFragment = getDefaultFragmentText(collection);
@@ -276,39 +273,6 @@ export const createCollection = options => {
       apolloClient,
       context
     );
-
-    if (Meteor.isClient) {
-      parameters = runCallbacks(
-        `${typeName.toLowerCase()}.parameters.client`,
-        parameters,
-        _.clone(terms),
-        apolloClient
-      );
-      // OpenCRUD backwards compatibility
-      parameters = runCallbacks(
-        `${collectionName.toLowerCase()}.parameters.client`,
-        parameters,
-        _.clone(terms),
-        apolloClient
-      );
-    }
-
-    // note: check that context exists to avoid calling this from withList during SSR
-    if (Meteor.isServer && context) {
-      parameters = runCallbacks(
-        `${typeName.toLowerCase()}.parameters.server`,
-        parameters,
-        _.clone(terms),
-        context
-      );
-      // OpenCRUD backwards compatibility
-      parameters = runCallbacks(
-        `${collectionName.toLowerCase()}.parameters.server`,
-        parameters,
-        _.clone(terms),
-        context
-      );
-    }
 
     // sort using terms.orderBy (overwrite defaultView's sort)
     if (terms.orderBy && !_.isEmpty(terms.orderBy)) {

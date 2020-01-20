@@ -1,5 +1,4 @@
 import { Posts } from './collection';
-import Users from 'meteor/vulcan:users';
 import { viewFieldNullOrMissing, viewFieldAllowAny } from 'meteor/vulcan:lib';
 import { getSetting } from 'meteor/vulcan:core';
 import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionUtils';

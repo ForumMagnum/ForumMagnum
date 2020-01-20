@@ -171,10 +171,6 @@ class App extends PureComponent {
     }, 500)
   }
 
-  componentDidMount() {
-    runCallbacks('app.mounted', this.props);
-  }
-
   initLocale = () => {
     let userLocale = '';
     let localeMethod = '';
