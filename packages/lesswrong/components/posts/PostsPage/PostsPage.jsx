@@ -362,7 +362,6 @@ class PostsPage extends Component {
                     { post.isEvent && <Components.SmallMapPreview post={post} /> }
                     <div className={classes.postContent}>
                       {/* disabled except during Review */}
-                      
                       {/* {(post.nominationCount2018 >= 2) && <div className={classes.reviewInfo}>
                         <div className={classes.reviewLabel}>
                           This post has been nominated for the <HoverPreviewLink href="http://lesswrong.com/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review-posts-need-at-least-2-nominations" innerHTML={"2018 Review"}/>
