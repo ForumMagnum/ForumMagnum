@@ -1,8 +1,11 @@
 import { Utils, getSetting } from 'meteor/vulcan:core';
 import cheerio from 'cheerio';
-import { Comments } from '../comments/collection.js'
-import { Posts } from './collection';
-import { questionAnswersSort } from '../comments/views';
+import { Comments } from '../lib/collections/comments/collection'
+import { Posts } from '../lib/collections/posts/collection';
+import { questionAnswersSort } from '../lib/collections/comments/views';
+import { truncate, answerTocExcerptFromHTML } from '../lib/editor/ellipsize';
+import htmlToText from 'html-to-text'
+import * as _ from 'underscore';
 
 // Number of headings below which a table of contents won't be generated.
 const MIN_HEADINGS_FOR_TOC = 3;
@@ -45,8 +48,8 @@ export function extractTableOfContents(postHTML)
 {
   if (!postHTML) return null;
   const postBody = cheerio.load(postHTML);
-  let headings = [];
-  let usedAnchors = {};
+  let headings: Array<any> = [];
+  let usedAnchors: Record<string,boolean> = {};
 
   // First, find the headings in the document, create a linear list of them,
   // and insert anchors at each one.
@@ -107,10 +110,10 @@ const reservedAnchorNames = ["top", "comments"];
 // in the post so far, generate an anchor, and return it. An anchor is a
 // URL-safe string that can be used for within-document links, and which is
 // not one of a few reserved anchor names.
-function titleToAnchor(title, usedAnchors)
+function titleToAnchor(title: string, usedAnchors: Record<string,boolean>): string
 {
   let charsToUse = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789";
-  let sb = [];
+  let sb: Array<string> = [];
 
   for(let i=0; i<title.length; i++) {
     let ch = title.charAt(i);
@@ -165,7 +168,7 @@ function tagToHeadingLevel(tagName)
 async function getTocAnswers (document) {
   if (!document.question) return []
 
-  let answersTerms = {
+  let answersTerms: any = {
     answer:true,
     postId: document._id,
     deleted:false,
@@ -174,12 +177,24 @@ async function getTocAnswers (document) {
     answersTerms.af = true
   }
   const answers = await Comments.find(answersTerms, {sort:questionAnswersSort}).fetch()
-  const answerSections = answers.map((answer) => ({
-    title: `${answer.baseScore} ${answer.author}`,
-    answer: answer,
-    anchor: answer._id,
-    level: 2
-  }))
+  const answerSections = answers.map((answer) => {
+    const { html = "" } = answer.contents || {}
+    const highlight = truncate(html, 900)
+    let shortHighlight = htmlToText.fromString(answerTocExcerptFromHTML(html), {ignoreImage:true, ignoreHref:true})
+    
+    return {
+      title: `${answer.baseScore} ${answer.author}`,
+      answer: {
+        baseScore: answer.baseScore,
+        voteCount: answer.voteCount,
+        postedAt: answer.postedAt,
+        author: answer.author,
+        highlight, shortHighlight,
+      },
+      anchor: answer._id,
+      level: 2
+    };
+  })
 
   if (answerSections.length) {
     return [
@@ -193,11 +208,10 @@ async function getTocAnswers (document) {
 }
 
 async function getTocComments (document) {
-  const commentSelector = {
+  const commentSelector: any = {
     answer: false,
     parentAnswerId: null,
     postId: document._id
-
   }
   if (document.af && getSetting('forumType') === 'AlignmentForum') {
     commentSelector.af = true
