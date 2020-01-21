@@ -1,5 +1,5 @@
 import SimpleSchema from 'simpl-schema';
-import { Utils, getCollection, Connectors, Locales } from 'meteor/vulcan:lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
+import { Utils, getCollection, Connectors } from 'meteor/vulcan:lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -100,16 +100,6 @@ const schema = {
     canUpdate: ['admins'],
     canRead: ['guests'],
     group: adminGroup,
-  },
-  locale: {
-    type: String,
-    label: 'Preferred Language',
-    optional: true,
-    input: 'select',
-    canCreate: ['members'],
-    canUpdate: ['members'],
-    canRead: ['guests'],
-    options: () => Locales.map(({ id, label }) => ({ value: id, label })),
   },
   profile: {
     type: Object,

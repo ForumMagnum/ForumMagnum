@@ -80,7 +80,6 @@
     "escape-string-regexp": "^1.0.5",
     "express": "^4.16.3",
     "feedparser-promised": "^1.2.2",
-    "flat": "^4.1.0",
     "graphql": "^14.5.8",
     "graphql-date": "^1.0.2",
     "graphql-server-express": "^0.6.0",

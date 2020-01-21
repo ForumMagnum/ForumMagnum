@@ -29,7 +29,6 @@ import {
   getErrors,
   getSetting,
   Utils,
-  isIntlField,
   mergeWithComponents
 } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
@@ -221,13 +220,11 @@ class SmartForm extends Component {
     const args = {
       excludeRemovedFields: false,
       excludeHiddenFields: false,
-      replaceIntlFields: true,
       addExtraFields: false,
       ...customArgs
     };
 
     // only keep relevant fields
-    // for intl fields, make sure we look in foo_intl and not foo
     const fields = this.getFieldNames(args);
     let data = pick(this.getDocument(), ...fields);
 
@@ -323,7 +320,6 @@ class SmartForm extends Component {
       schema = this.state.schema,
       excludeHiddenFields = true,
       excludeRemovedFields = true,
-      replaceIntlFields = false,
       addExtraFields = true
     } = args0;
 
@@ -366,14 +362,6 @@ class SmartForm extends Component {
       });
     }
 
-    // replace intl fields
-    if (replaceIntlFields) {
-      relevantFields = relevantFields.map(
-        fieldName =>
-          isIntlField(schema[fieldName]) ? `${fieldName}_intl` : fieldName
-      );
-    }
-
     // remove any duplicates
     relevantFields = uniq(relevantFields);
 
@@ -404,11 +392,6 @@ class SmartForm extends Component {
     // if options are a function, call it
     if (typeof field.options === 'function') {
       field.options = field.options.call(fieldSchema, this.props);
-    }
-
-    // if this an intl'd field, use a special intlInput
-    if (isIntlField(fieldSchema)) {
-      field.intlInput = true;
     }
 
     // add any properties specified in fieldSchema.form as extra props passed on
@@ -963,7 +946,7 @@ class SmartForm extends Component {
 
     // complete the data with values from custom components
     // note: it follows the same logic as SmartForm's getDocument method
-    let data = this.getData({ replaceIntlFields: true, addExtraFields: false });
+    let data = this.getData({ addExtraFields: false });
 
     // if there's a submit callback, run it
     if (this.props.submitCallback) {

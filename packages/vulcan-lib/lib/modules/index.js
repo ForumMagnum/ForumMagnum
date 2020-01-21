@@ -2,7 +2,6 @@
 // import './callbacks.js';
 // import './settings.js';
 // import './collections.js';
-import './deep.js';
 import './deep_extend.js';
 // import './graphql.js';
 
@@ -18,7 +17,6 @@ export * from './fragments.js';
 export * from './apollo-common';
 export * from './admin.js';
 export * from './debug.js';
-import './startup.js';
 export * from './errors.js';
 export * from './intl.js';
 export * from './detect_locale.js';

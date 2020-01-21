@@ -19,4 +19,5 @@ export * from './apollo-server/context.js';
 export * from './apollo-ssr/apolloClient.js';
 export * from './apollo-ssr'
 
+import './utils.js';
 import './apollo-server/index';
