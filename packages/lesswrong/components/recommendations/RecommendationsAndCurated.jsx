@@ -160,7 +160,7 @@ class RecommendationsAndCurated extends PureComponent {
           </SubSection>
       </React.Fragment>}
 
-      {/* disabled most of the year */}
+      {/* disabled except during review */}
       {/* <AnalyticsContext pageSectionContext="LessWrong 2018 Review">
         <FrontpageVotingPhase settings={frontpageRecommendationSettings} />
       </AnalyticsContext> */}

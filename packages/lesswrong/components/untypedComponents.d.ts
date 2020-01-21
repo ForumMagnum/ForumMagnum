@@ -58,6 +58,7 @@ interface ComponentTypes {
   CloudinaryImage: any
   ContentItemBody: any
   LWPopper: any
+  LWTooltip: any
   PopperCard: any
   Footer: any
   LoadMore: any
@@ -472,9 +473,6 @@ interface ComponentTypes {
   FormGroup: any
   IconRight: any
   IconDown: any
-  FormIntlLayout: any
-  FormIntlItemLayout: any
-  FormIntl: any
   FormNestedArray: any
   IconAdd: any
   IconRemove: any
