@@ -3,13 +3,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const UsersName = ({user, documentId, nofollow=false, simple=false}) => {
-  if (!user || user.deleted) {
-    return <Components.UserNameDeleted />
-  }
   if (documentId) {
     return <Components.UsersNameWrapper documentId={documentId} nofollow={nofollow} simple={simple} />
-  } else {
+  } else if (user && !user.deleted) {
     return <Components.UsersNameDisplay user={user} nofollow={nofollow} simple={simple} />
+  } else {
+    return <Components.UserNameDeleted />
   }
 }
 UsersName.propTypes = {
