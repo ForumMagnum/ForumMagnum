@@ -46,6 +46,7 @@ export const createClient = async (context) => {
     //    fetch
     //}),
     cache,
+    assumeImmutableResults: true,
   });
   return client;
 };

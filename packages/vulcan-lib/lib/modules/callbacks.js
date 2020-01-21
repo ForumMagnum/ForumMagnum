@@ -6,18 +6,18 @@ import { Utils } from './utils';
 /**
  * @summary Format callback hook names
  */
-export const formatHookName = hook => typeof hook === 'string' && hook.toLowerCase();
+const formatHookName = hook => typeof hook === 'string' && hook.toLowerCase();
 
 /**
  * @summary A list of all registered callback hooks
  */
-export const CallbackHooks = [];
+const CallbackHooks = [];
 
 /**
  * @summary Callback hooks provide an easy way to add extra steps to common operations.
  * @namespace Callbacks
  */
-export const Callbacks = {};
+const Callbacks = {};
 
 
 /**
