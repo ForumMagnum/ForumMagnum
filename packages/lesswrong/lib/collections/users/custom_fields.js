@@ -530,10 +530,9 @@ addFieldsDict(Users, {
     defaultValue: false,
     canRead: ['guests'],
     canUpdate: ['admins'],
-    canCreate: ['members'],
     label: 'Delete this user',
     control: 'checkbox',
-    hidden: true,
+    group: formGroups.adminOptions,
   },
 
   // voteBanned: All future votes of this user have weight 0
