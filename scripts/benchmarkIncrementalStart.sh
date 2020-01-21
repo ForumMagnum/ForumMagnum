@@ -11,7 +11,14 @@ user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (
 mkdir -p tmp
 
 # Make a change
-echo "const someVar=${RANDOM}" >packages/lesswrong/spuriousChange.js
+cat <<END >packages/lesswrong/components/spuriousChange.ts
+// GENERATED FILE
+// This file gets rewritten by scripts/benchmarkIncrementalStart.sh as a way
+// of realistically triggering a server restart, as though a source file had
+// been edited.
+const someVar = ${RANDOM}
+
+END
 
 # Time how long until we get a successful page refresh
 time (
