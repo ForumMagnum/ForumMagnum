@@ -1,5 +1,10 @@
-import { registerComponent } from 'meteor/vulcan:core';
+import React from 'react';
+import { registerComponent, Components } from 'meteor/vulcan:core';
 
-const UserNameDeleted = () => '[anonymous]';
+const UserNameDeleted = () => {
+  return <Components.LWTooltip title="This user has deactivated their account">
+    [anonymous]
+  </Components.LWTooltip>
+};
 
 registerComponent('UserNameDeleted', UserNameDeleted);
