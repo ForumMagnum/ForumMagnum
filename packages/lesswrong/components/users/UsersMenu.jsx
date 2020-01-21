@@ -86,7 +86,7 @@ class UsersMenu extends PureComponent {
 
     if (!currentUser) return null;
 
-    const showNewButtons = getSetting('forumType') !== 'AlignmentForum' || Users.canDo(currentUser, 'posts.alignment.new')
+    const showNewButtons = (getSetting('forumType') !== 'AlignmentForum' || Users.canDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
     const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
 
     return (
@@ -137,14 +137,14 @@ class UsersMenu extends PureComponent {
             { getSetting('forumType') === 'AlignmentForum' && !isAfMember && <MenuItem onClick={() => openDialog({componentName: "AFApplicationForm"})}>
               Apply for Membership
             </MenuItem> }
-            <Link to={`/users/${currentUser.slug}`}>
+            {!currentUser.deleted && <Link to={`/users/${currentUser.slug}`}>
               <MenuItem>
                 <ListItemIcon>
                   <PersonIcon className={classes.icon}/>
                 </ListItemIcon>
                 User Profile
               </MenuItem>
-            </Link>
+            </Link>}
             <Link to={`/account`}>
               <MenuItem>
                 <ListItemIcon>
