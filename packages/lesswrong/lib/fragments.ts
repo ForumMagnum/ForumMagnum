@@ -279,6 +279,7 @@ registerFragment(`
     banned
     reviewedByUserId
     signUpReCaptchaRating
+    needsReview
   }
 `);
 
