@@ -47,7 +47,7 @@ import {
 import compose from 'recompose/compose';
 import withState from 'recompose/withState';
 import qs from 'qs';
-import { LocationContext, NavigationContext } from '../components/App'
+import { LocationContext, NavigationContext } from '../appContext'
 
 function getGraphQLQueryFromOptions({
   collectionName, collection, fragmentName, fragment, extraQueries, extraVariables,

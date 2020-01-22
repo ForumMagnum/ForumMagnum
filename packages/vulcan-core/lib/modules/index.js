@@ -5,12 +5,7 @@ export * from 'meteor/vulcan:lib';
 
 export * from './default_mutations.js';
 export * from './default_resolvers.js';
-
-import './components.js';
-
-export * from './components/App.jsx';
-importComponent(["Datatable", "DatatableLayout", "DatatableAbove", "DatatableAboveSearchInput", "DatatableAboveLayout", "DatatableHeaderCellLayout", "DatatableSorter", "DatatableContents", "DatatableContentsLayout", "DatatableContentsInnerLayout", "DatatableContentsHeadLayout", "DatatableContentsBodyLayout", "DatatableContentsMoreLayout", "DatatableLoadMoreButton", "DatatableTitle", "DatatableRow", "DatatableRowLayout", "DatatableCell", "DatatableCellLayout", "DatatableDefaultCell"], () => require('./components/Datatable.jsx'));
-importComponent("ScrollToTop", () => require('./components/ScrollToTop.jsx'));
+export * from './appContext.js';
 
 export * from './containers/cacheUpdates.js';
 export { default as withMulti, useMulti } from './containers/withMulti.js';
