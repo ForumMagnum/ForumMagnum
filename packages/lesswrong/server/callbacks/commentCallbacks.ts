@@ -414,3 +414,11 @@ async function updateTopLevelCommentLastCommentedAt (comment) {
   return comment;
 }
 addCallback("comment.create.after", updateTopLevelCommentLastCommentedAt)
+
+async function updateNeedsReview (comment) {
+  const author = await Users.findOne(comment.userId);
+  if (author && !author.reviewedByUserId && !author.needsReview) {
+    Users.update({_id:author._id}, {$set:{needsReview: true}})
+  }
+}
+addCallback("comment.create.after", updateNeedsReview)

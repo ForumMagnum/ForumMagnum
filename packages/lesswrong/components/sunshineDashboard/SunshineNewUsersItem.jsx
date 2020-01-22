@@ -12,6 +12,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import red from '@material-ui/core/colors/red';
 import { withStyles } from '@material-ui/core/styles';
 import DoneIcon from '@material-ui/icons/Done';
+import SnoozeIcon from '@material-ui/icons/Snooze';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 
 const styles = theme => ({
@@ -32,6 +33,17 @@ class SunshineNewUsersItem extends Component {
     updateUser({
       selector: {_id: user._id},
       data: {reviewedByUserId: currentUser._id}
+    })
+  }
+
+  handleSnooze = () => {
+    const { user, updateUser } = this.props
+    updateUser({
+      selector: {_id: user._id},
+      data: {
+        needsReview: false,
+        sunshineSnoozed: true
+      }
     })
   }
 
@@ -107,6 +119,9 @@ class SunshineNewUsersItem extends Component {
           { hover && <SidebarActionMenu>
             <SidebarAction title="Review" onClick={this.handleReview}>
               <DoneIcon />
+            </SidebarAction>
+            <SidebarAction title="Snooze" onClick={this.handleSnooze}>
+              <SnoozeIcon />
             </SidebarAction>
             <SidebarAction warningHighlight={true} title="Purge User (delete and ban)" onClick={this.handlePurge}>
               <DeleteForeverIcon />

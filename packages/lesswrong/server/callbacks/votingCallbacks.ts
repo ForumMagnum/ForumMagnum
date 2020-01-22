@@ -52,3 +52,21 @@ async function cancelVoteCount ({newDocument, vote}) {
 }
 
 addCallback("votes.cancel.async", cancelVoteCount);
+
+async function updateNeedsReview (vote) {
+  const voter = await Users.findOne(vote.userId);
+  if (
+      voter && 
+      !voter.reviewedByUserId && 
+      !voter.needsReview && 
+      voter.voteCount >= 10 && 
+      !voter.sunshineSnoozed
+    ) {
+    Users.update({_id:voter._id}, {$set:{needsReview: true}})
+  }
+}
+
+addCallback("votes.bigDownvote.async", updateNeedsReview);
+addCallback("votes.bigUpvote.async", updateNeedsReview);
+addCallback("votes.smallDownvote.async", updateNeedsReview);
+addCallback("votes.smallUpvote.async", updateNeedsReview);

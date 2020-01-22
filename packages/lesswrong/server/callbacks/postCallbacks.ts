@@ -171,3 +171,11 @@ async function UpdateCommentHideKarma (newPost, oldPost) {
   await Comments.rawCollection().bulkWrite(updates)
 }
 addCallback("posts.edit.async", UpdateCommentHideKarma);
+
+async function updateNeedsReview (post) {
+  const author = await Users.findOne(post.userId);
+  if (author && !author.reviewedByUserId && !author.needsReview) {
+    Users.update({_id:author._id}, {$set:{needsReview: true}})
+  }
+}
+addCallback("posts.new.after", updateNeedsReview);

@@ -929,6 +929,14 @@ addFieldsDict(Users, {
     ...schemaDefaultValue(false),
   },
 
+  sunshineSnoozed: {
+    type: Boolean,
+    canRead: ['guests'],
+    hidden: true,
+    optional: true,
+    ...schemaDefaultValue(false),
+  },
+
   // Set after a moderator has approved or purged a new user. NB: reviewed does
   // not imply approval, the user might have been banned
   reviewedByUserId: {
