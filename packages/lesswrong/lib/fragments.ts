@@ -531,6 +531,8 @@ registerFragment(`
     notificationSharedWithMe
 
     hideFrontpageMap
+
+    deleted
   }
 `)
 
