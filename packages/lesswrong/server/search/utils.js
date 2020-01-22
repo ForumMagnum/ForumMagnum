@@ -31,10 +31,11 @@ Comments.toAlgolia = (comment) => {
     userIP: comment.userIP,
     createdAt: comment.createdAt,
     postedAt: comment.postedAt,
-    af: comment.af
+    af: comment.af,
+    afBaseScore: comment.afBaseScore
   };
   const commentAuthor = Users.findOne({_id: comment.userId});
-  if (commentAuthor && !commentAuthor.deleted) {
+  if (commentAuthor && !commentAuthor.deleted && !comment.hideAuthor) {
     algoliaComment.authorDisplayName = commentAuthor.displayName;
     algoliaComment.authorUserName = commentAuthor.username;
     algoliaComment.authorSlug = commentAuthor.slug;
@@ -123,10 +124,11 @@ Posts.toAlgolia = (post) => {
     viewCount: post.viewCount,
     lastCommentedAt: post.lastCommentedAt,
     draft: post.draft,
-    af: post.af
+    af: post.af,
+    afBaseScore: post.afBaseScore
   };
   const postAuthor = Users.findOne({_id: post.userId});
-  if (postAuthor && !postAuthor.deleted) {
+  if (postAuthor && !postAuthor.deleted && !post.hideAuthor) {
     algoliaMetaInfo.authorSlug = postAuthor.slug;
     algoliaMetaInfo.authorDisplayName = postAuthor.displayName;
     algoliaMetaInfo.authorFullName = postAuthor.fullName;
