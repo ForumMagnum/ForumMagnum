@@ -1,5 +1,4 @@
 import Users from "meteor/vulcan:users";
-import { getSetting } from "meteor/vulcan:core";
 import { ensureIndex } from '../../collectionUtils';
 
 // Auto-generated indexes from production
