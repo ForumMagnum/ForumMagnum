@@ -15,7 +15,7 @@ export const addRoute = (routeOrRouteArray) => {
   const addedRoutes = Array.isArray(routeOrRouteArray) ? routeOrRouteArray : [routeOrRouteArray];
 
   // modify the routes table with the new routes
-  addedRoutes.forEach(({name, path, ...properties}) => {
+  addedRoutes.map(({name, path, ...properties}) => {
 
     // check if there is already a route registered to this path
     const routeWithSamePath = _.findWhere(Routes, { path });
