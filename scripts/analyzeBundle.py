@@ -4,8 +4,21 @@ import os
 bundleFilesDir = 'tmp/bundleSizeDownloads'
 yarnLockFile = 'yarn.lock'
 packagesFile = 'package.json'
-dividerLine = '/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////\n'
-spacerLine  = '//                                                                                                                     //\n'
+
+def isDividerLine(line):
+    # At least 80 chars, all slashes except the last (which is newline). The number is inconsistent for some reason.
+    return (len(line)>=80
+        and line.endswith("\n")
+        and all([c=='/' for c in line[0:-1]]))
+
+def isSpacerLine(line):
+    # At least 80 chars, starting with "//", ending with "//\n", otherwise all spaces
+    return (len(line)>=80
+        and line.startswith("//") and line.endswith("//\n")
+        and all([c==' ' for c in line[2:-3]]))
+
+assert isDividerLine("////////////////////////////////////////////////////////////////////////////////////\n")
+assert isSpacerLine("//                                                                                //\n")
 
 def readFileLines(filename):
     f = open(filename, 'r')
@@ -26,12 +39,15 @@ def unpackFile(lines):
     currentFileName = None
 
     for i in range(0,len(lines)):
-        if i+4<len(lines) and lines[i]==dividerLine and lines[i+1]==spacerLine and lines[i+3]==spacerLine and lines[i+4]==dividerLine:
+        if i+4<len(lines) and isDividerLine(lines[i]) and isSpacerLine(lines[i+1]) and isSpacerLine(lines[i+3]) and isDividerLine(lines[i+4]):
             if currentFileName:
                 fileContents = '\n'.join(lines[currentFileStart:i])
                 sizes[currentFileName] = len(fileContents)
             currentFileStart = i+5
             currentFileName = lines[i+2].strip()[2:-2].strip()
+    if currentFileName:
+        fileContents = '\n'.join(lines[currentFileStart:i])
+        sizes[currentFileName] = len(fileContents)
     
     return sizes
 

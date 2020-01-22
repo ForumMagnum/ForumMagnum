@@ -1,4 +1,3 @@
-import Vulcan from './config.js';
 
 const getNestedProperty = function (obj, desc) {
   var arr = desc.split('.');

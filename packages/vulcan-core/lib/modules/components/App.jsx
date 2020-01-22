@@ -173,7 +173,7 @@ class App extends PureComponent {
   initLocale = () => {
     let userLocale = '';
     let localeMethod = '';
-    const { currentUser, cookies, locale } = this.props;
+    const { cookies, locale } = this.props;
     const availableLocales = Object.keys(Strings);
     const detectedLocale = detectLocale();
 
@@ -186,12 +186,8 @@ class App extends PureComponent {
       // 2. look for a cookie
       userLocale = cookies.get('locale');
       localeMethod = 'cookie';
-    } else if (currentUser && currentUser.locale) {
-      // 3. if user is logged in, check for their preferred locale
-      userLocale = currentUser.locale;
-      localeMethod = 'user';
     } else if (detectedLocale) {
-      // 4. else, check for browser settings
+      // 3. else, check for browser settings
       userLocale = detectedLocale;
       localeMethod = 'browser';
     }
