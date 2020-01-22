@@ -109,8 +109,13 @@ class UsersMenu extends PureComponent {
             }
             {showNewButtons &&
               <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>
-                New Shortform [Beta]
+                New Shortform
               </MenuItem>
+            }
+            {(showNewButtons && currentUser.karma >= 1000) &&
+              <Link to={`/sequencesnew`}>
+                <MenuItem>New Sequence</MenuItem>
+              </Link>
             }
             {showNewButtons && <Divider/>}
             { getSetting('forumType') === 'AlignmentForum' && !isAfMember && <MenuItem onClick={() => openDialog({componentName: "AFApplicationForm"})}>

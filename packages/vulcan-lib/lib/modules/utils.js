@@ -153,12 +153,6 @@ Utils.checkNested = function(obj /*, level1, level2, ... levelN*/) {
   return true;
 };
 
-Utils.log = function (s) {
-  if(getSetting('debug', false) || process.env.NODE_ENV === 'development') {
-    console.log(s); // eslint-disable-line
-  }
-};
-
 // see http://stackoverflow.com/questions/8051975/access-object-child-properties-using-a-dot-notation-string
 Utils.getNestedProperty = function (obj, desc) {
   var arr = desc.split('.');
@@ -188,18 +182,6 @@ Utils.getCollectionNameFromTypename = (type) => {
   } else if (type.indexOf('Localgroup') > -1) {
     return 'localgroups';
   }
-};
-
-Utils.findIndex = (array, predicate) => {
-  let index = -1;
-  let continueLoop = true;
-  array.forEach((item, currentIndex) => {
-    if (continueLoop && predicate(item)) {
-      index = currentIndex;
-      continueLoop = false;
-    }
-  });
-  return index;
 };
 
 /**

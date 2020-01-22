@@ -84,14 +84,14 @@ importComponent("PermanentRedirect", () => require('../components/common/Permane
 importComponent("SeparatorBullet", () => require('../components/common/SeparatorBullet.jsx'));
 
 importComponent("TabNavigationMenu", () => require('../components/common/TabNavigationMenu/TabNavigationMenu.jsx'));
-import '../components/common/TabNavigationMenu/TabNavigationMenuFooter.jsx';
-import '../components/common/TabNavigationMenu/TabNavigationMenuCompressed.jsx';
-import '../components/common/TabNavigationMenu/TabNavigationItem.jsx';
-import '../components/common/TabNavigationMenu/TabNavigationFooterItem.jsx';
-import '../components/common/TabNavigationMenu/TabNavigationCompressedItem.jsx';
+importComponent("TabNavigationMenuFooter", () => require('../components/common/TabNavigationMenu/TabNavigationMenuFooter.jsx'));
+importComponent("TabNavigationMenuCompressed", () => require('../components/common/TabNavigationMenu/TabNavigationMenuCompressed.jsx'));
+importComponent("TabNavigationItem", () => require('../components/common/TabNavigationMenu/TabNavigationItem.jsx'));
+importComponent("TabNavigationFooterItem", () => require('../components/common/TabNavigationMenu/TabNavigationFooterItem.jsx'));
+importComponent("TabNavigationCompressedItem", () => require('../components/common/TabNavigationMenu/TabNavigationCompressedItem.jsx'));
 importComponent("TabNavigationSubItem", () => require('../components/common/TabNavigationMenu/TabNavigationSubItem.jsx'));
-import '../components/common/TabNavigationMenu/NavigationDrawer.jsx';
-import '../components/common/TabNavigationMenu/NavigationStandalone.jsx';
+importComponent("NavigationDrawer", () => require('../components/common/TabNavigationMenu/NavigationDrawer.jsx'));
+importComponent("NavigationStandalone", () => require('../components/common/TabNavigationMenu/NavigationStandalone.jsx'));
 
 // Outgoing RSS Feed builder
 importComponent("SubscribeWidget", () => require('../components/common/SubscribeWidget.jsx'));

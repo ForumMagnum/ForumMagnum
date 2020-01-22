@@ -1,6 +1,6 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import moment from 'moment-timezone';
+import moment from '../../lib/moment-timezone';
 import Tooltip from '@material-ui/core/Tooltip';
 import { useTimezone } from '../common/withTimezone';
 

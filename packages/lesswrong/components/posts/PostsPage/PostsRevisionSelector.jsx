@@ -4,7 +4,7 @@ import { registerComponent, Components } from 'meteor/vulcan:core';
 import HistoryIcon from '@material-ui/icons/History';
 import Menu from '@material-ui/core/Menu';
 import Tooltip from '@material-ui/core/Tooltip';
-import moment from 'moment-timezone';
+import moment from '../../../lib/moment-timezone';
 
 
 const styles = theme => ({

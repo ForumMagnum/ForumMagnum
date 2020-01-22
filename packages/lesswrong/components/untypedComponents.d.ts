@@ -58,6 +58,7 @@ interface ComponentTypes {
   CloudinaryImage: any
   ContentItemBody: any
   LWPopper: any
+  LWTooltip: any
   PopperCard: any
   Footer: any
   LoadMore: any
@@ -445,7 +446,6 @@ interface ComponentTypes {
   DatatableCell: any
   DatatableCellLayout: any
   DatatableDefaultCell: any
-  DynamicLoading: any
   EditButton: any
   EditForm: any
   Icon: any
@@ -453,7 +453,6 @@ interface ComponentTypes {
   NewButton: any
   NewForm: any
   ScrollToTop: any
-  ShowIf: any
   
   // vulcan-debug components
   AdminLayout: any
@@ -474,9 +473,6 @@ interface ComponentTypes {
   FormGroup: any
   IconRight: any
   IconDown: any
-  FormIntlLayout: any
-  FormIntlItemLayout: any
-  FormIntl: any
   FormNestedArray: any
   IconAdd: any
   IconRemove: any

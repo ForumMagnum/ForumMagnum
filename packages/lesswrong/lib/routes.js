@@ -214,6 +214,7 @@ addRoute([
     path: '/tag/:slug',
     componentName: 'TagPage',
     titleComponentName: 'TagPageTitle',
+    subtitleComponentName: 'TagPageTitle',
     previewComponentName: 'TagHoverPreview',
   },
   {
@@ -221,12 +222,14 @@ addRoute([
     path: '/tag/:slug/edit',
     componentName: 'EditTagPage',
     titleComponentName: 'TagPageTitle',
+    subtitleComponentName: 'TagPageTitle',
   },
   {
     name: 'tagCreate',
     path: '/tag/create',
     componentName: 'NewTagPage',
     title: "New Tag",
+    subtitleComponentName: 'TagPageTitle',
   },
   {
     name: 'tagIndex',

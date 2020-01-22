@@ -45,7 +45,6 @@ Package.onTest(function(api) {
     'vulcan:core',
     'vulcan:users',
     'practicalmeteor:sinon',
-    'coffeescript',
     'meteortesting:mocha',
   ]);
 

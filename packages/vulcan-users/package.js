@@ -15,7 +15,7 @@ Package.onUse(function(api) {
 });
 Package.onTest(function(api) {
   api.use('vulcan:users');
-  api.use(['ecmascript', 'meteortesting:mocha', 'hwillson:stub-collections']);
+  api.use(['ecmascript', 'meteortesting:mocha']);
   api.mainModule('./test/server/index.js', 'server');
   //api.mainModule('./test/index.js');
 });
