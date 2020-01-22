@@ -16,6 +16,7 @@ const AccountsEnrollAccount = () => {
       return (
         <Components.AccountsLoginForm
           formState={ STATES.ENROLL_ACCOUNT }
+          currentUser={currentUser}
         />
       );
     } else {
