@@ -210,7 +210,7 @@ const ReviewVotingPage = ({classes}) => {
     }
   });
 
-  const [useQuadratic, setUseQuadratic] = useState(currentUser?.reviewVotesQuadratic)
+  const [useQuadratic, setUseQuadratic] = useState(currentUser ? currentUser.reviewVotesQuadratic : false)
   const [loading, setLoading] = useState(false)
   const [expandedPost, setExpandedPost] = useState<any>(null)
 
@@ -224,7 +224,7 @@ const ReviewVotingPage = ({classes}) => {
 
     setUseQuadratic(newUseQuadratic)
     updateUser({
-      selector: {_id: currentUser._id},
+      selector: {_id: currentUser?._id},
       data: {
         reviewVotesQuadratic: newUseQuadratic,
       }
@@ -545,6 +545,7 @@ const VoteTableRow = withStyles(voteRowStyles, {name: "VoteTableRow"})((
   const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo } = Components
 
   const currentUser = useCurrentUser()
+  if (!currentUser) return null;
 
   return <AnalyticsContext pageElementContext="voteTableRow">
     <div className={classNames(classes.root, {[classes.expanded]: expandedPostId === post._id})}>

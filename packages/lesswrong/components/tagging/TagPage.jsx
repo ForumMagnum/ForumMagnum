@@ -6,7 +6,7 @@ import { TagRels } from '../../lib/collections/tagRels/collection.js';
 import { useTagBySlug } from './useTag.jsx';
 import Users from 'meteor/vulcan:users';
 import { Link } from '../../lib/reactRouterWrapper.jsx';
-import { useCurrentUser } from '../common/withUser.js';
+import { useCurrentUser } from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 import { postBodyStyles } from '../../themes/stylePiping'
 

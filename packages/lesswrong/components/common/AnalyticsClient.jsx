@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import { useMutation } from 'react-apollo';
 import { AnalyticsUtil } from '../../lib/analyticsEvents.js';
-import { useCurrentUser } from './withUser.js';
+import { useCurrentUser } from './withUser';
 import { useCookies } from 'react-cookie'
 import gql from 'graphql-tag';
 import withErrorBoundary from './withErrorBoundary';

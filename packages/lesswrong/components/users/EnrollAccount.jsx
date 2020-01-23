@@ -2,7 +2,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { useEffect } from 'react';
 import { STATES } from 'meteor/vulcan:accounts'
 import { useLocation } from '../../lib/routeUtil'
-import { useCurrentUser } from '../common/withUser.js';
+import { useCurrentUser } from '../common/withUser';
 
 
 const AccountsEnrollAccount = () => {
