@@ -43,6 +43,7 @@ import compose from 'recompose/compose';
 import withState from 'recompose/withState';
 import qs from 'qs';
 import * as _ from 'underscore';
+import { WatchQueryFetchPolicy } from 'apollo-client';
 
 function getGraphQLQueryFromOptions({
   collectionName, collection, fragmentName, fragment, extraQueries, extraVariables,
@@ -222,7 +223,7 @@ export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   extraQueries?: any,
   ssr?: boolean,
   extraVariables?: any,
-  fetchPolicy?: any,
+  fetchPolicy?: WatchQueryFetchPolicy,
   collectionName?: string,
   collection?: any,
   fragmentName?: FragmentTypeName,

@@ -1,12 +1,11 @@
 /*
 
-Generic mutation wrapper to insert a new document in a collection and update
-a related query on the client with the new item and a new total item count.
+Generic mutation wrapper to update a document in a collection.
 
 Sample mutation:
 
-  mutation createMovie($data: CreateMovieData) {
-    createMovie(data: $data) {
+  mutation updateMovie($input: UpdateMovieInput) {
+    updateMovie(input: $input) {
       data {
         _id
         name
@@ -18,30 +17,31 @@ Sample mutation:
 
 Arguments:
 
-  - data: the document to insert
+  - input
+    - input.selector: a selector to indicate the document to update
+    - input.data: the document (set a field to `null` to delete it)
 
 Child Props:
 
-  - createMovie({ data })
+  - updateMovie({ selector, data })
 
 */
 
-import React, { Component } from 'react';
+import React from 'react';
 import { Mutation, useMutation } from 'react-apollo';
-import gql from 'graphql-tag';
-import { createClientTemplate } from 'meteor/vulcan:core';
-import { extractCollectionInfo, extractFragmentInfo } from 'meteor/vulcan:lib';
 import { compose, withHandlers } from 'recompose';
+import gql from 'graphql-tag';
+import { updateClientTemplate, extractCollectionInfo, extractFragmentInfo } from 'meteor/vulcan:lib';
+import { getExtraVariables } from './utils';
 import { cacheUpdateGenerator } from './cacheUpdates';
-import { getExtraVariables } from './utils'
 
-export const withCreate = options => {
+export const withUpdate = options => {
   const { collectionName, collection } = extractCollectionInfo(options);
   const { fragmentName, fragment, extraVariablesString } = extractFragmentInfo(options, collectionName);
 
   const typeName = collection.options.typeName;
   const query = gql`
-    ${createClientTemplate({ typeName, fragmentName, extraVariablesString })}
+    ${updateClientTemplate({ typeName, fragmentName, extraVariablesString })}
     ${fragment}
   `;
 
@@ -57,43 +57,46 @@ export const withCreate = options => {
     </Mutation>
   )
 
-  // wrap component with graphql HoC
   return compose(
     mutationWrapper,
     withHandlers({
-      [`create${typeName}`]: ({ mutate, ownProps }) => ({ data }) => {
+      [`update${typeName}`]: ({ mutate, ownProps }) => ({ selector, data }) => {
         const extraVariables = getExtraVariables(ownProps, options.extraVariables)
         return mutate({
-          variables: { data, ...extraVariables },
-          update: cacheUpdateGenerator(typeName, 'create')
+          variables: { selector, data, ...extraVariables },
+          update: cacheUpdateGenerator(typeName, 'update')
         });
       },
     })
   )
 };
 
-export default withCreate;
+export default withUpdate;
 
-// TODO: Only include in branch if actually used
-export const useCreate = ({
+export const useUpdate = ({
   collectionName, collection,
-  fragmentName, fragment
+  fragmentName, fragment,
+}: {
+  collectionName?: string,
+  collection?: any,
+  fragmentName?: string,
+  fragment?: any,
 }) => {
   ({ collectionName, collection } = extractCollectionInfo({collectionName, collection}));
   ({ fragmentName, fragment } = extractFragmentInfo({fragmentName, fragment}, collectionName));
 
   const typeName = collection.options.typeName;
-  
   const query = gql`
-    ${createClientTemplate({ typeName, fragmentName })}
+    ${updateClientTemplate({ typeName, fragmentName })}
     ${fragment}
   `;
+
   const [mutate, {loading, error, called, data}] = useMutation(query);
-  const wrappedCreate = (data) => {
+  const wrappedMutate = ({selector, data, ...extraVariables}) => {
     mutate({
-      variables: { data },
-      update: cacheUpdateGenerator(typeName, 'create')
+      variables: { selector, data, ...extraVariables },
+      update: cacheUpdateGenerator(typeName, 'update')
     })
   }
-  return {create: wrappedCreate, loading, error, called, data};
+  return {mutate: wrappedMutate, loading, error, called, data};
 }

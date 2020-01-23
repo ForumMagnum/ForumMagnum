@@ -1,6 +1,8 @@
 import { graphql, useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
 import { singleClientTemplate, Utils, extractCollectionInfo, extractFragmentInfo } from 'meteor/vulcan:lib';
+import * as _ from 'underscore';
+import { WatchQueryFetchPolicy } from 'apollo-client';
 
 export function getGraphQLQueryFromOptions({ extraVariables, extraQueries, collectionName, collection, fragment, fragmentName }) {
   ({ collectionName, collection } = extractCollectionInfo({ collectionName, collection }));
@@ -27,7 +29,20 @@ export function getResolverNameFromOptions({ collectionName, collection }) {
   return Utils.camelCaseify(typeName);
 }
 
-export function withSingle({ collectionName, collection, fragment, fragmentName, extraVariables, fetchPolicy, propertyName = 'document', extraQueries }) {
+export function withSingle({
+  collectionName, collection,
+  fragmentName, fragment,
+  extraVariables, fetchPolicy, propertyName = 'document', extraQueries
+}: {
+  collectionName?: string,
+  collection?: any,
+  fragmentName?: string,
+  fragment?: any,
+  extraVariables?: any,
+  fetchPolicy?: WatchQueryFetchPolicy,
+  propertyName?: string,
+  extraQueries?: any,
+}) {
   ({ collectionName, collection } = extractCollectionInfo({ collectionName, collection }));
   ({ fragmentName, fragment } = extractFragmentInfo({ fragment, fragmentName }, collectionName));
 
@@ -38,11 +53,12 @@ export function withSingle({ collectionName, collection, fragment, fragmentName,
   return graphql(query, {
     alias: `with${typeName}`,
 
-    options({ documentId, slug, selector = { documentId, slug }, ...rest }) {
+    options(props) {
+      const { documentId, slug, selector = { documentId, slug }, ...rest } = props as any;
       // OpenCrud backwards compatibility
       // From the provided arguments, pick the key-value pairs where the key is also in extraVariables option
       const extraVariablesValues = _.pick(rest, Object.keys(extraVariables || {}))  
-      const graphQLOptions = {
+      const graphQLOptions: any = {
         variables: {
           input: {
             selector,
@@ -57,7 +73,7 @@ export function withSingle({ collectionName, collection, fragment, fragmentName,
 
       return graphQLOptions;
     },
-    props: returnedProps => {
+    props: (returnedProps: any) => {
       const { /* ownProps, */ data } = returnedProps;
 
       const props = {
@@ -80,17 +96,28 @@ export function withSingle({ collectionName, collection, fragment, fragmentName,
   });
 }
 
-export function useSingle({ collectionName, 
-  collection, 
-  fragment, 
-  fragmentName, 
-  extraVariables, 
-  fetchPolicy, 
-  propertyName, 
-  extraQueries, 
-  documentId, 
+export function useSingle({
+  collectionName, collection,
+  fragmentName, fragment,
+  extraVariables,
+  fetchPolicy,
+  propertyName,
+  extraQueries,
+  documentId,
   extraVariablesValues,
   skip=false
+}: {
+  collectionName?: string,
+  collection?: any,
+  fragmentName?: string,
+  fragment?: any,
+  extraVariables,
+  fetchPolicy?: WatchQueryFetchPolicy,
+  propertyName?: string,
+  extraQueries?: any,
+  documentId: string,
+  extraVariablesValues?: any,
+  skip?: boolean,
 }) {
   const query = getGraphQLQueryFromOptions({ extraVariables, extraQueries, collectionName, collection, fragment, fragmentName })
   const resolverName = getResolverNameFromOptions({ collectionName, collection })

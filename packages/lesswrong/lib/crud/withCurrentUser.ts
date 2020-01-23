@@ -16,7 +16,7 @@ export const withCurrentUser = component => {
     `, {
       alias: 'withCurrentUser',
       
-      props(props) {
+      props(props: any) {
         const { data } = props;
         return {
           currentUserLoading: data.loading,

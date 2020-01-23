@@ -1,10 +1,11 @@
 import { Utils } from 'meteor/vulcan:lib';
+import * as _ from 'underscore';
 
-export const getMultiQueryName = (typeName) => `multi${typeName}Query`;
-export const getMultiResolverName = (typeName) => Utils.camelCaseify(Utils.pluralize(typeName));
-export const getCreateMutationName = (typeName) => `create${typeName}`;
-export const getUpdateMutationName = (typeName) => `update${typeName}`;
-export const getDeleteMutationName = (typeName) => `delete${typeName}`;
+export const getMultiQueryName = (typeName: string) => `multi${typeName}Query`;
+export const getMultiResolverName = (typeName: string) => Utils.camelCaseify(Utils.pluralize(typeName));
+export const getCreateMutationName = (typeName: string) => `create${typeName}`;
+export const getUpdateMutationName = (typeName: string) => `update${typeName}`;
+export const getDeleteMutationName = (typeName: string) => `delete${typeName}`;
 export function getQueryName(query) {
   if (query.kind !== "Document") {
     return null;
