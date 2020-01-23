@@ -97,22 +97,9 @@ class App extends PureComponent {
     return truncate ? this.state.locale.slice(0, 2) : this.state.locale;
   };
 
-  setLocale = async locale => {
-    const { cookies, updateUser, currentUser } = this.props;
-    this.setState({ locale });
-    cookies.remove('locale', { path: '/' });
-    cookies.set('locale', locale, { path: '/' });
-    // if user is logged in, change their `locale` profile property
-    if (currentUser) {
-      await updateUser({ selector: { documentId: currentUser._id }, data: { locale } });
-    }
-    moment.locale(locale);
-  };
-
   getChildContext() {
     return {
       getLocale: this.getLocale,
-      setLocale: this.setLocale,
     };
   }
 
@@ -190,7 +177,6 @@ App.propTypes = {
 
 App.childContextTypes = {
   intl: intlShape,
-  setLocale: PropTypes.func,
   getLocale: PropTypes.func,
 };
 
