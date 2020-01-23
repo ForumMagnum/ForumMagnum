@@ -1,4 +1,5 @@
-import { Components, registerComponent, getSetting, withUpdate } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { withUpdate } from '../lib/crud/withUpdate';
 import React, { PureComponent } from 'react';
 import Users from 'meteor/vulcan:users';
 import { Helmet } from 'react-helmet';

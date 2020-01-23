@@ -37,17 +37,11 @@ Terms object can have the following properties:
 import { useState, useContext } from 'react';
 import { graphql, useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
-import {
-  getSetting,
-  Utils,
-  multiClientTemplate,
-  extractCollectionInfo,
-  extractFragmentInfo,
-} from 'meteor/vulcan:lib';
+import { getSetting, Utils, multiClientTemplate, extractCollectionInfo, extractFragmentInfo, } from 'meteor/vulcan:lib';
+import { LocationContext, NavigationContext } from 'meteor/vulcan:core';
 import compose from 'recompose/compose';
 import withState from 'recompose/withState';
 import qs from 'qs';
-import { LocationContext, NavigationContext } from '../appContext'
 
 function getGraphQLQueryFromOptions({
   collectionName, collection, fragmentName, fragment, extraQueries, extraVariables,
@@ -67,7 +61,7 @@ function getGraphQLQueryFromOptions({
   `;
 }
 
-export default function withMulti({
+export function withMulti({
   limit = 10, // Only used as a fallback if terms.limit is not specified
   pollInterval = getSetting('pollInterval', 0), //LESSWRONG: Polling defaults disabled
   enableTotal = false, //LESSWRONG: enableTotal defaults false
@@ -290,3 +284,5 @@ export function useMulti({
     limit,
   };
 }
+
+export default withMulti;

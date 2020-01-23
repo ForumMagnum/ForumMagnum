@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { withMutation } from 'meteor/vulcan:core';
+import { withMutation } from '../../lib/crud/withMutation';
 import { useCurrentUser } from './withUser.js';
 import compose from 'recompose/compose';
 import withNewEvents from '../../lib/events/withNewEvents.jsx';

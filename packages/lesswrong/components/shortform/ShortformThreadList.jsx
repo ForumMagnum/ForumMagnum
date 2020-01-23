@@ -1,5 +1,6 @@
 import React from 'react';
-import { Components, registerComponent, withList } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
@@ -41,4 +42,4 @@ const discussionThreadsOptions = {
   ssr: true,
 };
 
-registerComponent('ShortformThreadList', ShortformThreadList, withStyles(styles, {name:"ShortformThreadList"}), [withList, discussionThreadsOptions], withUser);
+registerComponent('ShortformThreadList', ShortformThreadList, withStyles(styles, {name:"ShortformThreadList"}), [withMulti, discussionThreadsOptions], withUser);

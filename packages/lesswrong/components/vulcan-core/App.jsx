@@ -1,14 +1,16 @@
 import {
-  Components, registerComponent, getSetting, Strings, runCallbacks, detectLocale, Routes,
-  withCurrentUser, withUpdate, MessageContext,
+  Components, registerComponent, getSetting, Strings, runCallbacks, detectLocale,
+  MessageContext,
+  LocationContext, SubscribeLocationContext, NavigationContext, ServerRequestStatusContext, parseRoute,
 } from 'meteor/vulcan:core';
+import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { PureComponent } from 'react';
+import { withCurrentUser } from '../../lib/crud/withCurrentUser';
 import PropTypes from 'prop-types';
 import { IntlProvider, intlShape } from 'meteor/vulcan:i18n';
 import { withApollo } from 'react-apollo';
 import moment from 'moment';
 import { withRouter } from 'react-router';
-import { LocationContext, SubscribeLocationContext, NavigationContext, ServerRequestStatusContext, parseRoute } from 'meteor/vulcan:core';
 
 class App extends PureComponent {
   constructor(props) {

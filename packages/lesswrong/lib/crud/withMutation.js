@@ -15,7 +15,7 @@ import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { getFragment } from 'meteor/vulcan:lib';
 
-export default function withMutation({name, args, fragmentName}) {
+export function withMutation({name, args, fragmentName}) {
 
   let mutation, fragment, fragmentBlock = '';
 
@@ -53,3 +53,5 @@ export default function withMutation({name, args, fragmentName}) {
     }),
   });
 }
+
+export default withMutation;

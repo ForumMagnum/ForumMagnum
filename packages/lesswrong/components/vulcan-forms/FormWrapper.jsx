@@ -11,7 +11,7 @@ This component is itself wrapped with:
 
 And wraps the Form component with:
 
-- withNew
+- withCreate
 
 Or:
 
@@ -31,16 +31,14 @@ import { withRouter } from 'react-router';
 import { graphql, withApollo } from 'react-apollo';
 import compose from 'lodash/flowRight';
 import {
-  Components,
-  registerComponent,
-  withCurrentUser,
-  Utils,
-  withNew,
-  withUpdate,
-  withDelete,
-  withSingle,
+  Components, registerComponent, Utils,
   getFragment
 } from 'meteor/vulcan:core';
+import { withCreate } from '../../lib/crud/withCreate';
+import { withSingle } from '../../lib/crud/withSingle';
+import { withDelete } from '../../lib/crud/withDelete';
+import { withUpdate } from '../../lib/crud/withUpdate';
+import withUser from '../common/withUser';
 import gql from 'graphql-tag';
 import {
   getReadableFields,
@@ -207,7 +205,7 @@ class FormWrapper extends PureComponent {
       pollInterval: 0 // no polling, only load data once
     };
 
-    // options for withNew, withUpdate, and withDelete HoCs
+    // options for withCreate, withUpdate, and withDelete HoCs
     const mutationOptions = {
       collection: this.props.collection,
       fragment: mutationFragment,
@@ -269,10 +267,10 @@ class FormWrapper extends PureComponent {
 
         WrappedComponent = compose(
           extraQueriesHoC,
-          withNew(mutationOptions)
+          withCreate(mutationOptions)
         )(Loader);
       } else {
-        WrappedComponent = compose(withNew(mutationOptions))(Components.Form);
+        WrappedComponent = compose(withCreate(mutationOptions))(Components.Form);
       }
 
       return <WrappedComponent {...childProps} />;
@@ -335,5 +333,5 @@ FormWrapper.contextTypes = {
 registerComponent({
   name: 'SmartForm',
   component: FormWrapper,
-  hocs: [withCurrentUser, withApollo, withRouter, withCollectionProps]
+  hocs: [withUser, withApollo, withRouter, withCollectionProps]
 });

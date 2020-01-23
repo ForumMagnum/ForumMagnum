@@ -3,7 +3,10 @@ import { withStyles, createStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import sumBy from 'lodash/sumBy'
-import { registerComponent, Components, useMulti, getFragment, updateEachQueryResultOfType, handleUpdateMutation, useUpdate } from 'meteor/vulcan:core';
+import { registerComponent, Components, getFragment } from 'meteor/vulcan:core';
+import { useUpdate } from '../../lib/crud/withUpdate';
+import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/crud/cacheUpdates';
+import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation } from 'react-apollo';
 import Users from 'meteor/vulcan:users';
 import { Paper } from '@material-ui/core';

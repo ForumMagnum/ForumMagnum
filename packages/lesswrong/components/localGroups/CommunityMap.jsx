@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { Components, registerComponent, useMulti, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { useMulti } from '../../lib/crud/withMulti';
 import { withStyles } from '@material-ui/core/styles';
 import { Localgroups } from '../../lib/index.js';
 import { Posts } from '../../lib/collections/posts';

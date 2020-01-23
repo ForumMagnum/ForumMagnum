@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
-import {
-  Components,
-  withDocument,
-  registerComponent,
-} from 'meteor/vulcan:core';
+import { Components, registerComponent, } from 'meteor/vulcan:core';
+import { withSingle } from '../../lib/crud/withSingle';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import NoSSR from 'react-no-ssr';
 import Users from 'meteor/vulcan:users';
@@ -183,4 +180,4 @@ const options = {
 };
 
 
-registerComponent('SequencesPage', SequencesPage, [withDocument, options], withUser, withStyles(styles, { name: "SequencesPage" }));
+registerComponent('SequencesPage', SequencesPage, [withSingle, options], withUser, withStyles(styles, { name: "SequencesPage" }));

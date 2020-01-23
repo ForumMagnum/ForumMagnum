@@ -1,5 +1,5 @@
 import React from 'react';
-import { withDocument, useSingle } from 'meteor/vulcan:core';
+import { withSingle, useSingle } from '../../lib/crud/withSingle';
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { createDummyUser, createDummyPost } from '../../testing/utils.js'
@@ -74,7 +74,7 @@ describe('renderEmail', async () => {
         version: 'String'
       }
     };
-    const PostTitleComponent = withDocument(queryOptions)(
+    const PostTitleComponent = withSingle(queryOptions)(
       ({document}) => <div>{document?.title}</div>
     );
     
@@ -129,7 +129,7 @@ describe('renderEmail', async () => {
     const conversation = await createDummyConversation(user1);
     await createDummyMessage(conversation);
     
-    const MessagesByConversationComponent = withList({
+    const MessagesByConversationComponent = withMulti({
       collection: Messages,
       queryName: "PrivateMessageQuery",
       fragmentName: "messageListFragment",

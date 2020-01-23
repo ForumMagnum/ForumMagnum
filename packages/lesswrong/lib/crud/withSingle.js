@@ -27,7 +27,7 @@ export function getResolverNameFromOptions({ collectionName, collection }) {
   return Utils.camelCaseify(typeName);
 }
 
-export default function withSingle({ collectionName, collection, fragment, fragmentName, extraVariables, fetchPolicy, propertyName = 'document', extraQueries }) {
+export function withSingle({ collectionName, collection, fragment, fragmentName, extraVariables, fetchPolicy, propertyName = 'document', extraQueries }) {
   ({ collectionName, collection } = extractCollectionInfo({ collectionName, collection }));
   ({ fragmentName, fragment } = extractFragmentInfo({ fragment, fragmentName }, collectionName));
 
@@ -108,3 +108,5 @@ export function useSingle({ collectionName,
   const document = data && data[resolverName] && data[resolverName].result
   return { document, data, ...rest }
 }
+
+export default withSingle;

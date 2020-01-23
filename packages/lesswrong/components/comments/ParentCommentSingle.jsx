@@ -1,4 +1,5 @@
-import { Components, registerComponent, withDocument } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Comments } from '../../lib/collections/comments';
 import classNames from 'classnames';
@@ -30,4 +31,4 @@ const documentOptions = {
   fragmentName: 'SelectCommentsList',
 };
 
-registerComponent('ParentCommentSingle', ParentCommentSingle, [withDocument, documentOptions]);
+registerComponent('ParentCommentSingle', ParentCommentSingle, [withSingle, documentOptions]);

@@ -1,5 +1,6 @@
 import React from 'react';
-import { registerComponent, Components, withList } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
+import { withMulti } from '../../lib/crud/withMulti';
 import Chapters from '../../lib/collections/chapters/collection.js';
 
 const ChaptersList = ({results, loading, canEdit}) => {
@@ -20,4 +21,4 @@ const options = {
   ssr: true,
 }
 
-registerComponent('ChaptersList', ChaptersList, [withList, options])
+registerComponent('ChaptersList', ChaptersList, [withMulti, options])

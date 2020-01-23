@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Components, withList, registerComponent, getSetting
+  Components, registerComponent, getSetting
 } from 'meteor/vulcan:core';
+import { withMulti } from '../../lib/crud/withMulti';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
 import { withStyles } from '@material-ui/core/styles';
@@ -209,7 +210,7 @@ PostsTimeBlock.propTypes = {
 };
 
 registerComponent('PostsTimeBlock', PostsTimeBlock,
-  [withList, {
+  [withMulti, {
     collection: Posts,
     queryName: 'PostsTimeframeListQuery',
     fragmentName: 'PostsList',

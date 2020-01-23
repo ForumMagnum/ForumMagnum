@@ -3,7 +3,7 @@ import { getFragment } from 'meteor/vulcan:lib';
 import { graphql } from 'react-apollo';   
 import gql from 'graphql-tag';    
 
-const withCurrentUser = component => {
+export const withCurrentUser = component => {
 
   return graphql(
     gql`

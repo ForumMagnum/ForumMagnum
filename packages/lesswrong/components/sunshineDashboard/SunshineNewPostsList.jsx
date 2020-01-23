@@ -1,4 +1,5 @@
-import { Components, registerComponent, withList } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withMulti } from '../../lib/crud/withMulti';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
@@ -48,4 +49,4 @@ const withListOptions = {
   ssr: true
 };
 
-registerComponent('SunshineNewPostsList', SunshineNewPostsList, [withList, withListOptions], withUser, withStyles(styles, {name:"SunshineNewPostsList"}));
+registerComponent('SunshineNewPostsList', SunshineNewPostsList, [withMulti, withListOptions], withUser, withStyles(styles, {name:"SunshineNewPostsList"}));

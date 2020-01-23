@@ -1,4 +1,4 @@
-import { useMulti } from 'meteor/vulcan:core';
+import { useMulti } from '../../lib/crud/withMulti';
 import { Tags } from '../../lib/collections/tags/collection.js';
 
 export const useTagBySlug = (slug) => {

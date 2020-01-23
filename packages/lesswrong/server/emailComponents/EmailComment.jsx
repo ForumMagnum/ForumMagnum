@@ -1,7 +1,8 @@
 import React from 'react';
 import { Comments } from '../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles';
-import { Components, registerComponent, useSingle } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { useSingle } from '../../lib/crud/withSingle';
 import { Posts } from '../../lib/collections/posts/collection.js';
 import groupBy from 'lodash/groupBy';
 import './EmailFormatDate.jsx';

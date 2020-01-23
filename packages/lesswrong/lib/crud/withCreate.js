@@ -35,7 +35,7 @@ import { compose, withHandlers } from 'recompose';
 import { cacheUpdateGenerator } from './cacheUpdates';
 import { getExtraVariables } from './utils'
 
-const withCreate = options => {
+export const withCreate = options => {
   const { collectionName, collection } = extractCollectionInfo(options);
   const { fragmentName, fragment, extraVariablesString } = extractFragmentInfo(options, collectionName);
 

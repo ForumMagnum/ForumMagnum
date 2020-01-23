@@ -1,4 +1,5 @@
-import { Components, registerComponent, withDocument } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withSingle } from '../../../lib/crud/withSingle';
 import React from 'react';
 import { Comments } from '../../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles';
@@ -44,4 +45,4 @@ const options = {
 
 registerComponent('CommentDeletedMetadata', CommentDeletedMetadata,
   withStyles(styles, {name: "CommentDeletedMetadata"}),
-  [withDocument, options]);
+  [withSingle, options]);

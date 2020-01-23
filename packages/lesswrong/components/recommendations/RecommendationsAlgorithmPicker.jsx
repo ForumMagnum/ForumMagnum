@@ -1,5 +1,6 @@
 import React from 'react';
-import { registerComponent, withUpdate, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, getSetting } from 'meteor/vulcan:core';
+import { withUpdate } from '../../lib/crud/withUpdate';
 import Input from '@material-ui/core/Input';
 import Checkbox from '@material-ui/core/Checkbox';
 import deepmerge from 'deepmerge';

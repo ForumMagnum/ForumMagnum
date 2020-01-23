@@ -1,5 +1,6 @@
 import { Components, registerComponent, getCollection } from 'meteor/vulcan:lib';
-import { withCurrentUser, withMulti } from 'meteor/vulcan:core';
+import { withMulti } from '../../lib/crud/withMulti';
+import withUser from '../common/withUser';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage, intlShape } from 'meteor/vulcan:i18n';
@@ -115,7 +116,7 @@ Datatable.defaultProps = {
   showEdit: true,
   showSearch: true,
 };
-registerComponent({ name: 'Datatable', component: Datatable, hocs: [withCurrentUser] });
+registerComponent({ name: 'Datatable', component: Datatable, hocs: [withUser] });
 export default Datatable;
 
 const DatatableLayout = ({ collectionName, children }) => (

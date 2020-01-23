@@ -1,4 +1,5 @@
-import { Components, registerComponent, withUpdate, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames'

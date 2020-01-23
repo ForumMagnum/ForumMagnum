@@ -1,4 +1,4 @@
-import { useMulti } from 'meteor/vulcan:core';
+import { useMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments/collection.js';
 
 export const useCommentByLegacyId = ({ legacyId }) => {

@@ -1,5 +1,7 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, withDocument, withUpdate } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
+import { withUpdate } from '../../lib/crud/withUpdate';
+import { withSingle } from '../../lib/crud/withSingle';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
@@ -255,7 +257,7 @@ class KarmaChangeNotifier extends PureComponent {
 
 registerComponent('KarmaChangeNotifier', KarmaChangeNotifier,
   withUser, withErrorBoundary,
-  [withDocument, {
+  [withSingle, {
     collection: Users,
     queryName: 'UserKarmaChangesQuery',
     fragmentName: 'UserKarmaChanges'
