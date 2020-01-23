@@ -25,6 +25,8 @@ function generateFragmentTypes(filename) {
     sb.push(generateFragmentTypeDefinition(fragmentName));
   }
   
+  sb.push(generateFragmentsIndexType());
+  
   const fragmentFileContents = fragmentFileHeader + sb.join('');
   
   if (filename) {
@@ -54,6 +56,19 @@ function generateFragmentTypeDefinition(fragmentName: string): string {
   assert(collection);
   
   return fragmentToInterface(fragmentName, parsedFragment, collection);
+}
+
+function generateFragmentsIndexType(): string {
+  const fragmentNames: Array<string> = getAllFragmentNames();
+  const sb: Array<string> = [];
+  
+  sb.push('interface FragmentTypes {\n');
+  for (let fragmentName of fragmentNames) {
+    sb.push(`\t${fragmentName}: ${fragmentName}\n`);
+  }
+  sb.push('}\n\n');
+  
+  return sb.join('');
 }
 
 function fragmentToInterface(interfaceName: string, parsedFragment, collection): string {

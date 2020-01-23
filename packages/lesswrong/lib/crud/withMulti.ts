@@ -197,7 +197,7 @@ export function withMulti({
   );
 }
 
-export function useMulti<FragmentType>({
+export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   terms,
   extraVariablesValues,
   pollInterval = getSetting('pollInterval', 0), //LESSWRONG: Polling defaults disabled
@@ -225,7 +225,7 @@ export function useMulti<FragmentType>({
   fetchPolicy?: any,
   collectionName?: string,
   collection?: any,
-  fragmentName?: string,
+  fragmentName?: FragmentTypeName,
   fragment?: any,
   limit?: number,
   itemsPerPage?: number,
@@ -235,7 +235,7 @@ export function useMulti<FragmentType>({
   loading: boolean,
   loadingInitial: boolean,
   loadingMore: boolean,
-  results: Array<FragmentType>,
+  results: Array<FragmentTypes[FragmentTypeName]>,
   totalCount?: number,
   refetch: any,
   error: any,
