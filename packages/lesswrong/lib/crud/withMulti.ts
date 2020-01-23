@@ -110,7 +110,8 @@ export function withMulti({
         alias: `with${Utils.pluralize(typeName)}`,
 
         // graphql query options
-        options({ terms, paginationTerms, currentUser, ...rest }) {
+        options(props: any) {
+          const { terms, paginationTerms, currentUser, ...rest } = props;
           // get terms from options, then props, then pagination
           const mergedTerms = { ...queryTerms, ...terms, ...paginationTerms };
           const graphQLOptions: any = {
@@ -196,7 +197,7 @@ export function withMulti({
   );
 }
 
-export function useMulti({
+export function useMulti<FragmentType>({
   terms,
   extraVariablesValues,
   pollInterval = getSetting('pollInterval', 0), //LESSWRONG: Polling defaults disabled
@@ -234,7 +235,7 @@ export function useMulti({
   loading: boolean,
   loadingInitial: boolean,
   loadingMore: boolean,
-  results: any,
+  results: Array<FragmentType>,
   totalCount?: number,
   refetch: any,
   error: any,

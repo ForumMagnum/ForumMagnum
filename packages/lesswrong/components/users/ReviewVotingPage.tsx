@@ -172,7 +172,7 @@ const generatePermutation = (count: number, user): Array<number> => {
 const ReviewVotingPage = ({classes}) => {
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
-  const { results: posts, loading: postsLoading } = useMulti({
+  const { results: posts, loading: postsLoading } = useMulti<PostsList>({
     terms: {view:"reviews2018", limit: 100},
     collection: Posts,
     fragmentName: 'PostsList',
@@ -180,7 +180,7 @@ const ReviewVotingPage = ({classes}) => {
     ssr: true
   });
   
-  const { results: dbVotes, loading: dbVotesLoading } = useMulti({
+  const { results: dbVotes, loading: dbVotesLoading } = useMulti<reviewVoteFragment>({
     terms: {view: "reviewVotesFromUser", limit: 100, userId: currentUser?._id},
     collection: ReviewVotes,
     fragmentName: "reviewVoteFragment",
@@ -243,7 +243,7 @@ const ReviewVotingPage = ({classes}) => {
         submitReviewVote: {
           __typename: "ReviewVote",
           ...existingVote,
-          quadraticScore: (typeof set !== 'undefined') ? set : (existingVote.quadraticScore + (change || 0))
+          quadraticScore: (typeof set !== 'undefined') ? set : ((existingVote?.quadraticScore || 0) + (change || 0))
         }
       }
     })
