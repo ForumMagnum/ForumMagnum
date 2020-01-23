@@ -84,7 +84,7 @@ function fragmentToInterface(interfaceName: string, parsedFragment, collection):
     switch(selection.kind) {
       case "Field":
         const { fieldType, subfragment } = getFragmentFieldType(interfaceName, selection, collection)
-        sb.push(`\t${selection.name.value}: ${fieldType},\n`);
+        sb.push(`\treadonly ${selection.name.value}: ${fieldType},\n`);
         if (subfragment)
           allSubfragments.push(subfragment);
         break;
