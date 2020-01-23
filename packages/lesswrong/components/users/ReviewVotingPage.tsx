@@ -175,7 +175,6 @@ const ReviewVotingPage = ({classes}) => {
   const { results: posts, loading: postsLoading } = useMulti({
     terms: {view:"reviews2018", limit: 100},
     collection: Posts,
-    queryName: 'postsListQuery',
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
     ssr: true
@@ -184,7 +183,6 @@ const ReviewVotingPage = ({classes}) => {
   const { results: dbVotes, loading: dbVotesLoading } = useMulti({
     terms: {view: "reviewVotesFromUser", limit: 100, userId: currentUser?._id},
     collection: ReviewVotes,
-    queryName: "reviewVoteQuery",
     fragmentName: "reviewVoteFragment",
     fetchPolicy: 'cache-and-network',
     ssr: true

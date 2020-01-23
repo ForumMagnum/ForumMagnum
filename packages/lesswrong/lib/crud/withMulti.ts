@@ -42,6 +42,7 @@ import { LocationContext, NavigationContext } from 'meteor/vulcan:core';
 import compose from 'recompose/compose';
 import withState from 'recompose/withState';
 import qs from 'qs';
+import * as _ from 'underscore';
 
 function getGraphQLQueryFromOptions({
   collectionName, collection, fragmentName, fragment, extraQueries, extraVariables,
@@ -112,7 +113,7 @@ export function withMulti({
         options({ terms, paginationTerms, currentUser, ...rest }) {
           // get terms from options, then props, then pagination
           const mergedTerms = { ...queryTerms, ...terms, ...paginationTerms };
-          const graphQLOptions = {
+          const graphQLOptions: any = {
             variables: {
               input: {
                 terms: mergedTerms,
@@ -139,8 +140,9 @@ export function withMulti({
         },
 
         // define props returned by graphql HoC
-        props(props) {
+        props(props: any) {
           // see https://github.com/apollographql/apollo-client/blob/master/packages/apollo-client/src/core/networkStatus.ts
+          if (!(props?.data)) throw new Error("Missing props.data");
           const refetch = props.data.refetch,
             // results = Utils.convertDates(collection, props.data[listResolverName]),
             results = props.data[resolverName] && props.data[resolverName].results,
@@ -210,12 +212,43 @@ export function useMulti({
   itemsPerPage = 10,
   skip = false,
   queryLimitName,
-}) {
+}: {
+  terms: any,
+  extraVariablesValues?: any,
+  pollInterval?: number,
+  enableTotal?: boolean,
+  enableCache?: boolean,
+  extraQueries?: any,
+  ssr?: boolean,
+  extraVariables?: any,
+  fetchPolicy?: any,
+  collectionName?: string,
+  collection?: any,
+  fragmentName?: string,
+  fragment?: any,
+  limit?: number,
+  itemsPerPage?: number,
+  skip?: boolean,
+  queryLimitName?: string,
+}): {
+  loading: boolean,
+  loadingInitial: boolean,
+  loadingMore: boolean,
+  results: any,
+  totalCount?: number,
+  refetch: any,
+  error: any,
+  count?: number,
+  showLoadMore: boolean,
+  loadMoreProps: any,
+  loadMore: any,
+  limit: number,
+} {
   // Since we don't have access to useLocation and useNavigation we have to manually reference context here
   const { query: locationQuery, location } = useContext(LocationContext);
   const { history } = useContext(NavigationContext)
 
-  const defaultLimit = ((locationQuery && parseInt(locationQuery[queryLimitName])) || (terms && terms.limit) || initialLimit)
+  const defaultLimit = ((locationQuery && queryLimitName && parseInt(locationQuery[queryLimitName])) || (terms && terms.limit) || initialLimit)
   const [ limit, setLimit ] = useState(defaultLimit);
   const [ hasRequestedMore, setHasRequestedMore ] = useState(false);
   
@@ -252,7 +285,7 @@ export function useMulti({
   // if showLoadMore returned true.
   const showLoadMore = enableTotal ? (count < totalCount) : (count >= limit);
   
-  const loadMore = (limitOverride) => {
+  const loadMore = (limitOverride: number) => {
     setHasRequestedMore(true);
     const newLimit = limitOverride || (limit+itemsPerPage)
     setLimit(newLimit);
