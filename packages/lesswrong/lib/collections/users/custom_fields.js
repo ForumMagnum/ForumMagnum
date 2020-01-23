@@ -924,6 +924,7 @@ addFieldsDict(Users, {
   needsReview: {
     type: Boolean,
     canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     hidden: true,
     optional: true,
     ...schemaDefaultValue(false),
@@ -932,6 +933,7 @@ addFieldsDict(Users, {
   sunshineSnoozed: {
     type: Boolean,
     canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     hidden: true,
     optional: true,
     ...schemaDefaultValue(false),
