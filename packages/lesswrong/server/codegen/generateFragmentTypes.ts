@@ -1,6 +1,7 @@
 import { getAllFragmentNames, getFragment, getFragmentText, getCollectionName, getCollection } from 'meteor/vulcan:core';
 import { simplSchemaToGraphQLtype } from '../../lib/utils/schemaUtils';
 import GraphQLJSON from 'graphql-type-json';
+import SimpleSchema from 'simpl-schema'
 import fs from 'fs';
 
 const fragmentFileHeader = `//
@@ -126,7 +127,11 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField, collect
   if (!fieldType) {
     if (fieldName in schema) {
       assert(schema[fieldName].type);
-      fieldType = simplSchemaTypeToTypescript(schema, fieldName, schema[fieldName].type);
+      if (schema[fieldName]?.resolveAs?.type && !schema[fieldName]?.resolveAs?.fieldName) {
+        fieldType = graphqlTypeToTypescript(schema[fieldName].resolveAs.type);
+      } else {
+        fieldType = simplSchemaTypeToTypescript(schema, fieldName, schema[fieldName].type);
+      }
     }
   }
   
@@ -150,7 +155,11 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField, collect
     else
     {
       if (typeof fieldType !== "string") throw new Error("fieldType is not a string: was "+JSON.stringify(fieldType));
-      const collectionName = getCollectionName(fieldType);
+      let collectionName;
+      if (fieldType.startsWith("Array<"))
+        collectionName = getCollectionName(fieldType.substr(6, fieldType.length-7));
+      else
+        collectionName = getCollectionName(fieldType);
       const subfieldCollection = getCollection(collectionName);
       if (!subfieldCollection) {
         console.log(`Field ${fieldName} in fragment ${fragmentName} has type ${fieldType} which does not identify a collection`);
@@ -185,6 +194,7 @@ function simplSchemaTypeToTypescript(schema, fieldName, simplSchemaType): string
     else if (simplSchemaType.singleType == Boolean) return "boolean";
     else if (simplSchemaType.singleType == Number) return "number";
     else if (simplSchemaType.singleType == Date) return "Date";
+    else if (simplSchemaType.singleType == SimpleSchema.Integer) return "number";
     
     const graphQLtype = simplSchemaToGraphQLtype(simplSchemaType.singleType);
     if (graphQLtype) {
@@ -198,17 +208,19 @@ function simplSchemaTypeToTypescript(schema, fieldName, simplSchemaType): string
   }
 }
 
-function graphqlTypeToTypescript(graphqlType: string): string {
+function graphqlTypeToTypescript(graphqlType: any): string {
   if (!graphqlType) throw new Error("Type cannot be undefined");
   if (graphqlType == GraphQLJSON) return "any";
   if (graphqlType.startsWith("[") && graphqlType.endsWith("]")) {
-    return `Array<${graphqlTypeToTypescript(graphqlType.substr(1,graphqlType.length-2))}>`;
+    const arrayElementType = graphqlType.endsWith("!]") ? graphqlType.substr(1,graphqlType.length-3) : graphqlType.substr(1,graphqlType.length-2);
+    return `Array<${graphqlTypeToTypescript(arrayElementType )}>`;
   }
   switch(graphqlType) {
     case "Int": return "number";
     case "Boolean": return "boolean";
     case "String": return "string";
     case "Date": return "Date";
+    case "Float": return "number";
     default:
       if (typeof graphqlType=="string" && getCollection(getCollectionName(graphqlType))) {
         return graphqlType;
@@ -216,8 +228,8 @@ function graphqlTypeToTypescript(graphqlType: string): string {
         return graphqlType.collectionName;
       } else {
         // TODO
-        throw new Error("Unrecognized type: "+graphqlType);
-        //return `any /*${graphqlType}*/`;
+        //throw new Error("Unrecognized type: "+graphqlType);
+        return `any /*${graphqlType}*/`;
       }
   }
 }

@@ -129,15 +129,15 @@ interface PostsDetails extends PostsBase, PostsAuthors { // fragment on Posts
 	canonicalBook: PostsDetails_canonicalBook,
 	canonicalCollection: PostsDetails_canonicalCollection,
 	showModerationGuidelines: boolean,
-	moderationGuidelines: any,
+	moderationGuidelines: PostsDetails_moderationGuidelines,
 	bannedUserIds: Array<string>,
 	hideAuthor: boolean,
 	moderationStyle: string,
 	voteCount: number,
 	currentUserVotes: VoteFragment,
 	feed: RSSFeedMinimumInfo,
-	sourcePostRelations: any,
-	targetPostRelations: any,
+	sourcePostRelations: PostsDetails_sourcePostRelations,
+	targetPostRelations: PostsDetails_targetPostRelations,
 }
 
 interface PostsDetails_canonicalSequence { // fragment on Sequences
@@ -152,16 +152,52 @@ interface PostsDetails_canonicalCollection { // fragment on Collections
 	title: string,
 }
 
+interface PostsDetails_moderationGuidelines { // fragment on Revisions
+	version: string,
+	html: string,
+}
+
+interface PostsDetails_sourcePostRelations { // fragment on PostRelations
+	_id: string,
+	sourcePostId: string,
+	sourcePost: PostsDetails_sourcePostRelations_sourcePost,
+	order: number,
+}
+
+interface PostsDetails_sourcePostRelations_sourcePost extends PostsBase, PostsAuthors { // fragment on Posts
+}
+
+interface PostsDetails_targetPostRelations { // fragment on PostRelations
+	_id: string,
+	sourcePostId: string,
+	targetPostId: string,
+	targetPost: PostsDetails_targetPostRelations_targetPost,
+	order: number,
+}
+
+interface PostsDetails_targetPostRelations_targetPost extends PostsBase, PostsAuthors { // fragment on Posts
+}
+
 interface PostsRevision extends PostsDetails { // fragment on Posts
 	version: string,
 	contents: RevisionDisplay,
-	revisions: any,
+	revisions: PostsRevision_revisions,
+}
+
+interface PostsRevision_revisions { // fragment on Revisions
+	version: string,
+	editedAt: Date,
 }
 
 interface PostsRevisionEdit extends PostsDetails { // fragment on Posts
 	version: string,
 	contents: RevisionEdit,
-	revisions: any,
+	revisions: PostsRevisionEdit_revisions,
+}
+
+interface PostsRevisionEdit_revisions { // fragment on Revisions
+	version: string,
+	editedAt: Date,
 }
 
 interface PostsWithNavigationAndRevision extends PostsRevision, PostSequenceNavigation { // fragment on Posts
@@ -171,9 +207,40 @@ interface PostsWithNavigation extends PostsPage, PostSequenceNavigation { // fra
 }
 
 interface PostSequenceNavigation { // fragment on Posts
-	sequence: any,
-	prevPost: any,
-	nextPost: any,
+	sequence: PostSequenceNavigation_sequence,
+	prevPost: PostSequenceNavigation_prevPost,
+	nextPost: PostSequenceNavigation_nextPost,
+}
+
+interface PostSequenceNavigation_sequence { // fragment on Sequences
+	_id: string,
+	title: string,
+}
+
+interface PostSequenceNavigation_prevPost { // fragment on Posts
+	_id: string,
+	title: string,
+	slug: string,
+	commentCount: number,
+	baseScore: number,
+	sequence: PostSequenceNavigation_prevPost_sequence,
+}
+
+interface PostSequenceNavigation_prevPost_sequence { // fragment on Sequences
+	_id: string,
+}
+
+interface PostSequenceNavigation_nextPost { // fragment on Posts
+	_id: string,
+	title: string,
+	slug: string,
+	commentCount: number,
+	baseScore: number,
+	sequence: PostSequenceNavigation_nextPost_sequence,
+}
+
+interface PostSequenceNavigation_nextPost_sequence { // fragment on Sequences
+	_id: string,
 }
 
 interface PostsPage extends PostsDetails { // fragment on Posts
@@ -193,13 +260,23 @@ interface EditModerationGuidelines { // fragment on Posts
 
 interface PostsRevisionsList { // fragment on Posts
 	_id: string,
-	revisions: any,
+	revisions: PostsRevisionsList_revisions,
+}
+
+interface PostsRevisionsList_revisions { // fragment on Revisions
+	version: string,
+	editedAt: Date,
 }
 
 interface PostsList extends PostsBase, PostsAuthors { // fragment on Posts
 	originalPostRelationSourceId: string,
-	contents: any,
+	contents: PostsList_contents,
 	moderationGuidelines: RevisionDisplay,
+}
+
+interface PostsList_contents { // fragment on Revisions
+	htmlHighlight: string,
+	wordCount: number,
 }
 
 interface PostsRecentDiscussion extends PostsList { // fragment on Posts
@@ -219,7 +296,7 @@ interface CommentsList { // fragment on Comments
 	postId: string,
 	parentCommentId: string,
 	topLevelCommentId: string,
-	contents: any,
+	contents: CommentsList_contents,
 	postedAt: Date,
 	repliesBlockedUntil: Date,
 	userId: string,
@@ -248,6 +325,10 @@ interface CommentsList { // fragment on Comments
 	moderatorHat: boolean,
 	nominatedForReview: string,
 	reviewingForReview: string,
+}
+
+interface CommentsList_contents extends RevisionDisplay { // fragment on Revisions
+	plaintextMainText: string,
 }
 
 interface CommentPermalink extends CommentsList { // fragment on Comments
@@ -478,8 +559,8 @@ interface ReviewVotesDefaultFragment { // fragment on ReviewVotes
 	createdAt: Date,
 	userId: string,
 	postId: string,
-	qualitativeScore: any /*{"definitions":[{"type":"SimpleSchema.Integer"}]}*/,
-	quadraticScore: any /*{"definitions":[{"type":"SimpleSchema.Integer"}]}*/,
+	qualitativeScore: number,
+	quadraticScore: number,
 	comment: string,
 }
 
@@ -488,8 +569,8 @@ interface reviewVoteFragment { // fragment on ReviewVotes
 	createdAt: Date,
 	userId: string,
 	postId: string,
-	qualitativeScore: any /*{"definitions":[{"type":"SimpleSchema.Integer"}]}*/,
-	quadraticScore: any /*{"definitions":[{"type":"SimpleSchema.Integer"}]}*/,
+	qualitativeScore: number,
+	quadraticScore: number,
 	comment: string,
 }
 
@@ -566,9 +647,13 @@ interface newConversationFragment { // fragment on Conversations
 interface messageListFragment { // fragment on Messages
 	_id: string,
 	user: UsersMinimumInfo,
-	contents: any,
+	contents: messageListFragment_contents,
 	createdAt: Date,
 	conversationId: string,
+}
+
+interface messageListFragment_contents { // fragment on Revisions
+	html: string,
 }
 
 interface editTitle { // fragment on Conversations
@@ -920,6 +1005,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
 	notificationPrivateMessage: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"channel":{"type":{"definitions":[{"allowedValues":["none","onsite","email","both"]}]},"optional":false,"label":"Channel"},"batchingFrequency":{"type":{"definitions":[{"allowedValues":["realtime","daily","weekly"]}]},"optional":false,"label":"Batching frequency"},"timeOfDayGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Time of day gmt"},"dayOfWeekGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Day of week gmt"}},"_depsLabels":{},"_schemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/,
 	notificationSharedWithMe: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"channel":{"type":{"definitions":[{"allowedValues":["none","onsite","email","both"]}]},"optional":false,"label":"Channel"},"batchingFrequency":{"type":{"definitions":[{"allowedValues":["realtime","daily","weekly"]}]},"optional":false,"label":"Batching frequency"},"timeOfDayGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Time of day gmt"},"dayOfWeekGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Day of week gmt"}},"_depsLabels":{},"_schemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/,
 	hideFrontpageMap: boolean,
+	deleted: boolean,
 }
 
 interface unclaimedReportsList { // fragment on Reports
@@ -995,21 +1081,33 @@ interface VoteFragment { // fragment on Votes
 interface WithVotePost { // fragment on Posts
 	__typename: string,
 	_id: string,
-	currentUserVotes: any,
+	currentUserVotes: WithVotePost_currentUserVotes,
 	baseScore: number,
 	score: number,
 	afBaseScore: number,
 	voteCount: number,
 }
 
+interface WithVotePost_currentUserVotes { // fragment on Votes
+	_id: string,
+	voteType: string,
+	power: number,
+}
+
 interface WithVoteComment { // fragment on Comments
 	__typename: string,
 	_id: string,
-	currentUserVotes: any,
+	currentUserVotes: WithVoteComment_currentUserVotes,
 	baseScore: number,
 	score: number,
 	afBaseScore: number,
 	voteCount: number,
+}
+
+interface WithVoteComment_currentUserVotes { // fragment on Votes
+	_id: string,
+	voteType: string,
+	power: number,
 }
 
 interface VotedItem { // fragment on Votes
@@ -1037,7 +1135,7 @@ interface RevisionEdit { // fragment on Revisions
 	originalContents: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":["data"],"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/,
 	html: string,
 	markdown: string,
-	draftJS: any /*{"definitions":[{}]}*/,
+	draftJS: any,
 	ckEditorMarkup: string,
 	wordCount: number,
 	htmlHighlight: string,
@@ -1092,7 +1190,29 @@ interface SequencesNavigationFragment { // fragment on Sequences
 	isDeleted: boolean,
 	hidden: boolean,
 	curatedOrder: number,
-	chapters: any,
+	chapters: SequencesNavigationFragment_chapters,
+}
+
+interface SequencesNavigationFragment_chapters { // fragment on Chapters
+	_id: string,
+	title: string,
+	number: number,
+	sequenceId: string,
+	posts: SequencesNavigationFragment_chapters_posts,
+}
+
+interface SequencesNavigationFragment_chapters_posts { // fragment on Posts
+	_id: string,
+	slug: string,
+	title: string,
+	lastVisitedAt: Date,
+	isRead: boolean,
+	excerpt: string,
+	baseScore: number,
+	score: number,
+	commentCount: number,
+	viewCount: number,
+	clickCount: number,
 }
 
 interface BookPageFragment { // fragment on Books
@@ -1130,7 +1250,12 @@ interface CollectionsEditFragment extends CollectionsPageFragment { // fragment 
 }
 
 interface SuggestAlignmentPost extends PostsList { // fragment on Posts
-	suggestForAlignmentUsers: any,
+	suggestForAlignmentUsers: SuggestAlignmentPost_suggestForAlignmentUsers,
+}
+
+interface SuggestAlignmentPost_suggestForAlignmentUsers { // fragment on Users
+	_id: string,
+	displayName: string,
 }
 
 interface SuggestAlignmentUser extends UsersMinimumInfo { // fragment on Users
@@ -1167,7 +1292,11 @@ interface TagRelFragment_tag { // fragment on Tags
 	_id: string,
 	name: string,
 	slug: string,
-	description: any,
+	description: TagRelFragment_tag_description,
+}
+
+interface TagRelFragment_tag_description { // fragment on Revisions
+	htmlHighlight: string,
 }
 
 interface TagRelMinimumFragment { // fragment on TagRels
@@ -1184,7 +1313,11 @@ interface TagRelMinimumFragment_tag { // fragment on Tags
 	_id: string,
 	name: string,
 	slug: string,
-	description: any,
+	description: TagRelMinimumFragment_tag_description,
+}
+
+interface TagRelMinimumFragment_tag_description { // fragment on Revisions
+	htmlHighlight: string,
 }
 
 interface WithVoteTagRel { // fragment on TagRels
@@ -1194,7 +1327,7 @@ interface WithVoteTagRel { // fragment on TagRels
 	tagId: string,
 	tag: WithVoteTagRel_tag,
 	postId: string,
-	currentUserVotes: any,
+	currentUserVotes: WithVoteTagRel_currentUserVotes,
 	baseScore: number,
 	afBaseScore: number,
 	score: number,
@@ -1205,6 +1338,12 @@ interface WithVoteTagRel_tag { // fragment on Tags
 	_id: string,
 	name: string,
 	slug: string,
+}
+
+interface WithVoteTagRel_currentUserVotes { // fragment on Votes
+	_id: string,
+	voteType: string,
+	power: number,
 }
 
 interface TagsDefaultFragment { // fragment on Tags
@@ -1220,7 +1359,12 @@ interface TagFragment { // fragment on Tags
 	slug: string,
 	postCount: number,
 	deleted: boolean,
-	description: any,
+	description: TagFragment_description,
+}
+
+interface TagFragment_description { // fragment on Revisions
+	html: string,
+	htmlHighlight: string,
 }
 
 interface TagEditFragment { // fragment on Tags
@@ -1261,7 +1405,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
 	originalContents: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"type":{"type":{"definitions":[{}]},"optional":false,"label":"Type"},"data":{"type":{"definitions":[{},{"blackbox":true}]},"optional":false,"label":"Data"}},"_depsLabels":{},"_schemaKeys":["type","data"],"_autoValues":[],"_blackboxKeys":["data"],"_firstLevelSchemaKeys":["type","data"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/,
 	html: string,
 	markdown: string,
-	draftJS: any /*{"definitions":[{}]}*/,
+	draftJS: any,
 	ckEditorMarkup: string,
 	wordCount: number,
 	htmlHighlight: string,
@@ -1310,12 +1454,17 @@ interface ChildRelatedPostRelList { // fragment on PostRelations
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
 	post: SuggestAlignmentComment_post,
 	suggestForAlignmentUserIds: Array<string>,
-	suggestForAlignmentUsers: any,
+	suggestForAlignmentUsers: SuggestAlignmentComment_suggestForAlignmentUsers,
 }
 
 interface SuggestAlignmentComment_post { // fragment on Posts
 	title: string,
 	_id: string,
 	slug: string,
+}
+
+interface SuggestAlignmentComment_suggestForAlignmentUsers { // fragment on Users
+	_id: string,
+	displayName: string,
 }
 
