@@ -1,4 +1,4 @@
-import { DatabaseMetadata } from '../lib/collections/databaseMetadata/collection.js';
+import { DatabaseMetadata } from '../lib/collections/databaseMetadata/collection';
 import { registerSetting, getSetting } from 'meteor/vulcan:core';
 import process from 'process';
 

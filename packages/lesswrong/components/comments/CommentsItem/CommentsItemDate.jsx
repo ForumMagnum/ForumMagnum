@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles'
-import { Link } from '../../../lib/reactRouterWrapper.jsx';
+import { Link } from '../../../lib/reactRouterWrapper';
 import LinkIcon from '@material-ui/icons/Link';
 import { Comments } from "../../../lib/collections/comments";
 import classNames from 'classnames';

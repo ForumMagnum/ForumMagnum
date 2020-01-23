@@ -11,7 +11,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import Users from 'meteor/vulcan:users';
 import Tooltip from '@material-ui/core/Tooltip';
 import { withStyles } from '@material-ui/core/styles'
-import { useTracking } from '../../lib/analyticsEvents.js';
+import { useTracking } from '../../lib/analyticsEvents';
 
 const styles = theme => ({
   icon: {

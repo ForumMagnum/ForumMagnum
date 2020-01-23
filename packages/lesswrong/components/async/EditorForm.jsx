@@ -16,7 +16,7 @@ import createLinkPlugin from 'draft-js-anchor-plugin';
 import LinkButton from './editor-plugins/LinkButton'
 import { myKeyBindingFn } from './editor-plugins/keyBindings.js'
 import createLinkifyPlugin from './editor-plugins/linkifyPlugin'
-import ImageButton from './editor-plugins/image/ImageButton.jsx';
+import ImageButton from './editor-plugins/image/ImageButton';
 import { Map } from 'immutable';
 import {
   createBlockStyleButton,

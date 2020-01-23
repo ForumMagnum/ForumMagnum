@@ -3,7 +3,7 @@ import { registerComponent } from 'meteor/vulcan:core';
 import { withMessages } from '../../common/withMessages';
 import MenuItem from '@material-ui/core/MenuItem';
 import Users from 'meteor/vulcan:users';
-import withModerateComment from './withModerateComment.js'
+import withModerateComment from './withModerateComment'
 import withDialog from '../../common/withDialog'
 import withUser from '../../common/withUser';
 

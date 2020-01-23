@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Components } from 'meteor/vulcan:core';
-import { hookToHoc } from '../../lib/hocUtils.js';
+import { hookToHoc } from '../../lib/hocUtils';
 
 export const CommentBoxContext = React.createContext('commentBox');
 

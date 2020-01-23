@@ -1,8 +1,8 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
-import { ExpandedDate } from '../common/FormatDate.jsx';
-import withHover from '../common/withHover.jsx';
+import { ExpandedDate } from '../common/FormatDate';
+import withHover from '../common/withHover';
 import moment from '../../lib/moment-timezone';
 
 export const POSTED_AT_WIDTH = 38

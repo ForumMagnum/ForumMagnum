@@ -11,8 +11,8 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import classNames from 'classnames';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import withRecordPostView from '../../common/withRecordPostView';
-import withNewEvents from '../../../lib/events/withNewEvents.jsx';
-import { userHasPingbacks, userHasTagging } from '../../../lib/betas.js';
+import withNewEvents from '../../../lib/events/withNewEvents';
+import { userHasPingbacks, userHasTagging } from '../../../lib/betas';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300

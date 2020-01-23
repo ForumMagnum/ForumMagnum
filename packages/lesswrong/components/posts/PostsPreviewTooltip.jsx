@@ -8,7 +8,7 @@ import { Posts } from '../../lib/collections/posts';
 import CommentIcon from '@material-ui/icons/ModeComment';
 import Card from '@material-ui/core/Card';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { userHasBoldPostItems } from '../../lib/betas.js';
+import { userHasBoldPostItems } from '../../lib/betas';
 
 export const POST_PREVIEW_WIDTH = 500
 

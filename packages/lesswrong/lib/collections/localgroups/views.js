@@ -1,4 +1,4 @@
-import Localgroups from "./collection.js"
+import Localgroups from "./collection"
 import { ensureIndex } from '../../collectionUtils';
 
 Localgroups.addDefaultView(terms => {

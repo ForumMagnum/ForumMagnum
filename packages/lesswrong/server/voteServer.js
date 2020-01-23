@@ -1,5 +1,5 @@
 import { debug, debugGroup, debugGroupEnd, Connectors, runCallbacks, runCallbacksAsync, newMutation, editMutation } from 'meteor/vulcan:core';
-import Votes from '../lib/collections/votes/collection.js';
+import Votes from '../lib/collections/votes/collection';
 import Users from 'meteor/vulcan:users';
 import { recalculateScore, recalculateBaseScore } from '../lib/scoring';
 import { voteTypes, createVote } from '../lib/voting/vote';

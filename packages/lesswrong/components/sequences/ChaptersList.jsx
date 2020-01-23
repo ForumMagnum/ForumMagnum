@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { withMulti } from '../../lib/crud/withMulti';
-import Chapters from '../../lib/collections/chapters/collection.js';
+import Chapters from '../../lib/collections/chapters/collection';
 
 const ChaptersList = ({results, loading, canEdit}) => {
   if (results && !loading) {

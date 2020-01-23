@@ -1,7 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { QueryLink } from '../../../lib/reactRouterWrapper.jsx';
+import { QueryLink } from '../../../lib/reactRouterWrapper';
 import PropTypes from 'prop-types';
 
 const styles = theme => ({

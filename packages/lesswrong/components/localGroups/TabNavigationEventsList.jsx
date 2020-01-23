@@ -4,7 +4,7 @@ import { withMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts';
 import Tooltip from '@material-ui/core/Tooltip';
 import MenuItem from '@material-ui/core/MenuItem';
-import { Link } from '../../lib/reactRouterWrapper.jsx';
+import { Link } from '../../lib/reactRouterWrapper';
 import { withStyles } from '@material-ui/core/styles'
 import moment from 'moment';
 import { useTimezone } from '../common/withTimezone';

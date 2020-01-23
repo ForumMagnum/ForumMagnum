@@ -1,4 +1,4 @@
-import schema from './schema.js';
+import schema from './schema';
 import { createCollection } from 'meteor/vulcan:core';
 import { addUniversalFields, ensureIndex } from '../../collectionUtils'
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import { useMutation } from 'react-apollo';
-import { AnalyticsUtil } from '../../lib/analyticsEvents.js';
+import { AnalyticsUtil } from '../../lib/analyticsEvents';
 import { useCurrentUser } from './withUser';
 import { useCookies } from 'react-cookie'
 import gql from 'graphql-tag';

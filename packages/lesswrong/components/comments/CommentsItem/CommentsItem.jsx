@@ -8,7 +8,7 @@ import { shallowEqual, shallowEqualExcept } from '../../../lib/utils/componentUt
 import { withStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import withUser from '../../common/withUser';
-import { Link } from '../../../lib/reactRouterWrapper.jsx';
+import { Link } from '../../../lib/reactRouterWrapper';
 import { Posts } from "../../../lib/collections/posts";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 

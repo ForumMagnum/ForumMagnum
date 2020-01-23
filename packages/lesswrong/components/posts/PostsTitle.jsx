@@ -4,9 +4,9 @@ import { withStyles } from '@material-ui/core/styles'
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';
-import { Link } from '../../lib/reactRouterWrapper.jsx';
+import { Link } from '../../lib/reactRouterWrapper';
 import { Posts } from '../../lib/collections/posts';
-import { userHasBoldPostItems } from '../../lib/betas.js';
+import { userHasBoldPostItems } from '../../lib/betas';
 
 const styles = theme => ({
   root: {

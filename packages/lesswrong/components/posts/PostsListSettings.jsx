@@ -7,12 +7,12 @@ import { withStyles } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
-import { QueryLink } from '../../lib/reactRouterWrapper.jsx'
+import { QueryLink } from '../../lib/reactRouterWrapper'
 
 import withUser from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
-import { sortings as defaultSortings, timeframes as defaultTimeframs } from './AllPostsPage.jsx'
+import { sortings as defaultSortings, timeframes as defaultTimeframs } from './AllPostsPage'
 
 const FILTERS_ALL = {
   "AlignmentForum": {

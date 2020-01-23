@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import { withUpdate } from '../../lib/crud/withUpdate';
-import { Link } from '../../lib/reactRouterWrapper.jsx';
+import { Link } from '../../lib/reactRouterWrapper';
 import NoSSR from 'react-no-ssr';
 import Headroom from 'react-headroom'
 import { withStyles, withTheme } from '@material-ui/core/styles';
@@ -18,7 +18,7 @@ import grey from '@material-ui/core/colors/grey';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
-import { withTracking, AnalyticsContext } from '../../lib/analyticsEvents.js';
+import { withTracking, AnalyticsContext } from '../../lib/analyticsEvents';
 
 
 export const getHeaderTextColor = theme => {

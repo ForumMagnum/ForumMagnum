@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import React, { Component } from 'react';
 import Card from '@material-ui/core/Card';
-import { getNotificationTypeByName } from '../../lib/notificationTypes.jsx';
+import { getNotificationTypeByName } from '../../lib/notificationTypes';
 import { getUrlClass, withNavigation } from '../../lib/routeUtil';
 import withHover from '../common/withHover';
 import withErrorBoundary from '../common/withErrorBoundary';

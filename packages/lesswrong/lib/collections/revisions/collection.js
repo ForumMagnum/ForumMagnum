@@ -1,4 +1,4 @@
-import schema from './schema.js';
+import schema from './schema';
 import { createCollection, getDefaultResolvers } from 'meteor/vulcan:core';
 import { extractVersionsFromSemver } from '../../editor/utils'
 import { addUniversalFields } from '../../collectionUtils'

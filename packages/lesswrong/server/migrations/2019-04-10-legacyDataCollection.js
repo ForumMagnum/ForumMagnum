@@ -1,7 +1,7 @@
 import { registerMigration, migrateDocuments } from './migrationUtils';
-import { LegacyData } from '../../lib/collections/legacyData/collection.js';
-import { Comments } from '../../lib/collections/comments/collection.js';
-import { Posts } from '../../lib/collections/posts/collection.js';
+import { LegacyData } from '../../lib/collections/legacyData/collection';
+import { Comments } from '../../lib/collections/comments/collection';
+import { Posts } from '../../lib/collections/posts/collection';
 import Users from 'meteor/vulcan:users';
 
 registerMigration({

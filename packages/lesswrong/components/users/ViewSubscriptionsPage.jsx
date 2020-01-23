@@ -3,10 +3,10 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
 import { withStyles } from '@material-ui/core/styles';
-import { Subscriptions } from '../../lib/collections/subscriptions/collection.js';
+import { Subscriptions } from '../../lib/collections/subscriptions/collection';
 import { useCurrentUser } from '../common/withUser';
-import { Link } from '../../lib/reactRouterWrapper.jsx';
-import { Comments } from '../../lib/collections/comments/collection.js';
+import { Link } from '../../lib/reactRouterWrapper';
+import { Comments } from '../../lib/collections/comments/collection';
 
 const styles = theme => ({
   subscribedItem: {

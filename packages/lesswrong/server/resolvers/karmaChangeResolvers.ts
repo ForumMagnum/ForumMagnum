@@ -1,5 +1,5 @@
 import Users from "meteor/vulcan:users";
-import { getKarmaChanges, getKarmaChangeDateRange, getKarmaChangeNextBatchDate } from "../karmaChanges.js";
+import { getKarmaChanges, getKarmaChangeDateRange, getKarmaChangeNextBatchDate } from "../karmaChanges";
 import { getSetting } from 'meteor/vulcan:core';
 
 Users.addField([

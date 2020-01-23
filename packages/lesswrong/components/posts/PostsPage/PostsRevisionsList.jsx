@@ -4,7 +4,7 @@ import { registerComponent, Components } from 'meteor/vulcan:core';
 import { withSingle } from '../../../lib/crud/withSingle';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Posts } from '../../../lib/collections/posts/collection'
-import { QueryLink } from '../../../lib/reactRouterWrapper.jsx';
+import { QueryLink } from '../../../lib/reactRouterWrapper';
 
 
 const styles = theme => ({

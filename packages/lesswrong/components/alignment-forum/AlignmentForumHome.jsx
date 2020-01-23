@@ -1,6 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { Link } from '../../lib/reactRouterWrapper.jsx';
+import { Link } from '../../lib/reactRouterWrapper';
 import Users from "meteor/vulcan:users";
 import withUser from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';

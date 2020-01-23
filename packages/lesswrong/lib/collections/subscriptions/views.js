@@ -1,4 +1,4 @@
-import { Subscriptions } from "./collection.js"
+import { Subscriptions } from "./collection"
 import { ensureIndex } from '../../collectionUtils';
 
 //Messages for a specific conversation

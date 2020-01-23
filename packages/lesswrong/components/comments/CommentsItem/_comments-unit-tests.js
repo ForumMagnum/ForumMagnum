@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow, configure } from 'enzyme';
 import { expect } from 'meteor/practicalmeteor:chai';
-import CommentsItem from './CommentsItem.jsx'
+import CommentsItem from './CommentsItem'
 import Adapter from 'enzyme-adapter-react-16';
 configure({ adapter: new Adapter() })
 

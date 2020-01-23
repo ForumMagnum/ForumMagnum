@@ -1,5 +1,5 @@
 import { useMulti } from '../../lib/crud/withMulti';
-import { Comments } from '../../lib/collections/comments/collection.js';
+import { Comments } from '../../lib/collections/comments/collection';
 
 export const useCommentByLegacyId = ({ legacyId }) => {
   const { results, loading, error } = useMulti({

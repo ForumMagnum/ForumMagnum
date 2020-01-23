@@ -12,7 +12,7 @@ Callbacks to:
 
 import { Posts } from '../../../lib/collections/posts'
 import { Connectors, addCallback, getSetting, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
-import { track } from '../../../lib/vulcanEvents.js';
+import { track } from '../../../lib/vulcanEvents';
 
 //////////////////////////////////////////////////////
 // posts.edit.sync                                  //

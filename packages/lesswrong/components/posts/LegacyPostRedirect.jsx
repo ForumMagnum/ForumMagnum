@@ -1,8 +1,8 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useLocation } from '../../lib/routeUtil';
-import { usePostByLegacyId } from './usePost.js';
-import { Posts } from '../../lib/collections/posts/collection.js';
+import { usePostByLegacyId } from './usePost';
+import { Posts } from '../../lib/collections/posts/collection';
 
 const LegacyPostRedirect = () => {
   const { params } = useLocation();

@@ -1,11 +1,11 @@
 import React, { PureComponent } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { Link } from '../../../lib/reactRouterWrapper.jsx';
+import { Link } from '../../../lib/reactRouterWrapper';
 import { withNavigation } from '../../../lib/routeUtil';
 import withGlobalKeydown from '../../common/withGlobalKeydown';
 import { withStyles } from '@material-ui/core/styles';
-import { Sequences } from '../../../lib/collections/sequences/collection.js';
-import { Posts } from '../../../lib/collections/posts/collection.js';
+import { Sequences } from '../../../lib/collections/sequences/collection';
+import { Posts } from '../../../lib/collections/posts/collection';
 
 const styles = theme => ({
   root: {

@@ -3,10 +3,10 @@ import { Posts } from '../../lib/collections/posts';
 import { withStyles } from '@material-ui/core/styles';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withSingle } from '../../lib/crud/withSingle';
-import './EmailFormatDate.jsx';
-import './EmailPostAuthors.jsx';
-import './EmailContentItemBody.jsx';
-import './EmailPostDate.jsx';
+import './EmailFormatDate';
+import './EmailPostAuthors';
+import './EmailContentItemBody';
+import './EmailPostDate';
 
 const styles = theme => ({
   heading: {

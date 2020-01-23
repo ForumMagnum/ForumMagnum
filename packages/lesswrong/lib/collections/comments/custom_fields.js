@@ -1,6 +1,6 @@
 import { Comments } from "./collection";
 import Users from "meteor/vulcan:users";
-import { makeEditable } from '../../editor/make_editable.js'
+import { makeEditable } from '../../editor/make_editable'
 import { Posts } from '../posts';
 import { foreignKeyField, addFieldsDict, denormalizedCountOfReferences } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';

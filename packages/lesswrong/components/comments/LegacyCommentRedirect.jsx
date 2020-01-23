@@ -1,10 +1,10 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useLocation } from '../../lib/routeUtil';
-import { usePostByLegacyId } from '../posts//usePost.js';
-import { useCommentByLegacyId } from './useComment.js';
-import { Comments } from '../../lib/collections/comments/collection.js';
-import { Posts } from '../../lib/collections/posts/collection.js';
+import { usePostByLegacyId } from '../posts/usePost';
+import { useCommentByLegacyId } from './useComment';
+import { Comments } from '../../lib/collections/comments/collection';
+import { Posts } from '../../lib/collections/posts/collection';
 
 
 const LegacyCommentRedirect = () => {

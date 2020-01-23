@@ -1,7 +1,7 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React, { useState } from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import withNewEvents from '../../../lib/events/withNewEvents.jsx';
+import withNewEvents from '../../../lib/events/withNewEvents';
 import { useCurrentUser } from '../../common/withUser';
 import truncatise from 'truncatise';
 import Edit from '@material-ui/icons/Edit';

@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
-import { ExpandedDate } from '../../common/FormatDate.jsx';
+import { ExpandedDate } from '../../common/FormatDate';
 
 const styles = theme => ({
   date: {

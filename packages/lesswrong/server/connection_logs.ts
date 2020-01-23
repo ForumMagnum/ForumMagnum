@@ -1,4 +1,4 @@
-import { LWEvents } from '../lib/collections/lwevents/collection.js';
+import { LWEvents } from '../lib/collections/lwevents/collection';
 import { newMutation } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { ForwardedWhitelist } from './forwarded_whitelist';

@@ -15,7 +15,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import withErrorBoundary from '../common/withErrorBoundary';
 import Tooltip from '@material-ui/core/Tooltip';
-import { userHasCkEditor } from '../../lib/betas.js';
+import { userHasCkEditor } from '../../lib/betas';
 
 const postEditorHeight = 250;
 const questionEditorHeight = 150;

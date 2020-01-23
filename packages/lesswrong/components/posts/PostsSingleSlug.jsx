@@ -1,7 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import { usePostBySlug } from './usePost.js';
+import { usePostBySlug } from './usePost';
 
 const PostsSingleSlug = () => {
   const { params, query } = useLocation();

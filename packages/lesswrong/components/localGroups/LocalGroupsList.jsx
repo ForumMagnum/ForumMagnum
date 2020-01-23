@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { withMulti } from '../../lib/crud/withMulti';
-import Localgroups from '../../lib/collections/localgroups/collection.js';
+import Localgroups from '../../lib/collections/localgroups/collection';
 import { withStyles } from '@material-ui/core/styles'
 
 const styles = theme => ({

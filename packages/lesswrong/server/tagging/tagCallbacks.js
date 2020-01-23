@@ -1,9 +1,9 @@
 import { addCallback } from 'meteor/vulcan:core';
-import { Tags, tagDescriptionEditableOptions } from '../../lib/collections/tags/collection.js';
-import { TagRels } from '../../lib/collections/tagRels/collection.js';
-import { addEditableCallbacks } from '../editor/make_editable_callbacks.js'
+import { Tags, tagDescriptionEditableOptions } from '../../lib/collections/tags/collection';
+import { TagRels } from '../../lib/collections/tagRels/collection';
+import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import Users from 'meteor/vulcan:users';
-import { performVoteServer } from '../voteServer.js';
+import { performVoteServer } from '../voteServer';
 
 function isValidTagName(name) {
   return true;

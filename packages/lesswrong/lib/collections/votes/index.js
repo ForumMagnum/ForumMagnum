@@ -1,3 +1,3 @@
-export * from './collection.js';
-import './schema.js';
-import './views.js';
+export * from './collection';
+import './schema';
+import './views';

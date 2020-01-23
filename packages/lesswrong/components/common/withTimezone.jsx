@@ -1,5 +1,5 @@
 import React from 'react';
-import { hookToHoc } from '../../lib/hocUtils.js';
+import { hookToHoc } from '../../lib/hocUtils';
 
 export const TimezoneContext = React.createContext('timezone');
 

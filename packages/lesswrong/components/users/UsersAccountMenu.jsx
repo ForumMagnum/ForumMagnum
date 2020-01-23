@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import Popover from '@material-ui/core/Popover';
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
-import { withTracking } from '../../lib/analyticsEvents.js';
+import { withTracking } from '../../lib/analyticsEvents';
 
 const styles = theme => ({
   root: {

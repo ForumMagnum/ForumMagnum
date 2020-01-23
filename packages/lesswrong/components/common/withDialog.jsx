@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
 import { Components } from 'meteor/vulcan:core';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import { hookToHoc } from '../../lib/hocUtils.js';
-import { withTracking } from '../../lib/analyticsEvents.js';
+import { hookToHoc } from '../../lib/hocUtils';
+import { withTracking } from '../../lib/analyticsEvents';
 
 export const OpenDialogContext = React.createContext('openDialog');
 

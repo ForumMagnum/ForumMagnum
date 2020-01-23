@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { withMutation } from '../../lib/crud/withMutation';
 import { useCurrentUser } from './withUser';
 import compose from 'recompose/compose';
-import withNewEvents from '../../lib/events/withNewEvents.jsx';
+import withNewEvents from '../../lib/events/withNewEvents';
 
 export const PostsReadContext = React.createContext('postsViewed');
 
