@@ -491,7 +491,7 @@ const PostsItem2 = ({
                   </div>
                 }
 
-                { post.user && !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
+                { !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
                   <PostsUserAndCoauthors post={post} abbreviateIfLong={true} />
                 </PostsItem2MetaInfo>}
 
