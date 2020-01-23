@@ -88,7 +88,6 @@ registerFragment(`
     groups
     services
     pageUrl
-    locale
     voteBanned
     banned
     isReviewed

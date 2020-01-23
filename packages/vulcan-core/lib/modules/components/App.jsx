@@ -173,7 +173,7 @@ class App extends PureComponent {
   initLocale = () => {
     let userLocale = '';
     let localeMethod = '';
-    const { currentUser, cookies, locale } = this.props;
+    const { cookies, locale } = this.props;
     const availableLocales = Object.keys(Strings);
     const detectedLocale = detectLocale();
 
@@ -186,12 +186,8 @@ class App extends PureComponent {
       // 2. look for a cookie
       userLocale = cookies.get('locale');
       localeMethod = 'cookie';
-    } else if (currentUser && currentUser.locale) {
-      // 3. if user is logged in, check for their preferred locale
-      userLocale = currentUser.locale;
-      localeMethod = 'user';
     } else if (detectedLocale) {
-      // 4. else, check for browser settings
+      // 3. else, check for browser settings
       userLocale = detectedLocale;
       localeMethod = 'browser';
     }
@@ -213,22 +209,9 @@ class App extends PureComponent {
     return truncate ? this.state.locale.slice(0, 2) : this.state.locale;
   };
 
-  setLocale = async locale => {
-    const { cookies, updateUser, currentUser } = this.props;
-    this.setState({ locale });
-    cookies.remove('locale', { path: '/' });
-    cookies.set('locale', locale, { path: '/' });
-    // if user is logged in, change their `locale` profile property
-    if (currentUser) {
-      await updateUser({ selector: { documentId: currentUser._id }, data: { locale } });
-    }
-    moment.locale(locale);
-  };
-
   getChildContext() {
     return {
       getLocale: this.getLocale,
-      setLocale: this.setLocale,
     };
   }
 
@@ -306,7 +289,6 @@ App.propTypes = {
 
 App.childContextTypes = {
   intl: intlShape,
-  setLocale: PropTypes.func,
   getLocale: PropTypes.func,
 };
 
