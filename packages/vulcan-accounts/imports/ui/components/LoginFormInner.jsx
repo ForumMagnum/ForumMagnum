@@ -865,9 +865,6 @@ export class AccountsLoginFormInner extends TrackerComponent {
       }
     }
 
-    // set the signup locale
-    options.locale = this.context.intl.locale;
-
     const doSignUp = (_options) => {
       Accounts.createUser(_options, (error) => {
         if (error) {
