@@ -1,5 +1,4 @@
 // import and re-export
-import { importComponent } from 'meteor/vulcan:lib';
 export * from 'meteor/vulcan:lib';
 
 export * from './default_mutations.js';

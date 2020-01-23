@@ -1,4 +1,4 @@
-import { getAllFragmentNames, getFragment, getFragmentText, getCollectionName, getCollection } from 'meteor/vulcan:core';
+import { getAllFragmentNames, getFragment, getFragmentText, getCollectionName, getCollection, Vulcan } from 'meteor/vulcan:core';
 import { simplSchemaToGraphQLtype } from '../../lib/utils/schemaUtils';
 import GraphQLJSON from 'graphql-type-json';
 import SimpleSchema from 'simpl-schema'
@@ -40,7 +40,6 @@ Vulcan.generateFragmentTypes = generateFragmentTypes;
 
 function generateFragmentTypeDefinition(fragmentName: string): string {
   const fragmentDefinitions = getFragment(fragmentName);
-  const fragmentText = getFragmentText(fragmentName);
   
   // `getFragment` returns the parsed definition of a fragment plus all of its
   // dependency fragments. The one we requested will be first.
