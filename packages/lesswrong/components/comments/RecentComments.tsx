@@ -5,23 +5,22 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
 import { useCurrentUser } from '../common/withUser';
 import Typography from '@material-ui/core/Typography';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 
-const styles = theme =>  ({
+const styles = createStyles(theme =>  ({
   root: {
     marginTop: theme.spacing.unit*2,
     [theme.breakpoints.up('sm')]: {
       margin: theme.spacing.unit*2,
     }
   }
-})
+}))
 
 const RecentComments = ({classes, updateComment, terms, truncated, noResultsMessage="No Comments Found"}) => {
   const currentUser = useCurrentUser();
   const { loadingInitial, loadMoreProps, results } = useMulti({
     terms,
     collection: Comments,
-    queryName: 'selectCommentsListQuery',
     fragmentName: 'SelectCommentsList',
     enableTotal: false,
     pollInterval: 0,

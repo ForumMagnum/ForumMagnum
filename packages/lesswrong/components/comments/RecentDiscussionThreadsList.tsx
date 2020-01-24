@@ -23,7 +23,6 @@ const RecentDiscussionThreadsList = ({
   const { results, loading, loadMore, loadingMore, refetch } = useMulti({
     terms,
     collection: Posts,
-    queryName: 'selectCommentsListQuery',
     fragmentName: 'PostsRecentDiscussion',
     fetchPolicy: 'cache-and-network',
     enableTotal: false,
@@ -39,7 +38,7 @@ const RecentDiscussionThreadsList = ({
     ssr: true,
   });
 
-  useGlobalKeydown(ev => {
+  useGlobalKeydown(event => {
     const F_Key = 70
     if ((event.metaKey || event.ctrlKey) && event.keyCode == F_Key) {
       setExpandAllThreads(true);

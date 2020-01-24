@@ -1,6 +1,6 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import { commentBodyStyles, postBodyStyles } from '../../themes/stylePiping'
 import withHover from '../common/withHover';
 import classNames from 'classnames';
@@ -9,7 +9,7 @@ import { Comments } from '../../lib/collections/comments'
 import { isMobile } from '../../lib/utils/isMobile'
 import { styles as commentsItemStyles } from './CommentsItem/CommentsItem';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
     position: "relative",
     cursor: "pointer",
@@ -106,7 +106,7 @@ const styles = theme => ({
     ...commentsItemStyles(theme).nomination,
     marginRight: theme.spacing.unit
   }
-})
+}))
 
 const SingleLineComment = ({comment, classes, nestingLevel, hover, parentCommentId, hideKarma, enableHoverPreview=true, hideSingleLineMeta}) => {
   if (!comment) return null

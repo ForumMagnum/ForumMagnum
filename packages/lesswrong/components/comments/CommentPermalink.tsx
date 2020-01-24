@@ -2,9 +2,9 @@ import React from 'react';
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import { withSingle } from '../../lib/crud/withSingle';
 import { Comments } from '../../lib/collections/comments';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   dividerMargins: {
     marginTop: 150,
     marginBottom: 150,
@@ -26,7 +26,7 @@ const styles = theme => ({
     color: theme.palette.lwTertiary.main,
     marginRight: 10
   },
-})
+}))
 
 const CommentPermalink = (props) => {
   const { documentId, post, document: comment, classes, data: {refetch}, loading, error} = props

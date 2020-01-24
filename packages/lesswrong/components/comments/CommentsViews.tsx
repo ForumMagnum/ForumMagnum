@@ -6,9 +6,10 @@ import Users from 'meteor/vulcan:users';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Comments } from '../../lib/collections/comments'
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import qs from 'qs'
+import * as _ from 'underscore';
 
 const viewNames = {
   'postCommentsTop': 'top scoring',
@@ -21,16 +22,27 @@ const viewNames = {
   'postLWComments': 'top scoring (include LW)',
 }
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
     display: 'inline'
   },
   link: {
     color: theme.palette.lwTertiary.main,
   }
-})
+}))
 
-class CommentsViews extends Component {
+interface CommentsViewsProps {
+  post: any,
+  history: any,
+  location: any,
+  currentUser: UsersCurrent,
+  classes: any,
+}
+interface CommentsViewsState {
+  anchorEl: any,
+}
+
+class CommentsViews extends Component<CommentsViewsProps,CommentsViewsState> {
   constructor(props) {
     super(props);
     this.state = {
@@ -95,15 +107,15 @@ class CommentsViews extends Component {
         </Menu>
       </div>
   )}
-}
+};
 
-CommentsViews.propTypes = {
+(CommentsViews as any).propTypes = {
   currentUser: PropTypes.object,
   post: PropTypes.object.isRequired,
   defaultView: PropTypes.string,
 };
 
-CommentsViews.defaultProps = {
+(CommentsViews as any).defaultProps = {
   defaultView: "postCommentsTop"
 };
 

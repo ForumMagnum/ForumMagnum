@@ -7,7 +7,7 @@ import {
 import moment from 'moment';
 import Users from 'meteor/vulcan:users';
 import Typography from '@material-ui/core/Typography';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
@@ -15,7 +15,7 @@ import withUser from '../common/withUser';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
     fontWeight: 400,
     maxWidth: 720,
@@ -46,9 +46,29 @@ const styles = theme => ({
     fontWeight: 600,
     marginTop: 12
   }
-})
+}))
 
-class CommentsListSection extends Component {
+interface CommentsListSectionProps {
+  lastEvent: any,
+  post: any,
+  commentCount: number,
+  loadMoreCount: number,
+  totalComments: number,
+  loadMoreComments: any,
+  loadingMoreComments: boolean,
+  currentUser: UsersCurrent,
+  comments: any,
+  parentAnswerId: any,
+  startThreadTruncated: boolean,
+  newForm: boolean,
+  classes: any,
+}
+interface CommentsListSectionState {
+  highlightDate: Date,
+  anchorEl: any,
+}
+
+class CommentsListSection extends Component<CommentsListSectionProps,CommentsListSectionState> {
   constructor(props) {
     super(props);
     const {lastEvent, post} = this.props;
@@ -60,6 +80,7 @@ class CommentsListSection extends Component {
         || (post && post.lastVisitedAt &&
           new Date(post.lastVisitedAt))
         || new Date(),
+      anchorEl: null,
     }
   }
 

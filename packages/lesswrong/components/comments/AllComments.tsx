@@ -1,6 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
+import * as _ from 'underscore';
 
 const AllComments = () => {
   const { query } = useLocation();

@@ -8,10 +8,10 @@ import { Posts } from '../../lib/collections/posts';
 import withGlobalKeydown from '../common/withGlobalKeydown';
 import Tooltip from '@material-ui/core/Tooltip';
 import { Link } from '../../lib/reactRouterWrapper';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import { TRUNCATION_KARMA_THRESHOLD } from '../../lib/editor/ellipsize'
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   button: {
     color: theme.palette.lwTertiary.main
   },
@@ -19,11 +19,38 @@ const styles = theme => ({
     display: "flex",
     alignItems: "center"
   }
-})
+}))
 
 export const POST_COMMENT_COUNT_TRUNCATE_THRESHOLD = 70
 
-class CommentsList extends Component {
+interface CommentsListProps {
+  addKeydownListener: any,
+  comments: any,
+  currentUser: UsersCurrent,
+  totalComments: any,
+  highlightDate: any,
+  updateComment: any,
+  post: any,
+  postPage: any,
+  condensed: boolean,
+  startThreadTruncated: any,
+  parentAnswerId: any,
+  defaultNestingLevel: any,
+  hideReadComments: any,
+  lastCommentId: any,
+  markAsRead: any,
+  parentCommentId: any,
+  forceSingleLine: boolean,
+  hideSingleLineMeta: boolean,
+  enableHoverPreview: boolean,
+  forceNotSingleLine: boolean,
+  classes: any,
+}
+interface CommentsListState {
+  expandAllThreads: boolean,
+}
+
+class CommentsList extends Component<CommentsListProps,CommentsListState> {
   state = { expandAllThreads: false }
 
   handleKeyDown = (event) => {

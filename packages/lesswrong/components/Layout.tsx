@@ -233,9 +233,11 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       <TimezoneContext.Provider value={this.state.timezone}>
       <PostsReadContext.Provider value={{
         postsRead: this.state.postsRead,
-        setPostRead: (postId, isRead) => this.setState({
-          postsRead: {...this.state.postsRead, [postId]: isRead}
-        })
+        setPostRead: (postId: string, isRead: boolean): void => {
+          this.setState({
+            postsRead: {...this.state.postsRead, [postId]: isRead}
+          })
+        }
       }}>
       <TableOfContentsContext.Provider value={this.setToC}>
         <div className={classNames("wrapper", {'alignment-forum': getSetting('forumType') === 'AlignmentForum'}) } id="wrapper">

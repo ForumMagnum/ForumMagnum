@@ -23,7 +23,7 @@ const EventsList = ({currentUser, onClick}) => {
   const lng = currentUser &&
     currentUser.mongoLocation &&
     currentUser.mongoLocation.coordinates[0]
-  let eventsListTerms = {
+  let eventsListTerms: any = {
     view: 'events',
     limit: 3,
   }

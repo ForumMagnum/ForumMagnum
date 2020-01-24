@@ -5,12 +5,12 @@ import { Comments } from '../../lib/collections/comments';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useDialog } from '../common/withDialog';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
   },
   form: {
@@ -39,7 +39,7 @@ const styles = theme => ({
   moderationGuidelinesWrapper: {
     backgroundColor: "rgba(0,0,0,.07)",
   }
-});
+}));
 
 const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, removeFields, currentUser, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true}) => {
   prefilledProps = {
@@ -47,7 +47,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
     af: Comments.defaultToAlignment(currentUser, post, parentComment),
   };
   
-  const [showGuidelines, setShowGuidelines] = useState()
+  const [showGuidelines, setShowGuidelines] = useState(false)
   
   const { ModerationGuidelinesBox, WrappedSmartForm } = Components
   

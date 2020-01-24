@@ -1,10 +1,10 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames'
 import { iconWidth } from './TabNavigationItem'
 
-const styles = (theme) => ({
+const styles = createStyles((theme) => ({
   root: {
     ...theme.typography.body2,
     display: "block",
@@ -21,7 +21,7 @@ const styles = (theme) => ({
       opacity: .6
     }
   }
-})
+}))
 
 const TabNavigationSubItem = ({children, classes, className}) => {
   return <div className={classNames(classes.root, className)}>

@@ -1,19 +1,19 @@
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
 
-const styles = (theme) => ({
+const styles = createStyles((theme) => ({
   root: {
     display: "flex",
     justifyContent: "space-around",
     backgroundColor: "#ffffffd4",
     flexDirection: "row",
   }
-})
+}))
 
 const TabNavigationMenuFooter = ({classes}) => {
   const { TabNavigationFooterItem } = Components

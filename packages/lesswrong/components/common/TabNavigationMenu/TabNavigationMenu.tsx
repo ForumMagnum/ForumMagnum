@@ -1,6 +1,6 @@
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import { useCurrentUser } from '../withUser';
 import { iconWidth } from './TabNavigationItem'
 
@@ -8,7 +8,7 @@ import { iconWidth } from './TabNavigationItem'
 import menuTabs from './menuTabs'
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
-const styles = (theme) => {
+const styles = createStyles((theme) => {
   return {
     root: {
       display: "flex",
@@ -24,7 +24,7 @@ const styles = (theme) => {
       borderBottom: "solid 1px rgba(0,0,0,.2)",
     },
   }
-}
+})
 
 const TabNavigationMenu = ({onClickSection, classes}) => {
   const currentUser = useCurrentUser();

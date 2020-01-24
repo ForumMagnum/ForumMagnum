@@ -10,12 +10,12 @@ import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import withRecordPostView from '../common/withRecordPostView';
 
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import { postExcerptFromHTML } from '../../lib/editor/ellipsize'
 import { postHighlightStyles } from '../../themes/stylePiping'
 import { userHasBoldPostItems } from '../../lib/betas';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit*4,
@@ -87,7 +87,7 @@ const styles = theme => ({
       marginRight: 0
     }
   }
-})
+}))
 
 const RecentDiscussionThread = ({
   post, recordPostView,
@@ -97,7 +97,7 @@ const RecentDiscussionThread = ({
   const currentUser = useCurrentUser();
   const [highlightVisible, setHighlightVisible] = useState(false);
   const [readStatus, setReadStatus] = useState(false);
-  const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState(null);
+  const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   const [showSnippet] = useState(!isRead || post.commentCount === null); // This state should never change after mount, so we don't grab the setter from useState
   

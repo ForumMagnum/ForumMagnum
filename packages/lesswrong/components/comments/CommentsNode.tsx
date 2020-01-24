@@ -3,7 +3,7 @@ import { withLocation } from '../../lib/routeUtil';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../common/withErrorBoundary';
 import withUser from '../common/withUser';
 import { shallowEqual, shallowEqualExcept } from '../../lib/utils/componentUtils';
@@ -12,7 +12,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents"
 const KARMA_COLLAPSE_THRESHOLD = -4;
 const HIGHLIGHT_DURATION = 3
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   node: {
     cursor: "default",
     // Higher specificity to override child class (variant syntax)
@@ -115,9 +115,55 @@ const styles = theme => ({
     marginLeft: theme.spacing.unit,
     paddingTop: theme.spacing.unit,
   }
-})
+}))
 
-class CommentsNode extends Component {
+interface CommentsNodeProps {
+  comment: any,
+  startThreadTruncated: boolean,
+  condensed: boolean,
+  truncated: boolean,
+  lastCommentId: string,
+  shortform: any,
+  nestingLevel: number,
+  post: any,
+  location: any,
+  highlightDate: Date,
+  expandAllThreads: any,
+  updateComment: any,
+  muiTheme: any,
+  child: any,
+  showPostTitle: boolean,
+  unreadComments: any,
+  parentAnswerId: string,
+  markAsRead: any,
+  hideReadComments: boolean,
+  loadChildrenSeparately: boolean,
+  refetch: any,
+  parentCommentId: string,
+  showExtraChildrenButton: any,
+  noHash: boolean,
+  scrollOnExpand: boolean,
+  hideSingleLineMeta: boolean,
+  hoverPreview: boolean,
+  enableHoverPreview: boolean,
+  forceSingleLine: boolean,
+  forceNotSingleLine: boolean,
+  postPage: boolean,
+  currentUser: UsersCurrent,
+  children: any,
+  classes: any,
+}
+interface CommentsNodeState {
+  collapsed: boolean,
+  truncated: boolean,
+  singleLine: boolean,
+  truncatedStateSet: boolean,
+  highlighted: boolean,
+}
+
+class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
+  scrollTargetRef: any
+  
   constructor(props) {
     super(props);
 
@@ -352,7 +398,7 @@ class CommentsNode extends Component {
             </div>}
 
             {!collapsed && children && children.length>0 && <div className={classes.children}>
-              <div className={classes.parentScroll} onClick={this.scrollIntoView}/>
+              <div className={classes.parentScroll} onClick={() => this.scrollIntoView}/>
               { showExtraChildrenButton }
               {children.map(child =>
                 <Components.CommentsNode child
@@ -370,7 +416,7 @@ class CommentsNode extends Component {
 
             {!this.isSingleLine() && loadChildrenSeparately &&
               <div className="comments-children">
-                <div className={classes.parentScroll} onClick={this.scrollIntoView}/>
+                <div className={classes.parentScroll} onClick={() => this.scrollIntoView}/>
                 <RepliesToCommentList
                   terms={{
                     view: "repliesToCommentThread",
@@ -388,7 +434,7 @@ class CommentsNode extends Component {
   }
 }
 
-CommentsNode.propTypes = {
+(CommentsNode as any).propTypes = {
   comment: PropTypes.object.isRequired, // the current comment
 };
 

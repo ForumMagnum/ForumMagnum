@@ -3,10 +3,10 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
 import { unflattenComments, addGapIndicators } from '../../lib/utils/unflatten';
 import withRecordPostView from '../common/withRecordPostView';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../common/withErrorBoundary';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   showChildren: {
     padding: 4,
     paddingLeft: 12,
@@ -15,9 +15,21 @@ const styles = theme => ({
     display: "block",
     fontSize: 14,
   },
-})
+}))
 
-class CommentWithReplies extends PureComponent {
+interface CommentWithRepliesProps {
+  comment: any,
+  post: any,
+  recordPostView: any,
+  refetch: any,
+  classes: any,
+}
+interface CommentWithRepliesState {
+  markedAsVisitedAt: Date|null,
+  maxChildren: number,
+}
+
+class CommentWithReplies extends PureComponent<CommentWithRepliesProps,CommentWithRepliesState> {
   state = { markedAsVisitedAt: null, maxChildren: 3 }
 
   markAsRead = async () => {

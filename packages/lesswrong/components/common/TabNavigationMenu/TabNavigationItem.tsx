@@ -1,6 +1,6 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper';
 import classNames from 'classnames';
@@ -9,7 +9,7 @@ import { useLocation } from '../../../lib/routeUtil';
 
 export const iconWidth = 30
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   selected: {
     '& $icon': {
       opacity: 1,
@@ -61,14 +61,19 @@ const styles = theme => ({
       top: -1,
     }
   },
-})
+}))
 
 const TabNavigationItem = ({tab, onClick, classes}) => {
   const { TabNavigationSubItem } = Components
   const { pathname } = useLocation()
+  
+  // MenuItem takes a component and passes unrecognized props to that component,
+  // but its material-ui-provided type signature does not include this feature.
+  // Case to any to work around it, to be able to pass a "to" parameter.
+  const MenuItemUntyped = MenuItem as any;
 
   return <Tooltip placement='right-start' title={tab.tooltip || ''}>
-    <MenuItem
+    <MenuItemUntyped
       onClick={onClick}
       component={Link} to={tab.link}
       disableGutters
@@ -93,7 +98,7 @@ const TabNavigationItem = ({tab, onClick, classes}) => {
           {tab.title}
         </span>
       }
-    </MenuItem>
+    </MenuItemUntyped>
   </Tooltip>
 }
 

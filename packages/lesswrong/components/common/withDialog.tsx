@@ -65,6 +65,10 @@ class DialogManagerComponent extends PureComponent<DialogManagerComponentProps,D
 }
 
 export const DialogManager = withTracking(DialogManagerComponent)
-export const useDialog = () => React.useContext(OpenDialogContext);
+export const useDialog = (): OpenDialogContextType => {
+  const result = React.useContext(OpenDialogContext);
+  if (!result) throw new Error("useDialog called but not a descendent of DialogManagerComponent");
+  return result;
+}
 export const withDialog = hookToHoc(useDialog);
 export default withDialog;
