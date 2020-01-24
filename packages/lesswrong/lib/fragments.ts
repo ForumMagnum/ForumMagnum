@@ -88,7 +88,6 @@ registerFragment(`
     groups
     services
     pageUrl
-    locale
     voteBanned
     banned
     isReviewed
@@ -531,6 +530,8 @@ registerFragment(`
     notificationSharedWithMe
 
     hideFrontpageMap
+
+    deleted
   }
 `)
 

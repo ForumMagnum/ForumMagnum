@@ -173,12 +173,6 @@ addFieldsDict(Users, {
     canRead: ["guests"]
   },
 
-  // LESSWRONG: Overwrite Vulcan locale field to be hidden by default
-  locale: {
-    hidden: true,
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-  },
-
   // Emails (not to be confused with email). This field belongs to Meteor's
   // accounts system; we should never write it, but we do need to read it to find
   // out whether a user's email address is verified.
@@ -530,10 +524,9 @@ addFieldsDict(Users, {
     defaultValue: false,
     canRead: ['guests'],
     canUpdate: ['admins'],
-    canCreate: ['members'],
     label: 'Delete this user',
     control: 'checkbox',
-    hidden: true,
+    group: formGroups.adminOptions,
   },
 
   // voteBanned: All future votes of this user have weight 0

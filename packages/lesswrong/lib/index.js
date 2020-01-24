@@ -172,6 +172,8 @@ import './alignment-forum/users/views';
 import './analyticsEvents.js';
 import './vulcan-i18n-en-us.js';
 
+import '../components/spuriousChange';
+
 //
 export {
   Conversations,
