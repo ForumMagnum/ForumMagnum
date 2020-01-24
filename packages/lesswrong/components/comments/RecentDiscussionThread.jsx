@@ -44,14 +44,6 @@ const styles = theme => ({
     marginTop:theme.spacing.unit*2,
     marginBottom:theme.spacing.unit*2,
   },
-  unreadPost: {
-    borderLeft: `solid 5px ${theme.palette.primary.light}`,
-    paddingLeft: theme.spacing.unit*1.5,
-    cursor: "pointer",
-    '&:hover': {
-      borderLeft: `solid 5px ${theme.palette.primary.main}`,
-    }
-  },
   postHighlight: {
     ...postHighlightStyles(theme),
     marginTop:5,
@@ -86,6 +78,15 @@ const styles = theme => ({
       marginLeft: 0,
       marginRight: 0
     }
+  },
+  unread: {
+    backgroundColor: theme.palette.primary.light,
+    width:8,
+    height:8,
+    marginLeft: 3,
+    marginRight: 4,
+    borderRadius:"50%",
+    display:"inline-block"
   }
 })
 
@@ -118,7 +119,7 @@ const RecentDiscussionThread = ({
     [setHighlightVisible, highlightVisible, markAsRead]
   );
   
-  const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle } = Components
+  const { ContentItemBody, LWTooltip, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle } = Components
 
   const lastCommentId = comments && comments[0]?._id
   const nestedComments = unflattenComments(comments);
@@ -137,10 +138,11 @@ const RecentDiscussionThread = ({
 
   return (
     <div className={classes.root}>
-      <div className={(currentUser && !(isRead || readStatus)) ? classes.unreadPost : null}>
+      <div>
         <div className={classes.postItem}>
-          <PostsTitle wrap post={post} tooltip={false} read={userHasBoldPostItems(currentUser)} />
+          <PostsTitle wrap post={post} tooltip={false} />
           <div className={classes.threadMeta} onClick={showHighlight}>
+            {!readStatus && <LWTooltip title="Unread"><span className={classes.unread}/></LWTooltip> }
             <PostsItemMeta post={post}/>
             <ShowOrHideHighlightButton
               className={classes.showHighlight}
