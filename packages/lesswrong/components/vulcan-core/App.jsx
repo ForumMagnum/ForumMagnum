@@ -1,128 +1,16 @@
 import {
-  Components,
-  registerComponent,
-  getSetting,
-  Strings,
-  runCallbacks,
-  detectLocale,
-  Routes
-} from 'meteor/vulcan:lib';
+  Components, registerComponent, getSetting, Strings, runCallbacks, detectLocale,
+  MessageContext,
+  LocationContext, SubscribeLocationContext, NavigationContext, ServerRequestStatusContext, parseRoute,
+} from 'meteor/vulcan:core';
+import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { PureComponent } from 'react';
+import { withCurrentUser } from '../../lib/crud/withCurrentUser';
 import PropTypes from 'prop-types';
 import { IntlProvider, intlShape } from 'meteor/vulcan:i18n';
-import withCurrentUser from '../containers/withCurrentUser.js';
-import withUpdate from '../containers/withUpdate.js';
 import { withApollo } from 'react-apollo';
 import moment from 'moment';
-import { withRouter, matchPath } from 'react-router';
-import MessageContext from '../messages.js';
-import qs from 'qs'
-import Sentry from '@sentry/node';
-
-export const LocationContext = React.createContext("location");
-export const SubscribeLocationContext = React.createContext("subscribeLocation");
-export const NavigationContext = React.createContext("navigation");
-export const ServerRequestStatusContext = React.createContext("serverRequestStatus");
-
-// From react-router-v4
-// https://github.com/ReactTraining/history/blob/master/modules/PathUtils.js
-export const parsePath = function parsePath(path) {
-  var pathname = path || '/';
-  var search = '';
-  var hash = '';
-  
-  var hashIndex = pathname.indexOf('#');
-  if (hashIndex !== -1) {
-    hash = pathname.substr(hashIndex);
-    pathname = pathname.substr(0, hashIndex);
-  }
-  
-  var searchIndex = pathname.indexOf('?');
-  if (searchIndex !== -1) {
-    search = pathname.substr(searchIndex);
-    pathname = pathname.substr(0, searchIndex);
-  }
-  
-  return {
-    pathname: pathname,
-    search: search === '?' ? '' : search,
-    hash: hash === '#' ? '' : hash
-  };
-};
-
-export function parseQuery(location) {
-  let query = location && location.search;
-  if (!query) return {};
-
-  // The unparsed query string looks like ?foo=bar&numericOption=5&flag but the
-  // 'qs' parser wants it without the leading question mark, so strip the
-  // question mark.
-  if (query.startsWith('?'))
-    query = query.substr(1);
-
-  return qs.parse(query);
-}
-
-// Match a string against the routes table, and parse the route components.
-// If there is no match, returns a special 404 route, and calls onError if
-// provided.
-export function parseRoute({location, followRedirects=true, onError=null}) {
-  const routeNames = Object.keys(Routes);
-  let currentRoute = null;
-  let params={};
-  for (let routeName of routeNames) {
-    const route = Routes[routeName];
-    const match = matchPath(location.pathname, { path: route.path, exact: true, strict: false });
-    if (match) {
-      currentRoute = route;
-      params = match.params;
-    }
-  }
-  
-  if (!currentRoute) {
-    if (onError) {
-      onError(location.pathname);
-    } else {
-      // If the route is unparseable, that's a 404. Only log this in Sentry if
-      // we're on the client, not if this is SSR. This is a compromise between
-      // catching broken links, and spam in Sentry; crawlers and bots that try lots
-      // of invalid URLs generally won't execute Javascript (especially after
-      // getting a 404 status), so this should only log when someone reaches a
-      // 404 with an actual browser.
-      // Unfortunately that also means it doesn't look broken resource links (ie
-      // images), but we can't really distinguish between "post contained a broken
-      // image link and it mattered" and "bot tried a weird URL and it didn't
-      // resolve to anything".
-      if (Meteor.isClient) {
-        Sentry.captureException(new Error(`404 not found: ${location.pathname}`));
-      }
-    }
-  }
-  
-  const RouteComponent = currentRoute ? Components[currentRoute.componentName] : Components.Error404;
-  const result = {
-    currentRoute, RouteComponent, location, params,
-    pathname: location.pathname,
-    url: location.pathname + location.search + location.hash,
-    hash: location.hash,
-    query: parseQuery(location),
-  };
-  
-  if (currentRoute && currentRoute.redirect) {
-    const redirectTo = currentRoute.redirect(result);
-    if (redirectTo) {
-      return {
-        ...parseRoute({
-          location: parsePath(redirectTo),
-          onError
-        }),
-        redirected: true,
-      };
-    }
-  }
-  
-  return result;
-}
+import { withRouter } from 'react-router';
 
 class App extends PureComponent {
   constructor(props) {

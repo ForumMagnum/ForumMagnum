@@ -1,5 +1,7 @@
 import React, { useState, useCallback } from 'react';
-import { Components, registerComponent, useMulti, useUpdate } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { useUpdate } from '../../lib/crud/withUpdate';
+import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
 import { useCurrentUser } from '../common/withUser';

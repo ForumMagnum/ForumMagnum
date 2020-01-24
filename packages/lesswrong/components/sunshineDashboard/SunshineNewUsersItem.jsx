@@ -1,5 +1,6 @@
 /* global confirm */
-import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';
 import { Link } from '../../lib/reactRouterWrapper.jsx'

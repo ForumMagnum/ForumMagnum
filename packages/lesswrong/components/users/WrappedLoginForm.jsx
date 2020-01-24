@@ -1,4 +1,5 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import withUser from '../common/withUser';
 import React, { Component } from 'react';
 
 class WrappedLoginForm extends Component
@@ -38,4 +39,4 @@ class WrappedLoginForm extends Component
   }
 }
 
-registerComponent('WrappedLoginForm', WrappedLoginForm);
+registerComponent('WrappedLoginForm', WrappedLoginForm, withUser);

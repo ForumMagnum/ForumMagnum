@@ -1,4 +1,5 @@
-import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Comments } from "../../lib/collections/comments";
@@ -165,4 +166,4 @@ const withEditOptions = {
 };
 
 
-registerComponent('CommentsList', CommentsList, [withEdit, withEditOptions], withGlobalKeydown, withStyles(styles, {name:"CommentsList"}));
+registerComponent('CommentsList', CommentsList, [withUpdate, withEditOptions], withGlobalKeydown, withStyles(styles, {name:"CommentsList"}));

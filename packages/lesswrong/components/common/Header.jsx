@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, withUpdate, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { withUpdate } from '../../lib/crud/withUpdate';
 import { Link } from '../../lib/reactRouterWrapper.jsx';
 import NoSSR from 'react-no-ssr';
 import Headroom from 'react-headroom'

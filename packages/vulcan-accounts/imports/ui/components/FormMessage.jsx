@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:lib';
 
 export class AccountsFormMessage extends React.Component {
   render () {

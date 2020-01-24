@@ -1,5 +1,6 @@
 import React from 'react';
-import { Components, registerComponent, useMulti } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { useMulti } from '../../lib/crud/withMulti';
 import { withStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper.jsx';
 import { TagRels } from '../../lib/collections/tagRels/collection.js';

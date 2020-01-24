@@ -1,4 +1,5 @@
-import { Components, registerComponent, withDocument} from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withSingle } from '../../lib/crud/withSingle';
 import Users from 'meteor/vulcan:users';
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -27,4 +28,4 @@ const options = {
   fragmentName: 'UsersMinimumInfo',
 };
 
-registerComponent('UsersNameWrapper', UsersNameWrapper, [withDocument, options]);
+registerComponent('UsersNameWrapper', UsersNameWrapper, [withSingle, options]);

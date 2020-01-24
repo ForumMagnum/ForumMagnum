@@ -1,6 +1,6 @@
-
 import React from 'react';
-import { registerComponent, Components, withList } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
+import { withMulti } from '../../lib/crud/withMulti';
 import Localgroups from '../../lib/collections/localgroups/collection.js';
 import { withStyles } from '@material-ui/core/styles'
 
@@ -51,4 +51,4 @@ const options = {
   ssr: true
 }
 
-registerComponent('LocalGroupsList', LocalGroupsList, [withList, options], withStyles(styles, {name:"LocalGroupsList"}))
+registerComponent('LocalGroupsList', LocalGroupsList, [withMulti, options], withStyles(styles, {name:"LocalGroupsList"}))

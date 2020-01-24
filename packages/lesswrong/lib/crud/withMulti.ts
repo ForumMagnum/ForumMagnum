@@ -37,17 +37,13 @@ Terms object can have the following properties:
 import { useState, useContext } from 'react';
 import { graphql, useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
-import {
-  getSetting,
-  Utils,
-  multiClientTemplate,
-  extractCollectionInfo,
-  extractFragmentInfo,
-} from 'meteor/vulcan:lib';
+import { getSetting, Utils, multiClientTemplate, extractCollectionInfo, extractFragmentInfo, } from 'meteor/vulcan:lib';
+import { LocationContext, NavigationContext } from 'meteor/vulcan:core';
 import compose from 'recompose/compose';
 import withState from 'recompose/withState';
 import qs from 'qs';
-import { LocationContext, NavigationContext } from '../components/App'
+import * as _ from 'underscore';
+import { WatchQueryFetchPolicy } from 'apollo-client';
 
 function getGraphQLQueryFromOptions({
   collectionName, collection, fragmentName, fragment, extraQueries, extraVariables,
@@ -67,7 +63,7 @@ function getGraphQLQueryFromOptions({
   `;
 }
 
-export default function withMulti({
+export function withMulti({
   limit = 10, // Only used as a fallback if terms.limit is not specified
   pollInterval = getSetting('pollInterval', 0), //LESSWRONG: Polling defaults disabled
   enableTotal = false, //LESSWRONG: enableTotal defaults false
@@ -115,10 +111,11 @@ export default function withMulti({
         alias: `with${Utils.pluralize(typeName)}`,
 
         // graphql query options
-        options({ terms, paginationTerms, currentUser, ...rest }) {
+        options(props: any) {
+          const { terms, paginationTerms, currentUser, ...rest } = props;
           // get terms from options, then props, then pagination
           const mergedTerms = { ...queryTerms, ...terms, ...paginationTerms };
-          const graphQLOptions = {
+          const graphQLOptions: any = {
             variables: {
               input: {
                 terms: mergedTerms,
@@ -145,8 +142,9 @@ export default function withMulti({
         },
 
         // define props returned by graphql HoC
-        props(props) {
+        props(props: any) {
           // see https://github.com/apollographql/apollo-client/blob/master/packages/apollo-client/src/core/networkStatus.ts
+          if (!(props?.data)) throw new Error("Missing props.data");
           const refetch = props.data.refetch,
             // results = Utils.convertDates(collection, props.data[listResolverName]),
             results = props.data[resolverName] && props.data[resolverName].results,
@@ -200,7 +198,7 @@ export default function withMulti({
   );
 }
 
-export function useMulti({
+export function useMulti<FragmentTypeName extends keyof FragmentTypes>({
   terms,
   extraVariablesValues,
   pollInterval = getSetting('pollInterval', 0), //LESSWRONG: Polling defaults disabled
@@ -216,12 +214,43 @@ export function useMulti({
   itemsPerPage = 10,
   skip = false,
   queryLimitName,
-}) {
+}: {
+  terms: any,
+  extraVariablesValues?: any,
+  pollInterval?: number,
+  enableTotal?: boolean,
+  enableCache?: boolean,
+  extraQueries?: any,
+  ssr?: boolean,
+  extraVariables?: any,
+  fetchPolicy?: WatchQueryFetchPolicy,
+  collectionName?: string,
+  collection?: any,
+  fragmentName?: FragmentTypeName,
+  fragment?: any,
+  limit?: number,
+  itemsPerPage?: number,
+  skip?: boolean,
+  queryLimitName?: string,
+}): {
+  loading: boolean,
+  loadingInitial: boolean,
+  loadingMore: boolean,
+  results: Array<FragmentTypes[FragmentTypeName]>,
+  totalCount?: number,
+  refetch: any,
+  error: any,
+  count?: number,
+  showLoadMore: boolean,
+  loadMoreProps: any,
+  loadMore: any,
+  limit: number,
+} {
   // Since we don't have access to useLocation and useNavigation we have to manually reference context here
   const { query: locationQuery, location } = useContext(LocationContext);
   const { history } = useContext(NavigationContext)
 
-  const defaultLimit = ((locationQuery && parseInt(locationQuery[queryLimitName])) || (terms && terms.limit) || initialLimit)
+  const defaultLimit = ((locationQuery && queryLimitName && parseInt(locationQuery[queryLimitName])) || (terms && terms.limit) || initialLimit)
   const [ limit, setLimit ] = useState(defaultLimit);
   const [ hasRequestedMore, setHasRequestedMore ] = useState(false);
   
@@ -258,7 +287,7 @@ export function useMulti({
   // if showLoadMore returned true.
   const showLoadMore = enableTotal ? (count < totalCount) : (count >= limit);
   
-  const loadMore = (limitOverride) => {
+  const loadMore = (limitOverride: number) => {
     setHasRequestedMore(true);
     const newLimit = limitOverride || (limit+itemsPerPage)
     setLimit(newLimit);
@@ -290,3 +319,5 @@ export function useMulti({
     limit,
   };
 }
+
+export default withMulti;

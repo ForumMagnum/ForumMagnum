@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Components, registerComponent, withList } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withMulti } from '../../lib/crud/withMulti';
 import MenuItem from '@material-ui/core/MenuItem'
 import { LWEvents } from '../../lib/collections/lwevents/collection.js'
 import withUser from '../common/withUser';
@@ -24,4 +25,4 @@ const options = {
   enableTotal: false,
 };
 
-registerComponent("LastVisitList", LastVisitList, withUser, [withList, options]);
+registerComponent("LastVisitList", LastVisitList, withUser, [withMulti, options]);

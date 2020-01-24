@@ -1,4 +1,5 @@
-import { Components, registerComponent, useSingle } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments';

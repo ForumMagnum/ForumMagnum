@@ -1,5 +1,6 @@
 import React from 'react';
-import { registerComponent, useMulti, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
+import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts/collection.js';
 import { useCurrentUser } from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';

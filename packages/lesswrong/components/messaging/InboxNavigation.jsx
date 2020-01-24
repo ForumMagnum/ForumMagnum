@@ -6,7 +6,9 @@ The Navigation for the Inbox components
 
 import React from 'react';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
-import { Components, registerComponent, withList, withUpdate } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withUpdate } from '../../lib/crud/withUpdate';
+import { withMulti } from '../../lib/crud/withMulti';
 import Conversations from '../../lib/collections/conversations/collection.js';
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
@@ -54,5 +56,5 @@ const withUpdateOptions = {
   fragmentName: 'conversationsListFragment',
 };
 
-registerComponent('InboxNavigation', InboxNavigation, [withList, conversationOptions],
+registerComponent('InboxNavigation', InboxNavigation, [withMulti, conversationOptions],
   withUser, [withUpdate, withUpdateOptions]);
