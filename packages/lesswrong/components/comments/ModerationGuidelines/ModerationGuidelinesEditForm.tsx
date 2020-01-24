@@ -39,7 +39,6 @@ const ModerationGuidelinesEditForm = ({ postId, onClose, classes }) => {
   }
   return (
     <Dialog
-      modal={false}
       open={true}
       onClose={onClose}
     >
