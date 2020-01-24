@@ -132,7 +132,7 @@ export const NewCommentNotification = registerNotificationType({
 
 export const NewShortformNotification = registerNotificationType({
   name: "newShortform",
-  userSettingField: "notificationShortform",
+  userSettingField: "notificationShortformContent",
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId);
     return 'New comment on "' + Posts.findOne(document.postId).title + '"';
