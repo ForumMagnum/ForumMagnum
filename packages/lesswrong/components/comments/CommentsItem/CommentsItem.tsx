@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/utils/componentUtils';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import withUser from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
@@ -13,7 +13,7 @@ import { Posts } from "../../../lib/collections/posts";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 // Shared with ParentCommentItem
-export const styles = theme => ({
+export const styles = theme => createStyles({
   root: {
     "&:hover $menu": {
       opacity:1
@@ -118,7 +118,30 @@ export const styles = theme => ({
   }
 })
 
-class CommentsItem extends Component {
+interface CommentsItemProps {
+  refetch: any,
+  flash: any,
+  comment: any,
+  currentUser: UsersCurrent,
+  postPage: any,
+  nestingLevel: number,
+  showPostTitle: boolean,
+  post: any,
+  collapsed: boolean,
+  isParentComment: boolean,
+  parentCommentId: string,
+  scrollIntoView: any,
+  toggleCollapse: any,
+  truncated: boolean,
+  parentAnswerId: string,
+  classes: any,
+}
+interface CommentsItemState {
+  showReply: boolean,
+  showEdit: boolean,
+  showParent: boolean,
+}
+class CommentsItem extends Component<CommentsItemProps,CommentsItemState> {
   constructor(props) {
     super(props);
     this.state = {
@@ -363,12 +386,6 @@ class CommentsItem extends Component {
       </div>
     )
   }
-}
-
-CommentsItem.propTypes = {
-  currentUser: PropTypes.object,
-  post: PropTypes.object,
-  comment: PropTypes.object.isRequired
 }
 
 registerComponent('CommentsItem', CommentsItem,

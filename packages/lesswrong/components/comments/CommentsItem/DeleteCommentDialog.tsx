@@ -9,18 +9,29 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import withDialog from '../../common/withDialog'
-import { withStyles } from '@material-ui/core/styles'
+import { withStyles, createStyles } from '@material-ui/core/styles'
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   deleteWithoutTrace: {
     marginRight:"auto"
   },
   modalTextField: {
     marginTop: 10,
   },
-})
+}))
 
-class DeleteCommentDialog extends PureComponent {
+interface DeleteCommentDialogProps {
+  moderateCommentMutation: any,
+  onClose: any,
+  comment: any,
+  flash: any,
+  classes: any,
+}
+interface DeleteCommentDialogState {
+  deletedReason: string,
+}
+
+class DeleteCommentDialog extends PureComponent<DeleteCommentDialogProps,DeleteCommentDialogState> {
   state = { deletedReason: "" }
 
   handleDelete = (event) => {

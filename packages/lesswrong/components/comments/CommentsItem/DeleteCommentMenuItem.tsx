@@ -7,7 +7,15 @@ import withModerateComment from './withModerateComment'
 import withDialog from '../../common/withDialog'
 import withUser from '../../common/withUser';
 
-class DeleteCommentMenuItem extends PureComponent {
+interface DeleteCommentMenuItemProps {
+  openDialog: any,
+  comment: any,
+  moderateCommentMutation: any,
+  flash: any,
+  currentUser: any,
+  post: any,
+}
+class DeleteCommentMenuItem extends PureComponent<DeleteCommentMenuItemProps,{}> {
 
   showDeleteDialog = () => {
     const { openDialog, comment } = this.props;

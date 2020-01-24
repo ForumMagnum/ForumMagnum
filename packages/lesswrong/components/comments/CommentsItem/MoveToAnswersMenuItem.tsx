@@ -9,7 +9,15 @@ import { Comments } from "../../../lib/collections/comments";
 import withUser from '../../common/withUser';
 import { withApollo } from 'react-apollo'
 
-class MoveToAnswersMenuItem extends PureComponent {
+interface MoveToAnswersMenuItemProps {
+  comment: any,
+  updateComment: any,
+  client: any,
+  flash: any,
+  post: any,
+  currentUser: UsersCurrent,
+}
+class MoveToAnswersMenuItem extends PureComponent<MoveToAnswersMenuItemProps,{}> {
 
   handleMoveToAnswers = async () => {
     const { comment, updateComment, client, flash } = this.props
@@ -57,11 +65,6 @@ class MoveToAnswersMenuItem extends PureComponent {
       return null
     }
   }
-}
-
-MoveToAnswersMenuItem.propTypes = {
-  currentUser: PropTypes.object,
-  comment: PropTypes.object.isRequired
 }
 
 const withUpdateOptions = {

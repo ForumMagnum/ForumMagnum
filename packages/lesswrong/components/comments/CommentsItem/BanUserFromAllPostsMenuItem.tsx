@@ -5,8 +5,17 @@ import { withMessages } from '../../common/withMessages';
 import MenuItem from '@material-ui/core/MenuItem';
 import Users from 'meteor/vulcan:users';
 import withUser from '../../common/withUser';
+import * as _ from 'underscore';
 
-class BanUserFromAllPostsMenuItem extends PureComponent {
+interface BanUserFromAllPostsMenuItemProps {
+  comment: any,
+  currentUser: any,
+  updateUser: any,
+  post: any,
+  flash: any,
+}
+
+class BanUserFromAllPostsMenuItem extends PureComponent<BanUserFromAllPostsMenuItemProps,{}> {
   handleBanUserFromAllPosts = (event) => {
     event.preventDefault();
     if (confirm("Are you sure you want to ban this user from commenting on all your posts?")) {

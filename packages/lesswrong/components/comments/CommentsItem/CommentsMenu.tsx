@@ -7,9 +7,9 @@ import { useCurrentUser } from '../../common/withUser';
 import Users from 'meteor/vulcan:users';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useTracking } from "../../../lib/analyticsEvents";
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   icon: {
     cursor: "pointer",
     fontSize:"1.4rem"
@@ -20,10 +20,10 @@ const styles = theme => ({
     top:0,
     zIndex: theme.zIndexes.commentsMenu,
   }
-})
+}))
 
 const CommentsMenu = ({children, classes, className, comment, post, showEdit, icon}) => {
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorEl, setAnchorEl] = useState<any>(null);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking({eventType: "commentMenuClicked", eventProps: {commentId: comment._id, itemType: "comment"}})
   

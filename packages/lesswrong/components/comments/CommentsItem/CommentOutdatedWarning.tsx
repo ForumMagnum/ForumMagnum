@@ -2,17 +2,17 @@ import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import HistoryIcon from '@material-ui/icons/History';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import { QueryLink } from '../../../lib/reactRouterWrapper';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   icon: {
     fontSize: 'inherit',
     position: 'relative',
     top: 2
   }
-})
+}))
 
 function postHadMajorRevision(comment, post) {
   if (!comment || !comment.postVersion || !post || !post.contents || !post.contents.version) {

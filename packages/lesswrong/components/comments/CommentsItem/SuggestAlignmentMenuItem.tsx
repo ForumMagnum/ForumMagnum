@@ -8,9 +8,9 @@ import withUser from '../../common/withUser';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ExposurePlus1 from '@material-ui/icons/ExposurePlus1';
 import Undo from '@material-ui/icons/Undo';
-import { withStyles } from '@material-ui/core/styles'
+import { withStyles, createStyles } from '@material-ui/core/styles'
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   iconRoot: {
     position: "relative",
     width:24,
@@ -31,44 +31,40 @@ const styles = theme => ({
     width: 20,
     color: "black"
   }
-})
+}))
 
-class SuggestAlignmentMenuItem extends PureComponent {
+const SuggestAlignmentMenuItem = ({ currentUser, comment, post, updateComment, classes }) => {
+  const { OmegaIcon } = Components
 
-  render() {
-    const { currentUser, comment, post, updateComment, classes } = this.props
-    const { OmegaIcon } = Components
+  if (post.af && !comment.af && Users.canDo(currentUser, 'comments.alignment.suggest')) {
 
-    if (post.af && !comment.af && Users.canDo(currentUser, 'comments.alignment.suggest')) {
+    const userHasSuggested = comment.suggestForAlignmentUserIds && comment.suggestForAlignmentUserIds.includes(currentUser._id)
 
-      const userHasSuggested = comment.suggestForAlignmentUserIds && comment.suggestForAlignmentUserIds.includes(currentUser._id)
-
-      if (!userHasSuggested) {
-        return (
-          <MenuItem onClick={() => Comments.suggestForAlignment({ currentUser, comment, updateComment })}>
-            <ListItemIcon>
-              <span className={classes.iconRoot}>
-                <OmegaIcon className={classes.omegaIcon}/>
-                <ExposurePlus1 className={classes.plusOneIcon}/>
-              </span>
-            </ListItemIcon>
-            Suggest for Alignment
-          </MenuItem>
-        )
-      } else {
-        return <MenuItem onClick={() => Comments.unSuggestForAlignment({ currentUser, comment, updateComment })}>
+    if (!userHasSuggested) {
+      return (
+        <MenuItem onClick={() => Comments.suggestForAlignment({ currentUser, comment, updateComment })}>
           <ListItemIcon>
             <span className={classes.iconRoot}>
               <OmegaIcon className={classes.omegaIcon}/>
-              <Undo className={classes.undoIcon}/>
+              <ExposurePlus1 className={classes.plusOneIcon}/>
             </span>
           </ListItemIcon>
-            Unsuggest for Alignment
-          </MenuItem>
-      }
+          Suggest for Alignment
+        </MenuItem>
+      )
     } else {
-      return null
+      return <MenuItem onClick={() => Comments.unSuggestForAlignment({ currentUser, comment, updateComment })}>
+        <ListItemIcon>
+          <span className={classes.iconRoot}>
+            <OmegaIcon className={classes.omegaIcon}/>
+            <Undo className={classes.undoIcon}/>
+          </span>
+        </ListItemIcon>
+          Unsuggest for Alignment
+        </MenuItem>
     }
+  } else {
+    return null
   }
 }
 

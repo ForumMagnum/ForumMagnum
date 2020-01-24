@@ -1,8 +1,8 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   author: {
     ...theme.typography.body2,
     fontWeight: 600,
@@ -16,7 +16,7 @@ const styles = theme => ({
       backgroundImage: "none"
     }
   },
-});
+}));
 
 const CommentUserName = ({comment, classes, simple = false}) => {
   if (comment.deleted) {

@@ -10,9 +10,9 @@ import Users from 'meteor/vulcan:users';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ArrowRightAlt from '@material-ui/icons/ArrowRightAlt';
 import Undo from '@material-ui/icons/Undo';
-import { withStyles } from '@material-ui/core/styles'
+import { withStyles, createStyles } from '@material-ui/core/styles'
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   iconRoot: {
     position: "relative",
     width:24,
@@ -32,9 +32,19 @@ const styles = theme => ({
     width: 20,
     color: "black"
   }
-})
+}))
 
-class MoveToAlignmentMenuItem extends PureComponent {
+interface MoveToAlignmentMenuItemProps {
+  comment: any,
+  updateComment: any,
+  client: any,
+  flash: any,
+  currentUser: UsersCurrent,
+  post: any,
+  classes: any,
+}
+
+class MoveToAlignmentMenuItem extends PureComponent<MoveToAlignmentMenuItemProps,{}> {
 
   handleMoveToAlignmentForum = async () => {
     const { comment, updateComment, client, flash, currentUser, } = this.props

@@ -2,9 +2,9 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withSingle } from '../../../lib/crud/withSingle';
 import React from 'react';
 import { Comments } from '../../../lib/collections/comments';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
     opacity: 0.5,
   },
@@ -13,7 +13,7 @@ const styles = theme => ({
     marginLeft: 3,
     fontStyle: "italic",
   },
-});
+}));
 
 const CommentDeletedMetadata = ({document, classes}) => {
   if (document && document.deleted) {

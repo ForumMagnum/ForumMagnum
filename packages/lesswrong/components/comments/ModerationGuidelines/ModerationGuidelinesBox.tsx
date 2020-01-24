@@ -1,6 +1,6 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React, { useState } from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import withNewEvents from '../../../lib/events/withNewEvents';
 import { useCurrentUser } from '../../common/withUser';
 import truncatise from 'truncatise';
@@ -12,7 +12,7 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
 import { commentBodyStyles } from '../../../themes/stylePiping'
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
     padding: theme.spacing.unit*2,
     position:"relative"
@@ -53,7 +53,7 @@ const styles = theme => ({
       marginBottom: '.4em'
     }
   }
-})
+}))
 
 const ModerationGuidelinesBox = ({classes, document, recordEvent}) => {
   const currentUser = useCurrentUser();
@@ -123,7 +123,7 @@ const ModerationGuidelinesBox = ({classes, document, recordEvent}) => {
   const expandable = combinedGuidelines.trim().length !== truncatedGuidelines.trim().length
 
   return (
-    <div className={classes.root} onClick={expandable ? handleClick : null}>
+    <div className={classes.root} onClick={expandable ? handleClick : undefined}>
       {Users.canModeratePost(currentUser, document) &&
         <span onClick={openEditDialog}>
           <Tooltip title="Edit moderation guidelines">
