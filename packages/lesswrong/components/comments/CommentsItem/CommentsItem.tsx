@@ -202,10 +202,6 @@ class CommentsItem extends Component<CommentsItemProps,CommentsItemState> {
     this.setState({showParent:!this.state.showParent})
   }
 
-  toggleShowAllParents = () => {
-    this.setState({showAllParents:!this.state.showAllParents})
-  }
-
   render() {
     const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, collapsed, isParentComment, parentCommentId, scrollIntoView } = this.props
 
