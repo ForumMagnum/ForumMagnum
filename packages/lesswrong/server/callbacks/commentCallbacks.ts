@@ -9,6 +9,7 @@ import * as _ from 'underscore';
 
 import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import { makeEditableOptions } from '../../lib/collections/comments/custom_fields'
+import { shouldNewDocumentTriggerReview } from './postCallbacks';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -415,10 +416,4 @@ async function updateTopLevelCommentLastCommentedAt (comment) {
 }
 addCallback("comment.create.after", updateTopLevelCommentLastCommentedAt)
 
-async function updateNeedsReview (comment) {
-  const author = await Users.findOne(comment.userId);
-  if (author && !author.reviewedByUserId && !author.needsReview) {
-    Users.update({_id:author._id}, {$set:{needsReview: true}})
-  }
-}
-addCallback("comment.create.after", updateNeedsReview)
+addCallback("comment.create.after", shouldNewDocumentTriggerReview)

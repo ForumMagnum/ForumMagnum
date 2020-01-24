@@ -172,10 +172,11 @@ async function UpdateCommentHideKarma (newPost, oldPost) {
 }
 addCallback("posts.edit.async", UpdateCommentHideKarma);
 
-async function updateNeedsReview (post) {
-  const author = await Users.findOne(post.userId);
-  if (author && !author.reviewedByUserId && !author.needsReview) {
+export async function shouldNewDocumentTriggerReview (document) {
+  const author = await Users.findOne(document.userId);
+  if (author && (!author.reviewedByUserId || author.sunshineSnoozed)) {
     Users.update({_id:author._id}, {$set:{needsReview: true}})
   }
+  return document
 }
-addCallback("posts.new.after", updateNeedsReview);
+addCallback("posts.new.after", shouldNewDocumentTriggerReview);

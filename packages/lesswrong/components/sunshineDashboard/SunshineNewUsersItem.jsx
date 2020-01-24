@@ -32,16 +32,21 @@ class SunshineNewUsersItem extends Component {
     const { currentUser, user, updateUser } = this.props
     updateUser({
       selector: {_id: user._id},
-      data: {reviewedByUserId: currentUser._id}
+      data: {
+        reviewedByUserId: currentUser._id,
+        sunshineSnoozed: false,
+        needsReview: false,
+      }
     })
   }
 
   handleSnooze = () => {
-    const { user, updateUser } = this.props
+    const { currentUser, user, updateUser } = this.props
     updateUser({
       selector: {_id: user._id},
       data: {
         needsReview: false,
+        reviewedByUserId: currentUser._id,
         sunshineSnoozed: true
       }
     })
@@ -117,9 +122,10 @@ class SunshineNewUsersItem extends Component {
             </div>
           }
           { hover && <SidebarActionMenu>
-            <SidebarAction title="Review" onClick={this.handleReview}>
+            {/* to fully approve a user, they most have created a post or comment. Users that have only voted can only be snoozed */}
+            {(user.commentCount || user.postCount) && <SidebarAction title="Review" onClick={this.handleReview}>
               <DoneIcon />
-            </SidebarAction>
+            </SidebarAction>}
             <SidebarAction title="Snooze" onClick={this.handleSnooze}>
               <SnoozeIcon />
             </SidebarAction>

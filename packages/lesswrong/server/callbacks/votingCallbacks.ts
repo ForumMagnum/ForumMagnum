@@ -53,15 +53,10 @@ async function cancelVoteCount ({newDocument, vote}) {
 
 addCallback("votes.cancel.async", cancelVoteCount);
 
-async function updateNeedsReview (vote) {
-  const voter = await Users.findOne(vote.userId);
-  if (
-      voter && 
-      !voter.reviewedByUserId && 
-      !voter.needsReview && 
-      voter.voteCount >= 10 && 
-      !voter.sunshineSnoozed
-    ) {
+async function updateNeedsReview (document) {
+  const voter = await Users.findOne(document.vote.userId);
+  // voting should only be triggered once (after getting snoozed, they will not re-trigger for sunshine review)
+  if (voter && voter.voteCount >= 10 && !voter.sunshineSnoozed) {
     Users.update({_id:voter._id}, {$set:{needsReview: true}})
   }
 }
