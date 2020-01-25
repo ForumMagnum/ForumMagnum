@@ -162,11 +162,11 @@ class PostsTimeBlock extends Component {
 
           {postGroups.map(({name, posts, label}) => {
             if (posts?.length > 0) return <div key={name}>
-              <SectionSubtitle
+              <div
                 className={name === 'frontpage' ? classes.frontpageSubtitle : classes.otherSubtitle}
               >
                 <ContentType type={name} label={label} />
-              </SectionSubtitle>
+              </div>
               <SubSection>
                 {posts.map((post, i) =>
                   <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} dense />

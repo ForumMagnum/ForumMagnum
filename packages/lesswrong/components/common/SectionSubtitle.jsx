@@ -11,6 +11,8 @@ const styles = (theme) => ({
     fontSize: ".9rem",
     color: theme.palette.lwTertiary.main,
     display: "inline-block",
+    lineHeight: "1rem",
+    marginBottom: -4
   }
 })
 
