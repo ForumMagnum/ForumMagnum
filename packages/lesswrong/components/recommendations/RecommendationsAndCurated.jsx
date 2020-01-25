@@ -20,7 +20,7 @@ const styles = theme => ({
   continueReadingList: {
     marginBottom: theme.spacing.unit*2,
   },
-  section: {
+  subsection: {
     marginBottom: theme.spacing.unit*2,
   },
   footerWrapper: {
@@ -121,7 +121,7 @@ class RecommendationsAndCurated extends PureComponent {
           onChange={(newSettings) => this.changeSettings(newSettings)}
         /> }
 
-      {renderContinueReading && <div className={classes.section}>
+      {renderContinueReading && <div className={classes.subsection}>
           <Tooltip placement="top-start" title={currentUser ? continueReadingTooltip : coreReadingTooltip}>
             <Link to={"/library"}>
               <SectionSubtitle className={classNames(classes.subtitle, classes.continueReading)}>
@@ -132,7 +132,7 @@ class RecommendationsAndCurated extends PureComponent {
           <ContinueReadingList continueReading={continueReading} />
         </div>}
 
-      {renderBookmarks && <div className={classes.section}>
+      {renderBookmarks && <div className={classes.subsection}>
         <Tooltip placement="top-start" title={bookmarksTooltip}>
           <Link to={"/bookmarks"}>
             <SectionSubtitle>
@@ -151,7 +151,7 @@ class RecommendationsAndCurated extends PureComponent {
       </AnalyticsContext> */}
 
       {/* Disabled during 2018 Review */}
-      {!settings.hideFrontpage && <div className={classes.section}>
+      {!settings.hideFrontpage && <div className={classes.subsection}>
         <Tooltip placement="top-start" title={allTimeTooltip}>
           <Link to={"/recommendations"}>
             <SectionSubtitle className={classNames(classes.subtitle, classes.fromTheArchives)} >
@@ -165,7 +165,7 @@ class RecommendationsAndCurated extends PureComponent {
       </div>}
 
       <AnalyticsContext pageSectionContext={"curatedPosts"}>
-        <div className={classes.section}>
+        <div className={classes.subsection}>
           <Tooltip placement="top-start" title={curatedTooltip}>
             <Link to={curatedUrl}>
               <SectionSubtitle className={classes.subtitle}>
