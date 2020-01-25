@@ -12,7 +12,6 @@ export const fieldProps = {
   layout: PropTypes.any, // string?
   input: PropTypes.any, // string, function, undefined
   options: PropTypes.object,
-  intlInput: PropTypes.object,
   // path relative to the main object
   // e.g phoneNumbers.0.value
   path: PropTypes.string,

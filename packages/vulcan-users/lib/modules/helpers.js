@@ -30,9 +30,9 @@ Users.getUser = function(userOrUserId) {
  */
 Users.getUserName = function(user) {
   try {
-    if (user.username) return user.username;
-    if (user && user.services && user.services.twitter && user.services.twitter.screenName)
-      return user.services.twitter.screenName;
+    if (user?.username) return user.username;
+    if (user?.services?.twitter?.screenName)
+      return user?.services?.twitter?.screenName;
   } catch (error) {
     console.log(error); // eslint-disable-line
     return null;

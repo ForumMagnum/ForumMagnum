@@ -1,5 +1,6 @@
 import React from 'react';
-import { withList, Components, registerComponent} from 'meteor/vulcan:core';
+import { Components, registerComponent} from 'meteor/vulcan:core';
+import { withMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import { withStyles } from '@material-ui/core/styles';
@@ -57,4 +58,4 @@ const options = {
   // enableTotal: false,
 };
 
-registerComponent('PostReviewsAndNominations', PostReviewsAndNominations, [withList, options], withStyles(styles, {name:"PostReviewsAndNominations"}));
+registerComponent('PostReviewsAndNominations', PostReviewsAndNominations, [withMulti, options], withStyles(styles, {name:"PostReviewsAndNominations"}));

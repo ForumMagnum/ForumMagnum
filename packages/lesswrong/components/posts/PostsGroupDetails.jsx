@@ -1,4 +1,5 @@
-import { registerComponent, withDocument } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
+import { withSingle } from '../../lib/crud/withSingle';
 import React, { Component } from 'react';
 import { Link } from '../../lib/reactRouterWrapper.jsx';
 import { Localgroups } from '../../lib/index.js';
@@ -43,4 +44,4 @@ const options = {
   ssr: true,
 }
 
-registerComponent( 'PostsGroupDetails', PostsGroupDetails, [withDocument, options], withStyles(styles, {name: "PostsGroupDetails"}));
+registerComponent( 'PostsGroupDetails', PostsGroupDetails, [withSingle, options], withStyles(styles, {name: "PostsGroupDetails"}));

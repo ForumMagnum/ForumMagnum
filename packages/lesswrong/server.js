@@ -74,32 +74,40 @@ import './server/partiallyReadSequences.js';
 import './server/tagging/tagCallbacks.js';
 import './server/tagging/tagsGraphQL.js';
 
-import './lib/collections/comments/callbacks.js';
-import './lib/collections/comments/graphql.js';
-import './lib/collections/posts/callbacks.js';
+import './server/callbacks/commentCallbacks';
+import './server/resolvers/commentResolvers';
+import './server/callbacks/postCallbacks';
 import './lib/collections/posts/validate.js';
-import './lib/collections/chapters/callbacks.js';
-import './lib/collections/sequences/callbacks.js';
-import './lib/collections/books/callbacks.js';
-import './lib/collections/collections/callbacks.js';
-import './lib/collections/messages/callbacks.js';
+import './server/callbacks/chapterCallbacks';
+import './server/callbacks/sequenceCallbacks';
+import './server/callbacks/bookCallbacks';
+import './server/callbacks/collectionCallbacks';
+import './server/callbacks/messageCallbacks';
 import './lib/collections/users/validate_login.js';
-import './lib/collections/users/callbacks.js';
-import './lib/collections/bans/callbacks.js';
-import './lib/collections/posts/tableOfContents.js';
-import './lib/collections/subscriptions/callbacks.js';
-import './lib/collections/reviewVotes/callbacks.js';
+import './server/callbacks/userCallbacks';
+import './server/callbacks/banCallbacks';
+import './server/tableOfContents';
+import './server/callbacks/subscriptionCallbacks';
+import './server/callbacks/reviewVoteCallbacks';
 if (getSetting('hasEvents', true)) {
-  import './lib/collections/localgroups/callbacks.js';
+  import './server/callbacks/localgroupCallbacks';
 }
+import './server/callbacks/alignment-forum/callbacks';
+import './server/callbacks/alignment-forum/alignmentCommentCallbacks';
+import './server/callbacks/alignment-forum/alignmentPostCallbacks';
+import './server/callbacks/alignment-forum/alignmentUserCallbacks';
+import './server/callbacks/votingCallbacks';
 
-import './lib/collections/revisions/resolvers.js';
-import './lib/collections/posts/serverSchema.js';
-import './lib/collections/users/serverSchema.js';
+import './server/resolvers/revisionResolvers';
+import './server/resolvers/postResolvers';
+import './server/resolvers/userResolvers';
+import './server/resolvers/karmaChangeResolvers';
 
 import './lib/events/server.js';
-import './lib/events/callbacks_async.js';
+import './server/callbacks/intercomCallbacks';
 import './server/connection_logs';
+
+import './server/codegen/generateFragmentTypes.ts';
 
 
 // Algolia Search Integration

@@ -47,6 +47,13 @@ const styles = theme => ({
   },
   icon: {
     color: theme.palette.grey[500]
+  },
+  deactivatedTooltip: {
+    maxWidth: 230
+  },
+  deactivated: {
+    color: theme.palette.grey[600],
+    marginLeft: 20
   }
 })
 
@@ -75,11 +82,11 @@ class UsersMenu extends PureComponent {
   render() {
     let { currentUser, client, classes, color, openDialog, hover, anchorEl } = this.props;
 
-    const { LWPopper } = Components
+    const { LWPopper, LWTooltip } = Components
 
     if (!currentUser) return null;
 
-    const showNewButtons = getSetting('forumType') !== 'AlignmentForum' || Users.canDo(currentUser, 'posts.alignment.new')
+    const showNewButtons = (getSetting('forumType') !== 'AlignmentForum' || Users.canDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
     const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
 
     return (
@@ -88,6 +95,15 @@ class UsersMenu extends PureComponent {
           <Button classes={{root: classes.userButtonRoot}}>
             <span className={classes.userButtonContents} style={{ color: color }}>
               {Users.getDisplayName(currentUser)}
+              {currentUser.deleted && <LWTooltip title={<div className={classes.deactivatedTooltip}>
+                <div>Your account has been deactivated:</div>
+                <ul>
+                  <li>Your username appears as '[Anonymous]' on comments/posts</li>
+                  <li>Your profile page is not accessible</li>
+                </ul>
+              </div>}>
+                <span className={classes.deactivated}>[Deactivated]</span>
+              </LWTooltip>}
               {getSetting('forumType') === 'AlignmentForum' && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
             </span>
           </Button>
@@ -109,21 +125,26 @@ class UsersMenu extends PureComponent {
             }
             {showNewButtons &&
               <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>
-                New Shortform [Beta]
+                New Shortform
               </MenuItem>
+            }
+            {(showNewButtons && currentUser.karma >= 1000) &&
+              <Link to={`/sequencesnew`}>
+                <MenuItem>New Sequence</MenuItem>
+              </Link>
             }
             {showNewButtons && <Divider/>}
             { getSetting('forumType') === 'AlignmentForum' && !isAfMember && <MenuItem onClick={() => openDialog({componentName: "AFApplicationForm"})}>
               Apply for Membership
             </MenuItem> }
-            <Link to={`/users/${currentUser.slug}`}>
+            {!currentUser.deleted && <Link to={`/users/${currentUser.slug}`}>
               <MenuItem>
                 <ListItemIcon>
                   <PersonIcon className={classes.icon}/>
                 </ListItemIcon>
                 User Profile
               </MenuItem>
-            </Link>
+            </Link>}
             <Link to={`/account`}>
               <MenuItem>
                 <ListItemIcon>

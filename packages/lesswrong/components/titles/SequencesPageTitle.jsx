@@ -1,5 +1,6 @@
 import React from 'react';
-import { registerComponent, useSingle } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
+import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import Sequences from '../../lib/collections/sequences/collection.js';

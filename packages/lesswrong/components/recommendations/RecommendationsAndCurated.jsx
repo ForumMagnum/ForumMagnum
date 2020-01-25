@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
-import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withUpdate } from '../../lib/crud/withUpdate';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import Users from 'meteor/vulcan:users';
@@ -70,7 +71,7 @@ class RecommendationsAndCurated extends PureComponent {
   render() {
     const { continueReading, classes, currentUser } = this.props;
     const { showSettings } = this.state
-    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SubSection, SeparatorBullet, BookmarksList, FrontpageVotingPhase } = Components;
+    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SubSection, SeparatorBullet, BookmarksList, RecommendationsList } = Components;
 
     const configName = "frontpage"
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
@@ -94,13 +95,13 @@ class RecommendationsAndCurated extends PureComponent {
     </div>
 
     // Disabled during 2018 Review
-    // const allTimeTooltip = <div>
-    //   <div>
-    //     A weighted, randomized sample of the highest karma posts
-    //     {settings.onlyUnread && " that you haven't read yet"}.
-    //   </div>
-    //   <div><em>(Click to see more recommendations)</em></div>
-    // </div>
+    const allTimeTooltip = <div>
+      <div>
+        A weighted, randomized sample of the highest karma posts
+        {settings.onlyUnread && " that you haven't read yet"}.
+      </div>
+      <div><em>(Click to see more recommendations)</em></div>
+    </div>
 
     // defaultFrontpageSettings does not contain anything that overrides a user
     // editable setting, so the reverse ordering here is fine
@@ -160,12 +161,13 @@ class RecommendationsAndCurated extends PureComponent {
           </SubSection>
       </React.Fragment>}
 
-      <AnalyticsContext pageSectionContext="LessWrong 2018 Review">
+      {/* disabled except during review */}
+      {/* <AnalyticsContext pageSectionContext="LessWrong 2018 Review">
         <FrontpageVotingPhase settings={frontpageRecommendationSettings} />
-      </AnalyticsContext>
+      </AnalyticsContext> */}
 
       {/* Disabled during 2018 Review */}
-      {/* {!settings.hideFrontpage && <div>
+      {!settings.hideFrontpage && <div>
         <div>
           <Tooltip placement="top-start" title={allTimeTooltip}>
             <Link to={"/recommendations"}>
@@ -181,7 +183,7 @@ class RecommendationsAndCurated extends PureComponent {
             <RecommendationsList algorithm={frontpageRecommendationSettings} />
           </AnalyticsContext>
         </SubSection>
-      </div>} */}
+      </div>}
 
       <AnalyticsContext pageSectionContext={"curatedPosts"}>
           <Tooltip placement="top-start" title={curatedTooltip}>

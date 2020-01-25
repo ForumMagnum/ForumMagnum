@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { registerComponent, Components, useSingle } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
+import { useSingle } from '../../lib/crud/withSingle';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Tooltip from '@material-ui/core/Tooltip';

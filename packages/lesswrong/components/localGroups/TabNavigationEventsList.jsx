@@ -1,5 +1,6 @@
 import React from 'react';
-import { registerComponent, Components, withList } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
+import { withMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts';
 import Tooltip from '@material-ui/core/Tooltip';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -150,6 +151,6 @@ const options = {
 };
 
 registerComponent('TabNavigationEventsList', TabNavigationEventsList,
-  [withList, options],
+  [withMulti, options],
   withStyles(styles, {name:"TabNavigationEventsList"})
 );

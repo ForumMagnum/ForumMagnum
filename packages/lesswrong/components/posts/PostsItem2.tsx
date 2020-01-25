@@ -415,7 +415,7 @@ const PostsItem2 = ({
 
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
-    BookmarkButton, EventVicinity, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker, ReviewPostButton } = (Components as ComponentTypes)
+    BookmarkButton, EventVicinity, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker } = (Components as ComponentTypes)
 
   const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -491,7 +491,7 @@ const PostsItem2 = ({
                   </div>
                 }
 
-                { post.user && !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
+                { !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
                   <PostsUserAndCoauthors post={post} abbreviateIfLong={true} />
                 </PostsItem2MetaInfo>}
 
@@ -528,9 +528,9 @@ const PostsItem2 = ({
                   
                 </LWTooltip>}
 
-                {(post.nominationCount2018 >= 2) && <Link to={Posts.getPageUrl(post)}>
+                {/* {(post.nominationCount2018 >= 2) && <Link to={Posts.getPageUrl(post)}>
                   <ReviewPostButton post={post}/>
-                </Link>}
+                </Link>} */}
 
                 {bookmark && <div className={classes.bookmark}>
                   <BookmarkButton post={post}/>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
-import { useCurrentUser } from '../../common/withUser.js';
+import { useCurrentUser } from '../../common/withUser';
 import { useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
 

@@ -88,7 +88,6 @@ registerFragment(`
     groups
     services
     pageUrl
-    locale
     voteBanned
     banned
     isReviewed
@@ -279,6 +278,8 @@ registerFragment(`
     banned
     reviewedByUserId
     signUpReCaptchaRating
+    needsReview
+    sunshineSnoozed
   }
 `);
 
@@ -531,6 +532,8 @@ registerFragment(`
     notificationSharedWithMe
 
     hideFrontpageMap
+
+    deleted
   }
 `)
 

@@ -1,5 +1,6 @@
 import React from 'react';
-import { registerComponent, withList, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
+import { withMulti } from '../../lib/crud/withMulti';
 import withUser from '../common/withUser';
 
 export const EmailHistoryPage = ({currentUser}) => {
@@ -19,7 +20,7 @@ export const EmailHistory = ({results, classes}) => {
 }
 
 registerComponent('EmailHistory', EmailHistory,
-  [withList, {
+  [withMulti, {
     collectionName: 'LWEvents',
     queryName: 'EmailHistory',
     fragmentName: 'emailHistoryFragment',

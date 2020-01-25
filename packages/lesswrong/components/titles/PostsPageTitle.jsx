@@ -1,5 +1,6 @@
 import React from 'react';
-import { registerComponent, useSingle, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, getSetting } from 'meteor/vulcan:core';
+import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import Posts from '../../lib/collections/posts/collection.js';

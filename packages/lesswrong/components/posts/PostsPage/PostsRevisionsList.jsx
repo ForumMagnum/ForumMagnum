@@ -1,6 +1,7 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles';
-import { registerComponent, Components, withSingle } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
+import { withSingle } from '../../../lib/crud/withSingle';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Posts } from '../../../lib/collections/posts/collection'
 import { QueryLink } from '../../../lib/reactRouterWrapper.jsx';

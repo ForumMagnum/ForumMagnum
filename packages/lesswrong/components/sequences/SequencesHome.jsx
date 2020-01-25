@@ -96,5 +96,5 @@ registerComponent(
   'SequencesHome',
   SequencesHome,
   withStyles(styles, {name: "SequencesHome"}),
-  //withList(options)
+  //withMulti(options)
 );

@@ -56,9 +56,9 @@ const PostsItemMeta = ({post, read, classes}) => {
         <Components.EventVicinity post={post} />
       </MetaInfo>}
 
-      { post.user && <MetaInfo>
+      <MetaInfo>
         <PostsUserAndCoauthors post={post}/>
-      </MetaInfo>}
+      </MetaInfo>
 
       {post.postedAt && !post.isEvent && <MetaInfo>
         <FormatDate date={post.postedAt}/>

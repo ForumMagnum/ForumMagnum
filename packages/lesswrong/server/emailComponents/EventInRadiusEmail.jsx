@@ -1,5 +1,6 @@
 import React from 'react';
-import { registerComponent, useSingle } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
+import { useSingle } from '../../lib/crud/withSingle';
 import { Posts } from '../../lib/collections/posts';
 import moment from '../../lib/moment-timezone';
 
