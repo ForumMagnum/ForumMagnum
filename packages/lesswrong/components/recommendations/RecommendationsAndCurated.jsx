@@ -71,7 +71,7 @@ class RecommendationsAndCurated extends PureComponent {
   render() {
     const { continueReading, classes, currentUser } = this.props;
     const { showSettings } = this.state
-    const { BetaTag, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SubSection, SeparatorBullet, BookmarksList, RecommendationsList } = Components;
+    const { RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SeparatorBullet, BookmarksList, RecommendationsList } = Components;
 
     const configName = "frontpage"
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
@@ -136,11 +136,8 @@ class RecommendationsAndCurated extends PureComponent {
                 </SectionSubtitle>
               </Link>
             </Tooltip>
-            <BetaTag />
           </div>
-          <SubSection className={classes.continueReadingList}>
-            <ContinueReadingList continueReading={continueReading} />
-          </SubSection>
+          <ContinueReadingList continueReading={continueReading} />
         </React.Fragment>}
 
       {renderBookmarks && <React.Fragment>
@@ -152,13 +149,10 @@ class RecommendationsAndCurated extends PureComponent {
                 </SectionSubtitle>
               </Link>
             </Tooltip>
-            <BetaTag />
           </div>
-          <SubSection className={classes.continueReadingList}>
-            <AnalyticsContext listContext={"frontpageBookmarksList"} capturePostItemOnMount>
-              <BookmarksList limit={3} />
-            </AnalyticsContext>
-          </SubSection>
+          <AnalyticsContext listContext={"frontpageBookmarksList"} capturePostItemOnMount>
+            <BookmarksList limit={3} />
+          </AnalyticsContext>
       </React.Fragment>}
 
       {/* disabled except during review */}
@@ -176,13 +170,10 @@ class RecommendationsAndCurated extends PureComponent {
               </SectionSubtitle>
             </Link>
           </Tooltip>
-          <BetaTag />
         </div>
-        <SubSection>
-          <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
-            <RecommendationsList algorithm={frontpageRecommendationSettings} />
-          </AnalyticsContext>
-        </SubSection>
+        <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
+          <RecommendationsList algorithm={frontpageRecommendationSettings} />
+        </AnalyticsContext>
       </div>}
 
       <AnalyticsContext pageSectionContext={"curatedPosts"}>
@@ -193,11 +184,9 @@ class RecommendationsAndCurated extends PureComponent {
             </SectionSubtitle>
           </Link>
         </Tooltip>
-        <SubSection>
-          <AnalyticsContext listContext={"curatedPosts"}>
-            <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
-          </AnalyticsContext>
-        </SubSection>
+        <AnalyticsContext listContext={"curatedPosts"}>
+          <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
+        </AnalyticsContext>
         <div className={classes.footerWrapper}>
           <Typography component="div" variant="body2" className={classes.footer}>
             <Link to={curatedUrl}>
