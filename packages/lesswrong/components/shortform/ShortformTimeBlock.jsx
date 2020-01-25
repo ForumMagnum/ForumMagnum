@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Components, withList, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles';
 import {queryIsUpdating} from '../common/queryStatusUtils'
@@ -77,7 +78,7 @@ class ShortformTimeBlock extends Component {
 }
 
 registerComponent('ShortformTimeBlock', ShortformTimeBlock,
-  [withList, {
+  [withMulti, {
     collection: Comments,
     queryName: 'timeframeShortformQuery',
     fragmentName: 'ShortformComments',

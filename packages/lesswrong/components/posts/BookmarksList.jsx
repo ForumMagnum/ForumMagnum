@@ -1,4 +1,5 @@
-import { registerComponent, Components, useSingle } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
+import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import withUser from '../common/withUser';
 import Users from 'meteor/vulcan:users';

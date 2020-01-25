@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Accounts } from 'meteor/accounts-base';
 import { KEY_PREFIX } from '../../login_session.js';
-import { Components, registerComponent, withCurrentUser } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:lib';
 import { intlShape } from 'meteor/vulcan:i18n';
 import { withApollo } from 'react-apollo';
 import TrackerComponent from './TrackerComponent.jsx';
@@ -1073,4 +1073,4 @@ AccountsLoginFormInner.contextTypes = {
   intl: intlShape
 };
 
-registerComponent('AccountsLoginFormInner', AccountsLoginFormInner, withCurrentUser, withApollo);
+registerComponent('AccountsLoginFormInner', AccountsLoginFormInner, withApollo);

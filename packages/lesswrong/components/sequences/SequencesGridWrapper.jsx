@@ -1,4 +1,5 @@
-import { Components, registerComponent, withList } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import Sequences from '../../lib/collections/sequences/collection.js';
 import classNames from 'classnames';
@@ -54,5 +55,5 @@ const options = {
 
 
 registerComponent('SequencesGridWrapper', SequencesGridWrapper,
-  [withList, options], withUser,
+  [withMulti, options], withUser,
   withStyles(styles, {name: "SequencesGridWrapper"}));

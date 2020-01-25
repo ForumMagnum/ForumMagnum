@@ -26,7 +26,7 @@ Child Props:
 
 */
 
-import React, { Component } from 'react';
+import React from 'react';
 import { Mutation, useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import { createClientTemplate } from 'meteor/vulcan:core';
@@ -35,7 +35,7 @@ import { compose, withHandlers } from 'recompose';
 import { cacheUpdateGenerator } from './cacheUpdates';
 import { getExtraVariables } from './utils'
 
-const withCreate = options => {
+export const withCreate = options => {
   const { collectionName, collection } = extractCollectionInfo(options);
   const { fragmentName, fragment, extraVariablesString } = extractFragmentInfo(options, collectionName);
 
@@ -74,10 +74,14 @@ const withCreate = options => {
 
 export default withCreate;
 
-// TODO: Only include in branch if actually used
 export const useCreate = ({
   collectionName, collection,
   fragmentName, fragment
+}: {
+  collectionName?: string,
+  collection?: any,
+  fragmentName?: string,
+  fragment?: any,
 }) => {
   ({ collectionName, collection } = extractCollectionInfo({collectionName, collection}));
   ({ fragmentName, fragment } = extractFragmentInfo({fragmentName, fragment}, collectionName));

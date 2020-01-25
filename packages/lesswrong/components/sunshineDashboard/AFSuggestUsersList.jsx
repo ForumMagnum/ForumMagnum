@@ -1,4 +1,5 @@
-import { Components as C, registerComponent, withList } from 'meteor/vulcan:core';
+import { Components as C, registerComponent } from 'meteor/vulcan:core';
+import { withMulti } from '../../lib/crud/withMulti';
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
@@ -49,7 +50,7 @@ const withListOptions = {
 registerComponent(
   'AFSuggestUsersList',
   AFSuggestUsersList,
-  [withList, withListOptions],
+  [withMulti, withListOptions],
   withUser,
   withStyles(styles, {name: "AFSuggestUsersList"})
 );

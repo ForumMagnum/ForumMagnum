@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { registerComponent, withUpdate } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
+import { withUpdate } from '../../lib/crud/withUpdate';
 import Users from 'meteor/vulcan:users';
 import { rssTermsToUrl } from "../../lib/rss_urls";
 import { CopyToClipboard } from 'react-copy-to-clipboard';

@@ -1,6 +1,8 @@
 import { getSetting } from 'meteor/vulcan:core';
 import { importComponent } from 'meteor/vulcan:lib';
 
+import '../components/vulcan-core/vulcan-core-components';
+
 if(getSetting('forumType') === 'AlignmentForum') {
   // HACK: At the top of the file because DeepScan false-positively warns about
   // imports not at top level, and it re-detects it every time the line number

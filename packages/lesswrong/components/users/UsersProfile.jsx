@@ -1,4 +1,5 @@
-import { Components, registerComponent, withList, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { withMulti } from '../../lib/crud/withMulti';
 import React, { Component } from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Link } from '../../lib/reactRouterWrapper.jsx';
@@ -337,4 +338,6 @@ const options = {
   ssr: true
 };
 
-registerComponent('UsersProfile', UsersProfile, withUser, [withList, options], withLocation, withNavigation, withStyles(styles, {name: "UsersProfile"}));
+registerComponent('UsersProfile', UsersProfile, withUser,
+  [withMulti, options], withLocation, withNavigation,
+  withStyles(styles, {name: "UsersProfile"}));

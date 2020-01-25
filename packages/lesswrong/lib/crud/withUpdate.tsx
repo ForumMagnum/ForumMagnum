@@ -35,7 +35,7 @@ import { updateClientTemplate, extractCollectionInfo, extractFragmentInfo } from
 import { getExtraVariables } from './utils';
 import { cacheUpdateGenerator } from './cacheUpdates';
 
-const withUpdate = options => {
+export const withUpdate = options => {
   const { collectionName, collection } = extractCollectionInfo(options);
   const { fragmentName, fragment, extraVariablesString } = extractFragmentInfo(options, collectionName);
 
@@ -76,6 +76,11 @@ export default withUpdate;
 export const useUpdate = ({
   collectionName, collection,
   fragmentName, fragment,
+}: {
+  collectionName?: string,
+  collection?: any,
+  fragmentName?: string,
+  fragment?: any,
 }) => {
   ({ collectionName, collection } = extractCollectionInfo({collectionName, collection}));
   ({ fragmentName, fragment } = extractFragmentInfo({fragmentName, fragment}, collectionName));

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Components, registerComponent, withDocument, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { withSingle } from '../../lib/crud/withSingle';
 import { Comments } from '../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -48,7 +49,7 @@ const CommentPermalink = (props) => {
 
 registerComponent("CommentPermalink", CommentPermalink,
   withStyles(styles, {name:"CommentPermalink"}),
-  [withDocument, {
+  [withSingle, {
     collection: Comments,
     queryName: 'commentsPermalinkQuery',
     fragmentName: 'CommentWithReplies',

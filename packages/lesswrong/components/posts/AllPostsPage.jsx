@@ -1,4 +1,5 @@
-import { Components, registerComponent, getSetting, withUpdate } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { withLocation } from '../../lib/routeUtil';

@@ -107,6 +107,8 @@ import './lib/events/server.js';
 import './server/callbacks/intercomCallbacks';
 import './server/connection_logs';
 
+import './server/codegen/generateFragmentTypes.ts';
+
 
 // Algolia Search Integration
 import './server/search/utils.js';

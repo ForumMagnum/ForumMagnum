@@ -1,5 +1,6 @@
 import React from 'react';
-import { registerComponent, useMulti } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
+import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 import Users from 'meteor/vulcan:users';
 import { useLocation } from '../../lib/routeUtil';

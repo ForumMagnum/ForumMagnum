@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, Components, withUpdate } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
+import { withUpdate } from '../../../lib/crud/withUpdate';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Comments } from '../../../lib/collections/comments'
 import Users from 'meteor/vulcan:users';

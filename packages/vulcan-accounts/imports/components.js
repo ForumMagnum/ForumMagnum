@@ -1,4 +1,4 @@
-import { importComponent } from 'meteor/vulcan:core';
+import { importComponent } from 'meteor/vulcan:lib';
 
 importComponent("AccountsButton", () => require('./ui/components/Button.jsx'));
 importComponent("AccountsButtons", () => require('./ui/components/Buttons.jsx'));

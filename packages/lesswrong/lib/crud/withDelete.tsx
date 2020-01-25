@@ -35,7 +35,7 @@ import { cacheUpdateGenerator } from './cacheUpdates';
 import { getExtraVariables } from './utils'
 import { Mutation } from 'react-apollo';
 
-const withDelete = options => {
+export const withDelete = options => {
   const { collectionName, collection } = extractCollectionInfo(options);
   const { fragmentName, fragment, extraVariablesString } = extractFragmentInfo(options, collectionName);
 

@@ -4,17 +4,17 @@ import { getMultiResolverName, findWatchesByTypeName, getUpdateMutationName, get
 export const cacheUpdateGenerator = (typeName, mutationType) => {
   switch(mutationType) {
     case('update'): {
-      return (store, { data: { [getUpdateMutationName(typeName)]: {data: document} } }) => {
+      return (store, { data: { [getUpdateMutationName(typeName)]: {data: document} } }: any) => {
         updateEachQueryResultOfType({ func: handleUpdateMutation, store, typeName,  document })
       }
     }
     case('create'): {
-      return (store, { data: { [getCreateMutationName(typeName)]: {data: document} } }) => {
+      return (store, { data: { [getCreateMutationName(typeName)]: {data: document} } }: any) => {
         updateEachQueryResultOfType({ func: handleCreateMutation, store, typeName, document })
       }
     }
     case('delete'): {
-      return (store, { data: { [getDeleteMutationName(typeName)]: {data: document} } }) => {
+      return (store, { data: { [getDeleteMutationName(typeName)]: {data: document} } }: any) => {
         updateEachQueryResultOfType({ func: handleDeleteMutation, store, typeName, document })
       }
     }
