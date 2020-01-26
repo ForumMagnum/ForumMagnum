@@ -67,4 +67,13 @@ class EditTitle extends Component<EditTitleProps,{}> {
   updateCurrentValues: PropTypes.func,
 };
 
-registerComponent("EditTitle", EditTitle, withStyles(styles, { name: "EditTitle" }));
+export const EditTitleComponent = registerComponent(
+  "EditTitle", EditTitle,
+  withStyles(styles, { name: "EditTitle" }));
+
+declare global {
+  interface ComponentTypes {
+    EditTitle: typeof EditTitleComponent
+  }
+}
+

@@ -12,10 +12,6 @@ interface ComponentTypes {
   InboxWrapper: any
   InboxNavigation: any
   NewConversationButton: any
-  EditorFormComponent: any
-  EditTitle: any
-  EditUrl: any
-  SelectVersion: any
   newFeedButton: any
   editFeedButton: any
   LWTooltip: any

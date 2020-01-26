@@ -739,4 +739,12 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   addToSuccessForm: PropTypes.func
 };
 
-registerComponent('EditorFormComponent', EditorFormComponent, withUser, withStyles(styles, { name: "EditorFormComponent" }), withErrorBoundary);
+export const EditorFormComponentComponent = registerComponent(
+  'EditorFormComponent', EditorFormComponent,
+  withUser, withStyles(styles, { name: "EditorFormComponent" }), withErrorBoundary);
+
+declare global {
+  interface ComponentTypes {
+    EditorFormComponent: typeof EditorFormComponentComponent
+  }
+}

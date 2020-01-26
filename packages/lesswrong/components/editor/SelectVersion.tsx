@@ -72,4 +72,10 @@ const SelectVersion = ({classes, documentId, revisionVersion, updateVersionNumbe
 
 }
 
-registerComponent("SelectVersion", SelectVersion, withStyles(styles, {name:"SelectVersion"}));
+export const SelectVersionComponent = registerComponent("SelectVersion", SelectVersion, withStyles(styles, {name:"SelectVersion"}));
+
+declare global {
+  interface ComponentTypes {
+    SelectVersion: typeof SelectVersionComponent
+  }
+}

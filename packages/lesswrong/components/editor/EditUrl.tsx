@@ -101,4 +101,10 @@ class EditUrl extends Component<EditUrlProps,EditUrlState> {
   addToSubmitForm: PropTypes.func,
 };
 
-registerComponent("EditUrl", EditUrl, withStyles(styles, { name: "EditUrl" }));
+export const EditUrlComponent = registerComponent("EditUrl", EditUrl, withStyles(styles, { name: "EditUrl" }));
+
+declare global {
+  interface ComponentTypes {
+    EditUrl: typeof EditUrlComponent
+  }
+}
