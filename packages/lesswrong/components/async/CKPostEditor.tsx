@@ -3,7 +3,7 @@ import CKEditor from '../editor/ReactCKEditor';
 import { PostEditor, PostEditorCollaboration } from '@lesswrong/lesswrong-editor';
 import { getSetting } from 'meteor/vulcan:core';
 import { getCKEditorDocumentId, generateTokenRequest } from '../../lib/ckEditorUtils'
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import { Helmet } from 'react-helmet';
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -11,7 +11,7 @@ import { Helmet } from 'react-helmet';
 const uploadUrl = getSetting('ckEditor.uploadUrl', null)
 const webSocketUrl = getSetting('ckEditor.webSocketUrl', null)
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   sidebar: {
     position: 'absolute',
     right: -350,
@@ -25,7 +25,7 @@ const styles = theme => ({
       right: 0
     }
   }
-})
+}))
 
 const refreshDisplayMode = ( editor, sidebarElement ) => {
   if (!sidebarElement) return null

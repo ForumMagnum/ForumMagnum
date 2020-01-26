@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import classNames from 'classnames'
 import Input from '@material-ui/core/Input';
 import LinkIcon from '@material-ui/icons/Link'
 import LinkOffIcon from '@material-ui/icons/LinkOff';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
     marginRight: theme.spacing.unit
   },
@@ -30,10 +30,22 @@ const styles = theme => ({
   innerInput: {
     padding: '6px 0 7px'
   }
-})
+}))
 
-class EditUrl extends Component {
-  state = {
+interface EditUrlProps extends WithStylesProps{
+  document: any,
+  value: any,
+  defaultValue: any,
+  label: string,
+  hintText: string,
+  placeholder: string,
+  path: string,
+}
+interface EditUrlState {
+  active: boolean,
+}
+class EditUrl extends Component<EditUrlProps,EditUrlState> {
+  state: EditUrlState = {
     active: !!this.props.value
   }
 
@@ -82,9 +94,9 @@ class EditUrl extends Component {
       </div>
     )
   }
-}
+};
 
-EditUrl.contextTypes = {
+(EditUrl as any).contextTypes = {
   updateCurrentValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
   addToSubmitForm: PropTypes.func,

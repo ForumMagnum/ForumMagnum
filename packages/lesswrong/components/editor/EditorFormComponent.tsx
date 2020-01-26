@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import { editorStyles, postBodyStyles, postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
@@ -16,6 +16,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import withErrorBoundary from '../common/withErrorBoundary';
 import Tooltip from '@material-ui/core/Tooltip';
 import { userHasCkEditor } from '../../lib/betas';
+import * as _ from 'underscore';
+import { Meteor } from 'meteor/meteor';
 
 const postEditorHeight = 250;
 const questionEditorHeight = 150;
@@ -23,7 +25,7 @@ const commentEditorHeight = 100;
 const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   editor: {
     position: 'relative',
   },
@@ -106,7 +108,7 @@ const styles = theme => ({
   placeholderCollaborationSpacing: {
     top: 60
   }
-})
+}))
 
 const autosaveInterval = 3000; //milliseconds
 const ckEditorName = getSetting('forumType') === 'EAForum' ? 'EA Forum Docs' : 'LessWrong Docs'
@@ -119,8 +121,41 @@ const editorTypeToDisplay = {
 const nonAdminEditors = ['ckEditorMarkup', 'markdown', 'draftJS']
 const adminEditors = ['html', 'ckEditorMarkup', 'markdown', 'draftJS']
 
-class EditorFormComponent extends Component {
-  constructor(props) {
+interface EditorFormComponentProps extends WithUserProps, WithStylesProps {
+  form: any,
+  formType: any,
+  formProps: any,
+  document: any,
+  name: any,
+  fieldName: any,
+  value: any,
+  commentStylse: boolean,
+  hintText: string,
+  placeholder: string,
+  label: string,
+  commentStyles: boolean,
+}
+interface EditorFormComponentState {
+  editorOverride: any,
+  ckEditorLoaded: any,
+  updateType: string,
+  version: string,
+  ckEditorReference: any,
+  loading: boolean,
+  draftJSValue: any,
+  ckEditorValue: any,
+  markdownValue: any,
+  htmlValue: any,
+}
+
+class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormComponentState> {
+  hasUnsavedData: boolean
+  throttledSaveBackup: any
+  throttledSetCkEditor: any
+  unloadEventListener: any
+  ckEditor: any
+  
+  constructor(props: EditorFormComponentProps) {
     super(props)
     const editorType = this.getCurrentEditorType()
     this.state = {
@@ -171,7 +206,7 @@ class EditorFormComponent extends Component {
     }
   }
 
-  getEditorStatesFromType = (editorType, contents) => {
+  getEditorStatesFromType = (editorType: string, contents?: any) => {
     const { document, fieldName, value } = this.props
     const { editorOverride } = this.state || {} // Provide default value, since we can call this before state is initialized
     
@@ -201,7 +236,7 @@ class EditorFormComponent extends Component {
     }
   }
   
-  getEditorStatesFromLocalStorage = (editorType) => {
+  getEditorStatesFromLocalStorage = (editorType: string): any => {
     const { document, name } = this.props;
     const savedState = this.getStorageHandlers().get({doc: document, name, prefix:this.getLSKeyPrefix(editorType)})
     if (!savedState) return null;
@@ -266,7 +301,7 @@ class EditorFormComponent extends Component {
   
   submitData = (submission) => {
     const { fieldName } = this.props
-    let data = null
+    let data: any = null
     const { draftJSValue, markdownValue, htmlValue, updateType, ckEditorReference } = this.state
     const type = this.getCurrentEditorType()
     switch(type) {
@@ -405,7 +440,7 @@ class EditorFormComponent extends Component {
 
   // Get an editor-type-specific prefix to use on localStorage keys, to prevent
   // drafts written with different editors from having conflicting names.
-  getLSKeyPrefix = (editorType) => {
+  getLSKeyPrefix = (editorType?: string) => {
     switch(editorType || this.getCurrentEditorType()) {
       case "draftJS":  return "";
       case "markdown": return "md_";
@@ -698,9 +733,9 @@ class EditorFormComponent extends Component {
         </div>
       </div>
   }
-}
+};
 
-EditorFormComponent.contextTypes = {
+(EditorFormComponent as any).contextTypes = {
   addToSubmitForm: PropTypes.func,
   addToSuccessForm: PropTypes.func
 };

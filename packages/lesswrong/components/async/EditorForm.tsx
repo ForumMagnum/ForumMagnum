@@ -26,6 +26,7 @@ import {
   BlockquoteButton,
 } from 'draft-js-buttons';
 import NoSsr from '@material-ui/core/NoSsr';
+import * as _ from 'underscore';
 
 const HeadlineOneButton = createBlockStyleButton({
   blockType: 'header-one',
@@ -56,8 +57,20 @@ function customBlockStyleFn(contentBlock) {
   }
 }
 
-class EditorForm extends Component {
-  constructor(props) {
+interface EditorFormProps {
+  isClient: boolean,
+  theme: any,
+  editorState: any,
+  onChange: any,
+  commentEditor: boolean,
+  className: string,
+}
+
+class EditorForm extends Component<EditorFormProps,{}> {
+  plugins: any
+  _ref: any
+  
+  constructor(props: EditorFormProps) {
     super(props);
     this.plugins = this.initializePlugins(props.isClient, props.commentEditor);
   }
@@ -185,7 +198,7 @@ const blockRenderMap = Map({
   }
 });
 
-EditorForm.propTypes = {
+(EditorForm as any).propTypes = {
   isClient: PropTypes.bool,
   editorState: PropTypes.object,
   onChange: PropTypes.func

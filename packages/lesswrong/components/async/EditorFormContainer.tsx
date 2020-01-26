@@ -1,8 +1,19 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import EditorForm from './EditorForm'
+import { Meteor } from 'meteor/meteor';
 
-class EditorFormContainer extends Component {
+interface EditorFormContainerProps {
+  className: string,
+  form: any,
+}
+interface EditorFormContainerState {
+  editorState: any,
+}
+
+class EditorFormContainer extends Component<EditorFormContainerProps,EditorFormContainerState> {
+  onChange: any
+  
   render() {
     const { className } = this.props;
     const { editorState } = this.state;
@@ -18,7 +29,7 @@ class EditorFormContainer extends Component {
   }
 }
 
-EditorFormContainer.contextTypes = {
+(EditorFormContainer as any).contextTypes = {
   updateCurrentValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
   addToSubmitForm: PropTypes.func,

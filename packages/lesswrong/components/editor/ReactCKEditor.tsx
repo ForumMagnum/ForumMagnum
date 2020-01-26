@@ -6,9 +6,25 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Watchdog } from '@lesswrong/lesswrong-editor'
+
+interface CKEditorProps {
+  data: any,
+  editor: any,
+  disabled?: any,
+  onInit?: any,
+  onChange?: any,
+  onFocus?: any,
+  onBlur?: any,
+  config?: any,
+}
+
 // Copied from and modified: https://github.com/ckeditor/ckeditor5-react/blob/master/src/ckeditor.jsx
-export default class CKEditor extends React.Component {
-  constructor( props ) {
+export default class CKEditor extends React.Component<CKEditorProps,{}> {
+  domContainer: any
+  watchdog: any
+  editor: any
+  
+  constructor(props: CKEditorProps) {
     super( props );
     
     // After mounting the editor, the variable will contain a reference to the created editor.
@@ -135,10 +151,10 @@ export default class CKEditor extends React.Component {
     
     return true;
   }
-}
-  
+};
+
 // Properties definition.
-CKEditor.propTypes = {
+(CKEditor as any).propTypes = {
   editor: PropTypes.func.isRequired,
   data: PropTypes.string,
   config: PropTypes.object,
@@ -150,6 +166,6 @@ CKEditor.propTypes = {
 };
 
 // Default values for non-required properties.
-CKEditor.defaultProps = {
+(CKEditor as any).defaultProps = {
   config: {}
 };

@@ -2,10 +2,10 @@ import { registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Input from '@material-ui/core/Input';
 import PropTypes from 'prop-types'
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
     ...theme.typography.display3,
     ...theme.typography.headerStyle,
@@ -27,9 +27,17 @@ const styles = theme => ({
     paddingTop: theme.spacing.unit*1.5,
     lineHeight: '1.2em',
   },
-})
+}))
 
-class EditTitle extends Component {
+interface EditTitleProps extends WithStylesProps {
+  clearField: any,
+  document: any,
+  value: any,
+  path: string,
+  placeholder: string,
+}
+
+class EditTitle extends Component<EditTitleProps,{}> {
   UNSAFE_componentWillMount() {
     const { addToSuccessForm } = this.context
     const { clearField } = this.props
@@ -52,9 +60,9 @@ class EditTitle extends Component {
       disableUnderline={true}
     />
   }
-}
+};
 
-EditTitle.contextTypes = {
+(EditTitle as any).contextTypes = {
   addToSuccessForm: PropTypes.func,
   updateCurrentValues: PropTypes.func,
 };
