@@ -17,9 +17,8 @@ const styles = theme => ({
 const SelectVersion = ({classes, documentId, revisionVersion, updateVersionNumber, updateVersion}) => {
   const { document, loading } = useSingle({
     collection: Posts,
-    queryName: 'postsSelectVersionQuery',
     fragmentName: 'PostsRevisionEdit',
-    fetchPolicy: 'cache-then-network',
+    fetchPolicy: 'cache-and-network',
     extraVariables: { version: 'String' },
     extraVariablesValues: { version: revisionVersion },
     documentId

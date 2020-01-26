@@ -348,7 +348,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
 
   componentWillUnmount() {
     if (this.unloadEventListener) {
-      window.removeEventListener(this.unloadEventListener);
+      window.removeEventListener("beforeunload", this.unloadEventListener);
     }
   }
   
@@ -652,10 +652,10 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
 
   renderPlaintextEditor = (editorType) => {
     const { markdownValue, htmlValue } = this.state
-    const { classes, form: { commentStyles }, label } = this.props
+    const { classes, document, form: { commentStyles }, label } = this.props
     const value = (editorType === "html" ? htmlValue : markdownValue) || ""
     return <div>
-        { this.renderPlaceholder(!value) }
+        { this.renderPlaceholder(!value, false) }
         <Input
           className={classNames(classes.markdownEditor, this.getBodyStyles(), {[classes.questionWidth]: document.question})}
           value={value}
@@ -681,7 +681,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     const showPlaceholder = !(draftJSValue?.getCurrentContent && draftJSValue.getCurrentContent().hasText())
 
     return <div>
-        { this.renderPlaceholder(showPlaceholder) }
+        { this.renderPlaceholder(showPlaceholder, false) }
         <EditorForm
           isClient={Meteor.isClient}
           editorState={draftJSValue}
