@@ -2,7 +2,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { getSetting, registerComponent } from 'meteor/vulcan:core'
-import * as _ from 'underscore';
 
 const reCaptchaSiteKey = getSetting('reCaptcha.apiKey')
 
@@ -38,7 +37,7 @@ interface ReCaptchaState {
   ready: boolean,
 }
 class ReCaptcha extends Component<ReCaptchaProps,ReCaptchaState> {
-  constructor (props) {
+  constructor (props: ReCaptchaProps) {
     super(props)
 
     this.execute = this.execute.bind(this)
@@ -109,5 +108,11 @@ class ReCaptcha extends Component<ReCaptchaProps,ReCaptchaState> {
 (ReCaptcha as any).propTypes = propTypes;
 (ReCaptcha as any).defaultProps = defaultProps;
 
-registerComponent("ReCaptcha", ReCaptcha)
+const ReCaptchaComponent = registerComponent("ReCaptcha", ReCaptcha)
+
+declare global {
+  interface ComponentTypes {
+    ReCaptcha: typeof ReCaptchaComponent
+  }
+}
 

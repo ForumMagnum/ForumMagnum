@@ -23,10 +23,9 @@ const styles = createStyles(theme => ({
 
 export const POST_COMMENT_COUNT_TRUNCATE_THRESHOLD = 70
 
-interface CommentsListProps {
+interface CommentsListProps extends WithUserProps, WithStylesProps  {
   addKeydownListener: any,
   comments: any,
-  currentUser: UsersCurrent,
   totalComments: any,
   highlightDate: any,
   updateComment: any,
@@ -44,7 +43,6 @@ interface CommentsListProps {
   hideSingleLineMeta: boolean,
   enableHoverPreview: boolean,
   forceNotSingleLine: boolean,
-  classes: any,
 }
 interface CommentsListState {
   expandAllThreads: boolean,
@@ -193,4 +191,11 @@ const withEditOptions = {
 };
 
 
-registerComponent('CommentsList', CommentsList, [withUpdate, withEditOptions], withGlobalKeydown, withStyles(styles, {name:"CommentsList"}));
+const CommentsListComponent = registerComponent('CommentsList', CommentsList, [withUpdate, withEditOptions], withGlobalKeydown, withStyles(styles, {name:"CommentsList"}));
+
+declare global {
+  interface ComponentTypes {
+    CommentsList: typeof CommentsListComponent,
+  }
+}
+

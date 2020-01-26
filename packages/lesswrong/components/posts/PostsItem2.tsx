@@ -575,14 +575,14 @@ const PostsItem2 = ({
   )
 };
 
-declare global {
-  interface ComponentTypes {
-    PostsItem2: typeof PostsItem2
-  }
-}
-
-registerComponent('PostsItem2', PostsItem2,
+const PostsItem2Component = registerComponent('PostsItem2', PostsItem2,
   withStyles(styles, { name: "PostsItem2" }),
   withRecordPostView,
   withErrorBoundary
 );
+
+declare global {
+  interface ComponentTypes {
+    PostsItem2: typeof PostsItem2Component
+  }
+}

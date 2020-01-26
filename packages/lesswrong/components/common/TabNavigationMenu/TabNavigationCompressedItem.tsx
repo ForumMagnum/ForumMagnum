@@ -54,7 +54,13 @@ const TabNavigationCompressedItem = ({tab, onClick, classes}) => {
   </Tooltip>;
 }
 
-registerComponent(
+const TabNavigationCompressedItemComponent = registerComponent(
   'TabNavigationCompressedItem', TabNavigationCompressedItem,
   withStyles(styles, { name: 'TabNavigationCompressedItem'})
 );
+
+declare global {
+  interface ComponentTypes {
+    TabNavigationCompressedItem: typeof TabNavigationCompressedItemComponent
+  }
+}

@@ -26,4 +26,10 @@ const NavigationEventSender = () => {
   return null;
 }
 
-registerComponent("NavigationEventSender", NavigationEventSender);
+const NavigationEventSenderComponent = registerComponent("NavigationEventSender", NavigationEventSender);
+
+declare global {
+  interface ComponentTypes {
+    NavigationEventSender: typeof NavigationEventSenderComponent
+  }
+}

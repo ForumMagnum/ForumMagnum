@@ -7,4 +7,10 @@ const DefaultStyleFormGroup = (props) => {
     </React.Fragment>
   }
   
-registerComponent('DefaultStyleFormGroup', DefaultStyleFormGroup)
+const DefaultStyleFormGroupComponent = registerComponent('DefaultStyleFormGroup', DefaultStyleFormGroup)
+
+declare global {
+  interface ComponentTypes {
+    DefaultStyleFormGroup: typeof DefaultStyleFormGroupComponent
+  }
+}

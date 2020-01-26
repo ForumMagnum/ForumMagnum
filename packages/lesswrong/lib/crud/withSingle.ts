@@ -111,7 +111,7 @@ export function useSingle({
   collection?: any,
   fragmentName?: string,
   fragment?: any,
-  extraVariables,
+  extraVariables?: Record<string,any>,
   fetchPolicy?: WatchQueryFetchPolicy,
   propertyName?: string,
   extraQueries?: any,

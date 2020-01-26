@@ -20,12 +20,10 @@ const styles = createStyles(theme => ({
   },
 }))
 
-interface DeleteCommentDialogProps {
+interface DeleteCommentDialogProps extends WithMessagesProps, WithStylesProps {
   moderateCommentMutation: any,
   onClose: any,
   comment: any,
-  flash: any,
-  classes: any,
 }
 interface DeleteCommentDialogState {
   deletedReason: string,
@@ -103,4 +101,13 @@ const mutationOptions = {
   fragmentName: "CommentsList"
 };
 
-registerComponent('DeleteCommentDialog', DeleteCommentDialog, [withModerateComment, mutationOptions], withMessages, withDialog, withStyles(styles, {name:"DeleteCommentDialog"}));
+const DeleteCommentDialogComponent = registerComponent(
+  'DeleteCommentDialog', DeleteCommentDialog,
+  [withModerateComment, mutationOptions], withMessages, withDialog,
+  withStyles(styles, {name:"DeleteCommentDialog"}));
+
+declare global {
+  interface ComponentTypes {
+    DeleteCommentDialog: typeof DeleteCommentDialogComponent
+  }
+}

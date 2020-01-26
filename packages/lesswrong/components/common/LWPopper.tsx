@@ -43,4 +43,10 @@ const LWPopper = ({classes, children, onMouseEnter, tooltip=false, modifiers, op
   )
 };
 
-registerComponent('LWPopper', LWPopper, withStyles(styles, {name:"LWPopper"}));
+const LWPopperComponent = registerComponent('LWPopper', LWPopper, withStyles(styles, {name:"LWPopper"}));
+
+declare global {
+  interface ComponentTypes {
+    LWPopper: typeof LWPopperComponent
+  }
+}

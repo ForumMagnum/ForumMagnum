@@ -67,5 +67,13 @@ const CommentsItemDate = ({comment, post, classes, scrollOnClick, scrollIntoView
   );
 }
 
-registerComponent('CommentsItemDate', CommentsItemDate,
+const CommentsItemDateComponent = registerComponent(
+  'CommentsItemDate', CommentsItemDate,
   withStyles(styles, {name: "CommentsItemDate"}));
+
+declare global {
+  interface ComponentTypes {
+    CommentsItemDate: typeof CommentsItemDateComponent,
+  }
+}
+

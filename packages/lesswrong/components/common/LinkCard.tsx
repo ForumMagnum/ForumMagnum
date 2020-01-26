@@ -60,5 +60,11 @@ const LinkCard = ({children, to, tooltip, className, classes}) => {
 }
 
 
-registerComponent("LinkCard", LinkCard,
+const LinkCardComponent = registerComponent("LinkCard", LinkCard,
   withStyles(styles, {name: "LinkCard"}));
+
+declare global {
+  interface ComponentTypes {
+    LinkCard: typeof LinkCardComponent
+  }
+}

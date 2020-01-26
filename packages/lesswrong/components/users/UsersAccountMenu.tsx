@@ -18,11 +18,21 @@ const styles = theme => ({
   }
 })
 
-class UsersAccountMenu extends PureComponent {
-  constructor(props) {
+interface UsersAccountMenuProps extends WithStylesProps {
+  captureEvent?: any,
+  color?: string,
+}
+interface UsersAccountMenuState {
+  open: boolean,
+  anchorEl: any,
+}
+
+class UsersAccountMenu extends PureComponent<UsersAccountMenuProps,UsersAccountMenuState> {
+  constructor(props: UsersAccountMenuProps) {
     super(props);
     this.state = {
       open: false,
+      anchorEl: null,
     }
   }
 
@@ -63,14 +73,20 @@ class UsersAccountMenu extends PureComponent {
       </div>
     )
   }
-}
+};
 
-UsersAccountMenu.propTypes = {
+(UsersAccountMenu as any).propTypes = {
   color: PropTypes.string,
 };
 
-UsersAccountMenu.defaultProps = {
+(UsersAccountMenu as any).defaultProps = {
   color: "rgba(0, 0, 0, 0.6)"
-}
+};
 
-registerComponent('UsersAccountMenu', UsersAccountMenu, withTracking, withStyles(styles, { name: "UsersAccountMenu" }));
+const UsersAccountMenuComponent = registerComponent('UsersAccountMenu', UsersAccountMenu, withTracking, withStyles(styles, { name: "UsersAccountMenu" }));
+
+declare global {
+  interface ComponentTypes {
+    UsersAccountMenu: typeof UsersAccountMenuComponent
+  }
+}

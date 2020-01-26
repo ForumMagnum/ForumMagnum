@@ -34,5 +34,13 @@ const CommentShortformIcon = ({comment, post, classes, simple}) => {
   )
 }
 
-registerComponent('CommentShortformIcon', CommentShortformIcon,
+const CommentShortformIconComponent = registerComponent(
+  'CommentShortformIcon', CommentShortformIcon,
   withStyles(styles, {name: "CommentShortformIcon"}));
+
+declare global {
+  interface ComponentTypes {
+    CommentShortformIcon: typeof CommentShortformIconComponent,
+  }
+}
+

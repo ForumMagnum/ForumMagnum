@@ -15,4 +15,10 @@ const SubSection = ({children, classes, className}) => {
   </div>
 }
 
-registerComponent( 'SubSection', SubSection, withStyles(styles, {name: 'SubSection'}))
+const SubSectionComponent = registerComponent('SubSection', SubSection, withStyles(styles, {name: 'SubSection'}))
+
+declare global {
+  interface ComponentTypes {
+    SubSection: typeof SubSectionComponent
+  }
+}

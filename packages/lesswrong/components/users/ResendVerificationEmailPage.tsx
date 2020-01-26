@@ -1,14 +1,14 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import Users from 'meteor/vulcan:users';
 import withUser from '../common/withUser';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
     textAlign: "center",
   },
-});
+}));
 
 const ResendVerificationEmailPage = ({currentUser, classes}) => {
   if (!currentUser) {
@@ -26,5 +26,11 @@ const ResendVerificationEmailPage = ({currentUser, classes}) => {
   }
 }
 
-registerComponent('ResendVerificationEmailPage', ResendVerificationEmailPage,
+const ResendVerificationEmailPageComponent = registerComponent('ResendVerificationEmailPage', ResendVerificationEmailPage,
   withUser, withStyles(styles, {name: "ResendVerificationEmailPage"}));
+
+declare global {
+  interface ComponentTypes {
+    ResendVerificationEmailPage: typeof ResendVerificationEmailPageComponent
+  }
+}

@@ -5,9 +5,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import Button from '@material-ui/core/Button';
 import { intlShape } from 'meteor/vulcan:i18n';
 
-interface FlashMessagesProps {
-  messages: any,
-  clear: any,
+interface FlashMessagesProps extends WithMessagesProps {
 }
 
 class FlashMessages extends PureComponent<FlashMessagesProps,{}> {
@@ -50,4 +48,10 @@ class FlashMessages extends PureComponent<FlashMessagesProps,{}> {
   intl: intlShape
 }
 
-registerComponent('FlashMessages', FlashMessages, withMessages);
+const FlashMessagesComponent = registerComponent('FlashMessages', FlashMessages, withMessages);
+
+declare global {
+  interface ComponentTypes {
+    FlashMessages: typeof FlashMessagesComponent
+  }
+}

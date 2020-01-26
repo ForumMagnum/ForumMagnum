@@ -40,7 +40,13 @@ const HeaderSubtitle = ({client, classes}) => {
   }
 }
 
-registerComponent("HeaderSubtitle", HeaderSubtitle,
+const HeaderSubtitleComponent = registerComponent("HeaderSubtitle", HeaderSubtitle,
   withApollo,
   withStyles(styles, {name: "HeaderSubtitle"})
 );
+
+declare global {
+  interface ComponentTypes {
+    HeaderSubtitle: typeof HeaderSubtitleComponent
+  }
+}

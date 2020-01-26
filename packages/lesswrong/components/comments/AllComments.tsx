@@ -16,4 +16,10 @@ const AllComments = () => {
   )
 };
 
-registerComponent('AllComments', AllComments);
+const AllCommentsComponent = registerComponent('AllComments', AllComments);
+
+declare global {
+  interface ComponentTypes {
+    AllComments: typeof AllCommentsComponent,
+  }
+}

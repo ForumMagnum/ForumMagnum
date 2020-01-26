@@ -82,7 +82,7 @@ const styles = createStyles(theme => ({
 
 interface LayoutProps {
   cookies: any,
-  currentUser: any,
+  currentUser: UsersCurrent,
   updateUser: any,
   location: any,
   classes: any,
@@ -100,7 +100,7 @@ interface LayoutState {
 class Layout extends PureComponent<LayoutProps,LayoutState> {
   searchResultsAreaRef: React.RefObject<HTMLDivElement>
   
-  constructor (props) {
+  constructor (props: LayoutProps) {
     super(props);
     const { cookies, currentUser } = this.props;
     const savedTimezone = cookies?.get('timezone');
@@ -297,18 +297,18 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   }
 }
 
-declare global {
-  interface ComponentTypes {
-    Layout: typeof Layout
-  }
-}
-
 const withUpdateOptions = {
   collection: Users,
   fragmentName: 'UsersCurrent',
 }
 
-registerComponent(
+const LayoutComponent = registerComponent(
   'Layout', Layout, withLocation, withCookies, [withUpdate, withUpdateOptions],
     withStyles(styles, { name: "Layout" }), withTheme()
 );
+
+declare global {
+  interface ComponentTypes {
+    Layout: typeof LayoutComponent
+  }
+}

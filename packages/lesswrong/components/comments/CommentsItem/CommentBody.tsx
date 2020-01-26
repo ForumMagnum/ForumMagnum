@@ -69,4 +69,11 @@ CommentBody.propTypes = {
 };
 
 
-registerComponent('CommentBody', CommentBody, withUser, withStyles(styles, {name: "CommentBody"}));
+const CommentBodyComponent = registerComponent('CommentBody', CommentBody, withUser, withStyles(styles, {name: "CommentBody"}));
+
+declare global {
+  interface ComponentTypes {
+    CommentBody: typeof CommentBodyComponent,
+  }
+}
+

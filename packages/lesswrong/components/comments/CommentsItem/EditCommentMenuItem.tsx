@@ -23,4 +23,10 @@ const EditCommentMenuItem = ({ currentUser, comment, showEdit }) => {
   }
 };
 
-registerComponent('EditCommentMenuItem', EditCommentMenuItem, withUser);
+const EditCommentMenuItemComponent = registerComponent('EditCommentMenuItem', EditCommentMenuItem, withUser);
+
+declare global {
+  interface ComponentTypes {
+    EditCommentMenuItem: typeof EditCommentMenuItemComponent
+  }
+}

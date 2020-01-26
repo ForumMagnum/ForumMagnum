@@ -45,4 +45,10 @@ const ToggleIsModeratorComment = ({comment}) => {
   }
 }
 
-registerComponent("ToggleIsModeratorComment", ToggleIsModeratorComment);
+const ToggleIsModeratorCommentComponent = registerComponent("ToggleIsModeratorComment", ToggleIsModeratorComment);
+
+declare global {
+  interface ComponentTypes {
+    ToggleIsModeratorComment: typeof ToggleIsModeratorCommentComponent
+  }
+}

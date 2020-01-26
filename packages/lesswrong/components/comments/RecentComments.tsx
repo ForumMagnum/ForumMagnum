@@ -55,10 +55,17 @@ const RecentComments = ({classes, updateComment, terms, truncated, noResultsMess
   )
 }
 
-registerComponent('RecentComments', RecentComments,
+const RecentCommentsComponent = registerComponent('RecentComments', RecentComments,
   [withUpdate, {
     collection: Comments,
     fragmentName: 'SelectCommentsList',
   }],
   withStyles(styles, {name:"RecentComments"})
 );
+
+declare global {
+  interface ComponentTypes {
+    RecentComments: typeof RecentCommentsComponent,
+  }
+}
+

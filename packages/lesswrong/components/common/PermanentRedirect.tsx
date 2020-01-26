@@ -15,4 +15,10 @@ const PermanentRedirect = ({url, status}) => {
   );
 };
 
-registerComponent('PermanentRedirect', PermanentRedirect);
+const PermanentRedirectComponent = registerComponent('PermanentRedirect', PermanentRedirect);
+
+declare global {
+  interface ComponentTypes {
+    PermanentRedirect: typeof PermanentRedirectComponent
+  }
+}

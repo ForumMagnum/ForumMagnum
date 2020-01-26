@@ -25,4 +25,10 @@ const SubscribeToCommentMenuItem = ({ currentUser, comment }) => {
   }
 }
 
-registerComponent('SubscribeToCommentMenuItem', SubscribeToCommentMenuItem, withUser);
+const SubscribeToCommentMenuItemComponent = registerComponent('SubscribeToCommentMenuItem', SubscribeToCommentMenuItem, withUser);
+
+declare global {
+  interface ComponentTypes {
+    SubscribeToCommentMenuItem: typeof SubscribeToCommentMenuItemComponent
+  }
+}

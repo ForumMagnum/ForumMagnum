@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 
 interface HoverOverProps {
   delay?: number,
-  childre: any,
+  children: any,
   hoverOverComponent: any,
 }
 interface HoverOverState {
@@ -12,7 +12,7 @@ interface HoverOverState {
 class HoverOver extends Component<HoverOverProps,HoverOverState> {
   hoverOverWaitTimer: any;
   
-  constructor(props) {
+  constructor(props: HoverOverProps) {
     super(props);
     this.state = {
       showHoverOver: false,
@@ -49,4 +49,10 @@ class HoverOver extends Component<HoverOverProps,HoverOverState> {
   }
 }
 
-registerComponent('HoverOver', HoverOver);
+const HoverOverComponent = registerComponent('HoverOver', HoverOver);
+
+declare global {
+  interface ComponentTypes {
+    HoverOver: typeof HoverOverComponent
+  }
+}

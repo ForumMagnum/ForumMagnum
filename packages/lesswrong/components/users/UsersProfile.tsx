@@ -9,7 +9,7 @@ import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -24,7 +24,7 @@ export const sectionFooterLeftStyles = {
   }
 }
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   profilePage: {
     marginLeft: "auto",
     [theme.breakpoints.down('sm')]: {
@@ -77,7 +77,7 @@ const styles = theme => ({
   userMetaInfo: {
     display: "inline-flex"
   }
-})
+}))
 
 const sortings = {
   magic: "Magic (New & Upvoted)",
@@ -92,7 +92,18 @@ export const getUserFromResults = (results) => {
   return results?.find(user => !!user.displayName) || results?.[0]
 }
 
-class UsersProfile extends Component {
+interface UsersProfileProps extends WithUserProps, WithStylesProps {
+  slug: any,
+  loading?: boolean,
+  results: any,
+  location?: any,
+  history?: any,
+}
+interface UsersProfileState {
+  showSettings: boolean,
+}
+
+class UsersProfile extends Component<UsersProfileProps,UsersProfileState> {
   state = {
     showSettings: false
   }
@@ -295,7 +306,7 @@ class UsersProfile extends Component {
               <Components.PostsList2 terms={draftTerms}/>
               <Components.PostsList2 terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
             </AnalyticsContext>
-            {getSetting('hasEvents', true) && <Components.LocalGroupsList terms={{view: 'userInactiveGroups', userId: currentUser._id}} showHeader={false} />}
+            {getSetting('hasEvents', true) && <Components.LocalGroupsList terms={{view: 'userInactiveGroups', userId: currentUser?._id}} showHeader={false} />}
           </SingleColumnSection> }
           {/* Posts Section */}
           <SingleColumnSection>
@@ -338,6 +349,12 @@ const options = {
   ssr: true
 };
 
-registerComponent('UsersProfile', UsersProfile, withUser,
+const UsersProfileComponent = registerComponent('UsersProfile', UsersProfile, withUser,
   [withMulti, options], withLocation, withNavigation,
   withStyles(styles, {name: "UsersProfile"}));
+
+declare global {
+  interface ComponentTypes {
+    UsersProfile: typeof UsersProfileComponent
+  }
+}

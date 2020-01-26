@@ -43,6 +43,15 @@ const options = {
   fragmentName: 'DeletedCommentsMetaData',
 };
 
-registerComponent('CommentDeletedMetadata', CommentDeletedMetadata,
+const CommentDeletedMetadataComponent = registerComponent(
+  'CommentDeletedMetadata', CommentDeletedMetadata,
   withStyles(styles, {name: "CommentDeletedMetadata"}),
-  [withSingle, options]);
+  [withSingle, options]
+);
+
+declare global {
+  interface ComponentTypes {
+    CommentDeletedMetadata: typeof CommentDeletedMetadataComponent,
+  }
+}
+

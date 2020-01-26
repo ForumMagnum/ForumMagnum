@@ -19,4 +19,10 @@ const ErrorMessage = ({message, classes}) => {
   </Typography>
 }
 
-registerComponent("ErrorMessage", ErrorMessage, withStyles(styles, { name: "ErrorMessage" }));
+const ErrorMessageComponent = registerComponent("ErrorMessage", ErrorMessage, withStyles(styles, { name: "ErrorMessage" }));
+
+declare global {
+  interface ComponentTypes {
+    ErrorMessage: typeof ErrorMessageComponent
+  }
+}

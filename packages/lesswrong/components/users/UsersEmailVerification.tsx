@@ -2,12 +2,12 @@ import React, { PureComponent } from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import Users from 'meteor/vulcan:users';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
     ...theme.typography.body2,
     marginLeft: theme.spacing.unit
@@ -15,11 +15,19 @@ const styles = theme => ({
   verifyEmailButton: {
     marginTop: theme.spacing.unit
   }
-});
+}));
 
-class UsersEmailVerification extends PureComponent
+interface UsersEmailVerificationProps extends WithUserProps, WithStylesProps {
+  resend: boolean,
+  updateUser?: any,
+}
+interface UsersEmailVerificationState {
+  emailSent: boolean,
+}
+
+class UsersEmailVerification extends PureComponent<UsersEmailVerificationProps,UsersEmailVerificationState>
 {
-  constructor(props) {
+  constructor(props: UsersEmailVerificationProps) {
     super(props);
     this.state = {
       emailSent: false,
@@ -27,8 +35,10 @@ class UsersEmailVerification extends PureComponent
   }
 
   sendConfirmationEmail() {
-    this.props.updateUser({
-      selector: {_id: this.props.currentUser._id},
+    const { updateUser, currentUser } = this.props;
+    if (!currentUser) return;
+    updateUser({
+      selector: {_id: currentUser._id},
       data: { whenConfirmationEmailSent: new Date() }
     });
     this.setState({
@@ -73,9 +83,15 @@ const withUpdateOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-registerComponent('UsersEmailVerification', UsersEmailVerification,
+const UsersEmailVerificationComponent = registerComponent('UsersEmailVerification', UsersEmailVerification,
   withErrorBoundary,
   withUser,
   [withUpdate, withUpdateOptions],
   withStyles(styles, { name: "UsersEmailVerification" })
 );
+
+declare global {
+  interface ComponentTypes {
+    UsersEmailVerification: typeof UsersEmailVerificationComponent
+  }
+}

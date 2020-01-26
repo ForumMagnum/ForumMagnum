@@ -17,6 +17,11 @@ const Error404 = () => {
 
 Error404.displayName = 'Error404';
 
-registerComponent('Error404', Error404);
+const Error404Component = registerComponent('Error404', Error404);
 
-export default Error404;
+declare global {
+  interface ComponentTypes {
+    Error404: typeof Error404Component
+  }
+}
+

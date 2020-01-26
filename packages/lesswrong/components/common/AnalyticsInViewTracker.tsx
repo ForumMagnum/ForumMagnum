@@ -25,4 +25,10 @@ const AnalyticsInViewTracker = ({eventType, eventProps, observerProps, children,
   )
 }
 
-registerComponent('AnalyticsInViewTracker', AnalyticsInViewTracker)
+const AnalyticsInViewTrackerComponent = registerComponent('AnalyticsInViewTracker', AnalyticsInViewTracker)
+
+declare global {
+  interface ComponentTypes {
+    AnalyticsInViewTracker: typeof AnalyticsInViewTrackerComponent
+  }
+}

@@ -125,13 +125,11 @@ const styles = createStyles(theme => ({
   },
 }));
 
-interface HeaderProps {
+interface HeaderProps extends WithUserProps, WithStylesProps {
   captureEvent: any,
   updateUser: any,
-  currentUser: UsersCurrent,
   standaloneNavigationPresent: any,
   toggleStandaloneNavigation: any,
-  classes: any,
   toc: any,
   theme: any,
   searchResultsArea: any,
@@ -160,17 +158,20 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
 
   handleNotificationToggle = () => {
     const { notificationOpen } = this.state
-    const { lastNotificationsCheck } = this.props.currentUser
-    const { captureEvent } = this.props
+    const { captureEvent, currentUser } = this.props
+    if (!currentUser) return;
+    const { lastNotificationsCheck } = currentUser
 
     captureEvent("notificationsIconToggle", {open: !notificationOpen, previousCheck: lastNotificationsCheck})
     this.handleSetNotificationDrawerOpen(!notificationOpen);
   }
 
   handleSetNotificationDrawerOpen = (isOpen) => {
+    const { updateUser, currentUser } = this.props;
+    if (!currentUser) return;
     if (isOpen) {
-      this.props.updateUser({
-        selector: {_id: this.props.currentUser._id},
+      updateUser({
+        selector: {_id: currentUser._id},
         data: {lastNotificationsCheck: new Date()}
       })
       this.setState({
@@ -315,4 +316,10 @@ const withUpdateOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-registerComponent('Header', Header, withErrorBoundary, [withUpdate, withUpdateOptions], withUser, withTracking, withStyles(styles, { name: 'Header'}), withTheme());
+const HeaderComponent = registerComponent('Header', Header, withErrorBoundary, [withUpdate, withUpdateOptions], withUser, withTracking, withStyles(styles, { name: 'Header'}), withTheme());
+
+declare global {
+  interface ComponentTypes {
+    Header: typeof HeaderComponent
+  }
+}

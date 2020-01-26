@@ -3,9 +3,19 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withMutation } from '../../lib/crud/withMutation';
 import { withLocation } from '../../lib/routeUtil';
 
-class EmailTokenPage extends Component
+type ComponentNameAndProps = { componentName: string, props: Record<string,any> };
+interface EmailTokenPageProps {
+  location: any,
+  useEmailToken: any,
+}
+interface EmailTokenPageState {
+  loading: boolean,
+  useTokenResult: ComponentNameAndProps|null,
+}
+
+class EmailTokenPage extends Component<EmailTokenPageProps,EmailTokenPageState>
 {
-  state = {
+  state: EmailTokenPageState = {
     loading: true,
     useTokenResult: null
   };
@@ -23,18 +33,25 @@ class EmailTokenPage extends Component
   
   render = () => {
     const { loading, useTokenResult } = this.state;
-    if (loading)
+    if (loading || useTokenResult===null) {
       return <Components.Loading/>
-    
-    const ResultComponent = Components[useTokenResult.componentName];
-    return <ResultComponent {...useTokenResult.props}/>
+    } else {
+      const ResultComponent = Components[useTokenResult.componentName];
+      return <ResultComponent {...useTokenResult.props}/>
+    }
   }
 }
 
-registerComponent("EmailTokenPage", EmailTokenPage,
+const EmailTokenPageComponent = registerComponent("EmailTokenPage", EmailTokenPage,
   withLocation,
   withMutation({
     name: "useEmailToken",
     args: {token: 'String'}
   })
 );
+
+declare global {
+  interface ComponentTypes {
+    EmailTokenPage: typeof EmailTokenPageComponent
+  }
+}

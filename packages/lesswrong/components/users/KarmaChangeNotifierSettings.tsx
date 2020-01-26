@@ -7,13 +7,14 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Checkbox from '@material-ui/core/Checkbox';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import withTimezone from '../common/withTimezone';
 import moment from '../../lib/moment-timezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
+import * as _ from 'underscore';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
     paddingLeft: 8,
     paddingRight: 8,
@@ -34,7 +35,7 @@ const styles = theme => ({
   showNegative: {
     paddingLeft: 2,
   },
-});
+}));
 
 export const karmaNotificationTimingChoices = {
   disabled: {
@@ -59,7 +60,13 @@ export const karmaNotificationTimingChoices = {
   },
 };
 
-class KarmaChangeNotifierSettings extends PureComponent {
+interface KarmaChangeNotifierSettingsProps extends WithStylesProps {
+  path: any,
+  value: any,
+  timezone?: any,
+}
+
+class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSettingsProps,{}> {
   modifyValue = (changes) => {
     const oldSettings = this.props.value || {}
     const settings = { ...oldSettings, ...changes };
@@ -169,7 +176,7 @@ class KarmaChangeNotifierSettings extends PureComponent {
               </Typography>
             }
             classes={{
-              label: null,
+              label: null as any,
             }}
           />
         )}
@@ -194,12 +201,18 @@ class KarmaChangeNotifierSettings extends PureComponent {
       }
     </div>
   }
-}
+};
 
-KarmaChangeNotifierSettings.contextTypes = {
+(KarmaChangeNotifierSettings as any).contextTypes = {
   updateCurrentValues: PropTypes.func,
 };
 
-registerComponent("KarmaChangeNotifierSettings", KarmaChangeNotifierSettings,
+const KarmaChangeNotifierSettingsComponent = registerComponent("KarmaChangeNotifierSettings", KarmaChangeNotifierSettings,
   withStyles(styles, {name: "KarmaChangeNotifierSettings"}),
   withTimezone);
+
+declare global {
+  interface ComponentTypes {
+    KarmaChangeNotifierSettings: typeof KarmaChangeNotifierSettingsComponent
+  }
+}

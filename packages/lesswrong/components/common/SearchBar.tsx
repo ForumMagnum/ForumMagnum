@@ -98,11 +98,10 @@ const styles = createStyles(theme => ({
   },
 }))
 
-interface SearchBarProps {
+interface SearchBarProps extends WithStylesProps {
   onSetIsActive: any,
   searchResultsArea: any,
   location: any,
-  classes: any,
 }
 
 interface SearchBarState {
@@ -114,7 +113,7 @@ interface SearchBarState {
 class SearchBar extends Component<SearchBarProps,SearchBarState> {
   routerUpdateCallback: any
   
-  constructor(props){
+  constructor(props: SearchBarProps){
     super(props);
     this.state = {
       inputOpen: false,
@@ -233,4 +232,10 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
   color: "rgba(0, 0, 0, 0.6)"
 }
 
-registerComponent("SearchBar", SearchBar, withStyles(styles, {name: "SearchBar"}), withLocation, withErrorBoundary);
+const SearchBarComponent = registerComponent("SearchBar", SearchBar, withStyles(styles, {name: "SearchBar"}), withLocation, withErrorBoundary);
+
+declare global {
+  interface ComponentTypes {
+    SearchBar: typeof SearchBarComponent
+  }
+}

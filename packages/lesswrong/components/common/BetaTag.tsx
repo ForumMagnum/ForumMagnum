@@ -16,4 +16,10 @@ const BetaTag = ({classes}) => {
   return <span className={classes.root}>[Beta]</span>
 }
 
-registerComponent('BetaTag', BetaTag, withStyles(styles, {name: 'BetaTag'}))
+const BetaTagComponent = registerComponent('BetaTag', BetaTag, withStyles(styles, {name: 'BetaTag'}))
+
+declare global {
+  interface ComponentTypes {
+    BetaTag: typeof BetaTagComponent
+  }
+}

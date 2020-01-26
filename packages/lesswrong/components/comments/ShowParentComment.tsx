@@ -57,4 +57,11 @@ const ShowParentComment = ({ comment, active, onClick, classes }) => {
   )
 };
 
-registerComponent('ShowParentComment', ShowParentComment, withStyles(styles, {name:"ShowParentComment"}));
+const ShowParentCommentComponent = registerComponent('ShowParentComment', ShowParentComment, withStyles(styles, {name:"ShowParentComment"}));
+
+declare global {
+  interface ComponentTypes {
+    ShowParentComment: typeof ShowParentCommentComponent,
+  }
+}
+

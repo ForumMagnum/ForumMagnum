@@ -38,5 +38,11 @@ const CommentUserName = ({comment, classes, simple = false}) => {
   }
 }
 
-registerComponent('CommentUserName', CommentUserName,
+const CommentUserNameComponent = registerComponent('CommentUserName', CommentUserName,
   withStyles(styles, {name: "CommentUserName"}));
+
+declare global {
+  interface ComponentTypes {
+    CommentUserName: typeof CommentUserNameComponent
+  }
+}

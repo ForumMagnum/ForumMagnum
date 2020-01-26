@@ -53,7 +53,13 @@ const NavigationStandalone = ({sidebarHidden, classes}) => {
   </div>
 }
 
-registerComponent(
+const NavigationStandaloneComponent = registerComponent(
   'NavigationStandalone', NavigationStandalone,
   withStyles(styles, { name: 'NavigationStandalone'})
 );
+
+declare global {
+  interface ComponentTypes {
+    NavigationStandalone: typeof NavigationStandaloneComponent
+  }
+}

@@ -36,7 +36,13 @@ const TabNavigationMenuFooter = ({classes}) => {
   )
 };
 
-registerComponent(
+const TabNavigationMenuFooterComponent = registerComponent(
   'TabNavigationMenuFooter', TabNavigationMenuFooter,
   withStyles(styles, { name: 'TabNavigationMenuFooter'})
 );
+
+declare global {
+  interface ComponentTypes {
+    TabNavigationMenuFooter: typeof TabNavigationMenuFooterComponent
+  }
+}

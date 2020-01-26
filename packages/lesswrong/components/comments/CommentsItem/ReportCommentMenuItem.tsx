@@ -8,16 +8,16 @@ import withDialog from '../../common/withDialog'
 import ReportOutlinedIcon from '@material-ui/icons/ReportOutlined';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 
-interface ReportCommentMenuItemProps {
-  openDialog: any,
+interface ReportCommentMenuItemProps extends WithUserProps {
+  openDialog?: any,
   comment: any,
-  currentUser: UsersCurrent,
 }
 
 class ReportCommentMenuItem extends PureComponent<ReportCommentMenuItemProps,{}> {
 
   showReport = (event) => {
     const { openDialog, comment, currentUser } = this.props;
+    if (!currentUser) return;
     
     openDialog({
       componentName: "ReportForm",
@@ -44,4 +44,10 @@ class ReportCommentMenuItem extends PureComponent<ReportCommentMenuItemProps,{}>
   }
 }
 
-registerComponent('ReportCommentMenuItem', ReportCommentMenuItem, withUser, withDialog);
+const ReportCommentMenuItemComponent = registerComponent('ReportCommentMenuItem', ReportCommentMenuItem, withUser, withDialog);
+
+declare global {
+  interface ComponentTypes {
+    ReportCommentMenuItem: typeof ReportCommentMenuItemComponent
+  }
+}

@@ -28,57 +28,6 @@ interface ComponentTypes {
   NotificationTypeSettings: any
   NotificationEmailPreviewPage: any
   EmailPreview: any
-  AnalyticsClient: any
-  CalendarDate: any
-  FormatDate: any
-  BetaTag: any
-  FlashMessages: any
-  Header: any
-  HeaderSubtitle: any
-  HeadTags: any
-  Home2: any
-  HomeLatestPosts: any
-  Meta: any
-  BatchTimePicker: any
-  NavigationEventSender: any
-  SingleColumnSection: any
-  SectionTitle: any
-  SectionSubtitle: any
-  SubSection: any
-  SectionFooter: any
-  SectionButton: any
-  MetaInfo: any
-  NoContent: any
-  SearchBar: any
-  DialogGroup: any
-  Divider: any
-  HoverOver: any
-  ErrorBoundary: any
-  ErrorMessage: any
-  CloudinaryImage: any
-  ContentItemBody: any
-  LWPopper: any
-  LWTooltip: any
-  PopperCard: any
-  Footer: any
-  LoadMore: any
-  ReCaptcha: any
-  DefaultStyleFormGroup: any
-  LinkCard: any
-  Error404: any
-  PermanentRedirect: any
-  SeparatorBullet: any
-  TabNavigationMenu: any
-  TabNavigationMenuFooter: any
-  TabNavigationMenuCompressed: any
-  TabNavigationItem: any
-  TabNavigationFooterItem: any
-  TabNavigationCompressedItem: any
-  TabNavigationSubItem: any
-  NavigationDrawer: any
-  NavigationStandalone: any
-  SubscribeWidget: any
-  SubscribeDialog: any
   HoverPreviewLink: any
   PostLinkPreview: any
   PostLinkCommentPreview: any
@@ -89,34 +38,10 @@ interface ComponentTypes {
   PostLinkPreviewWithPost: any
   PostCommentLinkPreviewGreaterWrong: any
   DefaultPreview: any
-  AccountsVerifyEmail: any
-  AccountsEnrollAccount: any
-  UsersMenu: any
-  UsersEditForm: any
-  UsersAccount: any
-  UsersAccountMenu: any
-  UsersProfile: any
   BookmarksPage: any
   BookmarksList: any
-  UsersName: any
-  UsersNameWrapper: any
-  UsersNameDisplay: any
-  UsersSingle: any
-  UsersEmailVerification: any
   ViewSubscriptionsPage: any
-  EmailConfirmationRequiredCheckbox: any
-  LoginPage: any
-  LoginPopupButton: any
-  LoginPopup: any
-  KarmaChangeNotifier: any
-  KarmaChangeNotifierSettings: any
-  AccountsResetPassword: any
-  EmailTokenPage: any
-  EmailTokenResult: any
-  SignupSubscribeToCurated: any
-  UserNameDeleted: any
   WrappedLoginForm: any
-  ResendVerificationEmailPage: any
   OmegaIcon: any
   SettingsIcon: any
   PostsHighlight: any
@@ -216,7 +141,6 @@ interface ComponentTypes {
   GroupLinks: any
   LocalGroupsList: any
   LocalGroupsItem: any
-  TabNavigationEventsList: any
   AllGroupsPage: any
   GroupFormDialog: any
   CommentsItem: any
@@ -241,27 +165,9 @@ interface ComponentTypes {
   CommentOutdatedWarning: any
   CommentsItemDate: any
   ToggleIsModeratorComment: any
-  AllComments: any
-  CommentWithReplies: any
   CommentPermalink: any
-  RecentDiscussionThread: any
-  RecentDiscussionThreadsList: any
-  CantCommentExplanation: any
-  CommentsEditForm: any
-  CommentsListSection: any
-  CommentsList: any
-  CommentsListMeta: any
-  CommentsNode: any
-  CommentsViews: any
-  LegacyCommentRedirect: any
-  RecentComments: any
-  ParentCommentSingle: any
   ModerationGuidelinesBox: any
   ModerationGuidelinesEditForm: any
-  LastVisitList: any
-  CommentsNewForm: any
-  SingleLineComment: any
-  ShowParentComment: any
   PostsListEditorSearchHit: any
   PostsSearchHit: any
   SearchAutoComplete: any
@@ -399,15 +305,13 @@ interface ComponentTypes {
   FrontpageNominationPhase: any
   FrontpageReviewPhase: any
   Nominations2018: any
+  PostReviewsAndNominations: any,
   Reviews2018: any
   ReviewPostButton: any
   ReviewPostForm: any
   NominatePostMenuItem: any
   NominatePostDialog: any
   UserReviews: any
-  AnalyticsTracker: any
-  AnalyticsInViewTracker: any
-  AnalyticsPageInitializer: any
   
   // vulcan-accounts components
   AccountsButton: any

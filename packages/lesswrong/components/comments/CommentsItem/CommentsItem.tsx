@@ -118,11 +118,9 @@ export const styles = theme => createStyles({
   }
 })
 
-interface CommentsItemProps {
+interface CommentsItemProps extends WithMessagesProps, WithUserProps, WithStylesProps {
   refetch: any,
-  flash: any,
   comment: any,
-  currentUser: UsersCurrent,
   postPage: any,
   nestingLevel: number,
   showPostTitle: boolean,
@@ -134,7 +132,6 @@ interface CommentsItemProps {
   toggleCollapse: any,
   truncated: boolean,
   parentAnswerId: string,
-  classes: any,
 }
 interface CommentsItemState {
   showReply: boolean,
@@ -142,7 +139,7 @@ interface CommentsItemState {
   showParent: boolean,
 }
 class CommentsItem extends Component<CommentsItemProps,CommentsItemState> {
-  constructor(props) {
+  constructor(props: CommentsItemProps) {
     super(props);
     this.state = {
       showReply: false,
@@ -384,9 +381,14 @@ class CommentsItem extends Component<CommentsItemProps,CommentsItemState> {
   }
 }
 
-registerComponent('CommentsItem', CommentsItem,
+const CommentsItemComponent = registerComponent(
+  'CommentsItem', CommentsItem,
   withMessages, withUser,
-  withStyles(styles, { name: "CommentsItem" }),
-  withErrorBoundary
+  withStyles(styles, { name: "CommentsItem" }), withErrorBoundary
 );
-export default CommentsItem;
+
+declare global {
+  interface ComponentTypes {
+    CommentsItem: typeof CommentsItemComponent,
+  }
+}

@@ -73,10 +73,9 @@ const styles = createStyles(theme => ({
   }
 }));
 
-interface ContentItemBodyProps {
+interface ContentItemBodyProps extends WithStylesProps {
   dangerouslySetInnerHTML: { __html: string },
   className?: string,
-  classes: any,
   description?: string,
 }
 interface ContentItemBodyState {
@@ -102,7 +101,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
   bodyRef: any
   replacedElements: Array<any>
   
-  constructor(props) {
+  constructor(props: ContentItemBodyProps) {
     super(props);
     this.bodyRef = React.createRef();
     this.replacedElements = [];
@@ -274,6 +273,12 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
   }
 }
 
-registerComponent('ContentItemBody', ContentItemBody, withUser,
+const ContentItemBodyComponent = registerComponent('ContentItemBody', ContentItemBody, withUser,
   withStyles(styles, { name: "ContentItemBody" })
 );
+
+declare global {
+  interface ComponentTypes {
+    ContentItemBody: typeof ContentItemBodyComponent
+  }
+}

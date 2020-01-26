@@ -18,4 +18,10 @@ const UsersSingle = () => {
   }
 };
 
-registerComponent('UsersSingle', UsersSingle);
+const UsersSingleComponent = registerComponent('UsersSingle', UsersSingle);
+
+declare global {
+  interface ComponentTypes {
+    UsersSingle: typeof UsersSingleComponent
+  }
+}

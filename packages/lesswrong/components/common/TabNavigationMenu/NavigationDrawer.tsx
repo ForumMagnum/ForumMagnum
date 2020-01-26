@@ -83,7 +83,13 @@ const NavigationDrawer = ({open, handleOpen, handleClose, toc, classes}) => {
   </SwipeableDrawer>
 }
 
-registerComponent(
+const NavigationDrawerComponent = registerComponent(
   'NavigationDrawer', NavigationDrawer,
   withStyles(styles, { name: 'NavigationDrawer'})
 );
+
+declare global {
+  interface ComponentTypes {
+    NavigationDrawer: typeof NavigationDrawerComponent
+  }
+}

@@ -5,8 +5,8 @@ import { Posts } from '../../lib/collections/posts';
 import Tooltip from '@material-ui/core/Tooltip';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../lib/reactRouterWrapper';
-import { withStyles } from '@material-ui/core/styles'
-import moment from 'moment';
+import { withStyles, createStyles } from '@material-ui/core/styles'
+import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
 import { truncate } from '../../lib/editor/ellipsize';
 import classNames from 'classnames';
@@ -16,7 +16,7 @@ const TODAY_STRING = "[Today]"
 const TOMORROW_STRING = "[Tomorrow]"
 const HIGHLIGHT_LENGTH = 600
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   subItemOverride: {
     paddingTop: 0,
     paddingBottom: 0,
@@ -73,7 +73,7 @@ const styles = theme => ({
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit*2
   }
-})
+}))
 
 
 const TabNavigationEventsList = ({ results, onClick, classes }) => {
@@ -82,6 +82,11 @@ const TabNavigationEventsList = ({ results, onClick, classes }) => {
 
   if (!results) return null
 
+  // MenuItem takes a component and passes unrecognized props to that component,
+  // but its material-ui-provided type signature does not include this feature.
+  // Case to any to work around it, to be able to pass a "to" parameter.
+  const MenuItemUntyped = MenuItem as any;
+  
   return (
     <div>
       {results.map((event) => {
@@ -120,7 +125,7 @@ const TabNavigationEventsList = ({ results, onClick, classes }) => {
 
         return (
           <Tooltip key={event._id} placement="right-start" title={tooltip}>
-            <MenuItem
+            <MenuItemUntyped
               onClick={onClick}
               component={Link} to={Posts.getPageUrl(event)}
               classes={{root: classes.subItemOverride}}
@@ -133,7 +138,7 @@ const TabNavigationEventsList = ({ results, onClick, classes }) => {
                 </span>}
                 <span className={classes.title}>{event.title}</span>
               </TabNavigationSubItem>
-            </MenuItem>
+            </MenuItemUntyped>
           </Tooltip>
         )
       })}
@@ -150,7 +155,13 @@ const options = {
   ssr: true
 };
 
-registerComponent('TabNavigationEventsList', TabNavigationEventsList,
+const TabNavigationEventsListComponent = registerComponent('TabNavigationEventsList', TabNavigationEventsList,
   [withMulti, options],
   withStyles(styles, {name:"TabNavigationEventsList"})
 );
+
+declare global {
+  interface ComponentTypes {
+    TabNavigationEventsList: typeof TabNavigationEventsListComponent
+  }
+}

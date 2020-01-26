@@ -22,4 +22,14 @@ const CommentsListMeta = ({classes, children}) => {
     </div>
 }
 
-registerComponent('CommentsListMeta', CommentsListMeta, withStyles(styles, {name:"CommentsListMeta"}));
+const CommentsListMetaComponent = registerComponent(
+  'CommentsListMeta', CommentsListMeta,
+  withStyles(styles, {name:"CommentsListMeta"})
+);
+
+declare global {
+  interface ComponentTypes {
+    CommentsListMeta: typeof CommentsListMetaComponent,
+  }
+}
+

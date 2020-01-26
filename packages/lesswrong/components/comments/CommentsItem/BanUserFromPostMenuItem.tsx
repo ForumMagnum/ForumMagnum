@@ -9,17 +9,15 @@ import Users from 'meteor/vulcan:users';
 import withUser from '../../common/withUser';
 import * as _ from 'underscore';
 
-interface BanUserFromPostMenuItemProps {
+interface BanUserFromPostMenuItemProps extends WithMessagesProps, WithUserProps {
   comment: any,
   post: any,
-  updateUser: any,
-  flash: any,
-  currentUser: UsersCurrent,
+  updateUser?: any,
 }
 
 class BanUserFromPostMenuItem extends PureComponent<BanUserFromPostMenuItemProps,{}> {
 
-  constructor(props) {
+  constructor(props: BanUserFromPostMenuItemProps) {
     super(props);
   }
 
@@ -55,5 +53,11 @@ const withUpdateOptions = {
   fragmentName: 'PostsPage',
 };
 
-registerComponent('BanUserFromPostMenuItem', BanUserFromPostMenuItem, withMessages, [withUpdate, withUpdateOptions], withUser);
-export default BanUserFromPostMenuItem;
+const BanUserFromPostMenuItemComponent = registerComponent('BanUserFromPostMenuItem', BanUserFromPostMenuItem, withMessages, [withUpdate, withUpdateOptions], withUser);
+
+declare global {
+  interface ComponentTypes {
+    BanUserFromPostMenuItem: typeof BanUserFromPostMenuItemComponent,
+  }
+}
+

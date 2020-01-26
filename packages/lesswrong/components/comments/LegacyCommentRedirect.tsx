@@ -28,4 +28,11 @@ const LegacyCommentRedirect = () => {
   }
 };
 
-registerComponent('LegacyCommentRedirect', LegacyCommentRedirect);
+const LegacyCommentRedirectComponent = registerComponent('LegacyCommentRedirect', LegacyCommentRedirect);
+
+declare global {
+  interface ComponentTypes {
+    LegacyCommentRedirect: typeof LegacyCommentRedirectComponent,
+  }
+}
+

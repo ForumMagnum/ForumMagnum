@@ -26,4 +26,10 @@ const FormatDate = ({date, format, tooltip=true}) => {
   }
 };
 
-registerComponent('FormatDate', FormatDate);
+const FormatDateComponent = registerComponent('FormatDate', FormatDate);
+
+declare global {
+  interface ComponentTypes {
+    FormatDate: typeof FormatDateComponent
+  }
+}

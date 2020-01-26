@@ -23,4 +23,10 @@ const CloudinaryImage = ({width, height, publicId}) => {
   />
 };
 
-registerComponent('CloudinaryImage', CloudinaryImage);
+const CloudinaryImageComponent = registerComponent('CloudinaryImage', CloudinaryImage);
+
+declare global {
+  interface ComponentTypes {
+    CloudinaryImage: typeof CloudinaryImageComponent
+  }
+}

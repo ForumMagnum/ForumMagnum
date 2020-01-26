@@ -11,4 +11,10 @@ const CalendarDate = ({date}) => {
   return <span>{moment(new Date(date)).tz(timezone).calendar()}</span>
 };
 
-registerComponent('CalendarDate', CalendarDate);
+const CalendarDateComponent = registerComponent('CalendarDate', CalendarDate);
+
+declare global {
+  interface ComponentTypes {
+    CalendarDate: typeof CalendarDateComponent
+  }
+}

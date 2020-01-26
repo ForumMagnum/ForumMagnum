@@ -3,7 +3,11 @@ import React, { Component } from 'react';
 import { withNavigation } from '../../lib/routeUtil';
 import withUser from '../common/withUser';
 
-class LoginPage extends Component {
+interface LoginPageProps extends WithUserProps {
+  history: any,
+}
+
+class LoginPage extends Component<LoginPageProps,{}> {
   UNSAFE_componentWillMount() {
     // If already logged in, redirect to the front page
     if (this.props.currentUser) {
@@ -23,4 +27,10 @@ class LoginPage extends Component {
   }
 }
 
-registerComponent('LoginPage', LoginPage, withUser, withNavigation);
+const LoginPageComponent = registerComponent('LoginPage', LoginPage, withUser, withNavigation);
+
+declare global {
+  interface ComponentTypes {
+    LoginPage: typeof LoginPageComponent
+  }
+}

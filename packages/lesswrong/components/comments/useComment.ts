@@ -1,7 +1,11 @@
 import { useMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments/collection';
 
-export const useCommentByLegacyId = ({ legacyId }) => {
+export const useCommentByLegacyId = ({ legacyId }: { legacyId: string }): {
+  comment: CommentsList|null,
+  loading: boolean,
+  error: any,
+}=> {
   const { results, loading, error } = useMulti({
     terms: {
       view: "legacyIdComment",
@@ -9,7 +13,6 @@ export const useCommentByLegacyId = ({ legacyId }) => {
     },
     
     collection: Comments,
-    queryName: 'CommentByLegacyId',
     fragmentName: 'CommentsList',
     limit: 1,
     enableTotal: false,

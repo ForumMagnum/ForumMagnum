@@ -37,4 +37,10 @@ const Home2 = () => {
   )
 }
 
-registerComponent('Home2', Home2);
+const Home2Component = registerComponent('Home2', Home2);
+
+declare global {
+  interface ComponentTypes {
+    Home2: typeof Home2Component
+  }
+}

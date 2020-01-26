@@ -34,20 +34,18 @@ const styles = createStyles(theme => ({
   }
 }))
 
-interface MoveToAlignmentMenuItemProps {
+interface MoveToAlignmentMenuItemProps extends WithMessagesProps, WithUserProps, WithStylesProps {
   comment: any,
-  updateComment: any,
-  client: any,
-  flash: any,
-  currentUser: UsersCurrent,
+  updateComment?: any,
+  client?: any,
   post: any,
-  classes: any,
 }
 
 class MoveToAlignmentMenuItem extends PureComponent<MoveToAlignmentMenuItemProps,{}> {
 
   handleMoveToAlignmentForum = async () => {
     const { comment, updateComment, client, flash, currentUser, } = this.props
+    if (!currentUser) return;
     await updateComment({
       selector: { _id: comment._id},
       data: {
@@ -116,13 +114,17 @@ const withUpdateOptions = {
   fragmentName: 'CommentsList',
 }
 
-registerComponent(
-  'MoveToAlignmentMenuItem',
-   MoveToAlignmentMenuItem,
+const MoveToAlignmentMenuItemComponent = registerComponent(
+  'MoveToAlignmentMenuItem', MoveToAlignmentMenuItem,
    [withUpdate, withUpdateOptions],
    withStyles(styles, {name:'MoveToAlignmentMenuItem'}),
    withMessages,
    withApollo,
    withUser
 );
-export default MoveToAlignmentMenuItem;
+
+declare global {
+  interface ComponentTypes {
+    MoveToAlignmentMenuItem: typeof MoveToAlignmentMenuItemComponent
+  }
+}

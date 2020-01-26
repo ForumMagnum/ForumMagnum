@@ -283,10 +283,16 @@ const RecentDiscussionThread = ({
   }
 }*/
 
-registerComponent(
-  'RecentDiscussionThread',
-  RecentDiscussionThread,
+const RecentDiscussionThreadComponent = registerComponent(
+  'RecentDiscussionThread', RecentDiscussionThread,
   withStyles(styles, { name: "RecentDiscussionThread" }),
   withRecordPostView,
   withErrorBoundary
 );
+
+declare global {
+  interface ComponentTypes {
+    RecentDiscussionThread: typeof RecentDiscussionThreadComponent,
+  }
+}
+

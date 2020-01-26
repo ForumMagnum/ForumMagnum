@@ -108,7 +108,13 @@ UsersEditForm.contextTypes = {
   intl: intlShape
 };
 
-registerComponent('UsersEditForm', UsersEditForm,
+const UsersEditFormComponent = registerComponent('UsersEditForm', UsersEditForm,
   withMessages, withUser, withApollo,
   withStyles(styles, { name: "UsersEditForm" })
 );
+
+declare global {
+  interface ComponentTypes {
+    UsersEditForm: typeof UsersEditFormComponent
+  }
+}

@@ -30,7 +30,6 @@ const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, noSu
       subscriptionType: subscriptionType,
     },
     collection: Subscriptions,
-    queryName: "SubscriptionsOfTypeQuery",
     fragmentName: "SubscriptionState",
   });
   
@@ -57,14 +56,20 @@ const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, noSu
     </div>}
   </div>
 }
-registerComponent("SubscriptionsList", SubscriptionsList, withStyles(styles, {name: "SubscriptionsList"}));
+
+const SubscriptionsListComponent = registerComponent("SubscriptionsList", SubscriptionsList, withStyles(styles, {name: "SubscriptionsList"}));
+
+declare global {
+  interface ComponentTypes {
+    SubscriptionsList: typeof SubscriptionsListComponent
+  }
+}
 
 const SubscribedItem = ({collectionName, fragmentName, subscription, renderDocument, classes}) => {
   const { Loading, SubscribeTo } = Components;
   const { document, loading } = useSingle({
     documentId: subscription.documentId,
     collectionName, fragmentName,
-    queryName: "SubscribedDocumentQuery",
   });
   
   if (!document || loading)
@@ -83,8 +88,15 @@ const SubscribedItem = ({collectionName, fragmentName, subscription, renderDocum
   </div>
   
 }
-registerComponent("SubscribedItem", SubscribedItem,
+
+const SubscribedItemComponent = registerComponent("SubscribedItem", SubscribedItem,
   withStyles(styles, {name: "SubscribedItem"}));
+
+declare global {
+  interface ComponentTypes {
+    SubscribedItem: typeof SubscribedItemComponent
+  }
+}
 
 const ViewSubscriptionsPage = ({classes}) => {
   const { SingleColumnSection, SubscriptionsList, UsersNameDisplay } = Components;
@@ -139,5 +151,11 @@ const ViewSubscriptionsPage = ({classes}) => {
   </SingleColumnSection>;
 }
 
-registerComponent("ViewSubscriptionsPage", ViewSubscriptionsPage,
+const ViewSubscriptionsPageComponent = registerComponent("ViewSubscriptionsPage", ViewSubscriptionsPage,
   withStyles(styles, {name: "ViewSubscriptionsPage"}));
+  
+declare global {
+  interface ComponentTypes {
+    ViewSubscriptionsPage: typeof ViewSubscriptionsPageComponent,
+  }
+}

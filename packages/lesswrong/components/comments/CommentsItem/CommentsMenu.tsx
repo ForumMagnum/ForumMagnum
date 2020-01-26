@@ -81,4 +81,11 @@ const CommentsMenu = ({children, classes, className, comment, post, showEdit, ic
   )
 }
 
-registerComponent('CommentsMenu', CommentsMenu, withStyles(styles, {name:"CommentsMenu"}))
+const CommentsMenuComponent = registerComponent('CommentsMenu', CommentsMenu, withStyles(styles, {name:"CommentsMenu"}))
+
+declare global {
+  interface ComponentTypes {
+    CommentsMenu: typeof CommentsMenuComponent,
+  }
+}
+

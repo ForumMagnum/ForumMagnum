@@ -28,4 +28,10 @@ const MetaInfo = ({children, classes, button, className}) => {
   </Typography>
 }
 
-registerComponent( 'MetaInfo', MetaInfo, withStyles(styles, {name: 'MetaInfo'}))
+const MetaInfoComponent = registerComponent('MetaInfo', MetaInfo, withStyles(styles, {name: 'MetaInfo'}))
+
+declare global {
+  interface ComponentTypes {
+    MetaInfo: typeof MetaInfoComponent
+  }
+}

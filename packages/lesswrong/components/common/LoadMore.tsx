@@ -50,6 +50,12 @@ const LoadMore = ({ loadMore, count, totalCount, classes, disabled=false, networ
   )
 }
 
-registerComponent('LoadMore', LoadMore,
+const LoadMoreComponent = registerComponent('LoadMore', LoadMore,
   withStyles(styles, { name: "LoadMore" })
 );
+
+declare global {
+  interface ComponentTypes {
+    LoadMore: typeof LoadMoreComponent
+  }
+}

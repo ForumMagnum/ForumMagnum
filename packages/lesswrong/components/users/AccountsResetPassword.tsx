@@ -2,6 +2,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { useEffect } from 'react';
 import { STATES } from 'meteor/vulcan:accounts'
 import { useLocation } from '../../lib/routeUtil'
+import { Accounts } from 'meteor/accounts-base';
 
 const AccountsResetPassword = () => {
   const { params: { token } } = useLocation()
@@ -15,4 +16,10 @@ const AccountsResetPassword = () => {
 }
 
 // Shadows AccountsResetPassword from vulcan:accounts
-registerComponent('AccountsResetPassword', AccountsResetPassword);
+const AccountsResetPasswordComponent = registerComponent('AccountsResetPassword', AccountsResetPassword);
+
+declare global {
+  interface ComponentTypes {
+    AccountsResetPassword: typeof AccountsResetPasswordComponent
+  }
+}

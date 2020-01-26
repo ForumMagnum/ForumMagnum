@@ -102,7 +102,13 @@ const TabNavigationItem = ({tab, onClick, classes}) => {
   </Tooltip>
 }
 
-registerComponent(
+const TabNavigationItemComponent = registerComponent(
   'TabNavigationItem', TabNavigationItem,
   withStyles(styles, { name: 'TabNavigationItem'})
 );
+
+declare global {
+  interface ComponentTypes {
+    TabNavigationItem: typeof TabNavigationItemComponent
+  }
+}

@@ -47,7 +47,8 @@ const CommentPermalink = (props) => {
     </div>
 }
 
-registerComponent("CommentPermalink", CommentPermalink,
+const CommentPermalinkComponent = registerComponent(
+  "CommentPermalink", CommentPermalink,
   withStyles(styles, {name:"CommentPermalink"}),
   [withSingle, {
     collection: Comments,
@@ -56,3 +57,10 @@ registerComponent("CommentPermalink", CommentPermalink,
     ssr: true,
   }]
 );
+
+
+declare global {
+  interface ComponentTypes {
+    CommentPermalink: typeof CommentPermalinkComponent,
+  }
+}

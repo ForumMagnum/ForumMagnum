@@ -73,11 +73,16 @@ const withUpdateOptions = {
   fragmentName: 'SuggestAlignmentComment',
 }
 
-registerComponent(
-  'SuggestAlignmentMenuItem',
-   SuggestAlignmentMenuItem,
+const SuggestAlignmentMenuItemComponent = registerComponent(
+  'SuggestAlignmentMenuItem', SuggestAlignmentMenuItem,
    [withUpdate, withUpdateOptions],
    withStyles(styles, {name:'SuggestAlignmentMenuItem'}),
    withUser
 );
-export default SuggestAlignmentMenuItem;
+
+declare global {
+  interface ComponentTypes {
+    SuggestAlignmentMenuItem: typeof SuggestAlignmentMenuItemComponent
+  }
+}
+

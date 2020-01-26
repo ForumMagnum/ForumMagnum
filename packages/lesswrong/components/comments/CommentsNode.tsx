@@ -117,7 +117,7 @@ const styles = createStyles(theme => ({
   }
 }))
 
-interface CommentsNodeProps {
+interface CommentsNodeProps extends WithUserProps, WithStylesProps {
   comment: any,
   startThreadTruncated: boolean,
   condensed: boolean,
@@ -149,9 +149,7 @@ interface CommentsNodeProps {
   forceSingleLine: boolean,
   forceNotSingleLine: boolean,
   postPage: boolean,
-  currentUser: UsersCurrent,
   children: any,
-  classes: any,
 }
 interface CommentsNodeState {
   collapsed: boolean,
@@ -164,7 +162,7 @@ interface CommentsNodeState {
 class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
   scrollTargetRef: any
   
-  constructor(props) {
+  constructor(props: CommentsNodeProps) {
     super(props);
 
     this.state = {
@@ -438,9 +436,16 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
   comment: PropTypes.object.isRequired, // the current comment
 };
 
-registerComponent('CommentsNode', CommentsNode,
+const CommentsNodeComponent = registerComponent('CommentsNode', CommentsNode,
   withUser,
   withLocation,
   withErrorBoundary,
   withStyles(styles, { name: "CommentsNode" })
 );
+
+declare global {
+  interface ComponentTypes {
+    CommentsNode: typeof CommentsNodeComponent,
+  }
+}
+

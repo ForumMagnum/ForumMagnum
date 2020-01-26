@@ -24,10 +24,22 @@ function postHadMajorRevision(comment, post) {
 }
 
 const CommentOutdatedWarning = ({comment, post, classes}) => {
-  return postHadMajorRevision(comment, post) && 
+  if (!postHadMajorRevision(comment, post))
+    return null;
+  return (
     <Tooltip title="The top-level post had major updates since this comment was created. Click to see post at time of creation.">
       <QueryLink query={{revision: comment.postVersion}} merge><HistoryIcon className={classes.icon}/> Response to previous version </QueryLink>
-    </Tooltip>  
+    </Tooltip>
+  );
 };
 
-registerComponent('CommentOutdatedWarning', CommentOutdatedWarning, withStyles(styles, { name: "CommentOutdatedWarning" }));
+const CommentOutdatedWarningComponent = registerComponent(
+  'CommentOutdatedWarning', CommentOutdatedWarning,
+  withStyles(styles, { name: "CommentOutdatedWarning" }));
+
+declare global {
+  interface ComponentTypes {
+    CommentOutdatedWarning: typeof CommentOutdatedWarningComponent,
+  }
+}
+

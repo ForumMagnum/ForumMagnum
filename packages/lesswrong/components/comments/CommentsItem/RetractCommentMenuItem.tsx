@@ -41,4 +41,10 @@ const RetractCommentMenuItem = ({comment}) => {
   }
 }
 
-registerComponent('RetractCommentMenuItem', RetractCommentMenuItem);
+const RetractCommentMenuItemComponent = registerComponent('RetractCommentMenuItem', RetractCommentMenuItem);
+
+declare global {
+  interface ComponentTypes {
+    RetractCommentMenuItem: typeof RetractCommentMenuItemComponent
+  }
+}

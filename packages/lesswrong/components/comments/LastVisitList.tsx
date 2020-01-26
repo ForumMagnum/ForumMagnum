@@ -22,4 +22,14 @@ const options = {
   enableTotal: false,
 };
 
-registerComponent("LastVisitList", LastVisitList, withUser, [withMulti, options]);
+const LastVisitListComponent = registerComponent(
+  "LastVisitList", LastVisitList,
+  withUser, [withMulti, options]
+);
+
+declare global {
+  interface ComponentTypes {
+    LastVisitList: typeof LastVisitListComponent,
+  }
+}
+

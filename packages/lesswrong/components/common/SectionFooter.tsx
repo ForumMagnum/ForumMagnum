@@ -39,4 +39,10 @@ const SectionFooter = ({ children, classes }) => {
     </Typography>
   )
 }
-registerComponent( 'SectionFooter', SectionFooter, withStyles(styles, {name: 'SectionFooter'}))
+const SectionFooterComponent = registerComponent('SectionFooter', SectionFooter, withStyles(styles, {name: 'SectionFooter'}))
+
+declare global {
+  interface ComponentTypes {
+    SectionFooter: typeof SectionFooterComponent
+  }
+}

@@ -56,7 +56,13 @@ const TabNavigationMenu = ({onClickSection, classes}) => {
     </AnalyticsContext>  )
 };
 
-registerComponent(
+const TabNavigationMenuComponent = registerComponent(
   'TabNavigationMenu', TabNavigationMenu,
   withStyles(styles, { name: 'TabNavigationMenu'})
 );
+
+declare global {
+  interface ComponentTypes {
+    TabNavigationMenu: typeof TabNavigationMenuComponent
+  }
+}

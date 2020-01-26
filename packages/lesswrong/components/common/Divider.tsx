@@ -44,4 +44,10 @@ const Divider= ({ classes, wings=true }) => {
       </div>}
     </div>
 }
-registerComponent('Divider', Divider, withStyles(styles, {name: 'Divider'}))
+const DividerComponent = registerComponent('Divider', Divider, withStyles(styles, {name: 'Divider'}))
+
+declare global {
+  interface ComponentTypes {
+    Divider: typeof DividerComponent
+  }
+}

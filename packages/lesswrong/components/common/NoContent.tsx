@@ -16,4 +16,10 @@ const NoContent = ({children, classes}) => {
   </Typography>
 }
 
-registerComponent( 'NoContent', NoContent, withStyles(styles, {name: 'MetaInfo'}))
+const NoContentComponent = registerComponent('NoContent', NoContent, withStyles(styles, {name: 'NoContent'}))
+
+declare global {
+  interface ComponentTypes {
+    NoContent: typeof NoContentComponent
+  }
+}

@@ -20,7 +20,7 @@ interface DialogGroupState {
 // Dialog group, with trigger-button and dialog-instance
 class DialogGroup extends Component<DialogGroupProps,DialogGroupState> {
 
-  constructor(props) {
+  constructor(props: DialogGroupProps) {
     super(props);
     this.state = {
       open: props.open,
@@ -70,4 +70,10 @@ class DialogGroup extends Component<DialogGroupProps,DialogGroupState> {
   open: false,
 };
 
-registerComponent('DialogGroup', DialogGroup);
+const DialogGroupComponent = registerComponent('DialogGroup', DialogGroup);
+
+declare global {
+  interface ComponentTypes {
+    DialogGroup: typeof DialogGroupComponent
+  }
+}

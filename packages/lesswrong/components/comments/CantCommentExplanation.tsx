@@ -26,6 +26,13 @@ const CantCommentExplanation = ({currentUser, post, classes}) =>
     </span> }
   </div>
 
-registerComponent('CantCommentExplanation', CantCommentExplanation,
+const CantCommentExplanationComponent = registerComponent(
+  'CantCommentExplanation', CantCommentExplanation,
   withUser,
   withStyles(styles, {name: "CantCommentExplanation"}));
+
+declare global {
+  interface ComponentTypes {
+    CantCommentExplanation: typeof CantCommentExplanationComponent,
+  }
+}

@@ -20,4 +20,10 @@ const SectionSubtitle = ({children, classes, className}) => {
   </Typography>
 }
 
-registerComponent( 'SectionSubtitle', SectionSubtitle, withStyles(styles, {name: 'SectionSubtitle'}))
+const SectionSubtitleComponent = registerComponent('SectionSubtitle', SectionSubtitle, withStyles(styles, {name: 'SectionSubtitle'}))
+
+declare global {
+  interface ComponentTypes {
+    SectionSubtitle: typeof SectionSubtitleComponent
+  }
+}

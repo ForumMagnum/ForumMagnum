@@ -40,4 +40,10 @@ export const AnalyticsClient = () => {
   return <div/>;
 }
 
-registerComponent("AnalyticsClient", AnalyticsClient, withErrorBoundary);
+const AnalyticsClientComponent = registerComponent("AnalyticsClient", AnalyticsClient, withErrorBoundary);
+
+declare global {
+  interface ComponentTypes {
+    AnalyticsClient: typeof AnalyticsClientComponent
+  }
+}

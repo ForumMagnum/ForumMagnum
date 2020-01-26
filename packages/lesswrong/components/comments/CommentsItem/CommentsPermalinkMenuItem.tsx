@@ -17,4 +17,11 @@ const CommentsPermalinkMenuItem = ({comment, post}) => {
   </Link>
 }
 
-registerComponent('CommentsPermalinkMenuItem', CommentsPermalinkMenuItem);
+const CommentsPermalinkMenuItemComponent = registerComponent('CommentsPermalinkMenuItem', CommentsPermalinkMenuItem);
+
+declare global {
+  interface ComponentTypes {
+    CommentsPermalinkMenuItem: typeof CommentsPermalinkMenuItemComponent,
+  }
+}
+

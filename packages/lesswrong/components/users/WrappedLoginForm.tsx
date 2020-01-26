@@ -39,4 +39,10 @@ class WrappedLoginForm extends Component
   }
 }
 
-registerComponent('WrappedLoginForm', WrappedLoginForm, withUser);
+const WrappedLoginFormComponent = registerComponent('WrappedLoginForm', WrappedLoginForm, withUser);
+
+declare global {
+  interface ComponentTypes {
+    WrappedLoginForm: typeof WrappedLoginFormComponent
+  }
+}

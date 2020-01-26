@@ -133,5 +133,11 @@ const HomeLatestPosts = ({ classes }) =>
   )
 }
 
-registerComponent('HomeLatestPosts', HomeLatestPosts,
+const HomeLatestPostsComponent = registerComponent('HomeLatestPosts', HomeLatestPosts,
   withStyles(styles, {name: "HomeLatestPosts"}));
+
+declare global {
+  interface ComponentTypes {
+    HomeLatestPosts: typeof HomeLatestPostsComponent
+  }
+}

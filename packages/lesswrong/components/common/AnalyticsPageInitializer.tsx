@@ -148,4 +148,10 @@ const AnalyticsPageInitializer = () => {
   return <span/>
 };
 
-registerComponent('AnalyticsPageInitializer', AnalyticsPageInitializer)
+const AnalyticsPageInitializerComponent = registerComponent('AnalyticsPageInitializer', AnalyticsPageInitializer)
+
+declare global {
+  interface ComponentTypes {
+    AnalyticsPageInitializer: typeof AnalyticsPageInitializerComponent
+  }
+}

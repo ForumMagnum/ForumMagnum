@@ -7,27 +7,27 @@ import Users from 'meteor/vulcan:users';
 import withUser from '../../common/withUser';
 import * as _ from 'underscore';
 
-interface BanUserFromAllPostsMenuItemProps {
+interface BanUserFromAllPostsMenuItemProps extends WithMessagesProps, WithUserProps {
   comment: any,
-  currentUser: any,
-  updateUser: any,
+  updateUser?: any,
   post: any,
-  flash: any,
 }
 
 class BanUserFromAllPostsMenuItem extends PureComponent<BanUserFromAllPostsMenuItemProps,{}> {
   handleBanUserFromAllPosts = (event) => {
+    const { comment, currentUser, updateUser, flash } = this.props;
     event.preventDefault();
+    if (!currentUser) return;
     if (confirm("Are you sure you want to ban this user from commenting on all your posts?")) {
-      const commentUserId = this.props.comment.userId
-      let bannedUserIds = _.clone(this.props.currentUser.bannedUserIds) || []
+      const commentUserId = comment.userId
+      let bannedUserIds = _.clone(currentUser.bannedUserIds) || []
       if (!bannedUserIds.includes(commentUserId)) {
         bannedUserIds.push(commentUserId)
       }
-      this.props.updateUser({
-        selector: { _id: this.props.currentUser._id },
+      updateUser({
+        selector: { _id: currentUser._id },
         data: {bannedUserIds:bannedUserIds}
-      }).then(()=>this.props.flash({messageString: `User ${this.props.comment.user.displayName} is now banned from commenting on any of your posts`}))
+      }).then(()=>flash({messageString: `User ${comment.user.displayName} is now banned from commenting on any of your posts`}))
     }
   }
 
@@ -49,5 +49,11 @@ const withUpdateOptions = {
 };
 
 
-registerComponent('BanUserFromAllPostsMenuItem', BanUserFromAllPostsMenuItem, withMessages, [withUpdate, withUpdateOptions], withUser);
-export default BanUserFromAllPostsMenuItem;
+const BanUserFromAllPostsMenuItemComponent = registerComponent('BanUserFromAllPostsMenuItem', BanUserFromAllPostsMenuItem, withMessages, [withUpdate, withUpdateOptions], withUser);
+
+declare global {
+  interface ComponentTypes {
+    BanUserFromAllPostsMenuItem: typeof BanUserFromAllPostsMenuItemComponent,
+  }
+}
+

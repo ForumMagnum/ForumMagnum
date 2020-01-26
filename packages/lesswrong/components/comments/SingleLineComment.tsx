@@ -148,4 +148,11 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
   )
 };
 
-registerComponent('SingleLineComment', SingleLineComment, withStyles(styles, {name:"SingleLineComment"}), withHover(), withErrorBoundary);
+const SingleLineCommentComponent = registerComponent('SingleLineComment', SingleLineComment, withStyles(styles, {name:"SingleLineComment"}), withHover(), withErrorBoundary);
+
+declare global {
+  interface ComponentTypes {
+    SingleLineComment: typeof SingleLineCommentComponent,
+  }
+}
+

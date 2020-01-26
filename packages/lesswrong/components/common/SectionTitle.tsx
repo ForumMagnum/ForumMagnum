@@ -72,4 +72,10 @@ const SectionTitle = ({children, classes, className, title, dividers=true}) => {
   )
 }
 
-registerComponent( 'SectionTitle', SectionTitle, withStyles(styles, {name: 'SectionTitle'}))
+const SectionTitleComponent = registerComponent('SectionTitle', SectionTitle, withStyles(styles, {name: 'SectionTitle'}))
+
+declare global {
+  interface ComponentTypes {
+    SectionTitle: typeof SectionTitleComponent
+  }
+}

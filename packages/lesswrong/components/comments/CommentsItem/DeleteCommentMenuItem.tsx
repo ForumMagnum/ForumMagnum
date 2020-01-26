@@ -7,12 +7,10 @@ import withModerateComment from './withModerateComment'
 import withDialog from '../../common/withDialog'
 import withUser from '../../common/withUser';
 
-interface DeleteCommentMenuItemProps {
+interface DeleteCommentMenuItemProps extends WithMessagesProps, WithUserProps {
   openDialog: any,
   comment: any,
   moderateCommentMutation: any,
-  flash: any,
-  currentUser: any,
   post: any,
 }
 class DeleteCommentMenuItem extends PureComponent<DeleteCommentMenuItemProps,{}> {
@@ -61,4 +59,10 @@ const mutationOptions = {
   fragmentName: "CommentsList"
 };
 
-registerComponent('DeleteCommentMenuItem', DeleteCommentMenuItem, [withModerateComment, mutationOptions], withDialog, withMessages, withUser);
+const DeleteCommentMenuItemComponent = registerComponent('DeleteCommentMenuItem', DeleteCommentMenuItem, [withModerateComment, mutationOptions], withDialog, withMessages, withUser);
+
+declare global {
+  interface ComponentTypes {
+    DeleteCommentMenuItem: typeof DeleteCommentMenuItemComponent
+  }
+}

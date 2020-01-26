@@ -14,4 +14,10 @@ const Meta = () => {
   )
 };
 
-registerComponent('Meta', Meta);
+const MetaComponent = registerComponent('Meta', Meta);
+
+declare global {
+  interface ComponentTypes {
+    Meta: typeof MetaComponent
+  }
+}

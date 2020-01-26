@@ -10,4 +10,10 @@ const PopperCard = ({children, placement="bottom-start", open, anchorEl, modifie
   </Components.LWPopper>
 }
 
-registerComponent("PopperCard", PopperCard);
+const PopperCardComponent = registerComponent("PopperCard", PopperCard);
+
+declare global {
+  interface ComponentTypes {
+    PopperCard: typeof PopperCardComponent
+  }
+}

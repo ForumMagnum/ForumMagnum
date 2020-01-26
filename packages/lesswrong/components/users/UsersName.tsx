@@ -16,4 +16,10 @@ UsersName.propTypes = {
   documentId: PropTypes.string,
 }
 
-registerComponent('UsersName', UsersName);
+const UsersNameComponent = registerComponent('UsersName', UsersName);
+
+declare global {
+  interface ComponentTypes {
+    UsersName: typeof UsersNameComponent
+  }
+}

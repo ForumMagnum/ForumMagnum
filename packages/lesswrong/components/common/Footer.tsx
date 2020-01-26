@@ -14,4 +14,10 @@ const Footer = ({classes}) => {
   )
 }
 
-registerComponent('Footer', Footer, withStyles(styles, { name: "Footer" }));
+const FooterComponent = registerComponent('Footer', Footer, withStyles(styles, { name: "Footer" }));
+
+declare global {
+  interface ComponentTypes {
+    Footer: typeof FooterComponent
+  }
+}

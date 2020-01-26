@@ -55,4 +55,10 @@ const BatchTimePicker = ({ mode, value, onChange}) => {
   </React.Fragment>;
 }
 
-registerComponent("BatchTimePicker", BatchTimePicker);
+const BatchTimePickerComponent = registerComponent("BatchTimePicker", BatchTimePicker);
+
+declare global {
+  interface ComponentTypes {
+    BatchTimePicker: typeof BatchTimePickerComponent
+  }
+}

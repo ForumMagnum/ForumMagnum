@@ -97,4 +97,11 @@ const RecentDiscussionThreadsList = ({
   )
 }
 
-registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList);
+const RecentDiscussionThreadsListComponent = registerComponent('RecentDiscussionThreadsList', RecentDiscussionThreadsList);
+
+declare global {
+  interface ComponentTypes {
+    RecentDiscussionThreadsList: typeof RecentDiscussionThreadsListComponent,
+  }
+}
+

@@ -80,7 +80,13 @@ const TabNavigationFooterItem = ({tab, classes}) => {
   </Tooltip>
 }
 
-registerComponent(
+const TabNavigationFooterItemComponent = registerComponent(
   'TabNavigationFooterItem', TabNavigationFooterItem,
   withStyles(styles, { name: 'TabNavigationFooterItem'})
 );
+
+declare global {
+  interface ComponentTypes {
+    TabNavigationFooterItem: typeof TabNavigationFooterItemComponent
+  }
+}

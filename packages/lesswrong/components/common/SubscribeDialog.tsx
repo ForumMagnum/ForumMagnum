@@ -85,16 +85,14 @@ const viewNames = {
   'all_drafts': 'all drafts',
 }
 
-interface SubscribeDialogProps {
+interface SubscribeDialogProps extends WithUserProps, WithStylesProps {
   method: any,
   view: any,
   updateUser: any,
-  currentUser: UsersCurrent,
   captureEvent: any,
   fullScreen: any,
   onClose: any,
   open: boolean,
-  classes: any,
 }
 
 interface SubscribeDialogState {
@@ -106,7 +104,7 @@ interface SubscribeDialogState {
 }
 
 class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogState> {
-  constructor(props) {
+  constructor(props: SubscribeDialogProps) {
     super(props);
     this.state = {
       threshold: "30",
@@ -130,16 +128,21 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
   }
 
   sendVerificationEmail() {
-    this.props.updateUser({
-      selector: {_id: this.props.currentUser._id},
+    const { updateUser, currentUser } = this.props;
+    if (!currentUser) return;
+    
+    updateUser({
+      selector: {_id: currentUser._id},
       data: { whenConfirmationEmailSent: new Date() }
     });
   }
 
   subscribeByEmail() {
     let mutation: any = { emailSubscribedToCurated: true }
+    const { currentUser, updateUser, captureEvent } = this.props;
+    if (!currentUser) return;
 
-    if (!Users.emailAddressIsVerified(this.props.currentUser)) {
+    if (!Users.emailAddressIsVerified(currentUser)) {
       // Combine mutations into a single update call.
       // (This reduces the number of server-side callback
       // invocations. In a past version this worked around
@@ -147,13 +150,13 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
       mutation.whenConfirmationEmailSent = new Date();
     }
 
-    this.props.updateUser({
-      selector: {_id: this.props.currentUser._id},
+    updateUser({
+      selector: {_id: currentUser._id},
       data: mutation
     })
 
     this.setState({ subscribedByEmail: true });
-    this.props.captureEvent("subscribedByEmail")
+    captureEvent("subscribedByEmail")
   }
 
   emailSubscriptionEnabled() {
@@ -323,9 +326,15 @@ const withUpdateOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-registerComponent("SubscribeDialog", SubscribeDialog,
+const SubscribeDialogComponent = registerComponent("SubscribeDialog", SubscribeDialog,
   withMobileDialog(),
   withUser,
   withTracking,
   [withUpdate, withUpdateOptions],
   withStyles(styles, { name: "SubscribeDialog" }));
+
+declare global {
+  interface ComponentTypes {
+    SubscribeDialog: typeof SubscribeDialogComponent
+  }
+}

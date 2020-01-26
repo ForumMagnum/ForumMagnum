@@ -128,9 +128,6 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
   );
 };
 
-
-
-
 CommentsNewForm.propTypes = {
   post: PropTypes.object,
   type: PropTypes.string, // "comment" or "reply"
@@ -140,4 +137,11 @@ CommentsNewForm.propTypes = {
   prefilledProps: PropTypes.object
 };
 
-registerComponent('CommentsNewForm', CommentsNewForm, withUser, withStyles(styles, {name: "CommentsNewForm"}), withErrorBoundary);
+const CommentsNewFormComponent = registerComponent('CommentsNewForm', CommentsNewForm, withUser, withStyles(styles, {name: "CommentsNewForm"}), withErrorBoundary);
+
+declare global {
+  interface ComponentTypes {
+    CommentsNewForm: typeof CommentsNewFormComponent,
+  }
+}
+

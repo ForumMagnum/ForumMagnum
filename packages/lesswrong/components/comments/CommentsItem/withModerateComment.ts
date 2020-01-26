@@ -16,7 +16,7 @@ export default function withModerateComment(options) {
     ${fragment}
   `, {
     alias: 'withModerateComment',
-    props: ({ ownProps, mutate }) => ({
+    props: ({ ownProps, mutate }: { ownProps: any, mutate: any }): any => ({
       moderateCommentMutation: (args) => {
         const { commentId, deleted, deletedReason, deletedPublic } = args;
         return mutate({

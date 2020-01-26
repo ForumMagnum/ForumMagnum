@@ -25,4 +25,10 @@ const SingleColumnSection = ({classes, className, children}) => {
   )
 };
 
-registerComponent('SingleColumnSection', SingleColumnSection, withStyles(styles, { name: 'SingleColumnSection'}));
+const SingleColumnSectionComponent = registerComponent('SingleColumnSection', SingleColumnSection, withStyles(styles, { name: 'SingleColumnSection'}));
+
+declare global {
+  interface ComponentTypes {
+    SingleColumnSection: typeof SingleColumnSectionComponent
+  }
+}

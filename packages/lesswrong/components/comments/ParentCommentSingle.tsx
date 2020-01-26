@@ -31,4 +31,11 @@ const documentOptions = {
   fragmentName: 'SelectCommentsList',
 };
 
-registerComponent('ParentCommentSingle', ParentCommentSingle, [withSingle, documentOptions]);
+const ParentCommentSingleComponent = registerComponent('ParentCommentSingle', ParentCommentSingle, [withSingle, documentOptions]);
+
+declare global {
+  interface ComponentTypes {
+    ParentCommentSingle: typeof ParentCommentSingleComponent,
+  }
+}
+

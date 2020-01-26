@@ -1,16 +1,17 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { useEffect, useState } from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import { withApollo } from 'react-apollo';
 import Users from 'meteor/vulcan:users';
 import withUser from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil'
+import { Accounts } from 'meteor/accounts-base';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
     textAlign: "center",
   }
-});
+}));
 
 const AccountsVerifyEmail = ({currentUser, classes, client}) => {
   const { params } = useLocation()
@@ -67,7 +68,14 @@ const AccountsVerifyEmail = ({currentUser, classes, client}) => {
 }
 
 // Shadows AccountsVerifyEmail in meteor/vulcan:accounts
-registerComponent('AccountsVerifyEmail', AccountsVerifyEmail,
+const AccountsVerifyEmailComponent = registerComponent('AccountsVerifyEmail', AccountsVerifyEmail,
   withApollo, withUser,
   withStyles(styles, { name: "AccountsVerifyEmail" }));
+  
+declare global {
+  interface ComponentTypes {
+    AccountsVerifyEmail: typeof AccountsVerifyEmailComponent,
+  }
+}
+
 

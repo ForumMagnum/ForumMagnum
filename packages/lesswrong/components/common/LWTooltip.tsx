@@ -31,8 +31,14 @@ const LWTooltip = ({classes, children, title, placement="bottom-start", hover, a
   </span>
 }
 
-registerComponent("LWTooltip", LWTooltip,
+const LWTooltipComponent = registerComponent("LWTooltip", LWTooltip,
   withHover({pageElementContext: "tooltipHovered"}, ({title}) => ({title})),
   withStyles(styles, {name:"withStyles"}));
+
+declare global {
+  interface ComponentTypes {
+    LWTooltip: typeof LWTooltipComponent
+  }
+}
 
 

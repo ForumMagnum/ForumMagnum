@@ -40,7 +40,13 @@ const TabNavigationMenuCompressed = ({onClickSection, classes}) => {
   )
 };
 
-registerComponent(
+const TabNavigationMenuCompressedComponent = registerComponent(
   'TabNavigationMenuCompressed', TabNavigationMenuCompressed,
   withStyles(styles, { name: 'TabNavigationMenuCompressed'})
 );
+
+declare global {
+  interface ComponentTypes {
+    TabNavigationMenuCompressed: typeof TabNavigationMenuCompressedComponent
+  }
+}

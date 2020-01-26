@@ -16,7 +16,7 @@ import PersonIcon from '@material-ui/icons/Person';
 import BookmarksIcon from '@material-ui/icons/Bookmarks';
 import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 
 import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
@@ -24,7 +24,7 @@ import withDialog from '../common/withDialog'
 import withHover from '../common/withHover'
 import {captureEvent} from "../../lib/analyticsEvents";
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
     marginTop: 5,
     wordBreak: 'break-all',
@@ -55,13 +55,26 @@ const styles = theme => ({
     color: theme.palette.grey[600],
     marginLeft: 20
   }
-})
+}))
 
-class UsersMenu extends PureComponent {
-  constructor(props) {
+interface UsersMenuProps extends WithUserProps, WithStylesProps {
+  client: any,
+  color: any,
+  openDialog: any,
+  hover: boolean,
+  anchorEl: any,
+}
+interface UsersMenuState {
+  open: boolean,
+  anchorEl: any,
+}
+
+class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
+  constructor(props: UsersMenuProps) {
     super(props);
     this.state = {
       open: false,
+      anchorEl: null,
     }
   }
 
@@ -193,14 +206,20 @@ class UsersMenu extends PureComponent {
   }
 }
 
-UsersMenu.propTypes = {
+(UsersMenu as any).propTypes = {
   color: PropTypes.string,
 };
 
-UsersMenu.defaultProps = {
+(UsersMenu as any).defaultProps = {
   color: "rgba(0, 0, 0, 0.6)"
 }
 
-registerComponent('UsersMenu', UsersMenu,
+const UsersMenuComponent = registerComponent('UsersMenu', UsersMenu,
   withUser, withApollo, withHover(), withDialog, withStyles(styles, { name: "UsersMenu" })
 );
+
+declare global {
+  interface ComponentTypes {
+    UsersMenu: typeof UsersMenuComponent
+  }
+}

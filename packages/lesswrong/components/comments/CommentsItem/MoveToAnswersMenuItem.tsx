@@ -9,13 +9,11 @@ import { Comments } from "../../../lib/collections/comments";
 import withUser from '../../common/withUser';
 import { withApollo } from 'react-apollo'
 
-interface MoveToAnswersMenuItemProps {
+interface MoveToAnswersMenuItemProps extends WithMessagesProps, WithUserProps {
   comment: any,
-  updateComment: any,
-  client: any,
-  flash: any,
+  updateComment?: any,
+  client?: any,
   post: any,
-  currentUser: UsersCurrent,
 }
 class MoveToAnswersMenuItem extends PureComponent<MoveToAnswersMenuItemProps,{}> {
 
@@ -72,4 +70,10 @@ const withUpdateOptions = {
   fragmentName: 'CommentsList',
 }
 
-registerComponent('MoveToAnswersMenuItem', MoveToAnswersMenuItem, withUser, [withUpdate, withUpdateOptions], withApollo, withMessages);
+const MoveToAnswersMenuItemComponent = registerComponent('MoveToAnswersMenuItem', MoveToAnswersMenuItem, withUser, [withUpdate, withUpdateOptions], withApollo, withMessages);
+
+declare global {
+  interface ComponentTypes {
+    MoveToAnswersMenuItem: typeof MoveToAnswersMenuItemComponent
+  }
+}

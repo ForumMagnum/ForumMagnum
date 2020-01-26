@@ -17,12 +17,11 @@ const styles = createStyles(theme => ({
   },
 }))
 
-interface CommentWithRepliesProps {
+interface CommentWithRepliesProps extends WithUserProps, WithStylesProps {
   comment: any,
   post: any,
   recordPostView: any,
   refetch: any,
-  classes: any,
 }
 interface CommentWithRepliesState {
   markedAsVisitedAt: Date|null,
@@ -88,4 +87,16 @@ class CommentWithReplies extends PureComponent<CommentWithRepliesProps,CommentWi
   }
 }
 
-registerComponent('CommentWithReplies', CommentWithReplies, withUser, withRecordPostView, withStyles(styles, {name:"CommentWithReplies"}), withErrorBoundary);
+const CommentWithRepliesComponent = registerComponent(
+  'CommentWithReplies', CommentWithReplies,
+  withUser, withRecordPostView,
+  withStyles(styles, {name:"CommentWithReplies"}),
+  withErrorBoundary
+);
+
+declare global {
+  interface ComponentTypes {
+    CommentWithReplies: typeof CommentWithRepliesComponent,
+  }
+}
+

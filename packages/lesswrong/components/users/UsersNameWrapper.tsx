@@ -28,4 +28,10 @@ const options = {
   fragmentName: 'UsersMinimumInfo',
 };
 
-registerComponent('UsersNameWrapper', UsersNameWrapper, [withSingle, options]);
+const UsersNameWrapperComponent = registerComponent('UsersNameWrapper', UsersNameWrapper, [withSingle, options]);
+
+declare global {
+  interface ComponentTypes {
+    UsersNameWrapper: typeof UsersNameWrapperComponent
+  }
+}

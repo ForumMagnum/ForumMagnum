@@ -16,4 +16,10 @@ const AnalyticsTracker = ({eventType, eventProps, children, captureOnClick=true,
   )
 };
 
-registerComponent('AnalyticsTracker', AnalyticsTracker)
+const AnalyticsTrackerComponent = registerComponent('AnalyticsTracker', AnalyticsTracker)
+
+declare global {
+  interface ComponentTypes {
+    AnalyticsTracker: typeof AnalyticsTrackerComponent
+  }
+}

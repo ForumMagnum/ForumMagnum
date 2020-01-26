@@ -23,4 +23,10 @@ const EmailConfirmationRequiredCheckbox = (props) => {
   }
 }
 
-registerComponent("EmailConfirmationRequiredCheckbox", EmailConfirmationRequiredCheckbox, withUser);
+const EmailConfirmationRequiredCheckboxComponent = registerComponent("EmailConfirmationRequiredCheckbox", EmailConfirmationRequiredCheckbox, withUser);
+
+declare global {
+  interface ComponentTypes {
+    EmailConfirmationRequiredCheckbox: typeof EmailConfirmationRequiredCheckboxComponent
+  }
+}

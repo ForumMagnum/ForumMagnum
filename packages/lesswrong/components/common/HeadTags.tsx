@@ -83,6 +83,10 @@ HeadTags.propTypes = {
   image: PropTypes.string,
 };
 
-registerComponent('HeadTags', HeadTags, withApollo);
+const HeadTagsComponent = registerComponent('HeadTags', HeadTags, withApollo);
 
-export default HeadTags;
+declare global {
+  interface ComponentTypes {
+    HeadTags: typeof HeadTagsComponent
+  }
+}

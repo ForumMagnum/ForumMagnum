@@ -18,4 +18,10 @@ UsersAccount.propTypes = {
   currentUser: PropTypes.object
 };
 
-registerComponent('UsersAccount', UsersAccount, withUser);
+const UsersAccountComponent = registerComponent('UsersAccount', UsersAccount, withUser);
+
+declare global {
+  interface ComponentTypes {
+    UsersAccount: typeof UsersAccountComponent
+  }
+}

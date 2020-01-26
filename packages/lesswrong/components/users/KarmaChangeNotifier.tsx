@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import { withSingle } from '../../lib/crud/withSingle';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import Popper from '@material-ui/core/Popper';
@@ -23,7 +23,7 @@ import { Comments } from '../../lib/collections/comments';
 import { withTracking, AnalyticsContext } from '../../lib/analyticsEvents';
 
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
     display: 'flex',
     alignItems: 'center',
@@ -91,7 +91,7 @@ const styles = theme => ({
       color: theme.palette.grey[500]
     }
   },
-});
+}));
 
 // Given a number, return a span of it as a string, with a plus sign if it's
 // positive, and green, red, or black coloring for positive, negative, and
@@ -109,6 +109,12 @@ const ColoredNumber = ({n, classes}) => {
 const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }) => {
   const { posts, comments, updateFrequency } = karmaChanges
   const noKarmaChanges = !((posts && (posts.length > 0)) || (comments && (comments.length > 0)))
+  
+  // MenuItem takes a component and passes unrecognized props to that component,
+  // but its material-ui-provided type signature does not include this feature.
+  // Case to any to work around it, to be able to pass a "to" parameter.
+  const MenuItemUntyped = MenuItem as any;
+  
   return (
     <Typography variant="body2">
       {noKarmaChanges ?
@@ -118,7 +124,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }) => {
           <span className={classes.title}>{ karmaNotificationTimingChoices[updateFrequency].infoText }</span>
           <div className={classes.votedItems}>
             {karmaChanges.posts && karmaChanges.posts.map(postChange => (
-              <MenuItem
+              <MenuItemUntyped
                 className={classes.votedItemRow}
                 component={Link} to={Posts.getPageUrl(postChange)} key={postChange._id} >
                 <span className={classes.votedItemScoreChange}>
@@ -127,10 +133,10 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }) => {
                 <div className={classes.votedItemDescription}>
                   {postChange.title}
                 </div>
-                </MenuItem>
+                </MenuItemUntyped>
             ))}
             {karmaChanges.comments && karmaChanges.comments.map(commentChange => (
-              <MenuItem className={classes.votedItemRow}
+              <MenuItemUntyped className={classes.votedItemRow}
                 component={Link} to={Comments.getPageUrlFromIds({postId:commentChange.postId, postSlug:commentChange.postSlug, commentId: commentChange._id})} key={commentChange._id}
                 >
                 <span className={classes.votedItemScoreChange}>
@@ -139,7 +145,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }) => {
                 <div className={classes.votedItemDescription}>
                   {commentChange.description}
                 </div>
-              </MenuItem>
+              </MenuItemUntyped>
             ))}
           </div>
         </div>
@@ -151,13 +157,25 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }) => {
   );
 }
 
-class KarmaChangeNotifier extends PureComponent {
-  state = {
+interface KarmaChangeNotifierProps extends WithUserProps, WithStylesProps, WithTrackingProps {
+  document: any
+  updateUser: any,
+}
+interface KarmaChangeNotifierState {
+  cleared: boolean,
+  open: boolean,
+  anchorEl: any,
+  karmaChanges: any,
+  karmaChangeLastOpened: Date,
+}
+
+class KarmaChangeNotifier extends PureComponent<KarmaChangeNotifierProps,KarmaChangeNotifierState> {
+  state: KarmaChangeNotifierState = {
     cleared: false,
     open: false,
     anchorEl: null,
-    karmaChanges: this.props.document && this.props.document.karmaChanges,
-    karmaChangeLastOpened: this.props.currentUser && this.props.currentUser.karmaChangeLastOpened
+    karmaChanges: this.props.document?.karmaChanges,
+    karmaChangeLastOpened: this.props.currentUser?.karmaChangeLastOpened || new Date(),
   };
 
   handleOpen = (event) => {
@@ -172,7 +190,7 @@ class KarmaChangeNotifier extends PureComponent {
     const { open } = this.state
     const { captureEvent } = this.props
     if (open) {
-      this.handleClose() // When closing from toggle, force a close by not providing an event
+      this.handleClose(null) // When closing from toggle, force a close by not providing an event
     } else {
       this.handleOpen(e)
     }
@@ -180,6 +198,7 @@ class KarmaChangeNotifier extends PureComponent {
   }
 
   handleClose = (e) => {
+    const { document, updateUser, currentUser } = this.props;
     const { anchorEl } = this.state
     if (e && anchorEl.contains(e.target)) {
       return;
@@ -188,16 +207,17 @@ class KarmaChangeNotifier extends PureComponent {
       open: false,
       anchorEl: null,
     });
-    if (this.props.document && this.props.document.karmaChanges) {
-      this.props.updateUser({
-        selector: {_id: this.props.currentUser._id},
+    if (!currentUser) return;
+    if (document?.karmaChanges) {
+      updateUser({
+        selector: {_id: currentUser._id},
         data: {
-          karmaChangeLastOpened: this.props.document.karmaChanges.endDate,
-          karmaChangeBatchStart: this.props.document.karmaChanges.startDate
+          karmaChangeLastOpened: document.karmaChanges.endDate,
+          karmaChangeBatchStart: document.karmaChanges.startDate
         }
       });
 
-      if (this.props.document.karmaChanges.updateFrequency === "realtime") {
+      if (document.karmaChanges.updateFrequency === "realtime") {
         this.setState({cleared: true});
       }
     }
@@ -216,7 +236,7 @@ class KarmaChangeNotifier extends PureComponent {
 
     const { posts, comments, endDate, totalChange } = karmaChanges
     //Check if user opened the karmaChangeNotifications for the current interval
-    const newKarmaChangesSinceLastVisit = (new Date(karmaChangeLastOpened || 0) - new Date(endDate || 0)) < 0
+    const newKarmaChangesSinceLastVisit = new Date(karmaChangeLastOpened || 0) < new Date(endDate || 0)
     const starIsHollow = ((comments.length===0 && posts.length===0) || this.state.cleared || !newKarmaChangesSinceLastVisit)
 
     return <AnalyticsContext pageSection="karmaChangeNotifer">
@@ -255,7 +275,7 @@ class KarmaChangeNotifier extends PureComponent {
   }
 }
 
-registerComponent('KarmaChangeNotifier', KarmaChangeNotifier,
+const KarmaChangeNotifierComponent = registerComponent('KarmaChangeNotifier', KarmaChangeNotifier,
   withUser, withErrorBoundary,
   [withSingle, {
     collection: Users,
@@ -269,3 +289,9 @@ registerComponent('KarmaChangeNotifier', KarmaChangeNotifier,
   withStyles(styles, {name: 'KarmaChangeNotifier'}),
   withTracking
 );
+
+declare global {
+  interface ComponentTypes {
+    KarmaChangeNotifier: typeof KarmaChangeNotifierComponent
+  }
+}

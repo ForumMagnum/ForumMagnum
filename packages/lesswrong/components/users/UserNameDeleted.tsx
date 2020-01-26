@@ -10,4 +10,10 @@ const UserNameDeleted = () => {
   </Components.LWTooltip>
 };
 
-registerComponent('UserNameDeleted', UserNameDeleted);
+const UserNameDeletedComponent = registerComponent('UserNameDeleted', UserNameDeleted);
+
+declare global {
+  interface ComponentTypes {
+    UserNameDeleted: typeof UserNameDeletedComponent
+  }
+}

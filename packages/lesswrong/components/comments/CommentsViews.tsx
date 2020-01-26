@@ -31,19 +31,17 @@ const styles = createStyles(theme => ({
   }
 }))
 
-interface CommentsViewsProps {
+interface CommentsViewsProps extends WithUserProps, WithStylesProps {
   post: any,
   history: any,
   location: any,
-  currentUser: UsersCurrent,
-  classes: any,
 }
 interface CommentsViewsState {
   anchorEl: any,
 }
 
 class CommentsViews extends Component<CommentsViewsProps,CommentsViewsState> {
-  constructor(props) {
+  constructor(props: CommentsViewsProps) {
     super(props);
     this.state = {
       anchorEl: null,
@@ -119,7 +117,15 @@ class CommentsViews extends Component<CommentsViewsProps,CommentsViewsState> {
   defaultView: "postCommentsTop"
 };
 
-registerComponent('CommentsViews', CommentsViews,
+const CommentsViewsComponent = registerComponent(
+  'CommentsViews', CommentsViews,
   withLocation, withNavigation, withUser,
   withStyles(styles, { name: "CommentsViews" })
 );
+
+declare global {
+  interface ComponentTypes {
+    CommentsViews: typeof CommentsViewsComponent,
+  }
+}
+

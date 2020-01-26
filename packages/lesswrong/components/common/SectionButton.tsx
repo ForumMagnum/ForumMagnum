@@ -22,4 +22,10 @@ const SectionButton = ({children, classes, className}) => {
   </Typography>
 }
 
-registerComponent( 'SectionButton', SectionButton, withStyles(styles, {name: 'SectionButton'}))
+const SectionButtonComponent = registerComponent('SectionButton', SectionButton, withStyles(styles, {name: 'SectionButton'}))
+
+declare global {
+  interface ComponentTypes {
+    SectionButton: typeof SectionButtonComponent
+  }
+}
