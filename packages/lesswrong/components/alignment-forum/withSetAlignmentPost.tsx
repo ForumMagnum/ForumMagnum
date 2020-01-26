@@ -17,7 +17,7 @@ export default function withSetAlignmentPost(options) {
     ${fragment}
   `, {
     alias: 'withSetAlignmentPost',
-    props: ({ ownProps, mutate }) => ({
+    props: ({ ownProps, mutate }: { ownProps: any, mutate: any }): any => ({
       setAlignmentPostMutation: (args) => {
         const { postId, af } = args;
         return mutate({

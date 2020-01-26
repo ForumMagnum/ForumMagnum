@@ -17,7 +17,7 @@ export default function withSetAlignmentComment(options) {
     ${fragment}
   `, {
     alias: 'withSetAlignmentComment',
-    props: ({ ownProps, mutate }) => ({
+    props: ({ ownProps, mutate }: { ownProps: any, mutate: any }): any => ({
       setAlignmentCommentMutation: (args) => {
         const { commentId, af } = args;
         return mutate({

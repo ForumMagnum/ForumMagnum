@@ -1,8 +1,9 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
+import * as _ from 'underscore';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {},
   row: {
     display: "flex",
@@ -19,7 +20,7 @@ const styles = theme => ({
   status: {
     minWidth: 120,
   },
-});
+}));
 
 const MigrationsDashboardRow = ({migration: {name, dateWritten, runs}, classes}) => {
   const [expanded, setExpanded] = React.useState(false);
@@ -56,5 +57,12 @@ const MigrationsDashboardRow = ({migration: {name, dateWritten, runs}, classes})
   </div>
 }
 
-registerComponent("MigrationsDashboardRow", MigrationsDashboardRow,
+const MigrationsDashboardRowComponent = registerComponent(
+  "MigrationsDashboardRow", MigrationsDashboardRow,
   withStyles(styles, {name: "MigrationsDashboardRow"}));
+
+declare global {
+  interface ComponentTypes {
+    MigrationsDashboardRow: typeof MigrationsDashboardRowComponent
+  }
+}

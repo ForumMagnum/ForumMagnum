@@ -1,12 +1,12 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
 import classNames from 'classnames';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
     width: "100%",
     maxWidth: 347,
@@ -65,45 +65,49 @@ const styles = theme => ({
       height: 41,
     }
   },
-})
+}))
 
-class CollectionsCard extends PureComponent {
-  render() {
-    const { collection, url, mergeTitle=false, classes } = this.props
-    const { LinkCard, CloudinaryImage, UsersName } = Components;
-    const cardContentStyle = {borderTopColor: collection.color}
+const CollectionsCard = ({ collection, url, mergeTitle=false, classes }) => {
+  const { LinkCard, CloudinaryImage, UsersName } = Components;
+  const cardContentStyle = {borderTopColor: collection.color}
 
-    return <LinkCard className={classes.root} to={url}>
-      <div className={classes.card}>
-        <div className={classes.content} style={cardContentStyle}>
-          <Hidden smUp implementation="css">
-            <div className={classes.thumbnailImage}>
-              <CloudinaryImage
-                publicId={collection.imageId}
-                width={50}
-                height={41}
-              />
-            </div>
-          </Hidden>
-          <Typography variant="title" className={classNames(classes.title, {[classes.mergeTitle]: mergeTitle})}>
-            <Link to={url}>{collection.title}</Link>
-          </Typography>
-          <Typography variant="subheading" className={classes.author}>
-            by <UsersName documentId={collection.userId}/>
-          </Typography>
-          <Typography variant="body2" className={classes.text}>
-            {collection.summary}
-          </Typography>
-        </div>
-        <Hidden xsDown implementation="css">
-          <div className={classes.media}>
-            <CloudinaryImage publicId={collection.imageId} />
+  return <LinkCard className={classes.root} to={url}>
+    <div className={classes.card}>
+      <div className={classes.content} style={cardContentStyle}>
+        <Hidden smUp implementation="css">
+          <div className={classes.thumbnailImage}>
+            <CloudinaryImage
+              publicId={collection.imageId}
+              width={50}
+              height={41}
+            />
           </div>
         </Hidden>
+        <Typography variant="title" className={classNames(classes.title, {[classes.mergeTitle]: mergeTitle})}>
+          <Link to={url}>{collection.title}</Link>
+        </Typography>
+        <Typography variant="subheading" className={classes.author}>
+          by <UsersName documentId={collection.userId}/>
+        </Typography>
+        <Typography variant="body2" className={classes.text}>
+          {collection.summary}
+        </Typography>
       </div>
-    </LinkCard>
-  }
+      <Hidden xsDown implementation="css">
+        <div className={classes.media}>
+          <CloudinaryImage publicId={collection.imageId} />
+        </div>
+      </Hidden>
+    </div>
+  </LinkCard>
 }
 
-registerComponent("CollectionsCard", CollectionsCard,
+const CollectionsCardComponent = registerComponent(
+  "CollectionsCard", CollectionsCard,
   withStyles(styles, { name: "CollectionsCard" }));
+
+declare global {
+  interface ComponentTypes {
+    CollectionsCard: typeof CollectionsCardComponent
+  }
+}

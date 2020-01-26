@@ -1,7 +1,6 @@
 
 // This is a list of components which have not yet been converted to TypeScript.
 interface ComponentTypes {
-  AlignmentForumHome: any
   EAHome: any
   ConversationTitleEditForm: any
   ConversationDetails: any
@@ -181,8 +180,6 @@ interface ComponentTypes {
   UsersSearchInput: any
   SearchBarResults: any
   SearchPagination: any
-  MigrationsDashboard: any
-  MigrationsDashboardRow: any
   AdminHome: any
   AdminMetadata: any
   ModerationLog: any
@@ -257,9 +254,6 @@ interface ComponentTypes {
   BooksEditForm: any
   BooksItem: any
   CoreReading: any
-  CollectionsCardContainer: any
-  CollectionsCard: any
-  BigCollectionsCard: any
   CoreSequences: any
   HPMOR: any
   Codex: any
@@ -285,7 +279,6 @@ interface ComponentTypes {
   FormComponentNumber: any
   WrappedSmartForm: any
   ManageSubscriptionsLink: any
-  AFApplicationForm: any
   NewQuestionDialog: any
   NewRelatedQuestionForm: any
   NewAnswerForm: any

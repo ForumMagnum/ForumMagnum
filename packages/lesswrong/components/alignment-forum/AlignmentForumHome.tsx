@@ -55,4 +55,13 @@ const AlignmentForumHome = ({currentUser, classes}) => {
   )
 };
 
-registerComponent('AlignmentForumHome', AlignmentForumHome, withUser, withStyles(styles, {name: "AlignmentForumHome"}));
+const AlignmentForumHomeComponent = registerComponent(
+  'AlignmentForumHome', AlignmentForumHome,
+  withUser,
+  withStyles(styles, {name: "AlignmentForumHome"}));
+
+declare global {
+  interface ComponentTypes {
+    AlignmentForumHome: typeof AlignmentForumHomeComponent
+  }
+}

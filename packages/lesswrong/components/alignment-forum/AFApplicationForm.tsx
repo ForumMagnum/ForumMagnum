@@ -18,14 +18,22 @@ const styles = theme => ({
   },
 });
 
-class AFApplicationForm extends PureComponent {
-  state = { applicationText: "" }
+interface AFApplicationFormProps extends WithUserProps, WithMessagesProps, WithStylesProps {
+  updateUser: any,
+  onClose: any,
+}
+interface AFApplicationFormState {
+  applicationText: string,
+}
+
+class AFApplicationForm extends PureComponent<AFApplicationFormProps,AFApplicationFormState> {
+  state: AFApplicationFormState = { applicationText: "" }
 
   handleSubmission = (event) => {
     const { currentUser, updateUser, flash, onClose } = this.props
     event.preventDefault();
     updateUser({
-      selector: { _id: currentUser._id },
+      selector: { _id: currentUser?._id },
       data: {
         afSubmittedApplication: true,
         afApplicationText: this.state.applicationText,
@@ -84,4 +92,13 @@ const withUpdateOptions = {
   fragmentName: 'SuggestAlignmentUser',
 };
 
-registerComponent('AFApplicationForm', AFApplicationForm, withMessages, [withUpdate, withUpdateOptions], withUser, withStyles(styles, {name: "AFApplicationForm"}));
+const AFApplicationFormComponent = registerComponent(
+  'AFApplicationForm', AFApplicationForm,
+  withMessages, [withUpdate, withUpdateOptions], withUser,
+  withStyles(styles, {name: "AFApplicationForm"}));
+
+declare global {
+  interface ComponentTypes {
+    AFApplicationForm: typeof AFApplicationFormComponent
+  }
+}

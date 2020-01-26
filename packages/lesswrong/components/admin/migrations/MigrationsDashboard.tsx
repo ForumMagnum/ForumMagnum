@@ -33,4 +33,10 @@ const MigrationsDashboard = () => {
   </SingleColumnSection>;
 }
 
-registerComponent("MigrationsDashboard", MigrationsDashboard);
+const MigrationsDashboardComponent = registerComponent("MigrationsDashboard", MigrationsDashboard);
+
+declare global {
+  interface ComponentTypes {
+    MigrationsDashboard: typeof MigrationsDashboardComponent
+  }
+}

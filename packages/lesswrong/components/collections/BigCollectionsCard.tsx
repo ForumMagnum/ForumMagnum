@@ -1,10 +1,10 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { PureComponent } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
     width:"100%",
     [theme.breakpoints.down('sm')]: {
@@ -60,33 +60,38 @@ const styles = theme => ({
       }
     }
   }
-})
+}))
 
-class BigCollectionsCard extends PureComponent {
-  render() {
-    const { collection, url, classes } = this.props
-    const { LinkCard, UsersName } = Components;
-    const cardContentStyle = {borderTopColor: collection.color}
+const BigCollectionsCard = ({ collection, url, classes }) => {
+  const { LinkCard, UsersName } = Components;
+  const cardContentStyle = {borderTopColor: collection.color}
 
-    return <LinkCard className={classes.root} to={url}>
-      <div className={classes.card}>
-        <div className={classes.media}>
-          <Components.CloudinaryImage publicId={collection.imageId} />
-        </div>
-        <div className={classes.content} style={cardContentStyle}>
-          <Typography variant="title" className={classes.title}>
-            <Link to={url}>{collection.title}</Link>
-          </Typography>
-          <Typography variant="subheading" className={classes.author}>
-            by <UsersName documentId={collection.userId}/>
-          </Typography>
-          <Typography variant="body2" className={classes.text}>
-            {collection.summary}
-          </Typography>
-        </div>
+  return <LinkCard className={classes.root} to={url}>
+    <div className={classes.card}>
+      <div className={classes.media}>
+        <Components.CloudinaryImage publicId={collection.imageId} />
       </div>
-    </LinkCard>
-  }
+      <div className={classes.content} style={cardContentStyle}>
+        <Typography variant="title" className={classes.title}>
+          <Link to={url}>{collection.title}</Link>
+        </Typography>
+        <Typography variant="subheading" className={classes.author}>
+          by <UsersName documentId={collection.userId}/>
+        </Typography>
+        <Typography variant="body2" className={classes.text}>
+          {collection.summary}
+        </Typography>
+      </div>
+    </div>
+  </LinkCard>
 }
 
-registerComponent("BigCollectionsCard", BigCollectionsCard, withStyles(styles, { name: "BigCollectionsCard" }));
+const BigCollectionsCardComponent = registerComponent(
+  "BigCollectionsCard", BigCollectionsCard,
+  withStyles(styles, { name: "BigCollectionsCard" }));
+
+declare global {
+  interface ComponentTypes {
+    BigCollectionsCard: typeof BigCollectionsCardComponent
+  }
+}
