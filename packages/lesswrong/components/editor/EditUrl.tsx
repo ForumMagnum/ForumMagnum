@@ -82,7 +82,6 @@ class EditUrl extends Component<EditUrlProps,EditUrlState> {
               <Input
                 className={classes.innerInput}
                 value={(document && document[path]) || defaultValue || ""}
-                label={label}
                 onChange={this.onChange}
                 placeholder={hintText || placeholder || label}
                 disableUnderline={!active}

@@ -670,7 +670,6 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
           rowsMax={99999}
           fullWidth={true}
           disableUnderline={true}
-          label={label}
         />
       </div>
   }
