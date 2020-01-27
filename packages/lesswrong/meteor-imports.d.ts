@@ -8,10 +8,13 @@ declare module 'meteor/meteor';
 declare module 'meteor/accounts-base';
 declare module 'meteor/practicalmeteor:chai';
 
+type C<T=any> = React.ComponentType<T>
+type HoC<O,T> = (component: C<O>) => C<T>
+
 declare module 'meteor/vulcan:core' {
   export const Components: ComponentTypes;
   
-  export function registerComponent<PropType>(name: string, rawComponent: React.ComponentType<PropType>): rawComponent
+  export function registerComponent<PropType>(name: string, rawComponent: React.ComponentType<PropType>): React.ComponentType<PropType>
   export function registerComponent<PropType, T1>(name: string, rawComponent: React.ComponentType<PropType>, HoC1: HoC<PropType,T1>): C<T1>
   export function registerComponent<PropType, T1, T2>(name: string, rawComponent: React.ComponentType<PropType>, HoC1: HoC<T1, T2>, HoC2: HoC<PropType, T1>):C<T2>
   export function registerComponent<PropType, T1, T2, T3>(name: string, rawComponent: C<PropType>, HoC1: HoC<T2, T3>, HoC2: HoC<T1, T2>, HoC3: HoC<PropType, T1>): C<T3>
