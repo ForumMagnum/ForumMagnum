@@ -6,6 +6,7 @@ import Users from 'meteor/vulcan:users';
 
 registerMigration({
   name: "moveLegacyData",
+  dateWritten: "2019-04-10",
   idempotent: true,
   action: async () => {
     for(let collection of [Comments, Posts, Users])

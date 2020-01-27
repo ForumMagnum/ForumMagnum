@@ -4,6 +4,7 @@ import { getCollection } from 'meteor/vulcan:core'
 
 registerMigration({
   name: "replaceObjectIdsInEditableFieldsAndVotes",
+  dateWritten: "2019-02-04",
   idempotent: true,
   action: async () => {
     for (let collectionName of [...editableCollections, "Revisions", "Votes"]) {

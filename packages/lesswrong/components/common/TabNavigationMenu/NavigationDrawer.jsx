@@ -6,7 +6,8 @@ import classNames from 'classnames';
 
 const styles = theme => ({
   paperWithoutToC: {
-    width: 280
+    width: 280,
+    overflowY: "scroll"
   },
   paperWithToC: {
     width: 280,

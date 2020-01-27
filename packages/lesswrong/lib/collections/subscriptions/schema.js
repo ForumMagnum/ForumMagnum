@@ -1,5 +1,5 @@
 import Users from 'meteor/vulcan:users'
-import { foreignKeyField } from '../../modules/utils/schemaUtils'
+import { foreignKeyField } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils'
 
 export const subscriptionTypes = {
@@ -11,11 +11,6 @@ export const subscriptionTypes = {
 }
 
 const schema = {
-  _id: {
-    optional: true,
-    type: String,
-    canRead: [Users.owns],
-  },
   createdAt: {
     type: Date,
     optional: true,

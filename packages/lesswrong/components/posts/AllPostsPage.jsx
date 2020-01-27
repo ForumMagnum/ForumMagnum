@@ -8,6 +8,7 @@ import Users from 'meteor/vulcan:users';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { getBeforeDefault, getAfterDefault, timeframeToTimeBlock } from './timeframeUtils'
 import withTimezone from '../common/withTimezone';
+import {AnalyticsContext} from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   timeframe: {
@@ -79,14 +80,16 @@ class AllPostsPage extends Component {
     }
 
     if (currentTimeframe === 'allTime') {
-      return <PostsList2
-        terms={{
-          ...baseTerms, 
-          limit: 50
-        }}
-        showHeader={false}
-        dimWhenLoading={showSettings}
-      />
+      return <AnalyticsContext listContext={"allPostsPage"} terms={{view: 'allTime', ...baseTerms}}>
+        <PostsList2
+          terms={{
+            ...baseTerms,
+            limit: 50
+          }}
+          showHeader={false}
+          dimWhenLoading={showSettings}
+        />
+      </AnalyticsContext>
     }
 
     const numTimeBlocks = timeframeToNumTimeBlocks[currentTimeframe]
@@ -102,16 +105,22 @@ class AllPostsPage extends Component {
     }
 
     return <div className={classes.timeframe}>
-      <PostsTimeframeList
-        timeframe={currentTimeframe}
-        postListParameters={postListParameters}
-        numTimeBlocks={numTimeBlocks}
-        dimWhenLoading={showSettings}
-        after={query.after || getAfterDefault({numTimeBlocks, timeBlock, timezone})}
-        before={query.before  || getBeforeDefault({timeBlock, timezone})}
-        reverse={query.reverse === "true"}
-        displayShortform={query.includeShortform !== "false"}
-      />
+      <AnalyticsContext
+        listContext={"allPostsPage"}
+        terms={postListParameters}
+        capturePostItemOnMount
+      >
+        <PostsTimeframeList
+          timeframe={currentTimeframe}
+          postListParameters={postListParameters}
+          numTimeBlocks={numTimeBlocks}
+          dimWhenLoading={showSettings}
+          after={query.after || getAfterDefault({numTimeBlocks, timeBlock, timezone})}
+          before={query.before  || getBeforeDefault({timeBlock, timezone})}
+          reverse={query.reverse === "true"}
+          displayShortform={query.includeShortform !== "false"}
+        />
+      </AnalyticsContext>
     </div>
   }
 
@@ -136,25 +145,27 @@ class AllPostsPage extends Component {
 
     return (
       <React.Fragment>
-        <SingleColumnSection>
-          <Tooltip title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`} placement="top-end">
-            <div className={classes.title} onClick={this.toggleSettings}>
-              <SectionTitle title="All Posts">
-                <SettingsIcon label={`Sorted by ${ sortings[currentSorting] }`}/>
-              </SectionTitle>
-            </div>
-          </Tooltip>
-          <PostsListSettings
-            hidden={!showSettings}
-            currentTimeframe={currentTimeframe}
-            currentSorting={currentSorting}
-            currentFilter={currentFilter}
-            currentShowLowKarma={currentShowLowKarma}
-            persistentSettings
-            showTimeframe
-          />
-          {this.renderPostsList({currentTimeframe, currentSorting, currentFilter, currentShowLowKarma})}
-        </SingleColumnSection>
+        <AnalyticsContext pageContext="allPostsPage">
+          <SingleColumnSection>
+            <Tooltip title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`} placement="top-end">
+              <div className={classes.title} onClick={this.toggleSettings}>
+                <SectionTitle title="All Posts">
+                  <SettingsIcon label={`Sorted by ${ sortings[currentSorting] }`}/>
+                </SectionTitle>
+              </div>
+            </Tooltip>
+            <PostsListSettings
+              hidden={!showSettings}
+              currentTimeframe={currentTimeframe}
+              currentSorting={currentSorting}
+              currentFilter={currentFilter}
+              currentShowLowKarma={currentShowLowKarma}
+              persistentSettings
+              showTimeframe
+            />
+            {this.renderPostsList({currentTimeframe, currentSorting, currentFilter, currentShowLowKarma})}
+          </SingleColumnSection>
+        </AnalyticsContext>
       </React.Fragment>
     )
   }

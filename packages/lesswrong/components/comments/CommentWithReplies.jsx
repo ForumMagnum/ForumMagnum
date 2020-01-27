@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
-import { unflattenComments, addGapIndicators } from '../../lib/modules/utils/unflatten';
+import { unflattenComments, addGapIndicators } from '../../lib/utils/unflatten';
 import withRecordPostView from '../common/withRecordPostView';
 import { withStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -27,7 +27,7 @@ class CommentWithReplies extends PureComponent {
   }
 
   render () {
-    const { classes, comment, refetch } = this.props
+    const { classes, comment, refetch, post: propsPost } = this.props
     const { CommentsNode } = Components
     const { markedAsVisitedAt, maxChildren } = this.state
 
@@ -35,6 +35,7 @@ class CommentWithReplies extends PureComponent {
       return null;
 
     const lastCommentId = comment.latestChildren[0]?._id
+    const post = propsPost || comment.post
 
     const renderedChildren = comment.latestChildren.slice(0, maxChildren)
     const extraChildrenCount = (comment.latestChildren.length > renderedChildren.length) && (comment.latestChildren.length - renderedChildren.length)
@@ -65,7 +66,7 @@ class CommentWithReplies extends PureComponent {
           //eslint-disable-next-line react/no-children-prop
           children={nestedComments}
           key={comment._id}
-          post={comment.post}
+          post={post}
           condensed
           shortform
           refetch={refetch}

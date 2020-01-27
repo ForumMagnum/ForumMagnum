@@ -158,6 +158,14 @@ export function schemaDefaultValue(defaultValue) {
 export function addUniversalFields({ collection, schemaVersion=1 }) {
   collection.addField([
     {
+      fieldName: '_id',
+      fieldSchema: {
+        optional: true,
+        type: String,
+        viewableBy: ['guests'],
+      }
+    },
+    {
       fieldName: 'schemaVersion',
       fieldSchema: {
         type: Number,

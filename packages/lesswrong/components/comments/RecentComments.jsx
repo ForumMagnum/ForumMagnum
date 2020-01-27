@@ -1,19 +1,40 @@
 import React from 'react';
-import { Components, registerComponent, withList, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent, useMulti, withEdit } from 'meteor/vulcan:core';
 import { Comments } from '../../lib/collections/comments';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
+import Typography from '@material-ui/core/Typography';
+import { withStyles } from '@material-ui/core/styles';
 
-const RecentComments = ({results, currentUser, loading, loadMore, networkStatus, updateComment}) => {
-  const loadingMore = networkStatus === 2;
-  if (!loading && results && !results.length) {
-    return (<div>No comments found</div>)
+const styles = theme =>  ({
+  root: {
+    marginTop: theme.spacing.unit*2,
+    [theme.breakpoints.up('sm')]: {
+      margin: theme.spacing.unit*2,
+    }
   }
-  if (loading || !results) {
+})
+
+const RecentComments = ({classes, updateComment, terms, truncated, noResultsMessage="No Comments Found"}) => {
+  const currentUser = useCurrentUser();
+  const { loadingInitial, loadMoreProps, results } = useMulti({
+    terms,
+    collection: Comments,
+    queryName: 'selectCommentsListQuery',
+    fragmentName: 'SelectCommentsList',
+    enableTotal: false,
+    pollInterval: 0,
+    queryLimitName: "recentCommentsLimit",
+    ssr: true
+  });
+  if (!loadingInitial && results && !results.length) {
+    return (<Typography variant="body2">{noResultsMessage}</Typography>)
+  }
+  if (loadingInitial || !results) {
     return <Components.Loading />
   }
   
   return (
-    <div className="recent-comments-list">
+    <div className={classes.root}>
       {results.map(comment =>
         <div key={comment._id}>
           <Components.CommentsNode
@@ -22,25 +43,21 @@ const RecentComments = ({results, currentUser, loading, loadMore, networkStatus,
             post={comment.post}
             updateComment={updateComment}
             showPostTitle
+            startThreadTruncated={truncated}
+            forceNotSingleLine
+            condensed={false}
           />
         </div>
       )}
-      {loadMore && <Components.LoadMore loading={loadingMore || loading} loadMore={loadMore}  />}
+      <Components.LoadMore {...loadMoreProps} />
     </div>
   )
 }
 
 registerComponent('RecentComments', RecentComments,
-  [withList, {
-    collection: Comments,
-    queryName: 'selectCommentsListQuery',
-    fragmentName: 'SelectCommentsList',
-    enableTotal: false,
-    pollInterval: 0,
-  }],
   [withEdit, {
     collection: Comments,
     fragmentName: 'SelectCommentsList',
   }],
-  withUser
+  withStyles(styles, {name:"RecentComments"})
 );

@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "lib": ["es2015", "dom"],
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "strictNullChecks": true,
+    "jsx": "react",
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "downlevelIteration": true
+  },
+  "include": [
+    "packages/lesswrong/**/*.ts",
+    "packages/lesswrong/**/*.tsx"
+  ],
+  "types": [
+      "meteor-typings"
+  ]
+}

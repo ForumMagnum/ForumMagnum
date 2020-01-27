@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import Popover from '@material-ui/core/Popover';
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
+import { withTracking } from '../../lib/analyticsEvents.js';
 
 const styles = theme => ({
   root: {
@@ -27,6 +28,7 @@ class UsersAccountMenu extends PureComponent {
 
   handleClick = (event) => {
     event.preventDefault();
+    this.props.captureEvent("loginButtonClicked", {open: true})
     this.setState({
       open:true,
       anchorEl: event.currentTarget,
@@ -34,6 +36,7 @@ class UsersAccountMenu extends PureComponent {
   };
 
   handleRequestClose = () => {
+    this.props.captureEvent("loginButtonClicked", {open: false})
     this.setState({
       open: false,
     });
@@ -70,4 +73,4 @@ UsersAccountMenu.defaultProps = {
   color: "rgba(0, 0, 0, 0.6)"
 }
 
-registerComponent('UsersAccountMenu', UsersAccountMenu, withStyles(styles, { name: "UsersAccountMenu" }));
+registerComponent('UsersAccountMenu', UsersAccountMenu, withTracking, withStyles(styles, { name: "UsersAccountMenu" }));

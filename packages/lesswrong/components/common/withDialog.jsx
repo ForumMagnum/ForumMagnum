@@ -1,16 +1,19 @@
 import React, { PureComponent } from 'react';
 import { Components } from 'meteor/vulcan:core';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import { hookToHoc } from '../../lib/hocUtils.js';
+import { withTracking } from '../../lib/analyticsEvents.js';
 
 export const OpenDialogContext = React.createContext('openDialog');
 
-export class DialogManager extends PureComponent {
+class DialogManagerComponent extends PureComponent {
   state = {
-    currentDialog: null,
+    componentName: null,
     componentProps: null
   };
-
+  
   closeDialog = () => {
+    this.props.captureEvent("dialogBox", {open: false, dialogName: this.state.componentName})
     this.setState({
       componentName: null,
       componentProps: null
@@ -18,16 +21,19 @@ export class DialogManager extends PureComponent {
   }
 
   render() {
-    const { children } = this.props;
+    const { children, captureEvent } = this.props;
     const { componentName } = this.state;
     const ModalComponent = componentName ? Components[componentName] : null;
 
     return (
       <OpenDialogContext.Provider value={{
-        openDialog: ({componentName, componentProps}) => this.setState({
-          componentName: componentName,
-          componentProps: componentProps
-        }),
+        openDialog: ({componentName, componentProps}) => {
+          captureEvent("dialogBox", {open: true, dialogName: componentName})
+          this.setState({
+            componentName: componentName,
+            componentProps: componentProps
+          })
+        },
         closeDialog: this.closeDialog
       }}>
         {children}
@@ -45,18 +51,7 @@ export class DialogManager extends PureComponent {
   }
 }
 
-// Higher-order component for managing dialogs.
-export default function withDialog(Component) {
-  return function WithDialogComponent(props) {
-    return (
-      <OpenDialogContext.Consumer>
-        {dialogFns =>
-          <Component {...props}
-            openDialog={dialogFns.openDialog}
-            closeDialog={dialogFns.closeDialog}
-          />
-        }
-      </OpenDialogContext.Consumer>
-    );
-  }
-}
+export const DialogManager = withTracking(DialogManagerComponent)
+export const useDialog = () => React.useContext(OpenDialogContext);
+export const withDialog = hookToHoc(useDialog);
+export default withDialog;

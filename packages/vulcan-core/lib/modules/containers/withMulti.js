@@ -34,7 +34,7 @@ Terms object can have the following properties:
 
 */
 
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { graphql, useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
 import {
@@ -46,6 +46,8 @@ import {
 } from 'meteor/vulcan:lib';
 import compose from 'recompose/compose';
 import withState from 'recompose/withState';
+import qs from 'qs';
+import { LocationContext, NavigationContext } from '../components/App'
 
 function getGraphQLQueryFromOptions({
   collectionName, collection, fragmentName, fragment, extraQueries, extraVariables,
@@ -201,7 +203,6 @@ export default function withMulti({
 export function useMulti({
   terms,
   extraVariablesValues,
-  
   pollInterval = getSetting('pollInterval', 0), //LESSWRONG: Polling defaults disabled
   enableTotal = false, //LESSWRONG: enableTotal defaults false
   enableCache = false,
@@ -214,8 +215,14 @@ export function useMulti({
   limit:initialLimit = 10, // Only used as a fallback if terms.limit is not specified
   itemsPerPage = 10,
   skip = false,
+  queryLimitName,
 }) {
-  const [ limit, setLimit ] = useState((terms && terms.limit) || initialLimit);
+  // Since we don't have access to useLocation and useNavigation we have to manually reference context here
+  const { query: locationQuery, location } = useContext(LocationContext);
+  const { history } = useContext(NavigationContext)
+
+  const defaultLimit = ((locationQuery && parseInt(locationQuery[queryLimitName])) || (terms && terms.limit) || initialLimit)
+  const [ limit, setLimit ] = useState(defaultLimit);
   const [ hasRequestedMore, setHasRequestedMore ] = useState(false);
   
   ({ collectionName, collection } = extractCollectionInfo({ collectionName, collection }));
@@ -251,9 +258,14 @@ export function useMulti({
   // if showLoadMore returned true.
   const showLoadMore = enableTotal ? (count < totalCount) : (count >= limit);
   
-  const loadMore = () => {
+  const loadMore = (limitOverride) => {
     setHasRequestedMore(true);
-    setLimit(limit+itemsPerPage);
+    const newLimit = limitOverride || (limit+itemsPerPage)
+    setLimit(newLimit);
+    if (queryLimitName) {
+      const newQuery = {...locationQuery, [queryLimitName]: newLimit}
+      history.push({...location, search: `?${qs.stringify(newQuery)}`})
+    }
   };
   
   // A bundle of props that you can pass to Components.LoadMore, to make

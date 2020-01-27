@@ -2,7 +2,7 @@ import React from 'react'
 import { withStyles } from '@material-ui/core/styles';
 import { registerComponent } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
-import { Link } from 'react-router-dom';
+import { Link } from '../../../lib/reactRouterWrapper.jsx';
 import { Posts } from '../../../lib/collections/posts';
 
 const styles = theme => ({
@@ -22,7 +22,6 @@ const styles = theme => ({
   question: {
     color: theme.palette.grey[600],
     display: "block",
-    marginTop: "1em"
   }
 })
 

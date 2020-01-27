@@ -2,7 +2,7 @@ import { Comments } from "./collection";
 import Users from "meteor/vulcan:users";
 import { makeEditable } from '../../editor/make_editable.js'
 import { Posts } from '../posts';
-import { foreignKeyField, addFieldsDict, denormalizedCountOfReferences } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, addFieldsDict, denormalizedCountOfReferences } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 
 export const moderationOptionsGroup = {

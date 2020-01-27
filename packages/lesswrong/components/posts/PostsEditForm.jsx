@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, getFragment, withMessages, withDocument } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment, withDocument } from 'meteor/vulcan:core';
+import { withMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
 import { withLocation, withNavigation } from '../../lib/routeUtil'
 import { withStyles } from '@material-ui/core/styles';

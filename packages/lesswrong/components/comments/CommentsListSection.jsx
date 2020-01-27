@@ -13,6 +13,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import withUser from '../common/withUser';
 
+export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
+
 const styles = theme => ({
   root: {
     fontWeight: 400,
@@ -32,7 +34,7 @@ const styles = theme => ({
   newComment: {
     border: 'solid 1px rgba(0,0,0,.2)',
     position: 'relative',
-    marginBottom: "1.3em",
+    marginBottom: NEW_COMMENT_MARGIN_BOTTOM,
     "@media print": {
       display: "none"
     }
@@ -78,6 +80,7 @@ class CommentsListSection extends Component {
     const { anchorEl, highlightDate } = this.state
     const { CommentsListMeta } = Components
     const suggestedHighlightDates = [moment().subtract(1, 'day'), moment().subtract(1, 'week'), moment().subtract(1, 'month'), moment().subtract(1, 'year')]
+    const newLimit = commentCount + (loadMoreCount || commentCount)
     return <CommentsListMeta>
       <Typography
         variant="body2"
@@ -88,7 +91,7 @@ class CommentsListSection extends Component {
           (commentCount < totalComments) ?
             <span>
               Rendering {commentCount}/{totalComments} comments, sorted by <Components.CommentsViews post={this.props.post} />
-              {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments({limit: commentCount + (loadMoreCount || commentCount)})}> (show more) </a>}
+              {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments(newLimit)}> (show more) </a>}
             </span> :
             <span>
               { totalComments } comments, sorted by <Components.CommentsViews post={this.props.post} />

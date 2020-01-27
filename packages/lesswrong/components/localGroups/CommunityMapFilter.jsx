@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import Paper from '@material-ui/core/Paper';
-import { withLocation, withNavigation } from '../../lib/routeUtil.js';
-import { registerComponent, withUpdate, withMessages } from 'meteor/vulcan:core';
+import { withLocation, withNavigation } from '../../lib/routeUtil';
+import { registerComponent, withUpdate } from 'meteor/vulcan:core';
+import { withMessages } from '../common/withMessages';
 import { groupTypes } from '../../lib/collections/localgroups/groupTypes';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames'

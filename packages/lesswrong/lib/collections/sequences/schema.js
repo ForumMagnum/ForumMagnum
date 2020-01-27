@@ -1,15 +1,9 @@
-import { foreignKeyField } from '../../modules/utils/schemaUtils'
+import { foreignKeyField } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 
 const schema = {
 
   // default properties
-
-  _id: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-  },
 
   createdAt: {
     type: Date,

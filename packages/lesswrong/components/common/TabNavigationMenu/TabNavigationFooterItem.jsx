@@ -1,8 +1,8 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { Link } from '../../../lib/reactRouterWrapper.js';
-import { useLocation } from '../../../lib/routeUtil.js';
+import { Link } from '../../../lib/reactRouterWrapper.jsx';
+import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 

@@ -1,4 +1,4 @@
-import { foreignKeyField, arrayOfForeignKeysField } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, arrayOfForeignKeysField } from '../../utils/schemaUtils'
 
 export const formGroups = {
   chapterDetails: {
@@ -10,12 +10,6 @@ export const formGroups = {
 }
 
 const schema = {
-  _id: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-  },
-
   createdAt: {
     type: Date,
     optional: true,

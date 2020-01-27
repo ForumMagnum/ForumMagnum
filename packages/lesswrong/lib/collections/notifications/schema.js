@@ -2,11 +2,6 @@ import Users from 'meteor/vulcan:users';
 import { schemaDefaultValue } from '../../collectionUtils';
 
 const schema = {
-  _id: {
-    optional: true,
-    type: String,
-    viewableBy: Users.owns,
-  },
   userId: {
     type: String,
     foreignKey: "Users",

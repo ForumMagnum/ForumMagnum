@@ -16,7 +16,7 @@ const recommendationAlgorithms = [
   {
     name: "sample",
     description: "Weighted sample"
-  },
+  }
 ];
 
 function getDefaultSettings(configName) {
@@ -77,12 +77,23 @@ const RecommendationsAlgorithmPicker = ({ currentUser, settings, configName, upd
         onChange={(ev, checked) => applyChange({ ...settings, hideBookmarks: !checked })}
       /> Show Bookmarks on home page
     </div>}
+
+    {/* disabled except during review */}
+    {/* {(configName === "frontpage") && <div> 
+      <Checkbox
+        checked={!settings.hideReview}
+        onChange={(ev, checked) => applyChange({ ...settings, hideReview: !checked })}
+      /> Show 'The LessWrong 2018 Review'
+    </div>} */}
+
+    {/* disabled during 2018 Review */}
     {(configName === "frontpage") && <div> 
       <Checkbox
         checked={!settings.hideFrontpage}
         onChange={(ev, checked) => applyChange({ ...settings, hideFrontpage: !checked })}
       /> Show 'From the Archives' recommendations
     </div>}
+
     <div>
       <Checkbox
         disabled={!currentUser}
@@ -90,6 +101,7 @@ const RecommendationsAlgorithmPicker = ({ currentUser, settings, configName, upd
         onChange={(ev, checked) => applyChange({ ...settings, onlyUnread: checked })}
       /> Only show unread posts {!currentUser && "(Requires login)"}
     </div>
+
     {/* Include personal blogposts (LW) or meta (EA Forum) */}
     <div>
       <Checkbox

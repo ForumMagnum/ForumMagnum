@@ -149,6 +149,13 @@ const baseBodyStyles = theme => ({
     fontSize: '65%',
     position: 'relative'
   },
+  '& sub': {
+    fontSize: '70%',
+    verticalAlign: 'baseline', // We use vertical align baseline to prevent sub-aligned text from changing the line-height, which looks ugly
+    position: 'relative',
+    top: '0.2em',
+    paddingRight: '0.07em'
+  },
   '& a, & a:hover, & a:active': {
     color: theme.palette.primary.main,
     '& u': {
@@ -250,7 +257,10 @@ export const commentBodyStyles = theme => {
   return deepmerge(postBodyStyles(theme), commentBodyStyles, {isMergeableObject:isPlainObject})
 }
 
-// Currently emails have only the basics
+// FIXME: Emails currently don't use this, because the expectations around font size and
+// typography are very different in an email. But some subset of these styles should
+// actually be applied, eg spoiler-tag handling, even though font selection shouldn't
+// be.
 export const emailBodyStyles = baseBodyStyles
 
 export const postHighlightStyles = theme => {
@@ -281,10 +291,10 @@ export const postHighlightStyles = theme => {
 export const pBodyStyle = {
   marginTop: "1em",
   marginBottom: "1em",
-  '&:first-of-type': {
+  '&:first-child': {
     marginTop: 0,
   },
-  '&:last-of-type': {
+  '&:last-child': {
     marginBottom: 0,
   }
 }
@@ -299,6 +309,9 @@ export const ckEditorStyles = theme => {
       '& blockquote': {
         fontStyle: "unset",
         ...theme.typography.blockquote,
+        '& p': {
+          ...pBodyStyle,
+        },
         '& .public-DraftStyleDefault-block': {
           marginTop: 0,
           marginBottom: 0,

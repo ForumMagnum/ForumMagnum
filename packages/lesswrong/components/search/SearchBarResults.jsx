@@ -3,7 +3,7 @@ import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import { Hits, Configure, Index, CurrentRefinements } from 'react-instantsearch-dom';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
-import { algoliaIndexNames } from '../../lib/algoliaIndexNames.js';
+import { algoliaIndexNames } from '../../lib/algoliaUtil';
 
 const styles = theme => ({
   root: {

@@ -12,6 +12,7 @@ import Search from '@material-ui/icons/Search'
 import Group from '@material-ui/icons/Group'
 import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info'
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 const EventsList = ({currentUser, onClick}) => {
   const { TabNavigationEventsList } = Components
@@ -35,7 +36,9 @@ const EventsList = ({currentUser, onClick}) => {
     }
   }
   return <span>
-    <TabNavigationEventsList onClick={onClick} terms={eventsListTerms} />
+    <AnalyticsContext pageSubSectionContext="menuEventsList">
+      <TabNavigationEventsList onClick={onClick} terms={eventsListTerms} />
+    </AnalyticsContext>
   </span>
 }
 
@@ -82,7 +85,7 @@ export default {
       tooltip: <div>
         <div>• Ask simple newbie questions.</div>
         <div>• Collaborate on open research questions.</div>
-        <div>• Pose and resolve confusions.</div>
+        <div>• Pose and resolve confusions.</div>
       </div>,
       showOnMobileStandalone: true,
       showOnCompressed: true,
@@ -144,16 +147,6 @@ export default {
       id: 'divider',
       divider: true,
       showOnCompressed: true,
-    }, {
-      id: 'shortform',
-      title: 'Shortform [Beta]',
-      link: '/shortform',
-      subItem: true,
-    }, {
-      id: 'meta',
-      title: 'Meta',
-      link: '/meta',
-      subItem: true,
     }, {
       id: 'about',
       title: 'About',

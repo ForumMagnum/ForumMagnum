@@ -13,30 +13,21 @@ const styles = (theme) => ({
     marginRight: theme.spacing.unit*1.5,
     marginLeft: theme.spacing.unit,
     color: theme.palette.lwTertiary.main,
-    [theme.breakpoints.down('xs')]: {
-      flexWrap: "wrap"
-    },
+    flexWrap: "wrap",
     '& > *': {
-      [theme.breakpoints.down('xs')]: {
-        width: "100%",
-        textAlign: "right",
-        paddingTop: theme.spacing.unit,
-        paddingBottom: theme.spacing.unit
+      marginBottom: theme.spacing.unit,
+      '&:after': {
+        content: '"•"',
+        marginLeft: theme.spacing.unit*2,
+        marginRight: theme.spacing.unit*2,
       },
-      [theme.breakpoints.up('sm')]: {
+      // Each child of the sectionFooter has a bullet divider, except for the last one.
+      '&:last-child': {
         '&:after': {
-          content: '"•"',
-          marginLeft: theme.spacing.unit*2,
-          marginRight: theme.spacing.unit*2,
-        },
-        // Each child of the sectionFooter has a bullet divider, except for the last one.
-        '&:last-child': {
-          '&:after': {
-            content: '""',
-            margin:0,
-          }
-        },
-      }
+          content: '""',
+          margin:0,
+        }
+      },
     }
   }
 })

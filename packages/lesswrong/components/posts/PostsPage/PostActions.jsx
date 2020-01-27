@@ -6,7 +6,7 @@ import withUser from '../../common/withUser'
 import { Posts } from '../../../lib/collections/posts';
 import withSetAlignmentPost from "../../alignment-forum/withSetAlignmentPost";
 import MenuItem from '@material-ui/core/MenuItem';
-import { Link } from '../../../lib/reactRouterWrapper.js';
+import { Link } from '../../../lib/reactRouterWrapper.jsx';
 import Tooltip from '@material-ui/core/Tooltip';
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import EditIcon from '@material-ui/icons/Edit'
@@ -129,12 +129,11 @@ class PostActions extends Component {
 
   render() {
     const { classes, post, currentUser } = this.props
-    const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo, NominatePostMenuItem } = Components
+    const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo } = Components
     const postAuthor = post.user;
     
     return (
       <div className={classes.actions}>
-        <NominatePostMenuItem post={post} />
         { Posts.canEdit(currentUser,post) && <Link to={{pathname:'/editPost', search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`}}>
           <MenuItem>
             <ListItemIcon>
@@ -172,6 +171,7 @@ class PostActions extends Component {
         </MenuItem>}
 
         <BookmarkButton post={post} menuItem/>
+
         <ReportPostMenuItem post={post}/>
         { post.isRead
           ? <div onClick={this.handleMarkAsUnread}>
@@ -192,10 +192,9 @@ class PostActions extends Component {
           <span>
             { !post.meta &&
               <div onClick={this.handleMoveToMeta}>
-                <Tooltip title={
+                <Tooltip placement="left" title={
                   getSetting('forumType') === 'EAForum' && post.submitToFrontpage ?
-                    '' :
-                    'user did not select "Moderators may promote to Frontpage" option'
+                    'user did not select "Moderators may promote to Frontpage" option':''
                 }>
                   <MenuItem>
                     Move to {metaName}
@@ -206,7 +205,7 @@ class PostActions extends Component {
             }
             { !post.frontpageDate &&
               <div onClick={this.handleMoveToFrontpage}>
-                <Tooltip title={
+                <Tooltip placement="left" title={
                   post.submitToFrontpage ?
                     '' :
                     'user did not select "Moderators may promote to Frontpage" option'
