@@ -116,9 +116,6 @@ registerFragment(`
     ...PostsBase
     ...PostsAuthors
 
-    # ToC
-    tableOfContents
-
     # Sort settings
     commentSortOrder
     
@@ -216,6 +213,8 @@ registerFragment(`
   fragment PostsWithNavigationAndRevision on Post {
     ...PostsRevision
     ...PostSequenceNavigation
+    
+    tableOfContentsRevision(version: $version)
   }
 `)
 
@@ -223,6 +222,8 @@ registerFragment(`
   fragment PostsWithNavigation on Post {
     ...PostsPage
     ...PostSequenceNavigation
+    
+    tableOfContents
   }
 `)
 

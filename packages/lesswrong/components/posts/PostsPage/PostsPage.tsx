@@ -295,7 +295,7 @@ class PostsPage extends Component<PostsPageProps> {
       const description = plaintextDescription ? plaintextDescription : (markdown && markdown.substring(0, 300))
       const commentTerms = _.isEmpty(query.view) ? {view: view, limit: 500} : {...query, limit:500}
       const sequenceId = this.getSequenceId();
-      const sectionData = post.tableOfContents;
+      const sectionData = post.tableOfContentsRevision || post.tableOfContents;
       const htmlWithAnchors = (sectionData && sectionData.html) ? sectionData.html : html
       const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
       const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;

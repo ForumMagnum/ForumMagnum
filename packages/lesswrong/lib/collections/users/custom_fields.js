@@ -921,6 +921,24 @@ addFieldsDict(Users, {
     label: "Hide the frontpage map"
   },
 
+  needsReview: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    hidden: true,
+    optional: true,
+    ...schemaDefaultValue(false),
+  },
+
+  sunshineSnoozed: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    hidden: true,
+    optional: true,
+    ...schemaDefaultValue(false),
+  },
+
   // Set after a moderator has approved or purged a new user. NB: reviewed does
   // not imply approval, the user might have been banned
   reviewedByUserId: {

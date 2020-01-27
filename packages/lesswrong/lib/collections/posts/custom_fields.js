@@ -902,18 +902,24 @@ addFieldsDict(Posts, {
     ...schemaDefaultValue(false),
   },
 
-  tableOfContents: {
+  tableOfContents: resolverOnlyField({
     type: Object,
-    optional: true,
     viewableBy: ['guests'],
-    resolveAs: {
-      fieldName: "tableOfContents",
-      type: GraphQLJSON,
-      resolver: async (document, args, options) => {
-        return await Utils.getTableOfContentsData(document);
-      },
+    graphQLtype: GraphQLJSON,
+    resolver: async (document, args, { currentUser }) => {
+      return await Utils.getTableOfContentsData({document, version: null, currentUser});
     },
-  },
+  }),
+
+  tableOfContentsRevision: resolverOnlyField({
+    type: Object,
+    viewableBy: ['guests'],
+    graphQLtype: GraphQLJSON,
+    graphqlArguments: 'version: String',
+    resolver: async (document, { version=null }, { currentUser }) => {
+      return await Utils.getTableOfContentsData({document, version, currentUser});
+    },
+  }),
 
   // GraphQL only field that resolves based on whether the current user has closed
   // this posts author's moderation guidelines in the past
