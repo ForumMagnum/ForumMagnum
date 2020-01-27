@@ -73,7 +73,6 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
     <div ref={sidebarRef} className={classes.sidebar} onClick={(e) => e.preventDefault()}/>
 
     {layoutReady && <CKEditor
-      data={initData}
       onChange={onChange}
       editor={ collaboration ? PostEditorCollaboration : PostEditor }
       onInit={ editor => {

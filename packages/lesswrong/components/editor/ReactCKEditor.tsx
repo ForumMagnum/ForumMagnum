@@ -67,7 +67,7 @@ export default class CKEditor extends React.Component<CKEditorProps,{}> {
     // is a bad practice because it initializes the data after every new connection (in case of collaboration usage).
     // It leads to reset the entire content. See: #68
     return (
-      <div ref={ this.domContainer } dangerouslySetInnerHTML={ { __html: this.props.data || '' } }></div>
+      <div ref={ this.domContainer } ></div>
     );
   }
     

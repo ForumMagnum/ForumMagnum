@@ -620,7 +620,6 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
     const { Loading } = Components
     const CKEditor = this.ckEditor
     const value = ckEditorValue || ckEditorReference?.getData()
-  
     if (!this.state.ckEditorLoaded || !CKEditor) {
       return <Loading />
     } else {
@@ -681,13 +680,13 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
 
     return <div>
         { this.renderPlaceholder(showPlaceholder, false) }
-        <EditorForm
+        {draftJSValue && <EditorForm
           isClient={Meteor.isClient}
           editorState={draftJSValue}
           onChange={this.setDraftJS}
           commentEditor={form?.commentEditor}
           className={classNames(this.getBodyStyles(), this.getHeightClass(), this.getMaxHeightClass(), {[classes.questionWidth]: document.question})}
-        />
+        />}
       </div>
   }
 
