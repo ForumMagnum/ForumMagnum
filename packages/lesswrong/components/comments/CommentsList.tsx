@@ -48,7 +48,7 @@ interface CommentsListState {
 }
 
 class CommentsList extends Component<CommentsListProps,CommentsListState> {
-  state = { expandAllThreads: false }
+  state: CommentsListState = { expandAllThreads: false }
 
   handleKeyDown = (event) => {
     const F_Key = 70
@@ -184,13 +184,15 @@ class CommentsList extends Component<CommentsListProps,CommentsListState> {
   }
 }
 
-const withEditOptions = {
-  collection: Comments,
-  fragmentName: 'CommentsList',
-};
 
-
-const CommentsListComponent = registerComponent('CommentsList', CommentsList, [withUpdate, withEditOptions], withGlobalKeydown, withStyles(styles, {name:"CommentsList"}));
+const CommentsListComponent = registerComponent(
+  'CommentsList', CommentsList,
+  withUpdate({
+    collection: Comments,
+    fragmentName: 'CommentsList',
+  }),
+  withGlobalKeydown, withStyles(styles, {name:"CommentsList"})
+);
 
 declare global {
   interface ComponentTypes {

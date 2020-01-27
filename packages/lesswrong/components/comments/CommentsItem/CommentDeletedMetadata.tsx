@@ -1,5 +1,5 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withSingle } from '../../../lib/crud/withSingle';
+import { useSingle } from '../../../lib/crud/withSingle';
 import React from 'react';
 import { Comments } from '../../../lib/collections/comments';
 import { withStyles, createStyles } from '@material-ui/core/styles';
@@ -15,7 +15,15 @@ const styles = createStyles(theme => ({
   },
 }));
 
-const CommentDeletedMetadata = ({document, classes}) => {
+const CommentDeletedMetadata = ({documentId, classes}: {
+  documentId: string,
+  classes: any,
+}) => {
+  const { document } = useSingle({
+    documentId,
+    collection: Comments,
+    fragmentName: 'DeletedCommentsMetaData',
+  });
   if (document && document.deleted) {
     const deletedByUsername = document.deletedByUser && document.deletedByUser.displayName;
     return (
@@ -37,16 +45,9 @@ const CommentDeletedMetadata = ({document, classes}) => {
   }
 };
 
-const options = {
-  collection: Comments,
-  queryName: 'CommentsDeletedMetadataQuery',
-  fragmentName: 'DeletedCommentsMetaData',
-};
-
 const CommentDeletedMetadataComponent = registerComponent(
   'CommentDeletedMetadata', CommentDeletedMetadata,
   withStyles(styles, {name: "CommentDeletedMetadata"}),
-  [withSingle, options]
 );
 
 declare global {

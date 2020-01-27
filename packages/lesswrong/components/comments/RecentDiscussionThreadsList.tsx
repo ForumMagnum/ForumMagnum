@@ -11,6 +11,13 @@ import { useGlobalKeydown } from '../common/withGlobalKeydown';
 const RecentDiscussionThreadsList = ({
   terms, commentsLimit, maxAgeHours, af,
   title="Recent Discussion", shortformButton=true
+}: {
+  terms: any,
+  commentsLimit?: number,
+  maxAgeHours?: number,
+  af?: boolean,
+  title?: string,
+  shortformButton?: boolean,
 }) => {
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   const [showShortformFeed, setShowShortformFeed] = useState(false);

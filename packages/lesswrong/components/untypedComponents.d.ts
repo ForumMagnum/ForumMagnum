@@ -14,7 +14,6 @@ interface ComponentTypes {
   NewConversationButton: any
   newFeedButton: any
   editFeedButton: any
-  LWTooltip: any
   NotificationsMenu: any
   NotificationsList: any
   NotificationsItem: any
@@ -33,11 +32,8 @@ interface ComponentTypes {
   PostLinkPreviewWithPost: any
   PostCommentLinkPreviewGreaterWrong: any
   DefaultPreview: any
-  ViewSubscriptionsPage: any
-  WrappedLoginForm: any
   OmegaIcon: any
   SettingsIcon: any
-  PostsPreviewTooltip: any
   UserPageTitle: any
   SequencesPageTitle: any
   PostsPageHeaderTitle: any
@@ -70,29 +66,6 @@ interface ComponentTypes {
   LocalGroupsItem: any
   AllGroupsPage: any
   GroupFormDialog: any
-  CommentsItem: any
-  CommentUserName: any
-  RetractCommentMenuItem: any
-  MoveToAnswersMenuItem: any
-  CommentsPermalinkMenuItem: any
-  CommentShortformIcon: any
-  BanUserFromPostMenuItem: any
-  BanUserFromAllPostsMenuItem: any
-  BanUserFromAllPersonalPostsMenuItem: any
-  DeleteCommentMenuItem: any
-  DeleteCommentDialog: any
-  EditCommentMenuItem: any
-  ReportCommentMenuItem: any
-  MoveToAlignmentMenuItem: any
-  SuggestAlignmentMenuItem: any
-  SubscribeToCommentMenuItem: any
-  CommentDeletedMetadata: any
-  CommentBody: any
-  CommentsMenu: any
-  CommentOutdatedWarning: any
-  CommentsItemDate: any
-  ToggleIsModeratorComment: any
-  CommentPermalink: any
   ModerationGuidelinesBox: any
   ModerationGuidelinesEditForm: any
   PostsListEditorSearchHit: any

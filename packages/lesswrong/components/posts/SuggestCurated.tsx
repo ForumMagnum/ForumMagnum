@@ -72,10 +72,10 @@ class SuggestCurated extends Component<SuggestCuratedProps> {
 const SuggestCuratedComponent = registerComponent(
   'SuggestCurated',
   SuggestCurated,
-  [withUpdate, {
+  withUpdate({
     collection: Posts,
     fragmentName: 'PostsList',
-  }],
+  }),
   withUser
 );
 

@@ -14,7 +14,11 @@ const styles = createStyles((theme) => ({
   }
 }))
 
-const SingleColumnSection = ({classes, className, children}) => {
+const SingleColumnSection = ({classes, className, children}: {
+  classes: any,
+  className?: string,
+  children?: any,
+}) => {
 
   return (
     <Components.ErrorBoundary>

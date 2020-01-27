@@ -277,15 +277,14 @@ class KarmaChangeNotifier extends PureComponent<KarmaChangeNotifierProps,KarmaCh
 
 const KarmaChangeNotifierComponent = registerComponent('KarmaChangeNotifier', KarmaChangeNotifier,
   withUser, withErrorBoundary,
-  [withSingle, {
+  withSingle({
     collection: Users,
-    queryName: 'UserKarmaChangesQuery',
     fragmentName: 'UserKarmaChanges'
-  }],
-  [withUpdate, {
+  }),
+  withUpdate({
     collection: Users,
     fragmentName: 'UsersCurrent',
-  }],
+  }),
   withStyles(styles, {name: 'KarmaChangeNotifier'}),
   withTracking
 );

@@ -2,7 +2,11 @@ import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { Image } from 'cloudinary-react';
 
-const CloudinaryImage = ({width, height, publicId}) => {
+const CloudinaryImage = ({width, height, publicId}: {
+  width?: number,
+  height?: number,
+  publicId: string,
+}) => {
   const cloudinaryCloudName = getSetting('cloudinary.cloudName', 'lesswrong-2-0')
   
   let sizeProps: any = {};

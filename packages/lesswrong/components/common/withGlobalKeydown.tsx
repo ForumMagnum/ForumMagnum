@@ -8,7 +8,7 @@ interface ListeningComponentState {
 
 const withGlobalKeydown = (WrappedComponent) => {
   return class ListeningComponent extends Component<any,ListeningComponentState> {
-    state = { eventListeners: []}
+    state: ListeningComponentState = { eventListeners: []}
 
     shouldComponentUpdate(nextProps, nextState) {
       // Don't update in response to state change (the only state is

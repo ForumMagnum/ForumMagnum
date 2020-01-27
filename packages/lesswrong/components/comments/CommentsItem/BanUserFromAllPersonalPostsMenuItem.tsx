@@ -43,13 +43,15 @@ class BanUserFromAllPersonalPostsMenuItem extends PureComponent<BanUserFromAllPe
   }
 }
 
-const withUpdateOptions = {
-  collection: Users,
-  fragmentName: 'UsersProfile',
-};
-
-
-const BanUserFromAllPersonalPostsMenuItemComponent = registerComponent('BanUserFromAllPersonalPostsMenuItem', BanUserFromAllPersonalPostsMenuItem, withMessages, [withUpdate, withUpdateOptions], withUser);
+const BanUserFromAllPersonalPostsMenuItemComponent = registerComponent(
+  'BanUserFromAllPersonalPostsMenuItem', BanUserFromAllPersonalPostsMenuItem,
+  withMessages,
+  withUpdate({
+    collection: Users,
+    fragmentName: 'UsersProfile',
+  }),
+  withUser
+);
 
 declare global {
   interface ComponentTypes {

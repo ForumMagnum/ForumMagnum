@@ -16,7 +16,11 @@ const styles = createStyles((theme) => ({
   }
 }))
 
-const SectionButton = ({children, classes, className}) => {
+const SectionButton = ({children, classes, className}: {
+  children?: any,
+  classes: any,
+  className?: string,
+}) => {
   return <Typography component='span' variant='body2' className={classNames(classes.root, className)}>
     {children}
   </Typography>

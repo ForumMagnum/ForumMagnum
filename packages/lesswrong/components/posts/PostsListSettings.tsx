@@ -274,12 +274,14 @@ class PostsListSettings extends Component<PostsListSettingsProps> {
   currentUser: PropTypes.object,
 };
 
-const withUpdateOptions = {
-  collection: Users,
-  fragmentName: 'UsersCurrent',
-}
-
-const PostsListSettingsComponent = registerComponent('PostsListSettings', PostsListSettings, withUser, withStyles(styles, {name:"PostsListSettings"}), [withUpdate, withUpdateOptions]);
+const PostsListSettingsComponent = registerComponent(
+  'PostsListSettings', PostsListSettings,
+  withUser, withStyles(styles, {name:"PostsListSettings"}),
+  withUpdate({
+    collection: Users,
+    fragmentName: 'UsersCurrent',
+  })
+);
 
 declare global {
   interface ComponentTypes {

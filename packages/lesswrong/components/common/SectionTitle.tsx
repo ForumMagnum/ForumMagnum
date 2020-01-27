@@ -58,7 +58,13 @@ const styles = createStyles((theme) => ({
   },
 }))
 
-const SectionTitle = ({children, classes, className, title, dividers=true}) => {
+const SectionTitle = ({children, classes, className, title, dividers=true}: {
+  children?: any,
+  classes: any,
+  className?: string,
+  title: any,
+  dividers?: boolean,
+}) => {
   return (
     <div className={classes.root}>
       { dividers && title && <div className={classes.leftDivider}/>}

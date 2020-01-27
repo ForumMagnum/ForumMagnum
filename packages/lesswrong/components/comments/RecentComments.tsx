@@ -56,10 +56,10 @@ const RecentComments = ({classes, updateComment, terms, truncated, noResultsMess
 }
 
 const RecentCommentsComponent = registerComponent('RecentComments', RecentComments,
-  [withUpdate, {
+  withUpdate({
     collection: Comments,
     fragmentName: 'SelectCommentsList',
-  }],
+  }),
   withStyles(styles, {name:"RecentComments"})
 );
 

@@ -330,7 +330,7 @@ const SubscribeDialogComponent = registerComponent("SubscribeDialog", SubscribeD
   withMobileDialog(),
   withUser,
   withTracking,
-  [withUpdate, withUpdateOptions],
+  withUpdate(withUpdateOptions),
   withStyles(styles, { name: "SubscribeDialog" }));
 
 declare global {

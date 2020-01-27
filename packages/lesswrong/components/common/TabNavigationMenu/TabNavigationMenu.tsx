@@ -26,7 +26,10 @@ const styles = createStyles((theme) => {
   }
 })
 
-const TabNavigationMenu = ({onClickSection, classes}) => {
+const TabNavigationMenu = ({onClickSection, classes}: {
+  onClickSection?: any,
+  classes: any,
+}) => {
   const currentUser = useCurrentUser();
   const { TabNavigationItem } = Components
   const customComponentProps = {currentUser}

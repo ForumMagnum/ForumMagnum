@@ -295,14 +295,15 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   }
 }
 
-const withUpdateOptions = {
-  collection: Users,
-  fragmentName: 'UsersCurrent',
-}
-
 const LayoutComponent = registerComponent(
-  'Layout', Layout, withLocation, withCookies, [withUpdate, withUpdateOptions],
-    withStyles(styles, { name: "Layout" }), withTheme()
+  'Layout', Layout,
+  withLocation, withCookies,
+  withUpdate({
+    collection: Users,
+    fragmentName: 'UsersCurrent',
+  }),
+  withStyles(styles, { name: "Layout" }),
+  withTheme()
 );
 
 declare global {

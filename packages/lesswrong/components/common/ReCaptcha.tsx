@@ -27,11 +27,11 @@ const isReady = () =>
 let readyCheck
 
 interface ReCaptchaProps {
-  elementID: any,
-  sitekey: any,
-  verifyCallback: any,
-  verifyCallbackName: any,
-  action: any,
+  elementID?: string,
+  verifyCallbackName?: string,
+  verifyCallback: (string)=>void,
+  sitekey?: string,
+  action: string,
 }
 interface ReCaptchaState {
   ready: boolean,

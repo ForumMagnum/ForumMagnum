@@ -2,9 +2,13 @@ import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
 import React, { Component } from 'react';
 
-class WrappedLoginForm extends Component
+interface WrappedLoginFormState {
+  reCaptchaToken: any
+}
+
+class WrappedLoginForm extends Component<any,WrappedLoginFormState>
 {
-  state = {
+  state: WrappedLoginFormState = {
     reCaptchaToken: null
   };
   

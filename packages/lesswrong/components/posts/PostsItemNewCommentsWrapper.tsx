@@ -48,18 +48,15 @@ const PostsItemNewCommentsWrapper = ({ classes, title, loading, results, current
   }
 };
 
-const options = {
-  collection: Comments,
-  queryName: 'PostsItemNewCommentsThreadQuery',
-  fragmentName: 'CommentsList',
-  fetchPolicy: 'cache-and-network',
-  limit: 5,
-  // enableTotal: false,
-};
-
 const PostsItemNewCommentsWrapperComponent = registerComponent(
   'PostsItemNewCommentsWrapper', PostsItemNewCommentsWrapper,
-  [withMulti, options],
+  withMulti({
+    collection: Comments,
+    fragmentName: 'CommentsList',
+    fetchPolicy: 'cache-and-network',
+    limit: 5,
+    // enableTotal: false,
+  }),
   withStyles(styles, {name:"PostsItemNewCommentsWrapper"}));
 
 declare global {

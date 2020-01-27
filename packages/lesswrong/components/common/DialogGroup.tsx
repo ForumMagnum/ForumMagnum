@@ -7,11 +7,11 @@ import Button from '@material-ui/core/Button';
 import { registerComponent } from 'meteor/vulcan:core';
 
 interface DialogGroupProps {
-  title: string,
+  title?: string,
   trigger: any,
-  children: any,
   actions: Array<any>,
-  open: boolean,
+  open?: boolean,
+  children?: any,
 }
 interface DialogGroupState {
   open: boolean,
@@ -23,7 +23,7 @@ class DialogGroup extends Component<DialogGroupProps,DialogGroupState> {
   constructor(props: DialogGroupProps) {
     super(props);
     this.state = {
-      open: props.open,
+      open: !!props.open,
     };
   }
 

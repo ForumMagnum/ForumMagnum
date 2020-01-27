@@ -2,7 +2,13 @@ import { registerComponent } from 'meteor/vulcan:core';
 import React, { useEffect, useCallback } from 'react';
 import { useIsInView, useTracking } from "../../lib/analyticsEvents";
 
-const AnalyticsInViewTracker = ({eventType, eventProps, observerProps, children, skip}) => {
+const AnalyticsInViewTracker = ({eventType, eventProps, observerProps, children, skip}: {
+  eventType?: string,
+  eventProps?: Record<string,any>,
+  observerProps?: Record<string,any>,
+  children?: any,
+  skip?: boolean,
+}) => {
   const { setNode, entry } = useIsInView(observerProps)
 
   const captureInViewEvent = useCallback(

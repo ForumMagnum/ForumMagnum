@@ -35,15 +35,13 @@ class MoveToDraft extends Component<MoveToDraftProps> {
   }
 }
 
-const withUpdateOptions = {
-  collection: Posts,
-  fragmentName: 'PostsList',
-}
-
 const MoveToDraftComponent = registerComponent(
   'MoveToDraft',
   MoveToDraft,
-  [withUpdate, withUpdateOptions],
+  withUpdate({
+    collection: Posts,
+    fragmentName: 'PostsList',
+  }),
   withUser
 );
 

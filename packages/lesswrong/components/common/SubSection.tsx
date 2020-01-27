@@ -9,7 +9,11 @@ const styles = createStyles((theme) => ({
   }
 }))
 
-const SubSection = ({children, classes, className}) => {
+const SubSection = ({children, classes, className}: {
+  children?: any,
+  classes: any,
+  className?: string,
+}) => {
   return <div className={classNames(classes.root, className)}>
     {children}
   </div>

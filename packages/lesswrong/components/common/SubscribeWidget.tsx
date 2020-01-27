@@ -12,7 +12,7 @@ interface SubscribeWidgetState {
   method: string,
 }
 class SubscribeWidget extends Component<SubscribeWidgetProps,SubscribeWidgetState> {
-  state = {
+  state: SubscribeWidgetState = {
     dialogOpen: false,
     method: "",
   }

@@ -1,7 +1,7 @@
 import React from 'react'
 import { withStyles, createStyles } from '@material-ui/core/styles';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { withSingle } from '../../../lib/crud/withSingle';
+import { useSingle } from '../../../lib/crud/withSingle';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Posts } from '../../../lib/collections/posts/collection'
 import { QueryLink } from '../../../lib/reactRouterWrapper';
@@ -13,7 +13,16 @@ const styles = createStyles(theme => ({
   }
 }))
 
-const PostsRevisionsList = ({document, loading, classes}) => {
+const PostsRevisionsList = ({documentId, classes}: {
+  documentId: string,
+  classes: any,
+}) => {
+  const { document, loading } = useSingle({
+    documentId,
+    collection: Posts,
+    fetchPolicy: 'network-only', // Ensure that we load the list of revisions a new every time we click (this is useful after editing a post)
+    fragmentName: 'PostsRevisionsList'
+  });
   const { FormatDate } = Components
   if (loading || !document) {return <MenuItem disabled> Loading... </MenuItem>} 
   const { revisions } = document
@@ -31,15 +40,8 @@ const PostsRevisionsList = ({document, loading, classes}) => {
   </React.Fragment>
 }
 
-const queryOptions = {
-  queryName: `PostsRevisionsList`,
-  collection: Posts,
-  fetchPolicy: 'network-only', // Ensure that we load the list of revisions a new every time we click (this is useful after editing a post)
-  fragmentName: 'PostsRevisionsList'
-}
-
-
-const PostsRevisionsListComponent = registerComponent('PostsRevisionsList', PostsRevisionsList, [withSingle, queryOptions], 
+const PostsRevisionsListComponent = registerComponent(
+  'PostsRevisionsList', PostsRevisionsList,
   withStyles(styles, {name: "PostsRevisionsList"})
 )
 

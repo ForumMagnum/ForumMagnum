@@ -33,15 +33,16 @@ const PostsGroupDetails = ({ post, classes, document }) => {
   }
 }
 
-const options = {
-  collection: Localgroups,
-  queryName: "PostsGroupDetailsQuery",
-  fragmentName: 'localGroupsHomeFragment',
-  enableTotal: false,
-  ssr: true,
-}
-
-const PostsGroupDetailsComponent = registerComponent('PostsGroupDetails', PostsGroupDetails, [withSingle, options], withStyles(styles, {name: "PostsGroupDetails"}));
+const PostsGroupDetailsComponent = registerComponent(
+  'PostsGroupDetails', PostsGroupDetails,
+  withSingle({
+    collection: Localgroups,
+    fragmentName: 'localGroupsHomeFragment',
+    enableTotal: false,
+    ssr: true,
+  }),
+  withStyles(styles, {name: "PostsGroupDetails"})
+);
 
 declare global {
   interface ComponentTypes {

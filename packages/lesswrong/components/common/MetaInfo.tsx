@@ -19,7 +19,13 @@ const styles = createStyles((theme) => ({
   }
 }))
 
-const MetaInfo = ({children, classes, button, className}) => {
+const MetaInfo = ({children, classes, button, className}: {
+  children?: any,
+  classes: any,
+  button?: boolean,
+  className?: string
+  title?: string,
+}) => {
   return <Typography
     component='span'
     className={classNames(classes.root, {[classes.button]: button}, className)}

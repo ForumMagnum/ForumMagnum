@@ -40,7 +40,13 @@ const styles = createStyles(theme => ({
 // described in https://www.sarasoueidan.com/blog/nested-links/, we make the
 // card background and card contents siblings rather than nested, then use
 // z-index to control which is clickable.
-const LinkCard = ({children, to, tooltip, className, classes}) => {
+const LinkCard = ({children, to, tooltip, className, classes}: {
+  children?: any,
+  to: string,
+  tooltip?: any,
+  className?: string,
+  classes: any,
+}) => {
   const card = (
     <div className={classNames(className, classes.root)}>
       <div className={classes.background}>

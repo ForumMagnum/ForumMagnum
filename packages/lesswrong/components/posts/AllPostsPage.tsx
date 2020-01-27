@@ -179,11 +179,6 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
   }
 }
 
-const withUpdateOptions = {
-  collection: Users,
-  fragmentName: 'UsersCurrent',
-}
-
 const AllPostsPageComponent = registerComponent(
   'AllPostsPage',
   AllPostsPage,
@@ -191,7 +186,10 @@ const AllPostsPageComponent = registerComponent(
   withLocation,
   withUser,
   withTimezone,
-  [withUpdate, withUpdateOptions]
+  withUpdate({
+    collection: Users,
+    fragmentName: 'UsersCurrent',
+  })
 );
 
 declare global {

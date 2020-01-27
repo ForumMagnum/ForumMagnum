@@ -55,11 +55,12 @@ class DeleteCommentMenuItem extends PureComponent<DeleteCommentMenuItemProps,{}>
   }
 }
 
-const mutationOptions = {
-  fragmentName: "CommentsList"
-};
-
-const DeleteCommentMenuItemComponent = registerComponent('DeleteCommentMenuItem', DeleteCommentMenuItem, [withModerateComment, mutationOptions], withDialog, withMessages, withUser);
+const DeleteCommentMenuItemComponent = registerComponent(
+  'DeleteCommentMenuItem', DeleteCommentMenuItem,
+  withModerateComment({
+    fragmentName: "CommentsList"
+  }),
+  withDialog, withMessages, withUser);
 
 declare global {
   interface ComponentTypes {

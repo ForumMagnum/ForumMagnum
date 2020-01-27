@@ -29,7 +29,7 @@ interface CommentWithRepliesState {
 }
 
 class CommentWithReplies extends PureComponent<CommentWithRepliesProps,CommentWithRepliesState> {
-  state = { markedAsVisitedAt: null, maxChildren: 3 }
+  state: CommentWithRepliesState = { markedAsVisitedAt: null, maxChildren: 3 }
 
   markAsRead = async () => {
     const { comment, post, recordPostView } = this.props

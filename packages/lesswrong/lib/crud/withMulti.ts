@@ -77,6 +77,22 @@ export function withMulti({
   collectionName, collection,
   fragmentName, fragment,
   terms: queryTerms,
+}: {
+  limit?: number,
+  pollInterval?: number,
+  enableTotal?: boolean,
+  enableCache?: boolean,
+  extraQueries?: any,
+  ssr?: boolean,
+  extraVariables?: any,
+  fetchPolicy?: WatchQueryFetchPolicy,
+  notifyOnNetworkStatusChange?: boolean,
+  propertyName?: string,
+  collectionName?: string,
+  collection?: any,
+  fragmentName?: string,
+  fragment?: any,
+  terms?: any,
 }) {
   // if this is the SSR process, set pollInterval to null
   // see https://github.com/apollographql/apollo-client/issues/1704#issuecomment-322995855

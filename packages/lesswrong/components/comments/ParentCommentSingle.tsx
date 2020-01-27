@@ -25,13 +25,13 @@ const ParentCommentSingle = (props) => {
   }
 }
 
-const documentOptions = {
-  collection: Comments,
-  queryName: 'ParentCommentQuery',
-  fragmentName: 'SelectCommentsList',
-};
-
-const ParentCommentSingleComponent = registerComponent('ParentCommentSingle', ParentCommentSingle, [withSingle, documentOptions]);
+const ParentCommentSingleComponent = registerComponent(
+  'ParentCommentSingle', ParentCommentSingle,
+  withSingle({
+    collection: Comments,
+    fragmentName: 'SelectCommentsList',
+  })
+);
 
 declare global {
   interface ComponentTypes {

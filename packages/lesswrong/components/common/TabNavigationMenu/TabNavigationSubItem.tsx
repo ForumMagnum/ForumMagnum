@@ -23,7 +23,11 @@ const styles = createStyles((theme) => ({
   }
 }))
 
-const TabNavigationSubItem = ({children, classes, className}) => {
+const TabNavigationSubItem = ({children, classes, className}: {
+  children?: any,
+  classes: any,
+  className?: string,
+}) => {
   return <div className={classNames(classes.root, className)}>
     {children}
   </div>

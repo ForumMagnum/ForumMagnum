@@ -72,15 +72,13 @@ const PostsEditForm = ({
   flash: PropTypes.func,
 }
 
-const documentQuery = {
-  collection: Posts,
-  queryName: 'PostsEditFormQuery',
-  fragmentName: 'PostsPage',
-  ssr: true
-};
-
 const PostsEditFormComponent = registerComponent('PostsEditForm', PostsEditForm,
-  [withSingle, documentQuery],
+  withSingle({
+    collection: Posts,
+    queryName: 'PostsEditFormQuery',
+    fragmentName: 'PostsPage',
+    ssr: true
+  }),
   withMessages, withLocation, withNavigation,
   withStyles(styles, { name: "PostsEditForm" })
 );

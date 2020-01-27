@@ -66,6 +66,22 @@ const PostsList2 = ({
   classes,
   dense,
   defaultToShowUnreadComments
+}: {
+  children?: any,
+  terms?: any,
+  dimWhenLoading?: boolean,
+  topLoading?: boolean,
+  showLoading?: boolean,
+  showLoadMore?: boolean,
+  showNoResults?: boolean,
+  hideLastUnread?: boolean,
+  showPostedAt?: boolean,
+  enableTotal?: boolean,
+  showNominationCount?: boolean,
+  showReviewCount?: boolean,
+  classes: any,
+  dense?: boolean,
+  defaultToShowUnreadComments?: boolean,
 }) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
   const { results, loading, error, count, totalCount, loadMore, limit } = useMulti({

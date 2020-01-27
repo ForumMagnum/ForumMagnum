@@ -15,16 +15,14 @@ const LastVisitList = ({ results, loading, clickCallback }) => {
   }
 }
 
-const options = {
-  collection: LWEvents,
-  queryName: 'LastVisitListFragment',
-  fragmentName: 'lastEventFragment',
-  enableTotal: false,
-};
-
 const LastVisitListComponent = registerComponent(
   "LastVisitList", LastVisitList,
-  withUser, [withMulti, options]
+  withUser,
+  withMulti({
+    collection: LWEvents,
+    fragmentName: 'lastEventFragment',
+    enableTotal: false,
+  })
 );
 
 declare global {

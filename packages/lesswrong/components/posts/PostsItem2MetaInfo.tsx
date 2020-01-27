@@ -14,7 +14,12 @@ const styles = createStyles(theme => ({
   }
 }));
 
-const PostsItem2MetaInfo = ({children, className, classes, read}) => {
+const PostsItem2MetaInfo = ({children, className, classes, read}: {
+  children?: any,
+  className?: string,
+  classes: any,
+  read?: boolean,
+}) => {
   return <Typography
     component='span'
     className={classNames(classes.metaInfo, {[classes.read]: read}, className)}

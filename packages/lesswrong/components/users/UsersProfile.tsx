@@ -104,7 +104,7 @@ interface UsersProfileState {
 }
 
 class UsersProfile extends Component<UsersProfileProps,UsersProfileState> {
-  state = {
+  state: UsersProfileState = {
     showSettings: false
   }
 
@@ -340,17 +340,16 @@ class UsersProfile extends Component<UsersProfileProps,UsersProfileState> {
   }
 }
 
-
-const options = {
-  collection: Users,
-  queryName: 'usersSingleQuery',
-  fragmentName: 'UsersProfile',
-  enableTotal: false,
-  ssr: true
-};
-
-const UsersProfileComponent = registerComponent('UsersProfile', UsersProfile, withUser,
-  [withMulti, options], withLocation, withNavigation,
+const UsersProfileComponent = registerComponent(
+  'UsersProfile', UsersProfile,
+  withUser,
+  withMulti({
+    collection: Users,
+    fragmentName: 'UsersProfile',
+    enableTotal: false,
+    ssr: true
+  }),
+  withLocation, withNavigation,
   withStyles(styles, {name: "UsersProfile"}));
 
 declare global {

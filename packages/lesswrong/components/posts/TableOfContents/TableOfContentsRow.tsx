@@ -101,15 +101,15 @@ const levelToClassName = (level, classes) => {
 const TableOfContentsRow = ({
   indentLevel=0, highlighted=false, href, onClick, children, classes, title, divider, answer
 }: {
-  indentLevel: number,
-  highlighted: boolean,
+  indentLevel?: number,
+  highlighted?: boolean,
   href: string,
   onClick: any,
   children: any,
   classes: any,
-  title: boolean,
-  divider: boolean,
-  answer: boolean,
+  title?: boolean,
+  divider?: boolean,
+  answer?: boolean,
 }) => {
   if (divider) return <div className={classes.divider} />
 

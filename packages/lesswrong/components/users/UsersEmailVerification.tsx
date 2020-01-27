@@ -78,15 +78,14 @@ class UsersEmailVerification extends PureComponent<UsersEmailVerificationProps,U
   }
 }
 
-const withUpdateOptions = {
-  collection: Users,
-  fragmentName: 'UsersCurrent',
-};
 
 const UsersEmailVerificationComponent = registerComponent('UsersEmailVerification', UsersEmailVerification,
   withErrorBoundary,
   withUser,
-  [withUpdate, withUpdateOptions],
+  withUpdate({
+    collection: Users,
+    fragmentName: 'UsersCurrent',
+  }),
   withStyles(styles, { name: "UsersEmailVerification" })
 );
 

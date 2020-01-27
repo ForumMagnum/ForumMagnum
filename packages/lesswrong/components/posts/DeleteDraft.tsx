@@ -37,15 +37,13 @@ class DeleteDraft extends Component<DeleteDraftProps,{}> {
   }
 }
 
-const withUpdateOptions = {
-  collection: Posts,
-  fragmentName: 'PostsList',
-}
-
 const DeleteDraftComponent = registerComponent(
   'DeleteDraft',
   DeleteDraft,
-  [withUpdate, withUpdateOptions],
+  withUpdate({
+    collection: Posts,
+    fragmentName: 'PostsList',
+  }),
   withUser
 );
 

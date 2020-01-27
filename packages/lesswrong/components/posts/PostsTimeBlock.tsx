@@ -226,13 +226,12 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
 };
 
 const PostsTimeBlockComponent = registerComponent('PostsTimeBlock', PostsTimeBlock,
-  [withMulti, {
+  withMulti({
     collection: Posts,
-    queryName: 'PostsTimeframeListQuery',
     fragmentName: 'PostsList',
     enableTotal: true,
     ssr: true,
-  }],
+  }),
   withTimezone,
   withUser, withStyles(styles, { name: "PostsTimeBlock" })
 );

@@ -30,7 +30,7 @@ interface DeleteCommentDialogState {
 }
 
 class DeleteCommentDialog extends PureComponent<DeleteCommentDialogProps,DeleteCommentDialogState> {
-  state = { deletedReason: "" }
+  state: DeleteCommentDialogState = { deletedReason: "" }
 
   handleDelete = (event) => {
     const { moderateCommentMutation, onClose, comment, flash } = this.props
@@ -97,14 +97,14 @@ class DeleteCommentDialog extends PureComponent<DeleteCommentDialogProps,DeleteC
   }
 }
 
-const mutationOptions = {
-  fragmentName: "CommentsList"
-};
-
 const DeleteCommentDialogComponent = registerComponent(
   'DeleteCommentDialog', DeleteCommentDialog,
-  [withModerateComment, mutationOptions], withMessages, withDialog,
-  withStyles(styles, {name:"DeleteCommentDialog"}));
+  withModerateComment({
+    fragmentName: "CommentsList"
+  }),
+  withMessages, withDialog,
+  withStyles(styles, {name:"DeleteCommentDialog"})
+);
 
 declare global {
   interface ComponentTypes {

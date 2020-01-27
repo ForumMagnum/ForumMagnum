@@ -50,12 +50,11 @@ const CommentPermalink = (props) => {
 const CommentPermalinkComponent = registerComponent(
   "CommentPermalink", CommentPermalink,
   withStyles(styles, {name:"CommentPermalink"}),
-  [withSingle, {
+  withSingle({
     collection: Comments,
-    queryName: 'commentsPermalinkQuery',
     fragmentName: 'CommentWithReplies',
     ssr: true,
-  }]
+  })
 );
 
 

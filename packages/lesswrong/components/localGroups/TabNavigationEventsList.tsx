@@ -146,17 +146,14 @@ const TabNavigationEventsList = ({ results, onClick, classes }) => {
   )
 }
 
-const options = {
-  collection: Posts,
-  queryName: 'postsListQuery',
-  fragmentName: 'PostsList',
-  enableTotal: false,
-  fetchPolicy: 'cache-and-network',
-  ssr: true
-};
-
 const TabNavigationEventsListComponent = registerComponent('TabNavigationEventsList', TabNavigationEventsList,
-  [withMulti, options],
+  withMulti({
+    collection: Posts,
+    fragmentName: 'PostsList',
+    enableTotal: false,
+    fetchPolicy: 'cache-and-network',
+    ssr: true
+  }),
   withStyles(styles, {name:"TabNavigationEventsList"})
 );
 

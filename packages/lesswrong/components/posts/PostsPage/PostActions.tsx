@@ -274,21 +274,21 @@ class PostActions extends Component<PostActionsProps,{}> {
 const PostActionsComponent = registerComponent('PostActions', PostActions,
   withStyles(styles, {name: "PostActions"}),
   withUser,
-  [withUpdate, {
+  withUpdate({
     collection: Posts,
     fragmentName: 'PostsList',
-  }],
-  [withMutation, {
+  }),
+  withMutation({
     name: 'markAsReadOrUnread',
     args: {postId: 'String', isRead: 'Boolean'},
-  }],
-  [withUpdate, {
+  }),
+  withUpdate({
     collection: Users,
     fragmentName: 'UsersCurrent'
-  }],
-  [withSetAlignmentPost, {
+  }),
+  withSetAlignmentPost({
     fragmentName: "PostsList"
-  }]
+  })
 );
 
 declare global {

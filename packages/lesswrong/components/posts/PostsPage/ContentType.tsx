@@ -147,7 +147,11 @@ const contentTypes = {
   }
 }
 
-const ContentType = ({classes, type, label}) => {
+const ContentType = ({classes, type, label}: {
+  classes: any,
+  type: string,
+  label?: string
+}) => {
   if (!type) {
     throw new Error('ContentType requires type property')
   }

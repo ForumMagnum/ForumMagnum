@@ -30,15 +30,13 @@ const SuggestAlignment = ({ currentUser, post, updatePost }) => {
   }
 }
 
-const withUpdateOptions = {
-  collection: Posts,
-  fragmentName: 'PostsList',
-}
-
 const SuggestAlignmentComponent = registerComponent(
   'SuggestAlignment',
   SuggestAlignment,
-  [withUpdate, withUpdateOptions],
+  withUpdate({
+    collection: Posts,
+    fragmentName: 'PostsList',
+  }),
   withUser
 );
 

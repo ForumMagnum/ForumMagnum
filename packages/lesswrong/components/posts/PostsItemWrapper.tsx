@@ -60,15 +60,12 @@ const PostsItemWrapper = ({document, loading, classes, ...props}) => {
   }
 };
 
-const options = {
-  collection: Posts,
-  queryName: "PostsItemWrapperQuery",
-  fragmentName: 'PostsList',
-  enableTotal: false,
-};
-
 const PostsItemWrapperComponent = registerComponent('PostsItemWrapper', PostsItemWrapper,
-  [withSingle, options],
+  withSingle({
+    collection: Posts,
+    fragmentName: 'PostsList',
+    enableTotal: false,
+  }),
   withStyles(styles, {name: "PostsItemWrapper"}));
 
 declare global {

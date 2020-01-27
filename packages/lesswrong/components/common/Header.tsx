@@ -142,7 +142,7 @@ interface HeaderState {
   unFixed: boolean,
 }
 class Header extends PureComponent<HeaderProps,HeaderState> {
-  state = {
+  state: HeaderState = {
     navigationOpen: false,
     notificationOpen: false,
     notificationHasOpened: false,
@@ -311,12 +311,13 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
   searchResultsArea: PropTypes.object,
 };
 
-const withUpdateOptions = {
-  collection: Users,
-  fragmentName: 'UsersCurrent',
-};
-
-const HeaderComponent = registerComponent('Header', Header, withErrorBoundary, [withUpdate, withUpdateOptions], withUser, withTracking, withStyles(styles, { name: 'Header'}), withTheme());
+const HeaderComponent = registerComponent(
+  'Header', Header,
+  withErrorBoundary, withUpdate({
+    collection: Users,
+    fragmentName: 'UsersCurrent',
+  }), withUser, withTracking,
+  withStyles(styles, { name: 'Header'}), withTheme());
 
 declare global {
   interface ComponentTypes {

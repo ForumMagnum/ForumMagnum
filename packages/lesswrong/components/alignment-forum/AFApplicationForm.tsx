@@ -88,13 +88,16 @@ class AFApplicationForm extends PureComponent<AFApplicationFormProps,AFApplicati
 }
 
 const withUpdateOptions = {
-  collection: Users,
-  fragmentName: 'SuggestAlignmentUser',
 };
 
 const AFApplicationFormComponent = registerComponent(
   'AFApplicationForm', AFApplicationForm,
-  withMessages, [withUpdate, withUpdateOptions], withUser,
+  withMessages,
+  withUpdate({
+    collection: Users,
+    fragmentName: 'SuggestAlignmentUser',
+  }),
+  withUser,
   withStyles(styles, {name: "AFApplicationForm"}));
 
 declare global {

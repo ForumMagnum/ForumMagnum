@@ -109,18 +109,16 @@ class MoveToAlignmentMenuItem extends PureComponent<MoveToAlignmentMenuItemProps
   }
 }
 
-const withUpdateOptions = {
-  collection: Comments,
-  fragmentName: 'CommentsList',
-}
-
 const MoveToAlignmentMenuItemComponent = registerComponent(
   'MoveToAlignmentMenuItem', MoveToAlignmentMenuItem,
-   [withUpdate, withUpdateOptions],
-   withStyles(styles, {name:'MoveToAlignmentMenuItem'}),
-   withMessages,
-   withApollo,
-   withUser
+  withUpdate({
+    collection: Comments,
+    fragmentName: 'CommentsList',
+  }),
+  withStyles(styles, {name:'MoveToAlignmentMenuItem'}),
+  withMessages,
+  withApollo,
+  withUser
 );
 
 declare global {

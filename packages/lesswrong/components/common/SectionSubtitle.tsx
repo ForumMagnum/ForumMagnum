@@ -14,7 +14,11 @@ const styles = createStyles((theme) => ({
   }
 }))
 
-const SectionSubtitle = ({children, classes, className}) => {
+const SectionSubtitle = ({children, classes, className}: {
+  children?: any,
+  classes: any,
+  className?: string,
+}) => {
   return <Typography component='span' variant='subheading' className={classNames(classes.root, className)}>
     {children}
   </Typography>

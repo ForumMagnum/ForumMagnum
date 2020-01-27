@@ -68,16 +68,14 @@ const SuggestAlignmentMenuItem = ({ currentUser, comment, post, updateComment, c
   }
 }
 
-const withUpdateOptions = {
-  collection: Comments,
-  fragmentName: 'SuggestAlignmentComment',
-}
-
 const SuggestAlignmentMenuItemComponent = registerComponent(
-  'SuggestAlignmentMenuItem', SuggestAlignmentMenuItem,
-   [withUpdate, withUpdateOptions],
-   withStyles(styles, {name:'SuggestAlignmentMenuItem'}),
-   withUser
+ 'SuggestAlignmentMenuItem', SuggestAlignmentMenuItem,
+  withUpdate({
+    collection: Comments,
+    fragmentName: 'SuggestAlignmentComment',
+  }),
+  withStyles(styles, {name:'SuggestAlignmentMenuItem'}),
+  withUser
 );
 
 declare global {
