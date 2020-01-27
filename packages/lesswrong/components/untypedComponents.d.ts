@@ -33,77 +33,11 @@ interface ComponentTypes {
   PostLinkPreviewWithPost: any
   PostCommentLinkPreviewGreaterWrong: any
   DefaultPreview: any
-  BookmarksPage: any
-  BookmarksList: any
   ViewSubscriptionsPage: any
   WrappedLoginForm: any
   OmegaIcon: any
   SettingsIcon: any
-  PostsHighlight: any
-  PostsListPlaceholder: any
-  AlignmentCrosspostMessage: any
-  LegacyPostRedirect: any
-  LinkPostMessage: any
-  CategoryDisplay: any
-  PostsSingle: any
-  PostsNoMore: any
-  PostsNoResults: any
-  PostsLoading: any
-  PostsTimeframeList: any
-  AllPostsPage: any
-  PostsListSettings: any
-  SuggestCurated: any
-  DeleteDraft: any
-  BookmarkButton: any
-  MoveToDraft: any
-  SuggestAlignment: any
-  Pingback: any
-  PingbacksList: any
-  PostsItemMeta: any
-  PostsItemTooltipWrapper: any
-  PostsItem2MetaInfo: any
-  PostsTitle: any
   PostsPreviewTooltip: any
-  PostsPreviewTooltipSingle: any
-  PostsItemComments: any
-  PostsItemWrapper: any
-  PostsItemMetaInfo: any
-  PostsItemNewCommentsWrapper: any
-  PostsItemIcons: any
-  PostsPage: any
-  PostsPageDate: any
-  PostsPageWrapper: any
-  PostsAuthors: any
-  PostsPageTitle: any
-  PostsTopSequencesNav: any
-  PostsPageEventData: any
-  PostsPageActions: any
-  PostActions: any
-  ContentType: any
-  PostsRevisionSelector: any
-  PostsRevisionsList: any
-  PostsRevisionMessage: any
-  PostsSingleSlug: any
-  PostsSingleRoute: any
-  PostsList2: any
-  PostsTimeBlock: any
-  PostsCommentsThread: any
-  PostsNewForm: any
-  PostsEditForm: any
-  PostsEditPage: any
-  PostCollaborationEditor: any
-  PostsGroupDetails: any
-  PostsStats: any
-  TableOfContents: any
-  TableOfContentsList: any
-  TableOfContentsRow: any
-  AnswerTocRow: any
-  ShowOrHideHighlightButton: any
-  PostsUserAndCoauthors: any
-  PostSubmit: any
-  SubmitToFrontpageCheckbox: any
-  ReportPostMenuItem: any
-  PostsItemDate: any
   UserPageTitle: any
   SequencesPageTitle: any
   PostsPageHeaderTitle: any
@@ -116,8 +50,6 @@ interface ComponentTypes {
   VoteButton: any
   CommentsVote: any
   PostsVote: any
-  EventsPast: any
-  EventsUpcoming: any
   CommunityHome: any
   CommunityMap: any
   CommunityMapFilter: any

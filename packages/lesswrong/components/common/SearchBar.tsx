@@ -98,10 +98,9 @@ const styles = createStyles(theme => ({
   },
 }))
 
-interface SearchBarProps extends WithStylesProps {
+interface SearchBarProps extends WithStylesProps, WithLocationProps {
   onSetIsActive: any,
   searchResultsArea: any,
-  location: any,
 }
 
 interface SearchBarState {

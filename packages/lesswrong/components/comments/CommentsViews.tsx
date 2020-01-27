@@ -31,10 +31,9 @@ const styles = createStyles(theme => ({
   }
 }))
 
-interface CommentsViewsProps extends WithUserProps, WithStylesProps {
+interface CommentsViewsProps extends WithUserProps, WithStylesProps, WithLocationProps {
   post: any,
   history: any,
-  location: any,
 }
 interface CommentsViewsState {
   anchorEl: any,

@@ -23,8 +23,7 @@ const styles = createStyles(theme => ({
 
 export const POST_COMMENT_COUNT_TRUNCATE_THRESHOLD = 70
 
-interface CommentsListProps extends WithUserProps, WithStylesProps  {
-  addKeydownListener: any,
+interface CommentsListProps extends WithUserProps, WithGlobalKeydownProps, WithStylesProps  {
   comments: any,
   totalComments: any,
   highlightDate: any,

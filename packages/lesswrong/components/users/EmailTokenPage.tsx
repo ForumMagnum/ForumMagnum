@@ -4,8 +4,7 @@ import { withMutation } from '../../lib/crud/withMutation';
 import { withLocation } from '../../lib/routeUtil';
 
 type ComponentNameAndProps = { componentName: string, props: Record<string,any> };
-interface EmailTokenPageProps {
-  location: any,
+interface EmailTokenPageProps extends WithLocationProps {
   useEmailToken: any,
 }
 interface EmailTokenPageState {

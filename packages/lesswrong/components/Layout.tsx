@@ -80,12 +80,10 @@ const styles = createStyles(theme => ({
   },
 }))
 
-interface LayoutProps {
+interface LayoutProps extends WithLocationProps, WithStylesProps, WithMessagesProps {
   cookies: any,
   currentUser: UsersCurrent,
   updateUser: any,
-  location: any,
-  classes: any,
   theme: any,
   messages: any,
   children: any,

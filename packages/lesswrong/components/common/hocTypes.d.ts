@@ -18,3 +18,19 @@ interface WithUserProps {
 interface WithTrackingProps {
   captureEvent: any,
 }
+
+interface WithTimezoneProps {
+  timezone: any,
+}
+
+interface WithNavigationProps {
+  history: any,
+}
+
+interface WithLocationProps {
+  location: any,
+}
+
+interface WithGlobalKeydownProps {
+  addKeydownListener: any,
+}

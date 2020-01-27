@@ -117,7 +117,7 @@ const styles = createStyles(theme => ({
   }
 }))
 
-interface CommentsNodeProps extends WithUserProps, WithStylesProps {
+interface CommentsNodeProps extends WithUserProps, WithStylesProps, WithLocationProps {
   comment: any,
   startThreadTruncated: boolean,
   condensed: boolean,
@@ -126,7 +126,6 @@ interface CommentsNodeProps extends WithUserProps, WithStylesProps {
   shortform: any,
   nestingLevel: number,
   post: any,
-  location: any,
   highlightDate: Date,
   expandAllThreads: any,
   updateComment: any,

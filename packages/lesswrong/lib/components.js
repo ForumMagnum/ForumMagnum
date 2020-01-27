@@ -142,7 +142,6 @@ importComponent("PostsListPlaceholder", () => require('../components/posts/Posts
 importComponent("AlignmentCrosspostMessage", () => require('../components/posts/AlignmentCrosspostMessage'));
 importComponent("LegacyPostRedirect", () => require('../components/posts/LegacyPostRedirect'));
 importComponent("LinkPostMessage", () => require('../components/posts/LinkPostMessage'));
-importComponent("CategoryDisplay", () => require('../components/posts/CategoryDisplay'));
 importComponent("PostsSingle", () => require('../components/posts/PostsSingle'));
 importComponent("PostsNoMore", () => require('../components/posts/PostsNoMore'));
 importComponent("PostsNoResults", () => require('../components/posts/PostsNoResults'));
