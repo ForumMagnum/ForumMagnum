@@ -2,7 +2,6 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withSingle } from '../../lib/crud/withSingle';
 import Users from 'meteor/vulcan:users';
 import React from 'react';
-import PropTypes from 'prop-types';
 
 // Given a user ID (as documentId), load that user with a HoC, and display
 // their name. If the nofollow attribute is true OR the user has a spam-risk

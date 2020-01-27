@@ -87,9 +87,6 @@ class AFApplicationForm extends PureComponent<AFApplicationFormProps,AFApplicati
   }
 }
 
-const withUpdateOptions = {
-};
-
 const AFApplicationFormComponent = registerComponent(
   'AFApplicationForm', AFApplicationForm,
   withMessages,

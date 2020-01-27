@@ -1,6 +1,6 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import { withSingle } from '../../lib/crud/withSingle';
-import React, { Component } from 'react';
+import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Localgroups } from '../../lib/index';
 import { withStyles, createStyles } from '@material-ui/core/styles';

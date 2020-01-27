@@ -31,6 +31,6 @@ const CollectionsCardContainerComponent = registerComponent(
 
 declare global {
   interface ComponentTypes {
-    CollectionsCardContainer: typeof CollectionsCardContainer
+    CollectionsCardContainer: typeof CollectionsCardContainerComponent
   }
 }

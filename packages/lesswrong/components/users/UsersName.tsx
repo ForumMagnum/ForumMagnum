@@ -1,6 +1,5 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
-import PropTypes from 'prop-types';
 
 const UsersName = ({user, documentId, nofollow=false, simple=false}: {
   user?: UsersMinimumInfo,

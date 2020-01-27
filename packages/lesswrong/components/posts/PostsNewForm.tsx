@@ -2,7 +2,6 @@ import { Components, registerComponent, getFragment, getSetting } from 'meteor/v
 import { withMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
 import React from 'react';
-import PropTypes from 'prop-types';
 import withUser from '../common/withUser'
 import { withStyles, createStyles } from '@material-ui/core/styles';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
@@ -15,7 +14,11 @@ const styles = createStyles(theme => ({
   }
 }))
 
-const PostsNewForm = ({currentUser, flash, classes}) => {
+const PostsNewForm = ({currentUser, flash, classes}: {
+  currentUser: UsersCurrent|null,
+  flash: any,
+  classes: any,
+}) => {
   const { query } = useLocation();
   const { history } = useNavigation();
   
@@ -63,12 +66,6 @@ const PostsNewForm = ({currentUser, flash, classes}) => {
       </NoSsr>
     </div>
   );
-}
-
-
-PostsNewForm.propTypes = {
-  closeModal: PropTypes.func,
-  flash: PropTypes.func,
 }
 
 const PostsNewFormComponent = registerComponent('PostsNewForm', PostsNewForm, withMessages, withUser, withStyles(styles, { name: "PostsNewForm" }));

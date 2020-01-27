@@ -3,7 +3,6 @@ import { registerComponent } from 'meteor/vulcan:core';
 import { withUpdate } from '../../../lib/crud/withUpdate';
 import { withMessages } from '../../common/withMessages';
 import MenuItem from '@material-ui/core/MenuItem';
-import PropTypes from 'prop-types';
 import Users from 'meteor/vulcan:users';
 import { Comments } from "../../../lib/collections/comments";
 import withUser from '../../common/withUser';
