@@ -75,9 +75,7 @@ const PostsEditForm = ({
 const PostsEditFormComponent = registerComponent('PostsEditForm', PostsEditForm,
   withSingle({
     collection: Posts,
-    queryName: 'PostsEditFormQuery',
     fragmentName: 'PostsPage',
-    ssr: true
   }),
   withMessages, withLocation, withNavigation,
   withStyles(styles, { name: "PostsEditForm" })

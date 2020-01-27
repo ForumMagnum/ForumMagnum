@@ -38,8 +38,6 @@ const PostsGroupDetailsComponent = registerComponent(
   withSingle({
     collection: Localgroups,
     fragmentName: 'localGroupsHomeFragment',
-    enableTotal: false,
-    ssr: true,
   }),
   withStyles(styles, {name: "PostsGroupDetails"})
 );

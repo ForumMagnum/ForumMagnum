@@ -53,7 +53,6 @@ const CommentPermalinkComponent = registerComponent(
   withSingle({
     collection: Comments,
     fragmentName: 'CommentWithReplies',
-    ssr: true,
   })
 );
 

@@ -64,7 +64,6 @@ const PostsItemWrapperComponent = registerComponent('PostsItemWrapper', PostsIte
   withSingle({
     collection: Posts,
     fragmentName: 'PostsList',
-    enableTotal: false,
   }),
   withStyles(styles, {name: "PostsItemWrapper"}));
 
