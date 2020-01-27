@@ -1,5 +1,6 @@
 import React from 'react';
-import { Components, withMessages, registerComponent, Utils, useMulti, withCreate } from 'meteor/vulcan:core';
+import { Components, registerComponent, Utils, useMulti, withCreate } from 'meteor/vulcan:core';
+import { withMessages } from '../common/withMessages';
 import { Subscriptions } from '../../lib/collections/subscriptions/collection'
 import { defaultSubscriptionTypeTable } from '../../lib/collections/subscriptions/mutations'
 import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil.js';
@@ -9,6 +10,7 @@ import NotificationsIcon from '@material-ui/icons/Notifications';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
+import { useTracking } from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   root: {
@@ -32,6 +34,8 @@ const SubscribeTo = ({
   const documentType = Utils.getCollectionNameFromTypename(document.__typename);
   const collectionName = Utils.capitalize(documentType);
   const subscriptionType = overrideSubscriptionType || defaultSubscriptionTypeTable[collectionName];
+
+  const { captureEvent } = useTracking({eventType: "subscribeClicked", eventProps: {documentId: document._id, documentType: documentType}})
   
   // Get existing subscription, if there is one
   const { results, loading } = useMulti({
@@ -74,9 +78,11 @@ const SubscribeTo = ({
   const onSubscribe = async (e) => {
     try {
       e.preventDefault();
+      const subscriptionState = isSubscribed() ? 'suppressed' : 'subscribed'
+      captureEvent("subscribeClicked", {state: subscriptionState})
       
       const newSubscription = {
-        state: isSubscribed() ? 'suppressed' : 'subscribed',
+        state: subscriptionState,
         documentId: document._id,
         collectionName,
         type: subscriptionType,

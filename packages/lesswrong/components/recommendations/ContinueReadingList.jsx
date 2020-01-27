@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
 import { withDismissRecommendation } from './withDismissRecommendation';
+import { captureEvent, AnalyticsContext } from '../../lib/analyticsEvents.js';
 
 const MAX_ENTRIES = 3;
 
@@ -16,7 +17,7 @@ class ContinueReadingList extends Component {
       showAll: true
     });
   }
-  
+
   dismissAndHideRecommendation(postId) {
     this.props.dismissRecommendation({postId: postId});
     this.setState({
@@ -25,6 +26,7 @@ class ContinueReadingList extends Component {
         [postId]: true
       }
     });
+    captureEvent("continueReadingDismissed", {"postId": postId});
   }
   
   limitResumeReading(resumeReadingList) {
@@ -58,22 +60,24 @@ class ContinueReadingList extends Component {
       return <PostsLoading/>
     
     const { entries, showAllLink } = this.limitResumeReading(continueReading);
-    
     const saveLeftOffTooltip = <div>
       Logging in helps you keep track of which sequences you've started reading, so that you can continue reading them when you return to LessWrong.
     </div>
 
     return <div>
-      {entries.map(resumeReading => {
-        const { nextPost, sequence, collection } = resumeReading;
-        return <PostsItem2
-          post={nextPost}
-          sequenceId={sequence?._id}
-          resumeReading={resumeReading}
-          dismissRecommendation={() => this.dismissAndHideRecommendation(nextPost._id)}
-          key={sequence?._id || collection?._id}
-        />
-      })}
+      <AnalyticsContext listContext={"continueReading"} capturePostItemOnMount>
+        {entries.map(resumeReading => {
+          const { nextPost, sequence, collection } = resumeReading;
+          return <PostsItem2
+            post={nextPost}
+            sequenceId={sequence?._id}
+            resumeReading={resumeReading}
+            dismissRecommendation={() => this.dismissAndHideRecommendation(nextPost._id)}
+            key={sequence?._id || collection?._id}
+          />
+        })}
+      </AnalyticsContext>
+      
       
       <SectionFooter>
         {showAllLink && <a onClick={this.showAll}>

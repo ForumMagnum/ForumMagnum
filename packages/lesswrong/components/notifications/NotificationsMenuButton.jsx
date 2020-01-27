@@ -41,7 +41,6 @@ const NotificationsMenuButton = (props) => {
     );
   }
 
-
   const buttonClass = open ? classes.buttonOpen : classes.buttonClosed;
   const notificationIconStyle = {
     color: open ? "#FFFFFF" : (color || "rgba(0,0,0,0.6)"),

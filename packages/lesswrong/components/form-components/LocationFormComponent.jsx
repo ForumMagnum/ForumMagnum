@@ -100,6 +100,8 @@ export const useGoogleMaps = (identifier, libraries = ['places']) => {
   else return [ mapsLoaded, window?.google ]
 }
 
+
+
 const LocationFormComponent = ({document, updateCurrentValues, classes}) => {
   const location = document?.location || ""
   const [ mapsLoaded ] = useGoogleMaps("LocationFormComponent")
@@ -107,7 +109,6 @@ const LocationFormComponent = ({document, updateCurrentValues, classes}) => {
     updateCurrentValues({
       location: (document && document.location) || "",
       googleLocation: document && document.googleLocation,
-      mongoLocation: document && document.mongoLocation
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -117,10 +118,6 @@ const LocationFormComponent = ({document, updateCurrentValues, classes}) => {
       updateCurrentValues({
         location: suggestion.label,
         googleLocation: suggestion.gmaps,
-        mongoLocation: {
-          type: "Point",
-          coordinates: [suggestion.gmaps.geometry.location.lng(), suggestion.gmaps.geometry.location.lat()]
-        }
       })
     }
   }

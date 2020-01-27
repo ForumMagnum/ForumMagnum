@@ -2,10 +2,10 @@ import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import MenuItem from '@material-ui/core/MenuItem';
-import { Link } from '../../../lib/reactRouterWrapper.js';
+import { Link } from '../../../lib/reactRouterWrapper.jsx';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
-import { useLocation } from '../../../lib/routeUtil.js';
+import { useLocation } from '../../../lib/routeUtil';
 
 export const iconWidth = 30
 

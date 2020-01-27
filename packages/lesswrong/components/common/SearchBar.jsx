@@ -10,7 +10,7 @@ import Portal from '@material-ui/core/Portal';
 import { addCallback, removeCallback } from 'meteor/vulcan:lib';
 import { withLocation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { algoliaIndexNames } from '../../lib/algoliaIndexNames.js';
+import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
 
 const VirtualMenu = connectMenu(() => null);
 
@@ -160,15 +160,13 @@ class SearchBar extends Component {
   }
 
   render() {
-    const algoliaAppId = getSetting('algolia.appId')
-    const algoliaSearchKey = getSetting('algolia.searchKey')
     const alignmentForum = getSetting('forumType') === 'AlignmentForum';
 
     const { searchResultsArea, classes } = this.props
     const { location } = this.props; // From withLocation
     const { searchOpen, inputOpen } = this.state
 
-    if(!algoliaAppId) {
+    if(!isAlgoliaEnabled) {
       return <div>Search is disabled (Algolia App ID not configured on server)</div>
     }
 
@@ -182,8 +180,7 @@ class SearchBar extends Component {
       <div className={classes.rootChild}>
         <InstantSearch
           indexName={algoliaIndexNames.Posts}
-          appId={algoliaAppId}
-          apiKey={algoliaSearchKey}
+          searchClient={getSearchClient()}
           onSearchStateChange={this.queryStateControl}
         >
           <div className={classNames(

@@ -3,6 +3,7 @@ import { registerMigration, migrateDocuments } from './migrationUtils';
 
 registerMigration({
   name: "fixMaxBaseScore",
+  dateWritten: "2019-07-24",
   idempotent: true,
   action: async () => await migrateDocuments({
     description: `replace null maxBaseScore`,

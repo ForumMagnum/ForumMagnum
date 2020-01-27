@@ -5,7 +5,6 @@ import {
   Strings,
   runCallbacks,
   detectLocale,
-  getHasIntlFields,
   Routes
 } from 'meteor/vulcan:lib';
 import React, { PureComponent } from 'react';
@@ -13,7 +12,6 @@ import PropTypes from 'prop-types';
 import { IntlProvider, intlShape } from 'meteor/vulcan:i18n';
 import withCurrentUser from '../containers/withCurrentUser.js';
 import withUpdate from '../containers/withUpdate.js';
-import withSiteData from '../containers/withSiteData.js';
 import { withApollo } from 'react-apollo';
 import moment from 'moment';
 import { withRouter, matchPath } from 'react-router';
@@ -25,6 +23,32 @@ export const LocationContext = React.createContext("location");
 export const SubscribeLocationContext = React.createContext("subscribeLocation");
 export const NavigationContext = React.createContext("navigation");
 export const ServerRequestStatusContext = React.createContext("serverRequestStatus");
+
+// From react-router-v4
+// https://github.com/ReactTraining/history/blob/master/modules/PathUtils.js
+export const parsePath = function parsePath(path) {
+  var pathname = path || '/';
+  var search = '';
+  var hash = '';
+  
+  var hashIndex = pathname.indexOf('#');
+  if (hashIndex !== -1) {
+    hash = pathname.substr(hashIndex);
+    pathname = pathname.substr(0, hashIndex);
+  }
+  
+  var searchIndex = pathname.indexOf('?');
+  if (searchIndex !== -1) {
+    search = pathname.substr(searchIndex);
+    pathname = pathname.substr(0, searchIndex);
+  }
+  
+  return {
+    pathname: pathname,
+    search: search === '?' ? '' : search,
+    hash: hash === '#' ? '' : hash
+  };
+};
 
 export function parseQuery(location) {
   let query = location && location.search;
@@ -42,7 +66,7 @@ export function parseQuery(location) {
 // Match a string against the routes table, and parse the route components.
 // If there is no match, returns a special 404 route, and calls onError if
 // provided.
-export function parseRoute({location, onError=null}) {
+export function parseRoute({location, followRedirects=true, onError=null}) {
   const routeNames = Object.keys(Routes);
   let currentRoute = null;
   let params={};
@@ -76,12 +100,28 @@ export function parseRoute({location, onError=null}) {
   }
   
   const RouteComponent = currentRoute ? Components[currentRoute.componentName] : Components.Error404;
-  return {
+  const result = {
     currentRoute, RouteComponent, location, params,
     pathname: location.pathname,
+    url: location.pathname + location.search + location.hash,
     hash: location.hash,
     query: parseQuery(location),
   };
+  
+  if (currentRoute && currentRoute.redirect) {
+    const redirectTo = currentRoute.redirect(result);
+    if (redirectTo) {
+      return {
+        ...parseRoute({
+          location: parsePath(redirectTo),
+          onError
+        }),
+        redirected: true,
+      };
+    }
+  }
+  
+  return result;
 }
 
 class App extends PureComponent {
@@ -97,18 +137,6 @@ class App extends PureComponent {
       messages: [],
     };
     moment.locale(locale);
-  }
-
-  /*
-
-  Clear messages on route change
-  See https://stackoverflow.com/a/45373907/649299
-
-  */
-  UNSAFE_componentWillMount() {
-    this.unlisten = this.props.history.listen((location, action) => {
-      this.clear();
-    });
   }
 
   componentWillUnmount() {
@@ -142,14 +170,10 @@ class App extends PureComponent {
     }, 500)
   }
 
-  componentDidMount() {
-    runCallbacks('app.mounted', this.props);
-  }
-
   initLocale = () => {
     let userLocale = '';
     let localeMethod = '';
-    const { currentUser, cookies, locale } = this.props;
+    const { cookies, locale } = this.props;
     const availableLocales = Object.keys(Strings);
     const detectedLocale = detectLocale();
 
@@ -162,12 +186,8 @@ class App extends PureComponent {
       // 2. look for a cookie
       userLocale = cookies.get('locale');
       localeMethod = 'cookie';
-    } else if (currentUser && currentUser.locale) {
-      // 3. if user is logged in, check for their preferred locale
-      userLocale = currentUser.locale;
-      localeMethod = 'user';
     } else if (detectedLocale) {
-      // 4. else, check for browser settings
+      // 3. else, check for browser settings
       userLocale = detectedLocale;
       localeMethod = 'browser';
     }
@@ -189,25 +209,9 @@ class App extends PureComponent {
     return truncate ? this.state.locale.slice(0, 2) : this.state.locale;
   };
 
-  setLocale = async locale => {
-    const { cookies, updateUser, client, currentUser } = this.props;
-    this.setState({ locale });
-    cookies.remove('locale', { path: '/' });
-    cookies.set('locale', locale, { path: '/' });
-    // if user is logged in, change their `locale` profile property
-    if (currentUser) {
-      await updateUser({ selector: { documentId: currentUser._id }, data: { locale } });
-    }
-    moment.locale(locale);
-    if (getHasIntlFields()) {
-      client.resetStore();
-    }
-  };
-
   getChildContext() {
     return {
       getLocale: this.getLocale,
-      setLocale: this.setLocale,
     };
   }
 
@@ -225,10 +229,14 @@ class App extends PureComponent {
     // Parse the location into a route/params/query/etc.
     const location = parseRoute({location: this.props.location});
     
+    if (location.redirected) {
+      return <Components.PermanentRedirect url={location.url}/>
+    }
+    
     // Reuse the container objects for location and navigation context, so that
     // they will be reference-stable and won't trigger spurious rerenders.
     if (!this.locationContext) {
-      this.locationContext = location;
+      this.locationContext = {...location};
     } else {
       Object.assign(this.locationContext, location);
     }
@@ -244,7 +252,7 @@ class App extends PureComponent {
     // subscribeLocationContext changes (by shallow comparison) whenever the
     // URL changes.
     if (!this.subscribeLocationContext || this.subscribeLocationContext.pathname != location.pathname) {
-      this.subscribeLocationContext = location;
+      this.subscribeLocationContext = {...location};
     } else {
       Object.assign(this.subscribeLocationContext, location);
     }
@@ -281,7 +289,6 @@ App.propTypes = {
 
 App.childContextTypes = {
   intl: intlShape,
-  setLocale: PropTypes.func,
   getLocale: PropTypes.func,
 };
 
@@ -292,8 +299,8 @@ const updateOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-//registerComponent('App', App, withCurrentUser, withSiteData, [withUpdate, updateOptions], withApollo, withCookies, withRouter);
+//registerComponent('App', App, withCurrentUser, [withUpdate, updateOptions], withApollo, withCookies, withRouter);
 // TODO LESSWRONG-Temporarily omit withCookies until it's debugged
-registerComponent('App', App, withCurrentUser, withSiteData, [withUpdate, updateOptions], withApollo, withRouter);
+registerComponent('App', App, withCurrentUser, [withUpdate, updateOptions], withApollo, withRouter);
 
 export default App;

@@ -1,5 +1,5 @@
 import React from 'react'
-import CKEditor from '@ckeditor/ckeditor5-react';
+import CKEditor from '../editor/ReactCKEditor';
 import { CommentEditor } from '@lesswrong/lesswrong-editor';
 import { generateTokenRequest } from '../../lib/ckEditorUtils'
 import { getSetting } from 'meteor/vulcan:core';
@@ -9,6 +9,8 @@ import { getSetting } from 'meteor/vulcan:core';
 const uploadUrl = getSetting('ckEditor.uploadUrl', null)
 
 const CKCommentEditor = ({ data, onSave, onChange, onInit }) => {
+  const ckEditorCloudConfigured = !!getSetting("ckEditor.webSocketUrl");
+  
   return <CKEditor
       editor={ CommentEditor }
       data={data || ""}
@@ -19,10 +21,10 @@ const CKCommentEditor = ({ data, onSave, onChange, onInit }) => {
       } }
       onChange={onChange}
       config={{
-        cloudServices: {
+        cloudServices: ckEditorCloudConfigured ? {
           tokenUrl: generateTokenRequest(),
           uploadUrl,
-        },
+        } : undefined,
         autosave: {
           save (editor) {
             return onSave && onSave( editor.getData() )

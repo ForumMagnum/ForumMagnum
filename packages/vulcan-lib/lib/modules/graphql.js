@@ -12,7 +12,6 @@ import GraphQLDate from 'graphql-date';
 import Vulcan from './config.js'; // used for global export
 import { Utils } from './utils.js';
 import { disableFragmentWarnings } from 'graphql-tag';
-import { isIntlField } from './intl.js';
 import {
   selectorInputTemplate,
   mainTypeTemplate,
@@ -45,10 +44,6 @@ const getGraphQLType = (schema, fieldName, isInput = false) => {
   const type = field.type.singleType;
   const typeName =
     typeof type === 'object' ? 'Object' : typeof type === 'function' ? type.name : type;
-
-  if (field.isIntlData) {
-    return isInput ? '[IntlValueInput]' : '[IntlValue]';
-  }
 
   // LESSWRONG: Add optional property to override default input type generation
   if (isInput && field.inputType) {
@@ -189,8 +184,8 @@ export const GraphQLSchema = {
         fieldName.indexOf('$') === -1
       ) {
         const fieldDescription = field.description;
-        const fieldDirective = isIntlField(field) ? '@intl' : '';
-        const fieldArguments = isIntlField(field) ? [{ name: 'locale', type: 'String' }] : [];
+        const fieldDirective = '';
+        const fieldArguments = [];
 
         // if field has a resolveAs, push it to schema
         if (field.resolveAs) {
@@ -262,42 +257,6 @@ export const GraphQLSchema = {
             name: fieldName,
             type: inputFieldType,
           });
-        }
-
-        // if field is i18nized, add foo_intl field containing all languages
-        // NOTE: not necessary anymore because intl fields are added by addIntlFields() in collections.js
-        // TODO: delete if not needed
-        // if (isIntlField(field)) {
-        //   // fields.mainType.push({
-        //   //   name: `${fieldName}_intl`,
-        //   //   type: '[IntlValue]',
-        //   // });
-        //   fields.create.push({
-        //     name: `${fieldName}_intl`,
-        //     type: '[IntlValueInput]',
-        //   });
-        //   fields.update.push({
-        //     name: `${fieldName}_intl`,
-        //     type: '[IntlValueInput]',
-        //   });
-        // }
-
-        if (field.selectable) {
-          fields.selector.push({
-            name: fieldName,
-            type: inputFieldType,
-          });
-        }
-
-        if (field.selectable && field.unique) {
-          fields.selectorUnique.push({
-            name: fieldName,
-            type: inputFieldType,
-          });
-        }
-
-        if (field.orderable) {
-          fields.orderBy.push(fieldName);
         }
       }
     });
@@ -458,18 +417,6 @@ export const GraphQLSchema = {
     }
     return this.executableSchema;
   },
-};
-
-Vulcan.getGraphQLSchema = () => {
-  if (!GraphQLSchema.finalSchema) {
-    throw new Error(
-      'Warning: trying to access graphQL schema before it has been created by the server.'
-    );
-  }
-  const schema = GraphQLSchema.finalSchema[0];
-  // eslint-disable-next-line no-console
-  console.log(schema);
-  return schema;
 };
 
 export const addGraphQLCollection = GraphQLSchema.addCollection.bind(GraphQLSchema);

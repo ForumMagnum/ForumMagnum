@@ -1,9 +1,14 @@
 import cheerio from 'cheerio';
-import { parsePath } from '../components/linkPreview/HoverPreviewLink.jsx';
-import { parseRoute } from 'meteor/vulcan:core';
+import { parseRoute, parsePath, Utils } from 'meteor/vulcan:core';
 import { hostIsOnsite, getUrlClass } from '../lib/routeUtil';
 
-export const htmlToPingbacks = async (html) => {
+// Given an HTML document, extract the links from it and convert them to a set
+// of pingbacks, formatted as a dictionary from collection name -> array of
+// document IDs.
+//   html: (String) The document to extract links from
+//   exclusions: (Array[{collectionName,documentId}]) An array of documents (as
+//     {collectionName,documentId}) to exclude. Used for excluding self-links.
+export const htmlToPingbacks = async (html, exclusions) => {
   const URLClass = getUrlClass()
   const links = extractLinks(html);
   
@@ -19,23 +24,27 @@ export const htmlToPingbacks = async (html) => {
       // domain, and the domain doesn't matter at all except in whether or not
       // it's in the domain whitelist (which it will only be if it's overridden
       // by an absolute link).
-      const linkTargetAbsolute = new URLClass(link, 'http://example.com/');
+      const linkTargetAbsolute = new URLClass(link, Utils.getSiteUrl());
       
       if (hostIsOnsite(linkTargetAbsolute.host)) {
         const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
         const parsedUrl = parseRoute({
           location: parsePath(onsiteUrl),
-          onError: (pathname) => {
-            // Ignore malformed links
-          }
+          onError: (pathname) => {} // Ignore malformed links
         });
         if (parsedUrl?.currentRoute?.getPingback) {
           const pingback = await parsedUrl.currentRoute.getPingback(parsedUrl);
           if (pingback) {
-            if (!(pingback.collectionName in pingbacks))
-              pingbacks[pingback.collectionName] = [];
-            if (!pingbacks[pingback.collectionName].includes(pingback.documentId))
-              pingbacks[pingback.collectionName].push(pingback.documentId);
+            if (exclusions && _.find(exclusions,
+              exclusion => exclusion.documentId===pingback.documentId && exclusion.collectionName===pingback.collectionName))
+            {
+              // Pingback is excluded
+            } else {
+              if (!(pingback.collectionName in pingbacks))
+                pingbacks[pingback.collectionName] = [];
+              if (!pingbacks[pingback.collectionName].includes(pingback.documentId))
+                pingbacks[pingback.collectionName].push(pingback.documentId);
+            }
           }
         }
       }
@@ -43,7 +52,7 @@ export const htmlToPingbacks = async (html) => {
       console.error("failed to create pingback for link:", link) // eslint-disable-line
       console.error(err) // eslint-disable-line
     }
-  }  
+  }
   return pingbacks;
 };
 

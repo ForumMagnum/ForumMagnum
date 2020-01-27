@@ -3,7 +3,7 @@ import { Notifications } from '../lib/collections/notifications/collection.js';
 import { getNotificationTypes } from '../lib/notificationTypes.jsx';
 import { getNotificationTypeByNameServer } from './notificationTypesServer.jsx';
 import { EventDebouncer } from './debouncer.js';
-import toDictionary from '../lib/modules/utils/toDictionary.js';
+import toDictionary from '../lib/utils/toDictionary';
 import Users from 'meteor/vulcan:users';
 import { Posts } from '../lib/collections/posts';
 import { Components, addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from 'meteor/vulcan:core';

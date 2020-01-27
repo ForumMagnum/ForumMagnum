@@ -1,29 +1,48 @@
 import React from 'react';
 import { withList, Components, registerComponent} from 'meteor/vulcan:core';
 import { Comments } from '../../lib/collections/comments';
-import { unflattenComments } from '../../lib/modules/utils/unflatten';
+import { unflattenComments } from '../../lib/utils/unflatten';
+import { withStyles } from '@material-ui/core/styles';
 
-const PostsItemNewCommentsWrapper = ({ loading, results, currentUser, highlightDate, post, condensed, hideReadComments }) => {
+const styles = theme => ({
+  title: {
+    fontSize: 10,
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[700],
+    marginBottom: 4
+  }
+})
 
+const PostsItemNewCommentsWrapper = ({ classes, title, loading, results, currentUser, highlightDate, post, condensed, hideReadComments, markAsRead, forceSingleLine, hideSingleLineDate, hideSingleLineMeta }) => {
 
-  if (loading || !results) {
-    return <Components.Loading/>
-  } else if (!loading && results && !results.length) {
-    return <div>No comments found</div>
-  } else {
+  const { Loading, CommentsList, NoContent } = Components  
+
+  if (!loading && results && !results.length) {
+    return <NoContent>No comments found</NoContent>
+  } 
+  
+  else {
     const lastCommentId = results && results[0]?._id
     const nestedComments = unflattenComments(results);
     return (
-      <Components.CommentsList
-        currentUser={currentUser}
-        comments={nestedComments}
-        highlightDate={highlightDate}
-        startThreadTruncated={true}
-        post={post}
-        lastCommentId={lastCommentId}
-        condensed={condensed}
-        hideReadComments={hideReadComments}
-      />
+      <div>
+        {title && <div className={classes.title}>{title}</div>}
+        <CommentsList
+          currentUser={currentUser}
+          comments={nestedComments}
+          highlightDate={highlightDate}
+          startThreadTruncated={true}
+          post={post}
+          lastCommentId={lastCommentId}
+          condensed={condensed}
+          forceSingleLine={forceSingleLine}
+          hideSingleLineDate={hideSingleLineDate}
+          hideReadComments={hideReadComments}
+          hideSingleLineMeta={hideSingleLineMeta}
+          markAsRead={markAsRead}
+        />
+        {loading && <Loading/>}
+      </div>
     );
   }
 };
@@ -37,4 +56,4 @@ const options = {
   // enableTotal: false,
 };
 
-registerComponent('PostsItemNewCommentsWrapper', PostsItemNewCommentsWrapper, [withList, options]);
+registerComponent('PostsItemNewCommentsWrapper', PostsItemNewCommentsWrapper, [withList, options], withStyles(styles, {name:"PostsItemNewCommentsWrapper"}));

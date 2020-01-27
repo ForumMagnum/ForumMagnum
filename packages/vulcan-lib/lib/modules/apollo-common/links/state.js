@@ -13,39 +13,12 @@
  */
 import { withClientState } from 'apollo-link-state';
 
-/**
- * Create a state link
- */
 export const createStateLink = ({ cache, resolvers, defaults, ...otherOptions }) => {
   const stateLink = withClientState({
     cache,
-    defaults: defaults || getStateLinkDefaults(),
-    resolvers: resolvers || getStateLinkResolvers(),
+    defaults: defaults || {},
+    resolvers: resolvers || { Mutation: {} },
     ...otherOptions,
   });
   return stateLink;
 };
-
-// enhancement workflow
-const registeredDefaults = {};
-/**
- * Defaults are default response to queries
- */
-export const registerStateLinkDefault = ({ name, defaultValue, options = {} }) => {
-  registeredDefaults[name] = defaultValue;
-  return registeredDefaults;
-};
-export const getStateLinkDefaults = () => registeredDefaults;
-
-// Mutation are equivalent to a Redux Action + Reducer
-// except it uses GraphQL to retrieve/update data in the cache
-const registeredMutations = {};
-export const registerStateLinkMutation = ({ name, mutation, options = {} }) => {
-  registeredMutations[name] = mutation;
-  return registeredMutations;
-};
-export const getStateLinkMutations = () => registeredMutations;
-
-export const getStateLinkResolvers = () => ({
-  Mutation: getStateLinkMutations(),
-});

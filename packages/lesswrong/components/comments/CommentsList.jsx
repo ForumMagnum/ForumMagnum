@@ -2,11 +2,11 @@ import { Components, registerComponent, withEdit } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import { Comments } from "../../lib/collections/comments";
-import { shallowEqual, shallowEqualExcept } from '../../lib/modules/utils/componentUtils';
+import { shallowEqual, shallowEqualExcept } from '../../lib/utils/componentUtils';
 import { Posts } from '../../lib/collections/posts';
 import withGlobalKeydown from '../common/withGlobalKeydown';
 import Tooltip from '@material-ui/core/Tooltip';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 import { withStyles } from '@material-ui/core/styles';
 import { TRUNCATION_KARMA_THRESHOLD } from '../../lib/editor/ellipsize'
 
@@ -103,7 +103,7 @@ class CommentsList extends Component {
   }
 
   render() {
-    const { comments, currentUser, highlightDate, updateComment, post, postPage, totalComments, condensed, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1, hideReadComments, lastCommentId, parentCommentId=null } = this.props;
+    const { comments, currentUser, highlightDate, updateComment, post, postPage, totalComments, condensed, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1, hideReadComments, lastCommentId, markAsRead, parentCommentId=null, forceSingleLine, hideSingleLineMeta, enableHoverPreview, forceNotSingleLine } = this.props;
 
     const { expandAllThreads } = this.state
     const { lastVisitedAt } = post
@@ -134,9 +134,14 @@ class CommentsList extends Component {
                 postPage={postPage}
                 parentAnswerId={parentAnswerId}
                 condensed={condensed}
+                forceSingleLine={forceSingleLine}
+                forceNotSingleLine={forceNotSingleLine}
+                hideSingleLineMeta={hideSingleLineMeta}
+                enableHoverPreview={enableHoverPreview}
                 hideReadComments={hideReadComments}
                 shortform={post.shortform}
                 child={defaultNestingLevel > 1}
+                markAsRead={markAsRead}
               />)
             }
           </div>

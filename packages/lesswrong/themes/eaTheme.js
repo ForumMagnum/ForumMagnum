@@ -4,6 +4,7 @@ import deepOrange from '@material-ui/core/colors/deepOrange';
 import { createMuiTheme } from '@material-ui/core/styles';
 
 const titleStack = [
+  'GreekFallback', // Ensures that greek letters render consistently
   'Raleway',
   'Helvetica Neue',
   'Helvetica',
@@ -21,6 +22,7 @@ const serifStack = [
 
 // TODO why is SanSerifStack different from titleStack?
 const sansSerifStack = [
+  'GreekFallback', // Ensures that greek letters render consistently
   'Merriweather Sans',
   'Lato',
   'Helvetica Neue',
@@ -185,24 +187,6 @@ const theme = createLWTheme({
         paddingLeft:1,
         paddingRight:0,
         fontSize: '50%',
-      },
-    },
-    Section: {
-      sectionTitle: {
-        fontWeight:600,
-        [defaultTheme.breakpoints.down('sm')]: {
-          border: "none",
-          paddingTop:0,
-        },
-        [defaultTheme.breakpoints.up('md')]: {
-          top: 0,
-          '&:before': "none"
-        }
-      },
-      sectionTitleTop: {
-        [defaultTheme.breakpoints.up('md')]: {
-          marginBottom: 16
-        }
       },
     },
     SunshineSidebar: {

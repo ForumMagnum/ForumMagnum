@@ -2,7 +2,7 @@ import { Components, registerComponent, withUpdate, getSetting } from 'meteor/vu
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
-import { Link } from '../../lib/reactRouterWrapper.js'
+import { Link } from '../../lib/reactRouterWrapper.jsx'
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import withHover from '../common/withHover'
@@ -132,4 +132,4 @@ const withUpdateOptions = {
   fragmentName: 'PostsList',
 }
 
-registerComponent('SunshineNewPostsItem', SunshineNewPostsItem, [withUpdate, withUpdateOptions], withUser, withHover, withErrorBoundary);
+registerComponent('SunshineNewPostsItem', SunshineNewPostsItem, [withUpdate, withUpdateOptions], withUser, withHover(), withErrorBoundary);

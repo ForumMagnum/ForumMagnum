@@ -2,11 +2,9 @@ import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import { addGraphQLCollection, addToGraphQLContext } from './graphql.js';
 import { Utils } from './utils.js';
-import { runCallbacks, runCallbacksAsync } from './callbacks.js';
+import { runCallbacks } from './callbacks.js';
 import { getSetting, registerSetting } from './settings.js';
 import { registerFragment, getDefaultFragmentText } from './fragments.js';
-import escapeStringRegexp from 'escape-string-regexp';
-import { validateIntlField, getIntlString, isIntlField } from './intl';
 import { Collections } from './getCollection.js';
 export * from './getCollection.js';
 
@@ -25,10 +23,6 @@ export const viewFieldNullOrMissing = {nullOrMissing:true};
 // When used in a view, set the query so that any value for this field is
 // permitted, overriding constraints from the default view if they exist.
 export const viewFieldAllowAny = {allowAny:true};
-
-// will be set to `true` if there is one or more intl schema fields
-let hasIntlFields = false;
-export const getHasIntlFields = () => hasIntlFields
 
 // TODO: find more reliable way to get collection name from type name?
 export const getCollectionName = typeName => Utils.pluralize(typeName);
@@ -163,42 +157,6 @@ export const createCollection = options => {
   // add views
   collection.views = [];
 
-  // generate foo_intl fields
-  Object.keys(schema).forEach(fieldName => {
-    const fieldSchema = schema[fieldName];
-    if (isIntlField(fieldSchema)) {
-
-      // we have at least one intl field
-      hasIntlFields = true;
-
-      // remove `intl` to avoid treating new _intl field as a field to internationalize
-      // eslint-disable-next-line no-unused-vars
-      const { intl, ...propertiesToCopy } = schema[fieldName];
-
-      schema[`${fieldName}_intl`] = {
-        ...propertiesToCopy, // copy properties from regular field
-        hidden: true,
-        type: Array,
-        isIntlData: true,
-      };
-
-      delete schema[`${fieldName}_intl`].intl;
-
-      schema[`${fieldName}_intl.$`] = {
-        type: getIntlString(),
-      };
-
-      // if original field is required, enable custom validation function instead of `optional` property
-      if (!schema[fieldName].optional) {
-        schema[`${fieldName}_intl`].optional = true;
-        schema[`${fieldName}_intl`].custom = validateIntlField;
-      }
-
-      // make original non-intl field optional
-      schema[fieldName].optional = true;
-    }
-  });
-
   if (schema) {
     // attach schema to collection
     collection.attachSchema(new SimpleSchema(schema));
@@ -213,9 +171,6 @@ export const createCollection = options => {
     // add collection to list of dynamically generated GraphQL schemas
     addGraphQLCollection(collection);
   }
-
-  runCallbacksAsync({ name: '*.collection.async', properties: { options } });
-  runCallbacksAsync({ name: `${collectionName}.collection.async`, properties: { options } });
 
   // ------------------------------------- Default Fragment -------------------------------- //
 
@@ -278,39 +233,6 @@ export const createCollection = options => {
       context
     );
 
-    if (Meteor.isClient) {
-      parameters = runCallbacks(
-        `${typeName.toLowerCase()}.parameters.client`,
-        parameters,
-        _.clone(terms),
-        apolloClient
-      );
-      // OpenCRUD backwards compatibility
-      parameters = runCallbacks(
-        `${collectionName.toLowerCase()}.parameters.client`,
-        parameters,
-        _.clone(terms),
-        apolloClient
-      );
-    }
-
-    // note: check that context exists to avoid calling this from withList during SSR
-    if (Meteor.isServer && context) {
-      parameters = runCallbacks(
-        `${typeName.toLowerCase()}.parameters.server`,
-        parameters,
-        _.clone(terms),
-        context
-      );
-      // OpenCRUD backwards compatibility
-      parameters = runCallbacks(
-        `${collectionName.toLowerCase()}.parameters.server`,
-        parameters,
-        _.clone(terms),
-        context
-      );
-    }
-
     // sort using terms.orderBy (overwrite defaultView's sort)
     if (terms.orderBy && !_.isEmpty(terms.orderBy)) {
       parameters.options.sort = terms.orderBy;
@@ -344,32 +266,6 @@ export const createCollection = options => {
           delete parameters.options.sort[key];
         }
       });
-    }
-
-    if (terms.query) {
-
-      const query = escapeStringRegexp(terms.query);
-      const currentSchema = collection.simpleSchema()._schema;
-      const searchableFieldNames = _.filter(
-        _.keys(currentSchema),
-        fieldName => currentSchema[fieldName].searchable
-      );
-      if (searchableFieldNames.length) {
-        parameters = Utils.deepExtend(true, parameters, {
-          selector: {
-            $or: searchableFieldNames.map(fieldName => ({
-              [fieldName]: { $regex: query, $options: 'i' },
-            })),
-          },
-        });
-      } else {
-        // eslint-disable-next-line no-console
-        console.warn(
-          `Warning: terms.query is set but schema ${
-            collection.options.typeName
-          } has no searchable field. Set "searchable: true" for at least one field to enable search.`
-        );
-      }
     }
 
     // limit number of items to 1000 by default

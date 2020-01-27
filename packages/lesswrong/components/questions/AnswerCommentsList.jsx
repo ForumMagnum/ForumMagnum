@@ -1,10 +1,10 @@
-import { Components, registerComponent, withList } from 'meteor/vulcan:core';
-import React, { PureComponent } from 'react';
+import { Components, registerComponent, useMulti } from 'meteor/vulcan:core';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Comments } from '../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles'
-import { unflattenComments } from "../../lib/modules/utils/unflatten";
-import withUser from '../common/withUser';
+import { unflattenComments } from "../../lib/utils/unflatten";
+import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
 
@@ -47,114 +47,103 @@ const styles = theme => ({
 
 export const ABRIDGE_COMMENT_COUNT = 500;
 
-class AnswerCommentsList extends PureComponent {
+const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}) => {
+  const currentUser = useCurrentUser();
+  const [commenting, setCommenting] = React.useState(false);
+  const [loadedMore, setLoadedMore] = React.useState(false);
+  
+  const { loadMore, results, loading, loadingMore, totalCount } = useMulti({
+    terms,
+    collection: Comments,
+    queryName: 'AnswersCommentListQuery',
+    fragmentName: 'CommentsList',
+    fetchPolicy: 'cache-and-network',
+    enableTotal: true,
+  });
+  
+  const highlightDate =
+    (lastEvent && lastEvent.properties && lastEvent.properties.createdAt
+      && new Date(lastEvent.properties.createdAt))
+    || (post && post.lastVisitedAt
+      && new Date(post.lastVisitedAt))
+    || new Date();
 
-  constructor(props) {
-    super(props);
+  const closeCommentNewForm = React.useCallback(
+    () => setCommenting(false),
+    [setCommenting]
+  );
 
-    const { lastEvent, post } = this.props;
+  const loadMoreComments = React.useCallback(
+    (event) => {
+      event.stopPropagation()
+      if (totalCount > ABRIDGE_COMMENT_COUNT) {
+        setLoadedMore(true);
+        loadMore(10000)
+      }
+    },
+    [totalCount, setLoadedMore, loadMore]
+  );
 
-    this.state = {
-      commenting: false,
-      loadedMore: false,
-      highlightDate:
-        (lastEvent && lastEvent.properties && lastEvent.properties.createdAt
-          && new Date(lastEvent.properties.createdAt))
-        || (post && post.lastVisitedAt
-          && new Date(post.lastVisitedAt))
-        || new Date(),
-    }
-  }
+  const { CommentsList, Loading, CommentsNewForm } = Components
+  const noComments = (!results || !results.length) && !commenting
 
-  closeCommentNewForm = () => {
-    this.setState({commenting:false})
-  }
-
-  loadMoreComments = (event) => {
-    event.stopPropagation()
-    const { loadMore, totalCount } = this.props
-    if (totalCount > ABRIDGE_COMMENT_COUNT) {
-      this.setState({loadedMore: true})
-      loadMore({limit: 10000})
-    }
-  }
-
-  render() {
-    const { currentUser, results, loading, loadingMore, classes, totalCount, post, parentAnswer } = this.props
-    const { CommentsList, Loading, CommentsNewForm } = Components
-    const { commenting, highlightDate, loadedMore } = this.state
-    const noComments = (!results || !results.length) && !commenting
-
-    // const loadingMore = networkStatus === 2;
-    if (loading || !results) {
-      return <Loading/>
-    } else {
-      const nestedComments = unflattenComments(results);
-      return (
-        <div>
-          {!commenting && <Typography variant="body2" onClick={()=>this.setState({commenting: true})} className={classNames(classes.newComment)}>
-              <a>Add Comment</a>
-            </Typography>}
-          { commenting &&
-              <div className={classes.editor}>
-                <CommentsNewForm
-                  post={post}
-                  parentComment={parentAnswer}
-                  prefilledProps={{
-                    parentAnswerId: parentAnswer._id,
-                  }}
-                  successCallback={this.closeCommentNewForm}
-                  cancelCallback={this.closeCommentNewForm}
-                  type="reply"
-                />
-              </div>
-            }
-          <div onClick={this.loadMoreComments}
-            className={classNames(
-              classes.commentsList, {
-                [classes.noCommentAnswersList]: noComments,
-                [classes.loadingMore]: loadingMore,
-                [classes.canLoadMore]: !loadedMore && totalCount > ABRIDGE_COMMENT_COUNT
-              }
-          )}>
-            { loadingMore && <Loading /> }
-            <CommentsList
-              currentUser={currentUser}
-              totalComments={totalCount}
-              comments={nestedComments}
-              highlightDate={highlightDate}
+  if (loading || !results)
+    return <Loading/>
+  
+  const nestedComments = unflattenComments(results);
+  return (
+    <div>
+      {!commenting && <Typography variant="body2" onClick={()=>setCommenting(true)} className={classNames(classes.newComment)}>
+          <a>Add Comment</a>
+        </Typography>}
+      { commenting &&
+          <div className={classes.editor}>
+            <CommentsNewForm
               post={post}
-              parentCommentId={parentAnswer._id}
-              parentAnswerId={parentAnswer._id}
-              defaultNestingLevel={2}
-              postPage
-              startThreadTruncated
+              parentComment={parentAnswer}
+              prefilledProps={{
+                parentAnswerId: parentAnswer._id,
+              }}
+              successCallback={closeCommentNewForm}
+              cancelCallback={closeCommentNewForm}
+              type="reply"
             />
           </div>
-          {(results && results.length && results.length < totalCount) ?
-            <Typography variant="body2" onClick={this.loadMoreComments} className={classes.loadMore}>
-              <a>Showing {results.length}/{totalCount} comments. Click to load All.</a>
-            </Typography> : null}
-        </div>
-      );
-    }
-  }
+        }
+      <div onClick={loadMoreComments}
+        className={classNames(
+          classes.commentsList, {
+            [classes.noCommentAnswersList]: noComments,
+            [classes.loadingMore]: loadingMore,
+            [classes.canLoadMore]: !loadedMore && totalCount > ABRIDGE_COMMENT_COUNT
+          }
+      )}>
+        { loadingMore && <Loading /> }
+        <CommentsList
+          currentUser={currentUser}
+          totalComments={totalCount}
+          comments={nestedComments}
+          highlightDate={highlightDate}
+          post={post}
+          parentCommentId={parentAnswer._id}
+          parentAnswerId={parentAnswer._id}
+          defaultNestingLevel={2}
+          postPage
+          startThreadTruncated
+        />
+      </div>
+      {(results.length && results.length < totalCount) ?
+        <Typography variant="body2" onClick={loadMoreComments} className={classes.loadMore}>
+          <a>Showing {results.length}/{totalCount} comments. Click to load All.</a>
+        </Typography> : null}
+    </div>
+  );
 }
 
 AnswerCommentsList.propTypes = {
   classes: PropTypes.object.isRequired,
   post: PropTypes.object.isRequired,
   parentAnswer: PropTypes.object,
-  loading: PropTypes.bool,
-  results: PropTypes.array,
 };
 
-const listOptions = {
-  collection: Comments,
-  queryName: 'AnswersCommentListQuery',
-  fragmentName: 'CommentsList',
-  fetchPolicy: 'cache-and-network',
-  enableTotal: true,
-}
-
-registerComponent('AnswerCommentsList', AnswerCommentsList, [withList, listOptions], withStyles(styles, {name: "AnswerCommentsList"}), withUser);
+registerComponent('AnswerCommentsList', AnswerCommentsList, withStyles(styles, {name: "AnswerCommentsList"}));

@@ -1,13 +1,13 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import moment from 'moment-timezone';
+import moment from '../../lib/moment-timezone';
 import Tooltip from '@material-ui/core/Tooltip';
-import withTimezone from '../common/withTimezone';
+import { useTimezone } from '../common/withTimezone';
 
-export const ExpandedDate = withTimezone(
-  ({date, timezone}) =>
-    moment(new Date(date)).tz(timezone).format("LLL z")
-);
+export const ExpandedDate = ({date}) => {
+  const { timezone } = useTimezone();
+  return moment(new Date(date)).tz(timezone).format("LLL z");
+};
 
 /// A relative time/date, like "4d". If tooltip is true (default), hover over
 /// for the actual (non-relative) date/time.

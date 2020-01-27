@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react'
-import CKEditor from '@ckeditor/ckeditor5-react';
+import CKEditor from '../editor/ReactCKEditor';
 import { PostEditor, PostEditorCollaboration } from '@lesswrong/lesswrong-editor';
 import { getSetting } from 'meteor/vulcan:core';
 import { getCKEditorDocumentId, generateTokenRequest } from '../../lib/ckEditorUtils'
@@ -58,6 +58,7 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
   const sidebarRef = useRef(null)
   const presenceListRef = useRef(null)
 
+  const ckEditorCloudConfigured = !!getSetting("ckEditor.webSocketUrl");
   const initData = typeof(data) === "string" ? data : ""
 
   return <div>
@@ -93,12 +94,12 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
             return onSave && onSave( editor.getData() )
           }
         },
-        cloudServices: {
+        cloudServices: ckEditorCloudConfigured ? {
           tokenUrl: generateTokenRequest(documentId, userId, formType),
           uploadUrl,
           webSocketUrl,
           documentId: getCKEditorDocumentId(documentId, userId, formType)
-        },
+        } : undefined,
         sidebar: {
           container: sidebarRef.current
         },

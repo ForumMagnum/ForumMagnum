@@ -2,12 +2,8 @@ import createLWTheme from './createThemeDefaults';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 import indigo from '@material-ui/core/colors/indigo';
 
-import { createMuiTheme } from '@material-ui/core/styles';
-import { sharedOverrides } from './lesswrongTheme';
-
-const defaultTheme = createMuiTheme()
-
 const sansSerifStack = [
+  'GreekFallback', // Ensures that greek letters render consistently
   '"freight-sans-pro"',
   'Frutiger',
   '"Frutiger Linotype"',
@@ -85,13 +81,6 @@ const theme = createLWTheme({
         fontVariantNumeric: "lining-nums",
       }
     },
-    Section: {
-      sectionTitle: {
-        [defaultTheme.breakpoints.up('md')]: {
-          top: 8,
-        }
-      }
-    },
     SectionTitle: {
       leftDivider: {
         width: 18,
@@ -116,8 +105,7 @@ const theme = createLWTheme({
       root: {
         fontWeight: 500,
       }
-    },
-    ...sharedOverrides
+    }
   }
 });
 

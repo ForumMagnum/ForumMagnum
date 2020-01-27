@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { shallowEqual } from '../../lib/modules/utils/componentUtils';
+import { shallowEqual } from '../../lib/utils/componentUtils';
 
 const withGlobalKeydown = (WrappedComponent) => {
   return class ListeningComponent extends Component {
@@ -35,3 +35,15 @@ const withGlobalKeydown = (WrappedComponent) => {
 }
 
 export default withGlobalKeydown
+
+export const useGlobalKeydown = (keyboardHandlerFn) => {
+  React.useEffect(() => {
+    if (Meteor.isClient) {
+      document.addEventListener('keydown', keyboardHandlerFn)
+      
+      return function cleanup() {
+        document.removeEventListener('keydown', keyboardHandlerFn);
+      };
+    }
+  });
+}

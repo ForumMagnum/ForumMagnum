@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { useSubscribedLocation } from '../../lib/routeUtil.js';
+import { useSubscribedLocation } from '../../lib/routeUtil';
 import { withApollo } from 'react-apollo';
 import { withStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';

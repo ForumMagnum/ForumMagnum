@@ -9,7 +9,7 @@ import { wrapVulcanAsyncScript } from './utils'
 import { getAlgoliaAdminClient, algoliaIndexDocumentBatch, algoliaDeleteIds, subsetOfIdsAlgoliaShouldntIndex, algoliaGetAllDocuments } from '../search/utils';
 import { forEachDocumentBatchInCollection } from '../migrations/migrationUtils.js';
 import keyBy from 'lodash/keyBy';
-import { algoliaIndexNames } from '../../lib/algoliaIndexNames';
+import { algoliaIndexNames } from '../../lib/algoliaUtil';
 
 async function algoliaExport(collection, selector = {}, updateFunction) {
   let client = getAlgoliaAdminClient();

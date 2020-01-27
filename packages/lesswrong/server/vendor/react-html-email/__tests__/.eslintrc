@@ -1,9 +1,0 @@
-{
-  "env": {
-    "jest": true
-  },
-  "rules": {
-    "global-require": ["off"],
-    "react/jsx-filename-extension": ["off"]
-  }
-}

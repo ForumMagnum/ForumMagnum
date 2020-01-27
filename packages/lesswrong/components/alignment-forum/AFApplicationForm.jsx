@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, withMessages, withUpdate } from 'meteor/vulcan:core';
+import { registerComponent, withUpdate } from 'meteor/vulcan:core';
+import { withMessages } from '../common/withMessages';
 import withUser from '../common/withUser'
 import Users from 'meteor/vulcan:users';
 import Dialog from '@material-ui/core/Dialog';

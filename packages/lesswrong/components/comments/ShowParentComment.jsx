@@ -4,7 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import SubdirectoryArrowLeft from '@material-ui/icons/SubdirectoryArrowLeft';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
-import { legacyBreakpoints } from '../../lib/modules/utils/theme';
+import { legacyBreakpoints } from '../../lib/utils/theme';
 
 const styles = theme => ({
   root: {

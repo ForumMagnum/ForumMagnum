@@ -4,6 +4,7 @@ import Users from 'meteor/vulcan:users';
 
 registerMigration({
   name: "applyKarmaChangeWidgetDefaults",
+  dateWritten: "2019-01-24",
   idempotent: true,
   action: async () => {
     let now = new Date();

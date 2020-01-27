@@ -1,14 +1,8 @@
-import { arrayOfForeignKeysField } from '../../modules/utils/schemaUtils'
+import { arrayOfForeignKeysField } from '../../utils/schemaUtils'
 
 const schema = {
 
   // default properties
-
-  _id: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-  },
 
   createdAt: {
     type: Date,

@@ -1,7 +1,7 @@
 import { Components, registerComponent, withList, getSetting } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
-import { Link } from 'react-router-dom';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
 import Users from "meteor/vulcan:users";
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
@@ -13,11 +13,12 @@ import classNames from 'classnames';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import { postBodyStyles } from '../../themes/stylePiping'
+import {AnalyticsContext} from "../../lib/analyticsEvents";
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
   display: "flex",
-  '&:after': {
+  '&&:after': {
     content: '""'
   }
 }
@@ -29,7 +30,13 @@ const styles = theme => ({
       margin: 0,
     }
   },
-  meta: sectionFooterLeftStyles,
+  meta: {
+    ...sectionFooterLeftStyles,
+    [theme.breakpoints.down('sm')]: {
+      width: "100%",
+      marginBottom: theme.spacing.unit,
+    }
+  },
   icon: {
     '&$specificalz': {
       fontSize: 18,
@@ -224,91 +231,98 @@ class UsersProfile extends Component {
 
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
-        {/* Bio Section */}
-        <SingleColumnSection>
-          <SectionTitle title={Users.getDisplayName(user)}/>
+        <AnalyticsContext pageContext={"userPage"}>
+          {/* Bio Section */}
+          <SingleColumnSection>
+            <SectionTitle title={Users.getDisplayName(user)}/>
 
-          <SectionFooter>
-            { this.renderMeta() }
-            { user.twitterUsername &&  <a href={"https://twitter.com/" + user.twitterUsername}>
-              @{user.twitterUsername}
-            </a>}
-            { currentUser && currentUser.isAdmin &&
-              <div>
-                <DialogGroup
-                  actions={[]}
-                  trigger={<span>Register RSS Feed</span>}
-                >
-                  <div><Components.newFeedButton user={user} /></div>
-                </DialogGroup>
-              </div>
-            }
-            { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
-              Manage Subscriptions
-            </Link>}
-            { currentUser && currentUser._id != user._id && <NewConversationButton user={user}>
-              <a>Send Message</a>
-            </NewConversationButton>}
-            { currentUser && currentUser._id !== user._id && <SubscribeTo
-              document={user}
-              subscribeMessage="Subscribe to this user's posts"
-              unsubscribeMessage="Unsubscribe from this user's posts"
-            /> }
-            {Users.canEdit(currentUser, user) && <Link to={Users.getEditUrl(user)}>
-              <FormattedMessage id="users.edit_account"/>
-            </Link>}
-          </SectionFooter>
+            <SectionFooter>
+              { this.renderMeta() }
+              { user.twitterUsername &&  <a href={"https://twitter.com/" + user.twitterUsername}>
+                @{user.twitterUsername}
+              </a>}
+              { currentUser?.isAdmin &&
+                <div>
+                  <DialogGroup
+                    actions={[]}
+                    trigger={<span>Register RSS</span>}
+                  >
+                    <div><Components.newFeedButton user={user} /></div>
+                  </DialogGroup>
+                </div>
+              }
+              { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
+                Manage Subscriptions
+              </Link>}
+              { currentUser && currentUser._id != user._id && <NewConversationButton user={user}>
+                <a>Message</a>
+              </NewConversationButton>}
+              { currentUser && currentUser._id !== user._id && <SubscribeTo
+                document={user}
+                subscribeMessage="Subscribe to posts"
+                unsubscribeMessage="Unsubscribe from posts"
+              /> }
+              {Users.canEdit(currentUser, user) && <Link to={Users.getEditUrl(user)}>
+                <FormattedMessage id="users.edit_account"/>
+              </Link>}
+            </SectionFooter>
 
-          { user.bio && <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} /> }
+            { user.bio && <ContentItemBody className={classes.bio} dangerouslySetInnerHTML={{__html: user.htmlBio }} description={`user ${user._id} bio`} /> }
 
-        </SingleColumnSection>
+          </SingleColumnSection>
 
-        {/* Sequences Section */}
-        { this.displaySequenceSection(ownPage, user) && <SingleColumnSection>
-          <SectionTitle title="Sequences">
-            {ownPage && <SequencesNewButton />}
-          </SectionTitle>
-          <Components.SequencesGridWrapper
-              terms={ownPage ? sequenceAllTerms : sequenceTerms}
-              showLoadMore={true}/>
-        </SingleColumnSection> }
-
-        {/* Drafts Section */}
-        { ownPage && <SingleColumnSection>
-          <SectionTitle title="My Drafts">
-            <Link to={"/newPost"}>
-              <SectionButton>
-                <DescriptionIcon /> New Blog Post
-              </SectionButton>
-            </Link>
-          </SectionTitle>
-          <Components.PostsList2 terms={draftTerms}/>
-          <Components.PostsList2 terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
-          {getSetting('hasEvents', true) && <Components.LocalGroupsList terms={{view: 'userInactiveGroups', userId: currentUser._id}} showHeader={false} />}
-        </SingleColumnSection> }
-        {/* Posts Section */}
-        <SingleColumnSection>
-          <div className={classes.title} onClick={() => this.setState({showSettings: !showSettings})}>
-            <SectionTitle title={`${Users.getDisplayName(user)}'s Posts`}>
-              <SettingsIcon/>
-              <div className={classes.settingsText}>Sorted by { sortings[currentSorting] }</div>
+          {/* Sequences Section */}
+          { this.displaySequenceSection(ownPage, user) && <SingleColumnSection>
+            <SectionTitle title="Sequences">
+              {ownPage && <SequencesNewButton />}
             </SectionTitle>
-          </div>
-          {showSettings && <PostsListSettings
-            hidden={false}
-            currentSorting={currentSorting}
-            currentFilter={currentFilter}
-            currentShowLowKarma={currentShowLowKarma}
-            sortings={sortings}
-          />}
-          <PostsList2 terms={terms} />
-        </SingleColumnSection>
+            <Components.SequencesGridWrapper
+                terms={ownPage ? sequenceAllTerms : sequenceTerms}
+                showLoadMore={true}/>
+          </SingleColumnSection> }
 
-        {/* Comments Sections */}
-        <SingleColumnSection>
-          <SectionTitle title={`${Users.getDisplayName(user)}'s Comments`} />
-          <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} fontSize="small" />
-        </SingleColumnSection>
+          {/* Drafts Section */}
+          { ownPage && <SingleColumnSection>
+            <SectionTitle title="My Drafts">
+              <Link to={"/newPost"}>
+                <SectionButton>
+                  <DescriptionIcon /> New Blog Post
+                </SectionButton>
+              </Link>
+            </SectionTitle>
+            <AnalyticsContext listContext={"userPageDrafts"}>
+              <Components.PostsList2 terms={draftTerms}/>
+              <Components.PostsList2 terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
+            </AnalyticsContext>
+            {getSetting('hasEvents', true) && <Components.LocalGroupsList terms={{view: 'userInactiveGroups', userId: currentUser._id}} showHeader={false} />}
+          </SingleColumnSection> }
+          {/* Posts Section */}
+          <SingleColumnSection>
+            <div className={classes.title} onClick={() => this.setState({showSettings: !showSettings})}>
+              <SectionTitle title={`${Users.getDisplayName(user)}'s Posts`}>
+                <SettingsIcon label={`Sorted by ${ sortings[currentSorting]}`}/>
+              </SectionTitle>
+            </div>
+            {showSettings && <PostsListSettings
+              hidden={false}
+              currentSorting={currentSorting}
+              currentFilter={currentFilter}
+              currentShowLowKarma={currentShowLowKarma}
+              sortings={sortings}
+            />}
+            <AnalyticsContext listContext={"userPagePosts"}>
+              <PostsList2 terms={terms} />
+            </AnalyticsContext>
+          </SingleColumnSection>
+
+          {/* Comments Sections */}
+          <AnalyticsContext pageSectionContext="commentsSection">
+            <SingleColumnSection>
+              <SectionTitle title={`${Users.getDisplayName(user)}'s Comments`} />
+              <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} fontSize="small" />
+            </SingleColumnSection>
+          </AnalyticsContext>
+        </AnalyticsContext>
       </div>
     )
   }

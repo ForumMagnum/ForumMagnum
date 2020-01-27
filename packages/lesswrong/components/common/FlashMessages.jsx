@@ -1,4 +1,5 @@
-import { registerComponent, withMessages } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
+import { withMessages } from './withMessages';
 import React, { Component } from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
 import Button from '@material-ui/core/Button';
@@ -29,7 +30,7 @@ class FlashMessages extends Component {
     return (
       <div className="flash-messages">
         <Snackbar
-          open={messages[0] && !messages[0].hide}
+          open={messageObject && !messageObject.hide}
           message={messageObject && messageObject.message}
           autoHideDuration={6000}
           onClose={clear}

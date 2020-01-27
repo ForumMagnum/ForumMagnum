@@ -1,10 +1,11 @@
-import { Components, registerComponent, getFragment, withMessages, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment, getSetting } from 'meteor/vulcan:core';
+import { withMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import PropTypes from 'prop-types';
 import withUser from '../common/withUser'
 import { withStyles } from '@material-ui/core/styles';
-import { useLocation, useNavigation } from '../../lib/routeUtil.js';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
 import NoSsr from '@material-ui/core/NoSsr';
 
 const styles = theme => ({

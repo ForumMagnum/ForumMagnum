@@ -1,33 +1,8 @@
 import React from 'react';
-import { Components, registerComponent, parseRoute, Utils } from 'meteor/vulcan:core';
+import { Components, registerComponent, parseRoute, parsePath, Utils } from 'meteor/vulcan:core';
 import { hostIsOnsite, useLocation, getUrlClass } from '../../lib/routeUtil';
 import Sentry from '@sentry/node';
-
-// From react-router-v4
-// https://github.com/ReactTraining/history/blob/master/modules/PathUtils.js
-export const parsePath = function parsePath(path) {
-  var pathname = path || '/';
-  var search = '';
-  var hash = '';
-  
-  var hashIndex = pathname.indexOf('#');
-  if (hashIndex !== -1) {
-    hash = pathname.substr(hashIndex);
-    pathname = pathname.substr(0, hashIndex);
-  }
-  
-  var searchIndex = pathname.indexOf('?');
-  if (searchIndex !== -1) {
-    search = pathname.substr(searchIndex);
-    pathname = pathname.substr(0, searchIndex);
-  }
-  
-  return {
-    pathname: pathname,
-    search: search === '?' ? '' : search,
-    hash: hash === '#' ? '' : hash
-  };
-};
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 export const parseRouteWithErrors = (onsiteUrl, contentSourceDescription) => {
   return parseRoute({
@@ -46,11 +21,9 @@ export const parseRouteWithErrors = (onsiteUrl, contentSourceDescription) => {
 const linkIsExcludedFromPreview = (url) => {
   // Don't try to preview links that go directly to images. The usual use case
   // for such links is an image where you click for a larger version.
-  if (url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.jpeg') || url.endsWith('.gif')) {
-    return true;
-  }
-  
-  return false;
+  return !!(url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.jpeg') || url.endsWith('.gif'));
+
+
 }
 
 // A link, which will have a hover preview auto-selected and attached. Used from
@@ -62,45 +35,48 @@ const linkIsExcludedFromPreview = (url) => {
 //   contentSourceDescription: (Optional) A human-readabe string describing
 //     where this content came from. Used in error logging only, not displayed
 //     to users.
-const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription }) => {
+const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id }) => {
   const URLClass = getUrlClass()
   const location = useLocation();
 
   // Invalid link with no href? Don't transform it.
   if (!href) {
-    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
+    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id}/>
   }
-  
+
   // Within-page relative link?
   if (href.startsWith("#")) {
-    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
+    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} />
   }
 
   try {
-    const currentURL = new URLClass(location.pathname, Utils.getSiteUrl());
+    const currentURL = new URLClass(location.url, Utils.getSiteUrl());
     const linkTargetAbsolute = new URLClass(href, currentURL);
-    
+
     const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
     if (!linkIsExcludedFromPreview(onsiteUrl) && (hostIsOnsite(linkTargetAbsolute.host) || Meteor.isServer)) {
       const parsedUrl = parseRouteWithErrors(onsiteUrl, contentSourceDescription)
-      
-      if (parsedUrl?.currentRoute) {
-        const PreviewComponent = parsedUrl.currentRoute?.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;
-        
+      const destinationUrl = parsedUrl.url;
+
+      if (parsedUrl.currentRoute) {
+        const PreviewComponent = parsedUrl.currentRoute.previewComponentName ? Components[parsedUrl.currentRoute.previewComponentName] : null;
+
         if (PreviewComponent) {
-          return <PreviewComponent href={onsiteUrl} targetLocation={parsedUrl} innerHTML={innerHTML}/>
+          return <AnalyticsContext pageElementContext="linkPreview" href={destinationUrl} hoverPreviewType={parsedUrl.currentRoute.previewComponentName} onsite>
+            <PreviewComponent href={destinationUrl} targetLocation={parsedUrl} innerHTML={innerHTML} id={id}/>
+          </AnalyticsContext>
         } else {
-          return <Components.DefaultPreview href={href} innerHTML={innerHTML} onSite/>
+          return <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} />
         }
       }
     } else {
-      return <Components.DefaultPreview href={href} innerHTML={innerHTML}/>
+      return <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} />
     }
-    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
+    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} />
   } catch (err) {
     console.error(err) // eslint-disable-line
     console.error(href, innerHTML) // eslint-disable-line
-    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
+    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id}/>
   }
 
 }

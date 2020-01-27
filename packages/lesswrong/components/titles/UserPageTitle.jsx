@@ -1,15 +1,30 @@
 import React from 'react';
-import { registerComponent, withList } from 'meteor/vulcan:core';
+import { registerComponent, useMulti } from 'meteor/vulcan:core';
 import { Link } from '../../lib/reactRouterWrapper';
 import Users from 'meteor/vulcan:users';
-import mapProps from 'recompose/mapProps';
-import { withLocation } from '../../lib/routeUtil';
+import { useLocation } from '../../lib/routeUtil';
 import { Helmet } from 'react-helmet';
 import { withStyles } from '@material-ui/core/styles';
 import { styles } from '../common/HeaderSubtitle';
 import { getUserFromResults } from '../users/UsersProfile';
 
-const UserPageTitle = ({location, isSubtitle, siteName, loading, results, classes}) => {
+const UserPageTitle = ({isSubtitle, siteName, classes}) => {
+  const { params: {slug} } = useLocation();
+  const { results, loading } = useMulti({
+    terms: {
+      view: "usersProfile",
+      slug: slug,
+    },
+    collection: Users,
+    fragmentName: "UsersMinimumInfo",
+    // Ugly workaround: For unclear reasons, this title component (but not the
+    // posts-page or sequences-page title components) fails (results undefined)
+    // if fetchPolicy is cache-only. When set to cache-then-network, it works,
+    // without generating any network requests.
+    fetchPolicy: 'cache-then-network',
+    ssr: true,
+  });
+  
   if (!results || loading) return null;
   
   const user = getUserFromResults(results);
@@ -32,20 +47,5 @@ const UserPageTitle = ({location, isSubtitle, siteName, loading, results, classe
   }
 }
 registerComponent("UserPageTitle", UserPageTitle,
-  withLocation,
-  mapProps((props) => {
-    const {location} = props;
-    const {params: {slug}} = location;
-    return {
-      terms: {view: "usersProfile", slug: slug},
-      ...props
-    }
-  }),
-  [withList, {
-    collection: Users,
-    fragmentName: "UsersMinimumInfo",
-    fetchPolicy: 'cache-only',
-    ssr: true,
-  }],
   withStyles(styles, {name: "UserPageTitle"})
 );

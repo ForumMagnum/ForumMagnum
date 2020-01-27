@@ -1,10 +1,10 @@
 import React from 'react';
 import { registerComponent, Components, useMulti } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
-import { withVote } from '../votes/withVote';
+import { useVote } from '../votes/withVote';
 import { useCurrentUser } from '../common/withUser';
 import { TagRels } from '../../lib/collections/tagRels/collection.js';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 import { commentBodyStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({
@@ -46,8 +46,9 @@ const styles = theme => ({
 
 const previewPostCount = 3;
 
-const TagRelCard = ({tagRel, vote, classes}) => {
+const TagRelCard = ({tagRel, classes}) => {
   const currentUser = useCurrentUser();
+  const vote = useVote();
   const { VoteButton, PostsItem2, ContentItemBody, PostsListPlaceholder } = Components;
   
   const { results } = useMulti({
@@ -109,5 +110,4 @@ const TagRelCard = ({tagRel, vote, classes}) => {
 }
 
 registerComponent("TagRelCard", TagRelCard,
-  withVote,
   withStyles(styles, {name: "TagRelCard"}));

@@ -6,7 +6,8 @@ import withHover from '../common/withHover';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { Comments } from '../../lib/collections/comments'
-import { isMobile } from '../../lib/modules/utils/isMobile.js'
+import { isMobile } from '../../lib/utils/isMobile'
+import { styles as commentsItemStyles } from './CommentsItem/CommentsItem';
 
 const styles = theme => ({
   root: {
@@ -71,7 +72,8 @@ const styles = theme => ({
     ...commentBodyStyles(theme),
     backgroundColor: "white",
     padding: theme.spacing.unit*1.5,
-    width: 625,
+    width: "inherit",
+    maxWidth: 625,
     position: "absolute",
     top: "calc(100% - 20px)",
     right: 0,
@@ -100,20 +102,21 @@ const styles = theme => ({
       backgroundColor: "#f3f3f3",
     }
   },
-  expandTip: {
-    textAlign: "right",
-    fontSize: "1rem",
-    color: theme.palette.lwTertiary.main
+  nomination: {
+    ...commentsItemStyles(theme).nomination,
+    marginRight: theme.spacing.unit
   }
 })
 
-const SingleLineComment = ({comment, classes, nestingLevel, hover, parentCommentId}) => {
+const SingleLineComment = ({comment, classes, nestingLevel, hover, parentCommentId, hideKarma, enableHoverPreview=true, hideSingleLineMeta}) => {
   if (!comment) return null
 
   const { plaintextMainText } = comment.contents
   const { CommentBody, ShowParentComment, CommentUserName, CommentShortformIcon } = Components
 
-  const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile()
+  const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile() && enableHoverPreview
+
+  const renderHighlight = (comment.baseScore > -5) && !comment.deleted
 
   return (
     <div className={classes.root}>
@@ -123,23 +126,26 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
         { parentCommentId!=comment.parentCommentId &&
           <ShowParentComment comment={comment} nestingLevel={nestingLevel} />
         }
-        <span className={classes.karma}>
+        {!hideKarma && <span className={classes.karma}>
           {Comments.getKarma(comment)}
-        </span>
+        </span>}
         <span className={classes.username}>
           <CommentUserName comment={comment} simple={true}/>
         </span>
-        <span className={classes.date}>
+        {!hideSingleLineMeta && <span className={classes.date}>
           <Components.FormatDate date={comment.postedAt} tooltip={false}/>
-        </span>
-        {(comment.baseScore > -5) && <span className={classes.truncatedHighlight}> {plaintextMainText} </span>}      
+        </span>}
+        {renderHighlight && <span className={classes.truncatedHighlight}> 
+          { comment.nominatedForReview && !hideSingleLineMeta && <span className={classes.nomination}>Nomination</span>}
+          { comment.reviewingForReview && !hideSingleLineMeta && <span className={classes.nomination}>Review</span>}
+          {plaintextMainText} 
+        </span>}      
       </div>
       {displayHoverOver && <span className={classNames(classes.highlight)}>
         <CommentBody truncated comment={comment}/>
-        <div className={classes.expandTip}>[Click to expand all comments in this thread]</div>
       </span>}
     </div>
   )
 };
 
-registerComponent('SingleLineComment', SingleLineComment, withStyles(styles, {name:"SingleLineComment"}), withHover, withErrorBoundary);
+registerComponent('SingleLineComment', SingleLineComment, withStyles(styles, {name:"SingleLineComment"}), withHover(), withErrorBoundary);

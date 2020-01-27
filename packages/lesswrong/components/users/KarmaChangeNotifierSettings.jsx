@@ -10,8 +10,8 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import withTimezone from '../common/withTimezone';
-import moment from 'moment-timezone';
-import { convertTimeOfWeekTimezone } from '../../lib/modules/utils/timeUtil.js';
+import moment from '../../lib/moment-timezone';
+import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
 
 const styles = theme => ({
   root: {

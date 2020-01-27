@@ -1,11 +1,11 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 import moment from 'moment';
-import withTimezone from '../common/withTimezone';
+import { useTimezone } from '../common/withTimezone';
 
 const styles = theme => ({
   read: {
@@ -18,12 +18,13 @@ const styles = theme => ({
   },
 })
 
-const DateWithoutTime = withTimezone(
-  ({date, timezone}) =>
-    <span>{moment(date).tz(timezone).format("MMM Do")}</span>
-);
+const DateWithoutTime = ({date}) => {
+  const { timezone } = useTimezone();
+  return <span>{moment(date).tz(timezone).format("MMM Do")}</span>
+}
 
-const PostsItemMeta = ({classes, currentUser, post, read}) => {
+const PostsItemMeta = ({post, read, classes}) => {
+  const currentUser = useCurrentUser();
   const { wordCount = 0 } = post.contents || {}
   const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
   const afBaseScore = getSetting('forumType') !== 'AlignmentForum' && post.af ? post.afBaseScore : null
@@ -55,9 +56,9 @@ const PostsItemMeta = ({classes, currentUser, post, read}) => {
         <Components.EventVicinity post={post} />
       </MetaInfo>}
 
-      { post.user && <MetaInfo>
+      <MetaInfo>
         <PostsUserAndCoauthors post={post}/>
-      </MetaInfo>}
+      </MetaInfo>
 
       {post.postedAt && !post.isEvent && <MetaInfo>
         <FormatDate date={post.postedAt}/>
@@ -83,4 +84,4 @@ const PostsItemMeta = ({classes, currentUser, post, read}) => {
     </span>
 };
 
-registerComponent('PostsItemMeta', PostsItemMeta, withUser, withStyles(styles, {name: "PostsItemMeta"}))
+registerComponent('PostsItemMeta', PostsItemMeta, withStyles(styles, {name: "PostsItemMeta"}))
