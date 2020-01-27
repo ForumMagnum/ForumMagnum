@@ -1,5 +1,5 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import React, { PureComponent } from 'react';
+import React from 'react';
 import Dialog from '@material-ui/core/Dialog';
 import { withStyles, createStyles } from '@material-ui/core/styles';
 

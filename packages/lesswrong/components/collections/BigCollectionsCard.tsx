@@ -1,5 +1,5 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { withStyles, createStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';

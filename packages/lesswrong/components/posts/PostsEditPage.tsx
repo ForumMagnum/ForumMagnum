@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withLocation } from '../../lib/routeUtil'
 

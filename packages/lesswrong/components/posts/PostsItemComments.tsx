@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import { withStyles, createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames'

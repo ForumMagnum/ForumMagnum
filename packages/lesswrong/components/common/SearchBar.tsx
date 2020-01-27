@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
-import PropTypes from 'prop-types';
 import { InstantSearch, SearchBox, connectMenu } from 'react-instantsearch-dom';
 import { withStyles, createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
@@ -99,7 +98,7 @@ const styles = createStyles(theme => ({
 }))
 
 interface SearchBarProps extends WithStylesProps, WithLocationProps {
-  onSetIsActive: any,
+  onSetIsActive: (active: boolean)=>void,
   searchResultsArea: any,
 }
 
@@ -220,15 +219,6 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
       </div>
     </div>
   }
-}
-
-(SearchBar as any).propTypes = {
-  color: PropTypes.string,
-  onSetIsActive: PropTypes.func,
-};
-
-(SearchBar as any).defaultProps = {
-  color: "rgba(0, 0, 0, 0.6)"
 }
 
 const SearchBarComponent = registerComponent("SearchBar", SearchBar, withStyles(styles, {name: "SearchBar"}), withLocation, withErrorBoundary);

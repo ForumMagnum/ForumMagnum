@@ -1,7 +1,6 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import MenuItem from '@material-ui/core/MenuItem';
-import PropTypes from 'prop-types';
 import Users from 'meteor/vulcan:users';
 import withUser from '../../common/withUser';
 import Edit from '@material-ui/icons/Edit';

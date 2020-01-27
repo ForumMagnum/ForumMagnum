@@ -116,7 +116,7 @@ const TableOfContentsRow = ({
   return <Typography variant="body2"
     className={classNames(
       classes.root,
-      this.levelToClassName(indentLevel, classes),
+      levelToClassName(indentLevel, classes),
       { [classes.highlighted]: highlighted }
     )}
   >

@@ -1,5 +1,5 @@
 import React from 'react'
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
 
 const DefaultStyleFormGroup = (props) => {
     return <React.Fragment>

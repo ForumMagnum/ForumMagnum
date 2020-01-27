@@ -1,5 +1,5 @@
 import { registerComponent } from 'meteor/vulcan:core';
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { withStyles, createStyles } from '@material-ui/core/styles';
 
 const styles = createStyles(theme => ({

@@ -1,5 +1,4 @@
-import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
 import { withSingle } from '../../lib/crud/withSingle';
 import { withMessages } from '../common/withMessages';
@@ -66,10 +65,6 @@ const PostsEditForm = ({
       </NoSsr>
     </div>
   );
-}
-
-(PostsEditForm as any).propTypes = {
-  flash: PropTypes.func,
 }
 
 const PostsEditFormComponent = registerComponent('PostsEditForm', PostsEditForm,
