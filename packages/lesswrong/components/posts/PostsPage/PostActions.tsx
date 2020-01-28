@@ -172,7 +172,7 @@ class PostActions extends Component<PostActionsProps,{}> {
             unsubscribeMessage={"Unsubscribe from "+post.group.name}/>
         </MenuItem>}
 
-        {post.shortform && (post.userId !== currentUser._id) &&
+        {currentUser && post.shortform && (post.userId !== currentUser._id) &&
           <MenuItem>
             <SubscribeTo document={post} showIcon
               subscriptionType={subscriptionTypes.newShortform}
