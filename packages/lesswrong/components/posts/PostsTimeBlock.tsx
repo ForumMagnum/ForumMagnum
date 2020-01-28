@@ -127,7 +127,7 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
       timeframe, networkStatus, timezone, displayShortform = true
     } = this.props
     const { noShortform } = this.state
-    const { PostsItem2, LoadMore, ShortformTimeBlock, SectionSubtitle, SubSection, Loading, ContentType, Divider } = Components
+    const { PostsItem2, LoadMore, ShortformTimeBlock, SubSection, Loading, ContentType, Divider } = Components
     const timeBlock = timeframeToTimeBlock[timeframe]
 
     const noPosts = !loading && (!posts || (posts.length === 0))
@@ -180,11 +180,11 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
 
           {postGroups.map(({name, posts, label}) => {
             if (posts?.length > 0) return <div key={name}>
-              <SectionSubtitle
+              <div
                 className={name === 'frontpage' ? classes.frontpageSubtitle : classes.otherSubtitle}
               >
                 <ContentType type={name} label={label} />
-              </SectionSubtitle>
+              </div>
               <SubSection>
                 {posts.map((post, i) =>
                   <PostsItem2 key={post._id} post={post} index={i} dense />
