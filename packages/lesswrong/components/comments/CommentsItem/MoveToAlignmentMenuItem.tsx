@@ -10,7 +10,7 @@ import Users from 'meteor/vulcan:users';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ArrowRightAlt from '@material-ui/icons/ArrowRightAlt';
 import Undo from '@material-ui/icons/Undo';
-import { withStyles, createStyles } from '@material-ui/core/styles'
+import { createStyles } from '@material-ui/core/styles'
 
 const styles = createStyles(theme => ({
   iconRoot: {
@@ -110,15 +110,16 @@ class MoveToAlignmentMenuItem extends PureComponent<MoveToAlignmentMenuItemProps
 }
 
 const MoveToAlignmentMenuItemComponent = registerComponent(
-  'MoveToAlignmentMenuItem', MoveToAlignmentMenuItem,
-  withUpdate({
-    collection: Comments,
-    fragmentName: 'CommentsList',
-  }),
-  withStyles(styles, {name:'MoveToAlignmentMenuItem'}),
-  withMessages,
-  withApollo,
-  withUser
+  'MoveToAlignmentMenuItem', MoveToAlignmentMenuItem, {
+    styles,
+    hocs: [
+      withUpdate({
+        collection: Comments,
+        fragmentName: 'CommentsList',
+      }),
+      withMessages, withApollo, withUser
+    ]
+  }
 );
 
 declare global {

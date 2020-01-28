@@ -2,7 +2,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useSingle } from '../../../lib/crud/withSingle';
 import React from 'react';
 import { Comments } from '../../../lib/collections/comments';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 
 const styles = createStyles(theme => ({
   root: {
@@ -46,8 +46,7 @@ const CommentDeletedMetadata = ({documentId, classes}: {
 };
 
 const CommentDeletedMetadataComponent = registerComponent(
-  'CommentDeletedMetadata', CommentDeletedMetadata,
-  withStyles(styles, {name: "CommentDeletedMetadata"}),
+  'CommentDeletedMetadata', CommentDeletedMetadata, {styles}
 );
 
 declare global {

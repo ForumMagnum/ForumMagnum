@@ -1,6 +1,6 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { commentBodyStyles, postBodyStyles } from '../../themes/stylePiping'
 import withHover from '../common/withHover';
 import classNames from 'classnames';
@@ -148,7 +148,10 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
   )
 };
 
-const SingleLineCommentComponent = registerComponent('SingleLineComment', SingleLineComment, withStyles(styles, {name:"SingleLineComment"}), withHover(), withErrorBoundary);
+const SingleLineCommentComponent = registerComponent('SingleLineComment', SingleLineComment, {
+  styles,
+  hocs: [withHover(), withErrorBoundary]
+});
 
 declare global {
   interface ComponentTypes {

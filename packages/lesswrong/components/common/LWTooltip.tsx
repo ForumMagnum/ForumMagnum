@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import withHover from './withHover';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 
 const styles = createStyles(theme => ({
   root: {
@@ -10,7 +10,17 @@ const styles = createStyles(theme => ({
   }
 }))
 
-const LWTooltip = ({classes, children, title, placement="bottom-start", hover, anchorEl, stopHover, tooltip=true, flip=true}) => {
+interface ExternalProps {
+  children?: any,
+  title?: any,
+  placement?: string,
+  tooltip?: boolean,
+  flip?: boolean,
+}
+interface LWTooltipProps extends ExternalProps, WithStylesProps, WithHoverProps {
+}
+
+const LWTooltip = ({classes, children, title, placement="bottom-start", hover, anchorEl, stopHover, tooltip=true, flip=true}: LWTooltipProps) => {
   const { LWPopper } = Components
   return <span className={classes.root}>
     <LWPopper 
@@ -31,9 +41,12 @@ const LWTooltip = ({classes, children, title, placement="bottom-start", hover, a
   </span>
 }
 
-const LWTooltipComponent = registerComponent("LWTooltip", LWTooltip,
-  withHover({pageElementContext: "tooltipHovered"}, ({title}) => ({title})),
-  withStyles(styles, {name:"withStyles"}));
+const LWTooltipComponent = registerComponent<ExternalProps>("LWTooltip", LWTooltip, {
+  styles,
+  hocs: [
+    withHover({pageElementContext: "tooltipHovered"}, ({title}) => ({title})),
+  ]
+});
 
 declare global {
   interface ComponentTypes {

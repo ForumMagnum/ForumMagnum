@@ -27,7 +27,9 @@ const BookmarksList = ({currentUser, limit=50 }) => {
   )
 }
 
-const BookmarksListComponent = registerComponent('BookmarksList', BookmarksList, withUser, withErrorBoundary);
+const BookmarksListComponent = registerComponent('BookmarksList', BookmarksList, {
+  hocs: [withUser, withErrorBoundary]
+});
 
 declare global {
   interface ComponentTypes {

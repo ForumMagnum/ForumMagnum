@@ -1,6 +1,6 @@
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import Divider from '@material-ui/core/Divider';
 
 // -- See here for all the tab content --
@@ -41,8 +41,7 @@ const TabNavigationMenuCompressed = ({onClickSection, classes}) => {
 };
 
 const TabNavigationMenuCompressedComponent = registerComponent(
-  'TabNavigationMenuCompressed', TabNavigationMenuCompressed,
-  withStyles(styles, { name: 'TabNavigationMenuCompressed'})
+  'TabNavigationMenuCompressed', TabNavigationMenuCompressed, {styles}
 );
 
 declare global {

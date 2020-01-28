@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles'
+import { createStyles } from '@material-ui/core/styles'
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 import StarIcon from '@material-ui/icons/Star';
@@ -73,7 +73,7 @@ const PostsItemIcons = ({post, classes}) => {
   </span>
 }
 
-const PostsItemIconsComponent = registerComponent('PostsItemIcons', PostsItemIcons, withStyles(styles, { name: "PostsItemIcons" }));
+const PostsItemIconsComponent = registerComponent('PostsItemIcons', PostsItemIcons, {styles});
 
 declare global {
   interface ComponentTypes {

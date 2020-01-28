@@ -1,6 +1,6 @@
 import React from 'react'
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles'
+import { createStyles } from '@material-ui/core/styles'
 import withUser from '../../common/withUser'
 import Typography from '@material-ui/core/Typography'
 
@@ -21,7 +21,10 @@ const PostsPageEventData = ({classes, post, currentUser}) => {
   </Typography>
 }
 
-const PostsPageEventDataComponent = registerComponent('PostsPageEventData', PostsPageEventData, withUser, withStyles(styles, {name: "PostsPageEventData"}))
+const PostsPageEventDataComponent = registerComponent('PostsPageEventData', PostsPageEventData, {
+  styles,
+  hocs: [withUser],
+});
 
 declare global {
   interface ComponentTypes {

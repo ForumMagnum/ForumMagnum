@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../../common/withErrorBoundary'
 
 const styles = createStyles(theme => ({
@@ -99,9 +99,10 @@ class TableOfContents extends Component<TableOfContentsProps,TableOfContentsStat
   }
 }
 
-const TableOfContentsComponent = registerComponent("TableOfContents", TableOfContents,
-  withErrorBoundary, withToCContext,
-  withStyles(styles, { name: "TableOfContents" }));
+const TableOfContentsComponent = registerComponent("TableOfContents", TableOfContents, {
+  styles,
+  hocs: [withErrorBoundary, withToCContext]
+});
 
 declare global {
   interface ComponentTypes {

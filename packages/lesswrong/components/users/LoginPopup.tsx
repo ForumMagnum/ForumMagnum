@@ -1,7 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import Dialog from '@material-ui/core/Dialog';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 
 const styles = createStyles(theme => ({
   dialog: {
@@ -36,8 +36,7 @@ const LoginPopup = ({onClose, classes}) => {
   );
 }
 
-const LoginPopupComponent = registerComponent('LoginPopup', LoginPopup,
-  withStyles(styles, {name: "LoginPopup"}));
+const LoginPopupComponent = registerComponent('LoginPopup', LoginPopup, {styles});
 
 declare global {
   interface ComponentTypes {

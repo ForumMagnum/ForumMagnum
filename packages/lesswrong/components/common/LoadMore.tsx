@@ -1,6 +1,6 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import { queryIsUpdating } from './queryStatusUtils'
 import {useTracking} from "../../lib/analyticsEvents";
@@ -50,9 +50,7 @@ const LoadMore = ({ loadMore, count, totalCount, classes, disabled=false, networ
   )
 }
 
-const LoadMoreComponent = registerComponent('LoadMore', LoadMore,
-  withStyles(styles, { name: "LoadMore" })
-);
+const LoadMoreComponent = registerComponent('LoadMore', LoadMore, {styles});
 
 declare global {
   interface ComponentTypes {

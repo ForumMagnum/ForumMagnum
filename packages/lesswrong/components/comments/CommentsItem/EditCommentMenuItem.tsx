@@ -22,7 +22,9 @@ const EditCommentMenuItem = ({ currentUser, comment, showEdit }) => {
   }
 };
 
-const EditCommentMenuItemComponent = registerComponent('EditCommentMenuItem', EditCommentMenuItem, withUser);
+const EditCommentMenuItemComponent = registerComponent('EditCommentMenuItem', EditCommentMenuItem, {
+  hocs: [withUser]
+});
 
 declare global {
   interface ComponentTypes {

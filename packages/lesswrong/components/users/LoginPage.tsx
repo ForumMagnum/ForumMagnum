@@ -27,7 +27,9 @@ class LoginPage extends Component<LoginPageProps,{}> {
   }
 }
 
-const LoginPageComponent = registerComponent('LoginPage', LoginPage, withUser, withNavigation);
+const LoginPageComponent = registerComponent('LoginPage', LoginPage, {
+  hocs: [withUser, withNavigation]
+});
 
 declare global {
   interface ComponentTypes {

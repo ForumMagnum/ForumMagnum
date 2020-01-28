@@ -1,6 +1,6 @@
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles'
+import { createStyles } from '@material-ui/core/styles'
 import { truncate } from '../../lib/editor/ellipsize';
 import withUser from "../common/withUser";
 import { postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
@@ -160,9 +160,10 @@ const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, truncate
 
 }
 
-const PostsPreviewTooltipComponent = registerComponent('PostsPreviewTooltip', PostsPreviewTooltip, withUser,
-  withStyles(styles, { name: "PostsPreviewTooltip" })
-);
+const PostsPreviewTooltipComponent = registerComponent('PostsPreviewTooltip', PostsPreviewTooltip, {
+  styles,
+  hocs: [withUser],
+});
 
 declare global {
   interface ComponentTypes {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import withHover from '../common/withHover';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { KARMA_WIDTH } from './PostsItem2';
 
 const styles = createStyles(theme => ({
@@ -38,7 +38,10 @@ const Pingback = ({classes, post, hover, anchorEl, stopHover}) => {
   </div>
 }
 
-const PingbackComponent = registerComponent("Pingback", Pingback, withStyles(styles, {name: "Pingback"}), withHover());
+const PingbackComponent = registerComponent("Pingback", Pingback, {
+  styles,
+  hocs: [withHover()]
+});
 
 declare global {
   interface ComponentTypes {

@@ -2,7 +2,7 @@ import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import HistoryIcon from '@material-ui/icons/History';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import { QueryLink } from '../../../lib/reactRouterWrapper';
 
@@ -34,8 +34,8 @@ const CommentOutdatedWarning = ({comment, post, classes}) => {
 };
 
 const CommentOutdatedWarningComponent = registerComponent(
-  'CommentOutdatedWarning', CommentOutdatedWarning,
-  withStyles(styles, { name: "CommentOutdatedWarning" }));
+  'CommentOutdatedWarning', CommentOutdatedWarning, {styles}
+);
 
 declare global {
   interface ComponentTypes {

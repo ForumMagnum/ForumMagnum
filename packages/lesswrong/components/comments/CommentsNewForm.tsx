@@ -5,7 +5,7 @@ import { Comments } from '../../lib/collections/comments';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useDialog } from '../common/withDialog';
@@ -137,7 +137,10 @@ CommentsNewForm.propTypes = {
   prefilledProps: PropTypes.object
 };
 
-const CommentsNewFormComponent = registerComponent('CommentsNewForm', CommentsNewForm, withUser, withStyles(styles, {name: "CommentsNewForm"}), withErrorBoundary);
+const CommentsNewFormComponent = registerComponent('CommentsNewForm', CommentsNewForm, {
+  styles,
+  hocs: [withUser, withErrorBoundary]
+});
 
 declare global {
   interface ComponentTypes {

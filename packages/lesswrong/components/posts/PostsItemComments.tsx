@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames'
 import CommentIcon from '@material-ui/icons/ModeComment';
 import { Posts } from "../../lib/collections/posts";
@@ -47,7 +47,7 @@ const PostsItemComments = ({ classes, post, onClick, unreadComments }) => {
   )
 }
 
-const PostsItemCommentsComponent = registerComponent('PostsItemComments', PostsItemComments, withStyles(styles, {name: 'PostsItemComments'}))
+const PostsItemCommentsComponent = registerComponent('PostsItemComments', PostsItemComments, {styles});
 
 declare global {
   interface ComponentTypes {

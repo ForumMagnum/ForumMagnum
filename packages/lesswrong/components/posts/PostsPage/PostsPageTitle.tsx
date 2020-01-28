@@ -1,5 +1,5 @@
 import React from 'react'
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { registerComponent } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 import { Link } from '../../../lib/reactRouterWrapper';
@@ -51,7 +51,7 @@ const PostsPageTitle = ({classes, post}) => {
 }
 
 
-const PostsPageTitleComponent = registerComponent('PostsPageTitle', PostsPageTitle, withStyles(styles, {name: "PostsPageTitle"}))
+const PostsPageTitleComponent = registerComponent('PostsPageTitle', PostsPageTitle, {styles});
 
 declare global {
   interface ComponentTypes {

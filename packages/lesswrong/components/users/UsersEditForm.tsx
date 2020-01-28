@@ -11,9 +11,9 @@ import withUser from '../common/withUser';
 import { withApollo } from 'react-apollo'
 import { useNavigation } from '../../lib/routeUtil';
 
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
     width: "60%",
     maxWidth: 600,
@@ -34,7 +34,7 @@ const styles = theme => ({
   resetButton: {
     marginBottom:theme.spacing.unit * 4
   }
-})
+}))
 
 const UsersEditForm = (props) => {
   const { classes, terms, currentUser, client } = props
@@ -108,10 +108,10 @@ UsersEditForm.contextTypes = {
   intl: intlShape
 };
 
-const UsersEditFormComponent = registerComponent('UsersEditForm', UsersEditForm,
-  withMessages, withUser, withApollo,
-  withStyles(styles, { name: "UsersEditForm" })
-);
+const UsersEditFormComponent = registerComponent('UsersEditForm', UsersEditForm, {
+  styles,
+  hocs: [withMessages, withUser, withApollo]
+});
 
 declare global {
   interface ComponentTypes {

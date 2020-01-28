@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import Tooltip from '@material-ui/core/Tooltip';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 
@@ -38,8 +38,10 @@ const LoginPopupButton = ({classes, currentUser, children, title}) => {
   )
 }
 
-const LoginPopupButtonComponent = registerComponent('LoginPopupButton', LoginPopupButton,
-  withUser, withStyles(styles, {name: "LoginPopupButton"}));
+const LoginPopupButtonComponent = registerComponent('LoginPopupButton', LoginPopupButton, {
+  styles,
+  hocs: [withUser]
+});
 
 declare global {
   interface ComponentTypes {

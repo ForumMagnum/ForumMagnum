@@ -41,13 +41,15 @@ class EmailTokenPage extends Component<EmailTokenPageProps,EmailTokenPageState>
   }
 }
 
-const EmailTokenPageComponent = registerComponent("EmailTokenPage", EmailTokenPage,
-  withLocation,
-  withMutation({
-    name: "useEmailToken",
-    args: {token: 'String'}
-  })
-);
+const EmailTokenPageComponent = registerComponent("EmailTokenPage", EmailTokenPage, {
+  hocs: [
+    withLocation,
+    withMutation({
+      name: "useEmailToken",
+      args: {token: 'String'}
+    })
+  ]
+});
 
 declare global {
   interface ComponentTypes {

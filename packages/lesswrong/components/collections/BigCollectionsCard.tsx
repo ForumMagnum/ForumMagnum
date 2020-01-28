@@ -1,7 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
 const styles = createStyles(theme => ({
@@ -87,8 +87,8 @@ const BigCollectionsCard = ({ collection, url, classes }) => {
 }
 
 const BigCollectionsCardComponent = registerComponent(
-  "BigCollectionsCard", BigCollectionsCard,
-  withStyles(styles, { name: "BigCollectionsCard" }));
+  "BigCollectionsCard", BigCollectionsCard, { styles }
+);
 
 declare global {
   interface ComponentTypes {

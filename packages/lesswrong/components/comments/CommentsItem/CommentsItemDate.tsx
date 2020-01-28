@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles'
+import { createStyles } from '@material-ui/core/styles'
 import { Link } from '../../../lib/reactRouterWrapper';
 import LinkIcon from '@material-ui/icons/Link';
 import { Comments } from "../../../lib/collections/comments";
@@ -68,8 +68,8 @@ const CommentsItemDate = ({comment, post, classes, scrollOnClick, scrollIntoView
 }
 
 const CommentsItemDateComponent = registerComponent(
-  'CommentsItemDate', CommentsItemDate,
-  withStyles(styles, {name: "CommentsItemDate"}));
+  'CommentsItemDate', CommentsItemDate, {styles}
+);
 
 declare global {
   interface ComponentTypes {

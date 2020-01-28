@@ -1,7 +1,7 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 
 const styles = createStyles(theme => ({
   lengthLimited: {
@@ -33,7 +33,7 @@ PostsUserAndCoauthors.propTypes = {
   abbreviateIfLong: PropTypes.bool,
 };
 
-const PostsUserAndCoauthorsComponent = registerComponent("PostsUserAndCoauthors", PostsUserAndCoauthors, withStyles(styles, {name: "PostsUserAndCoauthors"}));
+const PostsUserAndCoauthorsComponent = registerComponent("PostsUserAndCoauthors", PostsUserAndCoauthors, {styles});
 
 declare global {
   interface ComponentTypes {

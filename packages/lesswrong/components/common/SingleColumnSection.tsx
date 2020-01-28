@@ -1,6 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 
 export const SECTION_WIDTH = 765
@@ -29,7 +29,7 @@ const SingleColumnSection = ({classes, className, children}: {
   )
 };
 
-const SingleColumnSectionComponent = registerComponent('SingleColumnSection', SingleColumnSection, withStyles(styles, { name: 'SingleColumnSection'}));
+const SingleColumnSectionComponent = registerComponent('SingleColumnSection', SingleColumnSection, {styles});
 
 declare global {
   interface ComponentTypes {

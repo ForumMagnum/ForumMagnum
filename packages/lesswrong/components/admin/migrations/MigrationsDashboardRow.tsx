@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import * as _ from 'underscore';
 
 const styles = createStyles(theme => ({
@@ -58,8 +58,10 @@ const MigrationsDashboardRow = ({migration: {name, dateWritten, runs}, classes})
 }
 
 const MigrationsDashboardRowComponent = registerComponent(
-  "MigrationsDashboardRow", MigrationsDashboardRow,
-  withStyles(styles, {name: "MigrationsDashboardRow"}));
+  "MigrationsDashboardRow", MigrationsDashboardRow, {
+    styles
+  }
+);
 
 declare global {
   interface ComponentTypes {

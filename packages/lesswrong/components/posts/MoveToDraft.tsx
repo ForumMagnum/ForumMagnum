@@ -36,13 +36,15 @@ class MoveToDraft extends Component<MoveToDraftProps> {
 }
 
 const MoveToDraftComponent = registerComponent(
-  'MoveToDraft',
-  MoveToDraft,
-  withUpdate({
-    collection: Posts,
-    fragmentName: 'PostsList',
-  }),
-  withUser
+  'MoveToDraft', MoveToDraft, {
+    hocs: [
+      withUpdate({
+        collection: Posts,
+        fragmentName: 'PostsList',
+      }),
+      withUser
+    ]
+  }
 );
 
 declare global {

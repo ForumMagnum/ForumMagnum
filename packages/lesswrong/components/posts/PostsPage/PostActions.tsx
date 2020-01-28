@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import { withUpdate } from '../../../lib/crud/withUpdate';
 import { withMutation } from '../../../lib/crud/withMutation';
@@ -271,25 +271,27 @@ class PostActions extends Component<PostActionsProps,{}> {
   }
 }
 
-const PostActionsComponent = registerComponent('PostActions', PostActions,
-  withStyles(styles, {name: "PostActions"}),
-  withUser,
-  withUpdate({
-    collection: Posts,
-    fragmentName: 'PostsList',
-  }),
-  withMutation({
-    name: 'markAsReadOrUnread',
-    args: {postId: 'String', isRead: 'Boolean'},
-  }),
-  withUpdate({
-    collection: Users,
-    fragmentName: 'UsersCurrent'
-  }),
-  withSetAlignmentPost({
-    fragmentName: "PostsList"
-  })
-);
+const PostActionsComponent = registerComponent('PostActions', PostActions, {
+  styles,
+  hocs: [
+    withUser,
+    withUpdate({
+      collection: Posts,
+      fragmentName: 'PostsList',
+    }),
+    withMutation({
+      name: 'markAsReadOrUnread',
+      args: {postId: 'String', isRead: 'Boolean'},
+    }),
+    withUpdate({
+      collection: Users,
+      fragmentName: 'UsersCurrent'
+    }),
+    withSetAlignmentPost({
+      fragmentName: "PostsList"
+    })
+  ]
+});
 
 declare global {
   interface ComponentTypes {

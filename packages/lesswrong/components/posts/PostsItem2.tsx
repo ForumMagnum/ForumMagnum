@@ -1,6 +1,6 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Posts } from "../../lib/collections/posts";
 import { Sequences } from "../../lib/collections/sequences/collection";
@@ -575,11 +575,10 @@ const PostsItem2 = ({
   )
 };
 
-const PostsItem2Component = registerComponent('PostsItem2', PostsItem2,
-  withStyles(styles, { name: "PostsItem2" }),
-  withRecordPostView,
-  withErrorBoundary
-);
+const PostsItem2Component = registerComponent('PostsItem2', PostsItem2, {
+  styles,
+  hocs: [withRecordPostView, withErrorBoundary]
+});
 
 declare global {
   interface ComponentTypes {

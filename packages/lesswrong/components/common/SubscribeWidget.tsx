@@ -50,7 +50,9 @@ class SubscribeWidget extends Component<SubscribeWidgetProps,SubscribeWidgetStat
   }
 }
 
-const SubscribeWidgetComponent = registerComponent("SubscribeWidget", SubscribeWidget, withTracking);
+const SubscribeWidgetComponent = registerComponent("SubscribeWidget", SubscribeWidget, {
+  hocs: [withTracking]
+});
 
 declare global {
   interface ComponentTypes {

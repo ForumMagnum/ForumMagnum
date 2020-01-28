@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import HistoryIcon from '@material-ui/icons/History';
 import Menu from '@material-ui/core/Menu';
@@ -65,7 +65,7 @@ class PostsRevisionSelector extends Component<PostsRevisionSelectorProps,PostsRe
   }
 }
 
-const PostsRevisionSelectorComponent = registerComponent('PostsRevisionSelector', PostsRevisionSelector, withStyles(styles, {name: "PostsRevisionSelector"}))
+const PostsRevisionSelectorComponent = registerComponent('PostsRevisionSelector', PostsRevisionSelector, {styles});
 
 declare global {
   interface ComponentTypes {

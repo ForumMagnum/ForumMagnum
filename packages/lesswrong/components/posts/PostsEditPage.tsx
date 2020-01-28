@@ -12,7 +12,9 @@ const PostsEditPage = ({ location }) => {
   </div>
 }
 
-const PostsEditPageComponent = registerComponent('PostsEditPage', PostsEditPage, withLocation);
+const PostsEditPageComponent = registerComponent('PostsEditPage', PostsEditPage, {
+  hocs: [withLocation]
+});
 
 declare global {
   interface ComponentTypes {

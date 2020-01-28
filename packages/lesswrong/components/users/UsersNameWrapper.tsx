@@ -22,11 +22,14 @@ const UsersNameWrapper = ({document, loading, nofollow=false, simple=false}: {
 };
 
 const UsersNameWrapperComponent = registerComponent(
-  'UsersNameWrapper', UsersNameWrapper,
-  withSingle({
-    collection: Users,
-    fragmentName: 'UsersMinimumInfo',
-  })
+  'UsersNameWrapper', UsersNameWrapper, {
+    hocs: [
+      withSingle({
+        collection: Users,
+        fragmentName: 'UsersMinimumInfo',
+      })
+    ]
+  }
 );
 
 declare global {

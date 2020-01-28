@@ -2,13 +2,13 @@ import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { Subscriptions } from '../../lib/collections/subscriptions/collection';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Comments } from '../../lib/collections/comments/collection';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   subscribedItem: {
     display: "flex",
     ...theme.typography.commentStyle
@@ -16,7 +16,7 @@ const styles = theme => ({
   subscribedItemDescription: {
     flexGrow: 1,
   },
-});
+}));
 
 const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, noSubscriptionsMessage, renderDocument, title, classes}) => {
   const { SubscribedItem, SectionTitle, Loading } = Components;
@@ -57,7 +57,7 @@ const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, noSu
   </div>
 }
 
-const SubscriptionsListComponent = registerComponent("SubscriptionsList", SubscriptionsList, withStyles(styles, {name: "SubscriptionsList"}));
+const SubscriptionsListComponent = registerComponent("SubscriptionsList", SubscriptionsList, {styles});
 
 declare global {
   interface ComponentTypes {
@@ -89,8 +89,7 @@ const SubscribedItem = ({collectionName, fragmentName, subscription, renderDocum
   
 }
 
-const SubscribedItemComponent = registerComponent("SubscribedItem", SubscribedItem,
-  withStyles(styles, {name: "SubscribedItem"}));
+const SubscribedItemComponent = registerComponent("SubscribedItem", SubscribedItem, {styles});
 
 declare global {
   interface ComponentTypes {
@@ -151,8 +150,7 @@ const ViewSubscriptionsPage = ({classes}) => {
   </SingleColumnSection>;
 }
 
-const ViewSubscriptionsPageComponent = registerComponent("ViewSubscriptionsPage", ViewSubscriptionsPage,
-  withStyles(styles, {name: "ViewSubscriptionsPage"}));
+const ViewSubscriptionsPageComponent = registerComponent("ViewSubscriptionsPage", ViewSubscriptionsPage, {styles});
   
 declare global {
   interface ComponentTypes {

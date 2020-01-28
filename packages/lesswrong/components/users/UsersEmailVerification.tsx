@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import Users from 'meteor/vulcan:users';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -79,15 +79,17 @@ class UsersEmailVerification extends PureComponent<UsersEmailVerificationProps,U
 }
 
 
-const UsersEmailVerificationComponent = registerComponent('UsersEmailVerification', UsersEmailVerification,
-  withErrorBoundary,
-  withUser,
-  withUpdate({
-    collection: Users,
-    fragmentName: 'UsersCurrent',
-  }),
-  withStyles(styles, { name: "UsersEmailVerification" })
-);
+const UsersEmailVerificationComponent = registerComponent('UsersEmailVerification', UsersEmailVerification, {
+  styles,
+  hocs: [
+    withErrorBoundary,
+    withUser,
+    withUpdate({
+      collection: Users,
+      fragmentName: 'UsersCurrent',
+    }),
+  ]
+});
 
 declare global {
   interface ComponentTypes {

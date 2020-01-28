@@ -4,7 +4,7 @@ import { registerComponent } from 'meteor/vulcan:core';
 
 import Button from '@material-ui/core/Button';
 
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
 
@@ -98,10 +98,10 @@ PostSubmit.contextTypes = {
 
 
 // Replaces FormSubmit from vulcan-forms.
-const PostSubmitComponent = registerComponent('PostSubmit', PostSubmit,
-  withUser, 
-  withStyles(styles, { name: "PostSubmit" })
-);
+const PostSubmitComponent = registerComponent('PostSubmit', PostSubmit, {
+  styles,
+  hocs: [withUser],
+});
 
 declare global {
   interface ComponentTypes {

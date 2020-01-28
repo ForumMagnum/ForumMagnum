@@ -16,13 +16,16 @@ const LastVisitList = ({ results, loading, clickCallback }) => {
 }
 
 const LastVisitListComponent = registerComponent(
-  "LastVisitList", LastVisitList,
-  withUser,
-  withMulti({
-    collection: LWEvents,
-    fragmentName: 'lastEventFragment',
-    enableTotal: false,
-  })
+  "LastVisitList", LastVisitList, {
+    hocs: [
+      withUser,
+      withMulti({
+        collection: LWEvents,
+        fragmentName: 'lastEventFragment',
+        enableTotal: false,
+      })
+    ]
+  }
 );
 
 declare global {

@@ -1,5 +1,5 @@
 import React from 'react'
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 
@@ -26,7 +26,7 @@ const PostsAuthors = ({classes, post}) => {
   </Typography>
 }
 
-const PostsAuthorsComponent = registerComponent('PostsAuthors', PostsAuthors, withStyles(styles, {name: "PostsAuthors"}))
+const PostsAuthorsComponent = registerComponent('PostsAuthors', PostsAuthors, {styles});
 
 declare global {
   interface ComponentTypes {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 
 const styles = createStyles((theme) => ({
   root: {
@@ -16,7 +16,7 @@ const BetaTag = ({classes}) => {
   return <span className={classes.root}>[Beta]</span>
 }
 
-const BetaTagComponent = registerComponent('BetaTag', BetaTag, withStyles(styles, {name: 'BetaTag'}))
+const BetaTagComponent = registerComponent('BetaTag', BetaTag, {styles});
 
 declare global {
   interface ComponentTypes {

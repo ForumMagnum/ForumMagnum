@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import theme from '../../themes/eaTheme';
 
 const styles = createStyles(() => ({
@@ -44,7 +44,7 @@ const Divider= ({ classes, wings=true }) => {
       </div>}
     </div>
 }
-const DividerComponent = registerComponent('Divider', Divider, withStyles(styles, {name: 'Divider'}))
+const DividerComponent = registerComponent('Divider', Divider, {styles});
 
 declare global {
   interface ComponentTypes {

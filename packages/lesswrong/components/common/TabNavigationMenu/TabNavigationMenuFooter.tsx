@@ -1,6 +1,6 @@
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 // -- See here for all the tab content --
@@ -37,8 +37,7 @@ const TabNavigationMenuFooter = ({classes}) => {
 };
 
 const TabNavigationMenuFooterComponent = registerComponent(
-  'TabNavigationMenuFooter', TabNavigationMenuFooter,
-  withStyles(styles, { name: 'TabNavigationMenuFooter'})
+  'TabNavigationMenuFooter', TabNavigationMenuFooter, {styles}
 );
 
 declare global {

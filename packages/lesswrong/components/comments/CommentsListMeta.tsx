@@ -1,6 +1,6 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 
 const styles = createStyles(theme => ({
   root: {
@@ -22,10 +22,7 @@ const CommentsListMeta = ({classes, children}) => {
     </div>
 }
 
-const CommentsListMetaComponent = registerComponent(
-  'CommentsListMeta', CommentsListMeta,
-  withStyles(styles, {name:"CommentsListMeta"})
-);
+const CommentsListMetaComponent = registerComponent('CommentsListMeta', CommentsListMeta, {styles});
 
 declare global {
   interface ComponentTypes {

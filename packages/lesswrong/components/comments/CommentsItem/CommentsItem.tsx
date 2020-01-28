@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/utils/componentUtils';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import withUser from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
@@ -381,9 +381,10 @@ class CommentsItem extends Component<CommentsItemProps,CommentsItemState> {
 }
 
 const CommentsItemComponent = registerComponent(
-  'CommentsItem', CommentsItem,
-  withMessages, withUser,
-  withStyles(styles, { name: "CommentsItem" }), withErrorBoundary
+  'CommentsItem', CommentsItem, {
+    styles,
+    hocs: [ withMessages, withUser, withErrorBoundary ]
+  }
 );
 
 declare global {

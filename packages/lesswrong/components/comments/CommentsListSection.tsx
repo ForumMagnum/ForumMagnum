@@ -7,7 +7,7 @@ import {
 import moment from 'moment';
 import Users from 'meteor/vulcan:users';
 import Typography from '@material-ui/core/Typography';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
@@ -183,9 +183,11 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
   }
 }
 
-const CommentsListSectionComponent = registerComponent("CommentsListSection", CommentsListSection,
-  withUser,
-  withStyles(styles, { name: "CommentsListSection" })
+const CommentsListSectionComponent = registerComponent(
+  "CommentsListSection", CommentsListSection, {
+    styles,
+    hocs: [withUser]
+  }
 );
 
 declare global {

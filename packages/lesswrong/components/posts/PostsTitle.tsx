@@ -1,6 +1,6 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles'
+import { createStyles } from '@material-ui/core/styles'
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';
@@ -131,9 +131,7 @@ const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true
   }
 }
 
-const PostsTitleComponent = registerComponent('PostsTitle', PostsTitle,
-  withStyles(styles, { name: "PostsTitle" })
-);
+const PostsTitleComponent = registerComponent('PostsTitle', PostsTitle, {styles});
 
 declare global {
   interface ComponentTypes {

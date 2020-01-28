@@ -16,7 +16,7 @@ import PersonIcon from '@material-ui/icons/Person';
 import BookmarksIcon from '@material-ui/icons/Bookmarks';
 import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 
 import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
@@ -214,9 +214,10 @@ class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
   color: "rgba(0, 0, 0, 0.6)"
 }
 
-const UsersMenuComponent = registerComponent('UsersMenu', UsersMenu,
-  withUser, withApollo, withHover(), withDialog, withStyles(styles, { name: "UsersMenu" })
-);
+const UsersMenuComponent = registerComponent('UsersMenu', UsersMenu, {
+  styles,
+  hocs: [withUser, withApollo, withHover(), withDialog]
+});
 
 declare global {
   interface ComponentTypes {

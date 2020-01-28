@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import classNames from 'classnames'
 import Input from '@material-ui/core/Input';
@@ -101,7 +101,7 @@ class EditUrl extends Component<EditUrlProps,EditUrlState> {
   addToSubmitForm: PropTypes.func,
 };
 
-export const EditUrlComponent = registerComponent("EditUrl", EditUrl, withStyles(styles, { name: "EditUrl" }));
+export const EditUrlComponent = registerComponent("EditUrl", EditUrl, {styles});
 
 declare global {
   interface ComponentTypes {

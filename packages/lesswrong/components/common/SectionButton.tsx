@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames'
 
@@ -26,7 +26,7 @@ const SectionButton = ({children, classes, className}: {
   </Typography>
 }
 
-const SectionButtonComponent = registerComponent('SectionButton', SectionButton, withStyles(styles, {name: 'SectionButton'}))
+const SectionButtonComponent = registerComponent('SectionButton', SectionButton, {styles})
 
 declare global {
   interface ComponentTypes {

@@ -1,12 +1,12 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
     height: 150,
   }
-});
+}));
 
 const Footer = ({classes}) => {
   return (
@@ -14,7 +14,7 @@ const Footer = ({classes}) => {
   )
 }
 
-const FooterComponent = registerComponent('Footer', Footer, withStyles(styles, { name: "Footer" }));
+const FooterComponent = registerComponent('Footer', Footer, {styles});
 
 declare global {
   interface ComponentTypes {

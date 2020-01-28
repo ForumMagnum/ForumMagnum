@@ -6,7 +6,7 @@ import {
 import { withMulti } from '../../lib/crud/withMulti';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import moment from '../../lib/moment-timezone';
 import { Posts } from '../../lib/collections/posts';
 import { timeframeToTimeBlock } from './timeframeUtils'
@@ -225,16 +225,19 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
   timeBlockLoadComplete: PropTypes.func,
 };
 
-const PostsTimeBlockComponent = registerComponent('PostsTimeBlock', PostsTimeBlock,
-  withMulti({
-    collection: Posts,
-    fragmentName: 'PostsList',
-    enableTotal: true,
-    ssr: true,
-  }),
-  withTimezone,
-  withUser, withStyles(styles, { name: "PostsTimeBlock" })
-);
+const PostsTimeBlockComponent = registerComponent('PostsTimeBlock', PostsTimeBlock, {
+  styles,
+  hocs: [
+    withMulti({
+      collection: Posts,
+      fragmentName: 'PostsList',
+      enableTotal: true,
+      ssr: true,
+    }),
+    withTimezone,
+    withUser,
+  ]
+});
 
 declare global {
   interface ComponentTypes {

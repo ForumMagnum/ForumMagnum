@@ -1,6 +1,6 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper';
 import classNames from 'classnames';
@@ -103,8 +103,7 @@ const TabNavigationItem = ({tab, onClick, classes}) => {
 }
 
 const TabNavigationItemComponent = registerComponent(
-  'TabNavigationItem', TabNavigationItem,
-  withStyles(styles, { name: 'TabNavigationItem'})
+  'TabNavigationItem', TabNavigationItem, {styles}
 );
 
 declare global {

@@ -83,7 +83,9 @@ HeadTags.propTypes = {
   image: PropTypes.string,
 };
 
-const HeadTagsComponent = registerComponent('HeadTags', HeadTags, withApollo);
+const HeadTagsComponent = registerComponent('HeadTags', HeadTags, {
+  hocs: [withApollo]
+});
 
 declare global {
   interface ComponentTypes {

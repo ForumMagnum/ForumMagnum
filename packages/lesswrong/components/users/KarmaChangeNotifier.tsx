@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import { withSingle } from '../../lib/crud/withSingle';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import Popper from '@material-ui/core/Popper';
@@ -275,19 +275,21 @@ class KarmaChangeNotifier extends PureComponent<KarmaChangeNotifierProps,KarmaCh
   }
 }
 
-const KarmaChangeNotifierComponent = registerComponent('KarmaChangeNotifier', KarmaChangeNotifier,
-  withUser, withErrorBoundary,
-  withSingle({
-    collection: Users,
-    fragmentName: 'UserKarmaChanges'
-  }),
-  withUpdate({
-    collection: Users,
-    fragmentName: 'UsersCurrent',
-  }),
-  withStyles(styles, {name: 'KarmaChangeNotifier'}),
-  withTracking
-);
+const KarmaChangeNotifierComponent = registerComponent('KarmaChangeNotifier', KarmaChangeNotifier, {
+  styles,
+  hocs: [
+    withUser, withErrorBoundary,
+    withSingle({
+      collection: Users,
+      fragmentName: 'UserKarmaChanges'
+    }),
+    withUpdate({
+      collection: Users,
+      fragmentName: 'UsersCurrent',
+    }),
+    withTracking
+  ]
+});
 
 declare global {
   interface ComponentTypes {

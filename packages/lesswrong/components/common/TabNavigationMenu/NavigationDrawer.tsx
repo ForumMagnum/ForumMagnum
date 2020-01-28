@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import classNames from 'classnames';
 
@@ -84,8 +84,7 @@ const NavigationDrawer = ({open, handleOpen, handleClose, toc, classes}) => {
 }
 
 const NavigationDrawerComponent = registerComponent(
-  'NavigationDrawer', NavigationDrawer,
-  withStyles(styles, { name: 'NavigationDrawer'})
+  'NavigationDrawer', NavigationDrawer, {styles}
 );
 
 declare global {

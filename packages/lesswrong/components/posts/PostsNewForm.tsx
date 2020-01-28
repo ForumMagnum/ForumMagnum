@@ -3,7 +3,7 @@ import { withMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import withUser from '../common/withUser'
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import NoSsr from '@material-ui/core/NoSsr';
 
@@ -68,7 +68,10 @@ const PostsNewForm = ({currentUser, flash, classes}: {
   );
 }
 
-const PostsNewFormComponent = registerComponent('PostsNewForm', PostsNewForm, withMessages, withUser, withStyles(styles, { name: "PostsNewForm" }));
+const PostsNewFormComponent = registerComponent('PostsNewForm', PostsNewForm, {
+  styles,
+  hocs: [withMessages, withUser],
+});
 
 declare global {
   interface ComponentTypes {

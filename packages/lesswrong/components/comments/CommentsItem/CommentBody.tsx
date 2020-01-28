@@ -1,6 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { commentBodyStyles, postHighlightStyles } from '../../../themes/stylePiping'
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
@@ -69,7 +69,9 @@ CommentBody.propTypes = {
 };
 
 
-const CommentBodyComponent = registerComponent('CommentBody', CommentBody, withUser, withStyles(styles, {name: "CommentBody"}));
+const CommentBodyComponent = registerComponent('CommentBody', CommentBody, {
+  styles, hocs: [withUser]
+});
 
 declare global {
   interface ComponentTypes {

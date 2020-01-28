@@ -22,8 +22,11 @@ const PostsItemTooltipWrapper = ({hover, anchorEl, stopHover, children, post}) =
     </React.Fragment>
 }
 
-const PostsItemTooltipWrapperComponent = registerComponent('PostsItemTooltipWrapper', PostsItemTooltipWrapper,
-  withHover({pageElementContext: "postItemTooltip"}, ({post}) => ({postId: post?._id})))
+const PostsItemTooltipWrapperComponent = registerComponent('PostsItemTooltipWrapper', PostsItemTooltipWrapper, {
+  hocs: [
+    withHover({pageElementContext: "postItemTooltip"}, ({post}) => ({postId: post?._id}))
+  ]
+})
 
 declare global {
   interface ComponentTypes {

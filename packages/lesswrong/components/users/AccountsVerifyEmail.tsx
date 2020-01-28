@@ -1,6 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { useEffect, useState } from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { withApollo } from 'react-apollo';
 import Users from 'meteor/vulcan:users';
 import withUser from '../common/withUser';
@@ -68,10 +68,11 @@ const AccountsVerifyEmail = ({currentUser, classes, client}) => {
 }
 
 // Shadows AccountsVerifyEmail in meteor/vulcan:accounts
-const AccountsVerifyEmailComponent = registerComponent('AccountsVerifyEmail', AccountsVerifyEmail,
-  withApollo, withUser,
-  withStyles(styles, { name: "AccountsVerifyEmail" }));
-  
+const AccountsVerifyEmailComponent = registerComponent('AccountsVerifyEmail', AccountsVerifyEmail, {
+  styles,
+  hocs: [withApollo, withUser],
+});
+
 declare global {
   interface ComponentTypes {
     AccountsVerifyEmail: typeof AccountsVerifyEmailComponent,

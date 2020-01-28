@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import { InstantSearch, SearchBox, connectMenu } from 'react-instantsearch-dom';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import SearchIcon from '@material-ui/icons/Search';
 import CloseIcon from '@material-ui/icons/Close';
@@ -221,7 +221,10 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
   }
 }
 
-const SearchBarComponent = registerComponent("SearchBar", SearchBar, withStyles(styles, {name: "SearchBar"}), withLocation, withErrorBoundary);
+const SearchBarComponent = registerComponent("SearchBar", SearchBar, {
+  styles,
+  hocs: [withLocation, withErrorBoundary],
+});
 
 declare global {
   interface ComponentTypes {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 
 const styles = createStyles((theme) => ({
@@ -25,4 +25,4 @@ const OmegaIcon = ({classes, className}) => {
 
 }
 
-registerComponent( 'OmegaIcon', OmegaIcon, withStyles(styles, {name: 'OmegaIcon'}))
+registerComponent('OmegaIcon', OmegaIcon, {styles});

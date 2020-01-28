@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
 const styles = createStyles((theme) => ({
@@ -39,7 +39,7 @@ const SectionFooter = ({ children, classes }) => {
     </Typography>
   )
 }
-const SectionFooterComponent = registerComponent('SectionFooter', SectionFooter, withStyles(styles, {name: 'SectionFooter'}))
+const SectionFooterComponent = registerComponent('SectionFooter', SectionFooter, {styles})
 
 declare global {
   interface ComponentTypes {

@@ -1,7 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { postHighlightStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
 import PropTypes from 'prop-types';
@@ -37,7 +37,7 @@ PostsHighlight.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-const PostsHighlightComponent = registerComponent('PostsHighlight', PostsHighlight, withStyles(styles, {name:"PostsHighlight"}));
+const PostsHighlightComponent = registerComponent('PostsHighlight', PostsHighlight, {styles});
 
 declare global {
   interface ComponentTypes {

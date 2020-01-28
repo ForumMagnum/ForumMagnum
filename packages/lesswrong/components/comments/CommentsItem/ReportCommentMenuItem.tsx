@@ -43,7 +43,9 @@ class ReportCommentMenuItem extends PureComponent<ReportCommentMenuItemProps,{}>
   }
 }
 
-const ReportCommentMenuItemComponent = registerComponent('ReportCommentMenuItem', ReportCommentMenuItem, withUser, withDialog);
+const ReportCommentMenuItemComponent = registerComponent('ReportCommentMenuItem', ReportCommentMenuItem, {
+  hocs: [withUser, withDialog]
+});
 
 declare global {
   interface ComponentTypes {

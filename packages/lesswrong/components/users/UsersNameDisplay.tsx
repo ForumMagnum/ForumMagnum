@@ -6,7 +6,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { truncate } from '../../lib/editor/ellipsize';
 import DescriptionIcon from '@material-ui/icons/Description';
 import MessageIcon from '@material-ui/icons/Message';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { BookIcon } from '../icons/bookIcon'
 import withHover from '../common/withHover'
 import classNames from 'classnames';
@@ -81,8 +81,12 @@ UsersNameDisplay.propTypes = {
   user: PropTypes.object.isRequired,
 }
 
-const UsersNameDisplayComponent = registerComponent('UsersNameDisplay', UsersNameDisplay, withStyles(styles, {name: "UsersNameDisplay"}),
-  withHover({pageElementContext: "linkPreview",  pageSubElementContext: "userNameDisplay"}, ({user})=>({userId: user._id})));
+const UsersNameDisplayComponent = registerComponent('UsersNameDisplay', UsersNameDisplay, {
+  styles,
+  hocs: [
+    withHover({pageElementContext: "linkPreview",  pageSubElementContext: "userNameDisplay"}, ({user})=>({userId: user._id}))
+  ]
+});
 
 declare global {
   interface ComponentTypes {

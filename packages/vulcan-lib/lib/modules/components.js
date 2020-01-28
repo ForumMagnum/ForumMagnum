@@ -1,5 +1,6 @@
 import compose from 'lodash/flowRight';
 import React from 'react';
+import { withStyles } from '@material-ui/core/styles';
 
 const componentsProxyHandler = {
   get: function(obj, prop) {
@@ -65,13 +66,22 @@ export const coreComponents = [
  *
  */
 export function registerComponent(name, rawComponent, ...hocs) {
+  var styles = null;
+  
   // support single-argument syntax
   if (typeof arguments[0] === 'object') {
     // note: cannot use `const` because name, components, hocs are already defined
     // as arguments so destructuring cannot work
     // eslint-disable-next-line no-redeclare
-    var { name, component, hocs = [] } = arguments[0];
+    var { name, component, hocs = [], styles } = arguments[0];
     rawComponent = component;
+  } else if (typeof arguments[2] === 'object' && (arguments[2].hocs || arguments[2].styles)) {
+    styles = arguments[2].styles;
+    hocs = arguments[2].hocs || [];
+  }
+  
+  if (styles) {
+    hocs.push(withStyles(styles, {name: name}));
   }
   
   rawComponent.displayName = name;

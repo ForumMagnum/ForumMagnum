@@ -1,6 +1,6 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper';
 import classNames from 'classnames';
@@ -55,8 +55,7 @@ const TabNavigationCompressedItem = ({tab, onClick, classes}) => {
 }
 
 const TabNavigationCompressedItemComponent = registerComponent(
-  'TabNavigationCompressedItem', TabNavigationCompressedItem,
-  withStyles(styles, { name: 'TabNavigationCompressedItem'})
+  'TabNavigationCompressedItem', TabNavigationCompressedItem, {styles}
 );
 
 declare global {

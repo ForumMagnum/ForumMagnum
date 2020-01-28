@@ -3,7 +3,7 @@ import { withLocation } from '../../lib/routeUtil';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../common/withErrorBoundary';
 import withUser from '../common/withUser';
 import { shallowEqual, shallowEqualExcept } from '../../lib/utils/componentUtils';
@@ -435,12 +435,10 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
   comment: PropTypes.object.isRequired, // the current comment
 };
 
-const CommentsNodeComponent = registerComponent('CommentsNode', CommentsNode,
-  withUser,
-  withLocation,
-  withErrorBoundary,
-  withStyles(styles, { name: "CommentsNode" })
-);
+const CommentsNodeComponent = registerComponent('CommentsNode', CommentsNode, {
+  styles,
+  hocs: [withUser, withLocation, withErrorBoundary]
+});
 
 declare global {
   interface ComponentTypes {

@@ -1,10 +1,10 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import Settings from '@material-ui/icons/Settings';
 
-const styles = (theme) => ({
+const styles = createStyles((theme) => ({
   icon: {
     cursor: "pointer",
     color: theme.palette.grey[400],
@@ -23,7 +23,7 @@ const styles = (theme) => ({
     color: theme.palette.grey[600],
     fontStyle: "italic"
   }
-})
+}))
 
 const SettingsIcon = ({classes, className, onClick, label}) => {
   if (label) {
@@ -35,4 +35,4 @@ const SettingsIcon = ({classes, className, onClick, label}) => {
   return <Settings className={classNames(classes.icon, className)} onClick={onClick}/>
 }
 
-registerComponent( 'SettingsIcon', SettingsIcon, withStyles(styles, {name: 'SettingsIcon'}))
+registerComponent('SettingsIcon', SettingsIcon, {styles});

@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -66,8 +66,7 @@ const LinkCard = ({children, to, tooltip, className, classes}: {
 }
 
 
-const LinkCardComponent = registerComponent("LinkCard", LinkCard,
-  withStyles(styles, {name: "LinkCard"}));
+const LinkCardComponent = registerComponent("LinkCard", LinkCard, {styles});
 
 declare global {
   interface ComponentTypes {

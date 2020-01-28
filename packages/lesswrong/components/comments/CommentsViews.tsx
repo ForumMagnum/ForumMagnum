@@ -6,7 +6,7 @@ import Users from 'meteor/vulcan:users';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Comments } from '../../lib/collections/comments'
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import qs from 'qs'
 import * as _ from 'underscore';
@@ -116,11 +116,10 @@ class CommentsViews extends Component<CommentsViewsProps,CommentsViewsState> {
   defaultView: "postCommentsTop"
 };
 
-const CommentsViewsComponent = registerComponent(
-  'CommentsViews', CommentsViews,
-  withLocation, withNavigation, withUser,
-  withStyles(styles, { name: "CommentsViews" })
-);
+const CommentsViewsComponent = registerComponent('CommentsViews', CommentsViews, {
+  styles,
+  hocs: [withLocation, withNavigation, withUser],
+});
 
 declare global {
   interface ComponentTypes {

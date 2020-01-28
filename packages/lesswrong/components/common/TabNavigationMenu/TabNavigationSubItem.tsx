@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames'
 import { iconWidth } from './TabNavigationItem'
 
@@ -33,7 +33,7 @@ const TabNavigationSubItem = ({children, classes, className}: {
   </div>
 }
 
-const TabNavigationSubItemComponent = registerComponent('TabNavigationSubItem', TabNavigationSubItem, withStyles(styles, {name: 'TabNavigationSubItem'}))
+const TabNavigationSubItemComponent = registerComponent('TabNavigationSubItem', TabNavigationSubItem, {styles});
 
 declare global {
   interface ComponentTypes {

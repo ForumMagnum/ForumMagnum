@@ -5,14 +5,14 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Tooltip from '@material-ui/core/Tooltip';
 import { Posts } from '../../lib/collections/posts';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   date: {
     marginLeft: theme.spacing.unit*1.5,
     fontStyle: "italic"
   }
-})
+}))
 
 const SelectVersion = ({classes, documentId, revisionVersion, updateVersionNumber, updateVersion}) => {
   const { document, loading } = useSingle({
@@ -72,7 +72,7 @@ const SelectVersion = ({classes, documentId, revisionVersion, updateVersionNumbe
 
 }
 
-export const SelectVersionComponent = registerComponent("SelectVersion", SelectVersion, withStyles(styles, {name:"SelectVersion"}));
+export const SelectVersionComponent = registerComponent("SelectVersion", SelectVersion, {styles});
 
 declare global {
   interface ComponentTypes {

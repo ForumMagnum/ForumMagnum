@@ -1,7 +1,7 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 
 const styles = createStyles(theme => ({
@@ -27,7 +27,7 @@ LinkPostMessage.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-const LinkPostMessageComponent = registerComponent('LinkPostMessage', LinkPostMessage, withStyles(styles, {name:"LinkPostMessage"}));
+const LinkPostMessageComponent = registerComponent('LinkPostMessage', LinkPostMessage, {styles});
 
 declare global {
   interface ComponentTypes {

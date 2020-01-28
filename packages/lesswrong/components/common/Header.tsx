@@ -5,7 +5,7 @@ import { withUpdate } from '../../lib/crud/withUpdate';
 import { Link } from '../../lib/reactRouterWrapper';
 import NoSSR from 'react-no-ssr';
 import Headroom from 'react-headroom'
-import { withStyles, withTheme, createStyles } from '@material-ui/core/styles';
+import { withTheme, createStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -311,13 +311,18 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
   searchResultsArea: PropTypes.object,
 };
 
-const HeaderComponent = registerComponent(
-  'Header', Header,
-  withErrorBoundary, withUpdate({
-    collection: Users,
-    fragmentName: 'UsersCurrent',
-  }), withUser, withTracking,
-  withStyles(styles, { name: 'Header'}), withTheme());
+const HeaderComponent = registerComponent('Header', Header, {
+  styles,
+  hocs: [
+    withErrorBoundary,
+    withUpdate({
+      collection: Users,
+      fragmentName: 'UsersCurrent',
+    }),
+    withUser, withTracking,
+    withTheme(),
+  ]
+});
 
 declare global {
   interface ComponentTypes {

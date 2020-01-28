@@ -5,7 +5,7 @@ import { Posts } from '../../lib/collections/posts';
 import Tooltip from '@material-ui/core/Tooltip';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../lib/reactRouterWrapper';
-import { withStyles, createStyles } from '@material-ui/core/styles'
+import { createStyles } from '@material-ui/core/styles'
 import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
 import { truncate } from '../../lib/editor/ellipsize';
@@ -146,16 +146,17 @@ const TabNavigationEventsList = ({ results, onClick, classes }) => {
   )
 }
 
-const TabNavigationEventsListComponent = registerComponent('TabNavigationEventsList', TabNavigationEventsList,
-  withMulti({
-    collection: Posts,
-    fragmentName: 'PostsList',
-    enableTotal: false,
-    fetchPolicy: 'cache-and-network',
-    ssr: true
-  }),
-  withStyles(styles, {name:"TabNavigationEventsList"})
-);
+const TabNavigationEventsListComponent = registerComponent('TabNavigationEventsList', TabNavigationEventsList, {
+  styles, hocs: [
+    withMulti({
+      collection: Posts,
+      fragmentName: 'PostsList',
+      enableTotal: false,
+      fetchPolicy: 'cache-and-network',
+      ssr: true
+    }),
+  ]
+});
 
 declare global {
   interface ComponentTypes {

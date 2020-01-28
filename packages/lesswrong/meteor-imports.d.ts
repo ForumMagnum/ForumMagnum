@@ -17,13 +17,17 @@ declare module 'meteor/vulcan:core' {
   // Type for registering components without any HoCs
   export function registerComponent<PropType>(name: string, rawComponent: React.ComponentType<PropType>): React.ComponentType<PropType>
   
+  //export function registerComponent<ModifiedType,PropType>(name: string, rawComponent: React.ComponentType<PropType>, ...hocs: any): React.ComponentType<ModifiedType>
+  
+  export function registerComponent<PropType>(name: string, rawComponent: React.ComponentType<PropType>, {styles, hocs}: {styles?: any, hocs?: Array<any>}): React.ComponentType<Omit<PropType,"classes">>
+  
   // STUB type for registering components with HoCs. This makes the component
   // type `any`. There are commented-out type signatures for registerComponent
   // with different numbers of HoCs below, but they only work if the HoCs
   // themselves are properly typed, on pain of very large numbers of spurious
   // type errors. This means most prop usages on components aren't being
   // checked yet.
-  export function registerComponent<PropType, T1>(name: string, rawComponent: React.ComponentType<PropType>, ...hocs: any): any
+  //export function registerComponent<PropType, T1>(name: string, rawComponent: React.ComponentType<PropType>, ...hocs: any): any
   
   /*export function registerComponent<PropType, T1>(name: string, rawComponent: React.ComponentType<PropType>, HoC1: HoC<PropType,T1>): C<T1>
   export function registerComponent<PropType, T1, T2>(name: string, rawComponent: React.ComponentType<PropType>, HoC1: HoC<T1, T2>, HoC2: HoC<PropType, T1>):C<T2>

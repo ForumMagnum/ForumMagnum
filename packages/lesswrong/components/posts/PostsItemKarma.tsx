@@ -26,7 +26,9 @@ const PostsItemKarma = ({post, hover, anchorEl}: {
   )
 };
 
-const PostsItemKarmaComponent = registerComponent('PostsItemKarma', PostsItemKarma, withHover());
+const PostsItemKarmaComponent = registerComponent('PostsItemKarma', PostsItemKarma, {
+  hocs: [withHover()]
+});
 
 declare global {
   interface ComponentTypes {

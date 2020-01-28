@@ -3,7 +3,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
 import { unflattenComments, addGapIndicators } from '../../lib/utils/unflatten';
 import withRecordPostView from '../common/withRecordPostView';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../common/withErrorBoundary';
 
 const styles = createStyles(theme => ({
@@ -88,10 +88,10 @@ class CommentWithReplies extends PureComponent<CommentWithRepliesProps,CommentWi
 }
 
 const CommentWithRepliesComponent = registerComponent(
-  'CommentWithReplies', CommentWithReplies,
-  withUser, withRecordPostView,
-  withStyles(styles, {name:"CommentWithReplies"}),
-  withErrorBoundary
+  'CommentWithReplies', CommentWithReplies, {
+    styles,
+    hocs: [withUser, withRecordPostView, withErrorBoundary]
+  }
 );
 
 declare global {

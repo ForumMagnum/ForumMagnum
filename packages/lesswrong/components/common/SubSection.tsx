@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames'
 
 const styles = createStyles((theme) => ({
@@ -19,7 +19,7 @@ const SubSection = ({children, classes, className}: {
   </div>
 }
 
-const SubSectionComponent = registerComponent('SubSection', SubSection, withStyles(styles, {name: 'SubSection'}))
+const SubSectionComponent = registerComponent('SubSection', SubSection, {styles});
 
 declare global {
   interface ComponentTypes {

@@ -1,6 +1,6 @@
 import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 
 const styles = createStyles(theme => ({
@@ -27,7 +27,7 @@ AlignmentCrosspostMessage.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-const AlignmentCrosspostMessageComponent = registerComponent('AlignmentCrosspostMessage', AlignmentCrosspostMessage, withStyles(styles, {name:"AlignmentCrosspostMessage"}));
+const AlignmentCrosspostMessageComponent = registerComponent('AlignmentCrosspostMessage', AlignmentCrosspostMessage, {styles});
 
 declare global {
   interface ComponentTypes {

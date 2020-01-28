@@ -1,5 +1,5 @@
 import React from 'react'
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { useSingle } from '../../../lib/crud/withSingle';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -41,9 +41,8 @@ const PostsRevisionsList = ({documentId, classes}: {
 }
 
 const PostsRevisionsListComponent = registerComponent(
-  'PostsRevisionsList', PostsRevisionsList,
-  withStyles(styles, {name: "PostsRevisionsList"})
-)
+  'PostsRevisionsList', PostsRevisionsList, {styles}
+);
 
 declare global {
   interface ComponentTypes {

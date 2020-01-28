@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import Checkbox from '@material-ui/core/Checkbox';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import Info from '@material-ui/icons/Info';
 import Tooltip from '@material-ui/core/Tooltip';
 
@@ -43,8 +43,7 @@ const SignupSubscribeToCurated = ({ defaultValue, onChange, id, classes }) => {
   </div>
 }
 
-const SignupSubscribeToCuratedComponent = registerComponent('SignupSubscribeToCurated', SignupSubscribeToCurated,
-  withStyles(styles, {name: "SignupSubscribeToCurated"}));
+const SignupSubscribeToCuratedComponent = registerComponent('SignupSubscribeToCurated', SignupSubscribeToCurated, {styles});
 
 declare global {
   interface ComponentTypes {

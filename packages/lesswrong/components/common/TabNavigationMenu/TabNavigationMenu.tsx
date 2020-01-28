@@ -1,6 +1,6 @@
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { useCurrentUser } from '../withUser';
 import { iconWidth } from './TabNavigationItem'
 
@@ -60,8 +60,7 @@ const TabNavigationMenu = ({onClickSection, classes}: {
 };
 
 const TabNavigationMenuComponent = registerComponent(
-  'TabNavigationMenu', TabNavigationMenu,
-  withStyles(styles, { name: 'TabNavigationMenu'})
+  'TabNavigationMenu', TabNavigationMenu, {styles}
 );
 
 declare global {

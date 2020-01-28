@@ -19,7 +19,7 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
 import withUser from '../common/withUser';
 import { withTracking } from "../../lib/analyticsEvents";
@@ -326,12 +326,15 @@ const withUpdateOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-const SubscribeDialogComponent = registerComponent("SubscribeDialog", SubscribeDialog,
-  withMobileDialog(),
-  withUser,
-  withTracking,
-  withUpdate(withUpdateOptions),
-  withStyles(styles, { name: "SubscribeDialog" }));
+const SubscribeDialogComponent = registerComponent("SubscribeDialog", SubscribeDialog, {
+  styles,
+  hocs: [
+    withMobileDialog(),
+    withUser,
+    withTracking,
+    withUpdate(withUpdateOptions),
+  ]
+});
 
 declare global {
   interface ComponentTypes {

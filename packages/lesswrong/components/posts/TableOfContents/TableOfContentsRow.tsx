@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames';
 
@@ -126,8 +126,7 @@ const TableOfContentsRow = ({
   </Typography>
 }
 
-const TableOfContentsRowComponent = registerComponent("TableOfContentsRow", TableOfContentsRow,
-  withStyles(styles, { name: "TableOfContentsRow" }));
+const TableOfContentsRowComponent = registerComponent("TableOfContentsRow", TableOfContentsRow, {styles});
 
 declare global {
   interface ComponentTypes {

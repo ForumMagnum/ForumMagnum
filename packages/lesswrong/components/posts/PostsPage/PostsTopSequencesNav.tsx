@@ -3,7 +3,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { withNavigation } from '../../../lib/routeUtil';
 import withGlobalKeydown from '../../common/withGlobalKeydown';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { Sequences } from '../../../lib/collections/sequences/collection';
 import { Posts } from '../../../lib/collections/posts/collection';
 
@@ -81,9 +81,11 @@ class PostsTopSequencesNav extends PureComponent<PostsTopSequencesNavProps>
 }
 
 const PostsTopSequencesNavComponent = registerComponent(
-  'PostsTopSequencesNav', PostsTopSequencesNav,
-  withNavigation, withGlobalKeydown,
-  withStyles(styles, {name: "PostsTopSequencesNav"}));
+  'PostsTopSequencesNav', PostsTopSequencesNav, {
+    styles,
+    hocs: [withNavigation, withGlobalKeydown]
+  }
+);
 
 declare global {
   interface ComponentTypes {

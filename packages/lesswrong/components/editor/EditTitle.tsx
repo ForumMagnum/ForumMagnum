@@ -2,7 +2,7 @@ import { registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Input from '@material-ui/core/Input';
 import PropTypes from 'prop-types'
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 
 const styles = createStyles(theme => ({
@@ -68,8 +68,8 @@ class EditTitle extends Component<EditTitleProps,{}> {
 };
 
 export const EditTitleComponent = registerComponent(
-  "EditTitle", EditTitle,
-  withStyles(styles, { name: "EditTitle" }));
+  "EditTitle", EditTitle, {styles}
+);
 
 declare global {
   interface ComponentTypes {

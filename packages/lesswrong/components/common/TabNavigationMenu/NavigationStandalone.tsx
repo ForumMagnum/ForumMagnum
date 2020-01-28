@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import Slide from '@material-ui/core/Slide'
 
 const styles = createStyles(theme => ({
@@ -54,8 +54,7 @@ const NavigationStandalone = ({sidebarHidden, classes}) => {
 }
 
 const NavigationStandaloneComponent = registerComponent(
-  'NavigationStandalone', NavigationStandalone,
-  withStyles(styles, { name: 'NavigationStandalone'})
+  'NavigationStandalone', NavigationStandalone, {styles}
 );
 
 declare global {

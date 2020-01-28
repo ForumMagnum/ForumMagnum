@@ -171,8 +171,10 @@ class TableOfContentsList extends Component<TableOfContentsListProps,TableOfCont
 }
 
 const TableOfContentsListComponent = registerComponent(
-  "TableOfContentsList", TableOfContentsList,
-  withErrorBoundary);
+  "TableOfContentsList", TableOfContentsList, {
+    hocs: [withErrorBoundary]
+  }
+);
 
 declare global {
   interface ComponentTypes {

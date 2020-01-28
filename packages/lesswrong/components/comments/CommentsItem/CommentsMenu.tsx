@@ -7,7 +7,7 @@ import { useCurrentUser } from '../../common/withUser';
 import Users from 'meteor/vulcan:users';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useTracking } from "../../../lib/analyticsEvents";
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 
 const styles = createStyles(theme => ({
   icon: {
@@ -81,7 +81,7 @@ const CommentsMenu = ({children, classes, className, comment, post, showEdit, ic
   )
 }
 
-const CommentsMenuComponent = registerComponent('CommentsMenu', CommentsMenu, withStyles(styles, {name:"CommentsMenu"}))
+const CommentsMenuComponent = registerComponent('CommentsMenu', CommentsMenu, {styles});
 
 declare global {
   interface ComponentTypes {

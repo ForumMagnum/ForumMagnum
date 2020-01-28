@@ -1,7 +1,7 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
 const styles = createStyles(theme => ({
@@ -17,8 +17,7 @@ const PostsNoResults = ({classes}) =>
     <FormattedMessage id="posts.no_results"/>
   </Typography>;
 
-const PostsNoResultsComponent = registerComponent('PostsNoResults', PostsNoResults,
-  withStyles(styles, {name: "PostsNoResults"}));
+const PostsNoResultsComponent = registerComponent('PostsNoResults', PostsNoResults, {styles});
 
 declare global {
   interface ComponentTypes {

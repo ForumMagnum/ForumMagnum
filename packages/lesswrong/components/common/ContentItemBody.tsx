@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import classNames from 'classnames';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import Sentry from '@sentry/node';
 import { Meteor } from 'meteor/meteor';
@@ -273,9 +273,9 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
   }
 }
 
-const ContentItemBodyComponent = registerComponent('ContentItemBody', ContentItemBody, withUser,
-  withStyles(styles, { name: "ContentItemBody" })
-);
+const ContentItemBodyComponent = registerComponent('ContentItemBody', ContentItemBody, {
+  styles, hocs: [withUser]
+});
 
 declare global {
   interface ComponentTypes {

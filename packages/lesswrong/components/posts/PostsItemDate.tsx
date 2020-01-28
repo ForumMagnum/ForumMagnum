@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { ExpandedDate } from '../common/FormatDate';
 import withHover from '../common/withHover';
 import moment from '../../lib/moment-timezone';
@@ -76,8 +76,10 @@ const PostsItemDate = ({post, classes, hover, anchorEl, stopHover}) => {
     </PostsItem2MetaInfo>
 }
 
-const PostsItemDateComponent = registerComponent("PostsItemDate", PostsItemDate, withHover(),
-  withStyles(styles, {name: "PostsItemDate"}));
+const PostsItemDateComponent = registerComponent("PostsItemDate", PostsItemDate, {
+  styles,
+  hocs: [withHover()]
+});
 
 declare global {
   interface ComponentTypes {

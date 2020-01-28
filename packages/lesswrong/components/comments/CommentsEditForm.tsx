@@ -28,7 +28,9 @@ CommentsEditForm.propTypes = {
   cancelCallback: PropTypes.func
 };
 
-const CommentsEditFormComponent = registerComponent('CommentsEditForm', CommentsEditForm, withMessages);
+const CommentsEditFormComponent = registerComponent('CommentsEditForm', CommentsEditForm, {
+  hocs: [withMessages]
+});
 
 declare global {
   interface ComponentTypes {

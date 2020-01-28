@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Tooltip from '@material-ui/core/Tooltip';
 import Checkbox from '@material-ui/core/Checkbox';
 import { registerComponent, getSetting } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 
 const forumDefaultCheckboxLabels = {
   LessWrong: 'Moderators may promote to Frontpage',
@@ -127,9 +127,7 @@ class SubmitToFrontpageCheckbox extends Component<SubmitToFrontpageCheckboxProps
 }
 
 
-const SubmitToFrontpageCheckboxComponent = registerComponent('SubmitToFrontpageCheckbox', SubmitToFrontpageCheckbox,
-  withStyles(styles, { name: "SubmitToFrontpageCheckbox" })
-);
+const SubmitToFrontpageCheckboxComponent = registerComponent('SubmitToFrontpageCheckbox', SubmitToFrontpageCheckbox, {styles});
 
 declare global {
   interface ComponentTypes {

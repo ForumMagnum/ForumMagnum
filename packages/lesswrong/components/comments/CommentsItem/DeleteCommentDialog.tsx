@@ -9,7 +9,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import withDialog from '../../common/withDialog'
-import { withStyles, createStyles } from '@material-ui/core/styles'
+import { createStyles } from '@material-ui/core/styles'
 
 const styles = createStyles(theme => ({
   deleteWithoutTrace: {
@@ -98,12 +98,12 @@ class DeleteCommentDialog extends PureComponent<DeleteCommentDialogProps,DeleteC
 }
 
 const DeleteCommentDialogComponent = registerComponent(
-  'DeleteCommentDialog', DeleteCommentDialog,
-  withModerateComment({
-    fragmentName: "CommentsList"
-  }),
-  withMessages, withDialog,
-  withStyles(styles, {name:"DeleteCommentDialog"})
+  'DeleteCommentDialog', DeleteCommentDialog, {styles, hocs: [
+    withModerateComment({
+      fragmentName: "CommentsList"
+    }),
+    withMessages, withDialog,
+  ]}
 );
 
 declare global {

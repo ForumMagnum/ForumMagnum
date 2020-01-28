@@ -65,12 +65,16 @@ class MoveToAnswersMenuItem extends PureComponent<MoveToAnswersMenuItemProps,{}>
 }
 
 const MoveToAnswersMenuItemComponent = registerComponent(
-  'MoveToAnswersMenuItem', MoveToAnswersMenuItem,
-  withUser,
-  withUpdate({
-    collection: Comments,
-    fragmentName: 'CommentsList',
-  }), withApollo, withMessages);
+  'MoveToAnswersMenuItem', MoveToAnswersMenuItem, {
+    hocs: [
+      withUser, withApollo, withMessages,
+      withUpdate({
+        collection: Comments,
+        fragmentName: 'CommentsList',
+      }),
+    ]
+  }
+);
 
 declare global {
   interface ComponentTypes {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
 const styles = createStyles(theme => ({
@@ -19,7 +19,7 @@ const ErrorMessage = ({message, classes}) => {
   </Typography>
 }
 
-const ErrorMessageComponent = registerComponent("ErrorMessage", ErrorMessage, withStyles(styles, { name: "ErrorMessage" }));
+const ErrorMessageComponent = registerComponent("ErrorMessage", ErrorMessage, {styles});
 
 declare global {
   interface ComponentTypes {

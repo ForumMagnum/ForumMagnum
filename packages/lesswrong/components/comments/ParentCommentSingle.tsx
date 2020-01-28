@@ -26,11 +26,14 @@ const ParentCommentSingle = (props) => {
 }
 
 const ParentCommentSingleComponent = registerComponent(
-  'ParentCommentSingle', ParentCommentSingle,
-  withSingle({
-    collection: Comments,
-    fragmentName: 'SelectCommentsList',
-  })
+  'ParentCommentSingle', ParentCommentSingle, {
+    hocs: [
+      withSingle({
+        collection: Comments,
+        fragmentName: 'SelectCommentsList',
+      })
+    ]
+  }
 );
 
 declare global {

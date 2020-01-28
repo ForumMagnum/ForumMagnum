@@ -2,7 +2,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Posts } from '../../lib/collections/posts';
 import React, { useState, useEffect, useRef } from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { editorStyles, postBodyStyles } from '../../themes/stylePiping'
@@ -63,7 +63,10 @@ const PostCollaborationEditor = ({ classes, currentUser}) => {
   </SingleColumnSection>
 };
 
-const PostCollaborationEditorComponent = registerComponent('PostCollaborationEditor', PostCollaborationEditor, withStyles(styles, {name:"PostCollaborationEditor"}), withUser);
+const PostCollaborationEditorComponent = registerComponent('PostCollaborationEditor', PostCollaborationEditor, {
+  styles,
+  hocs: [withUser],
+});
 
 declare global {
   interface ComponentTypes {

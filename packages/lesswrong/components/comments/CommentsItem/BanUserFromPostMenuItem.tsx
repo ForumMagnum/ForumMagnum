@@ -48,13 +48,16 @@ class BanUserFromPostMenuItem extends PureComponent<BanUserFromPostMenuItemProps
 };
 
 const BanUserFromPostMenuItemComponent = registerComponent(
-  'BanUserFromPostMenuItem', BanUserFromPostMenuItem,
-  withMessages,
-  withUpdate({
-    collection: Posts,
-    fragmentName: 'PostsPage',
-  }),
-  withUser
+  'BanUserFromPostMenuItem', BanUserFromPostMenuItem, {
+    hocs: [
+      withMessages,
+      withUpdate({
+        collection: Posts,
+        fragmentName: 'PostsPage',
+      }),
+      withUser
+    ]
+  }
 );
 
 declare global {

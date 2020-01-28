@@ -1,6 +1,6 @@
 import { Components as C, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 
 const styles = createStyles(theme => ({
   root: {
@@ -27,7 +27,7 @@ const PostsStats = ({post, classes}) => {
   )
 }
 
-const PostsStatsComponent = registerComponent('PostsStats', PostsStats, withStyles(styles, {name: "PostsStats"}));
+const PostsStatsComponent = registerComponent('PostsStats', PostsStats, {styles});
 
 declare global {
   interface ComponentTypes {

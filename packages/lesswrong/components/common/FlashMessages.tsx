@@ -48,7 +48,9 @@ class FlashMessages extends PureComponent<FlashMessagesProps,{}> {
   intl: intlShape
 }
 
-const FlashMessagesComponent = registerComponent('FlashMessages', FlashMessages, withMessages);
+const FlashMessagesComponent = registerComponent('FlashMessages', FlashMessages, {
+  hocs: [withMessages]
+});
 
 declare global {
   interface ComponentTypes {

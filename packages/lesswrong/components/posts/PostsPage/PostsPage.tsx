@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { withLocation, getUrlClass } from '../../../lib/routeUtil';
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import { postBodyStyles } from '../../../themes/stylePiping'
 import withUser from '../../common/withUser';
@@ -460,12 +460,15 @@ class PostsPage extends Component<PostsPageProps> {
 }
 
 const PostsPageComponent = registerComponent(
-  'PostsPage', PostsPage,
-  withUser, withLocation,
-  withStyles(styles, { name: "PostsPage" }),
-  withRecordPostView,
-  withNewEvents,
-  withErrorBoundary
+  'PostsPage', PostsPage, {
+    styles,
+    hocs: [
+      withUser, withLocation,
+      withRecordPostView,
+      withNewEvents,
+      withErrorBoundary
+    ]
+  }
 );
 
 declare global {

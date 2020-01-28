@@ -8,7 +8,7 @@ import withUser from '../../common/withUser';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ExposurePlus1 from '@material-ui/icons/ExposurePlus1';
 import Undo from '@material-ui/icons/Undo';
-import { withStyles, createStyles } from '@material-ui/core/styles'
+import { createStyles } from '@material-ui/core/styles'
 
 const styles = createStyles(theme => ({
   iconRoot: {
@@ -69,13 +69,16 @@ const SuggestAlignmentMenuItem = ({ currentUser, comment, post, updateComment, c
 }
 
 const SuggestAlignmentMenuItemComponent = registerComponent(
- 'SuggestAlignmentMenuItem', SuggestAlignmentMenuItem,
-  withUpdate({
-    collection: Comments,
-    fragmentName: 'SuggestAlignmentComment',
-  }),
-  withStyles(styles, {name:'SuggestAlignmentMenuItem'}),
-  withUser
+  'SuggestAlignmentMenuItem', SuggestAlignmentMenuItem, {
+    styles,
+    hocs: [
+      withUpdate({
+        collection: Comments,
+        fragmentName: 'SuggestAlignmentComment',
+      }),
+      withUser
+    ]
+  }
 );
 
 declare global {

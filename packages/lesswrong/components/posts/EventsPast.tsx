@@ -1,6 +1,6 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import {getAfterDefault, getBeforeDefault} from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
 
@@ -38,7 +38,7 @@ const EventsPast = ({ classes }) => {
   )
 }
 
-const EventsPastComponent = registerComponent('EventsPast', EventsPast, withStyles(styles, {name: "EventsPast"}));
+const EventsPastComponent = registerComponent('EventsPast', EventsPast, {styles});
 
 declare global {
   interface ComponentTypes {

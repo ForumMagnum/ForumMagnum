@@ -1,7 +1,7 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 import moment from '../../lib/moment-timezone';
@@ -84,7 +84,7 @@ const PostsItemMeta = ({post, read, classes}) => {
     </span>
 };
 
-const PostsItemMetaComponent = registerComponent('PostsItemMeta', PostsItemMeta, withStyles(styles, {name: "PostsItemMeta"}))
+const PostsItemMetaComponent = registerComponent('PostsItemMeta', PostsItemMeta, {styles});
 
 declare global {
   interface ComponentTypes {

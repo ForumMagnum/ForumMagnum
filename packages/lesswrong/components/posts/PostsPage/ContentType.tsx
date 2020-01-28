@@ -1,5 +1,5 @@
 import React from 'react'
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -166,7 +166,7 @@ const ContentType = ({classes, type, label}: {
   </Typography>
 }
 
-const ContentTypeComponent = registerComponent('ContentType', ContentType, withStyles(styles, {name: "ContentType"}))
+const ContentTypeComponent = registerComponent('ContentType', ContentType, {styles});
 
 declare global {
   interface ComponentTypes {

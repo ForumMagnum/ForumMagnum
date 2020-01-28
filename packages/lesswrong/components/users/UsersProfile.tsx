@@ -9,7 +9,7 @@ import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -341,16 +341,20 @@ class UsersProfile extends Component<UsersProfileProps,UsersProfileState> {
 }
 
 const UsersProfileComponent = registerComponent(
-  'UsersProfile', UsersProfile,
-  withUser,
-  withMulti({
-    collection: Users,
-    fragmentName: 'UsersProfile',
-    enableTotal: false,
-    ssr: true
-  }),
-  withLocation, withNavigation,
-  withStyles(styles, {name: "UsersProfile"}));
+  'UsersProfile', UsersProfile, {
+    styles,
+    hocs: [
+      withUser,
+      withMulti({
+        collection: Users,
+        fragmentName: 'UsersProfile',
+        enableTotal: false,
+        ssr: true
+      }),
+      withLocation, withNavigation,
+    ]
+  }
+);
 
 declare global {
   interface ComponentTypes {

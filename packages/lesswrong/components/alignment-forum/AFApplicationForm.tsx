@@ -10,13 +10,13 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   modalTextField: {
     marginTop: 10,
   },
-});
+}));
 
 interface AFApplicationFormProps extends WithUserProps, WithMessagesProps, WithStylesProps {
   updateUser: any,
@@ -88,14 +88,15 @@ class AFApplicationForm extends PureComponent<AFApplicationFormProps,AFApplicati
 }
 
 const AFApplicationFormComponent = registerComponent(
-  'AFApplicationForm', AFApplicationForm,
-  withMessages,
-  withUpdate({
-    collection: Users,
-    fragmentName: 'SuggestAlignmentUser',
-  }),
-  withUser,
-  withStyles(styles, {name: "AFApplicationForm"}));
+  'AFApplicationForm', AFApplicationForm, { styles, hocs: [
+    withMessages,
+    withUpdate({
+      collection: Users,
+      fragmentName: 'SuggestAlignmentUser',
+    }),
+    withUser,
+  ]}
+);
 
 declare global {
   interface ComponentTypes {

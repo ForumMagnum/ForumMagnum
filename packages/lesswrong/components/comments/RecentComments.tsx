@@ -5,7 +5,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
 import { useCurrentUser } from '../common/withUser';
 import Typography from '@material-ui/core/Typography';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 
 const styles = createStyles(theme =>  ({
   root: {
@@ -55,13 +55,15 @@ const RecentComments = ({classes, updateComment, terms, truncated, noResultsMess
   )
 }
 
-const RecentCommentsComponent = registerComponent('RecentComments', RecentComments,
-  withUpdate({
-    collection: Comments,
-    fragmentName: 'SelectCommentsList',
-  }),
-  withStyles(styles, {name:"RecentComments"})
-);
+const RecentCommentsComponent = registerComponent('RecentComments', RecentComments, {
+  styles,
+  hocs: [
+    withUpdate({
+      collection: Comments,
+      fragmentName: 'SelectCommentsList',
+    }),
+  ]
+});
 
 declare global {
   interface ComponentTypes {

@@ -3,7 +3,7 @@ import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames'
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
@@ -275,12 +275,16 @@ class PostsListSettings extends Component<PostsListSettingsProps> {
 };
 
 const PostsListSettingsComponent = registerComponent(
-  'PostsListSettings', PostsListSettings,
-  withUser, withStyles(styles, {name:"PostsListSettings"}),
-  withUpdate({
-    collection: Users,
-    fragmentName: 'UsersCurrent',
-  })
+  'PostsListSettings', PostsListSettings, {
+    styles,
+    hocs: [
+      withUser,
+      withUpdate({
+        collection: Users,
+        fragmentName: 'UsersCurrent',
+      })
+    ]
+  }
 );
 
 declare global {

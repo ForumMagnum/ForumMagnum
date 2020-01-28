@@ -43,7 +43,9 @@ class WrappedLoginForm extends Component<any,WrappedLoginFormState>
   }
 }
 
-const WrappedLoginFormComponent = registerComponent('WrappedLoginForm', WrappedLoginForm, withUser);
+const WrappedLoginFormComponent = registerComponent('WrappedLoginForm', WrappedLoginForm, {
+  hocs: [withUser]
+});
 
 declare global {
   interface ComponentTypes {

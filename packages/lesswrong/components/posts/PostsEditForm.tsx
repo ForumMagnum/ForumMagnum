@@ -4,7 +4,7 @@ import { withSingle } from '../../lib/crud/withSingle';
 import { withMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
 import { withLocation, withNavigation } from '../../lib/routeUtil'
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import NoSsr from '@material-ui/core/NoSsr';
 
 const styles = createStyles(theme => ({
@@ -67,14 +67,16 @@ const PostsEditForm = ({
   );
 }
 
-const PostsEditFormComponent = registerComponent('PostsEditForm', PostsEditForm,
-  withSingle({
-    collection: Posts,
-    fragmentName: 'PostsPage',
-  }),
-  withMessages, withLocation, withNavigation,
-  withStyles(styles, { name: "PostsEditForm" })
-);
+const PostsEditFormComponent = registerComponent('PostsEditForm', PostsEditForm, {
+  styles,
+  hocs: [
+    withSingle({
+      collection: Posts,
+      fragmentName: 'PostsPage',
+    }),
+    withMessages, withLocation, withNavigation,
+  ]
+});
 
 declare global {
   interface ComponentTypes {

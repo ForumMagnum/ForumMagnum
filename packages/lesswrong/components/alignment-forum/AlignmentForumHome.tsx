@@ -4,16 +4,16 @@ import { Link } from '../../lib/reactRouterWrapper';
 import Users from "meteor/vulcan:users";
 import withUser from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   frontpageSequencesGridList: {
     [legacyBreakpoints.maxSmall]: {
       marginTop: 40,
     }
   }
-});
+}));
 
 const AlignmentForumHome = ({currentUser, classes}) => {
   const { SingleColumnSection, SectionTitle, SequencesGridWrapper, PostsList2, SectionButton, RecentDiscussionThreadsList } = Components
@@ -56,9 +56,11 @@ const AlignmentForumHome = ({currentUser, classes}) => {
 };
 
 const AlignmentForumHomeComponent = registerComponent(
-  'AlignmentForumHome', AlignmentForumHome,
-  withUser,
-  withStyles(styles, {name: "AlignmentForumHome"}));
+  'AlignmentForumHome', AlignmentForumHome, {
+    styles,
+    hocs: [withUser],
+  }
+);
 
 declare global {
   interface ComponentTypes {

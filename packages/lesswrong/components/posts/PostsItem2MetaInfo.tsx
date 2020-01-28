@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames';
 
@@ -28,8 +28,7 @@ const PostsItem2MetaInfo = ({children, className, classes, read}: {
   </Typography>
 }
 
-const PostsItem2MetaInfoComponent = registerComponent("PostsItem2MetaInfo", PostsItem2MetaInfo,
-  withStyles(styles, { name: "PostsItem2MetaInfo" }));
+const PostsItem2MetaInfoComponent = registerComponent("PostsItem2MetaInfo", PostsItem2MetaInfo, {styles});
   
 declare global {
   interface ComponentTypes {

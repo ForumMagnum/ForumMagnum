@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 
 import Popover from '@material-ui/core/Popover';
 import Button from '@material-ui/core/Button';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { withTracking } from '../../lib/analyticsEvents';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
     marginTop: 5,
   },
@@ -16,7 +16,7 @@ const styles = theme => ({
     fontWeight: 400,
     opacity: .8
   }
-})
+}))
 
 interface UsersAccountMenuProps extends WithStylesProps {
   captureEvent?: any,
@@ -83,7 +83,10 @@ class UsersAccountMenu extends PureComponent<UsersAccountMenuProps,UsersAccountM
   color: "rgba(0, 0, 0, 0.6)"
 };
 
-const UsersAccountMenuComponent = registerComponent('UsersAccountMenu', UsersAccountMenu, withTracking, withStyles(styles, { name: "UsersAccountMenu" }));
+const UsersAccountMenuComponent = registerComponent('UsersAccountMenu', UsersAccountMenu, {
+  styles,
+  hocs: [withTracking]
+});
 
 declare global {
   interface ComponentTypes {

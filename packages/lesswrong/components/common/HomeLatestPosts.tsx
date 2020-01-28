@@ -6,7 +6,7 @@ import Users from 'meteor/vulcan:users';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import {AnalyticsContext, captureEvent} from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
 
@@ -133,8 +133,7 @@ const HomeLatestPosts = ({ classes }) =>
   )
 }
 
-const HomeLatestPostsComponent = registerComponent('HomeLatestPosts', HomeLatestPosts,
-  withStyles(styles, {name: "HomeLatestPosts"}));
+const HomeLatestPostsComponent = registerComponent('HomeLatestPosts', HomeLatestPosts, {styles});
 
 declare global {
   interface ComponentTypes {

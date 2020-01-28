@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames'
 
@@ -24,7 +24,7 @@ const SectionSubtitle = ({children, classes, className}: {
   </Typography>
 }
 
-const SectionSubtitleComponent = registerComponent('SectionSubtitle', SectionSubtitle, withStyles(styles, {name: 'SectionSubtitle'}))
+const SectionSubtitleComponent = registerComponent('SectionSubtitle', SectionSubtitle, {styles})
 
 declare global {
   interface ComponentTypes {

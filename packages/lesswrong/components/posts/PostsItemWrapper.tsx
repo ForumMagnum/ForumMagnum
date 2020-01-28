@@ -4,7 +4,7 @@ import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import DragIcon from '@material-ui/icons/DragHandle';
 import RemoveIcon from '@material-ui/icons/Close';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 
 const styles = createStyles(theme => ({
   root: {
@@ -60,12 +60,15 @@ const PostsItemWrapper = ({document, loading, classes, ...props}) => {
   }
 };
 
-const PostsItemWrapperComponent = registerComponent('PostsItemWrapper', PostsItemWrapper,
-  withSingle({
-    collection: Posts,
-    fragmentName: 'PostsList',
-  }),
-  withStyles(styles, {name: "PostsItemWrapper"}));
+const PostsItemWrapperComponent = registerComponent('PostsItemWrapper', PostsItemWrapper, {
+  styles,
+  hocs: [
+    withSingle({
+      collection: Posts,
+      fragmentName: 'PostsList',
+    }),
+  ]
+});
 
 declare global {
   interface ComponentTypes {

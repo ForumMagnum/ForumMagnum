@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import { withSingle } from '../../lib/crud/withSingle';
 import { Comments } from '../../lib/collections/comments';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 
 const styles = createStyles(theme => ({
   dividerMargins: {
@@ -48,12 +48,12 @@ const CommentPermalink = (props) => {
 }
 
 const CommentPermalinkComponent = registerComponent(
-  "CommentPermalink", CommentPermalink,
-  withStyles(styles, {name:"CommentPermalink"}),
-  withSingle({
-    collection: Comments,
-    fragmentName: 'CommentWithReplies',
-  })
+  "CommentPermalink", CommentPermalink, { styles, hocs: [
+    withSingle({
+      collection: Comments,
+      fragmentName: 'CommentWithReplies',
+    })
+  ]}
 );
 
 

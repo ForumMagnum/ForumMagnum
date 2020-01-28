@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { withApollo } from 'react-apollo';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
 import { Link } from '../../lib/reactRouterWrapper';
 
@@ -40,10 +40,10 @@ const HeaderSubtitle = ({client, classes}) => {
   }
 }
 
-const HeaderSubtitleComponent = registerComponent("HeaderSubtitle", HeaderSubtitle,
-  withApollo,
-  withStyles(styles, {name: "HeaderSubtitle"})
-);
+const HeaderSubtitleComponent = registerComponent("HeaderSubtitle", HeaderSubtitle, {
+  styles,
+  hocs: [withApollo],
+});
 
 declare global {
   interface ComponentTypes {

@@ -3,7 +3,7 @@ import { registerComponent, Components } from 'meteor/vulcan:core';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts/collection';
 import { useCurrentUser } from '../common/withUser';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = createStyles(theme => ({
@@ -56,7 +56,7 @@ const PingbacksList = ({classes, postId}) => {
   return null;
 }
 
-const PingbacksListComponent = registerComponent("PingbacksList", PingbacksList, withStyles(styles, {name: "PingbacksList"}));
+const PingbacksListComponent = registerComponent("PingbacksList", PingbacksList, {styles});
 
 declare global {
   interface ComponentTypes {

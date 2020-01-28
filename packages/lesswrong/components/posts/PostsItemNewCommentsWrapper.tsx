@@ -3,7 +3,7 @@ import { Components, registerComponent} from 'meteor/vulcan:core';
 import { withMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
 import { unflattenComments } from '../../lib/utils/unflatten';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 
 const styles = createStyles(theme => ({
   title: {
@@ -49,15 +49,19 @@ const PostsItemNewCommentsWrapper = ({ classes, title, loading, results, current
 };
 
 const PostsItemNewCommentsWrapperComponent = registerComponent(
-  'PostsItemNewCommentsWrapper', PostsItemNewCommentsWrapper,
-  withMulti({
-    collection: Comments,
-    fragmentName: 'CommentsList',
-    fetchPolicy: 'cache-and-network',
-    limit: 5,
-    // enableTotal: false,
-  }),
-  withStyles(styles, {name:"PostsItemNewCommentsWrapper"}));
+  'PostsItemNewCommentsWrapper', PostsItemNewCommentsWrapper, {
+    styles,
+    hocs: [
+      withMulti({
+        collection: Comments,
+        fragmentName: 'CommentsList',
+        fetchPolicy: 'cache-and-network',
+        limit: 5,
+        // enableTotal: false,
+      }),
+    ]
+  }
+);
 
 declare global {
   interface ComponentTypes {

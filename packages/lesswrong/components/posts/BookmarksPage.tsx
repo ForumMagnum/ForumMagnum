@@ -20,7 +20,9 @@ const BookmarksPage = () => {
 }
 
 
-const BookmarksPageComponent = registerComponent('BookmarksPage', BookmarksPage, withErrorBoundary);
+const BookmarksPageComponent = registerComponent('BookmarksPage', BookmarksPage, {
+  hocs: [withErrorBoundary]
+});
 
 declare global {
   interface ComponentTypes {

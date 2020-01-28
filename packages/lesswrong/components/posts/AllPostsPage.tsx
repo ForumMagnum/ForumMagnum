@@ -1,7 +1,7 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { withLocation } from '../../lib/routeUtil';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -180,16 +180,16 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
 }
 
 const AllPostsPageComponent = registerComponent(
-  'AllPostsPage',
-  AllPostsPage,
-  withStyles(styles, {name:"AllPostsPage"}),
-  withLocation,
-  withUser,
-  withTimezone,
-  withUpdate({
-    collection: Users,
-    fragmentName: 'UsersCurrent',
-  })
+  'AllPostsPage', AllPostsPage, {
+    styles,
+    hocs: [
+      withLocation, withUser, withTimezone,
+      withUpdate({
+        collection: Users,
+        fragmentName: 'UsersCurrent',
+      })
+    ]
+  }
 );
 
 declare global {

@@ -7,7 +7,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import withUser from '../../common/withUser';
 
@@ -72,4 +72,7 @@ ModerationGuidelinesEditForm.propTypes = {
   postId: PropTypes.string,
 }
 
-registerComponent('ModerationGuidelinesEditForm', ModerationGuidelinesEditForm, withStyles(styles, { name: "ModerationGuidelinesEditForm" }), withUser);
+registerComponent('ModerationGuidelinesEditForm', ModerationGuidelinesEditForm, {
+  styles,
+  hocs: [withUser]
+});

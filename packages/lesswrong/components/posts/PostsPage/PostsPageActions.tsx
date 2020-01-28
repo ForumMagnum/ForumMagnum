@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react'
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
@@ -72,11 +72,10 @@ class PostsPageActions extends PureComponent<PostsPageActionsProps,PostsPageActi
 }
 
 
-const PostsPageActionsComponent = registerComponent('PostsPageActions', PostsPageActions,
-  withStyles(styles, {name: "PostsPageActions"}),
-  withUser,
-  withTracking
-)
+const PostsPageActionsComponent = registerComponent('PostsPageActions', PostsPageActions, {
+  styles,
+  hocs: [withUser, withTracking]
+});
 
 declare global {
   interface ComponentTypes {

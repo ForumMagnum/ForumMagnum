@@ -1,6 +1,6 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
@@ -81,8 +81,7 @@ const TabNavigationFooterItem = ({tab, classes}) => {
 }
 
 const TabNavigationFooterItemComponent = registerComponent(
-  'TabNavigationFooterItem', TabNavigationFooterItem,
-  withStyles(styles, { name: 'TabNavigationFooterItem'})
+  'TabNavigationFooterItem', TabNavigationFooterItem, {styles}
 );
 
 declare global {

@@ -3,7 +3,7 @@ import { withSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Localgroups } from '../../lib/index';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 
 const styles = createStyles(theme => ({
   title: {
@@ -34,12 +34,15 @@ const PostsGroupDetails = ({ post, classes, document }) => {
 }
 
 const PostsGroupDetailsComponent = registerComponent(
-  'PostsGroupDetails', PostsGroupDetails,
-  withSingle({
-    collection: Localgroups,
-    fragmentName: 'localGroupsHomeFragment',
-  }),
-  withStyles(styles, {name: "PostsGroupDetails"})
+  'PostsGroupDetails', PostsGroupDetails, {
+    styles,
+    hocs: [
+      withSingle({
+        collection: Localgroups,
+        fragmentName: 'localGroupsHomeFragment',
+      }),
+    ]
+  }
 );
 
 declare global {

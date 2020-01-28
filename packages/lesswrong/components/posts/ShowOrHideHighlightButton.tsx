@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent, } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import SubdirectoryArrowLeftIcon from '@material-ui/icons/SubdirectoryArrowLeft';
 
@@ -37,8 +37,7 @@ const ShowOrHideHighlightButton = ({open, className, classes}) =>
     }
   </span>
 
-const ShowOrHideHighlightButtonComponent = registerComponent("ShowOrHideHighlightButton", ShowOrHideHighlightButton,
-  withStyles(styles, {name: "ShowOrHideHighlightButton"}));
+const ShowOrHideHighlightButtonComponent = registerComponent("ShowOrHideHighlightButton", ShowOrHideHighlightButton, {styles});
 
 declare global {
   interface ComponentTypes {

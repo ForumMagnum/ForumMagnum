@@ -18,7 +18,9 @@ UsersAccount.propTypes = {
   currentUser: PropTypes.object
 };
 
-const UsersAccountComponent = registerComponent('UsersAccount', UsersAccount, withUser);
+const UsersAccountComponent = registerComponent('UsersAccount', UsersAccount, {
+  hocs: [withUser]
+});
 
 declare global {
   interface ComponentTypes {

@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { Posts } from '../../lib/collections/posts';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import classNames from 'classnames';
-import { withStyles, createStyles } from '@material-ui/core/styles'
+import { createStyles } from '@material-ui/core/styles'
 import { useTracking } from "../../lib/analyticsEvents";
 import * as _ from 'underscore';
 
@@ -186,8 +186,7 @@ PostsList2.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-const PostsList2Component = registerComponent('PostsList2', PostsList2,
-  withStyles(styles, {name:"PostsList2"}));
+const PostsList2Component = registerComponent('PostsList2', PostsList2, {styles});
 
 declare global {
   interface ComponentTypes {

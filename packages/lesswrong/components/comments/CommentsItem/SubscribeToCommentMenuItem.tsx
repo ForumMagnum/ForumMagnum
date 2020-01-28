@@ -24,7 +24,9 @@ const SubscribeToCommentMenuItem = ({ currentUser, comment }) => {
   }
 }
 
-const SubscribeToCommentMenuItemComponent = registerComponent('SubscribeToCommentMenuItem', SubscribeToCommentMenuItem, withUser);
+const SubscribeToCommentMenuItemComponent = registerComponent('SubscribeToCommentMenuItem', SubscribeToCommentMenuItem, {
+  hocs: [withUser]
+});
 
 declare global {
   interface ComponentTypes {

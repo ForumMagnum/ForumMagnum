@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import moment from '../../lib/moment-timezone';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles'
+import { createStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import classNames from 'classnames';
 import { getDateRange, timeframeToTimeBlock } from './timeframeUtils'
@@ -173,10 +173,10 @@ class PostsTimeframeList extends PureComponent<PostsTimeframeListProps,PostsTime
   before: PropTypes.string, // exclusive
 };
 
-const PostsTimeframeListComponent = registerComponent('PostsTimeframeList', PostsTimeframeList,
-  withTimezone,
-  withStyles(styles, {name: "PostsTimeframeList"})
-);
+const PostsTimeframeListComponent = registerComponent('PostsTimeframeList', PostsTimeframeList, {
+  styles,
+  hocs: [withTimezone]
+});
 
 declare global {
   interface ComponentTypes {

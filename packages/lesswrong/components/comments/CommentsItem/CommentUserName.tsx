@@ -1,6 +1,6 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 
 const styles = createStyles(theme => ({
   author: {
@@ -38,8 +38,7 @@ const CommentUserName = ({comment, classes, simple = false}) => {
   }
 }
 
-const CommentUserNameComponent = registerComponent('CommentUserName', CommentUserName,
-  withStyles(styles, {name: "CommentUserName"}));
+const CommentUserNameComponent = registerComponent('CommentUserName', CommentUserName, {styles});
 
 declare global {
   interface ComponentTypes {

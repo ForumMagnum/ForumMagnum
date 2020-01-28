@@ -70,13 +70,15 @@ class SuggestCurated extends Component<SuggestCuratedProps> {
 }
 
 const SuggestCuratedComponent = registerComponent(
-  'SuggestCurated',
-  SuggestCurated,
-  withUpdate({
-    collection: Posts,
-    fragmentName: 'PostsList',
-  }),
-  withUser
+  'SuggestCurated', SuggestCurated, {
+    hocs: [
+      withUpdate({
+        collection: Posts,
+        fragmentName: 'PostsList',
+      }),
+      withUser
+    ]
+  }
 );
 
 declare global {

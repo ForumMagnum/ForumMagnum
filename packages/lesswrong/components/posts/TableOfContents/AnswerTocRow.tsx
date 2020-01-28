@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = createStyles((theme) => ({
@@ -68,7 +68,7 @@ const AnswerTocRow = ({classes, answer}) => {
     </div>
 }
 
-const AnswerTocRowComponent = registerComponent('AnswerTocRow', AnswerTocRow, withStyles(styles, {name: 'AnswerTocRow'}))
+const AnswerTocRowComponent = registerComponent('AnswerTocRow', AnswerTocRow, {styles});
 
 declare global {
   interface ComponentTypes {

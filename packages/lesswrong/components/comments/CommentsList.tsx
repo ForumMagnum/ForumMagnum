@@ -8,7 +8,7 @@ import { Posts } from '../../lib/collections/posts';
 import withGlobalKeydown from '../common/withGlobalKeydown';
 import Tooltip from '@material-ui/core/Tooltip';
 import { Link } from '../../lib/reactRouterWrapper';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { TRUNCATION_KARMA_THRESHOLD } from '../../lib/editor/ellipsize'
 
 const styles = createStyles(theme => ({
@@ -186,12 +186,15 @@ class CommentsList extends Component<CommentsListProps,CommentsListState> {
 
 
 const CommentsListComponent = registerComponent(
-  'CommentsList', CommentsList,
-  withUpdate({
-    collection: Comments,
-    fragmentName: 'CommentsList',
-  }),
-  withGlobalKeydown, withStyles(styles, {name:"CommentsList"})
+  'CommentsList', CommentsList, {
+    styles, hocs: [
+      withUpdate({
+        collection: Comments,
+        fragmentName: 'CommentsList',
+      }),
+      withGlobalKeydown,
+    ]
+  }
 );
 
 declare global {

@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
 import Users from 'meteor/vulcan:users';
-import { withStyles, createStyles } from '@material-ui/core/styles'
+import { createStyles } from '@material-ui/core/styles'
 import classNames from 'classnames';
 
 const styles = createStyles(theme => ({
@@ -27,9 +27,10 @@ const CantCommentExplanation = ({currentUser, post, classes}) =>
   </div>
 
 const CantCommentExplanationComponent = registerComponent(
-  'CantCommentExplanation', CantCommentExplanation,
-  withUser,
-  withStyles(styles, {name: "CantCommentExplanation"}));
+  'CantCommentExplanation', CantCommentExplanation, { styles, hocs: [
+    withUser,
+  ]}
+);
 
 declare global {
   interface ComponentTypes {

@@ -31,6 +31,16 @@ interface WithLocationProps {
   location: any,
 }
 
+interface WithDialogProps {
+  openDialog: any,
+}
+
 interface WithGlobalKeydownProps {
   addKeydownListener: any,
+}
+
+interface WithHoverProps {
+  hover: boolean,
+  anchorEl: any,
+  stopHover: any,
 }

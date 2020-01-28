@@ -1,6 +1,6 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import NotesIcon from '@material-ui/icons/Notes';
 import Tooltip from '@material-ui/core/Tooltip';
 import { Comments } from "../../../lib/collections/comments";
@@ -35,8 +35,8 @@ const CommentShortformIcon = ({comment, post, classes, simple}) => {
 }
 
 const CommentShortformIconComponent = registerComponent(
-  'CommentShortformIcon', CommentShortformIcon,
-  withStyles(styles, {name: "CommentShortformIcon"}));
+  'CommentShortformIcon', CommentShortformIcon, {styles}
+);
 
 declare global {
   interface ComponentTypes {

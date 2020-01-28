@@ -1,6 +1,6 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 
 const styles = createStyles(theme => ({
   root: {
@@ -27,7 +27,7 @@ const CollectionsCardContainer = ({ classes, children }) => {
 }
 
 const CollectionsCardContainerComponent = registerComponent(
-  "CollectionsCardContainer", CollectionsCardContainer, withStyles(styles, { name: "CollectionsCardContainer" }));
+  "CollectionsCardContainer", CollectionsCardContainer, { styles });
 
 declare global {
   interface ComponentTypes {

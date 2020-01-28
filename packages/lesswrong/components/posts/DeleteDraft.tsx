@@ -38,13 +38,15 @@ class DeleteDraft extends Component<DeleteDraftProps,{}> {
 }
 
 const DeleteDraftComponent = registerComponent(
-  'DeleteDraft',
-  DeleteDraft,
-  withUpdate({
-    collection: Posts,
-    fragmentName: 'PostsList',
-  }),
-  withUser
+  'DeleteDraft', DeleteDraft, {
+    hocs: [
+      withUpdate({
+        collection: Posts,
+        fragmentName: 'PostsList',
+      }),
+      withUser
+    ]
+  }
 );
 
 declare global {

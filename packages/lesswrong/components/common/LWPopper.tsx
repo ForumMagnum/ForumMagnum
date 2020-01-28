@@ -1,6 +1,6 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import Popper from '@material-ui/core/Popper'
 
 const styles = createStyles(theme => ({
@@ -43,7 +43,7 @@ const LWPopper = ({classes, children, onMouseEnter, tooltip=false, modifiers, op
   )
 };
 
-const LWPopperComponent = registerComponent('LWPopper', LWPopper, withStyles(styles, {name:"LWPopper"}));
+const LWPopperComponent = registerComponent('LWPopper', LWPopper, {styles});
 
 declare global {
   interface ComponentTypes {

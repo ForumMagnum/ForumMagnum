@@ -10,7 +10,7 @@ import { useDialog } from '../common/withDialog';
 import withErrorBoundary from '../common/withErrorBoundary';
 import Users from 'meteor/vulcan:users';
 import Tooltip, {TooltipProps} from '@material-ui/core/Tooltip';
-import { withStyles, createStyles } from '@material-ui/core/styles'
+import { createStyles } from '@material-ui/core/styles'
 import { useTracking } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
 
@@ -91,7 +91,10 @@ const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right"
   }
 }
 
-const BookmarkButtonComponent = registerComponent('BookmarkButton', BookmarkButton, withUser, withErrorBoundary, withStyles(styles, {name:"BookmarkButton"}));
+const BookmarkButtonComponent = registerComponent('BookmarkButton', BookmarkButton, {
+  styles,
+  hocs: [withUser, withErrorBoundary],
+});
 
 declare global {
   interface ComponentTypes {

@@ -1,6 +1,6 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import SubdirectoryArrowLeft from '@material-ui/icons/SubdirectoryArrowLeft';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
@@ -57,7 +57,7 @@ const ShowParentComment = ({ comment, active, onClick, classes }) => {
   )
 };
 
-const ShowParentCommentComponent = registerComponent('ShowParentComment', ShowParentComment, withStyles(styles, {name:"ShowParentComment"}));
+const ShowParentCommentComponent = registerComponent('ShowParentComment', ShowParentComment, {styles});
 
 declare global {
   interface ComponentTypes {
