@@ -5,7 +5,6 @@ import { truncate } from '../../lib/editor/ellipsize';
 import withUser from "../common/withUser";
 import { postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
 import { Posts } from '../../lib/collections/posts';
-import CommentIcon from '@material-ui/icons/ModeComment';
 import Card from '@material-ui/core/Card';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { userHasBoldPostItems } from '../../lib/betas.js';
