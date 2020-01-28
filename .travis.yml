@@ -16,7 +16,7 @@ env:
 jobs:
   include:
   - stage: test
-    script: yarn run test
+    script: ls
   - stage: deploy 
     script: skip
     deploy: lessestwrong
