@@ -4,6 +4,7 @@ import { schemaDefaultValue } from '../../collectionUtils'
 
 export const subscriptionTypes = {
   newComments: 'newComments',
+  newShortform: 'newShortform',
   newPosts: 'newPosts',
   newRelatedQuestions: 'newRelatedQuestions',
   newEvents: 'newEvents',

@@ -524,6 +524,7 @@ registerFragment(`
 
     recommendationSettings
     
+    notificationShortformContent
     notificationCommentsOnSubscribedPost
     notificationRepliesToMyComments
     notificationRepliesToSubscribedComments
