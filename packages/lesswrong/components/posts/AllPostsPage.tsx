@@ -1,4 +1,4 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting, Utils } from 'meteor/vulcan:core';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import { createStyles } from '@material-ui/core/styles';
@@ -135,7 +135,7 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
     const { classes, currentUser } = this.props
     const { query } = this.props.location;
     const { showSettings } = this.state
-    const { SingleColumnSection, SectionTitle, SettingsIcon, PostsListSettings } = Components
+    const { SingleColumnSection, SectionTitle, SettingsIcon, PostsListSettings, HeadTags } = Components
 
     const currentTimeframe = query.timeframe ||
       (currentUser && currentUser.allPostsTimeframe) ||
@@ -152,6 +152,7 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
 
     return (
       <React.Fragment>
+        <HeadTags url={Utils.getSiteUrl() + "allPosts"} description={"All of LessWrong's posts, filtered and sorted however you want"}/>
         <AnalyticsContext pageContext="allPostsPage">
           <SingleColumnSection>
             <Tooltip title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`} placement="top-end">
