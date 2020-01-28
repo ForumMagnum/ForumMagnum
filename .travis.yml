@@ -19,14 +19,14 @@ jobs:
     script: ls
   - stage: deploy 
     script: skip
-    if: branch = devel
+    if: branch = devel AND type != pull_request
     deploy: &lessestwrong
       provider: script
       script: bash ./deploy.sh ./LessWrong-Credentials/settings-staging-lessestwrong.json ./LessWrong-Credentials/mup-lessestwrong.secret
       on:
         branch: devel
   - script: skip
-    if: branch = devel
+    if: branch = devel AND type != pull_request
     deploy: &baserates
       provider: script
       script: 
@@ -34,7 +34,7 @@ jobs:
       on:
         branch: devel
   - script: skip
-    if: branch = master
+    if: branch = master AND type != pull_request
     deploy: &lesswrong
       provider: script
       script: 
@@ -42,7 +42,7 @@ jobs:
       on:
         branch: master
   - script: skip
-    if: branch = master
+    if: branch = master AND type != pull_request
     deploy: &AIAF
       provider: script
       script: 
