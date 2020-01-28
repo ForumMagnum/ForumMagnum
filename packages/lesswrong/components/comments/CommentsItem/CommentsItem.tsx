@@ -139,7 +139,8 @@ interface CommentsItemState {
   showEdit: boolean,
   showParent: boolean,
 }
-class CommentsItem extends Component<CommentsItemProps,CommentsItemState> {
+
+export class CommentsItem extends Component<CommentsItemProps,CommentsItemState> {
   constructor(props: CommentsItemProps) {
     super(props);
     this.state = {
