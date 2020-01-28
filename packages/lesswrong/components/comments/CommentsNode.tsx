@@ -375,6 +375,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
                     <AnalyticsTracker eventType="singeLineComment">
                       <SingleLineComment
                         comment={comment}
+                        post={post}
                         nestingLevel={updatedNestingLevel}
                         parentCommentId={parentCommentId}
                         hideKarma={post.hideCommentKarma}

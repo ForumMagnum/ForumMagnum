@@ -110,6 +110,7 @@ const styles = createStyles(theme => ({
 
 interface ExternalProps {
   comment: any,
+  post: any,
   nestingLevel: number,
   parentCommentId?: string,
   hideKarma?: boolean,
@@ -119,7 +120,7 @@ interface ExternalProps {
 interface SingleLineCommentProps extends ExternalProps, WithStylesProps, WithHoverProps {
 }
 
-const SingleLineComment = ({comment, classes, nestingLevel, hover, parentCommentId, hideKarma, enableHoverPreview=true, hideSingleLineMeta}: SingleLineCommentProps) => {
+const SingleLineComment = ({comment, post, classes, nestingLevel, hover, parentCommentId, hideKarma, enableHoverPreview=true, hideSingleLineMeta}: SingleLineCommentProps) => {
   if (!comment) return null
 
   const { plaintextMainText } = comment.contents
@@ -132,7 +133,7 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
   return (
     <div className={classes.root}>
       <div className={classNames(classes.commentInfo, {[classes.isAnswer]: comment.answer, [classes.odd]:((nestingLevel%2) !== 0)})}>
-        <CommentShortformIcon comment={comment} simple={true} />
+        <CommentShortformIcon comment={comment} post={post} simple={true} />
 
         { parentCommentId!=comment.parentCommentId &&
           <ShowParentComment comment={comment} />
