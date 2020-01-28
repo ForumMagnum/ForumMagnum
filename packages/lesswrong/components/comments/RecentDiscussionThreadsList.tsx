@@ -94,7 +94,7 @@ const RecentDiscussionThreadsList = ({
           )}
         </div>}
         <AnalyticsInViewTracker eventProps={{inViewType: "loadMoreButton"}}>
-            { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
+            { loadMore && <LoadMore loadMore={loadMore}  /> }
             { (loading || loadingMore) && <Loading />}
         </AnalyticsInViewTracker>
       </div>
