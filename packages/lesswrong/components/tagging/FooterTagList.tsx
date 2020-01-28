@@ -59,7 +59,7 @@ const FooterTagList = ({post, classes}) => {
   if (loading || !results)
     return <Components.Loading/>;
   
-  return <div className={classes.root}>    
+  return <div className={classes.root}>
     {results.map((result, i) => <span key={result._id}>
       <Components.FooterTag tagRel={result} tag={result.tag}/>
     </span>)}

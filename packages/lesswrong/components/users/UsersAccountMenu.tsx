@@ -24,7 +24,7 @@ interface UsersAccountMenuProps extends WithStylesProps {
 }
 interface UsersAccountMenuState {
   open: boolean,
-  anchorEl: any,
+  anchorEl: HTMLElement|null,
 }
 
 class UsersAccountMenu extends PureComponent<UsersAccountMenuProps,UsersAccountMenuState> {

@@ -65,7 +65,7 @@ interface UsersMenuProps extends ExternalProps, WithUserProps, WithStylesProps, 
 }
 interface UsersMenuState {
   open: boolean,
-  anchorEl: any,
+  anchorEl: HTMLElement|null,
 }
 
 class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {

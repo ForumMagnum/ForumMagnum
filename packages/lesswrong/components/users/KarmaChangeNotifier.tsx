@@ -167,7 +167,7 @@ interface KarmaChangeNotifierProps extends ExternalProps, WithUserProps, WithSty
 interface KarmaChangeNotifierState {
   cleared: boolean,
   open: boolean,
-  anchorEl: any,
+  anchorEl: HTMLElement|null,
   karmaChanges: any,
   karmaChangeLastOpened: Date,
 }
@@ -203,7 +203,7 @@ class KarmaChangeNotifier extends PureComponent<KarmaChangeNotifierProps,KarmaCh
   handleClose = (e) => {
     const { document, updateUser, currentUser } = this.props;
     const { anchorEl } = this.state
-    if (e && anchorEl.contains(e.target)) {
+    if (e && anchorEl?.contains(e.target)) {
       return;
     }
     this.setState({
