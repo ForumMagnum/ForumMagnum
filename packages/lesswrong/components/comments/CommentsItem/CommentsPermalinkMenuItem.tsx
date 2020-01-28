@@ -8,7 +8,7 @@ import { Comments } from "../../../lib/collections/comments";
 
 const CommentsPermalinkMenuItem = ({comment, post}) => {
   return <Link to={Comments.getPageUrlFromIds({postId: post._id, postSlug: post.slug, commentId: comment._id})}>
-    <MenuItem onClick={this.showReport}>
+    <MenuItem>
       <ListItemIcon>
         <LinkIcon />
       </ListItemIcon>

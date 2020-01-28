@@ -22,7 +22,7 @@ const DeleteDraft = ({ post }) => {
   }, [post, updatePost])
 
   if (currentUser && Posts.canDelete(currentUser, post)) {
-    return <div onClick={this.handleDelete}>
+    return <div onClick={handleDelete}>
       <MenuItem>
         Delete Post
       </MenuItem>

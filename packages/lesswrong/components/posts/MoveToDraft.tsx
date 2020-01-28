@@ -20,7 +20,7 @@ const MoveToDraft = ({ post }) => {
   }, [updatePost, post])
 
   if (!post.draft && currentUser && Posts.canEdit(currentUser, post)) {
-    return <div onClick={this.handleMoveToDraft}>
+    return <div onClick={handleMoveToDraft}>
       <MenuItem>
         Move to Draft
       </MenuItem>
