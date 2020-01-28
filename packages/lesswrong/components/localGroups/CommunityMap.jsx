@@ -1,12 +1,13 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { Components, registerComponent, useMulti, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { useMulti } from '../../lib/crud/withMulti';
 import { withStyles } from '@material-ui/core/styles';
 import { Localgroups } from '../../lib/index.js';
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
 import { useLocation } from '../../lib/routeUtil';
 import { PersonSVG } from './Icons'
-import withUser from '../common/withUser.js';
+import withUser from '../common/withUser';
 import ReactMapGL, { Marker } from 'react-map-gl';
 import { Helmet } from 'react-helmet'
 

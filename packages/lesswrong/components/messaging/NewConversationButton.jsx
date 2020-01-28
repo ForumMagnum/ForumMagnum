@@ -6,7 +6,8 @@ Button used to start a new conversation for a given user
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, withCreate, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { withCreate } from '../../lib/crud/withCreate';
 import { withNavigation } from '../../lib/routeUtil';
 import Conversations from '../../lib/collections/conversations/collection.js';
 import withUser from '../common/withUser';

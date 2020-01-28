@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, getFragment, withDocument } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
+import { withSingle } from '../../lib/crud/withSingle';
 import { withMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
 import { withLocation, withNavigation } from '../../lib/routeUtil'
@@ -82,7 +83,7 @@ const documentQuery = {
 };
 
 registerComponent('PostsEditForm', PostsEditForm,
-  [withDocument, documentQuery],
+  [withSingle, documentQuery],
   withMessages, withLocation, withNavigation,
   withStyles(styles, { name: "PostsEditForm" })
 );

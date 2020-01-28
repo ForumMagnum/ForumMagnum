@@ -1,5 +1,7 @@
 import React from 'react';
-import { Components, registerComponent, useMulti, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withUpdate } from '../../lib/crud/withUpdate';
+import { useMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
 import { useCurrentUser } from '../common/withUser';
 import Typography from '@material-ui/core/Typography';
@@ -55,7 +57,7 @@ const RecentComments = ({classes, updateComment, terms, truncated, noResultsMess
 }
 
 registerComponent('RecentComments', RecentComments,
-  [withEdit, {
+  [withUpdate, {
     collection: Comments,
     fragmentName: 'SelectCommentsList',
   }],

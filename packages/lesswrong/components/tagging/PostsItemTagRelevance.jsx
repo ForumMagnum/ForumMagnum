@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
-import { useCurrentUser } from '../common/withUser.js';
+import { useCurrentUser } from '../common/withUser';
 import { TagRels } from '../../lib/collections/tagRels/collection.js';
 import { useVote } from '../votes/withVote';
 import classNames from 'classnames';

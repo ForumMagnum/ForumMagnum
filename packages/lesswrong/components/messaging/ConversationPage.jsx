@@ -5,7 +5,9 @@ The Navigation for the Inbox components
 */
 
 import React, { Component } from 'react';
-import { Components, registerComponent, withList, withDocument, getFragment } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
+import { withSingle } from '../../lib/crud/withSingle';
+import { withMulti } from '../../lib/crud/withMulti';
 import Messages from "../../lib/collections/messages/collection.js";
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
@@ -94,5 +96,5 @@ const options = {
 };
 
 registerComponent('ConversationPage', ConversationPage, withErrorBoundary,
-  [withList, options],  withUser, [withDocument, withDocumentOptions], 
+  [withMulti, options], withUser, [withSingle, withDocumentOptions],
   withStyles(styles, { name: "ConversationPage" }));

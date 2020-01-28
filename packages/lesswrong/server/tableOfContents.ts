@@ -2,6 +2,7 @@ import { Utils, getSetting } from 'meteor/vulcan:core';
 import cheerio from 'cheerio';
 import { Comments } from '../lib/collections/comments/collection'
 import { Posts } from '../lib/collections/posts/collection';
+import { Revisions } from '../lib/collections/revisions/collection';
 import { questionAnswersSort } from '../lib/collections/comments/views';
 import { truncate, answerTocExcerptFromHTML } from '../lib/editor/ellipsize';
 import htmlToText from 'html-to-text'
@@ -220,8 +221,17 @@ async function getTocComments (document) {
   return [{anchor:"comments", level:0, title: Posts.getCommentCountStr(document, commentCount)}]
 }
 
-const getTableOfContentsData = async (document, args, options) => {
-  const { html } = document.contents || {}
+const getTableOfContentsData = async ({document, version, currentUser}) => {
+  let html;
+  if (version) {
+    const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "contents"})
+    if (!Revisions.checkAccess(currentUser, revision))
+      return null;
+    html = revision?.html;
+  } else {
+    html = document?.contents?.html;
+  }
+  
   const tableOfContents = extractTableOfContents(html)
   let tocSections = tableOfContents?.sections || []
   

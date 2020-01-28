@@ -1,4 +1,5 @@
-import { Components, registerComponent, useUpdate } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { useUpdate } from '../../lib/crud/withUpdate';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import Users from 'meteor/vulcan:users';

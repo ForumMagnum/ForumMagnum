@@ -13,7 +13,6 @@ const CKCommentEditor = ({ data, onSave, onChange, onInit }) => {
   
   return <CKEditor
       editor={ CommentEditor }
-      data={data || ""}
       onInit={ editor => {
           // Uncomment the line below and the import above to activate the debugger
           // CKEditorInspector.attach(editor)
@@ -29,7 +28,8 @@ const CKCommentEditor = ({ data, onSave, onChange, onInit }) => {
           save (editor) {
             return onSave && onSave( editor.getData() )
           }
-        }
+        },
+        initialData: data || ""
       }}
     />
 }

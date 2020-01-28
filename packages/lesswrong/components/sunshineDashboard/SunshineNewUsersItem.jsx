@@ -1,5 +1,6 @@
 /* global confirm */
-import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';
 import { Link } from '../../lib/reactRouterWrapper.jsx'
@@ -12,6 +13,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import red from '@material-ui/core/colors/red';
 import { withStyles } from '@material-ui/core/styles';
 import DoneIcon from '@material-ui/icons/Done';
+import SnoozeIcon from '@material-ui/icons/Snooze';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 
 const styles = theme => ({
@@ -31,7 +33,23 @@ class SunshineNewUsersItem extends Component {
     const { currentUser, user, updateUser } = this.props
     updateUser({
       selector: {_id: user._id},
-      data: {reviewedByUserId: currentUser._id}
+      data: {
+        reviewedByUserId: currentUser._id,
+        sunshineSnoozed: false,
+        needsReview: false,
+      }
+    })
+  }
+
+  handleSnooze = () => {
+    const { currentUser, user, updateUser } = this.props
+    updateUser({
+      selector: {_id: user._id},
+      data: {
+        needsReview: false,
+        reviewedByUserId: currentUser._id,
+        sunshineSnoozed: true
+      }
     })
   }
 
@@ -105,8 +123,12 @@ class SunshineNewUsersItem extends Component {
             </div>
           }
           { hover && <SidebarActionMenu>
-            <SidebarAction title="Review" onClick={this.handleReview}>
+            {/* to fully approve a user, they most have created a post or comment. Users that have only voted can only be snoozed */}
+            {(user.commentCount || user.postCount) && <SidebarAction title="Review" onClick={this.handleReview}>
               <DoneIcon />
+            </SidebarAction>}
+            <SidebarAction title="Snooze" onClick={this.handleSnooze}>
+              <SnoozeIcon />
             </SidebarAction>
             <SidebarAction warningHighlight={true} title="Purge User (delete and ban)" onClick={this.handlePurge}>
               <DeleteForeverIcon />

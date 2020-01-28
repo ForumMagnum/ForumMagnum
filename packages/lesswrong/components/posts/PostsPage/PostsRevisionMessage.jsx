@@ -18,7 +18,8 @@ const PostsRevisionMessage = ({post, classes}) => {
   const { FormatDate } = Components
   return (
     <div className={classes.root}>
-      You are viewing a version of this post published on the <FormatDate date={post.contents.editedAt} format="Do MMM YYYY"/>. 
+      You are viewing a version of this post published on the <FormatDate date={post.contents.editedAt} format="Do MMM YYYY"/>.
+      {" "}
       <QueryLink query={{revision: undefined}}>This link</QueryLink> will always display the most recent version of the post..
     </div>
   );

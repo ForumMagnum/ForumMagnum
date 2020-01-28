@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import { Components, registerComponent, withList, withEdit } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withUpdate } from '../../lib/crud/withUpdate';
+import { withMulti } from '../../lib/crud/withMulti';
 import Notifications from '../../lib/collections/notifications/collection.js';
 import withUser from '../common/withUser';
 
@@ -81,5 +83,5 @@ const withEditOptions = {
 };
 
 registerComponent('NotificationsList', NotificationsList,
-  [withList, options], [withEdit, withEditOptions],
+  [withMulti, options], [withUpdate, withEditOptions],
   withUser, withStyles(styles, {name: "NotificationsList"}));

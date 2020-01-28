@@ -1,7 +1,8 @@
 import React from 'react';
 import { Posts } from '../../lib/collections/posts';
 import { withStyles } from '@material-ui/core/styles';
-import { Components, registerComponent, withDocument } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withSingle } from '../../lib/crud/withSingle';
 import './EmailFormatDate.jsx';
 import './EmailPostAuthors.jsx';
 import './EmailContentItemBody.jsx';
@@ -71,5 +72,5 @@ const withDocumentOptions = {
 };
 
 registerComponent("NewPostEmail", NewPostEmail,
-  [withDocument, withDocumentOptions],
+  [withSingle, withDocumentOptions],
   withStyles(styles, {name: "NewPostEmail"}));

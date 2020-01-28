@@ -1,9 +1,6 @@
-import {
-  Components,
-  registerComponent,
-  withList,
-  withUpdate
-} from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withUpdate } from '../../lib/crud/withUpdate';
+import { withMulti } from '../../lib/crud/withMulti';
 import React, { Component } from 'react';
 import Reports from '../../lib/collections/reports/collection.js';
 import { withStyles } from '@material-ui/core/styles';
@@ -63,7 +60,7 @@ const withUpdateOptions = {
 registerComponent(
   'SunshineReportedContentList',
   SunshineReportedContentList,
-  [withList, withListOptions],
+  [withMulti, withListOptions],
   [withUpdate, withUpdateOptions],
   withUser,
   withStyles(styles, {name:"SunshineReportedContentList"})

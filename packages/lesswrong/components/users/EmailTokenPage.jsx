@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
-import { Components, registerComponent, withMutation } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withMutation } from '../../lib/crud/withMutation';
 import { withLocation } from '../../lib/routeUtil';
 
 class EmailTokenPage extends Component
