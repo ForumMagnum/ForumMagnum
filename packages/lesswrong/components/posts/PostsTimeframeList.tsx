@@ -72,7 +72,7 @@ class PostsTimeframeList extends PureComponent<PostsTimeframeListProps,PostsTime
       // during which time the PTL has asked for 1200 days worth of posts.
       timeframe: props.timeframe,
       dim: !!props.dimWhenLoading,
-      displayedNumTimeBlocks: props.numTimeBlocks
+      displayedNumTimeBlocks: props.numTimeBlocks || 10
     };
   }
 
@@ -98,7 +98,7 @@ class PostsTimeframeList extends PureComponent<PostsTimeframeListProps,PostsTime
 
   loadMoreTimeBlocks = (e) => {
     e.preventDefault();
-    const { timeframe, numTimeBlocks, reverse } = this.props
+    const { timeframe, numTimeBlocks=10, reverse } = this.props
     const timeBlock = timeframeToTimeBlock[timeframe]
     const displayedNumTimeBlocks = this.state.displayedNumTimeBlocks + numTimeBlocks
     if (reverse) {
