@@ -13,7 +13,7 @@ interface SuggestAlignmentProps extends ExternalProps, WithUserProps {
   updatePost: any,
 }
 const SuggestAlignment = ({ currentUser, post, updatePost }: SuggestAlignmentProps) => {
-  const userHasSuggested = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser._id)
+  const userHasSuggested = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser!._id)
 
   if (Users.canSuggestPostForAlignment({currentUser, post})) {
     return <div>

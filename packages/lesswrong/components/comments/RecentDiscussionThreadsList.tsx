@@ -87,11 +87,9 @@ const RecentDiscussionThreadsList = ({
             <Components.RecentDiscussionThread
               key={post._id}
               post={post}
-              postCount={i}
               refetch={refetch}
               comments={post.recentComments}
               expandAllThreads={expandAll}
-              currentUser={currentUser}
               updateComment={updateComment}/>
           )}
         </div>}

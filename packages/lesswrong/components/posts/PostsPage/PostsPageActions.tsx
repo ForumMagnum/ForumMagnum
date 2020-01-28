@@ -17,9 +17,11 @@ const styles = createStyles(theme => ({
   },
 }))
 
-interface PostsPageActionsProps extends WithUserProps, WithTrackingProps, WithStylesProps {
+interface ExternalProps {
   post: any,
-  vertical: boolean,
+  vertical?: boolean,
+}
+interface PostsPageActionsProps extends ExternalProps, WithUserProps, WithTrackingProps, WithStylesProps {
 }
 interface PostsPageActionsState {
   anchorEl: any,
@@ -72,7 +74,7 @@ class PostsPageActions extends PureComponent<PostsPageActionsProps,PostsPageActi
 }
 
 
-const PostsPageActionsComponent = registerComponent('PostsPageActions', PostsPageActions, {
+const PostsPageActionsComponent = registerComponent<ExternalProps>('PostsPageActions', PostsPageActions, {
   styles,
   hocs: [withUser, withTracking]
 });

@@ -4,7 +4,11 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
 import { unflattenComments } from "../../lib/utils/unflatten";
 
-const PostsCommentsThread = ({ post, terms, newForm=true }) => {
+const PostsCommentsThread = ({ post, terms, newForm=true }: {
+  post: any,
+  terms: any,
+  newForm?: boolean,
+}) => {
   const { loading, results, loadMore, loadingMore, totalCount } = useMulti({
     terms,
     collection: Comments,
@@ -20,10 +24,9 @@ const PostsCommentsThread = ({ post, terms, newForm=true }) => {
     return (
       <Components.CommentsListSection
         comments={nestedComments}
-        postId={post._id}
         lastEvent={post.lastVisitedAt}
         loadMoreComments={loadMore}
-        totalComments={totalCount}
+        totalComments={totalCount as number}
         commentCount={(results && results.length) || 0}
         loadingMoreComments={loadingMore}
         post={post}

@@ -94,7 +94,6 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
             ...baseTerms,
             limit: 50
           }}
-          showHeader={false}
           dimWhenLoading={showSettings}
         />
       </AnalyticsContext>

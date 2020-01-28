@@ -21,7 +21,15 @@ const styles = createStyles(theme => ({
 }))
 
 
-const LoadMore = ({ loadMore, count, totalCount, classes, disabled=false, networkStatus, hidden=false }) => {
+const LoadMore = ({ loadMore, count, totalCount, classes, disabled=false, networkStatus, hidden=false }: {
+  loadMore: any,
+  count?: number,
+  totalCount?: number,
+  classes: any,
+  disabled?: boolean,
+  networkStatus?: any,
+  hidden?: boolean,
+}) => {
   const { captureEvent } = useTracking("loadMoreClicked")
 
   if (hidden) return null;

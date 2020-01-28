@@ -14,6 +14,12 @@ const styles = createStyles(theme => ({
   }
 }));
 
+interface ExternalProps {
+  post: any,
+}
+interface PingbackProps extends WithStylesProps, WithHoverProps {
+}
+
 const Pingback = ({classes, post, hover, anchorEl, stopHover}) => {
   const { LWPopper, PostsItem2MetaInfo, PostsItemKarma, PostsTitle, PostsPreviewTooltip } = Components
 
@@ -38,7 +44,7 @@ const Pingback = ({classes, post, hover, anchorEl, stopHover}) => {
   </div>
 }
 
-const PingbackComponent = registerComponent("Pingback", Pingback, {
+const PingbackComponent = registerComponent<ExternalProps>("Pingback", Pingback, {
   styles,
   hocs: [withHover()]
 });

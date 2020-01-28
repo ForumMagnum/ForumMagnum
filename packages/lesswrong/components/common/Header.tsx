@@ -125,14 +125,15 @@ const styles = createStyles(theme => ({
   },
 }));
 
-interface HeaderProps extends WithUserProps, WithStylesProps {
-  captureEvent: any,
-  updateUser: any,
+interface ExternalProps {
   standaloneNavigationPresent: any,
   toggleStandaloneNavigation: any,
   toc: any,
-  theme: any,
   searchResultsArea: any,
+}
+interface HeaderProps extends ExternalProps, WithUserProps, WithStylesProps, WithTrackingProps {
+  updateUser: any,
+  theme: any,
 }
 interface HeaderState {
   navigationOpen: boolean,
@@ -311,7 +312,7 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
   searchResultsArea: PropTypes.object,
 };
 
-const HeaderComponent = registerComponent('Header', Header, {
+const HeaderComponent = registerComponent<ExternalProps>('Header', Header, {
   styles,
   hocs: [
     withErrorBoundary,

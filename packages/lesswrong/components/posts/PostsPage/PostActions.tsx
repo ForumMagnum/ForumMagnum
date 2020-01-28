@@ -40,9 +40,11 @@ const styles = createStyles(theme => ({
   }
 }))
 
-interface PostActionsProps extends WithUserProps, WithStylesProps {
-  markAsReadOrUnread: any,
+interface ExternalProps {
   post: any,
+}
+interface PostActionsProps extends ExternalProps, WithUserProps, WithStylesProps {
+  markAsReadOrUnread: any,
   updatePost: any,
   updateUser: any,
   setAlignmentPostMutation: any,
@@ -271,7 +273,7 @@ class PostActions extends Component<PostActionsProps,{}> {
   }
 }
 
-const PostActionsComponent = registerComponent('PostActions', PostActions, {
+const PostActionsComponent = registerComponent<ExternalProps>('PostActions', PostActions, {
   styles,
   hocs: [
     withUser,

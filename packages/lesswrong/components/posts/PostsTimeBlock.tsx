@@ -13,7 +13,6 @@ import { timeframeToTimeBlock } from './timeframeUtils'
 import { queryIsUpdating } from '../common/queryStatusUtils'
 import withTimezone from '../common/withTimezone';
 import { QueryLink } from '../../lib/reactRouterWrapper';
-import withUser from '../common/withUser';
 
 const styles = createStyles(theme => ({
   root: {
@@ -55,17 +54,20 @@ const postTypes = {
    ]
 }
 
-interface PostsTimeBlockProps extends WithUserProps, WithTimezoneProps, WithStylesProps {
+interface ExternalProps {
+  terms: any,
   timeBlockLoadComplete: any,
   startDate: any,
+  hideIfEmpty: any,
+  timeframe: any,
+  displayShortform: any
+}
+interface PostsTimeBlockProps extends ExternalProps, WithUserProps, WithTimezoneProps, WithStylesProps {
   results: any,
   totalCount: any,
   loading: any,
   loadMore: any,
-  hideIfEmpty: any,
-  timeframe: any,
   networkStatus: any,
-  displayShortform: any
 }
 interface PostsTimeBlockState {
   noShortform: boolean,
@@ -121,7 +123,7 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
 
   render () {
     const {
-      startDate, results: posts, totalCount, loading, loadMore, hideIfEmpty, classes, currentUser,
+      startDate, results: posts, totalCount, loading, loadMore, hideIfEmpty, classes,
       timeframe, networkStatus, timezone, displayShortform = true
     } = this.props
     const { noShortform } = this.state
@@ -185,7 +187,7 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
               </SectionSubtitle>
               <SubSection>
                 {posts.map((post, i) =>
-                  <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} dense />
+                  <PostsItem2 key={post._id} post={post} index={i} dense />
                 )}
               </SubSection>
             </div>
@@ -219,13 +221,7 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
 
 };
 
-(PostsTimeBlock as any).propTypes = {
-  currentUser: PropTypes.object,
-  startDate: PropTypes.object,
-  timeBlockLoadComplete: PropTypes.func,
-};
-
-const PostsTimeBlockComponent = registerComponent('PostsTimeBlock', PostsTimeBlock, {
+const PostsTimeBlockComponent = registerComponent<ExternalProps>('PostsTimeBlock', PostsTimeBlock, {
   styles,
   hocs: [
     withMulti({
@@ -235,7 +231,6 @@ const PostsTimeBlockComponent = registerComponent('PostsTimeBlock', PostsTimeBlo
       ssr: true,
     }),
     withTimezone,
-    withUser,
   ]
 });
 

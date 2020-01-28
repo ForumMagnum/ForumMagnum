@@ -28,15 +28,17 @@ const loadMoreTimeframeMessages = {
 
 type TimeframeType = "daily"|"weekly"|"monthly"|"yearly";
 
-interface PostsTimeframeListProps extends WithStylesProps, WithTimezoneProps {
+interface ExternalProps {
   after: Date
   before: Date
   timeframe: TimeframeType,
-  numTimeBlocks: number,
+  numTimeBlocks?: number,
   postListParameters: any,
   dimWhenLoading?: boolean,
   reverse?: boolean,
   displayShortform?: boolean,
+}
+interface PostsTimeframeListProps extends ExternalProps, WithStylesProps, WithTimezoneProps {
 }
 interface PostsTimeframeListState {
   // after goes backwards in time when we load more time blocks
@@ -173,7 +175,7 @@ class PostsTimeframeList extends PureComponent<PostsTimeframeListProps,PostsTime
   before: PropTypes.string, // exclusive
 };
 
-const PostsTimeframeListComponent = registerComponent('PostsTimeframeList', PostsTimeframeList, {
+const PostsTimeframeListComponent = registerComponent<ExternalProps>('PostsTimeframeList', PostsTimeframeList, {
   styles,
   hocs: [withTimezone]
 });

@@ -35,7 +35,13 @@ const styles = createStyles(theme => ({
   },
 }));
 
-const PostsItemDate = ({post, classes, hover, anchorEl, stopHover}) => {
+interface ExternalProps {
+  post: any,
+}
+interface PostsItemDateProps extends ExternalProps, WithHoverProps, WithStylesProps {
+}
+
+const PostsItemDate = ({post, classes, hover, anchorEl, stopHover}: PostsItemDateProps) => {
   const { PostsItem2MetaInfo, FormatDate, LWPopper } = Components;
 
   if (post.isEvent && post.startTime) {
@@ -76,7 +82,7 @@ const PostsItemDate = ({post, classes, hover, anchorEl, stopHover}) => {
     </PostsItem2MetaInfo>
 }
 
-const PostsItemDateComponent = registerComponent("PostsItemDate", PostsItemDate, {
+const PostsItemDateComponent = registerComponent<ExternalProps>("PostsItemDate", PostsItemDate, {
   styles,
   hocs: [withHover()]
 });

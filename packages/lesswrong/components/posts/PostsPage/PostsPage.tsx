@@ -253,9 +253,11 @@ function getHostname(url) {
   return parser.hostname;
 }
 
-interface PostsPageProps extends WithUserProps, WithLocationProps, WithStylesProps {
+interface ExternalProps {
   post: any,
   refetch: any,
+}
+interface PostsPageProps extends ExternalProps, WithUserProps, WithLocationProps, WithStylesProps {
   closeAllEvents: any,
   recordPostView: any,
 }
@@ -314,7 +316,7 @@ class PostsPage extends Component<PostsPageProps> {
                   {commentId && <CommentPermalink documentId={commentId} post={post}/>}
                   {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
                   <AnalyticsContext pageSectionContext="topSequenceNavigation">
-                    <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
+                    <PostsTopSequencesNav post={post} />
                   </AnalyticsContext>
                   <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}>
                     <div className={classes.headerLeft}>
@@ -459,7 +461,7 @@ class PostsPage extends Component<PostsPageProps> {
   }
 }
 
-const PostsPageComponent = registerComponent(
+const PostsPageComponent = registerComponent<ExternalProps>(
   'PostsPage', PostsPage, {
     styles,
     hocs: [

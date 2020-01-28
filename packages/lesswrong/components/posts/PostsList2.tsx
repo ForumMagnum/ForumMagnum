@@ -1,7 +1,6 @@
 import { Components, registerComponent, Utils } from 'meteor/vulcan:core';
 import { useMulti } from '../../lib/crud/withMulti';
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { Posts } from '../../lib/collections/posts';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import classNames from 'classnames';
@@ -175,16 +174,6 @@ const PostsList2 = ({
     </div>
   )
 }
-
-PostsList2.propTypes = {
-  terms: PropTypes.object,
-  dimWhenLoading: PropTypes.bool,
-  showLoading: PropTypes.bool,
-  showLoadMore: PropTypes.bool,
-  showNoResults: PropTypes.bool,
-  hideLastUnread: PropTypes.bool,
-  classes: PropTypes.object.isRequired,
-};
 
 const PostsList2Component = registerComponent('PostsList2', PostsList2, {styles});
 

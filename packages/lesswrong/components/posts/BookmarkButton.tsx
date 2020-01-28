@@ -5,7 +5,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Bookmark from '@material-ui/icons/Bookmark'
 import BookmarkBorder from '@material-ui/icons/BookmarkBorder'
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import withErrorBoundary from '../common/withErrorBoundary';
 import Users from 'meteor/vulcan:users';
@@ -21,13 +21,13 @@ const styles = createStyles(theme => ({
   }
 }))
 
-const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right"}: {
+const BookmarkButton = ({classes, post, menuItem, placement="right"}: {
   classes: any,
   post: any,
-  currentUser: UsersCurrent,
-  menuItem: boolean,
-  placement: TooltipProps["placement"],
+  menuItem?: boolean,
+  placement?: TooltipProps["placement"],
 }) => {
+  const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const [bookmarked, setBookmarked] = useState(_.pluck((currentUser?.bookmarkedPostsMetadata || []), 'postId')?.includes(post._id))
   const { captureEvent } = useTracking({eventType: "bookmarkToggle", eventProps: {"postId": post._id, "bookmarked": !bookmarked}})
@@ -93,7 +93,7 @@ const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right"
 
 const BookmarkButtonComponent = registerComponent('BookmarkButton', BookmarkButton, {
   styles,
-  hocs: [withUser, withErrorBoundary],
+  hocs: [withErrorBoundary],
 });
 
 declare global {

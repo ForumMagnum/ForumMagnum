@@ -97,9 +97,11 @@ const styles = createStyles(theme => ({
   },
 }))
 
-interface SearchBarProps extends WithStylesProps, WithLocationProps {
+interface ExternalProps {
   onSetIsActive: (active: boolean)=>void,
   searchResultsArea: any,
+}
+interface SearchBarProps extends ExternalProps, WithStylesProps, WithLocationProps {
 }
 
 interface SearchBarState {
@@ -221,7 +223,7 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
   }
 }
 
-const SearchBarComponent = registerComponent("SearchBar", SearchBar, {
+const SearchBarComponent = registerComponent<ExternalProps>("SearchBar", SearchBar, {
   styles,
   hocs: [withLocation, withErrorBoundary],
 });

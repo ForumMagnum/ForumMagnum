@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withUpdate } from '../../lib/crud/withUpdate';
+import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
 import { useCurrentUser } from '../common/withUser';
@@ -16,7 +16,12 @@ const styles = createStyles(theme =>  ({
   }
 }))
 
-const RecentComments = ({classes, updateComment, terms, truncated, noResultsMessage="No Comments Found"}) => {
+const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No Comments Found"}: {
+  classes: any,
+  terms: any,
+  truncated?: boolean,
+  noResultsMessage?: string,
+}) => {
   const currentUser = useCurrentUser();
   const { loadingInitial, loadMoreProps, results } = useMulti({
     terms,
@@ -26,6 +31,10 @@ const RecentComments = ({classes, updateComment, terms, truncated, noResultsMess
     pollInterval: 0,
     queryLimitName: "recentCommentsLimit",
     ssr: true
+  });
+  const {mutate: updateComment} = useUpdate({
+    collection: Comments,
+    fragmentName: 'SelectCommentsList',
   });
   if (!loadingInitial && results && !results.length) {
     return (<Typography variant="body2">{noResultsMessage}</Typography>)
@@ -39,7 +48,6 @@ const RecentComments = ({classes, updateComment, terms, truncated, noResultsMess
       {results.map(comment =>
         <div key={comment._id}>
           <Components.CommentsNode
-            currentUser={currentUser}
             comment={comment}
             post={comment.post}
             updateComment={updateComment}
@@ -55,15 +63,7 @@ const RecentComments = ({classes, updateComment, terms, truncated, noResultsMess
   )
 }
 
-const RecentCommentsComponent = registerComponent('RecentComments', RecentComments, {
-  styles,
-  hocs: [
-    withUpdate({
-      collection: Comments,
-      fragmentName: 'SelectCommentsList',
-    }),
-  ]
-});
+const RecentCommentsComponent = registerComponent('RecentComments', RecentComments, {styles});
 
 declare global {
   interface ComponentTypes {

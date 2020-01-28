@@ -4,7 +4,7 @@ import withHover from '../common/withHover';
 
 const PostsItemKarma = ({post, hover, anchorEl}: {
   post: any,
-  read: boolean,
+  read?: boolean,
   hover?: any,
   anchorEl?: any,
 }) => {

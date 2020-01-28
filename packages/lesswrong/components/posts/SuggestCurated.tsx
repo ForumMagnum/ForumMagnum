@@ -7,8 +7,10 @@ import withUser from '../common/withUser';
 import MenuItem from '@material-ui/core/MenuItem';
 import * as _ from 'underscore';
 
-interface SuggestCuratedProps extends WithUserProps {
+interface ExternalProps {
   post: any,
+}
+interface SuggestCuratedProps extends ExternalProps, WithUserProps {
   updatePost: any,
 }
 
@@ -69,7 +71,7 @@ class SuggestCurated extends Component<SuggestCuratedProps> {
   }
 }
 
-const SuggestCuratedComponent = registerComponent(
+const SuggestCuratedComponent = registerComponent<ExternalProps>(
   'SuggestCurated', SuggestCurated, {
     hocs: [
       withUpdate({

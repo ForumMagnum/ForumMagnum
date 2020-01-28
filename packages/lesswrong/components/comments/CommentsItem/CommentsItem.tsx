@@ -117,20 +117,22 @@ export const styles = theme => createStyles({
   }
 })
 
-interface CommentsItemProps extends WithMessagesProps, WithUserProps, WithStylesProps {
+interface ExternalProps {
   refetch: any,
   comment: any,
   postPage: any,
   nestingLevel: number,
-  showPostTitle: boolean,
+  showPostTitle?: boolean,
   post: any,
   collapsed: boolean,
-  isParentComment: boolean,
-  parentCommentId: string,
+  isParentComment?: boolean,
+  parentCommentId?: string,
   scrollIntoView: any,
   toggleCollapse: any,
   truncated: boolean,
   parentAnswerId: string,
+}
+interface CommentsItemProps extends ExternalProps, WithMessagesProps, WithUserProps, WithStylesProps {
 }
 interface CommentsItemState {
   showReply: boolean,
@@ -242,10 +244,9 @@ class CommentsItem extends Component<CommentsItemProps,CommentsItemState> {
                 <CommentShortformIcon comment={comment} post={post} />
                 { parentCommentId!=comment.parentCommentId &&
                   <ShowParentComment
-                    comment={comment} nestingLevel={nestingLevel}
+                    comment={comment}
                     active={this.state.showParent}
                     onClick={this.toggleShowParent}
-                    placeholderIfMissing={isParentComment}
                   />
                 }
                 { (postPage || this.props.collapsed) && <a className={classes.collapse} onClick={this.props.toggleCollapse}>
@@ -380,7 +381,7 @@ class CommentsItem extends Component<CommentsItemProps,CommentsItemState> {
   }
 }
 
-const CommentsItemComponent = registerComponent(
+const CommentsItemComponent = registerComponent<ExternalProps>(
   'CommentsItem', CommentsItem, {
     styles,
     hocs: [ withMessages, withUser, withErrorBoundary ]

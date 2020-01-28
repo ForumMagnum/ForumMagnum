@@ -356,7 +356,7 @@ const PostsItem2 = ({
 }: {
   post: any,
   tagRel?: any,
-  defaultToShowComments: boolean,
+  defaultToShowComments?: boolean,
   sequenceId?: string,
   chapter?: any,
   index?: number,
@@ -469,7 +469,6 @@ const PostsItem2 = ({
                     <PostsTitle
                         postLink={postLink}
                         post={post}
-                        expandOnHover={!renderComments}
                         read={isRead}
                         sticky={isSticky(post, terms)}
                         showQuestionTag={showQuestionTag}
@@ -562,7 +561,6 @@ const PostsItem2 = ({
 
           {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>
             <PostsItemNewCommentsWrapper
-              currentUser={currentUser}
               highlightDate={markedVisitedAt || post.lastVisitedAt}
               terms={commentTerms}
               post={post}

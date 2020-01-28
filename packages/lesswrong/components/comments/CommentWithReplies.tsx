@@ -17,11 +17,13 @@ const styles = createStyles(theme => ({
   },
 }))
 
-interface CommentWithRepliesProps extends WithUserProps, WithStylesProps {
+interface ExternalProps {
   comment: any,
   post: any,
-  recordPostView: any,
   refetch: any,
+}
+interface CommentWithRepliesProps extends ExternalProps, WithUserProps, WithStylesProps {
+  recordPostView: any,
 }
 interface CommentWithRepliesState {
   markedAsVisitedAt: Date|null,
@@ -68,7 +70,6 @@ class CommentWithReplies extends PureComponent<CommentWithRepliesProps,CommentWi
           noHash
           startThreadTruncated={true}
           showPostTitle
-          startCollapsed
           nestingLevel={1}
           lastCommentId={lastCommentId}
           comment={comment}
@@ -87,7 +88,7 @@ class CommentWithReplies extends PureComponent<CommentWithRepliesProps,CommentWi
   }
 }
 
-const CommentWithRepliesComponent = registerComponent(
+const CommentWithRepliesComponent = registerComponent<ExternalProps>(
   'CommentWithReplies', CommentWithReplies, {
     styles,
     hocs: [withUser, withRecordPostView, withErrorBoundary]

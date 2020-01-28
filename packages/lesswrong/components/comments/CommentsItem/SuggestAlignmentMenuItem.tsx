@@ -1,10 +1,10 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { withUpdate } from '../../../lib/crud/withUpdate';
+import { useUpdate } from '../../../lib/crud/withUpdate';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Comments } from '../../../lib/collections/comments'
 import Users from 'meteor/vulcan:users';
-import withUser from '../../common/withUser';
+import { useCurrentUser } from '../../common/withUser';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ExposurePlus1 from '@material-ui/icons/ExposurePlus1';
 import Undo from '@material-ui/icons/Undo';
@@ -33,12 +33,17 @@ const styles = createStyles(theme => ({
   }
 }))
 
-const SuggestAlignmentMenuItem = ({ currentUser, comment, post, updateComment, classes }) => {
+const SuggestAlignmentMenuItem = ({ comment, post, classes }) => {
+  const currentUser = useCurrentUser();
+  const { mutate: updateComment } = useUpdate({
+    collection: Comments,
+    fragmentName: 'SuggestAlignmentComment',
+  });
   const { OmegaIcon } = Components
 
   if (post.af && !comment.af && Users.canDo(currentUser, 'comments.alignment.suggest')) {
 
-    const userHasSuggested = comment.suggestForAlignmentUserIds && comment.suggestForAlignmentUserIds.includes(currentUser._id)
+    const userHasSuggested = comment.suggestForAlignmentUserIds && comment.suggestForAlignmentUserIds.includes(currentUser!._id)
 
     if (!userHasSuggested) {
       return (
@@ -69,16 +74,7 @@ const SuggestAlignmentMenuItem = ({ currentUser, comment, post, updateComment, c
 }
 
 const SuggestAlignmentMenuItemComponent = registerComponent(
-  'SuggestAlignmentMenuItem', SuggestAlignmentMenuItem, {
-    styles,
-    hocs: [
-      withUpdate({
-        collection: Comments,
-        fragmentName: 'SuggestAlignmentComment',
-      }),
-      withUser
-    ]
-  }
+  'SuggestAlignmentMenuItem', SuggestAlignmentMenuItem, {styles}
 );
 
 declare global {

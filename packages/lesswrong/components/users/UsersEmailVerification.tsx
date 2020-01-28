@@ -17,8 +17,10 @@ const styles = createStyles(theme => ({
   }
 }));
 
-interface UsersEmailVerificationProps extends WithUserProps, WithStylesProps {
-  resend: boolean,
+interface ExternalProps {
+  resend?: boolean,
+}
+interface UsersEmailVerificationProps extends ExternalProps, WithUserProps, WithStylesProps {
   updateUser?: any,
 }
 interface UsersEmailVerificationState {
@@ -79,7 +81,7 @@ class UsersEmailVerification extends PureComponent<UsersEmailVerificationProps,U
 }
 
 
-const UsersEmailVerificationComponent = registerComponent('UsersEmailVerification', UsersEmailVerification, {
+const UsersEmailVerificationComponent = registerComponent<ExternalProps>('UsersEmailVerification', UsersEmailVerification, {
   styles,
   hocs: [
     withErrorBoundary,

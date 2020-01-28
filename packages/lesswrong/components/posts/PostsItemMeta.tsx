@@ -23,7 +23,11 @@ const DateWithoutTime = ({date}) => {
   return <span>{moment(date).tz(timezone).format("MMM Do")}</span>
 }
 
-const PostsItemMeta = ({post, read, classes}) => {
+const PostsItemMeta = ({post, read, classes}: {
+  post: any,
+  read?: boolean,
+  classes: any,
+}) => {
   const currentUser = useCurrentUser();
   const { wordCount = 0 } = post.contents || {}
   const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore

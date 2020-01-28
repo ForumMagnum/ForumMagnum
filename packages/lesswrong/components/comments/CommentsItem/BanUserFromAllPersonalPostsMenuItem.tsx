@@ -7,10 +7,12 @@ import Users from 'meteor/vulcan:users';
 import withUser from '../../common/withUser';
 import * as _ from 'underscore';
 
-interface BanUserFromAllPersonalPostsMenuItemProps extends WithMessagesProps, WithUserProps {
+interface ExternalProps {
   comment: any,
-  updateUser?: any,
   post: any,
+}
+interface BanUserFromAllPersonalPostsMenuItemProps extends ExternalProps, WithMessagesProps, WithUserProps {
+  updateUser?: any,
 }
 
 class BanUserFromAllPersonalPostsMenuItem extends PureComponent<BanUserFromAllPersonalPostsMenuItemProps,{}> {
@@ -43,7 +45,7 @@ class BanUserFromAllPersonalPostsMenuItem extends PureComponent<BanUserFromAllPe
   }
 }
 
-const BanUserFromAllPersonalPostsMenuItemComponent = registerComponent(
+const BanUserFromAllPersonalPostsMenuItemComponent = registerComponent<ExternalProps>(
   'BanUserFromAllPersonalPostsMenuItem', BanUserFromAllPersonalPostsMenuItem, {
     hocs: [
       withMessages,

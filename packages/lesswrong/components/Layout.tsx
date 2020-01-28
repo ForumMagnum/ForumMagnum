@@ -276,7 +276,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
               <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
               <div className={classes.main}>
                 <Components.ErrorBoundary>
-                  <Components.FlashMessages messages={messages} />
+                  <Components.FlashMessages />
                 </Components.ErrorBoundary>
                 <Components.ErrorBoundary>
                   {children}

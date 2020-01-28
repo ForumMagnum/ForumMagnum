@@ -57,12 +57,11 @@ const styles = createStyles(theme => ({
   }
 }))
 
-interface UsersMenuProps extends WithUserProps, WithStylesProps {
+interface ExternalProps {
+  color?: string,
+}
+interface UsersMenuProps extends ExternalProps, WithUserProps, WithStylesProps, WithDialogProps, WithHoverProps {
   client: any,
-  color: any,
-  openDialog: any,
-  hover: boolean,
-  anchorEl: any,
 }
 interface UsersMenuState {
   open: boolean,
@@ -214,7 +213,7 @@ class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
   color: "rgba(0, 0, 0, 0.6)"
 }
 
-const UsersMenuComponent = registerComponent('UsersMenu', UsersMenu, {
+const UsersMenuComponent = registerComponent<ExternalProps>('UsersMenu', UsersMenu, {
   styles,
   hocs: [withUser, withApollo, withHover(), withDialog]
 });

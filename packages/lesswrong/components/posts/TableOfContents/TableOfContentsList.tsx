@@ -7,8 +7,9 @@ const topSection = "top";
 
 interface TableOfContentsListProps {
   sectionData: any,
-  document: any,
-  onClickSection: any,
+  document?: any,
+  onClickSection?: any,
+  drawerStyle: boolean,
 }
 interface TableOfContentsListState {
   currentSection: any,

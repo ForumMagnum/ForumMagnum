@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent} from 'meteor/vulcan:core';
-import { withMulti } from '../../lib/crud/withMulti';
+import { useMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import { createStyles } from '@material-ui/core/styles';
@@ -14,9 +14,26 @@ const styles = createStyles(theme => ({
   }
 }))
 
-const PostsItemNewCommentsWrapper = ({ classes, title, loading, results, currentUser, highlightDate, post, condensed, hideReadComments, markAsRead, forceSingleLine, hideSingleLineDate, hideSingleLineMeta }) => {
-
-  const { Loading, CommentsList, NoContent } = Components  
+const PostsItemNewCommentsWrapper = ({ terms, classes, title, highlightDate, post, condensed, hideReadComments, markAsRead, forceSingleLine, hideSingleLineMeta }: {
+  terms: any,
+  classes: any,
+  title?: string,
+  highlightDate: Date,
+  post: any,
+  condensed: boolean,
+  hideReadComments?: boolean,
+  markAsRead: any,
+  forceSingleLine?: any,
+  hideSingleLineMeta?: boolean,
+}) => {
+  const { loading, results } = useMulti({
+    terms,
+    collection: Comments,
+    fragmentName: 'CommentsList',
+    fetchPolicy: 'cache-and-network',
+    limit: 5,
+  });
+  const { Loading, CommentsList, NoContent } = Components
 
   if (!loading && results && !results.length) {
     return <NoContent>No comments found</NoContent>
@@ -29,7 +46,6 @@ const PostsItemNewCommentsWrapper = ({ classes, title, loading, results, current
       <div>
         {title && <div className={classes.title}>{title}</div>}
         <CommentsList
-          currentUser={currentUser}
           comments={nestedComments}
           highlightDate={highlightDate}
           startThreadTruncated={true}
@@ -37,7 +53,6 @@ const PostsItemNewCommentsWrapper = ({ classes, title, loading, results, current
           lastCommentId={lastCommentId}
           condensed={condensed}
           forceSingleLine={forceSingleLine}
-          hideSingleLineDate={hideSingleLineDate}
           hideReadComments={hideReadComments}
           hideSingleLineMeta={hideSingleLineMeta}
           markAsRead={markAsRead}
@@ -51,15 +66,6 @@ const PostsItemNewCommentsWrapper = ({ classes, title, loading, results, current
 const PostsItemNewCommentsWrapperComponent = registerComponent(
   'PostsItemNewCommentsWrapper', PostsItemNewCommentsWrapper, {
     styles,
-    hocs: [
-      withMulti({
-        collection: Comments,
-        fragmentName: 'CommentsList',
-        fetchPolicy: 'cache-and-network',
-        limit: 5,
-        // enableTotal: false,
-      }),
-    ]
   }
 );
 

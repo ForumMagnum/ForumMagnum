@@ -7,9 +7,11 @@ import withDialog from '../../common/withDialog'
 import ReportOutlinedIcon from '@material-ui/icons/ReportOutlined';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 
-interface ReportCommentMenuItemProps extends WithUserProps {
-  openDialog?: any,
+interface ExternalProps {
   comment: any,
+}
+interface ReportCommentMenuItemProps extends ExternalProps, WithUserProps {
+  openDialog?: any,
 }
 
 class ReportCommentMenuItem extends PureComponent<ReportCommentMenuItemProps,{}> {
@@ -43,7 +45,7 @@ class ReportCommentMenuItem extends PureComponent<ReportCommentMenuItemProps,{}>
   }
 }
 
-const ReportCommentMenuItemComponent = registerComponent('ReportCommentMenuItem', ReportCommentMenuItem, {
+const ReportCommentMenuItemComponent = registerComponent<ExternalProps>('ReportCommentMenuItem', ReportCommentMenuItem, {
   hocs: [withUser, withDialog]
 });
 

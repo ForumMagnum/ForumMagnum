@@ -1,7 +1,7 @@
 import React from 'react'
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { createStyles } from '@material-ui/core/styles'
-import withUser from '../../common/withUser'
+import { useCurrentUser } from '../../common/withUser'
 import Typography from '@material-ui/core/Typography'
 
 const styles = createStyles(theme => ({
@@ -12,7 +12,8 @@ const styles = createStyles(theme => ({
   }
 }))
 
-const PostsPageEventData = ({classes, post, currentUser}) => {
+const PostsPageEventData = ({classes, post}) => {
+  const currentUser = useCurrentUser();
   const { location, contactInfo } = post
   return <Typography variant="body2" className={classes.metadata}>
       <div className={classes.eventTimes}> <Components.EventTime post={post} dense={false} /> </div>
@@ -21,10 +22,7 @@ const PostsPageEventData = ({classes, post, currentUser}) => {
   </Typography>
 }
 
-const PostsPageEventDataComponent = registerComponent('PostsPageEventData', PostsPageEventData, {
-  styles,
-  hocs: [withUser],
-});
+const PostsPageEventDataComponent = registerComponent('PostsPageEventData', PostsPageEventData, {styles});
 
 declare global {
   interface ComponentTypes {

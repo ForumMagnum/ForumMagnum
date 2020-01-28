@@ -48,18 +48,20 @@ const styles = createStyles(theme => ({
   }
 }))
 
-interface CommentsListSectionProps extends WithUserProps, WithStylesProps {
+interface ExternalProps {
   lastEvent: any,
   post: any,
   commentCount: number,
-  loadMoreCount: number,
+  loadMoreCount?: number,
   totalComments: number,
   loadMoreComments: any,
   loadingMoreComments: boolean,
   comments: any,
-  parentAnswerId: any,
-  startThreadTruncated: boolean,
+  parentAnswerId?: string,
+  startThreadTruncated?: boolean,
   newForm: boolean,
+}
+interface CommentsListSectionProps extends ExternalProps, WithUserProps, WithStylesProps {
 }
 interface CommentsListSectionState {
   highlightDate: Date,
@@ -169,7 +171,6 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
           <Components.CantCommentExplanation post={post}/>
         }
         <Components.CommentsList
-          currentUser={currentUser}
           totalComments={totalComments}
           comments={comments}
           highlightDate={this.state.highlightDate}
@@ -183,7 +184,7 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
   }
 }
 
-const CommentsListSectionComponent = registerComponent(
+const CommentsListSectionComponent = registerComponent<ExternalProps>(
   "CommentsListSection", CommentsListSection, {
     styles,
     hocs: [withUser]

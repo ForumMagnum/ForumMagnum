@@ -22,7 +22,15 @@ const styles = createStyles(theme => ({
   }
 }))
 
-const CommentsMenu = ({children, classes, className, comment, post, showEdit, icon}) => {
+const CommentsMenu = ({children, classes, className, comment, post, showEdit, icon}: {
+  children?: any,
+  classes: any,
+  className?: string,
+  comment: any,
+  post: any,
+  showEdit: any,
+  icon?: any,
+}) => {
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking({eventType: "commentMenuClicked", eventProps: {commentId: comment._id, itemType: "comment"}})

@@ -85,14 +85,15 @@ const viewNames = {
   'all_drafts': 'all drafts',
 }
 
-interface SubscribeDialogProps extends WithUserProps, WithStylesProps {
+interface ExternalProps {
   method: any,
   view: any,
-  updateUser: any,
-  captureEvent: any,
-  fullScreen: any,
+  fullScreen?: boolean,
   onClose: any,
   open: boolean,
+}
+interface SubscribeDialogProps extends ExternalProps, WithUserProps, WithStylesProps, WithTrackingProps {
+  updateUser: any,
 }
 
 interface SubscribeDialogState {
@@ -326,7 +327,7 @@ const withUpdateOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-const SubscribeDialogComponent = registerComponent("SubscribeDialog", SubscribeDialog, {
+const SubscribeDialogComponent = registerComponent<ExternalProps>("SubscribeDialog", SubscribeDialog, {
   styles,
   hocs: [
     withMobileDialog(),

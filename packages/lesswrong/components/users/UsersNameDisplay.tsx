@@ -38,9 +38,17 @@ const styles = createStyles(theme => ({
   }
 }))
 
+interface ExternalProps {
+  user: UsersMinimumInfo,
+  nofollow?: boolean,
+  simple?: boolean,
+}
+interface UsersNameDisplayProps extends ExternalProps, WithStylesProps, WithHoverProps {
+}
+
 // Given a user (which may not be null), render the user name as a link with a
 // tooltip. This should not be used directly; use UsersName instead.
-const UsersNameDisplay = ({user, classes, nofollow=false, simple=false, hover, anchorEl, stopHover}) => {
+const UsersNameDisplay = ({user, classes, nofollow=false, simple=false, hover, anchorEl, stopHover}: UsersNameDisplayProps) => {
 
   if (!user) return <Components.UserNameDeleted/>
   const { FormatDate, LWPopper } = Components
@@ -77,16 +85,14 @@ const UsersNameDisplay = ({user, classes, nofollow=false, simple=false, hover, a
   </AnalyticsContext>
 }
 
-UsersNameDisplay.propTypes = {
-  user: PropTypes.object.isRequired,
-}
-
-const UsersNameDisplayComponent = registerComponent('UsersNameDisplay', UsersNameDisplay, {
-  styles,
-  hocs: [
-    withHover({pageElementContext: "linkPreview",  pageSubElementContext: "userNameDisplay"}, ({user})=>({userId: user._id}))
-  ]
-});
+const UsersNameDisplayComponent = registerComponent<ExternalProps>(
+  'UsersNameDisplay', UsersNameDisplay, {
+    styles,
+    hocs: [
+      withHover({pageElementContext: "linkPreview",  pageSubElementContext: "userNameDisplay"}, ({user})=>({userId: user._id}))
+    ]
+  }
+);
 
 declare global {
   interface ComponentTypes {

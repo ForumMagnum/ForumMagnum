@@ -1,53 +1,38 @@
 import { registerComponent } from 'meteor/vulcan:core';
-import { withUpdate } from '../../lib/crud/withUpdate';
-import React, { Component } from 'react';
+import { useUpdate } from '../../lib/crud/withUpdate';
+import React, { useCallback } from 'react';
 import { Posts } from '../../lib/collections/posts';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import MenuItem from '@material-ui/core/MenuItem';
 
-interface DeleteDraftProps extends WithUserProps {
-  post: any,
-  updatePost: any,
-}
-
-class DeleteDraft extends Component<DeleteDraftProps,{}> {
-
-  handleDelete = () => {
+const DeleteDraft = ({ post }) => {
+  const currentUser = useCurrentUser();
+  const {mutate: updatePost} = useUpdate({
+    collection: Posts,
+    fragmentName: 'PostsList',
+  });
+  
+  const handleDelete = useCallback(() => {
     if (confirm("Are you sure you want to delete this post?")) {
-      const { post, updatePost } = this.props
-
       updatePost({
         selector: {_id: post._id},
         data: {deletedDraft:true, draft: true}
       })
     }
-  }
+  }, [post, updatePost])
 
-  render() {
-    const { currentUser, post } = this.props;
-    if (currentUser && Posts.canDelete(currentUser, post)) {
-      return <div onClick={this.handleDelete}>
-        <MenuItem>
-          Delete Post
-        </MenuItem>
-      </div>
-    } else {
-      return null
-    }
+  if (currentUser && Posts.canDelete(currentUser, post)) {
+    return <div onClick={this.handleDelete}>
+      <MenuItem>
+        Delete Post
+      </MenuItem>
+    </div>
+  } else {
+    return null
   }
 }
 
-const DeleteDraftComponent = registerComponent(
-  'DeleteDraft', DeleteDraft, {
-    hocs: [
-      withUpdate({
-        collection: Posts,
-        fragmentName: 'PostsList',
-      }),
-      withUser
-    ]
-  }
-);
+const DeleteDraftComponent = registerComponent('DeleteDraft', DeleteDraft);
 
 declare global {
   interface ComponentTypes {

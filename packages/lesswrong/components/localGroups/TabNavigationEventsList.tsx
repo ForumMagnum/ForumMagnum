@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { withMulti } from '../../lib/crud/withMulti';
+import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts';
 import Tooltip from '@material-ui/core/Tooltip';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -76,8 +76,16 @@ const styles = createStyles(theme => ({
 }))
 
 
-const TabNavigationEventsList = ({ results, onClick, classes }) => {
+const TabNavigationEventsList = ({ terms, onClick, classes }) => {
   const { timezone } = useTimezone();
+  const { results } = useMulti({
+    terms,
+    collection: Posts,
+    fragmentName: 'PostsList',
+    enableTotal: false,
+    fetchPolicy: 'cache-and-network',
+    ssr: true
+  });
   const { TabNavigationSubItem, EventTime } = Components
 
   if (!results) return null
@@ -147,15 +155,7 @@ const TabNavigationEventsList = ({ results, onClick, classes }) => {
 }
 
 const TabNavigationEventsListComponent = registerComponent('TabNavigationEventsList', TabNavigationEventsList, {
-  styles, hocs: [
-    withMulti({
-      collection: Posts,
-      fragmentName: 'PostsList',
-      enableTotal: false,
-      fetchPolicy: 'cache-and-network',
-      ssr: true
-    }),
-  ]
+  styles,
 });
 
 declare global {

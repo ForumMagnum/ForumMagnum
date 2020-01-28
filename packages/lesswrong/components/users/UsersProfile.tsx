@@ -92,12 +92,13 @@ export const getUserFromResults = (results) => {
   return results?.find(user => !!user.displayName) || results?.[0]
 }
 
-interface UsersProfileProps extends WithUserProps, WithStylesProps {
+interface ExternalProps {
+  terms: any,
   slug: any,
-  loading?: boolean,
+}
+interface UsersProfileProps extends ExternalProps, WithUserProps, WithStylesProps, WithLocationProps, WithNavigationProps {
+  loading: boolean,
   results: any,
-  location?: any,
-  history?: any,
 }
 interface UsersProfileState {
   showSettings: boolean,
@@ -116,7 +117,7 @@ class UsersProfile extends Component<UsersProfileProps,UsersProfileState> {
     }
   }
 
-  componentDidUpdate({results: previousResults}) {
+  componentDidUpdate({results: previousResults}: Readonly<UsersProfileProps>) {
     const { results } = this.props
     const oldDocument = getUserFromResults(previousResults)
     const newDocument = getUserFromResults(results)
@@ -331,7 +332,7 @@ class UsersProfile extends Component<UsersProfileProps,UsersProfileState> {
           <AnalyticsContext pageSectionContext="commentsSection">
             <SingleColumnSection>
               <SectionTitle title={`${Users.getDisplayName(user)}'s Comments`} />
-              <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} fontSize="small" />
+              <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
             </SingleColumnSection>
           </AnalyticsContext>
         </AnalyticsContext>
@@ -340,7 +341,7 @@ class UsersProfile extends Component<UsersProfileProps,UsersProfileState> {
   }
 }
 
-const UsersProfileComponent = registerComponent(
+const UsersProfileComponent = registerComponent<ExternalProps>(
   'UsersProfile', UsersProfile, {
     styles,
     hocs: [

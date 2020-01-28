@@ -58,11 +58,12 @@ function withToCContext(Component) {
   }
 }
 
-interface TableOfContentsProps extends WithStylesProps {
-  setToC: any,
+interface ExternalProps {
   sectionData: any,
   document: any,
-  context: any,
+}
+interface TableOfContentsProps extends ExternalProps, WithStylesProps {
+  setToC: any,
 }
 interface TableOfContentsState {
   drawerOpen: boolean,
@@ -81,7 +82,7 @@ class TableOfContents extends Component<TableOfContentsProps,TableOfContentsStat
   }
 
   render() {
-    const { classes, sectionData, document, context } = this.props;
+    const { classes, sectionData, document } = this.props;
 
     if (!sectionData || !document)
       return <div/>
@@ -91,7 +92,6 @@ class TableOfContents extends Component<TableOfContentsProps,TableOfContentsStat
         <Components.TableOfContentsList
           sectionData={sectionData}
           document={document}
-          context={context}
           drawerStyle={false}
         />
       </div>
@@ -99,10 +99,12 @@ class TableOfContents extends Component<TableOfContentsProps,TableOfContentsStat
   }
 }
 
-const TableOfContentsComponent = registerComponent("TableOfContents", TableOfContents, {
-  styles,
-  hocs: [withErrorBoundary, withToCContext]
-});
+const TableOfContentsComponent = registerComponent<ExternalProps>(
+  "TableOfContents", TableOfContents, {
+    styles,
+    hocs: [withErrorBoundary, withToCContext]
+  }
+);
 
 declare global {
   interface ComponentTypes {

@@ -15,7 +15,7 @@ export const styles = createStyles(theme => ({
   },
 }));
 
-const HeaderSubtitle = ({client, classes}) => {
+const HeaderSubtitle = ({classes}) => {
   const { currentRoute } = useSubscribedLocation();
   if (!currentRoute) return null
   const SubtitleComponent = currentRoute.subtitleComponentName ? Components[currentRoute.subtitleComponentName] : null;
@@ -42,7 +42,6 @@ const HeaderSubtitle = ({client, classes}) => {
 
 const HeaderSubtitleComponent = registerComponent("HeaderSubtitle", HeaderSubtitle, {
   styles,
-  hocs: [withApollo],
 });
 
 declare global {

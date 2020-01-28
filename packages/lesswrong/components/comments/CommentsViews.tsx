@@ -31,9 +31,10 @@ const styles = createStyles(theme => ({
   }
 }))
 
-interface CommentsViewsProps extends WithUserProps, WithStylesProps, WithLocationProps {
+interface ExternalProps {
   post: any,
-  history: any,
+}
+interface CommentsViewsProps extends ExternalProps, WithUserProps, WithStylesProps, WithLocationProps, WithNavigationProps {
 }
 interface CommentsViewsState {
   anchorEl: any,
@@ -116,7 +117,7 @@ class CommentsViews extends Component<CommentsViewsProps,CommentsViewsState> {
   defaultView: "postCommentsTop"
 };
 
-const CommentsViewsComponent = registerComponent('CommentsViews', CommentsViews, {
+const CommentsViewsComponent = registerComponent<ExternalProps>('CommentsViews', CommentsViews, {
   styles,
   hocs: [withLocation, withNavigation, withUser],
 });

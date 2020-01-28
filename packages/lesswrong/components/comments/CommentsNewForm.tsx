@@ -1,12 +1,11 @@
 import { Components, registerComponent, getFragment, getSetting } from 'meteor/vulcan:core';
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { Comments } from '../../lib/collections/comments';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { createStyles } from '@material-ui/core/styles';
-import withUser from '../common/withUser'
+import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useDialog } from '../common/withDialog';
 
@@ -41,7 +40,22 @@ const styles = createStyles(theme => ({
   }
 }));
 
-const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, removeFields, currentUser, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true}) => {
+const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true}:
+{
+  prefilledProps: any,
+  post: any,
+  parentComment?: any,
+  successCallback?: any,
+  type: string,
+  cancelCallback?: any,
+  classes: any,
+  removeFields?: any,
+  fragment?: string,
+  formProps?: any,
+  enableGuidelines?: boolean,
+  padding?: boolean
+}) => {
+  const currentUser = useCurrentUser();
   prefilledProps = {
     ...prefilledProps,
     af: Comments.defaultToAlignment(currentUser, post, parentComment),
@@ -128,18 +142,9 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
   );
 };
 
-CommentsNewForm.propTypes = {
-  post: PropTypes.object,
-  type: PropTypes.string, // "comment" or "reply"
-  parentComment: PropTypes.object, // if reply, the comment being replied to
-  successCallback: PropTypes.func, // a callback to execute when the submission has been successful
-  cancelCallback: PropTypes.func,
-  prefilledProps: PropTypes.object
-};
-
 const CommentsNewFormComponent = registerComponent('CommentsNewForm', CommentsNewForm, {
   styles,
-  hocs: [withUser, withErrorBoundary]
+  hocs: [withErrorBoundary]
 });
 
 declare global {

@@ -42,7 +42,12 @@ const styles = createStyles(theme => ({
   }
 }))
 
-const ShowParentComment = ({ comment, active, onClick, classes }) => {
+const ShowParentComment = ({ comment, active, onClick, classes }: {
+  comment: any,
+  active?: boolean,
+  onClick?: any,
+  classes: any,
+}) => {
 
   if (!comment) return null;
   

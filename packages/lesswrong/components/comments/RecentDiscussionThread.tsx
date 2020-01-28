@@ -89,11 +89,22 @@ const styles = createStyles(theme => ({
   }
 }))
 
+interface ExternalProps {
+  post: any,
+  comments: any,
+  updateComment: any,
+  refetch: any,
+  expandAllThreads?: boolean,
+}
+interface RecentDiscussionThreadProps extends ExternalProps, WithStylesProps {
+  isRead: any,
+  recordPostView: any,
+}
 const RecentDiscussionThread = ({
   post, recordPostView,
   comments, updateComment, classes, isRead, refetch,
   expandAllThreads: initialExpandAllThreads,
-}) => {
+}: RecentDiscussionThreadProps) => {
   const currentUser = useCurrentUser();
   const [highlightVisible, setHighlightVisible] = useState(false);
   const [readStatus, setReadStatus] = useState(false);
@@ -139,7 +150,7 @@ const RecentDiscussionThread = ({
     <div className={classes.root}>
       <div className={(currentUser && !(isRead || readStatus)) ? classes.unreadPost : null}>
         <div className={classes.postItem}>
-          <PostsTitle wrap post={post} tooltip={false} read={userHasBoldPostItems(currentUser)} />
+          <PostsTitle wrap post={post} read={userHasBoldPostItems(currentUser)} />
           <div className={classes.threadMeta} onClick={showHighlight}>
             <PostsItemMeta post={post}/>
             <ShowOrHideHighlightButton
@@ -172,7 +183,6 @@ const RecentDiscussionThread = ({
                 scrollOnExpand
                 nestingLevel={1}
                 lastCommentId={lastCommentId}
-                currentUser={currentUser}
                 comment={comment.item}
                 markAsRead={markAsRead}
                 highlightDate={lastVisitedAt}
@@ -283,7 +293,7 @@ const RecentDiscussionThread = ({
   }
 }*/
 
-const RecentDiscussionThreadComponent = registerComponent(
+const RecentDiscussionThreadComponent = registerComponent<ExternalProps>(
   'RecentDiscussionThread', RecentDiscussionThread, {
     styles,
     hocs: [

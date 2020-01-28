@@ -108,7 +108,18 @@ const styles = createStyles(theme => ({
   }
 }))
 
-const SingleLineComment = ({comment, classes, nestingLevel, hover, parentCommentId, hideKarma, enableHoverPreview=true, hideSingleLineMeta}) => {
+interface ExternalProps {
+  comment: any,
+  nestingLevel: number,
+  parentCommentId?: string,
+  hideKarma?: boolean,
+  enableHoverPreview?: boolean,
+  hideSingleLineMeta?: boolean,
+}
+interface SingleLineCommentProps extends ExternalProps, WithStylesProps, WithHoverProps {
+}
+
+const SingleLineComment = ({comment, classes, nestingLevel, hover, parentCommentId, hideKarma, enableHoverPreview=true, hideSingleLineMeta}: SingleLineCommentProps) => {
   if (!comment) return null
 
   const { plaintextMainText } = comment.contents
@@ -124,7 +135,7 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
         <CommentShortformIcon comment={comment} simple={true} />
 
         { parentCommentId!=comment.parentCommentId &&
-          <ShowParentComment comment={comment} nestingLevel={nestingLevel} />
+          <ShowParentComment comment={comment} />
         }
         {!hideKarma && <span className={classes.karma}>
           {Comments.getKarma(comment)}
@@ -148,7 +159,7 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
   )
 };
 
-const SingleLineCommentComponent = registerComponent('SingleLineComment', SingleLineComment, {
+const SingleLineCommentComponent = registerComponent<ExternalProps>('SingleLineComment', SingleLineComment, {
   styles,
   hocs: [withHover(), withErrorBoundary]
 });

@@ -8,11 +8,13 @@ import { Comments } from "../../../lib/collections/comments";
 import withUser from '../../common/withUser';
 import { withApollo } from 'react-apollo'
 
-interface MoveToAnswersMenuItemProps extends WithMessagesProps, WithUserProps {
+interface ExternalProps {
   comment: any,
+  post: any,
+}
+interface MoveToAnswersMenuItemProps extends ExternalProps, WithMessagesProps, WithUserProps {
   updateComment?: any,
   client?: any,
-  post: any,
 }
 class MoveToAnswersMenuItem extends PureComponent<MoveToAnswersMenuItemProps,{}> {
 
@@ -64,7 +66,7 @@ class MoveToAnswersMenuItem extends PureComponent<MoveToAnswersMenuItemProps,{}>
   }
 }
 
-const MoveToAnswersMenuItemComponent = registerComponent(
+const MoveToAnswersMenuItemComponent = registerComponent<ExternalProps>(
   'MoveToAnswersMenuItem', MoveToAnswersMenuItem, {
     hocs: [
       withUser, withApollo, withMessages,

@@ -2,7 +2,7 @@ import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { createStyles } from '@material-ui/core/styles'
 import { truncate } from '../../lib/editor/ellipsize';
-import withUser from "../common/withUser";
+import { useCurrentUser } from "../common/withUser";
 import { postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
 import { Posts } from '../../lib/collections/posts';
 import CommentIcon from '@material-ui/icons/ModeComment';
@@ -109,8 +109,15 @@ const getPostCategory = (post) => {
     return post.question ? `Question` : `Personal Blogpost`
 }
 
-const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, truncateLimit=600, comment }) => {
+const PostsPreviewTooltip = ({ showAllInfo, post, classes, truncateLimit=600, comment }: {
+  comment?: any,
+  post: any,
+  showAllInfo?: boolean,
+  truncateLimit?: number,
+  classes: any,
+}) => {
   const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton } = Components
+  const currentUser = useCurrentUser();
 
   if (!post) return null
 
@@ -123,7 +130,7 @@ const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, truncate
   return <AnalyticsContext pageElementContext="hoverPreview">
       <Card className={classes.root}>
         <div className={classes.title}>
-          <PostsTitle post={post} tooltip={false} wrap showIcons={false} read={userHasBoldPostItems(currentUser)} />
+          <PostsTitle post={post} wrap showIcons={false} read={userHasBoldPostItems(currentUser)} />
         </div>
         <div className={classes.tooltipInfo}>
           { getPostCategory(post)}
@@ -160,10 +167,7 @@ const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, truncate
 
 }
 
-const PostsPreviewTooltipComponent = registerComponent('PostsPreviewTooltip', PostsPreviewTooltip, {
-  styles,
-  hocs: [withUser],
-});
+const PostsPreviewTooltipComponent = registerComponent('PostsPreviewTooltip', PostsPreviewTooltip, {styles});
 
 declare global {
   interface ComponentTypes {

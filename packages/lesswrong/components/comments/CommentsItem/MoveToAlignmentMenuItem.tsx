@@ -34,11 +34,13 @@ const styles = createStyles(theme => ({
   }
 }))
 
-interface MoveToAlignmentMenuItemProps extends WithMessagesProps, WithUserProps, WithStylesProps {
+interface ExternalProps {
   comment: any,
+  post: any,
+}
+interface MoveToAlignmentMenuItemProps extends ExternalProps, WithMessagesProps, WithUserProps, WithStylesProps {
   updateComment?: any,
   client?: any,
-  post: any,
 }
 
 class MoveToAlignmentMenuItem extends PureComponent<MoveToAlignmentMenuItemProps,{}> {
@@ -109,7 +111,7 @@ class MoveToAlignmentMenuItem extends PureComponent<MoveToAlignmentMenuItemProps
   }
 }
 
-const MoveToAlignmentMenuItemComponent = registerComponent(
+const MoveToAlignmentMenuItemComponent = registerComponent<ExternalProps>(
   'MoveToAlignmentMenuItem', MoveToAlignmentMenuItem, {
     styles,
     hocs: [

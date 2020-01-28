@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts/collection';
-import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 
@@ -27,7 +26,6 @@ const PingbacksList = ({classes, postId}) => {
     enableTotal: false,
     ssr: true
   });
-  const currentUser = useCurrentUser();
 
   const { SectionSubtitle, Pingback, Loading } = Components
 
@@ -45,7 +43,7 @@ const PingbacksList = ({classes, postId}) => {
         <div className={classes.list}>
           {results.map((post, i) => 
             <div key={post._id} >
-              <Pingback post={post} currentUser={currentUser}/>
+              <Pingback post={post}/>
             </div>
           )}
         </div>

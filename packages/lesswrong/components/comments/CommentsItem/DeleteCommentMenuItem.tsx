@@ -7,11 +7,13 @@ import withModerateComment from './withModerateComment'
 import withDialog from '../../common/withDialog'
 import withUser from '../../common/withUser';
 
-interface DeleteCommentMenuItemProps extends WithMessagesProps, WithUserProps {
-  openDialog: any,
+interface ExternalProps {
   comment: any,
-  moderateCommentMutation: any,
   post: any,
+}
+interface DeleteCommentMenuItemProps extends ExternalProps, WithMessagesProps, WithUserProps {
+  openDialog: any,
+  moderateCommentMutation: any,
 }
 class DeleteCommentMenuItem extends PureComponent<DeleteCommentMenuItemProps,{}> {
 
@@ -55,7 +57,7 @@ class DeleteCommentMenuItem extends PureComponent<DeleteCommentMenuItemProps,{}>
   }
 }
 
-const DeleteCommentMenuItemComponent = registerComponent(
+const DeleteCommentMenuItemComponent = registerComponent<ExternalProps>(
   'DeleteCommentMenuItem', DeleteCommentMenuItem, {
     hocs: [
       withModerateComment({

@@ -1,7 +1,6 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames'
 import { createStyles } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -188,17 +187,19 @@ const USER_SETTING_NAMES = {
   showLowKarma: 'allPostsShowLowKarma',
 }
 
-interface PostsListSettingsProps extends WithUserProps, WithStylesProps {
-  updateUser: any,
-  persistentSettings: any,
+interface ExternalProps {
+  persistentSettings?: any,
   hidden: boolean,
-  currentTimeframe: any,
+  currentTimeframe?: any,
   currentSorting: any,
   currentFilter: any,
   currentShowLowKarma: boolean,
-  timeframes: any,
-  sortings: any,
-  showTimeframe: any,
+  timeframes?: any,
+  sortings?: any,
+  showTimeframe?: boolean,
+}
+interface PostsListSettingsProps extends ExternalProps, WithUserProps, WithStylesProps {
+  updateUser: any,
 }
 
 class PostsListSettings extends Component<PostsListSettingsProps> {
@@ -270,11 +271,7 @@ class PostsListSettings extends Component<PostsListSettingsProps> {
   }
 };
 
-(PostsListSettings as any).propTypes = {
-  currentUser: PropTypes.object,
-};
-
-const PostsListSettingsComponent = registerComponent(
+const PostsListSettingsComponent = registerComponent<ExternalProps>(
   'PostsListSettings', PostsListSettings, {
     styles,
     hocs: [

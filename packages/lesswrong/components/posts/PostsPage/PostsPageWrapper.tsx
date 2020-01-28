@@ -34,12 +34,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }) => {
     return <Error404/>
   }
   
-  return <PostsPage
-    post={post}
-    sequenceId={sequenceId}
-    version={version}
-    refetch={refetch}
-  />
+  return <PostsPage post={post} refetch={refetch} />
 }
 
 const PostsPageWrapperComponent = registerComponent("PostsPageWrapper", PostsPageWrapper);

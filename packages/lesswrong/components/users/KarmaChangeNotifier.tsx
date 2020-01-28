@@ -157,7 +157,10 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }) => {
   );
 }
 
-interface KarmaChangeNotifierProps extends WithUserProps, WithStylesProps, WithTrackingProps {
+interface ExternalProps {
+  documentId: string,
+}
+interface KarmaChangeNotifierProps extends ExternalProps, WithUserProps, WithStylesProps, WithTrackingProps {
   document: any
   updateUser: any,
 }
@@ -275,7 +278,7 @@ class KarmaChangeNotifier extends PureComponent<KarmaChangeNotifierProps,KarmaCh
   }
 }
 
-const KarmaChangeNotifierComponent = registerComponent('KarmaChangeNotifier', KarmaChangeNotifier, {
+const KarmaChangeNotifierComponent = registerComponent<ExternalProps>('KarmaChangeNotifier', KarmaChangeNotifier, {
   styles,
   hocs: [
     withUser, withErrorBoundary,

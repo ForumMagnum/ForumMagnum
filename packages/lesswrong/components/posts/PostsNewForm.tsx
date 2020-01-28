@@ -32,7 +32,7 @@ const PostsNewForm = ({currentUser, flash, classes}: {
     af: af || (query && !!query.af),
     groupId: query && query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
-    moderationGuidelines: userHasModerationGuidelines ? currentUser.moderationGuidelines : undefined
+    moderationGuidelines: userHasModerationGuidelines ? currentUser!.moderationGuidelines : undefined
   }
   const eventForm = query && query.eventForm
 

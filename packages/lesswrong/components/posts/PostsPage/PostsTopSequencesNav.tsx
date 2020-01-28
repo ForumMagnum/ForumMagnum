@@ -24,8 +24,10 @@ const styles = createStyles(theme => ({
   }
 }))
 
-interface PostsTopSequencesNavProps extends WithNavigationProps, WithGlobalKeydownProps, WithStylesProps {
+interface ExternalProps {
   post: any,
+}
+interface PostsTopSequencesNavProps extends ExternalProps, WithNavigationProps, WithGlobalKeydownProps, WithStylesProps {
 }
 
 class PostsTopSequencesNav extends PureComponent<PostsTopSequencesNavProps>
@@ -80,7 +82,7 @@ class PostsTopSequencesNav extends PureComponent<PostsTopSequencesNavProps>
   }
 }
 
-const PostsTopSequencesNavComponent = registerComponent(
+const PostsTopSequencesNavComponent = registerComponent<ExternalProps>(
   'PostsTopSequencesNav', PostsTopSequencesNav, {
     styles,
     hocs: [withNavigation, withGlobalKeydown]
