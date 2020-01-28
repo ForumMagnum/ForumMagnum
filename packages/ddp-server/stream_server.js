@@ -86,6 +86,15 @@ StreamServer = function () {
   self._redirectWebsocketEndpoint();
 
   self.server.on('connection', function (socket) {
+    // Work around a suspected bug in sockjs, where under some conditions (not
+    // sure what exactly, possibly closing the connection at a particular stage
+    // of the handshake), this gets alled with a null socket. In that case
+    // there's nothing for us to do (not even closing the socket, since we
+    // didn't get a socket.)
+    if (!socket) {
+      return;
+    }
+    
     // We want to make sure that if a client connects to us and does the initial
     // Websocket handshake but never gets to the DDP handshake, that we
     // eventually kill the socket.  Once the DDP handshake happens, DDP
