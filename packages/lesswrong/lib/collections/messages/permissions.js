@@ -1,6 +1,6 @@
 import Users from 'meteor/vulcan:users';
-import Messages from './collection.js';
-import Conversations from '../conversations/collection.js'
+import Messages from './collection';
+import Conversations from '../conversations/collection'
 
 const membersActions = [
   'messages.new.own',

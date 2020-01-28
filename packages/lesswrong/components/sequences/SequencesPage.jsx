@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Components, registerComponent, } from 'meteor/vulcan:core';
 import { withSingle } from '../../lib/crud/withSingle';
-import Sequences from '../../lib/collections/sequences/collection.js';
+import Sequences from '../../lib/collections/sequences/collection';
 import NoSSR from 'react-no-ssr';
 import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';

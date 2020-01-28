@@ -3,7 +3,7 @@ import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments';
-import { Link } from '../../lib/reactRouterWrapper.jsx'
+import { Link } from '../../lib/reactRouterWrapper'
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import withHover from '../common/withHover'

@@ -4,7 +4,7 @@ import withUser from '../common/withUser';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage, intlShape } from 'meteor/vulcan:i18n';
-import { getFieldValue } from './Card.jsx';
+import { getFieldValue } from './Card';
 import _sortBy from 'lodash/sortBy';
 
 /*

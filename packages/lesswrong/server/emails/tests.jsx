@@ -2,7 +2,7 @@ import React from 'react';
 import { withSingle, useSingle } from '../../lib/crud/withSingle';
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
-import { createDummyUser, createDummyPost } from '../../testing/utils.js'
+import { createDummyUser, createDummyPost } from '../../testing/utils'
 import { emailDoctype, generateEmail } from './renderEmail';
 import { withStyles } from '@material-ui/core/styles';
 import { Posts } from '../../lib/collections/posts';

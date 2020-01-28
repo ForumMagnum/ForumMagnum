@@ -3,14 +3,14 @@ import { addCallback, getSetting, editMutation } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
 import request from 'request';
-import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks.js';
+import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks';
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
-import { addEditableCallbacks } from '../editor/make_editable_callbacks.js'
-import { makeEditableOptionsModeration } from '../../lib/collections/users/custom_fields.js'
+import { addEditableCallbacks } from '../editor/make_editable_callbacks'
+import { makeEditableOptionsModeration } from '../../lib/collections/users/custom_fields'
 
 function updateTrustedStatus ({newDocument, vote}) {
 

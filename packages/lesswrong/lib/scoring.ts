@@ -1,4 +1,4 @@
-import Votes from './collections/votes/collection.js';
+import Votes from './collections/votes/collection';
 
 export const recalculateBaseScore = (document, power) => {
   const votes = Votes.find(

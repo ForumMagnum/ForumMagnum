@@ -1,20 +1,20 @@
-import Notifications from '../lib/collections/notifications/collection.js';
-import Messages from '../lib/collections/messages/collection.js';
-import Conversations from '../lib/collections/conversations/collection.js';
-import Subscriptions from '../lib/collections/subscriptions/collection.js';
+import Notifications from '../lib/collections/notifications/collection';
+import Messages from '../lib/collections/messages/collection';
+import Conversations from '../lib/collections/conversations/collection';
+import Subscriptions from '../lib/collections/subscriptions/collection';
 import { subscriptionTypes } from '../lib/collections/subscriptions/schema';
-import Localgroups from '../lib/collections/localgroups/collection.js';
+import Localgroups from '../lib/collections/localgroups/collection';
 import Users from 'meteor/vulcan:users';
 import { Posts } from '../lib/collections/posts';
 import { Comments } from '../lib/collections/comments'
-import { reasonUserCantReceiveEmails } from './emails/renderEmail.js';
-import './emailComponents/EmailWrapper.jsx';
-import './emailComponents/NewPostEmail.jsx';
-import './emailComponents/PrivateMessagesEmail.jsx';
-import { EventDebouncer } from './debouncer.js';
-import { getNotificationTypeByName } from '../lib/notificationTypes.jsx';
-import { notificationDebouncers, wrapAndSendEmail } from './notificationBatching.js';
-import { defaultNotificationTypeSettings } from '../lib/collections/users/custom_fields.js';
+import { reasonUserCantReceiveEmails } from './emails/renderEmail';
+import './emailComponents/EmailWrapper';
+import './emailComponents/NewPostEmail';
+import './emailComponents/PrivateMessagesEmail';
+import { EventDebouncer } from './debouncer';
+import { getNotificationTypeByName } from '../lib/notificationTypes';
+import { notificationDebouncers, wrapAndSendEmail } from './notificationBatching';
+import { defaultNotificationTypeSettings } from '../lib/collections/users/custom_fields';
 import { ensureIndex } from '../lib/collectionUtils';
 
 import { Components, addCallback, createMutator } from 'meteor/vulcan:core';

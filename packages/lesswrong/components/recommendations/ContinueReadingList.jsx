@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
 import { withDismissRecommendation } from './withDismissRecommendation';
-import { captureEvent, AnalyticsContext } from '../../lib/analyticsEvents.js';
+import { captureEvent, AnalyticsContext } from '../../lib/analyticsEvents';
 
 const MAX_ENTRIES = 3;
 

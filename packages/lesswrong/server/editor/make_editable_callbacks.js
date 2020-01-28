@@ -5,13 +5,13 @@ import { draftToHTML } from '../draftConvert';
 import Revisions from '../../lib/collections/revisions/collection'
 import { extractVersionsFromSemver } from '../../lib/editor/utils'
 import { ensureIndex } from '../../lib/collectionUtils'
-import { htmlToPingbacks } from '../pingbacks.js';
+import { htmlToPingbacks } from '../pingbacks';
 import TurndownService from 'turndown';
 const turndownService = new TurndownService()
 turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
 
 import markdownIt from 'markdown-it'
-import markdownItMathjax from './markdown-mathjax.js'
+import markdownItMathjax from './markdown-mathjax'
 import cheerio from 'cheerio';
 import markdownItContainer from 'markdown-it-container'
 import markdownItFootnote from 'markdown-it-footnote'

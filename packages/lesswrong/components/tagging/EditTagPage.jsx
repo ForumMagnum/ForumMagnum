@@ -1,8 +1,8 @@
 import React from 'react';
 import { registerComponent, Components, getFragment } from 'meteor/vulcan:core';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
-import { Tags } from '../../lib/collections/tags/collection.js';
-import { useTagBySlug } from './useTag.jsx';
+import { Tags } from '../../lib/collections/tags/collection';
+import { useTagBySlug } from './useTag';
 
 const EditTagPage = () => {
   const { params } = useLocation();

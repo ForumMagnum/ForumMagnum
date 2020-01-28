@@ -2,8 +2,8 @@ import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useMulti } from '../../lib/crud/withMulti';
 import { withStyles } from '@material-ui/core/styles';
-import { Link } from '../../lib/reactRouterWrapper.jsx';
-import { TagRels } from '../../lib/collections/tagRels/collection.js';
+import { Link } from '../../lib/reactRouterWrapper';
+import { TagRels } from '../../lib/collections/tagRels/collection';
 
 const styles = theme => ({
   tagTitle: {

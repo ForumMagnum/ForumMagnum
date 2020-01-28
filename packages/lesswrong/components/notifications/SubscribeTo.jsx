@@ -5,7 +5,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { withMessages } from '../common/withMessages';
 import { Subscriptions } from '../../lib/collections/subscriptions/collection'
 import { defaultSubscriptionTypeTable } from '../../lib/collections/subscriptions/mutations'
-import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil.js';
+import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil';
 import { useCurrentUser } from '../common/withUser';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import NotificationsIcon from '@material-ui/icons/Notifications';

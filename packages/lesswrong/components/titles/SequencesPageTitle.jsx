@@ -3,7 +3,7 @@ import { registerComponent } from 'meteor/vulcan:core';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
-import Sequences from '../../lib/collections/sequences/collection.js';
+import Sequences from '../../lib/collections/sequences/collection';
 import { Helmet } from 'react-helmet';
 import { withStyles } from '@material-ui/core/styles';
 import { styles } from '../common/HeaderSubtitle';

@@ -1,7 +1,7 @@
-import './cron.js';
-import './out.js';
-import './graphql.js';
+import './cron';
+import './out';
+import './graphql';
 
-import './callbacks/other.js';
-import './callbacks/validation.js';
+import './callbacks/other';
+import './callbacks/validation';
 

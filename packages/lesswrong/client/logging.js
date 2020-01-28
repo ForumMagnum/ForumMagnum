@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/browser';
 import { getSetting, addCallback } from 'meteor/vulcan:core';
-import { captureEvent, AnalyticsUtil } from '../lib/analyticsEvents.js';
+import { captureEvent, AnalyticsUtil } from '../lib/analyticsEvents';
 import { browserProperties } from '../lib/utils/browserProperties';
 
 /*global tabId*/

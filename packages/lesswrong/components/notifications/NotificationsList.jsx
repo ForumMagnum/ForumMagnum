@@ -5,7 +5,7 @@ import ListItem from '@material-ui/core/ListItem';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import { withMulti } from '../../lib/crud/withMulti';
-import Notifications from '../../lib/collections/notifications/collection.js';
+import Notifications from '../../lib/collections/notifications/collection';
 import withUser from '../common/withUser';
 
 const styles = theme => ({

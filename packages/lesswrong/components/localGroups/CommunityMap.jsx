@@ -2,7 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import { useMulti } from '../../lib/crud/withMulti';
 import { withStyles } from '@material-ui/core/styles';
-import { Localgroups } from '../../lib/index.js';
+import { Localgroups } from '../../lib/index';
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
 import { useLocation } from '../../lib/routeUtil';

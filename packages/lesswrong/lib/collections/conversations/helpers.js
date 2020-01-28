@@ -1,4 +1,4 @@
-import Conversations from "./collection.js";
+import Conversations from "./collection";
 import { Utils } from 'meteor/vulcan:core';
 
 Conversations.getTitle = (conversation, currentUser) => {

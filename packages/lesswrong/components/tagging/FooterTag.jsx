@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { Link } from '../../lib/reactRouterWrapper.jsx';
+import { Link } from '../../lib/reactRouterWrapper';
 import { withStyles } from '@material-ui/core/styles';
 import withHover from '../common/withHover';
 
