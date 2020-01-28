@@ -1,12 +1,12 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { useCurrentUser } from '../common/withUser';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { useVote } from '../votes/withVote';
 import classNames from 'classnames';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
     width: 50,
     position: "absolute",
@@ -64,7 +64,7 @@ const styles = theme => ({
   score: {
     width: "100%",
   },
-});
+}));
 
 const PostsItemTagRelevance = ({tagRel, post, classes}) => {
   const { VoteButton } = Components;
@@ -124,6 +124,10 @@ const PostsItemTagRelevance = ({tagRel, post, classes}) => {
   </Components.PostsItem2MetaInfo>
 }
 
-registerComponent("PostsItemTagRelevance", PostsItemTagRelevance,
-  withStyles(styles, {name: "PostsItemTagRelevance"})
-);
+const PostsItemTagRelevanceComponent = registerComponent("PostsItemTagRelevance", PostsItemTagRelevance, {styles});
+
+declare global {
+  interface ComponentTypes {
+    PostsItemTagRelevance: typeof PostsItemTagRelevanceComponent
+  }
+}

@@ -7,15 +7,15 @@ import { useTagBySlug } from './useTag';
 import Users from 'meteor/vulcan:users';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { postBodyStyles } from '../../themes/stylePiping'
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   description: {
     ...postBodyStyles(theme),
     marginBottom: 16,
   },
-});
+}));
 
 const TagPage = ({classes}) => {
   const { SingleColumnSection, SectionTitle, SectionFooter, SectionButton, PostsItem2, ContentItemBody, Loading, Error404 } = Components;
@@ -31,7 +31,6 @@ const TagPage = ({classes}) => {
       tagId: tag?._id,
     },
     collection: TagRels,
-    queryName: "tagPageQuery",
     fragmentName: "TagRelFragment",
     limit: 20,
     ssr: true,
@@ -66,5 +65,10 @@ const TagPage = ({classes}) => {
   </SingleColumnSection>
 }
 
-registerComponent("TagPage", TagPage,
-  withStyles(styles, {name: "TagPage"}));
+const TagPageComponent = registerComponent("TagPage", TagPage, {styles});
+
+declare global {
+  interface ComponentTypes {
+    TagPage: typeof TagPageComponent
+  }
+}

@@ -115,19 +115,6 @@ interface ComponentTypes {
   LastCuratedDate: any
   EmailHistory: any
   EmailHistoryPage: any
-  AddTag: any
-  TagPage: any
-  TagPageTitle: any
-  FooterTagList: any
-  FooterTag: any
-  NewTagPage: any
-  EditTagPage: any
-  AllTagsPage: any
-  TagPreview: any
-  TagHoverPreview: any
-  TagRelCard: any
-  TagSearchHit: any
-  PostsItemTagRelevance: any
   EditSequenceTitle: any
   SequencesPage: any
   SequencesPostsList: any

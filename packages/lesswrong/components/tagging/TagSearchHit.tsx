@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { useSingle } from '../../lib/crud/withSingle';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import withHover from '../common/withHover';
 import { Tags } from '../../lib/collections/tags/collection';
 
@@ -19,14 +19,20 @@ const styles = theme => ({
   },
 });
 
-const TagSearchHit = ({hit, onClick, hover, anchorEl, classes}) => {
+interface ExternalProps {
+  hit: any,
+  onClick: (ev: any) => void,
+}
+interface TagSearchHitProps extends ExternalProps, WithHoverProps, WithStylesProps {
+}
+
+const TagSearchHit = ({hit, onClick, hover, anchorEl, classes}: TagSearchHitProps) => {
   const { PopperCard, ContentItemBody, Loading } = Components;
   const { document: tag } = useSingle({
     documentId: hit._id,
     collection: Tags,
-    queryName: "tagSearchHit",
     fragmentName: "TagFragment",
-    fetchPolicy: 'cache-then-network',
+    fetchPolicy: 'cache-then-network' as any, //TODO
   });
   return (
     <React.Fragment>
@@ -46,6 +52,14 @@ const TagSearchHit = ({hit, onClick, hover, anchorEl, classes}) => {
   );
 }
 
-registerComponent("TagSearchHit", TagSearchHit,
-  withHover(),
-  withStyles(styles, {name: "TagSearchHit"}));
+const TagSearchHitComponent = registerComponent<ExternalProps>("TagSearchHit", TagSearchHit, {
+  styles,
+  hocs: [withHover()]
+});
+
+declare global {
+  interface ComponentTypes {
+    TagSearchHit: typeof TagSearchHitComponent
+  }
+}
+

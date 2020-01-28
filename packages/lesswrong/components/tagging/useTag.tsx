@@ -1,7 +1,11 @@
 import { useMulti } from '../../lib/crud/withMulti';
 import { Tags } from '../../lib/collections/tags/collection';
 
-export const useTagBySlug = (slug) => {
+export const useTagBySlug = (slug: string): {
+  tag: TagFragment|null,
+  loading: boolean,
+  error: any
+}=> {
   const { results, loading, error } = useMulti({
     terms: {
       view: "tagBySlug",

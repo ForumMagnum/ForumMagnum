@@ -2,11 +2,11 @@ import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { InstantSearch, SearchBox, Hits } from 'react-instantsearch-dom';
 import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
     "& .ais-SearchBox": {
       padding: 8,
@@ -23,7 +23,7 @@ const styles = theme => ({
     color: theme.palette.grey[600],
     ...theme.typography.commentStyle
   }
-});
+}));
 
 const AddTag = ({post, onTagSelected, classes}) => {
   const currentUser = useCurrentUser();
@@ -47,7 +47,7 @@ const AddTag = ({post, onTagSelected, classes}) => {
   // component doesn't expose an API for controlling focus other than at mount
   // time, so in order to find the text box we want focused, we have to search
   // the DOM for it.
-  const containerRef = React.useRef(null);
+  const containerRef = React.useRef<any>(null);
   React.useEffect(() => {
     if (containerRef.current) {
       const input = containerRef.current.getElementsByTagName("input")[0];
@@ -61,7 +61,7 @@ const AddTag = ({post, onTagSelected, classes}) => {
     return <div className={classes.root} ref={containerRef}>
       <input placeholder="Tag ID" type="text" onKeyPress={ev => {
         if (ev.charCode===13) {
-          const id = ev.target.value;
+          const id = (ev.target as any).value;
           onTagSelected(id);
           ev.preventDefault();
         }
@@ -93,5 +93,11 @@ const AddTag = ({post, onTagSelected, classes}) => {
   </div>
 }
 
-registerComponent("AddTag", AddTag,
-  withStyles(styles, { name: "AddTag" }));
+const AddTagComponent = registerComponent("AddTag", AddTag, {styles});
+
+declare global {
+  interface ComponentTypes {
+    AddTag: typeof AddTagComponent
+  }
+}
+

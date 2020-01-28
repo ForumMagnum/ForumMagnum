@@ -5,7 +5,6 @@ import { registerComponent } from 'meteor/vulcan:core';
 import { useTagBySlug } from './useTag';
 import { Link } from '../../lib/reactRouterWrapper';
 import { styles } from '../common/HeaderSubtitle';
-import { withStyles } from '@material-ui/core/styles';
 
 const TagPageTitle = ({isSubtitle, classes}) => {
   const { params } = useLocation();
@@ -26,6 +25,11 @@ const TagPageTitle = ({isSubtitle, classes}) => {
   }
 }
 
-registerComponent("TagPageTitle", TagPageTitle,
-  withStyles(styles, {name: "PostsPageHeaderTitle"})
-);
+const TagPageTitleComponent = registerComponent("TagPageTitle", TagPageTitle, {styles});
+
+declare global {
+  interface ComponentTypes {
+    TagPageTitle: typeof TagPageTitleComponent
+  }
+}
+

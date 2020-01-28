@@ -1,16 +1,16 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useMulti } from '../../lib/crud/withMulti';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   tagTitle: {
   },
   tagDescription: {
   },
-});
+}));
 
 const previewPostCount = 4;
 
@@ -23,7 +23,6 @@ const TagPreview = ({tag, classes}) => {
       tagId: tag?._id,
     },
     collection: TagRels,
-    queryName: "tagPreviewQuery",
     fragmentName: "TagRelFragment",
     limit: previewPostCount,
     ssr: true,
@@ -46,5 +45,11 @@ const TagPreview = ({tag, classes}) => {
   </div>)
 }
 
-registerComponent("TagPreview", TagPreview,
-  withStyles(styles, {name: "TagPreview"}));
+const TagPreviewComponent = registerComponent("TagPreview", TagPreview, {styles});
+
+declare global {
+  interface ComponentTypes {
+    TagPreview: typeof TagPreviewComponent
+  }
+}
+

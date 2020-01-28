@@ -34,4 +34,10 @@ const NewTagPage = () => {
   );
 }
 
-registerComponent('NewTagPage', NewTagPage);
+const NewTagPageComponent = registerComponent('NewTagPage', NewTagPage);
+
+declare global {
+  interface ComponentTypes {
+    NewTagPage: typeof NewTagPageComponent
+  }
+}

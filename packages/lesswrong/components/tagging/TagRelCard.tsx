@@ -1,14 +1,14 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { useMulti } from '../../lib/crud/withMulti';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { useVote } from '../votes/withVote';
 import { useCurrentUser } from '../common/withUser';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentBodyStyles } from '../../themes/stylePiping'
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
     paddingLeft: 16,
     paddingRight: 16,
@@ -43,7 +43,7 @@ const styles = theme => ({
     textAlign: "right",
     color: theme.palette.primary.main
   }
-});
+}));
 
 const previewPostCount = 3;
 
@@ -58,7 +58,6 @@ const TagRelCard = ({tagRel, classes}) => {
       tagId: tagRel.tag._id,
     },
     collection: TagRels,
-    queryName: "tagRelCardQuery",
     fragmentName: "TagRelFragment",
     limit: previewPostCount,
     ssr: true,
@@ -110,5 +109,11 @@ const TagRelCard = ({tagRel, classes}) => {
   </div>
 }
 
-registerComponent("TagRelCard", TagRelCard,
-  withStyles(styles, {name: "TagRelCard"}));
+const TagRelCardComponent = registerComponent("TagRelCard", TagRelCard, {styles});
+
+declare global {
+  interface ComponentTypes {
+    TagRelCard: typeof TagRelCardComponent
+  }
+}
+

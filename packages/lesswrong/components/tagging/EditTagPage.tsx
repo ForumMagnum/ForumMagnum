@@ -31,5 +31,10 @@ const EditTagPage = () => {
   );
 }
 
-registerComponent('EditTagPage', EditTagPage);
+const EditTagPageComponent = registerComponent('EditTagPage', EditTagPage);
 
+declare global {
+  interface ComponentTypes {
+    EditTagPage: typeof EditTagPageComponent
+  }
+}

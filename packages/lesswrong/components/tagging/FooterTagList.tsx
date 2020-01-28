@@ -4,12 +4,12 @@ import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/cru
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import Paper from '@material-ui/core/Paper';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
     marginTop: 16,
     marginBottom: 16,
@@ -22,11 +22,11 @@ const styles = theme => ({
     textAlign: "center",
     padding: 4
   },
-});
+}));
 
 const FooterTagList = ({post, classes}) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
   
   const { results, loading } = useMulti({
     terms: {
@@ -34,7 +34,6 @@ const FooterTagList = ({post, classes}) => {
       postId: post._id,
     },
     collection: TagRels,
-    queryName: "postFooterTagsQuery",
     fragmentName: "TagRelMinimumFragment",
     limit: 100,
     ssr: true,
@@ -104,6 +103,10 @@ const FooterTagList = ({post, classes}) => {
   </div>
 };
 
-registerComponent("FooterTagList", FooterTagList,
-  withStyles(styles, { name: "FooterTagList" })
-);
+const FooterTagListComponent = registerComponent("FooterTagList", FooterTagList, {styles});
+
+declare global {
+  interface ComponentTypes {
+    FooterTagList: typeof FooterTagListComponent
+  }
+}

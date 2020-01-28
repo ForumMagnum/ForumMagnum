@@ -1,10 +1,10 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { Link } from '../../lib/reactRouterWrapper';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import withHover from '../common/withHover';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
     marginRight: 4,
     paddingTop: 5,
@@ -40,7 +40,14 @@ const styles = theme => ({
   },
   hovercard: {
   },
-});
+}));
+
+interface ExternalProps {
+  tagRel: any,
+  tag: any,
+}
+interface FooterTagProps extends ExternalProps, WithHoverProps, WithStylesProps {
+}
 
 const FooterTag = ({tagRel, tag, hover, anchorEl, classes}) => {
   return (<span className={classes.root}>
@@ -56,6 +63,13 @@ const FooterTag = ({tagRel, tag, hover, anchorEl, classes}) => {
   </span>);
 }
 
-registerComponent("FooterTag", FooterTag,
-  withHover(),
-  withStyles(styles, {name: "FooterTag"}));
+const FooterTagComponent = registerComponent<ExternalProps>("FooterTag", FooterTag, {
+  styles,
+  hocs: [withHover()]
+});
+
+declare global {
+  interface ComponentTypes {
+    FooterTag: typeof FooterTagComponent
+  }
+}

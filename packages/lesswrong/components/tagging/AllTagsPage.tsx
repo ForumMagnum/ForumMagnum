@@ -4,11 +4,11 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Tags } from '../../lib/collections/tags/collection';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   tag: {
     display: "fle",
   },
@@ -17,7 +17,7 @@ const styles = theme => ({
     fontSize: "1rem",
     position: "relative",
   }
-});
+}));
 
 const AllTagsPage = ({classes}) => {
   const currentUser = useCurrentUser();
@@ -26,7 +26,6 @@ const AllTagsPage = ({classes}) => {
       view: "allTagsAlphabetical",
     },
     collection: Tags,
-    queryName: "allTagsPageQuery",
     fragmentName: "TagFragment",
     limit: 100,
     ssr: true,
@@ -56,5 +55,10 @@ const AllTagsPage = ({classes}) => {
   );
 }
 
-registerComponent("AllTagsPage", AllTagsPage,
-  withStyles(styles, {name: "AllTagsPage"}));
+const AllTagsPageComponent = registerComponent("AllTagsPage", AllTagsPage, {styles});
+
+declare global {
+  interface ComponentTypes {
+    AllTagsPage: typeof AllTagsPageComponent
+  }
+}
