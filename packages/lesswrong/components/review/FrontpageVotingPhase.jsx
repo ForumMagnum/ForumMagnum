@@ -30,7 +30,7 @@ const styles = theme => ({
 })
 
 const FrontpageVotingPhase = ({classes, settings, currentUser}) => {
-  const { SubSection, SectionSubtitle, SectionFooter, RecommendationsList, HoverPreviewLink } = Components
+  const { SectionSubtitle, SectionFooter, RecommendationsList, HoverPreviewLink } = Components
 
   const reviewTooltip = <div>
     <div>The LessWrong community is reflecting on the best posts from 2018, in three phases</div>
@@ -61,11 +61,9 @@ const FrontpageVotingPhase = ({classes, settings, currentUser}) => {
           </SectionSubtitle>
         </div>
       </Tooltip>
-      <SubSection>
-        <AnalyticsContext listContext={"Voting on the LW 2018 Review"} capturePostItemOnMount>
-          <RecommendationsList algorithm={reviewAlgorithm} showLoginPrompt={false} />
-        </AnalyticsContext>
-      </SubSection>
+      <AnalyticsContext listContext={"Voting on the LW 2018 Review"} capturePostItemOnMount>
+        <RecommendationsList algorithm={reviewAlgorithm} showLoginPrompt={false} />
+      </AnalyticsContext>
       <SectionFooter>
         <Link to={"/reviews"}>
           Reviews Dashboard
