@@ -19,27 +19,27 @@ jobs:
     script: ls
   - stage: deploy 
     script: skip
-    deploy: lessestwrong
+    deploy: &lessestwrong
       provider: script
       script: bash ./deploy.sh ./LessWrong-Credentials/settings-staging-lessestwrong.json ./LessWrong-Credentials/mup-lessestwrong.secret
       on:
         branch: travisExperimentsWoo
     script: skip
-    deploy: baserates
+    deploy: &baserates
       provider: script
       script: 
         bash ./deploy.sh ./LessWrong-Credentials/settings-staging-baserates.json ./LessWrong-Credentials/mup-baserates.secret
       on:
         branch: travisExperimentsWoo
     script: skip
-    deploy: lesswrong
+    deploy: &lesswrong
       provider: script
       script: 
         bash ./deploy.sh ./LessWrong-Credentials/settings-production-lesswrong.json ./LessWrong-Credentials/mup-production.secret
       on:
         branch: master
     script: skip
-    deploy: AIAF
+    deploy: &AIAF
       provider: script
       script: 
         bash ./deploy.sh ./LessWrong-Credentials/settings-production-alignmentforum.json ./LessWrong-Credentials/mup-af.secret
