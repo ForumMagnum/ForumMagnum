@@ -23,14 +23,14 @@ jobs:
       provider: script
       script: bash ./deploy.sh ./LessWrong-Credentials/settings-staging-lessestwrong.json ./LessWrong-Credentials/mup-lessestwrong.secret
       on:
-        branch: travisExperimentsWoo
+        branch: devel
   - script: skip
     deploy: &baserates
       provider: script
       script: 
         bash ./deploy.sh ./LessWrong-Credentials/settings-staging-baserates.json ./LessWrong-Credentials/mup-baserates.secret
       on:
-        branch: travisExperimentsWoo
+        branch: devel
   - script: skip
     deploy: &lesswrong
       provider: script
