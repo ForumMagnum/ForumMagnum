@@ -20,7 +20,7 @@ const styles = theme => ({
     maxWidth: 250,
   },
   joined: {
-    fontStyle: "italic", 
+    fontStyle: "italic",
     marginBottom: theme.spacing.unit
   },
   icon: {
@@ -65,7 +65,7 @@ const UsersNameDisplay = ({user, classes, nofollow=false, simple=false, hover, a
     return <span className={classes.userName}>{Users.getDisplayName(user)}</span>
   }
 
-  return <AnalyticsContext pageElementContext="userNameDisplay" userId={user._id}>
+  return <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
       <Link to={Users.getProfileUrl(user)} className={classes.userName}
         {...(nofollow ? {rel:"nofollow"} : {})}
       >
