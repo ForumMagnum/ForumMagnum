@@ -8,6 +8,7 @@ import Users from 'meteor/vulcan:users';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useTracking } from "../../../lib/analyticsEvents";
 import { withStyles } from '@material-ui/core/styles';
+import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
 
 const styles = theme => ({
   icon: {
@@ -49,6 +50,15 @@ const CommentsMenu = ({children, classes, className, comment, post, showEdit, ic
         anchorEl={anchorEl}
       >
         <EditCommentMenuItem comment={comment} showEdit={showEdit}/>
+        {comment.shortform && !comment.topLevelCommentId && (comment.user?._id && (comment.user._id !== currentUser._id)) &&
+          <MenuItem>
+            <SubscribeTo document={post} showIcon
+              subscriptionType={subscriptionTypes.newShortform}
+              subscribeMessage={`Subscribe to ${post.title}`}
+              unsubscribeMessage={`Unsubscribe from ${post.title}`}
+            />
+          </MenuItem>
+        }
         <MenuItem>
           <SubscribeTo document={comment} showIcon
             subscribeMessage="Subscribe to comment replies"

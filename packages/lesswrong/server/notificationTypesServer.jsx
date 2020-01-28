@@ -78,6 +78,20 @@ export const NewGroupPostNotification = serverRegisterNotificationType({
   },
 });
 
+export const NewShortformNotification = serverRegisterNotificationType({
+  name: "newShortform",
+  canCombineEmails: false,
+  emailSubject: ({user, notifications}) => {
+    const comment = Comments.findOne(notifications[0].documentId)
+    const post = Posts.findOne(comment?.postId)
+    return 'New comment on "' + post.title + '"';
+  },
+  emailBody: ({user, notifications}) => {
+    const comment = Comments.findOne(notifications[0].documentId)
+    return <Components.EmailCommentBatch comments={[comment]}/>;
+  }
+})
+
 export const NewCommentNotification = serverRegisterNotificationType({
   name: "newComment",
   canCombineEmails: true,

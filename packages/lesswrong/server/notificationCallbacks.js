@@ -377,6 +377,18 @@ async function CommentsNewNotifications(comment) {
       userIsDefaultSubscribed: u => u.auto_subscribe_to_my_posts
     })
     const userIdsSubscribedToPost = _.map(usersSubscribedToPost, u=>u._id);
+
+    // Notify users who are subscribed to shortform posts
+    if (!comment.topLevelCommentId && comment.shortform) {
+      const usersSubscribedToShortform = await getSubscribedUsers({
+        documentId: comment.postId,
+        collectionName: "Posts",
+        type: subscriptionTypes.newShortform
+      })
+      const userIdsSubscribedToShortform = _.map(usersSubscribedToShortform, u=>u._id);
+      await createNotifications(userIdsSubscribedToShortform, 'newShortform', 'comment', comment._id);
+      notifiedUsers = [ ...userIdsSubscribedToShortform, ...notifiedUsers]
+    }
     
     // remove userIds of users that have already been notified
     // and of comment author (they could be replying in a thread they're subscribed to)
