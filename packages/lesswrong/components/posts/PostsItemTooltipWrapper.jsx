@@ -6,13 +6,14 @@ const PostsItemTooltipWrapper = ({hover, anchorEl, stopHover, children, post}) =
   const { LWPopper, PostsPreviewTooltip } = Components
   return <React.Fragment>
       <LWPopper
-        open={hover}
+        open={true}
         anchorEl={anchorEl}
         onMouseEnter={stopHover}
-        placement="bottom-end"
+        placement="left-start"
         modifiers={{
           flip: {
-            enabled: false
+            behavior: ['left-start', 'bottom-end'],
+            boundariesElement: 'viewport'
           }
         }}
       >

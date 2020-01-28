@@ -10,15 +10,13 @@ import Card from '@material-ui/core/Card';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { userHasBoldPostItems } from '../../lib/betas.js';
 
-export const POST_PREVIEW_WIDTH = 500
+export const POST_PREVIEW_WIDTH = 330
 
 const styles = theme => ({
   root: {
     width: POST_PREVIEW_WIDTH,
     position: "relative",
     padding: theme.spacing.unit*1.5,
-    paddingTop: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
     '& img': {
       maxHeight: "200px"
     },
@@ -32,14 +30,18 @@ const styles = theme => ({
   tooltipInfo: {
     fontStyle: "italic",
     ...commentBodyStyles(theme),
-    color: theme.palette.grey[600]
+    fontSize: "1.1rem",
+    color: theme.palette.grey[600],
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center"
   },
   highlight: {
     ...postHighlightStyles(theme),
-    marginTop: theme.spacing.unit*3,
-    marginBottom: theme.spacing.unit*2.5,
+    marginTop: theme.spacing.unit*2.5,
     wordBreak: 'break-word',
     fontSize: "1.1rem",
+
     '& img': {
       display:"none"
     },
@@ -84,7 +86,10 @@ const styles = theme => ({
     },
   },
   comment: {
-    marginTop: theme.spacing.unit*1.5
+    marginTop: theme.spacing.unit*1.5,
+    marginLeft: -13,
+    marginRight: -13,
+    marginBottom: -9
   },
   bookmarkButton: {
     float: "right"
@@ -109,14 +114,14 @@ const getPostCategory = (post) => {
     return post.question ? `Question` : `Personal Blogpost`
 }
 
-const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, truncateLimit=600, comment }) => {
-  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton } = Components
+const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, truncateLimit=450, comment }) => {
+  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, PostsItemKarma } = Components
 
   if (!post) return null
 
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
-  const highlight = truncate(htmlHighlight, truncateLimit)
+  const highlight = truncate(htmlHighlight, 100, "words")
   const renderCommentCount = showAllInfo && (Posts.getCommentCount(post) > 0)
   const renderWordCount = !comment && (wordCount > 0)
 
@@ -126,13 +131,13 @@ const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, truncate
           <PostsTitle post={post} tooltip={false} wrap showIcons={false} read={userHasBoldPostItems(currentUser)} />
         </div>
         <div className={classes.tooltipInfo}>
-          { getPostCategory(post)}
-          { showAllInfo && post.user && <span> by <PostsUserAndCoauthors post={post} simple/></span>}
-          { renderCommentCount && <span className={classes.comments}>
+          { showAllInfo && post.user && <span><PostsUserAndCoauthors post={post} simple/></span>}
+          { showAllInfo && <span><PostsItemKarma post={post} /> karma</span>}
+          {/* { showAllInfo && <BookmarkButton post={post} />} */}
+          {/* { renderCommentCount && <span className={classes.comments}>
             <CommentIcon className={classes.commentIcon}/>
               {Posts.getCommentCountStr(post)}
-          </span>}
-          { showAllInfo && <span className={classes.karma}>{Posts.getKarma(post)} karma</span>}
+          </span>} */}
         </div>
         {comment
           ? <div className={classes.comment}>
@@ -149,12 +154,12 @@ const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, truncate
               description={`post ${post._id}`}
             />
         }
-        {renderWordCount && <div className={classes.tooltipInfo}>
+
+        {/* {renderWordCount && <div className={classes.tooltipInfo}>
           <span>
             {wordCount} words ({Math.ceil(wordCount/300)} min read)
           </span>
-          { showAllInfo && <span className={classes.bookmarkButton}><BookmarkButton post={post} /></span>}
-        </div>}
+        </div>} */}
     </Card>
   </AnalyticsContext>
 

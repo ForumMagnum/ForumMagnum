@@ -162,7 +162,7 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hove
           }
         }}
       >
-        <PostsPreviewTooltip post={post} showAllInfo truncateLimit={900}/>
+        <PostsPreviewTooltip post={post} showAllInfo />
       </LWPopper>
       <Link className={classes.link} to={href}  dangerouslySetInnerHTML={{__html: innerHTML}} id={id}/>
     </span>
@@ -190,7 +190,7 @@ const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post,
           }
         }}
       >
-        <PostsPreviewTooltip post={post} comment={comment} showAllInfo wide truncateLimit={900}/>
+        <PostsPreviewTooltip post={post} comment={comment} showAllInfo wide />
       </LWPopper>
       <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id}/>
     </span>
