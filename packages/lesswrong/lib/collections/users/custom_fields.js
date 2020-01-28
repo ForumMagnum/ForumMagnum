@@ -635,6 +635,10 @@ addFieldsDict(Users, {
     label: "Comments on subscribed posts",
     ...notificationTypeSettingsField(),
   },
+  notificationShortformContent: {
+    label: "Shortform by subscribed users",
+    ...notificationTypeSettingsField(),
+  },
   notificationRepliesToMyComments: {
     label: "Replies to my comments",
     ...notificationTypeSettingsField(),
