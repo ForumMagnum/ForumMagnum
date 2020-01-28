@@ -113,9 +113,5 @@ import './server/search/utils.js';
 import './server/search/callbacks.js';
 import './server/search/algoliaCron.js';
 
-// EA Forum only
-import './server/scripts/eafIBetaInvites.js';
-import './lib/modules/accounts/configuration.js';
-
 //eslint-disable-next-line no-console
 console.log("Starting LessWrong server. Versions: "+JSON.stringify(process.versions));
