@@ -48,7 +48,7 @@ const PostLinkPreviewSlug = ({href, targetLocation, innerHTML, id}) => {
 }
 const PostLinkPreviewSlugComponent = registerComponent('PostLinkPreviewSlug', PostLinkPreviewSlug);
 
-const PostLinkPreviewLegacy = ({href, targetLocation, innerHTML, id={id}}) => {
+const PostLinkPreviewLegacy = ({href, targetLocation, innerHTML, id}) => {
   const legacyId = targetLocation.params.id;
   const { post, error } = usePostByLegacyId({ legacyId });
 
@@ -109,7 +109,7 @@ const PostLinkPreviewVariantCheck = ({ href, innerHTML, post, targetLocation, co
   }
 
   if (commentId) {
-    return <Components.PostLinkCommentPreview commentId={commentId} href={href} innerHTML={innerHTML} id={id}/>
+    return <Components.PostLinkCommentPreview commentId={commentId} post={post} href={href} innerHTML={innerHTML} id={id}/>
   }
 
   return <Components.PostLinkPreviewWithPost href={href} innerHTML={innerHTML} post={post} error={error} id={id} />
