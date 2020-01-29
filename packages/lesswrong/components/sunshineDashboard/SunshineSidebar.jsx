@@ -1,10 +1,10 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import Users from 'meteor/vulcan:users';
 import withUser from '../common/withUser';
 import PropTypes from 'prop-types';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
-import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { withStyles } from '@material-ui/core/styles';
@@ -26,78 +26,75 @@ const styles = theme => ({
     background: "white",
   },
   toggle: {
-    position:"absolute",
+    position: "relative",
     zIndex: theme.zIndexes.sunshineSidebar,
-    float: "right",
-    right: 0,
-    margin: 12,
+    display: "flex",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    padding: 8,
+    width: "100%",
+    fontSize: "1rem",
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[400],
     cursor: "pointer",
-    color: theme.palette.grey[400]
   }
 })
 
-class SunshineSidebar extends Component {
-  state = { showSidebar: true, showUnderbelly: false }
+const SunshineSidebar = ({currentUser, classes}) => {
+  const [showSidebar, setShowSidebar] = useState(false)
+  const [showUnderbelly, setShowUnderbelly] = useState(false)
 
-  toggleSidebar = () => {
-    this.setState({showSidebar: !this.state.showSidebar})
-  }
+  const { SunshineNewUsersList, SunshineNewCommentsList, SunshineNewPostsList, SunshineReportedContentList, SunshineCuratedSuggestionsList, AFSuggestUsersList, AFSuggestPostsList, AFSuggestCommentsList, SunshineListTitle } = Components
 
-  toggleUnderbelly = () => {
-    // The stuff that was probably spam and hidden away from us so we wouldn't have to look at it, but sometimes turns out to be important
-    this.setState({showUnderbelly: !this.state.showUnderbelly})
-  }
+  return (
+    <div className={classNames(classes.root, {[classes.showSidebar]:showSidebar})}>
+      {Users.canDo(currentUser, 'posts.moderate.all') && <div>
+        <SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
+        <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 30}}/>
+        <SunshineReportedContentList terms={{view:"sunshineSidebarReports", limit: 30}}/>
+      </div>}
 
-  render () {
-    const { currentUser, classes } = this.props
-    const { showSidebar, showUnderbelly } = this.state
-    const { SunshineNewUsersList, SunshineNewCommentsList, SunshineNewPostsList, SunshineReportedContentList, SunshineCuratedSuggestionsList, AFSuggestUsersList, AFSuggestPostsList, AFSuggestCommentsList, SunshineListTitle } = Components
-
-    return (
-      <div className={classNames(classes.root, {[classes.showSidebar]:showSidebar})}>
-        { showSidebar ? <KeyboardArrowDownIcon
-          className={classes.toggle}
-          onClick={this.toggleSidebar}/>
-          :
-          <KeyboardArrowLeftIcon
-            className={classes.toggle}
-            onClick={this.toggleSidebar}
-          />}
-        { showSidebar && <div>
-            {Users.canDo(currentUser, 'posts.moderate.all') && <div>
-            <SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
-            <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 30}}/>
-            <SunshineReportedContentList terms={{view:"sunshineSidebarReports", limit: 30}}/>
-            {!!currentUser.viewUnreviewedComments && <SunshineNewCommentsList terms={{view:"sunshineNewCommentsList"}}/>}
-            <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 50}}/>
-          </div>}        
-          { currentUser.groups && currentUser.groups.includes('alignmentForumAdmins') && <div>
-            <AFSuggestUsersList terms={{view:"alignmentSuggestedUsers"}}/>
-            <AFSuggestPostsList terms={{view:"alignmentSuggestedPosts"}}/>
-            <AFSuggestCommentsList terms={{view:"alignmentSuggestedComments"}}/>
-          </div>}
+      { showSidebar ? <div className={classes.toggle} onClick={() => setShowSidebar(false)}>
+        Hide Full Sidebar
+          <KeyboardArrowDownIcon />
+        </div>
+        :
+        <div className={classes.toggle} onClick={() => setShowSidebar(true)}>
+          Show Full Sidebar
+          <KeyboardArrowRightIcon />
         </div>}
-        { showUnderbelly ? <div>
-            <KeyboardArrowDownIcon
-              className={classes.toggle}
-              onClick={this.toggleUnderbelly}/>
-            <SunshineListTitle>Hide the Underbelly</SunshineListTitle>
-          </div>
-          :
-          <div>
-            <KeyboardArrowLeftIcon
-              className={classes.toggle}
-              onClick={this.toggleUnderbelly}
-            />
-            <SunshineListTitle>Show the Underbelly</SunshineListTitle>
-          </div>}
+
+      { showSidebar && <div>
+        {!!currentUser.viewUnreviewedComments && <SunshineNewCommentsList terms={{view:"sunshineNewCommentsList"}}/>}
+        <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 50}}/>
+        { currentUser.groups && currentUser.groups.includes('alignmentForumAdmins') && <div>
+          <AFSuggestUsersList terms={{view:"alignmentSuggestedUsers"}}/>
+          <AFSuggestPostsList terms={{view:"alignmentSuggestedPosts"}}/>
+          <AFSuggestCommentsList terms={{view:"alignmentSuggestedComments"}}/>
+        </div>}
+      </div>}
+
+      { showSidebar && <div>
+        { showUnderbelly ? <div onClick={() => setShowUnderbelly(false)}>
+          <SunshineListTitle>
+            Hide the Underbelly
+            <KeyboardArrowDownIcon/>
+          </SunshineListTitle>
+        </div>
+        :
+        <div onClick={() => setShowUnderbelly(true)}>
+          <SunshineListTitle>
+            Show the Underbelly
+            <KeyboardArrowRightIcon/>
+          </SunshineListTitle>
+        </div>}
         { showUnderbelly && <div>
           <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 30, ignoreRecaptcha: true, includeBioOnlyUsers: true}} allowContentPreview={false}/>
         </div>}
+      </div>}
 
-      </div>
-    )
-  }
+    </div>
+  )
 }
 
 SunshineSidebar.propTypes = {

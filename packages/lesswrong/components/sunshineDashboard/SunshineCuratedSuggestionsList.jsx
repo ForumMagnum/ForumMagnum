@@ -2,18 +2,8 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withMulti } from '../../lib/crud/withMulti';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
-import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import PropTypes from 'prop-types';
-
-const styles = theme => ({
-  root: {
-    opacity:.2,
-    '&:hover': {
-      opacity: 1,
-    }
-  }
-})
 
 
 class SunshineCuratedSuggestionsList extends Component {
@@ -55,6 +45,5 @@ registerComponent(
   'SunshineCuratedSuggestionsList',
   SunshineCuratedSuggestionsList,
   [withMulti, withListOptions],
-  withUser,
-  withStyles(styles, {name: "SunshineCuratedSuggestionsList"})
+  withUser
 );
