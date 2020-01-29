@@ -23,6 +23,7 @@ type RouterLocation = {
   RouteComponent: any,
   location: any,
   pathname: string,
+  url: string,
   hash: string,
   params: Record<string,string>,
   query: Record<string,string>,

@@ -1,7 +1,6 @@
 
 // This is a list of components which have not yet been converted to TypeScript.
 interface ComponentTypes {
-  EAHome: any
   ConversationTitleEditForm: any
   ConversationDetails: any
   ConversationItem: any
@@ -22,16 +21,6 @@ interface ComponentTypes {
   NotificationTypeSettings: any
   NotificationEmailPreviewPage: any
   EmailPreview: any
-  HoverPreviewLink: any
-  PostLinkPreview: any
-  PostLinkCommentPreview: any
-  PostLinkPreviewSequencePost: any
-  PostLinkPreviewSlug: any
-  PostLinkPreviewLegacy: any
-  CommentLinkPreviewLegacy: any
-  PostLinkPreviewWithPost: any
-  PostCommentLinkPreviewGreaterWrong: any
-  DefaultPreview: any
   OmegaIcon: any
   SettingsIcon: any
   UserPageTitle: any

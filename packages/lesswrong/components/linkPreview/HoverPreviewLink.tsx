@@ -3,6 +3,7 @@ import { Components, registerComponent, parseRoute, parsePath, Utils } from 'met
 import { hostIsOnsite, useLocation, getUrlClass } from '../../lib/routeUtil';
 import Sentry from '@sentry/node';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { Meteor } from 'meteor/meteor';
 
 export const parseRouteWithErrors = (onsiteUrl, contentSourceDescription) => {
   return parseRoute({
@@ -80,4 +81,12 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id }) => 
   }
 
 }
-registerComponent('HoverPreviewLink', HoverPreviewLink);
+
+const HoverPreviewLinkComponent = registerComponent('HoverPreviewLink', HoverPreviewLink);
+
+declare global {
+  interface ComponentTypes {
+    HoverPreviewLink: typeof HoverPreviewLinkComponent
+  }
+}
+

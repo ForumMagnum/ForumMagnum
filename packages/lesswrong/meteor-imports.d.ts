@@ -63,4 +63,6 @@ declare module 'meteor/vulcan:core' {
   export const Vulcan: any;
   export const createClientTemplate: any;
   export const deleteClientTemplate: any;
+  export const parsePath: any;
+  export const parseRoute: any;
 }
