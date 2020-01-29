@@ -15,7 +15,7 @@ env:
   - SENTRY_ORG=lesswrong
 jobs:
   include:
-  - stage: test
+  - stage: everything
     name: "Tests"
     script: yarn run test && yarn run lint && yarn run checktypes
   - script: skip
