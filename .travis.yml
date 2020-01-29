@@ -16,9 +16,10 @@ env:
 jobs:
   include:
   - stage: test
+    name: "Tests"
     script: yarn run test && yarn run lint && yarn run checktypes
-  - stage: deploy 
-    script: skip
+  - script: skip
+    name: "Deploy LessestWrong"
     if: branch = devel AND type != pull_request
     deploy: &lessestwrong
       provider: script
@@ -26,6 +27,7 @@ jobs:
       on:
         branch: devel
   - script: skip
+    name: "Deploy Baserates"
     if: branch = devel AND type != pull_request
     deploy: &baserates
       provider: script
@@ -34,6 +36,7 @@ jobs:
       on:
         branch: devel
   - script: skip
+    name: "Deploy LessWrong"
     if: branch = master AND type != pull_request
     deploy: &lesswrong
       provider: script
@@ -42,6 +45,7 @@ jobs:
       on:
         branch: master
   - script: skip
+    name: "Deploy AIAF"
     if: branch = master AND type != pull_request
     deploy: &AIAF
       provider: script
