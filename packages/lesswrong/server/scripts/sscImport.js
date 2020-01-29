@@ -2,7 +2,7 @@ import feedparser from 'feedparser-promised';
 import Users from 'meteor/vulcan:users';
 import { Posts } from '../../lib/collections/posts';
 import { newMutation, editMutation } from 'meteor/vulcan:core';
-import RSSFeeds from '../../lib/collections/rssfeeds/collection.js';
+import RSSFeeds from '../../lib/collections/rssfeeds/collection';
 
 async function rssImport(userId, rssURL, pages = 100, overwrite = false, feedName = "", feedLink = "") {
   try {

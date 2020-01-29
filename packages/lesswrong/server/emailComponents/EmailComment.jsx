@@ -3,11 +3,11 @@ import { Comments } from '../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useSingle } from '../../lib/crud/withSingle';
-import { Posts } from '../../lib/collections/posts/collection.js';
+import { Posts } from '../../lib/collections/posts/collection';
 import groupBy from 'lodash/groupBy';
-import './EmailFormatDate.jsx';
-import './EmailPostAuthors.jsx';
-import './EmailContentItemBody.jsx';
+import './EmailFormatDate';
+import './EmailPostAuthors';
+import './EmailContentItemBody';
 
 const styles = theme => ({
   comment: {

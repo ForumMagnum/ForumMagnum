@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Button from '@material-ui/core/Button';
 import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
-import RSSFeeds from '../../lib/collections/rssfeeds/collection.js';
+import RSSFeeds from '../../lib/collections/rssfeeds/collection';
 import withUser from '../common/withUser';
 
 //

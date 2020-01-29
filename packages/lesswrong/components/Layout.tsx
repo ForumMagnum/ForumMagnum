@@ -80,12 +80,10 @@ const styles = createStyles(theme => ({
   },
 }))
 
-interface LayoutProps {
+interface LayoutProps extends WithLocationProps, WithStylesProps, WithMessagesProps {
   cookies: any,
-  currentUser: any,
+  currentUser: UsersCurrent,
   updateUser: any,
-  location: any,
-  classes: any,
   theme: any,
   messages: any,
   children: any,
@@ -100,7 +98,7 @@ interface LayoutState {
 class Layout extends PureComponent<LayoutProps,LayoutState> {
   searchResultsAreaRef: React.RefObject<HTMLDivElement>
   
-  constructor (props) {
+  constructor (props: LayoutProps) {
     super(props);
     const { cookies, currentUser } = this.props;
     const savedTimezone = cookies?.get('timezone');
@@ -233,9 +231,11 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       <TimezoneContext.Provider value={this.state.timezone}>
       <PostsReadContext.Provider value={{
         postsRead: this.state.postsRead,
-        setPostRead: (postId, isRead) => this.setState({
-          postsRead: {...this.state.postsRead, [postId]: isRead}
-        })
+        setPostRead: (postId: string, isRead: boolean): void => {
+          this.setState({
+            postsRead: {...this.state.postsRead, [postId]: isRead}
+          })
+        }
       }}>
       <TableOfContentsContext.Provider value={this.setToC}>
         <div className={classNames("wrapper", {'alignment-forum': getSetting('forumType') === 'AlignmentForum'}) } id="wrapper">
@@ -295,18 +295,19 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   }
 }
 
+const LayoutComponent = registerComponent(
+  'Layout', Layout,
+  withLocation, withCookies,
+  withUpdate({
+    collection: Users,
+    fragmentName: 'UsersCurrent',
+  }),
+  withStyles(styles, { name: "Layout" }),
+  withTheme()
+);
+
 declare global {
   interface ComponentTypes {
-    Layout: typeof Layout
+    Layout: typeof LayoutComponent
   }
 }
-
-const withUpdateOptions = {
-  collection: Users,
-  fragmentName: 'UsersCurrent',
-}
-
-registerComponent(
-  'Layout', Layout, withLocation, withCookies, [withUpdate, withUpdateOptions],
-    withStyles(styles, { name: "Layout" }), withTheme()
-);

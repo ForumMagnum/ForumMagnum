@@ -4,7 +4,7 @@ import { InstantSearch, SearchBox, Hits } from 'react-instantsearch-dom';
 import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
 import { withStyles } from '@material-ui/core/styles';
 import { useCurrentUser } from '../common/withUser';
-import { Link } from '../../lib/reactRouterWrapper.jsx';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = theme => ({
   root: {

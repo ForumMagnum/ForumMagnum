@@ -1,4 +1,4 @@
-import { Tags } from './collection.js';
+import { Tags } from './collection';
 import { ensureIndex } from '../../collectionUtils';
 
 Tags.addDefaultView(terms => {

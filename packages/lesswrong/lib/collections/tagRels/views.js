@@ -1,4 +1,4 @@
-import { TagRels } from './collection.js';
+import { TagRels } from './collection';
 import { ensureIndex } from '../../collectionUtils';
 
 TagRels.addDefaultView(terms => {

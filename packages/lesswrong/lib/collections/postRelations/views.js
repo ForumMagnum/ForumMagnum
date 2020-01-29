@@ -1,4 +1,4 @@
-import { PostRelations } from "./collection.js"
+import { PostRelations } from "./collection"
 import { ensureIndex } from '../../collectionUtils';
 
 PostRelations.addView("allPostRelations", function (terms) {

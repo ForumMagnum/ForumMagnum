@@ -1,5 +1,5 @@
 import Users from 'meteor/vulcan:users';
-import Chapters from './collection.js';
+import Chapters from './collection';
 
 const membersActions = [
   "chapters.view.own",

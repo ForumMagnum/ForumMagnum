@@ -1,5 +1,5 @@
 import { Posts } from "../../collections/posts";
-import { formGroups } from "../../collections/posts/custom_fields.js"
+import { formGroups } from "../../collections/posts/custom_fields"
 import { arrayOfForeignKeysField, addFieldsDict, denormalizedCountOfReferences } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 

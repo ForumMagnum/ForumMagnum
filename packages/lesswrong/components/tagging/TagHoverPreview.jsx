@@ -1,8 +1,8 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import withHover from '../common/withHover';
-import { Link } from '../../lib/reactRouterWrapper.jsx';
-import { useTagBySlug } from './useTag.jsx';
+import { Link } from '../../lib/reactRouterWrapper';
+import { useTagBySlug } from './useTag';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({

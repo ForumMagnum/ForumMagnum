@@ -647,4 +647,10 @@ const QuadraticVotingButtons = withStyles(quadraticVotingButtonStyles, {name: "Q
   </div>
 })
 
-registerComponent('ReviewVotingPage', ReviewVotingPage,withStyles(styles, {name: "ReviewVotingPage"}));
+const ReviewVotingPageComponent = registerComponent('ReviewVotingPage', ReviewVotingPage,withStyles(styles, {name: "ReviewVotingPage"}));
+
+declare global {
+  interface ComponentTypes {
+    ReviewVotingPage: typeof ReviewVotingPageComponent
+  }
+}

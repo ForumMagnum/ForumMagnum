@@ -1,5 +1,5 @@
 // import { getSetting } from 'meteor/vulcan:core';
-import Notifications from './collection.js';
+import Notifications from './collection';
 import { ensureIndex } from '../../collectionUtils';
 
 

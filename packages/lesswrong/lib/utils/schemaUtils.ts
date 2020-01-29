@@ -1,7 +1,7 @@
 import { addCallback, getCollection } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import SimpleSchema from 'simpl-schema'
-import { getWithLoader } from "../loaders.js";
+import { getWithLoader } from "../loaders";
 import { Meteor } from 'meteor/meteor';
 import * as _ from 'underscore';
 

@@ -1,12 +1,12 @@
 import { Posts } from './collection';
 import Users from "meteor/vulcan:users";
-import { makeEditable } from '../../editor/make_editable.js'
+import { makeEditable } from '../../editor/make_editable'
 import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple, resolverOnlyField, denormalizedCountOfReferences, accessFilterSingle, denormalizedField, googleLocationToMongoLocation } from '../../utils/schemaUtils'
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { Utils, getSetting } from 'meteor/vulcan:core';
 import GraphQLJSON from 'graphql-type-json';
 import { schemaDefaultValue } from '../../collectionUtils';
-import { getWithLoader } from '../../loaders.js';
+import { getWithLoader } from '../../loaders';
 import moment from 'moment';
 
 export const formGroups = {

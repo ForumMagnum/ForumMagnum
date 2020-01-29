@@ -18,7 +18,7 @@ import classNames from 'classnames';
 import grey from '@material-ui/core/colors/grey';
 
 // import { NavDropdown, MenuItem } from 'react-bootstrap';
-import Notifications from '../../lib/collections/notifications/collection.js'
+import Notifications from '../../lib/collections/notifications/collection'
 
 const styles = theme => ({
   root: {

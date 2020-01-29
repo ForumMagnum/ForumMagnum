@@ -1,4 +1,4 @@
-import Migrations from '../../lib/collections/migrations/collection.js';
+import Migrations from '../../lib/collections/migrations/collection';
 /*global Vulcan*/
 
 // When running migrations with split batches, the fraction of time spent

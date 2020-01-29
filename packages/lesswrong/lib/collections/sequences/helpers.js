@@ -1,6 +1,6 @@
-import Sequences from './collection.js';
-import { Posts } from '../posts/index.js';
-import Chapters from '../chapters/collection.js';
+import Sequences from './collection';
+import { Posts } from '../posts/index';
+import Chapters from '../chapters/collection';
 import { Utils } from 'meteor/vulcan:core';
 import keyBy from 'lodash/keyBy';
 

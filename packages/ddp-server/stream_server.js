@@ -86,10 +86,11 @@ StreamServer = function () {
   self._redirectWebsocketEndpoint();
 
   self.server.on('connection', function (socket) {
-    // Work around a bug in sockjs, where something (not sure exactly what,
-    // possibly closing the connection unexpectedly during handshake) causes
-    // this to get called with socket equal to null. In this case, just return;
-    // we don't have a socket to work with, even to close it.
+    // Work around a suspected bug in sockjs, where under some conditions (not
+    // sure what exactly, possibly closing the connection at a particular stage
+    // of the handshake), this gets alled with a null socket. In that case
+    // there's nothing for us to do (not even closing the socket, since we
+    // didn't get a socket.)
     if (!socket) {
       return;
     }

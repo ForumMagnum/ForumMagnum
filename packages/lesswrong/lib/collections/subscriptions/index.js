@@ -1,5 +1,5 @@
-export * from './collection.js';
-import './fragments.js';
-import './views.js';
-import './permissions.js'
-import './mutations.js'
+export * from './collection';
+import './fragments';
+import './views';
+import './permissions'
+import './mutations'

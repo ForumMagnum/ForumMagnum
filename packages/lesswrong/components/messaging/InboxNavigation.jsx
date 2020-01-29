@@ -9,7 +9,7 @@ import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import { withMulti } from '../../lib/crud/withMulti';
-import Conversations from '../../lib/collections/conversations/collection.js';
+import Conversations from '../../lib/collections/conversations/collection';
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import qs from 'qs'

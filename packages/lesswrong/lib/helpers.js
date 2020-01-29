@@ -1,5 +1,5 @@
-import Messages from './collections/messages/collection.js';
-import Conversations from './collections/conversations/collection.js';
+import Messages from './collections/messages/collection';
+import Conversations from './collections/conversations/collection';
 import Users from 'meteor/vulcan:users';
 import { Utils, getCollection } from 'meteor/vulcan:core';
 

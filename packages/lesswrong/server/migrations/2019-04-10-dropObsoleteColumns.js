@@ -1,6 +1,6 @@
 import { registerMigration, dropUnusedField } from './migrationUtils';
-import { Posts } from '../../lib/collections/posts/collection.js';
-import { Comments } from '../../lib/collections/comments/collection.js';
+import { Posts } from '../../lib/collections/posts/collection';
+import { Comments } from '../../lib/collections/comments/collection';
 import Users from 'meteor/vulcan:users';
 
 registerMigration({

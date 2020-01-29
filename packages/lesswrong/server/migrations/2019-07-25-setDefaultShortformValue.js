@@ -1,6 +1,6 @@
 import { registerMigration, fillDefaultValues } from './migrationUtils';
 
-import { Posts } from '../../lib/collections/posts/collection.js';
+import { Posts } from '../../lib/collections/posts/collection';
 
 registerMigration({
   name: "setDefaultShortformValue",
