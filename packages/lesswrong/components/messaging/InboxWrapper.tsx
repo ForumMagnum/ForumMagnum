@@ -1,9 +1,10 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useLocation } from '../../lib/routeUtil';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 
-const InboxWrapper = ({currentUser}) => {
+const InboxWrapper = () => {
+  const currentUser = useCurrentUser();
   const { query } = useLocation();
   
   if (!currentUser) {
@@ -16,4 +17,4 @@ const InboxWrapper = ({currentUser}) => {
   </div>
 }
 
-registerComponent('InboxWrapper', InboxWrapper, withUser);
+registerComponent('InboxWrapper', InboxWrapper);

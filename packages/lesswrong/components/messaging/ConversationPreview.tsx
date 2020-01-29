@@ -6,7 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Messages from "../../lib/collections/messages/collection";
 import Conversations from '../../lib/collections/conversations/collection';
 import Card from '@material-ui/core/Card';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = theme => ({
   root: {
@@ -23,14 +23,14 @@ const styles = theme => ({
   }
 })
 
-const ConversationPreview = ({classes, conversationId, currentUser}) => {
+const ConversationPreview = ({classes, conversationId}) => {
+  const currentUser = useCurrentUser();
   const { Loading, MessageItem } = Components
 
   const { document: conversation, loading: conversationLoading } = useSingle({
     collection: Conversations,
-    queryName: "ConversationPreview",
     fragmentName: 'conversationsListFragment',
-    fetchPolicy: 'cache-then-network',
+    fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: conversationId
   });
 
@@ -40,7 +40,6 @@ const ConversationPreview = ({classes, conversationId, currentUser}) => {
       conversationId: conversationId
     },
     collection: Messages,
-    queryName: 'messagesForConversation',
     fragmentName: 'messageListFragment',
     fetchPolicy: 'cache-and-network',
     limit: 10,
@@ -55,8 +54,15 @@ const ConversationPreview = ({classes, conversationId, currentUser}) => {
     { conversation && <div className={classes.title}>{ Conversations.getTitle(conversation, currentUser) }</div>}
     { conversationLoading && <Loading />}
     
-    { conversation && reversedMessages.map((message) => (<MessageItem key={message._id} currentUser={currentUser} message={message} />))}
+    { conversation && reversedMessages.map((message) => (<MessageItem key={message._id} message={message} />))}
   </Card>
 }
 
-registerComponent('ConversationPreview', ConversationPreview, withStyles(styles, {name:"ConversationPreview"}), withUser);
+const ConversationPreviewComponent = registerComponent('ConversationPreview', ConversationPreview, {styles});
+
+declare global {
+  interface ComponentTypes {
+    ConversationPreview: typeof ConversationPreviewComponent
+  }
+}
+

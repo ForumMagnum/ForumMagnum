@@ -94,7 +94,7 @@ export const useCreate = ({
   `;
   const [mutate, {loading, error, called, data}] = useMutation(query);
   const wrappedCreate = (data) => {
-    mutate({
+    return mutate({
       variables: { data },
       update: cacheUpdateGenerator(typeName, 'create')
     })

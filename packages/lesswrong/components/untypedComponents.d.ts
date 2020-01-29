@@ -1,16 +1,6 @@
 
 // This is a list of components which have not yet been converted to TypeScript.
 interface ComponentTypes {
-  ConversationTitleEditForm: any
-  ConversationDetails: any
-  ConversationItem: any
-  ConversationWrapper: any
-  ConversationPage: any
-  ConversationPreview: any
-  MessageItem: any
-  InboxWrapper: any
-  InboxNavigation: any
-  NewConversationButton: any
   newFeedButton: any
   editFeedButton: any
   NotificationsMenu: any

@@ -1,9 +1,10 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 
-const ConversationWrapper = ({currentUser}) => {
+const ConversationWrapper = () => {
+  const currentUser = useCurrentUser()
   const { params } = useLocation();
   
   if (!currentUser) return <div>Log in to access private messages.</div>
@@ -12,4 +13,11 @@ const ConversationWrapper = ({currentUser}) => {
   return <Components.ConversationPage terms={messagesTerms} documentId={params._id}/>
 }
 
-registerComponent('ConversationWrapper', ConversationWrapper, withUser);
+const ConversationWrapperComponent = registerComponent('ConversationWrapper', ConversationWrapper);
+
+declare global {
+  interface ComponentTypes {
+    ConversationWrapper: typeof ConversationWrapperComponent
+  }
+}
+

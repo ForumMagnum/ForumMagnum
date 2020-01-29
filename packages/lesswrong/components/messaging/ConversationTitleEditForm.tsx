@@ -7,12 +7,13 @@ A component to configure the "Edit Title" form.
 import React from 'react';
 import { Components, registerComponent, getFragment } from "meteor/vulcan:core";
 import Conversations from '../../lib/collections/conversations/collection';
-import withUser from '../common/withUser'
+import { useCurrentUser } from '../common/withUser';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
 const ConversationTitleEditForm = ({onClose, documentId}) =>{
+  const currentUser = useCurrentUser()
   return <Dialog open onClose={onClose}>
       <DialogTitle>Conversation Options</DialogTitle>
       <DialogContent>
@@ -30,4 +31,11 @@ const ConversationTitleEditForm = ({onClose, documentId}) =>{
     </Dialog>
 }
 
-registerComponent('ConversationTitleEditForm', ConversationTitleEditForm, withUser);
+const ConversationTitleEditFormComponent = registerComponent('ConversationTitleEditForm', ConversationTitleEditForm);
+
+declare global {
+  interface ComponentTypes {
+    ConversationTitleEditForm: typeof ConversationTitleEditFormComponent
+  }
+}
+

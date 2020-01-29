@@ -1,23 +1,30 @@
-/*
-
-The Navigation for the Inbox components
-
-*/
-
 import React from 'react';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withUpdate } from '../../lib/crud/withUpdate';
-import { withMulti } from '../../lib/crud/withMulti';
+import { useUpdate } from '../../lib/crud/withUpdate';
+import { useMulti } from '../../lib/crud/withMulti';
 import Conversations from '../../lib/collections/conversations/collection';
 import Typography from '@material-ui/core/Typography';
-import withUser from '../common/withUser';
 import qs from 'qs'
 
-const InboxNavigation = ({results, loading, updateConversation}) => {
+// The Navigation for the Inbox components
+const InboxNavigation = ({terms}) => {
   const location = useLocation();
   const { query } = location;
   const { history } = useNavigation();
+  
+  const { results, loading } = useMulti({
+    terms,
+    collection: Conversations,
+    fragmentName: 'conversationsListFragment',
+    fetchPolicy: 'cache-and-network',
+    limit: 200,
+  });
+  
+  const { mutate: updateConversation } = useUpdate({
+    collection: Conversations,
+    fragmentName: 'conversationsListFragment',
+  });
   
   const { SectionTitle, SingleColumnSection, ConversationItem, Loading, SectionFooter, SectionFooterCheckbox } = Components
   const showArchive = query?.showArchive === "true"
@@ -43,18 +50,11 @@ const InboxNavigation = ({results, loading, updateConversation}) => {
   )
 }
 
-const conversationOptions = {
-  collection: Conversations,
-  queryName: 'conversationsListQuery',
-  fragmentName: 'conversationsListFragment',
-  fetchPolicy: 'cache-and-network',
-  limit: 200,
-};
+const InboxNavigationComponent = registerComponent('InboxNavigation', InboxNavigation);
 
-const withUpdateOptions = {
-  collection: Conversations,
-  fragmentName: 'conversationsListFragment',
-};
+declare global {
+  interface ComponentTypes {
+    InboxNavigation: typeof InboxNavigationComponent
+  }
+}
 
-registerComponent('InboxNavigation', InboxNavigation, [withMulti, conversationOptions],
-  withUser, [withUpdate, withUpdateOptions]);

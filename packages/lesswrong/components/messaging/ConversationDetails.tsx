@@ -1,13 +1,6 @@
-/*
-
-Component for displaying details about currently selected conversation
-
-*/
-
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
-import withUser from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 
 const styles = theme => ({
@@ -20,6 +13,7 @@ const styles = theme => ({
   }
 })
 
+// Component for displaying details about currently selected conversation
 const ConversationDetails = ({conversation, classes}) => {
   const { openDialog } = useDialog();
   const { Loading, MetaInfo, UsersName } = Components
@@ -51,4 +45,11 @@ const ConversationDetails = ({conversation, classes}) => {
   )
 }
 
-registerComponent('ConversationDetails', ConversationDetails, withUser, withStyles(styles, { name: "ConversationDetails" }));
+const ConversationDetailsComponent = registerComponent('ConversationDetails', ConversationDetails, {styles});
+
+declare global {
+  interface ComponentTypes {
+    ConversationDetails: typeof ConversationDetailsComponent
+  }
+}
+

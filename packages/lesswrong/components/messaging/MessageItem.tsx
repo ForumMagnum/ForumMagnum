@@ -11,6 +11,7 @@ import { withStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = theme => ({
   message: {
@@ -41,7 +42,8 @@ const styles = theme => ({
   }
 })
 
-const MessageItem = ({currentUser, message, classes}) => {
+const MessageItem = ({message, classes}) => {
+  const currentUser = useCurrentUser();
   const { html = "" } = message?.contents || {}
   if (!message) return null;
   if (!html) return null
@@ -70,4 +72,13 @@ const MessageItem = ({currentUser, message, classes}) => {
 }
 
 
-registerComponent('MessageItem', MessageItem, withStyles(styles, { name: "MessageItem" }), withErrorBoundary);
+const MessageItemComponent = registerComponent('MessageItem', MessageItem, {
+  styles, hocs: [withErrorBoundary]
+});
+
+declare global {
+  interface ComponentTypes {
+    MessageItem: typeof MessageItemComponent
+  }
+}
+
