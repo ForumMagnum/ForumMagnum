@@ -66,24 +66,6 @@ const styles = createStyles(theme => ({
       display: "none"
     }
   },
-  commentIcon: {
-    height: 15,
-    width: 15,
-    color: theme.palette.grey[400],
-    position: "relative",
-    top: 3,
-    marginRight: 6,
-    marginLeft: 12
-  },
-  comments: {
-    [theme.breakpoints.up('sm')]: {
-      float: "right"
-    },
-    [theme.breakpoints.down('xs')]: {
-      display: "inline-block",
-      marginRight: theme.spacing.unit*2,
-    },
-  },
   comment: {
     marginTop: theme.spacing.unit*1.5,
     marginLeft: -13,
@@ -118,7 +100,7 @@ const getPostCategory = (post) => {
     return post.question ? `Question` : `Personal Blogpost`
 }
 
-const PostsPreviewTooltip = ({ showAllInfo, post, classes, comment }) => {
+const PostsPreviewTooltip = ({ postsList, post, classes, comment }) => {
   const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton } = Components
 
   const [expanded, setExpanded] = useState(false)
@@ -137,11 +119,11 @@ const PostsPreviewTooltip = ({ showAllInfo, post, classes, comment }) => {
               <PostsTitle post={post} tooltip={false} wrap showIcons={false} />
             </div>
             <div className={classes.tooltipInfo}>
-              { !showAllInfo && getPostCategory(post)}
-              { showAllInfo && post.user && <span>By <PostsUserAndCoauthors post={post} simple/></span>}
+              { postsList && getPostCategory(post)}
+              { !postsList && post.user && <span>By <PostsUserAndCoauthors post={post} simple/></span>}
             </div>
           </div>
-          { showAllInfo && <div className={classes.bookmark}>
+          { !postsList && <div className={classes.bookmark}>
             <BookmarkButton post={post} lighter/>
           </div>}
         </div>
