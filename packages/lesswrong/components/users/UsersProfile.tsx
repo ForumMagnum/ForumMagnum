@@ -307,7 +307,7 @@ class UsersProfile extends Component<UsersProfileProps,UsersProfileState> {
               <Components.PostsList2 terms={draftTerms}/>
               <Components.PostsList2 terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
             </AnalyticsContext>
-            {getSetting('hasEvents', true) && <Components.LocalGroupsList terms={{view: 'userInactiveGroups', userId: currentUser?._id}} showHeader={false} />}
+            {getSetting('hasEvents', true) && <Components.LocalGroupsList terms={{view: 'userInactiveGroups', userId: currentUser?._id}} />}
           </SingleColumnSection> }
           {/* Posts Section */}
           <SingleColumnSection>

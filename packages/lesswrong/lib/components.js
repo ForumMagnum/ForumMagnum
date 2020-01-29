@@ -212,7 +212,7 @@ if (getSetting('hasEvents', true)) {
   importComponent("EventsPast", () => require('../components/posts/EventsPast'));
   importComponent("EventsUpcoming", () => require('../components/posts/EventsUpcoming'));
   importComponent("CommunityHome", () => require('../components/localGroups/CommunityHome'));
-  importComponent("CommunityMap", () => require('../components/localGroups/CommunityMap'));
+  importComponent(["CommunityMap", "PersonalMapLocationMarkers"], () => require('../components/localGroups/CommunityMap'));
   importComponent("CommunityMapFilter", () => require('../components/localGroups/CommunityMapFilter'));
   importComponent("CommunityMapWrapper", () => require('../components/localGroups/CommunityMapWrapper'));
   importComponent("SetPersonalMapLocationDialog", () => require('../components/localGroups/SetPersonalMapLocationDialog'));

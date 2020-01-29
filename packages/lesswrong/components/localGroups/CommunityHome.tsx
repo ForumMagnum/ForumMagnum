@@ -4,21 +4,30 @@ import React, { Component } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import Users from 'meteor/vulcan:users';
 import withUser from '../common/withUser';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import EventIcon from '@material-ui/icons/Event';
 import { withLocation } from '../../lib/routeUtil';
 import Typography from '@material-ui/core/Typography';
 import withDialog from '../common/withDialog'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
+import * as _ from 'underscore';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   welcomeText: {
     margin: 12
   }
-})
+}))
 
-class CommunityHome extends Component {
-  constructor(props, context) {
+interface ExternalProps {
+}
+interface CommunityHomeProps extends ExternalProps, WithUserProps, WithMessagesProps, WithLocationProps, WithDialogProps, WithStylesProps {
+}
+interface CommunityHomeState {
+  currentUserLocation: any,
+}
+
+class CommunityHome extends Component<CommunityHomeProps,CommunityHomeState> {
+  constructor(props: CommunityHomeProps) {
     super(props);
     this.state = {
       currentUserLocation: Users.getLocation(props.currentUser)
@@ -99,9 +108,7 @@ class CommunityHome extends Component {
               </SectionTitle>
               { this.state.currentUserLocation.loading
                 ? <Components.Loading />
-                : <Components.LocalGroupsList
-                    terms={groupsListTerms}
-                    showHeader={false} >
+                : <Components.LocalGroupsList terms={groupsListTerms}>
                       <Link to={"/allGroups"}>View All Groups</Link>
                   </Components.LocalGroupsList>
               }
@@ -134,5 +141,16 @@ class CommunityHome extends Component {
   }
 }
 
-registerComponent('CommunityHome', CommunityHome,
-  withUser, withMessages, withLocation, withStyles(styles, {name: "CommunityMapWrapper"}), withDialog);
+const CommunityHomeComponent = registerComponent<ExternalProps>(
+  'CommunityHome', CommunityHome, {
+    styles,
+    hocs: [withUser, withMessages, withLocation, withDialog]
+  }
+);
+
+declare global {
+  interface ComponentTypes {
+    CommunityHome: typeof CommunityHomeComponent
+  }
+}
+

@@ -7,4 +7,11 @@ const LocalGroupSingle = () => {
   return <Components.LocalGroupPage documentId={params.groupId}/>
 }
 
-registerComponent('LocalGroupSingle', LocalGroupSingle);
+const LocalGroupSingleComponent = registerComponent('LocalGroupSingle', LocalGroupSingle);
+
+declare global {
+  interface ComponentTypes {
+    LocalGroupSingle: typeof LocalGroupSingleComponent
+  }
+}
+

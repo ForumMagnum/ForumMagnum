@@ -45,4 +45,11 @@ const PetrovDayLossScreen = ({classes}) => {
   )
 }
 
-registerComponent('PetrovDayLossScreen', PetrovDayLossScreen, withStyles(styles, {name: "PetrovDayLossScreen"}));
+const PetrovDayLossScreenComponent = registerComponent('PetrovDayLossScreen', PetrovDayLossScreen, {styles});
+
+declare global {
+  interface ComponentTypes {
+    PetrovDayLossScreen: typeof PetrovDayLossScreenComponent
+  }
+}
+

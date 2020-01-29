@@ -6,12 +6,12 @@ import { withNavigation } from '../../lib/routeUtil'
 import withUser from '../common/withUser';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {
     display: 'flex',
     marginTop: 20
@@ -35,9 +35,15 @@ const styles = theme => ({
     },
     color: theme.palette.lwTertiary.main
   },
-})
+}))
 
-const SubmitComponent = withStyles(styles, {name: "GroupFormLinkSubmit"})(({submitLabel = "Submit", classes, updateCurrentValues, document, formType}) => 
+const SubmitComponent = withStyles(styles, {name: "GroupFormLinkSubmit"})(({submitLabel = "Submit", classes, updateCurrentValues, document, formType}: {
+  submitLabel?: string,
+  classes: any,
+  updateCurrentValues: any,
+  document: any,
+  formType: string,
+}) => 
 {
   return <div className={classes.root}>
     {formType === 'edit' && <Tooltip title={document.inactive ? "Display the group on maps and lists again" : "This will hide the group from all maps and lists"}>
@@ -63,7 +69,6 @@ const GroupFormDialog =  ({ onClose, currentUser, classes, documentId, history, 
   const { WrappedSmartForm } = Components
   return <Dialog
     open={true}
-    modal={false}
     onClose={onClose}
   >
     <DialogContent className="local-group-form">
@@ -90,4 +95,13 @@ const GroupFormDialog =  ({ onClose, currentUser, classes, documentId, history, 
   </Dialog>
 }
 
-registerComponent('GroupFormDialog', GroupFormDialog, withUser, withMessages, withNavigation);
+const GroupFormDialogComponent = registerComponent('GroupFormDialog', GroupFormDialog, {
+  hocs: [withUser, withMessages, withNavigation],
+});
+
+declare global {
+  interface ComponentTypes {
+    GroupFormDialog: typeof GroupFormDialogComponent
+  }
+}
+

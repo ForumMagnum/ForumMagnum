@@ -1,10 +1,10 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { withMulti } from '../../lib/crud/withMulti';
+import { useMulti } from '../../lib/crud/withMulti';
 import Localgroups from '../../lib/collections/localgroups/collection';
-import { withStyles } from '@material-ui/core/styles'
+import { createStyles } from '@material-ui/core/styles'
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   loadMore: {
     flexGrow: 1,
     textAlign: "left",
@@ -14,16 +14,28 @@ const styles = theme => ({
       marginRight: 0,
     }
   }
-})
+}))
 
-const LocalGroupsList = ({children, classes, results, count, loadMore, totalCount, loading, networkStatus, showNoResults=true, showLoadMore=true, showLoading=true, dimWhenLoading=false}) => {
-  
+const LocalGroupsList = ({terms, children, classes, showNoResults=true, showLoadMore=true, showLoading=true, dimWhenLoading=false}: {
+  terms: any,
+  children?: any,
+  classes: any,
+  showNoResults?: boolean,
+  showLoadMore?: boolean,
+  showLoading?: boolean,
+  dimWhenLoading?: boolean,
+}) => {
+  const { results, count, loadMore, totalCount, loading, loadingMore } = useMulti({
+    terms,
+    collection: Localgroups,
+    fragmentName: 'localGroupsHomeFragment',
+    enableTotal: false,
+    ssr: true
+  });
   const { LocalGroupsItem, Loading, PostsNoResults, SectionFooter, LoadMore } = Components
 
   if (!results && loading) return <Loading />
   if ((results && !results.length) && showNoResults) return <PostsNoResults />
-
-  const loadingMore = networkStatus === 2 || networkStatus === 1;
 
   return <div>
       {results && results.map((group) => <LocalGroupsItem key={group._id} group={group} />)}
@@ -43,12 +55,11 @@ const LocalGroupsList = ({children, classes, results, count, loadMore, totalCoun
     </div>
 }
 
-const options = {
-  collection: Localgroups,
-  queryName: 'localGroupsListQuery',
-  fragmentName: 'localGroupsHomeFragment',
-  enableTotal: false,
-  ssr: true
+const LocalGroupsListComponent = registerComponent('LocalGroupsList', LocalGroupsList, {styles})
+
+declare global {
+  interface ComponentTypes {
+    LocalGroupsList: typeof LocalGroupsListComponent
+  }
 }
 
-registerComponent('LocalGroupsList', LocalGroupsList, [withMulti, options], withStyles(styles, {name:"LocalGroupsList"}))

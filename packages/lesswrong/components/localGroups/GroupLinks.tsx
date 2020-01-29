@@ -4,7 +4,7 @@ import LinkIcon from '@material-ui/icons/Link';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 
 
 const FacebookIcon = (props) => <SvgIcon viewBox="0 0 155.139 155.139" {...props}>
@@ -12,7 +12,7 @@ const FacebookIcon = (props) => <SvgIcon viewBox="0 0 155.139 155.139" {...props
   c0-7.984,2.208-13.425,13.67-13.425l14.595-0.006V1.08C115.325,0.752,106.661,0,96.577,0C75.52,0,61.104,12.853,61.104,36.452 v20.341H37.29v27.585h23.814v70.761H89.584z"/>
 </SvgIcon>
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   groupTypes: {
     marginLeft: 20,
     display: 'inline-block',
@@ -54,7 +54,7 @@ const styles = theme => ({
     height: '18px',
     verticalAlign: "baseline",
   }
-});
+}));
 
 const tooltips = {
   'LW': "This is a LessWrong group",
@@ -63,46 +63,50 @@ const tooltips = {
   'MIRIx': "This is a MIRIx group"
 }
 
-class GroupLinks extends PureComponent {
-  render() {
-    const { document, classes } = this.props;
-    return(
-      <span className="group-links">
-        <div className={classes.groupTypes}>
-          {document.types && document.types.map(type => {
-            return (
-              <Tooltip
-                title={tooltips[type]}
-                placement="top-end"
-                key={type}
-              >
-                <div className={classes.groupType}>
-                  {type}
-                </div>
-              </Tooltip>
-            )
-          })}
-        </div>
-        <div className={classes.groupLinks}>
-          {document.facebookLink
-            && <Tooltip
-              title="Link to Facebook Group"
+const GroupLinks = ({ document, classes }) => {
+  return(
+    <span className="group-links">
+      <div className={classes.groupTypes}>
+        {document.types && document.types.map(type => {
+          return (
+            <Tooltip
+              title={tooltips[type]}
               placement="top-end"
+              key={type}
             >
-              <a href={document.facebookLink}><IconButton className={classes.iconButton} color="inherit">
-                <FacebookIcon className={classes.facebookIcon}/>
-              </IconButton></a>
-            </Tooltip>}
-          {document.website
-            && <Tooltip title={<span>Link to Group Website ({document.website})</span>} placement="top-end">
-              <a href={document.website}><IconButton className={classes.iconButton} color="inherit">
-                <LinkIcon className={classes.linkIcon}/>
-              </IconButton></a>
-            </Tooltip>}
-        </div>
-      </span>
-    )
+              <div className={classes.groupType}>
+                {type}
+              </div>
+            </Tooltip>
+          )
+        })}
+      </div>
+      <div className={classes.groupLinks}>
+        {document.facebookLink
+          && <Tooltip
+            title="Link to Facebook Group"
+            placement="top-end"
+          >
+            <a href={document.facebookLink}><IconButton className={classes.iconButton} color="inherit">
+              <FacebookIcon className={classes.facebookIcon}/>
+            </IconButton></a>
+          </Tooltip>}
+        {document.website
+          && <Tooltip title={<span>Link to Group Website ({document.website})</span>} placement="top-end">
+            <a href={document.website}><IconButton className={classes.iconButton} color="inherit">
+              <LinkIcon className={classes.linkIcon}/>
+            </IconButton></a>
+          </Tooltip>}
+      </div>
+    </span>
+  )
+}
+
+const GroupLinksComponent = registerComponent("GroupLinks", GroupLinks, {styles});
+
+declare global {
+  interface ComponentTypes {
+    GroupLinks: typeof GroupLinksComponent
   }
 }
 
-registerComponent("GroupLinks", GroupLinks, withStyles(styles, { name: "GroupLinks" }));

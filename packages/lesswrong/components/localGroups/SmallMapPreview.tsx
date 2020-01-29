@@ -1,22 +1,34 @@
 import React, { Component } from 'react';
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import ReactMapGL from 'react-map-gl';
 import { Helmet } from 'react-helmet'
+import * as _ from 'underscore';
 
 const mapboxAPIKey = getSetting('mapbox.apiKey', null);
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   previewWrapper: {
     paddingTop: 5,
     marginBottom: 20,
     height: 400
   }
-});
+}));
 
 const defaultLocation = {lat: 37.871853, lng: -122.258423};
-class SmallMapPreview extends Component {
-  constructor(props, context) {
+
+interface SmallMapPreviewProps extends WithStylesProps {
+  post: any,
+  group?: any,
+  zoom?: number,
+}
+interface SmallMapPreviewState {
+  openWindows: Array<any>,
+  viewport: any,
+}
+
+class SmallMapPreview extends Component<SmallMapPreviewProps,SmallMapPreviewState> {
+  constructor(props: SmallMapPreviewProps) {
     super(props);
     let document = this.getDocument()
     const googleLocation = document.googleLocation
@@ -81,4 +93,11 @@ class SmallMapPreview extends Component {
   }
 }
 
-registerComponent("SmallMapPreview", SmallMapPreview, withStyles(styles, {name: "SmallMapPreview"}))
+const SmallMapPreviewComponent = registerComponent("SmallMapPreview", SmallMapPreview, {styles});
+
+declare global {
+  interface ComponentTypes {
+    SmallMapPreview: typeof SmallMapPreviewComponent
+  }
+}
+

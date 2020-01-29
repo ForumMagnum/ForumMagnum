@@ -5,7 +5,7 @@ import { registerComponent } from 'meteor/vulcan:core';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import { withMessages } from '../common/withMessages';
 import { groupTypes } from '../../lib/collections/localgroups/groupTypes';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames'
 import Divider from '@material-ui/core/Divider';
 import VisibilityIcon from '@material-ui/icons/VisibilityOff';
@@ -17,6 +17,7 @@ import withDialog from '../common/withDialog'
 import withUser from '../common/withUser';
 import { PersonSVG, ArrowSVG, GroupIconSVG } from './Icons'
 import qs from 'qs'
+import * as _ from 'underscore';
 
 const availableFilters = _.map(groupTypes, t => t.shortName);
 
@@ -176,8 +177,25 @@ const createFallBackDialogHandler = (openDialog, dialogName, currentUser) => {
   });
 }
 
-class CommunityMapFilter extends Component {
-  constructor(props) {
+interface ExternalProps {
+  setShowMap: any,
+  showHideMap: boolean,
+  toggleGroups: any,
+  showGroups: boolean,
+  toggleEvents: any,
+  showEvents: boolean,
+  toggleIndividuals: any,
+  showIndividuals: boolean,
+}
+interface CommunityMapFilterProps extends ExternalProps, WithLocationProps, WithNavigationProps, WithDialogProps, WithUserProps, WithMessagesProps, WithStylesProps {
+  updateUser: any,
+}
+interface CommunityMapFilterState {
+  filters: any,
+}
+
+class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapFilterState> {
+  constructor(props: CommunityMapFilterProps) {
     super(props);
     const { query } = this.props.location;
     const filters = query?.filters
@@ -192,7 +210,7 @@ class CommunityMapFilter extends Component {
 
   handleCheck = (filter) => {
     const { location, history } = this.props
-    let newFilters = [];
+    let newFilters: Array<any> = [];
     if (Array.isArray(this.state.filters) && this.state.filters.includes(filter)) {
       newFilters = _.without(this.state.filters, filter);
     } else {
@@ -332,14 +350,23 @@ class CommunityMapFilter extends Component {
   }
 }
 
-registerComponent('CommunityMapFilter', CommunityMapFilter,
-  withLocation, withNavigation,
-  withStyles(styles, {name: "CommunityMapFilter"}),
-  withDialog,
-  withUser,
-  withUpdate({
-    collection: Users,
-    fragmentName: 'UsersCurrent',
-  }),
-  withMessages
-);
+const CommunityMapFilterComponent = registerComponent<ExternalProps>('CommunityMapFilter', CommunityMapFilter, {
+  styles,
+  hocs: [
+    withLocation, withNavigation,
+    withDialog,
+    withUser,
+    withUpdate({
+      collection: Users,
+      fragmentName: 'UsersCurrent',
+    }),
+    withMessages
+  ]
+});
+
+declare global {
+  interface ComponentTypes {
+    CommunityMapFilter: typeof CommunityMapFilterComponent
+  }
+}
+

@@ -9,9 +9,16 @@ const AllGroupsPage = ({ timezone, classes }) => {
       <SectionTitle title="All Local Groups"/>
       <Components.LocalGroupsList
         terms={{view: "all", limit: 1000}}
-        showHeader={false} />
+      />
     </SingleColumnSection>
   )
 }
 
-registerComponent('AllGroupsPage', AllGroupsPage);
+const AllGroupsPageComponent = registerComponent('AllGroupsPage', AllGroupsPage);
+
+declare global {
+  interface ComponentTypes {
+    AllGroupsPage: typeof AllGroupsPageComponent
+  }
+}
+

@@ -1,11 +1,12 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
-import withHover from '../common/withHover';
+import { useHover } from '../common/withHover';
 
-const EventVicinity = ({post, hover, anchorEl, stopHover}) => {
+const EventVicinity = ({post}) => {
+  const { eventHandlers, hover, anchorEl, stopHover } = useHover();
   const { LWPopper } = Components
   if (post.googleLocation && post.googleLocation.vicinity) {
-    return <span>
+    return <span {...eventHandlers}>
       <LWPopper 
         open={hover}
         anchorEl={anchorEl}
@@ -18,8 +19,15 @@ const EventVicinity = ({post, hover, anchorEl, stopHover}) => {
       {post.googleLocation.vicinity}
     </span>
   } else {
-    return <span>{post.location}</span>
+    return <span {...eventHandlers}>{post.location}</span>
   }
 };
 
-registerComponent('EventVicinity', EventVicinity, withHover())
+const EventVicinityComponent = registerComponent('EventVicinity', EventVicinity, {})
+
+declare global {
+  interface ComponentTypes {
+    EventVicinity: typeof EventVicinityComponent
+  }
+}
+

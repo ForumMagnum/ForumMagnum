@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { Link } from '../../lib/reactRouterWrapper';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 
 export const postsItemLikeStyles = theme => ({
@@ -92,5 +92,11 @@ const LocalGroupsItem = ({group, classes}) => {
   )
 }
 
-registerComponent('LocalGroupsItem', LocalGroupsItem,
-  withStyles(styles, {name: "LocalGroupsItem"}))
+const LocalGroupsItemComponent = registerComponent('LocalGroupsItem', LocalGroupsItem, {styles});
+
+declare global {
+  interface ComponentTypes {
+    LocalGroupsItem: typeof LocalGroupsItemComponent
+  }
+}
+

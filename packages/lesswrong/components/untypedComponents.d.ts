@@ -35,26 +35,6 @@ interface ComponentTypes {
   VoteButton: any
   CommentsVote: any
   PostsVote: any
-  CommunityHome: any
-  CommunityMap: any
-  CommunityMapFilter: any
-  CommunityMapWrapper: any
-  SetPersonalMapLocationDialog: any
-  EventNotificationsDialog: any
-  StyledMapPopup: any
-  EventTime: any
-  EventVicinity: any
-  LocalGroupMarker: any
-  LocalEventMarker: any
-  LocalGroupPage: any
-  LocalGroupSingle: any
-  GroupFormLink: any
-  SmallMapPreview: any
-  GroupLinks: any
-  LocalGroupsList: any
-  LocalGroupsItem: any
-  AllGroupsPage: any
-  GroupFormDialog: any
   ModerationGuidelinesBox: any
   ModerationGuidelinesEditForm: any
   PostsListEditorSearchHit: any

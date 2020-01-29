@@ -3,7 +3,13 @@ import React, { Component } from 'react';
 import AddLocationIcon from '@material-ui/icons/AddLocation';
 import withDialog from '../common/withDialog'
 
-class GroupFormLink extends Component {
+interface ExternalProps {
+  documentId?: string,
+}
+interface GroupFormLinkProps extends ExternalProps, WithDialogProps {
+}
+
+class GroupFormLink extends Component<GroupFormLinkProps> {
   handleOpenGroupForm = () => {
     this.props.openDialog({
       componentName: "GroupFormDialog",
@@ -29,4 +35,13 @@ class GroupFormLink extends Component {
   }
 }
 
-registerComponent('GroupFormLink', GroupFormLink, withDialog);
+const GroupFormLinkComponent = registerComponent<ExternalProps>('GroupFormLink', GroupFormLink, {
+  hocs: [withDialog]
+});
+
+declare global {
+  interface ComponentTypes {
+    GroupFormLink: typeof GroupFormLinkComponent
+  }
+}
+

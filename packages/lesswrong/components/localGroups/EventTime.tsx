@@ -1,6 +1,6 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import moment from 'moment';
+import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
 
 function getDateFormat(dense, isThisYear) {
@@ -15,7 +15,10 @@ function getDateFormat(dense, isThisYear) {
   }
 }
 
-const EventTime = ({post, dense}) => {
+const EventTime = ({post, dense=false}: {
+  post: any,
+  dense?: boolean,
+}) => {
   const { timezone } = useTimezone();
   const start = post.startTime ? moment(post.startTime).tz(timezone) : null;
   const end = post.endTime ? moment(post.endTime).tz(timezone) : null;
@@ -64,4 +67,11 @@ const EventTime = ({post, dense}) => {
   }
 };
 
-registerComponent('EventTime', EventTime);
+const EventTimeComponent = registerComponent('EventTime', EventTime);
+
+declare global {
+  interface ComponentTypes {
+    EventTime: typeof EventTimeComponent
+  }
+}
+

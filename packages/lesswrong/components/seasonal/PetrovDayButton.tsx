@@ -1,7 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import React, { useState } from 'react';
-// import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 import { mapsHeight } from '../localGroups/CommunityMap';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -89,9 +88,12 @@ const styles = theme => ({
   }
 })
 
-const PetrovDayButton = ({classes, refetch}) => {
+const PetrovDayButton = ({classes, refetch}: {
+  classes: any,
+  refetch?: any,
+}) => {
   const currentUser = useCurrentUser()
-  const { petrovPressedButtonDate, petrovCodesEntered } = currentUser || []
+  const { petrovPressedButtonDate, petrovCodesEntered } = (currentUser || {}) as any; //FIXME: These fields are not in the fragment; add them back for next Petrov day if we want to do it again
   const [pressed, setPressed] = useState(petrovPressedButtonDate)
   const [launchCode, setLaunchCode] = useState(petrovCodesEntered)
 
@@ -103,7 +105,7 @@ const PetrovDayButton = ({classes, refetch}) => {
   const pressButton = () => {
     setPressed(true)
     updateUser({
-      selector: {_id: currentUser._id},
+      selector: {_id: currentUser!._id},
       data: { petrovPressedButtonDate: new Date() }
     });
   }
@@ -172,7 +174,7 @@ const PetrovDayButton = ({classes, refetch}) => {
           variant="outlined"
         />}
         {(renderLaunchButton) && 
-          <Button onClick={launch} className={classes.launchButton} disabled={!!currentUser.petrovCodesEntered}>
+          <Button onClick={launch} className={classes.launchButton} disabled={!!(currentUser as any).petrovCodesEntered}>
             Launch
           </Button>
         }
@@ -184,4 +186,11 @@ const PetrovDayButton = ({classes, refetch}) => {
   )
 }
 
-registerComponent('PetrovDayButton', PetrovDayButton, withStyles(styles, {name: "PetrovDayButton"}));
+const PetrovDayButtonComponent = registerComponent('PetrovDayButton', PetrovDayButton, {styles});
+
+declare global {
+  interface ComponentTypes {
+    PetrovDayButton: typeof PetrovDayButtonComponent
+  }
+}
+

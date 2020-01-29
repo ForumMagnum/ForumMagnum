@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import Users from "meteor/vulcan:users";
 import Dialog from '@material-ui/core/Dialog';
 import Geosuggest from 'react-geosuggest';
@@ -10,7 +10,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/lab/Slider';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import Input from '@material-ui/core/Input';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import FormLabel from '@material-ui/core/FormLabel';
@@ -107,7 +107,8 @@ const styles = theme => ({
 })
 
 const MAX_NOTIFICATION_RADIUS_STEPSIZE = 5
-const EventNotificationsDialog = ({ onClose, currentUser, classes }) => {
+const EventNotificationsDialog = ({ onClose, classes }) => {
+  const currentUser = useCurrentUser();
   const { Loading } = Components
   const { nearbyEventsNotificationsLocation, mapLocation, googleLocation, nearbyEventsNotificationsRadius, nearbyPeopleNotificationThreshold } = currentUser || {}
 
@@ -127,12 +128,11 @@ const EventNotificationsDialog = ({ onClose, currentUser, classes }) => {
     className={classes.peopleInput}
     value={notifyPeopleThreshold}
     margin="dense"
-    onChange={(e) => setNotifyPeopleThreshold(e.target.value)}
+    onChange={(e) => setNotifyPeopleThreshold(parseFloat(e.target.value))}
   />
 
   return (
     <Dialog
-      modal={false}
       open={true}
       onClose={onClose}
     >
@@ -156,7 +156,7 @@ const EventNotificationsDialog = ({ onClose, currentUser, classes }) => {
           /> : <Loading/>}
           
         </div>
-        <FormLabel className={classes.distanceHeader} component="legend">Notification Radius</FormLabel>
+        <FormLabel className={classes.distanceHeader} component={"legend" as any}>Notification Radius</FormLabel>
         <div className={classes.distanceSection}>
           <Slider
             className={classes.slider}
@@ -171,7 +171,7 @@ const EventNotificationsDialog = ({ onClose, currentUser, classes }) => {
             className={classes.input}
             value={distance}
             margin="dense"
-            onChange={(e) => setDistance(e.target.value)}
+            onChange={(e) => setDistance(parseFloat(e.target.value))}
             endAdornment={<InputAdornment disableTypography className={classes.inputAdornment} position="end">km</InputAdornment>}
             onBlur={() => setDistance(distance > MAX_NOTIFICATION_RADIUS ? MAX_NOTIFICATION_RADIUS : (distance < 0 ? 0 : distance))}
             inputProps={{
@@ -208,7 +208,7 @@ const EventNotificationsDialog = ({ onClose, currentUser, classes }) => {
             Stop notifying me
           </a>}
           <a className={classes.submitButton} onClick={()=>{
-            mutate({selector: {_id: currentUser._id}, data: {
+            mutate({selector: {_id: currentUser!._id}, data: {
               nearbyEventsNotifications: true,
               nearbyEventsNotificationsLocation: location, 
               nearbyEventsNotificationsRadius: distance, 
@@ -224,4 +224,11 @@ const EventNotificationsDialog = ({ onClose, currentUser, classes }) => {
   )
 }
 
-registerComponent('EventNotificationsDialog', EventNotificationsDialog, withUser, withStyles(styles, {name: "EventNotificationsDialog"}) );
+const EventNotificationsDialogComponent = registerComponent('EventNotificationsDialog', EventNotificationsDialog, {styles});
+
+declare global {
+  interface ComponentTypes {
+    EventNotificationsDialog: typeof EventNotificationsDialogComponent
+  }
+}
+

@@ -3,16 +3,16 @@ import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { GroupIconSVG } from './Icons'
 import { Marker } from 'react-map-gl';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   icon: {
     height: 15, 
     width: 15,
     fill: "#588f27",
     opacity: 0.8
   }
-})
+}))
 
 
 const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }) => {
@@ -49,9 +49,11 @@ const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, inf
   </React.Fragment>
 }
 
-LocalGroupMarker.propTypes = {
-  group: PropTypes.object.isRequired,
-  location: PropTypes.object.isRequired,
+const LocalGroupMarkerComponent = registerComponent("LocalGroupMarker", LocalGroupMarker, {styles});
+
+declare global {
+  interface ComponentTypes {
+    LocalGroupMarker: typeof LocalGroupMarkerComponent
+  }
 }
 
-registerComponent("LocalGroupMarker", LocalGroupMarker, withStyles(styles, {name: "LocalGroupMarker"}));

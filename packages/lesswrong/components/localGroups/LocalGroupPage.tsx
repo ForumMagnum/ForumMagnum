@@ -1,18 +1,16 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useSingle } from '../../lib/crud/withSingle';
-import { withMessages } from '../common/withMessages';
 import React from 'react';
 import { Localgroups } from '../../lib/index';
 import { Link } from '../../lib/reactRouterWrapper';
-import { withLocation } from '../../lib/routeUtil';
 import { Posts } from '../../lib/collections/posts';
-import withUser from '../common/withUser';
-import { withStyles } from '@material-ui/core/styles';
+import { useCurrentUser } from '../common/withUser';
+import { createStyles } from '@material-ui/core/styles';
 import { postBodyStyles } from '../../themes/stylePiping'
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import qs from 'qs'
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   root: {},
   groupInfo: {
     ...sectionFooterLeftStyles
@@ -50,15 +48,19 @@ const styles = theme => ({
     ...postBodyStyles(theme),
     padding: theme.spacing.unit,
   }
-});
+}));
 
-const LocalGroupPage = ({ classes, documentId: groupId, currentUser }) => {
+const LocalGroupPage = ({ classes, documentId: groupId }: {
+  classes: any,
+  documentId: string,
+  groupId?: string,
+}) => {
+  const currentUser = useCurrentUser();
   const { CommunityMapWrapper, SingleColumnSection, SectionTitle, GroupLinks, PostsList2, Loading,
     SectionButton, SubscribeTo, SectionFooter, GroupFormLink, ContentItemBody, Error404 } = Components
 
   const { document: group, loading } = useSingle({
     collection: Localgroups,
-    queryName: 'LocalGroupPageQuery',
     fragmentName: 'localGroupsHomeFragment',
     documentId: groupId
   })
@@ -109,7 +111,7 @@ const LocalGroupPage = ({ classes, documentId: groupId, currentUser }) => {
                   </SectionButton>
                 </React.Fragment>}
               {Localgroups.options.mutations.edit.check(currentUser, group) && 
-                <span className={classes.leftAction}><GroupFormLink documentId={groupId} label="Edit group" /></span>
+                <span className={classes.leftAction}><GroupFormLink documentId={groupId} /></span>
               }
             </SectionFooter>
           </div>
@@ -125,6 +127,11 @@ const LocalGroupPage = ({ classes, documentId: groupId, currentUser }) => {
   )
 }
 
-registerComponent('LocalGroupPage', LocalGroupPage,
-  withUser, withMessages, withLocation,
-  withStyles(styles, { name: "LocalGroupPage" }),);
+const LocalGroupPageComponent = registerComponent('LocalGroupPage', LocalGroupPage, {styles});
+
+declare global {
+  interface ComponentTypes {
+    LocalGroupPage: typeof LocalGroupPageComponent
+  }
+}
+

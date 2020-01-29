@@ -9,7 +9,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Typography from '@material-ui/core/Typography';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import { sharedStyles } from './EventNotificationsDialog'
 import { useGoogleMaps } from '../form-components/LocationFormComponent'
@@ -17,9 +17,9 @@ const suggestionToGoogleMapsLocation = (suggestion) => {
   return suggestion ? suggestion.gmaps : null
 }
 
-const styles = theme => ({
+const styles = createStyles(theme => ({
   ...sharedStyles(theme),
-})
+}))
 
 const SetPersonalMapLocationDialog = ({ onClose, currentUser, classes }) => {
   const { mapLocation, googleLocation, mapMarkerText, bio } = currentUser || {}
@@ -37,7 +37,6 @@ const SetPersonalMapLocationDialog = ({ onClose, currentUser, classes }) => {
 
   return (
     <Dialog
-      modal={false}
       open={true}
       onClose={onClose}
     >
@@ -87,4 +86,14 @@ const SetPersonalMapLocationDialog = ({ onClose, currentUser, classes }) => {
   )
 }
 
-registerComponent('SetPersonalMapLocationDialog', SetPersonalMapLocationDialog, withUser, withStyles(styles, {name: "SetPersonalMapLocationDialog"}) );
+const SetPersonalMapLocationDialogComponent = registerComponent('SetPersonalMapLocationDialog', SetPersonalMapLocationDialog, {
+  styles,
+  hocs: [withUser]
+});
+
+declare global {
+  interface ComponentTypes {
+    SetPersonalMapLocationDialog: typeof SetPersonalMapLocationDialogComponent
+  }
+}
+
