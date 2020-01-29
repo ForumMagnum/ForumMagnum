@@ -14,7 +14,8 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   userName: {
-    whiteSpace: "nowrap"
+    whiteSpace: "nowrap",
+    color: "inherit"
   },
   tooltip: {
     maxWidth: 250,

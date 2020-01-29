@@ -1,4 +1,4 @@
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import React, { useState } from 'react';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -9,14 +9,13 @@ import withUser from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import withErrorBoundary from '../common/withErrorBoundary';
 import Users from 'meteor/vulcan:users';
-import Tooltip from '@material-ui/core/Tooltip';
 import { withStyles } from '@material-ui/core/styles'
 import { useTracking } from '../../lib/analyticsEvents.js';
 
 const styles = theme => ({
   icon: {
     cursor: "pointer",
-    color: theme.palette.grey[500]
+    color: theme.palette.grey[400]
   }
 })
 
@@ -29,6 +28,8 @@ const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right"
     collection: Users,
     fragmentName: 'UserBookmarks',
   });
+
+  const { LWTooltip } = Components
 
 
   const toggleBookmark = (event) => {
@@ -75,11 +76,11 @@ const BookmarkButton = ({classes, post, currentUser, menuItem, placement="right"
     )
   } else {
     return (
-      <Tooltip title={title} placement={placement}>
+      <LWTooltip title={title} placement={placement}>
         <span onClick={toggleBookmark} className={classes.icon}>
         { icon }
         </span>
-      </Tooltip>
+      </LWTooltip>
     )
   }
 }

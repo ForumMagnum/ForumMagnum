@@ -9,11 +9,10 @@ const PostsItemTooltipWrapper = ({hover, anchorEl, stopHover, children, post}) =
         open={hover}
         anchorEl={anchorEl}
         onMouseEnter={stopHover}
-        placement="left-start"
+        placement="bottom-end"
         modifiers={{
           flip: {
-            behavior: ['left-start', 'bottom-end'],
-            boundariesElement: 'viewport'
+            enabled: false
           }
         }}
       >
