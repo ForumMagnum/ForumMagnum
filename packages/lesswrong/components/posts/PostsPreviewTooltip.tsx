@@ -127,7 +127,7 @@ const PostsPreviewTooltip = ({ showAllInfo, post, classes, comment }) => {
 
   const { htmlHighlight = "" } = post.contents || {}
 
-  const highlight = truncate(htmlHighlight, 85, "words", (showAllInfo ? `... <span class="expand">(more)</span>` : null))
+  const highlight = truncate(htmlHighlight, 85, "words", `... <span class="expand">(more)</span>`)
 
   return <AnalyticsContext pageElementContext="hoverPreview">
       <Card className={classes.root}>
