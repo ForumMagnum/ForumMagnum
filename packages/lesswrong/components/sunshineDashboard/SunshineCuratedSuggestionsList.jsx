@@ -8,11 +8,14 @@ import PropTypes from 'prop-types';
 
 class SunshineCuratedSuggestionsList extends Component {
   render () {
-    const { results, classes } = this.props
+    const { results, loading } = this.props
+
+    if (loading) return <Components.Loading/>
+
     const { SunshineListTitle, SunshineCuratedSuggestionsItem, LastCuratedDate } = Components
     if (results && results.length) {
       return (
-        <div className={classes.root}>
+        <div>
           <SunshineListTitle>
             Suggestions for Curated
             <LastCuratedDate terms={{view:'curated', limit:1}}/>
@@ -31,8 +34,7 @@ class SunshineCuratedSuggestionsList extends Component {
 }
 
 SunshineCuratedSuggestionsList.propTypes = {
-  results: PropTypes.array,
-  classes: PropTypes.object.isRequired
+  results: PropTypes.array
 };
 
 const withListOptions = {
