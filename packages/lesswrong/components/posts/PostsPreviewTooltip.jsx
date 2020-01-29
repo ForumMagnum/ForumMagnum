@@ -17,7 +17,7 @@ const styles = theme => ({
     width: POST_PREVIEW_WIDTH,
     position: "relative",
     padding: theme.spacing.unit*1.5,
-    paddingBottom: theme.spacing.unit*2,
+    paddingBottom: 0,
     '& img': {
       maxHeight: "200px"
     },
@@ -47,6 +47,7 @@ const styles = theme => ({
   highlight: {
     ...postHighlightStyles(theme),
     marginTop: theme.spacing.unit*2.5,
+    marginBottom: theme.spacing.unit*1.5,
     wordBreak: 'break-word',
     fontSize: "1.1rem",
 
@@ -105,13 +106,12 @@ const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
 
 const getPostCategory = (post) => {
   const categories = [];
-  const postOrQuestion = "Post"
 
   if (post.isEvent) categories.push(`Event`)
-  if (post.curatedDate) categories.push(`Curated ${postOrQuestion}`)
-  if (post.af) categories.push(`AI Alignment Forum ${postOrQuestion}`);
-  if (post.meta) categories.push(`${metaName} ${postOrQuestion}`)
-  if (post.frontpageDate && !post.curatedDate && !post.af) categories.push(`Frontpage ${postOrQuestion}`)
+  if (post.curatedDate) categories.push(`Curated Post`)
+  if (post.af) categories.push(`AI Alignment Forum Post`);
+  if (post.meta) categories.push(`${metaName} Post`)
+  if (post.frontpageDate && !post.curatedDate && !post.af) categories.push(`Frontpage Post`)
 
   if (categories.length > 0)
     return categories.join(', ');
@@ -119,7 +119,7 @@ const getPostCategory = (post) => {
     return post.question ? `Question` : `Personal Blogpost`
 }
 
-const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, truncateLimit=450, comment }) => {
+const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, comment }) => {
   const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton } = Components
 
   const [expanded, setExpanded] = useState(false)
@@ -128,7 +128,7 @@ const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, truncate
 
   const { htmlHighlight = "" } = post.contents || {}
 
-  const highlight = truncate(htmlHighlight, 100, "words", (showAllInfo ? `... <span class="expand">(more)</span>` : null))
+  const highlight = truncate(htmlHighlight, 85, "words", (showAllInfo ? `... <span class="expand">(more)</span>` : null))
 
   return <AnalyticsContext pageElementContext="hoverPreview">
       <Card className={classes.root}>
