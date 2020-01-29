@@ -265,7 +265,7 @@ class CommentsNode extends Component {
       comment, children, nestingLevel=1, highlightDate, updateComment, post,
       muiTheme, postPage, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId, hideReadComments,
-      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand, hoverPreview, hideSingleLineMeta, enableHoverPreview
+      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand, hoverPreview, hideSingleLineMeta, enableHoverPreview, hideReply
     } = this.props;
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker } = Components
@@ -315,7 +315,7 @@ class CommentsNode extends Component {
       }
     )
 
-    const passedThroughItemProps = { post, postPage, comment, updateComment, showPostTitle, collapsed, refetch }
+    const passedThroughItemProps = { post, postPage, comment, updateComment, showPostTitle, collapsed, refetch, hideReply }
     const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, updateComment, condensed, hideReadComments, refetch, scrollOnExpand, hideSingleLineMeta, enableHoverPreview }
 
     return (

@@ -154,6 +154,7 @@ const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, comment 
               post={post}
               hoverPreview
               forceNotSingleLine
+              hideReply
             /></div>
           : <div onClick={() => setExpanded(true)}>
               <ContentItemBody

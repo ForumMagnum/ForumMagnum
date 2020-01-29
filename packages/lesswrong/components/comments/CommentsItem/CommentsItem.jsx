@@ -184,7 +184,7 @@ class CommentsItem extends Component {
   }
 
   render() {
-    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, collapsed, isParentComment, parentCommentId, scrollIntoView } = this.props
+    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, collapsed, isParentComment, parentCommentId, scrollIntoView, hideReply } = this.props
 
     const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon } = Components
 
@@ -313,13 +313,14 @@ class CommentsItem extends Component {
   }
 
   renderCommentBottom = () => {
-    const { comment, currentUser, collapsed, classes } = this.props;
+    const { comment, currentUser, collapsed, classes, hideReply } = this.props;
     const { MetaInfo } = Components
 
     if (!collapsed) {
       const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
 
       const showReplyButton = (
+        !hideReply &&
         !comment.deleted &&
         (!blockedReplies || Users.canDo(currentUser,'comments.replyOnBlocked.all')) &&
         (!currentUser || Users.isAllowedToComment(currentUser, this.props.post))
@@ -348,6 +349,7 @@ class CommentsItem extends Component {
   renderReply = () => {
     const { post, comment, classes, parentAnswerId, nestingLevel=1 } = this.props
     const levelClass = (nestingLevel + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
+
     return (
       <div className={classNames(classes.replyForm, levelClass)}>
         <Components.CommentsNewForm
