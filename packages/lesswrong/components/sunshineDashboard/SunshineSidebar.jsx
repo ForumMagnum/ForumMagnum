@@ -92,7 +92,7 @@ class SunshineSidebar extends Component {
             <SunshineListTitle>Show the Underbelly</SunshineListTitle>
           </div>}
         { showUnderbelly && <div>
-          <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 30, ignoreRecaptcha: true}} allowContentPreview={false}/>
+          <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 30}} allowContentPreview={false}/>
         </div>}
 
       </div>
