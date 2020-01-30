@@ -113,10 +113,11 @@ const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, truncate
   const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton } = Components
 
   if (!post) return null
-  console.log(post.customHighlight)
-  const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
-  const highlight = truncate(post.customHighlight?.html || htmlHighlight, truncateLimit)
+  const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
+  const customHighlight = post.customHighlight?.originalContents?.data
+
+  const highlight = truncate(customHighlight || htmlHighlight, truncateLimit)
   const renderCommentCount = showAllInfo && (Posts.getCommentCount(post) > 0)
   const renderWordCount = !comment && (wordCount > 0)
 

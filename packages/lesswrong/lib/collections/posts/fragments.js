@@ -324,7 +324,7 @@ registerFragment(`
       ...RevisionDisplay
     }
     customHighlight {
-      ...RevisionDisplay
+      ...RevisionEdit
     }
   }
 `);
