@@ -4,8 +4,8 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { withStyles } from '@material-ui/core/styles';
 import { useVote } from '../votes/withVote';
 import { useCurrentUser } from '../common/withUser';
-import { TagRels } from '../../lib/collections/tagRels/collection.js';
-import { Link } from '../../lib/reactRouterWrapper.jsx';
+import { TagRels } from '../../lib/collections/tagRels/collection';
+import { Link } from '../../lib/reactRouterWrapper';
 import { commentBodyStyles } from '../../themes/stylePiping'
 
 const styles = theme => ({

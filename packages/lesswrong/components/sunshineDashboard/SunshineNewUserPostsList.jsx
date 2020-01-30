@@ -4,7 +4,7 @@ import React from 'react';
 import { Posts } from '../../lib/collections/posts';
 import { withStyles } from '@material-ui/core/styles'
 import { postHighlightStyles } from '../../themes/stylePiping'
-import { Link } from '../../lib/reactRouterWrapper.jsx'
+import { Link } from '../../lib/reactRouterWrapper'
 
 const styles = theme => ({
   post: {

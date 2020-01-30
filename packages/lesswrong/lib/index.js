@@ -1,6 +1,6 @@
 
 // Settings
-import './registerSettings.js'
+import './registerSettings'
 // schema utils
 import './utils/schemaUtils'
 // Permissions
@@ -17,97 +17,97 @@ import './accounts/configuration';
 import './voting/new_vote_types';
 
 //MomentJS configuration
-import '../components/momentjs.js';
+import '../components/momentjs';
 
-import './collections/posts/fragments.js';
-import './collections/comments/fragments.js';
+import './collections/posts/fragments';
+import './collections/comments/fragments';
 
 
 // Notifications
-import Notifications from './collections/notifications/collection.js';
-import './collections/notifications/views.js';
-import './collections/notifications/permissions.js';
+import Notifications from './collections/notifications/collection';
+import './collections/notifications/views';
+import './collections/notifications/permissions';
 // Inbox
-import Messages from './collections/messages/collection.js'
-import './collections/messages/views.js';
-import './collections/messages/permissions.js';
+import Messages from './collections/messages/collection'
+import './collections/messages/views';
+import './collections/messages/permissions';
 
-import Conversations from './collections/conversations/collection.js'
-import './collections/conversations/views.js';
-import './collections/conversations/helpers.js';
-import './collections/conversations/permissions.js';
+import Conversations from './collections/conversations/collection'
+import './collections/conversations/views';
+import './collections/conversations/helpers';
+import './collections/conversations/permissions';
 //
 // RSSFeeds
-import RSSFeeds from './collections/rssfeeds/collection.js'
-import './collections/rssfeeds/views.js'
+import RSSFeeds from './collections/rssfeeds/collection'
+import './collections/rssfeeds/views'
 //
 // Reports
-import Reports from './collections/reports/collection.js'
-import './collections/reports/views.js'
+import Reports from './collections/reports/collection'
+import './collections/reports/views'
 
 // LWEvents
-import { LWEvents } from './collections/lwevents/index.js';
+import { LWEvents } from './collections/lwevents/index';
 
 // DatabaseMetadata
-import './collections/databaseMetadata/collection.js';
+import './collections/databaseMetadata/collection';
 
 // Migrations
-import './collections/migrations/collection.js';
+import './collections/migrations/collection';
 
 // DebouncerEvents
-import './collections/debouncerEvents/collection.js';
+import './collections/debouncerEvents/collection';
 
 
 // ReadStatuses
-import './collections/readStatus/collection.js';
+import './collections/readStatus/collection';
 // Bans
-import { Bans } from './collections/bans/index.js'
+import { Bans } from './collections/bans/index'
 // Chapters
-import Sequences from './collections/sequences/collection.js';
-import './collections/sequences/views.js';
-import './collections/sequences/utils.js';
-import './collections/sequences/helpers.js';
+import Sequences from './collections/sequences/collection';
+import './collections/sequences/views';
+import './collections/sequences/utils';
+import './collections/sequences/helpers';
 
-import Chapters from './collections/chapters/collection.js';
-import Books from './collections/books/collection.js';
-import Collections from './collections/collections/collection.js';
+import Chapters from './collections/chapters/collection';
+import Books from './collections/books/collection';
+import Collections from './collections/collections/collection';
 
 // ReviewVotes
-import ReviewVotes from './collections/reviewVotes/collection.js'
-import './collections/reviewVotes/views.js'
-import './collections/reviewVotes/fragments.js'
-import './collections/reviewVotes/mutations.js'
+import ReviewVotes from './collections/reviewVotes/collection'
+import './collections/reviewVotes/views'
+import './collections/reviewVotes/fragments'
+import './collections/reviewVotes/mutations'
 
 
-import Localgroups from './collections/localgroups/collection.js'
-import './collections/localgroups/views.js';
-import './collections/localgroups/permissions.js';
-import './collections/localgroups/fragments.js';
+import Localgroups from './collections/localgroups/collection'
+import './collections/localgroups/views';
+import './collections/localgroups/permissions';
+import './collections/localgroups/fragments';
 
 import './fragments';
-import './collections/chapters/fragments.js';
-import './collections/sequences/fragments.js';
-import './collections/books/fragments.js';
-import './collections/books/views.js';
-import './collections/collections/fragments.js';
-import './collections/collections/views.js';
-import './collections/collections/helpers.js';
+import './collections/chapters/fragments';
+import './collections/sequences/fragments';
+import './collections/books/fragments';
+import './collections/books/views';
+import './collections/collections/fragments';
+import './collections/collections/views';
+import './collections/collections/helpers';
 import './alignment-forum/posts/fragments';
 import './alignment-forum/users/fragments';
 
-import './collections/tagRels/collection.js';
-import './collections/tagRels/views.js';
-import './collections/tagRels/fragments.js';
+import './collections/tagRels/collection';
+import './collections/tagRels/views';
+import './collections/tagRels/fragments';
 
-import './collections/tags/collection.js';
-import './collections/tags/views.js';
-import './collections/tags/fragments.js';
+import './collections/tags/collection';
+import './collections/tags/views';
+import './collections/tags/fragments';
 
-import './collections/chapters/views.js';
+import './collections/chapters/views';
 
-import './collections/sequences/permissions.js';
-import './collections/collections/permissions.js';
-import './collections/books/permissions.js';
+import './collections/sequences/permissions';
+import './collections/collections/permissions';
+import './collections/books/permissions';
 
 
 // Subscriptions
@@ -115,21 +115,21 @@ import './collections/subscriptions';
 
 
 // Posts
-import './collections/posts/custom_fields.js';
-import './collections/posts/views.js';
-import './collections/posts/permissions.js';
-import './collections/posts/helpers.js';
+import './collections/posts/custom_fields';
+import './collections/posts/views';
+import './collections/posts/permissions';
+import './collections/posts/helpers';
 
 // Revisions
-import Revisions from './collections/revisions/collection.js'
+import Revisions from './collections/revisions/collection'
 //
 // Users
-import './collections/users/permissions.js';
-import './collections/users/helpers.js';
-import './collections/users/custom_fields.js';
-import './collections/users/recommendationSettings.js';
-import './collections/users/karmaChangesGraphQL.js';
-import './collections/users/views.js';
+import './collections/users/permissions';
+import './collections/users/helpers';
+import './collections/users/custom_fields';
+import './collections/users/recommendationSettings';
+import './collections/users/karmaChangesGraphQL';
+import './collections/users/views';
 
 // Comments
 import { Comments } from './collections/comments'
@@ -138,14 +138,14 @@ import { Comments } from './collections/comments'
 import './collections/votes';
 
 // Internationalization
-import './i18n-en-us/en_US.js';
+import './i18n-en-us/en_US';
 
 // Misc.
-import './helpers.js'
-import './routes.js';
-import './scrollRestoration.js';
+import './helpers'
+import './routes';
+import './scrollRestoration';
 
-import './components.js';
+import './components';
 
 // PostRelation
 import './collections/postRelations';
@@ -169,8 +169,8 @@ import './alignment-forum/users/custom_fields';
 import './alignment-forum/users/helpers';
 import './alignment-forum/users/views';
 
-import './analyticsEvents.js';
-import './vulcan-i18n-en-us.js';
+import './analyticsEvents';
+import './vulcan-i18n-en-us';
 
 import '../components/spuriousChange';
 

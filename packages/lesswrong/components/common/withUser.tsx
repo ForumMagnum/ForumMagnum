@@ -9,10 +9,7 @@ export const useCurrentUser = () => useContext(UserContext);
 // withCurrentUser, which creates a graphql query for each component.
 export default function withUser(Component) {
   return function WithUserComponent(props) {
-    return (
-      <UserContext.Consumer>
-        {user => <Component {...props} currentUser={user} />}
-      </UserContext.Consumer>
-    );
+    const currentUser = useCurrentUser();
+    return <Component {...props} currentUser={currentUser} />
   }
 }

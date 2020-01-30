@@ -1,7 +1,7 @@
 import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
 import { withMessages } from '../common/withMessages';
 import React from 'react';
-import Chapters from '../../lib/collections/chapters/collection.js';
+import Chapters from '../../lib/collections/chapters/collection';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({

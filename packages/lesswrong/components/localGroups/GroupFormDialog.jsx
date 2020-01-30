@@ -1,7 +1,7 @@
 import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
 import { withMessages } from '../common/withMessages';
 import React from 'react';
-import { Localgroups } from '../../lib/index.js';
+import { Localgroups } from '../../lib/index';
 import { withNavigation } from '../../lib/routeUtil'
 import withUser from '../common/withUser';
 import Dialog from '@material-ui/core/Dialog';

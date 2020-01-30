@@ -2,7 +2,7 @@ import { registerMigration } from './migrationUtils';
 import { editMutation } from 'meteor/vulcan:core';
 
 
-import { Posts } from '../../lib/collections/posts/collection.js';
+import { Posts } from '../../lib/collections/posts/collection';
 import Users from 'meteor/vulcan:users';
 
 registerMigration({

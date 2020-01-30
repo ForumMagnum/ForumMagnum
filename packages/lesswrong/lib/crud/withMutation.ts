@@ -16,7 +16,11 @@ import gql from 'graphql-tag';
 import { getFragment } from 'meteor/vulcan:lib';
 import * as _ from 'underscore';
 
-export function withMutation({name, args, fragmentName}) {
+export function withMutation({name, args, fragmentName}: {
+  name: string,
+  args: any,
+  fragmentName?: string,
+}) {
 
   let mutation, fragment, fragmentBlock = '';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import Notifications from '../../lib/collections/notifications/collection.js';
+import Notifications from '../../lib/collections/notifications/collection';
 import Badge from '@material-ui/core/Badge';
 import { registerComponent } from 'meteor/vulcan:core';
 import { withMulti } from '../../lib/crud/withMulti';

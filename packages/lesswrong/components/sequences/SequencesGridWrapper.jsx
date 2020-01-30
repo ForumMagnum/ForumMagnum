@@ -1,7 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withMulti } from '../../lib/crud/withMulti';
 import React from 'react';
-import Sequences from '../../lib/collections/sequences/collection.js';
+import Sequences from '../../lib/collections/sequences/collection';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';

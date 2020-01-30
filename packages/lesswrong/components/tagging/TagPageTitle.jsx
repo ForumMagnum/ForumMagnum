@@ -2,7 +2,7 @@ import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { Helmet } from 'react-helmet';
 import { registerComponent } from 'meteor/vulcan:core';
-import { useTagBySlug } from './useTag.jsx';
+import { useTagBySlug } from './useTag';
 import { Link } from '../../lib/reactRouterWrapper';
 import { styles } from '../common/HeaderSubtitle';
 import { withStyles } from '@material-ui/core/styles';

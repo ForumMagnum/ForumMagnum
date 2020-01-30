@@ -5,7 +5,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import NavigateBefore from '@material-ui/icons/NavigateBefore'
 import NavigateNext from '@material-ui/icons/NavigateNext'
 import React from 'react';
-import { Link } from '../../lib/reactRouterWrapper.jsx';
+import { Link } from '../../lib/reactRouterWrapper';
 import { withStyles } from '@material-ui/core/styles';
 import classnames from 'classnames';
 

@@ -103,6 +103,7 @@ registerFragment(`
     lastNotificationsCheck
     groups
     bannedUserIds
+    bannedPersonalUserIds
     moderationStyle
     moderationGuidelines {
       ...RevisionEdit
@@ -278,6 +279,8 @@ registerFragment(`
     banned
     reviewedByUserId
     signUpReCaptchaRating
+    needsReview
+    sunshineSnoozed
   }
 `);
 
@@ -521,6 +524,7 @@ registerFragment(`
 
     recommendationSettings
     
+    notificationShortformContent
     notificationCommentsOnSubscribedPost
     notificationRepliesToMyComments
     notificationRepliesToSubscribedComments

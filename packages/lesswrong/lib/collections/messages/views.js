@@ -1,4 +1,4 @@
-import Messages from "./collection.js"
+import Messages from "./collection"
 import { ensureIndex } from '../../collectionUtils';
 
 //Messages for a specific conversation

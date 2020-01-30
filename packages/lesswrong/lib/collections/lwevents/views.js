@@ -1,4 +1,4 @@
-import { LWEvents } from "./collection.js"
+import { LWEvents } from "./collection"
 import { ensureIndex } from '../../collectionUtils';
 
 LWEvents.addView("adminView", function (terms) {
