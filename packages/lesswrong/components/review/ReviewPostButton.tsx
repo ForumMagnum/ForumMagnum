@@ -2,8 +2,7 @@ import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import { useCommentBox } from '../common/withCommentBox';
 import { useDialog } from '../common/withDialog';
-import withUser from '../common/withUser';
-import { withStyles } from '@material-ui/core/styles';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = theme => ({
   root: {
@@ -20,7 +19,12 @@ const styles = theme => ({
   }
 })
 
-const ReviewPostButton = ({classes, post, currentUser, reviewMessage="Review"}) => {
+const ReviewPostButton = ({classes, post, reviewMessage="Review"}: {
+  classes: any,
+  post: any,
+  reviewMessage: any,
+}) => {
+  const currentUser = useCurrentUser();
   const { openCommentBox } = useCommentBox();
   const { openDialog } = useDialog();
 
@@ -49,4 +53,11 @@ const ReviewPostButton = ({classes, post, currentUser, reviewMessage="Review"}) 
   )
 }
 
-registerComponent('ReviewPostButton', ReviewPostButton, withUser, withStyles(styles, {name:"ReviewPostButton"}));
+const ReviewPostButtonComponent = registerComponent('ReviewPostButton', ReviewPostButton, {styles});
+
+declare global {
+  interface ComponentTypes {
+    ReviewPostButton: typeof ReviewPostButtonComponent
+  }
+}
+

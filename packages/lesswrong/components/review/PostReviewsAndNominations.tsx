@@ -1,9 +1,8 @@
 import React from 'react';
 import { Components, registerComponent} from 'meteor/vulcan:core';
-import { withMulti } from '../../lib/crud/withMulti';
+import { useMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
 import { unflattenComments } from '../../lib/utils/unflatten';
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   title: {
@@ -15,13 +14,28 @@ const styles = theme => ({
   }
 })
 
-const PostReviewsAndNominations = ({ classes, title, loading, results, post, singleLine }) => {
+const PostReviewsAndNominations = ({ terms, classes, title, post, singleLine }: {
+  terms: any,
+  classes: any,
+  title?: string,
+  post: any,
+  singleLine?: boolean,
+}) => {
 
+  const { loading, results } = useMulti({
+    terms,
+    collection: Comments,
+    fragmentName: 'CommentsList',
+    fetchPolicy: 'cache-and-network',
+    limit: 5,
+    // enableTotal: false,
+  });
+  
   const { Loading, CommentsList, SubSection } = Components
 
   if (!loading && results && !results.length) {
     return null
-  } 
+  }
   
   const lastCommentId = results && results[0]?._id
   const nestedComments = unflattenComments(results);
@@ -49,13 +63,11 @@ const PostReviewsAndNominations = ({ classes, title, loading, results, post, sin
   );
 };
 
-const options = {
-  collection: Comments,
-  queryName: 'PostsItemNewCommentsThreadQuery',
-  fragmentName: 'CommentsList',
-  fetchPolicy: 'cache-and-network',
-  limit: 5,
-  // enableTotal: false,
-};
+const PostReviewsAndNominationsComponent = registerComponent('PostReviewsAndNominations', PostReviewsAndNominations, {styles});
 
-registerComponent('PostReviewsAndNominations', PostReviewsAndNominations, [withMulti, options], withStyles(styles, {name:"PostReviewsAndNominations"}));
+declare global {
+  interface ComponentTypes {
+    PostReviewsAndNominations: typeof PostReviewsAndNominationsComponent
+  }
+}
+

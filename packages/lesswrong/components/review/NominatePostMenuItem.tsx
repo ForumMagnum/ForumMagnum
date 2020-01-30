@@ -8,16 +8,21 @@ import Tooltip from '@material-ui/core/Tooltip';
 import StarIcon from '@material-ui/icons/Star';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
 
-import withDialog from '../common/withDialog';
-import withUser from '../common/withUser';
+import { useDialog } from '../common/withDialog';
+import { useCurrentUser } from '../common/withUser';
 import { Posts } from "../../lib/collections/posts";
 import { Comments } from "../../lib/collections/comments";
 import { useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
 
-const NominatePostMenuItem = ({ currentUser, post, openDialog}) => {
+const NominatePostMenuItem = ({ post }) => {
+  const currentUser = useCurrentUser();
+  const { openDialog } = useDialog();
   const { history } = useNavigation();
 
+  if (!currentUser) {
+    return null;
+  }
   const { results: nominations = [], loading } = useMulti({
     terms: {
       view:"nominations2018", 
@@ -25,12 +30,11 @@ const NominatePostMenuItem = ({ currentUser, post, openDialog}) => {
       userId: currentUser._id
     },
     collection: Comments,
-    queryName: "userNominations",
     fragmentName: "CommentsList"
   });
 
-  if (post.userId === currentUser._id) return null
-  if (currentUser.karma < 1000) return null
+  if (post.userId === currentUser!._id) return null
+  if ((currentUser.karma||0) < 1000) return null
   if (new Date(post.postedAt) > new Date("2019-01-01")) return null
   if (new Date(post.postedAt) < new Date("2018-01-01")) return null
 
@@ -70,4 +74,11 @@ const NominatePostMenuItem = ({ currentUser, post, openDialog}) => {
   );
 }
 
-registerComponent('NominatePostMenuItem', NominatePostMenuItem, withDialog, withUser);
+const NominatePostMenuItemComponent = registerComponent('NominatePostMenuItem', NominatePostMenuItem);
+
+declare global {
+  interface ComponentTypes {
+    NominatePostMenuItem: typeof NominatePostMenuItemComponent
+  }
+}
+

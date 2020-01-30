@@ -36,7 +36,12 @@ const linkIsExcludedFromPreview = (url) => {
 //   contentSourceDescription: (Optional) A human-readabe string describing
 //     where this content came from. Used in error logging only, not displayed
 //     to users.
-const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id }) => {
+const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id }: {
+  innerHTML: string,
+  href: string,
+  contentSourceDescription?: string,
+  id?: string
+}) => {
   const URLClass = getUrlClass()
   const location = useLocation();
 

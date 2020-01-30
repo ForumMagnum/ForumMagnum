@@ -4,7 +4,6 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Typography from '@material-ui/core/Typography';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = theme => ({
@@ -84,4 +83,11 @@ const NominatePostDialog = ({classes, post, onClose}) => {
   );
 }
 
-registerComponent('NominatePostDialog', NominatePostDialog, withStyles(styles, {name:"NominatePostDialog"}));
+const NominatePostDialogComponent = registerComponent('NominatePostDialog', NominatePostDialog, {styles});
+
+declare global {
+  interface ComponentTypes {
+    NominatePostDialog: typeof NominatePostDialogComponent
+  }
+}
+

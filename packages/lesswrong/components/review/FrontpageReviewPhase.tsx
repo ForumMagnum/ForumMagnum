@@ -2,10 +2,8 @@ import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Link } from '../../lib/reactRouterWrapper';
 import Tooltip from '@material-ui/core/Tooltip';
-import { withStyles } from '@material-ui/core/styles';
-import withUser from '../common/withUser'
+import { useCurrentUser } from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { reviewAlgorithm } from "./FrontpageReviewPhase";
 
 const styles = theme => ({
   timeRemaining: {
@@ -13,31 +11,33 @@ const styles = theme => ({
     marginBottom: 4
   },
   learnMore: {
-    color: theme.palette.primary.main
-  },
-  cta: {
-    background: theme.palette.primary.main,
-    opacity: .7,
-    color: "white",
-    paddingTop: 6,
-    paddingBottom: 6,
-    paddingLeft: 12,
-    paddingRight: 12,
-    borderRadius: 3,
-    textTransform: "uppercase",
-    fontSize: "1rem"
+    color: theme.palette.lwTertiary.main
   }
 })
 
-const FrontpageVotingPhase = ({classes, settings, currentUser}) => {
+export const reviewAlgorithm = {
+  method: "sample",
+  count: 3,
+  scoreOffset: 0,
+  scoreExponent: 0,
+  personalBlogpostModifier: 0,
+  frontpageModifier: 0,
+  curatedModifier: 0,
+  review2018: true, 
+  onlyUnread: false,
+  excludeDefaultRecommendations: true
+}
+
+const FrontpageReviewPhase = ({classes, settings}) => {
   const { SectionSubtitle, SectionFooter, RecommendationsList, HoverPreviewLink } = Components
+  const currentUser = useCurrentUser();
 
   const reviewTooltip = <div>
     <div>The LessWrong community is reflecting on the best posts from 2018, in three phases</div>
     <ul>
       <li><em>Nomination</em> (Nov 21 – Dec 1st)</li>
-      <li><em>Review</em> (Dec 2nd – Jan 19th)</li>
-      <li><em>Voting</em> (Jan 7th – 19th)</li>
+      <li><em>Review</em> (Dec 2nd – 31st)</li>
+      <li><em>Voting</em> (Jan 1st – 7th</li>
       <li>The LessWrong moderation team will incorporate that information, along with their judgment, into a "Best of 2018" book.</li>
     </ul>
     <div>(Currently this section shows 2018 posts with at least 2 nominations)</div>
@@ -51,17 +51,17 @@ const FrontpageVotingPhase = ({classes, settings, currentUser}) => {
         <div>
           <SectionSubtitle >
             <Link to={"/reviews"}>
-              2018 Review Voting Phase
+              The LessWrong 2018 Review
             </Link>
-            {(currentUser && currentUser.karma >= 1000) && <div className={classes.timeRemaining}>
-              <em>Deadline for voting, reviewing and editing posts is Jan 19th (<span className={classes.learnMore}>
+            <div className={classes.timeRemaining}>
+              <em>You have until Jan 13th to review and edit posts (<span className={classes.learnMore}>
                 <HoverPreviewLink href="/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review" innerHTML={"learn more"}/>
               </span>)</em>
-            </div>}
+            </div>
           </SectionSubtitle>
         </div>
       </Tooltip>
-      <AnalyticsContext listContext={"Voting on the LW 2018 Review"} capturePostItemOnMount>
+      <AnalyticsContext listContext={"LessWrong 2018 Review"} capturePostItemOnMount>
         <RecommendationsList algorithm={reviewAlgorithm} showLoginPrompt={false} />
       </AnalyticsContext>
       <SectionFooter>
@@ -71,12 +71,16 @@ const FrontpageVotingPhase = ({classes, settings, currentUser}) => {
         {currentUser && <Link to={`/users/${currentUser.slug}/reviews`}>
           My Reviews
         </Link>}
-        {(currentUser && currentUser.karma >= 1000) && <Link to={`/reviewVoting`} className={classes.cta}>
-          Vote Ends Sunday
-        </Link>}
       </SectionFooter>
     </div>
   )
 }
 
-registerComponent('FrontpageVotingPhase', FrontpageVotingPhase, withUser, withStyles(styles, {name:"FrontpageVotingPhase"}));
+const FrontpageReviewPhaseComponent = registerComponent('FrontpageReviewPhase', FrontpageReviewPhase, {styles});
+
+declare global {
+  interface ComponentTypes {
+    FrontpageReviewPhase: typeof FrontpageReviewPhaseComponent
+  }
+}
+

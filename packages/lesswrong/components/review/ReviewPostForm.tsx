@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
 import Paper from "@material-ui/core/Card"
 import CloseIcon from '@material-ui/icons/Close';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -122,4 +121,11 @@ const ReviewPostForm = ({classes, post, onClose}) => {
   </Paper>
 }
 
-registerComponent('ReviewPostForm', ReviewPostForm, withStyles(styles, {name:"ReviewPostForm"}));
+const ReviewPostFormComponent = registerComponent('ReviewPostForm', ReviewPostForm, {styles});
+
+declare global {
+  interface ComponentTypes {
+    ReviewPostForm: typeof ReviewPostFormComponent
+  }
+}
+

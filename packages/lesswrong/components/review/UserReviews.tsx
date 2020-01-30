@@ -8,7 +8,6 @@ const UserReviews = () => {
   const { params: { slug } } = useLocation();
   const { results, loading } = useMulti({
     collection: Users,
-    queryName: 'usersSingleQuery',
     fragmentName: 'UsersProfile',
     enableTotal: false,
     ssr: true,
@@ -44,4 +43,11 @@ const UserReviews = () => {
 
 };
 
-registerComponent('UserReviews', UserReviews);
+const UserReviewsComponent = registerComponent('UserReviews', UserReviews);
+
+declare global {
+  interface ComponentTypes {
+    UserReviews: typeof UserReviewsComponent
+  }
+}
+

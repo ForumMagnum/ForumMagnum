@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   setting: {
@@ -43,4 +42,11 @@ const Nominations2018 = ({classes}) => {
   )
 }
 
-registerComponent('Nominations2018', Nominations2018, withStyles(styles, {name:"Nominations2018"}));
+const Nominations2018Component = registerComponent('Nominations2018', Nominations2018, {styles});
+
+declare global {
+  interface ComponentTypes {
+    Nominations2018: typeof Nominations2018Component
+  }
+}
+

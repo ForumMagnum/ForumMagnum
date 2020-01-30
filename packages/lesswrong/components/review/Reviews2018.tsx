@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { withStyles } from '@material-ui/core/styles';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import Users from 'meteor/vulcan:users';
 import Tooltip from '@material-ui/core/Tooltip';
 import Select from '@material-ui/core/Select';
@@ -26,7 +25,8 @@ const styles = theme => ({
   }
 })
 
-const Reviews2018 = ({classes, currentUser}) => {
+const Reviews2018 = ({classes}) => {
+  const currentUser = useCurrentUser();
   const [expandUnread, setExpandUnread] = useState(!!(currentUser ? !currentUser.noExpandUnreadCommentsReview : true));
   const [sortNominatedPosts, setSortNominatedPosts] = useState("fewestReviews")
   const [sortReviews, setSortReviews] = useState("new")
@@ -39,12 +39,14 @@ const Reviews2018 = ({classes, currentUser}) => {
   const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox, RecentComments } = Components
 
   const handleSetExpandUnread = () => {
-    updateUser({
-      selector: {_id: currentUser._id},
-      data: { 
-        noExpandUnreadCommentsReview: expandUnread,
-      }
-    });
+    if (currentUser) {
+      updateUser({
+        selector: {_id: currentUser._id},
+        data: { 
+          noExpandUnreadCommentsReview: expandUnread,
+        }
+      });
+    }
     setExpandUnread(!expandUnread)
   }
 
@@ -113,4 +115,11 @@ const Reviews2018 = ({classes, currentUser}) => {
   )
 }
 
-registerComponent('Reviews2018', Reviews2018, withStyles(styles, {name:"Reviews2018"}), withUser);
+const Reviews2018Component = registerComponent('Reviews2018', Reviews2018, {styles});
+
+declare global {
+  interface ComponentTypes {
+    Reviews2018: typeof Reviews2018Component
+  }
+}
+

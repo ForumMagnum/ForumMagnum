@@ -27,7 +27,7 @@ export const POST_COMMENT_COUNT_TRUNCATE_THRESHOLD = 70
 interface ExternalProps {
   comments: any,
   totalComments?: number,
-  highlightDate: Date,
+  highlightDate?: Date,
   post: any,
   postPage?: boolean,
   condensed?: boolean,

@@ -118,16 +118,6 @@ interface ComponentTypes {
   FormComponentNumber: any
   WrappedSmartForm: any
   ManageSubscriptionsLink: any
-  FrontpageNominationPhase: any
-  FrontpageReviewPhase: any
-  Nominations2018: any
-  PostReviewsAndNominations: any,
-  Reviews2018: any
-  ReviewPostButton: any
-  ReviewPostForm: any
-  NominatePostMenuItem: any
-  NominatePostDialog: any
-  UserReviews: any
   
   // vulcan-accounts components
   AccountsButton: any

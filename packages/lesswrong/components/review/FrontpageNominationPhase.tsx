@@ -2,8 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Link } from '../../lib/reactRouterWrapper';
 import Tooltip from '@material-ui/core/Tooltip';
-import { withStyles } from '@material-ui/core/styles';
-import withUser from '../common/withUser'
+import { useCurrentUser } from '../common/withUser'
 
 const styles = theme => ({
   hideOnMobile: {
@@ -20,8 +19,9 @@ const styles = theme => ({
   }
 })
 
-const FrontpageNominationPhase = ({classes, settings, currentUser}) => {
+const FrontpageNominationPhase = ({classes, settings}) => {
   const { SectionSubtitle, RecommendationsList, SectionFooter, HoverPreviewLink } = Components
+  const currentUser = useCurrentUser();
 
   const reviewTooltip = <div>
     <div>The LessWrong community is reflecting on the best posts from 2018, in three phases</div>
@@ -54,9 +54,15 @@ const FrontpageNominationPhase = ({classes, settings, currentUser}) => {
             <Link to={"/reviews"}>
               The LessWrong 2018 Review
             </Link>
-            {currentUser?.karma >= 1000 ? <div className={classes.timeRemaining}>
-            <em>You have until Dec 1st to nominate posts. (Posts need 2+ nominations, <span className={classes.learnMore}><HoverPreviewLink href="/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review" innerHTML={"learn more"}/></span>)</em>
-          </div> : null}
+            {(currentUser?.karma||0) >= 1000
+              ? <div className={classes.timeRemaining}>
+                  <em>You have until Dec 1st to nominate posts. (Posts need
+                  2+ nominations, <span className={classes.learnMore}>
+                    <HoverPreviewLink href="/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review" innerHTML={"learn more"}/>
+                  </span>)
+                  </em>
+                </div>
+              : null}
           </SectionSubtitle>
         </div>
       </Tooltip>
@@ -76,4 +82,11 @@ const FrontpageNominationPhase = ({classes, settings, currentUser}) => {
   )
 }
 
-registerComponent('FrontpageNominationPhase', FrontpageNominationPhase, withUser, withStyles(styles, {name:"FrontpageNominationPhase"}));
+const FrontpageNominationPhaseComponent = registerComponent('FrontpageNominationPhase', FrontpageNominationPhase, {styles});
+
+declare global {
+  interface ComponentTypes {
+    FrontpageNominationPhase: typeof FrontpageNominationPhaseComponent
+  }
+}
+

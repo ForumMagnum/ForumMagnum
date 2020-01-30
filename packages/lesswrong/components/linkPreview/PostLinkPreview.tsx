@@ -233,7 +233,7 @@ const DefaultPreview = ({classes, href, innerHTML, onsite=false, id}: {
   href: string,
   innerHTML: string,
   onsite?: boolean,
-  id: string,
+  id?: string,
 }) => {
   const { LWPopper } = Components
   const { eventHandlers, hover, anchorEl } = useHover({

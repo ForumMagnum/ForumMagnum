@@ -38,6 +38,6 @@ export const CommentBoxManager = ({ children }) => {
   );
 }
 
-export const useCommentBox = () => React.useContext(CommentBoxContext);
+export const useCommentBox = (): CommentBoxContextType => React.useContext(CommentBoxContext)!;
 export const withCommentBox = hookToHoc(useCommentBox);
 export default withCommentBox;
