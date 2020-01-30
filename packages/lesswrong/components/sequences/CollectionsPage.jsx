@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { Components, withDocument, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withSingle } from '../../lib/crud/withSingle';
 import Users from 'meteor/vulcan:users';
-import Collections from '../../lib/collections/collections/collection.js';
+import Collections from '../../lib/collections/collections/collection';
 import Button from '@material-ui/core/Button';
-import { Link } from '../../lib/reactRouterWrapper.jsx';
+import { Link } from '../../lib/reactRouterWrapper';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
@@ -113,4 +114,4 @@ const options = {
   ssr: true,
 };
 
-registerComponent('CollectionsPage', CollectionsPage, [withDocument, options], withUser, withStyles(styles, {name: "CollectionsPage"}));
+registerComponent('CollectionsPage', CollectionsPage, [withSingle, options], withUser, withStyles(styles, {name: "CollectionsPage"}));

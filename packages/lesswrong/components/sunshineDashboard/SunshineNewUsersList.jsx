@@ -1,4 +1,5 @@
-import { Components, registerComponent, withList } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withMulti } from '../../lib/crud/withMulti';
 import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';
 import withUser from '../common/withUser';
@@ -12,7 +13,8 @@ class SunshineNewUsersList extends Component {
       return (
         <div>
           <SunshineListTitle>
-            New Users <SunshineListCount count={totalCount}/>
+            <span>New Users</span>
+            <SunshineListCount count={totalCount}/>
           </SunshineListTitle>
           {this.props.results.map(user =>
             <div key={user._id} >
@@ -39,4 +41,4 @@ const withListOptions = {
   ssr: true
 };
 
-registerComponent('SunshineNewUsersList', SunshineNewUsersList, [withList, withListOptions], withUser);
+registerComponent('SunshineNewUsersList', SunshineNewUsersList, [withMulti, withListOptions], withUser);

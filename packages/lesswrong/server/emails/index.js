@@ -1,2 +1,2 @@
-export * from './renderEmail.js'
-export * from './emailCron.js'
+export * from './renderEmail'
+export * from './emailCron'

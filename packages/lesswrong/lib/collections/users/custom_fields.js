@@ -1,7 +1,7 @@
 import Users from "meteor/vulcan:users";
 import { getSetting, Utils } from "meteor/vulcan:core"
 import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation } from '../../utils/schemaUtils'
-import { makeEditable } from '../../editor/make_editable.js'
+import { makeEditable } from '../../editor/make_editable'
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 import SimpleSchema from 'simpl-schema'
 
@@ -635,6 +635,10 @@ addFieldsDict(Users, {
     label: "Comments on subscribed posts",
     ...notificationTypeSettingsField(),
   },
+  notificationShortformContent: {
+    label: "Shortform by subscribed users",
+    ...notificationTypeSettingsField(),
+  },
   notificationRepliesToMyComments: {
     label: "Replies to my comments",
     ...notificationTypeSettingsField(),
@@ -919,6 +923,24 @@ addFieldsDict(Users, {
     group: formGroups.default,
     hidden: true,
     label: "Hide the frontpage map"
+  },
+
+  needsReview: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    hidden: true,
+    optional: true,
+    ...schemaDefaultValue(false),
+  },
+
+  sunshineSnoozed: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    hidden: true,
+    optional: true,
+    ...schemaDefaultValue(false),
   },
 
   // Set after a moderator has approved or purged a new user. NB: reviewed does

@@ -1,6 +1,6 @@
 import React from 'react';
 import { addRoute, getSetting } from 'meteor/vulcan:core';
-import { Posts } from './collections/posts/collection.js';
+import { Posts } from './collections/posts/collection';
 
 const communitySubtitle = { subtitleLink: "/community", subtitle: "Community" };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };

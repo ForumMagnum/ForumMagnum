@@ -1,4 +1,5 @@
-import { Components, registerComponent, useUpdate } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { useUpdate } from '../../lib/crud/withUpdate';
 import React, { useState } from 'react';
 // import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
@@ -7,7 +8,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import { Link } from '../../lib/reactRouterWrapper.jsx';
+import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import Users from 'meteor/vulcan:users';
 

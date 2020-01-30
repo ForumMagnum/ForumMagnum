@@ -1,5 +1,5 @@
 import Sentry from '@sentry/node';
-import { captureEvent } from '../lib/analyticsEvents.js';
+import { captureEvent } from '../lib/analyticsEvents';
 
 // Log unhandled promise rejections, eg exceptions escaping from async
 // callbacks. The default node behavior is to silently ignore these exceptions,

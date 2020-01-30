@@ -1,11 +1,11 @@
 import React from 'react';
 import { getSetting, registerComponent, Components } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
-import { Conversations } from '../../lib/collections/conversations/collection.js';
-import { useCurrentUser } from '../../components/common/withUser.js';
-import './EmailUsername.jsx';
-import './EmailFormatDate.jsx';
-import './EmailContentItemBody.jsx';
+import { Conversations } from '../../lib/collections/conversations/collection';
+import { useCurrentUser } from '../../components/common/withUser';
+import './EmailUsername';
+import './EmailFormatDate';
+import './EmailContentItemBody';
 
 const styles = theme => ({
   message: {

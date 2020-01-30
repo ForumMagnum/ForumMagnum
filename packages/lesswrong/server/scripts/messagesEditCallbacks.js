@@ -1,5 +1,5 @@
 /* global Vulcan */
-import Messages from '../../lib/collections/messages/collection.js';
+import Messages from '../../lib/collections/messages/collection';
 import { runCallbacks } from 'meteor/vulcan:core';
 
 Vulcan.runMessagesEditCallbacks = async () => {

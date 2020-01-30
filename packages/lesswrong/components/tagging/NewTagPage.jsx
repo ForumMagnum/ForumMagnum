@@ -1,8 +1,8 @@
 import React from 'react';
 import { registerComponent, Components, getFragment } from 'meteor/vulcan:core';
 import { useNavigation } from '../../lib/routeUtil'
-import { useCurrentUser } from '../common/withUser.js';
-import { Tags } from '../../lib/collections/tags/collection.js';
+import { useCurrentUser } from '../common/withUser';
+import { Tags } from '../../lib/collections/tags/collection';
 
 const NewTagPage = () => {
   const { history } = useNavigation();

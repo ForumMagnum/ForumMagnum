@@ -1,7 +1,7 @@
-import { withNew } from 'meteor/vulcan:core';
+import { withCreate } from '../crud/withCreate';
 import React, { Component } from 'react';
 import uuid from 'uuid/v4';
-import { LWEvents } from '../collections/lwevents/collection.js';
+import { LWEvents } from '../collections/lwevents/collection';
 import { shallowEqual } from '../utils/componentUtils';
 
 
@@ -117,7 +117,7 @@ function withNewEvents(WrappedComponent) {
       />
     }
   }
-  return withNew({
+  return withCreate({
     collection: LWEvents,
     fragmentName: 'newEventFragment',
   })(EventsWrapped);

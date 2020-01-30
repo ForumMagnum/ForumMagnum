@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import './EmailUsername.jsx';
+import './EmailUsername';
 
 const EmailPostAuthors = ({post}) => {
   const { EmailUsername } = Components;

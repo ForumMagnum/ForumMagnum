@@ -1,10 +1,10 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { withStyles, createStyles } from '@material-ui/core/styles';
-import { Link } from '../../lib/reactRouterWrapper.jsx';
+import { Link } from '../../lib/reactRouterWrapper';
 import { Posts } from "../../lib/collections/posts";
-import { Sequences } from "../../lib/collections/sequences/collection.js";
-import { Collections } from "../../lib/collections/collections/collection.js";
+import { Sequences } from "../../lib/collections/sequences/collection";
+import { Collections } from "../../lib/collections/collections/collection";
 import withErrorBoundary from '../common/withErrorBoundary';
 import CloseIcon from '@material-ui/icons/Close';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -14,7 +14,7 @@ import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { userHasBoldPostItems } from '../../lib/betas.js';
+import { userHasBoldPostItems } from '../../lib/betas';
 
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
@@ -329,7 +329,7 @@ const PostsItem2 = ({
   // query. Used for figuring out which sticky icons to apply, if any.
   terms,
   // resumeReading: If this is a Resume Reading suggestion, the corresponding
-  // partiallyReadSequenceItem (see schema in users/custom_fields.js). Used for
+  // partiallyReadSequenceItem (see schema in users/custom_fields). Used for
   // the sequence-image background.
   resumeReading,
   // dismissRecommendation: If this is a Resume Reading suggestion, a callback
@@ -415,7 +415,7 @@ const PostsItem2 = ({
 
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
-    BookmarkButton, EventVicinity, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker } = (Components as ComponentTypes)
+    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker } = (Components as ComponentTypes)
 
   const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -496,7 +496,7 @@ const PostsItem2 = ({
                 </PostsItem2MetaInfo>}
 
                 { post.isEvent && <PostsItem2MetaInfo className={classes.event}>
-                  <EventVicinity post={post} />
+                  <Components.EventVicinity post={post} />
                 </PostsItem2MetaInfo>}
 
                 {showPostedAt && !resumeReading && <PostsItemDate post={post} />}
@@ -575,14 +575,14 @@ const PostsItem2 = ({
   )
 };
 
-declare global {
-  interface ComponentTypes {
-    PostsItem2: typeof PostsItem2
-  }
-}
-
-registerComponent('PostsItem2', PostsItem2,
+const PostsItem2Component = registerComponent('PostsItem2', PostsItem2,
   withStyles(styles, { name: "PostsItem2" }),
   withRecordPostView,
   withErrorBoundary
 );
+
+declare global {
+  interface ComponentTypes {
+    PostsItem2: typeof PostsItem2Component
+  }
+}

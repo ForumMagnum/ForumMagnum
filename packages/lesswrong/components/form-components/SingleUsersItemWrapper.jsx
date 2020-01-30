@@ -1,4 +1,5 @@
-import { Components, registerComponent, withDocument} from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import Users from 'meteor/vulcan:users';
 
@@ -20,4 +21,4 @@ const options = {
   enableTotal: false,
 };
 
-registerComponent('SingleUsersItemWrapper', SingleUsersItemWrapper, [withDocument, options]);
+registerComponent('SingleUsersItemWrapper', SingleUsersItemWrapper, [withSingle, options]);

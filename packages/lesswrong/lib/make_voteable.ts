@@ -1,5 +1,5 @@
 import { addFieldsDict, denormalizedCountOfReferences } from './utils/schemaUtils'
-import { getWithLoader } from './loaders.js'
+import { getWithLoader } from './loaders'
 
 export const VoteableCollections: Array<any> = [];
 

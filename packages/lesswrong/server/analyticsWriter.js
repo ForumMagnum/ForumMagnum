@@ -1,6 +1,6 @@
 import { addGraphQLMutation, addGraphQLResolvers, getSetting } from 'meteor/vulcan:core';
 import { Pool } from 'pg'
-import { AnalyticsUtil } from '../lib/analyticsEvents.js';
+import { AnalyticsUtil } from '../lib/analyticsEvents';
 
 const connectionString = getSetting("analytics.connectionString", null);
 const environmentDescription = Meteor.isDevelopment ? "development" : getSetting("analytics.environment", "misconfigured");

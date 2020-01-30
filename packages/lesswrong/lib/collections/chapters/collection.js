@@ -1,8 +1,8 @@
 import { createCollection, getDefaultResolvers, getDefaultMutations } from 'meteor/vulcan:core';
-import schema from './schema.js';
+import schema from './schema';
 import Users from 'meteor/vulcan:users';
-import Sequences from '../sequences/collection.js';
-import { makeEditable } from '../../editor/make_editable.js';
+import Sequences from '../sequences/collection';
+import { makeEditable } from '../../editor/make_editable';
 import { addUniversalFields } from '../../collectionUtils'
 
 const options = {

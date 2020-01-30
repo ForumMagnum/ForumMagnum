@@ -1,4 +1,4 @@
-import { batchUpdateScore } from './updateScores.js';
+import { batchUpdateScore } from './updateScores';
 import { VoteableCollections } from '../lib/make_voteable';
 import { addCronJob } from './cronUtil';
 

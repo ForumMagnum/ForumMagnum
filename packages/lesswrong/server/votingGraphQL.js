@@ -1,5 +1,5 @@
 import { addCallback, addGraphQLSchema, addGraphQLResolvers, addGraphQLMutation } from 'meteor/vulcan:core';
-import { performVoteServer } from './voteServer.js';
+import { performVoteServer } from './voteServer';
 import { VoteableCollections } from '../lib/make_voteable';
 
 function CreateVoteableUnionType() {
