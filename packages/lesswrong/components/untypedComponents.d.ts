@@ -19,19 +19,6 @@ interface ComponentTypes {
   PostsVote: any
   ModerationGuidelinesBox: any
   ModerationGuidelinesEditForm: any
-  PostsListEditorSearchHit: any
-  PostsSearchHit: any
-  SearchAutoComplete: any
-  PostsSearchAutoComplete: any
-  CommentsSearchHit: any
-  UsersSearchHit: any
-  SequencesSearchHit: any
-  SequencesSearchAutoComplete: any
-  UsersSearchAutoComplete: any
-  UsersAutoCompleteHit: any
-  UsersSearchInput: any
-  SearchBarResults: any
-  SearchPagination: any
   AdminHome: any
   AdminMetadata: any
   ModerationLog: any

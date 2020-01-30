@@ -13,4 +13,11 @@ const SequencesSearchAutoComplete = ({clickAction}) => {
   />
 }
 
-registerComponent("SequencesSearchAutoComplete", SequencesSearchAutoComplete);
+const SequencesSearchAutoCompleteComponent = registerComponent("SequencesSearchAutoComplete", SequencesSearchAutoComplete);
+
+declare global {
+  interface ComponentTypes {
+    SequencesSearchAutoComplete: typeof SequencesSearchAutoCompleteComponent
+  }
+}
+

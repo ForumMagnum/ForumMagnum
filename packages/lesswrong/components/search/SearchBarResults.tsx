@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import { Hits, Configure, Index, CurrentRefinements } from 'react-instantsearch-dom';
 import Typography from '@material-ui/core/Typography';
-import { withStyles } from '@material-ui/core/styles';
 import { algoliaIndexNames } from '../../lib/algoliaUtil';
 
 const styles = theme => ({
@@ -76,8 +75,20 @@ const styles = theme => ({
   },
 })
 
-class SearchBarResults extends Component {
-  state = { type: "all", userCount: 3, postCount: 3, commentCount: 3}
+interface ExternalProps {
+  closeSearch: any
+}
+interface SearchBarResultsProps extends ExternalProps, WithStylesProps{
+}
+interface SearchBarResultsState {
+  type: string,
+  userCount: number,
+  postCount: number,
+  commentCount: number,
+}
+
+class SearchBarResults extends Component<SearchBarResultsProps,SearchBarResultsState> {
+  state: SearchBarResultsState = { type: "all", userCount: 3, postCount: 3, commentCount: 3}
 
   loadMoreUsers = () => {
     this.setState((prevState) => ({
@@ -112,7 +123,7 @@ class SearchBarResults extends Component {
       <div className={classes.searchResults}>
         <CurrentRefinements />
         <Components.ErrorBoundary>
-          <div item xs={12} sm={4} md={3} className={classes.searchList}>
+          <div className={classes.searchList}>
             <Index indexName={algoliaIndexNames.Users}>
               <div className={classes.header} onClick={this.loadMoreUsers}>
                 <Typography variant="body1">Users</Typography>
@@ -161,4 +172,11 @@ class SearchBarResults extends Component {
   }
 }
 
-registerComponent("SearchBarResults", SearchBarResults, withStyles(styles, {name: "SearchBarResults"}));
+const SearchBarResultsComponent = registerComponent<ExternalProps>("SearchBarResults", SearchBarResults, {styles});
+
+declare global {
+  interface ComponentTypes {
+    SearchBarResults: typeof SearchBarResultsComponent
+  }
+}
+

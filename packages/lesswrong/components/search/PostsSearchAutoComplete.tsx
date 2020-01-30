@@ -12,4 +12,11 @@ const PostsSearchAutoComplete = ({clickAction}) => {
   />
 }
 
-registerComponent("PostsSearchAutoComplete", PostsSearchAutoComplete);
+const PostsSearchAutoCompleteComponent = registerComponent("PostsSearchAutoComplete", PostsSearchAutoComplete);
+
+declare global {
+  interface ComponentTypes {
+    PostsSearchAutoComplete: typeof PostsSearchAutoCompleteComponent
+  }
+}
+

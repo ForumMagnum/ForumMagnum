@@ -3,7 +3,6 @@ import React from 'react';
 import Input from '@material-ui/core/Input';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   input: {
@@ -25,6 +24,11 @@ const UsersSearchInput = ({ inputProps, classes }) => {
   />
 };
 
-registerComponent("UsersSearchInput", UsersSearchInput,
-  withStyles(styles, { name: "UsersSearchInput" })
-);
+const UsersSearchInputComponent = registerComponent("UsersSearchInput", UsersSearchInput, {styles});
+
+declare global {
+  interface ComponentTypes {
+    UsersSearchInput: typeof UsersSearchInputComponent
+  }
+}
+

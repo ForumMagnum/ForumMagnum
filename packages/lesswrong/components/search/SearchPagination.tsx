@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import { Pagination } from 'react-instantsearch-dom';
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   root: {
@@ -55,9 +54,16 @@ const styles = theme => ({
   }
 })
 const SearchPagination = ({classes, pagesPadding=0, showFirst=false}) => {
-    return <div className={classes.root}>
-      <Pagination padding={pagesPadding} showFirst={showFirst}/>
-    </div>
+  return <div className={classes.root}>
+    <Pagination padding={pagesPadding} showFirst={showFirst}/>
+  </div>
 }
 
-registerComponent("SearchPagination", SearchPagination, withStyles(styles, {name: "SearchPagination"}));
+const SearchPaginationComponent = registerComponent("SearchPagination", SearchPagination, {styles});
+
+declare global {
+  interface ComponentTypes {
+    SearchPagination: typeof SearchPaginationComponent
+  }
+}
+

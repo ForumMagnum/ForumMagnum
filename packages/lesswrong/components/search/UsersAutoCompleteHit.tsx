@@ -1,6 +1,5 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   root: {
@@ -8,7 +7,7 @@ const styles = theme => ({
   }
 });
 
-const UsersAutoCompleteHit = ({document, removeItem, classes}) => {
+const UsersAutoCompleteHit = ({document, classes}) => {
   if (document) {
     return <div className={classes.root}>
       <Components.MetaInfo>
@@ -25,4 +24,12 @@ const UsersAutoCompleteHit = ({document, removeItem, classes}) => {
     return <Components.Loading />
   }
 };
-registerComponent('UsersAutoCompleteHit', UsersAutoCompleteHit, withStyles(styles, { name: "UsersAutoCompleteHit"}));
+
+const UsersAutoCompleteHitComponent = registerComponent('UsersAutoCompleteHit', UsersAutoCompleteHit, {styles});
+
+declare global {
+  interface ComponentTypes {
+    UsersAutoCompleteHit: typeof UsersAutoCompleteHitComponent
+  }
+}
+

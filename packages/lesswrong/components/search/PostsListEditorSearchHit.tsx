@@ -3,7 +3,6 @@ import { Components, registerComponent} from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import { Link } from '../../lib/reactRouterWrapper';
 
-import { withStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
 
 const styles = theme => ({
@@ -21,8 +20,7 @@ const styles = theme => ({
     }
   })
 
-const PostsListEditorSearchHit = ({hit, clickAction, classes}) => {
-  // If clickAction is provided, disable link and replace with Click of the action
+const PostsListEditorSearchHit = ({hit, classes}) => {
   return (
     <div className={classes.root}>
       <div>
@@ -45,4 +43,11 @@ const PostsListEditorSearchHit = ({hit, clickAction, classes}) => {
 }
 
 
-registerComponent("PostsListEditorSearchHit", PostsListEditorSearchHit, withStyles(styles, { name: "PostsListEditorSearchHit" }));
+const PostsListEditorSearchHitComponent = registerComponent("PostsListEditorSearchHit", PostsListEditorSearchHit, {styles});
+
+declare global {
+  interface ComponentTypes {
+    PostsListEditorSearchHit: typeof PostsListEditorSearchHitComponent
+  }
+}
+

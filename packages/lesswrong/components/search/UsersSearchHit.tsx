@@ -2,7 +2,6 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { Link } from '../../lib/reactRouterWrapper';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   root: {
@@ -29,4 +28,11 @@ const UsersSearchHit = ({hit, clickAction, classes}) => <div className={classes.
   </Link>
 </div>
 
-registerComponent("UsersSearchHit", UsersSearchHit, withStyles(styles, { name: "UsersSearchHit" }));
+const UsersSearchHitComponent = registerComponent("UsersSearchHit", UsersSearchHit, {styles});
+
+declare global {
+  interface ComponentTypes {
+    UsersSearchHit: typeof UsersSearchHitComponent
+  }
+}
+

@@ -4,7 +4,6 @@ import { InstantSearch, Configure } from 'react-instantsearch-dom';
 import { isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
 import { connectAutoComplete } from 'react-instantsearch/connectors';
 import Autosuggest from 'react-autosuggest';
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   autoComplete: {
@@ -21,14 +20,23 @@ const styles = theme => ({
   }
 });
 
-const SearchAutoComplete = ({ clickAction, placeholder, renderSuggestion, hitsPerPage=7, indexName, classes, renderInputComponent }) => {
+const SearchAutoComplete = ({ clickAction, placeholder, noSearchPlaceholder, renderSuggestion, hitsPerPage=7, indexName, classes, renderInputComponent }: {
+  clickAction: any,
+  placeholder: string,
+  noSearchPlaceholder: string,
+  renderSuggestion: any,
+  hitsPerPage?: number,
+  indexName: string,
+  classes: any,
+  renderInputComponent?: any,
+}) => {
   if (!isAlgoliaEnabled) {
     // Fallback for when Algolia is unavailable (ie, local development installs).
     // This isn't a particularly nice UI, but it's functional enough to be able
     // to test other things.
-    return <input type="text" placeholder={placeholder} onKeyPress={ev => {
+    return <input type="text" placeholder={noSearchPlaceholder} onKeyPress={ev => {
       if (ev.charCode===13) {
-        const id = ev.target.value;
+        const id = (ev.target as HTMLInputElement).value;
         clickAction(id);
         ev.preventDefault();
       }
@@ -78,5 +86,11 @@ const AutocompleteTextbox = connectAutoComplete(
   }
 );
 
-registerComponent("SearchAutoComplete", SearchAutoComplete,
-  withStyles(styles, {name: "SearchAutoComplete"}));
+const SearchAutoCompleteComponent = registerComponent("SearchAutoComplete", SearchAutoComplete, {styles});
+
+declare global {
+  interface ComponentTypes {
+    SearchAutoComplete: typeof SearchAutoCompleteComponent
+  }
+}
+

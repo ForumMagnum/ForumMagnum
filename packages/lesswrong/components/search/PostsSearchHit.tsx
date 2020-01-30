@@ -3,7 +3,6 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet} from 'react-instantsearch-dom';
-import { withStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
 import Typography from '@material-ui/core/Typography';
 
@@ -48,4 +47,11 @@ const PostsSearchHit = ({hit, clickAction, classes}) => {
 }
 
 
-registerComponent("PostsSearchHit", PostsSearchHit, withStyles(styles, { name: "PostsSearchHit" }));
+const PostsSearchHitComponent = registerComponent("PostsSearchHit", PostsSearchHit, {styles});
+
+declare global {
+  interface ComponentTypes {
+    PostsSearchHit: typeof PostsSearchHitComponent
+  }
+}
+

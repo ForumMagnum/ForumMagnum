@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent} from 'meteor/vulcan:core';
 import { Link } from '../../lib/reactRouterWrapper';
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   title: {
@@ -44,5 +43,11 @@ const SequencesSearchHit = ({hit, clickAction, classes}) => {
   </div>
 }
 
-registerComponent("SequencesSearchHit", SequencesSearchHit,
-  withStyles(styles, {name: "SequencesSearchHit"}));
+const SequencesSearchHitComponent = registerComponent("SequencesSearchHit", SequencesSearchHit, {styles});
+
+declare global {
+  interface ComponentTypes {
+    SequencesSearchHit: typeof SequencesSearchHitComponent
+  }
+}
+

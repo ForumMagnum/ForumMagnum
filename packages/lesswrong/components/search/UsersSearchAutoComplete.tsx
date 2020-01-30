@@ -13,4 +13,11 @@ const UsersSearchAutoComplete = ({clickAction, label}) => {
   />
 }
 
-registerComponent("UsersSearchAutoComplete", UsersSearchAutoComplete);
+const UsersSearchAutoCompleteComponent = registerComponent("UsersSearchAutoComplete", UsersSearchAutoComplete);
+
+declare global {
+  interface ComponentTypes {
+    UsersSearchAutoComplete: typeof UsersSearchAutoCompleteComponent
+  }
+}
+

@@ -1,7 +1,6 @@
 import { Components, registerComponent} from 'meteor/vulcan:core';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
-import { withStyles } from '@material-ui/core/styles';
 import React from 'react';
 
 const styles = theme => ({
@@ -36,4 +35,11 @@ const CommentsSearchHit = ({hit, clickAction, classes}) => {
   </div>
 }
 
-registerComponent("CommentsSearchHit", CommentsSearchHit, withStyles(styles, {name: "CommentsSearchHit"}));
+const CommentsSearchHitComponent = registerComponent("CommentsSearchHit", CommentsSearchHit, {styles});
+
+declare global {
+  interface ComponentTypes {
+    CommentsSearchHit: typeof CommentsSearchHitComponent
+  }
+}
+
