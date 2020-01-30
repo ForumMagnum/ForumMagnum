@@ -4,6 +4,8 @@ python: 3.7
 node_js:
 - 12
 before_install:
+- openssl aes-256-cbc -K $encrypted_f7bd7c62657c_key -iv $encrypted_f7bd7c62657c_iv
+  -in credentials.tar.gz.enc -out credentials.tar.gz -d
 - yarn install
 - command -v meteor >/dev/null 2>&1 || curl https://install.meteor.com | /bin/sh
 before_script:
@@ -16,40 +18,41 @@ env:
 jobs:
   include:
   - stage: everything
-    name: "Tests"
+    name: Tests
     script: yarn run test && yarn run lint && yarn run checktypes
   - script: skip
-    name: "Deploy LessestWrong"
+    name: Deploy LessestWrong
     if: branch = devel AND type != pull_request
-    deploy: &lessestwrong
+    deploy:
       provider: script
-      script: bash ./deploy.sh ./LessWrong-Credentials/settings-staging-lessestwrong.json ./LessWrong-Credentials/mup-lessestwrong.secret
+      script: bash ./deploy.sh ./LessWrong-Credentials/settings-staging-lessestwrong.json
+        ./LessWrong-Credentials/mup-lessestwrong.secret
       on:
         branch: devel
   - script: skip
-    name: "Deploy Baserates"
+    name: Deploy Baserates
     if: branch = devel AND type != pull_request
-    deploy: &baserates
+    deploy:
       provider: script
-      script: 
-        bash ./deploy.sh ./LessWrong-Credentials/settings-staging-baserates.json ./LessWrong-Credentials/mup-baserates.secret
+      script: bash ./deploy.sh ./LessWrong-Credentials/settings-staging-baserates.json
+        ./LessWrong-Credentials/mup-baserates.secret
       on:
         branch: devel
   - script: skip
-    name: "Deploy LessWrong"
+    name: Deploy LessWrong
     if: branch = master AND type != pull_request
-    deploy: &lesswrong
+    deploy:
       provider: script
-      script: 
-        bash ./deploy.sh ./LessWrong-Credentials/settings-production-lesswrong.json ./LessWrong-Credentials/mup-production.secret
+      script: bash ./deploy.sh ./LessWrong-Credentials/settings-production-lesswrong.json
+        ./LessWrong-Credentials/mup-production.secret
       on:
         branch: master
   - script: skip
-    name: "Deploy AIAF"
+    name: Deploy AIAF
     if: branch = master AND type != pull_request
-    deploy: &AIAF
+    deploy:
       provider: script
-      script: 
-        bash ./deploy.sh ./LessWrong-Credentials/settings-production-alignmentforum.json ./LessWrong-Credentials/mup-af.secret
+      script: bash ./deploy.sh ./LessWrong-Credentials/settings-production-alignmentforum.json
+        ./LessWrong-Credentials/mup-af.secret
       on:
         branch: master
