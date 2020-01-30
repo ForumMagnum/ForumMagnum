@@ -41,7 +41,7 @@ export const withContinueReading = component => {
       options: (props) => ({
         variables: {}
       }),
-      props(props) {
+      props(props: any) {
         return {
           continueReadingLoading: props.data.loading,
           continueReading: props.data.ContinueReading,

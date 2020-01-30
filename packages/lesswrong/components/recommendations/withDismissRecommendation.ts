@@ -7,7 +7,7 @@ export const withDismissRecommendation = component => {
       dismissRecommendation(postId: $postId)
     }
   `, {
-    props: ({ownProps, mutate}) => ({
+    props: ({ownProps, mutate}: any): any => ({
       dismissRecommendation: async ({postId}) => {
         await mutate({
           variables: {

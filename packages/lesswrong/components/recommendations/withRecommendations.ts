@@ -16,13 +16,13 @@ export  const withRecommendations = component => {
   return graphql(recommendationsQuery,
     {
       alias: "withRecommendations",
-      options: (props) => ({
+      options: (props: any) => ({
         variables: {
           count: props.algorithm?.count || 10,
           algorithm: props.algorithm || defaultAlgorithmSettings,
         }
       }),
-      props(props) {
+      props(props: any) {
         return {
           recommendationsLoading: props.data.loading,
           recommendations: props.data.Recommendations,
