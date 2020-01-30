@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import MenuItem from '@material-ui/core/MenuItem';
-import PropTypes from 'prop-types';
 import Users from 'meteor/vulcan:users';
 import withUser from '../common/withUser';
 import withDialog from '../common/withDialog'
@@ -15,7 +14,6 @@ interface ReportPostMenuItemProps extends ExternalProps, WithUserProps, WithDial
 }
 
 class ReportPostMenuItem extends PureComponent<ReportPostMenuItemProps> {
-
   showReport = () => {
     const { openDialog, post, currentUser } = this.props;
     if (!currentUser) return;
@@ -43,11 +41,6 @@ class ReportPostMenuItem extends PureComponent<ReportPostMenuItemProps> {
     </MenuItem>
   }
 };
-
-(ReportPostMenuItem as any).propTypes = {
-  currentUser: PropTypes.object,
-  post: PropTypes.object.isRequired
-}
 
 const ReportPostMenuItemComponent = registerComponent<ExternalProps>('ReportPostMenuItem', ReportPostMenuItem, {
   hocs: [withUser, withDialog]

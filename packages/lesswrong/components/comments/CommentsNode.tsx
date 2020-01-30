@@ -1,7 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withLocation } from '../../lib/routeUtil';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
 import withUser from '../common/withUser';
@@ -432,10 +431,6 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
     )
   }
 }
-
-(CommentsNode as any).propTypes = {
-  comment: PropTypes.object.isRequired, // the current comment
-};
 
 const CommentsNodeComponent = registerComponent<ExternalProps>('CommentsNode', CommentsNode, {
   styles,

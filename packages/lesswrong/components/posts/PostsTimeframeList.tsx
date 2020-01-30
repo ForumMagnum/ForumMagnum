@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
 import moment from '../../lib/moment-timezone';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography'
@@ -167,11 +166,6 @@ class PostsTimeframeList extends PureComponent<PostsTimeframeListProps,PostsTime
       </div>
     )
   }
-};
-
-(PostsTimeframeList as any).propTypes = {
-  after: PropTypes.string,
-  before: PropTypes.string, // exclusive
 };
 
 const PostsTimeframeListComponent = registerComponent<ExternalProps>('PostsTimeframeList', PostsTimeframeList, {

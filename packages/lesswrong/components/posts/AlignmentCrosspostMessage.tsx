@@ -1,6 +1,5 @@
 import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
-import PropTypes from 'prop-types';
 
 const styles = theme => ({
   root: {
@@ -20,11 +19,6 @@ const AlignmentCrosspostMessage = ({post, classes}) => {
     return null
   }
 }
-
-AlignmentCrosspostMessage.propTypes = {
-  post: PropTypes.object.isRequired,
-  classes: PropTypes.object.isRequired
-};
 
 const AlignmentCrosspostMessageComponent = registerComponent('AlignmentCrosspostMessage', AlignmentCrosspostMessage, {styles});
 

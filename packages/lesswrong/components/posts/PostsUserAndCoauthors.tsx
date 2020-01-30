@@ -1,6 +1,5 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
-import PropTypes from 'prop-types';
 
 const styles = theme => ({
   lengthLimited: {
@@ -25,11 +24,6 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=fa
     {post.coauthors.map(coauthor =>
       <React.Fragment key={coauthor._id}>, <Components.UsersName user={coauthor} simple={simple}  /></React.Fragment>)}
   </div>;
-};
-
-PostsUserAndCoauthors.propTypes = {
-  post: PropTypes.object,
-  abbreviateIfLong: PropTypes.bool,
 };
 
 const PostsUserAndCoauthorsComponent = registerComponent("PostsUserAndCoauthors", PostsUserAndCoauthors, {styles});

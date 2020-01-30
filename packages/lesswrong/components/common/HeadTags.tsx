@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Utils, registerSetting, getSetting, Head } from 'meteor/vulcan:lib';
@@ -76,12 +75,6 @@ const HeadTags = (props) => {
       </React.Fragment>
     );
 }
-
-HeadTags.propTypes = {
-  url: PropTypes.string,
-  description: PropTypes.string,
-  image: PropTypes.string,
-};
 
 const HeadTagsComponent = registerComponent('HeadTags', HeadTags, {
   hocs: [withApollo]

@@ -3,7 +3,6 @@ import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import { postHighlightStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
-import PropTypes from 'prop-types';
 
 const styles = theme => ({
   root: {
@@ -29,11 +28,6 @@ const PostsHighlight = ({post, classes}) => {
         </Link>}
       </div>
     </div>
-};
-
-PostsHighlight.propTypes = {
-  post: PropTypes.object.isRequired,
-  classes: PropTypes.object.isRequired
 };
 
 const PostsHighlightComponent = registerComponent('PostsHighlight', PostsHighlight, {styles});

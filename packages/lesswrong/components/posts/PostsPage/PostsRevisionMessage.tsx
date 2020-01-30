@@ -1,7 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { QueryLink } from '../../../lib/reactRouterWrapper';
-import PropTypes from 'prop-types';
 
 const styles = theme => ({
   root: {
@@ -23,11 +22,6 @@ const PostsRevisionMessage = ({post, classes}) => {
     </div>
   );
 }
-
-PostsRevisionMessage.propTypes = {
-  post: PropTypes.object.isRequired,
-  classes: PropTypes.object.isRequired
-};
 
 const PostsRevisionMessageComponent = registerComponent('PostsRevisionMessage', PostsRevisionMessage, {styles});
 

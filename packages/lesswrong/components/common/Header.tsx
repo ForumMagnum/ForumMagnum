@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -305,12 +304,6 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
     )
   }
 }
-
-(Header as any).propTypes = {
-  currentUser: PropTypes.object,
-  classes: PropTypes.object.isRequired,
-  searchResultsArea: PropTypes.object,
-};
 
 const HeaderComponent = registerComponent<ExternalProps>('Header', Header, {
   styles,

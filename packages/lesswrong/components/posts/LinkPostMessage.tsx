@@ -1,7 +1,6 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import React from 'react';
-import PropTypes from 'prop-types';
 
 const styles = theme => ({
   root: {
@@ -20,11 +19,6 @@ const LinkPostMessage = ({post, classes}) => {
     </div>
   );
 }
-
-LinkPostMessage.propTypes = {
-  post: PropTypes.object.isRequired,
-  classes: PropTypes.object.isRequired
-};
 
 const LinkPostMessageComponent = registerComponent('LinkPostMessage', LinkPostMessage, {styles});
 
