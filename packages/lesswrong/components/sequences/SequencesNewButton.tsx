@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper';
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
 
@@ -20,4 +19,11 @@ export const SequencesNewButton = ({ classes }) => {
   </Link>
 }
 
-registerComponent('SequencesNewButton', SequencesNewButton, withStyles(styles, { name: "SequencesNewButton" }));
+const SequencesNewButtonComponent = registerComponent('SequencesNewButton', SequencesNewButton, {styles});
+
+declare global {
+  interface ComponentTypes {
+    SequencesNewButton: typeof SequencesNewButtonComponent
+  }
+}
+

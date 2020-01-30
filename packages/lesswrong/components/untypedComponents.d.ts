@@ -53,36 +53,6 @@ interface ComponentTypes {
   LastCuratedDate: any
   EmailHistory: any
   EmailHistoryPage: any
-  EditSequenceTitle: any
-  SequencesPage: any
-  SequencesPostsList: any
-  SequencesSingle: any
-  SequencesEditForm: any
-  SequencesNewForm: any
-  SequencesHome: any
-  SequencesGrid: any
-  SequencesGridWrapper: any
-  SequenceTooltip: any
-  SequencesNavigationLink: any
-  SequencesNewButton: any
-  BottomNavigation: any
-  BottomNavigationItem: any
-  SequencesPost: any
-  SequencesGridItem: any
-  ChaptersItem: any
-  ChaptersList: any
-  ChaptersEditForm: any
-  ChaptersNewForm: any
-  CollectionsSingle: any
-  CollectionsPage: any
-  CollectionsEditForm: any
-  BooksNewForm: any
-  BooksEditForm: any
-  BooksItem: any
-  CoreReading: any
-  CoreSequences: any
-  HPMOR: any
-  Codex: any
   PostsListEditor: any
   ImageUpload: any
   SequencesListEditor: any

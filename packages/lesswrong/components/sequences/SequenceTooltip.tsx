@@ -29,4 +29,11 @@ const SequenceTooltip = ({ sequence, classes }) => {
   </div>;
 }
 
-registerComponent('SequenceTooltip', SequenceTooltip, withStyles(styles, { name: "SequenceTooltip" }));
+const SequenceTooltipComponent = registerComponent('SequenceTooltip', SequenceTooltip, {styles});
+
+declare global {
+  interface ComponentTypes {
+    SequenceTooltip: typeof SequenceTooltipComponent
+  }
+}
+

@@ -2,7 +2,6 @@ import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types'
 import Input from '@material-ui/core/Input';
-import { withStyles } from '@material-ui/core/styles';
 import { sequencesImageScrim } from '../sequences/SequencesPage'
 
 const styles = theme => ({
@@ -60,5 +59,11 @@ EditSequenceTitle.contextTypes = {
   updateCurrentValues: PropTypes.func,
 };
 
-registerComponent("EditSequenceTitle", EditSequenceTitle,
-  withStyles(styles, {name: "EditSequenceTitle"}));
+const EditSequenceTitleComponent = registerComponent("EditSequenceTitle", EditSequenceTitle, {styles});
+
+declare global {
+  interface ComponentTypes {
+    EditSequenceTitle: typeof EditSequenceTitleComponent
+  }
+}
+

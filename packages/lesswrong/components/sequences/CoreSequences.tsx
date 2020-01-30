@@ -5,4 +5,11 @@ const CoreSequences = () => {
   return <Components.CollectionsPage documentId={'oneQyj4pw77ynzwAF'} />
 };
 
-registerComponent('CoreSequences', CoreSequences);
+const CoreSequencesComponent = registerComponent('CoreSequences', CoreSequences);
+
+declare global {
+  interface ComponentTypes {
+    CoreSequences: typeof CoreSequencesComponent
+  }
+}
+

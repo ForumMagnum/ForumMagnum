@@ -1,16 +1,15 @@
 import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
-import { withMessages } from '../common/withMessages';
 import React from 'react';
 import Collections from '../../lib/collections/collections/collection';
 
-const CollectionsEditForm = (props) => {
+const CollectionsEditForm = ({documentId, successCallback, cancelCallback}) => {
   return (
     <div className="chapters-edit-form">
       <Components.WrappedSmartForm
         collection={Collections}
-        documentId={props.documentId}
-        successCallback={props.successCallback}
-        cancelCallback={props.cancelCallback}
+        documentId={documentId}
+        successCallback={successCallback}
+        cancelCallback={cancelCallback}
         showRemove={true}
         queryFragment={getFragment('CollectionsEditFragment')}
         mutationFragment={getFragment('CollectionsPageFragment')}
@@ -19,4 +18,11 @@ const CollectionsEditForm = (props) => {
   )
 }
 
-registerComponent('CollectionsEditForm', CollectionsEditForm, withMessages);
+const CollectionsEditFormComponent = registerComponent('CollectionsEditForm', CollectionsEditForm);
+
+declare global {
+  interface ComponentTypes {
+    CollectionsEditForm: typeof CollectionsEditFormComponent
+  }
+}
+

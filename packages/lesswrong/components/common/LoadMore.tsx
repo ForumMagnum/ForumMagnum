@@ -21,13 +21,14 @@ const styles = createStyles(theme => ({
 }))
 
 
-const LoadMore = ({ loadMore, count, totalCount, classes, disabled=false, networkStatus, hidden=false }: {
+const LoadMore = ({ loadMore, count, totalCount, classes, disabled=false, networkStatus, loading=false, hidden=false }: {
   loadMore: any,
   count?: number,
   totalCount?: number,
   classes: any,
   disabled?: boolean,
   networkStatus?: any,
+  loading?: boolean,
   hidden?: boolean,
 }) => {
   const { captureEvent } = useTracking("loadMoreClicked")
@@ -41,7 +42,7 @@ const LoadMore = ({ loadMore, count, totalCount, classes, disabled=false, networ
     captureEvent("loadMoreClicked")
   }
 
-  if (networkStatus && queryIsUpdating(networkStatus)) {
+  if (loading || (networkStatus && queryIsUpdating(networkStatus))) {
     return <div className={classes.loading}>
       <Loading/>
     </div>

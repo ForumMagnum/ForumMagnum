@@ -1,6 +1,5 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import classnames from 'classnames';
 
@@ -90,5 +89,11 @@ const BottomNavigation = ({post, classes}) => {
 };
 
 
-registerComponent('BottomNavigation', BottomNavigation,
-  withStyles(styles, {name: "BottomNavigation"}));
+const BottomNavigationComponent = registerComponent('BottomNavigation', BottomNavigation, {styles});
+
+declare global {
+  interface ComponentTypes {
+    BottomNavigation: typeof BottomNavigationComponent
+  }
+}
+

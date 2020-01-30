@@ -1,14 +1,9 @@
-import {
-  Components,
-  registerComponent,
-} from 'meteor/vulcan:core';
+import { Components, registerComponent, } from 'meteor/vulcan:core';
 import NoSSR from 'react-no-ssr';
 import React, { PureComponent } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
-import { withStyles } from '@material-ui/core/styles';
-import withUser from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 
 const styles = theme => ({
@@ -97,40 +92,47 @@ const styles = theme => ({
   },
 })
 
-class SequencesGridItem extends PureComponent {
-  getSequenceUrl = () => {
-    return '/s/' + this.props.sequence._id
+const SequencesGridItem = ({ sequence, showAuthor=false, classes }: {
+  sequence: any,
+  showAuthor?: boolean,
+  classes?: any,
+}) => {
+  const getSequenceUrl = () => {
+    return '/s/' + sequence._id
   }
+  const { LinkCard, SequenceTooltip } = Components;
+  const url = getSequenceUrl()
 
-  render() {
-    const { sequence, showAuthor=false, classes } = this.props
-    const { LinkCard, SequenceTooltip } = Components;
-    const url = this.getSequenceUrl()
+  return <LinkCard className={classes.root} to={url} tooltip={<SequenceTooltip sequence={sequence}/>}>
+    <div className={classNames(classes.top, {[classes.topWithAuthor]: showAuthor})} style={{borderTopColor: sequence.color}}>
+      <Link key={sequence._id} to={url}>
+        <Typography variant='title' className={classes.title}>
+          {sequence.draft && <span className={classes.draft}>[Draft] </span>}
+          {sequence.title}
+        </Typography>
+      </Link>
+      { showAuthor &&
+        <div className={classes.author}>
+          by <Components.UsersName user={sequence.user} />
+        </div>}
+    </div>
+    <div className={classes.image}>
+      <NoSSR>
+        <Components.CloudinaryImage
+          publicId={sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
+          height={124}
+          width={315}
+        />
+      </NoSSR>
+    </div>
+  </LinkCard>
+}
 
-    return <LinkCard className={classes.root} to={url} tooltip={<SequenceTooltip sequence={sequence}/>}>
-      <div className={classNames(classes.top, {[classes.topWithAuthor]: showAuthor})} style={{borderTopColor: sequence.color}}>
-        <Link key={sequence._id} to={url}>
-          <Typography variant='title' className={classes.title}>
-            {sequence.draft && <span className={classes.draft}>[Draft] </span>}
-            {sequence.title}
-          </Typography>
-        </Link>
-        { showAuthor &&
-          <div className={classes.author}>
-            by <Components.UsersName user={sequence.user} />
-          </div>}
-      </div>
-      <div className={classes.image}>
-        <NoSSR>
-          <Components.CloudinaryImage
-            publicId={sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
-            height={124}
-            width={315}
-          />
-        </NoSSR>
-      </div>
-    </LinkCard>
+const SequencesGridItemComponent = registerComponent('SequencesGridItem', SequencesGridItem, {styles});
+
+declare global {
+  interface ComponentTypes {
+    SequencesGridItem: typeof SequencesGridItemComponent
   }
 }
 
-registerComponent('SequencesGridItem', SequencesGridItem, withUser, withStyles(styles, { name: "SequencesGridItem" }));

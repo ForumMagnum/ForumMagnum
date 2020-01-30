@@ -1,8 +1,6 @@
 import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
-import { withMessages } from '../common/withMessages';
 import React from 'react';
 import Chapters from '../../lib/collections/chapters/collection';
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   root: {
@@ -32,4 +30,11 @@ const ChaptersEditForm = ({classes, documentId, successCallback, cancelCallback}
   )
 }
 
-registerComponent('ChaptersEditForm', ChaptersEditForm, withMessages, withStyles(styles, {name:"ChaptersEditForm"}));
+const ChaptersEditFormComponent = registerComponent('ChaptersEditForm', ChaptersEditForm, {styles});
+
+declare global {
+  interface ComponentTypes {
+    ChaptersEditForm: typeof ChaptersEditFormComponent
+  }
+}
+

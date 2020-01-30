@@ -7,4 +7,11 @@ const SequencesSingle = () => {
   return <Components.SequencesPage documentId={params._id} />
 };
 
-registerComponent('SequencesSingle', SequencesSingle);
+const SequencesSingleComponent = registerComponent('SequencesSingle', SequencesSingle);
+
+declare global {
+  interface ComponentTypes {
+    SequencesSingle: typeof SequencesSingleComponent
+  }
+}
+

@@ -40,7 +40,11 @@ export const styles = theme => ({
   },
 });
 
-const SequencesGrid = ({sequences, showAuthor, classes}) =>
+const SequencesGrid = ({sequences, showAuthor, classes}: {
+  sequences: any,
+  showAuthor?: boolean,
+  classes: any,
+}) =>
   <div className={classes.grid}>
     <div className={classes.gridContent}>
       {sequences.map(sequence => {
@@ -54,5 +58,11 @@ const SequencesGrid = ({sequences, showAuthor, classes}) =>
     </div>
   </div>
 
-registerComponent('SequencesGrid', SequencesGrid,
-  withStyles(styles, {name: "SequencesGrid"}));
+const SequencesGridComponent = registerComponent('SequencesGrid', SequencesGrid, {styles});
+
+declare global {
+  interface ComponentTypes {
+    SequencesGrid: typeof SequencesGridComponent
+  }
+}
+

@@ -46,4 +46,11 @@ const CoreReading = ({minimal=false}) => (
   </Components.CollectionsCardContainer>
 );
 
-registerComponent("CoreReading", CoreReading);
+const CoreReadingComponent = registerComponent("CoreReading", CoreReading);
+
+declare global {
+  interface ComponentTypes {
+    CoreReading: typeof CoreReadingComponent
+  }
+}
+

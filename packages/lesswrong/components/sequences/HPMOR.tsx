@@ -1,8 +1,15 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 
-const HPMOR = (props, context) => {
+const HPMOR = () => {
   return <Components.CollectionsPage documentId={'ywQvGBSojSQZTMpLh'} />
 };
 
-registerComponent('HPMOR', HPMOR);
+const HPMORComponent = registerComponent('HPMOR', HPMOR);
+
+declare global {
+  interface ComponentTypes {
+    HPMOR: typeof HPMORComponent
+  }
+}
+

@@ -7,4 +7,11 @@ const CollectionsSingle = () => {
   return <Components.CollectionsPage documentId={params._id} />
 };
 
-registerComponent('CollectionsSingle', CollectionsSingle);
+const CollectionsSingleComponent = registerComponent('CollectionsSingle', CollectionsSingle);
+
+declare global {
+  interface ComponentTypes {
+    CollectionsSingle: typeof CollectionsSingleComponent
+  }
+}
+

@@ -3,8 +3,8 @@ import React from 'react';
 import { Image } from 'cloudinary-react';
 
 const CloudinaryImage = ({width, height, publicId}: {
-  width?: number,
-  height?: number,
+  width?: number|string,
+  height?: number|string,
   publicId: string,
 }) => {
   const cloudinaryCloudName = getSetting('cloudinary.cloudName', 'lesswrong-2-0')

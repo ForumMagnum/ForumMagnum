@@ -1,19 +1,22 @@
 import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
-import { withMessages } from '../common/withMessages';
 import React from 'react';
 import Chapters from '../../lib/collections/chapters/collection';
 
 //TODO: Manage chapter removal to remove the reference from all parent-sequences
 
-const ChaptersNewForm = (props) => {
+const ChaptersNewForm = ({successCallback, cancelCallback, prefilledProps}: {
+  successCallback?: ()=>void,
+  cancelCallback?: ()=>void,
+  prefilledProps?: Record<string,any>,
+}) => {
   return (
     <div className="chapters-new-form">
       <h3>Add Chapter</h3>
       <Components.WrappedSmartForm
         collection={Chapters}
-        successCallback={props.successCallback}
-        cancelCallback={props.cancelCallback}
-        prefilledProps={props.prefilledProps}
+        successCallback={successCallback}
+        cancelCallback={cancelCallback}
+        prefilledProps={prefilledProps}
         fragment={getFragment('ChaptersFragment')}
         queryFragment={getFragment('ChaptersFragment')}
         mutationFragment={getFragment('ChaptersFragment')}
@@ -22,4 +25,11 @@ const ChaptersNewForm = (props) => {
   )
 }
 
-registerComponent('ChaptersNewForm', ChaptersNewForm, withMessages);
+const ChaptersNewFormComponent = registerComponent('ChaptersNewForm', ChaptersNewForm);
+
+declare global {
+  interface ComponentTypes {
+    ChaptersNewForm: typeof ChaptersNewFormComponent
+  }
+}
+

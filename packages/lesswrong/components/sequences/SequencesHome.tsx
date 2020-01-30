@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import Typography from '@material-ui/core/Typography';
 import { postBodyStyles } from '../../themes/stylePiping';
@@ -37,7 +36,6 @@ const styles = theme => ({
 });
 
 const SequencesHome = ({classes}) => {
-
   const { SingleColumnSection, SectionTitle, Divider, SequencesNewButton } = Components
   // TODO: decide on terms for community sequences
   return <React.Fragment>
@@ -82,7 +80,6 @@ const SequencesHome = ({classes}) => {
         <div className={classes.sequencesGridWrapperWrapper}>
           <Components.SequencesGridWrapper
             terms={{'view':'communitySequences', limit:12}}
-            listMode={true}
             showAuthor={true}
             showLoadMore={true}
           />
@@ -92,9 +89,11 @@ const SequencesHome = ({classes}) => {
   </React.Fragment>;
 };
 
-registerComponent(
-  'SequencesHome',
-  SequencesHome,
-  withStyles(styles, {name: "SequencesHome"}),
-  //withMulti(options)
-);
+const SequencesHomeComponent = registerComponent('SequencesHome', SequencesHome, {styles});
+
+declare global {
+  interface ComponentTypes {
+    SequencesHome: typeof SequencesHomeComponent
+  }
+}
+

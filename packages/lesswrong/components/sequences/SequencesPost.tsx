@@ -10,4 +10,11 @@ const SequencesPost = () => {
   return <Components.PostsPageWrapper documentId={postId} sequenceId={sequenceId} version={version} />
 };
 
-registerComponent('SequencesPost', SequencesPost);
+const SequencesPostComponent = registerComponent('SequencesPost', SequencesPost);
+
+declare global {
+  interface ComponentTypes {
+    SequencesPost: typeof SequencesPostComponent
+  }
+}
+

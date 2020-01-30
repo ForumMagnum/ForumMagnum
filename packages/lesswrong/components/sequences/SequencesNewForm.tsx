@@ -1,11 +1,13 @@
 import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
-import { withMessages } from '../common/withMessages';
+import { useMessages } from '../common/withMessages';
 import React from 'react';
 import { useNavigation } from '../../lib/routeUtil';
 import Sequences from '../../lib/collections/sequences/collection';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 
-const SequencesNewForm = ({ currentUser, flash, redirect, cancelCallback, removeSuccessCallback}) => {
+const SequencesNewForm = ({ redirect, cancelCallback, removeSuccessCallback}) => {
+  const currentUser = useCurrentUser();
+  const { flash } = useMessages();
   const { history } = useNavigation();
   
   if (currentUser) {
@@ -30,4 +32,11 @@ const SequencesNewForm = ({ currentUser, flash, redirect, cancelCallback, remove
   }
 }
 
-registerComponent('SequencesNewForm', SequencesNewForm, withMessages, withUser);
+const SequencesNewFormComponent = registerComponent('SequencesNewForm', SequencesNewForm);
+
+declare global {
+  interface ComponentTypes {
+    SequencesNewForm: typeof SequencesNewFormComponent
+  }
+}
+

@@ -6,7 +6,6 @@ import NavigateBefore from '@material-ui/icons/NavigateBefore'
 import NavigateNext from '@material-ui/icons/NavigateNext'
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { withStyles } from '@material-ui/core/styles';
 import classnames from 'classnames';
 
 // Shared with SequencesNavigationLinkDisabled
@@ -53,5 +52,11 @@ const SequencesNavigationLink = ({ post, direction, classes }) => {
   }
 };
 
-registerComponent('SequencesNavigationLink', SequencesNavigationLink,
-  withStyles(styles, {name: "SequencesNavigationLink"}));
+const SequencesNavigationLinkComponent = registerComponent('SequencesNavigationLink', SequencesNavigationLink, {styles});
+
+declare global {
+  interface ComponentTypes {
+    SequencesNavigationLink: typeof SequencesNavigationLinkComponent
+  }
+}
+

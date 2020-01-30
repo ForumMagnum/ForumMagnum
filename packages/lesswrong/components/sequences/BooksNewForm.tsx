@@ -3,14 +3,18 @@ import { withMessages } from '../common/withMessages';
 import React from 'react';
 import Books from '../../lib/collections/books/collection';
 
-const BooksNewForm = (props) => {
+const BooksNewForm = ({successCallback, cancelCallback, prefilledProps}: {
+  successCallback?: ()=>void,
+  cancelCallback?: ()=>void,
+  prefilledProps?: Record<string,any>,
+}) => {
   return (
     <div className="chapters-new-form">
       <Components.WrappedSmartForm
         collection={Books}
-        successCallback={props.successCallback}
-        cancelCallback={props.cancelCallback}
-        prefilledProps={props.prefilledProps}
+        successCallback={successCallback}
+        cancelCallback={cancelCallback}
+        prefilledProps={prefilledProps}
         fragment={getFragment('BookPageFragment')}
         queryFragment={getFragment('BookPageFragment')}
         mutationFragment={getFragment('BookPageFragment')}
@@ -19,4 +23,11 @@ const BooksNewForm = (props) => {
   )
 }
 
-registerComponent('BooksNewForm', BooksNewForm, withMessages);
+const BooksNewFormComponent = registerComponent('BooksNewForm', BooksNewForm);
+
+declare global {
+  interface ComponentTypes {
+    BooksNewForm: typeof BooksNewFormComponent
+  }
+}
+
