@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { Link } from '../../lib/reactRouterWrapper';
-import { createStyles } from '@material-ui/core/styles';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 
 export const postsItemLikeStyles = theme => ({

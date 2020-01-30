@@ -7,7 +7,6 @@ import Typography from '@material-ui/core/Typography';
 import { Posts } from '../../lib/collections/posts';
 import withHover from '../common/withHover'
 import Users from 'meteor/vulcan:users';
-import PropTypes from 'prop-types';
 import withUser from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import DoneIcon from '@material-ui/icons/Done';

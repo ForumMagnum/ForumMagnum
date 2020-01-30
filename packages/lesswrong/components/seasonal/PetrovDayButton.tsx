@@ -1,7 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import React, { useState } from 'react';
-import { withStyles } from '@material-ui/core/styles';
 import { mapsHeight } from '../localGroups/CommunityMap';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';

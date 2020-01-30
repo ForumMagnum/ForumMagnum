@@ -5,7 +5,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import Posts from '../../lib/collections/posts/collection';
 import { Helmet } from 'react-helmet';
-import { withStyles } from '@material-ui/core/styles';
 import { styles } from '../common/HeaderSubtitle';
 
 const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'

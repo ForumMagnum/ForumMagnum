@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent, } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
 import { truncate } from '../../lib/editor/ellipsize';
 
 const SEQUENCE_DESCRIPTION_TRUNCATION_LENGTH = 750;

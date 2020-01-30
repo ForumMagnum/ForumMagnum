@@ -1,6 +1,5 @@
 import React from 'react'
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { useCurrentUser } from '../../common/withUser'
 import Typography from '@material-ui/core/Typography'
 
 const styles = theme => ({
@@ -12,7 +11,6 @@ const styles = theme => ({
 })
 
 const PostsPageEventData = ({classes, post}) => {
-  const currentUser = useCurrentUser();
   const { location, contactInfo } = post
   return <Typography variant="body2" className={classes.metadata}>
       <div className={classes.eventTimes}> <Components.EventTime post={post} dense={false} /> </div>

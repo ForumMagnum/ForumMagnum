@@ -6,7 +6,7 @@ import { Comments } from '../../lib/collections/comments';
 import { Link } from '../../lib/reactRouterWrapper';
 import { usePostBySlug, usePostByLegacyId } from '../posts/usePost';
 import { useCommentByLegacyId } from '../comments/useComment';
-import withHover, { useHover } from '../common/withHover';
+import { useHover } from '../common/withHover';
 import Card from '@material-ui/core/Card';
 import { looksLikeDbIdString } from '../../lib/routeUtil';
 

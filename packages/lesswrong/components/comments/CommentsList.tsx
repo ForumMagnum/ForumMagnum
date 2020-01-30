@@ -130,7 +130,7 @@ class CommentsList extends Component<CommentsListProps,CommentsListState> {
   }
 
   render() {
-    const { comments, currentUser, highlightDate, updateComment, post, postPage, totalComments=0, condensed, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1, hideReadComments, lastCommentId, markAsRead, parentCommentId, forceSingleLine, hideSingleLineMeta, enableHoverPreview, forceNotSingleLine } = this.props;
+    const { comments, highlightDate, updateComment, post, postPage, totalComments=0, condensed, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1, hideReadComments, lastCommentId, markAsRead, parentCommentId, forceSingleLine, hideSingleLineMeta, enableHoverPreview, forceNotSingleLine } = this.props;
 
     const { expandAllThreads } = this.state
     const { lastVisitedAt } = post

@@ -6,7 +6,6 @@ import { Link } from '../../lib/reactRouterWrapper'
 import Typography from '@material-ui/core/Typography';
 import { Posts } from '../../lib/collections/posts';
 import withHover from '../common/withHover'
-import PropTypes from 'prop-types'
 import withErrorBoundary from '../common/withErrorBoundary'
 import withUser from '../common/withUser'
 import DoneIcon from '@material-ui/icons/Done';

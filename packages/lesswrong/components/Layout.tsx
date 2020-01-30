@@ -191,7 +191,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   }
 
   render () {
-    const {currentUser, location, children, classes, theme, messages} = this.props;
+    const {currentUser, location, children, classes, theme} = this.props;
     const {hideNavigationSidebar} = this.state
 
     const showIntercom = currentUser => {

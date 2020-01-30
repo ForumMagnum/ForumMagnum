@@ -1,7 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 
@@ -53,7 +52,6 @@ const styles = theme => ({
 })
 
 const RelatedQuestionsList = ({ post, classes }) => {
-  const currentUser = useCurrentUser();
   const { PostsItem2, SectionTitle } = Components
   
   const sourcePostRelations = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)

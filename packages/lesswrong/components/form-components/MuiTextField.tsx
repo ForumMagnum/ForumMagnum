@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { registerComponent } from 'meteor/vulcan:core';
 import TextField from '@material-ui/core/TextField';
 import classnames from 'classnames';
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   labelColor: {

@@ -6,7 +6,6 @@ import Users from 'meteor/vulcan:users';
 import { Link } from '../../lib/reactRouterWrapper'
 import ClearIcon from '@material-ui/icons/Clear';
 import DoneIcon from '@material-ui/icons/Done';
-import { withStyles } from '@material-ui/core/styles';
 import classnames from 'classnames';
 import Typography from '@material-ui/core/Typography';
 import { Posts } from '../../lib/collections/posts';

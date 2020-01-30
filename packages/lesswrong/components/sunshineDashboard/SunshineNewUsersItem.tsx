@@ -5,13 +5,11 @@ import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';
 import { Link } from '../../lib/reactRouterWrapper'
 import moment from 'moment';
-import PropTypes from 'prop-types';
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import withHover from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
 import red from '@material-ui/core/colors/red';
-import { withStyles } from '@material-ui/core/styles';
 import DoneIcon from '@material-ui/icons/Done';
 import SnoozeIcon from '@material-ui/icons/Snooze';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';

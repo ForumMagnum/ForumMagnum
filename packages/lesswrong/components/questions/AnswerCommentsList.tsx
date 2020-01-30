@@ -3,7 +3,6 @@ import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { Comments } from '../../lib/collections/comments';
 import { unflattenComments } from "../../lib/utils/unflatten";
-import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
 
@@ -53,7 +52,6 @@ const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}: {
   post: any,
   parentAnswer: any,
 }) => {
-  const currentUser = useCurrentUser();
   const [commenting, setCommenting] = React.useState(false);
   const [loadedMore, setLoadedMore] = React.useState(false);
   

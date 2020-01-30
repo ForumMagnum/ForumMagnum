@@ -2,7 +2,6 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { commentBodyStyles, postHighlightStyles } from '../../../themes/stylePiping'
 import classNames from 'classnames';
-import PropTypes from 'prop-types';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
 import { useCurrentUser } from '../../common/withUser'
 

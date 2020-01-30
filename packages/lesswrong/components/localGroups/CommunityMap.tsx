@@ -7,7 +7,6 @@ import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
 import { useLocation } from '../../lib/routeUtil';
 import { PersonSVG } from './Icons'
-import { useCurrentUser } from '../common/withUser';
 import ReactMapGL, { Marker } from 'react-map-gl';
 import { Helmet } from 'react-helmet'
 import * as _ from 'underscore';
@@ -79,7 +78,6 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
   showHideMap?: boolean,
   petrovButton?: boolean,
 }) => {
-  const currentUser = useCurrentUser();
   const { query } = useLocation()
   const groupQueryTerms = groupTerms || {view: "all", filters: query?.filters || []}
 

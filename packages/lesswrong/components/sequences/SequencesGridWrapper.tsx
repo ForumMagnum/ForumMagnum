@@ -3,8 +3,6 @@ import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import Sequences from '../../lib/collections/sequences/collection';
 import classNames from 'classnames';
-import { useCurrentUser } from '../common/withUser';
-import { withStyles } from '@material-ui/core/styles';
 
 // Share styles with SequencesGrid
 import { styles } from './SequencesGrid';
@@ -29,7 +27,6 @@ const SequencesGridWrapper = ({
     enableTotal: true,
     ssr: true
   });
-  const currentUser = useCurrentUser();
   
   if (results && results.length) {
     return (<div className={classNames(className, classes.gridWrapper)}>

@@ -4,7 +4,6 @@ import { useSingle } from '../../lib/crud/withSingle';
 import Sequences from '../../lib/collections/sequences/collection';
 import NoSSR from 'react-no-ssr';
 import Users from 'meteor/vulcan:users';
-import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';

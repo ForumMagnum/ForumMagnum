@@ -1,6 +1,5 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 
 // Shared with SequencesGridWrapper

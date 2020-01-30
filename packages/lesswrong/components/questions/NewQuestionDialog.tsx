@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { Components, registerComponent, getFragment, getSetting } from 'meteor/vulcan:core';
 import { useMessages } from '../common/withMessages';
 

@@ -1,6 +1,5 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import PropTypes from 'prop-types';
 import { useCurrentUser } from '../common/withUser'
 import Users from 'meteor/vulcan:users';
 import withErrorBoundary from '../common/withErrorBoundary';

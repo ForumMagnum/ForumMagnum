@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import { useCurrentUser } from '../common/withUser';
 import { withRecommendations } from './withRecommendations';

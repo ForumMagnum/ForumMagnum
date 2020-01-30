@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import LinkIcon from '@material-ui/icons/Link';
 import SvgIcon from '@material-ui/core/SvgIcon';

@@ -4,7 +4,6 @@ import Sequences from '../../lib/collections/sequences/collection';
 import React from 'react';
 import DragIcon from '@material-ui/icons/DragHandle';
 import RemoveIcon from '@material-ui/icons/Close';
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   box: {

@@ -1,11 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent } from 'meteor/vulcan:core';
-
 import Button from '@material-ui/core/Button';
-
 import classNames from 'classnames';
-import { useCurrentUser } from '../common/withUser';
 
 const styles = theme => ({
   formSubmit: {
@@ -45,7 +42,6 @@ const styles = theme => ({
 const PostSubmit = ({
   submitLabel = "Submit", cancelLabel = "Cancel", saveDraftLabel = "Save as draft", cancelCallback, document, collectionName, classes
 }, { updateCurrentValues }) => {
-  const currentUser = useCurrentUser();
   return (
     <React.Fragment>
       {!!cancelCallback &&

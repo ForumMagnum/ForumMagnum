@@ -21,7 +21,6 @@ const ShortformThreadList = ({ terms, classes }) => {
     ssr: true,
   });
 
-
   return (
     <div>
       <ShortformSubmitForm successCallback={refetch} />
@@ -35,11 +34,9 @@ const ShortformThreadList = ({ terms, classes }) => {
         { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
         { loadingMore && <Loading />}
       </div>}
-    </div>)
-  }
-
-const discussionThreadsOptions = {
-};
+    </div>
+  )
+}
 
 const ShortformThreadListComponent = registerComponent('ShortformThreadList', ShortformThreadList, {styles});
 

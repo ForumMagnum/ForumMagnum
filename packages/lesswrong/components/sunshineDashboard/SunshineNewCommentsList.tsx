@@ -1,6 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useMulti } from '../../lib/crud/withMulti';
-import React, { Component } from 'react';
+import React from 'react';
 import { Comments } from '../../lib/collections/comments';
 
 const styles = theme => ({

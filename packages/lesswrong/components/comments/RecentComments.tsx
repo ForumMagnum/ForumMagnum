@@ -3,7 +3,6 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
-import { useCurrentUser } from '../common/withUser';
 import Typography from '@material-ui/core/Typography';
 
 const styles = theme =>  ({
@@ -21,7 +20,6 @@ const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No C
   truncated?: boolean,
   noResultsMessage?: string,
 }) => {
-  const currentUser = useCurrentUser();
   const { loadingInitial, loadMoreProps, results } = useMulti({
     terms,
     collection: Comments,

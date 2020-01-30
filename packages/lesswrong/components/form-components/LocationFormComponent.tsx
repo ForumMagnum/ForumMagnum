@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import Geosuggest from 'react-geosuggest';
-import withUser from '../common/withUser';
-import { withStyles } from '@material-ui/core/styles';
 import { Meteor } from 'meteor/meteor';
 
 // Recommended styling for React-geosuggest: https://github.com/ubilabs/react-geosuggest/blob/master/src/geosuggest.css
@@ -139,10 +137,7 @@ const LocationFormComponent = ({document, updateCurrentValues, classes}) => {
 
 // TODO: This is not using the field name provided by the form. It definitely
 // doesn't work in nested contexts, and might be making a lie out of our schema.
-const LocationFormComponentComponent = registerComponent("LocationFormComponent", LocationFormComponent, {
-  styles,
-  hocs: [withUser]
-});
+const LocationFormComponentComponent = registerComponent("LocationFormComponent", LocationFormComponent, {styles});
 
 declare global {
   interface ComponentTypes {

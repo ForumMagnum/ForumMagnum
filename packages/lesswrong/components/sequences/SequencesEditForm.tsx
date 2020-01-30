@@ -1,6 +1,5 @@
 import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
 import React from 'react';
-import { useLocation } from '../../lib/routeUtil';
 import Sequences from '../../lib/collections/sequences/collection';
 
 const SequencesEditForm = ({ documentId, successCallback, cancelCallback, removeSuccessCallback }: {

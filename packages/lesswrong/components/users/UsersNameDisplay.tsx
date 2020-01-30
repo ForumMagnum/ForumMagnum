@@ -1,6 +1,5 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
-import PropTypes from 'prop-types';
 import Users from 'meteor/vulcan:users';
 import { Link } from '../../lib/reactRouterWrapper';
 import { truncate } from '../../lib/editor/ellipsize';

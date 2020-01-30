@@ -5,7 +5,6 @@ import { registerComponent } from 'meteor/vulcan:core';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import { withMessages } from '../common/withMessages';
 import { groupTypes } from '../../lib/collections/localgroups/groupTypes';
-import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames'
 import Divider from '@material-ui/core/Divider';
 import VisibilityIcon from '@material-ui/icons/VisibilityOff';
