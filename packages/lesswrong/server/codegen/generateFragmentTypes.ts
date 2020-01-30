@@ -184,10 +184,19 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField, collect
       }
       const subfragmentName = `${fragmentName}_${fieldName}`;
       const subfragment = fragmentToInterface(subfragmentName, parsedFragmentField, subfieldCollection);
-      return {
-        fieldType: subfragmentName,
-        subfragment: subfragment,
-      };
+      
+      // If it's an array type, then it's an array of that subfragment. Otherwise it's an instance of that subfragmetn.
+      if (fieldType.startsWith("Array<")) {
+        return {
+          fieldType: `Array<${subfragmentName}>`,
+          subfragment: subfragment,
+        };
+      } else {
+        return {
+          fieldType: subfragmentName,
+          subfragment: subfragment,
+        };
+      }
     }
   } else {
     return {

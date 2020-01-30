@@ -65,4 +65,6 @@ declare module 'meteor/vulcan:core' {
   export const deleteClientTemplate: any;
   export const parsePath: any;
   export const parseRoute: any;
+  export const getAdminColumns: any;
+  export const addAdminColumn: any;
 }

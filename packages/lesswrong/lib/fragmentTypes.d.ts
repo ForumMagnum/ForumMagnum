@@ -117,7 +117,6 @@ interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
 }
 
 interface PostsDetails extends PostsBase, PostsAuthors { // fragment on Posts
-	readonly tableOfContents: any,
 	readonly commentSortOrder: string,
 	readonly collectionTitle: string,
 	readonly canonicalPrevPostSlug: string,
@@ -136,8 +135,8 @@ interface PostsDetails extends PostsBase, PostsAuthors { // fragment on Posts
 	readonly voteCount: number,
 	readonly currentUserVotes: VoteFragment,
 	readonly feed: RSSFeedMinimumInfo,
-	readonly sourcePostRelations: PostsDetails_sourcePostRelations,
-	readonly targetPostRelations: PostsDetails_targetPostRelations,
+	readonly sourcePostRelations: Array<PostsDetails_sourcePostRelations>,
+	readonly targetPostRelations: Array<PostsDetails_targetPostRelations>,
 }
 
 interface PostsDetails_canonicalSequence { // fragment on Sequences
@@ -181,7 +180,7 @@ interface PostsDetails_targetPostRelations_targetPost extends PostsBase, PostsAu
 interface PostsRevision extends PostsDetails { // fragment on Posts
 	readonly version: string,
 	readonly contents: RevisionDisplay,
-	readonly revisions: PostsRevision_revisions,
+	readonly revisions: Array<PostsRevision_revisions>,
 }
 
 interface PostsRevision_revisions { // fragment on Revisions
@@ -192,7 +191,7 @@ interface PostsRevision_revisions { // fragment on Revisions
 interface PostsRevisionEdit extends PostsDetails { // fragment on Posts
 	readonly version: string,
 	readonly contents: RevisionEdit,
-	readonly revisions: PostsRevisionEdit_revisions,
+	readonly revisions: Array<PostsRevisionEdit_revisions>,
 }
 
 interface PostsRevisionEdit_revisions { // fragment on Revisions
@@ -201,9 +200,11 @@ interface PostsRevisionEdit_revisions { // fragment on Revisions
 }
 
 interface PostsWithNavigationAndRevision extends PostsRevision, PostSequenceNavigation { // fragment on Posts
+	readonly tableOfContentsRevision: any,
 }
 
 interface PostsWithNavigation extends PostsPage, PostSequenceNavigation { // fragment on Posts
+	readonly tableOfContents: any,
 }
 
 interface PostSequenceNavigation { // fragment on Posts
@@ -260,7 +261,7 @@ interface EditModerationGuidelines { // fragment on Posts
 
 interface PostsRevisionsList { // fragment on Posts
 	readonly _id: string,
-	readonly revisions: PostsRevisionsList_revisions,
+	readonly revisions: Array<PostsRevisionsList_revisions>,
 }
 
 interface PostsRevisionsList_revisions { // fragment on Revisions
@@ -828,6 +829,8 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
 	readonly banned: Date,
 	readonly reviewedByUserId: string,
 	readonly signUpReCaptchaRating: number,
+	readonly needsReview: boolean,
+	readonly sunshineSnoozed: boolean,
 }
 
 interface newRSSFeedFragment { // fragment on RSSFeeds
@@ -998,6 +1001,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
 	readonly karmaChangeLastOpened: Date,
 	readonly karmaChangeNotifierSettings: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"updateFrequency":{"optional":true,"type":{"definitions":[{"allowedValues":["disabled","daily","weekly","realtime"]}]},"label":"Update frequency"},"timeOfDayGMT":{"optional":true,"type":{"definitions":[{"type":"SimpleSchema.Integer","min":0,"max":23}]},"label":"Time of day gmt"},"dayOfWeekGMT":{"optional":true,"type":{"definitions":[{"allowedValues":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]}]},"label":"Day of week gmt"},"showNegativeKarma":{"optional":true,"type":{"definitions":[{}]},"label":"Show negative karma"}},"_depsLabels":{},"_schemaKeys":["updateFrequency","timeOfDayGMT","dayOfWeekGMT","showNegativeKarma"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["updateFrequency","timeOfDayGMT","dayOfWeekGMT","showNegativeKarma"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/,
 	readonly recommendationSettings: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"frontpage":{"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"method":{"type":{"definitions":[{}]},"optional":false,"label":"Method"},"count":{"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"optional":false,"label":"Count"},"scoreOffset":{"type":{"definitions":[{}]},"optional":false,"label":"Score offset"},"scoreExponent":{"type":{"definitions":[{}]},"optional":false,"label":"Score exponent"},"personalBlogpostModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Personal blogpost modifier"},"frontpageModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Frontpage modifier"},"curatedModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Curated modifier"},"onlyUnread":{"type":{"definitions":[{}]},"optional":false,"label":"Only unread"}},"_depsLabels":{},"_schemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"optional":false,"label":"Frontpage"},"recommendationspage":{"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"method":{"type":{"definitions":[{}]},"optional":false,"label":"Method"},"count":{"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"optional":false,"label":"Count"},"scoreOffset":{"type":{"definitions":[{}]},"optional":false,"label":"Score offset"},"scoreExponent":{"type":{"definitions":[{}]},"optional":false,"label":"Score exponent"},"personalBlogpostModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Personal blogpost modifier"},"frontpageModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Frontpage modifier"},"curatedModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Curated modifier"},"onlyUnread":{"type":{"definitions":[{}]},"optional":false,"label":"Only unread"}},"_depsLabels":{},"_schemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"optional":false,"label":"Recommendationspage"},"afterpost":{"type":{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"method":{"type":{"definitions":[{}]},"optional":false,"label":"Method"},"count":{"type":{"definitions":[{"type":"SimpleSchema.Integer"}]},"optional":false,"label":"Count"},"scoreOffset":{"type":{"definitions":[{}]},"optional":false,"label":"Score offset"},"scoreExponent":{"type":{"definitions":[{}]},"optional":false,"label":"Score exponent"},"personalBlogpostModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Personal blogpost modifier"},"frontpageModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Frontpage modifier"},"curatedModifier":{"type":{"definitions":[{}]},"optional":false,"label":"Curated modifier"},"onlyUnread":{"type":{"definitions":[{}]},"optional":false,"label":"Only unread"}},"_depsLabels":{},"_schemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]},"optional":false,"label":"Afterpost"}},"_depsLabels":{},"_schemaKeys":["frontpage","recommendationspage","afterpost"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["frontpage","recommendationspage","afterpost"],"_objectKeys":{"frontpage.":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"recommendationspage.":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"],"afterpost.":["method","count","scoreOffset","scoreExponent","personalBlogpostModifier","frontpageModifier","curatedModifier","onlyUnread"]},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2},"blackbox":true}]}*/,
+	readonly notificationShortformContent: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"channel":{"type":{"definitions":[{"allowedValues":["none","onsite","email","both"]}]},"optional":false,"label":"Channel"},"batchingFrequency":{"type":{"definitions":[{"allowedValues":["realtime","daily","weekly"]}]},"optional":false,"label":"Batching frequency"},"timeOfDayGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Time of day gmt"},"dayOfWeekGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Day of week gmt"}},"_depsLabels":{},"_schemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/,
 	readonly notificationCommentsOnSubscribedPost: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"channel":{"type":{"definitions":[{"allowedValues":["none","onsite","email","both"]}]},"optional":false,"label":"Channel"},"batchingFrequency":{"type":{"definitions":[{"allowedValues":["realtime","daily","weekly"]}]},"optional":false,"label":"Batching frequency"},"timeOfDayGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Time of day gmt"},"dayOfWeekGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Day of week gmt"}},"_depsLabels":{},"_schemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/,
 	readonly notificationRepliesToMyComments: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"channel":{"type":{"definitions":[{"allowedValues":["none","onsite","email","both"]}]},"optional":false,"label":"Channel"},"batchingFrequency":{"type":{"definitions":[{"allowedValues":["realtime","daily","weekly"]}]},"optional":false,"label":"Batching frequency"},"timeOfDayGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Time of day gmt"},"dayOfWeekGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Day of week gmt"}},"_depsLabels":{},"_schemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/,
 	readonly notificationRepliesToSubscribedComments: any /*{"definitions":[{"type":{"_constructorOptions":{"humanizeAutoLabels":true,"requiredByDefault":true},"_validators":[],"_docValidators":[],"_validationContexts":{},"_cleanOptions":{"filter":true,"autoConvert":true,"removeEmptyStrings":true,"trimStrings":true,"getAutoValues":true,"removeNullsFromArrays":false,"extendAutoValueContext":{}},"_schema":{"channel":{"type":{"definitions":[{"allowedValues":["none","onsite","email","both"]}]},"optional":false,"label":"Channel"},"batchingFrequency":{"type":{"definitions":[{"allowedValues":["realtime","daily","weekly"]}]},"optional":false,"label":"Batching frequency"},"timeOfDayGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Time of day gmt"},"dayOfWeekGMT":{"optional":true,"type":{"definitions":[{}]},"label":"Day of week gmt"}},"_depsLabels":{},"_schemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_autoValues":[],"_blackboxKeys":[],"_firstLevelSchemaKeys":["channel","batchingFrequency","timeOfDayGMT","dayOfWeekGMT"],"_objectKeys":{},"messageBox":{"language":"en","messageList":{"en":{"required":"{{{label}}} is required","minString":"{{{label}}} must be at least {{min}} characters","maxString":"{{{label}}} cannot exceed {{max}} characters","minNumber":"{{{label}}} must be at least {{min}}","maxNumber":"{{{label}}} cannot exceed {{max}}","minNumberExclusive":"{{{label}}} must be greater than {{min}}","maxNumberExclusive":"{{{label}}} must be less than {{max}}","minDate":"{{{label}}} must be on or after {{min}}","maxDate":"{{{label}}} cannot be after {{max}}","badDate":"{{{label}}} is not a valid date","minCount":"You must specify at least {{minCount}} values","maxCount":"You cannot specify more than {{maxCount}} values","noDecimal":"{{{label}}} must be an integer","notAllowed":"{{{value}}} is not an allowed value","expectedType":"{{{label}}} must be of type {{dataType}}","keyNotInSchema":"{{name}} is not allowed by the schema"}},"interpolate":{},"escape":{}},"version":2}}]}*/,
@@ -1082,7 +1086,7 @@ interface VoteFragment { // fragment on Votes
 interface WithVotePost { // fragment on Posts
 	readonly __typename: string,
 	readonly _id: string,
-	readonly currentUserVotes: WithVotePost_currentUserVotes,
+	readonly currentUserVotes: Array<WithVotePost_currentUserVotes>,
 	readonly baseScore: number,
 	readonly score: number,
 	readonly afBaseScore: number,
@@ -1098,7 +1102,7 @@ interface WithVotePost_currentUserVotes { // fragment on Votes
 interface WithVoteComment { // fragment on Comments
 	readonly __typename: string,
 	readonly _id: string,
-	readonly currentUserVotes: WithVoteComment_currentUserVotes,
+	readonly currentUserVotes: Array<WithVoteComment_currentUserVotes>,
 	readonly baseScore: number,
 	readonly score: number,
 	readonly afBaseScore: number,
@@ -1191,7 +1195,7 @@ interface SequencesNavigationFragment { // fragment on Sequences
 	readonly isDeleted: boolean,
 	readonly hidden: boolean,
 	readonly curatedOrder: number,
-	readonly chapters: SequencesNavigationFragment_chapters,
+	readonly chapters: Array<SequencesNavigationFragment_chapters>,
 }
 
 interface SequencesNavigationFragment_chapters { // fragment on Chapters
@@ -1199,7 +1203,7 @@ interface SequencesNavigationFragment_chapters { // fragment on Chapters
 	readonly title: string,
 	readonly number: number,
 	readonly sequenceId: string,
-	readonly posts: SequencesNavigationFragment_chapters_posts,
+	readonly posts: Array<SequencesNavigationFragment_chapters_posts>,
 }
 
 interface SequencesNavigationFragment_chapters_posts { // fragment on Posts
@@ -1251,7 +1255,7 @@ interface CollectionsEditFragment extends CollectionsPageFragment { // fragment 
 }
 
 interface SuggestAlignmentPost extends PostsList { // fragment on Posts
-	readonly suggestForAlignmentUsers: SuggestAlignmentPost_suggestForAlignmentUsers,
+	readonly suggestForAlignmentUsers: Array<SuggestAlignmentPost_suggestForAlignmentUsers>,
 }
 
 interface SuggestAlignmentPost_suggestForAlignmentUsers { // fragment on Users
@@ -1328,7 +1332,7 @@ interface WithVoteTagRel { // fragment on TagRels
 	readonly tagId: string,
 	readonly tag: WithVoteTagRel_tag,
 	readonly postId: string,
-	readonly currentUserVotes: WithVoteTagRel_currentUserVotes,
+	readonly currentUserVotes: Array<WithVoteTagRel_currentUserVotes>,
 	readonly baseScore: number,
 	readonly afBaseScore: number,
 	readonly score: number,
@@ -1455,7 +1459,7 @@ interface ChildRelatedPostRelList { // fragment on PostRelations
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
 	readonly post: SuggestAlignmentComment_post,
 	readonly suggestForAlignmentUserIds: Array<string>,
-	readonly suggestForAlignmentUsers: SuggestAlignmentComment_suggestForAlignmentUsers,
+	readonly suggestForAlignmentUsers: Array<SuggestAlignmentComment_suggestForAlignmentUsers>,
 }
 
 interface SuggestAlignmentComment_post { // fragment on Posts

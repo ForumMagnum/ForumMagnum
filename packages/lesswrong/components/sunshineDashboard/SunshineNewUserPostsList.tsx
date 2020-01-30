@@ -1,0 +1,58 @@
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { useMulti } from '../../lib/crud/withMulti';
+import React from 'react';
+import { Posts } from '../../lib/collections/posts';
+import { postHighlightStyles } from '../../themes/stylePiping'
+import { Link } from '../../lib/reactRouterWrapper'
+
+const styles = theme => ({
+  post: {
+    marginTop: theme.spacing.unit*2,
+    marginBottom: theme.spacing.unit*2,
+    fontSize: "1.1em",
+  },
+  postBody: {
+    ...postHighlightStyles(theme),
+  }
+})
+
+const SunshineNewUserPostsList = ({terms, classes, truncated=false}: {
+  terms: any,
+  classes: any,
+  truncated?: boolean,
+}) => {
+  const { results, loading } = useMulti({
+    terms,
+    collection: Posts,
+    fragmentName: 'PostsList',
+    fetchPolicy: 'cache-and-network',
+  });
+  const { Loading, MetaInfo } = Components
+ 
+  if (!results && loading && !truncated) return <Loading />
+  if (!results) return null
+
+  return (
+    <div>
+      {loading && !truncated && <Loading />}
+      {results.map(post=><div className={classes.post} key={post._id}>
+        <MetaInfo>
+          <Link to={`/posts/${post._id}`}>
+            Post: {post.title}
+          </Link>
+        </MetaInfo>
+        <div className={classes.postBody} dangerouslySetInnerHTML={{__html: (post.contents && post.contents.htmlHighlight)}} />
+        {!(post.status ==2) && `Flagged as Spam ${post.status}`}
+      </div>)}
+    </div>
+  )
+}
+
+const SunshineNewUserPostsListComponent = registerComponent('SunshineNewUserPostsList', SunshineNewUserPostsList, {styles});
+
+declare global {
+  interface ComponentTypes {
+    SunshineNewUserPostsList: typeof SunshineNewUserPostsListComponent
+  }
+}
+

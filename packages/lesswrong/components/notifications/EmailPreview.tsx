@@ -21,7 +21,10 @@ const styles = theme => ({
   },
 });
 
-export const EmailPreview = ({email, classes}) => {
+export const EmailPreview = ({email, classes}: {
+  email: any,
+  classes: any,
+}) => {
   return <div className={classes.emailPreview}>
     <div className={classes.emailHeader}>
       <span className={classes.headerName}>Subject: </span>

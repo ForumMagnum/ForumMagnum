@@ -1,8 +1,6 @@
 
 // This is a list of components which have not yet been converted to TypeScript.
 interface ComponentTypes {
-  newFeedButton: any
-  editFeedButton: any
   OmegaIcon: any
   SettingsIcon: any
   UserPageTitle: any
@@ -13,40 +11,6 @@ interface ComponentTypes {
   PostsVote: any
   ModerationGuidelinesBox: any
   ModerationGuidelinesEditForm: any
-  AdminHome: any
-  AdminMetadata: any
-  ModerationLog: any
-  ReportForm: any
-  SunshineCommentsItemOverview: any
-  AFSuggestCommentsItem: any
-  AFSuggestCommentsList: any
-  AFSuggestPostsItem: any
-  AFSuggestPostsList: any
-  AFSuggestUsersItem: any
-  AFSuggestUsersList: any
-  SunshineNewUserPostsList: any
-  SunshineNewUserCommentsList: any
-  SunshineNewUsersItem: any
-  SunshineNewUsersList: any
-  SunshineNewPostsList: any
-  SunshineNewPostsItem: any
-  SunshineNewCommentsItem: any
-  SunshineNewCommentsList: any
-  SunshineReportedContentList: any
-  SunshineReportedItem: any
-  SunshineCuratedSuggestionsItem: any
-  SunshineCuratedSuggestionsList: any
-  SunshineSidebar: any
-  SunshineListTitle: any
-  SunshineListItem: any
-  SidebarHoverOver: any
-  SidebarInfo: any
-  SidebarActionMenu: any
-  SidebarAction: any
-  SunshineListCount: any
-  LastCuratedDate: any
-  EmailHistory: any
-  EmailHistoryPage: any
   PostsListEditor: any
   ImageUpload: any
   SequencesListEditor: any
