@@ -40,11 +40,23 @@ const styles = theme => ({
   }
 })
 
-const SectionFooterCheckbox = ({ classes, label, onClick, value, disabled }) => {
-  return <span className={classNames(classes.root, {[classes.disabled]: disabled })} onClick={!disabled && onClick}>
+const SectionFooterCheckbox = ({ classes, label, onClick, value, disabled }: {
+  classes: any,
+  label: any,
+  onClick: ()=>void,
+  value: boolean,
+  disabled?: boolean,
+}) => {
+  return <span className={classNames(classes.root, {[classes.disabled]: disabled })} onClick={!disabled ? onClick : undefined}>
     <Checkbox disableRipple classes={{root: classes.checkbox, checked: classes.checked}} checked={value} />
     <span className={classes.label}>{ label }</span>
   </span>
 }
 
-registerComponent("SectionFooterCheckbox", SectionFooterCheckbox, withStyles(styles, { name: "SectionFooterCheckbox" }));
+const SectionFooterCheckboxComponent = registerComponent("SectionFooterCheckbox", SectionFooterCheckbox, {styles});
+
+declare global {
+  interface ComponentTypes {
+    SectionFooterCheckbox: typeof SectionFooterCheckboxComponent
+  }
+}

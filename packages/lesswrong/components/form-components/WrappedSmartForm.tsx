@@ -1,6 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
+import * as _ from 'underscore';
 
 
 // This is a wrapper around SmartForm which adds a submit callback that filters out any 
@@ -34,4 +35,10 @@ function WrappedSmartForm(props) {
   }
 }
 
-registerComponent("WrappedSmartForm", WrappedSmartForm);
+const WrappedSmartFormComponent = registerComponent("WrappedSmartForm", WrappedSmartForm);
+
+declare global {
+  interface ComponentTypes {
+    WrappedSmartForm: typeof WrappedSmartFormComponent
+  }
+}

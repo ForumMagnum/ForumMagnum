@@ -7,4 +7,11 @@ class FormComponentDefault extends Component {
   }
 }
 
-registerComponent("FormComponentDefault", FormComponentDefault);
+const FormComponentDefaultComponent = registerComponent("FormComponentDefault", FormComponentDefault);
+
+declare global {
+  interface ComponentTypes {
+    FormComponentDefault: typeof FormComponentDefaultComponent
+  }
+}
+

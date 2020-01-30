@@ -3,9 +3,8 @@ import PropTypes from 'prop-types';
 import { registerComponent } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import Button from '@material-ui/core/Button';
-import { withTheme, withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 
 const commentFonts = '"freight-sans-pro", Frutiger, "Frutiger Linotype", Univers, Calibri, "Gill Sans", "Gill Sans MT", "Myriad Pro", Myriad, "DejaVu Sans Condensed", "Liberation Sans", "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif';
 
@@ -31,22 +30,21 @@ const styles = theme => ({
 });
 
 const FormSubmit = ({
-                      submitLabel = "Submit",
-                      cancelLabel = "Cancel",
-                      cancelCallback,
-                      document,
-                      deleteDocument,
-                      collectionName,
-                      classes,
-                      currentUser,
-                      theme
-                    },
-                    {
-                      updateCurrentValues,
-                      addToDeletedValues
-                    }) => (
-  <div className="form-submit">
-
+  submitLabel = "Submit",
+  cancelLabel = "Cancel",
+  cancelCallback,
+  document,
+  deleteDocument,
+  collectionName,
+  classes,
+},
+{
+  updateCurrentValues,
+  addToDeletedValues
+}) => {
+  const currentUser = useCurrentUser();
+  
+  return <div className="form-submit">
     {collectionName === "posts" && <span className="post-submit-buttons">
       { !document.isEvent &&
         !document.meta &&
@@ -113,21 +111,9 @@ const FormSubmit = ({
       {submitLabel}
     </Button>
   </div>
-);
-
-
-FormSubmit.propTypes = {
-  submitLabel: PropTypes.string,
-  cancelLabel: PropTypes.string,
-  cancelCallback: PropTypes.func,
-  document: PropTypes.object,
-  deleteDocument: PropTypes.func,
-  collectionName: PropTypes.string,
-  classes: PropTypes.object,
-  theme: PropTypes.object,
 };
 
-FormSubmit.contextTypes = {
+(FormSubmit as any).contextTypes = {
   updateCurrentValues: PropTypes.func,
   addToDeletedValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
@@ -136,7 +122,11 @@ FormSubmit.contextTypes = {
 
 
 // Replaces FormSubmit from vulcan-forms.
-registerComponent('FormSubmit', FormSubmit,
-  withUser, withTheme(),
-  withStyles(styles, { name: "FormSubmit" })
-);
+const FormSubmitComponent = registerComponent('FormSubmit', FormSubmit, {styles});
+
+declare global {
+  interface ComponentTypes {
+    FormSubmit: typeof FormSubmitComponent
+  }
+}
+

@@ -13,4 +13,11 @@ class FormComponentDate extends Component {
   }
 }
 
-registerComponent("FormComponentDate", FormComponentDate);
+const FormComponentDateComponent = registerComponent("FormComponentDate", FormComponentDate);
+
+declare global {
+  interface ComponentTypes {
+    FormComponentDate: typeof FormComponentDateComponent
+  }
+}
+

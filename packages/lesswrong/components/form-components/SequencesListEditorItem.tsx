@@ -1,5 +1,5 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withSingle } from '../../lib/crud/withSingle';
+import { useSingle } from '../../lib/crud/withSingle';
 import Sequences from '../../lib/collections/sequences/collection';
 import React from 'react';
 import DragIcon from '@material-ui/icons/DragHandle';
@@ -40,7 +40,13 @@ const styles = theme => ({
   },
 });
 
-const SequencesListEditorItem = ({document, loading, documentId, classes, ...props}) => {
+const SequencesListEditorItem = ({documentId, classes, ...props}) => {
+  const { document, loading } = useSingle({
+    documentId,
+    collection: Sequences,
+    fragmentName: 'SequencesPageFragment',
+  });
+  
   if (document && !loading) {
     return <div>
       <DragIcon className="drag-handle"/>
@@ -69,13 +75,10 @@ const SequencesListEditorItem = ({document, loading, documentId, classes, ...pro
   }
 };
 
-const options = {
-  collection: Sequences,
-  queryName: "SequencesListEditorQuery",
-  fragmentName: 'SequencesPageFragment',
-};
+const SequencesListEditorItemComponent = registerComponent('SequencesListEditorItem', SequencesListEditorItem, {styles});
 
-registerComponent('SequencesListEditorItem', SequencesListEditorItem,
-  [withSingle, options],
-  withStyles(styles, {name: "SequencesListEditorItem"})
-);
+declare global {
+  interface ComponentTypes {
+    SequencesListEditorItem: typeof SequencesListEditorItemComponent
+  }
+}

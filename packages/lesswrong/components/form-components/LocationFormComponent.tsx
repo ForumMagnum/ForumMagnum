@@ -3,6 +3,7 @@ import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import Geosuggest from 'react-geosuggest';
 import withUser from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
+import { Meteor } from 'meteor/meteor';
 
 // Recommended styling for React-geosuggest: https://github.com/ubilabs/react-geosuggest/blob/master/src/geosuggest.css
 export const geoSuggestStyles = theme => ({
@@ -81,7 +82,7 @@ const styles = theme => ({
 
 const mapsAPIKey = getSetting('googleMaps.apiKey', null);
 export const useGoogleMaps = (identifier, libraries = ['places']) => {
-  const [ mapsLoaded, setMapsLoaded ] = useState(window?.google)
+  const [ mapsLoaded, setMapsLoaded ] = useState((window as any)?.google)
   const callbackName = `${identifier}_googleMapsLoaded`
   useEffect(() => {
     window[callbackName] = () => setMapsLoaded(true)
@@ -97,7 +98,7 @@ export const useGoogleMaps = (identifier, libraries = ['places']) => {
     }
   }
   if (!mapsLoaded) return [ mapsLoaded ]
-  else return [ mapsLoaded, window?.google ]
+  else return [ mapsLoaded, (window as any)?.google ]
 }
 
 
@@ -138,5 +139,13 @@ const LocationFormComponent = ({document, updateCurrentValues, classes}) => {
 
 // TODO: This is not using the field name provided by the form. It definitely
 // doesn't work in nested contexts, and might be making a lie out of our schema.
-registerComponent("LocationFormComponent", LocationFormComponent,
-  withUser, withStyles(styles, {name: "LocationFormComponent"}));
+const LocationFormComponentComponent = registerComponent("LocationFormComponent", LocationFormComponent, {
+  styles,
+  hocs: [withUser]
+});
+
+declare global {
+  interface ComponentTypes {
+    LocationFormComponent: typeof LocationFormComponentComponent
+  }
+}

@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
+import * as _ from 'underscore';
 
 
 const sortableItemStyles = theme => ({
@@ -22,12 +23,12 @@ const SortableItem = withStyles(sortableItemStyles, {name: "SortableItem"})(Sort
 ))
 
 
-const sortableListStyles = theme => ({
+const sortableListStyles = createStyles(theme => ({
   root: {
     display: "flex",
     flexWrap: "wrap"
   }
-})
+}))
 // React sortable has constructors that don't work like normal constructors
 //eslint-disable-next-line babel/new-cap
 const SortableList = withStyles(sortableListStyles, {name: "SortableList"})(SortableContainer(({items, currentUser, removeItem, classes}) => {
@@ -46,7 +47,7 @@ const usersListEditorStyles = theme => ({
   }
 })
 
-class UsersListEditor extends Component {
+class UsersListEditor extends Component<any> {
   onSortEnd = ({oldIndex, newIndex}) => {
     const newIds = arrayMove(this.props.value, oldIndex, newIndex);
     this.context.updateCurrentValues({[this.props.path]: newIds});
@@ -97,13 +98,19 @@ class UsersListEditor extends Component {
       </div>
     )
   }
-}
+};
 
-UsersListEditor.contextTypes = {
+(UsersListEditor as any).contextTypes = {
   updateCurrentValues: PropTypes.func,
 };
 
-registerComponent("UsersListEditor", UsersListEditor,
-  withUser,
-  withStyles(usersListEditorStyles, { name: "UsersListEditor" })
-);
+const UsersListEditorComponent = registerComponent("UsersListEditor", UsersListEditor, {
+  styles: usersListEditorStyles,
+  hocs: [withUser]
+});
+
+declare global {
+  interface ComponentTypes {
+    UsersListEditor: typeof UsersListEditorComponent
+  }
+}

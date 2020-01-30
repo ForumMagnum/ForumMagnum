@@ -5,7 +5,6 @@ import {Components, registerComponent, getSetting} from 'meteor/vulcan:core';
 import { Helmet } from 'react-helmet';
 import Button from '@material-ui/core/Button';
 import ImageIcon from '@material-ui/icons/Image';
-import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 
 const styles = theme => ({
@@ -18,7 +17,7 @@ const styles = theme => ({
   }
 });
 
-class ImageUpload extends Component {
+class ImageUpload extends Component<any,any> {
   constructor(props, context) {
     super(props, context);
     const fieldName = props.name;
@@ -100,11 +99,17 @@ class ImageUpload extends Component {
       </div>
     );
   }
-}
+};
 
-ImageUpload.contextTypes = {
+(ImageUpload as any).contextTypes = {
   updateCurrentValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
 };
 
-registerComponent("ImageUpload", ImageUpload, withStyles(styles, {name: "ImageUpload"}));
+const ImageUploadComponent = registerComponent("ImageUpload", ImageUpload, {styles});
+
+declare global {
+  interface ComponentTypes {
+    ImageUpload: typeof ImageUploadComponent
+  }
+}

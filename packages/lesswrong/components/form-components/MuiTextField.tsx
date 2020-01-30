@@ -21,7 +21,7 @@ const styles = theme => ({
   }
 })
 
-class MuiTextField extends PureComponent {
+class MuiTextField extends PureComponent<any> {
   constructor(props, context) {
     super(props,context);
   }
@@ -58,10 +58,16 @@ class MuiTextField extends PureComponent {
         {children}
       </TextField>
   }
-}
+};
 
-MuiTextField.contextTypes = {
+(MuiTextField as any).contextTypes = {
   updateCurrentValues: PropTypes.func,
 };
 
-registerComponent("MuiTextField", MuiTextField, withStyles(styles, { name: "MuiTextField" }));
+const MuiTextFieldComponent = registerComponent("MuiTextField", MuiTextField, {styles});
+
+declare global {
+  interface ComponentTypes {
+    MuiTextField: typeof MuiTextFieldComponent
+  }
+}

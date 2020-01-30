@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent } from 'meteor/vulcan:core';
 import Input from '@material-ui/core/Input';
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   // input: {
@@ -12,7 +11,7 @@ const styles = theme => ({
   // },
 })
 
-class MuiInput extends Component {
+class MuiInput extends Component<any,any> {
   constructor(props, context) {
     super(props,context);
     this.state = {
@@ -50,10 +49,17 @@ class MuiInput extends Component {
         startAdornment={this.props.startAdornment}
       />
   }
-}
+};
 
-MuiInput.contextTypes = {
+(MuiInput as any).contextTypes = {
   updateCurrentValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
 };
-registerComponent("MuiInput", MuiInput, withStyles(styles, { name: "MuiInput" }));
+
+const MuiInputComponent = registerComponent("MuiInput", MuiInput, {styles});
+
+declare global {
+  interface ComponentTypes {
+    MuiInput: typeof MuiInputComponent
+  }
+}

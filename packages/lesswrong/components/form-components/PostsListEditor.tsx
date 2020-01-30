@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
+import * as _ from 'underscore';
 
 
 // React sortable has constructors that don't work like normal constructors
@@ -25,7 +26,7 @@ const SortableList = SortableContainer(({items, currentUser, removeItem}) => {
   );
 });
 
-class PostsListEditor extends Component {
+class PostsListEditor extends Component<any,any> {
   constructor(props, context) {
     super(props, context);
     const fieldName = props.name;
@@ -98,15 +99,21 @@ class PostsListEditor extends Component {
       />
     </div>
   }
-}
+};
 
-//
-
-PostsListEditor.contextTypes = {
+(PostsListEditor as any).contextTypes = {
   updateCurrentValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
 };
 
 // TODO: Does not work in nested contexts because it doesn't use the
 // vulcan-forms APIs correctly.
-registerComponent("PostsListEditor", PostsListEditor, withUser);
+const PostsListEditorComponent = registerComponent("PostsListEditor", PostsListEditor, {
+  hocs: [withUser]
+});
+
+declare global {
+  interface ComponentTypes {
+    PostsListEditor: typeof PostsListEditorComponent
+  }
+}

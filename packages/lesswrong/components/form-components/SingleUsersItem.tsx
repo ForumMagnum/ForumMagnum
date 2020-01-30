@@ -1,7 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import Chip from '@material-ui/core/Chip';
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = {
   chip: {
@@ -27,6 +26,11 @@ const SingleUsersItem = ({document, removeItem, classes }) => {
     return <Components.Loading />
   }
 };
-registerComponent('SingleUsersItem', SingleUsersItem,
-  withStyles(styles, { name: "SingleUsersItem" })
-);
+
+const SingleUsersItemComponent = registerComponent('SingleUsersItem', SingleUsersItem, {styles});
+
+declare global {
+  interface ComponentTypes {
+    SingleUsersItem: typeof SingleUsersItemComponent
+  }
+}

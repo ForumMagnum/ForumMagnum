@@ -4,6 +4,7 @@ import { registerComponent } from 'meteor/vulcan:core';
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
 import classnames from 'classnames';
+import * as _ from 'underscore';
 
 const styles = theme => ({
   button: {
@@ -37,7 +38,7 @@ const styles = theme => ({
 });
 
 
-class MultiSelectButtons extends Component {
+class MultiSelectButtons extends Component<any> {
   handleClick = (option) => {
     const { value } = this.props;
     
@@ -76,11 +77,16 @@ class MultiSelectButtons extends Component {
       })}
     </div>
   }
-}
+};
 
-MultiSelectButtons.contextTypes = {
+(MultiSelectButtons as any).contextTypes = {
   updateCurrentValues: PropTypes.func,
 };
 
-registerComponent("MultiSelectButtons", MultiSelectButtons,
-  withStyles(styles, { name: "MultiSelectButtons" }));
+const MultiSelectButtonsComponent = registerComponent("MultiSelectButtons", MultiSelectButtons, {styles});
+
+declare global {
+  interface ComponentTypes {
+    MultiSelectButtons: typeof MultiSelectButtonsComponent
+  }
+}

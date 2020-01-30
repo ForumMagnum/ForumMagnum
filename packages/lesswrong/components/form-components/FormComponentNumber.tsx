@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import mapValues from 'lodash/mapValues';
 
-class FormComponentNumber extends PureComponent {
+class FormComponentNumber extends PureComponent<any> {
 
   getChildContext() {
     return {
@@ -27,13 +27,20 @@ class FormComponentNumber extends PureComponent {
   }
 }
 
-FormComponentNumber.contextTypes = {
+(FormComponentNumber as any).contextTypes = {
   updateCurrentValues: PropTypes.func,
 };
-FormComponentNumber.childContextTypes = {
+(FormComponentNumber as any).childContextTypes = {
   updateCurrentValues: PropTypes.func,
 };
 
 // Replaces FormComponentNumber from vulcan-ui-bootstrap
-registerComponent("FormComponentNumber", FormComponentNumber);
+const FormComponentNumberComponent = registerComponent("FormComponentNumber", FormComponentNumber);
+
+declare global {
+  interface ComponentTypes {
+    FormComponentNumber: typeof FormComponentNumberComponent
+  }
+}
+
 

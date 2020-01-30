@@ -6,6 +6,7 @@ import { performVoteClient } from '../../lib/voting/vote';
 import { VoteableCollections } from '../../lib/make_voteable';
 import { getFragmentText } from 'meteor/vulcan:lib';
 import * as _ from 'underscore';
+import { Random } from 'meteor/random';
 
 const getVoteMutationQuery = () => {
   return gql`

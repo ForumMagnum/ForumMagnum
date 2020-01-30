@@ -5,28 +5,6 @@ interface ComponentTypes {
   SettingsIcon: any
   ModerationGuidelinesBox: any
   ModerationGuidelinesEditForm: any
-  PostsListEditor: any
-  ImageUpload: any
-  SequencesListEditor: any
-  SequencesListEditorItem: any
-  SubmitButton: any
-  FormSubmit: any
-  SingleUsersItem: any
-  SingleUsersItemWrapper: any
-  UsersListEditor: any
-  MuiInput: any
-  LocationFormComponent: any
-  MuiTextField: any
-  MultiSelectButtons: any
-  FormComponentCheckbox: any
-  SectionFooterCheckbox: any
-  FormComponentDefault: any
-  FormComponentSelect: any
-  FormComponentDate: any
-  FormComponentDateTime: any
-  FormComponentNumber: any
-  WrappedSmartForm: any
-  ManageSubscriptionsLink: any
   
   // vulcan-accounts components
   AccountsButton: any
