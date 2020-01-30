@@ -354,7 +354,6 @@ class PostsPage extends Component<PostsPageProps> {
                       <PostsVote
                         collection={Posts}
                         post={post}
-                        currentUser={currentUser}
                         />
                     </div>
                   </div>
@@ -400,7 +399,6 @@ class PostsPage extends Component<PostsPageProps> {
                       <PostsVote
                         collection={Posts}
                         post={post}
-                        currentUser={currentUser}
                         />
                     </div>
                   </div>}

@@ -1,12 +1,10 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
-import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
 import { Comments } from "../../lib/collections/comments";
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
 import moment from '../../lib/moment-timezone';
-import withHover from '../common/withHover';
+import { useHover } from '../common/withHover';
 import { useCurrentUser } from '../common/withUser';
 import { useVote } from './withVote';
 
@@ -37,9 +35,14 @@ const styles = theme => ({
   }
 })
 
-const CommentsVote = ({ comment, hideKarma, classes, hover }) => {
+const CommentsVote = ({ comment, hideKarma=false, classes }: {
+  comment: any,
+  hideKarma?: boolean,
+  classes: any,
+}) => {
   const currentUser = useCurrentUser();
   const vote = useVote();
+  const {eventHandlers, hover} = useHover();
   
   if (!comment) return null;
   const voteCount = comment.voteCount;
@@ -52,7 +55,7 @@ const CommentsVote = ({ comment, hideKarma, classes, hover }) => {
   )
 
   return (
-    <span className={classes.vote}>
+    <span className={classes.vote} {...eventHandlers}>
       {(getSetting('forumType') !== 'AlignmentForum' || !!comment.af) &&
         <span>
           <Tooltip
@@ -122,13 +125,11 @@ const CommentsVote = ({ comment, hideKarma, classes, hover }) => {
     </span>)
 }
 
-CommentsVote.propTypes = {
-  comment: PropTypes.object.isRequired, // the document to upvote
-  classes: PropTypes.object.isRequired,
-  hideKarma: PropTypes.bool,
-};
+const CommentsVoteComponent = registerComponent('CommentsVote', CommentsVote, {styles});
 
-registerComponent('CommentsVote', CommentsVote,
-  withHover(),
-  withStyles(styles, { name: "CommentsVote" }),
-);
+declare global {
+  interface ComponentTypes {
+    CommentsVote: typeof CommentsVoteComponent
+  }
+}
+

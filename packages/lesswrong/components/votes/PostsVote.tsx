@@ -1,7 +1,5 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
-import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
@@ -108,12 +106,11 @@ const PostsVote = ({ post, classes, collection }) => {
       </div>)
 }
 
-PostsVote.propTypes = {
-  post: PropTypes.object.isRequired, // the document to upvote
-  collection: PropTypes.object.isRequired, // the collection containing the document
-  classes: PropTypes.object.isRequired
-};
+const PostsVoteComponent = registerComponent('PostsVote', PostsVote, {styles});
 
-registerComponent('PostsVote', PostsVote,
-  withStyles(styles, { name: "PostsVote" })
-);
+declare global {
+  interface ComponentTypes {
+    PostsVote: typeof PostsVoteComponent
+  }
+}
+

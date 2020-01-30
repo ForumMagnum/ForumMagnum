@@ -267,7 +267,6 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
                 </span>}
                 <Components.CommentsVote
                   comment={comment}
-                  currentUser={currentUser}
                   hideKarma={post.hideCommentKarma}
                 />
 

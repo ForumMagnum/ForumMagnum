@@ -3,9 +3,6 @@
 interface ComponentTypes {
   OmegaIcon: any
   SettingsIcon: any
-  VoteButton: any
-  CommentsVote: any
-  PostsVote: any
   ModerationGuidelinesBox: any
   ModerationGuidelinesEditForm: any
   PostsListEditor: any

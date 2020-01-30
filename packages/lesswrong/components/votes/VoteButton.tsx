@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import classNames from 'classnames';
 import { hasVotedClient } from '../../lib/voting/vote';
 import { isMobile } from '../../lib/utils/isMobile'
-import { withStyles, withTheme } from '@material-ui/core/styles';
+import { withTheme } from '@material-ui/core/styles';
 import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp'
 import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
@@ -57,9 +57,30 @@ const styles = theme => ({
   }
 })
 
-class VoteButton extends PureComponent {
-  constructor() {
-    super();
+interface ExternalProps {
+  vote: any,
+  collection: any,
+  document: any,
+  voteType: string,
+  color: any,
+  orientation: string,
+  currentUser: UsersCurrent|null,
+}
+interface VoteButtonProps extends ExternalProps, WithStylesProps, WithDialogProps {
+  theme: any,
+}
+interface VoteButtonState {
+  voted: boolean,
+  bigVoted: boolean,
+  bigVotingTransition: boolean,
+  bigVoteCompleted: boolean,
+}
+
+class VoteButton extends PureComponent<VoteButtonProps,VoteButtonState> {
+  votingTransition: any
+  
+  constructor(props: VoteButtonProps) {
+    super(props);
     this.votingTransition = null
     this.state = {
       voted: false,
@@ -160,8 +181,14 @@ class VoteButton extends PureComponent {
   )}
 }
 
-registerComponent('VoteButton', VoteButton,
-  withDialog,
-  withStyles(styles, { name: "VoteButton" }),
-  withTheme()
-);
+const VoteButtonComponent = registerComponent<ExternalProps>('VoteButton', VoteButton, {
+  styles,
+  hocs: [withDialog, withTheme()]
+});
+
+declare global {
+  interface ComponentTypes {
+    VoteButton: typeof VoteButtonComponent
+  }
+}
+
