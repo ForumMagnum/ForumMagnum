@@ -16,7 +16,6 @@ const SequencesPageTitle = ({isSubtitle, siteName, classes}) => {
     collection: Sequences,
     fragmentName: "SequencesPageFragment",
     fetchPolicy: 'cache-only',
-    ssr: true,
   });
   
   if (!sequence || loading) return null;
@@ -38,6 +37,12 @@ const SequencesPageTitle = ({isSubtitle, siteName, classes}) => {
   // collections. That special case didn't work, but maybe it's worth building
   // a version that does.
 }
-registerComponent("SequencesPageTitle", SequencesPageTitle,
-  withStyles(styles, {name: "SequencesPageTitle"})
-);
+
+const SequencesPageTitleComponent = registerComponent("SequencesPageTitle", SequencesPageTitle, {styles});
+
+declare global {
+  interface ComponentTypes {
+    SequencesPageTitle: typeof SequencesPageTitleComponent
+  }
+}
+

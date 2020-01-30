@@ -3,9 +3,6 @@
 interface ComponentTypes {
   OmegaIcon: any
   SettingsIcon: any
-  UserPageTitle: any
-  SequencesPageTitle: any
-  PostsPageHeaderTitle: any
   VoteButton: any
   CommentsVote: any
   PostsVote: any

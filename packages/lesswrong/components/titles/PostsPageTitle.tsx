@@ -17,7 +17,6 @@ const PostsPageHeaderTitle = ({isSubtitle, siteName, classes}) => {
     collection: Posts,
     fragmentName: "PostsBase",
     fetchPolicy: 'cache-only',
-    ssr: true,
   });
   
   if (!post || loading) return null;
@@ -48,7 +47,15 @@ const PostsPageHeaderTitle = ({isSubtitle, siteName, classes}) => {
     // attempt to do this in a previous implementation, which didn't work.
     return null;
   }
+  
+  return null;
 }
-registerComponent("PostsPageHeaderTitle", PostsPageHeaderTitle,
-  withStyles(styles, {name: "PostsPageHeaderTitle"})
-);
+
+const PostsPageHeaderTitleComponent = registerComponent("PostsPageHeaderTitle", PostsPageHeaderTitle, {styles});
+
+declare global {
+  interface ComponentTypes {
+    PostsPageHeaderTitle: typeof PostsPageHeaderTitleComponent
+  }
+}
+

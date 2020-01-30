@@ -22,7 +22,7 @@ const UserPageTitle = ({isSubtitle, siteName, classes}) => {
     // posts-page or sequences-page title components) fails (results undefined)
     // if fetchPolicy is cache-only. When set to cache-then-network, it works,
     // without generating any network requests.
-    fetchPolicy: 'cache-then-network',
+    fetchPolicy: 'cache-then-network' as any, //TODO
     ssr: true,
   });
   
@@ -47,6 +47,12 @@ const UserPageTitle = ({isSubtitle, siteName, classes}) => {
     </Helmet>
   }
 }
-registerComponent("UserPageTitle", UserPageTitle,
-  withStyles(styles, {name: "UserPageTitle"})
-);
+
+const UserPageTitleComponent = registerComponent("UserPageTitle", UserPageTitle, {styles});
+
+declare global {
+  interface ComponentTypes {
+    UserPageTitle: typeof UserPageTitleComponent
+  }
+}
+
