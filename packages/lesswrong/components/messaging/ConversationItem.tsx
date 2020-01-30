@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import Conversations from '../../lib/collections/conversations/collection';
 import { Link } from '../../lib/reactRouterWrapper';
-import { withStyles } from '@material-ui/core/styles';
 import { postsItemLikeStyles } from '../localGroups/LocalGroupsItem'
 import ArchiveIcon from '@material-ui/icons/Archive';
 import UnarchiveIcon from '@material-ui/icons/Unarchive';

@@ -1,13 +1,14 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
-import withUser from '../common/withUser'
+import { useCurrentUser } from '../common/withUser'
 import Users from 'meteor/vulcan:users';
 import withErrorBoundary from '../common/withErrorBoundary';
 
 const MAX_ANSWERS_QUERIED = 100
 
-const PostsPageQuestionContent = ({post, currentUser, refetch}) => {
+const PostsPageQuestionContent = ({post, refetch}) => {
+  const currentUser = useCurrentUser();
   const { AnswersList, NewAnswerCommentQuestionForm, CantCommentExplanation, RelatedQuestionsList } = Components
   return (
     <div>
@@ -22,8 +23,13 @@ const PostsPageQuestionContent = ({post, currentUser, refetch}) => {
 
 };
 
-PostsPageQuestionContent.propTypes = {
-  post: PropTypes.object.isRequired,
-};
+const PostsPageQuestionContentComponent = registerComponent('PostsPageQuestionContent', PostsPageQuestionContent, {
+  hocs: [withErrorBoundary]
+});
 
-registerComponent('PostsPageQuestionContent', PostsPageQuestionContent, withUser, withErrorBoundary);
+declare global {
+  interface ComponentTypes {
+    PostsPageQuestionContent: typeof PostsPageQuestionContentComponent
+  }
+}
+

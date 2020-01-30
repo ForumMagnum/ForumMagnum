@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { GroupIconSVG } from './Icons'
 import { Marker } from 'react-map-gl';

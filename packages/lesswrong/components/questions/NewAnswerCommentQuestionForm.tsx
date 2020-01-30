@@ -2,7 +2,6 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withMessages } from '../common/withMessages';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -73,8 +72,22 @@ const styles = theme => ({
   }
 })
 
-class NewAnswerCommentQuestionForm extends PureComponent {
-  state = { selection: "answer", formFocus: false }
+interface ExternalProps {
+  post: any,
+  refetch: any,
+}
+interface NewAnswerCommentQuestionFormProps extends ExternalProps, WithMessagesProps, WithUserProps, WithStylesProps {
+}
+interface NewAnswerCommentQuestionFormState {
+  selection: string,
+  formFocus: boolean,
+}
+
+class NewAnswerCommentQuestionForm extends PureComponent<NewAnswerCommentQuestionFormProps,NewAnswerCommentQuestionFormState> {
+  state: NewAnswerCommentQuestionFormState = {
+    selection: "answer",
+    formFocus: false
+  }
 
   toggleFormFocus = () => {
     this.setState((prevState) => ({formFocus: !prevState.formFocus}))
@@ -90,7 +103,6 @@ class NewAnswerCommentQuestionForm extends PureComponent {
         return <NewAnswerForm post={post} />
       case "comment":
         return <CommentsNewForm
-          alignmentForumPost={post.af}
           post={post}
           type="comment"
         />
@@ -148,9 +160,14 @@ class NewAnswerCommentQuestionForm extends PureComponent {
   }
 }
 
-NewAnswerCommentQuestionForm.propTypes = {
-  classes: PropTypes.object.isRequired,
-  post: PropTypes.object.isRequired
-};
+const NewAnswerCommentQuestionFormComponent = registerComponent<ExternalProps>('NewAnswerCommentQuestionForm', NewAnswerCommentQuestionForm, {
+  styles,
+  hocs: [withMessages, withUser]
+});
 
-registerComponent('NewAnswerCommentQuestionForm', NewAnswerCommentQuestionForm, withMessages, withUser, withStyles(styles, {name:"NewAnswerCommentQuestionForm"}));
+declare global {
+  interface ComponentTypes {
+    NewAnswerCommentQuestionForm: typeof NewAnswerCommentQuestionFormComponent
+  }
+}
+

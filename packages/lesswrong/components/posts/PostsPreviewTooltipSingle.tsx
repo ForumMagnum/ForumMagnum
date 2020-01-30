@@ -14,7 +14,12 @@ const styles = createStyles(theme => ({
   }
 }))
 
-const PostsPreviewTooltipSingle = ({ classes, postId, truncateLimit=600, showAllInfo }) => {
+const PostsPreviewTooltipSingle = ({ classes, postId, truncateLimit=600, showAllInfo=false }: {
+  classes: any,
+  postId: string,
+  truncateLimit?: number,
+  showAllInfo?: boolean,
+}) => {
   const { Loading, PostsPreviewTooltip  } = Components
 
   const { document: post, loading: postLoading } = useSingle({
@@ -33,7 +38,13 @@ const PostsPreviewTooltipSingle = ({ classes, postId, truncateLimit=600, showAll
 
 const PostsPreviewTooltipSingleComponent = registerComponent('PostsPreviewTooltipSingle', PostsPreviewTooltipSingle, {styles});
 
-const PostsPreviewTooltipSingleWithComment = ({ classes, postId, commentId, truncateLimit=600, showAllInfo }) => {
+const PostsPreviewTooltipSingleWithComment = ({ classes, postId, commentId, truncateLimit=600, showAllInfo=false }: {
+  classes: any,
+  postId: string,
+  commentId: string,
+  truncateLimit?: number,
+  showAllInfo?: boolean,
+}) => {
   const { Loading, PostsPreviewTooltip  } = Components
 
   const { document: post, loading: postLoading } = useSingle({

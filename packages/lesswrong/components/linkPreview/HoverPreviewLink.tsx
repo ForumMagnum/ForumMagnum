@@ -5,7 +5,7 @@ import Sentry from '@sentry/node';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Meteor } from 'meteor/meteor';
 
-export const parseRouteWithErrors = (onsiteUrl, contentSourceDescription) => {
+export const parseRouteWithErrors = (onsiteUrl: string, contentSourceDescription?: string) => {
   return parseRoute({
     location: parsePath(onsiteUrl),
     onError: (pathname) => {

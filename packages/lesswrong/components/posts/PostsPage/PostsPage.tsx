@@ -421,7 +421,7 @@ class PostsPage extends Component<PostsPageProps> {
                   {post.question && <div className={classes.post}>
                     <div id="answers"/>
                     <AnalyticsContext pageSectionContext="answersSection">
-                      <PostsPageQuestionContent terms={{...commentTerms, postId: post._id}} post={post} refetch={refetch}/>
+                      <PostsPageQuestionContent post={post} refetch={refetch}/>
                     </AnalyticsContext>
                   </div>}
                   {/* Comments Section */}

@@ -16,6 +16,11 @@ const RecommendationsPage = ({ classes }) => {
   )
 };
 
-registerComponent('RecommendationsPage', RecommendationsPage,
-  withStyles(styles, {name:"RecommendationsPage"})
-);
+const RecommendationsPageComponent = registerComponent('RecommendationsPage', RecommendationsPage, {styles});
+
+declare global {
+  interface ComponentTypes {
+    RecommendationsPage: typeof RecommendationsPageComponent
+  }
+}
+

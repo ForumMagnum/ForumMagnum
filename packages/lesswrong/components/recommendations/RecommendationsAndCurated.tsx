@@ -49,8 +49,22 @@ const defaultFrontpageSettings = {
 }
 
 
-class RecommendationsAndCurated extends PureComponent {
-  state = { showSettings: false, stateSettings: null }
+interface ExternalProps {
+  configName: string
+}
+interface RecommendationsAndCuratedProps extends ExternalProps, WithUserProps, WithStylesProps {
+  continueReading: any,
+}
+interface RecommendationsAndCuratedState {
+  showSettings: boolean,
+  settings: any,
+}
+
+class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedProps,RecommendationsAndCuratedState> {
+  state: RecommendationsAndCuratedState = {
+    showSettings: false,
+    settings: null,
+  }
 
   toggleSettings = () => {
     this.setState(prevState => ({showSettings: !prevState.showSettings}))
@@ -63,11 +77,10 @@ class RecommendationsAndCurated extends PureComponent {
   }
 
   render() {
-    const { continueReading, classes, currentUser } = this.props;
+    const { continueReading, classes, currentUser, configName } = this.props;
     const { showSettings } = this.state
     const { RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SeparatorBullet, BookmarksList, RecommendationsList } = Components;
 
-    const configName = "frontpage"
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
 
     const curatedTooltip = <div>
@@ -104,7 +117,7 @@ class RecommendationsAndCurated extends PureComponent {
       ...defaultFrontpageSettings
     }
 
-    const renderBookmarks = (currentUser?.bookmarkedPostsMetadata?.length > 0) && !settings.hideBookmarks
+    const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
     const renderContinueReading = (continueReading?.length > 0) && !settings.hideContinueReading
     const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
@@ -194,10 +207,20 @@ class RecommendationsAndCurated extends PureComponent {
   }
 }
 
-registerComponent("RecommendationsAndCurated", RecommendationsAndCurated,
-  [withUpdate, {
-    collection: Users,
-    fragmentName: "UsersCurrent",
-  }],
-  withContinueReading,
-  withUser, withStyles(styles, {name: "RecommendationsAndCurated"}));
+const RecommendationsAndCuratedComponent = registerComponent<ExternalProps>("RecommendationsAndCurated", RecommendationsAndCurated, {
+  styles,
+  hocs: [
+    withUpdate({
+      collection: Users,
+      fragmentName: "UsersCurrent",
+    }),
+    withContinueReading, withUser,
+  ]
+});
+
+declare global {
+  interface ComponentTypes {
+    RecommendationsAndCurated: typeof RecommendationsAndCuratedComponent
+  }
+}
+

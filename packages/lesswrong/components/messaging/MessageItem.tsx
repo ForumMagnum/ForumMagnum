@@ -7,7 +7,6 @@ Display of a single message in the Conversation Wrapper
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
-import { withStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';

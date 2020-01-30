@@ -1,8 +1,6 @@
 import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
 import { withMessages } from '../common/withMessages';
 import React from 'react';
-import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser'
 import { Posts } from '../../lib/collections/posts/collection'
 
@@ -81,9 +79,14 @@ const NewRelatedQuestionForm = (props) => {
   )
 };
 
-NewRelatedQuestionForm.propTypes = {
-  classes: PropTypes.object.isRequired,
-  post: PropTypes.object.isRequired,
-};
+const NewRelatedQuestionFormComponent = registerComponent('NewRelatedQuestionForm', NewRelatedQuestionForm, {
+  styles,
+  hocs: [withMessages, withUser]
+});
 
-registerComponent('NewRelatedQuestionForm', NewRelatedQuestionForm, withMessages, withUser, withStyles(styles, {name:"NewRelatedQuestionForm"}));
+declare global {
+  interface ComponentTypes {
+    NewRelatedQuestionForm: typeof NewRelatedQuestionFormComponent
+  }
+}
+

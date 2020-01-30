@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   emailPreview: {},
@@ -39,5 +38,11 @@ export const EmailPreview = ({email, classes}) => {
   </div>;
 }
 
-registerComponent('EmailPreview', EmailPreview,
-  withStyles(styles, { name: "EmailPreview" }));
+const EmailPreviewComponent = registerComponent('EmailPreview', EmailPreview, {styles});
+
+declare global {
+  interface ComponentTypes {
+    EmailPreview: typeof EmailPreviewComponent
+  }
+}
+

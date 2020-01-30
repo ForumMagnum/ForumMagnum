@@ -2,12 +2,12 @@ import React from 'react';
 import Notifications from '../../lib/collections/notifications/collection';
 import Badge from '@material-ui/core/Badge';
 import { registerComponent } from 'meteor/vulcan:core';
-import { withMulti } from '../../lib/crud/withMulti';
+import { useMulti } from '../../lib/crud/withMulti';
 import IconButton from '@material-ui/core/IconButton';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
-import { withStyles } from '@material-ui/core/styles';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
+import * as _ from 'underscore';
 
 const styles = theme => ({
   badgeContainer: {
@@ -33,8 +33,21 @@ const styles = theme => ({
   },
 });
 
-const NotificationsMenuButton = (props) => {
-  let { classes, currentUser, results, open, color, toggle } = props;
+const NotificationsMenuButton = ({
+  terms, classes, open, color, toggle
+}) => {
+  const currentUser = useCurrentUser();
+  const { results } = useMulti({
+    terms,
+    collection: Notifications,
+    fragmentName: 'NotificationsList',
+    pollInterval: 0,
+    limit: 20,
+    enableTotal: false,
+    fetchPolicy: 'cache-and-network',
+    ssr: true,
+  });
+  
   let filteredResults = [];
   if (currentUser) {
     filteredResults = results && _.filter(results,
@@ -63,15 +76,11 @@ const NotificationsMenuButton = (props) => {
   )
 }
 
-const options = {
-  collection: Notifications,
-  queryName: 'notificationsListQuery',
-  fragmentName: 'NotificationsList',
-  pollInterval: 0,
-  limit: 20,
-  enableTotal: false,
-  fetchPolicy: 'cache-and-network',
-  ssr: true,
-};
+const NotificationsMenuButtonComponent = registerComponent('NotificationsMenuButton', NotificationsMenuButton, {styles});
 
-registerComponent('NotificationsMenuButton', NotificationsMenuButton, [withMulti, options], withUser, withStyles(styles, { name: "NotificationsMenuButton" }))
+declare global {
+  interface ComponentTypes {
+    NotificationsMenuButton: typeof NotificationsMenuButtonComponent
+  }
+}
+

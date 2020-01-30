@@ -1,10 +1,9 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import PropTypes from 'prop-types';
 import withErrorBoundary from '../common/withErrorBoundary';
-import withUser from '../common/withUser';
-import { withStyles } from '@material-ui/core/styles'
+import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
+import * as _ from 'underscore';
 
 const styles = theme => ({
   root: {
@@ -53,10 +52,9 @@ const styles = theme => ({
   }
 })
 
-const RelatedQuestionsList = ({ post, currentUser, classes }) => {
-
+const RelatedQuestionsList = ({ post, classes }) => {
+  const currentUser = useCurrentUser();
   const { PostsItem2, SectionTitle } = Components
-
   
   const sourcePostRelations = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)
   const targetPostRelations = _.filter(post.targetPostRelations, rel => (rel.sourcePostId === post._id && !!rel.targetPost))
@@ -72,14 +70,12 @@ const RelatedQuestionsList = ({ post, currentUser, classes }) => {
       {(totalRelatedQuestionCount > 0) && <SectionTitle title={`${totalRelatedQuestionCount} Related Questions`} />}
       
       {showParentLabel && <div className={classes.header}>Parent Question{(sourcePostRelations.length > 1) && "s"}</div>}
-      {sourcePostRelations.map((rel, i) => 
+      {sourcePostRelations.map((rel, i) =>
         <PostsItem2
           key={rel._id}
-          post={rel.sourcePost} 
-          currentUser={currentUser} 
+          post={rel.sourcePost}
           index={i}
-          parentQuestion
-      /> )} 
+      />)}
       {showSubQuestionLabel && <div className={classes.header}>Sub-Questions</div>}
       {targetPostRelations.map((rel, i) => {
         const parentQuestionId = rel.targetPostId
@@ -90,7 +86,6 @@ const RelatedQuestionsList = ({ post, currentUser, classes }) => {
           <div key={rel._id} className={classNames(classes.subQuestion, {[classes.hasSubSubQuestions]:showSubQuestions})} >
             <PostsItem2 
               post={rel.targetPost} 
-              currentUser={currentUser} 
               index={i}
               showQuestionTag={false}
               showPostedAt={false}
@@ -105,7 +100,6 @@ const RelatedQuestionsList = ({ post, currentUser, classes }) => {
                 showQuestionTag={false}
                 showPostedAt={false}
                 showIcons={false}
-                currentUser={currentUser} 
                 defaultToShowUnreadComments={true}
                 index={i}
               />)}
@@ -117,8 +111,14 @@ const RelatedQuestionsList = ({ post, currentUser, classes }) => {
   )
 }
 
-RelatedQuestionsList.propTypes = {
-  post: PropTypes.object,
-};
+const RelatedQuestionsListComponent = registerComponent('RelatedQuestionsList', RelatedQuestionsList, {
+  styles,
+  hocs: [withErrorBoundary]
+});
 
-registerComponent('RelatedQuestionsList', RelatedQuestionsList, withUser, withErrorBoundary, withStyles(styles, {name:"RelatedQuestionsList"}));
+declare global {
+  interface ComponentTypes {
+    RelatedQuestionsList: typeof RelatedQuestionsListComponent
+  }
+}
+

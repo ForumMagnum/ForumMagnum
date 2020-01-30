@@ -56,4 +56,11 @@ const NotificationEmailPreviewPage = () => {
   );
 }
 
-registerComponent("NotificationEmailPreviewPage", NotificationEmailPreviewPage);
+const NotificationEmailPreviewPageComponent = registerComponent("NotificationEmailPreviewPage", NotificationEmailPreviewPage);
+
+declare global {
+  interface ComponentTypes {
+    NotificationEmailPreviewPage: typeof NotificationEmailPreviewPageComponent
+  }
+}
+

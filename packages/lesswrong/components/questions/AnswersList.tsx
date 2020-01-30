@@ -2,7 +2,6 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { Comments } from '../../lib/collections/comments';
-import { withStyles } from '@material-ui/core/styles'
 
 const styles = theme => ({
   root: {
@@ -33,7 +32,6 @@ const AnswersList = ({terms, post, classes}) => {
   const { results } = useMulti({
     terms,
     collection: Comments,
-    queryName: 'AnswersListQuery',
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-and-network',
     enableTotal: true,
@@ -57,4 +55,11 @@ const AnswersList = ({terms, post, classes}) => {
   }
 };
 
-registerComponent('AnswersList', AnswersList, withStyles(styles, {name: "AnswersList"}));
+const AnswersListComponent = registerComponent('AnswersList', AnswersList, {styles});
+
+declare global {
+  interface ComponentTypes {
+    AnswersList: typeof AnswersListComponent
+  }
+}
+

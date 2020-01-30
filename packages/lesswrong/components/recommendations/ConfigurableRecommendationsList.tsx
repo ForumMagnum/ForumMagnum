@@ -7,7 +7,17 @@ import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 
 const recommendedName = getSetting('forumType') === 'EAForum' ? 'Community Favorites' : 'Recommended'
 
-class ConfigurableRecommendationsList extends PureComponent {
+interface ExternalProps {
+  configName: string,
+}
+interface ConfigurableRecommendationsListProps extends ExternalProps, WithUserProps {
+}
+interface ConfigurableRecommendationsListState {
+  settingsVisible: boolean,
+  settings: any,
+}
+
+class ConfigurableRecommendationsList extends PureComponent<ConfigurableRecommendationsListProps,ConfigurableRecommendationsListState> {
   state = {
     settingsVisible: false,
     settings: null
@@ -56,4 +66,15 @@ class ConfigurableRecommendationsList extends PureComponent {
   }
 }
 
-registerComponent("ConfigurableRecommendationsList", ConfigurableRecommendationsList, withUser);
+const ConfigurableRecommendationsListComponent = registerComponent<ExternalProps>(
+  "ConfigurableRecommendationsList", ConfigurableRecommendationsList, {
+    hocs: [withUser]
+  }
+);
+
+declare global {
+  interface ComponentTypes {
+    ConfigurableRecommendationsList: typeof ConfigurableRecommendationsListComponent
+  }
+}
+

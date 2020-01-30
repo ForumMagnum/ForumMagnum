@@ -1,9 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Comments } from '../../lib/collections/comments';
-import { withStyles } from '@material-ui/core/styles'
 import { unflattenComments } from "../../lib/utils/unflatten";
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
@@ -48,7 +46,13 @@ const styles = theme => ({
 
 export const ABRIDGE_COMMENT_COUNT = 500;
 
-const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}) => {
+const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}: {
+  terms: any,
+  lastEvent?: any,
+  classes: any,
+  post: any,
+  parentAnswer: any,
+}) => {
   const currentUser = useCurrentUser();
   const [commenting, setCommenting] = React.useState(false);
   const [loadedMore, setLoadedMore] = React.useState(false);
@@ -56,16 +60,15 @@ const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}) => 
   const { loadMore, results, loading, loadingMore, totalCount } = useMulti({
     terms,
     collection: Comments,
-    queryName: 'AnswersCommentListQuery',
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-and-network',
     enableTotal: true,
   });
   
   const highlightDate =
-    (lastEvent && lastEvent.properties && lastEvent.properties.createdAt
+    (lastEvent?.properties?.createdAt
       && new Date(lastEvent.properties.createdAt))
-    || (post && post.lastVisitedAt
+    || (post?.lastVisitedAt
       && new Date(post.lastVisitedAt))
     || new Date();
 
@@ -77,7 +80,7 @@ const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}) => 
   const loadMoreComments = React.useCallback(
     (event) => {
       event.stopPropagation()
-      if (totalCount > ABRIDGE_COMMENT_COUNT) {
+      if (totalCount! > ABRIDGE_COMMENT_COUNT) {
         setLoadedMore(true);
         loadMore(10000)
       }
@@ -116,12 +119,11 @@ const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}) => 
           classes.commentsList, {
             [classes.noCommentAnswersList]: noComments,
             [classes.loadingMore]: loadingMore,
-            [classes.canLoadMore]: !loadedMore && totalCount > ABRIDGE_COMMENT_COUNT
+            [classes.canLoadMore]: !loadedMore && totalCount! > ABRIDGE_COMMENT_COUNT
           }
       )}>
         { loadingMore && <Loading /> }
         <CommentsList
-          currentUser={currentUser}
           totalComments={totalCount}
           comments={nestedComments}
           highlightDate={highlightDate}
@@ -133,7 +135,7 @@ const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}) => 
           startThreadTruncated
         />
       </div>
-      {(results.length && results.length < totalCount) ?
+      {(results.length && results.length < totalCount!) ?
         <Typography variant="body2" onClick={loadMoreComments} className={classes.loadMore}>
           <a>Showing {results.length}/{totalCount} comments. Click to load All.</a>
         </Typography> : null}
@@ -141,10 +143,11 @@ const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}) => 
   );
 }
 
-AnswerCommentsList.propTypes = {
-  classes: PropTypes.object.isRequired,
-  post: PropTypes.object.isRequired,
-  parentAnswer: PropTypes.object,
-};
+const AnswerCommentsListComponent = registerComponent('AnswerCommentsList', AnswerCommentsList, {styles});
 
-registerComponent('AnswerCommentsList', AnswerCommentsList, withStyles(styles, {name: "AnswerCommentsList"}));
+declare global {
+  interface ComponentTypes {
+    AnswerCommentsList: typeof AnswerCommentsListComponent
+  }
+}
+

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -72,6 +71,14 @@ NotificationTypeSettings.contextTypes = {
   updateCurrentValues: PropTypes.func,
 };
 
-registerComponent('NotificationTypeSettings', NotificationTypeSettings,
-  withErrorBoundary,
-  withStyles(styles, {name:"NotificationTypeSettings"}));
+const NotificationTypeSettingsComponent = registerComponent('NotificationTypeSettings', NotificationTypeSettings, {
+  styles,
+  hocs: [withErrorBoundary]
+});
+
+declare global {
+  interface ComponentTypes {
+    NotificationTypeSettings: typeof NotificationTypeSettingsComponent
+  }
+}
+

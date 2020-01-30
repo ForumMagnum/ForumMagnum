@@ -1,10 +1,10 @@
 import React from 'react';
 import { registerComponent, getSetting } from 'meteor/vulcan:core';
-import { withUpdate } from '../../lib/crud/withUpdate';
+import { useUpdate } from '../../lib/crud/withUpdate';
 import Input from '@material-ui/core/Input';
 import Checkbox from '@material-ui/core/Checkbox';
 import deepmerge from 'deepmerge';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import { slotSpecificRecommendationSettingDefaults, defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings';
 import Users from 'meteor/vulcan:users';
 
@@ -33,8 +33,8 @@ export function getRecommendationSettings({settings, currentUser, configName})
   if (settings)
    return settings;
 
-  if (currentUser && currentUser.recommendationSettings && configName in currentUser.recommendationSettings) {
-    return deepmerge(getDefaultSettings(), currentUser.recommendationSettings[configName]||{});
+  if (currentUser?.recommendationSettings && configName in currentUser.recommendationSettings) {
+    return deepmerge(getDefaultSettings(configName), currentUser.recommendationSettings[configName]||{});
   } else {
     return getDefaultSettings(configName);
   }
@@ -48,7 +48,17 @@ const forumIncludeExtra = {
 
 const includeExtra = forumIncludeExtra[getSetting('forumType', 'LessWrong')]
 
-const RecommendationsAlgorithmPicker = ({ currentUser, settings, configName, updateUser, onChange, showAdvanced }) => {
+const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAdvanced=false }: {
+  settings: any,
+  configName: string,
+  onChange: any,
+  showAdvanced?: boolean,
+}) => {
+  const currentUser = useCurrentUser();
+  const {mutate: updateUser} = useUpdate({
+    collection: Users,
+    fragmentName: "UsersCurrent",
+  });
   function applyChange(newSettings) {
     if (currentUser) {
       const mergedSettings = {
@@ -98,7 +108,7 @@ const RecommendationsAlgorithmPicker = ({ currentUser, settings, configName, upd
     <div>
       <Checkbox
         disabled={!currentUser}
-        checked={settings.onlyUnread && currentUser}
+        checked={settings.onlyUnread && !!currentUser}
         onChange={(ev, checked) => applyChange({ ...settings, onlyUnread: checked })}
       /> Only show unread posts {!currentUser && "(Requires login)"}
     </div>
@@ -173,10 +183,12 @@ const RecommendationsAlgorithmPicker = ({ currentUser, settings, configName, upd
   </div>;
 }
 
-registerComponent("RecommendationsAlgorithmPicker", RecommendationsAlgorithmPicker,
-  withUser,
-  [withUpdate, {
-    collection: Users,
-    fragmentName: "UsersCurrent",
-  }]
-);
+const RecommendationsAlgorithmPickerComponent = registerComponent("RecommendationsAlgorithmPicker", RecommendationsAlgorithmPicker, {
+});
+
+declare global {
+  interface ComponentTypes {
+    RecommendationsAlgorithmPicker: typeof RecommendationsAlgorithmPickerComponent
+  }
+}
+

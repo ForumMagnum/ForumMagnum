@@ -4,7 +4,6 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
 import Messages from "../../lib/collections/messages/collection";
 import Typography from '@material-ui/core/Typography';
-import { withStyles } from '@material-ui/core/styles';
 import Conversations from '../../lib/collections/conversations/collection';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';

@@ -36,17 +36,23 @@ const styles = createStyles(theme => ({
   },
 }));
 
-const CommentsItemDate = ({comment, post, classes, scrollOnClick, scrollIntoView }) => {
+const CommentsItemDate = ({comment, post, classes, scrollOnClick, scrollIntoView }: {
+  comment: any,
+  post: any,
+  classes: any,
+  scrollOnClick?: boolean,
+  scrollIntoView?: ()=>void,
+}) => {
   const { history } = useNavigation();
   const { location } = useLocation();
   const { captureEvent } = useTracking("dateIconLinkClick");
 
-   const handleLinkClick = (event) => {
+  const handleLinkClick = (event) => {
     event.preventDefault()
     history.replace({...location, hash: "#" + comment._id})
-    scrollIntoView();
+    if(scrollIntoView) scrollIntoView();
     captureEvent("linkClicked", {buttonPressed: event.button, furtherContext: "dateIcon"})
-   };
+  };
 
   const url = Comments.getPageUrlFromIds({postId: post._id, postSlug: post.slug, commentId: comment._id, permalink: false})
 

@@ -3,14 +3,6 @@
 interface ComponentTypes {
   newFeedButton: any
   editFeedButton: any
-  NotificationsMenu: any
-  NotificationsList: any
-  NotificationsItem: any
-  NotificationsMenuButton: any
-  SubscribeTo: any
-  NotificationTypeSettings: any
-  NotificationEmailPreviewPage: any
-  EmailPreview: any
   OmegaIcon: any
   SettingsIcon: any
   UserPageTitle: any
@@ -126,22 +118,6 @@ interface ComponentTypes {
   FormComponentNumber: any
   WrappedSmartForm: any
   ManageSubscriptionsLink: any
-  NewQuestionDialog: any
-  NewRelatedQuestionForm: any
-  NewAnswerForm: any
-  PostsPageQuestionContent: any
-  NewAnswerCommentQuestionForm: any
-  AnswerCommentsList: any
-  AnswersList: any
-  Answer: any
-  QuestionsPage: any
-  RelatedQuestionsList: any
-  ConfigurableRecommendationsList: any
-  ContinueReadingList: any
-  RecommendationsAlgorithmPicker: any
-  RecommendationsList: any
-  RecommendationsPage: any
-  RecommendationsAndCurated: any
   FrontpageNominationPhase: any
   FrontpageReviewPhase: any
   Nominations2018: any

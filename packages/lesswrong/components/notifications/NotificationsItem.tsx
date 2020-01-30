@@ -1,6 +1,5 @@
 import { registerComponent, Components, Utils } from 'meteor/vulcan:core';
 import classNames from 'classnames';
-import { withStyles } from '@material-ui/core/styles';
 import React, { Component } from 'react';
 import Card from '@material-ui/core/Card';
 import { getNotificationTypeByName } from '../../lib/notificationTypes';
@@ -58,8 +57,18 @@ const styles = theme => ({
   },
 });
 
-class NotificationsItem extends Component {
-  constructor(props) {
+interface ExternalProps {
+  notification: any,
+  lastNotificationsCheck: any,
+}
+interface NotificationsItemProps extends ExternalProps, WithHoverProps, WithNavigationProps, WithStylesProps {
+}
+interface NotificationsItemState {
+  clicked: boolean,
+}
+
+class NotificationsItem extends Component<NotificationsItemProps,NotificationsItemState> {
+  constructor(props: NotificationsItemProps) {
     super(props)
     this.state = {
       clicked: false,
@@ -139,6 +148,17 @@ class NotificationsItem extends Component {
 
 }
 
-registerComponent('NotificationsItem', NotificationsItem, withStyles(styles, {name: "NotificationsItem"}),
-  withHover({pageElementContext: "linkPreview", pageElementSubContext: "notificationItem"}),
-  withErrorBoundary, withNavigation);
+const NotificationsItemComponent = registerComponent<ExternalProps>('NotificationsItem', NotificationsItem, {
+  styles,
+  hocs: [
+    withHover({pageElementContext: "linkPreview", pageElementSubContext: "notificationItem"}),
+    withErrorBoundary, withNavigation
+  ]
+});
+
+declare global {
+  interface ComponentTypes {
+    NotificationsItem: typeof NotificationsItemComponent
+  }
+}
+

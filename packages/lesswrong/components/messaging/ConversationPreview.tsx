@@ -2,7 +2,6 @@ import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
-import { withStyles } from '@material-ui/core/styles';
 import Messages from "../../lib/collections/messages/collection";
 import Conversations from '../../lib/collections/conversations/collection';
 import Card from '@material-ui/core/Card';

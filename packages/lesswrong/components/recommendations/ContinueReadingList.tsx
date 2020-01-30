@@ -3,11 +3,24 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
 import { withDismissRecommendation } from './withDismissRecommendation';
 import { captureEvent, AnalyticsContext } from '../../lib/analyticsEvents';
+import * as _ from 'underscore';
 
 const MAX_ENTRIES = 3;
 
-class ContinueReadingList extends Component {
-  state = {
+interface ExternalProps {
+  continueReading: any,
+  continueReadingLoading?: boolean,
+}
+interface ContinueReadingListProps extends ExternalProps, WithUserProps {
+  dismissRecommendation: any
+}
+interface ContinueReadingListState {
+  dismissedRecommendations: Record<string,boolean>,
+  showAll: boolean,
+}
+
+class ContinueReadingList extends Component<ContinueReadingListProps,ContinueReadingListState> {
+  state: ContinueReadingListState = {
     dismissedRecommendations: {},
     showAll: false,
   }
@@ -91,8 +104,14 @@ class ContinueReadingList extends Component {
   }
 }
 
-registerComponent('ContinueReadingList', ContinueReadingList,
-  withDismissRecommendation,
-  withUser
-);
+const ContinueReadingListComponent = registerComponent<ExternalProps>('ContinueReadingList', ContinueReadingList, {
+  hocs: [withDismissRecommendation, withUser]
+});
+
+declare global {
+  interface ComponentTypes {
+    ContinueReadingList: typeof ContinueReadingListComponent
+  }
+}
+
 

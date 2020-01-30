@@ -1,8 +1,8 @@
 import React from 'react';
 import { Components, registerComponent, Utils } from 'meteor/vulcan:core';
-import { withCreate } from '../../lib/crud/withCreate';
+import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
-import { withMessages } from '../common/withMessages';
+import { useMessages } from '../common/withMessages';
 import { Subscriptions } from '../../lib/collections/subscriptions/collection'
 import { defaultSubscriptionTypeTable } from '../../lib/collections/subscriptions/mutations'
 import { userIsDefaultSubscribed } from '../../lib/subscriptionUtil';
@@ -10,9 +10,9 @@ import { useCurrentUser } from '../common/withUser';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
+import * as _ from 'underscore';
 
 const styles = theme => ({
   root: {
@@ -24,14 +24,25 @@ const styles = theme => ({
 const SubscribeTo = ({
   document,
   subscriptionType: overrideSubscriptionType,
-  createSubscription, // From withCreate HoC
-  flash, // From withMessages HoC
   subscribeMessage, unsubscribeMessage,
   className="",
   classes,
   showIcon
+}: {
+  document: any,
+  subscriptionType?: string,
+  subscribeMessage: string,
+  unsubscribeMessage: string,
+  className?: string,
+  classes: any,
+  showIcon?: boolean,
 }) => {
   const currentUser = useCurrentUser();
+  const { flash } = useMessages();
+  const { create: createSubscription } = useCreate({
+    collection: Subscriptions,
+    fragmentName: 'SubscriptionState',
+  });
   
   const documentType = Utils.getCollectionNameFromTypename(document.__typename);
   const collectionName = Utils.capitalize(documentType);
@@ -51,7 +62,6 @@ const SubscribeTo = ({
     },
     
     collection: Subscriptions,
-    queryName: 'subscriptionState',
     fragmentName: 'SubscriptionState',
     enableTotal: false,
     ssr: true
@@ -109,13 +119,13 @@ const SubscribeTo = ({
   </a>
 }
 
-registerComponent('SubscribeTo', SubscribeTo,
-  withMessages,
-  [withCreate, {
-    collection: Subscriptions,
-    fragmentName: 'SubscriptionState',
-  }],
-  withStyles(styles, {name: "SubscribeTo"})
-);
+const SubscribeToComponent = registerComponent('SubscribeTo', SubscribeTo, {styles});
+
+declare global {
+  interface ComponentTypes {
+    SubscribeTo: typeof SubscribeToComponent
+  }
+}
+
 
 

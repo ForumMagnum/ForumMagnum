@@ -1,12 +1,10 @@
 import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Comments } from '../../lib/collections/comments';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
-import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
-import withUser from '../common/withUser'
+import { useCurrentUser } from '../common/withUser'
 import { useDialog } from '../common/withDialog';
 
 const styles = theme => ({
@@ -30,10 +28,8 @@ const styles = theme => ({
   },
 })
 
-
-
-const NewAnswerForm = ({post, classes, currentUser}) => {
-
+const NewAnswerForm = ({post, classes}) => {
+  const currentUser = useCurrentUser();
   const SubmitComponent = ({submitLabel = "Submit"}) => {
     const { openDialog } = useDialog();
     return <div className={classes.submit}>
@@ -84,10 +80,11 @@ const NewAnswerForm = ({post, classes, currentUser}) => {
   )
 };
 
-NewAnswerForm.propTypes = {
-  classes: PropTypes.object.isRequired,
-  post: PropTypes.object.isRequired,
-  prefilledProps: PropTypes.object,
-};
+const NewAnswerFormComponent = registerComponent('NewAnswerForm', NewAnswerForm, {styles});
 
-registerComponent('NewAnswerForm', NewAnswerForm, withUser, withStyles(styles, {name:"NewAnswerForm"}));
+declare global {
+  interface ComponentTypes {
+    NewAnswerForm: typeof NewAnswerFormComponent
+  }
+}
+

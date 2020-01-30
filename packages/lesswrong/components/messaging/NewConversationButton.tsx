@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import PropTypes from 'prop-types';
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useNavigation } from '../../lib/routeUtil';
