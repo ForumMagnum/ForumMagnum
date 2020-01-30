@@ -10,7 +10,7 @@ const styles = theme => ({
     padding: theme.spacing.unit*1.5,
     fontWeight: 600,
     display: "flex",
-    justifyContent: "flex-start",
+    justifyContent: "space-between",
     alignItems: "center"
   }
 })

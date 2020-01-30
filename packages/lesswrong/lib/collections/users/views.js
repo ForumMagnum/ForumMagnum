@@ -72,9 +72,25 @@ Users.addView("sunshineNewUsers", function (terms) {
       needsReview: true,
       reviewedByUserId: null
     },
+    options: {
+      sort: {
+        createdAt: -1
+      }
+    }
   }
 })
-ensureIndex(Users, {needsReview: 1})
+ensureIndex(Users, {needsReview: 1, createdAt: -1})
+
+Users.addView("allUsers", function (terms) {
+  return {
+    options: {
+      sort: {
+        createdAt: -1
+      }
+    }
+  }
+})
+ensureIndex(Users, {createdAt: -1})
 
 Users.addView("usersMapLocations", function () {
   return {

@@ -9,7 +9,11 @@ class LastCuratedDate extends Component {
     const { MetaInfo, FormatDate } = Components
     const curatedDate = results && results.length && results[0].curatedDate
     if (curatedDate) {
-      return <div><MetaInfo>Last Curation: <FormatDate date={results[0].curatedDate}/></MetaInfo></div>
+      return <div>
+        <MetaInfo>
+          <FormatDate date={results[0].curatedDate}/>
+        </MetaInfo>
+      </div>
     } else {
       return null
     }

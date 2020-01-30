@@ -44,7 +44,7 @@ const SunshineSidebar = ({currentUser, classes}) => {
   const [showSidebar, setShowSidebar] = useState(false)
   const [showUnderbelly, setShowUnderbelly] = useState(false)
 
-  const { SunshineNewUsersList, SunshineNewCommentsList, SunshineNewPostsList, SunshineReportedContentList, SunshineCuratedSuggestionsList, AFSuggestUsersList, AFSuggestPostsList, AFSuggestCommentsList, SunshineListTitle } = Components
+  const { SunshineNewUsersList, SunshineNewCommentsList, SunshineNewPostsList, SunshineReportedContentList, SunshineCuratedSuggestionsList, AFSuggestUsersList, AFSuggestPostsList, AFSuggestCommentsList } = Components
 
   return (
     <div className={classNames(classes.root, {[classes.showSidebar]:showSidebar})}>
@@ -52,6 +52,13 @@ const SunshineSidebar = ({currentUser, classes}) => {
         <SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
         <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 30}}/>
         <SunshineReportedContentList terms={{view:"sunshineSidebarReports", limit: 30}}/>
+        
+        {/* alignmentForumAdmins see AF content above the fold */}
+        { currentUser.groups && currentUser.groups.includes('alignmentForumAdmins') && <div>
+          <AFSuggestUsersList terms={{view:"alignmentSuggestedUsers"}}/>
+          <AFSuggestPostsList terms={{view:"alignmentSuggestedPosts"}}/>
+          <AFSuggestCommentsList terms={{view:"alignmentSuggestedComments"}}/>
+        </div>}
       </div>}
 
       { showSidebar ? <div className={classes.toggle} onClick={() => setShowSidebar(false)}>
@@ -67,7 +74,9 @@ const SunshineSidebar = ({currentUser, classes}) => {
       { showSidebar && <div>
         {!!currentUser.viewUnreviewedComments && <SunshineNewCommentsList terms={{view:"sunshineNewCommentsList"}}/>}
         <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 50}}/>
-        { currentUser.groups && currentUser.groups.includes('alignmentForumAdmins') && <div>
+        
+        {/* regular admins (but not sunshines) see AF content below the fold */}
+        { Users.isAdmin(currentUser) && <div>
           <AFSuggestUsersList terms={{view:"alignmentSuggestedUsers"}}/>
           <AFSuggestPostsList terms={{view:"alignmentSuggestedPosts"}}/>
           <AFSuggestCommentsList terms={{view:"alignmentSuggestedComments"}}/>
@@ -75,21 +84,17 @@ const SunshineSidebar = ({currentUser, classes}) => {
       </div>}
 
       { showSidebar && <div>
-        { showUnderbelly ? <div onClick={() => setShowUnderbelly(false)}>
-          <SunshineListTitle>
-            Hide the Underbelly
-            <KeyboardArrowDownIcon/>
-          </SunshineListTitle>
+        { showUnderbelly ? <div className={classes.toggle} onClick={() => setShowUnderbelly(false)}>
+          Hide the Underbelly
+          <KeyboardArrowDownIcon/>
         </div>
         :
-        <div onClick={() => setShowUnderbelly(true)}>
-          <SunshineListTitle>
-            Show the Underbelly
-            <KeyboardArrowRightIcon/>
-          </SunshineListTitle>
+        <div className={classes.toggle} onClick={() => setShowUnderbelly(true)}>
+          Show the Underbelly
+          <KeyboardArrowRightIcon/>
         </div>}
         { showUnderbelly && <div>
-          <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 30, ignoreRecaptcha: true, includeBioOnlyUsers: true}} allowContentPreview={false}/>
+          <SunshineNewUsersList terms={{view:"allUsers", limit: 30}} allowContentPreview={false}/>
         </div>}
       </div>}
 
