@@ -3,16 +3,15 @@ import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments';
-import { createStyles } from '@material-ui/core/styles';
 import { POST_PREVIEW_WIDTH } from './PostsPreviewTooltip';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   loading: {
     width: POST_PREVIEW_WIDTH,
     paddingTop: theme.spacing.unit,
     paddingBottom: theme.spacing.unit
   }
-}))
+})
 
 const PostsPreviewTooltipSingle = ({ classes, postId, truncateLimit=600, showAllInfo=false }: {
   classes: any,

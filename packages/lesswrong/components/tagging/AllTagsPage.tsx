@@ -4,11 +4,10 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Tags } from '../../lib/collections/tags/collection';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
-import { createStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   tag: {
     display: "fle",
   },
@@ -17,7 +16,7 @@ const styles = createStyles(theme => ({
     fontSize: "1rem",
     position: "relative",
   }
-}));
+});
 
 const AllTagsPage = ({classes}) => {
   const currentUser = useCurrentUser();

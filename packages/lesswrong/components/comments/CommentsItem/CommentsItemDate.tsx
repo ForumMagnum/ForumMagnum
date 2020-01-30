@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { createStyles } from '@material-ui/core/styles'
 import { Link } from '../../../lib/reactRouterWrapper';
 import LinkIcon from '@material-ui/icons/Link';
 import { Comments } from "../../../lib/collections/comments";
@@ -8,7 +7,7 @@ import classNames from 'classnames';
 import { useNavigation, useLocation } from '../../../lib/routeUtil';
 import { useTracking } from '../../../lib/analyticsEvents';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     "& a:hover, & a:active": {
       "& $icon": {
@@ -34,7 +33,7 @@ const styles = createStyles(theme => ({
     position: "relative",
     top: -2
   },
-}));
+});
 
 const CommentsItemDate = ({comment, post, classes, scrollOnClick, scrollIntoView }: {
   comment: any,

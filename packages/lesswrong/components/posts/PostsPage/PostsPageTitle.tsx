@@ -1,12 +1,11 @@
 import React from 'react'
-import { createStyles } from '@material-ui/core/styles';
 import { registerComponent } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { Posts } from '../../../lib/collections/posts';
 import * as _ from 'underscore';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     ...theme.typography.display3,
     ...theme.typography.postStyle,
@@ -24,7 +23,7 @@ const styles = createStyles(theme => ({
     color: theme.palette.grey[600],
     display: "block",
   }
-}))
+})
 
 const PostsPageTitle = ({classes, post}) => {
   const parentPost = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)?.[0]?.sourcePost

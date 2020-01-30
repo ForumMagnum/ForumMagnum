@@ -3,14 +3,13 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import withHover from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useTagBySlug } from './useTag';
-import { createStyles } from '@material-ui/core/styles';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   card: {
     padding: 16,
     width: 600,
   },
-}));
+});
 
 const TagHoverPreview = ({href, targetLocation, innerHTML, classes, hover, anchorEl}) => {
   const { params: {slug} } = targetLocation;

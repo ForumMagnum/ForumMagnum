@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import Checkbox from '@material-ui/core/Checkbox';
-import { createStyles } from '@material-ui/core/styles';
 import Info from '@material-ui/icons/Info';
 import Tooltip from '@material-ui/core/Tooltip';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     ...theme.typography.body2,
     marginBottom: 10,
@@ -23,7 +22,7 @@ const styles = createStyles(theme => ({
     color: "rgba(0,0,0,.4)",
     marginLeft: 6,
   },
-}));
+});
 
 const SignupSubscribeToCurated = ({ defaultValue, onChange, id, classes }) => {
   const [checked, setChecked] = useState(defaultValue);

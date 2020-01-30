@@ -8,9 +8,8 @@ import { useCurrentUser } from '../../common/withUser';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ExposurePlus1 from '@material-ui/icons/ExposurePlus1';
 import Undo from '@material-ui/icons/Undo';
-import { createStyles } from '@material-ui/core/styles'
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   iconRoot: {
     position: "relative",
     width:24,
@@ -31,7 +30,7 @@ const styles = createStyles(theme => ({
     width: 20,
     color: "black"
   }
-}))
+})
 
 const SuggestAlignmentMenuItem = ({ comment, post, classes }) => {
   const currentUser = useCurrentUser();

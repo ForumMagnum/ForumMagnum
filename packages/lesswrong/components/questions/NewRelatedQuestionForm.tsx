@@ -1,7 +1,7 @@
 import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
-import { withMessages } from '../common/withMessages';
+import { useMessages } from '../common/withMessages';
 import React from 'react';
-import withUser from '../common/withUser'
+import { useCurrentUser } from '../common/withUser'
 import { Posts } from '../../lib/collections/posts/collection'
 
 const styles = theme => ({
@@ -29,8 +29,11 @@ const styles = theme => ({
   }
 })
 
-const NewRelatedQuestionForm = (props) => {
-  const { post, classes, flash, currentUser, refetch } = props
+const NewRelatedQuestionForm = ({
+  post, classes, refetch
+}) => {
+  const currentUser = useCurrentUser();
+  const { flash } = useMessages();
   const { SubmitToFrontpageCheckbox, PostSubmit } = Components
 
   const QuestionSubmit = (props) => {
@@ -79,10 +82,7 @@ const NewRelatedQuestionForm = (props) => {
   )
 };
 
-const NewRelatedQuestionFormComponent = registerComponent('NewRelatedQuestionForm', NewRelatedQuestionForm, {
-  styles,
-  hocs: [withMessages, withUser]
-});
+const NewRelatedQuestionFormComponent = registerComponent('NewRelatedQuestionForm', NewRelatedQuestionForm, {styles});
 
 declare global {
   interface ComponentTypes {

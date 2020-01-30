@@ -1,16 +1,15 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useMulti } from '../../lib/crud/withMulti';
-import { createStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   tagTitle: {
   },
   tagDescription: {
   },
-}));
+});
 
 const previewPostCount = 4;
 

@@ -9,16 +9,15 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import withDialog from '../../common/withDialog'
-import { createStyles } from '@material-ui/core/styles'
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   deleteWithoutTrace: {
     marginRight:"auto"
   },
   modalTextField: {
     marginTop: 10,
   },
-}))
+})
 
 interface DeleteCommentDialogProps extends WithMessagesProps, WithStylesProps {
   moderateCommentMutation: any,

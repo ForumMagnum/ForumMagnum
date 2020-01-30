@@ -1,18 +1,20 @@
 import { registerComponent } from 'meteor/vulcan:core';
-import { withUpdate } from '../../lib/crud/withUpdate';
+import { useUpdate } from '../../lib/crud/withUpdate';
 import React from 'react';
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import MenuItem from '@material-ui/core/MenuItem';
 
-interface ExternalProps {
-  post: any,
-}
-interface SuggestAlignmentProps extends ExternalProps, WithUserProps {
-  updatePost: any,
-}
-const SuggestAlignment = ({ currentUser, post, updatePost }: SuggestAlignmentProps) => {
+const SuggestAlignment = ({ post }: {
+  post: any
+}) => {
+  const currentUser = useCurrentUser();
+  const {mutate: updatePost} = useUpdate({
+    collection: Posts,
+    fragmentName: 'PostsList',
+  });
+  
   const userHasSuggested = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser!._id)
 
   if (Users.canSuggestPostForAlignment({currentUser, post})) {
@@ -36,16 +38,8 @@ const SuggestAlignment = ({ currentUser, post, updatePost }: SuggestAlignmentPro
   }
 }
 
-const SuggestAlignmentComponent = registerComponent<ExternalProps>(
-  'SuggestAlignment', SuggestAlignment, {
-    hocs: [
-      withUpdate({
-        collection: Posts,
-        fragmentName: 'PostsList',
-      }),
-      withUser
-    ]
-  }
+const SuggestAlignmentComponent = registerComponent(
+  'SuggestAlignment', SuggestAlignment
 );
 
 declare global {

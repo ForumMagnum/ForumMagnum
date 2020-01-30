@@ -1,10 +1,9 @@
 import React from 'react';
 import { Components, registerComponent, } from 'meteor/vulcan:core';
-import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import SubdirectoryArrowLeftIcon from '@material-ui/icons/SubdirectoryArrowLeft';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   button: {
     color: "rgba(0,0,0,.5)",
     fontSize: "12px",
@@ -21,7 +20,7 @@ const styles = createStyles(theme => ({
     top: 4,
     transform: "rotate(-90deg)",
   },
-}));
+});
 
 const ShowOrHideHighlightButton = ({open, className, classes}) =>
   <span className={className}>

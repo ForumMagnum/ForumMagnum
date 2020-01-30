@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { createStyles } from '@material-ui/core/styles';
 import { ExpandedDate } from '../common/FormatDate';
 import withHover from '../common/withHover';
 import moment from '../../lib/moment-timezone';
@@ -8,7 +7,7 @@ import moment from '../../lib/moment-timezone';
 export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   postedAt: {
     '&&': {
       cursor: "pointer",
@@ -33,7 +32,7 @@ const styles = createStyles(theme => ({
       }
     }
   },
-}));
+});
 
 interface ExternalProps {
   post: any,

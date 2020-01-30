@@ -1,5 +1,4 @@
 import React from 'react'
-import { createStyles } from '@material-ui/core/styles';
 import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -8,7 +7,7 @@ import HomeIcon from '@material-ui/icons/Home';
 import GroupIcon from '@material-ui/icons/Group';
 import SubjectIcon from '@material-ui/icons/Subject';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     textAlign: 'left',
     display: 'inline-block',
@@ -26,7 +25,7 @@ const styles = createStyles(theme => ({
   tooltipTitle: {
     marginBottom: 8,
   },
-}))
+})
 
 const contentTypes = {
   LessWrong: {

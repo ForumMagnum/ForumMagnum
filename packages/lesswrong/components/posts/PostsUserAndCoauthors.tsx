@@ -1,9 +1,8 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { createStyles } from '@material-ui/core/styles';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   lengthLimited: {
     maxWidth: 310,
     textOverflow: "ellipsis",
@@ -15,7 +14,7 @@ const styles = createStyles(theme => ({
   lengthUnlimited: {
     display: "inline",
   },
-}));
+});
 
 const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=false}) => {
   if (!post.user || post.hideAuthor)

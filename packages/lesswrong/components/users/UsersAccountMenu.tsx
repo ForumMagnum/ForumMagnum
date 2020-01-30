@@ -4,10 +4,9 @@ import PropTypes from 'prop-types';
 
 import Popover from '@material-ui/core/Popover';
 import Button from '@material-ui/core/Button';
-import { createStyles } from '@material-ui/core/styles';
 import { withTracking } from '../../lib/analyticsEvents';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     marginTop: 5,
   },
@@ -16,7 +15,7 @@ const styles = createStyles(theme => ({
     fontWeight: 400,
     opacity: .8
   }
-}))
+})
 
 interface UsersAccountMenuProps extends WithStylesProps {
   captureEvent?: any,

@@ -10,12 +10,11 @@ import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import withRecordPostView from '../common/withRecordPostView';
 
-import { createStyles } from '@material-ui/core/styles';
 import { postExcerptFromHTML } from '../../lib/editor/ellipsize'
 import { postHighlightStyles } from '../../themes/stylePiping'
 import { userHasBoldPostItems } from '../../lib/betas';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit*4,
@@ -87,7 +86,7 @@ const styles = createStyles(theme => ({
       marginRight: 0
     }
   }
-}))
+})
 
 interface ExternalProps {
   post: any,

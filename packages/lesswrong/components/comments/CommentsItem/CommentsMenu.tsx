@@ -7,10 +7,9 @@ import { useCurrentUser } from '../../common/withUser';
 import Users from 'meteor/vulcan:users';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useTracking } from "../../../lib/analyticsEvents";
-import { createStyles } from '@material-ui/core/styles';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   icon: {
     cursor: "pointer",
     fontSize:"1.4rem"
@@ -21,7 +20,7 @@ const styles = createStyles(theme => ({
     top:0,
     zIndex: theme.zIndexes.commentsMenu,
   }
-}))
+})
 
 const CommentsMenu = ({children, classes, className, comment, post, showEdit, icon}: {
   children?: any,

@@ -1,10 +1,9 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import withHover from '../common/withHover';
-import { createStyles } from '@material-ui/core/styles';
 import { KARMA_WIDTH } from './PostsItem2';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     display: "flex",
     marginBottom: 2,
@@ -12,7 +11,7 @@ const styles = createStyles(theme => ({
   karma: {
     width: KARMA_WIDTH
   }
-}));
+});
 
 interface ExternalProps {
   post: any,

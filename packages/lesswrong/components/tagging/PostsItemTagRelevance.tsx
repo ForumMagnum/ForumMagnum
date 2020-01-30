@@ -1,12 +1,11 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { createStyles } from '@material-ui/core/styles';
 import { useCurrentUser } from '../common/withUser';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { useVote } from '../votes/withVote';
 import classNames from 'classnames';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     width: 50,
     position: "absolute",
@@ -64,7 +63,7 @@ const styles = createStyles(theme => ({
   score: {
     width: "100%",
   },
-}));
+});
 
 const PostsItemTagRelevance = ({tagRel, post, classes}) => {
   const { VoteButton } = Components;

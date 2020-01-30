@@ -1,26 +1,25 @@
 import { Components, registerComponent, getFragment, getSetting } from 'meteor/vulcan:core';
-import { withMessages } from '../common/withMessages';
+import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
 import React from 'react';
-import withUser from '../common/withUser'
-import { createStyles } from '@material-ui/core/styles';
+import { useCurrentUser } from '../common/withUser'
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import NoSsr from '@material-ui/core/NoSsr';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   formSubmit: {
     display: "flex",
     flexWrap: "wrap",
   }
-}))
+})
 
-const PostsNewForm = ({currentUser, flash, classes}: {
-  currentUser: UsersCurrent|null,
-  flash: any,
+const PostsNewForm = ({classes}: {
   classes: any,
 }) => {
   const { query } = useLocation();
   const { history } = useNavigation();
+  const currentUser = useCurrentUser();
+  const { flash } = useMessages();
   
   const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
@@ -68,10 +67,7 @@ const PostsNewForm = ({currentUser, flash, classes}: {
   );
 }
 
-const PostsNewFormComponent = registerComponent('PostsNewForm', PostsNewForm, {
-  styles,
-  hocs: [withMessages, withUser],
-});
+const PostsNewFormComponent = registerComponent('PostsNewForm', PostsNewForm, {styles});
 
 declare global {
   interface ComponentTypes {

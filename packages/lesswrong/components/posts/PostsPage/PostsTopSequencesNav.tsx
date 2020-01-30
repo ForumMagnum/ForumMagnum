@@ -3,11 +3,10 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { withNavigation } from '../../../lib/routeUtil';
 import withGlobalKeydown from '../../common/withGlobalKeydown';
-import { createStyles } from '@material-ui/core/styles';
 import { Sequences } from '../../../lib/collections/sequences/collection';
 import { Posts } from '../../../lib/collections/posts/collection';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     marginLeft:-20,
     display: "flex",
@@ -22,7 +21,7 @@ const styles = createStyles(theme => ({
     color: 'rgba(0,0,0,0.5)',
     marginTop: -2,
   }
-}))
+})
 
 interface ExternalProps {
   post: any,

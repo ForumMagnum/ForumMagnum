@@ -1,6 +1,5 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { createStyles } from '@material-ui/core/styles';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper';
 import classNames from 'classnames';
@@ -8,7 +7,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 
 const compressedIconSize = 23
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   icon: {
     display: "block",
     opacity: .6,
@@ -30,7 +29,7 @@ const styles = createStyles(theme => ({
       top: -1,
     }
   },
-}))
+})
 
 const TabNavigationCompressedItem = ({tab, onClick, classes}) => {
   // MenuItem takes a component and passes unrecognized props to that component,

@@ -4,12 +4,11 @@ import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/cru
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
-import { createStyles } from '@material-ui/core/styles';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import Paper from '@material-ui/core/Paper';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     marginTop: 16,
     marginBottom: 16,
@@ -22,7 +21,7 @@ const styles = createStyles(theme => ({
     textAlign: "center",
     padding: 4
   },
-}));
+});
 
 const FooterTagList = ({post, classes}) => {
   const [isOpen, setIsOpen] = useState(false);

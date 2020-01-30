@@ -1,6 +1,5 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
-import { createStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Posts } from "../../lib/collections/posts";
 import { Sequences } from "../../lib/collections/sequences/collection";
@@ -22,7 +21,7 @@ export const COMMENTS_WIDTH = 48
 
 const COMMENTS_BACKGROUND_COLOR = "#f5f5f5"
 
-export const styles = createStyles((theme) => ({
+export const styles = (theme) => ({
   root: {
     position: "relative",
     [theme.breakpoints.down('sm')]: {
@@ -294,7 +293,7 @@ export const styles = createStyles((theme) => ({
     position: "relative",
     top: 2,
   }
-}))
+})
 
 const dismissRecommendationTooltip = "Don't remind me to finish reading this sequence unless I visit it again";
 

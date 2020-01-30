@@ -1,14 +1,13 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
-import { createStyles } from '@material-ui/core/styles';
 import {getAfterDefault, getBeforeDefault} from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   daily: {
     padding: theme.spacing.unit
   }
-}))
+})
 const EventsPast = ({ classes }) => {
   const { timezone } = useTimezone();
   const { SingleColumnSection, SectionTitle, PostsTimeframeList } = Components

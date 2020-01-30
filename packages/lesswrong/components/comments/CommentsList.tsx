@@ -8,11 +8,10 @@ import { Posts } from '../../lib/collections/posts';
 import withGlobalKeydown from '../common/withGlobalKeydown';
 import Tooltip from '@material-ui/core/Tooltip';
 import { Link } from '../../lib/reactRouterWrapper';
-import { createStyles } from '@material-ui/core/styles';
 import { TRUNCATION_KARMA_THRESHOLD } from '../../lib/editor/ellipsize'
 import withUser from '../common/withUser';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   button: {
     color: theme.palette.lwTertiary.main
   },
@@ -20,7 +19,7 @@ const styles = createStyles(theme => ({
     display: "flex",
     alignItems: "center"
   }
-}))
+})
 
 export const POST_COMMENT_COUNT_TRUNCATE_THRESHOLD = 70
 

@@ -5,16 +5,15 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
 import { useCurrentUser } from '../common/withUser';
 import Typography from '@material-ui/core/Typography';
-import { createStyles } from '@material-ui/core/styles';
 
-const styles = createStyles(theme =>  ({
+const styles = theme =>  ({
   root: {
     marginTop: theme.spacing.unit*2,
     [theme.breakpoints.up('sm')]: {
       margin: theme.spacing.unit*2,
     }
   }
-}))
+})
 
 const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No Comments Found"}: {
   classes: any,

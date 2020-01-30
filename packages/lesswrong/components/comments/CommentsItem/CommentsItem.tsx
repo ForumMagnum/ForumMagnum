@@ -4,7 +4,6 @@ import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';
 import classNames from 'classnames';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/utils/componentUtils';
-import { createStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import withUser from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
@@ -12,7 +11,7 @@ import { Posts } from "../../../lib/collections/posts";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 // Shared with ParentCommentItem
-export const styles = theme => createStyles({
+export const styles = theme => ({
   root: {
     "&:hover $menu": {
       opacity:1

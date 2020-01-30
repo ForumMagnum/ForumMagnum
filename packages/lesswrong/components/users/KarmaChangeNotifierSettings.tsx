@@ -7,14 +7,13 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Checkbox from '@material-ui/core/Checkbox';
-import { createStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import withTimezone from '../common/withTimezone';
 import moment from '../../lib/moment-timezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
 import * as _ from 'underscore';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     paddingLeft: 8,
     paddingRight: 8,
@@ -35,7 +34,7 @@ const styles = createStyles(theme => ({
   showNegative: {
     paddingLeft: 2,
   },
-}));
+});
 
 export const karmaNotificationTimingChoices = {
   disabled: {

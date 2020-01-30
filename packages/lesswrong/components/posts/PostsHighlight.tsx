@@ -1,12 +1,11 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import React from 'react';
-import { createStyles } from '@material-ui/core/styles';
 import { postHighlightStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
 import PropTypes from 'prop-types';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     maxWidth:570,
     ...postHighlightStyles(theme),
@@ -14,7 +13,7 @@ const styles = createStyles(theme => ({
   highlightContinue: {
     marginTop:theme.spacing.unit*2
   }
-}))
+})
 
 const PostsHighlight = ({post, classes}) => {
   const { htmlHighlight = "", wordCount = 0 } = post.contents || {}

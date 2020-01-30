@@ -1,14 +1,13 @@
 import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
-import { createStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle
   },
-}))
+})
 
 const AlignmentCrosspostMessage = ({post, classes}) => {
   if (post.af && getSetting('forumType') !== 'AlignmentForum') {

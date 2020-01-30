@@ -1,15 +1,14 @@
 import { Components as C, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { createStyles } from '@material-ui/core/styles';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     opacity:.5,
     [theme.breakpoints.down('sm')]: {
       display:"none"
     }
   }
-}))
+})
 
 const PostsStats = ({post, classes}) => {
 

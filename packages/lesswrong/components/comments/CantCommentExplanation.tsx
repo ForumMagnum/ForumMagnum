@@ -2,10 +2,9 @@ import React from 'react';
 import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import { useCurrentUser } from '../common/withUser';
 import Users from 'meteor/vulcan:users';
-import { createStyles } from '@material-ui/core/styles'
 import classNames from 'classnames';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     padding: "1em 0",
   },
@@ -16,7 +15,7 @@ const styles = createStyles(theme => ({
       color: "rgba(0,0,0,.5)"
     }
   },
-}));
+});
 
 const CantCommentExplanation = ({post, classes}) => {
   const currentUser = useCurrentUser();

@@ -8,7 +8,6 @@ import { usePostBySlug, usePostByLegacyId } from '../posts/usePost';
 import { useCommentByLegacyId } from '../comments/useComment';
 import withHover, { useHover } from '../common/withHover';
 import Card from '@material-ui/core/Card';
-import { createStyles } from '@material-ui/core/styles';
 import { looksLikeDbIdString } from '../../lib/routeUtil';
 
 const PostLinkPreview = ({href, targetLocation, innerHTML, id}) => {
@@ -117,7 +116,7 @@ const PostLinkPreviewVariantCheck = ({ href, innerHTML, post, targetLocation, co
 const PostLinkPreviewVariantCheckComponent = registerComponent('PostLinkPreviewVariantCheck', PostLinkPreviewVariantCheck);
 
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   link: {
     position: "relative",
     marginRight: 6,
@@ -129,7 +128,7 @@ const styles = createStyles(theme => ({
       position: "absolute"
     }
   }
-}))
+})
 
 const PostLinkCommentPreview = ({href, commentId, post, innerHTML, id}) => {
 
@@ -212,7 +211,7 @@ const CommentLinkPreviewWithCommentComponent = registerComponent('CommentLinkPre
   styles,
 });
 
-const defaultPreviewStyles = createStyles(theme => ({
+const defaultPreviewStyles = theme => ({
   hovercard: {
     padding: theme.spacing.unit,
     paddingLeft: theme.spacing.unit*1.5,
@@ -226,7 +225,7 @@ const defaultPreviewStyles = createStyles(theme => ({
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap'
   },
-}))
+})
 
 const DefaultPreview = ({classes, href, innerHTML, onsite=false, id}: {
   classes: any,

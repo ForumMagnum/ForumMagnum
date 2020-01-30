@@ -2,21 +2,21 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import Users from "meteor/vulcan:users";
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
-import { createStyles } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   frontpageSequencesGridList: {
     [legacyBreakpoints.maxSmall]: {
       marginTop: 40,
     }
   }
-}));
+});
 
-const AlignmentForumHome = ({currentUser, classes}) => {
+const AlignmentForumHome = ({classes}) => {
   const { SingleColumnSection, SectionTitle, SequencesGridWrapper, PostsList2, SectionButton, RecentDiscussionThreadsList } = Components
+  const currentUser = useCurrentUser();
 
   let recentPostsTerms = {view: 'new', limit: 10, forum: true, af: true}
 
@@ -56,10 +56,7 @@ const AlignmentForumHome = ({currentUser, classes}) => {
 };
 
 const AlignmentForumHomeComponent = registerComponent(
-  'AlignmentForumHome', AlignmentForumHome, {
-    styles,
-    hocs: [withUser],
-  }
+  'AlignmentForumHome', AlignmentForumHome, {styles}
 );
 
 declare global {

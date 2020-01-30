@@ -3,16 +3,15 @@ import { Components, registerComponent} from 'meteor/vulcan:core';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
 import { unflattenComments } from '../../lib/utils/unflatten';
-import { createStyles } from '@material-ui/core/styles';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   title: {
     fontSize: 10,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[700],
     marginBottom: 4
   }
-}))
+})
 
 const PostsItemNewCommentsWrapper = ({ terms, classes, title, highlightDate, post, condensed, hideReadComments, markAsRead, forceSingleLine, hideSingleLineMeta }: {
   terms: any,

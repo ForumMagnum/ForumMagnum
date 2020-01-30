@@ -16,7 +16,6 @@ import PersonIcon from '@material-ui/icons/Person';
 import BookmarksIcon from '@material-ui/icons/Bookmarks';
 import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
-import { createStyles } from '@material-ui/core/styles';
 
 import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
@@ -24,7 +23,7 @@ import withDialog from '../common/withDialog'
 import withHover from '../common/withHover'
 import {captureEvent} from "../../lib/analyticsEvents";
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     marginTop: 5,
     wordBreak: 'break-all',
@@ -55,7 +54,7 @@ const styles = createStyles(theme => ({
     color: theme.palette.grey[600],
     marginLeft: 20
   }
-}))
+})
 
 interface ExternalProps {
   color?: string,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import sumBy from 'lodash/sumBy'
@@ -23,7 +23,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   grid: {
     display: 'grid',
     gridTemplateColumns: `
@@ -148,7 +148,7 @@ const styles = createStyles(theme => ({
       display: "block"
     }
   }
-}));
+});
 
 type vote = {_id: string, postId: string, score: number, type?: string}
 type quadraticVote = vote & {type: "quadratic"}
@@ -499,7 +499,7 @@ function createPostVoteTuples<K extends any,T extends vote> (posts: K[], votes: 
   })
 }
 
-const voteRowStyles = createStyles(theme => ({
+const voteRowStyles = theme => ({
   root: {
     padding: theme.spacing.unit*1.5,
     paddingTop: 10,
@@ -536,7 +536,7 @@ const voteRowStyles = createStyles(theme => ({
   expanded: {
     background: "#eee"
   }
-}));
+});
 
 const VoteTableRow = withStyles(voteRowStyles, {name: "VoteTableRow"})((
   {post, dispatch, dispatchQuadraticVote, quadraticVotes, useQuadratic, classes, expandedPostId, votes }:

@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import { withLocation, getUrlClass } from '../../../lib/routeUtil';
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
-import { createStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import { postBodyStyles } from '../../../themes/stylePiping'
 import withUser from '../../common/withUser';
@@ -24,7 +23,7 @@ const MIN_TOC_WIDTH = 200
 const MAX_COLUMN_WIDTH = 720
 const SECONDARY_SPACING = 20
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     position: "relative",
     [theme.breakpoints.down('sm')]: {
@@ -215,7 +214,7 @@ const styles = createStyles(theme => ({
     ...theme.typography.contentNotice,
     marginBottom: theme.spacing.unit,
   }
-}))
+})
 
 const getContentType = (post) => {
   if (getSetting('forumType') === 'EAForum') {

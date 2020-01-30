@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import { InstantSearch, SearchBox, connectMenu } from 'react-instantsearch-dom';
-import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import SearchIcon from '@material-ui/icons/Search';
 import CloseIcon from '@material-ui/icons/Close';
@@ -13,7 +12,7 @@ import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/
 
 const VirtualMenu = connectMenu(() => null);
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     display: 'flex',
     alignItems: 'center',
@@ -95,7 +94,7 @@ const styles = createStyles(theme => ({
       color: "rgba(255,255,255, 0.5)",
     },
   },
-}))
+})
 
 interface ExternalProps {
   onSetIsActive: (active: boolean)=>void,

@@ -10,16 +10,15 @@ import { useDialog } from '../common/withDialog';
 import withErrorBoundary from '../common/withErrorBoundary';
 import Users from 'meteor/vulcan:users';
 import Tooltip, {TooltipProps} from '@material-ui/core/Tooltip';
-import { createStyles } from '@material-ui/core/styles'
 import { useTracking } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   icon: {
     cursor: "pointer",
     color: theme.palette.grey[500]
   }
-}))
+})
 
 const BookmarkButton = ({classes, post, menuItem, placement="right"}: {
   classes: any,

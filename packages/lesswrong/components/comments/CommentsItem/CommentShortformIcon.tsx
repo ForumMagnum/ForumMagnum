@@ -1,12 +1,11 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { createStyles } from '@material-ui/core/styles';
 import NotesIcon from '@material-ui/icons/Notes';
 import Tooltip from '@material-ui/core/Tooltip';
 import { Comments } from "../../../lib/collections/comments";
 import { Link } from '../../../lib/reactRouterWrapper';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   icon: {
     cursor: "pointer",
     color: theme.palette.grey[600],
@@ -17,7 +16,7 @@ const styles = createStyles(theme => ({
     position: "relative",
     top: 2
   }
-}));
+});
 
 const CommentShortformIcon = ({comment, post, classes, simple}: {
   comment: any,

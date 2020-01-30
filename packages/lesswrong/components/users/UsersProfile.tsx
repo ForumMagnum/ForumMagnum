@@ -9,7 +9,6 @@ import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
-import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -24,7 +23,7 @@ export const sectionFooterLeftStyles = {
   }
 }
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   profilePage: {
     marginLeft: "auto",
     [theme.breakpoints.down('sm')]: {
@@ -77,7 +76,7 @@ const styles = createStyles(theme => ({
   userMetaInfo: {
     display: "inline-flex"
   }
-}))
+})
 
 const sortings = {
   magic: "Magic (New & Upvoted)",

@@ -1,13 +1,12 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { createStyles } from '@material-ui/core/styles';
 import { commentBodyStyles, postHighlightStyles } from '../../../themes/stylePiping'
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
 import { useCurrentUser } from '../../common/withUser'
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   commentStyling: {
     ...commentBodyStyles(theme),
     maxWidth: "100%",
@@ -35,7 +34,7 @@ const styles = createStyles(theme => ({
   retracted: {
     textDecoration: "line-through",
   }
-}))
+})
 
 const CommentBody = ({ comment, classes, collapsed, truncated, postPage }: {
   comment: any,

@@ -6,7 +6,6 @@ import Users from 'meteor/vulcan:users';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Comments } from '../../lib/collections/comments'
-import { createStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import qs from 'qs'
 import * as _ from 'underscore';
@@ -22,14 +21,14 @@ const viewNames = {
   'postLWComments': 'top scoring (include LW)',
 }
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     display: 'inline'
   },
   link: {
     color: theme.palette.lwTertiary.main,
   }
-}))
+})
 
 interface ExternalProps {
   post: any,

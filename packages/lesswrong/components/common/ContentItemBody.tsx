@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import classNames from 'classnames';
-import { createStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import Sentry from '@sentry/node';
 import { Meteor } from 'meteor/meteor';
@@ -10,7 +9,7 @@ import { Meteor } from 'meteor/meteor';
 const scrollIndicatorColor = "#ddd";
 const scrollIndicatorHoverColor = "#888";
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   scrollIndicatorWrapper: {
     display: "block",
     position: "relative",
@@ -71,7 +70,7 @@ const styles = createStyles(theme => ({
       display: "none",
     },
   }
-}));
+});
 
 interface ContentItemBodyProps extends WithStylesProps {
   dangerouslySetInnerHTML: { __html: string },

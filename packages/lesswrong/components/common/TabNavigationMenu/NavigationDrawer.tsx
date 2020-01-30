@@ -1,10 +1,9 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { createStyles } from '@material-ui/core/styles';
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import classNames from 'classnames';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   paperWithoutToC: {
     width: 280,
     overflowY: "scroll"
@@ -50,7 +49,7 @@ const styles = createStyles(theme => ({
       display: "none"
     }
   },
-}))
+})
 
 const NavigationDrawer = ({open, handleOpen, handleClose, toc, classes}) => {
   const { TabNavigationMenu, TabNavigationMenuCompressed } = Components

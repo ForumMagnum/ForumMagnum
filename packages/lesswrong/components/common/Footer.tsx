@@ -1,12 +1,11 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { createStyles } from '@material-ui/core/styles';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     height: 150,
   }
-}));
+});
 
 const Footer = ({classes}) => {
   return (

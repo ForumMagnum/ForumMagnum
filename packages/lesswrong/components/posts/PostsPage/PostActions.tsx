@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { createStyles } from '@material-ui/core/styles';
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import { withUpdate } from '../../../lib/crud/withUpdate';
 import { withMutation } from '../../../lib/crud/withMutation';
@@ -23,7 +22,7 @@ const NotFPSubmittedWarning = ({className}) => <div className={className}>
   {' '}<WarningIcon fontSize='inherit' />
 </div>
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     margin: 0,
     ...theme.typography.display3,
@@ -40,7 +39,7 @@ const styles = createStyles(theme => ({
     fontSize: 20,
     marginLeft: 4,
   }
-}))
+})
 
 interface ExternalProps {
   post: any,

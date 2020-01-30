@@ -1,6 +1,5 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
-import { createStyles } from '@material-ui/core/styles';
 import { commentBodyStyles, postBodyStyles } from '../../themes/stylePiping'
 import withHover from '../common/withHover';
 import classNames from 'classnames';
@@ -9,7 +8,7 @@ import { Comments } from '../../lib/collections/comments'
 import { isMobile } from '../../lib/utils/isMobile'
 import { styles as commentsItemStyles } from './CommentsItem/CommentsItem';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     position: "relative",
     cursor: "pointer",
@@ -106,7 +105,7 @@ const styles = createStyles(theme => ({
     ...commentsItemStyles(theme).nomination,
     marginRight: theme.spacing.unit
   }
-}))
+})
 
 interface ExternalProps {
   comment: any,

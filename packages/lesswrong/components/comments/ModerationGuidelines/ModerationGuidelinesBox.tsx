@@ -1,6 +1,5 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React, { useState } from 'react';
-import { createStyles } from '@material-ui/core/styles';
 import withNewEvents from '../../../lib/events/withNewEvents';
 import { useCurrentUser } from '../../common/withUser';
 import truncatise from 'truncatise';
@@ -12,7 +11,7 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
 import { commentBodyStyles } from '../../../themes/stylePiping'
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     padding: theme.spacing.unit*2,
     position:"relative"
@@ -53,7 +52,7 @@ const styles = createStyles(theme => ({
       marginBottom: '.4em'
     }
   }
-}))
+})
 
 const ModerationGuidelinesBox = ({classes, document, recordEvent}) => {
   const currentUser = useCurrentUser();

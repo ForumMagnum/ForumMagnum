@@ -1,6 +1,5 @@
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
-import { createStyles } from '@material-ui/core/styles'
 import { truncate } from '../../lib/editor/ellipsize';
 import { useCurrentUser } from "../common/withUser";
 import { postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
@@ -12,7 +11,7 @@ import { userHasBoldPostItems } from '../../lib/betas';
 
 export const POST_PREVIEW_WIDTH = 500
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     width: POST_PREVIEW_WIDTH,
     position: "relative",
@@ -89,7 +88,7 @@ const styles = createStyles(theme => ({
   bookmarkButton: {
     float: "right"
   }
-}))
+})
 
 const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
 

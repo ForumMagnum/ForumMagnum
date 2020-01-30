@@ -7,15 +7,14 @@ import { useTagBySlug } from './useTag';
 import Users from 'meteor/vulcan:users';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
-import { createStyles } from '@material-ui/core/styles';
 import { postBodyStyles } from '../../themes/stylePiping'
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   description: {
     ...postBodyStyles(theme),
     marginBottom: 16,
   },
-}));
+});
 
 const TagPage = ({classes}) => {
   const { SingleColumnSection, SectionTitle, SectionFooter, SectionButton, PostsItem2, ContentItemBody, Loading, Error404 } = Components;

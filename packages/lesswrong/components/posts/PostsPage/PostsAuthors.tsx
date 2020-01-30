@@ -1,9 +1,8 @@
 import React from 'react'
-import { createStyles } from '@material-ui/core/styles';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import Typography from '@material-ui/core/Typography';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     textAlign: 'left',
     display: 'inline',
@@ -12,7 +11,7 @@ const styles = createStyles(theme => ({
   authorName: {
     fontWeight: 600,
   },
-}))
+})
 
 const PostsAuthors = ({classes, post}) => {
   const { UsersName } = Components

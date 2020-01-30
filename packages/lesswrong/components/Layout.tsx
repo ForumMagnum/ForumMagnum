@@ -11,7 +11,7 @@ import { withCookies } from 'react-cookie'
 import LogRocket from 'logrocket'
 import { Random } from 'meteor/random';
 
-import { withTheme, createStyles } from '@material-ui/core/styles';
+import { withTheme } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
@@ -50,7 +50,7 @@ const standaloneNavMenuRouteNames: Record<string,string[]> = {
   'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform'],
 }
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   main: {
     margin: '50px auto 15px auto',
     [theme.breakpoints.down('sm')]: {
@@ -78,7 +78,7 @@ const styles = createStyles(theme => ({
     top: 0,
     width: "100%",
   },
-}))
+})
 
 interface LayoutProps extends WithLocationProps, WithStylesProps, WithMessagesProps {
   cookies: any,

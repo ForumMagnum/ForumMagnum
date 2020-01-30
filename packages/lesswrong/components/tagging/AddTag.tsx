@@ -2,11 +2,10 @@ import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { InstantSearch, SearchBox, Hits } from 'react-instantsearch-dom';
 import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
-import { createStyles } from '@material-ui/core/styles';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     "& .ais-SearchBox": {
       padding: 8,
@@ -23,7 +22,7 @@ const styles = createStyles(theme => ({
     color: theme.palette.grey[600],
     ...theme.typography.commentStyle
   }
-}));
+});
 
 const AddTag = ({post, onTagSelected, classes}) => {
   const currentUser = useCurrentUser();

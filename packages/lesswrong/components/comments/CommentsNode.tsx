@@ -3,7 +3,6 @@ import { withLocation } from '../../lib/routeUtil';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { createStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../common/withErrorBoundary';
 import withUser from '../common/withUser';
 import { shallowEqual, shallowEqualExcept } from '../../lib/utils/componentUtils';
@@ -12,7 +11,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents"
 const KARMA_COLLAPSE_THRESHOLD = -4;
 const HIGHLIGHT_DURATION = 3
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   node: {
     cursor: "default",
     // Higher specificity to override child class (variant syntax)
@@ -115,7 +114,7 @@ const styles = createStyles(theme => ({
     marginLeft: theme.spacing.unit,
     paddingTop: theme.spacing.unit,
   }
-}))
+})
 
 interface ExternalProps {
   comment: any,

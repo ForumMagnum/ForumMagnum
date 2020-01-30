@@ -4,12 +4,11 @@ import { Comments } from '../../lib/collections/comments';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
-import { createStyles } from '@material-ui/core/styles';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useDialog } from '../common/withDialog';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
   },
   form: {
@@ -38,7 +37,7 @@ const styles = createStyles(theme => ({
   moderationGuidelinesWrapper: {
     backgroundColor: "rgba(0,0,0,.07)",
   }
-}));
+});
 
 const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true}:
 {

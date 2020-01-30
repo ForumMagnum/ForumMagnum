@@ -2,13 +2,12 @@ import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
-import { createStyles } from '@material-ui/core/styles';
 import { Subscriptions } from '../../lib/collections/subscriptions/collection';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Comments } from '../../lib/collections/comments/collection';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   subscribedItem: {
     display: "flex",
     ...theme.typography.commentStyle
@@ -16,7 +15,7 @@ const styles = createStyles(theme => ({
   subscribedItemDescription: {
     flexGrow: 1,
   },
-}));
+});
 
 const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, noSubscriptionsMessage, renderDocument, title, classes}) => {
   const { SubscribedItem, SectionTitle, Loading } = Components;

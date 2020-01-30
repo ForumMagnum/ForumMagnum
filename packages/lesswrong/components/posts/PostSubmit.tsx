@@ -4,11 +4,10 @@ import { registerComponent } from 'meteor/vulcan:core';
 
 import Button from '@material-ui/core/Button';
 
-import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   formSubmit: {
     display: "flex",
     justifyContent: "flex-end",
@@ -41,11 +40,12 @@ const styles = createStyles(theme => ({
   draft: {
     marginLeft: 'auto'
   }
-}));
+});
 
 const PostSubmit = ({
   submitLabel = "Submit", cancelLabel = "Cancel", saveDraftLabel = "Save as draft", cancelCallback, document, collectionName, classes
 }, { updateCurrentValues }) => {
+  const currentUser = useCurrentUser();
   return (
     <React.Fragment>
       {!!cancelCallback &&
@@ -98,10 +98,7 @@ PostSubmit.contextTypes = {
 
 
 // Replaces FormSubmit from vulcan-forms.
-const PostSubmitComponent = registerComponent('PostSubmit', PostSubmit, {
-  styles,
-  hocs: [withUser],
-});
+const PostSubmitComponent = registerComponent('PostSubmit', PostSubmit, {styles});
 
 declare global {
   interface ComponentTypes {

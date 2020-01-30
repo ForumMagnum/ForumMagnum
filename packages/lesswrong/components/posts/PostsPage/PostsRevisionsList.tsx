@@ -1,5 +1,4 @@
 import React from 'react'
-import { createStyles } from '@material-ui/core/styles';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { useSingle } from '../../../lib/crud/withSingle';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -7,11 +6,11 @@ import { Posts } from '../../../lib/collections/posts/collection'
 import { QueryLink } from '../../../lib/reactRouterWrapper';
 
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   version: {
     marginRight: 5
   }
-}))
+})
 
 const PostsRevisionsList = ({documentId, classes}: {
   documentId: string,

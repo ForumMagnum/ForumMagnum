@@ -7,11 +7,9 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
-import { createStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import withUser from '../../common/withUser';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   formButton: {
     paddingBottom: "2px",
     fontSize: "16px",
@@ -24,7 +22,7 @@ const styles = createStyles(theme => ({
     color: theme.palette.secondary.main,
     float: 'right'
   },
-}));
+});
 
 const ModerationGuidelinesEditForm = ({ postId, onClose, classes }) => {
   const SubmitComponent = ({submitLabel = "Submit"}) => {
@@ -72,7 +70,4 @@ ModerationGuidelinesEditForm.propTypes = {
   postId: PropTypes.string,
 }
 
-registerComponent('ModerationGuidelinesEditForm', ModerationGuidelinesEditForm, {
-  styles,
-  hocs: [withUser]
-});
+registerComponent('ModerationGuidelinesEditForm', ModerationGuidelinesEditForm, {styles});

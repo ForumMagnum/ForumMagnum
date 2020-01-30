@@ -1,8 +1,7 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { createStyles } from '@material-ui/core/styles';
 
-const styles = createStyles((theme) => ({
+const styles = (theme) => ({
   root: {
     paddingLeft: 4,
     ...theme.typography.body2,
@@ -10,7 +9,7 @@ const styles = createStyles((theme) => ({
     fontSize: ".9rem",
     color: theme.palette.grey[600],
   }
-}));
+});
 
 const BetaTag = ({classes}) => {
   return <span className={classes.root}>[Beta]</span>

@@ -5,7 +5,7 @@ import { withUpdate } from '../../lib/crud/withUpdate';
 import { Link } from '../../lib/reactRouterWrapper';
 import NoSSR from 'react-no-ssr';
 import Headroom from 'react-headroom'
-import { withTheme, createStyles } from '@material-ui/core/styles';
+import { withTheme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -33,7 +33,7 @@ export const getHeaderTextColor = theme => {
   }
 }
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   appBar: {
     boxShadow: "0 1px 1px rgba(0, 0, 0, 0.05), 0 1px 1px rgba(0, 0, 0, 0.05)",
   },
@@ -123,7 +123,7 @@ const styles = createStyles(theme => ({
       position: "fixed !important",
     },
   },
-}));
+});
 
 interface ExternalProps {
   standaloneNavigationPresent: any,

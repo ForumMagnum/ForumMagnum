@@ -4,9 +4,8 @@ import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import DragIcon from '@material-ui/icons/DragHandle';
 import RemoveIcon from '@material-ui/icons/Close';
-import { createStyles } from '@material-ui/core/styles';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -36,7 +35,7 @@ const styles = createStyles(theme => ({
     color: "rgba(0,0,0,0.3)",
     marginLeft: "auto"
   }
-}));
+});
 
 const PostsItemWrapper = ({document, loading, classes, ...props}) => {
   const { PostsTitle, PostsItem2MetaInfo } = Components

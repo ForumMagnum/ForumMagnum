@@ -7,7 +7,6 @@ import {
 import moment from 'moment';
 import Users from 'meteor/vulcan:users';
 import Typography from '@material-ui/core/Typography';
-import { createStyles } from '@material-ui/core/styles';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
@@ -15,7 +14,7 @@ import withUser from '../common/withUser';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     fontWeight: 400,
     maxWidth: 720,
@@ -46,7 +45,7 @@ const styles = createStyles(theme => ({
     fontWeight: 600,
     marginTop: 12
   }
-}))
+})
 
 interface ExternalProps {
   lastEvent: any,

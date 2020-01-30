@@ -2,7 +2,6 @@ import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import classNames from 'classnames'
-import { createStyles } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
@@ -76,7 +75,7 @@ const FILTERS_ALL = {
 }
 const FILTERS = FILTERS_ALL[getSetting('forumType')]
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     display: "flex",
     alignItems: "flex-start",
@@ -147,7 +146,7 @@ const styles = createStyles(theme => ({
       order: 0
     }
   },
-}))
+})
 
 const SettingsColumn = ({type, title, options, currentOption, classes, setSetting}) => {
   const { MetaInfo } = Components

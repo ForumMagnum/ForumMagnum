@@ -6,7 +6,6 @@ import {
 import { withMulti } from '../../lib/crud/withMulti';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
-import { createStyles } from '@material-ui/core/styles';
 import moment from '../../lib/moment-timezone';
 import { Posts } from '../../lib/collections/posts';
 import { timeframeToTimeBlock } from './timeframeUtils'
@@ -14,7 +13,7 @@ import { queryIsUpdating } from '../common/queryStatusUtils'
 import withTimezone from '../common/withTimezone';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     marginBottom: theme.spacing.unit*4
   },
@@ -38,7 +37,7 @@ const styles = createStyles(theme => ({
     marginTop: theme.spacing.unit*1.5
   },
   divider: {/* Exists only to get overriden by the eaTheme */}
-}))
+})
 
 const defaultPostTypes = [
   {name: 'frontpage', postIsType: post => !!post.frontpageDate, label: 'Frontpage Posts'},

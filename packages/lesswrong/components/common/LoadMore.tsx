@@ -1,11 +1,10 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
-import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import { queryIsUpdating } from './queryStatusUtils'
 import {useTracking} from "../../lib/analyticsEvents";
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
@@ -18,7 +17,7 @@ const styles = createStyles(theme => ({
       opacity: 1
     }
   }
-}))
+})
 
 
 const LoadMore = ({ loadMore, count, totalCount, classes, disabled=false, networkStatus, loading=false, hidden=false }: {

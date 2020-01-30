@@ -1,13 +1,12 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
-import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   read: {
     opacity: ".8"
   },
@@ -16,7 +15,7 @@ const styles = createStyles(theme => ({
     textAlign: "center",
     display: "inline-block",
   },
-}))
+})
 
 const DateWithoutTime = ({date}) => {
   const { timezone } = useTimezone();

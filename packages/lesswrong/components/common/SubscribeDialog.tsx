@@ -19,12 +19,11 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
-import { createStyles } from '@material-ui/core/styles';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
 import withUser from '../common/withUser';
 import { withTracking } from "../../lib/analyticsEvents";
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   thresholdSelector: {
     display: "flex",
     flexDirection: "row",
@@ -52,7 +51,7 @@ const styles = createStyles(theme => ({
   link: {
     textDecoration: "underline"
   },
-}));
+});
 
 // Estimated number of hours of reading per week in a frontpage/community feed
 // with the given karma threshold. Calculated based on the average number of

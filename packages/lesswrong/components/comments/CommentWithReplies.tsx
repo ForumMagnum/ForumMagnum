@@ -3,10 +3,9 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import withUser from '../common/withUser';
 import { unflattenComments, addGapIndicators } from '../../lib/utils/unflatten';
 import withRecordPostView from '../common/withRecordPostView';
-import { createStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../common/withErrorBoundary';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   showChildren: {
     padding: 4,
     paddingLeft: 12,
@@ -15,7 +14,7 @@ const styles = createStyles(theme => ({
     display: "block",
     fontSize: 14,
   },
-}))
+})
 
 interface ExternalProps {
   comment: any,

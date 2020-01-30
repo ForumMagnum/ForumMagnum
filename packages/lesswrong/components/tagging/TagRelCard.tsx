@@ -1,14 +1,13 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { useMulti } from '../../lib/crud/withMulti';
-import { createStyles } from '@material-ui/core/styles';
 import { useVote } from '../votes/withVote';
 import { useCurrentUser } from '../common/withUser';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentBodyStyles } from '../../themes/stylePiping'
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     paddingLeft: 16,
     paddingRight: 16,
@@ -43,7 +42,7 @@ const styles = createStyles(theme => ({
     textAlign: "right",
     color: theme.palette.primary.main
   }
-}));
+});
 
 const previewPostCount = 3;
 

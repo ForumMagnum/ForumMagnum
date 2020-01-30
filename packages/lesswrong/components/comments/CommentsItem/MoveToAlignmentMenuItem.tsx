@@ -10,9 +10,8 @@ import Users from 'meteor/vulcan:users';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ArrowRightAlt from '@material-ui/icons/ArrowRightAlt';
 import Undo from '@material-ui/icons/Undo';
-import { createStyles } from '@material-ui/core/styles'
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   iconRoot: {
     position: "relative",
     width:24,
@@ -32,7 +31,7 @@ const styles = createStyles(theme => ({
     width: 20,
     color: "black"
   }
-}))
+})
 
 interface ExternalProps {
   comment: any,

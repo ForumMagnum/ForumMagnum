@@ -2,18 +2,17 @@ import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { withApollo } from 'react-apollo';
-import { createStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
 import { Link } from '../../lib/reactRouterWrapper';
 
-export const styles = createStyles(theme => ({
+export const styles = theme => ({
   subtitle: {
     marginLeft: '1em',
     paddingLeft: '1em',
     textTransform: 'uppercase',
     borderLeft: `1px solid ${grey[400]}`,
   },
-}));
+});
 
 const HeaderSubtitle = ({classes}) => {
   const { currentRoute } = useSubscribedLocation();

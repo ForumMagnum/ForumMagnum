@@ -2,12 +2,11 @@ import React, { PureComponent } from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import Users from 'meteor/vulcan:users';
-import { createStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     ...theme.typography.body2,
     marginLeft: theme.spacing.unit
@@ -15,7 +14,7 @@ const styles = createStyles(theme => ({
   verifyEmailButton: {
     marginTop: theme.spacing.unit
   }
-}));
+});
 
 interface ExternalProps {
   resend?: boolean,

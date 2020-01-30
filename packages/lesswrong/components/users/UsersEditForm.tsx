@@ -11,9 +11,7 @@ import withUser from '../common/withUser';
 import { withApollo } from 'react-apollo'
 import { useNavigation } from '../../lib/routeUtil';
 
-import { createStyles } from '@material-ui/core/styles';
-
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     width: "60%",
     maxWidth: 600,
@@ -34,7 +32,7 @@ const styles = createStyles(theme => ({
   resetButton: {
     marginBottom:theme.spacing.unit * 4
   }
-}))
+})
 
 const UsersEditForm = (props) => {
   const { classes, terms, currentUser, client } = props

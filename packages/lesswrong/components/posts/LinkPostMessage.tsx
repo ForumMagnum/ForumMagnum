@@ -1,15 +1,14 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import React from 'react';
-import { createStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle
   },
-}))
+})
 
 const LinkPostMessage = ({post, classes}) => {
   if (!post.url)

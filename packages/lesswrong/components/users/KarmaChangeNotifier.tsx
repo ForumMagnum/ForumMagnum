@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import { withSingle } from '../../lib/crud/withSingle';
-import { createStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import Popper from '@material-ui/core/Popper';
@@ -23,7 +22,7 @@ import { Comments } from '../../lib/collections/comments';
 import { withTracking, AnalyticsContext } from '../../lib/analyticsEvents';
 
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     display: 'flex',
     alignItems: 'center',
@@ -91,7 +90,7 @@ const styles = createStyles(theme => ({
       color: theme.palette.grey[500]
     }
   },
-}));
+});
 
 // Given a number, return a span of it as a string, with a plus sign if it's
 // positive, and green, red, or black coloring for positive, negative, and

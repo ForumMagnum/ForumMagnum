@@ -4,15 +4,14 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
 import { useLocation, useNavigation } from '../../lib/routeUtil'
-import { createStyles } from '@material-ui/core/styles';
 import NoSsr from '@material-ui/core/NoSsr';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   formSubmit: {
     display: "flex",
     flexWrap: "wrap",
   }
-}))
+})
 
 const PostsEditForm = ({
   documentId, eventForm, classes,

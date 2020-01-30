@@ -1,12 +1,11 @@
 import { registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { createStyles } from '@material-ui/core/styles';
 import SubdirectoryArrowLeft from '@material-ui/icons/SubdirectoryArrowLeft';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     paddingRight: theme.spacing.unit,
     paddingTop: theme.spacing.unit,
@@ -40,7 +39,7 @@ const styles = createStyles(theme => ({
   activeArrow: {
     transform: "rotate(-90deg)"
   }
-}))
+})
 
 const ShowParentComment = ({ comment, active, onClick, classes }: {
   comment: any,

@@ -1,7 +1,6 @@
 import { Components, registerComponent, getSetting, Utils } from 'meteor/vulcan:core';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
-import { createStyles } from '@material-ui/core/styles';
 import { withLocation } from '../../lib/routeUtil';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -11,7 +10,7 @@ import { getBeforeDefault, getAfterDefault, timeframeToTimeBlock } from './timef
 import withTimezone from '../common/withTimezone';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   timeframe: {
     padding: theme.spacing.unit,
     [theme.breakpoints.down('xs')]: {
@@ -21,7 +20,7 @@ const styles = createStyles(theme => ({
   title: {
     cursor: "pointer",
   }
-}));
+});
 
 export const timeframes = {
   allTime: 'All Time',

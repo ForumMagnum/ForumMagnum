@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react'
-import { createStyles } from '@material-ui/core/styles';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
@@ -7,7 +6,7 @@ import withUser from '../../common/withUser';
 import { withTracking } from '../../../lib/analyticsEvents';
 import ClickawayListener from '@material-ui/core/ClickAwayListener';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   icon: {
     verticalAlign: 'bottom'
   },
@@ -15,7 +14,7 @@ const styles = createStyles(theme => ({
     position: "relative",
     zIndex: theme.zIndexes.postItemMenu
   },
-}))
+})
 
 interface ExternalProps {
   post: any,

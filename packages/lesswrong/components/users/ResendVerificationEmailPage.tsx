@@ -1,14 +1,13 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { createStyles } from '@material-ui/core/styles';
 import Users from 'meteor/vulcan:users';
 import withUser from '../common/withUser';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     textAlign: "center",
   },
-}));
+});
 
 const ResendVerificationEmailPage = ({currentUser, classes}) => {
   if (!currentUser) {

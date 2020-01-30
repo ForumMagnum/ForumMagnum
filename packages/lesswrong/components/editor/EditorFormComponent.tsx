@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
-import { createStyles } from '@material-ui/core/styles';
 import { editorStyles, postBodyStyles, postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
@@ -25,7 +24,7 @@ const commentEditorHeight = 100;
 const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   editor: {
     position: 'relative',
   },
@@ -108,7 +107,7 @@ const styles = createStyles(theme => ({
   placeholderCollaborationSpacing: {
     top: 60
   }
-}))
+})
 
 const autosaveInterval = 3000; //milliseconds
 const ckEditorName = getSetting('forumType') === 'EAForum' ? 'EA Forum Docs' : 'LessWrong Docs'

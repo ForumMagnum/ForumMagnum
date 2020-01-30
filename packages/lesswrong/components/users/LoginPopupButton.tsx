@@ -1,16 +1,15 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import Tooltip from '@material-ui/core/Tooltip';
-import { createStyles } from '@material-ui/core/styles';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     ...theme.typography.body2,
     color: theme.palette.primary.main,
   },
-}));
+});
 
 const LoginPopupButton = ({classes, children, title}) => {
   const currentUser = useCurrentUser();

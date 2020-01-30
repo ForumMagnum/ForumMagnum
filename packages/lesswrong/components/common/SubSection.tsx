@@ -1,13 +1,12 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames'
 
-const styles = createStyles((theme) => ({
+const styles = (theme) => ({
   root: {
     marginLeft: theme.spacing.unit*2.5
   }
-}))
+})
 
 const SubSection = ({children, classes, className}: {
   children?: any,

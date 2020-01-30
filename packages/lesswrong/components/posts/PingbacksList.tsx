@@ -2,17 +2,16 @@ import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts/collection';
-import { createStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     marginBottom: theme.spacing.unit*4
   },
   list: {
     marginTop: theme.spacing.unit
   }
-}));
+});
 
 const PingbacksList = ({classes, postId}) => {
   const { results, loading } = useMulti({

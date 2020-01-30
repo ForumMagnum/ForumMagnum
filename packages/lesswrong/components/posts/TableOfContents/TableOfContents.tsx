@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { createStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../../common/withErrorBoundary'
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   stickyBlock: {
     position: "sticky",
     fontSize: 12,
@@ -38,7 +37,7 @@ const styles = createStyles(theme => ({
       display:'none'
     }
   },
-}));
+});
 
 // Context used to share a reference used to share the table of contents
 // between the ToC itself, and the Header. The Header uses the ToC to change

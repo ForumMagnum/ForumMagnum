@@ -6,11 +6,10 @@ import Users from 'meteor/vulcan:users';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
-import { createStyles } from '@material-ui/core/styles';
 import {AnalyticsContext, captureEvent} from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   personalBlogpostsCheckbox: {
     // Hackily counteract margin from SectionFooterCheckbox
     // We probably shouldn't be using SectionFOOTERCheckbox in the SectionTitle,
@@ -27,7 +26,7 @@ const styles = createStyles(theme => ({
       width: 105,
     },
   },
-}));
+});
 
 const HomeLatestPosts = ({ classes }) =>
 {

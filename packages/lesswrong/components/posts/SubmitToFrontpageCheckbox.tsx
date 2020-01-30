@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import Tooltip from '@material-ui/core/Tooltip';
 import Checkbox from '@material-ui/core/Checkbox';
 import { registerComponent, getSetting } from 'meteor/vulcan:core';
-import { createStyles } from '@material-ui/core/styles';
 
 const forumDefaultCheckboxLabels = {
   LessWrong: 'Moderators may promote to Frontpage',
@@ -37,7 +36,7 @@ const forumDefaultTooltip = {
 
 const defaultTooltip = forumDefaultTooltip[getSetting('forumType')]
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   submitToFrontpageWrapper: {
     [theme.breakpoints.down('sm')]: {
       width: "100%",
@@ -78,7 +77,7 @@ const styles = createStyles(theme => ({
   guidelines: {
     fontStyle: "italic"
   },
-}));
+});
 
 interface SubmitToFrontpageCheckboxProps extends WithStylesProps {
   fieldName?: string,

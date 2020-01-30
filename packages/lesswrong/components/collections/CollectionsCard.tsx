@@ -1,12 +1,11 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { createStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
 import classNames from 'classnames';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     width: "100%",
     maxWidth: 347,
@@ -65,7 +64,7 @@ const styles = createStyles(theme => ({
       height: 41,
     }
   },
-}))
+})
 
 const CollectionsCard = ({ collection, url, mergeTitle=false, classes }) => {
   const { LinkCard, CloudinaryImage, UsersName } = Components;

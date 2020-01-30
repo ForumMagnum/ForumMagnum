@@ -1,15 +1,14 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
-import { createStyles } from '@material-ui/core/styles';
 import { QueryLink } from '../../../lib/reactRouterWrapper';
 import PropTypes from 'prop-types';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle
   },
-}))
+})
 
 const PostsRevisionMessage = ({post, classes}) => {
   if (!post.contents)

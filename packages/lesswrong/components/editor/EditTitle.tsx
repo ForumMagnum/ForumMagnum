@@ -2,10 +2,9 @@ import { registerComponent } from 'meteor/vulcan:core';
 import React, { Component } from 'react';
 import Input from '@material-ui/core/Input';
 import PropTypes from 'prop-types'
-import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     ...theme.typography.display3,
     ...theme.typography.headerStyle,
@@ -27,7 +26,7 @@ const styles = createStyles(theme => ({
     paddingTop: theme.spacing.unit*1.5,
     lineHeight: '1.2em',
   },
-}))
+})
 
 interface EditTitleProps extends WithStylesProps {
   clearField: any,

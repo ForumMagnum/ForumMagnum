@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { createStyles } from '@material-ui/core/styles';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import HistoryIcon from '@material-ui/icons/History';
 import Menu from '@material-ui/core/Menu';
@@ -7,7 +6,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import moment from '../../../lib/moment-timezone';
 
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   icon: {
     verticalAlign: 'text-top',
     fontSize: 'inherit',
@@ -16,7 +15,7 @@ const styles = createStyles(theme => ({
   button: {
     cursor: 'pointer'
   }
-}))
+})
 
 interface PostsRevisionSelectorProps extends WithStylesProps {
   post: any,

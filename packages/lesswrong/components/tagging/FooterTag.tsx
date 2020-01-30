@@ -1,10 +1,9 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { Link } from '../../lib/reactRouterWrapper';
-import { createStyles } from '@material-ui/core/styles';
 import withHover from '../common/withHover';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     marginRight: 4,
     paddingTop: 5,
@@ -40,7 +39,7 @@ const styles = createStyles(theme => ({
   },
   hovercard: {
   },
-}));
+});
 
 interface ExternalProps {
   tagRel: any,

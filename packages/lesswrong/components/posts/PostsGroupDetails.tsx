@@ -3,9 +3,8 @@ import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Localgroups } from '../../lib/index';
-import { createStyles } from '@material-ui/core/styles';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   title: {
     display: 'inline-block',
     fontSize: 22,
@@ -19,7 +18,7 @@ const styles = createStyles(theme => ({
     marginBottom: 10, 
     marginTop: 10
   }
-}))
+})
 
 const PostsGroupDetails = ({ documentId, post, classes }: {
   documentId: string,

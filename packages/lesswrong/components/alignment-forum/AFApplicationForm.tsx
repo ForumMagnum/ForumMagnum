@@ -10,13 +10,12 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-import { createStyles } from '@material-ui/core/styles';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   modalTextField: {
     marginTop: 10,
   },
-}));
+});
 
 interface AFApplicationFormProps extends WithUserProps, WithMessagesProps, WithStylesProps {
   updateUser: any,

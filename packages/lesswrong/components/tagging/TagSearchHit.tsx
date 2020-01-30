@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { useSingle } from '../../lib/crud/withSingle';
-import { createStyles } from '@material-ui/core/styles';
 import withHover from '../common/withHover';
 import { Tags } from '../../lib/collections/tags/collection';
 

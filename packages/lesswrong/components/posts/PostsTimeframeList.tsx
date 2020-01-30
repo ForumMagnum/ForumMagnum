@@ -2,14 +2,13 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import moment from '../../lib/moment-timezone';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { createStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import classNames from 'classnames';
 import { getDateRange, timeframeToTimeBlock } from './timeframeUtils'
 import withTimezone from '../common/withTimezone';
 import * as _ from 'underscore';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   loading: {
     opacity: .4,
   },
@@ -17,7 +16,7 @@ const styles = createStyles(theme => ({
     ...theme.typography.postStyle,
     color: theme.palette.primary.main
   }
-}))
+})
 
 const loadMoreTimeframeMessages = {
   'daily': 'Load More Days',

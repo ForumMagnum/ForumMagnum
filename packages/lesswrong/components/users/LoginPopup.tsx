@@ -1,9 +1,8 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import Dialog from '@material-ui/core/Dialog';
-import { createStyles } from '@material-ui/core/styles';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   dialog: {
     zIndex: theme.zIndexes.loginDialog
   },
@@ -14,7 +13,7 @@ const styles = createStyles(theme => ({
     marginLeft: 0,
     marginRight: 0,
   },
-}));
+});
 
 // Makes its child a link (wrapping it in an <a> tag) which opens a login
 // dialog.

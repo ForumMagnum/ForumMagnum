@@ -1,9 +1,9 @@
 import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
-import { withMessages } from '../common/withMessages';
+import { useMessages } from '../common/withMessages';
 import React from 'react';
 import { Localgroups } from '../../lib/index';
-import { withNavigation } from '../../lib/routeUtil'
-import withUser from '../common/withUser';
+import { useNavigation } from '../../lib/routeUtil'
+import { useCurrentUser } from '../common/withUser';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import { withStyles, createStyles } from '@material-ui/core/styles';
@@ -65,8 +65,12 @@ const SubmitComponent = withStyles(styles, {name: "GroupFormLinkSubmit"})(({subm
   </div>
 })
 
-const GroupFormDialog =  ({ onClose, currentUser, classes, documentId, history, flash }) => {
+const GroupFormDialog =  ({ onClose, classes, documentId }) => {
   const { WrappedSmartForm } = Components
+  const currentUser = useCurrentUser();
+  const { flash } = useMessages();
+  const { history } = useNavigation();
+  
   return <Dialog
     open={true}
     onClose={onClose}
@@ -95,9 +99,7 @@ const GroupFormDialog =  ({ onClose, currentUser, classes, documentId, history, 
   </Dialog>
 }
 
-const GroupFormDialogComponent = registerComponent('GroupFormDialog', GroupFormDialog, {
-  hocs: [withUser, withMessages, withNavigation],
-});
+const GroupFormDialogComponent = registerComponent('GroupFormDialog', GroupFormDialog);
 
 declare global {
   interface ComponentTypes {

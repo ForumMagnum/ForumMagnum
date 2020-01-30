@@ -1,10 +1,9 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { createStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames'
 
-const styles = createStyles((theme) => ({
+const styles = (theme) => ({
   root: {
     cursor: "pointer",
     color: theme.palette.lwTertiary.main,
@@ -14,7 +13,7 @@ const styles = createStyles((theme) => ({
       marginRight: theme.spacing.unit
     },
   }
-}))
+})
 
 const SectionButton = ({children, classes, className}: {
   children?: any,

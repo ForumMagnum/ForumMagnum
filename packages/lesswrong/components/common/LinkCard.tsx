@@ -1,11 +1,10 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import Tooltip from '@material-ui/core/Tooltip';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     cursor: "pointer",
     position: "relative",
@@ -31,7 +30,7 @@ const styles = createStyles(theme => ({
       top: 0,
     },
   },
-}));
+});
 
 // A clickable card which can contain clickable links. This exists to work
 // around a limitation of HTML, which is that you can't nest <a> tags in <a>

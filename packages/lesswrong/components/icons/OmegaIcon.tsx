@@ -1,9 +1,8 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 
-const styles = createStyles((theme) => ({
+const styles = (theme) => ({
   root: {
     fontSize: 24,
     fontWeight: 600,
@@ -18,7 +17,7 @@ const styles = createStyles((theme) => ({
     width: 24,
     textAlign:"center"
   }
-}))
+})
 
 const OmegaIcon = ({classes, className}) => {
   return <span className={classNames(classes.root, className)}>Ω</span>

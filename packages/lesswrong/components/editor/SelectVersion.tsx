@@ -5,14 +5,13 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Tooltip from '@material-ui/core/Tooltip';
 import { Posts } from '../../lib/collections/posts';
-import { createStyles } from '@material-ui/core/styles';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   date: {
     marginLeft: theme.spacing.unit*1.5,
     fontStyle: "italic"
   }
-}))
+})
 
 const SelectVersion = ({classes, documentId, revisionVersion, updateVersionNumber, updateVersion}) => {
   const { document, loading } = useSingle({

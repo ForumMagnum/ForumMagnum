@@ -1,9 +1,8 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import { createStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
-const styles = createStyles((theme) => ({
+const styles = (theme) => ({
   root: {
     display: "flex",
     justifyContent: "flex-end",
@@ -30,7 +29,7 @@ const styles = createStyles((theme) => ({
       },
     }
   }
-}))
+})
 
 const SectionFooter = ({ children, classes }) => {
   return (
