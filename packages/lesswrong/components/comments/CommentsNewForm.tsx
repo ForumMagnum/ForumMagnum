@@ -43,7 +43,7 @@ const styles = createStyles(theme => ({
 const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true}:
 {
   prefilledProps?: any,
-  post: any,
+  post?: any,
   parentComment?: any,
   successCallback?: any,
   type: string,

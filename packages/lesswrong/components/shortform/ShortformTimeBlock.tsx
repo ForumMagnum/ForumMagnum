@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
-import { withStyles } from '@material-ui/core/styles';
 import {queryIsUpdating} from '../common/queryStatusUtils'
 
 const styles = theme => ({
@@ -23,7 +22,18 @@ const styles = theme => ({
   },
 })
 
-class ShortformTimeBlock extends Component {
+interface ExternalProps {
+  reportEmpty: any,
+  terms: any,
+}
+interface ShortformTimeBlockProps extends ExternalProps, WithStylesProps {
+  networkStatus: any,
+  results: any,
+  totalCount: number,
+  loadMore: any,
+}
+
+class ShortformTimeBlock extends Component<ShortformTimeBlockProps> {
   componentDidMount () {
     const {networkStatus, results: comments} = this.props
     this.checkEmpty(networkStatus, comments)
@@ -77,15 +87,23 @@ class ShortformTimeBlock extends Component {
   }
 }
 
-registerComponent('ShortformTimeBlock', ShortformTimeBlock,
-  [withMulti, {
-    collection: Comments,
-    queryName: 'timeframeShortformQuery',
-    fragmentName: 'ShortformComments',
-    fetchPolicy: 'cache-and-network',
-    enableTotal: true,
-    limit: 5,
-    ssr: true,
-  }],
-  withStyles(styles, { name: "ShortformTimeBlock" })
-);
+const ShortformTimeBlockComponent = registerComponent<ExternalProps>('ShortformTimeBlock', ShortformTimeBlock, {
+  styles,
+  hocs: [
+    withMulti({
+      collection: Comments,
+      fragmentName: 'ShortformComments',
+      fetchPolicy: 'cache-and-network',
+      enableTotal: true,
+      limit: 5,
+      ssr: true,
+    }),
+  ]
+});
+
+declare global {
+  interface ComponentTypes {
+    ShortformTimeBlock: typeof ShortformTimeBlockComponent
+  }
+}
+

@@ -1,9 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withMulti } from '../../lib/crud/withMulti';
+import { useMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
-import withUser from '../common/withUser';
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   shortformItem: {
@@ -11,10 +9,18 @@ const styles = theme => ({
   }
 })
 
-const ShortformThreadList = ({ classes, results, loading, loadMore, networkStatus, data: {refetch} }) => {
+const ShortformThreadList = ({ terms, classes }) => {
   const { LoadMore, CommentWithReplies, ShortformSubmitForm, Loading } = Components
+  const { results, loading, loadMore, loadingMore, refetch } = useMulti({
+    terms,
+    collection: Comments,
+    fragmentName: 'CommentWithReplies',
+    fetchPolicy: 'cache-and-network',
+    enableTotal: false,
+    pollInterval: 0,
+    ssr: true,
+  });
 
-  const loadingMore = networkStatus === 2;
 
   return (
     <div>
@@ -33,13 +39,13 @@ const ShortformThreadList = ({ classes, results, loading, loadMore, networkStatu
   }
 
 const discussionThreadsOptions = {
-  collection: Comments,
-  queryName: 'ShortformThreadListQuery',
-  fragmentName: 'CommentWithReplies',
-  fetchPolicy: 'cache-and-network',
-  enableTotal: false,
-  pollInterval: 0,
-  ssr: true,
 };
 
-registerComponent('ShortformThreadList', ShortformThreadList, withStyles(styles, {name:"ShortformThreadList"}), [withMulti, discussionThreadsOptions], withUser);
+const ShortformThreadListComponent = registerComponent('ShortformThreadList', ShortformThreadList, {styles});
+
+declare global {
+  interface ComponentTypes {
+    ShortformThreadList: typeof ShortformThreadListComponent
+  }
+}
+

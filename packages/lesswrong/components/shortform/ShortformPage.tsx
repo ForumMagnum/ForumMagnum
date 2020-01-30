@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   column: {
@@ -22,4 +21,11 @@ const ShortformPage = ({classes}) => {
   )
 }
 
-registerComponent('ShortformPage', ShortformPage, withStyles(styles, {name:"ShortformPage"}));
+const ShortformPageComponent = registerComponent('ShortformPage', ShortformPage, {styles});
+
+declare global {
+  interface ComponentTypes {
+    ShortformPage: typeof ShortformPageComponent
+  }
+}
+

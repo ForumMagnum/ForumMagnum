@@ -25,4 +25,11 @@ const NewShortformDialog = ({onClose}) => {
   );
 }
 
-registerComponent('NewShortformDialog', NewShortformDialog);
+const NewShortformDialogComponent = registerComponent('NewShortformDialog', NewShortformDialog);
+
+declare global {
+  interface ComponentTypes {
+    NewShortformDialog: typeof NewShortformDialogComponent
+  }
+}
+

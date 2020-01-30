@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   root: {
@@ -43,4 +42,11 @@ const ShortformSubmitForm = ({ classes, successCallback}) => {
   );
 }
 
-registerComponent('ShortformSubmitForm', ShortformSubmitForm, withStyles(styles, {name:"ShortformSubmitForm"}));
+const ShortformSubmitFormComponent = registerComponent('ShortformSubmitForm', ShortformSubmitForm, {styles});
+
+declare global {
+  interface ComponentTypes {
+    ShortformSubmitForm: typeof ShortformSubmitFormComponent
+  }
+}
+

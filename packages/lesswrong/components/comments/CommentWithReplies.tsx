@@ -19,7 +19,7 @@ const styles = createStyles(theme => ({
 
 interface ExternalProps {
   comment: any,
-  post: any,
+  post?: any,
   refetch: any,
 }
 interface CommentWithRepliesProps extends ExternalProps, WithUserProps, WithStylesProps {

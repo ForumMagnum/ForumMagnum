@@ -8,12 +8,6 @@ interface ComponentTypes {
   UserPageTitle: any
   SequencesPageTitle: any
   PostsPageHeaderTitle: any
-  ShortformPage: any
-  ShortformThreadList: any
-  RepliesToCommentList: any
-  NewShortformDialog: any
-  ShortformSubmitForm: any
-  ShortformTimeBlock: any
   VoteButton: any
   CommentsVote: any
   PostsVote: any
