@@ -41,7 +41,7 @@ const styles = createStyles(theme => ({
     fontStyle: "italic",
     ...commentBodyStyles(theme),
     fontSize: "1.1rem",
-    color: theme.palette.grey[600],
+    color: theme.palette.grey[600]
   },
   highlight: {
     ...postHighlightStyles(theme),
@@ -80,6 +80,9 @@ const styles = createStyles(theme => ({
     color: theme.palette.grey[500],
     ...postHighlightStyles(theme),
     fontSize: "1.1rem"
+  },
+  wordCount: {
+    marginLeft: theme.spacing.unit
   }
 }))
 
@@ -107,8 +110,8 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }) => {
 
   if (!post) return null
 
-  const { htmlHighlight = "" } = post.contents || {}
-
+  const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
+  const renderWordCount = !comment && (wordCount > 0)
   const highlight = truncate(htmlHighlight, 85, "words", `... <span class="expand">(more)</span>`)
 
   return <AnalyticsContext pageElementContext="hoverPreview">
@@ -119,7 +122,10 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }) => {
               <PostsTitle post={post} tooltip={false} wrap showIcons={false} />
             </div>
             <div className={classes.tooltipInfo}>
-              { postsList && getPostCategory(post)}
+              { postsList && <span> 
+                {getPostCategory(post)}
+                {renderWordCount && <span className={classes.wordCount}>({wordCount} words)</span>}
+              </span>}
               { !postsList && post.user && <span>By <PostsUserAndCoauthors post={post} simple/></span>}
             </div>
           </div>
