@@ -20,7 +20,7 @@ class AFSuggestUsersList extends Component {
       return (
         <div>
           <C.SunshineListTitle>
-            <C.OmegaIcon className={classes.icon}/> Suggested Users
+            <div><C.OmegaIcon className={classes.icon}/> Suggested Users</div>
           </C.SunshineListTitle>
           {this.props.results.map(user =>
             <div key={user._id} >
