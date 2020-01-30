@@ -29,7 +29,6 @@ const FormComponentDateTime = ({ path, value, name, label, classes }, context) =
   return <FormControl>
     <InputLabel className={classes.label}>{ label }</InputLabel>
     <DateTimePicker
-      placeholder={label}
       value={date}
       inputProps={{
         name:name,
@@ -37,8 +36,7 @@ const FormComponentDateTime = ({ path, value, name, label, classes }, context) =
         className:classes.input
       }}
       // newDate argument is a Moment object given by react-datetime
-      onChange={newDate => updateDate(newDate._d)}
-      format={"x"}
+      onChange={(newDate: any) => updateDate(newDate._d)}
     />
   </FormControl>
 }

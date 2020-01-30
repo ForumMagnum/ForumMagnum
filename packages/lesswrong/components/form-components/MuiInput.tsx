@@ -34,19 +34,20 @@ class MuiInput extends Component<any,any> {
   }
 
   render() {
+    const { className, label, multiLine, rows, hintText, placeholder,
+      rowsMax, fullWidth, disableUnderline, startAdornment, classes } = this.props;
     return <Input
-        className={this.props.className}
+        className={className}
         value={this.state.contents || ""}
-        label={this.props.label}
         onChange={this.onChange}
-        multiline={this.props.multiLine}
-        rows={this.props.rows}
-        placeholder={this.props.hintText || this.props.placeholder || this.props.label}
-        rowsMax={this.props.rowsMax}
-        fullWidth={this.props.fullWidth}
-        disableUnderline={this.props.disableUnderline}
-        classes={{input: this.props.classes.input}}
-        startAdornment={this.props.startAdornment}
+        multiline={multiLine}
+        rows={rows}
+        placeholder={hintText || placeholder || label}
+        rowsMax={rowsMax}
+        fullWidth={fullWidth}
+        disableUnderline={disableUnderline}
+        classes={{input: classes.input}}
+        startAdornment={startAdornment}
       />
   }
 };

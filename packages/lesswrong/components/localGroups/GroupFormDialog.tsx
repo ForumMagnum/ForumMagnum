@@ -84,7 +84,7 @@ const GroupFormDialog =  ({ onClose, classes, documentId }) => {
         formComponents={{
           FormSubmit: SubmitComponent
         }}
-        prefilledProps={documentId ? {} : {organizerIds: [currentUser._id]}} // If edit form, do not prefill organizerIds
+        prefilledProps={documentId ? {} : {organizerIds: [currentUser!._id]}} // If edit form, do not prefill organizerIds
         successCallback={group => {
           onClose();
           if (documentId) {

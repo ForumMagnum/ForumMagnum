@@ -49,7 +49,6 @@ class MuiTextField extends PureComponent<any> {
           className: classes.cssLabel,
           ...InputLabelProps
         }}
-        classes={{input: classes.input}}
         className={classnames(
           classes.textField,
           {fullWidth:fullWidth}

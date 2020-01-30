@@ -65,9 +65,10 @@ const ModerationGuidelinesEditForm = ({ postId, onClose, classes }) => {
   )
 }
 
+const ModerationGuidelinesEditFormComponent = registerComponent('ModerationGuidelinesEditForm', ModerationGuidelinesEditForm, {styles});
 
-ModerationGuidelinesEditForm.propTypes = {
-  postId: PropTypes.string,
+declare global {
+  interface ComponentTypes {
+    ModerationGuidelinesEditForm: typeof ModerationGuidelinesEditFormComponent
+  }
 }
-
-registerComponent('ModerationGuidelinesEditForm', ModerationGuidelinesEditForm, {styles});

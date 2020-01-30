@@ -24,7 +24,12 @@ const styles = (theme) => ({
   }
 })
 
-const SettingsIcon = ({classes, className, onClick, label}) => {
+const SettingsIcon = ({classes, className, onClick, label=""}: {
+  classes: any,
+  className?: string,
+  onClick?: any,
+  label?: string,
+}) => {
   if (label) {
     return <span className={classes.iconWithLabelGroup} onClick={onClick}>
       <Settings className={classNames(classes.icon, classes.iconWithLabel, className)}/> 
@@ -34,4 +39,10 @@ const SettingsIcon = ({classes, className, onClick, label}) => {
   return <Settings className={classNames(classes.icon, className)} onClick={onClick}/>
 }
 
-registerComponent('SettingsIcon', SettingsIcon, {styles});
+const SettingsIconComponent = registerComponent('SettingsIcon', SettingsIcon, {styles});
+
+declare global {
+  interface ComponentTypes {
+    SettingsIcon: typeof SettingsIconComponent
+  }
+}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, createStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import sumBy from 'lodash/sumBy'
@@ -499,7 +499,7 @@ function createPostVoteTuples<K extends any,T extends vote> (posts: K[], votes: 
   })
 }
 
-const voteRowStyles = theme => ({
+const voteRowStyles = createStyles(theme => ({
   root: {
     padding: theme.spacing.unit*1.5,
     paddingTop: 10,
@@ -536,7 +536,7 @@ const voteRowStyles = theme => ({
   expanded: {
     background: "#eee"
   }
-});
+}));
 
 const VoteTableRow = withStyles(voteRowStyles, {name: "VoteTableRow"})((
   {post, dispatch, dispatchQuadraticVote, quadraticVotes, useQuadratic, classes, expandedPostId, votes }:

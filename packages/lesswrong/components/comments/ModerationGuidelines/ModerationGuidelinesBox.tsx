@@ -54,7 +54,11 @@ const styles = theme => ({
   }
 })
 
-const ModerationGuidelinesBox = ({classes, document, recordEvent}) => {
+const ModerationGuidelinesBox = ({classes, document, recordEvent}: {
+  classes: any,
+  document: any,
+  recordEvent?: any,
+}) => {
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
   const [expanded, setExpanded] = useState(false)
@@ -144,7 +148,13 @@ const moderationStyleLookup = {
   'easy-going': "Easy Going - I just delete obvious spam and trolling."
 }
 
-registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBox, {
+const ModerationGuidelinesBoxComponent = registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBox, {
   styles,
   hocs: [withNewEvents, withErrorBoundary]
 });
+
+declare global {
+  interface ComponentTypes {
+    ModerationGuidelinesBox: typeof ModerationGuidelinesBoxComponent
+  }
+}

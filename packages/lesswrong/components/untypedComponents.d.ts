@@ -1,11 +1,6 @@
 
 // This is a list of components which have not yet been converted to TypeScript.
 interface ComponentTypes {
-  OmegaIcon: any
-  SettingsIcon: any
-  ModerationGuidelinesBox: any
-  ModerationGuidelinesEditForm: any
-  
   // vulcan-accounts components
   AccountsButton: any
   AccountsButtons: any
