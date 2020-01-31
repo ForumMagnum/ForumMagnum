@@ -30,7 +30,7 @@ const LoadMore = ({ loadMore, count, totalCount, classes, disabled=false, networ
   loading?: boolean,
   hidden?: boolean,
 }) => {
-  const { captureEvent } = useTracking("loadMoreClicked")
+  const { captureEvent } = useTracking()
 
   if (hidden) return null;
   

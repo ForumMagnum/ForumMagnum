@@ -44,7 +44,7 @@ const CommentsItemDate = ({comment, post, classes, scrollOnClick, scrollIntoView
 }) => {
   const { history } = useNavigation();
   const { location } = useLocation();
-  const { captureEvent } = useTracking("dateIconLinkClick");
+  const { captureEvent } = useTracking();
 
   const handleLinkClick = (event) => {
     event.preventDefault()

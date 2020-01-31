@@ -1,4 +1,5 @@
 import { subscriptionTypes } from './collections/subscriptions/schema';
+import * as _ from 'underscore';
 
 export function userIsDefaultSubscribed({user, subscriptionType, collectionName, document})
 {

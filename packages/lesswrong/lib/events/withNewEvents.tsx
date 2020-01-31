@@ -3,11 +3,12 @@ import React, { Component } from 'react';
 import uuid from 'uuid/v4';
 import { LWEvents } from '../collections/lwevents/collection';
 import { shallowEqual } from '../utils/componentUtils';
+import * as _ from 'underscore';
 
 
 // HoC that passes functions for recording events to child
 function withNewEvents(WrappedComponent) {
-  class EventsWrapped extends Component {
+  class EventsWrapped extends Component<any,any> {
     constructor(props) {
       super(props);
       this.state = {
@@ -67,7 +68,7 @@ function withNewEvents(WrappedComponent) {
       let currentTime = new Date();
       event.properties = {
         endTime: currentTime,
-        duration: currentTime - event.properties.startTime,
+        duration: currentTime.valueOf() - event.properties.startTime.valueOf(),
         ...event.properties,
         ...properties,
       };

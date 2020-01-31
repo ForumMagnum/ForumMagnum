@@ -1,8 +1,8 @@
 import { addCallback } from 'meteor/vulcan:core';
 
-export const initFunctions = [];
+export const initFunctions: Array<any> = [];
 
-export const trackFunctions = [];
+export const trackFunctions: Array<any> = [];
 
 export const addInitFunction = f => {
   initFunctions.push(f);

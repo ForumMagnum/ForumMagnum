@@ -1,5 +1,6 @@
 import { Connectors } from 'meteor/vulcan:core'; // import from vulcan:lib because vulcan:core isn't loaded yet
 import DataLoader from 'dataloader';
+import * as _ from 'underscore';
 
 //
 // Do a query, with a custom loader for query batching. This effectively does a
@@ -16,7 +17,7 @@ import DataLoader from 'dataloader';
 //     the batch.
 //   id: The value of the field whose values vary between queries in the batch.
 //
-export async function getWithLoader(collection, loaderName, baseQuery={}, groupByField, id, projection)
+export async function getWithLoader(collection, loaderName, baseQuery={}, groupByField, id, projection=undefined)
 {
   if (!collection.extraLoaders) {
     collection.extraLoaders = {};

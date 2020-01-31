@@ -1,10 +1,10 @@
 
-export const getCKEditorDocumentId = (documentId, userId, formType) => {
+export const getCKEditorDocumentId = (documentId: string, userId: string, formType: string) => {
   if (documentId) return `${documentId}-${formType}`
   return `${userId}-${formType}`
 }
 
-export function generateTokenRequest(documentId, userId, formType) {
+export function generateTokenRequest(documentId?: string, userId?: string, formType?: string) {
   return () => {
     return new Promise( ( resolve, reject ) => {
         const xhr = new XMLHttpRequest();

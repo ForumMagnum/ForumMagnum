@@ -41,11 +41,14 @@ const defaultOptions = {
   pingbacks: false,
 }
 
-export const editableCollections = new Set()
-export const editableCollectionsFields = {}
-export const editableCollectionsFieldOptions = {};
+export const editableCollections = new Set<string>()
+export const editableCollectionsFields: Record<string,Array<string>> = {}
+export const editableCollectionsFieldOptions: Record<string,any> = {};
 
-export const makeEditable = ({collection, options = {}}) => {
+export const makeEditable = ({collection, options = {}}: {
+  collection: any,
+  options: any,
+}) => {
   options = {...defaultOptions, ...options}
   const {
     commentEditor,

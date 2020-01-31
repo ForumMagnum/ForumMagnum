@@ -24,7 +24,7 @@ export const highlightFromHTML = (html) => {
   });
 };
 
-export const truncate = (html, truncateLength) => {
+export const truncate = (html: string, truncateLength: number) => {
   if(!html) return ""
   const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
   const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
@@ -36,7 +36,7 @@ export const truncate = (html, truncateLength) => {
   });
 }
 
-export const postExcerptFromHTML = (html, truncationCharCount) => {
+export const postExcerptFromHTML = (html: string, truncationCharCount?: number) => {
   if(!html) return ""
   const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
   const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
@@ -48,8 +48,7 @@ export const postExcerptFromHTML = (html, truncationCharCount) => {
   });
 };
 
-export const getTruncationCharCount = (comment, currentUser, postPage) => {
-  
+export function getTruncationCharCount (comment, currentUser?: UsersCurrent|null, postPage?: boolean) {
   // Do not truncate for users who have disabled it in their user settings. Might want to do someting more elegant here someday.
   if (currentUser && currentUser.noCollapseCommentsPosts && postPage) {
     return 10000000
@@ -88,7 +87,7 @@ export const answerTocExcerptFromHTML = (html) => {
   });
 };
 
-export const commentExcerptFromHTML = (comment, currentUser, postPage) => {
+export function commentExcerptFromHTML (comment, currentUser?: UsersCurrent|null, postPage?: boolean) {
   const { html } = comment.contents
   if(!html) return ""
   const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""

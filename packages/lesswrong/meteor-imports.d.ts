@@ -39,6 +39,7 @@ declare module 'meteor/vulcan:core' {
   
   export const Utils: any;
   export const getSetting: any;
+  export const registerSetting: any;
   export const getCollection: any;
   export const getFragment: any;
   export const registerFragment: any;
@@ -67,4 +68,8 @@ declare module 'meteor/vulcan:core' {
   export const parseRoute: any;
   export const getAdminColumns: any;
   export const addAdminColumn: any;
+  export const Connectors: any;
+  export const addStrings: any,
+  export const addRoute: any,
+  export const addGraphQLSchema: any,
 }

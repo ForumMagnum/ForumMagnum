@@ -90,7 +90,7 @@ export const NewEventNotification = registerNotificationType({
   userSettingField: "notificationPostsInGroups",
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId);
-    let group = {}
+    let group: any = {}
     if (documentType == "post" && document.groupId) {
       group = Localgroups.findOne(document.groupId);
     }
@@ -106,7 +106,7 @@ export const NewGroupPostNotification = registerNotificationType({
   userSettingField: "notificationPostsInGroups",
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId);
-    let group = {}
+    let group: any = {}
     if (documentType == "post" && document.groupId) {
       group = Localgroups.findOne(document.groupId);
     }

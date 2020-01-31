@@ -5,15 +5,24 @@
 /// something is allowable within the rate limit, and consumeResource to use
 /// up the limit.
 export class RateLimiter {
-  constructor({burstLimit, steadyStateLimit, timestamp}) {
+  burstLimit: number;
+  steadyStateLimit: number;
+  resource: number;
+  lastUpdateTime: Date;
+  
+  constructor({burstLimit, steadyStateLimit, timestamp}: {
+    burstLimit: number,
+    steadyStateLimit: number,
+    timestamp: Date,
+  }) {
     this.burstLimit = burstLimit;
     this.steadyStateLimit = steadyStateLimit;
     this.resource = burstLimit;
     this.lastUpdateTime = timestamp;
   }
   
-  advanceTime(timestamp) {
-    const timeElapsed = (timestamp - this.lastUpdateTime)/1000;
+  advanceTime(timestamp: Date) {
+    const timeElapsed = (timestamp.valueOf() - this.lastUpdateTime.valueOf())/1000;
     if (timeElapsed > 0) {
       const amountRegenerated = timeElapsed * this.steadyStateLimit;
       this.resource = Math.min(this.burstLimit, this.resource + amountRegenerated);
@@ -21,11 +30,11 @@ export class RateLimiter {
     }
   }
   
-  canConsumeResource(cost) {
+  canConsumeResource(cost: number) {
     return this.resource > cost;
   }
   
-  consumeResource(cost) {
+  consumeResource(cost: number) {
     this.resource -= cost;
   }
 }

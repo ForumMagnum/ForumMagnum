@@ -1,8 +1,9 @@
-/*global Vulcan*/
-import { addGraphQLSchema } from 'meteor/vulcan:core';
+import { addGraphQLSchema, Vulcan } from 'meteor/vulcan:core';
 import { RateLimiter } from './rateLimiter';
 import React, { useContext, useEffect, useState, useRef } from 'react'
 import { hookToHoc } from './hocUtils'
+import { Meteor } from 'meteor/meteor';
+import * as _ from 'underscore';
 
 addGraphQLSchema(`
   type AnalyticsEvent {
@@ -15,7 +16,7 @@ addGraphQLSchema(`
 // AnalyticsUtil: An object/namespace full of functions which need to bypass
 // the normal import system, because they are client- or server-specific but
 // are used by code which isn't.
-export const AnalyticsUtil = {
+export const AnalyticsUtil: any = {
   // clientWriteEvents: Send a graphQL mutation from the client to the server
   // with an array of events. Available only on the client and when the react
   // tree is mounted, null otherwise; filled in by Components.AnalyticsClient.
@@ -31,7 +32,7 @@ export const AnalyticsUtil = {
   serverWriteEvent: null,
 };
 
-export function captureEvent(eventType, eventProps) {
+export function captureEvent(eventType: string, eventProps?: Record<string,any>) {
   try {
     if (Meteor.isServer) {
       // If run from the server, put this directly into the server's write-to-SQL
@@ -67,13 +68,18 @@ export const ReactTrackingContext = React.createContext({});
 
 export const AnalyticsContext = ({children, ...props}) => {
   const existingContextData = useContext(ReactTrackingContext)
-  const newContextData = {...existingContextData, ...props}
-    return <ReactTrackingContext.Provider value={newContextData}>
-      {children}
-    </ReactTrackingContext.Provider>
+  const newContextData = {...existingContextData, ...props};
+  return <ReactTrackingContext.Provider value={newContextData}>
+    {children}
+  </ReactTrackingContext.Provider>
 }
 
-export function useTracking({eventType="unnamed", eventProps = {}, captureOnMount = false,  skip = false}={}) {
+export function useTracking({eventType="unnamed", eventProps = {}, captureOnMount = false,  skip = false}: {
+  eventType?: string,
+  eventProps?: any,
+  captureOnMount?: any,
+  skip?: boolean
+}={}) {
   const trackingContext = useContext(ReactTrackingContext)
   useEffect(() => {
     const eventData = {...trackingContext, ...eventProps}
@@ -85,7 +91,7 @@ export function useTracking({eventType="unnamed", eventProps = {}, captureOnMoun
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skip])
 
-  const track = (type , trackingData) => {
+  const track: (type?: string|undefined, trackingData?: Record<string,any>)=>void = (type, trackingData) => {
     captureEvent(type || eventType, {
       ...trackingContext,
       ...eventProps,
@@ -98,10 +104,10 @@ export function useTracking({eventType="unnamed", eventProps = {}, captureOnMoun
 export const withTracking = hookToHoc(useTracking)
 
 export function useIsInView({rootMargin='0px', threshold=0}={}) {
-  const [entry, setEntry] = useState(null)
-  const [node, setNode] = useState(null)
+  const [entry, setEntry] = useState<any>(null)
+  const [node, setNode] = useState<any>(null)
 
-  const observer = useRef(null)
+  const observer = useRef<any>(null)
 
   useEffect(() => {
     if (!window.IntersectionObserver) return
@@ -186,7 +192,7 @@ const throttledStoreEvent = (event) => {
 
 Vulcan.captureEvent = captureEvent;
 
-let pendingAnalyticsEvents = [];
+let pendingAnalyticsEvents: Array<any> = [];
 
 function flushClientEvents() {
   if (!AnalyticsUtil.clientWriteEvents)

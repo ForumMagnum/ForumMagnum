@@ -40,7 +40,7 @@ function useEventListener(eventName, handler){
 
 
 function useBeforeUnloadTracking() {
-  const { captureEvent } = useTracking("beforeUnloadTracking")
+  const { captureEvent } = useTracking()
   const trackBeforeUnload = () => captureEvent("beforeUnloadFired")
 
   useEventListener('beforeunload', trackBeforeUnload)
@@ -48,7 +48,7 @@ function useBeforeUnloadTracking() {
 
 
 function usePageVisibility() {
-  const { captureEvent } = useTracking("pageVisibilityTracking")
+  const { captureEvent } = useTracking()
   const doc = (Meteor.isClient)? document : null
   const [pageIsVisible, setPageIsVisible] = useState(!doc?.hidden)
   const [pageVisibilityState, setPageVisibilityState] = useState(doc?.visibilityState)
@@ -73,7 +73,7 @@ function usePageVisibility() {
 
 
 function useIdlenessDetection(timeoutInSeconds=60) {
-    const { captureEvent } = useTracking("idlenessDetection")
+    const { captureEvent } = useTracking()
     const [userIsIdle, setUserIsIdle] = useState(false)
     const countdownTimer = useRef<any>(null)
 
@@ -106,7 +106,7 @@ function useIdlenessDetection(timeoutInSeconds=60) {
 
 
 function useCountUpTimer (incrementsInSeconds=[10, 30], switchIncrement=60) {
-    const { captureEvent } = useTracking("timerEvent")
+    const { captureEvent } = useTracking()
     const [seconds, setSeconds] = useState(0)
     const [timerIsActive, setTimerIsActive] = useState(true)
     const [smallIncrementInSeconds, largeIncrementInSeconds] = incrementsInSeconds

@@ -1,4 +1,6 @@
 import SimpleSchema from 'simpl-schema';
+import { Meteor } from 'meteor/meteor';
+import * as _ from 'underscore';
 
 // canAutofillDefault: Marks a field where, if its value is null, it should
 // be auto-replaced with defaultValue in migration scripts.
@@ -58,7 +60,7 @@ async function conflictingIndexExists(collection, index, options)
   return false;
 }
 
-export async function ensureIndex(collection, index, options={})
+export async function ensureIndex(collection, index, options:any={})
 {
   if (Meteor.isServer) {
     const buildIndex = async () => {
