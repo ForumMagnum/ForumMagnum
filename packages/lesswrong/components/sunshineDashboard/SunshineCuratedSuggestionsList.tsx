@@ -3,26 +3,19 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts';
 
-const styles = theme => ({
-  root: {
-    opacity:.2,
-    '&:hover': {
-      opacity: 1,
-    }
-  }
-})
-
-
-const SunshineCuratedSuggestionsList = ({ terms, classes }) => {
-  const { results } = useMulti({
+const SunshineCuratedSuggestionsList = ({ terms }) => {
+  const { results, loading } = useMulti({
     terms,
     collection: Posts,
     fragmentName: 'PostsList'
   });
+  
+  if (loading) return <Components.Loading/>;
+  
   const { SunshineListTitle, SunshineCuratedSuggestionsItem, LastCuratedDate } = Components
   if (results && results.length) {
     return (
-      <div className={classes.root}>
+      <div>
         <SunshineListTitle>
           Suggestions for Curated
           <LastCuratedDate terms={{view:'curated', limit:1}}/>
@@ -39,7 +32,7 @@ const SunshineCuratedSuggestionsList = ({ terms, classes }) => {
   }
 }
 
-const SunshineCuratedSuggestionsListComponent = registerComponent('SunshineCuratedSuggestionsList', SunshineCuratedSuggestionsList, {styles});
+const SunshineCuratedSuggestionsListComponent = registerComponent('SunshineCuratedSuggestionsList', SunshineCuratedSuggestionsList);
 
 declare global {
   interface ComponentTypes {

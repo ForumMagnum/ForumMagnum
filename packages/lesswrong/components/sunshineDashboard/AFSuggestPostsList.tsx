@@ -21,7 +21,7 @@ const AFSuggestPostsList = ({ terms, classes }) => {
     return (
       <div>
         <Components.SunshineListTitle>
-          <Components.OmegaIcon className={classes.icon}/> Suggested Posts
+          <div><Components.OmegaIcon className={classes.icon}/> Suggested Posts</div>
         </Components.SunshineListTitle>
         {results.map(post =>
           <div key={post._id} >

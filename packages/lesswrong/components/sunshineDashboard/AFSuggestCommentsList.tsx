@@ -22,7 +22,7 @@ const AFSuggestCommentsList = ({ terms, classes }) => {
     return (
       <div>
         <Components.SunshineListTitle>
-          <Components.OmegaIcon className={classes.icon}/> Suggested Comments
+          <div><Components.OmegaIcon className={classes.icon}/> Suggested Comments</div>
         </Components.SunshineListTitle>
         {results.map(comment =>
           <div key={comment._id} >

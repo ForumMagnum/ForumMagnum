@@ -414,7 +414,7 @@ const PostsItem2 = ({
 
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
-    BookmarkButton, EventVicinity, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker } = (Components as ComponentTypes)
+    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker } = (Components as ComponentTypes)
 
   const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -494,7 +494,7 @@ const PostsItem2 = ({
                 </PostsItem2MetaInfo>}
 
                 { post.isEvent && <PostsItem2MetaInfo className={classes.event}>
-                  <EventVicinity post={post} />
+                  <Components.EventVicinity post={post} />
                 </PostsItem2MetaInfo>}
 
                 {showPostedAt && !resumeReading && <PostsItemDate post={post} />}

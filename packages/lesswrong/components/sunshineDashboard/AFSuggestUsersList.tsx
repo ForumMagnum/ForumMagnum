@@ -20,7 +20,7 @@ const AFSuggestUsersList = ({ terms, classes }) => {
     return (
       <div>
         <C.SunshineListTitle>
-          <C.OmegaIcon className={classes.icon}/> Suggested Users
+          <div><C.OmegaIcon className={classes.icon}/> Suggested Users</div>
         </C.SunshineListTitle>
         {results.map(user =>
           <div key={user._id} >
