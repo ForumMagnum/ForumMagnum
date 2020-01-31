@@ -77,15 +77,6 @@ const styles = createStyles(theme => ({
       marginLeft: 0,
       marginRight: 0
     }
-  },
-  unread: {
-    backgroundColor: theme.palette.primary.light,
-    width:8,
-    height:8,
-    marginLeft: 3,
-    marginRight: 4,
-    borderRadius:"50%",
-    display:"inline-block"
   }
 }))
 
@@ -118,7 +109,7 @@ const RecentDiscussionThread = ({
     [setHighlightVisible, highlightVisible, markAsRead]
   );
   
-  const { ContentItemBody, LWTooltip, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle } = Components
+  const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle } = Components
 
   const lastCommentId = comments && comments[0]?._id
   const nestedComments = unflattenComments(comments);
@@ -134,14 +125,12 @@ const RecentDiscussionThread = ({
   const highlightClasses = classNames({
     [classes.noComments]: post.commentCount === null
   })
-
   return (
     <div className={classes.root}>
       <div>
         <div className={classes.postItem}>
           <PostsTitle wrap post={post} tooltip={false} />
           <div className={classes.threadMeta} onClick={showHighlight}>
-            {!readStatus && <LWTooltip title="Unread"><span className={classes.unread}/></LWTooltip> }
             <PostsItemMeta post={post}/>
             <ShowOrHideHighlightButton
               className={classes.showHighlight}
