@@ -8,6 +8,8 @@ import { Posts } from '../../lib/collections/posts';
 import Card from '@material-ui/core/Card';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper.jsx';
+import StarIcon from '@material-ui/icons/Star';
+import ModeCommentIcon from '@material-ui/icons/ModeComment';
 
 export const POST_PREVIEW_WIDTH = 400
 
@@ -31,17 +33,20 @@ const styles = createStyles(theme => ({
   },
   header: {
     display: "flex",
-    alignItems: "flex-start",
+    alignItems: "center",
     justifyContent: "space-between"
   },
   title: {
     marginBottom: -6,
   },
   tooltipInfo: {
+    marginLeft: 2,
     fontStyle: "italic",
     ...commentBodyStyles(theme),
     fontSize: "1.1rem",
-    color: theme.palette.grey[600]
+    color: theme.palette.grey[600],
+    display: "flex",
+    alignItems: "center"
   },
   highlight: {
     ...postHighlightStyles(theme),
@@ -73,7 +78,8 @@ const styles = createStyles(theme => ({
     marginBottom: -9
   },
   bookmark: {
-    marginTop: 3
+    marginTop: -4,
+    paddingRight: 4
   },
   continue: {
     marginTop: theme.spacing.unit,
@@ -83,6 +89,30 @@ const styles = createStyles(theme => ({
   },
   wordCount: {
     marginLeft: theme.spacing.unit
+  },
+  metadata: {
+    marginLeft: theme.spacing.unit,
+    paddingTop: 3,
+  },
+  smallText: {
+    fontSize: ".9rem",
+    color: theme.palette.grey[500],
+    position: "relative",
+    top: -3
+  },
+  karmaIcon: {
+    marginRight: -2,
+    marginTop: 2,
+    height: 15,
+    color: "rgba(0,0,0,.19)"
+  },
+  commentIcon: {
+    marginLeft: 6,
+    marginTop: 2,
+    // position: "relative",
+    marginRight: -1,
+    height: 13,
+    color: "rgba(0,0,0,.19)"
   }
 }))
 
@@ -104,7 +134,7 @@ const getPostCategory = (post) => {
 }
 
 const PostsPreviewTooltip = ({ postsList, post, classes, comment }) => {
-  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton } = Components
+  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, LWTooltip } = Components
 
   const [expanded, setExpanded] = useState(false)
 
@@ -126,7 +156,23 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }) => {
                 {getPostCategory(post)}
                 {renderWordCount && <span className={classes.wordCount}>({wordCount} words)</span>}
               </span>}
-              { !postsList && post.user && <span>By <PostsUserAndCoauthors post={post} simple/></span>}
+              { !postsList && post.user && <>
+                <LWTooltip title="Author"><PostsUserAndCoauthors post={post} simple/></LWTooltip>
+                <div className={classes.metadata}>
+                  <LWTooltip title={`${Posts.getKarma(post)} karma`}>
+                    <span>
+                      <StarIcon className={classes.karmaIcon}/> 
+                      <span className={classes.smallText}>{Posts.getKarma(post)}</span>
+                    </span>
+                  </LWTooltip>
+                  <LWTooltip title={`${Posts.getCommentCountStr(post)}`}>
+                    <span>
+                      <ModeCommentIcon className={classes.commentIcon}/>  
+                      <span className={classes.smallText}>{Posts.getCommentCount(post)}</span>
+                    </span>
+                  </LWTooltip>
+                </div>
+              </>}
             </div>
           </div>
           { !postsList && <div className={classes.bookmark}>
