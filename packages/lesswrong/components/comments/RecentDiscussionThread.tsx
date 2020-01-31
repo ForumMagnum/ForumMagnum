@@ -109,7 +109,7 @@ const RecentDiscussionThread = ({
     [setHighlightVisible, highlightVisible, markAsRead]
   );
   
-  const { ContentItemBody, LWTooltip, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle } = Components
+  const { ContentItemBody, PostsItemMeta, ShowOrHideHighlightButton, CommentsNode, PostsHighlight, PostsTitle } = Components
 
   const lastCommentId = comments && comments[0]?._id
   const nestedComments = unflattenComments(comments);
@@ -125,7 +125,6 @@ const RecentDiscussionThread = ({
   const highlightClasses = classNames({
     [classes.noComments]: post.commentCount === null
   })
-  console.log(readStatus)
   return (
     <div className={classes.root}>
       <div>
