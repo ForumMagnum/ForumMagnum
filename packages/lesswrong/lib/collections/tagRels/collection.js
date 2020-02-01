@@ -1,5 +1,5 @@
-import { getDefaultResolvers, getDefaultMutations, createCollection } from 'meteor/vulcan:core';
-import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
+import { createCollection } from 'meteor/vulcan:core';
+import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
 import { foreignKeyField } from '../../utils/schemaUtils'
 import { makeVoteable } from '../../make_voteable';
 import Users from 'meteor/vulcan:users';

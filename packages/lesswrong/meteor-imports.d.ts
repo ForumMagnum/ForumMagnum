@@ -54,18 +54,11 @@ declare module 'meteor/vulcan:core' {
   export const removeMutation: any;
   export const addGraphQLMutation: any;
   export const addGraphQLResolvers: any;
-  export const LocationContext: any;
-  export const SubscribeLocationContext: any;
   export const runQuery: any;
-  export const MessageContext: any;
   export const Head: any;
-  export const NavigationContext: any;
-  export const ServerRequestStatusContext: any;
   export const Vulcan: any;
   export const createClientTemplate: any;
   export const deleteClientTemplate: any;
-  export const parsePath: any;
-  export const parseRoute: any;
   export const getAdminColumns: any;
   export const addAdminColumn: any;
   export const Connectors: any;

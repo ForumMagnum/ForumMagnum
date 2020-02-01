@@ -1,5 +1,6 @@
 import React from 'react';
-import { Components, registerComponent, parseRoute, parsePath, Utils } from 'meteor/vulcan:core';
+import { Components, registerComponent, Utils } from 'meteor/vulcan:core';
+import { parseRoute, parsePath } from '../../lib/vulcan-core/appContext';
 import { hostIsOnsite, useLocation, getUrlClass } from '../../lib/routeUtil';
 import Sentry from '@sentry/node';
 import { AnalyticsContext } from "../../lib/analyticsEvents";

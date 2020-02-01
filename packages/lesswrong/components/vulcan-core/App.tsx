@@ -1,8 +1,6 @@
-import {
-  Components, registerComponent, getSetting, Strings, runCallbacks, detectLocale,
-  MessageContext,
-  LocationContext, SubscribeLocationContext, NavigationContext, ServerRequestStatusContext, parseRoute,
-} from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting, Strings, runCallbacks, detectLocale } from 'meteor/vulcan:core';
+import { LocationContext, SubscribeLocationContext, NavigationContext, ServerRequestStatusContext, parseRoute } from '../../lib/vulcan-core/appContext';
+import { MessageContext } from '../common/withMessages';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { PureComponent } from 'react';
 import { withCurrentUser } from '../../lib/crud/withCurrentUser';

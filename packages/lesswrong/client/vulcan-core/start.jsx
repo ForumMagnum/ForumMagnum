@@ -1,13 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { onPageLoad } from 'meteor/server-render';
-import AppGenerator from './components/AppGenerator';
+import AppGenerator from './AppGenerator';
 
-import {
-  createApolloClient,
-  populateComponentsApp,
-  runCallbacks
-} from 'meteor/vulcan:lib';
+import { createApolloClient, populateComponentsApp, runCallbacks } from 'meteor/vulcan:lib';
 
 Meteor.startup(() => {
   // init the application components and routes, including components & routes from 3rd-party packages

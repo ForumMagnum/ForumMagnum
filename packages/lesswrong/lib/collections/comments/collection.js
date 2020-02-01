@@ -1,8 +1,8 @@
 import schema from './schema';
-import { createCollection, getDefaultResolvers, getDefaultMutations } from 'meteor/vulcan:core';
+import { createCollection } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { Posts } from '../posts';
-import { addUniversalFields } from '../../collectionUtils'
+import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
 
 export const commentMutationOptions = {
   newCheck: (user, document) => {

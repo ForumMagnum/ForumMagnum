@@ -1,6 +1,6 @@
 import schema from './schema';
-import { getDefaultResolvers, createCollection } from 'meteor/vulcan:core';
-import { addUniversalFields } from '../../collectionUtils'
+import { createCollection } from 'meteor/vulcan:core';
+import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 
 export const PostRelations = createCollection({
   collectionName: 'PostRelations',

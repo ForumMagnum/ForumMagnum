@@ -1,9 +1,9 @@
-import { createCollection, getDefaultResolvers, getDefaultMutations } from 'meteor/vulcan:core';
+import { createCollection } from 'meteor/vulcan:core';
 import schema from './schema';
 import Users from 'meteor/vulcan:users';
 import Sequences from '../sequences/collection';
 import { makeEditable } from '../../editor/make_editable';
-import { addUniversalFields } from '../../collectionUtils'
+import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
 
 const options = {
   newCheck: (user, document) => {

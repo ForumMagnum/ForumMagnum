@@ -1,3 +1,1 @@
-import './start.js';
-
-export * from '../modules/index.js';
+export * from 'meteor/vulcan:lib';

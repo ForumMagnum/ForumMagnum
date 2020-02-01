@@ -20,7 +20,7 @@ import {
   getLoginServices,
   hasPasswordService,
   capitalize
-} from '../../helpers.js';
+} from '../../lib/vulcan-accounts/helpers';
 
 export class AccountsLoginFormInner extends TrackerComponent {
   constructor(props) {

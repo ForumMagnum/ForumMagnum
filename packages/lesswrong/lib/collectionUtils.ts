@@ -1,6 +1,8 @@
 import SimpleSchema from 'simpl-schema';
 import { Meteor } from 'meteor/meteor';
 import * as _ from 'underscore';
+export { getDefaultMutations } from './vulcan-core/default_mutations';
+export { getDefaultResolvers } from './vulcan-core/default_resolvers';
 
 // canAutofillDefault: Marks a field where, if its value is null, it should
 // be auto-replaced with defaultValue in migration scripts.
