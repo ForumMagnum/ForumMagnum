@@ -7,6 +7,7 @@ import Localgroups from '../../lib/collections/localgroups/collection';
 import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import { makeEditableOptions, makeEditableOptionsModeration } from '../../lib/collections/posts/custom_fields'
 import { PostRelations } from '../../lib/collections/postRelations/index';
+import { getDefaultPostLocationFields } from '../posts/utils'
 const MINIMUM_APPROVAL_KARMA = 5
 
 function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
@@ -65,11 +66,7 @@ addCallback("votes.smallUpvote.async", increaseMaxBaseScore);
 addCallback("votes.bigUpvote.async", increaseMaxBaseScore);
 
 function PostsNewDefaultLocation (post) {
-  if (post.isEvent && post.groupId && !post.location) {
-    const { location, googleLocation, mongoLocation } = Localgroups.findOne(post.groupId)
-    post = {...post, location, googleLocation, mongoLocation}
-  }
-  return post
+  return {...post, ...getDefaultPostLocationFields(post)}
 }
 
 addCallback("posts.new.sync", PostsNewDefaultLocation);
