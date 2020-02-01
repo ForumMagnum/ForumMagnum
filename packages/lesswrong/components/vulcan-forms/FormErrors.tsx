@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 
 const styles = theme => ({
@@ -24,7 +23,13 @@ const FormErrors = ({ classes, errors }) => (
     )}
   </div>
 );
-registerComponent('FormErrors', FormErrors, withStyles(styles, {name:"FormErrors"}));
+const FormErrorsComponent = registerComponent('FormErrors', FormErrors, {styles});
+
+declare global {
+  interface ComponentTypes {
+    FormErrors: typeof FormErrorsComponent
+  }
+}
 
 // /*
 

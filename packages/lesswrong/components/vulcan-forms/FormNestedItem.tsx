@@ -20,10 +20,7 @@ FormNestedItemLayout.propTypes = {
   content: PropTypes.node.isRequired,
   removeButton: PropTypes.node
 };
-registerComponent({
-  name: 'FormNestedItemLayout',
-  component: FormNestedItemLayout
-});
+const FormNestedItemLayoutComponent = registerComponent('FormNestedItemLayout', FormNestedItemLayout);
 
 const FormNestedItem = (
   { nestedFields, name, path, removeItem, itemIndex, formComponents, hideRemove, ...props },
@@ -81,4 +78,11 @@ FormNestedItem.contextTypes = {
   errors: PropTypes.array
 };
 
-registerComponent('FormNestedItem', FormNestedItem);
+const FormNestedItemComponent = registerComponent('FormNestedItem', FormNestedItem);
+
+declare global {
+  interface ComponentTypes {
+    FormNestedItemLayout: typeof FormNestedItemLayoutComponent
+    FormNestedItem: typeof FormNestedItemComponent
+  }
+}

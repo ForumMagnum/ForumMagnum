@@ -1,7 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 
 const styles = theme => ({
@@ -19,7 +17,11 @@ const FieldErrors = ({ classes, errors }) => (
     ))}
   </ul>
 );
-FieldErrors.propTypes = {
-  errors: PropTypes.array.isRequired
-};
-registerComponent('FieldErrors', FieldErrors, withStyles(styles, {name:"FieldErrors"}));
+
+const FieldErrorsComponent = registerComponent('FieldErrors', FieldErrors, {styles});
+
+declare global {
+  interface ComponentTypes {
+    FieldErrors: typeof FieldErrorsComponent
+  }
+}

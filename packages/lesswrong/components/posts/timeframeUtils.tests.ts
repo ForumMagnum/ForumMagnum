@@ -32,26 +32,26 @@ describe('getDateRange', () => {
   })
 
   it('handles reversed start and end dates', () => {
-    (
+    ((
       () => getDateRange('2019-01-03', '2019-01-01', 'day')
-    ).should.throw(Error, /got after .* after the before/)
+    ) as any).should.throw(Error, /got after .* after the before/)
   })
 
   it('handles malformed dates', () => {
-    (
+    ((
       () => getDateRange('01/01/2019', '2019-01-03', 'day')
-    ).should.throw(Error, /Invalid after/)
+    ) as any).should.throw(Error, /Invalid after/)
   })
 
   it('handles malformed timeBlock', () => {
-    (
+    ((
       () => getDateRange('2019-01-01', '2019-01-03', 'asdf')
-    ).should.throw(Error, /Invalid timeBlock/)
+    ) as any).should.throw(Error, /Invalid timeBlock/)
   })
 
   it('handles null timeBlock', () => {
-    (
+    ((
       () => getDateRange('2019-01-01', '2019-01-03', null)
-    ).should.throw(Error, /Invalid timeBlock/)
+    ) as any).should.throw(Error, /Invalid timeBlock/)
   })
 })

@@ -9,4 +9,10 @@ FormNestedDivider.propTypes = {
   addItem: PropTypes.func,
 };
 
-registerComponent('FormNestedDivider', FormNestedDivider);
+const FormNestedDividerComponent = registerComponent('FormNestedDivider', FormNestedDivider);
+
+declare global {
+  interface ComponentTypes {
+    FormNestedDivider: typeof FormNestedDividerComponent
+  }
+}

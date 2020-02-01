@@ -22,7 +22,7 @@ EditButton.contextTypes = {
 
 EditButton.displayName = 'EditButton';
 
-registerComponent('EditButton', EditButton);
+const EditButtonComponent = registerComponent('EditButton', EditButton);
 
 /*
 
@@ -49,4 +49,11 @@ const EditForm = ({ closeModal, successCallback, removeSuccessCallback, formProp
     <Components.SmartForm successCallback={success} removeSuccessCallback={remove} {...formProps} {...props} />
   );
 };
-registerComponent('EditForm', EditForm);
+const EditFormComponent = registerComponent('EditForm', EditForm);
+
+declare global {
+  interface ComponentTypes {
+    EditButton: typeof EditButtonComponent
+    EditForm: typeof EditFormComponent
+  }
+}

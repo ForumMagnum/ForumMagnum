@@ -9,7 +9,6 @@ export const usePostBySlug = ({ slug }) => {
     },
     
     collection: Posts,
-    queryName: 'PostsPageSlugQuery',
     fragmentName: 'PostsPage',
     limit: 1,
     enableTotal: false,
@@ -38,7 +37,6 @@ export const usePostByLegacyId = ({ legacyId }) => {
     },
     
     collection: Posts,
-    queryName: 'PostsPageSlugQuery',
     fragmentName: 'PostsPage',
     limit: 1,
     enableTotal: false,

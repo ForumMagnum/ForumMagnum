@@ -72,4 +72,8 @@ declare module 'meteor/vulcan:core' {
   export const addStrings: any,
   export const addRoute: any,
   export const addGraphQLSchema: any,
+  export const Strings: any,
+  export const detectLocale: any,
+  export const getErrors: any,
+  export const mergeWithComponents: any,
 }

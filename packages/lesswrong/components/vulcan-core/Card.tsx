@@ -47,7 +47,7 @@ const LimitedString = ({ string }) =>
     }
   </div>;
 
-export const getFieldValue = (value, typeName) => {
+export const getFieldValue = (value?: any, typeName?: any) => {
 
   if (typeof value === 'undefined' || value === null) {
     return '';
@@ -132,7 +132,7 @@ const CardItem = ({ label, value, typeName }) =>
 
 const CardEdit = (props, context) =>
   <tr>
-    <td colSpan="2">
+    <td colSpan={2}>
       <Components.ModalTrigger label={context.intl.formatMessage({ id: 'cards.edit' })} component={<Components.Button variant="info"><FormattedMessage id="cards.edit" /></Components.Button>}>
         <CardEditForm {...props} />
       </Components.ModalTrigger>
@@ -186,4 +186,10 @@ Card.contextTypes = {
   intl: intlShape
 };
 
-registerComponent('Card', Card);
+const CardComponent = registerComponent('Card', Card);
+
+declare global {
+  interface ComponentTypes {
+    Card: typeof CardComponent
+  }
+}

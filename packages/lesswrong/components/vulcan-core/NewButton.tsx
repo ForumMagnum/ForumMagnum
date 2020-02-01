@@ -21,7 +21,7 @@ NewButton.contextTypes = {
 
 NewButton.displayName = 'NewButton';
 
-registerComponent('NewButton', NewButton);
+const NewButtonComponent = registerComponent('NewButton', NewButton);
 
 /*
 
@@ -39,5 +39,12 @@ const NewForm = ({ closeModal, successCallback, formProps, ...props }) => {
 
   return <Components.SmartForm successCallback={success} {...formProps} {...props} />;
 };
-registerComponent('NewForm', NewForm);
+const NewFormComponent = registerComponent('NewForm', NewForm);
+
+declare global {
+  interface ComponentTypes {
+    NewButton: typeof NewButtonComponent
+    NewForm: typeof NewFormComponent
+  }
+}
 

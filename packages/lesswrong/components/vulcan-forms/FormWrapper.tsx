@@ -48,15 +48,18 @@ import {
 
 import withCollectionProps from './withCollectionProps';
 import { callbackProps } from './propTypes';
+import * as _ from 'underscore';
 
 const intlSuffix = '_intl';
 
-class FormWrapper extends PureComponent {
+class FormWrapper extends PureComponent<any> {
+  FormComponent: any
+  
   constructor(props) {
     super(props);
     // instantiate the wrapped component in constructor, not in render
     // see https://reactjs.org/docs/higher-order-components.html#dont-use-hocs-inside-the-render-method
-    this.FormComponent = this.getComponent(props);
+    this.FormComponent = this.getComponent();
   }
   // return the current schema based on either the schema or collection prop
   getSchema() {
@@ -196,7 +199,7 @@ class FormWrapper extends PureComponent {
     };
 
     // options for withSingle HoC
-    const queryOptions = {
+    const queryOptions: any = {
       queryName: `${prefix}FormQuery`,
       collection: this.props.collection,
       fragment: queryFragment,
@@ -257,7 +260,7 @@ class FormWrapper extends PureComponent {
             props: returnedProps => {
               const { /* ownProps, */ data } = returnedProps;
               const props = {
-                loading: data.loading,
+                loading: data!.loading,
                 data
               };
               return props;
@@ -284,7 +287,7 @@ class FormWrapper extends PureComponent {
   }
 }
 
-FormWrapper.propTypes = {
+(FormWrapper as any).propTypes = {
   // main options
   collection: PropTypes.object.isRequired,
   collectionName: PropTypes.string.isRequired,
@@ -321,17 +324,21 @@ FormWrapper.propTypes = {
   client: PropTypes.object
 };
 
-FormWrapper.defaultProps = {
+(FormWrapper as any).defaultProps = {
   layout: 'horizontal'
 };
 
-FormWrapper.contextTypes = {
+(FormWrapper as any).contextTypes = {
   closeCallback: PropTypes.func,
   intl: intlShape
 };
 
-registerComponent({
-  name: 'SmartForm',
-  component: FormWrapper,
+const SmartFormComponent = registerComponent('SmartForm', FormWrapper, {
   hocs: [withUser, withApollo, withRouter, withCollectionProps]
 });
+
+declare global {
+  interface ComponentTypes {
+    SmartForm: typeof SmartFormComponent
+  }
+}

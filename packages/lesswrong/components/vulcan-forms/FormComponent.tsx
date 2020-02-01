@@ -7,7 +7,7 @@ import SimpleSchema from 'simpl-schema';
 import { isEmptyValue, getNullValue } from '../../lib/vulcan-forms/utils';
 import Tooltip from '@material-ui/core/Tooltip';
 
-class FormComponent extends Component {
+class FormComponent extends Component<any,any> {
   constructor(props) {
     super(props);
 
@@ -58,7 +58,7 @@ class FormComponent extends Component {
   If this is an intl input, get _intl field instead
 
   */
-  getPath = props => {
+  getPath = (props?: any) => {
     const p = props || this.props;
     return p.path;
   };
@@ -130,7 +130,7 @@ class FormComponent extends Component {
   Get value from Form state through document and currentValues props
 
   */
-  getValue = (props, context) => {
+  getValue = (props?: any, context?: any) => {
     const p = props || this.props;
     const c = context || this.context;
     const { locale, defaultValue, deletedValues, formType, datatype } = p;
@@ -155,7 +155,7 @@ class FormComponent extends Component {
   Whether to keep track of and show remaining chars
 
   */
-  showCharsRemaining = props => {
+  showCharsRemaining = (props?: any) => {
     const p = props || this.props;
     return (
       p.max && ['url', 'email', 'textarea', 'text'].includes(this.getInputType(p))
@@ -169,7 +169,7 @@ class FormComponent extends Component {
   Note: we use `includes` to get all errors from nested components, which have longer paths
 
   */
-  getErrors = errors => {
+  getErrors = (errors?: any) => {
     errors = errors || this.props.errors;
     const fieldErrors = errors.filter(
       error => error.path && error.path.includes(this.props.path)
@@ -179,20 +179,10 @@ class FormComponent extends Component {
 
   /*
 
-  Get field field value type
-
-  */
-  getFieldType = props => {
-    const p = props || this.props;
-    return p.datatype && p.datatype[0].type;
-  }
-
-  /*
-
   Get form input type, either based on input props, or by guessing based on form field type
 
   */
-  getInputType = props => {
+  getInputType = (props?: any) => {
     const p = props || this.props;
     const fieldType = this.getFieldType();
     const autoType =
@@ -283,6 +273,11 @@ class FormComponent extends Component {
     }
   };
 
+  /*
+
+  Get field field value type
+
+  */
   getFieldType = () => {
     return this.props.datatype[0].type;
   };
@@ -343,7 +338,7 @@ class FormComponent extends Component {
   }
 }
 
-FormComponent.propTypes = {
+(FormComponent as any).propTypes = {
   document: PropTypes.object,
   name: PropTypes.string.isRequired,
   label: PropTypes.string,
@@ -367,10 +362,16 @@ FormComponent.propTypes = {
   tooltip: PropTypes.string,
 };
 
-FormComponent.contextTypes = {
+(FormComponent as any).contextTypes = {
   getDocument: PropTypes.func.isRequired
 };
 
 module.exports = FormComponent;
 
-registerComponent('FormComponent', FormComponent);
+const FormComponentComponent = registerComponent('FormComponent', FormComponent);
+
+declare global {
+  interface ComponentTypes {
+    FormComponent: typeof FormComponentComponent
+  }
+}

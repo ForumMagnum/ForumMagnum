@@ -12,7 +12,11 @@ import { withApollo } from 'react-apollo';
 import moment from 'moment';
 import { withRouter } from 'react-router';
 
-class App extends PureComponent {
+class App extends PureComponent<any,any> {
+  locationContext: any
+  subscribeLocationContext: any
+  navigationContext: any
+  
   constructor(props) {
     super(props);
     if (props.currentUser) {
@@ -25,10 +29,6 @@ class App extends PureComponent {
       messages: [],
     };
     moment.locale(locale);
-  }
-
-  componentWillUnmount() {
-      this.unlisten();
   }
 
   /*
@@ -93,7 +93,7 @@ class App extends PureComponent {
     }
   };
 
-  getLocale = truncate => {
+  getLocale = (truncate?: boolean) => {
     return truncate ? this.state.locale.slice(0, 2) : this.state.locale;
   };
 
@@ -171,16 +171,14 @@ class App extends PureComponent {
   }
 }
 
-App.propTypes = {
+(App as any).propTypes = {
   currentUserLoading: PropTypes.bool,
 };
 
-App.childContextTypes = {
+(App as any).childContextTypes = {
   intl: intlShape,
   getLocale: PropTypes.func,
 };
-
-App.displayName = 'App';
 
 const updateOptions = {
   collectionName: 'Users',
@@ -189,6 +187,18 @@ const updateOptions = {
 
 //registerComponent('App', App, withCurrentUser, [withUpdate, updateOptions], withApollo, withCookies, withRouter);
 // TODO LESSWRONG-Temporarily omit withCookies until it's debugged
-registerComponent('App', App, withCurrentUser, [withUpdate, updateOptions], withApollo, withRouter);
+const AppComponent = registerComponent('App', App, {
+  hocs: [
+    withCurrentUser,
+    withUpdate(updateOptions),
+    withApollo, withRouter
+  ]
+});
+
+declare global {
+  interface ComponentTypes {
+    App: typeof AppComponent
+  }
+}
 
 export default App;

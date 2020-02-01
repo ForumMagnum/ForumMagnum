@@ -140,7 +140,7 @@ const RecentDiscussionThread = ({
     <div className={classes.root}>
       <div>
         <div className={classes.postItem}>
-          <PostsTitle wrap post={post} tooltip={false} />
+          <PostsTitle wrap post={post}/>
           <div className={classes.threadMeta} onClick={showHighlight}>
             <PostsItemMeta post={post}/>
             <ShowOrHideHighlightButton

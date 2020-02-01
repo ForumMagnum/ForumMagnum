@@ -4,6 +4,7 @@ import { Components, Utils, registerComponent, mergeWithComponents } from 'meteo
 import { withStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
+import * as _ from 'underscore';
 
 const headerStyles = theme => ({
   formSectionHeading: {
@@ -34,8 +35,9 @@ FormGroupHeader.propTypes = {
   label: PropTypes.string.isRequired,
   collapsed: PropTypes.bool
 };
-registerComponent({ name: 'FormGroupHeader', component: FormGroupHeader,
-  hocs: [withStyles(headerStyles, {name: "FormGroupHeader"})]});
+const FormGroupHeaderComponent = registerComponent('FormGroupHeader', FormGroupHeader, {
+  styles: headerStyles
+});
 
 const groupLayoutStyles = theme => ({
   formSection: {
@@ -90,10 +92,9 @@ FormGroupLayout.propTypes = {
   heading: PropTypes.node,
   children: PropTypes.node
 };
-registerComponent({ name: 'FormGroupLayout', component: FormGroupLayout,
-  hocs: [withStyles(groupLayoutStyles, {name: "FormGroupLayout"})]});
+const FormGroupLayoutComponent = registerComponent('FormGroupLayout', FormGroupLayout, {styles: groupLayoutStyles});
 
-class FormGroup extends PureComponent {
+class FormGroup extends PureComponent<any,any> {
   constructor(props) {
     super(props);
     this.toggle = this.toggle.bind(this);
@@ -172,7 +173,7 @@ class FormGroup extends PureComponent {
   }
 }
 
-FormGroup.propTypes = {
+(FormGroup as any).propTypes = {
   name: PropTypes.string,
   label: PropTypes.string,
   order: PropTypes.number,
@@ -190,7 +191,7 @@ FormGroup.propTypes = {
 
 module.exports = FormGroup;
 
-registerComponent('FormGroup', FormGroup);
+const FormGroupComponent = registerComponent('FormGroup', FormGroup);
 
 const IconRight = ({ width = 24, height = 24 }) => (
   <svg
@@ -212,7 +213,7 @@ const IconRight = ({ width = 24, height = 24 }) => (
   </svg>
 );
 
-registerComponent('IconRight', IconRight);
+const IconRightComponent = registerComponent('IconRight', IconRight);
 
 const IconDown = ({ width = 24, height = 24 }) => (
   <svg
@@ -234,4 +235,14 @@ const IconDown = ({ width = 24, height = 24 }) => (
   </svg>
 );
 
-registerComponent('IconDown', IconDown);
+const IconDownComponent = registerComponent('IconDown', IconDown);
+
+declare global {
+  interface ComponentTypes {
+    FormGroupHeader: typeof FormGroupHeaderComponent
+    FormGroupLayout: typeof FormGroupLayoutComponent
+    FormGroup: typeof FormGroupComponent
+    IconRight: typeof IconRightComponent
+    IconDown: typeof IconDownComponent
+  }
+}

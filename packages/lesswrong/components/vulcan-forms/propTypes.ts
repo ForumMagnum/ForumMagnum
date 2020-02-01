@@ -16,7 +16,7 @@ export const fieldProps = {
   // e.g phoneNumbers.0.value
   path: PropTypes.string,
   // permissions
-  disabled: PropTypes.boolean,
+  disabled: PropTypes.bool,
   // if it has an array field
   // e.g addresses.$ : { type: .... }
   arrayFieldSchema: PropTypes.object,
@@ -24,7 +24,7 @@ export const fieldProps = {
   // if it is a nested object itself
   // eg address : { type : { ... }}
   nestedSchema: PropTypes.object,
-  nestedInput: PropTypes.boolean, // flag
+  nestedInput: PropTypes.bool, // flag
   nestedFields: PropTypes.array //arrayOf(fieldProps)
 };
 

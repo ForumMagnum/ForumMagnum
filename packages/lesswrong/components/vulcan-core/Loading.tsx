@@ -11,8 +11,12 @@ const Loading = props => {
   );
 };
 
-Loading.displayName = 'Loading';
+const LoadingComponent = registerComponent('Loading', Loading);
 
-registerComponent('Loading', Loading);
+declare global {
+  interface ComponentTypes {
+    Loading: typeof LoadingComponent
+  }
+}
 
 export default Loading;

@@ -15,7 +15,7 @@ Datatable Component
 
 // see: http://stackoverflow.com/questions/1909441/jquery-keyup-delay
 const delay = (function(){
-  var timer = 0;
+  var timer: any = 0;
   return function(callback, ms){
     clearTimeout (timer);
     timer = setTimeout(callback, ms);
@@ -28,10 +28,10 @@ const getColumnName = column => (
   : column.label || column.name
 );
 
-class Datatable extends PureComponent {
+class Datatable extends PureComponent<any,any> {
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.updateQuery = this.updateQuery.bind(this);
     this.state = {
       value: '',
@@ -97,7 +97,7 @@ class Datatable extends PureComponent {
   }
 }
 
-Datatable.propTypes = {
+(Datatable as any).propTypes = {
   title: PropTypes.string,
   collection: PropTypes.object,
   columns: PropTypes.array,
@@ -111,12 +111,15 @@ Datatable.propTypes = {
   emptyState: PropTypes.object,
 };
 
-Datatable.defaultProps = {
+(Datatable as any).defaultProps = {
   showNew: true,
   showEdit: true,
   showSearch: true,
 };
-registerComponent({ name: 'Datatable', component: Datatable, hocs: [withUser] });
+const DatatableComponent = registerComponent('Datatable', Datatable, {
+  hocs: [withUser]
+});
+
 export default Datatable;
 
 const DatatableLayout = ({ collectionName, children }) => (
@@ -437,7 +440,7 @@ registerComponent('DatatableCell', DatatableCell);
 const DatatableCellLayout = ({ children, ...otherProps }) => (
   <td {...otherProps}>{children}</td>
 );
-registerComponent({ name: 'DatatableCellLayout', component: DatatableCellLayout });
+registerComponent('DatatableCellLayout', DatatableCellLayout);
 
 /*
 
@@ -448,3 +451,10 @@ const DatatableDefaultCell = ({ column, document }) =>
   <div>{typeof column === 'string' ? getFieldValue(document[column]) : getFieldValue(document[column.name])}</div>;
 
 registerComponent('DatatableDefaultCell', DatatableDefaultCell);
+
+
+declare global {
+  interface ComponentTypes {
+    Datatable: typeof DatatableComponent
+  }
+}

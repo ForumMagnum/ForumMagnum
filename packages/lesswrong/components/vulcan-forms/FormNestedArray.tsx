@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent } from 'meteor/vulcan:core';
+import * as _ from 'underscore';
 
 // Replaceable layout
 const FormNestedArrayLayout = ({ hasErrors, label, content }) => (
@@ -16,12 +17,9 @@ FormNestedArrayLayout.propTypes = {
   label: PropTypes.node,
   content: PropTypes.node
 };
-registerComponent({
-  name: 'FormNestedArrayLayout',
-  component: FormNestedArrayLayout
-});
+const FormNestedArrayLayoutComponent = registerComponent('FormNestedArrayLayout', FormNestedArrayLayout);
 
-class FormNestedArray extends PureComponent {
+class FormNestedArray extends PureComponent<any,any> {
   getCurrentValue() {
     return this.props.value || [];
   }
@@ -116,7 +114,7 @@ class FormNestedArray extends PureComponent {
   }
 }
 
-FormNestedArray.propTypes = {
+(FormNestedArray as any).propTypes = {
   currentValues: PropTypes.object,
   path: PropTypes.string,
   label: PropTypes.string,
@@ -135,7 +133,7 @@ FormNestedArray.propTypes = {
 
 module.exports = FormNestedArray;
 
-registerComponent('FormNestedArray', FormNestedArray);
+const FormNestedArrayComponent = registerComponent('FormNestedArray', FormNestedArray);
 
 const IconAdd = ({ width = 24, height = 24 }) => (
   <svg
@@ -148,7 +146,7 @@ const IconAdd = ({ width = 24, height = 24 }) => (
   </svg>
 );
 
-registerComponent('IconAdd', IconAdd);
+const IconAddComponent = registerComponent('IconAdd', IconAdd);
 
 const IconRemove = ({ width = 24, height = 24 }) => (
   <svg
@@ -161,4 +159,13 @@ const IconRemove = ({ width = 24, height = 24 }) => (
   </svg>
 );
 
-registerComponent('IconRemove', IconRemove);
+const IconRemoveComponent = registerComponent('IconRemove', IconRemove);
+
+declare global {
+  interface ComponentTypes {
+    FormNestedArrayLayout: typeof FormNestedArrayLayoutComponent
+    FormNestedArray: typeof FormNestedArrayComponent
+    IconAdd: typeof IconAddComponent
+    IconRemove: typeof IconRemoveComponent
+  }
+}

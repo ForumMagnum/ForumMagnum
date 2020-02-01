@@ -4,7 +4,11 @@ import getContext from 'recompose/getContext';
 import { registerComponent } from 'meteor/vulcan:core';
 import { FormattedMessage } from 'meteor/vulcan:i18n';
 
-const FormError = ({ error, errorContext, getLabel }) => {
+const FormError = ({ error, errorContext, getLabel }: {
+  error: any,
+  errorContext: any,
+  getLabel?: any,
+}) => {
   if (error.message) {
     return error.message;
   }
@@ -24,12 +28,23 @@ const FormError = ({ error, errorContext, getLabel }) => {
   )
 ;};
 
-FormError.defaultProps = {
+(FormError as any).defaultProps = {
   errorContext: '', // default context so format message does not complain
   getLabel: name => name,
 };
 
 // TODO: pass getLabel as prop instead for consistency?
-registerComponent('FormError', FormError, getContext({
-  getLabel: PropTypes.func,
-}));
+const FormErrorComponent = registerComponent('FormError', FormError, {
+  hocs: [
+    getContext({
+      getLabel: PropTypes.func,
+    })
+  ]
+});
+
+
+declare global {
+  interface ComponentTypes {
+    FormError: typeof FormErrorComponent
+  }
+}

@@ -11,4 +11,10 @@ FormNestedHead.propTypes = {
   addItem: PropTypes.func,
 };
 
-registerComponent('FormNestedHead', FormNestedHead);
+const FormNestedHeadComponent = registerComponent('FormNestedHead', FormNestedHead);
+
+declare global {
+  interface ComponentTypes {
+    FormNestedHead: typeof FormNestedHeadComponent
+  }
+}

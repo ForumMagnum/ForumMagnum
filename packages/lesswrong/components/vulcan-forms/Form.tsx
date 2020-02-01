@@ -57,6 +57,7 @@ import { isEmptyValue } from '../../lib/vulcan-forms/utils';
 import { getParentPath } from '../../lib/vulcan-forms/path_utils';
 import withCollectionProps from './withCollectionProps';
 import { callbackProps } from './propTypes';
+import * as _ from 'underscore';
 
 
 // props that should trigger a form reset
@@ -88,7 +89,7 @@ const getInitialStateFromProps = nextProps => {
   const schema = nextProps.schema
     ? new SimpleSchema(nextProps.schema)
     : collection.simpleSchema();
-  const convertedSchema = convertSchema(schema);
+  const convertedSchema = convertSchema(schema)!;
   const formType = nextProps.document ? 'edit' : 'new';
   // for new document forms, add default values to initial document
   const defaultValues =
@@ -140,7 +141,7 @@ const getInitialStateFromProps = nextProps => {
 
 */
 
-class SmartForm extends Component {
+class SmartForm extends Component<any,any> {
   constructor(props) {
     super(props);
 
@@ -149,11 +150,14 @@ class SmartForm extends Component {
     };
   }
 
-  defaultValues = {};
+  form: any
+  unblock: any
+  
+  defaultValues: any = {};
 
-  submitFormCallbacks = [];
-  successFormCallbacks = [];
-  failureFormCallbacks = [];
+  submitFormCallbacks: Array<any> = [];
+  successFormCallbacks: Array<any> = [];
+  failureFormCallbacks: Array<any> = [];
 
   // --------------------------------------------------------------------- //
   // ------------------------------- Helpers ----------------------------- //
@@ -313,7 +317,7 @@ class SmartForm extends Component {
   Note: when submitting the form (getData()), do not include any extra fields.
 
   */
-  getFieldNames = (args) => {
+  getFieldNames = (args?: any) => {
     // we do this to avoid having default values in arrow functions, which breaks MS Edge support. See https://github.com/meteor/meteor/issues/10171
     let args0 = args || {};
     const {
@@ -412,7 +416,7 @@ class SmartForm extends Component {
     }
     return field;
   };
-  handleFieldPath = (field, fieldName, parentPath) => {
+  handleFieldPath = (field, fieldName, parentPath?: any) => {
     const fieldPath = parentPath ? `${parentPath}.${fieldName}` : fieldName;
     field.path = fieldPath;
     if (field.defaultValue) {
@@ -474,7 +478,7 @@ class SmartForm extends Component {
   complete field object to be passed to the component
 
   */
-  createField = (fieldName, schema, parentFieldName, parentPath) => {
+  createField = (fieldName, schema, parentFieldName?: any, parentPath?: any) => {
     const fieldSchema = schema[fieldName];
     let field = this.initField(fieldName, fieldSchema);
     field = this.handleFieldPath(field, fieldName, parentPath);
@@ -500,7 +504,7 @@ class SmartForm extends Component {
    Get a field's label
 
    */
-  getLabel = (fieldName, fieldLocale) => {
+  getLabel = (fieldName, fieldLocale?: any) => {
     const collectionName = this.props.collectionName.toLowerCase();
     const label = this.context.intl.formatLabel({
       fieldName: fieldName,
@@ -647,7 +651,7 @@ class SmartForm extends Component {
   Manually update the current values of one or more fields(i.e. on change or blur).
 
   */
-  updateCurrentValues = (newValues, options = {}) => {
+  updateCurrentValues = (newValues, options: any = {}) => {
     // default to overwriting old value with new
     const { mode = 'overwrite' } = options;
     const { changeCallback } = this.props;
@@ -718,7 +722,7 @@ class SmartForm extends Component {
         this.unblock();
       }
       // unblock browser change
-      window.onbeforeunload = undefined; //undefined instead of null to support IE
+      (window as any).onbeforeunload = undefined; //undefined instead of null to support IE
     }
   };
 
@@ -759,7 +763,7 @@ class SmartForm extends Component {
   // check for browser closing
   checkBrowserClosing = () => {
     //check for closing the browser with unsaved changes too
-    window.onbeforeunload = this.handlePageLeave;
+    (window as any).onbeforeunload = this.handlePageLeave;
   }
 
   /*
@@ -847,7 +851,7 @@ class SmartForm extends Component {
    *  Document to use as new initial document when values are cleared instead of
    *  the existing one. Note that prefilled props will be merged
    */
-  clearForm = ({ document } = {}) => {
+  clearForm = ({ document=null }) => {
     document = document ? merge({}, this.props.prefilledProps, document) : null;
     this.setState(prevState => ({
       errors: [],
@@ -932,7 +936,7 @@ class SmartForm extends Component {
   Submit form handler
 
   */
-  submitForm = event => {
+  submitForm = (event?: any) => {
 
     event && event.preventDefault();
 
@@ -1080,7 +1084,7 @@ class SmartForm extends Component {
   }
 }
 
-SmartForm.propTypes = {
+(SmartForm as any).propTypes = {
   // main options
   collection: PropTypes.object.isRequired,
   collectionName: PropTypes.string.isRequired,
@@ -1114,18 +1118,18 @@ SmartForm.propTypes = {
   client: PropTypes.object
 };
 
-SmartForm.defaultProps = {
+(SmartForm as any).defaultProps = {
   layout: 'horizontal',
   prefilledProps: {},
   repeatErrors: false,
   showRemove: true
 };
 
-SmartForm.contextTypes = {
+(SmartForm as any).contextTypes = {
   intl: intlShape
 };
 
-SmartForm.childContextTypes = {
+(SmartForm as any).childContextTypes = {
   addToDeletedValues: PropTypes.func,
   deletedValues: PropTypes.array,
   addToSubmitForm: PropTypes.func,
@@ -1147,8 +1151,12 @@ SmartForm.childContextTypes = {
 
 module.exports = SmartForm;
 
-registerComponent({
-  name: 'Form',
-  component: SmartForm,
+const FormComponent = registerComponent("Form", SmartForm, {
   hocs: [withCollectionProps]
 });
+
+declare global {
+  interface ComponentTypes {
+    Form: typeof FormComponent
+  }
+}

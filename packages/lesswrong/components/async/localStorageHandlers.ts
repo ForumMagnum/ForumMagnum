@@ -1,7 +1,8 @@
+import { Meteor } from 'meteor/meteor';
 
 function getBrowserLocalStorage() {
   try {
-    return 'localStorage' in global && global.localStorage ? global.localStorage : null;
+    return 'localStorage' in global && (global as any).localStorage ? (global as any).localStorage : null;
   } catch(e) {
     // Some browsers don't have an accessible localStorage
     // eslint-disable-next-line no-console

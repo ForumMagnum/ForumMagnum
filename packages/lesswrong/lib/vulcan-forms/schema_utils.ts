@@ -4,6 +4,7 @@
 import Users from 'meteor/vulcan:users';
 import _filter from 'lodash/filter';
 import _keys from 'lodash/keys';
+import * as _ from 'underscore';
 
 /* getters */
 // filter out fields with "." or "$"

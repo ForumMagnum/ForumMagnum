@@ -13,12 +13,13 @@ export const commentMockProps = {
 }
 
 describe('CommentsItem', () => {
+  const CommentsItemUntyped = (CommentsItem as any);
   it('renders reply-button when logged in', () => {
-    const commentsItem = shallow(<CommentsItem currentUser={{}} {...commentMockProps} />)
+    const commentsItem = shallow(<CommentsItemUntyped currentUser={{}} {...commentMockProps} />)
     expect(commentsItem.find(".comments-item-reply-link")).to.have.length(1);
   });
   it('renders reply-button when NOT logged in', () => {
-    const commentsItem = shallow(<CommentsItem {...commentMockProps} />)
+    const commentsItem = shallow(<CommentsItemUntyped {...commentMockProps} />)
     expect(commentsItem.find(".comments-item-reply-link")).to.have.length(1);
   });
 });

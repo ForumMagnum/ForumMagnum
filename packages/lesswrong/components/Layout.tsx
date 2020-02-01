@@ -80,12 +80,14 @@ const styles = theme => ({
   },
 })
 
-interface LayoutProps extends WithLocationProps, WithStylesProps, WithMessagesProps {
-  cookies: any,
+interface ExternalProps {
   currentUser: UsersCurrent,
+  messages: any,
+}
+interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps {
+  cookies: any,
   updateUser: any,
   theme: any,
-  messages: any,
   children: any,
 }
 interface LayoutState {
@@ -295,7 +297,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   }
 }
 
-const LayoutComponent = registerComponent(
+const LayoutComponent = registerComponent<ExternalProps>(
   'Layout', Layout, { styles, hocs: [
     withLocation, withCookies,
     withUpdate({
