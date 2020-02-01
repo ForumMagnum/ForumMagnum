@@ -23,7 +23,7 @@ const EventVicinity = ({post}) => {
   }
 };
 
-const EventVicinityComponent = registerComponent('EventVicinity', EventVicinity, {})
+const EventVicinityComponent = registerComponent('EventVicinity', EventVicinity)
 
 declare global {
   interface ComponentTypes {

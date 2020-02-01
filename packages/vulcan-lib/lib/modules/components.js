@@ -137,6 +137,13 @@ export function importComponent(componentName, importFn) {
   }
 }
 
+export function importAllComponents() {
+  for (let componentName of Object.keys(DeferredComponentsTable)) {
+    const ignore = Components[componentName];
+  }
+}
+Vulcan.importAllComponents = importAllComponents
+
 function prepareComponent(componentName)
 {
   if (componentName in PreparedComponents) {

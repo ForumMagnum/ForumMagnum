@@ -24,7 +24,7 @@ const EditCommentMenuItem = ({ comment, showEdit }) => {
   }
 };
 
-const EditCommentMenuItemComponent = registerComponent('EditCommentMenuItem', EditCommentMenuItem, {});
+const EditCommentMenuItemComponent = registerComponent('EditCommentMenuItem', EditCommentMenuItem);
 
 declare global {
   interface ComponentTypes {

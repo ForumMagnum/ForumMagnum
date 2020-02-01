@@ -183,8 +183,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
   </div>;
 }
 
-const RecommendationsAlgorithmPickerComponent = registerComponent("RecommendationsAlgorithmPicker", RecommendationsAlgorithmPicker, {
-});
+const RecommendationsAlgorithmPickerComponent = registerComponent("RecommendationsAlgorithmPicker", RecommendationsAlgorithmPicker);
 
 declare global {
   interface ComponentTypes {
