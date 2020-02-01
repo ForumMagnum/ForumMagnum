@@ -1,4 +1,6 @@
-import { getSetting} from 'meteor/vulcan:core';
+import { getSetting } from 'meteor/vulcan:core';
+
+import './server/vulcan-accounts/index';
 
 export * from './lib/index';
 

@@ -18,9 +18,21 @@ Package.onUse( function(api) {
     'vulcan:core',
 
     // vulcan packages
-    'vulcan:accounts',
     'vulcan:users',
+    
+    // dependencies of vulcan-accounts
+    'tracker',
+    'accounts-base',
+    'check',
+    'random',
+    'email',
+    'session',
+    'service-configuration',
   ]);
+  
+  // dependencies of vulcan-accounts
+  api.use('accounts-oauth', { weak: true });
+  api.use('accounts-password', { weak: true });
 
   api.mainModule('client.js', 'client');
   api.mainModule('server.js', 'server');

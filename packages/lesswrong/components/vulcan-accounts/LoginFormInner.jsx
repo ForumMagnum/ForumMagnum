@@ -2,11 +2,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Accounts } from 'meteor/accounts-base';
-import { KEY_PREFIX } from '../../login_session.js';
+import { KEY_PREFIX } from '../../lib/vulcan-accounts/login_session';
 import { Components, registerComponent } from 'meteor/vulcan:lib';
 import { intlShape } from 'meteor/vulcan:i18n';
 import { withApollo } from 'react-apollo';
-import TrackerComponent from './TrackerComponent.jsx';
+import TrackerComponent from './TrackerComponent';
 import sha1 from 'crypto-js/sha1';
 
 

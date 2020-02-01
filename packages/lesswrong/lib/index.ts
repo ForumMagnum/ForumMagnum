@@ -1,4 +1,7 @@
 
+// vulcan:accounts
+import './vulcan-accounts/index';
+
 // Settings
 import './registerSettings'
 // schema utils

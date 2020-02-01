@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { hasPasswordService } from '../../helpers.js';
+import { hasPasswordService } from '../../lib/vulcan-accounts/helpers';
 import { registerComponent } from 'meteor/vulcan:lib';
 import { intlShape } from 'meteor/vulcan:i18n';
 

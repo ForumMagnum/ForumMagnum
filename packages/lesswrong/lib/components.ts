@@ -468,3 +468,6 @@ importComponent("ModalTrigger", () => require('../components/vulcan-ui-bootstrap
 
 // vulcan:forms
 import './vulcan-forms/components';
+
+// vulcan:accounts
+import '../components/vulcan-accounts';

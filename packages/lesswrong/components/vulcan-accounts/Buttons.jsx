@@ -1,5 +1,5 @@
 import React from 'react';
-import './Button.jsx';
+import './Button';
 import { Components, registerComponent } from 'meteor/vulcan:lib';
 
 export class Buttons extends React.Component {

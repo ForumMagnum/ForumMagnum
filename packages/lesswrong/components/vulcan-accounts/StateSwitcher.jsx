@@ -4,7 +4,7 @@ import { Accounts } from 'meteor/accounts-base';
 
 import {
   STATES
-} from '../../helpers.js';
+} from '../../lib/vulcan-accounts/helpers';
 
 export class AccountsStateSwitcher extends React.Component {
 

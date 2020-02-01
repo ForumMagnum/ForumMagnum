@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import { getLoginServices } from '../../helpers.js';
+import { getLoginServices } from '../../lib/vulcan-accounts/helpers';
 
 Meteor.publish('servicesList', function() {
   let services = getLoginServices();
