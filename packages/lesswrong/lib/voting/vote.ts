@@ -1,5 +1,5 @@
 import { runCallbacks } from 'meteor/vulcan:core';
-import Users from 'meteor/vulcan:users';
+import Users from '../collections/users/collection';
 import { recalculateScore } from '../scoring';
 import * as _ from 'underscore';
 

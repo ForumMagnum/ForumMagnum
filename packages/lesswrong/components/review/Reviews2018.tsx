@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCurrentUser } from '../common/withUser';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import Tooltip from '@material-ui/core/Tooltip';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';

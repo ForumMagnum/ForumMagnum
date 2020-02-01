@@ -2,7 +2,7 @@ import { addCallback } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
 import { Tags } from '../../lib/collections/tags/collection'
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import Sequences from '../../lib/collections/sequences/collection';
 import { algoliaDocumentExport } from './utils';
 

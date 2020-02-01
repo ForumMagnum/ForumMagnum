@@ -8,7 +8,7 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/crud/cacheUpdates';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation } from 'react-apollo';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { Paper } from '@material-ui/core';
 import { Posts } from '../../lib/collections/posts';
 import { useCurrentUser } from '../common/withUser';

@@ -1,7 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 
 
 const SingleUsersItemWrapper = ({documentId, removeItem, ...props}) => {

@@ -3,7 +3,7 @@ import { Components, registerComponent, } from 'meteor/vulcan:core';
 import { useSingle } from '../../lib/crud/withSingle';
 import Sequences from '../../lib/collections/sequences/collection';
 import NoSSR from 'react-no-ssr';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import Typography from '@material-ui/core/Typography';
 import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';

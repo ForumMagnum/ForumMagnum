@@ -2,7 +2,7 @@ import schema from './schema';
 import { createCollection } from 'meteor/vulcan:core';
 import { extractVersionsFromSemver } from '../../editor/utils'
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
-import Users from 'meteor/vulcan:users';
+import Users from '../users/collection';
 
 export const Revisions = createCollection({
   collectionName: 'Revisions',

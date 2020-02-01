@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import MenuItem from '@material-ui/core/MenuItem';
-import Users from 'meteor/vulcan:users';
+import Users from '../../../lib/collections/users/collection';
 import withUser from '../../common/withUser';
 import withDialog from '../../common/withDialog'
 import ReportOutlinedIcon from '@material-ui/icons/ReportOutlined';

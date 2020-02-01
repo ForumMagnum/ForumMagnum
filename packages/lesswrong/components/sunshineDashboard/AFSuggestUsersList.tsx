@@ -1,7 +1,7 @@
 import { Components as C, registerComponent } from 'meteor/vulcan:core';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
-import Users from "meteor/vulcan:users";
+import Users from "../../lib/collections/users/collection";
 
 const styles = theme => ({
   icon: {

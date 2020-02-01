@@ -1,5 +1,5 @@
 import { foreignKeyField } from '../../utils/schemaUtils'
-import Users from 'meteor/vulcan:users';
+import Users from '../users/collection';
 
 const schema = {
   userId: {

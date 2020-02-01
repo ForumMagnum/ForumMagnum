@@ -1,5 +1,5 @@
 /* global Vulcan */
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 
 Vulcan.importLW1Passwords = async () =>
 {

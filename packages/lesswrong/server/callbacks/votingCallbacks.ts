@@ -1,5 +1,5 @@
 import { addCallback } from 'meteor/vulcan:core';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 
 /**
  * @summary Update the karma of the item's owner

@@ -1,4 +1,4 @@
-import Users from 'meteor/vulcan:users';
+import Users from '../users/collection';
 import { Utils, getCollection } from 'meteor/vulcan:core';
 import moment from 'moment';
 import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../utils/schemaUtils'

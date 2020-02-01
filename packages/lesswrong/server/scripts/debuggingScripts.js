@@ -1,6 +1,6 @@
 /* global Vulcan */
 import { Posts } from '../../lib/collections/posts';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { createDummyMessage, createDummyConversation, createDummyPost, createDummyComment } from '../../testing/utils';
 import { performSubscriptionAction } from '../../lib/collections/subscriptions/mutations';
 import moment from 'moment';

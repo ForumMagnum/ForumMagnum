@@ -7,7 +7,7 @@ import { createDummyUser, createDummyPost, createDummyComment, userUpdateFieldSu
 chai.should();
 chai.use(chaiAsPromised);
 
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 
 describe('Users.userIsBannedFromPost --', async () => {
   it('returns false if post.bannedUserIds does not contain exist', async () => {

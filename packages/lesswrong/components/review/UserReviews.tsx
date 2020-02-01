@@ -2,7 +2,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 
 const UserReviews = () => {
   const { params: { slug } } = useLocation();

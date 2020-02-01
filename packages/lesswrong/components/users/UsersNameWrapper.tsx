@@ -1,6 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useSingle } from '../../lib/crud/withSingle';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import React from 'react';
 
 // Given a user ID (as documentId), load that user with a HoC, and display

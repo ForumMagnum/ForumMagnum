@@ -1,5 +1,5 @@
 import { addGraphQLMutation, addGraphQLResolvers, runCallbacks, runCallbacksAsync, Utils } from 'meteor/vulcan:core';
-import Users from "meteor/vulcan:users";
+import Users from "../../lib/collections/users/collection";
 
 const specificResolvers = {
   Mutation: {

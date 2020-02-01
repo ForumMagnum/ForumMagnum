@@ -14,7 +14,7 @@ import {
   getTypeName,
   getCollectionName
 } from 'meteor/vulcan:lib';
-import Users from 'meteor/vulcan:users';
+import Users from '../collections/users/collection';
 import isEmpty from 'lodash/isEmpty';
 
 const defaultOptions = { create: true, update: true, upsert: true, delete: true };

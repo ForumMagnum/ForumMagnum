@@ -3,7 +3,7 @@ import { registerComponent } from 'meteor/vulcan:core';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import { withMessages } from '../common/withMessages';
 import withUser from '../common/withUser'
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';

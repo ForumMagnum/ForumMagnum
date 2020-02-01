@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper'
 
 const DateDisplay = ({column, document}) => {

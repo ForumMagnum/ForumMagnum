@@ -1,5 +1,6 @@
 import { getSetting } from 'meteor/vulcan:core';
 
+import './server/vulcan-users/main';
 import './server/vulcan-core/start';
 import './server/vulcan-accounts/index';
 

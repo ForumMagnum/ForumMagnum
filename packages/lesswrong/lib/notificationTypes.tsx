@@ -4,7 +4,7 @@ import { Posts } from './collections/posts';
 import { Comments } from './collections/comments'
 import Messages from './collections/messages/collection';
 import Localgroups from './collections/localgroups/collection';
-import Users from 'meteor/vulcan:users';
+import Users from './collections/users/collection';
 import AllIcon from '@material-ui/icons/Notifications';
 import PostsIcon from '@material-ui/icons/Description';
 import CommentsIcon from '@material-ui/icons/ModeComment';

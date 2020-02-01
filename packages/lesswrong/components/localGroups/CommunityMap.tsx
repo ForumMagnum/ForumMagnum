@@ -4,7 +4,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { createStyles } from '@material-ui/core/styles';
 import { Localgroups } from '../../lib/index';
 import { Posts } from '../../lib/collections/posts';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { useLocation } from '../../lib/routeUtil';
 import { PersonSVG } from './Icons'
 import ReactMapGL, { Marker } from 'react-map-gl';

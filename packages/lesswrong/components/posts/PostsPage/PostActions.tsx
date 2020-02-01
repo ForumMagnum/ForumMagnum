@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
 import { withUpdate } from '../../../lib/crud/withUpdate';
 import { withMutation } from '../../../lib/crud/withMutation';
-import Users from 'meteor/vulcan:users'
+import Users from '../../../lib/collections/users/collection'
 import withUser from '../../common/withUser'
 import { Posts } from '../../../lib/collections/posts';
 import withSetAlignmentPost from "../../alignment-forum/withSetAlignmentPost";

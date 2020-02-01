@@ -4,7 +4,7 @@ import Reports from '../lib/collections/reports/collection';
 
 import { getCollection } from 'meteor/vulcan:lib';
 import { Bans } from '../lib/collections/bans/collection';
-import Users from 'meteor/vulcan:users';
+import Users from '../lib/collections/users/collection';
 import { Votes } from '../lib/collections/votes';
 import { cancelVoteServer } from './voteServer';
 import { Posts } from '../lib/collections/posts';

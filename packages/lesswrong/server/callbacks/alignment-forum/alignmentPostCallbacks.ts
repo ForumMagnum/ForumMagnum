@@ -1,4 +1,4 @@
-import Users from "meteor/vulcan:users";
+import Users from "../../../lib/collections/users/collection";
 import { addCallback } from 'meteor/vulcan:core';
 
 async function PostsMoveToAFAddsAlignmentVoting (post, oldPost) {

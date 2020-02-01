@@ -1,6 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { useState } from 'react';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { useCurrentUser } from '../common/withUser';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';

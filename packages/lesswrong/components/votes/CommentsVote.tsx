@@ -2,7 +2,7 @@ import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
 import { Comments } from "../../lib/collections/comments";
 import Tooltip from '@material-ui/core/Tooltip';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import moment from '../../lib/moment-timezone';
 import { useHover } from '../common/withHover';
 import { useCurrentUser } from '../common/withUser';

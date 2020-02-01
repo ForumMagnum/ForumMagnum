@@ -1,6 +1,6 @@
 import { registerMigration, fillDefaultValues } from './migrationUtils';
 import { recomputeDenormalizedValues } from '../scripts/recomputeDenormalized';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 
 
 registerMigration({

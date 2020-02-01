@@ -1,4 +1,7 @@
 
+// vulcan:users
+import './vulcan-users/index';
+
 // vulcan:accounts
 import './vulcan-accounts/index';
 

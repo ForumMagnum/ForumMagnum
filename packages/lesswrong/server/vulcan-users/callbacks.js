@@ -1,4 +1,4 @@
-import Users from '../modules/collection.js';
+import Users from '../../lib/collections/users/collection';
 import { addCallback, Utils } from 'meteor/vulcan:lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
 
   //////////////////////////////////////////////////////

@@ -1,4 +1,4 @@
-import Users from './collection.js';
+import Users from '../collections/users/collection';
 import { Utils } from 'meteor/vulcan:lib';
 import intersection from 'lodash/intersection';
 

@@ -1,7 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import Users from "meteor/vulcan:users";
+import Users from "../../lib/collections/users/collection";
 import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import AddIcon from '@material-ui/icons/Add';

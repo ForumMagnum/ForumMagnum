@@ -1,4 +1,4 @@
-import Users from 'meteor/vulcan:users';
+import Users from '../users/collection';
 import Messages from './collection';
 import Conversations from '../conversations/collection'
 

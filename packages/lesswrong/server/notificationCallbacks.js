@@ -4,7 +4,7 @@ import Conversations from '../lib/collections/conversations/collection';
 import Subscriptions from '../lib/collections/subscriptions/collection';
 import { subscriptionTypes } from '../lib/collections/subscriptions/schema';
 import Localgroups from '../lib/collections/localgroups/collection';
-import Users from 'meteor/vulcan:users';
+import Users from '../lib/collections/users/collection';
 import { Posts } from '../lib/collections/posts';
 import { Comments } from '../lib/collections/comments'
 import { reasonUserCantReceiveEmails } from './emails/renderEmail';

@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import { withUpdate } from '../../lib/crud/withUpdate';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import Button from '@material-ui/core/Button';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';

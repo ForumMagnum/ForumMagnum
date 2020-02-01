@@ -1,4 +1,4 @@
-import Users from './collection.js';
+import Users from '../collections/users/collection';
 
 Users.addView('usersAdmin', terms => ({
   options: {

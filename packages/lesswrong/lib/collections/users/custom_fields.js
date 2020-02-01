@@ -1,4 +1,4 @@
-import Users from "meteor/vulcan:users";
+import Users from "../users/collection";
 import { getSetting, Utils } from "meteor/vulcan:core"
 import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation } from '../../utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable'

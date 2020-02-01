@@ -5,7 +5,7 @@ Post validation and rate limiting callbacks
 */
 
 import { Posts } from '../../../lib/collections/posts'
-import Users from 'meteor/vulcan:users';
+import Users from '../../../lib/collections/users/collection';
 import { addCallback, getSetting } from 'meteor/vulcan:core';
 
 

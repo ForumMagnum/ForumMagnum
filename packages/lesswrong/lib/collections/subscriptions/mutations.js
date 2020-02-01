@@ -1,7 +1,7 @@
 import { Subscriptions } from './collection';
 import { subscriptionTypes } from './schema'
 import { runCallbacksAsync, newMutation } from 'meteor/vulcan:core';
-import Users from 'meteor/vulcan:users';
+import Users from '../users/collection';
 
 export const defaultSubscriptionTypeTable = {
   "Comments": subscriptionTypes.newReplies,

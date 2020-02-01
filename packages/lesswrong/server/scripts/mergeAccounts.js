@@ -1,5 +1,5 @@
 /* global Vulcan */
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { editMutation, getCollection, Utils } from 'meteor/vulcan:core';
 import { Revisions } from '../../lib/index';
 import { editableCollectionsFields } from '../../lib/editor/make_editable'

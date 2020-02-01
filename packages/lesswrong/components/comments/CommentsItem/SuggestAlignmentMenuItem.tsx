@@ -3,7 +3,7 @@ import { registerComponent, Components } from 'meteor/vulcan:core';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Comments } from '../../../lib/collections/comments'
-import Users from 'meteor/vulcan:users';
+import Users from '../../../lib/collections/users/collection';
 import { useCurrentUser } from '../../common/withUser';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ExposurePlus1 from '@material-ui/icons/ExposurePlus1';

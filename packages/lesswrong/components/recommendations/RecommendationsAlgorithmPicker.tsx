@@ -6,7 +6,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import deepmerge from 'deepmerge';
 import { useCurrentUser } from '../common/withUser';
 import { slotSpecificRecommendationSettingDefaults, defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 
 // Elements here should match switch cases in recommendations.ts
 const recommendationAlgorithms = [

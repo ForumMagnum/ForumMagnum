@@ -25,7 +25,7 @@
 import { wrapVulcanAsyncScript } from './utils'
 import { getSetting } from 'meteor/vulcan:core';
 import { Posts } from '../../lib/collections/posts'
-import Users from 'meteor/vulcan:users'
+import Users from '../../lib/collections/users/collection'
 import fs from 'mz/fs'
 import path from 'path'
 import moment from 'moment'

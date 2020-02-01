@@ -3,7 +3,7 @@ import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { Link } from '../../lib/reactRouterWrapper';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { withApollo } from 'react-apollo';
 
 import Paper from '@material-ui/core/Paper';

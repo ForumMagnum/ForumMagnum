@@ -2,7 +2,7 @@ import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'

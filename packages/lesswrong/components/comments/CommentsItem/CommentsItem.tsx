@@ -1,7 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withMessages } from '../../common/withMessages';
 import React, { Component } from 'react';
-import Users from 'meteor/vulcan:users';
+import Users from '../../../lib/collections/users/collection';
 import classNames from 'classnames';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/utils/componentUtils';
 import withErrorBoundary from '../../common/withErrorBoundary';

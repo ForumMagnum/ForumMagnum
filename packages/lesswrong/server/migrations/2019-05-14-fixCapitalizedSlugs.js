@@ -1,5 +1,5 @@
 import { Utils } from 'meteor/vulcan:lib';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { registerMigration, migrateDocuments } from './migrationUtils';
 
 registerMigration({

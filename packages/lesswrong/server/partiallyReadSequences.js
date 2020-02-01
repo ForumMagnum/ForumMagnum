@@ -1,5 +1,5 @@
 import { addCallback, editMutation } from 'meteor/vulcan:core';
-import Users from 'meteor/vulcan:users';
+import Users from '../lib/collections/users/collection';
 import Sequences from '../lib/collections/sequences/collection';
 import Posts from '../lib/collections/posts/collection';
 import Collections from '../lib/collections/collections/collection';

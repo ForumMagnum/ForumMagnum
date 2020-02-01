@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import MenuItem from '@material-ui/core/MenuItem';
-import Users from 'meteor/vulcan:users';
+import Users from '../../../lib/collections/users/collection';
 import { useCurrentUser } from '../../common/withUser';
 import Edit from '@material-ui/icons/Edit';
 import ListItemIcon from '@material-ui/core/ListItemIcon';

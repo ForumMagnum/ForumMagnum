@@ -5,7 +5,7 @@ GraphQL config
 */
 
 import { addGraphQLMutation, addGraphQLResolvers, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
-import Users from "meteor/vulcan:users";
+import Users from "../collections/users/collection";
 
 const alignmentCommentResolvers = {
   Mutation: {

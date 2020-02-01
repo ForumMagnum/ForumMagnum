@@ -6,7 +6,7 @@ import { Link } from '../../lib/reactRouterWrapper'
 import Typography from '@material-ui/core/Typography';
 import { Posts } from '../../lib/collections/posts';
 import withHover from '../common/withHover'
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import withUser from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import DoneIcon from '@material-ui/icons/Done';

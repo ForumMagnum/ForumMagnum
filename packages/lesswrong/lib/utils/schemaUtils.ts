@@ -1,5 +1,5 @@
 import { addCallback, getCollection } from 'meteor/vulcan:core';
-import Users from 'meteor/vulcan:users';
+import Users from '../collections/users/collection';
 import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from "../loaders";
 import { Meteor } from 'meteor/meteor';

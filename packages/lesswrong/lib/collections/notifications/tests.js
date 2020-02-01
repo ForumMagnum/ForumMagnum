@@ -3,7 +3,7 @@ import chaiAsPromised from 'chai-as-promised';
 import { createDummyUser, createDummyPost, createDummyConversation, createDummyMessage } from '../../../testing/utils'
 import { performSubscriptionAction } from '../subscriptions/mutations';
 
-import Users from 'meteor/vulcan:users';
+import Users from '../users/collection';
 import Notifications from './collection';
 //import Comments from '../comments/collection';
 import { waitUntilCallbacksFinished } from 'meteor/vulcan:core';

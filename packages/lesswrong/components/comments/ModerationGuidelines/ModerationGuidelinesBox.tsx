@@ -4,7 +4,7 @@ import withNewEvents from '../../../lib/events/withNewEvents';
 import { useCurrentUser } from '../../common/withUser';
 import truncatise from 'truncatise';
 import Edit from '@material-ui/icons/Edit';
-import Users from 'meteor/vulcan:users';
+import Users from '../../../lib/collections/users/collection';
 import Tooltip from '@material-ui/core/Tooltip';
 import { useDialog } from '../../common/withDialog'
 import withErrorBoundary from '../../common/withErrorBoundary'

@@ -1,6 +1,6 @@
 /* global Vulcan */
 
-import Users from 'meteor/vulcan:users'
+import Users from '../../lib/collections/users/collection'
 import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
 import { bulkUpdateWithJS, wrapVulcanAsyncScript } from '../scripts/utils'

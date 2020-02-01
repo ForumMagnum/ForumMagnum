@@ -4,7 +4,7 @@ import { withUpdate } from '../../../lib/crud/withUpdate';
 import { withMessages } from '../../common/withMessages';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Posts } from '../../../lib/collections/posts';
-import Users from 'meteor/vulcan:users';
+import Users from '../../../lib/collections/users/collection';
 import withUser from '../../common/withUser';
 import * as _ from 'underscore';
 

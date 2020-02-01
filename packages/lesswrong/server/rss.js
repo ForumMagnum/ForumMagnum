@@ -8,7 +8,7 @@ import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import moment from '../lib/moment-timezone';
 
 // LESSWRONG - this import wasn't needed until fixing author below.
-import Users from 'meteor/vulcan:users';
+import Users from '../lib/collections/users/collection';
 
 Posts.addView('rss', Posts.views.new); // default to 'new' view for RSS feed
 Comments.addView('rss', Comments.views.recentComments); // default to 'recentComments' view for comments RSS feed

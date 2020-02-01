@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import { useCurrentUser } from '../common/withUser';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import classNames from 'classnames';
 
 const styles = theme => ({

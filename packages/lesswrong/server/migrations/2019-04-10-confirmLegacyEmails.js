@@ -1,5 +1,5 @@
 import { forEachDocumentBatchInCollection, registerMigration } from './migrationUtils';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 
 registerMigration({
   name: "confirmLegacyEmails",

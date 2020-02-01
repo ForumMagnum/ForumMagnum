@@ -4,7 +4,7 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Menu from '@material-ui/core/Menu';
 import Divider from '@material-ui/core/Divider';
 import { useCurrentUser } from '../../common/withUser';
-import Users from 'meteor/vulcan:users';
+import Users from '../../../lib/collections/users/collection';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useTracking } from "../../../lib/analyticsEvents";
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'

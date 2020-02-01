@@ -2,7 +2,7 @@ import { getSetting } from 'meteor/vulcan:core'
 import { addStaticRoute } from 'meteor/vulcan:lib'
 import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 
 // Some legacy routes have an optional subreddit prefix, which is either
 // omitted, is /r/all, /r/discussion, or /r/lesswrong. The is followed by

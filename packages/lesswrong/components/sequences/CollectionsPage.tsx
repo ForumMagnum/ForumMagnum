@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { useSingle } from '../../lib/crud/withSingle';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import Collections from '../../lib/collections/collections/collection';
 import Button from '@material-ui/core/Button';
 import { Link } from '../../lib/reactRouterWrapper';

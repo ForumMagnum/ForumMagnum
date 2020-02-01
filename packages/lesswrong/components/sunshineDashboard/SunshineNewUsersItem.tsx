@@ -2,7 +2,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper'
 import moment from 'moment';
 import Typography from '@material-ui/core/Typography';

@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import classNames from 'classnames'
 import Checkbox from '@material-ui/core/Checkbox';
 import Tooltip from '@material-ui/core/Tooltip';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { QueryLink } from '../../lib/reactRouterWrapper'
 import * as _ from 'underscore';
 

@@ -10,7 +10,6 @@ Package.onUse(function(api) {
 
   api.use([
     'vulcan:lib@1.13.0',
-    'vulcan:users@1.13.0',
   ]);
 
   api.imply(['vulcan:lib@1.13.0']);

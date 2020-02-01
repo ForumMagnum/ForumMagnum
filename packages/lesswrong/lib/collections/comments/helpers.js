@@ -1,6 +1,6 @@
 import { Posts } from '../posts'
 import { Comments } from './collection'
-import Users from "meteor/vulcan:users"
+import Users from "../users/collection"
 import { getSetting } from 'meteor/vulcan:core'
 
 

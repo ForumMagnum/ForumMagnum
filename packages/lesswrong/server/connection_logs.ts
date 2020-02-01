@@ -1,6 +1,6 @@
 import { LWEvents } from '../lib/collections/lwevents/collection';
 import { newMutation } from 'meteor/vulcan:core';
-import Users from 'meteor/vulcan:users';
+import Users from '../lib/collections/users/collection';
 import { ForwardedWhitelist } from './forwarded_whitelist';
 import { Accounts } from 'meteor/accounts-base';
 import { Meteor } from 'meteor/meteor';

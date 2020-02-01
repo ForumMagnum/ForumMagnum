@@ -16,9 +16,6 @@ Package.onUse( function(api) {
 
     // vulcan core
     'vulcan:core',
-
-    // vulcan packages
-    'vulcan:users',
     
     // dependencies of vulcan-accounts
     'tracker',
@@ -55,7 +52,6 @@ Package.onTest(function(api) {
     'typescript',
     'fourseven:scss',
     'vulcan:core',
-    'vulcan:users',
     'practicalmeteor:sinon',
     'meteortesting:mocha',
   ]);

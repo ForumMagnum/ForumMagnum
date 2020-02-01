@@ -1,7 +1,7 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import { withUpdate } from '../lib/crud/withUpdate';
 import React, { PureComponent } from 'react';
-import Users from 'meteor/vulcan:users';
+import Users from '../lib/collections/users/collection';
 import { Helmet } from 'react-helmet';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import classNames from 'classnames'

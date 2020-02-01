@@ -1,5 +1,5 @@
 /* global Vulcan */
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { Comments } from '../../lib/collections/comments'
 import { Posts } from '../../lib/collections/posts'
 import { newMutation, Utils } from 'meteor/vulcan:core';

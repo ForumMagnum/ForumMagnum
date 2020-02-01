@@ -83,7 +83,6 @@ underscore@1.0.10
 url@1.2.0
 vulcan:core@1.13.0
 vulcan:lib@1.13.0
-vulcan:users@1.13.0
 webapp@1.8.0
 webapp-hashing@1.0.9
 zodern:minifier-js@3.0.0

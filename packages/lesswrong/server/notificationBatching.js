@@ -4,7 +4,7 @@ import { getNotificationTypes } from '../lib/notificationTypes';
 import { getNotificationTypeByNameServer } from './notificationTypesServer';
 import { EventDebouncer } from './debouncer';
 import toDictionary from '../lib/utils/toDictionary';
-import Users from 'meteor/vulcan:users';
+import Users from '../lib/collections/users/collection';
 import { Posts } from '../lib/collections/posts';
 import { Components, addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from 'meteor/vulcan:core';
 import { UnsubscribeAllToken } from './emails/emailTokens';

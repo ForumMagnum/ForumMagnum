@@ -1,6 +1,5 @@
 
 declare module 'meteor/vulcan:lib';
-declare module 'meteor/vulcan:users';
 declare module 'meteor/random';
 declare module 'meteor/meteor';
 declare module 'meteor/accounts-base';

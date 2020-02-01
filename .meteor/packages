@@ -8,7 +8,6 @@
 
 # Vulcan packages
 vulcan:core
-vulcan:users
 
 # Accounts packages, for OAuth
 accounts-password@1.5.1

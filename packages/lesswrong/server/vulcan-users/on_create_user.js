@@ -1,4 +1,4 @@
-import Users from '../modules/index.js';
+import Users from '../../lib/collections/users/collection';
 import {
   runCallbacks,
   runCallbacksAsync,

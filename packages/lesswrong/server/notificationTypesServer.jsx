@@ -7,7 +7,7 @@ import { Messages } from '../lib/collections/messages/collection';
 import { Conversations } from '../lib/collections/conversations/collection';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import keyBy from 'lodash/keyBy';
-import Users from 'meteor/vulcan:users';
+import Users from '../lib/collections/users/collection';
 import './emailComponents/EmailComment';
 import './emailComponents/PrivateMessagesEmail';
 import './emailComponents/EventInRadiusEmail';

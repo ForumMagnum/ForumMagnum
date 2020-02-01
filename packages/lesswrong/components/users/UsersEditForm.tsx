@@ -3,7 +3,7 @@ import { withMessages } from '../common/withMessages';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage, intlShape } from '../../lib/vulcan-i18n';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import Button from '@material-ui/core/Button';
 import { Accounts } from 'meteor/accounts-base';
 import Typography from '@material-ui/core/Typography';

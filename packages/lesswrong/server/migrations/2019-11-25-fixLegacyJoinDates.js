@@ -1,5 +1,5 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 
 
 registerMigration({

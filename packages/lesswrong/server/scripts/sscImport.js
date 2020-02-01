@@ -1,5 +1,5 @@
 import feedparser from 'feedparser-promised';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { Posts } from '../../lib/collections/posts';
 import { newMutation, editMutation } from 'meteor/vulcan:core';
 import RSSFeeds from '../../lib/collections/rssfeeds/collection';

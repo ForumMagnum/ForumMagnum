@@ -1,5 +1,5 @@
 import fs from 'fs';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { Posts } from '../../lib/collections/posts';
 import { newMutation } from 'meteor/vulcan:core';
 

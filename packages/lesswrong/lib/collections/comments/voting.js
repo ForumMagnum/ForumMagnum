@@ -1,6 +1,6 @@
 import { makeVoteable } from '../../make_voteable';
 import { Comments } from './collection';
-import Users from 'meteor/vulcan:users';
+import Users from '../users/collection';
 
 // Comments have the custom behavior in that they sometimes have hidden karma
 const customBaseScoreReadAccess = (user, comment) => {

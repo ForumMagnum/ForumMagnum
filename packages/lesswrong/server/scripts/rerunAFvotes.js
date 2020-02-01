@@ -1,5 +1,5 @@
 /* global Vulcan */
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { Votes } from '../../lib/collections/votes';
 import { getCollection } from 'meteor/vulcan:lib';
 

@@ -1,5 +1,5 @@
 import { Posts } from './collection';
-import Users from "meteor/vulcan:users";
+import Users from "../users/collection";
 import { makeEditable } from '../../editor/make_editable'
 import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple, resolverOnlyField, denormalizedCountOfReferences, accessFilterSingle, denormalizedField, googleLocationToMongoLocation } from '../../utils/schemaUtils'
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';

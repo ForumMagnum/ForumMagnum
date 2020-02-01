@@ -1,5 +1,5 @@
 import React from 'react';
-import Users from 'meteor/vulcan:users'
+import Users from '../collections/users/collection'
 import { Utils } from 'meteor/vulcan:core'
 import { ContentType } from '../collections/revisions/schema'
 import { accessFilterMultiple, addFieldsDict } from '../utils/schemaUtils';

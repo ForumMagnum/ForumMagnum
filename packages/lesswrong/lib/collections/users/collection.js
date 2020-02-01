@@ -1,5 +1,5 @@
-import schema from './schema.js';
-import resolvers from './resolvers.js';
+import schema from './schema';
+import resolvers from '../../vulcan-users/resolvers';
 import { createCollection, addGraphQLQuery, createMutator, updateMutator, deleteMutator, Utils, Connectors } from 'meteor/vulcan:lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
 
 const performCheck = (mutation, user, document) => {

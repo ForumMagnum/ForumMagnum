@@ -4,7 +4,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useLocation } from '../../lib/routeUtil';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { useTagBySlug } from './useTag';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import { postBodyStyles } from '../../themes/stylePiping'

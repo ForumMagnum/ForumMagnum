@@ -1,7 +1,7 @@
 import { getSetting } from 'meteor/vulcan:core'
 import SimpleSchema from 'simpl-schema'
 import { addFieldsDict } from '../../utils/schemaUtils'
-import Users from "meteor/vulcan:users";
+import Users from "../users/collection";
 
 const baseDefaultAlgorithmSettings = {
   method: "top",

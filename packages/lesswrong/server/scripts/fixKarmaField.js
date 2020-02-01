@@ -1,4 +1,4 @@
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 
 const fixKarma = false;
 const mainPostKarmaWeight = 10;

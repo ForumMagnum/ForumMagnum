@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import { FormattedMessage } from '../../lib/vulcan-i18n';
 import { Link } from '../../lib/reactRouterWrapper';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
-import Users from "meteor/vulcan:users";
+import Users from "../../lib/collections/users/collection";
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'

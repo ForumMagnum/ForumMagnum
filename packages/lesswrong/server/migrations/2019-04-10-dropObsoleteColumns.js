@@ -1,7 +1,7 @@
 import { registerMigration, dropUnusedField } from './migrationUtils';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Comments } from '../../lib/collections/comments/collection';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 
 registerMigration({
   name: "dropObsoleteColumns",

@@ -1,7 +1,7 @@
 /*
  * Schema converter/getters
  */
-import Users from 'meteor/vulcan:users';
+import Users from '../collections/users/collection';
 import _filter from 'lodash/filter';
 import _keys from 'lodash/keys';
 import * as _ from 'underscore';

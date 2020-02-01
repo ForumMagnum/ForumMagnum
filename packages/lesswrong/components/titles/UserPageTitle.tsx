@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { useLocation } from '../../lib/routeUtil';
 import { Helmet } from 'react-helmet';
 import { styles } from '../common/HeaderSubtitle';

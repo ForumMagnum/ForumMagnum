@@ -5,7 +5,7 @@ import {
   registerComponent
 } from 'meteor/vulcan:core';
 import moment from 'moment';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import Typography from '@material-ui/core/Typography';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';

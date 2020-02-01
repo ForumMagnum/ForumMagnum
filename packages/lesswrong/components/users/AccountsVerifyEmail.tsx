@@ -1,7 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import React, { useEffect, useState } from 'react';
 import { withApollo } from 'react-apollo';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import withUser from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil'
 import { Accounts } from 'meteor/accounts-base';

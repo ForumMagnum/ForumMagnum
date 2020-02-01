@@ -2,7 +2,7 @@ import { createCollection, Utils } from 'meteor/vulcan:core';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
 import { denormalizedCountOfReferences } from '../../utils/schemaUtils';
 import { makeEditable } from '../../editor/make_editable'
-import Users from 'meteor/vulcan:users';
+import Users from '../users/collection';
 
 const formGroups = {
   advancedOptions: {

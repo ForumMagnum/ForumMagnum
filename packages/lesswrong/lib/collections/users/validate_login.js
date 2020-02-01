@@ -1,5 +1,5 @@
 import { Accounts } from 'meteor/accounts-base';
-import Users from 'meteor/vulcan:users';
+import Users from '../users/collection';
 import { LegacyData } from '../legacyData/collection';
 
 Accounts.validateLoginAttempt((attempt) => {

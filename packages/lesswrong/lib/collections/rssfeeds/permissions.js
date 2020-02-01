@@ -1,4 +1,4 @@
-import Users from 'meteor/vulcan:users';
+import Users from '../users/collection';
 
 const membersActions = [
   'rssfeeds.new.own',

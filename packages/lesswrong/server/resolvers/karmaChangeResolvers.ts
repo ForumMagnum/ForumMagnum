@@ -1,4 +1,4 @@
-import Users from "meteor/vulcan:users";
+import Users from "../../lib/collections/users/collection";
 import { getKarmaChanges, getKarmaChangeDateRange, getKarmaChangeNextBatchDate } from "../karmaChanges";
 import { getSetting } from 'meteor/vulcan:core';
 

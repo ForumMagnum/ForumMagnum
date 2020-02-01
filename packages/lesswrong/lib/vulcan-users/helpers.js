@@ -1,5 +1,5 @@
 import { Utils } from 'meteor/vulcan:lib';
-import Users from './collection.js';
+import Users from '../collections/users/collection';
 import moment from 'moment';
 
 ////////////////////

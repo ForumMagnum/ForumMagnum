@@ -6,7 +6,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { withApollo } from 'react-apollo'
 import { Comments } from "../../../lib/collections/comments";
 import withUser from '../../common/withUser';
-import Users from 'meteor/vulcan:users';
+import Users from '../../../lib/collections/users/collection';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ArrowRightAlt from '@material-ui/icons/ArrowRightAlt';
 import Undo from '@material-ui/icons/Undo';

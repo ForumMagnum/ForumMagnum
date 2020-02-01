@@ -8,7 +8,7 @@ import BookmarkBorder from '@material-ui/icons/BookmarkBorder'
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import withErrorBoundary from '../common/withErrorBoundary';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import Tooltip, {TooltipProps} from '@material-ui/core/Tooltip';
 import { useTracking } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';

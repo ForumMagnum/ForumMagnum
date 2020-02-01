@@ -2,7 +2,7 @@ import { registerComponent } from 'meteor/vulcan:core';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import React from 'react';
 import { Posts } from '../../lib/collections/posts';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { useCurrentUser } from '../common/withUser';
 import MenuItem from '@material-ui/core/MenuItem';
 

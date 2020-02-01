@@ -2,7 +2,7 @@ import { Components, registerComponent, } from 'meteor/vulcan:core';
 import { withMessages } from '../common/withMessages';
 import React, { Component } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import withUser from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
 import EventIcon from '@material-ui/icons/Event';

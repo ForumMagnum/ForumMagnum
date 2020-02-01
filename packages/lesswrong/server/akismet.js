@@ -2,7 +2,7 @@ import LWEvents from '../lib/collections/lwevents/collection'
 import { Posts } from '../lib/collections/posts/collection'
 import { Comments } from '../lib/collections/comments/collection'
 import { editMutation, getSetting, addCallback, runCallbacksAsync } from 'meteor/vulcan:core';
-import Users from 'meteor/vulcan:users';
+import Users from '../lib/collections/users/collection';
 import akismet from 'akismet-api'
 
 const SPAM_KARMA_THRESHOLD = 10 //Threshold after which you are no longer affected by spam detection

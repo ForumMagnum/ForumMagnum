@@ -2,7 +2,7 @@ import { registerComponent, Components } from 'meteor/vulcan:core';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import withErrorBoundary from '../common/withErrorBoundary';
 
 const BookmarksList = ({limit=50 }) => {

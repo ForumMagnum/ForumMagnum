@@ -1,6 +1,6 @@
 import { registerMigration, migrateDocuments, fillDefaultValues } from './migrationUtils';
 
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 
 registerMigration({
   name: "applyKarmaChangeWidgetDefaults",
