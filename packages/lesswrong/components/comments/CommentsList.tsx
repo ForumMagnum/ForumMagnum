@@ -1,7 +1,7 @@
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
-import { FormattedMessage } from 'meteor/vulcan:i18n';
+import { FormattedMessage } from '../../lib/vulcan-i18n';
 import { Comments } from "../../lib/collections/comments";
 import { shallowEqual, shallowEqualExcept } from '../../lib/utils/componentUtils';
 import { Posts } from '../../lib/collections/posts';

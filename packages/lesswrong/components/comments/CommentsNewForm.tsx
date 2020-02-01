@@ -1,7 +1,7 @@
 import { Components, registerComponent, getFragment, getSetting } from 'meteor/vulcan:core';
 import React, { useState } from 'react';
 import { Comments } from '../../lib/collections/comments';
-import { FormattedMessage } from 'meteor/vulcan:i18n';
+import { FormattedMessage } from '../../lib/vulcan-i18n';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'

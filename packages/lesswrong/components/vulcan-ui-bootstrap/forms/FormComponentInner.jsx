@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { intlShape } from 'meteor/vulcan:i18n';
+import { intlShape } from '../../../lib/vulcan-i18n';
 import { Components, registerComponent, instantiateComponent } from 'meteor/vulcan:core';
 import classNames from 'classnames';
 

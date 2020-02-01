@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Components, getAdminColumns, registerComponent, addAdminColumn } from 'meteor/vulcan:core';
 import { Bans } from '../../lib/collections/bans';
 import { LWEvents } from '../../lib/collections/lwevents';
-import { FormattedMessage } from 'meteor/vulcan:i18n';
+import { FormattedMessage } from '../../lib/vulcan-i18n';
 import Users from 'meteor/vulcan:users';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';

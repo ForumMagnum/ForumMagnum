@@ -3,7 +3,7 @@ import { withMessages } from './withMessages';
 import React, { PureComponent } from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
 import Button from '@material-ui/core/Button';
-import { intlShape } from 'meteor/vulcan:i18n';
+import { intlShape } from '../../lib/vulcan-i18n';
 
 interface ExternalProps {
 }

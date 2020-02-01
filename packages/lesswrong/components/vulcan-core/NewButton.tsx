@@ -1,6 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:lib';
 import React from 'react';
-import { FormattedMessage, intlShape } from 'meteor/vulcan:i18n';
+import { FormattedMessage, intlShape } from '../../lib/vulcan-i18n';
 
 const NewButton = ({ collection, size, label, style = 'primary', formProps, ...props }, { intl }) => (
   <Components.ModalTrigger

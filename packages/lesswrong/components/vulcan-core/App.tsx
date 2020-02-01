@@ -5,7 +5,7 @@ import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { PureComponent } from 'react';
 import { withCurrentUser } from '../../lib/crud/withCurrentUser';
 import PropTypes from 'prop-types';
-import { IntlProvider, intlShape } from 'meteor/vulcan:i18n';
+import { IntlProvider, intlShape } from '../../lib/vulcan-i18n';
 import { withApollo } from 'react-apollo';
 import moment from 'moment';
 import { withRouter } from 'react-router';

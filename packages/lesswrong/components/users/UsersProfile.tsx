@@ -1,7 +1,7 @@
 import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
 import { withMulti } from '../../lib/crud/withMulti';
 import React, { Component } from 'react';
-import { FormattedMessage } from 'meteor/vulcan:i18n';
+import { FormattedMessage } from '../../lib/vulcan-i18n';
 import { Link } from '../../lib/reactRouterWrapper';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
 import Users from "meteor/vulcan:users";

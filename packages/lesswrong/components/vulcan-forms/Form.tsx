@@ -34,7 +34,7 @@ import {
 import React, { Component } from 'react';
 import SimpleSchema from 'simpl-schema';
 import PropTypes from 'prop-types';
-import { intlShape } from 'meteor/vulcan:i18n';
+import { intlShape } from '../../lib/vulcan-i18n';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import set from 'lodash/set';

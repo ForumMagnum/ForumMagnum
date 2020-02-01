@@ -1,6 +1,6 @@
 import { Components, registerComponent } from 'meteor/vulcan:lib';
 import React from 'react';
-import { FormattedMessage, intlShape } from 'meteor/vulcan:i18n';
+import { FormattedMessage, intlShape } from '../../lib/vulcan-i18n';
 
 const EditButton = ({ style = 'primary', label, size, showId, modalProps, formProps, ...props }, { intl }) => (
   <Components.ModalTrigger

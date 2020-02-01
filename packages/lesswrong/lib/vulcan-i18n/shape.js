@@ -12,7 +12,7 @@ const narrowShortLong = oneOf(['narrow', 'short', 'long']);
 const numeric2digit = oneOf(['numeric', '2-digit']);
 const funcReq = func.isRequired;
 
-export const intlConfigPropTypes = {
+const intlConfigPropTypes = {
   locale: string,
   formats: object,
   messages: object,
@@ -22,7 +22,7 @@ export const intlConfigPropTypes = {
   defaultFormats: object,
 };
 
-export const intlFormatPropTypes = {
+const intlFormatPropTypes = {
   formatDate: funcReq,
   formatTime: funcReq,
   formatRelative: funcReq,
@@ -40,13 +40,13 @@ export const intlShape = shape({
   now: funcReq,
 });
 
-export const messageDescriptorPropTypes = {
+const messageDescriptorPropTypes = {
   id: string.isRequired,
   description: string,
   defaultMessage: string,
 };
 
-export const dateTimeFormatPropTypes = {
+const dateTimeFormatPropTypes = {
   localeMatcher,
   formatMatcher: oneOf(['basic', 'best fit']),
 
@@ -64,7 +64,7 @@ export const dateTimeFormatPropTypes = {
   timeZoneName: oneOf(['short', 'long']),
 };
 
-export const numberFormatPropTypes = {
+const numberFormatPropTypes = {
   localeMatcher,
 
   style: oneOf(['decimal', 'currency', 'percent']),
@@ -79,11 +79,11 @@ export const numberFormatPropTypes = {
   maximumSignificantDigits: number,
 };
 
-export const relativeFormatPropTypes = {
+const relativeFormatPropTypes = {
   style: oneOf(['best fit', 'numeric']),
   units: oneOf(['second', 'minute', 'hour', 'day', 'month', 'year']),
 };
 
-export const pluralFormatPropTypes = {
+const pluralFormatPropTypes = {
   style: oneOf(['cardinal', 'ordinal']),
 };

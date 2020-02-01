@@ -2,7 +2,7 @@ import { Components, registerComponent, Utils } from 'meteor/vulcan:core';
 import { useMulti } from '../../lib/crud/withMulti';
 import React, { useState } from 'react';
 import { Posts } from '../../lib/collections/posts';
-import { FormattedMessage } from 'meteor/vulcan:i18n';
+import { FormattedMessage } from '../../lib/vulcan-i18n';
 import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
 import * as _ from 'underscore';

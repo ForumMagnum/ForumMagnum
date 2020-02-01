@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { hasPasswordService } from '../../lib/vulcan-accounts/helpers';
 import { registerComponent } from 'meteor/vulcan:lib';
-import { intlShape } from 'meteor/vulcan:i18n';
+import { intlShape } from '../../lib/vulcan-i18n';
 
 export class AccountsPasswordOrService extends PureComponent {
   render () {
