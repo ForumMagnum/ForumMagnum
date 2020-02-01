@@ -3,8 +3,11 @@ import { registerComponent } from 'meteor/vulcan:core';
 import { withStyles, createStyles } from '@material-ui/core/styles';
 import * as _ from 'underscore';
 
-const styles = createStyles(theme => ({
-  root: {},
+export const rowStyles = {
+  root: {
+    fontSize: 16,
+    lineHeight: 1.3,
+  },
   row: {
     display: "flex",
     cursor: "pointer",
@@ -13,16 +16,17 @@ const styles = createStyles(theme => ({
     marginRight: 10,
     flexGrow: 1,
   },
-  date: {
+  middleColumn: {
     marginRight: 10,
-    minWidth: 80,
+    minWidth: 100,
   },
-  status: {
-    minWidth: 120,
+  lastRun: {
+    minWidth: 140,
   },
-}));
+}
+const styles = createStyles(theme => rowStyles);
 
-const MigrationsDashboardRow = ({migration: {name, dateWritten, runs}, classes}) => {
+const MigrationsDashboardRow = ({migration: {name, dateWritten, runs, lastRun}, classes}) => {
   const [expanded, setExpanded] = React.useState(false);
   
   let status;
@@ -44,8 +48,9 @@ const MigrationsDashboardRow = ({migration: {name, dateWritten, runs}, classes})
   return <div className={classes.root}>
     <div className={classes.row} onClick={toggleExpanded}>
       <span className={classes.name}>{name}</span>
-      <span className={classes.date}>{dateWritten}</span>
-      <span className={classes.status}>{status}</span>
+      <span className={classes.middleColumn}>{dateWritten}</span>
+      <span className={classes.middleColumn}>{status}</span>
+      <span className={classes.lastRun}>{lastRun}</span>
     </div>
     {expanded && <ul className={classes.runs}>
       {runs.map(run => <li key={run.started}>
