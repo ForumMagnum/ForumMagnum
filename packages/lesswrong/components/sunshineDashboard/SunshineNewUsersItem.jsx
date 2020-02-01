@@ -64,6 +64,7 @@ class SunshineNewUsersItem extends Component {
           nullifyVotes: true,
           voteBanned: true,
           deleteContent: true,
+          needsReview: false,
           banned: moment().add(12, 'months').toDate()
         }
       })
