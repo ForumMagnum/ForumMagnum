@@ -14,6 +14,10 @@ const styles = theme => ({
   },
   postBody: {
     ...postHighlightStyles(theme),
+    fontSize: "1rem",
+    '& li, & h1, & h2, & h3': {
+      fontSize: "1rem"
+    }
   }
 })
 
