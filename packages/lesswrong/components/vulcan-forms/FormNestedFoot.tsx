@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 
 const FormNestedFoot = ({ addItem, label, className }) => (
   <Components.Button size="small" variant="success" onClick={addItem} className="form-nested-button">

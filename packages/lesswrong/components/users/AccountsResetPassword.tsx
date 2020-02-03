@@ -1,4 +1,4 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useEffect } from 'react';
 import { STATES } from '../../lib/vulcan-accounts/helpers';
 import { useLocation } from '../../lib/routeUtil'

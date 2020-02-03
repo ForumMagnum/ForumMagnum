@@ -8,7 +8,7 @@ import React from 'react';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../../lib/vulcan-lib';
 
 const FormItem = ({ path, label, children, beforeInput, afterInput, layout = 'horizontal', ...rest }) => {
   if (layout === 'inputOnly' || !label) { // input only layout

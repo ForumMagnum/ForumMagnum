@@ -1,5 +1,5 @@
 /* global Random */
-import { Utils, addCallback, Connectors } from 'meteor/vulcan:core';
+import { Utils, addCallback, Connectors } from '../vulcan-lib';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../draftConvert';
 import Revisions from '../../lib/collections/revisions/collection'

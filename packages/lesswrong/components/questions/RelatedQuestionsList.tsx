@@ -1,4 +1,4 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';

@@ -1,6 +1,6 @@
 /* global Vulcan */
 import { Posts } from '../../lib/collections/posts';
-import { runCallbacks } from 'meteor/vulcan:core';
+import { runCallbacks } from '../vulcan-lib';
 
 Vulcan.runPostEditCallbacks = () => {
   let postCount = 0;

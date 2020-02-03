@@ -1,4 +1,4 @@
-import { addGraphQLMutation, addGraphQLResolvers, getSetting } from 'meteor/vulcan:core';
+import { addGraphQLMutation, addGraphQLResolvers, getSetting } from './vulcan-lib';
 import { Pool } from 'pg'
 import { AnalyticsUtil } from '../lib/analyticsEvents';
 

@@ -1,4 +1,4 @@
-import { addGraphQLMutation, addGraphQLResolvers, runCallbacks, runCallbacksAsync, Utils } from 'meteor/vulcan:core';
+import { addGraphQLMutation, addGraphQLResolvers, runCallbacks, runCallbacksAsync, Utils } from '../../lib/vulcan-lib';
 import Users from "../../lib/collections/users/collection";
 
 const specificResolvers = {

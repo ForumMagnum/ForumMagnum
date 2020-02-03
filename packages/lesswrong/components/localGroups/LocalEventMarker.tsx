@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
 import { Marker } from 'react-map-gl';
 import { createStyles } from '@material-ui/core/styles';

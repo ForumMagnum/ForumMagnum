@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, Components, getSetting } from '../../../lib/vulcan-lib';
 import { withUpdate } from '../../../lib/crud/withUpdate';
 import { withMutation } from '../../../lib/crud/withMutation';
 import Users from '../../../lib/collections/users/collection'

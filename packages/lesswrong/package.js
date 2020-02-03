@@ -13,9 +13,6 @@ Package.onUse( function(api) {
     'typescript',
     'promise',
     'fourseven:scss@4.12.0',
-
-    // vulcan core
-    'vulcan:core',
     
     // dependencies of vulcan-accounts
     'tracker',
@@ -25,6 +22,21 @@ Package.onUse( function(api) {
     'email',
     'session',
     'service-configuration',
+    
+    // dependencies of vulcan-lib
+    'meteor@1.9.0',
+    'es5-shim@4.8.0',
+    'shell-server@0.3.1',
+    'webapp@1.6.0',
+    'server-render@0.3.1',
+    
+    'underscore',
+    'hot-code-push',
+    'mongo',
+    'http',
+    'meteorhacks:picker@1.0.3',
+    'littledata:synced-cron@1.1.0',
+    'meteorhacks:inject-initial@1.0.4',
   ]);
   
   // dependencies of vulcan-accounts
@@ -51,7 +63,6 @@ Package.onTest(function(api) {
   api.use([
     'typescript',
     'fourseven:scss',
-    'vulcan:core',
     'practicalmeteor:sinon',
     'meteortesting:mocha',
   ]);

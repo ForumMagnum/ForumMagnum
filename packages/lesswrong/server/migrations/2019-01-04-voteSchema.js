@@ -1,6 +1,6 @@
 import { Votes } from '../../lib/collections/votes';
 import { registerMigration, migrateDocuments, fillDefaultValues } from './migrationUtils';
-import { Collections } from 'meteor/vulcan:core';
+import { Collections } from '../../lib/vulcan-lib';
 
 registerMigration({
   name: "migrateVotes",

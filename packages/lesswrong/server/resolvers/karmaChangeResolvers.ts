@@ -1,6 +1,6 @@
 import Users from "../../lib/collections/users/collection";
 import { getKarmaChanges, getKarmaChangeDateRange, getKarmaChangeNextBatchDate } from "../karmaChanges";
-import { getSetting } from 'meteor/vulcan:core';
+import { getSetting } from '../../lib/vulcan-lib';
 
 Users.addField([
   {

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import getContext from 'recompose/getContext';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import { FormattedMessage } from '../../lib/vulcan-i18n';
 
 const FormError = ({ error, errorContext, getLabel }: {

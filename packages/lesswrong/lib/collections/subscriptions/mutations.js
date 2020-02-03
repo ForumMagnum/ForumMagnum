@@ -1,6 +1,6 @@
 import { Subscriptions } from './collection';
 import { subscriptionTypes } from './schema'
-import { runCallbacksAsync, newMutation } from 'meteor/vulcan:core';
+import { runCallbacksAsync, newMutation } from '../../vulcan-lib';
 import Users from '../users/collection';
 
 export const defaultSubscriptionTypeTable = {

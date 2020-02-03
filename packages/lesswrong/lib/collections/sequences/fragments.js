@@ -1,4 +1,4 @@
-import { registerFragment } from 'meteor/vulcan:core';
+import { registerFragment } from '../../vulcan-lib';
 
 registerFragment(`
   fragment SequencesPageFragment on Sequence {

@@ -4,7 +4,7 @@ GraphQL config
 
 */
 
-import { addGraphQLMutation, addGraphQLResolvers } from 'meteor/vulcan:core';
+import { addGraphQLMutation, addGraphQLResolvers } from '../vulcan-lib';
 
 const specificResolvers = {
   Mutation: {

@@ -1,6 +1,6 @@
 import { Posts } from "../../lib/collections/posts";
 import { Comments } from '../../lib/collections/comments/collection'
-import { addCallback, runCallbacksAsync, newMutation, editMutation, removeMutation, getSetting } from 'meteor/vulcan:core';
+import { addCallback, runCallbacksAsync, newMutation, editMutation, removeMutation, getSetting } from '../../lib/vulcan-lib';
 import Users from "../../lib/collections/users/collection";
 import { performVoteServer } from '../voteServer';
 import Messages from '../../lib/collections/messages/collection';

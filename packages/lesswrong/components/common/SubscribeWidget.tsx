@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Hidden from '@material-ui/core/Hidden';
 import { withTracking } from "../../lib/analyticsEvents";
 

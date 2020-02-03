@@ -1,6 +1,6 @@
 import { registerMigration, dropUnusedField } from './migrationUtils';
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
-import { getCollection } from 'meteor/vulcan:core'
+import { getCollection } from '../../lib/vulcan-lib';
 
 registerMigration({
   name: "dropDenormalizedContents",

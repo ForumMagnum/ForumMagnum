@@ -1,4 +1,4 @@
-import { addGraphQLSchema, Vulcan } from 'meteor/vulcan:core';
+import { addGraphQLSchema, Vulcan } from './vulcan-lib';
 import { RateLimiter } from './rateLimiter';
 import React, { useContext, useEffect, useState, useRef } from 'react'
 import { hookToHoc } from './hocUtils'

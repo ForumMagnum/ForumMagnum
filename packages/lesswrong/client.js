@@ -1,4 +1,5 @@
 
+import './lib/vulcan-lib';
 import './client/vulcan-core/start';
 
 // Make sure to register settings before everything else

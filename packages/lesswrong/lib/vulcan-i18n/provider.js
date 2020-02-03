@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { getString, Utils } from 'meteor/vulcan:lib';
+import { getString, Utils } from '../vulcan-lib';
 import { intlShape } from './shape.js';
 
 export default class IntlProvider extends Component {

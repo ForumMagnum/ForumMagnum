@@ -1,4 +1,4 @@
-import { Components as C, registerComponent } from 'meteor/vulcan:core';
+import { Components as C, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 
 const styles = theme => ({

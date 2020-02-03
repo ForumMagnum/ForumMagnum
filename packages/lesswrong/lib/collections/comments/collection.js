@@ -1,5 +1,5 @@
 import schema from './schema';
-import { createCollection } from 'meteor/vulcan:core';
+import { createCollection } from '../../vulcan-lib';
 import Users from '../users/collection';
 import { Posts } from '../posts';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'

@@ -1,4 +1,4 @@
-import { registerComponent, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, getSetting } from '../../lib/vulcan-lib';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withLocation, withNavigation } from '../../lib/routeUtil';

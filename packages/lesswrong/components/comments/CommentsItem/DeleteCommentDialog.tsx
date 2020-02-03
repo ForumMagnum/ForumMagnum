@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../../lib/vulcan-lib';
 import { withMessages } from '../../common/withMessages';
 import withModerateComment from './withModerateComment'
 import Dialog from '@material-ui/core/Dialog';

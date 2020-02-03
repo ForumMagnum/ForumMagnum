@@ -1,4 +1,4 @@
-import { getSetting } from 'meteor/vulcan:core'
+import { getSetting } from '../../vulcan-lib';
 import SimpleSchema from 'simpl-schema'
 import { addFieldsDict } from '../../utils/schemaUtils'
 import Users from "../users/collection";

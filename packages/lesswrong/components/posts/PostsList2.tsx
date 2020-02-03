@@ -1,4 +1,4 @@
-import { Components, registerComponent, Utils } from 'meteor/vulcan:core';
+import { Components, registerComponent, Utils } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import React, { useState } from 'react';
 import { Posts } from '../../lib/collections/posts';

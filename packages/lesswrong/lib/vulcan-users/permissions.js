@@ -1,5 +1,5 @@
 import Users from '../collections/users/collection';
-import { Utils } from 'meteor/vulcan:lib';
+import { Utils } from '../vulcan-lib';
 import intersection from 'lodash/intersection';
 
 /**

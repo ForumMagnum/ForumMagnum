@@ -5,7 +5,7 @@ import Users from '../../lib/collections/users/collection';
 import RSSFeeds from '../../lib/collections/rssfeeds/collection';
 import Sequences from '../../lib/collections/sequences/collection';
 import algoliasearch from 'algoliasearch';
-import { getSetting } from 'meteor/vulcan:core';
+import { getSetting } from '../vulcan-lib';
 import htmlToText from 'html-to-text';
 import { dataToMarkdown } from '../editor/make_editable_callbacks'
 import { algoliaIndexNames } from '../../lib/algoliaUtil';

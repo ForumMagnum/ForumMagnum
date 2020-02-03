@@ -1,7 +1,7 @@
 import React from 'react';
 import { createStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import { Popup } from 'react-map-gl';
 
 // Shared with LocalEventMarker

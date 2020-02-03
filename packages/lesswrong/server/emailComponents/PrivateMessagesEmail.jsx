@@ -1,5 +1,5 @@
 import React from 'react';
-import { getSetting, registerComponent, Components } from 'meteor/vulcan:core';
+import { getSetting, registerComponent, Components } from '../vulcan-lib';
 import { withStyles } from '@material-ui/core/styles';
 import { Conversations } from '../../lib/collections/conversations/collection';
 import { useCurrentUser } from '../../components/common/withUser';

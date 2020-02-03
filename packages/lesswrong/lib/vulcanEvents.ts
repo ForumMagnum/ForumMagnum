@@ -1,4 +1,4 @@
-import { addCallback } from 'meteor/vulcan:core';
+import { addCallback } from './vulcan-lib';
 
 export const initFunctions: Array<any> = [];
 

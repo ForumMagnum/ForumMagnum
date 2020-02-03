@@ -1,4 +1,4 @@
-import { Components as C, registerComponent } from 'meteor/vulcan:core';
+import { Components as C, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import Users from '../../lib/collections/users/collection';

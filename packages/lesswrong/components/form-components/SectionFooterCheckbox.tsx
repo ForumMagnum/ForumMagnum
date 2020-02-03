@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import Checkbox from '@material-ui/core/Checkbox';
 import classNames from 'classnames';
 

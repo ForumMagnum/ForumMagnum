@@ -1,4 +1,4 @@
-import { getSetting } from 'meteor/vulcan:lib';
+import { getSetting } from '../vulcan-lib';
 
 const services = getSetting('oAuth');
 

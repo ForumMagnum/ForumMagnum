@@ -2,7 +2,7 @@
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import { draftJSToHtmlWithLatex, markdownToHtml} from '../editor/make_editable_callbacks'
 import { Posts } from '../../lib/collections/posts'
-import { editMutation } from 'meteor/vulcan:core';
+import { editMutation } from '../vulcan-lib';
 
 registerMigration({
   name: "fixBigPosts",

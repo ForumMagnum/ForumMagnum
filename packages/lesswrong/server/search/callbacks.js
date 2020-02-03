@@ -1,4 +1,4 @@
-import { addCallback } from 'meteor/vulcan:core';
+import { addCallback } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments'
 import { Tags } from '../../lib/collections/tags/collection'

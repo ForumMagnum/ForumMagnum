@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent, } from 'meteor/vulcan:core';
+import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import { truncate } from '../../lib/editor/ellipsize';
 
 const SEQUENCE_DESCRIPTION_TRUNCATION_LENGTH = 750;

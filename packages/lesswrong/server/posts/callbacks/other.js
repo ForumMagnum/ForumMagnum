@@ -11,7 +11,7 @@ Callbacks to:
 */
 
 import { Posts } from '../../../lib/collections/posts'
-import { Connectors, addCallback, getSetting, runCallbacks, runCallbacksAsync } from 'meteor/vulcan:core';
+import { Connectors, addCallback, getSetting, runCallbacks, runCallbacksAsync } from '../../vulcan-lib';
 import { track } from '../../../lib/vulcanEvents';
 
 //////////////////////////////////////////////////////

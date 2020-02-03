@@ -1,6 +1,6 @@
 /* global Vulcan */
 import { Localgroups } from '../../lib/collections/localgroups/collection';
-import { runCallbacks } from 'meteor/vulcan:core';
+import { runCallbacks } from '../vulcan-lib';
 
 Vulcan.runLocalgroupsEditCallbacks = async () => {
   let groupCount = 0;

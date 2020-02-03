@@ -1,4 +1,4 @@
-import { Utils } from 'meteor/vulcan:lib';
+import { Utils } from '../vulcan-lib';
 import Users from '../collections/users/collection';
 import moment from 'moment';
 

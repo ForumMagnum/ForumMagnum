@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 
 const FormNestedHead = ({ label, addItem }) => (
   <label className="control-label col-sm-3">{label}</label>

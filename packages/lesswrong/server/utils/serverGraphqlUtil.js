@@ -1,4 +1,4 @@
-import { addGraphQLResolvers, addGraphQLSchema, addGraphQLQuery } from 'meteor/vulcan:core';
+import { addGraphQLResolvers, addGraphQLSchema, addGraphQLQuery } from '../../lib/vulcan-lib';
 
 // Defines a graphql query. Use this for queries which don't fit well into the
 // CRUD framework; for queries that just retrieve and sort a subset of a

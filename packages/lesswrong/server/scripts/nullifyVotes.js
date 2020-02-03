@@ -1,6 +1,6 @@
 /* global Vulcan */
 import Users from '../../lib/collections/users/collection';
-import { runCallbacksAsync } from 'meteor/vulcan:core';
+import { runCallbacksAsync } from '../vulcan-lib';
 
 Vulcan.nullifyVotesForNullifiedUsers = async () => {
   const users = await Users.find({nullifyVotes: true}).fetch();

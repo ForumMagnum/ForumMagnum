@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import qs from 'qs';
-import { getSetting } from 'meteor/vulcan:core';
+import { getSetting } from './vulcan-lib';
 import { NavigationContext, LocationContext, SubscribeLocationContext, ServerRequestStatusContext } from './vulcan-core/appContext';
 import { Meteor } from 'meteor/meteor';
 

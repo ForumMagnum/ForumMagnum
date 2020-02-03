@@ -1,7 +1,7 @@
 import Sequences from './collection';
 import { Posts } from '../posts/index';
 import Chapters from '../chapters/collection';
-import { Utils } from 'meteor/vulcan:core';
+import { Utils } from '../../vulcan-lib';
 import keyBy from 'lodash/keyBy';
 
 // TODO: Make these functions able to use loaders for caching.

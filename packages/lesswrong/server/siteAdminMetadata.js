@@ -1,4 +1,4 @@
-import { addGraphQLResolvers, addGraphQLSchema, addGraphQLQuery } from 'meteor/vulcan:core';
+import { addGraphQLResolvers, addGraphQLSchema, addGraphQLQuery } from './vulcan-lib';
 import { getUnrecognizedIndexes, getMissingIndexes } from './indexUtil';
 
 // missingIndexes and extraIndexes are sent as stringified JSON rather than as

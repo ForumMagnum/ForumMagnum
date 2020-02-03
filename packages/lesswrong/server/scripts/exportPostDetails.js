@@ -23,7 +23,7 @@
 */
 
 import { wrapVulcanAsyncScript } from './utils'
-import { getSetting } from 'meteor/vulcan:core';
+import { getSetting } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts'
 import Users from '../../lib/collections/users/collection'
 import fs from 'mz/fs'

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components } from 'meteor/vulcan:core';
+import { Components } from '../../lib/vulcan-lib';
 
 /// Higher-order component which adds an error boundary around a component.
 /// Unlike putting an <ErrorBoundary/> tag inside your render method, an error

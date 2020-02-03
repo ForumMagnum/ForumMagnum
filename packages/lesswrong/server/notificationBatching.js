@@ -6,7 +6,7 @@ import { EventDebouncer } from './debouncer';
 import toDictionary from '../lib/utils/toDictionary';
 import Users from '../lib/collections/users/collection';
 import { Posts } from '../lib/collections/posts';
-import { Components, addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from 'meteor/vulcan:core';
+import { Components, addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from './vulcan-lib';
 import { UnsubscribeAllToken } from './emails/emailTokens';
 import { generateEmail, sendEmail, logSentEmail } from './emails/renderEmail';
 import Sentry from '@sentry/node';

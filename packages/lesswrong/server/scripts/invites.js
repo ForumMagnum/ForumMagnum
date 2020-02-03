@@ -1,5 +1,5 @@
 import { Accounts } from 'meteor/accounts-base';
-import { getSetting } from 'meteor/vulcan:lib';
+import { getSetting } from '../vulcan-lib';
 
 if (!Meteor.isPackageTest) {
   Accounts.emailTemplates.siteName = 'LessWrong 2.0';

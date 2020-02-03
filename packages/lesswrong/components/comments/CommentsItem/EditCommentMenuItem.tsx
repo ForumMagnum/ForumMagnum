@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../../lib/vulcan-lib';
 import MenuItem from '@material-ui/core/MenuItem';
 import Users from '../../../lib/collections/users/collection';
 import { useCurrentUser } from '../../common/withUser';

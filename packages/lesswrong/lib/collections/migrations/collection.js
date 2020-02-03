@@ -1,4 +1,4 @@
-import { createCollection } from 'meteor/vulcan:core';
+import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields } from '../../collectionUtils'
 
 // A collection which records whenever a migration is run, when it started and

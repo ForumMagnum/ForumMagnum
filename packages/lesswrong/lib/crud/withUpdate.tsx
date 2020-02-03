@@ -31,7 +31,7 @@ import React from 'react';
 import { Mutation, useMutation } from 'react-apollo';
 import { compose, withHandlers } from 'recompose';
 import gql from 'graphql-tag';
-import { updateClientTemplate, extractCollectionInfo, extractFragmentInfo } from 'meteor/vulcan:lib';
+import { updateClientTemplate, extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
 import { getExtraVariables } from './utils';
 import { cacheUpdateGenerator } from './cacheUpdates';
 

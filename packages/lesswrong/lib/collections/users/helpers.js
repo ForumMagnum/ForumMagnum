@@ -1,6 +1,6 @@
 import Users from "../users/collection";
 import bowser from 'bowser'
-import { getSetting, Utils } from 'meteor/vulcan:core';
+import { getSetting, Utils } from '../../vulcan-lib';
 import { Votes } from '../votes';
 import { Comments } from '../comments'
 import { Posts } from '../posts'

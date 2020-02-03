@@ -1,6 +1,6 @@
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
-import { getCollection } from 'meteor/vulcan:core'
+import { getCollection } from '../../lib/vulcan-lib';
 import { Revisions } from '../../lib/index';
 
 function determineCanonicalContent({ content: draftJS, lastEditedAs, body: markdown, htmlBody: html }) {

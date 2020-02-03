@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import withHover from '../common/withHover';
 import { KARMA_WIDTH } from './PostsItem2';
 

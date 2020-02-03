@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMulti } from '../../lib/crud/withMulti';
 import Conversations from '../../lib/collections/conversations/collection';

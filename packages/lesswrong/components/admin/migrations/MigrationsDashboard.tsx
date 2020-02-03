@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import Users from '../../../lib/collections/users/collection';
 import { useCurrentUser } from '../../common/withUser';
 import { useQuery } from 'react-apollo';

@@ -1,6 +1,6 @@
 /* global Vulcan */
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
-import { getCollection } from 'meteor/vulcan:core'
+import { getCollection } from '../vulcan-lib';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { forEachDocumentBatchInCollection } from '../migrations/migrationUtils';
 

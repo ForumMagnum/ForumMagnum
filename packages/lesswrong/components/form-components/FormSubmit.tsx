@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import Users from '../../lib/collections/users/collection';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';

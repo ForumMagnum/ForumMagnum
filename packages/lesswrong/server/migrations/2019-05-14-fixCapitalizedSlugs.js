@@ -1,4 +1,4 @@
-import { Utils } from 'meteor/vulcan:lib';
+import { Utils } from '../../lib/vulcan-lib';
 import Users from '../../lib/collections/users/collection';
 import { registerMigration, migrateDocuments } from './migrationUtils';
 

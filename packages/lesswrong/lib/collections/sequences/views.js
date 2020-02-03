@@ -1,5 +1,5 @@
 import Sequences from './collection';
-import { getSetting } from 'meteor/vulcan:core';
+import { getSetting } from '../../vulcan-lib';
 import { ensureIndex } from '../../collectionUtils';
 
 Sequences.addDefaultView(terms => {

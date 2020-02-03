@@ -1,4 +1,4 @@
-import { registerComponent, Components, Utils } from 'meteor/vulcan:core';
+import { registerComponent, Components, Utils } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import React, { Component } from 'react';
 import Card from '@material-ui/core/Card';

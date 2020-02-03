@@ -1,6 +1,6 @@
 /* global Vulcan */
 import { getUnrecognizedIndexes } from '../indexUtil';
-import { Collections } from 'meteor/vulcan:lib';
+import { Collections } from '../vulcan-lib';
 
 Vulcan.printUnusedIndexes = async () =>
 {

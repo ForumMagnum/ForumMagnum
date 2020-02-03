@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import moment from '../../lib/moment-timezone';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Typography from '@material-ui/core/Typography'
 import classNames from 'classnames';
 import { getDateRange, timeframeToTimeBlock } from './timeframeUtils'

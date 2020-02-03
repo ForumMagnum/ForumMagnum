@@ -1,6 +1,6 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
 import { editableCollections, editableCollectionsFields, editableCollectionsFieldOptions } from '../../lib/editor/make_editable';
-import { getCollection } from 'meteor/vulcan:lib';
+import { getCollection } from '../../lib/vulcan-lib';
 import { htmlToPingbacks } from '../pingbacks';
 
 registerMigration({

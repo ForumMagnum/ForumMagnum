@@ -1,5 +1,4 @@
-import { getSetting } from 'meteor/vulcan:core'
-import { viewFieldNullOrMissing } from 'meteor/vulcan:lib';
+import { getSetting, viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
 import moment from 'moment';
 import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionUtils';

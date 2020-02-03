@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import Settings from '@material-ui/icons/Settings';
 

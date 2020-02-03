@@ -1,4 +1,4 @@
-import { belongsToSet, addToSet, reorderSet, isInSet, removeFromSet, updateInSet, Collections } from 'meteor/vulcan:lib';
+import { belongsToSet, addToSet, reorderSet, isInSet, removeFromSet, updateInSet, Collections } from '../vulcan-lib';
 import { getMultiResolverName, findWatchesByTypeName, getUpdateMutationName, getCreateMutationName, getDeleteMutationName } from './utils';
 
 export const cacheUpdateGenerator = (typeName, mutationType) => {

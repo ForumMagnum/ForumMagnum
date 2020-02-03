@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 
 const styles = theme => ({
   setting: {

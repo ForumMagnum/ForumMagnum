@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { ApolloProvider } from 'react-apollo';
-import { runCallbacks, Components } from 'meteor/vulcan:lib';
+import { runCallbacks, Components } from '../../lib/vulcan-lib';
 import { CookiesProvider } from 'react-cookie';
 import { BrowserRouter } from 'react-router-dom';
 

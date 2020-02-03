@@ -1,5 +1,5 @@
 
-import { addAdminColumn } from 'meteor/vulcan:core';
+import { addAdminColumn } from '../../vulcan-lib';
 
 addAdminColumn({
   name: '_id',

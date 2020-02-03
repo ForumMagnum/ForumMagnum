@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, getSetting } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import Users from '../../lib/collections/users/collection';
 import classNames from 'classnames';

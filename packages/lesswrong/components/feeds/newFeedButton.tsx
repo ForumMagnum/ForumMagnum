@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from '@material-ui/core/Button';
-import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import RSSFeeds from '../../lib/collections/rssfeeds/collection';
 import { useCurrentUser } from '../common/withUser';
 

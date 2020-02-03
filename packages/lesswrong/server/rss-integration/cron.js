@@ -1,6 +1,6 @@
 import { addCronJob } from '../cronUtil';
 import RSSFeeds from '../../lib/collections/rssfeeds/collection';
-import { newMutation, editMutation } from 'meteor/vulcan:core';
+import { newMutation, editMutation } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
 import Users from '../../lib/collections/users/collection';
 

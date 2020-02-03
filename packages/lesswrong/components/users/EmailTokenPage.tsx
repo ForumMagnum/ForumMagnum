@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withMutation } from '../../lib/crud/withMutation';
 import { withLocation } from '../../lib/routeUtil';
 

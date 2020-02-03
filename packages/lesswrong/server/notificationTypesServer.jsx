@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components } from 'meteor/vulcan:core';
+import { Components } from './vulcan-lib';
 import { Posts } from '../lib/collections/posts/collection';
 import { Comments } from '../lib/collections/comments/collection';
 import { Localgroups } from '../lib/collections/localgroups/collection';

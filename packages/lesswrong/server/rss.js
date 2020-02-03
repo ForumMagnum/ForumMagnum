@@ -2,8 +2,7 @@ import RSS from 'rss';
 import { Posts } from '../lib/collections/posts';
 import { rssTermsToUrl } from '../lib/rss_urls';
 import { Comments } from '../lib/collections/comments';
-import { Utils, getSetting } from 'meteor/vulcan:core';
-import { addStaticRoute } from 'meteor/vulcan:lib';
+import { Utils, getSetting, addStaticRoute } from './vulcan-lib';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import moment from '../lib/moment-timezone';
 

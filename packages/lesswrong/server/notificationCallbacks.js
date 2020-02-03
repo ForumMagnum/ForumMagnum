@@ -17,7 +17,7 @@ import { notificationDebouncers, wrapAndSendEmail } from './notificationBatching
 import { defaultNotificationTypeSettings } from '../lib/collections/users/custom_fields';
 import { ensureIndex } from '../lib/collectionUtils';
 
-import { Components, addCallback, createMutator } from 'meteor/vulcan:core';
+import { Components, addCallback, createMutator } from './vulcan-lib';
 
 import React from 'react';
 import keyBy from 'lodash/keyBy';

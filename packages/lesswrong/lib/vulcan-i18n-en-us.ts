@@ -1,4 +1,4 @@
-import { addStrings } from 'meteor/vulcan:core';
+import { addStrings } from './vulcan-lib';
 
 addStrings('en', {
   'accounts.error_incorrect_password': 'Incorrect password',

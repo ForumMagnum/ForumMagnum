@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import {
   Components,
   registerComponent,
-} from 'meteor/vulcan:core';
+} from '../../lib/vulcan-lib';
 import { userHasBoldPostItems } from '../../lib/betas';
 
 import classNames from 'classnames';

@@ -1,4 +1,4 @@
-import { registerSetting } from 'meteor/vulcan:lib';
+import { registerSetting } from '../vulcan-lib';
 
 registerSetting('locale', 'en', 'Your app\'s locale (“en”, “fr”, etc.)');
 

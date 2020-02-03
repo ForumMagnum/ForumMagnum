@@ -1,5 +1,4 @@
-import { getSetting } from 'meteor/vulcan:core';
-import { addStaticRoute } from 'meteor/vulcan:lib';
+import { getSetting, addStaticRoute } from './vulcan-lib';
 
 // Vary robots.txt based on a setting, because we want development servers
 // (lessestwrong.com, baserates.org) to not be indexed by search engines.

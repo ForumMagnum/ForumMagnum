@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components, getAdminColumns, registerComponent, addAdminColumn } from 'meteor/vulcan:core';
+import { Components, getAdminColumns, registerComponent, addAdminColumn } from '../../lib/vulcan-lib';
 import { Bans } from '../../lib/collections/bans';
 import { LWEvents } from '../../lib/collections/lwevents';
 import { FormattedMessage } from '../../lib/vulcan-i18n';

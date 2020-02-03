@@ -1,5 +1,4 @@
-import { runCallbacksAsync } from 'meteor/vulcan:core';
-import { addStaticRoute } from 'meteor/vulcan:lib'
+import { runCallbacksAsync, addStaticRoute } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
 import { ensureIndex } from '../../lib/collectionUtils';
 

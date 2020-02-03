@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Accounts } from 'meteor/accounts-base';
 import { KEY_PREFIX } from '../../lib/vulcan-accounts/login_session';
-import { Components, registerComponent } from 'meteor/vulcan:lib';
+import { Components, registerComponent } from '../../lib/vulcan-core';
 import { intlShape } from '../../lib/vulcan-i18n';
 import { withApollo } from 'react-apollo';
 import TrackerComponent from './TrackerComponent';

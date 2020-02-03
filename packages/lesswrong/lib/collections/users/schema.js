@@ -1,5 +1,5 @@
 import SimpleSchema from 'simpl-schema';
-import { Utils, getCollection, Connectors } from 'meteor/vulcan:lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
+import { Utils, getCollection, Connectors } from '../../vulcan-lib';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:

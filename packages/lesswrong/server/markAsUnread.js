@@ -1,4 +1,4 @@
-import { addGraphQLMutation, addGraphQLResolvers } from 'meteor/vulcan:core';
+import { addGraphQLMutation, addGraphQLResolvers } from './vulcan-lib';
 import { ReadStatuses } from '../lib/collections/readStatus/collection';
 
 

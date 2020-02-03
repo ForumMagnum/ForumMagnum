@@ -6,7 +6,7 @@ import { batchUpdateScore } from '../server/updateScores';
 import { createDummyUser, createDummyPost, } from './utils'
 import { Posts } from '../lib/collections/posts'
 import { getKarmaChanges, getKarmaChangeDateRange } from '../server/karmaChanges';
-import { Utils, waitUntilCallbacksFinished } from 'meteor/vulcan:core';
+import { Utils, waitUntilCallbacksFinished } from '../lib/vulcan-lib';
 import lolex from 'lolex';
 
 chai.should();

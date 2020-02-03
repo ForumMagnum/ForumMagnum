@@ -1,6 +1,6 @@
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
-import { runQuery } from 'meteor/vulcan:core';
+import { runQuery } from '../../vulcan-lib';
 import { createDummyUser, createDummyPost, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../../../testing/utils'
 
 chai.should();

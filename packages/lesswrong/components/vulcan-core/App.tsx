@@ -1,4 +1,4 @@
-import { Components, registerComponent, getSetting, Strings, runCallbacks, detectLocale } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting, Strings, runCallbacks, detectLocale } from '../../lib/vulcan-lib';
 import { LocationContext, SubscribeLocationContext, NavigationContext, ServerRequestStatusContext, parseRoute } from '../../lib/vulcan-core/appContext';
 import { MessageContext } from '../common/withMessages';
 import { withUpdate } from '../../lib/crud/withUpdate';

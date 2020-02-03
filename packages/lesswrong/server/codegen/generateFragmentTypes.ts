@@ -1,4 +1,4 @@
-import { getAllFragmentNames, getFragment, getCollectionName, getCollection, Vulcan } from 'meteor/vulcan:core';
+import { getAllFragmentNames, getFragment, getCollectionName, getCollection, Vulcan } from '../../lib/vulcan-lib';
 import { simplSchemaToGraphQLtype } from '../../lib/utils/schemaUtils';
 import GraphQLJSON from 'graphql-type-json';
 import SimpleSchema from 'simpl-schema'

@@ -3,7 +3,7 @@ import { FormattedMessage } from '../../lib/vulcan-i18n';
 import {
   Components,
   registerComponent
-} from 'meteor/vulcan:core';
+} from '../../lib/vulcan-lib';
 import moment from 'moment';
 import Users from '../../lib/collections/users/collection';
 import Typography from '@material-ui/core/Typography';

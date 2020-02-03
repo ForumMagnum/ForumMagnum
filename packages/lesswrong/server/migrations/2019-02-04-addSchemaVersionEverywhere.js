@@ -1,4 +1,4 @@
-import { Collections } from 'meteor/vulcan:core'
+import { Collections } from '../../lib/vulcan-lib';
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import { isUnbackedCollection } from '../../lib/collectionUtils';
 

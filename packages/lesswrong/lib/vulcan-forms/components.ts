@@ -1,4 +1,4 @@
-import { importComponent } from 'meteor/vulcan:lib';
+import { importComponent } from '../vulcan-lib';
 
 importComponent("FieldErrors", () => require('../../components/vulcan-forms/FieldErrors'));
 importComponent("FormErrors", () => require('../../components/vulcan-forms/FormErrors'));

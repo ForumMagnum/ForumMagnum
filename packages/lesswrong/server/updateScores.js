@@ -1,4 +1,4 @@
-import { Connectors } from 'meteor/vulcan:core';
+import { Connectors } from './vulcan-lib';
 import { recalculateScore } from '../lib/scoring.ts';
 
 /*

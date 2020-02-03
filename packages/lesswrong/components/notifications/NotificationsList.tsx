@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import Notifications from '../../lib/collections/notifications/collection';
 import { useCurrentUser } from '../common/withUser';

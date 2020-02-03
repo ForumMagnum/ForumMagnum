@@ -1,4 +1,4 @@
-import { newMutation } from 'meteor/vulcan:core';
+import { newMutation } from '../vulcan-lib';
 import { forEachDocumentBatchInCollection, registerMigration } from './migrationUtils';
 import Users from '../../lib/collections/users/collection';
 import { Comments } from '../../lib/collections/comments/collection';

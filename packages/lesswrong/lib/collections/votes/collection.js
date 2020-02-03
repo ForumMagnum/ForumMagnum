@@ -1,4 +1,4 @@
-import { createCollection } from 'meteor/vulcan:core';
+import { createCollection } from '../../vulcan-lib';
 import schema from './schema';
 import { addUniversalFields } from '../../collectionUtils'
 

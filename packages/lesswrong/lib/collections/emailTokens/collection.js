@@ -1,5 +1,5 @@
 import schema from './schema';
-import { createCollection } from 'meteor/vulcan:core';
+import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, ensureIndex } from '../../collectionUtils'
 
 export const EmailTokens = createCollection({

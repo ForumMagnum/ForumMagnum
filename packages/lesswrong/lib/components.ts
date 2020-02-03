@@ -1,5 +1,4 @@
-import { getSetting } from 'meteor/vulcan:core';
-import { importComponent } from 'meteor/vulcan:lib';
+import { getSetting, importComponent } from './vulcan-lib';
 
 import '../components/vulcan-core/vulcan-core-components';
 

@@ -1,4 +1,4 @@
-import { addCallback, getCollection } from 'meteor/vulcan:core';
+import { addCallback, getCollection } from '../vulcan-lib';
 import Users from '../collections/users/collection';
 import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from "../loaders";

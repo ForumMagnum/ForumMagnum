@@ -1,5 +1,5 @@
 import Conversations from "./collection";
-import { Utils } from 'meteor/vulcan:core';
+import { Utils } from '../../vulcan-lib';
 
 Conversations.getTitle = (conversation, currentUser) => {
   if (!!conversation.title) {

@@ -1,4 +1,4 @@
-import { addCallback } from 'meteor/vulcan:core';
+import { addCallback } from '../../lib/vulcan-lib';
 import { Tags, tagDescriptionEditableOptions } from '../../lib/collections/tags/collection';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { addEditableCallbacks } from '../editor/make_editable_callbacks'

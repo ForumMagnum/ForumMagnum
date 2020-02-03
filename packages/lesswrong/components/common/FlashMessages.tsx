@@ -1,4 +1,4 @@
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import { withMessages } from './withMessages';
 import React, { PureComponent } from 'react';
 import Snackbar from '@material-ui/core/Snackbar';

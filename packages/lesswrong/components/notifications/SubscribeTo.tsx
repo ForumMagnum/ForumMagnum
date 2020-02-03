@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent, Utils } from 'meteor/vulcan:core';
+import { Components, registerComponent, Utils } from '../../lib/vulcan-lib';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMessages } from '../common/withMessages';

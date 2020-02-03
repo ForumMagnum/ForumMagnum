@@ -1,5 +1,5 @@
 import Users from "../users/collection";
-import { addGraphQLSchema, addGraphQLResolvers } from 'meteor/vulcan:core';
+import { addGraphQLSchema, addGraphQLResolvers } from '../../vulcan-lib';
 
 addGraphQLSchema(`
   type PostKarmaChange {

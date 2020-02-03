@@ -1,5 +1,5 @@
 /* global Vulcan */
-import { Collections, getCollection } from 'meteor/vulcan:lib';
+import { Collections, getCollection } from '../vulcan-lib';
 import { forEachDocumentBatchInCollection } from '../migrations/migrationUtils';
 
 // customValidators: Mapping from collection name to array of

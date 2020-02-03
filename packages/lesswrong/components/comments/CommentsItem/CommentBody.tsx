@@ -1,4 +1,4 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import React from 'react';
 import { commentBodyStyles, postHighlightStyles } from '../../../themes/stylePiping'
 import classNames from 'classnames';

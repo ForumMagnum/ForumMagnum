@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import Users from '../../lib/collections/users/collection';
 
 const EmailUsername = ({user}) => {

@@ -1,4 +1,4 @@
-import { Utils } from 'meteor/vulcan:core';
+import { Utils } from '../../lib/vulcan-lib';
 let mjAPI = require('mathjax-node')
 
 Utils.trimEmptyLatexParagraphs = (dom) => {

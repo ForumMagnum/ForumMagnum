@@ -1,7 +1,7 @@
 import fs from 'fs';
 import Users from '../../lib/collections/users/collection';
 import { Posts } from '../../lib/collections/posts';
-import { newMutation } from 'meteor/vulcan:core';
+import { newMutation } from '../vulcan-lib';
 
 const hpmorImport = false;
 

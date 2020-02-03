@@ -1,5 +1,5 @@
 import { registerMigration } from './migrationUtils';
-import { editMutation } from 'meteor/vulcan:core';
+import { editMutation } from '../vulcan-lib';
 
 
 import { Posts } from '../../lib/collections/posts/collection';

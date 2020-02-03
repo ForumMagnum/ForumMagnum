@@ -30,7 +30,7 @@ import {
   getSetting,
   Utils,
   mergeWithComponents
-} from 'meteor/vulcan:core';
+} from '../../lib/vulcan-lib';
 import React, { Component } from 'react';
 import SimpleSchema from 'simpl-schema';
 import PropTypes from 'prop-types';

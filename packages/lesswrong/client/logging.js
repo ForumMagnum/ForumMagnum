@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/browser';
-import { getSetting, addCallback } from 'meteor/vulcan:core';
+import { getSetting, addCallback } from '../lib/vulcan-lib';
 import { captureEvent, AnalyticsUtil } from '../lib/analyticsEvents';
 import { browserProperties } from '../lib/utils/browserProperties';
 

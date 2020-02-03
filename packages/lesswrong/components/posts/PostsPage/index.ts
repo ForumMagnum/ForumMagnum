@@ -1,4 +1,4 @@
-import { importComponent } from 'meteor/vulcan:lib';
+import { importComponent } from '../../../lib/vulcan-lib';
 
 importComponent("PostsPage", () => require('./PostsPage'));
 importComponent("PostsPageDate", () => require('./PostsPageDate'));

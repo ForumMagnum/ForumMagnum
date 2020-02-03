@@ -1,4 +1,4 @@
-import { createCollection } from 'meteor/vulcan:core';
+import { createCollection } from '../../vulcan-lib';
 import Users from '../users/collection';
 import schema from './schema';
 import { makeEditable } from '../../editor/make_editable';

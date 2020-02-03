@@ -1,5 +1,5 @@
 import { expectedIndexes, isUnbackedCollection } from '../lib/collectionUtils';
-import { Collections } from 'meteor/vulcan:lib';
+import { Collections } from './vulcan-lib';
 
 function indexesMatch(indexA, indexB)
 {

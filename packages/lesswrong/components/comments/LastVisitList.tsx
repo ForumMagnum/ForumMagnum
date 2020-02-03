@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import MenuItem from '@material-ui/core/MenuItem'
 import { LWEvents } from '../../lib/collections/lwevents/collection'

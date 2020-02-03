@@ -1,7 +1,7 @@
 import React from 'react';
 import Notifications from '../../lib/collections/notifications/collection';
 import Badge from '@material-ui/core/Badge';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import IconButton from '@material-ui/core/IconButton';
 import NotificationsIcon from '@material-ui/icons/Notifications';

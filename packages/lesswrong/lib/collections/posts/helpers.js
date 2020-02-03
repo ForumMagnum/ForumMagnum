@@ -1,6 +1,6 @@
 import { Posts } from './collection';
 import Users from '../users/collection';
-import { Utils, getSetting } from 'meteor/vulcan:core';
+import { Utils, getSetting } from '../../vulcan-lib';
 
 
 // EXAMPLE-FORUM Helpers

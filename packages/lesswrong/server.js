@@ -1,4 +1,5 @@
-import { getSetting } from 'meteor/vulcan:core';
+import { getSetting } from './lib/vulcan-lib';
+import './server/vulcan-lib/index';
 
 import './server/vulcan-users/main';
 import './server/vulcan-core/start';

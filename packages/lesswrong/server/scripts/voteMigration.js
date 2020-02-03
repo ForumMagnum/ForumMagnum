@@ -1,6 +1,6 @@
 import Users from '../../lib/collections/users/collection';
 import { Votes } from '../../lib/collections/votes';
-import { getSetting } from 'meteor/vulcan:core';
+import { getSetting } from '../vulcan-lib';
 import { Random } from 'meteor/random';
 
 async function runVoteMigration(collectionName) {

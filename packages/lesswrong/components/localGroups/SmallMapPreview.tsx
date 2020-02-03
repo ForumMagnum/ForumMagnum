@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
 import { createStyles } from '@material-ui/core/styles';
 import ReactMapGL from 'react-map-gl';
 import { Helmet } from 'react-helmet'

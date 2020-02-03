@@ -3,7 +3,7 @@ import Users from "../users/collection";
 import { makeEditable } from '../../editor/make_editable'
 import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple, resolverOnlyField, denormalizedCountOfReferences, accessFilterSingle, denormalizedField, googleLocationToMongoLocation } from '../../utils/schemaUtils'
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
-import { Utils, getSetting } from 'meteor/vulcan:core';
+import { Utils, getSetting } from '../../vulcan-lib';
 import GraphQLJSON from 'graphql-type-json';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { getWithLoader } from '../../loaders';

@@ -1,4 +1,4 @@
-import { addGraphQLResolvers, addGraphQLQuery, addGraphQLMutation, addGraphQLSchema, getSetting } from 'meteor/vulcan:core';
+import { addGraphQLResolvers, addGraphQLQuery, addGraphQLMutation, addGraphQLSchema, getSetting } from './vulcan-lib';
 import { Posts } from '../lib/collections/posts';
 import { WeightedList } from './weightedList';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';

@@ -1,5 +1,5 @@
 import { DatabaseMetadata } from '../lib/collections/databaseMetadata/collection';
-import { registerSetting, getSetting } from 'meteor/vulcan:core';
+import { registerSetting, getSetting } from './vulcan-lib';
 import process from 'process';
 
 registerSetting('expectedDatabaseId', null, "Database ID string that this config file should match with");

@@ -1,4 +1,4 @@
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import Radio from '@material-ui/core/Radio';

@@ -1,4 +1,4 @@
-import { newMutation, runQuery } from 'meteor/vulcan:core';
+import { newMutation, runQuery, setOnGraphQLError } from '../server/vulcan-lib';
 import Users from '../lib/collections/users/collection';
 import { Posts } from '../lib/collections/posts'
 import { Comments } from '../lib/collections/comments'
@@ -6,7 +6,6 @@ import Conversations from '../lib/collections/conversations/collection';
 import Messages from '../lib/collections/messages/collection';
 import {ContentState, convertToRaw} from 'draft-js';
 import { Random } from 'meteor/random';
-import { setOnGraphQLError } from 'meteor/vulcan:lib';
 
 
 // Hooks Vulcan's runGraphQL to handle errors differently. By default, Vulcan

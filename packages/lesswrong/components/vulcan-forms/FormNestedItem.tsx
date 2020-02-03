@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, mergeWithComponents } from 'meteor/vulcan:core';
+import { Components, registerComponent, mergeWithComponents } from '../../lib/vulcan-lib';
 
 const FormNestedItemLayout = ({ content, removeButton }) => (
   <div className="form-nested-item">

@@ -1,4 +1,4 @@
-import { addStrings } from 'meteor/vulcan:core';
+import { addStrings } from '../vulcan-lib';
 
 // Example Forum default strings
 

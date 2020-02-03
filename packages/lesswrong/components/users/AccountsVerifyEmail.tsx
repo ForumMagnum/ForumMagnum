@@ -1,4 +1,4 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useEffect, useState } from 'react';
 import { withApollo } from 'react-apollo';
 import Users from '../../lib/collections/users/collection';

@@ -1,6 +1,6 @@
 /* global Vulcan */
 import { wrapVulcanAsyncScript } from './utils'
-import { runCallbacksAsync } from 'meteor/vulcan:core';
+import { runCallbacksAsync } from '../vulcan-lib';
 import Users from '../../lib/collections/users/collection'
 import moment from 'moment'
 

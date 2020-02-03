@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, Components, getSetting } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 import StarIcon from '@material-ui/icons/Star';

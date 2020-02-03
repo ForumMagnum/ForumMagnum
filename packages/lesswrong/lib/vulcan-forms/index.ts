@@ -1,4 +1,4 @@
-import { registerComponent, registerSetting } from 'meteor/vulcan:core';
+import { registerComponent, registerSetting } from '../vulcan-lib';
 
 registerSetting('forms.warnUnsavedChanges', false, 'Warn user about unsaved changes before leaving route', true);
 

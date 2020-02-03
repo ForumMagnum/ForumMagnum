@@ -2,7 +2,7 @@ import Collections from "../../lib/collections/collections/collection";
 import Sequences from "../../lib/collections/sequences/collection";
 import { Books, makeEditableOptions } from '../../lib/collections/books/collection'
 import { Posts } from "../../lib/collections/posts";
-import { addCallback, runQuery } from 'meteor/vulcan:core';
+import { addCallback, runQuery } from '../../lib/vulcan-lib';
 import { addEditableCallbacks } from '../editor/make_editable_callbacks';
 import * as _ from 'underscore';
 

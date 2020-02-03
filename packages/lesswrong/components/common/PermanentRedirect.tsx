@@ -1,4 +1,4 @@
-import { registerComponent } from 'meteor/vulcan:lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useServerRequestStatus } from '../../lib/routeUtil'
 import { Redirect } from 'react-router'

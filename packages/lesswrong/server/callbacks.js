@@ -2,7 +2,6 @@ import Notifications from '../lib/collections/notifications/collection';
 import Conversations from '../lib/collections/conversations/collection';
 import Reports from '../lib/collections/reports/collection';
 
-import { getCollection } from 'meteor/vulcan:lib';
 import { Bans } from '../lib/collections/bans/collection';
 import Users from '../lib/collections/users/collection';
 import { Votes } from '../lib/collections/votes';
@@ -12,6 +11,7 @@ import { Comments } from '../lib/collections/comments'
 import { ReadStatuses } from '../lib/collections/readStatus/collection';
 
 import {
+  getCollection,
   addCallback,
   newMutation,
   editMutation,
@@ -19,7 +19,7 @@ import {
   Utils,
   runCallbacksAsync,
   runQuery
-} from 'meteor/vulcan:core';
+} from './vulcan-lib';
 
 
 function updateConversationActivity (message) {

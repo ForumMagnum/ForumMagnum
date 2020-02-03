@@ -1,4 +1,4 @@
-import { getSetting } from 'meteor/vulcan:core'
+import { getSetting } from '../lib/vulcan-lib';
 const reCaptchaSiteKey = getSetting('reCaptcha.apiKey')
 
 // Load and run ReCaptcha script on client

@@ -1,4 +1,4 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withMessages } from '../common/withMessages';
 import React, { PureComponent } from 'react';
 import classNames from 'classnames';

@@ -1,4 +1,4 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../../lib/vulcan-core';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 

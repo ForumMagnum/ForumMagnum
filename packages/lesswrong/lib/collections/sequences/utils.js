@@ -1,4 +1,4 @@
-import { Utils } from 'meteor/vulcan:core'
+import { Utils } from '../../vulcan-lib';
 
 Utils.getSequencePostLinks = (sequence, post) => {
   if (sequence && sequence.chapters &&  post ) {

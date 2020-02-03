@@ -1,6 +1,6 @@
 import React from 'react';
 import Users from '../collections/users/collection'
-import { Utils } from 'meteor/vulcan:core'
+import { Utils } from '../vulcan-lib';
 import { ContentType } from '../collections/revisions/schema'
 import { accessFilterMultiple, addFieldsDict } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'

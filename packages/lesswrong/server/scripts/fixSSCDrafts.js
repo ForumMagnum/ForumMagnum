@@ -1,5 +1,5 @@
 import { Posts } from '../../lib/collections/posts';
-import { runQuery } from 'meteor/vulcan:core';
+import { runQuery } from '../vulcan-lib';
 
 let runSSCFix = false;
 

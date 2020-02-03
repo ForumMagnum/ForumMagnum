@@ -1,4 +1,4 @@
-import { Components, registerComponent } from 'meteor/vulcan:lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { FormattedMessage, intlShape } from '../../lib/vulcan-i18n';
 

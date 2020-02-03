@@ -1,4 +1,4 @@
-import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, Components, getSetting } from '../../../lib/vulcan-lib';
 import React from 'react';
 import { useCurrentUser } from '../withUser';
 import { iconWidth } from './TabNavigationItem'

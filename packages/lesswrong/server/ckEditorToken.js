@@ -1,8 +1,7 @@
-import { addStaticRoute, getUserFromReq } from 'meteor/vulcan:lib'
+import { addStaticRoute, getUserFromReq, getSetting } from './vulcan-lib';
 import { Posts } from '../lib/collections/posts'
 import { getCKEditorDocumentId } from '../lib/ckEditorUtils'
 import Users from '../lib/collections/users/collection';
-import { getSetting } from 'meteor/vulcan:core';
 import jwt from 'jsonwebtoken'
 
 addStaticRoute('/ckeditor-token', async ({ query }, req, res, next) => {

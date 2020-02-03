@@ -1,4 +1,4 @@
-// import { getSetting } from 'meteor/vulcan:core';
+// import { getSetting } from '../../vulcan-lib';
 import Notifications from './collection';
 import { ensureIndex } from '../../collectionUtils';
 

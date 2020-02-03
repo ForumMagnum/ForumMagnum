@@ -1,6 +1,6 @@
 import { addCronJob } from '../cronUtil';
 import { algoliaExportAll, algoliaCleanAll } from '../scripts/algoliaExport';
-import { getSetting } from 'meteor/vulcan:lib';
+import { getSetting } from '../vulcan-lib';
 
 if (getSetting('algolia.autoSyncIndexes', false)) {
   addCronJob({

@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { getFragment } from 'meteor/vulcan:core';
+import { getFragment } from '../../lib/vulcan-lib';
 import { defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings';
 
 export  const withRecommendations = component => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { extractCollectionInfo } from 'meteor/vulcan:lib';
+import { extractCollectionInfo } from '../../lib/vulcan-lib';
 import PropTypes from 'prop-types';
 
 /**

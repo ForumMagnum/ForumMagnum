@@ -1,4 +1,4 @@
-import { addRoute } from 'meteor/vulcan:lib';
+import { addRoute } from '../vulcan-lib';
 
 addRoute({name: 'resetPassword', path: '/reset-password/:token', componentName: 'AccountsResetPassword'});
 addRoute({name: 'enrollAccount', path: '/enroll-account/:token', componentName: 'AccountsEnrollAccount'});

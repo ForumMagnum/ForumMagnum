@@ -1,4 +1,4 @@
-import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Comments } from '../../lib/collections/comments';
 import { FormattedMessage } from '../../lib/vulcan-i18n';

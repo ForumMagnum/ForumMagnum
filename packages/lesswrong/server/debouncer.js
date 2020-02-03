@@ -1,5 +1,5 @@
 /*global Vulcan*/
-import { getSetting } from 'meteor/vulcan:core';
+import { getSetting } from './vulcan-lib';
 import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection';
 import { addCronJob } from './cronUtil';
 import moment from '../lib/moment-timezone';

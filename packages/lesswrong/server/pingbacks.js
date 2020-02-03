@@ -1,5 +1,6 @@
 import cheerio from 'cheerio';
-import { parseRoute, parsePath, Utils } from 'meteor/vulcan:core';
+import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
+import { Utils } from './vulcan-lib';
 import { hostIsOnsite, getUrlClass } from '../lib/routeUtil';
 
 // Given an HTML document, extract the links from it and convert them to a set

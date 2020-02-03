@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, mergeWithComponents } from 'meteor/vulcan:core';
+import { registerComponent, mergeWithComponents } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
 
 // Replaceable layout

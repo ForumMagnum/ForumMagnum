@@ -2,7 +2,7 @@
 import Users from '../../lib/collections/users/collection';
 import { Comments } from '../../lib/collections/comments'
 import { Posts } from '../../lib/collections/posts'
-import { newMutation, Utils } from 'meteor/vulcan:core';
+import { newMutation, Utils } from '../vulcan-lib';
 import moment from 'moment';
 import { markdownToHtml } from '../editor/make_editable_callbacks';
 import pgp from 'pg-promise';

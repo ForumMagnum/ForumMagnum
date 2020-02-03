@@ -4,7 +4,7 @@ import { useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import { performVoteClient } from '../../lib/voting/vote';
 import { VoteableCollections } from '../../lib/make_voteable';
-import { getFragmentText } from 'meteor/vulcan:lib';
+import { getFragmentText } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
 import { Random } from 'meteor/random';
 

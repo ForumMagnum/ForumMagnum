@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, Routes } from 'meteor/vulcan:core';
+import { Components, Routes } from '../vulcan-lib';
 import { matchPath } from 'react-router';
 import qs from 'qs'
 import Sentry from '@sentry/node';

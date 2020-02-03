@@ -1,4 +1,4 @@
-import {registerSetting} from 'meteor/vulcan:core'
+import {registerSetting} from './vulcan-lib'
 
 registerSetting('forumType', 'LessWrong', 'What type of Forum is being run, {LessWrong, AlignmentForum, EAForum}')
 

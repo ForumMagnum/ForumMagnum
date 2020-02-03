@@ -1,4 +1,4 @@
-import { getSetting } from 'meteor/vulcan:core';
+import { getSetting } from './vulcan-lib';
 import googleMaps from '@google/maps'
 
 const googleMapsApiKey = getSetting('googleMaps.serverApiKey', null)

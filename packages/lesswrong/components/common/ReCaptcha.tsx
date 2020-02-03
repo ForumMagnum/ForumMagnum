@@ -1,7 +1,7 @@
 // Copied from: https://raw.githubusercontent.com/codeep/react-recaptcha-v3/master/src/ReCaptcha.js
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { getSetting, registerComponent } from 'meteor/vulcan:core'
+import { getSetting, registerComponent } from '../../lib/vulcan-lib'
 
 const reCaptchaSiteKey = getSetting('reCaptcha.apiKey')
 

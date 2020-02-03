@@ -1,6 +1,6 @@
 import { registerMigration, migrateDocuments } from './migrationUtils';
 import { editableCollections } from '../../lib/editor/make_editable'
-import { getCollection } from 'meteor/vulcan:core'
+import { getCollection } from '../../lib/vulcan-lib';
 
 registerMigration({
   name: "replaceObjectIdsInEditableFieldsAndVotes",

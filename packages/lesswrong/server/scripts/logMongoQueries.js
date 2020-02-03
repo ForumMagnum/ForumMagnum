@@ -1,5 +1,5 @@
 /* global Vulcan */
-import { Collections } from 'meteor/vulcan:lib';
+import { Collections } from '../vulcan-lib';
 
 Vulcan.logMongoQueries = () => {
   let attachedAny = false;

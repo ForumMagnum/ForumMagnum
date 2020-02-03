@@ -1,4 +1,4 @@
-import { Connectors } from 'meteor/vulcan:core'; // import from vulcan:lib because vulcan:core isn't loaded yet
+import { Connectors } from './vulcan-lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
 import DataLoader from 'dataloader';
 import * as _ from 'underscore';
 

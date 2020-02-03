@@ -6,7 +6,7 @@ import { performSubscriptionAction } from '../subscriptions/mutations';
 import Users from '../users/collection';
 import Notifications from './collection';
 //import Comments from '../comments/collection';
-import { waitUntilCallbacksFinished } from 'meteor/vulcan:core';
+import { waitUntilCallbacksFinished } from '../../vulcan-lib';
 
 chai.should();
 chai.use(chaiAsPromised);

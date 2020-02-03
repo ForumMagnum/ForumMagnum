@@ -1,5 +1,5 @@
 import Users from "../users/collection";
-import { getSetting, Utils } from "meteor/vulcan:core"
+import { getSetting, Utils } from '../../vulcan-lib';
 import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation } from '../../utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable'
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'

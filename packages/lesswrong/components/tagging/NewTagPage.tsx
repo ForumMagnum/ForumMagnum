@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components, getFragment } from 'meteor/vulcan:core';
+import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { useNavigation } from '../../lib/routeUtil'
 import { useCurrentUser } from '../common/withUser';
 import { Tags } from '../../lib/collections/tags/collection';

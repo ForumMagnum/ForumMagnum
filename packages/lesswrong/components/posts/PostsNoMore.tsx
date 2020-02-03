@@ -1,4 +1,4 @@
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import React from "react";
 import { FormattedMessage } from '../../lib/vulcan-i18n';
 

@@ -1,4 +1,4 @@
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import withNewEvents from '../../../lib/events/withNewEvents';
 import { useCurrentUser } from '../../common/withUser';

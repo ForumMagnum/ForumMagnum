@@ -1,4 +1,4 @@
-import { addCallback, newMutation, editMutation } from 'meteor/vulcan:core';
+import { addCallback, newMutation, editMutation } from '../../vulcan-lib';
 import Users from "../../../lib/collections/users/collection";
 import Messages from '../../../lib/collections/messages/collection';
 import Conversations from '../../../lib/collections/conversations/collection';

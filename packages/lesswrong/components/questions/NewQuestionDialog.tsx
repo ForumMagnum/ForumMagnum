@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent, getFragment, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment, getSetting } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 
 import Dialog from '@material-ui/core/Dialog';

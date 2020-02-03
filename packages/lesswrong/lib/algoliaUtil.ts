@@ -1,4 +1,4 @@
-import { getSetting } from 'meteor/vulcan:core';
+import { getSetting } from './vulcan-lib';
 import algoliasearch from "algoliasearch/lite";
 
 const ALGOLIA_PREFIX: string = getSetting("algolia.indexPrefix", "test_");

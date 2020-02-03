@@ -1,4 +1,4 @@
-import { addGraphQLResolvers, Connectors } from 'meteor/vulcan:lib';
+import { addGraphQLResolvers, Connectors } from '../vulcan-lib';
 
 const specificResolvers = {
   Query: {

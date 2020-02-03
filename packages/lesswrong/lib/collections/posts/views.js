@@ -1,6 +1,5 @@
 import { Posts } from './collection';
-import { viewFieldNullOrMissing, viewFieldAllowAny } from 'meteor/vulcan:lib';
-import { getSetting } from 'meteor/vulcan:core';
+import { viewFieldNullOrMissing, viewFieldAllowAny, getSetting } from '../../vulcan-lib';
 import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionUtils';
 import moment from 'moment';
 

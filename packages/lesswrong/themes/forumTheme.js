@@ -1,4 +1,4 @@
-import { getSetting } from 'meteor/vulcan:core'
+import { getSetting } from '../lib/vulcan-lib';
 
 let forumTheme
 switch (getSetting('forumType')) {

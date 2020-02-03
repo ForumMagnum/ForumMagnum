@@ -13,7 +13,7 @@ import {
   Connectors,
   getTypeName,
   getCollectionName
-} from 'meteor/vulcan:lib';
+} from '../vulcan-lib';
 import Users from '../collections/users/collection';
 import isEmpty from 'lodash/isEmpty';
 

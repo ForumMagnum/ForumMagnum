@@ -1,5 +1,5 @@
 /* global Vulcan */
-import { Collections } from 'meteor/vulcan:core';
+import { Collections } from '../vulcan-lib';
 import { getFieldsWithAttribute } from './utils';
 import { migrateDocuments, registerMigration } from '../migrations/migrationUtils'
 

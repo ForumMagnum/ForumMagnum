@@ -1,4 +1,4 @@
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 import classnames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';

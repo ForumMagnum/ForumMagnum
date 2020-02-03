@@ -1,4 +1,4 @@
-import { registerCallback } from 'meteor/vulcan:lib';
+import { registerCallback } from '../vulcan-lib';
 
 registerCallback({
   name:'user.create.validate',

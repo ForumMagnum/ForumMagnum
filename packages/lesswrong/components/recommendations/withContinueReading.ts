@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { getFragment } from 'meteor/vulcan:core';
+import { getFragment } from '../../lib/vulcan-lib';
 
 export const withContinueReading = component => {
   // FIXME: For some unclear reason, using a ...fragment in the 'sequence' part

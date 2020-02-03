@@ -6,7 +6,7 @@ import {
   debug,
   debugGroup,
   debugGroupEnd,
-} from 'meteor/vulcan:lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
+} from '../vulcan-lib';
 import clone from 'lodash/clone';
 
 // Takes a function that returns a promise and wraps it with Meteor.wrapAsync

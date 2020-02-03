@@ -1,7 +1,7 @@
 /* global Vulcan */
 import Users from '../../lib/collections/users/collection';
 import { Votes } from '../../lib/collections/votes';
-import { getCollection } from 'meteor/vulcan:lib';
+import { getCollection } from '../vulcan-lib';
 
 Vulcan.rerunAFVotes = () => {
   Users.update({}, {$set:{afKarma:0}}, {multi:true})

@@ -1,4 +1,4 @@
-import { runCallbacks } from 'meteor/vulcan:core';
+import { runCallbacks } from '../vulcan-lib';
 import Users from '../collections/users/collection';
 import { recalculateScore } from '../scoring';
 import * as _ from 'underscore';

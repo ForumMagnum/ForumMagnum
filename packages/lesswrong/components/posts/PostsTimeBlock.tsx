@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {
   Components, registerComponent, getSetting
-} from 'meteor/vulcan:core';
+} from '../../lib/vulcan-lib';
 import { withMulti } from '../../lib/crud/withMulti';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';

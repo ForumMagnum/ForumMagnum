@@ -1,4 +1,4 @@
-import { newMutation, addGraphQLMutation, addGraphQLResolvers } from 'meteor/vulcan:core';
+import { newMutation, addGraphQLMutation, addGraphQLResolvers } from '../vulcan-lib';
 import { Tags } from '../../lib/collections/tags/collection';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Posts } from '../../lib/collections/posts/collection';

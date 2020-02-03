@@ -1,4 +1,4 @@
-import { registerComponent, getSetting, Components } from 'meteor/vulcan:core';
+import { registerComponent, getSetting, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 import withHover from '../common/withHover';
 

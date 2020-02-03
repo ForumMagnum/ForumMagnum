@@ -1,5 +1,4 @@
-import { getSetting } from 'meteor/vulcan:core'
-import { addStaticRoute } from 'meteor/vulcan:lib'
+import { getSetting, addStaticRoute } from '../vulcan-lib'
 import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
 import Users from '../../lib/collections/users/collection';

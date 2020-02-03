@@ -1,4 +1,4 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from '../lib/vulcan-lib';
 import { withUpdate } from '../lib/crud/withUpdate';
 import React, { PureComponent } from 'react';
 import Users from '../lib/collections/users/collection';

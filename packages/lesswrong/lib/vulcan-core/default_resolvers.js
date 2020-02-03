@@ -13,7 +13,7 @@ import {
   getTypeName,
   getCollectionName,
   throwError,
-} from 'meteor/vulcan:lib';
+} from '../vulcan-lib';
 
 const defaultOptions = {
   cacheMaxAge: 300,

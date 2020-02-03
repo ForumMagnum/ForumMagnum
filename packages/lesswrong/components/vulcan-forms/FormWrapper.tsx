@@ -33,7 +33,7 @@ import compose from 'lodash/flowRight';
 import {
   Components, registerComponent, Utils,
   getFragment
-} from 'meteor/vulcan:core';
+} from '../../lib/vulcan-lib';
 import { withCreate } from '../../lib/crud/withCreate';
 import { withSingle } from '../../lib/crud/withSingle';
 import { withDelete } from '../../lib/crud/withDelete';

@@ -1,4 +1,4 @@
-import { registerComponent } from 'meteor/vulcan:lib';
+import { registerComponent } from '../../../lib/vulcan-core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Modal from 'react-bootstrap/Modal';

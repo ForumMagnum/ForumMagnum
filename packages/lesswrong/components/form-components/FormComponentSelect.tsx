@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import MenuItem from '@material-ui/core/MenuItem';
 
 const FormComponentSelect = (props: any) => {
