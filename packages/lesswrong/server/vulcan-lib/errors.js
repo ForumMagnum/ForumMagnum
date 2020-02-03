@@ -1,4 +1,5 @@
 import { UserInputError } from 'apollo-server';
+import { Utils } from '../../lib/vulcan-lib';
 
 /*
 
@@ -13,3 +14,5 @@ export const throwError = error => {
   const { id, } = error;
   throw new UserInputError(id, error);
 };
+
+Utils.throwError = throwError;

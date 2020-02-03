@@ -1,6 +1,6 @@
 import { Subscriptions } from './collection';
 import { subscriptionTypes } from './schema'
-import { runCallbacksAsync, newMutation } from '../../vulcan-lib';
+import { runCallbacksAsync, Utils } from '../../vulcan-lib';
 import Users from '../users/collection';
 
 export const defaultSubscriptionTypeTable = {
@@ -26,7 +26,7 @@ export const performSubscriptionAction = async (action, collection, itemId, user
     collectionName,
     type: defaultSubscriptionTypeTable[collectionName]
   }
-  await newMutation({
+  await Utils.newMutator({
     collection: Subscriptions,
     document: newSubscription,
     validate: true,

@@ -1,4 +1,4 @@
-import { addGraphQLResolvers, Connectors } from '../vulcan-lib';
+import { addGraphQLResolvers, Utils } from '../vulcan-lib';
 
 const specificResolvers = {
   Query: {
@@ -37,7 +37,7 @@ const resolvers = {
       // get selector and options from terms and perform Mongo query
       let { selector, options } = await Users.getParameters(terms);
       options.skip = terms.offset;
-      const users = await Connectors.find(Users, selector, options);
+      const users = await Utils.Connectors.find(Users, selector, options);
 
       // restrict documents via checkAccess
       const viewableUsers = Users.checkAccess
@@ -54,7 +54,7 @@ const resolvers = {
 
       if (enableTotal) {
         // get total count of documents matching the selector
-        data.totalCount = await Connectors.count(Users, selector);
+        data.totalCount = await Utils.Connectors.count(Users, selector);
       }
 
       return data;
@@ -75,8 +75,8 @@ const resolvers = {
       const user = documentId
         ? await Users.loader.load(documentId)
         : slug
-        ? await Connectors.get(Users, { slug })
-        : await Connectors.get(Users);
+        ? await Utils.Connectors.get(Users, { slug })
+        : await Utils.Connectors.get(Users);
       if (Users.checkAccess) {
         if (!Users.checkAccess(currentUser, user)) return null
       }

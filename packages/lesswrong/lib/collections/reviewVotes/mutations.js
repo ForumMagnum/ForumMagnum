@@ -1,4 +1,4 @@
-import { newMutation, addGraphQLMutation, addGraphQLResolvers } from '../../vulcan-lib';
+import { Utils, addGraphQLMutation, addGraphQLResolvers } from '../../vulcan-lib';
 import { accessFilterSingle } from '../../utils/schemaUtils';
 import { Posts } from '../posts/collection'
 import { ReviewVotes } from './collection'
@@ -17,7 +17,7 @@ addGraphQLResolvers({
       const existingVote = ReviewVotes.findOne({ postId, userId: currentUser._id });
       if (!existingVote) {
         const finalQuadraticScore = (typeof newQuadraticScore !== 'undefined' ) ? newQuadraticScore : (existingVote?.quadraticScore || 0) + (quadraticChange || 0)
-        const newVote = await newMutation({
+        const newVote = await Utils.newMutation({
           collection: ReviewVotes,
           document: { postId, qualitativeScore, quadraticScore: finalQuadraticScore, comment },
           validate: false,

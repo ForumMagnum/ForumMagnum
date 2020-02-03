@@ -1,5 +1,5 @@
 import SimpleSchema from 'simpl-schema';
-import { Utils, getCollection, Connectors } from '../../vulcan-lib';
+import { Utils, getCollection } from '../../vulcan-lib';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -193,7 +193,7 @@ const schema = {
     resolveAs: {
       type: 'String',
       resolver: async (user, args, { Users }) => {
-        return Users.getTwitterName(await Connectors.get(Users, user._id));
+        return Users.getTwitterName(await Utils.Connectors.get(Users, user._id));
       },
     },
     onInsert: user => {

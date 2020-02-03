@@ -9,10 +9,8 @@ import {
   debug,
   debugGroup,
   debugGroupEnd,
-  Connectors,
   getTypeName,
   getCollectionName,
-  throwError,
 } from '../vulcan-lib';
 
 const defaultOptions = {
@@ -68,7 +66,7 @@ export function getDefaultResolvers(options) {
 
         debug({ selector, options });
 
-        const docs = await Connectors.find(collection, selector, options);
+        const docs = await Utils.Connectors.find(collection, selector, options);
         
         // if collection has a checkAccess function defined, remove any documents that doesn't pass the check
         const viewableDocs = collection.checkAccess
@@ -90,7 +88,7 @@ export function getDefaultResolvers(options) {
 
         if (enableTotal) {
           // get total count of documents matching the selector
-          data.totalCount = await Connectors.count(collection, selector);
+          data.totalCount = await Utils.Connectors.count(collection, selector);
         }
 
         // return results
@@ -125,13 +123,13 @@ export function getDefaultResolvers(options) {
         const documentId = selector.documentId || selector._id;
         const doc = documentId
           ? await collection.loader.load(documentId)
-          : await Connectors.get(collection, selector);
+          : await Utils.Connectors.get(collection, selector);
 
         if (!doc) {
           if (allowNull) {
             return { result: null };
           } else {
-            throwError({
+            Utils.throwError({
               id: 'app.missing_document',
               data: { documentId, selector, collectionName: collection.collectionName },
             });

@@ -1,3 +1,4 @@
+import { Utils } from '../../lib/vulcan-lib/utils';
 
 // convert GraphQL selector into Mongo-compatible selector
 // TODO: add support for more than just documentId/_id and slug, potentially making conversion unnecessary
@@ -36,3 +37,5 @@ export const Connectors = {
     return await collection.remove(convertedSelector);
   },
 }
+
+Utils.Connectors = Connectors;

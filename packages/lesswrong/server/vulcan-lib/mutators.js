@@ -31,7 +31,7 @@ to the client.
 
 */
 
-import { runCallbacks, runCallbacksAsync } from '../../lib/vulcan-lib/index.js';
+import { runCallbacks, runCallbacksAsync, Utils } from '../../lib/vulcan-lib/index.js';
 import {
   validateDocument,
   validateData,
@@ -598,3 +598,7 @@ const endDebugMutator = (name, action, properties = {}) => {
   debug(`--------------- end \x1b[36m${name} ${action} Mutator\x1b[0m ---------------`);
   debug('');
 };
+
+Utils.createMutator = createMutator;
+Utils.updateMutator = updateMutator;
+Utils.deleteMutator = deleteMutator;

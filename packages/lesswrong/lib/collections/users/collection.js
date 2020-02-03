@@ -1,6 +1,6 @@
 import schema from './schema';
 import resolvers from '../../vulcan-users/resolvers';
-import { createCollection, addGraphQLQuery, createMutator, updateMutator, deleteMutator, Utils, Connectors } from '../../vulcan-lib';
+import { createCollection, addGraphQLQuery, Utils } from '../../vulcan-lib';
 
 const performCheck = (mutation, user, document) => {
   if (!mutation.check(user, document))
@@ -22,7 +22,7 @@ const createMutation = {
     const { Users, currentUser } = context;
     performCheck(this, currentUser, data);
 
-    return createMutator({
+    return Utils.createMutator({
       collection: Users,
       data,
       currentUser,
@@ -49,7 +49,7 @@ const updateMutation = {
   async mutation(root, { selector, data }, context) {
     const { Users, currentUser } = context;
 
-    const document = await Connectors.get(Users, selector);
+    const document = await Utils.Connectors.get(Users, selector);
 
     if (!document) {
       throw new Error(`Could not find document to update for selector: ${JSON.stringify(selector)}`);
@@ -57,7 +57,7 @@ const updateMutation = {
     
     performCheck(this, currentUser, document);
 
-    return updateMutator({
+    return Utils.updateMutator({
       collection: Users,
       selector,
       data,
@@ -81,7 +81,7 @@ const deleteMutation = {
 
     const { Users, currentUser } = context;
 
-    const document = await Connectors.get(Users, selector);
+    const document = await Utils.Connectors.get(Users, selector);
 
     if (!document) {
       throw new Error(`Could not find document to delete for selector: ${JSON.stringify(selector)}`);
@@ -89,7 +89,7 @@ const deleteMutation = {
 
     performCheck(this, currentUser, document);
 
-    return deleteMutator({
+    return Utils.deleteMutator({
       collection: Users,
       selector,
       currentUser,

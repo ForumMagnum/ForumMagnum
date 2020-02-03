@@ -6,11 +6,7 @@ Default mutations
 
 import {
   registerCallback,
-  createMutator,
-  updateMutator,
-  deleteMutator,
   Utils,
-  Connectors,
   getTypeName,
   getCollectionName
 } from '../vulcan-lib';
@@ -90,7 +86,7 @@ export function getDefaultMutations(options) {
         );
 
         // pass document to boilerplate newMutator function
-        return await createMutator({
+        return await Utils.createMutator({
           collection,
           data,
           currentUser: context.currentUser,
@@ -145,7 +141,7 @@ export function getDefaultMutations(options) {
         }
 
         // get entire unmodified document from database
-        const document = await Connectors.get(collection, selector);
+        const document = await Utils.Connectors.get(collection, selector);
 
         if (!document) {
           throw new Error(
@@ -164,7 +160,7 @@ export function getDefaultMutations(options) {
         );
 
         // call editMutator boilerplate function
-        return await updateMutator({
+        return await Utils.updateMutator({
           collection,
           selector,
           data,
@@ -192,7 +188,7 @@ export function getDefaultMutations(options) {
         const collection = context[collectionName];
 
         // check if document exists already
-        const existingDocument = await Connectors.get(collection, selector, {
+        const existingDocument = await Utils.Connectors.get(collection, selector, {
           fields: { _id: 1 },
         });
 
@@ -244,7 +240,7 @@ export function getDefaultMutations(options) {
           throw new Error('Selector cannot be empty');
         }
 
-        const document = await Connectors.get(collection, selector);
+        const document = await Utils.Connectors.get(collection, selector);
 
         if (!document) {
           throw new Error(
@@ -262,7 +258,7 @@ export function getDefaultMutations(options) {
           collectionName
         );
 
-        return await deleteMutator({
+        return await Utils.deleteMutator({
           collection,
           selector,
           currentUser: context.currentUser,
