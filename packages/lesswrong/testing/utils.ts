@@ -118,7 +118,7 @@ const isPermissionsFlavoredError = (error) => {
   if (isPermissionsFlavoredErrorString(error.message))
     return true;
   
-  let errorData = null;
+  let errorData: any = null;
   try {
     errorData = JSON.parse(error.message);
   } catch(e) {
@@ -127,12 +127,12 @@ const isPermissionsFlavoredError = (error) => {
   if (!errorData) return false;
   if (Array.isArray(errorData)) errorData = errorData[0];
   if (isPermissionsFlavoredErrorString(errorData)) return true;
-  if (isPermissionsFlavoredErrorString(errorData.id)) return true;
+  if (errorData.id && isPermissionsFlavoredErrorString(errorData.id)) return true;
   
   return false;
 };
 
-const isPermissionsFlavoredErrorString = (str) => {
+const isPermissionsFlavoredErrorString = (str: any): boolean => {
   switch (str)
   {
   case 'errors.disallowed_property_detected':
@@ -191,7 +191,7 @@ export const createDummyUser = async (data?: any) => {
 }
 export const createDummyComment = async (user: any, data?: any) => {
   const defaultUser = await createDefaultUser();
-  let defaultData = {
+  let defaultData: any = {
     userId: (user || defaultUser)._id,
     contents: {
       originalContents: {

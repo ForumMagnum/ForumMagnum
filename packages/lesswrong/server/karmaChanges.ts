@@ -164,7 +164,7 @@ export function getKarmaChangeDateRange({settings, now, lastOpened=null, lastBat
         // will have ended at the last daily reset time
         const lastBatchEnd = lastDailyReset
         // Sanity check in case lastBatchStart is invalid (eg not cleared after a settings change)
-        if (lastBatchStart < lastBatchEnd.toDate()) {
+        if (lastBatchStart! < lastBatchEnd.toDate()) {
           return {
             start: lastBatchStart,
             end: lastBatchEnd.toDate()
@@ -202,7 +202,7 @@ export function getKarmaChangeDateRange({settings, now, lastOpened=null, lastBat
         // will have ended at the last daily reset time
         const lastBatchEnd = lastWeeklyReset
         // Sanity check in case lastBatchStart is invalid (eg not cleared after a settings change)
-        if (lastBatchStart < lastBatchEnd.toDate()) {
+        if (lastBatchStart! < lastBatchEnd.toDate()) {
           return {
             start: lastBatchStart,
             end: lastBatchEnd.toDate()
@@ -243,13 +243,13 @@ export function getKarmaChangeNextBatchDate({settings, now})
       return null;
     case "daily":
       const lastDailyBatch = getKarmaChangeDateRange({settings, now});
-      const lastDailyReset = lastDailyBatch.end;
+      const lastDailyReset = lastDailyBatch!.end;
       const nextDailyReset = moment(lastDailyReset).add(1, 'days');
       return nextDailyReset.toDate();
       
     case "weekly":
       const lastWeeklyBatch = getKarmaChangeDateRange({settings, now});
-      const lastWeeklyReset = lastWeeklyBatch.end;
+      const lastWeeklyReset = lastWeeklyBatch!.end;
       const nextWeeklyReset = moment(lastWeeklyReset).add(7, 'days');
       return nextWeeklyReset.toDate();
   }

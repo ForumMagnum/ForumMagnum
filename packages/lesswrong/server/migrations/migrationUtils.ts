@@ -170,7 +170,14 @@ export async function fillDefaultValues({ collection, fieldName, batchSize, load
 // if things other than this migration script are happening on the same
 // database. This function makes sense for filling in new denormalized fields,
 // where figuring out the new field's value requires an additional query.
-export async function migrateDocuments({ description, collection, batchSize, unmigratedDocumentQuery, migrate, loadFactor=DEFAULT_LOAD_FACTOR })
+export async function migrateDocuments({ description, collection, batchSize, unmigratedDocumentQuery, migrate, loadFactor=DEFAULT_LOAD_FACTOR }: {
+  description?: string,
+  collection: any,
+  batchSize?: number,
+  unmigratedDocumentQuery?: any,
+  migrate: any,
+  loadFactor?: number,
+})
 {
   // Validate arguments
   if (!collection) throw new Error("Missing required argument: collection");

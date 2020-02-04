@@ -78,7 +78,7 @@ export const removeCallback = function (hookName, callback) {
  *   will be rethrown.
  * @returns {Object} Returns the item after it's been through all the callbacks for this hook
  */
-export const runCallbacks: any = function () {
+export const runCallbacks: any = function (this: any) {
 
   let hook, item, args, callbacks, ignoreExceptions, formattedHook;
   if (typeof arguments[0] === 'object' && arguments.length === 1) {
@@ -203,7 +203,7 @@ export const runCallbacksAsync: any = function () {
     // use defer to avoid holding up client
     Meteor.defer(function () {
       // run all post submit server callbacks on post object successively
-      callbacks.forEach(function (callback) {
+      callbacks.forEach(function (this: any, callback) {
         debug(`\x1b[32m>> Running async callback [${callback.name}] on hook [${hook}]\x1b[0m`);
         
         let pendingAsyncCallback = markCallbackStarted(hook);

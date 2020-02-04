@@ -80,7 +80,7 @@ function wrapSpoilerTags(html) {
   // the hard way, because cheerio's sibling-selectors don't seem to work right.
   let spoilerBlockGroups: Array<any> = [];
   let currentBlockGroup: Array<any> = [];
-  $(`.${spoilerClass}`).each(function() {
+  $(`.${spoilerClass}`).each(function(this: any) {
     const element = this;
     if (!(element?.previousSibling && $(element.previousSibling).hasClass(spoilerClass))) {
       if (currentBlockGroup.length > 0) {

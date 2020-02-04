@@ -30,7 +30,7 @@ Utils.getSequencePostLinks = (sequence, post) => {
 Utils.getCurrentChapter = (sequence, post) => {
   const chapters = sequence.chapters
   if (chapters) {
-    let result = null
+    let result: any = null
     chapters.forEach((c, i) => { //c: chapter, i: chapterIndex
       const postIndex = _.pluck(c.posts, '_id').indexOf(post._id)
       if (postIndex >= 0) {

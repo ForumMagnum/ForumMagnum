@@ -3,7 +3,7 @@ import { getString, Utils } from '../vulcan-lib';
 import { intlShape } from './shape';
 
 export default class IntlProvider extends Component<any> {
-  formatMessage = ({ id, defaultMessage }, values) => {
+  formatMessage = ({ id, defaultMessage }: { id: string, defaultMessage?: string }, values) => {
     return getString({ id, defaultMessage, values, locale: this.props.locale });
   };
 
