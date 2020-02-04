@@ -1,3 +1,5 @@
+import { foreignKeyField } from '../../utils/schemaUtils';
+
 const schema = {
   _id: {
     optional: true,
@@ -21,4 +23,7 @@ const schema = {
     canRead: ['guests'],
     canCreate: ['members'],
     hidden: true,
-  },
+  }
+}
+
+export default schema;
