@@ -11,6 +11,8 @@ import { dataToMarkdown } from '../editor/make_editable_callbacks'
 import { algoliaIndexNames } from '../../lib/algoliaUtil';
 import keyBy from 'lodash/keyBy';
 import chunk from 'lodash/chunk';
+import * as _ from 'underscore';
+import { Meteor } from 'meteor/meteor';
 
 const COMMENT_MAX_SEARCH_CHARACTERS = 2000
 const TAG_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS;
@@ -18,7 +20,7 @@ const TAG_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS;
 Comments.toAlgolia = (comment) => {
   if (comment.deleted) return null;
   
-  const algoliaComment = {
+  const algoliaComment: any = {
     objectID: comment._id,
     _id: comment._id,
     userId: comment.userId,
@@ -57,7 +59,7 @@ Comments.toAlgolia = (comment) => {
 }
 
 Sequences.toAlgolia = (sequence) => {
-  const algoliaSequence = {
+  const algoliaSequence: any = {
     objectID: sequence._id,
     _id: sequence._id,
     title: sequence.title,
@@ -106,7 +108,7 @@ Users.toAlgolia = (user) => {
 Posts.toAlgolia = (post) => {
   if (post.deleted) return null;
   
-  const algoliaMetaInfo = {
+  const algoliaMetaInfo: any = {
     _id: post._id,
     userId: post.userId,
     url: post.url,
@@ -136,7 +138,7 @@ Posts.toAlgolia = (post) => {
     algoliaMetaInfo.feedName = postFeed.nickname;
     algoliaMetaInfo.feedLink = post.feedLink;
   }
-  let postBatch = [];
+  let postBatch: Array<any> = [];
   let body = ""
   if (post.contents?.originalContents?.type) {
     const { data, type } = post.contents.originalContents
@@ -250,10 +252,10 @@ export async function algoliaDoSearch(algoliaIndex, query) {
 // duplicate results or omit results, if the index is modified while it is
 // running.
 async function algoliaDoCompleteSearch(algoliaIndex, query) {
-  let allResults = [];
+  let allResults: Array<any> = [];
   let pageSize = 1000; // Max permitted by API
   
-  let firstPageResults = await algoliaDoSearch(algoliaIndex, {
+  let firstPageResults: any = await algoliaDoSearch(algoliaIndex, {
     ...query,
     hitsPerPage: pageSize,
   });
@@ -262,7 +264,7 @@ async function algoliaDoCompleteSearch(algoliaIndex, query) {
   }
   
   for (let i=1; i<firstPageResults.nbPages; i++) {
-    let pageResults = await algoliaDoSearch(algoliaIndex, {
+    let pageResults: any = await algoliaDoSearch(algoliaIndex, {
       ...query,
       hitsPerPage: pageSize,
       offset: pageSize*i,
@@ -288,13 +290,13 @@ export async function algoliaSetIndexSettings(algoliaIndex, settings) {
 }
 
 export async function algoliaSetIndexSettingsAndWait(algoliaIndex, settings) {
-  let result = await algoliaSetIndexSettings(algoliaIndex, settings);
+  let result: any = await algoliaSetIndexSettings(algoliaIndex, settings);
   await algoliaWaitForTask(algoliaIndex, result.taskID);
 }
 
 export async function algoliaGetAllDocuments(algoliaIndex) {
   return new Promise((resolve,reject) => {
-    let results = [];
+    let results: Array<any> = [];
     let browser = algoliaIndex.browseAll();
     
     browser.on('result', (content) => {
@@ -330,7 +332,7 @@ async function addOrUpdateIfNeeded(algoliaIndex, objects) {
     obj => !_.isEqual(obj, algoliaObjectsById[obj._id]));
   
   if (objectsToSync.length > 0) {
-    const response = await algoliaAddObjects(algoliaIndex, objectsToSync);
+    const response: any = await algoliaAddObjects(algoliaIndex, objectsToSync);
     await algoliaWaitForTask(algoliaIndex, response.taskID);
   }
 }
@@ -342,7 +344,7 @@ async function addOrUpdateIfNeeded(algoliaIndex, objects) {
 // pieces of the deleted documents (since they're split into multiple index
 // entries by paragraph).
 async function deleteIfPresent(algoliaIndex, ids) {
-  let algoliaIdsToDelete = [];
+  let algoliaIdsToDelete: Array<any> = [];
   
   for (const mongoId of ids) {
     const results = await algoliaDoCompleteSearch(algoliaIndex, {
@@ -355,7 +357,7 @@ async function deleteIfPresent(algoliaIndex, ids) {
   }
   
   if (algoliaIdsToDelete.length > 0) {
-    const response = await algoliaDeleteIds(algoliaIndex, algoliaIdsToDelete);
+    const response: any = await algoliaDeleteIds(algoliaIndex, algoliaIdsToDelete);
     await algoliaWaitForTask(algoliaIndex, response.taskID);
   }
 }
@@ -363,8 +365,8 @@ async function deleteIfPresent(algoliaIndex, ids) {
 
 export function getAlgoliaAdminClient()
 {
-  const algoliaAppId = getSetting('algolia.appId');
-  const algoliaAdminKey = getSetting('algolia.adminKey');
+  const algoliaAppId = getSetting<string|undefined>('algolia.appId');
+  const algoliaAdminKey = getSetting<string|undefined>('algolia.adminKey');
   
   if (!algoliaAppId || !algoliaAdminKey) {
     if (!Meteor.isTest && !Meteor.isAppTest && !Meteor.isPackageTest) {
@@ -378,7 +380,11 @@ export function getAlgoliaAdminClient()
   return client;
 }
 
-export async function algoliaDocumentExport({ documents, collection, updateFunction} ) {
+export async function algoliaDocumentExport({ documents, collection, updateFunction}: {
+  documents: any,
+  collection: any,
+  updateFunction?: any,
+}) {
   if (!(collection.collectionName in algoliaIndexNames)) {
     // If this is a collection that isn't Algolia-indexed, don't index it. (This
     // gets called from voting code, which tried to update Algolia indexes to
@@ -409,7 +415,7 @@ export async function algoliaDocumentExport({ documents, collection, updateFunct
 // handle - split them up in that case
 // Export for testing
 export function subBatchArray (arr, maxSize) {
-  const result = []
+  const result: Array<any> = []
   while (arr.length > 0) {
     result.push(arr.slice(0, maxSize))
     arr = arr.slice(maxSize, arr.length)
@@ -419,8 +425,8 @@ export function subBatchArray (arr, maxSize) {
 
 export async function algoliaIndexDocumentBatch({ documents, collection, algoliaIndex, errors, updateFunction })
 {
-  let importBatch = [];
-  let itemsToDelete = [];
+  let importBatch: Array<any> = [];
+  let itemsToDelete: Array<any> = [];
 
   for (let item of documents) {
     if (updateFunction) updateFunction(item)
@@ -447,7 +453,7 @@ export async function algoliaIndexDocumentBatch({ documents, collection, algolia
   }
   
   if (itemsToDelete.length > 0) {
-    const err = await deleteIfPresent(algoliaIndex, itemsToDelete);
+    const err: any = await deleteIfPresent(algoliaIndex, itemsToDelete);
     if (err) errors.push(err)
   }
 }

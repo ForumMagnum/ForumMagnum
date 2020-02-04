@@ -27,7 +27,7 @@ describe('PostsEdit', async () => {
     `;
     const response = runQuery(query,{},{currentUser:user})
     const expectedOutput = { data: { updatePost: { data: { title: `${newTitle}`} } } }
-    return response.should.eventually.deep.equal(expectedOutput);
+    return (response as any).should.eventually.deep.equal(expectedOutput);
   });
   it("fails when non-owner edits title", async () => {
     const user = await createDummyUser()
@@ -46,7 +46,7 @@ describe('PostsEdit', async () => {
       }
     `;
     const response = runQuery(query,{},{currentUser:user2})
-    await response.should.be.rejected;
+    await (response as any).should.be.rejected;
     assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
 });
@@ -71,7 +71,7 @@ describe('Posts RSS Views', async () => {
       }
     `;
 
-    const { data: { posts: {results: posts} } } = await runQuery(query,{},user)
+    const { data: { posts: {results: posts} } } = (await runQuery(query,{},user)) as any
     _.pluck(posts, '_id').should.not.include(frontpagePost1._id)
     _.pluck(posts, '_id').should.not.include(frontpagePost2._id)
     _.pluck(posts, '_id').should.not.include(frontpagePost3._id)
@@ -98,7 +98,7 @@ describe('Posts RSS Views', async () => {
       }
     `;
 
-    const { data: { posts: {results: posts} } } = await runQuery(query,{},user)
+    const { data: { posts: {results: posts} } } = (await runQuery(query,{},user)) as any
     const idList = _.pluck(posts, '_id');
     idList.indexOf(curatedPost1._id).should.be.below(idList.indexOf(curatedPost2._id));
     idList.indexOf(curatedPost2._id).should.be.below(idList.indexOf(curatedPost3._id));
@@ -122,7 +122,7 @@ describe('Posts RSS Views', async () => {
       }
     `;
 
-    const { data: { posts: {results: posts} } } = await runQuery(query,{},user)
+    const { data: { posts: {results: posts} } } = (await runQuery(query,{},user)) as any
     _.pluck(posts, '_id').should.include(frontpagePost1._id)
     _.pluck(posts, '_id').should.include(frontpagePost2._id)
     _.pluck(posts, '_id').should.include(frontpagePost3._id)

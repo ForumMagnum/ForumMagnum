@@ -104,8 +104,8 @@ describe('attempts to read hideKarma comment', async () => {
     }
     receivedComment._id.should.equal(comment._id)
     receivedComment.hideKarma.should.equal(true)
-    const baseScoreMissing = receivedComment.baseScore === null || receivedComment.baseScore === undefined
-    (baseScoreMissing as any).should.equal(true)
+    const baseScoreMissing = receivedComment.baseScore === null || receivedComment.baseScore === undefined;
+    (baseScoreMissing as any).should.equal(true);
   })
 
   it('regular user can find karma for normal posts', async () => {

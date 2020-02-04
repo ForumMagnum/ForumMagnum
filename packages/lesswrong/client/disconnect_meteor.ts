@@ -1,4 +1,6 @@
-var disconnectTimer = null;
+import { Meteor } from 'meteor/meteor';
+
+var disconnectTimer: any = null;
 
 // 60 seconds by default
 var disconnectTime = 60 * 1000;

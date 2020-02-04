@@ -26,7 +26,7 @@ addCronJob({
         })
 
         // update feed object with new feed data (mutation)
-        var set = {};
+        var set: any = {};
         set.rawFeed = currentPosts;
 
         editMutation({

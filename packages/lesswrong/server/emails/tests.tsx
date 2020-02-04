@@ -36,7 +36,7 @@ describe('renderEmail', async () => {
       bodyComponent: <div>Hello</div>,
     });
     
-    email.html.should.equal(emailDoctype+'<body><div>Hello</div></body>');
+    (email.html as any).should.equal(emailDoctype+'<body><div>Hello</div></body>');
   });
   
   it("Generates a textual representation of the body", async () => {
@@ -63,7 +63,7 @@ describe('renderEmail', async () => {
       bodyComponent: <div>Hello, <StyledComponent>World</StyledComponent></div>,
     });
     
-    email.html.should.equal(emailDoctype+'<body><div>Hello, <div class="StyledComponent-underlined" style="text-decoration: underline;">World</div></div></body>');
+    (email.html as any).should.equal(emailDoctype+'<body><div>Hello, <div class="StyledComponent-underlined" style="text-decoration: underline;">World</div></div></body>');
   });
   
   it("Can use Apollo HoCs", async () => {
@@ -85,7 +85,7 @@ describe('renderEmail', async () => {
     const email = await renderTestEmail({
       bodyComponent: <PostTitleComponent documentId={post._id} version={null} />,
     });
-    email.html.should.equal(emailDoctype+'<body><div>Email unit test post</div></body>');
+    (email.html as any).should.equal(emailDoctype+'<body><div>Email unit test post</div></body>');
   });
   
   it("Can use Apollo hooks", async () => {
@@ -107,7 +107,7 @@ describe('renderEmail', async () => {
     const email = await renderTestEmail({
       bodyComponent: <PostTitleComponent documentId={post._id} />,
     });
-    email.html.should.equal(emailDoctype+'<body><div>Email unit test post</div></body>');
+    (email.html as any).should.equal(emailDoctype+'<body><div>Email unit test post</div></body>');
   });
   
   /*it("Supports the withCurrentUser HoC", async () => {

@@ -5,9 +5,9 @@ import { browserProperties } from '../lib/utils/browserProperties';
 
 /*global tabId*/
 
-const sentryUrl = getSetting('sentry.url');
-const sentryEnvironment = getSetting('sentry.environment');
-const sentryRelease = getSetting('sentry.release')
+const sentryUrl = getSetting<string|undefined>('sentry.url');
+const sentryEnvironment = getSetting<string|undefined>('sentry.environment');
+const sentryRelease = getSetting<string|undefined>('sentry.release')
 
 Sentry.init({
   dsn: sentryUrl,
@@ -26,8 +26,8 @@ function identifyUserToSentry(user) {
 addCallback('events.identify', identifyUserToSentry)
 
 function addUserIdToGoogleAnalytics(user) {
-  if (window && window.ga) {
-    window.ga('set', 'userId', user._id); // Set the user ID using signed-in user_id.
+  if (window && (window as any).ga) {
+    (window as any).ga('set', 'userId', user._id); // Set the user ID using signed-in user_id.
   }
 }
 
@@ -39,7 +39,7 @@ window.addEventListener('load', ev => {
     referrer: document.referrer,
     browserProps: browserProperties(),
     performance: {
-      memory: window.performance?.memory?.usedJSHeapSize,
+      memory: (window as any).performance?.memory?.usedJSHeapSize,
       timeOrigin: window.performance?.timeOrigin,
       timing: window.performance?.timing,
     },

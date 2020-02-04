@@ -7,6 +7,11 @@ let emailTokenTypesByName = {};
 
 export class EmailTokenType
 {
+  name: string
+  onUseAction: any
+  resultComponentName: string
+  reusable: boolean
+  
   constructor({ name, onUseAction, resultComponentName, reusable=false }) {
     if(!name || !onUseAction || !resultComponentName)
       throw new Error("EmailTokenType: missing required argument");
@@ -20,7 +25,7 @@ export class EmailTokenType
     emailTokenTypesByName[name] = this;
   }
   
-  generateToken = async (userId, params) => {
+  generateToken = async (userId, params?: any) => {
     if (!userId) throw new Error("Missing required argument: userId");
     
     const token = Random.secret();
@@ -34,7 +39,7 @@ export class EmailTokenType
     return token;
   }
   
-  generateLink = async (userId, params) => {
+  generateLink = async (userId, params?: any) => {
     if (!userId) throw new Error("Missing required argument: userId");
     
     const token = await this.generateToken(userId, params);

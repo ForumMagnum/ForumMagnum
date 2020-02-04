@@ -28,7 +28,7 @@ const getDeleteMutationName = (typeName) => `delete${typeName}`;
 const getUpsertMutationName = (typeName) => `upsert${typeName}`;
 
 
-export function getDefaultMutations(options) {
+export function getDefaultMutations(options:any, moreOptions?:any) {
   let typeName, collectionName, mutationOptions;
 
   if (typeof arguments[0] === 'object') {

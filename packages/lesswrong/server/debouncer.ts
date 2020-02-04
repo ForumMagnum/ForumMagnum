@@ -118,6 +118,7 @@ export class EventDebouncer
     const msPerMin = 60*1000;
     
     switch(timing.type) {
+      default:
       case "none":
         return {
           newDelayTime: now,
@@ -198,7 +199,7 @@ const dispatchEvent = async (event) => {
 export const dispatchPendingEvents = async () => {
   const now = new Date().getTime();
   const af = getSetting('forumType') === 'AlignmentForum'
-  let eventToHandle = null;
+  let eventToHandle: any = null;
   
   do {
     // Finds one grouped event that is ready to go, and marks it as handled in

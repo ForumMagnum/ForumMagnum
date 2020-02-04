@@ -219,7 +219,7 @@ async function userIPBan(user) {
       }
     }
   `;
-  const IPs = await runQuery(query, {userId: user._id});
+  const IPs: any = await runQuery(query, {userId: user._id});
   if (IPs) {
     IPs.data.user.result.IPs.forEach(ip => {
       let tomorrow = new Date();

@@ -1,5 +1,6 @@
 import { addCronJob } from '../cronUtil';
 import { Posts } from '../../lib/collections/posts';
+import * as _ from 'underscore';
 
 
 addCronJob({

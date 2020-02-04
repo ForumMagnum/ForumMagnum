@@ -16,8 +16,8 @@ function PostsNewRateLimit (post, user) {
   if(!Users.isAdmin(user)){
     var timeSinceLastPost = Users.timeSinceLast(user, Posts),
       numberOfPostsInPast24Hours = Users.numberOfItemsInPast24Hours(user, Posts),
-      postInterval = Math.abs(parseInt(getSetting('forum.postInterval', 30))),
-      maxPostsPer24Hours = Math.abs(parseInt(getSetting('forum.maxPostsPerDay', 5)));
+      postInterval = Math.abs(parseInt(""+getSetting<number|string>('forum.postInterval', 30))),
+      maxPostsPer24Hours = Math.abs(parseInt(""+getSetting<number|string>('forum.maxPostsPerDay', 5)));
 
     // check that user waits more than X seconds between posts
     if(timeSinceLastPost < postInterval){

@@ -15,7 +15,7 @@ export const MAX_LOW_KARMA_THRESHOLD = -1000
  * To avoid duplication of code, views with the same name, will reference the
  * corresponding filter
  */
-const filters = {
+const filters: Record<string,any> = {
   "curated": {
     curatedDate: {$gt: new Date(0)}
   },
@@ -75,7 +75,7 @@ Posts.addDefaultView(terms => {
   // karmaThreshold (selects on baseScore).
 
   const alignmentForum = getSetting('forumType') === 'AlignmentForum' ? {af: true} : {}
-  let params = {
+  let params: any = {
     selector: {
       status: Posts.config.STATUS_APPROVED,
       draft: false,

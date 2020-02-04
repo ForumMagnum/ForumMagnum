@@ -16,7 +16,7 @@ const baseDefaultAlgorithmSettings = {
   onlyUnread: true,
 };
 
-export const defaultAlgorithmSettings = getSetting('forumType', 'LessWrong') === 'EAForum' ?
+export const defaultAlgorithmSettings = getSetting<string>('forumType', 'LessWrong') === 'EAForum' ?
   {...baseDefaultAlgorithmSettings, metaModifier: 0} :
   baseDefaultAlgorithmSettings
 

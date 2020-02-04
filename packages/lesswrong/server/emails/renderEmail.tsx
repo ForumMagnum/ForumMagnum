@@ -13,6 +13,7 @@ import Users from '../../lib/collections/users/collection';
 import moment from '../../lib/moment-timezone';
 import LWEvents from '../../lib/collections/lwevents/collection'
 import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
+import { Email } from 'meteor/email';
 
 import forumTheme from '../../themes/forumTheme'
 

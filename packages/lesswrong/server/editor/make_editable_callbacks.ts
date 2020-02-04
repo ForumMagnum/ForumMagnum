@@ -1,5 +1,5 @@
-/* global Random */
 import { Utils, addCallback, Connectors } from '../vulcan-lib';
+import { Random } from 'meteor/random';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../draftConvert';
 import Revisions from '../../lib/collections/revisions/collection'
@@ -78,8 +78,8 @@ function wrapSpoilerTags(html) {
   
   // Iterate through spoiler elements, collecting them into groups. We do this
   // the hard way, because cheerio's sibling-selectors don't seem to work right.
-  let spoilerBlockGroups = [];
-  let currentBlockGroup = [];
+  let spoilerBlockGroups: Array<any> = [];
+  let currentBlockGroup: Array<any> = [];
   $(`.${spoilerClass}`).each(function() {
     const element = this;
     if (!(element?.previousSibling && $(element.previousSibling).hasClass(spoilerClass))) {
@@ -276,7 +276,10 @@ async function buildRevision({ originalContents, currentUser }) {
   };
 }
 
-export function addEditableCallbacks({collection, options = {}}) {
+export function addEditableCallbacks({collection, options = {}}: {
+  collection: any,
+  options: any
+}) {
   const {
     fieldName = "contents",
     pingbacks = false,
