@@ -35,7 +35,6 @@ export const truncate = (html, truncateLength, truncateBy, suffix) => {
   return truncatise(htmlRemovedStyles, {
     TruncateLength: Math.floor(truncateLength - (truncateLength/4)) || truncateLength,
     TruncateBy: newTruncateBy,
-    Strict: true,
     Suffix: `${newSuffix} ${styles}`,
   });
 }
