@@ -1053,7 +1053,7 @@ makeEditable({
   options: makeEditableOptionsModeration
 })
 
-const makeEditableOptionsCustomHighlight = {
+export const makeEditableOptionsCustomHighlight = {
   formGroup: formGroups.highlight,
   fieldName: "customHighlight",
   permissions: {
