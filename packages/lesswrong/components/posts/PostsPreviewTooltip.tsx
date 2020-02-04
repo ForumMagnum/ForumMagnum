@@ -91,14 +91,13 @@ const styles = createStyles(theme => ({
     marginLeft: theme.spacing.unit
   },
   metadata: {
-    marginLeft: theme.spacing.unit,
-    paddingTop: 3,
+    marginLeft: 12,
+    paddingTop: 2
   },
   smallText: {
     fontSize: ".9rem",
     color: theme.palette.grey[500],
-    position: "relative",
-    top: -3
+    marginRight: theme.spacing.unit
   },
   karmaIcon: {
     marginRight: -2,
@@ -157,22 +156,24 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }) => {
                 {renderWordCount && <span className={classes.wordCount}>({wordCount} words)</span>}
               </span>}
               { !postsList && post.user && <>
-                <LWTooltip title="Author"><PostsUserAndCoauthors post={post} simple/></LWTooltip>
-                <div className={classes.metadata}>
-                  <LWTooltip title={`${Posts.getKarma(post)} karma`}>
-                    <span>
-                      <StarIcon className={classes.karmaIcon}/> 
-                      <span className={classes.smallText}>{Posts.getKarma(post)}</span>
-                    </span>
-                  </LWTooltip>
-                  <LWTooltip title={`${Posts.getCommentCountStr(post)}`}>
-                    <span>
-                      <ModeCommentIcon className={classes.commentIcon}/>  
-                      <span className={classes.smallText}>{Posts.getCommentCount(post)}</span>
-                    </span>
-                  </LWTooltip>
-                </div>
+                <LWTooltip title="Author">
+                  <span>By <PostsUserAndCoauthors post={post} simple/></span>
+                </LWTooltip>
               </>}
+              <div className={classes.metadata}>
+                <LWTooltip title={`${Posts.getKarma(post)} karma`}>
+                  <span>
+                    {/* <StarIcon className={classes.karmaIcon}/>  */}
+                    <span className={classes.smallText}>{Posts.getKarma(post)} karma</span>
+                  </span>
+                </LWTooltip>
+                <LWTooltip title={`${Posts.getCommentCountStr(post)}`}>
+                  <span>
+                    {/* <ModeCommentIcon className={classes.commentIcon}/>   */}
+                    <span className={classes.smallText}>{Posts.getCommentCountStr(post)}</span>
+                  </span>
+                </LWTooltip>
+              </div>
             </div>
           </div>
           { !postsList && <div className={classes.bookmark}>
