@@ -134,6 +134,7 @@ importComponent("ReviewVotingPage", () => require('../components/users/ReviewVot
 
 importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon'));
 importComponent("SettingsIcon", () => require('../components/icons/SettingsIcon'));
+importComponent("KarmaIcon", () => require('../components/icons/KarmaIcon.tsx'));
 
 // posts
 

@@ -24,15 +24,18 @@ export const highlightFromHTML = (html) => {
   });
 };
 
-export const truncate = (html, truncateLength) => {
+export const truncate = (html, truncateLength, truncateBy, suffix) => {
+  const newTruncateBy = truncateBy || "characters"
+  const newSuffix = suffix || "..."
+
   if(!html) return ""
   const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
   const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
 
   return truncatise(htmlRemovedStyles, {
     TruncateLength: Math.floor(truncateLength - (truncateLength/4)) || truncateLength,
-    TruncateBy: "characters",
-    Suffix: `... ${styles}`,
+    TruncateBy: newTruncateBy,
+    Suffix: `${newSuffix} ${styles}`,
   });
 }
 

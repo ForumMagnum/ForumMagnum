@@ -10,7 +10,6 @@ const styles = createStyles(theme => ({
   },
   default: {
     position: "relative",
-    top: 15,
     zIndex: theme.zIndexes.lwPopperTooltip,
   },
   tooltip: {
