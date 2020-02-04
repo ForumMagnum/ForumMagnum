@@ -63,7 +63,7 @@ const FILTERS_ALL = {
     },
     frontpage: {
       label: "Frontpage",
-      tooltip: "Material selected by moderators as especially interesting or useful to people with interest in doing good effectively."
+      tooltip: "Posts about research and other work in high-impact cause areas."
     },
     questions: {
       label: "Questions",
@@ -71,7 +71,7 @@ const FILTERS_ALL = {
     },
     meta: {
       label: "Community",
-      tooltip: "Posts with topical content or relating to the EA community itself."
+      tooltip: "Posts about the EA community (including jobs, events, and announcements)."
     },
   }
 }
