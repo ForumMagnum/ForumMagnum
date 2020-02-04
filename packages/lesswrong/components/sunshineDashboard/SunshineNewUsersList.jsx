@@ -13,7 +13,8 @@ class SunshineNewUsersList extends Component {
       return (
         <div>
           <SunshineListTitle>
-            New Users <SunshineListCount count={totalCount}/>
+            <span>New Users</span>
+            <SunshineListCount count={totalCount}/>
           </SunshineListTitle>
           {this.props.results.map(user =>
             <div key={user._id} >

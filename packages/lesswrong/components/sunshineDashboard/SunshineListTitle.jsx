@@ -9,6 +9,9 @@ const styles = theme => ({
     borderTop: "solid 1px rgba(0,0,0,.2)",
     padding: theme.spacing.unit*1.5,
     fontWeight: 600,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center"
   }
 })
 

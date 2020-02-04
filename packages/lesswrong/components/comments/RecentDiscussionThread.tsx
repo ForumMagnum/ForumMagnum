@@ -13,7 +13,6 @@ import withRecordPostView from '../common/withRecordPostView';
 import { withStyles, createStyles } from '@material-ui/core/styles';
 import { postExcerptFromHTML } from '../../lib/editor/ellipsize'
 import { postHighlightStyles } from '../../themes/stylePiping'
-import { userHasBoldPostItems } from '../../lib/betas';
 
 const styles = createStyles(theme => ({
   root: {
@@ -43,14 +42,6 @@ const styles = createStyles(theme => ({
   continueReading: {
     marginTop:theme.spacing.unit*2,
     marginBottom:theme.spacing.unit*2,
-  },
-  unreadPost: {
-    borderLeft: `solid 5px ${theme.palette.primary.light}`,
-    paddingLeft: theme.spacing.unit*1.5,
-    cursor: "pointer",
-    '&:hover': {
-      borderLeft: `solid 5px ${theme.palette.primary.main}`,
-    }
   },
   postHighlight: {
     ...postHighlightStyles(theme),
@@ -134,12 +125,11 @@ const RecentDiscussionThread = ({
   const highlightClasses = classNames({
     [classes.noComments]: post.commentCount === null
   })
-
   return (
     <div className={classes.root}>
-      <div className={(currentUser && !(isRead || readStatus)) ? classes.unreadPost : null}>
+      <div>
         <div className={classes.postItem}>
-          <PostsTitle wrap post={post} tooltip={false} read={userHasBoldPostItems(currentUser)} />
+          <PostsTitle wrap post={post} tooltip={false} />
           <div className={classes.threadMeta} onClick={showHighlight}>
             <PostsItemMeta post={post}/>
             <ShowOrHideHighlightButton
