@@ -125,7 +125,7 @@ class SunshineNewUsersItem extends Component {
           }
           { hover && <SidebarActionMenu>
             {/* to fully approve a user, they most have created a post or comment. Users that have only voted can only be snoozed */}
-            {(user.commentCount || user.postCount) && <SidebarAction title="Review" onClick={this.handleReview}>
+            {<SidebarAction title="Review" onClick={this.handleReview}>
               <DoneIcon />
             </SidebarAction>}
             <SidebarAction title="Snooze" onClick={this.handleSnooze}>
