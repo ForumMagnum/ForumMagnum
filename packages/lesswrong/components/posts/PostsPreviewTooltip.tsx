@@ -121,6 +121,8 @@ const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, truncate
   const renderCommentCount = showAllInfo && (Posts.getCommentCount(post) > 0)
   const renderWordCount = !comment && (wordCount > 0)
 
+  console.log(post.customHighlight)
+
   return <AnalyticsContext pageElementContext="hoverPreview">
       <Card className={classes.root}>
         <div className={classes.title}>

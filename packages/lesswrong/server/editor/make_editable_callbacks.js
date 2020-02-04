@@ -186,6 +186,7 @@ export async function ckEditorMarkupToHtml(markup) {
 }
 
 async function dataToHTML(data, type, sanitize = false) {
+  console.log(data, type)
   switch (type) {
     case "html":
       return sanitize ? Utils.sanitize(data) : data

@@ -282,12 +282,8 @@ registerFragment(`
       ...RevisionEdit
     }
     customHighlight {
-      version
-      html
-      originalContents {
-        data
-      }
-    },
+      ...RevisionEdit
+    }
   }
 `);
 
@@ -324,7 +320,7 @@ registerFragment(`
       ...RevisionDisplay
     }
     customHighlight {
-      ...RevisionEdit
+      ...RevisionDisplay
     }
   }
 `);
