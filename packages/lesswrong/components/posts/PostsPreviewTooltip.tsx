@@ -156,19 +156,19 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }) => {
                 {getPostCategory(post)}
                 {renderWordCount && <span className={classes.wordCount}>({wordCount} words)</span>}
               </span>}
-              { !postsList && post.user && <>
-                <LWTooltip title="Author">
+              { !postsList && <>
+                {post.user && <LWTooltip title="Author">
                   <PostsUserAndCoauthors post={post} simple/>
-                </LWTooltip>
+                </LWTooltip>}
+                <div className={classes.metadata}>
+                  <LWTooltip title={`${Posts.getKarma(post)} karma`}>
+                    <span className={classes.smallText}>{Posts.getKarma(post)} karma</span>
+                  </LWTooltip>
+                  <LWTooltip title={`${Posts.getCommentCountStr(post)}`}>
+                    <span className={classes.smallText}>{Posts.getCommentCountStr(post)}</span>
+                  </LWTooltip>
+                </div>
               </>}
-              <div className={classes.metadata}>
-                <LWTooltip title={`${Posts.getKarma(post)} karma`}>
-                  <span className={classes.smallText}>{Posts.getKarma(post)} karma</span>
-                </LWTooltip>
-                <LWTooltip title={`${Posts.getCommentCountStr(post)}`}>
-                  <span className={classes.smallText}>{Posts.getCommentCountStr(post)}</span>
-                </LWTooltip>
-              </div>
             </div>
           </div>
           { !postsList && <div className={classes.bookmark}>
