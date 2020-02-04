@@ -1,4 +1,4 @@
-/* global Vulcan */
+import { Vulcan } from '../../lib/vulcan-lib';
 import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
 import { Tags } from '../../lib/collections/tags/collection'

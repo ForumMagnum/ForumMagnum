@@ -136,7 +136,7 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
       return null
     }
 
-    const postGroups = postTypes[getSetting('forumType')].map(type => ({
+    const postGroups = postTypes[getSetting<string>('forumType')].map(type => ({
       ...type,
       posts: posts?.filter(type.postIsType)
     }))

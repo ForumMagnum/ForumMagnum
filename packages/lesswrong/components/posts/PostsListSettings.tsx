@@ -73,7 +73,7 @@ const FILTERS_ALL = {
     },
   }
 }
-const FILTERS = FILTERS_ALL[getSetting('forumType')]
+const FILTERS = FILTERS_ALL[getSetting<string>('forumType')]
 
 const styles = theme => ({
   root: {

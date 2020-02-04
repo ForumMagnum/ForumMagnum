@@ -10,7 +10,7 @@ const forumDefaultCheckboxLabels = {
   EAForum: 'Moderators may promote to Frontpage or Community'
 }
 
-const defaultCheckboxLabel = forumDefaultCheckboxLabels[getSetting('forumType')]
+const defaultCheckboxLabel = forumDefaultCheckboxLabels[getSetting<string>('forumType')]
 
 const defaultTooltipLWAF = ({classes}) => <div className={classes.tooltip}>
   <p>LW moderators will consider this post for frontpage</p>
@@ -34,7 +34,7 @@ const forumDefaultTooltip = {
   EAForum: () => "Uncheck this box if you want your post to stay on your personal blog."
 }
 
-const defaultTooltip = forumDefaultTooltip[getSetting('forumType')]
+const defaultTooltip = forumDefaultTooltip[getSetting<string>('forumType')]
 
 const styles = theme => ({
   submitToFrontpageWrapper: {

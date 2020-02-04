@@ -1,4 +1,4 @@
-import { belongsToSet, addToSet, reorderSet, isInSet, removeFromSet, updateInSet, Collections } from '../vulcan-lib';
+import { Utils, Collections } from '../vulcan-lib';
 import { getMultiResolverName, findWatchesByTypeName, getUpdateMutationName, getCreateMutationName, getDeleteMutationName } from './utils';
 
 export const cacheUpdateGenerator = (typeName, mutationType) => {
@@ -44,7 +44,7 @@ const getParametersByTypeName = (terms, typeName) => {
 
 export const handleDeleteMutation = ({ document, results, typeName }) => {
   if (!document) return results;
-  results = removeFromSet(results, document);
+  results = Utils.mingoRemoveFromSet(results, document);
 
   return {
     ...results,
@@ -55,12 +55,12 @@ export const handleDeleteMutation = ({ document, results, typeName }) => {
 export const handleCreateMutation = ({ document, results, parameters: { selector, options }, typeName }) => {
   if (!document) return results;
 
-  if (belongsToSet(document, selector)) {
-    if (!isInSet(results, document)) {
+  if (Utils.mingoBelongsToSet(document, selector)) {
+    if (!Utils.mingoIsInSet(results, document)) {
       // make sure document hasn't been already added as this may be called several times
-      results = addToSet(results, document);
+      results = Utils.mingoAddToSet(results, document);
     }
-    results = reorderSet(results, options.sort, selector);
+    results = Utils.mingoReorderSet(results, options.sort, selector);
   }
 
   return {
@@ -73,19 +73,19 @@ export const handleCreateMutation = ({ document, results, parameters: { selector
 export const handleUpdateMutation = ({ document, results, parameters: { selector, options }, typeName }) => {
   if (!document) return results;
 
-  if (belongsToSet(document, selector)) {
+  if (Utils.mingoBelongsToSet(document, selector)) {
     // edited document belongs to the list
-    if (!isInSet(results, document)) {
+    if (!Utils.mingoIsInSet(results, document)) {
       // if document wasn't already in list, add it
-      results = addToSet(results, document);
+      results = Utils.mingoAddToSet(results, document);
     } else {
       // if document was already in the list, update it
-      results = updateInSet(results, document);
+      results = Utils.mingoUpdateInSet(results, document);
     }
-    results = reorderSet(results, options.sort, selector);
+    results = Utils.mingoReorderSet(results, options.sort, selector);
   } else {
     // if edited doesn't belong to current list anymore (based on view selector), remove it
-    results = removeFromSet(results, document);
+    results = Utils.mingoRemoveFromSet(results, document);
   }
 
   return {

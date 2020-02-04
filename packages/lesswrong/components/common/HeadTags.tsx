@@ -9,7 +9,7 @@ import { withApollo } from 'react-apollo';
 registerSetting('logoUrl', null, 'Absolute URL for the logo image');
 registerSetting('title', 'My App', 'App title');
 registerSetting('tagline', null, 'App tagline');
-registerSetting('description');
+registerSetting('description', null);
 registerSetting('siteImage', null, 'An image used to represent the site on social media');
 registerSetting('faviconUrl', '/img/favicon.ico', 'Favicon absolute URL');
 

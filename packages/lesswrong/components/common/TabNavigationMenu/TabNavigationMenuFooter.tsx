@@ -20,7 +20,7 @@ const TabNavigationMenuFooter = ({classes}) => {
   return (
       <AnalyticsContext pageSectionContext="tabNavigationFooter">
         <div className={classes.root}>
-          {menuTabs[getSetting('forumType')].map(tab => {
+          {menuTabs[getSetting<string>('forumType')].map(tab => {
             if (!tab.showOnMobileStandalone) {
               return
             }

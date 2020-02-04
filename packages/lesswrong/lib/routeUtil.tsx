@@ -142,7 +142,7 @@ const forumDomainWhitelist: Record<string, Array<string>> = {
   ]
 }
 
-const domainWhitelist: Array<string> = forumDomainWhitelist[getSetting('forumType')]
+const domainWhitelist: Array<string> = forumDomainWhitelist[getSetting<string>('forumType')]
 
 export const hostIsOnsite = (host: string): boolean => {
   let isOnsite = false

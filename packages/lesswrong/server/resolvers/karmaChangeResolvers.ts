@@ -28,7 +28,9 @@ Users.addField([
             const lastOpened = newCurrentUser.karmaChangeLastOpened;
             const lastBatchStart = newCurrentUser.karmaChangeBatchStart;
             
-            const {start, end} = getKarmaChangeDateRange({settings, lastOpened, lastBatchStart, now}) 
+            const dateRange = getKarmaChangeDateRange({settings, lastOpened, lastBatchStart, now})
+            if (dateRange == null) return null;
+            const {start, end} = dateRange;
             startDate = start;
             endDate = end;
           }

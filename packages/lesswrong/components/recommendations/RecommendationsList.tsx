@@ -16,7 +16,7 @@ const RecommendationsList = ({ recommendations, recommendationsLoading, showLogi
   const currentUser = useCurrentUser();
   const { PostsItem2, PostsLoading, SectionFooter, LoginPopupButton } = Components;
   
-  const nameWithArticle = getSetting('siteNameWithArticle')
+  const nameWithArticle = getSetting<string>('siteNameWithArticle')
   const capitalizedName = nameWithArticle.charAt(0).toUpperCase() + nameWithArticle.slice(1)
 
   if (recommendationsLoading || !recommendations)

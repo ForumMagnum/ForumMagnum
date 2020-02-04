@@ -162,7 +162,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
 
   initializeLogRocket = () => {
     const { currentUser } = this.props
-    const logRocketKey = getSetting('logRocket.apiKey')
+    const logRocketKey = getSetting<string|null>('logRocket.apiKey')
     if (logRocketKey) {
       // If the user is logged in, always log their sessions
       if (currentUser) {
@@ -173,7 +173,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       // If the user is not logged in, only track 1/5 of the sessions
       const clientId = this.getUniqueClientId()
       const hash = hashCode(clientId)
-      if (hash % getSetting('logRocket.sampleDensity') === 0) {
+      if (hash % getSetting<number>('logRocket.sampleDensity') === 0) {
         LogRocket.init(logRocketKey)
       }
     }
@@ -224,7 +224,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     // FIXME: This is using route names, but it would be better if this was
     // a property on routes themselves.
     const standaloneNavigation = !location.currentRoute ||
-      standaloneNavMenuRouteNames[getSetting('forumType')]
+      standaloneNavMenuRouteNames[getSetting<string>('forumType')]
         .includes(location.currentRoute.name)
     
     return (

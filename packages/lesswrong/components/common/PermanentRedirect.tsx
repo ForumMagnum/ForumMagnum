@@ -3,7 +3,10 @@ import React from 'react';
 import { useServerRequestStatus } from '../../lib/routeUtil'
 import { Redirect } from 'react-router'
 
-const PermanentRedirect = ({url, status}) => {
+const PermanentRedirect = ({url, status}: {
+  url: string,
+  status?: number
+}) => {
   if (!url) throw Error("Permanent Redirect requires a URL")
   const serverRequestStatus = useServerRequestStatus()
   if (serverRequestStatus) {

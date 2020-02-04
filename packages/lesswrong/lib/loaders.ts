@@ -1,4 +1,4 @@
-import { Connectors } from './vulcan-lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
+import { Utils } from './vulcan-lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
 import DataLoader from 'dataloader';
 import * as _ from 'underscore';
 
@@ -28,7 +28,7 @@ export async function getWithLoader(collection, loaderName, baseQuery={}, groupB
         ...baseQuery,
         [groupByField]: {$in: docIDs}
       };
-      const queryResults = await Connectors.find(collection, query, projection);
+      const queryResults = await Utils.Connectors.find(collection, query, projection);
       const sortedResults = _.groupBy(queryResults, r=>r[groupByField]);
       return docIDs.map(id => sortedResults[id] || []);
     }, {

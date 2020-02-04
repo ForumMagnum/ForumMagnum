@@ -173,7 +173,7 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
   }
 
   render() {
-    const alignmentForum = getSetting('forumType') === 'AlignmentForum';
+    const alignmentForum = getSetting<string>('forumType') === 'AlignmentForum';
 
     const { searchResultsArea, classes } = this.props
     const { location } = this.props; // From withLocation

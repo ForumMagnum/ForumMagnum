@@ -1,5 +1,5 @@
 import Users from "../../lib/collections/users/collection";
-import { addCallback, getSetting, editMutation } from '../../lib/vulcan-lib';
+import { addCallback, getSetting, editMutation } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
 import request from 'request';

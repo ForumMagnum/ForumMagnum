@@ -36,11 +36,11 @@ import { Mutation } from 'react-apollo';
 
 export const withDelete = options => {
   const { collectionName, collection } = extractCollectionInfo(options);
-  const { fragmentName, fragment, extraVariablesString } = extractFragmentInfo(options, collectionName);
+  const { fragmentName, fragment } = extractFragmentInfo(options, collectionName);
 
   const typeName = collection.options.typeName;
   const query = gql`
-    ${deleteClientTemplate({ typeName, fragmentName, extraVariablesString })}
+    ${deleteClientTemplate({ typeName, fragmentName })}
     ${fragment}
   `;
 

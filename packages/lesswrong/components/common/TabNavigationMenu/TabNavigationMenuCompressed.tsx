@@ -26,7 +26,7 @@ const TabNavigationMenuCompressed = ({onClickSection, classes}) => {
 
   return (
     <div className={classes.root}>
-      {menuTabs[getSetting('forumType')].map(tab => {
+      {menuTabs[getSetting<string>('forumType')].map(tab => {
         if (!tab.showOnCompressed) {
           return
         }

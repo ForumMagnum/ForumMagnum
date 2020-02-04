@@ -1,6 +1,6 @@
 import { Posts } from "../../lib/collections/posts";
 import { Comments } from '../../lib/collections/comments/collection'
-import { addCallback, runCallbacksAsync, newMutation, editMutation, removeMutation, getSetting } from '../../lib/vulcan-lib';
+import { addCallback, runCallbacksAsync, newMutation, editMutation, removeMutation, getSetting } from '../vulcan-lib';
 import Users from "../../lib/collections/users/collection";
 import { performVoteServer } from '../voteServer';
 import Messages from '../../lib/collections/messages/collection';
@@ -122,7 +122,6 @@ function CommentsRemoveChildrenComments (comment, currentUser) {
 
   childrenComments.forEach(childComment => {
     removeMutation({
-      action: 'comments.remove',
       collection: Comments,
       documentId: childComment._id,
       currentUser: currentUser,
@@ -169,7 +168,7 @@ addCallback('users.remove.async', UsersRemoveDeleteComments);
 function CommentsNewRateLimit (comment, user) {
   if (!Users.isAdmin(user)) {
     const timeSinceLastComment = Users.timeSinceLast(user, Comments);
-    const commentInterval = Math.abs(parseInt(getSetting('forum.commentInterval',15)));
+    const commentInterval = Math.abs(parseInt(""+getSetting<string|number>('forum.commentInterval',15)));
 
     // check that user waits more than 15 seconds between comments
     if((timeSinceLastComment < commentInterval)) {

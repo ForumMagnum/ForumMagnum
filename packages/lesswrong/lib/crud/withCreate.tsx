@@ -36,11 +36,11 @@ import { getExtraVariables } from './utils'
 
 export const withCreate = options => {
   const { collectionName, collection } = extractCollectionInfo(options);
-  const { fragmentName, fragment, extraVariablesString } = extractFragmentInfo(options, collectionName);
+  const { fragmentName, fragment } = extractFragmentInfo(options, collectionName);
 
   const typeName = collection.options.typeName;
   const query = gql`
-    ${createClientTemplate({ typeName, fragmentName, extraVariablesString })}
+    ${createClientTemplate({ typeName, fragmentName })}
     ${fragment}
   `;
 

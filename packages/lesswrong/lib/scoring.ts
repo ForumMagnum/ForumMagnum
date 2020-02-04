@@ -1,6 +1,6 @@
 import Votes from './collections/votes/collection';
 
-export const recalculateBaseScore = (document, power) => {
+export const recalculateBaseScore = (document) => {
   const votes = Votes.find(
     {
       documentId: document._id,

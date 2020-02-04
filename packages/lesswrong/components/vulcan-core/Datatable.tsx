@@ -127,7 +127,7 @@ const DatatableLayout = ({ collectionName, children }) => (
     {children}
   </div>
 );
-registerComponent({ name: 'DatatableLayout', component: DatatableLayout });
+const DatatableLayoutComponent = registerComponent('DatatableLayout', DatatableLayout);
 
 /*
 
@@ -159,21 +159,21 @@ DatatableAbove.contextTypes = {
 };
 DatatableAbove.propTypes = {
 };
-registerComponent('DatatableAbove', DatatableAbove);
+const DatatableAboveComponent = registerComponent('DatatableAbove', DatatableAbove);
 
 const DatatableAboveSearchInput = (props) => (
   <input
     {...props}
   />
 );
-registerComponent({ name: 'DatatableAboveSearchInput', component: DatatableAboveSearchInput });
+const DatatableAboveSearchInputComponent = registerComponent('DatatableAboveSearchInput', DatatableAboveSearchInput);
 
 const DatatableAboveLayout = ({ children }) => (
   <div className="datatable-above">
     {children}
   </div>
 );
-registerComponent({ name: 'DatatableAboveLayout', component: DatatableAboveLayout });
+const DatatableAboveLayoutComponent = registerComponent('DatatableAboveLayout', DatatableAboveLayout);
 
   
 /*
@@ -202,7 +202,7 @@ const DatatableHeader = ({ collection, column, toggleSort, currentSort }, { intl
     // if sortable is a string, use it as the name of the property to sort by. If it's just `true`, use column.name
     const sortPropertyName = typeof column.sortable === 'string' ? column.sortable : column.name;
     return column.sortable 
-    ? <Components.DatatableSorter name={sortPropertyName} label={formattedLabel} toggleSort={toggleSort} currentSort={currentSort} sortable={column.sortable}/> 
+    ? <Components.DatatableSorter name={sortPropertyName} label={formattedLabel} toggleSort={toggleSort} currentSort={currentSort} /> 
     : <Components.DatatableHeaderCellLayout>{formattedLabel}</Components.DatatableHeaderCellLayout>;
 
   } else {
@@ -222,12 +222,12 @@ DatatableHeader.contextTypes = {
 };
 DatatableHeader.propTypes = {
 };
-registerComponent('DatatableHeader', DatatableHeader);
+const DatatableHeaderComponent = registerComponent('DatatableHeader', DatatableHeader);
 
 const DatatableHeaderCellLayout = ({ children, ...otherProps }) => (
   <th {...otherProps}>{children}</th>
 );
-registerComponent({ name: 'DatatableHeaderCellLayout', component: DatatableHeaderCellLayout });
+const DatatableHeaderCellLayoutComponent = registerComponent('DatatableHeaderCellLayout', DatatableHeaderCellLayout);
 
 const SortNone = () =>
   <svg width='16' height='16' viewBox='0 0 438 438' fill='none' xmlns='http://www.w3.org/2000/svg'>
@@ -263,7 +263,7 @@ const DatatableSorter = ({ name, label, toggleSort, currentSort }) =>
     </div>
   </th>;
 
-registerComponent('DatatableSorter', DatatableSorter);
+const DatatableSorterComponent = registerComponent('DatatableSorter', DatatableSorter);
 
 /*
 
@@ -323,20 +323,20 @@ const DatatableContents = (props) => {
 };
 DatatableContents.propTypes = {
 };
-registerComponent('DatatableContents', DatatableContents);
+const DatatableContentsComponent = registerComponent('DatatableContents', DatatableContents);
 
 const DatatableContentsLayout = ({ children }) => (
   <div className="datatable-list">
     {children}
   </div>
 );
-registerComponent({ name: 'DatatableContentsLayout', component: DatatableContentsLayout });
+const DatatableContentsLayoutComponent = registerComponent('DatatableContentsLayout', DatatableContentsLayout);
 const DatatableContentsInnerLayout = ({ children }) => (
   <table className="table">
     {children}
   </table>
 );
-registerComponent({ name: 'DatatableContentsInnerLayout', component: DatatableContentsInnerLayout });
+const DatatableContentsInnerLayoutComponent = registerComponent('DatatableContentsInnerLayout', DatatableContentsInnerLayout);
 const DatatableContentsHeadLayout = ({ children }) => (
   <thead>
     <tr>
@@ -344,21 +344,21 @@ const DatatableContentsHeadLayout = ({ children }) => (
     </tr>
   </thead>
 );
-registerComponent({ name: 'DatatableContentsHeadLayout', component: DatatableContentsHeadLayout });
+const DatatableContentsHeadLayoutComponent = registerComponent('DatatableContentsHeadLayout', DatatableContentsHeadLayout);
 const DatatableContentsBodyLayout = ({ children }) => (
   <tbody>{children}</tbody>
 );
-registerComponent({ name: 'DatatableContentsBodyLayout', component: DatatableContentsBodyLayout });
+const DatatableContentsBodyLayoutComponent = registerComponent('DatatableContentsBodyLayout', DatatableContentsBodyLayout);
 const DatatableContentsMoreLayout = ({ children }) => (
   <div className="datatable-list-load-more">
     {children}
   </div>
 );
-registerComponent({ name: 'DatatableContentsMoreLayout', component: DatatableContentsMoreLayout });
+const DatatableContentsMoreLayoutComponent = registerComponent('DatatableContentsMoreLayout', DatatableContentsMoreLayout);
 const DatatableLoadMoreButton = ({ count, totalCount, children, ...otherProps }) => (
   <Components.Button variant="primary" {...otherProps}>{children}</Components.Button>
 );
-registerComponent({ name: 'DatatableLoadMoreButton', component: DatatableLoadMoreButton });
+const DatatableLoadMoreButtonComponent = registerComponent('DatatableLoadMoreButton', DatatableLoadMoreButton);
 
 /*
 
@@ -368,7 +368,7 @@ DatatableTitle Component
 const DatatableTitle = ({ title }) => 
   <div className="datatable-title">{title}</div>;
 
-registerComponent('DatatableTitle', DatatableTitle);
+const DatatableTitleComponent = registerComponent('DatatableTitle', DatatableTitle);
 
 /*
 
@@ -405,7 +405,7 @@ const DatatableRow = (props, { intl }) => {
 };
 DatatableRow.propTypes = {
 };
-registerComponent('DatatableRow', DatatableRow);
+const DatatableRowComponent = registerComponent('DatatableRow', DatatableRow);
 
 DatatableRow.contextTypes = {
   intl: intlShape
@@ -415,7 +415,7 @@ const DatatableRowLayout = ({ children, ...otherProps }) => (
     {children}
   </tr>
 );
-registerComponent({ name: 'DatatableRowLayout', component: DatatableRowLayout });
+const DatatableRowLayoutComponent = registerComponent('DatatableRowLayout', DatatableRowLayout);
 
 /*
 
@@ -435,12 +435,12 @@ const DatatableCell = ({ column, document, currentUser }) => {
 };
 DatatableCell.propTypes = {
 };
-registerComponent('DatatableCell', DatatableCell);
+const DatatableCellComponent = registerComponent('DatatableCell', DatatableCell);
 
 const DatatableCellLayout = ({ children, ...otherProps }) => (
   <td {...otherProps}>{children}</td>
 );
-registerComponent('DatatableCellLayout', DatatableCellLayout);
+const DatatableCellLayoutComponent = registerComponent('DatatableCellLayout', DatatableCellLayout);
 
 /*
 
@@ -450,11 +450,31 @@ DatatableDefaultCell Component
 const DatatableDefaultCell = ({ column, document }) =>
   <div>{typeof column === 'string' ? getFieldValue(document[column]) : getFieldValue(document[column.name])}</div>;
 
-registerComponent('DatatableDefaultCell', DatatableDefaultCell);
+const DatatableDefaultCellComponent = registerComponent('DatatableDefaultCell', DatatableDefaultCell);
 
 
 declare global {
   interface ComponentTypes {
-    Datatable: typeof DatatableComponent
+    Datatable: typeof DatatableComponent,
+    DatatableLayout: typeof DatatableLayoutComponent,
+    DatatableAbove: typeof DatatableAboveComponent,
+    DatatableAboveSearchInput: typeof DatatableAboveSearchInputComponent,
+    DatatableAboveLayout: typeof DatatableAboveLayoutComponent,
+    DatatableHeader: typeof DatatableHeaderComponent,
+    DatatableHeaderCellLayout: typeof DatatableHeaderCellLayoutComponent,
+    DatatableSorter: typeof DatatableSorterComponent,
+    DatatableContents: typeof DatatableContentsComponent,
+    DatatableContentsLayout: typeof DatatableContentsLayoutComponent,
+    DatatableContentsInnerLayout: typeof DatatableContentsInnerLayoutComponent,
+    DatatableContentsHeadLayout: typeof DatatableContentsHeadLayoutComponent,
+    DatatableContentsBodyLayout: typeof DatatableContentsBodyLayoutComponent,
+    DatatableContentsMoreLayout: typeof DatatableContentsMoreLayoutComponent,
+    DatatableLoadMoreButton: typeof DatatableLoadMoreButtonComponent,
+    DatatableTitle: typeof DatatableTitleComponent,
+    DatatableRow: typeof DatatableRowComponent,
+    DatatableRowLayout: typeof DatatableRowLayoutComponent,
+    DatatableCell: typeof DatatableCellComponent,
+    DatatableCellLayout: typeof DatatableCellLayoutComponent,
+    DatatableDefaultCell: typeof DatatableDefaultCellComponent,
   }
 }

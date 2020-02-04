@@ -36,7 +36,7 @@ const TabNavigationMenu = ({onClickSection, classes}: {
   return (
       <AnalyticsContext pageSectionContext="navigationMenu">
         <div className={classes.root}>
-          {menuTabs[getSetting('forumType')].map(tab => {
+          {menuTabs[getSetting<string>('forumType')].map(tab => {
             if (tab.divider) {
               return <div key={tab.id} className={classes.divider} />
             }

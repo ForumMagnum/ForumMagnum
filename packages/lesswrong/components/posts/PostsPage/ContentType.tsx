@@ -154,7 +154,7 @@ const ContentType = ({classes, type, label}: {
   if (!type) {
     throw new Error('ContentType requires type property')
   }
-  const contentData = contentTypes[getSetting('forumType')][type]
+  const contentData = contentTypes[getSetting<string>('forumType')][type]
   return <Typography variant="body1" component="span" className={classes.root}>
     <Tooltip title={<React.Fragment>
       <div className={classes.tooltipTitle}>{contentData.tooltipTitle}</div>
