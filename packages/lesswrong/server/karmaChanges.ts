@@ -26,7 +26,13 @@ const COMMENT_DESCRIPTION_LENGTH = 500;
 //     },
 //   ]
 // }
-export async function getKarmaChanges({user, startDate, endDate, nextBatchDate, af=false})
+export async function getKarmaChanges({user, startDate, endDate, nextBatchDate, af=false}: {
+  user: any,
+  startDate: Date,
+  endDate: Date,
+  nextBatchDate?: Date,
+  af?: boolean,
+})
 {
   if (!user) throw new Error("Missing required argument: user");
   if (!startDate) throw new Error("Missing required argument: startDate");
@@ -120,7 +126,12 @@ export async function getKarmaChanges({user, startDate, endDate, nextBatchDate, 
   };
 }
 
-export function getKarmaChangeDateRange({settings, now, lastOpened=null, lastBatchStart=null}): null|{start:any, end:any}
+export function getKarmaChangeDateRange({settings, now, lastOpened=null, lastBatchStart=null}: {
+  settings: any,
+  now: Date,
+  lastOpened?: Date|null,
+  lastBatchStart?: Date|null,
+}): null|{start:any, end:any}
 {
   // Greatest date prior to lastOpened at which the time of day matches
   // settings.timeOfDay.

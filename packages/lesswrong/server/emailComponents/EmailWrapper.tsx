@@ -17,20 +17,54 @@ const EmailWrapper = ({user, unsubscribeAllLink, children, classes}) => {
   const accountLink = `${Utils.getSiteUrl()}account`
   const siteNameWithArticle = getSetting('siteNameWithArticle')
   
+  // Put props for some HTML elements in any-typed objects, because emails use
+  // non-HTML5 attributes which the typechecker will complain about
+  const bodyProps: any = {
+    bgcolor: "white",
+    leftmargin: "0",
+    topmargin: "0",
+    marginWidth: "0",
+    marginHeight: "0",
+  };
+  const outerTableProps: any = {
+    border: "0",
+    width: "100%",
+    height: "100%",
+    cellPadding: "0",
+    cellSpacing: "0",
+    bgcolor: "#ffffff",
+  };
+  const outerTdProps: any = {
+    align: "center",
+    valign: "top",
+    bgcolor: "#ffffff",
+    style: {"backgroundColor": "#ffffff"},
+  };
+  const innerTableProps: any = {
+    border: "0",
+    width: "600",
+    cellPadding: "0",
+    cellSpacing: "0",
+    bgcolor: "#ffffff",
+  };
+  const innerTdProps: any = {
+    bgcolor: "#ffffff",
+  };
+  
   return (
-    <body bgcolor="white" leftmargin="0" topmargin="0" marginWidth="0" marginHeight="0">
+    <body {...bodyProps}>
       <br/>
 
       {/* 100% wrapper */}
       <div className={classes.root}>
-        <table border="0" width="100%" height="100%" cellPadding="0" cellSpacing="0" bgcolor="#ffffff">
+        <table {...outerTableProps}>
           <tr>
-            <td className="wrapper" align="center" valign="top" bgcolor="#ffffff" style={{"backgroundColor": "#ffffff"}}>
+            <td className="wrapper" {...outerTdProps}>
 
               {/* 600px container (white background) */}
-              <table border="0" width="600" cellPadding="0" cellSpacing="0" className="container" bgcolor="#ffffff">
+              <table className="container" {...innerTableProps}>
                 <tr>
-                  <td className="container-padding" bgcolor="#ffffff">
+                  <td className="container-padding" {...innerTdProps}>
                     <br/>
                     {children}
                   </td>

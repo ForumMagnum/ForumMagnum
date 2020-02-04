@@ -92,4 +92,4 @@ Utils.mingoIsInSet = isInSet;
 Utils.mingoAddToSet = addToSet;
 Utils.mingoUpdateInSet = updateInSet;
 Utils.mingoReorderSet = reorderSet;
-Utils.mongoRemoveFromSet = removeFromSet;
+Utils.mingoRemoveFromSet = removeFromSet;
