@@ -114,6 +114,7 @@ const styles = createStyles(theme => ({
   },
   secondaryInfo: {
     fontSize: '1.4rem',
+    fontFamily: theme.typography.fontFamily,
   },
   commentsLink: {
     marginRight: SECONDARY_SPACING,
