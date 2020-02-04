@@ -2,7 +2,7 @@ import React from 'react';
 import './Button';
 import { Components, registerComponent } from '../../lib/vulcan-core';
 
-export class Buttons extends React.Component {
+export class Buttons extends React.Component<any> {
   render () {
     let { buttons = {}, className = 'buttons' } = this.props;
     return (
@@ -15,4 +15,11 @@ export class Buttons extends React.Component {
   }
 }
 
-registerComponent('AccountsButtons', Buttons);
+const AccountsButtonsComponent = registerComponent('AccountsButtons', Buttons);
+
+declare global {
+  interface ComponentTypes {
+    AccountsButtons: typeof AccountsButtonsComponent
+  }
+}
+

@@ -6,7 +6,7 @@ import {
   STATES
 } from '../../lib/vulcan-accounts/helpers';
 
-export class AccountsStateSwitcher extends React.Component {
+export class AccountsStateSwitcher extends React.Component<any,any> {
 
   constructor(props) {
     super(props);
@@ -99,4 +99,11 @@ export class AccountsStateSwitcher extends React.Component {
   }
 }
 
-registerComponent('AccountsStateSwitcher', AccountsStateSwitcher);
+const AccountsStateSwitcherComponent = registerComponent('AccountsStateSwitcher', AccountsStateSwitcher);
+
+declare global {
+  interface ComponentTypes {
+    AccountsStateSwitcher: typeof AccountsStateSwitcherComponent
+  }
+}
+

@@ -3,7 +3,7 @@ import './Button';
 import { Components, registerComponent } from '../../lib/vulcan-core';
 
 
-export class AccountsSocialButtons extends React.Component {
+export class AccountsSocialButtons extends React.Component<any> {
   render() {
     let { oauthServices = {}, className = 'social-buttons' } = this.props;
     return(
@@ -16,4 +16,11 @@ export class AccountsSocialButtons extends React.Component {
   }
 }
 
-registerComponent('AccountsSocialButtons', AccountsSocialButtons);
+const AccountsSocialButtonsComponent = registerComponent('AccountsSocialButtons', AccountsSocialButtons);
+
+declare global {
+  interface ComponentTypes {
+    AccountsSocialButtons: typeof AccountsSocialButtonsComponent
+  }
+}
+

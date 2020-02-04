@@ -8,6 +8,9 @@ import { intlShape } from '../../lib/vulcan-i18n';
 import { withApollo } from 'react-apollo';
 import TrackerComponent from './TrackerComponent';
 import sha1 from 'crypto-js/sha1';
+import { Meteor } from 'meteor/meteor';
+import { Session } from 'meteor/session';
+import * as _ from 'underscore';
 
 
 import {
@@ -22,11 +25,18 @@ import {
   capitalize
 } from '../../lib/vulcan-accounts/helpers';
 
+function hasAccountsPassword() {
+  // return !!Package['accounts-password']
+  return true;
+}
+
 export class AccountsLoginFormInner extends TrackerComponent {
+  hideMessageTimout: any
+  
   constructor(props) {
     super(props);
 
-    if (props.formState === STATES.SIGN_IN && Package['accounts-password']) {
+    if (props.formState === STATES.SIGN_IN && hasAccountsPassword) {
       // eslint-disable-next-line no-console
       console.warn('Do not force the state to SIGN_IN on Accounts.ui.LoginFormInner, it will make it impossible to reset password in your app, this state is also the default state if logged out, so no need to force it.');
     }
@@ -268,7 +278,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
   }
 
   fields() {
-    let loginFields = [];
+    let loginFields: Array<any> = [];
     const { formState } = this.state;
 
     // if extra fields have been specified, add onChange handler to them
@@ -369,7 +379,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
       profilePath = Accounts.ui._options.profilePath,
     } = this.props;
     const { formState, waiting } = this.state;
-    let loginButtons = [];
+    let loginButtons: Array<any> = [];
     const currentUser = typeof this.props.currentUser !== 'undefined'
       ? this.props.currentUser : this.state.currentUser;
 
@@ -488,32 +498,32 @@ export class AccountsLoginFormInner extends TrackerComponent {
     // Sort the button array so that the submit button always comes first, and
     // buttons should also come before links.
     loginButtons.sort((a, b) => {
-      return (
+      return ((
         b.type == 'submit' &&
-        a.type != undefined) - (
+        a.type != undefined)?1:0) - ((
           a.type == 'submit' &&
-          b.type != undefined);
+          b.type != undefined)?1:0);
     });
 
     return _.indexBy(loginButtons, 'id');
   }
 
   showSignInLink(){
-    return this.state.formState == STATES.SIGN_IN && Package['accounts-password'];
+    return this.state.formState == STATES.SIGN_IN && hasAccountsPassword();
   }
 
   showPasswordChangeForm() {
-    return(Package['accounts-password']
+    return(hasAccountsPassword()
       && this.state.formState == STATES.PASSWORD_CHANGE);
   }
 
   showEnrollAccountForm() {
-    return(Package['accounts-password']
+    return(hasAccountsPassword()
       && this.state.formState == STATES.ENROLL_ACCOUNT);
   }
 
   showCreateAccountLink() {
-    return this.state.formState == STATES.SIGN_IN && !Accounts._options.forbidClientAccountCreation && Package['accounts-password'];
+    return this.state.formState == STATES.SIGN_IN && !Accounts._options.forbidClientAccountCreation && hasAccountsPassword();
   }
 
   showForgotPasswordLink() {
@@ -551,7 +561,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
       }
     }
     if (typeof localStorage !== 'undefined' && localStorage) {
-      const savedDefaultFieldValues = JSON.parse(localStorage.getItem('accounts_ui') || null);
+      const savedDefaultFieldValues = JSON.parse(localStorage.getItem('accounts_ui') || "null");
       if (savedDefaultFieldValues
         && savedDefaultFieldValues.passwordSignupFields === passwordSignupFields()) {
         defaultFieldValues = {...defaultFieldValues, ...savedDefaultFieldValues};
@@ -732,7 +742,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
 
   oauthButtons() {
     const { formState, waiting } = this.state;
-    let oauthButtons = [];
+    let oauthButtons: Array<any> = [];
     if (formState == STATES.SIGN_IN || formState == STATES.SIGN_UP ) {
       if(Accounts.oauth) {
         Accounts.oauth.serviceNames().map((service) => {
@@ -766,7 +776,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
 
     const loginWithService = Meteor['loginWith' + capitalService()];
 
-    let options = {}; // use default scope unless specified
+    let options: any = {}; // use default scope unless specified
     if (Accounts.ui._options.requestPermissions[serviceName])
       options.requestPermissions = Accounts.ui._options.requestPermissions[serviceName];
     if (Accounts.ui._options.requestOfflineToken[serviceName])
@@ -797,7 +807,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
 
   }
 
-  signUp(options = {}) {
+  signUp(options: any = {}) {
     const {
       username = null,
       email = null,
@@ -992,7 +1002,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
     }
   }
 
-  showMessage(messageId, type, clearTimeout, field){
+  showMessage(messageId, type?: any, clearTimeout?: any, field?: any) {
     if (messageId) {
       this.setState(({ messages = [] }) => {
         messages.push({
@@ -1056,21 +1066,30 @@ export class AccountsLoginFormInner extends TrackerComponent {
       />
     );
   }
-}
+};
 
-AccountsLoginFormInner.propTypes = {
+(AccountsLoginFormInner as any).propTypes = {
   showSignInLink: PropTypes.bool,
   showSignUpLink: PropTypes.bool,
 };
 
-AccountsLoginFormInner.defaultProps = {
+(AccountsLoginFormInner as any).defaultProps = {
   showSignInLink: true,
   showSignUpLink: true,
   redirect: true,
 };
 
-AccountsLoginFormInner.contextTypes = {
+(AccountsLoginFormInner as any).contextTypes = {
   intl: intlShape
 };
 
-registerComponent('AccountsLoginFormInner', AccountsLoginFormInner, withApollo);
+const AccountsLoginFormInnerComponent = registerComponent('AccountsLoginFormInner', AccountsLoginFormInner, {
+  hocs: [withApollo]
+});
+
+declare global {
+  interface ComponentTypes {
+    AccountsLoginFormInner: typeof AccountsLoginFormInnerComponent
+  }
+}
+

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-core';
 
-export class AccountsFields extends React.Component {
+export class AccountsFields extends React.Component<any> {
   render () {
     let { fields = {}, className = 'fields' } = this.props;
     return (
@@ -14,4 +14,11 @@ export class AccountsFields extends React.Component {
   }
 }
 
-registerComponent('AccountsFields', AccountsFields);
+const AccountsFieldsComponent = registerComponent('AccountsFields', AccountsFields);
+
+declare global {
+  interface ComponentTypes {
+    AccountsFields: typeof AccountsFieldsComponent
+  }
+}
+

@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Components, registerComponent } from '../../lib/vulcan-core';
 
-export class AccountsForm extends PureComponent {
+export class AccountsForm extends PureComponent<any> {
+  form: any
+  
   componentDidMount() {
     let form = this.form;
     if (form) {
@@ -43,7 +45,7 @@ export class AccountsForm extends PureComponent {
     );
   }
 }
-AccountsForm.propTypes = {
+(AccountsForm as any).propTypes = {
   oauthServices: PropTypes.object,
   fields: PropTypes.object.isRequired,
   buttons: PropTypes.object.isRequired,
@@ -51,4 +53,11 @@ AccountsForm.propTypes = {
   ready: PropTypes.bool
 };
 
-registerComponent('AccountsForm', AccountsForm);
+const AccountsFormComponent = registerComponent('AccountsForm', AccountsForm);
+
+declare global {
+  interface ComponentTypes {
+    AccountsForm: typeof AccountsFormComponent
+  }
+}
+

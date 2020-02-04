@@ -4,7 +4,7 @@ import { hasPasswordService } from '../../lib/vulcan-accounts/helpers';
 import { registerComponent } from '../../lib/vulcan-core';
 import { intlShape } from '../../lib/vulcan-i18n';
 
-export class AccountsPasswordOrService extends PureComponent {
+export class AccountsPasswordOrService extends PureComponent<any> {
   render () {
     let { className = 'password-or-service', style = {} } = this.props;
     const services = Object.keys(this.props.oauthServices).map(service => {
@@ -26,12 +26,19 @@ export class AccountsPasswordOrService extends PureComponent {
   }
 }
 
-AccountsPasswordOrService.propTypes = {
+(AccountsPasswordOrService as any).propTypes = {
   oauthServices: PropTypes.object
 };
 
-AccountsPasswordOrService.contextTypes = {
+(AccountsPasswordOrService as any).contextTypes = {
   intl: intlShape
 };
 
-registerComponent('AccountsPasswordOrService', AccountsPasswordOrService);
+const AccountsPasswordOrServiceComponent = registerComponent('AccountsPasswordOrService', AccountsPasswordOrService);
+
+declare global {
+  interface ComponentTypes {
+    AccountsPasswordOrService: typeof AccountsPasswordOrServiceComponent
+  }
+}
+

@@ -13,6 +13,8 @@ declare module 'meteor/ejson';
 declare module 'meteor/check';
 declare module 'meteor/service-configuration';
 declare module 'meteor/email';
+declare module 'meteor/tracker';
+declare module 'meteor/session';
 
 /*type C<T=any> = React.ComponentType<T>
 type HoC<O,T> = (component: C<O>) => C<T>

@@ -6,8 +6,15 @@
 /* super handle that.
 /****************************************************************/
 import React from 'react';
+import { Meteor } from 'meteor/meteor';
+import { Tracker } from 'meteor/tracker';
 
-class TrackerComponent extends React.Component {
+class TrackerComponent extends React.Component<any,any> {
+  __subs: any
+  __comps: any
+  __subscribe: any
+  __live: boolean
+  
   constructor(props) {
     super(props);
     this.__subs = {}, this.__comps = []; this.__live = false;
@@ -38,7 +45,7 @@ class TrackerComponent extends React.Component {
 
   render() {
     const { children } = this.props;
-    const comp = (children instanceof Array ? children : [children]).map(c => React.cloneElement(c, this.state));
+    const comp = (children instanceof Array ? children : [children]).map((c: any) => React.cloneElement(c, this.state));
     return comp.length == 1 ? comp[0] : <div>{comp}</div>;
   }
 }

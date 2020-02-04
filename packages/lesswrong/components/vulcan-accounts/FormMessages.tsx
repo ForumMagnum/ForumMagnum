@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-core';
 
-export class AccountsFormMessages extends Component {
+export class AccountsFormMessages extends Component<any> {
   render () {
     const { messages = [], className = 'messages', style = {} } = this.props;
     return messages.length > 0 && (
@@ -20,4 +20,11 @@ export class AccountsFormMessages extends Component {
   }
 }
 
-registerComponent('AccountsFormMessages', AccountsFormMessages);
+const AccountsFormMessagesComponent = registerComponent('AccountsFormMessages', AccountsFormMessages);
+
+declare global {
+  interface ComponentTypes {
+    AccountsFormMessages: typeof AccountsFormMessagesComponent
+  }
+}
+

@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent } from '../../lib/vulcan-core';
 
-export class AccountsButton extends PureComponent {
+export class AccountsButton extends PureComponent<any> {
   render () {
 
     const {
@@ -27,8 +27,15 @@ export class AccountsButton extends PureComponent {
       </Components.Button>;
   }
 }
-AccountsButton.propTypes = {
+(AccountsButton as any).propTypes = {
   onClick: PropTypes.func
 };
 
-registerComponent('AccountsButton', AccountsButton);
+const AccountsButtonComponent = registerComponent('AccountsButton', AccountsButton);
+
+declare global {
+  interface ComponentTypes {
+    AccountsButton: typeof AccountsButtonComponent
+  }
+}
+

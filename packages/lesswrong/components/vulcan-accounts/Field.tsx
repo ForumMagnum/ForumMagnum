@@ -9,7 +9,9 @@ const autocompleteValues = {
   'password': 'current-password'
 };
 
-export class AccountsField extends PureComponent {
+export class AccountsField extends PureComponent<any,any> {
+  input: any
+  
   constructor(props) {
     super(props);
     this.state = {
@@ -80,8 +82,15 @@ export class AccountsField extends PureComponent {
     );
   }
 }
-AccountsField.propTypes = {
+(AccountsField as any).propTypes = {
   onChange: PropTypes.func
 };
 
-registerComponent('AccountsField', AccountsField);
+const AccountsFieldComponent = registerComponent('AccountsField', AccountsField);
+
+declare global {
+  interface ComponentTypes {
+    AccountsField: typeof AccountsFieldComponent
+  }
+}
+
