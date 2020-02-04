@@ -5,9 +5,9 @@ import { withStyles } from '@material-ui/core/styles';
 import { Comments } from "../../lib/collections/comments";
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
-import moment from 'moment-timezone';
+import moment from '../../lib/moment-timezone';
 import withHover from '../common/withHover';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import { useVote } from './withVote';
 
 const styles = theme => ({
@@ -37,7 +37,8 @@ const styles = theme => ({
   }
 })
 
-const CommentsVote = ({ comment, hideKarma, classes, currentUser, hover }) => {
+const CommentsVote = ({ comment, hideKarma, classes, hover }) => {
+  const currentUser = useCurrentUser();
   const vote = useVote();
   
   if (!comment) return null;
@@ -123,12 +124,11 @@ const CommentsVote = ({ comment, hideKarma, classes, currentUser, hover }) => {
 
 CommentsVote.propTypes = {
   comment: PropTypes.object.isRequired, // the document to upvote
-  currentUser: PropTypes.object, // user might not be logged in, so don't make it required
   classes: PropTypes.object.isRequired,
   hideKarma: PropTypes.bool,
 };
 
 registerComponent('CommentsVote', CommentsVote,
+  withHover(),
   withStyles(styles, { name: "CommentsVote" }),
-  withHover, withUser
 );

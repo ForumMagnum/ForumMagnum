@@ -6,7 +6,7 @@ import { withMessages } from '../common/withMessages';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 
-import { Posts } from '../../lib/collections/posts/collection.js'
+import { Posts } from '../../lib/collections/posts/collection'
 import withUser from '../common/withUser';
 import { withNavigation } from '../../lib/routeUtil';
 import withMobileDialog from '@material-ui/core/withMobileDialog';

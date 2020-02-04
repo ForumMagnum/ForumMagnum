@@ -1,16 +1,16 @@
 import React from 'react';
 import { Components } from 'meteor/vulcan:core';
-import { Posts } from '../lib/collections/posts/collection.js';
-import { Comments } from '../lib/collections/comments/collection.js';
-import { Localgroups } from '../lib/collections/localgroups/collection.js';
-import { Messages } from '../lib/collections/messages/collection.js';
-import { Conversations } from '../lib/collections/conversations/collection.js';
-import { accessFilterMultiple } from '../lib/modules/utils/schemaUtils.js';
+import { Posts } from '../lib/collections/posts/collection';
+import { Comments } from '../lib/collections/comments/collection';
+import { Localgroups } from '../lib/collections/localgroups/collection';
+import { Messages } from '../lib/collections/messages/collection';
+import { Conversations } from '../lib/collections/conversations/collection';
+import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import keyBy from 'lodash/keyBy';
 import Users from 'meteor/vulcan:users';
-import './emailComponents/EmailComment.jsx';
-import './emailComponents/PrivateMessagesEmail.jsx';
-import './emailComponents/EventInRadiusEmail.jsx';
+import './emailComponents/EmailComment';
+import './emailComponents/PrivateMessagesEmail';
+import './emailComponents/EventInRadiusEmail';
 
 const notificationTypes = {};
 
@@ -77,6 +77,20 @@ export const NewGroupPostNotification = serverRegisterNotificationType({
     return <Components.NewPostEmail documentId={postId}/>
   },
 });
+
+export const NewShortformNotification = serverRegisterNotificationType({
+  name: "newShortform",
+  canCombineEmails: false,
+  emailSubject: ({user, notifications}) => {
+    const comment = Comments.findOne(notifications[0].documentId)
+    const post = Posts.findOne(comment?.postId)
+    return 'New comment on "' + post.title + '"';
+  },
+  emailBody: ({user, notifications}) => {
+    const comment = Comments.findOne(notifications[0].documentId)
+    return <Components.EmailCommentBatch comments={[comment]}/>;
+  }
+})
 
 export const NewCommentNotification = serverRegisterNotificationType({
   name: "newComment",

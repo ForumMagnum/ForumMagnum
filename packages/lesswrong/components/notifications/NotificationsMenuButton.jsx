@@ -1,7 +1,8 @@
 import React from 'react';
-import Notifications from '../../lib/collections/notifications/collection.js';
+import Notifications from '../../lib/collections/notifications/collection';
 import Badge from '@material-ui/core/Badge';
-import { registerComponent, withList } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
+import { withMulti } from '../../lib/crud/withMulti';
 import IconButton from '@material-ui/core/IconButton';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
@@ -41,7 +42,6 @@ const NotificationsMenuButton = (props) => {
     );
   }
 
-
   const buttonClass = open ? classes.buttonOpen : classes.buttonClosed;
   const notificationIconStyle = {
     color: open ? "#FFFFFF" : (color || "rgba(0,0,0,0.6)"),
@@ -74,4 +74,4 @@ const options = {
   ssr: true,
 };
 
-registerComponent('NotificationsMenuButton', NotificationsMenuButton, [withList, options], withUser, withStyles(styles, { name: "NotificationsMenuButton" }))
+registerComponent('NotificationsMenuButton', NotificationsMenuButton, [withMulti, options], withUser, withStyles(styles, { name: "NotificationsMenuButton" }))

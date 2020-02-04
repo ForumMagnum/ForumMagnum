@@ -1,11 +1,12 @@
 import React from 'react';
-import { Components, registerComponent, useMulti } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { useMulti } from '../../lib/crud/withMulti';
 import { useLocation } from '../../lib/routeUtil';
-import { TagRels } from '../../lib/collections/tagRels/collection.js';
-import { useTagBySlug } from './useTag.jsx';
+import { TagRels } from '../../lib/collections/tagRels/collection';
+import { useTagBySlug } from './useTag';
 import Users from 'meteor/vulcan:users';
-import { Link } from '../../lib/reactRouterWrapper.js';
-import { useCurrentUser } from '../common/withUser.js';
+import { Link } from '../../lib/reactRouterWrapper';
+import { useCurrentUser } from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 import { postBodyStyles } from '../../themes/stylePiping'
 
@@ -17,13 +18,13 @@ const styles = theme => ({
 });
 
 const TagPage = ({classes}) => {
-  const { SingleColumnSection, SectionTitle, SectionFooter, SectionButton, PostsItem2, ContentItemBody } = Components;
+  const { SingleColumnSection, SectionTitle, SectionFooter, SectionButton, PostsItem2, ContentItemBody, Loading, Error404 } = Components;
   const currentUser = useCurrentUser();
   const { params } = useLocation();
   const { slug } = params;
   const { tag, loading: loadingTag } = useTagBySlug(slug);
   
-  const { results, loadMoreProps } = useMulti({
+  const { results, loading: loadingPosts, loadMoreProps } = useMulti({
     skip: !(tag?._id),
     terms: {
       view: "postsWithTag",
@@ -37,9 +38,9 @@ const TagPage = ({classes}) => {
   });
   
   if (loadingTag)
-    return <Components.Loading/>
+    return <Loading/>
   if (!tag)
-    return <Components.Error404/>
+    return <Error404/>
   
   return <SingleColumnSection>
     <SectionTitle title={`Posts Tagged #${tag.name}`}>
@@ -55,6 +56,7 @@ const TagPage = ({classes}) => {
     {results && results.length === 0 && <div>
       There are no posts with this tag yet.
     </div>}
+    {loadingPosts && <Loading/>}
     {results && results.map((result,i) =>
       result.post && <PostsItem2 key={result.post._id} tagRel={result} post={result.post} index={i} />
     )}

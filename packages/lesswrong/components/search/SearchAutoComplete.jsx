@@ -1,6 +1,7 @@
 import React from 'react';
-import { registerComponent, Components, getSetting } from 'meteor/vulcan:core'
+import { registerComponent, Components } from 'meteor/vulcan:core'
 import { InstantSearch, Configure } from 'react-instantsearch-dom';
+import { isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
 import { connectAutoComplete } from 'react-instantsearch/connectors';
 import Autosuggest from 'react-autosuggest';
 import { withStyles } from '@material-ui/core/styles';
@@ -20,11 +21,8 @@ const styles = theme => ({
   }
 });
 
-const SearchAutoComplete = ({ clickAction, placeholder, renderSuggestion, hitsPerPage=7, indexName, classes }) => {
-  const algoliaAppId = getSetting('algolia.appId')
-  const algoliaSearchKey = getSetting('algolia.searchKey')
-  
-  if (!algoliaAppId || !algoliaSearchKey) {
+const SearchAutoComplete = ({ clickAction, placeholder, renderSuggestion, hitsPerPage=7, indexName, classes, renderInputComponent }) => {
+  if (!isAlgoliaEnabled) {
     // Fallback for when Algolia is unavailable (ie, local development installs).
     // This isn't a particularly nice UI, but it's functional enough to be able
     // to test other things.
@@ -44,11 +42,10 @@ const SearchAutoComplete = ({ clickAction, placeholder, renderSuggestion, hitsPe
   }
   return <InstantSearch
     indexName={indexName}
-    appId={algoliaAppId}
-    apiKey={algoliaSearchKey}
+    searchClient={getSearchClient()}
   >
     <div className={classes.autoComplete}>
-      <AutocompleteTextbox onSuggestionSelected={onSuggestionSelected} placeholder={placeholder} renderSuggestion={renderSuggestion} />
+      <AutocompleteTextbox onSuggestionSelected={onSuggestionSelected} placeholder={placeholder} renderSuggestion={renderSuggestion} renderInputComponent={renderInputComponent}/>
       <Configure hitsPerPage={hitsPerPage} />
     </div>
   </InstantSearch>
@@ -59,7 +56,7 @@ const AutocompleteTextbox = connectAutoComplete(
     // From connectAutoComplete HoC
     hits, currentRefinement, refine,
     // FromSearchAutoComplete
-    onSuggestionSelected, placeholder, renderSuggestion,
+    onSuggestionSelected, placeholder, renderSuggestion, renderInputComponent
   }) => {
     return (
       <Autosuggest
@@ -68,6 +65,7 @@ const AutocompleteTextbox = connectAutoComplete(
         onSuggestionsFetchRequested={({ value }) => refine(value)}
         onSuggestionsClearRequested={() => refine('')}
         getSuggestionValue={hit => hit.title}
+        renderInputComponent={renderInputComponent}
         renderSuggestion={renderSuggestion}
         inputProps={{
           placeholder: placeholder,

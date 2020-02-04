@@ -5,7 +5,7 @@ const specificResolvers = {
     async currentUser(root, args, context) {
       let user = null;
       if (context && context.userId) {
-        user = await Connectors.get(context.Users, context.userId);
+        user = await context.Users.loader.load(context.userId);
 
         if (user.services) {
           Object.keys(user.services).forEach(key => {

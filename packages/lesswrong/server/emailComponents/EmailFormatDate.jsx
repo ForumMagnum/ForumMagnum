@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from 'meteor/vulcan:core';
-import moment from 'moment-timezone';
+import moment from '../../lib/moment-timezone';
 
 /// A date, formatted for an email. Unlike FormatDate (which is used on regular
 /// pages), this doesn't have a tooltip (because that won't work in emails),

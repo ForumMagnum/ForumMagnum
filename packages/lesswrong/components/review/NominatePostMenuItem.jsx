@@ -1,5 +1,6 @@
 import React from 'react';
-import { registerComponent, useMulti } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
+import { useMulti } from '../../lib/crud/withMulti';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Divider from '@material-ui/core/Divider';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { addRoute, getSetting } from 'meteor/vulcan:core';
-import { Posts } from './collections/posts/collection.js';
+import { Posts } from './collections/posts/collection';
 
 const communitySubtitle = { subtitleLink: "/community", subtitle: "Community" };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
@@ -49,6 +49,12 @@ addRoute([
     name:'users.single.user',
     path:'/user/:slug',
     componentName: 'UsersSingle'
+  },
+  {
+    name: "userOverview",
+    path:'/user/:slug/overview',
+    redirect: (location) => `/users/${location.params.slug}`,
+    componentName: "UsersSingle",
   },
   {
     name:'users.single.u',
@@ -114,6 +120,12 @@ addRoute([
     componentName: 'PostCollaborationEditor',
     getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.query.postId),
   },
+  // disabled except during review voting phase
+  // {
+  //   name:'reviewVoting',
+  //   path: '/reviewVoting',
+  //   componentName: "ReviewVotingPage"
+  // },
 
   // Sequences
   {
@@ -193,16 +205,16 @@ addRoute([
     name: 'bookmarks',
     path: '/bookmarks',
     componentName: 'BookmarksPage',
-    titleComponentName: 'UserPageTitle',
-    subtitleComponentName: 'UserPageTitle',
+    title: 'Bookmarks',
   },
-  
+
   // Tags
   {
     name: 'tags',
     path: '/tag/:slug',
     componentName: 'TagPage',
     titleComponentName: 'TagPageTitle',
+    subtitleComponentName: 'TagPageTitle',
     previewComponentName: 'TagHoverPreview',
   },
   {
@@ -210,12 +222,14 @@ addRoute([
     path: '/tag/:slug/edit',
     componentName: 'EditTagPage',
     titleComponentName: 'TagPageTitle',
+    subtitleComponentName: 'TagPageTitle',
   },
   {
     name: 'tagCreate',
     path: '/tag/create',
     componentName: 'NewTagPage',
     title: "New Tag",
+    subtitleComponentName: 'TagPageTitle',
   },
   {
     name: 'tagIndex',
@@ -241,7 +255,7 @@ addRoute([
   },
   {
     name: 'comment.legacy',
-    path: `/${legacyRouteAcronym}/:id/:slug/:commentId`,
+    path: `/:section(r)?/:subreddit(all|discussion|lesswrong)?/${legacyRouteAcronym}/:id/:slug/:commentId`,
     componentName: "LegacyCommentRedirect",
     previewComponentName: "CommentLinkPreviewLegacy",
     // TODO: Pingback comment

@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import React, { Component } from 'react';
 import Card from '@material-ui/core/Card';
-import { getNotificationTypeByName } from '../../lib/notificationTypes.jsx';
+import { getNotificationTypeByName } from '../../lib/notificationTypes';
 import { getUrlClass, withNavigation } from '../../lib/routeUtil';
 import withHover from '../common/withHover';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -106,6 +106,7 @@ class NotificationsItem extends Component {
           history.push(notification.link)
 
           this.setState({clicked: true})
+          
           // we also check whether it's a relative link, and if so, scroll to the item
           const url = new UrlClass(notification.link, Utils.getSiteUrl())
           const hash = url.hash
@@ -138,4 +139,6 @@ class NotificationsItem extends Component {
 
 }
 
-registerComponent('NotificationsItem', NotificationsItem, withStyles(styles, {name: "NotificationsItem"}), withHover, withErrorBoundary, withNavigation);
+registerComponent('NotificationsItem', NotificationsItem, withStyles(styles, {name: "NotificationsItem"}),
+  withHover({pageElementContext: "linkPreview", pageElementSubContext: "notificationItem"}),
+  withErrorBoundary, withNavigation);

@@ -1,18 +1,16 @@
 import React, { Component } from 'react';
-import {
-  Components,
-  withDocument,
-  registerComponent,
-} from 'meteor/vulcan:core';
-import Sequences from '../../lib/collections/sequences/collection.js';
+import { Components, registerComponent, } from 'meteor/vulcan:core';
+import { withSingle } from '../../lib/crud/withSingle';
+import Sequences from '../../lib/collections/sequences/collection';
 import NoSSR from 'react-no-ssr';
 import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
-import { legacyBreakpoints } from '../../lib/modules/utils/theme';
+import { legacyBreakpoints } from '../../lib/utils/theme';
 import { postBodyStyles } from '../../themes/stylePiping'
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
+import {AnalyticsContext} from "../../lib/analyticsEvents";
 
 export const sequencesImageScrim = theme => ({
   position: 'absolute',
@@ -162,7 +160,9 @@ class SequencesPage extends Component {
             {html && <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`sequence ${document._id}`}/>}
           </div>
           <div>
-            <ChaptersList terms={{view: "SequenceChapters", sequenceId: document._id}} canEdit={canEdit} />
+            <AnalyticsContext listContext={"sequencePage"} sequenceId={document._id} capturePostItemOnMount>
+              <ChaptersList terms={{view: "SequenceChapters", sequenceId: document._id}} canEdit={canEdit} />
+            </AnalyticsContext>
             {canCreateChapter ? <ChaptersNewForm prefilledProps={{sequenceId: document._id}}/> : null}
           </div>
         </div>
@@ -180,4 +180,4 @@ const options = {
 };
 
 
-registerComponent('SequencesPage', SequencesPage, [withDocument, options], withUser, withStyles(styles, { name: "SequencesPage" }));
+registerComponent('SequencesPage', SequencesPage, [withSingle, options], withUser, withStyles(styles, { name: "SequencesPage" }));

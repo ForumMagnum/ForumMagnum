@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Accounts } from 'meteor/accounts-base';
 import { KEY_PREFIX } from '../../login_session.js';
-import { Components, registerComponent, withCurrentUser, Callbacks, runCallbacks } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:lib';
 import { intlShape } from 'meteor/vulcan:i18n';
 import { withApollo } from 'react-apollo';
 import TrackerComponent from './TrackerComponent.jsx';
@@ -44,11 +44,7 @@ export class AccountsLoginFormInner extends TrackerComponent {
     const postLogInAndThen = hook => {
       return () => {
         props.client.resetStore().then(() => {
-          if(Callbacks['users.postlogin']) { // execute any post-sign-in callbacks
-          runCallbacks('users.postlogin');
-          } else { // or else execute the hook
-            hook();
-          }
+          hook();
         });
       };
     };
@@ -869,9 +865,6 @@ export class AccountsLoginFormInner extends TrackerComponent {
       }
     }
 
-    // set the signup locale
-    options.locale = this.context.intl.locale;
-
     const doSignUp = (_options) => {
       Accounts.createUser(_options, (error) => {
         if (error) {
@@ -1080,4 +1073,4 @@ AccountsLoginFormInner.contextTypes = {
   intl: intlShape
 };
 
-registerComponent('AccountsLoginFormInner', AccountsLoginFormInner, withCurrentUser, withApollo);
+registerComponent('AccountsLoginFormInner', AccountsLoginFormInner, withApollo);

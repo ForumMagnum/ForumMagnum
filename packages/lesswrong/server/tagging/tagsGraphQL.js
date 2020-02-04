@@ -1,9 +1,9 @@
 import { newMutation, addGraphQLMutation, addGraphQLResolvers } from 'meteor/vulcan:core';
-import { Tags } from '../../lib/collections/tags/collection.js';
-import { TagRels } from '../../lib/collections/tagRels/collection.js';
-import { Posts } from '../../lib/collections/posts/collection.js';
-import { performVoteServer } from '../voteServer.js';
-import { accessFilterSingle } from '../../lib/modules/utils/schemaUtils.js';
+import { Tags } from '../../lib/collections/tags/collection';
+import { TagRels } from '../../lib/collections/tagRels/collection';
+import { Posts } from '../../lib/collections/posts/collection';
+import { performVoteServer } from '../voteServer';
+import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 
 addGraphQLResolvers({
   Mutation: {

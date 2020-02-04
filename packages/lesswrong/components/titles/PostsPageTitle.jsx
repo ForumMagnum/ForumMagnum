@@ -1,18 +1,26 @@
 import React from 'react';
-import { registerComponent, withDocument, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, getSetting } from 'meteor/vulcan:core';
+import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
-import mapProps from 'recompose/mapProps';
-import { withLocation } from '../../lib/routeUtil';
-import Posts from '../../lib/collections/posts/collection.js';
+import { useLocation } from '../../lib/routeUtil';
+import Posts from '../../lib/collections/posts/collection';
 import { Helmet } from 'react-helmet';
 import { withStyles } from '@material-ui/core/styles';
 import { styles } from '../common/HeaderSubtitle';
 
 const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
 
-const PostsPageHeaderTitle = ({location, isSubtitle, siteName, loading, document, classes}) => {
-  if (!document || loading) return null;
-  const post = document;
+const PostsPageHeaderTitle = ({isSubtitle, siteName, classes}) => {
+  const { params: {_id, postId} } = useLocation();
+  const { document: post, loading } = useSingle({
+    documentId: _id || postId,
+    collection: Posts,
+    fragmentName: "PostsBase",
+    fetchPolicy: 'cache-only',
+    ssr: true,
+  });
+  
+  if (!post || loading) return null;
   const titleString = `${post.title} - ${siteName}`
   
   if (!isSubtitle)
@@ -42,20 +50,5 @@ const PostsPageHeaderTitle = ({location, isSubtitle, siteName, loading, document
   }
 }
 registerComponent("PostsPageHeaderTitle", PostsPageHeaderTitle,
-  withLocation,
-  mapProps((props) => {
-    const {location} = props;
-    const {params: {_id, postId}} = location;
-    return {
-      documentId: _id || postId,
-      ...props
-    }
-  }),
-  [withDocument, {
-    collection: Posts,
-    fragmentName: "PostsBase",
-    fetchPolicy: 'cache-only',
-    ssr: true,
-  }],
   withStyles(styles, {name: "PostsPageHeaderTitle"})
 );

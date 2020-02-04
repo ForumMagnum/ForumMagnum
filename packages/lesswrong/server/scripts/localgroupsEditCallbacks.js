@@ -1,5 +1,5 @@
 /* global Vulcan */
-import { Localgroups } from '../../lib/collections/localgroups/collection.js';
+import { Localgroups } from '../../lib/collections/localgroups/collection';
 import { runCallbacks } from 'meteor/vulcan:core';
 
 Vulcan.runLocalgroupsEditCallbacks = async () => {

@@ -5,31 +5,42 @@ import { draftToHTML } from '../draftConvert';
 import Revisions from '../../lib/collections/revisions/collection'
 import { extractVersionsFromSemver } from '../../lib/editor/utils'
 import { ensureIndex } from '../../lib/collectionUtils'
-import { htmlToPingbacks } from '../pingbacks.js';
+import { htmlToPingbacks } from '../pingbacks';
 import TurndownService from 'turndown';
 const turndownService = new TurndownService()
 turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
 
 import markdownIt from 'markdown-it'
-import markdownItMathjax from './markdown-mathjax.js'
+import markdownItMathjax from './markdown-mathjax'
 import cheerio from 'cheerio';
 import markdownItContainer from 'markdown-it-container'
 import markdownItFootnote from 'markdown-it-footnote'
+import markdownItSub from 'markdown-it-sub'
 
 const mdi = markdownIt({linkify: true})
 mdi.use(markdownItMathjax())
 mdi.use(markdownItContainer, 'spoiler')
 mdi.use(markdownItFootnote)
+mdi.use(markdownItSub)
 
 import { mjpage }  from 'mathjax-node-page'
 
-
+const mjPageSettings = {
+  fragment: true, 
+  displayErrors: true,
+}
 
 function mjPagePromise(html, beforeSerializationCallback) {
   // Takes in HTML and replaces LaTeX with CommonHTML snippets
   // https://github.com/pkra/mathjax-node-page
   return new Promise((resolve, reject) => {
-    mjpage(html, {}, {html: true, css: true}, resolve)
+    const errorHandler = (id, wrapperNode, sourceFormula, sourceFormat, errors) => {
+      // eslint-disable-next-line no-console
+      console.log("Error in Mathjax handling: ", id, wrapperNode, sourceFormula, sourceFormat, errors)
+      reject(`Error in $${sourceFormula}$: ${errors}`)
+    }
+    
+    mjpage(html, { mjPageSettings, errorHandler} , {html: true, css: true}, resolve)
       .on('beforeSerialization', beforeSerializationCallback);
   })
 }
@@ -92,11 +103,42 @@ function wrapSpoilerTags(html) {
   return $.html()
 }
 
+const trimLeadingAndTrailingWhiteSpace = (html) => {
+  const $ = cheerio.load(`<div id="root">${html}</div>`)
+  const topLevelElements = $('#root').children().get()
+  // Iterate once forward until we find non-empty paragraph to trim leading empty paragraphs
+  removeLeadingEmptyParagraphsAndBreaks(topLevelElements, $)
+  // Then iterate backwards to trim trailing empty paragraphs
+  removeLeadingEmptyParagraphsAndBreaks(topLevelElements.reverse(), $)
+  return $("#root").html()
+}
+
+const removeLeadingEmptyParagraphsAndBreaks = (elements, $) => {
+   for (const elem of elements) {
+    if (isEmptyParagraphOrBreak(elem)) {
+      $(elem).remove()
+    } else {
+      break
+    }
+  }
+}
+
+const isEmptyParagraphOrBreak = (elem) => {
+  if (elem.name === "p") {
+    if (elem.children?.length === 0) return true
+    if (elem.children?.length === 1 && elem.children[0]?.type === "text" && elem.children[0]?.data.trim() === "") return true
+    return false
+  }
+  if (elem.name === "br") return true
+  return false
+}
+
 
 export async function draftJSToHtmlWithLatex(draftJS) {
   const draftJSWithLatex = await Utils.preProcessLatex(draftJS)
   const html = draftToHTML(convertFromRaw(draftJSWithLatex))
-  return wrapSpoilerTags(html)
+  const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
+  return wrapSpoilerTags(trimmedHtml)
 }
 
 export function htmlToMarkdown(html) {
@@ -110,7 +152,8 @@ export function ckEditorMarkupToMarkdown(markup) {
 
 export function markdownToHtmlNoLaTeX(markdown) {
   const randomId = Random.id()
-  return mdi.render(markdown, {docId: randomId})
+  const renderedMarkdown = mdi.render(markdown, {docId: randomId})
+  return trimLeadingAndTrailingWhiteSpace(renderedMarkdown)
 }
 
 export async function markdownToHtml(markdown) {
@@ -137,8 +180,9 @@ export async function ckEditorMarkupToHtml(markup) {
   const markupWithoutSuggestions = removeCKEditorSuggestions(markup)
   // Sanitized CKEditor markup is just html
   const html = Utils.sanitize(markupWithoutSuggestions)
+  const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
   // Render any LaTeX tags we might have in the HTML
-  return await mjPagePromise(html, Utils.trimEmptyLatexParagraphs)
+  return await mjPagePromise(trimmedHtml, Utils.trimEmptyLatexParagraphs)
 }
 
 async function dataToHTML(data, type, sanitize = false) {
@@ -260,6 +304,7 @@ export function addEditableCallbacks({collection, options = {}}) {
           originalContents: doc[fieldName].originalContents,
           currentUser,
         }),
+        fieldName,
         version,
         updateType: 'initial'
       });
@@ -305,6 +350,7 @@ export function addEditableCallbacks({collection, options = {}}) {
           originalContents: newDocument[fieldName].originalContents,
           currentUser,
         }),
+        fieldName,
         version,
         updateType
       });

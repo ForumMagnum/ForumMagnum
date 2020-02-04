@@ -1,6 +1,6 @@
 import { getSetting } from 'meteor/vulcan:core'
 import { viewFieldNullOrMissing } from 'meteor/vulcan:lib';
-import { Comments } from './collection.js';
+import { Comments } from './collection';
 import moment from 'moment';
 import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionUtils';
 
@@ -330,7 +330,8 @@ Comments.addView('nominations2018', function ({userId, postId, sortBy="top"}) {
     selector: { 
       userId, 
       postId, 
-      nominatedForReview: "2018"
+      nominatedForReview: "2018",
+      deleted: false
     },
     options: {
       sort: { ...sortings[sortBy], top: -1, postedAt: -1 }
@@ -349,7 +350,8 @@ Comments.addView('reviews2018', function ({userId, postId, sortBy="top"}) {
     selector: { 
       userId, 
       postId, 
-      reviewingForReview: "2018"
+      reviewingForReview: "2018",
+      deleted: false
     },
     options: {
       sort: { ...sortings[sortBy], top: -1, postedAt: -1 }

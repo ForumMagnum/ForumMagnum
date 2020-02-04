@@ -6,7 +6,7 @@ A component to configure the "Edit Title" form.
 
 import React from 'react';
 import { Components, registerComponent, getFragment } from "meteor/vulcan:core";
-import Conversations from '../../lib/collections/conversations/collection.js';
+import Conversations from '../../lib/collections/conversations/collection';
 import withUser from '../common/withUser'
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';

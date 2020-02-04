@@ -15,7 +15,6 @@ Vulcan.VERSION = '1.13.0';
 
 SimpleSchema.extendOptions([
   'hidden', // hidden: true means the field is never shown in a form no matter what
-  'mustComplete', // mustComplete: true means the field is required to have a complete profile
   'form', // extra form properties
   'inputProperties', // extra form properties
   'input', // SmartForm control (String or React component)
@@ -42,19 +41,14 @@ SimpleSchema.extendOptions([
   'editableBy', // who can edit the field (OpenCRUD backwards compatibility)
 
   'resolveAs', // field-level resolver
-  'searchable', // whether a field is searchable
   'description', // description/help
   'beforeComponent', // before form component
   'afterComponent', // after form component
   'placeholder', // form field placeholder value
   'options', // form options
   'query', // field-specific data loading query
-  'selectable', // field can be used as part of a selector when querying for data
   'unique', // field can be used as part of a selectorUnique when querying for data
-  'orderable', // field can be used to order results when querying for data
 
-  'intl', // set to `true` to make a field international
-  'isIntlData', // marker for the actual schema fields that hold intl strings
   'tooltip', // if not empty, the field will provide a tooltip when hovered over
 ]);
 

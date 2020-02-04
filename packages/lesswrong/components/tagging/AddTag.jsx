@@ -1,10 +1,10 @@
 import React from 'react';
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import { InstantSearch, SearchBox, Hits } from 'react-instantsearch-dom';
-import { algoliaIndexNames } from '../../lib/algoliaIndexNames.js';
+import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
 import { withStyles } from '@material-ui/core/styles';
-import { useCurrentUser } from '../common/withUser.js';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { useCurrentUser } from '../common/withUser';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = theme => ({
   root: {
@@ -28,8 +28,6 @@ const styles = theme => ({
 const AddTag = ({post, onTagSelected, classes}) => {
   const currentUser = useCurrentUser();
   const [searchOpen, setSearchOpen] = React.useState(false);
-  const algoliaAppId = getSetting('algolia.appId')
-  const algoliaSearchKey = getSetting('algolia.searchKey')
   const searchStateChanged = React.useCallback((searchState) => {
     setSearchOpen(searchState.query?.length > 0);
   }, []);
@@ -59,7 +57,7 @@ const AddTag = ({post, onTagSelected, classes}) => {
     }
   }, []);
   
-  if (!algoliaAppId || !algoliaSearchKey) {
+  if (!isAlgoliaEnabled) {
     return <div className={classes.root} ref={containerRef}>
       <input placeholder="Tag ID" type="text" onKeyPress={ev => {
         if (ev.charCode===13) {
@@ -74,8 +72,7 @@ const AddTag = ({post, onTagSelected, classes}) => {
   return <div className={classes.root} ref={containerRef}>
     <InstantSearch
       indexName={algoliaIndexNames.Tags}
-      appId={algoliaAppId}
-      apiKey={algoliaSearchKey}
+      searchClient={getSearchClient()}
       onSearchStateChange={searchStateChanged}
     >
       <SearchBox reset={null} focusShortcuts={[]}/>

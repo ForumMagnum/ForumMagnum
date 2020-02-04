@@ -1,5 +1,4 @@
 import { Posts } from './collection';
-import Users from 'meteor/vulcan:users';
 import { viewFieldNullOrMissing, viewFieldAllowAny } from 'meteor/vulcan:lib';
 import { getSetting } from 'meteor/vulcan:core';
 import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionUtils';
@@ -465,35 +464,6 @@ Posts.addView("unlisted", terms => {
     }
 }});
 
-/**
- * @summary User upvoted posts view
- */
-Posts.addView("userUpvotedPosts", (terms, apolloClient) => {
-  // TODO: Delete, unused and broken. (Broken because user.upvotedPosts is no longer a field that exists).
-  var user = apolloClient ? Users.findOneInStore(apolloClient.store, terms.userId) : Users.findOne(terms.userId);
-
-  var postsIds = _.pluck(user.upvotedPosts, "itemId");
-  return {
-    selector: {_id: {$in: postsIds}, userId: {$ne: terms.userId}}, // exclude own posts
-    options: {limit: 5, sort: {postedAt: -1}}
-  };
-});
-
-/**
- * @summary User downvoted posts view
- */
-Posts.addView("userDownvotedPosts", (terms, apolloClient) => {
-  // TODO: Delete, unused and broken. (Broken because user.downvotedPosts is no longer a field that exists).
-  var user = apolloClient ? Users.findOneInStore(apolloClient.store, terms.userId) : Users.findOne(terms.userId);
-
-  var postsIds = _.pluck(user.downvotedPosts, "itemId");
-  // TODO: sort based on votedAt timestamp and not postedAt, if possible
-  return {
-    selector: {_id: {$in: postsIds}},
-    options: {limit: 5, sort: {postedAt: -1}}
-  };
-});
-
 Posts.addView("slugPost", terms => ({
   selector: {
     slug: terms.slug,
@@ -819,7 +789,7 @@ Posts.addView("pingbackPosts", terms => {
   }
 });
 ensureIndex(Posts,
-  augmentForDefaultView({ "pingback.Posts": 1 }),
+  augmentForDefaultView({ "pingback.Posts": 1, baseScore: 1 }),
   { name: "posts.pingbackPosts" }
 );
 

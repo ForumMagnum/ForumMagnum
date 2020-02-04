@@ -1,4 +1,5 @@
-import { Components, registerComponent, withList } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withMulti } from '../../lib/crud/withMulti';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
@@ -17,7 +18,7 @@ import classNames from 'classnames';
 import grey from '@material-ui/core/colors/grey';
 
 // import { NavDropdown, MenuItem } from 'react-bootstrap';
-import Notifications from '../../lib/collections/notifications/collection.js'
+import Notifications from '../../lib/collections/notifications/collection'
 
 const styles = theme => ({
   root: {
@@ -187,4 +188,6 @@ const options = {
 };
 
 
-registerComponent('NotificationsMenu', NotificationsMenu, withErrorBoundary, withUser, [withList, options], withStyles(styles, { name: "NotificationsMenu" }));
+registerComponent('NotificationsMenu', NotificationsMenu, withErrorBoundary, withUser,
+  [withMulti, options],
+  withStyles(styles, { name: "NotificationsMenu" }));

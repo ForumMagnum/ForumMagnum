@@ -1,12 +1,14 @@
-import './ui/components/Button.jsx';
-import './ui/components/Buttons.jsx';
-import './ui/components/Field.jsx';
-import './ui/components/Fields.jsx';
-import './ui/components/Form.jsx';
-import './ui/components/FormMessage.jsx';
-import './ui/components/FormMessages.jsx';
-import './ui/components/StateSwitcher.jsx';
-import './ui/components/LoginForm.jsx';
-import './ui/components/LoginFormInner.jsx';
-import './ui/components/PasswordOrService.jsx';
-import './ui/components/SocialButtons.jsx';
+import { importComponent } from 'meteor/vulcan:lib';
+
+importComponent("AccountsButton", () => require('./ui/components/Button.jsx'));
+importComponent("AccountsButtons", () => require('./ui/components/Buttons.jsx'));
+importComponent("AccountsField", () => require('./ui/components/Field.jsx'));
+importComponent("AccountsFields", () => require('./ui/components/Fields.jsx'));
+importComponent("AccountsForm", () => require('./ui/components/Form.jsx'));
+importComponent("AccountsFormMessage", () => require('./ui/components/FormMessage.jsx'));
+importComponent("AccountsFormMessages", () => require('./ui/components/FormMessages.jsx'));
+importComponent("AccountsStateSwitcher", () => require('./ui/components/StateSwitcher.jsx'));
+importComponent("AccountsLoginForm", () => require('./ui/components/LoginForm.jsx'));
+importComponent("AccountsLoginFormInner", () => require('./ui/components/LoginFormInner.jsx'));
+importComponent("AccountsPasswordOrService", () => require('./ui/components/PasswordOrService.jsx'));
+importComponent("AccountsSocialButtons", () => require('./ui/components/SocialButtons.jsx'));

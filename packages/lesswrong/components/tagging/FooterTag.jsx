@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper';
 import { withStyles } from '@material-ui/core/styles';
 import withHover from '../common/withHover';
 
@@ -57,5 +57,5 @@ const FooterTag = ({tagRel, tag, hover, anchorEl, classes}) => {
 }
 
 registerComponent("FooterTag", FooterTag,
-  withHover,
+  withHover(),
   withStyles(styles, {name: "FooterTag"}));

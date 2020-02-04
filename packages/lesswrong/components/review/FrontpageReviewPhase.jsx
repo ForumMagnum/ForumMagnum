@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper';
 import Tooltip from '@material-ui/core/Tooltip';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser'
@@ -16,8 +16,21 @@ const styles = theme => ({
   }
 })
 
+export const reviewAlgorithm = {
+  method: "sample",
+  count: 3,
+  scoreOffset: 0,
+  scoreExponent: 0,
+  personalBlogpostModifier: 0,
+  frontpageModifier: 0,
+  curatedModifier: 0,
+  review2018: true, 
+  onlyUnread: false,
+  excludeDefaultRecommendations: true
+}
+
 const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
-  const { SubSection, SectionSubtitle, SectionFooter, RecommendationsList, HoverPreviewLink } = Components
+  const { SectionSubtitle, SectionFooter, RecommendationsList, HoverPreviewLink } = Components
 
   const reviewTooltip = <div>
     <div>The LessWrong community is reflecting on the best posts from 2018, in three phases</div>
@@ -32,13 +45,6 @@ const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
 
   if (settings.hideReview) return null
 
-  const algorithm = {
-    ...settings, 
-    review2018: true, 
-    onlyUnread: false,
-    excludeDefaultRecommendations: true
-  }
-
   return (
     <div>
       <Tooltip placement="top-start" title={reviewTooltip}>
@@ -48,23 +54,21 @@ const FrontpageReviewPhase = ({classes, settings, currentUser}) => {
               The LessWrong 2018 Review
             </Link>
             <div className={classes.timeRemaining}>
-              <em>You have until Dec 31st to review posts (<span className={classes.learnMore}>
+              <em>You have until Jan 13th to review and edit posts (<span className={classes.learnMore}>
                 <HoverPreviewLink href="/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review" innerHTML={"learn more"}/>
               </span>)</em>
             </div>
           </SectionSubtitle>
         </div>
       </Tooltip>
-      <SubSection>
-        <AnalyticsContext listContext={"LessWrong 2018 Review NEW"}>
-          <RecommendationsList algorithm={algorithm} showLoginPrompt={false} />
-        </AnalyticsContext>
-      </SubSection>
+      <AnalyticsContext listContext={"LessWrong 2018 Review"} capturePostItemOnMount>
+        <RecommendationsList algorithm={reviewAlgorithm} showLoginPrompt={false} />
+      </AnalyticsContext>
       <SectionFooter>
         <Link to={"/reviews"}>
           Reviews Dashboard
         </Link>
-        {(currentUser && currentUser.karma >= 1000) && <Link to={`/users/${currentUser.slug}/reviews`}>
+        {currentUser && <Link to={`/users/${currentUser.slug}/reviews`}>
           My Reviews
         </Link>}
       </SectionFooter>

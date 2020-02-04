@@ -1,8 +1,9 @@
 import React from 'react';
-import { registerComponent, Components, useMulti } from 'meteor/vulcan:core';
-import { Tags } from '../../lib/collections/tags/collection.js';
+import { registerComponent, Components } from 'meteor/vulcan:core';
+import { useMulti } from '../../lib/crud/withMulti';
+import { Tags } from '../../lib/collections/tags/collection';
 import { useCurrentUser } from '../common/withUser';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import AddBoxIcon from '@material-ui/icons/AddBox';

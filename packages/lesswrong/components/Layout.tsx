@@ -1,18 +1,19 @@
-import { Components, registerComponent, getSetting, withUpdate } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { withUpdate } from '../lib/crud/withUpdate';
 import React, { PureComponent } from 'react';
 import Users from 'meteor/vulcan:users';
 import { Helmet } from 'react-helmet';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import classNames from 'classnames'
 import Intercom from 'react-intercom';
-import moment from 'moment-timezone';
+import moment from '../lib/moment-timezone';
 import { withCookies } from 'react-cookie'
 import LogRocket from 'logrocket'
 import { Random } from 'meteor/random';
 
 import { withStyles, withTheme, createStyles } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
-import { AnalyticsContext } from '../lib/analyticsEvents.js'
+import { AnalyticsContext } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
 import { TimezoneContext } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
@@ -63,6 +64,12 @@ const styles = createStyles(theme => ({
     '.mapboxgl-popup': {
       willChange: 'auto !important',
       zIndex: theme.zIndexes.styledMapPopup
+    },
+    // Font fallback to ensure that all greek letters just directly render as Arial
+    '@font-face': {
+      fontFamily: "GreekFallback",
+      src: "local('Arial')",
+      unicodeRange: 'U+0370-03FF, U+1F00-1FFF' // Unicode range for greek characters
     }
   },
   searchResultsArea: {
@@ -73,13 +80,11 @@ const styles = createStyles(theme => ({
   },
 }))
 
-interface LayoutProps {
+interface LayoutProps extends WithLocationProps, WithStylesProps, WithMessagesProps {
   cookies: any,
-  currentUser: any,
+  currentUser: UsersCurrent,
   updateUser: any,
-  location: any,
-  classes: any,
-  theme: any
+  theme: any,
   messages: any,
   children: any,
 }
@@ -93,7 +98,7 @@ interface LayoutState {
 class Layout extends PureComponent<LayoutProps,LayoutState> {
   searchResultsAreaRef: React.RefObject<HTMLDivElement>
   
-  constructor (props) {
+  constructor (props: LayoutProps) {
     super(props);
     const { cookies, currentUser } = this.props;
     const savedTimezone = cookies?.get('timezone');
@@ -221,14 +226,16 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
         .includes(location.currentRoute.name)
     
     return (
-      <AnalyticsContext>
+      <AnalyticsContext path={location.pathname}>
       <UserContext.Provider value={currentUser}>
       <TimezoneContext.Provider value={this.state.timezone}>
       <PostsReadContext.Provider value={{
         postsRead: this.state.postsRead,
-        setPostRead: (postId, isRead) => this.setState({
-          postsRead: {...this.state.postsRead, [postId]: isRead}
-        })
+        setPostRead: (postId: string, isRead: boolean): void => {
+          this.setState({
+            postsRead: {...this.state.postsRead, [postId]: isRead}
+          })
+        }
       }}>
       <TableOfContentsContext.Provider value={this.setToC}>
         <div className={classNames("wrapper", {'alignment-forum': getSetting('forumType') === 'AlignmentForum'}) } id="wrapper">
@@ -247,8 +254,9 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
                 <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
                 <link rel="stylesheet" href="https://use.typekit.net/jvr1gjm.css"/>
               </Helmet>
-              
+
               <Components.AnalyticsClient/>
+              <Components.AnalyticsPageInitializer/>
               <Components.NavigationEventSender/>
 
               {/* Sign up user for Intercom, if they do not yet have an account */}
@@ -287,12 +295,19 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   }
 }
 
-const withUpdateOptions = {
-  collection: Users,
-  fragmentName: 'UsersCurrent',
-}
-
-registerComponent(
-  'Layout', Layout, withLocation, withCookies, [withUpdate, withUpdateOptions],
-  withStyles(styles, { name: "Layout" }), withTheme()
+const LayoutComponent = registerComponent(
+  'Layout', Layout,
+  withLocation, withCookies,
+  withUpdate({
+    collection: Users,
+    fragmentName: 'UsersCurrent',
+  }),
+  withStyles(styles, { name: "Layout" }),
+  withTheme()
 );
+
+declare global {
+  interface ComponentTypes {
+    Layout: typeof LayoutComponent
+  }
+}

@@ -1,5 +1,5 @@
-import { makeVoteable } from '../../modules/make_voteable.js';
-import { Comments } from './collection.js';
+import { makeVoteable } from '../../make_voteable';
+import { Comments } from './collection';
 import Users from 'meteor/vulcan:users';
 
 // Comments have the custom behavior in that they sometimes have hidden karma

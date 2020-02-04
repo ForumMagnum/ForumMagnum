@@ -22,4 +22,4 @@ const EventVicinity = ({post, hover, anchorEl, stopHover}) => {
   }
 };
 
-registerComponent('EventVicinity', EventVicinity, withHover)
+registerComponent('EventVicinity', EventVicinity, withHover())

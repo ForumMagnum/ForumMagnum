@@ -1,25 +1,25 @@
-import './metatest.tests.js';
-import './voting.tests.js';
-import './debouncer.tests.js';
+import './metatest.tests';
+import './voting.tests';
+import './debouncer.tests';
 
 // Component helper tests
 // These aren't strictly speaking server tests, but we'd like to test them at
 // the same time as the server tests, so we'll include them here
-import '../components/comments/CommentsItem/_comments-unit-tests.js';
-import '../components/posts/timeframeUtils.tests.js';
+import '../components/comments/CommentsItem/_comments-unit-tests';
+import '../components/posts/timeframeUtils.tests';
 
-import './moderation/moderation.server.tests.js';
-import './moderation/moderation.frontend.tests.js';
+import './moderation/moderation.server.tests';
+import './moderation/moderation.frontend.tests';
 
-import '../lib/collections/comments/tests.js';
-import '../lib/collections/posts/tests.js';
-import '../lib/collections/users/tests.js';
-import '../lib/collections/notifications/tests.js';
+import '../lib/collections/comments/tests';
+import '../lib/collections/posts/tests';
+import '../lib/collections/users/tests';
+import '../lib/collections/notifications/tests';
 
-import '../lib/modules/alignment-forum/posts/tests.js';
-import '../lib/modules/alignment-forum/users/tests.js';
+import '../lib/alignment-forum/posts/tests';
+import '../lib/alignment-forum/users/tests';
 
-import '../server/emails/tests.jsx';
-import '../lib/editor/utils.test.js';
+import '../server/emails/tests';
+import '../lib/editor/utils.test';
 
-import '../server/search/utils.tests.js';
+import '../server/search/utils.tests';

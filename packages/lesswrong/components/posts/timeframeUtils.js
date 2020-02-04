@@ -1,4 +1,5 @@
-import moment from 'moment-timezone';
+import moment from '../../lib/moment-timezone';
+import * as _ from 'underscore';
 
 export const timeframeToTimeBlock = {
   daily: 'day',

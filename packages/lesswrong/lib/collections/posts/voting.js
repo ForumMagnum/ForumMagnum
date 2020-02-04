@@ -1,3 +1,3 @@
-import { makeVoteable } from '../../modules/make_voteable.js';
-import { Posts } from './collection.js'
+import { makeVoteable } from '../../make_voteable';
+import { Posts } from './collection'
 makeVoteable(Posts);

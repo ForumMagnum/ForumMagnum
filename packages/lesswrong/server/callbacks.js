@@ -1,15 +1,15 @@
-import Notifications from '../lib/collections/notifications/collection.js';
-import Conversations from '../lib/collections/conversations/collection.js';
-import Reports from '../lib/collections/reports/collection.js';
+import Notifications from '../lib/collections/notifications/collection';
+import Conversations from '../lib/collections/conversations/collection';
+import Reports from '../lib/collections/reports/collection';
 
 import { getCollection } from 'meteor/vulcan:lib';
-import { Bans } from '../lib/collections/bans/collection.js';
+import { Bans } from '../lib/collections/bans/collection';
 import Users from 'meteor/vulcan:users';
 import { Votes } from '../lib/collections/votes';
-import { cancelVoteServer } from './voteServer.js';
+import { cancelVoteServer } from './voteServer';
 import { Posts } from '../lib/collections/posts';
 import { Comments } from '../lib/collections/comments'
-import { ReadStatuses } from '../lib/collections/readStatus/collection.js';
+import { ReadStatuses } from '../lib/collections/readStatus/collection';
 
 import {
   addCallback,

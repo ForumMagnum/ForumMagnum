@@ -1,14 +1,24 @@
 import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
 import { withMessages } from '../common/withMessages';
 import React from 'react';
-import Chapters from '../../lib/collections/chapters/collection.js';
+import Chapters from '../../lib/collections/chapters/collection';
+import { withStyles } from '@material-ui/core/styles';
 
+const styles = theme => ({
+  root: {
+    padding: theme.spacing.unit
+  },
+  title: {
+    ...theme.typography.display1,
+    ...theme.typography.commentStyle
+  }
+})
 //TODO: Manage chapter removal to remove the reference from all parent-sequences
 
-const ChaptersEditForm = ({documentId, successCallback, cancelCallback}) => {
+const ChaptersEditForm = ({classes, documentId, successCallback, cancelCallback}) => {
   return (
-    <div className="chapters-edit-form">
-      <h3>Add/Remove Posts</h3>
+    <div className={classes.root}>
+      <h3 className={classes.title}>Add/Remove Posts</h3>
       <Components.WrappedSmartForm
         collection={Chapters}
         documentId={documentId}
@@ -22,4 +32,4 @@ const ChaptersEditForm = ({documentId, successCallback, cancelCallback}) => {
   )
 }
 
-registerComponent('ChaptersEditForm', ChaptersEditForm, withMessages);
+registerComponent('ChaptersEditForm', ChaptersEditForm, withMessages, withStyles(styles, {name:"ChaptersEditForm"}));

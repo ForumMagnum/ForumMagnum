@@ -1,7 +1,7 @@
 import Users from "meteor/vulcan:users";
 import { getSetting, Utils } from "meteor/vulcan:core"
-import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation } from '../../modules/utils/schemaUtils'
-import { makeEditable } from '../../editor/make_editable.js'
+import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation } from '../../utils/schemaUtils'
+import { makeEditable } from '../../editor/make_editable'
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 import SimpleSchema from 'simpl-schema'
 
@@ -173,12 +173,6 @@ addFieldsDict(Users, {
     canRead: ["guests"]
   },
 
-  // LESSWRONG: Overwrite Vulcan locale field to be hidden by default
-  locale: {
-    hidden: true,
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-  },
-
   // Emails (not to be confused with email). This field belongs to Meteor's
   // accounts system; we should never write it, but we do need to read it to find
   // out whether a user's email address is verified.
@@ -348,7 +342,6 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     group: formGroups.default,
     order: 40,
-    searchable: true,
     form: {
       hintText:"Bio",
       rows:4,
@@ -531,10 +524,9 @@ addFieldsDict(Users, {
     defaultValue: false,
     canRead: ['guests'],
     canUpdate: ['admins'],
-    canCreate: ['members'],
     label: 'Delete this user',
     control: 'checkbox',
-    hidden: true,
+    group: formGroups.adminOptions,
   },
 
   // voteBanned: All future votes of this user have weight 0
@@ -641,6 +633,10 @@ addFieldsDict(Users, {
   
   notificationCommentsOnSubscribedPost: {
     label: "Comments on subscribed posts",
+    ...notificationTypeSettingsField(),
+  },
+  notificationShortformContent: {
+    label: "Shortform by subscribed users",
     ...notificationTypeSettingsField(),
   },
   notificationRepliesToMyComments: {
@@ -813,7 +809,6 @@ addFieldsDict(Users, {
 
   location: {
     type: String,
-    searchable: true,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
@@ -928,6 +923,24 @@ addFieldsDict(Users, {
     group: formGroups.default,
     hidden: true,
     label: "Hide the frontpage map"
+  },
+
+  needsReview: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    group: formGroups.adminOptions,
+    optional: true,
+    ...schemaDefaultValue(false),
+  },
+
+  sunshineSnoozed: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    group: formGroups.adminOptions,
+    optional: true,
+    ...schemaDefaultValue(false),
   },
 
   // Set after a moderator has approved or purged a new user. NB: reviewed does
@@ -1151,6 +1164,13 @@ addFieldsDict(Users, {
     group: formGroups.default,
     label: "Opt into experimental features",
     order: 71,
+  },
+  reviewVotesQuadratic: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true
   },
   petrovPressedButtonDate: {
     type: Date,

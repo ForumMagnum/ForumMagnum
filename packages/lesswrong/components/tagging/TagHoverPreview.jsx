@@ -1,8 +1,8 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
 import withHover from '../common/withHover';
-import { Link } from '../../lib/reactRouterWrapper.js';
-import { useTagBySlug } from './useTag.jsx';
+import { Link } from '../../lib/reactRouterWrapper';
+import { useTagBySlug } from './useTag';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
@@ -27,5 +27,5 @@ const TagHoverPreview = ({href, targetLocation, innerHTML, classes, hover, ancho
   </span>;
 }
 
-registerComponent("TagHoverPreview", TagHoverPreview, withHover,
+registerComponent("TagHoverPreview", TagHoverPreview, withHover(),
   withStyles(styles, {name: "TagHoverPreview"}));

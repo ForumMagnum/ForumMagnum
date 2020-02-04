@@ -1,8 +1,8 @@
 /*global Vulcan*/
 import { getSetting } from 'meteor/vulcan:core';
-import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection.js';
-import { addCronJob } from './cronUtil.js';
-import moment from 'moment-timezone';
+import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection';
+import { addCronJob } from './cronUtil';
+import moment from '../lib/moment-timezone';
 import Sentry from '@sentry/node';
 
 let eventDebouncersByName = {};

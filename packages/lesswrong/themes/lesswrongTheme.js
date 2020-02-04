@@ -1,8 +1,9 @@
-import createLWTheme from './createThemeDefaults.js';
+import createLWTheme from './createThemeDefaults';
 import grey from '@material-ui/core/colors/grey';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 
 const sansSerifStack = [
+  'GreekFallback', // Ensures that greek letters render consistently
   'Calibri',
   '"Gill Sans"',
   '"Gill Sans MT"',
@@ -66,7 +67,7 @@ const theme = createLWTheme({
       fontSize: "1.16rem"
     },
     commentStyle: {
-      fontFamily: sansSerifStack
+      fontFamily: sansSerifStack,
     },
     errorStyle: {
       color: palette.error.main,
@@ -98,6 +99,7 @@ const theme = createLWTheme({
       tooltip: {
         fontSize: "1rem",
         padding: ".7rem",
+        zIndex: 10000000
       }
     },
     MuiDialogContent: {

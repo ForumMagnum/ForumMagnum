@@ -1,20 +1,20 @@
-import Notifications from '../lib/collections/notifications/collection.js';
-import Messages from '../lib/collections/messages/collection.js';
-import Conversations from '../lib/collections/conversations/collection.js';
-import Subscriptions from '../lib/collections/subscriptions/collection.js';
+import Notifications from '../lib/collections/notifications/collection';
+import Messages from '../lib/collections/messages/collection';
+import Conversations from '../lib/collections/conversations/collection';
+import Subscriptions from '../lib/collections/subscriptions/collection';
 import { subscriptionTypes } from '../lib/collections/subscriptions/schema';
-import Localgroups from '../lib/collections/localgroups/collection.js';
+import Localgroups from '../lib/collections/localgroups/collection';
 import Users from 'meteor/vulcan:users';
 import { Posts } from '../lib/collections/posts';
 import { Comments } from '../lib/collections/comments'
-import { reasonUserCantReceiveEmails } from './emails/renderEmail.js';
-import './emailComponents/EmailWrapper.jsx';
-import './emailComponents/NewPostEmail.jsx';
-import './emailComponents/PrivateMessagesEmail.jsx';
-import { EventDebouncer } from './debouncer.js';
-import { getNotificationTypeByName } from '../lib/notificationTypes.jsx';
-import { notificationDebouncers, wrapAndSendEmail } from './notificationBatching.js';
-import { defaultNotificationTypeSettings } from '../lib/collections/users/custom_fields.js';
+import { reasonUserCantReceiveEmails } from './emails/renderEmail';
+import './emailComponents/EmailWrapper';
+import './emailComponents/NewPostEmail';
+import './emailComponents/PrivateMessagesEmail';
+import { EventDebouncer } from './debouncer';
+import { getNotificationTypeByName } from '../lib/notificationTypes';
+import { notificationDebouncers, wrapAndSendEmail } from './notificationBatching';
+import { defaultNotificationTypeSettings } from '../lib/collections/users/custom_fields';
 import { ensureIndex } from '../lib/collectionUtils';
 
 import { Components, addCallback, createMutator } from 'meteor/vulcan:core';
@@ -377,6 +377,18 @@ async function CommentsNewNotifications(comment) {
       userIsDefaultSubscribed: u => u.auto_subscribe_to_my_posts
     })
     const userIdsSubscribedToPost = _.map(usersSubscribedToPost, u=>u._id);
+
+    // Notify users who are subscribed to shortform posts
+    if (!comment.topLevelCommentId && comment.shortform) {
+      const usersSubscribedToShortform = await getSubscribedUsers({
+        documentId: comment.postId,
+        collectionName: "Posts",
+        type: subscriptionTypes.newShortform
+      })
+      const userIdsSubscribedToShortform = _.map(usersSubscribedToShortform, u=>u._id);
+      await createNotifications(userIdsSubscribedToShortform, 'newShortform', 'comment', comment._id);
+      notifiedUsers = [ ...userIdsSubscribedToShortform, ...notifiedUsers]
+    }
     
     // remove userIds of users that have already been notified
     // and of comment author (they could be replying in a thread they're subscribed to)

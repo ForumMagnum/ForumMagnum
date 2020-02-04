@@ -1,7 +1,8 @@
-import { Components as C, registerComponent, withUpdate } from 'meteor/vulcan:core';
+import { Components as C, registerComponent } from 'meteor/vulcan:core';
+import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import Users from 'meteor/vulcan:users';
-import { Link } from '../../lib/reactRouterWrapper.js'
+import { Link } from '../../lib/reactRouterWrapper'
 import PropTypes from 'prop-types';
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
@@ -99,4 +100,4 @@ const withUpdateOptions = {
   collection: Users,
   fragmentName: 'SunshineUsersList',
 }
-registerComponent('AFSuggestUsersItem', AFSuggestUsersItem, [withUpdate, withUpdateOptions], withUser, withHover, withErrorBoundary);
+registerComponent('AFSuggestUsersItem', AFSuggestUsersItem, [withUpdate, withUpdateOptions], withUser, withHover(), withErrorBoundary);

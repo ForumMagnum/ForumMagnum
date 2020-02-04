@@ -1,6 +1,6 @@
-import { registerCollectionValidator } from '../../../server/scripts/validateDatabase.js';
-import { Posts } from './collection.js';
-import { Sequences } from '../sequences/collection.js';
+import { registerCollectionValidator } from '../../../server/scripts/validateDatabase';
+import { Posts } from './collection';
+import { Sequences } from '../sequences/collection';
 
 registerCollectionValidator({
   collection: Posts,

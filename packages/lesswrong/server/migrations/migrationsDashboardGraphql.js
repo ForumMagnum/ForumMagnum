@@ -1,6 +1,6 @@
-import { defineQuery } from '../utils/serverGraphqlUtil.js';
-import Migrations from '../../lib/collections/migrations/collection.js';
-import { availableMigrations } from './migrationUtils.js';
+import { defineQuery } from '../utils/serverGraphqlUtil';
+import Migrations from '../../lib/collections/migrations/collection';
+import { availableMigrations } from './migrationUtils';
 
 defineQuery({
   name: "MigrationsDashboard",

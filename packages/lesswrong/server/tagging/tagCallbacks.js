@@ -1,15 +1,11 @@
 import { addCallback } from 'meteor/vulcan:core';
-import { Tags, tagDescriptionEditableOptions } from '../../lib/collections/tags/collection.js';
-import { TagRels } from '../../lib/collections/tagRels/collection.js';
-import { addEditableCallbacks } from '../editor/make_editable_callbacks.js'
+import { Tags, tagDescriptionEditableOptions } from '../../lib/collections/tags/collection';
+import { TagRels } from '../../lib/collections/tagRels/collection';
+import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import Users from 'meteor/vulcan:users';
-import { performVoteServer } from '../voteServer.js';
+import { performVoteServer } from '../voteServer';
 
 function isValidTagName(name) {
-  // Name must be nonempty and use only a restricted set of characters
-  if (!/^#?[a-zA-Z0-9-]+$/.test(name))
-    return false;
-  
   return true;
 }
 
@@ -21,7 +17,7 @@ function normalizeTagName(name) {
     return name;
 }
 
-addCallback("tags.create.validate", ({ document: tag }) => {
+addCallback("tag.create.validate", (validationErrors, { document: tag }) => {
   if (!isValidTagName(tag.name))
     throw new Error("Invalid tag name (use only letters, digits and dash)");
   
@@ -42,11 +38,11 @@ addCallback("tags.create.validate", ({ document: tag }) => {
   return tag;
 });
 
-addCallback("tags.update.validate", ({ oldDocument, newDocument }) => {
+addCallback("tag.update.validate", (validationErrors, {oldDocument, newDocument}) => {
   const newName = normalizeTagName(newDocument.name);
   if (oldDocument.name !== newName) { // Tag renamed?
     if (!isValidTagName(newDocument.name))
-      throw new Error("Invalid tag name (use only letters, digits and dash)");
+      throw new Error("Invalid tag name");
     
     const existing = Tags.find({name: newName, deleted:false}).fetch();
     if (existing.length > 0)
@@ -60,6 +56,15 @@ addCallback("tags.update.validate", ({ oldDocument, newDocument }) => {
   }
   
   return newDocument;
+});
+
+addCallback("tag.update.after", async (newDoc, {oldDocument}) => {
+  // If this is soft deleting a tag, then cascade to also soft delete any
+  // tagRels that go with it.
+  if (newDoc.deleted && !oldDocument.deleted) {
+    TagRels.update({ tagId: newDoc._id }, { $set: { deleted: true } }, { multi: true });
+  }
+  return newDoc;
 });
 
 addCallback("tagRels.new.after", async (tagRel) => {

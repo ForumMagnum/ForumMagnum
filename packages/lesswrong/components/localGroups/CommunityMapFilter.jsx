@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import Paper from '@material-ui/core/Paper';
-import { withLocation, withNavigation } from '../../lib/routeUtil.js';
-import { registerComponent, withUpdate } from 'meteor/vulcan:core';
+import { withLocation, withNavigation } from '../../lib/routeUtil';
+import { registerComponent } from 'meteor/vulcan:core';
+import { withUpdate } from '../../lib/crud/withUpdate';
 import { withMessages } from '../common/withMessages';
 import { groupTypes } from '../../lib/collections/localgroups/groupTypes';
 import { withStyles } from '@material-ui/core/styles';
@@ -13,7 +14,7 @@ import AddIcon from '@material-ui/icons/Add';
 import Tooltip from '@material-ui/core/Tooltip';
 import Users from 'meteor/vulcan:users';
 import withDialog from '../common/withDialog'
-import withUser from '../common/withUser.js';
+import withUser from '../common/withUser';
 import { PersonSVG, ArrowSVG, GroupIconSVG } from './Icons'
 import qs from 'qs'
 

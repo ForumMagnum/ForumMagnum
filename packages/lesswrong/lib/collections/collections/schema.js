@@ -1,14 +1,8 @@
-import { foreignKeyField, resolverOnlyField } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
 
 const schema = {
 
   // default properties
-
-  _id: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-  },
 
   createdAt: {
     type: Date,
