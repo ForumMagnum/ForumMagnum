@@ -1,6 +1,7 @@
 import * as _ from 'underscore';
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
+import { ServiceConfiguration } from 'meteor/service-configuration';
 
 let browserHistory;
 try {
@@ -36,7 +37,8 @@ this.getLoginServices = getLoginServices;
 
 export function hasPasswordService() {
   // First look for OAuth services.
-  return !!Package['accounts-password'];
+  //return !!Package['accounts-password'];
+  return true;
 }
 
 export function loginResultCallback(service, err?: any) {
@@ -106,11 +108,7 @@ export function redirect(redirect) {
     if (window.history) {
       // Run after all app specific redirects, i.e. to the login screen.
       Meteor.setTimeout(() => {
-        if (Package['kadira:flow-router']) {
-          Package['kadira:flow-router'].FlowRouter.go(redirect);
-        } else if (Package['kadira:flow-router-ssr']) {
-          Package['kadira:flow-router-ssr'].FlowRouter.go(redirect);
-        } else if (browserHistory) {
+        if (browserHistory) {
           browserHistory.push(redirect);
         } else {
           window.history.pushState( {} , 'redirect', redirect );

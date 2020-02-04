@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { getString, Utils } from '../vulcan-lib';
-import { intlShape } from './shape.js';
+import { intlShape } from './shape';
 
 export default class IntlProvider extends Component<any> {
   formatMessage = ({ id, defaultMessage }, values) => {
