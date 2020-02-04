@@ -8,8 +8,6 @@ import { Posts } from '../../lib/collections/posts';
 import Card from '@material-ui/core/Card';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper.jsx';
-import StarIcon from '@material-ui/icons/Star';
-import ModeCommentIcon from '@material-ui/icons/ModeComment';
 
 export const POST_PREVIEW_WIDTH = 400
 
@@ -162,16 +160,10 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }) => {
               </>}
               <div className={classes.metadata}>
                 <LWTooltip title={`${Posts.getKarma(post)} karma`}>
-                  <span>
-                    {/* <StarIcon className={classes.karmaIcon}/>  */}
-                    <span className={classes.smallText}>{Posts.getKarma(post)} karma</span>
-                  </span>
+                  <span className={classes.smallText}>{Posts.getKarma(post)} karma</span>
                 </LWTooltip>
                 <LWTooltip title={`${Posts.getCommentCountStr(post)}`}>
-                  <span>
-                    {/* <ModeCommentIcon className={classes.commentIcon}/>   */}
-                    <span className={classes.smallText}>{Posts.getCommentCountStr(post)}</span>
-                  </span>
+                  <span className={classes.smallText}>{Posts.getCommentCountStr(post)}</span>
                 </LWTooltip>
               </div>
             </div>
