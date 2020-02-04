@@ -80,10 +80,10 @@ const styles = createStyles(theme => ({
     paddingRight: 4
   },
   continue: {
-    marginTop: theme.spacing.unit,
-    color: theme.palette.grey[500],
     ...postHighlightStyles(theme),
-    fontSize: "1.1rem"
+    color: theme.palette.grey[500],
+    fontSize: "1rem",
+    marginBottom: theme.spacing.unit,
   },
   wordCount: {
     marginLeft: theme.spacing.unit
@@ -191,7 +191,9 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }) => {
                 dangerouslySetInnerHTML={{__html: expanded ? highlight : truncatedHighlight }}
                 description={`post ${post._id}`}
               />
-              {expanded && <Link className={classes.continue} to={Posts.getPageUrl(post)}>(Continue Reading)</Link>}
+              {expanded && <Link to={Posts.getPageUrl(post)}><div className={classes.continue} >
+                (Continue Reading)
+              </div></Link>}
             </div>
         }
     </Card>
