@@ -29,13 +29,13 @@ jobs:
         branch: devel
   - script: skip
     name: "Deploy Baserates"
-    if: branch = travisGitCredentialDeployment AND type != pull_request
+    if: branch = devel AND type != pull_request
     deploy: &baserates
       provider: script
       script: 
         bash ./deploy.sh ./LessWrong-Credentials/settings-staging-baserates.json ./LessWrong-Credentials/mup-baserates.secret
       on:
-        branch: travisGitCredentialDeployment
+        branch: devel
   - script: skip
     name: "Deploy LessWrong"
     if: branch = master AND type != pull_request
