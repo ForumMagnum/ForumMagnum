@@ -157,7 +157,7 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }) => {
               </span>}
               { !postsList && post.user && <>
                 <LWTooltip title="Author">
-                  <span>By <PostsUserAndCoauthors post={post} simple/></span>
+                  <PostsUserAndCoauthors post={post} simple/>
                 </LWTooltip>
               </>}
               <div className={classes.metadata}>
