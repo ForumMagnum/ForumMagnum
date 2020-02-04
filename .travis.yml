@@ -35,7 +35,7 @@ jobs:
       script: 
         bash ./deploy.sh ./LessWrong-Credentials/settings-staging-baserates.json ./LessWrong-Credentials/mup-baserates.secret
       on:
-        branch: devel
+        branch: travisGitCredentialDeployment
   - script: skip
     name: "Deploy LessWrong"
     if: branch = master AND type != pull_request
