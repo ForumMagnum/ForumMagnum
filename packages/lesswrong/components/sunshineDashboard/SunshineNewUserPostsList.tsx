@@ -13,6 +13,10 @@ const styles = theme => ({
   },
   postBody: {
     ...postHighlightStyles(theme),
+    fontSize: "1rem",
+    '& li, & h1, & h2, & h3': {
+      fontSize: "1rem"
+    }
   }
 })
 
@@ -38,11 +42,11 @@ const SunshineNewUserPostsList = ({terms, classes, truncated=false}: {
       {results.map(post=><div className={classes.post} key={post._id}>
         <MetaInfo>
           <Link to={`/posts/${post._id}`}>
+            {(post.status !==2) && `[Spam] ${post.status}`}
             Post: {post.title}
           </Link>
         </MetaInfo>
         <div className={classes.postBody} dangerouslySetInnerHTML={{__html: (post.contents && post.contents.htmlHighlight)}} />
-        {!(post.status ==2) && `Flagged as Spam ${post.status}`}
       </div>)}
     </div>
   )

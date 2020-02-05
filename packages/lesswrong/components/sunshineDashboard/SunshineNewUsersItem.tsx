@@ -1,7 +1,7 @@
 /* global confirm */
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper'
 import moment from 'moment';
@@ -13,6 +13,7 @@ import red from '@material-ui/core/colors/red';
 import DoneIcon from '@material-ui/icons/Done';
 import SnoozeIcon from '@material-ui/icons/Snooze';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+import classNames from 'classnames';
 
 const styles = theme => ({
   negativeKarma: {
@@ -23,24 +24,16 @@ const styles = theme => ({
     wordBreak: "break-word",
     display: "inline-block"
   },
+  truncated: {
+    maxHeight: 125,
+    overflow: "hidden"
+  }
 })
+const SunshineNewUsersItem = ({ user, hover, anchorEl, classes, currentUser, updateUser, allowContentPreview=true }) => {
+  const [hidden, setHidden] = useState(false)
+  const [truncated, setTruncated] = useState(true)
 
-interface ExternalProps {
-  user: any,
-  allowContentPreview?: boolean,
-}
-interface SunshineNewUsersItemProps extends ExternalProps, WithUserProps, WithHoverProps, WithStylesProps {
-  updateUser: any,
-}
-interface SunshineNewUsersItemState {
-  hidden: boolean,
-}
-
-class SunshineNewUsersItem extends Component<SunshineNewUsersItemProps,SunshineNewUsersItemState> {
-  state: SunshineNewUsersItemState = {hidden: false}
-
-  handleReview = () => {
-    const { currentUser, user, updateUser } = this.props
+  const handleReview = () => {
     updateUser({
       selector: {_id: user._id},
       data: {
@@ -51,8 +44,7 @@ class SunshineNewUsersItem extends Component<SunshineNewUsersItemProps,SunshineN
     })
   }
 
-  handleSnooze = () => {
-    const { currentUser, user, updateUser } = this.props
+  const handleSnooze = () => {
     updateUser({
       selector: {_id: user._id},
       data: {
@@ -63,10 +55,9 @@ class SunshineNewUsersItem extends Component<SunshineNewUsersItemProps,SunshineN
     })
   }
 
-  handlePurge = async () => {
-    const { currentUser, user, updateUser } = this.props
+  const handlePurge = async () => {
     if (confirm("Are you sure you want to delete all this user's posts, comments and votes?")) {
-      this.setState({hidden: true})
+      setHidden(true)
       await updateUser({
         selector: {_id: user._id},
         data: {
@@ -81,76 +72,73 @@ class SunshineNewUsersItem extends Component<SunshineNewUsersItemProps,SunshineN
     }
   }
 
-  render () {
-    const { user, hover, anchorEl, classes, currentUser, allowContentPreview=true } = this.props
-    const showNewUserContent = allowContentPreview && currentUser?.sunshineShowNewUserContent
+  const showNewUserContent = allowContentPreview && currentUser?.sunshineShowNewUserContent
 
-    const { SunshineListItem, SidebarHoverOver, MetaInfo, SidebarActionMenu, SidebarAction, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList } = Components
+  const { SunshineListItem, SidebarHoverOver, MetaInfo, SidebarActionMenu, SidebarAction, FormatDate, SunshineNewUserPostsList, SunshineNewUserCommentsList } = Components
 
-    if (this.state.hidden) { return null }
+  if (hidden) { return null }
 
-    return (
-        <SunshineListItem hover={hover}>
-          <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
-            <Typography variant="body2">
-              <MetaInfo>
-                <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
-                <div>Posts: { user.postCount || 0 }</div>
-                <div>Comments: { user.commentCount || 0 }</div>
-                <hr />
-                <div>Big Upvotes: { user.bigUpvoteCount || 0 }</div>
-                <div>Upvotes: { user.smallUpvoteCount || 0 }</div>
-                <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
-                <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
-                {!showNewUserContent && <React.Fragment>
-                  <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
-                  <SunshineNewUserPostsList terms={{view:"sunshineNewUsersPosts", userId: user._id}}/>
-                  <SunshineNewUserCommentsList terms={{view:"sunshineNewUsersComments", userId: user._id}}/>
-                </React.Fragment>}
-              </MetaInfo>
-            </Typography>
-          </SidebarHoverOver>
-          <div>
-            <MetaInfo className={classes.info}>
-              { user.karma || 0 }
+  return (
+      <SunshineListItem hover={hover}>
+        <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
+          <Typography variant="body2">
+            <MetaInfo>
+              <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
+              <div>Posts: { user.postCount || 0 }</div>
+              <div>Comments: { user.commentCount || 0 }</div>
+              <hr />
+              <div>Big Upvotes: { user.bigUpvoteCount || 0 }</div>
+              <div>Upvotes: { user.smallUpvoteCount || 0 }</div>
+              <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
+              <div>Downvotes: { user.smallDownvoteCount || 0 }</div>
+              {!showNewUserContent && <React.Fragment>
+                <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
+                <SunshineNewUserPostsList terms={{view:"sunshineNewUsersPosts", userId: user._id}}/>
+                <SunshineNewUserCommentsList terms={{view:"sunshineNewUsersComments", userId: user._id}}/>
+              </React.Fragment>}
             </MetaInfo>
-            <MetaInfo className={classes.info}>
-              <Link className={user.karma < 0 ? classes.negativeKarma : ""} to={Users.getProfileUrl(user)}>
-                  {user.displayName}
-              </Link>
-            </MetaInfo>
-            <MetaInfo className={classes.info}>
-              <FormatDate date={user.createdAt}/>
-            </MetaInfo>
-            <MetaInfo className={classes.info}>
-              { user.email }
-            </MetaInfo>
+          </Typography>
+        </SidebarHoverOver>
+        <div>
+          <MetaInfo className={classes.info}>
+            { user.karma || 0 }
+          </MetaInfo>
+          <MetaInfo className={classes.info}>
+            <Link className={user.karma < 0 ? classes.negativeKarma : ""} to={Users.getProfileUrl(user)}>
+                {user.displayName}
+            </Link>
+          </MetaInfo>
+          <MetaInfo className={classes.info}>
+            <FormatDate date={user.createdAt}/>
+          </MetaInfo>
+          <MetaInfo className={classes.info}>
+            { user.email }
+          </MetaInfo>
+        </div>
+        {showNewUserContent &&
+          <div className={classNames({[classes.truncated]:truncated})} onClick={() => setTruncated(false)}>
+            <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
+            <SunshineNewUserPostsList truncated={true} terms={{view:"sunshineNewUsersPosts", userId: user._id}}/>
+            <SunshineNewUserCommentsList truncated={true} terms={{view:"sunshineNewUsersComments", userId: user._id}}/>
           </div>
-          {showNewUserContent &&
-            <div>
-              <div dangerouslySetInnerHTML={{__html: user.htmlBio}}/>
-              <SunshineNewUserPostsList truncated={true} terms={{view:"sunshineNewUsersPosts", userId: user._id}}/>
-              <SunshineNewUserCommentsList truncated={true} terms={{view:"sunshineNewUsersComments", userId: user._id}}/>
-            </div>
-          }
-          { hover && <SidebarActionMenu>
-            {/* to fully approve a user, they most have created a post or comment. Users that have only voted can only be snoozed */}
-            {(user.commentCount || user.postCount) && <SidebarAction title="Review" onClick={this.handleReview}>
-              <DoneIcon />
-            </SidebarAction>}
-            <SidebarAction title="Snooze" onClick={this.handleSnooze}>
-              <SnoozeIcon />
-            </SidebarAction>
-            <SidebarAction warningHighlight={true} title="Purge User (delete and ban)" onClick={this.handlePurge}>
-              <DeleteForeverIcon />
-            </SidebarAction>
-          </SidebarActionMenu>}
-        </SunshineListItem>
-    )
-  }
+        }
+        { hover && <SidebarActionMenu>
+          {/* to fully approve a user, they most have created a post or comment. Users that have only voted can only be snoozed */}
+          {(user.commentCount || user.postCount) ? <SidebarAction title="Review" onClick={handleReview}>
+            <DoneIcon />
+          </SidebarAction> : null}
+          <SidebarAction title="Snooze" onClick={handleSnooze}>
+            <SnoozeIcon />
+          </SidebarAction>
+          <SidebarAction warningHighlight={true} title="Purge User (delete and ban)" onClick={handlePurge}>
+            <DeleteForeverIcon />
+          </SidebarAction>
+        </SidebarActionMenu>}
+      </SunshineListItem>
+  )
 }
 
-const SunshineNewUsersItemComponent = registerComponent<ExternalProps>('SunshineNewUsersItem', SunshineNewUsersItem, {
+const SunshineNewUsersItemComponent = registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, {
   styles,
   hocs: [
     withUpdate({

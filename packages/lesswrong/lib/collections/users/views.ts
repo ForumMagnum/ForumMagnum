@@ -74,6 +74,7 @@ Users.addView("sunshineNewUsers", function (terms) {
     },
     options: {
       sort: {
+        signUpReCaptchaRating: -1,
         createdAt: -1
       }
     }

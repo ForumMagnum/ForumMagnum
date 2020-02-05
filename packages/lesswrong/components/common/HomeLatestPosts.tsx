@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
@@ -27,6 +27,9 @@ const styles = theme => ({
     },
   },
 });
+
+const latestPostsName = getSetting('forumType') === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts'
+const includePersonalName = getSetting('forumType') === 'EAForum' ? 'Include Community' : 'Include Personal Blogposts'
 
 const HomeLatestPosts = ({ classes }) =>
 {
@@ -112,13 +115,13 @@ const HomeLatestPosts = ({ classes }) =>
 
   return (
     <SingleColumnSection>
-      <SectionTitle title={<LWTooltip title={latestTitle} placement="top"><span>Latest Posts</span></LWTooltip>}>
+      <SectionTitle title={<LWTooltip title={latestTitle} placement="top"><span>{latestPostsName}</span></LWTooltip>}>
         <LWTooltip title={personalBlogpostTooltip}>
           <div className={classes.personalBlogpostsCheckbox}>
             <SectionFooterCheckbox
               onClick={toggleFilter}
               value={currentFilter !== "frontpage"}
-              label={<div className={classes.personalBlogpostsCheckboxLabel}>Include Personal Blogposts</div>}
+              label={<div className={classes.personalBlogpostsCheckboxLabel}>{includePersonalName}</div>}
               />
           </div>
         </LWTooltip>

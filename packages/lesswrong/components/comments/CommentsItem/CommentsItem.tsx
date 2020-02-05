@@ -328,13 +328,14 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
   }
 
   renderCommentBottom = () => {
-    const { comment, currentUser, collapsed, classes } = this.props;
+    const { comment, currentUser, collapsed, classes, hideReply } = this.props;
     const { MetaInfo } = Components
 
     if (!collapsed) {
       const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > new Date();
 
       const showReplyButton = (
+        !hideReply &&
         !comment.deleted &&
         (!blockedReplies || Users.canDo(currentUser,'comments.replyOnBlocked.all')) &&
         (!currentUser || Users.isAllowedToComment(currentUser, this.props.post))
@@ -363,6 +364,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
   renderReply = () => {
     const { post, comment, classes, parentAnswerId, nestingLevel=1 } = this.props
     const levelClass = (nestingLevel + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
+
     return (
       <div className={classNames(classes.replyForm, levelClass)}>
         <Components.CommentsNewForm
