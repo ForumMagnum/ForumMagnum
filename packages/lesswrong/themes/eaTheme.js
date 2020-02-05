@@ -133,6 +133,9 @@ const theme = createLWTheme({
       fontFamily: titleStack,
       fontWeight: 500,
       lineHeight: '1.25em'
+    },
+    uiStyle: {
+      sansSerifStack
     }
   },
   overrides: {
@@ -185,6 +188,16 @@ const theme = createLWTheme({
         paddingRight:0,
         fontSize: '50%',
       },
+    },
+    PostsTopSequencesNav: {
+      root: {
+        marginBottom: -8,
+      },
+      title: {
+        textTransform: 'lowercase',
+        color: 'rgba(0,0,0,.7)',
+        fontWeight: 500,
+      }
     },
     SunshineSidebar: {
       root: {

@@ -32,7 +32,7 @@ const styles = theme => ({
     ...theme.typography.postStyle,
     fontVariant: "small-caps",
     marginTop: 0,
-    fontFamily: theme.typography.fontFamily,
+    ...theme.typography.uiStyle,
   },
   description: {
     marginTop: theme.spacing.unit * 2,

@@ -82,7 +82,10 @@ const theme = createLWTheme({
     title: {
       fontFamily: serifStack,
       fontWeight: 500,
-    }
+    },
+    uiStyle: {
+      fontFamily: serifStack,
+    },
   },
   overrides: {
     MuiAppBar: {

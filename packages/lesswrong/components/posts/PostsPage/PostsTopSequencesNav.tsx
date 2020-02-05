@@ -12,18 +12,15 @@ const styles = createStyles(theme => ({
     marginLeft:-20,
     display: "flex",
     alignItems: "center",
-    marginBottom: -1 * theme.spacing.unit,
   },
   title: {
     display: 'inline-block',
     fontSize: 22,
     verticalAlign: '-webkit-baseline-middle',
     fontVariant: 'small-caps',
-    fontFamily: theme.typography.fontFamily,
-    textTransform: 'lowercase',
+    ...theme.typography.uiStyle,
     lineHeight: '24px',
-    color: 'rgba(0,0,0,0.7)',
-    fontWeight: 500,
+    color: 'rgba(0,0,0,0.5)',
     marginTop: -2,
   }
 }))

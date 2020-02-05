@@ -132,6 +132,9 @@ const createLWTheme = (theme) => {
         fontWeight: 400,
         marginBottom: 3,
       },
+      uiStyle: {
+        fontFamily: typography.fontFamily,
+      },
       caption: {
         fontSize: ".9rem"
       },

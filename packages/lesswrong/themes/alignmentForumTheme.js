@@ -63,7 +63,10 @@ const theme = createLWTheme({
     },
     display3: {
       fontWeight: 500
-    }
+    },
+    uiStyle: {
+      fontFamily: sansSerifStack,
+    },
   },
   overrides: {
     Header: {
