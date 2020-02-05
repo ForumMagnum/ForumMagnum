@@ -83,12 +83,12 @@ const styles = theme => ({
 interface ExternalProps {
   currentUser: UsersCurrent,
   messages: any,
+  children?: React.ReactNode,
 }
 interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps {
   cookies: any,
   updateUser: any,
   theme: any,
-  children: any,
 }
 interface LayoutState {
   timezone: string,

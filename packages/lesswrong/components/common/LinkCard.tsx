@@ -40,7 +40,7 @@ const styles = theme => ({
 // card background and card contents siblings rather than nested, then use
 // z-index to control which is clickable.
 const LinkCard = ({children, to, tooltip, className, classes}: {
-  children?: any,
+  children?: React.ReactNode,
   to: string,
   tooltip?: any,
   className?: string,

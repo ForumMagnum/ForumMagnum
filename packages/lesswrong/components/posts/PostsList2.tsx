@@ -65,7 +65,7 @@ const PostsList2 = ({
   dense,
   defaultToShowUnreadComments
 }: {
-  children?: any,
+  children?: React.ReactNode,
   terms?: any,
   dimWhenLoading?: boolean,
   topLoading?: boolean,

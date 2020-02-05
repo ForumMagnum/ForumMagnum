@@ -30,7 +30,7 @@ const styles = (theme) => ({
 })
 
 const SidebarAction = ({children, classes, title, warningHighlight, onClick}: {
-  children?: any,
+  children?: React.ReactNode,
   classes: any,
   title: string,
   warningHighlight?: boolean,

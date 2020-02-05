@@ -23,7 +23,7 @@ const styles = theme => ({
 })
 
 const CommentsMenu = ({children, classes, className, comment, post, showEdit, icon}: {
-  children?: any,
+  children?: React.ReactNode,
   classes: any,
   className?: string,
   comment: any,

@@ -22,7 +22,7 @@ const styles = theme => ({
 })
 
 const SunshineListItem = ({children, classes, hover=false}: {
-  children: any,
+  children: React.ReactNode,
   classes: any,
   hover?: boolean,
 }) => {

@@ -19,7 +19,7 @@ const styles = (theme) => ({
 })
 
 const MetaInfo = ({children, classes, button, className}: {
-  children?: any,
+  children: React.ReactNode,
   classes: any,
   button?: boolean,
   className?: string

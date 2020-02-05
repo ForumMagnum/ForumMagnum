@@ -16,7 +16,7 @@ const styles = (theme) => ({
 const SingleColumnSection = ({classes, className, children}: {
   classes: any,
   className?: string,
-  children?: any,
+  children?: React.ReactNode,
 }) => {
 
   return (

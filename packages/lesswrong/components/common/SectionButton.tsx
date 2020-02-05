@@ -16,7 +16,7 @@ const styles = (theme) => ({
 })
 
 const SectionButton = ({children, classes, className}: {
-  children?: any,
+  children?: React.ReactNode,
   classes: any,
   className?: string,
 }) => {

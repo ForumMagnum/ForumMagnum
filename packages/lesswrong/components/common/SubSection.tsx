@@ -9,7 +9,7 @@ const styles = (theme) => ({
 })
 
 const SubSection = ({children, classes, className}: {
-  children?: any,
+  children?: React.ReactNode,
   classes: any,
   className?: string,
 }) => {

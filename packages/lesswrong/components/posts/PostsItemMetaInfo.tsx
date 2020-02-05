@@ -13,7 +13,7 @@ const styles = (theme) => ({
 })
 
 const PostsItemMetaInfo = ({children, classes, className}: {
-  children?: any,
+  children?: React.ReactNode,
   classes: any,
   className?: string,
 }) => {
