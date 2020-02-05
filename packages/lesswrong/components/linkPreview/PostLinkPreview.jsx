@@ -147,7 +147,7 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hove
   const { PostsPreviewTooltip, LWPopper } = Components
 
   if (!post) {
-    return <Link to={href}  dangerouslySetInnerHTML={{__html: innerHTML}}/>;
+    return <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}}/>;
   }
   return (
     <span>
@@ -164,7 +164,7 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hove
       >
         <PostsPreviewTooltip post={post} showAllInfo />
       </LWPopper>
-      <Link className={classes.link} to={href}  dangerouslySetInnerHTML={{__html: innerHTML}} id={id}/>
+      <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} smooth/>
     </span>
   );
 }
