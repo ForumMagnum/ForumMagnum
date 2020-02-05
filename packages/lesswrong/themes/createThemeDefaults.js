@@ -132,7 +132,9 @@ const createLWTheme = (theme) => {
         fontWeight: 400,
         marginBottom: 3,
       },
-      uiStyle: {
+      // Used for ui text that's (on LW) serifed rather than the primary
+      // sans-serif ui font. On the EA Forum this is overridden with sans-serif
+      uiSecondary: {
         fontFamily: typography.fontFamily,
       },
       caption: {

@@ -83,7 +83,7 @@ const theme = createLWTheme({
       fontFamily: serifStack,
       fontWeight: 500,
     },
-    uiStyle: {
+    uiSecondary: {
       fontFamily: serifStack,
     },
   },

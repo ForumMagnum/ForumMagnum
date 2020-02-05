@@ -134,7 +134,7 @@ const theme = createLWTheme({
       fontWeight: 500,
       lineHeight: '1.25em'
     },
-    uiStyle: {
+    uiSecondary: {
       sansSerifStack
     }
   },

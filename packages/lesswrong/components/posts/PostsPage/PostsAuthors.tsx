@@ -8,7 +8,7 @@ const styles = createStyles(theme => ({
     textAlign: 'left',
     display: 'inline',
     ...theme.typography.postStyle,
-    ...theme.typography.uiStyle,
+    fontFamily: theme.typography.uiSecondary.fontFamily,
   },
   authorName: {
     fontWeight: 600,
