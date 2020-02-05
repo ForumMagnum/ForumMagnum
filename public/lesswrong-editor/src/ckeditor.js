@@ -12,6 +12,7 @@ import CKFinder from '@ckeditor/ckeditor5-ckfinder/src/ckfinder';
 import Essentials from '@ckeditor/ckeditor5-essentials/src/essentials';
 import FontFamily from '@ckeditor/ckeditor5-font/src/fontfamily';
 import FontSize from '@ckeditor/ckeditor5-font/src/fontsize';
+import FontColor from '@ckeditor/ckeditor5-font/src/fontcolor';
 import Heading from '@ckeditor/ckeditor5-heading/src/heading';
 import HorizontalLine from '@ckeditor/ckeditor5-horizontal-line/src/horizontalline';
 import EasyImage from '@ckeditor/ckeditor5-easy-image/src/easyimage';
@@ -22,6 +23,10 @@ import ImageToolbar from '@ckeditor/ckeditor5-image/src/imagetoolbar';
 import ImageUpload from '@ckeditor/ckeditor5-image/src/imageupload';
 import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
 import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
+import Code from '@ckeditor/ckeditor5-basic-styles/src/code';
+import Subscript from '@ckeditor/ckeditor5-basic-styles/src/subscript';
+import Superscript from '@ckeditor/ckeditor5-basic-styles/src/superscript';
+import CodeBlock from '@ckeditor/ckeditor5-code-block/src/codeblock';
 import Link from '@ckeditor/ckeditor5-link/src/link';
 import List from '@ckeditor/ckeditor5-list/src/list';
 // import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
@@ -76,6 +81,7 @@ const postEditorPlugins = [
 	Essentials,
 	FontFamily,
 	FontSize,
+	FontColor,
 	Heading,
 	HorizontalLine,
 	Image,
@@ -88,6 +94,10 @@ const postEditorPlugins = [
 	Italic,
 	Link,
 	List,
+	Code,
+	CodeBlock,
+	Subscript,
+	Superscript,
 	// MediaEmbed,
 	Paragraph,
 	PasteFromOffice,
@@ -124,12 +134,16 @@ const postEditorConfig = {
 		'bold',
 		'italic',
 		'strikethrough',
+		'fontColor',
+		'|',
+		'alignment',
 		'|',
 		'link',
 		'|',
 		'blockQuote',
 		'bulletedList',
 		'numberedList',
+		'codeBlock',
 		'|',
 		'trackChanges',
 		// 'mathpreview',
@@ -183,6 +197,7 @@ CommentEditor.builtinPlugins = [
 	Link,
 	List,
 	Paragraph,
+	CodeBlock,
 	PasteFromOffice,
 	RemoveFormat,
 	Strikethrough,
