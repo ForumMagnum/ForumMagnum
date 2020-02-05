@@ -1,7 +1,6 @@
 import React from 'react';
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
 import { withStyles, createStyles } from '@material-ui/core/styles';
-import { legacyBreakpoints } from '../../lib/utils/theme';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Typography } from '@material-ui/core';
@@ -16,7 +15,7 @@ const styles = createStyles(theme => ({
 
 const EASequencesHome = ({classes}) => {
 
-  const { SingleColumnSection, SectionTitle, Divider, SequencesNewButton } = Components
+  const { SingleColumnSection, SectionTitle, SequencesNewButton } = Components
   return <AnalyticsContext pageContext="eaSequencesHome">
     <SingleColumnSection>
       <SectionTitle  title="Sequences" >
