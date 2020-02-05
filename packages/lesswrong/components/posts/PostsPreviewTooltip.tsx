@@ -5,7 +5,7 @@ import { postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping
 import { Posts } from '../../lib/collections/posts';
 import Card from '@material-ui/core/Card';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { Link } from '../../lib/reactRouterWrapper.jsx';
+import { Link } from '../../lib/reactRouterWrapper';
 
 export const POST_PREVIEW_WIDTH = 400
 
