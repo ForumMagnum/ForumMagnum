@@ -129,12 +129,6 @@ addRoute([
 
   // Sequences
   {
-    name: 'sequencesHome',
-    path: '/library',
-    componentName: 'SequencesHome',
-    title: "The Library"
-  },
-  {
     name: 'sequences.single.old',
     path: '/sequences/:_id',
     componentName: 'SequencesSingle'
@@ -179,27 +173,6 @@ addRoute([
     name: 'collections',
     path: '/collections/:_id',
     componentName: 'CollectionsSingle'
-  },
-  {
-    name: 'Sequences',
-    path: '/sequences',
-    componentName: 'CoreSequences',
-    title: "Rationality: A-Z"
-  },
-  {
-    name: 'Rationality',
-    path: '/rationality',
-    componentName: 'CoreSequences',
-    title: "Rationality: A-Z",
-    ...rationalitySubtitle
-  },
-  {
-    name: 'Rationality.posts.single',
-    path: '/rationality/:slug',
-    componentName: 'PostsSingleSlug',
-    previewComponentName: 'PostLinkPreviewSlug',
-    ...rationalitySubtitle,
-    getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
   },
   {
     name: 'bookmarks',
@@ -261,6 +234,38 @@ addRoute([
     // TODO: Pingback comment
   }
 ]);
+
+if (getSetting('forumType') !== 'EAForum') {
+  addRoute([
+    {
+      name: 'sequencesHome',
+      path: '/library',
+      componentName: 'SequencesHome',
+      title: "The Library"
+    },
+    {
+      name: 'Sequences',
+      path: '/sequences',
+      componentName: 'CoreSequences',
+      title: "Rationality: A-Z"
+    },
+    {
+      name: 'Rationality',
+      path: '/rationality',
+      componentName: 'CoreSequences',
+      title: "Rationality: A-Z",
+      ...rationalitySubtitle
+    },
+    {
+      name: 'Rationality.posts.single',
+      path: '/rationality/:slug',
+      componentName: 'PostsSingleSlug',
+      previewComponentName: 'PostLinkPreviewSlug',
+      ...rationalitySubtitle,
+      getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+    },
+  ])
+}
 
 if (getSetting('forumType') === 'LessWrong') {
   addRoute([
@@ -487,6 +492,11 @@ switch (getSetting('forumType')) {
         componentName: 'Meta',
         title: "Community"
       },
+      {
+        name: 'eaSequencesHome',
+        path: '/sequences',
+        componentName: 'EASequencesHome'
+      }
     ]);
     break
   default:
