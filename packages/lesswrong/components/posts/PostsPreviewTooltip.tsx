@@ -148,7 +148,7 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
         <div className={classes.header}>
           <div>
             <div className={classes.title}>
-              <PostsTitle post={post} tooltip={false} wrap showIcons={false} />
+              <PostsTitle post={post} wrap showIcons={false} />
             </div>
             <div className={classes.tooltipInfo}>
               { postsList && <span> 
@@ -171,7 +171,7 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
             </div>
           </div>
           { !postsList && <div className={classes.bookmark}>
-            <BookmarkButton post={post} lighter/>
+            <BookmarkButton post={post}/>
           </div>}
         </div>
         {comment

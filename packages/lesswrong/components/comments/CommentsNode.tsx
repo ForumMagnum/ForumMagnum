@@ -147,6 +147,7 @@ interface ExternalProps {
   forceNotSingleLine?: boolean,
   postPage?: boolean,
   children?: any,
+  hideReply?: boolean,
 }
 interface CommentsNodeProps extends ExternalProps, WithUserProps, WithStylesProps, WithLocationProps {
 }

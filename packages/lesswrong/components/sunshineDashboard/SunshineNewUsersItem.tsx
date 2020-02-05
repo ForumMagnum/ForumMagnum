@@ -6,8 +6,8 @@ import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper'
 import moment from 'moment';
 import Typography from '@material-ui/core/Typography';
-import withUser from '../common/withUser';
-import withHover from '../common/withHover'
+import { useCurrentUser } from '../common/withUser';
+import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
 import red from '@material-ui/core/colors/red';
 import DoneIcon from '@material-ui/icons/Done';
@@ -29,9 +29,16 @@ const styles = theme => ({
     overflow: "hidden"
   }
 })
-const SunshineNewUsersItem = ({ user, hover, anchorEl, classes, currentUser, updateUser, allowContentPreview=true }) => {
+const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=true }: {
+  user: any,
+  classes: any,
+  updateUser?: any,
+  allowContentPreview?: boolean,
+}) => {
+  const currentUser = useCurrentUser();
   const [hidden, setHidden] = useState(false)
   const [truncated, setTruncated] = useState(true)
+  const { eventHandlers, hover, anchorEl } = useHover();
 
   const handleReview = () => {
     updateUser({
@@ -79,6 +86,7 @@ const SunshineNewUsersItem = ({ user, hover, anchorEl, classes, currentUser, upd
   if (hidden) { return null }
 
   return (
+    <span {...eventHandlers}>
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
           <Typography variant="body2">
@@ -135,6 +143,7 @@ const SunshineNewUsersItem = ({ user, hover, anchorEl, classes, currentUser, upd
           </SidebarAction>
         </SidebarActionMenu>}
       </SunshineListItem>
+    </span>
   )
 }
 
@@ -145,7 +154,7 @@ const SunshineNewUsersItemComponent = registerComponent('SunshineNewUsersItem', 
       collection: Users,
       fragmentName: 'SunshineUsersList',
     }),
-    withUser, withHover(), withErrorBoundary,
+    withErrorBoundary,
   ]
 });
 

@@ -130,6 +130,7 @@ interface ExternalProps {
   toggleCollapse: any,
   truncated: boolean,
   parentAnswerId: string,
+  hideReply?: boolean,
 }
 interface CommentsItemProps extends ExternalProps, WithMessagesProps, WithUserProps, WithStylesProps {
 }

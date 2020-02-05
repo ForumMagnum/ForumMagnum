@@ -13,11 +13,10 @@ const styles = theme => ({
   }
 })
 
-const PostsPreviewTooltipSingle = ({ classes, postId, truncateLimit=600, showAllInfo=false }: {
+const PostsPreviewTooltipSingle = ({ classes, postId, truncateLimit=600, }: {
   classes: any,
   postId: string,
   truncateLimit?: number,
-  showAllInfo?: boolean,
 }) => {
   const { Loading, PostsPreviewTooltip  } = Components
 
@@ -32,17 +31,16 @@ const PostsPreviewTooltipSingle = ({ classes, postId, truncateLimit=600, showAll
       <Loading/>
     </div>
   
-  return <PostsPreviewTooltip post={post} showAllInfo={showAllInfo} truncateLimit={truncateLimit} />
+  return <PostsPreviewTooltip post={post} />
 }
 
 const PostsPreviewTooltipSingleComponent = registerComponent('PostsPreviewTooltipSingle', PostsPreviewTooltipSingle, {styles});
 
-const PostsPreviewTooltipSingleWithComment = ({ classes, postId, commentId, truncateLimit=600, showAllInfo=false }: {
+const PostsPreviewTooltipSingleWithComment = ({ classes, postId, commentId, truncateLimit=600 }: {
   classes: any,
   postId: string,
   commentId: string,
   truncateLimit?: number,
-  showAllInfo?: boolean,
 }) => {
   const { Loading, PostsPreviewTooltip  } = Components
 
@@ -64,7 +62,7 @@ const PostsPreviewTooltipSingleWithComment = ({ classes, postId, commentId, trun
       <Loading/>
     </div>
   
-  return <PostsPreviewTooltip post={post} comment={commentId && comment} showAllInfo={showAllInfo} truncateLimit={truncateLimit} />
+  return <PostsPreviewTooltip post={post} comment={commentId && comment} />
 }
 
 const PostsPreviewTooltipSingleWithCommentComponent = registerComponent(
