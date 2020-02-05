@@ -75,7 +75,7 @@ export default withUpdate;
 
 export const useUpdate = ({
   collectionName, collection,
-  fragmentName, fragment,
+  fragmentName: fragmentNameArg, fragment: fragmentArg,
 }: {
   collectionName?: string,
   collection?: any,
@@ -83,7 +83,7 @@ export const useUpdate = ({
   fragment?: any,
 }) => {
   ({ collectionName, collection } = extractCollectionInfo({collectionName, collection}));
-  ({ fragmentName, fragment } = extractFragmentInfo({fragmentName, fragment}, collectionName));
+  const { fragmentName, fragment } = extractFragmentInfo({fragmentName: fragmentNameArg, fragment: fragmentArg}, collectionName);
 
   const typeName = collection.options.typeName;
   const query = gql`

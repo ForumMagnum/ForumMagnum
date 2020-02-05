@@ -107,7 +107,6 @@ async function checkCommentForSpamWithAkismet(comment, currentUser) {
               deletedReason: "Your comment has been marked as spam by the Akismet span integration. We will review your comment in the coming hours and restore it if we determine that it isn't spam"
             },
             validate: false,
-            user: currentUser
           });
         }
       } else {

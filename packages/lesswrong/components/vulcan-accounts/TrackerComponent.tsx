@@ -30,9 +30,11 @@ class TrackerComponent extends React.Component<any,any> {
     this.__live = true; fn(c); this.__live = false;
   }));}
 
-  componentDidUpdate() { !this.__live && this.__comps.forEach(c => {
-    c.invalidated = c.stopped = false; !c.invalidate();
-  });}
+  componentDidUpdate(prevProps, prevState) {
+    !this.__live && this.__comps.forEach(c => {
+      c.invalidated = c.stopped = false; !c.invalidate();
+    });
+  }
 
   subscriptionsReady() {
     return !Object.keys(this.__subs).some(id => !this.__subs[id].ready());

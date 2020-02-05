@@ -75,7 +75,7 @@ export default withCreate;
 
 export const useCreate = ({
   collectionName, collection,
-  fragmentName, fragment
+  fragmentName: fragmentNameArg, fragment: fragmentArg
 }: {
   collectionName?: string,
   collection?: any,
@@ -83,7 +83,7 @@ export const useCreate = ({
   fragment?: any,
 }) => {
   ({ collectionName, collection } = extractCollectionInfo({collectionName, collection}));
-  ({ fragmentName, fragment } = extractFragmentInfo({fragmentName, fragment}, collectionName));
+  const { fragmentName, fragment } = extractFragmentInfo({fragmentName: fragmentNameArg, fragment: fragmentArg}, collectionName);
 
   const typeName = collection.options.typeName;
   

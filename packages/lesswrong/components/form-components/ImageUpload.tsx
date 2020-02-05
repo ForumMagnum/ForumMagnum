@@ -60,6 +60,7 @@ class ImageUpload extends Component<any,any> {
       cropping_default_selection_ratio = 3;
       upload_preset = getSetting('cloudinary.uploadPresetBanner', 'navcjwf7');
     }
+    // @ts-ignore
     cloudinary.openUploadWidget(
       {cropping: "server",
       cloud_name: getSetting('cloudinary.cloudName', 'lesswrong-2-0'),

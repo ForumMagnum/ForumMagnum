@@ -21,6 +21,7 @@ export const STATES = {
 
 export function getLoginServices() {
   // First look for OAuth services.
+  // @ts-ignore
   const services = Package['accounts-oauth'] ? Accounts.oauth.serviceNames() : [];
 
   // Be equally kind to all login services. This also preserves

@@ -49,6 +49,7 @@ class ModalTrigger extends PureComponent<any,any> {
         {label}
       </a>
     );
+    // @ts-ignore
     const childrenComponent = React.cloneElement(children, { closeModal: this.closeModal });
     const headerComponent = header && React.cloneElement(header, { closeModal: this.closeModal });
     const footerComponent = footer && React.cloneElement(footer, { closeModal: this.closeModal });

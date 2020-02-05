@@ -3,6 +3,7 @@ import { getLoginServices } from '../../lib/vulcan-accounts/helpers';
 
 Meteor.publish('servicesList', function(this: any) {
   let services = getLoginServices();
+  // @ts-ignore
   if (Package['accounts-password']) {
     services.push({name: 'password'});
   }

@@ -7,6 +7,7 @@ import SimpleSchema from 'simpl-schema'
 import * as _ from 'underscore';
 
 export const hashPetrovCode = (code) => {
+  // @ts-ignore
   const crypto = Npm.require('crypto');
   var hash = crypto.createHash('sha256');
   hash.update(code);
