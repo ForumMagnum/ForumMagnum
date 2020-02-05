@@ -271,7 +271,7 @@ interface PostsRevisionsList_revisions { // fragment on Revisions
 interface PostsList extends PostsBase, PostsAuthors { // fragment on Posts
 	readonly originalPostRelationSourceId: string,
 	readonly contents: PostsList_contents,
-	readonly moderationGuidelines: RevisionDisplay
+	readonly moderationGuidelines: RevisionDisplay,
 }
 
 interface PostsList_contents { // fragment on Revisions
