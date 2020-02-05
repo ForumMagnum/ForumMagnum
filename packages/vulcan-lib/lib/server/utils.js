@@ -7,7 +7,7 @@ Utils.sanitizeAllowedTags = [
   'ol', 'nl', 'li', 'b', 'i', 'u', 'strong', 'em', 'strike',
   'code', 'hr', 'br', 'div', 'table', 'thead', 'caption',
   'tbody', 'tr', 'th', 'td', 'pre', 'img', 'figure', 'figcaption',
-  'span'
+  'span', 'sub', 'sup'
 ]
 
 Utils.sanitize = function(s) {
