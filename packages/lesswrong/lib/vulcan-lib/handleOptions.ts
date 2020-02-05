@@ -11,11 +11,11 @@ import { getFragment, getFragmentName } from './fragments';
  * @param {*} param0
  */
 export const extractCollectionInfo = ({ collectionName, collection }: {
-  collectionName: string|undefined,
+  collectionName: CollectionNameString|undefined,
   collection: any|undefined,
 }): {
   collection: any,
-  collectionName: string,
+  collectionName: CollectionNameString,
 }=> {
   if (!(collectionName || collection)) throw new Error('Please specify either collection or collectionName');
   const _collectionName = collectionName || collection.options.collectionName;
@@ -26,7 +26,7 @@ export const extractCollectionInfo = ({ collectionName, collection }: {
  * Extract fragmentName from fragment
  * or fragment from fragmentName
  */
-export const extractFragmentInfo = ({ fragment, fragmentName }: { fragment: any|undefined, fragmentName: string|undefined }, collectionName: string): {
+export const extractFragmentInfo = ({ fragment, fragmentName }: { fragment: any|undefined, fragmentName: string|undefined }, collectionName: CollectionNameString): {
   fragment: any,
   fragmentName: any,
 } => {

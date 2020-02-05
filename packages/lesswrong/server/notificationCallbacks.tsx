@@ -43,7 +43,7 @@ async function getSubscribedUsers({
   potentiallyDefaultSubscribedUserIds=null, userIsDefaultSubscribed=null
 }: {
   documentId: string,
-  collectionName: string,
+  collectionName: CollectionNameString,
   type: string,
   potentiallyDefaultSubscribedUserIds?: null|Array<string>,
   userIsDefaultSubscribed?: null|((u:any)=>boolean),

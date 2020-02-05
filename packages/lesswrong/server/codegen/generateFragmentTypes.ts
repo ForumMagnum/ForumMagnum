@@ -1,4 +1,4 @@
-import { getAllFragmentNames, getFragment, getCollectionName, getCollection, Vulcan } from '../../lib/vulcan-lib';
+import { getAllFragmentNames, getFragment, getCollectionName, getCollection, Vulcan, Collections } from '../../lib/vulcan-lib';
 import { simplSchemaToGraphQLtype } from '../../lib/utils/schemaUtils';
 import GraphQLJSON from 'graphql-type-json';
 import SimpleSchema from 'simpl-schema'
@@ -17,7 +17,23 @@ const assert = (b) => {
   }
 }
 
-function generateFragmentTypes(filename) {
+function generateFragmentTypes(filename: string) {
+  try {
+    const fragmentFileContents = getFragmentsTypeFileContents();
+    
+    if (filename) {
+      fs.writeFileSync(filename, fragmentFileContents);
+    } else {
+      // eslint-disable-next-line no-console
+      console.log(fragmentFileContents);
+    }
+  } catch(e) {
+    console.error(e);
+  }
+}
+Vulcan.generateFragmentTypes = generateFragmentTypes;
+
+function getFragmentsTypeFileContents() {
   const fragmentNames: Array<string> = getAllFragmentNames();
   const sb: Array<string> = [];
   
@@ -26,17 +42,10 @@ function generateFragmentTypes(filename) {
   }
   
   sb.push(generateFragmentsIndexType());
+  sb.push(generateCollectionNamesIndexType());
   
-  const fragmentFileContents = fragmentFileHeader + sb.join('');
-  
-  if (filename) {
-    fs.writeFileSync(filename, fragmentFileContents);
-  } else {
-    // eslint-disable-next-line no-console
-    console.log(fragmentFileContents);
-  }
+  return fragmentFileHeader + sb.join('');
 }
-Vulcan.generateFragmentTypes = generateFragmentTypes;
 
 function generateFragmentTypeDefinition(fragmentName: string): string {
   const fragmentDefinitions = getFragment(fragmentName);
@@ -68,6 +77,10 @@ function generateFragmentsIndexType(): string {
   sb.push('}\n\n');
   
   return sb.join('');
+}
+
+function generateCollectionNamesIndexType(): string {
+  return 'type CollectionNameString = ' + Collections.map(c => `"${c.collectionName}"`).join('|') + '\n\n';
 }
 
 function fragmentToInterface(interfaceName: string, parsedFragment, collection): string {
