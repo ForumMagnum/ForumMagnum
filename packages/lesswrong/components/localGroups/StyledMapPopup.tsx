@@ -46,7 +46,7 @@ const StyledMapPopup = ({
   onClose, offsetTop=-20
 }: {
   children?: React.ReactNode,
-  classes: any,
+  classes: ClassesType,
   link: string,
   title: string,
   metaInfo?: any,

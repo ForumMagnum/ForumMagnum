@@ -77,7 +77,7 @@ const PostsList2 = ({
   enableTotal?: boolean,
   showNominationCount?: boolean,
   showReviewCount?: boolean,
-  classes: any,
+  classes: ClassesType,
   dense?: boolean,
   defaultToShowUnreadComments?: boolean,
 }) => {

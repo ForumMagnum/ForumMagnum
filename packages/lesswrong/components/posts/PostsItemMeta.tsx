@@ -25,7 +25,7 @@ const DateWithoutTime = ({date}) => {
 const PostsItemMeta = ({post, read, classes}: {
   post: any,
   read?: boolean,
-  classes: any,
+  classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
   const { wordCount = 0 } = post.contents || {}

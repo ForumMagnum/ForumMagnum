@@ -39,7 +39,7 @@ const styles = createStyles(theme => ({
 
 const SubmitComponent = withStyles(styles, {name: "GroupFormLinkSubmit"})(({submitLabel = "Submit", classes, updateCurrentValues, document, formType}: {
   submitLabel?: string,
-  classes: any,
+  classes: ClassesType,
   updateCurrentValues: any,
   document: any,
   formType: string,

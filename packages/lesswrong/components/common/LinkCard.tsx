@@ -44,7 +44,7 @@ const LinkCard = ({children, to, tooltip, className, classes}: {
   to: string,
   tooltip?: any,
   className?: string,
-  classes: any,
+  classes: ClassesType,
 }) => {
   const card = (
     <div className={classNames(className, classes.root)}>

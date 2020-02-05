@@ -88,7 +88,7 @@ const styles = theme => ({
 })
 
 const PetrovDayButton = ({classes, refetch}: {
-  classes: any,
+  classes: ClassesType,
   refetch?: any,
 }) => {
   const currentUser = useCurrentUser()

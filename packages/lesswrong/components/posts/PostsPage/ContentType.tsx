@@ -147,7 +147,7 @@ const contentTypes = {
 }
 
 const ContentType = ({classes, type, label}: {
-  classes: any,
+  classes: ClassesType,
   type: string,
   label?: string
 }) => {

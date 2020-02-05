@@ -21,7 +21,7 @@ const styles = theme => ({
 const CommentShortformIcon = ({comment, post, classes, simple}: {
   comment: any,
   post: any,
-  classes: any,
+  classes: ClassesType,
   simple?: boolean,
 }) => {
   // Top level shortform posts should show this icon/button, both to make shortform posts a bit more visually distinct, and to make it easier to grab permalinks for shortform posts.

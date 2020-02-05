@@ -34,7 +34,7 @@ const SubscribeTo = ({
   subscribeMessage: string,
   unsubscribeMessage: string,
   className?: string,
-  classes: any,
+  classes: ClassesType,
   showIcon?: boolean,
 }) => {
   const currentUser = useCurrentUser();

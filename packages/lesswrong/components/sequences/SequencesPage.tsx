@@ -89,7 +89,7 @@ const styles = theme => ({
 
 const SequencesPage = ({ documentId, classes }: {
   documentId: string,
-  classes: any
+  classes: ClassesType
 }) => {
   const [edit,setEdit] = useState(false);
   const currentUser = useCurrentUser();

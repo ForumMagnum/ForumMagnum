@@ -17,7 +17,7 @@ const styles = (theme) => ({
 
 const SectionSubtitle = ({children, classes, className}: {
   children?: React.ReactNode,
-  classes: any,
+  classes: ClassesType,
   className?: string,
 }) => {
   return <Typography component='span' variant='subheading' className={classNames(classes.root, className)}>

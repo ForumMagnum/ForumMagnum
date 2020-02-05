@@ -20,7 +20,7 @@ const styles = theme => ({
 })
 
 const ReviewPostButton = ({classes, post, reviewMessage="Review"}: {
-  classes: any,
+  classes: ClassesType,
   post: any,
   reviewMessage: any,
 }) => {

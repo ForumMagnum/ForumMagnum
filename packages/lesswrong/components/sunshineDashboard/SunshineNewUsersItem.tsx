@@ -31,7 +31,7 @@ const styles = theme => ({
 })
 const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=true }: {
   user: any,
-  classes: any,
+  classes: ClassesType,
   updateUser?: any,
   allowContentPreview?: boolean,
 }) => {

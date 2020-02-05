@@ -38,7 +38,7 @@ const styles = theme => ({
 const CommentsItemDate = ({comment, post, classes, scrollOnClick, scrollIntoView }: {
   comment: any,
   post: any,
-  classes: any,
+  classes: ClassesType,
   scrollOnClick?: boolean,
   scrollIntoView?: ()=>void,
 }) => {

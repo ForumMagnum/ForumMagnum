@@ -42,7 +42,7 @@ export const styles = theme => ({
 const SequencesGrid = ({sequences, showAuthor, classes}: {
   sequences: any,
   showAuthor?: boolean,
-  classes: any,
+  classes: ClassesType,
 }) =>
   <div className={classes.grid}>
     <div className={classes.gridContent}>

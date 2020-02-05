@@ -23,7 +23,7 @@ const styles = theme => ({
 
 const SunshineListItem = ({children, classes, hover=false}: {
   children: React.ReactNode,
-  classes: any,
+  classes: ClassesType,
   hover?: boolean,
 }) => {
   return <div className={classNames(classes.root, {[classes.hover]:hover})}>

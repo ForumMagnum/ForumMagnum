@@ -21,7 +21,7 @@ const styles = theme => ({
 })
 
 const BookmarkButton = ({classes, post, menuItem, placement="right"}: {
-  classes: any,
+  classes: ClassesType,
   post: any,
   menuItem?: boolean,
   placement?: TooltipProps["placement"],

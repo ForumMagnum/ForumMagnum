@@ -374,7 +374,7 @@ const PostsItem2 = ({
   
   recordPostView?: any,
   isRead?: boolean,
-  classes?: any,
+  classes: ClassesType,
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);

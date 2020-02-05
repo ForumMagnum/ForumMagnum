@@ -38,7 +38,7 @@ const styles = theme => ({
 const CommentsVote = ({ comment, hideKarma=false, classes }: {
   comment: any,
   hideKarma?: boolean,
-  classes: any,
+  classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
   const vote = useVote();

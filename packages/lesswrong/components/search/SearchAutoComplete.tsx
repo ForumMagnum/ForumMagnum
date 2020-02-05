@@ -27,7 +27,7 @@ const SearchAutoComplete = ({ clickAction, placeholder, noSearchPlaceholder, ren
   renderSuggestion: any,
   hitsPerPage?: number,
   indexName: string,
-  classes: any,
+  classes: ClassesType,
   renderInputComponent?: any,
 }) => {
   if (!isAlgoliaEnabled) {

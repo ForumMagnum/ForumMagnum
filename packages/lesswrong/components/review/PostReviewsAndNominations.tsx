@@ -16,7 +16,7 @@ const styles = theme => ({
 
 const PostReviewsAndNominations = ({ terms, classes, title, post, singleLine }: {
   terms: any,
-  classes: any,
+  classes: ClassesType,
   title?: string,
   post: any,
   singleLine?: boolean,

@@ -1,6 +1,8 @@
 
+type ClassesType = Record<string,any>
+
 interface WithStylesProps {
-  classes: any,
+  classes: ClassesType,
 };
 
 type WithMessagesMessage = string|{id?: string, messageString?: string, type?: string};

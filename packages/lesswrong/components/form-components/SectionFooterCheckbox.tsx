@@ -40,7 +40,7 @@ const styles = theme => ({
 })
 
 const SectionFooterCheckbox = ({ classes, label, onClick, value, disabled }: {
-  classes: any,
+  classes: ClassesType,
   label: any,
   onClick: ()=>void,
   value: boolean,

@@ -73,7 +73,7 @@ const stickyIcon = <svg fill="#000000" height="15" viewBox="0 0 10 15" width="10
 const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true, showLinkTag=true, wrap=false, showIcons=true, isLink=true}: {
   post: PostsBase,
   postLink?: string,
-  classes: any,
+  classes: ClassesType,
   sticky?: boolean,
   read?: boolean,
   showQuestionTag?: boolean,
