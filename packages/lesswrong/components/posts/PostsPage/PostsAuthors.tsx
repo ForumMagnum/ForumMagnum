@@ -5,10 +5,9 @@ import Typography from '@material-ui/core/Typography';
 
 const styles = createStyles(theme => ({
   root: {
+    fontFamily: theme.typography.uiSecondary.fontFamily,
     textAlign: 'left',
     display: 'inline',
-    ...theme.typography.postStyle,
-    fontFamily: theme.typography.uiSecondary.fontFamily,
   },
   authorName: {
     fontWeight: 600,
