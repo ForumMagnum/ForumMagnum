@@ -23,10 +23,9 @@ const EASequencesHome = ({classes}) => {
         <SequencesNewButton />
       </SectionTitle>
       <Typography variant='body1' className={classes.description}>
-          Sequences are collections of posts that are structured such that the posts build on top
-          of each other. Anyone can make a sequence. Sequences allow for authors to develop more
-          complex ideas than they could with a single post, but you can also make a sequence if you
-          think that there is a series of other posts that make more sense when read sequentially.
+        Sequences are collections of posts on a common theme, or that build on each other. They
+        help authors to develop ideas in ways that would be difficult in a single post. You can also
+        add posts written by other people to a sequence if you think they should be read together.
       </Typography>
       <div className={classes.sequencesGridWrapperWrapper}>
         <Components.SequencesGridWrapper
