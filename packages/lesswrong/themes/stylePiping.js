@@ -282,7 +282,8 @@ export const postHighlightStyles = theme => {
       ...theme.typography.postStyle,
     },
     '& h1, & h2, & h3': {
-      ...theme.typography.commentHeader,
+      ...theme.typography.body2,
+      ...theme.typography.postStyle,
     },
   }
   return deepmerge(postBodyStyles(theme), postHighlightStyles, {isMergeableObject:isPlainObject})

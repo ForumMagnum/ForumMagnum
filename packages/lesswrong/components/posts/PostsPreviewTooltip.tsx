@@ -1,45 +1,58 @@
 import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
-import React from 'react';
+import React, { useState } from 'react';
 import { withStyles, createStyles } from '@material-ui/core/styles'
 import { truncate } from '../../lib/editor/ellipsize';
 import withUser from "../common/withUser";
 import { postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
 import { Posts } from '../../lib/collections/posts';
-import CommentIcon from '@material-ui/icons/ModeComment';
 import Card from '@material-ui/core/Card';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { userHasBoldPostItems } from '../../lib/betas';
+import { Link } from '../../lib/reactRouterWrapper.jsx';
 
-export const POST_PREVIEW_WIDTH = 500
+export const POST_PREVIEW_WIDTH = 400
 
 const styles = createStyles(theme => ({
   root: {
     width: POST_PREVIEW_WIDTH,
     position: "relative",
     padding: theme.spacing.unit*1.5,
-    paddingTop: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
+    paddingBottom: 0,
     '& img': {
       maxHeight: "200px"
     },
     [theme.breakpoints.down('xs')]: {
       display: "none"
     },
+    '& .expand': {
+      color: theme.palette.grey[600],
+      fontSize: "1rem",
+      cursor: "pointer"
+    }
+  },
+  header: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between"
   },
   title: {
-    marginBottom: -6
+    marginBottom: -6,
   },
   tooltipInfo: {
+    marginLeft: 2,
     fontStyle: "italic",
     ...commentBodyStyles(theme),
-    color: theme.palette.grey[600]
+    fontSize: "1.1rem",
+    color: theme.palette.grey[600],
+    display: "flex",
+    alignItems: "center"
   },
   highlight: {
     ...postHighlightStyles(theme),
-    marginTop: theme.spacing.unit*3,
-    marginBottom: theme.spacing.unit*2.5,
+    marginTop: theme.spacing.unit*2.5,
+    marginBottom: theme.spacing.unit*1.5,
     wordBreak: 'break-word',
     fontSize: "1.1rem",
+
     '& img': {
       display:"none"
     },
@@ -56,38 +69,47 @@ const styles = createStyles(theme => ({
       display: "none"
     }
   },
-  commentIcon: {
-    height: 15,
-    width: 15,
-    color: theme.palette.grey[400],
-    position: "relative",
-    top: 3,
-    marginRight: 6,
-    marginLeft: 12
-  },
-  comments: {
-    [theme.breakpoints.up('sm')]: {
-      float: "right"
-    },
-    [theme.breakpoints.down('xs')]: {
-      display: "inline-block",
-      marginRight: theme.spacing.unit*2,
-    },
-  },
-  karma: {
-    [theme.breakpoints.up('sm')]: {
-      float: "right"
-    },
-    [theme.breakpoints.down('xs')]: {
-      display: "inline-block",
-      float: "left"
-    },
-  },
   comment: {
-    marginTop: theme.spacing.unit*1.5
+    marginTop: theme.spacing.unit*1.5,
+    marginLeft: -13,
+    marginRight: -13,
+    marginBottom: -9
   },
-  bookmarkButton: {
-    float: "right"
+  bookmark: {
+    marginTop: -4,
+    paddingRight: 4
+  },
+  continue: {
+    ...postHighlightStyles(theme),
+    color: theme.palette.grey[500],
+    fontSize: "1rem",
+    marginBottom: theme.spacing.unit,
+  },
+  wordCount: {
+    marginLeft: theme.spacing.unit
+  },
+  metadata: {
+    marginLeft: 12,
+    paddingTop: 2
+  },
+  smallText: {
+    fontSize: ".9rem",
+    color: theme.palette.grey[500],
+    marginRight: theme.spacing.unit
+  },
+  karmaIcon: {
+    marginRight: -2,
+    marginTop: 2,
+    height: 15,
+    color: "rgba(0,0,0,.19)"
+  },
+  commentIcon: {
+    marginLeft: 6,
+    marginTop: 2,
+    // position: "relative",
+    marginRight: -1,
+    height: 13,
+    color: "rgba(0,0,0,.19)"
   }
 }))
 
@@ -95,13 +117,12 @@ const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
 
 const getPostCategory = (post) => {
   const categories: Array<string> = [];
-  const postOrQuestion = post.question ? "Question" : "Post"
 
   if (post.isEvent) categories.push(`Event`)
-  if (post.curatedDate) categories.push(`Curated ${postOrQuestion}`)
-  if (post.af) categories.push(`AI Alignment Forum ${postOrQuestion}`);
-  if (post.meta) categories.push(`${metaName} ${postOrQuestion}`)
-  if (post.frontpageDate && !post.curatedDate && !post.af) categories.push(`Frontpage ${postOrQuestion}`)
+  if (post.curatedDate) categories.push(`Curated Post`)
+  if (post.af) categories.push(`AI Alignment Forum Post`);
+  if (post.meta) categories.push(`${metaName} Post`)
+  if (post.frontpageDate && !post.curatedDate && !post.af) categories.push(`Frontpage Post`)
 
   if (categories.length > 0)
     return categories.join(', ');
@@ -109,30 +130,50 @@ const getPostCategory = (post) => {
     return post.question ? `Question` : `Personal Blogpost`
 }
 
-const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, truncateLimit=600, comment }) => {
-  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton } = Components
+const PostsPreviewTooltip = ({ postsList, post, classes, comment }) => {
+  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, LWTooltip } = Components
+
+  const [expanded, setExpanded] = useState(false)
 
   if (!post) return null
 
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
-  const highlight = truncate(htmlHighlight, truncateLimit)
-  const renderCommentCount = showAllInfo && (Posts.getCommentCount(post) > 0)
+  const highlight = post.customHighlight?.html || htmlHighlight
+
   const renderWordCount = !comment && (wordCount > 0)
+  const truncatedHighlight = truncate(highlight, 85, "words", `... <span class="expand">(more)</span>`)
 
   return <AnalyticsContext pageElementContext="hoverPreview">
       <Card className={classes.root}>
-        <div className={classes.title}>
-          <PostsTitle post={post} tooltip={false} wrap showIcons={false} read={userHasBoldPostItems(currentUser)} />
-        </div>
-        <div className={classes.tooltipInfo}>
-          { getPostCategory(post)}
-          { showAllInfo && post.user && <span> by <PostsUserAndCoauthors post={post} simple/></span>}
-          { renderCommentCount && <span className={classes.comments}>
-            <CommentIcon className={classes.commentIcon}/>
-              {Posts.getCommentCountStr(post)}
-          </span>}
-          { showAllInfo && <span className={classes.karma}>{Posts.getKarma(post)} karma</span>}
+        <div className={classes.header}>
+          <div>
+            <div className={classes.title}>
+              <PostsTitle post={post} tooltip={false} wrap showIcons={false} />
+            </div>
+            <div className={classes.tooltipInfo}>
+              { postsList && <span> 
+                {getPostCategory(post)}
+                {renderWordCount && <span className={classes.wordCount}>({wordCount} words)</span>}
+              </span>}
+              { !postsList && <>
+                {post.user && <LWTooltip title="Author">
+                  <PostsUserAndCoauthors post={post} simple/>
+                </LWTooltip>}
+                <div className={classes.metadata}>
+                  <LWTooltip title={`${Posts.getKarma(post)} karma`}>
+                    <span className={classes.smallText}>{Posts.getKarma(post)} karma</span>
+                  </LWTooltip>
+                  <LWTooltip title={`${Posts.getCommentCountStr(post)}`}>
+                    <span className={classes.smallText}>{Posts.getCommentCountStr(post)}</span>
+                  </LWTooltip>
+                </div>
+              </>}
+            </div>
+          </div>
+          { !postsList && <div className={classes.bookmark}>
+            <BookmarkButton post={post} lighter/>
+          </div>}
         </div>
         {comment
           ? <div className={classes.comment}>
@@ -142,19 +183,19 @@ const PostsPreviewTooltip = ({ currentUser, showAllInfo, post, classes, truncate
               post={post}
               hoverPreview
               forceNotSingleLine
+              hideReply
             /></div>
-          : <ContentItemBody
-              className={classes.highlight}
-              dangerouslySetInnerHTML={{__html:highlight}}
-              description={`post ${post._id}`}
-            />
+          : <div onClick={() => setExpanded(true)}>
+              <ContentItemBody
+                className={classes.highlight}
+                dangerouslySetInnerHTML={{__html: expanded ? highlight : truncatedHighlight }}
+                description={`post ${post._id}`}
+              />
+              {expanded && <Link to={Posts.getPageUrl(post)}><div className={classes.continue} >
+                (Continue Reading)
+              </div></Link>}
+            </div>
         }
-        {renderWordCount && <div className={classes.tooltipInfo}>
-          <span>
-            {wordCount} words ({Math.ceil(wordCount/300)} min read)
-          </span>
-          { showAllInfo && <span className={classes.bookmarkButton}><BookmarkButton post={post} /></span>}
-        </div>}
     </Card>
   </AnalyticsContext>
 

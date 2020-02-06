@@ -29,9 +29,9 @@ const styles = theme => ({
     paddingLeft: theme.spacing.unit
   },
   title: {
-    ...theme.typography.postStyle,
+    fontFamily: theme.typography.uiSecondary.fontFamily,
     fontVariant: "small-caps",
-    marginTop: 0
+    marginTop: 0,
   },
   description: {
     marginTop: theme.spacing.unit * 2,
