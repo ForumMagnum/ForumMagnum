@@ -2,11 +2,8 @@ import createLWTheme from './createThemeDefaults';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 import indigo from '@material-ui/core/colors/indigo';
 
-import { createMuiTheme } from '@material-ui/core/styles';
-
-const defaultTheme = createMuiTheme()
-
 const sansSerifStack = [
+  'GreekFallback', // Ensures that greek letters render consistently
   '"freight-sans-pro"',
   'Frutiger',
   '"Frutiger Linotype"',
@@ -58,9 +55,6 @@ const theme = createLWTheme({
       color: palette.error.main,
       fontFamily: sansSerifStack
     },
-    link: {
-      underlinePosition: "72%",
-    },
     title: {
       fontWeight: 500,
     },
@@ -70,8 +64,8 @@ const theme = createLWTheme({
     display3: {
       fontWeight: 500
     },
-    body1: {
-      linkUnderlinePosition: "90%",
+    uiSecondary: {
+      fontFamily: sansSerifStack,
     },
   },
   overrides: {
@@ -88,13 +82,6 @@ const theme = createLWTheme({
     PostsVote: {
       voteScores: {
         fontVariantNumeric: "lining-nums",
-      }
-    },
-    Section: {
-      sectionTitle: {
-        [defaultTheme.breakpoints.up('md')]: {
-          top: 8,
-        }
       }
     },
     SectionTitle: {

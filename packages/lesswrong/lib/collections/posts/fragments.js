@@ -50,6 +50,8 @@ registerFragment(`
     mongoLocation
     startTime
     endTime
+    localStartTime
+    localEndTime
     facebookLink
     website
     contactInfo
@@ -76,12 +78,16 @@ registerFragment(`
     isFuture
     hideAuthor
     moderationStyle
+    hideCommentKarma
     submitToFrontpage
     shortform
     canonicalSource
 
     shareWithUsers
     
+    nominationCount2018
+    reviewCount2018
+
     group {
       _id
       name
@@ -110,9 +116,6 @@ registerFragment(`
     ...PostsBase
     ...PostsAuthors
 
-    # ToC
-    tableOfContents
-
     # Sort settings
     commentSortOrder
     
@@ -136,6 +139,10 @@ registerFragment(`
     # Moderation stuff
     showModerationGuidelines
     moderationGuidelines {
+      version
+      html
+    }
+    customHighlight {
       version
       html
     }
@@ -183,6 +190,26 @@ registerFragment(`
     contents(version: $version) {
       ...RevisionDisplay
     }
+    revisions {
+      version
+      editedAt
+    }
+  }
+`)
+
+registerFragment(`
+  fragment PostsRevisionEdit on Post {
+    ...PostsDetails
+
+    # Content & Revisions
+    version
+    contents(version: $version) {
+      ...RevisionEdit
+    }
+    revisions {
+      version
+      editedAt
+    }
   }
 `)
 
@@ -190,6 +217,8 @@ registerFragment(`
   fragment PostsWithNavigationAndRevision on Post {
     ...PostsRevision
     ...PostSequenceNavigation
+    
+    tableOfContentsRevision(version: $version)
   }
 `)
 
@@ -197,6 +226,8 @@ registerFragment(`
   fragment PostsWithNavigation on Post {
     ...PostsPage
     ...PostSequenceNavigation
+    
+    tableOfContents
   }
 `)
 
@@ -250,10 +281,11 @@ registerFragment(`
     contents {
       ...RevisionEdit
     }
+    customHighlight {
+      ...RevisionEdit
+    }
   }
 `);
-
-
 
 registerFragment(`
   fragment EditModerationGuidelines on Post {
@@ -285,6 +317,9 @@ registerFragment(`
       wordCount
     }
     moderationGuidelines {
+      ...RevisionDisplay
+    }
+    customHighlight {
       ...RevisionDisplay
     }
   }

@@ -1,8 +1,8 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper';
 import { withStyles } from '@material-ui/core/styles';
-import { legacyBreakpoints } from '../../lib/modules/utils/theme';
+import { legacyBreakpoints } from '../../lib/utils/theme';
 
 export const postsItemLikeStyles = theme => ({
   root: {
@@ -36,7 +36,6 @@ export const postsItemLikeStyles = theme => ({
     textOverflow: "ellipsis",
     textDecoration: "none",
     whiteSpace: "nowrap",
-    zIndex: "400 !important",
     flexGrow: 1,
     marginRight: theme.spacing.unit * 2,
     [theme.breakpoints.down('sm')]: {

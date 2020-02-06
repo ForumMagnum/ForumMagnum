@@ -1,8 +1,8 @@
 import { addCallback, editMutation } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
-import Sequences from '../lib/collections/sequences/collection.js';
-import Posts from '../lib/collections/posts/collection.js';
-import Collections from '../lib/collections/collections/collection.js';
+import Sequences from '../lib/collections/sequences/collection';
+import Posts from '../lib/collections/posts/collection';
+import Collections from '../lib/collections/collections/collection';
 import findIndex from 'lodash/findIndex';
 
 

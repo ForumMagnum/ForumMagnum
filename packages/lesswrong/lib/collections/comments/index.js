@@ -1,8 +1,7 @@
-export * from './collection.js';
+export * from './collection';
 
-import './custom_fields.js';
-import './graphql.js'
-import './helpers.js';
-import './permissions.js';
-import './views.js';
-import './voting.js'
+import './custom_fields';
+import './helpers';
+import './permissions';
+import './views';
+import './voting'

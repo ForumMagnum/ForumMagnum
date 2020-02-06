@@ -1,8 +1,9 @@
 import React, { PureComponent } from 'react';
-import { Components, registerComponent, withList } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withMulti } from '../../lib/crud/withMulti';
 import { Comments } from "../../lib/collections/comments";
 import withUser from '../common/withUser';
-import { unflattenComments } from "../../lib/modules/utils/unflatten";
+import { unflattenComments } from "../../lib/utils/unflatten";
 
 
 class RepliesToCommentList extends PureComponent {
@@ -29,7 +30,7 @@ class RepliesToCommentList extends PureComponent {
 
 registerComponent('RepliesToCommentList', RepliesToCommentList,
   withUser,
-  [withList, {
+  [withMulti, {
     collection: Comments,
     queryName: "RepliesToCommentQuery",
     fragmentName: "CommentsList",

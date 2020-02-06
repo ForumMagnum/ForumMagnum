@@ -1,6 +1,7 @@
-import { Components, registerComponent, getFragment, withMessages } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
+import { withMessages } from '../common/withMessages';
 import React from 'react';
-import { Localgroups } from '../../lib/index.js';
+import { Localgroups } from '../../lib/index';
 import { withNavigation } from '../../lib/routeUtil'
 import withUser from '../common/withUser';
 import Dialog from '@material-ui/core/Dialog';
@@ -9,7 +10,6 @@ import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
-import withDialog from '../common/withDialog'
 
 const styles = theme => ({
   root: {
@@ -90,4 +90,4 @@ const GroupFormDialog =  ({ onClose, currentUser, classes, documentId, history, 
   </Dialog>
 }
 
-registerComponent('GroupFormDialog', GroupFormDialog, withUser, withMessages, withNavigation, withDialog);
+registerComponent('GroupFormDialog', GroupFormDialog, withUser, withMessages, withNavigation);

@@ -217,3 +217,11 @@ figure:after {
     display:none;
   }
 }
+
+
+:root {
+  // This is the only place I could find that successfully overrode the ckEditor zIndex
+  // necessary to ensure it works on modal dialogs
+  // (also tried adding it to Layout.jsx's JSS, and to the styles file in the ckeditor folder)
+	--ck-z-modal: 10000000002 !important;
+}

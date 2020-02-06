@@ -1,4 +1,5 @@
-import { Components, registerComponent, withList } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withMulti } from '../../lib/crud/withMulti';
 import React, { Component } from 'react';
 import { Comments } from '../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles';
@@ -19,7 +20,7 @@ class AFSuggestCommentsList extends Component {
       return (
         <div>
           <Components.SunshineListTitle>
-            <Components.OmegaIcon className={classes.icon}/> Suggested Comments
+            <div><Components.OmegaIcon className={classes.icon}/> Suggested Comments</div>
           </Components.SunshineListTitle>
           {this.props.results.map(comment =>
             <div key={comment._id} >
@@ -49,7 +50,7 @@ const withListOptions = {
 registerComponent(
   'AFSuggestCommentsList',
   AFSuggestCommentsList,
-  [withList, withListOptions],
+  [withMulti, withListOptions],
   withUser,
   withStyles(styles, {name: "AFSuggestCommentsList"})
 );

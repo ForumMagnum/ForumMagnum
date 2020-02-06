@@ -1,6 +1,7 @@
-import { Components, registerComponent, getFragment, withMessages } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
+import { withMessages } from '../common/withMessages';
 import React from 'react';
-import Collections from '../../lib/collections/collections/collection.js';
+import Collections from '../../lib/collections/collections/collection';
 
 const CollectionsEditForm = (props) => {
   return (

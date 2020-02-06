@@ -1,13 +1,14 @@
 import React from 'react';
-import Conversations from './collections/conversations/collection.js';
+import Conversations from './collections/conversations/collection';
 import { Posts } from './collections/posts';
 import { Comments } from './collections/comments'
-import Messages from './collections/messages/collection.js';
-import Localgroups from './collections/localgroups/collection.js';
+import Messages from './collections/messages/collection';
+import Localgroups from './collections/localgroups/collection';
 import Users from 'meteor/vulcan:users';
 import AllIcon from '@material-ui/icons/Notifications';
 import PostsIcon from '@material-ui/icons/Description';
 import CommentsIcon from '@material-ui/icons/ModeComment';
+import EventIcon from '@material-ui/icons/Event';
 import MailIcon from '@material-ui/icons/Mail';
 
 const notificationTypes = {};
@@ -129,6 +130,18 @@ export const NewCommentNotification = registerNotificationType({
   },
 });
 
+export const NewShortformNotification = registerNotificationType({
+  name: "newShortform",
+  userSettingField: "notificationShortformContent",
+  getMessage({documentType, documentId}) {
+    let document = getDocument(documentType, documentId);
+    return 'New comment on "' + Posts.findOne(document.postId).title + '"';
+  },
+  getIcon() {
+    return <CommentsIcon style={iconStyles}/>
+  },
+});
+
 // Reply to a comment you're subscribed to.
 export const NewReplyNotification = registerNotificationType({
   name: "newReply",
@@ -206,4 +219,26 @@ export const PostSharedWithUserNotification = registerNotificationType({
   },
 });
 
+export const NewEventInNotificationRadiusNotification = registerNotificationType({
+  name: "newEventInRadius",
+  userSettingField: "notificationEventInRadius",
+  getMessage({documentType, documentId}) {
+    let document = getDocument(documentType, documentId)
+    return `A new event has been created within your notification radius: ${document.title}`
+  },
+  getIcon() {
+    return <EventIcon style={iconStyles} />
+  }
+})
 
+export const EditedEventInNotificationRadiusNotification = registerNotificationType({
+  name: "editedEventInRadius",
+  userSettingField: "notificationEventInRadius",
+  getMessage({documentType, documentId}) {
+    let document = getDocument(documentType, documentId)
+    return `The event ${document.title} changed locations`
+  },
+  getIcon() {
+    return <EventIcon style={iconStyles} />
+  }
+})

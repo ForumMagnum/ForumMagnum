@@ -1,3 +1,4 @@
+import Migrations from '../../lib/collections/migrations/collection';
 /*global Vulcan*/
 
 // When running migrations with split batches, the fraction of time spent
@@ -6,8 +7,22 @@
 // the site down otherwise. See `runThenSleep`.
 const DEFAULT_LOAD_FACTOR = 0.5;
 
-export function registerMigration({ name, idempotent, action })
+export const availableMigrations = {};
+export const migrationRunners = {};
+
+// Put migration functions in a dictionary Vulcan.migrations to make it
+// accessible in meteor shell, working around awkward inability to import
+// things non-relatively there.
+Vulcan.migrations = migrationRunners;
+
+export function registerMigration({ name, dateWritten, idempotent, action })
 {
+  if (!name) throw new Error("Missing argument: name");
+  if (!dateWritten)
+    throw new Error(`Migration ${name} is missing required field: dateWritten`);
+  if (!action)
+    throw new Error(`Migration ${name} is missing required field: action`);
+  
   // The 'idempotent' parameter is mostly about forcing you to explicitly think
   // about migrations' idempotency and make them idempotent, and only
   // secondarily to enable the possibility of non-idempotent migrations later.
@@ -17,29 +32,48 @@ export function registerMigration({ name, idempotent, action })
     throw new Error(`Migration ${name} is not marked as idempotent; it can't use registerMigration unless it's marked as (and is) idempotent.`);
   }
 
-  // Put the migration function in a dictionary Vulcan.migrations to make it
-  // accessible in meteor shell, working around awkward inability to import
-  // things non-relatively there.
-  if (!Vulcan.migrations) {
-    Vulcan.migrations = {};
+  if (name in availableMigrations) {
+    throw new Error(`Duplicate migration or name collision: ${name}`);
   }
+  
+  availableMigrations[name] = { name, dateWritten, idempotent, action };
+  migrationRunners[name] = async () => await runMigration(name);
+}
 
-  Vulcan.migrations[name] = async () => {
+export async function runMigration(name)
+{
+  if (!(name in availableMigrations))
+    throw new Error(`Unrecognized migration: ${name}`);
+  // eslint-disable-next-line no-unused-vars
+  const { dateWritten, idempotent, action } = availableMigrations[name];
+  
+  // eslint-disable-next-line no-console
+  console.log(`Beginning migration: ${name}`);
+
+  const migrationLogId = await Migrations.insert({
+    name: name,
+    started: new Date(),
+  });
+  
+  try {
+    await action();
+    
+    await Migrations.update({_id: migrationLogId}, {$set: {
+      finished: true, succeeded: true,
+    }});
+
     // eslint-disable-next-line no-console
-    console.log(`Beginning migration: ${name}`);
-
-    try {
-      await action();
-
-      // eslint-disable-next-line no-console
-      console.log(`Finished migration: ${name}`);
-    } catch(e) {
-      // eslint-disable-next-line no-console
-      console.error(`FAILED migration: ${name}.`);
-      // eslint-disable-next-line no-console
-      console.error(e);
-    }
-  };
+    console.log(`Finished migration: ${name}`);
+  } catch(e) {
+    // eslint-disable-next-line no-console
+    console.error(`FAILED migration: ${name}.`);
+    // eslint-disable-next-line no-console
+    console.error(e);
+    
+    await Migrations.update({_id: migrationLogId}, {$set: {
+      finished: true, succeeded: false,
+    }});
+  }
 }
 
 function sleep(ms)

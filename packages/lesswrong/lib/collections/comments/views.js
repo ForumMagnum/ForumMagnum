@@ -1,6 +1,6 @@
 import { getSetting } from 'meteor/vulcan:core'
 import { viewFieldNullOrMissing } from 'meteor/vulcan:lib';
-import { Comments } from './collection.js';
+import { Comments } from './collection';
 import moment from 'moment';
 import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionUtils';
 
@@ -29,6 +29,12 @@ Comments.addDefaultView(terms => {
     }
   });
 })
+
+const sortings = {
+  "top" : { baseScore: -1},
+  "groupByPost" : {postId: 1},
+  "new" :  { postedAt: -1}
+}
 
 export function augmentForDefaultView(indexFields)
 {
@@ -181,7 +187,7 @@ Comments.addView("afRecentDiscussionThread", function (terms) {
   return {
     selector: {
       postId: terms.postId,
-      score: {$gt:0},
+      score: {$gt:0}, 
       deletedPublic: false,
       postedAt: {$gt: sevenDaysAgo},
       af: true,
@@ -190,12 +196,13 @@ Comments.addView("afRecentDiscussionThread", function (terms) {
   };
 })
 
-Comments.addView("postCommentsUnread", function (terms) {
+Comments.addView("postsItemComments", function (terms) {
   return {
     selector: {
       postId: terms.postId,
       deleted: false,
-      score: {$gt: 0}
+      score: {$gt: 0},
+      postedAt: terms.after ? {$gt: new Date(terms.after)} : null
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 15},
   };
@@ -317,3 +324,42 @@ Comments.addView('shortformLatestChildren', function (terms) {
 
 // Will be used for experimental shortform display on AllPosts page
 ensureIndex(Comments, { topLevelCommentId: 1, postedAt: 1, baseScore:1});
+
+Comments.addView('nominations2018', function ({userId, postId, sortBy="top"}) {
+  return {
+    selector: { 
+      userId, 
+      postId, 
+      nominatedForReview: "2018",
+      deleted: false
+    },
+    options: {
+      sort: { ...sortings[sortBy], top: -1, postedAt: -1 }
+    }
+  };
+});
+// Filtering comments down to ones that include "nominated for Review" so further sort indexes not necessary
+ensureIndex(Comments,
+  augmentForDefaultView({ nominatedForReview: 1, userId: 1, postId: 1 }),
+  { name: "comments.nominations2018" }
+);
+
+Comments.addView('reviews2018', function ({userId, postId, sortBy="top"}) {
+  
+  return {
+    selector: { 
+      userId, 
+      postId, 
+      reviewingForReview: "2018",
+      deleted: false
+    },
+    options: {
+      sort: { ...sortings[sortBy], top: -1, postedAt: -1 }
+    }
+  };
+});
+// Filtering comments down to ones that include "reviewing for review" so further sort indexes not necessary
+ensureIndex(Comments,
+  augmentForDefaultView({ reviewingForReview: 1, userId: 1, postId: 1 }),
+  { name: "comments.reviews2018" }
+);

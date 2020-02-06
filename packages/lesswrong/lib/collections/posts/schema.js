@@ -1,9 +1,9 @@
 import Users from 'meteor/vulcan:users';
 import { Utils, getCollection } from 'meteor/vulcan:core';
 import moment from 'moment';
-import { foreignKeyField, resolverOnlyField, denormalizedField } from '../../modules/utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
-import { PostRelations } from "../postRelations/collection.js"
+import { PostRelations } from "../postRelations/collection"
 
 const formGroups = {
   // TODO - Figure out why properly moving this from custom_fields to schema was producing weird errors and then fix it
@@ -21,12 +21,6 @@ const formGroups = {
 };
 
 const schema = {
-  // ID
-  _id: {
-    type: String,
-    optional: true,
-    viewableBy: ['guests'],
-  },
   // Timestamp of post creation
   createdAt: {
     type: Date,
@@ -77,7 +71,6 @@ const schema = {
     editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
     control: 'url',
     order: 10,
-    searchable: true,
     query: `
       SiteData{
         logoUrl
@@ -95,7 +88,6 @@ const schema = {
     editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
     control: 'text',
     order: 20,
-    searchable: true
   },
   // Slug
   slug: {
@@ -116,7 +108,6 @@ const schema = {
     type: String,
     optional: true,
     viewableBy: ['guests'],
-    searchable: true,
   },
   // Count of how many times the post's page was viewed
   viewCount: {
@@ -478,6 +469,30 @@ const schema = {
     viewableBy: ['guests'],
     insertableBy: ['admins'],
     editableBy: ['admins'],
+  },
+
+  nominationCount2018: {
+    ...denormalizedCountOfReferences({
+      fieldName: "nominationCount2018",
+      collectionName: "Posts",
+      foreignCollectionName: "Comments",
+      foreignTypeName: "comment",
+      foreignFieldName: "postId",
+      filterFn: comment => !comment.deleted && comment.nominatedForReview === "2018"
+    }),
+    canRead: ['guests'],
+  },
+
+  reviewCount2018: {
+    ...denormalizedCountOfReferences({
+      fieldName: "reviewCount2018",
+      collectionName: "Posts",
+      foreignCollectionName: "Comments",
+      foreignTypeName: "comment",
+      foreignFieldName: "postId",
+      filterFn: comment => !comment.deleted && comment.reviewingForReview === "2018"
+    }),
+    canRead: ['guests'],
   }
 };
 

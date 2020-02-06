@@ -1,13 +1,14 @@
 import React from 'react';
-import { registerComponent, withUpdate, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, getSetting } from 'meteor/vulcan:core';
+import { withUpdate } from '../../lib/crud/withUpdate';
 import Input from '@material-ui/core/Input';
 import Checkbox from '@material-ui/core/Checkbox';
 import deepmerge from 'deepmerge';
 import withUser from '../common/withUser';
-import { slotSpecificRecommendationSettingDefaults, defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings.js';
+import { slotSpecificRecommendationSettingDefaults, defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings';
 import Users from 'meteor/vulcan:users';
 
-// Elements here should match switch cases in recommendations.js
+// Elements here should match switch cases in recommendations.ts
 const recommendationAlgorithms = [
   {
     name: "top",
@@ -16,7 +17,7 @@ const recommendationAlgorithms = [
   {
     name: "sample",
     description: "Weighted sample"
-  },
+  }
 ];
 
 function getDefaultSettings(configName) {
@@ -77,12 +78,23 @@ const RecommendationsAlgorithmPicker = ({ currentUser, settings, configName, upd
         onChange={(ev, checked) => applyChange({ ...settings, hideBookmarks: !checked })}
       /> Show Bookmarks on home page
     </div>}
+
+    {/* disabled except during review */}
+    {/* {(configName === "frontpage") && <div> 
+      <Checkbox
+        checked={!settings.hideReview}
+        onChange={(ev, checked) => applyChange({ ...settings, hideReview: !checked })}
+      /> Show 'The LessWrong 2018 Review'
+    </div>} */}
+
+    {/* disabled during 2018 Review */}
     {(configName === "frontpage") && <div> 
       <Checkbox
         checked={!settings.hideFrontpage}
         onChange={(ev, checked) => applyChange({ ...settings, hideFrontpage: !checked })}
       /> Show 'From the Archives' recommendations
     </div>}
+
     <div>
       <Checkbox
         disabled={!currentUser}
@@ -90,6 +102,7 @@ const RecommendationsAlgorithmPicker = ({ currentUser, settings, configName, upd
         onChange={(ev, checked) => applyChange({ ...settings, onlyUnread: checked })}
       /> Only show unread posts {!currentUser && "(Requires login)"}
     </div>
+
     {/* Include personal blogposts (LW) or meta (EA Forum) */}
     <div>
       <Checkbox

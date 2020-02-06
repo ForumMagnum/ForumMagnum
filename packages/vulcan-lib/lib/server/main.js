@@ -1,5 +1,4 @@
 // import './oauth_config.js';
-import './intl_polyfill.js';
 import './site.js';
 
 export * from './connectors.js';
@@ -13,10 +12,12 @@ export * from './meteor_patch.js';
 //export * from './inject_data.js';
 export * from './intl.js';
 export * from './accounts_helpers.js';
+export * from './staticRoutes.js';
 
 export * from './apollo-server/settings.js';
 export * from './apollo-server/context.js';
 export * from './apollo-ssr/apolloClient.js';
 export * from './apollo-ssr'
 
+import './utils.js';
 import './apollo-server/index';

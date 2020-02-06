@@ -1,9 +1,10 @@
-import createLWTheme from './createThemeDefaults.js';
+import createLWTheme from './createThemeDefaults';
 import grey from '@material-ui/core/colors/grey';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 import { createMuiTheme } from '@material-ui/core/styles';
 
 const titleStack = [
+  'GreekFallback', // Ensures that greek letters render consistently
   'Raleway',
   'Helvetica Neue',
   'Helvetica',
@@ -21,6 +22,7 @@ const serifStack = [
 
 
 const sansSerifStack = [
+  'GreekFallback', // Ensures that greek letters render consistently
   'Merriweather Sans',
   'Lato',
   'Helvetica Neue',
@@ -78,7 +80,6 @@ const theme = createLWTheme({
     },
     postStyle: {
       ...basicText,
-      linkUnderlinePosition: "92%",
     },
     headerStyle: {
       fontFamily: titleStack
@@ -102,15 +103,39 @@ const theme = createLWTheme({
       fontWeight: 500,
       marginBottom: 5,
     },
+    // used by h3
+    display0: {
+      color: grey[800],
+      fontFamily: titleStack,
+      fontWeight: 500,
+      fontSize: '1.6rem',
+      lineHeight: '1.25em',
+    },
+    // used by h2
+    display1: {
+      color: grey[800],
+      fontFamily: titleStack,
+      fontWeight: 500,
+      fontSize: '2rem',
+      lineHeight: '1.25em',
+    },
+    // used by h1
     display2: {
       color: grey[800],
       fontFamily: titleStack,
-      fontWeight: 600
+      fontWeight: 500,
+      fontSize: '2.4rem',
+      lineHeight: '1.25em',
     },
+    // used by page title
     display3: {
       color: grey[800],
       fontFamily: titleStack,
-      fontWeight: 500
+      fontWeight: 500,
+      lineHeight: '1.25em'
+    },
+    uiSecondary: {
+      sansSerifStack
     }
   },
   overrides: {
@@ -119,14 +144,27 @@ const theme = createLWTheme({
         backgroundColor: "white",
       }
     },
+    MuiTooltip: {
+      tooltip: {
+        fontSize: "1rem",
+        padding: ".7rem",
+      }
+    },
     Layout: {
       main: {
+        margin: '30px auto 15px auto',
         '@media (max-width: 959.95px)': {
-          marginTop: 0
+          marginTop: 36,
         }
       }
     },
     Header: {
+      root: {
+        height: 90,
+        [defaultTheme.breakpoints.down('xs')]: {
+          height: 77,
+        },
+      },
       appBar: {
         padding: ".8em",
         '@media (min-width: 960px)': {
@@ -135,7 +173,7 @@ const theme = createLWTheme({
           paddingTop: "1em",
           paddingBottom: "1em"
         }
-      }
+      },
     },
     MetaInfo: {
       root: {
@@ -151,28 +189,14 @@ const theme = createLWTheme({
         fontSize: '50%',
       },
     },
-    Section: {
-      sectionTitle: {
-        fontWeight:600,
-        [defaultTheme.breakpoints.down('sm')]: {
-          border: "none",
-          paddingTop:0,
-        },
-        [defaultTheme.breakpoints.up('md')]: {
-          top: 0,
-          '&:before': "none"
-        }
+    PostsTopSequencesNav: {
+      root: {
+        marginBottom: -8,
       },
-      sectionTitleTop: {
-        [defaultTheme.breakpoints.up('md')]: {
-          marginBottom: 16
-        }
-      },
-    },
-    MuiTooltip: {
-      tooltip: {
-        fontSize: "1rem",
-        padding: ".7rem",
+      title: {
+        textTransform: 'lowercase',
+        color: 'rgba(0,0,0,.7)',
+        fontWeight: 500,
       }
     },
     SunshineSidebar: {
@@ -181,9 +205,11 @@ const theme = createLWTheme({
         marginTop: 63
       }
     },
-    PostsPageTitle: {
-      root: {
-        lineHeight: '1.25em'
+    HomeLatestPosts: {
+      personalBlogpostsCheckboxLabel: {
+        [defaultTheme.breakpoints.down("xs")]: {
+          fontSize: "1rem",
+        },
       }
     },
     NavigationStandalone: {
@@ -225,6 +251,11 @@ const theme = createLWTheme({
     TabNavigationMenuSubItem: {
       root: {
         color: grey[800]
+      }
+    },
+    PostsPageTitle: {
+      root: {
+        lineHeight: 1.25
       }
     },
     PostsTimeBlock: {

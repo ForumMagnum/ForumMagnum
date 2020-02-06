@@ -41,7 +41,7 @@
     "@ckeditor/ckeditor5-essentials": "^15.0.0",
     "@ckeditor/ckeditor5-font": "^15.0.0",
     "@ckeditor/ckeditor5-heading": "^15.0.0",
-    "@ckeditor/ckeditor5-highlight": "^15.0.0",
+    "@ckeditor/ckeditor5-horizontal-line": "^15.0.0",
     "@ckeditor/ckeditor5-image": "^15.0.0",
     "@ckeditor/ckeditor5-indent": "^15.0.0",
     "@ckeditor/ckeditor5-link": "^15.0.0",
@@ -49,15 +49,15 @@
     "@ckeditor/ckeditor5-media-embed": "^15.0.0",
     "@ckeditor/ckeditor5-paragraph": "^15.0.0",
     "@ckeditor/ckeditor5-paste-from-office": "^15.0.0",
-    "@ckeditor/ckeditor5-table": "^15.0.0",
-    "@ckeditor/ckeditor5-theme-lark": "^15.0.0",
     "@ckeditor/ckeditor5-real-time-collaboration": "^15.0.0",
     "@ckeditor/ckeditor5-remove-format": "^15.0.0",
+    "@ckeditor/ckeditor5-table": "^15.0.0",
+    "@ckeditor/ckeditor5-theme-lark": "^15.0.0",
     "@ckeditor/ckeditor5-ui": "^15.0.0",
+    "@ckeditor/ckeditor5-watchdog": "^15.0.0",
     "ckeditor5-math-preview": "^1.1.3",
     "eslint": "^5.5.0",
     "eslint-config-ckeditor5": "^2.0.0",
-    "husky": "^1.3.1",
     "lint-staged": "^7.0.0",
     "postcss-loader": "^3.0.0",
     "raw-loader": "^3.1.0",
@@ -74,7 +74,9 @@
   "license": "GPL-2.0-or-later",
   "homepage": "https://ckeditor.com/ckeditor-5",
   "bugs": "https://github.com/ckeditor/ckeditor5/issues",
-  "resolutions": { "svgo": "1.3.0" },
+  "resolutions": {
+    "svgo": "1.3.0"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/ckeditor/ckeditor5-build-balloon-block.git"
@@ -92,10 +94,5 @@
   "eslintIgnore": [
     "build/**",
     "packages/**"
-  ],
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  }
+  ]
 }

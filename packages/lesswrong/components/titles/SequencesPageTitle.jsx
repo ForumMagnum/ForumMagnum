@@ -1,16 +1,25 @@
 import React from 'react';
-import { registerComponent, withDocument } from 'meteor/vulcan:core';
+import { registerComponent } from 'meteor/vulcan:core';
+import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
-import mapProps from 'recompose/mapProps';
-import { withLocation } from '../../lib/routeUtil';
-import Sequences from '../../lib/collections/sequences/collection.js';
+import { useLocation } from '../../lib/routeUtil';
+import Sequences from '../../lib/collections/sequences/collection';
 import { Helmet } from 'react-helmet';
 import { withStyles } from '@material-ui/core/styles';
 import { styles } from '../common/HeaderSubtitle';
 
-const SequencesPageTitle = ({location, isSubtitle, siteName, loading, document, classes}) => {
-  if (!document || loading) return null;
-  const sequence = document;
+const SequencesPageTitle = ({isSubtitle, siteName, classes}) => {
+  const { params: {_id} } = useLocation();
+  
+  const { document: sequence, loading } = useSingle({
+    documentId: _id,
+    collection: Sequences,
+    fragmentName: "SequencesPageFragment",
+    fetchPolicy: 'cache-only',
+    ssr: true,
+  });
+  
+  if (!sequence || loading) return null;
   const titleString = `${sequence.title} - ${siteName}`
   if (isSubtitle) {
     return (<span className={classes.subtitle}>
@@ -30,20 +39,5 @@ const SequencesPageTitle = ({location, isSubtitle, siteName, loading, document, 
   // a version that does.
 }
 registerComponent("SequencesPageTitle", SequencesPageTitle,
-  withLocation,
-  mapProps((props) => {
-    const {location} = props;
-    const {params: {_id}} = location;
-    return {
-      documentId: _id,
-      ...props
-    }
-  }),
-  [withDocument, {
-    collection: Sequences,
-    fragmentName: "SequencesPageFragment",
-    fetchPolicy: 'cache-only',
-    ssr: true,
-  }],
   withStyles(styles, {name: "SequencesPageTitle"})
 );

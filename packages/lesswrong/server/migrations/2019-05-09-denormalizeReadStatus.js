@@ -1,9 +1,10 @@
 import { forEachDocumentBatchInCollection, registerMigration } from './migrationUtils';
 import { LWEvents } from '../../lib/collections/lwevents'
-import { ReadStatuses } from '../../lib/collections/readStatus/collection.js'
+import { ReadStatuses } from '../../lib/collections/readStatus/collection'
 
 registerMigration({
   name: "denormalizeReadStatus",
+  dateWritten: "2019-05-09",
   idempotent: true,
   action: async () => {
     await forEachDocumentBatchInCollection({

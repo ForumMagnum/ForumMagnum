@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import { withStyles } from '@material-ui/core/styles';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper';
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
 
 const styles = theme => ({

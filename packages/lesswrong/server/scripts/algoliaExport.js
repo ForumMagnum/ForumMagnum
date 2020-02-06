@@ -1,14 +1,15 @@
 /* global Vulcan */
 import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
+import { Tags } from '../../lib/collections/tags/collection'
 import Users from 'meteor/vulcan:users'
 import { getCollection } from 'meteor/vulcan:lib';
-import Sequences from '../../lib/collections/sequences/collection.js'
+import Sequences from '../../lib/collections/sequences/collection'
 import { wrapVulcanAsyncScript } from './utils'
 import { getAlgoliaAdminClient, algoliaIndexDocumentBatch, algoliaDeleteIds, subsetOfIdsAlgoliaShouldntIndex, algoliaGetAllDocuments } from '../search/utils';
-import { forEachDocumentBatchInCollection } from '../migrations/migrationUtils.js';
+import { forEachDocumentBatchInCollection } from '../migrations/migrationUtils';
 import keyBy from 'lodash/keyBy';
-import { algoliaIndexNames } from '../../lib/algoliaIndexNames';
+import { algoliaIndexNames } from '../../lib/algoliaUtil';
 
 async function algoliaExport(collection, selector = {}, updateFunction) {
   let client = getAlgoliaAdminClient();
@@ -58,6 +59,9 @@ async function algoliaExportByCollectionName(collectionName) {
     case 'Sequences':
       await algoliaExport(Sequences)
       break
+    case 'Tags':
+      await algoliaExport(Tags, {deleted: {$ne: true}});
+      break;
     default:
       throw new Error(`Did not recognize collectionName: ${collectionName}`)
   }

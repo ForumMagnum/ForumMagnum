@@ -1,13 +1,13 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { Components, registerComponent, useMulti, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { useMulti } from '../../lib/crud/withMulti';
 import { withStyles } from '@material-ui/core/styles';
-import { Localgroups } from '../../lib/index.js';
+import { Localgroups } from '../../lib/index';
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
 import { useLocation } from '../../lib/routeUtil';
 import { PersonSVG } from './Icons'
-import withDialog from '../common/withDialog'
-import withUser from '../common/withUser.js';
+import withUser from '../common/withUser';
 import ReactMapGL, { Marker } from 'react-map-gl';
 import { Helmet } from 'react-helmet'
 
@@ -67,7 +67,7 @@ const styles = theme => ({
 
 // Make these variables have file-scope references to avoid rerending the scripts or map
 const defaultCenter = {lat: 39.5, lng: -43.636047}
-const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center = defaultCenter, zoom = 3, classes, showUsers, openDialog, currentUser, showHideMap = false, petrovButton }) => {
+const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center = defaultCenter, zoom = 3, classes, showUsers, currentUser, showHideMap = false, petrovButton }) => {
   const { query } = useLocation()
   const groupQueryTerms = groupTerms || {view: "all", filters: query?.filters || []}
 
@@ -230,4 +230,4 @@ const LocalGroupsMapMarkers = ({groups, handleClick, handleClose, openWindows}) 
 
 
 
-registerComponent("CommunityMap", CommunityMap, withStyles(styles, {name: "CommunityMap"}), withDialog, withUser)
+registerComponent("CommunityMap", CommunityMap, withStyles(styles, {name: "CommunityMap"}), withUser)

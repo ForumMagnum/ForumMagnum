@@ -1,12 +1,12 @@
 import { Posts } from './collection';
 import Users from "meteor/vulcan:users";
-import { makeEditable } from '../../editor/make_editable.js'
-import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple, resolverOnlyField, denormalizedCountOfReferences, accessFilterSingle } from '../../modules/utils/schemaUtils'
+import { makeEditable } from '../../editor/make_editable'
+import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple, resolverOnlyField, denormalizedCountOfReferences, accessFilterSingle, denormalizedField, googleLocationToMongoLocation } from '../../utils/schemaUtils'
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
-import { Utils } from 'meteor/vulcan:core';
+import { Utils, getSetting } from 'meteor/vulcan:core';
 import GraphQLJSON from 'graphql-type-json';
 import { schemaDefaultValue } from '../../collectionUtils';
-import { getWithLoader } from '../../loaders.js';
+import { getWithLoader } from '../../loaders';
 import moment from 'moment';
 
 export const formGroups = {
@@ -59,6 +59,11 @@ export const formGroups = {
     startCollapsed: true,
     flexStyle: true
   },
+  highlight: {
+    order: 21,
+    name: "highlight",
+    label: "Highlight"
+  }
 };
 
 
@@ -739,11 +744,15 @@ addFieldsDict(Posts, {
   mongoLocation: {
     type: Object,
     viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
     hidden: true,
     blackbox: true,
-    optional: true
+    optional: true,
+    ...denormalizedField({
+      needsUpdate: data => ('googleLocation' in data),
+      getValue: async (post) => {
+        if (post.googleLocation) return googleLocationToMongoLocation(post.googleLocation)
+      }
+    }),
   },
 
   googleLocation: {
@@ -761,7 +770,6 @@ addFieldsDict(Posts, {
 
   location: {
     type: String,
-    searchable: true,
     viewableBy: ['guests'],
     editableBy: [Users.owns, 'sunshineRegiment', 'admins'],
     insertableBy: ['members'],
@@ -899,18 +907,24 @@ addFieldsDict(Posts, {
     ...schemaDefaultValue(false),
   },
 
-  tableOfContents: {
+  tableOfContents: resolverOnlyField({
     type: Object,
-    optional: true,
     viewableBy: ['guests'],
-    resolveAs: {
-      fieldName: "tableOfContents",
-      type: GraphQLJSON,
-      resolver: async (document, args, options) => {
-        return await Utils.getTableOfContentsData(document);
-      },
+    graphQLtype: GraphQLJSON,
+    resolver: async (document, args, { currentUser }) => {
+      return await Utils.getTableOfContentsData({document, version: null, currentUser});
     },
-  },
+  }),
+
+  tableOfContentsRevision: resolverOnlyField({
+    type: Object,
+    viewableBy: ['guests'],
+    graphQLtype: GraphQLJSON,
+    graphqlArguments: 'version: String',
+    resolver: async (document, { version=null }, { currentUser }) => {
+      return await Utils.getTableOfContentsData({document, version, currentUser});
+    },
+  }),
 
   // GraphQL only field that resolves based on whether the current user has closed
   // this posts author's moderation guidelines in the past
@@ -964,6 +978,19 @@ addFieldsDict(Posts, {
         ];
       }
     },
+  },
+  
+  // On a post, do not show comment karma
+  hideCommentKarma: {
+    type: Boolean,
+    optional: true,
+    group: formGroups.moderationGroup,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', Posts.canEditHideCommentKarma],
+    editableBy: ['admins', Posts.canEditHideCommentKarma],
+    hidden: getSetting('forumType') !== 'EAForum',
+    denormalized: true,
+    ...schemaDefaultValue(false),
   },
   
   recentComments: resolverOnlyField({
@@ -1024,6 +1051,21 @@ export const makeEditableOptionsModeration = {
 makeEditable({
   collection: Posts,
   options: makeEditableOptionsModeration
+})
+
+export const makeEditableOptionsCustomHighlight = {
+  formGroup: formGroups.highlight,
+  fieldName: "customHighlight",
+  permissions: {
+    viewableBy: ['guests'],
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+  },
+}
+
+makeEditable({
+  collection: Posts,
+  options: makeEditableOptionsCustomHighlight
 })
 
 

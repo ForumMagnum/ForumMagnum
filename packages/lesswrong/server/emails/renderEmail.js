@@ -11,9 +11,9 @@ import { getSetting, newMutation } from 'meteor/vulcan:core';
 import { UserContext } from '../../components/common/withUser';
 import { TimezoneContext } from '../../components/common/withTimezone';
 import Users from 'meteor/vulcan:users';
-import moment from 'moment-timezone';
+import moment from '../../lib/moment-timezone';
 import LWEvents from '../../lib/collections/lwevents/collection'
-import StyleValidator from '../vendor/react-html-email/src/StyleValidator.js';
+import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
 
 import forumTheme from '../../themes/forumTheme'
 

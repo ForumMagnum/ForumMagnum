@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { registerComponent, useUpdate, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
+import { useUpdate } from '../../lib/crud/withUpdate';
 import withUser from '../common/withUser';
 import Users from "meteor/vulcan:users";
 import Dialog from '@material-ui/core/Dialog';
@@ -16,7 +17,6 @@ import FormLabel from '@material-ui/core/FormLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import { geoSuggestStyles, useGoogleMaps } from '../form-components/LocationFormComponent'
 import { MAX_NOTIFICATION_RADIUS } from '../../lib/collections/users/custom_fields'
-import { Link } from '../../lib/reactRouterWrapper.js';
 
 
 const suggestionToGoogleMapsLocation = (suggestion) => {
@@ -144,15 +144,6 @@ const EventNotificationsDialog = ({ onClose, currentUser, classes }) => {
           <p>
             Notify me for events and new groups in this location 
           </p>
-          <p><em>
-            Note:
-            <ul>
-              <li>It may be a week or so before we start sending out notifications (we're still building out the notification backend)</li>
-              <li>
-                If you wish to receive email notifications, <Link to={"/account#emails"}>please verify your email</Link>
-              </li>
-            </ul>
-          </em></p>
         </Typography>
         <div className={classes.geoSuggest}>
           {mapsLoaded ? <Geosuggest

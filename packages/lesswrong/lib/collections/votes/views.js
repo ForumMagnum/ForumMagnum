@@ -1,4 +1,4 @@
-import { Votes } from './collection.js';
+import { Votes } from './collection';
 import { ensureIndex } from '../../collectionUtils';
 
 ensureIndex(Votes, {cancelled:1, userId:1, documentId:1});

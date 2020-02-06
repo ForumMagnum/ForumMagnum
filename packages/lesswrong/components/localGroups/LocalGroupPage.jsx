@@ -1,7 +1,9 @@
-import { Components, registerComponent, withMessages, useSingle } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { useSingle } from '../../lib/crud/withSingle';
+import { withMessages } from '../common/withMessages';
 import React from 'react';
-import { Localgroups } from '../../lib/index.js';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Localgroups } from '../../lib/index';
+import { Link } from '../../lib/reactRouterWrapper';
 import { withLocation } from '../../lib/routeUtil';
 import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
@@ -97,12 +99,12 @@ const LocalGroupPage = ({ classes, documentId: groupId, currentUser }) => {
                 <React.Fragment>
                   <SectionButton>
                     <Link to={{pathname:"/newPost", search: `?${qs.stringify({eventForm: true, groupId})}`}} className={classes.leftAction}>
-                      Create new event
+                      New event
                     </Link>
                   </SectionButton>
                   <SectionButton>
                     <Link to={{pathname:"/newPost", search: `?${qs.stringify({groupId})}`}} className={classes.leftAction}>
-                      Create new group post
+                      New group post
                     </Link>
                   </SectionButton>
                 </React.Fragment>}

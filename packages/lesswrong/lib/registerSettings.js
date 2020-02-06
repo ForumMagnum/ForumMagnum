@@ -27,9 +27,6 @@ registerSetting('twitterAccount', null, 'Twitter account associated with the app
 registerSetting('siteUrl', null, 'Main site URL');
 registerSetting('siteNameWithArticle', 'LessWrong', 'Your site name may be referred to as "The Alignment Forum" or simply "LessWrong". Use this setting to prevent something like "view on Alignment Forum". Leave the article uncapitalized ("the Alignment Forum") and capitalize if necessary.')
 
-// posts/schema.js
-registerSetting('forum.postExcerptLength', 30, 'Length of posts excerpts in words');
-
 // posts/callbacks/other.js
 registerSetting('forum.trackClickEvents', true, 'Track clicks to posts pages');
 
@@ -39,9 +36,6 @@ registerSetting('forum.maxPostsPerDay', 5, 'Maximum number of posts a user can c
 
 // robots.js
 registerSetting('disallowCrawlers', false, 'Whether to serve a robots.txt that asks crawlers not to index');
-
-// rss.js
-registerSetting('forum.RSSLinksPointTo', 'link', 'Where to point RSS links to');
 
 // Google Analytics + Tag Manager
 registerSetting('googleAnalytics.apiKey', null, 'Google Analytics ID');

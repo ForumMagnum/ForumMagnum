@@ -1,12 +1,13 @@
 import { newMutation } from 'meteor/vulcan:core';
 import { forEachDocumentBatchInCollection, registerMigration } from './migrationUtils';
 import Users from 'meteor/vulcan:users';
-import { Comments } from '../../lib/collections/comments/collection.js';
-import { Posts } from '../../lib/collections/posts/collection.js';
-import { Subscriptions } from '../../lib/collections/subscriptions/collection.js';
+import { Comments } from '../../lib/collections/comments/collection';
+import { Posts } from '../../lib/collections/posts/collection';
+import { Subscriptions } from '../../lib/collections/subscriptions/collection';
 
 registerMigration({
   name: "migrateSubscriptions",
+  dateWritten: "2019-05-01",
   idempotent: true,
   action: async () => {
     let numCommentSubscriptions = 0;
@@ -80,7 +81,7 @@ registerMigration({
               newSubscriptions.push({
                 userId: user._id,
                 state: "subscribed",
-                documentId: userSubscribedTo._id,
+                documentId: userSubscribedTo.itemId,
                 collectionName: "Users",
                 type: "newPosts",
               });

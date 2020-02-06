@@ -1,10 +1,11 @@
 import { registerMigration, dropUnusedField } from './migrationUtils';
-import { Posts } from '../../lib/collections/posts/collection.js';
-import { Comments } from '../../lib/collections/comments/collection.js';
+import { Posts } from '../../lib/collections/posts/collection';
+import { Comments } from '../../lib/collections/comments/collection';
 import Users from 'meteor/vulcan:users';
 
 registerMigration({
   name: "dropObsoleteColumns",
+  dateWritten: "2019-04-10",
   idempotent: true,
   action: async () => {
     // Denormalized field from vulcan example-forum, bulky and never used

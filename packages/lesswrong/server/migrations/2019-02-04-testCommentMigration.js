@@ -4,6 +4,7 @@ import { registerMigration, migrateDocuments } from './migrationUtils';
 
 registerMigration({
   name: "testCommentMigration",
+  dateWritten: "2019-02-04",
   idempotent: true,
   action: async () => {
     await migrateDocuments({

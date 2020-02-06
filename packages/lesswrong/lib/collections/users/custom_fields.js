@@ -1,7 +1,7 @@
 import Users from "meteor/vulcan:users";
 import { getSetting, Utils } from "meteor/vulcan:core"
-import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, arrayOfForeignKeysField, denormalizedField } from '../../modules/utils/schemaUtils'
-import { makeEditable } from '../../editor/make_editable.js'
+import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation } from '../../utils/schemaUtils'
+import { makeEditable } from '../../editor/make_editable'
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 import SimpleSchema from 'simpl-schema'
 
@@ -173,12 +173,6 @@ addFieldsDict(Users, {
     canRead: ["guests"]
   },
 
-  // LESSWRONG: Overwrite Vulcan locale field to be hidden by default
-  locale: {
-    hidden: true,
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-  },
-
   // Emails (not to be confused with email). This field belongs to Meteor's
   // accounts system; we should never write it, but we do need to read it to find
   // out whether a user's email address is verified.
@@ -348,7 +342,6 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     group: formGroups.default,
     order: 40,
-    searchable: true,
     form: {
       hintText:"Bio",
       rows:4,
@@ -429,6 +422,19 @@ addFieldsDict(Users, {
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     control: 'checkbox',
     order: 56,
+  },
+
+  showHideKarmaOption: {
+    type: Boolean,
+    optional: true,
+    label: "Enable option on posts to hide karma visibility",
+    canRead: [Users.owns, 'admins'],
+    canUpdate: [Users.ownsAndInGroup('trustLevel1'), 'sunshineRegiment', 'admins'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    hidden: getSetting('forumType') !== 'EAForum',
+    control: 'checkbox',
+    group: formGroups.default,
+    order: 72,
   },
 
   twitterUsername: {
@@ -518,10 +524,9 @@ addFieldsDict(Users, {
     defaultValue: false,
     canRead: ['guests'],
     canUpdate: ['admins'],
-    canCreate: ['members'],
     label: 'Delete this user',
     control: 'checkbox',
-    hidden: true,
+    group: formGroups.adminOptions,
   },
 
   // voteBanned: All future votes of this user have weight 0
@@ -591,8 +596,6 @@ addFieldsDict(Users, {
     type: String,
     optional: true,
   },
-
-  // Obsolete notifications settings
   auto_subscribe_to_my_posts: {
     label: "Auto-subscribe to comments on my posts",
     group: formGroups.notifications,
@@ -632,6 +635,10 @@ addFieldsDict(Users, {
     label: "Comments on subscribed posts",
     ...notificationTypeSettingsField(),
   },
+  notificationShortformContent: {
+    label: "Shortform by subscribed users",
+    ...notificationTypeSettingsField(),
+  },
   notificationRepliesToMyComments: {
     label: "Replies to my comments",
     ...notificationTypeSettingsField(),
@@ -654,6 +661,10 @@ addFieldsDict(Users, {
   },
   notificationSharedWithMe: {
     label: "Draft shared with me",
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
+  notificationEventInRadius: {
+    label: "New Events in my notification radius",
     ...notificationTypeSettingsField({ channel: "both" }),
   },
 
@@ -772,11 +783,14 @@ addFieldsDict(Users, {
   mongoLocation: {
     type: Object,
     canRead: ['guests'],
-    canCreate: ['members'],
-    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
-    hidden: true,
     blackbox: true,
-    optional: true
+    optional: true,
+    ...denormalizedField({
+      needsUpdate: data => ('googleLocation' in data),
+      getValue: async (user) => {
+        if (user.googleLocation) return googleLocationToMongoLocation(user.googleLocation)
+      }
+    }),
   },
 
   googleLocation: {
@@ -795,7 +809,6 @@ addFieldsDict(Users, {
 
   location: {
     type: String,
-    searchable: true,
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
@@ -867,6 +880,19 @@ addFieldsDict(Users, {
     optional: true,
   },
 
+  nearbyEventsNotificationsMongoLocation: {
+    type: Object,
+    canRead: [Users.owns],
+    blackbox: true,
+    optional: true,
+    ...denormalizedField({
+      needsUpdate: data => ('nearbyEventsNotificationsLocation' in data),
+      getValue: async (user) => {
+        if (user.nearbyEventsNotificationsLocation) return googleLocationToMongoLocation(user.nearbyEventsNotificationsLocation)
+      }
+    }),
+  },
+
   nearbyEventsNotificationsRadius: {
     type: Number,
     canRead: [Users.owns, 'sunshineRegiment', 'admins'],
@@ -897,6 +923,24 @@ addFieldsDict(Users, {
     group: formGroups.default,
     hidden: true,
     label: "Hide the frontpage map"
+  },
+
+  needsReview: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    group: formGroups.adminOptions,
+    optional: true,
+    ...schemaDefaultValue(false),
+  },
+
+  sunshineSnoozed: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    group: formGroups.adminOptions,
+    optional: true,
+    ...schemaDefaultValue(false),
   },
 
   // Set after a moderator has approved or purged a new user. NB: reviewed does
@@ -1118,7 +1162,15 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     tooltip: "Get early access to new in-development features",
     group: formGroups.default,
-    label: "Opt into experimental features"
+    label: "Opt into experimental features",
+    order: 71,
+  },
+  reviewVotesQuadratic: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: true
   },
   petrovPressedButtonDate: {
     type: Date,
@@ -1154,6 +1206,7 @@ addFieldsDict(Users, {
     }),
   },
   defaultToCKEditor: {
+    // this fieldis deprecated
     type: Boolean,
     optional: true,
     canRead: ['guests'],
@@ -1207,6 +1260,15 @@ addFieldsDict(Users, {
     type: String,
     optional: true,
     canRead: ['guests'],
+  },
+  noExpandUnreadCommentsReview: {
+    type: Boolean,
+    optional: true,
+    defaultValue: false,
+    hidden: true,
+    canRead: ['guests'],
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
   }
 });
 
@@ -1245,3 +1307,4 @@ const createDisplayName = user => {
   if (user.email) return user.email.slice(0, user.email.indexOf('@'));
   return undefined;
 }
+

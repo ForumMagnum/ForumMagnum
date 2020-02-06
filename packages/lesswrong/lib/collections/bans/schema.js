@@ -1,18 +1,12 @@
 import SimpleSchema from 'simpl-schema';
-import { foreignKeyField } from '../../modules/utils/schemaUtils'
+import { foreignKeyField } from '../../utils/schemaUtils'
 
 const schema = {
-  _id: {
-    optional: true,
-    type: String,
-    viewableBy: ['guests'],
-  },
   createdAt: {
     type: Date,
     optional: true,
     viewableBy: ['guests'],
     onInsert: (document, currentUser) => new Date(),
-    searchable: true,
   },
   expirationDate: {
     type: Date,
@@ -21,7 +15,6 @@ const schema = {
     editableBy: ['sunshineRegiment', 'admins'],
     insertableBy: ['sunshineRegiment', 'admins'],
     control: 'datetime',
-    searchable: true,
   },
   userId: {
     ...foreignKeyField({
@@ -43,7 +36,6 @@ const schema = {
     editableBy: ['sunshineRegiment', 'admins'],
     insertableBy: ['sunshineRegiment', 'admins'],
     regEx: SimpleSchema.RegEx.IP,
-    searchable: true,
   },
   reason: {
     type: String,
@@ -52,7 +44,6 @@ const schema = {
     editableBy: ['sunshineRegiment', 'admins'],
     insertableBy: ['sunshineRegiment', 'admins'],
     label: 'Reason (shown to the user)',
-    searchable: true,
   },
   comment: {
     type: String,
@@ -61,7 +52,6 @@ const schema = {
     editableBy: ['sunshineRegiment', 'admins'],
     insertableBy: ['sunshineRegiment', 'admins'],
     label: 'Comment (shown to other mods)',
-    searchable: true,
   },
   properties: {
     type: Object,

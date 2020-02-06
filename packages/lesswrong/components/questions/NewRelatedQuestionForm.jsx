@@ -1,9 +1,10 @@
-import { Components, registerComponent, getFragment, withMessages } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
+import { withMessages } from '../common/withMessages';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser'
-import { Posts } from '../../lib/collections/posts/collection.js'
+import { Posts } from '../../lib/collections/posts/collection'
 
 const styles = theme => ({
   answersForm: {

@@ -1,6 +1,7 @@
-import { Components, registerComponent, getFragment, withMessages } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
+import { withMessages } from '../common/withMessages';
 import React from 'react';
-import Chapters from '../../lib/collections/chapters/collection.js';
+import Chapters from '../../lib/collections/chapters/collection';
 
 //TODO: Manage chapter removal to remove the reference from all parent-sequences
 

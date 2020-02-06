@@ -1,8 +1,8 @@
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import lolex from 'lolex';
-import { EventDebouncer, dispatchPendingEvents, getDailyBatchTimeAfter, getWeeklyBatchTimeAfter } from '../server/debouncer.js';
-import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection.js';
+import { EventDebouncer, dispatchPendingEvents, getDailyBatchTimeAfter, getWeeklyBatchTimeAfter } from '../server/debouncer';
+import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection';
 
 chai.should();
 chai.use(chaiAsPromised);

@@ -1,20 +1,21 @@
-import Notifications from '../lib/collections/notifications/collection.js';
-import Messages from '../lib/collections/messages/collection.js';
-import Conversations from '../lib/collections/conversations/collection.js';
-import Subscriptions from '../lib/collections/subscriptions/collection.js';
+import Notifications from '../lib/collections/notifications/collection';
+import Messages from '../lib/collections/messages/collection';
+import Conversations from '../lib/collections/conversations/collection';
+import Subscriptions from '../lib/collections/subscriptions/collection';
 import { subscriptionTypes } from '../lib/collections/subscriptions/schema';
-import Localgroups from '../lib/collections/localgroups/collection.js';
+import Localgroups from '../lib/collections/localgroups/collection';
 import Users from 'meteor/vulcan:users';
 import { Posts } from '../lib/collections/posts';
 import { Comments } from '../lib/collections/comments'
-import { reasonUserCantReceiveEmails } from './emails/renderEmail.js';
-import './emailComponents/EmailWrapper.jsx';
-import './emailComponents/NewPostEmail.jsx';
-import './emailComponents/PrivateMessagesEmail.jsx';
-import { EventDebouncer } from './debouncer.js';
-import { getNotificationTypeByName } from '../lib/notificationTypes.jsx';
-import { notificationDebouncers, wrapAndSendEmail } from './notificationBatching.js';
-import { defaultNotificationTypeSettings } from '../lib/collections/users/custom_fields.js';
+import { reasonUserCantReceiveEmails } from './emails/renderEmail';
+import './emailComponents/EmailWrapper';
+import './emailComponents/NewPostEmail';
+import './emailComponents/PrivateMessagesEmail';
+import { EventDebouncer } from './debouncer';
+import { getNotificationTypeByName } from '../lib/notificationTypes';
+import { notificationDebouncers, wrapAndSendEmail } from './notificationBatching';
+import { defaultNotificationTypeSettings } from '../lib/collections/users/custom_fields';
+import { ensureIndex } from '../lib/collectionUtils';
 
 import { Components, addCallback, createMutator } from 'meteor/vulcan:core';
 
@@ -305,7 +306,9 @@ const curationEmailDelay = new EventDebouncer({
     // Still curated? If it was un-curated during the 20 minute delay, don't
     // send emails.
     if (post.curatedDate) {
-      let usersToEmail = findUsersToEmail({'emailSubscribedToCurated': true});
+      // Email only non-admins (admins get emailed immediately, without the
+      // delay).
+      let usersToEmail = findUsersToEmail({'emailSubscribedToCurated': true, isAdmin: false});
       sendPostByEmail(usersToEmail, postId, "you have the \"Email me new posts in Curated\" option enabled");
     } else {
       //eslint-disable-next-line no-console
@@ -316,6 +319,12 @@ const curationEmailDelay = new EventDebouncer({
 
 function PostsCurateNotification (post, oldPost) {
   if(post.curatedDate && !oldPost.curatedDate) {
+    // Email admins immediately, everyone else after a 20-minute delay, so that
+    // we get a chance to catch formatting issues with the email.
+    
+    const adminsToEmail = findUsersToEmail({'emailSubscribedToCurated': true, isAdmin: true});
+    sendPostByEmail(adminsToEmail, post._id, "you have the \"Email me new posts in Curated\" option enabled");
+    
     curationEmailDelay.recordEvent({
       key: post._id,
       data: null,
@@ -368,6 +377,18 @@ async function CommentsNewNotifications(comment) {
       userIsDefaultSubscribed: u => u.auto_subscribe_to_my_posts
     })
     const userIdsSubscribedToPost = _.map(usersSubscribedToPost, u=>u._id);
+
+    // Notify users who are subscribed to shortform posts
+    if (!comment.topLevelCommentId && comment.shortform) {
+      const usersSubscribedToShortform = await getSubscribedUsers({
+        documentId: comment.postId,
+        collectionName: "Posts",
+        type: subscriptionTypes.newShortform
+      })
+      const userIdsSubscribedToShortform = _.map(usersSubscribedToShortform, u=>u._id);
+      await createNotifications(userIdsSubscribedToShortform, 'newShortform', 'comment', comment._id);
+      notifiedUsers = [ ...userIdsSubscribedToShortform, ...notifiedUsers]
+    }
     
     // remove userIds of users that have already been notified
     // and of comment author (they could be replying in a thread they're subscribed to)
@@ -415,3 +436,58 @@ async function PostsNewNotifyUsersSharedOnPost (post) {
   }
 }
 addCallback("posts.new.async", PostsNewNotifyUsersSharedOnPost);
+
+async function getUsersWhereLocationIsInNotificationRadius(location) {
+  return await Users.rawCollection().aggregate([
+    {
+      "$geoNear": {
+        "near": location, 
+        "spherical": true,
+        "distanceField": "distance",
+        "distanceMultiplier": 0.001,
+        "maxDistance": 300000, // 300km is maximum distance we allow to set in the UI
+        "key": "nearbyEventsNotificationsMongoLocation"
+      }
+    },
+    {
+      "$match": {
+        "$expr": {
+            "$gt": ["$nearbyEventsNotificationsRadius", "$distance"]
+        }
+      }
+    }
+  ]).toArray()
+}
+ensureIndex(Users, {nearbyEventsNotificationsMongoLocation: "2dsphere"}, {name: "users.nearbyEventsNotifications"})
+
+async function PostsNewMeetupNotifications ({document: newPost}) {
+  if (newPost.isEvent && newPost.mongoLocation && !newPost.draft) {
+    const usersToNotify = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
+    const userIds = usersToNotify.map(user => user._id)
+    const usersIdsWithoutAuthor = userIds.filter(id => id !== newPost.userId)
+    createNotifications(usersIdsWithoutAuthor, "newEventInRadius", "post", newPost._id)
+  }
+}
+
+addCallback("post.create.async", PostsNewMeetupNotifications)
+
+async function PostsEditMeetupNotifications ({document: newPost, oldDocument: oldPost}) {
+  if (
+    (
+      (!newPost.draft && oldPost.draft) || 
+      (newPost.mongoLocation && !newPost.mongoLocation) || 
+      (newPost.startTime !== oldPost.startTime) || 
+      (newPost.endTime !== oldPost.endTime) || 
+      (newPost.contents?.html !== oldPost.contents?.html) ||
+      (newPost.title !== oldPost.title)
+    )
+    && newPost.mongoLocation && newPost.isEvent && !newPost.draft) 
+  {
+    const usersToNotify = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
+    const userIds = usersToNotify.map(user => user._id)
+    const usersIdsWithoutAuthor = userIds.filter(id => id !== newPost.userId)
+    createNotifications(usersIdsWithoutAuthor, "editedEventInRadius", "post", newPost._id)
+  }
+}
+
+addCallback("post.update.async", PostsEditMeetupNotifications)

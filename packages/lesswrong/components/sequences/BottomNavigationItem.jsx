@@ -1,10 +1,10 @@
 import { registerComponent, Components } from 'meteor/vulcan:core';
 import React from 'react';
 import classnames from 'classnames';
-import { Link } from '../../lib/reactRouterWrapper.js';
+import { Link } from '../../lib/reactRouterWrapper';
 import { withStyles } from '@material-ui/core/styles';
-import { legacyBreakpoints } from '../../lib/modules/utils/theme';
-import { Posts } from '../../lib/collections/posts/collection.js';
+import { legacyBreakpoints } from '../../lib/utils/theme';
+import { Posts } from '../../lib/collections/posts/collection';
 
 const styles = theme => ({
   root: {
@@ -17,6 +17,7 @@ const styles = theme => ({
     "&:hover, &:visited, &:focus": {
       color: "rgba(0,0,0, 0.5)",
     },
+    fontFamily: theme.typography.uiSecondary.fontFamily,
   },
   
   direction: {

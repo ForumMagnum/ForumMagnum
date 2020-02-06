@@ -1,4 +1,4 @@
-import Sequences from './collection.js';
+import Sequences from './collection';
 import { getSetting } from 'meteor/vulcan:core';
 import { ensureIndex } from '../../collectionUtils';
 

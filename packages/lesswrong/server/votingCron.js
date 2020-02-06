@@ -1,5 +1,5 @@
-import { batchUpdateScore } from './updateScores.js';
-import { VoteableCollections } from '../lib/modules/make_voteable.js';
+import { batchUpdateScore } from './updateScores';
+import { VoteableCollections } from '../lib/make_voteable';
 import { addCronJob } from './cronUtil';
 
 // Setting voting.scoreUpdateInterval removed and replaced with a hard-coded

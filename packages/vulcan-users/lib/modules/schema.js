@@ -1,5 +1,5 @@
 import SimpleSchema from 'simpl-schema';
-import { Utils, getCollection, Connectors, Locales } from 'meteor/vulcan:lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
+import { Utils, getCollection, Connectors } from 'meteor/vulcan:lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -65,7 +65,6 @@ const schema = {
         return user.services.twitter.screenName;
       }
     },
-    searchable: true,
   },
   emails: {
     type: Array,
@@ -102,16 +101,6 @@ const schema = {
     canRead: ['guests'],
     group: adminGroup,
   },
-  locale: {
-    type: String,
-    label: 'Preferred Language',
-    optional: true,
-    input: 'select',
-    canCreate: ['members'],
-    canUpdate: ['members'],
-    canRead: ['guests'],
-    options: () => Locales.map(({ id, label }) => ({ value: id, label })),
-  },
   profile: {
     type: Object,
     optional: true,
@@ -145,7 +134,6 @@ const schema = {
     onCreate: ({ document: user }) => {
       return createDisplayName(user);
     },
-    searchable: true,
   },
   /**
     The user's email. Modifiable.
@@ -154,7 +142,6 @@ const schema = {
     type: String,
     optional: true,
     regEx: SimpleSchema.RegEx.Email,
-    mustComplete: true,
     input: 'text',
     canCreate: ['members'],
     canUpdate: ['members'],
@@ -175,7 +162,6 @@ const schema = {
       if (linkedinEmail) return linkedinEmail;
       return undefined;
     },
-    searchable: true,
     // unique: true // note: find a way to fix duplicate accounts before enabling this
   },
   /**

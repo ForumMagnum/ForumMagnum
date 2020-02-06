@@ -6,7 +6,7 @@
 //
 // import React, { Component } from 'react';
 // import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
-// import { withRouter } from '../../lib/reactRouterWrapper.js';
+// import { withRouter } from '../../lib/reactRouterWrapper.jsx';
 // import RSSFeeds from '../../lib/collections/rssfeeds/collection.js';
 // import withUser from '../common/withUser';
 //

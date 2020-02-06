@@ -1,11 +1,6 @@
-import { foreignKeyField } from '../../modules/utils/schemaUtils'
+import { foreignKeyField } from '../../utils/schemaUtils'
 
 const schema = {
-  _id: {
-    type: String,
-    viewableBy: ['guests'],
-    optional: true,
-  },
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",
@@ -47,7 +42,6 @@ const schema = {
     optional: false,
     insertableBy: ['members'],
     viewableBy: ['guests'],
-    searchable: true,
     hidden: true,
   },
   claimedUserId: {
@@ -71,7 +65,6 @@ const schema = {
     insertableBy: ['members'],
     label: "Reason",
     placeholder: "What are you reporting this comment for?",
-    searchable: true,
   },
   createdAt: {
     optional: true,

@@ -10,17 +10,15 @@ Package.onUse( function(api) {
 
   api.use([
     'ecmascript',
+    'typescript',
     'promise',
-    'fourseven:scss',
+    'fourseven:scss@4.12.0',
 
     // vulcan core
     'vulcan:core',
 
     // vulcan packages
     'vulcan:accounts',
-    'vulcan:forms',
-    'vulcan:events',
-    'vulcan:admin',
     'vulcan:users',
   ]);
 
@@ -32,7 +30,7 @@ Package.onUse( function(api) {
   ], ['client']);
 
   Npm.depends({
-    "@babel/core": "7.4.3",
+    "@babel/core": "7.7.7",
     "@babel/plugin-proposal-optional-chaining": "7.2.0",
     "@babel/plugin-syntax-optional-chaining": "7.2.0"
   })
@@ -42,16 +40,16 @@ Package.onTest(function(api) {
   api.use('lesswrong');
 
   api.use([
+    'typescript',
     'fourseven:scss',
     'vulcan:core',
     'vulcan:users',
     'practicalmeteor:sinon',
-    'coffeescript',
     'meteortesting:mocha',
   ]);
 
   Npm.depends({
-    "@babel/core": "7.4.3",
+    "@babel/core": "7.7.7",
     "@babel/plugin-proposal-optional-chaining": "7.2.0",
     "@babel/plugin-syntax-optional-chaining": "7.2.0"
   })

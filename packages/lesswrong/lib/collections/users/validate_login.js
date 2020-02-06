@@ -1,6 +1,6 @@
 import { Accounts } from 'meteor/accounts-base';
 import Users from 'meteor/vulcan:users';
-import { LegacyData } from '../legacyData/collection.js';
+import { LegacyData } from '../legacyData/collection';
 
 Accounts.validateLoginAttempt((attempt) => {
   const userStub = attempt.user || (attempt.methodArguments && attempt.methodArguments[0] && attempt.methodArguments[0].user);

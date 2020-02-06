@@ -4,10 +4,12 @@
  * @see https://github.com/apollographql/GitHunt-React/blob/master/src/server.js
  * @see https://www.apollographql.com/docs/react/features/server-side-rendering.html#renderToStringWithData
  */
+/*global Vulcan*/
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { getDataFromTree } from 'react-apollo';
 import { getUserFromReq, computeContextFromUser } from '../apollo-server/context.js';
+import { webAppConnectHandlersUse } from '../meteor_patch.js';
 
 import { runCallbacks } from '../../modules/callbacks';
 import { createClient } from './apolloClient';
@@ -18,24 +20,77 @@ import AppGenerator from './components/AppGenerator';
 import Sentry from '@sentry/node';
 
 const makePageRenderer = async sink => {
+  const startTime = new Date();
   const req = sink.request;
   const user = await getUserFromReq(req);
+  
+  // Inject a tab ID into the page, by injecting a script fragment that puts
+  // it into a global variable. In previous versions of Vulcan this would've
+  // been handled by InjectData, but InjectData didn't surive the 1.12 version
+  // upgrade (it injects into the page template in a way that requires a
+  // response object, which the onPageLoad/sink API doesn't offer).
+  const tabId = Random.id();
+  const tabIdHeader = `<script>var tabId = "${tabId}"</script>`;
+  
+  const ssrEventParams = {
+    url: req.url.pathname,
+    clientId: req.cookies && req.cookies.clientId,
+    tabId: tabId,
+    userAgent: req.headers["user-agent"],
+  };
   
   if (user) {
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
     recordCacheBypass();
     //eslint-disable-next-line no-console
     console.log(`Rendering ${req.url} (logged in request; hit rate=${getCacheHitRate()})`);
-    const rendered = await renderRequest(req, user);
-    sendToSink(sink, rendered);
+    const rendered = await renderRequest({
+      req, user, startTime
+    });
+    sendToSink(sink, {
+      ...rendered,
+      headers: [...rendered.headers, tabIdHeader],
+    });
+    Vulcan.captureEvent("ssr", {
+      ...ssrEventParams,
+      userId: user._id,
+      timings: rendered.timings,
+      cached: false,
+    });
   } else {
-    const rendered = await cachedPageRender(req, (req) => renderRequest(req, null));
-    sendToSink(sink, rendered);
+    const rendered = await cachedPageRender(req, (req) => renderRequest({
+      req, user: null, startTime
+    }));
+    sendToSink(sink, {
+      ...rendered,
+      headers: [...rendered.headers, tabIdHeader],
+    });
+    Vulcan.captureEvent("ssr", {
+      ...ssrEventParams,
+      userId: null,
+      timings: {
+        totalTime: new Date()-startTime,
+      },
+      cached: true,
+    });
   }
 };
 
-const renderRequest = async (req, user) => {
-  const startTime = new Date();
+// Middleware for assigning a client ID, if one is not currently assigned.
+// Since Meteor doesn't have an API for setting cookies, this calls setHeader
+// on the HTTP response directly; if other middlewares also want to set
+// cookies, they won't necessarily play nicely together.
+webAppConnectHandlersUse(function addClientId(req, res, next) {
+  if (!req.cookies.clientId) {
+    const newClientId = Random.id();
+    req.cookies.clientId = newClientId;
+    res.setHeader("Set-Cookie", `clientId=${newClientId}; Max-Age=315360000`);
+  }
+  
+  next();
+}, {order: 100});
+
+const renderRequest = async ({req, user, startTime}) => {
   const requestContext = await computeContextFromUser(user, req.headers);
   // according to the Apollo doc, client needs to be recreated on every request
   // this avoids caching server side
@@ -116,26 +171,31 @@ const renderRequest = async (req, user) => {
   const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
   
   const finishedTime = new Date();
-  const prerenderTime = afterPrerenderTime - startTime
-  const renderTime = finishedTime - afterPrerenderTime
-  const totalTime = finishedTime - startTime;
+  const timings = {
+    prerenderTime: afterPrerenderTime - startTime,
+    renderTime: finishedTime - afterPrerenderTime,
+    totalTime: finishedTime - startTime
+  };
+  
   // eslint-disable-next-line no-console
-  console.log(`preRender time: ${prerenderTime}; render time: ${renderTime}`);
-  if (totalTime > 3000) {
+  console.log(`preRender time: ${timings.prerenderTime}; render time: ${timings.renderTime}`);
+  if (timings.totalTime > 3000) {
     Sentry.captureException(new Error("SSR time above 3 seconds"));
   }
   
   return {
-    ssrBody, head, serializedApolloState, jssSheets,
+    ssrBody,
+    headers: [head],
+    serializedApolloState, jssSheets,
     status: serverRequestStatus.status,
     redirectUrl: serverRequestStatus.redirectUrl,
-    renderTime: new Date(),
+    timings,
   };
 }
 
 const sendToSink = (sink, {
-  ssrBody, head, serializedApolloState, jssSheets,
-  status, redirectUrl,
+  ssrBody, headers, serializedApolloState, jssSheets,
+  status, redirectUrl
 }) => {
   if (status) {
     sink.setStatusCode(status);
@@ -145,7 +205,8 @@ const sendToSink = (sink, {
   }
   
   sink.appendToBody(ssrBody);
-  sink.appendToHead(head);
+  for (let head of headers)
+    sink.appendToHead(head);
   sink.appendToBody(serializedApolloState);
   sink.appendToHead(jssSheets);
 }

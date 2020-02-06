@@ -1,8 +1,9 @@
-import createLWTheme from './createThemeDefaults.js';
+import createLWTheme from './createThemeDefaults';
 import grey from '@material-ui/core/colors/grey';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 
 const sansSerifStack = [
+  'GreekFallback', // Ensures that greek letters render consistently
   'Calibri',
   '"Gill Sans"',
   '"Gill Sans MT"',
@@ -53,11 +54,9 @@ const theme = createLWTheme({
     fontFamily: sansSerifStack,
     postStyle: {
       fontFamily: serifStack,
-      linkUnderlinePosition: "72%",
     },
     headerStyle: {
       fontFamily: serifStack,
-      linkUnderlinePosition: "72%",
     },
     caption: {
       // captions should be relative to their surrounding content, so they are unopinionated about fontFamily and use ems instead of rems
@@ -68,7 +67,7 @@ const theme = createLWTheme({
       fontSize: "1.16rem"
     },
     commentStyle: {
-      fontFamily: sansSerifStack
+      fontFamily: sansSerifStack,
     },
     errorStyle: {
       color: palette.error.main,
@@ -83,7 +82,10 @@ const theme = createLWTheme({
     title: {
       fontFamily: serifStack,
       fontWeight: 500,
-    }
+    },
+    uiSecondary: {
+      fontFamily: serifStack,
+    },
   },
   overrides: {
     MuiAppBar: {
@@ -100,6 +102,7 @@ const theme = createLWTheme({
       tooltip: {
         fontSize: "1rem",
         padding: ".7rem",
+        zIndex: 10000000
       }
     },
     MuiDialogContent: {

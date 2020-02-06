@@ -10,6 +10,39 @@ const monoStack = [
   'monospace'
 ].join(',')
 
+export const zIndexes = {
+  continueReadingImage: -1,
+  commentsMenu: 1,
+  sequencesPageContent: 1,
+  sequencesImageScrim: 1,
+  postsVote: 1,
+  singleLineCommentMeta: 2,
+  postItemTitle: 2,
+  reviewVotingMenu: 3,
+  sidebarHoverOver: 2,
+  singleLineCommentHover: 3,
+  questionPageWhitescreen: 3,
+  textbox: 4,
+  styledMapPopup: 5,
+  nextUnread: 999,
+  sunshineSidebar: 1000,
+  postItemMenu: 1001,
+  layout: 1100,
+  tabNavigation: 1101,
+  searchResults: 1102,
+  header: 1300,
+  karmaChangeNotifier: 1400,
+  notificationsMenu: 1500,
+  lwPopper: 10000,
+  lwPopperTooltip: 10001,
+  loginDialog: 10002,
+  searchBar: 100000,
+  commentBoxPopup: 10000000001, // has to be higher than Intercom, 
+  // ckEditorToolbar: 10000000002, // has to be higher than commentBoxPopup, (note: the css had to be applied in an scss file, "_editor.scss", but the position is listed here for ease of reference)
+  // petrovDayButton: 6,
+  // petrovDayLoss: 1000000
+}
+
 const createLWTheme = (theme) => {
   // Defines sensible typography defaults that can be
   // cleanly overriden
@@ -22,6 +55,11 @@ const createLWTheme = (theme) => {
   const body2FontSize = {
     fontSize: '1.1rem',
     lineHeight: '1.5rem',
+  }
+
+  const smallFontSize = {
+    fontSize: "1rem",
+    lineHeight: '1.4rem'
   }
 
   const spacingUnit = 8
@@ -45,11 +83,31 @@ const createLWTheme = (theme) => {
       postStyle: {
         fontFamily: typography.fontFamily,
       },
+      contentNotice: {
+        fontStyle: "italic",
+        color: grey[600],
+        fontSize:".9em",
+        marginBottom: spacingUnit*2,
+        wordBreak: "break-word"
+      },
       body1: body1FontSize,
       body2: {
         fontWeight: 400,
-        linkUnderlinePosition: "72%",
         ...body2FontSize
+      },
+      smallText: {
+        ...typography.body2,
+        fontWeight: 400,
+        ...smallFontSize
+      },
+      // used by h3
+      display0: {
+        color: grey[800],
+        fontSize: '2rem',
+        marginTop: '1em',
+        // added by MUI to display1, which we're imitating
+        fontWeight: 400,
+        lineHeight: "1.20588em",
       },
       display1: {
         color: grey[800],
@@ -74,6 +132,11 @@ const createLWTheme = (theme) => {
         fontWeight: 400,
         marginBottom: 3,
       },
+      // Used for ui text that's (on LW) serifed rather than the primary
+      // sans-serif ui font. On the EA Forum this is overridden with sans-serif
+      uiSecondary: {
+        fontFamily: typography.fontFamily,
+      },
       caption: {
         fontSize: ".9rem"
       },
@@ -85,7 +148,6 @@ const createLWTheme = (theme) => {
         paddingLeft: spacingUnit*2,
         borderLeft: `solid 3px ${grey[300]}`,
         margin: 0,
-        ...body1FontSize
       },
       commentBlockquote: {
         fontWeight: 400,
@@ -96,7 +158,6 @@ const createLWTheme = (theme) => {
         borderLeft: `solid 3px ${grey[300]}`,
         margin: 0,
         marginLeft: spacingUnit*1.5,
-        ...body2FontSize
       },
       codeblock: {
         backgroundColor: grey[100],
@@ -141,36 +202,17 @@ const createLWTheme = (theme) => {
       }
     },
     zIndexes: {
-      continueReadingImage: -1,
-      commentsMenu: 1,
-      sequencesPageContent: 1,
-      sequencesImageScrim: 1,
-      postsVote: 1,
-      singleLineCommentMeta: 2,
-      postItemTitle: 2,
-      sidebarHoverOver: 2,
-      singleLineCommentHover: 3,
-      questionPageWhitescreen: 3,
-      textbox: 4,
-      styledMapPopup: 5,
-      nextUnread: 999,
-      sunshineSidebar: 1000,
-      postItemMenu: 1001,
-      layout: 1100,
-      tabNavigation: 1101,
-      searchResults: 1102,
-      header: 1300,
-      karmaChangeNotifier: 1400,
-      notificationsMenu: 1500,
-      lwPopper: 10000,
-      lwPopperTooltip: 10001,
-      loginDialog: 10002,
-      searchBar: 100000,
-      // petrovDayButton: 6,
-      // petrovDayLoss: 1000000
+      ...zIndexes
     },
     voting: {
       strongVoteDelay: 1000,
+    },
+    overrides: {
+      MuiSelect: {
+        selectMenu: {
+          paddingLeft: spacingUnit
+        }
+      }
     }
   }
 

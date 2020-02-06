@@ -1,8 +1,9 @@
-import { Components, registerComponent, withUpdate } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import Users from 'meteor/vulcan:users';
-import { Link } from '../../lib/reactRouterWrapper.js'
+import { Link } from '../../lib/reactRouterWrapper'
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import withHover from '../common/withHover'
@@ -112,6 +113,6 @@ registerComponent(
   AFSuggestPostsItem,
   [withUpdate, withUpdateOptions],
   withUser,
-  withHover,
+  withHover(),
   withErrorBoundary
 );
