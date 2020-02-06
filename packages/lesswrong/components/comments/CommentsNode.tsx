@@ -28,7 +28,7 @@ const styles = createStyles(theme => ({
     borderBottom: `solid 1px ${theme.palette.grey[300]}`,
   },
   new: {
-    '&': {
+    '&&': {
       borderLeft: `solid 5px ${theme.palette.secondary.light}`,
       '&:hover': {
         borderLeft: `solid 5px ${theme.palette.secondary.main}`
@@ -149,6 +149,7 @@ interface CommentsNodeProps extends WithUserProps, WithStylesProps, WithLocation
   forceNotSingleLine: boolean,
   postPage: boolean,
   children: any,
+  hideReply: boolean
 }
 interface CommentsNodeState {
   collapsed: boolean,
