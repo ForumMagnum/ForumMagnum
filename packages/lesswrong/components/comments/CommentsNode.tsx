@@ -30,7 +30,7 @@ const styles = createStyles(theme => ({
   new: {
     '&&': {
       borderLeft: `solid 5px ${theme.palette.secondary.light}`,
-      '&&:hover': {
+      '&:hover': {
         borderLeft: `solid 5px ${theme.palette.secondary.main}`
       },
     }
