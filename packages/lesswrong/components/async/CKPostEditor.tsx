@@ -76,6 +76,32 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
       onChange={onChange}
       editor={ collaboration ? PostEditorCollaboration : PostEditor }
       onInit={ editor => {
+
+          const commentsPlugin = editor.plugins.get( 'Comments' );
+          commentsPlugin.adapter = {
+            addComment( data ) {
+                console.log("comment added", data)
+                // newCkCommentNotification({comment: data, postId: documentId, userId})
+                return Promise.resolve();
+            },
+
+            updateComment( data ) {
+                console.log( 'Comment updated', data );
+
+                // Write a request to your database here. The returned `Promise`
+                // should be resolved when the request has finished.
+                return Promise.resolve();
+            },
+
+            removeComment( commentId ) {
+                console.log( 'Comment removed', commentId );
+
+                // Write a request to your database here. The returned `Promise`
+                // should be resolved when the request has finished.
+                return Promise.resolve();
+            },
+          }
+
           if (collaboration) {
             // Uncomment this line and the import above to activate the CKEDItor debugger
             // CKEditorInspector.attach(editor)
