@@ -284,6 +284,7 @@ registerFragment(`
     customHighlight {
       ...RevisionEdit
     }
+    tableOfContents
   }
 `);
 
