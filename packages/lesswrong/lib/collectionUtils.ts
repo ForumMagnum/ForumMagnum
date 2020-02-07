@@ -183,6 +183,10 @@ export function addUniversalFields({ collection, schemaVersion=1 }) {
   ensureIndex(collection, {schemaVersion: 1});
 }
 
+export function isUniversalField(fieldName: string) {
+  return fieldName=="_id" || fieldName=="schemaVersion";
+}
+
 export function isUnbackedCollection(collection)
 {
   if (collection.collectionName === 'Settings' || collection.collectionName === 'Callbacks') {

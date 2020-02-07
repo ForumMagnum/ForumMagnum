@@ -1,5 +1,7 @@
 import { Vulcan } from '../../lib/vulcan-lib';
 import { generateFragmentTypes } from './generateFragmentTypes';
+import { generateDbTypes } from './generateDbTypes';
+import fs from 'fs';
 
 
 export function generateTypes(repoRoot?: string) {
@@ -16,6 +18,7 @@ export function generateTypes(repoRoot?: string) {
   
   try {
     writeFile(generateFragmentTypes(), "/packages/lesswrong/lib/generated/fragmentTypes.d.ts");
+    writeFile(generateDbTypes(), "/packages/lesswrong/lib/generated/databaseTypes.d.ts");
   } catch(e) {
     console.error(e);
   }
