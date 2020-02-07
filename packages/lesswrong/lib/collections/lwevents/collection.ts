@@ -21,7 +21,7 @@ const options = {
 }
 
 
-export const LWEvents = createCollection({
+export const LWEvents: LWEventsCollection = createCollection({
   collectionName: 'LWEvents',
   typeName: 'LWEvent',
   schema,

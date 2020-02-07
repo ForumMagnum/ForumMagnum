@@ -23,7 +23,16 @@ const options = {
   },
 }
 
-export const Conversations = createCollection({
+interface ExtendedConversationsCollection extends ConversationsCollection {
+  // Functions in lib/collections/conversations/helpers.ts
+  getTitle: any
+  getPageUrl: any
+  
+  // Functions in lib/helpers.ts
+  getLink: any
+}
+
+export const Conversations: ExtendedConversationsCollection = createCollection({
   collectionName: 'Conversations',
   typeName: 'Conversation',
   schema,

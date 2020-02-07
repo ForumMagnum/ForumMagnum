@@ -6,7 +6,10 @@ import { Comments } from '../comments'
 import { Posts } from '../posts'
 import { Meteor } from 'meteor/meteor';
 
-// Overwrite user display name getter from Vulcan
+/**
+ * @summary Get a user's display name (not unique, can take special characters and spaces)
+ * @param {Object} user
+ */
 Users.getDisplayName = (user) => {
   if (!user) {
     return "";

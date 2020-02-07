@@ -3,7 +3,7 @@ import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, ensureIndex } from '../../collectionUtils'
 
 
-export const DatabaseMetadata = createCollection({
+export const DatabaseMetadata: DatabaseMetadataCollection = createCollection({
   collectionName: "DatabaseMetadata",
   typeName: "DatabaseMetadata",
   schema

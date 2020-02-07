@@ -3,7 +3,7 @@ import schema from './schema';
 import { makeEditable } from '../../editor/make_editable';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
 
-export const Books = createCollection({
+export const Books: BooksCollection = createCollection({
   collectionName: 'Books',
   typeName: 'Book',
   schema,

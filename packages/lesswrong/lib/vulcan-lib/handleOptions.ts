@@ -18,8 +18,8 @@ export const extractCollectionInfo = ({ collectionName, collection }: {
   collectionName: CollectionNameString,
 }=> {
   if (!(collectionName || collection)) throw new Error('Please specify either collection or collectionName');
-  const _collectionName = collectionName || collection.options.collectionName;
-  const _collection = collection || getCollection(collectionName);
+  const _collectionName: CollectionNameString = collectionName || collection.options.collectionName;
+  const _collection = collection || getCollection(_collectionName);
   return { collection: _collection, collectionName: _collectionName };
 };
 /**

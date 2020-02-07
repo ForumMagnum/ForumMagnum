@@ -12,8 +12,20 @@ export function generateDbTypes(): string {
   const sb: Array<string> = [];
   sb.push(dbTypesFileHeader);
   for (let collection of Collections) {
+    sb.push(generateCollectionType(collection));
     sb.push(generateCollectionDbType(collection));
   }
+  return sb.join('');
+}
+
+function generateCollectionType(collection: any): string {
+  let sb: Array<string> = [];
+  const collectionName = collection.collectionName;
+  const typeName = collection.typeName;
+  
+  sb.push(`interface ${collectionName}Collection extends CollectionBase<Db${typeName}> {\n`);
+  sb.push("}\n\n");
+  
   return sb.join('');
 }
 

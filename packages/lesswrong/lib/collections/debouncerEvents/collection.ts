@@ -2,7 +2,7 @@ import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, ensureIndex } from '../../collectionUtils'
 
-export const DebouncerEvents = createCollection({
+export const DebouncerEvents: DebouncerEventsCollection = createCollection({
   collectionName: 'DebouncerEvents',
   typeName: 'DebouncerEvents',
   schema,

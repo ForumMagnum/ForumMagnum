@@ -1,11 +1,15 @@
 
-interface CollectionBase {
+interface CollectionBase<T> {
   collectionName: string
   options: any
   
   addDefaultView: any
   addView: any
   views: any
+  getParameters: any
+  simpleSchema: any
+  addField: any
+  helpers: any
   
   rawCollection: any
   checkAccess: any
@@ -13,6 +17,8 @@ interface CollectionBase {
   findOne: any
   update: any
   remove: any
+  insert: any
+  aggregate: any
 }
 
 // Common base type for everything that has an _id field (including both raw DB

@@ -53,7 +53,7 @@ const schema = {
 
 };
 
-export const TagRels = createCollection({
+export const TagRels: TagRelsCollection = createCollection({
   collectionName: 'TagRels',
   typeName: 'TagRel',
   schema,

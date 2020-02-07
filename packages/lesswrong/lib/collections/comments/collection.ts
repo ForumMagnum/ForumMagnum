@@ -30,7 +30,25 @@ export const commentMutationOptions = {
   },
 }
 
-export const Comments = createCollection({
+interface ExtendedCommentsCollection extends CommentsCollection {
+  // Functions in lib/collections/comments/helpers.ts
+  getAuthorName: any
+  getPageUrl: any
+  getPageUrlFromIds: any
+  getRSSUrl: any
+  defaultToAlignment: any
+  getDefaultView: any
+  getKarma: any
+  
+  // Functions in lib/alignment-forum/comments/helpers.ts
+  suggestForAlignment: any
+  unSuggestForAlignment: any
+  
+  // Functions in server/search/utils.ts
+  toAlgolia: any
+}
+
+export const Comments: ExtendedCommentsCollection = createCollection({
   collectionName: 'Comments',
   typeName: 'Comment',
   schema,

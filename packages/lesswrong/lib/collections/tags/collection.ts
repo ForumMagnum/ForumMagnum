@@ -54,7 +54,12 @@ const schema = {
   },
 };
 
-export const Tags = createCollection({
+interface ExtendedTagsCollection extends TagsCollection {
+  // From search/utils.ts
+  toAlgolia: any
+}
+
+export const Tags: ExtendedTagsCollection = createCollection({
   collectionName: 'Tags',
   typeName: 'Tag',
   schema,

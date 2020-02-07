@@ -28,7 +28,11 @@ const options = {
   },
 }
 
-export const Messages = createCollection({
+interface ExtendedMessagesCollection extends MessagesCollection {
+  getLink: any
+}
+
+export const Messages: ExtendedMessagesCollection = createCollection({
   collectionName: 'Messages',
   typeName: 'Message',
   schema,

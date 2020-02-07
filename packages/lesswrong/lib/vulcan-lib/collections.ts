@@ -128,7 +128,7 @@ Mongo.Collection.prototype.helpers = function(helpers) {
   });
 };
 
-export const createCollection = options => {
+export const createCollection = (options: any): any => {
   const {
     typeName,
     collectionName = getCollectionName(typeName),
