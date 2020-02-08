@@ -252,7 +252,7 @@ async function postsNewNotifications (post) {
     if (post.groupId) {
       // Load the group, so we know who the organizers are
       const group = await Localgroups.findOne(post.groupId);
-      const organizerIds = group.organizers;
+      const organizerIds = group.organizerIds;
       
       const subscribedUsers = await getSubscribedUsers({
         documentId: post.groupId,

@@ -110,7 +110,7 @@ Vulcan.mergeAccounts = async (sourceUserId, targetUserId) => {
       karma: newKarma, 
       // We only recalculate the karma for non-af karma, because recalculating
       // af karma is a lot more complicated
-      afKarma: sourceUser.afKarma + targetUser.afKaram 
+      afKarma: sourceUser.afKarma + targetUser.afKarma 
     },
     validate: false
   })

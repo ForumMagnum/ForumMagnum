@@ -5,8 +5,8 @@ import { ForwardedWhitelist } from './forwarded_whitelist';
 import { Accounts } from 'meteor/accounts-base';
 import { Meteor } from 'meteor/meteor';
 
-let dummyUser = null;
-async function getDummyUser() {
+let dummyUser: DbUser|null = null;
+async function getDummyUser(): Promise<DbUser> {
   if (!dummyUser) dummyUser = Users.findOne();
   return dummyUser;
 }

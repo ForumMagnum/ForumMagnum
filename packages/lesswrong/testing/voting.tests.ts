@@ -24,9 +24,9 @@ describe('Voting', async function() {
       await batchUpdateScore({collection: Posts});
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
-      updatedPost[0].score.should.be.closeTo(preUpdatePost[0].score, 0.001);
-      updatedPost[0].postedAt.should.be.closeTo(yesterday, 1000);
-      updatedPost[0].inactive.should.be.true;
+      (updatedPost[0] as any).score.should.be.closeTo(preUpdatePost[0].score, 0.001);
+      (updatedPost[0] as any).postedAt.should.be.closeTo(yesterday, 1000);
+      (updatedPost[0] as any).inactive.should.be.true;
     });
     it('sets post to inactive if it is older than sixty days', async () => {
       const user = await createDummyUser();
@@ -34,8 +34,8 @@ describe('Voting', async function() {
       const post = await createDummyPost(user, {postedAt: sixty_days_ago, inactive: false})
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
-      updatedPost[0].postedAt.should.be.closeTo(sixty_days_ago, 1000);
-      updatedPost[0].inactive.should.be.false;
+      (updatedPost[0].postedAt as any).should.be.closeTo(sixty_days_ago, 1000);
+      (updatedPost[0].inactive as any).should.be.false;
     });
     it('should compute a higher score if post is categorized as frontpage and even higher if curated', async () => {
       const user = await createDummyUser();
@@ -47,8 +47,8 @@ describe('Voting', async function() {
       const updatedFrontpagePost = await Posts.find({_id: frontpagePost._id}).fetch();
       const updatedCuratedPost = await Posts.find({_id: curatedPost._id}).fetch();
 
-      updatedFrontpagePost[0].score.should.be.above(updatedNormalPost[0].score + 1);
-      updatedCuratedPost[0].score.should.be.above(updatedFrontpagePost[0].score + 1);
+      (updatedFrontpagePost[0].score as any).should.be.above(updatedNormalPost[0].score + 1);
+      (updatedCuratedPost[0].score as any).should.be.above(updatedFrontpagePost[0].score + 1);
     });
     it('produces the same result as `recalculateScore`', async () => {
       const user = await createDummyUser();
@@ -60,9 +60,9 @@ describe('Voting', async function() {
       const updatedFrontpagePost = await Posts.find({_id: frontpagePost._id}).fetch();
       const updatedCuratedPost = await Posts.find({_id: curatedPost._id}).fetch();
 
-      updatedNormalPost[0].score.should.be.closeTo(recalculateScore(normalPost), 0.001);
-      updatedFrontpagePost[0].score.should.be.closeTo(recalculateScore(frontpagePost), 0.001);
-      updatedCuratedPost[0].score.should.be.closeTo(recalculateScore(curatedPost), 0.001);
+      (updatedNormalPost[0].score as any).should.be.closeTo(recalculateScore(normalPost), 0.001);
+      (updatedFrontpagePost[0].score as any).should.be.closeTo(recalculateScore(frontpagePost), 0.001);
+      (updatedCuratedPost[0].score as any).should.be.closeTo(recalculateScore(curatedPost), 0.001);
     });
   });
   describe('performVoteServer', async () => {
@@ -74,8 +74,8 @@ describe('Voting', async function() {
       await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
-      updatedPost[0].postedAt.should.be.closeTo(yesterday, 1000);
-      updatedPost[0].inactive.should.be.false;
+      (updatedPost[0].postedAt as any).should.be.closeTo(yesterday, 1000);
+      (updatedPost[0].inactive as any).should.be.false;
     });
     it('increases score after upvoting', async () => {
       const user = await createDummyUser();
@@ -86,7 +86,7 @@ describe('Voting', async function() {
       await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: otherUser })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
-      updatedPost[0].score.should.be.above(preUpdatePost[0].score);
+      (updatedPost[0].score as any).should.be.above(preUpdatePost[0].score);
     });
     it('decreases score after downvoting', async () => {
       const user = await createDummyUser();
@@ -97,7 +97,7 @@ describe('Voting', async function() {
       await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', collection: Posts, user: otherUser })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
-      updatedPost[0].score.should.be.below(preUpdatePost[0].score);
+      (updatedPost[0].score as any).should.be.below(preUpdatePost[0].score);
     });
     it('cancels upvote if downvoted after previous upvote', async () => {
       const user = await createDummyUser();
@@ -109,8 +109,8 @@ describe('Voting', async function() {
       await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', collection: Posts, user: otherUser })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
-      updatedPost[0].score.should.be.below(preUpdatePost[0].score);
-      updatedPost[0].baseScore.should.be.equal(0);
+      (updatedPost[0].score as any).should.be.below(preUpdatePost[0].score);
+      (updatedPost[0].baseScore as any).should.be.equal(0);
     });
     it('cancels downvote if upvoted after previous upvote', async () => {
       const user = await createDummyUser();
@@ -122,8 +122,8 @@ describe('Voting', async function() {
       await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: otherUser })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
-      updatedPost[0].score.should.be.above(preUpdatePost[0].score);
-      updatedPost[0].baseScore.should.be.equal(2);
+      (updatedPost[0].score as any).should.be.above(preUpdatePost[0].score);
+      (updatedPost[0].baseScore as any).should.be.equal(2);
     });
   })
   describe('getKarmaChanges', async () => {
