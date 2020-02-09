@@ -87,7 +87,7 @@ const createLWTheme = (theme) => {
         fontStyle: "italic",
         color: grey[600],
         fontSize:".9em",
-        marginBottom: spacingUnit*2,
+        marginBottom: 20,
         wordBreak: "break-word"
       },
       body1: body1FontSize,

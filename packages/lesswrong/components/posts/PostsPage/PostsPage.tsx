@@ -54,7 +54,10 @@ const styles = createStyles(theme => ({
   },
   title: {
     gridArea: 'title',
-    marginBottom: 32
+    marginBottom: 32,
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: 20,
+    }
   },
   toc: {
     '@supports (grid-template-areas: "title")': {
