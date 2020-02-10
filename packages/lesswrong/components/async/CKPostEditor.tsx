@@ -5,6 +5,8 @@ import { getSetting } from 'meteor/vulcan:core';
 import { getCKEditorDocumentId, generateTokenRequest } from '../../lib/ckEditorUtils'
 import { withStyles, createStyles } from '@material-ui/core/styles';
 import { Helmet } from 'react-helmet';
+import { ckInlineComments } from './ckInlineComments';
+
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
 
@@ -78,29 +80,9 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
       onInit={ editor => {
 
           const commentsPlugin = editor.plugins.get( 'Comments' );
-          commentsPlugin.adapter = {
-            addComment( data ) {
-                console.log("comment added", data)
-                // newCkCommentNotification({comment: data, postId: documentId, userId})
-                return Promise.resolve();
-            },
-
-            updateComment( data ) {
-                console.log( 'Comment updated', data );
-
-                // Write a request to your database here. The returned `Promise`
-                // should be resolved when the request has finished.
-                return Promise.resolve();
-            },
-
-            removeComment( commentId ) {
-                console.log( 'Comment removed', commentId );
-
-                // Write a request to your database here. The returned `Promise`
-                // should be resolved when the request has finished.
-                return Promise.resolve();
-            },
-          }
+          const realtimeCollaborativePlugin = editor.plugins.get( 'RealTimeCollaborativeComments')
+          commentsPlugin.adapter = ckInlineComments
+          realtimeCollaborativePlugin.adapter = ckInlineComments
 
           if (collaboration) {
             // Uncomment this line and the import above to activate the CKEDItor debugger

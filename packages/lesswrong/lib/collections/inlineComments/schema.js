@@ -23,6 +23,16 @@ const schema = {
     canRead: ['guests'],
     canCreate: ['members'],
     hidden: true,
+  },
+  ckCommentId: {
+    type: String,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    hidden: true,
+  },
+  deleted: {
+    type: Boolean,
   }
 }
 
