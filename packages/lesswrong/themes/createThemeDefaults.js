@@ -87,6 +87,9 @@ const createLWTheme = (theme) => {
         fontStyle: "italic",
         color: grey[600],
         fontSize:".9em",
+        // This should be at least as big as the margin-bottom of <p> tags (18.1
+        // on LW), and the distance on mobile between the divider and the top of
+        // the notice is as good as any
         marginBottom: 20,
         wordBreak: "break-word"
       },
@@ -219,6 +222,10 @@ const createLWTheme = (theme) => {
   const mergedTheme = deepmerge(defaultLWTheme, theme, {isMergeableObject:isPlainObject})
 
   const newTheme = createMuiTheme(mergedTheme)
+  
+  console.log('keys(newTheme)', Object.keys(newTheme))
+  console.log('newTheme.typography', newTheme.typography)
+  console.log('newTheme.spacing', newTheme.typography)
 
   return newTheme
 }

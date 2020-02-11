@@ -56,6 +56,9 @@ const styles = createStyles(theme => ({
     gridArea: 'title',
     marginBottom: 32,
     [theme.breakpoints.down('sm')]: {
+      // Matches distance from the bottom of the secondaryInfo to the divider
+      // = 16 (see header and divider) + the ~4 pixel distance from the bottom
+      // of the secondaryInfo text to the bottom of the associated div
       marginBottom: 20,
     }
   },
