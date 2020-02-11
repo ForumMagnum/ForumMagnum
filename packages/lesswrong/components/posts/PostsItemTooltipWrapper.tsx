@@ -16,7 +16,7 @@ const PostsItemTooltipWrapper = ({hover, anchorEl, stopHover, children, post}) =
           }
         }}
       >
-        <PostsPreviewTooltip post={post} />
+        <PostsPreviewTooltip post={post} postsList />
       </LWPopper>
       { children }
     </React.Fragment>

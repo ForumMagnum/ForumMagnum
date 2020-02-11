@@ -12,6 +12,7 @@ if(getSetting('forumType') === 'AlignmentForum') {
 
 if (getSetting('forumType') === 'EAForum') {
   importComponent("EAHome", () => require('../components/ea-forum/EAHome'));
+  importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
 }
 
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
@@ -134,6 +135,7 @@ importComponent("ReviewVotingPage", () => require('../components/users/ReviewVot
 
 importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon'));
 importComponent("SettingsIcon", () => require('../components/icons/SettingsIcon'));
+importComponent("KarmaIcon", () => require('../components/icons/KarmaIcon.tsx'));
 
 // posts
 
