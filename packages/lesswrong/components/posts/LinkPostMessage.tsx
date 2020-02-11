@@ -34,4 +34,3 @@ declare global {
     LinkPostMessage: typeof LinkPostMessageComponent
   }
 }
-
