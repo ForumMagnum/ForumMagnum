@@ -9,13 +9,14 @@ import Card from '@material-ui/core/Card';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper.jsx';
 
-export const POST_PREVIEW_WIDTH = 400
+export const POST_PREVIEW_WIDTH = 435
 
 const styles = createStyles(theme => ({
   root: {
     width: POST_PREVIEW_WIDTH,
     position: "relative",
     padding: theme.spacing.unit*1.5,
+    paddingRight: theme.spacing.unit*2,
     paddingBottom: 0,
     '& img': {
       maxHeight: "200px"
@@ -142,7 +143,7 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }) => {
   const highlight = post.customHighlight?.html || htmlHighlight
 
   const renderWordCount = !comment && (wordCount > 0)
-  const truncatedHighlight = truncate(highlight, 85, "words", `... <span class="expand">(more)</span>`)
+  const truncatedHighlight = truncate(highlight, expanded ? 200 : 100, "words", `... <span class="expand">(more)</span>`)
 
   return <AnalyticsContext pageElementContext="hoverPreview">
       <Card className={classes.root}>
@@ -188,7 +189,7 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }) => {
           : <div onClick={() => setExpanded(true)}>
               <ContentItemBody
                 className={classes.highlight}
-                dangerouslySetInnerHTML={{__html: expanded ? highlight : truncatedHighlight }}
+                dangerouslySetInnerHTML={{__html: truncatedHighlight }}
                 description={`post ${post._id}`}
               />
               {expanded && <Link to={Posts.getPageUrl(post)}><div className={classes.continue} >
