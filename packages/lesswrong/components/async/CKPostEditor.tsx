@@ -80,9 +80,9 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
       onInit={ editor => {
 
           const commentsPlugin = editor.plugins.get( 'Comments' );
-          const realtimeCollaborativePlugin = editor.plugins.get( 'RealTimeCollaborativeComments')
+          // const realtimeCollaborativePlugin = editor.plugins.get( 'RealTimeCollaborativeComments')
           commentsPlugin.adapter = ckInlineComments
-          realtimeCollaborativePlugin.adapter = ckInlineComments
+          // realtimeCollaborativePlugin.adapter = ckInlineComments
 
           if (collaboration) {
             // Uncomment this line and the import above to activate the CKEDItor debugger
