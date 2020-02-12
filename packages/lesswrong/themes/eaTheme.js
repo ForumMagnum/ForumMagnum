@@ -277,6 +277,11 @@ const theme = createLWTheme({
         marginBottom: 24
       }
     },
+    MuiSnackbarContent: {
+      root: {
+        backgroundColor: palette.primary.main
+      }
+    }
   }
 });
 

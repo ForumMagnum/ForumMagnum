@@ -38,7 +38,7 @@ const EAHomeHandbook = ({ classes, cookies, flash }) => {
 
   return <SingleColumnSection>
     <div className={classes.root}>
-      <Typography variant='h3'>EA Handbook</Typography>
+      <Typography variant='display2'>EA Handbook</Typography>
     </div>
     <div className={classes.dismissRoot}>
       <Typography>
