@@ -5,7 +5,7 @@ import Users from '../../lib/collections/users/collection';
 import { performVoteServer } from '../voteServer';
 import Localgroups from '../../lib/collections/localgroups/collection';
 import { addEditableCallbacks } from '../editor/make_editable_callbacks'
-import { makeEditableOptions, makeEditableOptionsModeration } from '../../lib/collections/posts/custom_fields'
+import { makeEditableOptions, makeEditableOptionsModeration, makeEditableOptionsCustomHighlight } from '../../lib/collections/posts/custom_fields'
 import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
 const MINIMUM_APPROVAL_KARMA = 5
@@ -116,6 +116,7 @@ addCallback("post.create.before", AddReferrerToPost);
 
 addEditableCallbacks({collection: Posts, options: makeEditableOptions})
 addEditableCallbacks({collection: Posts, options: makeEditableOptionsModeration})
+addEditableCallbacks({collection: Posts, options: makeEditableOptionsCustomHighlight})
 
 function PostsNewPostRelation (post) {
   if (post.originalPostRelationSourceId) {

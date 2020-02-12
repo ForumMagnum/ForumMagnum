@@ -2,6 +2,7 @@ import { defineQuery } from '../utils/serverGraphqlUtil';
 import Migrations from '../../lib/collections/migrations/collection';
 import { availableMigrations } from './migrationUtils';
 import * as _ from 'underscore';
+import moment from 'moment';
 
 defineQuery({
   name: "MigrationsDashboard",
@@ -14,6 +15,7 @@ defineQuery({
       name: String!
       dateWritten: String
       runs: [MigrationRun!]
+      lastRun: String
     }
     type MigrationRun {
       name: String!
@@ -38,16 +40,30 @@ defineQuery({
     
     return {
       migrations: migrationNamesByDateWrittenDesc
-        .map(name => ({
-          name,
-          dateWritten: availableMigrations[name].dateWritten,
-          runs: runsByMigration[name]?.map(run => ({
-            name: run.name,
-            started: new Date(run.started),
-            finished: run.finished ? new Date(run.finished) : null,
-            succeeded: run.succeeded,
-          })) || [],
-        }))
+        .map(name => makeMigrationStatus(name, runsByMigration))
     };
   },
 });
+
+const makeMigrationStatus = (name, runsByMigration) => {
+  const runs = runsByMigration[name]?.map(run => ({
+    name: run.name,
+    started: new Date(run.started),
+    finished: run.finished ? new Date(run.finished) : null,
+    succeeded: run.succeeded,
+  })) || []
+
+  let lastRun = ''
+  if (runs.length) {
+    const startDates = runs.map(run => run.started)
+    lastRun = moment.utc(_.max(startDates)).format('YYYY-MM-DD')
+  }
+
+  const result = {
+    name,
+    dateWritten: availableMigrations[name].dateWritten,
+    runs,
+    lastRun,
+  }
+  return result
+}

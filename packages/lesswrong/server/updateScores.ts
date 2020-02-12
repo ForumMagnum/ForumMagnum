@@ -1,4 +1,4 @@
-import { Connectors } from './vulcan-lib';
+import { Connectors, getSetting } from './vulcan-lib';
 import { recalculateScore } from '../lib/scoring';
 import * as _ from 'underscore';
 
@@ -66,7 +66,7 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
   //      and posts can become inactive
   const INACTIVITY_THRESHOLD_DAYS = 30;
   // time decay factor
-  const TIME_DECAY_FACTOR = 1.15; //LW: Set this to 1.15 from 1.3 for LW purposes (want slower decay)
+  const TIME_DECAY_FACTOR = getSetting('timeDecayFactor', 1.15); //LW: Set this to 1.15 from 1.3 for LW purposes (want slower decay)
   // Basescore bonuses for various categories
   const FRONTPAGE_BONUS = 10;
   const FEATURED_BONUS = 10;

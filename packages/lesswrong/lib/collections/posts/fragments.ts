@@ -142,6 +142,10 @@ registerFragment(`
       version
       html
     }
+    customHighlight {
+      version
+      html
+    }
     bannedUserIds
     hideAuthor
     moderationStyle
@@ -277,6 +281,10 @@ registerFragment(`
     contents {
       ...RevisionEdit
     }
+    customHighlight {
+      ...RevisionEdit
+    }
+    tableOfContents
   }
 `);
 
@@ -310,6 +318,9 @@ registerFragment(`
       wordCount
     }
     moderationGuidelines {
+      ...RevisionDisplay
+    }
+    customHighlight {
       ...RevisionDisplay
     }
   }

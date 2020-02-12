@@ -1,3 +1,4 @@
+import { getSetting } from 'meteor/vulcan:core'
 import Votes from './collections/votes/collection';
 
 export const recalculateBaseScore = (document) => {
@@ -19,7 +20,7 @@ export const recalculateScore = item => {
     const ageInHours = age / (60 * 60 * 1000);
 
     // time decay factor
-    const TIME_DECAY_FACTOR = 1.15; //LW: Set this to 1.15 from 1.3 for LW purposes (want slower decay)
+    const TIME_DECAY_FACTOR = getSetting('timeDecayFactor', 1.15); //LW: Set this to 1.15 from 1.3 for LW purposes (want slower decay)
 
     // Basescore bonuses for various categories
     const FRONTPAGE_BONUS = 10;

@@ -53,7 +53,10 @@ const styles = theme => ({
   },
   title: {
     gridArea: 'title',
-    marginBottom: 32
+    marginBottom: 32,
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: theme.spacing.titleDividerSpacing,
+    }
   },
   toc: {
     '@supports (grid-template-areas: "title")': {
@@ -113,6 +116,7 @@ const styles = theme => ({
   },
   secondaryInfo: {
     fontSize: '1.4rem',
+    fontFamily: theme.typography.uiSecondary.fontFamily,
   },
   commentsLink: {
     marginRight: SECONDARY_SPACING,

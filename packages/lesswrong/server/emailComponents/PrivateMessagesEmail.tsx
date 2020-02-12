@@ -65,7 +65,7 @@ const EmailListOfUsersComponent = registerComponent("EmailListOfUsers", EmailLis
 const PrivateMessagesEmailConversation = ({conversation, messages, participantsById, classes}) => {
   const currentUser = useCurrentUser();
   const { EmailUsername, EmailListOfUsers, EmailFormatDate, EmailContentItemBody } = Components;
-  const sitename = getSetting('title');
+  const sitename = getSetting('siteNameWithArticle');
   const conversationLink = Conversations.getPageUrl(conversation, true);
   
   return (<React.Fragment>

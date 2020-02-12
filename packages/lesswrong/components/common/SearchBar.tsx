@@ -176,17 +176,10 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
     const alignmentForum = getSetting<string>('forumType') === 'AlignmentForum';
 
     const { searchResultsArea, classes } = this.props
-    const { location } = this.props; // From withLocation
     const { searchOpen, inputOpen } = this.state
 
     if(!isAlgoliaEnabled) {
       return <div>Search is disabled (Algolia App ID not configured on server)</div>
-    }
-
-    // HACK FIXME: This should very likely be factored out somewhere close to where the routes lives, to avoid breaking when we make small URL changes
-    let userRefinement
-    if(location && location.pathname && location.pathname.includes("/users/")){
-      userRefinement = location.pathname.split('/')[2]
     }
 
     return <div className={classes.root} onKeyDown={this.handleKeyDown}>
@@ -202,7 +195,6 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
             {[classes.alignmentForum]: alignmentForum}
           )}>
             {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
-            {userRefinement && <VirtualMenu attribute='authorSlug' defaultRefinement={userRefinement} />}
             <div onClick={this.handleSearchTap}>
               <SearchIcon className={classes.searchIcon}/>
               { inputOpen && <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} /> }

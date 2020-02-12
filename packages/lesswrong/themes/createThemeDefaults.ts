@@ -10,6 +10,13 @@ const monoStack = [
   'monospace'
 ].join(',')
 
+// Will be used for the distance between the post title divider and the text on
+// mobile
+// Matches distance from the bottom of the secondaryInfo to the divider
+// = 16 (see header and divider) + the ~4 pixel distance from the bottom
+// of the secondaryInfo text to the bottom of the associated div
+const titleDividerSpacing = 20
+
 export const zIndexes = {
   continueReadingImage: -1,
   commentsMenu: 1,
@@ -77,7 +84,8 @@ const createLWTheme = (theme) => {
       },
     },
     spacing: {
-      unit: spacingUnit
+      unit: spacingUnit,
+      titleDividerSpacing,
     },
     typography: {
       postStyle: {
@@ -87,7 +95,10 @@ const createLWTheme = (theme) => {
         fontStyle: "italic",
         color: grey[600],
         fontSize:".9em",
-        marginBottom: spacingUnit*2,
+        // This should be at least as big as the margin-bottom of <p> tags (18.1
+        // on LW), and the distance on mobile between the divider and the top of
+        // the notice is as good as any
+        marginBottom: titleDividerSpacing,
         wordBreak: "break-word"
       },
       body1: body1FontSize,
@@ -131,6 +142,11 @@ const createLWTheme = (theme) => {
         fontSize: 18,
         fontWeight: 400,
         marginBottom: 3,
+      },
+      // Used for ui text that's (on LW) serifed rather than the primary
+      // sans-serif ui font. On the EA Forum this is overridden with sans-serif
+      uiSecondary: {
+        fontFamily: typography.fontFamily,
       },
       caption: {
         fontSize: ".9rem"

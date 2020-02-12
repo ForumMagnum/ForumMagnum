@@ -8,7 +8,7 @@ import ClickawayListener from '@material-ui/core/ClickAwayListener';
 
 const styles = theme => ({
   icon: {
-    verticalAlign: 'bottom'
+    verticalAlign: 'middle'
   },
   popper: {
     position: "relative",

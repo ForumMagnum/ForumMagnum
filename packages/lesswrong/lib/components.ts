@@ -11,6 +11,7 @@ if(getSetting('forumType') === 'AlignmentForum') {
 
 if (getSetting('forumType') === 'EAForum') {
   importComponent("EAHome", () => require('../components/ea-forum/EAHome'));
+  importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
 }
 
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));

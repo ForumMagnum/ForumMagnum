@@ -17,6 +17,9 @@ registerSetting('forum.numberOfWeeks', 4, 'Number of weeks to display in the tim
 registerSetting('forum.numberOfMonths', 4, 'Number of months to display in the timeframe view');
 registerSetting('forum.numberOfYears', 4, 'Number of days to display in the timeframe view');
 
+// Karma
+registerSetting('timeDecayFactor', 1.15, 'Used to discount sorting score with time');
+
 // Comments callbacks
 registerSetting('forum.commentInterval', 15, 'How long users should wait in between comments (in seconds)');
 
