@@ -496,6 +496,11 @@ switch (getSetting('forumType')) {
         name: 'eaSequencesHome',
         path: '/sequences',
         componentName: 'EASequencesHome'
+      },
+      {
+        name: 'eaHandbookHome', // TODO;
+        path: '/handbook',
+        componentName: 'EASequencesHome'
       }
     ]);
     break
