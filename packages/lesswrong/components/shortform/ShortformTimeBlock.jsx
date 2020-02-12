@@ -9,17 +9,11 @@ const styles = theme => ({
   shortformGroup: {
     marginTop: 12,
   },
-  shortformTag: {
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[700],
-    marginBottom: 8,
-  },
   subtitle: {
     [theme.breakpoints.down('sm')]:{
-      marginBottom: theme.spacing.unit*1.5,
+      paddingBottom: theme.spacing.unit*1.5,
     },
-    marginBottom: theme.spacing.unit*2,
+    paddingBottom: theme.spacing.unit
   },
 })
 
@@ -55,7 +49,7 @@ class ShortformTimeBlock extends Component {
     return <div>
       <div className={classes.shortformGroup}>
         <SectionSubtitle className={classes.subtitle}>
-          <ContentType type="shortform" label="Shortform [Beta]"/>
+          <ContentType type="shortform" label="Shortform"/>
         </SectionSubtitle>
         <SubSection>
           {comments?.map((comment, i) =>
