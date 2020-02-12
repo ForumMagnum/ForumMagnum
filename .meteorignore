@@ -1,4 +1,4 @@
 scripts
 tmp
 *.d.ts
-
+./LessWrong-Credentials/*
