@@ -55,8 +55,8 @@ const MigrationsDashboard = ({classes}) => {
 }
 
 const MigrationsDashboardComponent = registerComponent(
-  "MigrationsDashboard", MigrationsDashboard,
-  withStyles(styles, {name: "MigrationsDashboard"}));
+  "MigrationsDashboard", MigrationsDashboard, {styles}
+);
 
 declare global {
   interface ComponentTypes {

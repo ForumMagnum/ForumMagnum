@@ -23,7 +23,7 @@ export const rowStyles = {
     minWidth: 140,
   },
 };
-const styles = createStyles(theme => rowStyles);
+const styles = theme => rowStyles;
 
 const MigrationsDashboardRow = ({migration: {name, dateWritten, runs, lastRun}, classes}) => {
   const [expanded, setExpanded] = React.useState(false);
