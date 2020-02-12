@@ -36,7 +36,7 @@ const styles = createStyles(theme => ({
   },
 }));
 
-const CommentsItemDate = ({comment, post, classes, scrollOnClick, scrollIntoView }) => {
+const CommentsItemDate = ({comment, post, classes, scrollOnClick, scrollIntoView, permalink=true }) => {
   const { history } = useNavigation();
   const { location } = useLocation();
   const { captureEvent } = useTracking("dateIconLinkClick");
@@ -48,7 +48,7 @@ const CommentsItemDate = ({comment, post, classes, scrollOnClick, scrollIntoView
     captureEvent("linkClicked", {buttonPressed: event.button, furtherContext: "dateIcon"})
    };
 
-  const url = Comments.getPageUrlFromIds({postId: post._id, postSlug: post.slug, commentId: comment._id, permalink: false})
+  const url = Comments.getPageUrlFromIds({postId: post._id, postSlug: post.slug, commentId: comment._id, permalink})
 
   const date = <span>
     <Components.FormatDate date={comment.postedAt} format={comment.answer && "MMM DD, YYYY"}/>

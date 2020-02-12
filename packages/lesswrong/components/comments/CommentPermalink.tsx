@@ -40,7 +40,7 @@ const CommentPermalink = (props) => {
   return <div className={classes.root}>
       <div className={classes.permalinkLabel}>Comment Permalink</div>
       {loading ? <Loading /> : <div>
-        <CommentWithReplies key={comment._id} post={post} comment={comment} refetch={refetch}/>
+        <CommentWithReplies key={comment._id} post={post} comment={comment} refetch={refetch} showTitle={false}/>
         <div className={classes.seeInContext}><a href={`#${documentId}`}>See in context</a></div>
       </div>}
       {getSetting('forumType') !== 'EAForum' && <div className={classes.dividerMargins}><Divider /></div>}

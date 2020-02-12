@@ -22,6 +22,7 @@ interface CommentWithRepliesProps extends WithUserProps, WithStylesProps {
   post: any,
   recordPostView: any,
   refetch: any,
+  showTitle: boolean
 }
 interface CommentWithRepliesState {
   markedAsVisitedAt: Date|null,
@@ -38,7 +39,7 @@ class CommentWithReplies extends PureComponent<CommentWithRepliesProps,CommentWi
   }
 
   render () {
-    const { classes, comment, refetch, post: propsPost } = this.props
+    const { classes, comment, refetch, post: propsPost, showTitle=true } = this.props
     const { CommentsNode } = Components
     const { markedAsVisitedAt, maxChildren } = this.state
 
@@ -67,7 +68,7 @@ class CommentWithReplies extends PureComponent<CommentWithRepliesProps,CommentWi
         <CommentsNode
           noHash
           startThreadTruncated={true}
-          showPostTitle
+          showPostTitle={showTitle}
           startCollapsed
           nestingLevel={1}
           lastCommentId={lastCommentId}
