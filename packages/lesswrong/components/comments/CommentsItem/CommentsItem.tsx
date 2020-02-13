@@ -14,10 +14,8 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 // Shared with ParentCommentItem
 export const styles = theme => createStyles({
   root: {
-    paddingTop: 1,
     paddingLeft: theme.spacing.unit*1.5,
     paddingRight: theme.spacing.unit*1.5,
-    paddingBottom: 1,
     "&:hover $menu": {
       opacity:1
     }
