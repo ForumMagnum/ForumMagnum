@@ -42,7 +42,7 @@ const styles = theme => ({
   banner: {
     position: "absolute",
     right: 0,
-    top: 60,
+    top: 60, // TODO; ea 77 / factor out
     width: "100vw",
     height: 380,
     [legacyBreakpoints.maxTiny]: {

@@ -19,7 +19,7 @@ class EAHome extends PureComponent {
       <React.Fragment>
         {shouldRenderSidebar && <Components.SunshineSidebar/>}
 
-        <EAHomeHandbook />
+        <EAHomeHandbook documentId={'gzqiPeEpHxfW3KBcn'}/> {/* TODO; setting */}
 
         <HomeLatestPosts />
 

@@ -1,31 +1,61 @@
 import React from 'react'
 import { Components, registerComponent } from 'meteor/vulcan:core'
 import { withStyles, createStyles } from '@material-ui/core/styles'
+import { withSingle } from '../../lib/crud/withSingle';
 import Typography from '@material-ui/core/Typography'
 import { withCookies } from 'react-cookie'
 import { withMessages } from '../common/withMessages';
-
+import Sequences from '../../lib/collections/sequences/collection';
 
 const styles = createStyles(theme => ({
-  root: {
-    minHeight: 300,
-    backgroundImage: `url(https://images.pexels.com/photos/414171/pexels-photo-414171.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500)`,
+  imgWrapper: {
+    // TODO; full width
+    position: 'absolute',
+    right: 0,
+    top: 77, // header height
+    width: "100vw",
+    height: 400,
+    "& img": { // TODO;
+      width: "100vw",
+    },
+    // minHeight: 400,
+    // width: '100%',
+    // backgroundColor: '#999999',
+  },
+  overImage: {
+    marginTop: -36, // Undo layout main
+    minHeight: 400,
     display: 'flex',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    zIndex: 1,
+    position: 'relative',
   },
-  dismissRoot: {
+  overImageText: {
+    ...theme.typography.display2,
+    color: '#FFFFFF',
+    marginTop: 0,
+  },
+  dismiss: {
+    // hack
+    fontFamily: theme.typography.uiSecondary.fontFamily,
+    fontSize: 14,
+    marginTop: -27,
     textAlign: 'right',
-    color: '#999'
-  }
+    color: '#BBB',
+    position: 'relative',
+    zIndex: 1,
+  },
 }))
 
 const COOKIE_NAME = 'hide_home_handbook'
 const END_OF_TIME = new Date('2038-01-18')
-const EAHomeHandbook = ({ classes, cookies, flash }) => {
-  const { SingleColumnSection } = Components
+
+const EAHomeHandbook = ({ classes, cookies, flash, document, loading }) => {
+  const { SingleColumnSection, CloudinaryImage2, Loading } = Components
   const hideHandbook = cookies.get(COOKIE_NAME)
   if (hideHandbook) return null
+  if (loading || !document) return <Loading />
 
   const handleDismiss = () => {
     cookies.set(COOKIE_NAME, 'true', {
@@ -36,15 +66,35 @@ const EAHomeHandbook = ({ classes, cookies, flash }) => {
     })
   }
 
-  return <SingleColumnSection>
-    <div className={classes.root}>
-      <Typography variant='display2'>EA Handbook</Typography>
-    </div>
-    <div className={classes.dismissRoot}>
-      <Typography>
+  return <React.Fragment>
+    <SingleColumnSection>
+      <div className={classes.imgWrapper}>
+        <CloudinaryImage2
+          publicId={document.bannerImageId}
+          width="auto"
+          height="400"
+        />
+      </div>
+      <div className={classes.overImage}>
+        <div className={classes.overImageText}>EA Handbook</div>
+      </div>
+      <div className={classes.dismiss}>
         <a onClick={handleDismiss}>Don't show this</a>
-      </Typography>
-    </div>
-  </SingleColumnSection>
+      </div>
+    </SingleColumnSection>
+  </React.Fragment>
 }
-registerComponent('EAHomeHandbook', EAHomeHandbook, withStyles(styles, { name: 'EAHomeHandbook' }), withCookies, withMessages)
+
+const options = {
+  collection: Sequences,
+  queryName: "SequencesPageQuery",
+  fragmentName: 'SequencesPageFragment',
+  enableTotal: false,
+  ssr: true,
+};
+
+registerComponent(
+  'EAHomeHandbook', EAHomeHandbook,
+  withStyles(styles, { name: 'EAHomeHandbook' }),
+  withCookies, withMessages, [withSingle, options]
+)
