@@ -8,7 +8,21 @@ const getNestedProperty = function (obj, desc) {
 
 export const Settings: Record<string,any> = {};
 
+// Keep track of which settings have been used (`getSetting`) without being
+// registered (`registerSetting`). Registering settings is optional, but if a
+// setting is registered with a default value after it has already been used
+// without a default value, that's an error.
+const settingsUsedWithoutRegistration: Record<string,bool> = {};
+
 export const registerSetting = <T>(settingName: string, defaultValue: T, description?: string, isPublic?: boolean) => {
+  if (settingName in Settings) {
+    throw new Error(`Duplicate setting registration: ${settingName}`);
+  }
+  if (settingName in settingsUsedWithoutRegistration && (typeof defaultValue !== "undefined")) {
+    //eslint-disable-next-line no-console
+    console.log(`ERROR: Setting ${settingName} registered after having already been used`);
+  }
+  
   Settings[settingName] = { defaultValue, description, isPublic };
 };
 
@@ -19,6 +33,12 @@ export const getSetting = <T>(settingName: string, settingDefault?: T): T => {
   // if a default value has been registered using registerSetting, use it
   if (typeof settingDefault === 'undefined' && Settings[settingName])
     settingDefault = Settings[settingName].defaultValue;
+
+  // If this setting hasn't been registered, and is used here without a default
+  // value specified, record the fact that it was used without registration.
+  if (!(settingName in Settings) && (typeof settingDefault === undefined)) {
+    settingsUsedWithoutRegistration[settingName] = true;
+  }
 
   if (Meteor.isServer) {
     // look in public, private, and root
@@ -57,5 +77,3 @@ export const getSetting = <T>(settingName: string, settingDefault?: T): T => {
   return setting;
 
 };
-
-registerSetting('debug', false, 'Enable debug mode (more verbose logging)');

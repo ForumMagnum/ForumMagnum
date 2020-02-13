@@ -131,36 +131,18 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
 const debugComponentImports = false;
 
 export function importComponent(componentName, importFn) {
-  if (debugComponentImports) {
-    const expectedAddedComponents = {};
-    if (Array.isArray(componentName)) {
-      for (let component of componentName)
-        expectedAddedComponents[component] = true;
-    } else {
-      expectedAddedComponents[componentName] = true;
-    }
-    
-    const oldComponents = {...ComponentsTable};
-    importFn();
-    const newComponents = {...ComponentsTable};
-    for (let addedComponent in expectedAddedComponents) {
-      if (!(addedComponent in ComponentsTable))
-        throw new Error(`Import did not provide component ${addedComponent}`);
-    }
-    for (let component in newComponents) {
-      if (!(component in oldComponents) && !(component in expectedAddedComponents)) {
-        // eslint-disable-next-line no-console
-        console.log(`Import added unexpected extra component: ${component}`);
-      }
+  if (Array.isArray(componentName)) {
+    for (let name of componentName) {
+      DeferredComponentsTable[name] = importFn;
     }
   } else {
-    if (Array.isArray(componentName)) {
-      for (let name of componentName) {
-        DeferredComponentsTable[name] = importFn;
-      }
-    } else {
-      DeferredComponentsTable[componentName] = importFn;
-    }
+    DeferredComponentsTable[componentName] = importFn;
+  }
+}
+
+function importAllComponents() {
+  for (let componentName of Object.keys(DeferredComponentsTable)) {
+    prepareComponent(componentName);
   }
 }
 
@@ -234,6 +216,10 @@ export const populateComponentsApp = () => {
         ', '
       )}. Include a UI package such as vulcan:ui-bootstrap to add them.`
     );
+  }
+  
+  if (debugComponentImports) {
+    importAllComponents();
   }
 };
 

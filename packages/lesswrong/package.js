@@ -73,6 +73,6 @@ Package.onTest(function(api) {
     "@babel/plugin-syntax-optional-chaining": "7.2.0"
   })
   // Entry points for tests
-  api.mainModule('./testing/client.tests.js', 'client');
-  api.mainModule('./testing/server.tests.js', 'server');
+  api.mainModule('./testing/client.tests.ts', 'client');
+  api.mainModule('./testing/server.tests.ts', 'server');
 })
