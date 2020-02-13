@@ -1,5 +1,6 @@
 import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
+import { SECTION_WIDTH } from './SingleColumnSection';
 
 function cloudinaryPropsToStr(props) {
   let sb: string[] = [];
@@ -26,8 +27,8 @@ const CloudinaryImage2 = ({width, height, objectFit, publicId}: {
   let imageStyle: any = {};
 
   if (width) {
-    cloudinaryProps.w = width;
-    imageStyle.width = width+"px";
+    cloudinaryProps.w = SECTION_WIDTH; // TODO; no
+    imageStyle.width = '100%'
   }
   if (height) {
     cloudinaryProps.h = height;

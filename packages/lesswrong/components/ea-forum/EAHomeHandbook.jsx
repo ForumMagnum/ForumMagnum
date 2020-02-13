@@ -1,24 +1,43 @@
+// TODO; tsx
 import React from 'react'
 import { Components, registerComponent } from 'meteor/vulcan:core'
 import { withStyles, createStyles } from '@material-ui/core/styles'
+import Typography from '@material-ui/core/Typography';
 import { withSingle } from '../../lib/crud/withSingle';
 import { withCookies } from 'react-cookie'
 import { withMessages } from '../common/withMessages';
 import Sequences from '../../lib/collections/sequences/collection';
+import { SECTION_WIDTH } from '../common/SingleColumnSection';
+
+const bannerHeight = 250 // TODO; 250
+
+// TODO; fix mid-range widths
+// TODO; still not handling the image window right
 
 const styles = createStyles(theme => ({
   bannerContainer: {
     position: 'absolute',
-    right: 0,
-    top: 77, // header height
-    width: '100vw',
-    height: 400,
+    top: 120, // desktop header height + layout margin
+    width: SECTION_WIDTH,
+    [theme.breakpoints.down('sm')]: {
+      top: 85
+    },
+    [theme.breakpoints.down('xs')]: {
+      top: 77, // mobile header height
+      right: 0,
+      width: '100vw', // TODO; xs or sm?
+    },
+    height: bannerHeight,
     overflow: 'hidden',
+    [theme.breakpoints.up('md')]: {
+      boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
+    },
   },
   bannerImgWrapper: {
     position: 'absolute',
     transform: 'scale(1.1)',
     filter: 'blur(4px)',
+    width: '100%',
   },
   bannerOverlay: {
     position: 'absolute',
@@ -27,25 +46,45 @@ const styles = createStyles(theme => ({
     background: theme.palette.primary.main,
     opacity: .5,
   },
-  overImage: {
-    marginTop: -36, // Undo layout main
-    minHeight: 400,
+  overImageText: {
+    position: 'relative',
+    [theme.breakpoints.down('sm')]: {
+      marginTop: -36, // Undo layout main (really?)
+    },
+    minHeight: bannerHeight, // TODO; can we remove repeated height?
     display: 'flex',
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1,
-    position: 'relative',
   },
-  overImageText: {
-    ...theme.typography.display2,
+  title: {
+    margin: 0,
+    width: 300, // TODO;
+    textAlign: 'center',
+    fontFamily: theme.typography.postStyle.fontFamily,
+    fontStyle: "italic",
     color: '#FFFFFF',
-    marginTop: 0,
+  },
+  divider: {
+    width: 70,
+    marginTop: 10,
+    marginBottom: 10,
+    borderBottom: "solid 1px #FFFFFF",
+  },
+  description: {
+    margin: 0, // TODO; dedup
+    width: 200, // TODO;
+    textAlign: 'center',
+    fontSize: 17,
+    fontFamily: theme.typography.postStyle.fontFamily,
+    color: '#FFFFFF',
   },
   dismiss: {
     // hack
     fontFamily: theme.typography.uiSecondary.fontFamily,
     fontSize: 14,
-    marginTop: -27,
+    marginTop: -20,
     textAlign: 'right',
     color: '#BBB',
     position: 'relative',
@@ -70,6 +109,11 @@ const EAHomeHandbook = ({ classes, cookies, flash, document, loading }) => {
       messageString: "We won't show this again. If you want to read the Handbook, you can access it from the sidebar menu."
     })
   }
+  
+  console.log('document', document)
+  // TODO; substitute author with nbsp
+  // TODO; actual sequence gets nbsp in between Effective and Altruism?
+  // Prolly won't work, lets hard-code it
 
   return <React.Fragment>
     <SingleColumnSection>
@@ -77,14 +121,21 @@ const EAHomeHandbook = ({ classes, cookies, flash, document, loading }) => {
         <div className={classes.bannerImgWrapper}>
           <CloudinaryImage2
             publicId={document.bannerImageId}
-            height='400'
+            height={bannerHeight}
+            width={true}
             objectFit='cover'
           />
         </div>
         <div className={classes.bannerOverlay} />
       </div>
-      <div className={classes.overImage}>
-        <div className={classes.overImageText}>EA Handbook</div>
+      <div className={classes.overImageText}>
+        <Typography variant='display1' className={classes.title}>
+          {document.title}
+        </Typography>
+        <div className={classes.divider} />
+        <Typography variant='display1' className={classes.description}>
+          Intro Sequence by {document.user.displayName}
+        </Typography>
       </div>
       <div className={classes.dismiss}>
         <a onClick={handleDismiss}>Don't show this</a>
