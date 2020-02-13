@@ -6,9 +6,13 @@ import Item from './Item'
 
 // inspired by http://htmlemailboilerplate.com
 export default function Email(props) {
+  const htmlTagProps: any = {
+    lang: props.lang,
+    xmlns: "http://www.w3.org/1999/xhtml"
+  }
   // default nested 600px wide outer table container (see http://templates.mailchimp.com/development/html/)
   return (
-    <html lang={props.lang} xmlns="http://www.w3.org/1999/xhtml">
+    <html {...htmlTagProps}>
       <head>
         <meta httpEquiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
