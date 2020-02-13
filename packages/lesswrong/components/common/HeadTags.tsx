@@ -5,7 +5,7 @@ import { Utils, registerSetting, getSetting, Head } from '../../lib/vulcan-lib';
 import compose from 'lodash/flowRight';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { withApollo } from 'react-apollo';
-import '../lib/registerSettings';
+import '../../lib/registerSettings';
 
 const HeadTags = (props) => {
     const url = props.url || Utils.getSiteUrl();
