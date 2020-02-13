@@ -20,7 +20,7 @@ interface ExternalProps {
   comment: any,
   post?: any,
   refetch: any,
-  showTitle: boolean
+  showTitle?: boolean
 }
 interface CommentWithRepliesProps extends ExternalProps, WithUserProps, WithStylesProps {
   recordPostView: any,
@@ -70,7 +70,6 @@ class CommentWithReplies extends PureComponent<CommentWithRepliesProps,CommentWi
           noHash
           startThreadTruncated={true}
           showPostTitle={showTitle}
-          startCollapsed
           nestingLevel={1}
           lastCommentId={lastCommentId}
           comment={comment}

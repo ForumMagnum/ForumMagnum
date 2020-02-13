@@ -2,6 +2,7 @@ import Users from '../../lib/collections/users/collection';
 import { Comments } from '../../lib/collections/comments'
 import { Posts } from '../../lib/collections/posts'
 import { Vulcan, newMutation, Utils } from '../vulcan-lib';
+import { sanitize } from '../vulcan-lib/utils';
 import moment from 'moment';
 import { markdownToHtml } from '../editor/make_editable_callbacks';
 import pgp from 'pg-promise';
@@ -402,7 +403,7 @@ const legacyCommentToNewComment = (comment, legacyId, author, parentPost) => {
         type: "markdown",
         data: comment.body
       },
-      html: comment.body && sanitizeHtml(markdownToHtml(comment.body))
+      html: comment.body && sanitize(markdownToHtml(comment.body))
     },
   };
 }

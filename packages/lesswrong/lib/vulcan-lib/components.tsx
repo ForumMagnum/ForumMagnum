@@ -140,7 +140,7 @@ export function importComponent(componentName, importFn) {
   }
 }
 
-function importAllComponents() {
+export function importAllComponents() {
   for (let componentName of Object.keys(DeferredComponentsTable)) {
     prepareComponent(componentName);
   }

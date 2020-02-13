@@ -9,7 +9,7 @@ export const sanitizeAllowedTags = [
   'tbody', 'tr', 'th', 'td', 'pre', 'img', 'figure', 'figcaption'
 ]
 
-export const sanitizeHtml = function(s) {
+export const sanitize = function(s) {
   return sanitizeHtml(s, {
     allowedTags: sanitizeAllowedTags,
     allowedAttributes:  {

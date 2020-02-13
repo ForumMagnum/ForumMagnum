@@ -12,7 +12,7 @@ export const Settings: Record<string,any> = {};
 // registered (`registerSetting`). Registering settings is optional, but if a
 // setting is registered with a default value after it has already been used
 // without a default value, that's an error.
-const settingsUsedWithoutRegistration: Record<string,bool> = {};
+const settingsUsedWithoutRegistration: Record<string,boolean> = {};
 
 export const registerSetting = <T>(settingName: string, defaultValue: T, description?: string, isPublic?: boolean) => {
   if (settingName in Settings) {
