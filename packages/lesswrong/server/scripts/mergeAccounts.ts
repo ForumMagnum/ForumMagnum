@@ -170,6 +170,7 @@ async function recomputeKarma(userId) {
   const totalNonLegacyKarma = sumBy(allTargetVotes, vote => {
     return vote.power
   })
+  // @ts-ignore FIXME legacyKarma isn't in the schema, figure out whether it's real
   const totalKarma = totalNonLegacyKarma + (user.legacyKarma || 0)
   return totalKarma
 }

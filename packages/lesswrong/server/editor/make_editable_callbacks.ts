@@ -302,6 +302,13 @@ export function addEditableCallbacks({collection, options = {}}: {
       const userId = currentUser._id
       const editedAt = new Date()
       
+      // FIXME: This doesn't define documentId, because it's filled in in the
+      // after-create callback, passing through an intermediate state where it's
+      // undefined; and it's missing _id and schemaVersion, which leads to having
+      // ObjectID types in the database which can cause problems. Would be good
+      // to remove this ts-ignore, since there was recently an important bug here
+      // (missing fieldName) that typechecking would have caught.
+      // @ts-ignore
       const firstRevision = await Connectors.create(Revisions, {
         ...await buildRevision({
           originalContents: doc[fieldName].originalContents,
@@ -347,6 +354,9 @@ export function addEditableCallbacks({collection, options = {}}: {
       const userId = currentUser._id
       const editedAt = new Date()
       
+      // FIXME: See comment on the other Connectors.create call in this file.
+      // Missing _id and schemaVersion.
+      // @ts-ignore
       const newRevision = await Connectors.create(Revisions, {
         documentId: document._id,
         ...await buildRevision({

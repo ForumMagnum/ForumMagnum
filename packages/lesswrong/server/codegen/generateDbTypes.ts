@@ -37,9 +37,15 @@ function generateCollectionDbType(collection: any): string {
   sb.push(`interface Db${typeName} extends DbObject {\n`);
   
   for (let fieldName of Object.keys(schema)) {
+    if (fieldName === "contents") console.log("Evaluating contents field in schema generation");
     // Resolver-only field?
     if (schema[fieldName].resolveAs && !schema[fieldName].resolveAs.addOriginalField) {
-      continue;
+      if (fieldName === "contents") console.log("Maybe skipping contents field in schema generation because resolver-only");
+      // HACK: 
+      if (schema[fieldName].resolveAs?.type !== "Revision") {
+        if (fieldName === "contents") console.log("Skipping contents field in schema generation because resolver-only");
+        continue;
+      }
     }
     // Universal field (therefore in base type)?
     if (isUniversalField(fieldName)) {
@@ -50,6 +56,7 @@ function generateCollectionDbType(collection: any): string {
       continue;
     }
     
+    if (fieldName === "contents") console.log("Not skipping contents field in schema generation");
     const typeName = simplSchemaTypeToTypescript(schema, fieldName, schema[fieldName].type);
     
     sb.push(`  ${fieldName}: ${typeName}\n`);
