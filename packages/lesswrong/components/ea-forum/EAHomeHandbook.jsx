@@ -2,25 +2,30 @@ import React from 'react'
 import { Components, registerComponent } from 'meteor/vulcan:core'
 import { withStyles, createStyles } from '@material-ui/core/styles'
 import { withSingle } from '../../lib/crud/withSingle';
-import Typography from '@material-ui/core/Typography'
 import { withCookies } from 'react-cookie'
 import { withMessages } from '../common/withMessages';
 import Sequences from '../../lib/collections/sequences/collection';
 
 const styles = createStyles(theme => ({
-  imgWrapper: {
-    // TODO; full width
+  bannerContainer: {
     position: 'absolute',
     right: 0,
     top: 77, // header height
-    width: "100vw",
+    width: '100vw',
     height: 400,
-    "& img": { // TODO;
-      width: "100vw",
-    },
-    // minHeight: 400,
-    // width: '100%',
-    // backgroundColor: '#999999',
+    overflow: 'hidden',
+  },
+  bannerImgWrapper: {
+    position: 'absolute',
+    transform: 'scale(1.1)',
+    filter: 'blur(4px)',
+  },
+  bannerOverlay: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    background: theme.palette.primary.main,
+    opacity: .5,
   },
   overImage: {
     marginTop: -36, // Undo layout main
@@ -62,18 +67,21 @@ const EAHomeHandbook = ({ classes, cookies, flash, document, loading }) => {
       expires: END_OF_TIME
     })
     flash({
-      messageString: `We won't show this again. If you want to read the Handbook, you can access it from the sidebar menu.`
+      messageString: "We won't show this again. If you want to read the Handbook, you can access it from the sidebar menu."
     })
   }
 
   return <React.Fragment>
     <SingleColumnSection>
-      <div className={classes.imgWrapper}>
-        <CloudinaryImage2
-          publicId={document.bannerImageId}
-          width="auto"
-          height="400"
-        />
+      <div className={classes.bannerContainer}>
+        <div className={classes.bannerImgWrapper}>
+          <CloudinaryImage2
+            publicId={document.bannerImageId}
+            height='400'
+            objectFit='cover'
+          />
+        </div>
+        <div className={classes.bannerOverlay} />
       </div>
       <div className={classes.overImage}>
         <div className={classes.overImageText}>EA Handbook</div>
@@ -87,7 +95,7 @@ const EAHomeHandbook = ({ classes, cookies, flash, document, loading }) => {
 
 const options = {
   collection: Sequences,
-  queryName: "SequencesPageQuery",
+  queryName: 'SequencesPageQuery',
   fragmentName: 'SequencesPageFragment',
   enableTotal: false,
   ssr: true,

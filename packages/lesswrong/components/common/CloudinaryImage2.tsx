@@ -9,9 +9,10 @@ function cloudinaryPropsToStr(props) {
 }
 
 // TODO; docstring
-const CloudinaryImage2 = ({width, height, publicId}: {
+const CloudinaryImage2 = ({width, height, objectFit, publicId}: {
   width?: number,
   height?: number,
+  objectFit?: string,
   publicId: string,
 }) => {
   const cloudinaryCloudName = getSetting('cloudinary.cloudName', 'lesswrong-2-0')
@@ -24,13 +25,16 @@ const CloudinaryImage2 = ({width, height, publicId}: {
   };
   let imageStyle: any = {};
 
-  if(width) {
+  if (width) {
     cloudinaryProps.w = width;
     imageStyle.width = width+"px";
   }
-  if(height) {
+  if (height) {
     cloudinaryProps.h = height;
     imageStyle.height = height+"px";
+  }
+  if (objectFit) {
+    imageStyle.objectFit = objectFit
   }
 
   const imageUrl = `http://res.cloudinary.com/${cloudinaryCloudName}/image/upload/${cloudinaryPropsToStr(cloudinaryProps)}/${publicId}`;
