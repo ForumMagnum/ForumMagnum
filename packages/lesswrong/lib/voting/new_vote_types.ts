@@ -9,7 +9,6 @@ export const getVotePower = (karma, voteType) => {
 }
 
 export const userSmallVotePower = (karma, multiplier) => {
-  if (karma >= 25000) { return 3 * multiplier }
   if (karma >= 1000) { return 2 * multiplier }
   return 1 * multiplier
 }

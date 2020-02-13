@@ -5,7 +5,8 @@ import { markdownToHtmlNoLaTeX, dataToMarkdown } from '../editor/make_editable_c
 import { highlightFromHTML, truncate } from '../../lib/editor/ellipsize';
 import { addFieldsDict } from '../../lib/utils/schemaUtils'
 import { JSDOM } from 'jsdom'
-import { Utils } from '../../lib/vulcan-lib';
+import { sanitize } from '../vulcan-lib/utils';
+import { sanitizeAllowedTags } from '../vulcan-lib/utils';
 import htmlToText from 'html-to-text'
 import sanitizeHtml from 'sanitize-html';
 import * as _ from 'underscore';
@@ -48,7 +49,7 @@ export function dataToDraftJS(data, type) {
     }
     case "ckEditorMarkup": {
       // CK Editor markup is just html with extra tags, so we just remove them and then handle it as html
-      const draftJSContentState = htmlToDraftServer(Utils.sanitize(data), {}, domBuilder)
+      const draftJSContentState = htmlToDraftServer(sanitize(data), {}, domBuilder)
       return convertToRaw(draftJSContentState)  // On the server have to parse in a JS-DOM implementation to make htmlToDraft work
     }
     case "markdown": {
@@ -96,7 +97,7 @@ addFieldsDict(Revisions, {
     resolveAs: {
       type: 'String',
       resolver: ({html}) => {
-        const truncatedHtml = truncate(Utils.sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
+        const truncatedHtml = truncate(sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
         return htmlToText
           .fromString(truncatedHtml)
           .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
@@ -111,7 +112,7 @@ addFieldsDict(Revisions, {
       resolver: ({html}) => {
         const mainTextHtml = sanitizeHtml(
           html, { 
-            allowedTags: _.without(Utils.sanitizeAllowedTags, 'blockquote', 'img'),
+            allowedTags: _.without(sanitizeAllowedTags, 'blockquote', 'img'),
             nonTextTags: ['blockquote', 'img', 'style']
           }
         )

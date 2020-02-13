@@ -11,6 +11,7 @@ if(getSetting('forumType') === 'AlignmentForum') {
 
 if (getSetting('forumType') === 'EAForum') {
   importComponent("EAHome", () => require('../components/ea-forum/EAHome'));
+  importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
 }
 
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
@@ -30,7 +31,7 @@ importComponent("SelectVersion", () => require('../components/editor/SelectVersi
 
 // RSS Feed Integration
 importComponent("newFeedButton", () => require('../components/feeds/newFeedButton'));
-importComponent("editFeedButton", () => require('../components/feeds/editFeedButton'));
+//importComponent("editFeedButton", () => require('../components/feeds/editFeedButton'));
 
 importComponent("NotificationsMenu", () => require('../components/notifications/NotificationsMenu'));
 importComponent("NotificationsList", () => require('../components/notifications/NotificationsList'));

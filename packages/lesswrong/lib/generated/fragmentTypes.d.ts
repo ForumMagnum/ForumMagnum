@@ -133,6 +133,7 @@ interface PostsDetails extends PostsBase, PostsAuthors { // fragment on Posts
 	readonly canonicalCollection: PostsDetails_canonicalCollection,
 	readonly showModerationGuidelines: boolean,
 	readonly moderationGuidelines: PostsDetails_moderationGuidelines,
+	readonly customHighlight: PostsDetails_customHighlight,
 	readonly bannedUserIds: Array<string>,
 	readonly hideAuthor: boolean,
 	readonly moderationStyle: string,
@@ -156,6 +157,11 @@ interface PostsDetails_canonicalCollection { // fragment on Collections
 }
 
 interface PostsDetails_moderationGuidelines { // fragment on Revisions
+	readonly version: string,
+	readonly html: string,
+}
+
+interface PostsDetails_customHighlight { // fragment on Revisions
 	readonly version: string,
 	readonly html: string,
 }
@@ -256,6 +262,7 @@ interface PostsPage extends PostsDetails { // fragment on Posts
 interface PostsEdit extends PostsPage { // fragment on Posts
 	readonly moderationGuidelines: RevisionEdit,
 	readonly contents: RevisionEdit,
+	readonly customHighlight: RevisionEdit,
 }
 
 interface EditModerationGuidelines { // fragment on Posts
@@ -277,6 +284,7 @@ interface PostsList extends PostsBase, PostsAuthors { // fragment on Posts
 	readonly originalPostRelationSourceId: string,
 	readonly contents: PostsList_contents,
 	readonly moderationGuidelines: RevisionDisplay,
+	readonly customHighlight: RevisionDisplay,
 }
 
 interface PostsList_contents { // fragment on Revisions

@@ -7,13 +7,14 @@ import Card from '@material-ui/core/Card';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 
-export const POST_PREVIEW_WIDTH = 400
+export const POST_PREVIEW_WIDTH = 435
 
 const styles = theme => ({
   root: {
     width: POST_PREVIEW_WIDTH,
     position: "relative",
     padding: theme.spacing.unit*1.5,
+    paddingRight: theme.spacing.unit*2,
     paddingBottom: 0,
     '& img': {
       maxHeight: "200px"
@@ -78,10 +79,10 @@ const styles = theme => ({
     paddingRight: 4
   },
   continue: {
-    marginTop: theme.spacing.unit,
-    color: theme.palette.grey[500],
     ...postHighlightStyles(theme),
-    fontSize: "1.1rem"
+    color: theme.palette.grey[500],
+    fontSize: "1rem",
+    marginBottom: theme.spacing.unit,
   },
   wordCount: {
     marginLeft: theme.spacing.unit
@@ -140,8 +141,11 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
   if (!post) return null
 
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
+
+  const highlight = post.customHighlight?.html || htmlHighlight
+
   const renderWordCount = !comment && (wordCount > 0)
-  const highlight = truncate(htmlHighlight, 85, "words", `... <span class="expand">(more)</span>`)
+  const truncatedHighlight = truncate(highlight, expanded ? 200 : 100, "words", `... <span class="expand">(more)</span>`)
 
   return <AnalyticsContext pageElementContext="hoverPreview">
       <Card className={classes.root}>
@@ -155,19 +159,19 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
                 {getPostCategory(post)}
                 {renderWordCount && <span className={classes.wordCount}>({wordCount} words)</span>}
               </span>}
-              { !postsList && post.user && <>
-                <LWTooltip title="Author">
+              { !postsList && <>
+                {post.user && <LWTooltip title="Author">
                   <PostsUserAndCoauthors post={post} simple/>
-                </LWTooltip>
+                </LWTooltip>}
+                <div className={classes.metadata}>
+                  <LWTooltip title={`${Posts.getKarma(post)} karma`}>
+                    <span className={classes.smallText}>{Posts.getKarma(post)} karma</span>
+                  </LWTooltip>
+                  <LWTooltip title={`${Posts.getCommentCountStr(post)}`}>
+                    <span className={classes.smallText}>{Posts.getCommentCountStr(post)}</span>
+                  </LWTooltip>
+                </div>
               </>}
-              <div className={classes.metadata}>
-                <LWTooltip title={`${Posts.getKarma(post)} karma`}>
-                  <span className={classes.smallText}>{Posts.getKarma(post)} karma</span>
-                </LWTooltip>
-                <LWTooltip title={`${Posts.getCommentCountStr(post)}`}>
-                  <span className={classes.smallText}>{Posts.getCommentCountStr(post)}</span>
-                </LWTooltip>
-              </div>
             </div>
           </div>
           { !postsList && <div className={classes.bookmark}>
@@ -187,10 +191,12 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
           : <div onClick={() => setExpanded(true)}>
               <ContentItemBody
                 className={classes.highlight}
-                dangerouslySetInnerHTML={{__html: expanded ? htmlHighlight : highlight}}
+                dangerouslySetInnerHTML={{__html: truncatedHighlight }}
                 description={`post ${post._id}`}
               />
-              {expanded && <Link className={classes.continue} to={Posts.getPageUrl(post)}>(Continue Reading)</Link>}
+              {expanded && <Link to={Posts.getPageUrl(post)}><div className={classes.continue} >
+                (Continue Reading)
+              </div></Link>}
             </div>
         }
     </Card>

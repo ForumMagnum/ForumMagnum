@@ -5,13 +5,7 @@ import { Utils, registerSetting, getSetting, Head } from '../../lib/vulcan-lib';
 import compose from 'lodash/flowRight';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { withApollo } from 'react-apollo';
-
-registerSetting('logoUrl', null, 'Absolute URL for the logo image');
-registerSetting('title', 'My App', 'App title');
-registerSetting('tagline', null, 'App tagline');
-registerSetting('description', null);
-registerSetting('siteImage', null, 'An image used to represent the site on social media');
-registerSetting('faviconUrl', '/img/favicon.ico', 'Favicon absolute URL');
+import '../../lib/registerSettings';
 
 const HeadTags = (props) => {
     const url = props.url || Utils.getSiteUrl();

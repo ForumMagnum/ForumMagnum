@@ -26,7 +26,7 @@ export const performSubscriptionAction = async (action, collection, itemId, user
     collectionName,
     type: defaultSubscriptionTypeTable[collectionName]
   }
-  await Utils.newMutator({
+  await Utils.createMutator({
     collection: Subscriptions,
     document: newSubscription,
     validate: true,

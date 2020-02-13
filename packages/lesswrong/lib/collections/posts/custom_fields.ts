@@ -60,6 +60,11 @@ export const formGroups = {
     startCollapsed: true,
     flexStyle: true
   },
+  highlight: {
+    order: 21,
+    name: "highlight",
+    label: "Highlight"
+  }
 };
 
 
@@ -1047,6 +1052,21 @@ export const makeEditableOptionsModeration = {
 makeEditable({
   collection: Posts,
   options: makeEditableOptionsModeration
+})
+
+export const makeEditableOptionsCustomHighlight = {
+  formGroup: formGroups.highlight,
+  fieldName: "customHighlight",
+  permissions: {
+    viewableBy: ['guests'],
+    editableBy: ['sunshineRegiment', 'admins'],
+    insertableBy: ['sunshineRegiment', 'admins'],
+  },
+}
+
+makeEditable({
+  collection: Posts,
+  options: makeEditableOptionsCustomHighlight
 })
 
 

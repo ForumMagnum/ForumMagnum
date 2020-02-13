@@ -2,16 +2,16 @@ import sanitizeHtml from 'sanitize-html';
 import { Utils } from '../../lib/vulcan-lib/utils';
 import { throwError } from './errors';
 
-Utils.sanitizeAllowedTags = [
+export const sanitizeAllowedTags = [
   'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul',
   'ol', 'nl', 'li', 'b', 'i', 'u', 'strong', 'em', 'strike',
   'code', 'hr', 'br', 'div', 'table', 'thead', 'caption',
   'tbody', 'tr', 'th', 'td', 'pre', 'img', 'figure', 'figcaption'
 ]
 
-Utils.sanitize = function(s) {
+export const sanitize = function(s) {
   return sanitizeHtml(s, {
-    allowedTags: Utils.sanitizeAllowedTags,
+    allowedTags: sanitizeAllowedTags,
     allowedAttributes:  {
       ...sanitizeHtml.defaults.allowedAttributes,
       img: [ 'src' , 'srcset'],

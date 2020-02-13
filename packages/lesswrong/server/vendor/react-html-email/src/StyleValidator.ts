@@ -3,11 +3,13 @@ import supportMatrix from './supportMatrix.json'
 const capsRe = /[A-Z]/g
 
 export default class StyleValidator {
-  constructor(config) {
+  config: any
+  
+  constructor(config?: any) {
     this.setConfig(config)
   }
 
-  setConfig(config) {
+  setConfig(config?: any) {
     this.config = {
       strict: true,
       warn: true,
@@ -37,9 +39,9 @@ export default class StyleValidator {
           return new Error(`Unknown style property \`${propName}\` supplied to \`${componentName}\`.`)
         }
       } else {
-        const unsupported = []
+        const unsupported: Array<string> = []
         const messages = new Map()
-        this.config.platforms.forEach((platform) => {
+        this.config.platforms.forEach((platform: string) => {
           if (typeof supportInfo[platform] === 'string') {
             const msg = supportInfo[platform]
             if (!messages.has(msg)) {

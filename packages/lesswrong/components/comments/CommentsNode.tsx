@@ -26,7 +26,7 @@ const styles = theme => ({
     borderBottom: `solid 1px ${theme.palette.grey[300]}`,
   },
   new: {
-    '&': {
+    '&&': {
       borderLeft: `solid 5px ${theme.palette.secondary.light}`,
       '&:hover': {
         borderLeft: `solid 5px ${theme.palette.secondary.main}`

@@ -1,4 +1,5 @@
 import { Utils, addCallback, Connectors } from '../vulcan-lib';
+import { sanitize } from '../vulcan-lib/utils';
 import { Random } from 'meteor/random';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../draftConvert';
@@ -147,7 +148,7 @@ export function htmlToMarkdown(html) {
 
 export function ckEditorMarkupToMarkdown(markup) {
   // Sanitized CKEditor markup is just html
-  return turndownService.turndown(Utils.sanitize(markup))
+  return turndownService.turndown(sanitize(markup))
 }
 
 export function markdownToHtmlNoLaTeX(markdown) {
@@ -179,16 +180,16 @@ export async function ckEditorMarkupToHtml(markup) {
   // First we remove any unaccepted suggestions from the markup
   const markupWithoutSuggestions = removeCKEditorSuggestions(markup)
   // Sanitized CKEditor markup is just html
-  const html = Utils.sanitize(markupWithoutSuggestions)
+  const html = sanitize(markupWithoutSuggestions)
   const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
   // Render any LaTeX tags we might have in the HTML
   return await mjPagePromise(trimmedHtml, Utils.trimEmptyLatexParagraphs)
 }
 
-async function dataToHTML(data, type, sanitize = false) {
+async function dataToHTML(data, type, sanitizeData = false) {
   switch (type) {
     case "html":
-      return sanitize ? Utils.sanitize(data) : data
+      return sanitizeData ? sanitize(data) : data
     case "ckEditorMarkup":
       return await ckEditorMarkupToHtml(data)
     case "draftJS":

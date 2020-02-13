@@ -12,7 +12,7 @@ export default {
     if (props[propName] == null) {
       return undefined
     }
-    const objErr = PropTypes.object(props, propName, componentName, ...rest)
+    const objErr = (PropTypes.object as any)(props, propName, componentName, ...rest)
     if (objErr) {
       return objErr
     }

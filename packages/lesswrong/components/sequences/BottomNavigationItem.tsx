@@ -16,6 +16,7 @@ const styles = theme => ({
     "&:hover, &:visited, &:focus": {
       color: "rgba(0,0,0, 0.5)",
     },
+    fontFamily: theme.typography.uiSecondary.fontFamily,
   },
   
   direction: {
