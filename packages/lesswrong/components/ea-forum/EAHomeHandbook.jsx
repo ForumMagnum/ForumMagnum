@@ -3,9 +3,11 @@ import React from 'react'
 import { Components, registerComponent } from 'meteor/vulcan:core'
 import { withStyles, createStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
 import { withSingle } from '../../lib/crud/withSingle';
 import { withCookies } from 'react-cookie'
 import { withMessages } from '../common/withMessages';
+import classNames from 'classnames';
 import Sequences from '../../lib/collections/sequences/collection';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 
@@ -46,7 +48,7 @@ const styles = createStyles(theme => ({
     background: theme.palette.primary.main,
     opacity: .5,
   },
-  overImageText: {
+  overImage: {
     position: 'relative',
     [theme.breakpoints.down('sm')]: {
       marginTop: -36, // Undo layout main (really?)
@@ -58,13 +60,15 @@ const styles = createStyles(theme => ({
     alignItems: 'center',
     zIndex: 1,
   },
-  title: {
+  overImageText: {
     margin: 0,
-    width: 300, // TODO;
     textAlign: 'center',
     fontFamily: theme.typography.postStyle.fontFamily,
-    fontStyle: "italic",
     color: '#FFFFFF',
+  },
+  title: {
+    width: 300, // TODO;
+    fontStyle: "italic",
   },
   divider: {
     width: 70,
@@ -73,12 +77,20 @@ const styles = createStyles(theme => ({
     borderBottom: "solid 1px #FFFFFF",
   },
   description: {
-    margin: 0, // TODO; dedup
     width: 200, // TODO;
-    textAlign: 'center',
     fontSize: 17,
+  },
+  ctaButtonRoot: {
+    marginTop: 26,
+    ...theme.typography.display1,
+    // margin: 0,
     fontFamily: theme.typography.postStyle.fontFamily,
+    fontSize: 17,
+    fontStyle: "italic",
     color: '#FFFFFF',
+    textTransform: 'none',
+  },
+  ctaButtonLabel: {
   },
   dismiss: {
     // hack
@@ -111,9 +123,6 @@ const EAHomeHandbook = ({ classes, cookies, flash, document, loading }) => {
   }
   
   console.log('document', document)
-  // TODO; substitute author with nbsp
-  // TODO; actual sequence gets nbsp in between Effective and Altruism?
-  // Prolly won't work, lets hard-code it
 
   return <React.Fragment>
     <SingleColumnSection>
@@ -128,14 +137,21 @@ const EAHomeHandbook = ({ classes, cookies, flash, document, loading }) => {
         </div>
         <div className={classes.bannerOverlay} />
       </div>
-      <div className={classes.overImageText}>
-        <Typography variant='display1' className={classes.title}>
+      <div className={classes.overImage}>
+        <Typography variant='display1' className={classNames(classes.overImageText, classes.title)}>
           {document.title}
         </Typography>
         <div className={classes.divider} />
-        <Typography variant='display1' className={classes.description}>
+        <Typography variant='display1' className={classNames(classes.overImageText, classes.description)}>
           Intro Sequence by {document.user.displayName}
         </Typography>
+        <Button
+          variant='contained'
+          color='primary'
+          classes={{root: classes.ctaButtonRoot, label: classes.ctaButtonLabel}}
+        >
+          Start Reading
+        </Button>
       </div>
       <div className={classes.dismiss}>
         <a onClick={handleDismiss}>Don't show this</a>
