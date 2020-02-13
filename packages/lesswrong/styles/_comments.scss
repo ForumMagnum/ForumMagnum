@@ -2,13 +2,6 @@
 $comments-font: Calibri, "Gill Sans", "Gill Sans MT", "Myriad Pro", Myriad, "DejaVu Sans Condensed", "Liberation Sans", "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif;
 $lw-green: #588f27;
 
-.comments-item{
-  padding:2px 12px 3px 12px;
-  position: relative;
-  line-height: 1.25;
-  color: rgba(0,0,0,0.87);
-}
-
 @keyframes lw-green-fade {
   from {
     background: rgba(88, 143, 39, 0.3);

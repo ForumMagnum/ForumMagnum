@@ -22,7 +22,7 @@ const styles = createStyles(theme => ({
   },
   child: {
     marginLeft: theme.spacing.unit,
-    marginBottom: theme.spacing.unit,
+    marginBottom: 6,
     borderLeft: `solid 1px ${theme.palette.grey[300]}`,
     borderTop: `solid 1px ${theme.palette.grey[300]}`,
     borderBottom: `solid 1px ${theme.palette.grey[300]}`,
