@@ -13,8 +13,8 @@ export const ckInlineComments = {
     return Promise.resolve();
   },
 
-  removeComment( commentId ) {
-    console.log( 'Comment removed', commentId );
+  removeComment( data ) {
+    console.log( 'Comment removed', data );
 
     // Write a request to your database here. The returned `Promise`
     // should be resolved when the request has finished.
