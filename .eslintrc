@@ -96,9 +96,6 @@
       }
     },
     "import/core-modules": [
-      "meteor/vulcan:lib",
-      "meteor/vulcan:core",
-      "meteor/vulcan:i18n",
       "meteor/practicalmeteor:chai",
       "sinon",
       "sinon-chai",

@@ -1,7 +1,7 @@
 import React from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../../lib/vulcan-lib';
 import MenuItem from '@material-ui/core/MenuItem';
-import Users from 'meteor/vulcan:users';
+import Users from '../../../lib/collections/users/collection';
 import withUser from '../../common/withUser';
 // import CheckCircle from '@material-ui/icons/CheckCircle';
 import CheckCircleOutline from '@material-ui/icons/CheckCircleOutline';
@@ -24,7 +24,9 @@ const SubscribeToCommentMenuItem = ({ currentUser, comment }) => {
   }
 }
 
-const SubscribeToCommentMenuItemComponent = registerComponent('SubscribeToCommentMenuItem', SubscribeToCommentMenuItem, withUser);
+const SubscribeToCommentMenuItemComponent = registerComponent('SubscribeToCommentMenuItem', SubscribeToCommentMenuItem, {
+  hocs: [withUser]
+});
 
 declare global {
   interface ComponentTypes {

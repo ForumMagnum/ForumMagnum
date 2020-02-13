@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
-import { withStyles, createStyles } from '@material-ui/core/styles';
-import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, Components, getSetting } from '../../../lib/vulcan-lib';
 import { withUpdate } from '../../../lib/crud/withUpdate';
 import { withMutation } from '../../../lib/crud/withMutation';
-import Users from 'meteor/vulcan:users'
+import Users from '../../../lib/collections/users/collection'
 import withUser from '../../common/withUser'
 import { Posts } from '../../../lib/collections/posts';
 import withSetAlignmentPost from "../../alignment-forum/withSetAlignmentPost";
@@ -23,7 +22,7 @@ const NotFPSubmittedWarning = ({className}) => <div className={className}>
   {' '}<WarningIcon fontSize='inherit' />
 </div>
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     margin: 0,
     ...theme.typography.display3,
@@ -40,11 +39,13 @@ const styles = createStyles(theme => ({
     fontSize: 20,
     marginLeft: 4,
   }
-}))
+})
 
-interface PostActionsProps extends WithUserProps, WithStylesProps {
-  markAsReadOrUnread: any,
+interface ExternalProps {
   post: any,
+}
+interface PostActionsProps extends ExternalProps, WithUserProps, WithStylesProps {
+  markAsReadOrUnread: any,
   updatePost: any,
   updateUser: any,
   setAlignmentPostMutation: any,
@@ -170,7 +171,7 @@ class PostActions extends Component<PostActionsProps,{}> {
             unsubscribeMessage={"Unsubscribe from "+post.group.name}/>
         </MenuItem>}
 
-        {post.shortform && (post.userId !== currentUser._id) &&
+        {currentUser && post.shortform && (post.userId !== currentUser._id) &&
           <MenuItem>
             <SubscribeTo document={post} showIcon
               subscriptionType={subscriptionTypes.newShortform}
@@ -283,25 +284,27 @@ class PostActions extends Component<PostActionsProps,{}> {
   }
 }
 
-const PostActionsComponent = registerComponent('PostActions', PostActions,
-  withStyles(styles, {name: "PostActions"}),
-  withUser,
-  withUpdate({
-    collection: Posts,
-    fragmentName: 'PostsList',
-  }),
-  withMutation({
-    name: 'markAsReadOrUnread',
-    args: {postId: 'String', isRead: 'Boolean'},
-  }),
-  withUpdate({
-    collection: Users,
-    fragmentName: 'UsersCurrent'
-  }),
-  withSetAlignmentPost({
-    fragmentName: "PostsList"
-  })
-);
+const PostActionsComponent = registerComponent<ExternalProps>('PostActions', PostActions, {
+  styles,
+  hocs: [
+    withUser,
+    withUpdate({
+      collection: Posts,
+      fragmentName: 'PostsList',
+    }),
+    withMutation({
+      name: 'markAsReadOrUnread',
+      args: {postId: 'String', isRead: 'Boolean'},
+    }),
+    withUpdate({
+      collection: Users,
+      fragmentName: 'UsersCurrent'
+    }),
+    withSetAlignmentPost({
+      fragmentName: "PostsList"
+    })
+  ]
+});
 
 declare global {
   interface ComponentTypes {

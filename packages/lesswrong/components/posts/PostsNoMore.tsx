@@ -1,6 +1,6 @@
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import React from "react";
-import { FormattedMessage } from 'meteor/vulcan:i18n';
+import { FormattedMessage } from '../../lib/vulcan-i18n';
 
 const PostsNoMore = props => <p className="posts-no-more"><FormattedMessage id="posts.no_more"/></p>;
 

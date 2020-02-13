@@ -1,6 +1,5 @@
 import React from 'react'
-import { withStyles, createStyles } from '@material-ui/core/styles';
-import { registerComponent, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, getSetting } from '../../../lib/vulcan-lib';
 import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
 import PersonIcon from '@material-ui/icons/Person'
@@ -8,7 +7,7 @@ import HomeIcon from '@material-ui/icons/Home';
 import GroupIcon from '@material-ui/icons/Group';
 import SubjectIcon from '@material-ui/icons/Subject';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     textAlign: 'left',
     display: 'inline-block',
@@ -26,7 +25,7 @@ const styles = createStyles(theme => ({
   tooltipTitle: {
     marginBottom: 8,
   },
-}))
+})
 
 const contentTypes = {
   LessWrong: {
@@ -155,7 +154,7 @@ const ContentType = ({classes, type, label}: {
   if (!type) {
     throw new Error('ContentType requires type property')
   }
-  const contentData = contentTypes[getSetting('forumType')][type]
+  const contentData = contentTypes[getSetting<string>('forumType')][type]
   return <Typography variant="body1" component="span" className={classes.root}>
     <Tooltip title={<React.Fragment>
       <div className={classes.tooltipTitle}>{contentData.tooltipTitle}</div>
@@ -166,7 +165,7 @@ const ContentType = ({classes, type, label}: {
   </Typography>
 }
 
-const ContentTypeComponent = registerComponent('ContentType', ContentType, withStyles(styles, {name: "ContentType"}))
+const ContentTypeComponent = registerComponent('ContentType', ContentType, {styles});
 
 declare global {
   interface ComponentTypes {

@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   stickyBlock: {
     position: "sticky",
     fontSize: 12,
@@ -38,7 +37,7 @@ const styles = createStyles(theme => ({
       display:'none'
     }
   },
-}));
+});
 
 // Context used to share a reference used to share the table of contents
 // between the ToC itself, and the Header. The Header uses the ToC to change
@@ -58,11 +57,12 @@ function withToCContext(Component) {
   }
 }
 
-interface TableOfContentsProps extends WithStylesProps {
-  setToC: any,
+interface ExternalProps {
   sectionData: any,
   document: any,
-  context: any,
+}
+interface TableOfContentsProps extends ExternalProps, WithStylesProps {
+  setToC: any,
 }
 interface TableOfContentsState {
   drawerOpen: boolean,
@@ -81,7 +81,7 @@ class TableOfContents extends Component<TableOfContentsProps,TableOfContentsStat
   }
 
   render() {
-    const { classes, sectionData, document, context } = this.props;
+    const { classes, sectionData, document } = this.props;
 
     if (!sectionData || !document)
       return <div/>
@@ -91,7 +91,6 @@ class TableOfContents extends Component<TableOfContentsProps,TableOfContentsStat
         <Components.TableOfContentsList
           sectionData={sectionData}
           document={document}
-          context={context}
           drawerStyle={false}
         />
       </div>
@@ -99,9 +98,12 @@ class TableOfContents extends Component<TableOfContentsProps,TableOfContentsStat
   }
 }
 
-const TableOfContentsComponent = registerComponent("TableOfContents", TableOfContents,
-  withErrorBoundary, withToCContext,
-  withStyles(styles, { name: "TableOfContents" }));
+const TableOfContentsComponent = registerComponent<ExternalProps>(
+  "TableOfContents", TableOfContents, {
+    styles,
+    hocs: [withErrorBoundary, withToCContext]
+  }
+);
 
 declare global {
   interface ComponentTypes {

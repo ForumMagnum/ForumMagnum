@@ -1,15 +1,14 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
 import { withMulti } from '../../lib/crud/withMulti';
 import React, { Component } from 'react';
-import { FormattedMessage } from 'meteor/vulcan:i18n';
+import { FormattedMessage } from '../../lib/vulcan-i18n';
 import { Link } from '../../lib/reactRouterWrapper';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
-import Users from "meteor/vulcan:users";
+import Users from "../../lib/collections/users/collection";
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -24,7 +23,7 @@ export const sectionFooterLeftStyles = {
   }
 }
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   profilePage: {
     marginLeft: "auto",
     [theme.breakpoints.down('sm')]: {
@@ -77,7 +76,7 @@ const styles = createStyles(theme => ({
   userMetaInfo: {
     display: "inline-flex"
   }
-}))
+})
 
 const sortings = {
   magic: "Magic (New & Upvoted)",
@@ -92,12 +91,13 @@ export const getUserFromResults = (results) => {
   return results?.find(user => !!user.displayName) || results?.[0]
 }
 
-interface UsersProfileProps extends WithUserProps, WithStylesProps {
+interface ExternalProps {
+  terms: any,
   slug: any,
-  loading?: boolean,
+}
+interface UsersProfileProps extends ExternalProps, WithUserProps, WithStylesProps, WithLocationProps, WithNavigationProps {
+  loading: boolean,
   results: any,
-  location?: any,
-  history?: any,
 }
 interface UsersProfileState {
   showSettings: boolean,
@@ -116,7 +116,7 @@ class UsersProfile extends Component<UsersProfileProps,UsersProfileState> {
     }
   }
 
-  componentDidUpdate({results: previousResults}) {
+  componentDidUpdate({results: previousResults}: Readonly<UsersProfileProps>) {
     const { results } = this.props
     const oldDocument = getUserFromResults(previousResults)
     const newDocument = getUserFromResults(results)
@@ -306,7 +306,7 @@ class UsersProfile extends Component<UsersProfileProps,UsersProfileState> {
               <Components.PostsList2 terms={draftTerms}/>
               <Components.PostsList2 terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
             </AnalyticsContext>
-            {getSetting('hasEvents', true) && <Components.LocalGroupsList terms={{view: 'userInactiveGroups', userId: currentUser?._id}} showHeader={false} />}
+            {getSetting('hasEvents', true) && <Components.LocalGroupsList terms={{view: 'userInactiveGroups', userId: currentUser?._id}} />}
           </SingleColumnSection> }
           {/* Posts Section */}
           <SingleColumnSection>
@@ -331,7 +331,7 @@ class UsersProfile extends Component<UsersProfileProps,UsersProfileState> {
           <AnalyticsContext pageSectionContext="commentsSection">
             <SingleColumnSection>
               <SectionTitle title={`${Users.getDisplayName(user)}'s Comments`} />
-              <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} fontSize="small" />
+              <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
             </SingleColumnSection>
           </AnalyticsContext>
         </AnalyticsContext>
@@ -340,17 +340,21 @@ class UsersProfile extends Component<UsersProfileProps,UsersProfileState> {
   }
 }
 
-const UsersProfileComponent = registerComponent(
-  'UsersProfile', UsersProfile,
-  withUser,
-  withMulti({
-    collection: Users,
-    fragmentName: 'UsersProfile',
-    enableTotal: false,
-    ssr: true
-  }),
-  withLocation, withNavigation,
-  withStyles(styles, {name: "UsersProfile"}));
+const UsersProfileComponent = registerComponent<ExternalProps>(
+  'UsersProfile', UsersProfile, {
+    styles,
+    hocs: [
+      withUser,
+      withMulti({
+        collection: Users,
+        fragmentName: 'UsersProfile',
+        enableTotal: false,
+        ssr: true
+      }),
+      withLocation, withNavigation,
+    ]
+  }
+);
 
 declare global {
   interface ComponentTypes {

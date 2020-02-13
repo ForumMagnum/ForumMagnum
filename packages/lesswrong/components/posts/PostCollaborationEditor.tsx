@@ -1,13 +1,12 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Posts } from '../../lib/collections/posts';
 import React, { useState, useEffect, useRef } from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { editorStyles, postBodyStyles } from '../../themes/stylePiping'
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   title: {
     ...theme.typography.display3,
     ...theme.typography.postStyle,
@@ -24,11 +23,12 @@ const styles = createStyles(theme => ({
       margin: 0
     }
   }
-}))
+})
 
 // Editor that _only_ gives people access to the ckEditor, without any other post options
-const PostCollaborationEditor = ({ classes, currentUser}) => {
+const PostCollaborationEditor = ({ classes }) => {
   const { SingleColumnSection, Loading } = Components
+  const currentUser = useCurrentUser();
   const editorRef = useRef<any>(null)
   const [editorLoaded, setEditorLoaded] = useState(false)
   useEffect(() => {
@@ -63,7 +63,7 @@ const PostCollaborationEditor = ({ classes, currentUser}) => {
   </SingleColumnSection>
 };
 
-const PostCollaborationEditorComponent = registerComponent('PostCollaborationEditor', PostCollaborationEditor, withStyles(styles, {name:"PostCollaborationEditor"}), withUser);
+const PostCollaborationEditorComponent = registerComponent('PostCollaborationEditor', PostCollaborationEditor, {styles});
 
 declare global {
   interface ComponentTypes {

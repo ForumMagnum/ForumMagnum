@@ -1,4 +1,4 @@
-import { getSetting } from 'meteor/vulcan:core';
+import { getSetting } from '../../../lib/vulcan-lib';
 import {frontpageGuidelinesLW, defaultGuidelinesLW} from './LWModerationGuidelinesContent'
 import {frontpageGuidelinesEA, defaultGuidelinesEA} from './EAModerationGuidelinesContent'
 

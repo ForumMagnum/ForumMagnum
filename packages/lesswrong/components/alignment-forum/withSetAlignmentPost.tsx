@@ -1,7 +1,7 @@
 import React from 'react';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { getFragment, getFragmentName } from 'meteor/vulcan:core';
+import { getFragment, getFragmentName } from '../../lib/vulcan-lib';
 
 export default function withSetAlignmentPost(options) {
 

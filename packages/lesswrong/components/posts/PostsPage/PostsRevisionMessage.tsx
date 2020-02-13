@@ -1,15 +1,13 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import { QueryLink } from '../../../lib/reactRouterWrapper';
-import PropTypes from 'prop-types';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle
   },
-}))
+})
 
 const PostsRevisionMessage = ({post, classes}) => {
   if (!post.contents)
@@ -25,12 +23,7 @@ const PostsRevisionMessage = ({post, classes}) => {
   );
 }
 
-PostsRevisionMessage.propTypes = {
-  post: PropTypes.object.isRequired,
-  classes: PropTypes.object.isRequired
-};
-
-const PostsRevisionMessageComponent = registerComponent('PostsRevisionMessage', PostsRevisionMessage, withStyles(styles, {name:"PostsRevisionMessage"}));
+const PostsRevisionMessageComponent = registerComponent('PostsRevisionMessage', PostsRevisionMessage, {styles});
 
 declare global {
   interface ComponentTypes {

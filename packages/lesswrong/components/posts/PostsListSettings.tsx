@@ -1,12 +1,10 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames'
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
 import Tooltip from '@material-ui/core/Tooltip';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { QueryLink } from '../../lib/reactRouterWrapper'
 import * as _ from 'underscore';
 
@@ -75,9 +73,9 @@ const FILTERS_ALL = {
     },
   }
 }
-const FILTERS = FILTERS_ALL[getSetting('forumType')]
+const FILTERS = FILTERS_ALL[getSetting<string>('forumType')]
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     display: "flex",
     alignItems: "flex-start",
@@ -148,7 +146,7 @@ const styles = createStyles(theme => ({
       order: 0
     }
   },
-}))
+})
 
 const SettingsColumn = ({type, title, options, currentOption, classes, setSetting}) => {
   const { MetaInfo } = Components
@@ -188,17 +186,19 @@ const USER_SETTING_NAMES = {
   showLowKarma: 'allPostsShowLowKarma',
 }
 
-interface PostsListSettingsProps extends WithUserProps, WithStylesProps {
-  updateUser: any,
-  persistentSettings: any,
+interface ExternalProps {
+  persistentSettings?: any,
   hidden: boolean,
-  currentTimeframe: any,
+  currentTimeframe?: any,
   currentSorting: any,
   currentFilter: any,
   currentShowLowKarma: boolean,
-  timeframes: any,
-  sortings: any,
-  showTimeframe: any,
+  timeframes?: any,
+  sortings?: any,
+  showTimeframe?: boolean,
+}
+interface PostsListSettingsProps extends ExternalProps, WithUserProps, WithStylesProps {
+  updateUser: any,
 }
 
 class PostsListSettings extends Component<PostsListSettingsProps> {
@@ -270,17 +270,17 @@ class PostsListSettings extends Component<PostsListSettingsProps> {
   }
 };
 
-(PostsListSettings as any).propTypes = {
-  currentUser: PropTypes.object,
-};
-
-const PostsListSettingsComponent = registerComponent(
-  'PostsListSettings', PostsListSettings,
-  withUser, withStyles(styles, {name:"PostsListSettings"}),
-  withUpdate({
-    collection: Users,
-    fragmentName: 'UsersCurrent',
-  })
+const PostsListSettingsComponent = registerComponent<ExternalProps>(
+  'PostsListSettings', PostsListSettings, {
+    styles,
+    hocs: [
+      withUser,
+      withUpdate({
+        collection: Users,
+        fragmentName: 'UsersCurrent',
+      })
+    ]
+  }
 );
 
 declare global {

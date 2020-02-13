@@ -1,12 +1,11 @@
 import React from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { registerComponent } from '../../lib/vulcan-lib';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames'
 
 const borderStyle = "solid 3px rgba(0,0,0,.5)"
 
-const styles = createStyles((theme) => ({
+const styles = (theme) => ({
   root: {
     display: "flex",
     justifyContent: "space-between",
@@ -56,7 +55,7 @@ const styles = createStyles((theme) => ({
       display: 'none'
     },
   },
-}))
+})
 
 const SectionTitle = ({children, classes, className, title, dividers=true}: {
   children?: any,
@@ -78,7 +77,7 @@ const SectionTitle = ({children, classes, className, title, dividers=true}: {
   )
 }
 
-const SectionTitleComponent = registerComponent('SectionTitle', SectionTitle, withStyles(styles, {name: 'SectionTitle'}))
+const SectionTitleComponent = registerComponent('SectionTitle', SectionTitle, {styles});
 
 declare global {
   interface ComponentTypes {

@@ -1,4 +1,4 @@
-import { Head, Utils } from 'meteor/vulcan:core';
+import { Head, Utils } from './vulcan-lib';
 
 // add permanent <link /> markup
 Head.link.push({

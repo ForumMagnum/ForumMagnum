@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 import { Watchdog } from '@lesswrong/lesswrong-editor'
 
 interface CKEditorProps {
-  data: any,
+  data?: any,
   editor: any,
   disabled?: any,
   onInit?: any,

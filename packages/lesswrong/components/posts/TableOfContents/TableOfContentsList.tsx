@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { Meteor } from 'meteor/meteor';
 
@@ -7,8 +7,9 @@ const topSection = "top";
 
 interface TableOfContentsListProps {
   sectionData: any,
-  document: any,
-  onClickSection: any,
+  document?: any,
+  onClickSection?: any,
+  drawerStyle: boolean,
 }
 interface TableOfContentsListState {
   currentSection: any,
@@ -171,8 +172,10 @@ class TableOfContentsList extends Component<TableOfContentsListProps,TableOfCont
 }
 
 const TableOfContentsListComponent = registerComponent(
-  "TableOfContentsList", TableOfContentsList,
-  withErrorBoundary);
+  "TableOfContentsList", TableOfContentsList, {
+    hocs: [withErrorBoundary]
+  }
+);
 
 declare global {
   interface ComponentTypes {

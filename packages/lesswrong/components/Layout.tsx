@@ -1,7 +1,7 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from '../lib/vulcan-lib';
 import { withUpdate } from '../lib/crud/withUpdate';
 import React, { PureComponent } from 'react';
-import Users from 'meteor/vulcan:users';
+import Users from '../lib/collections/users/collection';
 import { Helmet } from 'react-helmet';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import classNames from 'classnames'
@@ -11,7 +11,7 @@ import { withCookies } from 'react-cookie'
 import LogRocket from 'logrocket'
 import { Random } from 'meteor/random';
 
-import { withStyles, withTheme, createStyles } from '@material-ui/core/styles';
+import { withTheme } from '@material-ui/core/styles';
 import { withLocation } from '../lib/routeUtil';
 import { AnalyticsContext } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
@@ -50,7 +50,7 @@ const standaloneNavMenuRouteNames: Record<string,string[]> = {
   'EAForum': ['home', 'allPosts', 'questions', 'Community', 'Shortform'],
 }
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   main: {
     margin: '50px auto 15px auto',
     [theme.breakpoints.down('sm')]: {
@@ -78,14 +78,16 @@ const styles = createStyles(theme => ({
     top: 0,
     width: "100%",
   },
-}))
+})
 
-interface LayoutProps extends WithLocationProps, WithStylesProps, WithMessagesProps {
-  cookies: any,
+interface ExternalProps {
   currentUser: UsersCurrent,
+  messages: any,
+}
+interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps {
+  cookies: any,
   updateUser: any,
   theme: any,
-  messages: any,
   children: any,
 }
 interface LayoutState {
@@ -160,7 +162,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
 
   initializeLogRocket = () => {
     const { currentUser } = this.props
-    const logRocketKey = getSetting('logRocket.apiKey')
+    const logRocketKey = getSetting<string|null>('logRocket.apiKey')
     if (logRocketKey) {
       // If the user is logged in, always log their sessions
       if (currentUser) {
@@ -171,7 +173,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
       // If the user is not logged in, only track 1/5 of the sessions
       const clientId = this.getUniqueClientId()
       const hash = hashCode(clientId)
-      if (hash % getSetting('logRocket.sampleDensity') === 0) {
+      if (hash % getSetting<number>('logRocket.sampleDensity') === 0) {
         LogRocket.init(logRocketKey)
       }
     }
@@ -191,7 +193,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   }
 
   render () {
-    const {currentUser, location, children, classes, theme, messages} = this.props;
+    const {currentUser, location, children, classes, theme} = this.props;
     const {hideNavigationSidebar} = this.state
 
     const showIntercom = currentUser => {
@@ -222,7 +224,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
     // FIXME: This is using route names, but it would be better if this was
     // a property on routes themselves.
     const standaloneNavigation = !location.currentRoute ||
-      standaloneNavMenuRouteNames[getSetting('forumType')]
+      standaloneNavMenuRouteNames[getSetting<string>('forumType')]
         .includes(location.currentRoute.name)
     
     return (
@@ -276,7 +278,7 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
               <div ref={this.searchResultsAreaRef} className={classes.searchResultsArea} />
               <div className={classes.main}>
                 <Components.ErrorBoundary>
-                  <Components.FlashMessages messages={messages} />
+                  <Components.FlashMessages />
                 </Components.ErrorBoundary>
                 <Components.ErrorBoundary>
                   {children}
@@ -295,15 +297,15 @@ class Layout extends PureComponent<LayoutProps,LayoutState> {
   }
 }
 
-const LayoutComponent = registerComponent(
-  'Layout', Layout,
-  withLocation, withCookies,
-  withUpdate({
-    collection: Users,
-    fragmentName: 'UsersCurrent',
-  }),
-  withStyles(styles, { name: "Layout" }),
-  withTheme()
+const LayoutComponent = registerComponent<ExternalProps>(
+  'Layout', Layout, { styles, hocs: [
+    withLocation, withCookies,
+    withUpdate({
+      collection: Users,
+      fragmentName: 'UsersCurrent',
+    }),
+    withTheme()
+  ]}
 );
 
 declare global {

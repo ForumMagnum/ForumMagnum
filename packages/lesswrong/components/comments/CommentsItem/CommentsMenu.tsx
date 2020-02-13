@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Menu from '@material-ui/core/Menu';
 import Divider from '@material-ui/core/Divider';
 import { useCurrentUser } from '../../common/withUser';
-import Users from 'meteor/vulcan:users';
+import Users from '../../../lib/collections/users/collection';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useTracking } from "../../../lib/analyticsEvents";
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   icon: {
     cursor: "pointer",
     fontSize:"1.4rem"
@@ -21,9 +20,17 @@ const styles = createStyles(theme => ({
     top:0,
     zIndex: theme.zIndexes.commentsMenu,
   }
-}))
+})
 
-const CommentsMenu = ({children, classes, className, comment, post, showEdit, icon}) => {
+const CommentsMenu = ({children, classes, className, comment, post, showEdit, icon}: {
+  children?: any,
+  classes: any,
+  className?: string,
+  comment: any,
+  post: any,
+  showEdit: any,
+  icon?: any,
+}) => {
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking({eventType: "commentMenuClicked", eventProps: {commentId: comment._id, itemType: "comment"}})
@@ -90,7 +97,7 @@ const CommentsMenu = ({children, classes, className, comment, post, showEdit, ic
   )
 }
 
-const CommentsMenuComponent = registerComponent('CommentsMenu', CommentsMenu, withStyles(styles, {name:"CommentsMenu"}))
+const CommentsMenuComponent = registerComponent('CommentsMenu', CommentsMenu, {styles});
 
 declare global {
   interface ComponentTypes {

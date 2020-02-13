@@ -1,7 +1,7 @@
-import { Components, registerComponent, Utils } from 'meteor/vulcan:core';
+import { Components, registerComponent, Utils } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import Users from "meteor/vulcan:users";
+import Users from "../../lib/collections/users/collection";
 
 const UsersSingle = () => {
   const { params, pathname } = useLocation();

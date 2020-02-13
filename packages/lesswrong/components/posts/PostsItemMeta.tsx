@@ -1,13 +1,12 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   read: {
     opacity: ".8"
   },
@@ -16,14 +15,18 @@ const styles = createStyles(theme => ({
     textAlign: "center",
     display: "inline-block",
   },
-}))
+})
 
 const DateWithoutTime = ({date}) => {
   const { timezone } = useTimezone();
   return <span>{moment(date).tz(timezone).format("MMM Do")}</span>
 }
 
-const PostsItemMeta = ({post, read, classes}) => {
+const PostsItemMeta = ({post, read, classes}: {
+  post: any,
+  read?: boolean,
+  classes: any,
+}) => {
   const currentUser = useCurrentUser();
   const { wordCount = 0 } = post.contents || {}
   const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
@@ -84,7 +87,7 @@ const PostsItemMeta = ({post, read, classes}) => {
     </span>
 };
 
-const PostsItemMetaComponent = registerComponent('PostsItemMeta', PostsItemMeta, withStyles(styles, {name: "PostsItemMeta"}))
+const PostsItemMetaComponent = registerComponent('PostsItemMeta', PostsItemMeta, {styles});
 
 declare global {
   interface ComponentTypes {

@@ -1,10 +1,9 @@
 import React from 'react';
-import { registerComponent, Components } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import Tooltip from '@material-ui/core/Tooltip';
 import { ExpandedDate } from '../../common/FormatDate';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   date: {
     color: theme.palette.grey[600],
     whiteSpace: "no-wrap",
@@ -15,7 +14,7 @@ const styles = createStyles(theme => ({
       display:"none"
     }
   }
-}));
+});
 
 const PostsPageDate = ({ post, hasMajorRevision, classes }) => {
   const { FormatDate, PostsRevisionSelector } = Components;
@@ -45,8 +44,7 @@ const PostsPageDate = ({ post, hasMajorRevision, classes }) => {
   </React.Fragment>);
 }
 
-const PostsPageDateComponent = registerComponent("PostsPageDate", PostsPageDate,
-  withStyles(styles, {name: "PostsPageDate"}));
+const PostsPageDateComponent = registerComponent("PostsPageDate", PostsPageDate, {styles});
 
 declare global {
   interface ComponentTypes {

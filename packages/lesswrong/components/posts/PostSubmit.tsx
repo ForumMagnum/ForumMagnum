@@ -1,14 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent } from 'meteor/vulcan:core';
-
+import { registerComponent } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
-
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
-import withUser from '../common/withUser';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   formSubmit: {
     display: "flex",
     justifyContent: "flex-end",
@@ -41,7 +37,7 @@ const styles = createStyles(theme => ({
   draft: {
     marginLeft: 'auto'
   }
-}));
+});
 
 const PostSubmit = ({
   submitLabel = "Submit", cancelLabel = "Cancel", saveDraftLabel = "Save as draft", cancelCallback, document, collectionName, classes
@@ -98,10 +94,7 @@ PostSubmit.contextTypes = {
 
 
 // Replaces FormSubmit from vulcan-forms.
-const PostSubmitComponent = registerComponent('PostSubmit', PostSubmit,
-  withUser, 
-  withStyles(styles, { name: "PostSubmit" })
-);
+const PostSubmitComponent = registerComponent('PostSubmit', PostSubmit, {styles});
 
 declare global {
   interface ComponentTypes {

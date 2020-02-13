@@ -1,11 +1,10 @@
 import React, { useEffect } from 'react';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Tooltip from '@material-ui/core/Tooltip';
 import { Posts } from '../../lib/collections/posts';
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   date: {
@@ -72,7 +71,7 @@ const SelectVersion = ({classes, documentId, revisionVersion, updateVersionNumbe
 
 }
 
-export const SelectVersionComponent = registerComponent("SelectVersion", SelectVersion, withStyles(styles, {name:"SelectVersion"}));
+export const SelectVersionComponent = registerComponent("SelectVersion", SelectVersion, {styles});
 
 declare global {
   interface ComponentTypes {

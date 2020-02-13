@@ -1,15 +1,13 @@
 import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
 import moment from '../../lib/moment-timezone';
-import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles'
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Typography from '@material-ui/core/Typography'
 import classNames from 'classnames';
 import { getDateRange, timeframeToTimeBlock } from './timeframeUtils'
 import withTimezone from '../common/withTimezone';
 import * as _ from 'underscore';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   loading: {
     opacity: .4,
   },
@@ -17,7 +15,7 @@ const styles = createStyles(theme => ({
     ...theme.typography.postStyle,
     color: theme.palette.primary.main
   }
-}))
+})
 
 const loadMoreTimeframeMessages = {
   'daily': 'Load More Days',
@@ -28,15 +26,17 @@ const loadMoreTimeframeMessages = {
 
 type TimeframeType = "daily"|"weekly"|"monthly"|"yearly";
 
-interface PostsTimeframeListProps extends WithStylesProps, WithTimezoneProps {
+interface ExternalProps {
   after: Date
   before: Date
   timeframe: TimeframeType,
-  numTimeBlocks: number,
+  numTimeBlocks?: number,
   postListParameters: any,
   dimWhenLoading?: boolean,
   reverse?: boolean,
   displayShortform?: boolean,
+}
+interface PostsTimeframeListProps extends ExternalProps, WithStylesProps, WithTimezoneProps {
 }
 interface PostsTimeframeListState {
   // after goes backwards in time when we load more time blocks
@@ -70,7 +70,7 @@ class PostsTimeframeList extends PureComponent<PostsTimeframeListProps,PostsTime
       // during which time the PTL has asked for 1200 days worth of posts.
       timeframe: props.timeframe,
       dim: !!props.dimWhenLoading,
-      displayedNumTimeBlocks: props.numTimeBlocks
+      displayedNumTimeBlocks: props.numTimeBlocks || 10
     };
   }
 
@@ -96,7 +96,7 @@ class PostsTimeframeList extends PureComponent<PostsTimeframeListProps,PostsTime
 
   loadMoreTimeBlocks = (e) => {
     e.preventDefault();
-    const { timeframe, numTimeBlocks, reverse } = this.props
+    const { timeframe, numTimeBlocks=10, reverse } = this.props
     const timeBlock = timeframeToTimeBlock[timeframe]
     const displayedNumTimeBlocks = this.state.displayedNumTimeBlocks + numTimeBlocks
     if (reverse) {
@@ -168,15 +168,10 @@ class PostsTimeframeList extends PureComponent<PostsTimeframeListProps,PostsTime
   }
 };
 
-(PostsTimeframeList as any).propTypes = {
-  after: PropTypes.string,
-  before: PropTypes.string, // exclusive
-};
-
-const PostsTimeframeListComponent = registerComponent('PostsTimeframeList', PostsTimeframeList,
-  withTimezone,
-  withStyles(styles, {name: "PostsTimeframeList"})
-);
+const PostsTimeframeListComponent = registerComponent<ExternalProps>('PostsTimeframeList', PostsTimeframeList, {
+  styles,
+  hocs: [withTimezone]
+});
 
 declare global {
   interface ComponentTypes {
