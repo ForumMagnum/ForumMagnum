@@ -34,7 +34,7 @@ import { addCallback, Utils } from '../vulcan-lib';
 
   //function usersEditGenerateHtmlBio (modifier) {
   //  if (modifier.$set && modifier.$set.bio) {
-  //    modifier.$set.htmlBio = Utils.sanitize(marked(modifier.$set.bio));
+  //    modifier.$set.htmlBio = sanitizeHtml(marked(modifier.$set.bio));
   //  }
   //  return modifier;
   //}

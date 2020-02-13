@@ -402,7 +402,7 @@ const legacyCommentToNewComment = (comment, legacyId, author, parentPost) => {
         type: "markdown",
         data: comment.body
       },
-      html: comment.body && Utils.sanitize(markdownToHtml(comment.body))
+      html: comment.body && sanitizeHtml(markdownToHtml(comment.body))
     },
   };
 }

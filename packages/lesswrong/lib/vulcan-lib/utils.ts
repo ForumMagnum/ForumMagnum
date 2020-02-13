@@ -138,10 +138,6 @@ Utils.addHttp = function (url) {
 // String Helper Functions //
 /////////////////////////////
 
-Utils.sanitize = function(s) {
-  return s;
-};
-
 // http://stackoverflow.com/questions/2631001/javascript-test-for-existence-of-nested-object-key
 Utils.checkNested = function(obj /*, level1, level2, ... levelN*/) {
   var args = Array.prototype.slice.call(arguments);
