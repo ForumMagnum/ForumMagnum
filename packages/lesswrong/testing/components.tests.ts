@@ -4,4 +4,4 @@ describe("Components", () => {
   it("doesn't crash when importing every component file", () => {
     importAllComponents();
   })
-}
+});

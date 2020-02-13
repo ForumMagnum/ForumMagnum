@@ -23,3 +23,5 @@ import '../server/emails/tests';
 import '../lib/editor/utils.test';
 
 import '../server/search/utils.tests';
+
+import './components.tests.ts';
