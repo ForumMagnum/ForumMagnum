@@ -14,8 +14,10 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 // Shared with ParentCommentItem
 export const styles = theme => createStyles({
   root: {
+    paddingTop: 1,
     paddingLeft: theme.spacing.unit*1.5,
     paddingRight: theme.spacing.unit*1.5,
+    paddingBottom: 1,
     "&:hover $menu": {
       opacity:1
     }
@@ -66,8 +68,8 @@ export const styles = theme => createStyles({
     }
   },
   firstParentComment: {
-    // Sorry Oli
-    margin: "-2px -13px -2px -12px"
+    marginLeft: -theme.spacing.unit*1.5,
+    marginRight: -theme.spacing.unit*1.5
   },
   meta: {
     "& > div": {
