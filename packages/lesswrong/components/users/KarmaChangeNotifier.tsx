@@ -1,15 +1,14 @@
 import React, { PureComponent } from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import { withSingle } from '../../lib/crud/withSingle';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import Popper from '@material-ui/core/Popper';
 import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
 import { Link } from '../../lib/reactRouterWrapper';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import Typography from '@material-ui/core/Typography';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Badge from '@material-ui/core/Badge';
@@ -23,7 +22,7 @@ import { Comments } from '../../lib/collections/comments';
 import { withTracking, AnalyticsContext } from '../../lib/analyticsEvents';
 
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     display: 'flex',
     alignItems: 'center',
@@ -91,7 +90,7 @@ const styles = createStyles(theme => ({
       color: theme.palette.grey[500]
     }
   },
-}));
+});
 
 // Given a number, return a span of it as a string, with a plus sign if it's
 // positive, and green, red, or black coloring for positive, negative, and
@@ -157,14 +156,17 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }) => {
   );
 }
 
-interface KarmaChangeNotifierProps extends WithUserProps, WithStylesProps, WithTrackingProps {
+interface ExternalProps {
+  documentId: string,
+}
+interface KarmaChangeNotifierProps extends ExternalProps, WithUserProps, WithStylesProps, WithTrackingProps {
   document: any
   updateUser: any,
 }
 interface KarmaChangeNotifierState {
   cleared: boolean,
   open: boolean,
-  anchorEl: any,
+  anchorEl: HTMLElement|null,
   karmaChanges: any,
   karmaChangeLastOpened: Date,
 }
@@ -200,7 +202,7 @@ class KarmaChangeNotifier extends PureComponent<KarmaChangeNotifierProps,KarmaCh
   handleClose = (e) => {
     const { document, updateUser, currentUser } = this.props;
     const { anchorEl } = this.state
-    if (e && anchorEl.contains(e.target)) {
+    if (e && anchorEl?.contains(e.target)) {
       return;
     }
     this.setState({
@@ -275,19 +277,21 @@ class KarmaChangeNotifier extends PureComponent<KarmaChangeNotifierProps,KarmaCh
   }
 }
 
-const KarmaChangeNotifierComponent = registerComponent('KarmaChangeNotifier', KarmaChangeNotifier,
-  withUser, withErrorBoundary,
-  withSingle({
-    collection: Users,
-    fragmentName: 'UserKarmaChanges'
-  }),
-  withUpdate({
-    collection: Users,
-    fragmentName: 'UsersCurrent',
-  }),
-  withStyles(styles, {name: 'KarmaChangeNotifier'}),
-  withTracking
-);
+const KarmaChangeNotifierComponent = registerComponent<ExternalProps>('KarmaChangeNotifier', KarmaChangeNotifier, {
+  styles,
+  hocs: [
+    withUser, withErrorBoundary,
+    withSingle({
+      collection: Users,
+      fragmentName: 'UserKarmaChanges'
+    }),
+    withUpdate({
+      collection: Users,
+      fragmentName: 'UsersCurrent',
+    }),
+    withTracking
+  ]
+});
 
 declare global {
   interface ComponentTypes {

@@ -1,11 +1,10 @@
 import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import { Link } from '../../lib/reactRouterWrapper';
 import NoSSR from 'react-no-ssr';
 import Headroom from 'react-headroom'
-import { withStyles, withTheme, createStyles } from '@material-ui/core/styles';
+import { withTheme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -13,7 +12,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import TocIcon from '@material-ui/icons/Toc';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import grey from '@material-ui/core/colors/grey';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -33,7 +32,7 @@ export const getHeaderTextColor = theme => {
   }
 }
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   appBar: {
     boxShadow: "0 1px 1px rgba(0, 0, 0, 0.05), 0 1px 1px rgba(0, 0, 0, 0.05)",
   },
@@ -123,16 +122,17 @@ const styles = createStyles(theme => ({
       position: "fixed !important",
     },
   },
-}));
+});
 
-interface HeaderProps extends WithUserProps, WithStylesProps {
-  captureEvent: any,
-  updateUser: any,
+interface ExternalProps {
   standaloneNavigationPresent: any,
   toggleStandaloneNavigation: any,
   toc: any,
-  theme: any,
   searchResultsArea: any,
+}
+interface HeaderProps extends ExternalProps, WithUserProps, WithStylesProps, WithTrackingProps {
+  updateUser: any,
+  theme: any,
 }
 interface HeaderState {
   navigationOpen: boolean,
@@ -305,19 +305,18 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
   }
 }
 
-(Header as any).propTypes = {
-  currentUser: PropTypes.object,
-  classes: PropTypes.object.isRequired,
-  searchResultsArea: PropTypes.object,
-};
-
-const HeaderComponent = registerComponent(
-  'Header', Header,
-  withErrorBoundary, withUpdate({
-    collection: Users,
-    fragmentName: 'UsersCurrent',
-  }), withUser, withTracking,
-  withStyles(styles, { name: 'Header'}), withTheme());
+const HeaderComponent = registerComponent<ExternalProps>('Header', Header, {
+  styles,
+  hocs: [
+    withErrorBoundary,
+    withUpdate({
+      collection: Users,
+      fragmentName: 'UsersCurrent',
+    }),
+    withUser, withTracking,
+    withTheme(),
+  ]
+});
 
 declare global {
   interface ComponentTypes {

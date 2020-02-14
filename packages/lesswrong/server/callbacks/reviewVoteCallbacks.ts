@@ -1,5 +1,5 @@
 import ReviewVotes from '../../lib/collections/reviewVotes/collection'
-import { addCallback } from 'meteor/vulcan:core';
+import { addCallback } from '../../lib/vulcan-lib';
 
 async function ensureUniqueVotes(errors, {newDocument: newVote}) {
   const {userId, postId} = newVote

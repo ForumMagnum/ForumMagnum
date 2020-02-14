@@ -1,14 +1,13 @@
 import React from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { registerComponent } from '../../lib/vulcan-lib';
 import Typography from '@material-ui/core/Typography';
 
-const styles = createStyles((theme) => ({
+const styles = (theme) => ({
   root: {
     color: theme.palette.grey[600],
     margin: theme.spacing.unit*2
   },
-}))
+})
 
 const NoContent = ({children, classes}) => {
   return <Typography variant='body2' className={classes.root}>
@@ -16,7 +15,7 @@ const NoContent = ({children, classes}) => {
   </Typography>
 }
 
-const NoContentComponent = registerComponent('NoContent', NoContent, withStyles(styles, {name: 'NoContent'}))
+const NoContentComponent = registerComponent('NoContent', NoContent, {styles});
 
 declare global {
   interface ComponentTypes {

@@ -1,10 +1,9 @@
 import React from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { registerComponent } from '../../lib/vulcan-lib';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames'
 
-const styles = createStyles((theme) => ({
+const styles = (theme) => ({
   root: {
     display: "inline",
     color: theme.palette.grey[600],
@@ -17,7 +16,7 @@ const styles = createStyles((theme) => ({
       color: theme.palette.grey[400],
     },
   }
-}))
+})
 
 const MetaInfo = ({children, classes, button, className}: {
   children?: any,
@@ -34,7 +33,7 @@ const MetaInfo = ({children, classes, button, className}: {
   </Typography>
 }
 
-const MetaInfoComponent = registerComponent('MetaInfo', MetaInfo, withStyles(styles, {name: 'MetaInfo'}))
+const MetaInfoComponent = registerComponent('MetaInfo', MetaInfo, {styles});
 
 declare global {
   interface ComponentTypes {

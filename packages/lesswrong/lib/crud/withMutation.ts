@@ -13,7 +13,7 @@ export default withMutation({
 
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { getFragment } from 'meteor/vulcan:lib';
+import { getFragment } from '../vulcan-lib';
 import * as _ from 'underscore';
 
 export function withMutation({name, args, fragmentName}: {

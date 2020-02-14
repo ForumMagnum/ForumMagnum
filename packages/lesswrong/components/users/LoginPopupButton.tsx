@@ -1,18 +1,18 @@
 import React from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import Tooltip from '@material-ui/core/Tooltip';
-import { withStyles, createStyles } from '@material-ui/core/styles';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     ...theme.typography.body2,
     color: theme.palette.primary.main,
   },
-}));
+});
 
-const LoginPopupButton = ({classes, currentUser, children, title}) => {
+const LoginPopupButton = ({classes, children, title}) => {
+  const currentUser = useCurrentUser();
   // This component is intended only for buttons whose sole purpose is logging a user in 
   // (not wrapped around other buttons with other functionality. For that, just add
   // openDialog + "LoginPopup" to their functionality
@@ -38,8 +38,7 @@ const LoginPopupButton = ({classes, currentUser, children, title}) => {
   )
 }
 
-const LoginPopupButtonComponent = registerComponent('LoginPopupButton', LoginPopupButton,
-  withUser, withStyles(styles, {name: "LoginPopupButton"}));
+const LoginPopupButtonComponent = registerComponent('LoginPopupButton', LoginPopupButton, {styles});
 
 declare global {
   interface ComponentTypes {

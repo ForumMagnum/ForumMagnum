@@ -1,17 +1,19 @@
 import React, { PureComponent } from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../../lib/vulcan-lib';
 import { withMessages } from '../../common/withMessages';
 import MenuItem from '@material-ui/core/MenuItem';
-import Users from 'meteor/vulcan:users';
+import Users from '../../../lib/collections/users/collection';
 import withModerateComment from './withModerateComment'
 import withDialog from '../../common/withDialog'
 import withUser from '../../common/withUser';
 
-interface DeleteCommentMenuItemProps extends WithMessagesProps, WithUserProps {
-  openDialog: any,
+interface ExternalProps {
   comment: any,
-  moderateCommentMutation: any,
   post: any,
+}
+interface DeleteCommentMenuItemProps extends ExternalProps, WithMessagesProps, WithUserProps {
+  openDialog: any,
+  moderateCommentMutation: any,
 }
 class DeleteCommentMenuItem extends PureComponent<DeleteCommentMenuItemProps,{}> {
 
@@ -55,12 +57,16 @@ class DeleteCommentMenuItem extends PureComponent<DeleteCommentMenuItemProps,{}>
   }
 }
 
-const DeleteCommentMenuItemComponent = registerComponent(
-  'DeleteCommentMenuItem', DeleteCommentMenuItem,
-  withModerateComment({
-    fragmentName: "CommentsList"
-  }),
-  withDialog, withMessages, withUser);
+const DeleteCommentMenuItemComponent = registerComponent<ExternalProps>(
+  'DeleteCommentMenuItem', DeleteCommentMenuItem, {
+    hocs: [
+      withModerateComment({
+        fragmentName: "CommentsList"
+      }),
+      withDialog, withMessages, withUser
+    ]
+  }
+);
 
 declare global {
   interface ComponentTypes {

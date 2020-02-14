@@ -1,16 +1,18 @@
 import React, { PureComponent } from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../../lib/vulcan-lib';
 import { withUpdate } from '../../../lib/crud/withUpdate';
 import { withMessages } from '../../common/withMessages';
 import MenuItem from '@material-ui/core/MenuItem';
-import Users from 'meteor/vulcan:users';
+import Users from '../../../lib/collections/users/collection';
 import withUser from '../../common/withUser';
 import * as _ from 'underscore';
 
-interface BanUserFromAllPostsMenuItemProps extends WithMessagesProps, WithUserProps {
+interface ExternalProps {
   comment: any,
-  updateUser?: any,
   post: any,
+}
+interface BanUserFromAllPostsMenuItemProps extends ExternalProps, WithMessagesProps, WithUserProps {
+  updateUser?: any,
 }
 
 class BanUserFromAllPostsMenuItem extends PureComponent<BanUserFromAllPostsMenuItemProps,{}> {
@@ -43,14 +45,17 @@ class BanUserFromAllPostsMenuItem extends PureComponent<BanUserFromAllPostsMenuI
   }
 }
 
-const BanUserFromAllPostsMenuItemComponent = registerComponent(
-  'BanUserFromAllPostsMenuItem', BanUserFromAllPostsMenuItem,
-  withMessages,
-  withUpdate({
-    collection: Users,
-    fragmentName: 'UsersProfile',
-  }),
-  withUser
+const BanUserFromAllPostsMenuItemComponent = registerComponent<ExternalProps>(
+  'BanUserFromAllPostsMenuItem', BanUserFromAllPostsMenuItem, {
+    hocs: [
+      withMessages,
+      withUpdate({
+        collection: Users,
+        fragmentName: 'UsersProfile',
+      }),
+      withUser
+    ]
+  }
 );
 
 declare global {

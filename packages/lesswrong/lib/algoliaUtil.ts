@@ -1,9 +1,9 @@
-import { getSetting } from 'meteor/vulcan:core';
+import { getSetting } from './vulcan-lib';
 import algoliasearch from "algoliasearch/lite";
 
 const ALGOLIA_PREFIX: string = getSetting("algolia.indexPrefix", "test_");
-const algoliaAppId = getSetting('algolia.appId')
-const algoliaSearchKey = getSetting('algolia.searchKey')
+const algoliaAppId = getSetting<string|null>('algolia.appId')
+const algoliaSearchKey = getSetting<string|null>('algolia.searchKey')
 
 export const algoliaIndexNames: Record<string,string> = {
   Comments: ALGOLIA_PREFIX+'comments',
@@ -17,6 +17,8 @@ export const isAlgoliaEnabled = !!algoliaAppId && !!algoliaSearchKey;
 
 let searchClient: any = null;
 export const getSearchClient = () => {
+  if (!algoliaAppId || !algoliaSearchKey)
+    return null;
   if (!searchClient)
     searchClient = algoliasearch(algoliaAppId, algoliaSearchKey);
   return searchClient;

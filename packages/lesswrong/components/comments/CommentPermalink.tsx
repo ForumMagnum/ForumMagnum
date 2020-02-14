@@ -1,10 +1,9 @@
 import React from 'react';
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
 import { withSingle } from '../../lib/crud/withSingle';
 import { Comments } from '../../lib/collections/comments';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   dividerMargins: {
     marginTop: 150,
     marginBottom: 150,
@@ -26,7 +25,7 @@ const styles = createStyles(theme => ({
     color: theme.palette.lwTertiary.main,
     marginRight: 10
   },
-}))
+})
 
 const CommentPermalink = (props) => {
   const { documentId, post, document: comment, classes, data: {refetch}, loading, error} = props
@@ -40,7 +39,7 @@ const CommentPermalink = (props) => {
   return <div className={classes.root}>
       <div className={classes.permalinkLabel}>Comment Permalink</div>
       {loading ? <Loading /> : <div>
-        <CommentWithReplies key={comment._id} post={post} comment={comment} refetch={refetch}/>
+        <CommentWithReplies key={comment._id} post={post} comment={comment} refetch={refetch} showTitle={false}/>
         <div className={classes.seeInContext}><a href={`#${documentId}`}>See in context</a></div>
       </div>}
       {getSetting('forumType') !== 'EAForum' && <div className={classes.dividerMargins}><Divider /></div>}
@@ -48,12 +47,12 @@ const CommentPermalink = (props) => {
 }
 
 const CommentPermalinkComponent = registerComponent(
-  "CommentPermalink", CommentPermalink,
-  withStyles(styles, {name:"CommentPermalink"}),
-  withSingle({
-    collection: Comments,
-    fragmentName: 'CommentWithReplies',
-  })
+  "CommentPermalink", CommentPermalink, { styles, hocs: [
+    withSingle({
+      collection: Comments,
+      fragmentName: 'CommentWithReplies',
+    })
+  ]}
 );
 
 

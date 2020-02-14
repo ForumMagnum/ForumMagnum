@@ -1,17 +1,21 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withSingle } from '../../lib/crud/withSingle';
-import Users from 'meteor/vulcan:users';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { useSingle } from '../../lib/crud/withSingle';
+import Users from '../../lib/collections/users/collection';
 import React from 'react';
 
 // Given a user ID (as documentId), load that user with a HoC, and display
 // their name. If the nofollow attribute is true OR the user has a spam-risk
 // score below 0.8, the user-page link will be marked nofollow.
-const UsersNameWrapper = ({document, loading, nofollow=false, simple=false}: {
-  document?: UsersMinimumInfo|null,
-  loading: boolean,
+const UsersNameWrapper = ({documentId, nofollow=false, simple=false}: {
+  documentId: string,
   nofollow?: boolean,
   simple?: boolean,
 }) => {
+  const { document, loading } = useSingle({
+    documentId,
+    collection: Users,
+    fragmentName: 'UsersMinimumInfo',
+  });
   if (!document && loading) {
     return <Components.Loading />
   }
@@ -21,13 +25,7 @@ const UsersNameWrapper = ({document, loading, nofollow=false, simple=false}: {
   return null
 };
 
-const UsersNameWrapperComponent = registerComponent(
-  'UsersNameWrapper', UsersNameWrapper,
-  withSingle({
-    collection: Users,
-    fragmentName: 'UsersMinimumInfo',
-  })
-);
+const UsersNameWrapperComponent = registerComponent('UsersNameWrapper', UsersNameWrapper);
 
 declare global {
   interface ComponentTypes {

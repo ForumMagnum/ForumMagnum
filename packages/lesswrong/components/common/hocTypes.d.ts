@@ -20,7 +20,8 @@ interface WithTrackingProps {
 }
 
 interface WithTimezoneProps {
-  timezone: any,
+  timezone: string,
+  timezoneIsKnown: boolean,
 }
 
 interface WithNavigationProps {
@@ -31,6 +32,16 @@ interface WithLocationProps {
   location: any,
 }
 
+interface WithDialogProps {
+  openDialog: any,
+}
+
 interface WithGlobalKeydownProps {
   addKeydownListener: any,
+}
+
+interface WithHoverProps {
+  hover: boolean,
+  anchorEl: HTMLElement|null,
+  stopHover: ()=>void,
 }

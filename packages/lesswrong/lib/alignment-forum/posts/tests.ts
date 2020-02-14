@@ -1,6 +1,6 @@
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
-import { runQuery } from 'meteor/vulcan:core';
+import { runQuery } from '../../../server/vulcan-lib';
 import { createDummyUser, createDummyPost, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../../../testing/utils'
 
 chai.should();
@@ -25,7 +25,7 @@ describe('AlignmentForum PostsEdit', async () => {
       }
     `;
     const response = runQuery(query,{},{currentUser:user})
-    await response.should.be.rejected;
+    await (response as any).should.be.rejected;
     assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
   it("fails when an alignmentForum user edits a post's content field", async () => {
@@ -41,7 +41,7 @@ describe('AlignmentForum PostsEdit', async () => {
       }
     `;
     const response = runQuery(query,{},{currentUser:user})
-    await response.should.be.rejected;
+    await (response as any).should.be.rejected;
     assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
   it("succeeds when alignmentForum user edits the suggestForAlignmentUserIds field", async () => {
@@ -61,7 +61,7 @@ describe('AlignmentForum PostsEdit', async () => {
     `;
     const response = runQuery(query,{},{currentUser:user})
     const expectedOutput = { data: { updatePost: { data: {suggestForAlignmentUserIds: [`${userIds}`] } } } }
-    return response.should.eventually.deep.equal(expectedOutput);
+    return (response as any).should.eventually.deep.equal(expectedOutput);
   });
   it("succeeds when alignmentForumAdmin edits the suggestForAlignmentUserIds field", async () => {
     const user = await createDummyUser({groups:['alignmentForumAdmins']})
@@ -80,7 +80,7 @@ describe('AlignmentForum PostsEdit', async () => {
     `;
     const response = runQuery(query,{},{currentUser:user})
     const expectedOutput = { data: { updatePost: { data: {suggestForAlignmentUserIds: [`${userIds}`] } } } }
-    return response.should.eventually.deep.equal(expectedOutput);
+    return (response as any).should.eventually.deep.equal(expectedOutput);
   });
   it("fails when alignmentForum user edits the reviewForAlignmentUserId field", async () => {
     const user = await createDummyUser({groups:['alignmentForum']})
@@ -96,7 +96,7 @@ describe('AlignmentForum PostsEdit', async () => {
       }
     `;
     const response = runQuery(query,{},{currentUser:user})
-    await response.should.be.rejected;
+    await (response as any).should.be.rejected;
     assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
   it("succeeds when alignmentForumAdmin edits the reviewForAlignmentUserId field", async () => {
@@ -114,6 +114,6 @@ describe('AlignmentForum PostsEdit', async () => {
     `;
     const response = runQuery(query,{},{currentUser:user})
     const expectedOutput = { data: { updatePost: { data: { reviewForAlignmentUserId: `${user._id}` } } } }
-    return response.should.eventually.deep.equal(expectedOutput);
+    return (response as any).should.eventually.deep.equal(expectedOutput);
   });
 })

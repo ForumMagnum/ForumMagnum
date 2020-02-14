@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import qs from 'qs';
-import { NavigationContext, LocationContext, SubscribeLocationContext, ServerRequestStatusContext, getSetting } from 'meteor/vulcan:core';
+import { getSetting } from './vulcan-lib';
+import { NavigationContext, LocationContext, SubscribeLocationContext, ServerRequestStatusContext } from './vulcan-core/appContext';
 import { Meteor } from 'meteor/meteor';
 
 // Given the props of a component which has withRouter, return the parsed query
@@ -23,6 +24,7 @@ type RouterLocation = {
   RouteComponent: any,
   location: any,
   pathname: string,
+  url: string,
   hash: string,
   params: Record<string,string>,
   query: Record<string,string>,
@@ -140,7 +142,7 @@ const forumDomainWhitelist: Record<string, Array<string>> = {
   ]
 }
 
-const domainWhitelist: Array<string> = forumDomainWhitelist[getSetting('forumType')]
+const domainWhitelist: Array<string> = forumDomainWhitelist[getSetting<string>('forumType')]
 
 export const hostIsOnsite = (host: string): boolean => {
   let isOnsite = false

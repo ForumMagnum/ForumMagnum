@@ -1,6 +1,5 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Posts } from "../../lib/collections/posts";
 import { Sequences } from "../../lib/collections/sequences/collection";
@@ -22,7 +21,7 @@ export const COMMENTS_WIDTH = 48
 
 const COMMENTS_BACKGROUND_COLOR = "#f5f5f5"
 
-export const styles = createStyles((theme) => ({
+export const styles = (theme) => ({
   root: {
     position: "relative",
     [theme.breakpoints.down('sm')]: {
@@ -294,7 +293,7 @@ export const styles = createStyles((theme) => ({
     position: "relative",
     top: 2,
   }
-}))
+})
 
 const dismissRecommendationTooltip = "Don't remind me to finish reading this sequence unless I visit it again";
 
@@ -356,7 +355,7 @@ const PostsItem2 = ({
 }: {
   post: any,
   tagRel?: any,
-  defaultToShowComments: boolean,
+  defaultToShowComments?: boolean,
   sequenceId?: string,
   chapter?: any,
   index?: number,
@@ -469,7 +468,6 @@ const PostsItem2 = ({
                     <PostsTitle
                         postLink={postLink}
                         post={post}
-                        expandOnHover={!renderComments}
                         read={isRead}
                         sticky={isSticky(post, terms)}
                         showQuestionTag={showQuestionTag}
@@ -562,7 +560,6 @@ const PostsItem2 = ({
 
           {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>
             <PostsItemNewCommentsWrapper
-              currentUser={currentUser}
               highlightDate={markedVisitedAt || post.lastVisitedAt}
               terms={commentTerms}
               post={post}
@@ -575,11 +572,10 @@ const PostsItem2 = ({
   )
 };
 
-const PostsItem2Component = registerComponent('PostsItem2', PostsItem2,
-  withStyles(styles, { name: "PostsItem2" }),
-  withRecordPostView,
-  withErrorBoundary
-);
+const PostsItem2Component = registerComponent('PostsItem2', PostsItem2, {
+  styles,
+  hocs: [withRecordPostView, withErrorBoundary]
+});
 
 declare global {
   interface ComponentTypes {

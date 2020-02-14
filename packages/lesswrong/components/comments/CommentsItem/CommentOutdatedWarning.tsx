@@ -1,18 +1,17 @@
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../../lib/vulcan-lib';
 import React from 'react';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import HistoryIcon from '@material-ui/icons/History';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import { QueryLink } from '../../../lib/reactRouterWrapper';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   icon: {
     fontSize: 'inherit',
     position: 'relative',
     top: 2
   }
-}))
+})
 
 function postHadMajorRevision(comment, post) {
   if (!comment || !comment.postVersion || !post || !post.contents || !post.contents.version) {
@@ -34,8 +33,8 @@ const CommentOutdatedWarning = ({comment, post, classes}) => {
 };
 
 const CommentOutdatedWarningComponent = registerComponent(
-  'CommentOutdatedWarning', CommentOutdatedWarning,
-  withStyles(styles, { name: "CommentOutdatedWarning" }));
+  'CommentOutdatedWarning', CommentOutdatedWarning, {styles}
+);
 
 declare global {
   interface ComponentTypes {

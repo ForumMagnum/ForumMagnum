@@ -1,10 +1,10 @@
-import { registerComponent, getSetting, Components } from 'meteor/vulcan:core';
+import { registerComponent, getSetting, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 import withHover from '../common/withHover';
 
 const PostsItemKarma = ({post, hover, anchorEl}: {
   post: any,
-  read: boolean,
+  read?: boolean,
   hover?: any,
   anchorEl?: any,
 }) => {
@@ -26,7 +26,9 @@ const PostsItemKarma = ({post, hover, anchorEl}: {
   )
 };
 
-const PostsItemKarmaComponent = registerComponent('PostsItemKarma', PostsItemKarma, withHover());
+const PostsItemKarmaComponent = registerComponent('PostsItemKarma', PostsItemKarma, {
+  hocs: [withHover()]
+});
 
 declare global {
   interface ComponentTypes {

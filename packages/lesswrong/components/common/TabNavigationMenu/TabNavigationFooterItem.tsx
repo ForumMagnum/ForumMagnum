@@ -1,6 +1,5 @@
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
@@ -8,7 +7,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 
 const smallIconSize = 23
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   selected: {
     '& $icon': {
       opacity: 1,
@@ -51,7 +50,7 @@ const styles = createStyles(theme => ({
       top: -1,
     }
   },
-}))
+})
 
 const TabNavigationFooterItem = ({tab, classes}) => {
   const { TabNavigationSubItem } = Components
@@ -81,8 +80,7 @@ const TabNavigationFooterItem = ({tab, classes}) => {
 }
 
 const TabNavigationFooterItemComponent = registerComponent(
-  'TabNavigationFooterItem', TabNavigationFooterItem,
-  withStyles(styles, { name: 'TabNavigationFooterItem'})
+  'TabNavigationFooterItem', TabNavigationFooterItem, {styles}
 );
 
 declare global {

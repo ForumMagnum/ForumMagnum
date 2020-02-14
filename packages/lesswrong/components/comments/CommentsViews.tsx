@@ -1,12 +1,11 @@
-import { registerComponent, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, getSetting } from '../../lib/vulcan-lib';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Comments } from '../../lib/collections/comments'
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser';
 import qs from 'qs'
 import * as _ from 'underscore';
@@ -22,18 +21,19 @@ const viewNames = {
   'postLWComments': 'top scoring (include LW)',
 }
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     display: 'inline'
   },
   link: {
     color: theme.palette.lwTertiary.main,
   }
-}))
+})
 
-interface CommentsViewsProps extends WithUserProps, WithStylesProps, WithLocationProps {
+interface ExternalProps {
   post: any,
-  history: any,
+}
+interface CommentsViewsProps extends ExternalProps, WithUserProps, WithStylesProps, WithLocationProps, WithNavigationProps {
 }
 interface CommentsViewsState {
   anchorEl: any,
@@ -116,11 +116,10 @@ class CommentsViews extends Component<CommentsViewsProps,CommentsViewsState> {
   defaultView: "postCommentsTop"
 };
 
-const CommentsViewsComponent = registerComponent(
-  'CommentsViews', CommentsViews,
-  withLocation, withNavigation, withUser,
-  withStyles(styles, { name: "CommentsViews" })
-);
+const CommentsViewsComponent = registerComponent<ExternalProps>('CommentsViews', CommentsViews, {
+  styles,
+  hocs: [withLocation, withNavigation, withUser],
+});
 
 declare global {
   interface ComponentTypes {

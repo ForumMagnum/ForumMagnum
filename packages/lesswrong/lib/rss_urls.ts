@@ -1,4 +1,4 @@
-import { getSetting } from 'meteor/vulcan:core';
+import { getSetting } from './vulcan-lib';
 import { Meteor } from 'meteor/meteor';
 
 export const rssTermsToUrl = (terms) => {

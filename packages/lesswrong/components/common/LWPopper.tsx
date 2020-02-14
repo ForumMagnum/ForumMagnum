@@ -1,9 +1,8 @@
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import Popper from '@material-ui/core/Popper'
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   popper: {
     position: "absolute",
     zIndex: theme.zIndexes.lwPopper
@@ -23,7 +22,7 @@ const styles = createStyles(theme => ({
     position: "relative",
     zIndex: theme.zIndexes.lwPopperTooltip,
   }
-}))
+})
 
 // this is a thin wrapper over MuiPopper so that we can set the zIndex however we want
 const LWPopper = ({classes, children, onMouseEnter, tooltip=false, modifiers, open, ...props}) => {
@@ -42,7 +41,7 @@ const LWPopper = ({classes, children, onMouseEnter, tooltip=false, modifiers, op
   )
 };
 
-const LWPopperComponent = registerComponent('LWPopper', LWPopper, withStyles(styles, {name:"LWPopper"}));
+const LWPopperComponent = registerComponent('LWPopper', LWPopper, {styles});
 
 declare global {
   interface ComponentTypes {

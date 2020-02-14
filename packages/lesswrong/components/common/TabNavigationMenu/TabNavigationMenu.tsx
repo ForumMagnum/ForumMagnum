@@ -1,6 +1,5 @@
-import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, Components, getSetting } from '../../../lib/vulcan-lib';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import { useCurrentUser } from '../withUser';
 import { iconWidth } from './TabNavigationItem'
 
@@ -8,7 +7,7 @@ import { iconWidth } from './TabNavigationItem'
 import menuTabs from './menuTabs'
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
-const styles = createStyles((theme) => {
+const styles = (theme) => {
   return {
     root: {
       display: "flex",
@@ -24,7 +23,7 @@ const styles = createStyles((theme) => {
       borderBottom: "solid 1px rgba(0,0,0,.2)",
     },
   }
-})
+}
 
 const TabNavigationMenu = ({onClickSection, classes}: {
   onClickSection?: any,
@@ -37,7 +36,7 @@ const TabNavigationMenu = ({onClickSection, classes}: {
   return (
       <AnalyticsContext pageSectionContext="navigationMenu">
         <div className={classes.root}>
-          {menuTabs[getSetting('forumType')].map(tab => {
+          {menuTabs[getSetting<string>('forumType')].map(tab => {
             if (tab.divider) {
               return <div key={tab.id} className={classes.divider} />
             }
@@ -60,8 +59,7 @@ const TabNavigationMenu = ({onClickSection, classes}: {
 };
 
 const TabNavigationMenuComponent = registerComponent(
-  'TabNavigationMenu', TabNavigationMenu,
-  withStyles(styles, { name: 'TabNavigationMenu'})
+  'TabNavigationMenu', TabNavigationMenu, {styles}
 );
 
 declare global {
