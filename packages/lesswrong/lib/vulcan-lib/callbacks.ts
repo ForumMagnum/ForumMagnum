@@ -7,7 +7,7 @@ import { Utils } from './utils';
 /**
  * @summary Format callback hook names
  */
-const formatHookName = (hook: string): string => hook.toLowerCase();
+const formatHookName = (hook: string|null): string => hook?.toLowerCase() || "";
 
 /**
  * @summary A list of all registered callback hooks
