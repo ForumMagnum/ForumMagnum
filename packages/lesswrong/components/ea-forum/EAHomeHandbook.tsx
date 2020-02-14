@@ -1,5 +1,5 @@
 import React from 'react'
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core'
+import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib'
 import { withStyles, createStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
@@ -130,8 +130,6 @@ const EAHomeHandbook = ({ classes, cookies, flash, document, loading }) => {
       messageString: "We won't show this again. If you want to read the Handbook, you can access it from the sidebar menu."
     })
   }
-  
-  console.log('document', document)
 
   return <React.Fragment>
     <SingleColumnSection>
@@ -181,6 +179,5 @@ const options = {
 
 registerComponent(
   'EAHomeHandbook', EAHomeHandbook,
-  withStyles(styles, { name: 'EAHomeHandbook' }),
-  withCookies, withMessages, [withSingle, options]
+  {styles, hocs: [withCookies, withMessages, [withSingle, options]]},
 )

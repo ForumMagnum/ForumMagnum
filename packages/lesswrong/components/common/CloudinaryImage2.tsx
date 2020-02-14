@@ -1,4 +1,4 @@
-import { registerComponent, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, getSetting } from '../../lib/vulcan-lib';
 import React from 'react';
 
 function cloudinaryPropsToStr(props) {
@@ -47,4 +47,10 @@ const CloudinaryImage2 = ({width, height, objectFit, publicId}: {
   />
 };
 
-registerComponent('CloudinaryImage2', CloudinaryImage2);
+const CloudinaryImage2Component = registerComponent('CloudinaryImage2', CloudinaryImage2);
+
+declare global {
+  interface ComponentTypes {
+    CloudinaryImage2: typeof CloudinaryImage2Component
+  }
+}
