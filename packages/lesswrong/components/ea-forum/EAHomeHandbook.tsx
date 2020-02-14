@@ -1,6 +1,6 @@
 import React from 'react'
 import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib'
-import { withStyles, createStyles } from '@material-ui/core/styles'
+import { createStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import { withSingle } from '../../lib/crud/withSingle';
@@ -127,7 +127,7 @@ const EAHomeHandbook = ({ classes, cookies, flash, document, loading }) => {
       expires: END_OF_TIME
     })
     flash({
-      messageString: "We won't show this again. If you want to read the this in the future, you can access it from the sidebar menu." // TODO; s/this/something/
+      messageString: "We won't show this again. If you want to read the this in the future, you can access it from the sidebar menu." // TODO: s/this/something/
     })
   }
 
