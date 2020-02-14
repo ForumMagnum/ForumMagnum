@@ -1,6 +1,5 @@
-// TODO; tsx
 import React from 'react'
-import { Components, registerComponent } from 'meteor/vulcan:core'
+import { Components, registerComponent, getSetting } from 'meteor/vulcan:core'
 import { withStyles, createStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
@@ -12,10 +11,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import Sequences from '../../lib/collections/sequences/collection';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 
-const bannerHeight = 250 // TODO; 250
-
-// TODO; fix mid-range widths
-// TODO; still not handling the image window right
+const bannerHeight = 250
 
 const styles = createStyles(theme => ({
   bannerContainer: {
@@ -60,7 +56,7 @@ const styles = createStyles(theme => ({
     [theme.breakpoints.down('sm')]: {
       marginTop: -36, // mobile/tablet header height
     },
-    minHeight: bannerHeight, // TODO; can we remove repeated height?
+    minHeight: bannerHeight,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
@@ -94,7 +90,6 @@ const styles = createStyles(theme => ({
   ctaButton: {
     marginTop: 26,
     ...theme.typography.display1,
-    // margin: 0,
     fontFamily: theme.typography.postStyle.fontFamily,
     fontSize: 17,
     fontStyle: "italic",
@@ -118,7 +113,7 @@ const styles = createStyles(theme => ({
 
 const COOKIE_NAME = 'hide_home_handbook'
 const END_OF_TIME = new Date('2038-01-18')
-const FIRST_POST_ID = 'vwgZZq3asJk5f7PRX' // TODO; getSetting('')
+const FIRST_POST_ID = getSetting('eaHomeSequenceFirstPostId')
 
 const EAHomeHandbook = ({ classes, cookies, flash, document, loading }) => {
   const { SingleColumnSection, CloudinaryImage2, Loading } = Components
@@ -164,7 +159,7 @@ const EAHomeHandbook = ({ classes, cookies, flash, document, loading }) => {
           variant='contained'
           color='primary'
           className={classes.ctaButton}
-          href={`/posts/${FIRST_POST_ID}/TODOSLUG`} // TODO; slug
+          href={`/posts/${FIRST_POST_ID}`} // TODO: slug
         >
           Start Reading
         </Button>

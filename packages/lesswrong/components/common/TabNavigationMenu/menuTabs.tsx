@@ -232,7 +232,7 @@ export default {
       // // Enable this and remove questions when we're ready to go
       // id: 'handbook',
       // title: 'EA Handbook',
-      // mobileTitle: 'Community',
+      // mobileTitle: 'Handbook',
       // link: '/handbook',
       // iconComponent: ImportContacts,
       // tooltip: 'Learn about the principles of effective altruism.',
@@ -263,11 +263,11 @@ export default {
       id: 'divider',
       divider: true,
       showOnCompressed: true,
-    }, {
-      id: 'intro',
-      title: 'Intro to EA',
-      link: '/intro',
-      subItem: true,
+    // }, {
+    //   id: 'intro',
+    //   title: 'Intro to EA',
+    //   link: '/intro',
+    //   subItem: true,
     }, {
       id: 'shortform',
       title: 'Shortform [Beta]',

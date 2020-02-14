@@ -483,16 +483,16 @@ switch (getSetting('forumType')) {
         name:'about',
         path:'/about',
         componentName: 'PostsSingleRoute',
-        _id: "Y2iqhjAHbXNkwcS8F",
-        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, "Y2iqhjAHbXNkwcS8F"),
+        _id: getSetting('aboutPostId'),
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, getSetting('aboutPostId')),
       },
-      {
-        name:'intro',
-        path:'/intro',
-        componentName: 'PostsSingleRoute',
-        _id: "cLCiSzxYk8Y3SuoR2",  // TODO; Actually introductory content
-        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, "cLCiSzxYk8Y3SuoR2"),
-      },
+      // {
+      //   name:'intro',
+      //   path:'/intro',
+      //   componentName: 'PostsSingleRoute',
+      //   _id: getSetting('introPostId'),
+      //   getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, getSetting('introPostId')),
+      // },
       {
         name: 'Community',
         path: '/meta',
@@ -504,11 +504,11 @@ switch (getSetting('forumType')) {
         path: '/sequences',
         componentName: 'EASequencesHome'
       },
-      {
-        name: 'eaHandbookHome', // TODO;
-        path: '/handbook',
-        componentName: 'EASequencesHome'
-      }
+      // {
+      //   name: 'eaHandbookHome',
+      //   path: '/handbook',
+      //   componentName: 'EASequencesHome'
+      // }
     ]);
     break
   default:

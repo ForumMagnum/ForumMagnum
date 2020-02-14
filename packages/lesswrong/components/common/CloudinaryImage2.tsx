@@ -1,6 +1,5 @@
 import { registerComponent, getSetting } from 'meteor/vulcan:core';
 import React from 'react';
-import { SECTION_WIDTH } from './SingleColumnSection';
 
 function cloudinaryPropsToStr(props) {
   let sb: string[] = [];
@@ -9,7 +8,9 @@ function cloudinaryPropsToStr(props) {
   return sb.join(",");
 }
 
-// TODO; docstring
+// Cloudinary image without using cloudinary-react. Allows SSR. See:
+// https://github.com/LessWrong2/Lesswrong2/pull/937 "Drop cloudinary react"
+// https://github.com/LessWrong2/Lesswrong2/pull/964 "Temporarily revert removal of cloudinary-react"
 const CloudinaryImage2 = ({width, height, objectFit, publicId}: {
   width?: number,
   height?: number,

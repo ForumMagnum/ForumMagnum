@@ -268,8 +268,11 @@ const theme = createLWTheme({
     },
     SequencesPage: {
       root: {
-        paddingTop: 330,
-      }
+        paddingTop: 345,
+      },
+      banner: {
+        top: 77,
+      },
     },
     ContentType: {
       root: {
