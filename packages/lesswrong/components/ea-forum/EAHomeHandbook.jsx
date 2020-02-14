@@ -43,6 +43,10 @@ const styles = createStyles(theme => ({
     transform: 'scale(1.1)',
     filter: 'blur(4px)',
     width: '100%',
+    '& img': {
+      marginLeft: '50%',
+      transform: 'translateX(-50%)',
+    },
   },
   bannerOverlay: {
     position: 'absolute',
@@ -141,7 +145,7 @@ const EAHomeHandbook = ({ classes, cookies, flash, document, loading }) => {
           <CloudinaryImage2
             publicId={document.bannerImageId}
             height={bannerHeight}
-            width={true}
+            width={SECTION_WIDTH}
             objectFit='cover'
           />
         </div>

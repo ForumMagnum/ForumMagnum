@@ -27,8 +27,8 @@ const CloudinaryImage2 = ({width, height, objectFit, publicId}: {
   let imageStyle: any = {};
 
   if (width) {
-    cloudinaryProps.w = SECTION_WIDTH; // TODO; no
-    imageStyle.width = '100%'
+    cloudinaryProps.w = width
+    imageStyle.width = width
   }
   if (height) {
     cloudinaryProps.h = height;
