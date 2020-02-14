@@ -483,8 +483,15 @@ switch (getSetting('forumType')) {
         name:'about',
         path:'/about',
         componentName: 'PostsSingleRoute',
-        _id:"Y2iqhjAHbXNkwcS8F",
+        _id: "Y2iqhjAHbXNkwcS8F",
         getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, "Y2iqhjAHbXNkwcS8F"),
+      },
+      {
+        name:'intro',
+        path:'/intro',
+        componentName: 'PostsSingleRoute',
+        _id: "cLCiSzxYk8Y3SuoR2",  // TODO; Actually introductory content
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, "cLCiSzxYk8Y3SuoR2"),
       },
       {
         name: 'Community',

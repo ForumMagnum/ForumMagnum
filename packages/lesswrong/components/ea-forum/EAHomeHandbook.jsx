@@ -22,13 +22,15 @@ const styles = createStyles(theme => ({
     position: 'absolute',
     top: 120, // desktop header height + layout margin
     width: SECTION_WIDTH,
-    [theme.breakpoints.down('sm')]: {
-      top: 85
+    '@media (max-width: 959.95px) and (min-width: 600px)': {
+      top: 86, // tablet header height
+    },
+    [`@media (max-width: ${SECTION_WIDTH-1}px)`]: {
+      right: 0,
+      width: '100vw',
     },
     [theme.breakpoints.down('xs')]: {
       top: 77, // mobile header height
-      right: 0,
-      width: '100vw', // TODO; xs or sm?
     },
     height: bannerHeight,
     overflow: 'hidden',
@@ -52,7 +54,7 @@ const styles = createStyles(theme => ({
   overImage: {
     position: 'relative',
     [theme.breakpoints.down('sm')]: {
-      marginTop: -36, // Undo layout main (really?)
+      marginTop: -36, // mobile/tablet header height
     },
     minHeight: bannerHeight, // TODO; can we remove repeated height?
     display: 'flex',
@@ -72,7 +74,7 @@ const styles = createStyles(theme => ({
     },
   },
   title: {
-    width: 300, // TODO;
+    width: 300,
     fontStyle: "italic",
   },
   divider: {
@@ -82,10 +84,10 @@ const styles = createStyles(theme => ({
     borderBottom: "solid 1px #FFFFFF",
   },
   description: {
-    width: 200, // TODO;
+    width: 200,
     fontSize: 17,
   },
-  ctaButton: { // TODO;
+  ctaButton: {
     marginTop: 26,
     ...theme.typography.display1,
     // margin: 0,
@@ -97,19 +99,22 @@ const styles = createStyles(theme => ({
   },
   dismiss: {
     // hack
+    position: 'relative',
+    marginTop: -20,
+    [`@media (min-width: ${SECTION_WIDTH-1}px)`]: {
+      marginRight: 4,
+    },
     fontFamily: theme.typography.uiSecondary.fontFamily,
     fontSize: 14,
-    marginTop: -20,
     textAlign: 'right',
     color: '#BBB',
-    position: 'relative',
     zIndex: 1,
   },
 }))
 
 const COOKIE_NAME = 'hide_home_handbook'
 const END_OF_TIME = new Date('2038-01-18')
-const FIRST_POST_ID = 'vwgZZq3asJk5f7PRX' // TODO: getSetting('')
+const FIRST_POST_ID = 'vwgZZq3asJk5f7PRX' // TODO; getSetting('')
 
 const EAHomeHandbook = ({ classes, cookies, flash, document, loading }) => {
   const { SingleColumnSection, CloudinaryImage2, Loading } = Components
