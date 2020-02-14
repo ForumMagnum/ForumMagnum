@@ -1,12 +1,11 @@
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../../lib/vulcan-lib';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import NotesIcon from '@material-ui/icons/Notes';
 import Tooltip from '@material-ui/core/Tooltip';
 import { Comments } from "../../../lib/collections/comments";
 import { Link } from '../../../lib/reactRouterWrapper';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   icon: {
     cursor: "pointer",
     color: theme.palette.grey[600],
@@ -17,9 +16,14 @@ const styles = createStyles(theme => ({
     position: "relative",
     top: 2
   }
-}));
+});
 
-const CommentShortformIcon = ({comment, post, classes, simple}) => {
+const CommentShortformIcon = ({comment, post, classes, simple}: {
+  comment: any,
+  post: any,
+  classes: any,
+  simple?: boolean,
+}) => {
   // Top level shortform posts should show this icon/button, both to make shortform posts a bit more visually distinct, and to make it easier to grab permalinks for shortform posts.
   if (!comment.shortform || comment.topLevelCommentId) return null
 
@@ -35,8 +39,8 @@ const CommentShortformIcon = ({comment, post, classes, simple}) => {
 }
 
 const CommentShortformIconComponent = registerComponent(
-  'CommentShortformIcon', CommentShortformIcon,
-  withStyles(styles, {name: "CommentShortformIcon"}));
+  'CommentShortformIcon', CommentShortformIcon, {styles}
+);
 
 declare global {
   interface ComponentTypes {

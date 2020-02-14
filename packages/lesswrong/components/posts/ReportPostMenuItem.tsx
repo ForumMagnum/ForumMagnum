@@ -1,20 +1,19 @@
 import React, { PureComponent } from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import MenuItem from '@material-ui/core/MenuItem';
-import PropTypes from 'prop-types';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import withUser from '../common/withUser';
 import withDialog from '../common/withDialog'
 import ReportOutlinedIcon from '@material-ui/icons/ReportOutlined';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 
-interface ReportPostMenuItemProps extends WithUserProps {
-  openDialog: any,
+interface ExternalProps {
   post: any,
+}
+interface ReportPostMenuItemProps extends ExternalProps, WithUserProps, WithDialogProps {
 }
 
 class ReportPostMenuItem extends PureComponent<ReportPostMenuItemProps> {
-
   showReport = () => {
     const { openDialog, post, currentUser } = this.props;
     if (!currentUser) return;
@@ -43,12 +42,9 @@ class ReportPostMenuItem extends PureComponent<ReportPostMenuItemProps> {
   }
 };
 
-(ReportPostMenuItem as any).propTypes = {
-  currentUser: PropTypes.object,
-  post: PropTypes.object.isRequired
-}
-
-const ReportPostMenuItemComponent = registerComponent('ReportPostMenuItem', ReportPostMenuItem, withUser, withDialog);
+const ReportPostMenuItemComponent = registerComponent<ExternalProps>('ReportPostMenuItem', ReportPostMenuItem, {
+  hocs: [withUser, withDialog]
+});
 
 declare global {
   interface ComponentTypes {

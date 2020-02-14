@@ -1,17 +1,15 @@
-import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { withMessages } from '../common/withMessages';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormattedMessage, intlShape } from 'meteor/vulcan:i18n';
-import Users from 'meteor/vulcan:users';
+import { FormattedMessage, intlShape } from '../../lib/vulcan-i18n';
+import Users from '../../lib/collections/users/collection';
 import Button from '@material-ui/core/Button';
 import { Accounts } from 'meteor/accounts-base';
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import { withApollo } from 'react-apollo'
 import { useNavigation } from '../../lib/routeUtil';
-
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   root: {
@@ -108,10 +106,10 @@ UsersEditForm.contextTypes = {
   intl: intlShape
 };
 
-const UsersEditFormComponent = registerComponent('UsersEditForm', UsersEditForm,
-  withMessages, withUser, withApollo,
-  withStyles(styles, { name: "UsersEditForm" })
-);
+const UsersEditFormComponent = registerComponent('UsersEditForm', UsersEditForm, {
+  styles,
+  hocs: [withMessages, withUser, withApollo]
+});
 
 declare global {
   interface ComponentTypes {

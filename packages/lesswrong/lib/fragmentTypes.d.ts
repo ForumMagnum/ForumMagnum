@@ -136,8 +136,8 @@ interface PostsDetails extends PostsBase, PostsAuthors { // fragment on Posts
 	readonly voteCount: number,
 	readonly currentUserVotes: VoteFragment,
 	readonly feed: RSSFeedMinimumInfo,
-	readonly sourcePostRelations: PostsDetails_sourcePostRelations,
-	readonly targetPostRelations: PostsDetails_targetPostRelations,
+	readonly sourcePostRelations: Array<PostsDetails_sourcePostRelations>,
+	readonly targetPostRelations: Array<PostsDetails_targetPostRelations>,
 }
 
 interface PostsDetails_canonicalSequence { // fragment on Sequences
@@ -186,7 +186,7 @@ interface PostsDetails_targetPostRelations_targetPost extends PostsBase, PostsAu
 interface PostsRevision extends PostsDetails { // fragment on Posts
 	readonly version: string,
 	readonly contents: RevisionDisplay,
-	readonly revisions: PostsRevision_revisions,
+	readonly revisions: Array<PostsRevision_revisions>,
 }
 
 interface PostsRevision_revisions { // fragment on Revisions
@@ -197,7 +197,7 @@ interface PostsRevision_revisions { // fragment on Revisions
 interface PostsRevisionEdit extends PostsDetails { // fragment on Posts
 	readonly version: string,
 	readonly contents: RevisionEdit,
-	readonly revisions: PostsRevisionEdit_revisions,
+	readonly revisions: Array<PostsRevisionEdit_revisions>,
 }
 
 interface PostsRevisionEdit_revisions { // fragment on Revisions
@@ -268,7 +268,7 @@ interface EditModerationGuidelines { // fragment on Posts
 
 interface PostsRevisionsList { // fragment on Posts
 	readonly _id: string,
-	readonly revisions: PostsRevisionsList_revisions,
+	readonly revisions: Array<PostsRevisionsList_revisions>,
 }
 
 interface PostsRevisionsList_revisions { // fragment on Revisions
@@ -1094,7 +1094,7 @@ interface VoteFragment { // fragment on Votes
 interface WithVotePost { // fragment on Posts
 	readonly __typename: string,
 	readonly _id: string,
-	readonly currentUserVotes: WithVotePost_currentUserVotes,
+	readonly currentUserVotes: Array<WithVotePost_currentUserVotes>,
 	readonly baseScore: number,
 	readonly score: number,
 	readonly afBaseScore: number,
@@ -1110,7 +1110,7 @@ interface WithVotePost_currentUserVotes { // fragment on Votes
 interface WithVoteComment { // fragment on Comments
 	readonly __typename: string,
 	readonly _id: string,
-	readonly currentUserVotes: WithVoteComment_currentUserVotes,
+	readonly currentUserVotes: Array<WithVoteComment_currentUserVotes>,
 	readonly baseScore: number,
 	readonly score: number,
 	readonly afBaseScore: number,
@@ -1203,7 +1203,7 @@ interface SequencesNavigationFragment { // fragment on Sequences
 	readonly isDeleted: boolean,
 	readonly hidden: boolean,
 	readonly curatedOrder: number,
-	readonly chapters: SequencesNavigationFragment_chapters,
+	readonly chapters: Array<SequencesNavigationFragment_chapters>,
 }
 
 interface SequencesNavigationFragment_chapters { // fragment on Chapters
@@ -1211,7 +1211,7 @@ interface SequencesNavigationFragment_chapters { // fragment on Chapters
 	readonly title: string,
 	readonly number: number,
 	readonly sequenceId: string,
-	readonly posts: SequencesNavigationFragment_chapters_posts,
+	readonly posts: Array<SequencesNavigationFragment_chapters_posts>,
 }
 
 interface SequencesNavigationFragment_chapters_posts { // fragment on Posts
@@ -1263,7 +1263,7 @@ interface CollectionsEditFragment extends CollectionsPageFragment { // fragment 
 }
 
 interface SuggestAlignmentPost extends PostsList { // fragment on Posts
-	readonly suggestForAlignmentUsers: SuggestAlignmentPost_suggestForAlignmentUsers,
+	readonly suggestForAlignmentUsers: Array<SuggestAlignmentPost_suggestForAlignmentUsers>,
 }
 
 interface SuggestAlignmentPost_suggestForAlignmentUsers { // fragment on Users
@@ -1340,7 +1340,7 @@ interface WithVoteTagRel { // fragment on TagRels
 	readonly tagId: string,
 	readonly tag: WithVoteTagRel_tag,
 	readonly postId: string,
-	readonly currentUserVotes: WithVoteTagRel_currentUserVotes,
+	readonly currentUserVotes: Array<WithVoteTagRel_currentUserVotes>,
 	readonly baseScore: number,
 	readonly afBaseScore: number,
 	readonly score: number,
@@ -1467,7 +1467,7 @@ interface ChildRelatedPostRelList { // fragment on PostRelations
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
 	readonly post: SuggestAlignmentComment_post,
 	readonly suggestForAlignmentUserIds: Array<string>,
-	readonly suggestForAlignmentUsers: SuggestAlignmentComment_suggestForAlignmentUsers,
+	readonly suggestForAlignmentUsers: Array<SuggestAlignmentComment_suggestForAlignmentUsers>,
 }
 
 interface SuggestAlignmentComment_post { // fragment on Posts

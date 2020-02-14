@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react'
 import CKEditor from '../editor/ReactCKEditor';
 import { PostEditor, PostEditorCollaboration } from '@lesswrong/lesswrong-editor';
-import { getSetting } from 'meteor/vulcan:core';
+import { getSetting } from '../../lib/vulcan-lib';
 import { getCKEditorDocumentId, generateTokenRequest } from '../../lib/ckEditorUtils'
 import { withStyles, createStyles } from '@material-ui/core/styles';
 import { Helmet } from 'react-helmet';

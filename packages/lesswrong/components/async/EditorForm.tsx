@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import Editor, { composeDecorators } from 'draft-js-plugins-editor';
 import createInlineToolbarPlugin, { Separator } from 'draft-js-inline-toolbar-plugin';
 import createImagePlugin from 'draft-js-image-plugin';
@@ -197,11 +196,5 @@ const blockRenderMap = Map({
     element: 'div'
   }
 });
-
-(EditorForm as any).propTypes = {
-  isClient: PropTypes.bool,
-  editorState: PropTypes.object,
-  onChange: PropTypes.func
-}
 
 export default withTheme()(EditorForm);

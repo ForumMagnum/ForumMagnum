@@ -1,10 +1,9 @@
 import React from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     position: "relative",
     width: "1em",
@@ -25,7 +24,7 @@ const styles = createStyles(theme => ({
     color: "inherit",
     fontSize: "1.52em"
   }
-}))
+})
 
 // this is currently unused, but will hopefully be used someday after we reflect on it a bit more.
 const KarmaIcon = ({classes, className}) => {
@@ -35,7 +34,7 @@ const KarmaIcon = ({classes, className}) => {
     </span>
 }
 
-const KarmaIconComponent = registerComponent('KarmaIcon', KarmaIcon, withStyles(styles, {name:"KarmaIcon"}))
+const KarmaIconComponent = registerComponent('KarmaIcon', KarmaIcon, {styles});
 
 declare global {
   interface ComponentTypes {

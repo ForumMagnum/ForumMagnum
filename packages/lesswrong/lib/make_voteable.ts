@@ -7,7 +7,7 @@ export const VoteableCollections: Array<any> = [];
 //   customBaseScoreReadAccess: baseScore can have a customized canRead value.
 //     Option will be bassed directly to the canRead key
 // }
-export const makeVoteable = (collection, options) => {
+export const makeVoteable = (collection, options?: any) => {
   options = options || {}
   const {customBaseScoreReadAccess} = options
 

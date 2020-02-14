@@ -1,21 +1,19 @@
 import React from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSubscribedLocation } from '../../lib/routeUtil';
-import { withApollo } from 'react-apollo';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
 import { Link } from '../../lib/reactRouterWrapper';
 
-export const styles = createStyles(theme => ({
+export const styles = theme => ({
   subtitle: {
     marginLeft: '1em',
     paddingLeft: '1em',
     textTransform: 'uppercase',
     borderLeft: `1px solid ${grey[400]}`,
   },
-}));
+});
 
-const HeaderSubtitle = ({client, classes}) => {
+const HeaderSubtitle = ({classes}) => {
   const { currentRoute } = useSubscribedLocation();
   if (!currentRoute) return null
   const SubtitleComponent = currentRoute.subtitleComponentName ? Components[currentRoute.subtitleComponentName] : null;
@@ -40,10 +38,9 @@ const HeaderSubtitle = ({client, classes}) => {
   }
 }
 
-const HeaderSubtitleComponent = registerComponent("HeaderSubtitle", HeaderSubtitle,
-  withApollo,
-  withStyles(styles, {name: "HeaderSubtitle"})
-);
+const HeaderSubtitleComponent = registerComponent("HeaderSubtitle", HeaderSubtitle, {
+  styles,
+});
 
 declare global {
   interface ComponentTypes {

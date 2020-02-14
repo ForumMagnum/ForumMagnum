@@ -1,4 +1,4 @@
-import { Utils } from 'meteor/vulcan:lib';
+import { Utils } from '../vulcan-lib';
 import * as _ from 'underscore';
 
 export const getMultiQueryName = (typeName: string) => `multi${typeName}Query`;

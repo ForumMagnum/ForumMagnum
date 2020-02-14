@@ -28,8 +28,7 @@ Child Props:
 
 import React from 'react';
 import gql from 'graphql-tag';
-import { deleteClientTemplate } from 'meteor/vulcan:core';
-import { extractCollectionInfo, extractFragmentInfo } from 'meteor/vulcan:lib';
+import { deleteClientTemplate, extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
 import { compose, withHandlers } from 'recompose';
 import { cacheUpdateGenerator } from './cacheUpdates';
 import { getExtraVariables } from './utils'
@@ -37,11 +36,11 @@ import { Mutation } from 'react-apollo';
 
 export const withDelete = options => {
   const { collectionName, collection } = extractCollectionInfo(options);
-  const { fragmentName, fragment, extraVariablesString } = extractFragmentInfo(options, collectionName);
+  const { fragmentName, fragment } = extractFragmentInfo(options, collectionName);
 
   const typeName = collection.options.typeName;
   const query = gql`
-    ${deleteClientTemplate({ typeName, fragmentName, extraVariablesString })}
+    ${deleteClientTemplate({ typeName, fragmentName })}
     ${fragment}
   `;
 

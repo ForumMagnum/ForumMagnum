@@ -1,6 +1,6 @@
 import { Comments } from "../../collections/comments";
 import { arrayOfForeignKeysField, addFieldsDict, foreignKeyField } from '../../utils/schemaUtils'
-import { getSetting } from 'meteor/vulcan:core'
+import { getSetting } from '../../vulcan-lib';
 import { schemaDefaultValue } from '../../collectionUtils';
 
 export const alignmentOptionsGroup = {

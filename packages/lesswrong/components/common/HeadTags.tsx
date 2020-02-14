@@ -1,18 +1,11 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
-import { Components, registerComponent } from 'meteor/vulcan:core';
-import { Utils, registerSetting, getSetting, Head } from 'meteor/vulcan:lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Utils, registerSetting, getSetting, Head } from '../../lib/vulcan-lib';
 import compose from 'lodash/flowRight';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { withApollo } from 'react-apollo';
-
-registerSetting('logoUrl', null, 'Absolute URL for the logo image');
-registerSetting('title', 'My App', 'App title');
-registerSetting('tagline', null, 'App tagline');
-registerSetting('description');
-registerSetting('siteImage', null, 'An image used to represent the site on social media');
-registerSetting('faviconUrl', '/img/favicon.ico', 'Favicon absolute URL');
+import '../../lib/registerSettings';
 
 const HeadTags = (props) => {
     const url = props.url || Utils.getSiteUrl();
@@ -77,13 +70,9 @@ const HeadTags = (props) => {
     );
 }
 
-HeadTags.propTypes = {
-  url: PropTypes.string,
-  description: PropTypes.string,
-  image: PropTypes.string,
-};
-
-const HeadTagsComponent = registerComponent('HeadTags', HeadTags, withApollo);
+const HeadTagsComponent = registerComponent('HeadTags', HeadTags, {
+  hocs: [withApollo]
+});
 
 declare global {
   interface ComponentTypes {

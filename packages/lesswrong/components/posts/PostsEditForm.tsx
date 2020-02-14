@@ -1,22 +1,29 @@
 import React from 'react';
-import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
-import { withSingle } from '../../lib/crud/withSingle';
-import { withMessages } from '../common/withMessages';
+import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
+import { useSingle } from '../../lib/crud/withSingle';
+import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
-import { withLocation, withNavigation } from '../../lib/routeUtil'
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { useLocation, useNavigation } from '../../lib/routeUtil'
 import NoSsr from '@material-ui/core/NoSsr';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   formSubmit: {
     display: "flex",
     flexWrap: "wrap",
   }
-}))
+})
 
 const PostsEditForm = ({
-  documentId, document, eventForm, classes, flash, history, location
+  documentId, eventForm, classes,
 }) => {
+  const { location } = useLocation();
+  const { history } = useNavigation();
+  const { flash } = useMessages();
+  const { document } = useSingle({
+    documentId,
+    collection: Posts,
+    fragmentName: 'PostsPage',
+  });
   const { params } = location; // From withLocation
   const isDraft = document && document.draft;
   const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox } = Components
@@ -67,14 +74,7 @@ const PostsEditForm = ({
   );
 }
 
-const PostsEditFormComponent = registerComponent('PostsEditForm', PostsEditForm,
-  withSingle({
-    collection: Posts,
-    fragmentName: 'PostsPage',
-  }),
-  withMessages, withLocation, withNavigation,
-  withStyles(styles, { name: "PostsEditForm" })
-);
+const PostsEditFormComponent = registerComponent('PostsEditForm', PostsEditForm, {styles});
 
 declare global {
   interface ComponentTypes {

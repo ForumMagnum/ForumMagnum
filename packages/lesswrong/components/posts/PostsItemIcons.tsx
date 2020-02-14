@@ -1,6 +1,5 @@
 import React from 'react';
-import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles'
+import { registerComponent, Components, getSetting } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 import StarIcon from '@material-ui/icons/Star';
@@ -11,7 +10,7 @@ import GroupIcon from '@material-ui/icons/Group';
 const MetaTitle = getSetting('forumType') === 'EAForum' ? 'Community Post' : 'Meta Post'
 const MetaIcon = getSetting('forumType') === 'EAForum' ? GroupIcon : DetailsIcon
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   iconSet: {
     marginLeft: theme.spacing.unit,
     marginRight: theme.spacing.unit,
@@ -35,7 +34,7 @@ const styles = createStyles(theme => ({
       top: 0,
     }
   },
-}));
+});
 
 const PostsItemIcons = ({post, classes}) => {
   const { OmegaIcon } = Components;
@@ -73,7 +72,7 @@ const PostsItemIcons = ({post, classes}) => {
   </span>
 }
 
-const PostsItemIconsComponent = registerComponent('PostsItemIcons', PostsItemIcons, withStyles(styles, { name: "PostsItemIcons" }));
+const PostsItemIconsComponent = registerComponent('PostsItemIcons', PostsItemIcons, {styles});
 
 declare global {
   interface ComponentTypes {

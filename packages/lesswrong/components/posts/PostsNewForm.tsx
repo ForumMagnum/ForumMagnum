@@ -1,26 +1,25 @@
-import { Components, registerComponent, getFragment, getSetting } from 'meteor/vulcan:core';
-import { withMessages } from '../common/withMessages';
+import { Components, registerComponent, getFragment, getSetting } from '../../lib/vulcan-lib';
+import { useMessages } from '../common/withMessages';
 import { Posts } from '../../lib/collections/posts';
 import React from 'react';
-import withUser from '../common/withUser'
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { useCurrentUser } from '../common/withUser'
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import NoSsr from '@material-ui/core/NoSsr';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   formSubmit: {
     display: "flex",
     flexWrap: "wrap",
   }
-}))
+})
 
-const PostsNewForm = ({currentUser, flash, classes}: {
-  currentUser: UsersCurrent|null,
-  flash: any,
+const PostsNewForm = ({classes}: {
   classes: any,
 }) => {
   const { query } = useLocation();
   const { history } = useNavigation();
+  const currentUser = useCurrentUser();
+  const { flash } = useMessages();
   
   const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
@@ -32,7 +31,7 @@ const PostsNewForm = ({currentUser, flash, classes}: {
     af: af || (query && !!query.af),
     groupId: query && query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
-    moderationGuidelines: userHasModerationGuidelines ? currentUser.moderationGuidelines : undefined
+    moderationGuidelines: userHasModerationGuidelines ? currentUser!.moderationGuidelines : undefined
   }
   const eventForm = query && query.eventForm
 
@@ -68,7 +67,7 @@ const PostsNewForm = ({currentUser, flash, classes}: {
   );
 }
 
-const PostsNewFormComponent = registerComponent('PostsNewForm', PostsNewForm, withMessages, withUser, withStyles(styles, { name: "PostsNewForm" }));
+const PostsNewFormComponent = registerComponent('PostsNewForm', PostsNewForm, {styles});
 
 declare global {
   interface ComponentTypes {

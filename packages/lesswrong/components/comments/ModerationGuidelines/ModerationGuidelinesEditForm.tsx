@@ -1,17 +1,14 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment } from '../../../lib/vulcan-lib';
 import { Posts } from '../../../lib/collections/posts'
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import withUser from '../../common/withUser';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   formButton: {
     paddingBottom: "2px",
     fontSize: "16px",
@@ -24,7 +21,7 @@ const styles = createStyles(theme => ({
     color: theme.palette.secondary.main,
     float: 'right'
   },
-}));
+});
 
 const ModerationGuidelinesEditForm = ({ postId, onClose, classes }) => {
   const SubmitComponent = ({submitLabel = "Submit"}) => {
@@ -67,9 +64,10 @@ const ModerationGuidelinesEditForm = ({ postId, onClose, classes }) => {
   )
 }
 
+const ModerationGuidelinesEditFormComponent = registerComponent('ModerationGuidelinesEditForm', ModerationGuidelinesEditForm, {styles});
 
-ModerationGuidelinesEditForm.propTypes = {
-  postId: PropTypes.string,
+declare global {
+  interface ComponentTypes {
+    ModerationGuidelinesEditForm: typeof ModerationGuidelinesEditFormComponent
+  }
 }
-
-registerComponent('ModerationGuidelinesEditForm', ModerationGuidelinesEditForm, withStyles(styles, { name: "ModerationGuidelinesEditForm" }), withUser);

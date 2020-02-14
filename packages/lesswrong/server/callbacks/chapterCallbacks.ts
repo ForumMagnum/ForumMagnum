@@ -2,7 +2,7 @@ import { makeEditableOptions, Chapters } from '../../lib/collections/chapters/co
 import { addEditableCallbacks } from '../editor/make_editable_callbacks';
 import { Sequences } from '../../lib/collections/sequences/collection';
 import { Posts } from '../../lib/collections/posts/collection'
-import { addCallback } from 'meteor/vulcan:core';
+import { addCallback } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
 
 addEditableCallbacks({collection: Chapters, options: makeEditableOptions})

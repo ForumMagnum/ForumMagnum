@@ -1,17 +1,15 @@
-import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, Components, getSetting } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles'
 import { truncate } from '../../lib/editor/ellipsize';
-import withUser from "../common/withUser";
 import { postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
 import { Posts } from '../../lib/collections/posts';
 import Card from '@material-ui/core/Card';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { Link } from '../../lib/reactRouterWrapper.jsx';
+import { Link } from '../../lib/reactRouterWrapper';
 
 export const POST_PREVIEW_WIDTH = 435
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     width: POST_PREVIEW_WIDTH,
     position: "relative",
@@ -112,7 +110,7 @@ const styles = createStyles(theme => ({
     height: 13,
     color: "rgba(0,0,0,.19)"
   }
-}))
+})
 
 const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
 
@@ -131,9 +129,13 @@ const getPostCategory = (post) => {
     return post.question ? `Question` : `Personal Blogpost`
 }
 
-const PostsPreviewTooltip = ({ postsList, post, classes, comment }) => {
+const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
+  postsList?: boolean,
+  post: any,
+  classes: any,
+  comment?: any,
+}) => {
   const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, LWTooltip } = Components
-
   const [expanded, setExpanded] = useState(false)
 
   if (!post) return null
@@ -150,7 +152,7 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }) => {
         <div className={classes.header}>
           <div>
             <div className={classes.title}>
-              <PostsTitle post={post} tooltip={false} wrap showIcons={false} />
+              <PostsTitle post={post} wrap showIcons={false} />
             </div>
             <div className={classes.tooltipInfo}>
               { postsList && <span> 
@@ -173,7 +175,7 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }) => {
             </div>
           </div>
           { !postsList && <div className={classes.bookmark}>
-            <BookmarkButton post={post} lighter/>
+            <BookmarkButton post={post}/>
           </div>}
         </div>
         {comment
@@ -202,9 +204,7 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }) => {
 
 }
 
-const PostsPreviewTooltipComponent = registerComponent('PostsPreviewTooltip', PostsPreviewTooltip, withUser,
-  withStyles(styles, { name: "PostsPreviewTooltip" })
-);
+const PostsPreviewTooltipComponent = registerComponent('PostsPreviewTooltip', PostsPreviewTooltip, {styles});
 
 declare global {
   interface ComponentTypes {
