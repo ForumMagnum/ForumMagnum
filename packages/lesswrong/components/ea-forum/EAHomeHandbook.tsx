@@ -127,7 +127,7 @@ const EAHomeHandbook = ({ classes, cookies, flash, document, loading }) => {
       expires: END_OF_TIME
     })
     flash({
-      messageString: "We won't show this again. If you want to read the Handbook, you can access it from the sidebar menu."
+      messageString: "We won't show this again. If you want to read the this in the future, you can access it from the sidebar menu." // TODO; s/this/something/
     })
   }
 

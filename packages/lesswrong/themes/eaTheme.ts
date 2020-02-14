@@ -162,7 +162,7 @@ const theme = createLWTheme({
       root: {
         height: 90,
         '@media (max-width: 959.95px) and (min-width: 600px)': {
-          height: 86, // I don't know headroom shifts by 4 pixels, don't ask me
+          height: 86, // I don't know why headroom shifts by 4 pixels, don't ask me
         },
         [defaultTheme.breakpoints.down('xs')]: {
           height: 77,
