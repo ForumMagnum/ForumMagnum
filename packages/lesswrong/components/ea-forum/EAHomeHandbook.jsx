@@ -8,6 +8,7 @@ import { withSingle } from '../../lib/crud/withSingle';
 import { withCookies } from 'react-cookie'
 import { withMessages } from '../common/withMessages';
 import classNames from 'classnames';
+import { Link } from '../../lib/reactRouterWrapper';
 import Sequences from '../../lib/collections/sequences/collection';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 
@@ -65,6 +66,10 @@ const styles = createStyles(theme => ({
     textAlign: 'center',
     fontFamily: theme.typography.postStyle.fontFamily,
     color: '#FFFFFF',
+    '& a:hover': {
+      // Don't change opacity on hover
+      opacity: 1,
+    },
   },
   title: {
     width: 300, // TODO;
@@ -80,7 +85,7 @@ const styles = createStyles(theme => ({
     width: 200, // TODO;
     fontSize: 17,
   },
-  ctaButtonRoot: {
+  ctaButton: { // TODO;
     marginTop: 26,
     ...theme.typography.display1,
     // margin: 0,
@@ -89,8 +94,6 @@ const styles = createStyles(theme => ({
     fontStyle: "italic",
     color: '#FFFFFF',
     textTransform: 'none',
-  },
-  ctaButtonLabel: {
   },
   dismiss: {
     // hack
@@ -106,12 +109,14 @@ const styles = createStyles(theme => ({
 
 const COOKIE_NAME = 'hide_home_handbook'
 const END_OF_TIME = new Date('2038-01-18')
+const FIRST_POST_ID = 'vwgZZq3asJk5f7PRX' // TODO: getSetting('')
 
 const EAHomeHandbook = ({ classes, cookies, flash, document, loading }) => {
   const { SingleColumnSection, CloudinaryImage2, Loading } = Components
   const hideHandbook = cookies.get(COOKIE_NAME)
   if (hideHandbook) return null
   if (loading || !document) return <Loading />
+
 
   const handleDismiss = () => {
     cookies.set(COOKIE_NAME, 'true', {
@@ -139,16 +144,18 @@ const EAHomeHandbook = ({ classes, cookies, flash, document, loading }) => {
       </div>
       <div className={classes.overImage}>
         <Typography variant='display1' className={classNames(classes.overImageText, classes.title)}>
-          {document.title}
+          <Link to={`/s/${document._id}`}>{document.title}</Link>
         </Typography>
         <div className={classes.divider} />
         <Typography variant='display1' className={classNames(classes.overImageText, classes.description)}>
-          Intro Sequence by {document.user.displayName}
+          Intro Sequence by{' '}
+          <Link to={`/users/${document.user.slug}`}>{document.user.displayName}</Link>
         </Typography>
         <Button
           variant='contained'
           color='primary'
-          classes={{root: classes.ctaButtonRoot, label: classes.ctaButtonLabel}}
+          className={classes.ctaButton}
+          href={`/posts/${FIRST_POST_ID}/TODOSLUG`} // TODO; slug
         >
           Start Reading
         </Button>
