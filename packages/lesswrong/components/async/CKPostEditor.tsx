@@ -6,6 +6,8 @@ import { getCKEditorDocumentId, generateTokenRequest } from '../../lib/ckEditorU
 import { withStyles, createStyles } from '@material-ui/core/styles';
 import { Helmet } from 'react-helmet';
 import { ckInlineComments } from './ckInlineComments';
+import { useCreate } from '../../lib/crud/withCreate';
+import { useUpdate } from '../../lib/crud/withUpdate';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -57,6 +59,15 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
     setLayoutReady(true)
   }, [])
 
+  // const { create: createInline } = useCreate({
+  //   collection: InlineComments,
+  //   fragmentName: 'InlineComment'
+  // })
+
+  // const { update: updateInlineComment } = useUpdate({
+
+  // })
+
   const sidebarRef = useRef(null)
   const presenceListRef = useRef(null)
 
@@ -78,15 +89,12 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
       onChange={onChange}
       editor={ collaboration ? PostEditorCollaboration : PostEditor }
       onInit={ editor => {
-
-          const commentsPlugin = editor.plugins.get( 'Comments' );
-          // const realtimeCollaborativePlugin = editor.plugins.get( 'RealTimeCollaborativeComments')
-          commentsPlugin.adapter = ckInlineComments
-          // realtimeCollaborativePlugin.adapter = ckInlineComments
-
           if (collaboration) {
             // Uncomment this line and the import above to activate the CKEDItor debugger
             // CKEditorInspector.attach(editor)
+            const realtimeCollaborativePlugin = editor.plugins.get( 'RealTimeCollaborativeComments')
+            realtimeCollaborativePlugin.adapter = ckInlineComments
+            console.log("real", realtimeCollaborativePlugin)
 
             // We listen to the current window size to determine how to show comments
             window.addEventListener( 'resize', () => refreshDisplayMode(editor, sidebarRef.current) );
