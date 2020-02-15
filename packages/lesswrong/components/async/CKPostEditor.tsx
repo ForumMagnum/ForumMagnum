@@ -8,7 +8,7 @@ import { Helmet } from 'react-helmet';
 import { ckInlineComments } from './ckInlineComments';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useUpdate } from '../../lib/crud/withUpdate';
-
+import InlineComments from '../../lib/collections/inlineComments';
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
 
@@ -52,6 +52,18 @@ const refreshDisplayMode = ( editor, sidebarElement ) => {
 }
 
 
+class MyPlugin {
+  constructor( editor ) {
+    this.editor = editor
+      // ...
+  }
+
+  init() {
+    this.editor.listenTo(this.editor, 'execute', (data)=>console.log("execute", data))
+      // ...
+  }
+}
+
 const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, onInit, classes, collaboration }) => {
   // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
@@ -93,8 +105,8 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
             // Uncomment this line and the import above to activate the CKEDItor debugger
             // CKEditorInspector.attach(editor)
             const realtimeCollaborativePlugin = editor.plugins.get( 'RealTimeCollaborativeComments')
-            realtimeCollaborativePlugin.adapter = ckInlineComments
-            console.log("real", realtimeCollaborativePlugin)
+            // realtimeCollaborativePlugin.adapter = ckInlineComments
+            console.log("realtimeCollaborativePluginAdapter", realtimeCollaborativePlugin.adapter)
 
             // We listen to the current window size to determine how to show comments
             window.addEventListener( 'resize', () => refreshDisplayMode(editor, sidebarRef.current) );
@@ -109,6 +121,7 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
             return onSave && onSave( editor.getData() )
           }
         },
+        // extraPlugins: [MyPlugin],
         cloudServices: ckEditorCloudConfigured ? {
           tokenUrl: generateTokenRequest(documentId, userId, formType),
           uploadUrl,
