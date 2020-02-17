@@ -1,4 +1,4 @@
-import Chapters from './collection.js';
+import Chapters from './collection';
 import { ensureIndex } from '../../collectionUtils';
 
 Chapters.addView("SequenceChapters", function (terms) {

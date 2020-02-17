@@ -1,89 +1,89 @@
 import { getSetting} from 'meteor/vulcan:core';
 
-export * from './lib/index.js';
+export * from './lib/index';
 
-import './server/startupSanityChecks.js';
+import './server/startupSanityChecks';
 
-import './server/database-import/database_import_new.js';
-import './server/rss-integration/cron.js';
-import './server/rss-integration/callbacks.js';
-import './server/database-import/force_batch_update_scores.js';
-import './server/database-import/cleanup_scripts.js';
-import './server/robots.js';
+import './server/database-import/database_import_new';
+import './server/rss-integration/cron';
+import './server/rss-integration/callbacks';
+import './server/database-import/force_batch_update_scores';
+import './server/database-import/cleanup_scripts';
+import './server/robots';
 import './server/ckEditorToken';
 
 // Scripts
-import './server/scripts/sscImport.js';
-import './server/scripts/hpmorImport.js';
-import './server/scripts/algoliaExport.js';
-import './server/scripts/algoliaConfigureIndexes.js';
-import './server/scripts/brokenLinksReport.js';
-import './server/scripts/fixBodyField.js';
-import './server/scripts/fixKarmaField.js';
-import './server/scripts/fixEmailField.js';
-import './server/scripts/fixFrontpageCount.js';
-import './server/scripts/voteMigration.js';
-import './server/scripts/slugDeduplication.js';
-import './server/scripts/debuggingScripts.js';
-import './server/scripts/importOldPasswords.js';
-import './server/scripts/postsEditCallbacks.js';
-import './server/scripts/rerunAFvotes.js';
-import './server/scripts/messagesEditCallbacks.js';
-import './server/scripts/localgroupsEditCallbacks.js';
-import './server/scripts/nullifyVotes.js';
-import './server/scripts/fixSSCDrafts.js';
-import './server/scripts/invites.js';
+import './server/scripts/sscImport';
+import './server/scripts/hpmorImport';
+import './server/scripts/algoliaExport';
+import './server/scripts/algoliaConfigureIndexes';
+import './server/scripts/brokenLinksReport';
+import './server/scripts/fixBodyField';
+import './server/scripts/fixKarmaField';
+import './server/scripts/fixEmailField';
+import './server/scripts/fixFrontpageCount';
+import './server/scripts/voteMigration';
+import './server/scripts/slugDeduplication';
+import './server/scripts/debuggingScripts';
+import './server/scripts/importOldPasswords';
+import './server/scripts/postsEditCallbacks';
+import './server/scripts/rerunAFvotes';
+import './server/scripts/messagesEditCallbacks';
+import './server/scripts/localgroupsEditCallbacks';
+import './server/scripts/nullifyVotes';
+import './server/scripts/fixSSCDrafts';
+import './server/scripts/invites';
 
 import './server/scripts/oneOffBanSpammers'
-import './server/scripts/exportPostDetails.js';
-import './server/scripts/legacyKarma_aggregate2.js';
-import './server/scripts/removeObsoleteIndexes.js';
-import './server/scripts/logMongoQueries.js';
-import './server/scripts/fillMissing.js';
-import './server/scripts/recomputeDenormalized.js';
-import './server/scripts/validateDatabase.js';
-import './server/scripts/validateMakeEditableDenormalization.js';
-import './server/scripts/mergeAccounts.js';
+import './server/scripts/exportPostDetails';
+import './server/scripts/legacyKarma_aggregate2';
+import './server/scripts/removeObsoleteIndexes';
+import './server/scripts/logMongoQueries';
+import './server/scripts/fillMissing';
+import './server/scripts/recomputeDenormalized';
+import './server/scripts/validateDatabase';
+import './server/scripts/validateMakeEditableDenormalization';
+import './server/scripts/mergeAccounts';
 import './server/migrations';
-import './server/migrations/migrationsDashboardGraphql.js';
+import './server/migrations/migrationsDashboardGraphql';
 
-import './server/legacy-redirects/routes.js';
+import './server/legacy-redirects/routes';
 import './server/material-ui/themeProvider';
-import './server/editor/utils.js';
-import './server/mapsUtils.js';
-import './server/emails/index.js';
-import './server/posts/index.js';
+import './server/editor/utils';
+import './server/mapsUtils';
+import './server/emails/index';
+import './server/posts/index';
 
-import './server/analyticsWriter.js';
-import './server/debouncer.js';
-import './server/logging.js';
-import './server/markAsUnread.js';
-import './server/rss.js';
-import './server/akismet.js';
-import './server/votingCron.js';
-import './server/votingGraphQL.js';
-import './server/updateScores.js';
-import './server/siteAdminMetadata.js';
-import './server/callbacks.js';
-import './server/notificationCallbacks.js';
-import './server/voteServer.js';
-import './server/recommendations.js';
-import './server/emails/emailTokens.js';
-import './server/partiallyReadSequences.js';
+import './server/analyticsWriter';
+import './server/debouncer';
+import './server/logging';
+import './server/markAsUnread';
+import './server/rss';
+import './server/akismet';
+import './server/votingCron';
+import './server/votingGraphQL';
+import './server/updateScores';
+import './server/siteAdminMetadata';
+import './server/callbacks';
+import './server/notificationCallbacks';
+import './server/voteServer';
+import './server/recommendations';
+import './server/emails/emailTokens';
+import './server/partiallyReadSequences';
 
-import './server/tagging/tagCallbacks.js';
-import './server/tagging/tagsGraphQL.js';
+import './server/tagging/tagCallbacks';
+import './server/tagging/tagsGraphQL';
 
 import './server/callbacks/commentCallbacks';
 import './server/resolvers/commentResolvers';
 import './server/callbacks/postCallbacks';
-import './lib/collections/posts/validate.js';
+import './lib/collections/posts/validate';
 import './server/callbacks/chapterCallbacks';
 import './server/callbacks/sequenceCallbacks';
 import './server/callbacks/bookCallbacks';
 import './server/callbacks/collectionCallbacks';
 import './server/callbacks/messageCallbacks';
-import './lib/collections/users/validate_login.js';
+import './lib/collections/users/validate_login';
 import './server/callbacks/userCallbacks';
 import './server/callbacks/banCallbacks';
 import './server/tableOfContents';
@@ -103,15 +103,17 @@ import './server/resolvers/postResolvers';
 import './server/resolvers/userResolvers';
 import './server/resolvers/karmaChangeResolvers';
 
-import './lib/events/server.js';
+import './lib/events/server';
 import './server/callbacks/intercomCallbacks';
 import './server/connection_logs';
 
+import './server/codegen/generateFragmentTypes.ts';
+
 
 // Algolia Search Integration
-import './server/search/utils.js';
-import './server/search/callbacks.js';
-import './server/search/algoliaCron.js';
+import './server/search/utils';
+import './server/search/callbacks';
+import './server/search/algoliaCron';
 
 //eslint-disable-next-line no-console
 console.log("Starting LessWrong server. Versions: "+JSON.stringify(process.versions));

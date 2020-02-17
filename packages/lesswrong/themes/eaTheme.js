@@ -1,4 +1,4 @@
-import createLWTheme from './createThemeDefaults.js';
+import createLWTheme from './createThemeDefaults';
 import grey from '@material-ui/core/colors/grey';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 import { createMuiTheme } from '@material-ui/core/styles';
@@ -136,6 +136,9 @@ const theme = createLWTheme({
       fontFamily: titleStack,
       fontWeight: 500,
       lineHeight: '1.25em'
+    },
+    uiSecondary: {
+      sansSerifStack
     }
   },
   overrides: {
@@ -188,6 +191,16 @@ const theme = createLWTheme({
         paddingRight:0,
         fontSize: '50%',
       },
+    },
+    PostsTopSequencesNav: {
+      root: {
+        marginBottom: -8,
+      },
+      title: {
+        textTransform: 'lowercase',
+        color: 'rgba(0,0,0,.7)',
+        fontWeight: 500,
+      }
     },
     SunshineSidebar: {
       root: {

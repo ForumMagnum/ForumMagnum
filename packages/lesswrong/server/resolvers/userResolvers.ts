@@ -1,4 +1,4 @@
-import { markdownToHtml } from '../editor/make_editable_callbacks.js';
+import { markdownToHtml } from '../editor/make_editable_callbacks';
 import Users from 'meteor/vulcan:users';
 import { addFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
 

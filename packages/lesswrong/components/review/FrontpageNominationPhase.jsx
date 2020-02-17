@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from 'meteor/vulcan:core';
-import { Link } from '../../lib/reactRouterWrapper.jsx';
+import { Link } from '../../lib/reactRouterWrapper';
 import Tooltip from '@material-ui/core/Tooltip';
 import { withStyles } from '@material-ui/core/styles';
 import withUser from '../common/withUser'
@@ -21,7 +21,7 @@ const styles = theme => ({
 })
 
 const FrontpageNominationPhase = ({classes, settings, currentUser}) => {
-  const { SubSection, SectionSubtitle, RecommendationsList, SectionFooter, HoverPreviewLink } = Components
+  const { SectionSubtitle, RecommendationsList, SectionFooter, HoverPreviewLink } = Components
 
   const reviewTooltip = <div>
     <div>The LessWrong community is reflecting on the best posts from 2018, in three phases</div>
@@ -60,9 +60,7 @@ const FrontpageNominationPhase = ({classes, settings, currentUser}) => {
           </SectionSubtitle>
         </div>
       </Tooltip>
-      <SubSection>
-        <RecommendationsList algorithm={algorithm} showLoginPrompt={false} />
-      </SubSection>
+      <RecommendationsList algorithm={algorithm} showLoginPrompt={false} />
       <SectionFooter>
         <Link to={"/nominations"}>
           View{" "}<span className={classes.hideOnMobile}>All{" "}</span>Nominations

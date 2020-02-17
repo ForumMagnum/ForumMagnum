@@ -1,13 +1,14 @@
 import React from 'react';
-import { registerComponent, withUpdate, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, getSetting } from 'meteor/vulcan:core';
+import { withUpdate } from '../../lib/crud/withUpdate';
 import Input from '@material-ui/core/Input';
 import Checkbox from '@material-ui/core/Checkbox';
 import deepmerge from 'deepmerge';
 import withUser from '../common/withUser';
-import { slotSpecificRecommendationSettingDefaults, defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings.js';
+import { slotSpecificRecommendationSettingDefaults, defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings';
 import Users from 'meteor/vulcan:users';
 
-// Elements here should match switch cases in recommendations.js
+// Elements here should match switch cases in recommendations.ts
 const recommendationAlgorithms = [
   {
     name: "top",

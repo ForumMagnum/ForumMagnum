@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
-import {
-  Components,
-  withDocument,
-  registerComponent,
-} from 'meteor/vulcan:core';
-import Sequences from '../../lib/collections/sequences/collection.js';
+import { Components, registerComponent, } from 'meteor/vulcan:core';
+import { withSingle } from '../../lib/crud/withSingle';
+import Sequences from '../../lib/collections/sequences/collection';
 import NoSSR from 'react-no-ssr';
 import Users from 'meteor/vulcan:users';
 import { withStyles } from '@material-ui/core/styles';
@@ -32,9 +29,9 @@ const styles = theme => ({
     paddingLeft: theme.spacing.unit
   },
   title: {
-    ...theme.typography.postStyle,
+    fontFamily: theme.typography.uiSecondary.fontFamily,
     fontVariant: "small-caps",
-    marginTop: 0
+    marginTop: 0,
   },
   description: {
     marginTop: theme.spacing.unit * 2,
@@ -183,4 +180,4 @@ const options = {
 };
 
 
-registerComponent('SequencesPage', SequencesPage, [withDocument, options], withUser, withStyles(styles, { name: "SequencesPage" }));
+registerComponent('SequencesPage', SequencesPage, [withSingle, options], withUser, withStyles(styles, { name: "SequencesPage" }));

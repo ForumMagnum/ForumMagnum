@@ -1,9 +1,9 @@
 import React from 'react';
-import Conversations from './collections/conversations/collection.js';
+import Conversations from './collections/conversations/collection';
 import { Posts } from './collections/posts';
 import { Comments } from './collections/comments'
-import Messages from './collections/messages/collection.js';
-import Localgroups from './collections/localgroups/collection.js';
+import Messages from './collections/messages/collection';
+import Localgroups from './collections/localgroups/collection';
 import Users from 'meteor/vulcan:users';
 import AllIcon from '@material-ui/icons/Notifications';
 import PostsIcon from '@material-ui/icons/Description';
@@ -124,6 +124,18 @@ export const NewCommentNotification = registerNotificationType({
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId);
     return Comments.getAuthorName(document) + ' left a new comment on "' + Posts.findOne(document.postId).title + '"';
+  },
+  getIcon() {
+    return <CommentsIcon style={iconStyles}/>
+  },
+});
+
+export const NewShortformNotification = registerNotificationType({
+  name: "newShortform",
+  userSettingField: "notificationShortformContent",
+  getMessage({documentType, documentId}) {
+    let document = getDocument(documentType, documentId);
+    return 'New comment on "' + Posts.findOne(document.postId).title + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>

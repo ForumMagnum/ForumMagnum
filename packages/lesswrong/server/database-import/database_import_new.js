@@ -5,7 +5,7 @@ import { Posts } from '../../lib/collections/posts'
 import { newMutation, Utils } from 'meteor/vulcan:core';
 // import { batchUpdateScore } from '../../lib/modules/scoring';
 import moment from 'moment';
-import { markdownToHtml } from '../editor/make_editable_callbacks.js';
+import { markdownToHtml } from '../editor/make_editable_callbacks';
 import pgp from 'pg-promise';
 import mapValues from 'lodash/mapValues';
 import groupBy from 'lodash/groupBy';

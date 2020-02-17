@@ -1,4 +1,4 @@
-import { useMulti } from 'meteor/vulcan:core';
+import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts';
 
 export const usePostBySlug = ({ slug }) => {

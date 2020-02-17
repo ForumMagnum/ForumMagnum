@@ -1,5 +1,5 @@
 import { addGraphQLMutation, addGraphQLResolvers } from 'meteor/vulcan:core';
-import { ReadStatuses } from '../lib/collections/readStatus/collection.js';
+import { ReadStatuses } from '../lib/collections/readStatus/collection';
 
 
 addGraphQLMutation('markAsReadOrUnread(postId: String, isRead:Boolean): Boolean');

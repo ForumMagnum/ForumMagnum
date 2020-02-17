@@ -1,5 +1,5 @@
 import Users from 'meteor/vulcan:users';
-import Notifications from './collection.js';
+import Notifications from './collection';
 
 const membersActions = [
   'notifications.new.own',

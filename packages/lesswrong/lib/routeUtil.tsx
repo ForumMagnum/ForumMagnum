@@ -60,7 +60,7 @@ export const useLocation = (): RouterLocation => {
 // React Hook which returns the server-side server request status, used to set 404s or redirects
 // The relevant handling happens in the renderPage function
 // This hook only works on the server and will throw an error when called on the client
-export const useServerRequestStatus = () => {
+export const useServerRequestStatus = (): any => {
   return useContext(ServerRequestStatusContext)
 }
 
@@ -74,7 +74,7 @@ export const useSubscribedLocation = (): RouterLocation => {
 // field, `history`. See https://github.com/ReactTraining/history for
 // documentation on it.
 // Use of this hook will never trigger rerenders.
-export const useNavigation = () => {
+export const useNavigation = (): any => {
   return useContext(NavigationContext);
 }
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { registerComponent, useUpdate, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
+import { useUpdate } from '../../lib/crud/withUpdate';
 import withUser from '../common/withUser';
 import Users from "meteor/vulcan:users";
 import Dialog from '@material-ui/core/Dialog';

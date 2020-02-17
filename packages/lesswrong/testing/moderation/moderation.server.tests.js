@@ -2,7 +2,7 @@ import { chai, expect } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { runQuery } from 'meteor/vulcan:core';
 
-import { createDummyUser, createDummyPost, createDummyComment, userUpdateFieldSucceeds, userUpdateFieldFails, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../utils.js'
+import { createDummyUser, createDummyPost, createDummyComment, userUpdateFieldSucceeds, userUpdateFieldFails, catchGraphQLErrors, assertIsPermissionsFlavoredError } from '../utils'
 
 chai.should();
 chai.use(chaiAsPromised);

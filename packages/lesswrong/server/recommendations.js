@@ -1,8 +1,8 @@
 import { addGraphQLResolvers, addGraphQLQuery, addGraphQLMutation, addGraphQLSchema, getSetting } from 'meteor/vulcan:core';
 import { Posts } from '../lib/collections/posts';
-import { WeightedList } from './weightedList.js';
+import { WeightedList } from './weightedList';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
-import { setUserPartiallyReadSequences } from './partiallyReadSequences.js';
+import { setUserPartiallyReadSequences } from './partiallyReadSequences';
 import { ensureIndex } from '../lib/collectionUtils';
 
 const MINIMUM_BASE_SCORE = 50

@@ -1,7 +1,7 @@
 import { runCallbacksAsync } from 'meteor/vulcan:core';
 import { addStaticRoute } from 'meteor/vulcan:lib'
 import { Posts } from '../../lib/collections/posts';
-import { ensureIndex } from '../../lib/collectionUtils.js';
+import { ensureIndex } from '../../lib/collectionUtils';
 
 // Click-tracking redirector for outgoing links in linkposts
 addStaticRoute('/out', ({ query}, req, res, next) => {

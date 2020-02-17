@@ -1,10 +1,11 @@
 import React from 'react';
-import { Components, registerComponent, useSingle, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { useSingle } from '../../lib/crud/withSingle';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments';
-import { Link } from '../../lib/reactRouterWrapper.jsx';
-import { usePostBySlug, usePostByLegacyId } from '../posts/usePost.js';
-import { useCommentByLegacyId } from '../comments/useComment.js';
+import { Link } from '../../lib/reactRouterWrapper';
+import { usePostBySlug, usePostByLegacyId } from '../posts/usePost';
+import { useCommentByLegacyId } from '../comments/useComment';
 import withHover from '../common/withHover';
 import Card from '@material-ui/core/Card';
 import { withStyles } from '@material-ui/core/styles';
@@ -161,7 +162,7 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, anchorEl, hove
           }
         }}
       >
-        <PostsPreviewTooltip post={post} showAllInfo truncateLimit={900}/>
+        <PostsPreviewTooltip post={post} showAllInfo />
       </LWPopper>
       <Link className={classes.link} to={href}  dangerouslySetInnerHTML={{__html: innerHTML}} id={id}/>
     </span>
@@ -189,7 +190,7 @@ const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post,
           }
         }}
       >
-        <PostsPreviewTooltip post={post} comment={comment} showAllInfo wide truncateLimit={900}/>
+        <PostsPreviewTooltip post={post} comment={comment} showAllInfo wide />
       </LWPopper>
       <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id}/>
     </span>

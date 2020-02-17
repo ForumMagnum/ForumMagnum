@@ -1,4 +1,4 @@
-export * from './collection.js'
-import './fragments.js'
-import './permissions.js'
-import './views.js'
+export * from './collection'
+import './fragments'
+import './permissions'
+import './views'

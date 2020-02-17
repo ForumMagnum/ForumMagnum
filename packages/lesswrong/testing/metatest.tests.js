@@ -4,7 +4,7 @@ import chaiAsPromised from 'chai-as-promised';
 import {
   createDummyUser,
   createDummyPost,
-} from './utils.js'
+} from './utils'
 
 chai.should();
 chai.use(chaiAsPromised);

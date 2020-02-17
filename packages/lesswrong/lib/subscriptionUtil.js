@@ -1,4 +1,4 @@
-import { subscriptionTypes } from './collections/subscriptions/schema.js';
+import { subscriptionTypes } from './collections/subscriptions/schema';
 
 export function userIsDefaultSubscribed({user, subscriptionType, collectionName, document})
 {

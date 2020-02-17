@@ -1,4 +1,4 @@
-import createLWTheme from './createThemeDefaults.js';
+import createLWTheme from './createThemeDefaults';
 import grey from '@material-ui/core/colors/grey';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 
@@ -82,7 +82,10 @@ const theme = createLWTheme({
     title: {
       fontFamily: serifStack,
       fontWeight: 500,
-    }
+    },
+    uiSecondary: {
+      fontFamily: serifStack,
+    },
   },
   overrides: {
     MuiAppBar: {

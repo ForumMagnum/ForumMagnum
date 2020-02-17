@@ -1,7 +1,7 @@
 import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
 import { withMessages } from '../common/withMessages';
 import React from 'react';
-import Books from '../../lib/collections/books/collection.js';
+import Books from '../../lib/collections/books/collection';
 
 const BooksEditForm = (props) => {
   return (

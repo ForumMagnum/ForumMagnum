@@ -1,4 +1,4 @@
-import ReviewVotes from "./collection.js"
+import ReviewVotes from "./collection"
 import { ensureIndex } from '../../collectionUtils';
 
 //Messages for a specific conversation

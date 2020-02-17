@@ -1,10 +1,11 @@
-import { Components, registerComponent, withMulti } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { Posts } from '../../lib/collections/posts';
 import { Comments } from '../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles'
 import { commentBodyStyles } from '../../themes/stylePiping'
-import { Link } from '../../lib/reactRouterWrapper.jsx'
+import { Link } from '../../lib/reactRouterWrapper'
 
 const styles = theme => ({
   comment: {

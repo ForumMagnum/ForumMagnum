@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import AddLinkForm from './AddImageForm.jsx';
+import AddLinkForm from './AddImageForm';
 
 export default class ImageButton extends Component {
   static propTypes = {

@@ -1,9 +1,9 @@
 import { newMutation } from 'meteor/vulcan:core';
 import { forEachDocumentBatchInCollection, registerMigration } from './migrationUtils';
 import Users from 'meteor/vulcan:users';
-import { Comments } from '../../lib/collections/comments/collection.js';
-import { Posts } from '../../lib/collections/posts/collection.js';
-import { Subscriptions } from '../../lib/collections/subscriptions/collection.js';
+import { Comments } from '../../lib/collections/comments/collection';
+import { Posts } from '../../lib/collections/posts/collection';
+import { Subscriptions } from '../../lib/collections/subscriptions/collection';
 
 registerMigration({
   name: "migrateSubscriptions",

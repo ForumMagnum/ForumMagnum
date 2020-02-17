@@ -1,7 +1,7 @@
 import { addCallback, getCollection } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import SimpleSchema from 'simpl-schema'
-import { getWithLoader } from "../loaders.js";
+import { getWithLoader } from "../loaders";
 import { Meteor } from 'meteor/meteor';
 import * as _ from 'underscore';
 
@@ -111,20 +111,23 @@ export function arrayOfForeignKeysField({idFieldName, resolverName, collectionNa
   }
 }
 
-const simplSchemaToGraphQLtype = (type) => {
+export const simplSchemaToGraphQLtype = (type): string|null => {
   if (type === String) return "String";
   else if (type === Number) return "Int";
   else if (type === Date) return "Date";
   else if (type === Boolean) return "Boolean";
-  else throw new Error("Invalid type in simplSchemaToGraphQLtype");
+  else return null;
 }
 
 export const resolverOnlyField = ({type, graphQLtype=null, resolver, graphqlArguments=null, ...rest}) => {
+  const resolverType = graphQLtype || simplSchemaToGraphQLtype(type);
+  if (!type)
+    throw new Error("Could not determine resolver graphQL type");
   return {
     type: type,
     optional: true,
     resolveAs: {
-      type: graphQLtype || simplSchemaToGraphQLtype(type),
+      type: resolverType,
       arguments: graphqlArguments,
       resolver: resolver,
     },

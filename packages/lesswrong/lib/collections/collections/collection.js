@@ -1,6 +1,6 @@
 import { createCollection, getDefaultResolvers, getDefaultMutations } from 'meteor/vulcan:core';
-import schema from './schema.js';
-import { makeEditable } from '../../editor/make_editable.js';
+import schema from './schema';
+import { makeEditable } from '../../editor/make_editable';
 import { addUniversalFields } from '../../collectionUtils'
 
 export const Collections = createCollection({

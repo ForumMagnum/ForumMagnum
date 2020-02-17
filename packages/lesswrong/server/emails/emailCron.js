@@ -1,4 +1,4 @@
-import { addCronJob } from '../cronUtil.js';
+import { addCronJob } from '../cronUtil';
 
 export const releaseEmailBatches = ({now}) => {
 }
