@@ -134,7 +134,6 @@ const postEditorConfig = {
 		'bold',
 		'italic',
 		'strikethrough',
-		'fontColor',
 		'|',
 		'alignment',
 		'|',
@@ -146,7 +145,6 @@ const postEditorConfig = {
 		'codeBlock',
 		'|',
 		'trackChanges',
-		// 'mathpreview',
 		'comment',
 	],
 	image: {
@@ -220,8 +218,6 @@ CommentEditor.defaultConfig = {
 		'blockQuote',
 		'bulletedList',
 		'numberedList',
-		'|',
-		'mathpreview'
 	],
 	image: {
 		toolbar: [

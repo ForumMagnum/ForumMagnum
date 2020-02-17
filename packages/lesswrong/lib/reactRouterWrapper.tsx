@@ -8,7 +8,7 @@ import React from 'react';
 import { useTracking } from '../lib/analyticsEvents';
 import * as reactRouter from 'react-router';
 import * as reactRouterDom from 'react-router-dom';
-import { HashLink } from "react-router-hash-link";
+import { HashLink } from "../components/common/HashLink";
 import { parseQuery } from './routeUtil'
 import qs from 'qs'
 
