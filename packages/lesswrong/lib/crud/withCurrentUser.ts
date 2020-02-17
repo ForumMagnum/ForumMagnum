@@ -1,4 +1,4 @@
-import { getFragment } from 'meteor/vulcan:lib';
+import { getFragment } from '../vulcan-lib';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 

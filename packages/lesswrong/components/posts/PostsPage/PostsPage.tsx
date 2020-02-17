@@ -1,9 +1,8 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from '../../../lib/vulcan-lib';
 import React, { Component } from 'react';
 import { withLocation, getUrlClass } from '../../../lib/routeUtil';
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import { postBodyStyles } from '../../../themes/stylePiping'
 import withUser from '../../common/withUser';
@@ -24,7 +23,7 @@ const MIN_TOC_WIDTH = 200
 const MAX_COLUMN_WIDTH = 720
 const SECONDARY_SPACING = 20
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     position: "relative",
     [theme.breakpoints.down('sm')]: {
@@ -54,7 +53,10 @@ const styles = createStyles(theme => ({
   },
   title: {
     gridArea: 'title',
-    marginBottom: 32
+    marginBottom: 32,
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: theme.spacing.titleDividerSpacing,
+    }
   },
   toc: {
     '@supports (grid-template-areas: "title")': {
@@ -216,7 +218,7 @@ const styles = createStyles(theme => ({
     ...theme.typography.contentNotice,
     marginBottom: theme.spacing.unit,
   }
-}))
+})
 
 const getContentType = (post) => {
   if (getSetting('forumType') === 'EAForum') {
@@ -254,9 +256,11 @@ function getHostname(url) {
   return parser.hostname;
 }
 
-interface PostsPageProps extends WithUserProps, WithLocationProps, WithStylesProps {
+interface ExternalProps {
   post: any,
   refetch: any,
+}
+interface PostsPageProps extends ExternalProps, WithUserProps, WithLocationProps, WithStylesProps {
   closeAllEvents: any,
   recordPostView: any,
 }
@@ -315,7 +319,7 @@ class PostsPage extends Component<PostsPageProps> {
                   {commentId && <CommentPermalink documentId={commentId} post={post}/>}
                   {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
                   <AnalyticsContext pageSectionContext="topSequenceNavigation">
-                    <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
+                    <PostsTopSequencesNav post={post} />
                   </AnalyticsContext>
                   <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}>
                     <div className={classes.headerLeft}>
@@ -353,7 +357,6 @@ class PostsPage extends Component<PostsPageProps> {
                       <PostsVote
                         collection={Posts}
                         post={post}
-                        currentUser={currentUser}
                         />
                     </div>
                   </div>
@@ -399,7 +402,6 @@ class PostsPage extends Component<PostsPageProps> {
                       <PostsVote
                         collection={Posts}
                         post={post}
-                        currentUser={currentUser}
                         />
                     </div>
                   </div>}
@@ -420,7 +422,7 @@ class PostsPage extends Component<PostsPageProps> {
                   {post.question && <div className={classes.post}>
                     <div id="answers"/>
                     <AnalyticsContext pageSectionContext="answersSection">
-                      <PostsPageQuestionContent terms={{...commentTerms, postId: post._id}} post={post} refetch={refetch}/>
+                      <PostsPageQuestionContent post={post} refetch={refetch}/>
                     </AnalyticsContext>
                   </div>}
                   {/* Comments Section */}
@@ -460,13 +462,16 @@ class PostsPage extends Component<PostsPageProps> {
   }
 }
 
-const PostsPageComponent = registerComponent(
-  'PostsPage', PostsPage,
-  withUser, withLocation,
-  withStyles(styles, { name: "PostsPage" }),
-  withRecordPostView,
-  withNewEvents,
-  withErrorBoundary
+const PostsPageComponent = registerComponent<ExternalProps>(
+  'PostsPage', PostsPage, {
+    styles,
+    hocs: [
+      withUser, withLocation,
+      withRecordPostView,
+      withNewEvents,
+      withErrorBoundary
+    ]
+  }
 );
 
 declare global {

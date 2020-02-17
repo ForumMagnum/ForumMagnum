@@ -1,6 +1,5 @@
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   root: {
@@ -14,7 +13,7 @@ const Footer = ({classes}) => {
   )
 }
 
-const FooterComponent = registerComponent('Footer', Footer, withStyles(styles, { name: "Footer" }));
+const FooterComponent = registerComponent('Footer', Footer, {styles});
 
 declare global {
   interface ComponentTypes {

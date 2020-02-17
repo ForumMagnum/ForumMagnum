@@ -1,10 +1,9 @@
 import React from 'react';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import withHover from '../common/withHover';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import { KARMA_WIDTH } from './PostsItem2';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     display: "flex",
     marginBottom: 2,
@@ -12,7 +11,13 @@ const styles = createStyles(theme => ({
   karma: {
     width: KARMA_WIDTH
   }
-}));
+});
+
+interface ExternalProps {
+  post: any,
+}
+interface PingbackProps extends WithStylesProps, WithHoverProps {
+}
 
 const Pingback = ({classes, post, hover, anchorEl, stopHover}) => {
   const { LWPopper, PostsItem2MetaInfo, PostsItemKarma, PostsTitle, PostsPreviewTooltip } = Components
@@ -29,7 +34,7 @@ const Pingback = ({classes, post, hover, anchorEl, stopHover}) => {
           } 
         }}
       >
-        <PostsPreviewTooltip post={post} showAllInfo truncateLimit={900}/>
+        <PostsPreviewTooltip post={post}/>
       </LWPopper>
       <PostsItem2MetaInfo className={classes.karma}>
         <PostsItemKarma post={post} />
@@ -38,7 +43,10 @@ const Pingback = ({classes, post, hover, anchorEl, stopHover}) => {
   </div>
 }
 
-const PingbackComponent = registerComponent("Pingback", Pingback, withStyles(styles, {name: "Pingback"}), withHover());
+const PingbackComponent = registerComponent<ExternalProps>("Pingback", Pingback, {
+  styles,
+  hocs: [withHover()]
+});
 
 declare global {
   interface ComponentTypes {

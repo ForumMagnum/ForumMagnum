@@ -1,5 +1,5 @@
 import { markdownToHtml } from '../editor/make_editable_callbacks';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { addFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
 
 addFieldsDict(Users, {

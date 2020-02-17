@@ -1,4 +1,4 @@
-import { Utils, getSetting } from 'meteor/vulcan:core';
+import { Utils, getSetting } from '../lib/vulcan-lib';
 import cheerio from 'cheerio';
 import { Comments } from '../lib/collections/comments/collection'
 import { Posts } from '../lib/collections/posts/collection';

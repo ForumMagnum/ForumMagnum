@@ -1,12 +1,11 @@
-import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, Components, getSetting } from '../../../lib/vulcan-lib';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import Divider from '@material-ui/core/Divider';
 
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
 
-const styles = createStyles((theme) => ({
+const styles = (theme) => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -20,14 +19,14 @@ const styles = createStyles((theme) => ({
     marginTop:theme.spacing.unit,
     marginBottom:theme.spacing.unit
   }
-}))
+})
 
 const TabNavigationMenuCompressed = ({onClickSection, classes}) => {
   const { TabNavigationCompressedItem } = Components
 
   return (
     <div className={classes.root}>
-      {menuTabs[getSetting('forumType')].map(tab => {
+      {menuTabs[getSetting<string>('forumType')].map(tab => {
         if (!tab.showOnCompressed) {
           return
         }
@@ -41,8 +40,7 @@ const TabNavigationMenuCompressed = ({onClickSection, classes}) => {
 };
 
 const TabNavigationMenuCompressedComponent = registerComponent(
-  'TabNavigationMenuCompressed', TabNavigationMenuCompressed,
-  withStyles(styles, { name: 'TabNavigationMenuCompressed'})
+  'TabNavigationMenuCompressed', TabNavigationMenuCompressed, {styles}
 );
 
 declare global {

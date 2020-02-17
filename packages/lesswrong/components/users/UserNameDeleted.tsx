@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const UserNameDeleted = () => {
   return <Components.LWTooltip title={<div>

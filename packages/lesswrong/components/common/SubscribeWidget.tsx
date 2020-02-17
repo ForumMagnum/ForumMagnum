@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Hidden from '@material-ui/core/Hidden';
 import { withTracking } from "../../lib/analyticsEvents";
 
-interface SubscribeWidgetProps {
+interface ExternalProps {
   view: string,
-  captureEvent: any,
+}
+interface SubscribeWidgetProps extends ExternalProps, WithTrackingProps {
 }
 interface SubscribeWidgetState {
   dialogOpen: boolean,
@@ -50,7 +51,9 @@ class SubscribeWidget extends Component<SubscribeWidgetProps,SubscribeWidgetStat
   }
 }
 
-const SubscribeWidgetComponent = registerComponent("SubscribeWidget", SubscribeWidget, withTracking);
+const SubscribeWidgetComponent = registerComponent<ExternalProps>("SubscribeWidget", SubscribeWidget, {
+  hocs: [withTracking]
+});
 
 declare global {
   interface ComponentTypes {

@@ -37,8 +37,8 @@ Terms object can have the following properties:
 import { useState, useContext } from 'react';
 import { graphql, useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
-import { getSetting, Utils, multiClientTemplate, extractCollectionInfo, extractFragmentInfo, } from 'meteor/vulcan:lib';
-import { LocationContext, NavigationContext } from 'meteor/vulcan:core';
+import { getSetting, Utils, multiClientTemplate, extractCollectionInfo, extractFragmentInfo, } from '../vulcan-lib';
+import { LocationContext, NavigationContext } from '../vulcan-core/appContext';
 import compose from 'recompose/compose';
 import withState from 'recompose/withState';
 import qs from 'qs';

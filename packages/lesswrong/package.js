@@ -13,14 +13,35 @@ Package.onUse( function(api) {
     'typescript',
     'promise',
     'fourseven:scss@4.12.0',
-
-    // vulcan core
-    'vulcan:core',
-
-    // vulcan packages
-    'vulcan:accounts',
-    'vulcan:users',
+    
+    // dependencies of vulcan-accounts
+    'tracker',
+    'accounts-base',
+    'check',
+    'random',
+    'email',
+    'session',
+    'service-configuration',
+    
+    // dependencies of vulcan-lib
+    'meteor@1.9.0',
+    'es5-shim@4.8.0',
+    'shell-server@0.3.1',
+    'webapp@1.6.0',
+    'server-render@0.3.1',
+    
+    'underscore',
+    'hot-code-push',
+    'mongo',
+    'http',
+    'meteorhacks:picker@1.0.3',
+    'littledata:synced-cron@1.1.0',
+    'meteorhacks:inject-initial@1.0.4',
   ]);
+  
+  // dependencies of vulcan-accounts
+  api.use('accounts-oauth', { weak: true });
+  api.use('accounts-password', { weak: true });
 
   api.mainModule('client.js', 'client');
   api.mainModule('server.js', 'server');
@@ -42,8 +63,6 @@ Package.onTest(function(api) {
   api.use([
     'typescript',
     'fourseven:scss',
-    'vulcan:core',
-    'vulcan:users',
     'practicalmeteor:sinon',
     'meteortesting:mocha',
   ]);
@@ -54,6 +73,6 @@ Package.onTest(function(api) {
     "@babel/plugin-syntax-optional-chaining": "7.2.0"
   })
   // Entry points for tests
-  api.mainModule('./testing/client.tests.js', 'client');
-  api.mainModule('./testing/server.tests.js', 'server');
+  api.mainModule('./testing/client.tests.ts', 'client');
+  api.mainModule('./testing/server.tests.ts', 'server');
 })

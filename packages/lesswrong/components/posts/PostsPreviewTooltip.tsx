@@ -1,21 +1,20 @@
-import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, Components, getSetting } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles'
 import { truncate } from '../../lib/editor/ellipsize';
-import withUser from "../common/withUser";
 import { postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
 import { Posts } from '../../lib/collections/posts';
 import Card from '@material-ui/core/Card';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { Link } from '../../lib/reactRouterWrapper.jsx';
+import { Link } from '../../lib/reactRouterWrapper';
 
-export const POST_PREVIEW_WIDTH = 400
+export const POST_PREVIEW_WIDTH = 435
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     width: POST_PREVIEW_WIDTH,
     position: "relative",
     padding: theme.spacing.unit*1.5,
+    paddingRight: theme.spacing.unit*2,
     paddingBottom: 0,
     '& img': {
       maxHeight: "200px"
@@ -111,7 +110,7 @@ const styles = createStyles(theme => ({
     height: 13,
     color: "rgba(0,0,0,.19)"
   }
-}))
+})
 
 const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
 
@@ -130,9 +129,13 @@ const getPostCategory = (post) => {
     return post.question ? `Question` : `Personal Blogpost`
 }
 
-const PostsPreviewTooltip = ({ postsList, post, classes, comment }) => {
+const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
+  postsList?: boolean,
+  post: any,
+  classes: any,
+  comment?: any,
+}) => {
   const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, LWTooltip } = Components
-
   const [expanded, setExpanded] = useState(false)
 
   if (!post) return null
@@ -142,14 +145,14 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }) => {
   const highlight = post.customHighlight?.html || htmlHighlight
 
   const renderWordCount = !comment && (wordCount > 0)
-  const truncatedHighlight = truncate(highlight, 85, "words", `... <span class="expand">(more)</span>`)
+  const truncatedHighlight = truncate(highlight, expanded ? 200 : 100, "words", `... <span class="expand">(more)</span>`)
 
   return <AnalyticsContext pageElementContext="hoverPreview">
       <Card className={classes.root}>
         <div className={classes.header}>
           <div>
             <div className={classes.title}>
-              <PostsTitle post={post} tooltip={false} wrap showIcons={false} />
+              <PostsTitle post={post} wrap showIcons={false} />
             </div>
             <div className={classes.tooltipInfo}>
               { postsList && <span> 
@@ -172,7 +175,7 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }) => {
             </div>
           </div>
           { !postsList && <div className={classes.bookmark}>
-            <BookmarkButton post={post} lighter/>
+            <BookmarkButton post={post}/>
           </div>}
         </div>
         {comment
@@ -188,7 +191,7 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }) => {
           : <div onClick={() => setExpanded(true)}>
               <ContentItemBody
                 className={classes.highlight}
-                dangerouslySetInnerHTML={{__html: expanded ? highlight : truncatedHighlight }}
+                dangerouslySetInnerHTML={{__html: truncatedHighlight }}
                 description={`post ${post._id}`}
               />
               {expanded && <Link to={Posts.getPageUrl(post)}><div className={classes.continue} >
@@ -201,9 +204,7 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }) => {
 
 }
 
-const PostsPreviewTooltipComponent = registerComponent('PostsPreviewTooltip', PostsPreviewTooltip, withUser,
-  withStyles(styles, { name: "PostsPreviewTooltip" })
-);
+const PostsPreviewTooltipComponent = registerComponent('PostsPreviewTooltip', PostsPreviewTooltip, {styles});
 
 declare global {
   interface ComponentTypes {

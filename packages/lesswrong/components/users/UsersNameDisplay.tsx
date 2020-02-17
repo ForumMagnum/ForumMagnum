@@ -1,18 +1,16 @@
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
-import PropTypes from 'prop-types';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { truncate } from '../../lib/editor/ellipsize';
 import DescriptionIcon from '@material-ui/icons/Description';
 import MessageIcon from '@material-ui/icons/Message';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import { BookIcon } from '../icons/bookIcon'
 import withHover from '../common/withHover'
 import classNames from 'classnames';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   userName: {
     whiteSpace: "nowrap",
     color: "inherit"
@@ -37,11 +35,19 @@ const styles = createStyles(theme => ({
   bio: {
     marginTop: theme.spacing.unit
   }
-}))
+})
+
+interface ExternalProps {
+  user: UsersMinimumInfo,
+  nofollow?: boolean,
+  simple?: boolean,
+}
+interface UsersNameDisplayProps extends ExternalProps, WithStylesProps, WithHoverProps {
+}
 
 // Given a user (which may not be null), render the user name as a link with a
 // tooltip. This should not be used directly; use UsersName instead.
-const UsersNameDisplay = ({user, classes, nofollow=false, simple=false, hover, anchorEl, stopHover}) => {
+const UsersNameDisplay = ({user, classes, nofollow=false, simple=false, hover, anchorEl, stopHover}: UsersNameDisplayProps) => {
 
   if (!user) return <Components.UserNameDeleted/>
   const { FormatDate, LWPopper } = Components
@@ -78,12 +84,14 @@ const UsersNameDisplay = ({user, classes, nofollow=false, simple=false, hover, a
   </AnalyticsContext>
 }
 
-UsersNameDisplay.propTypes = {
-  user: PropTypes.object.isRequired,
-}
-
-const UsersNameDisplayComponent = registerComponent('UsersNameDisplay', UsersNameDisplay, withStyles(styles, {name: "UsersNameDisplay"}),
-  withHover({pageElementContext: "linkPreview",  pageSubElementContext: "userNameDisplay"}, ({user})=>({userId: user._id})));
+const UsersNameDisplayComponent = registerComponent<ExternalProps>(
+  'UsersNameDisplay', UsersNameDisplay, {
+    styles,
+    hocs: [
+      withHover({pageElementContext: "linkPreview",  pageSubElementContext: "userNameDisplay"}, ({user})=>({userId: user._id}))
+    ]
+  }
+);
 
 declare global {
   interface ComponentTypes {

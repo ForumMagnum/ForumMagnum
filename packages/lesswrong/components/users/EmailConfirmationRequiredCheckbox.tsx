@@ -1,6 +1,6 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import withUser from '../common/withUser';
 
 const EmailConfirmationRequiredCheckbox = (props) => {
@@ -23,7 +23,9 @@ const EmailConfirmationRequiredCheckbox = (props) => {
   }
 }
 
-const EmailConfirmationRequiredCheckboxComponent = registerComponent("EmailConfirmationRequiredCheckbox", EmailConfirmationRequiredCheckbox, withUser);
+const EmailConfirmationRequiredCheckboxComponent = registerComponent("EmailConfirmationRequiredCheckbox", EmailConfirmationRequiredCheckbox, {
+  hocs: [withUser]
+});
 
 declare global {
   interface ComponentTypes {

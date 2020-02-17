@@ -29,19 +29,18 @@ Child Props:
 import React from 'react';
 import { Mutation, useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
-import { createClientTemplate } from 'meteor/vulcan:core';
-import { extractCollectionInfo, extractFragmentInfo } from 'meteor/vulcan:lib';
+import { createClientTemplate, extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
 import { compose, withHandlers } from 'recompose';
 import { cacheUpdateGenerator } from './cacheUpdates';
 import { getExtraVariables } from './utils'
 
 export const withCreate = options => {
   const { collectionName, collection } = extractCollectionInfo(options);
-  const { fragmentName, fragment, extraVariablesString } = extractFragmentInfo(options, collectionName);
+  const { fragmentName, fragment } = extractFragmentInfo(options, collectionName);
 
   const typeName = collection.options.typeName;
   const query = gql`
-    ${createClientTemplate({ typeName, fragmentName, extraVariablesString })}
+    ${createClientTemplate({ typeName, fragmentName })}
     ${fragment}
   `;
 
@@ -76,7 +75,7 @@ export default withCreate;
 
 export const useCreate = ({
   collectionName, collection,
-  fragmentName, fragment
+  fragmentName: fragmentNameArg, fragment: fragmentArg
 }: {
   collectionName?: string,
   collection?: any,
@@ -84,7 +83,7 @@ export const useCreate = ({
   fragment?: any,
 }) => {
   ({ collectionName, collection } = extractCollectionInfo({collectionName, collection}));
-  ({ fragmentName, fragment } = extractFragmentInfo({fragmentName, fragment}, collectionName));
+  const { fragmentName, fragment } = extractFragmentInfo({fragmentName: fragmentNameArg, fragment: fragmentArg}, collectionName);
 
   const typeName = collection.options.typeName;
   
@@ -94,7 +93,7 @@ export const useCreate = ({
   `;
   const [mutate, {loading, error, called, data}] = useMutation(query);
   const wrappedCreate = (data) => {
-    mutate({
+    return mutate({
       variables: { data },
       update: cacheUpdateGenerator(typeName, 'create')
     })

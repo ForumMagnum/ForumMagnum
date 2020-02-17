@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components } from 'meteor/vulcan:core';
+import { Components } from '../../../lib/vulcan-lib';
 
 import { compassIcon } from '../../icons/compassIcon';
 import { questionsGlobeIcon } from '../../icons/questionsGlobeIcon';
@@ -121,7 +121,7 @@ export default {
       id: 'hpmor',
       title: 'HPMOR',
       link: '/hpmor',
-      tooltip: 'What if Harry was a scientist? What would you do if the universe had magic in it? A story that illustrates many rationality concepts.',
+      tooltip: 'What if Harry Potter was a scientist? What would you do if the universe had magic in it? A story that illustrates many rationality concepts.',
       subItem: true,
     }, {
       id: 'events',

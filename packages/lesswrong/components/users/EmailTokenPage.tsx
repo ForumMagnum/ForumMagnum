@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withMutation } from '../../lib/crud/withMutation';
 import { withLocation } from '../../lib/routeUtil';
 
@@ -41,13 +41,15 @@ class EmailTokenPage extends Component<EmailTokenPageProps,EmailTokenPageState>
   }
 }
 
-const EmailTokenPageComponent = registerComponent("EmailTokenPage", EmailTokenPage,
-  withLocation,
-  withMutation({
-    name: "useEmailToken",
-    args: {token: 'String'}
-  })
-);
+const EmailTokenPageComponent = registerComponent("EmailTokenPage", EmailTokenPage, {
+  hocs: [
+    withLocation,
+    withMutation({
+      name: "useEmailToken",
+      args: {token: 'String'}
+    })
+  ]
+});
 
 declare global {
   interface ComponentTypes {

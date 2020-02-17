@@ -1,6 +1,6 @@
 import React from 'react';
 import moment from '../../lib/moment-timezone';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import { useTimezone } from './withTimezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
 import MenuItem from '@material-ui/core/MenuItem';
