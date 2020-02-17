@@ -1,5 +1,5 @@
 import { getSetting } from 'meteor/vulcan:core';
-import { addInitFunction, addIdentifyFunction } from '../lib/vulcanEvents.js';
+import { addInitFunction, addIdentifyFunction } from '../lib/vulcanEvents';
 import LogRocket from 'logrocket'
 
 function googleTagManagerInit() {

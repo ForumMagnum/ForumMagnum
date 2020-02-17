@@ -1,6 +1,7 @@
 import { Posts } from '../../lib/collections/posts/collection';
 import { addFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
 import { getLocalTime } from '../mapsUtils'
+import { getDefaultPostLocationFields } from '../posts/utils'
 
 addFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -12,8 +13,10 @@ addFieldsDict(Posts, {
     ...denormalizedField({
       needsUpdate: (data) => ('startTime' in data || 'googleLocation' in data),
       getValue: async (post) => {
-        if (!post.googleLocation || !post.startTime) return null
-        return await getLocalTime(post.startTime, post.googleLocation)
+        if (!post.startTime) return null
+        const googleLocation = post.googleLocation || getDefaultPostLocationFields(post).googleLocation
+        if (!googleLocation) return null
+        return await getLocalTime(post.startTime, googleLocation)
       }
     })
   },
@@ -21,8 +24,10 @@ addFieldsDict(Posts, {
     ...denormalizedField({
       needsUpdate: (data) => ('endTime' in data || 'googleLocation' in data),
       getValue: async (post) => {
-        if (!post.googleLocation || !post.endTime) return null
-        return await getLocalTime(post.endTime, post.googleLocation)
+        if (!post.endTime) return null
+        const googleLocation = post.googleLocation || getDefaultPostLocationFields(post).googleLocation
+        if (!googleLocation) return null
+        return await getLocalTime(post.endTime, googleLocation)
       }
     })
   },

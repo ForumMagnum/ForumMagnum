@@ -1,4 +1,5 @@
-import { Components, registerComponent, withList } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withMulti } from '../../lib/crud/withMulti';
 import React, { Component } from 'react';
 import { Comments } from '../../lib/collections/comments';
 import { withStyles } from '@material-ui/core/styles';
@@ -49,7 +50,7 @@ SunshineNewCommentsList.propTypes = {
 registerComponent(
   'SunshineNewCommentsList',
   SunshineNewCommentsList,
-  [withList, withListOptions],
+  [withMulti, withListOptions],
   withUser,
   withStyles(styles, {name: "SunshineNewCommentsList"})
 );

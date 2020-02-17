@@ -1,5 +1,5 @@
 import Users from 'meteor/vulcan:users';
-import LWevents from './collection.js';
+import LWevents from './collection';
 
 const membersActions = [
   'events.new.own',

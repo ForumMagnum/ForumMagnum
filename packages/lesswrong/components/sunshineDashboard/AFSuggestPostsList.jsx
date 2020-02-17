@@ -1,4 +1,5 @@
-import { Components, registerComponent, withList } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withMulti } from '../../lib/crud/withMulti';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
 import { withStyles } from '@material-ui/core/styles';
@@ -19,7 +20,7 @@ class AFSuggestPostsList extends Component {
       return (
         <div>
           <Components.SunshineListTitle>
-            <Components.OmegaIcon className={classes.icon}/> Suggested Posts
+            <div><Components.OmegaIcon className={classes.icon}/> Suggested Posts</div>
           </Components.SunshineListTitle>
           {this.props.results.map(post =>
             <div key={post._id} >
@@ -49,7 +50,7 @@ const withListOptions = {
 registerComponent(
   'AFSuggestPostsList',
   AFSuggestPostsList,
-  [withList, withListOptions],
+  [withMulti, withListOptions],
   withUser,
   withStyles(styles, {name: "AFSuggestPostsList"})
 );

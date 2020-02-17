@@ -1,14 +1,14 @@
 import React from 'react';
-import { Notifications } from '../lib/collections/notifications/collection.js';
-import { getNotificationTypes } from '../lib/notificationTypes.jsx';
-import { getNotificationTypeByNameServer } from './notificationTypesServer.jsx';
-import { EventDebouncer } from './debouncer.js';
+import { Notifications } from '../lib/collections/notifications/collection';
+import { getNotificationTypes } from '../lib/notificationTypes';
+import { getNotificationTypeByNameServer } from './notificationTypesServer';
+import { EventDebouncer } from './debouncer';
 import toDictionary from '../lib/utils/toDictionary';
 import Users from 'meteor/vulcan:users';
 import { Posts } from '../lib/collections/posts';
 import { Components, addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from 'meteor/vulcan:core';
-import { UnsubscribeAllToken } from './emails/emailTokens.js';
-import { generateEmail, sendEmail, logSentEmail } from './emails/renderEmail.js';
+import { UnsubscribeAllToken } from './emails/emailTokens';
+import { generateEmail, sendEmail, logSentEmail } from './emails/renderEmail';
 import Sentry from '@sentry/node';
 
 // string (notification type name) => Debouncer

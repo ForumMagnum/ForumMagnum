@@ -5,7 +5,7 @@ import withUser from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper'
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 
-const recommendedName = getSetting('forumType') === 'EAForum' ? 'Community Favorites' : 'Recommended'
+const recommendedName = getSetting('forumType') === 'EAForum' ? 'Forum Favorites' : 'Recommended'
 
 class ConfigurableRecommendationsList extends PureComponent {
   state = {

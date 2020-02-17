@@ -1,8 +1,8 @@
 /*global Vulcan*/
 import { addGraphQLSchema } from 'meteor/vulcan:core';
-import { RateLimiter } from './rateLimiter.js';
+import { RateLimiter } from './rateLimiter';
 import React, { useContext, useEffect, useState, useRef } from 'react'
-import { hookToHoc } from './hocUtils.js'
+import { hookToHoc } from './hocUtils'
 
 addGraphQLSchema(`
   type AnalyticsEvent {

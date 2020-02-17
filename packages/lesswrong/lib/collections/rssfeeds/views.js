@@ -1,4 +1,4 @@
-import RSSFeeds from "./collection.js"
+import RSSFeeds from "./collection"
 import { ensureIndex } from '../../collectionUtils';
 
 //Messages for a specific conversation

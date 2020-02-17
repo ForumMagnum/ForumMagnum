@@ -9,7 +9,7 @@ Utilities to generate the app's GraphQL schema
 import deepmerge from 'deepmerge';
 import GraphQLJSON from 'graphql-type-json';
 import GraphQLDate from 'graphql-date';
-import Vulcan from './config.js'; // used for global export
+import './config.js';
 import { Utils } from './utils.js';
 import { disableFragmentWarnings } from 'graphql-tag';
 import {

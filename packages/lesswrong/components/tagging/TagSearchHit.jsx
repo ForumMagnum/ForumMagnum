@@ -1,8 +1,9 @@
 import React from 'react';
-import { registerComponent, Components, useSingle } from 'meteor/vulcan:core';
+import { registerComponent, Components } from 'meteor/vulcan:core';
+import { useSingle } from '../../lib/crud/withSingle';
 import { withStyles } from '@material-ui/core/styles';
 import withHover from '../common/withHover';
-import { Tags } from '../../lib/collections/tags/collection.js';
+import { Tags } from '../../lib/collections/tags/collection';
 
 const styles = theme => ({
   root: {

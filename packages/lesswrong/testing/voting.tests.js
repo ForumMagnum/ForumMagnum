@@ -1,11 +1,11 @@
 import { chai } from 'meteor/practicalmeteor:chai';
 import chaiAsPromised from 'chai-as-promised';
 import { recalculateScore } from '../lib/scoring.ts';
-import { performVoteServer } from '../server/voteServer.js';
-import { batchUpdateScore } from '../server/updateScores.js';
-import { createDummyUser, createDummyPost, } from './utils.js'
+import { performVoteServer } from '../server/voteServer';
+import { batchUpdateScore } from '../server/updateScores';
+import { createDummyUser, createDummyPost, } from './utils'
 import { Posts } from '../lib/collections/posts'
-import { getKarmaChanges, getKarmaChangeDateRange } from '../server/karmaChanges.js';
+import { getKarmaChanges, getKarmaChangeDateRange } from '../server/karmaChanges';
 import { Utils, waitUntilCallbacksFinished } from 'meteor/vulcan:core';
 import lolex from 'lolex';
 

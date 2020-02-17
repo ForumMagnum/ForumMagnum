@@ -1,4 +1,4 @@
-import schema from './schema.js';
+import schema from './schema';
 import { createCollection, getDefaultResolvers, getDefaultMutations } from 'meteor/vulcan:core';
 import Users from 'meteor/vulcan:users';
 import { Posts } from '../posts';

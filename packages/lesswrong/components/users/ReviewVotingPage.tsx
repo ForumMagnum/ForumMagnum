@@ -3,7 +3,10 @@ import { withStyles, createStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import sumBy from 'lodash/sumBy'
-import { registerComponent, Components, useMulti, getFragment, updateEachQueryResultOfType, handleUpdateMutation, useUpdate } from 'meteor/vulcan:core';
+import { registerComponent, Components, getFragment } from 'meteor/vulcan:core';
+import { useUpdate } from '../../lib/crud/withUpdate';
+import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/crud/cacheUpdates';
+import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation } from 'react-apollo';
 import Users from 'meteor/vulcan:users';
 import { Paper } from '@material-ui/core';
@@ -172,7 +175,6 @@ const ReviewVotingPage = ({classes}) => {
   const { results: posts, loading: postsLoading } = useMulti({
     terms: {view:"reviews2018", limit: 100},
     collection: Posts,
-    queryName: 'postsListQuery',
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
     ssr: true
@@ -181,7 +183,6 @@ const ReviewVotingPage = ({classes}) => {
   const { results: dbVotes, loading: dbVotesLoading } = useMulti({
     terms: {view: "reviewVotesFromUser", limit: 100, userId: currentUser?._id},
     collection: ReviewVotes,
-    queryName: "reviewVoteQuery",
     fragmentName: "reviewVoteFragment",
     fetchPolicy: 'cache-and-network',
     ssr: true
@@ -209,7 +210,7 @@ const ReviewVotingPage = ({classes}) => {
     }
   });
 
-  const [useQuadratic, setUseQuadratic] = useState(currentUser?.reviewVotesQuadratic)
+  const [useQuadratic, setUseQuadratic] = useState(currentUser ? currentUser.reviewVotesQuadratic : false)
   const [loading, setLoading] = useState(false)
   const [expandedPost, setExpandedPost] = useState<any>(null)
 
@@ -223,7 +224,7 @@ const ReviewVotingPage = ({classes}) => {
 
     setUseQuadratic(newUseQuadratic)
     updateUser({
-      selector: {_id: currentUser._id},
+      selector: {_id: currentUser?._id},
       data: {
         reviewVotesQuadratic: newUseQuadratic,
       }
@@ -242,7 +243,7 @@ const ReviewVotingPage = ({classes}) => {
         submitReviewVote: {
           __typename: "ReviewVote",
           ...existingVote,
-          quadraticScore: (typeof set !== 'undefined') ? set : (existingVote.quadraticScore + (change || 0))
+          quadraticScore: (typeof set !== 'undefined') ? set : ((existingVote?.quadraticScore || 0) + (change || 0))
         }
       }
     })
@@ -544,6 +545,7 @@ const VoteTableRow = withStyles(voteRowStyles, {name: "VoteTableRow"})((
   const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo } = Components
 
   const currentUser = useCurrentUser()
+  if (!currentUser) return null;
 
   return <AnalyticsContext pageElementContext="voteTableRow">
     <div className={classNames(classes.root, {[classes.expanded]: expandedPostId === post._id})}>
@@ -645,4 +647,10 @@ const QuadraticVotingButtons = withStyles(quadraticVotingButtonStyles, {name: "Q
   </div>
 })
 
-registerComponent('ReviewVotingPage', ReviewVotingPage,withStyles(styles, {name: "ReviewVotingPage"}));
+const ReviewVotingPageComponent = registerComponent('ReviewVotingPage', ReviewVotingPage,withStyles(styles, {name: "ReviewVotingPage"}));
+
+declare global {
+  interface ComponentTypes {
+    ReviewVotingPage: typeof ReviewVotingPageComponent
+  }
+}

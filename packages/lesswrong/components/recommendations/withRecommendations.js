@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { getFragment } from 'meteor/vulcan:core';
-import { defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings.js';
+import { defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings';
 
 export  const withRecommendations = component => {
   const recommendationsQuery = gql`

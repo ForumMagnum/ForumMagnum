@@ -116,9 +116,6 @@ registerFragment(`
     ...PostsBase
     ...PostsAuthors
 
-    # ToC
-    tableOfContents
-
     # Sort settings
     commentSortOrder
     
@@ -142,6 +139,10 @@ registerFragment(`
     # Moderation stuff
     showModerationGuidelines
     moderationGuidelines {
+      version
+      html
+    }
+    customHighlight {
       version
       html
     }
@@ -216,6 +217,8 @@ registerFragment(`
   fragment PostsWithNavigationAndRevision on Post {
     ...PostsRevision
     ...PostSequenceNavigation
+    
+    tableOfContentsRevision(version: $version)
   }
 `)
 
@@ -223,6 +226,8 @@ registerFragment(`
   fragment PostsWithNavigation on Post {
     ...PostsPage
     ...PostSequenceNavigation
+    
+    tableOfContents
   }
 `)
 
@@ -276,6 +281,9 @@ registerFragment(`
     contents {
       ...RevisionEdit
     }
+    customHighlight {
+      ...RevisionEdit
+    }
   }
 `);
 
@@ -309,6 +317,9 @@ registerFragment(`
       wordCount
     }
     moderationGuidelines {
+      ...RevisionDisplay
+    }
+    customHighlight {
       ...RevisionDisplay
     }
   }

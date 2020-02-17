@@ -1,5 +1,5 @@
 import { getSetting } from 'meteor/vulcan:core';
-import Conversations from "./collection.js";
+import Conversations from "./collection";
 import { ensureIndex } from '../../collectionUtils';
 
 // will be common to all other view unless specific properties are overwritten

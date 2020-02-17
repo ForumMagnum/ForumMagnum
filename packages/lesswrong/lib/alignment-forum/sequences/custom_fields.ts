@@ -1,4 +1,4 @@
-import Sequences from '../../collections/sequences/collection.js';
+import Sequences from '../../collections/sequences/collection';
 import { addFieldsDict } from '../../utils/schemaUtils'
 
 addFieldsDict(Sequences, {

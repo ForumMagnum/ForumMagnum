@@ -1,5 +1,5 @@
 import Users from 'meteor/vulcan:users';
-import { Bans } from './collection.js';
+import { Bans } from './collection';
 
 const membersActions = [
   'bans.view',

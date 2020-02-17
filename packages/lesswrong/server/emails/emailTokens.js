@@ -1,5 +1,5 @@
 import { addGraphQLMutation, addGraphQLResolvers, editMutation, Utils } from 'meteor/vulcan:core';
-import { EmailTokens } from '../../lib/collections/emailTokens/collection.js';
+import { EmailTokens } from '../../lib/collections/emailTokens/collection';
 import { Random } from 'meteor/random';
 import Users from 'meteor/vulcan:users';
 

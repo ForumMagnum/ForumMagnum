@@ -1,6 +1,6 @@
-import Collections from './collection.js';
-import Books from '../books/collection.js';
-import Sequences from '../sequences/collection.js';
+import Collections from './collection';
+import Books from '../books/collection';
+import Sequences from '../sequences/collection';
 import toDictionary from '../../utils/toDictionary';
 
 Collections.getAllPostIDs = async (collectionID) => {

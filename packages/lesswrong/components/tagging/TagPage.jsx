@@ -1,11 +1,12 @@
 import React from 'react';
-import { Components, registerComponent, useMulti } from 'meteor/vulcan:core';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { useMulti } from '../../lib/crud/withMulti';
 import { useLocation } from '../../lib/routeUtil';
-import { TagRels } from '../../lib/collections/tagRels/collection.js';
-import { useTagBySlug } from './useTag.jsx';
+import { TagRels } from '../../lib/collections/tagRels/collection';
+import { useTagBySlug } from './useTag';
 import Users from 'meteor/vulcan:users';
-import { Link } from '../../lib/reactRouterWrapper.jsx';
-import { useCurrentUser } from '../common/withUser.js';
+import { Link } from '../../lib/reactRouterWrapper';
+import { useCurrentUser } from '../common/withUser';
 import { withStyles } from '@material-ui/core/styles';
 import { postBodyStyles } from '../../themes/stylePiping'
 

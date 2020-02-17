@@ -1,5 +1,6 @@
-import { Components, registerComponent, withDocument} from 'meteor/vulcan:core';
-import Sequences from '../../lib/collections/sequences/collection.js';
+import { Components, registerComponent } from 'meteor/vulcan:core';
+import { withSingle } from '../../lib/crud/withSingle';
+import Sequences from '../../lib/collections/sequences/collection';
 import React from 'react';
 import DragIcon from '@material-ui/icons/DragHandle';
 import RemoveIcon from '@material-ui/icons/Close';
@@ -75,6 +76,6 @@ const options = {
 };
 
 registerComponent('SequencesListEditorItem', SequencesListEditorItem,
-  [withDocument, options],
+  [withSingle, options],
   withStyles(styles, {name: "SequencesListEditorItem"})
 );
