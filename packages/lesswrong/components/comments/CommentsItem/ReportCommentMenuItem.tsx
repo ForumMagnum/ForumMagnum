@@ -1,15 +1,17 @@
 import React, { PureComponent } from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../../lib/vulcan-lib';
 import MenuItem from '@material-ui/core/MenuItem';
-import Users from 'meteor/vulcan:users';
+import Users from '../../../lib/collections/users/collection';
 import withUser from '../../common/withUser';
 import withDialog from '../../common/withDialog'
 import ReportOutlinedIcon from '@material-ui/icons/ReportOutlined';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 
-interface ReportCommentMenuItemProps extends WithUserProps {
-  openDialog?: any,
+interface ExternalProps {
   comment: any,
+}
+interface ReportCommentMenuItemProps extends ExternalProps, WithUserProps {
+  openDialog?: any,
 }
 
 class ReportCommentMenuItem extends PureComponent<ReportCommentMenuItemProps,{}> {
@@ -43,7 +45,9 @@ class ReportCommentMenuItem extends PureComponent<ReportCommentMenuItemProps,{}>
   }
 }
 
-const ReportCommentMenuItemComponent = registerComponent('ReportCommentMenuItem', ReportCommentMenuItem, withUser, withDialog);
+const ReportCommentMenuItemComponent = registerComponent<ExternalProps>('ReportCommentMenuItem', ReportCommentMenuItem, {
+  hocs: [withUser, withDialog]
+});
 
 declare global {
   interface ComponentTypes {

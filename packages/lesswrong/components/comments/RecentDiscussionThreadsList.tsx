@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts';
@@ -87,16 +87,14 @@ const RecentDiscussionThreadsList = ({
             <Components.RecentDiscussionThread
               key={post._id}
               post={post}
-              postCount={i}
               refetch={refetch}
               comments={post.recentComments}
               expandAllThreads={expandAll}
-              currentUser={currentUser}
               updateComment={updateComment}/>
           )}
         </div>}
         <AnalyticsInViewTracker eventProps={{inViewType: "loadMoreButton"}}>
-            { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
+            { loadMore && <LoadMore loadMore={loadMore}  /> }
             { (loading || loadingMore) && <Loading />}
         </AnalyticsInViewTracker>
       </div>

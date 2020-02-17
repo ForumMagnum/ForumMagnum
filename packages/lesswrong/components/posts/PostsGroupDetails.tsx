@@ -1,11 +1,10 @@
-import { registerComponent } from 'meteor/vulcan:core';
-import { withSingle } from '../../lib/crud/withSingle';
+import { registerComponent } from '../../lib/vulcan-lib';
+import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Localgroups } from '../../lib/index';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   title: {
     display: 'inline-block',
     fontSize: 22,
@@ -19,9 +18,18 @@ const styles = createStyles(theme => ({
     marginBottom: 10, 
     marginTop: 10
   }
-}))
+})
 
-const PostsGroupDetails = ({ post, classes, document }) => {
+const PostsGroupDetails = ({ documentId, post, classes }: {
+  documentId: string,
+  post: any,
+  classes: any,
+}) => {
+  const { document } = useSingle({
+    documentId,
+    collection: Localgroups,
+    fragmentName: 'localGroupsHomeFragment',
+  });
   if (document) {
     return <div className={classes.root}>
       <div className={classes.title}>
@@ -34,12 +42,7 @@ const PostsGroupDetails = ({ post, classes, document }) => {
 }
 
 const PostsGroupDetailsComponent = registerComponent(
-  'PostsGroupDetails', PostsGroupDetails,
-  withSingle({
-    collection: Localgroups,
-    fragmentName: 'localGroupsHomeFragment',
-  }),
-  withStyles(styles, {name: "PostsGroupDetails"})
+  'PostsGroupDetails', PostsGroupDetails, { styles }
 );
 
 declare global {

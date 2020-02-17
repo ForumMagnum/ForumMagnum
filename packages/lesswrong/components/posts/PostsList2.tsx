@@ -1,11 +1,9 @@
-import { Components, registerComponent, Utils } from 'meteor/vulcan:core';
+import { Components, registerComponent, Utils } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { Posts } from '../../lib/collections/posts';
-import { FormattedMessage } from 'meteor/vulcan:i18n';
+import { FormattedMessage } from '../../lib/vulcan-i18n';
 import classNames from 'classnames';
-import { withStyles, createStyles } from '@material-ui/core/styles'
 import { useTracking } from "../../lib/analyticsEvents";
 import * as _ from 'underscore';
 
@@ -13,7 +11,7 @@ const Error = ({error}) => <div>
   <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
 </div>;
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   itemIsLoading: {
     opacity: .4,
   },
@@ -33,7 +31,7 @@ const styles = createStyles(theme => ({
       marginRight: 0,
     }
   }
-}))
+})
 
 // A list of posts, defined by a query that returns them.
 //
@@ -176,18 +174,7 @@ const PostsList2 = ({
   )
 }
 
-PostsList2.propTypes = {
-  terms: PropTypes.object,
-  dimWhenLoading: PropTypes.bool,
-  showLoading: PropTypes.bool,
-  showLoadMore: PropTypes.bool,
-  showNoResults: PropTypes.bool,
-  hideLastUnread: PropTypes.bool,
-  classes: PropTypes.object.isRequired,
-};
-
-const PostsList2Component = registerComponent('PostsList2', PostsList2,
-  withStyles(styles, {name:"PostsList2"}));
+const PostsList2Component = registerComponent('PostsList2', PostsList2, {styles});
 
 declare global {
   interface ComponentTypes {

@@ -2,7 +2,8 @@ import React, { useState, useCallback } from 'react';
 import {
   Components,
   registerComponent,
-} from 'meteor/vulcan:core';
+} from '../../lib/vulcan-lib';
+import { userHasBoldPostItems } from '../../lib/betas';
 
 import classNames from 'classnames';
 import { unflattenComments } from '../../lib/utils/unflatten';
@@ -10,11 +11,10 @@ import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import withRecordPostView from '../common/withRecordPostView';
 
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import { postExcerptFromHTML } from '../../lib/editor/ellipsize'
 import { postHighlightStyles } from '../../themes/stylePiping'
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     marginTop: theme.spacing.unit*2,
     marginBottom: theme.spacing.unit*4,
@@ -78,13 +78,24 @@ const styles = createStyles(theme => ({
       marginRight: 0
     }
   }
-}))
+})
 
+interface ExternalProps {
+  post: any,
+  comments: any,
+  updateComment: any,
+  refetch: any,
+  expandAllThreads?: boolean,
+}
+interface RecentDiscussionThreadProps extends ExternalProps, WithStylesProps {
+  isRead: any,
+  recordPostView: any,
+}
 const RecentDiscussionThread = ({
   post, recordPostView,
   comments, updateComment, classes, isRead, refetch,
   expandAllThreads: initialExpandAllThreads,
-}) => {
+}: RecentDiscussionThreadProps) => {
   const currentUser = useCurrentUser();
   const [highlightVisible, setHighlightVisible] = useState(false);
   const [readStatus, setReadStatus] = useState(false);
@@ -129,7 +140,7 @@ const RecentDiscussionThread = ({
     <div className={classes.root}>
       <div>
         <div className={classes.postItem}>
-          <PostsTitle wrap post={post} tooltip={false} />
+          <PostsTitle wrap post={post}/>
           <div className={classes.threadMeta} onClick={showHighlight}>
             <PostsItemMeta post={post}/>
             <ShowOrHideHighlightButton
@@ -162,7 +173,6 @@ const RecentDiscussionThread = ({
                 scrollOnExpand
                 nestingLevel={1}
                 lastCommentId={lastCommentId}
-                currentUser={currentUser}
                 comment={comment.item}
                 markAsRead={markAsRead}
                 highlightDate={lastVisitedAt}
@@ -273,11 +283,14 @@ const RecentDiscussionThread = ({
   }
 }*/
 
-const RecentDiscussionThreadComponent = registerComponent(
-  'RecentDiscussionThread', RecentDiscussionThread,
-  withStyles(styles, { name: "RecentDiscussionThread" }),
-  withRecordPostView,
-  withErrorBoundary
+const RecentDiscussionThreadComponent = registerComponent<ExternalProps>(
+  'RecentDiscussionThread', RecentDiscussionThread, {
+    styles,
+    hocs: [
+      withRecordPostView,
+      withErrorBoundary
+    ]
+  }
 );
 
 declare global {

@@ -1,11 +1,11 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import PropTypes from 'prop-types';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 
-const UsersAccount = ({currentUser}) => {
+const UsersAccount = () => {
   const { params } = useLocation();
+  const currentUser = useCurrentUser();
   
   // note: terms is as the same as a document-shape the SmartForm edit-mode expects to receive
   const terms = params.slug ? { slug: params.slug } : currentUser ? { documentId: currentUser._id } : {};
@@ -14,11 +14,7 @@ const UsersAccount = ({currentUser}) => {
   </div>
 };
 
-UsersAccount.propTypes = {
-  currentUser: PropTypes.object
-};
-
-const UsersAccountComponent = registerComponent('UsersAccount', UsersAccount, withUser);
+const UsersAccountComponent = registerComponent('UsersAccount', UsersAccount);
 
 declare global {
   interface ComponentTypes {

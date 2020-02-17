@@ -1,7 +1,7 @@
-import { addCallback, runCallbacks, runCallbacksAsync, newMutation } from 'meteor/vulcan:core';
+import { addCallback, runCallbacks, runCallbacksAsync, newMutation } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Comments } from '../../lib/collections/comments/collection';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { performVoteServer } from '../voteServer';
 import Localgroups from '../../lib/collections/localgroups/collection';
 import { addEditableCallbacks } from '../editor/make_editable_callbacks'

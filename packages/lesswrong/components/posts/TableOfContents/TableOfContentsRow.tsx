@@ -1,10 +1,9 @@
 import React from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { registerComponent } from '../../../lib/vulcan-lib';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     position: "relative",
     ...theme.typography.body2,
@@ -86,7 +85,7 @@ const styles = createStyles(theme => ({
     paddingBottom: theme.spacing.unit,
     display:"block",
   }
-}));
+});
 
 const levelToClassName = (level, classes) => {
   switch(level) {
@@ -126,8 +125,7 @@ const TableOfContentsRow = ({
   </Typography>
 }
 
-const TableOfContentsRowComponent = registerComponent("TableOfContentsRow", TableOfContentsRow,
-  withStyles(styles, { name: "TableOfContentsRow" }));
+const TableOfContentsRowComponent = registerComponent("TableOfContentsRow", TableOfContentsRow, {styles});
 
 declare global {
   interface ComponentTypes {

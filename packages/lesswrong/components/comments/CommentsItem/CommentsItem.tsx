@@ -1,10 +1,9 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { withMessages } from '../../common/withMessages';
 import React, { Component } from 'react';
-import Users from 'meteor/vulcan:users';
+import Users from '../../../lib/collections/users/collection';
 import classNames from 'classnames';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/utils/componentUtils';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import withUser from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
@@ -12,7 +11,7 @@ import { Posts } from "../../../lib/collections/posts";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 // Shared with ParentCommentItem
-export const styles = theme => createStyles({
+export const styles = theme => ({
   root: {
     paddingLeft: theme.spacing.unit*1.5,
     paddingRight: theme.spacing.unit*1.5,
@@ -120,27 +119,30 @@ export const styles = theme => createStyles({
   }
 })
 
-interface CommentsItemProps extends WithMessagesProps, WithUserProps, WithStylesProps {
+interface ExternalProps {
   refetch: any,
   comment: any,
   postPage: any,
   nestingLevel: number,
-  showPostTitle: boolean,
+  showPostTitle?: boolean,
   post: any,
   collapsed: boolean,
-  isParentComment: boolean,
-  parentCommentId: string,
+  isParentComment?: boolean,
+  parentCommentId?: string,
   scrollIntoView: any,
   toggleCollapse: any,
   truncated: boolean,
   parentAnswerId: string,
-  hideReply: boolean
+  hideReply?: boolean
+}
+interface CommentsItemProps extends ExternalProps, WithMessagesProps, WithUserProps, WithStylesProps {
 }
 interface CommentsItemState {
   showReply: boolean,
   showEdit: boolean,
   showParent: boolean,
 }
+
 export class CommentsItem extends Component<CommentsItemProps,CommentsItemState> {
   constructor(props: CommentsItemProps) {
     super(props);
@@ -245,10 +247,9 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
                 <CommentShortformIcon comment={comment} post={post} />
                 { parentCommentId!=comment.parentCommentId &&
                   <ShowParentComment
-                    comment={comment} nestingLevel={nestingLevel}
+                    comment={comment}
                     active={this.state.showParent}
                     onClick={this.toggleShowParent}
-                    placeholderIfMissing={isParentComment}
                   />
                 }
                 { (postPage || this.props.collapsed) && <a className={classes.collapse} onClick={this.props.toggleCollapse}>
@@ -268,7 +269,6 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
                 </span>}
                 <Components.CommentsVote
                   comment={comment}
-                  currentUser={currentUser}
                   hideKarma={post.hideCommentKarma}
                 />
 
@@ -385,10 +385,11 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
   }
 }
 
-const CommentsItemComponent = registerComponent(
-  'CommentsItem', CommentsItem,
-  withMessages, withUser,
-  withStyles(styles, { name: "CommentsItem" }), withErrorBoundary
+const CommentsItemComponent = registerComponent<ExternalProps>(
+  'CommentsItem', CommentsItem, {
+    styles,
+    hocs: [ withMessages, withUser, withErrorBoundary ]
+  }
 );
 
 declare global {

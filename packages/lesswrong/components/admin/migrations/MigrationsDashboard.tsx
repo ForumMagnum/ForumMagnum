@@ -1,6 +1,6 @@
 import React from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
-import Users from 'meteor/vulcan:users';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import Users from '../../../lib/collections/users/collection';
 import { useCurrentUser } from '../../common/withUser';
 import { useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
@@ -55,8 +55,8 @@ const MigrationsDashboard = ({classes}) => {
 }
 
 const MigrationsDashboardComponent = registerComponent(
-  "MigrationsDashboard", MigrationsDashboard,
-  withStyles(styles, {name: "MigrationsDashboard"}));
+  "MigrationsDashboard", MigrationsDashboard, {styles}
+);
 
 declare global {
   interface ComponentTypes {

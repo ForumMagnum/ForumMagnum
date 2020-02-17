@@ -1,8 +1,7 @@
-import Users from "meteor/vulcan:users";
+import Users from "../../../lib/collections/users/collection";
 import { Votes } from '../../../lib/collections/votes';
-import { addCallback } from 'meteor/vulcan:core';
+import { addCallback, getCollection } from '../../vulcan-lib';
 import { getVotePower } from '../../../lib/voting/new_vote_types'
-import { getCollection } from 'meteor/vulcan:lib';
 
 export const recalculateAFBaseScore = async (document) => {
   let votes = await Votes.find({

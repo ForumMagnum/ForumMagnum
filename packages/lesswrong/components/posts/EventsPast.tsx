@@ -1,14 +1,13 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import {getAfterDefault, getBeforeDefault} from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   daily: {
     padding: theme.spacing.unit
   }
-}))
+})
 const EventsPast = ({ classes }) => {
   const { timezone } = useTimezone();
   const { SingleColumnSection, SectionTitle, PostsTimeframeList } = Components
@@ -38,7 +37,7 @@ const EventsPast = ({ classes }) => {
   )
 }
 
-const EventsPastComponent = registerComponent('EventsPast', EventsPast, withStyles(styles, {name: "EventsPast"}));
+const EventsPastComponent = registerComponent('EventsPast', EventsPast, {styles});
 
 declare global {
   interface ComponentTypes {

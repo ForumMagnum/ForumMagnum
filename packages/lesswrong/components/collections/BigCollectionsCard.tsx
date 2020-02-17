@@ -1,10 +1,9 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     width:"100%",
     [theme.breakpoints.down('sm')]: {
@@ -60,7 +59,7 @@ const styles = createStyles(theme => ({
       }
     }
   }
-}))
+})
 
 const BigCollectionsCard = ({ collection, url, classes }) => {
   const { LinkCard, UsersName } = Components;
@@ -87,8 +86,8 @@ const BigCollectionsCard = ({ collection, url, classes }) => {
 }
 
 const BigCollectionsCardComponent = registerComponent(
-  "BigCollectionsCard", BigCollectionsCard,
-  withStyles(styles, { name: "BigCollectionsCard" }));
+  "BigCollectionsCard", BigCollectionsCard, { styles }
+);
 
 declare global {
   interface ComponentTypes {

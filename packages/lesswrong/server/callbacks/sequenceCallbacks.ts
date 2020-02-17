@@ -1,4 +1,4 @@
-import { addCallback } from 'meteor/vulcan:core';
+import { addCallback } from '../../lib/vulcan-lib';
 import Chapters from '../../lib/collections/chapters/collection'
 import Sequences, { makeEditableOptions } from '../../lib/collections/sequences/collection'
 import { addEditableCallbacks } from '../editor/make_editable_callbacks';

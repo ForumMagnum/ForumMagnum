@@ -1,6 +1,5 @@
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper';
 import classNames from 'classnames';
@@ -9,7 +8,7 @@ import { useLocation } from '../../../lib/routeUtil';
 
 export const iconWidth = 30
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   selected: {
     '& $icon': {
       opacity: 1,
@@ -61,7 +60,7 @@ const styles = createStyles(theme => ({
       top: -1,
     }
   },
-}))
+})
 
 const TabNavigationItem = ({tab, onClick, classes}) => {
   const { TabNavigationSubItem } = Components
@@ -103,8 +102,7 @@ const TabNavigationItem = ({tab, onClick, classes}) => {
 }
 
 const TabNavigationItemComponent = registerComponent(
-  'TabNavigationItem', TabNavigationItem,
-  withStyles(styles, { name: 'TabNavigationItem'})
+  'TabNavigationItem', TabNavigationItem, {styles}
 );
 
 declare global {

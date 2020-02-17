@@ -1,7 +1,7 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const Home2 = () => {

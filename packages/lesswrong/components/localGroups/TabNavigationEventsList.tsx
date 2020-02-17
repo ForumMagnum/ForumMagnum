@@ -1,11 +1,11 @@
 import React from 'react';
-import { registerComponent, Components } from 'meteor/vulcan:core';
-import { withMulti } from '../../lib/crud/withMulti';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts';
 import Tooltip from '@material-ui/core/Tooltip';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../lib/reactRouterWrapper';
-import { withStyles, createStyles } from '@material-ui/core/styles'
+import { createStyles } from '@material-ui/core/styles'
 import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
 import { truncate } from '../../lib/editor/ellipsize';
@@ -76,8 +76,16 @@ const styles = createStyles(theme => ({
 }))
 
 
-const TabNavigationEventsList = ({ results, onClick, classes }) => {
+const TabNavigationEventsList = ({ terms, onClick, classes }) => {
   const { timezone } = useTimezone();
+  const { results } = useMulti({
+    terms,
+    collection: Posts,
+    fragmentName: 'PostsList',
+    enableTotal: false,
+    fetchPolicy: 'cache-and-network',
+    ssr: true
+  });
   const { TabNavigationSubItem, EventTime } = Components
 
   if (!results) return null
@@ -146,16 +154,9 @@ const TabNavigationEventsList = ({ results, onClick, classes }) => {
   )
 }
 
-const TabNavigationEventsListComponent = registerComponent('TabNavigationEventsList', TabNavigationEventsList,
-  withMulti({
-    collection: Posts,
-    fragmentName: 'PostsList',
-    enableTotal: false,
-    fetchPolicy: 'cache-and-network',
-    ssr: true
-  }),
-  withStyles(styles, {name:"TabNavigationEventsList"})
-);
+const TabNavigationEventsListComponent = registerComponent('TabNavigationEventsList', TabNavigationEventsList, {
+  styles,
+});
 
 declare global {
   interface ComponentTypes {

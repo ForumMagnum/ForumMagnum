@@ -1,4 +1,4 @@
-import { addCallback } from 'meteor/vulcan:core';
+import { addCallback } from '../../lib/vulcan-lib';
 import { Subscriptions } from '../../lib/collections/subscriptions/collection'
 
 async function deleteOldSubscriptions(subscription) {

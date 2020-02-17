@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withStyles, createStyles } from '@material-ui/core/styles';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
@@ -29,7 +29,6 @@ const EASequencesHome = ({classes}) => {
       <div className={classes.sequencesGridWrapperWrapper}>
         <Components.SequencesGridWrapper
           terms={{'view': 'communitySequences', limit: 12}}
-          listMode={true}
           showAuthor={true}
           showLoadMore={true}
         />
@@ -38,8 +37,4 @@ const EASequencesHome = ({classes}) => {
   </AnalyticsContext>
 };
 
-registerComponent(
-  'EASequencesHome',
-  EASequencesHome,
-  withStyles(styles, {name: "EASequencesHome"}),
-);
+registerComponent('EASequencesHome', EASequencesHome, {styles});

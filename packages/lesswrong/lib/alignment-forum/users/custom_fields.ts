@@ -1,4 +1,4 @@
-import Users from "meteor/vulcan:users";
+import Users from "../../collections/users/collection";
 import { formGroups } from "../../collections/users/custom_fields"
 import { addFieldsDict, denormalizedCountOfReferences } from '../../utils/schemaUtils'
 import { Posts } from '../../collections/posts';

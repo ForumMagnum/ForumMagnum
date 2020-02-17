@@ -1,4 +1,4 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Comments } from '../../lib/collections/comments';
@@ -26,11 +26,14 @@ const ParentCommentSingle = (props) => {
 }
 
 const ParentCommentSingleComponent = registerComponent(
-  'ParentCommentSingle', ParentCommentSingle,
-  withSingle({
-    collection: Comments,
-    fragmentName: 'SelectCommentsList',
-  })
+  'ParentCommentSingle', ParentCommentSingle, {
+    hocs: [
+      withSingle({
+        collection: Comments,
+        fragmentName: 'SelectCommentsList',
+      })
+    ]
+  }
 );
 
 declare global {

@@ -1,4 +1,4 @@
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import Radio from '@material-ui/core/Radio';
@@ -7,14 +7,13 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Checkbox from '@material-ui/core/Checkbox';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import withTimezone from '../common/withTimezone';
 import moment from '../../lib/moment-timezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
 import * as _ from 'underscore';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     paddingLeft: 8,
     paddingRight: 8,
@@ -35,7 +34,7 @@ const styles = createStyles(theme => ({
   showNegative: {
     paddingLeft: 2,
   },
-}));
+});
 
 export const karmaNotificationTimingChoices = {
   disabled: {
@@ -207,9 +206,10 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
   updateCurrentValues: PropTypes.func,
 };
 
-const KarmaChangeNotifierSettingsComponent = registerComponent("KarmaChangeNotifierSettings", KarmaChangeNotifierSettings,
-  withStyles(styles, {name: "KarmaChangeNotifierSettings"}),
-  withTimezone);
+const KarmaChangeNotifierSettingsComponent = registerComponent("KarmaChangeNotifierSettings", KarmaChangeNotifierSettings, {
+  styles,
+  hocs: [withTimezone]
+});
 
 declare global {
   interface ComponentTypes {

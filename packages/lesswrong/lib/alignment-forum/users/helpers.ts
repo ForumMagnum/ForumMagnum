@@ -1,4 +1,4 @@
-import Users from "meteor/vulcan:users";
+import Users from "../../collections/users/collection";
 
 Users.canSuggestPostForAlignment = ({currentUser, post}) => {
   return currentUser && post && !post.af && !post.reviewForAlignmentUserId && Users.canDo(currentUser, "posts.alignment.suggest")

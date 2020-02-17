@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { registerComponent } from '../../lib/vulcan-lib';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import classNames from 'classnames'
 import Input from '@material-ui/core/Input';
 import LinkIcon from '@material-ui/icons/Link'
 import LinkOffIcon from '@material-ui/icons/LinkOff';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     marginRight: theme.spacing.unit
   },
@@ -30,7 +29,7 @@ const styles = createStyles(theme => ({
   innerInput: {
     padding: '6px 0 7px'
   }
-}))
+})
 
 interface EditUrlProps extends WithStylesProps{
   document: any,
@@ -101,7 +100,7 @@ class EditUrl extends Component<EditUrlProps,EditUrlState> {
   addToSubmitForm: PropTypes.func,
 };
 
-export const EditUrlComponent = registerComponent("EditUrl", EditUrl, withStyles(styles, { name: "EditUrl" }));
+export const EditUrlComponent = registerComponent("EditUrl", EditUrl, {styles});
 
 declare global {
   interface ComponentTypes {

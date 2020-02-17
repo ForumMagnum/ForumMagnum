@@ -1,16 +1,15 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import {AnalyticsContext, captureEvent} from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   personalBlogpostsCheckbox: {
     // Hackily counteract margin from SectionFooterCheckbox
     // We probably shouldn't be using SectionFOOTERCheckbox in the SectionTitle,
@@ -27,7 +26,7 @@ const styles = createStyles(theme => ({
       width: 105,
     },
   },
-}));
+});
 
 const latestPostsName = getSetting('forumType') === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts'
 const includePersonalName = getSetting('forumType') === 'EAForum' ? 'Include Community' : 'Include Personal Blogposts'
@@ -136,8 +135,7 @@ const HomeLatestPosts = ({ classes }) =>
   )
 }
 
-const HomeLatestPostsComponent = registerComponent('HomeLatestPosts', HomeLatestPosts,
-  withStyles(styles, {name: "HomeLatestPosts"}));
+const HomeLatestPostsComponent = registerComponent('HomeLatestPosts', HomeLatestPosts, {styles});
 
 declare global {
   interface ComponentTypes {

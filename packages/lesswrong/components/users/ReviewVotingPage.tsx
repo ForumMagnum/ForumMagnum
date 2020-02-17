@@ -3,12 +3,12 @@ import { withStyles, createStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import sumBy from 'lodash/sumBy'
-import { registerComponent, Components, getFragment } from 'meteor/vulcan:core';
+import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/crud/cacheUpdates';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation } from 'react-apollo';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { Paper } from '@material-ui/core';
 import { Posts } from '../../lib/collections/posts';
 import { useCurrentUser } from '../common/withUser';
@@ -23,7 +23,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   grid: {
     display: 'grid',
     gridTemplateColumns: `
@@ -148,7 +148,7 @@ const styles = createStyles(theme => ({
       display: "block"
     }
   }
-}));
+});
 
 type vote = {_id: string, postId: string, score: number, type?: string}
 type quadraticVote = vote & {type: "quadratic"}
@@ -552,7 +552,7 @@ const VoteTableRow = withStyles(voteRowStyles, {name: "VoteTableRow"})((
       <div>
         <div className={classes.postVote} >
           <div className={classes.post}>
-            <LWTooltip title={<PostsPreviewTooltip showAllInfo post={post}/>} tooltip={false} flip={false}>
+            <LWTooltip title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
               <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap />
             </LWTooltip>
           </div>
@@ -647,7 +647,7 @@ const QuadraticVotingButtons = withStyles(quadraticVotingButtonStyles, {name: "Q
   </div>
 })
 
-const ReviewVotingPageComponent = registerComponent('ReviewVotingPage', ReviewVotingPage,withStyles(styles, {name: "ReviewVotingPage"}));
+const ReviewVotingPageComponent = registerComponent('ReviewVotingPage', ReviewVotingPage, {styles});
 
 declare global {
   interface ComponentTypes {

@@ -1,15 +1,14 @@
-import { Components as C, registerComponent } from 'meteor/vulcan:core';
+import { Components as C, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     opacity:.5,
     [theme.breakpoints.down('sm')]: {
       display:"none"
     }
   }
-}))
+})
 
 const PostsStats = ({post, classes}) => {
 
@@ -27,7 +26,7 @@ const PostsStats = ({post, classes}) => {
   )
 }
 
-const PostsStatsComponent = registerComponent('PostsStats', PostsStats, withStyles(styles, {name: "PostsStats"}));
+const PostsStatsComponent = registerComponent('PostsStats', PostsStats, {styles});
 
 declare global {
   interface ComponentTypes {

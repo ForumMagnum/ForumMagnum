@@ -1,8 +1,7 @@
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     display:"flex",
     flexWrap: "wrap",
@@ -18,7 +17,7 @@ const styles = createStyles(theme => ({
       width: "unset"
     }
   }
-}))
+})
 
 const CollectionsCardContainer = ({ classes, children }) => {
   return <div className={classes.root}>
@@ -27,7 +26,7 @@ const CollectionsCardContainer = ({ classes, children }) => {
 }
 
 const CollectionsCardContainerComponent = registerComponent(
-  "CollectionsCardContainer", CollectionsCardContainer, withStyles(styles, { name: "CollectionsCardContainer" }));
+  "CollectionsCardContainer", CollectionsCardContainer, { styles });
 
 declare global {
   interface ComponentTypes {

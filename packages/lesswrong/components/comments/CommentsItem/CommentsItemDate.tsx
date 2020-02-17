@@ -1,6 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles'
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { Link } from '../../../lib/reactRouterWrapper';
 import LinkIcon from '@material-ui/icons/Link';
 import { Comments } from "../../../lib/collections/comments";
@@ -8,7 +7,7 @@ import classNames from 'classnames';
 import { useNavigation, useLocation } from '../../../lib/routeUtil';
 import { useTracking } from '../../../lib/analyticsEvents';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     "& a:hover, & a:active": {
       "& $icon": {
@@ -34,21 +33,28 @@ const styles = createStyles(theme => ({
     position: "relative",
     top: -2
   },
-}));
+});
 
-const CommentsItemDate = ({comment, post, classes, scrollOnClick, scrollIntoView }) => {
+const CommentsItemDate = ({comment, post, classes, scrollOnClick, scrollIntoView, permalink=true }: {
+  comment: any,
+  post: any,
+  classes: any,
+  scrollOnClick?: boolean,
+  scrollIntoView?: ()=>void,
+  permalink?: boolean,
+}) => {
   const { history } = useNavigation();
   const { location } = useLocation();
-  const { captureEvent } = useTracking("dateIconLinkClick");
+  const { captureEvent } = useTracking();
 
-   const handleLinkClick = (event) => {
+  const handleLinkClick = (event) => {
     event.preventDefault()
     history.replace({...location, hash: "#" + comment._id})
-    scrollIntoView();
+    if(scrollIntoView) scrollIntoView();
     captureEvent("linkClicked", {buttonPressed: event.button, furtherContext: "dateIcon"})
-   };
+  };
 
-  const url = Comments.getPageUrlFromIds({postId: post._id, postSlug: post.slug, commentId: comment._id, permalink: false})
+  const url = Comments.getPageUrlFromIds({postId: post._id, postSlug: post.slug, commentId: comment._id, permalink})
 
   const date = <span>
     <Components.FormatDate date={comment.postedAt} format={comment.answer && "MMM DD, YYYY"}/>
@@ -68,8 +74,8 @@ const CommentsItemDate = ({comment, post, classes, scrollOnClick, scrollIntoView
 }
 
 const CommentsItemDateComponent = registerComponent(
-  'CommentsItemDate', CommentsItemDate,
-  withStyles(styles, {name: "CommentsItemDate"}));
+  'CommentsItemDate', CommentsItemDate, {styles}
+);
 
 declare global {
   interface ComponentTypes {
