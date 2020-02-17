@@ -609,8 +609,8 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   }
 
   isDocumentCollaborative = () => {
-    const { document } = this.props
-    return document?._id && document?.shareWithUsers
+    const { document, fieldName } = this.props
+    return document?._id && document?.shareWithUsers && (fieldName === "contents")
   }
 
   renderCkEditor = () => {
