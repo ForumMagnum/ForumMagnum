@@ -86,8 +86,8 @@ const styles = theme => ({
     maxHeight: "calc(100vh - 450px)",
     overflow: "scroll"
   },
-  errorTextColor: {
-    color: theme.palette.error.main
+  clickHereColor: {
+    color: theme.palette.primary.main
   },
   select: {
     marginRight: theme.spacing.unit*1.5
@@ -458,7 +458,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
           This document was last edited in {editorTypeToDisplay[type].name} format. Showing the{' '}
           {editorTypeToDisplay[this.getCurrentEditorType()].name} editor.{' '}
           <a
-            className={classes.errorTextColor}
+            className={classes.clickHereColor}
             onClick={() => this.setEditorType(defaultType)}
           >
             Click here
