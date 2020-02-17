@@ -14,7 +14,6 @@ const styles = theme => ({
     width: POST_PREVIEW_WIDTH,
     position: "relative",
     padding: theme.spacing.unit*1.5,
-    paddingRight: theme.spacing.unit*2,
     paddingBottom: 0,
     '& img': {
       maxHeight: "200px"
@@ -49,6 +48,7 @@ const styles = theme => ({
     ...postHighlightStyles(theme),
     marginTop: theme.spacing.unit*2.5,
     marginBottom: theme.spacing.unit*1.5,
+    marginRight: theme.spacing.unit/2,
     wordBreak: 'break-word',
     fontSize: "1.1rem",
 
@@ -69,7 +69,7 @@ const styles = theme => ({
     }
   },
   comment: {
-    marginTop: theme.spacing.unit*1.5,
+    marginTop: theme.spacing.unit,
     marginLeft: -13,
     marginRight: -13,
     marginBottom: -9

@@ -483,9 +483,16 @@ switch (getSetting('forumType')) {
         name:'about',
         path:'/about',
         componentName: 'PostsSingleRoute',
-        _id:"Y2iqhjAHbXNkwcS8F",
-        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, "Y2iqhjAHbXNkwcS8F"),
+        _id: getSetting('aboutPostId'),
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, getSetting('aboutPostId')),
       },
+      // {
+      //   name:'intro',
+      //   path:'/intro',
+      //   componentName: 'PostsSingleRoute',
+      //   _id: getSetting('introPostId'),
+      //   getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, getSetting('introPostId')),
+      // },
       {
         name: 'Community',
         path: '/meta',
@@ -496,7 +503,12 @@ switch (getSetting('forumType')) {
         name: 'eaSequencesHome',
         path: '/sequences',
         componentName: 'EASequencesHome'
-      }
+      },
+      // {
+      //   name: 'eaHandbookHome',
+      //   path: '/handbook',
+      //   componentName: 'EASequencesHome'
+      // }
     ]);
     break
   default:

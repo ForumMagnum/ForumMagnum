@@ -13,6 +13,8 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 // Shared with ParentCommentItem
 export const styles = theme => ({
   root: {
+    paddingLeft: theme.spacing.unit*1.5,
+    paddingRight: theme.spacing.unit*1.5,
     "&:hover $menu": {
       opacity:1
     }
@@ -63,8 +65,8 @@ export const styles = theme => ({
     }
   },
   firstParentComment: {
-    // Sorry Oli
-    margin: "-2px -13px -2px -12px"
+    marginLeft: -theme.spacing.unit*1.5,
+    marginRight: -theme.spacing.unit*1.5
   },
   meta: {
     "& > div": {
@@ -84,6 +86,7 @@ export const styles = theme => ({
   bottom: {
     paddingBottom: 5,
     fontSize: 12,
+    minHeight: 12
   },
   replyForm: {
     marginTop: 2,
@@ -130,7 +133,7 @@ interface ExternalProps {
   toggleCollapse: any,
   truncated: boolean,
   parentAnswerId: string,
-  hideReply?: boolean,
+  hideReply?: boolean
 }
 interface CommentsItemProps extends ExternalProps, WithMessagesProps, WithUserProps, WithStylesProps {
 }
@@ -215,7 +218,6 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
           <div className={
             classNames(
               classes.root,
-              "comments-item",
               "recent-comments-node",
               {
                 [classes.deleted]: comment.deleted && !comment.deletedPublic,

@@ -161,17 +161,20 @@ const theme = createLWTheme({
     Header: {
       root: {
         height: 90,
+        '@media (max-width: 959.95px) and (min-width: 600px)': {
+          height: 86, // I don't know why headroom shifts by 4 pixels, don't ask me
+        },
         [defaultTheme.breakpoints.down('xs')]: {
           height: 77,
         },
       },
       appBar: {
-        padding: ".8em",
+        padding: 11,
         '@media (min-width: 960px)': {
-          paddingLeft: "1.5em",
-          paddingRight: "1.5em",
-          paddingTop: "1em",
-          paddingBottom: "1em"
+          paddingLeft: 20,
+          paddingRight: 20,
+          paddingTop: 13,
+          paddingBottom: 13,
         }
       },
     },
@@ -263,6 +266,14 @@ const theme = createLWTheme({
         display: 'none'
       }
     },
+    SequencesPage: {
+      root: {
+        paddingTop: 345,
+      },
+      banner: {
+        top: 77,
+      },
+    },
     ContentType: {
       root: {
         color: grey[800],
@@ -277,6 +288,11 @@ const theme = createLWTheme({
         marginBottom: 24
       }
     },
+    MuiSnackbarContent: {
+      root: {
+        backgroundColor: palette.primary.main
+      }
+    }
   }
 });
 

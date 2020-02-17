@@ -12,6 +12,7 @@ const HIGHLIGHT_DURATION = 3
 
 const styles = theme => ({
   node: {
+    border: "solid 1px rgba(0,0,0,.2)",
     cursor: "default",
     // Higher specificity to override child class (variant syntax)
     '&$deleted': {
@@ -20,7 +21,7 @@ const styles = theme => ({
   },
   child: {
     marginLeft: theme.spacing.unit,
-    marginBottom: theme.spacing.unit,
+    marginBottom: 6,
     borderLeft: `solid 1px ${theme.palette.grey[300]}`,
     borderTop: `solid 1px ${theme.palette.grey[300]}`,
     borderBottom: `solid 1px ${theme.palette.grey[300]}`,

@@ -20,3 +20,4 @@ export const userHasPingbacks = optInOnly;
 export const userHasCkEditor = adminOnly;
 export const userHasTagging = adminOnly;
 export const userHasBoldPostItems = disabled
+export const userHasEAHomeHandbook = adminOnly
