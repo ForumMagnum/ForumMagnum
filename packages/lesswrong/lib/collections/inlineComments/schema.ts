@@ -31,6 +31,13 @@ const schema = {
     canCreate: ['members'],
     hidden: true,
   },
+  ckContent: {
+    type: String,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    hidden: true,
+  },
   ckThreadId: {
     type: String,
     optional: true,

@@ -140,6 +140,8 @@ import './collections/users/views';
 // Comments
 import { Comments } from './collections/comments'
 
+import { InlineComments } from './collections/inlineComments'
+
 // Votes
 import './collections/votes';
 
@@ -196,5 +198,6 @@ export {
   Localgroups,
   Comments,
   Revisions, 
-  ReviewVotes
+  ReviewVotes,
+  InlineComments
 }
