@@ -167,8 +167,8 @@ const postEditorConfig = {
 	},
 	math: {
 		engine: 'mathjax',
-		outputType: 'script',
-		forceOutputType: false,
+		outputType: 'span',
+		forceOutputType: true,
 		enablePreview: true
 	}
 	// mediaEmbed: {
@@ -211,7 +211,7 @@ CommentEditor.builtinPlugins = [
 	Table,
 	Underline,
 	UploadAdapter,
-	// MathpreviewPlugin
+	Mathematics
 ];
 
 CommentEditor.defaultConfig = {
@@ -227,11 +227,19 @@ CommentEditor.defaultConfig = {
 		'blockQuote',
 		'bulletedList',
 		'numberedList',
+		'|',
+		'math'
 	],
 	image: {
 		toolbar: [
 			'imageTextAlternative'
 		]
+	},
+	math: {
+		engine: 'mathjax',
+		outputType: 'span',
+		forceOutputType: true,
+		enablePreview: true
 	},
 	heading: headingOptions,
 	table: {
