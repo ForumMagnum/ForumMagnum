@@ -13,6 +13,7 @@ if (getSetting('forumType') === 'EAForum') {
   importComponent("EAHome", () => require('../components/ea-forum/EAHome'));
   importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
   importComponent("EAHomeHandbook", () => require('../components/ea-forum/EAHomeHandbook'));
+  importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
 }
 
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
