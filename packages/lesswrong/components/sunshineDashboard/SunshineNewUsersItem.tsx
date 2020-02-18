@@ -25,7 +25,7 @@ const styles = theme => ({
     display: "inline-block"
   },
   truncated: {
-    maxHeight: 125,
+    maxHeight: 160,
     overflow: "hidden"
   }
 })
@@ -45,6 +45,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
       selector: {_id: user._id},
       data: {
         reviewedByUserId: currentUser!._id,
+        reviewedAt: new Date(),
         sunshineSnoozed: false,
         needsReview: false,
       }
@@ -56,6 +57,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
       selector: {_id: user._id},
       data: {
         needsReview: false,
+        reviewedAt: new Date(),
         reviewedByUserId: currentUser!._id,
         sunshineSnoozed: true
       }
@@ -73,6 +75,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
           voteBanned: true,
           deleteContent: true,
           needsReview: false,
+          reviewedAt: new Date(),
           banned: moment().add(12, 'months').toDate()
         }
       })

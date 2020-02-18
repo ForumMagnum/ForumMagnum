@@ -967,6 +967,14 @@ addFieldsDict(Users, {
     resolver: (user, args, context) => !!user.reviewedByUserId,
   }),
 
+  reviewedAt: {
+    type: Date,
+    canRead: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    group: formGroups.adminOptions,
+    optional: true
+  },
+
   // A number from 0 to 1, where 0 is almost certainly spam, and 1 is almost
   // certainly not-spam. This is the same scale as ReCaptcha, except that it
   // also includes post-signup activity like moderator approval, upvotes, etc.
