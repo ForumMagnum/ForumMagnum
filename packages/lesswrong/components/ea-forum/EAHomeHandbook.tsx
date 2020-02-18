@@ -177,7 +177,13 @@ const options = {
   ssr: true,
 };
 
-registerComponent(
+const EAHomeHandbookComponent = registerComponent(
   'EAHomeHandbook', EAHomeHandbook,
   {styles, hocs: [withCookies, withMessages, [withSingle, options]]},
 )
+
+declare global {
+  interface ComponentTypes {
+    EAHomeHandbook: typeof EAHomeHandbookComponent
+  }
+}

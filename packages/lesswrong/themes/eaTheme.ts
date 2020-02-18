@@ -39,7 +39,7 @@ const palette = {
     main: '#0c869b',
   },
   lwTertiary: {
-    main: "#607e88" // EA-folk: you may want to pick your own color here
+    main: "#137283"
   },
   error: {
     main: deepOrange[900]
@@ -197,6 +197,7 @@ const theme = createLWTheme({
         marginBottom: -8,
       },
       title: {
+        marginTop: -5,
         textTransform: 'lowercase',
         color: 'rgba(0,0,0,.7)',
         fontWeight: 500,
@@ -210,6 +211,7 @@ const theme = createLWTheme({
     },
     HomeLatestPosts: {
       personalBlogpostsCheckboxLabel: {
+        marginTop: 2,
         [defaultTheme.breakpoints.down("xs")]: {
           fontSize: "1rem",
         },

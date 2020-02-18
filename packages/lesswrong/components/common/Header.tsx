@@ -65,11 +65,16 @@ const styles = theme => ({
     '&:hover, &:focus, &:active': {
       textDecoration: 'none',
       opacity: 0.7,
-    }
+    },
+    display: 'flex',
+    alignItems: 'center',
   },
   menuButton: {
     marginLeft: -theme.spacing.unit,
     marginRight: theme.spacing.unit,
+  },
+  siteLogo: {
+    marginLeft: -theme.spacing.unit * 1.5,
   },
   hideOnDesktop: {
     [theme.breakpoints.up('lg')]: {
@@ -239,6 +244,7 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
     const { currentUser, classes, theme, toc, searchResultsArea } = this.props
     const { notificationOpen, notificationHasOpened, navigationOpen, searchOpen } = this.state
     const notificationTerms = {view: 'userNotifications', userId: currentUser ? currentUser._id : "", type: "newMessage"}
+    const hasLogo = getSetting('forumType') === 'EAForum'
 
     const {
       SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
@@ -259,12 +265,13 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
               onUnpin={() => this.setState({unFixed: false})}
             >
               <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
-                <Toolbar>
+                  <Toolbar disableGutters={getSetting('forumType') === 'EAForum'}>
                   {this.renderNavigationMenuButton()}
                   <Typography className={classes.title} variant="title" color="textSecondary">
                     <Hidden smDown implementation="css">
                       <div className={classes.titleSubtitleContainer}>
                         <Link to="/" className={classes.titleLink}>
+                          {hasLogo && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
                           {getSetting('forumSettings.headerTitle', 'LESSWRONG')}
                         </Link>
                         <HeaderSubtitle />
@@ -272,6 +279,7 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
                     </Hidden>
                     <Hidden mdUp implementation="css">
                       <Link to="/" className={classes.titleLink}>
+                        {hasLogo && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
                         {getSetting('forumSettings.shortForumTitle', 'LW')}
                       </Link>
                     </Hidden>
