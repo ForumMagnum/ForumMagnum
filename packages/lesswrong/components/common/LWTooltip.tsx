@@ -5,7 +5,8 @@ import withHover from './withHover';
 const styles = theme => ({
   root: {
     // inline-block makes sure that the popper placement works properly (without flickering). "block" would also work, but there may be situations where we want to wrap an object in a tooltip that shouldn't be a block element.
-    display: "inline-block"
+    display: "inline-block",
+    maxWidth: 300
   }
 })
 

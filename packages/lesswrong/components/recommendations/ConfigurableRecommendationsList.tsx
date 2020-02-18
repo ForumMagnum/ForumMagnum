@@ -38,18 +38,18 @@ class ConfigurableRecommendationsList extends PureComponent<ConfigurableRecommen
   render() {
     const { currentUser, configName } = this.props;
     const { SingleColumnSection, SectionTitle, RecommendationsAlgorithmPicker,
-      RecommendationsList, SettingsIcon } = Components;
+      RecommendationsList, SettingsIcon, LWTooltip } = Components;
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
 
     return <SingleColumnSection>
       <SectionTitle
-        title={<Tooltip
+        title={<LWTooltip
           title={`A weighted, randomized sample of the highest karma posts${settings.onlyUnread ? " that you haven't read yet" : ""}.`}
         >
           <Link to={'/recommendations'}>
             {recommendedName}
           </Link>
-        </Tooltip>}
+        </LWTooltip>}
       >
         <SettingsIcon onClick={this.toggleSettings}/>
       </SectionTitle>

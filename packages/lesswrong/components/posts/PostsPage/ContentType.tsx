@@ -1,7 +1,6 @@
 import React from 'react'
-import { registerComponent, getSetting } from '../../../lib/vulcan-lib';
+import { registerComponent, Components, getSetting } from '../../../lib/vulcan-lib';
 import Typography from '@material-ui/core/Typography';
-import Tooltip from '@material-ui/core/Tooltip';
 import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
 import GroupIcon from '@material-ui/icons/Group';
@@ -154,14 +153,16 @@ const ContentType = ({classes, type, label}: {
   if (!type) {
     throw new Error('ContentType requires type property')
   }
+  const { LWTooltip } = Components
+
   const contentData = contentTypes[getSetting<string>('forumType')][type]
   return <Typography variant="body1" component="span" className={classes.root}>
-    <Tooltip title={<React.Fragment>
+    <LWTooltip title={<React.Fragment>
       <div className={classes.tooltipTitle}>{contentData.tooltipTitle}</div>
       {contentData.tooltipBody}
     </React.Fragment>}>
       <span><contentData.Icon className={classes.icon} /> {label}</span>
-    </Tooltip>
+    </LWTooltip>
   </Typography>
 }
 

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import Tooltip from '@material-ui/core/Tooltip';
 import { useCurrentUser } from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { reviewAlgorithm } from "./FrontpageReviewPhase";
@@ -30,7 +29,7 @@ const styles = theme => ({
 
 const FrontpageVotingPhase = ({classes, settings}) => {
   const currentUser = useCurrentUser();
-  const { SectionSubtitle, SectionFooter, RecommendationsList, HoverPreviewLink } = Components
+  const { SectionSubtitle, SectionFooter, RecommendationsList, HoverPreviewLink, LWTooltip } = Components
 
   const reviewTooltip = <div>
     <div>The LessWrong community is reflecting on the best posts from 2018, in three phases</div>
@@ -47,7 +46,7 @@ const FrontpageVotingPhase = ({classes, settings}) => {
 
   return (
     <div>
-      <Tooltip placement="top-start" title={reviewTooltip}>
+      <LWTooltip placement="top-start" title={reviewTooltip}>
         <div>
           <SectionSubtitle >
             <Link to={"/reviews"}>
@@ -60,7 +59,7 @@ const FrontpageVotingPhase = ({classes, settings}) => {
             </div>}
           </SectionSubtitle>
         </div>
-      </Tooltip>
+      </LWTooltip>
       <AnalyticsContext listContext={"Voting on the LW 2018 Review"} capturePostItemOnMount>
         <RecommendationsList algorithm={reviewAlgorithm} showLoginPrompt={false} />
       </AnalyticsContext>

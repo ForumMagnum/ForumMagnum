@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = (theme) => ({
@@ -36,12 +36,13 @@ const SidebarAction = ({children, classes, title, warningHighlight, onClick}: {
   warningHighlight?: boolean,
   onClick: ()=>void,
 }) => {
-  return <Tooltip title={title} placement="bottom" classes={{tooltip: classes.tooltip}} enterDelay={200}>
+  const { LWTooltip } = Components
+  return <LWTooltip title={title} placement="bottom" classes={{tooltip: classes.tooltip}} enterDelay={200}>
     <div onClick={onClick} className={classes.root}>
       {children}
       {warningHighlight && <div className={classes.warningHighlight}/>}
     </div>
-  </Tooltip>
+  </LWTooltip>
 }
 
 const SidebarActionComponent = registerComponent('SidebarAction', SidebarAction, {styles});

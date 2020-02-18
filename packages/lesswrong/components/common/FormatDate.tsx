@@ -1,7 +1,6 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 import moment from '../../lib/moment-timezone';
-import Tooltip from '@material-ui/core/Tooltip';
 import { useTimezone } from '../common/withTimezone';
 
 export const ExpandedDate = ({date}) => {
@@ -16,15 +15,18 @@ const FormatDate = ({date, format, tooltip=true}: {
   format?: string,
   tooltip?: boolean,
 }) => {
+
+  const { LWTooltip } = Components
+
   const formatted = (format
     ? <span>{moment(new Date(date)).format(format)}</span>
     : <span>{moment(new Date(date)).fromNow()}</span>
   );
   
   if (tooltip) {
-    return <Tooltip title={<ExpandedDate date={date}/>}>
+    return <LWTooltip title={<ExpandedDate date={date}/>}>
       {formatted}
-    </Tooltip>
+    </LWTooltip>
   } else {
     return formatted;
   }

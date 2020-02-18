@@ -558,10 +558,11 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
 
   renderEditorTypeSelect = () => {
     const { currentUser, classes } = this.props
+    const { LWTooltip } = Components
     if (!userHasCkEditor(currentUser) && !currentUser?.isAdmin) return null
     const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
     return (
-      <Tooltip title="Warning! Changing format will erase your content" placement="left">
+      <LWTooltip title="Warning! Changing format will erase your content" placement="left">
         <Select
           className={classes.select}
           value={this.getCurrentEditorType()}
@@ -574,7 +575,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
               </MenuItem>
             )}
           </Select>
-      </Tooltip>
+      </LWTooltip>
     )
   }
 
