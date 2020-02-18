@@ -21,7 +21,6 @@ const styles = createStyles(theme => ({
     fontFamily: theme.typography.uiSecondary.fontFamily,
     lineHeight: '24px',
     color: 'rgba(0,0,0,0.5)',
-    marginTop: -2,
   }
 }))
 

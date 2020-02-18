@@ -197,6 +197,7 @@ const theme = createLWTheme({
         marginBottom: -8,
       },
       title: {
+        marginTop: -5,
         textTransform: 'lowercase',
         color: 'rgba(0,0,0,.7)',
         fontWeight: 500,
@@ -210,6 +211,7 @@ const theme = createLWTheme({
     },
     HomeLatestPosts: {
       personalBlogpostsCheckboxLabel: {
+        marginTop: 2,
         [defaultTheme.breakpoints.down("xs")]: {
           fontSize: "1rem",
         },
