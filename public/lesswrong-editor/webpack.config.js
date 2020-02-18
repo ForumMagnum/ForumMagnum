@@ -29,19 +29,19 @@ module.exports = {
 		libraryExport: 'Editors'
 	},
 
-	optimization: {
-		minimizer: [
-			new UglifyJsWebpackPlugin( {
-				sourceMap: true,
-				uglifyOptions: {
-					output: {
-						// Preserve CKEditor 5 license comments.
-						comments: /^!/
-					}
-				}
-			} )
-		]
-	},
+	// optimization: {
+	// 	minimizer: [
+	// 		new UglifyJsWebpackPlugin( {
+	// 			sourceMap: true,
+	// 			uglifyOptions: {
+	// 				output: {
+	// 					// Preserve CKEditor 5 license comments.
+	// 					comments: /^!/
+	// 				}
+	// 			}
+	// 		} )
+	// 	]
+	// },
 
 	plugins: [
 		new CKEditorWebpackPlugin( {

@@ -27,14 +27,25 @@
 </div>
 
 <script src="../build/ckeditor.js"></script>
+<script src="https://fred-wang.github.io/mathjax.js/mpadded-min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script src="https://cdn.jsdelivr.net/npm/@ckeditor/ckeditor5-inspector@1.5.0/build/inspector.js"></script>
 <script>
-	BalloonEditor.create( document.querySelector( '#editor' ) )
+	CKEditor.PostEditor.create( document.querySelector( '#editor' ) )
 		.then( editor => {
-			window.editor = editor;
-		} )
+			CKEditorInspector.attach(editor);
+			return editor 
+		})
 		.catch( err => {
 			console.error( err.stack );
 		} );
+	MathJax.Hub.Config({
+        showMathMenu: false,
+        messageStyle: "none",
+          tex2jax: {
+          preview: "none"
+        }
+	});
 </script>
 
 </body>

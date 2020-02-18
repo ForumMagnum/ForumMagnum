@@ -1,3 +1,4 @@
+/* eslint-disable no-tabs */
 /**
  * @license Copyright (c) 2003-2019, CKSource - Frederico Knabben. All rights reserved.
  * This file is licensed under the terms of the MIT License (see LICENSE.md).
@@ -44,6 +45,7 @@ import UploadAdapter from '@ckeditor/ckeditor5-adapter-ckfinder/src/uploadadapte
 import BlockToolbar from '@ckeditor/ckeditor5-ui/src/toolbar/block/blocktoolbar';
 import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave';
 import Watchdog from '@ckeditor/ckeditor5-watchdog/src/watchdog';
+import Mathematics from './ckeditor5-math/math';
 
 // import MathpreviewPlugin from 'ckeditor5-math-preview/src/mathpreview';
 // current version of MathpreviewPlugin (1.1.3) breaks ckeditor
@@ -107,7 +109,7 @@ const postEditorPlugins = [
 	TableToolbar,
 	Underline,
 	UploadAdapter,
-	// MathpreviewPlugin
+	Mathematics
 ];
 
 PostEditor.builtinPlugins = [
@@ -146,6 +148,7 @@ const postEditorConfig = {
 		'|',
 		'trackChanges',
 		'comment',
+		'math'
 	],
 	image: {
 		toolbar: [
@@ -162,6 +165,12 @@ const postEditorConfig = {
 		],
 		tableToolbar: [ 'comment' ]
 	},
+	math: {
+		engine: 'mathjax',
+		outputType: 'script',
+		forceOutputType: false,
+		enablePreview: true
+	}
 	// mediaEmbed: {
 	// 	toolbar: [ 'comment' ]
 	// },
