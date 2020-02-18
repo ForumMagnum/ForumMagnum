@@ -6,6 +6,8 @@ const styles = theme => ({
   root: {
     // inline-block makes sure that the popper placement works properly (without flickering). "block" would also work, but there may be situations where we want to wrap an object in a tooltip that shouldn't be a block element.
     display: "inline-block",
+  },
+  tooltip: {
     maxWidth: 300
   }
 })
@@ -35,7 +37,7 @@ const LWTooltip = ({classes, children, title, placement="bottom-start", hover, a
         }
       }}
     >
-      {title}
+      <div className={classes.tooltip}>{title}</div>
     </LWPopper>
     {children}
   </span>
