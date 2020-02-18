@@ -1,4 +1,8 @@
-// TODO; docstring
+/*
+ * Logo used in the header by the EA Forum
+ *
+ * Could easily be adapted for other Forums
+ */
 import React from 'react';
 import { registerComponent, getSetting, Utils } from '../../lib/vulcan-lib';
 
