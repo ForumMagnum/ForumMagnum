@@ -265,7 +265,7 @@ export default {
       showOnCompressed: true,
     // }, {
     //   id: 'intro',
-    //   title: 'Intro to EA',
+    //   title: 'What is EA?',
     //   link: '/intro',
     //   subItem: true,
     }, {

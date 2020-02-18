@@ -18,8 +18,9 @@ const styles = theme => ({
   selected: {
     color: "white",
     textTransform: "none",
+    // TODO: This green is hardcoded, but it's k because it's only used for events
     backgroundColor: "rgba(100,169,105, 0.9)",
-    
+
     "&:hover": {
       backgroundColor: "rgba(100,169,105, 0.5)",
     },
