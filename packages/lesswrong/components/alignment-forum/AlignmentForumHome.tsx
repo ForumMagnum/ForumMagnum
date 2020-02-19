@@ -14,7 +14,9 @@ const styles = theme => ({
   }
 });
 
-const AlignmentForumHome = ({classes}) => {
+const AlignmentForumHome = ({classes}: {
+  classes: ClassesType
+}) => {
   const { SingleColumnSection, SectionTitle, SequencesGridWrapper, PostsList2, SectionButton, RecentDiscussionThreadsList } = Components
   const currentUser = useCurrentUser();
 

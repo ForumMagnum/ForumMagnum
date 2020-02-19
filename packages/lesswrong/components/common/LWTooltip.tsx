@@ -1,6 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import withHover from './withHover';
+import { PopperPlacementType } from '@material-ui/core/Popper'
 
 const styles = theme => ({
   root: {
@@ -12,7 +13,7 @@ const styles = theme => ({
 interface ExternalProps {
   children?: React.ReactNode,
   title?: any,
-  placement?: string,
+  placement?: PopperPlacementType,
   tooltip?: boolean,
   flip?: boolean,
 }

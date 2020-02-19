@@ -24,12 +24,21 @@ const options = {
   },
 }
 
+// The set of fields required for calling Posts.getPageUrl. Could be supplied by
+// either a fragment or a DbPost.
+export interface PostsMinimumForGetPageUrl {
+  _id: string
+  slug: string
+  isEvent?: boolean
+  groupId?: string|undefined
+}
+
 interface ExtendedPostsCollection extends PostsCollection {
   // Functions in lib/collections/posts/helpers.ts
-  getLink: any
+  getLink: (post: PostsBase|DbPost, isAbsolute?: boolean, isRedirected?: boolean) => string
   getShareableLink: any
   getLinkTarget: any
-  getAuthorName: any
+  getAuthorName: (post: DbPost) => string
   getDefaultStatus: any
   getStatusName: any
   isApproved: any
@@ -38,9 +47,9 @@ interface ExtendedPostsCollection extends PostsCollection {
   getTwitterShareUrl: any
   getFacebookShareUrl: any
   getEmailShareUrl: any
-  getPageUrl: any
-  getCommentCount: any
-  getCommentCountStr: any
+  getPageUrl: (post: PostsMinimumForGetPageUrl, isAbsolute?: boolean, sequenceId?: string|null) => string
+  getCommentCount: (post: PostsBase|DbPost) => number
+  getCommentCountStr: (post: PostsBase|DbPost, commentCount?: number|undefined) => string
   getLastCommentedAt: any
   canEdit: any
   canDelete: any

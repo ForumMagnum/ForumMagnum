@@ -31,7 +31,7 @@ const styles = theme => ({
 })
 
 interface ExternalProps {
-  post: any,
+  post: PostsBase,
 }
 interface CommentsViewsProps extends ExternalProps, WithUserProps, WithStylesProps, WithLocationProps, WithNavigationProps {
 }

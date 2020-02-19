@@ -114,7 +114,7 @@ const styles = theme => ({
 
 const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
 
-const getPostCategory = (post) => {
+const getPostCategory = (post: PostsBase) => {
   const categories: Array<string> = [];
 
   if (post.isEvent) categories.push(`Event`)
@@ -131,7 +131,7 @@ const getPostCategory = (post) => {
 
 const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
   postsList?: boolean,
-  post: any,
+  post: PostsList|null,
   classes: ClassesType,
   comment?: any,
 }) => {

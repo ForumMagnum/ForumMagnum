@@ -117,19 +117,19 @@ export const styles = theme => ({
 })
 
 interface ExternalProps {
-  refetch: any,
-  comment: any,
-  postPage: any,
+  refetch?: any,
+  comment: CommentsList|CommentsListWithPostMetadata,
+  postPage?: boolean,
   nestingLevel: number,
   showPostTitle?: boolean,
-  post: any,
-  collapsed: boolean,
+  post: PostsList,
+  collapsed?: boolean,
   isParentComment?: boolean,
   parentCommentId?: string,
-  scrollIntoView: any,
-  toggleCollapse: any,
+  scrollIntoView?: ()=>void,
+  toggleCollapse?: ()=>void,
   truncated: boolean,
-  parentAnswerId: string,
+  parentAnswerId?: string|undefined,
   hideReply?: boolean,
 }
 interface CommentsItemProps extends ExternalProps, WithMessagesProps, WithUserProps, WithStylesProps {
@@ -153,7 +153,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
   shouldComponentUpdate(nextProps, nextState) {
     if(!shallowEqual(this.state, nextState))
       return true;
-    if(!shallowEqualExcept(this.props, nextProps, ["post", "updateComment"]))
+    if(!shallowEqualExcept(this.props, nextProps, ["post"]))
       return true;
     if ((nextProps.post && nextProps.post.contents && nextProps.post.contents.version) !== (this.props.post && this.props.post.contents && this.props.post.contents.version))
       return true;
@@ -226,7 +226,6 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
               <div className={classes.firstParentComment}>
                 <Components.ParentCommentSingle
                   post={post}
-                  currentUser={currentUser}
                   documentId={comment.parentCommentId}
                   nestingLevel={nestingLevel - 1}
                   truncated={false}
@@ -235,7 +234,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
               </div>
             )}
 
-            {showPostTitle && <Link className={classes.postTitle} to={Posts.getPageUrl(comment.post)}>{post.title}</Link>}
+            {showPostTitle && (comment as CommentsListWithPostMetadata).post && <Link className={classes.postTitle} to={Posts.getPageUrl((comment as CommentsListWithPostMetadata).post)}>{post.title}</Link>}
 
             <div className={classes.body}>
               <div className={classes.meta}>

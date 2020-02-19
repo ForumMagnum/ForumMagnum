@@ -8,7 +8,7 @@ import ReportOutlinedIcon from '@material-ui/icons/ReportOutlined';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 
 interface ExternalProps {
-  post: any,
+  post: PostsBase,
 }
 interface ReportPostMenuItemProps extends ExternalProps, WithUserProps, WithDialogProps {
 }

@@ -35,7 +35,7 @@ const styles = theme => ({
 });
 
 interface ExternalProps {
-  post: any,
+  post: PostsBase,
 }
 interface PostsItemDateProps extends ExternalProps, WithHoverProps, WithStylesProps {
 }

@@ -13,7 +13,13 @@ const styles = theme => ({
   }
 })
 
-function postHadMajorRevision(comment, post) {
+interface PostWithVersion {
+  contents: {
+    version: string
+  }
+}
+
+function postHadMajorRevision(comment: CommentsList, post: PostWithVersion) {
   if (!comment || !comment.postVersion || !post || !post.contents || !post.contents.version) {
     return false
   }
@@ -22,7 +28,11 @@ function postHadMajorRevision(comment, post) {
   return origMajorPostVer < currentMajorPostVer
 }
 
-const CommentOutdatedWarning = ({comment, post, classes}) => {
+const CommentOutdatedWarning = ({comment, post, classes}: {
+  comment: CommentsList,
+  post: PostWithVersion,
+  classes: ClassesType,
+}) => {
   if (!postHadMajorRevision(comment, post))
     return null;
   return (

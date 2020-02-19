@@ -17,8 +17,7 @@ const styles = theme => ({
   },
 });
 
-interface AFApplicationFormProps extends WithUserProps, WithMessagesProps, WithStylesProps {
-  updateUser: any,
+interface AFApplicationFormProps extends WithUserProps, WithMessagesProps, WithStylesProps, WithUpdateUserProps {
   onClose: any,
 }
 interface AFApplicationFormState {

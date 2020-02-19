@@ -159,9 +159,8 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }) => {
 interface ExternalProps {
   documentId: string,
 }
-interface KarmaChangeNotifierProps extends ExternalProps, WithUserProps, WithStylesProps, WithTrackingProps {
-  document: any
-  updateUser: any,
+interface KarmaChangeNotifierProps extends ExternalProps, WithUserProps, WithUpdateUserProps, WithStylesProps, WithTrackingProps {
+  document: UserKarmaChanges
 }
 interface KarmaChangeNotifierState {
   cleared: boolean,

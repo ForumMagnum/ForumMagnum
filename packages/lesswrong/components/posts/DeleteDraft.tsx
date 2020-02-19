@@ -5,7 +5,9 @@ import { Posts } from '../../lib/collections/posts';
 import { useCurrentUser } from '../common/withUser';
 import MenuItem from '@material-ui/core/MenuItem';
 
-const DeleteDraft = ({ post }) => {
+const DeleteDraft = ({ post }: {
+  post: PostsBase
+}) => {
   const currentUser = useCurrentUser();
   const {mutate: updatePost} = useUpdate({
     collection: Posts,

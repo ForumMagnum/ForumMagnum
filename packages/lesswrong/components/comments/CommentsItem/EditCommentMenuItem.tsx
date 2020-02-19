@@ -6,7 +6,10 @@ import { useCurrentUser } from '../../common/withUser';
 import Edit from '@material-ui/icons/Edit';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 
-const EditCommentMenuItem = ({ comment, showEdit }) => {
+const EditCommentMenuItem = ({ comment, showEdit }: {
+  comment: CommentsList,
+  showEdit: ()=>void,
+}) => {
   const currentUser = useCurrentUser();
   if (Users.canDo(currentUser, "comments.edit.all") ||
       Users.owns(currentUser, comment))

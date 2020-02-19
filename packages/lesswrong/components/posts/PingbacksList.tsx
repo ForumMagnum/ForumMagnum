@@ -13,14 +13,17 @@ const styles = theme => ({
   }
 });
 
-const PingbacksList = ({classes, postId}) => {
+const PingbacksList = ({classes, postId}: {
+  classes: ClassesType,
+  postId: string,
+}) => {
   const { results, loading } = useMulti({
     terms: {
       view: "pingbackPosts",
       postId: postId,
     },
     collection: Posts,
-    fragmentName: "PostsList",
+    fragmentName: "PostsBase",
     limit: 5,
     enableTotal: false,
     ssr: true

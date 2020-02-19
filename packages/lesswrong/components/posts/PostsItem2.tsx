@@ -353,7 +353,7 @@ const PostsItem2 = ({
   isRead=false,
   classes,
 }: {
-  post: any,
+  post: PostsList,
   tagRel?: any,
   defaultToShowComments?: boolean,
   sequenceId?: string,

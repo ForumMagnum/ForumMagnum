@@ -31,7 +31,9 @@ const migrationsQuery = gql`
   }
 `;
 
-const MigrationsDashboard = ({classes}) => {
+const MigrationsDashboard = ({classes}: {
+  classes: ClassesType,
+}) => {
   const currentUser = useCurrentUser();
   const { SingleColumnSection, Loading, SectionTitle } = Components;
   const { data, loading } = useQuery(migrationsQuery, { ssr: true });

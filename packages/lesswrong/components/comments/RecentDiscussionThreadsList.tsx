@@ -23,10 +23,6 @@ const RecentDiscussionThreadsList = ({
   const [showShortformFeed, setShowShortformFeed] = useState(false);
   const currentUser = useCurrentUser();
   
-  const {mutate: updateComment} = useUpdate({
-    collection: Comments,
-    fragmentName: 'CommentsList',
-  });
   const { results, loading, loadMore, loadingMore, refetch } = useMulti({
     terms,
     collection: Posts,
@@ -90,7 +86,7 @@ const RecentDiscussionThreadsList = ({
               refetch={refetch}
               comments={post.recentComments}
               expandAllThreads={expandAll}
-              updateComment={updateComment}/>
+            />
           )}
         </div>}
         <AnalyticsInViewTracker eventProps={{inViewType: "loadMoreButton"}}>

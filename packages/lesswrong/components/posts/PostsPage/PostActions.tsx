@@ -42,12 +42,10 @@ const styles = theme => ({
 })
 
 interface ExternalProps {
-  post: any,
+  post: PostsList,
 }
-interface PostActionsProps extends ExternalProps, WithUserProps, WithStylesProps {
+interface PostActionsProps extends ExternalProps, WithUserProps, WithUpdateUserProps, WithUpdatePostProps, WithStylesProps {
   markAsReadOrUnread: any,
-  updatePost: any,
-  updateUser: any,
   setAlignmentPostMutation: any,
 }
 

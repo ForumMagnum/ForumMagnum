@@ -36,7 +36,10 @@ const styles = theme => ({
   },
 });
 
-const PostsItemIcons = ({post, classes}) => {
+const PostsItemIcons = ({post, classes}: {
+  post: PostsBase,
+  classes: ClassesType,
+}) => {
   const { OmegaIcon } = Components;
 
   const isPersonalBlogpost = getSetting('forumType') === 'EAForum' ?

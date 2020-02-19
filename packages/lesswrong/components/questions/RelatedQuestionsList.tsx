@@ -51,7 +51,10 @@ const styles = theme => ({
   }
 })
 
-const RelatedQuestionsList = ({ post, classes }) => {
+const RelatedQuestionsList = ({ post, classes }: {
+  post: PostsDetails,
+  classes: ClassesType,
+}) => {
   const { PostsItem2, SectionTitle } = Components
   
   const sourcePostRelations = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)

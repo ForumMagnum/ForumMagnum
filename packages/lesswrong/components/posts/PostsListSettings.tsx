@@ -197,8 +197,7 @@ interface ExternalProps {
   sortings?: any,
   showTimeframe?: boolean,
 }
-interface PostsListSettingsProps extends ExternalProps, WithUserProps, WithStylesProps {
-  updateUser: any,
+interface PostsListSettingsProps extends ExternalProps, WithUserProps, WithUpdateUserProps, WithStylesProps {
 }
 
 class PostsListSettings extends Component<PostsListSettingsProps> {

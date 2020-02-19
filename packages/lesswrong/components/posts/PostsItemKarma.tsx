@@ -3,7 +3,7 @@ import React from 'react';
 import withHover from '../common/withHover';
 
 const PostsItemKarma = ({post, hover, anchorEl}: {
-  post: any,
+  post: PostsBase,
   read?: boolean,
   hover?: any,
   anchorEl?: any,

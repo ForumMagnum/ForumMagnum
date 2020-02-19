@@ -65,7 +65,11 @@ const styles = theme => ({
   },
 });
 
-const PostsItemTagRelevance = ({tagRel, post, classes}) => {
+const PostsItemTagRelevance = ({tagRel, post, classes}: {
+  tagRel: TagRelFragment,
+  post: PostsBase,
+  classes: ClassesType,
+}) => {
   const { VoteButton } = Components;
   const currentUser = useCurrentUser();
   const vote = useVote();

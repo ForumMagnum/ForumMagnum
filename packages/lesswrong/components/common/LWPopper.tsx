@@ -1,6 +1,6 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import Popper from '@material-ui/core/Popper'
+import Popper, { PopperPlacementType } from '@material-ui/core/Popper'
 
 const styles = theme => ({
   popper: {
@@ -24,8 +24,20 @@ const styles = theme => ({
   }
 })
 
-// this is a thin wrapper over MuiPopper so that we can set the zIndex however we want
-const LWPopper = ({classes, children, onMouseEnter, tooltip=false, modifiers, open, ...props}) => {
+// This is a thin wrapper over material-UI Popper so that we can set default z-index and modifiers
+const LWPopper = ({classes, children, onMouseEnter, tooltip=false, modifiers, open, ...props}: {
+  classes: ClassesType,
+  children: any,
+  onMouseEnter?: any,
+  tooltip?: boolean,
+  modifiers?: any,
+  open: boolean,
+  
+  // Arguments destructured into ...props
+  placement?: PopperPlacementType,
+  anchorEl: any,
+  className?: string,
+}) => {
   const newModifiers = {computeStyle: { gpuAcceleration: false}, ...modifiers}
   return (
     <Popper 

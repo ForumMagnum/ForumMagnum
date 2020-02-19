@@ -9,7 +9,10 @@ const styles = (theme) => ({
   },
 })
 
-const NoContent = ({children, classes}) => {
+const NoContent = ({children, classes}: {
+  children: React.ReactNode,
+  classes: ClassesType,
+}) => {
   return <Typography variant='body2' className={classes.root}>
     {children}
   </Typography>

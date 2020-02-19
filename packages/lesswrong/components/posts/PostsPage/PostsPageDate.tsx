@@ -16,7 +16,11 @@ const styles = theme => ({
   }
 });
 
-const PostsPageDate = ({ post, hasMajorRevision, classes }) => {
+const PostsPageDate = ({ post, hasMajorRevision, classes }: {
+  post: PostsBase,
+  hasMajorRevision: boolean,
+  classes: ClassesType,
+}) => {
   const { FormatDate, PostsRevisionSelector } = Components;
   
   const tooltip = (<div>

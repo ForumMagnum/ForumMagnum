@@ -70,7 +70,7 @@ registerFragment(`
 `)
 
 registerFragment(`
-  fragment CommentWithReplies on Comment {
+  fragment CommentWithRepliesFragment on Comment {
     ...CommentsList
     lastSubthreadActivity
     latestChildren {

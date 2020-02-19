@@ -6,7 +6,10 @@ import withErrorBoundary from '../common/withErrorBoundary';
 
 const MAX_ANSWERS_QUERIED = 100
 
-const PostsPageQuestionContent = ({post, refetch}) => {
+const PostsPageQuestionContent = ({post, refetch}: {
+  post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  refetch: any,
+}) => {
   const currentUser = useCurrentUser();
   const { AnswersList, NewAnswerCommentQuestionForm, CantCommentExplanation, RelatedQuestionsList } = Components
   return (

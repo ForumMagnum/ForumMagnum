@@ -22,7 +22,7 @@ interface ExternalProps {
 }
 interface ShortformTimeBlockProps extends ExternalProps, WithStylesProps {
   networkStatus: any,
-  results: any,
+  results: Array<ShortformComments>|null,
   totalCount: number,
   loadMore: any,
 }

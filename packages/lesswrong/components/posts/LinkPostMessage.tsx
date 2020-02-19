@@ -9,7 +9,10 @@ const styles = theme => ({
   },
 })
 
-const LinkPostMessage = ({post, classes}) => {
+const LinkPostMessage = ({post, classes}: {
+  post: PostsBase,
+  classes: ClassesType
+}) => {
   if (!post.url)
     return null;
 

@@ -39,9 +39,19 @@ const styles = theme => ({
   }
 });
 
+interface PostSubmitProps {
+  submitLabel?: string,
+  cancelLabel?: string,
+  saveDraftLabel?: string,
+  cancelCallback: any,
+  document: PostsPage,
+  collectionName: string,
+  classes: ClassesType
+}
+
 const PostSubmit = ({
   submitLabel = "Submit", cancelLabel = "Cancel", saveDraftLabel = "Save as draft", cancelCallback, document, collectionName, classes
-}, { updateCurrentValues }) => {
+}: PostSubmitProps, { updateCurrentValues }) => {
   return (
     <React.Fragment>
       {!!cancelCallback &&
@@ -93,8 +103,8 @@ PostSubmit.contextTypes = {
 }
 
 
-// Replaces FormSubmit from vulcan-forms.
-const PostSubmitComponent = registerComponent('PostSubmit', PostSubmit, {styles});
+// HACK: Cast PostSubmit to hide the legacy context arguments, to make the type checking work
+const PostSubmitComponent = registerComponent('PostSubmit', (PostSubmit as React.ComponentType<PostSubmitProps>), {styles});
 
 declare global {
   interface ComponentTypes {

@@ -14,7 +14,7 @@ import ThumbUpIcon from '@material-ui/icons/ThumbUp';
 import GroupIcon from '@material-ui/icons/Group';
 
 interface ExternalProps {
-  post: any,
+  post: PostsList,
 }
 interface SunshineNewPostsItemProps extends ExternalProps, WithUserProps, WithHoverProps {
   updatePost: any,

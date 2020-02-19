@@ -23,15 +23,11 @@ const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No C
   const { loadingInitial, loadMoreProps, results } = useMulti({
     terms,
     collection: Comments,
-    fragmentName: 'SelectCommentsList',
+    fragmentName: 'CommentsListWithPostMetadata',
     enableTotal: false,
     pollInterval: 0,
     queryLimitName: "recentCommentsLimit",
     ssr: true
-  });
-  const {mutate: updateComment} = useUpdate({
-    collection: Comments,
-    fragmentName: 'SelectCommentsList',
   });
   if (!loadingInitial && results && !results.length) {
     return (<Typography variant="body2">{noResultsMessage}</Typography>)
@@ -47,7 +43,6 @@ const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No C
           <Components.CommentsNode
             comment={comment}
             post={comment.post}
-            updateComment={updateComment}
             showPostTitle
             startThreadTruncated={truncated}
             forceNotSingleLine

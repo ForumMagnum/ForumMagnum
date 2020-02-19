@@ -8,11 +8,10 @@ import withUser from '../../common/withUser';
 import * as _ from 'underscore';
 
 interface ExternalProps {
-  comment: any,
-  post: any,
+  comment: CommentsList,
+  post: PostsBase,
 }
-interface BanUserFromAllPostsMenuItemProps extends ExternalProps, WithMessagesProps, WithUserProps {
-  updateUser?: any,
+interface BanUserFromAllPostsMenuItemProps extends ExternalProps, WithMessagesProps, WithUserProps, WithUpdateUserProps {
 }
 
 class BanUserFromAllPostsMenuItem extends PureComponent<BanUserFromAllPostsMenuItemProps,{}> {

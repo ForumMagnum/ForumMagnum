@@ -186,8 +186,7 @@ interface ExternalProps {
   toggleIndividuals: any,
   showIndividuals: boolean,
 }
-interface CommunityMapFilterProps extends ExternalProps, WithLocationProps, WithNavigationProps, WithDialogProps, WithUserProps, WithMessagesProps, WithStylesProps {
-  updateUser: any,
+interface CommunityMapFilterProps extends ExternalProps, WithLocationProps, WithNavigationProps, WithDialogProps, WithUserProps, WithUpdateUserProps, WithMessagesProps, WithStylesProps {
 }
 interface CommunityMapFilterState {
   filters: any,

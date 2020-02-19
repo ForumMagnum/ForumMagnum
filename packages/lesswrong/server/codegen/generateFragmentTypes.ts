@@ -148,10 +148,18 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField, collect
     if (parsedFragmentField.selectionSet.selections.length == 1
       && parsedFragmentField.selectionSet.selections[0].kind == "FragmentSpread")
     {
-      return {
-        fieldType: parsedFragmentField.selectionSet.selections[0].name.value,
-        subfragment: null
-      };
+      const subfragmentName = parsedFragmentField.selectionSet.selections[0].name.value;
+      if (fieldType.startsWith("Array<")) {
+        return {
+          fieldType: `Array<${subfragmentName}>`,
+          subfragment: null
+        };
+      } else {
+        return {
+          fieldType: subfragmentName,
+          subfragment: null
+        };
+      }
     }
     else
     {

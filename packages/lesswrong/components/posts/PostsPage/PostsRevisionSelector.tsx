@@ -18,7 +18,7 @@ const styles = theme => ({
 })
 
 interface PostsRevisionSelectorProps extends WithStylesProps {
-  post: any,
+  post: PostsBase,
   format: any,
 }
 interface PostsRevisionSelectorState {

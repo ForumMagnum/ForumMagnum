@@ -4,6 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
 import classNames from 'classnames';
+import { CoreReadingCollection } from '../sequences/CoreReading';
 
 const styles = theme => ({
   root: {
@@ -66,7 +67,12 @@ const styles = theme => ({
   },
 })
 
-const CollectionsCard = ({ collection, url, mergeTitle=false, classes }) => {
+const CollectionsCard = ({ collection, url, mergeTitle=false, classes }: {
+  collection: CoreReadingCollection,
+  url: string,
+  mergeTitle?: boolean,
+  classes: ClassesType,
+}) => {
   const { LinkCard, CloudinaryImage, UsersName } = Components;
   const cardContentStyle = {borderTopColor: collection.color}
 

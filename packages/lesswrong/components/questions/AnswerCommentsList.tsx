@@ -49,7 +49,7 @@ const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}: {
   terms: any,
   lastEvent?: any,
   classes: ClassesType,
-  post: any,
+  post: PostsList,
   parentAnswer: any,
 }) => {
   const [commenting, setCommenting] = React.useState(false);

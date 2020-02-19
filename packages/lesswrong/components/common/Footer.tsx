@@ -7,7 +7,9 @@ const styles = theme => ({
   }
 });
 
-const Footer = ({classes}) => {
+const Footer = ({classes}: {
+  classes: ClassesType,
+}) => {
   return (
     <div className={classes.root} />
   )

@@ -36,7 +36,7 @@ const styles = theme => ({
 })
 
 const CommentsVote = ({ comment, hideKarma=false, classes }: {
-  comment: any,
+  comment: CommentsList,
   hideKarma?: boolean,
   classes: ClassesType,
 }) => {
