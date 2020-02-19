@@ -25,7 +25,7 @@ const styles = theme => ({
     display: "inline-block"
   },
   truncated: {
-    maxHeight: 125,
+    maxHeight: 160,
     overflow: "hidden"
   }
 })
