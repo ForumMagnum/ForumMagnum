@@ -235,36 +235,3 @@ makeEditable({
   options: makeEditableOptions
 })
 
-addFieldsDict(Users, {
-  // Count of the user's comments
-  commentCount: {
-    ...denormalizedCountOfReferences({
-      fieldName: "commentCount",
-      collectionName: "Users",
-      foreignCollectionName: "Comments",
-      foreignTypeName: "comment",
-      foreignFieldName: "userId",
-      filterFn: comment => !comment.deleted
-    }),
-    canRead: ['guests'],
-  }
-});
-
-addFieldsDict(Posts, {
-  // Count of the post's comments
-  commentCount: {
-    type: Number,
-    optional: true,
-    defaultValue: 0,
-    
-    ...denormalizedCountOfReferences({
-      fieldName: "commentCount",
-      collectionName: "Posts",
-      foreignCollectionName: "Comments",
-      foreignTypeName: "comment",
-      foreignFieldName: "postId",
-      filterFn: comment => !comment.deleted
-    }),
-    canRead: ['guests'],
-  },
-});

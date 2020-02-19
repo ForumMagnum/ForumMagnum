@@ -88,6 +88,9 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
 
   if (hidden) { return null }
 
+  const deletedPostCount = user.maxPostCount - user.postCount
+  const deletedCommentCount = user.maxCommentCount - user.commentCount
+
   return (
     <span {...eventHandlers}>
       <SunshineListItem hover={hover}>
@@ -95,8 +98,14 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
           <Typography variant="body2">
             <MetaInfo>
               <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
-              <div>Posts: { user.postCount || 0 }</div>
-              <div>Comments: { user.commentCount || 0 }</div>
+              <div>
+                Posts: { user.postCount || 0 }
+                { deletedPostCount && <span> ({deletedPostCount} deleted)</span>}
+              </div>
+              <div>
+                Comments: { user.commentCount || 0 }
+                { deletedCommentCount && <span> ({deletedCommentCount} deleted)</span>}
+              </div>
               <hr />
               <div>Big Upvotes: { user.bigUpvoteCount || 0 }</div>
               <div>Upvotes: { user.smallUpvoteCount || 0 }</div>

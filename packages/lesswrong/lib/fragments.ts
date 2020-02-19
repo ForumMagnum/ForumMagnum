@@ -270,7 +270,9 @@ registerFragment(`
     createdAt
     email
     commentCount
+    maxCommentCount
     postCount
+    maxPostCount
     voteCount
     smallUpvoteCount
     bigUpvoteCount
