@@ -144,7 +144,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
         }
         { hover && <SidebarActionMenu>
           {/* to fully approve a user, they most have created a post or comment. Users that have only voted can only be snoozed */}
-          {(user.commentCount || user.postCount) ? <SidebarAction title="Review" onClick={handleReview}>
+          {(user.maxCommentCount || user.maxPostCount) ? <SidebarAction title="Review" onClick={handleReview}>
             <DoneIcon />
           </SidebarAction> : null}
           <SidebarAction title="Snooze" onClick={handleSnooze}>
