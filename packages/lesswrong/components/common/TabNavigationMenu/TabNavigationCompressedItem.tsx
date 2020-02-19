@@ -3,7 +3,6 @@ import React from 'react';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper';
 import classNames from 'classnames';
-import Tooltip from '@material-ui/core/Tooltip';
 
 const compressedIconSize = 23
 

@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
-import Tooltip from '@material-ui/core/Tooltip';
 import withUser from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper'
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'

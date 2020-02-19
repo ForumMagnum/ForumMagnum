@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = (theme) => ({
   root: {
