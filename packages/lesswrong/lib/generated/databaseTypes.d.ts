@@ -89,6 +89,7 @@ interface DbUser extends DbObject {
   needsReview: boolean
   sunshineSnoozed: boolean
   reviewedByUserId: string
+  reviewedAt: Date
   afKarma: number
   voteCount: number
   smallUpvoteCount: number

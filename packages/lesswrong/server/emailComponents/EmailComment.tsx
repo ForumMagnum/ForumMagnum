@@ -52,7 +52,7 @@ const EmailComment = ({commentId, classes}) => {
     documentId: commentId,
     
     collection: Comments,
-    fragmentName: "SelectCommentsList",
+    fragmentName: "CommentsListWithPostMetadata",
   });
   
   if (loading) return null;
