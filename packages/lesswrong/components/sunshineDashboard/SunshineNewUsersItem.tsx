@@ -100,11 +100,11 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
               <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
               <div>
                 Posts: { user.postCount || 0 }
-                { deletedPostCount && <span> ({deletedPostCount} deleted)</span>}
+                { deletedPostCount ? <span> ({deletedPostCount} deleted)</span> : null}
               </div>
               <div>
                 Comments: { user.commentCount || 0 }
-                { deletedCommentCount && <span> ({deletedCommentCount} deleted)</span>}
+                { deletedCommentCount ? <span> ({deletedCommentCount} deleted)</span> : null}
               </div>
               <hr />
               <div>Big Upvotes: { user.bigUpvoteCount || 0 }</div>

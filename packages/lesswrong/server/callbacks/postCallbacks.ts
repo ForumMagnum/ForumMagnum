@@ -178,3 +178,10 @@ export async function shouldNewDocumentTriggerReview (document) {
   return document
 }
 addCallback("posts.new.after", shouldNewDocumentTriggerReview);
+
+async function shouldUpdatedPostTriggerReview (newPost, oldPost) {
+  if (!newPost.draft && oldPost.draft) {
+    shouldNewDocumentTriggerReview(newPost)
+  }
+}
+addCallback("posts.edit.async", shouldUpdatedPostTriggerReview);
