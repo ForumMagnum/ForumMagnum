@@ -219,7 +219,7 @@ class PostsListSettings extends Component<PostsListSettingsProps> {
       classes, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma,
       timeframes = defaultTimeframs, sortings = defaultSortings, showTimeframe
     } = this.props
-    const { MetaInfo } = Components
+    const { MetaInfo, LWTooltip } = Components
 
     return (
       <div className={classNames(classes.root, {[classes.hidden]: hidden})}>
@@ -250,7 +250,7 @@ class PostsListSettings extends Component<PostsListSettingsProps> {
           classes={classes}
         />
 
-        <Tooltip title={<div><div>By default, posts below -10 karma are hidden.</div><div>Toggle to show them.</div></div>} placement="right-start">
+        <LWTooltip title={<div><div>By default, posts below -10 karma are hidden.</div><div>Toggle to show them.</div></div>} placement="right-start">
           <QueryLink
             className={classes.checkboxGroup}
             onClick={() => this.setSetting('showLowKarma', !currentShowLowKarma)}
@@ -263,7 +263,7 @@ class PostsListSettings extends Component<PostsListSettingsProps> {
               Show Low Karma
             </MetaInfo>
           </QueryLink>
-        </Tooltip>
+        </LWTooltip>
       </div>
     );
   }
