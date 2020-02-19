@@ -1,8 +1,7 @@
 import { Comments } from "./collection";
 import Users from "../users/collection";
 import { makeEditable } from '../../editor/make_editable'
-import { Posts } from '../posts';
-import { foreignKeyField, addFieldsDict, denormalizedCountOfReferences } from '../../utils/schemaUtils'
+import { foreignKeyField, addFieldsDict } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 
 export const moderationOptionsGroup = {
