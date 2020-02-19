@@ -3,7 +3,6 @@ import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import classNames from 'classnames'
 import Checkbox from '@material-ui/core/Checkbox';
-import Tooltip from '@material-ui/core/Tooltip';
 import Users from '../../lib/collections/users/collection';
 import { QueryLink } from '../../lib/reactRouterWrapper'
 import * as _ from 'underscore';
@@ -149,7 +148,7 @@ const styles = theme => ({
 })
 
 const SettingsColumn = ({type, title, options, currentOption, classes, setSetting}) => {
-  const { MetaInfo } = Components
+  const { MetaInfo, LWTooltip } = Components
 
   return <div className={classes.selectionList}>
     <MetaInfo className={classes.selectionTitle}>
@@ -167,9 +166,9 @@ const SettingsColumn = ({type, title, options, currentOption, classes, setSettin
         >
           <MetaInfo className={classNames(classes.menuItem, {[classes.selected]: currentOption === name})}>
             {optionValue.tooltip ?
-              <Tooltip title={<div>{optionValue.tooltip}</div>} placement="left-start">
+              <LWTooltip title={<div>{optionValue.tooltip}</div>} placement="left-start">
                 <span>{ label }</span>
-              </Tooltip> :
+              </LWTooltip> :
               <span>{ label }</span>
             }
           </MetaInfo>

@@ -3,7 +3,6 @@ import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
-import Tooltip from '@material-ui/core/Tooltip';
 
 const smallIconSize = 23
 
@@ -53,10 +52,10 @@ const styles = theme => ({
 })
 
 const TabNavigationFooterItem = ({tab, classes}) => {
-  const { TabNavigationSubItem } = Components
+  const { TabNavigationSubItem, LWTooltip} = Components
   const { pathname } = useLocation()
 
-  return <Tooltip placement='right-start' title={tab.tooltip || ''}>
+  return <LWTooltip placement='top' title={tab.tooltip || ''}>
     <Link
       to={tab.link}
       className={classNames(classes.navButton, {[classes.selected]: pathname === tab.link})}
@@ -76,7 +75,7 @@ const TabNavigationFooterItem = ({tab, classes}) => {
         </span>
       }
     </Link>
-  </Tooltip>
+  </LWTooltip>
 }
 
 const TabNavigationFooterItemComponent = registerComponent(

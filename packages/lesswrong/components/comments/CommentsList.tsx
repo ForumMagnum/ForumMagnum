@@ -5,7 +5,6 @@ import { Comments } from "../../lib/collections/comments";
 import { shallowEqual, shallowEqualExcept } from '../../lib/utils/componentUtils';
 import { Posts } from '../../lib/collections/posts';
 import withGlobalKeydown from '../common/withGlobalKeydown';
-import Tooltip from '@material-ui/core/Tooltip';
 import { Link } from '../../lib/reactRouterWrapper';
 import { TRUNCATION_KARMA_THRESHOLD } from '../../lib/editor/ellipsize'
 import withUser from '../common/withUser';
@@ -100,24 +99,24 @@ class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
   renderExpandOptions = () => {
     const { currentUser, classes, totalComments=0 } = this.props;
     const { expandAllThreads } = this.state
-    const { SettingsIcon, CommentsListMeta, LoginPopupButton } = Components
+    const { SettingsIcon, CommentsListMeta, LoginPopupButton, LWTooltip } = Components
     if  (totalComments > POST_COMMENT_COUNT_TRUNCATE_THRESHOLD) {
 
       const expandTooltip = `Posts with more than ${POST_COMMENT_COUNT_TRUNCATE_THRESHOLD} comments automatically truncate replies with less than ${TRUNCATION_KARMA_THRESHOLD} karma. Click or press ⌘F to expand all.`
 
       return <CommentsListMeta>
         <span>
-          Some comments are truncated due to high volume. <Tooltip title={expandTooltip}>
+          Some comments are truncated due to high volume. <LWTooltip title={expandTooltip}>
             <a className={!expandAllThreads && classes.button} onClick={()=>this.setState({expandAllThreads: true})}>(⌘F to expand all)</a>
-          </Tooltip>
+          </LWTooltip>
         </span>
         {currentUser 
           ? 
-            <Tooltip title="Go to your settings page to update your Comment Truncation Options">
+            <LWTooltip title="Go to your settings page to update your Comment Truncation Options">
               <Link to="/account">
                 <SettingsIcon label="Change default truncation settings" />
               </Link>
-            </Tooltip>
+            </LWTooltip>
           : 
             <LoginPopupButton title={"Login to change default truncation settings"}>
               <SettingsIcon label="Change truncation settings" />

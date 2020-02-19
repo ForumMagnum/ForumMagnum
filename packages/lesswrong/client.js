@@ -1,4 +1,5 @@
 
+import './client/vulcan-lib/main';
 import './lib/vulcan-lib';
 import './client/vulcan-core/start';
 

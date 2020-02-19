@@ -12,6 +12,8 @@ if(getSetting('forumType') === 'AlignmentForum') {
 if (getSetting('forumType') === 'EAForum') {
   importComponent("EAHome", () => require('../components/ea-forum/EAHome'));
   importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
+  importComponent("EAHomeHandbook", () => require('../components/ea-forum/EAHomeHandbook'));
+  importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
 }
 
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
@@ -72,6 +74,7 @@ importComponent("HoverOver", () => require('../components/common/HoverOver'));
 importComponent("ErrorBoundary", () => require('../components/common/ErrorBoundary'));
 importComponent("ErrorMessage", () => require('../components/common/ErrorMessage'));
 importComponent("CloudinaryImage", () => require('../components/common/CloudinaryImage'));
+importComponent("CloudinaryImage2", () => require('../components/common/CloudinaryImage2'));
 importComponent("ContentItemBody", () => require('../components/common/ContentItemBody'));
 importComponent("LWPopper", () => require('../components/common/LWPopper'));
 importComponent("LWTooltip", () => require('../components/common/LWTooltip'));

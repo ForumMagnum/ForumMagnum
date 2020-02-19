@@ -677,7 +677,7 @@ addFieldsDict(Posts, {
     hidden: true,
     group: formGroups.event,
     viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
     insertableBy: ['members'],
     optional: true,
     ...schemaDefaultValue(false),

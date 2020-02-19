@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import Tooltip from '@material-ui/core/Tooltip';
 import { useCurrentUser } from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 
@@ -29,7 +28,7 @@ export const reviewAlgorithm = {
 }
 
 const FrontpageReviewPhase = ({classes, settings}) => {
-  const { SectionSubtitle, SectionFooter, RecommendationsList, HoverPreviewLink } = Components
+  const { SectionSubtitle, SectionFooter, RecommendationsList, HoverPreviewLink, LWTooltip } = Components
   const currentUser = useCurrentUser();
 
   const reviewTooltip = <div>
@@ -47,7 +46,7 @@ const FrontpageReviewPhase = ({classes, settings}) => {
 
   return (
     <div>
-      <Tooltip placement="top-start" title={reviewTooltip}>
+      <LWTooltip placement="top-start" title={reviewTooltip}>
         <div>
           <SectionSubtitle >
             <Link to={"/reviews"}>
@@ -60,7 +59,7 @@ const FrontpageReviewPhase = ({classes, settings}) => {
             </div>
           </SectionSubtitle>
         </div>
-      </Tooltip>
+      </LWTooltip>
       <AnalyticsContext listContext={"LessWrong 2018 Review"} capturePostItemOnMount>
         <RecommendationsList algorithm={reviewAlgorithm} showLoginPrompt={false} />
       </AnalyticsContext>

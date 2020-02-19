@@ -19,9 +19,6 @@ const styles = theme => ({
     }
   },
   personalBlogpostsCheckboxLabel: {
-    display: "inline-block",
-    verticalAlign: "middle",
-
     [theme.breakpoints.down("xs")]: {
       width: 105,
     },
