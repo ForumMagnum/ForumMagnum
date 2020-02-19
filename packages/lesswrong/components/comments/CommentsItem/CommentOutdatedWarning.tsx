@@ -1,8 +1,7 @@
-import { registerComponent } from '../../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React from 'react';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import HistoryIcon from '@material-ui/icons/History';
-import Tooltip from '@material-ui/core/Tooltip';
 import { QueryLink } from '../../../lib/reactRouterWrapper';
 
 const styles = theme => ({
@@ -25,10 +24,13 @@ function postHadMajorRevision(comment, post) {
 const CommentOutdatedWarning = ({comment, post, classes}) => {
   if (!postHadMajorRevision(comment, post))
     return null;
+
+  const { LWTooltip } = Components
+
   return (
-    <Tooltip title="The top-level post had major updates since this comment was created. Click to see post at time of creation.">
+    <LWTooltip title="The top-level post had major updates since this comment was created. Click to see post at time of creation.">
       <QueryLink query={{revision: comment.postVersion}} merge><HistoryIcon className={classes.icon}/> Response to previous version </QueryLink>
-    </Tooltip>
+    </LWTooltip>
   );
 };
 

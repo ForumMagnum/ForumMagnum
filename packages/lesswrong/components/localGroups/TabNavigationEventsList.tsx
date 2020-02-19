@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts';
-import Tooltip from '@material-ui/core/Tooltip';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../lib/reactRouterWrapper';
 import { createStyles } from '@material-ui/core/styles'
@@ -86,7 +85,7 @@ const TabNavigationEventsList = ({ terms, onClick, classes }) => {
     fetchPolicy: 'cache-and-network',
     ssr: true
   });
-  const { TabNavigationSubItem, EventTime } = Components
+  const { TabNavigationSubItem, EventTime, LWTooltip } = Components
 
   if (!results) return null
 
@@ -132,7 +131,7 @@ const TabNavigationEventsList = ({ terms, onClick, classes }) => {
           </div>
 
         return (
-          <Tooltip key={event._id} placement="right-start" title={tooltip}>
+          <LWTooltip key={event._id} placement="right-start" title={tooltip}>
             <MenuItemUntyped
               onClick={onClick}
               component={Link} to={Posts.getPageUrl(event)}
@@ -147,7 +146,7 @@ const TabNavigationEventsList = ({ terms, onClick, classes }) => {
                 <span className={classes.title}>{event.title}</span>
               </TabNavigationSubItem>
             </MenuItemUntyped>
-          </Tooltip>
+          </LWTooltip>
         )
       })}
     </div>

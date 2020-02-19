@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts/collection';
-import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = theme => ({
   root: {
@@ -26,7 +25,7 @@ const PingbacksList = ({classes, postId}) => {
     ssr: true
   });
 
-  const { SectionSubtitle, Pingback, Loading } = Components
+  const { SectionSubtitle, Pingback, Loading, LWTooltip } = Components
 
   if (loading)
     return <Loading/>
@@ -35,9 +34,9 @@ const PingbacksList = ({classes, postId}) => {
     if (results.length > 0) {
       return <div className={classes.root}>
         <SectionSubtitle>
-          <Tooltip title="Posts that linked to this post" placement="right">
+          <LWTooltip title="Posts that linked to this post" placement="right">
             <span>Pingbacks</span>
-          </Tooltip>
+          </LWTooltip>
         </SectionSubtitle>
         <div className={classes.list}>
           {results.map((post, i) => 

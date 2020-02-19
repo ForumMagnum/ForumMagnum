@@ -13,7 +13,6 @@ import EditorForm from '../async/EditorForm'
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import withErrorBoundary from '../common/withErrorBoundary';
-import Tooltip from '@material-ui/core/Tooltip';
 import { userHasCkEditor } from '../../lib/betas';
 import * as _ from 'underscore';
 import { Meteor } from 'meteor/meteor';
@@ -558,10 +557,11 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
 
   renderEditorTypeSelect = () => {
     const { currentUser, classes } = this.props
+    const { LWTooltip } = Components
     if (!userHasCkEditor(currentUser) && !currentUser?.isAdmin) return null
     const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
     return (
-      <Tooltip title="Warning! Changing format will erase your content" placement="left">
+      <LWTooltip title="Warning! Changing format will erase your content" placement="left">
         <Select
           className={classes.select}
           value={this.getCurrentEditorType()}
@@ -574,7 +574,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
               </MenuItem>
             )}
           </Select>
-      </Tooltip>
+      </LWTooltip>
     )
   }
 

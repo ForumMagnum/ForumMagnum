@@ -1,6 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import Tooltip from '@material-ui/core/Tooltip';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 
@@ -18,10 +17,11 @@ const LoginPopupButton = ({classes, children, title}) => {
   // openDialog + "LoginPopup" to their functionality
   const { openDialog } = useDialog();
 
+  const { LWTooltip } = Components
   if (currentUser) return null
 
   return (
-    <Tooltip title={title}>
+    <LWTooltip title={title}>
       <a className={classes.root} onClick={(ev) => {
           if (!currentUser) {
             openDialog({
@@ -34,7 +34,7 @@ const LoginPopupButton = ({classes, children, title}) => {
       >
         { children }
       </a>
-    </Tooltip>
+    </LWTooltip>
   )
 }
 

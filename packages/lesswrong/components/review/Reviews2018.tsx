@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCurrentUser } from '../common/withUser';
 import Users from '../../lib/collections/users/collection';
-import Tooltip from '@material-ui/core/Tooltip';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 
@@ -36,7 +35,7 @@ const Reviews2018 = ({classes}) => {
     collection: Users,
     fragmentName: 'UsersCurrent',
   });
-  const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox, RecentComments } = Components
+  const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox, RecentComments, LWTooltip } = Components
 
   const handleSetExpandUnread = () => {
     if (currentUser) {
@@ -55,13 +54,13 @@ const Reviews2018 = ({classes}) => {
       <SingleColumnSection>
         <SectionTitle title="Nominated Posts for the 2018 Review"/>
         <div className={classes.settings}>
-          <Tooltip title="If checked, posts with unread comments will be sorted first" placement="top">
+          <LWTooltip title="If checked, posts with unread comments will be sorted first" placement="top">
             <SectionFooterCheckbox
               onClick={handleSetExpandUnread}
               value={expandUnread}
               label={<div className={classes.personalBlogpostsCheckboxLabel}>Expand Unread Comments</div>}
             />
-          </Tooltip>
+          </LWTooltip>
           <Select
             value={sortNominatedPosts}
             onChange={(e)=>setSortNominatedPosts(e.target.value)}

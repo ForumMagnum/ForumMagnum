@@ -3,7 +3,6 @@ import React from 'react';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper';
 import classNames from 'classnames';
-import Tooltip from '@material-ui/core/Tooltip';
 import { useLocation } from '../../../lib/routeUtil';
 
 export const iconWidth = 30
@@ -63,7 +62,7 @@ const styles = theme => ({
 })
 
 const TabNavigationItem = ({tab, onClick, classes}) => {
-  const { TabNavigationSubItem } = Components
+  const { TabNavigationSubItem, LWTooltip } = Components
   const { pathname } = useLocation()
   
   // MenuItem takes a component and passes unrecognized props to that component,
@@ -71,7 +70,7 @@ const TabNavigationItem = ({tab, onClick, classes}) => {
   // Case to any to work around it, to be able to pass a "to" parameter.
   const MenuItemUntyped = MenuItem as any;
 
-  return <Tooltip placement='right-start' title={tab.tooltip || ''}>
+  return <LWTooltip placement='right-start' title={tab.tooltip || ''}>
     <MenuItemUntyped
       onClick={onClick}
       component={Link} to={tab.link}
@@ -98,7 +97,7 @@ const TabNavigationItem = ({tab, onClick, classes}) => {
         </span>
       }
     </MenuItemUntyped>
-  </Tooltip>
+  </LWTooltip>
 }
 
 const TabNavigationItemComponent = registerComponent(
