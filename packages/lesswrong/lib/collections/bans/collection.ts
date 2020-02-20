@@ -20,7 +20,7 @@ const options = {
   },
 }
 
-export const Bans = createCollection({
+export const Bans: BansCollection = createCollection({
   collectionName: 'Bans',
   typeName: 'Ban',
   schema,

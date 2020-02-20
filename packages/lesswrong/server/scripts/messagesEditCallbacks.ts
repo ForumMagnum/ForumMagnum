@@ -10,9 +10,12 @@ Vulcan.runMessagesEditCallbacks = async () => {
   //eslint-disable-next-line no-console
   console.log(`Found ${messages.length} messages, triggering Edit Callbacks`)
   for (let message of messages) {
+    // @ts-ignore FIXME This should be "contents" (with an 's'). This script is probably mostly broken.
     if (message.content) {
       try {
+        // @ts-ignore FIXME contents, not content
         const newMessageFields = await runCallbacks("messages.edit.sync", {$set: {content:message.content}}, message, {isAdmin: false})
+        // @ts-ignore FIXME This has too many arguments and I don't know wihat "isAdmin" is supposed to be
         Messages.update(message._id,newMessageFields, message, {isAdmin: false})
       } catch (e) {
         //eslint-disable-next-line no-console

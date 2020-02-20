@@ -84,7 +84,7 @@ const generateDataLoaders = (context) => {
   // go over context and add Dataloader to each collection
   Collections.forEach(collection => {
     context[collection.options.collectionName].loader = new DataLoader(
-      ids => findByIds(collection, ids, context),
+      (ids: Array<string>) => findByIds(collection, ids, context),
       {
         cache: true,
       }

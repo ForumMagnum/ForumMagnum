@@ -19,7 +19,7 @@ const styles = theme => ({
 
 const SunshineNewUserCommentsList = ({terms, classes, truncated=false}: {
   terms: any,
-  classes: any,
+  classes: ClassesType,
   truncated?: boolean,
 }) => {
   const { results, loading } = useMulti({

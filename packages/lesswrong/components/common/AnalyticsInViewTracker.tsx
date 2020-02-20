@@ -6,7 +6,7 @@ const AnalyticsInViewTracker = ({eventType, eventProps, observerProps, children,
   eventType?: string,
   eventProps?: Record<string,any>,
   observerProps?: Record<string,any>,
-  children?: any,
+  children?: React.ReactNode,
   skip?: boolean,
 }) => {
   const { setNode, entry } = useIsInView(observerProps)

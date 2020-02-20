@@ -10,10 +10,10 @@ async function rssImport(userId, rssURL, pages = 100, overwrite = false, feedNam
     let rssPageImports: Array<any> = [];
     let rssFeed = RSSFeeds.findOne({nickname: feedName});
     if (!rssFeed) {
-      rssFeed = newMutation({
+      rssFeed = (await newMutation({
         collection: RSSFeeds,
         document: {userId, ownedByUser: true, displayFullContent: true, nickname: feedName, url: feedLink}
-      })
+      })).data;
     }
     //eslint-disable-next-line no-console
     console.log(rssFeed);

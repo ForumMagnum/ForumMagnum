@@ -158,7 +158,7 @@ async function UpdateCommentHideKarma (newPost, oldPost) {
 
   const comments = Comments.find({postId: newPost._id})
   if (!comments.count()) return
-  const updates = comments.map(comment => ({
+  const updates = comments.fetch().map(comment => ({
     updateOne: {
       filter: {
         _id: comment._id,

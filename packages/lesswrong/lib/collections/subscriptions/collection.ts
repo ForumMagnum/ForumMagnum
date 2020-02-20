@@ -14,7 +14,7 @@ const options = {
   delete: false
 }
 
-export const Subscriptions = createCollection({
+export const Subscriptions: SubscriptionsCollection = createCollection({
   collectionName: 'Subscriptions',
   typeName: 'Subscription',
   schema,

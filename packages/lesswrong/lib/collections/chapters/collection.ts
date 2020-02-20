@@ -25,7 +25,7 @@ const options = {
   },
 }
 
-export const Chapters = createCollection({
+export const Chapters: ChaptersCollection = createCollection({
   collectionName: 'Chapters',
   typeName: 'Chapter',
   schema,

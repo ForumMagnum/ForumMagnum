@@ -32,7 +32,7 @@ const styles = theme => ({
 const BooksItem = ({ book, canEdit, classes }: {
   book: any,
   canEdit: boolean,
-  classes: any,
+  classes: ClassesType,
 }) => {
   const [edit,setEdit] = useState(false);
 

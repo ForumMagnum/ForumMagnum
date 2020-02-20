@@ -59,7 +59,7 @@ const styles = (theme) => ({
 
 const SectionTitle = ({children, classes, className, title, dividers=true}: {
   children?: any,
-  classes: any,
+  classes: ClassesType,
   className?: string,
   title: any,
   dividers?: boolean,

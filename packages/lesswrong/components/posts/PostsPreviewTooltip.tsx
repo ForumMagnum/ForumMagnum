@@ -132,7 +132,7 @@ const getPostCategory = (post) => {
 const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
   postsList?: boolean,
   post: any,
-  classes: any,
+  classes: ClassesType,
   comment?: any,
 }) => {
   const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, LWTooltip } = Components

@@ -40,40 +40,9 @@ Users.getUserName = function(user) {
   }
 };
 
-/**
- * @summary Get a user's display name (not unique, can take special characters and spaces)
- * @param {Object} user
- */
-Users.getDisplayName = function(user) {
-  if (!user) {
-    return '';
-  } else {
-    return user.displayName ? user.displayName : Users.getUserName(user);
-  }
-};
 Users.getDisplayNameById = function(userId) {
   return Users.getDisplayName(Users.findOne(userId));
 };
-export const getDisplayName = Users.getDisplayName;
-
-/**
- * @summary Get a user's profile URL
- * @param {Object} user (note: we only actually need either the _id or slug properties)
- * @param {Boolean} isAbsolute
- */
-Users.getProfileUrl = function(user, isAbsolute) {
-  if (typeof user === 'undefined') {
-    return '';
-  }
-  isAbsolute = typeof isAbsolute === 'undefined' ? false : isAbsolute; // default to false
-  var prefix = isAbsolute ? Utils.getSiteUrl().slice(0, -1) : '';
-  if (user.slug) {
-    return `${prefix}/users/${user.slug}`;
-  } else {
-    return '';
-  }
-};
-export const getProfileUrl = Users.getProfileUrl;
 
 /**
  * @summary Get a user's account edit URL

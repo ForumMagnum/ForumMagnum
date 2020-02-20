@@ -73,7 +73,7 @@ const CommunityMap = ({ groupTerms, eventTerms, initialOpenWindows = [], center 
   initialOpenWindows: Array<any>,
   center: any,
   zoom: number,
-  classes: any,
+  classes: ClassesType,
   showUsers?: boolean,
   showHideMap?: boolean,
   petrovButton?: boolean,

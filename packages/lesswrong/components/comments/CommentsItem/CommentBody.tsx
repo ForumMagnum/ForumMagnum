@@ -40,7 +40,7 @@ const CommentBody = ({ comment, classes, collapsed, truncated, postPage }: {
   collapsed?: boolean,
   truncated?: boolean,
   postPage?: boolean,
-  classes: any,
+  classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
   const { ContentItemBody, CommentDeletedMetadata } = Components

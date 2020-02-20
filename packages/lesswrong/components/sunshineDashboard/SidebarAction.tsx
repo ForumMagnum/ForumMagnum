@@ -29,8 +29,8 @@ const styles = (theme) => ({
 })
 
 const SidebarAction = ({children, classes, title, warningHighlight, onClick}: {
-  children?: any,
-  classes: any,
+  children?: React.ReactNode,
+  classes: ClassesType,
   title: string,
   warningHighlight?: boolean,
   onClick: ()=>void,

@@ -1,15 +1,24 @@
 import * as _ from 'underscore';
 
+interface HasIdType {
+  _id: string
+  parentCommentId: string
+}
+interface CommentTreeNode<T extends HasIdType> {
+  item: T,
+  children: Array<CommentTreeNode<T>>
+}
+
 // Given a set of comments with `parentCommentId`s in them, restructure as a
 // tree. Do this in a functional way: rather than edit a children property into
 // the existing comments (which requires cloning), like Vulcan-Starter does,
 // wrap the comments in an object with `item` and `children` fields. This
 // avoids cloning the comment object, which is good because the clone messes
 // with React's ability to detect whether updates are needed.
-export function unflattenComments(comments)
+export function unflattenComments<T extends HasIdType>(comments: Array<T>): Array<CommentTreeNode<T>>
 {
-  const resultsRestructured = _.map(comments, comment => { return { item:comment, children:[] }});
-  return unflattenCommentsRec(resultsRestructured, undefined, undefined);
+  const resultsRestructured = _.map(comments, (comment:T): CommentTreeNode<T> => { return { item:comment, children:[] }});
+  return unflattenCommentsRec(resultsRestructured);
 }
 
 export function addGapIndicators(comments) {
@@ -25,11 +34,11 @@ export function addGapIndicators(comments) {
 
 // Recursive portion of unflattenComments. Produced by incremental modification
 // of Vulcan's Utils.unflatten.
-function unflattenCommentsRec(array, parent, tree)
+function unflattenCommentsRec<T extends HasIdType>(array: Array<CommentTreeNode<T>>, parent?: CommentTreeNode<T>): Array<CommentTreeNode<T>>
 {
-  tree = typeof tree !== "undefined" ? tree : [];
+  let tree: Array<CommentTreeNode<T>> = [];
 
-  let children = [];
+  let children: Array<CommentTreeNode<T>> = [];
 
   if (typeof parent === "undefined") {
     let commentDict = {}
@@ -38,11 +47,11 @@ function unflattenCommentsRec(array, parent, tree)
     })
     // if there is no parent, we're at the root level
     // so we return all root nodes (i.e. nodes with no parent)
-    children = _.filter(array, node => (!node.item.parentCommentId || !commentDict[node.item.parentCommentId]));
+    children = _.filter(array, (node:CommentTreeNode<T>) => (!node.item.parentCommentId || !commentDict[node.item.parentCommentId]));
   } else {
     // if there *is* a parent, we return all its child nodes
     // (i.e. nodes whose parentId is equal to the parent's id.)
-    children = _.filter(array, node => node.item.parentCommentId === parent.item._id);
+    children = _.filter(array, (node:CommentTreeNode<T>) => node.item.parentCommentId === parent.item._id);
   }
 
   // if we found children, we keep on iterating
@@ -58,7 +67,7 @@ function unflattenCommentsRec(array, parent, tree)
 
     // we call the function on each child
     children.forEach(child => {
-      unflattenCommentsRec(array, child, undefined);
+      unflattenCommentsRec(array, child);
     });
   }
 

@@ -30,7 +30,7 @@ export const viewFieldAllowAny = {allowAny:true};
 export const getCollectionName = typeName => Utils.pluralize(typeName);
 
 // TODO: find more reliable way to get type name from collection name?
-export const getTypeName = collectionName => collectionName.slice(0, -1);
+export const getTypeName = (collectionName: CollectionNameString) => collectionName.slice(0, -1);
 
 /**
  * @summary replacement for Collection2's attachSchema. Pass either a schema, to
@@ -128,7 +128,7 @@ Mongo.Collection.prototype.helpers = function(helpers) {
   });
 };
 
-export const createCollection = options => {
+export const createCollection = (options: any): any => {
   const {
     typeName,
     collectionName = getCollectionName(typeName),

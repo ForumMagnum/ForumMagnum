@@ -15,7 +15,7 @@ const styles = theme => ({
 
 const PostsItemNewCommentsWrapper = ({ terms, classes, title, highlightDate, post, condensed, hideReadComments, markAsRead, forceSingleLine, hideSingleLineMeta }: {
   terms: any,
-  classes: any,
+  classes: ClassesType,
   title?: string,
   highlightDate: Date,
   post: any,

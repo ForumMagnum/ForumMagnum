@@ -20,12 +20,12 @@ const getLessWrongAccount = async () => {
       username: "LessWrong",
       email: "lesswrong@lesswrong.com",
     }
-    account = await newMutation({
+    const newAccount = await newMutation({
       collection: Users,
       document: userData,
       validate: false,
     })
-    return account.data
+    return newAccount.data
   }
   return account;
 }

@@ -14,8 +14,8 @@ const styles = (theme) => ({
 })
 
 const SidebarInfo = ({children, classes, className}: {
-  children: any,
-  classes: any,
+  children: React.ReactNode,
+  classes: ClassesType,
   className?: string,
 }) => {
   return <Typography

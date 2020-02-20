@@ -16,8 +16,8 @@ const styles = (theme) => ({
 })
 
 const SectionButton = ({children, classes, className}: {
-  children?: any,
-  classes: any,
+  children?: React.ReactNode,
+  classes: ClassesType,
   className?: string,
 }) => {
   return <Typography component='span' variant='body2' className={classNames(classes.root, className)}>

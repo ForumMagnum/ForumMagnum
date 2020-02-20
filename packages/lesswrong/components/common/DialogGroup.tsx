@@ -11,7 +11,7 @@ interface DialogGroupProps {
   trigger: any,
   actions: Array<any>,
   open?: boolean,
-  children?: any,
+  children?: React.ReactNode,
 }
 interface DialogGroupState {
   open: boolean,

@@ -12,7 +12,7 @@ addCronJob({
   job() {
     const feedparser = require('feedparser-promised');
 
-    RSSFeeds.find({status: {$ne: 'inactive'}}).forEach(feed => {
+    RSSFeeds.find({status: {$ne: 'inactive'}}).fetch().forEach(feed => {
       // create array of all posts in current rawFeed object
       let previousPosts = feed.rawFeed || [];
 

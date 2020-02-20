@@ -4,7 +4,7 @@ import { extractVersionsFromSemver } from '../../editor/utils'
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import Users from '../users/collection';
 
-export const Revisions = createCollection({
+export const Revisions: RevisionsCollection = createCollection({
   collectionName: 'Revisions',
   typeName: 'Revision',
   schema,
