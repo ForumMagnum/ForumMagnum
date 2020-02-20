@@ -14,7 +14,8 @@ const SunshineNewUsersList = ({ terms, allowContentPreview }: {
     collection: Users,
     fragmentName: 'SunshineUsersList',
     enableTotal: true,
-    ssr: true
+    ssr: true,
+    itemsPerPage: 60
   });
   const { SunshineListCount, SunshineListTitle, SunshineNewUsersItem, LoadMore } = Components
   if (results && results.length && Users.canDo(currentUser, "posts.moderate.all")) {

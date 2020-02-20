@@ -95,6 +95,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
           <Typography variant="body2">
             <MetaInfo>
               {user.reviewedAt ? <p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by {user.reviewedByUserId}</em></p> : null }
+              {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
               <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
               <div>Posts: { user.postCount || 0 }</div>
               <div>Comments: { user.commentCount || 0 }</div>
