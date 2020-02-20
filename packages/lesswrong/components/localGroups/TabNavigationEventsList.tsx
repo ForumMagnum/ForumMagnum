@@ -39,7 +39,7 @@ const styles = createStyles(theme => ({
     fontWeight: 600,
   },
   tooltipLogisticsTitle: {
-    fontSize: ".75rem",
+    ...theme.typography.tinyText,
     fontStyle: "italic",
     marginTop: theme.spacing.unit
   },

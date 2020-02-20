@@ -11,7 +11,7 @@ function getDateFormat(dense, isThisYear) {
       return 'DD MMM YYYY'; // 5 Jan 2020
     }
   } else {
-    return 'Do MMMM YYYY'; // 5th January 2020
+    return 'dddd Do MMMM YYYY'; // 5th January 2020
   }
 }
 
@@ -26,14 +26,14 @@ const EventTime = ({post, dense=false}: {
   const isThisYear = moment(new Date()).format("YYYY") === moment(start).format("YYYY");
 
   // Date and time formats
-  const timeFormat = 'h:mm A z'; // 11:30 AM PDT
+  const timeFormat = 'h:mm a z'; // 11:30 AM PDT
   const dateFormat = getDateFormat(dense, isThisYear);
   const dateAndTimeFormat = dateFormat+', '+timeFormat;
   const calendarFormat = {sameElse : dateAndTimeFormat}
 
   // Alternate formats omitting the timezone, for the start time in a
   // start-end range.
-  const startTimeFormat = 'h:mm A'; // 11:30 AM
+  const startTimeFormat = 'h:mm a'; // 11:30 AM
   const startCalendarFormat = {sameElse: dateFormat+', '+startTimeFormat};
 
   // Neither start nor end time specified
@@ -57,8 +57,10 @@ const EventTime = ({post, dense=false}: {
     //   January 15, 19:00 to January 16 12:00 PDT
     // In both cases we avoid duplicating the timezone.
     if (start.format("YYYY-MM-DD") === end.format("YYYY-MM-DD")) {
-      return start.format(dateFormat) + ', ' +
-        start.format(startTimeFormat) + '-' + end.format(timeFormat);
+      return <div>
+        <div>{start.format(dateFormat)}</div>
+        <div>{start.format(startTimeFormat) + ' – ' + end.format(timeFormat)}</div>
+      </div>
     } else {
       return (<span>
         {start.calendar({}, startCalendarFormat)} to {end.calendar({}, calendarFormat)}
