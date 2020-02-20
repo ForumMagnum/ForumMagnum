@@ -9,14 +9,14 @@ const SunshineNewUsersList = ({ terms, allowContentPreview }: {
   allowContentPreview?: boolean,
 }) => {
   const currentUser = useCurrentUser();
-  const { results, totalCount } = useMulti({
+  const { results, loadMore, count, totalCount } = useMulti({
     terms,
     collection: Users,
     fragmentName: 'SunshineUsersList',
     enableTotal: true,
     ssr: true
   });
-  const { SunshineListCount, SunshineListTitle, SunshineNewUsersItem } = Components
+  const { SunshineListCount, SunshineListTitle, SunshineNewUsersItem, LoadMore } = Components
   if (results && results.length && Users.canDo(currentUser, "posts.moderate.all")) {
     return (
       <div>
@@ -29,6 +29,13 @@ const SunshineNewUsersList = ({ terms, allowContentPreview }: {
             <SunshineNewUsersItem user={user} allowContentPreview={allowContentPreview}/>
           </div>
         )}
+        <LoadMore
+          loadMore={() => {
+            loadMore();
+          }}
+          count={count}
+          totalCount={totalCount}
+        />
       </div>
     )
   } else {

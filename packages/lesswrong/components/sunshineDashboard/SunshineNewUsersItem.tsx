@@ -25,7 +25,7 @@ const styles = theme => ({
     display: "inline-block"
   },
   truncated: {
-    maxHeight: 160,
+    maxHeight: 300,
     overflow: "hidden"
   }
 })
@@ -94,6 +94,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
           <Typography variant="body2">
             <MetaInfo>
+              {user.reviewedAt ? <p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by {user.reviewedByUserId}</em></p> : null }
               <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
               <div>Posts: { user.postCount || 0 }</div>
               <div>Comments: { user.commentCount || 0 }</div>

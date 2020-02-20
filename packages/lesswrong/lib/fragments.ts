@@ -278,6 +278,7 @@ registerFragment(`
     bigDownvoteCount
     banned
     reviewedByUserId
+    reviewedAt
     signUpReCaptchaRating
     needsReview
     sunshineSnoozed
