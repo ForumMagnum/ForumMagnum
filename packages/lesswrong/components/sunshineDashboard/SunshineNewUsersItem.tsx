@@ -88,8 +88,8 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
 
   if (hidden) { return null }
 
-  const deletedPostCount = user.maxPostCount - user.postCount
-  const deletedCommentCount = user.maxCommentCount - user.commentCount
+  const hiddenPostCount = user.maxPostCount - user.postCount
+  const hiddenCommentCount = user.maxCommentCount - user.commentCount
 
   return (
     <span {...eventHandlers}>
@@ -100,11 +100,11 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
               <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
               <div>
                 Posts: { user.postCount || 0 }
-                { deletedPostCount ? <span> ({deletedPostCount} deleted)</span> : null}
+                { hiddenPostCount ? <span> ({hiddenPostCount} deleted)</span> : null}
               </div>
               <div>
                 Comments: { user.commentCount || 0 }
-                { deletedCommentCount ? <span> ({deletedCommentCount} deleted)</span> : null}
+                { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted)</span> : null}
               </div>
               <hr />
               <div>Big Upvotes: { user.bigUpvoteCount || 0 }</div>

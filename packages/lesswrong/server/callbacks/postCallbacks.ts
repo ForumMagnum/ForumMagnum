@@ -170,18 +170,18 @@ async function UpdateCommentHideKarma (newPost, oldPost) {
 }
 addCallback("posts.edit.async", UpdateCommentHideKarma);
 
-export async function shouldNewDocumentTriggerReview (document) {
+export async function newDocumentMaybeTriggerReview (document) {
   const author = await Users.findOne(document.userId);
   if (author && (!author.reviewedByUserId || author.sunshineSnoozed)) {
     Users.update({_id:author._id}, {$set:{needsReview: true}})
   }
   return document
 }
-addCallback("posts.new.after", shouldNewDocumentTriggerReview);
+addCallback("posts.new.after", newDocumentMaybeTriggerReview);
 
-async function shouldUpdatedPostTriggerReview (newPost, oldPost) {
+async function updatedPostMaybeTriggerReview (newPost, oldPost) {
   if (!newPost.draft && oldPost.draft) {
-    shouldNewDocumentTriggerReview(newPost)
+    newDocumentMaybeTriggerReview(newPost)
   }
 }
-addCallback("posts.edit.async", shouldUpdatedPostTriggerReview);
+addCallback("posts.edit.async", updatedPostMaybeTriggerReview);
