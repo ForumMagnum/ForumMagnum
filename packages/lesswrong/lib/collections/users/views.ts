@@ -86,12 +86,13 @@ Users.addView("allUsers", function (terms) {
   return {
     options: {
       sort: {
+        reviewedAt: -1,
         createdAt: -1
       }
     }
   }
 })
-ensureIndex(Users, {createdAt: -1})
+ensureIndex(Users, {reviewedAt: -1, createdAt: -1})
 
 Users.addView("usersMapLocations", function () {
   return {

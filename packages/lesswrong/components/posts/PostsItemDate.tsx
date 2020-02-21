@@ -32,6 +32,10 @@ const styles = theme => ({
       }
     }
   },
+  tooltipSmallText: {
+    ...theme.typography.tinyText,
+    fontStyle: "italic"
+  }
 });
 
 interface ExternalProps {
@@ -46,7 +50,10 @@ const PostsItemDate = ({post, classes, hover, anchorEl, stopHover}: PostsItemDat
   if (post.isEvent && post.startTime) {
     return <PostsItem2MetaInfo className={classes.startTime}>
       <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip placement="top">
-        <span>Event starts at <Components.EventTime post={post} /></span>
+        <span>
+          <div className={classes.tooltipSmallText}>Event starts at</div>
+          <Components.EventTime post={post} />
+        </span>
       </LWPopper>
       <FormatDate date={post.startTime} format={"MMM Do"} tooltip={false}/>
     </PostsItem2MetaInfo>

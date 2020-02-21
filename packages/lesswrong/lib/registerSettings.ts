@@ -79,3 +79,7 @@ registerSetting('aboutPostId', 'bJ2haLkcGeLtTWaD5', 'Post ID for the /about rout
 registerSetting('introPostId', null, 'Post ID for the /intro route')
 registerSetting('eaHomeSequenceId', null, 'Sequence ID for the EAHomeHandbook sequence')
 registerSetting('eaHomeSequenceFirstPostId', null, 'Post ID for the first post in the EAHomeHandbook Sequence')
+
+// Custom analytics
+registerSetting('analytics.connectionString', null, 'Postgres connection string to the analytics database');
+registerSetting('analytics.environment', 'misconfigured', 'Environment being used to view the site');

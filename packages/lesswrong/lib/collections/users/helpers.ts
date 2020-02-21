@@ -5,6 +5,7 @@ import { Votes } from '../votes';
 import { Comments } from '../comments'
 import { Posts } from '../posts'
 import { Meteor } from 'meteor/meteor';
+import { userHasCkEditor } from "../../betas";
 
 /**
  * @summary Get a user's display name (not unique, can take special characters and spaces)
@@ -31,7 +32,7 @@ Users.isSharedOn = (currentUser, document) => {
 }
 
 Users.canCollaborate = (currentUser, document) => {
-  return Users.isSharedOn(currentUser, document)
+  return userHasCkEditor(currentUser) && Users.isSharedOn(currentUser, document)
 }
 
 Users.canEditUsersBannedUserIds = (currentUser, targetUser) => {
