@@ -4,7 +4,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts';
 
 const SunshineCuratedSuggestionsList = ({ terms }) => {
-  const { results, loading, count, totalCount, loadMore } = useMulti({
+  const { results, loading, count, totalCount, loadMore, showLoadMore } = useMulti({
     terms,
     collection: Posts,
     fragmentName: 'PostsList',
@@ -15,9 +15,7 @@ const SunshineCuratedSuggestionsList = ({ terms }) => {
   if (loading) return <Components.Loading/>;
   
   const { SunshineListTitle, SunshineCuratedSuggestionsItem, LastCuratedDate, LoadMore } = Components
-  
-  const showLoading = totalCount && count && totalCount > count
-  
+    
   if (results && results.length) {
     return (
       <div>
@@ -30,7 +28,7 @@ const SunshineCuratedSuggestionsList = ({ terms }) => {
             <SunshineCuratedSuggestionsItem post={post}/>
           </div>
         )}
-        {showLoading && <LoadMore
+        {showLoadMore && <LoadMore
           loadMore={() => {
             loadMore();
           }}
