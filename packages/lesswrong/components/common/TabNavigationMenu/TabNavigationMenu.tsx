@@ -7,13 +7,15 @@ import { iconWidth } from './TabNavigationItem'
 import menuTabs from './menuTabs'
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
+export const TAB_NAVIGATION_MENU_WIDTH = 250
+
 const styles = (theme) => {
   return {
     root: {
       display: "flex",
       flexDirection: "column",
       justifyContent: "space-around",
-      maxWidth: 250,
+      maxWidth: TAB_NAVIGATION_MENU_WIDTH,
     },
     divider: {
       width: 50,

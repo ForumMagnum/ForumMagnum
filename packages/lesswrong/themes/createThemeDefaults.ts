@@ -69,6 +69,11 @@ const createLWTheme = (theme) => {
     lineHeight: '1.4rem'
   }
 
+  const tinyFontSize = {
+    fontSize: ".75rem",
+    lineHeight: '1.4rem'
+  }
+
   const spacingUnit = 8
 
   const typography = theme.typography || {}
@@ -110,6 +115,11 @@ const createLWTheme = (theme) => {
         ...typography.body2,
         fontWeight: 400,
         ...smallFontSize
+      },
+      tinyText: {
+        ...typography.body2,
+        fontWeight: 400,
+        ...tinyFontSize
       },
       // used by h3
       display0: {
