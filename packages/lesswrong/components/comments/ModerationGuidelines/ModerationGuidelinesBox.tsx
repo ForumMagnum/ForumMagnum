@@ -55,7 +55,7 @@ const styles = theme => ({
 })
 
 const ModerationGuidelinesBox = ({classes, document, recordEvent}: {
-  classes: any,
+  classes: ClassesType,
   document: any,
   recordEvent?: any,
 }) => {

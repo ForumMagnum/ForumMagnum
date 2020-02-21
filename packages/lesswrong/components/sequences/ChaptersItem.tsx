@@ -26,7 +26,7 @@ const styles = theme => ({
 const ChaptersItem = ({ chapter, canEdit, classes }: {
   chapter: any,
   canEdit: boolean,
-  classes: any,
+  classes: ClassesType,
 }) => {
   const [edit,setEdit] = useState(false);
 

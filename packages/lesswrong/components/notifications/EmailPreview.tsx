@@ -23,7 +23,7 @@ const styles = theme => ({
 
 export const EmailPreview = ({email, classes}: {
   email: any,
-  classes: any,
+  classes: ClassesType,
 }) => {
   return <div className={classes.emailPreview}>
     <div className={classes.emailHeader}>

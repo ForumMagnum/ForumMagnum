@@ -65,7 +65,7 @@ const PostsList2 = ({
   dense,
   defaultToShowUnreadComments
 }: {
-  children?: any,
+  children?: React.ReactNode,
   terms?: any,
   dimWhenLoading?: boolean,
   topLoading?: boolean,
@@ -77,7 +77,7 @@ const PostsList2 = ({
   enableTotal?: boolean,
   showNominationCount?: boolean,
   showReviewCount?: boolean,
-  classes: any,
+  classes: ClassesType,
   dense?: boolean,
   defaultToShowUnreadComments?: boolean,
 }) => {
@@ -153,7 +153,7 @@ const PostsList2 = ({
 
         if (!(hidePosts && hidePosts[i])) return <PostsItem2 key={post._id} index={i} {...props} />
       })}
-      {(showLoadMore || children?.length>0) && <SectionFooter>
+      {showLoadMore && <SectionFooter>
         {(showLoadMore) &&
           <div className={classes.loadMore}>
             <LoadMore

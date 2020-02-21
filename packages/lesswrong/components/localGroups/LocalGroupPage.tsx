@@ -51,7 +51,7 @@ const styles = createStyles(theme => ({
 }));
 
 const LocalGroupPage = ({ classes, documentId: groupId }: {
-  classes: any,
+  classes: ClassesType,
   documentId: string,
   groupId?: string,
 }) => {

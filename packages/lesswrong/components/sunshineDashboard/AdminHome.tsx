@@ -137,7 +137,7 @@ const adminViewsOfAllUsers = [
 
 // columns={['_id', 'createdAt', 'expirationDate', 'type', 'user.username', 'ip']}
 const AdminHome = ({ classes }: {
-  classes: any
+  classes: ClassesType
 }) => {
   const currentUser = useCurrentUser();
   const [allUsersValue, setAllUsersValue] = useState<any>(0);

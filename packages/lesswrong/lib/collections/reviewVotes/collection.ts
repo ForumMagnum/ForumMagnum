@@ -3,7 +3,7 @@ import Users from '../users/collection';
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 
-export const ReviewVotes = createCollection({
+export const ReviewVotes: ReviewVotesCollection = createCollection({
   collectionName: 'ReviewVotes',
   typeName: 'ReviewVote',
   schema,

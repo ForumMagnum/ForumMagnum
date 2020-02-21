@@ -11,6 +11,7 @@ Accounts.validateLoginAttempt((attempt) => {
       && user.services.password
       && !attempt.allowed)
   {
+    // @ts-ignore -- legacyData isn't really handled right in our schemas.
     let legacyData = user.legacyData ? user.legacyData : LegacyData.findOne({ objectId: user._id }).legacyData;
     if (legacyData && legacyData.password) {
       throw new Meteor.Error(

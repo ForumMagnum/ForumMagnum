@@ -152,6 +152,7 @@ async function handleSetShortformPost (newUser, oldUser) {
       throw new Error("Post can only be an author's short-form post if they are the post's author");
     if (post.draft)
       throw new Error("Draft post cannot be a user's short-form post");
+    // @ts-ignore -- this should be something with post.status; post.deleted doesn't exist
     if (post.deleted)
       throw new Error("Deleted post cannot be a user's short-form post");
     

@@ -25,7 +25,7 @@ const styles = (theme) => ({
 })
 
 const SettingsIcon = ({classes, className, onClick, label=""}: {
-  classes: any,
+  classes: ClassesType,
   className?: string,
   onClick?: any,
   label?: string,

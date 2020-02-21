@@ -16,7 +16,7 @@ const SequencesGridWrapper = ({
 }: {
   terms: any,
   className?: string,
-  classes: any,
+  classes: ClassesType,
   showLoadMore?: boolean,
   showAuthor?: boolean,
 }) => {

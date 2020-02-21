@@ -95,7 +95,7 @@ const styles = theme => ({
 const SequencesGridItem = ({ sequence, showAuthor=false, classes }: {
   sequence: any,
   showAuthor?: boolean,
-  classes?: any,
+  classes: ClassesType,
 }) => {
   const getSequenceUrl = () => {
     return '/s/' + sequence._id

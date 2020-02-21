@@ -23,7 +23,7 @@ const styles = theme => ({
 const PostsGroupDetails = ({ documentId, post, classes }: {
   documentId: string,
   post: any,
-  classes: any,
+  classes: ClassesType,
 }) => {
   const { document } = useSingle({
     documentId,

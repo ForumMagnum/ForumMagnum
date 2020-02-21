@@ -5,7 +5,7 @@ import { ContentType } from '../collections/revisions/schema'
 import { accessFilterMultiple, addFieldsDict } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'
 
-const RevisionStorageType = new SimpleSchema({
+export const RevisionStorageType = new SimpleSchema({
   originalContents: {type: ContentType, optional: true},
   userId: {type: String, optional: true},
   html: {type: String, optional: true, denormalized: true},

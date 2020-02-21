@@ -112,7 +112,7 @@ import './lib/events/server';
 import './server/callbacks/intercomCallbacks';
 import './server/connection_logs';
 
-import './server/codegen/generateFragmentTypes.ts';
+import './server/codegen/generateTypes';
 
 
 // Algolia Search Integration

@@ -14,25 +14,58 @@ const convertUniqueSelector = selector => {
   return selector;
 };
 
-export const Connectors: any = {
-  get: async (collection, selector = {}, options = {}, skipConversion) => {
+export const Connectors = {
+  get: async <T extends DbObject>(
+    collection: CollectionBase<T>,
+    selector: MongoSelector<T>|string = {},
+    options: MongoFindOneOptions<T> = {},
+    skipConversion?: boolean
+  ): Promise<T|null> => {
     const convertedSelector = skipConversion ? selector : convertUniqueSelector(selector)
     return await collection.findOne(convertedSelector, options);
   },
-  find: async (collection, selector = {}, options = {}) => {
+  
+  find: async <T extends DbObject>(
+    collection: CollectionBase<T>,
+    selector: MongoSelector<T> = {},
+    options: MongoFindOptions<T> = {}
+  ): Promise<Array<T>> => {
     return await collection.find(convertSelector(selector), options).fetch();
   },
-  count: async (collection, selector = {}, options = {}) => {
+  
+  count: async <T extends DbObject>(
+    collection: CollectionBase<T>,
+    selector: MongoSelector<T> = {},
+    options: MongoFindOptions<T> = {}
+  ): Promise<number> => {
     return await collection.find(convertSelector(selector), options).count();
   },
-  create: async (collection, document, options = {}) => {
+  
+  create: async <T extends DbObject>(
+    collection: CollectionBase<T>,
+    document: T,
+    options: MongoInsertOptions<T> = {}
+  ) => {
     return await collection.insert(document);
   },
-  update: async (collection, selector, modifier, options = {}, skipConversion) => {
+  
+  update: async <T extends DbObject>(
+    collection: CollectionBase<T>,
+    selector: MongoSelector<T>,
+    modifier: MongoModifier<T>,
+    options: MongoUpdateOptions<T> = {},
+    skipConversion?: boolean
+  ) => {
     const convertedSelector = skipConversion ? selector : convertUniqueSelector(selector)
     return await collection.update(convertedSelector, modifier, options);
   },
-  delete: async (collection, selector, options = {}, skipConversion) => {
+  
+  delete: async <T extends DbObject>(
+    collection: CollectionBase<T>,
+    selector: MongoSelector<T>,
+    options: MongoRemoveOptions<T> = {},
+    skipConversion?: boolean
+  ) => {
     const convertedSelector = skipConversion ? selector : convertUniqueSelector(selector)
     return await collection.remove(convertedSelector);
   },

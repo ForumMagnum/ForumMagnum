@@ -22,7 +22,7 @@ const options = {
   }
 }
 
-export const RSSFeeds = createCollection({
+export const RSSFeeds: RSSFeedsCollection = createCollection({
   collectionName: 'RSSFeeds',
   typeName: 'RSSFeed',
   schema,

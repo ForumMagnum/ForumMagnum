@@ -25,7 +25,7 @@ const options = {
   },
 }
 
-export const Localgroups = createCollection({
+export const Localgroups: LocalgroupsCollection = createCollection({
   collectionName: 'Localgroups',
   typeName: 'Localgroup',
   schema,

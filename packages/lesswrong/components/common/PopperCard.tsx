@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Card from '@material-ui/core/Card';
 
 const PopperCard = ({children, placement="bottom-start", open, anchorEl, modifiers}: {
-  children?: any,
+  children?: React.ReactNode,
   placement?: string,
   open: boolean,
   anchorEl: HTMLElement|null,

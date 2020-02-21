@@ -17,7 +17,10 @@ const styles = theme => ({
   },
 });
 
-const CantCommentExplanation = ({post, classes}) => {
+const CantCommentExplanation = ({post, classes}: {
+  post: PostsBase,
+  classes: ClassesType,
+}) => {
   const currentUser = useCurrentUser();
   return (
     <div className={classNames("i18n-message", "author_has_banned_you", classes.root)}>

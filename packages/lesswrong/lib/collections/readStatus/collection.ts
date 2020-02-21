@@ -27,7 +27,7 @@ const schema = {
   },
 };
 
-export const ReadStatuses = createCollection({
+export const ReadStatuses: ReadStatusesCollection = createCollection({
   collectionName: "ReadStatuses",
   typeName: "ReadStatus",
   schema

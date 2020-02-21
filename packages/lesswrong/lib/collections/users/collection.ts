@@ -105,17 +105,77 @@ const mutations = {
   delete: deleteMutation,
 
   // OpenCRUD backwards compatibility
-
   new: createMutation,
   edit: updateMutation,
   remove: deleteMutation,
 };
 
-/**
- * @summary Vulcan Users namespace
- * @namespace Users
- */
-export const Users = createCollection({
+interface ExtendedUsersCollection extends UsersCollection {
+  // Functions from lib/collections/users/helpers.ts
+  getDisplayName: any
+  ownsAndInGroup: any
+  isSharedOn: any
+  canCollaborate: any
+  canEditUsersBannedUserIds: any
+  canModeratePost: any
+  canCommentLock: any
+  userIsBannedFromPost: any
+  userIsBannedFromAllPosts: any
+  userIsBannedFromAllPersonalPosts: any
+  isAllowedToComment: any
+  blockedCommentingReason: any
+  emailAddressIsVerified: any
+  getProfileUrl: any
+  getProfileUrlFromSlug: any
+  useMarkdownCommentEditor: any
+  useMarkdownPostEditor: any
+  canEdit: any
+  getLocation: any
+  getAggregateKarma: any
+  getPostCount: any
+  getCommentCount: any
+  
+  // From lib/alignment-forum/users/helpers.ts
+  canSuggestPostForAlignment: any
+  canMakeAlignmentPost: any
+  
+  // From lib/helpers.ts
+  isSubscribedTo: any
+  
+  // From lib/vulcan-users/permissions.ts
+  groups: any
+  createGroup: any
+  getGroups: any
+  getActions: any
+  isMemberOf: any
+  canDo: any
+  owns: any
+  isAdmin: any
+  isAdminById: any
+  canReadField: any
+  getViewableFields: any
+  restrictViewableFields: any
+  canCreateField: any
+  canUpdateField: any
+  
+  // From lib/vulcan-users/helpers.ts
+  getUser: any
+  getUserName: any
+  getDisplayNameById: any
+  getEditUrl: any
+  getTwitterName: any
+  getGitHubName: any
+  getEmail: any
+  findLast: any
+  timeSinceLast: any
+  numberOfItemsInPast24Hours: any
+  findByEmail: any
+  
+  // Fron search/utils.ts
+  toAlgolia: any
+}
+
+export const Users: ExtendedUsersCollection = createCollection({
   collection: Meteor.users,
   collectionName: 'Users',
   typeName: 'User',

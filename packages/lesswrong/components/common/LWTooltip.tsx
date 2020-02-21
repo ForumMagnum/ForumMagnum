@@ -13,7 +13,7 @@ const styles = theme => ({
 })
 
 interface ExternalProps {
-  children?: any,
+  children?: React.ReactNode,
   title?: any,
   placement?: string,
   tooltip?: boolean,

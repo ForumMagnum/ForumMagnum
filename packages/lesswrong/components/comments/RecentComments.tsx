@@ -15,7 +15,7 @@ const styles = theme =>  ({
 })
 
 const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No Comments Found"}: {
-  classes: any,
+  classes: ClassesType,
   terms: any,
   truncated?: boolean,
   noResultsMessage?: string,

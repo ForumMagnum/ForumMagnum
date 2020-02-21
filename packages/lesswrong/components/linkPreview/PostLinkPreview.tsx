@@ -228,7 +228,7 @@ const defaultPreviewStyles = theme => ({
 })
 
 const DefaultPreview = ({classes, href, innerHTML, onsite=false, id}: {
-  classes: any,
+  classes: ClassesType,
   href: string,
   innerHTML: string,
   onsite?: boolean,

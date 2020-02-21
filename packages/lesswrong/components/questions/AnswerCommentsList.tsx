@@ -48,7 +48,7 @@ export const ABRIDGE_COMMENT_COUNT = 500;
 const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}: {
   terms: any,
   lastEvent?: any,
-  classes: any,
+  classes: ClassesType,
   post: any,
   parentAnswer: any,
 }) => {

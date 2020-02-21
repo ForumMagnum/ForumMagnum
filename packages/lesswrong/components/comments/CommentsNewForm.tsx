@@ -47,7 +47,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
   successCallback?: any,
   type: string,
   cancelCallback?: any,
-  classes: any,
+  classes: ClassesType,
   removeFields?: any,
   fragment?: string,
   formProps?: any,

@@ -21,7 +21,20 @@ const options = {
   },
 }
 
-export const Sequences = createCollection({
+interface ExtendedSequencesCollection extends SequencesCollection {
+  // Functions in lib/collections/sequences/elpers.ts
+  getPageUrl: any
+  getAllPostIDs: any
+  getAllPosts: any
+  getNextPostID: any
+  getPrevPostID: any
+  sequenceContainsPost: any
+  
+  // Functions in search/utils.ts
+  toAlgolia: any
+}
+
+export const Sequences: ExtendedSequencesCollection = createCollection({
   collectionName: 'Sequences',
   typeName: 'Sequence',
   schema,
