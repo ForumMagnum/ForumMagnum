@@ -1,6 +1,7 @@
 import Users from "../users/collection";
+import { Posts } from '../posts/collection';
 import { getSetting, Utils } from '../../vulcan-lib';
-import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation } from '../../utils/schemaUtils'
+import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation, accessFilterMultiple } from '../../utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable'
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 import SimpleSchema from 'simpl-schema'
@@ -1279,6 +1280,64 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
+  },
+  postCount: {
+    ...denormalizedCountOfReferences({
+      fieldName: "postCount",
+      collectionName: "Users",
+      foreignCollectionName: "Posts",
+      foreignTypeName: "post",
+      foreignFieldName: "userId",
+      filterFn: (post) => (!post.draft && post.status===Posts.config.STATUS_APPROVED),
+    }),
+    viewableBy: ['guests'],
+  },
+  maxPostCount: {
+    ...denormalizedCountOfReferences({
+      fieldName: "maxPostCount",
+      collectionName: "Users",
+      foreignCollectionName: "Posts",
+      foreignTypeName: "post",
+      foreignFieldName: "userId"
+    }),
+    viewableBy: ['guests'],
+  },
+  // The user's associated posts (GraphQL only)
+  posts: {
+    type: Object,
+    optional: true,
+    viewableBy: ['guests'],
+    resolveAs: {
+      arguments: 'limit: Int = 5',
+      type: '[Post]',
+      resolver: (user, { limit }, { currentUser, Users, Posts }) => {
+        const posts = Posts.find({ userId: user._id }, { limit }).fetch();
+        return accessFilterMultiple(currentUser, Posts, posts);
+      }
+    }
+  },
+
+  commentCount: {
+    ...denormalizedCountOfReferences({
+      fieldName: "commentCount",
+      collectionName: "Users",
+      foreignCollectionName: "Comments",
+      foreignTypeName: "comment",
+      foreignFieldName: "userId",
+      filterFn: comment => !comment.deleted
+    }),
+    canRead: ['guests'],
+  },
+
+  maxCommentCount: {
+    ...denormalizedCountOfReferences({
+      fieldName: "maxCommentCount",
+      collectionName: "Users",
+      foreignCollectionName: "Comments",
+      foreignTypeName: "comment",
+      foreignFieldName: "userId"
+    }),
+    canRead: ['guests'],
   }
 });
 

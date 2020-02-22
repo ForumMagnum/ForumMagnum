@@ -88,6 +88,9 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
 
   if (hidden) { return null }
 
+  const hiddenPostCount = user.maxPostCount - user.postCount
+  const hiddenCommentCount = user.maxCommentCount - user.commentCount
+
   return (
     <span {...eventHandlers}>
       <SunshineListItem hover={hover}>
@@ -97,8 +100,14 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
               {user.reviewedAt ? <p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by {user.reviewedByUserId}</em></p> : null }
               {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
               <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
-              <div>Posts: { user.postCount || 0 }</div>
-              <div>Comments: { user.commentCount || 0 }</div>
+              <div>
+                Posts: { user.postCount || 0 }
+                { hiddenPostCount ? <span> ({hiddenPostCount} deleted)</span> : null}
+              </div>
+              <div>
+                Comments: { user.commentCount || 0 }
+                { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted)</span> : null}
+              </div>
               <hr />
               <div>Big Upvotes: { user.bigUpvoteCount || 0 }</div>
               <div>Upvotes: { user.smallUpvoteCount || 0 }</div>
@@ -137,7 +146,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
         }
         { hover && <SidebarActionMenu>
           {/* to fully approve a user, they most have created a post or comment. Users that have only voted can only be snoozed */}
-          {(user.commentCount || user.postCount) ? <SidebarAction title="Review" onClick={handleReview}>
+          {(user.maxCommentCount || user.maxPostCount) ? <SidebarAction title="Review" onClick={handleReview}>
             <DoneIcon />
           </SidebarAction> : null}
           <SidebarAction title="Snooze" onClick={handleSnooze}>
