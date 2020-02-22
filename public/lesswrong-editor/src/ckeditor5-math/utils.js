@@ -1,6 +1,6 @@
-/* globals MathJax, katex */
-
-import global from '@ckeditor/ckeditor5-utils/src/dom/global';
+/* eslint-disable max-len */
+/* eslint-disable no-tabs */
+/* globals MathJax */
 
 export const defaultConfig = {
 	engine: 'mathjax',
@@ -11,7 +11,7 @@ export const defaultConfig = {
 
 export function getSelectedMathModelWidget( selection ) {
 	const selectedElement = selection.getSelectedElement();
-	if ( selectedElement && selectedElement.is( 'mathtex' ) ) {
+	if ( selectedElement && ( selectedElement.is( 'mathtex' ) || selectedElement.is( 'mathtex-display' ) ) ) {
 		return selectedElement;
 	}
 	return null;
@@ -49,143 +49,58 @@ export function extractDelimiters( equation ) {
 	};
 }
 
-export function renderEquation( equation, element, engine = 'katex', display = false, preview = false, previewUid ) {
+export async function renderEquation( equation, element, engine = 'mathjax', display = false, preview = false, previewUid ) {
 	if ( engine === 'mathjax' && typeof MathJax !== 'undefined' ) {
 		if ( isMathJaxVersion3( MathJax.version ) ) {
-			selectRenderMode( element, preview, previewUid, el => {
-				renderMathJax3( equation, el, display, () => {
-					if ( preview ) {
-						moveAndScaleElement( element, el );
-						el.style.visibility = 'visible';
-					}
-				} );
-			} );
-		} else {
-			selectRenderMode( element, preview, previewUid, el => {
-				// Fixme: MathJax typesetting cause occasionally math processing error without asynchronous call
-				global.window.setTimeout( () => {
-					renderMathJax2( equation, el, display );
-
-					// Move and scale after rendering
-					if ( preview ) {
-						// eslint-disable-next-line
-						MathJax.Hub.Queue( () => {
-							moveAndScaleElement( element, el );
-							el.style.visibility = 'visible';
-						} );
-					}
-				} );
-			} );
+			await renderMathJax3( equation, element, display, preview );
 		}
-	} else if ( engine === 'katex' && typeof katex !== 'undefined' ) {
-		selectRenderMode( element, preview, previewUid, el => {
-			katex.render( equation, el, {
-				throwOnError: false,
-				displayMode: display
-			} );
-			if ( preview ) {
-				moveAndScaleElement( element, el );
-				el.style.visibility = 'visible';
-			}
-		} );
-	} else if ( typeof engine === 'function' ) {
-		engine( equation, element, display );
 	} else {
 		element.innerHTML = equation;
 		console.warn( `math-tex-typesetting-missing: Missing the mathematical typesetting engine (${ engine }) for tex.` );
 	}
 }
 
-function selectRenderMode( element, preview, previewUid, cb ) {
-	if ( preview ) {
-		createPreviewElement( element, previewUid, prewviewEl => {
-			cb( prewviewEl );
-		} );
+async function renderMathJax3( equation, element, display, isolateStyles ) {
+	let renderNode = element;
+	if ( isolateStyles ) {
+		if ( !element.attachShadow ) {
+			throw Error( 'Rendering MathJax with isolateStyles requires support for Shadow DOM' );
+		}
+		if ( !element.shadowRoot ) {
+			element.attachShadow( { mode: 'open' } );
+		}
+		renderNode = element.shadowRoot;
+	}
+
+	const node = await MathJax.tex2chtmlPromise( equation, { em: 22, ex: 11, display: !!display } );
+	const errorNode = node.querySelector( 'mjx-merror' );
+	if ( !errorNode || !isolateStyles ) {
+		upsertNthChild( renderNode, node, 0 );
 	} else {
-		cb( element );
+		const errorMessageNode = document.createElement( 'div' );
+		errorMessageNode.innerText = errorNode.getAttribute( 'data-mjx-error' );
+		errorMessageNode.className = 'ck-math-error';
+		upsertNthChild( renderNode, errorMessageNode, 0 );
+	}
+
+	upsertNthChild( renderNode, MathJax.chtmlStylesheet(), 1 );
+
+	if ( isolateStyles ) { // If we isolate the styles, set the fontSize to 22px, otherwise just inherit it
+		node.style.fontSize = '22px';
 	}
 }
 
-function renderMathJax3( equation, element, display, after ) {
-	let promiseFunction = undefined;
-	if ( typeof MathJax.tex2chtmlPromise !== 'undefined' ) {
-		promiseFunction = MathJax.tex2chtmlPromise;
-	} else if ( typeof MathJax.tex2svgPromise !== 'undefined' ) {
-		promiseFunction = MathJax.tex2svgPromise;
-	}
-
-	if ( typeof promiseFunction !== 'undefined' ) {
-		promiseFunction( equation, { display } ).then( node => {
-			if ( element.firstChild ) {
-				element.removeChild( element.firstChild );
-			}
-			element.appendChild( node );
-			after();
-		} );
-	}
-}
-
-function renderMathJax2( equation, element, display ) {
-	if ( display ) {
-		element.innerHTML = '\\[' + equation + '\\]';
+function upsertNthChild( element, child, n ) {
+	if ( element.childNodes[ n ] ) {
+		element.replaceChild( child, element.childNodes[ n ] );
 	} else {
-		element.innerHTML = '\\(' + equation + '\\)';
+		element.appendChild( child );
 	}
-	// eslint-disable-next-line
-	MathJax.Hub.Queue( [ 'Typeset', MathJax.Hub, element ] );
 }
 
-function createPreviewElement( element, previewUid, render ) {
-	const prewviewEl = getPreviewElement( element, previewUid );
-	render( prewviewEl );
-}
-
-function getPreviewElement( element, previewUid ) {
-	let prewviewEl = global.document.getElementById( previewUid );
-	// Create if not found
-	if ( !prewviewEl ) {
-		prewviewEl = global.document.createElement( 'div' );
-		prewviewEl.setAttribute( 'id', previewUid );
-		prewviewEl.style.visibility = 'hidden';
-		global.document.body.appendChild( prewviewEl );
-
-		let ticking = false;
-
-		const renderTransformation = () => {
-			if ( !ticking ) {
-				global.window.requestAnimationFrame( () => {
-					moveElement( element, prewviewEl );
-					ticking = false;
-				} );
-
-				ticking = true;
-			}
-		};
-
-		// Create scroll listener for following
-		global.window.addEventListener( 'resize', renderTransformation );
-		global.window.addEventListener( 'scroll', renderTransformation );
-	}
-	return prewviewEl;
-}
-
-function moveAndScaleElement( parent, child ) {
-	// Move to right place
-	moveElement( parent, child );
-
-	// Scale parent element same as preview
-	const domRect = child.getBoundingClientRect();
-	parent.style.width = domRect.width + 'px';
-	parent.style.height = domRect.height + 'px';
-}
-
-function moveElement( parent, child ) {
-	const domRect = parent.getBoundingClientRect();
-	const left = global.window.scrollX + domRect.left;
-	const top = global.window.scrollY + domRect.top;
-	child.style.position = 'absolute';
-	child.style.left = left + 'px';
-	child.style.top = top + 'px';
-	child.style.zIndex = 'var(--ck-z-modal)';
-	child.style.pointerEvents = 'none';
+export function resizeInputElement( element ) {
+	const lines = element.value.split( /\n/ );
+	const maxLines = Math.max( ...lines.map( line => line.length ) );
+	element.cols = maxLines || 1;
+	element.rows = lines.length || 1;
 }

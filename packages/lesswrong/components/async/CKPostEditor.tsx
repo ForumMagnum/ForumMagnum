@@ -5,7 +5,6 @@ import { PostEditor, PostEditorCollaboration } from '@lesswrong/lesswrong-editor
 import { getSetting } from '../../lib/vulcan-lib';
 import { getCKEditorDocumentId, generateTokenRequest } from '../../lib/ckEditorUtils'
 import { withStyles, createStyles } from '@material-ui/core/styles';
-import './mathjax'
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
 

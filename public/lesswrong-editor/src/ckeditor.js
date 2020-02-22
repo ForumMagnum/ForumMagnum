@@ -128,6 +128,7 @@ const postEditorConfig = {
 		'imageUpload',
 		'insertTable',
 		'horizontalLine',
+		'mathDisplay'
 		// 'mediaEmbed',
 	],
 	toolbar: [

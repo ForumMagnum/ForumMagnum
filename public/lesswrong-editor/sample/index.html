@@ -25,10 +25,7 @@
 
 	<p>You can use this sample to validate whether your <a href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/development/custom-builds.html">custom build</a> works fine.</p>
 </div>
-
 <script src="../build/ckeditor.js"></script>
-<script src="https://fred-wang.github.io/mathjax.js/mpadded-min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 <script src="https://cdn.jsdelivr.net/npm/@ckeditor/ckeditor5-inspector@1.5.0/build/inspector.js"></script>
 <script>
 	CKEditor.PostEditor.create( document.querySelector( '#editor' ) )
@@ -39,13 +36,6 @@
 		.catch( err => {
 			console.error( err.stack );
 		} );
-	MathJax.Hub.Config({
-        showMathMenu: false,
-        messageStyle: "none",
-          tex2jax: {
-          preview: "none"
-        }
-	});
 </script>
 
 </body>

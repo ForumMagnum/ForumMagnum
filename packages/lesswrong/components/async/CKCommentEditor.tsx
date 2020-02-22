@@ -3,7 +3,6 @@ import CKEditor from '../editor/ReactCKEditor';
 import { CommentEditor } from '@lesswrong/lesswrong-editor';
 import { generateTokenRequest } from '../../lib/ckEditorUtils'
 import { getSetting } from '../../lib/vulcan-lib';
-import './mathjax'
 
 // Uncomment the import and the line below to activate the debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';

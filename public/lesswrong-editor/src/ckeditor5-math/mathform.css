@@ -1,33 +1,46 @@
-@import "@ckeditor/ckeditor5-ui/theme/mixins/_rwd.css";
+.ck.ck.ck.ck.ck.ck-math-preview {
+	padding: 8px;
+	background-color: hsl(0, 0%, 98%);
+	margin-top: 20px;
+	margin-top: 20px;
+	margin-left: auto;
+	margin-right: auto;
+	display: block;
+	width: fit-content;
+	border-radius: 8px;
+	box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+	border: 1px rgba(0,0,0,0.3) solid;
+}
+.ck.ck.ck.ck.ck.ck-input-text {
+	color: white;
+	background-color: #4F4F4F;
+	min-width: 20px;
+	border: none;
+	outline: none;
+	box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+	font-family: monospace;
+	margin-left: auto;
+	margin-right: auto;
+	display: block;
+}
 
 .ck.ck-math-form {
     display: flex;
     align-items: flex-start;
     flex-direction: row;
     flex-wrap: nowrap;
-
-    @mixin ck-media-phone {
-		flex-wrap: wrap;
-
-        & .ck-math-view {
-			flex-basis: 100%;
-
-            & .ck-labeled-input {
-			    flex-basis: 100%;
-		    }
-
-            & .ck-label {
-			    flex-basis: 100%;
-		    }
-		}
-
-		& .ck-button {
-			flex-basis: 50%;
-		}
-	}
 }
 
-// Increase toolbar default z-index by one because math preview should be below of it
-.ck.ck-toolbar-container {
-	z-index: calc(var(--ck-z-modal) + 2);
+.ck.ck.ck.ck.ck.ck-math-balloon {
+	box-shadow: none;
+    background: none;
+    border: none;
+}
+
+.ck-math-balloon:before {
+	display: none;
+}
+
+.ck-math-balloon:after {
+	display: none;
 }

@@ -12,15 +12,17 @@ export default class MathView extends View {
 		this.set( 'value', '' );
 		this.set( 'display', false );
 
-		this.on( 'change', () => {
+		this.on( 'change', async () => {
 			if ( this.isRendered ) {
-				this.updateMath();
+				await this.updateMath();
+				this.fire( 'updatedMath' );
 			}
 		} );
 
 		this.setTemplate( {
 			tag: 'div',
 			attributes: {
+				id: 'ck-math-preview',
 				class: [
 					'ck',
 					'ck-math-preview'
@@ -29,8 +31,8 @@ export default class MathView extends View {
 		} );
 	}
 
-	updateMath() {
-		renderEquation( this.value, this.element, this.engine, this.display, true, this.previewUid );
+	async updateMath() {
+		await renderEquation( this.value, this.element, this.engine, this.display, true, 'ck-math-preview' );
 	}
 
 	render() {

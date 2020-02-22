@@ -11,11 +11,12 @@ import MainFormView from './ui/mainformview';
 
 // Need math commands from there
 import MathEditing from './mathediting';
-import { defaultConfig, getSelectedMathModelWidget } from './utils';
+import { defaultConfig, getSelectedMathModelWidget, resizeInputElement } from './utils';
 
 import mathIcon from './math.svg';
 
-const mathKeystroke = 'Ctrl+M';
+const mathKeystroke = 'Ctrl+4';
+const mathDisplayKeystroke = 'Ctrl+M';
 
 export default class MathUI extends Plugin {
 	static get requires() {
@@ -75,16 +76,13 @@ export default class MathUI extends Plugin {
 		const formView = new MainFormView( editor.locale, mathConfig.engine, mathConfig.enablePreview, this._previewUid );
 
 		formView.mathInputView.bind( 'value' ).to( mathCommand, 'value' );
-		formView.displayButtonView.bind( 'isOn' ).to( mathCommand, 'display' );
 
 		// Form elements should be read-only when corresponding commands are disabled.
 		formView.mathInputView.bind( 'isReadOnly' ).to( mathCommand, 'isEnabled', value => !value );
-		formView.saveButtonView.bind( 'isEnabled' ).to( mathCommand );
-		formView.displayButtonView.bind( 'isEnabled' ).to( mathCommand );
 
 		// Listen to submit button click
 		this.listenTo( formView, 'submit', () => {
-			editor.execute( 'math', formView.equation, formView.displayButtonView.isOn, mathConfig.outputType, mathConfig.forceOutputType );
+			editor.execute( 'math', formView.equation, mathCommand.display, mathConfig.outputType, mathConfig.forceOutputType );
 			this._closeFormView();
 		} );
 
@@ -95,8 +93,17 @@ export default class MathUI extends Plugin {
 
 		// Close plugin ui, if esc is pressed (while ui is focused)
 		formView.keystrokes.set( 'esc', ( data, cancel ) => {
+			this.formView.fire( 'submit' );
 			this._closeFormView();
-			cancel();
+		} );
+
+		formView.keystrokes.set( 'Enter', ( data, cancel ) => {
+			this.formView.fire( 'submit' );
+			this._closeFormView();
+		} );
+
+		this.listenTo( formView, 'updatedMath', () => {
+			this._balloon.updatePosition( this._getBalloonPositionData() );
 		} );
 
 		return formView;
@@ -113,21 +120,19 @@ export default class MathUI extends Plugin {
 		this._balloon.add( {
 			view: this.formView,
 			position: this._getBalloonPositionData(),
+			balloonClassName: 'ck-math-balloon'
 		} );
 
 		if ( this._balloon.visibleView === this.formView ) {
 			this.formView.mathInputView.select();
 		}
 
-		// Show preview element
-		const prewviewEl = global.document.getElementById( this._previewUid );
-		if ( prewviewEl && this.formView.previewEnabled ) {
-			// Force refresh preview
-			this.formView.mathView.updateMath();
-		}
-
 		this.formView.equation = mathCommand.value || '';
-		this.formView.displayButtonView.isOn = mathCommand.display || false;
+
+		// After updating the equation, make sure to resize the input element
+		if ( this.formView.mathInputView.element ) {
+			resizeInputElement( this.formView.mathInputView.element );
+		}
 	}
 
 	_hideUI() {
@@ -157,8 +162,6 @@ export default class MathUI extends Plugin {
 
 	_removeFormView() {
 		if ( this._isFormInPanel ) {
-			this.formView.saveButtonView.focus();
-
 			this._balloon.remove( this.formView );
 
 			// Hide preview element
@@ -183,12 +186,22 @@ export default class MathUI extends Plugin {
 		const mathCommand = editor.commands.get( 'math' );
 		const t = editor.t;
 
-		// Handle the `Ctrl+M` keystroke and show the panel.
+		// Handle the `Ctrl+4` keystroke and show the panel.
 		editor.keystrokes.set( mathKeystroke, ( keyEvtData, cancel ) => {
+			cancel();
+
+			if ( mathCommand.isEnabled ) {
+				this._showUI();
+			}
+		} );
+
+		// Handle the `Ctrl+M` keystroke and show the panel.
+		editor.keystrokes.set( mathDisplayKeystroke, ( keyEvtData, cancel ) => {
 			// Prevent focusing the search bar in FF and opening new tab in Edge. #153, #154.
 			cancel();
 
 			if ( mathCommand.isEnabled ) {
+				mathCommand.display = true;
 				this._showUI();
 			}
 		} );
@@ -209,6 +222,26 @@ export default class MathUI extends Plugin {
 
 			return button;
 		} );
+
+		this.editor.ui.componentFactory.add( 'mathDisplay', locale => {
+			const button = new ButtonView( locale );
+
+			button.isEnabled = true;
+			button.label = t( 'Insert display math block' );
+			button.icon = mathIcon;
+			button.keystroke = mathDisplayKeystroke;
+			button.tooltip = true;
+			button.isToggleable = true;
+
+			button.bind( 'isEnabled' ).to( mathCommand, 'isEnabled' );
+
+			this.listenTo( button, 'execute', () => {
+				mathCommand.display = true;
+				this._showUI();
+			} );
+
+			return button;
+		} );
 	}
 
 	_getSelectedLaTeXElement() {
@@ -219,21 +252,12 @@ export default class MathUI extends Plugin {
 	_enableUserBalloonInteractions() {
 		const viewDocument = this.editor.editing.view.document;
 
-		// Handle click on view document and show panel when selection is placed inside the link element.
-		// Keep panel open until selection will be inside the same link element.
+		// Handle click on view document and show panel when selection is placed inside the latex element
 		this.listenTo( viewDocument, 'click', () => {
 			const selectedElement = this._getSelectedLaTeXElement();
-
 			if ( selectedElement ) {
 				// Then show panel but keep focus inside editor editable.
 				this._showUI();
-			}
-		} );
-		// Close the panel on the Esc key press when the editable has focus and the balloon is visible.
-		this.editor.keystrokes.set( 'Esc', ( data, cancel ) => {
-			if ( this._isUIVisible ) {
-				this._hideUI();
-				cancel();
 			}
 		} );
 
@@ -242,7 +266,7 @@ export default class MathUI extends Plugin {
 			emitter: this.formView,
 			activator: () => this._isFormInPanel,
 			contextElements: [ this._balloon.view.element ],
-			callback: () => this._hideUI()
+			callback: () => this.formView.fire( 'submit' )
 		} );
 	}
 

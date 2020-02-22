@@ -1,21 +1,15 @@
+/* eslint-disable no-tabs */
 import View from '@ckeditor/ckeditor5-ui/src/view';
 import ViewCollection from '@ckeditor/ckeditor5-ui/src/viewcollection';
-
-import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
-import LabeledInputView from '@ckeditor/ckeditor5-ui/src/labeledinput/labeledinputview';
 import InputTextView from '@ckeditor/ckeditor5-ui/src/inputtext/inputtextview';
-import LabelView from '@ckeditor/ckeditor5-ui/src/label/labelview';
 
 import KeystrokeHandler from '@ckeditor/ckeditor5-utils/src/keystrokehandler';
 import FocusTracker from '@ckeditor/ckeditor5-utils/src/focustracker';
 import FocusCycler from '@ckeditor/ckeditor5-ui/src/focuscycler';
 
-import checkIcon from '@ckeditor/ckeditor5-core/theme/icons/check.svg';
-import cancelIcon from '@ckeditor/ckeditor5-core/theme/icons/cancel.svg';
-
 import submitHandler from '@ckeditor/ckeditor5-ui/src/bindings/submithandler';
 
-import { extractDelimiters, hasDelimiters } from '../utils';
+import { extractDelimiters, hasDelimiters, resizeInputElement } from '../utils';
 
 import MathView from './mathview';
 
@@ -24,47 +18,29 @@ import '../mathform.css';
 export default class MainFormView extends View {
 	constructor( locale, engine, previewEnabled, previewUid ) {
 		super( locale );
-
-		const t = locale.t;
-
 		// Create key event & focus trackers
 		this._createKeyAndFocusTrackers();
 
 		// Equation input
 		this.mathInputView = this._createMathInput();
 
-		// Display button
-		this.displayButtonView = this._createDisplayButton();
-
-		// Submit button
-		this.saveButtonView = this._createButton( t( 'Save' ), checkIcon, 'ck-button-save', null );
-		this.saveButtonView.type = 'submit';
-
-		// Cancel button
-		this.cancelButtonView = this._createButton( t( 'Cancel' ), cancelIcon, 'ck-button-cancel', 'cancel' );
-
 		this.previewEnabled = previewEnabled;
 
 		let children = [];
 		if ( this.previewEnabled ) {
-			// Preview label
-			this.previewLabel = new LabelView( locale );
-			this.previewLabel.text = t( 'Equation preview' );
-
 			// Math element
 			this.mathView = new MathView( engine, locale, previewUid );
-			this.mathView.bind( 'display' ).to( this.displayButtonView, 'isOn' );
+			this.listenTo( this.mathView, 'updatedMath', () => {
+				this.fire( 'updatedMath' );
+			} );
 
 			children = [
 				this.mathInputView,
-				this.displayButtonView,
-				this.previewLabel,
 				this.mathView
 			];
 		} else {
 			children = [
-				this.mathInputView,
-				this.displayButtonView
+				this.mathInputView
 			];
 		}
 
@@ -89,8 +65,6 @@ export default class MainFormView extends View {
 					},
 					children
 				},
-				this.saveButtonView,
-				this.cancelButtonView,
 			],
 		} );
 	}
@@ -106,9 +80,6 @@ export default class MainFormView extends View {
 		// Register form elements to focusable elements
 		const childViews = [
 			this.mathInputView,
-			this.displayButtonView,
-			this.saveButtonView,
-			this.cancelButtonView,
 		];
 
 		childViews.forEach( v => {
@@ -125,11 +96,11 @@ export default class MainFormView extends View {
 	}
 
 	get equation() {
-		return this.mathInputView.inputView.element.value;
+		return this.mathInputView.element.value;
 	}
 
 	set equation( equation ) {
-		this.mathInputView.inputView.element.value = equation;
+		this.mathInputView.element.value = equation;
 		if ( this.previewEnabled ) {
 			this.mathView.value = equation;
 		}
@@ -152,16 +123,36 @@ export default class MainFormView extends View {
 	}
 
 	_createMathInput() {
-		const t = this.locale.t;
-
 		// Create equation input
-		const mathInput = new LabeledInputView( this.locale, InputTextView );
-		const inputView = mathInput.inputView;
-		mathInput.infoText = t( 'Insert equation in TeX format.' );
+		const inputView = new InputTextView( this.locale );
+		const bind = inputView.bindTemplate;
+		inputView.setTemplate( {
+			tag: 'textarea',
+			attributes: {
+				cols: 1,
+				rows: 1,
+				type: 'text',
+				class: [
+					'ck',
+					'ck-input',
+					'ck-input-text',
+					bind.if( 'hasError', 'ck-error' )
+				],
+				id: bind.to( 'id' ),
+				placeholder: bind.to( 'placeholder' ),
+				readonly: bind.to( 'isReadOnly' ),
+				'aria-invalid': bind.if( 'hasError', true ),
+				'aria-describedby': bind.to( 'ariaDescribedById' )
+			},
+			on: {
+				input: bind.to( 'input' )
+			}
+		} );
 		inputView.on( 'input', () => {
 			if ( this.previewEnabled ) {
 				const equationInput = inputView.element.value.trim();
-
+				// Resize input element to fit content
+				resizeInputElement( inputView.element );
 				// If input has delimiters
 				if ( hasDelimiters( equationInput ) ) {
 					// Get equation without delimiters
@@ -170,69 +161,14 @@ export default class MainFormView extends View {
 					// Remove delimiters from input field
 					inputView.element.value = params.equation;
 
-					// update display button and preview
-					this.displayButtonView.isOn = params.display;
-					if ( this.previewEnabled ) {
-						// Update preview view
-						this.mathView.value = params.equation;
-					}
+					// Update preview view
+					this.mathView.value = params.equation;
 				} else {
 					this.mathView.value = equationInput;
 				}
 			}
 		} );
 
-		return mathInput;
-	}
-
-	_createButton( label, icon, className, eventName ) {
-		const button = new ButtonView( this.locale );
-
-		button.set( {
-			label,
-			icon,
-			tooltip: true
-		} );
-
-		button.extendTemplate( {
-			attributes: {
-				class: className
-			}
-		} );
-
-		if ( eventName ) {
-			button.delegate( 'execute' ).to( this, eventName );
-		}
-
-		return button;
-	}
-
-	_createDisplayButton() {
-		const t = this.locale.t;
-
-		const switchButton = new ButtonView( this.locale );
-
-		switchButton.set( {
-			label: t( 'Display mode' ),
-			withText: true
-		} );
-
-		switchButton.extendTemplate( {
-			attributes: {
-				class: 'ck-button-display-toggle'
-			}
-		} );
-
-		switchButton.on( 'execute', () => {
-			// Toggle state
-			switchButton.isOn = !switchButton.isOn;
-
-			if ( this.previewEnabled ) {
-				// Update preview view
-				this.mathView.display = switchButton.isOn;
-			}
-		} );
-
-		return switchButton;
+		return inputView;
 	}
 }

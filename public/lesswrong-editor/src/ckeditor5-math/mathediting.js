@@ -1,3 +1,4 @@
+/* eslint-disable no-tabs */
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import { toWidget } from '@ckeditor/ckeditor5-widget/src/utils';
 import Widget from '@ckeditor/ckeditor5-widget/src/widget';
@@ -30,7 +31,13 @@ export default class MathEditing extends Plugin {
 			allowWhere: '$text',
 			isInline: true,
 			isObject: true,
-			allowAttributes: [ 'equation', 'type', 'display' ]
+			allowAttributes: [ 'equation', 'type' ]
+		} );
+
+		schema.register( 'mathtex-display', {
+			allowWhere: '$block',
+			isObject: true,
+			allowAttributes: [ 'equation', 'type' ]
 		} );
 	}
 
@@ -52,8 +59,7 @@ export default class MathEditing extends Plugin {
 					const equation = viewElement.getChild( 0 ).data.trim();
 					return modelWriter.createElement( 'mathtex', {
 						equation,
-						type: mathConfig.forceOutputType ? mathConfig.outputType : 'script',
-						display: false
+						type: mathConfig.forceOutputType ? mathConfig.outputType : 'script'
 					} );
 				}
 			} )
@@ -67,10 +73,9 @@ export default class MathEditing extends Plugin {
 				},
 				model: ( viewElement, modelWriter ) => {
 					const equation = viewElement.getChild( 0 ).data.trim();
-					return modelWriter.createElement( 'mathtex', {
+					return modelWriter.createElement( 'mathtex-display', {
 						equation,
-						type: mathConfig.forceOutputType ? mathConfig.outputType : 'script',
-						display: true
+						type: mathConfig.forceOutputType ? mathConfig.outputType : 'script'
 					} );
 				}
 			} )
@@ -82,34 +87,47 @@ export default class MathEditing extends Plugin {
 				},
 				model: ( viewElement, modelWriter ) => {
 					const equation = viewElement.getChild( 0 ).data.trim();
-
-					const params = Object.assign( extractDelimiters( equation ), {
-						type: mathConfig.forceOutputType ? mathConfig.outputType : 'span'
-					} );
-
-					return modelWriter.createElement( 'mathtex', params );
+					const { display } = extractDelimiters( equation );
+					const type = mathConfig.forceOutputType ? mathConfig.outputType : 'span';
+					if ( display ) {
+						return modelWriter.createElement( 'mathtex-display', { equation, type } );
+					} else {
+						return modelWriter.createElement( 'mathtex', { equation, type } );
+					}
 				}
 			} );
 
 		// Model -> View (element)
-		conversion.for( 'editingDowncast' ).elementToElement( {
-			model: 'mathtex',
-			view: ( modelItem, viewWriter ) => {
-				const widgetElement = createMathtexEditingView( modelItem, viewWriter );
-				return toWidget( widgetElement, viewWriter );
-			}
-		} );
+		conversion.for( 'editingDowncast' )
+			.elementToElement( {
+				model: 'mathtex',
+				view: ( modelItem, viewWriter ) => {
+					const widgetElement = createMathtexEditingView( modelItem, viewWriter, false );
+					return toWidget( widgetElement, viewWriter );
+				}
+			} )
+			.elementToElement( {
+				model: 'mathtex-display',
+				view: ( modelItem, viewWriter ) => {
+					const widgetElement = createMathtexEditingView( modelItem, viewWriter, true );
+					return toWidget( widgetElement, viewWriter );
+				}
+			} );
 
 		// Model -> Data
-		conversion.for( 'dataDowncast' ).elementToElement( {
-			model: 'mathtex',
-			view: createMathtexView
-		} );
+		conversion.for( 'dataDowncast' )
+			.elementToElement( {
+				model: 'mathtex',
+				view: ( modelItem, viewWriter ) => createMathtexView( modelItem, viewWriter, false )
+			} )
+			.elementToElement( {
+				model: 'mathtex-display',
+				view: ( modelItem, viewWriter ) => createMathtexView( modelItem, viewWriter, true )
+			} );
 
 		// Create view for editor
-		function createMathtexEditingView( modelItem, viewWriter ) {
+		function createMathtexEditingView( modelItem, viewWriter, display ) {
 			const equation = modelItem.getAttribute( 'equation' );
-			const display = modelItem.getAttribute( 'display' );
 
 			const styles = 'user-select: none; ' + ( display ? '' : 'display: inline-block;' );
 			const classes = 'ck-math-tex ' + ( display ? 'ck-math-tex-display' : 'ck-math-tex-inline' );
@@ -135,10 +153,9 @@ export default class MathEditing extends Plugin {
 		}
 
 		// Create view for data
-		function createMathtexView( modelItem, viewWriter ) {
+		function createMathtexView( modelItem, viewWriter, display ) {
 			const equation = modelItem.getAttribute( 'equation' );
 			const type = modelItem.getAttribute( 'type' );
-			const display = modelItem.getAttribute( 'display' );
 
 			if ( type === 'span' ) {
 				const mathtexView = viewWriter.createContainerElement( 'span', {
