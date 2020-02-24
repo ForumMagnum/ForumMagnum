@@ -18,11 +18,13 @@ interface ExternalProps {
   placement?: string,
   tooltip?: boolean,
   flip?: boolean,
+  muiClasses?: any,
+  enterDelay?: number,
 }
 interface LWTooltipProps extends ExternalProps, WithStylesProps, WithHoverProps {
 }
 
-const LWTooltip = ({classes, children, title, placement="bottom-start", tooltip=true, flip=true}: LWTooltipProps) => {
+const LWTooltip = ({classes, children, title, placement="bottom-start", tooltip=true, flip=true, muiClasses=undefined, enterDelay=undefined}: LWTooltipProps) => {
   const { LWPopper } = Components
   const { hover, everHovered, anchorEl, stopHover, eventHandlers } = useHover({
     pageElementContext: "tooltipHovered",
@@ -44,6 +46,8 @@ const LWTooltip = ({classes, children, title, placement="bottom-start", tooltip=
           enabled: flip
         }
       }}
+      classes={muiClasses}
+      enterDelay={enterDelay}
     >
       <div className={classes.tooltip}>{title}</div>
     </LWPopper>}
