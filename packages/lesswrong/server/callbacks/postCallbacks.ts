@@ -1,12 +1,13 @@
-import { addCallback, runCallbacks, runCallbacksAsync, newMutation } from 'meteor/vulcan:core';
+import { addCallback, runCallbacks, runCallbacksAsync, newMutation } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Comments } from '../../lib/collections/comments/collection';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { performVoteServer } from '../voteServer';
 import Localgroups from '../../lib/collections/localgroups/collection';
 import { addEditableCallbacks } from '../editor/make_editable_callbacks'
-import { makeEditableOptions, makeEditableOptionsModeration } from '../../lib/collections/posts/custom_fields'
+import { makeEditableOptions, makeEditableOptionsModeration, makeEditableOptionsCustomHighlight } from '../../lib/collections/posts/custom_fields'
 import { PostRelations } from '../../lib/collections/postRelations/index';
+import { getDefaultPostLocationFields } from '../posts/utils'
 const MINIMUM_APPROVAL_KARMA = 5
 
 function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
@@ -65,11 +66,7 @@ addCallback("votes.smallUpvote.async", increaseMaxBaseScore);
 addCallback("votes.bigUpvote.async", increaseMaxBaseScore);
 
 function PostsNewDefaultLocation (post) {
-  if (post.isEvent && post.groupId && !post.location) {
-    const { location, googleLocation, mongoLocation } = Localgroups.findOne(post.groupId)
-    post = {...post, location, googleLocation, mongoLocation}
-  }
-  return post
+  return {...post, ...getDefaultPostLocationFields(post)}
 }
 
 addCallback("posts.new.sync", PostsNewDefaultLocation);
@@ -119,6 +116,7 @@ addCallback("post.create.before", AddReferrerToPost);
 
 addEditableCallbacks({collection: Posts, options: makeEditableOptions})
 addEditableCallbacks({collection: Posts, options: makeEditableOptionsModeration})
+addEditableCallbacks({collection: Posts, options: makeEditableOptionsCustomHighlight})
 
 function PostsNewPostRelation (post) {
   if (post.originalPostRelationSourceId) {
@@ -160,7 +158,7 @@ async function UpdateCommentHideKarma (newPost, oldPost) {
 
   const comments = Comments.find({postId: newPost._id})
   if (!comments.count()) return
-  const updates = comments.map(comment => ({
+  const updates = comments.fetch().map(comment => ({
     updateOne: {
       filter: {
         _id: comment._id,
@@ -171,3 +169,19 @@ async function UpdateCommentHideKarma (newPost, oldPost) {
   await Comments.rawCollection().bulkWrite(updates)
 }
 addCallback("posts.edit.async", UpdateCommentHideKarma);
+
+export async function newDocumentMaybeTriggerReview (document) {
+  const author = await Users.findOne(document.userId);
+  if (author && (!author.reviewedByUserId || author.sunshineSnoozed)) {
+    Users.update({_id:author._id}, {$set:{needsReview: true}})
+  }
+  return document
+}
+addCallback("posts.new.after", newDocumentMaybeTriggerReview);
+
+async function updatedPostMaybeTriggerReview (newPost, oldPost) {
+  if (!newPost.draft && oldPost.draft) {
+    newDocumentMaybeTriggerReview(newPost)
+  }
+}
+addCallback("posts.edit.async", updatedPostMaybeTriggerReview);

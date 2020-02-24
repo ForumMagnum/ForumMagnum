@@ -21,7 +21,7 @@
     "test": "meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings sample_settings.json --port 3200 --full-app --once",
     "test-prod": "meteor test-packages ./packages/lesswrong --driver-package meteortesting:mocha --settings settings.json --port 3200 --full-app --once",
     "encrypt-credentials": "tar czf credentials.tar.gz --exclude '.git/*' -C ../ ./LessWrong-Credentials; travis encrypt-file credentials.tar.gz --add; rm credentials.tar.gz",
-    "generate": "graphql-codegen --config codegen.yml"
+    "generate": "scripts/generateTypes.sh"
   },
   "dependencies": {
     "@babel/runtime": "7.7.7",
@@ -80,7 +80,6 @@
     "escape-string-regexp": "^1.0.5",
     "express": "^4.16.3",
     "feedparser-promised": "^1.2.2",
-    "flat": "^4.1.0",
     "graphql": "^14.5.8",
     "graphql-date": "^1.0.2",
     "graphql-server-express": "^0.6.0",
@@ -95,7 +94,6 @@
     "import": "0.0.6",
     "intercom-client": "^2.10.2",
     "intl": "^1.2.4",
-    "intl-locales-supported": "1.4.5",
     "jsdom": "^13.1.0",
     "jsonwebtoken": "^8.5.1",
     "juice": "^1.11.0",

@@ -1,20 +1,18 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
-import { Link } from '../../lib/reactRouterWrapper.jsx';
+import { Link } from '../../lib/reactRouterWrapper';
 import { Posts } from "../../lib/collections/posts";
-import { Sequences } from "../../lib/collections/sequences/collection.js";
-import { Collections } from "../../lib/collections/collections/collection.js";
+import { Sequences } from "../../lib/collections/sequences/collection";
+import { Collections } from "../../lib/collections/collections/collection";
 import withErrorBoundary from '../common/withErrorBoundary';
 import CloseIcon from '@material-ui/icons/Close';
-import Tooltip from '@material-ui/core/Tooltip';
 import { useCurrentUser } from "../common/withUser";
 import classNames from 'classnames';
 import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { userHasBoldPostItems } from '../../lib/betas.js';
+import { userHasBoldPostItems } from '../../lib/betas';
 
 export const MENU_WIDTH = 18
 export const KARMA_WIDTH = 42
@@ -22,7 +20,7 @@ export const COMMENTS_WIDTH = 48
 
 const COMMENTS_BACKGROUND_COLOR = "#f5f5f5"
 
-export const styles = createStyles((theme) => ({
+export const styles = (theme) => ({
   root: {
     position: "relative",
     [theme.breakpoints.down('sm')]: {
@@ -294,7 +292,7 @@ export const styles = createStyles((theme) => ({
     position: "relative",
     top: 2,
   }
-}))
+})
 
 const dismissRecommendationTooltip = "Don't remind me to finish reading this sequence unless I visit it again";
 
@@ -329,7 +327,7 @@ const PostsItem2 = ({
   // query. Used for figuring out which sticky icons to apply, if any.
   terms,
   // resumeReading: If this is a Resume Reading suggestion, the corresponding
-  // partiallyReadSequenceItem (see schema in users/custom_fields.js). Used for
+  // partiallyReadSequenceItem (see schema in users/custom_fields). Used for
   // the sequence-image background.
   resumeReading,
   // dismissRecommendation: If this is a Resume Reading suggestion, a callback
@@ -356,7 +354,7 @@ const PostsItem2 = ({
 }: {
   post: any,
   tagRel?: any,
-  defaultToShowComments: boolean,
+  defaultToShowComments?: boolean,
   sequenceId?: string,
   chapter?: any,
   index?: number,
@@ -375,7 +373,7 @@ const PostsItem2 = ({
   
   recordPostView?: any,
   isRead?: boolean,
-  classes?: any,
+  classes: ClassesType,
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
@@ -415,7 +413,7 @@ const PostsItem2 = ({
 
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
-    BookmarkButton, EventVicinity, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker, ReviewPostButton } = (Components as ComponentTypes)
+    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker } = (Components as ComponentTypes)
 
   const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -423,9 +421,9 @@ const PostsItem2 = ({
   const condensedAndHiddenComments = defaultToShowUnreadComments && !showComments
 
   const dismissButton = (currentUser && resumeReading &&
-    <Tooltip title={dismissRecommendationTooltip} placement="right">
+    <LWTooltip title={dismissRecommendationTooltip} placement="right">
       <CloseIcon onClick={() => dismissRecommendation()}/>
-    </Tooltip>
+    </LWTooltip>
   )
 
   const commentTerms = {
@@ -469,7 +467,6 @@ const PostsItem2 = ({
                     <PostsTitle
                         postLink={postLink}
                         post={post}
-                        expandOnHover={!renderComments}
                         read={isRead}
                         sticky={isSticky(post, terms)}
                         showQuestionTag={showQuestionTag}
@@ -491,12 +488,12 @@ const PostsItem2 = ({
                   </div>
                 }
 
-                { post.user && !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
+                { !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
                   <PostsUserAndCoauthors post={post} abbreviateIfLong={true} />
                 </PostsItem2MetaInfo>}
 
                 { post.isEvent && <PostsItem2MetaInfo className={classes.event}>
-                  <EventVicinity post={post} />
+                  <Components.EventVicinity post={post} />
                 </PostsItem2MetaInfo>}
 
                 {showPostedAt && !resumeReading && <PostsItemDate post={post} />}
@@ -528,9 +525,9 @@ const PostsItem2 = ({
                   
                 </LWTooltip>}
 
-                {(post.nominationCount2018 >= 2) && <Link to={Posts.getPageUrl(post)}>
+                {/* {(post.nominationCount2018 >= 2) && <Link to={Posts.getPageUrl(post)}>
                   <ReviewPostButton post={post}/>
-                </Link>}
+                </Link>} */}
 
                 {bookmark && <div className={classes.bookmark}>
                   <BookmarkButton post={post}/>
@@ -562,7 +559,6 @@ const PostsItem2 = ({
 
           {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>
             <PostsItemNewCommentsWrapper
-              currentUser={currentUser}
               highlightDate={markedVisitedAt || post.lastVisitedAt}
               terms={commentTerms}
               post={post}
@@ -575,14 +571,13 @@ const PostsItem2 = ({
   )
 };
 
+const PostsItem2Component = registerComponent('PostsItem2', PostsItem2, {
+  styles,
+  hocs: [withRecordPostView, withErrorBoundary]
+});
+
 declare global {
   interface ComponentTypes {
-    PostsItem2: typeof PostsItem2
+    PostsItem2: typeof PostsItem2Component
   }
 }
-
-registerComponent('PostsItem2', PostsItem2,
-  withStyles(styles, { name: "PostsItem2" }),
-  withRecordPostView,
-  withErrorBoundary
-);

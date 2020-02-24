@@ -1,5 +1,5 @@
 import { addFieldsDict, denormalizedCountOfReferences } from './utils/schemaUtils'
-import { getWithLoader } from './loaders.js'
+import { getWithLoader } from './loaders'
 
 export const VoteableCollections: Array<any> = [];
 
@@ -7,7 +7,7 @@ export const VoteableCollections: Array<any> = [];
 //   customBaseScoreReadAccess: baseScore can have a customized canRead value.
 //     Option will be bassed directly to the canRead key
 // }
-export const makeVoteable = (collection, options) => {
+export const makeVoteable = (collection, options?: any) => {
   options = options || {}
   const {customBaseScoreReadAccess} = options
 

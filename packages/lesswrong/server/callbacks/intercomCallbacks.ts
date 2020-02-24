@@ -1,5 +1,5 @@
-import { addCallback } from 'meteor/vulcan:core';
-import intercomClient from '../../lib/events/server.js';
+import { addCallback } from '../../lib/vulcan-lib';
+import intercomClient from '../../lib/events/server';
 
 
 function sendIntercomEvent (event, user) {

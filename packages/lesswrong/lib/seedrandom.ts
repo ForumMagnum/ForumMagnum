@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 
 function Alea(seed: string) {
+  // @ts-ignore
   var me = this,
       mash = Mash();
 

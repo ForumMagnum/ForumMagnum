@@ -1,4 +1,4 @@
-import { registerFragment } from 'meteor/vulcan:core';
+import { registerFragment } from './vulcan-lib';
 
 registerFragment(`
   fragment UsersAdmin on User {
@@ -88,7 +88,6 @@ registerFragment(`
     groups
     services
     pageUrl
-    locale
     voteBanned
     banned
     isReviewed
@@ -104,6 +103,7 @@ registerFragment(`
     lastNotificationsCheck
     groups
     bannedUserIds
+    bannedPersonalUserIds
     moderationStyle
     moderationGuidelines {
       ...RevisionEdit
@@ -270,7 +270,9 @@ registerFragment(`
     createdAt
     email
     commentCount
+    maxCommentCount
     postCount
+    maxPostCount
     voteCount
     smallUpvoteCount
     bigUpvoteCount
@@ -278,7 +280,10 @@ registerFragment(`
     bigDownvoteCount
     banned
     reviewedByUserId
+    reviewedAt
     signUpReCaptchaRating
+    needsReview
+    sunshineSnoozed
   }
 `);
 
@@ -522,6 +527,7 @@ registerFragment(`
 
     recommendationSettings
     
+    notificationShortformContent
     notificationCommentsOnSubscribedPost
     notificationRepliesToMyComments
     notificationRepliesToSubscribedComments
@@ -531,6 +537,8 @@ registerFragment(`
     notificationSharedWithMe
 
     hideFrontpageMap
+
+    deleted
   }
 `)
 

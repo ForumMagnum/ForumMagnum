@@ -1,0 +1,63 @@
+import React from 'react';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
+import withHover from './withHover';
+
+const styles = theme => ({
+  root: {
+    // inline-block makes sure that the popper placement works properly (without flickering). "block" would also work, but there may be situations where we want to wrap an object in a tooltip that shouldn't be a block element.
+    display: "inline-block",
+  },
+  tooltip: {
+    maxWidth: 300
+  }
+})
+
+interface ExternalProps {
+  children?: React.ReactNode,
+  title?: any,
+  placement?: string,
+  tooltip?: boolean,
+  flip?: boolean,
+  muiClasses?: any,
+  enterDelay?: number,
+}
+interface LWTooltipProps extends ExternalProps, WithStylesProps, WithHoverProps {
+}
+
+const LWTooltip = ({classes, children, title, placement="bottom-start", hover, anchorEl, stopHover, tooltip=true, flip=true, muiClasses=undefined, enterDelay=undefined}: LWTooltipProps) => {
+  const { LWPopper } = Components
+  return <span className={classes.root}>
+    <LWPopper 
+      placement={placement} 
+      open={hover} 
+      anchorEl={anchorEl} 
+      onMouseEnter={stopHover} 
+      tooltip={tooltip}
+      modifiers={{
+        flip: {
+          enabled: flip
+        }
+      }}
+      classes={muiClasses}
+      enterDelay={enterDelay}
+    >
+      <div className={classes.tooltip}>{title}</div>
+    </LWPopper>
+    {children}
+  </span>
+}
+
+const LWTooltipComponent = registerComponent<ExternalProps>("LWTooltip", LWTooltip, {
+  styles,
+  hocs: [
+    withHover({pageElementContext: "tooltipHovered"}, ({title}) => ({title})),
+  ]
+});
+
+declare global {
+  interface ComponentTypes {
+    LWTooltip: typeof LWTooltipComponent
+  }
+}
+
+
