@@ -46,7 +46,7 @@ const LWTooltip = ({classes, children, title, placement="bottom-start", hover, a
 const LWTooltipComponent = registerComponent<ExternalProps>("LWTooltip", LWTooltip, {
   styles,
   hocs: [
-    withHover({pageElementContext: "tooltipHovered"}, ({title}) => ({title})),
+    withHover({pageElementContext: "tooltipHovered"}, ({title}) => ({title: typeof title=="string" ? title : undefined})),
   ]
 });
 
