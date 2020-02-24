@@ -24,16 +24,20 @@ interface LWTooltipProps extends ExternalProps, WithStylesProps, WithHoverProps 
 
 const LWTooltip = ({classes, children, title, placement="bottom-start", hover, anchorEl, stopHover, tooltip=true, flip=true}: LWTooltipProps) => {
   const { LWPopper } = Components
-  const { hover, anchorEl, stopHover, eventHandlers } = useHover({
+  const { hover, everHovered, anchorEl, stopHover, eventHandlers } = useHover({
     pageElementContext: "tooltipHovered",
     title: typeof title=="string" ? title : undefined
   });
+  
   return <span className={classes.root}>
-    <LWPopper 
-      placement={placement} 
-      open={hover} 
-      anchorEl={anchorEl} 
-      onMouseEnter={stopHover} 
+    { /* Only render the LWPopper if this element has ever been hovered. (But
+         keep it in the React tree thereafter, so it can remember its state and
+         can have a closing animation if applicable. */ }
+    {everHovered && <LWPopper
+      placement={placement}
+      open={hover}
+      anchorEl={anchorEl}
+      onMouseEnter={stopHover}
       tooltip={tooltip}
       modifiers={{
         flip: {
@@ -42,7 +46,8 @@ const LWTooltip = ({classes, children, title, placement="bottom-start", hover, a
       }}
     >
       <div className={classes.tooltip}>{title}</div>
-    </LWPopper>
+    </LWPopper>}
+    
     {children}
   </span>
 }
