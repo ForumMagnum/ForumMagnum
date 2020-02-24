@@ -3,9 +3,9 @@ import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib'
 import { createStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
-import { withSingle } from '../../lib/crud/withSingle';
-import { withCookies } from 'react-cookie'
-import { withMessages } from '../common/withMessages';
+import { useSingle } from '../../lib/crud/withSingle';
+import { useCookies } from 'react-cookie'
+import { useMessages } from '../common/withMessages';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import Sequences from '../../lib/collections/sequences/collection';
@@ -115,8 +115,15 @@ const COOKIE_NAME = 'hide_home_handbook'
 const END_OF_TIME = new Date('2038-01-18')
 const FIRST_POST_ID = getSetting('eaHomeSequenceFirstPostId')
 
-const EAHomeHandbook = ({ classes, cookies, flash, document, loading }) => {
+const EAHomeHandbook = ({ classes, documentId }) => {
   const { SingleColumnSection, CloudinaryImage2, Loading } = Components
+  const { document, loading } = useSingle({
+    documentId,
+    collection: Sequences,
+    fragmentName: 'SequencesPageFragment',
+  });
+  const { flash } = useMessages();
+  const [cookies] = useCookies([COOKIE_NAME]);
   const hideHandbook = cookies.get(COOKIE_NAME)
   if (hideHandbook) return null
   if (loading || !document) return <Loading />
@@ -169,17 +176,8 @@ const EAHomeHandbook = ({ classes, cookies, flash, document, loading }) => {
   </React.Fragment>
 }
 
-const options = {
-  collection: Sequences,
-  queryName: 'SequencesPageQuery',
-  fragmentName: 'SequencesPageFragment',
-  enableTotal: false,
-  ssr: true,
-};
-
 const EAHomeHandbookComponent = registerComponent(
-  'EAHomeHandbook', EAHomeHandbook,
-  {styles, hocs: [withCookies, withMessages, [withSingle, options]]},
+  'EAHomeHandbook', EAHomeHandbook, {styles},
 )
 
 declare global {
