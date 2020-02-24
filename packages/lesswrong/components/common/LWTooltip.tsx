@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import withHover from './withHover';
+import { useHover } from './withHover';
 
 const styles = theme => ({
   root: {
@@ -24,6 +24,10 @@ interface LWTooltipProps extends ExternalProps, WithStylesProps, WithHoverProps 
 
 const LWTooltip = ({classes, children, title, placement="bottom-start", hover, anchorEl, stopHover, tooltip=true, flip=true}: LWTooltipProps) => {
   const { LWPopper } = Components
+  const { hover, anchorEl, stopHover, eventHandlers } = useHover({
+    pageElementContext: "tooltipHovered",
+    title: typeof title=="string" ? title : undefined
+  });
   return <span className={classes.root}>
     <LWPopper 
       placement={placement} 
@@ -43,17 +47,11 @@ const LWTooltip = ({classes, children, title, placement="bottom-start", hover, a
   </span>
 }
 
-const LWTooltipComponent = registerComponent<ExternalProps>("LWTooltip", LWTooltip, {
-  styles,
-  hocs: [
-    withHover({pageElementContext: "tooltipHovered"}, ({title}) => ({title: typeof title=="string" ? title : undefined})),
-  ]
-});
+const LWTooltipComponent = registerComponent<ExternalProps>("LWTooltip", LWTooltip, { styles });
 
 declare global {
   interface ComponentTypes {
     LWTooltip: typeof LWTooltipComponent
   }
 }
-
 
