@@ -48,7 +48,7 @@ const previewPostCount = 3;
 
 const TagRelCard = ({tagRel, classes}) => {
   const currentUser = useCurrentUser();
-  const vote = useVote();
+  const vote = useVote("TagRels");
   const { VoteButton, PostsItem2, ContentItemBody, PostsListPlaceholder } = Components;
   
   const { results } = useMulti({

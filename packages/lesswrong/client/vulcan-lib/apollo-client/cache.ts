@@ -1,11 +1,6 @@
-import { InMemoryCache, IntrospectionFragmentMatcher } from 'apollo-cache-inmemory';
-import introspectionQueryResultData from '../../../lib/vulcan-lib/fragmentTypes.json'
+import { InMemoryCache } from 'apollo-cache-inmemory';
 
-const fragmentMatcher = new IntrospectionFragmentMatcher({
-  introspectionQueryResultData
-})
-
-const cache = new InMemoryCache({ fragmentMatcher })
+const cache = new InMemoryCache({})
   //ssr
   .restore((window as any).__APOLLO_STATE__);
 export default cache;

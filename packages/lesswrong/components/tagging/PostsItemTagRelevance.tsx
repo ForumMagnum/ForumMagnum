@@ -68,7 +68,7 @@ const styles = theme => ({
 const PostsItemTagRelevance = ({tagRel, post, classes}) => {
   const { VoteButton } = Components;
   const currentUser = useCurrentUser();
-  const vote = useVote();
+  const vote = useVote("TagRels");
   
   return <Components.PostsItem2MetaInfo className={classes.root}>
     <div className={classNames(classes.voteButton, classes.horizLayoutVoteDown)}>

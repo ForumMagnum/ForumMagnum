@@ -41,7 +41,7 @@ const styles = theme => ({
 
 const PostsVote = ({ post, classes, collection }) => {
   const currentUser = useCurrentUser();
-  const vote = useVote();
+  const vote = useVote("Posts");
   const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
 
   return (
