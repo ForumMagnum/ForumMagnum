@@ -78,15 +78,15 @@ export const makeVoteable = (collection, options?: any) => {
     },
 
     afVoteCount: {
+      ...schemaDefaultValue(0),
       ...denormalizedCountOfReferences({
         fieldName: "afVoteCount",
         collectionName: collection.collectionName,
         foreignCollectionName: "Votes",
         foreignTypeName: "vote",
         foreignFieldName: "documentId",
-        filterFn: vote => (vote.afPower && vote.afPower > 0) && !vote.cancelled
+        filterFn: vote => !vote.cancelled
       }),
-      ...schemaDefaultValue(0),
       viewableBy: ['guests'],
     },
 
