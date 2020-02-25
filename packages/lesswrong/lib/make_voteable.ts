@@ -78,7 +78,7 @@ export const makeVoteable = (collection, options?: any) => {
     },
 
     afVoteCount: {
-      ...schemaDefaultValue(0),
+      canAutofillDefault: true,
       ...denormalizedCountOfReferences({
         fieldName: "afVoteCount",
         collectionName: collection.collectionName,
