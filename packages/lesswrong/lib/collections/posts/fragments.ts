@@ -24,6 +24,7 @@ registerFragment(`
     
     commentCount
     voteCount
+    afVoteCount
     baseScore
     unlisted
     score

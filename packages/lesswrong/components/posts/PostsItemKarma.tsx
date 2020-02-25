@@ -10,13 +10,14 @@ const PostsItemKarma = ({post, hover, anchorEl}: {
 }) => {
   const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
   const afBaseScore = getSetting('forumType') !== 'AlignmentForum' && post.af ? post.afBaseScore : null
+  const voteCount = getSetting('forumType') === 'AlignmentForum' ? post.afVoteCount : post.voteCount
   const { LWPopper } = Components
   return (
     <span>
       <LWPopper open={hover} anchorEl={anchorEl} tooltip placement="top-start">
         <div>
           <div>
-            This post has { baseScore || 0 } karma ({ post.voteCount} votes)
+            This post has { baseScore || 0 } karma ({ voteCount } votes)
           </div>
           {afBaseScore && <div><em>({afBaseScore} karma on AlignmentForum.org)</em></div>}
         </div>

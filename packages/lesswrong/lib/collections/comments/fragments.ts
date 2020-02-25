@@ -29,6 +29,7 @@ registerFragment(`
     baseScore
     score
     voteCount
+    afVoteCount
     af
     afDate
     moveToAlignmentUserId

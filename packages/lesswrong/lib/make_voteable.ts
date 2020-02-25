@@ -1,5 +1,6 @@
 import { addFieldsDict, denormalizedCountOfReferences } from './utils/schemaUtils'
 import { getWithLoader } from './loaders'
+import { schemaDefaultValue } from './collectionUtils';
 
 export const VoteableCollections: Array<any> = [];
 
@@ -75,6 +76,20 @@ export const makeVoteable = (collection, options?: any) => {
       }),
       viewableBy: ['guests'],
     },
+
+    afVoteCount: {
+      ...denormalizedCountOfReferences({
+        fieldName: "afVoteCount",
+        collectionName: collection.collectionName,
+        foreignCollectionName: "Votes",
+        foreignTypeName: "vote",
+        foreignFieldName: "documentId",
+        filterFn: vote => (vote.afPower && vote.afPower > 0) && !vote.cancelled
+      }),
+      ...schemaDefaultValue(0),
+      viewableBy: ['guests'],
+    },
+
     // The document's base score (not factoring in the document's age)
     baseScore: {
       type: Number,
