@@ -1,4 +1,5 @@
 import { registerComponent, getSetting, Components } from '../../lib/vulcan-lib';
+import Posts from '../../lib/collections/posts/collection';
 import React from 'react';
 import withHover from '../common/withHover';
 
@@ -8,22 +9,20 @@ const PostsItemKarma = ({post, hover, anchorEl}: {
   hover?: any,
   anchorEl?: any,
 }) => {
-  const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
   const afBaseScore = getSetting('forumType') !== 'AlignmentForum' && post.af ? post.afBaseScore : null
-  const voteCount = getSetting('forumType') === 'AlignmentForum' ? post.afVoteCount : post.voteCount
-  const { LWPopper } = Components
+  const { LWTooltip } = Components
+
   return (
-    <span>
-      <LWPopper open={hover} anchorEl={anchorEl} tooltip placement="top-start">
+    <LWTooltip placement="top-start" title={
+      <div>
         <div>
-          <div>
-            This post has { baseScore || 0 } karma ({ voteCount } votes)
-          </div>
-          {afBaseScore && <div><em>({afBaseScore} karma on AlignmentForum.org)</em></div>}
+          This post has { Posts.getKarma(post) } karma ({ Posts.getVoteCount(post) } votes)
         </div>
-      </LWPopper>
-      { baseScore || 0 }
-    </span>
+        {afBaseScore && <div><em>({afBaseScore} karma on AlignmentForum.org)</em></div>}
+      </div>
+    }>
+      { Posts.getKarma(post) }
+    </LWTooltip>
   )
 };
 

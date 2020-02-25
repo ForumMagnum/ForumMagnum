@@ -1,4 +1,5 @@
 import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import Posts from '../../lib/collections/posts/collection';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -42,8 +43,7 @@ const styles = theme => ({
 const PostsVote = ({ post, classes, collection }) => {
   const currentUser = useCurrentUser();
   const vote = useVote();
-  const baseScore = getSetting('forumType') === 'AlignmentForum' ? post.afBaseScore : post.baseScore
-
+  
   return (
       <div className={classes.voteBlock}>
         <Tooltip
@@ -65,11 +65,11 @@ const PostsVote = ({ post, classes, collection }) => {
         </Tooltip>
         <div className={classes.voteScores}>
           <Tooltip
-            title={`${post.voteCount} ${post.voteCount == 1 ? "Vote" : "Votes"}`}
+            title={Posts.getVoteCountStr(post)}
             placement="right"
             classes={{tooltip: classes.tooltip}}
           >
-            <Typography variant="headline" className={classes.voteScore}>{baseScore || 0}</Typography>
+            <Typography variant="headline" className={classes.voteScore}>{ Posts.getKarma(post) }</Typography>
           </Tooltip>
 
           {!!post.af && !!post.afBaseScore && getSetting('forumType') !== 'AlignmentForum' &&

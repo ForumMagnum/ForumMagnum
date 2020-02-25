@@ -78,16 +78,19 @@ export const makeVoteable = (collection, options?: any) => {
     },
 
     afVoteCount: {
-      canAutofillDefault: true,
       ...denormalizedCountOfReferences({
         fieldName: "afVoteCount",
         collectionName: collection.collectionName,
         foreignCollectionName: "Votes",
         foreignTypeName: "vote",
         foreignFieldName: "documentId",
-        filterFn: vote => !vote.cancelled
+        filterFn: vote => {
+          console.log(vote.afPower && vote.afPower > 0, vote)
+          return (vote.afPower && vote.afPower > 0) && !vote.cancelled
+        }
       }),
       viewableBy: ['guests'],
+      ...schemaDefaultValue(0)
     },
 
     // The document's base score (not factoring in the document's age)

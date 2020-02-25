@@ -45,6 +45,8 @@ interface ExtendedPostsCollection extends PostsCollection {
   canEdit: any
   canDelete: any
   getKarma: any
+  getVoteCount: any
+  getVoteCountStr: any
   canEditHideCommentKarma: any
   
   // In lib/alignment-forum/posts/helpers.ts

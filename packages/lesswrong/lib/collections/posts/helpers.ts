@@ -196,6 +196,22 @@ Posts.getKarma = (post) => {
   return baseScore || 0
 }
 
+Posts.getVoteCount = (post) => {
+  const voteCount = getSetting('forumType') === 'AlignmentForum' ? post.afVoteCount : post.voteCount
+  return voteCount || 0
+}
+
+Posts.getVoteCountStr = (post) => {
+  const count = Posts.getVoteCount(post)
+  if (!count) {
+    return "No votes"
+  } else if (count === 1) {
+    return "1 vote"
+  } else {
+    return count + " votes"
+  }
+}
+
 // User can add/edit the hideCommentKarma setting if:
 //  1) The user is logged in and has the requisite setting enabled
 //  And
