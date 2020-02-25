@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import withHover from './withHover';
+import { useHover } from './withHover';
 
 const styles = theme => ({
   root: {
@@ -24,14 +24,22 @@ interface ExternalProps {
 interface LWTooltipProps extends ExternalProps, WithStylesProps, WithHoverProps {
 }
 
-const LWTooltip = ({classes, children, title, placement="bottom-start", hover, anchorEl, stopHover, tooltip=true, flip=true, muiClasses=undefined, enterDelay=undefined}: LWTooltipProps) => {
+const LWTooltip = ({classes, children, title, placement="bottom-start", tooltip=true, flip=true, muiClasses=undefined, enterDelay=undefined}: LWTooltipProps) => {
   const { LWPopper } = Components
-  return <span className={classes.root}>
-    <LWPopper 
-      placement={placement} 
-      open={hover} 
-      anchorEl={anchorEl} 
-      onMouseEnter={stopHover} 
+  const { hover, everHovered, anchorEl, stopHover, eventHandlers } = useHover({
+    pageElementContext: "tooltipHovered",
+    title: typeof title=="string" ? title : undefined
+  });
+  
+  return <span className={classes.root} {...eventHandlers}>
+    { /* Only render the LWPopper if this element has ever been hovered. (But
+         keep it in the React tree thereafter, so it can remember its state and
+         can have a closing animation if applicable. */ }
+    {everHovered && <LWPopper
+      placement={placement}
+      open={hover}
+      anchorEl={anchorEl}
+      onMouseEnter={stopHover}
       tooltip={tooltip}
       modifiers={{
         flip: {
@@ -42,22 +50,17 @@ const LWTooltip = ({classes, children, title, placement="bottom-start", hover, a
       enterDelay={enterDelay}
     >
       <div className={classes.tooltip}>{title}</div>
-    </LWPopper>
+    </LWPopper>}
+    
     {children}
   </span>
 }
 
-const LWTooltipComponent = registerComponent<ExternalProps>("LWTooltip", LWTooltip, {
-  styles,
-  hocs: [
-    withHover({pageElementContext: "tooltipHovered"}, ({title}) => ({title})),
-  ]
-});
+const LWTooltipComponent = registerComponent<ExternalProps>("LWTooltip", LWTooltip, { styles });
 
 declare global {
   interface ComponentTypes {
     LWTooltip: typeof LWTooltipComponent
   }
 }
-
 
