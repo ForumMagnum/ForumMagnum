@@ -84,10 +84,7 @@ export const makeVoteable = (collection, options?: any) => {
         foreignCollectionName: "Votes",
         foreignTypeName: "vote",
         foreignFieldName: "documentId",
-        filterFn: vote => {
-          console.log(vote.afPower && vote.afPower > 0, vote)
-          return (vote.afPower && vote.afPower > 0) && !vote.cancelled
-        }
+        filterFn: vote => !(vote.cancelled || !vote.afPower || vote.afPower === 0)
       }),
       viewableBy: ['guests'],
       ...schemaDefaultValue(0)

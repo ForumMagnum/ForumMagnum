@@ -16,7 +16,7 @@ const PostsItemKarma = ({post, hover, anchorEl}: {
     <LWTooltip placement="top-start" title={
       <div>
         <div>
-          This post has { Posts.getKarma(post) } karma ({ Posts.getVoteCount(post) } votes)
+          This post has { Posts.getKarma(post) } karma ({ Posts.getVoteCountStr(post) })
         </div>
         {afBaseScore && <div><em>({afBaseScore} karma on AlignmentForum.org)</em></div>}
       </div>
