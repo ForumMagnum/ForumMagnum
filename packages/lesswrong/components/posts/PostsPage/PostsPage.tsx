@@ -283,6 +283,12 @@ class PostsPage extends Component<PostsPageProps> {
     return false;
   }
 
+  getDescription = post => {
+    if (post.contents?.plaintextDescription) return post.contents.plaintextDescription
+    if (post.shortform) return `A collection of shorter posts by ${getSetting('title')} user ${post.user.displayName}`
+    return null
+  }
+
   render() {
     const { post, refetch, currentUser, classes, location: { query, params } } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, ContentType,
@@ -294,7 +300,7 @@ class PostsPage extends Component<PostsPageProps> {
     if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
     } else {
-      const { html, plaintextDescription, wordCount = 0 } = post.contents || {}
+      const { html, wordCount = 0 } = post.contents || {}
       const view = _.clone(query).view || Comments.getDefaultView(post, currentUser)
       const commentTerms = _.isEmpty(query.view) ? {view: view, limit: 500} : {...query, limit:500}
       const sequenceId = this.getSequenceId();
@@ -307,10 +313,13 @@ class PostsPage extends Component<PostsPageProps> {
       const contentType = getContentType(post)
 
       const commentId = query.commentId || params.commentId
+
+      const description = this.getDescription(post)
+
       return (
           <AnalyticsContext pageContext="postsPage" postId={post._id}>
             <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
-              <HeadTags url={Posts.getPageUrl(post, true)} canonicalUrl={post.canonicalSource} title={post.title} description={plaintextDescription}/>
+              <HeadTags url={Posts.getPageUrl(post, true)} canonicalUrl={post.canonicalSource} title={post.title} description={description}/>
               {/* Header/Title */}
               <AnalyticsContext pageSectionContext="postHeader"><div className={classes.title}>
                 <div className={classes.post}>
