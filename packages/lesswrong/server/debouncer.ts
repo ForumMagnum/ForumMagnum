@@ -2,7 +2,7 @@ import { Vulcan, getSetting } from './vulcan-lib';
 import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection';
 import { addCronJob } from './cronUtil';
 import moment from '../lib/moment-timezone';
-import Sentry from '@sentry/node';
+import Sentry from '@sentry/core';
 
 let eventDebouncersByName: Record<string,EventDebouncer> = {};
 
