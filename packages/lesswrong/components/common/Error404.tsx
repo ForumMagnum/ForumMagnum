@@ -15,8 +15,6 @@ const Error404 = () => {
   );
 };
 
-Error404.displayName = 'Error404';
-
 const Error404Component = registerComponent('Error404', Error404);
 
 declare global {

@@ -1,6 +1,5 @@
 import { Vulcan, Collections, getCollection } from '../vulcan-lib';
 import { forEachDocumentBatchInCollection } from '../migrations/migrationUtils';
-import * as _ from 'underscore';
 
 // customValidators: Mapping from collection name to array of
 // {validatorName,validateBatch} tuples.

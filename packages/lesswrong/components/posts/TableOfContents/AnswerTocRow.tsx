@@ -36,7 +36,10 @@ const styles = (theme) => ({
   }
 })
 
-const AnswerTocRow = ({classes, answer}) => {
+const AnswerTocRow = ({classes, answer}: {
+  classes: ClassesType,
+  answer: any,
+}) => {
   const { FormatDate } = Components
 
   const tooltip = <div>

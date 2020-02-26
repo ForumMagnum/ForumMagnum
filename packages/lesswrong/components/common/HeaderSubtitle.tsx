@@ -13,7 +13,9 @@ export const styles = theme => ({
   },
 });
 
-const HeaderSubtitle = ({classes}) => {
+const HeaderSubtitle = ({classes}: {
+  classes: ClassesType,
+}) => {
   const { currentRoute } = useSubscribedLocation();
   if (!currentRoute) return null
   const SubtitleComponent = currentRoute.subtitleComponentName ? Components[currentRoute.subtitleComponentName] : null;

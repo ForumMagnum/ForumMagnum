@@ -25,7 +25,7 @@ const SunshineNewUserCommentsList = ({terms, classes, truncated=false}: {
   const { results, loading } = useMulti({
     terms,
     collection: Comments,
-    fragmentName: 'SelectCommentsList',
+    fragmentName: 'CommentsListWithPostMetadata',
     fetchPolicy: 'cache-and-network',
   });
   const { FormatDate, MetaInfo, Loading } = Components

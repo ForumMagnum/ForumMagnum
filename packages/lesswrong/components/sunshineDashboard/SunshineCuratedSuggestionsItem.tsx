@@ -15,7 +15,7 @@ import ClearIcon from '@material-ui/icons/Clear';
 import * as _ from 'underscore';
 
 interface ExternalProps {
-  post: any,
+  post: PostsList,
 }
 interface SunshineCuratedSuggestionsItemProps extends ExternalProps, WithUserProps, WithHoverProps {
   updatePost: any,

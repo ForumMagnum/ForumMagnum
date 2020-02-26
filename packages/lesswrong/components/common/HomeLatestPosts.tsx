@@ -28,8 +28,9 @@ const styles = theme => ({
 const latestPostsName = getSetting('forumType') === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts'
 const includePersonalName = getSetting('forumType') === 'EAForum' ? 'Include Community' : 'Include Personal Blogposts'
 
-const HomeLatestPosts = ({ classes }) =>
-{
+const HomeLatestPosts = ({ classes }: {
+  classes: ClassesType
+}) => {
   const currentUser = useCurrentUser();
   const location = useLocation();
   const { history } = useNavigation();

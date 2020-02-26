@@ -5,7 +5,7 @@ import { Comments } from '../../lib/collections/comments';
 import { unflattenComments } from "../../lib/utils/unflatten";
 
 const PostsCommentsThread = ({ post, terms, newForm=true }: {
-  post: any,
+  post: PostsList,
   terms: any,
   newForm?: boolean,
 }) => {

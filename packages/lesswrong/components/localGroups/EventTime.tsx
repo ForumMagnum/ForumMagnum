@@ -16,7 +16,7 @@ function getDateFormat(dense, isThisYear) {
 }
 
 const EventTime = ({post, dense=false}: {
-  post: any,
+  post: PostsBase,
   dense?: boolean,
 }) => {
   const { timezone } = useTimezone();

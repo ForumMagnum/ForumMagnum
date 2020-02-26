@@ -7,7 +7,7 @@ const topSection = "top";
 
 interface TableOfContentsListProps {
   sectionData: any,
-  document?: any,
+  document?: PostsBase,
   onClickSection?: any,
   drawerStyle: boolean,
 }

@@ -8,7 +8,7 @@ import ReportOutlinedIcon from '@material-ui/icons/ReportOutlined';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 
 interface ExternalProps {
-  comment: any,
+  comment: CommentsList,
 }
 interface ReportCommentMenuItemProps extends ExternalProps, WithUserProps {
   openDialog?: any,

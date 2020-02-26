@@ -6,7 +6,10 @@ import { useTagBySlug } from './useTag';
 import { Link } from '../../lib/reactRouterWrapper';
 import { styles } from '../common/HeaderSubtitle';
 
-const TagPageTitle = ({isSubtitle, classes}) => {
+const TagPageTitle = ({isSubtitle, classes}: {
+  isSubtitle: boolean,
+  classes: ClassesType,
+}) => {
   const { params } = useLocation();
   const { slug } = params;
   const { tag } = useTagBySlug(slug);

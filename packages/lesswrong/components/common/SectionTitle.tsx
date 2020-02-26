@@ -58,10 +58,10 @@ const styles = (theme) => ({
 })
 
 const SectionTitle = ({children, classes, className, title, dividers=true}: {
-  children?: any,
+  children?: React.ReactNode,
   classes: ClassesType,
   className?: string,
-  title: any,
+  title: React.ReactNode,
   dividers?: boolean,
 }) => {
   return (

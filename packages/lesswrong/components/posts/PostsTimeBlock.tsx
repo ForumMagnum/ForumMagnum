@@ -61,7 +61,7 @@ interface ExternalProps {
   displayShortform: any
 }
 interface PostsTimeBlockProps extends ExternalProps, WithUserProps, WithTimezoneProps, WithStylesProps {
-  results: any,
+  results: Array<PostsList>|null,
   totalCount: any,
   loading: any,
   loadMore: any,
@@ -191,7 +191,7 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
             </div>
           })}
 
-          {(posts?.length < totalCount) && <div className={classes.loadMore}>
+          {(posts && posts.length<totalCount) && <div className={classes.loadMore}>
             <LoadMore
                 loadMore={loadMore}
                 count={posts.length}

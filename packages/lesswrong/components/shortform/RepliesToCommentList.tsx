@@ -5,7 +5,11 @@ import { Comments } from "../../lib/collections/comments";
 import { unflattenComments } from "../../lib/utils/unflatten";
 
 
-const RepliesToCommentList = ({ terms, post, parentCommentId }) => {
+const RepliesToCommentList = ({ terms, post, parentCommentId }: {
+  terms: any,
+  post: PostsList,
+  parentCommentId: string,
+}) => {
   const { CommentsList, Loading } = Components;
   const { loading, results } = useMulti({
     terms,

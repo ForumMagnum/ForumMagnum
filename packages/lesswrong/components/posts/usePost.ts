@@ -1,7 +1,16 @@
 import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts';
 
-export const usePostBySlug = ({ slug }) => {
+export const usePostBySlug = ({slug}: {slug: string}):
+  {
+    post: PostsPage|null,
+    loading: false,
+    error: null
+  } | {
+    post: null,
+    loading: true,
+    error: any
+  } => {
   const { results, loading, error } = useMulti({
     terms: {
       view: "slugPost",
@@ -29,7 +38,16 @@ export const usePostBySlug = ({ slug }) => {
   }
 }
 
-export const usePostByLegacyId = ({ legacyId }) => {
+export const usePostByLegacyId = ({ legacyId }: {legacyId: string}):
+  {
+    post: PostsPage|null,
+    loading: false,
+    error: null
+  } | {
+    post: null,
+    loading: true,
+    error: any
+  } => {
   const { results, loading, error } = useMulti({
     terms: {
       view: "legacyIdPost",

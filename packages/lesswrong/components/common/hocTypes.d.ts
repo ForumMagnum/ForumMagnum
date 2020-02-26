@@ -47,3 +47,19 @@ interface WithHoverProps {
   anchorEl: HTMLElement|null,
   stopHover: ()=>void,
 }
+
+interface WithApolloProps {
+  client: any;
+}
+
+type WithUpdateFunction<T extends CollectionBase> = any;
+
+interface WithUpdateUserProps {
+  updateUser: WithUpdateFunction<UsersCollection>
+}
+interface WithUpdateCommentProps {
+  updateComment: WithUpdateFunction<CommentsCollection>
+}
+interface WithUpdatePostProps {
+  updatePost: WithUpdateFunction<PostsCollection>
+}

@@ -15,10 +15,13 @@ const styles = theme => ({
   }
 })
 
-const CommentsListMeta = ({classes, children}) => {
+const CommentsListMeta = ({classes, children}: {
+  classes: ClassesType,
+  children: any,
+}) => {
   return <div className={classes.root}>
-      { children }
-    </div>
+    { children }
+  </div>
 }
 
 const CommentsListMetaComponent = registerComponent('CommentsListMeta', CommentsListMeta, {styles});

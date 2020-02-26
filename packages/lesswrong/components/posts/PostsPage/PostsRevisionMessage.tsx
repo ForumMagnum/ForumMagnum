@@ -9,7 +9,14 @@ const styles = theme => ({
   },
 })
 
-const PostsRevisionMessage = ({post, classes}) => {
+interface PostsRevisionMessageFragment {
+  contents: { editedAt: Date }
+}
+
+const PostsRevisionMessage = ({post, classes}: {
+  post: PostsRevisionMessageFragment,
+  classes: ClassesType,
+}) => {
   if (!post.contents)
     return null;
 

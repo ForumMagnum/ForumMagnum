@@ -30,7 +30,7 @@ const styles = theme => ({
 });
 
 const BooksItem = ({ book, canEdit, classes }: {
-  book: any,
+  book: BookPageFragment,
   canEdit: boolean,
   classes: ClassesType,
 }) => {

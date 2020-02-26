@@ -540,7 +540,7 @@ const voteRowStyles = createStyles(theme => ({
 
 const VoteTableRow = withStyles(voteRowStyles, {name: "VoteTableRow"})((
   {post, dispatch, dispatchQuadraticVote, quadraticVotes, useQuadratic, classes, expandedPostId, votes }:
-  {post: any, dispatch: React.Dispatch<vote>, quadraticVotes: vote[], dispatchQuadraticVote: any, useQuadratic: boolean, classes:ClassesType, expandedPostId: string, votes: vote[] }
+  {post: PostsList, dispatch: React.Dispatch<vote>, quadraticVotes: vote[], dispatchQuadraticVote: any, useQuadratic: boolean, classes:ClassesType, expandedPostId: string, votes: vote[] }
 ) => {
   const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo } = Components
 

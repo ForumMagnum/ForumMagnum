@@ -16,15 +16,3 @@ declare module 'meteor/email';
 declare module 'meteor/tracker';
 declare module 'meteor/session';
 declare module 'meteor/http';
-
-/*type C<T=any> = React.ComponentType<T>
-type HoC<O,T> = (component: C<O>) => C<T>
-
-declare global {
-  // Type for registering components without any HoCs
-  export function registerComponent<PropType>(name: string, rawComponent: React.ComponentType<PropType>): React.ComponentType<PropType>
-  
-  //export function registerComponent<ModifiedType,PropType>(name: string, rawComponent: React.ComponentType<PropType>, ...hocs: any): React.ComponentType<ModifiedType>
-  
-  export function registerComponent<PropType>(name: string, rawComponent: React.ComponentType<PropType>, {styles, hocs}: {styles?: any, hocs?: Array<any>}): React.ComponentType<Omit<PropType,"classes">>
-}*/

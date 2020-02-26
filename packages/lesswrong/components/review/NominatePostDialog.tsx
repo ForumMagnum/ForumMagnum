@@ -35,7 +35,11 @@ const styles = theme => ({
 })
 
 
-const NominatePostDialog = ({classes, post, onClose}) => {
+const NominatePostDialog = ({classes, post, onClose}: {
+  classes: ClassesType,
+  post: PostsBase,
+  onClose: ()=>void,
+}) => {
   const { CommentsNewForm } = Components;
 
   const hintText = <div className={classes.hintText}>

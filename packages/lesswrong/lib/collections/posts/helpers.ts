@@ -1,4 +1,4 @@
-import { Posts } from './collection';
+import { Posts, PostsMinimumForGetPageUrl } from './collection';
 import Users from '../users/collection';
 import { Utils, getSetting } from '../../vulcan-lib';
 
@@ -13,7 +13,7 @@ import { Utils, getSetting } from '../../vulcan-lib';
  * @summary Return a post's link if it has one, else return its post page URL
  * @param {Object} post
  */
-Posts.getLink = function (post, isAbsolute = false, isRedirected = true) {
+Posts.getLink = function (post: PostsBase|DbPost, isAbsolute=false, isRedirected=true): string {
   const url = isRedirected ? Utils.getOutgoingUrl(post.url) : post.url;
   return !!post.url ? url : Posts.getPageUrl(post, isAbsolute);
 };
@@ -42,7 +42,7 @@ Posts.getLinkTarget = function (post) {
  * @summary Get a post author's name
  * @param {Object} post
  */
-Posts.getAuthorName = function (post) {
+Posts.getAuthorName = function (post: DbPost) {
   var user = Users.findOne(post.userId);
   if (user) {
     return Users.getDisplayName(user);
@@ -135,7 +135,7 @@ ${Posts.getLink(post, true, false)}
  * @summary Get URL of a post page.
  * @param {Object} post
  */
-Posts.getPageUrl = function(post, isAbsolute = false, sequenceId=null) {
+Posts.getPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolute=false, sequenceId:string|null=null): string {
   const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
 
   // LESSWRONG – included event and group post urls
@@ -149,7 +149,7 @@ Posts.getPageUrl = function(post, isAbsolute = false, sequenceId=null) {
   return `${prefix}/posts/${post._id}/${post.slug}`;
 };
 
-Posts.getCommentCount = (post) => {
+Posts.getCommentCount = (post: PostsBase|DbPost): number => {
   if (getSetting('forumType') === 'AlignmentForum') {
     return post.afCommentCount || 0;
   } else {
@@ -157,7 +157,7 @@ Posts.getCommentCount = (post) => {
   }
 }
 
-Posts.getCommentCountStr = (post, commentCount) => {
+Posts.getCommentCountStr = (post: PostsBase|DbPost, commentCount?: number|undefined): string => {
   // can be passed in a manual comment count, or retrieve the post's cached comment count
 
   const count = commentCount != undefined ? commentCount :  Posts.getCommentCount(post)

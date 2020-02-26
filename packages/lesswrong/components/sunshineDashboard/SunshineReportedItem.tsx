@@ -113,7 +113,7 @@ const SunshineReportedItemComponent = registerComponent<ExternalProps>('Sunshine
   hocs: [
     withUpdate({
       collection: Comments,
-      fragmentName: 'SelectCommentsList',
+      fragmentName: 'CommentsListWithPostMetadata',
     }),
     withUpdate({
       collection: Posts,

@@ -42,8 +42,8 @@ const styles = theme => ({
 });
 
 interface ExternalProps {
-  tagRel: any,
-  tag: any,
+  tagRel: TagRelMinimumFragment,
+  tag: TagRelMinimumFragment_tag,
 }
 interface FooterTagProps extends ExternalProps, WithHoverProps, WithStylesProps {
 }

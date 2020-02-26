@@ -32,7 +32,11 @@ const styles = theme => ({
   }
 })
 
-const SuggestAlignmentMenuItem = ({ comment, post, classes }) => {
+const SuggestAlignmentMenuItem = ({ comment, post, classes }: {
+  comment: CommentsList,
+  post: PostsList,
+  classes: ClassesType,
+}) => {
   const currentUser = useCurrentUser();
   const { mutate: updateComment } = useUpdate({
     collection: Comments,

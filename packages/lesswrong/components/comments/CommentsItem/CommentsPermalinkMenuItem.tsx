@@ -6,7 +6,10 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { Comments } from "../../../lib/collections/comments";
 
-const CommentsPermalinkMenuItem = ({comment, post}) => {
+const CommentsPermalinkMenuItem = ({comment, post}: {
+  comment: HasIdType,
+  post: PostsBase,
+}) => {
   return <Link to={Comments.getPageUrlFromIds({postId: post._id, postSlug: post.slug, commentId: comment._id})}>
     <MenuItem>
       <ListItemIcon>

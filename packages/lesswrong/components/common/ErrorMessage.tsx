@@ -8,7 +8,10 @@ const styles = theme => ({
   }
 })
 
-const ErrorMessage = ({message, classes}) => {
+const ErrorMessage = ({message, classes}: {
+  message: string,
+  classes: ClassesType,
+}) => {
   return <Typography
     className={classes.errorText}
     align="center"

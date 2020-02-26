@@ -4,7 +4,7 @@ import withHover from "../common/withHover";
 
 interface ExternalProps {
   children?: React.ReactNode,
-  post: any,
+  post: PostsList,
 }
 interface PostsItemTooltipWrapperProps extends ExternalProps, WithHoverProps{
 }

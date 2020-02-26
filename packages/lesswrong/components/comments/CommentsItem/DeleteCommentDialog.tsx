@@ -22,7 +22,7 @@ const styles = theme => ({
 interface DeleteCommentDialogProps extends WithMessagesProps, WithStylesProps {
   moderateCommentMutation: any,
   onClose: any,
-  comment: any,
+  comment: CommentsList,
 }
 interface DeleteCommentDialogState {
   deletedReason: string,

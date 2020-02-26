@@ -22,7 +22,7 @@ const DateWithoutTime = ({date}) => {
 }
 
 const PostsItemMeta = ({post, read, classes}: {
-  post: any,
+  post: PostsList,
   read?: boolean,
   classes: ClassesType,
 }) => {

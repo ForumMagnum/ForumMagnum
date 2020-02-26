@@ -98,9 +98,9 @@ export const NewEventNotification = registerNotificationType({
       }
     }
     if (group)
-      return Posts.getAuthorName(document) + ' has created a new event in the group "' + group.name + '"';
+      return Posts.getAuthorName(document as DbPost) + ' has created a new event in the group "' + group.name + '"';
     else
-      return Posts.getAuthorName(document) + ' has created a new event';
+      return Posts.getAuthorName(document as DbPost) + ' has created a new event';
   },
   getIcon() {
     return <AllIcon style={iconStyles} />
@@ -120,9 +120,9 @@ export const NewGroupPostNotification = registerNotificationType({
       }
     }
     if (group)
-      return Posts.getAuthorName(document) + ' has created a new post in the group "' + group.name + '"';
+      return Posts.getAuthorName(document as DbPost) + ' has created a new post in the group "' + group.name + '"';
     else
-      return Posts.getAuthorName(document) + ' has created a new post in a group';
+      return Posts.getAuthorName(document as DbPost) + ' has created a new post in a group';
   },
   getIcon() {
     return <AllIcon style={iconStyles} />

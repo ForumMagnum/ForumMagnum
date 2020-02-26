@@ -10,7 +10,10 @@ const styles = theme => ({
   }
 })
 
-const PostsStats = ({post, classes}) => {
+const PostsStats = ({post, classes}: {
+  post: PostsBase,
+  classes: ClassesType,
+}) => {
 
   return (
     <span className={classes.root}>

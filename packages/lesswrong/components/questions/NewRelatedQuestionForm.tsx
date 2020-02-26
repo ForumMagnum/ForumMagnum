@@ -29,8 +29,10 @@ const styles = theme => ({
   }
 })
 
-const NewRelatedQuestionForm = ({
-  post, classes, refetch
+const NewRelatedQuestionForm = ({ post, classes, refetch }: {
+  post: PostsBase,
+  classes: ClassesType,
+  refetch: any,
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();

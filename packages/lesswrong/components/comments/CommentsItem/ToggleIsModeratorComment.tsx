@@ -6,7 +6,9 @@ import { Comments } from '../../../lib/collections/comments'
 import MenuItem from '@material-ui/core/MenuItem';
 import Users from '../../../lib/collections/users/collection';
 
-const ToggleIsModeratorComment = ({comment}) => {
+const ToggleIsModeratorComment = ({comment}: {
+  comment: CommentsList,
+}) => {
   const currentUser = useCurrentUser();
   const {mutate: updateComment} = useUpdate({
     collection: Comments,
