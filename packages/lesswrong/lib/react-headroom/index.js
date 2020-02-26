@@ -115,9 +115,9 @@ export default class Headroom extends Component {
   setRef = ref => (this.inner = ref)
 
   setHeightOffset = () => {
-    this.setState({
+    /*this.setState({
       height: this.inner ? this.inner.offsetHeight : '',
-    })
+    })*/
     this.resizeTicking = false
   }
 
