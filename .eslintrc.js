@@ -1,4 +1,4 @@
-{
+module.exports = {
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
@@ -73,9 +73,9 @@
     "import/extensions": 0,
     "import/no-cycle": 1,
     "import/no-mutable-exports": 1,
-    "no-restricted-imports": ["error", "paths": [
+    "no-restricted-imports": ["error", {"paths": [
       { name: "lodash", message: "Don't import all of lodash, import a specific lodash function, eg lodash/sumBy" }
-    ]]
+    ]}]
   },
   "env": {
     "browser": true,
