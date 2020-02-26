@@ -4,10 +4,9 @@ import Users from '../../../lib/collections/users/collection';
 import { useCurrentUser } from '../../common/withUser';
 import { useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import { rowStyles } from './MigrationsDashboardRow';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   ...rowStyles,
   row: {
     display: 'flex',
@@ -16,7 +15,7 @@ const styles = createStyles(theme => ({
     borderBottom: '2px solid black',
     marginBottom: theme.spacing.unit / 2,
   }
-}));
+});
 
 const migrationsQuery = gql`
   query MigrationsDashboardQuery {

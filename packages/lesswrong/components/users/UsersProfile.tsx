@@ -129,7 +129,7 @@ class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
     const { history, results, slug } = this.props
     const document = getUserFromResults(results)
     // Javascript redirect to make sure we are always on the most canonical URL for this user
-    if (document && slug !== document?.slug) {
+    if (document && slug !== document.slug) {
       const canonicalUrl = Users.getProfileUrlFromSlug(document.slug);
       history.replace(canonicalUrl);
     }
