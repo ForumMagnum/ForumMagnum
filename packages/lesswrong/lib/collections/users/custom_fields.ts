@@ -1301,6 +1301,7 @@ addFieldsDict(Users, {
       foreignFieldName: "userId"
     }),
     viewableBy: ['guests'],
+    ...schemaDefaultValue(0)
   },
   // The user's associated posts (GraphQL only)
   posts: {
@@ -1338,6 +1339,7 @@ addFieldsDict(Users, {
       foreignFieldName: "userId"
     }),
     canRead: ['guests'],
+    ...schemaDefaultValue(0)
   }
 });
 
