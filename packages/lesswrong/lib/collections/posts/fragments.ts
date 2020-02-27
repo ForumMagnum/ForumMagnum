@@ -39,6 +39,7 @@ registerFragment(`
     # questions
     question
     hiddenRelatedQuestion
+    originalPostRelationSourceId
 
     # vulcan:users
     userId
@@ -112,6 +113,25 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment PostsList on Post {
+    ...PostsBase
+    ...PostsAuthors
+    contents {
+      htmlHighlight
+      wordCount
+      version
+    }
+    moderationGuidelines {
+      ...RevisionDisplay
+    }
+    customHighlight {
+      version
+      html
+    }
+  }
+`);
+
+registerFragment(`
   fragment PostsDetails on Post {
     ...PostsBase
     ...PostsAuthors
@@ -139,8 +159,7 @@ registerFragment(`
     # Moderation stuff
     showModerationGuidelines
     moderationGuidelines {
-      version
-      html
+      ...RevisionDisplay
     }
     customHighlight {
       version
@@ -181,6 +200,7 @@ registerFragment(`
 `);
 
 // Same as PostsPage, with added just optional arguments to the content field
+// and a list of revisions
 registerFragment(`
   fragment PostsRevision on Post {
     ...PostsDetails
@@ -307,24 +327,6 @@ registerFragment(`
   }
 `)
 
-
-registerFragment(`
-  fragment PostsList on Post {
-    ...PostsBase
-    ...PostsAuthors
-    originalPostRelationSourceId
-    contents {
-      htmlHighlight
-      wordCount
-    }
-    moderationGuidelines {
-      ...RevisionDisplay
-    }
-    customHighlight {
-      ...RevisionDisplay
-    }
-  }
-`);
 
 registerFragment(`
   fragment PostsRecentDiscussion on Post {

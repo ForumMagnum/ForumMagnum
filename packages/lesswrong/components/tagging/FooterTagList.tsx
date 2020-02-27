@@ -23,7 +23,10 @@ const styles = theme => ({
   },
 });
 
-const FooterTagList = ({post, classes}) => {
+const FooterTagList = ({post, classes}: {
+  post: PostsBase,
+  classes: ClassesType,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
   

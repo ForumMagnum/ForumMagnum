@@ -11,6 +11,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import withUser from '../common/withUser';
+import { CommentTreeNode } from '../../lib/utils/unflatten';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
@@ -49,13 +50,13 @@ const styles = theme => ({
 
 interface ExternalProps {
   lastEvent: any,
-  post: any,
+  post: PostsList,
   commentCount: number,
   loadMoreCount?: number,
   totalComments: number,
   loadMoreComments: any,
   loadingMoreComments: boolean,
-  comments: any,
+  comments: Array<CommentTreeNode<CommentsList>>,
   parentAnswerId?: string,
   startThreadTruncated?: boolean,
   newForm: boolean,

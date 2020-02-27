@@ -13,7 +13,10 @@ const styles = theme => ({
 
 const previewPostCount = 4;
 
-const TagPreview = ({tag, classes}) => {
+const TagPreview = ({tag, classes}: {
+  tag: TagFragment,
+  classes: ClassesType,
+}) => {
   const { ContentItemBody, PostsItem2, PostsListPlaceholder, SectionFooter } = Components;
   const { results } = useMulti({
     skip: !(tag?._id),

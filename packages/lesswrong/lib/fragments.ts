@@ -244,12 +244,14 @@ registerFragment(`
 `)
 
 registerFragment(`
-  fragment SelectCommentsList on Comment {
+  fragment CommentsListWithPostMetadata on Comment {
     ...CommentsList
     post {
       title
       _id
       slug
+      isEvent
+      groupId
     }
   }
 `);

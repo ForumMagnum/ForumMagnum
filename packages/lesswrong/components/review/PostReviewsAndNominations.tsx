@@ -18,7 +18,7 @@ const PostReviewsAndNominations = ({ terms, classes, title, post, singleLine }: 
   terms: any,
   classes: ClassesType,
   title?: string,
-  post: any,
+  post: PostsList,
   singleLine?: boolean,
 }) => {
 

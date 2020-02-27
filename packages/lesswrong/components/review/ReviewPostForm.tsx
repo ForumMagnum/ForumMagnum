@@ -76,7 +76,11 @@ const styles = (theme) => ({
   }
 })
 
-const ReviewPostForm = ({classes, post, onClose}) => {
+const ReviewPostForm = ({classes, post, onClose}: {
+  classes: ClassesType,
+  post: PostsList,
+  onClose: ()=>void,
+}) => {
   const { CommentsNewForm } = Components 
   const [ showPrompt, setShowPrompt ] = useState(true)
 

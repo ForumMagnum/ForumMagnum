@@ -28,7 +28,10 @@ const styles = theme => ({
   },
 })
 
-const NewAnswerForm = ({post, classes}) => {
+const NewAnswerForm = ({post, classes}: {
+  post: PostsBase,
+  classes: ClassesType,
+}) => {
   const currentUser = useCurrentUser();
   const SubmitComponent = ({submitLabel = "Submit"}) => {
     const { openDialog } = useDialog();

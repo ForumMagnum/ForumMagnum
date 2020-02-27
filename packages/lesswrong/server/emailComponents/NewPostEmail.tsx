@@ -1,6 +1,5 @@
 import React from 'react';
 import { Posts } from '../../lib/collections/posts';
-import { withStyles } from '@material-ui/core/styles';
 import { Components, registerComponent } from '../vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import './EmailFormatDate';

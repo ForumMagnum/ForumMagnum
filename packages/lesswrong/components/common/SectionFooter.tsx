@@ -31,7 +31,10 @@ const styles = (theme) => ({
   }
 })
 
-const SectionFooter = ({ children, classes }) => {
+const SectionFooter = ({ children, classes }: {
+  children: React.ReactNode,
+  classes: ClassesType,
+}) => {
   return (
     <Typography variant="body2" className={classes.root}>
       { children }

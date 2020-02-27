@@ -65,7 +65,10 @@ const styles = theme => ({
   }
 })
 
-const BottomNavigation = ({post, classes}) => {
+const BottomNavigation = ({post, classes}: {
+  post: PostSequenceNavigation,
+  classes: ClassesType,
+}) => {
   const { nextPost, prevPost } = post;
   
   if (!nextPost && !prevPost)

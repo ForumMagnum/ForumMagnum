@@ -2,7 +2,9 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useHover } from '../common/withHover';
 
-const EventVicinity = ({post}) => {
+const EventVicinity = ({post}: {
+  post: PostsBase
+}) => {
   const { eventHandlers, hover, anchorEl, stopHover } = useHover();
   const { LWPopper } = Components
   if (post.googleLocation && post.googleLocation.vicinity) {

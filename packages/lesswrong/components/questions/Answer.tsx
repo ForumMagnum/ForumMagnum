@@ -95,7 +95,11 @@ const styles = theme => ({
   },
 })
 
-const Answer = ({ comment, post, classes }) => {
+const Answer = ({ comment, post, classes }: {
+  comment: CommentsList,
+  post: PostsList,
+  classes: ClassesType,
+}) => {
   const [showEdit,setShowEdit] = useState(false);
   const [commenting,setCommenting] = useState(false);
   

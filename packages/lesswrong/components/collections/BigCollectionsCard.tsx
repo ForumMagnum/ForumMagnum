@@ -2,6 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import Typography from '@material-ui/core/Typography';
+import { CoreReadingCollection } from '../sequences/CoreReading';
 
 const styles = theme => ({
   root: {
@@ -61,7 +62,11 @@ const styles = theme => ({
   }
 })
 
-const BigCollectionsCard = ({ collection, url, classes }) => {
+const BigCollectionsCard = ({ collection, url, classes }: {
+  collection: CoreReadingCollection,
+  url: string,
+  classes: ClassesType,
+}) => {
   const { LinkCard, UsersName } = Components;
   const cardContentStyle = {borderTopColor: collection.color}
 

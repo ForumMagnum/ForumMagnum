@@ -135,8 +135,7 @@ interface ExternalProps {
   toc: any,
   searchResultsArea: any,
 }
-interface HeaderProps extends ExternalProps, WithUserProps, WithStylesProps, WithTrackingProps {
-  updateUser: any,
+interface HeaderProps extends ExternalProps, WithUserProps, WithStylesProps, WithTrackingProps, WithUpdateUserProps {
   theme: any,
 }
 interface HeaderState {

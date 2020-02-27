@@ -24,7 +24,11 @@ const styles = theme => ({
   }
 });
 
-const AddTag = ({post, onTagSelected, classes}) => {
+const AddTag = ({post, onTagSelected, classes}: {
+  post: PostsBase,
+  onTagSelected: (id:string)=>void,
+  classes: ClassesType,
+}) => {
   const currentUser = useCurrentUser();
   const [searchOpen, setSearchOpen] = React.useState(false);
   const searchStateChanged = React.useCallback((searchState) => {

@@ -85,9 +85,8 @@ interface ExternalProps {
   messages: any,
   children?: React.ReactNode,
 }
-interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps {
+interface LayoutProps extends ExternalProps, WithLocationProps, WithStylesProps, WithUpdateUserProps {
   cookies: any,
-  updateUser: any,
   theme: any,
 }
 interface LayoutState {

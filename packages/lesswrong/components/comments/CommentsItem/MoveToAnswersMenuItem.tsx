@@ -9,12 +9,10 @@ import withUser from '../../common/withUser';
 import { withApollo } from 'react-apollo'
 
 interface ExternalProps {
-  comment: any,
-  post: any,
+  comment: CommentsList,
+  post: PostsBase,
 }
-interface MoveToAnswersMenuItemProps extends ExternalProps, WithMessagesProps, WithUserProps {
-  updateComment?: any,
-  client?: any,
+interface MoveToAnswersMenuItemProps extends ExternalProps, WithMessagesProps, WithUserProps, WithUpdateCommentProps, WithApolloProps {
 }
 class MoveToAnswersMenuItem extends PureComponent<MoveToAnswersMenuItemProps,{}> {
 

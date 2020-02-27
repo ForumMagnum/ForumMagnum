@@ -18,7 +18,9 @@ const styles = theme => ({
   }
 });
 
-const AllTagsPage = ({classes}) => {
+const AllTagsPage = ({classes}: {
+  classes: ClassesType,
+}) => {
   const currentUser = useCurrentUser();
   const { results, loading } = useMulti({
     terms: {

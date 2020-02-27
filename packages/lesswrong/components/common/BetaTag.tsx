@@ -11,7 +11,9 @@ const styles = (theme) => ({
   }
 });
 
-const BetaTag = ({classes}) => {
+const BetaTag = ({classes}: {
+  classes: ClassesType
+}) => {
   return <span className={classes.root}>[Beta]</span>
 }
 

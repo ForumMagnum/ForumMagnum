@@ -1,5 +1,4 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import { FormattedMessage } from '../../lib/vulcan-i18n';
 import { Comments } from "../../lib/collections/comments";
@@ -9,6 +8,7 @@ import withGlobalKeydown from '../common/withGlobalKeydown';
 import { Link } from '../../lib/reactRouterWrapper';
 import { TRUNCATION_KARMA_THRESHOLD } from '../../lib/editor/ellipsize'
 import withUser from '../common/withUser';
+import { CommentTreeNode } from '../../lib/utils/unflatten';
 
 const styles = theme => ({
   button: {
@@ -23,16 +23,15 @@ const styles = theme => ({
 export const POST_COMMENT_COUNT_TRUNCATE_THRESHOLD = 70
 
 interface ExternalProps {
-  comments: any,
+  comments: Array<CommentTreeNode<CommentsList>>,
   totalComments?: number,
   highlightDate?: Date,
-  post: any,
+  post: PostsList,
   postPage?: boolean,
   condensed?: boolean,
   startThreadTruncated?: boolean,
-  parentAnswerId?: any,
+  parentAnswerId?: string,
   defaultNestingLevel?: number,
-  hideReadComments?: boolean,
   lastCommentId?: string,
   markAsRead?: any,
   parentCommentId?: string,
@@ -41,14 +40,13 @@ interface ExternalProps {
   enableHoverPreview?: boolean,
   forceNotSingleLine?: boolean,
 }
-interface CommentsListProps extends ExternalProps, WithUserProps, WithGlobalKeydownProps, WithStylesProps  {
-  updateComment: any,
+interface CommentsListProps extends ExternalProps, WithUserProps, WithGlobalKeydownProps, WithStylesProps {
 }
 interface CommentsListState {
   expandAllThreads: boolean,
 }
 
-class CommentsList extends Component<CommentsListProps,CommentsListState> {
+class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
   state: CommentsListState = { expandAllThreads: false }
 
   handleKeyDown = (event) => {
@@ -68,7 +66,7 @@ class CommentsList extends Component<CommentsListProps,CommentsListState> {
       return true;
 
     if(!shallowEqualExcept(this.props, nextProps,
-      ["post","comments","updateComment"]))
+      ["post","comments"]))
     {
       return true;
     }
@@ -129,7 +127,7 @@ class CommentsList extends Component<CommentsListProps,CommentsListState> {
   }
 
   render() {
-    const { comments, highlightDate, updateComment, post, postPage, totalComments=0, condensed, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1, hideReadComments, lastCommentId, markAsRead, parentCommentId, forceSingleLine, hideSingleLineMeta, enableHoverPreview, forceNotSingleLine } = this.props;
+    const { comments, highlightDate, post, postPage, totalComments=0, condensed, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1, lastCommentId, markAsRead, parentCommentId, forceSingleLine, hideSingleLineMeta, enableHoverPreview, forceNotSingleLine } = this.props;
 
     const { expandAllThreads } = this.state
     const { lastVisitedAt } = post
@@ -154,7 +152,6 @@ class CommentsList extends Component<CommentsListProps,CommentsListState> {
                 children={comment.children}
                 key={comment.item._id}
                 highlightDate={highlightDate}
-                updateComment={updateComment}
                 post={post}
                 postPage={postPage}
                 parentAnswerId={parentAnswerId}
@@ -163,7 +160,6 @@ class CommentsList extends Component<CommentsListProps,CommentsListState> {
                 forceNotSingleLine={forceNotSingleLine}
                 hideSingleLineMeta={hideSingleLineMeta}
                 enableHoverPreview={enableHoverPreview}
-                hideReadComments={hideReadComments}
                 shortform={post.shortform}
                 child={defaultNestingLevel > 1}
                 markAsRead={markAsRead}
@@ -186,12 +182,8 @@ class CommentsList extends Component<CommentsListProps,CommentsListState> {
 
 
 const CommentsListComponent = registerComponent<ExternalProps>(
-  'CommentsList', CommentsList, {
+  'CommentsList', CommentsListClass, {
     styles, hocs: [
-      withUpdate({
-        collection: Comments,
-        fragmentName: 'CommentsList',
-      }),
       withUser,
       withGlobalKeydown,
     ]

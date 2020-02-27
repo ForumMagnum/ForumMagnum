@@ -17,7 +17,7 @@ const styles = theme => ({
 })
 
 interface ExternalProps {
-  post: any,
+  post: PostsList,
   vertical?: boolean,
 }
 interface PostsPageActionsProps extends ExternalProps, WithUserProps, WithTrackingProps, WithStylesProps {

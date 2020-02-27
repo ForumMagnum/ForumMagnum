@@ -25,7 +25,10 @@ const styles = theme => ({
   }
 })
 
-const PostsPageTitle = ({classes, post}) => {
+const PostsPageTitle = ({classes, post}: {
+  classes: ClassesType,
+  post: PostsDetails,
+}) => {
   const parentPost = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)?.[0]?.sourcePost
 
   

@@ -86,24 +86,24 @@ const sortings = {
   top: "Top"
 }
 
-export const getUserFromResults = (results) => {
+export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>|null): T|null => {
   // HOTFIX: Filtering out invalid users
-  return results?.find(user => !!user.displayName) || results?.[0]
+  return results?.find(user => !!user.displayName) || results?.[0] || null
 }
 
 interface ExternalProps {
   terms: any,
-  slug: any,
+  slug: string,
 }
 interface UsersProfileProps extends ExternalProps, WithUserProps, WithStylesProps, WithLocationProps, WithNavigationProps {
   loading: boolean,
-  results: any,
+  results: Array<UsersProfile>|null,
 }
 interface UsersProfileState {
   showSettings: boolean,
 }
 
-class UsersProfile extends Component<UsersProfileProps,UsersProfileState> {
+class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
   state: UsersProfileState = {
     showSettings: false
   }
@@ -129,7 +129,7 @@ class UsersProfile extends Component<UsersProfileProps,UsersProfileState> {
     const { history, results, slug } = this.props
     const document = getUserFromResults(results)
     // Javascript redirect to make sure we are always on the most canonical URL for this user
-    if (slug !== document?.slug) {
+    if (document && slug !== document.slug) {
       const canonicalUrl = Users.getProfileUrlFromSlug(document.slug);
       history.replace(canonicalUrl);
     }
@@ -250,9 +250,6 @@ class UsersProfile extends Component<UsersProfileProps,UsersProfileState> {
 
             <SectionFooter>
               { this.renderMeta() }
-              { user.twitterUsername &&  <a href={"https://twitter.com/" + user.twitterUsername}>
-                @{user.twitterUsername}
-              </a>}
               { currentUser?.isAdmin &&
                 <div>
                   <DialogGroup
@@ -341,7 +338,7 @@ class UsersProfile extends Component<UsersProfileProps,UsersProfileState> {
 }
 
 const UsersProfileComponent = registerComponent<ExternalProps>(
-  'UsersProfile', UsersProfile, {
+  'UsersProfile', UsersProfileClass, {
     styles,
     hocs: [
       withUser,

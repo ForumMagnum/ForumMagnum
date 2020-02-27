@@ -1,9 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts';
-import { Comments } from '../../lib/collections/comments'
 import { useCurrentUser } from '../common/withUser';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
@@ -23,10 +21,6 @@ const RecentDiscussionThreadsList = ({
   const [showShortformFeed, setShowShortformFeed] = useState(false);
   const currentUser = useCurrentUser();
   
-  const {mutate: updateComment} = useUpdate({
-    collection: Comments,
-    fragmentName: 'CommentsList',
-  });
   const { results, loading, loadMore, loadingMore, refetch } = useMulti({
     terms,
     collection: Posts,
@@ -90,7 +84,7 @@ const RecentDiscussionThreadsList = ({
               refetch={refetch}
               comments={post.recentComments}
               expandAllThreads={expandAll}
-              updateComment={updateComment}/>
+            />
           )}
         </div>}
         <AnalyticsInViewTracker eventProps={{inViewType: "loadMoreButton"}}>

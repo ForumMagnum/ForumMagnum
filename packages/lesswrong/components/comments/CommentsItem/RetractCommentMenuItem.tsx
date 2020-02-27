@@ -6,7 +6,9 @@ import { useCurrentUser } from '../../common/withUser';
 import MenuItem from '@material-ui/core/MenuItem';
 import Tooltip from '@material-ui/core/Tooltip';
 
-const RetractCommentMenuItem = ({comment}) => {
+const RetractCommentMenuItem = ({comment}: {
+  comment: CommentsList,
+}) => {
   const currentUser = useCurrentUser();
   const {mutate: updateComment} = useUpdate({
     collection: Comments,

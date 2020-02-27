@@ -1,5 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withSingle } from '../../lib/crud/withSingle';
+import { useSingle } from '../../lib/crud/withSingle';
 import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import DragIcon from '@material-ui/icons/DragHandle';
@@ -37,8 +37,17 @@ const styles = theme => ({
   }
 });
 
-const PostsItemWrapper = ({document, loading, classes, ...props}) => {
+const PostsItemWrapper = ({documentId, classes, removeItem}: {
+  documentId: string,
+  classes: ClassesType,
+  removeItem: any,
+}) => {
   const { PostsTitle, PostsItem2MetaInfo } = Components
+  const { document, loading } = useSingle({
+    documentId,
+    collection: Posts,
+    fragmentName: 'PostsList',
+  });
 
   if (document && !loading) {
     return <div className={classes.root}>
@@ -52,22 +61,14 @@ const PostsItemWrapper = ({document, loading, classes, ...props}) => {
       <PostsItem2MetaInfo className={classes.meta}>
         {document.baseScore} points
       </PostsItem2MetaInfo>
-      <RemoveIcon className={classes.removeIcon} onClick={() => props.removeItem(document._id)} />
+      <RemoveIcon className={classes.removeIcon} onClick={() => removeItem(document._id)} />
     </div>
   } else {
     return <Components.Loading />
   }
 };
 
-const PostsItemWrapperComponent = registerComponent('PostsItemWrapper', PostsItemWrapper, {
-  styles,
-  hocs: [
-    withSingle({
-      collection: Posts,
-      fragmentName: 'PostsList',
-    }),
-  ]
-});
+const PostsItemWrapperComponent = registerComponent('PostsItemWrapper', PostsItemWrapper, {styles});
 
 declare global {
   interface ComponentTypes {
