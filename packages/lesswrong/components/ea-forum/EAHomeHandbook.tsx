@@ -123,14 +123,14 @@ const EAHomeHandbook = ({ classes, documentId }) => {
     fragmentName: 'SequencesPageFragment',
   });
   const { flash } = useMessages();
-  const [cookies] = useCookies([COOKIE_NAME]);
-  const hideHandbook = cookies.get(COOKIE_NAME)
+  const [cookies, setCookie] = useCookies([COOKIE_NAME]);
+  const hideHandbook = cookies[COOKIE_NAME]
   if (hideHandbook) return null
   if (loading || !document) return <Loading />
 
 
   const handleDismiss = () => {
-    cookies.set(COOKIE_NAME, 'true', {
+    setCookie(COOKIE_NAME, 'true', {
       expires: END_OF_TIME
     })
     flash({
