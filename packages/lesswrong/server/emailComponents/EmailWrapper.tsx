@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent, getSetting, Utils } from '../../lib/vulcan-lib';
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   root: {

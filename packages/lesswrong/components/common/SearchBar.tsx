@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
-import { registerComponent, Components, getSetting } from '../../lib/vulcan-lib';
+import { registerComponent, Components, getSetting, addCallback, removeCallback } from '../../lib/vulcan-lib';
 import { InstantSearch, SearchBox, connectMenu } from 'react-instantsearch-dom';
 import classNames from 'classnames';
 import SearchIcon from '@material-ui/icons/Search';
 import CloseIcon from '@material-ui/icons/Close';
 import Portal from '@material-ui/core/Portal';
-import { addCallback, removeCallback } from '../../lib/vulcan-lib';
 import { withLocation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
