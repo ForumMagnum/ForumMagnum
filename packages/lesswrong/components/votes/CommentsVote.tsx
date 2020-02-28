@@ -6,6 +6,7 @@ import moment from '../../lib/moment-timezone';
 import { useHover } from '../common/withHover';
 import { useCurrentUser } from '../common/withUser';
 import { useVote } from './withVote';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = theme => ({
   vote: {
@@ -59,7 +60,7 @@ const CommentsVote = ({ comment, hideKarma=false, classes }: {
     <span className={classes.vote} {...eventHandlers}>
       {(getSetting('forumType') !== 'AlignmentForum' || !!comment.af) &&
         <span>
-          <LWTooltip
+          <Tooltip
             title={<div>Downvote<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
             placement="bottom"
             >
@@ -74,18 +75,18 @@ const CommentsVote = ({ comment, hideKarma=false, classes }: {
                 vote={vote}
               />
             </span>
-          </LWTooltip>
+          </Tooltip>
           {hideKarma ?
-            <LWTooltip title={'The author of this post has disabled karma visibility'}>
+            <Tooltip title={'The author of this post has disabled karma visibility'}>
               <span>{' '}</span>
-            </LWTooltip> :
-            <LWTooltip title={`This comment has ${karma} karma (${voteCount} ${voteCount == 1 ? "Vote" : "Votes"})`} placement="bottom">
+            </Tooltip> :
+            <Tooltip title={`This comment has ${karma} karma (${voteCount} ${voteCount == 1 ? "Vote" : "Votes"})`} placement="bottom">
               <span className={classes.voteScore}>
                 {karma}
               </span>
-            </LWTooltip>
+            </Tooltip>
           }
-          <LWTooltip
+          <Tooltip
             title={<div>Upvote<br /><em>For strong upvote, click-and-hold<br /> (Click twice on mobile)</em></div>}
             placement="bottom">
             <span>
@@ -99,11 +100,11 @@ const CommentsVote = ({ comment, hideKarma=false, classes }: {
                 vote={vote}
               />
             </span>
-          </LWTooltip>
+          </Tooltip>
         </span>
       }
       {!!comment.af && getSetting('forumType') !== 'AlignmentForum' &&
-        <LWTooltip placement="bottom" title={
+        <Tooltip placement="bottom" title={
           <div>
             <p>AI Alignment Forum Karma</p>
             { moveToAfInfo }
@@ -113,15 +114,15 @@ const CommentsVote = ({ comment, hideKarma=false, classes }: {
             <span className={classes.secondarySymbol}>Ω</span>
             <span className={classes.secondaryScoreNumber}>{comment.afBaseScore || 0}</span>
           </span>
-        </LWTooltip>
+        </Tooltip>
       }
       {!comment.af && (getSetting('forumType') === 'AlignmentForum') &&
-        <LWTooltip title="LessWrong Karma" placement="bottom">
+        <Tooltip title="LessWrong Karma" placement="bottom">
           <span className={classes.secondaryScore}>
             <span className={classes.secondarySymbol}>LW</span>
             <span className={classes.secondaryScoreNumber}>{comment.baseScore || 0}</span>
           </span>
-        </LWTooltip>
+        </Tooltip>
       }
     </span>)
 }
