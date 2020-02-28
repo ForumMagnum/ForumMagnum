@@ -32,6 +32,8 @@ const LWTooltip = ({classes, children, title, placement="bottom-start", tooltip=
     title: typeof title=="string" ? title : undefined
   });
   
+  if (!title) return children
+
   return <span className={classes.root} {...eventHandlers}>
     { /* Only render the LWPopper if this element has ever been hovered. (But
          keep it in the React tree thereafter, so it can remember its state and
