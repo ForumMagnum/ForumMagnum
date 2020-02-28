@@ -20,6 +20,7 @@ registerFragment(`
     isDeleted
     hidden
     curatedOrder
+    userProfileOrder
     af
   }
 `);
