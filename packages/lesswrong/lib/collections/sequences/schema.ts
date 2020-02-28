@@ -118,8 +118,8 @@ const schema = {
     type: Number,
     optional: true,
     viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    insertableBy: ['admins', 'sunshineRegiment'],
   },
 
   draft: {
