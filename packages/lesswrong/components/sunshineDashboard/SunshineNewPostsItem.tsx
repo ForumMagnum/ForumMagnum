@@ -63,7 +63,7 @@ class SunshineNewPostsItem extends Component<SunshineNewPostsItemProps> {
 
   render () {
     const { post, hover, anchorEl } = this.props
-    const { MetaInfo } = Components
+    const { MetaInfo, FooterTagList } = Components
     const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
     const { html: userGuidelinesHtml = "" } = post.user.moderationGuidelines || {}
 
@@ -91,6 +91,7 @@ class SunshineNewPostsItem extends Component<SunshineNewPostsItemProps> {
             </MetaInfo>
           </div>
           <Components.PostsHighlight post={post}/>
+          <FooterTagList post={post} />
         </Components.SidebarHoverOver>
         <Link to={Posts.getPageUrl(post)}>
             {post.title}
