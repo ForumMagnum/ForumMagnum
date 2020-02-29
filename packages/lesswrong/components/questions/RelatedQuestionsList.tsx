@@ -42,12 +42,9 @@ const styles = theme => ({
   subQuestion: {
     marginBottom: theme.spacing.unit,
   },
-  hasSubSubQuestions: {
-    borderLeft: "solid 2px rgba(0,0,0,.15)"
-  },
   subSubQuestions: {
-    marginLeft: theme.spacing.unit,
-    background: "rgba(0,0,0,.05)"
+    paddingLeft: theme.spacing.unit,
+    borderLeft: "solid 1px rgba(0,0,0,.15)"
   }
 })
 
@@ -84,7 +81,7 @@ const RelatedQuestionsList = ({ post, classes }: {
 
         const showSubQuestions = subQuestionTargetPostRelations.length >= 1
         return (
-          <div key={rel._id} className={classNames(classes.subQuestion, {[classes.hasSubSubQuestions]:showSubQuestions})} >
+          <div key={rel._id} className={classes.subQuestion} >
             <PostsItem2 
               post={rel.targetPost} 
               index={i}
@@ -92,7 +89,7 @@ const RelatedQuestionsList = ({ post, classes }: {
               showPostedAt={false}
               showIcons={false}
               showBottomBorder={!showSubQuestions}
-              defaultToShowUnreadComments={true}
+              defaultToShowComments={true}
             />
             {showSubQuestions && <div className={classes.subSubQuestions}>
               {subQuestionTargetPostRelations.map((rel, i) => <PostsItem2 
@@ -101,7 +98,7 @@ const RelatedQuestionsList = ({ post, classes }: {
                 showQuestionTag={false}
                 showPostedAt={false}
                 showIcons={false}
-                defaultToShowUnreadComments={true}
+                defaultToShowComments={true}
                 index={i}
               />)}
             </div>}
