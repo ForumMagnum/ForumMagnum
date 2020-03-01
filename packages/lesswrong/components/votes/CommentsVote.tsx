@@ -46,7 +46,7 @@ const CommentsVote = ({ comment, hideKarma=false, classes }: {
   
   if (!comment) return null;
 
-  const { VoteButton, LWTooltip } = Components
+  const { VoteButton } = Components
   const voteCount = comment.voteCount;
   const karma = Comments.getKarma(comment)
 
