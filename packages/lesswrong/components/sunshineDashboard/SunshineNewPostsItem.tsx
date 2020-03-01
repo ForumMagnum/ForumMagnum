@@ -63,13 +63,13 @@ class SunshineNewPostsItem extends Component<SunshineNewPostsItemProps> {
 
   render () {
     const { post, hover, anchorEl } = this.props
-    const { MetaInfo, FooterTagList } = Components
+    const { MetaInfo, FooterTagList, PostsHighlight, SunshineListItem, SidebarHoverOver, SidebarActionMenu, SidebarAction, SidebarInfo } = Components
     const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
     const { html: userGuidelinesHtml = "" } = post.user.moderationGuidelines || {}
 
     return (
-      <Components.SunshineListItem hover={hover}>
-        <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl}>
+      <SunshineListItem hover={hover}>
+        <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
           <Typography variant="title">
             <Link to={Posts.getPageUrl(post)}>
               { post.title }
@@ -90,39 +90,39 @@ class SunshineNewPostsItem extends Component<SunshineNewPostsItemProps> {
               {!modGuidelinesHtml && userGuidelinesHtml && <span> (Default User Guideline)</span>}
             </MetaInfo>
           </div>
-          <Components.PostsHighlight post={post}/>
           <FooterTagList post={post} />
-        </Components.SidebarHoverOver>
+          <PostsHighlight post={post}/>
+        </SidebarHoverOver>
         <Link to={Posts.getPageUrl(post)}>
             {post.title}
         </Link>
         <div>
-          <Components.SidebarInfo>
+          <SidebarInfo>
             { post.baseScore }
-          </Components.SidebarInfo>
-          <Components.SidebarInfo>
+          </SidebarInfo>
+          <SidebarInfo>
             <Link
               className="sunshine-sidebar-posts-author"
               to={Users.getProfileUrl(post.user)}>
                 {post.user && post.user.displayName}
             </Link>
-          </Components.SidebarInfo>
+          </SidebarInfo>
         </div>
-        { hover && <Components.SidebarActionMenu>
-          <Components.SidebarAction title="Leave on Personal Blog" onClick={this.handleReview}>
+        { hover && <SidebarActionMenu>
+          <SidebarAction title="Leave on Personal Blog" onClick={this.handleReview}>
             <DoneIcon />
-          </Components.SidebarAction>
-          {post.submitToFrontpage && <Components.SidebarAction title="Move to Frontpage" onClick={this.handlePromote('frontpage')}>
+          </SidebarAction>
+          {post.submitToFrontpage && <SidebarAction title="Move to Frontpage" onClick={this.handlePromote('frontpage')}>
             <ThumbUpIcon />
-          </Components.SidebarAction>}
-          {getSetting('forumType') === 'EAForum' && post.submitToFrontpage && <Components.SidebarAction title="Move to Community" onClick={this.handlePromote('community')}>
+          </SidebarAction>}
+          {getSetting('forumType') === 'EAForum' && post.submitToFrontpage && <SidebarAction title="Move to Community" onClick={this.handlePromote('community')}>
             <GroupIcon />
-          </Components.SidebarAction>}
-          <Components.SidebarAction title="Move to Drafts" onClick={this.handleDelete} warningHighlight>
+          </SidebarAction>}
+          <SidebarAction title="Move to Drafts" onClick={this.handleDelete} warningHighlight>
             <ClearIcon />
-          </Components.SidebarAction>
-        </Components.SidebarActionMenu>}
-      </Components.SunshineListItem>
+          </SidebarAction>
+        </SidebarActionMenu>}
+      </SunshineListItem>
     )
   }
 }
