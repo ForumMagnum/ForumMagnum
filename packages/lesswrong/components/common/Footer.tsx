@@ -3,7 +3,7 @@ import React from 'react';
 
 const styles = theme => ({
   root: {
-    height: 150,
+    height: 250,
   }
 });
 
