@@ -413,7 +413,7 @@ const PostsItem2 = ({
 
   const { PostsItemComments, PostsItemKarma, PostsTitle, PostsUserAndCoauthors, LWTooltip, 
     PostsPageActions, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
-    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker } = (Components as ComponentTypes)
+    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker, PostsItemTagRelevance } = (Components as ComponentTypes)
 
   const postLink = Posts.getPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
@@ -448,7 +448,7 @@ const PostsItem2 = ({
         >
           <PostsItemTooltipWrapper post={post}>
             <div className={classes.withGrayHover}>
-              {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} post={post} />}
+              {tagRel && <PostsItemTagRelevance tagRel={tagRel} post={post} />}
 
               <div className={classNames(classes.postsItem, {
                 [classes.dense]: dense,
