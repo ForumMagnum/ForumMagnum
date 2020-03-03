@@ -30,11 +30,11 @@ export const useVote = () => {
   const query = getVoteMutationQuery();
   const [mutate] = useMutation(query);
   
-  const vote = React.useCallback(({document, voteType, collection, currentUser, voteId = Random.id()}) => {
+  const vote = React.useCallback(async ({document, voteType, collection, currentUser, voteId = Random.id()}) => {
     const newDocument = performVoteClient({collection, document, user: currentUser, voteType, voteId});
 
     try {
-      mutate({
+      await mutate({
         variables: {
           documentId: document._id,
           voteType,
