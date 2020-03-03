@@ -106,17 +106,20 @@ class VoteButton extends PureComponent<VoteButtonProps,VoteButtonState> {
   }
 
   vote = async (type) => {
-    const document = this.props.document;
-    const collection = this.props.collection;
-    const user = this.props.currentUser;
-    if(!user){
+    const { document, collection, currentUser, refetch, vote } = this.props
+    
+    if(!currentUser){
       this.props.openDialog({
         componentName: "LoginPopup",
         componentProps: {}
       });
     } else {
-      await this.props.vote({document, voteType: type, collection, currentUser: this.props.currentUser});
-      this.props.refetch()
+      if (refetch) {
+        await vote({document, voteType: type, collection, currentUser});
+        refetch()
+      } else {
+        vote({document, voteType: type, collection, currentUser});
+      }
     }
   }
 
