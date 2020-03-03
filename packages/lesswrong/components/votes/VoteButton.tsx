@@ -69,6 +69,7 @@ interface ExternalProps {
 }
 interface VoteButtonProps extends ExternalProps, WithStylesProps, WithDialogProps {
   theme: any,
+  refetch: Function
 }
 interface VoteButtonState {
   voted: boolean,
@@ -104,7 +105,7 @@ class VoteButton extends PureComponent<VoteButtonProps,VoteButtonState> {
     this.setState({bigVotingTransition: false, bigVoteCompleted: false})
   }
 
-  vote = (type) => {
+  vote = async (type) => {
     const document = this.props.document;
     const collection = this.props.collection;
     const user = this.props.currentUser;
@@ -114,9 +115,9 @@ class VoteButton extends PureComponent<VoteButtonProps,VoteButtonState> {
         componentProps: {}
       });
     } else {
-      this.props.vote({document, voteType: type, collection, currentUser: this.props.currentUser});
+      await this.props.vote({document, voteType: type, collection, currentUser: this.props.currentUser});
+      this.props.refetch()
     }
-    this.props.refetch()
   }
 
   handleMouseUp = () => { // This handler is only used on desktop

@@ -82,7 +82,7 @@ const PostsList2 = ({
   defaultToShowUnreadComments?: boolean,
 }) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
-  const { results, loading, error, count, totalCount, loadMore, limit, refetch } = useMulti({
+  const { results, loading, error, count, totalCount, loadMore, limit } = useMulti({
     terms: terms,
     collection: Posts,
     fragmentName: 'PostsList',
@@ -149,7 +149,7 @@ const PostsList2 = ({
 
 
       {orderedResults && orderedResults.map((post, i) => {
-        const props = { post, index: i, terms, showNominationCount, showReviewCount, dense, refetch, defaultToShowUnreadComments, showPostedAt, showQuestionTag: terms.filter!=="questions" }
+        const props = { post, index: i, terms, showNominationCount, showReviewCount, dense, defaultToShowUnreadComments, showPostedAt, showQuestionTag: terms.filter!=="questions" }
 
         if (!(hidePosts && hidePosts[i])) return <PostsItem2 key={post._id} index={i} {...props} />
       })}

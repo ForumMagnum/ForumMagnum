@@ -25,7 +25,7 @@ const TagPage = ({classes}: {
   const { slug } = params;
   const { tag, loading: loadingTag } = useTagBySlug(slug);
   
-  const { results, loading: loadingPosts, loadMoreProps } = useMulti({
+  const { results, loading: loadingPosts, loadMoreProps, refetch } = useMulti({
     skip: !(tag?._id),
     terms: {
       view: "postsWithTag",
@@ -58,7 +58,7 @@ const TagPage = ({classes}: {
     </div>}
     {loadingPosts && <Loading/>}
     {results && results.map((result,i) =>
-      result.post && <PostsItem2 key={result.post._id} tagRel={result} post={result.post} index={i} />
+      result.post && <PostsItem2 key={result.post._id} tagRel={result} post={result.post} index={i} refetch={refetch} />
     )}
     <SectionFooter>
       <Components.LoadMore {...loadMoreProps} />
