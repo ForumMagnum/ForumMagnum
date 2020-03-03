@@ -39,7 +39,7 @@ const PostsItemTagRelevance = ({tagRel, post, classes, refetch}: {
   tagRel: TagRelFragment,
   post: PostsBase,
   classes: ClassesType,
-  refetch: Function
+  refetch: any
 }) => {
   const { VoteButton } = Components;
   const currentUser = useCurrentUser();

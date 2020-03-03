@@ -371,7 +371,7 @@ const PostsItem2 = ({
   bookmark?: boolean,
   showNominationCount?: boolean,
   showReviewCount?: boolean,
-  refetch: Function, 
+  refetch: any, 
   recordPostView?: any,
   isRead?: boolean,
   classes: ClassesType,

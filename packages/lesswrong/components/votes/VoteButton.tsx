@@ -65,11 +65,11 @@ interface ExternalProps {
   color: any,
   orientation: string,
   currentUser: UsersCurrent|null,
-  refetch: Function
+  refetch: any
 }
 interface VoteButtonProps extends ExternalProps, WithStylesProps, WithDialogProps {
   theme: any,
-  refetch: Function
+  refetch: any
 }
 interface VoteButtonState {
   voted: boolean,
