@@ -65,6 +65,7 @@ interface ExternalProps {
   color: any,
   orientation: string,
   currentUser: UsersCurrent|null,
+  refetch: Function
 }
 interface VoteButtonProps extends ExternalProps, WithStylesProps, WithDialogProps {
   theme: any,
@@ -115,6 +116,7 @@ class VoteButton extends PureComponent<VoteButtonProps,VoteButtonState> {
     } else {
       this.props.vote({document, voteType: type, collection, currentUser: this.props.currentUser});
     }
+    this.props.refetch()
   }
 
   handleMouseUp = () => { // This handler is only used on desktop

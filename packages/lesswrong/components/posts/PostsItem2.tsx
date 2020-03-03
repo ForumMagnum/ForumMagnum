@@ -280,7 +280,7 @@ export const styles = (theme) => ({
     paddingBottom:8
   },
   withRelevanceVoting: {
-    marginLeft: 50,
+    marginLeft: 25,
     
     [theme.breakpoints.down('sm')]: {
       marginLeft: 35,
@@ -351,6 +351,7 @@ const PostsItem2 = ({
   recordPostView,
   isRead=false,
   classes,
+  refetch
 }: {
   post: PostsList,
   tagRel?: any,
@@ -370,7 +371,7 @@ const PostsItem2 = ({
   bookmark?: boolean,
   showNominationCount?: boolean,
   showReviewCount?: boolean,
-  
+  refetch: Function, 
   recordPostView?: any,
   isRead?: boolean,
   classes: ClassesType,
@@ -448,7 +449,7 @@ const PostsItem2 = ({
         >
           <PostsItemTooltipWrapper post={post}>
             <div className={classes.withGrayHover}>
-              {tagRel && <PostsItemTagRelevance tagRel={tagRel} post={post} />}
+              {tagRel && <PostsItemTagRelevance tagRel={tagRel} post={post} refetch={refetch}/>}
 
               <div className={classNames(classes.postsItem, {
                 [classes.dense]: dense,
