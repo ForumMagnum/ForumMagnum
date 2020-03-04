@@ -413,6 +413,7 @@ importComponent("ManageSubscriptionsLink", () => require('../components/form-com
 
 // importComponent("PetrovDayButton", () => require('../components/seasonal/PetrovDayButton'));
 // importComponent("PetrovDayLossScreen", () => require('../components/seasonal/PetrovDayLossScreen'));
+importComponent("Covid19Notice", () => require('../components/seasonal/Covid19Notice'));
 
 
 import '../components/alignment-forum/withSetAlignmentPost';
