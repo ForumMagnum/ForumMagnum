@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
-import classNames from 'classnames';
 import * as _ from 'underscore';
 
 const styles = theme => ({
