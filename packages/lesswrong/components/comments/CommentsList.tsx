@@ -1,17 +1,16 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withUpdate } from '../../lib/crud/withUpdate';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { Component } from 'react';
-import { FormattedMessage } from 'meteor/vulcan:i18n';
+import { FormattedMessage } from '../../lib/vulcan-i18n';
 import { Comments } from "../../lib/collections/comments";
 import { shallowEqual, shallowEqualExcept } from '../../lib/utils/componentUtils';
 import { Posts } from '../../lib/collections/posts';
 import withGlobalKeydown from '../common/withGlobalKeydown';
-import Tooltip from '@material-ui/core/Tooltip';
 import { Link } from '../../lib/reactRouterWrapper';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import { TRUNCATION_KARMA_THRESHOLD } from '../../lib/editor/ellipsize'
+import withUser from '../common/withUser';
+import { CommentTreeNode } from '../../lib/utils/unflatten';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   button: {
     color: theme.palette.lwTertiary.main
   },
@@ -19,35 +18,35 @@ const styles = createStyles(theme => ({
     display: "flex",
     alignItems: "center"
   }
-}))
+})
 
 export const POST_COMMENT_COUNT_TRUNCATE_THRESHOLD = 70
 
-interface CommentsListProps extends WithUserProps, WithGlobalKeydownProps, WithStylesProps  {
-  comments: any,
-  totalComments: any,
-  highlightDate: any,
-  updateComment: any,
-  post: any,
-  postPage: any,
-  condensed: boolean,
-  startThreadTruncated: any,
-  parentAnswerId: any,
-  defaultNestingLevel: any,
-  hideReadComments: any,
-  lastCommentId: any,
-  markAsRead: any,
-  parentCommentId: any,
-  forceSingleLine: boolean,
-  hideSingleLineMeta: boolean,
-  enableHoverPreview: boolean,
-  forceNotSingleLine: boolean,
+interface ExternalProps {
+  comments: Array<CommentTreeNode<CommentsList>>,
+  totalComments?: number,
+  highlightDate?: Date,
+  post: PostsList,
+  postPage?: boolean,
+  condensed?: boolean,
+  startThreadTruncated?: boolean,
+  parentAnswerId?: string,
+  defaultNestingLevel?: number,
+  lastCommentId?: string,
+  markAsRead?: any,
+  parentCommentId?: string,
+  forceSingleLine?: boolean,
+  hideSingleLineMeta?: boolean,
+  enableHoverPreview?: boolean,
+  forceNotSingleLine?: boolean,
+}
+interface CommentsListProps extends ExternalProps, WithUserProps, WithGlobalKeydownProps, WithStylesProps {
 }
 interface CommentsListState {
   expandAllThreads: boolean,
 }
 
-class CommentsList extends Component<CommentsListProps,CommentsListState> {
+class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
   state: CommentsListState = { expandAllThreads: false }
 
   handleKeyDown = (event) => {
@@ -67,7 +66,7 @@ class CommentsList extends Component<CommentsListProps,CommentsListState> {
       return true;
 
     if(!shallowEqualExcept(this.props, nextProps,
-      ["post","comments","updateComment"]))
+      ["post","comments"]))
     {
       return true;
     }
@@ -98,26 +97,26 @@ class CommentsList extends Component<CommentsListProps,CommentsListState> {
   }
 
   renderExpandOptions = () => {
-    const { currentUser, classes, totalComments } = this.props;
+    const { currentUser, classes, totalComments=0 } = this.props;
     const { expandAllThreads } = this.state
-    const { SettingsIcon, CommentsListMeta, LoginPopupButton } = Components
+    const { SettingsIcon, CommentsListMeta, LoginPopupButton, LWTooltip } = Components
     if  (totalComments > POST_COMMENT_COUNT_TRUNCATE_THRESHOLD) {
 
       const expandTooltip = `Posts with more than ${POST_COMMENT_COUNT_TRUNCATE_THRESHOLD} comments automatically truncate replies with less than ${TRUNCATION_KARMA_THRESHOLD} karma. Click or press ⌘F to expand all.`
 
       return <CommentsListMeta>
         <span>
-          Some comments are truncated due to high volume. <Tooltip title={expandTooltip}>
+          Some comments are truncated due to high volume. <LWTooltip title={expandTooltip}>
             <a className={!expandAllThreads && classes.button} onClick={()=>this.setState({expandAllThreads: true})}>(⌘F to expand all)</a>
-          </Tooltip>
+          </LWTooltip>
         </span>
         {currentUser 
           ? 
-            <Tooltip title="Go to your settings page to update your Comment Truncation Options">
+            <LWTooltip title="Go to your settings page to update your Comment Truncation Options">
               <Link to="/account">
                 <SettingsIcon label="Change default truncation settings" />
               </Link>
-            </Tooltip>
+            </LWTooltip>
           : 
             <LoginPopupButton title={"Login to change default truncation settings"}>
               <SettingsIcon label="Change truncation settings" />
@@ -128,7 +127,7 @@ class CommentsList extends Component<CommentsListProps,CommentsListState> {
   }
 
   render() {
-    const { comments, currentUser, highlightDate, updateComment, post, postPage, totalComments, condensed, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1, hideReadComments, lastCommentId, markAsRead, parentCommentId=null, forceSingleLine, hideSingleLineMeta, enableHoverPreview, forceNotSingleLine } = this.props;
+    const { comments, highlightDate, post, postPage, totalComments=0, condensed, startThreadTruncated, parentAnswerId, defaultNestingLevel = 1, lastCommentId, markAsRead, parentCommentId, forceSingleLine, hideSingleLineMeta, enableHoverPreview, forceNotSingleLine } = this.props;
 
     const { expandAllThreads } = this.state
     const { lastVisitedAt } = post
@@ -145,7 +144,6 @@ class CommentsList extends Component<CommentsListProps,CommentsListState> {
                 startThreadTruncated={startThreadTruncated || totalComments >= POST_COMMENT_COUNT_TRUNCATE_THRESHOLD}
                 expandAllThreads={expandAllThreads}
                 unreadComments={unreadComments}
-                currentUser={currentUser}
                 comment={comment.item}
                 parentCommentId={parentCommentId}
                 nestingLevel={defaultNestingLevel}
@@ -154,7 +152,6 @@ class CommentsList extends Component<CommentsListProps,CommentsListState> {
                 children={comment.children}
                 key={comment.item._id}
                 highlightDate={highlightDate}
-                updateComment={updateComment}
                 post={post}
                 postPage={postPage}
                 parentAnswerId={parentAnswerId}
@@ -163,7 +160,6 @@ class CommentsList extends Component<CommentsListProps,CommentsListState> {
                 forceNotSingleLine={forceNotSingleLine}
                 hideSingleLineMeta={hideSingleLineMeta}
                 enableHoverPreview={enableHoverPreview}
-                hideReadComments={hideReadComments}
                 shortform={post.shortform}
                 child={defaultNestingLevel > 1}
                 markAsRead={markAsRead}
@@ -185,13 +181,13 @@ class CommentsList extends Component<CommentsListProps,CommentsListState> {
 }
 
 
-const CommentsListComponent = registerComponent(
-  'CommentsList', CommentsList,
-  withUpdate({
-    collection: Comments,
-    fragmentName: 'CommentsList',
-  }),
-  withGlobalKeydown, withStyles(styles, {name:"CommentsList"})
+const CommentsListComponent = registerComponent<ExternalProps>(
+  'CommentsList', CommentsListClass, {
+    styles, hocs: [
+      withUser,
+      withGlobalKeydown,
+    ]
+  }
 );
 
 declare global {

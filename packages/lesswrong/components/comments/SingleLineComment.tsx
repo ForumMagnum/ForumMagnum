@@ -1,6 +1,5 @@
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import { commentBodyStyles, postBodyStyles } from '../../themes/stylePiping'
 import withHover from '../common/withHover';
 import classNames from 'classnames';
@@ -9,7 +8,7 @@ import { Comments } from '../../lib/collections/comments'
 import { isMobile } from '../../lib/utils/isMobile'
 import { styles as commentsItemStyles } from './CommentsItem/CommentsItem';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     position: "relative",
     cursor: "pointer",
@@ -106,9 +105,21 @@ const styles = createStyles(theme => ({
     ...commentsItemStyles(theme).nomination,
     marginRight: theme.spacing.unit
   }
-}))
+})
 
-const SingleLineComment = ({comment, classes, nestingLevel, hover, parentCommentId, hideKarma, enableHoverPreview=true, hideSingleLineMeta}) => {
+interface ExternalProps {
+  comment: CommentsList,
+  post: PostsBase,
+  nestingLevel: number,
+  parentCommentId?: string,
+  hideKarma?: boolean,
+  enableHoverPreview?: boolean,
+  hideSingleLineMeta?: boolean,
+}
+interface SingleLineCommentProps extends ExternalProps, WithStylesProps, WithHoverProps {
+}
+
+const SingleLineComment = ({comment, post, classes, nestingLevel, hover, parentCommentId, hideKarma, enableHoverPreview=true, hideSingleLineMeta}: SingleLineCommentProps) => {
   if (!comment) return null
 
   const { plaintextMainText } = comment.contents
@@ -121,10 +132,10 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
   return (
     <div className={classes.root}>
       <div className={classNames(classes.commentInfo, {[classes.isAnswer]: comment.answer, [classes.odd]:((nestingLevel%2) !== 0)})}>
-        <CommentShortformIcon comment={comment} simple={true} />
+        <CommentShortformIcon comment={comment} post={post} simple={true} />
 
         { parentCommentId!=comment.parentCommentId &&
-          <ShowParentComment comment={comment} nestingLevel={nestingLevel} />
+          <ShowParentComment comment={comment} />
         }
         {!hideKarma && <span className={classes.karma}>
           {Comments.getKarma(comment)}
@@ -148,7 +159,10 @@ const SingleLineComment = ({comment, classes, nestingLevel, hover, parentComment
   )
 };
 
-const SingleLineCommentComponent = registerComponent('SingleLineComment', SingleLineComment, withStyles(styles, {name:"SingleLineComment"}), withHover(), withErrorBoundary);
+const SingleLineCommentComponent = registerComponent<ExternalProps>('SingleLineComment', SingleLineComment, {
+  styles,
+  hocs: [withHover(), withErrorBoundary]
+});
 
 declare global {
   interface ComponentTypes {

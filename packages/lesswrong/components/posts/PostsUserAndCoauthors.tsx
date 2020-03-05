@@ -1,9 +1,7 @@
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
-import PropTypes from 'prop-types';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   lengthLimited: {
     maxWidth: 310,
     textOverflow: "ellipsis",
@@ -15,9 +13,14 @@ const styles = createStyles(theme => ({
   lengthUnlimited: {
     display: "inline",
   },
-}));
+});
 
-const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=false}) => {
+const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=false}: {
+  post: PostsList,
+  abbreviateIfLong?: boolean,
+  classes: ClassesType,
+  simple?: boolean
+}) => {
   if (!post.user || post.hideAuthor)
     return <Components.UserNameDeleted/>;
   
@@ -28,12 +31,7 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=fa
   </div>;
 };
 
-PostsUserAndCoauthors.propTypes = {
-  post: PropTypes.object,
-  abbreviateIfLong: PropTypes.bool,
-};
-
-const PostsUserAndCoauthorsComponent = registerComponent("PostsUserAndCoauthors", PostsUserAndCoauthors, withStyles(styles, {name: "PostsUserAndCoauthors"}));
+const PostsUserAndCoauthorsComponent = registerComponent("PostsUserAndCoauthors", PostsUserAndCoauthors, {styles});
 
 declare global {
   interface ComponentTypes {

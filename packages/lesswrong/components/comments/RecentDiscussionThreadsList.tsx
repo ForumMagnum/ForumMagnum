@@ -1,9 +1,7 @@
 import React, { useState, useCallback } from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
-import { useUpdate } from '../../lib/crud/withUpdate';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts';
-import { Comments } from '../../lib/collections/comments'
 import { useCurrentUser } from '../common/withUser';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
@@ -23,10 +21,6 @@ const RecentDiscussionThreadsList = ({
   const [showShortformFeed, setShowShortformFeed] = useState(false);
   const currentUser = useCurrentUser();
   
-  const {mutate: updateComment} = useUpdate({
-    collection: Comments,
-    fragmentName: 'CommentsList',
-  });
   const { results, loading, loadMore, loadingMore, refetch } = useMulti({
     terms,
     collection: Posts,
@@ -87,16 +81,14 @@ const RecentDiscussionThreadsList = ({
             <Components.RecentDiscussionThread
               key={post._id}
               post={post}
-              postCount={i}
               refetch={refetch}
               comments={post.recentComments}
               expandAllThreads={expandAll}
-              currentUser={currentUser}
-              updateComment={updateComment}/>
+            />
           )}
         </div>}
         <AnalyticsInViewTracker eventProps={{inViewType: "loadMoreButton"}}>
-            { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }
+            { loadMore && <LoadMore loadMore={loadMore}  /> }
             { (loading || loadingMore) && <Loading />}
         </AnalyticsInViewTracker>
       </div>

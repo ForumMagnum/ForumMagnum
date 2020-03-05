@@ -1,4 +1,4 @@
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import React, { useEffect, useCallback } from 'react';
 import { useIsInView, useTracking } from "../../lib/analyticsEvents";
 
@@ -6,7 +6,7 @@ const AnalyticsInViewTracker = ({eventType, eventProps, observerProps, children,
   eventType?: string,
   eventProps?: Record<string,any>,
   observerProps?: Record<string,any>,
-  children?: any,
+  children?: React.ReactNode,
   skip?: boolean,
 }) => {
   const { setNode, entry } = useIsInView(observerProps)

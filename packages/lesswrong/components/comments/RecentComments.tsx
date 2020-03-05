@@ -1,27 +1,28 @@
 import React from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withUpdate } from '../../lib/crud/withUpdate';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
-import { useCurrentUser } from '../common/withUser';
 import Typography from '@material-ui/core/Typography';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 
-const styles = createStyles(theme =>  ({
+const styles = theme =>  ({
   root: {
     marginTop: theme.spacing.unit*2,
     [theme.breakpoints.up('sm')]: {
       margin: theme.spacing.unit*2,
     }
   }
-}))
+})
 
-const RecentComments = ({classes, updateComment, terms, truncated, noResultsMessage="No Comments Found"}) => {
-  const currentUser = useCurrentUser();
+const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No Comments Found"}: {
+  classes: ClassesType,
+  terms: any,
+  truncated?: boolean,
+  noResultsMessage?: string,
+}) => {
   const { loadingInitial, loadMoreProps, results } = useMulti({
     terms,
     collection: Comments,
-    fragmentName: 'SelectCommentsList',
+    fragmentName: 'CommentsListWithPostMetadata',
     enableTotal: false,
     pollInterval: 0,
     queryLimitName: "recentCommentsLimit",
@@ -39,10 +40,8 @@ const RecentComments = ({classes, updateComment, terms, truncated, noResultsMess
       {results.map(comment =>
         <div key={comment._id}>
           <Components.CommentsNode
-            currentUser={currentUser}
             comment={comment}
             post={comment.post}
-            updateComment={updateComment}
             showPostTitle
             startThreadTruncated={truncated}
             forceNotSingleLine
@@ -55,13 +54,7 @@ const RecentComments = ({classes, updateComment, terms, truncated, noResultsMess
   )
 }
 
-const RecentCommentsComponent = registerComponent('RecentComments', RecentComments,
-  withUpdate({
-    collection: Comments,
-    fragmentName: 'SelectCommentsList',
-  }),
-  withStyles(styles, {name:"RecentComments"})
-);
+const RecentCommentsComponent = registerComponent('RecentComments', RecentComments, {styles});
 
 declare global {
   interface ComponentTypes {

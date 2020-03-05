@@ -1,9 +1,8 @@
 import React from 'react';
-import { registerComponent, Components } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import Tooltip from '@material-ui/core/Tooltip';
 
-const styles = createStyles((theme) => ({
+const styles = (theme) => ({
   root: {
     marginLeft: -theme.spacing.unit,
     display: "flex"
@@ -35,9 +34,12 @@ const styles = createStyles((theme) => ({
     fontFamily: theme.typography.commentStyle.fontFamily,
     marginBottom: 4
   }
-}))
+})
 
-const AnswerTocRow = ({classes, answer}) => {
+const AnswerTocRow = ({classes, answer}: {
+  classes: ClassesType,
+  answer: any,
+}) => {
   const { FormatDate } = Components
 
   const tooltip = <div>
@@ -68,7 +70,7 @@ const AnswerTocRow = ({classes, answer}) => {
     </div>
 }
 
-const AnswerTocRowComponent = registerComponent('AnswerTocRow', AnswerTocRow, withStyles(styles, {name: 'AnswerTocRow'}))
+const AnswerTocRowComponent = registerComponent('AnswerTocRow', AnswerTocRow, {styles});
 
 declare global {
   interface ComponentTypes {

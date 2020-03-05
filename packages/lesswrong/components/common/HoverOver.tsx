@@ -1,9 +1,9 @@
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import React, { Component } from 'react';
 
 interface HoverOverProps {
   delay?: number,
-  children: any,
+  children: React.ReactNode,
   hoverOverComponent: any,
 }
 interface HoverOverState {

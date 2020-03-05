@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { rssTermsToUrl } from "../../lib/rss_urls";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import TextField from '@material-ui/core/TextField';
@@ -19,12 +19,11 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
 import withUser from '../common/withUser';
 import { withTracking } from "../../lib/analyticsEvents";
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   thresholdSelector: {
     display: "flex",
     flexDirection: "row",
@@ -52,7 +51,7 @@ const styles = createStyles(theme => ({
   link: {
     textDecoration: "underline"
   },
-}));
+});
 
 // Estimated number of hours of reading per week in a frontpage/community feed
 // with the given karma threshold. Calculated based on the average number of
@@ -85,14 +84,14 @@ const viewNames = {
   'all_drafts': 'all drafts',
 }
 
-interface SubscribeDialogProps extends WithUserProps, WithStylesProps {
+interface ExternalProps {
   method: any,
   view: any,
-  updateUser: any,
-  captureEvent: any,
-  fullScreen: any,
+  fullScreen?: boolean,
   onClose: any,
   open: boolean,
+}
+interface SubscribeDialogProps extends ExternalProps, WithUserProps, WithStylesProps, WithTrackingProps, WithUpdateUserProps {
 }
 
 interface SubscribeDialogState {
@@ -326,12 +325,15 @@ const withUpdateOptions = {
   fragmentName: 'UsersCurrent',
 };
 
-const SubscribeDialogComponent = registerComponent("SubscribeDialog", SubscribeDialog,
-  withMobileDialog(),
-  withUser,
-  withTracking,
-  withUpdate(withUpdateOptions),
-  withStyles(styles, { name: "SubscribeDialog" }));
+const SubscribeDialogComponent = registerComponent<ExternalProps>("SubscribeDialog", SubscribeDialog, {
+  styles,
+  hocs: [
+    withMobileDialog(),
+    withUser,
+    withTracking,
+    withUpdate(withUpdateOptions),
+  ]
+});
 
 declare global {
   interface ComponentTypes {

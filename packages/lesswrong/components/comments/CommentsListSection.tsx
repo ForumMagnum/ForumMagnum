@@ -1,21 +1,21 @@
 import React, { Component } from 'react';
-import { FormattedMessage } from 'meteor/vulcan:i18n';
+import { FormattedMessage } from '../../lib/vulcan-i18n';
 import {
   Components,
   registerComponent
-} from 'meteor/vulcan:core';
+} from '../../lib/vulcan-lib';
 import moment from 'moment';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import Typography from '@material-ui/core/Typography';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import withUser from '../common/withUser';
+import { CommentTreeNode } from '../../lib/utils/unflatten';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     fontWeight: 400,
     maxWidth: 720,
@@ -46,20 +46,22 @@ const styles = createStyles(theme => ({
     fontWeight: 600,
     marginTop: 12
   }
-}))
+})
 
-interface CommentsListSectionProps extends WithUserProps, WithStylesProps {
+interface ExternalProps {
   lastEvent: any,
-  post: any,
+  post: PostsList,
   commentCount: number,
-  loadMoreCount: number,
+  loadMoreCount?: number,
   totalComments: number,
   loadMoreComments: any,
   loadingMoreComments: boolean,
-  comments: any,
-  parentAnswerId: any,
-  startThreadTruncated: boolean,
+  comments: Array<CommentTreeNode<CommentsList>>,
+  parentAnswerId?: string,
+  startThreadTruncated?: boolean,
   newForm: boolean,
+}
+interface CommentsListSectionProps extends ExternalProps, WithUserProps, WithStylesProps {
 }
 interface CommentsListSectionState {
   highlightDate: Date,
@@ -169,7 +171,6 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
           <Components.CantCommentExplanation post={post}/>
         }
         <Components.CommentsList
-          currentUser={currentUser}
           totalComments={totalComments}
           comments={comments}
           highlightDate={this.state.highlightDate}
@@ -183,9 +184,11 @@ class CommentsListSection extends Component<CommentsListSectionProps,CommentsLis
   }
 }
 
-const CommentsListSectionComponent = registerComponent("CommentsListSection", CommentsListSection,
-  withUser,
-  withStyles(styles, { name: "CommentsListSection" })
+const CommentsListSectionComponent = registerComponent<ExternalProps>(
+  "CommentsListSection", CommentsListSection, {
+    styles,
+    hocs: [withUser]
+  }
 );
 
 declare global {

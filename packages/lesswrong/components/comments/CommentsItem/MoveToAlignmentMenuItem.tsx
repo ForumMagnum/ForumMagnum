@@ -1,18 +1,17 @@
 import React, { PureComponent } from 'react';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { withUpdate } from '../../../lib/crud/withUpdate';
 import { withMessages } from '../../common/withMessages';
 import MenuItem from '@material-ui/core/MenuItem';
 import { withApollo } from 'react-apollo'
 import { Comments } from "../../../lib/collections/comments";
 import withUser from '../../common/withUser';
-import Users from 'meteor/vulcan:users';
+import Users from '../../../lib/collections/users/collection';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ArrowRightAlt from '@material-ui/icons/ArrowRightAlt';
 import Undo from '@material-ui/icons/Undo';
-import { withStyles, createStyles } from '@material-ui/core/styles'
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   iconRoot: {
     position: "relative",
     width:24,
@@ -32,13 +31,13 @@ const styles = createStyles(theme => ({
     width: 20,
     color: "black"
   }
-}))
+})
 
-interface MoveToAlignmentMenuItemProps extends WithMessagesProps, WithUserProps, WithStylesProps {
-  comment: any,
-  updateComment?: any,
-  client?: any,
-  post: any,
+interface ExternalProps {
+  comment: CommentsList,
+  post: PostsBase,
+}
+interface MoveToAlignmentMenuItemProps extends ExternalProps, WithMessagesProps, WithUserProps, WithStylesProps, WithUpdateCommentProps, WithApolloProps {
 }
 
 class MoveToAlignmentMenuItem extends PureComponent<MoveToAlignmentMenuItemProps,{}> {
@@ -109,16 +108,17 @@ class MoveToAlignmentMenuItem extends PureComponent<MoveToAlignmentMenuItemProps
   }
 }
 
-const MoveToAlignmentMenuItemComponent = registerComponent(
-  'MoveToAlignmentMenuItem', MoveToAlignmentMenuItem,
-  withUpdate({
-    collection: Comments,
-    fragmentName: 'CommentsList',
-  }),
-  withStyles(styles, {name:'MoveToAlignmentMenuItem'}),
-  withMessages,
-  withApollo,
-  withUser
+const MoveToAlignmentMenuItemComponent = registerComponent<ExternalProps>(
+  'MoveToAlignmentMenuItem', MoveToAlignmentMenuItem, {
+    styles,
+    hocs: [
+      withUpdate({
+        collection: Comments,
+        fragmentName: 'CommentsList',
+      }),
+      withMessages, withApollo, withUser
+    ]
+  }
 );
 
 declare global {

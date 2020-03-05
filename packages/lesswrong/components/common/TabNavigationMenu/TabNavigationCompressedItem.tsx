@@ -1,14 +1,12 @@
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper';
 import classNames from 'classnames';
-import Tooltip from '@material-ui/core/Tooltip';
 
 const compressedIconSize = 23
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   icon: {
     display: "block",
     opacity: .6,
@@ -30,15 +28,16 @@ const styles = createStyles(theme => ({
       top: -1,
     }
   },
-}))
+})
 
 const TabNavigationCompressedItem = ({tab, onClick, classes}) => {
   // MenuItem takes a component and passes unrecognized props to that component,
   // but its material-ui-provided type signature does not include this feature.
   // Case to any to work around it, to be able to pass a "to" parameter.
   const MenuItemUntyped = MenuItem as any;
+  const { LWTooltip } = Components
   
-  return <Tooltip placement='right-start' title={tab.tooltip || ''}>
+  return <LWTooltip placement='right-start' title={tab.tooltip || ''}>
     <MenuItemUntyped
       onClick={onClick}
       component={Link} to={tab.link}
@@ -51,12 +50,11 @@ const TabNavigationCompressedItem = ({tab, onClick, classes}) => {
         {tab.compressedIconComponent && <tab.compressedIconComponent />}
       </span>
     </MenuItemUntyped>
-  </Tooltip>;
+  </LWTooltip>;
 }
 
 const TabNavigationCompressedItemComponent = registerComponent(
-  'TabNavigationCompressedItem', TabNavigationCompressedItem,
-  withStyles(styles, { name: 'TabNavigationCompressedItem'})
+  'TabNavigationCompressedItem', TabNavigationCompressedItem, {styles}
 );
 
 declare global {

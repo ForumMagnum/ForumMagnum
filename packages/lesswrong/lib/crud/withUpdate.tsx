@@ -31,17 +31,17 @@ import React from 'react';
 import { Mutation, useMutation } from 'react-apollo';
 import { compose, withHandlers } from 'recompose';
 import gql from 'graphql-tag';
-import { updateClientTemplate, extractCollectionInfo, extractFragmentInfo } from 'meteor/vulcan:lib';
+import { updateClientTemplate, extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
 import { getExtraVariables } from './utils';
 import { cacheUpdateGenerator } from './cacheUpdates';
 
 export const withUpdate = options => {
   const { collectionName, collection } = extractCollectionInfo(options);
-  const { fragmentName, fragment, extraVariablesString } = extractFragmentInfo(options, collectionName);
+  const { fragmentName, fragment } = extractFragmentInfo(options, collectionName);
 
   const typeName = collection.options.typeName;
   const query = gql`
-    ${updateClientTemplate({ typeName, fragmentName, extraVariablesString })}
+    ${updateClientTemplate({ typeName, fragmentName })}
     ${fragment}
   `;
 
@@ -75,15 +75,15 @@ export default withUpdate;
 
 export const useUpdate = ({
   collectionName, collection,
-  fragmentName, fragment,
+  fragmentName: fragmentNameArg, fragment: fragmentArg,
 }: {
-  collectionName?: string,
+  collectionName?: CollectionNameString,
   collection?: any,
   fragmentName?: string,
   fragment?: any,
 }) => {
   ({ collectionName, collection } = extractCollectionInfo({collectionName, collection}));
-  ({ fragmentName, fragment } = extractFragmentInfo({fragmentName, fragment}, collectionName));
+  const { fragmentName, fragment } = extractFragmentInfo({fragmentName: fragmentNameArg, fragment: fragmentArg}, collectionName);
 
   const typeName = collection.options.typeName;
   const query = gql`
@@ -93,7 +93,7 @@ export const useUpdate = ({
 
   const [mutate, {loading, error, called, data}] = useMutation(query);
   const wrappedMutate = ({selector, data, ...extraVariables}) => {
-    mutate({
+    return mutate({
       variables: { selector, data, ...extraVariables },
       update: cacheUpdateGenerator(typeName, 'update')
     })

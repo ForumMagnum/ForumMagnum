@@ -1,19 +1,18 @@
-import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, Components, getSetting } from '../../../lib/vulcan-lib';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
 
-const styles = createStyles((theme) => ({
+const styles = (theme) => ({
   root: {
     display: "flex",
     justifyContent: "space-around",
     backgroundColor: "#ffffffd4",
     flexDirection: "row",
   }
-}))
+})
 
 const TabNavigationMenuFooter = ({classes}) => {
   const { TabNavigationFooterItem } = Components
@@ -21,7 +20,7 @@ const TabNavigationMenuFooter = ({classes}) => {
   return (
       <AnalyticsContext pageSectionContext="tabNavigationFooter">
         <div className={classes.root}>
-          {menuTabs[getSetting('forumType')].map(tab => {
+          {menuTabs[getSetting<string>('forumType')].map(tab => {
             if (!tab.showOnMobileStandalone) {
               return
             }
@@ -37,8 +36,7 @@ const TabNavigationMenuFooter = ({classes}) => {
 };
 
 const TabNavigationMenuFooterComponent = registerComponent(
-  'TabNavigationMenuFooter', TabNavigationMenuFooter,
-  withStyles(styles, { name: 'TabNavigationMenuFooter'})
+  'TabNavigationMenuFooter', TabNavigationMenuFooter, {styles}
 );
 
 declare global {

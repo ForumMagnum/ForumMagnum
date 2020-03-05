@@ -1,16 +1,15 @@
 import React, { PureComponent } from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import { withMessages } from '../common/withMessages';
 import withUser from '../common/withUser'
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
   modalTextField: {
@@ -18,8 +17,7 @@ const styles = theme => ({
   },
 });
 
-interface AFApplicationFormProps extends WithUserProps, WithMessagesProps, WithStylesProps {
-  updateUser: any,
+interface AFApplicationFormProps extends WithUserProps, WithMessagesProps, WithStylesProps, WithUpdateUserProps {
   onClose: any,
 }
 interface AFApplicationFormState {
@@ -88,14 +86,15 @@ class AFApplicationForm extends PureComponent<AFApplicationFormProps,AFApplicati
 }
 
 const AFApplicationFormComponent = registerComponent(
-  'AFApplicationForm', AFApplicationForm,
-  withMessages,
-  withUpdate({
-    collection: Users,
-    fragmentName: 'SuggestAlignmentUser',
-  }),
-  withUser,
-  withStyles(styles, {name: "AFApplicationForm"}));
+  'AFApplicationForm', AFApplicationForm, { styles, hocs: [
+    withMessages,
+    withUpdate({
+      collection: Users,
+      fragmentName: 'SuggestAlignmentUser',
+    }),
+    withUser,
+  ]}
+);
 
 declare global {
   interface ComponentTypes {

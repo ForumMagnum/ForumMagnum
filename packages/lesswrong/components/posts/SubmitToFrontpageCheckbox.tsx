@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Tooltip from '@material-ui/core/Tooltip';
 import Checkbox from '@material-ui/core/Checkbox';
-import { registerComponent, getSetting } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { registerComponent, getSetting } from '../../lib/vulcan-lib';
 
 const forumDefaultCheckboxLabels = {
   LessWrong: 'Moderators may promote to Frontpage',
@@ -11,7 +10,7 @@ const forumDefaultCheckboxLabels = {
   EAForum: 'Moderators may promote to Frontpage or Community'
 }
 
-const defaultCheckboxLabel = forumDefaultCheckboxLabels[getSetting('forumType')]
+const defaultCheckboxLabel = forumDefaultCheckboxLabels[getSetting<string>('forumType')]
 
 const defaultTooltipLWAF = ({classes}) => <div className={classes.tooltip}>
   <p>LW moderators will consider this post for frontpage</p>
@@ -35,9 +34,9 @@ const forumDefaultTooltip = {
   EAForum: () => "Uncheck this box if you want your post to stay on your personal blog."
 }
 
-const defaultTooltip = forumDefaultTooltip[getSetting('forumType')]
+const defaultTooltip = forumDefaultTooltip[getSetting<string>('forumType')]
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   submitToFrontpageWrapper: {
     [theme.breakpoints.down('sm')]: {
       width: "100%",
@@ -78,7 +77,7 @@ const styles = createStyles(theme => ({
   guidelines: {
     fontStyle: "italic"
   },
-}));
+});
 
 interface SubmitToFrontpageCheckboxProps extends WithStylesProps {
   fieldName?: string,
@@ -127,9 +126,7 @@ class SubmitToFrontpageCheckbox extends Component<SubmitToFrontpageCheckboxProps
 }
 
 
-const SubmitToFrontpageCheckboxComponent = registerComponent('SubmitToFrontpageCheckbox', SubmitToFrontpageCheckbox,
-  withStyles(styles, { name: "SubmitToFrontpageCheckbox" })
-);
+const SubmitToFrontpageCheckboxComponent = registerComponent('SubmitToFrontpageCheckbox', SubmitToFrontpageCheckbox, {styles});
 
 declare global {
   interface ComponentTypes {

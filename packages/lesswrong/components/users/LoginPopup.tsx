@@ -1,9 +1,8 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import Dialog from '@material-ui/core/Dialog';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   dialog: {
     zIndex: theme.zIndexes.loginDialog
   },
@@ -14,7 +13,7 @@ const styles = createStyles(theme => ({
     marginLeft: 0,
     marginRight: 0,
   },
-}));
+});
 
 // Makes its child a link (wrapping it in an <a> tag) which opens a login
 // dialog.
@@ -36,8 +35,7 @@ const LoginPopup = ({onClose, classes}) => {
   );
 }
 
-const LoginPopupComponent = registerComponent('LoginPopup', LoginPopup,
-  withStyles(styles, {name: "LoginPopup"}));
+const LoginPopupComponent = registerComponent('LoginPopup', LoginPopup, {styles});
 
 declare global {
   interface ComponentTypes {

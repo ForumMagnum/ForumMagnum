@@ -1,11 +1,10 @@
 import React from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames'
 import CommentIcon from '@material-ui/icons/ModeComment';
 import { Posts } from "../../lib/collections/posts";
 
-const styles = createStyles((theme) => ({
+const styles = (theme) => ({
   commentCount: {
     position:"absolute",
     right:"50%",
@@ -30,9 +29,14 @@ const styles = createStyles((theme) => ({
     width:30,
     height:30,
   },
-}))
+})
 
-const PostsItemComments = ({ classes, post, onClick, unreadComments }) => {
+const PostsItemComments = ({ classes, post, onClick, unreadComments }: {
+  classes: ClassesType,
+  post: PostsBase,
+  onClick: any,
+  unreadComments: any,
+}) => {
   let commentCount = Posts.getCommentCount(post)
 
   let unreadCommentsClass = unreadComments ? classes.unreadComments : classes.noUnreadComments;
@@ -47,7 +51,7 @@ const PostsItemComments = ({ classes, post, onClick, unreadComments }) => {
   )
 }
 
-const PostsItemCommentsComponent = registerComponent('PostsItemComments', PostsItemComments, withStyles(styles, {name: 'PostsItemComments'}))
+const PostsItemCommentsComponent = registerComponent('PostsItemComments', PostsItemComments, {styles});
 
 declare global {
   interface ComponentTypes {

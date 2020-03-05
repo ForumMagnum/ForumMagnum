@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, runCallbacks } from 'meteor/vulcan:core';
+import { registerComponent, runCallbacks } from '../../lib/vulcan-lib';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { Meteor } from 'meteor/meteor';
 import * as _ from 'underscore';

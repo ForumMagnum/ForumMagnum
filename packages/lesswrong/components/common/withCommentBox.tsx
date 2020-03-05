@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Components } from 'meteor/vulcan:core';
+import { Components } from '../../lib/vulcan-lib';
 import { hookToHoc } from '../../lib/hocUtils';
 
 interface CommentBoxContextType {
@@ -8,7 +8,9 @@ interface CommentBoxContextType {
 }
 export const CommentBoxContext = React.createContext<CommentBoxContextType|null>(null);
 
-export const CommentBoxManager = ({ children }) => {
+export const CommentBoxManager = ({ children }: {
+  children: React.ReactNode
+}) => {
   const [ componentName, setComponentName] = useState<string|null>(null)
   const [ componentProps, setComponentProps] = useState<Record<string,any>|null>(null)
 
@@ -38,6 +40,6 @@ export const CommentBoxManager = ({ children }) => {
   );
 }
 
-export const useCommentBox = () => React.useContext(CommentBoxContext);
+export const useCommentBox = (): CommentBoxContextType => React.useContext(CommentBoxContext)!;
 export const withCommentBox = hookToHoc(useCommentBox);
 export default withCommentBox;

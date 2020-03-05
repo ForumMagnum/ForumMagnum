@@ -1,12 +1,11 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withSingle } from '../../lib/crud/withSingle';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { useSingle } from '../../lib/crud/withSingle';
 import { Posts } from '../../lib/collections/posts';
 import React from 'react';
 import DragIcon from '@material-ui/icons/DragHandle';
 import RemoveIcon from '@material-ui/icons/Close';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -36,10 +35,19 @@ const styles = createStyles(theme => ({
     color: "rgba(0,0,0,0.3)",
     marginLeft: "auto"
   }
-}));
+});
 
-const PostsItemWrapper = ({document, loading, classes, ...props}) => {
+const PostsItemWrapper = ({documentId, classes, removeItem}: {
+  documentId: string,
+  classes: ClassesType,
+  removeItem: any,
+}) => {
   const { PostsTitle, PostsItem2MetaInfo } = Components
+  const { document, loading } = useSingle({
+    documentId,
+    collection: Posts,
+    fragmentName: 'PostsList',
+  });
 
   if (document && !loading) {
     return <div className={classes.root}>
@@ -53,19 +61,14 @@ const PostsItemWrapper = ({document, loading, classes, ...props}) => {
       <PostsItem2MetaInfo className={classes.meta}>
         {document.baseScore} points
       </PostsItem2MetaInfo>
-      <RemoveIcon className={classes.removeIcon} onClick={() => props.removeItem(document._id)} />
+      <RemoveIcon className={classes.removeIcon} onClick={() => removeItem(document._id)} />
     </div>
   } else {
     return <Components.Loading />
   }
 };
 
-const PostsItemWrapperComponent = registerComponent('PostsItemWrapper', PostsItemWrapper,
-  withSingle({
-    collection: Posts,
-    fragmentName: 'PostsList',
-  }),
-  withStyles(styles, {name: "PostsItemWrapper"}));
+const PostsItemWrapperComponent = registerComponent('PostsItemWrapper', PostsItemWrapper, {styles});
 
 declare global {
   interface ComponentTypes {

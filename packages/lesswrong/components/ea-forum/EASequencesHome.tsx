@@ -1,17 +1,16 @@
 import React from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Typography } from '@material-ui/core';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   description: {
     marginTop: theme.spacing.unit,
     marginBottom: theme.spacing.unit,
     ...postBodyStyles(theme),
   },
-}))
+})
 
 const EASequencesHome = ({classes}) => {
 
@@ -29,7 +28,6 @@ const EASequencesHome = ({classes}) => {
       <div className={classes.sequencesGridWrapperWrapper}>
         <Components.SequencesGridWrapper
           terms={{'view': 'communitySequences', limit: 12}}
-          listMode={true}
           showAuthor={true}
           showLoadMore={true}
         />
@@ -38,8 +36,4 @@ const EASequencesHome = ({classes}) => {
   </AnalyticsContext>
 };
 
-registerComponent(
-  'EASequencesHome',
-  EASequencesHome,
-  withStyles(styles, {name: "EASequencesHome"}),
-);
+registerComponent('EASequencesHome', EASequencesHome, {styles});

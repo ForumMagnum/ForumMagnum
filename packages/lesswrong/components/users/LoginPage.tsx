@@ -1,4 +1,4 @@
-import { Components, registerComponent, } from 'meteor/vulcan:core';
+import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import React, { Component } from 'react';
 import { withNavigation } from '../../lib/routeUtil';
 import withUser from '../common/withUser';
@@ -27,7 +27,9 @@ class LoginPage extends Component<LoginPageProps,{}> {
   }
 }
 
-const LoginPageComponent = registerComponent('LoginPage', LoginPage, withUser, withNavigation);
+const LoginPageComponent = registerComponent('LoginPage', LoginPage, {
+  hocs: [withUser, withNavigation]
+});
 
 declare global {
   interface ComponentTypes {

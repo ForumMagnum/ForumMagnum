@@ -1,7 +1,7 @@
-import { addCallback, runCallbacks, runCallbacksAsync, newMutation } from 'meteor/vulcan:core';
+import { addCallback, runCallbacks, runCallbacksAsync, newMutation } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Comments } from '../../lib/collections/comments/collection';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { performVoteServer } from '../voteServer';
 import Localgroups from '../../lib/collections/localgroups/collection';
 import { addEditableCallbacks } from '../editor/make_editable_callbacks'
@@ -158,7 +158,7 @@ async function UpdateCommentHideKarma (newPost, oldPost) {
 
   const comments = Comments.find({postId: newPost._id})
   if (!comments.count()) return
-  const updates = comments.map(comment => ({
+  const updates = comments.fetch().map(comment => ({
     updateOne: {
       filter: {
         _id: comment._id,
@@ -170,11 +170,18 @@ async function UpdateCommentHideKarma (newPost, oldPost) {
 }
 addCallback("posts.edit.async", UpdateCommentHideKarma);
 
-export async function shouldNewDocumentTriggerReview (document) {
+export async function newDocumentMaybeTriggerReview (document) {
   const author = await Users.findOne(document.userId);
   if (author && (!author.reviewedByUserId || author.sunshineSnoozed)) {
     Users.update({_id:author._id}, {$set:{needsReview: true}})
   }
   return document
 }
-addCallback("posts.new.after", shouldNewDocumentTriggerReview);
+addCallback("posts.new.after", newDocumentMaybeTriggerReview);
+
+async function updatedPostMaybeTriggerReview (newPost, oldPost) {
+  if (!newPost.draft && oldPost.draft) {
+    newDocumentMaybeTriggerReview(newPost)
+  }
+}
+addCallback("posts.edit.async", updatedPostMaybeTriggerReview);

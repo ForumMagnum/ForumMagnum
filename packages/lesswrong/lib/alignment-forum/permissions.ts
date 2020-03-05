@@ -1,4 +1,4 @@
-import Users from 'meteor/vulcan:users'
+import Users from '../collections/users/collection'
 
 Users.createGroup("alignmentVoters");
 Users.createGroup("alignmentForum");

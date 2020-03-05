@@ -1,4 +1,4 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
 import withUser from '../common/withUser';
 import React, { Component } from 'react';
 
@@ -43,7 +43,9 @@ class WrappedLoginForm extends Component<any,WrappedLoginFormState>
   }
 }
 
-const WrappedLoginFormComponent = registerComponent('WrappedLoginForm', WrappedLoginForm, withUser);
+const WrappedLoginFormComponent = registerComponent('WrappedLoginForm', WrappedLoginForm, {
+  hocs: [withUser]
+});
 
 declare global {
   interface ComponentTypes {

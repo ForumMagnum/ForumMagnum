@@ -1,13 +1,21 @@
-import { registerComponent } from 'meteor/vulcan:core';
-import { withUpdate } from '../../lib/crud/withUpdate';
+import { registerComponent } from '../../lib/vulcan-lib';
+import { useUpdate } from '../../lib/crud/withUpdate';
 import React from 'react';
 import { Posts } from '../../lib/collections/posts';
-import Users from 'meteor/vulcan:users';
-import withUser from '../common/withUser';
+import Users from '../../lib/collections/users/collection';
+import { useCurrentUser } from '../common/withUser';
 import MenuItem from '@material-ui/core/MenuItem';
 
-const SuggestAlignment = ({ currentUser, post, updatePost }) => {
-  const userHasSuggested = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser._id)
+const SuggestAlignment = ({ post }: {
+  post: PostsBase
+}) => {
+  const currentUser = useCurrentUser();
+  const {mutate: updatePost} = useUpdate({
+    collection: Posts,
+    fragmentName: 'PostsList',
+  });
+  
+  const userHasSuggested = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser!._id)
 
   if (Users.canSuggestPostForAlignment({currentUser, post})) {
     return <div>
@@ -31,13 +39,7 @@ const SuggestAlignment = ({ currentUser, post, updatePost }) => {
 }
 
 const SuggestAlignmentComponent = registerComponent(
-  'SuggestAlignment',
-  SuggestAlignment,
-  withUpdate({
-    collection: Posts,
-    fragmentName: 'PostsList',
-  }),
-  withUser
+  'SuggestAlignment', SuggestAlignment
 );
 
 declare global {

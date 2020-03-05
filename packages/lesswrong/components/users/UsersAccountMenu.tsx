@@ -1,10 +1,9 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
 import Popover from '@material-ui/core/Popover';
 import Button from '@material-ui/core/Button';
-import { withStyles } from '@material-ui/core/styles';
 import { withTracking } from '../../lib/analyticsEvents';
 
 const styles = theme => ({
@@ -24,7 +23,7 @@ interface UsersAccountMenuProps extends WithStylesProps {
 }
 interface UsersAccountMenuState {
   open: boolean,
-  anchorEl: any,
+  anchorEl: HTMLElement|null,
 }
 
 class UsersAccountMenu extends PureComponent<UsersAccountMenuProps,UsersAccountMenuState> {
@@ -83,7 +82,10 @@ class UsersAccountMenu extends PureComponent<UsersAccountMenuProps,UsersAccountM
   color: "rgba(0, 0, 0, 0.6)"
 };
 
-const UsersAccountMenuComponent = registerComponent('UsersAccountMenu', UsersAccountMenu, withTracking, withStyles(styles, { name: "UsersAccountMenu" }));
+const UsersAccountMenuComponent = registerComponent('UsersAccountMenu', UsersAccountMenu, {
+  styles,
+  hocs: [withTracking]
+});
 
 declare global {
   interface ComponentTypes {

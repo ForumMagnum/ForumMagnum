@@ -1,16 +1,17 @@
-import { registerComponent, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, getSetting } from '../../lib/vulcan-lib';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
-import PropTypes from 'prop-types';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle
   },
-}))
+})
 
-const AlignmentCrosspostMessage = ({post, classes}) => {
+const AlignmentCrosspostMessage = ({post, classes}: {
+  post: PostsBase,
+  classes: ClassesType,
+}) => {
   if (post.af && getSetting('forumType') !== 'AlignmentForum') {
     return (
       <div className={classes.root}>
@@ -22,12 +23,7 @@ const AlignmentCrosspostMessage = ({post, classes}) => {
   }
 }
 
-AlignmentCrosspostMessage.propTypes = {
-  post: PropTypes.object.isRequired,
-  classes: PropTypes.object.isRequired
-};
-
-const AlignmentCrosspostMessageComponent = registerComponent('AlignmentCrosspostMessage', AlignmentCrosspostMessage, withStyles(styles, {name:"AlignmentCrosspostMessage"}));
+const AlignmentCrosspostMessageComponent = registerComponent('AlignmentCrosspostMessage', AlignmentCrosspostMessage, {styles});
 
 declare global {
   interface ComponentTypes {

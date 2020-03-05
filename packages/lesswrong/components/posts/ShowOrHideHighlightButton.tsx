@@ -1,10 +1,9 @@
 import React from 'react';
-import { Components, registerComponent, } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import SubdirectoryArrowLeftIcon from '@material-ui/icons/SubdirectoryArrowLeft';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   button: {
     color: "rgba(0,0,0,.5)",
     fontSize: "12px",
@@ -21,9 +20,13 @@ const styles = createStyles(theme => ({
     top: 4,
     transform: "rotate(-90deg)",
   },
-}));
+});
 
-const ShowOrHideHighlightButton = ({open, className, classes}) =>
+const ShowOrHideHighlightButton = ({open, className, classes}: {
+  open: boolean,
+  className?: string,
+  classes: ClassesType,
+}) =>
   <span className={className}>
     { open
       ? <Components.MetaInfo>
@@ -37,8 +40,7 @@ const ShowOrHideHighlightButton = ({open, className, classes}) =>
     }
   </span>
 
-const ShowOrHideHighlightButtonComponent = registerComponent("ShowOrHideHighlightButton", ShowOrHideHighlightButton,
-  withStyles(styles, {name: "ShowOrHideHighlightButton"}));
+const ShowOrHideHighlightButtonComponent = registerComponent("ShowOrHideHighlightButton", ShowOrHideHighlightButton, {styles});
 
 declare global {
   interface ComponentTypes {

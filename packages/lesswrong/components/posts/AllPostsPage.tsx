@@ -1,17 +1,16 @@
-import { Components, registerComponent, getSetting, Utils } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting, Utils } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import { withLocation } from '../../lib/routeUtil';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { getBeforeDefault, getAfterDefault, timeframeToTimeBlock } from './timeframeUtils'
 import withTimezone from '../common/withTimezone';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   timeframe: {
     padding: theme.spacing.unit,
     [theme.breakpoints.down('xs')]: {
@@ -21,7 +20,7 @@ const styles = createStyles(theme => ({
   title: {
     cursor: "pointer",
   }
-}));
+});
 
 export const timeframes = {
   allTime: 'All Time',
@@ -47,7 +46,7 @@ export const sortings = {
 }
 
 interface AllPostsPageProps extends WithUserProps, WithStylesProps, WithTimezoneProps, WithLocationProps {
-  updateUser: any,
+  updateUser: WithUpdateFunction<UsersCollection>,
 }
 interface AllPostsPageState {
   showSettings: boolean,
@@ -94,7 +93,6 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
             ...baseTerms,
             limit: 50
           }}
-          showHeader={false}
           dimWhenLoading={showSettings}
         />
       </AnalyticsContext>
@@ -181,16 +179,16 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
 }
 
 const AllPostsPageComponent = registerComponent(
-  'AllPostsPage',
-  AllPostsPage,
-  withStyles(styles, {name:"AllPostsPage"}),
-  withLocation,
-  withUser,
-  withTimezone,
-  withUpdate({
-    collection: Users,
-    fragmentName: 'UsersCurrent',
-  })
+  'AllPostsPage', AllPostsPage, {
+    styles,
+    hocs: [
+      withLocation, withUser, withTimezone,
+      withUpdate({
+        collection: Users,
+        fragmentName: 'UsersCurrent',
+      })
+    ]
+  }
 );
 
 declare global {
