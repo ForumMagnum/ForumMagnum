@@ -11,9 +11,12 @@ import { CommentTreeNode } from '../../lib/utils/unflatten';
 const KARMA_COLLAPSE_THRESHOLD = -4;
 const HIGHLIGHT_DURATION = 3
 
+const COMMENT_BORDER_GREY = "rgba(72,94,144,0.16)"
+
 const styles = theme => ({
   node: {
-    border: "solid 1px rgba(0,0,0,.2)",
+    border: `1px solid ${COMMENT_BORDER_GREY}`,
+    borderRadius: "0.25rem",
     cursor: "default",
     // Higher specificity to override child class (variant syntax)
     '&$deleted': {
@@ -23,9 +26,9 @@ const styles = theme => ({
   child: {
     marginLeft: theme.spacing.unit,
     marginBottom: 6,
-    borderLeft: `solid 1px ${theme.palette.grey[300]}`,
-    borderTop: `solid 1px ${theme.palette.grey[300]}`,
-    borderBottom: `solid 1px ${theme.palette.grey[300]}`,
+    borderLeft: `solid 1px ${COMMENT_BORDER_GREY}`,
+    borderTop: `solid 1px ${COMMENT_BORDER_GREY}`,
+    borderBottom: `solid 1px ${COMMENT_BORDER_GREY}`,
   },
   new: {
     '&&': {
@@ -48,11 +51,11 @@ const styles = theme => ({
     }
   },
   isAnswer: {
-    border: `solid 2px ${theme.palette.grey[300]}`,
+    border: `solid 2px ${COMMENT_BORDER_GREY}`,
   },
   answerChildComment: {
     marginBottom: theme.spacing.unit,
-    border: `solid 1px ${theme.palette.grey[300]}`,
+    border: `solid 1px ${COMMENT_BORDER_GREY}`,
   },
   childAnswerComment: {
     borderRight: "none"
@@ -69,7 +72,7 @@ const styles = theme => ({
     borderTop: "solid 1px rgba(0,0,0,.15)",
     '&.comments-node-root':{
       marginBottom: 4,
-      borderBottom: "solid 1px rgba(0,0,0,.2)",
+      borderBottom: `solid 1px ${COMMENT_BORDER_GREY}`,
     }
   },
   shortformTop: {
@@ -106,7 +109,7 @@ const styles = theme => ({
     animation: `higlight-animation ${HIGHLIGHT_DURATION}s ease-in-out 0s;`
   },
   gapIndicator: {
-    border: `solid 1px ${theme.palette.grey[300]}`,
+    border: `solid 1px ${COMMENT_BORDER_GREY}`,
     backgroundColor: theme.palette.grey[100],
     marginLeft: theme.spacing.unit,
     paddingTop: theme.spacing.unit,
