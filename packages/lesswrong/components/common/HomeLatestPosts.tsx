@@ -1,6 +1,6 @@
+import React, { useState } from 'react';
 import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -8,6 +8,7 @@ import { useLocation, useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
 import {AnalyticsContext, captureEvent} from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
+import { defaultFilterSettings, filterSettingsToString } from '../tagging/TagFilterSettings';
 
 const styles = theme => ({
   personalBlogpostsCheckbox: {
@@ -34,6 +35,9 @@ const HomeLatestPosts = ({ classes }: {
   const currentUser = useCurrentUser();
   const location = useLocation();
   const { history } = useNavigation();
+  
+  const [filterSettings, setFilterSettings] = useState(defaultFilterSettings);
+  const [filterSettingsVisible, setFilterSettingsVisible] = useState(false);
 
   const {mutate: updateUser} = useUpdate({
     collection: Users,
@@ -115,15 +119,19 @@ const HomeLatestPosts = ({ classes }: {
     <SingleColumnSection>
       <SectionTitle title={<LWTooltip title={latestTitle} placement="top"><span>{latestPostsName}</span></LWTooltip>}>
         <LWTooltip title={personalBlogpostTooltip}>
-          <div className={classes.personalBlogpostsCheckbox}>
+          { /*<div className={classes.personalBlogpostsCheckbox}>
             <SectionFooterCheckbox
               onClick={toggleFilter}
               value={currentFilter !== "frontpage"}
               label={<div className={classes.personalBlogpostsCheckboxLabel}>{includePersonalName}</div>}
               />
-          </div>
+          </div> */ }
+          <Components.SettingsIcon onClick={() => setFilterSettingsVisible(!filterSettingsVisible)} label={"Filter: "+filterSettingsToString(filterSettings)}/>
         </LWTooltip>
       </SectionTitle>
+      {filterSettingsVisible && <Components.TagFilterSettings
+        filterSettings={filterSettings} setFilterSettings={(newSettings) => setFilterSettings(newSettings)}
+      />}
       <AnalyticsContext listContext={"latestPosts"}>
         <PostsList2 terms={recentPostsTerms}>
           <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
