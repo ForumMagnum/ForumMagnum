@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/crud/cacheUpdates';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -17,7 +17,9 @@ const FooterTagList = ({post, classes}: {
   post: PostsBase,
   classes: ClassesType,
 }) => {
-  const { results, loading } = useMulti({
+  const [isAwaiting, setIsAwaiting] = useState(false);
+  
+  const { results, loading, refetch } = useMulti({
     terms: {
       view: "tagsOnPost",
       postId: post._id,
@@ -44,15 +46,27 @@ const FooterTagList = ({post, classes}: {
       });
     }
   });
+
+  const onTagSelected = async (tagId) => {
+    setIsAwaiting(true)
+    await mutate({
+      variables: {
+        tagId: tagId,
+        postId: post._id,
+      },
+    });
+    setIsAwaiting(false)
+    refetch()
+  }
   
+  const { Loading, FooterTag, LWPopper, AddTag } = Components
   if (loading || !results)
-    return <Components.Loading/>;
+    return <Loading/>;
   
   return <div className={classes.root}>
     {results.map((result, i) => <span key={result._id}>
-      <Components.FooterTag tagRel={result} tag={result.tag}/>
+      <FooterTag tagRel={result} tag={result.tag}/>
     </span>)}
-    
     <Components.AddTagButton
       onTagSelected={({tagId, tagName}: {tagId: string, tagName: string}) => {
         mutate({
@@ -63,6 +77,7 @@ const FooterTagList = ({post, classes}: {
         });
       }}
     />
+    { isAwaiting && <Loading/>}
   </div>
 };
 
