@@ -280,11 +280,7 @@ export const styles = (theme) => ({
     paddingBottom:8
   },
   withRelevanceVoting: {
-    marginLeft: 50,
-    
-    [theme.breakpoints.down('sm')]: {
       marginLeft: 35,
-    },
   },
   bookmark: {
     marginLeft: theme.spacing.unit/2,
@@ -351,6 +347,7 @@ const PostsItem2 = ({
   recordPostView,
   isRead=false,
   classes,
+  alwaysMobile
 }: {
   post: PostsList,
   tagRel?: any,
@@ -374,6 +371,7 @@ const PostsItem2 = ({
   recordPostView?: any,
   isRead?: boolean,
   classes: ClassesType,
+  alwaysMobile: boolean
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);

@@ -58,7 +58,7 @@ const TagPage = ({classes}: {
     </div>}
     {loadingPosts && <Loading/>}
     {results && results.map((result,i) =>
-      result.post && <PostsItem2 key={result.post._id} tagRel={result} post={result.post} index={i} />
+      result.post && <PostsItem2 key={result.post._id} tagRel={result} post={result.post} index={i} alwaysMobile />
     )}
     <SectionFooter>
       <Components.LoadMore {...loadMoreProps} />
