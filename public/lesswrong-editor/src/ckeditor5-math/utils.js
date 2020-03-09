@@ -55,7 +55,7 @@ export async function renderEquation( equation, element, engine = 'mathjax', dis
 			await renderMathJax3( equation, element, display, preview );
 		}
 	} else {
-		element.innerHTML = equation;
+		element.innerText = equation;
 		console.warn( `math-tex-typesetting-missing: Missing the mathematical typesetting engine (${ engine }) for tex.` );
 	}
 }
