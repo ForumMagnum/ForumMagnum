@@ -86,8 +86,8 @@ export default class MathEditing extends Plugin {
 					classes: [ 'math-tex' ]
 				},
 				model: ( viewElement, modelWriter ) => {
-					const equation = viewElement.getChild( 0 ).data.trim();
-					const { display } = extractDelimiters( equation );
+					const rawEquation = viewElement.getChild( 0 ).data.trim();
+					const { display, equation } = extractDelimiters( rawEquation );
 					const type = mathConfig.forceOutputType ? mathConfig.outputType : 'span';
 					if ( display ) {
 						return modelWriter.createElement( 'mathtex-display', { equation, type } );

@@ -49,14 +49,26 @@ export function extractDelimiters( equation ) {
 	};
 }
 
-export async function renderEquation( equation, element, engine = 'mathjax', display = false, preview = false, previewUid ) {
-	if ( engine === 'mathjax' && typeof MathJax !== 'undefined' ) {
-		if ( isMathJaxVersion3( MathJax.version ) ) {
-			await renderMathJax3( equation, element, display, preview );
-		}
-	} else {
+async function wait( seconds ) {
+	return new Promise( resolve => {
+		setTimeout( resolve, seconds );
+	} );
+}
+
+const MAX_MATHJAX_WAITING_PERIODS = 3;
+const MATHJAX_WAITING_PERIOD_LENGTH = 100;
+export async function renderEquation( equation, element, engine = 'mathjax', display = false, preview = false, previewUid, pastAttempts = 0 ) {
+	if ( pastAttempts > MAX_MATHJAX_WAITING_PERIODS ) {
+		console.warn( `MathJax still not loaded, even after waiting ${ MATHJAX_WAITING_PERIOD_LENGTH }ms ${ MAX_MATHJAX_WAITING_PERIODS } times` );
+		return;
+	}
+	if ( typeof MathJax === 'undefined' || !isMathJaxVersion3( MathJax.version ) ) {
 		element.innerText = equation;
-		console.warn( `math-tex-typesetting-missing: Missing the mathematical typesetting engine (${ engine }) for tex.` );
+		console.warn( `math-tex-typesetting-missing: Missing the mathematical typesetting engine (${ engine }) for tex. Waiting for ${ MATHJAX_WAITING_PERIOD_LENGTH } then trying again.` );
+		await wait( MATHJAX_WAITING_PERIOD_LENGTH );
+		await renderEquation( equation, element, engine, display, preview, previewUid, pastAttempts + 1 );
+	} else {
+		await renderMathJax3( equation, element, display, preview );
 	}
 }
 
@@ -73,20 +85,23 @@ async function renderMathJax3( equation, element, display, isolateStyles ) {
 	}
 
 	const node = await MathJax.tex2chtmlPromise( equation, { em: 22, ex: 11, display: !!display } );
-	const errorNode = node.querySelector( 'mjx-merror' );
-	if ( !errorNode || !isolateStyles ) {
-		upsertNthChild( renderNode, node, 0 );
-	} else {
-		const errorMessageNode = document.createElement( 'div' );
-		errorMessageNode.innerText = errorNode.getAttribute( 'data-mjx-error' );
-		errorMessageNode.className = 'ck-math-error';
-		upsertNthChild( renderNode, errorMessageNode, 0 );
-	}
-
+	upsertNthChild( renderNode, node, 0 );
 	upsertNthChild( renderNode, MathJax.chtmlStylesheet(), 1 );
 
-	if ( isolateStyles ) { // If we isolate the styles, set the fontSize to 22px, otherwise just inherit it
-		node.style.fontSize = '22px';
+	if ( isolateStyles ) { // If we isolate the styles, append another style tag with our overwritten styles
+		const styleNode = document.createElement( 'style' );
+		styleNode.innerHTML = `
+			body {
+				font-size: 22px;
+			}
+			mjx-merror {
+				font-size: 14px;
+				color: rgba(0,0,0,0.87);
+				background-color: transparent;
+			}
+		`;
+		document.body.appendChild( styleNode );
+		upsertNthChild( renderNode, styleNode, 2 );
 	}
 }
 

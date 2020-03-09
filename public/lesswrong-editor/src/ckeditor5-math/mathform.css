@@ -24,6 +24,12 @@
 	display: block;
 }
 
+.ck.ck.ck.ck.ck mjx-merror {
+	font-size: 14px;
+	color: #e64a19;
+	background-color: transparent;
+}
+
 .ck.ck-math-form {
     display: flex;
     align-items: flex-start;

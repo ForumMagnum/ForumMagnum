@@ -4,9 +4,7 @@ if ( !window.MathJax ) {
 			renderActions: {
 				addMenu: [],
 				checkLoading: []
-			},
-			ignoreHtmlClass: 'tex2jax_ignore',
-			processHtmlClass: 'tex2jax_process'
+			}
 		},
 		tex: {
 			autoload: {
@@ -15,8 +13,8 @@ if ( !window.MathJax ) {
 			},
 			packages: { '[+]': [ 'noerrors' ] }
 		},
-		loader: {
-			load: [ 'input/asciimath', '[tex]/noerrors' ]
+		startup: {
+			typeset: false,
 		}
 	};
 }
