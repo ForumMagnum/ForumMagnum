@@ -32,7 +32,7 @@ const styles = theme => ({
   },
 });
 
-const PostsItemTagRelevance = ({tagRel, post, classes}: {
+const PostsItemTagRelevance = ({tagRel, post, hover, classes}: {
   tagRel: TagRelFragment,
   post: PostsBase,
   classes: ClassesType,

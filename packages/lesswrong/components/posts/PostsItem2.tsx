@@ -10,6 +10,7 @@ import { useCurrentUser } from "../common/withUser";
 import classNames from 'classnames';
 import Hidden from '@material-ui/core/Hidden';
 import withRecordPostView from '../common/withRecordPostView';
+import withHover from '../common/withHover';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { userHasBoldPostItems } from '../../lib/betas';
@@ -347,7 +348,8 @@ const PostsItem2 = ({
   recordPostView,
   isRead=false,
   classes,
-  alwaysMobile
+  alwaysMobile,
+  hover: boolean
 }: {
   post: PostsList,
   tagRel?: any,
@@ -371,7 +373,8 @@ const PostsItem2 = ({
   recordPostView?: any,
   isRead?: boolean,
   classes: ClassesType,
-  alwaysMobile: boolean
+  alwaysMobile: boolean,
+  hover: boolean
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
@@ -571,7 +574,7 @@ const PostsItem2 = ({
 
 const PostsItem2Component = registerComponent('PostsItem2', PostsItem2, {
   styles,
-  hocs: [withRecordPostView, withErrorBoundary]
+  hocs: [withRecordPostView, withErrorBoundary, withHover]
 });
 
 declare global {
