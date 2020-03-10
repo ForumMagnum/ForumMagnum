@@ -10,7 +10,7 @@ import classNames from 'classnames';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import withRecordPostView from '../../common/withRecordPostView';
 import withNewEvents from '../../../lib/events/withNewEvents';
-import { userHasPingbacks, userHasTagging } from '../../../lib/betas';
+import { userHasPingbacks } from '../../../lib/betas';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import * as _ from 'underscore';
 import { Meteor } from 'meteor/meteor';
