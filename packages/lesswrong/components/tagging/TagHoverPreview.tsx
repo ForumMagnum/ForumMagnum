@@ -22,13 +22,12 @@ const TagHoverPreview = ({href, targetLocation, innerHTML, classes}: {
   const { PopperCard, TagPreview, Loading } = Components;
   const { hover, anchorEl, eventHandlers } = useHover();
   
-  if (!tag)
-    return <Loading/>
-  
   return <span {...eventHandlers}>
     <PopperCard open={hover} anchorEl={anchorEl}>
       <div className={classes.card}>
-        <TagPreview tag={tag}/>
+        {tag
+          ? <TagPreview tag={tag}/>
+          : <Loading/>}
       </div>
     </PopperCard>
     <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
