@@ -7,6 +7,8 @@ import gql from 'graphql-tag';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import Paper from '@material-ui/core/Paper';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import { useCurrentUser } from '../common/withUser';
+import { userCanManageTags } from '../../lib/betas';
 
 const styles = theme => ({
   root: {
@@ -30,6 +32,8 @@ const FooterTagList = ({post, classes}: {
   const [isOpen, setIsOpen] = useState(false);
   const [isAwaiting, setIsAwaiting] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
+
+  const currentUser = useCurrentUser();
   
   const { results, loading, refetch } = useMulti({
     terms: {
@@ -78,10 +82,13 @@ const FooterTagList = ({post, classes}: {
     return <Loading/>;
   
   return <div className={classes.root}>
-    {results.map((result, i) => <span key={result._id}>
-      <FooterTag tagRel={result} tag={result.tag}/>
-    </span>)}
-    <a
+    {results.map((result, i) => {
+      // currently only showing the "Coronavirus" tag to most users
+      if ((result.tag._id === "tNsqhzTibgGJKPEWB") || userCanManageTags(currentUser)) {
+        return <FooterTag key={result._id} tagRel={result} tag={result.tag}/>
+      }
+    })}
+    {userCanManageTags(currentUser) && <a
       onClick={(ev) => {setAnchorEl(ev.currentTarget); setIsOpen(true)}}
       className={classes.addTagButton}
     >
@@ -105,7 +112,7 @@ const FooterTagList = ({post, classes}: {
           </Paper>
         </ClickAwayListener>
       </LWPopper>
-    </a>
+    </a>}
     { isAwaiting && <Loading/>}
   </div>
 };
