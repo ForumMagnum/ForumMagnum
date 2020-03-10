@@ -2,7 +2,7 @@ import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
 import { foreignKeyField } from '../../utils/schemaUtils'
 import { makeVoteable } from '../../make_voteable';
-import Users from '../users/collection';
+import { userCanManageTags } from '../../betas';
 
 const schema = {
   tagId: {
@@ -28,7 +28,7 @@ const schema = {
   deleted: {
     type: Boolean,
     viewableBy: ['guests'],
-    editableBy: ['admins'],
+    editableBy: ['admins', 'sunshineRegiment'],
     hidden: true,
     optional: true,
     ...schemaDefaultValue(false),
@@ -63,7 +63,7 @@ export const TagRels: TagRelsCollection = createCollection({
       return !!user;
     },
     editCheck: (user, tag) => {
-      return Users.isAdmin(user);
+      return userCanManageTags(user);
     },
     removeCheck: (user, tag) => {
       return false;
@@ -72,7 +72,7 @@ export const TagRels: TagRelsCollection = createCollection({
 });
 
 TagRels.checkAccess = (currentUser, tagRel) => {
-  if (Users.isAdmin(currentUser))
+  if (userCanManageTags(currentUser))
     return true;
   else if (tagRel.deleted)
     return false;
