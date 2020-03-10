@@ -60,7 +60,7 @@ export const TagRels: TagRelsCollection = createCollection({
   resolvers: getDefaultResolvers('TagRels'),
   mutations: getDefaultMutations('TagRels', {
     newCheck: (user, tag) => {
-      return !!user;
+      return userCanManageTags(user);
     },
     editCheck: (user, tag) => {
       return userCanManageTags(user);
