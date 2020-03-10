@@ -42,6 +42,10 @@ const styles = theme => ({
     opacity: 0,
     transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
   },
+  bigArrowSolid: {
+    fontSize: '65%',
+    top: "-45%"
+  },
   bigArrowCompleted: {
     fontSize: '90%',
     top: '-75%',
@@ -176,7 +180,7 @@ class VoteButton extends PureComponent<VoteButtonProps,VoteButtonState> {
             {(state) => (
               <UpArrowIcon
                 style={{color: bigVoteCompleted && theme.palette[color].light}}
-                className={classNames(classes.bigArrow, {[classes.bigArrowCompleted]: bigVoteCompleted}, classes[state])}
+                className={classNames(classes.bigArrow, {[classes.bigArrowCompleted]: bigVoteCompleted, [classes.bigArrowSolid]: solidArrow}, classes[state])}
                 color={(bigVoted || bigVoteCompleted) ? color : 'inherit'}
                 viewBox='6 6 12 12'
               />)}

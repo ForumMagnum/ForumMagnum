@@ -19,16 +19,16 @@ const styles = theme => ({
   vertLayoutVoteUp: {
     position: "absolute",
     left: 8,
-    top: -16,
+    top: -15,
   },
   vertLayoutVoteDown: {
     position: "absolute",
     left: 8,
-    top: 10,
+    top: 9,
   },
   score: {
     width: "100%",
-    fontSize: ".95rem"
+    fontSize: 11
   },
 });
 

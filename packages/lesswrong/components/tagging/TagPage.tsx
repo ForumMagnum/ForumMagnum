@@ -43,7 +43,7 @@ const TagPage = ({classes}: {
     return <Error404/>
   
   return <SingleColumnSection>
-    <SectionTitle title={`Posts Tagged #${tag.name}`}>
+    <SectionTitle title={`${tag.name}`}>
       {Users.isAdmin(currentUser) && <SectionButton>
         <Link to={`/tag/${tag.slug}/edit`}>Edit</Link>
       </SectionButton>}
@@ -58,7 +58,7 @@ const TagPage = ({classes}: {
     </div>}
     {loadingPosts && <Loading/>}
     {results && results.map((result,i) =>
-      result.post && <PostsItem2 key={result.post._id} tagRel={result} post={result.post} index={i} alwaysMobile />
+      result.post && <PostsItem2 key={result.post._id} tagRel={result} post={result.post} index={i} />
     )}
     <SectionFooter>
       <Components.LoadMore {...loadMoreProps} />

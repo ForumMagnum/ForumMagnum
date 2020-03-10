@@ -281,7 +281,7 @@ export const styles = (theme) => ({
     paddingBottom:8
   },
   withRelevanceVoting: {
-      marginLeft: 35,
+      marginLeft: 28
   },
   bookmark: {
     marginLeft: theme.spacing.unit/2,
@@ -348,8 +348,6 @@ const PostsItem2 = ({
   recordPostView,
   isRead=false,
   classes,
-  alwaysMobile,
-  hover: boolean
 }: {
   post: PostsList,
   tagRel?: any,
@@ -373,8 +371,6 @@ const PostsItem2 = ({
   recordPostView?: any,
   isRead?: boolean,
   classes: ClassesType,
-  alwaysMobile: boolean,
-  hover: boolean
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
@@ -574,7 +570,7 @@ const PostsItem2 = ({
 
 const PostsItem2Component = registerComponent('PostsItem2', PostsItem2, {
   styles,
-  hocs: [withRecordPostView, withErrorBoundary, withHover]
+  hocs: [withRecordPostView, withErrorBoundary]
 });
 
 declare global {
