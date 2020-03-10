@@ -83,6 +83,7 @@ const FooterTagList = ({post, classes}: {
   
   return <div className={classes.root}>
     {results.map((result, i) => {
+      // currently only showing the "Coronavirus" tag to most users
       if ((result.tag._id === "tNsqhzTibgGJKPEWB") || userCanManageTags(currentUser)) {
         return <FooterTag key={result._id} tagRel={result} tag={result.tag}/>
       }
