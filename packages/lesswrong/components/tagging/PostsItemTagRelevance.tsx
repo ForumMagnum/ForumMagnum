@@ -4,6 +4,7 @@ import { useCurrentUser } from '../common/withUser';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { useVote } from '../votes/withVote';
 import classNames from 'classnames';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = theme => ({
   root: {
@@ -37,11 +38,11 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
   post: PostsBase,
   classes: ClassesType,
 }) => {
-  const { VoteButton, LWTooltip, PostsItem2MetaInfo } = Components;
+  const { VoteButton, PostsItem2MetaInfo } = Components;
   const currentUser = useCurrentUser();
   const vote = useVote();
   
-  return <LWTooltip title="Tag Relevance (vote to move up or down this page)">
+  return <Tooltip title="Tag Relevance (vote to move up or down this page)" placement="left">
     <PostsItem2MetaInfo className={classes.root}>
       <div className={classNames(classes.voteButton, classes.vertLayoutVoteDown)}>
         <VoteButton
@@ -73,7 +74,7 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
         />
       </div>
     </PostsItem2MetaInfo>
-  </LWTooltip>
+  </Tooltip>
 }
 
 const PostsItemTagRelevanceComponent = registerComponent("PostsItemTagRelevance", PostsItemTagRelevance, {styles});
