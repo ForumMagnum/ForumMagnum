@@ -214,7 +214,7 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, id, error}: {
       >
         <PostsPreviewTooltip post={post} />
       </LWPopper>
-      <Link className={classes.link} to={href}  dangerouslySetInnerHTML={{__html: innerHTML}} id={id}/>
+      <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} smooth/>
     </span>
   );
 }
