@@ -37,8 +37,8 @@ const TagPage = ({classes}: {
     },
     collection: TagRels,
     fragmentName: "TagRelFragment",
-    limit: 60,
-    itemsPerPage: 60,
+    limit: 300,
+    itemsPerPage: 100,
     enableTotal: true,
     ssr: true,
   });
