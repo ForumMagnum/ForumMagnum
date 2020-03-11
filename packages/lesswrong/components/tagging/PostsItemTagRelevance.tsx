@@ -32,46 +32,48 @@ const styles = theme => ({
   },
 });
 
-const PostsItemTagRelevance = ({tagRel, post, hover, classes}: {
+const PostsItemTagRelevance = ({tagRel, classes}: {
   tagRel: TagRelFragment,
   post: PostsBase,
   classes: ClassesType,
 }) => {
-  const { VoteButton } = Components;
+  const { VoteButton, LWTooltip, PostsItem2MetaInfo } = Components;
   const currentUser = useCurrentUser();
   const vote = useVote();
   
-  return <Components.PostsItem2MetaInfo className={classes.root}>
-    <div className={classNames(classes.voteButton, classes.vertLayoutVoteDown)}>
-      <VoteButton
-        orientation="down"
-        color="error"
-        voteType="Downvote"
-        document={tagRel}
-        currentUser={currentUser}
-        collection={TagRels}
-        vote={vote}
-        solidArrow
-      />
-    </div>
+  return <LWTooltip title="Tag Relevance (vote to move up or down this page)">
+    <PostsItem2MetaInfo className={classes.root}>
+      <div className={classNames(classes.voteButton, classes.vertLayoutVoteDown)}>
+        <VoteButton
+          orientation="down"
+          color="error"
+          voteType="Downvote"
+          document={tagRel}
+          currentUser={currentUser}
+          collection={TagRels}
+          vote={vote}
+          solidArrow
+        />
+      </div>
+      
+      <div className={classes.score}>
+        {tagRel.baseScore}
+      </div>
     
-    <div className={classes.score}>
-      {tagRel.baseScore}
-    </div>
-  
-    <div className={classNames(classes.voteButton, classes.vertLayoutVoteUp)}>
-      <VoteButton
-        orientation="up"
-        color="secondary"
-        voteType="Upvote"
-        document={tagRel}
-        currentUser={currentUser}
-        collection={TagRels}
-        vote={vote}
-        solidArrow
-      />
-    </div>
-  </Components.PostsItem2MetaInfo>
+      <div className={classNames(classes.voteButton, classes.vertLayoutVoteUp)}>
+        <VoteButton
+          orientation="up"
+          color="secondary"
+          voteType="Upvote"
+          document={tagRel}
+          currentUser={currentUser}
+          collection={TagRels}
+          vote={vote}
+          solidArrow
+        />
+      </div>
+    </PostsItem2MetaInfo>
+  </LWTooltip>
 }
 
 const PostsItemTagRelevanceComponent = registerComponent("PostsItemTagRelevance", PostsItemTagRelevance, {styles});
