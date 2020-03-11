@@ -149,6 +149,11 @@ export default {
       divider: true,
       showOnCompressed: true,
     }, {
+      id: 'coronavirus',
+      title: 'Coronavirus',
+      link: '/tag/coronavirus',
+      subItem: true,
+    }, {
       id: 'about',
       title: 'About',
       link: '/about',
