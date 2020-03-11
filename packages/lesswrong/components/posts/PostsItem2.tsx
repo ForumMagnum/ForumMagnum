@@ -280,11 +280,7 @@ export const styles = (theme) => ({
     paddingBottom:8
   },
   withRelevanceVoting: {
-    marginLeft: 50,
-    
-    [theme.breakpoints.down('sm')]: {
-      marginLeft: 35,
-    },
+      marginLeft: 28
   },
   bookmark: {
     marginLeft: theme.spacing.unit/2,
