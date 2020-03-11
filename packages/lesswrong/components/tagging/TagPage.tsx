@@ -14,12 +14,16 @@ const styles = theme => ({
     ...postBodyStyles(theme),
     marginBottom: 16,
   },
+  loadMore: {
+    flexGrow: 1,
+    textAlign: "left"
+  }
 });
 
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SectionTitle, SectionFooter, SectionButton, PostsItem2, ContentItemBody, Loading, Error404 } = Components;
+  const { SingleColumnSection, SectionTitle, SectionFooter, SectionButton, PostsItem2, ContentItemBody, Loading, Error404, LoadMore } = Components;
   const currentUser = useCurrentUser();
   const { params } = useLocation();
   const { slug } = params;
@@ -33,7 +37,9 @@ const TagPage = ({classes}: {
     },
     collection: TagRels,
     fragmentName: "TagRelFragment",
-    limit: 20,
+    limit: 12,
+    itemsPerPage: 60,
+    enableTotal: true,
     ssr: true,
   });
   
@@ -42,6 +48,9 @@ const TagPage = ({classes}: {
   if (!tag)
     return <Error404/>
   
+  const orderByScore = _.sortBy(results, result=>-result.post.baseScore)
+  const orderByTagScore = _.sortBy(orderByScore, result=>-result.baseScore)
+
   return <SingleColumnSection>
     <SectionTitle title={`Posts Tagged #${tag.name}`}>
       {Users.isAdmin(currentUser) && <SectionButton>
@@ -53,15 +62,17 @@ const TagPage = ({classes}: {
       description={`tag ${tag.name}`}
       className={classes.description}
     />
-    {results && results.length === 0 && <div>
+    {orderByTagScore && orderByTagScore.length === 0 && <div>
       There are no posts with this tag yet.
     </div>}
     {loadingPosts && <Loading/>}
-    {results && results.map((result,i) =>
+    {orderByTagScore && orderByTagScore.map((result,i) =>
       result.post && <PostsItem2 key={result.post._id} tagRel={result} post={result.post} index={i} />
     )}
     <SectionFooter>
-      <Components.LoadMore {...loadMoreProps} />
+      <span className={classes.loadMore}>
+        <LoadMore {...loadMoreProps}/>
+      </span>
     </SectionFooter>
   </SingleColumnSection>
 }
