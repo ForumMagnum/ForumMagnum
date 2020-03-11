@@ -37,11 +37,12 @@ const TagPage = ({classes}: {
     },
     collection: TagRels,
     fragmentName: "TagRelFragment",
-    limit: 12,
+    limit: 60,
     itemsPerPage: 60,
     enableTotal: true,
     ssr: true,
   });
+  
   
   if (loadingTag)
     return <Loading/>
