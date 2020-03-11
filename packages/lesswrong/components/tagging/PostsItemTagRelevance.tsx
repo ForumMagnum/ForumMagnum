@@ -42,7 +42,8 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
   const currentUser = useCurrentUser();
   const vote = useVote();
   
-  return <Tooltip title="Tag Relevance (vote to move up or down this page)" placement="left">
+  return <Tooltip title="Relevance" placement="left-end">
+    <span>
     <PostsItem2MetaInfo className={classes.root}>
       <div className={classNames(classes.voteButton, classes.vertLayoutVoteDown)}>
         <VoteButton
@@ -74,6 +75,7 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
         />
       </div>
     </PostsItem2MetaInfo>
+    </span>
   </Tooltip>
 }
 
