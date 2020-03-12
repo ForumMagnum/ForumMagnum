@@ -6,7 +6,9 @@ import { useTagBySlug } from './useTag';
 
 const styles = theme => ({
   card: {
-    padding: 16,
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingBottom: 8,
     width: 600,
   },
 });
@@ -22,13 +24,12 @@ const TagHoverPreview = ({href, targetLocation, innerHTML, classes}: {
   const { PopperCard, TagPreview, Loading } = Components;
   const { hover, anchorEl, eventHandlers } = useHover();
   
-  if (!tag)
-    return <Loading/>
-  
   return <span {...eventHandlers}>
     <PopperCard open={hover} anchorEl={anchorEl}>
       <div className={classes.card}>
-        <TagPreview tag={tag}/>
+        {tag
+          ? <TagPreview tag={tag}/>
+          : <Loading/>}
       </div>
     </PopperCard>
     <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />

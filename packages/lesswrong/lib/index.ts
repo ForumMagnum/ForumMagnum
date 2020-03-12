@@ -103,6 +103,7 @@ import './alignment-forum/users/fragments';
 
 import './collections/tagRels/collection';
 import './collections/tagRels/views';
+import './collections/tagRels/permissions';
 import './collections/tagRels/fragments';
 
 import './collections/tags/collection';

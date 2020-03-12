@@ -57,18 +57,7 @@ const styles = theme => ({
     color: theme.palette.primary.light
   },
   title: {
-    cursor: "pointer",
-    '&:hover $settingsIcon, &:hover $settingsText': {
-      color: theme.palette.grey[800]
-    }
-  },
-  settingsText: {
-    marginLeft: theme.spacing.unit,
-    fontStyle: "italic",
-    display: "inline-block",
-    ...theme.typography.commentStyle,
-    fontSize: "1rem",
-    color: theme.palette.grey[700]
+    cursor: "pointer"
   },
   // Dark Magick
   // https://giphy.com/gifs/psychedelic-art-phazed-12GGadpt5aIUQE

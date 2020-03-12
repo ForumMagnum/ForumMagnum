@@ -4,7 +4,8 @@ import classNames from 'classnames';
 import { hasVotedClient } from '../../lib/voting/vote';
 import { isMobile } from '../../lib/utils/isMobile'
 import { withTheme } from '@material-ui/core/styles';
-import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp'
+import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
+import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
 import withDialog from '../common/withDialog';
@@ -41,6 +42,10 @@ const styles = theme => ({
     opacity: 0,
     transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
   },
+  bigArrowSolid: {
+    fontSize: '65%',
+    top: "-45%"
+  },
   bigArrowCompleted: {
     fontSize: '90%',
     top: '-75%',
@@ -65,6 +70,7 @@ interface ExternalProps {
   color: any,
   orientation: string,
   currentUser: UsersCurrent|null,
+  solidArrow : boolean
 }
 interface VoteButtonProps extends ExternalProps, WithStylesProps, WithDialogProps {
   theme: any,
@@ -150,10 +156,12 @@ class VoteButton extends PureComponent<VoteButtonProps,VoteButtonState> {
   }
 
   render() {
-    const { classes, orientation = 'up', theme, color = "secondary", voteType } = this.props
+    const { classes, orientation = 'up', theme, color = "secondary", voteType, solidArrow } = this.props
     const voted = this.hasVoted(`small${voteType}`) || this.hasVoted(`big${voteType}`)
     const bigVoted = this.hasVoted(`big${voteType}`)
     const { bigVotingTransition, bigVoteCompleted } = this.state
+
+    const Icon = solidArrow ? ArrowDropUpIcon :UpArrowIcon
     return (
         <IconButton
           className={classNames(classes.root, classes[orientation])}
@@ -163,7 +171,7 @@ class VoteButton extends PureComponent<VoteButtonProps,VoteButtonState> {
           onClick={this.handleClick}
           disableRipple
         >
-          <UpArrowIcon
+          <Icon
             className={classes.smallArrow}
             color={voted ? color : 'inherit'}
             viewBox='6 6 12 12'
@@ -172,7 +180,7 @@ class VoteButton extends PureComponent<VoteButtonProps,VoteButtonState> {
             {(state) => (
               <UpArrowIcon
                 style={{color: bigVoteCompleted && theme.palette[color].light}}
-                className={classNames(classes.bigArrow, {[classes.bigArrowCompleted]: bigVoteCompleted}, classes[state])}
+                className={classNames(classes.bigArrow, {[classes.bigArrowCompleted]: bigVoteCompleted, [classes.bigArrowSolid]: solidArrow}, classes[state])}
                 color={(bigVoted || bigVoteCompleted) ? color : 'inherit'}
                 viewBox='6 6 12 12'
               />)}
