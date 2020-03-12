@@ -40,7 +40,7 @@ const FilterMode = ({description, mode, canRemove=false, onChangeMode, onRemove,
     <span className={classes.label}>{description}</span>
     
     {filterModes.map((m: FilterMode) =>
-      <span className={classNames(classes.button, {[classes.selected]: m===mode})} onClick={ev => onChangeMode(m)}>
+      <span key={m} className={classNames(classes.button, {[classes.selected]: m===mode})} onClick={ev => onChangeMode(m)}>
         {m}
       </span>
     )}

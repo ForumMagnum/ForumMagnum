@@ -50,38 +50,14 @@ const HomeLatestPosts = ({ classes }: {
   const [filterSettings, setFilterSettings] = useFilterSettings(currentUser);
   const [filterSettingsVisible, setFilterSettingsVisible] = useState(false);
 
-  const toggleFilter = React.useCallback(() => {
-    const { query, pathname } = location;
-    let newQuery = _.isEmpty(query) ? {view: "magic"} : query
-    const currentFilter = newQuery.filter || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
-    const newFilter = (currentFilter === "frontpage") ? "includeMetaAndPersonal" : "frontpage"
-
-    captureEvent("personalBlogpostsToggled", {state: (newFilter !== "frontpage")});
-
-    if (currentUser) {
-      updateUser({
-        selector: { _id: currentUser._id},
-        data: {
-          currentFrontpageFilter: newFilter,
-        },
-      })
-    }
-
-    newQuery.filter = newFilter
-    const newLocation = { pathname: pathname, search: qs.stringify(newQuery)};
-    history.replace(newLocation);
-  }, [updateUser, location, history, currentUser]);
-
   const { query } = location;
   const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox, LWTooltip } = Components
-  const currentFilter = query.filter || (currentUser && currentUser.currentFrontpageFilter) || "frontpage";
   const limit = parseInt(query.limit) || 13
 
   const recentPostsTerms = {
     ...query,
     filterSettings: filterSettings,
     view: "magic",
-    filter: currentFilter, //TODO
     forum: true,
     limit:limit
   }
@@ -126,13 +102,6 @@ const HomeLatestPosts = ({ classes }: {
     <SingleColumnSection>
       <SectionTitle title={<LWTooltip title={latestTitle} placement="top"><span>{latestPostsName}</span></LWTooltip>}>
         <LWTooltip title={personalBlogpostTooltip}>
-          { /*<div className={classes.personalBlogpostsCheckbox}>
-            <SectionFooterCheckbox
-              onClick={toggleFilter}
-              value={currentFilter !== "frontpage"}
-              label={<div className={classes.personalBlogpostsCheckboxLabel}>{includePersonalName}</div>}
-              />
-          </div> */ }
           <Components.SettingsIcon onClick={() => setFilterSettingsVisible(!filterSettingsVisible)} label={"Filter: "+filterSettingsToString(filterSettings)}/>
         </LWTooltip>
       </SectionTitle>

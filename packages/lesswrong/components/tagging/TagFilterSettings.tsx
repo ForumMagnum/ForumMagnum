@@ -1,6 +1,8 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { FilterSettings, FilterTag, FilterMode, filterModes, defaultFilterSettings } from '../../lib/filterSettings';
+import { useCurrentUser } from '../common/withUser';
+import { userCanManageTags } from '../../lib/betas';
 import * as _ from 'underscore';
 
 const styles = theme => ({
@@ -23,6 +25,9 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
   setFilterSettings: (newSettings: FilterSettings)=>void,
   classes: ClassesType,
 }) => {
+  const currentUser = useCurrentUser();
+  const canFilterCustomTags = userCanManageTags(currentUser);
+  
   // ea-forum-look-here The name "Personal Blog Posts" is forum-specific terminology
   return <div className={classes.root}>
     <div className={classes.filterMode}>
@@ -41,8 +46,9 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
     {filterSettings.tags.map(tagSettings =>
       <Components.FilterMode
         description={tagSettings.tagName}
+        key={tagSettings.tagId}
         mode={tagSettings.filterMode}
-        canRemove={true}
+        canRemove={canFilterCustomTags}
         onChangeMode={(mode: FilterMode) => {
           const changedTagId = tagSettings.tagId;
           const replacedIndex = _.findIndex(filterSettings.tags, t=>t.tagId===changedTagId);
@@ -66,7 +72,7 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
       />
     )}
     
-    <div className={classes.addTag}>
+    {canFilterCustomTags && <div className={classes.addTag}>
       <Components.AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
         if (!_.some(filterSettings.tags, t=>t.tagId===tagId)) {
           const newFilter: FilterTag = {tagId, tagName, filterMode: "Neutral"}
@@ -76,7 +82,7 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
           });
         }
       }}/>
-    </div>
+    </div>}
   </div>
 }
 
