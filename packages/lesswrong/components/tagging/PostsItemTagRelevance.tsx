@@ -4,127 +4,79 @@ import { useCurrentUser } from '../common/withUser';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { useVote } from '../votes/withVote';
 import classNames from 'classnames';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = theme => ({
   root: {
-    width: 50,
+    width: 30,
     position: "absolute",
     textAlign: "center",
     top: "50%",
     marginTop: -10,
-    
-    [theme.breakpoints.down('sm')]: {
-      width: 30,
-    },
   },
   voteButton: {
     fontSize: 25,
   },
-  horizLayoutVoteUp: {
-    position: "absolute",
-    left: 34,
-    top: -3,
-    
-    display: "none",
-    [theme.breakpoints.up('md')]: {
-      display: "block",
-    },
-  },
-  horizLayoutVoteDown: {
-    position: "absolute",
-    left: 4,
-    top: -3,
-    
-    display: "none",
-    [theme.breakpoints.up('md')]: {
-      display: "block",
-    },
-  },
   vertLayoutVoteUp: {
     position: "absolute",
     left: 8,
-    top: -18,
-    
-    display: "none",
-    [theme.breakpoints.down('sm')]: {
-      display: "block",
-    },
+    top: -15,
   },
   vertLayoutVoteDown: {
     position: "absolute",
     left: 8,
-    top: 12,
-    
-    display: "none",
-    [theme.breakpoints.down('sm')]: {
-      display: "block",
-    },
+    top: 9,
   },
   score: {
     width: "100%",
+    fontSize: 11
   },
 });
 
-const PostsItemTagRelevance = ({tagRel, post, classes}: {
+const PostsItemTagRelevance = ({tagRel, classes}: {
   tagRel: TagRelFragment,
   post: PostsBase,
   classes: ClassesType,
 }) => {
-  const { VoteButton } = Components;
+  const { VoteButton, PostsItem2MetaInfo } = Components;
   const currentUser = useCurrentUser();
   const vote = useVote();
   
-  return <Components.PostsItem2MetaInfo className={classes.root}>
-    <div className={classNames(classes.voteButton, classes.horizLayoutVoteDown)}>
-      <VoteButton
-        orientation="left"
-        color="error"
-        voteType="Downvote"
-        document={tagRel}
-        currentUser={currentUser}
-        collection={TagRels}
-        vote={vote}
-      />
-    </div>
-    <div className={classNames(classes.voteButton, classes.vertLayoutVoteDown)}>
-      <VoteButton
-        orientation="down"
-        color="error"
-        voteType="Downvote"
-        document={tagRel}
-        currentUser={currentUser}
-        collection={TagRels}
-        vote={vote}
-      />
-    </div>
+  return <Tooltip title="Relevance" placement="left-end">
+    <span>
+    <PostsItem2MetaInfo className={classes.root}>
+      <div className={classNames(classes.voteButton, classes.vertLayoutVoteDown)}>
+        <VoteButton
+          orientation="down"
+          color="error"
+          voteType="Downvote"
+          document={tagRel}
+          currentUser={currentUser}
+          collection={TagRels}
+          vote={vote}
+          solidArrow
+        />
+      </div>
+      
+      <div className={classes.score}>
+        {tagRel.baseScore}
+      </div>
     
-    <div className={classes.score}>
-      {tagRel.baseScore}
-    </div>
-    
-    <div className={classNames(classes.voteButton, classes.horizLayoutVoteUp)}>
-      <VoteButton
-        orientation="right"
-        color="secondary"
-        voteType="Upvote"
-        document={tagRel}
-        currentUser={currentUser}
-        collection={TagRels}
-        vote={vote}
-      />
-    </div>
-    <div className={classNames(classes.voteButton, classes.vertLayoutVoteUp)}>
-      <VoteButton
-        orientation="up"
-        color="secondary"
-        voteType="Upvote"
-        document={tagRel}
-        currentUser={currentUser}
-        collection={TagRels}
-        vote={vote}
-      />
-    </div>
-  </Components.PostsItem2MetaInfo>
+      <div className={classNames(classes.voteButton, classes.vertLayoutVoteUp)}>
+        <VoteButton
+          orientation="up"
+          color="secondary"
+          voteType="Upvote"
+          document={tagRel}
+          currentUser={currentUser}
+          collection={TagRels}
+          vote={vote}
+          solidArrow
+        />
+      </div>
+    </PostsItem2MetaInfo>
+    </span>
+  </Tooltip>
 }
 
 const PostsItemTagRelevanceComponent = registerComponent("PostsItemTagRelevance", PostsItemTagRelevance, {styles});

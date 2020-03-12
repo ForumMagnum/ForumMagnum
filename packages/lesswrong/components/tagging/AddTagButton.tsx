@@ -2,6 +2,8 @@ import React, { useState }  from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Paper from '@material-ui/core/Paper';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import { useCurrentUser } from '../common/withUser';
+import { userCanManageTags } from '../../lib/betas';
 
 const styles = theme => ({
   addTagButton: {
@@ -20,6 +22,11 @@ const AddTagButton = ({onTagSelected, classes}: {
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
+  const currentUser = useCurrentUser();
+  
+  if (!userCanManageTags(currentUser)) {
+    return null;
+  }
   
   return <a
     onClick={(ev) => {setAnchorEl(ev.currentTarget); setIsOpen(true)}}
