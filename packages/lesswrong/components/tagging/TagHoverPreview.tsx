@@ -8,6 +8,7 @@ const styles = theme => ({
   card: {
     paddingLeft: 16,
     paddingRight: 16,
+    paddingBottom: 8,
     width: 600,
   },
 });
