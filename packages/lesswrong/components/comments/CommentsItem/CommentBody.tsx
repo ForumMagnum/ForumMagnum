@@ -1,13 +1,11 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import { commentBodyStyles, postHighlightStyles } from '../../../themes/stylePiping'
 import classNames from 'classnames';
-import PropTypes from 'prop-types';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
-import withUser from '../../common/withUser'
+import { useCurrentUser } from '../../common/withUser'
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   commentStyling: {
     ...commentBodyStyles(theme),
     maxWidth: "100%",
@@ -35,9 +33,16 @@ const styles = createStyles(theme => ({
   retracted: {
     textDecoration: "line-through",
   }
-}))
+})
 
-const CommentBody = ({ comment, currentUser, classes, collapsed, truncated, postPage }) => {
+const CommentBody = ({ comment, classes, collapsed, truncated, postPage }: {
+  comment: CommentsList,
+  collapsed?: boolean,
+  truncated?: boolean,
+  postPage?: boolean,
+  classes: ClassesType,
+}) => {
+  const currentUser = useCurrentUser();
   const { ContentItemBody, CommentDeletedMetadata } = Components
   const { html = "" } = comment.contents || {}
 
@@ -63,13 +68,7 @@ const CommentBody = ({ comment, currentUser, classes, collapsed, truncated, post
   )
 }
 
-CommentBody.propTypes = {
-  comment: PropTypes.object.isRequired,
-  classes: PropTypes.object.isRequired,
-};
-
-
-const CommentBodyComponent = registerComponent('CommentBody', CommentBody, withUser, withStyles(styles, {name: "CommentBody"}));
+const CommentBodyComponent = registerComponent('CommentBody', CommentBody, {styles});
 
 declare global {
   interface ComponentTypes {

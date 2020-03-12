@@ -1,13 +1,12 @@
 import React from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
-import Users from 'meteor/vulcan:users';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import Users from '../../../lib/collections/users/collection';
 import { useCurrentUser } from '../../common/withUser';
 import { useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import { rowStyles } from './MigrationsDashboardRow';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   ...rowStyles,
   row: {
     display: 'flex',
@@ -16,7 +15,7 @@ const styles = createStyles(theme => ({
     borderBottom: '2px solid black',
     marginBottom: theme.spacing.unit / 2,
   }
-}));
+});
 
 const migrationsQuery = gql`
   query MigrationsDashboardQuery {
@@ -31,7 +30,9 @@ const migrationsQuery = gql`
   }
 `;
 
-const MigrationsDashboard = ({classes}) => {
+const MigrationsDashboard = ({classes}: {
+  classes: ClassesType,
+}) => {
   const currentUser = useCurrentUser();
   const { SingleColumnSection, Loading, SectionTitle } = Components;
   const { data, loading } = useQuery(migrationsQuery, { ssr: true });
@@ -55,8 +56,8 @@ const MigrationsDashboard = ({classes}) => {
 }
 
 const MigrationsDashboardComponent = registerComponent(
-  "MigrationsDashboard", MigrationsDashboard,
-  withStyles(styles, {name: "MigrationsDashboard"}));
+  "MigrationsDashboard", MigrationsDashboard, {styles}
+);
 
 declare global {
   interface ComponentTypes {

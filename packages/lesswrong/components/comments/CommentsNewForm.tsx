@@ -1,16 +1,14 @@
-import { Components, registerComponent, getFragment, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment, getSetting } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { Comments } from '../../lib/collections/comments';
-import { FormattedMessage } from 'meteor/vulcan:i18n';
+import { FormattedMessage } from '../../lib/vulcan-i18n';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
-import { withStyles, createStyles } from '@material-ui/core/styles';
-import withUser from '../common/withUser'
+import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useDialog } from '../common/withDialog';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
   },
   form: {
@@ -39,9 +37,24 @@ const styles = createStyles(theme => ({
   moderationGuidelinesWrapper: {
     backgroundColor: "rgba(0,0,0,.07)",
   }
-}));
+});
 
-const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, removeFields, currentUser, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true}) => {
+const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true}:
+{
+  prefilledProps?: any,
+  post?: PostsBase,
+  parentComment?: any,
+  successCallback?: any,
+  type: string,
+  cancelCallback?: any,
+  classes: ClassesType,
+  removeFields?: any,
+  fragment?: string,
+  formProps?: any,
+  enableGuidelines?: boolean,
+  padding?: boolean
+}) => {
+  const currentUser = useCurrentUser();
   prefilledProps = {
     ...prefilledProps,
     af: Comments.defaultToAlignment(currentUser, post, parentComment),
@@ -121,23 +134,17 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
         formProps={formProps}
       />
       </div>
-      {enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
+      {post && enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
         <ModerationGuidelinesBox document={post} />
       </div>}
     </div>
   );
 };
 
-CommentsNewForm.propTypes = {
-  post: PropTypes.object,
-  type: PropTypes.string, // "comment" or "reply"
-  parentComment: PropTypes.object, // if reply, the comment being replied to
-  successCallback: PropTypes.func, // a callback to execute when the submission has been successful
-  cancelCallback: PropTypes.func,
-  prefilledProps: PropTypes.object
-};
-
-const CommentsNewFormComponent = registerComponent('CommentsNewForm', CommentsNewForm, withUser, withStyles(styles, {name: "CommentsNewForm"}), withErrorBoundary);
+const CommentsNewFormComponent = registerComponent('CommentsNewForm', CommentsNewForm, {
+  styles,
+  hocs: [withErrorBoundary]
+});
 
 declare global {
   interface ComponentTypes {

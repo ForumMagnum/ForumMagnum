@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
-import Users from 'meteor/vulcan:users';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { registerComponent, Components, getSetting } from '../../lib/vulcan-lib';
+import Users from '../../lib/collections/users/collection';
 import { editorStyles, postBodyStyles, postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
@@ -14,7 +13,6 @@ import EditorForm from '../async/EditorForm'
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import withErrorBoundary from '../common/withErrorBoundary';
-import Tooltip from '@material-ui/core/Tooltip';
 import { userHasCkEditor } from '../../lib/betas';
 import * as _ from 'underscore';
 import { Meteor } from 'meteor/meteor';
@@ -25,7 +23,7 @@ const commentEditorHeight = 100;
 const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   editor: {
     position: 'relative',
   },
@@ -87,8 +85,8 @@ const styles = createStyles(theme => ({
     maxHeight: "calc(100vh - 450px)",
     overflow: "scroll"
   },
-  errorTextColor: {
-    color: theme.palette.error.main
+  clickHereColor: {
+    color: theme.palette.primary.main
   },
   select: {
     marginRight: theme.spacing.unit*1.5
@@ -108,7 +106,7 @@ const styles = createStyles(theme => ({
   placeholderCollaborationSpacing: {
     top: 60
   }
-}))
+})
 
 const autosaveInterval = 3000; //milliseconds
 const ckEditorName = getSetting('forumType') === 'EAForum' ? 'EA Forum Docs' : 'LessWrong Docs'
@@ -459,7 +457,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
           This document was last edited in {editorTypeToDisplay[type].name} format. Showing the{' '}
           {editorTypeToDisplay[this.getCurrentEditorType()].name} editor.{' '}
           <a
-            className={classes.errorTextColor}
+            className={classes.clickHereColor}
             onClick={() => this.setEditorType(defaultType)}
           >
             Click here
@@ -559,10 +557,11 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
 
   renderEditorTypeSelect = () => {
     const { currentUser, classes } = this.props
+    const { LWTooltip } = Components
     if (!userHasCkEditor(currentUser) && !currentUser?.isAdmin) return null
     const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
     return (
-      <Tooltip title="Warning! Changing format will erase your content" placement="left">
+      <LWTooltip title="Warning! Changing format will erase your content" placement="left">
         <Select
           className={classes.select}
           value={this.getCurrentEditorType()}
@@ -575,7 +574,7 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
               </MenuItem>
             )}
           </Select>
-      </Tooltip>
+      </LWTooltip>
     )
   }
 
@@ -610,8 +609,8 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
   }
 
   isDocumentCollaborative = () => {
-    const { document } = this.props
-    return document?._id && document?.shareWithUsers
+    const { document, fieldName } = this.props
+    return document?._id && document?.shareWithUsers && (fieldName === "contents")
   }
 
   renderCkEditor = () => {
@@ -739,8 +738,11 @@ class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormC
 };
 
 export const EditorFormComponentComponent = registerComponent(
-  'EditorFormComponent', EditorFormComponent,
-  withUser, withStyles(styles, { name: "EditorFormComponent" }), withErrorBoundary);
+  'EditorFormComponent', EditorFormComponent, {
+    styles,
+    hocs: [withUser, withErrorBoundary]
+  }
+);
 
 declare global {
   interface ComponentTypes {

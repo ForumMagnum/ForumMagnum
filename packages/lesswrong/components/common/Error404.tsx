@@ -1,4 +1,4 @@
-import { Components, registerComponent } from 'meteor/vulcan:lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useServerRequestStatus } from '../../lib/routeUtil'
 
@@ -14,8 +14,6 @@ const Error404 = () => {
     </SingleColumnSection>
   );
 };
-
-Error404.displayName = 'Error404';
 
 const Error404Component = registerComponent('Error404', Error404);
 

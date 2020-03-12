@@ -1,6 +1,5 @@
 import React from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles } from '@material-ui/core/styles';
+import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import Settings from '@material-ui/icons/Settings';
 
@@ -25,7 +24,12 @@ const styles = (theme) => ({
   }
 })
 
-const SettingsIcon = ({classes, className, onClick, label}) => {
+const SettingsIcon = ({classes, className, onClick, label=""}: {
+  classes: ClassesType,
+  className?: string,
+  onClick?: any,
+  label?: string,
+}) => {
   if (label) {
     return <span className={classes.iconWithLabelGroup} onClick={onClick}>
       <Settings className={classNames(classes.icon, classes.iconWithLabel, className)}/> 
@@ -35,4 +39,10 @@ const SettingsIcon = ({classes, className, onClick, label}) => {
   return <Settings className={classNames(classes.icon, className)} onClick={onClick}/>
 }
 
-registerComponent( 'SettingsIcon', SettingsIcon, withStyles(styles, {name: 'SettingsIcon'}))
+const SettingsIconComponent = registerComponent('SettingsIcon', SettingsIcon, {styles});
+
+declare global {
+  interface ComponentTypes {
+    SettingsIcon: typeof SettingsIconComponent
+  }
+}

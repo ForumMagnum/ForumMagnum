@@ -1,5 +1,5 @@
 // Also imported by Storybook
-import { importComponent } from 'meteor/vulcan:lib';
+import { importComponent } from '../../lib/vulcan-lib';
 
 importComponent("App", () => require('./App'));
 importComponent("Card", () => require('./Card'));

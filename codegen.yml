@@ -1,6 +1,6 @@
 overwrite: true
 schema: "http://localhost:3000/graphql"
 generates:
-  ./packages/vulcan-lib/lib/modules/fragmentTypes.json:
+  ./packages/lesswrong/lib/vulcan-lib/fragmentTypes.json:
     plugins:
       - "fragment-matcher"

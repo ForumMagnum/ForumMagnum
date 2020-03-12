@@ -1,10 +1,9 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import Users from "meteor/vulcan:users";
-import withUser from '../common/withUser';
+import Users from "../../lib/collections/users/collection";
+import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
-import { withStyles } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
 
 const styles = theme => ({
@@ -15,8 +14,11 @@ const styles = theme => ({
   }
 });
 
-const AlignmentForumHome = ({currentUser, classes}) => {
+const AlignmentForumHome = ({classes}: {
+  classes: ClassesType
+}) => {
   const { SingleColumnSection, SectionTitle, SequencesGridWrapper, PostsList2, SectionButton, RecentDiscussionThreadsList } = Components
+  const currentUser = useCurrentUser();
 
   let recentPostsTerms = {view: 'new', limit: 10, forum: true, af: true}
 
@@ -56,9 +58,8 @@ const AlignmentForumHome = ({currentUser, classes}) => {
 };
 
 const AlignmentForumHomeComponent = registerComponent(
-  'AlignmentForumHome', AlignmentForumHome,
-  withUser,
-  withStyles(styles, {name: "AlignmentForumHome"}));
+  'AlignmentForumHome', AlignmentForumHome, {styles}
+);
 
 declare global {
   interface ComponentTypes {

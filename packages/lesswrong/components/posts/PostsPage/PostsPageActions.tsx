@@ -1,13 +1,12 @@
 import React, { PureComponent } from 'react'
-import { withStyles, createStyles } from '@material-ui/core/styles';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import withUser from '../../common/withUser';
 import { withTracking } from '../../../lib/analyticsEvents';
 import ClickawayListener from '@material-ui/core/ClickAwayListener';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   icon: {
     verticalAlign: 'middle'
   },
@@ -15,11 +14,13 @@ const styles = createStyles(theme => ({
     position: "relative",
     zIndex: theme.zIndexes.postItemMenu
   },
-}))
+})
 
-interface PostsPageActionsProps extends WithUserProps, WithTrackingProps, WithStylesProps {
-  post: any,
-  vertical: boolean,
+interface ExternalProps {
+  post: PostsList,
+  vertical?: boolean,
+}
+interface PostsPageActionsProps extends ExternalProps, WithUserProps, WithTrackingProps, WithStylesProps {
 }
 interface PostsPageActionsState {
   anchorEl: any,
@@ -72,11 +73,10 @@ class PostsPageActions extends PureComponent<PostsPageActionsProps,PostsPageActi
 }
 
 
-const PostsPageActionsComponent = registerComponent('PostsPageActions', PostsPageActions,
-  withStyles(styles, {name: "PostsPageActions"}),
-  withUser,
-  withTracking
-)
+const PostsPageActionsComponent = registerComponent<ExternalProps>('PostsPageActions', PostsPageActions, {
+  styles,
+  hocs: [withUser, withTracking]
+});
 
 declare global {
   interface ComponentTypes {

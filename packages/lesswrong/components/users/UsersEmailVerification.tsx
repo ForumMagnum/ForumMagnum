@@ -1,13 +1,12 @@
 import React, { PureComponent } from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
-import Users from 'meteor/vulcan:users';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import Users from '../../lib/collections/users/collection';
 import Button from '@material-ui/core/Button';
 import withUser from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     ...theme.typography.body2,
     marginLeft: theme.spacing.unit
@@ -15,11 +14,12 @@ const styles = createStyles(theme => ({
   verifyEmailButton: {
     marginTop: theme.spacing.unit
   }
-}));
+});
 
-interface UsersEmailVerificationProps extends WithUserProps, WithStylesProps {
-  resend: boolean,
-  updateUser?: any,
+interface ExternalProps {
+  resend?: boolean,
+}
+interface UsersEmailVerificationProps extends ExternalProps, WithUserProps, WithUpdateUserProps, WithStylesProps {
 }
 interface UsersEmailVerificationState {
   emailSent: boolean,
@@ -79,15 +79,17 @@ class UsersEmailVerification extends PureComponent<UsersEmailVerificationProps,U
 }
 
 
-const UsersEmailVerificationComponent = registerComponent('UsersEmailVerification', UsersEmailVerification,
-  withErrorBoundary,
-  withUser,
-  withUpdate({
-    collection: Users,
-    fragmentName: 'UsersCurrent',
-  }),
-  withStyles(styles, { name: "UsersEmailVerification" })
-);
+const UsersEmailVerificationComponent = registerComponent<ExternalProps>('UsersEmailVerification', UsersEmailVerification, {
+  styles,
+  hocs: [
+    withErrorBoundary,
+    withUser,
+    withUpdate({
+      collection: Users,
+      fragmentName: 'UsersCurrent',
+    }),
+  ]
+});
 
 declare global {
   interface ComponentTypes {

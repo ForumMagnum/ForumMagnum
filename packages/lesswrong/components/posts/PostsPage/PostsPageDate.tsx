@@ -1,10 +1,8 @@
 import React from 'react';
-import { registerComponent, Components } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
-import Tooltip from '@material-ui/core/Tooltip';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { ExpandedDate } from '../../common/FormatDate';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   date: {
     color: theme.palette.grey[600],
     whiteSpace: "no-wrap",
@@ -15,10 +13,14 @@ const styles = createStyles(theme => ({
       display:"none"
     }
   }
-}));
+});
 
-const PostsPageDate = ({ post, hasMajorRevision, classes }) => {
-  const { FormatDate, PostsRevisionSelector } = Components;
+const PostsPageDate = ({ post, hasMajorRevision, classes }: {
+  post: PostsBase,
+  hasMajorRevision: boolean,
+  classes: ClassesType,
+}) => {
+  const { FormatDate, PostsRevisionSelector, LWTooltip } = Components;
   
   const tooltip = (<div>
     <div>Posted on <ExpandedDate date={post.postedAt}/></div>
@@ -37,16 +39,15 @@ const PostsPageDate = ({ post, hasMajorRevision, classes }) => {
   }
   
   return (<React.Fragment>
-    <Tooltip title={tooltip} placement="bottom">
+    <LWTooltip title={tooltip} placement="bottom">
         <span className={classes.date}>
           <FormatDate date={post.postedAt} format="Do MMM YYYY" tooltip={false} />
         </span>
-    </Tooltip>
+    </LWTooltip>
   </React.Fragment>);
 }
 
-const PostsPageDateComponent = registerComponent("PostsPageDate", PostsPageDate,
-  withStyles(styles, {name: "PostsPageDate"}));
+const PostsPageDateComponent = registerComponent("PostsPageDate", PostsPageDate, {styles});
 
 declare global {
   interface ComponentTypes {

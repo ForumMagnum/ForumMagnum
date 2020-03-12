@@ -1,11 +1,10 @@
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import SubdirectoryArrowLeft from '@material-ui/icons/SubdirectoryArrowLeft';
 import classNames from 'classnames';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     paddingRight: theme.spacing.unit,
     paddingTop: theme.spacing.unit,
@@ -39,9 +38,14 @@ const styles = createStyles(theme => ({
   activeArrow: {
     transform: "rotate(-90deg)"
   }
-}))
+})
 
-const ShowParentComment = ({ comment, active, onClick, classes }) => {
+const ShowParentComment = ({ comment, active, onClick, classes }: {
+  comment: CommentsList,
+  active?: boolean,
+  onClick?: any,
+  classes: ClassesType,
+}) => {
 
   if (!comment) return null;
   
@@ -56,7 +60,7 @@ const ShowParentComment = ({ comment, active, onClick, classes }) => {
   )
 };
 
-const ShowParentCommentComponent = registerComponent('ShowParentComment', ShowParentComment, withStyles(styles, {name:"ShowParentComment"}));
+const ShowParentCommentComponent = registerComponent('ShowParentComment', ShowParentComment, {styles});
 
 declare global {
   interface ComponentTypes {

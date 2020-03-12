@@ -1,8 +1,15 @@
 import React from 'react';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import withHover from "../common/withHover";
 
-const PostsItemTooltipWrapper = ({hover, anchorEl, stopHover, children, post}) => {
+interface ExternalProps {
+  children?: React.ReactNode,
+  post: PostsList,
+}
+interface PostsItemTooltipWrapperProps extends ExternalProps, WithHoverProps{
+}
+
+const PostsItemTooltipWrapper = ({hover, anchorEl, stopHover, children, post}: PostsItemTooltipWrapperProps) => {
   const { LWPopper, PostsPreviewTooltip } = Components
   return <React.Fragment>
       <LWPopper
@@ -22,8 +29,11 @@ const PostsItemTooltipWrapper = ({hover, anchorEl, stopHover, children, post}) =
     </React.Fragment>
 }
 
-const PostsItemTooltipWrapperComponent = registerComponent('PostsItemTooltipWrapper', PostsItemTooltipWrapper,
-  withHover({pageElementContext: "postItemTooltip"}, ({post}) => ({postId: post?._id})))
+const PostsItemTooltipWrapperComponent = registerComponent<ExternalProps>('PostsItemTooltipWrapper', PostsItemTooltipWrapper, {
+  hocs: [
+    withHover({pageElementContext: "postItemTooltip"}, ({post}) => ({postId: post?._id}))
+  ]
+})
 
 declare global {
   interface ComponentTypes {

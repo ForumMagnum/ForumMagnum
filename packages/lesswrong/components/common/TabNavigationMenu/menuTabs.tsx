@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components } from 'meteor/vulcan:core';
+import { Components } from '../../../lib/vulcan-lib';
 
 import { compassIcon } from '../../icons/compassIcon';
 import { questionsGlobeIcon } from '../../icons/questionsGlobeIcon';
@@ -9,6 +9,7 @@ import { allPostsIcon } from '../../icons/allPostsIcon';
 
 import Home from '@material-ui/icons/Home'
 import Search from '@material-ui/icons/Search'
+// import ImportContacts from '@material-ui/icons/ImportContacts'
 import Group from '@material-ui/icons/Group'
 import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info'
@@ -51,7 +52,7 @@ const EventsList = ({currentUser, onClick}) => {
 //      Menu)
 //
 // Tab objects support the following properties
-//   id: string, required, uniqe; for React map keys. `divider` is a keyword id
+//   id: string, required, unique; for React map keys. `divider` is a keyword id
 //   title: string; user facing description
 //   link: string
 //   // One of the following 3
@@ -148,6 +149,11 @@ export default {
       divider: true,
       showOnCompressed: true,
     }, {
+      id: 'coronavirus',
+      title: 'Coronavirus',
+      link: '/tag/coronavirus',
+      subItem: true,
+    }, {
       id: 'about',
       title: 'About',
       link: '/about',
@@ -228,6 +234,16 @@ export default {
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
+      // // Enable this and remove questions when we're ready to go
+      // id: 'handbook',
+      // title: 'EA Handbook',
+      // mobileTitle: 'Handbook',
+      // link: '/handbook',
+      // iconComponent: ImportContacts,
+      // tooltip: 'Learn about the principles of effective altruism.',
+      // showOnMobileStandalone: true,
+      // showOnCompressed: true,
+    // }, {
       id: 'questions',
       title: 'Questions',
       link: '/questions',
@@ -252,6 +268,11 @@ export default {
       id: 'divider',
       divider: true,
       showOnCompressed: true,
+    // }, {
+    //   id: 'intro',
+    //   title: 'What is EA?',
+    //   link: '/intro',
+    //   subItem: true,
     }, {
       id: 'shortform',
       title: 'Shortform [Beta]',

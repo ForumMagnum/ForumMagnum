@@ -1,17 +1,16 @@
 import React from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames'
 
-const styles = createStyles((theme) => ({
+const styles = (theme) => ({
   root: {
     marginLeft: theme.spacing.unit*2.5
   }
-}))
+})
 
 const SubSection = ({children, classes, className}: {
-  children?: any,
-  classes: any,
+  children?: React.ReactNode,
+  classes: ClassesType,
   className?: string,
 }) => {
   return <div className={classNames(classes.root, className)}>
@@ -19,7 +18,7 @@ const SubSection = ({children, classes, className}: {
   </div>
 }
 
-const SubSectionComponent = registerComponent('SubSection', SubSection, withStyles(styles, {name: 'SubSection'}))
+const SubSectionComponent = registerComponent('SubSection', SubSection, {styles});
 
 declare global {
   interface ComponentTypes {

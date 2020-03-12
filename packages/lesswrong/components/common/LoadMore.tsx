@@ -1,11 +1,10 @@
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import { queryIsUpdating } from './queryStatusUtils'
 import {useTracking} from "../../lib/analyticsEvents";
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
@@ -18,11 +17,20 @@ const styles = createStyles(theme => ({
       opacity: 1
     }
   }
-}))
+})
 
 
-const LoadMore = ({ loadMore, count, totalCount, classes, disabled=false, networkStatus, hidden=false }) => {
-  const { captureEvent } = useTracking("loadMoreClicked")
+const LoadMore = ({ loadMore, count, totalCount, classes, disabled=false, networkStatus, loading=false, hidden=false }: {
+  loadMore: any,
+  count?: number,
+  totalCount?: number,
+  classes: ClassesType,
+  disabled?: boolean,
+  networkStatus?: any,
+  loading?: boolean,
+  hidden?: boolean,
+}) => {
+  const { captureEvent } = useTracking()
 
   if (hidden) return null;
   
@@ -33,7 +41,7 @@ const LoadMore = ({ loadMore, count, totalCount, classes, disabled=false, networ
     captureEvent("loadMoreClicked")
   }
 
-  if (networkStatus && queryIsUpdating(networkStatus)) {
+  if (loading || (networkStatus && queryIsUpdating(networkStatus))) {
     return <div className={classes.loading}>
       <Loading/>
     </div>
@@ -50,9 +58,7 @@ const LoadMore = ({ loadMore, count, totalCount, classes, disabled=false, networ
   )
 }
 
-const LoadMoreComponent = registerComponent('LoadMore', LoadMore,
-  withStyles(styles, { name: "LoadMore" })
-);
+const LoadMoreComponent = registerComponent('LoadMore', LoadMore, {styles});
 
 declare global {
   interface ComponentTypes {

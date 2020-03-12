@@ -1,9 +1,8 @@
 import React from 'react'
-import { withStyles, createStyles } from '@material-ui/core/styles';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import Typography from '@material-ui/core/Typography';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     fontFamily: theme.typography.uiSecondary.fontFamily,
     textAlign: 'left',
@@ -12,9 +11,12 @@ const styles = createStyles(theme => ({
   authorName: {
     fontWeight: 600,
   },
-}))
+})
 
-const PostsAuthors = ({classes, post}) => {
+const PostsAuthors = ({classes, post}: {
+  classes: ClassesType,
+  post: PostsDetails,
+}) => {
   const { UsersName } = Components
   return <Typography variant="body1" component="span" className={classes.root}>
     by <span className={classes.authorName}>
@@ -26,7 +28,7 @@ const PostsAuthors = ({classes, post}) => {
   </Typography>
 }
 
-const PostsAuthorsComponent = registerComponent('PostsAuthors', PostsAuthors, withStyles(styles, {name: "PostsAuthors"}))
+const PostsAuthorsComponent = registerComponent('PostsAuthors', PostsAuthors, {styles});
 
 declare global {
   interface ComponentTypes {

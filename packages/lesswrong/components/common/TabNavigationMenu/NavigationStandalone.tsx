@@ -1,9 +1,8 @@
 import React from 'react';
-import { registerComponent, Components } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import Slide from '@material-ui/core/Slide'
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     position: "absolute",
     zIndex: theme.zIndexes.tabNavigation,
@@ -31,7 +30,7 @@ const styles = createStyles(theme => ({
   "@media print": {
     display: "none"
   }
-}))
+})
 
 const NavigationStandalone = ({sidebarHidden, classes}) => {
   const { TabNavigationMenu, TabNavigationMenuFooter } = Components
@@ -54,8 +53,7 @@ const NavigationStandalone = ({sidebarHidden, classes}) => {
 }
 
 const NavigationStandaloneComponent = registerComponent(
-  'NavigationStandalone', NavigationStandalone,
-  withStyles(styles, { name: 'NavigationStandalone'})
+  'NavigationStandalone', NavigationStandalone, {styles}
 );
 
 declare global {

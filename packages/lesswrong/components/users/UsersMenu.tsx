@@ -1,9 +1,9 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { Link } from '../../lib/reactRouterWrapper';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { withApollo } from 'react-apollo';
 
 import Paper from '@material-ui/core/Paper';
@@ -16,7 +16,6 @@ import PersonIcon from '@material-ui/icons/Person';
 import BookmarksIcon from '@material-ui/icons/Bookmarks';
 import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 
 import { Posts } from '../../lib/collections/posts';
 import withUser from '../common/withUser';
@@ -24,7 +23,7 @@ import withDialog from '../common/withDialog'
 import withHover from '../common/withHover'
 import {captureEvent} from "../../lib/analyticsEvents";
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     marginTop: 5,
     wordBreak: 'break-all',
@@ -55,18 +54,17 @@ const styles = createStyles(theme => ({
     color: theme.palette.grey[600],
     marginLeft: 20
   }
-}))
+})
 
-interface UsersMenuProps extends WithUserProps, WithStylesProps {
+interface ExternalProps {
+  color?: string,
+}
+interface UsersMenuProps extends ExternalProps, WithUserProps, WithStylesProps, WithDialogProps, WithHoverProps {
   client: any,
-  color: any,
-  openDialog: any,
-  hover: boolean,
-  anchorEl: any,
 }
 interface UsersMenuState {
   open: boolean,
-  anchorEl: any,
+  anchorEl: HTMLElement|null,
 }
 
 class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
@@ -214,9 +212,10 @@ class UsersMenu extends PureComponent<UsersMenuProps,UsersMenuState> {
   color: "rgba(0, 0, 0, 0.6)"
 }
 
-const UsersMenuComponent = registerComponent('UsersMenu', UsersMenu,
-  withUser, withApollo, withHover(), withDialog, withStyles(styles, { name: "UsersMenu" })
-);
+const UsersMenuComponent = registerComponent<ExternalProps>('UsersMenu', UsersMenu, {
+  styles,
+  hocs: [withUser, withApollo, withHover(), withDialog]
+});
 
 declare global {
   interface ComponentTypes {

@@ -1,12 +1,11 @@
 import React, { PureComponent } from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import withUser from '../common/withUser';
 import { unflattenComments, addGapIndicators } from '../../lib/utils/unflatten';
 import withRecordPostView from '../common/withRecordPostView';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../common/withErrorBoundary';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   showChildren: {
     padding: 4,
     paddingLeft: 12,
@@ -15,13 +14,16 @@ const styles = createStyles(theme => ({
     display: "block",
     fontSize: 14,
   },
-}))
+})
 
-interface CommentWithRepliesProps extends WithUserProps, WithStylesProps {
-  comment: any,
-  post: any,
-  recordPostView: any,
+interface ExternalProps {
+  comment: CommentWithRepliesFragment,
+  post?: PostsBase,
   refetch: any,
+  showTitle?: boolean
+}
+interface CommentWithRepliesProps extends ExternalProps, WithUserProps, WithStylesProps {
+  recordPostView: any,
 }
 interface CommentWithRepliesState {
   markedAsVisitedAt: Date|null,
@@ -38,7 +40,7 @@ class CommentWithReplies extends PureComponent<CommentWithRepliesProps,CommentWi
   }
 
   render () {
-    const { classes, comment, refetch, post: propsPost } = this.props
+    const { classes, comment, refetch, post: propsPost, showTitle=true } = this.props
     const { CommentsNode } = Components
     const { markedAsVisitedAt, maxChildren } = this.state
 
@@ -67,8 +69,7 @@ class CommentWithReplies extends PureComponent<CommentWithRepliesProps,CommentWi
         <CommentsNode
           noHash
           startThreadTruncated={true}
-          showPostTitle
-          startCollapsed
+          showPostTitle={showTitle}
           nestingLevel={1}
           lastCommentId={lastCommentId}
           comment={comment}
@@ -87,11 +88,11 @@ class CommentWithReplies extends PureComponent<CommentWithRepliesProps,CommentWi
   }
 }
 
-const CommentWithRepliesComponent = registerComponent(
-  'CommentWithReplies', CommentWithReplies,
-  withUser, withRecordPostView,
-  withStyles(styles, {name:"CommentWithReplies"}),
-  withErrorBoundary
+const CommentWithRepliesComponent = registerComponent<ExternalProps>(
+  'CommentWithReplies', CommentWithReplies, {
+    styles,
+    hocs: [withUser, withRecordPostView, withErrorBoundary]
+  }
 );
 
 declare global {

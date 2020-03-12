@@ -1,4 +1,9 @@
-import { getSetting} from 'meteor/vulcan:core';
+import { getSetting } from './lib/vulcan-lib';
+import './server/vulcan-lib/index';
+
+import './server/vulcan-users/main';
+import './server/vulcan-core/start';
+import './server/vulcan-accounts/index';
 
 export * from './lib/index';
 
@@ -107,7 +112,7 @@ import './lib/events/server';
 import './server/callbacks/intercomCallbacks';
 import './server/connection_logs';
 
-import './server/codegen/generateFragmentTypes.ts';
+import './server/codegen/generateTypes';
 
 
 // Algolia Search Integration

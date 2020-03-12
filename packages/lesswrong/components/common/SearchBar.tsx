@@ -1,19 +1,18 @@
 import React, { Component } from 'react';
-import { registerComponent, Components, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, Components, getSetting } from '../../lib/vulcan-lib';
 import { InstantSearch, SearchBox, connectMenu } from 'react-instantsearch-dom';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import SearchIcon from '@material-ui/icons/Search';
 import CloseIcon from '@material-ui/icons/Close';
 import Portal from '@material-ui/core/Portal';
-import { addCallback, removeCallback } from 'meteor/vulcan:lib';
+import { addCallback, removeCallback } from '../../lib/vulcan-lib';
 import { withLocation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { algoliaIndexNames, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
 
 const VirtualMenu = connectMenu(() => null);
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     display: 'flex',
     alignItems: 'center',
@@ -95,11 +94,13 @@ const styles = createStyles(theme => ({
       color: "rgba(255,255,255, 0.5)",
     },
   },
-}))
+})
 
-interface SearchBarProps extends WithStylesProps, WithLocationProps {
+interface ExternalProps {
   onSetIsActive: (active: boolean)=>void,
   searchResultsArea: any,
+}
+interface SearchBarProps extends ExternalProps, WithStylesProps, WithLocationProps {
 }
 
 interface SearchBarState {
@@ -172,20 +173,13 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
   }
 
   render() {
-    const alignmentForum = getSetting('forumType') === 'AlignmentForum';
+    const alignmentForum = getSetting<string>('forumType') === 'AlignmentForum';
 
     const { searchResultsArea, classes } = this.props
-    const { location } = this.props; // From withLocation
     const { searchOpen, inputOpen } = this.state
 
     if(!isAlgoliaEnabled) {
       return <div>Search is disabled (Algolia App ID not configured on server)</div>
-    }
-
-    // HACK FIXME: This should very likely be factored out somewhere close to where the routes lives, to avoid breaking when we make small URL changes
-    let userRefinement
-    if(location && location.pathname && location.pathname.includes("/users/")){
-      userRefinement = location.pathname.split('/')[2]
     }
 
     return <div className={classes.root} onKeyDown={this.handleKeyDown}>
@@ -201,7 +195,6 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
             {[classes.alignmentForum]: alignmentForum}
           )}>
             {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
-            {userRefinement && <VirtualMenu attribute='authorSlug' defaultRefinement={userRefinement} />}
             <div onClick={this.handleSearchTap}>
               <SearchIcon className={classes.searchIcon}/>
               { inputOpen && <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} /> }
@@ -221,7 +214,10 @@ class SearchBar extends Component<SearchBarProps,SearchBarState> {
   }
 }
 
-const SearchBarComponent = registerComponent("SearchBar", SearchBar, withStyles(styles, {name: "SearchBar"}), withLocation, withErrorBoundary);
+const SearchBarComponent = registerComponent<ExternalProps>("SearchBar", SearchBar, {
+  styles,
+  hocs: [withLocation, withErrorBoundary],
+});
 
 declare global {
   interface ComponentTypes {

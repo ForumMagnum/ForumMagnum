@@ -1,6 +1,6 @@
 import { graphql, useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
-import { singleClientTemplate, Utils, extractCollectionInfo, extractFragmentInfo } from 'meteor/vulcan:lib';
+import { singleClientTemplate, Utils, extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
 import * as _ from 'underscore';
 import { WatchQueryFetchPolicy } from 'apollo-client';
 
@@ -34,7 +34,7 @@ export function withSingle({
   fragmentName, fragment,
   extraVariables, fetchPolicy, propertyName = 'document', extraQueries
 }: {
-  collectionName?: string,
+  collectionName?: CollectionNameString,
   collection?: any,
   fragmentName?: string,
   fragment?: any,
@@ -107,7 +107,7 @@ export function useSingle({
   extraVariablesValues,
   skip=false
 }: {
-  collectionName?: string,
+  collectionName?: CollectionNameString,
   collection?: any,
   fragmentName?: string,
   fragment?: any,

@@ -1,15 +1,14 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
 import { withMulti } from '../../lib/crud/withMulti';
 import React, { Component } from 'react';
-import { FormattedMessage } from 'meteor/vulcan:i18n';
+import { FormattedMessage } from '../../lib/vulcan-i18n';
 import { Link } from '../../lib/reactRouterWrapper';
 import { withLocation, withNavigation } from '../../lib/routeUtil';
-import Users from "meteor/vulcan:users";
+import Users from "../../lib/collections/users/collection";
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import StarIcon from '@material-ui/icons/Star'
 import DescriptionIcon from '@material-ui/icons/Description'
 import MessageIcon from '@material-ui/icons/Message'
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import withUser from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -24,7 +23,7 @@ export const sectionFooterLeftStyles = {
   }
 }
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   profilePage: {
     marginLeft: "auto",
     [theme.breakpoints.down('sm')]: {
@@ -58,18 +57,7 @@ const styles = createStyles(theme => ({
     color: theme.palette.primary.light
   },
   title: {
-    cursor: "pointer",
-    '&:hover $settingsIcon, &:hover $settingsText': {
-      color: theme.palette.grey[800]
-    }
-  },
-  settingsText: {
-    marginLeft: theme.spacing.unit,
-    fontStyle: "italic",
-    display: "inline-block",
-    ...theme.typography.commentStyle,
-    fontSize: "1rem",
-    color: theme.palette.grey[700]
+    cursor: "pointer"
   },
   // Dark Magick
   // https://giphy.com/gifs/psychedelic-art-phazed-12GGadpt5aIUQE
@@ -77,7 +65,7 @@ const styles = createStyles(theme => ({
   userMetaInfo: {
     display: "inline-flex"
   }
-}))
+})
 
 const sortings = {
   magic: "Magic (New & Upvoted)",
@@ -87,23 +75,24 @@ const sortings = {
   top: "Top"
 }
 
-export const getUserFromResults = (results) => {
+export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>|null): T|null => {
   // HOTFIX: Filtering out invalid users
-  return results?.find(user => !!user.displayName) || results?.[0]
+  return results?.find(user => !!user.displayName) || results?.[0] || null
 }
 
-interface UsersProfileProps extends WithUserProps, WithStylesProps {
-  slug: any,
-  loading?: boolean,
-  results: any,
-  location?: any,
-  history?: any,
+interface ExternalProps {
+  terms: any,
+  slug: string,
+}
+interface UsersProfileProps extends ExternalProps, WithUserProps, WithStylesProps, WithLocationProps, WithNavigationProps {
+  loading: boolean,
+  results: Array<UsersProfile>|null,
 }
 interface UsersProfileState {
   showSettings: boolean,
 }
 
-class UsersProfile extends Component<UsersProfileProps,UsersProfileState> {
+class UsersProfileClass extends Component<UsersProfileProps,UsersProfileState> {
   state: UsersProfileState = {
     showSettings: false
   }
@@ -116,7 +105,7 @@ class UsersProfile extends Component<UsersProfileProps,UsersProfileState> {
     }
   }
 
-  componentDidUpdate({results: previousResults}) {
+  componentDidUpdate({results: previousResults}: Readonly<UsersProfileProps>) {
     const { results } = this.props
     const oldDocument = getUserFromResults(previousResults)
     const newDocument = getUserFromResults(results)
@@ -129,7 +118,7 @@ class UsersProfile extends Component<UsersProfileProps,UsersProfileState> {
     const { history, results, slug } = this.props
     const document = getUserFromResults(results)
     // Javascript redirect to make sure we are always on the most canonical URL for this user
-    if (slug !== document?.slug) {
+    if (document && slug !== document.slug) {
       const canonicalUrl = Users.getProfileUrlFromSlug(document.slug);
       history.replace(canonicalUrl);
     }
@@ -250,9 +239,6 @@ class UsersProfile extends Component<UsersProfileProps,UsersProfileState> {
 
             <SectionFooter>
               { this.renderMeta() }
-              { user.twitterUsername &&  <a href={"https://twitter.com/" + user.twitterUsername}>
-                @{user.twitterUsername}
-              </a>}
               { currentUser?.isAdmin &&
                 <div>
                   <DialogGroup
@@ -306,7 +292,7 @@ class UsersProfile extends Component<UsersProfileProps,UsersProfileState> {
               <Components.PostsList2 terms={draftTerms}/>
               <Components.PostsList2 terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
             </AnalyticsContext>
-            {getSetting('hasEvents', true) && <Components.LocalGroupsList terms={{view: 'userInactiveGroups', userId: currentUser?._id}} showHeader={false} />}
+            {getSetting('hasEvents', true) && <Components.LocalGroupsList terms={{view: 'userInactiveGroups', userId: currentUser?._id}} />}
           </SingleColumnSection> }
           {/* Posts Section */}
           <SingleColumnSection>
@@ -331,7 +317,7 @@ class UsersProfile extends Component<UsersProfileProps,UsersProfileState> {
           <AnalyticsContext pageSectionContext="commentsSection">
             <SingleColumnSection>
               <SectionTitle title={`${Users.getDisplayName(user)}'s Comments`} />
-              <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} fontSize="small" />
+              <Components.RecentComments terms={{view: 'allRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}} />
             </SingleColumnSection>
           </AnalyticsContext>
         </AnalyticsContext>
@@ -340,17 +326,21 @@ class UsersProfile extends Component<UsersProfileProps,UsersProfileState> {
   }
 }
 
-const UsersProfileComponent = registerComponent(
-  'UsersProfile', UsersProfile,
-  withUser,
-  withMulti({
-    collection: Users,
-    fragmentName: 'UsersProfile',
-    enableTotal: false,
-    ssr: true
-  }),
-  withLocation, withNavigation,
-  withStyles(styles, {name: "UsersProfile"}));
+const UsersProfileComponent = registerComponent<ExternalProps>(
+  'UsersProfile', UsersProfileClass, {
+    styles,
+    hocs: [
+      withUser,
+      withMulti({
+        collection: Users,
+        fragmentName: 'UsersProfile',
+        enableTotal: false,
+        ssr: true
+      }),
+      withLocation, withNavigation,
+    ]
+  }
+);
 
 declare global {
   interface ComponentTypes {

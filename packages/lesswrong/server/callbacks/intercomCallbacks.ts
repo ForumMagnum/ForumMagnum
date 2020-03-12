@@ -1,4 +1,4 @@
-import { addCallback } from 'meteor/vulcan:core';
+import { addCallback } from '../../lib/vulcan-lib';
 import intercomClient from '../../lib/events/server';
 
 

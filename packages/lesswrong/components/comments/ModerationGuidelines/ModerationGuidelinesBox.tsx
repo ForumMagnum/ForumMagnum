@@ -1,18 +1,17 @@
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../../lib/vulcan-lib';
 import React, { useState } from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import withNewEvents from '../../../lib/events/withNewEvents';
 import { useCurrentUser } from '../../common/withUser';
 import truncatise from 'truncatise';
 import Edit from '@material-ui/icons/Edit';
-import Users from 'meteor/vulcan:users';
+import Users from '../../../lib/collections/users/collection';
 import Tooltip from '@material-ui/core/Tooltip';
 import { useDialog } from '../../common/withDialog'
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
 import { commentBodyStyles } from '../../../themes/stylePiping'
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     padding: theme.spacing.unit*2,
     position:"relative"
@@ -53,9 +52,13 @@ const styles = createStyles(theme => ({
       marginBottom: '.4em'
     }
   }
-}))
+})
 
-const ModerationGuidelinesBox = ({classes, document, recordEvent}) => {
+const ModerationGuidelinesBox = ({classes, document, recordEvent}: {
+  classes: ClassesType,
+  document: PostsBase,
+  recordEvent?: any,
+}) => {
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
   const [expanded, setExpanded] = useState(false)
@@ -145,7 +148,13 @@ const moderationStyleLookup = {
   'easy-going': "Easy Going - I just delete obvious spam and trolling."
 }
 
-registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBox, withStyles(styles, {name: 'ModerationGuidelinesBox'}),
-  withNewEvents,
-  withErrorBoundary
-);
+const ModerationGuidelinesBoxComponent = registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBox, {
+  styles,
+  hocs: [withNewEvents, withErrorBoundary]
+});
+
+declare global {
+  interface ComponentTypes {
+    ModerationGuidelinesBox: typeof ModerationGuidelinesBoxComponent
+  }
+}
