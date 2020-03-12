@@ -8,6 +8,7 @@ import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import { postBodyStyles } from '../../themes/stylePiping'
+import {AnalyticsContext} from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   description: {
@@ -67,9 +68,11 @@ const TagPage = ({classes}: {
       There are no posts with this tag yet.
     </div>}
     {loadingPosts && <Loading/>}
-    {orderByTagScore && orderByTagScore.map((result,i) =>
-      result.post && <PostsItem2 key={result.post._id} tagRel={result} post={result.post} index={i} />
-    )}
+    <AnalyticsContext listContext={`${tag.name} Tag Page`} capturePostItemOnMount>
+      {orderByTagScore && orderByTagScore.map((result,i) =>
+        result.post && <PostsItem2 key={result.post._id} tagRel={result} post={result.post} index={i} />
+      )}
+    </AnalyticsContext>
     <SectionFooter>
       <span className={classes.loadMore}>
         <LoadMore {...loadMoreProps}/>
