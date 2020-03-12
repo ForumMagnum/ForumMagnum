@@ -187,7 +187,7 @@ export default {
       tooltip: <div>
         <div>• Ask simple newbie questions.</div>
         <div>• Collaborate on open research questions.</div>
-        <div>• Pose and resolve confusions.</div>
+        <div>• Pose and resolve confusions.</div>
       </div>,
       showOnMobileStandalone: true,
       showOnCompressed: true,
