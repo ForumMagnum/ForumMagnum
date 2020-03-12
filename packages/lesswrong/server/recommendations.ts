@@ -230,7 +230,7 @@ const getDefaultResumeSequence = () => {
     {
       // R:A-Z
       collectionId: "oneQyj4pw77ynzwAF",
-      nextPostId: "uXn3LyA8eNqpvdoZw",
+      nextPostId: "2ftJ38y9SRBCBsCzy",
     },
   ]
 }
