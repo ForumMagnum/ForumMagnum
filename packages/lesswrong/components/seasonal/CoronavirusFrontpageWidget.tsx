@@ -29,7 +29,7 @@ const CoronavirusFrontpageWidget = ({settings}) => {
   return (
     <div>
       <SectionSubtitle>
-        <LWTooltip title={"View all posts related to COVID-19"} placement="top">
+        <LWTooltip title={"View all posts related to COVID-19"} placement="top-start">
           <Link to="/tag/coronavirus">Coronavirus Tag</Link>
         </LWTooltip>
       </SectionSubtitle>
