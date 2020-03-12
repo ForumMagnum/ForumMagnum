@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/browser';
+import * as SentryIntegrations from '@sentry/integrations';
 import { getSetting, addCallback } from '../lib/vulcan-lib';
 import { captureEvent, AnalyticsUtil } from '../lib/analyticsEvents';
 import { browserProperties } from '../lib/utils/browserProperties';
@@ -11,6 +12,10 @@ Sentry.init({
   dsn: sentryUrl,
   environment: sentryEnvironment,
   release: sentryRelease,
+  integrations: [
+    new SentryIntegrations.Dedupe(),
+    new SentryIntegrations.ExtraErrorData(),
+  ],
 });
 // Initializing sentry on the client browser
 
