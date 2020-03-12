@@ -8,7 +8,7 @@ import { useLocation, useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
 import {AnalyticsContext, captureEvent} from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
-import { defaultFilterSettings, filterSettingsToString } from '../tagging/TagFilterSettings';
+import { defaultFilterSettings, filterSettingsToString } from '../../lib/filterSettings';
 
 const styles = theme => ({
   personalBlogpostsCheckbox: {
@@ -29,6 +29,12 @@ const styles = theme => ({
 const latestPostsName = getSetting('forumType') === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts'
 const includePersonalName = getSetting('forumType') === 'EAForum' ? 'Include Community' : 'Include Personal Blogposts'
 
+const useFilterSettings = (currentUser: UsersCurrent|null) => {
+  const defaultSettings = currentUser ? currentUser.frontpageFilterSettings : defaultFilterSettings;
+  
+  return useState(defaultFilterSettings);
+}
+
 const HomeLatestPosts = ({ classes }: {
   classes: ClassesType
 }) => {
@@ -36,13 +42,13 @@ const HomeLatestPosts = ({ classes }: {
   const location = useLocation();
   const { history } = useNavigation();
   
-  const [filterSettings, setFilterSettings] = useState(defaultFilterSettings);
-  const [filterSettingsVisible, setFilterSettingsVisible] = useState(false);
-
   const {mutate: updateUser} = useUpdate({
     collection: Users,
     fragmentName: 'UsersCurrent',
   });
+
+  const [filterSettings, setFilterSettings] = useFilterSettings(currentUser);
+  const [filterSettingsVisible, setFilterSettingsVisible] = useState(false);
 
   const toggleFilter = React.useCallback(() => {
     const { query, pathname } = location;
@@ -73,8 +79,9 @@ const HomeLatestPosts = ({ classes }: {
 
   const recentPostsTerms = {
     ...query,
+    filterSettings: filterSettings,
     view: "magic",
-    filter: currentFilter,
+    filter: currentFilter, //TODO
     forum: true,
     limit:limit
   }
@@ -130,7 +137,15 @@ const HomeLatestPosts = ({ classes }: {
         </LWTooltip>
       </SectionTitle>
       {filterSettingsVisible && <Components.TagFilterSettings
-        filterSettings={filterSettings} setFilterSettings={(newSettings) => setFilterSettings(newSettings)}
+        filterSettings={filterSettings} setFilterSettings={(newSettings) => {
+          setFilterSettings(newSettings)
+          updateUser({
+            selector: { _id: currentUser._id},
+            data: {
+              frontpageFilterSettings: newSettings
+            },
+          })
+        }}
       />}
       <AnalyticsContext listContext={"latestPosts"}>
         <PostsList2 terms={recentPostsTerms}>

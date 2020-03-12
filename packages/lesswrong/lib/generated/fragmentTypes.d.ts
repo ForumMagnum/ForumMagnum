@@ -539,6 +539,7 @@ interface PostsDefaultFragment { // fragment on Posts
 	readonly canonicalSource: string,
 	readonly nominationCount2018: number,
 	readonly reviewCount2018: number,
+	readonly tagRelevance: any /*{"definitions":[{}]}*/,
 }
 
 interface ChaptersDefaultFragment { // fragment on Chapters
@@ -706,6 +707,7 @@ interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
 	readonly hideIntercom: boolean,
 	readonly hideNavigationSidebar: boolean,
 	readonly currentFrontpageFilter: string,
+	readonly frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/,
 	readonly allPostsTimeframe: string,
 	readonly allPostsSorting: string,
 	readonly allPostsFilter: string,
@@ -989,6 +991,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
 	readonly hideIntercom: boolean,
 	readonly commentSorting: string,
 	readonly currentFrontpageFilter: string,
+	readonly frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/,
 	readonly noCollapseCommentsPosts: boolean,
 	readonly noCollapseCommentsFrontpage: boolean,
 	readonly noSingleLineComments: boolean,

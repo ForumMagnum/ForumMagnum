@@ -3,6 +3,7 @@ import { viewFieldNullOrMissing, viewFieldAllowAny, getSetting } from '../../vul
 import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionUtils';
 import moment from 'moment';
 import * as _ from 'underscore';
+import { FilterSettings } from '../../filterSettings';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
@@ -44,7 +45,7 @@ const filters: Record<string,any> = {
   "meta": {
     meta: true
   },
-  "includeMetaAndPersonal": {}
+  "includeMetaAndPersonal": {},
 }
 if (getSetting('forumType') === 'EAForum') filters.frontpage.meta = {$ne: true}
 
@@ -114,6 +115,12 @@ Posts.addDefaultView(terms => {
       )
     }
   }
+  if (terms.filterSettings) {
+    params.selector = {
+      ...params.selector,
+      ...filterSettingsToSelector(terms.filterSettings)
+    };
+  }
   if (terms.sortedBy) {
     if (sortings[terms.sortedBy]) {
       params.options = {sort: {...params.options.sort, ...sortings[terms.sortedBy]}}
@@ -127,6 +134,34 @@ Posts.addDefaultView(terms => {
   }
   return params;
 })
+
+function filterSettingsToSelector(filterSettings: FilterSettings): any {
+  const tagsRequired = _.filter(filterSettings.tags, t=>t.filterMode==="Only");
+  const tagsExcluded = _.filter(filterSettings.tags, t=>t.filterMode==="Hide");
+  
+  let frontpageFilter: any;
+  if (filterSettings.personalBlog === "Hide") {
+    frontpageFilter = {frontpageDate: {$gt: new Date(0)}}
+  } else if (filterSettings.personalBlog === "Only") {
+    frontpageFilter = {frontpageDate: viewFieldNullOrMissing}
+  } else {
+    frontpageFilter = {};
+  }
+  
+  let tagsFilter = {};
+  for (let tag of tagsRequired) {
+    tagsFilter[`tagRelevance.${tag.tagId}`] = {$gte: 1};
+  }
+  for (let tag of tagsExcluded) {
+    tagsFilter[`tagRelevance.${tag.tagId}`] = {$not: {$gte: 1}};
+  }
+  
+  return {
+    ...frontpageFilter,
+    ...tagsFilter
+  };
+}
+
 
 export function augmentForDefaultView(indexFields)
 {
