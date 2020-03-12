@@ -13,11 +13,10 @@ const PostsItemKarma = ({post, hover, anchorEl}: {
   const { LWPopper } = Components
   return (
     <span>
-      <LWPopper open={hover} anchorEl={anchorEl} tooltip placement="top-start">
+      <LWPopper open={hover} anchorEl={anchorEl} tooltip placement="left">
         <div>
-          <div>
-            This post has { baseScore || 0 } karma ({ post.voteCount} votes)
-          </div>
+          <div>{ baseScore || 0 } karma</div>
+          <div>({ post.voteCount} votes)</div>
           {afBaseScore && <div><em>({afBaseScore} karma on AlignmentForum.org)</em></div>}
         </div>
       </LWPopper>
