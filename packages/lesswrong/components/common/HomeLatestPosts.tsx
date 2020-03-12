@@ -32,7 +32,7 @@ const includePersonalName = getSetting('forumType') === 'EAForum' ? 'Include Com
 const useFilterSettings = (currentUser: UsersCurrent|null) => {
   const defaultSettings = currentUser ? currentUser.frontpageFilterSettings : defaultFilterSettings;
   
-  return useState(defaultFilterSettings);
+  return useState(defaultSettings);
 }
 
 const HomeLatestPosts = ({ classes }: {
@@ -139,12 +139,14 @@ const HomeLatestPosts = ({ classes }: {
       {filterSettingsVisible && <Components.TagFilterSettings
         filterSettings={filterSettings} setFilterSettings={(newSettings) => {
           setFilterSettings(newSettings)
-          updateUser({
-            selector: { _id: currentUser._id},
-            data: {
-              frontpageFilterSettings: newSettings
-            },
-          })
+          if (currentUser) {
+            updateUser({
+              selector: { _id: currentUser._id},
+              data: {
+                frontpageFilterSettings: newSettings
+              },
+            })
+          }
         }}
       />}
       <AnalyticsContext listContext={"latestPosts"}>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
+import { defaultFilterSettings } from '../../lib/filterSettings';
 import Users from '../../lib/collections/users/collection';
 
 registerMigration({
@@ -11,13 +12,25 @@ registerMigration({
       collection: Users,
       batchSize: 100,
       callback: async (users: Array<DbUser>) => {
+        let changes: Array<any> = [];
+        
         for (let user of users) {
-          if (user.currentFrontpageFilter === "community") {
-            // TODO
-          } else {
-            // TODO
-          }
+          changes.push({
+            updateOne: {
+              filter: { _id: user._id },
+              update: {
+                $set: {
+                  frontpageFilterSettings: {
+                    ...defaultFilterSettings,
+                    personalBlog: (user.currentFrontpageFilter === "frontpage") ? "Hide" : "Neutral"
+                  }
+                }
+              }
+            }
+          });
         }
+        
+        await Users.rawCollection().bulkWrite(changes, { ordered: false });
       }
     });
   }
