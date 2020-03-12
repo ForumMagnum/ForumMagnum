@@ -27,12 +27,13 @@ Sequences.addView("userProfile", function (terms) {
     },
     options: {
       sort: {
-        createdAt: -1
+        userProfileOrder: 1,
+        createdAt: -1,
       }
     },
   };
 });
-ensureIndex(Sequences, augmentForDefaultView({ userId:1 }));
+ensureIndex(Sequences, augmentForDefaultView({ userId:1, userProfileOrder: -1 }));
 
 Sequences.addView("userProfileAll", function (terms) {
   return {
@@ -43,6 +44,7 @@ Sequences.addView("userProfileAll", function (terms) {
     options: {
       sort: {
         drafts: -1,
+        userProfileOrder: 1,
         createdAt: -1
       }
     },

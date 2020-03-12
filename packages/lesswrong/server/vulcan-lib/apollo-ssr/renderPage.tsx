@@ -4,7 +4,6 @@
  * @see https://github.com/apollographql/GitHunt-React/blob/master/src/server.js
  * @see https://www.apollographql.com/docs/react/features/server-side-rendering.html#renderToStringWithData
  */
-/*global Vulcan*/
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { getDataFromTree } from 'react-apollo';

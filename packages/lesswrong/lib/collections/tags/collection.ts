@@ -2,7 +2,7 @@ import { createCollection, Utils } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
 import { denormalizedCountOfReferences } from '../../utils/schemaUtils';
 import { makeEditable } from '../../editor/make_editable'
-import Users from '../users/collection';
+import { userCanManageTags } from '../../betas';
 
 const formGroups = {
   advancedOptions: {
@@ -18,7 +18,7 @@ const schema = {
     type: String,
     viewableBy: ['guests'],
     insertableBy: ['admins', 'sunshineRegiment'],
-    editableBy: ['admins'],
+    editableBy: ['admins', 'sunshineRegiment'],
   },
   slug: {
     type: String,
@@ -47,7 +47,7 @@ const schema = {
   deleted: {
     type: Boolean,
     viewableBy: ['guests'],
-    editableBy: ['admins'],
+    editableBy: ['admins', 'sunshineRegiment'],
     optional: true,
     group: formGroups.advancedOptions,
     ...schemaDefaultValue(false),
@@ -66,10 +66,10 @@ export const Tags: ExtendedTagsCollection = createCollection({
   resolvers: getDefaultResolvers('Tags'),
   mutations: getDefaultMutations('Tags', {
     newCheck: (user, tag) => {
-      return Users.isAdmin(user);
+      return userCanManageTags(user);
     },
     editCheck: (user, tag) => {
-      return Users.isAdmin(user);
+      return userCanManageTags(user);
     },
     removeCheck: (user, tag) => {
       return false;
@@ -78,7 +78,7 @@ export const Tags: ExtendedTagsCollection = createCollection({
 });
 
 Tags.checkAccess = (currentUser, tag) => {
-  if (Users.isAdmin(currentUser))
+  if (userCanManageTags(currentUser))
     return true;
   else if (tag.deleted)
     return false;
