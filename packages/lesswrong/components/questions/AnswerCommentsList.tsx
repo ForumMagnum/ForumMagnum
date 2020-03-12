@@ -48,8 +48,8 @@ export const ABRIDGE_COMMENT_COUNT = 500;
 const AnswerCommentsList = ({terms, lastEvent, classes, post, parentAnswer}: {
   terms: any,
   lastEvent?: any,
-  classes: any,
-  post: any,
+  classes: ClassesType,
+  post: PostsList,
   parentAnswer: any,
 }) => {
   const [commenting, setCommenting] = React.useState(false);

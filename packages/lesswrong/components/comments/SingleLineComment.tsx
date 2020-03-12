@@ -108,8 +108,8 @@ const styles = theme => ({
 })
 
 interface ExternalProps {
-  comment: any,
-  post: any,
+  comment: CommentsList,
+  post: PostsBase,
   nestingLevel: number,
   parentCommentId?: string,
   hideKarma?: boolean,

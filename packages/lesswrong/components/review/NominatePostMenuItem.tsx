@@ -15,7 +15,9 @@ import { Comments } from "../../lib/collections/comments";
 import { useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
 
-const NominatePostMenuItem = ({ post }) => {
+const NominatePostMenuItem = ({ post }: {
+  post: PostsBase
+}) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { history } = useNavigation();

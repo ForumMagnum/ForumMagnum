@@ -10,7 +10,12 @@ import { useHover } from '../common/withHover';
 import Card from '@material-ui/core/Card';
 import { looksLikeDbIdString } from '../../lib/routeUtil';
 
-const PostLinkPreview = ({href, targetLocation, innerHTML, id}) => {
+const PostLinkPreview = ({href, targetLocation, innerHTML, id}: {
+  href: string,
+  targetLocation: any,
+  innerHTML: string,
+  id: string,
+}) => {
   const postID = targetLocation.params._id;
 
   const { document: post, error } = useSingle({
@@ -25,7 +30,12 @@ const PostLinkPreview = ({href, targetLocation, innerHTML, id}) => {
 }
 const PostLinkPreviewComponent = registerComponent('PostLinkPreview', PostLinkPreview);
 
-const PostLinkPreviewSequencePost = ({href, targetLocation, innerHTML, id}) => {
+const PostLinkPreviewSequencePost = ({href, targetLocation, innerHTML, id}: {
+  href: string,
+  targetLocation: any,
+  innerHTML: string,
+  id: string,
+}) => {
   const postID = targetLocation.params.postId;
 
   const { document: post, error } = useSingle({
@@ -39,7 +49,12 @@ const PostLinkPreviewSequencePost = ({href, targetLocation, innerHTML, id}) => {
 }
 const PostLinkPreviewSequencePostComponent = registerComponent('PostLinkPreviewSequencePost', PostLinkPreviewSequencePost);
 
-const PostLinkPreviewSlug = ({href, targetLocation, innerHTML, id}) => {
+const PostLinkPreviewSlug = ({href, targetLocation, innerHTML, id}: {
+  href: string,
+  targetLocation: any,
+  innerHTML: string,
+  id: string,
+}) => {
   const slug = targetLocation.params.slug;
   const { post, error } = usePostBySlug({ slug });
 
@@ -47,7 +62,12 @@ const PostLinkPreviewSlug = ({href, targetLocation, innerHTML, id}) => {
 }
 const PostLinkPreviewSlugComponent = registerComponent('PostLinkPreviewSlug', PostLinkPreviewSlug);
 
-const PostLinkPreviewLegacy = ({href, targetLocation, innerHTML, id}) => {
+const PostLinkPreviewLegacy = ({href, targetLocation, innerHTML, id}: {
+  href: string,
+  targetLocation: any,
+  innerHTML: string,
+  id: string,
+}) => {
   const legacyId = targetLocation.params.id;
   const { post, error } = usePostByLegacyId({ legacyId });
 
@@ -55,7 +75,12 @@ const PostLinkPreviewLegacy = ({href, targetLocation, innerHTML, id}) => {
 }
 const PostLinkPreviewLegacyComponent = registerComponent('PostLinkPreviewLegacy', PostLinkPreviewLegacy);
 
-const CommentLinkPreviewLegacy = ({href, targetLocation, innerHTML, id}) => {
+const CommentLinkPreviewLegacy = ({href, targetLocation, innerHTML, id}: {
+  href: string,
+  targetLocation: any,
+  innerHTML: string,
+  id: string,
+}) => {
   const legacyPostId = targetLocation.params.id;
   const legacyCommentId = targetLocation.params.commentId;
 
@@ -71,7 +96,12 @@ const CommentLinkPreviewLegacy = ({href, targetLocation, innerHTML, id}) => {
 }
 const CommentLinkPreviewLegacyComponent = registerComponent('CommentLinkPreviewLegacy', CommentLinkPreviewLegacy);
 
-const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, innerHTML, id}) => {
+const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, innerHTML, id}: {
+  href: string,
+  targetLocation: any,
+  innerHTML: string,
+  id: string,
+}) => {
   const postId = targetLocation.params._id;
   const commentId = targetLocation.params.commentId;
 
@@ -90,7 +120,7 @@ const PostCommentLinkPreviewGreaterWrongComponent = registerComponent('PostComme
 const PostLinkPreviewVariantCheck = ({ href, innerHTML, post, targetLocation, comment, commentId, error, id}: {
   href: string,
   innerHTML: string,
-  post: any,
+  post: PostsList|null,
   targetLocation: any,
   comment?: any,
   commentId?: string,
@@ -130,7 +160,13 @@ const styles = theme => ({
   }
 })
 
-const PostLinkCommentPreview = ({href, commentId, post, innerHTML, id}) => {
+const PostLinkCommentPreview = ({href, commentId, post, innerHTML, id}: {
+  href: string,
+  commentId: string,
+  post: PostsList|null,
+  innerHTML: string,
+  id: string,
+}) => {
 
   const { document: comment, error } = useSingle({
     collection: Comments,
@@ -147,7 +183,14 @@ const PostLinkCommentPreview = ({href, commentId, post, innerHTML, id}) => {
 }
 const PostLinkCommentPreviewComponent = registerComponent('PostLinkCommentPreview', PostLinkCommentPreview);
 
-const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, id, error}) => {
+const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, id, error}: {
+  classes: ClassesType,
+  href: string,
+  innerHTML: string,
+  post: PostsList|null,
+  id: string,
+  error: any,
+}) => {
   const { PostsPreviewTooltip, LWPopper } = Components
   const { anchorEl, hover, eventHandlers } = useHover();
 
@@ -179,7 +222,15 @@ const PostLinkPreviewWithPostComponent = registerComponent('PostLinkPreviewWithP
   styles
 });
 
-const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post, id, error}) => {
+const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post, id, error}: {
+  classes: ClassesType,
+  href: string,
+  innerHTML: string,
+  comment: any,
+  post: PostsList|null,
+  id: string,
+  error: any,
+}) => {
   const { PostsPreviewTooltip, LWPopper } = Components
   const { eventHandlers, anchorEl, hover } = useHover();
 
@@ -228,7 +279,7 @@ const defaultPreviewStyles = theme => ({
 })
 
 const DefaultPreview = ({classes, href, innerHTML, onsite=false, id}: {
-  classes: any,
+  classes: ClassesType,
   href: string,
   innerHTML: string,
   onsite?: boolean,

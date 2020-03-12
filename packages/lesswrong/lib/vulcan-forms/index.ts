@@ -1,4 +1,4 @@
-import { registerComponent, registerSetting } from '../vulcan-lib';
+import { registerSetting } from '../vulcan-lib';
 
 registerSetting('forms.warnUnsavedChanges', false, 'Warn user about unsaved changes before leaving route', true);
 

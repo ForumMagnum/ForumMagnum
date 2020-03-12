@@ -24,7 +24,7 @@ const LoadMore = ({ loadMore, count, totalCount, classes, disabled=false, networ
   loadMore: any,
   count?: number,
   totalCount?: number,
-  classes: any,
+  classes: ClassesType,
   disabled?: boolean,
   networkStatus?: any,
   loading?: boolean,

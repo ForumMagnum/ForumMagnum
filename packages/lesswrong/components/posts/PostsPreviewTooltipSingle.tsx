@@ -14,7 +14,7 @@ const styles = theme => ({
 })
 
 const PostsPreviewTooltipSingle = ({ classes, postId, truncateLimit=600, }: {
-  classes: any,
+  classes: ClassesType,
   postId: string,
   truncateLimit?: number,
 }) => {
@@ -37,7 +37,7 @@ const PostsPreviewTooltipSingle = ({ classes, postId, truncateLimit=600, }: {
 const PostsPreviewTooltipSingleComponent = registerComponent('PostsPreviewTooltipSingle', PostsPreviewTooltipSingle, {styles});
 
 const PostsPreviewTooltipSingleWithComment = ({ classes, postId, commentId, truncateLimit=600 }: {
-  classes: any,
+  classes: ClassesType,
   postId: string,
   commentId: string,
   truncateLimit?: number,

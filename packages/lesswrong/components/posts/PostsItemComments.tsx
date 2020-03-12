@@ -31,7 +31,12 @@ const styles = (theme) => ({
   },
 })
 
-const PostsItemComments = ({ classes, post, onClick, unreadComments }) => {
+const PostsItemComments = ({ classes, post, onClick, unreadComments }: {
+  classes: ClassesType,
+  post: PostsBase,
+  onClick: any,
+  unreadComments: any,
+}) => {
   let commentCount = Posts.getCommentCount(post)
 
   let unreadCommentsClass = unreadComments ? classes.unreadComments : classes.noUnreadComments;

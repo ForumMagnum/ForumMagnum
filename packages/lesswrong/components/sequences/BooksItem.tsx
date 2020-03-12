@@ -30,9 +30,9 @@ const styles = theme => ({
 });
 
 const BooksItem = ({ book, canEdit, classes }: {
-  book: any,
+  book: BookPageFragment,
   canEdit: boolean,
-  classes: any,
+  classes: ClassesType,
 }) => {
   const [edit,setEdit] = useState(false);
 

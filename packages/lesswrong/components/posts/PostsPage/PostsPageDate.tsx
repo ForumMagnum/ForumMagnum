@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import Tooltip from '@material-ui/core/Tooltip';
 import { ExpandedDate } from '../../common/FormatDate';
 
 const styles = theme => ({
@@ -16,8 +15,12 @@ const styles = theme => ({
   }
 });
 
-const PostsPageDate = ({ post, hasMajorRevision, classes }) => {
-  const { FormatDate, PostsRevisionSelector } = Components;
+const PostsPageDate = ({ post, hasMajorRevision, classes }: {
+  post: PostsBase,
+  hasMajorRevision: boolean,
+  classes: ClassesType,
+}) => {
+  const { FormatDate, PostsRevisionSelector, LWTooltip } = Components;
   
   const tooltip = (<div>
     <div>Posted on <ExpandedDate date={post.postedAt}/></div>
@@ -36,11 +39,11 @@ const PostsPageDate = ({ post, hasMajorRevision, classes }) => {
   }
   
   return (<React.Fragment>
-    <Tooltip title={tooltip} placement="bottom">
+    <LWTooltip title={tooltip} placement="bottom">
         <span className={classes.date}>
           <FormatDate date={post.postedAt} format="Do MMM YYYY" tooltip={false} />
         </span>
-    </Tooltip>
+    </LWTooltip>
   </React.Fragment>);
 }
 

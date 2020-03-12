@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts/collection';
-import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = theme => ({
   root: {
@@ -13,20 +12,23 @@ const styles = theme => ({
   }
 });
 
-const PingbacksList = ({classes, postId}) => {
+const PingbacksList = ({classes, postId}: {
+  classes: ClassesType,
+  postId: string,
+}) => {
   const { results, loading } = useMulti({
     terms: {
       view: "pingbackPosts",
       postId: postId,
     },
     collection: Posts,
-    fragmentName: "PostsList",
+    fragmentName: "PostsBase",
     limit: 5,
     enableTotal: false,
     ssr: true
   });
 
-  const { SectionSubtitle, Pingback, Loading } = Components
+  const { SectionSubtitle, Pingback, Loading, LWTooltip } = Components
 
   if (loading)
     return <Loading/>
@@ -35,9 +37,9 @@ const PingbacksList = ({classes, postId}) => {
     if (results.length > 0) {
       return <div className={classes.root}>
         <SectionSubtitle>
-          <Tooltip title="Posts that linked to this post" placement="right">
+          <LWTooltip title="Posts that linked to this post" placement="right">
             <span>Pingbacks</span>
-          </Tooltip>
+          </LWTooltip>
         </SectionSubtitle>
         <div className={classes.list}>
           {results.map((post, i) => 

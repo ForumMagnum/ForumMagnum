@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import Tooltip from '@material-ui/core/Tooltip';
 import { useCurrentUser } from '../common/withUser'
 
 const styles = theme => ({
@@ -20,7 +19,7 @@ const styles = theme => ({
 })
 
 const FrontpageNominationPhase = ({classes, settings}) => {
-  const { SectionSubtitle, RecommendationsList, SectionFooter, HoverPreviewLink } = Components
+  const { SectionSubtitle, RecommendationsList, SectionFooter, HoverPreviewLink, LWTooltip } = Components
   const currentUser = useCurrentUser();
 
   const reviewTooltip = <div>
@@ -48,7 +47,7 @@ const FrontpageNominationPhase = ({classes, settings}) => {
 
   return (
     <div>
-      <Tooltip placement="top-start" title={reviewTooltip}>
+      <LWTooltip placement="top-start" title={reviewTooltip}>
         <div>
           <SectionSubtitle >
             <Link to={"/reviews"}>
@@ -65,7 +64,7 @@ const FrontpageNominationPhase = ({classes, settings}) => {
               : null}
           </SectionSubtitle>
         </div>
-      </Tooltip>
+      </LWTooltip>
       <RecommendationsList algorithm={algorithm} showLoginPrompt={false} />
       <SectionFooter>
         <Link to={"/nominations"}>

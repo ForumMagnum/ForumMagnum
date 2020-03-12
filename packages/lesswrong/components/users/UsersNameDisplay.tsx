@@ -50,7 +50,7 @@ interface UsersNameDisplayProps extends ExternalProps, WithStylesProps, WithHove
 const UsersNameDisplay = ({user, classes, nofollow=false, simple=false, hover, anchorEl, stopHover}: UsersNameDisplayProps) => {
 
   if (!user) return <Components.UserNameDeleted/>
-  const { FormatDate, LWPopper } = Components
+  const { FormatDate, LWTooltip } = Components
   const { htmlBio } = user
 
   const truncatedBio = truncate(htmlBio, 500)
@@ -73,14 +73,13 @@ const UsersNameDisplay = ({user, classes, nofollow=false, simple=false, hover, a
   }
 
   return <AnalyticsContext pageElementContext="userNameDisplay" userIdDisplayed={user._id}>
+    <LWTooltip title={tooltip} placement="left">
       <Link to={Users.getProfileUrl(user)} className={classes.userName}
-        {...(nofollow ? {rel:"nofollow"} : {})}
-      >
-        <LWPopper className={classes.tooltip} placement="top" open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip>
-          {tooltip}
-        </LWPopper>
+          {...(nofollow ? {rel:"nofollow"} : {})}
+        >
         {Users.getDisplayName(user)}
       </Link>
+    </LWTooltip>
   </AnalyticsContext>
 }
 

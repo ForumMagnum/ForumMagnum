@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { intlShape } from './shape';
 
 const FormattedMessage = ({ id, values, defaultMessage = '', html = false, className = '' }: {

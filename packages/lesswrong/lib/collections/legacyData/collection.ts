@@ -14,7 +14,7 @@ const schema = {
   },
 };
 
-export const LegacyData = createCollection({
+export const LegacyData: LegacyDataCollection = createCollection({
   collectionName: "LegacyData",
   typeName: "LegacyData",
   schema

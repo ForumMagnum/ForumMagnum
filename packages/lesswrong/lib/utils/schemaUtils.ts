@@ -89,7 +89,7 @@ export const foreignKeyField = ({idFieldName, resolverName, collectionName, type
 export function arrayOfForeignKeysField({idFieldName, resolverName, collectionName, type, getKey}: {
   idFieldName: string,
   resolverName: string,
-  collectionName: string,
+  collectionName: CollectionNameString,
   type: string,
   getKey?: (string)=>string,
 }) {
@@ -198,7 +198,7 @@ export function denormalizedField({ needsUpdate, getValue }: {
 // the number of comments on a post, or the number of posts by a user, updating
 // when objects are created/deleted/updated.
 export function denormalizedCountOfReferences({ collectionName, fieldName, foreignCollectionName, foreignTypeName, foreignFieldName, filterFn }: {
-  collectionName: string,
+  collectionName: CollectionNameString,
   fieldName: string,
   foreignCollectionName: string,
   foreignTypeName: string,

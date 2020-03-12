@@ -14,16 +14,24 @@ if (fixKarma) {
     if (user.legacy) {
       // Function to deal with fields sometimes being undefined. Casts undefined to 0;
       const f = (number) => number || 0;
+      // @ts-ignore legacyData isn't handled right on the schema
       const mainPostKarma = (upvoteWeight * f(user.legacyData.karma_ups_link_lesswrong))
+        // @ts-ignore for legacyData
         - (downvoteWeight * f(user.legacyData.karma_downs_link_lesswrong));
 
+      // @ts-ignore for legacyData
       const mainCommentKarma = (upvoteWeight * f(user.legacyData.karma_ups_comment_lesswrong))
+        // @ts-ignore for legacyData
         - (downvoteWeight * f(user.legacyData.karma_downs_comment_lesswrong))
 
+      // @ts-ignore for legacyData
       const discussionPostKarma = (upvoteWeight * f(user.legacyData.karma_ups_link_discussion))
+        // @ts-ignore for legacyData
         - (downvoteWeight * f(user.legacyData.karma_downs_link_discussion))
 
+      // @ts-ignore for legacyData
       const discussionCommentKarma = (upvoteWeight * f(user.legacyData.karma_ups_comment_discussion))
+        // @ts-ignore for legacyData
         - (downvoteWeight * f(user.legacyData.karma_downs_comment_discussion))
 
       const karma = (mainPostKarmaWeight*mainPostKarma)

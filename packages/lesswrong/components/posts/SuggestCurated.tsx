@@ -8,10 +8,9 @@ import MenuItem from '@material-ui/core/MenuItem';
 import * as _ from 'underscore';
 
 interface ExternalProps {
-  post: any,
+  post: PostsBase,
 }
-interface SuggestCuratedProps extends ExternalProps, WithUserProps {
-  updatePost: any,
+interface SuggestCuratedProps extends ExternalProps, WithUserProps, WithUpdatePostProps {
 }
 
 class SuggestCurated extends Component<SuggestCuratedProps> {

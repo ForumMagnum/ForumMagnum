@@ -26,7 +26,11 @@ export const styles = theme => ({
   },
 });
 
-const SequencesNavigationLink = ({ post, direction, classes }) => {
+const SequencesNavigationLink = ({ post, direction, classes }: {
+  post: PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost,
+  direction: "left"|"right",
+  classes: ClassesType,
+}) => {
   const icon = (
     <IconButton classes={{root: classnames(classes.root, {
       [classes.disabled]: !post,

@@ -4,13 +4,12 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { withLocation } from '../../lib/routeUtil';
 import withDialog from '../common/withDialog'
 import { useCurrentUser } from '../common/withUser'
-import Tooltip from '@material-ui/core/Tooltip'
 import AddBoxIcon from '@material-ui/icons/AddBox'
 
 const QuestionsPage = ({ openDialog, location }) => {
   const currentUser = useCurrentUser();
   const { query } = location;
-  const { SingleColumnSection, SectionTitle,  PostsList2, SectionButton } = Components
+  const { SingleColumnSection, SectionTitle,  PostsList2, SectionButton, LWTooltip } = Components
 
   const topQuestionsTerms = {
     view: 'topQuestions',
@@ -28,9 +27,9 @@ const QuestionsPage = ({ openDialog, location }) => {
       <SingleColumnSection>
         <SectionTitle title="Top Questions"/>
         <PostsList2 terms={topQuestionsTerms}>
-          <Tooltip title="View all questions, sorted by karma">
+          <LWTooltip title="View all questions, sorted by karma">
             <Link to={"/allPosts?filter=questions&sortedBy=top&timeframe=allTime"}>View All Top Questions</Link>
-          </Tooltip>
+          </LWTooltip>
         </PostsList2>
       </SingleColumnSection>
       <SingleColumnSection>
@@ -43,9 +42,9 @@ const QuestionsPage = ({ openDialog, location }) => {
           </span>}
         </SectionTitle>
         <PostsList2 terms={recentActivityTerms}>
-          <Tooltip title="View all questions, sorted by 'newest first'">
+          <LWTooltip title="View all questions, sorted by 'newest first'">
             <Link to={"/allPosts?filter=questions&sortedBy=new&timeframe=allTime"}>View All Questions</Link>
-          </Tooltip>
+          </LWTooltip>
         </PostsList2>
       </SingleColumnSection>
     </div>

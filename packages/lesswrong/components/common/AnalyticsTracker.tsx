@@ -5,7 +5,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 const AnalyticsTracker = ({eventType, eventProps, children, captureOnClick=true, captureOnMount, skip}: {
   eventType: string,
   eventProps?: Record<string,any>,
-  children?: any,
+  children?: React.ReactNode,
   captureOnClick?: boolean,
   captureOnMount?: ((eventData:Record<string,any>)=>boolean)|boolean,
   skip?: boolean,

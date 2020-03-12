@@ -13,8 +13,8 @@ const styles = (theme) => ({
 })
 
 const PostsItemMetaInfo = ({children, classes, className}: {
-  children?: any,
-  classes: any,
+  children?: React.ReactNode,
+  classes: ClassesType,
   className?: string,
 }) => {
   return <Typography

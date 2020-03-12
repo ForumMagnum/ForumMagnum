@@ -20,7 +20,7 @@ const styles = (theme) => ({
 })
 
 const OmegaIcon = ({classes, className}: {
-  classes: any,
+  classes: ClassesType,
   className?: string,
 }) => {
   return <span className={classNames(classes.root, className)}>Ω</span>

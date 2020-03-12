@@ -64,7 +64,7 @@ export const NewPostNotification = registerNotificationType({
   name: "newPost",
   userSettingField: "notificationSubscribedUserPost",
   getMessage({documentType, documentId}) {
-    let document = getDocument(documentType, documentId);
+    let document: DbPost = getDocument(documentType, documentId) as DbPost;
     return Posts.getAuthorName(document) + ' has created a new post: ' + document.title;
   },
   getIcon() {
@@ -77,7 +77,7 @@ export const PostApprovedNotification = registerNotificationType({
   name: "postApproved",
   userSettingField: null, //TODO
   getMessage({documentType, documentId}) {
-    let document = getDocument(documentType, documentId);
+    let document: DbPost = getDocument(documentType, documentId) as DbPost;
     return 'Your post "' + document.title + '" has been approved';
   },
   getIcon() {
@@ -90,11 +90,17 @@ export const NewEventNotification = registerNotificationType({
   userSettingField: "notificationPostsInGroups",
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId);
-    let group: any = {}
-    if (documentType == "post" && document.groupId) {
-      group = Localgroups.findOne(document.groupId);
+    let group: DbLocalgroup|null = null
+    if (documentType == "post") {
+      const post = document as DbPost
+      if (post.groupId) {
+        group = Localgroups.findOne(post.groupId);
+      }
     }
-    return Posts.getAuthorName(document) + ' has created a new event in the group "' + group.name + '"';
+    if (group)
+      return Posts.getAuthorName(document as DbPost) + ' has created a new event in the group "' + group.name + '"';
+    else
+      return Posts.getAuthorName(document as DbPost) + ' has created a new event';
   },
   getIcon() {
     return <AllIcon style={iconStyles} />
@@ -106,11 +112,17 @@ export const NewGroupPostNotification = registerNotificationType({
   userSettingField: "notificationPostsInGroups",
   getMessage({documentType, documentId}) {
     let document = getDocument(documentType, documentId);
-    let group: any = {}
-    if (documentType == "post" && document.groupId) {
-      group = Localgroups.findOne(document.groupId);
+    let group: DbLocalgroup|null = null
+    if (documentType == "post") {
+      const post = document as DbPost
+      if (post.groupId) {
+        group = Localgroups.findOne(post.groupId);
+      }
     }
-    return Posts.getAuthorName(document) + ' has created a new post in the group "' + group.name + '"';
+    if (group)
+      return Posts.getAuthorName(document as DbPost) + ' has created a new post in the group "' + group.name + '"';
+    else
+      return Posts.getAuthorName(document as DbPost) + ' has created a new post in a group';
   },
   getIcon() {
     return <AllIcon style={iconStyles} />
@@ -122,7 +134,7 @@ export const NewCommentNotification = registerNotificationType({
   name: "newComment",
   userSettingField: "notificationCommentsOnSubscribedPost",
   getMessage({documentType, documentId}) {
-    let document = getDocument(documentType, documentId);
+    let document = getDocument(documentType, documentId) as DbComment;
     return Comments.getAuthorName(document) + ' left a new comment on "' + Posts.findOne(document.postId).title + '"';
   },
   getIcon() {
@@ -134,7 +146,7 @@ export const NewShortformNotification = registerNotificationType({
   name: "newShortform",
   userSettingField: "notificationShortformContent",
   getMessage({documentType, documentId}) {
-    let document = getDocument(documentType, documentId);
+    let document = getDocument(documentType, documentId) as DbComment;
     return 'New comment on "' + Posts.findOne(document.postId).title + '"';
   },
   getIcon() {
@@ -147,7 +159,7 @@ export const NewReplyNotification = registerNotificationType({
   name: "newReply",
   userSettingField: "notificationRepliesToSubscribedComments",
   getMessage({documentType, documentId}) {
-    let document = getDocument(documentType, documentId);
+    let document = getDocument(documentType, documentId) as DbComment;
     return Comments.getAuthorName(document) + ' replied to a comment on "' + Posts.findOne(document.postId).title + '"';
   },
   getIcon() {
@@ -160,7 +172,7 @@ export const NewReplyToYouNotification = registerNotificationType({
   name: "newReplyToYou",
   userSettingField: "notificationRepliesToMyComments",
   getMessage({documentType, documentId}) {
-    let document = getDocument(documentType, documentId);
+    let document = getDocument(documentType, documentId) as DbComment;
     return Comments.getAuthorName(document) + ' replied to your comment on "' + Posts.findOne(document.postId).title + '"';
   },
   getIcon() {
@@ -173,7 +185,7 @@ export const NewUserNotification = registerNotificationType({
   name: "newUser",
   userSettingField: null,
   getMessage({documentType, documentId}) {
-    let document = getDocument(documentType, documentId);
+    let document = getDocument(documentType, documentId) as DbUser;
     return document.displayName + ' just signed up!';
   },
   getIcon() {
@@ -186,7 +198,7 @@ export const NewMessageNotification = registerNotificationType({
   userSettingField: "notificationPrivateMessage",
   mustBeEnabled: true,
   getMessage({documentType, documentId}) {
-    let document = getDocument(documentType, documentId);
+    let document = getDocument(documentType, documentId) as DbMessage;
     let conversation = Conversations.findOne(document.conversationId);
     return Users.findOne(document.userId).displayName + ' sent you a new message' + (conversation.title ? (' in the conversation ' + conversation.title) : "") + '!';
   },
@@ -211,7 +223,7 @@ export const PostSharedWithUserNotification = registerNotificationType({
   userSettingField: "notificationSharedWithMe",
   mustBeEnabled: true,
   getMessage({documentType, documentId}) {
-    let document = getDocument(documentType, documentId);
+    let document = getDocument(documentType, documentId) as DbPost;
     return `You have been shared on the ${document.draft ? "draft" : "post"} ${document.title}`;
   },
   getIcon() {
@@ -223,7 +235,7 @@ export const NewEventInNotificationRadiusNotification = registerNotificationType
   name: "newEventInRadius",
   userSettingField: "notificationEventInRadius",
   getMessage({documentType, documentId}) {
-    let document = getDocument(documentType, documentId)
+    let document = getDocument(documentType, documentId) as DbPost
     return `A new event has been created within your notification radius: ${document.title}`
   },
   getIcon() {
@@ -235,7 +247,7 @@ export const EditedEventInNotificationRadiusNotification = registerNotificationT
   name: "editedEventInRadius",
   userSettingField: "notificationEventInRadius",
   getMessage({documentType, documentId}) {
-    let document = getDocument(documentType, documentId)
+    let document = getDocument(documentType, documentId) as DbPost
     return `The event ${document.title} changed locations`
   },
   getIcon() {

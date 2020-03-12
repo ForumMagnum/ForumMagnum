@@ -25,13 +25,13 @@ const styles = theme => ({
     display: "inline-block"
   },
   truncated: {
-    maxHeight: 125,
+    maxHeight: 800,
     overflow: "hidden"
   }
 })
 const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=true }: {
-  user: any,
-  classes: any,
+  user: SunshineUsersList,
+  classes: ClassesType,
   updateUser?: any,
   allowContentPreview?: boolean,
 }) => {
@@ -45,6 +45,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
       selector: {_id: user._id},
       data: {
         reviewedByUserId: currentUser!._id,
+        reviewedAt: new Date(),
         sunshineSnoozed: false,
         needsReview: false,
       }
@@ -56,6 +57,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
       selector: {_id: user._id},
       data: {
         needsReview: false,
+        reviewedAt: new Date(),
         reviewedByUserId: currentUser!._id,
         sunshineSnoozed: true
       }
@@ -73,6 +75,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
           voteBanned: true,
           deleteContent: true,
           needsReview: false,
+          reviewedAt: new Date(),
           banned: moment().add(12, 'months').toDate()
         }
       })
@@ -85,15 +88,26 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
 
   if (hidden) { return null }
 
+  const hiddenPostCount = user.maxPostCount - user.postCount
+  const hiddenCommentCount = user.maxCommentCount - user.commentCount
+
   return (
     <span {...eventHandlers}>
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
           <Typography variant="body2">
             <MetaInfo>
+              {user.reviewedAt ? <p><em>Reviewed <FormatDate date={user.reviewedAt}/> ago by {user.reviewedByUserId}</em></p> : null }
+              {user.banned ? <p><em>Banned until <FormatDate date={user.banned}/></em></p> : null }
               <div>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
-              <div>Posts: { user.postCount || 0 }</div>
-              <div>Comments: { user.commentCount || 0 }</div>
+              <div>
+                Posts: { user.postCount || 0 }
+                { hiddenPostCount ? <span> ({hiddenPostCount} deleted)</span> : null}
+              </div>
+              <div>
+                Comments: { user.commentCount || 0 }
+                { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted)</span> : null}
+              </div>
               <hr />
               <div>Big Upvotes: { user.bigUpvoteCount || 0 }</div>
               <div>Upvotes: { user.smallUpvoteCount || 0 }</div>
@@ -132,7 +146,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
         }
         { hover && <SidebarActionMenu>
           {/* to fully approve a user, they most have created a post or comment. Users that have only voted can only be snoozed */}
-          {(user.commentCount || user.postCount) ? <SidebarAction title="Review" onClick={handleReview}>
+          {(user.maxCommentCount || user.maxPostCount) ? <SidebarAction title="Review" onClick={handleReview}>
             <DoneIcon />
           </SidebarAction> : null}
           <SidebarAction title="Snooze" onClick={handleSnooze}>

@@ -24,7 +24,51 @@ const options = {
   },
 }
 
-export const Posts = createCollection({
+// The set of fields required for calling Posts.getPageUrl. Could be supplied by
+// either a fragment or a DbPost.
+export interface PostsMinimumForGetPageUrl {
+  _id: string
+  slug: string
+  isEvent?: boolean
+  groupId?: string|undefined
+}
+
+interface ExtendedPostsCollection extends PostsCollection {
+  // Functions in lib/collections/posts/helpers.ts
+  getLink: (post: PostsBase|DbPost, isAbsolute?: boolean, isRedirected?: boolean) => string
+  getShareableLink: any
+  getLinkTarget: any
+  getAuthorName: (post: DbPost) => string
+  getDefaultStatus: any
+  getStatusName: any
+  isApproved: any
+  isPending: any
+  current: any
+  getTwitterShareUrl: any
+  getFacebookShareUrl: any
+  getEmailShareUrl: any
+  getPageUrl: (post: PostsMinimumForGetPageUrl, isAbsolute?: boolean, sequenceId?: string|null) => string
+  getCommentCount: (post: PostsBase|DbPost) => number
+  getCommentCountStr: (post: PostsBase|DbPost, commentCount?: number|undefined) => string
+  getLastCommentedAt: any
+  canEdit: any
+  canDelete: any
+  getKarma: any
+  canEditHideCommentKarma: any
+  
+  // In lib/alignment-forum/posts/helpers.ts
+  suggestForAlignment: any
+  unSuggestForAlignment: any
+  
+  // In search/utils.ts
+  toAlgolia: any
+  
+  // Things in lib/collections/posts/collection.ts
+  config: Record<string,number>
+  statuses: Array<{value: number, label: string}>
+}
+
+export const Posts: ExtendedPostsCollection = createCollection({
   collectionName: 'Posts',
   typeName: 'Post',
   schema,

@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import withErrorBoundary from '../common/withErrorBoundary';
 
 const CommunityMapWrapper = ({classes, groupQueryTerms, currentUserLocation, mapOptions, terms, showHideMap, petrovButton}: {
-  classes: any,
+  classes: ClassesType,
   groupQueryTerms?: any,
   currentUserLocation?: any,
   mapOptions?: any,

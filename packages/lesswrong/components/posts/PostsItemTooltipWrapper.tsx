@@ -3,8 +3,8 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import withHover from "../common/withHover";
 
 interface ExternalProps {
-  children?: any,
-  post: any,
+  children?: React.ReactNode,
+  post: PostsList,
 }
 interface PostsItemTooltipWrapperProps extends ExternalProps, WithHoverProps{
 }

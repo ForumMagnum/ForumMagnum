@@ -56,7 +56,7 @@ const TabNavigationFooterItem = ({tab, classes}) => {
   const { TabNavigationSubItem } = Components
   const { pathname } = useLocation()
 
-  return <Tooltip placement='right-start' title={tab.tooltip || ''}>
+  return <Tooltip placement='top' title={tab.tooltip || ''}>
     <Link
       to={tab.link}
       className={classNames(classes.navButton, {[classes.selected]: pathname === tab.link})}

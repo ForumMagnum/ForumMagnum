@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent, Components, getSetting } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
-import Tooltip from '@material-ui/core/Tooltip';
 import StarIcon from '@material-ui/icons/Star';
 import PersonIcon from '@material-ui/icons/Person';
 import DetailsIcon from '@material-ui/icons/Details';
@@ -36,8 +35,11 @@ const styles = theme => ({
   },
 });
 
-const PostsItemIcons = ({post, classes}) => {
-  const { OmegaIcon } = Components;
+const PostsItemIcons = ({post, classes}: {
+  post: PostsBase,
+  classes: ClassesType,
+}) => {
+  const { OmegaIcon, LWTooltip } = Components;
 
   const isPersonalBlogpost = getSetting('forumType') === 'EAForum' ?
     !(post.frontpageDate || post.meta) :
@@ -45,28 +47,28 @@ const PostsItemIcons = ({post, classes}) => {
 
   return <span className={classes.iconSet}>
     {post.curatedDate && <span className={classes.postIcon}>
-      <Tooltip title="Curated Post" placement="right">
+      <LWTooltip title="Curated Post" placement="right">
         <StarIcon className={classes.icon}/>
-      </Tooltip>
+      </LWTooltip>
     </span>}
 
     {isPersonalBlogpost && <span className={classes.postIcon}>
-      <Tooltip title="Personal Blogpost" placement="right">
+      <LWTooltip title="Personal Blogpost" placement="right">
         <PersonIcon className={classes.icon}/>
-      </Tooltip>
+      </LWTooltip>
     </span>}
 
     {post.meta && <span className={classes.postIcon}>
-      <Tooltip title={MetaTitle} placement="right">
+      <LWTooltip title={MetaTitle} placement="right">
         <MetaIcon className={classes.icon}/>
-      </Tooltip>
+      </LWTooltip>
     </span>}
 
     {getSetting('forumType') !== 'AlignmentForum' && post.af &&
       <span className={classes.postIcon}>
-        <Tooltip title="Crossposted from AlignmentForum.org" placement="right">
+        <LWTooltip title="Crossposted from AlignmentForum.org" placement="right">
           <span><OmegaIcon className={classNames(classes.icon, classes.alignmentIcon)}/></span>
-        </Tooltip>
+        </LWTooltip>
       </span>
     }
   </span>

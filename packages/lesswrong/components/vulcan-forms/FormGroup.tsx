@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Components, Utils, registerComponent, mergeWithComponents } from '../../lib/vulcan-lib';
-import { withStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import * as _ from 'underscore';

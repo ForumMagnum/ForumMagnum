@@ -8,6 +8,7 @@ Vulcan.importLW1Passwords = async () =>
   let userCounter = 0;
   users.forEach((user) => {
     userCounter++;
+    // @ts-ignore legacyData not handled right in the schema
     Accounts.setPassword(user._id, user.legacyData.password);
     if(userCounter % 100 === 0) {
       //eslint-disable-next-line no-console
@@ -23,6 +24,7 @@ Vulcan.importLW1Passwords2 = async () =>
   let userCounter = 0;
   users.forEach((user) => {
     userCounter++;
+    // @ts-ignore legacyData not handled right in the schema
     Accounts.setPassword(user._id, user.legacyData.password);
     if(userCounter % 100 === 0) {
       //eslint-disable-next-line no-console

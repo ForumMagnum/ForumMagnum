@@ -13,7 +13,10 @@ const styles = theme => ({
   },
 })
 
-const PostsAuthors = ({classes, post}) => {
+const PostsAuthors = ({classes, post}: {
+  classes: ClassesType,
+  post: PostsDetails,
+}) => {
   const { UsersName } = Components
   return <Typography variant="body1" component="span" className={classes.root}>
     by <span className={classes.authorName}>

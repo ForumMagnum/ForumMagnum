@@ -1,17 +1,16 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Typography } from '@material-ui/core';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   description: {
     marginTop: theme.spacing.unit,
     marginBottom: theme.spacing.unit,
     ...postBodyStyles(theme),
   },
-}))
+})
 
 const EASequencesHome = ({classes}) => {
 

@@ -3,7 +3,10 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { styles } from './PostsItem2';
 
-const PostsListPlaceholder = ({count, classes}) => {
+const PostsListPlaceholder = ({count, classes}: {
+  count: number,
+  classes: ClassesType,
+}) => {
   let placeholders: Array<JSX.Element> = [];
   for(let i=0; i<count; i++) {
     placeholders.push(

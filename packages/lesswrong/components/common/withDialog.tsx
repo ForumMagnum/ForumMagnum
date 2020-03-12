@@ -12,7 +12,7 @@ export const OpenDialogContext = React.createContext<OpenDialogContextType|null>
 
 interface DialogManagerComponentProps {
   captureEvent: any,
-  children: any,
+  children: React.ReactNode,
 }
 interface DialogManagerComponentState {
   componentName: string|null,

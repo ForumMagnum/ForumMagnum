@@ -16,7 +16,9 @@ const styles = theme => ({
   },
 });
 
-const TagPage = ({classes}) => {
+const TagPage = ({classes}: {
+  classes: ClassesType
+}) => {
   const { SingleColumnSection, SectionTitle, SectionFooter, SectionButton, PostsItem2, ContentItemBody, Loading, Error404 } = Components;
   const currentUser = useCurrentUser();
   const { params } = useLocation();

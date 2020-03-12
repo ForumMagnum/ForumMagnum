@@ -8,7 +8,9 @@ interface CommentBoxContextType {
 }
 export const CommentBoxContext = React.createContext<CommentBoxContextType|null>(null);
 
-export const CommentBoxManager = ({ children }) => {
+export const CommentBoxManager = ({ children }: {
+  children: React.ReactNode
+}) => {
   const [ componentName, setComponentName] = useState<string|null>(null)
   const [ componentProps, setComponentProps] = useState<Record<string,any>|null>(null)
 

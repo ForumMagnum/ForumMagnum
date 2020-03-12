@@ -20,7 +20,7 @@ const schema = {
   },
 };
 
-export const Migrations = createCollection({
+export const Migrations: MigrationsCollection = createCollection({
   collectionName: "Migrations",
   typeName: "Migration",
   schema,

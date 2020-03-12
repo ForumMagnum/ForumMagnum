@@ -1,12 +1,12 @@
 import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Comments } from "../../lib/collections/comments";
-import Tooltip from '@material-ui/core/Tooltip';
 import Users from '../../lib/collections/users/collection';
 import moment from '../../lib/moment-timezone';
 import { useHover } from '../common/withHover';
 import { useCurrentUser } from '../common/withUser';
 import { useVote } from './withVote';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = theme => ({
   vote: {
@@ -36,15 +36,17 @@ const styles = theme => ({
 })
 
 const CommentsVote = ({ comment, hideKarma=false, classes }: {
-  comment: any,
+  comment: CommentsList,
   hideKarma?: boolean,
-  classes: any,
+  classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
   const vote = useVote();
   const {eventHandlers, hover} = useHover();
   
   if (!comment) return null;
+
+  const { VoteButton } = Components
   const voteCount = comment.voteCount;
   const karma = Comments.getKarma(comment)
 
@@ -63,7 +65,7 @@ const CommentsVote = ({ comment, hideKarma=false, classes }: {
             placement="bottom"
             >
             <span>
-              <Components.VoteButton
+              <VoteButton
                 orientation="left"
                 color="error"
                 voteType="Downvote"
@@ -88,7 +90,7 @@ const CommentsVote = ({ comment, hideKarma=false, classes }: {
             title={<div>Upvote<br /><em>For strong upvote, click-and-hold<br /> (Click twice on mobile)</em></div>}
             placement="bottom">
             <span>
-              <Components.VoteButton
+              <VoteButton
                 orientation="right"
                 color="secondary"
                 voteType="Upvote"

@@ -17,7 +17,11 @@ const styles = theme => ({
   }
 })
 
-const NewQuestionDialog = ({ onClose, fullScreen, classes }) => {
+const NewQuestionDialog = ({ onClose, fullScreen, classes }: {
+  onClose: any,
+  fullScreen: boolean,
+  classes: ClassesType,
+}) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const { history } = useNavigation();

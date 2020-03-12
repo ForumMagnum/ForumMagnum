@@ -36,9 +36,9 @@ const styles = theme => ({
 });
 
 const CommentsItemDate = ({comment, post, classes, scrollOnClick, scrollIntoView, permalink=true }: {
-  comment: any,
-  post: any,
-  classes: any,
+  comment: CommentsList,
+  post: PostsBase,
+  classes: ClassesType,
   scrollOnClick?: boolean,
   scrollIntoView?: ()=>void,
   permalink?: boolean,
@@ -57,7 +57,7 @@ const CommentsItemDate = ({comment, post, classes, scrollOnClick, scrollIntoView
   const url = Comments.getPageUrlFromIds({postId: post._id, postSlug: post.slug, commentId: comment._id, permalink})
 
   const date = <span>
-    <Components.FormatDate date={comment.postedAt} format={comment.answer && "MMM DD, YYYY"}/>
+    <Components.FormatDate date={comment.postedAt} format={comment.answer ? "MMM DD, YYYY" : undefined}/>
     <LinkIcon className={classes.icon}/>
   </span>
 

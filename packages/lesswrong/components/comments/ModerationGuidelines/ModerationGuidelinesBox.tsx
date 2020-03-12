@@ -55,8 +55,8 @@ const styles = theme => ({
 })
 
 const ModerationGuidelinesBox = ({classes, document, recordEvent}: {
-  classes: any,
-  document: any,
+  classes: ClassesType,
+  document: PostsBase,
   recordEvent?: any,
 }) => {
   const currentUser = useCurrentUser();

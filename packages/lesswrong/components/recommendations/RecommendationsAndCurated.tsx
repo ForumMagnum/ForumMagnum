@@ -4,7 +4,6 @@ import { withUpdate } from '../../lib/crud/withUpdate';
 import withUser from '../common/withUser';
 import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper';
-import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { withContinueReading } from './withContinueReading';
@@ -78,7 +77,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
   render() {
     const { continueReading, classes, currentUser, configName } = this.props;
     const { showSettings } = this.state
-    const { RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SeparatorBullet, BookmarksList, RecommendationsList } = Components;
+    const { RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SeparatorBullet, BookmarksList, RecommendationsList, LWTooltip } = Components;
 
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
 
@@ -122,9 +121,9 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
 
     return <SingleColumnSection className={classes.section}>
       <SectionTitle title="Recommendations">
-        <Tooltip title="Customize your recommendations">
+        <LWTooltip title="Customize your recommendations">
           <SettingsIcon onClick={this.toggleSettings} label="Settings"/> 
-        </Tooltip>
+        </LWTooltip>
       </SectionTitle>
       {showSettings &&
         <RecommendationsAlgorithmPicker
@@ -134,24 +133,24 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
         /> }
 
       {renderContinueReading && <div className={classes.subsection}>
-          <Tooltip placement="top-start" title={currentUser ? continueReadingTooltip : coreReadingTooltip}>
+          <LWTooltip placement="top-start" title={currentUser ? continueReadingTooltip : coreReadingTooltip}>
             <Link to={"/library"}>
               <SectionSubtitle className={classNames(classes.subtitle, classes.continueReading)}>
                 {currentUser ? "Continue Reading" : "Core Reading" }
               </SectionSubtitle>
             </Link>
-          </Tooltip>
+          </LWTooltip>
           <ContinueReadingList continueReading={continueReading} />
         </div>}
 
       {renderBookmarks && <div className={classes.subsection}>
-        <Tooltip placement="top-start" title={bookmarksTooltip}>
+        <LWTooltip placement="top-start" title={bookmarksTooltip}>
           <Link to={"/bookmarks"}>
             <SectionSubtitle>
               Bookmarks
             </SectionSubtitle>
           </Link>
-        </Tooltip>
+        </LWTooltip>
         <AnalyticsContext listContext={"frontpageBookmarksList"} capturePostItemOnMount>
           <BookmarksList limit={3} />
         </AnalyticsContext>
@@ -164,13 +163,13 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
 
       {/* Disabled during 2018 Review */}
       {!settings.hideFrontpage && <div className={classes.subsection}>
-        <Tooltip placement="top-start" title={allTimeTooltip}>
+        <LWTooltip placement="top-start" title={allTimeTooltip}>
           <Link to={"/recommendations"}>
             <SectionSubtitle className={classNames(classes.subtitle, classes.fromTheArchives)} >
               From the Archives
             </SectionSubtitle>
           </Link>
-        </Tooltip>
+        </LWTooltip>
         <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
           <RecommendationsList algorithm={frontpageRecommendationSettings} />
         </AnalyticsContext>
@@ -178,13 +177,13 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
 
       <AnalyticsContext pageSectionContext={"curatedPosts"}>
         <div className={classes.subsection}>
-          <Tooltip placement="top-start" title={curatedTooltip}>
+          <LWTooltip placement="top-start" title={curatedTooltip}>
             <Link to={curatedUrl}>
               <SectionSubtitle className={classes.subtitle}>
                 Recently Curated
               </SectionSubtitle>
             </Link>
-          </Tooltip>
+          </LWTooltip>
           <AnalyticsContext listContext={"curatedPosts"}>
             <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
           </AnalyticsContext>

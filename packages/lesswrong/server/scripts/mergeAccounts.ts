@@ -110,7 +110,7 @@ Vulcan.mergeAccounts = async (sourceUserId, targetUserId) => {
       karma: newKarma, 
       // We only recalculate the karma for non-af karma, because recalculating
       // af karma is a lot more complicated
-      afKarma: sourceUser.afKarma + targetUser.afKaram 
+      afKarma: sourceUser.afKarma + targetUser.afKarma 
     },
     validate: false
   })
@@ -170,6 +170,7 @@ async function recomputeKarma(userId) {
   const totalNonLegacyKarma = sumBy(allTargetVotes, vote => {
     return vote.power
   })
+  // @ts-ignore FIXME legacyKarma isn't in the schema, figure out whether it's real
   const totalKarma = totalNonLegacyKarma + (user.legacyKarma || 0)
   return totalKarma
 }

@@ -14,7 +14,7 @@ const styles = theme => ({
 
 const PostsRevisionsList = ({documentId, classes}: {
   documentId: string,
-  classes: any,
+  classes: ClassesType,
 }) => {
   const { document, loading } = useSingle({
     documentId,

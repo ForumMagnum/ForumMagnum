@@ -20,7 +20,7 @@ const options = {
   }
 }
 
-export const Notifications = createCollection({
+export const Notifications: NotificationsCollection = createCollection({
   collectionName: 'Notifications',
   typeName: 'Notification',
   schema,

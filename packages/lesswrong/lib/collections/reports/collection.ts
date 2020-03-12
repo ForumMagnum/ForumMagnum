@@ -3,7 +3,7 @@ import Users from '../users/collection';
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
 
-const Reports = createCollection({
+const Reports: ReportsCollection = createCollection({
   collectionName: 'Reports',
   typeName: 'Report',
   schema,

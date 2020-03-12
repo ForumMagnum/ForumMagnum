@@ -14,12 +14,18 @@ const styles = theme => ({
 });
 
 interface ExternalProps {
-  post: any,
+  post: PostsBase,
 }
 interface PingbackProps extends WithStylesProps, WithHoverProps {
 }
 
-const Pingback = ({classes, post, hover, anchorEl, stopHover}) => {
+const Pingback = ({classes, post, hover, anchorEl, stopHover}: {
+  classes: ClassesType,
+  post: PostsList,
+  hover?: any,
+  anchorEl?: any,
+  stopHover?: any,
+}) => {
   const { LWPopper, PostsItem2MetaInfo, PostsItemKarma, PostsTitle, PostsPreviewTooltip } = Components
 
   return <div className={classes.root}>
@@ -39,7 +45,7 @@ const Pingback = ({classes, post, hover, anchorEl, stopHover}) => {
       <PostsItem2MetaInfo className={classes.karma}>
         <PostsItemKarma post={post} />
       </PostsItem2MetaInfo>
-      <PostsTitle post={post} read={post.lastVisitedAt} showIcons={false}/>
+      <PostsTitle post={post} read={!!post.lastVisitedAt} showIcons={false}/>
   </div>
 }
 

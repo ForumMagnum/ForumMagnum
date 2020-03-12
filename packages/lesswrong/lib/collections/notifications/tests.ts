@@ -21,8 +21,8 @@ describe('notification generation', async () => {
     await waitUntilCallbacksFinished();
     
     const notifications = await Notifications.find({userId: otherUser._id}).fetch();
-    notifications.should.have.lengthOf(1);
-    notifications[0].should.have.property('type', 'newPost');
+    (notifications as any).should.have.lengthOf(1);
+    (notifications[0] as any).should.have.property('type', 'newPost');
     done();
   });
   /*it("generates notifications for new comments to post", async (done) => {
@@ -103,9 +103,9 @@ describe('notification generation', async () => {
     
     const notifications = await Notifications.find({userId: otherUser._id}).fetch();
 
-    notifications.should.have.lengthOf(1);
-    notifications[0].should.have.property('documentId', message1._id);
-    notifications[0].should.have.property('type', 'newMessage');
+    (notifications as any).should.have.lengthOf(1);
+    (notifications[0] as any).should.have.property('documentId', message1._id);
+    (notifications[0] as any).should.have.property('type', 'newMessage');
     done();
   });
 });

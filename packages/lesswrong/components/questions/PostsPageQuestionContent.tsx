@@ -6,7 +6,10 @@ import withErrorBoundary from '../common/withErrorBoundary';
 
 const MAX_ANSWERS_QUERIED = 100
 
-const PostsPageQuestionContent = ({post, refetch}) => {
+const PostsPageQuestionContent = ({post, refetch}: {
+  post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  refetch: any,
+}) => {
   const currentUser = useCurrentUser();
   const { AnswersList, NewAnswerCommentQuestionForm, CantCommentExplanation, RelatedQuestionsList } = Components
   return (
@@ -15,8 +18,8 @@ const PostsPageQuestionContent = ({post, refetch}) => {
       {currentUser && !Users.isAllowedToComment(currentUser, post) &&
         <CantCommentExplanation post={post}/>
       }
-      <RelatedQuestionsList post={post} />
       <AnswersList terms={{view: "questionAnswers", postId: post._id, limit: MAX_ANSWERS_QUERIED}} post={post}/>
+      <RelatedQuestionsList post={post} />
     </div>
   )
 

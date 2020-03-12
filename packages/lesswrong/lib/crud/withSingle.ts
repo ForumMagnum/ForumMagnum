@@ -34,7 +34,7 @@ export function withSingle({
   fragmentName, fragment,
   extraVariables, fetchPolicy, propertyName = 'document', extraQueries
 }: {
-  collectionName?: string,
+  collectionName?: CollectionNameString,
   collection?: any,
   fragmentName?: string,
   fragment?: any,
@@ -107,7 +107,7 @@ export function useSingle({
   extraVariablesValues,
   skip=false
 }: {
-  collectionName?: string,
+  collectionName?: CollectionNameString,
   collection?: any,
   fragmentName?: string,
   fragment?: any,

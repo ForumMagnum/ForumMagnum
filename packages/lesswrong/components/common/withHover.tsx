@@ -20,6 +20,7 @@ export const withHover = (trackingData?: any, propsToTrackingData?: any) => {
 
 export const useHover = (eventProps?: Record<string,any>) => {
   const [hover, setHover] = useState(false)
+  const [everHovered, setEverHovered] = useState(false)
   const [anchorEl, setAnchorEl] = useState<any>(null)
   const delayTimer = useRef<any>(null)
   const mouseOverStart = useRef<Date>(null)
@@ -34,6 +35,7 @@ export const useHover = (eventProps?: Record<string,any>) => {
 
   const handleMouseOver = useCallback((event) => {
     setHover(true)
+    setEverHovered(true);
     setAnchorEl(event.currentTarget);
     (mouseOverStart as any).current = new Date()
     clearTimeout(delayTimer.current)
@@ -56,6 +58,7 @@ export const useHover = (eventProps?: Record<string,any>) => {
       onMouseLeave: handleMouseLeave,
     },
     hover,
+    everHovered,
     anchorEl,
     stopHover: handleMouseLeave,
   }

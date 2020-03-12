@@ -14,7 +14,7 @@ const styles = theme => ({
 })
 
 const PostsNewForm = ({classes}: {
-  classes: any,
+  classes: ClassesType,
 }) => {
   const { query } = useLocation();
   const { history } = useNavigation();

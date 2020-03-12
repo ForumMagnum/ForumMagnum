@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import { withLocation, getUrlClass } from '../../../lib/routeUtil';
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
-import Tooltip from '@material-ui/core/Tooltip';
 import { postBodyStyles } from '../../../themes/stylePiping'
 import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -257,7 +256,7 @@ function getHostname(url) {
 }
 
 interface ExternalProps {
-  post: any,
+  post: PostsWithNavigation|PostsWithNavigationAndRevision,
   refetch: any,
 }
 interface PostsPageProps extends ExternalProps, WithUserProps, WithLocationProps, WithStylesProps {
@@ -284,23 +283,28 @@ class PostsPage extends Component<PostsPageProps> {
     return false;
   }
 
+  getDescription = post => {
+    if (post.contents?.plaintextDescription) return post.contents.plaintextDescription
+    if (post.shortform) return `A collection of shorter posts by ${getSetting('title')} user ${post.user.displayName}`
+    return null
+  }
+
   render() {
     const { post, refetch, currentUser, classes, location: { query, params } } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, ContentType,
       LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
       TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink,
-      PingbacksList, FooterTagList, AnalyticsInViewTracker } = Components
+      PingbacksList, FooterTagList, AnalyticsInViewTracker, LWTooltip } = Components
 
     if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
     } else {
-      const { html, plaintextDescription, markdown, wordCount = 0 } = post.contents || {}
+      const { html, wordCount = 0 } = post.contents || {}
       const view = _.clone(query).view || Comments.getDefaultView(post, currentUser)
-      const description = plaintextDescription ? plaintextDescription : (markdown && markdown.substring(0, 300))
       const commentTerms = _.isEmpty(query.view) ? {view: view, limit: 500} : {...query, limit:500}
       const sequenceId = this.getSequenceId();
-      const sectionData = post.tableOfContentsRevision || post.tableOfContents;
+      const sectionData = (post as PostsWithNavigationAndRevision).tableOfContentsRevision || (post as PostsWithNavigation).tableOfContents;
       const htmlWithAnchors = (sectionData && sectionData.html) ? sectionData.html : html
       const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
       const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;
@@ -309,6 +313,9 @@ class PostsPage extends Component<PostsPageProps> {
       const contentType = getContentType(post)
 
       const commentId = query.commentId || params.commentId
+
+      const description = this.getDescription(post)
+
       return (
           <AnalyticsContext pageContext="postsPage" postId={post._id}>
             <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
@@ -332,15 +339,15 @@ class PostsPage extends Component<PostsPageProps> {
                           <ContentType type={contentType}/>
                         </span>
                         { post.feed && post.feed.user &&
-                          <Tooltip title={`Crossposted from ${feedLinkDescription}`}>
+                          <LWTooltip title={`Crossposted from ${feedLinkDescription}`}>
                             <a href={feedLink} className={classes.feedName}>
                               {post.feed.nickname}
                             </a>
-                          </Tooltip>
+                          </LWTooltip>
                         }
-                        {!!wordCount && !post.isEvent &&  <Tooltip title={`${wordCount} words`}>
+                        {!!wordCount && !post.isEvent &&  <LWTooltip title={`${wordCount} words`}>
                             <span className={classes.wordCount}>{Math.floor(wordCount/300) || 1 } min read</span>
-                        </Tooltip>}
+                        </LWTooltip>}
                         {!post.isEvent && <span className={classes.date}>
                           <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
                         </span>}

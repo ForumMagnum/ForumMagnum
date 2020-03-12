@@ -23,12 +23,12 @@ const styles = theme => ({
 })
 
 const CommentsMenu = ({children, classes, className, comment, post, showEdit, icon}: {
-  children?: any,
-  classes: any,
+  children?: React.ReactNode,
+  classes: ClassesType,
   className?: string,
-  comment: any,
-  post: any,
-  showEdit: any,
+  comment: CommentsList,
+  post: PostsList,
+  showEdit: ()=>void,
   icon?: any,
 }) => {
   const [anchorEl, setAnchorEl] = useState<any>(null);

@@ -20,8 +20,8 @@ const styles = theme => ({
 })
 
 const ReviewPostButton = ({classes, post, reviewMessage="Review"}: {
-  classes: any,
-  post: any,
+  classes: ClassesType,
+  post: PostsBase,
   reviewMessage: any,
 }) => {
   const currentUser = useCurrentUser();

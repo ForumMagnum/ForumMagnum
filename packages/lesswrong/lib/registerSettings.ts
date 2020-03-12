@@ -73,3 +73,13 @@ registerSetting('ckEditor.uploadUrl', null, 'Upload URL for CKEditor image uploa
 
 // Mapbox API Key
 registerSetting('mapbox.apiKey', null, 'API Key for the mapbox map and tile requests')
+
+// Post/Sequence IDs
+registerSetting('aboutPostId', 'bJ2haLkcGeLtTWaD5', 'Post ID for the /about route') // Currently unused by LW/AF
+registerSetting('introPostId', null, 'Post ID for the /intro route')
+registerSetting('eaHomeSequenceId', null, 'Sequence ID for the EAHomeHandbook sequence')
+registerSetting('eaHomeSequenceFirstPostId', null, 'Post ID for the first post in the EAHomeHandbook Sequence')
+
+// Custom analytics
+registerSetting('analytics.connectionString', null, 'Postgres connection string to the analytics database');
+registerSetting('analytics.environment', 'misconfigured', 'Environment being used to view the site');

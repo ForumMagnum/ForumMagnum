@@ -166,8 +166,8 @@ const schema = {
     type: Boolean,
     optional: true,
     viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment'],
-    insertableBy: ['sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    insertableBy: ['admins', 'sunshineRegiment'],
     ...schemaDefaultValue(false),
   }
 }

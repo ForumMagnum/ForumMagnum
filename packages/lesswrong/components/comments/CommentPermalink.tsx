@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
-import { withSingle } from '../../lib/crud/withSingle';
+import { useSingle } from '../../lib/crud/withSingle';
 import { Comments } from '../../lib/collections/comments';
 
 const styles = theme => ({
@@ -27,8 +27,17 @@ const styles = theme => ({
   },
 })
 
-const CommentPermalink = (props) => {
-  const { documentId, post, document: comment, classes, data: {refetch}, loading, error} = props
+const CommentPermalink = ({ documentId, post, classes }: {
+  documentId: string,
+  post: PostsBase,
+  classes: ClassesType,
+}) => {
+  const { document: comment, data, loading, error } = useSingle({
+    documentId,
+    collection: Comments,
+    fragmentName: 'CommentWithRepliesFragment',
+  });
+  const { refetch } = data;
   const { Loading, Divider, CommentWithReplies } = Components;
 
   if (error || (!comment && !loading)) return <div>Comment not found</div>
@@ -46,14 +55,7 @@ const CommentPermalink = (props) => {
     </div>
 }
 
-const CommentPermalinkComponent = registerComponent(
-  "CommentPermalink", CommentPermalink, { styles, hocs: [
-    withSingle({
-      collection: Comments,
-      fragmentName: 'CommentWithReplies',
-    })
-  ]}
-);
+const CommentPermalinkComponent = registerComponent("CommentPermalink", CommentPermalink, { styles });
 
 
 declare global {

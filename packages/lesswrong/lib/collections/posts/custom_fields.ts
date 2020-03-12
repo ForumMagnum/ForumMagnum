@@ -1,7 +1,7 @@
 import { Posts } from './collection';
 import Users from "../users/collection";
 import { makeEditable } from '../../editor/make_editable'
-import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple, resolverOnlyField, denormalizedCountOfReferences, accessFilterSingle, denormalizedField, googleLocationToMongoLocation } from '../../utils/schemaUtils'
+import { addFieldsDict, foreignKeyField, arrayOfForeignKeysField, accessFilterMultiple, resolverOnlyField, accessFilterSingle, denormalizedField, denormalizedCountOfReferences, googleLocationToMongoLocation } from '../../utils/schemaUtils'
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { Utils, getSetting } from '../../vulcan-lib';
 import GraphQLJSON from 'graphql-type-json';
@@ -677,7 +677,7 @@ addFieldsDict(Posts, {
     hidden: true,
     group: formGroups.event,
     viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
     insertableBy: ['members'],
     optional: true,
     ...schemaDefaultValue(false),
@@ -993,6 +993,22 @@ addFieldsDict(Posts, {
     denormalized: true,
     ...schemaDefaultValue(false),
   },
+
+  commentCount: {
+    type: Number,
+    optional: true,
+    defaultValue: 0,
+    
+    ...denormalizedCountOfReferences({
+      fieldName: "commentCount",
+      collectionName: "Posts",
+      foreignCollectionName: "Comments",
+      foreignTypeName: "comment",
+      foreignFieldName: "postId",
+      filterFn: comment => !comment.deleted
+    }),
+    canRead: ['guests'],
+  },
   
   recentComments: resolverOnlyField({
     type: Array,
@@ -1073,29 +1089,4 @@ makeEditable({
 // Custom fields on Users collection
 addFieldsDict(Users, {
   // Count of the user's posts
-  postCount: {
-    ...denormalizedCountOfReferences({
-      fieldName: "postCount",
-      collectionName: "Users",
-      foreignCollectionName: "Posts",
-      foreignTypeName: "post",
-      foreignFieldName: "userId",
-      filterFn: (post) => (!post.draft && post.status===Posts.config.STATUS_APPROVED),
-    }),
-    viewableBy: ['guests'],
-  },
-  // The user's associated posts (GraphQL only)
-  posts: {
-    type: Object,
-    optional: true,
-    viewableBy: ['guests'],
-    resolveAs: {
-      arguments: 'limit: Int = 5',
-      type: '[Post]',
-      resolver: (user, { limit }, { currentUser, Users, Posts }) => {
-        const posts = Posts.find({ userId: user._id }, { limit }).fetch();
-        return accessFilterMultiple(currentUser, Posts, posts);
-      }
-    }
-  },
 });

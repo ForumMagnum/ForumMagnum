@@ -43,7 +43,7 @@ async function getSubscribedUsers({
   potentiallyDefaultSubscribedUserIds=null, userIsDefaultSubscribed=null
 }: {
   documentId: string,
-  collectionName: string,
+  collectionName: CollectionNameString,
   type: string,
   potentiallyDefaultSubscribedUserIds?: null|Array<string>,
   userIsDefaultSubscribed?: null|((u:any)=>boolean),
@@ -184,13 +184,13 @@ const getLink = (notificationType, documentType, documentId) => {
   
   switch(documentType) {
     case "post":
-      return Posts.getPageUrl(document);
+      return Posts.getPageUrl(document as DbPost);
     case "comment":
-      return Comments.getPageUrl(document);
+      return Comments.getPageUrl(document as DbComment);
     case "user":
-      return Users.getProfileUrl(document);
+      return Users.getProfileUrl(document as DbUser);
     case "message":
-      return Messages.getLink(document);
+      return Messages.getLink(document as DbMessage);
     default:
       //eslint-disable-next-line no-console
       console.error("Invalid notification type");
@@ -252,7 +252,7 @@ async function postsNewNotifications (post) {
     if (post.groupId) {
       // Load the group, so we know who the organizers are
       const group = await Localgroups.findOne(post.groupId);
-      const organizerIds = group.organizers;
+      const organizerIds = group.organizerIds;
       
       const subscribedUsers = await getSubscribedUsers({
         documentId: post.groupId,

@@ -9,7 +9,7 @@ import * as _ from 'underscore';
 
 import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import { makeEditableOptions } from '../../lib/collections/comments/custom_fields'
-import { shouldNewDocumentTriggerReview } from './postCallbacks';
+import { newDocumentMaybeTriggerReview } from './postCallbacks';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -20,12 +20,12 @@ const getLessWrongAccount = async () => {
       username: "LessWrong",
       email: "lesswrong@lesswrong.com",
     }
-    account = await newMutation({
+    const newAccount = await newMutation({
       collection: Users,
       document: userData,
       validate: false,
     })
-    return account.data
+    return newAccount.data
   }
   return account;
 }
@@ -415,4 +415,4 @@ async function updateTopLevelCommentLastCommentedAt (comment) {
 }
 addCallback("comment.create.after", updateTopLevelCommentLastCommentedAt)
 
-addCallback("comment.create.after", shouldNewDocumentTriggerReview)
+addCallback("comment.create.after", newDocumentMaybeTriggerReview)

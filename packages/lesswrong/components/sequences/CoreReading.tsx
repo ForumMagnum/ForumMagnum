@@ -2,7 +2,16 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Hidden from '@material-ui/core/Hidden';
 
-const coreReadingCollections = [
+export interface CoreReadingCollection {
+  title: string,
+  id: string,
+  userId: string,
+  summary: string,
+  imageId: string,
+  color: string,
+  big: boolean,
+}
+const coreReadingCollections: Array<CoreReadingCollection> = [
   {
     title: "Rationality: A-Z",
     id: "dummyId",

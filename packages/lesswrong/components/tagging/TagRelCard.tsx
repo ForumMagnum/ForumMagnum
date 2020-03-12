@@ -46,7 +46,10 @@ const styles = theme => ({
 
 const previewPostCount = 3;
 
-const TagRelCard = ({tagRel, classes}) => {
+const TagRelCard = ({tagRel, classes}: {
+  tagRel: TagRelFragment,
+  classes: ClassesType,
+}) => {
   const currentUser = useCurrentUser();
   const vote = useVote();
   const { VoteButton, PostsItem2, ContentItemBody, PostsListPlaceholder } = Components;

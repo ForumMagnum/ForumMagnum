@@ -45,7 +45,7 @@ const styles = theme => ({
 
 const CollectionsPage = ({ documentId, classes }: {
   documentId: string,
-  classes: any,
+  classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
   const [edit, setEdit] = useState(false);

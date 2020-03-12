@@ -46,7 +46,7 @@ export const sortings = {
 }
 
 interface AllPostsPageProps extends WithUserProps, WithStylesProps, WithTimezoneProps, WithLocationProps {
-  updateUser: any,
+  updateUser: WithUpdateFunction<UsersCollection>,
 }
 interface AllPostsPageState {
   showSettings: boolean,

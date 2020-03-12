@@ -13,14 +13,13 @@ const styles = theme => ({
   }
 })
 
-const PostsItemNewCommentsWrapper = ({ terms, classes, title, highlightDate, post, condensed, hideReadComments, markAsRead, forceSingleLine, hideSingleLineMeta }: {
+const PostsItemNewCommentsWrapper = ({ terms, classes, title, highlightDate, post, condensed, markAsRead, forceSingleLine, hideSingleLineMeta }: {
   terms: any,
-  classes: any,
+  classes: ClassesType,
   title?: string,
   highlightDate: Date,
-  post: any,
+  post: PostsList,
   condensed: boolean,
-  hideReadComments?: boolean,
   markAsRead: any,
   forceSingleLine?: any,
   hideSingleLineMeta?: boolean,
@@ -52,7 +51,6 @@ const PostsItemNewCommentsWrapper = ({ terms, classes, title, highlightDate, pos
           lastCommentId={lastCommentId}
           condensed={condensed}
           forceSingleLine={forceSingleLine}
-          hideReadComments={hideReadComments}
           hideSingleLineMeta={hideSingleLineMeta}
           markAsRead={markAsRead}
         />

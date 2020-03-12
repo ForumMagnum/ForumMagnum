@@ -41,10 +41,10 @@ const styles = theme => ({
 })
 
 const ShowParentComment = ({ comment, active, onClick, classes }: {
-  comment: any,
+  comment: CommentsList,
   active?: boolean,
   onClick?: any,
-  classes: any,
+  classes: ClassesType,
 }) => {
 
   if (!comment) return null;

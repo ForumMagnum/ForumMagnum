@@ -244,12 +244,14 @@ registerFragment(`
 `)
 
 registerFragment(`
-  fragment SelectCommentsList on Comment {
+  fragment CommentsListWithPostMetadata on Comment {
     ...CommentsList
     post {
       title
       _id
       slug
+      isEvent
+      groupId
     }
   }
 `);
@@ -270,7 +272,9 @@ registerFragment(`
     createdAt
     email
     commentCount
+    maxCommentCount
     postCount
+    maxPostCount
     voteCount
     smallUpvoteCount
     bigUpvoteCount
@@ -278,6 +282,7 @@ registerFragment(`
     bigDownvoteCount
     banned
     reviewedByUserId
+    reviewedAt
     signUpReCaptchaRating
     needsReview
     sunshineSnoozed

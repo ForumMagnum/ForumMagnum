@@ -10,7 +10,7 @@ import * as _ from 'underscore';
 //eslint-disable-next-line babel/new-cap
 const SortableItem = SortableElement(({postId, currentUser, removeItem}) =>
   <li className="posts-list-editor-item">
-    <Components.PostsItemWrapper documentId={postId} currentUser={currentUser} removeItem={removeItem} />
+    <Components.PostsItemWrapper documentId={postId} removeItem={removeItem} />
   </li>
 );
 

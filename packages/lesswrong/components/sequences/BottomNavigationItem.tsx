@@ -59,7 +59,12 @@ const styles = theme => ({
   }
 });
 
-const BottomNavigationItem = ({direction, post, sequence, classes}) => {
+const BottomNavigationItem = ({direction, post, sequence, classes}: {
+  direction: "Previous"|"Next",
+  post: PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost,
+  sequence: HasIdType,
+  classes: ClassesType,
+}) => {
   const { LoginPopupButton } = Components
   const commentCount = post.commentCount || "No"
   

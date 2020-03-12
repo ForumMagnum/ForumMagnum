@@ -14,9 +14,9 @@ const styles = theme => ({
 });
 
 const PostsItem2MetaInfo = ({children, className, classes, read}: {
-  children?: any,
+  children?: React.ReactNode,
   className?: string,
-  classes: any,
+  classes: ClassesType,
   read?: boolean,
 }) => {
   return <Typography

@@ -1,12 +1,21 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withSingle } from '../../lib/crud/withSingle';
+import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Comments } from '../../lib/collections/comments';
 import classNames from 'classnames';
 
-const ParentCommentSingle = (props) => {
-  if (props.document && !props.loading) {
-    const { nestingLevel } = props;
+const ParentCommentSingle = ({ documentId, nestingLevel, post, truncated }: {
+  documentId: string,
+  nestingLevel: number,
+  post: PostsList,
+  truncated?: boolean,
+}) => {
+  const { document, loading } = useSingle({
+    documentId,
+    collection: Comments,
+    fragmentName: 'CommentsListWithPostMetadata',
+  });
+  if (document && !loading) {
     return (
       <div className={classNames(
         'comments-node',
@@ -17,7 +26,7 @@ const ParentCommentSingle = (props) => {
           "comments-node-odd"  : nestingLevel % 2 != 0,
         }
       )}>
-        <Components.CommentsItem {...props} isParentComment comment={props.document}/>
+        <Components.CommentsItem isParentComment comment={document} nestingLevel={nestingLevel} post={post} truncated={!!truncated}/>
       </div>
     )
   } else {
@@ -25,16 +34,7 @@ const ParentCommentSingle = (props) => {
   }
 }
 
-const ParentCommentSingleComponent = registerComponent(
-  'ParentCommentSingle', ParentCommentSingle, {
-    hocs: [
-      withSingle({
-        collection: Comments,
-        fragmentName: 'SelectCommentsList',
-      })
-    ]
-  }
-);
+const ParentCommentSingleComponent = registerComponent('ParentCommentSingle', ParentCommentSingle, {});
 
 declare global {
   interface ComponentTypes {

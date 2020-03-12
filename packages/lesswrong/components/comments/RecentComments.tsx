@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Comments } from '../../lib/collections/comments';
 import Typography from '@material-ui/core/Typography';
@@ -15,7 +14,7 @@ const styles = theme =>  ({
 })
 
 const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No Comments Found"}: {
-  classes: any,
+  classes: ClassesType,
   terms: any,
   truncated?: boolean,
   noResultsMessage?: string,
@@ -23,15 +22,11 @@ const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No C
   const { loadingInitial, loadMoreProps, results } = useMulti({
     terms,
     collection: Comments,
-    fragmentName: 'SelectCommentsList',
+    fragmentName: 'CommentsListWithPostMetadata',
     enableTotal: false,
     pollInterval: 0,
     queryLimitName: "recentCommentsLimit",
     ssr: true
-  });
-  const {mutate: updateComment} = useUpdate({
-    collection: Comments,
-    fragmentName: 'SelectCommentsList',
   });
   if (!loadingInitial && results && !results.length) {
     return (<Typography variant="body2">{noResultsMessage}</Typography>)
@@ -47,7 +42,6 @@ const RecentComments = ({classes, terms, truncated=false, noResultsMessage="No C
           <Components.CommentsNode
             comment={comment}
             post={comment.post}
-            updateComment={updateComment}
             showPostTitle
             startThreadTruncated={truncated}
             forceNotSingleLine

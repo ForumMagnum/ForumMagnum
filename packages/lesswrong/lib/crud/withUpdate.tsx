@@ -77,7 +77,7 @@ export const useUpdate = ({
   collectionName, collection,
   fragmentName: fragmentNameArg, fragment: fragmentArg,
 }: {
-  collectionName?: string,
+  collectionName?: CollectionNameString,
   collection?: any,
   fragmentName?: string,
   fragment?: any,

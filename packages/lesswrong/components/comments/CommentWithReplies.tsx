@@ -17,8 +17,8 @@ const styles = theme => ({
 })
 
 interface ExternalProps {
-  comment: any,
-  post?: any,
+  comment: CommentWithRepliesFragment,
+  post?: PostsBase,
   refetch: any,
   showTitle?: boolean
 }

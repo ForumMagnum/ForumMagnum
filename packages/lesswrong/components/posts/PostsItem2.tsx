@@ -6,7 +6,6 @@ import { Sequences } from "../../lib/collections/sequences/collection";
 import { Collections } from "../../lib/collections/collections/collection";
 import withErrorBoundary from '../common/withErrorBoundary';
 import CloseIcon from '@material-ui/icons/Close';
-import Tooltip from '@material-ui/core/Tooltip';
 import { useCurrentUser } from "../common/withUser";
 import classNames from 'classnames';
 import Hidden from '@material-ui/core/Hidden';
@@ -353,7 +352,7 @@ const PostsItem2 = ({
   isRead=false,
   classes,
 }: {
-  post: any,
+  post: PostsList,
   tagRel?: any,
   defaultToShowComments?: boolean,
   sequenceId?: string,
@@ -374,7 +373,7 @@ const PostsItem2 = ({
   
   recordPostView?: any,
   isRead?: boolean,
-  classes?: any,
+  classes: ClassesType,
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
@@ -422,9 +421,9 @@ const PostsItem2 = ({
   const condensedAndHiddenComments = defaultToShowUnreadComments && !showComments
 
   const dismissButton = (currentUser && resumeReading &&
-    <Tooltip title={dismissRecommendationTooltip} placement="right">
+    <LWTooltip title={dismissRecommendationTooltip} placement="right">
       <CloseIcon onClick={() => dismissRecommendation()}/>
-    </Tooltip>
+    </LWTooltip>
   )
 
   const commentTerms = {
