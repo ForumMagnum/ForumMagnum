@@ -4,7 +4,6 @@ import { PostEditor, PostEditorCollaboration } from '@lesswrong/lesswrong-editor
 import { getSetting } from '../../lib/vulcan-lib';
 import { getCKEditorDocumentId, generateTokenRequest } from '../../lib/ckEditorUtils'
 import { withStyles, createStyles } from '@material-ui/core/styles';
-import { Helmet } from 'react-helmet';
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
 
@@ -62,11 +61,6 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
   const initData = typeof(data) === "string" ? data : ""
 
   return <div>
-    {/* We load Mathjax by inserting a script tag into the header. Not the most elegant, but should be fine */}
-    <Helmet> 
-      <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS_HTML' async></script>
-    </Helmet>
-
     <div ref={presenceListRef} />
     
     {/* Because of a bug in CKEditor, we call preventDefault on all click events coming out of the sidebar. See: https://github.com/ckeditor/ckeditor5/issues/1992 */}
@@ -83,7 +77,7 @@ const CKPostEditor = ({ data, onSave, onChange, documentId, userId, formType, on
             // We listen to the current window size to determine how to show comments
             window.addEventListener( 'resize', () => refreshDisplayMode(editor, sidebarRef.current) );
             // We then call the method once to determine the current window size
-            refreshDisplayMode(editor, sidebarRef.current)
+            refreshDisplayMode(editor, sidebarRef.current);
           }
           if (onInit) onInit(editor)
       } }
