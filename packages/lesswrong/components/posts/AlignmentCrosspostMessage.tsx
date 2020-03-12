@@ -8,7 +8,10 @@ const styles = theme => ({
   },
 })
 
-const AlignmentCrosspostMessage = ({post, classes}) => {
+const AlignmentCrosspostMessage = ({post, classes}: {
+  post: PostsBase,
+  classes: ClassesType,
+}) => {
   if (post.af && getSetting('forumType') !== 'AlignmentForum') {
     return (
       <div className={classes.root}>

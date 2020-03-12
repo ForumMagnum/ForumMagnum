@@ -9,7 +9,10 @@ const styles = theme => ({
   },
 });
 
-const SequenceTooltip = ({ sequence, classes }) => {
+const SequenceTooltip = ({ sequence, classes }: {
+  sequence: SequencesPageFragment,
+  classes: ClassesType,
+}) => {
   const { ContentItemBody } = Components;
   
   const truncatedDescription = truncate(sequence.contents && sequence.contents.htmlHighlight, SEQUENCE_DESCRIPTION_TRUNCATION_LENGTH);

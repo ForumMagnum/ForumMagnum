@@ -5,8 +5,7 @@ import { markdownToHtmlNoLaTeX, dataToMarkdown } from '../editor/make_editable_c
 import { highlightFromHTML, truncate } from '../../lib/editor/ellipsize';
 import { addFieldsDict } from '../../lib/utils/schemaUtils'
 import { JSDOM } from 'jsdom'
-import { sanitize } from '../vulcan-lib/utils';
-import { sanitizeAllowedTags } from '../vulcan-lib/utils';
+import { sanitize, sanitizeAllowedTags } from '../vulcan-lib/utils';
 import htmlToText from 'html-to-text'
 import sanitizeHtml from 'sanitize-html';
 import * as _ from 'underscore';
@@ -29,7 +28,7 @@ export function htmlToDraftServer(...args) {
   (global as any).HTMLElement = globalHTMLElement;
   // And alas, it looks like we have to add this global. This seems quite bad, and I am not fully sure what to do about it.
   (global as any).document = jsdom.window.document
-  const result = htmlToDraft(...args) 
+  const result = htmlToDraft(...args)
   // We do however at least remove it right afterwards
   delete (global as any).document
   delete (global as any).HTMLElement
@@ -38,7 +37,7 @@ export function htmlToDraftServer(...args) {
 
 export function dataToDraftJS(data, type) {
   if (data===undefined || data===null) return null;
-  
+
   switch (type) {
     case "draftJS": {
       return data
@@ -55,7 +54,7 @@ export function dataToDraftJS(data, type) {
     case "markdown": {
       const html = markdownToHtmlNoLaTeX(data)
       const draftJSContentState = htmlToDraftServer(html, {}, domBuilder) // On the server have to parse in a JS-DOM implementation to make htmlToDraft work
-      return convertToRaw(draftJSContentState) 
+      return convertToRaw(draftJSContentState)
     }
     default: {
       throw new Error(`Unrecognized type: ${type}`);
@@ -97,21 +96,22 @@ addFieldsDict(Revisions, {
     resolveAs: {
       type: 'String',
       resolver: ({html}) => {
+        if (!html) return
         const truncatedHtml = truncate(sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
         return htmlToText
           .fromString(truncatedHtml)
           .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
-      } 
+      }
     }
   },
   // Plaintext version, except that specially-formatted blocks like blockquotes are filtered out, for use in highly-abridged displays like SingleLineComment.
   plaintextMainText: {
-    type: String, 
+    type: String,
     resolveAs: {
       type: 'String',
       resolver: ({html}) => {
         const mainTextHtml = sanitizeHtml(
-          html, { 
+          html, {
             allowedTags: _.without(sanitizeAllowedTags, 'blockquote', 'img'),
             nonTextTags: ['blockquote', 'img', 'style']
           }

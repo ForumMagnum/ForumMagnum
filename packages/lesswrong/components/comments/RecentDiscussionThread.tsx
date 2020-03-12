@@ -3,11 +3,9 @@ import {
   Components,
   registerComponent,
 } from '../../lib/vulcan-lib';
-import { userHasBoldPostItems } from '../../lib/betas';
 
 import classNames from 'classnames';
-import { unflattenComments } from '../../lib/utils/unflatten';
-import { useCurrentUser } from '../common/withUser';
+import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
 import withErrorBoundary from '../common/withErrorBoundary'
 import withRecordPostView from '../common/withRecordPostView';
 
@@ -81,13 +79,12 @@ const styles = theme => ({
 })
 
 interface ExternalProps {
-  post: any,
-  comments: any,
-  updateComment: any,
+  post: PostsRecentDiscussion,
+  comments: Array<CommentsList>,
   refetch: any,
   expandAllThreads?: boolean,
 }
-interface RecentDiscussionThreadProps extends ExternalProps, WithStylesProps {
+interface RecentDiscussionThreadProps extends ExternalProps, WithUpdateCommentProps, WithStylesProps {
   isRead: any,
   recordPostView: any,
 }
@@ -96,7 +93,6 @@ const RecentDiscussionThread = ({
   comments, updateComment, classes, isRead, refetch,
   expandAllThreads: initialExpandAllThreads,
 }: RecentDiscussionThreadProps) => {
-  const currentUser = useCurrentUser();
   const [highlightVisible, setHighlightVisible] = useState(false);
   const [readStatus, setReadStatus] = useState(false);
   const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null);
@@ -165,7 +161,7 @@ const RecentDiscussionThread = ({
       </div>
       <div className={classes.content}>
         <div className={classes.commentsList}>
-          {nestedComments.map(comment =>
+          {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
             <div key={comment.item._id}>
               <CommentsNode
                 startThreadTruncated={true}
@@ -179,7 +175,6 @@ const RecentDiscussionThread = ({
                 //eslint-disable-next-line react/no-children-prop
                 children={comment.children}
                 key={comment.item._id}
-                updateComment={updateComment}
                 post={post}
                 refetch={refetch}
                 condensed

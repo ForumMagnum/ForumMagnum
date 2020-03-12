@@ -24,7 +24,7 @@ const styles = theme => ({
 });
 
 const ChaptersItem = ({ chapter, canEdit, classes }: {
-  chapter: any,
+  chapter: ChaptersFragment,
   canEdit: boolean,
   classes: ClassesType,
 }) => {

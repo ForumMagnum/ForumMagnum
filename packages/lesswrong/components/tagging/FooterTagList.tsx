@@ -7,6 +7,8 @@ import gql from 'graphql-tag';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import Paper from '@material-ui/core/Paper';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import { useCurrentUser } from '../common/withUser';
+import { userCanManageTags } from '../../lib/betas';
 
 const styles = theme => ({
   root: {
@@ -23,11 +25,17 @@ const styles = theme => ({
   },
 });
 
-const FooterTagList = ({post, classes}) => {
+const FooterTagList = ({post, classes}: {
+  post: PostsBase,
+  classes: ClassesType,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isAwaiting, setIsAwaiting] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
+
+  const currentUser = useCurrentUser();
   
-  const { results, loading } = useMulti({
+  const { results, loading, refetch } = useMulti({
     terms: {
       view: "tagsOnPost",
       postId: post._id,
@@ -54,21 +62,39 @@ const FooterTagList = ({post, classes}) => {
       });
     }
   });
+
+  const onTagSelected = async (tagId) => {
+    setAnchorEl(null);
+    setIsOpen(false);
+    setIsAwaiting(true)
+    await mutate({
+      variables: {
+        tagId: tagId,
+        postId: post._id,
+      },
+    });
+    setIsAwaiting(false)
+    refetch()
+  }
   
+  const { Loading, FooterTag, LWPopper, AddTag } = Components
   if (loading || !results)
-    return <Components.Loading/>;
+    return <Loading/>;
   
   return <div className={classes.root}>
-    {results.map((result, i) => <span key={result._id}>
-      <Components.FooterTag tagRel={result} tag={result.tag}/>
-    </span>)}
-    <a
+    {results.map((result, i) => {
+      // currently only showing the "Coronavirus" tag to most users
+      if ((result.tag._id === "tNsqhzTibgGJKPEWB") || userCanManageTags(currentUser)) {
+        return <FooterTag key={result._id} tagRel={result} tag={result.tag}/>
+      }
+    })}
+    {userCanManageTags(currentUser) && <a
       onClick={(ev) => {setAnchorEl(ev.currentTarget); setIsOpen(true)}}
       className={classes.addTagButton}
     >
       {"+ Add Tag"}
       
-      <Components.LWPopper
+      <LWPopper
         open={isOpen}
         anchorEl={anchorEl}
         placement="bottom-start"
@@ -82,23 +108,12 @@ const FooterTagList = ({post, classes}) => {
           onClickAway={() => setIsOpen(false)}
         >
           <Paper>
-            <Components.AddTag
-              post={post}
-              onTagSelected={tagId => {
-                setAnchorEl(null);
-                setIsOpen(false);
-                mutate({
-                  variables: {
-                    tagId: tagId,
-                    postId: post._id,
-                  },
-                });
-              }}
-            />
+            <AddTag post={post} onTagSelected={onTagSelected} />
           </Paper>
         </ClickAwayListener>
-      </Components.LWPopper>
-    </a>
+      </LWPopper>
+    </a>}
+    { isAwaiting && <Loading/>}
   </div>
 };
 

@@ -15,24 +15,25 @@ import { Comments } from "../../lib/collections/comments";
 import { useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
 
-const NominatePostMenuItem = ({ post }) => {
+const NominatePostMenuItem = ({ post }: {
+  post: PostsBase
+}) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { history } = useNavigation();
 
-  if (!currentUser) {
-    return null;
-  }
   const { results: nominations = [], loading } = useMulti({
+    skip: !currentUser,
     terms: {
       view:"nominations2018", 
       postId: post._id, 
-      userId: currentUser._id
+      userId: currentUser?._id
     },
     collection: Comments,
     fragmentName: "CommentsList"
   });
 
+  if (!currentUser) return null;
   if (post.userId === currentUser!._id) return null
   if ((currentUser.karma||0) < 1000) return null
   if (new Date(post.postedAt) > new Date("2019-01-01")) return null

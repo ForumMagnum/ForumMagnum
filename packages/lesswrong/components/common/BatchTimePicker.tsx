@@ -9,7 +9,11 @@ import * as _ from 'underscore';
 
 // value: {timeOfDayGMT:int, dayOfWeekGMT:string}
 // onChange: ({ timeOfDayGMT, dayOfWeekGMT })=>Unit
-const BatchTimePicker = ({ mode, value, onChange}) => {
+const BatchTimePicker = ({ mode, value, onChange}: {
+  mode: string,
+  value: any,
+  onChange: any,
+}) => {
   const { timezone } = useTimezone();
   const valueLocal = convertTimeOfWeekTimezone(value.timeOfDayGMT, value.dayOfWeekGMT, "GMT", timezone);
   const { timeOfDay, dayOfWeek } = valueLocal;

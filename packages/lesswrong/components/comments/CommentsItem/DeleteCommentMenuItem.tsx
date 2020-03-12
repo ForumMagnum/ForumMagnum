@@ -8,8 +8,8 @@ import withDialog from '../../common/withDialog'
 import withUser from '../../common/withUser';
 
 interface ExternalProps {
-  comment: any,
-  post: any,
+  comment: CommentsList,
+  post: PostsBase,
 }
 interface DeleteCommentMenuItemProps extends ExternalProps, WithMessagesProps, WithUserProps {
   openDialog: any,

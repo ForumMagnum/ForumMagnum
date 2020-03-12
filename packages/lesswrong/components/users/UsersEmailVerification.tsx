@@ -19,8 +19,7 @@ const styles = theme => ({
 interface ExternalProps {
   resend?: boolean,
 }
-interface UsersEmailVerificationProps extends ExternalProps, WithUserProps, WithStylesProps {
-  updateUser?: any,
+interface UsersEmailVerificationProps extends ExternalProps, WithUserProps, WithUpdateUserProps, WithStylesProps {
 }
 interface UsersEmailVerificationState {
   emailSent: boolean,

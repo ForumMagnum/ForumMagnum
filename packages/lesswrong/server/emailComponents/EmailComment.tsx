@@ -1,6 +1,5 @@
 import React from 'react';
 import { Comments } from '../../lib/collections/comments';
-import { withStyles } from '@material-ui/core/styles';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Posts } from '../../lib/collections/posts/collection';
@@ -52,7 +51,7 @@ const EmailComment = ({commentId, classes}) => {
     documentId: commentId,
     
     collection: Comments,
-    fragmentName: "SelectCommentsList",
+    fragmentName: "CommentsListWithPostMetadata",
   });
   
   if (loading) return null;

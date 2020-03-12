@@ -14,7 +14,7 @@ const ShortformThreadList = ({ terms, classes }) => {
   const { results, loading, loadMore, loadingMore, refetch } = useMulti({
     terms,
     collection: Comments,
-    fragmentName: 'CommentWithReplies',
+    fragmentName: 'CommentWithRepliesFragment',
     fetchPolicy: 'cache-and-network',
     enableTotal: false,
     pollInterval: 0,

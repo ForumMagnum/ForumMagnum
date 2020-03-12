@@ -46,7 +46,7 @@ function generateFragmentsIndexType(): string {
   
   sb.push('interface FragmentTypes {\n');
   for (let fragmentName of fragmentNames) {
-    sb.push(`\t${fragmentName}: ${fragmentName}\n`);
+    sb.push(`  ${fragmentName}: ${fragmentName}\n`);
   }
   sb.push('}\n\n');
   
@@ -70,14 +70,14 @@ function fragmentToInterface(interfaceName: string, parsedFragment, collection):
     switch(selection.kind) {
       case "Field":
         const { fieldType, subfragment } = getFragmentFieldType(interfaceName, selection, collection)
-        sb.push(`\treadonly ${selection.name.value}: ${fieldType},\n`);
+        sb.push(`  readonly ${selection.name.value}: ${fieldType},\n`);
         if (subfragment)
           allSubfragments.push(subfragment);
         break;
       case "FragmentSpread":
         break;
       default:
-        sb.push(`\tUNRECOGNIZED: ${selection.kind}\n`);
+        sb.push(`  UNRECOGNIZED: ${selection.kind}\n`);
         break;
     }
   }
@@ -148,10 +148,18 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField, collect
     if (parsedFragmentField.selectionSet.selections.length == 1
       && parsedFragmentField.selectionSet.selections[0].kind == "FragmentSpread")
     {
-      return {
-        fieldType: parsedFragmentField.selectionSet.selections[0].name.value,
-        subfragment: null
-      };
+      const subfragmentName = parsedFragmentField.selectionSet.selections[0].name.value;
+      if (fieldType.startsWith("Array<")) {
+        return {
+          fieldType: `Array<${subfragmentName}>`,
+          subfragment: null
+        };
+      } else {
+        return {
+          fieldType: subfragmentName,
+          subfragment: null
+        };
+      }
     }
     else
     {
@@ -163,6 +171,7 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField, collect
         collectionName = getCollectionName(fieldType);
       const subfieldCollection = getCollection(collectionName);
       if (!subfieldCollection) {
+        // eslint-disable-next-line no-console
         console.log(`Field ${fieldName} in fragment ${fragmentName} has type ${fieldType} which does not identify a collection`);
         //throw new Error(`Field ${fieldName} in fragment ${fragmentName} has type ${fieldType} which does not identify a collection`);
         return {

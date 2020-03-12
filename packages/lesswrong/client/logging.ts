@@ -4,8 +4,6 @@ import { getSetting, addCallback } from '../lib/vulcan-lib';
 import { captureEvent, AnalyticsUtil } from '../lib/analyticsEvents';
 import { browserProperties } from '../lib/utils/browserProperties';
 
-/*global tabId*/
-
 const sentryUrl = getSetting<string|undefined>('sentry.url');
 const sentryEnvironment = getSetting<string|undefined>('sentry.environment');
 const sentryRelease = getSetting<string|undefined>('sentry.release')

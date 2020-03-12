@@ -10,7 +10,10 @@ const styles = theme => ({
   }
 })
 
-const SunshineReportedContentList = ({ terms, classes }) => {
+const SunshineReportedContentList = ({ terms, classes }: {
+  terms: any,
+  classes: ClassesType,
+}) => {
   const { SunshineListTitle, SunshineReportedItem, SunshineListCount } = Components
   
   const { results, totalCount } = useMulti({

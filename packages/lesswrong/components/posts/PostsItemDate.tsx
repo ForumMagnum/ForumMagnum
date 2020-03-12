@@ -39,7 +39,7 @@ const styles = theme => ({
 });
 
 interface ExternalProps {
-  post: any,
+  post: PostsBase,
 }
 interface PostsItemDateProps extends ExternalProps, WithHoverProps, WithStylesProps {
 }
@@ -49,7 +49,7 @@ const PostsItemDate = ({post, classes, hover, anchorEl, stopHover}: PostsItemDat
 
   if (post.isEvent && post.startTime) {
     return <PostsItem2MetaInfo className={classes.startTime}>
-      <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip placement="top">
+      <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip placement="right">
         <span>
           <div className={classes.tooltipSmallText}>Event starts at</div>
           <Components.EventTime post={post} />
@@ -61,7 +61,7 @@ const PostsItemDate = ({post, classes, hover, anchorEl, stopHover}: PostsItemDat
 
   if (post.isEvent && !post.startTime) {
     return <PostsItem2MetaInfo className={classes.startTime}>
-      <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip placement="top">
+      <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip placement="right">
         <span>To Be Determined</span>
       </LWPopper>
       <span>TBD</span>
@@ -70,7 +70,7 @@ const PostsItemDate = ({post, classes, hover, anchorEl, stopHover}: PostsItemDat
 
   if (post.curatedDate) {
     return <PostsItem2MetaInfo className={classes.postedAt}>
-      <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip placement="top">
+      <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip placement="right">
         <div>
           <div>Curated on <ExpandedDate date={post.curatedDate}/></div>
           <div>Posted on <ExpandedDate date={post.postedAt}/></div>
@@ -81,7 +81,7 @@ const PostsItemDate = ({post, classes, hover, anchorEl, stopHover}: PostsItemDat
   }
 
   return <PostsItem2MetaInfo className={classes.postedAt}>
-      <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip placement="top">
+      <LWPopper open={hover} anchorEl={anchorEl} onMouseEnter={stopHover} tooltip placement="right">
         <ExpandedDate date={post.postedAt}/>
       </LWPopper>
       <span>{moment(new Date(post.postedAt)).fromNow()}</span>

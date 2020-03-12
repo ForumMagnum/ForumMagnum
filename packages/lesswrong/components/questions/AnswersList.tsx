@@ -28,7 +28,11 @@ const styles = theme => ({
   },
 })
 
-const AnswersList = ({terms, post, classes}) => {
+const AnswersList = ({terms, post, classes}: {
+  terms: any,
+  post: PostsList,
+  classes: ClassesType,
+}) => {
   const { results } = useMulti({
     terms,
     collection: Comments,

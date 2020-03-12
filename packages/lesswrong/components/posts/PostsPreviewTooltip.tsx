@@ -9,6 +9,31 @@ import { Link } from '../../lib/reactRouterWrapper';
 
 export const POST_PREVIEW_WIDTH = 435
 
+export const highlightStyles = theme => ({
+  ...postHighlightStyles(theme),
+  marginTop: theme.spacing.unit*2.5,
+  marginBottom: theme.spacing.unit*1.5,
+  marginRight: theme.spacing.unit/2,
+  wordBreak: 'break-word',
+  fontSize: "1.1rem",
+
+  '& img': {
+    display:"none"
+  },
+  '& h1': {
+    fontSize: "1.2rem"
+  },
+  '& h2': {
+    fontSize: "1.2rem"
+  },
+  '& h3': {
+    fontSize: "1.1rem"
+  },
+  '& hr': {
+    display: "none"
+  }
+})
+
 const styles = theme => ({
   root: {
     width: POST_PREVIEW_WIDTH,
@@ -45,28 +70,7 @@ const styles = theme => ({
     alignItems: "center"
   },
   highlight: {
-    ...postHighlightStyles(theme),
-    marginTop: theme.spacing.unit*2.5,
-    marginBottom: theme.spacing.unit*1.5,
-    marginRight: theme.spacing.unit/2,
-    wordBreak: 'break-word',
-    fontSize: "1.1rem",
-
-    '& img': {
-      display:"none"
-    },
-    '& h1': {
-      fontSize: "1.2rem"
-    },
-    '& h2': {
-      fontSize: "1.2rem"
-    },
-    '& h3': {
-      fontSize: "1.1rem"
-    },
-    '& hr': {
-      display: "none"
-    }
+    ...highlightStyles(theme)
   },
   comment: {
     marginTop: theme.spacing.unit,
@@ -114,7 +118,7 @@ const styles = theme => ({
 
 const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
 
-const getPostCategory = (post) => {
+const getPostCategory = (post: PostsBase) => {
   const categories: Array<string> = [];
 
   if (post.isEvent) categories.push(`Event`)
@@ -131,7 +135,7 @@ const getPostCategory = (post) => {
 
 const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
   postsList?: boolean,
-  post: any,
+  post: PostsList|null,
   classes: ClassesType,
   comment?: any,
 }) => {

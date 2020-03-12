@@ -14,7 +14,10 @@ const styles = theme => ({
   }
 })
 
-const PostsHighlight = ({post, classes}) => {
+const PostsHighlight = ({post, classes}: {
+  post: PostsList,
+  classes: ClassesType,
+}) => {
   const { htmlHighlight = "", wordCount = 0 } = post.contents || {}
   return <div className={classes.root}>
       <Components.LinkPostMessage post={post} />

@@ -30,7 +30,7 @@ const styles = theme => ({
   }
 })
 const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=true }: {
-  user: any,
+  user: SunshineUsersList,
   classes: ClassesType,
   updateUser?: any,
   allowContentPreview?: boolean,
@@ -109,7 +109,7 @@ const SunshineNewUsersItem = ({ user, classes, updateUser, allowContentPreview=t
                 { hiddenCommentCount ? <span> ({hiddenCommentCount} deleted)</span> : null}
               </div>
               <hr />
-              <div>Big Upvotes: { user.bigUpvoteCount || 0 }</div>
+              <div>Big Upvotes: { user.bigUpvoteCount || 0 }</div>
               <div>Upvotes: { user.smallUpvoteCount || 0 }</div>
               <div>Big Downvotes: { user.bigDownvoteCount || 0 }</div>
               <div>Downvotes: { user.smallDownvoteCount || 0 }</div>

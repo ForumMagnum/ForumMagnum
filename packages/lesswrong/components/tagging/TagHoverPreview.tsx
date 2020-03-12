@@ -1,34 +1,42 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import withHover from '../common/withHover';
+import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useTagBySlug } from './useTag';
 
 const styles = theme => ({
   card: {
-    padding: 16,
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingBottom: 8,
     width: 600,
   },
 });
 
-const TagHoverPreview = ({href, targetLocation, innerHTML, classes, hover, anchorEl}) => {
+const TagHoverPreview = ({href, targetLocation, innerHTML, classes}: {
+  href: string,
+  targetLocation: any,
+  innerHTML: string,
+  classes: ClassesType,
+}) => {
   const { params: {slug} } = targetLocation;
   const { tag } = useTagBySlug(slug);
-  const { PopperCard, TagPreview } = Components;
+  const { PopperCard, TagPreview, Loading } = Components;
+  const { hover, anchorEl, eventHandlers } = useHover();
   
-  return <span>
+  return <span {...eventHandlers}>
     <PopperCard open={hover} anchorEl={anchorEl}>
       <div className={classes.card}>
-        <TagPreview tag={tag}/>
+        {tag
+          ? <TagPreview tag={tag}/>
+          : <Loading/>}
       </div>
     </PopperCard>
     <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
   </span>;
 }
 
-const TagHoverPreviewComponent = registerComponent("TagHoverPreview", TagHoverPreview, {
-  styles, hocs: [withHover()]
-});
+const TagHoverPreviewComponent = registerComponent("TagHoverPreview", TagHoverPreview, {styles});
 
 declare global {
   interface ComponentTypes {

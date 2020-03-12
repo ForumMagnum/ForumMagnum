@@ -91,8 +91,7 @@ interface ExternalProps {
   onClose: any,
   open: boolean,
 }
-interface SubscribeDialogProps extends ExternalProps, WithUserProps, WithStylesProps, WithTrackingProps {
-  updateUser: any,
+interface SubscribeDialogProps extends ExternalProps, WithUserProps, WithStylesProps, WithTrackingProps, WithUpdateUserProps {
 }
 
 interface SubscribeDialogState {

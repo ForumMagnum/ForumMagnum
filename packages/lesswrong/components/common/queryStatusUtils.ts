@@ -4,6 +4,6 @@
 // 1-4 indicate query is in flight
 // We deliberately ignore 6, which is merely a polling query and should not
 // indicate likelihood of updating.
-export function queryIsUpdating (networkStatus) {
+export function queryIsUpdating (networkStatus: number): boolean {
   return [1, 2, 3, 4].includes(networkStatus)
 }

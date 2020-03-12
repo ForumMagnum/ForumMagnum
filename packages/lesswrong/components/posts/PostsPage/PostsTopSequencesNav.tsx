@@ -24,7 +24,7 @@ const styles = theme => ({
 })
 
 interface ExternalProps {
-  post: any,
+  post: PostSequenceNavigation,
 }
 interface PostsTopSequencesNavProps extends ExternalProps, WithNavigationProps, WithGlobalKeydownProps, WithStylesProps {
 }

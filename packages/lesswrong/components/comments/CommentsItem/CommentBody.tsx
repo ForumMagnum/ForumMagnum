@@ -36,7 +36,7 @@ const styles = theme => ({
 })
 
 const CommentBody = ({ comment, classes, collapsed, truncated, postPage }: {
-  comment: any,
+  comment: CommentsList,
   collapsed?: boolean,
   truncated?: boolean,
   postPage?: boolean,

@@ -184,13 +184,13 @@ const getLink = (notificationType, documentType, documentId) => {
   
   switch(documentType) {
     case "post":
-      return Posts.getPageUrl(document);
+      return Posts.getPageUrl(document as DbPost);
     case "comment":
-      return Comments.getPageUrl(document);
+      return Comments.getPageUrl(document as DbComment);
     case "user":
-      return Users.getProfileUrl(document);
+      return Users.getProfileUrl(document as DbUser);
     case "message":
-      return Messages.getLink(document);
+      return Messages.getLink(document as DbMessage);
     default:
       //eslint-disable-next-line no-console
       console.error("Invalid notification type");

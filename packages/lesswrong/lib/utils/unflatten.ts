@@ -1,10 +1,11 @@
 import * as _ from 'underscore';
 
-interface HasIdType {
+interface ThreadableCommentType {
   _id: string
   parentCommentId: string
+  topLevelCommentId: string
 }
-interface CommentTreeNode<T extends HasIdType> {
+export interface CommentTreeNode<T extends ThreadableCommentType> {
   item: T,
   children: Array<CommentTreeNode<T>>
 }
@@ -15,16 +16,16 @@ interface CommentTreeNode<T extends HasIdType> {
 // wrap the comments in an object with `item` and `children` fields. This
 // avoids cloning the comment object, which is good because the clone messes
 // with React's ability to detect whether updates are needed.
-export function unflattenComments<T extends HasIdType>(comments: Array<T>): Array<CommentTreeNode<T>>
+export function unflattenComments<T extends ThreadableCommentType>(comments: Array<T>): Array<CommentTreeNode<T>>
 {
   const resultsRestructured = _.map(comments, (comment:T): CommentTreeNode<T> => { return { item:comment, children:[] }});
   return unflattenCommentsRec(resultsRestructured);
 }
 
-export function addGapIndicators(comments) {
+export function addGapIndicators<T extends ThreadableCommentType>(comments: Array<CommentTreeNode<T>>): Array<CommentTreeNode<T & {gapIndicator?: boolean}>> {
   // Sometimes (such as /shortform page), a comment tree is rendered where some comments are not the direct descendant of the previous comment. 
   // This function adds extra, empty comment nodes to make this UI more visually clear
-  return comments.map(node=>{
+  return comments.map((node: CommentTreeNode<T>): CommentTreeNode<T & {gapIndicator?: boolean}> => {
     if (node?.item?.parentCommentId !== node?.item?.topLevelCommentId) {
       return {item: {...node.item, gapIndicator: true}, children: node.children}
     }
@@ -34,7 +35,7 @@ export function addGapIndicators(comments) {
 
 // Recursive portion of unflattenComments. Produced by incremental modification
 // of Vulcan's Utils.unflatten.
-function unflattenCommentsRec<T extends HasIdType>(array: Array<CommentTreeNode<T>>, parent?: CommentTreeNode<T>): Array<CommentTreeNode<T>>
+function unflattenCommentsRec<T extends ThreadableCommentType>(array: Array<CommentTreeNode<T>>, parent?: CommentTreeNode<T>): Array<CommentTreeNode<T>>
 {
   let tree: Array<CommentTreeNode<T>> = [];
 

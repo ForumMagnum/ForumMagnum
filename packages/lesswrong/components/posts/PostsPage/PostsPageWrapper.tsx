@@ -3,7 +3,11 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { Posts } from '../../../lib/collections/posts';
 
-const PostsPageWrapper = ({ sequenceId, version, documentId }) => {
+const PostsPageWrapper = ({ sequenceId, version, documentId }: {
+  sequenceId: string|null,
+  version?: string,
+  documentId: string,
+}) => {
   const { document: post, refetch, loading, error } = useSingle({
     collection: Posts,
     

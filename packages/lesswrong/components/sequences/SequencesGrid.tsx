@@ -40,7 +40,7 @@ export const styles = theme => ({
 });
 
 const SequencesGrid = ({sequences, showAuthor, classes}: {
-  sequences: any,
+  sequences: Array<SequencesPageFragment>,
   showAuthor?: boolean,
   classes: ClassesType,
 }) =>

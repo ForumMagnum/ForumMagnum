@@ -22,7 +22,11 @@ const styles = theme => ({
   },
 });
 
-const ShowOrHideHighlightButton = ({open, className, classes}) =>
+const ShowOrHideHighlightButton = ({open, className, classes}: {
+  open: boolean,
+  className?: string,
+  classes: ClassesType,
+}) =>
   <span className={className}>
     { open
       ? <Components.MetaInfo>

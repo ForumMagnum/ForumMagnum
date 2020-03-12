@@ -197,10 +197,12 @@ export const performVoteServer = async ({ documentId, document, voteType = 'bigU
 
   const voteOptions = {document, collection, voteType, user, voteId, updateDocument};
 
+  const collectionVoteType = `${collectionName.toLowerCase()}.${voteType}`
+
   if (!document) throw new Error("Error casting vote: Document not found.");
   if (!user) throw new Error("Error casting vote: Not logged in.");
-  if (!Users.canDo(user, `${collectionName.toLowerCase()}.${voteType}`)) {
-    throw new Error("Error casting vote: User can't cast that type of vote.");
+  if (!Users.canDo(user, collectionVoteType)) {
+    throw new Error(`Error casting vote: User can't cast votes of type ${collectionVoteType}.`);
   }
 
   const existingVote = await hasVotedServer({document, voteType, user});

@@ -59,7 +59,7 @@ function withToCContext(Component) {
 
 interface ExternalProps {
   sectionData: any,
-  document: any,
+  document: PostsBase,
 }
 interface TableOfContentsProps extends ExternalProps, WithStylesProps {
   setToC: any,

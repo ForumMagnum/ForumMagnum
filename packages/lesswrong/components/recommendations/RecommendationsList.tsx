@@ -8,7 +8,7 @@ interface ExternalProps {
   algorithm: any,
 }
 interface RecommendationsListProps extends ExternalProps{
-  recommendations: any,
+  recommendations: Array<PostsList>|null,
   recommendationsLoading: boolean,
 }
 

@@ -34,12 +34,10 @@ const styles = theme => ({
 })
 
 interface ExternalProps {
-  comment: any,
-  post: any,
+  comment: CommentsList,
+  post: PostsBase,
 }
-interface MoveToAlignmentMenuItemProps extends ExternalProps, WithMessagesProps, WithUserProps, WithStylesProps {
-  updateComment?: any,
-  client?: any,
+interface MoveToAlignmentMenuItemProps extends ExternalProps, WithMessagesProps, WithUserProps, WithStylesProps, WithUpdateCommentProps, WithApolloProps {
 }
 
 class MoveToAlignmentMenuItem extends PureComponent<MoveToAlignmentMenuItemProps,{}> {

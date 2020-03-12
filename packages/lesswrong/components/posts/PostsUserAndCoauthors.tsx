@@ -15,7 +15,12 @@ const styles = theme => ({
   },
 });
 
-const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=false}) => {
+const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=false}: {
+  post: PostsList,
+  abbreviateIfLong?: boolean,
+  classes: ClassesType,
+  simple?: boolean
+}) => {
   if (!post.user || post.hideAuthor)
     return <Components.UserNameDeleted/>;
   
