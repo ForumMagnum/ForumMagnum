@@ -54,7 +54,7 @@ const TagPage = ({classes}: {
   const orderByTagScore = _.sortBy(orderByScore, result=>-result.baseScore)
 
   return <SingleColumnSection>
-    <SectionTitle title={`${tag.name}`}>
+    <SectionTitle title={`${tag.name} Tag`}>
       {Users.isAdmin(currentUser) && <SectionButton>
         <Link to={`/tag/${tag.slug}/edit`}>Edit</Link>
       </SectionButton>}
