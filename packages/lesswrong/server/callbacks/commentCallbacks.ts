@@ -1,7 +1,7 @@
 import { Posts } from "../../lib/collections/posts";
 import { Comments } from '../../lib/collections/comments/collection'
-import { addCallback, runCallbacksAsync, newMutation, editMutation, removeMutation, getSetting } from 'meteor/vulcan:core';
-import Users from "meteor/vulcan:users";
+import { addCallback, runCallbacksAsync, newMutation, editMutation, removeMutation, getSetting } from '../vulcan-lib';
+import Users from "../../lib/collections/users/collection";
 import { performVoteServer } from '../voteServer';
 import Messages from '../../lib/collections/messages/collection';
 import Conversations from '../../lib/collections/conversations/collection';
@@ -9,7 +9,7 @@ import * as _ from 'underscore';
 
 import { addEditableCallbacks } from '../editor/make_editable_callbacks'
 import { makeEditableOptions } from '../../lib/collections/comments/custom_fields'
-import { shouldNewDocumentTriggerReview } from './postCallbacks';
+import { newDocumentMaybeTriggerReview } from './postCallbacks';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -20,12 +20,12 @@ const getLessWrongAccount = async () => {
       username: "LessWrong",
       email: "lesswrong@lesswrong.com",
     }
-    account = await newMutation({
+    const newAccount = await newMutation({
       collection: Users,
       document: userData,
       validate: false,
     })
-    return account.data
+    return newAccount.data
   }
   return account;
 }
@@ -122,7 +122,6 @@ function CommentsRemoveChildrenComments (comment, currentUser) {
 
   childrenComments.forEach(childComment => {
     removeMutation({
-      action: 'comments.remove',
       collection: Comments,
       documentId: childComment._id,
       currentUser: currentUser,
@@ -169,7 +168,7 @@ addCallback('users.remove.async', UsersRemoveDeleteComments);
 function CommentsNewRateLimit (comment, user) {
   if (!Users.isAdmin(user)) {
     const timeSinceLastComment = Users.timeSinceLast(user, Comments);
-    const commentInterval = Math.abs(parseInt(getSetting('forum.commentInterval',15)));
+    const commentInterval = Math.abs(parseInt(""+getSetting<string|number>('forum.commentInterval',15)));
 
     // check that user waits more than 15 seconds between comments
     if((timeSinceLastComment < commentInterval)) {
@@ -416,4 +415,4 @@ async function updateTopLevelCommentLastCommentedAt (comment) {
 }
 addCallback("comment.create.after", updateTopLevelCommentLastCommentedAt)
 
-addCallback("comment.create.after", shouldNewDocumentTriggerReview)
+addCallback("comment.create.after", newDocumentMaybeTriggerReview)

@@ -1,21 +1,20 @@
 import React from 'react'
-import { withStyles, createStyles } from '@material-ui/core/styles';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useSingle } from '../../../lib/crud/withSingle';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Posts } from '../../../lib/collections/posts/collection'
 import { QueryLink } from '../../../lib/reactRouterWrapper';
 
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   version: {
     marginRight: 5
   }
-}))
+})
 
 const PostsRevisionsList = ({documentId, classes}: {
   documentId: string,
-  classes: any,
+  classes: ClassesType,
 }) => {
   const { document, loading } = useSingle({
     documentId,
@@ -41,9 +40,8 @@ const PostsRevisionsList = ({documentId, classes}: {
 }
 
 const PostsRevisionsListComponent = registerComponent(
-  'PostsRevisionsList', PostsRevisionsList,
-  withStyles(styles, {name: "PostsRevisionsList"})
-)
+  'PostsRevisionsList', PostsRevisionsList, {styles}
+);
 
 declare global {
   interface ComponentTypes {

@@ -1,9 +1,13 @@
 import React from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { Posts } from '../../../lib/collections/posts';
 
-const PostsPageWrapper = ({ sequenceId, version, documentId }) => {
+const PostsPageWrapper = ({ sequenceId, version, documentId }: {
+  sequenceId: string|null,
+  version?: string,
+  documentId: string,
+}) => {
   const { document: post, refetch, loading, error } = useSingle({
     collection: Posts,
     
@@ -34,12 +38,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }) => {
     return <Error404/>
   }
   
-  return <PostsPage
-    post={post}
-    sequenceId={sequenceId}
-    version={version}
-    refetch={refetch}
-  />
+  return <PostsPage post={post} refetch={refetch} />
 }
 
 const PostsPageWrapperComponent = registerComponent("PostsPageWrapper", PostsPageWrapper);

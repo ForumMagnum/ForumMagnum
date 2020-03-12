@@ -4,14 +4,14 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 
 interface DialogGroupProps {
   title?: string,
   trigger: any,
   actions: Array<any>,
   open?: boolean,
-  children?: any,
+  children?: React.ReactNode,
 }
 interface DialogGroupState {
   open: boolean,

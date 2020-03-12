@@ -1,9 +1,9 @@
 import React from 'react';
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import * as Sentry from '@sentry/browser';
 
 interface ErrorBoundaryProps {
-  children: any,
+  children: React.ReactNode,
 }
 interface ErrorBoundaryState {
   error: any,

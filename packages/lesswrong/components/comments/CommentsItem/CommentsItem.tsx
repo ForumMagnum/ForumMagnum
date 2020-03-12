@@ -1,10 +1,9 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { withMessages } from '../../common/withMessages';
 import React, { Component } from 'react';
-import Users from 'meteor/vulcan:users';
+import Users from '../../../lib/collections/users/collection';
 import classNames from 'classnames';
 import { shallowEqual, shallowEqualExcept } from '../../../lib/utils/componentUtils';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import withUser from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
@@ -12,8 +11,10 @@ import { Posts } from "../../../lib/collections/posts";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 // Shared with ParentCommentItem
-export const styles = theme => createStyles({
+export const styles = theme => ({
   root: {
+    paddingLeft: theme.spacing.unit*1.5,
+    paddingRight: theme.spacing.unit*1.5,
     "&:hover $menu": {
       opacity:1
     }
@@ -64,8 +65,8 @@ export const styles = theme => createStyles({
     }
   },
   firstParentComment: {
-    // Sorry Oli
-    margin: "-2px -13px -2px -12px"
+    marginLeft: -theme.spacing.unit*1.5,
+    marginRight: -theme.spacing.unit*1.5
   },
   meta: {
     "& > div": {
@@ -85,6 +86,7 @@ export const styles = theme => createStyles({
   bottom: {
     paddingBottom: 5,
     fontSize: 12,
+    minHeight: 12
   },
   replyForm: {
     marginTop: 2,
@@ -117,26 +119,30 @@ export const styles = theme => createStyles({
   }
 })
 
-interface CommentsItemProps extends WithMessagesProps, WithUserProps, WithStylesProps {
-  refetch: any,
-  comment: any,
-  postPage: any,
+interface ExternalProps {
+  refetch?: any,
+  comment: CommentsList|CommentsListWithPostMetadata,
+  postPage?: boolean,
   nestingLevel: number,
-  showPostTitle: boolean,
-  post: any,
-  collapsed: boolean,
-  isParentComment: boolean,
-  parentCommentId: string,
-  scrollIntoView: any,
-  toggleCollapse: any,
+  showPostTitle?: boolean,
+  post: PostsList,
+  collapsed?: boolean,
+  isParentComment?: boolean,
+  parentCommentId?: string,
+  scrollIntoView?: ()=>void,
+  toggleCollapse?: ()=>void,
   truncated: boolean,
-  parentAnswerId: string,
+  parentAnswerId?: string|undefined,
+  hideReply?: boolean,
+}
+interface CommentsItemProps extends ExternalProps, WithMessagesProps, WithUserProps, WithStylesProps {
 }
 interface CommentsItemState {
   showReply: boolean,
   showEdit: boolean,
   showParent: boolean,
 }
+
 export class CommentsItem extends Component<CommentsItemProps,CommentsItemState> {
   constructor(props: CommentsItemProps) {
     super(props);
@@ -150,7 +156,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
   shouldComponentUpdate(nextProps, nextState) {
     if(!shallowEqual(this.state, nextState))
       return true;
-    if(!shallowEqualExcept(this.props, nextProps, ["post", "updateComment"]))
+    if(!shallowEqualExcept(this.props, nextProps, ["post"]))
       return true;
     if ((nextProps.post && nextProps.post.contents && nextProps.post.contents.version) !== (this.props.post && this.props.post.contents && this.props.post.contents.version))
       return true;
@@ -199,7 +205,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
   }
 
   render() {
-    const { comment, currentUser, postPage, nestingLevel=1, showPostTitle, classes, post, collapsed, isParentComment, parentCommentId, scrollIntoView } = this.props
+    const { comment, postPage, nestingLevel=1, showPostTitle, classes, post, collapsed, isParentComment, parentCommentId, scrollIntoView } = this.props
 
     const { ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon } = Components
 
@@ -212,7 +218,6 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
           <div className={
             classNames(
               classes.root,
-              "comments-item",
               "recent-comments-node",
               {
                 [classes.deleted]: comment.deleted && !comment.deletedPublic,
@@ -223,7 +228,6 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
               <div className={classes.firstParentComment}>
                 <Components.ParentCommentSingle
                   post={post}
-                  currentUser={currentUser}
                   documentId={comment.parentCommentId}
                   nestingLevel={nestingLevel - 1}
                   truncated={false}
@@ -232,7 +236,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
               </div>
             )}
 
-            {showPostTitle && <Link className={classes.postTitle} to={Posts.getPageUrl(comment.post)}>{post.title}</Link>}
+            {showPostTitle && (comment as CommentsListWithPostMetadata).post && <Link className={classes.postTitle} to={Posts.getPageUrl((comment as CommentsListWithPostMetadata).post)}>{post.title}</Link>}
 
             <div className={classes.body}>
               <div className={classes.meta}>
@@ -242,10 +246,9 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
                 <CommentShortformIcon comment={comment} post={post} />
                 { parentCommentId!=comment.parentCommentId &&
                   <ShowParentComment
-                    comment={comment} nestingLevel={nestingLevel}
+                    comment={comment}
                     active={this.state.showParent}
                     onClick={this.toggleShowParent}
-                    placeholderIfMissing={isParentComment}
                   />
                 }
                 { (postPage || this.props.collapsed) && <a className={classes.collapse} onClick={this.props.toggleCollapse}>
@@ -265,7 +268,6 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
                 </span>}
                 <Components.CommentsVote
                   comment={comment}
-                  currentUser={currentUser}
                   hideKarma={post.hideCommentKarma}
                 />
 
@@ -382,10 +384,11 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
   }
 }
 
-const CommentsItemComponent = registerComponent(
-  'CommentsItem', CommentsItem,
-  withMessages, withUser,
-  withStyles(styles, { name: "CommentsItem" }), withErrorBoundary
+const CommentsItemComponent = registerComponent<ExternalProps>(
+  'CommentsItem', CommentsItem, {
+    styles,
+    hocs: [ withMessages, withUser, withErrorBoundary ]
+  }
 );
 
 declare global {

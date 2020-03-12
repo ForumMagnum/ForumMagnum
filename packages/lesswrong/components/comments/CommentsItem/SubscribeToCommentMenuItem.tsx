@@ -1,14 +1,18 @@
 import React from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../../lib/vulcan-lib';
 import MenuItem from '@material-ui/core/MenuItem';
-import Users from 'meteor/vulcan:users';
-import withUser from '../../common/withUser';
+import Users from '../../../lib/collections/users/collection';
+import { useCurrentUser } from '../../common/withUser';
 // import CheckCircle from '@material-ui/icons/CheckCircle';
 import CheckCircleOutline from '@material-ui/icons/CheckCircleOutline';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 
 // TODO: make this actually work
-const SubscribeToCommentMenuItem = ({ currentUser, comment }) => {
+const SubscribeToCommentMenuItem = ({ comment }: {
+  comment: CommentsList
+}) => {
+  const currentUser = useCurrentUser();
+  
   if (Users.canDo(currentUser, "comments.edit.all") ||
       Users.owns(currentUser, comment)) {
         return (
@@ -24,7 +28,8 @@ const SubscribeToCommentMenuItem = ({ currentUser, comment }) => {
   }
 }
 
-const SubscribeToCommentMenuItemComponent = registerComponent('SubscribeToCommentMenuItem', SubscribeToCommentMenuItem, withUser);
+const SubscribeToCommentMenuItemComponent = registerComponent('SubscribeToCommentMenuItem', SubscribeToCommentMenuItem, {
+});
 
 declare global {
   interface ComponentTypes {

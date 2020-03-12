@@ -1,18 +1,21 @@
-import { Components, registerComponent, getFragment } from 'meteor/vulcan:core';
+import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { withMessages } from '../common/withMessages';
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Comments } from "../../lib/collections/comments";
 
-const CommentsEditForm = (props) => {
+const CommentsEditForm = ({ comment, successCallback, cancelCallback }: {
+  comment: any,
+  successCallback?: any,
+  cancelCallback?: any,
+}) => {
   return (
     <div className="comments-edit-form">
       <Components.WrappedSmartForm
         layout="elementOnly"
         collection={Comments}
-        documentId={props.comment._id}
-        successCallback={props.successCallback}
-        cancelCallback={props.cancelCallback}
+        documentId={comment._id}
+        successCallback={successCallback}
+        cancelCallback={cancelCallback}
         showRemove={false}
         queryFragment={getFragment('CommentEdit')}
         mutationFragment={getFragment('CommentsList')}
@@ -22,13 +25,9 @@ const CommentsEditForm = (props) => {
   )
 }
 
-CommentsEditForm.propTypes = {
-  comment: PropTypes.object.isRequired,
-  successCallback: PropTypes.func,
-  cancelCallback: PropTypes.func
-};
-
-const CommentsEditFormComponent = registerComponent('CommentsEditForm', CommentsEditForm, withMessages);
+const CommentsEditFormComponent = registerComponent('CommentsEditForm', CommentsEditForm, {
+  hocs: [withMessages]
+});
 
 declare global {
   interface ComponentTypes {

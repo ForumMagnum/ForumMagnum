@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { withLocation } from '../../lib/routeUtil'
 
 const PostsEditPage = ({ location }) => {
@@ -12,7 +12,9 @@ const PostsEditPage = ({ location }) => {
   </div>
 }
 
-const PostsEditPageComponent = registerComponent('PostsEditPage', PostsEditPage, withLocation);
+const PostsEditPageComponent = registerComponent('PostsEditPage', PostsEditPage, {
+  hocs: [withLocation]
+});
 
 declare global {
   interface ComponentTypes {

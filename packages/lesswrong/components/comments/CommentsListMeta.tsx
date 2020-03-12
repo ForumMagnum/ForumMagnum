@@ -1,8 +1,7 @@
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     fontSize: 14,
     clear: 'both',
@@ -14,18 +13,18 @@ const styles = createStyles(theme => ({
     flexWrap: 'wrap',
     color: theme.palette.grey[600]
   }
-}))
+})
 
-const CommentsListMeta = ({classes, children}) => {
+const CommentsListMeta = ({classes, children}: {
+  classes: ClassesType,
+  children: any,
+}) => {
   return <div className={classes.root}>
-      { children }
-    </div>
+    { children }
+  </div>
 }
 
-const CommentsListMetaComponent = registerComponent(
-  'CommentsListMeta', CommentsListMeta,
-  withStyles(styles, {name:"CommentsListMeta"})
-);
+const CommentsListMetaComponent = registerComponent('CommentsListMeta', CommentsListMeta, {styles});
 
 declare global {
   interface ComponentTypes {

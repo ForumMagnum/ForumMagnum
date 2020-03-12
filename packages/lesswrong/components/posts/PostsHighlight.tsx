@@ -1,12 +1,10 @@
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import { postHighlightStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper';
-import PropTypes from 'prop-types';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     maxWidth:570,
     ...postHighlightStyles(theme),
@@ -14,9 +12,12 @@ const styles = createStyles(theme => ({
   highlightContinue: {
     marginTop:theme.spacing.unit*2
   }
-}))
+})
 
-const PostsHighlight = ({post, classes}) => {
+const PostsHighlight = ({post, classes}: {
+  post: PostsList,
+  classes: ClassesType,
+}) => {
   const { htmlHighlight = "", wordCount = 0 } = post.contents || {}
   return <div className={classes.root}>
       <Components.LinkPostMessage post={post} />
@@ -32,12 +33,7 @@ const PostsHighlight = ({post, classes}) => {
     </div>
 };
 
-PostsHighlight.propTypes = {
-  post: PropTypes.object.isRequired,
-  classes: PropTypes.object.isRequired
-};
-
-const PostsHighlightComponent = registerComponent('PostsHighlight', PostsHighlight, withStyles(styles, {name:"PostsHighlight"}));
+const PostsHighlightComponent = registerComponent('PostsHighlight', PostsHighlight, {styles});
 
 declare global {
   interface ComponentTypes {

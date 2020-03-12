@@ -1,6 +1,5 @@
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
-import { withStyles, createStyles } from '@material-ui/core/styles'
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';
@@ -8,7 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { Posts } from '../../lib/collections/posts';
 import { userHasBoldPostItems } from '../../lib/betas';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     color: "rgba(0,0,0,.87)",
     position: "relative",
@@ -64,7 +63,7 @@ const styles = createStyles(theme => ({
   popper: {
     opacity: 1, // this is because Tooltip has a default opacity less than 1
   }
-}))
+})
 
 const stickyIcon = <svg fill="#000000" height="15" viewBox="0 0 10 15" width="10" xmlns="http://www.w3.org/2000/svg">
   <path d="M0 0h24v24H0z" fill="none"/>
@@ -74,7 +73,7 @@ const stickyIcon = <svg fill="#000000" height="15" viewBox="0 0 10 15" width="10
 const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true, showLinkTag=true, wrap=false, showIcons=true, isLink=true}: {
   post: PostsBase,
   postLink?: string,
-  classes: any,
+  classes: ClassesType,
   sticky?: boolean,
   read?: boolean,
   showQuestionTag?: boolean,
@@ -131,9 +130,7 @@ const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true
   }
 }
 
-const PostsTitleComponent = registerComponent('PostsTitle', PostsTitle,
-  withStyles(styles, { name: "PostsTitle" })
-);
+const PostsTitleComponent = registerComponent('PostsTitle', PostsTitle, {styles});
 
 declare global {
   interface ComponentTypes {

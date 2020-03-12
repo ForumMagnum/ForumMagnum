@@ -1,13 +1,12 @@
 import React, { PureComponent } from 'react';
-import { Components, registerComponent } from 'meteor/vulcan:core';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { withNavigation } from '../../../lib/routeUtil';
 import withGlobalKeydown from '../../common/withGlobalKeydown';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import { Sequences } from '../../../lib/collections/sequences/collection';
 import { Posts } from '../../../lib/collections/posts/collection';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     marginLeft:-20,
     display: "flex",
@@ -21,12 +20,13 @@ const styles = createStyles(theme => ({
     fontFamily: theme.typography.uiSecondary.fontFamily,
     lineHeight: '24px',
     color: 'rgba(0,0,0,0.5)',
-    marginTop: -2,
   }
-}))
+})
 
-interface PostsTopSequencesNavProps extends WithNavigationProps, WithGlobalKeydownProps, WithStylesProps {
-  post: any,
+interface ExternalProps {
+  post: PostSequenceNavigation,
+}
+interface PostsTopSequencesNavProps extends ExternalProps, WithNavigationProps, WithGlobalKeydownProps, WithStylesProps {
 }
 
 class PostsTopSequencesNav extends PureComponent<PostsTopSequencesNavProps>
@@ -81,10 +81,12 @@ class PostsTopSequencesNav extends PureComponent<PostsTopSequencesNavProps>
   }
 }
 
-const PostsTopSequencesNavComponent = registerComponent(
-  'PostsTopSequencesNav', PostsTopSequencesNav,
-  withNavigation, withGlobalKeydown,
-  withStyles(styles, {name: "PostsTopSequencesNav"}));
+const PostsTopSequencesNavComponent = registerComponent<ExternalProps>(
+  'PostsTopSequencesNav', PostsTopSequencesNav, {
+    styles,
+    hocs: [withNavigation, withGlobalKeydown]
+  }
+);
 
 declare global {
   interface ComponentTypes {

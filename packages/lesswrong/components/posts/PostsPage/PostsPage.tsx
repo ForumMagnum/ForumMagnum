@@ -1,10 +1,8 @@
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
+import { Components, registerComponent, getSetting } from '../../../lib/vulcan-lib';
 import React, { Component } from 'react';
 import { withLocation, getUrlClass } from '../../../lib/routeUtil';
 import { Posts } from '../../../lib/collections/posts';
 import { Comments } from '../../../lib/collections/comments'
-import { withStyles, createStyles } from '@material-ui/core/styles';
-import Tooltip from '@material-ui/core/Tooltip';
 import { postBodyStyles } from '../../../themes/stylePiping'
 import withUser from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -12,7 +10,7 @@ import classNames from 'classnames';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import withRecordPostView from '../../common/withRecordPostView';
 import withNewEvents from '../../../lib/events/withNewEvents';
-import { userHasPingbacks, userHasTagging } from '../../../lib/betas';
+import { userHasPingbacks } from '../../../lib/betas';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import * as _ from 'underscore';
 import { Meteor } from 'meteor/meteor';
@@ -24,7 +22,7 @@ const MIN_TOC_WIDTH = 200
 const MAX_COLUMN_WIDTH = 720
 const SECONDARY_SPACING = 20
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     position: "relative",
     [theme.breakpoints.down('sm')]: {
@@ -54,7 +52,10 @@ const styles = createStyles(theme => ({
   },
   title: {
     gridArea: 'title',
-    marginBottom: 32
+    marginBottom: 32,
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: theme.spacing.titleDividerSpacing,
+    }
   },
   toc: {
     '@supports (grid-template-areas: "title")': {
@@ -216,7 +217,7 @@ const styles = createStyles(theme => ({
     ...theme.typography.contentNotice,
     marginBottom: theme.spacing.unit,
   }
-}))
+})
 
 const getContentType = (post) => {
   if (getSetting('forumType') === 'EAForum') {
@@ -254,9 +255,11 @@ function getHostname(url) {
   return parser.hostname;
 }
 
-interface PostsPageProps extends WithUserProps, WithLocationProps, WithStylesProps {
-  post: any,
+interface ExternalProps {
+  post: PostsWithNavigation|PostsWithNavigationAndRevision,
   refetch: any,
+}
+interface PostsPageProps extends ExternalProps, WithUserProps, WithLocationProps, WithStylesProps {
   closeAllEvents: any,
   recordPostView: any,
 }
@@ -280,23 +283,28 @@ class PostsPage extends Component<PostsPageProps> {
     return false;
   }
 
+  getDescription = post => {
+    if (post.contents?.plaintextDescription) return post.contents.plaintextDescription
+    if (post.shortform) return `A collection of shorter posts by ${getSetting('title')} user ${post.user.displayName}`
+    return null
+  }
+
   render() {
     const { post, refetch, currentUser, classes, location: { query, params } } = this.props
     const { PostsPageTitle, PostsAuthors, HeadTags, PostsVote, ContentType,
       LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
       PostsTopSequencesNav, PostsPageActions, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
       TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, PostsPageDate, CommentPermalink,
-      PingbacksList, FooterTagList, AnalyticsInViewTracker } = Components
+      PingbacksList, FooterTagList, AnalyticsInViewTracker, LWTooltip } = Components
 
     if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
     } else {
-      const { html, plaintextDescription, markdown, wordCount = 0 } = post.contents || {}
+      const { html, wordCount = 0 } = post.contents || {}
       const view = _.clone(query).view || Comments.getDefaultView(post, currentUser)
-      const description = plaintextDescription ? plaintextDescription : (markdown && markdown.substring(0, 300))
       const commentTerms = _.isEmpty(query.view) ? {view: view, limit: 500} : {...query, limit:500}
       const sequenceId = this.getSequenceId();
-      const sectionData = post.tableOfContentsRevision || post.tableOfContents;
+      const sectionData = (post as PostsWithNavigationAndRevision).tableOfContentsRevision || (post as PostsWithNavigation).tableOfContents;
       const htmlWithAnchors = (sectionData && sectionData.html) ? sectionData.html : html
       const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
       const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;
@@ -305,6 +313,9 @@ class PostsPage extends Component<PostsPageProps> {
       const contentType = getContentType(post)
 
       const commentId = query.commentId || params.commentId
+
+      const description = this.getDescription(post)
+
       return (
           <AnalyticsContext pageContext="postsPage" postId={post._id}>
             <div className={classNames(classes.root, {[classes.tocActivated]: !!sectionData})}>
@@ -315,7 +326,7 @@ class PostsPage extends Component<PostsPageProps> {
                   {commentId && <CommentPermalink documentId={commentId} post={post}/>}
                   {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
                   <AnalyticsContext pageSectionContext="topSequenceNavigation">
-                    <PostsTopSequencesNav post={post} sequenceId={sequenceId} />
+                    <PostsTopSequencesNav post={post} />
                   </AnalyticsContext>
                   <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}>
                     <div className={classes.headerLeft}>
@@ -328,15 +339,15 @@ class PostsPage extends Component<PostsPageProps> {
                           <ContentType type={contentType}/>
                         </span>
                         { post.feed && post.feed.user &&
-                          <Tooltip title={`Crossposted from ${feedLinkDescription}`}>
+                          <LWTooltip title={`Crossposted from ${feedLinkDescription}`}>
                             <a href={feedLink} className={classes.feedName}>
                               {post.feed.nickname}
                             </a>
-                          </Tooltip>
+                          </LWTooltip>
                         }
-                        {!!wordCount && !post.isEvent &&  <Tooltip title={`${wordCount} words`}>
+                        {!!wordCount && !post.isEvent &&  <LWTooltip title={`${wordCount} words`}>
                             <span className={classes.wordCount}>{Math.floor(wordCount/300) || 1 } min read</span>
-                        </Tooltip>}
+                        </LWTooltip>}
                         {!post.isEvent && <span className={classes.date}>
                           <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
                         </span>}
@@ -353,7 +364,6 @@ class PostsPage extends Component<PostsPageProps> {
                       <PostsVote
                         collection={Posts}
                         post={post}
-                        currentUser={currentUser}
                         />
                     </div>
                   </div>
@@ -387,7 +397,7 @@ class PostsPage extends Component<PostsPageProps> {
                         { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
                       </AnalyticsContext>
                     </div>
-                    {userHasTagging(currentUser) && <FooterTagList post={post}/>}
+                    <FooterTagList post={post}/>
                   </div>
                 </div>
 
@@ -399,7 +409,6 @@ class PostsPage extends Component<PostsPageProps> {
                       <PostsVote
                         collection={Posts}
                         post={post}
-                        currentUser={currentUser}
                         />
                     </div>
                   </div>}
@@ -420,7 +429,7 @@ class PostsPage extends Component<PostsPageProps> {
                   {post.question && <div className={classes.post}>
                     <div id="answers"/>
                     <AnalyticsContext pageSectionContext="answersSection">
-                      <PostsPageQuestionContent terms={{...commentTerms, postId: post._id}} post={post} refetch={refetch}/>
+                      <PostsPageQuestionContent post={post} refetch={refetch}/>
                     </AnalyticsContext>
                   </div>}
                   {/* Comments Section */}
@@ -460,13 +469,16 @@ class PostsPage extends Component<PostsPageProps> {
   }
 }
 
-const PostsPageComponent = registerComponent(
-  'PostsPage', PostsPage,
-  withUser, withLocation,
-  withStyles(styles, { name: "PostsPage" }),
-  withRecordPostView,
-  withNewEvents,
-  withErrorBoundary
+const PostsPageComponent = registerComponent<ExternalProps>(
+  'PostsPage', PostsPage, {
+    styles,
+    hocs: [
+      withUser, withLocation,
+      withRecordPostView,
+      withNewEvents,
+      withErrorBoundary
+    ]
+  }
 );
 
 declare global {

@@ -1,12 +1,11 @@
 import React from 'react'
-import { withStyles, createStyles } from '@material-ui/core/styles';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../../lib/vulcan-lib';
 import Typography from '@material-ui/core/Typography';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { Posts } from '../../../lib/collections/posts';
 import * as _ from 'underscore';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     ...theme.typography.display3,
     ...theme.typography.postStyle,
@@ -24,9 +23,12 @@ const styles = createStyles(theme => ({
     color: theme.palette.grey[600],
     display: "block",
   }
-}))
+})
 
-const PostsPageTitle = ({classes, post}) => {
+const PostsPageTitle = ({classes, post}: {
+  classes: ClassesType,
+  post: PostsDetails,
+}) => {
   const parentPost = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)?.[0]?.sourcePost
 
   
@@ -51,7 +53,7 @@ const PostsPageTitle = ({classes, post}) => {
 }
 
 
-const PostsPageTitleComponent = registerComponent('PostsPageTitle', PostsPageTitle, withStyles(styles, {name: "PostsPageTitle"}))
+const PostsPageTitleComponent = registerComponent('PostsPageTitle', PostsPageTitle, {styles});
 
 declare global {
   interface ComponentTypes {

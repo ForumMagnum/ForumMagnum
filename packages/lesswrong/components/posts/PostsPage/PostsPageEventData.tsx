@@ -1,27 +1,29 @@
 import React from 'react'
-import { registerComponent, Components } from 'meteor/vulcan:core';
-import { withStyles, createStyles } from '@material-ui/core/styles'
-import withUser from '../../common/withUser'
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import Typography from '@material-ui/core/Typography'
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   metadata: {
     marginTop:theme.spacing.unit*3,
     ...theme.typography.postStyle,
     color: 'rgba(0,0,0,0.5)',
   }
-}))
+})
 
-const PostsPageEventData = ({classes, post, currentUser}) => {
+const PostsPageEventData = ({classes, post}: {
+  classes: ClassesType,
+  post: PostsBase,
+}) => {
   const { location, contactInfo } = post
   return <Typography variant="body2" className={classes.metadata}>
       <div className={classes.eventTimes}> <Components.EventTime post={post} dense={false} /> </div>
       { location && <div className={classes.eventLocation}> {location} </div> }
       { contactInfo && <div className={classes.eventContact}> Contact: {contactInfo} </div> }
+      <Components.Covid19Notice/>
   </Typography>
 }
 
-const PostsPageEventDataComponent = registerComponent('PostsPageEventData', PostsPageEventData, withUser, withStyles(styles, {name: "PostsPageEventData"}))
+const PostsPageEventDataComponent = registerComponent('PostsPageEventData', PostsPageEventData, {styles});
 
 declare global {
   interface ComponentTypes {

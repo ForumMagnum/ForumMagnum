@@ -1,6 +1,6 @@
 import React from 'react';
 import moment from '../../lib/moment-timezone';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../lib/vulcan-lib';
 import { useTimezone } from './withTimezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -9,7 +9,11 @@ import * as _ from 'underscore';
 
 // value: {timeOfDayGMT:int, dayOfWeekGMT:string}
 // onChange: ({ timeOfDayGMT, dayOfWeekGMT })=>Unit
-const BatchTimePicker = ({ mode, value, onChange}) => {
+const BatchTimePicker = ({ mode, value, onChange}: {
+  mode: string,
+  value: any,
+  onChange: any,
+}) => {
   const { timezone } = useTimezone();
   const valueLocal = convertTimeOfWeekTimezone(value.timeOfDayGMT, value.dayOfWeekGMT, "GMT", timezone);
   const { timeOfDay, dayOfWeek } = valueLocal;

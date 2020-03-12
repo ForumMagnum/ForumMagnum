@@ -1,4 +1,4 @@
-import { registerComponent, Components } from 'meteor/vulcan:core';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
@@ -20,7 +20,9 @@ const BookmarksPage = () => {
 }
 
 
-const BookmarksPageComponent = registerComponent('BookmarksPage', BookmarksPage, withErrorBoundary);
+const BookmarksPageComponent = registerComponent('BookmarksPage', BookmarksPage, {
+  hocs: [withErrorBoundary]
+});
 
 declare global {
   interface ComponentTypes {

@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Components } from 'meteor/vulcan:core';
+import { Components } from '../../lib/vulcan-lib';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import { hookToHoc } from '../../lib/hocUtils';
 import { withTracking } from '../../lib/analyticsEvents';
@@ -12,7 +12,7 @@ export const OpenDialogContext = React.createContext<OpenDialogContextType|null>
 
 interface DialogManagerComponentProps {
   captureEvent: any,
-  children: any,
+  children: React.ReactNode,
 }
 interface DialogManagerComponentState {
   componentName: string|null,

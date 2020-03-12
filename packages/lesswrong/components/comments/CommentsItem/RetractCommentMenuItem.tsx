@@ -1,12 +1,14 @@
 import React from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../../lib/vulcan-lib';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { Comments } from '../../../lib/collections/comments';
 import { useCurrentUser } from '../../common/withUser';
 import MenuItem from '@material-ui/core/MenuItem';
 import Tooltip from '@material-ui/core/Tooltip';
 
-const RetractCommentMenuItem = ({comment}) => {
+const RetractCommentMenuItem = ({comment}: {
+  comment: CommentsList,
+}) => {
   const currentUser = useCurrentUser();
   const {mutate: updateComment} = useUpdate({
     collection: Comments,

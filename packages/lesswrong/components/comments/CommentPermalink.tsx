@@ -1,10 +1,9 @@
 import React from 'react';
-import { Components, registerComponent, getSetting } from 'meteor/vulcan:core';
-import { withSingle } from '../../lib/crud/withSingle';
+import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
+import { useSingle } from '../../lib/crud/withSingle';
 import { Comments } from '../../lib/collections/comments';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   dividerMargins: {
     marginTop: 150,
     marginBottom: 150,
@@ -26,10 +25,19 @@ const styles = createStyles(theme => ({
     color: theme.palette.lwTertiary.main,
     marginRight: 10
   },
-}))
+})
 
-const CommentPermalink = (props) => {
-  const { documentId, post, document: comment, classes, data: {refetch}, loading, error} = props
+const CommentPermalink = ({ documentId, post, classes }: {
+  documentId: string,
+  post: PostsBase,
+  classes: ClassesType,
+}) => {
+  const { document: comment, data, loading, error } = useSingle({
+    documentId,
+    collection: Comments,
+    fragmentName: 'CommentWithRepliesFragment',
+  });
+  const { refetch } = data;
   const { Loading, Divider, CommentWithReplies } = Components;
 
   if (error || (!comment && !loading)) return <div>Comment not found</div>
@@ -40,21 +48,14 @@ const CommentPermalink = (props) => {
   return <div className={classes.root}>
       <div className={classes.permalinkLabel}>Comment Permalink</div>
       {loading ? <Loading /> : <div>
-        <CommentWithReplies key={comment._id} post={post} comment={comment} refetch={refetch}/>
+        <CommentWithReplies key={comment._id} post={post} comment={comment} refetch={refetch} showTitle={false}/>
         <div className={classes.seeInContext}><a href={`#${documentId}`}>See in context</a></div>
       </div>}
       {getSetting('forumType') !== 'EAForum' && <div className={classes.dividerMargins}><Divider /></div>}
     </div>
 }
 
-const CommentPermalinkComponent = registerComponent(
-  "CommentPermalink", CommentPermalink,
-  withStyles(styles, {name:"CommentPermalink"}),
-  withSingle({
-    collection: Comments,
-    fragmentName: 'CommentWithReplies',
-  })
-);
+const CommentPermalinkComponent = registerComponent("CommentPermalink", CommentPermalink, { styles });
 
 
 declare global {

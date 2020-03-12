@@ -1,18 +1,18 @@
 import React, { PureComponent } from 'react';
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../../../lib/vulcan-lib';
 import { withUpdate } from '../../../lib/crud/withUpdate';
 import { withMessages } from '../../common/withMessages';
 import MenuItem from '@material-ui/core/MenuItem';
-import Users from 'meteor/vulcan:users';
+import Users from '../../../lib/collections/users/collection';
 import { Comments } from "../../../lib/collections/comments";
 import withUser from '../../common/withUser';
 import { withApollo } from 'react-apollo'
 
-interface MoveToAnswersMenuItemProps extends WithMessagesProps, WithUserProps {
-  comment: any,
-  updateComment?: any,
-  client?: any,
-  post: any,
+interface ExternalProps {
+  comment: CommentsList,
+  post: PostsBase,
+}
+interface MoveToAnswersMenuItemProps extends ExternalProps, WithMessagesProps, WithUserProps, WithUpdateCommentProps, WithApolloProps {
 }
 class MoveToAnswersMenuItem extends PureComponent<MoveToAnswersMenuItemProps,{}> {
 
@@ -64,13 +64,17 @@ class MoveToAnswersMenuItem extends PureComponent<MoveToAnswersMenuItemProps,{}>
   }
 }
 
-const MoveToAnswersMenuItemComponent = registerComponent(
-  'MoveToAnswersMenuItem', MoveToAnswersMenuItem,
-  withUser,
-  withUpdate({
-    collection: Comments,
-    fragmentName: 'CommentsList',
-  }), withApollo, withMessages);
+const MoveToAnswersMenuItemComponent = registerComponent<ExternalProps>(
+  'MoveToAnswersMenuItem', MoveToAnswersMenuItem, {
+    hocs: [
+      withUser, withApollo, withMessages,
+      withUpdate({
+        collection: Comments,
+        fragmentName: 'CommentsList',
+      }),
+    ]
+  }
+);
 
 declare global {
   interface ComponentTypes {

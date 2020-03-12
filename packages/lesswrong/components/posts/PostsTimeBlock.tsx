@@ -1,21 +1,18 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import {
   Components, registerComponent, getSetting
-} from 'meteor/vulcan:core';
+} from '../../lib/vulcan-lib';
 import { withMulti } from '../../lib/crud/withMulti';
 import Typography from '@material-ui/core/Typography';
 import Hidden from '@material-ui/core/Hidden';
-import { withStyles, createStyles } from '@material-ui/core/styles';
 import moment from '../../lib/moment-timezone';
 import { Posts } from '../../lib/collections/posts';
 import { timeframeToTimeBlock } from './timeframeUtils'
 import { queryIsUpdating } from '../common/queryStatusUtils'
 import withTimezone from '../common/withTimezone';
 import { QueryLink } from '../../lib/reactRouterWrapper';
-import withUser from '../common/withUser';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   root: {
     marginBottom: theme.spacing.unit*4
   },
@@ -39,7 +36,7 @@ const styles = createStyles(theme => ({
     marginTop: theme.spacing.unit*1.5
   },
   divider: {/* Exists only to get overriden by the eaTheme */}
-}))
+})
 
 const defaultPostTypes = [
   {name: 'frontpage', postIsType: post => !!post.frontpageDate, label: 'Frontpage Posts'},
@@ -55,17 +52,20 @@ const postTypes = {
    ]
 }
 
-interface PostsTimeBlockProps extends WithUserProps, WithTimezoneProps, WithStylesProps {
+interface ExternalProps {
+  terms: any,
   timeBlockLoadComplete: any,
   startDate: any,
-  results: any,
+  hideIfEmpty: any,
+  timeframe: any,
+  displayShortform: any
+}
+interface PostsTimeBlockProps extends ExternalProps, WithUserProps, WithTimezoneProps, WithStylesProps {
+  results: Array<PostsList>|null,
   totalCount: any,
   loading: any,
   loadMore: any,
-  hideIfEmpty: any,
-  timeframe: any,
   networkStatus: any,
-  displayShortform: any
 }
 interface PostsTimeBlockState {
   noShortform: boolean,
@@ -121,7 +121,7 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
 
   render () {
     const {
-      startDate, results: posts, totalCount, loading, loadMore, hideIfEmpty, classes, currentUser,
+      startDate, results: posts, totalCount, loading, loadMore, hideIfEmpty, classes,
       timeframe, networkStatus, timezone, displayShortform = true
     } = this.props
     const { noShortform } = this.state
@@ -136,7 +136,7 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
       return null
     }
 
-    const postGroups = postTypes[getSetting('forumType')].map(type => ({
+    const postGroups = postTypes[getSetting<string>('forumType')].map(type => ({
       ...type,
       posts: posts?.filter(type.postIsType)
     }))
@@ -185,13 +185,13 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
               </div>
               <SubSection>
                 {posts.map((post, i) =>
-                  <PostsItem2 key={post._id} post={post} currentUser={currentUser} index={i} dense />
+                  <PostsItem2 key={post._id} post={post} index={i} dense />
                 )}
               </SubSection>
             </div>
           })}
 
-          {(posts?.length < totalCount) && <div className={classes.loadMore}>
+          {(posts && posts.length<totalCount) && <div className={classes.loadMore}>
             <LoadMore
                 loadMore={loadMore}
                 count={posts.length}
@@ -219,22 +219,18 @@ class PostsTimeBlock extends Component<PostsTimeBlockProps,PostsTimeBlockState> 
 
 };
 
-(PostsTimeBlock as any).propTypes = {
-  currentUser: PropTypes.object,
-  startDate: PropTypes.object,
-  timeBlockLoadComplete: PropTypes.func,
-};
-
-const PostsTimeBlockComponent = registerComponent('PostsTimeBlock', PostsTimeBlock,
-  withMulti({
-    collection: Posts,
-    fragmentName: 'PostsList',
-    enableTotal: true,
-    ssr: true,
-  }),
-  withTimezone,
-  withUser, withStyles(styles, { name: "PostsTimeBlock" })
-);
+const PostsTimeBlockComponent = registerComponent<ExternalProps>('PostsTimeBlock', PostsTimeBlock, {
+  styles,
+  hocs: [
+    withMulti({
+      collection: Posts,
+      fragmentName: 'PostsList',
+      enableTotal: true,
+      ssr: true,
+    }),
+    withTimezone,
+  ]
+});
 
 declare global {
   interface ComponentTypes {

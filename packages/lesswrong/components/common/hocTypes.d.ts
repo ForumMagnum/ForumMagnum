@@ -1,6 +1,8 @@
 
+type ClassesType = Record<string,any>
+
 interface WithStylesProps {
-  classes: any,
+  classes: ClassesType,
 };
 
 type WithMessagesMessage = string|{id?: string, messageString?: string, type?: string};
@@ -20,7 +22,8 @@ interface WithTrackingProps {
 }
 
 interface WithTimezoneProps {
-  timezone: any,
+  timezone: string,
+  timezoneIsKnown: boolean,
 }
 
 interface WithNavigationProps {
@@ -31,6 +34,32 @@ interface WithLocationProps {
   location: any,
 }
 
+interface WithDialogProps {
+  openDialog: any,
+}
+
 interface WithGlobalKeydownProps {
   addKeydownListener: any,
+}
+
+interface WithHoverProps {
+  hover: boolean,
+  anchorEl: HTMLElement|null,
+  stopHover: ()=>void,
+}
+
+interface WithApolloProps {
+  client: any;
+}
+
+type WithUpdateFunction<T extends CollectionBase> = any;
+
+interface WithUpdateUserProps {
+  updateUser: WithUpdateFunction<UsersCollection>
+}
+interface WithUpdateCommentProps {
+  updateComment: WithUpdateFunction<CommentsCollection>
+}
+interface WithUpdatePostProps {
+  updatePost: WithUpdateFunction<PostsCollection>
 }

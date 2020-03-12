@@ -1,15 +1,16 @@
-import { registerComponent, getSetting } from 'meteor/vulcan:core';
+import { registerComponent, getSetting } from '../../lib/vulcan-lib';
 import { withUpdate } from '../../lib/crud/withUpdate';
 import React, { Component } from 'react';
 import { Posts } from '../../lib/collections/posts';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import withUser from '../common/withUser';
 import MenuItem from '@material-ui/core/MenuItem';
 import * as _ from 'underscore';
 
-interface SuggestCuratedProps extends WithUserProps {
-  post: any,
-  updatePost: any,
+interface ExternalProps {
+  post: PostsBase,
+}
+interface SuggestCuratedProps extends ExternalProps, WithUserProps, WithUpdatePostProps {
 }
 
 class SuggestCurated extends Component<SuggestCuratedProps> {
@@ -69,14 +70,16 @@ class SuggestCurated extends Component<SuggestCuratedProps> {
   }
 }
 
-const SuggestCuratedComponent = registerComponent(
-  'SuggestCurated',
-  SuggestCurated,
-  withUpdate({
-    collection: Posts,
-    fragmentName: 'PostsList',
-  }),
-  withUser
+const SuggestCuratedComponent = registerComponent<ExternalProps>(
+  'SuggestCurated', SuggestCurated, {
+    hocs: [
+      withUpdate({
+        collection: Posts,
+        fragmentName: 'PostsList',
+      }),
+      withUser
+    ]
+  }
 );
 
 declare global {
