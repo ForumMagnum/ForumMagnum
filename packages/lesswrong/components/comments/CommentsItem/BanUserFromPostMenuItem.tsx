@@ -10,7 +10,7 @@ import * as _ from 'underscore';
 
 interface ExternalProps {
   comment: CommentsList,
-  post: PostsBase,
+  post: PostsList,
 }
 interface BanUserFromPostMenuItemProps extends ExternalProps, WithMessagesProps, WithUserProps, WithUpdateUserProps {
 }
