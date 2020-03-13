@@ -495,6 +495,7 @@ interface SequencesDefaultFragment { // fragment on Sequences
   readonly gridImageId: string,
   readonly bannerImageId: string,
   readonly curatedOrder: number,
+  readonly userProfileOrder: number,
   readonly draft: boolean,
   readonly isDeleted: boolean,
   readonly canonicalCollectionSlug: string,
@@ -1197,6 +1198,7 @@ interface SequencesPageFragment { // fragment on Sequences
   readonly isDeleted: boolean,
   readonly hidden: boolean,
   readonly curatedOrder: number,
+  readonly userProfileOrder: number,
   readonly af: boolean,
 }
 
@@ -1304,6 +1306,7 @@ interface TagRelFragment { // fragment on TagRels
   readonly _id: string,
   readonly baseScore: number,
   readonly afBaseScore: number,
+  readonly voteCount: number,
   readonly userId: string,
   readonly tagId: string,
   readonly tag: TagRelFragment_tag,

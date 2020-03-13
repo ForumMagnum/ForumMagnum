@@ -70,7 +70,7 @@ interface ExternalProps {
   color: any,
   orientation: string,
   currentUser: UsersCurrent|null,
-  solidArrow : boolean
+  solidArrow?: boolean
 }
 interface VoteButtonProps extends ExternalProps, WithStylesProps, WithDialogProps {
   theme: any,
