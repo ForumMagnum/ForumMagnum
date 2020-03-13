@@ -444,12 +444,12 @@ const PostsItem2 = ({
         >
           <PostsItemTooltipWrapper post={post}>
             <div className={classes.withGrayHover}>
-              {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} post={post} />}
 
               <div className={classNames(classes.postsItem, {
                 [classes.dense]: dense,
                 [classes.withRelevanceVoting]: !!tagRel
               })}>
+                {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} post={post} />}
                 <PostsItem2MetaInfo className={classNames(classes.karma, {[classes.karmaUnread]: !isRead && userHasBoldPostItems(currentUser)})}>
                   <PostsItemKarma post={post} read={isRead} />
                 </PostsItem2MetaInfo>

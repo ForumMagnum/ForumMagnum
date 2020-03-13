@@ -149,11 +149,6 @@ export default {
       divider: true,
       showOnCompressed: true,
     }, {
-      id: 'coronavirus',
-      title: 'Coronavirus',
-      link: '/tag/coronavirus',
-      subItem: true,
-    }, {
       id: 'about',
       title: 'About',
       link: '/about',
@@ -192,7 +187,7 @@ export default {
       tooltip: <div>
         <div>• Ask simple newbie questions.</div>
         <div>• Collaborate on open research questions.</div>
-        <div>• Pose and resolve confusions.</div>
+        <div>• Pose and resolve confusions.</div>
       </div>,
       showOnMobileStandalone: true,
       showOnCompressed: true,

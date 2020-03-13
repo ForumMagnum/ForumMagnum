@@ -43,10 +43,19 @@ import { formatError } from 'apollo-errors';
 const sentryUrl = getSetting<string|undefined>('sentry.url');
 const sentryEnvironment = getSetting<string|undefined>('sentry.environment');
 const sentryRelease = getSetting<string|undefined>('sentry.release');
-import Sentry from '@sentry/node';
+import * as Sentry from '@sentry/node';
+import * as SentryIntegrations from '@sentry/integrations';
 
 if (sentryUrl) {
-  Sentry.init({ dsn: sentryUrl, environment: sentryEnvironment, release: sentryRelease });
+  Sentry.init({
+    dsn: sentryUrl,
+    environment: sentryEnvironment,
+    release: sentryRelease,
+    integrations: [
+      new SentryIntegrations.Dedupe(),
+      new SentryIntegrations.ExtraErrorData(),
+    ],
+  });
 } else {
   // eslint-disable-next-line no-console
   console.warn("Sentry is not configured. To activate error reporting, please set the sentry.url variable in your settings file.");

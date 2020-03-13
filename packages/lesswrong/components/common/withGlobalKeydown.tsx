@@ -9,19 +9,14 @@ interface ListeningComponentState {
 const withGlobalKeydown = (WrappedComponent) => {
   return class ListeningComponent extends Component<any,ListeningComponentState> {
     state: ListeningComponentState = { eventListeners: []}
-
-    shouldComponentUpdate(nextProps, nextState) {
-      // Don't update in response to state change (the only state is
-      // `eventListeners`). Do update in response to props changes.
-      return !shallowEqual(this.props, nextProps);
-    }
     
     addKeydownListener = (callback) => {
       if (Meteor.isClient) {
         document.addEventListener('keydown', callback)
-        this.setState((prevState) => {
-           return { eventListeners: [...prevState.eventListeners, callback] }
-        });
+        // Store event listener by modifying state in-place, rather than
+        // changing the (shallow-comparison) state, so that this doesn't
+        // trigger a rerender.
+        this.state.eventListeners.push(callback);
       }
     }
 
