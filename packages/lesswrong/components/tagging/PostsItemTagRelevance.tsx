@@ -45,7 +45,7 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
   
   const tooltip = <div>
     <div>{tagRel.baseScore} Relevance</div>
-    <div>{tagRel.voteCount} {tagRel.voteCount === 1 ? "vote" : "votes"}</div>
+    <div>({tagRel.voteCount} {tagRel.voteCount === 1 ? "vote" : "votes"})</div>
   </div>
 
   return <PostsItem2MetaInfo className={classes.root}>
