@@ -45,7 +45,8 @@ import UploadAdapter from '@ckeditor/ckeditor5-adapter-ckfinder/src/uploadadapte
 import BlockToolbar from '@ckeditor/ckeditor5-ui/src/toolbar/block/blocktoolbar';
 import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave';
 import Watchdog from '@ckeditor/ckeditor5-watchdog/src/watchdog';
-import Mathematics from './ckeditor5-math/math';
+// Commented out because of competing MathJax bug with Draft-JS
+// import Mathematics from './ckeditor5-math/math';
 
 // import MathpreviewPlugin from 'ckeditor5-math-preview/src/mathpreview';
 // current version of MathpreviewPlugin (1.1.3) breaks ckeditor
@@ -109,7 +110,7 @@ const postEditorPlugins = [
 	TableToolbar,
 	Underline,
 	UploadAdapter,
-	Mathematics
+	// Mathematics
 ];
 
 PostEditor.builtinPlugins = [
@@ -212,7 +213,7 @@ CommentEditor.builtinPlugins = [
 	Table,
 	Underline,
 	UploadAdapter,
-	Mathematics
+	// Mathematics
 ];
 
 CommentEditor.defaultConfig = {
