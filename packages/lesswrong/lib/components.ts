@@ -16,7 +16,6 @@ if (getSetting('forumType') === 'EAForum') {
   importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
 }
 
-importComponent("SiteLogo", () => require('../components/common/SiteLogo'));
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
 importComponent("ConversationDetails", () => require('../components/messaging/ConversationDetails'));
 importComponent("ConversationItem", () => require('../components/messaging/ConversationItem'));
