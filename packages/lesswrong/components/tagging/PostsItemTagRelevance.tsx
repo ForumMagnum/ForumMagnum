@@ -12,7 +12,7 @@ const styles = theme => ({
     position: "absolute",
     textAlign: "center",
     top: "51%",
-    left: 2,
+    right: 'calc(100% - 2px)',
     marginTop: -10,
   },
   voteButton: {

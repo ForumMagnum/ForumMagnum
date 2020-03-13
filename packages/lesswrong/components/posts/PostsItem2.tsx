@@ -280,7 +280,7 @@ export const styles = (theme) => ({
     paddingBottom:8
   },
   withRelevanceVoting: {
-      paddingLeft: 28
+      marginLeft: 28
   },
   bookmark: {
     marginLeft: theme.spacing.unit/2,
