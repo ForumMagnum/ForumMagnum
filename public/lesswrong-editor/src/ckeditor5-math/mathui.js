@@ -246,7 +246,7 @@ export default class MathUI extends Plugin {
 
 	_getSelectedLaTeXElement() {
 		const selection = this.editor.model.document.selection;
-		return getSelectedMathModelWidget( selection, true );
+		return getSelectedMathModelWidget( selection );
 	}
 
 	_enableUserBalloonInteractions() {
