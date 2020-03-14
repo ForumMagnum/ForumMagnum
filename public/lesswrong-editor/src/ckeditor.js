@@ -13,7 +13,6 @@ import CKFinder from '@ckeditor/ckeditor5-ckfinder/src/ckfinder';
 import Essentials from '@ckeditor/ckeditor5-essentials/src/essentials';
 import FontFamily from '@ckeditor/ckeditor5-font/src/fontfamily';
 import FontSize from '@ckeditor/ckeditor5-font/src/fontsize';
-import FontColor from '@ckeditor/ckeditor5-font/src/fontcolor';
 import Heading from '@ckeditor/ckeditor5-heading/src/heading';
 import HorizontalLine from '@ckeditor/ckeditor5-horizontal-line/src/horizontalline';
 import EasyImage from '@ckeditor/ckeditor5-easy-image/src/easyimage';
@@ -84,7 +83,6 @@ const postEditorPlugins = [
 	Essentials,
 	FontFamily,
 	FontSize,
-	FontColor,
 	Heading,
 	HorizontalLine,
 	Image,
