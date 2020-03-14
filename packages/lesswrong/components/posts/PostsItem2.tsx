@@ -294,7 +294,8 @@ const dismissRecommendationTooltip = "Don't remind me to finish reading this seq
 
 const cloudinaryCloudName = getSetting('cloudinary.cloudName', 'lesswrong-2-0')
 
-const isSticky = (post, terms) => {
+const isSticky = (post, terms, sticky) => {
+  if (sticky) return true
   if (post && terms && terms.forum) {
     return (
       post.sticky ||
@@ -347,6 +348,7 @@ const PostsItem2 = ({
   recordPostView,
   isRead=false,
   classes,
+  sticky=false
 }: {
   post: PostsList,
   tagRel?: any,
@@ -370,6 +372,7 @@ const PostsItem2 = ({
   recordPostView?: any,
   isRead?: boolean,
   classes: ClassesType,
+  sticky?: boolean,
 }) => {
   const [showComments, setShowComments] = React.useState(defaultToShowComments);
   const [readComments, setReadComments] = React.useState(false);
@@ -432,7 +435,7 @@ const PostsItem2 = ({
   const reviewCountsTooltip = `${post.nominationCount2018 || 0} nomination${(post.nominationCount2018 === 1) ? "" :"s"} / ${post.reviewCount2018 || 0} review${(post.nominationCount2018 === 1) ? "" :"s"}`
 
   return (
-      <AnalyticsContext pageElementContext="postItem" postId={post._id} isSticky={isSticky(post, terms)}>
+      <AnalyticsContext pageElementContext="postItem" postId={post._id} isSticky={isSticky(post, terms, sticky)}>
         <div className={classNames(
           classes.root,
           classes.background,
@@ -464,7 +467,7 @@ const PostsItem2 = ({
                         postLink={postLink}
                         post={post}
                         read={isRead}
-                        sticky={isSticky(post, terms)}
+                        sticky={isSticky(post, terms, sticky)}
                         showQuestionTag={showQuestionTag}
                     />
                   </AnalyticsTracker>

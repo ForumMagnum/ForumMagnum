@@ -35,7 +35,7 @@ const CoronavirusFrontpageWidget = ({settings}) => {
       </SectionSubtitle>
       <AnalyticsContext listContext={"Coronavirus Tag Frontpage"} capturePostItemOnMount>
         {results && results.map((result,i) =>
-          result.post && <PostsItem2 key={result.post._id} post={result.post} index={i} />
+          result.post && <PostsItem2 key={result.post._id} sticky={true} post={result.post} index={i} />
         )}
       </AnalyticsContext>
       {!currentUser && <SectionFooter>
