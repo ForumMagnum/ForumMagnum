@@ -65,7 +65,7 @@ const TagPage = ({classes}: {
       description={`tag ${tag.name}`}
       className={classes.description}
     />
-    {orderByTagScore && orderByTagScore.length === 0 && <div>
+    {!loadingPosts && orderByTagScore && orderByTagScore.length === 0 && <div>
       There are no posts with this tag yet.
     </div>}
     {loadingPosts && <Loading/>}
