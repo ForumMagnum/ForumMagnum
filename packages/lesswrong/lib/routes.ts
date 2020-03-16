@@ -408,6 +408,11 @@ addRoute([
     getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
   },
   {
+    name:'spreadsheets.single',
+    path:'/spreadsheet',
+    componentName: 'SpreadsheetPage'
+  },
+  {
     name: 'admin',
     path: '/admin',
     componentName: 'AdminHome',
