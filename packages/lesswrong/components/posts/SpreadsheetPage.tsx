@@ -4,30 +4,67 @@ import { useLocation } from '../../lib/routeUtil';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Posts } from '../../lib/collections/posts';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import TableContainer from '@material-ui/core/TableContainer';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import { Link } from '../../lib/reactRouterWrapper';
 
 import { commentBodyStyles } from '../../themes/stylePiping'
 
+const cellStyle = theme => ({
+  ...commentBodyStyles(theme),
+  maxWidth: 300,
+  fontSize: "1rem",
+  paddingRight: 24,
+  marginTop: 0,
+  marginBottom: 0,
+  wordBreak: "normal",
+})
+
 const styles = theme => ({
   root: {
+    marginTop: -49,
     width: "100%",
     overflow: "scroll"
   },
   postContent: {
     maxWidth: 1700,
-    ...commentBodyStyles(theme),
     fontSize: "1rem",
     '& table tr:first-child td': {
       whiteSpace: "pre"
     }
   },
   cell: {
-    maxWidth: 200
+    ...cellStyle(theme)
+  },
+  header: {
+    ...commentBodyStyles(theme),
+    fontWeight: 600,
+    backgroundColor: theme.palette.grey[800],
+    color: "white"
+  },
+  descriptionCell: {
+    maxWidth: 400,
+  },
+  importance: {
+    ...cellStyle(theme),
+    width: 40,
+    padding: 0,
+    textAlign: "center",
+    paddingLeft: 24
+  },
+  fixed: {
+    ...cellStyle(theme),
+    position: "fixed"
+  },
+  link: {
+    // '& a': {
+    //   color: theme.palette.primary.main
+    // }
   }
 })
 
@@ -2984,25 +3021,57 @@ const SpreadsheetPage = ({classes}:{
     ]
   }
 
-  
+  const { HoverPreviewLink } = Components
   return (
     <div className={classes.root}>
-      <Paper>
-        <Table>
-          {/* <TableHead>
-            <TableRow>
-              {data["values"][0].map((cell, i) => <TableCell key={`cell-${i}`} align="center">{cell}</TableCell>)}
+      <Table stickyHeader={true}>
+        <TableHead>
+          <TableRow>
+            {data["values"][0].map((cell, i) => {
+              // if (j === 0) {
+              //   styleClass = classes.importance
+              // }
+              return <TableCell 
+                      key={`cell-${i}`} 
+                      classes={{root: classes.header}}
+                      variant="body"
+                      align="center">
+                        {cell}
+                     </TableCell>
+            })}
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {data["values"].map((row, i) => (
+            <TableRow key={`row-${i}`}>
+              {row.map((cell, j) => {
+                let cellContent = <span>{cell}</span>
+                let styleClass = classes.cell
+                if (i === 0) {
+                  cellContent = <span>{cell} ({j})</span>
+                }
+                // if (j === 0) {
+                //   styleClass = classes.importance
+                // }
+                if (j === 1 && i !== 0) {
+                  cellContent = <HoverPreviewLink href={row[3]} innerHTML={cell}/>
+                }
+                if (j === 8 && i !== 0) {
+                  cellContent = <HoverPreviewLink href={row[9]} innerHTML={cell}/>
+                }
+                if (j === 2 || j === 3 || j === 9) { return null }
+
+                return <TableCell 
+                  key={`cell-${j}`} 
+                  variant="body"
+                  classes={{root: styleClass}}>
+                    {cellContent}
+                </TableCell>  
+              })}
             </TableRow>
-          </TableHead> */}
-          <TableBody>
-            {data["values"].map((row, i) => (
-              <TableRow key={`row-${i}`}>
-                {row.map((cell, j) => <TableCell classes={{root:classes.cell}} key={`cell-${j}`} align="center">{cell}</TableCell>)}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Paper>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   )
 }
