@@ -158,7 +158,10 @@ const styles = theme => ({
     position: "sticky",
     left: 0,
     minWidth: 240,
-    boxShadow: "2px 0 2px -1px rgba(0,0,0,.15)"
+    boxShadow: "2px 0 2px -1px rgba(0,0,0,.15)",
+    '& a': {
+      color: theme.palette.primary.dark
+    }
   },
   leftFixedHeader1: {
     ...headerStyle(theme),
@@ -169,7 +172,8 @@ const styles = theme => ({
   },
   starIcon: {
     width: 16,
-    marginTop: 2
+    position: "relative",
+    top: 2
   }
 })
 
