@@ -61,7 +61,7 @@ export function filterSettingsToString(filterSettings: FilterSettings): string {
   
   // Doesn't filter on a tag. Convert the personalBlog setting into a string.
   if (filterSettings.personalBlog === "Hide") {
-    return "Frontpage";
+    return "No Personal Blogposts";
   } else if (filterSettings.personalBlog === "Only") {
     return "Personal Blog";
   } else if (filterSettings.personalBlog === "Neutral") {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { FilterSettings, FilterTag, FilterMode, filterModes, defaultFilterSettings } from '../../lib/filterSettings';
+import { FilterSettings, FilterTag, FilterMode } from '../../lib/filterSettings';
 import { useCurrentUser } from '../common/withUser';
 import { userCanManageTags } from '../../lib/betas';
 import * as _ from 'underscore';

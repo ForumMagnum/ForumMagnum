@@ -28,7 +28,7 @@ const styles = theme => ({
   },
 });
 
-const FilterMode = ({description, mode, canRemove=false, onChangeMode, onRemove, classes}: {
+const FilterModeRawComponent = ({description, mode, canRemove=false, onChangeMode, onRemove, classes}: {
   description: string,
   mode: FilterMode,
   canRemove?: boolean,
@@ -53,7 +53,7 @@ const FilterMode = ({description, mode, canRemove=false, onChangeMode, onRemove,
   </div>
 }
 
-const FilterModeComponent = registerComponent("FilterMode", FilterMode, {styles});
+const FilterModeComponent = registerComponent("FilterMode", FilterModeRawComponent, {styles});
 
 declare global {
   interface ComponentTypes {
