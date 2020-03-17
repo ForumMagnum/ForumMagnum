@@ -7,12 +7,14 @@ import * as _ from 'underscore';
 
 const styles = theme => ({
   root: {
-    paddingLeft: 32,
+    paddingLeft: 16,
     ...theme.typography.commentStyle,
   },
   tag: {
   },
   addTag: {
+    marginTop: 8,
+    marginBottom: 8,
   },
 });
 
