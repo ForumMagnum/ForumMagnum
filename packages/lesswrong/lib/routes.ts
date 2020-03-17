@@ -410,7 +410,8 @@ addRoute([
   {
     name:'spreadsheets.single',
     path:'/spreadsheet',
-    componentName: 'SpreadsheetPage'
+    componentName: 'SpreadsheetPage',
+    title: "COVID-19 Link Database"
   },
   {
     name: 'admin',

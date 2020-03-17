@@ -1,70 +1,180 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useLocation } from '../../lib/routeUtil';
-import { useSingle } from '../../lib/crud/withSingle';
-import { Posts } from '../../lib/collections/posts';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import TableContainer from '@material-ui/core/TableContainer';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
-import { Link } from '../../lib/reactRouterWrapper';
-
+import StarIcon from '@material-ui/icons/Star';
 import { commentBodyStyles } from '../../themes/stylePiping'
+import * as _ from 'underscore';
 
 const cellStyle = theme => ({
   ...commentBodyStyles(theme),
-  maxWidth: 300,
+  maxWidth: 350,
   fontSize: "1rem",
-  paddingRight: 24,
+  paddingLeft: 16,
+  paddingRight: 16,
+  paddingTop: 12,
+  paddingBottom: 12,
   marginTop: 0,
   marginBottom: 0,
   wordBreak: "normal",
+})
+
+const headerStyle = theme => ({
+  ...commentBodyStyles(theme),
+  fontSize: "1.1rem",
+  fontWeight: 600,
+  backgroundColor: theme.palette.grey[800],
+  borderRight: `1px solid white`,
+  color: "white",
+  wordBreak: "normal",
+  position: "sticky",
+  top: 0,
+  paddingLeft: 16,
+  paddingRight: 16,
+  paddingTop: 0,
+  paddingBottom: 0,
 })
 
 const styles = theme => ({
   root: {
     marginTop: -49,
     width: "100%",
-    overflow: "scroll"
+    height: "90vh",
+    overflow: "scroll",
+    position: "relative",
   },
-  postContent: {
-    maxWidth: 1700,
-    fontSize: "1rem",
-    '& table tr:first-child td': {
-      whiteSpace: "pre"
-    }
+  domain: {
+    marginTop: 4,
+    color: theme.palette.grey[500]
   },
-  cell: {
+  cell4: {
+    ...cellStyle(theme),
+    minWidth: 350
+  },
+  cell5: {
     ...cellStyle(theme)
   },
-  header: {
-    ...commentBodyStyles(theme),
-    fontWeight: 600,
-    backgroundColor: theme.palette.grey[800],
-    color: "white"
+  cell6: {
+    ...cellStyle(theme)
+  },
+  cell7: {
+    ...cellStyle(theme),
+    maxWidth: 300,
+    minWidth: 300,
+    wordBreak: "break-all",
+  },
+  cell8: {
+    ...cellStyle(theme),
+    maxWidth: 160
+  },
+  cell9: {
+    ...cellStyle(theme)
+  },
+  cell10: {
+    ...cellStyle(theme)
+  },
+  cell11: {
+    ...cellStyle(theme),
+    maxWidth: 120
+  },
+  cell12: {
+    ...cellStyle(theme)
+  },
+  cell13: {
+    ...cellStyle(theme)
+  },
+  cell14: {
+    ...cellStyle(theme)
+  },
+  header0: {
+    ...headerStyle(theme),
+  },
+  header1: {
+    ...headerStyle(theme),
+  },
+  header4: {
+    ...headerStyle(theme),
+  },
+  header5: {
+    ...headerStyle(theme),
+  },
+  header6: {
+    ...headerStyle(theme),
+  },
+  header7: {
+    ...headerStyle(theme),
+    maxWidth: 300
+  },
+  header8: {
+    ...headerStyle(theme),
+    maxWidth: 160
+  },
+  header9: {
+    ...headerStyle(theme),
+  },
+  header10: {
+    ...headerStyle(theme),
+  },
+  header11: {
+    ...headerStyle(theme),
+    maxWidth: 120,
+    whiteSpace: "pre"
+  },
+  header12: {
+    ...headerStyle(theme),
+  },
+  header13: {
+    ...headerStyle(theme),
+  },
+  header14: {
+    ...headerStyle(theme),
+  },
+  header15: {
+    ...headerStyle(theme),
   },
   descriptionCell: {
     maxWidth: 400,
   },
-  importance: {
+  leftFixed0: {
     ...cellStyle(theme),
-    width: 40,
-    padding: 0,
-    textAlign: "center",
-    paddingLeft: 24
+    backgroundColor: theme.palette.grey[600],
+    color: "white",
+    position: "sticky",
+    left: 0,
+    paddingLeft: 6,
+    paddingRight: 6,
+    textAlign: "center"
   },
-  fixed: {
+  leftFixedHeader0: {
+    ...headerStyle(theme),
+    backgroundColor: theme.palette.grey[700],
+    position: "sticky",
+    left: 0,
+    zIndex: 1,
+    paddingLeft: 6,
+    paddingRight: 6
+  },
+  leftFixed1: {
     ...cellStyle(theme),
-    position: "fixed"
+    backgroundColor: theme.palette.grey[100],
+    position: "sticky",
+    left: 0,
+    minWidth: 240,
+    boxShadow: "2px 0 2px -1px rgba(0,0,0,.15)"
   },
-  link: {
-    // '& a': {
-    //   color: theme.palette.primary.main
-    // }
+  leftFixedHeader1: {
+    ...headerStyle(theme),
+    position: "sticky",
+    left: 0,
+    zIndex: 1,
+    minWidth: 240
+  },
+  starIcon: {
+    width: 16,
+    marginTop: 2
   }
 })
 
@@ -72,7 +182,7 @@ const SpreadsheetPage = ({classes}:{
   classes: any
 }) => {
 
-
+  const { LWTooltip } = Components
   const data = {
     "range": "'All Links'!A1:AJ1000",
     "majorDimension": "ROWS",
@@ -3021,52 +3131,50 @@ const SpreadsheetPage = ({classes}:{
     ]
   }
 
+  const allRows = data["values"]
+  // const columnNames = allRows[0]
+  const dataRows = allRows.slice(1)
+  const sortedRows = _.sortBy(dataRows, row => -row[0])
+  const concatRows = [allRows[0], ...sortedRows]
+
+
   const { HoverPreviewLink } = Components
   return (
     <div className={classes.root}>
-      <Table stickyHeader={true}>
-        <TableHead>
-          <TableRow>
-            {data["values"][0].map((cell, i) => {
-              // if (j === 0) {
-              //   styleClass = classes.importance
-              // }
-              return <TableCell 
-                      key={`cell-${i}`} 
-                      classes={{root: classes.header}}
-                      variant="body"
-                      align="center">
-                        {cell}
-                     </TableCell>
-            })}
-          </TableRow>
-        </TableHead>
+      <Table>
         <TableBody>
-          {data["values"].map((row, i) => (
-            <TableRow key={`row-${i}`}>
-              {row.map((cell, j) => {
+          {concatRows.map((row, rowNum) => (
+            <TableRow key={`row-${rowNum}`}>
+              {row.map((cell, cellNum) => {
                 let cellContent = <span>{cell}</span>
-                let styleClass = classes.cell
-                if (i === 0) {
-                  cellContent = <span>{cell} ({j})</span>
-                }
-                // if (j === 0) {
-                //   styleClass = classes.importance
+                let styleClass = (rowNum === 0) ? classes[`header${cellNum}`] : classes[`cell${cellNum}`]
+                // if (rowNum == 0) {
+                //   cellContent = <span>{cellContent} ({cellNum})</span>
                 // }
-                if (j === 1 && i !== 0) {
-                  cellContent = <HoverPreviewLink href={row[3]} innerHTML={cell}/>
+                if (rowNum == 0 && cellNum == 0) {
+                  cellContent = <LWTooltip title="Importance">
+                      <StarIcon className={classes.starIcon}/>
+                    </LWTooltip>
                 }
-                if (j === 8 && i !== 0) {
+                if (cellNum == 0 && rowNum == 0) { styleClass = classes.leftFixedHeader0 }
+                if (cellNum == 0 && rowNum != 0) { styleClass = classes.leftFixed0 }
+                if (cellNum == 1 && rowNum == 0) { styleClass = classes.leftFixedHeader1 }
+                if (cellNum == 1 && rowNum != 0) { styleClass = classes.leftFixed1 }
+
+                if (cellNum == 1 && rowNum !== 0) {
+                  cellContent = <div>
+                      <div><HoverPreviewLink href={row[3]} innerHTML={cell}/></div>
+                      <div className={classes.domain}>{row[5]}</div>
+                    </div>
+                }
+                if (cellNum == 8 && rowNum !== 0) {
                   cellContent = <HoverPreviewLink href={row[9]} innerHTML={cell}/>
                 }
-                if (j === 2 || j === 3 || j === 9) { return null }
+                if ([2,3,5,9,10].includes(cellNum)) { return null }
 
-                return <TableCell 
-                  key={`cell-${j}`} 
-                  variant="body"
-                  classes={{root: styleClass}}>
-                    {cellContent}
-                </TableCell>  
+                return <TableCell key={`cell-${rowNum}-${cellNum}`} classes={{root: styleClass}}>
+                         {cellContent}
+                       </TableCell>  
               })}
             </TableRow>
           ))}
