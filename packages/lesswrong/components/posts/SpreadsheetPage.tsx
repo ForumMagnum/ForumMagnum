@@ -78,12 +78,15 @@ const styles = theme => ({
   },
   cell11: {
     ...cellStyle(theme),
+    minWidth: 110,
   },
   cell12: {
     ...cellStyle(theme)
   },
   cell13: {
-    ...cellStyle(theme)
+    ...cellStyle(theme),
+    textAlign: "center",
+    minWidth: 110,
   },
   cell14: {
     ...cellStyle(theme)
@@ -119,13 +122,17 @@ const styles = theme => ({
     ...headerStyle(theme),
   },
   header11: {
-    ...headerStyle(theme)
+    ...headerStyle(theme),
+    minWidth: 110,
+    textAlign: "center"
   },
   header12: {
     ...headerStyle(theme),
   },
   header13: {
-    ...headerStyle(theme)
+    ...headerStyle(theme),
+    minWidth: 110,
+    textAlign: "center"
   },
   header14: {
     ...headerStyle(theme),
@@ -174,6 +181,14 @@ const styles = theme => ({
     width: 16,
     position: "relative",
     top: 2
+  },
+  tabRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center"
+  },
+  tab: {
+    
   }
 })
 
@@ -3136,10 +3151,54 @@ const SpreadsheetPage = ({classes}:{
   const sortedRows = _.sortBy(dataRows, row => -row[0])
   const concatRows = [allRows[0], ...sortedRows]
 
+  const tabs = [{
+      label: "Guides/FAQs/Intros",
+      description: "Websites that attempt to gently introduce coronavirus or explain things about it. Typically non-exhaustive."
+    },
+    {
+      label: "Dashboards",
+      description: "Websites showing up-to-date SC2-relevant numbers in easy-to-read format."
+    },
+    {
+      label: "Progression/Outcome",
+      description: "Information on what happens once you have COVID-19."
+    },
+    {
+      label: "Spread & Prevention",
+      description: "Information about current or predicted prevalence, how COVID-19 is spread, or lower the former/preventing the latter. We may need a prevalence model olympics"
+    },
+    {
+      label: "Science",
+      description: "Basic science that does not immediatley prompt action. E.g. 'here's what SC2 targets' is in, 'Here's a drug targeting that' is out."
+    },
+    {
+      label: "Medical System",
+      description: "Information or models on the current state of the medical system, including 'here's how bad hospitals are' and potential treatments."
+    },
+    {
+      label: "Everyday Life",
+      description: "Announcements of shutdowns, government or not."
+    },
+    {
+      label: "Aggregators",
+      description: "Websites aggregating other content"
+    },
+    {
+      label: "All Links",
+      description: "All links that we've added, sorted by the most recent."
+    }]
+  }
+
 
   const { HoverPreviewLink } = Components
   return (
     <div className={classes.root}>
+      <div className={classes.tabRow}>
+        {tabs.map(tab => <div key={tab.label} classNames={classes.tab}>
+          <div>{tab.label}</div>
+          <div>{tab.description}</div>
+        </div>)}
+      </div>
       <Table>
         <TableBody>
           {concatRows.map((row, rowNum) => (
