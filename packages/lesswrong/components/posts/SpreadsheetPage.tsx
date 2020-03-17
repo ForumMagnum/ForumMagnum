@@ -64,11 +64,11 @@ const styles = theme => ({
     ...cellStyle(theme),
     maxWidth: 300,
     minWidth: 300,
-    wordBreak: "break-all",
+    wordBreak: "break-word",
   },
   cell8: {
     ...cellStyle(theme),
-    maxWidth: 160
+    maxWidth: 110
   },
   cell9: {
     ...cellStyle(theme)
@@ -78,7 +78,6 @@ const styles = theme => ({
   },
   cell11: {
     ...cellStyle(theme),
-    maxWidth: 120
   },
   cell12: {
     ...cellStyle(theme)
@@ -110,7 +109,8 @@ const styles = theme => ({
   },
   header8: {
     ...headerStyle(theme),
-    maxWidth: 160
+    maxWidth: 110,
+    textAlign: "center"
   },
   header9: {
     ...headerStyle(theme),
@@ -119,15 +119,13 @@ const styles = theme => ({
     ...headerStyle(theme),
   },
   header11: {
-    ...headerStyle(theme),
-    maxWidth: 120,
-    whiteSpace: "pre"
+    ...headerStyle(theme)
   },
   header12: {
     ...headerStyle(theme),
   },
   header13: {
-    ...headerStyle(theme),
+    ...headerStyle(theme)
   },
   header14: {
     ...headerStyle(theme),
@@ -140,8 +138,6 @@ const styles = theme => ({
   },
   leftFixed0: {
     ...cellStyle(theme),
-    backgroundColor: theme.palette.grey[600],
-    color: "white",
     position: "sticky",
     left: 0,
     paddingLeft: 6,
@@ -150,7 +146,6 @@ const styles = theme => ({
   },
   leftFixedHeader0: {
     ...headerStyle(theme),
-    backgroundColor: theme.palette.grey[700],
     position: "sticky",
     left: 0,
     zIndex: 1,
@@ -3155,6 +3150,9 @@ const SpreadsheetPage = ({classes}:{
                   cellContent = <LWTooltip title="Importance">
                       <StarIcon className={classes.starIcon}/>
                     </LWTooltip>
+                }
+                if (rowNum == 0 && cellNum == 13) {
+                  cellContent = <span>Added</span>
                 }
                 if (cellNum == 0 && rowNum == 0) { styleClass = classes.leftFixedHeader0 }
                 if (cellNum == 0 && rowNum != 0) { styleClass = classes.leftFixed0 }
