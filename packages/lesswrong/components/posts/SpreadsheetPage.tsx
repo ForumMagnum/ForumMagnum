@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import Table from '@material-ui/core/Table';
@@ -6,8 +6,11 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import StarIcon from '@material-ui/icons/Star';
+import Button from '@material-ui/core/Button';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import * as _ from 'underscore';
+import classNames from 'classnames';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const cellStyle = theme => ({
   ...commentBodyStyles(theme),
@@ -41,6 +44,26 @@ const headerStyle = theme => ({
 const styles = theme => ({
   root: {
     marginTop: -49,
+    width: "100%",
+    height: "90vh",
+    overflow: "scroll",
+    position: "relative",
+  },
+  introductionSection: {
+    paddingTop: 60,
+    paddingBottom: 75,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-around"
+  },
+  introduction: {
+    maxWidth: 620,
+    ...commentBodyStyles(theme),
+  },
+  submitButton: {
+    margin: "auto"
+  },
+  table: {
     width: "100%",
     height: "90vh",
     overflow: "scroll",
@@ -184,11 +207,43 @@ const styles = theme => ({
   },
   tabRow: {
     display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center"
+    alignItems: "flex-start",
+    paddingLeft: 8,
+    flexWrap: "wrap-reverse",
   },
   tab: {
-    
+    ...commentBodyStyles(theme),
+    fontSize: "1rem",
+    marginTop: 4,
+    marginLeft: 2,
+    marginRight: 2,
+    marginBottom: -2,
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingTop: 7,
+    paddingBottom: 11,
+    borderRadius: 2,
+    backgroundColor: theme.palette.grey[300],
+    cursor: "pointer",
+    boxShadow: "0 0 3px rgba(0,0,0,.3)",
+    whiteSpace: "pre"
+  },
+  tabLabel: {
+    fontWeight: 600,
+    marginRight: 8,
+  },
+  tabCount: {
+    color: theme.palette.grey[600],
+    fontSize: ".8rem",
+    display: "inline-block",
+  },
+  tabDescription: {
+    fontSize: "1rem"
+  },
+  tabSelected: {
+    backgroundColor: theme.palette.grey[100],
+    paddingTop: 12,
+    paddingBottom: 12,
   }
 })
 
@@ -196,7 +251,8 @@ const SpreadsheetPage = ({classes}:{
   classes: any
 }) => {
 
-  const { LWTooltip } = Components
+  const [selectedTab, setSelectedTab] = useState("All Links")
+  const { LWTooltip, HoverPreviewLink } = Components
   const data = {
     "range": "'All Links'!A1:AJ1000",
     "majorDimension": "ROWS",
@@ -3148,99 +3204,147 @@ const SpreadsheetPage = ({classes}:{
   const allRows = data["values"]
   // const columnNames = allRows[0]
   const dataRows = allRows.slice(1)
-  const sortedRows = _.sortBy(dataRows, row => -row[0])
-  const concatRows = [allRows[0], ...sortedRows]
+  const sortedRowsAdded = _.sortBy(dataRows, row => -row[13])
+  const sortedRowsImp = _.sortBy(sortedRowsAdded, row => -row[0])
 
-  const tabs = [{
+  const tabs = [
+    {
+      label: "All Links",
+      description: "All links that we've added, sorted by the most recent.",
+      rows: [allRows[0], ...sortedRowsAdded]
+    },
+    {
       label: "Guides/FAQs/Intros",
-      description: "Websites that attempt to gently introduce coronavirus or explain things about it. Typically non-exhaustive."
+      displayLabel: "Guides/FAQs/Intros",
+      description: "Websites that attempt to gently introduce coronavirus or explain things about it. Typically non-exhaustive.",
+      rows: [allRows[0], ..._.filter(sortedRowsImp, row => row[14] === "Guides/FAQs/Intros")]
     },
     {
       label: "Dashboards",
-      description: "Websites showing up-to-date SC2-relevant numbers in easy-to-read format."
+      description: "Websites showing up-to-date SC2-relevant numbers in easy-to-read format.",
+      rows: [allRows[0], ..._.filter(sortedRowsImp, row => row[14] === "Dashboards")]
     },
     {
       label: "Progression/Outcome",
-      description: "Information on what happens once you have COVID-19."
+      displayLabel: "Progression & Outcome",
+      description: "Information on what happens once you have COVID-19.",
+      rows: [allRows[0], ..._.filter(sortedRowsImp, row => row[14] === "Progression/Outcome")]
     },
     {
       label: "Spread & Prevention",
-      description: "Information about current or predicted prevalence, how COVID-19 is spread, or lower the former/preventing the latter. We may need a prevalence model olympics"
+      description: "Information about current or predicted prevalence, how COVID-19 is spread, or lower the former/preventing the latter. We may need a prevalence model olympics",
+      rows: [allRows[0], ..._.filter(sortedRowsImp, row => row[14] === "Spread & Prevention")]
     },
     {
       label: "Science",
-      description: "Basic science that does not immediatley prompt action. E.g. 'here's what SC2 targets' is in, 'Here's a drug targeting that' is out."
+      description: "Basic science that does not immediatley prompt action. E.g. 'here's what SC2 targets' is in, 'Here's a drug targeting that' is out.",
+      rows: [allRows[0], ..._.filter(sortedRowsImp, row => row[14] === "Science")]
     },
     {
       label: "Medical System",
-      description: "Information or models on the current state of the medical system, including 'here's how bad hospitals are' and potential treatments."
+      description: "Information or models on the current state of the medical system, including 'here's how bad hospitals are' and potential treatments.",
+      rows: [allRows[0], ..._.filter(sortedRowsImp, row => row[14] === "Medical System")]
     },
     {
       label: "Everyday Life",
-      description: "Announcements of shutdowns, government or not."
+      description: "Announcements of shutdowns, government or not.",
+      rows: [allRows[0], ..._.filter(sortedRowsImp, row => row[14] === "Everyday Life")]
     },
     {
       label: "Aggregators",
-      description: "Websites aggregating other content"
-    },
-    {
-      label: "All Links",
-      description: "All links that we've added, sorted by the most recent."
-    }]
-  }
+      description: "Websites aggregating other content",
+      rows: [allRows[0], ..._.filter(sortedRowsImp, row => row[14] === "Aggregators")]
+    }
+  ]
 
-
-  const { HoverPreviewLink } = Components
+  const rows = _.find(tabs, tab => tab.label === selectedTab)?.rows || []
   return (
     <div className={classes.root}>
-      <div className={classes.tabRow}>
-        {tabs.map(tab => <div key={tab.label} classNames={classes.tab}>
-          <div>{tab.label}</div>
-          <div>{tab.description}</div>
-        </div>)}
+      <div className={classes.introductionSection}>
+        <div className={classes.introduction}>
+          <h1>Coronavirus Database</h1>
+          <p>
+            Welcome to the Coronavirus Info-Database. This is an attempt to organize and curate all the disparate papers, articles and links that are spread all over the internet regarding the Coronavirus pandemic. If you want to add links, submit the form linked below, which will be added to the Link Dump Form sheet, and the maintainers of this sheet will sort and prioritize the links.
+          </p>
+          <p>This spreadsheet updates once a day.</p>
+          <p>
+            You can find (and participate) in more LessWrong discussion of COVID-19 on <HoverPreviewLink href={"/tag/coronavirus"} innerHTML="our tag page"/>.
+          </p>
+          <div>
+            <Link to="https://docs.google.com/forms/d/e/1FAIpQLSc5uVDXrowWmhlaDbT3kukODdJotWOZXZivdlFmaHQ6n2gsKw/viewform" className={classes.submitButton}>
+              <Button color="primary" variant="contained">
+                Submit New Link
+              </Button>
+            </Link>
+          </div>
+        </div>
       </div>
-      <Table>
-        <TableBody>
-          {concatRows.map((row, rowNum) => (
-            <TableRow key={`row-${rowNum}`}>
-              {row.map((cell, cellNum) => {
-                let cellContent = <span>{cell}</span>
-                let styleClass = (rowNum === 0) ? classes[`header${cellNum}`] : classes[`cell${cellNum}`]
-                // if (rowNum == 0) {
-                //   cellContent = <span>{cellContent} ({cellNum})</span>
-                // }
-                if (rowNum == 0 && cellNum == 0) {
-                  cellContent = <LWTooltip title="Importance">
-                      <StarIcon className={classes.starIcon}/>
-                    </LWTooltip>
-                }
-                if (rowNum == 0 && cellNum == 13) {
-                  cellContent = <span>Added</span>
-                }
-                if (cellNum == 0 && rowNum == 0) { styleClass = classes.leftFixedHeader0 }
-                if (cellNum == 0 && rowNum != 0) { styleClass = classes.leftFixed0 }
-                if (cellNum == 1 && rowNum == 0) { styleClass = classes.leftFixedHeader1 }
-                if (cellNum == 1 && rowNum != 0) { styleClass = classes.leftFixed1 }
+      <div className={classes.tabRow}>
+        {tabs.map(tab => <LWTooltip key={tab.label} placement="top" title={<div>
+            {tab.description} ({tab.rows.length - 1})
+          </div>}>
+              <div 
+                className={classNames(classes.tab, {[classes.tabSelected]:tab.label === selectedTab})}
+                onClick={()=>setSelectedTab(tab.label)}
+              >
+                <span className={classes.tabLabel}>
+                  {tab.displayLabel || tab.label}
+                </span>
+                <span className={classes.tabCount}>
+                  {tab.rows.length - 1}
+                </span>
+            </div>
+          </LWTooltip>)}
+          <Link to="https://docs.google.com/forms/d/e/1FAIpQLSc5uVDXrowWmhlaDbT3kukODdJotWOZXZivdlFmaHQ6n2gsKw/viewform" className={classes.submitButton}>
+            <Button color="primary" variant="contained">
+              Submit New Link
+            </Button>
+          </Link>
+      </div>
+      <div className={classes.table}>
+        <Table>
+          <TableBody>
+            {rows.map((row, rowNum) => (
+              <TableRow key={`row-${rowNum}`}>
+                {row.map((cell, cellNum) => {
+                  let cellContent = <span>{cell}</span>
+                  let styleClass = (rowNum === 0) ? classes[`header${cellNum}`] : classes[`cell${cellNum}`]
+                  // if (rowNum == 0) {
+                  //   cellContent = <span>{cellContent} ({cellNum})</span>
+                  // }
+                  if (rowNum == 0 && cellNum == 0) {
+                    cellContent = <LWTooltip title="Importance">
+                        <StarIcon className={classes.starIcon}/>
+                      </LWTooltip>
+                  }
+                  if (rowNum == 0 && cellNum == 13) {
+                    cellContent = <span>Added</span>
+                  }
+                  if (cellNum == 0 && rowNum == 0) { styleClass = classes.leftFixedHeader0 }
+                  if (cellNum == 0 && rowNum != 0) { styleClass = classes.leftFixed0 }
+                  if (cellNum == 1 && rowNum == 0) { styleClass = classes.leftFixedHeader1 }
+                  if (cellNum == 1 && rowNum != 0) { styleClass = classes.leftFixed1 }
 
-                if (cellNum == 1 && rowNum !== 0) {
-                  cellContent = <div>
-                      <div><HoverPreviewLink href={row[3]} innerHTML={cell}/></div>
-                      <div className={classes.domain}>{row[5]}</div>
-                    </div>
-                }
-                if (cellNum == 8 && rowNum !== 0) {
-                  cellContent = <HoverPreviewLink href={row[9]} innerHTML={cell}/>
-                }
-                if ([2,3,5,9,10].includes(cellNum)) { return null }
+                  if (cellNum == 1 && rowNum !== 0) {
+                    cellContent = <div>
+                        <div><HoverPreviewLink href={row[3]} innerHTML={cell}/></div>
+                        <div className={classes.domain}>{row[5]}</div>
+                      </div>
+                  }
+                  if (cellNum == 8 && rowNum !== 0) {
+                    cellContent = <HoverPreviewLink href={row[9]} innerHTML={cell}/>
+                  }
+                  if ([2,3,5,9,10].includes(cellNum)) { return null }
 
-                return <TableCell key={`cell-${rowNum}-${cellNum}`} classes={{root: styleClass}}>
-                         {cellContent}
-                       </TableCell>  
-              })}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                  return <TableCell key={`cell-${rowNum}-${cellNum}`} classes={{root: styleClass}}>
+                          {cellContent}
+                        </TableCell>  
+                })}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   )
 }
