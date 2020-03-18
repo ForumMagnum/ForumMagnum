@@ -493,7 +493,21 @@ const schema = {
       filterFn: comment => !comment.deleted && comment.reviewingForReview === "2018"
     }),
     canRead: ['guests'],
-  }
+  },
+  
+  // Denormalized, with manual callbacks. Mapping from tag ID to baseScore, ie Record<string,number>.
+  tagRelevance: {
+    type: Object,
+    optional: true,
+    hidden: true,
+    viewableBy: ['guests'],
+  },
+  
+  "tagRelevance.$": {
+    type: Number,
+    optional: true,
+    hidden: true,
+  },
 };
 
 export default schema;
