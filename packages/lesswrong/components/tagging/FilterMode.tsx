@@ -5,7 +5,7 @@ import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
-    height: 32,
+    borderBottom: '1px solid rgba(0,0,0,0.1)',
   },
   label: {
     width: 130,
@@ -13,14 +13,18 @@ const styles = theme => ({
     verticalAlign: "middle",
   },
   button: {
-    cursor: "pointer",
-    padding: 8,
+    cursor: 'pointer',
     margin: 4,
-    width: 60,
-    verticalAlign: "middle",
+    padding: 8,
+    verticalAlign: 'middle',
+    textTransform: 'uppercase',
+    textAlign: 'center',
+    display: 'inline-block',
+    fontWeight: 500,
+    marginRight: 10
   },
   selected: {
-    background: "#ccc",
+    color: 'hsla(125, 23%, 47%, 1)',
   },
   closeButton: {
     display: "inline-block",
@@ -28,7 +32,7 @@ const styles = theme => ({
   },
 });
 
-const FilterMode = ({description, mode, canRemove=false, onChangeMode, onRemove, classes}: {
+const FilterModeRawComponent = ({description, mode, canRemove=false, onChangeMode, onRemove, classes}: {
   description: string,
   mode: FilterMode,
   canRemove?: boolean,
@@ -53,7 +57,7 @@ const FilterMode = ({description, mode, canRemove=false, onChangeMode, onRemove,
   </div>
 }
 
-const FilterModeComponent = registerComponent("FilterMode", FilterMode, {styles});
+const FilterModeComponent = registerComponent("FilterMode", FilterModeRawComponent, {styles});
 
 declare global {
   interface ComponentTypes {

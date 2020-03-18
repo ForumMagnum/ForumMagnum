@@ -9,24 +9,24 @@ export interface FilterTag {
   tagName: string,
   filterMode: FilterMode,
 }
-export type FilterMode = "Hide"|"Less"|"Neutral"|"More"|"Only"
-//export const filterModes: Array<FilterMode> = ["Hide","Less","Neutral","More","Only"];
-export const filterModes: Array<FilterMode> = ["Hide","Neutral","Only"];
+export type FilterMode = "Hidden"|"Less"|"Default"|"More"|"Required"
+//export const filterModes: Array<FilterMode> = ["Hidden","Less","Default","More","Required"];
+export const filterModes: Array<FilterMode> = ["Hidden","Default","Required"];
 
 export const defaultFilterSettings: FilterSettings = {
-  personalBlog: "Hide",
+  personalBlog: "Hidden",
   tags: [
     {
       tagId: "tNsqhzTibgGJKPEWB",
       tagName: "Coronavirus",
-      filterMode: "Neutral",
+      filterMode: "Default",
     }
   ],
 }
 
 export function filterSettingsToString(filterSettings: FilterSettings): string {
   let nonNeutralTagModifiers = _.filter(filterSettings.tags,
-    tag => tag.filterMode !== "Neutral");
+    tag => tag.filterMode !== "Default");
   let hasTagModifiers = nonNeutralTagModifiers.length > 0;
   
   // Filters on a tag?
@@ -37,18 +37,18 @@ export function filterSettingsToString(filterSettings: FilterSettings): string {
     
     // Filters is for only the selected tag?
     const singleTagFilter = nonNeutralTagModifiers[0]
-    if (singleTagFilter.filterMode === "Only") {
-      if (filterSettings.personalBlog === "Neutral") {
+    if (singleTagFilter.filterMode === "Required") {
+      if (filterSettings.personalBlog === "Default") {
         return singleTagFilter.tagName;
-      } else if (filterSettings.personalBlog === "Hide") {
+      } else if (filterSettings.personalBlog === "Hidden") {
         return `Frontpage ${singleTagFilter.tagName}`
       } else {
         return "Custom";
       }
-    } else if (singleTagFilter.filterMode === "Hide") {
-      if (filterSettings.personalBlog === "Neutral") {
+    } else if (singleTagFilter.filterMode === "Hidden") {
+      if (filterSettings.personalBlog === "Default") {
         return `No ${singleTagFilter.tagName}`;
-      } else if (filterSettings.personalBlog === "Hide") {
+      } else if (filterSettings.personalBlog === "Hidden") {
         return `Frontpage, No ${singleTagFilter.tagName}`
       } else {
         return "Custom";
@@ -60,11 +60,11 @@ export function filterSettingsToString(filterSettings: FilterSettings): string {
   }
   
   // Doesn't filter on a tag. Convert the personalBlog setting into a string.
-  if (filterSettings.personalBlog === "Hide") {
-    return "Frontpage";
-  } else if (filterSettings.personalBlog === "Only") {
+  if (filterSettings.personalBlog === "Hidden") {
+    return "No Personal Blogposts";
+  } else if (filterSettings.personalBlog === "Required") {
     return "Personal Blog";
-  } else if (filterSettings.personalBlog === "Neutral") {
+  } else if (filterSettings.personalBlog === "Default") {
     return "All";
   } else {
     return "Custom";

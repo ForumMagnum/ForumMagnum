@@ -1,18 +1,20 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { FilterSettings, FilterTag, FilterMode, filterModes, defaultFilterSettings } from '../../lib/filterSettings';
+import { FilterSettings, FilterTag, FilterMode } from '../../lib/filterSettings';
 import { useCurrentUser } from '../common/withUser';
 import { userCanManageTags } from '../../lib/betas';
 import * as _ from 'underscore';
 
 const styles = theme => ({
   root: {
-    paddingLeft: 32,
+    paddingLeft: 16,
     ...theme.typography.commentStyle,
   },
   tag: {
   },
   addTag: {
+    marginTop: 8,
+    marginBottom: 8,
   },
 });
 
@@ -75,7 +77,7 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
     {canFilterCustomTags && <div className={classes.addTag}>
       <Components.AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
         if (!_.some(filterSettings.tags, t=>t.tagId===tagId)) {
-          const newFilter: FilterTag = {tagId, tagName, filterMode: "Neutral"}
+          const newFilter: FilterTag = {tagId, tagName, filterMode: "Default"}
           setFilterSettings({
             personalBlog: filterSettings.personalBlog,
             tags: [...filterSettings.tags, newFilter]

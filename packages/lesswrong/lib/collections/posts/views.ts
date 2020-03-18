@@ -136,13 +136,13 @@ Posts.addDefaultView(terms => {
 })
 
 function filterSettingsToSelector(filterSettings: FilterSettings): any {
-  const tagsRequired = _.filter(filterSettings.tags, t=>t.filterMode==="Only");
-  const tagsExcluded = _.filter(filterSettings.tags, t=>t.filterMode==="Hide");
+  const tagsRequired = _.filter(filterSettings.tags, t=>t.filterMode==="Required");
+  const tagsExcluded = _.filter(filterSettings.tags, t=>t.filterMode==="Hidden");
   
   let frontpageFilter: any;
-  if (filterSettings.personalBlog === "Hide") {
+  if (filterSettings.personalBlog === "Hidden") {
     frontpageFilter = {frontpageDate: {$gt: new Date(0)}}
-  } else if (filterSettings.personalBlog === "Only") {
+  } else if (filterSettings.personalBlog === "Required") {
     frontpageFilter = {frontpageDate: viewFieldNullOrMissing}
   } else {
     frontpageFilter = {};

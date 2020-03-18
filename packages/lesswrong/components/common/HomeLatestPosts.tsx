@@ -27,7 +27,6 @@ const styles = theme => ({
 });
 
 const latestPostsName = getSetting('forumType') === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts'
-const includePersonalName = getSetting('forumType') === 'EAForum' ? 'Include Community' : 'Include Personal Blogposts'
 
 const useFilterSettings = (currentUser: UsersCurrent|null) => {
   const defaultSettings = currentUser ? currentUser.frontpageFilterSettings : defaultFilterSettings;
@@ -40,7 +39,6 @@ const HomeLatestPosts = ({ classes }: {
 }) => {
   const currentUser = useCurrentUser();
   const location = useLocation();
-  const { history } = useNavigation();
   
   const {mutate: updateUser} = useUpdate({
     collection: Users,
@@ -51,7 +49,7 @@ const HomeLatestPosts = ({ classes }: {
   const [filterSettingsVisible, setFilterSettingsVisible] = useState(false);
 
   const { query } = location;
-  const { SingleColumnSection, SectionTitle, PostsList2, SectionFooterCheckbox, LWTooltip } = Components
+  const { SingleColumnSection, SectionTitle, PostsList2, LWTooltip } = Components
   const limit = parseInt(query.limit) || 13
 
   const recentPostsTerms = {
