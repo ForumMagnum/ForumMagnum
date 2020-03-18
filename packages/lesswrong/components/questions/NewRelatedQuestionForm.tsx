@@ -48,7 +48,7 @@ const NewRelatedQuestionForm = ({ post, classes, refetch }: {
           <div>
             Hide this question from the home page
           </div>
-          <div><em>(useful if you have lots of related questions and don't want to avoid spamming)</em></div>
+          <div><em>(useful if you have lots of related questions and want to avoid spamming)</em></div>
         </div>}
       />
       <PostSubmit {...props} />
@@ -88,4 +88,3 @@ declare global {
     NewRelatedQuestionForm: typeof NewRelatedQuestionFormComponent
   }
 }
-

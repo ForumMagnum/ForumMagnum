@@ -3,7 +3,7 @@ import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib'
 import { withUpdate } from '../../lib/crud/withUpdate';
 import { Link } from '../../lib/reactRouterWrapper';
 import NoSSR from 'react-no-ssr';
-import Headroom from 'react-headroom'
+import Headroom from '../../lib/react-headroom'
 import { withTheme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';

@@ -296,6 +296,7 @@ interface DbSequence extends DbObject {
   gridImageId: string
   bannerImageId: string
   curatedOrder: number
+  userProfileOrder: number
   draft: boolean
   isDeleted: boolean
   canonicalCollectionSlug: string
