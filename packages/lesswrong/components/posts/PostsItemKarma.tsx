@@ -1,10 +1,10 @@
-import { registerComponent, getSetting, Components } from 'meteor/vulcan:core';
+import { registerComponent, getSetting, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 import withHover from '../common/withHover';
 
 const PostsItemKarma = ({post, hover, anchorEl}: {
-  post: any,
-  read: boolean,
+  post: PostsBase,
+  read?: boolean,
   hover?: any,
   anchorEl?: any,
 }) => {
@@ -13,11 +13,10 @@ const PostsItemKarma = ({post, hover, anchorEl}: {
   const { LWPopper } = Components
   return (
     <span>
-      <LWPopper open={hover} anchorEl={anchorEl} tooltip placement="top-start">
+      <LWPopper open={hover} anchorEl={anchorEl} tooltip placement="left">
         <div>
-          <div>
-            This post has { baseScore || 0 } karma ({ post.voteCount} votes)
-          </div>
+          <div>{ baseScore || 0 } karma</div>
+          <div>({ post.voteCount} votes)</div>
           {afBaseScore && <div><em>({afBaseScore} karma on AlignmentForum.org)</em></div>}
         </div>
       </LWPopper>
@@ -26,10 +25,12 @@ const PostsItemKarma = ({post, hover, anchorEl}: {
   )
 };
 
+const PostsItemKarmaComponent = registerComponent('PostsItemKarma', PostsItemKarma, {
+  hocs: [withHover()]
+});
+
 declare global {
   interface ComponentTypes {
-    PostsItemKarma: typeof PostsItemKarma,
+    PostsItemKarma: typeof PostsItemKarmaComponent,
   }
 }
-
-registerComponent('PostsItemKarma', PostsItemKarma, withHover());

@@ -53,14 +53,13 @@ npm-debug.log
 typings
 *.swp
 *.un~
-yarn.lock
 
 *.swp
 *.un~
-yarn.lock
 
 *.swp
 *.un~
 .vscode/launch.json
 
 .elasticbeanstalk/*
+

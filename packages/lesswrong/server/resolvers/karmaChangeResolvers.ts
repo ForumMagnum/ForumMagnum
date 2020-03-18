@@ -1,6 +1,6 @@
-import Users from "meteor/vulcan:users";
-import { getKarmaChanges, getKarmaChangeDateRange, getKarmaChangeNextBatchDate } from "../karmaChanges.js";
-import { getSetting } from 'meteor/vulcan:core';
+import Users from "../../lib/collections/users/collection";
+import { getKarmaChanges, getKarmaChangeDateRange, getKarmaChangeNextBatchDate } from "../karmaChanges";
+import { getSetting } from '../../lib/vulcan-lib';
 
 Users.addField([
   {
@@ -28,7 +28,9 @@ Users.addField([
             const lastOpened = newCurrentUser.karmaChangeLastOpened;
             const lastBatchStart = newCurrentUser.karmaChangeBatchStart;
             
-            const {start, end} = getKarmaChangeDateRange({settings, lastOpened, lastBatchStart, now}) 
+            const dateRange = getKarmaChangeDateRange({settings, lastOpened, lastBatchStart, now})
+            if (dateRange == null) return null;
+            const {start, end} = dateRange;
             startDate = start;
             endDate = end;
           }

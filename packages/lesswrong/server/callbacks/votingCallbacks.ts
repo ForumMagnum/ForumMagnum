@@ -1,5 +1,5 @@
-import { addCallback } from 'meteor/vulcan:core';
-import Users from 'meteor/vulcan:users';
+import { addCallback } from '../../lib/vulcan-lib';
+import Users from '../../lib/collections/users/collection';
 
 /**
  * @summary Update the karma of the item's owner
@@ -52,3 +52,16 @@ async function cancelVoteCount ({newDocument, vote}) {
 }
 
 addCallback("votes.cancel.async", cancelVoteCount);
+
+async function updateNeedsReview (document) {
+  const voter = await Users.findOne(document.vote.userId);
+  // voting should only be triggered once (after getting snoozed, they will not re-trigger for sunshine review)
+  if (voter && voter.voteCount >= 10 && !voter.reviewedByUserId) {
+    Users.update({_id:voter._id}, {$set:{needsReview: true}})
+  }
+}
+
+addCallback("votes.bigDownvote.async", updateNeedsReview);
+addCallback("votes.bigUpvote.async", updateNeedsReview);
+addCallback("votes.smallDownvote.async", updateNeedsReview);
+addCallback("votes.smallUpvote.async", updateNeedsReview);

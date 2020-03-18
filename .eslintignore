@@ -1,2 +1,3 @@
 packages/_*
 packages/vulcan-*/**/*.test.js
+packages/ddp-server

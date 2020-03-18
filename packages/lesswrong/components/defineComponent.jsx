@@ -1,4 +1,4 @@
-import { registerComponent } from 'meteor/vulcan:core';
+import { registerComponent } from '../lib/vulcan-core';
 import { withStyles } from '@material-ui/core/styles';
 import compose from 'lodash/flowRight';
 

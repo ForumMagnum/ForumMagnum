@@ -2,8 +2,8 @@ import Collections from "../../lib/collections/collections/collection";
 import Sequences from "../../lib/collections/sequences/collection";
 import { Books, makeEditableOptions } from '../../lib/collections/books/collection'
 import { Posts } from "../../lib/collections/posts";
-import { addCallback, runQuery } from 'meteor/vulcan:core';
-import { addEditableCallbacks } from '../editor/make_editable_callbacks.js';
+import { addCallback, runQuery } from '../vulcan-lib';
+import { addEditableCallbacks } from '../editor/make_editable_callbacks';
 import * as _ from 'underscore';
 
 async function getCompleteCollection(id) {
@@ -43,7 +43,7 @@ async function getCompleteCollection(id) {
 }
 
 async function getAllCollectionPosts(id) {
-  let queryResult = await getCompleteCollection(id);
+  let queryResult: any = await getCompleteCollection(id);
 
   let allCollectionPosts: Array<any> = [];
   let allCollectionSequences: Array<any> = [];

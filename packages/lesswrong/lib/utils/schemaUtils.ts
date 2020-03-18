@@ -1,7 +1,7 @@
-import { addCallback, getCollection } from 'meteor/vulcan:core';
-import Users from 'meteor/vulcan:users';
+import { addCallback, getCollection } from '../vulcan-lib';
+import Users from '../collections/users/collection';
 import SimpleSchema from 'simpl-schema'
-import { getWithLoader } from "../loaders.js";
+import { getWithLoader } from "../loaders";
 import { Meteor } from 'meteor/meteor';
 import * as _ from 'underscore';
 
@@ -89,7 +89,7 @@ export const foreignKeyField = ({idFieldName, resolverName, collectionName, type
 export function arrayOfForeignKeysField({idFieldName, resolverName, collectionName, type, getKey}: {
   idFieldName: string,
   resolverName: string,
-  collectionName: string,
+  collectionName: CollectionNameString,
   type: string,
   getKey?: (string)=>string,
 }) {
@@ -111,20 +111,23 @@ export function arrayOfForeignKeysField({idFieldName, resolverName, collectionNa
   }
 }
 
-const simplSchemaToGraphQLtype = (type) => {
+export const simplSchemaToGraphQLtype = (type): string|null => {
   if (type === String) return "String";
   else if (type === Number) return "Int";
   else if (type === Date) return "Date";
   else if (type === Boolean) return "Boolean";
-  else throw new Error("Invalid type in simplSchemaToGraphQLtype");
+  else return null;
 }
 
-export const resolverOnlyField = ({type, graphQLtype=null, resolver, graphqlArguments=null, ...rest}) => {
+export const resolverOnlyField = ({type, graphQLtype=null, resolver, graphqlArguments=null, ...rest}: any) => {
+  const resolverType = graphQLtype || simplSchemaToGraphQLtype(type);
+  if (!type)
+    throw new Error("Could not determine resolver graphQL type");
   return {
     type: type,
     optional: true,
     resolveAs: {
-      type: graphQLtype || simplSchemaToGraphQLtype(type),
+      type: resolverType,
       arguments: graphqlArguments,
       resolver: resolver,
     },
@@ -167,7 +170,10 @@ SimpleSchema.extendOptions(['canAutoDenormalize'])
 // the other fields on the document. (Doesn't work if it depends on the contents
 // of other collections, because it doesn't set up callbacks for changes in
 // those collections)
-export function denormalizedField({ needsUpdate, getValue }) {
+export function denormalizedField({ needsUpdate, getValue }: {
+  needsUpdate?: any,
+  getValue: any,
+}) {
   return {
     onUpdate: async ({data, document}) => {
       if (!needsUpdate || needsUpdate(data)) {
@@ -191,9 +197,14 @@ export function denormalizedField({ needsUpdate, getValue }) {
 // collection whose value for a field is this object's ID. For example, count
 // the number of comments on a post, or the number of posts by a user, updating
 // when objects are created/deleted/updated.
-export function denormalizedCountOfReferences({ collectionName, fieldName,
-  foreignCollectionName, foreignTypeName, foreignFieldName, filterFn })
-{
+export function denormalizedCountOfReferences({ collectionName, fieldName, foreignCollectionName, foreignTypeName, foreignFieldName, filterFn }: {
+  collectionName: CollectionNameString,
+  fieldName: string,
+  foreignCollectionName: string,
+  foreignTypeName: string,
+  foreignFieldName: string,
+  filterFn?: any,
+}) {
   const foreignCollectionCallbackPrefix = foreignTypeName.toLowerCase();
   
   if (!filterFn)
@@ -221,7 +232,7 @@ export function denormalizedCountOfReferences({ collectionName, fieldName,
     // out, or we may need to both but on different documents.
     addCallback(`${foreignCollectionCallbackPrefix}.update.after`,
       async (newDoc, {oldDocument, currentUser, collection}) => {
-        const countingCollection = getCollection(collectionName);
+        const countingCollection: any = getCollection(collectionName);
         if (filterFn(newDoc) && !filterFn(oldDocument)) {
           // The old doc didn't count, but the new doc does. Increment on the new doc.
           await countingCollection.update(newDoc[foreignFieldName], {

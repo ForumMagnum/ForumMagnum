@@ -3,9 +3,12 @@ import { withStyles, createStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import sumBy from 'lodash/sumBy'
-import { registerComponent, Components, useMulti, getFragment, updateEachQueryResultOfType, handleUpdateMutation, useUpdate } from 'meteor/vulcan:core';
+import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
+import { useUpdate } from '../../lib/crud/withUpdate';
+import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/crud/cacheUpdates';
+import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation } from 'react-apollo';
-import Users from 'meteor/vulcan:users';
+import Users from '../../lib/collections/users/collection';
 import { Paper } from '@material-ui/core';
 import { Posts } from '../../lib/collections/posts';
 import { useCurrentUser } from '../common/withUser';
@@ -20,7 +23,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
 
-const styles = createStyles(theme => ({
+const styles = theme => ({
   grid: {
     display: 'grid',
     gridTemplateColumns: `
@@ -145,7 +148,7 @@ const styles = createStyles(theme => ({
       display: "block"
     }
   }
-}));
+});
 
 type vote = {_id: string, postId: string, score: number, type?: string}
 type quadraticVote = vote & {type: "quadratic"}
@@ -172,7 +175,6 @@ const ReviewVotingPage = ({classes}) => {
   const { results: posts, loading: postsLoading } = useMulti({
     terms: {view:"reviews2018", limit: 100},
     collection: Posts,
-    queryName: 'postsListQuery',
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
     ssr: true
@@ -181,7 +183,6 @@ const ReviewVotingPage = ({classes}) => {
   const { results: dbVotes, loading: dbVotesLoading } = useMulti({
     terms: {view: "reviewVotesFromUser", limit: 100, userId: currentUser?._id},
     collection: ReviewVotes,
-    queryName: "reviewVoteQuery",
     fragmentName: "reviewVoteFragment",
     fetchPolicy: 'cache-and-network',
     ssr: true
@@ -209,7 +210,7 @@ const ReviewVotingPage = ({classes}) => {
     }
   });
 
-  const [useQuadratic, setUseQuadratic] = useState(currentUser?.reviewVotesQuadratic)
+  const [useQuadratic, setUseQuadratic] = useState(currentUser ? currentUser.reviewVotesQuadratic : false)
   const [loading, setLoading] = useState(false)
   const [expandedPost, setExpandedPost] = useState<any>(null)
 
@@ -223,7 +224,7 @@ const ReviewVotingPage = ({classes}) => {
 
     setUseQuadratic(newUseQuadratic)
     updateUser({
-      selector: {_id: currentUser._id},
+      selector: {_id: currentUser?._id},
       data: {
         reviewVotesQuadratic: newUseQuadratic,
       }
@@ -242,7 +243,7 @@ const ReviewVotingPage = ({classes}) => {
         submitReviewVote: {
           __typename: "ReviewVote",
           ...existingVote,
-          quadraticScore: (typeof set !== 'undefined') ? set : (existingVote.quadraticScore + (change || 0))
+          quadraticScore: (typeof set !== 'undefined') ? set : ((existingVote?.quadraticScore || 0) + (change || 0))
         }
       }
     })
@@ -256,8 +257,11 @@ const ReviewVotingPage = ({classes}) => {
     captureEvent(undefined, {eventSubType: "postsResorted"})
   }
 
+  // Re-sort in response to changes. (But we don't need to re-sort in response
+  // to everything exhaustively)
   useEffect(() => {
     if (!!posts && useQuadratic ? !!quadraticVotes : !!votes) setPostOrder(new Map(getPostOrder(posts, useQuadratic ? quadraticVotes : votes, currentUser)))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!posts, useQuadratic, !!quadraticVotes, !!votes])
 
   if (!currentUser || currentUser.karma < 1000) {
@@ -401,8 +405,10 @@ function getVoteForPost(votes, postId) {
 
 function CommentTextField({startValue, updateValue, postId}) {
   const [text, setText] = useState(startValue)
+  // Reset text when postId changes
   useEffect(() => {
     setText(startValue)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postId])
   const debouncedUpdateValue = useCallback(_.debounce((value) => {
     updateValue(value)
@@ -460,7 +466,7 @@ const qualitativeScoreScaling = {
 
 const VOTE_BUDGET = 500
 const MAX_SCALING = 6
-const votesToQuadraticVotes = (votes:qualitativeVote[], posts: any[]):{postId: String, change?: number, set?: number, _id?: string, previousValue?: number}[] => {
+const votesToQuadraticVotes = (votes:qualitativeVote[], posts: any[]):{postId: string, change?: number, set?: number, _id?: string, previousValue?: number}[] => {
   const sumScaled = sumBy(votes, vote => Math.abs(qualitativeScoreScaling[vote ? vote.score : 1]) || 0)
   return createPostVoteTuples(posts, votes).map(([post, vote]) => {
     if (vote) {
@@ -480,7 +486,7 @@ const computeQuadraticVoteScore = (qualitativeScore: 0|1|2|3|4, totalCost: numbe
 }
 
 const inverseSumOf1ToN = (x:number) => {
-  return Math.sign(x)*(1/2 * (Math.sqrt(8 * Math.abs(x) + 1) - 1))
+  return Math.sign(x)*(1/2 * (Math.sqrt((8 * Math.abs(x)) + 1) - 1))
 }
 
 const sumOf1ToN = (x:number) => {
@@ -539,18 +545,19 @@ const voteRowStyles = createStyles(theme => ({
 
 const VoteTableRow = withStyles(voteRowStyles, {name: "VoteTableRow"})((
   {post, dispatch, dispatchQuadraticVote, quadraticVotes, useQuadratic, classes, expandedPostId, votes }:
-  {post: any, dispatch: React.Dispatch<vote>, quadraticVotes: vote[], dispatchQuadraticVote: any, useQuadratic: boolean, classes:any, expandedPostId: string, votes: vote[] }
+  {post: PostsList, dispatch: React.Dispatch<vote>, quadraticVotes: vote[], dispatchQuadraticVote: any, useQuadratic: boolean, classes:ClassesType, expandedPostId: string, votes: vote[] }
 ) => {
   const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo } = Components
 
   const currentUser = useCurrentUser()
+  if (!currentUser) return null;
 
   return <AnalyticsContext pageElementContext="voteTableRow">
     <div className={classNames(classes.root, {[classes.expanded]: expandedPostId === post._id})}>
       <div>
         <div className={classes.postVote} >
           <div className={classes.post}>
-            <LWTooltip title={<PostsPreviewTooltip showAllInfo post={post}/>} tooltip={false} flip={false}>
+            <LWTooltip title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
               <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap />
             </LWTooltip>
           </div>
@@ -594,7 +601,7 @@ const indexToTermsLookup = {
   4: "Crucial"
 }
 
-const VotingButtons = withStyles(votingButtonStyles, {name: "VotingButtons"})(({classes, postId, dispatch, votes}: {classes: any, postId: string, dispatch: any, votes: vote[]}) => {
+const VotingButtons = withStyles(votingButtonStyles, {name: "VotingButtons"})(({classes, postId, dispatch, votes}: {classes: ClassesType, postId: string, dispatch: any, votes: vote[]}) => {
   const voteForCurrentPost = votes.find(vote => vote.postId === postId)
   const score = voteForCurrentPost?.score
   const [selection, setSelection] = useState(voteForCurrentPost ? score : 1)
@@ -631,7 +638,7 @@ const quadraticVotingButtonStyles = theme => ({
   }
 })
 
-const QuadraticVotingButtons = withStyles(quadraticVotingButtonStyles, {name: "QuadraticVotingButtons"})(({classes, postId, vote, votes }: {classes: any, postId: string, vote: any, votes: vote[]}) => {
+const QuadraticVotingButtons = withStyles(quadraticVotingButtonStyles, {name: "QuadraticVotingButtons"})(({classes, postId, vote, votes }: {classes: ClassesType, postId: string, vote: any, votes: vote[]}) => {
   const voteForCurrentPost = votes.find(vote => vote.postId === postId)
   const createClickHandler = (postId: string, type: 'buy' | 'sell', voteId: string | undefined, score: number | undefined) => {
       return () => {
@@ -645,4 +652,10 @@ const QuadraticVotingButtons = withStyles(quadraticVotingButtonStyles, {name: "Q
   </div>
 })
 
-registerComponent('ReviewVotingPage', ReviewVotingPage,withStyles(styles, {name: "ReviewVotingPage"}));
+const ReviewVotingPageComponent = registerComponent('ReviewVotingPage', ReviewVotingPage, {styles});
+
+declare global {
+  interface ComponentTypes {
+    ReviewVotingPage: typeof ReviewVotingPageComponent
+  }
+}
