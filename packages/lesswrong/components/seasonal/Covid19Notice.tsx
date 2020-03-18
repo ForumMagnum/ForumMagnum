@@ -28,6 +28,6 @@ const Covid19NoticeComponent = registerComponent('Covid19Notice', Covid19Notice,
 
 declare global {
   interface ComponentTypes {
-    Convid19Notice: typeof Covid19NoticeComponent
+    Covid19Notice: typeof Covid19NoticeComponent
   }
 }

@@ -13,19 +13,15 @@ const styles = theme => ({
   }
 })
 
-interface ExternalProps {
-  children?: React.ReactNode,
+const LWTooltip = ({classes, children, title, placement="bottom-start", tooltip=true, flip=true, enterDelay=undefined}: {
+  children?: any,
   title?: any,
   placement?: PopperPlacementType,
   tooltip?: boolean,
   flip?: boolean,
-  muiClasses?: any,
   enterDelay?: number,
-}
-interface LWTooltipProps extends ExternalProps, WithStylesProps, WithHoverProps {
-}
-
-const LWTooltip = ({classes, children, title, placement="bottom-start", tooltip=true, flip=true, muiClasses=undefined, enterDelay=undefined}: LWTooltipProps) => {
+  classes: ClassesType,
+}) => {
   const { LWPopper } = Components
   const { hover, everHovered, anchorEl, stopHover, eventHandlers } = useHover({
     pageElementContext: "tooltipHovered",
@@ -49,7 +45,6 @@ const LWTooltip = ({classes, children, title, placement="bottom-start", tooltip=
           enabled: flip
         }
       }}
-      classes={muiClasses}
       enterDelay={enterDelay}
     >
       <div className={classes.tooltip}>{title}</div>
@@ -59,7 +54,7 @@ const LWTooltip = ({classes, children, title, placement="bottom-start", tooltip=
   </span>
 }
 
-const LWTooltipComponent = registerComponent<ExternalProps>("LWTooltip", LWTooltip, { styles });
+const LWTooltipComponent = registerComponent("LWTooltip", LWTooltip, { styles });
 
 declare global {
   interface ComponentTypes {

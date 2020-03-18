@@ -28,6 +28,7 @@ interface DbUser extends DbObject {
   markDownPostEditor: boolean
   hideNavigationSidebar: boolean
   currentFrontpageFilter: string
+  frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/
   allPostsTimeframe: string
   allPostsFilter: string
   allPostsSorting: string
@@ -348,6 +349,7 @@ interface DbPost extends DbObject {
   canonicalSource: string
   nominationCount2018: number
   reviewCount2018: number
+  tagRelevance: any /*{"definitions":[{}]}*/
   voteCount: number
   baseScore: number
   score: number

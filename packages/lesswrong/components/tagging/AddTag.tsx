@@ -24,9 +24,8 @@ const styles = theme => ({
   }
 });
 
-const AddTag = ({post, onTagSelected, classes}: {
-  post: PostsBase,
-  onTagSelected: (id:string)=>void,
+const AddTag = ({onTagSelected, classes}: {
+  onTagSelected: (props: {tagId: string, tagName: string})=>void,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -65,7 +64,7 @@ const AddTag = ({post, onTagSelected, classes}: {
       <input placeholder="Tag ID" type="text" onKeyPress={ev => {
         if (ev.charCode===13) {
           const id = (ev.target as any).value;
-          onTagSelected(id);
+          onTagSelected({tagId: id, tagName: "Tag"});
           ev.preventDefault();
         }
       }}/>
@@ -83,7 +82,7 @@ const AddTag = ({post, onTagSelected, classes}: {
       {searchOpen && <Hits hitComponent={({hit}) =>
         <Components.TagSearchHit hit={hit}
           onClick={ev => {
-            onTagSelected(hit._id);
+            onTagSelected({tagId: hit._id, tagName: hit.name});
             ev.stopPropagation();
           }}
         />
