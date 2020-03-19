@@ -63,6 +63,9 @@ const styles = theme => ({
   submitButton: {
     margin: "auto"
   },
+  smallSubmitButton: {
+    fontWeight: 600
+  },
   table: {
     width: "100%",
     height: "90vh",
@@ -226,7 +229,7 @@ const styles = theme => ({
     backgroundColor: theme.palette.grey[300],
     cursor: "pointer",
     boxShadow: "0 0 3px rgba(0,0,0,.3)",
-    whiteSpace: "pre"
+    whiteSpace: "pre",
   },
   tabLabel: {
     fontWeight: 600,
@@ -3260,7 +3263,29 @@ const SpreadsheetPage = ({classes}:{
   const rows = _.find(tabs, tab => tab.label === selectedTab)?.rows || []
   return (
     <div className={classes.root}>
-      <div className={classes.introductionSection}>
+      <div className={classes.tabRow}>
+        {tabs.map(tab => <LWTooltip key={tab.label} placement="top" title={<div>
+            {tab.description} ({tab.rows.length - 1})
+          </div>}>
+              <div 
+                className={classNames(classes.tab, {[classes.tabSelected]:tab.label === selectedTab})}
+                onClick={()=>setSelectedTab(tab.label)}
+              >
+                <span className={classes.tabLabel}>
+                  {tab.displayLabel || tab.label}
+                </span>
+                <span className={classes.tabCount}>
+                  {tab.rows.length - 1}
+                </span>
+            </div>
+          </LWTooltip>)}
+          <Link to="https://docs.google.com/forms/d/e/1FAIpQLSc5uVDXrowWmhlaDbT3kukODdJotWOZXZivdlFmaHQ6n2gsKw/viewform">
+            <Button color="primary">
+              <span className={classes.smallSubmitButton}>Submit New Link</span>
+            </Button>
+          </Link>
+      </div>
+      {selectedTab == "Intro" && <div className={classes.introductionSection}>
         <div className={classes.introduction}>
           <h1>Coronavirus Database</h1>
           <p>
@@ -3278,32 +3303,10 @@ const SpreadsheetPage = ({classes}:{
             </Link>
           </div>
         </div>
-      </div>
-      <div className={classes.tabRow}>
-        {tabs.map(tab => <LWTooltip key={tab.label} placement="top" title={<div>
-            {tab.description} ({tab.rows.length - 1})
-          </div>}>
-              <div 
-                className={classNames(classes.tab, {[classes.tabSelected]:tab.label === selectedTab})}
-                onClick={()=>setSelectedTab(tab.label)}
-              >
-                <span className={classes.tabLabel}>
-                  {tab.displayLabel || tab.label}
-                </span>
-                <span className={classes.tabCount}>
-                  {tab.rows.length - 1}
-                </span>
-            </div>
-          </LWTooltip>)}
-          <Link to="https://docs.google.com/forms/d/e/1FAIpQLSc5uVDXrowWmhlaDbT3kukODdJotWOZXZivdlFmaHQ6n2gsKw/viewform" className={classes.submitButton}>
-            <Button color="primary" variant="contained">
-              Submit New Link
-            </Button>
-          </Link>
-      </div>
+      </div>}
       <div className={classes.table}>
         <Table>
-          <TableBody>
+          {selectedTab !== "Intro" ? <TableBody>
             {rows.map((row, rowNum) => (
               <TableRow key={`row-${rowNum}`}>
                 {row.map((cell, cellNum) => {
@@ -3343,6 +3346,11 @@ const SpreadsheetPage = ({classes}:{
               </TableRow>
             ))}
           </TableBody>
+          :
+          <TableBody>
+            <TableCell classes={{}}></TableCell>
+          </TableBody>
+          }
         </Table>
       </div>
     </div>
