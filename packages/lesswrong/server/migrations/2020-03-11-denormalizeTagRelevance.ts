@@ -9,10 +9,12 @@ registerMigration({
   dateWritten: "2020-03-11",
   idempotent: true,
   action: async () => {
-    forEachDocumentBatchInCollection({
+    await forEachDocumentBatchInCollection({
       collection: Posts,
       batchSize: 100,
       callback: async (posts) => {
+        // eslint-disable-next-line no-console
+        console.log("Migrating post batch");
         await Promise.all(posts.map(post => updatePostDenormalizedTags(post._id)));
       }
     });

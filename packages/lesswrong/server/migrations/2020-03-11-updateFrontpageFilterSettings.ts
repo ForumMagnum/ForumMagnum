@@ -8,10 +8,12 @@ registerMigration({
   dateWritten: "2020-03-11",
   idempotent: true,
   action: async () => {
-    forEachDocumentBatchInCollection({
+    await forEachDocumentBatchInCollection({
       collection: Users,
       batchSize: 100,
       callback: async (users: Array<DbUser>) => {
+        // eslint-disable-next-line no-console
+        console.log("Migrating user batch");
         let changes: Array<any> = [];
         
         for (let user of users) {
