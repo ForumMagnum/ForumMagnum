@@ -29,7 +29,7 @@ const styles = theme => ({
 const latestPostsName = getSetting('forumType') === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts'
 
 const useFilterSettings = (currentUser: UsersCurrent|null) => {
-  const defaultSettings = currentUser ? currentUser.frontpageFilterSettings : defaultFilterSettings;
+  const defaultSettings = currentUser?.frontpageFilterSettings ? currentUser.frontpageFilterSettings : defaultFilterSettings;
   
   return useState(defaultSettings);
 }
