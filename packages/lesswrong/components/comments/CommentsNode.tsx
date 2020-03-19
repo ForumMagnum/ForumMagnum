@@ -287,17 +287,14 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
   }
 
   isSingleLine = (): boolean => {
-    const { forceSingleLine, forceNotSingleLine, postPage, currentUser } = this.props
+    const { forceSingleLine, forceNotSingleLine, currentUser } = this.props
     const { singleLine } = this.state
 
     if (!singleLine || currentUser?.noSingleLineComments) return false;
     if (forceSingleLine) return true;
     if (forceNotSingleLine) return false
 
-    // highlighted new comments on post page should always be expanded (and it needs to live here instead of "beginSingleLine" since the highlight status can change after the fact)
-    const postPageAndNew = this.isNewComment() && postPage
-
-    return this.isTruncated() && !postPageAndNew
+    return this.isTruncated() && !this.isNewComment()
   }
 
   render() {

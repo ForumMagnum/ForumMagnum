@@ -256,6 +256,7 @@ class Header extends PureComponent<HeaderProps,HeaderState> {
             <Headroom
               disableInlineStyles
               downTolerance={10} upTolerance={10}
+              height={64}
               className={classNames(
                 classes.headroom,
                 { [classes.headroomPinnedOpen]: searchOpen }
