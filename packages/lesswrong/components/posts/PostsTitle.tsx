@@ -6,6 +6,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Posts } from '../../lib/collections/posts';
 import { userHasBoldPostItems } from '../../lib/betas';
+import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 
 const styles = theme => ({
   root: {
@@ -108,9 +109,9 @@ const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true
 
     {shared && <span className={classes.tag}>[Shared]</span>}
 
-    {post.question && shouldRenderQuestionTag && <span className={classes.tag}>[Question]</span>}
+    {/* {post.question && shouldRenderQuestionTag && <span className={classes.question}>Q</span>} */}
 
-    {post.url && showLinkTag && <span className={classes.tag}>[Link]</span>}
+    {/* {post.url && showLinkTag && <span className={classes.tag}>[Link]</span>} */}
 
     {post.isEvent && shouldRenderEventsTag && <span className={classes.tag}>[Event]</span>}
 
