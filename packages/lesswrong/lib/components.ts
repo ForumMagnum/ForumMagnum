@@ -340,6 +340,7 @@ importComponent("LastCuratedDate", () => require('../components/sunshineDashboar
 importComponent(["EmailHistory", "EmailHistoryPage"], () => require('../components/sunshineDashboard/EmailHistory'));
 
 importComponent("AddTag", () => require('../components/tagging/AddTag'));
+importComponent("AddTagButton", () => require('../components/tagging/AddTagButton'));
 importComponent("TagPage", () => require('../components/tagging/TagPage'));
 importComponent("TagPageTitle", () => require('../components/tagging/TagPageTitle'));
 importComponent("FooterTagList", () => require('../components/tagging/FooterTagList'));
@@ -347,6 +348,8 @@ importComponent("FooterTag", () => require('../components/tagging/FooterTag'));
 importComponent("NewTagPage", () => require('../components/tagging/NewTagPage'));
 importComponent("EditTagPage", () => require('../components/tagging/EditTagPage'));
 importComponent("AllTagsPage", () => require('../components/tagging/AllTagsPage'));
+importComponent("TagFilterSettings", () => require('../components/tagging/TagFilterSettings'));
+importComponent("FilterMode", () => require('../components/tagging/FilterMode'));
 importComponent("TagPreview", () => require('../components/tagging/TagPreview'));
 importComponent("TagHoverPreview", () => require('../components/tagging/TagHoverPreview'));
 importComponent("TagRelCard", () => require('../components/tagging/TagRelCard'));
