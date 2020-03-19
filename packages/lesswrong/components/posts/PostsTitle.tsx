@@ -6,7 +6,6 @@ import { useLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Posts } from '../../lib/collections/posts';
 import { userHasBoldPostItems } from '../../lib/betas';
-import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 
 const styles = theme => ({
   root: {
@@ -89,7 +88,7 @@ const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true
 
   const shared = post.draft && (post.userId !== currentUser?._id)
 
-  const shouldRenderQuestionTag = (pathname !== "/questions") && showQuestionTag
+  // const shouldRenderQuestionTag = (pathname !== "/questions") && showQuestionTag
   const shouldRenderEventsTag = pathname !== "/community"
 
   const url = postLink || Posts.getPageUrl(post)
