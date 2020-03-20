@@ -370,9 +370,24 @@ const SpreadsheetPage = ({classes}:{
       rows: _.filter(sortedRowsImp, row => row.category === "Everyday Life")
     },
     {
+      label: "DIY",
+      description: "Advice on how to build and use medical supplies.",
+      rows: _.filter(sortedRowsImp, row => row.category === "DIY")
+    },
+    {
+      label: "Work & Donate",
+      description: "Opportunities to help out. Volunteering and paid positions, as well as donation advice.",
+      rows: _.filter(sortedRowsImp, row => row.category === "Work & Donate")
+    },
+    {
       label: "Aggregators",
-      description: "Websites aggregating other content",
+      description: "Websites aggregating other content.",
       rows: _.filter(sortedRowsImp, row => row.category === "Aggregators")
+    },
+    {
+      label: "Other",
+      description: "Links that don’t fit into the current categories.",
+      rows: _.filter(sortedRowsImp, row => row.category === "Other")
     }
   ]
   const currentTab = _.find(tabs, tab => tab.label === selectedTab)
