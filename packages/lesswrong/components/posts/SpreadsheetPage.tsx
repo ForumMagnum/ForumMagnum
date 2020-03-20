@@ -41,7 +41,7 @@ const styles = theme => ({
   },
   intro: {
     paddingLeft: 25,
-    paddingRight: 25,
+    paddingRight: 0,
     paddingTop: 30,
     paddingBottom: 30,
     maxWidth: 620,
@@ -52,6 +52,7 @@ const styles = theme => ({
     backgroundColor: "rgba(0,0,0,.035)"
   },
   submitButton: {
+    marginLeft: 50,
     padding: 16,
     paddingLeft: 25,
     paddingRight: 25,
@@ -225,33 +226,35 @@ const styles = theme => ({
   topLinkRow: {
     display: "flex",
     borderBottom: "solid 1px rgba(0,0,0,.1)",
-    alignItems: "center"
+    alignItems: "center",
+    fontSize: "1rem",
+    '&:last-child': {
+      borderBottom: "none"
+    }
   },
   topLink: {
     minWidth: 220,
     maxWidth: 220,
     padding: 16,
-    paddingTop: 12,
-    paddingBottom: 12,
-    fontSize: "1rem"
+    paddingTop: 10,
+    paddingBottom: 10,
+
   },
   topLinkDomain: {
     minWidth: 180,
     maxWidth: 180,
     padding: 16,
-    paddingTop: 12,
-    paddingBottom: 12,
-    wordBreak: "break-all",
-    fontSize: "1rem"
+    paddingTop: 10,
+    paddingBottom: 10,
+    wordBreak: "break-all"
   },
   topLinkDescription: {
     padding: 16,
-    paddingTop: 12,
-    paddingBottom: 12,
-    fontSize: "1rem"
+    paddingTop: 10,
+    paddingBottom: 10
   },
   categoryRow: {
-    borderBottom: "solid 1px rgba(0,0,0,.2)"
+    borderBottom: `solid 5px ${theme.palette.grey[200]}`
   }
 })
 
@@ -494,27 +497,27 @@ const SpreadsheetPage = ({classes}:{
             </TableRow>
             {tabs.map(tab => {
               if (tab.label == "All Links") return null
-              return <TableRow key={`intro-${tab.label}`}>
-                <TableCell className={classes.cellSheet} onClick={() => setSelectedTab(tab.label)}>
-                  <a>{tab.displayLabel || tab.label}</a>
-                </TableCell>
-                <TableCell className={classes.cellSheetDescription}>
-                  {tab.description}
-                </TableCell>
-                <TableCell className={classes.topLinks}>
-                  {[0,1].map(rowNum => <div className={classes.topLinkRow} key={`topLink-${tab.label}-${rowNum}`}>
-                      <div className={classes.topLink}>
-                        {linkCell(tab.rows[rowNum].url, tab.rows[rowNum].link, null)}
-                      </div>
-                      <div className={classes.topLinkDomain}>
-                        {tab.rows[rowNum].domain}
-                      </div>
-                      <div className={classes.topLinkDescription}>
-                        {tab.rows[rowNum].description}
-                      </div>
-                  </div>)}
-                </TableCell>
-              </TableRow>
+              return <TableRow key={`intro-${tab.label}`} className={classes.categoryRow}>
+                  <TableCell className={classes.cellSheet} onClick={() => setSelectedTab(tab.label)}>
+                    <a>{tab.displayLabel || tab.label}</a>
+                  </TableCell>
+                  <TableCell className={classes.cellSheetDescription}>
+                    {tab.description}
+                  </TableCell>
+                  <TableCell className={classes.topLinks}>
+                    {[0,1,2].map(rowNum => <div className={classes.topLinkRow} key={`topLink-${tab.label}-${rowNum}`}>
+                        <div className={classes.topLink}>
+                          {linkCell(tab.rows[rowNum].url, tab.rows[rowNum].link, null)}
+                        </div>
+                        <div className={classes.topLinkDomain}>
+                          {tab.rows[rowNum].domain}
+                        </div>
+                        <div className={classes.topLinkDescription}>
+                          {tab.rows[rowNum].description}
+                        </div>
+                    </div>)}
+                  </TableCell>
+                </TableRow>
             })}
           </TableBody>
           }
