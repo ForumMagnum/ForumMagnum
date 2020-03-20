@@ -40,7 +40,7 @@ const styles = theme => ({
     position: "relative",
   },
   intro: {
-    maxWidth: 560,
+    maxWidth: 564,
     ...commentBodyStyles(theme),
   },
   introCell: {
@@ -51,7 +51,6 @@ const styles = theme => ({
     justifyContent: "space-around",
     alignItems: "center",
     maxWidth: 880,
-    margin: "auto"
   },
   submitButton: {
     marginLeft: 50,
@@ -166,7 +165,7 @@ const styles = theme => ({
     flexWrap: "wrap-reverse",
   },
   tab: {
-    ...theme.typography.commentStyles,
+    ...theme.typography.commentStyle,
     fontSize: "1rem",
     marginTop: 4,
     marginLeft: 2,
