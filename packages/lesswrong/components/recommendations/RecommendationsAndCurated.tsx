@@ -23,7 +23,7 @@ const styles = theme => ({
   },
   footerWrapper: {
     display: "flex",
-    justifyContent: "flex-end",
+    justifyContent: "flex-start",
     marginTop: 12,
   },
   footer: {
@@ -203,6 +203,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
               </Link>
               <SeparatorBullet/>
               <SubscribeWidget view={"curated"} />
+              <Link to="/tag/coronavirus">Coronavirus Tag Page</Link>
             </Typography>
           </div>
         </div>
