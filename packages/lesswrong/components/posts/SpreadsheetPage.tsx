@@ -88,7 +88,8 @@ const styles = theme => ({
   },
   cellFoundVia: {
     ...cellStyle(theme),
-    maxWidth: 110
+    maxWidth: 210,
+    color: 'rgba(0,0,0,0.6)'
   },
   cellLastUpdated: {
     ...cellStyle(theme),
@@ -99,6 +100,10 @@ const styles = theme => ({
     textAlign: "center",
     minWidth: 110,
   },
+  cellTitle: {
+    ...cellStyle(theme),
+    color: 'rgba(0,0,0,0.6)'
+  },
   headerCell: {
     ...headerStyle(theme),
   },
@@ -108,8 +113,6 @@ const styles = theme => ({
   },
   headerTitle: {
     ...headerStyle(theme),
-    maxWidth: 110,
-    textAlign: "center"
   },
   headerDate: {
     ...headerStyle(theme),
@@ -137,10 +140,10 @@ const styles = theme => ({
   },
   leftFixed1: {
     ...cellStyle(theme),
-    backgroundColor: theme.palette.grey[100],
+    backgroundColor: 'white',
     position: "sticky",
     left: 0,
-    minWidth: 240,
+    minWidth: 400,
     boxShadow: "2px 0 2px -1px rgba(0,0,0,.15)",
     '& a': {
       color: theme.palette.primary.dark
@@ -218,7 +221,8 @@ const styles = theme => ({
     width: 250
   },
   link: {
-    color: theme.palette.primary.dark
+    color: theme.palette.primary.dark,
+    fontSize: '1.2em',
   },
   topLinks: {
     padding: 0,
@@ -234,12 +238,11 @@ const styles = theme => ({
     }
   },
   topLink: {
-    minWidth: 220,
-    maxWidth: 220,
+    minWidth: 400,
+    maxWidth: 400,
     padding: 16,
     paddingTop: 10,
     paddingBottom: 10,
-
   },
   topLinkDomain: {
     minWidth: 150,
@@ -256,6 +259,23 @@ const styles = theme => ({
   },
   categoryRow: {
     borderBottom: `solid 5px ${theme.palette.grey[200]}`
+  },
+  added: {
+    display: 'block'
+  },
+  updated: {
+    display: 'block'
+  },
+  source: {
+    display: 'block'
+  },
+  description: {
+    display: 'block'
+  },
+  reviewerThoughts: {
+    display: 'block',
+    color: 'rgba(0,0,0,0.6)',
+    marginTop: 8
   }
 })
 
@@ -300,16 +320,17 @@ const SpreadsheetPage = ({classes}:{
   const sortedRowsAdded = _.sortBy(dataRows, row => -row.dateAdded)
   const sortedRowsImp = _.sortBy(sortedRowsAdded, row => -row.imp)
 
-  const linkCell = (url, link, domain) => <div>
+  const linkCell = (url, link, domain, type) => <div>
       <div className={classes.link}><HoverPreviewLink href={url} innerHTML={link}/></div>
-      {domain && <div className={classes.domain}>{domain}</div>}
+      {domain && <div className={classes.domain}>{domain} {type && <span>- {type}</span>}</div>}
     </div>
 
   const tabs = [
     {
       label: "All Links",
       description: "All links that we've added, sorted by the most recent.",
-      rows: sortedRowsAdded
+      rows: sortedRowsAdded,
+      showCategory: true
     },
     {
       label: "Guides/FAQs/Intros",
@@ -323,10 +344,10 @@ const SpreadsheetPage = ({classes}:{
       rows: _.filter(sortedRowsImp, row => row.category === "Dashboards")
     },
     {
-      label: "Progression/Outcome",
+      label: "Progression & Outcome",
       displayLabel: "Progression & Outcome",
       description: "Information on what happens once you have COVID-19.",
-      rows: _.filter(sortedRowsImp, row => row.category === "Progression/Outcome")
+      rows: _.filter(sortedRowsImp, row => row.category === "Progression & Outcome")
     },
     {
       label: "Spread & Prevention",
@@ -354,8 +375,8 @@ const SpreadsheetPage = ({classes}:{
       rows: _.filter(sortedRowsImp, row => row.category === "Aggregators")
     }
   ]
-
-  const rows = _.find(tabs, tab => tab.label === selectedTab)?.rows || []
+  const currentTab = _.find(tabs, tab => tab.label === selectedTab)
+  const rows = currentTab?.rows || []
   return (
     <div className={classes.root}>
       <div className={classes.tabRow}>
@@ -399,26 +420,17 @@ const SpreadsheetPage = ({classes}:{
               <TableCell classes={{root: classes.leftFixedHeader1}}>
                 Link
               </TableCell>
-              {["Summary", "Type"].map(header => <TableCell key={header} classes={{root: classes.headerCell}}>
-                <span>{header}</span>
-              </TableCell>)}
-              <TableCell classes={{root: classes.headerReviewerThoughts}}>
-                Reviewer Thoughts
-              </TableCell>
               <TableCell classes={{root: classes.headerCell}}>
-                Found Via
+                Summary
               </TableCell>
-              <TableCell classes={{root: classes.headerDate}}>
-                Last Updated
+              {currentTab.showCategory &&  <TableCell classes={{root: classes.headerCell}}>
+                Category
+              </TableCell>}
+              <TableCell classes={{root: classes.headerCell}}>
+                Meta
               </TableCell>
               <TableCell classes={{root: classes.headerTitle}}>
-                Title
-              </TableCell>
-              <TableCell classes={{root: classes.headerDate}}>
-                Date Added
-              </TableCell>
-              <TableCell classes={{root: classes.headerCell}}>
-                Category
+                Name / Opening Sentence
               </TableCell>
             </TableRow>
             {rows.map(({
@@ -439,31 +451,26 @@ const SpreadsheetPage = ({classes}:{
               <TableRow key={`row-${rowNum}`}>
                 <TableCell classes={{root: classes.leftFixed0}}>{imp}</TableCell>
                 <TableCell className={classes.leftFixed1}>
-                  {linkCell(url, link, domain)}
+                  {linkCell(url, link, domain, type)}
                 </TableCell>
                 <TableCell classes={{root: classes.cellDescription}}>
-                  {description}
+                  <span className={classes.description}>
+                    {description}
+                  </span>  
+                  {reviewerThoughts && <span className={classes.reviewerThoughts}>
+                    {reviewerThoughts}
+                  </span>}
                 </TableCell>
-                <TableCell classes={{root: classes.cell}}>
-                  {type}
-                </TableCell>
-                <TableCell classes={{root: classes.cellReviewerThoughts}}>
-                  {reviewerThoughts}
-                </TableCell>
-                <TableCell classes={{root: classes.cellFoundVia}}>
-                  <HoverPreviewLink href={sourceLink} innerHTML={foundVia}/>
-                </TableCell>
-                <TableCell classes={{root: classes.cellLastUpdated}}>
-                  {lastUpdated}
-                </TableCell>
-                <TableCell classes={{root: classes.cell}}>
-                  {title}
-                </TableCell>
-                <TableCell classes={{root: classes.cellDateAdded}}>
-                  {dateAdded}
-                </TableCell>
-                <TableCell classes={{root: classes.cell}}>
+                {currentTab.showCategory && <TableCell classes={{root: classes.cell}}>
                   {category}
+                </TableCell>}
+                <TableCell classes={{root: classes.cellFoundVia}}>
+                  <span className={classes.added}>Added: {dateAdded}</span>
+                  <span className={classes.updated}>Updated: {lastUpdated} </span>
+                  <span className={classes.source}>Source: <HoverPreviewLink href={sourceLink} innerHTML={foundVia}/></span>
+                </TableCell>
+                <TableCell classes={{root: classes.cellTitle}}>
+                  {title}
                 </TableCell>
               </TableRow>
             ))}
@@ -510,13 +517,10 @@ const SpreadsheetPage = ({classes}:{
                   <TableCell className={classes.topLinks}>
                     {[0,1,2].map(rowNum => <div className={classes.topLinkRow} key={`topLink-${tab.label}-${rowNum}`}>
                         <div className={classes.topLink}>
-                          {linkCell(tab.rows[rowNum].url, tab.rows[rowNum].link, null)}
-                        </div>
-                        <div className={classes.topLinkDomain}>
-                          {tab.rows[rowNum].domain}
+                          {tab.rows[rowNum] && linkCell(tab.rows[rowNum].url, tab.rows[rowNum].link, tab.rows[rowNum].domain, tab.rows[rowNum].type)}
                         </div>
                         <div className={classes.topLinkDescription}>
-                          {tab.rows[rowNum].description}
+                          {tab.rows[rowNum]?.description}
                         </div>
                     </div>)}
                   </TableCell>
