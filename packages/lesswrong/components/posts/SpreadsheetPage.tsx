@@ -6,29 +6,17 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import StarIcon from '@material-ui/icons/Star';
-import Button from '@material-ui/core/Button';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import * as _ from 'underscore';
 import classNames from 'classnames';
-import { Link } from '../../lib/reactRouterWrapper';
 import { useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
 
 const cellStyle = theme => ({
-  ...commentBodyStyles(theme),
   maxWidth: 350,
-  fontSize: "1rem",
-  paddingLeft: 16,
-  paddingRight: 16,
-  paddingTop: 12,
-  paddingBottom: 12,
-  marginTop: 0,
-  marginBottom: 0,
-  wordBreak: "normal",
 })
 
 const headerStyle = theme => ({
-  ...commentBodyStyles(theme),
   fontSize: "1.1rem",
   fontWeight: 600,
   backgroundColor: theme.palette.grey[800],
@@ -37,33 +25,41 @@ const headerStyle = theme => ({
   wordBreak: "normal",
   position: "sticky",
   top: 0,
-  paddingLeft: 16,
-  paddingRight: 16,
   paddingTop: 0,
   paddingBottom: 0,
+  zIndex: 1,
 })
 
 const styles = theme => ({
   root: {
-    marginTop: -49,
+    marginTop: -49, // adjusting for main layout header
+    marginBottom: -150, // adjusting for footer
     width: "100%",
     height: "90vh",
     overflow: "scroll",
     position: "relative",
   },
-  introductionSection: {
-    paddingTop: 60,
-    paddingBottom: 75,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-around"
-  },
-  introduction: {
+  intro: {
+    paddingLeft: 25,
+    paddingRight: 25,
+    paddingTop: 30,
+    paddingBottom: 30,
     maxWidth: 620,
     ...commentBodyStyles(theme),
+    backgroundColor: "rgba(0,0,0,.035)"
+  },
+  introCell: {
+    backgroundColor: "rgba(0,0,0,.035)"
   },
   submitButton: {
-    margin: "auto"
+    padding: 16,
+    paddingLeft: 25,
+    paddingRight: 25,
+    backgroundColor: theme.palette.primary.dark,
+    color: "white",
+    fontWeight: 600,
+    borderRadius: 5,
+    textAlign: "center"
   },
   table: {
     width: "100%",
@@ -75,46 +71,31 @@ const styles = theme => ({
     marginTop: 4,
     color: theme.palette.grey[500]
   },
-  cell4: {
+  cellDescription: {
     ...cellStyle(theme),
     minWidth: 350
   },
-  cell5: {
+  cell: {
     ...cellStyle(theme)
   },
-  cell6: {
-    ...cellStyle(theme)
-  },
-  cell7: {
+  cellReviewerThoughts: {
     ...cellStyle(theme),
     maxWidth: 300,
     minWidth: 300,
     wordBreak: "break-word",
   },
-  cell8: {
+  cellFoundVia: {
     ...cellStyle(theme),
     maxWidth: 110
   },
-  cell9: {
-    ...cellStyle(theme)
-  },
-  cell10: {
-    ...cellStyle(theme)
-  },
-  cell11: {
+  cellLastUpdated: {
     ...cellStyle(theme),
     minWidth: 110,
   },
-  cell12: {
-    ...cellStyle(theme)
-  },
-  cell13: {
+  cellDateAdded: {
     ...cellStyle(theme),
     textAlign: "center",
     minWidth: 110,
-  },
-  cell14: {
-    ...cellStyle(theme)
   },
   headerCell: {
     ...headerStyle(theme),
@@ -148,7 +129,7 @@ const styles = theme => ({
     ...headerStyle(theme),
     position: "sticky",
     left: 0,
-    zIndex: 1,
+    zIndex: 2,
     paddingLeft: 6,
     paddingRight: 6
   },
@@ -167,7 +148,7 @@ const styles = theme => ({
     ...headerStyle(theme),
     position: "sticky",
     left: 0,
-    zIndex: 1,
+    zIndex: 3,
     minWidth: 240
   },
   starIcon: {
@@ -214,6 +195,63 @@ const styles = theme => ({
     backgroundColor: theme.palette.grey[100],
     paddingTop: 12,
     paddingBottom: 12,
+  },
+  headerSheet: {
+    ...headerStyle(theme),
+    maxWidth: 350,
+    paddingLeft: 25,
+    paddingRight: 25
+  },
+  cellSheet: {
+    ...theme.typography.body1,
+    width: 150,
+    paddingLeft: 25,
+    paddingRight: 25,
+    fontWeight: 600,
+    color: theme.palette.primary.main,
+    cursor: "pointer",
+    textAlign: "center"
+  },
+  cellSheetDescription: {
+    width: 250
+  },
+  link: {
+    color: theme.palette.primary.dark
+  },
+  topLinks: {
+    padding: 0,
+    borderLeft: "solid 1px rgba(0,0,0,.1)"
+  },
+  topLinkRow: {
+    display: "flex",
+    borderBottom: "solid 1px rgba(0,0,0,.1)",
+    alignItems: "center"
+  },
+  topLink: {
+    minWidth: 220,
+    maxWidth: 220,
+    padding: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
+    fontSize: "1rem"
+  },
+  topLinkDomain: {
+    minWidth: 180,
+    maxWidth: 180,
+    padding: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
+    wordBreak: "break-all",
+    fontSize: "1rem"
+  },
+  topLinkDescription: {
+    padding: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
+    fontSize: "1rem"
+  },
+  categoryRow: {
+    borderBottom: "solid 1px rgba(0,0,0,.2)"
   }
 })
 
@@ -221,7 +259,7 @@ const SpreadsheetPage = ({classes}:{
   classes: any
 }) => {
 
-  const [selectedTab, setSelectedTab] = useState("All Links")
+  const [selectedTab, setSelectedTab] = useState("Intro")
   const { LWTooltip, HoverPreviewLink, Loading } = Components
   const { data, loading } = useQuery(gql`
     query CoronaVirusData {
@@ -229,6 +267,7 @@ const SpreadsheetPage = ({classes}:{
         range
         majorDimension
         values {
+          accepted
           imp
           link
           shortDescription
@@ -256,7 +295,11 @@ const SpreadsheetPage = ({classes}:{
   const dataRows = data.CoronaVirusData.values
   const sortedRowsAdded = _.sortBy(dataRows, row => -row.dateAdded)
   const sortedRowsImp = _.sortBy(sortedRowsAdded, row => -row.imp)
-  console.log(data)
+
+  const linkCell = (url, link, domain) => <div>
+      <div className={classes.link}><HoverPreviewLink href={url} innerHTML={link}/></div>
+      {domain && <div className={classes.domain}>{domain}</div>}
+    </div>
 
   const tabs = [
     {
@@ -311,26 +354,19 @@ const SpreadsheetPage = ({classes}:{
   const rows = _.find(tabs, tab => tab.label === selectedTab)?.rows || []
   return (
     <div className={classes.root}>
-      <div className={classes.introductionSection}>
-        <div className={classes.introduction}>
-          <h1>Coronavirus Database</h1>
-          <p>
-            Welcome to the Coronavirus Info-Database. This is an attempt to organize and curate all the disparate papers, articles and links that are spread all over the internet regarding the Coronavirus pandemic. If you want to add links, submit the form linked below, which will be added to the Link Dump Form sheet, and the maintainers of this sheet will sort and prioritize the links.
-          </p>
-          <p>This spreadsheet updates once a day.</p>
-          <p>
-            You can find (and participate) in more LessWrong discussion of COVID-19 on <HoverPreviewLink href={"/tag/coronavirus"} innerHTML="our tag page"/>.
-          </p>
-          <div>
-            <Link to="https://docs.google.com/forms/d/e/1FAIpQLSc5uVDXrowWmhlaDbT3kukODdJotWOZXZivdlFmaHQ6n2gsKw/viewform" className={classes.submitButton}>
-              <Button color="primary" variant="contained">
-                Submit New Link
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
       <div className={classes.tabRow}>
+        <LWTooltip key={"Intro"} placement="top" title={<div>
+            {"What is this table about?"}
+          </div>}>
+            <div 
+              className={classNames(classes.tab, {[classes.tabSelected]:selectedTab === "Intro"})}
+              onClick={()=>setSelectedTab("Intro")}
+            >
+              <span className={classes.tabLabel}>
+                Intro
+              </span>
+          </div>
+        </LWTooltip>
         {tabs.map(tab => <LWTooltip key={tab.label} placement="top" title={<div>
             {tab.description} ({tab.rows.length - 1})
           </div>}>
@@ -346,15 +382,10 @@ const SpreadsheetPage = ({classes}:{
                 </span>
             </div>
           </LWTooltip>)}
-          <Link to="https://docs.google.com/forms/d/e/1FAIpQLSc5uVDXrowWmhlaDbT3kukODdJotWOZXZivdlFmaHQ6n2gsKw/viewform" className={classes.submitButton}>
-            <Button color="primary" variant="contained">
-              Submit New Link
-            </Button>
-          </Link>
       </div>
       <div className={classes.table}>
         <Table>
-          <TableBody>
+          {selectedTab !== "Intro" ? <TableBody>
             <TableRow key={`row-0`}>
               <TableCell classes={{root: classes.leftFixedHeader0}}>
                 <LWTooltip title="Importance">
@@ -389,7 +420,6 @@ const SpreadsheetPage = ({classes}:{
             {rows.map(({
               imp,
               link,
-              shortDescription,
               url,
               description,
               domain,
@@ -397,7 +427,6 @@ const SpreadsheetPage = ({classes}:{
               reviewerThoughts,
               foundVia,
               sourceLink,
-              sourceLinkDomain,
               lastUpdated,
               title,
               dateAdded,
@@ -406,59 +435,89 @@ const SpreadsheetPage = ({classes}:{
               <TableRow key={`row-${rowNum}`}>
                 <TableCell classes={{root: classes.leftFixed0}}>{imp}</TableCell>
                 <TableCell className={classes.leftFixed1}>
-                  <div>
-                    <div><HoverPreviewLink href={url} innerHTML={link}/></div>
-                    <div className={classes.domain}>{domain}</div>
-                  </div>
+                  {linkCell(url, link, domain)}
                 </TableCell>
-                <TableCell classes={{root: classes.cell4}}>
+                <TableCell classes={{root: classes.cellDescription}}>
                   {description}
                 </TableCell>
-                <TableCell classes={{root: classes.cell6}}>
+                <TableCell classes={{root: classes.cell}}>
                   {type}
                 </TableCell>
-                <TableCell classes={{root: classes.cell7}}>
+                <TableCell classes={{root: classes.cellReviewerThoughts}}>
                   {reviewerThoughts}
                 </TableCell>
-                <TableCell classes={{root: classes.cell8}}>
+                <TableCell classes={{root: classes.cellFoundVia}}>
                   <HoverPreviewLink href={sourceLink} innerHTML={foundVia}/>
                 </TableCell>
-                <TableCell classes={{root: classes.cell11}}>
+                <TableCell classes={{root: classes.cellLastUpdated}}>
                   {lastUpdated}
                 </TableCell>
-                <TableCell classes={{root: classes.cell12}}>
+                <TableCell classes={{root: classes.cell}}>
                   {title}
                 </TableCell>
-                <TableCell classes={{root: classes.cell13}}>
+                <TableCell classes={{root: classes.cellDateAdded}}>
                   {dateAdded}
                 </TableCell>
-                <TableCell classes={{root: classes.cell14}}>
+                <TableCell classes={{root: classes.cell}}>
                   {category}
                 </TableCell>
-                {/* {row.map((cell, cellNum) => {
-                  let cellContent = <span>{cell}</span>
-                  let styleClass = classes[`cell${cellNum}`]
-                  if (cellNum == 0) { styleClass = classes.leftFixed0 }
-                  if (cellNum == 1) { styleClass = classes.leftFixed1 }
-
-                  if (cellNum == 1) {
-                    cellContent = <div>
-                        <div><HoverPreviewLink href={row[3]} innerHTML={cell}/></div>
-                        <div className={classes.domain}>{row[5]}</div>
-                      </div>
-                  }
-                  if (cellNum == 8) {
-                    cellContent = <HoverPreviewLink href={row[9]} innerHTML={cell}/>
-                  }
-                  if ([2,3,5,9,10].includes(cellNum)) { return null }
-
-                  return <TableCell key={`cell-${rowNum}-${cellNum}`} classes={{root: styleClass}}>
-                          {cellContent}
-                        </TableCell>  
-                })} */}
               </TableRow>
             ))}
+          </TableBody> 
+          :
+          <TableBody>
+            <TableRow>
+              <TableCell className={classes.headerSheet}>
+                Sheet
+              </TableCell>
+              <TableCell className={classes.headerCell}>
+                Description
+              </TableCell>
+              <TableCell className={classes.headerCell}>
+                Top Links
+              </TableCell>
+            </TableRow>
+            <TableRow className={classes.categoryRow}>
+              <TableCell colSpan={2} className={classes.intro}>
+                <p>
+                  Welcome to the Coronavirus Info-Database, an attempt to organize the disparate papers, articles and links that are spread all over the internet regarding the nCov pandemic. You can submit new links, which the maintainers of this sheet will sort and prioritize the links.
+                </p>
+                <p>
+                  You can find (and participate) in more LessWrong discussion of COVID-19 on <HoverPreviewLink href={"/tag/coronavirus"} innerHTML="our tag page"/>.
+                </p>
+              </TableCell>
+              <TableCell className={classes.introCell}>
+                <a to="https://docs.google.com/forms/d/e/1FAIpQLSc5uVDXrowWmhlaDbT3kukODdJotWOZXZivdlFmaHQ6n2gsKw/viewform" className={classes.submitButton}>
+                  Submit New Link
+                </a>
+              </TableCell>
+            </TableRow>
+            {tabs.map(tab => {
+              if (tab.label == "All Links") return null
+              return <TableRow key={`intro-${tab.label}`}>
+                <TableCell className={classes.cellSheet} onClick={() => setSelectedTab(tab.label)}>
+                  <a>{tab.displayLabel || tab.label}</a>
+                </TableCell>
+                <TableCell className={classes.cellSheetDescription}>
+                  {tab.description}
+                </TableCell>
+                <TableCell className={classes.topLinks}>
+                  {[0,1].map(rowNum => <div className={classes.topLinkRow} key={`topLink-${tab.label}-${rowNum}`}>
+                      <div className={classes.topLink}>
+                        {linkCell(tab.rows[rowNum].url, tab.rows[rowNum].link, null)}
+                      </div>
+                      <div className={classes.topLinkDomain}>
+                        {tab.rows[rowNum].domain}
+                      </div>
+                      <div className={classes.topLinkDescription}>
+                        {tab.rows[rowNum].description}
+                      </div>
+                  </div>)}
+                </TableCell>
+              </TableRow>
+            })}
           </TableBody>
+          }
         </Table>
       </div>
     </div>

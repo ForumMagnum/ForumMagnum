@@ -1,7 +1,9 @@
 import { addGraphQLSchema, addGraphQLResolvers, addGraphQLQuery } from '../../lib/vulcan-lib/graphql';
+import { getSetting } from '../../lib/vulcan-lib';
 import request from 'request';
 
 const CoronavirusDataRow = `type CoronaVirusDataRow {
+    accepted: String,
     imp: String,
     link: String,
     shortDescription: String,
@@ -29,7 +31,7 @@ const CoronavirusDataSchema = `type CoronaVirusDataSchema {
 
 addGraphQLSchema(CoronavirusDataSchema);
 
-const googleSheetsAPIKey = `AIzaSyACJ8Q7HUwJ-EKM3jhkakG3ic1NaOCZX9Y`
+const googleSheetsAPIKey = getSetting('googleSheets.apiKey', null)
 
 async function getDataFromSpreadsheet(spreadsheetId: string, rangeString: string) {
     return new Promise((resolve, reject) => {
@@ -50,13 +52,13 @@ const coronaVirusResolvers = {
         const processedData = JSON.parse(rawCoronavirusData)
         const [ headerRow, ...otherRows ] = processedData.values
         const newValues = otherRows.map(([ 
-            imp, link, shortDescription, 
+            accepted, imp, link, shortDescription, 
             url, description, domain, 
             type, reviewerThoughts, foundVia, 
             sourcelink, sourceLinkDomain, lastUpdated, 
             title, dateAdded, category
         ]) => ({
-            imp, link, shortDescription,
+            accepted, imp, link, shortDescription,
             url, description, domain,
             type, reviewerThoughts, foundVia,
             sourcelink, sourceLinkDomain, lastUpdated,
