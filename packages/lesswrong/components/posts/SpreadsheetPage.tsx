@@ -40,16 +40,18 @@ const styles = theme => ({
     position: "relative",
   },
   intro: {
-    paddingLeft: 25,
-    paddingRight: 0,
-    paddingTop: 30,
-    paddingBottom: 30,
-    maxWidth: 620,
+    maxWidth: 560,
     ...commentBodyStyles(theme),
-    backgroundColor: "rgba(0,0,0,.035)"
   },
   introCell: {
-    backgroundColor: "rgba(0,0,0,.035)"
+    backgroundColor: "rgba(0,0,0,.035)",
+  },
+  introWrapper: {
+    display: "flex",
+    justifyContent: "space-around",
+    alignItems: "center",
+    maxWidth: 880,
+    margin: "auto"
   },
   submitButton: {
     marginLeft: 50,
@@ -164,7 +166,7 @@ const styles = theme => ({
     flexWrap: "wrap-reverse",
   },
   tab: {
-    ...commentBodyStyles(theme),
+    ...theme.typography.commentStyles,
     fontSize: "1rem",
     marginTop: 4,
     marginLeft: 2,
@@ -178,14 +180,14 @@ const styles = theme => ({
     backgroundColor: theme.palette.grey[300],
     cursor: "pointer",
     boxShadow: "0 0 3px rgba(0,0,0,.3)",
-    whiteSpace: "pre"
+    whiteSpace: "pre",
   },
   tabLabel: {
     fontWeight: 600,
     marginRight: 8,
   },
   tabCount: {
-    color: theme.palette.grey[600],
+    color: theme.palette.grey[700],
     fontSize: ".8rem",
     display: "inline-block",
   },
@@ -241,8 +243,8 @@ const styles = theme => ({
 
   },
   topLinkDomain: {
-    minWidth: 180,
-    maxWidth: 180,
+    minWidth: 150,
+    maxWidth: 150,
     padding: 16,
     paddingTop: 10,
     paddingBottom: 10,
@@ -481,18 +483,20 @@ const SpreadsheetPage = ({classes}:{
               </TableCell>
             </TableRow>
             <TableRow className={classes.categoryRow}>
-              <TableCell colSpan={2} className={classes.intro}>
-                <p>
-                  Welcome to the Coronavirus Info-Database, an attempt to organize the disparate papers, articles and links that are spread all over the internet regarding the nCov pandemic. You can submit new links, which the maintainers of this sheet will sort and prioritize the links.
-                </p>
-                <p>
-                  You can find (and participate) in more LessWrong discussion of COVID-19 on <HoverPreviewLink href={"/tag/coronavirus"} innerHTML="our tag page"/>.
-                </p>
-              </TableCell>
-              <TableCell className={classes.introCell}>
-                <a to="https://docs.google.com/forms/d/e/1FAIpQLSc5uVDXrowWmhlaDbT3kukODdJotWOZXZivdlFmaHQ6n2gsKw/viewform" className={classes.submitButton}>
-                  Submit New Link
-                </a>
+              <TableCell colSpan={3} className={classes.introCell}>
+                <div className={classes.introWrapper}>
+                  <div className={classes.intro}>
+                    <p>
+                      Welcome to the Coronavirus Info-Database, an attempt to organize the disparate papers, articles and links that are spread all over the internet regarding the nCov pandemic. You can submit new links, which the maintainers of this sheet will sort and prioritize the links.
+                    </p>
+                    <p>
+                      You can find (and participate) in more LessWrong discussion of COVID-19 on <HoverPreviewLink href={"/tag/coronavirus"} innerHTML="our tag page"/>.
+                    </p>
+                  </div>
+                  <a href="https://docs.google.com/forms/d/e/1FAIpQLSc5uVDXrowWmhlaDbT3kukODdJotWOZXZivdlFmaHQ6n2gsKw/viewform" className={classes.submitButton}>
+                    Submit New Link
+                  </a>
+                </div>
               </TableCell>
             </TableRow>
             {tabs.map(tab => {
