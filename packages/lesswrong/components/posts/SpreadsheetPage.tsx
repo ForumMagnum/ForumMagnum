@@ -14,6 +14,7 @@ import gql from 'graphql-tag';
 
 const cellStyle = theme => ({
   maxWidth: 350,
+  wordBreak: "break-word"
 })
 
 const headerStyle = theme => ({
@@ -81,7 +82,14 @@ const styles = theme => ({
   cellMeta: {
     ...cellStyle(theme),
     maxWidth: 210,
-    color: 'rgba(0,0,0,0.6)'
+    color: 'rgba(0,0,0,0.6)',
+    fontSize: "1rem"
+  },
+  metaType: {
+    width: 50,
+    display: "inline-block",
+    marginRight: 6,
+    color: theme.palette.grey[500]
   },
   cellTitle: {
     ...cellStyle(theme),
@@ -244,9 +252,26 @@ const styles = theme => ({
   updated: {
     display: 'block'
   },
+  headerDateAdded: {
+    ...headerStyle(theme),
+    minWidth: 70,
+    maxWidth: 70,
+    textAlign: "center"
+  },
+  headerLastUpdated: {
+    ...headerStyle(theme),
+    minWidth: 70,
+    maxWidth: 70,
+    textAlign: "center"
+  },
+  cellDate: {
+    fontSize: "1rem",
+    textAlign: "center",
+    color: 'rgba(0,0,0,0.6)'
+  },
   source: {
-    display: 'block',
-    wordBreak: "break-word"
+    fontSize: "1rem",
+    color: theme.palette.grey[500]
   },
   description: {
     display: 'block'
@@ -254,7 +279,8 @@ const styles = theme => ({
   reviewerThoughts: {
     display: 'block',
     color: 'rgba(0,0,0,0.6)',
-    marginTop: 8
+    marginTop: 8,
+    fontStyle: "italic"
   }
 })
 
@@ -435,8 +461,11 @@ const SpreadsheetPage = ({classes}:{
               {currentTab.showCategory &&  <TableCell classes={{root: classes.headerCell}}>
                 Category
               </TableCell>}
-              <TableCell classes={{root: classes.headerCell}}>
-                Meta
+              <TableCell classes={{root: classes.headerDateAdded}}>
+                Date Added
+              </TableCell>
+              <TableCell classes={{root: classes.headerLastUpdated}}>
+                Last Updated
               </TableCell>
               <TableCell classes={{root: classes.headerTitle}}>
                 Name / Opening Sentence
@@ -473,19 +502,17 @@ const SpreadsheetPage = ({classes}:{
                 {currentTab.showCategory && <TableCell classes={{root: classes.cell}}>
                   {category}
                 </TableCell>}
-                <TableCell classes={{root: classes.cellMeta}}>
-                  <span className={classes.added}>
-                    Added: {dateAdded}
-                  </span>
-                  <span className={classes.updated}>
-                    Updated: {lastUpdated} 
-                  </span>
-                  <span className={classes.source}>
-                    Source: <HoverPreviewLink href={sourceLink} innerHTML={foundVia}/>
-                  </span>
+                <TableCell classes={{root: classes.cellDate}}>
+                  {dateAdded}
+                </TableCell>
+                <TableCell classes={{root: classes.cellDate}}>
+                  {lastUpdated}
                 </TableCell>
                 <TableCell classes={{root: classes.cellTitle}}>
-                  {title}
+                  <div>{title}</div>
+                  {foundVia && <div className={classes.source}>
+                    Found via <HoverPreviewLink href={sourceLink} innerHTML={foundVia}/>
+                  </div>}
                 </TableCell>
               </TableRow>
             ))}
