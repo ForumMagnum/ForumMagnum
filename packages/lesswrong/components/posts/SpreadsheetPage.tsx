@@ -78,25 +78,10 @@ const styles = theme => ({
   cell: {
     ...cellStyle(theme)
   },
-  cellReviewerThoughts: {
-    ...cellStyle(theme),
-    maxWidth: 300,
-    minWidth: 300,
-    wordBreak: "break-word",
-  },
-  cellFoundVia: {
+  cellMeta: {
     ...cellStyle(theme),
     maxWidth: 210,
     color: 'rgba(0,0,0,0.6)'
-  },
-  cellLastUpdated: {
-    ...cellStyle(theme),
-    minWidth: 110,
-  },
-  cellDateAdded: {
-    ...cellStyle(theme),
-    textAlign: "center",
-    minWidth: 110,
   },
   cellTitle: {
     ...cellStyle(theme),
@@ -105,20 +90,8 @@ const styles = theme => ({
   headerCell: {
     ...headerStyle(theme),
   },
-  headerReviewerThoughts: {
-    ...headerStyle(theme),
-    maxWidth: 300
-  },
   headerTitle: {
     ...headerStyle(theme),
-  },
-  headerDate: {
-    ...headerStyle(theme),
-    minWidth: 110,
-    textAlign: "center"
-  },
-  descriptionCell: {
-    maxWidth: 400,
   },
   leftFixed0: {
     ...cellStyle(theme),
@@ -256,14 +229,6 @@ const styles = theme => ({
     padding: 16,
     paddingTop: 10,
     paddingBottom: 10,
-  },
-  topLinkDomain: {
-    minWidth: 150,
-    maxWidth: 150,
-    padding: 16,
-    paddingTop: 10,
-    paddingBottom: 10,
-    wordBreak: "break-all"
   },
   topLinkDescription: {
     padding: 16,
@@ -508,10 +473,16 @@ const SpreadsheetPage = ({classes}:{
                 {currentTab.showCategory && <TableCell classes={{root: classes.cell}}>
                   {category}
                 </TableCell>}
-                <TableCell classes={{root: classes.cellFoundVia}}>
-                  <span className={classes.added}>Added: {dateAdded}</span>
-                  <span className={classes.updated}>Updated: {lastUpdated} </span>
-                  <span className={classes.source}>Source: <HoverPreviewLink href={sourceLink} innerHTML={foundVia}/></span>
+                <TableCell classes={{root: classes.cellMeta}}>
+                  <span className={classes.added}>
+                    Added: {dateAdded}
+                  </span>
+                  <span className={classes.updated}>
+                    Updated: {lastUpdated} 
+                  </span>
+                  <span className={classes.source}>
+                    Source: <HoverPreviewLink href={sourceLink} innerHTML={foundVia}/>
+                  </span>
                 </TableCell>
                 <TableCell classes={{root: classes.cellTitle}}>
                   {title}
