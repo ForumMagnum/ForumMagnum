@@ -41,16 +41,14 @@ const styles = theme => ({
   },
   intro: {
     maxWidth: 564,
-    ...commentBodyStyles(theme),
-  },
-  introCell: {
-    backgroundColor: "rgba(0,0,0,.035)",
   },
   introWrapper: {
     display: "flex",
+    ...commentBodyStyles(theme),
     justifyContent: "space-around",
     alignItems: "center",
     maxWidth: 880,
+    padding: 50
   },
   submitButton: {
     marginLeft: 50,
@@ -58,10 +56,10 @@ const styles = theme => ({
     paddingLeft: 25,
     paddingRight: 25,
     backgroundColor: theme.palette.primary.dark,
-    color: "white",
+    color: "white !important",
     fontWeight: 600,
     borderRadius: 5,
-    textAlign: "center"
+    textAlign: "center",
   },
   table: {
     width: "100%",
@@ -124,25 +122,34 @@ const styles = theme => ({
   },
   leftFixed0: {
     ...cellStyle(theme),
-    position: "sticky",
-    left: 0,
     paddingLeft: 6,
     paddingRight: 6,
-    textAlign: "center"
+    textAlign: "center",
+    position: "relative",
+    [theme.breakpoints.up('md')]: {
+      position: "sticky",
+      left: 0,
+    }
   },
   leftFixedHeader0: {
     ...headerStyle(theme),
-    position: "sticky",
-    left: 0,
-    zIndex: 2,
+    position: "relative",
+    [theme.breakpoints.up('md')]: {
+      position: "sticky",
+      left: 0,
+      zIndex: 2, 
+    },
     paddingLeft: 6,
     paddingRight: 6
   },
   leftFixed1: {
     ...cellStyle(theme),
     backgroundColor: 'white',
-    position: "sticky",
-    left: 0,
+    position: "relative",
+    [theme.breakpoints.up('md')]: {
+      position: "sticky",
+      left: 0,
+    },
     minWidth: 400,
     boxShadow: "2px 0 2px -1px rgba(0,0,0,.15)",
     '& a': {
@@ -151,9 +158,12 @@ const styles = theme => ({
   },
   leftFixedHeader1: {
     ...headerStyle(theme),
-    position: "sticky",
-    left: 0,
-    zIndex: 3,
+    position: "relative",
+    [theme.breakpoints.up('md')]: {
+      position: "sticky",
+      left: 0,
+      zIndex: 3,
+    },
     minWidth: 240
   },
   starIcon: {
@@ -170,36 +180,39 @@ const styles = theme => ({
   tab: {
     ...theme.typography.commentStyle,
     fontSize: "1rem",
-    marginTop: 4,
+    marginTop: 7,
     marginLeft: 2,
     marginRight: 2,
     marginBottom: -2,
-    paddingLeft: 16,
-    paddingRight: 16,
-    paddingTop: 7,
-    paddingBottom: 11,
+    paddingLeft: 12,
+    paddingRight: 12,
+    display: "flex",
+    justifyContent: "center",
+    flexDirection: "column",
     borderRadius: 2,
     backgroundColor: theme.palette.grey[300],
     cursor: "pointer",
     boxShadow: "0 0 3px rgba(0,0,0,.3)",
     whiteSpace: "pre",
+    height: 43,
+    '&:hover': {
+      backgroundColor: "white",
+    }
   },
   tabLabel: {
     fontWeight: 600,
-    marginRight: 8,
   },
   tabCount: {
-    color: theme.palette.grey[700],
+    color: theme.palette.grey[600],
     fontSize: ".8rem",
-    display: "inline-block",
+    marginTop: 2,
   },
   tabDescription: {
     fontSize: "1rem"
   },
   tabSelected: {
     backgroundColor: theme.palette.grey[100],
-    paddingTop: 12,
-    paddingBottom: 12,
+    height: 47
   },
   headerSheet: {
     ...headerStyle(theme),
@@ -267,7 +280,8 @@ const styles = theme => ({
     display: 'block'
   },
   source: {
-    display: 'block'
+    display: 'block',
+    wordBreak: "break-word"
   },
   description: {
     display: 'block'
@@ -322,7 +336,7 @@ const SpreadsheetPage = ({classes}:{
 
   const linkCell = (url, link, domain, type) => <div>
       <div className={classes.link}><HoverPreviewLink href={url} innerHTML={link}/></div>
-      {domain && <div className={classes.domain}>{domain} {type && <span>- {type}</span>}</div>}
+      {domain && <div className={classes.domain}>{domain} {type && <span>• {type}</span>}</div>}
     </div>
 
   const tabs = [
@@ -394,6 +408,21 @@ const SpreadsheetPage = ({classes}:{
   const rows = currentTab?.rows || []
   return (
     <div className={classes.root}>
+      {selectedTab == "Intro" && 
+        <div className={classes.introWrapper}>
+          <div className={classes.intro}>
+            <p>
+              Welcome to the Coronavirus Info-Database, an attempt to organize the disparate papers, articles and links that are spread all over the internet regarding the nCov pandemic. You can submit new links, which the maintainers of this sheet will sort and prioritize the links.
+            </p>
+            <p>
+              You can find (and participate) in more LessWrong discussion of COVID-19 on <HoverPreviewLink href={"/tag/coronavirus"} innerHTML="our tag page"/>.
+            </p>
+          </div>
+          <a href="https://docs.google.com/forms/d/e/1FAIpQLSc5uVDXrowWmhlaDbT3kukODdJotWOZXZivdlFmaHQ6n2gsKw/viewform" className={classes.submitButton}>
+            Submit New Link
+          </a>
+        </div>
+      }
       <div className={classes.tabRow}>
         <LWTooltip key={"Intro"} placement="top" title={<div>
             {"What is this table about?"}
@@ -403,7 +432,7 @@ const SpreadsheetPage = ({classes}:{
               onClick={()=>setSelectedTab("Intro")}
             >
               <span className={classes.tabLabel}>
-                Intro
+                INTRO
               </span>
           </div>
         </LWTooltip>
@@ -414,12 +443,12 @@ const SpreadsheetPage = ({classes}:{
                 className={classNames(classes.tab, {[classes.tabSelected]:tab.label === selectedTab})}
                 onClick={()=>setSelectedTab(tab.label)}
               >
-                <span className={classes.tabLabel}>
+                <div className={classes.tabLabel}>
                   {tab.displayLabel || tab.label}
-                </span>
-                <span className={classes.tabCount}>
-                  {tab.rows.length - 1}
-                </span>
+                </div>
+                <div className={classes.tabCount}>
+                  {tab.rows.length - 1} links
+                </div>
             </div>
           </LWTooltip>)}
       </div>
@@ -501,23 +530,6 @@ const SpreadsheetPage = ({classes}:{
               </TableCell>
               <TableCell className={classes.headerCell}>
                 Top Links
-              </TableCell>
-            </TableRow>
-            <TableRow className={classes.categoryRow}>
-              <TableCell colSpan={3} className={classes.introCell}>
-                <div className={classes.introWrapper}>
-                  <div className={classes.intro}>
-                    <p>
-                      Welcome to the Coronavirus Info-Database, an attempt to organize the disparate papers, articles and links that are spread all over the internet regarding the nCov pandemic. You can submit new links, which the maintainers of this sheet will sort and prioritize the links.
-                    </p>
-                    <p>
-                      You can find (and participate) in more LessWrong discussion of COVID-19 on <HoverPreviewLink href={"/tag/coronavirus"} innerHTML="our tag page"/>.
-                    </p>
-                  </div>
-                  <a href="https://docs.google.com/forms/d/e/1FAIpQLSc5uVDXrowWmhlaDbT3kukODdJotWOZXZivdlFmaHQ6n2gsKw/viewform" className={classes.submitButton}>
-                    Submit New Link
-                  </a>
-                </div>
               </TableCell>
             </TableRow>
             {tabs.map(tab => {

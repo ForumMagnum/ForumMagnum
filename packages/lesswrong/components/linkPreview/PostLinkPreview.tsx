@@ -274,7 +274,8 @@ const defaultPreviewStyles = theme => ({
     maxWidth: 500,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
+    pointerEvents: "none"
   },
 })
 
@@ -286,15 +287,15 @@ const DefaultPreview = ({classes, href, innerHTML, onsite=false, id}: {
   id?: string,
 }) => {
   const { LWPopper } = Components
-  const { eventHandlers, hover, anchorEl } = useHover({
+  const { eventHandlers, hover, anchorEl, stopHover } = useHover({
     pageElementContext: "linkPreview",
     hoverPreviewType: "DefaultPreview",
     href,
-    onsite,
+    onsite
   });
   return (
     <span {...eventHandlers}>
-      <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
+      <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" onMouseEnter={stopHover}>
         <Card>
           <div className={classes.hovercard}>
             {href}
