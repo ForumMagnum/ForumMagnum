@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 
 const SeparatorBullet = () => {
-  return <>•</>;
+  return <>{" "}•{" "}</>;
 }
 
 const SeparatorBulletComponent = registerComponent("SeparatorBullet", SeparatorBullet);
