@@ -487,7 +487,6 @@ const SpreadsheetPage = ({classes}:{
               category,
             }, rowNum) => (
               <TableRow key={`row-${rowNum}`}>
-                {console.log(foundVia, sourceLink)}
                 <TableCell classes={{root: classes.leftFixed0}}>{imp}</TableCell>
                 <TableCell className={classes.leftFixed1}>
                   {linkCell(url, link, domain, type)}
