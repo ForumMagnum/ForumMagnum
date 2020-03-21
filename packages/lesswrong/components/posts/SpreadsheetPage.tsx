@@ -73,14 +73,14 @@ const styles = theme => ({
     color: theme.palette.grey[500]
   },
   cellDescription: {
-    ...cellStyle(theme),
+    ...cellStyle(),
     minWidth: 350
   },
   cell: {
-    ...cellStyle(theme)
+    ...cellStyle()
   },
   cellMeta: {
-    ...cellStyle(theme),
+    ...cellStyle(),
     maxWidth: 210,
     color: 'rgba(0,0,0,0.6)',
     fontSize: "1rem"
@@ -92,7 +92,7 @@ const styles = theme => ({
     color: theme.palette.grey[500]
   },
   cellTitle: {
-    ...cellStyle(theme),
+    ...cellStyle(),
     color: 'rgba(0,0,0,0.6)'
   },
   headerCell: {
@@ -102,7 +102,7 @@ const styles = theme => ({
     ...headerStyle(theme),
   },
   leftFixed0: {
-    ...cellStyle(theme),
+    ...cellStyle(),
     paddingLeft: 6,
     paddingRight: 6,
     textAlign: "center",
@@ -124,7 +124,7 @@ const styles = theme => ({
     paddingRight: 6
   },
   leftFixed1: {
-    ...cellStyle(theme),
+    ...cellStyle(),
     backgroundColor: 'white',
     position: "relative",
     [theme.breakpoints.up('md')]: {
