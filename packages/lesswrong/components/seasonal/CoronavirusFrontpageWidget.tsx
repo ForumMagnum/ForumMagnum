@@ -39,7 +39,7 @@ const CoronavirusFrontpageWidget = ({settings}) => {
         )}
       </AnalyticsContext>
       {!currentUser && <SectionFooter>
-        <Link to={"/reviews"}>
+        <Link to={"/tag/coronavirus"}>
           View All Coronavirus Posts
         </Link>
       </SectionFooter>}
