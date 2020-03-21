@@ -306,7 +306,7 @@ const SpreadsheetPage = ({classes}:{
           type
           reviewerThoughts
           foundVia
-          sourcelink
+          sourceLink
           sourceLinkDomain
           lastUpdated
           title
