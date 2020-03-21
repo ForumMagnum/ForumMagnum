@@ -274,8 +274,7 @@ const defaultPreviewStyles = theme => ({
     maxWidth: 500,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    pointerEvents: "none"
+    whiteSpace: 'nowrap'
   },
 })
 
