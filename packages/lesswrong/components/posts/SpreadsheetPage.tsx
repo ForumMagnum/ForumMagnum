@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { AnalyticsContext } from "../../lib/analyticsEvents";
+// import { AnalyticsContext } from "../../lib/analyticsEvents";
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -12,7 +12,7 @@ import classNames from 'classnames';
 import { useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
 
-const cellStyle = theme => ({
+const cellStyle = () => ({
   maxWidth: 350,
   wordBreak: "break-word"
 })
