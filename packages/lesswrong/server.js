@@ -107,6 +107,7 @@ import './server/resolvers/revisionResolvers';
 import './server/resolvers/postResolvers';
 import './server/resolvers/userResolvers';
 import './server/resolvers/karmaChangeResolvers';
+import './server/resolvers/coronaLinkDatabase';
 
 import './lib/events/server';
 import './server/callbacks/intercomCallbacks';

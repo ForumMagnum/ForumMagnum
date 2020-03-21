@@ -482,7 +482,9 @@ const PostsItem2 = ({
                     {" "}
                     {(resumeReading.numRead>0) && <span>({resumeReading.numRead}/{resumeReading.numTotal} read)</span>}
                   </div>
+                
                 }
+                
 
                 { !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
                   <PostsUserAndCoauthors post={post} abbreviateIfLong={true} />

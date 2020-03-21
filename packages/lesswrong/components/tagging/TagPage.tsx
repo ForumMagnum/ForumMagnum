@@ -51,7 +51,9 @@ const TagPage = ({classes}: {
   if (!tag)
     return <Error404/>
   
-  const orderByScore = _.sortBy(results, result=>-result.post.baseScore)
+  // Filter out all tagRels where we don't have access to the corresponding post
+  const filteredResults = _.filter(results, result => !!result.post)  
+  const orderByScore = _.sortBy(filteredResults, result=>-result.post.baseScore)
   const orderByTagScore = _.sortBy(orderByScore, result=>-result.baseScore)
 
   return <SingleColumnSection>
