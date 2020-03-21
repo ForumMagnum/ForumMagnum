@@ -13,7 +13,7 @@ const CoronavirusDataRow = `type CoronaVirusDataRow {
     type: String,
     reviewerThoughts: String,
     foundVia: String,
-    sourcelink: String,
+    sourceLink: String,
     sourceLinkDomain: String,
     lastUpdated: String,
     title: String,
@@ -55,13 +55,13 @@ const coronaVirusResolvers = {
             accepted, imp, link, shortDescription, 
             url, description, domain, 
             type, reviewerThoughts, foundVia, 
-            sourcelink, sourceLinkDomain, lastUpdated, 
+            sourceLink, sourceLinkDomain, lastUpdated, 
             title, dateAdded, category
         ]) => ({
             accepted, imp, link, shortDescription,
             url, description, domain,
             type, reviewerThoughts, foundVia,
-            sourcelink, sourceLinkDomain, lastUpdated,
+            sourceLink, sourceLinkDomain, lastUpdated,
             title, dateAdded, category
         }))
         return {
