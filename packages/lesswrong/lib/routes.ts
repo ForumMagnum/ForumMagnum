@@ -408,6 +408,12 @@ addRoute([
     getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
   },
   {
+    name:'coronavirus.link.db',
+    path:'/coronavirus-link-database',
+    componentName: 'SpreadsheetPage',
+    title: "COVID-19 Link Database"
+  },
+  {
     name: 'admin',
     path: '/admin',
     componentName: 'AdminHome',

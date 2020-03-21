@@ -174,6 +174,8 @@ importComponent("PostsItemMetaInfo", () => require('../components/posts/PostsIte
 importComponent("PostsItemNewCommentsWrapper", () => require('../components/posts/PostsItemNewCommentsWrapper'));
 importComponent("PostsItemIcons", () => require('../components/posts/PostsItemIcons'));
 import '../components/posts/PostsPage';
+importComponent("SpreadsheetPage", () => require('../components/posts/SpreadsheetPage'));
+
 importComponent("PostsSingleSlug", () => require('../components/posts/PostsSingleSlug'));
 importComponent("PostsSingleRoute", () => require('../components/posts/PostsSingleRoute'));
 importComponent("PostsList2", () => require('../components/posts/PostsList2'));
