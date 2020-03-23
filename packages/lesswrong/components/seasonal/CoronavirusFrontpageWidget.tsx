@@ -33,7 +33,7 @@ const CoronavirusFrontpageWidget = ({settings}) => {
           <Link to="/tag/coronavirus">Coronavirus Tag</Link>
         </LWTooltip>
       </SectionSubtitle>
-      <AnalyticsContext listContext={"Coronavirus Tag Frontpage"} capturePostItemOnMount>
+      <AnalyticsContext listContext={"coronavirusFrontpageWidget"} capturePostItemOnMount>
         {results && results.map((result,i) =>
           result.post && <PostsItem2 key={result.post._id} post={result.post} index={i} />
         )}
