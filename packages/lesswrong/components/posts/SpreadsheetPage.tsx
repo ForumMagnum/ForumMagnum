@@ -35,9 +35,6 @@ const styles = theme => ({
   root: {
     marginTop: -49, // adjusting for main layout header
     marginBottom: -150, // adjusting for footer
-    width: "100%",
-    height: "90vh",
-    overflow: "scroll",
     position: "relative",
   },
   intro: {
@@ -63,9 +60,6 @@ const styles = theme => ({
     textAlign: "center",
   },
   table: {
-    width: "100%",
-    height: "90vh",
-    overflow: "scroll",
     position: "relative",
   },
   domain: {
@@ -114,7 +108,6 @@ const styles = theme => ({
   },
   leftFixedHeader0: {
     ...headerStyle(theme),
-    position: "relative",
     [theme.breakpoints.up('md')]: {
       position: "sticky",
       left: 0,
@@ -139,7 +132,6 @@ const styles = theme => ({
   },
   leftFixedHeader1: {
     ...headerStyle(theme),
-    position: "relative",
     [theme.breakpoints.up('md')]: {
       position: "sticky",
       left: 0,
