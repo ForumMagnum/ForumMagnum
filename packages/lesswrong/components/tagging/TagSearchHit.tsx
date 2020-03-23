@@ -14,7 +14,12 @@ const styles = theme => ({
   card: {
     padding: 16,
     width: 400,
-    ...theme.typography.commentStyle
+    ...theme.typography.commentStyle,
+    
+    // No hover-preview on small phone screens
+    [theme.breakpoints.down('xs')]: {
+      display: "none",
+    },
   },
 });
 
