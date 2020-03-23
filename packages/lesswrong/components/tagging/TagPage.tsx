@@ -30,7 +30,7 @@ const TagPage = ({classes}: {
   const { params } = useLocation();
   const { slug } = params;
   const { tag, loading: loadingTag } = useTagBySlug(slug);
-  
+
   const { results, loading: loadingPosts, loadMoreProps } = useMulti({
     skip: !(tag?._id),
     terms: {
@@ -44,44 +44,46 @@ const TagPage = ({classes}: {
     enableTotal: true,
     ssr: true,
   });
-  
-  
+
+
   if (loadingTag)
     return <Loading/>
   if (!tag)
     return <Error404/>
-  
+
   // Filter out all tagRels where we don't have access to the corresponding post
-  const filteredResults = _.filter(results, result => !!result.post)  
+  const filteredResults = _.filter(results, result => !!result.post)
   const orderByScore = _.sortBy(filteredResults, result=>-result.post.baseScore)
   const orderByTagScore = _.sortBy(orderByScore, result=>-result.baseScore)
 
-  return <SingleColumnSection>
-    <SectionTitle title={`${tag.name} Tag`}>
-      {Users.isAdmin(currentUser) && <SectionButton>
-        <Link to={`/tag/${tag.slug}/edit`}>Edit</Link>
-      </SectionButton>}
-    </SectionTitle>
-    <ContentItemBody
-      dangerouslySetInnerHTML={{__html: tag.description?.html}}
-      description={`tag ${tag.name}`}
-      className={classes.description}
-    />
-    {!loadingPosts && orderByTagScore && orderByTagScore.length === 0 && <div>
-      There are no posts with this tag yet.
-    </div>}
-    {loadingPosts && <Loading/>}
-    <AnalyticsContext listContext={`${tag.name} Tag Page`} capturePostItemOnMount>
-      {orderByTagScore && orderByTagScore.map((result,i) =>
-        result.post && <PostsItem2 key={result.post._id} tagRel={result} post={result.post} index={i} />
-      )}
-    </AnalyticsContext>
-    <SectionFooter>
-      <span className={classes.loadMore}>
-        <LoadMore {...loadMoreProps}/>
-      </span>
-    </SectionFooter>
-  </SingleColumnSection>
+  return <AnalyticsContext pageContext='tagPage' tagContext={tag?.name}>
+    <SingleColumnSection>
+      <SectionTitle title={`${tag.name} Tag`}>
+        {Users.isAdmin(currentUser) && <SectionButton>
+          <Link to={`/tag/${tag.slug}/edit`}>Edit</Link>
+        </SectionButton>}
+      </SectionTitle>
+      <ContentItemBody
+        dangerouslySetInnerHTML={{__html: tag.description?.html}}
+        description={`tag ${tag.name}`}
+        className={classes.description}
+      />
+      {!loadingPosts && orderByTagScore && orderByTagScore.length === 0 && <div>
+        There are no posts with this tag yet.
+      </div>}
+      {loadingPosts && <Loading/>}
+      <AnalyticsContext listContext='tagList' capturePostItemOnMount>
+        {orderByTagScore && orderByTagScore.map((result,i) =>
+          result.post && <PostsItem2 key={result.post._id} tagRel={result} post={result.post} index={i} />
+        )}
+      </AnalyticsContext>
+      <SectionFooter>
+        <span className={classes.loadMore}>
+          <LoadMore {...loadMoreProps}/>
+        </span>
+      </SectionFooter>
+    </SingleColumnSection>
+  </AnalyticsContext>
 }
 
 const TagPageComponent = registerComponent("TagPage", TagPage, {styles});
