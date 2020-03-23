@@ -56,7 +56,7 @@ const TagPage = ({classes}: {
   const orderByScore = _.sortBy(filteredResults, result=>-result.post.baseScore)
   const orderByTagScore = _.sortBy(orderByScore, result=>-result.baseScore)
 
-  return <AnalyticsContext pageContext='tagPage' tagContext={tag?.name}>
+  return <AnalyticsContext pageContext='tagPage' tagContext={tag.name}>
     <SingleColumnSection>
       <SectionTitle title={`${tag.name} Tag`}>
         {Users.isAdmin(currentUser) && <SectionButton>
