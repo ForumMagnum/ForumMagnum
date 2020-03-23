@@ -33,6 +33,15 @@ const schema = {
       }
     }
   },
+  core: {
+    label: "Core Tag (moderators check whether it applies when reviewing new posts)",
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    ...schemaDefaultValue(false),
+  },
   postCount: {
     ...denormalizedCountOfReferences({
       fieldName: "postCount",

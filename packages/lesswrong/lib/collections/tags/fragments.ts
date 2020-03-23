@@ -5,6 +5,7 @@ registerFragment(`
     _id
     name
     slug
+    core
     postCount
     deleted
     description {
@@ -19,6 +20,7 @@ registerFragment(`
     _id
     name
     slug
+    core
     postCount
     deleted
     description {

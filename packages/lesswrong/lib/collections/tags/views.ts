@@ -24,4 +24,18 @@ Tags.addView('tagBySlug', terms => {
   };
 });
 
+Tags.addView('coreTags', terms => {
+  return {
+    selector: {
+      core: true,
+    },
+    options: {
+      sort: {
+        name: 1
+      }
+    },
+  }
+});
+
 ensureIndex(Tags, {slug:1, deleted:1});
+ensureIndex(Tags, {core:1, deleted:1});
