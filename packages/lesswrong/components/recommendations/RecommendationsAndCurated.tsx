@@ -161,7 +161,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
         <FrontpageVotingPhase settings={frontpageRecommendationSettings} />
       </AnalyticsContext> */}
 
-      <AnalyticsContext pageSectionContext="coronavirusFrontpageWidget">
+      <AnalyticsContext pageSectionContext="coronavirusWidget">
         <div className={classes.subsection}>
           <CoronavirusFrontpageWidget settings={frontpageRecommendationSettings} />
         </div>
