@@ -30,7 +30,7 @@ const styles = theme => ({
     color: theme.palette.lwTertiary.main,
     flexGrow: 1,
     maxWidth: 450,
-    
+
     display: "flex",
     justifyContent: "space-around",
   }
@@ -122,7 +122,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
     return <SingleColumnSection className={classes.section}>
       <SectionTitle title="Recommendations">
         <LWTooltip title="Customize your recommendations">
-          <SettingsIcon onClick={this.toggleSettings} label="Settings"/> 
+          <SettingsIcon onClick={this.toggleSettings} label="Settings"/>
         </LWTooltip>
       </SectionTitle>
       {showSettings &&
@@ -161,7 +161,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
         <FrontpageVotingPhase settings={frontpageRecommendationSettings} />
       </AnalyticsContext> */}
 
-      <AnalyticsContext pageSectionContext="Coronavirus Frontpage Widget">
+      <AnalyticsContext pageSectionContext="coronavirusWidget">
         <div className={classes.subsection}>
           <CoronavirusFrontpageWidget settings={frontpageRecommendationSettings} />
         </div>
