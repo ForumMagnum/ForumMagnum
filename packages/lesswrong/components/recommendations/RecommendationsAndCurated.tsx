@@ -41,12 +41,11 @@ const styles = theme => ({
     paddingLeft: 12,
     paddingRight: 12,
     borderRadius: 3,
-    marginLeft: 50,
+    marginLeft: 20,
     textAlign: "center",
     [theme.breakpoints.down('sm')]: {
-      marginLeft: 0,
-    },
-    [theme.breakpoints.down('xs')]: {
+      width: "48%",
+      marginTop: "1em",
       marginLeft: 10,
     }
   },
@@ -58,7 +57,7 @@ const styles = theme => ({
     paddingRight: 12,
     borderRadius: 3,
     textAlign: "center",
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down('sm')]: {
       width: "48%",
       marginTop: "1em"
     }
