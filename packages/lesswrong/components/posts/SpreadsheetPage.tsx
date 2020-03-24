@@ -313,7 +313,7 @@ const SpreadsheetPage = ({classes}:{
 
   if (loading) return <Loading />
 
-  const dataRows = data.CoronaVirusData.values
+  const dataRows = _.filter(data.CoronaVirusData.values, row => row.accepted === "Accept")
   const sortedRowsAdded = _.sortBy(dataRows, row => -row.dateAdded)
   const sortedRowsImp = _.sortBy(sortedRowsAdded, row => -row.imp)
 
