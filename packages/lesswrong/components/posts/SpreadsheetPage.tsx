@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 // import { AnalyticsContext } from "../../lib/analyticsEvents";
 import Table from '@material-ui/core/Table';
