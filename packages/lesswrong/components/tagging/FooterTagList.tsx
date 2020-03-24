@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/crud/cacheUpdates';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -28,7 +28,7 @@ const FooterTagList = ({post, classes}: {
       postId: post._id,
     },
     collection: TagRels,
-    fragmentName: "TagRelMinimumFragment",
+    fragmentName: "TagRelMinimumFragment", // Must match the fragment in the mutation
     limit: 100,
     ssr: true,
   });
@@ -36,21 +36,13 @@ const FooterTagList = ({post, classes}: {
   const [mutate] = useMutation(gql`
     mutation addOrUpvoteTag($tagId: String, $postId: String) {
       addOrUpvoteTag(tagId: $tagId, postId: $postId) {
-        ...TagRelFragment
+        ...TagRelMinimumFragment
       }
     }
-    ${getFragment("TagRelFragment")}
-  `, {
-    update: (store, mutationResult) => {
-      updateEachQueryResultOfType({
-        func: handleUpdateMutation,
-        document: mutationResult.data.addOrUpvoteTag,
-        store, typeName: "TagRel",
-      });
-    }
-  });
+    ${getFragment("TagRelMinimumFragment")}
+  `);
 
-  const onTagSelected = async (tagId) => {
+  const onTagSelected = useCallback(async ({tagId, tagName}: {tagId: string, tagName: string}) => {
     setIsAwaiting(true)
     await mutate({
       variables: {
@@ -60,7 +52,7 @@ const FooterTagList = ({post, classes}: {
     });
     setIsAwaiting(false)
     refetch()
-  }
+  }, [setIsAwaiting, mutate, refetch, post._id]);
   
   const { Loading, FooterTag, LWPopper, AddTag } = Components
   if (loading || !results)
@@ -73,16 +65,7 @@ const FooterTagList = ({post, classes}: {
         return <FooterTag key={result._id} tagRel={result} tag={result.tag}/>
       }
     })}
-    <Components.AddTagButton
-      onTagSelected={({tagId, tagName}: {tagId: string, tagName: string}) => {
-        mutate({
-          variables: {
-            tagId: tagId,
-            postId: post._id,
-          },
-        });
-      }}
-    />
+    <Components.AddTagButton onTagSelected={onTagSelected} />
     { isAwaiting && <Loading/>}
   </div>
 };
