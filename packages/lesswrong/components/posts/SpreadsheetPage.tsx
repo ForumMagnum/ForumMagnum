@@ -11,8 +11,9 @@ import * as _ from 'underscore';
 import classNames from 'classnames';
 import { useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
-import { QueryLink } from '../../lib/reactRouterWrapper'
+import { QueryLink, Link } from '../../lib/reactRouterWrapper'
 import { useLocation } from '../../lib/routeUtil';
+import qs from 'qs'
 
 const cellStyle = () => ({
   maxWidth: 350,
@@ -165,8 +166,9 @@ const styles = theme => ({
       left: 0,
       zIndex: 2, 
     },
+    textAlign: 'center',
     paddingLeft: 6,
-    paddingRight: 6
+    paddingRight: 6,
   },
   leftFixed1: {
     ...cellStyle(),
@@ -363,13 +365,19 @@ const styles = theme => ({
     color: 'rgba(0,0,0,0.6)',
     marginTop: 8,
     fontStyle: "italic"
+  },
+  selectedRow: {
+    '& $leftFixed0': {
+      backgroundColor: theme.palette.primary.main,
+      color: 'white'
+    }
   }
 })
 
 const SpreadsheetPage = ({classes}:{
   classes: any
 }) => {
-  const { query: { tab: selectedTab = "Intro" } } = useLocation()
+  const { query: { tab: selectedTab = "Intro" }, hash: selectedCell } = useLocation()
   const { LWTooltip, HoverPreviewLink, Loading } = Components
   const { data, loading } = useQuery(gql`
     query CoronaVirusData {
@@ -570,8 +578,10 @@ const SpreadsheetPage = ({classes}:{
               dateAdded,
               category,
             }, rowNum) => (
-              <TableRow key={`row-${rowNum}`}>
-                <TableCell classes={{root: classes.leftFixed0}}>{imp}</TableCell>
+              <TableRow key={`row-${rowNum}`} id={encodeURIComponent(url)} className={selectedCell === `#${encodeURIComponent(url)}` ? classes.selectedRow : ''} >
+                <TableCell classes={{root: classes.leftFixed0}}>
+                  <Link to={{hash: encodeURIComponent(url), search: `?${qs.stringify({tab: selectedTab})}`}}>{imp}</Link>
+                </TableCell>
                 <TableCell className={classes.leftFixed1}>
                   {linkCell(url, link, domain, type)}
                   <span className={classes.smallDescription}>
