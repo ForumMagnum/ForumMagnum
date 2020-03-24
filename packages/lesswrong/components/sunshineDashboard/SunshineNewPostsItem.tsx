@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react';
+import React, { useState } from 'react';
 import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMutation } from 'react-apollo';
@@ -66,6 +66,22 @@ const SunshineNewPostsItem = ({post}: {
       },
     })
   }
+  
+  // ea-forum-look-here This widget/form was redesigned to support core tags, and
+  // had some EA-forum specific customization (for the "Move to Community"
+  // button). Make sure the set of buttons here is right.
+  const handleMoveToCommunity = () => {
+    applyTags();
+    
+    updatePost({
+      selector: { _id: post._id},
+      data: {
+        meta: true,
+        reviewedByUserId: currentUser!._id,
+        authorIsUnreviewed: false
+      },
+    })
+  }
 
   const handleDelete = () => {
     if (confirm("Are you sure you want to move this post to the author's draft?")) {
@@ -80,7 +96,7 @@ const SunshineNewPostsItem = ({post}: {
     }
   }
 
-  const { MetaInfo, FooterTagList, PostsHighlight, SunshineListItem, SidebarHoverOver, SidebarActionMenu, SidebarAction, SidebarInfo, CoreTagsChecklist } = Components
+  const { MetaInfo, FooterTagList, PostsHighlight, SunshineListItem, SidebarHoverOver, SidebarInfo, CoreTagsChecklist } = Components
   const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
   const { html: userGuidelinesHtml = "" } = post.user.moderationGuidelines || {}
 
@@ -117,9 +133,12 @@ const SunshineNewPostsItem = ({post}: {
           <Button onClick={handleReview}>
             Leave on Personal Blog
           </Button>
-          <Button onClick={handlePromote}>
+          {post.submitToFrontpage && <Button onClick={handlePromote}>
             Move to Frontpage
-          </Button>
+          </Button>}
+          {getSetting('forumType') === 'EAForum' && post.submitToFrontpage && <Button onClick={handleMoveToCommunity}>
+            Move to Community
+          </Button>}
           <Button onClick={handleDelete}>
             Move to Drafts
           </Button>
