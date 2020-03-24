@@ -43,10 +43,11 @@ const styles = theme => ({
     borderRadius: 3,
     marginLeft: 50,
     textAlign: "center",
-    [theme.breakpoints.down('xs')]: {
-      width: "48%",
-      marginTop: "1em",
+    [theme.breakpoints.down('sm')]: {
       marginLeft: 0,
+    },
+    [theme.breakpoints.down('xs')]: {
+      marginLeft: 10,
     }
   },
   coronavirusLinksDB: {
