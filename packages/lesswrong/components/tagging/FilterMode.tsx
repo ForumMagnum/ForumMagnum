@@ -7,29 +7,30 @@ import HelpIcon from '@material-ui/icons/Help';
 const styles = theme => ({
   root: {
     borderBottom: '1px solid rgba(0,0,0,0.1)',
+    display: "flex",
+    alignItems: "center",
+    paddingLeft: 12
   },
   label: {
-    width: 135,
-    display: "inline-block",
-    verticalAlign: "middle",
+    marginRight: "auto"
   },
   button: {
     cursor: 'pointer',
     margin: 4,
     padding: 8,
-    verticalAlign: 'middle',
     textTransform: 'uppercase',
     textAlign: 'center',
     display: 'inline-block',
     fontWeight: 500,
-    marginRight: 10
+    marginLeft: 10
   },
   selected: {
     color: 'hsla(125, 23%, 47%, 1)',
   },
   closeButton: {
-    display: "inline-block",
-    verticalAlign: "middle",
+    width: 10,
+    color: theme.palette.grey[500],
+    cursor: "pointer"
   },
   helpIcon: {
     color: theme.palette.grey[400],
@@ -61,12 +62,12 @@ const FilterModeRawComponent = ({description, mode, canRemove=false, onChangeMod
         </span>
       </LWTooltip>
     )}
-    {canRemove && <div className={classes.closeButton} onClick={ev => {
+    {canRemove ? <div className={classes.closeButton} onClick={ev => {
       if (onRemove)
         onRemove();
     }}>
       X
-    </div>}
+    </div> : <div className={classes.closeButton}/>}
   </div>
 }
 
