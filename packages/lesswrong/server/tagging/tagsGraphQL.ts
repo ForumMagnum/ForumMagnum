@@ -53,7 +53,7 @@ addGraphQLResolvers({
       return addOrUpvoteTag({tagId, postId, currentUser});
     },
     
-    applyCoreTags: async (root, {postId, tagIds}: {postId: string, tagIds: Array<string>}, {currentUser}) => {
+    addTags: async (root, {postId, tagIds}: {postId: string, tagIds: Array<string>}, {currentUser}) => {
       if (!currentUser) throw new Error("You must be logged in to tag");
       if (!postId) throw new Error("Missing argument: postId");
       if (!tagIds) throw new Error("Missing argument: tagIds");
@@ -67,4 +67,4 @@ addGraphQLResolvers({
   }
 });
 addGraphQLMutation('addOrUpvoteTag(tagId: String, postId: String): TagRel');
-addGraphQLMutation('applyCoreTags(postId: String, tagIds: [String]): Boolean');
+addGraphQLMutation('addTags(postId: String, tagIds: [String]): Boolean');

@@ -23,9 +23,9 @@ const SunshineNewPostsItem = ({post}: {
     collection: Posts,
     fragmentName: 'PostsList',
   });
-  const [applyCoreTagsMutation] = useMutation(gql`
-    mutation applyCoreTagsMutation($postId: String, $tagIds: [String]) {
-      applyCoreTags(postId: $postId, tagIds: $tagIds)
+  const [addTagsMutation] = useMutation(gql`
+    mutation addTagsMutation($postId: String, $tagIds: [String]) {
+      addTags(postId: $postId, tagIds: $tagIds)
     }
   `);
 
@@ -35,7 +35,7 @@ const SunshineNewPostsItem = ({post}: {
       if (selectedTags[tagId])
         tagsApplied.push(tagId);
     }
-    applyCoreTagsMutation({
+    addTagsMutation({
       variables: {
         postId: post._id,
         tagIds: tagsApplied,
