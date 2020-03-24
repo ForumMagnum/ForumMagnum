@@ -11,6 +11,8 @@ import * as _ from 'underscore';
 import classNames from 'classnames';
 import { useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
+import { QueryLink } from '../../lib/reactRouterWrapper'
+import { useLocation } from '../../lib/routeUtil';
 
 const cellStyle = () => ({
   maxWidth: 350,
@@ -49,6 +51,11 @@ const styles = theme => ({
     alignItems: "center",
     maxWidth: 880,
     padding: 50,
+    paddingTop: 0,
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: 16,
+      paddingBottom: 0,
+    },
     [theme.breakpoints.down('xs')]: {
       minWidth: 'initial',
       display: "block",
@@ -252,7 +259,10 @@ const styles = theme => ({
     fontWeight: 600,
     color: theme.palette.primary.main,
     cursor: "pointer",
-    textAlign: "center"
+    textAlign: "center",
+    [theme.breakpoints.down('sm')]: {
+      textAlign: "initial"
+    }
   },
   cellSheetDescription: {
     width: 250,
@@ -359,7 +369,7 @@ const styles = theme => ({
 const SpreadsheetPage = ({classes}:{
   classes: any
 }) => {
-  const [selectedTab, setSelectedTab] = useState("Intro")
+  const { query: { tab: selectedTab = "Intro" } } = useLocation()
   const { LWTooltip, HoverPreviewLink, Loading } = Components
   const { data, loading } = useQuery(gql`
     query CoronaVirusData {
@@ -389,6 +399,7 @@ const SpreadsheetPage = ({classes}:{
   `, {
     ssr: true
   });
+  
 
   if (loading) return <Loading />
 
@@ -474,7 +485,7 @@ const SpreadsheetPage = ({classes}:{
         <div className={classes.introWrapper}>
           <div className={classes.intro}>
             <p>
-              Welcome to the Coronavirus Info-Database, an attempt to organize the disparate papers, articles and links that are spread all over the internet regarding the nCov pandemic. You can submit new links by pressing the big green button, which we will sort, summarize and prioritize daily.
+              Welcome to the Coronavirus Info-Database, an attempt to organize the disparate papers, articles and links that are spread all over the internet regarding the nCov pandemic. We sort, summarize and prioritize all links on a daily basis. You can submit new links by pressing the big green button.
             </p>
             <p>
               You can find (and participate) in more LessWrong discussion of COVID-19 on <HoverPreviewLink href={"/tag/coronavirus"} innerHTML="our tag page"/>.
@@ -489,21 +500,22 @@ const SpreadsheetPage = ({classes}:{
         <LWTooltip key={"Intro"} placement="top" title={<div>
             {"What is this table about?"}
           </div>}>
-            <div 
-              className={classNames(classes.tab, {[classes.tabSelected]:selectedTab === "Intro"})}
-              onClick={()=>setSelectedTab("Intro")}
-            >
-              <span className={classes.tabLabel}>
-                INTRO
-              </span>
-          </div>
+            <QueryLink query={{tab: "Intro"}}>
+              <div 
+                className={classNames(classes.tab, {[classes.tabSelected]:selectedTab === "Intro"})}
+              >
+                <span className={classes.tabLabel}>
+                  INTRO
+                </span>
+              </div>
+            </QueryLink>
         </LWTooltip>
         {tabs.map(tab => <LWTooltip key={tab.label} placement="top" title={<div>
             {tab.description} ({tab.rows.length - 1})
           </div>}>
+            <QueryLink query={{tab: tab.label}}>
               <div 
                 className={classNames(classes.tab, {[classes.tabSelected]:tab.label === selectedTab})}
-                onClick={()=>setSelectedTab(tab.label)}
               >
                 <div className={classes.tabLabel}>
                   {tab.displayLabel || tab.label}
@@ -511,7 +523,8 @@ const SpreadsheetPage = ({classes}:{
                 <div className={classes.tabCount}>
                   {tab.rows.length - 1} links
                 </div>
-            </div>
+              </div>
+            </QueryLink >
           </LWTooltip>)}
       </div>
       <div className={classes.table}>
@@ -607,8 +620,8 @@ const SpreadsheetPage = ({classes}:{
             {tabs.map(tab => {
               if (tab.label == "All Links") return null
               return <TableRow key={`intro-${tab.label}`} className={classes.categoryRow}>
-                  <TableCell className={classes.cellSheet} onClick={() => setSelectedTab(tab.label)}>
-                    <a>{tab.displayLabel || tab.label}</a>
+                  <TableCell className={classes.cellSheet}>
+                    <QueryLink query={{ tab: tab.label }}>{tab.displayLabel || tab.label}</QueryLink>
                     <span className={classes.smallDescription}>{tab.description}</span>
                   </TableCell>
                   <TableCell className={classes.cellSheetDescription}>
