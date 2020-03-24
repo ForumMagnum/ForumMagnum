@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useHover } from './withHover';
 import { PopperPlacementType } from '@material-ui/core/Popper'
+import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
@@ -13,7 +14,7 @@ const styles = theme => ({
   }
 })
 
-const LWTooltip = ({classes, children, title, placement="bottom-start", tooltip=true, flip=true, enterDelay=undefined}: {
+const LWTooltip = ({classes, className, children, title, placement="bottom-start", tooltip=true, flip=true, enterDelay=undefined}: {
   children?: any,
   title?: any,
   placement?: PopperPlacementType,
@@ -21,6 +22,7 @@ const LWTooltip = ({classes, children, title, placement="bottom-start", tooltip=
   flip?: boolean,
   enterDelay?: number,
   classes: ClassesType,
+  className?: string
 }) => {
   const { LWPopper } = Components
   const { hover, everHovered, anchorEl, stopHover, eventHandlers } = useHover({
@@ -30,7 +32,7 @@ const LWTooltip = ({classes, children, title, placement="bottom-start", tooltip=
   
   if (!title) return children
 
-  return <span className={classes.root} {...eventHandlers}>
+  return <span className={classNames(classes.root, className)} {...eventHandlers}>
     { /* Only render the LWPopper if this element has ever been hovered. (But
          keep it in the React tree thereafter, so it can remember its state and
          can have a closing animation if applicable. */ }
