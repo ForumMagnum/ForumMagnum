@@ -284,7 +284,7 @@ const smallPostStyles = theme => ({
 
 export const postHighlightStyles = theme => {
   const postHighlightStyles = {
-    ...smallPostStyles,
+    ...smallPostStyles(theme),
     '& h1, & h2, & h3': {
       ...theme.typography.body2,
       ...theme.typography.postStyle,
@@ -295,7 +295,7 @@ export const postHighlightStyles = theme => {
 
 export const answerStyles = theme => {
   const answerStyles = {
-    ...smallPostStyles
+    ...smallPostStyles(theme)
   }
   return deepmerge(postBodyStyles(theme), answerStyles, {isMergeableObject:isPlainObject})
 }
