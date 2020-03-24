@@ -15,8 +15,32 @@ const styles = theme => ({
   addTag: {
     marginTop: 8,
     marginBottom: 8,
-  },
+  }
 });
+
+
+const personalBlogpostTooltip = <div>
+  <div>
+    By default, the home page only displays Frontpage Posts, which meet criteria including:
+  </div>
+  <ul>
+    <li>Usefulness, novelty and relevance</li>
+    <li>Timeless content (minimize reference to current events)</li>
+    <li>Explain, rather than persuade</li>
+  </ul>
+  <div>
+    Members can write about whatever they want on their personal blog. Personal blogposts are a good fit for:
+  </div>
+  <ul>
+    <li>Niche topics, less relevant to most members</li>
+    <li>Meta-discussion of LessWrong (site features, interpersonal community dynamics)</li>
+    <li>Topics that are difficult to discuss rationally</li>
+    <li>Personal ramblings</li>
+  </ul>
+  <div>
+    All posts are submitted as personal blogposts. Moderators manually move some to frontpage
+  </div>
+</div>
 
 // Filter by Tag
 //   Coronavirus
@@ -29,24 +53,25 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
 }) => {
   const currentUser = useCurrentUser();
   const canFilterCustomTags = userCanManageTags(currentUser);
+  const { AddTagButton, FilterMode } = Components
   
   // ea-forum-look-here The name "Personal Blog Posts" is forum-specific terminology
   return <div className={classes.root}>
-    <div className={classes.filterMode}>
-      <Components.FilterMode
-        description="Personal Blog Posts"
-        mode={filterSettings.personalBlog}
-        canRemove={false}
-        onChangeMode={(mode: FilterMode) => {
-          setFilterSettings({
-            personalBlog: mode,
-            tags: filterSettings.tags,
-          });
-        }}
-      />
-    </div>
+    <FilterMode
+      description="Personal Blog Posts"
+      helpTooltip={personalBlogpostTooltip}
+      mode={filterSettings.personalBlog}
+      canRemove={false}
+      onChangeMode={(mode: FilterMode) => {
+        setFilterSettings({
+          personalBlog: mode,
+          tags: filterSettings.tags,
+        });
+      }}
+    />
+
     {filterSettings.tags.map(tagSettings =>
-      <Components.FilterMode
+      <FilterMode
         description={tagSettings.tagName}
         key={tagSettings.tagId}
         mode={tagSettings.filterMode}
@@ -75,7 +100,7 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
     )}
     
     {canFilterCustomTags && <div className={classes.addTag}>
-      <Components.AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
+      <AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
         if (!_.some(filterSettings.tags, t=>t.tagId===tagId)) {
           const newFilter: FilterTag = {tagId, tagName, filterMode: "Default"}
           setFilterSettings({

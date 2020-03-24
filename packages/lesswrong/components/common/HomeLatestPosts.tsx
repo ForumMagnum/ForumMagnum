@@ -49,7 +49,7 @@ const HomeLatestPosts = ({ classes }: {
   const [filterSettingsVisible, setFilterSettingsVisible] = useState(false);
 
   const { query } = location;
-  const { SingleColumnSection, SectionTitle, PostsList2, LWTooltip } = Components
+  const { SingleColumnSection, SectionTitle, PostsList2, LWTooltip, TagFilterSettings } = Components
   const limit = parseInt(query.limit) || 13
 
   const recentPostsTerms = {
@@ -73,37 +73,16 @@ const HomeLatestPosts = ({ classes }: {
     </div>
   )
 
-  const personalBlogpostTooltip = <div>
-    <div>
-      By default, the home page only displays Frontpage Posts, which meet criteria including:
-    </div>
-    <ul>
-      <li>Usefulness, novelty and relevance</li>
-      <li>Timeless content (minimize reference to current events)</li>
-      <li>Explain, rather than persuade</li>
-    </ul>
-    <div>
-      Members can write about whatever they want on their personal blog. Personal blogposts are a good fit for:
-    </div>
-    <ul>
-      <li>Niche topics, less relevant to most members</li>
-      <li>Meta-discussion of LessWrong (site features, interpersonal community dynamics)</li>
-      <li>Topics that are difficult to discuss rationally</li>
-      <li>Personal ramblings</li>
-    </ul>
-    <div>
-      All posts are submitted as personal blogposts. Moderators manually move some to frontpage
-    </div>
-  </div>
+  const filterTooltip = "Change filters on coronavirus content and personal blogposts in the Latest Posts section."
 
   return (
     <SingleColumnSection>
       <SectionTitle title={<LWTooltip title={latestTitle} placement="top"><span>{latestPostsName}</span></LWTooltip>}>
-        <LWTooltip title={personalBlogpostTooltip}>
+        <LWTooltip title={filterTooltip}>
           <Components.SettingsIcon onClick={() => setFilterSettingsVisible(!filterSettingsVisible)} label={"Filter: "+filterSettingsToString(filterSettings)}/>
         </LWTooltip>
       </SectionTitle>
-      {filterSettingsVisible && <Components.TagFilterSettings
+      {filterSettingsVisible && <TagFilterSettings
         filterSettings={filterSettings} setFilterSettings={(newSettings) => {
           setFilterSettings(newSettings)
           if (currentUser) {
