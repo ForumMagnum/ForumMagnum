@@ -46,7 +46,8 @@ const styles = theme => ({
     [theme.breakpoints.down('sm')]: {
       width: "48%",
       marginTop: "1em",
-      marginLeft: 0
+      marginLeft: "1%",
+      marginRight: "1%"
     }
   },
   coronavirusLinksDB: {
@@ -59,7 +60,9 @@ const styles = theme => ({
     textAlign: "center",
     [theme.breakpoints.down('sm')]: {
       width: "48%",
-      marginTop: "1em"
+      marginTop: "1em",
+      marginLeft: "1%",
+      marginRight: "1%"
     }
   },
 });
