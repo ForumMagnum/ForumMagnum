@@ -1,6 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState, useCallback } from 'react';
-import { postHighlightStyles } from '../../themes/stylePiping'
+import { answerStyles } from '../../themes/stylePiping'
 import Typography from '@material-ui/core/Typography'
 import withErrorBoundary from '../common/withErrorBoundary'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
@@ -9,7 +9,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const styles = theme => ({
   postContent: {
-    ...postHighlightStyles(theme),
+    ...answerStyles(theme),
   },
   root: {
     marginBottom: theme.spacing.unit*4,
