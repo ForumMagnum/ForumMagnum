@@ -29,11 +29,39 @@ const styles = theme => ({
   footer: {
     color: theme.palette.lwTertiary.main,
     flexGrow: 1,
-    maxWidth: 450,
-
+    flexWrap: "wrap",
+    alignItems: "center",
+    // maxWidth: 450, //commented out during coronavirus season
     display: "flex",
     justifyContent: "space-around",
-  }
+  },
+  coronavirusTagPage: {
+    border: `solid 1px ${theme.palette.lwTertiary.main}`,
+    padding: 5,
+    paddingLeft: 12,
+    paddingRight: 12,
+    borderRadius: 3,
+    marginLeft: 50,
+    textAlign: "center",
+    [theme.breakpoints.down('xs')]: {
+      width: "48%",
+      marginTop: "1em",
+      marginLeft: 0,
+    }
+  },
+  coronavirusLinksDB: {
+    background: theme.palette.lwTertiary.main,
+    color: "white",
+    padding: 5,
+    paddingLeft: 12,
+    paddingRight: 12,
+    borderRadius: 3,
+    textAlign: "center",
+    [theme.breakpoints.down('xs')]: {
+      width: "48%",
+      marginTop: "1em"
+    }
+  },
 });
 
 const defaultFrontpageSettings = {
@@ -203,7 +231,12 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
               </Link>
               <SeparatorBullet/>
               <SubscribeWidget view={"curated"} />
-              <Link to="/tag/coronavirus">Coronavirus Tag Page</Link>
+              <LWTooltip className={classes.coronavirusTagPage} title="View all posts related to COVID-19">
+                <Link to="/tag/coronavirus">Coronavirus Tag Page</Link>
+              </LWTooltip>
+              <LWTooltip className={classes.coronavirusLinksDB} title="Read or contribute to our master list of top coronavirus-related sites, from across the internet.">
+                <Link to="/coronavirus-link-database">Links Database</Link>
+              </LWTooltip>
             </Typography>
           </div>
         </div>
