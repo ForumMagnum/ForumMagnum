@@ -33,12 +33,14 @@ const headerStyle = theme => ({
 
 const styles = theme => ({
   root: {
-    marginTop: -49, // adjusting for main layout header
     marginBottom: -150, // adjusting for footer
     position: "relative",
   },
   intro: {
     maxWidth: 564,
+    [theme.breakpoints.down('sm')]: {
+      maxWidth: 300
+    }
   },
   introWrapper: {
     display: "flex",
@@ -46,7 +48,12 @@ const styles = theme => ({
     justifyContent: "space-around",
     alignItems: "center",
     maxWidth: 880,
-    padding: 50
+    padding: 50,
+    [theme.breakpoints.down('xs')]: {
+      minWidth: 'initial',
+      display: "block",
+      padding: 16
+    },
   },
   submitButton: {
     marginLeft: 50,
@@ -58,6 +65,11 @@ const styles = theme => ({
     fontWeight: 600,
     borderRadius: 5,
     textAlign: "center",
+    [theme.breakpoints.down('xs')]: {
+      display: "block",
+      marginLeft: 0,
+      marginTop: 24
+    }
   },
   table: {
     position: "relative",
@@ -68,7 +80,13 @@ const styles = theme => ({
   },
   cellDescription: {
     ...cellStyle(),
-    minWidth: 350
+    minWidth: 350,
+    [theme.breakpoints.down('md')]: {
+      minWidth: 'initial'
+    },
+    [theme.breakpoints.down('xs')]: {
+      display: 'none'
+    }
   },
   cell: {
     ...cellStyle()
@@ -87,13 +105,40 @@ const styles = theme => ({
   },
   cellTitle: {
     ...cellStyle(),
-    color: 'rgba(0,0,0,0.6)'
+    color: 'rgba(0,0,0,0.6)',
+    [theme.breakpoints.down('md')]: {
+      display: "none"
+    }
   },
   headerCell: {
     ...headerStyle(theme),
+    [theme.breakpoints.down('xs')]: {
+      display: 'none'
+    }
+  },
+  headerCellDescription: {
+    ...headerStyle(theme),
+    [theme.breakpoints.down('sm')]: {
+      display: 'none'
+    }
+  },
+  headerCellCategory: {
+    ...headerStyle(theme),
+    [theme.breakpoints.down('md')]: {
+      display: "none"
+    }
+  },
+  cellCategory: {
+    ...cellStyle(),
+    [theme.breakpoints.down('md')]: {
+      display: "none"
+    }
   },
   headerTitle: {
     ...headerStyle(theme),
+    [theme.breakpoints.down('md')]: {
+      display: "none"
+    }
   },
   leftFixed0: {
     ...cellStyle(),
@@ -128,6 +173,9 @@ const styles = theme => ({
     boxShadow: "2px 0 2px -1px rgba(0,0,0,.15)",
     '& a': {
       color: theme.palette.primary.dark
+    },
+    [theme.breakpoints.down('md')]: {
+      minWidth: 'initial'
     }
   },
   leftFixedHeader1: {
@@ -149,6 +197,9 @@ const styles = theme => ({
     alignItems: "flex-start",
     paddingLeft: 8,
     flexWrap: "wrap-reverse",
+    [theme.breakpoints.down('md')]: {
+      marginTop: 60
+    }
   },
   tab: {
     ...theme.typography.commentStyle,
@@ -204,7 +255,10 @@ const styles = theme => ({
     textAlign: "center"
   },
   cellSheetDescription: {
-    width: 250
+    width: 250,
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    }
   },
   link: {
     color: theme.palette.primary.dark,
@@ -212,7 +266,10 @@ const styles = theme => ({
   },
   topLinks: {
     padding: 0,
-    borderLeft: "solid 1px rgba(0,0,0,.1)"
+    borderLeft: "solid 1px rgba(0,0,0,.1)",
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    }
   },
   topLinkRow: {
     display: "flex",
@@ -233,7 +290,10 @@ const styles = theme => ({
   topLinkDescription: {
     padding: 16,
     paddingTop: 10,
-    paddingBottom: 10
+    paddingBottom: 10,
+    [theme.breakpoints.down('md')]: {
+      display: "none"
+    }
   },
   categoryRow: {
     borderBottom: `solid 5px ${theme.palette.grey[200]}`
@@ -248,18 +308,27 @@ const styles = theme => ({
     ...headerStyle(theme),
     minWidth: 70,
     maxWidth: 70,
-    textAlign: "center"
+    textAlign: "center",
+    [theme.breakpoints.down('md')]: {
+      display: "none"
+    }
   },
   headerLastUpdated: {
     ...headerStyle(theme),
     minWidth: 70,
     maxWidth: 70,
-    textAlign: "center"
+    textAlign: "center",
+    [theme.breakpoints.down('md')]: {
+      display: "none"
+    }
   },
   cellDate: {
     fontSize: "1rem",
     textAlign: "center",
-    color: 'rgba(0,0,0,0.6)'
+    color: 'rgba(0,0,0,0.6)',
+    [theme.breakpoints.down('md')]: {
+      display: "none"
+    }
   },
   source: {
     fontSize: "1rem",
@@ -267,6 +336,17 @@ const styles = theme => ({
   },
   description: {
     display: 'block'
+  },
+  smallDescription: {
+    fontSize: '1rem',
+    display: 'block',
+    marginTop: 8,
+    color: 'rgba(0,0,0,0.87)',
+    lineHeight: '1.4',
+    fontWeight: '500',
+    [theme.breakpoints.up('md')]: {
+      display: "none"
+    }
   },
   reviewerThoughts: {
     display: 'block',
@@ -279,7 +359,6 @@ const styles = theme => ({
 const SpreadsheetPage = ({classes}:{
   classes: any
 }) => {
-
   const [selectedTab, setSelectedTab] = useState("Intro")
   const { LWTooltip, HoverPreviewLink, Loading } = Components
   const { data, loading } = useQuery(gql`
@@ -313,7 +392,7 @@ const SpreadsheetPage = ({classes}:{
 
   if (loading) return <Loading />
 
-  const dataRows = data.CoronaVirusData.values
+  const dataRows = _.filter(data.CoronaVirusData.values, row => row.accepted === "Accept")
   const sortedRowsAdded = _.sortBy(dataRows, row => -row.dateAdded)
   const sortedRowsImp = _.sortBy(sortedRowsAdded, row => -row.imp)
 
@@ -395,7 +474,7 @@ const SpreadsheetPage = ({classes}:{
         <div className={classes.introWrapper}>
           <div className={classes.intro}>
             <p>
-              Welcome to the Coronavirus Info-Database, an attempt to organize the disparate papers, articles and links that are spread all over the internet regarding the nCov pandemic. You can submit new links, which the maintainers of this sheet will sort and prioritize the links.
+              Welcome to the Coronavirus Info-Database, an attempt to organize the disparate papers, articles and links that are spread all over the internet regarding the nCov pandemic. You can submit new links by pressing the big green button, which we will sort, summarize and prioritize daily.
             </p>
             <p>
               You can find (and participate) in more LessWrong discussion of COVID-19 on <HoverPreviewLink href={"/tag/coronavirus"} innerHTML="our tag page"/>.
@@ -450,7 +529,7 @@ const SpreadsheetPage = ({classes}:{
               <TableCell classes={{root: classes.headerCell}}>
                 Summary
               </TableCell>
-              {currentTab.showCategory &&  <TableCell classes={{root: classes.headerCell}}>
+              {currentTab.showCategory &&  <TableCell classes={{root: classes.headerCellCategory}}>
                 Category
               </TableCell>}
               <TableCell classes={{root: classes.headerDateAdded}}>
@@ -482,6 +561,9 @@ const SpreadsheetPage = ({classes}:{
                 <TableCell classes={{root: classes.leftFixed0}}>{imp}</TableCell>
                 <TableCell className={classes.leftFixed1}>
                   {linkCell(url, link, domain, type)}
+                  <span className={classes.smallDescription}>
+                    {description}
+                  </span>
                 </TableCell>
                 <TableCell classes={{root: classes.cellDescription}}>
                   <span className={classes.description}>
@@ -491,7 +573,7 @@ const SpreadsheetPage = ({classes}:{
                     {reviewerThoughts}
                   </span>}
                 </TableCell>
-                {currentTab.showCategory && <TableCell classes={{root: classes.cell}}>
+                {currentTab.showCategory && <TableCell classes={{root: classes.cellCategory}}>
                   {category}
                 </TableCell>}
                 <TableCell classes={{root: classes.cellDate}}>
@@ -515,7 +597,7 @@ const SpreadsheetPage = ({classes}:{
               <TableCell className={classes.headerSheet}>
                 Sheet
               </TableCell>
-              <TableCell className={classes.headerCell}>
+              <TableCell className={classes.headerCellDescription}>
                 Description
               </TableCell>
               <TableCell className={classes.headerCell}>
@@ -527,6 +609,7 @@ const SpreadsheetPage = ({classes}:{
               return <TableRow key={`intro-${tab.label}`} className={classes.categoryRow}>
                   <TableCell className={classes.cellSheet} onClick={() => setSelectedTab(tab.label)}>
                     <a>{tab.displayLabel || tab.label}</a>
+                    <span className={classes.smallDescription}>{tab.description}</span>
                   </TableCell>
                   <TableCell className={classes.cellSheetDescription}>
                     {tab.description}
