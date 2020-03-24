@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent, Components, Utils } from '../../lib/vulcan-lib';
 // import { AnalyticsContext } from "../../lib/analyticsEvents";
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -378,7 +378,7 @@ const SpreadsheetPage = ({classes}:{
   classes: any
 }) => {
   const { query: { tab: selectedTab = "Intro" }, hash: selectedCell } = useLocation()
-  const { LWTooltip, HoverPreviewLink, Loading } = Components
+  const { LWTooltip, HoverPreviewLink, Loading, HeadTags } = Components
   const { data, loading } = useQuery(gql`
     query CoronaVirusData {
       CoronaVirusData {
@@ -489,6 +489,7 @@ const SpreadsheetPage = ({classes}:{
   const rows = currentTab?.rows || []
   return (
     <div className={classes.root}>
+      <HeadTags url={Utils.getSiteUrl() + "coronavirus-link-database"} image={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1585093292/Screen_Shot_2020-03-24_at_4.41.12_PM_qiwqwc.png"}/>
       {selectedTab == "Intro" && 
         <div className={classes.introWrapper}>
           <div className={classes.intro}>
