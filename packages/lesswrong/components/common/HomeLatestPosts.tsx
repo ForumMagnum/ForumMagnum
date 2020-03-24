@@ -50,7 +50,7 @@ const HomeLatestPosts = ({ classes }: {
   const [filterSettingsVisible, setFilterSettingsVisible] = useState(false);
 
   const { query } = location;
-  const { SingleColumnSection, SectionTitle, PostsList2, LWTooltip, TagFilterSettings } = Components
+  const { SingleColumnSection, SectionTitle, PostsList2, LWTooltip, TagFilterSettings, SettingsIcon } = Components
   const limit = parseInt(query.limit) || 13
 
   const recentPostsTerms = {
@@ -81,7 +81,7 @@ const HomeLatestPosts = ({ classes }: {
         <SingleColumnSection>
           <SectionTitle title={<LWTooltip title={latestTitle} placement="top"><span>{latestPostsName}</span></LWTooltip>}>
             <LWTooltip title={filterTooltip}>
-              <Components.SettingsIcon
+              <SettingsIcon
                 onClick={() => {
                   setFilterSettingsVisible(!filterSettingsVisible)
                   captureEvent("filterSettingsClicked", {
@@ -93,7 +93,7 @@ const HomeLatestPosts = ({ classes }: {
                 label={"Filter: "+filterSettingsToString(filterSettings)}/>
             </LWTooltip>
           </SectionTitle>
-          {filterSettingsVisible && <Components.TagFilterSettings
+          {filterSettingsVisible && <TagFilterSettings
             filterSettings={filterSettings} setFilterSettings={(newSettings) => {
               setFilterSettings(newSettings)
               if (currentUser) {
