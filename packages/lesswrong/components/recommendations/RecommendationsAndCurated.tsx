@@ -45,6 +45,9 @@ const styles = theme => ({
     marginLeft: 80,
     textAlign: "center",
     [theme.breakpoints.down('sm')]: {
+      marginLeft: "1%",
+    },
+    [theme.breakpoints.down('xs')]: {
       width: "48%",
       marginTop: "1em",
       marginLeft: "1%",
@@ -52,14 +55,14 @@ const styles = theme => ({
     }
   },
   coronavirusLinksDB: {
-    background: theme.palette.primary.main,
+    background: "#71a376",
     color: "white",
     padding: 5,
     paddingLeft: 15,
     paddingRight: 15,
     borderRadius: 3,
     textAlign: "center",
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       width: "48%",
       marginTop: "1em",
       marginLeft: "1%",
@@ -236,6 +239,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
               </Link>
               <SeparatorBullet/>
               <SubscribeWidget view={"curated"} />
+              {/* todo: remember to revert subscribe widget after coronavirus */}
               <LWTooltip className={classes.coronavirusTagPage} title="View all posts related to COVID-19">
                 <Link to="/tag/coronavirus">Coronavirus Tag Page</Link>
               </LWTooltip>
