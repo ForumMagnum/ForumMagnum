@@ -36,12 +36,13 @@ const styles = theme => ({
     justifyContent: "space-around",
   },
   coronavirusTagPage: {
-    border: `solid 1px ${theme.palette.lwTertiary.main}`,
+    border: `solid 1px ${theme.palette.primary.main}`,
+    color: theme.palette.primary.main,
     padding: 5,
-    paddingLeft: 12,
-    paddingRight: 12,
+    paddingLeft: 15,
+    paddingRight: 15,
     borderRadius: 3,
-    marginLeft: 20,
+    marginLeft: 80,
     textAlign: "center",
     [theme.breakpoints.down('sm')]: {
       width: "48%",
@@ -51,11 +52,11 @@ const styles = theme => ({
     }
   },
   coronavirusLinksDB: {
-    background: theme.palette.lwTertiary.main,
+    background: theme.palette.primary.main,
     color: "white",
     padding: 5,
-    paddingLeft: 12,
-    paddingRight: 12,
+    paddingLeft: 15,
+    paddingRight: 15,
     borderRadius: 3,
     textAlign: "center",
     [theme.breakpoints.down('sm')]: {
@@ -230,7 +231,8 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
                 { /* On very small screens, use shorter link text ("More Curated"
                     instead of "View All Curated Posts") to avoid wrapping */ }
                 <Hidden smUp implementation="css">More Curated</Hidden>
-                <Hidden xsDown implementation="css">View All Curated Posts</Hidden>
+                <Hidden xsDown implementation="css">View All Curated</Hidden>
+                {/* todo: revert to "View All Curated Posts" */}
               </Link>
               <SeparatorBullet/>
               <SubscribeWidget view={"curated"} />
