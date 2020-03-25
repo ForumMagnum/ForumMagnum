@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import React from 'react';
+import { registerComponent, Components, Utils } from '../../lib/vulcan-lib';
 // import { AnalyticsContext } from "../../lib/analyticsEvents";
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -11,6 +11,9 @@ import * as _ from 'underscore';
 import classNames from 'classnames';
 import { useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
+import { QueryLink, Link } from '../../lib/reactRouterWrapper'
+import { useLocation } from '../../lib/routeUtil';
+import qs from 'qs'
 
 const cellStyle = () => ({
   maxWidth: 350,
@@ -49,6 +52,11 @@ const styles = theme => ({
     alignItems: "center",
     maxWidth: 880,
     padding: 50,
+    paddingTop: 0,
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: 16,
+      paddingBottom: 0,
+    },
     [theme.breakpoints.down('xs')]: {
       minWidth: 'initial',
       display: "block",
@@ -158,8 +166,9 @@ const styles = theme => ({
       left: 0,
       zIndex: 2, 
     },
+    textAlign: 'center',
     paddingLeft: 6,
-    paddingRight: 6
+    paddingRight: 6,
   },
   leftFixed1: {
     ...cellStyle(),
@@ -252,7 +261,10 @@ const styles = theme => ({
     fontWeight: 600,
     color: theme.palette.primary.main,
     cursor: "pointer",
-    textAlign: "center"
+    textAlign: "center",
+    [theme.breakpoints.down('sm')]: {
+      textAlign: "initial"
+    }
   },
   cellSheetDescription: {
     width: 250,
@@ -353,14 +365,20 @@ const styles = theme => ({
     color: 'rgba(0,0,0,0.6)',
     marginTop: 8,
     fontStyle: "italic"
+  },
+  selectedRow: {
+    '& $leftFixed0': {
+      backgroundColor: theme.palette.primary.main,
+      color: 'white'
+    }
   }
 })
 
 const SpreadsheetPage = ({classes}:{
   classes: any
 }) => {
-  const [selectedTab, setSelectedTab] = useState("Intro")
-  const { LWTooltip, HoverPreviewLink, Loading } = Components
+  const { query: { tab: selectedTab = "Intro" }, hash: selectedCell } = useLocation()
+  const { LWTooltip, HoverPreviewLink, Loading, HeadTags } = Components
   const { data, loading } = useQuery(gql`
     query CoronaVirusData {
       CoronaVirusData {
@@ -389,6 +407,7 @@ const SpreadsheetPage = ({classes}:{
   `, {
     ssr: true
   });
+  
 
   if (loading) return <Loading />
 
@@ -470,11 +489,12 @@ const SpreadsheetPage = ({classes}:{
   const rows = currentTab?.rows || []
   return (
     <div className={classes.root}>
+      <HeadTags url={Utils.getSiteUrl() + "coronavirus-link-database"} image={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1585093292/Screen_Shot_2020-03-24_at_4.41.12_PM_qiwqwc.png"}/>
       {selectedTab == "Intro" && 
         <div className={classes.introWrapper}>
           <div className={classes.intro}>
             <p>
-              Welcome to the Coronavirus Info-Database, an attempt to organize the disparate papers, articles and links that are spread all over the internet regarding the nCov pandemic. You can submit new links by pressing the big green button, which we will sort, summarize and prioritize daily.
+              Welcome to the Coronavirus Info-Database, an attempt to organize the disparate papers, articles and links that are spread all over the internet regarding the nCov pandemic. We sort, summarize and prioritize all links on a daily basis. You can submit new links by pressing the big green button.
             </p>
             <p>
               You can find (and participate) in more LessWrong discussion of COVID-19 on <HoverPreviewLink href={"/tag/coronavirus"} innerHTML="our tag page"/>.
@@ -489,21 +509,22 @@ const SpreadsheetPage = ({classes}:{
         <LWTooltip key={"Intro"} placement="top" title={<div>
             {"What is this table about?"}
           </div>}>
-            <div 
-              className={classNames(classes.tab, {[classes.tabSelected]:selectedTab === "Intro"})}
-              onClick={()=>setSelectedTab("Intro")}
-            >
-              <span className={classes.tabLabel}>
-                INTRO
-              </span>
-          </div>
+            <QueryLink query={{tab: "Intro"}}>
+              <div 
+                className={classNames(classes.tab, {[classes.tabSelected]:selectedTab === "Intro"})}
+              >
+                <span className={classes.tabLabel}>
+                  INTRO
+                </span>
+              </div>
+            </QueryLink>
         </LWTooltip>
         {tabs.map(tab => <LWTooltip key={tab.label} placement="top" title={<div>
             {tab.description} ({tab.rows.length - 1})
           </div>}>
+            <QueryLink query={{tab: tab.label}}>
               <div 
                 className={classNames(classes.tab, {[classes.tabSelected]:tab.label === selectedTab})}
-                onClick={()=>setSelectedTab(tab.label)}
               >
                 <div className={classes.tabLabel}>
                   {tab.displayLabel || tab.label}
@@ -511,7 +532,8 @@ const SpreadsheetPage = ({classes}:{
                 <div className={classes.tabCount}>
                   {tab.rows.length - 1} links
                 </div>
-            </div>
+              </div>
+            </QueryLink >
           </LWTooltip>)}
       </div>
       <div className={classes.table}>
@@ -557,8 +579,10 @@ const SpreadsheetPage = ({classes}:{
               dateAdded,
               category,
             }, rowNum) => (
-              <TableRow key={`row-${rowNum}`}>
-                <TableCell classes={{root: classes.leftFixed0}}>{imp}</TableCell>
+              <TableRow key={`row-${rowNum}`} id={encodeURIComponent(url)} className={selectedCell === `#${encodeURIComponent(url)}` ? classes.selectedRow : ''} >
+                <TableCell classes={{root: classes.leftFixed0}}>
+                  <Link to={{hash: encodeURIComponent(url), search: `?${qs.stringify({tab: selectedTab})}`}}>{imp}</Link>
+                </TableCell>
                 <TableCell className={classes.leftFixed1}>
                   {linkCell(url, link, domain, type)}
                   <span className={classes.smallDescription}>
@@ -607,8 +631,8 @@ const SpreadsheetPage = ({classes}:{
             {tabs.map(tab => {
               if (tab.label == "All Links") return null
               return <TableRow key={`intro-${tab.label}`} className={classes.categoryRow}>
-                  <TableCell className={classes.cellSheet} onClick={() => setSelectedTab(tab.label)}>
-                    <a>{tab.displayLabel || tab.label}</a>
+                  <TableCell className={classes.cellSheet}>
+                    <QueryLink query={{ tab: tab.label }}>{tab.displayLabel || tab.label}</QueryLink>
                     <span className={classes.smallDescription}>{tab.description}</span>
                   </TableCell>
                   <TableCell className={classes.cellSheetDescription}>
