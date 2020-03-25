@@ -52,7 +52,9 @@ const FilterModeRawComponent = ({description, mode, canRemove=false, onChangeMod
   const { LWTooltip } = Components
   return <div className={classes.root}>
     <span className={classes.label}>
-      {description} {helpTooltip && <HelpIcon className={classes.helpIcon}/>}
+      {description} {helpTooltip && <LWTooltip title={helpTooltip}>
+          <HelpIcon className={classes.helpIcon}/>
+        </LWTooltip>}
     </span>
     
     {filterModes.map((m: FilterMode) =>
