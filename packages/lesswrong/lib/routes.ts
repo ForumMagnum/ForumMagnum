@@ -540,6 +540,13 @@ switch (getSetting('forumType')) {
         getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, "2rWKkWuPrgTMpLRbp"),
       },
       {
+        name: 'donate',
+        path: '/donate',
+        componentName: 'PostsSingleRoute',
+        _id:"LcpQQvcpWfPXvW7R9",
+        getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, "LcpQQvcpWfPXvW7R9"),
+      },
+      {
         name: 'Meta',
         path: '/meta',
         componentName: 'Meta',
