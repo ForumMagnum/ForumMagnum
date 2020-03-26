@@ -35,6 +35,10 @@ const styles = theme => ({
     display: "flex",
     justifyContent: "space-around",
   },
+  loggedOutFooter: {
+    maxWidth: 450,
+    marginLeft: "auto"
+  },
   coronavirusTagPage: {
     border: `solid 1px ${theme.palette.primary.main}`,
     color: theme.palette.primary.main,
@@ -154,14 +158,6 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
     const renderContinueReading = (continueReading?.length > 0) && !settings.hideContinueReading
     const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
-    const coronavirusButtons = <>
-      <LWTooltip className={classes.coronavirusTagPage} title="View all posts related to COVID-19">
-        <Link to="/tag/coronavirus">Coronavirus Tag Page</Link>
-      </LWTooltip>
-      <LWTooltip className={classes.coronavirusLinksDB} title="Read or contribute to our master list of top coronavirus-related sites, from across the internet.">
-        <Link to="/coronavirus-link-database">Links Database</Link>
-      </LWTooltip>
-    </>
 
     return <SingleColumnSection className={classes.section}>
       <SectionTitle title="Recommendations">
@@ -238,7 +234,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
             <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
           </AnalyticsContext>
           <div className={classes.footerWrapper}>
-            <Typography component="div" variant="body2" className={classes.footer}>
+            <Typography component="div" variant="body2" className={classNames(classes.footer, {[classes.loggedOutFooter]:!currentUser})}>
               <Link to={curatedUrl}>
                 { /* On very small screens, use shorter link text ("More Curated"
                     instead of "View All Curated Posts") to avoid wrapping */ }
@@ -249,7 +245,14 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
               <SeparatorBullet/>
               <SubscribeWidget view={"curated"} />
               {/* todo: remember to revert subscribe widget after coronavirus */}
-              { currentUser && coronavirusButtons }
+              { currentUser && <>
+                <LWTooltip className={classes.coronavirusTagPage} title="View all posts related to COVID-19">
+                  <Link to="/tag/coronavirus">Coronavirus Tag Page</Link>
+                </LWTooltip>
+                <LWTooltip className={classes.coronavirusLinksDB} title="Read or contribute to our master list of top coronavirus-related sites, from across the internet.">
+                  <Link to="/coronavirus-link-database">Links Database</Link>
+                </LWTooltip>
+              </> }
             </Typography>
           </div>
         </div>
