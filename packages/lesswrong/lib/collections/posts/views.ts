@@ -189,12 +189,12 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
 }
 
 function filterModeToKarmaModifier(mode: FilterMode): number {
-  switch(mode) {
-    case "Hidden": return -100;
-    case "Less": return -30;
+  if (typeof mode === "number") {
+    return mode;
+  } else switch(mode) {
     default:
     case "Default": return 0;
-    case "More": return 30;
+    case "Hidden": return -100;
     case "Required": return 100;
   }
 }

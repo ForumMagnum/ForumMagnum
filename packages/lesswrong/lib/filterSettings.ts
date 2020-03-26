@@ -9,8 +9,7 @@ export interface FilterTag {
   tagName: string,
   filterMode: FilterMode,
 }
-export type FilterMode = "Hidden"|"Less"|"Default"|"More"|"Required"
-export const filterModes: Array<FilterMode> = ["Hidden","Less","Default","More","Required"];
+export type FilterMode = "Hidden"|"Default"|"Required"|number
 
 export const defaultFilterSettings: FilterSettings = {
   personalBlog: "Hidden",
