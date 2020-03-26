@@ -35,13 +35,6 @@ export function getDefaultResolvers(options) {
       async resolver(root, { input = {} }, context, { cacheControl }) {
         const { terms = {}, enableCache = false, enableTotal = false } = input as any; //LESSWRONG: enableTotal defaults false
 
-        debug('');
-        debugGroup(
-          `--------------- start \x1b[35m${typeName} Multi Resolver\x1b[0m ---------------`
-        );
-        debug(`Options: ${JSON.stringify(resolverOptions)}`);
-        debug(`Terms: ${JSON.stringify(terms)}`);
-
         if (cacheControl && enableCache) {
           const maxAge = resolverOptions.cacheMaxAge || defaultOptions.cacheMaxAge;
           cacheControl.setCacheHint({ maxAge });
@@ -54,13 +47,9 @@ export function getDefaultResolvers(options) {
         const collection = context[collectionName];
 
         // get selector and options from terms and perform Mongo query
-
-        let { selector, options } = await collection.getParameters(terms, {}, context);
-        options.skip = terms.offset;
-
-        debug({ selector, options });
-
-        const docs = await Utils.Connectors.find(collection, selector, options);
+        const parameters = await collection.getParameters(terms, {}, context);
+        
+        const docs = await queryFromViewParameters(collection, terms, parameters);
         
         // if collection has a checkAccess function defined, remove any documents that doesn't pass the check
         const viewableDocs = collection.checkAccess
@@ -73,16 +62,12 @@ export function getDefaultResolvers(options) {
         // prime the cache
         restrictedDocs.forEach(doc => collection.loader.prime(doc._id, doc));
 
-        debug(`\x1b[33m=> ${restrictedDocs.length} documents returned\x1b[0m`);
-        debugGroupEnd();
-        debug(`--------------- end \x1b[35m${typeName} Multi Resolver\x1b[0m ---------------`);
-        debug('');
-
         const data: any = { results: restrictedDocs };
 
         if (enableTotal) {
           // get total count of documents matching the selector
-          data.totalCount = await Utils.Connectors.count(collection, selector);
+          // TODO: Make this handle synthetic fields
+          data.totalCount = await Utils.Connectors.count(collection, parameters.selector);
         }
 
         // return results
@@ -155,4 +140,38 @@ export function getDefaultResolvers(options) {
       },
     },
   };
+}
+
+const queryFromViewParameters = async (collection, terms, parameters) => {
+  const selector = parameters.selector;
+  const options = {
+    ...parameters.options,
+    skip: terms.offset,
+  };
+
+  if (parameters.syntheticFields) {
+    const pipeline = [
+      // First stage: Filter by selector
+      { $match: selector },
+      // Second stage: Add computed fields
+      { $addFields: parameters.syntheticFields },
+      
+      // Third stage: Filter by computed fields (if applicable)
+      ...(parameters.syntheticFieldSelector || []),
+      
+      // Fourth stage: Sort
+      { $sort: parameters.options.sort },
+    ];
+    
+    // Apply skip and limit (if applicable)
+    if (parameters.options.skip) {
+      pipeline.push({ $skip: parameters.options.skip });
+    }
+    if (parameters.options.limit) {
+      pipeline.push({ $limit: parameters.options.limit });
+    }
+    return await collection.rawCollection().aggregate(pipeline).toArray();
+  } else {
+    return await Utils.Connectors.find(collection, selector, options);
+  }
 }

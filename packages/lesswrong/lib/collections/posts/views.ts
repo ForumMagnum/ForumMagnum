@@ -3,7 +3,9 @@ import { viewFieldNullOrMissing, viewFieldAllowAny, getSetting } from '../../vul
 import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionUtils';
 import moment from 'moment';
 import * as _ from 'underscore';
-import { FilterSettings } from '../../filterSettings';
+import { FilterSettings, FilterMode } from '../../filterSettings';
+import { timeDecayExpr } from '../../scoring';
+import deepmerge from 'deepmerge';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
@@ -116,10 +118,7 @@ Posts.addDefaultView(terms => {
     }
   }
   if (terms.filterSettings) {
-    params.selector = {
-      ...params.selector,
-      ...filterSettingsToSelector(terms.filterSettings)
-    };
+    params = deepmerge(params, filterSettingsToParams(terms.filterSettings));
   }
   if (terms.sortedBy) {
     if (sortings[terms.sortedBy]) {
@@ -135,7 +134,7 @@ Posts.addDefaultView(terms => {
   return params;
 })
 
-function filterSettingsToSelector(filterSettings: FilterSettings): any {
+function filterSettingsToParams(filterSettings: FilterSettings): any {
   const tagsRequired = _.filter(filterSettings.tags, t=>t.filterMode==="Required");
   const tagsExcluded = _.filter(filterSettings.tags, t=>t.filterMode==="Hidden");
   
@@ -156,10 +155,48 @@ function filterSettingsToSelector(filterSettings: FilterSettings): any {
     tagsFilter[`tagRelevance.${tag.tagId}`] = {$not: {$gte: 1}};
   }
   
+  const tagsSoftFiltered = _.filter(filterSettings.tags, t=>t.filterMode==="Less" || t.filterMode==="More");
+  let scoreExpr: any = null;
+  if (tagsSoftFiltered.length > 0) {
+    scoreExpr = {
+      syntheticFields: {
+        score: {$divide:[
+          {$add:[
+            "$baseScore",
+            ...tagsSoftFiltered.map(t => ({
+              $multiply: [
+                filterModeToKarmaModifier(t.filterMode),
+                {$ifNull: [
+                  "$tagRelevance."+t.tagId,
+                  0
+                ]}
+              ]
+            }))
+          ]},
+          timeDecayExpr()
+        ]}
+      },
+    };
+  }
+  
   return {
-    ...frontpageFilter,
-    ...tagsFilter
+    selector: {
+      ...frontpageFilter,
+      ...tagsFilter
+    },
+    ...scoreExpr,
   };
+}
+
+function filterModeToKarmaModifier(mode: FilterMode): number {
+  switch(mode) {
+    case "Hidden": return -100;
+    case "Less": return -30;
+    default:
+    case "Default": return 0;
+    case "More": return 30;
+    case "Required": return 100;
+  }
 }
 
 

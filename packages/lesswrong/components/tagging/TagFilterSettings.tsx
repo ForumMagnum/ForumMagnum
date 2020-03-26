@@ -7,7 +7,7 @@ import * as _ from 'underscore';
 
 const styles = theme => ({
   root: {
-    maxWidth: 500,
+    maxWidth: 600,
     marginLeft: "auto",
     marginBottom: 16,
     ...theme.typography.commentStyle,

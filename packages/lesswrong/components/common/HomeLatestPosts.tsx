@@ -9,6 +9,7 @@ import qs from 'qs'
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
 import { defaultFilterSettings, filterSettingsToString } from '../../lib/filterSettings';
+import moment from 'moment';
 
 const styles = theme => ({
   personalBlogpostsCheckbox: {
@@ -52,10 +53,13 @@ const HomeLatestPosts = ({ classes }: {
   const { query } = location;
   const { SingleColumnSection, SectionTitle, PostsList2, LWTooltip, TagFilterSettings, SettingsIcon } = Components
   const limit = parseInt(query.limit) || 13
+  
+  const dateCutoff = moment().subtract(3, 'days').toDate();
 
   const recentPostsTerms = {
     ...query,
     filterSettings: filterSettings,
+    after: dateCutoff,
     view: "magic",
     forum: true,
     limit:limit
