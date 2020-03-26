@@ -112,7 +112,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
   render() {
     const { continueReading, classes, currentUser, configName } = this.props;
     const { showSettings } = this.state
-    const { RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SeparatorBullet, BookmarksList, LWTooltip, CoronavirusFrontpageWidget } = Components;
+    const { RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, SectionFooter, ContinueReadingList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SeparatorBullet, BookmarksList, LWTooltip, CoronavirusFrontpageWidget } = Components;
 
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
 
@@ -153,6 +153,15 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
     const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
     const renderContinueReading = (continueReading?.length > 0) && !settings.hideContinueReading
     const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
+
+    const coronavirusButtons = <>
+      <LWTooltip className={classes.coronavirusTagPage} title="View all posts related to COVID-19">
+        <Link to="/tag/coronavirus">Coronavirus Tag Page</Link>
+      </LWTooltip>
+      <LWTooltip className={classes.coronavirusLinksDB} title="Read or contribute to our master list of top coronavirus-related sites, from across the internet.">
+        <Link to="/coronavirus-link-database">Links Database</Link>
+      </LWTooltip>
+    </>
 
     return <SingleColumnSection className={classes.section}>
       <SectionTitle title="Recommendations">
@@ -240,12 +249,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
               <SeparatorBullet/>
               <SubscribeWidget view={"curated"} />
               {/* todo: remember to revert subscribe widget after coronavirus */}
-              <LWTooltip className={classes.coronavirusTagPage} title="View all posts related to COVID-19">
-                <Link to="/tag/coronavirus">Coronavirus Tag Page</Link>
-              </LWTooltip>
-              <LWTooltip className={classes.coronavirusLinksDB} title="Read or contribute to our master list of top coronavirus-related sites, from across the internet.">
-                <Link to="/coronavirus-link-database">Links Database</Link>
-              </LWTooltip>
+              { currentUser && coronavirusButtons }
             </Typography>
           </div>
         </div>
