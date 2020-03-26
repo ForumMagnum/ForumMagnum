@@ -1,28 +1,50 @@
+import React, { useState } from 'react';
 import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
-import { withUpdate } from '../../lib/crud/withUpdate';
-import React, { Component } from 'react';
+import { useUpdate } from '../../lib/crud/withUpdate';
+import { useMutation } from 'react-apollo';
 import { Posts } from '../../lib/collections/posts';
 import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper'
 import Typography from '@material-ui/core/Typography';
-import withUser from '../common/withUser';
-import withHover from '../common/withHover'
+import { useCurrentUser } from '../common/withUser';
+import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary';
-import DoneIcon from '@material-ui/icons/Done';
-import ClearIcon from '@material-ui/icons/Clear';
-import ThumbUpIcon from '@material-ui/icons/ThumbUp';
-import GroupIcon from '@material-ui/icons/Group';
+import Button from '@material-ui/core/Button';
+import gql from 'graphql-tag';
 
-interface ExternalProps {
+const SunshineNewPostsItem = ({post}: {
   post: PostsList,
-}
-interface SunshineNewPostsItemProps extends ExternalProps, WithUserProps, WithHoverProps {
-  updatePost: any,
-}
+}) => {
+  const [selectedTags, setSelectedTags] = useState<Record<string,boolean>>({});
+  const currentUser = useCurrentUser();
+  const {eventHandlers, hover, anchorEl} = useHover();
+  
+  const {mutate: updatePost} = useUpdate({
+    collection: Posts,
+    fragmentName: 'PostsList',
+  });
+  const [addTagsMutation] = useMutation(gql`
+    mutation addTagsMutation($postId: String, $tagIds: [String]) {
+      addTags(postId: $postId, tagIds: $tagIds)
+    }
+  `);
 
-class SunshineNewPostsItem extends Component<SunshineNewPostsItemProps> {
-  handleReview = () => {
-    const { currentUser, post, updatePost } = this.props
+  const applyTags = () => {
+    const tagsApplied: Array<string> = [];
+    for (let tagId of Object.keys(selectedTags)) {
+      if (selectedTags[tagId])
+        tagsApplied.push(tagId);
+    }
+    addTagsMutation({
+      variables: {
+        postId: post._id,
+        tagIds: tagsApplied,
+      }
+    });
+  }
+  
+  const handleReview = () => {
+    applyTags();
     updatePost({
       selector: { _id: post._id},
       data: {
@@ -32,25 +54,38 @@ class SunshineNewPostsItem extends Component<SunshineNewPostsItemProps> {
     })
   }
 
-  handlePromote = destination => () => {
-    const { currentUser, post, updatePost } = this.props
-    const destinationData = {
-      'frontpage': {frontpageDate: new Date()},
-      'community': {meta: true}
-    }[destination]
+  const handlePromote = () => {
+    applyTags();
+    
     updatePost({
       selector: { _id: post._id},
       data: {
-        ...destinationData,
+        frontpageDate: new Date(),
+        reviewedByUserId: currentUser!._id,
+        authorIsUnreviewed: false
+      },
+    })
+  }
+  
+  // ea-forum-look-here This widget/form was redesigned to support core tags, and
+  // had some EA-forum specific customization (for the "Move to Community"
+  // button). Make sure the set of buttons here is right.
+  const handleMoveToCommunity = () => {
+    applyTags();
+    
+    updatePost({
+      selector: { _id: post._id},
+      data: {
+        meta: true,
         reviewedByUserId: currentUser!._id,
         authorIsUnreviewed: false
       },
     })
   }
 
-  handleDelete = () => {
-    const { updatePost, post } = this.props
+  const handleDelete = () => {
     if (confirm("Are you sure you want to move this post to the author's draft?")) {
+      applyTags();
       window.open(Users.getProfileUrl(post.user), '_blank');
       updatePost({
         selector: { _id: post._id},
@@ -61,13 +96,12 @@ class SunshineNewPostsItem extends Component<SunshineNewPostsItemProps> {
     }
   }
 
-  render () {
-    const { post, hover, anchorEl } = this.props
-    const { MetaInfo, FooterTagList, PostsHighlight, SunshineListItem, SidebarHoverOver, SidebarActionMenu, SidebarAction, SidebarInfo } = Components
-    const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
-    const { html: userGuidelinesHtml = "" } = post.user.moderationGuidelines || {}
+  const { MetaInfo, FooterTagList, PostsHighlight, SunshineListItem, SidebarHoverOver, SidebarInfo, CoreTagsChecklist } = Components
+  const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
+  const { html: userGuidelinesHtml = "" } = post.user.moderationGuidelines || {}
 
-    return (
+  return (
+    <span {...eventHandlers}>
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
           <Typography variant="title">
@@ -92,49 +126,43 @@ class SunshineNewPostsItem extends Component<SunshineNewPostsItemProps> {
           </div>
           <FooterTagList post={post} />
           <PostsHighlight post={post}/>
+          <CoreTagsChecklist onSetTagsSelected={(selectedTags) => {
+            setSelectedTags(selectedTags);
+          }}/>
+          
+          <Button onClick={handleReview}>
+            Leave on Personal Blog
+          </Button>
+          {post.submitToFrontpage && <Button onClick={handlePromote}>
+            Move to Frontpage
+          </Button>}
+          {getSetting('forumType') === 'EAForum' && post.submitToFrontpage && <Button onClick={handleMoveToCommunity}>
+            Move to Community
+          </Button>}
+          <Button onClick={handleDelete}>
+            Move to Drafts
+          </Button>
         </SidebarHoverOver>
         <Link to={Posts.getPageUrl(post)}>
-            {post.title}
+          {post.title}
         </Link>
         <div>
           <SidebarInfo>
             { post.baseScore }
           </SidebarInfo>
           <SidebarInfo>
-            <Link
-              className="sunshine-sidebar-posts-author"
-              to={Users.getProfileUrl(post.user)}>
-                {post.user && post.user.displayName}
+            <Link to={Users.getProfileUrl(post.user)}>
+              {post.user && post.user.displayName}
             </Link>
           </SidebarInfo>
         </div>
-        { hover && <SidebarActionMenu>
-          <SidebarAction title="Leave on Personal Blog" onClick={this.handleReview}>
-            <DoneIcon />
-          </SidebarAction>
-          {post.submitToFrontpage && <SidebarAction title="Move to Frontpage" onClick={this.handlePromote('frontpage')}>
-            <ThumbUpIcon />
-          </SidebarAction>}
-          {getSetting('forumType') === 'EAForum' && post.submitToFrontpage && <SidebarAction title="Move to Community" onClick={this.handlePromote('community')}>
-            <GroupIcon />
-          </SidebarAction>}
-          <SidebarAction title="Move to Drafts" onClick={this.handleDelete} warningHighlight>
-            <ClearIcon />
-          </SidebarAction>
-        </SidebarActionMenu>}
       </SunshineListItem>
-    )
-  }
+    </span>
+  )
 }
 
-const SunshineNewPostsItemComponent = registerComponent<ExternalProps>('SunshineNewPostsItem', SunshineNewPostsItem, {
-  hocs: [
-    withUpdate({
-      collection: Posts,
-      fragmentName: 'PostsList',
-    }),
-    withUser, withHover(), withErrorBoundary
-  ]
+const SunshineNewPostsItemComponent = registerComponent('SunshineNewPostsItem', SunshineNewPostsItem, {
+  hocs: [withErrorBoundary]
 });
 
 declare global {

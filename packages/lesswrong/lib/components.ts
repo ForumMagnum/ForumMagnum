@@ -341,6 +341,7 @@ importComponent(["EmailHistory", "EmailHistoryPage"], () => require('../componen
 
 importComponent("AddTag", () => require('../components/tagging/AddTag'));
 importComponent("AddTagButton", () => require('../components/tagging/AddTagButton'));
+importComponent("CoreTagsChecklist", () => require('../components/tagging/CoreTagsChecklist'));
 importComponent("TagPage", () => require('../components/tagging/TagPage'));
 importComponent("TagPageTitle", () => require('../components/tagging/TagPageTitle'));
 importComponent("FooterTagList", () => require('../components/tagging/FooterTagList'));
