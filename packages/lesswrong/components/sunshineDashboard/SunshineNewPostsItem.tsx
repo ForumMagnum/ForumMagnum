@@ -11,9 +11,25 @@ import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary';
 import Button from '@material-ui/core/Button';
 import gql from 'graphql-tag';
+import PersonIcon from '@material-ui/icons/Person'
+import HomeIcon from '@material-ui/icons/Home';
+import GroupIcon from '@material-ui/icons/Group';
+import ClearIcon from '@material-ui/icons/Clear';
 
-const SunshineNewPostsItem = ({post}: {
+const styles = theme => ({
+  icon: {
+    width: 14,
+    marginRight: 4
+  },
+  buttonRow: {
+    ...theme.typography.commentStyle,
+    marginBottom: 12
+  }
+})
+
+const SunshineNewPostsItem = ({post, classes}: {
   post: PostsList,
+  classes: ClassesType
 }) => {
   const [selectedTags, setSelectedTags] = useState<Record<string,boolean>>({});
   const currentUser = useCurrentUser();
@@ -109,39 +125,41 @@ const SunshineNewPostsItem = ({post}: {
               { post.title }
             </Link>
           </Typography>
-          <br/>
-          <div>
+          {(post.moderationStyle || post.user.moderationStyle) && <div>
             <MetaInfo>
-              { (post.moderationStyle || post.user.moderationStyle) && <span>Mod Style: </span> }
+              <span>Mod Style: </span>
               { post.moderationStyle || post.user.moderationStyle }
               {!post.moderationStyle && post.user.moderationStyle && <span> (Default User Style)</span>}
             </MetaInfo>
-          </div>
-          <div>
+          </div>}
+          {(modGuidelinesHtml || userGuidelinesHtml) && <div>
             <MetaInfo>
-              { (modGuidelinesHtml || userGuidelinesHtml) && <span>Mod Guidelines: </span> }
+              <span>Mod Guidelines: </span>
               <span dangerouslySetInnerHTML={{__html: modGuidelinesHtml || userGuidelinesHtml}}/>
               {!modGuidelinesHtml && userGuidelinesHtml && <span> (Default User Guideline)</span>}
             </MetaInfo>
-          </div>
+          </div>}
           <FooterTagList post={post} />
-          <PostsHighlight post={post}/>
           <CoreTagsChecklist onSetTagsSelected={(selectedTags) => {
             setSelectedTags(selectedTags);
           }}/>
-          
-          <Button onClick={handleReview}>
-            Leave on Personal Blog
-          </Button>
-          {post.submitToFrontpage && <Button onClick={handlePromote}>
-            Move to Frontpage
-          </Button>}
-          {getSetting('forumType') === 'EAForum' && post.submitToFrontpage && <Button onClick={handleMoveToCommunity}>
-            Move to Community
-          </Button>}
-          <Button onClick={handleDelete}>
-            Move to Drafts
-          </Button>
+          <div className={classes.buttonRow}>
+              Move to:
+              <Button onClick={handleReview}>
+                <PersonIcon className={classes.icon} /> Personal
+              </Button>
+              {post.submitToFrontpage && <Button onClick={handlePromote}>
+                <HomeIcon className={classes.icon} /> Frontpage
+              </Button>}
+              {getSetting('forumType') === 'EAForum' && post.submitToFrontpage && <Button onClick={handleMoveToCommunity}>
+                <GroupIcon className={classes.icon} /> Community
+              </Button>}
+              <Button onClick={handleDelete}>
+                <ClearIcon className={classes.icon} /> Draft
+              </Button>
+            </div>
+          <PostsHighlight post={post}/>
+
         </SidebarHoverOver>
         <Link to={Posts.getPageUrl(post)}>
           {post.title}
@@ -161,7 +179,7 @@ const SunshineNewPostsItem = ({post}: {
   )
 }
 
-const SunshineNewPostsItemComponent = registerComponent('SunshineNewPostsItem', SunshineNewPostsItem, {
+const SunshineNewPostsItemComponent = registerComponent('SunshineNewPostsItem', SunshineNewPostsItem, {styles, 
   hocs: [withErrorBoundary]
 });
 
