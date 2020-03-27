@@ -314,14 +314,11 @@ ensureIndex(Posts,
   }
 );
 
-Posts.addView("tagRelevance", terms => {
-  const relevance = `tagRelevance.${terms.tagId}`
-  return {
-    options: {
-      sort: { [relevance]: -1}
-    }
+Posts.addView("tagRelevance", terms => ({
+  options: {
+    sort: { [`tagRelevance.${terms.tagId}`]: -1}
   }
-})
+}));
 
 Posts.addView("frontpage", terms => ({
   selector: filters.frontpage,
