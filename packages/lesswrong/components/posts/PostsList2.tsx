@@ -64,7 +64,8 @@ const PostsList2 = ({
   tagId,
   classes,
   dense,
-  defaultToShowUnreadComments
+  defaultToShowUnreadComments,
+  itemsPerPage=50
 }: {
   children?: React.ReactNode,
   terms?: any,
@@ -82,6 +83,7 @@ const PostsList2 = ({
   classes: ClassesType,
   dense?: boolean,
   defaultToShowUnreadComments?: boolean,
+  itemsPerPage: number
 }) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
   const { results, loading, error, count, totalCount, loadMore, limit } = useMulti({
@@ -91,6 +93,7 @@ const PostsList2 = ({
     enableTotal: enableTotal,
     fetchPolicy: 'cache-and-network',
     ssr: true,
+    itemsPerPage: itemsPerPage, 
     extraVariables: {
       tagId: "String"
     },

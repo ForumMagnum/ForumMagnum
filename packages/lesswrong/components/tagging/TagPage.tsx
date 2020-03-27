@@ -38,13 +38,7 @@ const TagPage = ({classes}: {
     filterSettings: {tags:[{tagId: "tNsqhzTibgGJKPEWB", tagName: "Coronavirus", filterMode: "Required"}]},
     view: "tagRelevance",
     limit: 15,
-    itemsPerPage: 200,
-    extraVariables: {
-      tagId: 'String'
-    },
-    extraVariablesValues: {
-      tagId: tag._id
-    }
+    tagId: tag._id
   }
 
   return <AnalyticsContext pageContext='tagPage' tagContext={tag.name}>
@@ -63,6 +57,7 @@ const TagPage = ({classes}: {
         terms={terms} 
         enableTotal 
         tagId={tag._id}
+        itemsPerPage={200}
       />
     </SingleColumnSection>
   </AnalyticsContext>

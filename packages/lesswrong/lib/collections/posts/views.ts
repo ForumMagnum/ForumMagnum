@@ -315,7 +315,7 @@ ensureIndex(Posts,
 );
 
 Posts.addView("tagRelevance", terms => {
-  const relevance = `tagRelevance.${terms.extraVariablesValues.tagId}`
+  const relevance = `tagRelevance.${terms.tagId}`
   return {
     options: {
       sort: { [relevance]: -1}
