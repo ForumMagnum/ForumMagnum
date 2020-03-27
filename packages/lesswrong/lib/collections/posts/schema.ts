@@ -4,6 +4,7 @@ import moment from 'moment';
 import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
+import { TagRels } from "../tagRels/collection";
 
 const formGroups = {
   // TODO - Figure out why properly moving this from custom_fields to schema was producing weird errors and then fix it
@@ -494,6 +495,18 @@ const schema = {
     }),
     canRead: ['guests'],
   },
+
+  // tagRelation
+  tagRel: resolverOnlyField({
+    type: "TagRel",
+    graphQLtype: "TagRel",
+    viewableBy: ['guests'],
+    graphqlArguments: 'tagId: String',
+    resolver: (post, {tagId}, context) => {
+      const tagRel = TagRels.findOne({tagId: tagId, postId: post._id})
+      if (tagRel) return tagRel
+    }
+  }),
   
   // Denormalized, with manual callbacks. Mapping from tag ID to baseScore, ie Record<string,number>.
   tagRelevance: {
