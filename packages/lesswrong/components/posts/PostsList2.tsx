@@ -91,7 +91,6 @@ const PostsList2 = ({
     enableTotal: enableTotal,
     fetchPolicy: 'cache-and-network',
     ssr: true,
-    itemsPerPage: 50,
     extraVariables: {
       tagId: "String"
     },
