@@ -1,8 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useMulti } from '../../lib/crud/withMulti';
 import { useLocation } from '../../lib/routeUtil';
-import { TagRels } from '../../lib/collections/tagRels/collection';
 import { useTagBySlug } from './useTag';
 import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -25,10 +23,9 @@ const styles = theme => ({
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SectionTitle, PostsList2, SectionButton, ContentItemBody, Loading, Error404, LoadMore } = Components;
+  const { SingleColumnSection, SectionTitle, PostsList2, SectionButton, ContentItemBody, Loading, Error404 } = Components;
   const currentUser = useCurrentUser();
-  const { query, params } = useLocation();
-  const { slug } = params;
+  const { query, params: { slug } } = useLocation();
   const { tag, loading: loadingTag } = useTagBySlug(slug);
 
   if (loadingTag)
