@@ -52,7 +52,6 @@ const HomeLatestPosts = ({ classes }: {
   const { query } = location;
   const { SingleColumnSection, SectionTitle, PostsList2, LWTooltip, TagFilterSettings, SettingsIcon } = Components
   const limit = parseInt(query.limit) || 13
-  console.log("ASDF", filterSettings)
   const recentPostsTerms = {
     ...query,
     filterSettings: filterSettings,
