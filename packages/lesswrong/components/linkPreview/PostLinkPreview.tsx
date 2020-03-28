@@ -9,6 +9,7 @@ import { useCommentByLegacyId } from '../comments/useComment';
 import { useHover } from '../common/withHover';
 import Card from '@material-ui/core/Card';
 import { looksLikeDbIdString } from '../../lib/routeUtil';
+import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 
 const PostLinkPreview = ({href, targetLocation, innerHTML, id}: {
   href: string,
@@ -314,6 +315,38 @@ const DefaultPreviewComponent = registerComponent('DefaultPreview', DefaultPrevi
   styles: defaultPreviewStyles,
 });
 
+const mozillaHubStyles = (theme) => ({
+  users: {
+    marginTop: -2,
+    ...theme.typography.commentStyle,
+    ...theme.typography.smallText,
+    verticalAlign: "middle",
+    color: theme.palette.grey[500]
+  },
+  icon: {
+    height: 18,
+    position: "relative",
+    top: 3
+  }
+})
+
+const MozillaHubPreview = ({classes, href, innerHTML,}: {
+  classes: ClassesType,
+  href: string,
+  innerHTML: string
+}) => {
+  const { AnalyticsTracker } = Components
+  const n = 1
+  return <AnalyticsTracker eventType="link" eventProps={{to: href}}>
+    <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}}/> 
+    <div className={classes.users}><SupervisorAccountIcon className={classes.icon}/> {n} users online</div>
+  </AnalyticsTracker>
+}
+
+const MozillaHubPreviewComponent = registerComponent('MozillaHubPreview', MozillaHubPreview, {
+  styles: mozillaHubStyles
+})
+
 declare global {
   interface ComponentTypes {
     PostLinkPreview: typeof PostLinkPreviewComponent,
@@ -326,6 +359,7 @@ declare global {
     PostLinkCommentPreview: typeof PostLinkCommentPreviewComponent,
     PostLinkPreviewWithPost: typeof PostLinkPreviewWithPostComponent,
     CommentLinkPreviewWithComment: typeof CommentLinkPreviewWithCommentComponent,
+    MozillaHubPreview: typeof MozillaHubPreviewComponent,
     DefaultPreview: typeof DefaultPreviewComponent,
   }
 }
