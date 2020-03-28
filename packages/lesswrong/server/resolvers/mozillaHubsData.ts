@@ -2,7 +2,7 @@ import { addGraphQLSchema, addGraphQLResolvers, addGraphQLQuery } from '../../li
 import { DatabaseMetadata } from '../../lib/collections/databaseMetadata/collection';
 import fetch from 'node-fetch'
 
-const CoronavirusDataRow = `type MozillaHubsData {
+const MozillaHubsData = `type MozillaHubsData {
   description: String
   id: String
   previewImage: String
@@ -16,7 +16,7 @@ const CoronavirusDataRow = `type MozillaHubsData {
   url: String
 }`
 
-addGraphQLSchema(CoronavirusDataRow);
+addGraphQLSchema(MozillaHubsData);
 
 async function getDataFromMozillaHubs() {
   const { value: mozillaHubsAPIKey } = await DatabaseMetadata.findOne({name: "mozillaHubsAPIKey"})
@@ -37,7 +37,7 @@ async function getDataFromMozillaHubs() {
   return await response.text()
 }
 
-const coronaVirusResolvers = {
+const mozillaHubsResolvers = {
   Query: {
     async MozillaHubsRoomData(root, { roomId }, context) {
       const rawRoomData:any = await getDataFromMozillaHubs()
@@ -74,6 +74,6 @@ const coronaVirusResolvers = {
   },
 };
 
-addGraphQLResolvers(coronaVirusResolvers);
+addGraphQLResolvers(mozillaHubsResolvers);
 
 addGraphQLQuery('MozillaHubsRoomData(roomId: String): MozillaHubsData');
