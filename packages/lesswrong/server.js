@@ -108,6 +108,7 @@ import './server/resolvers/postResolvers';
 import './server/resolvers/userResolvers';
 import './server/resolvers/karmaChangeResolvers';
 import './server/resolvers/coronaLinkDatabase';
+import './server/resolvers/mozillaHubsData';
 
 import './lib/events/server';
 import './server/callbacks/intercomCallbacks';

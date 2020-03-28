@@ -35,15 +35,23 @@ const styles = theme => ({
     display: "flex",
     justifyContent: "space-around",
   },
+  loggedOutFooter: {
+    maxWidth: 450,
+    marginLeft: "auto"
+  },
   coronavirusTagPage: {
-    border: `solid 1px ${theme.palette.lwTertiary.main}`,
+    border: `solid 1px ${theme.palette.primary.main}`,
+    color: theme.palette.primary.main,
     padding: 5,
-    paddingLeft: 12,
-    paddingRight: 12,
+    paddingLeft: 15,
+    paddingRight: 15,
     borderRadius: 3,
-    marginLeft: 20,
+    marginLeft: 80,
     textAlign: "center",
     [theme.breakpoints.down('sm')]: {
+      marginLeft: "1%",
+    },
+    [theme.breakpoints.down('xs')]: {
       width: "48%",
       marginTop: "1em",
       marginLeft: "1%",
@@ -51,14 +59,14 @@ const styles = theme => ({
     }
   },
   coronavirusLinksDB: {
-    background: theme.palette.lwTertiary.main,
+    background: "#71a376",
     color: "white",
     padding: 5,
-    paddingLeft: 12,
-    paddingRight: 12,
+    paddingLeft: 15,
+    paddingRight: 15,
     borderRadius: 3,
     textAlign: "center",
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       width: "48%",
       marginTop: "1em",
       marginLeft: "1%",
@@ -150,6 +158,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
     const renderContinueReading = (continueReading?.length > 0) && !settings.hideContinueReading
     const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
+
     return <SingleColumnSection className={classes.section}>
       <SectionTitle title="Recommendations">
         <LWTooltip title="Customize your recommendations">
@@ -225,21 +234,25 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
             <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
           </AnalyticsContext>
           <div className={classes.footerWrapper}>
-            <Typography component="div" variant="body2" className={classes.footer}>
+            <Typography component="div" variant="body2" className={classNames(classes.footer, {[classes.loggedOutFooter]:!currentUser})}>
               <Link to={curatedUrl}>
                 { /* On very small screens, use shorter link text ("More Curated"
                     instead of "View All Curated Posts") to avoid wrapping */ }
                 <Hidden smUp implementation="css">More Curated</Hidden>
-                <Hidden xsDown implementation="css">View All Curated Posts</Hidden>
+                <Hidden xsDown implementation="css">View All Curated</Hidden>
+                {/* todo: revert to "View All Curated Posts" */}
               </Link>
               <SeparatorBullet/>
               <SubscribeWidget view={"curated"} />
-              <LWTooltip className={classes.coronavirusTagPage} title="View all posts related to COVID-19">
-                <Link to="/tag/coronavirus">Coronavirus Tag Page</Link>
-              </LWTooltip>
-              <LWTooltip className={classes.coronavirusLinksDB} title="Read or contribute to our master list of top coronavirus-related sites, from across the internet.">
-                <Link to="/coronavirus-link-database">Links Database</Link>
-              </LWTooltip>
+              {/* todo: remember to revert subscribe widget after coronavirus */}
+              { currentUser && <>
+                <LWTooltip className={classes.coronavirusTagPage} title="View all posts related to COVID-19">
+                  <Link to="/tag/coronavirus">Coronavirus Tag Page</Link>
+                </LWTooltip>
+                <LWTooltip className={classes.coronavirusLinksDB} title="Read or contribute to our master list of top coronavirus-related sites, from across the internet.">
+                  <Link to="/coronavirus-link-database">Links Database</Link>
+                </LWTooltip>
+              </> }
             </Typography>
           </div>
         </div>
