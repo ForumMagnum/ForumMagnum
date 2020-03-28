@@ -1,6 +1,5 @@
 import { addGraphQLSchema, addGraphQLResolvers, addGraphQLQuery } from '../../lib/vulcan-lib/graphql';
 import { DatabaseMetadata } from '../../lib/collections/databaseMetadata/collection';
-import { getSetting } from '../../lib/vulcan-lib';
 import fetch from 'node-fetch'
 
 const CoronavirusDataRow = `type MozillaHubsData {
@@ -22,6 +21,11 @@ addGraphQLSchema(CoronavirusDataRow);
 async function getDataFromMozillaHubs() {
   const { value: mozillaHubsAPIKey } = await DatabaseMetadata.findOne({name: "mozillaHubsAPIKey"})
   const { value: mozillaHubsUserId } = await DatabaseMetadata.findOne({name: "mozillaHubsUserId"})
+  if (!mozillaHubsAPIKey || !mozillaHubsUserId) {
+    // eslint-disable-next-line no-console
+    console.log("Trying to get Mozilla Hubs data but lacking a mozilla hubs API key or user Id. Add those to your DatabaseMetadata collection to get mozilla hubs metadata.")
+    return null
+  }
   var requestOptions = {
     method: 'GET',
     headers: {
