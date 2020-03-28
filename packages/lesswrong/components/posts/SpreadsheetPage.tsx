@@ -480,6 +480,11 @@ const SpreadsheetPage = ({classes}:{
       rows: _.filter(sortedRowsImp, row => row.category === "Aggregators")
     },
     {
+      label: "Economics",
+      description: "Information and models on the economic impact of C19",
+      rows: _.filter(sortedRowsImp, row => row.category === "Economics")
+    },
+    {
       label: "Other",
       description: "Links that don’t fit into the current categories.",
       rows: _.filter(sortedRowsImp, row => row.category === "Other")
