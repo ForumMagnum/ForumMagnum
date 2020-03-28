@@ -39,6 +39,7 @@ const coronaVirusResolvers = {
       const rawRoomData:any = await getDataFromMozillaHubs()
       const processedData = JSON.parse(rawRoomData)
       const correctRoom = processedData.entries.find(entry => entry.id === roomId)
+      if (!correctRoom) return null
       const { 
         description,
         id,
@@ -50,7 +51,7 @@ const coronaVirusResolvers = {
         room_size,
         scene_id,
         type,
-        url,
+        url: roomUrl,
       } = correctRoom
       return {
         description,
@@ -63,7 +64,7 @@ const coronaVirusResolvers = {
         roomSize: room_size,
         sceneId: scene_id,
         type,
-        url,
+        url: roomUrl,
       }
     }
   },

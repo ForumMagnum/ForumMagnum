@@ -7,9 +7,12 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { usePostBySlug, usePostByLegacyId } from '../posts/usePost';
 import { useCommentByLegacyId } from '../comments/useComment';
 import { useHover } from '../common/withHover';
+import { useQuery } from 'react-apollo';
 import Card from '@material-ui/core/Card';
 import { looksLikeDbIdString } from '../../lib/routeUtil';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
+import gql from 'graphql-tag';
+import { postHighlightStyles } from '../../themes/stylePiping';
 
 const PostLinkPreview = ({href, targetLocation, innerHTML, id}: {
   href: string,
@@ -317,10 +320,12 @@ const DefaultPreviewComponent = registerComponent('DefaultPreview', DefaultPrevi
 
 const mozillaHubStyles = (theme) => ({
   users: {
-    marginTop: -2,
-    ...theme.typography.commentStyle,
-    ...theme.typography.smallText,
-    verticalAlign: "middle",
+    marginLeft: 3,
+    fontSize: "1.2rem",
+    fontWeight: 600
+  },
+  usersPreview: {
+    fontSize: "1.1rem"
   },
   icon: {
     height: 18,
@@ -328,28 +333,28 @@ const mozillaHubStyles = (theme) => ({
     top: 3
   },
   image: {
-    height: 250,
-    width: 450,
-    marginBottom: -3
+    width: 350,
+    height: 200
   },
   roomInfo: {
-    position: "absolute",
-    top: 12,
-    left: 12,
-    color: "white"
+    ...postHighlightStyles(theme),
+    padding: 16
   },
   roomHover: {
     position: "relative",
   },
   roomTitle: {
-    color: "white",
-    ...theme.typography.commentStyle,
     fontWeight: 600,
-    fontSize: "2rem"
+    fontSize: "1.3rem"
   },
   card: {
-    border: 3,
-    boxShadow: "0 0 10 rgba(0,0,0,.1)"
+    boxShadow: "0px 0px 10px rgba(0,0,0,.1)",
+    width: 350,
+    backgroundColor: "white"
+  },
+  description: {
+    marginTop: 8,
+    fontSize: "1.1rem"
   }
 })
 
@@ -358,47 +363,55 @@ const MozillaHubPreview = ({classes, href, innerHTML,}: {
   href: string,
   innerHTML: string
 }) => {
-  const data = {
-    "description": null,
-    "favorited": true,
-    "id": "uU66a87",
-    "images": {
-      "preview": {
-        "url": "https://uploads-prod.reticulum.io/files/b6e9ef61-524e-40dc-b352-0d941b64fb47.jpg"
+  const roomId = href.split("/")[3]
+  const { data: rawData, loading } = useQuery(gql`
+    query MozillaHubsRoomData {
+      MozillaHubsRoomData(roomId: "${roomId || 'asdasd'}") {
+        id
+        previewImage
+        lobbyCount
+        memberCount
+        roomSize
+        description
+        url
+        name
       }
-    },
-    "last_activated_at": "2020-03-28T01:15:13Z",
-    "lobby_count": 12,
-    "member_count": 1,
-    "name": "LessWrong Meeting Room 1",
-    "room_size": 50,
-    "scene_id": "i0jfhn9",
-    "type": "room",
-    "url": "https://hubs.mozilla.com/uU66a87/lesswrong-meeting-room-1",
-    "user_data": null
-  }
+    }
+  `, {
+    ssr: true
+  });
+  
+  const data = rawData?.MozillaHubsRoomData
   const { AnalyticsTracker } = Components
   const { LWPopper } = Components
   const { anchorEl, hover, eventHandlers } = useHover();
+  if (loading || !data) return <a href={href}>
+    <span dangerouslySetInnerHTML={{__html: innerHTML}}/>
+  </a>  
 
   return <AnalyticsTracker eventType="link" eventProps={{to: href}}>
     <span {...eventHandlers}>
-      <a href={data.url} dangerouslySetInnerHTML={{__html: innerHTML}}/> 
-      <div className={classes.users}>
-        <SupervisorAccountIcon className={classes.icon}/> 
-        {data.member_count}/{data.room_size} users online
-      </div>
+      <a href={data.url}>
+        <span dangerouslySetInnerHTML={{__html: innerHTML}}/>
+        <span className={classes.users}>
+          (<SupervisorAccountIcon className={classes.icon}/> 
+          {data.memberCount}/{data.roomSize})
+        </span>
+      </a>
+      
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
         <div className={classes.card}>
+          <img className={classes.image} src={data.previewImage}/>
           <div className={classes.roomInfo}>
             <div className={classes.roomTitle}>{data.name}</div>
-            <div className={classes.users}>
+            <div className={classes.usersPreview}>
               <SupervisorAccountIcon className={classes.icon}/> 
-              {data.member_count}/{data.room_size} users online ({data.lobby_count} in lobby)
+              {data.memberCount}/{data.roomSize} users online ({data.lobbyCount} in lobby)
             </div>
-            <div>{data.description}</div>
+            {data.description && <div className={classes.description}>
+              {data.description}
+            </div>}
           </div>
-          <img className={classes.image} src={data.images.preview.url}/>
         </div>
       </LWPopper>
     </span>
