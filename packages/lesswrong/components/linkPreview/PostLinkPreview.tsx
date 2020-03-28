@@ -7,8 +7,12 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { usePostBySlug, usePostByLegacyId } from '../posts/usePost';
 import { useCommentByLegacyId } from '../comments/useComment';
 import { useHover } from '../common/withHover';
+import { useQuery } from 'react-apollo';
 import Card from '@material-ui/core/Card';
 import { looksLikeDbIdString } from '../../lib/routeUtil';
+import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
+import gql from 'graphql-tag';
+import { postHighlightStyles } from '../../themes/stylePiping';
 
 const PostLinkPreview = ({href, targetLocation, innerHTML, id}: {
   href: string,
@@ -314,6 +318,110 @@ const DefaultPreviewComponent = registerComponent('DefaultPreview', DefaultPrevi
   styles: defaultPreviewStyles,
 });
 
+const mozillaHubStyles = (theme) => ({
+  users: {
+    marginLeft: 3,
+    fontSize: "1.2rem",
+    fontWeight: 600
+  },
+  usersPreview: {
+    fontSize: "1.1rem"
+  },
+  icon: {
+    height: 18,
+    position: "relative",
+    top: 3
+  },
+  image: {
+    width: 350,
+    height: 200
+  },
+  roomInfo: {
+    ...postHighlightStyles(theme),
+    padding: 16
+  },
+  roomHover: {
+    position: "relative",
+  },
+  roomTitle: {
+    fontWeight: 600,
+    fontSize: "1.3rem"
+  },
+  card: {
+    boxShadow: "0px 0px 10px rgba(0,0,0,.1)",
+    width: 350,
+    backgroundColor: "white"
+  },
+  description: {
+    marginTop: 8,
+    fontSize: "1.1rem"
+  }
+})
+
+const MozillaHubPreview = ({classes, href, innerHTML,}: {
+  classes: ClassesType,
+  href: string,
+  innerHTML: string
+}) => {
+  const roomId = href.split("/")[3]
+  const { data: rawData, loading } = useQuery(gql`
+    query MozillaHubsRoomData {
+      MozillaHubsRoomData(roomId: "${roomId || 'asdasd'}") {
+        id
+        previewImage
+        lobbyCount
+        memberCount
+        roomSize
+        description
+        url
+        name
+      }
+    }
+  `, {
+    ssr: true
+  });
+  
+  const data = rawData?.MozillaHubsRoomData
+  const { AnalyticsTracker } = Components
+  const { LWPopper } = Components
+  const { anchorEl, hover, eventHandlers } = useHover();
+  if (loading || !data) return <a href={href}>
+    <span dangerouslySetInnerHTML={{__html: innerHTML}}/>
+  </a>  
+
+  return <AnalyticsTracker eventType="link" eventProps={{to: href}}>
+    <span {...eventHandlers}>
+      <a href={data.url}>
+        <span dangerouslySetInnerHTML={{__html: innerHTML}}/>
+        <span className={classes.users}>
+          (<SupervisorAccountIcon className={classes.icon}/> 
+          {data.memberCount}/{data.roomSize})
+        </span>
+      </a>
+      
+      <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
+        <div className={classes.card}>
+          <img className={classes.image} src={data.previewImage}/>
+          <div className={classes.roomInfo}>
+            <div className={classes.roomTitle}>{data.name}</div>
+            <div className={classes.usersPreview}>
+              <SupervisorAccountIcon className={classes.icon}/> 
+              {data.memberCount}/{data.roomSize} users online ({data.lobbyCount} in lobby)
+            </div>
+            {data.description && <div className={classes.description}>
+              {data.description}
+            </div>}
+          </div>
+        </div>
+      </LWPopper>
+    </span>
+  </AnalyticsTracker>
+}
+
+const MozillaHubPreviewComponent = registerComponent('MozillaHubPreview', MozillaHubPreview, {
+  styles: mozillaHubStyles
+})
+
 declare global {
   interface ComponentTypes {
     PostLinkPreview: typeof PostLinkPreviewComponent,
@@ -326,6 +434,7 @@ declare global {
     PostLinkCommentPreview: typeof PostLinkCommentPreviewComponent,
     PostLinkPreviewWithPost: typeof PostLinkPreviewWithPostComponent,
     CommentLinkPreviewWithComment: typeof CommentLinkPreviewWithCommentComponent,
+    MozillaHubPreview: typeof MozillaHubPreviewComponent,
     DefaultPreview: typeof DefaultPreviewComponent,
   }
 }
