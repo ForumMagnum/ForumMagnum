@@ -348,3 +348,23 @@ registerFragment(`
     bannedUserIds
   }
 `)
+
+registerFragment(`
+  fragment SunshinePostsList on Post {
+    ...PostsList
+    
+    user {
+      ...UsersMinimumInfo
+      
+      # Author moderation info
+      moderationStyle
+      bannedUserIds
+      moderatorAssistance
+      
+      moderationGuidelines {
+        html
+      }
+    }
+  }
+`)
+

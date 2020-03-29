@@ -306,6 +306,21 @@ interface UsersBannedFromPostsModerationLog { // fragment on Posts
   readonly bannedUserIds: Array<string>,
 }
 
+interface SunshinePostsList extends PostsList { // fragment on Posts
+  readonly user: SunshinePostsList_user,
+}
+
+interface SunshinePostsList_user extends UsersMinimumInfo { // fragment on Users
+  readonly moderationStyle: string,
+  readonly bannedUserIds: Array<string>,
+  readonly moderatorAssistance: boolean,
+  readonly moderationGuidelines: SunshinePostsList_user_moderationGuidelines,
+}
+
+interface SunshinePostsList_user_moderationGuidelines { // fragment on Revisions
+  readonly html: string,
+}
+
 interface CommentsList { // fragment on Comments
   readonly _id: string,
   readonly postId: string,
@@ -1379,6 +1394,7 @@ interface WithVoteTagRel_currentUserVotes { // fragment on Votes
 interface TagsDefaultFragment { // fragment on Tags
   readonly name: string,
   readonly slug: string,
+  readonly core: boolean,
   readonly postCount: number,
   readonly deleted: boolean,
 }
@@ -1387,6 +1403,7 @@ interface TagFragment { // fragment on Tags
   readonly _id: string,
   readonly name: string,
   readonly slug: string,
+  readonly core: boolean,
   readonly postCount: number,
   readonly deleted: boolean,
   readonly description: TagFragment_description,
@@ -1401,6 +1418,7 @@ interface TagEditFragment { // fragment on Tags
   readonly _id: string,
   readonly name: string,
   readonly slug: string,
+  readonly core: boolean,
   readonly postCount: number,
   readonly deleted: boolean,
   readonly description: RevisionEdit,
@@ -1516,6 +1534,7 @@ interface FragmentTypes {
   PostsRevisionsList: PostsRevisionsList
   PostsRecentDiscussion: PostsRecentDiscussion
   UsersBannedFromPostsModerationLog: UsersBannedFromPostsModerationLog
+  SunshinePostsList: SunshinePostsList
   CommentsList: CommentsList
   CommentPermalink: CommentPermalink
   ShortformComments: ShortformComments
