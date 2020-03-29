@@ -91,7 +91,7 @@ const FilterModeRawComponent = ({description, mode, canRemove=false, onChangeMod
     }
   }
   
-  return <LWTooltip title={filterModeToTooltip(mode)} placement="bottom-middle" className={classes.root}>
+  return <LWTooltip title={filterModeToTooltip(mode)} placement="bottom" className={classes.root}>
     <span className={classes.label}>
       {description}
       {helpTooltip && <LWTooltip title={helpTooltip}>

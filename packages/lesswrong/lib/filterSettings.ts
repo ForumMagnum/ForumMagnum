@@ -13,13 +13,7 @@ export type FilterMode = "Hidden"|"Default"|"Required"|number
 
 export const defaultFilterSettings: FilterSettings = {
   personalBlog: "Hidden",
-  tags: [
-    {
-      tagId: "tNsqhzTibgGJKPEWB",
-      tagName: "Coronavirus",
-      filterMode: "Default",
-    }
-  ],
+  tags: [],
 }
 
 export const filterTooltips = {
