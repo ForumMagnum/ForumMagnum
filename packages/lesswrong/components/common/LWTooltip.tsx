@@ -14,13 +14,12 @@ const styles = theme => ({
   }
 })
 
-const LWTooltip = ({classes, className, children, title, placement="bottom-start", tooltip=true, flip=true, enterDelay=undefined}: {
+const LWTooltip = ({classes, className, children, title, placement="bottom-start", tooltip=true, flip=true}: {
   children?: any,
   title?: any,
   placement?: PopperPlacementType,
   tooltip?: boolean,
   flip?: boolean,
-  enterDelay?: number,
   classes: ClassesType,
   className?: string
 }) => {
@@ -47,7 +46,6 @@ const LWTooltip = ({classes, className, children, title, placement="bottom-start
           enabled: flip
         }
       }}
-      enterDelay={enterDelay}
     >
       <div className={classes.tooltip}>{title}</div>
     </LWPopper>}
