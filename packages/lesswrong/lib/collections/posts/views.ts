@@ -315,6 +315,7 @@ ensureIndex(Posts,
 );
 
 Posts.addView("tagRelevance", terms => ({
+  // note: this relies on the selector filtering done in the default view
   options: {
     sort: { [`tagRelevance.${terms.tagId}`]: -1}
   }
