@@ -25,7 +25,7 @@ interface ExternalProps {
   comments: Array<CommentTreeNode<CommentsList>>,
   totalComments?: number,
   highlightDate?: Date,
-  post: PostsList,
+  post: PostsBase,
   postPage?: boolean,
   condensed?: boolean,
   startThreadTruncated?: boolean,

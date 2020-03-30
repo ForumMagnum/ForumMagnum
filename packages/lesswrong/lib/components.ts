@@ -260,6 +260,7 @@ importComponent("SuggestAlignmentMenuItem", () => require('../components/comment
 importComponent("SubscribeToCommentMenuItem", () => require('../components/comments/CommentsItem/SubscribeToCommentMenuItem'));
 importComponent("CommentDeletedMetadata", () => require('../components/comments/CommentsItem/CommentDeletedMetadata'));
 importComponent("CommentBody", () => require('../components/comments/CommentsItem/CommentBody'));
+importComponent("CommentActions", () => require('../components/comments/CommentsItem/CommentActions'));
 importComponent("CommentsMenu", () => require('../components/comments/CommentsItem/CommentsMenu'));
 importComponent("CommentOutdatedWarning", () => require('../components/comments/CommentsItem/CommentOutdatedWarning'));
 importComponent("CommentsItemDate", () => require('../components/comments/CommentsItem/CommentsItemDate'));

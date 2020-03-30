@@ -32,11 +32,21 @@ interface VotesDefaultFragment { // fragment on Votes
   readonly votedAt: Date,
 }
 
-interface PostsBase { // fragment on Posts
+interface PostsMinimumInfo { // fragment on Posts
   readonly _id: string,
-  readonly title: string,
-  readonly url: string,
   readonly slug: string,
+  readonly title: string,
+  readonly draft: boolean,
+  readonly hideCommentKarma: boolean,
+  readonly contents: PostsMinimumInfo_contents,
+}
+
+interface PostsMinimumInfo_contents { // fragment on Revisions
+  readonly version: string,
+}
+
+interface PostsBase extends PostsMinimumInfo { // fragment on Posts
+  readonly url: string,
   readonly postedAt: Date,
   readonly createdAt: Date,
   readonly modifiedAt: Date,
@@ -366,28 +376,13 @@ interface CommentPermalink extends CommentsList { // fragment on Comments
 }
 
 interface ShortformComments extends CommentsList { // fragment on Comments
-  readonly post: ShortformComments_post,
-}
-
-interface ShortformComments_post { // fragment on Posts
-  readonly _id: string,
-  readonly slug: string,
-  readonly title: string,
-  readonly draft: boolean,
+  readonly post: PostsMinimumInfo,
 }
 
 interface CommentWithRepliesFragment extends CommentsList { // fragment on Comments
   readonly lastSubthreadActivity: Date,
   readonly latestChildren: Array<CommentsList>,
-  readonly post: CommentWithRepliesFragment_post,
-}
-
-interface CommentWithRepliesFragment_post { // fragment on Posts
-  readonly title: string,
-  readonly _id: string,
-  readonly slug: string,
-  readonly lastVisitedAt: Date,
-  readonly draft: boolean,
+  readonly post: PostsBase,
 }
 
 interface CommentEdit extends CommentsList { // fragment on Comments
@@ -832,15 +827,7 @@ interface UsersBannedFromUsersModerationLog { // fragment on Users
 }
 
 interface CommentsListWithPostMetadata extends CommentsList { // fragment on Comments
-  readonly post: CommentsListWithPostMetadata_post,
-}
-
-interface CommentsListWithPostMetadata_post { // fragment on Posts
-  readonly title: string,
-  readonly _id: string,
-  readonly slug: string,
-  readonly isEvent: boolean,
-  readonly groupId: string,
+  readonly post: PostsMinimumInfo,
 }
 
 interface UsersList extends UsersMinimumInfo { // fragment on Users
@@ -1519,6 +1506,7 @@ interface SuggestAlignmentComment_suggestForAlignmentUsers { // fragment on User
 interface FragmentTypes {
   UsersDefaultFragment: UsersDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
+  PostsMinimumInfo: PostsMinimumInfo
   PostsBase: PostsBase
   PostsAuthors: PostsAuthors
   PostsList: PostsList

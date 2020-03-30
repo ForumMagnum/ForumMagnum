@@ -3,12 +3,25 @@ import { registerFragment } from '../../vulcan-lib';
 
 
 registerFragment(`
-  fragment PostsBase on Post {
-    # Core fields
+  fragment PostsMinimumInfo on Post {
     _id
-    title
-    url
     slug
+    title
+    draft
+    hideCommentKarma
+    
+    contents {
+      version
+    }
+  }
+`);
+
+registerFragment(`
+  fragment PostsBase on Post {
+    ...PostsMinimumInfo
+    
+    # Core fields
+    url
     postedAt
     createdAt
     modifiedAt
