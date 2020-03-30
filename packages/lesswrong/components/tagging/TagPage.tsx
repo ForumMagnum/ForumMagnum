@@ -31,10 +31,10 @@ const TagPage = ({classes}: {
     return <Loading/>
   if (!tag)
     return <Error404/>
-
+    
   const terms = {
     ...query,
-    filterSettings: {tags:[{tagId: "tNsqhzTibgGJKPEWB", tagName: "Coronavirus", filterMode: "Required"}]},
+    filterSettings: {tags:[{tagId: tag._id, tagName: tag.name, filterMode: "Required"}]},
     view: "tagRelevance",
     limit: 15,
     tagId: tag._id
