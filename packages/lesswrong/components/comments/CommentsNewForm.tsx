@@ -42,7 +42,7 @@ const styles = theme => ({
 const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true}:
 {
   prefilledProps?: any,
-  post?: PostsBase,
+  post?: PostsMinimumInfo,
   parentComment?: any,
   successCallback?: any,
   type: string,
@@ -135,7 +135,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, parentComment, successCallb
       />
       </div>
       {post && enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
-        <ModerationGuidelinesBox document={post} />
+        <ModerationGuidelinesBox post={post} />
       </div>}
     </div>
   );

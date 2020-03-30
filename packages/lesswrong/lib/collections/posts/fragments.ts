@@ -9,6 +9,7 @@ registerFragment(`
     title
     draft
     hideCommentKarma
+    af
     
     contents {
       version
@@ -80,7 +81,6 @@ registerFragment(`
     authorIsUnreviewed
 
     # Alignment Forum
-    af
     afDate
     suggestForAlignmentUserIds
     reviewForAlignmentUserId

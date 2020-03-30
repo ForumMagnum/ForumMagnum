@@ -38,6 +38,7 @@ interface PostsMinimumInfo { // fragment on Posts
   readonly title: string,
   readonly draft: boolean,
   readonly hideCommentKarma: boolean,
+  readonly af: boolean,
   readonly contents: PostsMinimumInfo_contents,
 }
 
@@ -94,7 +95,6 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly suggestForCuratedUsernames: string,
   readonly reviewForCuratedUserId: string,
   readonly authorIsUnreviewed: boolean,
-  readonly af: boolean,
   readonly afDate: Date,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
