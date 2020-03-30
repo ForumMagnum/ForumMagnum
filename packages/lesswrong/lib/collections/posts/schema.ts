@@ -503,18 +503,16 @@ const schema = {
     viewableBy: ['guests'],
     graphqlArguments: 'tagId: String',
     resolver: async (post, {tagId}, { Users, Posts, currentUser}) => {
-      const tagRel = await getWithLoader(TagRels,
+      const tagRels = await getWithLoader(TagRels,
         "tagRelByDocument",
         {
           tagId: tagId
         },
         'postId', post._id
       );
-      if (tagRel?.length) {
-        return tagRel[0]
+      if (tagRels?.length) {
+        return Users.restrictViewableFields(currentUser, TagRels, tagRels)[0]
       }
-      // return Users.restrictViewableFields(currentUser, TagRels, tagRel)
-      // if (tagRel) return tagRel
     }
   }),
   
