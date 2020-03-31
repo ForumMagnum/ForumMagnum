@@ -32,12 +32,12 @@ const TagPage = ({classes}: {
   if (!tag)
     return <Error404/>
     
-  let terms = {
+  const terms = {
     ...query,
     filterSettings: {tags:[{tagId: tag._id, tagName: tag.name, filterMode: "Required"}]},
+    view: "tagRelevance",
     limit: 15,
     tagId: tag._id,
-    view: "tagRelevance"
   }
   
   return <AnalyticsContext pageContext='tagPage' tagContext={tag.name}>
