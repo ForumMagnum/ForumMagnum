@@ -32,14 +32,16 @@ const TagPage = ({classes}: {
   if (!tag)
     return <Error404/>
     
-  const terms = {
+  const sortSettings = query?.sortedBy ? { sortedBy: query.sortedBy } : {view: "tagRelevance"}
+
+  let terms = {
     ...query,
     filterSettings: {tags:[{tagId: tag._id, tagName: tag.name, filterMode: "Required"}]},
-    view: "tagRelevance",
     limit: 15,
-    tagId: tag._id
+    tagId: tag._id,
+    ...sortSettings
   }
-
+  
   return <AnalyticsContext pageContext='tagPage' tagContext={tag.name}>
     <SingleColumnSection>
       <SectionTitle title={`${tag.name} Tag`}>
