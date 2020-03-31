@@ -1,3 +1,4 @@
+/* eslint-disable no-tabs */
 /**
  * @license Copyright (c) 2003-2019, CKSource - Frederico Knabben. All rights reserved.
  * This file is licensed under the terms of the MIT License (see LICENSE.md).
@@ -22,6 +23,10 @@ import ImageToolbar from '@ckeditor/ckeditor5-image/src/imagetoolbar';
 import ImageUpload from '@ckeditor/ckeditor5-image/src/imageupload';
 import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
 import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
+import Code from '@ckeditor/ckeditor5-basic-styles/src/code';
+import Subscript from '@ckeditor/ckeditor5-basic-styles/src/subscript';
+import Superscript from '@ckeditor/ckeditor5-basic-styles/src/superscript';
+import CodeBlock from '@ckeditor/ckeditor5-code-block/src/codeblock';
 import Link from '@ckeditor/ckeditor5-link/src/link';
 import List from '@ckeditor/ckeditor5-list/src/list';
 // import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
@@ -38,10 +43,12 @@ import Underline from '@ckeditor/ckeditor5-basic-styles/src/underline';
 import UploadAdapter from '@ckeditor/ckeditor5-adapter-ckfinder/src/uploadadapter';
 import BlockToolbar from '@ckeditor/ckeditor5-ui/src/toolbar/block/blocktoolbar';
 import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave';
+import Watchdog from '@ckeditor/ckeditor5-watchdog/src/watchdog';
+// Commented out because of competing MathJax bug with Draft-JS
+// import Mathematics from './ckeditor5-math/math';
 
 // import MathpreviewPlugin from 'ckeditor5-math-preview/src/mathpreview';
 // current version of MathpreviewPlugin (1.1.3) breaks ckeditor
-
 
 class CommentEditor extends BalloonBlockEditorBase {}
 class PostEditor extends BalloonBlockEditorBase {}
@@ -88,6 +95,10 @@ const postEditorPlugins = [
 	Italic,
 	Link,
 	List,
+	Code,
+	CodeBlock,
+	Subscript,
+	Superscript,
 	// MediaEmbed,
 	Paragraph,
 	PasteFromOffice,
@@ -97,7 +108,7 @@ const postEditorPlugins = [
 	TableToolbar,
 	Underline,
 	UploadAdapter,
-	// MathpreviewPlugin
+	// Mathematics
 ];
 
 PostEditor.builtinPlugins = [
@@ -116,6 +127,7 @@ const postEditorConfig = {
 		'imageUpload',
 		'insertTable',
 		'horizontalLine',
+		'mathDisplay'
 		// 'mediaEmbed',
 	],
 	toolbar: [
@@ -125,15 +137,18 @@ const postEditorConfig = {
 		'italic',
 		'strikethrough',
 		'|',
+		'alignment',
+		'|',
 		'link',
 		'|',
 		'blockQuote',
 		'bulletedList',
 		'numberedList',
+		'codeBlock',
 		'|',
 		'trackChanges',
-		// 'mathpreview',
 		'comment',
+		'math'
 	],
 	image: {
 		toolbar: [
@@ -150,6 +165,12 @@ const postEditorConfig = {
 		],
 		tableToolbar: [ 'comment' ]
 	},
+	math: {
+		engine: 'mathjax',
+		outputType: 'span',
+		forceOutputType: true,
+		enablePreview: true
+	}
 	// mediaEmbed: {
 	// 	toolbar: [ 'comment' ]
 	// },
@@ -183,13 +204,14 @@ CommentEditor.builtinPlugins = [
 	Link,
 	List,
 	Paragraph,
+	CodeBlock,
 	PasteFromOffice,
 	RemoveFormat,
 	Strikethrough,
 	Table,
 	Underline,
 	UploadAdapter,
-	// MathpreviewPlugin
+	// Mathematics
 ];
 
 CommentEditor.defaultConfig = {
@@ -206,12 +228,18 @@ CommentEditor.defaultConfig = {
 		'bulletedList',
 		'numberedList',
 		'|',
-		'mathpreview'
+		'math'
 	],
 	image: {
 		toolbar: [
 			'imageTextAlternative'
 		]
+	},
+	math: {
+		engine: 'mathjax',
+		outputType: 'span',
+		forceOutputType: true,
+		enablePreview: true
 	},
 	heading: headingOptions,
 	table: {
@@ -224,4 +252,4 @@ CommentEditor.defaultConfig = {
 	},
 };
 
-export const Editors = { CommentEditor, PostEditor, PostEditorCollaboration };
+export const Editors = { CommentEditor, PostEditor, PostEditorCollaboration, Watchdog };

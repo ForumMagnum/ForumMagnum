@@ -10,19 +10,38 @@ Package.onUse( function(api) {
 
   api.use([
     'ecmascript',
+    'typescript',
     'promise',
-    'fourseven:scss',
-
-    // vulcan core
-    'vulcan:core',
-
-    // vulcan packages
-    'vulcan:accounts',
-    'vulcan:forms',
-    'vulcan:events',
-    'vulcan:admin',
-    'vulcan:users',
+    'fourseven:scss@4.12.0',
+    
+    // dependencies of vulcan-accounts
+    'tracker',
+    'accounts-base',
+    'check',
+    'random',
+    'email',
+    'session',
+    'service-configuration',
+    
+    // dependencies of vulcan-lib
+    'meteor@1.9.0',
+    'es5-shim@4.8.0',
+    'shell-server@0.3.1',
+    'webapp@1.6.0',
+    'server-render@0.3.1',
+    
+    'underscore',
+    'hot-code-push',
+    'mongo',
+    'http',
+    'meteorhacks:picker@1.0.3',
+    'littledata:synced-cron@1.1.0',
+    'meteorhacks:inject-initial@1.0.4',
   ]);
+  
+  // dependencies of vulcan-accounts
+  api.use('accounts-oauth', { weak: true });
+  api.use('accounts-password', { weak: true });
 
   api.mainModule('client.js', 'client');
   api.mainModule('server.js', 'server');
@@ -32,7 +51,7 @@ Package.onUse( function(api) {
   ], ['client']);
 
   Npm.depends({
-    "@babel/core": "7.4.3",
+    "@babel/core": "7.7.7",
     "@babel/plugin-proposal-optional-chaining": "7.2.0",
     "@babel/plugin-syntax-optional-chaining": "7.2.0"
   })
@@ -42,20 +61,18 @@ Package.onTest(function(api) {
   api.use('lesswrong');
 
   api.use([
+    'typescript',
     'fourseven:scss',
-    'vulcan:core',
-    'vulcan:users',
     'practicalmeteor:sinon',
-    'coffeescript',
     'meteortesting:mocha',
   ]);
 
   Npm.depends({
-    "@babel/core": "7.4.3",
+    "@babel/core": "7.7.7",
     "@babel/plugin-proposal-optional-chaining": "7.2.0",
     "@babel/plugin-syntax-optional-chaining": "7.2.0"
   })
   // Entry points for tests
-  api.mainModule('./testing/client.tests.js', 'client');
-  api.mainModule('./testing/server.tests.js', 'server');
+  api.mainModule('./testing/client.tests.ts', 'client');
+  api.mainModule('./testing/server.tests.ts', 'server');
 })

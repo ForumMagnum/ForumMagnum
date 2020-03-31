@@ -12,8 +12,6 @@ codekit-config.json
 
 config.rb
 
-deploy.sh
-
 .demeteorized
 
 dump/
@@ -25,6 +23,7 @@ settings*.json
 .tern-project
 
 scratch
+tmp
 .vscode/*
 .deploy
 .deploy/*
@@ -32,6 +31,7 @@ scratch
 .meteor/local
 .meteor/meteorite
 mup*
+!mup*.enc
 
 packages_update.py
 
@@ -53,14 +53,13 @@ npm-debug.log
 typings
 *.swp
 *.un~
-yarn.lock
 
 *.swp
 *.un~
-yarn.lock
 
 *.swp
 *.un~
 .vscode/launch.json
 
 .elasticbeanstalk/*
+
