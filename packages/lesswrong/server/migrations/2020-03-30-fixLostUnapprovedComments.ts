@@ -30,7 +30,8 @@ registerMigration({
       authorsById[author._id] = author;
     
     const commentsToMarkReviewed = _.filter(unreviewedComments,
-      comment => !authorsById[comment.userId].banned);
+      comment => !authorsById[comment.userId].banned)
+      .map(comment => comment._id);
     
     // eslint-disable-next-line no-console
     console.log(commentsToMarkReviewed.length+" comments to mark as reviewed");
