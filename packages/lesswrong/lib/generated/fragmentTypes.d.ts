@@ -138,6 +138,17 @@ interface PostsList_customHighlight { // fragment on Revisions
   readonly html: string,
 }
 
+interface PostsListTag extends PostsList { // fragment on Posts
+  readonly tagRel: PostsListTag_tagRel,
+}
+
+interface PostsListTag_tagRel { // fragment on TagRels
+  readonly tagId: string,
+  readonly baseScore: number,
+  readonly afBaseScore: number,
+  readonly voteCount: number,
+}
+
 interface PostsDetails extends PostsBase, PostsAuthors { // fragment on Posts
   readonly commentSortOrder: string,
   readonly collectionTitle: string,
@@ -508,6 +519,14 @@ interface PostRelationsDefaultFragment { // fragment on PostRelations
   readonly sourcePostId: string,
   readonly targetPostId: string,
   readonly order: number,
+}
+
+interface TagRelsDefaultFragment { // fragment on TagRels
+  readonly tagId: string,
+  readonly postId: string,
+  readonly deleted: boolean,
+  readonly userId: string,
+  readonly afBaseScore: number,
 }
 
 interface PostsDefaultFragment { // fragment on Posts
@@ -1297,14 +1316,6 @@ interface SuggestAlignmentUser extends UsersMinimumInfo { // fragment on Users
   readonly afSubmittedApplication: boolean,
 }
 
-interface TagRelsDefaultFragment { // fragment on TagRels
-  readonly tagId: string,
-  readonly postId: string,
-  readonly deleted: boolean,
-  readonly userId: string,
-  readonly afBaseScore: number,
-}
-
 interface TagRelFragment { // fragment on TagRels
   readonly _id: string,
   readonly baseScore: number,
@@ -1379,6 +1390,7 @@ interface WithVoteTagRel_currentUserVotes { // fragment on Votes
 interface TagsDefaultFragment { // fragment on Tags
   readonly name: string,
   readonly slug: string,
+  readonly core: boolean,
   readonly postCount: number,
   readonly deleted: boolean,
 }
@@ -1387,6 +1399,7 @@ interface TagFragment { // fragment on Tags
   readonly _id: string,
   readonly name: string,
   readonly slug: string,
+  readonly core: boolean,
   readonly postCount: number,
   readonly deleted: boolean,
   readonly description: TagFragment_description,
@@ -1401,6 +1414,7 @@ interface TagEditFragment { // fragment on Tags
   readonly _id: string,
   readonly name: string,
   readonly slug: string,
+  readonly core: boolean,
   readonly postCount: number,
   readonly deleted: boolean,
   readonly description: RevisionEdit,
@@ -1504,6 +1518,7 @@ interface FragmentTypes {
   PostsBase: PostsBase
   PostsAuthors: PostsAuthors
   PostsList: PostsList
+  PostsListTag: PostsListTag
   PostsDetails: PostsDetails
   PostsRevision: PostsRevision
   PostsRevisionEdit: PostsRevisionEdit
@@ -1533,6 +1548,7 @@ interface FragmentTypes {
   BansAdminPageFragment: BansAdminPageFragment
   SequencesDefaultFragment: SequencesDefaultFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
+  TagRelsDefaultFragment: TagRelsDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
   ChaptersDefaultFragment: ChaptersDefaultFragment
   BooksDefaultFragment: BooksDefaultFragment
@@ -1589,7 +1605,6 @@ interface FragmentTypes {
   CollectionsEditFragment: CollectionsEditFragment
   SuggestAlignmentPost: SuggestAlignmentPost
   SuggestAlignmentUser: SuggestAlignmentUser
-  TagRelsDefaultFragment: TagRelsDefaultFragment
   TagRelFragment: TagRelFragment
   TagRelMinimumFragment: TagRelMinimumFragment
   WithVoteTagRel: WithVoteTagRel
@@ -1605,5 +1620,5 @@ interface FragmentTypes {
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
-type CollectionNameString = "Users"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"DatabaseMetadata"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"TagRels"|"Tags"|"Subscriptions"|"Revisions"|"Comments"|"LegacyData"|"EmailTokens"
+type CollectionNameString = "Users"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"DatabaseMetadata"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"TagRels"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"Tags"|"Subscriptions"|"Revisions"|"Comments"|"LegacyData"|"EmailTokens"
 
