@@ -34,7 +34,7 @@ class CommentWithReplies extends PureComponent<CommentWithRepliesProps,CommentWi
   state: CommentWithRepliesState = { markedAsVisitedAt: null, maxChildren: 3 }
 
   markAsRead = async () => {
-    const { comment, post, recordPostView } = this.props
+    const { post, recordPostView } = this.props
     this.setState({markedAsVisitedAt: new Date()});
     recordPostView({post})
   }
