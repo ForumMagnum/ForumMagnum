@@ -1,15 +1,12 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useMulti } from '../../lib/crud/withMulti';
 import { useLocation } from '../../lib/routeUtil';
-import { TagRels } from '../../lib/collections/tagRels/collection';
 import { useTagBySlug } from './useTag';
 import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import { postBodyStyles } from '../../themes/stylePiping'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import * as _ from 'underscore';
 
 const styles = theme => ({
   description: {
@@ -25,36 +22,23 @@ const styles = theme => ({
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SectionTitle, SectionFooter, SectionButton, PostsItem2, ContentItemBody, Loading, Error404, LoadMore } = Components;
+  const { SingleColumnSection, SectionTitle, PostsList2, SectionButton, ContentItemBody, Loading, Error404 } = Components;
   const currentUser = useCurrentUser();
-  const { params } = useLocation();
-  const { slug } = params;
+  const { query, params: { slug } } = useLocation();
   const { tag, loading: loadingTag } = useTagBySlug(slug);
-
-  const { results, loading: loadingPosts, loadMoreProps } = useMulti({
-    skip: !(tag?._id),
-    terms: {
-      view: "postsWithTag",
-      tagId: tag?._id,
-    },
-    collection: TagRels,
-    fragmentName: "TagRelFragment",
-    limit: 300,
-    itemsPerPage: 100,
-    enableTotal: true,
-    ssr: true,
-  });
-
 
   if (loadingTag)
     return <Loading/>
   if (!tag)
     return <Error404/>
-
-  // Filter out all tagRels where we don't have access to the corresponding post
-  const filteredResults = _.filter(results, result => !!result.post)
-  const orderByScore = _.sortBy(filteredResults, result=>-result.post.baseScore)
-  const orderByTagScore = _.sortBy(orderByScore, result=>-result.baseScore)
+    
+  const terms = {
+    ...query,
+    filterSettings: {tags:[{tagId: tag._id, tagName: tag.name, filterMode: "Required"}]},
+    view: "tagRelevance",
+    limit: 15,
+    tagId: tag._id
+  }
 
   return <AnalyticsContext pageContext='tagPage' tagContext={tag.name}>
     <SingleColumnSection>
@@ -68,20 +52,12 @@ const TagPage = ({classes}: {
         description={`tag ${tag.name}`}
         className={classes.description}
       />
-      {!loadingPosts && orderByTagScore && orderByTagScore.length === 0 && <div>
-        There are no posts with this tag yet.
-      </div>}
-      {loadingPosts && <Loading/>}
-      <AnalyticsContext listContext='tagList' capturePostItemOnMount>
-        {orderByTagScore && orderByTagScore.map((result,i) =>
-          result.post && <PostsItem2 key={result.post._id} tagRel={result} post={result.post} index={i} />
-        )}
-      </AnalyticsContext>
-      <SectionFooter>
-        <span className={classes.loadMore}>
-          <LoadMore {...loadMoreProps}/>
-        </span>
-      </SectionFooter>
+      <PostsList2 
+        terms={terms} 
+        enableTotal 
+        tagId={tag._id}
+        itemsPerPage={200}
+      />
     </SingleColumnSection>
   </AnalyticsContext>
 }

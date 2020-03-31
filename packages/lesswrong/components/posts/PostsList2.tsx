@@ -61,9 +61,11 @@ const PostsList2 = ({
   enableTotal=false,
   showNominationCount,
   showReviewCount,
+  tagId,
   classes,
   dense,
-  defaultToShowUnreadComments
+  defaultToShowUnreadComments,
+  itemsPerPage=50
 }: {
   children?: React.ReactNode,
   terms?: any,
@@ -77,18 +79,25 @@ const PostsList2 = ({
   enableTotal?: boolean,
   showNominationCount?: boolean,
   showReviewCount?: boolean,
+  tagId?: string,
   classes: ClassesType,
   dense?: boolean,
   defaultToShowUnreadComments?: boolean,
+  itemsPerPage: number
 }) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
   const { results, loading, error, count, totalCount, loadMore, limit } = useMulti({
     terms: terms,
     collection: Posts,
-    fragmentName: 'PostsList',
+    fragmentName: !!tagId ? 'PostsListTag' : 'PostsList',
     enableTotal: enableTotal,
     fetchPolicy: 'cache-and-network',
-    ssr: true
+    ssr: true,
+    itemsPerPage: itemsPerPage, 
+    extraVariables: {
+      tagId: "String"
+    },
+    extraVariablesValues: { tagId }
   });
 
   let hidePosts: Array<boolean>|null = null;
@@ -149,7 +158,7 @@ const PostsList2 = ({
 
 
       {orderedResults && orderedResults.map((post, i) => {
-        const props = { post, index: i, terms, showNominationCount, showReviewCount, dense, defaultToShowUnreadComments, showPostedAt, showQuestionTag: terms.filter!=="questions" }
+        const props = { post, index: i, terms, showNominationCount, showReviewCount, dense, tagRel: post.tagRel, defaultToShowUnreadComments, showPostedAt, showQuestionTag: terms.filter!=="questions" }
 
         if (!(hidePosts && hidePosts[i])) return <PostsItem2 key={post._id} index={i} {...props} />
       })}

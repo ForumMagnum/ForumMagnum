@@ -132,6 +132,18 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment PostsListTag on Post {
+    ...PostsList
+    tagRel(tagId: $tagId) {
+      tagId
+      baseScore
+      afBaseScore
+      voteCount
+    }
+  }
+`)
+
+registerFragment(`
   fragment PostsDetails on Post {
     ...PostsBase
     ...PostsAuthors

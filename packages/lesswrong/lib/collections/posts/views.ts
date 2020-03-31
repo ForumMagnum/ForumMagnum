@@ -267,7 +267,6 @@ ensureIndex(Posts,
   }
 );
 
-
 Posts.addView("new", terms => ({
   options: {sort: setStickies(sortings.new, terms)}
 }))
@@ -314,6 +313,13 @@ ensureIndex(Posts,
     name: "posts.postedAt_baseScore",
   }
 );
+
+Posts.addView("tagRelevance", terms => ({
+  // note: this relies on the selector filtering done in the default view
+  options: {
+    sort: { [`tagRelevance.${terms.tagId}`]: -1}
+  }
+}));
 
 Posts.addView("frontpage", terms => ({
   selector: filters.frontpage,
