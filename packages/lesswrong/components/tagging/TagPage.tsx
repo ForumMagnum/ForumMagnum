@@ -37,9 +37,9 @@ const TagPage = ({classes}: {
     filterSettings: {tags:[{tagId: tag._id, tagName: tag.name, filterMode: "Required"}]},
     view: "tagRelevance",
     limit: 15,
-    tagId: tag._id
+    tagId: tag._id,
   }
-
+  
   return <AnalyticsContext pageContext='tagPage' tagContext={tag.name}>
     <SingleColumnSection>
       <SectionTitle title={`${tag.name} Tag`}>

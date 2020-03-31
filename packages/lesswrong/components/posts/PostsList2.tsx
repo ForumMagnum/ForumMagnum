@@ -86,6 +86,13 @@ const PostsList2 = ({
   itemsPerPage: number
 }) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
+
+  const tagVariables = tagId ? {
+    extraVariables: {
+      tagId: "String"
+    },
+    extraVariablesValues: { tagId }
+  } : {}
   const { results, loading, error, count, totalCount, loadMore, limit } = useMulti({
     terms: terms,
     collection: Posts,
@@ -94,10 +101,7 @@ const PostsList2 = ({
     fetchPolicy: 'cache-and-network',
     ssr: true,
     itemsPerPage: itemsPerPage, 
-    extraVariables: {
-      tagId: "String"
-    },
-    extraVariablesValues: { tagId }
+    ...tagVariables
   });
 
   let hidePosts: Array<boolean>|null = null;
