@@ -93,6 +93,7 @@ import './server/callbacks/userCallbacks';
 import './server/callbacks/banCallbacks';
 import './server/tableOfContents';
 import './server/callbacks/subscriptionCallbacks';
+import './server/callbacks/rateLimits';
 import './server/callbacks/reviewVoteCallbacks';
 if (getSetting('hasEvents', true)) {
   import './server/callbacks/localgroupCallbacks';
