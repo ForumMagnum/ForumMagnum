@@ -1,6 +1,6 @@
 import { Posts } from "../../../lib/collections/posts";
 import { Comments } from '../../../lib/collections/comments'
-import { addCallback, editMutation } from 'meteor/vulcan:core';
+import { addCallback, editMutation } from '../../vulcan-lib';
 import * as _ from 'underscore';
 
 function recalculateAFCommentMetadata(postId) {

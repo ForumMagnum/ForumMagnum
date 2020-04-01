@@ -12,8 +12,7 @@ deploy_config_path="$2";
 sentry_version=$(sentry-cli releases propose-version);
 
 # Environment variables and secrets provided via travis-ci
-openssl aes-256-cbc -K $encrypted_f7bd7c62657c_key -iv $encrypted_f7bd7c62657c_iv -in credentials.tar.gz.enc -out credentials.tar.gz -d;
-tar xvf credentials.tar.gz --strip-components=1;
+git clone https://Discordius:$GITHUB_TOKEN@github.com/LessWrong2/LessWrong-Credentials.git
 
 # Set up sentry configurations
 sentry-cli releases new -p lesswrong $sentry_version;

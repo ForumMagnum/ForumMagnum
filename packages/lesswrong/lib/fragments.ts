@@ -1,4 +1,4 @@
-import { registerFragment } from 'meteor/vulcan:core';
+import { registerFragment } from './vulcan-lib';
 
 registerFragment(`
   fragment UsersAdmin on User {
@@ -95,6 +95,7 @@ registerFragment(`
     hideIntercom
     hideNavigationSidebar
     currentFrontpageFilter
+    frontpageFilterSettings
     allPostsTimeframe
     allPostsSorting
     allPostsFilter
@@ -103,6 +104,7 @@ registerFragment(`
     lastNotificationsCheck
     groups
     bannedUserIds
+    bannedPersonalUserIds
     moderationStyle
     moderationGuidelines {
       ...RevisionEdit
@@ -243,12 +245,14 @@ registerFragment(`
 `)
 
 registerFragment(`
-  fragment SelectCommentsList on Comment {
+  fragment CommentsListWithPostMetadata on Comment {
     ...CommentsList
     post {
       title
       _id
       slug
+      isEvent
+      groupId
     }
   }
 `);
@@ -269,7 +273,9 @@ registerFragment(`
     createdAt
     email
     commentCount
+    maxCommentCount
     postCount
+    maxPostCount
     voteCount
     smallUpvoteCount
     bigUpvoteCount
@@ -277,7 +283,10 @@ registerFragment(`
     bigDownvoteCount
     banned
     reviewedByUserId
+    reviewedAt
     signUpReCaptchaRating
+    needsReview
+    sunshineSnoozed
   }
 `);
 
@@ -472,6 +481,7 @@ registerFragment(`
     hideIntercom
     commentSorting
     currentFrontpageFilter
+    frontpageFilterSettings
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
     noSingleLineComments
@@ -521,6 +531,7 @@ registerFragment(`
 
     recommendationSettings
     
+    notificationShortformContent
     notificationCommentsOnSubscribedPost
     notificationRepliesToMyComments
     notificationRepliesToSubscribedComments

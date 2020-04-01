@@ -1,16 +1,16 @@
-import Users from "meteor/vulcan:users";
-import { addCallback, getSetting, editMutation } from 'meteor/vulcan:core';
+import Users from "../../lib/collections/users/collection";
+import { addCallback, getSetting, editMutation } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
 import request from 'request';
-import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks.js';
+import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks';
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
-import { addEditableCallbacks } from '../editor/make_editable_callbacks.js'
-import { makeEditableOptionsModeration } from '../../lib/collections/users/custom_fields.js'
+import { addEditableCallbacks } from '../editor/make_editable_callbacks'
+import { makeEditableOptionsModeration } from '../../lib/collections/users/custom_fields'
 
 function updateTrustedStatus ({newDocument, vote}) {
 
@@ -152,6 +152,7 @@ async function handleSetShortformPost (newUser, oldUser) {
       throw new Error("Post can only be an author's short-form post if they are the post's author");
     if (post.draft)
       throw new Error("Draft post cannot be a user's short-form post");
+    // @ts-ignore -- this should be something with post.status; post.deleted doesn't exist
     if (post.deleted)
       throw new Error("Deleted post cannot be a user's short-form post");
     
