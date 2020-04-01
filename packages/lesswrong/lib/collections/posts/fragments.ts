@@ -135,10 +135,7 @@ registerFragment(`
   fragment PostsListTag on Post {
     ...PostsList
     tagRel(tagId: $tagId) {
-      tagId
-      baseScore
-      afBaseScore
-      voteCount
+      ...WithVoteTagRel
     }
   }
 `)
