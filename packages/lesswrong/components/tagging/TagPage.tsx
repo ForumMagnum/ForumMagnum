@@ -22,7 +22,7 @@ const styles = theme => ({
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SectionTitle, PostsList2, SectionButton, ContentItemBody, Loading, Error404 } = Components;
+  const { SingleColumnSection, SectionTitle, PostsListSortDropdown, PostsList2, SectionButton, ContentItemBody, Loading, Error404 } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const { tag, loading: loadingTag } = useTagBySlug(slug);
@@ -52,6 +52,7 @@ const TagPage = ({classes}: {
         description={`tag ${tag.name}`}
         className={classes.description}
       />
+      <PostsListSortDropdown defaultValue="new"/>
       <PostsList2 
         terms={terms} 
         enableTotal 
