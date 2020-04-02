@@ -77,6 +77,12 @@ addRoute([
     path:'/users/:slug/edit',
     componentName: 'UsersAccount'
   },
+  {
+    name: 'users.abTestGroups',
+    path: '/abTestGroups',
+    componentName: 'UsersViewABTests',
+    title: "A/B Test Groups",
+  },
 
   // Miscellaneous LW2 routes
   {

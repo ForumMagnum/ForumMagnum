@@ -9,6 +9,8 @@ import qs from 'qs'
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
 import { defaultFilterSettings, filterSettingsToString } from '../../lib/filterSettings';
+import { numPostsOnHomePage } from '../../lib/abTests';
+import { useABTest } from '../../lib/abTestUtil';
 
 const styles = theme => ({
   personalBlogpostsCheckbox: {
@@ -48,10 +50,13 @@ const HomeLatestPosts = ({ classes }: {
 
   const [filterSettings, setFilterSettings] = useFilterSettings(currentUser);
   const [filterSettingsVisible, setFilterSettingsVisible] = useState(false);
+  
+  const numPostsOnHomePageGroup: string = useABTest(numPostsOnHomePage);
+  const numPosts = parseInt(numPostsOnHomePageGroup);
 
   const { query } = location;
   const { SingleColumnSection, SectionTitle, PostsList2, LWTooltip, TagFilterSettings, SettingsIcon } = Components
-  const limit = parseInt(query.limit) || 13
+  const limit = parseInt(query.limit) || numPosts
   const recentPostsTerms = {
     ...query,
     filterSettings: filterSettings,

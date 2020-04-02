@@ -83,7 +83,7 @@ const PostsList2 = ({
   classes: ClassesType,
   dense?: boolean,
   defaultToShowUnreadComments?: boolean,
-  itemsPerPage: number
+  itemsPerPage?: number
 }) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
