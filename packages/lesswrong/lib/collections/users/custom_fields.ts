@@ -6,6 +6,7 @@ import { makeEditable } from '../../editor/make_editable'
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 import { defaultFilterSettings } from '../../filterSettings';
 import SimpleSchema from 'simpl-schema'
+import GraphQLJSON from 'graphql-type-json';
 import * as _ from 'underscore';
 
 export const hashPetrovCode = (code) => {
@@ -1354,7 +1355,21 @@ addFieldsDict(Users, {
     }),
     canRead: ['guests'],
     ...schemaDefaultValue(0)
-  }
+  },
+  
+  abTestKey: {
+    type: String,
+    optional: true,
+    canRead: [Users.owns, 'sunshineRegiment', 'admins'],
+    canUpdate: ['admins'],
+  },
+  abTestOverrides: {
+    type: GraphQLJSON, //Record<string,number>
+    optional: true,
+    hidden: true,
+    canRead: [Users.owns],
+    canUpdate: ['admins'],
+  },
 });
 
 export const makeEditableOptionsModeration = {

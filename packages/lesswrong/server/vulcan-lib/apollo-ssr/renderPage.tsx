@@ -14,6 +14,7 @@ import { Vulcan } from '../../../lib/vulcan-lib/config';
 import { runCallbacks } from '../../../lib/vulcan-lib/callbacks';
 import { createClient } from './apolloClient';
 import { cachedPageRender, recordCacheBypass, getCacheHitRate } from './pageCache';
+import { getAllUserABTestGroups } from '../../../lib/abTestUtil';
 import Head from './components/Head';
 import ApolloState from './components/ApolloState';
 import AppGenerator from './components/AppGenerator';
@@ -33,10 +34,11 @@ const makePageRenderer = async sink => {
   const tabId = Random.id();
   const tabIdHeader = `<script>var tabId = "${tabId}"</script>`;
   
+  const clientId = req.cookies && req.cookies.clientId;
+  
   const ssrEventParams = {
     url: req.url.pathname,
-    clientId: req.cookies && req.cookies.clientId,
-    tabId: tabId,
+    clientId, tabId,
     userAgent: req.headers["user-agent"],
   };
   
@@ -57,9 +59,11 @@ const makePageRenderer = async sink => {
       userId: user._id,
       timings: rendered.timings,
       cached: false,
+      abTestGropus: rendered.abTestGroups,
     });
   } else {
-    const rendered = await cachedPageRender(req, (req) => renderRequest({
+    const abTestGroups = getAllUserABTestGroups(user, clientId);
+    const rendered = await cachedPageRender(req, abTestGroups, (req) => renderRequest({
       req, user: null, startTime
     }));
     sendToSink(sink, {
@@ -72,6 +76,7 @@ const makePageRenderer = async sink => {
       timings: {
         totalTime: new Date().valueOf()-startTime.valueOf(),
       },
+      abTestGroups: rendered.abTestGroups,
       cached: true,
     });
   }
@@ -108,7 +113,17 @@ const renderRequest = async ({req, user, startTime}) => {
   // middlewares at this point
   // @see https://github.com/meteor/meteor-feature-requests/issues/174#issuecomment-441047495
 
-  const App = <AppGenerator req={req} apolloClient={client} serverRequestStatus={serverRequestStatus} />;
+  // abTestGroups will be given as context for the render, which will modify it
+  // (side effects) by filling in any A/B test groups that turned out to be
+  // used for the rendering. (Any A/B test group that was *not* relevant to
+  // the render will be omitted, which is the point.)
+  const abTestGroups = {};
+  
+  const App = <AppGenerator
+    req={req} apolloClient={client}
+    serverRequestStatus={serverRequestStatus}
+    abTestGroups={abTestGroups}
+  />;
 
   // run user registered callbacks that wraps the React app
   const WrappedApp = runCallbacks({
@@ -190,6 +205,7 @@ const renderRequest = async ({req, user, startTime}) => {
     serializedApolloState, jssSheets,
     status: serverRequestStatus.status,
     redirectUrl: serverRequestStatus.redirectUrl,
+    abTestGroups,
     timings,
   };
 }
