@@ -149,14 +149,7 @@ interface PostsList_customHighlight { // fragment on Revisions
 }
 
 interface PostsListTag extends PostsList { // fragment on Posts
-  readonly tagRel: PostsListTag_tagRel,
-}
-
-interface PostsListTag_tagRel { // fragment on TagRels
-  readonly tagId: string,
-  readonly baseScore: number,
-  readonly afBaseScore: number,
-  readonly voteCount: number,
+  readonly tagRel: WithVoteTagRel,
 }
 
 interface PostsDetails extends PostsBase, PostsAuthors { // fragment on Posts

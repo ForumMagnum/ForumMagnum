@@ -35,7 +35,7 @@ const styles = theme => ({
 });
 
 const PostsItemTagRelevance = ({tagRel, classes}: {
-  tagRel: TagRelFragment,
+  tagRel: WithVoteTagRel,
   post: PostsBase,
   classes: ClassesType,
 }) => {
