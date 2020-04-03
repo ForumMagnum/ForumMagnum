@@ -45,7 +45,7 @@ const LWPopper = ({classes, children, onMouseEnter, tooltip=false, modifiers, op
       className={classes.popper} 
       modifiers={newModifiers} 
       open={open}
-      // enterDelay={enterDelay}
+      enterDelay={enterDelay}
       {...props}
     >
       <div className={tooltip ? classes.tooltip : classes.default} onMouseEnter={onMouseEnter}>
