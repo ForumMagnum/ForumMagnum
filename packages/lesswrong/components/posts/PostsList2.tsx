@@ -83,7 +83,7 @@ const PostsList2 = ({
   classes: ClassesType,
   dense?: boolean,
   defaultToShowUnreadComments?: boolean,
-  itemsPerPage: number
+  itemsPerPage?: number
 }) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
@@ -100,7 +100,7 @@ const PostsList2 = ({
     enableTotal: enableTotal,
     fetchPolicy: 'cache-and-network',
     ssr: true,
-    itemsPerPage: itemsPerPage, 
+    itemsPerPage: itemsPerPage,
     ...tagVariables
   });
 
@@ -162,9 +162,18 @@ const PostsList2 = ({
 
 
       {orderedResults && orderedResults.map((post, i) => {
-        const props = { post, index: i, terms, showNominationCount, showReviewCount, dense, tagRel: post.tagRel, defaultToShowUnreadComments, showPostedAt, showQuestionTag: terms.filter!=="questions" }
+        const props = {
+          post,
+          index: i,
+          terms, showNominationCount, showReviewCount, dense,
+          tagRel: tagId ? (post as PostsListTag).tagRel : undefined,
+          defaultToShowUnreadComments, showPostedAt,
+          showQuestionTag: terms.filter!=="questions"
+        };
 
-        if (!(hidePosts && hidePosts[i])) return <PostsItem2 key={post._id} index={i} {...props} />
+        if (!(hidePosts && hidePosts[i])) {
+          return <PostsItem2 key={post._id} {...props} />
+        }
       })}
       {showLoadMore && <SectionFooter>
         {(showLoadMore) &&

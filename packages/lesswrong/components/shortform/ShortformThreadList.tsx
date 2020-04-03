@@ -28,7 +28,7 @@ const ShortformThreadList = ({ terms, classes }) => {
       <div>
         {results.map((comment, i) => {
           return <div key={comment._id} className={classes.shortformItem}>
-            <CommentWithReplies comment={comment} refetch={refetch}/>
+            <CommentWithReplies comment={comment} post={comment.post} refetch={refetch}/>
           </div>
         })}
         { loadMore && <LoadMore loading={loadingMore || loading} loadMore={loadMore}  /> }

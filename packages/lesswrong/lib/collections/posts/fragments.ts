@@ -3,12 +3,26 @@ import { registerFragment } from '../../vulcan-lib';
 
 
 registerFragment(`
-  fragment PostsBase on Post {
-    # Core fields
+  fragment PostsMinimumInfo on Post {
     _id
-    title
-    url
     slug
+    title
+    draft
+    hideCommentKarma
+    af
+    
+    contents {
+      version
+    }
+  }
+`);
+
+registerFragment(`
+  fragment PostsBase on Post {
+    ...PostsMinimumInfo
+    
+    # Core fields
+    url
     postedAt
     createdAt
     modifiedAt
@@ -67,7 +81,6 @@ registerFragment(`
     authorIsUnreviewed
 
     # Alignment Forum
-    af
     afDate
     suggestForAlignmentUserIds
     reviewForAlignmentUserId
@@ -357,3 +370,23 @@ registerFragment(`
     bannedUserIds
   }
 `)
+
+registerFragment(`
+  fragment SunshinePostsList on Post {
+    ...PostsList
+    
+    user {
+      ...UsersMinimumInfo
+      
+      # Author moderation info
+      moderationStyle
+      bannedUserIds
+      moderatorAssistance
+      
+      moderationGuidelines {
+        html
+      }
+    }
+  }
+`)
+

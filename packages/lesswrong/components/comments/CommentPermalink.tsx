@@ -29,7 +29,7 @@ const styles = theme => ({
 
 const CommentPermalink = ({ documentId, post, classes }: {
   documentId: string,
-  post: PostsBase,
+  post: PostsList,
   classes: ClassesType,
 }) => {
   const { document: comment, data, loading, error } = useSingle({
