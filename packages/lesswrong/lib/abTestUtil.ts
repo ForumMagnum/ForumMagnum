@@ -125,7 +125,12 @@ export function useABTest(abtest: ABTest): string {
 
 export function useClientId(): string {
   const [cookies] = useCookies(['clientId']);
-  return cookies.clientId;
+  const clientId = cookies.clientId;
+  
+  const abTestGroups: Record<string,string> = useContext(ABTestGroupsContext);
+  abTestGroups.clientId = clientId;
+  
+  return clientId;
 }
 
 export function useAllABTests(): Record<string,string> {
