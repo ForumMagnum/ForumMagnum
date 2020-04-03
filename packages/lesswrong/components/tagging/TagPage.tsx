@@ -52,7 +52,7 @@ const TagPage = ({classes}: {
         description={`tag ${tag.name}`}
         className={classes.description}
       />
-      <PostsListSortDropdown defaultValue="new"/>
+      <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
       <PostsList2 
         terms={terms} 
         enableTotal 
