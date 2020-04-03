@@ -64,11 +64,11 @@ describe('Users.userIsBannedFromAllPosts --', async () => {
 describe('Users.isAllowedToComment --', async () => {
   it('returns false if there is no user', async () => {
     const post = await createDummyPost()
-    expect(Users.isAllowedToComment(undefined, post)).to.equal(false)
+    expect(Users.isAllowedToComment(null, post)).to.equal(false)
   })
   it('returns true if passed a user but NOT post', async () => {
     const user = await createDummyUser()
-    expect(Users.isAllowedToComment(user, undefined)).to.equal(true)
+    expect(Users.isAllowedToComment(user, null)).to.equal(true)
   })
   it('returns true if passed a user AND post does NOT contain bannedUserIds OR user', async () => {
     const user = await createDummyUser()
@@ -416,11 +416,11 @@ describe('Users.canModeratePost --', async ()=> {
   it("returns false if user is undefined", async () => {
     const author = await createDummyUser({groups:['trustLevel1']})
     const post = await createDummyPost(author)
-    expect(Users.canModeratePost(undefined, post)).to.be.false;
+    expect(Users.canModeratePost(null, post)).to.be.false;
   })
   it("returns false if post is undefined", async () => {
     const author = await createDummyUser({groups:['trustLevel1']})
-    expect(Users.canModeratePost(author, undefined)).to.be.false;
+    expect(Users.canModeratePost(author, null)).to.be.false;
   })
   it("returns false if user not in trustLevel1, sunshineRegiment or admins", async () => {
     const author = await createDummyUser()

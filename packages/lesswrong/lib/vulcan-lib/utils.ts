@@ -15,18 +15,84 @@ import { Meteor } from 'meteor/meteor';
 
 registerSetting('debug', false, 'Enable debug mode (more verbose logging)');
 
-/**
- * @summary The global namespace for Vulcan utils.
- * @namespace Telescope.utils
- */
-export const Utils: any = {};
+interface UtilsType {
+  // In vulcan-lib/utils.ts
+  camelToSpaces: (str: string) => string
+  dashToCamel: (str: string) => string
+  camelCaseify: (str: string) => string
+  capitalize: (str: string) => string
+  
+  getSiteUrl: () => string
+  getOutgoingUrl: (url: string) => string
+  slugify: (s: string) => string
+  getUnusedSlug: <T extends DbObject>(collection: CollectionBase<T>, slug: string) => string
+  getUnusedSlugByCollectionName: (collectionName: CollectionNameString, slug: string) => string
+  getDomain: (url: string) => string|null
+  addHttp: (url: string) => string|null
+  
+  checkNested: any
+  getNestedProperty: any
+  getLogoUrl:() => string|undefined
+  getCollectionNameFromTypename: (type: string) => string
+  arrayToFields: any
+  encodeIntlError: any
+  decodeIntlError: any
+  findWhere: any
+  isPromise: (value: any) => boolean
+  pluralize: (s: string) => string
+  removeProperty: (obj: any, propertyName: string) => void
+  
+  // In lib/helpers.ts
+  getUnusedSlug: <T extends HasSlugType>(collection: CollectionBase<HasSlugType>, slug: string, useOldSlugs = false, documentId?: string) => string
+  getUnusedSlugByCollectionName: (collectionName: CollectionNameString, slug: string, useOldSlugs = false, documentId?: string) => string
+  slugIsUsed: (collectionName: CollectionNameString, slug: string) => Promise<boolean>
+  
+  // In client/vulcan-lib/apollo-client/updates.ts
+  mingoBelongsToSet: any
+  mingoIsInSet: any
+  mingoAddToSet: any
+  mingoUpdateInSet: any
+  mingoReorderSet: any
+  mingoRemoveFromSet: any
+  
+  // In server/vulcan-lib/connectors.ts
+  Connectors: any
+  
+  // In lib/vulcan-lib/deep_extend.ts
+  deepExtend: any
+  
+  // In server/editor/utils.ts
+  trimEmptyLatexParagraphs: any
+  preProcessLatex: any
+  
+  // In server/tableOfContents.ts
+  getTableOfContentsData: any
+  extractTableOfContents: any
+  
+  // In server/vulcan-lib/mutators.ts
+  createMutator: any
+  updateMutator: any
+  deleteMutator: any
+  
+  // In lib/collections/sequences/utils.ts
+  getSequencePostLinks: any
+  getCurrentChapter: any
+  
+  // In server/vulcan-lib/utils.ts
+  performCheck: any
+  
+  // In server/vulcan-lib/errors.ts
+  throwError: any
+}
+
+export const Utils: UtilsType = ({} as UtilsType);
 
 /**
  * @summary Convert a camelCase string to a space-separated capitalized string
  * See http://stackoverflow.com/questions/4149276/javascript-camelcase-to-regular-form
  * @param {String} str
  */
-Utils.camelToSpaces = function (str) {
+Utils.camelToSpaces = function (str: string): string {
   return str.replace(/([A-Z])/g, ' $1').replace(/^./, function(str){ return str.toUpperCase(); });
 };
 
@@ -34,7 +100,7 @@ Utils.camelToSpaces = function (str) {
  * @summary Convert a dash separated string to camelCase.
  * @param {String} str
  */
-Utils.dashToCamel = function (str) {
+Utils.dashToCamel = function (str: string): string {
   return str.replace(/(-[a-z])/g, function($1){return $1.toUpperCase().replace('-','');});
 };
 
@@ -42,7 +108,7 @@ Utils.dashToCamel = function (str) {
  * @summary Convert a string to camelCase and remove spaces.
  * @param {String} str
  */
-Utils.camelCaseify = function(str) {
+Utils.camelCaseify = function(str: string): string {
   str = this.dashToCamel(str.replace(' ', '-'));
   str = str.slice(0,1).toLowerCase() + str.slice(1);
   return str;
@@ -52,7 +118,7 @@ Utils.camelCaseify = function(str) {
  * @summary Capitalize a string.
  * @param {String} str
  */
-Utils.capitalize = function(str) {
+Utils.capitalize = function(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
@@ -63,7 +129,7 @@ Utils.capitalize = function(str) {
 /**
  * @summary Returns the user defined site URL or Meteor.absoluteUrl. Add trailing '/' if missing
  */
-Utils.getSiteUrl = function () {
+Utils.getSiteUrl = function (): string {
   let url = getSetting('siteUrl', Meteor.absoluteUrl());
   if (url.slice(-1) !== '/') {
     url += '/';
@@ -75,11 +141,11 @@ Utils.getSiteUrl = function () {
  * @summary The global namespace for Vulcan utils.
  * @param {String} url - the URL to redirect
  */
-Utils.getOutgoingUrl = function (url) {
+Utils.getOutgoingUrl = function (url: string): string {
   return Utils.getSiteUrl() + 'out?url=' + encodeURIComponent(url);
 };
 
-Utils.slugify = function (s) {
+Utils.slugify = function (s: string): string {
   var slug = getSlug(s, {
     truncate: 60
   });
@@ -96,7 +162,7 @@ Utils.slugify = function (s) {
 
   return slug;
 };
-Utils.getUnusedSlug = function (collection, slug) {
+Utils.getUnusedSlug = function <T extends DbObject>(collection: CollectionBase<T>, slug: string): string {
   let suffix = '';
   let index = 0;
 
@@ -109,11 +175,11 @@ Utils.getUnusedSlug = function (collection, slug) {
   return slug+suffix;
 };
 
-Utils.getUnusedSlugByCollectionName = function (collectionName, slug) {
+Utils.getUnusedSlugByCollectionName = function (collectionName: CollectionNameString, slug: string): string {
   return Utils.getUnusedSlug(getCollection(collectionName), slug);
 };
 
-Utils.getDomain = function(url) {
+Utils.getDomain = function(url: string): string|null {
   try {
     const hostname = urlObject.parse(url).hostname
     return hostname!.replace('www.', '');
@@ -123,7 +189,7 @@ Utils.getDomain = function(url) {
 };
 
 // add http: if missing
-Utils.addHttp = function (url) {
+Utils.addHttp = function (url: string): string|null {
   try {
     if (url.substring(0, 5) !== 'http:' && url.substring(0, 6) !== 'https:') {
       url = 'http:'+url;
@@ -159,7 +225,7 @@ Utils.getNestedProperty = function (obj, desc) {
   return obj;
 };
 
-Utils.getLogoUrl = () => {
+Utils.getLogoUrl = (): string|undefined => {
   const logoUrl = getSetting<string|null>('logoUrl');
   if (logoUrl) {
     const prefix = Utils.getSiteUrl().slice(0,-1);
@@ -169,7 +235,7 @@ Utils.getLogoUrl = () => {
 };
 
 // note(apollo): get collection's name from __typename given by react-apollo
-Utils.getCollectionNameFromTypename = (type) => {
+Utils.getCollectionNameFromTypename = (type: string): string => {
   if (type.indexOf('Post') > -1) {
     return 'posts';
   } else if (type.indexOf('Cat') > -1) {
@@ -232,9 +298,9 @@ Utils.decodeIntlError = (error, options = {stripped: false}) => {
 
 Utils.findWhere = (array, criteria) => array.find(item => Object.keys(criteria).every(key => item[key] === criteria[key]));
 
-Utils.isPromise = value => isFunction(get(value, 'then'));
+Utils.isPromise = (value: any): boolean => isFunction(get(value, 'then'));
 
-Utils.pluralize = s => {
+Utils.pluralize = (s: string): string => {
   const plural = s.slice(-1) === 'y' ?
     `${s.slice(0, -1)}ies` :
     s.slice(-1) === 's' ?
@@ -243,7 +309,7 @@ Utils.pluralize = s => {
   return plural;
 };
 
-Utils.removeProperty = (obj, propertyName) => {
+Utils.removeProperty = (obj: any, propertyName: string): void => {
   for(const prop in obj) {
     if (prop === propertyName){
       delete obj[prop];

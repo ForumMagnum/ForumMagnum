@@ -8,7 +8,7 @@ import { Utils, getCollection } from './vulcan-lib';
 * @summary Get relative link to conversation (used only in session)
 * @param {Object} conversation
 **/
-Conversations.getLink = (conversation) => {
+Conversations.getLink = (conversation: HasIdType): string => {
   return `/inbox/${conversation._id}`;
 };
 
@@ -16,7 +16,7 @@ Conversations.getLink = (conversation) => {
 * @summary Get relative link to conversation of message (conversations are only linked to relatively)
 * @param {Object} message
 **/
-Messages.getLink = (message) => {
+Messages.getLink = (message: DbMessage): string => {
   return `/inbox/${message.conversationId}`;
 };
 
@@ -42,7 +42,7 @@ Users.isSubscribedTo = (user, document) => {
 };
 
 // LESSWRONG version of getting unused slug. Modified to also include "oldSlugs" array
-Utils.getUnusedSlug = function (collection, slug, useOldSlugs = false, documentId) {
+Utils.getUnusedSlug = function <T extends HasSlugType>(collection: CollectionBase<HasSlugType>, slug: string, useOldSlugs = false, documentId?: string): string {
   let suffix = '';
   let index = 0;
   
@@ -63,7 +63,12 @@ Utils.getUnusedSlug = function (collection, slug, useOldSlugs = false, documentI
   return slug+suffix;
 };
 
-const getDocumentsBySlug = ({slug, suffix, useOldSlugs,  collection}) => {
+const getDocumentsBySlug = <T extends HasSlugType>({slug, suffix, useOldSlugs, collection}: {
+  slug: string,
+  suffix: string,
+  useOldSlugs: boolean,
+  collection: CollectionBase<T>
+}): Array<T> => {
   return collection.find(useOldSlugs ? 
     {$or: [{slug: slug+suffix},{oldSlugs: slug+suffix}]} : 
     {slug: slug+suffix}
@@ -71,11 +76,11 @@ const getDocumentsBySlug = ({slug, suffix, useOldSlugs,  collection}) => {
 }
 
 // LESSWRONG version of getting unused slug by collection name. Modified to also include "oldSlugs" array
-Utils.getUnusedSlugByCollectionName = function (collectionName, slug, useOldSlugs = false, documentId) {
+Utils.getUnusedSlugByCollectionName = function (collectionName: CollectionNameString, slug: string, useOldSlugs = false, documentId?: string): string {
   return Utils.getUnusedSlug(getCollection(collectionName), slug, useOldSlugs, documentId)
 };
 
-Utils.slugIsUsed = async (collectionName, slug) => {
+Utils.slugIsUsed = async (collectionName: CollectionNameString, slug: string): Promise<boolean> => {
   const collection = getCollection(collectionName)
   const existingUserWithSlug = await collection.findOne({$or: [{slug: slug},{oldSlugs: slug}]})
   return !!existingUserWithSlug

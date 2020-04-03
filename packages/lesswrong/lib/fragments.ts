@@ -102,7 +102,6 @@ registerFragment(`
     allPostsShowLowKarma
     allPostsOpenSettings
     lastNotificationsCheck
-    groups
     bannedUserIds
     bannedPersonalUserIds
     moderationStyle

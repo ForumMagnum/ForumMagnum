@@ -17,7 +17,7 @@ import { Meteor } from 'meteor/meteor';
 const COMMENT_MAX_SEARCH_CHARACTERS = 2000
 const TAG_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS;
 
-Comments.toAlgolia = (comment) => {
+Comments.toAlgolia = (comment: DbComment): Array<Record<string,any>>|null => {
   if (comment.deleted) return null;
   
   const algoliaComment: any = {
@@ -58,7 +58,7 @@ Comments.toAlgolia = (comment) => {
   return [algoliaComment]
 }
 
-Sequences.toAlgolia = (sequence) => {
+Sequences.toAlgolia = (sequence: DbSequence): Array<Record<string,any>>|null => {
   const algoliaSequence: any = {
     objectID: sequence._id,
     _id: sequence._id,
@@ -84,7 +84,7 @@ Sequences.toAlgolia = (sequence) => {
   return [algoliaSequence]
 }
 
-Users.toAlgolia = (user) => {
+Users.toAlgolia = (user: DbUser): Array<Record<string,any>>|null => {
   if (user.deleted) return null;
   
   const algoliaUser = {
@@ -105,7 +105,7 @@ Users.toAlgolia = (user) => {
 }
 
 // TODO: Refactor this to no longer by this insane parallel code path, and instead just make a graphQL query and use all the relevant data
-Posts.toAlgolia = (post) => {
+Posts.toAlgolia = (post: DbPost): Array<Record<string,any>>|null => {
   if (post.deleted) return null;
   
   const algoliaMetaInfo: any = {
@@ -162,7 +162,7 @@ Posts.toAlgolia = (post) => {
   return postBatch;
 }
 
-Tags.toAlgolia = (tag) => {
+Tags.toAlgolia = (tag: DbTag): Array<Record<string,any>>|null => {
   if (tag.deleted) return null;
   
   let description = ""

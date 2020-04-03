@@ -42,7 +42,20 @@ interface HasIdType {
   _id: string
 }
 
+// Common base type for everything with a userId field
+interface HasUserIdType {
+  userId: string
+}
+
 // Common base type for results of database lookups.
 interface DbObject extends HasIdType {
   schemaVersion: number
+}
+
+interface HasSlugType extends DbObject {
+  slug: string
+}
+
+interface HasCreatedAtType extends DbObject {
+  createdAt: Date
 }

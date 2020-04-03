@@ -1,4 +1,4 @@
-import Users from "../users/collection";
+import Users, { UserLocation } from "./collection";
 import bowser from 'bowser'
 import { getSetting, Utils } from '../../vulcan-lib';
 import { Votes } from '../votes';
@@ -11,31 +11,32 @@ import { userHasCkEditor } from "../../betas";
  * @summary Get a user's display name (not unique, can take special characters and spaces)
  * @param {Object} user
  */
-Users.getDisplayName = (user) => {
+Users.getDisplayName = (user: UsersMinimumInfo|DbUser|null): string => {
   if (!user) {
     return "";
   } else {
     return getSetting('forumType') === 'AlignmentForum' ? 
       (user.fullName || user.displayName) :
-      (user.displayName || Users.getUserName(user))
+      (user.displayName || Users.getUserName(user)) || ""
   }
 };
 
-Users.ownsAndInGroup = (group) => {
-  return (user, document) => {
+Users.ownsAndInGroup = (group: string) => {
+  return (user: DbUser, document: HasUserIdType): boolean => {
     return Users.owns(user, document) && Users.isMemberOf(user, group)
   }
 }
 
-Users.isSharedOn = (currentUser, document) => {
-  return (currentUser && document.shareWithUsers && document.shareWithUsers.includes(currentUser._id))
+Users.isSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, document: PostsBase): boolean => {
+  if (!currentUser) return false;
+  return document.shareWithUsers && document.shareWithUsers.includes(currentUser._id)
 }
 
-Users.canCollaborate = (currentUser, document) => {
+Users.canCollaborate = (currentUser: UsersCurrent|null, document: HasUserIdType): boolean => {
   return userHasCkEditor(currentUser) && Users.isSharedOn(currentUser, document)
 }
 
-Users.canEditUsersBannedUserIds = (currentUser, targetUser) => {
+Users.canEditUsersBannedUserIds = (currentUser: DbUser, targetUser: DbUser): boolean => {
   if (Users.canDo(currentUser,"posts.moderate.all")) {
     return true
   }
@@ -55,14 +56,14 @@ const postHasModerationGuidelines = post => {
   return post.moderationGuidelines?.originalContents || post.moderationStyle
 }
 
-const isPersonalBlogpost = post => {
+const isPersonalBlogpost = (post: PostsBase|DbPost): boolean => {
   if (getSetting('forumType') === 'EAForum') {
     return !(post.frontpageDate || post.meta)
   }
   return !post.frontpageDate
 }
 
-Users.canModeratePost = (user, post) => {
+Users.canModeratePost = (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost|null): boolean => {
   if (Users.canDo(user,"posts.moderate.all")) {
     return true
   }
@@ -95,7 +96,7 @@ Users.canModeratePost = (user, post) => {
   )
 }
 
-Users.canCommentLock = (user, post) => {
+Users.canCommentLock = (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
   if (Users.canDo(user,"posts.commentLock.all")) {
     return true
   }
@@ -108,39 +109,34 @@ Users.canCommentLock = (user, post) => {
   )
 }
 
-Users.userIsBannedFromPost = (user, post) => {
+Users.userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PostsDetails|DbPost): boolean => {
   if (!post) return false;
   const postAuthor = post.user || Users.findOne(post.userId)
   return !!(
-    post.bannedUserIds &&
-    post.bannedUserIds.includes(user._id) &&
+    post.bannedUserIds?.includes(user._id) &&
     Users.owns(postAuthor, post)
   )
 }
 
-Users.userIsBannedFromAllPosts = (user, post) => {
+Users.userIsBannedFromAllPosts = (user: UsersCurrent|DbUser, post: PostsBase|DbPost): boolean => {
   const postAuthor = post.user || Users.findOne(post.userId)
   return !!(
-    postAuthor &&
-    postAuthor.bannedUserIds &&
-    postAuthor.bannedUserIds.includes(user._id) &&
+    postAuthor?.bannedUserIds?.includes(user._id) &&
     Users.canDo(postAuthor, 'posts.moderate.own') &&
     Users.owns(postAuthor, post)
   )
 }
 
-Users.userIsBannedFromAllPersonalPosts = (user, post) => {
+Users.userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post: PostsBase|DbPost): boolean => {
   const postAuthor = post.user || Users.findOne(post.userId)
   return !!(
-    postAuthor &&
-    postAuthor.bannedPersonalUserIds &&
-    postAuthor.bannedPersonalUserIds.includes(user._id) &&
+    postAuthor?.bannedPersonalUserIds?.includes(user._id) &&
     Users.canDo(postAuthor, 'posts.moderate.own.personal') &&
     Users.owns(postAuthor, post)
   )
 }
 
-Users.isAllowedToComment = (user, post) => {
+Users.isAllowedToComment = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost): boolean => {
   if (!user) {
     return false
   }
@@ -174,7 +170,7 @@ Users.isAllowedToComment = (user, post) => {
   return true
 }
 
-Users.blockedCommentingReason = (user, post) => {
+Users.blockedCommentingReason = (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost): string => {
   if (!user) {
     return "Can't recognize user"
   }
@@ -203,7 +199,7 @@ Users.blockedCommentingReason = (user, post) => {
 }
 
 // Return true if the user's account has at least one verified email address.
-Users.emailAddressIsVerified = (user) => {
+Users.emailAddressIsVerified = (user: UsersCurrent|DbUser|null): boolean => {
   if (!user || !user.emails)
     return false;
   for (let email of user.emails) {
@@ -214,7 +210,7 @@ Users.emailAddressIsVerified = (user) => {
 };
 
 // Replaces Users.getProfileUrl from the vulcan-users package.
-Users.getProfileUrl = (user, isAbsolute=false) => {
+Users.getProfileUrl = (user: DbUser|UsersMinimumInfo|null, isAbsolute=false): string => {
   if (!user) return "";
   
   if (user.slug) {
@@ -224,7 +220,7 @@ Users.getProfileUrl = (user, isAbsolute=false) => {
   }
 }
 
-Users.getProfileUrlFromSlug = (userSlug, isAbsolute=false) => {
+Users.getProfileUrlFromSlug = (userSlug: string, isAbsolute=false): string => {
   if (!userSlug) return "";
   
   const prefix = isAbsolute ? Utils.getSiteUrl().slice(0,-1) : '';
@@ -233,7 +229,7 @@ Users.getProfileUrlFromSlug = (userSlug, isAbsolute=false) => {
 
 
 
-const clientRequiresMarkdown = () => {
+const clientRequiresMarkdown = (): boolean => {
   if (Meteor.isClient &&
       window &&
       window.navigator &&
@@ -244,14 +240,14 @@ const clientRequiresMarkdown = () => {
   return false
 }
 
-Users.useMarkdownCommentEditor = (user) => {
+Users.useMarkdownCommentEditor = (user: UsersCurrent|null): boolean => {
   if (clientRequiresMarkdown()) {
     return true
   }
   return user && user.markDownCommentEditor
 }
 
-Users.useMarkdownPostEditor = (user) => {
+Users.useMarkdownPostEditor = (user: UsersCurrent|null): boolean => {
   if (clientRequiresMarkdown()) {
     return true
   }
@@ -274,7 +270,7 @@ Users.canEdit = (currentUser, user) => {
 // for server-side rendering, but we can try to get a location client-side
 // using the browser geolocation API. (This won't necessarily work, since not
 // all browsers and devices support it, and it requires user permission.)
-Users.getLocation = (currentUser) => {
+Users.getLocation = (currentUser: UsersCurrent|null): UserLocation => {
   const placeholderLat = 37.871853;
   const placeholderLng = -122.258423;
 
@@ -306,7 +302,7 @@ Users.getLocation = (currentUser) => {
 }
 
 // utility function for checking how much karma a user is supposed to have
-Users.getAggregateKarma = async (user) => {
+Users.getAggregateKarma = async (user: DbUser): Promise<number> => {
   const posts = Posts.find({userId:user._id}).fetch().map(post=>post._id)
   const comments = Comments.find({userId:user._id}).fetch().map(comment=>comment._id)
   const documentIds = [...posts, ...comments]
@@ -321,7 +317,7 @@ Users.getAggregateKarma = async (user) => {
   ]).toArray()[0].totalPower;
 }
 
-Users.getPostCount = (user) => {
+Users.getPostCount = (user: UsersMinimumInfo|DbUser): number => {
   if (getSetting('forumType') === 'AlignmentForum') {
     return user.afPostCount;
   } else {
@@ -329,7 +325,7 @@ Users.getPostCount = (user) => {
   }
 }
 
-Users.getCommentCount = (user) => {
+Users.getCommentCount = (user: UsersMinimumInfo|DbUser): number => {
   if (getSetting('forumType') === 'AlignmentForum') {
     return user.afCommentCount;
   } else {
