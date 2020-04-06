@@ -139,12 +139,16 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
   const tagsExcluded = _.filter(filterSettings.tags, t=>t.filterMode==="Hidden");
   
   let frontpageFilter: any;
+  let frontpageSoftFilter: any = null;
   if (filterSettings.personalBlog === "Hidden") {
     frontpageFilter = {frontpageDate: {$gt: new Date(0)}}
   } else if (filterSettings.personalBlog === "Required") {
     frontpageFilter = {frontpageDate: viewFieldNullOrMissing}
   } else {
     frontpageFilter = {};
+    frontpageSoftFilter = [
+      {$cond: {if: "$frontpageDate", then: 0, else: filterModeToKarmaModifier(filterSettings.personalBlog)}},
+    ];
   }
   
   let tagsFilter = {};
@@ -172,7 +176,8 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
                 ]}
               ]
             })),
-            ...defaultScoreModifiers,
+            ...defaultScoreModifiers(),
+            ...frontpageSoftFilter,
           ]},
           timeDecayExpr()
         ]}
