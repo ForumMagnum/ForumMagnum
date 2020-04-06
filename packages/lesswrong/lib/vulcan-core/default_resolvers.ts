@@ -149,7 +149,7 @@ const queryFromViewParameters = async (collection, terms, parameters) => {
     skip: terms.offset,
   };
 
-  if (parameters.syntheticFields) {
+  if (parameters.syntheticFields && Object.keys(parameters.syntheticFields).length>0) {
     const pipeline = [
       // First stage: Filter by selector
       { $match: selector },

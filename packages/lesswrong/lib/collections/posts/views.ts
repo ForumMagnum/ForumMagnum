@@ -118,7 +118,12 @@ Posts.addDefaultView(terms => {
     }
   }
   if (terms.filterSettings) {
-    params = deepmerge(params, filterSettingsToParams(terms.filterSettings));
+    const filterParams = filterSettingsToParams(terms.filterSettings);
+    params = {
+      selector: { ...params.selector, ...filterParams.selector },
+      options: { ...params.options, ...filterParams.options },
+      syntheticFields: { ...params.synetheticFields, ...filterParams.syntheticFields },
+    };
   }
   if (terms.sortedBy) {
     if (sortings[terms.sortedBy]) {
