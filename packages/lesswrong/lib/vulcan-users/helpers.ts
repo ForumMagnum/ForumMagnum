@@ -32,8 +32,6 @@ Users.getUser = function(userOrUserId: DbUser|string|undefined): DbUser {
 Users.getUserName = function(user: UsersMinimumInfo|DbUser|null): string|null {
   try {
     if (user?.username) return user.username;
-    if (user?.services?.twitter?.screenName)
-      return user?.services?.twitter?.screenName;
   } catch (error) {
     console.log(error); // eslint-disable-line
     return null;
@@ -51,22 +49,6 @@ Users.getDisplayNameById = function(userId: string): string {
  */
 Users.getEditUrl = function(user: DbUser|UsersMinimumInfo|null, isAbsolute=false): string {
   return `${Users.getProfileUrl(user, isAbsolute)}/edit`;
-};
-
-/**
- * @summary Get a user's Twitter name
- * @param {Object} user
- */
-Users.getTwitterName = function(user: DbUser): string|null {
-  // return twitter name provided by user, or else the one used for twitter login
-  if (typeof user !== 'undefined') {
-    if (user.twitterUsername) {
-      return user.twitterUsername;
-    } else if (Utils.checkNested(user, 'services', 'twitter', 'screenName')) {
-      return user.services.twitter.screenName;
-    }
-  }
-  return null;
 };
 
 /**

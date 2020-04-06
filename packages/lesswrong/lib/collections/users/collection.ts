@@ -169,7 +169,6 @@ interface ExtendedUsersCollection extends UsersCollection {
   getUserName: (user: UsersMinimumInfo|DbUser|null) => string|null
   getDisplayNameById: (userId: string) => string
   getEditUrl: (user: DbUser|UsersMinimumInfo|null, isAbsolute?: boolean) => string
-  getTwitterName: (user: DbUser) => string|null
   getGitHubName: (user: DbUser) => string|null
   getEmail: (user: DbUser) => string|null
   findLast: <T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>) => T
