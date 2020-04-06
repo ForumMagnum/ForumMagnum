@@ -125,7 +125,7 @@ interface ExternalProps {
   postPage?: boolean,
   nestingLevel: number,
   showPostTitle?: boolean,
-  post: PostsList,
+  post: PostsMinimumInfo,
   collapsed?: boolean,
   isParentComment?: boolean,
   parentCommentId?: string,

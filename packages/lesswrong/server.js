@@ -93,6 +93,7 @@ import './server/callbacks/userCallbacks';
 import './server/callbacks/banCallbacks';
 import './server/tableOfContents';
 import './server/callbacks/subscriptionCallbacks';
+import './server/callbacks/rateLimits';
 import './server/callbacks/reviewVoteCallbacks';
 if (getSetting('hasEvents', true)) {
   import './server/callbacks/localgroupCallbacks';
@@ -108,6 +109,7 @@ import './server/resolvers/postResolvers';
 import './server/resolvers/userResolvers';
 import './server/resolvers/karmaChangeResolvers';
 import './server/resolvers/coronaLinkDatabase';
+import './server/resolvers/mozillaHubsData';
 
 import './lib/events/server';
 import './server/callbacks/intercomCallbacks';

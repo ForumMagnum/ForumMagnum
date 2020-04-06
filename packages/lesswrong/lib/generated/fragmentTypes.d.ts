@@ -32,11 +32,22 @@ interface VotesDefaultFragment { // fragment on Votes
   readonly votedAt: Date,
 }
 
-interface PostsBase { // fragment on Posts
+interface PostsMinimumInfo { // fragment on Posts
   readonly _id: string,
-  readonly title: string,
-  readonly url: string,
   readonly slug: string,
+  readonly title: string,
+  readonly draft: boolean,
+  readonly hideCommentKarma: boolean,
+  readonly af: boolean,
+  readonly contents: PostsMinimumInfo_contents,
+}
+
+interface PostsMinimumInfo_contents { // fragment on Revisions
+  readonly version: string,
+}
+
+interface PostsBase extends PostsMinimumInfo { // fragment on Posts
+  readonly url: string,
   readonly postedAt: Date,
   readonly createdAt: Date,
   readonly modifiedAt: Date,
@@ -84,7 +95,6 @@ interface PostsBase { // fragment on Posts
   readonly suggestForCuratedUsernames: string,
   readonly reviewForCuratedUserId: string,
   readonly authorIsUnreviewed: boolean,
-  readonly af: boolean,
   readonly afDate: Date,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
@@ -136,6 +146,10 @@ interface PostsList_contents { // fragment on Revisions
 interface PostsList_customHighlight { // fragment on Revisions
   readonly version: string,
   readonly html: string,
+}
+
+interface PostsListTag extends PostsList { // fragment on Posts
+  readonly tagRel: WithVoteTagRel,
 }
 
 interface PostsDetails extends PostsBase, PostsAuthors { // fragment on Posts
@@ -306,6 +320,21 @@ interface UsersBannedFromPostsModerationLog { // fragment on Posts
   readonly bannedUserIds: Array<string>,
 }
 
+interface SunshinePostsList extends PostsList { // fragment on Posts
+  readonly user: SunshinePostsList_user,
+}
+
+interface SunshinePostsList_user extends UsersMinimumInfo { // fragment on Users
+  readonly moderationStyle: string,
+  readonly bannedUserIds: Array<string>,
+  readonly moderatorAssistance: boolean,
+  readonly moderationGuidelines: SunshinePostsList_user_moderationGuidelines,
+}
+
+interface SunshinePostsList_user_moderationGuidelines { // fragment on Revisions
+  readonly html: string,
+}
+
 interface CommentsList { // fragment on Comments
   readonly _id: string,
   readonly postId: string,
@@ -351,28 +380,13 @@ interface CommentPermalink extends CommentsList { // fragment on Comments
 }
 
 interface ShortformComments extends CommentsList { // fragment on Comments
-  readonly post: ShortformComments_post,
-}
-
-interface ShortformComments_post { // fragment on Posts
-  readonly _id: string,
-  readonly slug: string,
-  readonly title: string,
-  readonly draft: boolean,
+  readonly post: PostsMinimumInfo,
 }
 
 interface CommentWithRepliesFragment extends CommentsList { // fragment on Comments
   readonly lastSubthreadActivity: Date,
   readonly latestChildren: Array<CommentsList>,
-  readonly post: CommentWithRepliesFragment_post,
-}
-
-interface CommentWithRepliesFragment_post { // fragment on Posts
-  readonly title: string,
-  readonly _id: string,
-  readonly slug: string,
-  readonly lastVisitedAt: Date,
-  readonly draft: boolean,
+  readonly post: PostsBase,
 }
 
 interface CommentEdit extends CommentsList { // fragment on Comments
@@ -508,6 +522,14 @@ interface PostRelationsDefaultFragment { // fragment on PostRelations
   readonly sourcePostId: string,
   readonly targetPostId: string,
   readonly order: number,
+}
+
+interface TagRelsDefaultFragment { // fragment on TagRels
+  readonly tagId: string,
+  readonly postId: string,
+  readonly deleted: boolean,
+  readonly userId: string,
+  readonly afBaseScore: number,
 }
 
 interface PostsDefaultFragment { // fragment on Posts
@@ -817,15 +839,7 @@ interface UsersBannedFromUsersModerationLog { // fragment on Users
 }
 
 interface CommentsListWithPostMetadata extends CommentsList { // fragment on Comments
-  readonly post: CommentsListWithPostMetadata_post,
-}
-
-interface CommentsListWithPostMetadata_post { // fragment on Posts
-  readonly title: string,
-  readonly _id: string,
-  readonly slug: string,
-  readonly isEvent: boolean,
-  readonly groupId: string,
+  readonly post: PostsMinimumInfo,
 }
 
 interface UsersList extends UsersMinimumInfo { // fragment on Users
@@ -1297,14 +1311,6 @@ interface SuggestAlignmentUser extends UsersMinimumInfo { // fragment on Users
   readonly afSubmittedApplication: boolean,
 }
 
-interface TagRelsDefaultFragment { // fragment on TagRels
-  readonly tagId: string,
-  readonly postId: string,
-  readonly deleted: boolean,
-  readonly userId: string,
-  readonly afBaseScore: number,
-}
-
 interface TagRelFragment { // fragment on TagRels
   readonly _id: string,
   readonly baseScore: number,
@@ -1379,6 +1385,7 @@ interface WithVoteTagRel_currentUserVotes { // fragment on Votes
 interface TagsDefaultFragment { // fragment on Tags
   readonly name: string,
   readonly slug: string,
+  readonly core: boolean,
   readonly postCount: number,
   readonly deleted: boolean,
 }
@@ -1387,6 +1394,7 @@ interface TagFragment { // fragment on Tags
   readonly _id: string,
   readonly name: string,
   readonly slug: string,
+  readonly core: boolean,
   readonly postCount: number,
   readonly deleted: boolean,
   readonly description: TagFragment_description,
@@ -1401,6 +1409,7 @@ interface TagEditFragment { // fragment on Tags
   readonly _id: string,
   readonly name: string,
   readonly slug: string,
+  readonly core: boolean,
   readonly postCount: number,
   readonly deleted: boolean,
   readonly description: RevisionEdit,
@@ -1501,9 +1510,11 @@ interface SuggestAlignmentComment_suggestForAlignmentUsers { // fragment on User
 interface FragmentTypes {
   UsersDefaultFragment: UsersDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
+  PostsMinimumInfo: PostsMinimumInfo
   PostsBase: PostsBase
   PostsAuthors: PostsAuthors
   PostsList: PostsList
+  PostsListTag: PostsListTag
   PostsDetails: PostsDetails
   PostsRevision: PostsRevision
   PostsRevisionEdit: PostsRevisionEdit
@@ -1516,6 +1527,7 @@ interface FragmentTypes {
   PostsRevisionsList: PostsRevisionsList
   PostsRecentDiscussion: PostsRecentDiscussion
   UsersBannedFromPostsModerationLog: UsersBannedFromPostsModerationLog
+  SunshinePostsList: SunshinePostsList
   CommentsList: CommentsList
   CommentPermalink: CommentPermalink
   ShortformComments: ShortformComments
@@ -1533,6 +1545,7 @@ interface FragmentTypes {
   BansAdminPageFragment: BansAdminPageFragment
   SequencesDefaultFragment: SequencesDefaultFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
+  TagRelsDefaultFragment: TagRelsDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
   ChaptersDefaultFragment: ChaptersDefaultFragment
   BooksDefaultFragment: BooksDefaultFragment
@@ -1589,7 +1602,6 @@ interface FragmentTypes {
   CollectionsEditFragment: CollectionsEditFragment
   SuggestAlignmentPost: SuggestAlignmentPost
   SuggestAlignmentUser: SuggestAlignmentUser
-  TagRelsDefaultFragment: TagRelsDefaultFragment
   TagRelFragment: TagRelFragment
   TagRelMinimumFragment: TagRelMinimumFragment
   WithVoteTagRel: WithVoteTagRel
@@ -1605,5 +1617,5 @@ interface FragmentTypes {
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
-type CollectionNameString = "Users"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"DatabaseMetadata"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"TagRels"|"Tags"|"Subscriptions"|"Revisions"|"Comments"|"LegacyData"|"EmailTokens"
+type CollectionNameString = "Users"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"DatabaseMetadata"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"TagRels"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"Tags"|"Subscriptions"|"Revisions"|"Comments"|"LegacyData"|"EmailTokens"
 

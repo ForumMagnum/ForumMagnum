@@ -12,7 +12,7 @@ Returns how many documents have been updated (1 or 0).
 export const updateScore = async ({collection, item, forceUpdate}) => {
 
   // Age Check
-  const postedAt = item && item.postedAt && item.postedAt.valueOf();
+  const postedAt = item?.frontpageDate?.valueOf() || item?.postedAt?.valueOf()
   const now = new Date().getTime();
   const age = now - postedAt;
   const ageInHours = age / (60 * 60 * 1000);
@@ -84,6 +84,7 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
     {
       $project: {
         postedAt: 1,
+        scoreDate: {$cond: {if: "$frontpageDate", then: "$frontpageDate", else: "$postedAt"}},
         score: 1,
         frontpageDate: 1,
         curatedDate: 1,
@@ -99,6 +100,7 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
     {
       $project: {
         postedAt: 1,
+        scoreDate: 1, 
         baseScore: 1,
         score: 1,
         newScore: {
@@ -112,6 +114,7 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
     {
       $project: {
         postedAt: 1,
+        scoreDate: 1,
         baseScore: 1,
         score: 1,
         newScore: 1,
@@ -125,7 +128,7 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
           $gt: [
             {$divide: [
               {
-                $subtract: [new Date(), '$postedAt'] // Difference in miliseconds
+                $subtract: [new Date(), '$scoreDate'] // Difference in miliseconds
               },
               60 * 60 * 1000 //Difference in hours
             ]},

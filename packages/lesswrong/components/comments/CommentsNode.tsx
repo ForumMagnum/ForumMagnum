@@ -113,7 +113,7 @@ const styles = theme => ({
   }
 })
 
-interface ExternalProps {
+type ExternalProps = ({
   comment: CommentsList & {gapIndicator?: boolean},
   startThreadTruncated?: boolean,
   condensed?: boolean,
@@ -121,7 +121,6 @@ interface ExternalProps {
   lastCommentId?: string,
   shortform?: any,
   nestingLevel?: number,
-  post: PostsList,
   highlightDate?: Date,
   expandAllThreads?:boolean,
   muiTheme?: any,
@@ -130,7 +129,6 @@ interface ExternalProps {
   unreadComments?: any,
   parentAnswerId?: string|null,
   markAsRead?: any,
-  loadChildrenSeparately?: boolean,
   refetch?: any,
   parentCommentId?: string,
   showExtraChildrenButton?: any,
@@ -144,9 +142,18 @@ interface ExternalProps {
   postPage?: boolean,
   children?: Array<CommentTreeNode<CommentsList>>,
   hideReply?: boolean,
-}
-interface CommentsNodeProps extends ExternalProps, WithUserProps, WithStylesProps, WithLocationProps {
-}
+} & ({
+  // Type of "post" needs to have more metadata if the loadChildrenSeparately
+  // option is passed
+  post: PostsMinimumInfo,
+  loadChildrenSeparately?: undefined|false,
+} | {
+  loadChildrenSeparately: true,
+  post: PostsBase,
+}))
+
+type CommentsNodeProps = ExternalProps & WithUserProps & WithStylesProps & WithLocationProps;
+
 interface CommentsNodeState {
   collapsed: boolean,
   truncated: boolean,
@@ -350,7 +357,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
     )
 
     const passedThroughItemProps = { post, postPage, comment, showPostTitle, collapsed, refetch, hideReply }
-    const passedThroughNodeProps = { post, postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, condensed, refetch, scrollOnExpand, hideSingleLineMeta, enableHoverPreview }
+    const passedThroughNodeProps = { postPage, unreadComments, lastCommentId, markAsRead, muiTheme, highlightDate, condensed, refetch, scrollOnExpand, hideSingleLineMeta, enableHoverPreview }
 
     return (
         <div className={comment.gapIndicator && classes.gapIndicator}>
@@ -399,6 +406,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
                   //eslint-disable-next-line react/no-children-prop
                   children={child.children}
                   key={child.item._id}
+                  post={post}
                   {...passedThroughNodeProps}
                 />)}
             </div>}
@@ -413,7 +421,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
                     limit: 500
                   }}
                   parentCommentId={comment._id}
-                  post={post}
+                  post={post as PostsBase}
                 />
               </div>
             }

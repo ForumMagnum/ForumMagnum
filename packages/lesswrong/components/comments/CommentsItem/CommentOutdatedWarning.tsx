@@ -29,7 +29,7 @@ function postHadMajorRevision(comment: CommentsList, post: PostWithVersion) {
 
 const CommentOutdatedWarning = ({comment, post, classes}: {
   comment: CommentsList,
-  post: PostWithVersion,
+  post: PostsMinimumInfo,
   classes: ClassesType,
 }) => {
   if (!postHadMajorRevision(comment, post))

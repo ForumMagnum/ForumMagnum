@@ -114,10 +114,11 @@ Users.timeSinceLast = function(user, collection) {
   return Math.abs(Math.floor((now - last.createdAt) / 1000));
 };
 
-Users.numberOfItemsInPast24Hours = function(user, collection) {
+Users.numberOfItemsInPast24Hours = function(user, collection, filter) {
   var mNow = moment();
   var items = collection.find({
     userId: user._id,
+    ...filter,
     createdAt: {
       $gte: mNow.subtract(24, 'hours').toDate(),
     },
