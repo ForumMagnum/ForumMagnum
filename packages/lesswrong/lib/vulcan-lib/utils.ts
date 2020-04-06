@@ -25,8 +25,6 @@ interface UtilsType {
   getSiteUrl: () => string
   getOutgoingUrl: (url: string) => string
   slugify: (s: string) => string
-  getUnusedSlug: <T extends DbObject>(collection: CollectionBase<T>, slug: string) => string
-  getUnusedSlugByCollectionName: (collectionName: CollectionNameString, slug: string) => string
   getDomain: (url: string) => string|null
   addHttp: (url: string) => string|null
   
@@ -161,22 +159,6 @@ Utils.slugify = function (s: string): string {
   }
 
   return slug;
-};
-Utils.getUnusedSlug = function <T extends DbObject>(collection: CollectionBase<T>, slug: string): string {
-  let suffix = '';
-  let index = 0;
-
-  // test if slug is already in use
-  while (!!collection.findOne({slug: slug+suffix})) {
-    index++;
-    suffix = '-'+index;
-  }
-
-  return slug+suffix;
-};
-
-Utils.getUnusedSlugByCollectionName = function (collectionName: CollectionNameString, slug: string): string {
-  return Utils.getUnusedSlug(getCollection(collectionName), slug);
 };
 
 Utils.getDomain = function(url: string): string|null {
