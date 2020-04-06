@@ -23,8 +23,8 @@ const styles = theme => ({
     left: -2
   },
   menuItem: {
-    '& select:focus': {
-      outline: "none"
+    '&:focus': {
+      outline: "none",
     }
   }
 })
@@ -50,18 +50,18 @@ const PostsListSortDropdown = ({classes, value}:{
       anchorEl={anchorEl}
       onClose={()=>setAnchorEl(null)}
     >
+        <QueryLink query={{"sortedBy":null}} merge className={classes.menuItem}>
+          <MenuItem value={"relevance"} onClick={()=>setAnchorEl(null)}>
+            {newSortings["relevance"]}
+          </MenuItem>
+        </QueryLink>
         {Object.keys(sortings).map(sorting => (
           <QueryLink key={sorting} query={{"sortedBy":sorting}} merge>
-            <MenuItem value={sorting} onClick={()=>setAnchorEl(null)} className={classes.menuItem}>
+            <MenuItem value={sorting} onClick={()=>setAnchorEl(null)}>
               {newSortings[sorting]}
             </MenuItem>
           </QueryLink>
         ))}
-        <QueryLink query={{"sortedBy":null}} merge>
-          <MenuItem value={"relevance"} onClick={()=>setAnchorEl(null)} className={classes.menuItem}>
-            {newSortings["relevance"]}
-          </MenuItem>
-        </QueryLink>
     </Menu>
   </div>
 }
