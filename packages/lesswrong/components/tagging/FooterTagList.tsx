@@ -6,7 +6,6 @@ import { useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { useCurrentUser } from '../common/withUser';
-import { userCanManageTags } from '../../lib/betas';
 
 const styles = theme => ({
   root: {
@@ -59,12 +58,9 @@ const FooterTagList = ({post, classes}: {
     return <Loading/>;
   
   return <div className={classes.root}>
-    {results.map((result, i) => {
-      // currently only showing the "Coronavirus" tag to most users
-      if ((result.tag._id === "tNsqhzTibgGJKPEWB") || userCanManageTags(currentUser)) {
-        return <FooterTag key={result._id} tagRel={result} tag={result.tag}/>
-      }
-    })}
+    {results.map((result, i) =>
+      <FooterTag key={result._id} tagRel={result} tag={result.tag}/>
+    )}
     <Components.AddTagButton onTagSelected={onTagSelected} />
     { isAwaiting && <Loading/>}
   </div>

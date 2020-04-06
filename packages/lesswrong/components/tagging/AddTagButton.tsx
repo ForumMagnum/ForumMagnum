@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Paper from '@material-ui/core/Paper';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import { useCurrentUser } from '../common/withUser';
-import { userCanManageTags } from '../../lib/betas';
+import { userCanUseTags } from '../../lib/betas';
 
 const styles = theme => ({
   addTagButton: {
@@ -24,7 +24,7 @@ const AddTagButton = ({onTagSelected, classes}: {
   const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
   const currentUser = useCurrentUser();
   
-  if (!userCanManageTags(currentUser)) {
+  if (!userCanUseTags(currentUser)) {
     return null;
   }
   

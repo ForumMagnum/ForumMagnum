@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { FilterSettings, FilterTag, FilterMode } from '../../lib/filterSettings';
 import { useCurrentUser } from '../common/withUser';
-import { userCanManageTags } from '../../lib/betas';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Tags } from '../../lib/collections/tags/collection';
 import * as _ from 'underscore';
@@ -62,7 +61,6 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const canFilterCustomTags = userCanManageTags(currentUser);
   const { AddTagButton, FilterMode, Loading } = Components
   const [addedSuggestedTags, setAddedSuggestedTags] = useState(false);
   
@@ -102,7 +100,7 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
         description={tagSettings.tagName}
         key={tagSettings.tagId}
         mode={tagSettings.filterMode}
-        canRemove={canFilterCustomTags}
+        canRemove={true}
         onChangeMode={(mode: FilterMode) => {
           const changedTagId = tagSettings.tagId;
           const replacedIndex = _.findIndex(filterSettings.tags, t=>t.tagId===changedTagId);
@@ -128,7 +126,7 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
     
     {loadingSuggestedTags && <Loading/>}
     
-    {canFilterCustomTags && <div className={classes.addTag}>
+    {<div className={classes.addTag}>
       <AddTagButton onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
         if (!_.some(filterSettings.tags, t=>t.tagId===tagId)) {
           const newFilter: FilterTag = {tagId, tagName, filterMode: "Default"}
