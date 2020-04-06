@@ -37,7 +37,7 @@ interface ExtendedCommentsCollection extends CommentsCollection {
   getPageUrlFromIds: (args: { postId: string, postSlug: string, commentId: string, permalink?: boolean, isAbsolute?: boolean }) => string
   getRSSUrl: (comment: HasIdType, isAbsolute?: boolean) => string
   defaultToAlignment: (currentUser: UsersCurrent|null, post: PostsBase, comment?: CommentsList) => boolean
-  getDefaultView: (post: PostsDetails|DbPost, currentUser: UsersCurrent) => string
+  getDefaultView: (post: PostsDetails|DbPost, currentUser: UsersCurrent|null) => string
   getKarma: (comment: CommentsList|DbComment) => number
   
   // Functions in lib/alignment-forum/comments/helpers.ts
