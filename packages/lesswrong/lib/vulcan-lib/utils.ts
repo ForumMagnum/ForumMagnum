@@ -41,8 +41,8 @@ interface UtilsType {
   removeProperty: (obj: any, propertyName: string) => void
   
   // In lib/helpers.ts
-  getUnusedSlug: <T extends HasSlugType>(collection: CollectionBase<HasSlugType>, slug: string, useOldSlugs = false, documentId?: string) => string
-  getUnusedSlugByCollectionName: (collectionName: CollectionNameString, slug: string, useOldSlugs = false, documentId?: string) => string
+  getUnusedSlug: <T extends HasSlugType>(collection: CollectionBase<HasSlugType>, slug: string, useOldSlugs?: boolean, documentId?: string) => string
+  getUnusedSlugByCollectionName: (collectionName: CollectionNameString, slug: string, useOldSlugs?: boolean, documentId?: string) => string
   slugIsUsed: (collectionName: CollectionNameString, slug: string) => Promise<boolean>
   
   // In client/vulcan-lib/apollo-client/updates.ts
