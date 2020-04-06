@@ -134,7 +134,6 @@ interface ExtendedUsersCollection extends UsersCollection {
   emailAddressIsVerified: (user: UsersCurrent|DbUser|null) => boolean
   getProfileUrl: (user: DbUser|UsersMinimumInfo|null, isAbsolute?: boolean) => string
   getProfileUrlFromSlug: (userSlug: string, isAbsolute?: boolean) => string
-  useMarkdownCommentEditor: (user: UsersCurrent|null) => boolean
   useMarkdownPostEditor: (user: UsersCurrent|null) => boolean
   canEdit: any
   getLocation: (currentUser: UsersCurrent|null) => UserLocation

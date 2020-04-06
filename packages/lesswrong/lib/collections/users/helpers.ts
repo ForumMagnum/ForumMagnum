@@ -240,18 +240,14 @@ const clientRequiresMarkdown = (): boolean => {
   return false
 }
 
-Users.useMarkdownCommentEditor = (user: UsersCurrent|null): boolean => {
-  if (clientRequiresMarkdown()) {
-    return true
-  }
-  return user && user.markDownCommentEditor
-}
-
 Users.useMarkdownPostEditor = (user: UsersCurrent|null): boolean => {
   if (clientRequiresMarkdown()) {
     return true
   }
-  return user && user.markDownPostEditor
+  if (!user) {
+    return false;
+  }
+  return user.markDownPostEditor
 }
 
 Users.canEdit = (currentUser, user) => {
