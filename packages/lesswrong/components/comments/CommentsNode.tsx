@@ -123,6 +123,7 @@ type ExternalProps = ({
   nestingLevel?: number,
   highlightDate?: Date,
   expandAllThreads?:boolean,
+  expandByDefault?: boolean, // this determines whether this specific comment is expanded, without passing that expanded state to child comments
   muiTheme?: any,
   child?: any,
   showPostTitle?: boolean,
@@ -309,7 +310,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
       comment, children, nestingLevel=1, highlightDate, post,
       muiTheme, postPage=false, classes, child, showPostTitle, unreadComments,
       parentAnswerId, condensed, markAsRead, lastCommentId,
-      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand, hoverPreview, hideSingleLineMeta, enableHoverPreview, hideReply
+      loadChildrenSeparately, shortform, refetch, parentCommentId, showExtraChildrenButton, noHash, scrollOnExpand, hoverPreview, hideSingleLineMeta, enableHoverPreview, hideReply, expandByDefault
     } = this.props;
 
     const { SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker } = Components
@@ -381,7 +382,7 @@ class CommentsNode extends Component<CommentsNodeProps,CommentsNodeState> {
                     </AnalyticsTracker>
                   </AnalyticsContext>
                 : <CommentsItem
-                    truncated={this.isTruncated()}
+                    truncated={this.isTruncated() && !expandByDefault} // expandByDefault checked separately here, so isTruncated can also be passed to child nodes
                     nestingLevel={updatedNestingLevel}
                     parentCommentId={parentCommentId}
                     parentAnswerId={parentAnswerId || (comment.answer && comment._id) || undefined}
