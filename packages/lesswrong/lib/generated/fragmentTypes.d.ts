@@ -32,11 +32,22 @@ interface VotesDefaultFragment { // fragment on Votes
   readonly votedAt: Date,
 }
 
-interface PostsBase { // fragment on Posts
+interface PostsMinimumInfo { // fragment on Posts
   readonly _id: string,
-  readonly title: string,
-  readonly url: string,
   readonly slug: string,
+  readonly title: string,
+  readonly draft: boolean,
+  readonly hideCommentKarma: boolean,
+  readonly af: boolean,
+  readonly contents: PostsMinimumInfo_contents,
+}
+
+interface PostsMinimumInfo_contents { // fragment on Revisions
+  readonly version: string,
+}
+
+interface PostsBase extends PostsMinimumInfo { // fragment on Posts
+  readonly url: string,
   readonly postedAt: Date,
   readonly createdAt: Date,
   readonly modifiedAt: Date,
@@ -84,7 +95,6 @@ interface PostsBase { // fragment on Posts
   readonly suggestForCuratedUsernames: string,
   readonly reviewForCuratedUserId: string,
   readonly authorIsUnreviewed: boolean,
-  readonly af: boolean,
   readonly afDate: Date,
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
@@ -139,14 +149,7 @@ interface PostsList_customHighlight { // fragment on Revisions
 }
 
 interface PostsListTag extends PostsList { // fragment on Posts
-  readonly tagRel: PostsListTag_tagRel,
-}
-
-interface PostsListTag_tagRel { // fragment on TagRels
-  readonly tagId: string,
-  readonly baseScore: number,
-  readonly afBaseScore: number,
-  readonly voteCount: number,
+  readonly tagRel: WithVoteTagRel,
 }
 
 interface PostsDetails extends PostsBase, PostsAuthors { // fragment on Posts
@@ -317,6 +320,21 @@ interface UsersBannedFromPostsModerationLog { // fragment on Posts
   readonly bannedUserIds: Array<string>,
 }
 
+interface SunshinePostsList extends PostsList { // fragment on Posts
+  readonly user: SunshinePostsList_user,
+}
+
+interface SunshinePostsList_user extends UsersMinimumInfo { // fragment on Users
+  readonly moderationStyle: string,
+  readonly bannedUserIds: Array<string>,
+  readonly moderatorAssistance: boolean,
+  readonly moderationGuidelines: SunshinePostsList_user_moderationGuidelines,
+}
+
+interface SunshinePostsList_user_moderationGuidelines { // fragment on Revisions
+  readonly html: string,
+}
+
 interface CommentsList { // fragment on Comments
   readonly _id: string,
   readonly postId: string,
@@ -362,28 +380,13 @@ interface CommentPermalink extends CommentsList { // fragment on Comments
 }
 
 interface ShortformComments extends CommentsList { // fragment on Comments
-  readonly post: ShortformComments_post,
-}
-
-interface ShortformComments_post { // fragment on Posts
-  readonly _id: string,
-  readonly slug: string,
-  readonly title: string,
-  readonly draft: boolean,
+  readonly post: PostsMinimumInfo,
 }
 
 interface CommentWithRepliesFragment extends CommentsList { // fragment on Comments
   readonly lastSubthreadActivity: Date,
   readonly latestChildren: Array<CommentsList>,
-  readonly post: CommentWithRepliesFragment_post,
-}
-
-interface CommentWithRepliesFragment_post { // fragment on Posts
-  readonly title: string,
-  readonly _id: string,
-  readonly slug: string,
-  readonly lastVisitedAt: Date,
-  readonly draft: boolean,
+  readonly post: PostsBase,
 }
 
 interface CommentEdit extends CommentsList { // fragment on Comments
@@ -836,15 +839,7 @@ interface UsersBannedFromUsersModerationLog { // fragment on Users
 }
 
 interface CommentsListWithPostMetadata extends CommentsList { // fragment on Comments
-  readonly post: CommentsListWithPostMetadata_post,
-}
-
-interface CommentsListWithPostMetadata_post { // fragment on Posts
-  readonly title: string,
-  readonly _id: string,
-  readonly slug: string,
-  readonly isEvent: boolean,
-  readonly groupId: string,
+  readonly post: PostsMinimumInfo,
 }
 
 interface UsersList extends UsersMinimumInfo { // fragment on Users
@@ -1515,6 +1510,7 @@ interface SuggestAlignmentComment_suggestForAlignmentUsers { // fragment on User
 interface FragmentTypes {
   UsersDefaultFragment: UsersDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
+  PostsMinimumInfo: PostsMinimumInfo
   PostsBase: PostsBase
   PostsAuthors: PostsAuthors
   PostsList: PostsList
@@ -1531,6 +1527,7 @@ interface FragmentTypes {
   PostsRevisionsList: PostsRevisionsList
   PostsRecentDiscussion: PostsRecentDiscussion
   UsersBannedFromPostsModerationLog: UsersBannedFromPostsModerationLog
+  SunshinePostsList: SunshinePostsList
   CommentsList: CommentsList
   CommentPermalink: CommentPermalink
   ShortformComments: ShortformComments
