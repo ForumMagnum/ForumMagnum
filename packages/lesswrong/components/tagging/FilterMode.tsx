@@ -41,6 +41,11 @@ const styles = theme => ({
   },
   
   arrowButton: {
+    cursor: "pointer",
+    
+    "&:hover": {
+      opacity: 0.5,
+    },
   },
   arrowLeft: {
     transform: 'rotate(-90deg)',
@@ -51,6 +56,11 @@ const styles = theme => ({
   state: {
     width: 40,
     textAlign: "center",
+    cursor: "pointer",
+    
+    "&:hover": {
+      opacity: 0.5,
+    },
   },
 });
 
