@@ -4,7 +4,7 @@ import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionU
 import moment from 'moment';
 import * as _ from 'underscore';
 import { FilterSettings, FilterMode } from '../../filterSettings';
-import { timeDecayExpr } from '../../scoring';
+import { timeDecayExpr, defaultScoreModifiers } from '../../scoring';
 import deepmerge from 'deepmerge';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
@@ -171,7 +171,8 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
                   0
                 ]}
               ]
-            }))
+            })),
+            ...defaultScoreModifiers,
           ]},
           timeDecayExpr()
         ]}
