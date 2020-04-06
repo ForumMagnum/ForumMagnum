@@ -31,7 +31,6 @@ interface UtilsType {
   checkNested: any
   getNestedProperty: any
   getLogoUrl:() => string|undefined
-  getCollectionNameFromTypename: (type: string) => string
   arrayToFields: any
   encodeIntlError: any
   decodeIntlError: any
@@ -213,21 +212,6 @@ Utils.getLogoUrl = (): string|undefined => {
     const prefix = Utils.getSiteUrl().slice(0,-1);
     // the logo may be hosted on another website
     return logoUrl.indexOf('://') > -1 ? logoUrl : prefix + logoUrl;
-  }
-};
-
-// note(apollo): get collection's name from __typename given by react-apollo
-Utils.getCollectionNameFromTypename = (type: string): string => {
-  if (type.indexOf('Post') > -1) {
-    return 'posts';
-  } else if (type.indexOf('Cat') > -1) {
-    return 'categories';
-  } else if (type.indexOf('User') > -1) {
-    return 'users';
-  } else if (type.indexOf('Comment') > -1) {
-    return 'comments';
-  } else if (type.indexOf('Localgroup') > -1) {
-    return 'localgroups';
   }
 };
 

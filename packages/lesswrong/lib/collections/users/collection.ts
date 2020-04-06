@@ -145,9 +145,6 @@ interface ExtendedUsersCollection extends UsersCollection {
   canSuggestPostForAlignment: any
   canMakeAlignmentPost: any
   
-  // From lib/helpers.ts
-  isSubscribedTo: any
-  
   // From lib/vulcan-users/permissions.ts
   groups: Record<string,any>
   createGroup: (groupName: string) => void

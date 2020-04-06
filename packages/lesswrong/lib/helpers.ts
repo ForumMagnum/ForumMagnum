@@ -20,27 +20,6 @@ Messages.getLink = (message: DbMessage): string => {
   return `/inbox/${message.conversationId}`;
 };
 
-/**
-* @summary Check whether User is subscribed to a document
-* @param {Object} user
-* @param {Object} document
-**/
-Users.isSubscribedTo = (user, document) => {
-  if (!user || !document) {
-    // should return an error
-    return false;
-  }
-
-  const { __typename, _id: itemId } = document;
-  const documentType = Utils.capitalize(Utils.getCollectionNameFromTypename(__typename));
-
-  if (user.subscribedItems && user.subscribedItems[documentType]) {
-    return !!user.subscribedItems[documentType].find(subscribedItems => subscribedItems.itemId === itemId);
-  } else {
-    return false;
-  }
-};
-
 // LESSWRONG version of getting unused slug. Modified to also include "oldSlugs" array
 Utils.getUnusedSlug = function <T extends HasSlugType>(collection: CollectionBase<HasSlugType>, slug: string, useOldSlugs = false, documentId?: string): string {
   let suffix = '';
