@@ -274,6 +274,13 @@ ensureIndex(Posts,
     name: "posts.score",
   }
 );
+// Used for the latest posts list when soft-filtering tags
+ensureIndex(Posts,
+  augmentForDefaultView({ tagRelevance: 1 }),
+  {
+    name: "posts.tagRelevance"
+  }
+);
 ensureIndex(Posts,
   augmentForDefaultView({ afSticky:-1, score:-1 }),
   {
