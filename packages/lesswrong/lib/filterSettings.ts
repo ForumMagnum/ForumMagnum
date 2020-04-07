@@ -16,12 +16,6 @@ export const defaultFilterSettings: FilterSettings = {
   tags: [],
 }
 
-export const filterTooltips = {
-  Hidden: "These posts will not appear on the home page",
-  Default: "These posts will appear on the home page (sorted normally)",
-  Required: "The home page will ONLY show posts that you have marked as 'required.'"
-}
-
 export function filterSettingsToString(filterSettings: FilterSettings): string {
   let nonNeutralTagModifiers = _.filter(filterSettings.tags,
     tag => tag.filterMode !== "Default");

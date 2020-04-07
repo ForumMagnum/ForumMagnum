@@ -1,5 +1,5 @@
-import { Connectors, getSetting } from './vulcan-lib';
-import { recalculateScore, timeDecayExpr, defaultScoreModifiers, TIME_DECAY_FACTOR, FRONTPAGE_BONUS, FEATURED_BONUS } from '../lib/scoring';
+import { Connectors } from './vulcan-lib';
+import { recalculateScore, timeDecayExpr, defaultScoreModifiers, TIME_DECAY_FACTOR } from '../lib/scoring';
 import * as _ from 'underscore';
 
 /*

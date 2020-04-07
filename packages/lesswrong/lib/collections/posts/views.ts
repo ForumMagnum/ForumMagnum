@@ -5,7 +5,6 @@ import moment from 'moment';
 import * as _ from 'underscore';
 import { FilterSettings, FilterMode } from '../../filterSettings';
 import { timeDecayExpr, defaultScoreModifiers } from '../../scoring';
-import deepmerge from 'deepmerge';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
