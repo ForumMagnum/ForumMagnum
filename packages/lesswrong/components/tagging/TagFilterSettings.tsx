@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { FilterSettings, FilterTag, FilterMode } from '../../lib/filterSettings';
-import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Tags } from '../../lib/collections/tags/collection';
 import * as _ from 'underscore';
@@ -60,7 +59,6 @@ const TagFilterSettings = ({ filterSettings, setFilterSettings, classes }: {
   setFilterSettings: (newSettings: FilterSettings)=>void,
   classes: ClassesType,
 }) => {
-  const currentUser = useCurrentUser();
   const { AddTagButton, FilterMode, Loading } = Components
   const [addedSuggestedTags, setAddedSuggestedTags] = useState(false);
   

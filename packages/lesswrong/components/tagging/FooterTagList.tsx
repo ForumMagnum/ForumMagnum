@@ -61,7 +61,7 @@ const FooterTagList = ({post, classes}: {
     {results.map((result, i) =>
       <FooterTag key={result._id} tagRel={result} tag={result.tag}/>
     )}
-    <Components.AddTagButton onTagSelected={onTagSelected} />
+    {currentUser && <Components.AddTagButton onTagSelected={onTagSelected} />}
     { isAwaiting && <Loading/>}
   </div>
 };
