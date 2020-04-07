@@ -42,6 +42,15 @@ const schema = {
     group: formGroups.advancedOptions,
     ...schemaDefaultValue(false),
   },
+  suggestedAsFilter: {
+    label: "Suggested Filter (appears as a default option in filter settings without having to use the search box)",
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    ...schemaDefaultValue(false),
+  },
   postCount: {
     ...denormalizedCountOfReferences({
       fieldName: "postCount",

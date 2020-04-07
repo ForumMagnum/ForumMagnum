@@ -1,8 +1,9 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { FilterMode, filterModes, filterTooltips } from '../../lib/filterSettings';
+import { FilterMode } from '../../lib/filterSettings';
 import classNames from 'classnames';
 import HelpIcon from '@material-ui/icons/Help';
+import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
 
 const styles = theme => ({
   root: {
@@ -37,8 +38,34 @@ const styles = theme => ({
     height: 16,
     verticalAlign: "middle",
     display: "inline",
-  }
+  },
+  
+  arrowButton: {
+    cursor: "pointer",
+    
+    "&:hover": {
+      opacity: 0.5,
+    },
+  },
+  arrowLeft: {
+    transform: 'rotate(-90deg)',
+  },
+  arrowRight: {
+    transform: 'rotate(90deg)',
+  },
+  state: {
+    width: 40,
+    textAlign: "center",
+    cursor: "pointer",
+    
+    "&:hover": {
+      opacity: 0.5,
+    },
+  },
 });
+
+const maxFilterStrength = 50;
+const filterStrengthIncrement = 10;
 
 const FilterModeRawComponent = ({description, mode, canRemove=false, onChangeMode, onRemove, helpTooltip, classes}: {
   description: string,
@@ -50,27 +77,95 @@ const FilterModeRawComponent = ({description, mode, canRemove=false, onChangeMod
   classes: ClassesType,
 }) => {
   const { LWTooltip } = Components
-  return <div className={classes.root}>
+  
+  const filterMoreNegative = () => {
+    if (mode === "Required") {
+      onChangeMode(maxFilterStrength);
+    } else if (mode === "Default") {
+      onChangeMode(-filterStrengthIncrement);
+    } else if (typeof mode === "number") {
+      if (mode<=-maxFilterStrength) onChangeMode("Hidden")
+      else if (mode-filterStrengthIncrement === 0) onChangeMode("Default");
+      else onChangeMode(mode-filterStrengthIncrement);
+    }
+  }
+  const filterMorePositive = () => {
+    if (mode === "Hidden") {
+      onChangeMode(-maxFilterStrength);
+    } else if (mode === "Default") {
+      onChangeMode(filterStrengthIncrement);
+    } else if (typeof mode === "number") {
+      if (mode>=maxFilterStrength) onChangeMode("Required");
+      else if (mode+filterStrengthIncrement === 0) onChangeMode("Default");
+      else onChangeMode(mode+filterStrengthIncrement);
+    }
+  }
+  
+  return <LWTooltip title={filterModeToTooltip(mode)} placement="bottom" className={classes.root}>
     <span className={classes.label}>
-      {description} {helpTooltip && <LWTooltip title={helpTooltip}>
-          <HelpIcon className={classes.helpIcon}/>
-        </LWTooltip>}
+      {description}
+      {helpTooltip && <LWTooltip title={helpTooltip}>
+        <HelpIcon className={classes.helpIcon}/>
+      </LWTooltip>}
     </span>
     
-    {filterModes.map((m: FilterMode) =>
-      <LWTooltip key={m} title={filterTooltips[m]}>
-        <span className={classNames(classes.button, {[classes.selected]: m===mode})} onClick={ev => onChangeMode(m)}>
-          {m}
-        </span>
-      </LWTooltip>
-    )}
+    <span className={classNames(classes.button, {[classes.selected]: mode==="Hidden"})} onClick={ev => onChangeMode("Hidden")}>
+      Hidden
+    </span>
+    
+    <span className={classNames(classes.arrowButton, classes.arrowLeft, {[classes.selected]: mode<0})} onClick={filterMoreNegative}>
+      <UpArrowIcon/>
+    </span>
+    
+    <span className={classNames(classes.state)} onClick={ev => onChangeMode("Default")}>
+      {filterModeToStr(mode)}
+    </span>
+    
+    <span className={classNames(classes.arrowButton, classes.arrowRight, {[classes.selected]: mode>0})} onClick={filterMorePositive}>
+      <UpArrowIcon/>
+    </span>
+    
+    <span className={classNames(classes.button, {[classes.selected]: mode==="Required"})} onClick={ev => onChangeMode("Required")}>
+      Required
+    </span>
+  
     {canRemove ? <div className={classes.closeButton} onClick={ev => {
       if (onRemove)
         onRemove();
     }}>
       X
     </div> : <div className={classes.closeButton}/>}
-  </div>
+  </LWTooltip>
+}
+
+function filterModeToTooltip(mode: FilterMode): string {
+  switch (mode) {
+    case "Required":
+      return "ONLY posts with this attribute will be shown."
+    case "Hidden":
+      return "Posts with this attribute will be hidden."
+    case 0:
+    case "Default":
+      return "This attribute will be ignored for filtering and sorting."
+    default:
+      if (mode<0)
+        return `These posts will be shown less (as though their score were ${-mode} points lower).`
+      else
+        return `These posts will be shown more (as though their score were ${mode} points higher).`
+  }
+}
+
+function filterModeToStr(mode: FilterMode): string {
+  if (typeof mode === "number") {
+    if (mode>0) return `+${mode}`;
+    else if (mode===0) return "Default";
+    else return `${mode}`;
+  } else switch(mode) {
+    default:
+    case "Default": return "Default";
+    case "Hidden": return "-∞";
+    case "Required": return "+∞";
+  }
 }
 
 const FilterModeComponent = registerComponent("FilterMode", FilterModeRawComponent, {styles});
