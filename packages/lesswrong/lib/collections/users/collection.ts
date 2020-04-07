@@ -167,8 +167,8 @@ interface ExtendedUsersCollection extends UsersCollection {
   getEditUrl: (user: DbUser|UsersMinimumInfo|null, isAbsolute?: boolean) => string
   getGitHubName: (user: DbUser) => string|null
   getEmail: (user: DbUser) => string|null
-  findLast: <T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>) => T
-  timeSinceLast: <T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>) => number
+  findLast: <T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>, filter?: any) => T
+  timeSinceLast: <T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>, filter?: any) => number
   numberOfItemsInPast24Hours: <T extends DbObject>(user: DbUser, collection: CollectionBase<T>, filter: Record<string,any>) => number
   findByEmail: (email: string) => DbUser|null
   

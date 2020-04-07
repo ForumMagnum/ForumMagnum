@@ -85,13 +85,13 @@ Users.getEmail = function(user: DbUser): string|null {
 // Other Helpers //
 ///////////////////
 
-Users.findLast = function<T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>): T {
-  return collection.findOne({ userId: user._id }, { sort: { createdAt: -1 } });
+Users.findLast = function<T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>, filter?: any): T {
+  return collection.findOne({ ...filter, userId: user._id }, { sort: { createdAt: -1 } });
 };
 
-Users.timeSinceLast = function<T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>): number {
+Users.timeSinceLast = function<T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>, filter?: any): number {
   var now = new Date().getTime();
-  var last = this.findLast(user, collection);
+  var last = this.findLast(user, collection, filter);
   if (!last) return 999; // if this is the user's first post or comment ever, stop here
   return Math.abs(Math.floor((now - last.createdAt.getTime()) / 1000));
 };
