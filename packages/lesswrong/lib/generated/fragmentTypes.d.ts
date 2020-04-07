@@ -73,7 +73,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly lastCommentPromotedAt: Date,
   readonly canonicalCollectionSlug: string,
   readonly curatedDate: Date,
-  readonly comment  sLocked: boolean,
+  readonly commentsLocked: boolean,
   readonly question: boolean,
   readonly hiddenRelatedQuestion: boolean,
   readonly originalPostRelationSourceId: string,
@@ -564,6 +564,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly canonicalSource: string,
   readonly nominationCount2018: number,
   readonly reviewCount2018: number,
+  readonly lastCommentPromotedAt: Date,
   readonly tagRelevance: any /*{"definitions":[{}]}*/,
 }
 
