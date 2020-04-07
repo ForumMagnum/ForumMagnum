@@ -106,7 +106,8 @@ Users.toAlgolia = (user: DbUser): Array<Record<string,any>>|null => {
 
 // TODO: Refactor this to no longer by this insane parallel code path, and instead just make a graphQL query and use all the relevant data
 Posts.toAlgolia = (post: DbPost): Array<Record<string,any>>|null => {
-  if (post.deleted) return null;
+  if (post.status !== Posts.config.STATUS_APPROVED)
+    return null;
   
   const algoliaMetaInfo: any = {
     _id: post._id,
