@@ -32,7 +32,7 @@ Users.isSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, document: PostsBa
   return document.shareWithUsers && document.shareWithUsers.includes(currentUser._id)
 }
 
-Users.canCollaborate = (currentUser: UsersCurrent|null, document: HasUserIdType): boolean => {
+Users.canCollaborate = (currentUser: UsersCurrent|null, document: PostsBase): boolean => {
   return userHasCkEditor(currentUser) && Users.isSharedOn(currentUser, document)
 }
 

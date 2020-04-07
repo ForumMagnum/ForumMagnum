@@ -122,7 +122,7 @@ interface ExtendedUsersCollection extends UsersCollection {
   getDisplayName: (user: UsersMinimumInfo|DbUser|null) => string
   ownsAndInGroup: (group: string) => (user: DbUser, document: HasUserIdType) => boolean
   isSharedOn: (currentUser: DbUser|UsersMinimumInfo|null, document: PostsBase) => boolean
-  canCollaborate: (currentUser: UsersCurrent|null, document: HasUserIdType) => boolean
+  canCollaborate: (currentUser: UsersCurrent|null, document: PostsBase) => boolean
   canEditUsersBannedUserIds: (currentUser: DbUser|null, targetUser: DbUser) => boolean
   canModeratePost: (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost|null) => boolean
   canCommentLock: (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost) => boolean
