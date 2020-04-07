@@ -67,7 +67,6 @@ Sequences.toAlgolia = (sequence: DbSequence): Array<Record<string,any>>|null => 
     baseScore: sequence.baseScore,
     isDeleted: sequence.isDeleted,
     createdAt: sequence.createdAt,
-    postedAt: sequence.postedAt,
     af: sequence.af
   };
   const sequenceAuthor = Users.findOne({_id: sequence.userId});
@@ -179,7 +178,6 @@ Tags.toAlgolia = (tag: DbTag): Array<Record<string,any>>|null => {
     _id: tag._id,
     name: tag.name,
     description,
-    baseScore: tag.baseScore,
   }];
 }
 
