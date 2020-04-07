@@ -33,7 +33,7 @@ const PostsListSortDropdown = ({classes, value}:{
   classes: ClassesType,
   value: string
 }) => {
-  const [anchorEl, setAnchorEl] = useState(null)
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   
   const newSortings = {
     ...sortings,
@@ -50,13 +50,13 @@ const PostsListSortDropdown = ({classes, value}:{
       anchorEl={anchorEl}
       onClose={()=>setAnchorEl(null)}
     >
-        <QueryLink query={{"sortedBy":null}} merge className={classes.menuItem}>
+        <QueryLink query={{sortedBy: undefined}} merge className={classes.menuItem}>
           <MenuItem value={"relevance"} onClick={()=>setAnchorEl(null)}>
             {newSortings["relevance"]}
           </MenuItem>
         </QueryLink>
         {Object.keys(sortings).map(sorting => (
-          <QueryLink key={sorting} query={{"sortedBy":sorting}} merge>
+          <QueryLink key={sorting} query={{sortedBy:sorting}} merge>
             <MenuItem value={sorting} onClick={()=>setAnchorEl(null)}>
               {newSortings[sorting]}
             </MenuItem>
