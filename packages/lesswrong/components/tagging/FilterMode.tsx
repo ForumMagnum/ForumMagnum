@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { FilterMode, filterTooltips } from '../../lib/filterSettings';
+import { FilterMode } from '../../lib/filterSettings';
 import classNames from 'classnames';
 import HelpIcon from '@material-ui/icons/Help';
 import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
@@ -41,6 +41,11 @@ const styles = theme => ({
   },
   
   arrowButton: {
+    cursor: "pointer",
+    
+    "&:hover": {
+      opacity: 0.5,
+    },
   },
   arrowLeft: {
     transform: 'rotate(-90deg)',
@@ -51,6 +56,11 @@ const styles = theme => ({
   state: {
     width: 40,
     textAlign: "center",
+    cursor: "pointer",
+    
+    "&:hover": {
+      opacity: 0.5,
+    },
   },
 });
 

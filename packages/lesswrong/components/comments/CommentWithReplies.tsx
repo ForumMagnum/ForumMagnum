@@ -20,7 +20,8 @@ interface ExternalProps {
   comment: CommentWithRepliesFragment,
   post: PostsBase,
   refetch: any,
-  showTitle?: boolean
+  showTitle?: boolean,
+  expandByDefault?: boolean
 }
 interface CommentWithRepliesProps extends ExternalProps, WithUserProps, WithStylesProps {
   recordPostView: any,
@@ -40,7 +41,7 @@ class CommentWithReplies extends PureComponent<CommentWithRepliesProps,CommentWi
   }
 
   render () {
-    const { classes, comment, refetch, post, showTitle=true } = this.props
+    const { classes, comment, refetch, post, showTitle=true, expandByDefault } = this.props
     const { CommentsNode } = Components
     const { markedAsVisitedAt, maxChildren } = this.state
 
@@ -81,6 +82,7 @@ class CommentWithReplies extends PureComponent<CommentWithRepliesProps,CommentWi
           condensed
           shortform
           refetch={refetch}
+          expandByDefault={expandByDefault}
           showExtraChildrenButton={showExtraChildrenButton}
         />
       </div>

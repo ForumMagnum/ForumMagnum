@@ -4,8 +4,7 @@ import { ensureIndex,  combineIndexWithDefaultViewIndex} from '../../collectionU
 import moment from 'moment';
 import * as _ from 'underscore';
 import { FilterSettings, FilterMode } from '../../filterSettings';
-import { timeDecayExpr } from '../../scoring';
-import deepmerge from 'deepmerge';
+import { timeDecayExpr, defaultScoreModifiers } from '../../scoring';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
@@ -118,7 +117,12 @@ Posts.addDefaultView(terms => {
     }
   }
   if (terms.filterSettings) {
-    params = deepmerge(params, filterSettingsToParams(terms.filterSettings));
+    const filterParams = filterSettingsToParams(terms.filterSettings);
+    params = {
+      selector: { ...params.selector, ...filterParams.selector },
+      options: { ...params.options, ...filterParams.options },
+      syntheticFields: { ...params.synetheticFields, ...filterParams.syntheticFields },
+    };
   }
   if (terms.sortedBy) {
     if (sortings[terms.sortedBy]) {
@@ -139,12 +143,16 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
   const tagsExcluded = _.filter(filterSettings.tags, t=>t.filterMode==="Hidden");
   
   let frontpageFilter: any;
+  let frontpageSoftFilter: any = null;
   if (filterSettings.personalBlog === "Hidden") {
     frontpageFilter = {frontpageDate: {$gt: new Date(0)}}
   } else if (filterSettings.personalBlog === "Required") {
     frontpageFilter = {frontpageDate: viewFieldNullOrMissing}
   } else {
     frontpageFilter = {};
+    frontpageSoftFilter = [
+      {$cond: {if: "$frontpageDate", then: 0, else: filterModeToKarmaModifier(filterSettings.personalBlog)}},
+    ];
   }
   
   let tagsFilter = {};
@@ -155,7 +163,7 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
     tagsFilter[`tagRelevance.${tag.tagId}`] = {$not: {$gte: 1}};
   }
   
-  const tagsSoftFiltered = _.filter(filterSettings.tags, t=>t.filterMode==="Less" || t.filterMode==="More");
+  const tagsSoftFiltered = _.filter(filterSettings.tags, t=>t.filterMode!=="Less" && t.filterMode!=="More");
   let scoreExpr: any = null;
   if (tagsSoftFiltered.length > 0) {
     scoreExpr = {
@@ -171,7 +179,9 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
                   0
                 ]}
               ]
-            }))
+            })),
+            ...defaultScoreModifiers(),
+            ...frontpageSoftFilter,
           ]},
           timeDecayExpr()
         ]}
@@ -266,6 +276,13 @@ ensureIndex(Posts,
   augmentForDefaultView({ score:-1 }),
   {
     name: "posts.score",
+  }
+);
+// Used for the latest posts list when soft-filtering tags
+ensureIndex(Posts,
+  augmentForDefaultView({ tagRelevance: 1 }),
+  {
+    name: "posts.tagRelevance"
   }
 );
 ensureIndex(Posts,
@@ -868,7 +885,7 @@ Posts.addView("pingbackPosts", terms => {
   }
 });
 ensureIndex(Posts,
-  augmentForDefaultView({ "pingback.Posts": 1, baseScore: 1 }),
+  augmentForDefaultView({ "pingbacks.Posts": 1, baseScore: 1 }),
   { name: "posts.pingbackPosts" }
 );
 
