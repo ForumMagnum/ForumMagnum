@@ -34,8 +34,8 @@ Users.getUserName = function(user: UsersMinimumInfo|DbUser|null): string|null {
     if (user?.username) return user.username;
   } catch (error) {
     console.log(error); // eslint-disable-line
-    return null;
   }
+  return null;
 };
 
 Users.getDisplayNameById = function(userId: string): string {

@@ -36,7 +36,7 @@ Users.canCollaborate = (currentUser: UsersCurrent|null, document: HasUserIdType)
   return userHasCkEditor(currentUser) && Users.isSharedOn(currentUser, document)
 }
 
-Users.canEditUsersBannedUserIds = (currentUser: DbUser, targetUser: DbUser): boolean => {
+Users.canEditUsersBannedUserIds = (currentUser: DbUser|null, targetUser: DbUser): boolean => {
   if (Users.canDo(currentUser,"posts.moderate.all")) {
     return true
   }

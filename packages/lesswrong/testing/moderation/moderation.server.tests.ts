@@ -66,10 +66,11 @@ describe('Users.isAllowedToComment --', async () => {
     const post = await createDummyPost()
     expect(Users.isAllowedToComment(null, post)).to.equal(false)
   })
-  it('returns true if passed a user but NOT post', async () => {
-    const user = await createDummyUser()
-    expect(Users.isAllowedToComment(user, null)).to.equal(true)
-  })
+  //it('returns true if passed a user but NOT post', async () => {
+  //  //Unit test removed because post is now a required argument (enforced by type signature)
+  //  const user = await createDummyUser()
+  //  expect(Users.isAllowedToComment(user, null)).to.equal(true)
+  //})
   it('returns true if passed a user AND post does NOT contain bannedUserIds OR user', async () => {
     const user = await createDummyUser()
     const post = await createDummyPost({userId:undefined})
@@ -452,11 +453,11 @@ describe('Users.canModeratePost --', async ()=> {
 describe('Users.canEditUsersBannedUserIds --', async ()=> {
   // TODO - rewrite this to pass in user data based on fragments where this function is called
   it("returns false if currentUser is undefined", async () => {
-    expect(Users.canEditUsersBannedUserIds(undefined, Users.findOne())).to.be.false;
+    expect(Users.canEditUsersBannedUserIds(null, Users.findOne())).to.be.false;
   })
   it("returns false if user not in trustLevel1", async () => {
     const user = await createDummyUser()
-    expect(Users.canEditUsersBannedUserIds(user)).to.be.false;
+    expect(Users.canEditUsersBannedUserIds(user, user)).to.be.false;
   })
   it("returns false if user in trustLevel1 but does has NOT set user.moderationStyle", async () => {
     const user = await createDummyUser({groups:['trustLevel1']})
