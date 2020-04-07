@@ -737,7 +737,6 @@ interface UsersCurrent extends UsersMinimumInfo { // fragment on Users
   readonly allPostsShowLowKarma: boolean,
   readonly allPostsOpenSettings: boolean,
   readonly lastNotificationsCheck: Date,
-  readonly groups: Array<string>,
   readonly bannedUserIds: Array<string>,
   readonly bannedPersonalUserIds: Array<string>,
   readonly moderationStyle: string,
