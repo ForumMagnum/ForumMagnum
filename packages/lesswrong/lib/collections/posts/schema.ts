@@ -497,6 +497,13 @@ const schema = {
     canRead: ['guests'],
   },
 
+  lastCommentPromotedAt: {
+    type: Date,
+    optional: true,
+    hidden: true,
+    canRead: ['guests']
+  },
+
   tagRel: resolverOnlyField({
     type: "TagRel",
     graphQLtype: "TagRel",

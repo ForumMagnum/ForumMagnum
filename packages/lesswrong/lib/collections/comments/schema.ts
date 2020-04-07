@@ -248,6 +248,13 @@ const schema = {
       return (post && post.contents && post.contents.version) || "1.0.0"
     }
   },
+
+  promoted: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment']
+  },
   
   // Comments store a duplicate of their post's hideCommentKarma data. The
   // source of truth remains the hideCommentKarma field of the post. If this

@@ -70,9 +70,10 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly lastVisitedAt: Date,
   readonly isRead: boolean,
   readonly lastCommentedAt: Date,
+  readonly lastCommentPromotedAt: Date,
   readonly canonicalCollectionSlug: string,
   readonly curatedDate: Date,
-  readonly commentsLocked: boolean,
+  readonly comment  sLocked: boolean,
   readonly question: boolean,
   readonly hiddenRelatedQuestion: boolean,
   readonly originalPostRelationSourceId: string,
@@ -369,6 +370,7 @@ interface CommentsList { // fragment on Comments
   readonly moderatorHat: boolean,
   readonly nominatedForReview: string,
   readonly reviewingForReview: string,
+  readonly promoted: boolean,
 }
 
 interface CommentsList_contents extends RevisionDisplay { // fragment on Revisions
@@ -1473,6 +1475,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly reviewingForReview: string,
   readonly lastSubthreadActivity: Date,
   readonly postVersion: string,
+  readonly promoted: boolean,
   readonly hideKarma: boolean,
 }
 

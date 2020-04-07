@@ -45,6 +45,7 @@ registerFragment(`
     moderatorHat
     nominatedForReview
     reviewingForReview
+    promoted
   }
 `);
 

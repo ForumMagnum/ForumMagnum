@@ -364,6 +364,7 @@ interface DbPost extends DbObject {
   canonicalSource: string
   nominationCount2018: number
   reviewCount2018: number
+  lastCommentPromotedAt: Date
   tagRelevance: any /*{"definitions":[{}]}*/
   voteCount: number
   baseScore: number
@@ -571,6 +572,7 @@ interface DbComment extends DbObject {
   reviewingForReview: string
   lastSubthreadActivity: Date
   postVersion: string
+  promoted: boolean
   hideKarma: boolean
   legacy: boolean
   legacyId: string
