@@ -10,6 +10,7 @@ interface CollectionBase<T extends DbObject> {
   simpleSchema: any
   addField: any
   helpers: any
+  loader: any
   
   rawCollection: any
   checkAccess: any
