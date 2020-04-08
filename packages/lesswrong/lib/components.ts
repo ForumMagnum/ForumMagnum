@@ -175,6 +175,7 @@ importComponent("PostsItemNewCommentsWrapper", () => require('../components/post
 importComponent("PostsItemIcons", () => require('../components/posts/PostsItemIcons'));
 import '../components/posts/PostsPage';
 importComponent("SpreadsheetPage", () => require('../components/posts/SpreadsheetPage'));
+importComponent("PostsCompareRevisions", () => require('../components/posts/PostsCompareRevisions'));
 
 importComponent("PostsSingleSlug", () => require('../components/posts/PostsSingleSlug'));
 importComponent("PostsSingleRoute", () => require('../components/posts/PostsSingleRoute'));
