@@ -96,7 +96,7 @@ export function withSingle({
   });
 }
 
-export function useSingle({
+export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   collectionName, collection,
   fragmentName, fragment,
   extraVariables,
@@ -109,7 +109,7 @@ export function useSingle({
 }: {
   collectionName?: CollectionNameString,
   collection?: any,
-  fragmentName?: string,
+  fragmentName?: FragmentTypeName,
   fragment?: any,
   extraVariables?: Record<string,any>,
   fetchPolicy?: WatchQueryFetchPolicy,
@@ -118,7 +118,15 @@ export function useSingle({
   documentId: string,
   extraVariablesValues?: any,
   skip?: boolean,
-}) {
+}): {
+  document: FragmentTypes[FragmentTypeName]
+  loading: boolean,
+  error?: any,
+  refetch: any,
+  data: {
+    refetch: any,
+  },
+} {
   const query = getGraphQLQueryFromOptions({ extraVariables, extraQueries, collectionName, collection, fragment, fragmentName })
   const resolverName = getResolverNameFromOptions({ collectionName, collection })
   const { data, ...rest } = useQuery(query, {
