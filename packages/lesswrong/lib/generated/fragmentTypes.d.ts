@@ -39,11 +39,6 @@ interface PostsMinimumInfo { // fragment on Posts
   readonly draft: boolean,
   readonly hideCommentKarma: boolean,
   readonly af: boolean,
-  readonly contents: PostsMinimumInfo_contents,
-}
-
-interface PostsMinimumInfo_contents { // fragment on Revisions
-  readonly version: string,
 }
 
 interface PostsBase extends PostsMinimumInfo { // fragment on Posts
@@ -1386,6 +1381,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly name: string,
   readonly slug: string,
   readonly core: boolean,
+  readonly suggestedAsFilter: boolean,
   readonly postCount: number,
   readonly deleted: boolean,
 }
@@ -1410,6 +1406,7 @@ interface TagEditFragment { // fragment on Tags
   readonly name: string,
   readonly slug: string,
   readonly core: boolean,
+  readonly suggestedAsFilter: boolean,
   readonly postCount: number,
   readonly deleted: boolean,
   readonly description: RevisionEdit,
