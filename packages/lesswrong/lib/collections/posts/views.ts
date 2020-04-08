@@ -43,14 +43,14 @@ const filters: Record<string,any> = {
   "events": {
     isEvent: true
   },
-  "meta": {
+  "meta": { 
     meta: true
   },
   "untagged": {
-    tagRelevance: null
+    tagRelevance: {}
   },
   "tagged": {
-    tagRelevance: {$exists: true}
+    tagRelevance: {$ne: {}}
   },
   "includeMetaAndPersonal": {},
 }
