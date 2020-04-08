@@ -98,6 +98,7 @@ const ModerationGuidelinesBox = ({classes, post, recordEvent}: {
     documentId: post?._id,
     collection: Posts,
     fetchPolicy: "cache-first",
+    fragmentName: "PostsList",
   });
   
   if (!post)

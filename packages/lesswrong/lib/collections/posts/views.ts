@@ -17,7 +17,7 @@ export const MAX_LOW_KARMA_THRESHOLD = -1000
  * To avoid duplication of code, views with the same name, will reference the
  * corresponding filter
  */
-const filters: Record<string,any> = {
+export const filters: Record<string,any> = {
   "curated": {
     curatedDate: {$gt: new Date(0)}
   },
@@ -62,7 +62,7 @@ if (getSetting('forumType') === 'EAForum') filters.frontpage.meta = {$ne: true}
  * NB: Vulcan views overwrite sortings. If you are using a named view with a
  * sorting, do not try to supply your own.
  */
-const sortings = {
+export const sortings = {
   magic: {score: -1},
   top: {baseScore: -1},
   new: {postedAt: -1},
