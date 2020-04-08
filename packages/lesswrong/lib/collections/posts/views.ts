@@ -43,7 +43,7 @@ const filters: Record<string,any> = {
   "events": {
     isEvent: true
   },
-  "meta": { 
+  "meta": {
     meta: true
   },
   "untagged": {
