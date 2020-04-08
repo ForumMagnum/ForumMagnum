@@ -288,3 +288,42 @@ addStaticRoute('/featured', (params, req, res, next) => {
 addStaticRoute('/recentComments', (params, req, res, next) => {
   makeRedirect(res, '/allComments');
 })
+
+if (getSetting('forumType') === "AlignmentForum") {
+  addStaticRoute('/newcomments', (params, req, res, next) => {
+    makeRedirect(res, '/allComments');
+  })
+  
+  addStaticRoute('/how-to-contribute', (params, req, res, next) => {
+    makeRedirect(res, '/posts/FoiiRDC3EhjHx7ayY/introducing-the-ai-alignment-forum-faq');
+  })
+  
+  addStaticRoute('/submitted', (params, req, res, next) => {
+    makeRedirect(res, `/users/${params.query?.id}`);
+  })
+  
+  addStaticRoute('/threads', (params, req, res, next) => {
+    makeRedirect(res, `/users/${params.query?.id}`);
+  })
+  
+  addStaticRoute('/user', (params, req, res, next) => {
+    makeRedirect(res, `/users/${params.query?.id}`);
+  })
+  
+  addStaticRoute('/submit', (params, req, res, next) => {
+    makeRedirect(res, `/newPost`);
+  })
+  
+  addStaticRoute('/rss', (params, req, res, next) => {
+    makeRedirect(res, `/feed.xml`);
+  })
+  
+  addStaticRoute('/drafts', (params, req, res, next) => {
+    makeRedirect(res, `/account`);
+  })
+  
+  addStaticRoute('/saved', (params, req, res, next) => {
+    makeRedirect(res, `/account`);
+  })
+}
+
