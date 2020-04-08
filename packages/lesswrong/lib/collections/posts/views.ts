@@ -286,6 +286,12 @@ ensureIndex(Posts,
   }
 );
 ensureIndex(Posts,
+  augmentForDefaultView({"tagRelevance.tNsqhzTibgGJKPEWB": 1, question: 1}),
+  {
+    name: "posts.coronavirus_questions"
+  }
+);
+ensureIndex(Posts,
   augmentForDefaultView({ afSticky:-1, score:-1 }),
   {
     name: "posts.afSticky_score",
