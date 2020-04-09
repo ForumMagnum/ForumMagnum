@@ -200,7 +200,6 @@ const getRecommendedPosts = async ({count, algorithm, currentUser}) => {
   const scoreFn = post => {
     const sectionModifier = algorithm[getModifierName(post)]
     const weight = sectionModifier + Math.pow(post.baseScore - algorithm.scoreOffset, algorithm.scoreExponent)
-    console.log("weight", sectionModifier, weight)
     return Math.max(0, weight);
   }
 
