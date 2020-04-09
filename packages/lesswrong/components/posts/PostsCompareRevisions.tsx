@@ -53,7 +53,7 @@ const PostsCompareRevisions = ({ classes }: {
   const { SingleColumnSection, Loading, ContentItemBody } = Components;
   
   return <SingleColumnSection>
-    {postAfter && <h1>{postAfter.title</h1>}
+    {postAfter && <h1>{postAfter.title}</h1>}
     
     <p>You are comparing revision {versionBefore} to revision {versionAfter}</p>
     

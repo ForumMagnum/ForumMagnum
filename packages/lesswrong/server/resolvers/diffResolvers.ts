@@ -1,5 +1,5 @@
 import { addGraphQLResolvers, addGraphQLQuery } from '../../lib/vulcan-lib/graphql';
-import { diff } from '../../lib/vendor/node-htmldiff/htmldiff';
+import { diff } from '../vendor/node-htmldiff/htmldiff';
 import { Utils } from '../vulcan-lib';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { sanitize } from '../vulcan-lib/utils';
