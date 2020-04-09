@@ -1,8 +1,8 @@
 import Users from '../users/collection';
 import { foreignKeyField, resolverOnlyField, denormalizedField } from '../../../lib/utils/schemaUtils';
 import { Posts } from '../posts/collection'
-import { Comments } from './collection';
 import { schemaDefaultValue } from '../../collectionUtils';
+import { Utils } from '../../vulcan-lib';
 
 const schema = {
   // The `_id` of the parent comment, if there is one
@@ -271,9 +271,13 @@ const schema = {
     hidden: true,
     onUpdate: async ({data, currentUser, document, oldDocument}) => {
       if (data?.promoted && !oldDocument.promoted) {
-        Posts.update(document.postId, {
-          $set: {lastCommentPromotedAt: new Date()},
-        });
+        Utils.updateMutator({
+          collection: Posts,
+          selector: {_id:document.postId},
+          data: { lastCommentPromotedAt: new Date() },
+          currentUser,
+          validate: false
+        })
         return currentUser._id
       }
     }    
