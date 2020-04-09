@@ -65,7 +65,7 @@ const PostsList2 = ({
   classes,
   dense,
   defaultToShowUnreadComments,
-  itemsPerPage=50
+  itemsPerPage=25
 }: {
   children?: React.ReactNode,
   terms?: any,
