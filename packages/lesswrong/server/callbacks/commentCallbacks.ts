@@ -416,15 +416,3 @@ async function updateTopLevelCommentLastCommentedAt (comment) {
 addCallback("comment.create.after", updateTopLevelCommentLastCommentedAt)
 
 addCallback("comment.create.after", newDocumentMaybeTriggerReview)
-
-
-async function updateLastCommentPromotedAt (comment, {oldDocument}) {
-  if (comment.promoted && !oldDocument.promoted) {
-    Posts.update(comment.postId, {
-      $set: {lastCommentPromotedAt: new Date()},
-    });
-  }
-  return comment
-}
-
-addCallback("comment.update.after", updateLastCommentPromotedAt)

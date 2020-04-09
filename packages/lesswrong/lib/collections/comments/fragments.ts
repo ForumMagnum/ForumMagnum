@@ -46,6 +46,7 @@ registerFragment(`
     nominatedForReview
     reviewingForReview
     promoted
+    promotedByUserId
   }
 `);
 

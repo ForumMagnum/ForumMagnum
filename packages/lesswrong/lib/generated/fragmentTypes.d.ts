@@ -371,6 +371,7 @@ interface CommentsList { // fragment on Comments
   readonly nominatedForReview: string,
   readonly reviewingForReview: string,
   readonly promoted: boolean,
+  readonly promotedByUserId: string,
 }
 
 interface CommentsList_contents extends RevisionDisplay { // fragment on Revisions
@@ -1389,6 +1390,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly name: string,
   readonly slug: string,
   readonly core: boolean,
+  readonly suggestedAsFilter: boolean,
   readonly postCount: number,
   readonly deleted: boolean,
 }
@@ -1413,6 +1415,7 @@ interface TagEditFragment { // fragment on Tags
   readonly name: string,
   readonly slug: string,
   readonly core: boolean,
+  readonly suggestedAsFilter: boolean,
   readonly postCount: number,
   readonly deleted: boolean,
   readonly description: RevisionEdit,
@@ -1477,6 +1480,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly lastSubthreadActivity: Date,
   readonly postVersion: string,
   readonly promoted: boolean,
+  readonly promotedByUserId: string,
   readonly hideKarma: boolean,
 }
 

@@ -1,6 +1,7 @@
 import Users from '../users/collection';
 import { foreignKeyField, resolverOnlyField, denormalizedField } from '../../../lib/utils/schemaUtils';
 import { Posts } from '../posts/collection'
+import { Comments } from './collection';
 import { schemaDefaultValue } from '../../collectionUtils';
 
 const schema = {
@@ -253,7 +254,29 @@ const schema = {
     type: Boolean,
     optional: true,
     canRead: ['guests'],
-    canUpdate: ['admins', 'sunshineRegiment']
+    canUpdate: ['admins', 'sunshineRegiment'],
+    onUpdate: async ({data, currentUser, document, oldDocument}) => {
+      if (data?.promoted && !oldDocument.promoted) {
+        Posts.update(document.postId, {
+          $set: {lastCommentPromotedAt: new Date()},
+        });
+        Comments.update(document._id, { $set: { promotedByUserId: currentUser._id}})
+      }
+    }    
+  },
+
+  promotedByUserId: {
+    ...foreignKeyField({
+      idFieldName: "promotedByUserId",
+      resolverName: "promotedByUser",
+      collectionName: "Users",
+      type: "User"
+    }),
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    hidden: true,
   },
   
   // Comments store a duplicate of their post's hideCommentKarma data. The
