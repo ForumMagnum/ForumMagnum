@@ -14,7 +14,8 @@ import EditIcon from '@material-ui/icons/Edit'
 import WarningIcon from '@material-ui/icons/Warning'
 import qs from 'qs'
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema'
-
+import { withDialog } from '../../common/withDialog';
+import { tagStyle } from '../../tagging/FooterTag';
 
 const metaName = getSetting('forumType') === 'EAForum' ? 'Community' : 'Meta'
 
@@ -38,13 +39,16 @@ const styles = theme => ({
   promoteWarning: {
     fontSize: 20,
     marginLeft: 4,
+  },
+  editTags: {
+    ...tagStyle(theme)
   }
 })
 
 interface ExternalProps {
   post: PostsList,
 }
-interface PostActionsProps extends ExternalProps, WithUserProps, WithUpdateUserProps, WithUpdatePostProps, WithStylesProps {
+interface PostActionsProps extends ExternalProps, WithUserProps, WithUpdateUserProps, WithUpdatePostProps, WithStylesProps, WithDialogProps {
   markAsReadOrUnread: any,
   setAlignmentPostMutation: any,
 }
@@ -138,9 +142,19 @@ class PostActions extends Component<PostActionsProps,{}> {
     })
   }
 
+  handleOpenTagDialog = async () => {
+    const { post, openDialog } = this.props
+    openDialog({
+      componentName: "EditTagsDialog",
+      componentProps: {
+        post
+      }
+    });
+  }
+
   render() {
     const { classes, post, currentUser } = this.props
-    const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo } = Components
+    const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo, FooterTagList } = Components
     const postAuthor = post.user;
     
     return (
@@ -194,6 +208,13 @@ class PostActions extends Component<PostActionsProps,{}> {
         <BookmarkButton post={post} menuItem/>
 
         <ReportPostMenuItem post={post}/>
+        { Users.canDo(currentUser, "posts.edit.all") &&
+          <div onClick={this.handleOpenTagDialog}>
+            <MenuItem>
+              <div className={classes.editTags}>Edit Tags</div>
+            </MenuItem>
+          </div>
+        }
         { post.isRead
           ? <div onClick={this.handleMarkAsUnread}>
               <MenuItem>
@@ -286,6 +307,7 @@ const PostActionsComponent = registerComponent<ExternalProps>('PostActions', Pos
   styles,
   hocs: [
     withUser,
+    withDialog,
     withUpdate({
       collection: Posts,
       fragmentName: 'PostsList',
