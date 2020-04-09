@@ -95,6 +95,7 @@ registerFragment(`
     hideIntercom
     hideNavigationSidebar
     currentFrontpageFilter
+    frontpageFilterSettings
     allPostsTimeframe
     allPostsSorting
     allPostsFilter
@@ -480,6 +481,7 @@ registerFragment(`
     hideIntercom
     commentSorting
     currentFrontpageFilter
+    frontpageFilterSettings
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
     noSingleLineComments

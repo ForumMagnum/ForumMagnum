@@ -4,10 +4,10 @@ import { throwError } from './errors';
 
 export const sanitizeAllowedTags = [
   'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul',
-  'ol', 'nl', 'li', 'b', 'i', 'u', 'strong', 'em', 'strike',
+  'ol', 'nl', 'li', 'b', 'i', 'u', 'strong', 'em', 'strike', 's',
   'code', 'hr', 'br', 'div', 'table', 'thead', 'caption',
   'tbody', 'tr', 'th', 'td', 'pre', 'img', 'figure', 'figcaption',
-  'span', 'sub', 'sup'
+  'span', 'sub', 'sup',
 ]
 
 export const sanitize = function(s) {

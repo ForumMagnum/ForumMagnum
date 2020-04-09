@@ -1,3 +1,4 @@
+/* eslint-disable no-tabs */
 /**
  * @license Copyright (c) 2003-2019, CKSource - Frederico Knabben. All rights reserved.
  * This file is licensed under the terms of the MIT License (see LICENSE.md).
@@ -12,7 +13,6 @@ import CKFinder from '@ckeditor/ckeditor5-ckfinder/src/ckfinder';
 import Essentials from '@ckeditor/ckeditor5-essentials/src/essentials';
 import FontFamily from '@ckeditor/ckeditor5-font/src/fontfamily';
 import FontSize from '@ckeditor/ckeditor5-font/src/fontsize';
-import FontColor from '@ckeditor/ckeditor5-font/src/fontcolor';
 import Heading from '@ckeditor/ckeditor5-heading/src/heading';
 import HorizontalLine from '@ckeditor/ckeditor5-horizontal-line/src/horizontalline';
 import EasyImage from '@ckeditor/ckeditor5-easy-image/src/easyimage';
@@ -44,6 +44,8 @@ import UploadAdapter from '@ckeditor/ckeditor5-adapter-ckfinder/src/uploadadapte
 import BlockToolbar from '@ckeditor/ckeditor5-ui/src/toolbar/block/blocktoolbar';
 import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave';
 import Watchdog from '@ckeditor/ckeditor5-watchdog/src/watchdog';
+// Commented out because of competing MathJax bug with Draft-JS
+// import Mathematics from './ckeditor5-math/math';
 
 // import MathpreviewPlugin from 'ckeditor5-math-preview/src/mathpreview';
 // current version of MathpreviewPlugin (1.1.3) breaks ckeditor
@@ -81,7 +83,6 @@ const postEditorPlugins = [
 	Essentials,
 	FontFamily,
 	FontSize,
-	FontColor,
 	Heading,
 	HorizontalLine,
 	Image,
@@ -107,7 +108,7 @@ const postEditorPlugins = [
 	TableToolbar,
 	Underline,
 	UploadAdapter,
-	// MathpreviewPlugin
+	// Mathematics
 ];
 
 PostEditor.builtinPlugins = [
@@ -126,6 +127,7 @@ const postEditorConfig = {
 		'imageUpload',
 		'insertTable',
 		'horizontalLine',
+		'mathDisplay'
 		// 'mediaEmbed',
 	],
 	toolbar: [
@@ -146,6 +148,7 @@ const postEditorConfig = {
 		'|',
 		'trackChanges',
 		'comment',
+		'math'
 	],
 	image: {
 		toolbar: [
@@ -162,6 +165,12 @@ const postEditorConfig = {
 		],
 		tableToolbar: [ 'comment' ]
 	},
+	math: {
+		engine: 'mathjax',
+		outputType: 'span',
+		forceOutputType: true,
+		enablePreview: true
+	}
 	// mediaEmbed: {
 	// 	toolbar: [ 'comment' ]
 	// },
@@ -202,7 +211,7 @@ CommentEditor.builtinPlugins = [
 	Table,
 	Underline,
 	UploadAdapter,
-	// MathpreviewPlugin
+	// Mathematics
 ];
 
 CommentEditor.defaultConfig = {
@@ -218,11 +227,19 @@ CommentEditor.defaultConfig = {
 		'blockQuote',
 		'bulletedList',
 		'numberedList',
+		'|',
+		'math'
 	],
 	image: {
 		toolbar: [
 			'imageTextAlternative'
 		]
+	},
+	math: {
+		engine: 'mathjax',
+		outputType: 'span',
+		forceOutputType: true,
+		enablePreview: true
 	},
 	heading: headingOptions,
 	table: {

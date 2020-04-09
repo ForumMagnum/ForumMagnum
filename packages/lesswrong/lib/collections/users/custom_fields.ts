@@ -4,6 +4,7 @@ import { getSetting, Utils } from '../../vulcan-lib';
 import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation, accessFilterMultiple } from '../../utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable'
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
+import { defaultFilterSettings } from '../../filterSettings';
 import SimpleSchema from 'simpl-schema'
 import * as _ from 'underscore';
 
@@ -285,6 +286,16 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: Users.owns,
     hidden: true,
+  },
+  frontpageFilterSettings: {
+    type: Object,
+    blackbox: true,
+    optional: true,
+    hidden: true,
+    canRead: Users.owns,
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: Users.owns,
+    ...schemaDefaultValue(defaultFilterSettings),
   },
   allPostsTimeframe: {
     type: String,

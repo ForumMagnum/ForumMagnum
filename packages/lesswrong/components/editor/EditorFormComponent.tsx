@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components, getSetting } from '../../lib/vulcan-lib';
 import Users from '../../lib/collections/users/collection';
-import { editorStyles, postBodyStyles, postHighlightStyles, commentBodyStyles } from '../../themes/stylePiping'
+import { editorStyles, postBodyStyles, answerStyles, commentBodyStyles } from '../../themes/stylePiping'
 import Typography from '@material-ui/core/Typography';
 import withUser from '../common/withUser';
 import classNames from 'classnames';
@@ -38,7 +38,7 @@ const styles = theme => ({
   },
 
   answerStyles: {
-    ...editorStyles(theme, postHighlightStyles),
+    ...editorStyles(theme, answerStyles),
     cursor: "text",
     maxWidth:620,
     '& li .public-DraftStyleDefault-block': {

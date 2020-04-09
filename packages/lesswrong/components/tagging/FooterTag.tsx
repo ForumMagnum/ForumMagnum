@@ -8,34 +8,26 @@ const styles = theme => ({
     marginRight: 4,
     paddingTop: 5,
     paddingBottom: 5,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    borderRadius: 10,
     ...theme.typography.commentStyle,
     "&:hover": {
       opacity: 1
     },
   },
   score: {
-    display: "inline-block",
-    paddingLeft: 10,
-    paddingRight: 6,
+    color: 'rgba(0,0,0,0.7)',
     paddingTop: 5,
-    paddingBottom: 5,
-    background: "rgba(100,170,110,1)",
-    borderTopLeftRadius: 14,
-    borderBottomLeftRadius: 14,
-    color: "white",
-    fontWeight: 400,
-    border: "1px solid #aaa",
+    paddingRight: 7,
+    paddingBottom: 5
   },
   name: {
-    display: "inline-block",
-    paddingLeft: 8,
-    paddingRight: 10,
+    display: 'inlineBlock',
     paddingTop: 5,
+    borderLeft: 'none',
+    paddingLeft: 8,
+    paddingRight: 5,
     paddingBottom: 5,
-    border: "1px solid #aaa",
-    borderTopRightRadius: 14,
-    borderBottomRightRadius: 14,
-    borderLeft: "none"
   },
   hovercard: {
   },
@@ -50,9 +42,9 @@ interface FooterTagProps extends ExternalProps, WithHoverProps, WithStylesProps 
 
 const FooterTag = ({tagRel, tag, hover, anchorEl, classes}) => {
   return (<span className={classes.root}>
-    <Link to={`/tag/${tag.slug}`} className={classes.root}>
-      <span className={classes.score}>{tagRel.baseScore}</span>
+    <Link to={`/tag/${tag.slug}`}>
       <span className={classes.name}>{tag.name}</span>
+      <span className={classes.score}>{tagRel.baseScore}</span>
     </Link>
     <Components.PopperCard open={hover} anchorEl={anchorEl}>
       <div className={classes.hovercard}>

@@ -5,8 +5,7 @@ import { markdownToHtmlNoLaTeX, dataToMarkdown } from '../editor/make_editable_c
 import { highlightFromHTML, truncate } from '../../lib/editor/ellipsize';
 import { addFieldsDict } from '../../lib/utils/schemaUtils'
 import { JSDOM } from 'jsdom'
-import { sanitize } from '../vulcan-lib/utils';
-import { sanitizeAllowedTags } from '../vulcan-lib/utils';
+import { sanitize, sanitizeAllowedTags } from '../vulcan-lib/utils';
 import htmlToText from 'html-to-text'
 import sanitizeHtml from 'sanitize-html';
 import * as _ from 'underscore';

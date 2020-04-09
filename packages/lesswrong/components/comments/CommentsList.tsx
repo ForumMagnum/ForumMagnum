@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { Component } from 'react';
 import { FormattedMessage } from '../../lib/vulcan-i18n';
-import { Comments } from "../../lib/collections/comments";
 import { shallowEqual, shallowEqualExcept } from '../../lib/utils/componentUtils';
 import { Posts } from '../../lib/collections/posts';
 import withGlobalKeydown from '../common/withGlobalKeydown';

@@ -6,7 +6,9 @@ import { useTagBySlug } from './useTag';
 
 const styles = theme => ({
   card: {
-    padding: 16,
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingBottom: 8,
     width: 600,
   },
 });

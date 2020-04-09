@@ -32,6 +32,7 @@
     "@ckeditor/ckeditor5-basic-styles": "^16.0.0",
     "@ckeditor/ckeditor5-block-quote": "^16.0.0",
     "@ckeditor/ckeditor5-ckfinder": "^16.0.0",
+    "@ckeditor/ckeditor5-code-block": "^16.0.0",
     "@ckeditor/ckeditor5-comments": "^16.0.0",
     "@ckeditor/ckeditor5-core": "^16.0.0",
     "@ckeditor/ckeditor5-dev-utils": "^12.0.8",
@@ -42,7 +43,6 @@
     "@ckeditor/ckeditor5-font": "^16.0.0",
     "@ckeditor/ckeditor5-heading": "^16.0.0",
     "@ckeditor/ckeditor5-horizontal-line": "^16.0.0",
-    "@ckeditor/ckeditor5-code-block": "^16.0.0",
     "@ckeditor/ckeditor5-image": "^16.0.0",
     "@ckeditor/ckeditor5-indent": "^16.0.0",
     "@ckeditor/ckeditor5-link": "^16.0.0",
@@ -84,6 +84,7 @@
   },
   "scripts": {
     "build": "webpack --mode production",
+    "build-dev": "webpack --mode development --watch",
     "lint": "eslint --quiet '**/*.js'",
     "preversion": "npm run build; if [ -n \"$(git status src/ckeditor.js build/ --porcelain)\" ]; then git add -u src/ckeditor.js build/ && git commit -m 'Internal: Build.'; fi"
   },
@@ -95,5 +96,8 @@
   "eslintIgnore": [
     "build/**",
     "packages/**"
-  ]
+  ],
+  "dependencies": {
+    "ckeditor5-math": "^1.0.3"
+  }
 }

@@ -97,13 +97,20 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
       /> Show 'The LessWrong 2018 Review'
     </div>} */}
 
-    {/* disabled during 2018 Review */}
-    {(configName === "frontpage") && <div> 
+    {/* disabled during 2018 Review [and coronavirus]*/}
+    {/* {(configName === "frontpage") && <div> 
       <Checkbox
         checked={!settings.hideFrontpage}
         onChange={(ev, checked) => applyChange({ ...settings, hideFrontpage: !checked })}
       /> Show 'From the Archives' recommendations
-    </div>}
+    </div>} */}
+
+    <div> 
+      <Checkbox
+        checked={!settings.hideCoronavirus}
+        onChange={(ev, checked) => applyChange({ ...settings, hideCoronavirus: !checked })}
+      /> Show 'Coronavirus' recommendations
+    </div>
 
     <div>
       <Checkbox

@@ -263,30 +263,41 @@ export const commentBodyStyles = theme => {
 // be.
 export const emailBodyStyles = baseBodyStyles
 
-export const postHighlightStyles = theme => {
-  const postHighlightStyles = {
+const smallPostStyles = theme => ({
+  ...theme.typography.body2,
+  ...theme.typography.postStyle,
+  '& blockquote': {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
-    '& blockquote': {
-      ...theme.typography.body2,
-      ...theme.typography.postStyle,
-      '& > p': {
-        margin:0
-      },
+    '& > p': {
+      margin:0
     },
-    '& ul': {
-      paddingInlineStart: 30
-    },
-    '& li': {
-      ...theme.typography.body2,
-      ...theme.typography.postStyle,
-    },
+  },
+  '& ul': {
+    paddingInlineStart: 30
+  },
+  '& li': {
+    ...theme.typography.body2,
+    ...theme.typography.postStyle,
+  },
+})
+
+export const postHighlightStyles = theme => {
+  const postHighlightStyles = {
+    ...smallPostStyles(theme),
     '& h1, & h2, & h3': {
       ...theme.typography.body2,
       ...theme.typography.postStyle,
     },
   }
   return deepmerge(postBodyStyles(theme), postHighlightStyles, {isMergeableObject:isPlainObject})
+}
+
+export const answerStyles = theme => {
+  const answerStyles = {
+    ...smallPostStyles(theme)
+  }
+  return deepmerge(postBodyStyles(theme), answerStyles, {isMergeableObject:isPlainObject})
 }
 
 export const pBodyStyle = {
