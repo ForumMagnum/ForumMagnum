@@ -11,26 +11,29 @@ const uploadUrl = getSetting('ckEditor.uploadUrl', null)
 const CKCommentEditor = ({ data, onSave, onChange, onInit }) => {
   const ckEditorCloudConfigured = !!getSetting("ckEditor.webSocketUrl");
   
-  return <CKEditor
-      editor={ CommentEditor }
-      onInit={ editor => {
-          // Uncomment the line below and the import above to activate the debugger
-          // CKEditorInspector.attach(editor)
-          onInit(editor)
-      } }
-      onChange={onChange}
-      config={{
-        cloudServices: ckEditorCloudConfigured ? {
-          tokenUrl: generateTokenRequest(),
-          uploadUrl,
-        } : undefined,
-        autosave: {
-          save (editor) {
-            return onSave && onSave( editor.getData() )
-          }
-        },
-        initialData: data || ""
-      }}
-    />
+  return <div>
+      <CKEditor
+        editor={ CommentEditor }
+        onInit={ editor => {
+            // Uncomment the line below and the import above to activate the debugger
+            // CKEditorInspector.attach(editor)
+            if (onInit) onInit(editor)
+            return editor
+        } }
+        onChange={onChange}
+        config={{
+          cloudServices: ckEditorCloudConfigured ? {
+            tokenUrl: generateTokenRequest(),
+            uploadUrl,
+          } : undefined,
+          autosave: {
+            save (editor) {
+              return onSave && onSave( editor.getData() )
+            }
+          },
+          initialData: data || ""
+        }}
+      />
+    </div>
 }
 export default CKCommentEditor

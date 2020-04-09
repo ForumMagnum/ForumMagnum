@@ -233,6 +233,19 @@ const createLWTheme = (theme) => {
         selectMenu: {
           paddingLeft: spacingUnit
         }
+      },
+      MuiTableCell: {
+        body: {
+          ...body2FontSize,
+          ...typography.fontFamily,
+          paddingLeft: 16,
+          paddingRight: 16,
+          paddingTop: 12,
+          paddingBottom: 12,
+          marginTop: 0,
+          marginBottom: 0,
+          wordBreak: "normal",
+        }
       }
     }
   }

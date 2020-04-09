@@ -34,12 +34,14 @@ class SubscribeWidget extends Component<SubscribeWidgetProps,SubscribeWidgetStat
           { /* On very small screens, use shorter link text ("Subscribe (RSS)"
                instead of "Subscribe via RSS") to avoid wrapping */ }
           <Hidden smUp implementation="css">Subscribe (RSS)</Hidden>
-          <Hidden xsDown implementation="css">Subscribe via RSS</Hidden>
+          <Hidden xsDown implementation="css">Subscribe (RSS)</Hidden>
+          {/* todo: change back to "via RSS" */}
         </a>
         <SeparatorBullet/>
         <a onClick={ () => this.openDialog("email") }>
-          <Hidden smUp implementation="css">Subscribe (Email)</Hidden>
-          <Hidden xsDown implementation="css">Subscribe via Email</Hidden>
+          <Hidden smUp implementation="css">Subscribe (Email)</Hidden> 
+          <Hidden xsDown implementation="css">Subscribe (Email)</Hidden> 
+          {/* todo: change back to "via Email" */}
         </a>
         { dialogOpen && <Components.SubscribeDialog
           open={true}

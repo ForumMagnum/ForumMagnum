@@ -20,7 +20,7 @@ Comments.getAuthorName = function (comment) {
 // LW: Overwrite the original example-forum Comments.getPageUrl
 Comments.getPageUrl = function(comment, isAbsolute = false) {
   const post = Posts.findOne(comment.postId);
-  return `${Posts.getPageUrl(post, isAbsolute)}#${comment._id}`;
+  return `${Posts.getPageUrl(post, isAbsolute)}?commentId=${comment._id}`;
 };
 
 Comments.getPageUrlFromIds = function({postId, postSlug, commentId, permalink=true, isAbsolute=false}) {

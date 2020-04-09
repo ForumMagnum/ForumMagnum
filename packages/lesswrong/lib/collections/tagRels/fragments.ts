@@ -5,6 +5,7 @@ registerFragment(`
     _id
     baseScore
     afBaseScore
+    voteCount
     userId
     tagId
     tag {
