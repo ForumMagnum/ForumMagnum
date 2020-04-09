@@ -17,6 +17,7 @@ const CoronavirusFrontpageWidget = ({settings}) => {
   const samplingAlgorithm = {
     method: "sample",
     count: 3,
+    minimumBaseScore: 30,
     scoreOffset: 0,
     scoreExponent: 0,
     personalBlogpostModifier: 0,

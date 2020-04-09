@@ -100,7 +100,7 @@ const recommendablePostFilter = algorithm => {
     // Only consider recommending posts if they hit the minimum base score. This has a big
     // effect on the size of the recommendable-post set, which needs to not be
     // too big for performance reasons.
-    baseScore: {$gt: MINIMUM_BASE_SCORE},
+    baseScore: {$gt: algorithm.minimumBaseScore || MINIMUM_BASE_SCORE},
 
     ...getInclusionSelector(algorithm),
 
@@ -200,6 +200,7 @@ const getRecommendedPosts = async ({count, algorithm, currentUser}) => {
   const scoreFn = post => {
     const sectionModifier = algorithm[getModifierName(post)]
     const weight = sectionModifier + Math.pow(post.baseScore - algorithm.scoreOffset, algorithm.scoreExponent)
+    console.log("weight", sectionModifier, weight)
     return Math.max(0, weight);
   }
 
