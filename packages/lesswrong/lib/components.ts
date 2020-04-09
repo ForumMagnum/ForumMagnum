@@ -350,6 +350,7 @@ importComponent("FooterTagList", () => require('../components/tagging/FooterTagL
 importComponent("FooterTag", () => require('../components/tagging/FooterTag'));
 importComponent("NewTagPage", () => require('../components/tagging/NewTagPage'));
 importComponent("EditTagPage", () => require('../components/tagging/EditTagPage'));
+importComponent("EditTagsDialog", () => require('../components/tagging/EditTagsDialog'));
 importComponent("AllTagsPage", () => require('../components/tagging/AllTagsPage'));
 importComponent("TagFilterSettings", () => require('../components/tagging/TagFilterSettings'));
 importComponent("FilterMode", () => require('../components/tagging/FilterMode'));
