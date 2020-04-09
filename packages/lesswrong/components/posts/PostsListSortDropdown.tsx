@@ -41,8 +41,7 @@ const PostsListSortDropdown = ({classes, value}:{
   }
 
   return <div className={classes.root}>
-    Sorted by 
-    <span className={classes.selectMenu} onClick={e=>setAnchorEl(e.currentTarget)}>
+    Sorted by <span className={classes.selectMenu} onClick={e=>setAnchorEl(e.currentTarget)}>
       {newSortings[value]} <ArrowDropDownIcon className={classes.icon}/>
     </span>
     <Menu
