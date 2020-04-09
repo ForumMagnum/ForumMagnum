@@ -255,14 +255,6 @@ const schema = {
     optional: true,
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
-    onUpdate: async ({data, currentUser, document, oldDocument}) => {
-      if (data?.promoted && !oldDocument.promoted) {
-        Posts.update(document.postId, {
-          $set: {lastCommentPromotedAt: new Date()},
-        });
-        Comments.update(document._id, { $set: { promotedByUserId: currentUser._id}})
-      }
-    }    
   },
 
   promotedByUserId: {
@@ -277,6 +269,14 @@ const schema = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     hidden: true,
+    onUpdate: async ({data, currentUser, document, oldDocument}) => {
+      if (data?.promoted && !oldDocument.promoted) {
+        Posts.update(document.postId, {
+          $set: {lastCommentPromotedAt: new Date()},
+        });
+        return currentUser._id
+      }
+    }    
   },
   
   // Comments store a duplicate of their post's hideCommentKarma data. The
