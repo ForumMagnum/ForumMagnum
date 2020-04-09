@@ -46,6 +46,7 @@ registerFragment(`
     lastVisitedAt
     isRead
     lastCommentedAt
+    lastCommentPromotedAt
     canonicalCollectionSlug
     curatedDate
     commentsLocked

@@ -70,6 +70,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly lastVisitedAt: Date,
   readonly isRead: boolean,
   readonly lastCommentedAt: Date,
+  readonly lastCommentPromotedAt: Date,
   readonly canonicalCollectionSlug: string,
   readonly curatedDate: Date,
   readonly commentsLocked: boolean,
@@ -369,6 +370,8 @@ interface CommentsList { // fragment on Comments
   readonly moderatorHat: boolean,
   readonly nominatedForReview: string,
   readonly reviewingForReview: string,
+  readonly promoted: boolean,
+  readonly promotedByUserId: string,
 }
 
 interface CommentsList_contents extends RevisionDisplay { // fragment on Revisions
@@ -562,6 +565,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly canonicalSource: string,
   readonly nominationCount2018: number,
   readonly reviewCount2018: number,
+  readonly lastCommentPromotedAt: Date,
   readonly tagRelevance: any /*{"definitions":[{}]}*/,
 }
 
@@ -1386,6 +1390,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly name: string,
   readonly slug: string,
   readonly core: boolean,
+  readonly suggestedAsFilter: boolean,
   readonly postCount: number,
   readonly deleted: boolean,
 }
@@ -1410,6 +1415,7 @@ interface TagEditFragment { // fragment on Tags
   readonly name: string,
   readonly slug: string,
   readonly core: boolean,
+  readonly suggestedAsFilter: boolean,
   readonly postCount: number,
   readonly deleted: boolean,
   readonly description: RevisionEdit,
@@ -1473,6 +1479,8 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly reviewingForReview: string,
   readonly lastSubthreadActivity: Date,
   readonly postVersion: string,
+  readonly promoted: boolean,
+  readonly promotedByUserId: string,
   readonly hideKarma: boolean,
 }
 
