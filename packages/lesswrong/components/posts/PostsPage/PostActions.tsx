@@ -154,7 +154,7 @@ class PostActions extends Component<PostActionsProps,{}> {
 
   render() {
     const { classes, post, currentUser } = this.props
-    const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo, FooterTagList } = Components
+    const { MoveToDraft, BookmarkButton, SuggestCurated, SuggestAlignment, ReportPostMenuItem, DeleteDraft, SubscribeTo } = Components
     const postAuthor = post.user;
     
     return (
