@@ -46,6 +46,12 @@ export const filters: Record<string,any> = {
   "meta": {
     meta: true
   },
+  "untagged": {
+    tagRelevance: {}
+  },
+  "tagged": {
+    tagRelevance: {$ne: {}}
+  },
   "includeMetaAndPersonal": {},
 }
 if (getSetting('forumType') === 'EAForum') filters.frontpage.meta = {$ne: true}
