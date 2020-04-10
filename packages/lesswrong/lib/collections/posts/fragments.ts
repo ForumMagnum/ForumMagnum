@@ -135,6 +135,9 @@ registerFragment(`
       wordCount
       version
     }
+    bestAnswer {
+      ...CommentsList
+    }
     moderationGuidelines {
       ...RevisionDisplay
     }

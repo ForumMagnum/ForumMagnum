@@ -5,6 +5,7 @@ import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCoun
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
 import { TagRels } from "../tagRels/collection";
+import { Comments } from "../comments/collection";
 import { getWithLoader } from '../../loaders';
 
 const formGroups = {
@@ -536,6 +537,21 @@ const schema = {
     optional: true,
     hidden: true,
   },
+
+  bestAnswer: resolverOnlyField({
+    type: "Comment",
+    graphQLtype: "Comment",
+    viewableBy: ['guests'],
+    resolver: async (post) => {
+      if (post.question) {
+        if (post.lastCommentPromotedAt) {
+          return Comments.findOne({postId: post._id, answer: true, promoted: true}, {sort:{baseScore: -1}})
+        } else {
+          return Comments.findOne({postId: post._id, answer: true, baseScore: {$gt: 15}}, {sort:{baseScore: -1}})
+        }
+      }
+    }
+  }),
 };
 
 export default schema;
