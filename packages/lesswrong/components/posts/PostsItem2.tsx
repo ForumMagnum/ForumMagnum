@@ -83,14 +83,6 @@ export const styles = (theme) => ({
       marginRight: theme.spacing.unit
     }
   },
-  karmaUnread: {
-    textShadow: "0.4px 0.4px 0px rgba(0,0,0,.6)",
-    color: 'rgba(0,0,0,.6) !important',
-    [theme.breakpoints.down('xs')]: {
-      textShadow: "none",
-      color: theme.palette.grey[600]
-    }
-  },
   title: {
     minHeight: 26,
     flexGrow: 1,
@@ -102,7 +94,7 @@ export const styles = (theme) => ({
       position: "relative",
       top: 3,
     },
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       order:-1,
       height: "unset",
       maxWidth: "unset",
@@ -172,7 +164,7 @@ export const styles = (theme) => ({
     }
   },
   mobileSecondRowSpacer: {
-    [theme.breakpoints.up('md')]: {
+    [theme.breakpoints.up('sm')]: {
       display: "none",
     },
     flexGrow: 1,
@@ -450,7 +442,7 @@ const PostsItem2 = ({
                 [classes.withRelevanceVoting]: !!tagRel
               })}>
                 {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} post={post} />}
-                <PostsItem2MetaInfo className={classNames(classes.karma, {[classes.karmaUnread]: !isRead && userHasBoldPostItems(currentUser)})}>
+                <PostsItem2MetaInfo className={classes.karma}>
                   <PostsItemKarma post={post} read={isRead} />
                 </PostsItem2MetaInfo>
 
