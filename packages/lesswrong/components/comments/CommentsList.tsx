@@ -70,8 +70,11 @@ class CommentsListClass extends Component<CommentsListProps,CommentsListState> {
       return true;
     }
 
-    if(this.props.post==null || nextProps.post==null || this.props.post._id != nextProps.post._id ||
-      (this.props.post.contents && this.props.post.contents.version !== nextProps.post.contents && nextProps.post.contents.version))
+    if ((this.props.post==null) != (nextProps.post==null))
+      return true;
+    if (this.props.post && this.props.post._id != nextProps.post._id)
+      return true;
+    if ((this.props.post as any)?.contents?.version != (nextProps.post as any)?.contents?.version)
       return true;
 
     if(this.commentTreesDiffer(this.props.comments, nextProps.comments))

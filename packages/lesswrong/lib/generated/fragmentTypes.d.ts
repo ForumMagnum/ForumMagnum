@@ -39,11 +39,6 @@ interface PostsMinimumInfo { // fragment on Posts
   readonly draft: boolean,
   readonly hideCommentKarma: boolean,
   readonly af: boolean,
-  readonly contents: PostsMinimumInfo_contents,
-}
-
-interface PostsMinimumInfo_contents { // fragment on Revisions
-  readonly version: string,
 }
 
 interface PostsBase extends PostsMinimumInfo { // fragment on Posts

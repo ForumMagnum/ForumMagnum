@@ -158,7 +158,7 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
       return true;
     if(!shallowEqualExcept(this.props, nextProps, ["post"]))
       return true;
-    if ((nextProps.post && nextProps.post.contents && nextProps.post.contents.version) !== (this.props.post && this.props.post.contents && this.props.post.contents.version))
+    if (((nextProps.post as any)?.contents?.version) !== ((this.props.post as any)?.contents?.version))
       return true;
     return false;
   }
