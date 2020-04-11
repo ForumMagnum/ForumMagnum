@@ -454,7 +454,7 @@ const PostsItem2 = ({
                   <PostsItemKarma post={post} read={isRead} />
                 </PostsItem2MetaInfo>
 
-                <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading})}>
+                <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading || !!post.bestAnswer})}>
                   <AnalyticsTracker
                       eventType={"postItem"}
                       captureOnMount={(eventData) => eventData.capturePostItemOnMount}
@@ -469,6 +469,10 @@ const PostsItem2 = ({
                     />
                   </AnalyticsTracker>
                 </span>
+
+                {post.bestAnswer && <div classNames={classes.subtitle}>
+                  Top Answer by {post.bestAnswer.author}
+                </div>}
 
                 {(resumeReading?.sequence || resumeReading?.collection) &&
                   <div className={classes.subtitle}>
