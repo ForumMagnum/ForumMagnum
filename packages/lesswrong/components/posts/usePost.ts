@@ -1,15 +1,16 @@
 import { useMulti } from '../../lib/crud/withMulti';
 import { Posts } from '../../lib/collections/posts';
+import { ApolloError } from 'apollo-client';
 
 export const usePostBySlug = ({slug}: {slug: string}):
   {
-    post: PostsPage|null,
+    post: PostsPage,
     loading: false,
     error: null
   } | {
     post: null,
-    loading: true,
-    error: any
+    loading: boolean,
+    error: ApolloError|null,
   } => {
   const { results, loading, error } = useMulti({
     terms: {
@@ -33,20 +34,21 @@ export const usePostBySlug = ({slug}: {slug: string}):
   } else {
     return {
       post: null,
-      loading, error
+      loading,
+      error: error||null,
     }
   }
 }
 
 export const usePostByLegacyId = ({ legacyId }: {legacyId: string}):
   {
-    post: PostsPage|null,
+    post: PostsPage,
     loading: false,
     error: null
   } | {
     post: null,
-    loading: true,
-    error: any
+    loading: boolean,
+    error: ApolloError|null,
   } => {
   const { results, loading, error } = useMulti({
     terms: {
@@ -70,7 +72,8 @@ export const usePostByLegacyId = ({ legacyId }: {legacyId: string}):
   } else {
     return {
       post: null,
-      loading, error
+      loading,
+      error: error||null,
     }
   }
 }

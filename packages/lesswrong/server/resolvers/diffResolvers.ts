@@ -10,11 +10,12 @@ addGraphQLResolvers({
     async PostsDiff(root, {postId, beforeRev, afterRev}: { postId: string, beforeRev: string, afterRev: string }, context) {
       const {currentUser, Posts}: {currentUser: DbUser|null, Posts: CollectionBase<DbPost>} = context;
       const postUnfiltered: DbPost|null = await Posts.loader.load(postId);
-      if (!postUnfiltered) return null;
       
       // Check that the user has access to the post
       const post = Users.restrictViewableFields(currentUser, Posts, postUnfiltered);
-      if (!post) return null;
+      if (!post) {
+        throw new Error(`Could not find post: ${postId}`);
+      }
       
       // Load the revisions
       const beforeUnfiltered = await Revisions.findOne({
@@ -29,8 +30,12 @@ addGraphQLResolvers({
       });
       const before = Users.restrictViewableFields(currentUser, Revisions, beforeUnfiltered);
       const after = Users.restrictViewableFields(currentUser, Revisions, afterUnfiltered);
-      if (!before || !after)
-        return null;
+      if (!before || !beforeUnfiltered) {
+        throw new Error(`Could not find revision: ${beforeRev}`);
+      }
+      if (!after || !afterUnfiltered) {
+        throw new Error(`Could not find revision: ${afterRev}`);
+      }
       
       // Diff the revisions
       const diffHtmlUnsafe = diff(before.html, after.html);
