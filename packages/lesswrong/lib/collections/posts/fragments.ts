@@ -10,10 +10,6 @@ registerFragment(`
     draft
     hideCommentKarma
     af
-    
-    contents {
-      version
-    }
   }
 `);
 
