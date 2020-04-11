@@ -109,6 +109,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly nominationCount2018: number,
   readonly reviewCount2018: number,
   readonly group: PostsBase_group,
+  readonly bestAnswer: CommentsList,
 }
 
 interface PostsBase_group { // fragment on Localgroups
@@ -129,7 +130,6 @@ interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
 
 interface PostsList extends PostsBase, PostsAuthors { // fragment on Posts
   readonly contents: PostsList_contents,
-  readonly bestAnswer: CommentsList,
   readonly moderationGuidelines: RevisionDisplay,
   readonly customHighlight: PostsList_customHighlight,
 }

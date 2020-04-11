@@ -103,6 +103,9 @@ registerFragment(`
       _id
       name
     }
+    bestAnswer {
+      ...CommentsList
+    }
   }
 `);
 
@@ -130,9 +133,6 @@ registerFragment(`
       htmlHighlight
       wordCount
       version
-    }
-    bestAnswer {
-      ...CommentsList
     }
     moderationGuidelines {
       ...RevisionDisplay
