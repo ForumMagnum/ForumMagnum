@@ -103,6 +103,9 @@ registerFragment(`
       _id
       name
     }
+    bestAnswer {
+      ...CommentsList
+    }
   }
 `);
 
