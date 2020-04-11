@@ -180,6 +180,11 @@ Posts.getLastCommentedAt = (post) => {
   }
 }
 
+Posts.getLastCommentPromotedAt = (post) => {
+  return post.lastCommentPromotedAt;
+  // NOTE: doesn't yet have special casing for alignment forum
+}
+
 Posts.canEdit = (currentUser, post) => {
   return Users.owns(currentUser, post) || Users.canDo(currentUser, 'posts.edit.all')
 }

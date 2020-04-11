@@ -36,11 +36,11 @@ export const styles = (theme) => ({
   postsItem: {
     display: "flex",
     position: "relative",
-    paddingTop: 10,
-    paddingBottom: 10,
+    height: 46,
     alignItems: "center",
     flexWrap: "nowrap",
     [theme.breakpoints.down('sm')]: {
+      height: "unset",
       flexWrap: "wrap",
       paddingTop: theme.spacing.unit,
       paddingBottom: theme.spacing.unit,
@@ -402,6 +402,12 @@ const PostsItem2 = ({
     return compareVisitedAndCommentedAt(lastVisitedAt, lastCommentedAt)
   }
 
+  const hasNewPromotedComments = () => {
+    const lastVisitedAt = markedVisitedAt || post.lastVisitedAt
+    const lastCommentPromotedAt = Posts.getLastCommentPromotedAt(post)
+    return compareVisitedAndCommentedAt(lastVisitedAt, lastCommentPromotedAt)
+  }
+
   const hadUnreadComments = () => {
     const lastCommentedAt = Posts.getLastCommentedAt(post)
     return compareVisitedAndCommentedAt(post.lastVisitedAt, lastCommentedAt)
@@ -454,7 +460,7 @@ const PostsItem2 = ({
                   <PostsItemKarma post={post} read={isRead} />
                 </PostsItem2MetaInfo>
 
-                <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading || !!post.bestAnswer})}>
+                <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading})}>
                   <AnalyticsTracker
                       eventType={"postItem"}
                       captureOnMount={(eventData) => eventData.capturePostItemOnMount}
@@ -470,9 +476,6 @@ const PostsItem2 = ({
                   </AnalyticsTracker>
                 </span>
 
-                {post.bestAnswer && <div classNames={classes.subtitle}>
-                  Top Answer by {post.bestAnswer.author}
-                </div>}
 
                 {(resumeReading?.sequence || resumeReading?.collection) &&
                   <div className={classes.subtitle}>
@@ -515,6 +518,7 @@ const PostsItem2 = ({
                     post={post}
                     onClick={toggleComments}
                     unreadComments={hasUnreadComments()}
+                    newPromotedComments={hasNewPromotedComments()}
                   />
                 </div>}
 
