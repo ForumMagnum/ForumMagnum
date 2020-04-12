@@ -15,7 +15,7 @@ const styles = theme => ({
     display: "inline",
   },
   bestAnswerAuthor: {
-    fontSize: 12,
+    ...theme.typography.smallText,
     textAlign: "right"
   },
   bestAuthorIcon: {
