@@ -345,6 +345,16 @@ registerFragment(`
   }
 `)
 
+registerFragment(`
+  fragment PostsDetailsAndRevisionsList on Post {
+    ...PostsDetails
+    revisions {
+      version
+      editedAt
+    }
+  }
+`)
+
 
 registerFragment(`
   fragment PostsRecentDiscussion on Post {

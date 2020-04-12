@@ -303,6 +303,15 @@ interface PostsRevisionsList_revisions { // fragment on Revisions
   readonly editedAt: Date,
 }
 
+interface PostsDetailsAndRevisionsList extends PostsDetails { // fragment on Posts
+  readonly revisions: Array<PostsDetailsAndRevisionsList_revisions>,
+}
+
+interface PostsDetailsAndRevisionsList_revisions { // fragment on Revisions
+  readonly version: string,
+  readonly editedAt: Date,
+}
+
 interface PostsRecentDiscussion extends PostsList { // fragment on Posts
   readonly recentComments: Array<CommentsList>,
 }
@@ -1522,6 +1531,7 @@ interface FragmentTypes {
   PostsEdit: PostsEdit
   EditModerationGuidelines: EditModerationGuidelines
   PostsRevisionsList: PostsRevisionsList
+  PostsDetailsAndRevisionsList: PostsDetailsAndRevisionsList
   PostsRecentDiscussion: PostsRecentDiscussion
   UsersBannedFromPostsModerationLog: UsersBannedFromPostsModerationLog
   SunshinePostsList: SunshinePostsList

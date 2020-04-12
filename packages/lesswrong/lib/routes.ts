@@ -409,8 +409,14 @@ addRoute([
   },
   {
     name: 'posts.revisioncompare',
-    path: '/compare/:_id/:slug',
+    path: '/compare/post/:_id/:slug',
     componentName: 'PostsCompareRevisions',
+    titleComponentName: 'PostsPageHeaderTitle',
+  },
+  {
+    name: 'post.revisionsselect',
+    path: '/revisions/post/:_id/:slug',
+    componentName: 'PostsRevisionSelect',
     titleComponentName: 'PostsPageHeaderTitle',
   },
   {
