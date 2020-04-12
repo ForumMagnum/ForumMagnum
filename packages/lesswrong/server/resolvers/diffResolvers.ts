@@ -4,29 +4,41 @@ import { Utils } from '../vulcan-lib';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { sanitize } from '../vulcan-lib/utils';
 import Users from '../../lib/collections/users/collection';
+import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable';
 
 addGraphQLResolvers({
   Query: {
-    async PostsDiff(root, {postId, beforeRev, afterRev}: { postId: string, beforeRev: string, afterRev: string }, context) {
-      const {currentUser, Posts}: {currentUser: DbUser|null, Posts: CollectionBase<DbPost>} = context;
-      const postUnfiltered: DbPost|null = await Posts.loader.load(postId);
+    async RevisionsDiff(root, {collectionName, fieldName, id, beforeRev, afterRev}: { collectionName: string, fieldName: string, id: string, beforeRev: string, afterRev: string }, context): Promise<string> {
+      const {currentUser}: {currentUser: DbUser|null} = context;
       
-      // Check that the user has access to the post
-      const post = Users.restrictViewableFields(currentUser, Posts, postUnfiltered);
-      if (!post) {
-        throw new Error(`Could not find post: ${postId}`);
+      // Validate collectionName, fieldName
+      if (!editableCollections.has(collectionName)) {
+        throw new Error(`Invalid collection for RevisionsDiff: ${collectionName}`);
+      }
+      if (!editableCollectionsFields[collectionName].find(f=>f===fieldName)) {
+        throw new Error(`Invalid field for RevisionsDiff: ${collectionName}.${fieldName}`);
+      }
+      
+      const collection = context[collectionName];
+      
+      const documentUnfiltered = await collection.loader.load(id);
+      
+      // Check that the user has access to the document
+      const document = Users.restrictViewableFields(currentUser, collection, documentUnfiltered);
+      if (!document) {
+        throw new Error(`Could not find document: ${id}`);
       }
       
       // Load the revisions
       const beforeUnfiltered = await Revisions.findOne({
-        documentId: postId,
+        documentId: id,
         version: beforeRev,
-        fieldName: "contents",
+        fieldName: fieldName,
       });
       const afterUnfiltered = await Revisions.findOne({
-        documentId: postId,
+        documentId: id,
         version: afterRev,
-        fieldName: "contents",
+        fieldName: fieldName,
       });
       const before = Users.restrictViewableFields(currentUser, Revisions, beforeUnfiltered);
       const after = Users.restrictViewableFields(currentUser, Revisions, afterUnfiltered);
@@ -47,5 +59,5 @@ addGraphQLResolvers({
     }
   },
 });
-addGraphQLQuery('PostsDiff(postId: String, beforeRev: String, afterRev: String): String');
+addGraphQLQuery('RevisionsDiff(collectionName: String, fieldName: String, id: String, beforeRev: String, afterRev: String): String');
 

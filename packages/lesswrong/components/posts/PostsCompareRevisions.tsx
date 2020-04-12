@@ -34,15 +34,17 @@ const PostsCompareRevisions = ({ classes }: {
     fragmentName: "PostsBase",
   });
   
-  // Use the PostsDiff resolver to get a comparison between revisions (see
+  // Use the RevisionsDiff resolver to get a comparison between revisions (see
   // packages/lesswrong/server/resolvers/diffResolvers.ts).
   const { data: diffResult, loading: loadingDiff, error } = useQuery(gql`
-    query PostsDiff($postId: String, $beforeRev: String, $afterRev: String) {
-      PostsDiff(postId: $postId, beforeRev: $beforeRev, afterRev: $afterRev)
+    query RevisionsDiff($collectionName: String, $fieldName: String, $id: String, $beforeRev: String, $afterRev: String) {
+      RevisionsDiff(collectionName: $collectionName, fieldName: $fieldName, id: $id, beforeRev: $beforeRev, afterRev: $afterRev)
     }
   `, {
     variables: {
-      postId: postId,
+      collectionName: "Posts",
+      fieldName: "contents",
+      id: postId,
       beforeRev: versionBefore,
       afterRev: versionAfter,
     },
@@ -53,7 +55,7 @@ const PostsCompareRevisions = ({ classes }: {
     return <Components.ErrorMessage message={error.message}/>
   }
   
-  const diffResultHtml = diffResult?.PostsDiff;
+  const diffResultHtml = diffResult?.RevisionsDiff;
   
   const { SingleColumnSection, Loading, ContentItemBody } = Components;
   
