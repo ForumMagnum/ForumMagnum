@@ -76,6 +76,7 @@ importComponent("ErrorMessage", () => require('../components/common/ErrorMessage
 importComponent("CloudinaryImage", () => require('../components/common/CloudinaryImage'));
 importComponent("CloudinaryImage2", () => require('../components/common/CloudinaryImage2'));
 importComponent("ContentItemBody", () => require('../components/common/ContentItemBody'));
+importComponent("CompareRevisions", () => require('../components/common/CompareRevisions'));
 importComponent("LWPopper", () => require('../components/common/LWPopper'));
 importComponent("LWTooltip", () => require('../components/common/LWTooltip'));
 importComponent("PopperCard", () => require('../components/common/PopperCard'));
