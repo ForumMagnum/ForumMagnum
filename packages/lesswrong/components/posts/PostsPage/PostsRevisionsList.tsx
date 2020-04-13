@@ -5,6 +5,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { Posts } from '../../../lib/collections/posts/collection'
 import { QueryLink } from '../../../lib/reactRouterWrapper';
 import { useNavigation } from '../../../lib/routeUtil';
+import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 
 
 const styles = theme => ({

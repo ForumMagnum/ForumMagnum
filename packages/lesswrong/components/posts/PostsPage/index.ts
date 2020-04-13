@@ -2,6 +2,7 @@ import { importComponent } from '../../../lib/vulcan-lib';
 
 importComponent("PostsPage", () => require('./PostsPage'));
 importComponent("PostsPageDate", () => require('./PostsPageDate'));
+importComponent("PostsPagePostHeader", () => require('./PostsPagePostHeader'));
 importComponent("PostsPageWrapper", () => require('./PostsPageWrapper'));
 importComponent("PostsAuthors", () => require('./PostsAuthors'));
 importComponent("PostsPageTitle", () => require('./PostsPageTitle'));
