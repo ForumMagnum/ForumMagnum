@@ -86,13 +86,6 @@ const styles = theme => ({
       paddingLeft: 0
     }
   },
-  divider: {
-    marginTop: theme.spacing.unit*2,
-    marginBottom: theme.spacing.unit*2,
-    marginLeft:0,
-    borderTop: "solid 1px rgba(0,0,0,.1)",
-    borderLeft: 'transparent'
-  },
   postBody: {
     marginBottom: 50,
   },
@@ -190,8 +183,8 @@ class PostsPage extends Component<PostsPageProps> {
   render() {
     const { post, refetch, currentUser, classes, location: { query, params } } = this.props
     const { HeadTags, PostsVote, PostsPagePostHeader,
-      LinkPostMessage, PostsCommentsThread, PostsGroupDetails, BottomNavigation,
-      PostsTopSequencesNav, PostsPageEventData, ContentItemBody, PostsPageQuestionContent,
+      LinkPostMessage, PostsCommentsThread, BottomNavigation,
+      ContentItemBody, PostsPageQuestionContent,
       TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, CommentPermalink,
       PingbacksList, FooterTagList, AnalyticsInViewTracker } = Components
 
@@ -217,15 +210,7 @@ class PostsPage extends Component<PostsPageProps> {
               <AnalyticsContext pageSectionContext="postHeader"><div className={classes.title}>
                 <div className={classes.post}>
                   {commentId && <CommentPermalink documentId={commentId} post={post}/>}
-                  {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
-                  <AnalyticsContext pageSectionContext="topSequenceNavigation">
-                    <PostsTopSequencesNav post={post} />
-                  </AnalyticsContext>
-                  
                   <PostsPagePostHeader post={post}/>
-                  
-                  <hr className={classes.divider}/>
-                  {post.isEvent && <PostsPageEventData post={post}/>}
                 </div>
               </div></AnalyticsContext>
               <div className={classes.toc}>

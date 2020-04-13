@@ -74,6 +74,13 @@ const styles = theme => ({
   postType: {
     marginRight: SECONDARY_SPACING
   },
+  divider: {
+    marginTop: theme.spacing.unit*2,
+    marginBottom: theme.spacing.unit*2,
+    marginLeft:0,
+    borderTop: "solid 1px rgba(0,0,0,.1)",
+    borderLeft: 'transparent'
+  },
 });
 
 // On the server, use the 'url' library for parsing hostname out of feed URLs.
@@ -112,11 +119,15 @@ const getContentType = (post) => {
   return post.frontpageDate ? 'frontpage' : 'personal'
 }
 
+/// PostsPagePostHeader: The metadata block at the top of a post page, with
+/// title, author, voting, an actions menu, etc.
 const PostsPagePostHeader = ({post, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   classes: ClassesType,
 }) => {
-  const {PostsPageTitle, PostsAuthors, ContentType, LWTooltip, PostsPageDate, PostsPageActions, PostsVote} = Components;
+  const {PostsPageTitle, PostsAuthors, ContentType, LWTooltip, PostsPageDate,
+    PostsPageActions, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
+    PostsPageEventData} = Components;
   
   const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
   const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;
@@ -125,7 +136,12 @@ const PostsPagePostHeader = ({post, classes}: {
   const hasMajorRevision = major > 1
   const wordCount = post.contents?.wordCount || 0
   
-  return (
+  return <>
+    {post.groupId && <PostsGroupDetails post={post} documentId={post.groupId} />}
+    <AnalyticsContext pageSectionContext="topSequenceNavigation">
+      <PostsTopSequencesNav post={post} />
+    </AnalyticsContext>
+    
     <div className={classNames(classes.header, {[classes.eventHeader]:post.isEvent})}>
       <div className={classes.headerLeft}>
         <PostsPageTitle post={post} />
@@ -165,7 +181,10 @@ const PostsPagePostHeader = ({post, classes}: {
           />
       </div>
     </div>
-  )
+    
+    <hr className={classes.divider}/>
+    {post.isEvent && <PostsPageEventData post={post}/>}
+  </>
 }
 
 const PostsPagePostHeaderComponent = registerComponent(
