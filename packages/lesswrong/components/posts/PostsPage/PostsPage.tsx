@@ -74,25 +74,10 @@ const styles = theme => ({
     marginLeft: 'auto',
     marginRight: 'auto'
   },
-  recommendations: {
-    maxWidth: MAX_COLUMN_WIDTH,
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    // Hack to deal with the PostsItem action items being absolutely positioned
-    paddingRight: 18,
-    paddingLeft: 18,
-    [theme.breakpoints.down('sm')]: {
-      paddingRight: 0,
-      paddingLeft: 0
-    }
-  },
   postBody: {
     marginBottom: 50,
   },
   postContent: postBodyStyles(theme),
-  subtitle: {
-    ...theme.typography.subtitle,
-  },
   voteBottom: {
     position: 'relative',
     fontSize: 42,
@@ -101,9 +86,6 @@ const styles = theme => ({
     marginLeft: 'auto',
     marginRight: 'auto',
     marginBottom: 40
-  },
-  draft: {
-    color: theme.palette.secondary.light
   },
   bottomNavigation: {
     width: 640,
@@ -131,9 +113,6 @@ const styles = theme => ({
     display: 'flex',
     alignItems: 'center',
     fontSize: '1.4em'
-  },
-  bottomDate: {
-    color: theme.palette.grey[600]
   },
   reviewInfo: {
     textAlign: "center",

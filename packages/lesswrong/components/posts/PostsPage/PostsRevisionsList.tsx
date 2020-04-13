@@ -35,7 +35,7 @@ const PostsRevisionsList = ({post, classes}: {
   const MenuItemUntyped = MenuItem as any;
   
   return <React.Fragment>
-    {revisions.map(({editedAt, version, user}) =>
+    {revisions.map(({editedAt, version}) =>
       <MenuItemUntyped key={version} component={QueryLink} query={{revision: version}} merge>
         <span className={classes.version}>View v{version}</span> (<FormatDate date={editedAt}/>)
       </MenuItemUntyped>)}
