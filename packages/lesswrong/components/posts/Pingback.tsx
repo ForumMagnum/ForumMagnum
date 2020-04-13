@@ -38,7 +38,7 @@ const Pingback = ({classes, post}: {
       <PostsItem2MetaInfo className={classes.karma}>
         <PostsItemKarma post={post} />
       </PostsItem2MetaInfo>
-      <PostsTitle post={post} read={!!post.lastVisitedAt} showIcons={false}/>
+      <PostsTitle post={post} read={!!post.lastVisitedAt} showIcons={false} wrap/>
     </div>
   </span>
 }
