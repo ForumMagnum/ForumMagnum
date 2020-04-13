@@ -30,7 +30,7 @@ const LoadMore = ({ loadMore, count, totalCount, className=null, disabled=false,
   count?: number,
   totalCount?: number,
   // className: If provided, replaces the root style (default typography).
-  className?: string,
+  className?: string|null|undefined,
   // disabled: If true, this is grayed out (eg because everything's already loaded).
   disabled?: boolean,
   networkStatus?: any,

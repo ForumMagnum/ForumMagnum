@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import withHover from '../common/withHover';
+import { useHover } from '../common/withHover';
 import { KARMA_WIDTH } from './PostsItem2';
 
 const styles = theme => ({
@@ -13,22 +13,15 @@ const styles = theme => ({
   }
 });
 
-interface ExternalProps {
-  post: PostsBase,
-}
-interface PingbackProps extends WithStylesProps, WithHoverProps {
-}
-
-const Pingback = ({classes, post, hover, anchorEl, stopHover}: {
+const Pingback = ({classes, post}: {
   classes: ClassesType,
   post: PostsList,
-  hover?: any,
-  anchorEl?: any,
-  stopHover?: any,
 }) => {
   const { LWPopper, PostsItem2MetaInfo, PostsItemKarma, PostsTitle, PostsPreviewTooltip } = Components
+  const {eventHandlers, hover, anchorEl } = useHover();
 
-  return <div className={classes.root}>
+  return <span {...eventHandlers}>
+    <div className={classes.root}>
       <LWPopper 
         open={hover} 
         anchorEl={anchorEl} 
@@ -46,13 +39,11 @@ const Pingback = ({classes, post, hover, anchorEl, stopHover}: {
         <PostsItemKarma post={post} />
       </PostsItem2MetaInfo>
       <PostsTitle post={post} read={!!post.lastVisitedAt} showIcons={false}/>
-  </div>
+    </div>
+  </span>
 }
 
-const PingbackComponent = registerComponent<ExternalProps>("Pingback", Pingback, {
-  styles,
-  hocs: [withHover()]
-});
+const PingbackComponent = registerComponent("Pingback", Pingback, {styles});
 
 declare global {
   interface ComponentTypes {

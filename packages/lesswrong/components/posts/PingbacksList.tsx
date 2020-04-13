@@ -35,13 +35,13 @@ const PingbacksList = ({classes, postId}: {
       postId: postId,
     },
     collection: Posts,
-    fragmentName: "PostsBase",
+    fragmentName: "PostsList",
     limit: 5,
     enableTotal: false,
     ssr: true
   });
 
-  const { SectionSubtitle, Pingback, Loading, LWTooltip, LoadMore } = Components
+  const { Pingback, Loading, LWTooltip, LoadMore } = Components
 
   if (loading)
     return <Loading/>
