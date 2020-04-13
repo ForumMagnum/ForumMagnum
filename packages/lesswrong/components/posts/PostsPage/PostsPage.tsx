@@ -95,10 +95,6 @@ const styles = theme => ({
       maxWidth: MAX_COLUMN_WIDTH
     }
   },
-  contentNotice: {
-    ...theme.typography.contentNotice,
-    ...theme.typography.postStyle
-  },
   commentsSection: {
     minHeight: 'calc(70vh - 100px)',
     [theme.breakpoints.down('sm')]: {
@@ -114,15 +110,6 @@ const styles = theme => ({
     alignItems: 'center',
     fontSize: '1.4em'
   },
-  reviewInfo: {
-    textAlign: "center",
-    marginBottom: 32
-  },
-  reviewLabel: {
-    ...theme.typography.postStyle,
-    ...theme.typography.contentNotice,
-    marginBottom: theme.spacing.unit,
-  }
 })
 
 interface ExternalProps {
@@ -161,10 +148,9 @@ class PostsPage extends Component<PostsPageProps> {
 
   render() {
     const { post, refetch, currentUser, classes, location: { query, params } } = this.props
-    const { HeadTags, PostsVote, PostsPagePostHeader,
-      LinkPostMessage, PostsCommentsThread, BottomNavigation,
-      ContentItemBody, PostsPageQuestionContent,
-      TableOfContents, PostsRevisionMessage, AlignmentCrosspostMessage, CommentPermalink,
+    const { HeadTags, PostsVote, PostsPagePostHeader, PostBodyPrefix,
+      PostsCommentsThread, BottomNavigation, ContentItemBody,
+      PostsPageQuestionContent, TableOfContents, CommentPermalink,
       PingbacksList, FooterTagList, AnalyticsInViewTracker } = Components
 
     if (this.shouldHideAsSpam()) {
@@ -202,18 +188,8 @@ class PostsPage extends Component<PostsPageProps> {
                   <div className={classes.postBody}>
                     { post.isEvent && <Components.SmallMapPreview post={post} /> }
                     <div className={classes.postContent}>
-                      {/* disabled except during Review */}
-                      {/* {(post.nominationCount2018 >= 2) && <div className={classes.reviewInfo}>
-                        <div className={classes.reviewLabel}>
-                          This post has been nominated for the <HoverPreviewLink href="http://lesswrong.com/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review-posts-need-at-least-2-nominations" innerHTML={"2018 Review"}/>
-                        </div>
-                        <ReviewPostButton post={post} reviewMessage="Write a Review"/>
-                      </div>} */}
-
-                      <AlignmentCrosspostMessage post={post} />
-                      { post.authorIsUnreviewed && !post.draft && <div className={classes.contentNotice}>This post is awaiting moderator approval</div>}
-                      <LinkPostMessage post={post} />
-                      {query.revision && <PostsRevisionMessage post={post} />}
+                      <PostBodyPrefix post={post} query={query}/>
+                      
                       <AnalyticsContext pageSectionContext="postBody">
                         { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
                       </AnalyticsContext>
