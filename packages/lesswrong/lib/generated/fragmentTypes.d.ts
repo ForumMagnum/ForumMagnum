@@ -65,6 +65,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly lastVisitedAt: Date,
   readonly isRead: boolean,
   readonly lastCommentedAt: Date,
+  readonly lastCommentPromotedAt: Date,
   readonly canonicalCollectionSlug: string,
   readonly curatedDate: Date,
   readonly commentsLocked: boolean,
@@ -108,6 +109,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly nominationCount2018: number,
   readonly reviewCount2018: number,
   readonly group: PostsBase_group,
+  readonly bestAnswer: CommentsList,
 }
 
 interface PostsBase_group { // fragment on Localgroups
@@ -373,6 +375,8 @@ interface CommentsList { // fragment on Comments
   readonly moderatorHat: boolean,
   readonly nominatedForReview: string,
   readonly reviewingForReview: string,
+  readonly promoted: boolean,
+  readonly promotedByUserId: string,
 }
 
 interface CommentsList_contents extends RevisionDisplay { // fragment on Revisions
@@ -536,6 +540,32 @@ interface TagRelsDefaultFragment { // fragment on TagRels
   readonly afBaseScore: number,
 }
 
+interface CommentsDefaultFragment { // fragment on Comments
+  readonly parentCommentId: string,
+  readonly topLevelCommentId: string,
+  readonly createdAt: Date,
+  readonly postedAt: Date,
+  readonly author: string,
+  readonly postId: string,
+  readonly userId: string,
+  readonly isDeleted: boolean,
+  readonly userIP: string,
+  readonly userAgent: string,
+  readonly referrer: string,
+  readonly authorIsUnreviewed: boolean,
+  readonly answer: boolean,
+  readonly parentAnswerId: string,
+  readonly chosenAnswer: boolean,
+  readonly shortform: boolean,
+  readonly nominatedForReview: string,
+  readonly reviewingForReview: string,
+  readonly lastSubthreadActivity: Date,
+  readonly postVersion: string,
+  readonly promoted: boolean,
+  readonly promotedByUserId: string,
+  readonly hideKarma: boolean,
+}
+
 interface PostsDefaultFragment { // fragment on Posts
   readonly createdAt: Date,
   readonly postedAt: Date,
@@ -566,6 +596,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly canonicalSource: string,
   readonly nominationCount2018: number,
   readonly reviewCount2018: number,
+  readonly lastCommentPromotedAt: Date,
   readonly tagRelevance: any /*{"definitions":[{}]}*/,
 }
 
@@ -1458,30 +1489,6 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly plaintextMainText: string,
 }
 
-interface CommentsDefaultFragment { // fragment on Comments
-  readonly parentCommentId: string,
-  readonly topLevelCommentId: string,
-  readonly createdAt: Date,
-  readonly postedAt: Date,
-  readonly author: string,
-  readonly postId: string,
-  readonly userId: string,
-  readonly isDeleted: boolean,
-  readonly userIP: string,
-  readonly userAgent: string,
-  readonly referrer: string,
-  readonly authorIsUnreviewed: boolean,
-  readonly answer: boolean,
-  readonly parentAnswerId: string,
-  readonly chosenAnswer: boolean,
-  readonly shortform: boolean,
-  readonly nominatedForReview: string,
-  readonly reviewingForReview: string,
-  readonly lastSubthreadActivity: Date,
-  readonly postVersion: string,
-  readonly hideKarma: boolean,
-}
-
 interface NewRelatedPostRel { // fragment on PostRelations
   readonly _id: string,
   readonly type: string,
@@ -1553,6 +1560,7 @@ interface FragmentTypes {
   SequencesDefaultFragment: SequencesDefaultFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
   TagRelsDefaultFragment: TagRelsDefaultFragment
+  CommentsDefaultFragment: CommentsDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
   ChaptersDefaultFragment: ChaptersDefaultFragment
   BooksDefaultFragment: BooksDefaultFragment
@@ -1618,11 +1626,10 @@ interface FragmentTypes {
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
   SubscriptionState: SubscriptionState
   RevisionsDefaultFragment: RevisionsDefaultFragment
-  CommentsDefaultFragment: CommentsDefaultFragment
   NewRelatedPostRel: NewRelatedPostRel
   ChildRelatedPostRelList: ChildRelatedPostRelList
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
-type CollectionNameString = "Users"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"DatabaseMetadata"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"TagRels"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"Tags"|"Subscriptions"|"Revisions"|"Comments"|"LegacyData"|"EmailTokens"
+type CollectionNameString = "Users"|"Votes"|"Notifications"|"Conversations"|"Messages"|"RSSFeeds"|"Reports"|"LWEvents"|"DatabaseMetadata"|"Migrations"|"DebouncerEvents"|"ReadStatuses"|"Bans"|"Sequences"|"PostRelations"|"TagRels"|"Comments"|"Posts"|"Chapters"|"Books"|"Collections"|"ReviewVotes"|"Localgroups"|"Tags"|"Subscriptions"|"Revisions"|"LegacyData"|"EmailTokens"
 
