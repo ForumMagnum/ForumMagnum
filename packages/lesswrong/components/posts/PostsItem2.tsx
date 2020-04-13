@@ -349,7 +349,7 @@ const PostsItem2 = ({
   classes,
 }: {
   post: PostsList,
-  tagRel?: any,
+  tagRel?: WithVoteTagRel|null,
   defaultToShowComments?: boolean,
   sequenceId?: string,
   chapter?: any,

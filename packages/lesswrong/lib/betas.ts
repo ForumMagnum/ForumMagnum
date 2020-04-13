@@ -19,5 +19,7 @@ const disabled = (user) => false; // eslint-disable-line no-unused-vars
 
 export const userHasCkEditor = adminOnly;
 export const userCanManageTags = moderatorOnly;
+export const userCanCreateTags = moderatorOnly;
+export const userCanUseTags = shippedFeature;
 export const userHasBoldPostItems = disabled
 export const userHasEAHomeHandbook = adminOnly

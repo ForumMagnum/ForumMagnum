@@ -248,11 +248,7 @@ registerFragment(`
   fragment CommentsListWithPostMetadata on Comment {
     ...CommentsList
     post {
-      title
-      _id
-      slug
-      isEvent
-      groupId
+      ...PostsMinimumInfo
     }
   }
 `);
