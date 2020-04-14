@@ -284,6 +284,10 @@ ensureIndex(Posts,
     name: "posts.score",
   }
 );
+
+
+// Wildcard index on tagRelevance, enables us to efficiently filter on tagRel scores
+ensureIndex(Posts,{ "tagRelevance.$**" : 1 } )
 // Used for the latest posts list when soft-filtering tags
 ensureIndex(Posts,
   augmentForDefaultView({ tagRelevance: 1 }),
