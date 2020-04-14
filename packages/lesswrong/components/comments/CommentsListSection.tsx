@@ -50,7 +50,7 @@ const styles = theme => ({
 
 interface ExternalProps {
   lastEvent: any,
-  post: PostsList,
+  post: PostsDetails,
   commentCount: number,
   loadMoreCount?: number,
   totalComments: number,

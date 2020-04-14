@@ -18,7 +18,7 @@ Comments.getAuthorName = function (comment: DbComment): string {
  * @param {Object} comment
  */
 // LW: Overwrite the original example-forum Comments.getPageUrl
-Comments.getPageUrl = function(comment: DbComment, isAbsolute = false): string {
+Comments.getPageUrl = function(comment: CommentsList|DbComment, isAbsolute = false): string {
   const post = Posts.findOne(comment.postId);
   return `${Posts.getPageUrl(post, isAbsolute)}?commentId=${comment._id}`;
 };
@@ -42,12 +42,12 @@ Comments.getRSSUrl = function(comment: HasIdType, isAbsolute = false): string {
   return `${prefix}/feed.xml?type=comments&view=commentReplies&parentCommentId=${comment._id}`;
 };
 
-Comments.defaultToAlignment = (currentUser: UsersCurrent|null, post: PostsBase, comment?: CommentsList): boolean => {
+Comments.defaultToAlignment = (currentUser: UsersCurrent|null, post: PostsMinimumInfo|undefined, comment?: CommentsList): boolean => {
   if (getSetting('forumType') === 'AlignmentForum') { return true }
   if (comment) {
-    return (Users.canDo(currentUser, "comments.alignment.new") && post?.af && comment.af)
+    return !!(Users.canDo(currentUser, "comments.alignment.new") && post?.af && comment.af)
   } else {
-    return (Users.canDo(currentUser, "comments.alignment.new") && post?.af)
+    return !!(Users.canDo(currentUser, "comments.alignment.new") && post?.af)
   }
 }
 

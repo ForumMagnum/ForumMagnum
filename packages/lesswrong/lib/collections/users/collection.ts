@@ -124,13 +124,13 @@ interface ExtendedUsersCollection extends UsersCollection {
   isSharedOn: (currentUser: DbUser|UsersMinimumInfo|null, document: PostsBase) => boolean
   canCollaborate: (currentUser: UsersCurrent|null, document: PostsBase) => boolean
   canEditUsersBannedUserIds: (currentUser: DbUser|null, targetUser: DbUser) => boolean
-  canModeratePost: (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost|null) => boolean
+  canModeratePost: (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost|null) => boolean
   canCommentLock: (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost) => boolean
   userIsBannedFromPost: (user: UsersMinimumInfo|DbUser, post: PostsDetails|DbPost) => boolean
   userIsBannedFromAllPosts: (user: UsersCurrent|DbUser, post: PostsBase|DbPost) => boolean
   userIsBannedFromAllPersonalPosts: (user: UsersCurrent|DbUser, post: PostsBase|DbPost) => boolean
   isAllowedToComment: (user: UsersMinimumInfo|DbUser|null, post: PostsDetails|DbPost) => boolean
-  blockedCommentingReason: (user: UsersCurrent|DbUser|null, post: PostsBase|DbPost) => boolean
+  blockedCommentingReason: (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost) => string
   emailAddressIsVerified: (user: UsersCurrent|DbUser|null) => boolean
   getProfileUrl: (user: DbUser|UsersMinimumInfo|null, isAbsolute?: boolean) => string
   getProfileUrlFromSlug: (userSlug: string, isAbsolute?: boolean) => string
@@ -148,15 +148,15 @@ interface ExtendedUsersCollection extends UsersCollection {
   // From lib/vulcan-users/permissions.ts
   groups: Record<string,any>
   createGroup: (groupName: string) => void
-  getGroups: (user: UsersCurrent|DbUser|null) => Array<string>
-  getActions: (user: UsersCurrent|DbUser|null) => Array<string>
+  getGroups: (user: UsersMinimumInfo|DbUser|null) => Array<string>
+  getActions: (user: UsersMinimumInfo|DbUser|null) => Array<string>
   isMemberOf: (user: UsersCurrent|DbUser|null, groupOrGroups: string|Array<string>) => boolean
-  canDo: (user: UsersCurrent|DbUser|null, actionOrActions: string|Array<string>) => boolean
+  canDo: (user: UsersMinimumInfo|DbUser|null, actionOrActions: string|Array<string>) => boolean
   owns: (user: UsersMinimumInfo|DbUser|null, document: HasUserIdType|UsersMinimumInfo) => boolean
-  isAdmin: (user: UsersCurrent|DbUser|null) => boolean
+  isAdmin: (user: UsersMinimumInfo|DbUser|null) => boolean
   canReadField: (user: UsersCurrent|DbUser|null, field: any, document: any) => boolean
   getViewableFields: <T extends DbObject>(user: UsersCurrent|DbUser|null, collection: CollectionBase<T>, document: T) => any
-  restrictViewableFields: <T extends DbObject>(user: UsersCurrent|DbUser|null, collection: CollectionBase<T>, docOrDocs: T|Array<T>) => T|Array<T>
+  restrictViewableFields: <T extends DbObject>(user: UsersCurrent|DbUser|null, collection: CollectionBase<T>, docOrDocs: T|Array<T>) => any
   canCreateField: any
   canUpdateField: any
   

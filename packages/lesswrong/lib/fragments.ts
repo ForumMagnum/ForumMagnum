@@ -390,6 +390,7 @@ registerFragment(`
     afKarma
     deleted
     groups
+    isAdmin
     htmlBio
     postCount
     commentCount
