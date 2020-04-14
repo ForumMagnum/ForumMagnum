@@ -621,7 +621,7 @@ interface DbEmailTokens extends DbObject {
   token: string
   tokenType: string
   userId: string
-  used: Date
+  usedAt: Date
   params: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
