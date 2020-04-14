@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Votes } from '../../lib/collections/votes';
 import { useMulti } from '../../lib/crud/withMulti';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = theme => ({
   voteRow: {
@@ -15,7 +16,7 @@ const styles = theme => ({
 const TagVoteActivity = ({classes}:{
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, FormatDate } = Components
+  const { SingleColumnSection, FormatDate, Error404 } = Components
   const { results: votes } = useMulti({
     terms: {view:"tagVotes"},
     collection: Votes,
@@ -24,8 +25,11 @@ const TagVoteActivity = ({classes}:{
     ssr: true
   })
 
-  return <SingleColumnSection>
+  const currentUser = useCurrentUser();
 
+  if (!currentUser?.isAdmin) { return <Error404/> }
+
+return <SingleColumnSection>
       {votes?.map(vote=><div className={classes.voteRow}>
         <span>{vote.userId.slice(7,10)}</span>
         <span>{vote.documentId}</span>
