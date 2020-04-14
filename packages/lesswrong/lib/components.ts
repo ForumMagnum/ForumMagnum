@@ -162,6 +162,7 @@ importComponent("Pingback", () => require('../components/posts/Pingback'));
 importComponent("PingbacksList", () => require('../components/posts/PingbacksList'));
 importComponent("PostsItemMeta", () => require('../components/posts/PostsItemMeta'));
 importComponent("PostsItem2", () => require('../components/posts/PostsItem2.tsx'));
+importComponent("PostsListSortDropdown", () => require('../components/posts/PostsListSortDropdown.tsx'));
 importComponent("PostsItemTooltipWrapper", () => require('../components/posts/PostsItemTooltipWrapper'));
 importComponent("PostsItem2MetaInfo", () => require('../components/posts/PostsItem2MetaInfo'));
 importComponent("PostsTitle", () => require('../components/posts/PostsTitle'));
@@ -175,6 +176,7 @@ importComponent("PostsItemNewCommentsWrapper", () => require('../components/post
 importComponent("PostsItemIcons", () => require('../components/posts/PostsItemIcons'));
 import '../components/posts/PostsPage';
 importComponent("SpreadsheetPage", () => require('../components/posts/SpreadsheetPage'));
+importComponent("PostsCompareRevisions", () => require('../components/posts/PostsCompareRevisions'));
 
 importComponent("PostsSingleSlug", () => require('../components/posts/PostsSingleSlug'));
 importComponent("PostsSingleRoute", () => require('../components/posts/PostsSingleRoute'));
@@ -349,6 +351,7 @@ importComponent("FooterTagList", () => require('../components/tagging/FooterTagL
 importComponent("FooterTag", () => require('../components/tagging/FooterTag'));
 importComponent("NewTagPage", () => require('../components/tagging/NewTagPage'));
 importComponent("EditTagPage", () => require('../components/tagging/EditTagPage'));
+importComponent("EditTagsDialog", () => require('../components/tagging/EditTagsDialog'));
 importComponent("AllTagsPage", () => require('../components/tagging/AllTagsPage'));
 importComponent("TagFilterSettings", () => require('../components/tagging/TagFilterSettings'));
 importComponent("FilterMode", () => require('../components/tagging/FilterMode'));

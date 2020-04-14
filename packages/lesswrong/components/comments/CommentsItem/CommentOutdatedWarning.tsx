@@ -18,12 +18,12 @@ interface PostWithVersion {
   }
 }
 
-function postHadMajorRevision(comment: CommentsList, post: PostWithVersion) {
-  if (!comment || !comment.postVersion || !post || !post.contents || !post.contents.version) {
+function postHadMajorRevision(comment: CommentsList, post: PostsMinimumInfo|PostWithVersion) {
+  if (!comment?.postVersion || !(post as PostWithVersion)?.contents?.version) {
     return false
   }
   const { major: origMajorPostVer } = extractVersionsFromSemver(comment.postVersion)
-  const { major: currentMajorPostVer } = extractVersionsFromSemver(post.contents.version)
+  const { major: currentMajorPostVer } = extractVersionsFromSemver((post as PostWithVersion).contents.version)
   return origMajorPostVer < currentMajorPostVer
 }
 

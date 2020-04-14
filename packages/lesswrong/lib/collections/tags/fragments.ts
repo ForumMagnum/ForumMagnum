@@ -21,6 +21,7 @@ registerFragment(`
     name
     slug
     core
+    suggestedAsFilter
     postCount
     deleted
     description {

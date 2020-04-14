@@ -136,18 +136,11 @@ class AllPostsPage extends Component<AllPostsPageProps,AllPostsPageState> {
     const { showSettings } = this.state
     const { SingleColumnSection, SectionTitle, SettingsIcon, PostsListSettings, HeadTags } = Components
 
-    const currentTimeframe = query.timeframe ||
-      (currentUser && currentUser.allPostsTimeframe) ||
-      'daily'
-    const currentSorting = query.sortedBy ||
-      (currentUser && (currentUser.allPostsSorting)) ||
-      'magic'
-    const currentFilter = query.filter ||
-      (currentUser && currentUser.allPostsFilter) ||
-      'all'
+    const currentTimeframe = query.timeframe || currentUser?.allPostsTimeframe || 'daily'
+    const currentSorting = query.sortedBy    || currentUser?.allPostsSorting   || 'magic'
+    const currentFilter = query.filter       || currentUser?.allPostsFilter    || 'all'
     const currentShowLowKarma = (parseInt(query.karmaThreshold) === MAX_LOW_KARMA_THRESHOLD) ||
-      (currentUser && currentUser.allPostsShowLowKarma) ||
-      false
+      currentUser?.allPostsShowLowKarma || false
 
     return (
       <React.Fragment>

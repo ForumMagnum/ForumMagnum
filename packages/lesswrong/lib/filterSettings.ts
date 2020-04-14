@@ -9,25 +9,11 @@ export interface FilterTag {
   tagName: string,
   filterMode: FilterMode,
 }
-export type FilterMode = "Hidden"|"Less"|"Default"|"More"|"Required"
-//export const filterModes: Array<FilterMode> = ["Hidden","Less","Default","More","Required"];
-export const filterModes: Array<FilterMode> = ["Hidden","Default","Required"];
+export type FilterMode = "Hidden"|"Default"|"Required"|number
 
 export const defaultFilterSettings: FilterSettings = {
   personalBlog: "Hidden",
-  tags: [
-    {
-      tagId: "tNsqhzTibgGJKPEWB",
-      tagName: "Coronavirus",
-      filterMode: "Default",
-    }
-  ],
-}
-
-export const filterTooltips = {
-  Hidden: "These posts will not appear on the home page",
-  Default: "These posts will appear on the home page (sorted normally)",
-  Required: "The home page will ONLY show posts that you have marked as 'required.'"
+  tags: [],
 }
 
 export function filterSettingsToString(filterSettings: FilterSettings): string {
