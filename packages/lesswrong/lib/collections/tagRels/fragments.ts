@@ -48,6 +48,18 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment TagRelDocumentInfo on TagRel {
+    _id
+    tag {
+      ...TagFragment
+    }
+    post {
+      ...PostsMinimumInfo
+    }
+  }
+`);
+
+registerFragment(`
   fragment WithVoteTagRel on TagRel {
     __typename
     _id

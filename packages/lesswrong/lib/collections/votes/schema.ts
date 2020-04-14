@@ -1,6 +1,6 @@
 import Users from '../users/collection';
-import { schemaDefaultValue } from '../../collectionUtils';
-
+import { schemaDefaultValue, } from '../../collectionUtils';
+import { resolverOnlyField } from '../../../lib/utils/schemaUtils';
 //
 // Votes. From the user's perspective, they have a vote-state for each voteable
 // entity (post/comment), which is either neutral (the default), upvote,
@@ -31,7 +31,7 @@ const schema = {
   // The id of the user that voted
   userId: {
     type: String,
-    canRead: Users.owns,
+    canRead: [Users.owns, 'admins'],
     foreignKey: 'Users',
   },
   
@@ -94,7 +94,19 @@ const schema = {
     type: Date,
     optional: true,
     canRead: Users.owns,
-  }
+  },
+
+  tagRel: resolverOnlyField({
+    type: "TagRel",
+    graphQLtype: 'Tag',
+    canRead: ['admins'],
+    resolver: (vote, args, context) => {
+      const tagRel = context.TagRels.find({_id: vote.documentId}).fetch()
+      if (tagRel) {
+        return tagRel
+      }
+    }
+  }),
 
 };
 

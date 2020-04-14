@@ -1135,17 +1135,6 @@ interface unclaimedReportsList_claimedUser { // fragment on Users
   readonly slug: string,
 }
 
-interface VoteMinimumInfo { // fragment on Votes
-  readonly _id: string,
-  readonly voteType: string,
-}
-
-interface VoteFragment { // fragment on Votes
-  readonly _id: string,
-  readonly voteType: string,
-  readonly power: number,
-}
-
 interface WithVotePost { // fragment on Posts
   readonly __typename: string,
   readonly _id: string,
@@ -1176,12 +1165,6 @@ interface WithVoteComment_currentUserVotes { // fragment on Votes
   readonly _id: string,
   readonly voteType: string,
   readonly power: number,
-}
-
-interface VotedItem { // fragment on Votes
-  readonly documentId: string,
-  readonly power: number,
-  readonly votedAt: Date,
 }
 
 interface RevisionDisplay { // fragment on Revisions
@@ -1382,6 +1365,12 @@ interface TagRelMinimumFragment_tag_description { // fragment on Revisions
   readonly htmlHighlight: string,
 }
 
+interface TagRelDocumentInfo { // fragment on TagRels
+  readonly _id: string,
+  readonly tag: TagFragment,
+  readonly post: PostsMinimumInfo,
+}
+
 interface WithVoteTagRel { // fragment on TagRels
   readonly __typename: string,
   readonly _id: string,
@@ -1478,6 +1467,33 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
   readonly plaintextMainText: string,
+}
+
+interface VoteMinimumInfo { // fragment on Votes
+  readonly _id: string,
+  readonly voteType: string,
+}
+
+interface VoteFragment { // fragment on Votes
+  readonly _id: string,
+  readonly voteType: string,
+  readonly power: number,
+}
+
+interface TagRelVotes { // fragment on Votes
+  readonly _id: string,
+  readonly userId: string,
+  readonly voteType: string,
+  readonly power: number,
+  readonly documentId: string,
+  readonly votedAt: Date,
+  readonly tagRel: TagRelDocumentInfo,
+}
+
+interface VotedItem { // fragment on Votes
+  readonly documentId: string,
+  readonly power: number,
+  readonly votedAt: Date,
 }
 
 interface NewRelatedPostRel { // fragment on PostRelations
@@ -1589,11 +1605,8 @@ interface FragmentTypes {
   UsersMapEntry: UsersMapEntry
   UsersEdit: UsersEdit
   unclaimedReportsList: unclaimedReportsList
-  VoteMinimumInfo: VoteMinimumInfo
-  VoteFragment: VoteFragment
   WithVotePost: WithVotePost
   WithVoteComment: WithVoteComment
-  VotedItem: VotedItem
   RevisionDisplay: RevisionDisplay
   RevisionEdit: RevisionEdit
   ChaptersFragment: ChaptersFragment
@@ -1609,6 +1622,7 @@ interface FragmentTypes {
   SuggestAlignmentUser: SuggestAlignmentUser
   TagRelFragment: TagRelFragment
   TagRelMinimumFragment: TagRelMinimumFragment
+  TagRelDocumentInfo: TagRelDocumentInfo
   WithVoteTagRel: WithVoteTagRel
   TagsDefaultFragment: TagsDefaultFragment
   TagFragment: TagFragment
@@ -1616,6 +1630,10 @@ interface FragmentTypes {
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
   SubscriptionState: SubscriptionState
   RevisionsDefaultFragment: RevisionsDefaultFragment
+  VoteMinimumInfo: VoteMinimumInfo
+  VoteFragment: VoteFragment
+  TagRelVotes: TagRelVotes
+  VotedItem: VotedItem
   NewRelatedPostRel: NewRelatedPostRel
   ChildRelatedPostRelList: ChildRelatedPostRelList
   SuggestAlignmentComment: SuggestAlignmentComment
