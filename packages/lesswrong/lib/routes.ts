@@ -408,6 +408,12 @@ addRoute([
     getPingback: (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
   },
   {
+    name: 'posts.revisioncompare',
+    path: '/compare/:_id/:slug',
+    componentName: 'PostsCompareRevisions',
+    titleComponentName: 'PostsPageHeaderTitle',
+  },
+  {
     name:'coronavirus.link.db',
     path:'/coronavirus-link-database',
     componentName: 'SpreadsheetPage',
