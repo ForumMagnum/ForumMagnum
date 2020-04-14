@@ -10,10 +10,6 @@ registerFragment(`
     draft
     hideCommentKarma
     af
-    
-    contents {
-      version
-    }
   }
 `);
 
@@ -106,6 +102,9 @@ registerFragment(`
     group {
       _id
       name
+    }
+    bestAnswer {
+      ...CommentsList
     }
   }
 `);
