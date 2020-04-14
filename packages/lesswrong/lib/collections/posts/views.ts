@@ -287,6 +287,7 @@ ensureIndex(Posts,
 
 
 // Wildcard index on tagRelevance, enables us to efficiently filter on tagRel scores
+// EA-FORUM: To run this you will have to update to MongoDB 4.2
 ensureIndex(Posts,{ "tagRelevance.$**" : 1 } )
 // Used for the latest posts list when soft-filtering tags
 ensureIndex(Posts,
