@@ -105,13 +105,6 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
       /> Show 'From the Archives' recommendations
     </div>} */}
 
-    <div> 
-      <Checkbox
-        checked={!settings.hideCoronavirus}
-        onChange={(ev, checked) => applyChange({ ...settings, hideCoronavirus: !checked })}
-      /> Show 'Coronavirus' recommendations
-    </div>
-
     <div>
       <Checkbox
         disabled={!currentUser}
@@ -198,4 +191,3 @@ declare global {
     RecommendationsAlgorithmPicker: typeof RecommendationsAlgorithmPickerComponent
   }
 }
-
