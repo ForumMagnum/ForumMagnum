@@ -45,7 +45,7 @@ const TagPreview = ({tag, classes}: {
       className={classes.tagDescription}
       dangerouslySetInnerHTML={{__html: highlight}}
       description={`tag ${tag.name}`}
-    />}
+    />
     {!results && <PostsListPlaceholder count={previewPostCount}/>}
     {results && results.map((result,i) =>
       <PostsItem2 key={result.post._id} post={result.post} index={i} />
