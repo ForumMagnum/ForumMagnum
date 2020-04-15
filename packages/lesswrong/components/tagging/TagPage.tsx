@@ -32,7 +32,7 @@ const styles = theme => ({
   },
   wikiSection: {
     marginRight: 32,
-    marginBottom: 32,
+    marginBottom: 24,
   },
   tagHeader: {
     display: "flex",
