@@ -98,7 +98,7 @@ const TagPage = ({classes}: {
           />
         </div>
       </div>
-      <div className={classes.tagSection}>
+      <div>
         <div className={classes.tagHeader}>
           <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
           <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
