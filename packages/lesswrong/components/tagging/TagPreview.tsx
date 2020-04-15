@@ -5,6 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { highlightStyles } from '../posts/PostsPreviewTooltip';
 import { seeAllStyles } from './TagRelCard';
+import { truncate } from '../../lib/editor/ellipsize';
 
 const styles = theme => ({
   tagTitle: {
@@ -35,12 +36,13 @@ const TagPreview = ({tag, classes}: {
     limit: previewPostCount,
     ssr: true,
   });
-  
+  const highlight = truncate(tag.description?.htmlHighlight, 1, "paragraphs")
+
   return (<div>
     <h2 className={classes.tagTitle}>{tag?.name} Tag</h2>
     {tag && <ContentItemBody
       className={classes.tagDescription}
-      dangerouslySetInnerHTML={{__html: tag.description?.htmlHighlight}}
+      dangerouslySetInnerHTML={{__html: highlight}}
       description={`tag ${tag.name}`}
     />}
     {!results && <PostsListPlaceholder count={previewPostCount}/>}
