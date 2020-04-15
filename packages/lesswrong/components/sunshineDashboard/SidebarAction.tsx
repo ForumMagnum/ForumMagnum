@@ -36,7 +36,7 @@ const SidebarAction = ({children, classes, title, warningHighlight, onClick}: {
   onClick: ()=>void,
 }) => {
   const { LWTooltip } = Components
-  return <LWTooltip title={title} placement="bottom" muiClasses={{tooltip: classes.tooltip}} enterDelay={200}>
+  return <LWTooltip title={title} placement="bottom">
     <div onClick={onClick} className={classes.root}>
       {children}
       {warningHighlight && <div className={classes.warningHighlight}/>}

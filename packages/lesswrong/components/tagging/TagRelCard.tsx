@@ -7,6 +7,14 @@ import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentBodyStyles } from '../../themes/stylePiping'
 
+export const seeAllStyles = theme => ({
+  padding: theme.spacing.unit,
+  display: "block",
+  textAlign: "right",
+  color: theme.palette.primary.main,
+  ...theme.typography.commentStyle
+})
+
 const styles = theme => ({
   root: {
     paddingLeft: 16,
@@ -37,10 +45,7 @@ const styles = theme => ({
     marginRight: 4,
   },
   seeAll: {
-    padding: theme.spacing.unit,
-    display: "block",
-    textAlign: "right",
-    color: theme.palette.primary.main
+    ...seeAllStyles(theme)
   }
 });
 
@@ -104,7 +109,7 @@ const TagRelCard = ({tagRel, classes}: {
     
     {!results && <PostsListPlaceholder count={previewPostCount}/>}
     {results && results.map((result,i) =>
-      <PostsItem2 key={result.post._id} tagRel={result} post={result.post} index={i} />
+      <PostsItem2 key={result.post._id} post={result.post} index={i} />
     )}
     <Link className={classes.seeAll} to={`/tag/${tagRel.tag.slug}`}>See All</Link>
     

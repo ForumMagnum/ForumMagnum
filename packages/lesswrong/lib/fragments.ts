@@ -95,6 +95,7 @@ registerFragment(`
     hideIntercom
     hideNavigationSidebar
     currentFrontpageFilter
+    frontpageFilterSettings
     allPostsTimeframe
     allPostsSorting
     allPostsFilter
@@ -247,11 +248,7 @@ registerFragment(`
   fragment CommentsListWithPostMetadata on Comment {
     ...CommentsList
     post {
-      title
-      _id
-      slug
-      isEvent
-      groupId
+      ...PostsMinimumInfo
     }
   }
 `);
@@ -480,6 +477,7 @@ registerFragment(`
     hideIntercom
     commentSorting
     currentFrontpageFilter
+    frontpageFilterSettings
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
     noSingleLineComments

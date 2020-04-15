@@ -2,6 +2,7 @@ import { createCollection, Utils } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
 import { denormalizedCountOfReferences } from '../../utils/schemaUtils';
 import { makeEditable } from '../../editor/make_editable'
+import { userCanCreateTags } from '../../betas';
 import Users from '../users/collection';
 
 const formGroups = {
@@ -18,7 +19,7 @@ const schema = {
     type: String,
     viewableBy: ['guests'],
     insertableBy: ['admins', 'sunshineRegiment'],
-    editableBy: ['admins'],
+    editableBy: ['admins', 'sunshineRegiment'],
   },
   slug: {
     type: String,
@@ -32,6 +33,24 @@ const schema = {
         return Utils.getUnusedSlugByCollectionName("Tags", Utils.slugify(modifier.$set.name), false, tag._id)
       }
     }
+  },
+  core: {
+    label: "Core Tag (moderators check whether it applies when reviewing new posts)",
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    ...schemaDefaultValue(false),
+  },
+  suggestedAsFilter: {
+    label: "Suggested Filter (appears as a default option in filter settings without having to use the search box)",
+    type: Boolean,
+    viewableBy: ['guests'],
+    insertableBy: ['admins', 'sunshineRegiment'],
+    editableBy: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    ...schemaDefaultValue(false),
   },
   postCount: {
     ...denormalizedCountOfReferences({
@@ -47,7 +66,7 @@ const schema = {
   deleted: {
     type: Boolean,
     viewableBy: ['guests'],
-    editableBy: ['admins'],
+    editableBy: ['admins', 'sunshineRegiment'],
     optional: true,
     group: formGroups.advancedOptions,
     ...schemaDefaultValue(false),
@@ -66,10 +85,10 @@ export const Tags: ExtendedTagsCollection = createCollection({
   resolvers: getDefaultResolvers('Tags'),
   mutations: getDefaultMutations('Tags', {
     newCheck: (user, tag) => {
-      return Users.isAdmin(user);
+      return userCanCreateTags(user);
     },
     editCheck: (user, tag) => {
-      return Users.isAdmin(user);
+      return userCanCreateTags(user);
     },
     removeCheck: (user, tag) => {
       return false;

@@ -4,6 +4,7 @@ import { getSetting, Utils } from '../../vulcan-lib';
 import { foreignKeyField, addFieldsDict, resolverOnlyField, denormalizedCountOfReferences, arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation, accessFilterMultiple } from '../../utils/schemaUtils'
 import { makeEditable } from '../../editor/make_editable'
 import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
+import { defaultFilterSettings } from '../../filterSettings';
 import SimpleSchema from 'simpl-schema'
 import * as _ from 'underscore';
 
@@ -285,6 +286,16 @@ addFieldsDict(Users, {
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
     canCreate: Users.owns,
     hidden: true,
+  },
+  frontpageFilterSettings: {
+    type: Object,
+    blackbox: true,
+    optional: true,
+    hidden: true,
+    canRead: Users.owns,
+    canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    canCreate: Users.owns,
+    ...schemaDefaultValue(defaultFilterSettings),
   },
   allPostsTimeframe: {
     type: String,
@@ -631,15 +642,16 @@ addFieldsDict(Users, {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [Users.owns, 'sunshineRegiment', 'admins'],
+    hidden: !getSetting('hasEvents', true),
     ...schemaDefaultValue(true),
   },
   
   notificationCommentsOnSubscribedPost: {
-    label: "Comments on subscribed posts",
+    label: "Comments on posts I'm subscribed to",
     ...notificationTypeSettingsField(),
   },
   notificationShortformContent: {
-    label: "Shortform by subscribed users",
+    label: "Shortform by users I'm subscribed to",
     ...notificationTypeSettingsField(),
   },
   notificationRepliesToMyComments: {
@@ -647,15 +659,16 @@ addFieldsDict(Users, {
     ...notificationTypeSettingsField(),
   },
   notificationRepliesToSubscribedComments: {
-    label: "Replies to subscribed comments",
+    label: "Replies to comments I'm subscribed to",
     ...notificationTypeSettingsField(),
   },
   notificationSubscribedUserPost: {
-    label: "Posts by subscribed users",
+    label: "Posts by users I'm subscribed to",
     ...notificationTypeSettingsField(),
   },
   notificationPostsInGroups: {
-    label: "Posts/events in subscribed groups",
+    label: "Posts/events in groups I'm subscribed to",
+    hidden: !getSetting('hasEvents', true),
     ...notificationTypeSettingsField({ channel: "both" }),
   },
   notificationPrivateMessage: {
@@ -668,6 +681,7 @@ addFieldsDict(Users, {
   },
   notificationEventInRadius: {
     label: "New Events in my notification radius",
+    hidden: !getSetting('hasEvents', true),
     ...notificationTypeSettingsField({ channel: "both" }),
   },
 
@@ -1378,4 +1392,3 @@ const createDisplayName = user => {
   if (user.email) return user.email.slice(0, user.email.indexOf('@'));
   return undefined;
 }
-

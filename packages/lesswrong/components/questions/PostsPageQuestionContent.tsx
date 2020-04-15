@@ -18,8 +18,8 @@ const PostsPageQuestionContent = ({post, refetch}: {
       {currentUser && !Users.isAllowedToComment(currentUser, post) &&
         <CantCommentExplanation post={post}/>
       }
-      <RelatedQuestionsList post={post} />
       <AnswersList terms={{view: "questionAnswers", postId: post._id, limit: MAX_ANSWERS_QUERIED}} post={post}/>
+      <RelatedQuestionsList post={post} />
     </div>
   )
 

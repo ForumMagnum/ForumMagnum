@@ -4,6 +4,9 @@ import moment from 'moment';
 import { foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
+import { TagRels } from "../tagRels/collection";
+import { Comments } from "../comments/collection";
+import { getWithLoader } from '../../loaders';
 
 const formGroups = {
   // TODO - Figure out why properly moving this from custom_fields to schema was producing weird errors and then fix it
@@ -493,7 +496,62 @@ const schema = {
       filterFn: comment => !comment.deleted && comment.reviewingForReview === "2018"
     }),
     canRead: ['guests'],
-  }
+  },
+
+  lastCommentPromotedAt: {
+    type: Date,
+    optional: true,
+    hidden: true,
+    canRead: ['guests']
+  },
+
+  tagRel: resolverOnlyField({
+    type: "TagRel",
+    graphQLtype: "TagRel",
+    viewableBy: ['guests'],
+    graphqlArguments: 'tagId: String',
+    resolver: async (post, {tagId}, { Users, Posts, currentUser}) => {
+      const tagRels = await getWithLoader(TagRels,
+        "tagRelByDocument",
+        {
+          tagId: tagId
+        },
+        'postId', post._id
+      );
+      if (tagRels?.length) {
+        return Users.restrictViewableFields(currentUser, TagRels, tagRels)[0]
+      }
+    }
+  }),
+  
+  // Denormalized, with manual callbacks. Mapping from tag ID to baseScore, ie Record<string,number>.
+  tagRelevance: {
+    type: Object,
+    optional: true,
+    hidden: true,
+    viewableBy: ['guests'],
+  },
+  
+  "tagRelevance.$": {
+    type: Number,
+    optional: true,
+    hidden: true,
+  },
+
+  bestAnswer: resolverOnlyField({
+    type: "Comment",
+    graphQLtype: "Comment",
+    viewableBy: ['guests'],
+    resolver: async (post) => {
+      if (post.question) {
+        if (post.lastCommentPromotedAt) {
+          return Comments.findOne({postId: post._id, answer: true, promoted: true}, {sort:{baseScore: -1}})
+        } else {
+          return Comments.findOne({postId: post._id, answer: true, baseScore: {$gt: 15}}, {sort:{baseScore: -1}})
+        }
+      }
+    }
+  }),
 };
 
 export default schema;

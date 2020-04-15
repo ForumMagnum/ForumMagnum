@@ -23,17 +23,56 @@ const styles = theme => ({
   },
   footerWrapper: {
     display: "flex",
-    justifyContent: "flex-end",
+    justifyContent: "flex-start",
     marginTop: 12,
   },
   footer: {
     color: theme.palette.lwTertiary.main,
     flexGrow: 1,
-    maxWidth: 450,
-    
+    flexWrap: "wrap",
+    alignItems: "center",
+    // maxWidth: 450, //commented out during coronavirus season
     display: "flex",
     justifyContent: "space-around",
-  }
+  },
+  loggedOutFooter: {
+    maxWidth: 450,
+    marginLeft: "auto"
+  },
+  coronavirusTagPage: {
+    border: `solid 1px ${theme.palette.primary.main}`,
+    color: theme.palette.primary.main,
+    padding: 5,
+    paddingLeft: 15,
+    paddingRight: 15,
+    borderRadius: 3,
+    marginLeft: 80,
+    textAlign: "center",
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: "1%",
+    },
+    [theme.breakpoints.down('xs')]: {
+      width: "48%",
+      marginTop: "1em",
+      marginLeft: "1%",
+      marginRight: "1%"
+    }
+  },
+  coronavirusLinksDB: {
+    background: "#71a376",
+    color: "white",
+    padding: 5,
+    paddingLeft: 15,
+    paddingRight: 15,
+    borderRadius: 3,
+    textAlign: "center",
+    [theme.breakpoints.down('xs')]: {
+      width: "48%",
+      marginTop: "1em",
+      marginLeft: "1%",
+      marginRight: "1%"
+    }
+  },
 });
 
 const defaultFrontpageSettings = {
@@ -77,7 +116,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
   render() {
     const { continueReading, classes, currentUser, configName } = this.props;
     const { showSettings } = this.state
-    const { RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SeparatorBullet, BookmarksList, RecommendationsList, LWTooltip } = Components;
+    const { RecommendationsAlgorithmPicker, SingleColumnSection, SettingsIcon, ContinueReadingList, PostsList2, SubscribeWidget, SectionTitle, SectionSubtitle, SeparatorBullet, BookmarksList, LWTooltip, CoronavirusFrontpageWidget } = Components;
 
     const settings = getRecommendationSettings({settings: this.state.settings, currentUser, configName})
 
@@ -99,14 +138,14 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
       <div><em>(Click to see all)</em></div>
     </div>
 
-    // Disabled during 2018 Review
-    const allTimeTooltip = <div>
-      <div>
-        A weighted, randomized sample of the highest karma posts
-        {settings.onlyUnread && " that you haven't read yet"}.
-      </div>
-      <div><em>(Click to see more recommendations)</em></div>
-    </div>
+    // Disabled during 2018 Review [and coronavirus]
+    // const allTimeTooltip = <div>
+    //   <div>
+    //     A weighted, randomized sample of the highest karma posts
+    //     {settings.onlyUnread && " that you haven't read yet"}.
+    //   </div>
+    //   <div><em>(Click to see more recommendations)</em></div>
+    // </div>
 
     // defaultFrontpageSettings does not contain anything that overrides a user
     // editable setting, so the reverse ordering here is fine
@@ -119,10 +158,11 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
     const renderContinueReading = (continueReading?.length > 0) && !settings.hideContinueReading
     const curatedUrl = "/allPosts?filter=curated&sortedBy=new&timeframe=allTime"
 
+
     return <SingleColumnSection className={classes.section}>
       <SectionTitle title="Recommendations">
         <LWTooltip title="Customize your recommendations">
-          <SettingsIcon onClick={this.toggleSettings} label="Settings"/> 
+          <SettingsIcon onClick={this.toggleSettings} label="Settings"/>
         </LWTooltip>
       </SectionTitle>
       {showSettings &&
@@ -161,8 +201,14 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
         <FrontpageVotingPhase settings={frontpageRecommendationSettings} />
       </AnalyticsContext> */}
 
-      {/* Disabled during 2018 Review */}
-      {!settings.hideFrontpage && <div className={classes.subsection}>
+      <AnalyticsContext pageSectionContext="coronavirusWidget">
+        <div className={classes.subsection}>
+          <CoronavirusFrontpageWidget settings={frontpageRecommendationSettings} />
+        </div>
+      </AnalyticsContext>
+
+      {/* Disabled during 2018 Review [and coronavirus season] */}
+      {/* {!settings.hideFrontpage && <div className={classes.subsection}>
         <LWTooltip placement="top-start" title={allTimeTooltip}>
           <Link to={"/recommendations"}>
             <SectionSubtitle className={classNames(classes.subtitle, classes.fromTheArchives)} >
@@ -173,7 +219,7 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
         <AnalyticsContext listContext={"frontpageFromTheArchives"} capturePostItemOnMount>
           <RecommendationsList algorithm={frontpageRecommendationSettings} />
         </AnalyticsContext>
-      </div>}
+      </div>} */}
 
       <AnalyticsContext pageSectionContext={"curatedPosts"}>
         <div className={classes.subsection}>
@@ -188,15 +234,25 @@ class RecommendationsAndCurated extends PureComponent<RecommendationsAndCuratedP
             <PostsList2 terms={{view:"curated", limit:3}} showLoadMore={false} hideLastUnread={true}/>
           </AnalyticsContext>
           <div className={classes.footerWrapper}>
-            <Typography component="div" variant="body2" className={classes.footer}>
+            <Typography component="div" variant="body2" className={classNames(classes.footer, {[classes.loggedOutFooter]:!currentUser})}>
               <Link to={curatedUrl}>
                 { /* On very small screens, use shorter link text ("More Curated"
                     instead of "View All Curated Posts") to avoid wrapping */ }
                 <Hidden smUp implementation="css">More Curated</Hidden>
-                <Hidden xsDown implementation="css">View All Curated Posts</Hidden>
+                <Hidden xsDown implementation="css">View All Curated</Hidden>
+                {/* todo: revert to "View All Curated Posts" */}
               </Link>
               <SeparatorBullet/>
               <SubscribeWidget view={"curated"} />
+              {/* todo: remember to revert subscribe widget after coronavirus */}
+              { currentUser && <>
+                <LWTooltip className={classes.coronavirusTagPage} title="View all posts related to COVID-19">
+                  <Link to="/tag/coronavirus">Coronavirus Tag Page</Link>
+                </LWTooltip>
+                <LWTooltip className={classes.coronavirusLinksDB} title="Read or contribute to our master list of top coronavirus-related sites, from across the internet.">
+                  <Link to="/coronavirus-link-database">Links Database</Link>
+                </LWTooltip>
+              </> }
             </Typography>
           </div>
         </div>

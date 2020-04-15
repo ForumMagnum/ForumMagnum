@@ -1,6 +1,7 @@
 import { Tags } from './collection';
 import { ensureIndex } from '../../collectionUtils';
 
+
 Tags.addDefaultView(terms => {
   return {
     selector: {
@@ -24,4 +25,32 @@ Tags.addView('tagBySlug', terms => {
   };
 });
 
+Tags.addView('coreTags', terms => {
+  return {
+    selector: {
+      core: true,
+    },
+    options: {
+      sort: {
+        name: 1
+      }
+    },
+  }
+});
+
+Tags.addView('suggestedFilterTags', terms => {
+  return {
+    selector: {
+      suggestedAsFilter: true,
+    },
+    options: {
+      sort: {
+        name: 1
+      }
+    },
+  }
+});
+
 ensureIndex(Tags, {slug:1, deleted:1});
+ensureIndex(Tags, {core:1, deleted:1});
+ensureIndex(Tags, {suggestedAsFilter:1, deleted:1});

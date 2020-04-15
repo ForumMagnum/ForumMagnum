@@ -3,11 +3,9 @@ import {
   Components,
   registerComponent,
 } from '../../lib/vulcan-lib';
-import { userHasBoldPostItems } from '../../lib/betas';
 
 import classNames from 'classnames';
 import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
-import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary'
 import withRecordPostView from '../common/withRecordPostView';
 
@@ -95,7 +93,6 @@ const RecentDiscussionThread = ({
   comments, updateComment, classes, isRead, refetch,
   expandAllThreads: initialExpandAllThreads,
 }: RecentDiscussionThreadProps) => {
-  const currentUser = useCurrentUser();
   const [highlightVisible, setHighlightVisible] = useState(false);
   const [readStatus, setReadStatus] = useState(false);
   const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null);

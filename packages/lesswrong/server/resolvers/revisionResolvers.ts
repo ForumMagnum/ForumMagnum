@@ -5,8 +5,7 @@ import { markdownToHtmlNoLaTeX, dataToMarkdown } from '../editor/make_editable_c
 import { highlightFromHTML, truncate } from '../../lib/editor/ellipsize';
 import { addFieldsDict } from '../../lib/utils/schemaUtils'
 import { JSDOM } from 'jsdom'
-import { sanitize } from '../vulcan-lib/utils';
-import { sanitizeAllowedTags } from '../vulcan-lib/utils';
+import { sanitize, sanitizeAllowedTags } from '../vulcan-lib/utils';
 import htmlToText from 'html-to-text'
 import sanitizeHtml from 'sanitize-html';
 import * as _ from 'underscore';
@@ -100,7 +99,7 @@ addFieldsDict(Revisions, {
         if (!html) return
         const truncatedHtml = truncate(sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
         return htmlToText
-          .fromString(truncatedHtml)
+          .fromString(truncatedHtml, {ignoreHref: true, ignoreImage: true})
           .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
       }
     }

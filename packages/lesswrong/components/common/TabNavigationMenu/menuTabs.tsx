@@ -161,6 +161,11 @@ export default {
       link: '/faq',
       subItem: true,
     }, {
+      id: 'donate',
+      title: "Donate",
+      link: '/donate',
+      subItem: true
+    }, {
       id: 'tags',
       title: 'Tags'
       link: '/tags',
@@ -192,7 +197,7 @@ export default {
       tooltip: <div>
         <div>• Ask simple newbie questions.</div>
         <div>• Collaborate on open research questions.</div>
-        <div>• Pose and resolve confusions.</div>
+        <div>• Pose and resolve confusions.</div>
       </div>,
       showOnMobileStandalone: true,
       showOnCompressed: true,

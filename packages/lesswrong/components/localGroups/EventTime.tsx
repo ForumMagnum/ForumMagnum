@@ -52,7 +52,7 @@ const EventTime = ({post, dense=false}: {
   // Both start end end time specified
   else {
     // If the start and end time are on the same date, render it like:
-    //   January 15, 13:00 — 15:00 PDT
+    //   January 15, 13:00 — 15:00 PDT
     // If they're on different dates, render it like:
     //   January 15, 19:00 to January 16 12:00 PDT
     // In both cases we avoid duplicating the timezone.

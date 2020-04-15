@@ -280,11 +280,7 @@ export const styles = (theme) => ({
     paddingBottom:8
   },
   withRelevanceVoting: {
-    marginLeft: 50,
-    
-    [theme.breakpoints.down('sm')]: {
-      marginLeft: 35,
-    },
+      marginLeft: 28
   },
   bookmark: {
     marginLeft: theme.spacing.unit/2,
@@ -353,7 +349,7 @@ const PostsItem2 = ({
   classes,
 }: {
   post: PostsList,
-  tagRel?: any,
+  tagRel?: WithVoteTagRel|null,
   defaultToShowComments?: boolean,
   sequenceId?: string,
   chapter?: any,
@@ -448,12 +444,12 @@ const PostsItem2 = ({
         >
           <PostsItemTooltipWrapper post={post}>
             <div className={classes.withGrayHover}>
-              {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} post={post} />}
 
               <div className={classNames(classes.postsItem, {
                 [classes.dense]: dense,
                 [classes.withRelevanceVoting]: !!tagRel
               })}>
+                {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} post={post} />}
                 <PostsItem2MetaInfo className={classNames(classes.karma, {[classes.karmaUnread]: !isRead && userHasBoldPostItems(currentUser)})}>
                   <PostsItemKarma post={post} read={isRead} />
                 </PostsItem2MetaInfo>
@@ -486,7 +482,9 @@ const PostsItem2 = ({
                     {" "}
                     {(resumeReading.numRead>0) && <span>({resumeReading.numRead}/{resumeReading.numTotal} read)</span>}
                   </div>
+                
                 }
+                
 
                 { !post.isEvent && <PostsItem2MetaInfo className={classes.author}>
                   <PostsUserAndCoauthors post={post} abbreviateIfLong={true} />

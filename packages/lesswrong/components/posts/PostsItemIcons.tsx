@@ -5,6 +5,7 @@ import StarIcon from '@material-ui/icons/Star';
 import PersonIcon from '@material-ui/icons/Person';
 import DetailsIcon from '@material-ui/icons/Details';
 import GroupIcon from '@material-ui/icons/Group';
+import LinkIcon from '@material-ui/icons/Link';
 
 const MetaTitle = getSetting('forumType') === 'EAForum' ? 'Community Post' : 'Meta Post'
 const MetaIcon = getSetting('forumType') === 'EAForum' ? GroupIcon : DetailsIcon
@@ -28,11 +29,23 @@ const styles = theme => ({
       top: 3,
     }
   },
+  question: {
+    fontSize: "1.2rem",
+    color: theme.palette.grey[500],
+    fontWeight: '600'
+  },
   alignmentIcon: {
     '&&':{
       top: 0,
     }
   },
+  linkIcon: {
+    fontSize: "1.2rem",
+    color: theme.palette.grey[500],
+    transform: 'rotate(-45deg)',
+    position: "relative",
+    top: 3
+  }
 });
 
 const PostsItemIcons = ({post, classes}: {
@@ -49,6 +62,18 @@ const PostsItemIcons = ({post, classes}: {
     {post.curatedDate && <span className={classes.postIcon}>
       <LWTooltip title="Curated Post" placement="right">
         <StarIcon className={classes.icon}/>
+      </LWTooltip>
+    </span>}
+    
+    {post.question && <span className={classes.postIcon}>
+      <LWTooltip title="Question Post" placement="right">
+        <span className={classes.question}>Q</span>
+      </LWTooltip>
+    </span>}
+
+    {post.url && <span className={classes.postIcon}>
+      <LWTooltip title="Link Post" placement="right">
+        <LinkIcon className={classes.linkIcon}/>
       </LWTooltip>
     </span>}
 

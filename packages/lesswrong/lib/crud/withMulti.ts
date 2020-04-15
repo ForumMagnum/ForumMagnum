@@ -128,7 +128,7 @@ export function withMulti({
 
         // graphql query options
         options(props: any) {
-          const { terms, paginationTerms, currentUser, ...rest } = props;
+          const { terms, paginationTerms, ...rest } = props;
           // get terms from options, then props, then pagination
           const mergedTerms = { ...queryTerms, ...terms, ...paginationTerms };
           const graphQLOptions: any = {

@@ -9,6 +9,31 @@ import { Link } from '../../lib/reactRouterWrapper';
 
 export const POST_PREVIEW_WIDTH = 435
 
+export const highlightStyles = theme => ({
+  ...postHighlightStyles(theme),
+  marginTop: theme.spacing.unit*2.5,
+  marginBottom: theme.spacing.unit*1.5,
+  marginRight: theme.spacing.unit/2,
+  wordBreak: 'break-word',
+  fontSize: "1.1rem",
+
+  '& img': {
+    display:"none"
+  },
+  '& h1': {
+    fontSize: "1.2rem"
+  },
+  '& h2': {
+    fontSize: "1.2rem"
+  },
+  '& h3': {
+    fontSize: "1.1rem"
+  },
+  '& hr': {
+    display: "none"
+  }
+})
+
 const styles = theme => ({
   root: {
     width: POST_PREVIEW_WIDTH,
@@ -45,28 +70,7 @@ const styles = theme => ({
     alignItems: "center"
   },
   highlight: {
-    ...postHighlightStyles(theme),
-    marginTop: theme.spacing.unit*2.5,
-    marginBottom: theme.spacing.unit*1.5,
-    marginRight: theme.spacing.unit/2,
-    wordBreak: 'break-word',
-    fontSize: "1.1rem",
-
-    '& img': {
-      display:"none"
-    },
-    '& h1': {
-      fontSize: "1.2rem"
-    },
-    '& h2': {
-      fontSize: "1.2rem"
-    },
-    '& h3': {
-      fontSize: "1.1rem"
-    },
-    '& hr': {
-      display: "none"
-    }
+    ...highlightStyles(theme)
   },
   comment: {
     marginTop: theme.spacing.unit,
@@ -147,6 +151,8 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
   const renderWordCount = !comment && (wordCount > 0)
   const truncatedHighlight = truncate(highlight, expanded ? 200 : 100, "words", `... <span class="expand">(more)</span>`)
 
+  const renderedComment = comment || post.bestAnswer
+
   return <AnalyticsContext pageElementContext="hoverPreview">
       <Card className={classes.root}>
         <div className={classes.header}>
@@ -178,16 +184,17 @@ const PostsPreviewTooltip = ({ postsList, post, classes, comment }: {
             <BookmarkButton post={post}/>
           </div>}
         </div>
-        {comment
+        {renderedComment
           ? <div className={classes.comment}>
               <CommentsNode
-              truncated
-              comment={comment}
-              post={post}
-              hoverPreview
-              forceNotSingleLine
-              hideReply
-            /></div>
+                truncated
+                comment={renderedComment}
+                post={post}
+                hoverPreview
+                forceNotSingleLine
+                hideReply
+              />
+            </div>
           : <div onClick={() => setExpanded(true)}>
               <ContentItemBody
                 className={classes.highlight}

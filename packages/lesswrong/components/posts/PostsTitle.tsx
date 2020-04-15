@@ -88,7 +88,7 @@ const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true
 
   const shared = post.draft && (post.userId !== currentUser?._id)
 
-  const shouldRenderQuestionTag = (pathname !== "/questions") && showQuestionTag
+  // const shouldRenderQuestionTag = (pathname !== "/questions") && showQuestionTag
   const shouldRenderEventsTag = pathname !== "/community"
 
   const url = postLink || Posts.getPageUrl(post)
@@ -108,9 +108,9 @@ const PostsTitle = ({post, postLink, classes, sticky, read, showQuestionTag=true
 
     {shared && <span className={classes.tag}>[Shared]</span>}
 
-    {post.question && shouldRenderQuestionTag && <span className={classes.tag}>[Question]</span>}
+    {/* {post.question && shouldRenderQuestionTag && <span className={classes.question}>Q</span>} */}
 
-    {post.url && showLinkTag && <span className={classes.tag}>[Link]</span>}
+    {/* {post.url && showLinkTag && <span className={classes.tag}>[Link]</span>} */}
 
     {post.isEvent && shouldRenderEventsTag && <span className={classes.tag}>[Event]</span>}
 

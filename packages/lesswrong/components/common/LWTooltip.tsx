@@ -2,30 +2,31 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useHover } from './withHover';
 import { PopperPlacementType } from '@material-ui/core/Popper'
+import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
     // inline-block makes sure that the popper placement works properly (without flickering). "block" would also work, but there may be situations where we want to wrap an object in a tooltip that shouldn't be a block element.
     display: "inline-block",
   },
+  noMouseEvents: {
+    pointerEvents: "none",
+  },
   tooltip: {
     maxWidth: 300
   }
 })
 
-interface ExternalProps {
-  children?: React.ReactNode,
+const LWTooltip = ({classes, className, children, title, placement="bottom-start", tooltip=true, flip=true, clickable=true}: {
+  children?: any,
   title?: any,
   placement?: PopperPlacementType,
   tooltip?: boolean,
   flip?: boolean,
-  muiClasses?: any,
-  enterDelay?: number,
-}
-interface LWTooltipProps extends ExternalProps, WithStylesProps, WithHoverProps {
-}
-
-const LWTooltip = ({classes, children, title, placement="bottom-start", tooltip=true, flip=true, muiClasses=undefined, enterDelay=undefined}: LWTooltipProps) => {
+  clickable?: boolean,
+  classes: ClassesType,
+  className?: string
+}) => {
   const { LWPopper } = Components
   const { hover, everHovered, anchorEl, stopHover, eventHandlers } = useHover({
     pageElementContext: "tooltipHovered",
@@ -34,7 +35,7 @@ const LWTooltip = ({classes, children, title, placement="bottom-start", tooltip=
   
   if (!title) return children
 
-  return <span className={classes.root} {...eventHandlers}>
+  return <span className={classNames(classes.root, className)} {...eventHandlers}>
     { /* Only render the LWPopper if this element has ever been hovered. (But
          keep it in the React tree thereafter, so it can remember its state and
          can have a closing animation if applicable. */ }
@@ -49,17 +50,15 @@ const LWTooltip = ({classes, children, title, placement="bottom-start", tooltip=
           enabled: flip
         }
       }}
-      classes={muiClasses}
-      enterDelay={enterDelay}
     >
-      <div className={classes.tooltip}>{title}</div>
+      <div className={classNames(classes.tooltip, {[classes.noMouseEvents]: !clickable})}>{title}</div>
     </LWPopper>}
     
     {children}
   </span>
 }
 
-const LWTooltipComponent = registerComponent<ExternalProps>("LWTooltip", LWTooltip, { styles });
+const LWTooltipComponent = registerComponent("LWTooltip", LWTooltip, { styles });
 
 declare global {
   interface ComponentTypes {
