@@ -77,6 +77,7 @@ registerSetting('mapbox.apiKey', null, 'API Key for the mapbox map and tile requ
 // Post/Sequence IDs
 registerSetting('aboutPostId', 'bJ2haLkcGeLtTWaD5', 'Post ID for the /about route') // Currently unused by LW/AF
 registerSetting('introPostId', null, 'Post ID for the /intro route')
+registerSetting('contactPostId', null, 'Post ID for the /contact route')
 registerSetting('eaHomeSequenceId', null, 'Sequence ID for the EAHomeHandbook sequence')
 registerSetting('eaHomeSequenceFirstPostId', null, 'Post ID for the first post in the EAHomeHandbook Sequence')
 
