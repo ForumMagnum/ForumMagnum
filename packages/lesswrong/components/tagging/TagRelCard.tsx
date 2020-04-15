@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useVote } from '../votes/withVote';
@@ -6,6 +6,7 @@ import { useCurrentUser } from '../common/withUser';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentBodyStyles } from '../../themes/stylePiping'
+import classNames from 'classnames';
 
 export const seeAllStyles = theme => ({
   padding: theme.spacing.unit,
@@ -39,6 +40,10 @@ const styles = theme => ({
   },
   description: {
     ...commentBodyStyles(theme),
+    marginBottom: 8
+  },
+  name: {
+    fontVariant:"small-caps"
   },
   score: {
     marginLeft: 4,
@@ -46,6 +51,140 @@ const styles = theme => ({
   },
   seeAll: {
     ...seeAllStyles(theme)
+  },
+  relevanceVotingSection: {
+    marginTop: 16,
+    marginLeft: -16,
+    marginRight: -16,
+    marginBottom: -16,
+    backgroundColor: "rgba(0,0,0,.05)",
+    padding: 16,
+  },
+  noRelevance: {
+    cursor: "pointer",
+    fontSize: ".8rem",
+    ...theme.typography.commentStyle,
+    paddingLeft: 6,
+    paddingRight: 6,
+    paddingTop: 2,
+    paddingBottom: 2,
+    border: "solid 2px rgba(0,0,0,.3)",
+    backgroundColor: "white",
+    '&:hover': {
+      backgroundColor: "rgba(0,0,0,.15)"
+    },
+    color: theme.palette.grey[700],
+    borderRadius: 2,
+    marginBottom: 3,
+    marginRight: 7,
+    display: "inline-block",
+    textAlign: "center",
+    fontWeight:600,
+    width: 44
+  },
+  noSelected: {
+    backgroundColor: "rgba(0,0,0,.3)"
+  },
+  lowRelevance: {
+    cursor: "pointer",
+    ...theme.typography.commentStyle,
+    fontSize: ".8rem",
+    paddingLeft: 6,
+    paddingRight: 6,
+    paddingTop: 2,
+    paddingBottom: 2,
+    border: "solid 2px rgba(120,50,50,.4)",
+    color: "rgba(120,50,50)",
+    backgroundColor: "white",
+    '&:hover': {
+      backgroundColor: "rgba(120,50,50,.2)"
+    },
+    borderRadius: 2,
+    marginBottom: 3,
+    marginRight: 7,
+    display: "inline-block",
+    textAlign: "center",
+    fontWeight:600,
+    width: 44
+  },
+  lowSelected: {
+    backgroundColor: "rgba(120,50,50,.3)"
+  },
+  mediumRelevance: {
+    cursor: "pointer",
+    ...theme.typography.commentStyle,
+    fontSize: ".8rem",
+    paddingLeft: 6,
+    paddingRight: 6,
+    paddingTop: 2,
+    paddingBottom: 2,
+    border: "solid 2px rgba(170,170,20,.5)",
+    color: "rgba(170,170,20)",
+    backgroundColor: "white",
+    '&:hover': {
+      backgroundColor: "rgba(170,170,20,.3)"
+    },
+    borderRadius: 2,
+    marginBottom: 3,
+    marginRight: 7,
+    display: "inline-block",
+    textAlign: "center",
+    fontWeight:600,
+    width: 44
+  },
+  mediumSelected: {
+    backgroundColor: "rgba(170,170,20,.4)"
+  },
+  highRelevance: {
+    cursor: "pointer",
+    ...theme.typography.commentStyle,
+    fontSize: ".8rem",
+    paddingLeft: 6,
+    paddingRight: 6,
+    paddingTop: 2,
+    paddingBottom: 2,
+    display: "inline-block",
+    border: "solid 2px rgba(100,170,110,.6)",
+    color: "rgba(100,170,110)",
+    backgroundColor: "white",
+    '&:hover': {
+      backgroundColor: "rgba(100,170,110,.4)"
+    },
+    borderRadius: 2,
+    marginBottom: 3,
+    marginRight: 7,
+    textAlign: "center",
+    fontWeight:600,
+    width: 44
+  },
+  highSelected: {
+    backgroundColor: "rgba(100,170,110,.5)"
+  },
+  relevanceButton: {
+    ...commentBodyStyles(theme),
+    fontSize: "1rem",
+    marginTop: 12,
+    marginBottom: 8
+  },
+  voteOnRelevance: {
+    fontStyle: "italic",
+    color: theme.palette.grey[600],
+  },
+  currentRelevance: {
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 6,
+    paddingBottom: 6,
+    background: theme.palette.grey[100],
+    borderRadius: 2,
+    marginRight: 10
+  },
+  voteA: {
+    marginLeft: 4
+  },
+  voteInfo: {
+    fontSize: ".85rem",
+    fontStyle: "italic"
   }
 });
 
@@ -57,7 +196,9 @@ const TagRelCard = ({tagRel, classes}: {
 }) => {
   const currentUser = useCurrentUser();
   const vote = useVote();
-  const { VoteButton, PostsItem2, ContentItemBody, PostsListPlaceholder } = Components;
+  const { LWTooltip, PostsItem2, ContentItemBody, PostsListPlaceholder } = Components;
+  const [showVoting, setShowVoting] = useState(false)
+  const [tagVote, setTagVote] = useState("")
   
   const { results } = useMulti({
     terms: {
@@ -71,35 +212,7 @@ const TagRelCard = ({tagRel, classes}: {
   });
   
   return <div className={classes.root}>
-    <span className={classes.relevanceLabel}>
-      Relevance
-    </span>
-    
-    <div className={classes.voteButton}>
-      <VoteButton
-        orientation="left"
-        color="error"
-        voteType="Downvote"
-        document={tagRel}
-        currentUser={currentUser}
-        collection={TagRels}
-        vote={vote}
-      />
-    </div>
-    <span className={classes.score}>
-      {tagRel.baseScore}
-    </span>
-    <div className={classes.voteButton}>
-      <VoteButton
-        orientation="right"
-        color="secondary"
-        voteType="Upvote"
-        document={tagRel}
-        currentUser={currentUser}
-        collection={TagRels}
-        vote={vote}
-      />
-    </div>
+    {/* <Link className={classes.seeAll} to={`/tag/${tagRel.tag.slug}`}>See All</Link>  */}
     
     {<ContentItemBody
       dangerouslySetInnerHTML={{__html: tagRel.tag.description?.htmlHighlight}}
@@ -111,8 +224,61 @@ const TagRelCard = ({tagRel, classes}: {
     {results && results.map((result,i) =>
       <PostsItem2 key={result.post._id} post={result.post} index={i} />
     )}
-    <Link className={classes.seeAll} to={`/tag/${tagRel.tag.slug}`}>See All</Link>
-    
+    {/* <div>Relevance: Medium (vote to change)</div> */}
+    <div className={classes.relevanceButton} onMouseOver={()=>setShowVoting(true)} onMouseLeave={()=>setShowVoting(true)}>
+      <div>
+        <span className={classes.currentRelevance}>Medium Relevance</span> <span className={classes.voteOnRelevance}>Does this seem wrong? <a className={classes.voteA}>Vote to change</a></span>
+      </div>
+      <div>
+        {showVoting && <div className={classes.relevanceVotingSection}>
+          <div>How relevant is this post for the {tagRel.tag.name} tag? </div>
+          <div><em>Based on your karma, your vote weight is 2 points</em></div>
+          <br/>
+          <div>
+            <div>
+              <LWTooltip placement="right" title="This post is key contribution to the tag, and should be sorted to the top of the tag page.">
+                <span 
+                  className={classNames(classes.highRelevance, {[classes.highSelected]: tagVote === "high"})} 
+                  onClick={()=>setTagVote(tagVote === "high" ? "" : "high")}>
+                    High
+                </span> 
+              </LWTooltip>
+              <span className={classes.voteInfo}>{1 + (tagVote==="high" ? 2 : 0)} points {tagVote==="high" && " (You have voted on this)"}</span>
+            </div>
+            <div>
+              <LWTooltip placement="right" title="This post should be sorted normally, by karma">
+                <span 
+                  className={classNames(classes.mediumRelevance, {[classes.mediumSelected]: tagVote === "med"})} 
+                  onClick={()=>setTagVote(tagVote === "med" ? "" : "med")}>
+                  Med
+                </span> 
+              </LWTooltip>
+              <span className={classes.voteInfo}>{2 + (tagVote==="med" ? 2 : 0)} points {tagVote==="med" && " (You have voted on this)"}</span>
+            </div>
+            <div>
+              <LWTooltip placement="right" title="Only tangentially relevant. Should be sorted to the bottom of the tag page">
+                <span 
+                  className={classNames(classes.lowRelevance, {[classes.lowSelected]: tagVote === "low"})} 
+                  onClick={()=>setTagVote(tagVote === "low" ? "" : "low")}>
+                    Low
+                </span> 
+              </LWTooltip>
+              <span className={classes.voteInfo}>{0 + (tagVote==="low" ? 2 : 0)} points {tagVote==="low" && " (You have voted on this)"}</span>
+            </div>
+            <div>
+              <LWTooltip placement="right" title={`This post shouldn't be tagged with ${tagRel.tag.name}`}>
+                <span 
+                  className={classNames(classes.noRelevance, {[classes.noSelected]: tagVote === "none"})} 
+                  onClick={()=>setTagVote(tagVote === "none" ? "" : "none")}>
+                  None
+                </span> 
+              </LWTooltip>
+              <span className={classes.voteInfo}>{0 + (tagVote==="none" ? 2 : 0)} points {tagVote==="none" && " (You have voted on this)"}</span>
+            </div>
+          </div>
+        </div>}
+      </div>
+    </div>
   </div>
 }
 

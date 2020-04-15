@@ -44,7 +44,7 @@ const FooterTag = ({tagRel, tag, hover, anchorEl, classes}) => {
       <span className={classes.name}>{tag.name}</span>
       <span className={classes.score}>{tagRel.baseScore}</span>
     </Link>
-    <Components.PopperCard open={hover} anchorEl={anchorEl}>
+    <Components.PopperCard open={true} anchorEl={anchorEl}>
       <div className={classes.hovercard}>
         <Components.TagRelCard tagRel={tagRel}/>
       </div>
