@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent, getSetting } from '../../lib/vulcan-lib';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -13,7 +13,7 @@ const CoronavirusFrontpageWidget = ({settings}) => {
     // skip: !(tag?._id),
     terms: {
       view: "postsWithTag",
-      tagId: "tNsqhzTibgGJKPEWB",
+      tagId: getSetting('coronavirusTagId'),
     },
     collection: TagRels,
     fragmentName: "TagRelFragment",

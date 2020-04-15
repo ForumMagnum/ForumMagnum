@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
+import { Components, registerComponent, getFragment, getSetting } from '../../lib/vulcan-lib';
 import { updateEachQueryResultOfType, handleUpdateMutation } from '../../lib/crud/cacheUpdates';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation } from 'react-apollo';
@@ -61,7 +61,7 @@ const FooterTagList = ({post, classes}: {
   return <div className={classes.root}>
     {results.map((result, i) => {
       // currently only showing the "Coronavirus" tag to most users
-      if ((result.tag._id === "tNsqhzTibgGJKPEWB") || userCanManageTags(currentUser)) {
+      if ((result.tag._id === getSetting('coronavirusTagId')) || userCanManageTags(currentUser)) {
         return <FooterTag key={result._id} tagRel={result} tag={result.tag}/>
       }
     })}

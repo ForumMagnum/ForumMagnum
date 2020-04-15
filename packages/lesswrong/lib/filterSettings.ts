@@ -1,4 +1,5 @@
 import * as _ from 'underscore';
+import { getSetting } from './vulcan-lib';
 
 export interface FilterSettings {
   personalBlog: FilterMode,
@@ -17,7 +18,7 @@ export const defaultFilterSettings: FilterSettings = {
   personalBlog: "Hidden",
   tags: [
     {
-      tagId: "tNsqhzTibgGJKPEWB",
+      tagId: getSetting('coronavirusTagId'),
       tagName: "Coronavirus",
       filterMode: "Default",
     }
