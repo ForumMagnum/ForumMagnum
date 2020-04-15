@@ -1365,10 +1365,9 @@ interface TagRelMinimumFragment_tag_description { // fragment on Revisions
   readonly htmlHighlight: string,
 }
 
-interface TagRelDocumentInfo { // fragment on TagRels
+interface TagRelDocumentInfo extends WithVoteTagRel { // fragment on TagRels
   readonly _id: string,
-  readonly tag: TagFragment,
-  readonly post: PostsMinimumInfo,
+  readonly post: PostsBase,
 }
 
 interface WithVoteTagRel { // fragment on TagRels
@@ -1487,6 +1486,7 @@ interface TagRelVotes { // fragment on Votes
   readonly power: number,
   readonly documentId: string,
   readonly votedAt: Date,
+  readonly isUnvote: boolean,
   readonly tagRel: TagRelDocumentInfo,
 }
 

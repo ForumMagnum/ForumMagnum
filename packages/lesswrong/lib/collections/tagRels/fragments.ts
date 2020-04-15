@@ -50,11 +50,9 @@ registerFragment(`
 registerFragment(`
   fragment TagRelDocumentInfo on TagRel {
     _id
-    tag {
-      ...TagFragment
-    }
+    ...WithVoteTagRel
     post {
-      ...PostsMinimumInfo
+      ...PostsBase
     }
   }
 `);

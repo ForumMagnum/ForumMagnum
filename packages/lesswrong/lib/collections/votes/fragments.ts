@@ -24,6 +24,7 @@ fragment TagRelVotes on Vote {
   power
   documentId
   votedAt
+  isUnvote
   tagRel {
     ...TagRelDocumentInfo
   }
