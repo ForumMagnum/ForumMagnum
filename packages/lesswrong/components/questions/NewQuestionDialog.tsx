@@ -41,6 +41,7 @@ const NewQuestionDialog = ({ onClose, fullScreen, classes }: {
       maxWidth={false}
       onClose={onClose}
       fullScreen={fullScreen}
+      disableEnforceFocus
     >
       <DialogContent>
         <Components.WrappedSmartForm

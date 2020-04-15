@@ -9,7 +9,7 @@ const EditTagsDialog = ({post, onClose }: {
   onClose: ()=>void
 }) => {
   const { FooterTagList } = Components
-  return <Dialog open={true} onClose={onClose} fullWidth maxWidth="sm">
+  return <Dialog open={true} onClose={onClose} fullWidth maxWidth="sm" disableEnforceFocus>
     <DialogTitle>{post.title}</DialogTitle>
     <DialogContent>
       <FooterTagList post={post}/> 
