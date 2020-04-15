@@ -7,6 +7,7 @@ import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentBodyStyles } from '../../themes/stylePiping'
 import classNames from 'classnames';
+import e from 'express';
 
 export const seeAllStyles = theme => ({
   padding: theme.spacing.unit,
@@ -213,25 +214,30 @@ const TagRelCard = ({tagRel, classes}: {
   
   return <div className={classes.root}>
     {/* <Link className={classes.seeAll} to={`/tag/${tagRel.tag.slug}`}>See All</Link>  */}
-    
-    {<ContentItemBody
-      dangerouslySetInnerHTML={{__html: tagRel.tag.description?.htmlHighlight}}
-      description={`tag ${tagRel.tag.name}`}
-      className={classes.description}
-    />}
-    
-    {!results && <PostsListPlaceholder count={previewPostCount}/>}
-    {results && results.map((result,i) =>
-      <PostsItem2 key={result.post._id} post={result.post} index={i} />
-    )}
-    {/* <div>Relevance: Medium (vote to change)</div> */}
-    <div className={classes.relevanceButton} onMouseOver={()=>setShowVoting(true)} onMouseLeave={()=>setShowVoting(true)}>
+    <div onMouseOver={()=>setShowVoting(false)}>
+      {<ContentItemBody
+        dangerouslySetInnerHTML={{__html: tagRel.tag.description?.htmlHighlight}}
+        description={`tag ${tagRel.tag.name}`}
+        className={classes.description}
+      />}
+      
+      {!results && <PostsListPlaceholder count={previewPostCount}/>}
+      {results && results.map((result,i) =>
+        <PostsItem2 key={result.post._id} post={result.post} index={i} />
+      )}
+    </div>
+    <div className={classes.relevanceButton} onMouseOver={()=>setShowVoting(true)}>
       <div>
-        <span className={classes.currentRelevance}>Medium Relevance</span> <span className={classes.voteOnRelevance}>Does this seem wrong? <a className={classes.voteA}>Vote to change</a></span>
+        <span className={classes.currentRelevance}>
+          Medium Relevance
+        </span> 
+        <span className={classes.voteOnRelevance}>
+          Does this seem wrong? <a className={classes.voteA}>Vote to change</a>
+        </span>
       </div>
       <div>
         {showVoting && <div className={classes.relevanceVotingSection}>
-          <div>How relevant is this post for the {tagRel.tag.name} tag? </div>
+          <div>How relevant is this post to the <em>{tagRel.tag.name}</em> tag? </div>
           <div><em>Based on your karma, your vote weight is 2 points</em></div>
           <br/>
           <div>
@@ -250,7 +256,7 @@ const TagRelCard = ({tagRel, classes}: {
                 <span 
                   className={classNames(classes.mediumRelevance, {[classes.mediumSelected]: tagVote === "med"})} 
                   onClick={()=>setTagVote(tagVote === "med" ? "" : "med")}>
-                  Med
+                  Medium
                 </span> 
               </LWTooltip>
               <span className={classes.voteInfo}>{2 + (tagVote==="med" ? 2 : 0)} points {tagVote==="med" && " (You have voted on this)"}</span>
