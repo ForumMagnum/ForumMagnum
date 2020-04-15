@@ -72,7 +72,8 @@ const styles = theme => ({
     border: "solid 2px rgba(0,0,0,.3)",
     backgroundColor: "white",
     '&:hover': {
-      backgroundColor: "rgba(0,0,0,.15)"
+      backgroundColor: "rgba(0,0,0,.15)",
+      color: "white",
     },
     color: theme.palette.grey[700],
     borderRadius: 2,
@@ -84,7 +85,8 @@ const styles = theme => ({
     width: 44
   },
   noSelected: {
-    backgroundColor: "rgba(0,0,0,.3)"
+    backgroundColor: "rgba(0,0,0,.3)",
+    color: "white",
   },
   lowRelevance: {
     cursor: "pointer",
@@ -98,7 +100,8 @@ const styles = theme => ({
     color: "rgba(120,50,50)",
     backgroundColor: "white",
     '&:hover': {
-      backgroundColor: "rgba(120,50,50,.2)"
+      backgroundColor: "rgba(120,50,50,.2)",
+      color: "white",
     },
     borderRadius: 2,
     marginBottom: 3,
@@ -109,7 +112,11 @@ const styles = theme => ({
     width: 44
   },
   lowSelected: {
-    backgroundColor: "rgba(120,50,50,.3)"
+    backgroundColor: "rgba(120,50,50,.3)",
+    color: "white",
+  },
+  currentlyLow: {
+    backgroundColor: "rgba(120,50,50,.2)",
   },
   mediumRelevance: {
     cursor: "pointer",
@@ -119,11 +126,12 @@ const styles = theme => ({
     paddingRight: 6,
     paddingTop: 2,
     paddingBottom: 2,
-    border: "solid 2px rgba(170,170,20,.5)",
-    color: "rgba(170,170,20)",
+    border: "solid 2px rgba(180,170,0,.5)",
+    color: "rgba(100,100,0)",
     backgroundColor: "white",
     '&:hover': {
-      backgroundColor: "rgba(170,170,20,.3)"
+      backgroundColor: "rgba(180,170,0,.2)",
+      color: "white",
     },
     borderRadius: 2,
     marginBottom: 3,
@@ -134,7 +142,10 @@ const styles = theme => ({
     width: 44
   },
   mediumSelected: {
-    backgroundColor: "rgba(170,170,20,.4)"
+    backgroundColor: "rgba(180,170,0,.4)",
+  },
+  currentlyMedium: {
+    backgroundColor: "rgba(180,170,0,.2)",
   },
   highRelevance: {
     cursor: "pointer",
@@ -149,7 +160,8 @@ const styles = theme => ({
     color: "rgba(100,170,110)",
     backgroundColor: "white",
     '&:hover': {
-      backgroundColor: "rgba(100,170,110,.4)"
+      backgroundColor: "rgba(100,170,110,.4)",
+      color: "white",
     },
     borderRadius: 2,
     marginBottom: 3,
@@ -159,7 +171,45 @@ const styles = theme => ({
     width: 44
   },
   highSelected: {
-    backgroundColor: "rgba(100,170,110,.5)"
+    backgroundColor: "rgba(100,170,110,.5)",
+    color: "white",
+  },
+  currentlyHigh: {
+    backgroundColor: "rgba(100,170,110,.4)",
+  },
+  topRelevance: {
+    cursor: "pointer",
+    ...theme.typography.commentStyle,
+    fontSize: ".8rem",
+    paddingLeft: 6,
+    paddingRight: 6,
+    paddingTop: 2,
+    paddingBottom: 2,
+    display: "inline-block",
+    border: "solid 2px rgba(100,170,110,1)",
+    color: "rgba(100,170,110)",
+    backgroundColor: "white",
+    '&:hover': {
+      backgroundColor: "rgba(100,170,110,.8)",
+      color: "white",
+    },
+    borderRadius: 2,
+    marginBottom: 3,
+    marginRight: 7,
+    textAlign: "center",
+    fontWeight: 600,
+    width: 44
+  },
+  topSelected: {
+    backgroundColor: "rgba(100,170,110,1)",
+    color: "white",
+  },
+  currentlyTop: {
+    backgroundColor: "rgba(100,170,110,.8)",
+  },
+  buttons: {
+    marginTop: 8,
+    marginBottom: 8
   },
   relevanceButton: {
     ...commentBodyStyles(theme),
@@ -211,6 +261,13 @@ const TagRelCard = ({tagRel, classes}: {
     limit: previewPostCount,
     ssr: true,
   });
+
+  let currentRelevance = "Medium"
+  if (tagVote === "None") { currentRelevance = "Low" }
+  if (tagVote === "Low") { currentRelevance = "Medium" }
+  if (tagVote === "Medium") { currentRelevance = "Medium" }
+  if (tagVote === "High") { currentRelevance = "High" }
+  if (tagVote === "Top") { currentRelevance = "High" }
   
   return <div className={classes.root}>
     {/* <Link className={classes.seeAll} to={`/tag/${tagRel.tag.slug}`}>See All</Link>  */}
@@ -228,8 +285,14 @@ const TagRelCard = ({tagRel, classes}: {
     </div>
     <div className={classes.relevanceButton} onMouseOver={()=>setShowVoting(true)}>
       <div>
-        <span className={classes.currentRelevance}>
-          Medium Relevance
+        <span className={classNames(classes.currentRelevance, {
+          [classes.currentlyTop]: currentRelevance === "Top",
+          [classes.currentlyHigh]: currentRelevance === "High",
+          [classes.currentlyMedium]: currentRelevance === "Medium",
+          [classes.currentlyLow]: currentRelevance === "Low",
+          [classes.currentlyNone]: currentRelevance === "None",
+        })}>
+          {currentRelevance} Relevance
         </span> 
         <span className={classes.voteOnRelevance}>
           Does this seem wrong? <a className={classes.voteA}>Vote to change</a>
@@ -238,50 +301,87 @@ const TagRelCard = ({tagRel, classes}: {
       <div>
         {showVoting && <div className={classes.relevanceVotingSection}>
           <div>How relevant is this post to the <em>{tagRel.tag.name}</em> tag? </div>
-          <div><em>Based on your karma, your vote weight is 2 points</em></div>
-          <br/>
-          <div>
+          <div className={classes.buttons}>
             <div>
-              <LWTooltip placement="right" title="This post is key contribution to the tag, and should be sorted to the top of the tag page.">
+              <LWTooltip placement="right-end" title="This is a key introductory post, and should be one of the top few posts on the page.">
                 <span 
-                  className={classNames(classes.highRelevance, {[classes.highSelected]: tagVote === "high"})} 
-                  onClick={()=>setTagVote(tagVote === "high" ? "" : "high")}>
+                  className={classNames(classes.topRelevance, {
+                    [classes.topSelected]: tagVote === "Top",
+                    [classes.currentlyTop]: currentRelevance === "Top",
+                  })} 
+                  onClick={()=>setTagVote(tagVote === "Top" ? "" : "Top")}>
+                    Top
+                </span> 
+              </LWTooltip>
+              <span className={classes.voteInfo}>
+                {0 + (tagVote==="Top" ? 2 : 0)} points 
+                {tagVote==="Top" ? " (You have voted on this)" : ""}
+              </span>
+            </div>
+            <div>
+              <LWTooltip placement="right-end" title="This post is an important contribution to the tag, and should be sorted towards the top of the tag page.">
+                <span 
+                  className={classNames(classes.highRelevance, {
+                    [classes.highSelected]: tagVote === "High",
+                    [classes.currentlyHigh]: currentRelevance === "High",
+                  })} 
+                  onClick={()=>setTagVote(tagVote === "High" ? "" : "High")}>
                     High
                 </span> 
               </LWTooltip>
-              <span className={classes.voteInfo}>{1 + (tagVote==="high" ? 2 : 0)} points {tagVote==="high" && " (You have voted on this)"}</span>
+              <span className={classes.voteInfo}>
+                {1 + (tagVote==="High" ? 2 : 0)} points 
+                {tagVote==="High" ? " (You and one other user have voted on this)" : " (One user has voted on this)" }</span>
             </div>
             <div>
-              <LWTooltip placement="right" title="This post should be sorted normally, by karma">
+              <LWTooltip placement="right-end" title="This post should be sorted normally, by karma">
                 <span 
-                  className={classNames(classes.mediumRelevance, {[classes.mediumSelected]: tagVote === "med"})} 
-                  onClick={()=>setTagVote(tagVote === "med" ? "" : "med")}>
-                  Medium
+                  className={classNames(classes.mediumRelevance, {
+                    [classes.mediumSelected]: tagVote === "Medium",
+                    [classes.currentlyMedium]: currentRelevance === "Medium",
+                  })} 
+                  onClick={()=>setTagVote(tagVote === "Medium" ? "" : "Medium")}>
+                  Med
                 </span> 
               </LWTooltip>
-              <span className={classes.voteInfo}>{2 + (tagVote==="med" ? 2 : 0)} points {tagVote==="med" && " (You have voted on this)"}</span>
+              <span className={classes.voteInfo}>
+                {2 + (tagVote==="Medium" ? 2 : 0)} points 
+                {tagVote==="Medium" ? " (You have one other user have voted on this)" : " (One user has voted on this)"}</span>
             </div>
             <div>
-              <LWTooltip placement="right" title="Only tangentially relevant. Should be sorted to the bottom of the tag page">
+              <LWTooltip placement="right-end" title="Only tangentially relevant. Should be sorted towards the bottom of the tag page">
                 <span 
-                  className={classNames(classes.lowRelevance, {[classes.lowSelected]: tagVote === "low"})} 
-                  onClick={()=>setTagVote(tagVote === "low" ? "" : "low")}>
+                  className={classNames(classes.lowRelevance, {
+                    [classes.lowSelected]: tagVote === "Low",
+                    [classes.currentlyLow]: currentRelevance === "Low",
+                  })} 
+                  onClick={()=>setTagVote(tagVote === "Low" ? "" : "Low")}>
                     Low
                 </span> 
               </LWTooltip>
-              <span className={classes.voteInfo}>{0 + (tagVote==="low" ? 2 : 0)} points {tagVote==="low" && " (You have voted on this)"}</span>
+              <span className={classes.voteInfo}>
+                {0 + (tagVote==="Low" ? 2 : 0)} points 
+                {tagVote==="Low" ? " (You have voted on this)" : ""}
+              </span>
             </div>
             <div>
-              <LWTooltip placement="right" title={`This post shouldn't be tagged with ${tagRel.tag.name}`}>
+              <LWTooltip placement="right-end" title={`This post shouldn't be tagged with ${tagRel.tag.name}`}>
                 <span 
-                  className={classNames(classes.noRelevance, {[classes.noSelected]: tagVote === "none"})} 
-                  onClick={()=>setTagVote(tagVote === "none" ? "" : "none")}>
+                  className={classNames(classes.noRelevance, {
+                    [classes.noSelected]: tagVote === "None",
+                    [classes.currentlyNone]: currentRelevance === "None",
+                  })} 
+                  onClick={()=>setTagVote(tagVote === "None" ? "" : "None")}>
                   None
                 </span> 
               </LWTooltip>
-              <span className={classes.voteInfo}>{0 + (tagVote==="none" ? 2 : 0)} points {tagVote==="none" && " (You have voted on this)"}</span>
+              <span className={classes.voteInfo}>
+                {0 + (tagVote==="None" ? 2 : 0)} points 
+                {tagVote==="None" ? " (You have voted on this)" : ""}
+              </span>
             </div>
           </div>
+          <div><em>(Based on your karma, your vote weight is 2 points. Relevance is determined by the median point value)</em></div>
         </div>}
       </div>
     </div>
