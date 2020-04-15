@@ -41,7 +41,7 @@ const TagPreview = ({tag, classes}: {
 
   return (<div>
     <h2 className={classes.tagTitle}>{tag.name} Tag</h2>
-    {tag && <ContentItemBody
+    <ContentItemBody
       className={classes.tagDescription}
       dangerouslySetInnerHTML={{__html: highlight}}
       description={`tag ${tag.name}`}
@@ -61,4 +61,3 @@ declare global {
     TagPreview: typeof TagPreviewComponent
   }
 }
-
