@@ -160,6 +160,11 @@ export default {
       title: 'FAQ',
       link: '/faq',
       subItem: true,
+    }, {
+      id: 'tags',
+      title: 'Tags'
+      link: '/tags',
+      subItem: true,
     }
   ],
   AlignmentForum: [
