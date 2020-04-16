@@ -13,6 +13,7 @@ Votes.addView("tagVotes", function () {
   return {
     selector: {
       collectionName: "TagRels"
+      cancelled: false,
     },
     options: {
       sort: {

@@ -3,10 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Votes } from '../../lib/collections/votes';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableRow from '@material-ui/core/TableRow';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Posts } from '../../lib/collections/posts';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -26,7 +22,8 @@ const styles = theme => ({
     width: 50
   },
   tagCell: {
-    width: 200
+    width: 200,
+    textAlign: "right"
   },
   score: {
     fontSize: '1.2rem',
@@ -54,23 +51,23 @@ const TagVoteActivity = ({classes}:{
   if (!currentUser?.isAdmin) { return <Error404/> }
 
   return <SingleColumnSection>
-    <Table>
-      <TableBody>
-        <TableRow className={classes.headerRow}>
-          <TableCell className={classes.headerCell}> User </TableCell>
-          <TableCell className={classes.headerCell}> Tag </TableCell>
-          <TableCell className={classes.headerCell}> Pow </TableCell>
-          <TableCell className={classes.headerCell}> Post Title </TableCell>
-          <TableCell className={classes.headerCell}> When </TableCell>
-          <TableCell className={classes.headerCell}> Vote </TableCell>
-        </TableRow>
-        {votes?.map(vote=><TableRow key={vote._id} className={classes.voteRow}>
-            <TableCell>{vote.userId?.slice(7,10)}</TableCell>
-            <TableCell className={classes.tagCell}><FooterTag tag={vote.tagRel?.tag} tagRel={vote.tagRel} /></TableCell>
-            <TableCell>{vote.power} {vote.isUnvote && <span title="Unvote">(unv.)</span>}</TableCell>
-            <TableCell> <Link to={Posts.getPageUrl(vote.tagRel?.post)}> {vote.tagRel?.post?.title} </Link> </TableCell>
-            <TableCell><FormatDate date={vote.votedAt}/></TableCell>
-            <TableCell className={classes.votingCell}>
+    <table>
+      <tbody>
+        <tr className={classes.headerRow}>
+          <td className={classes.headerCell}> User </td>
+          <td className={classes.headerCell}> Tag </td>
+          <td className={classes.headerCell}> Pow </td>
+          <td className={classes.headerCell}> Post Title </td>
+          <td className={classes.headerCell}> When </td>
+          <td className={classes.headerCell}> Vote </td>
+        </tr>
+        {votes?.map(vote=><tr key={vote._id} className={classes.voteRow}>
+            <td>{vote.userId?.slice(7,10)}</td>
+            <td className={classes.tagCell}><FooterTag tag={vote.tagRel?.tag} tagRel={vote.tagRel} hideScore /></td>
+            <td> <Link to={Posts.getPageUrl(vote.tagRel?.post)}> {vote.tagRel?.post?.title} </Link> </td>
+            <td>{vote.power} {vote.isUnvote && <span title="Unvote">(unv.)</span>}</td>
+            <td><FormatDate date={vote.votedAt}/></td>
+            <td className={classes.votingCell}>
               <div className={classes.voteButtons}>
                 <VoteButton
                   orientation="left"
@@ -94,10 +91,10 @@ const TagVoteActivity = ({classes}:{
                   vote={castVote}
                 />
               </div>
-            </TableCell>
-          </TableRow>)}
-      </TableBody>
-    </Table>
+            </td>
+          </tr)}
+      </tbody>
+    </table>
     <LoadMore {...loadMoreProps} />
   </SingleColumnSection>
 }
