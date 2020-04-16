@@ -210,11 +210,17 @@ const theme = createLWTheme({
       }
     },
     HomeLatestPosts: {
+      // TODO;
       personalBlogpostsCheckboxLabel: {
         marginTop: 2,
         [defaultTheme.breakpoints.down("xs")]: {
           fontSize: "1rem",
         },
+      }
+    },
+    FilterMode: {
+      selected: {
+        color: palette.primary.main
       }
     },
     NavigationStandalone: {
@@ -292,7 +298,7 @@ const theme = createLWTheme({
     },
     MuiSnackbarContent: {
       root: {
-        backgroundColor: palette.primary.main
+        backgroundColor: palette.lwTertiary.main
       }
     }
   }

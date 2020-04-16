@@ -10,22 +10,6 @@ import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
 import { defaultFilterSettings, filterSettingsToString } from '../../lib/filterSettings';
 
-const styles = theme => ({
-  personalBlogpostsCheckbox: {
-    // Hackily counteract margin from SectionFooterCheckbox
-    // We probably shouldn't be using SectionFOOTERCheckbox in the SectionTitle,
-    // but will probably refactor soon so won't bother fixing.
-    [theme.breakpoints.down('xs')]: {
-      marginBottom: -16,
-    }
-  },
-  personalBlogpostsCheckboxLabel: {
-    [theme.breakpoints.down("xs")]: {
-      width: 105,
-    },
-  },
-});
-
 const latestPostsName = getSetting('forumType') === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts'
 
 const useFilterSettings = (currentUser: UsersCurrent|null) => {
@@ -34,9 +18,7 @@ const useFilterSettings = (currentUser: UsersCurrent|null) => {
   return useState(defaultSettings);
 }
 
-const HomeLatestPosts = ({ classes }: {
-  classes: ClassesType
-}) => {
+const HomeLatestPosts = () => {
   const currentUser = useCurrentUser();
   const location = useLocation();
   const { captureEvent } = useTracking()
@@ -115,7 +97,7 @@ const HomeLatestPosts = ({ classes }: {
   )
 }
 
-const HomeLatestPostsComponent = registerComponent('HomeLatestPosts', HomeLatestPosts, {styles});
+const HomeLatestPostsComponent = registerComponent('HomeLatestPosts', HomeLatestPosts);
 
 declare global {
   interface ComponentTypes {
