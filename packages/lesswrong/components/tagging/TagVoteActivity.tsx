@@ -92,7 +92,7 @@ const TagVoteActivity = ({classes}:{
                 />
               </div>
             </td>
-          </tr)}
+          </tr>)}
       </tbody>
     </table>
     <LoadMore {...loadMoreProps} />

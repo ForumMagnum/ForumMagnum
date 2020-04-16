@@ -12,7 +12,7 @@ ensureIndex(Votes, {authorId:1, votedAt:1, userId:1, afPower:1});
 Votes.addView("tagVotes", function () {
   return {
     selector: {
-      collectionName: "TagRels"
+      collectionName: "TagRels",
       cancelled: false,
     },
     options: {
