@@ -56,8 +56,8 @@ const TagVoteActivity = ({classes}:{
         <tr className={classes.headerRow}>
           <td className={classes.headerCell}> User </td>
           <td className={classes.headerCell}> Tag </td>
-          <td className={classes.headerCell}> Pow </td>
           <td className={classes.headerCell}> Post Title </td>
+          <td className={classes.headerCell}> Pow </td>
           <td className={classes.headerCell}> When </td>
           <td className={classes.headerCell}> Vote </td>
         </tr>
