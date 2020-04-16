@@ -21,7 +21,7 @@ const styles = theme => ({
     whiteSpace: "nowrap",
     alignItems: "center",
     fontSize: "1.3rem",
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       whiteSpace: "unset",
       lineHeight: "1.8rem",
     },
@@ -52,8 +52,8 @@ const styles = theme => ({
     opacity: 1,
     color: "rgba(0,0,0,.75)",
   },
-  hideSmDown: {
-    [theme.breakpoints.down('sm')]: {
+  hideSmDown: { // TODO FIX NAME
+    [theme.breakpoints.down('xs')]: {
       display: "none",
     }
   },
