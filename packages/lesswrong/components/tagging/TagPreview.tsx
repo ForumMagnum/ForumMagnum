@@ -37,6 +37,7 @@ const TagPreview = ({tag, classes}: {
     ssr: true,
   });
 
+  if (!tag) return null
   const highlight = truncate(tag.description?.htmlHighlight, 1, "paragraphs")
 
   return (<div>
@@ -50,7 +51,7 @@ const TagPreview = ({tag, classes}: {
     {results && results.map((result,i) =>
       <PostsItem2 key={result.post._id} post={result.post} index={i} />
     )}
-    {tag && <Link className={classes.seeAll} to={`/tag/${tag.slug}`}>See All</Link>}
+    <Link className={classes.seeAll} to={`/tag/${tag.slug}`}>See All</Link>
   </div>)
 }
 
