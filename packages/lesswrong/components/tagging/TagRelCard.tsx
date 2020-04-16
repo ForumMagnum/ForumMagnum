@@ -104,11 +104,14 @@ const TagRelCard = ({tagRel, classes}: {
       />
     </div>
     
-    {<ContentItemBody
-      dangerouslySetInnerHTML={{__html: highlight}}
-      description={`tag ${tagRel.tag.name}`}
-      className={classes.description}
-    />}
+    {highlight ? 
+      <ContentItemBody
+        dangerouslySetInnerHTML={{__html: highlight}}
+        description={`tag ${tagRel.tag.name}`}
+        className={classes.description}
+      /> : 
+      <h2 className={classes.title}>{tagRel.tag.name}</h2 >
+    }
     
     {!results && <PostsListPlaceholder count={previewPostCount}/>}
     {results && results.map((result,i) =>
