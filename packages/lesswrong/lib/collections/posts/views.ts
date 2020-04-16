@@ -284,6 +284,11 @@ ensureIndex(Posts,
     name: "posts.score",
   }
 );
+
+
+// Wildcard index on tagRelevance, enables us to efficiently filter on tagRel scores
+// EA-FORUM: Building this index will fail until you update to MongoDB 4.2. If you haven't enabled/started using tagging, then this is probably harmless.
+ensureIndex(Posts,{ "tagRelevance.$**" : 1 } )
 // Used for the latest posts list when soft-filtering tags
 ensureIndex(Posts,
   augmentForDefaultView({ tagRelevance: 1 }),
@@ -384,7 +389,7 @@ Posts.addView("tagRelevance", terms => ({
   // note: this relies on the selector filtering done in the default view
   // sorts by the "sortedBy" parameter if it's been passed in, or otherwise sorts by tag relevance
   options: {
-    sort: terms.sortedBy ? sortings[terms.sortBy] : { [`tagRelevance.${terms.tagId}`]: -1}
+    sort: terms.sortedBy ? sortings[terms.sortBy] : { [`tagRelevance.${terms.tagId}`]: -1, baseScore: -1}
   }
 }));
 

@@ -6,6 +6,7 @@ import { useCurrentUser } from '../common/withUser';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentBodyStyles } from '../../themes/stylePiping'
+import { truncate } from '../../lib/editor/ellipsize';
 
 export const seeAllStyles = theme => ({
   padding: theme.spacing.unit,
@@ -69,6 +70,8 @@ const TagRelCard = ({tagRel, classes}: {
     limit: previewPostCount,
     ssr: true,
   });
+
+  const highlight = truncate(tagRel.tag.description?.htmlHighlight, 1, "paragraphs", "")
   
   return <div className={classes.root}>
     <span className={classes.relevanceLabel}>
@@ -101,11 +104,14 @@ const TagRelCard = ({tagRel, classes}: {
       />
     </div>
     
-    {<ContentItemBody
-      dangerouslySetInnerHTML={{__html: tagRel.tag.description?.htmlHighlight}}
-      description={`tag ${tagRel.tag.name}`}
-      className={classes.description}
-    />}
+    {highlight ? 
+      <ContentItemBody
+        dangerouslySetInnerHTML={{__html: highlight}}
+        description={`tag ${tagRel.tag.name}`}
+        className={classes.description}
+      /> : 
+      <h2 className={classes.title}>{tagRel.tag.name}</h2 >
+    }
     
     {!results && <PostsListPlaceholder count={previewPostCount}/>}
     {results && results.map((result,i) =>

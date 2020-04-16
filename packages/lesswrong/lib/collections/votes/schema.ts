@@ -70,7 +70,7 @@ const schema = {
   afPower: {
     type: Number,
     optional: true,
-    viewableBy: ['guests'],
+    canRead: Users.owns,
   },
   
   // Whether this vote has been cancelled (by un-voting or switching to a
