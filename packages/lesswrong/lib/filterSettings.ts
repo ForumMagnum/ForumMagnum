@@ -25,11 +25,35 @@ export const defaultFilterSettings: FilterSettings = {
   ],
 }
 
-export const filterTooltips = {
+type FilterSummary = {[M in FilterMode]?: string}
+
+export const filterTooltips: FilterSummary = {
   Hidden: "These posts will not appear on the home page",
   Included: "These posts will appear on the home page (sorted normally)",
   Required: "The home page will ONLY show posts that you have marked as 'required.'"
 }
+
+const lwafPersonalBlogpostFilterSummary: FilterSummary = {
+  Hidden: "No Personal Blogposts",
+  Included: "All",
+  Required: "Personal Blog",
+}
+
+// LW and AF have different language than the EA Forum around the exclusion of
+// their "special category" from the frontpage. The EA Forum excludes Community
+// Posts, and needs langugage to support that. So we make a lookup for the text
+// to use based on the forumType and FilterSetting.
+const personalBlogpostFilterSummaries: {[forumType: string]: FilterSummary} = {
+  LessWrong: lwafPersonalBlogpostFilterSummary,
+  AlignmentForum: lwafPersonalBlogpostFilterSummary,
+  EAForum: {
+    Hidden: "No Community Posts",
+    Included: "All",
+    Required: "Community Posts Only",
+  }
+}
+
+const forumPersonBlogpostFilterSummary: FilterSummary = personalBlogpostFilterSummaries[getSetting('forumType') as string]
 
 export function filterSettingsToString(filterSettings: FilterSettings): string {
   let nonNeutralTagModifiers = _.filter(filterSettings.tags,
@@ -66,14 +90,5 @@ export function filterSettingsToString(filterSettings: FilterSettings): string {
     }
   }
   
-  // Doesn't filter on a tag. Convert the personalBlog setting into a string.
-  if (filterSettings.personalBlog === "Hidden") {
-    return "No Personal Blogposts";
-  } else if (filterSettings.personalBlog === "Required") {
-    return "Personal Blog";
-  } else if (filterSettings.personalBlog === "Included") {
-    return "All";
-  } else {
-    return "Custom";
-  }
+  return forumPersonBlogpostFilterSummary[filterSettings.personalBlog] || "Custom"
 }
