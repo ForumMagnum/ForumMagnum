@@ -216,6 +216,12 @@ addRoute([
     componentName: 'AllTagsPage',
     title: "All Tags",
   },
+  {
+    name: 'tagVoting',
+    path: '/tagVoting',
+    componentName: 'TagVoteActivity',
+    title: 'Tag Voting Activity'
+  }
 ]);
 
 

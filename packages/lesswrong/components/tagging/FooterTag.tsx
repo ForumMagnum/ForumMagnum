@@ -38,11 +38,19 @@ interface ExternalProps {
 interface FooterTagProps extends ExternalProps, WithHoverProps, WithStylesProps {
 }
 
-const FooterTag = ({tagRel, tag, hover, anchorEl, classes}) => {
+const FooterTag = ({tagRel, tag, hideScore=false, hover, anchorEl, classes}: {
+  tagRel: TagRelMinimumFragment,
+  tag: TagRelMinimumFragment_tag,
+  hideScore?: boolean,
+  
+  hover: boolean,
+  anchorEl: any,
+  classes: ClassesType,
+}) => {
   return (<span className={classes.root}>
     <Link to={`/tag/${tag.slug}`}>
       <span className={classes.name}>{tag.name}</span>
-      <span className={classes.score}>{tagRel.baseScore}</span>
+      {!hideScore && <span className={classes.score}>{tagRel.baseScore}</span>}
     </Link>
     <Components.PopperCard open={hover} anchorEl={anchorEl}>
       <div className={classes.hovercard}>
