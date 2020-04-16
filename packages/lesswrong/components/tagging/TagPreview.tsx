@@ -42,11 +42,11 @@ const TagPreview = ({tag, classes}: {
 
   return (<div>
     <h2 className={classes.tagTitle}>{tag.name} Tag</h2>
-    {tag && <ContentItemBody
+    <ContentItemBody
       className={classes.tagDescription}
       dangerouslySetInnerHTML={{__html: highlight}}
       description={`tag ${tag.name}`}
-    />}
+    />
     {!results && <PostsListPlaceholder count={previewPostCount}/>}
     {results && results.map((result,i) =>
       <PostsItem2 key={result.post._id} post={result.post} index={i} />
@@ -62,4 +62,3 @@ declare global {
     TagPreview: typeof TagPreviewComponent
   }
 }
-
