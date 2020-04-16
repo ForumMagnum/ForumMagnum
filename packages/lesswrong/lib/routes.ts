@@ -207,6 +207,12 @@ addRoute([
   {
     name: 'tagIndex',
     path: '/tags',
+    componentName: 'PostsSingleRoute',
+    _id:"DHJBEsi4XJDw2fRFq"
+  },
+  {
+    name: 'allTags',
+    path: '/tags/all',
     componentName: 'AllTagsPage',
     title: "All Tags",
   },
