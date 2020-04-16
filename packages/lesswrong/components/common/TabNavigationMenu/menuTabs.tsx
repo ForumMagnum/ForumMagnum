@@ -167,7 +167,7 @@ export default {
       subItem: true
     }, {
       id: 'tags',
-      title: 'Tags'
+      title: 'Tags',
       link: '/tags',
       subItem: true,
     }
