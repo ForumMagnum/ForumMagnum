@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 import { TagRels } from '../../lib/collections/tagRels/collection';
-import { highlightStyles } from '../posts/PostsPreviewTooltip';
+import { commentBodyStyles } from '../../themes/stylePiping'
 import { seeAllStyles } from './TagRelCard';
 import { truncate } from '../../lib/editor/ellipsize';
 
@@ -11,7 +11,12 @@ const styles = theme => ({
   tagTitle: {
   },
   tagDescription: {
-    ...highlightStyles(theme)
+    marginTop: theme.spacing.unit,
+    ...commentBodyStyles(theme)
+  },
+  title: {
+    ...commentBodyStyles(theme),
+    ...theme.typography.display0,
   },
   seeAll: {
     ...seeAllStyles(theme)
@@ -41,12 +46,12 @@ const TagPreview = ({tag, classes}: {
   const highlight = truncate(tag.description?.htmlHighlight, 1, "paragraphs")
 
   return (<div>
-    <h2 className={classes.tagTitle}>{tag.name} Tag</h2>
-    <ContentItemBody
+    {tag.description?.htmlHighlight ? <ContentItemBody
       className={classes.tagDescription}
       dangerouslySetInnerHTML={{__html: highlight}}
       description={`tag ${tag.name}`}
-    />
+    /> : <h2 className={classes.title}>{tag.name}</h2 >
+    }
     {!results && <PostsListPlaceholder count={previewPostCount}/>}
     {results && results.map((result,i) =>
       <PostsItem2 key={result.post._id} post={result.post} index={i} />
