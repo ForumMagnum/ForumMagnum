@@ -26,10 +26,10 @@ const TagPreview = ({tag, classes}: {
 }) => {
   const { ContentItemBody, PostsItem2, PostsListPlaceholder } = Components;
   const { results } = useMulti({
-    skip: !(tag._id),
+    skip: !(tag?._id),
     terms: {
       view: "postsWithTag",
-      tagId: tag._id,
+      tagId: tag?._id,
     },
     collection: TagRels,
     fragmentName: "TagRelFragment",
