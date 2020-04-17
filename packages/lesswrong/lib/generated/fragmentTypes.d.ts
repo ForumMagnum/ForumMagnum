@@ -1322,6 +1322,7 @@ interface SuggestAlignmentUser extends UsersMinimumInfo { // fragment on Users
 
 interface TagRelBasicInfo { // fragment on TagRels
   readonly _id: string,
+  readonly score: number,
   readonly baseScore: number,
   readonly afBaseScore: number,
   readonly voteCount: number,
@@ -1338,39 +1339,11 @@ interface TagRelFragment extends TagRelBasicInfo { // fragment on TagRels
 
 interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly tag: TagPreviewFragment,
-  readonly post: PostsList,
   readonly currentUserVotes: Array<VoteFragment>,
 }
 
-interface TagRelDocumentInfo extends WithVoteTagRel { // fragment on TagRels
-  readonly _id: string,
-  readonly post: PostsBase,
-}
-
-interface WithVoteTagRel { // fragment on TagRels
+interface WithVoteTagRel extends TagRelFragment { // fragment on TagRels
   readonly __typename: string,
-  readonly _id: string,
-  readonly userId: string,
-  readonly tagId: string,
-  readonly tag: WithVoteTagRel_tag,
-  readonly postId: string,
-  readonly currentUserVotes: Array<WithVoteTagRel_currentUserVotes>,
-  readonly baseScore: number,
-  readonly afBaseScore: number,
-  readonly score: number,
-  readonly voteCount: number,
-}
-
-interface WithVoteTagRel_tag { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
-}
-
-interface WithVoteTagRel_currentUserVotes { // fragment on Votes
-  readonly _id: string,
-  readonly voteType: string,
-  readonly power: number,
 }
 
 interface TagsDefaultFragment { // fragment on Tags
@@ -1475,7 +1448,7 @@ interface TagRelVotes { // fragment on Votes
   readonly documentId: string,
   readonly votedAt: Date,
   readonly isUnvote: boolean,
-  readonly tagRel: TagRelDocumentInfo,
+  readonly tagRel: WithVoteTagRel,
 }
 
 interface VotedItem { // fragment on Votes
@@ -1611,7 +1584,6 @@ interface FragmentTypes {
   TagRelBasicInfo: TagRelBasicInfo
   TagRelFragment: TagRelFragment
   TagRelMinimumFragment: TagRelMinimumFragment
-  TagRelDocumentInfo: TagRelDocumentInfo
   WithVoteTagRel: WithVoteTagRel
   TagsDefaultFragment: TagsDefaultFragment
   TagBasicInfo: TagBasicInfo

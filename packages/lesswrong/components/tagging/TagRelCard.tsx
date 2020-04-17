@@ -31,7 +31,7 @@ const styles = theme => ({
 });
 
 const TagRelCard = ({tagRel, classes, relevance=true}: {
-  tagRel: TagRelFragment,
+  tagRel: TagRelMinimumFragment,
   classes: ClassesType,
   relevance?: boolean
 }) => {

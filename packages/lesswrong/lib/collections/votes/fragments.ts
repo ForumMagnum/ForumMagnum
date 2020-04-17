@@ -26,7 +26,7 @@ fragment TagRelVotes on Vote {
   votedAt
   isUnvote
   tagRel {
-    ...TagRelDocumentInfo
+    ...WithVoteTagRel
   }
 }
 `);
