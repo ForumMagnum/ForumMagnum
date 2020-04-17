@@ -29,12 +29,7 @@ registerFragment(`
     userId
     postId
     tag {
-      _id
-      name
-      slug
-      description {
-        htmlHighlight
-      }
+      ...TagPreviewFragment
     }
     currentUserVotes {
       ...VoteFragment

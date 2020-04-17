@@ -1339,19 +1339,8 @@ interface TagRelMinimumFragment { // fragment on TagRels
   readonly afBaseScore: number,
   readonly userId: string,
   readonly postId: string,
-  readonly tag: TagRelMinimumFragment_tag,
+  readonly tag: TagPreviewFragment,
   readonly currentUserVotes: Array<VoteFragment>,
-}
-
-interface TagRelMinimumFragment_tag { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
-  readonly description: TagRelMinimumFragment_tag_description,
-}
-
-interface TagRelMinimumFragment_tag_description { // fragment on Revisions
-  readonly htmlHighlight: string,
 }
 
 interface TagRelDocumentInfo extends WithVoteTagRel { // fragment on TagRels
