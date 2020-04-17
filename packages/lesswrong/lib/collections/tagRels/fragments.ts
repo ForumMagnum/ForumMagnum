@@ -9,12 +9,7 @@ registerFragment(`
     userId
     tagId
     tag {
-      _id
-      name
-      slug
-      description {
-        htmlHighlight
-      }
+      ...TagFragment
     }
     postId
     post {

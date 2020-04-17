@@ -11,12 +11,8 @@ const styles = theme => ({
   tagTitle: {
   },
   tagDescription: {
-    marginTop: theme.spacing.unit,
+    paddingTop: 10,
     ...commentBodyStyles(theme)
-  },
-  title: {
-    ...commentBodyStyles(theme),
-    ...theme.typography.display0,
   },
   seeAll: {
     ...seeAllStyles(theme)
@@ -43,14 +39,14 @@ const TagPreview = ({tag, classes}: {
   });
 
   if (!tag) return null
-  const highlight = truncate(tag.description?.htmlHighlight, 1, "paragraphs")
+  const highlight = truncate(tag.description?.htmlHighlight, 1, "paragraphs", "")
 
   return (<div>
     {tag.description?.htmlHighlight ? <ContentItemBody
       className={classes.tagDescription}
       dangerouslySetInnerHTML={{__html: highlight}}
       description={`tag ${tag.name}`}
-    /> : <h2 className={classes.title}>{tag.name}</h2 >
+    /> : <div className={classes.tagDescription}><b>{tag.name}</b></div>
     }
     {!results && <PostsListPlaceholder count={previewPostCount}/>}
     {results && results.map((result,i) =>
