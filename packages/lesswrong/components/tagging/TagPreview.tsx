@@ -15,7 +15,12 @@ const styles = theme => ({
     ...commentBodyStyles(theme)
   },
   seeAll: {
-    ...seeAllStyles(theme)
+    padding: theme.spacing.unit,
+    paddingBottom: 0,
+    display: "block",
+    textAlign: "right",
+    color: theme.palette.primary.main,
+    ...theme.typography.commentStyle
   }
 });
 

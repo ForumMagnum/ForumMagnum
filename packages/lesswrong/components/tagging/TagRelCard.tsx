@@ -4,16 +4,6 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useVote } from '../votes/withVote';
 import { useCurrentUser } from '../common/withUser';
 import { TagRels } from '../../lib/collections/tagRels/collection';
-import { commentBodyStyles } from '../../themes/stylePiping'
-
-export const seeAllStyles = theme => ({
-  padding: theme.spacing.unit,
-  paddingBottom: 0,
-  display: "block",
-  textAlign: "right",
-  color: theme.palette.primary.main,
-  ...theme.typography.commentStyle
-})
 
 const styles = theme => ({
   root: {
@@ -35,15 +25,9 @@ const styles = theme => ({
     display: "inline-block",
     fontSize: 25,
   },
-  description: {
-    ...commentBodyStyles(theme),
-  },
   score: {
     marginLeft: 4,
     marginRight: 4,
-  },
-  seeAll: {
-    ...seeAllStyles(theme)
   }
 });
 
