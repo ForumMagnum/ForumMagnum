@@ -10,6 +10,7 @@ import classNames from 'classnames';
 import { extractVersionsFromSemver } from '../../../lib/editor/utils'
 import withRecordPostView from '../../common/withRecordPostView';
 import withNewEvents from '../../../lib/events/withNewEvents';
+import { userHasPingbacks } from '../../../lib/betas';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import * as _ from 'underscore';
 import { Meteor } from 'meteor/meteor';
@@ -417,11 +418,11 @@ class PostsPage extends Component<PostsPageProps> {
                   </AnalyticsContext>
                 </div>}
 
-                <div className={classes.post}>
+                {userHasPingbacks(currentUser) && <div className={classes.post}>
                   <AnalyticsContext pageSectionContext="pingbacks">
                     <PingbacksList postId={post._id}/>
                   </AnalyticsContext>
-                </div>
+                </div>}
 
                 <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
                   {/* Answers Section */}
