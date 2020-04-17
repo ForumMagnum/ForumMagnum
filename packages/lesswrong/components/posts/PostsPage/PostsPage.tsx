@@ -9,16 +9,14 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import classNames from 'classnames';
 import withRecordPostView from '../../common/withRecordPostView';
 import withNewEvents from '../../../lib/events/withNewEvents';
-import { userHasPingbacks } from '../../../lib/betas';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import * as _ from 'underscore';
 import { Meteor } from 'meteor/meteor';
 
-const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 const DEFAULT_TOC_MARGIN = 100
 const MAX_TOC_WIDTH = 270
 const MIN_TOC_WIDTH = 200
-const MAX_COLUMN_WIDTH = 720
+export const MAX_COLUMN_WIDTH = 720
 
 const styles = theme => ({
   root: {
@@ -69,32 +67,13 @@ const styles = theme => ({
   content: { gridArea: 'content' },
   gap1: { gridArea: 'gap1'},
   gap2: { gridArea: 'gap2'},
-  post: {
+  centralColumn: {
     maxWidth: 650 + (theme.spacing.unit*4),
     marginLeft: 'auto',
     marginRight: 'auto'
   },
-  postBody: {
-    marginBottom: 50,
-  },
+  postBody: {},
   postContent: postBodyStyles(theme),
-  voteBottom: {
-    position: 'relative',
-    fontSize: 42,
-    textAlign: 'center',
-    display: 'inline-block',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    marginBottom: 40
-  },
-  bottomNavigation: {
-    width: 640,
-    margin: 'auto',
-    [theme.breakpoints.down('sm')]: {
-      width:'100%',
-      maxWidth: MAX_COLUMN_WIDTH
-    }
-  },
   commentsSection: {
     minHeight: 'calc(70vh - 100px)',
     [theme.breakpoints.down('sm')]: {
@@ -104,11 +83,6 @@ const styles = theme => ({
     // TODO: This is to prevent the Table of Contents from overlapping with the comments section. Could probably fine-tune the breakpoints and spacing to avoid needing this.
     background: "white",
     position: "relative"
-  },
-  footerSection: {
-    display: 'flex',
-    alignItems: 'center',
-    fontSize: '1.4em'
   },
 })
 
@@ -148,20 +122,19 @@ class PostsPage extends Component<PostsPageProps> {
 
   render() {
     const { post, refetch, currentUser, classes, location: { query, params } } = this.props
-    const { HeadTags, PostsVote, PostsPagePostHeader, PostBodyPrefix,
-      PostsCommentsThread, BottomNavigation, ContentItemBody,
+    const { HeadTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
+      PostsCommentsThread, ContentItemBody,
       PostsPageQuestionContent, TableOfContents, CommentPermalink,
-      PingbacksList, FooterTagList, AnalyticsInViewTracker } = Components
+      FooterTagList, AnalyticsInViewTracker } = Components
 
     if (this.shouldHideAsSpam()) {
       throw new Error("Logged-out users can't see unreviewed (possibly spam) posts");
     } else {
-      const { html, wordCount = 0 } = post.contents || {}
       const view = _.clone(query).view || Comments.getDefaultView(post, currentUser)
       const commentTerms = _.isEmpty(query.view) ? {view: view, limit: 500} : {...query, limit:500}
       const sequenceId = this.getSequenceId();
       const sectionData = (post as PostsWithNavigationAndRevision).tableOfContentsRevision || (post as PostsWithNavigation).tableOfContents;
-      const htmlWithAnchors = (sectionData && sectionData.html) ? sectionData.html : html
+      const htmlWithAnchors = sectionData?.html || post.contents?.html;
 
       const commentId = query.commentId || params.commentId
 
@@ -173,7 +146,7 @@ class PostsPage extends Component<PostsPageProps> {
               <HeadTags url={Posts.getPageUrl(post, true)} canonicalUrl={post.canonicalSource} title={post.title} description={description}/>
               {/* Header/Title */}
               <AnalyticsContext pageSectionContext="postHeader"><div className={classes.title}>
-                <div className={classes.post}>
+                <div className={classes.centralColumn}>
                   {commentId && <CommentPermalink documentId={commentId} post={post}/>}
                   <PostsPagePostHeader post={post}/>
                 </div>
@@ -183,7 +156,7 @@ class PostsPage extends Component<PostsPageProps> {
               </div>
               <div className={classes.gap1}/>
               <div className={classes.content}>
-                <div className={classes.post}>
+                <div className={classes.centralColumn}>
                   {/* Body */}
                   <div className={classes.postBody}>
                     { post.isEvent && <Components.SmallMapPreview post={post} /> }
@@ -191,39 +164,17 @@ class PostsPage extends Component<PostsPageProps> {
                       <PostBodyPrefix post={post} query={query}/>
                       
                       <AnalyticsContext pageSectionContext="postBody">
-                        { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
+                        { htmlWithAnchors && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
                       </AnalyticsContext>
                     </div>
-                    <FooterTagList post={post}/>
                   </div>
+
+                  <PostsPagePostFooter post={post} sequenceId={sequenceId} />
                 </div>
-
-                {/* Footer */}
-
-                {(wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
-                  <div className={classes.footerSection}>
-                    <div className={classes.voteBottom}>
-                      <PostsVote
-                        collection={Posts}
-                        post={post}
-                        />
-                    </div>
-                  </div>}
-                {sequenceId && <div className={classes.bottomNavigation}>
-                  <AnalyticsContext pageSectionContext="bottomSequenceNavigation">
-                    <BottomNavigation post={post}/>
-                  </AnalyticsContext>
-                </div>}
-
-                {userHasPingbacks(currentUser) && <div className={classes.post}>
-                  <AnalyticsContext pageSectionContext="pingbacks">
-                    <PingbacksList postId={post._id}/>
-                  </AnalyticsContext>
-                </div>}
 
                 <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
                   {/* Answers Section */}
-                  {post.question && <div className={classes.post}>
+                  {post.question && <div className={classes.centralColumn}>
                     <div id="answers"/>
                     <AnalyticsContext pageSectionContext="answersSection">
                       <PostsPageQuestionContent post={post} refetch={refetch}/>

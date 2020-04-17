@@ -10,7 +10,7 @@ import { useCurrentUser } from '../common/withUser';
 const styles = theme => ({
   root: {
     marginTop: 16,
-    marginBottom: 16,
+    marginBottom: 66,
   },
 });
 
