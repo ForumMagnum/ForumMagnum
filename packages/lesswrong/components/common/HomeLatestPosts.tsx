@@ -6,11 +6,10 @@ import Users from '../../lib/collections/users/collection';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { useTimezone } from './withTimezone';
-import qs from 'qs'
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import * as _ from 'underscore';
 import { defaultFilterSettings, filterSettingsToString } from '../../lib/filterSettings';
-import moment from 'moment';
+import moment from '../../lib/moment-timezone';
 
 const styles = theme => ({
   personalBlogpostsCheckbox: {
