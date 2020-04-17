@@ -23,7 +23,7 @@ const styles = theme => ({
   }
 });
 
-const previewPostCount = 4;
+const previewPostCount = 3;
 
 const TagPreview = ({tag, classes}: {
   tag: TagPreviewFragment,

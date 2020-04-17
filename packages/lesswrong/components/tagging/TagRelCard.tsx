@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useMulti } from '../../lib/crud/withMulti';
 import { useVote } from '../votes/withVote';
 import { useCurrentUser } from '../common/withUser';
 import { TagRels } from '../../lib/collections/tagRels/collection';
@@ -31,8 +30,6 @@ const styles = theme => ({
   }
 });
 
-const previewPostCount = 3;
-
 const TagRelCard = ({tagRel, classes, relevance=true}: {
   tagRel: TagRelFragment,
   classes: ClassesType,
@@ -41,17 +38,6 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
   const currentUser = useCurrentUser();
   const vote = useVote();
   const { VoteButton, TagPreview } = Components;
-  
-  const { results } = useMulti({
-    terms: {
-      view: "postsWithTag",
-      tagId: tagRel.tag._id,
-    },
-    collection: TagRels,
-    fragmentName: "TagRelFragment",
-    limit: previewPostCount,
-    ssr: true,
-  });
   
   return <div className={classes.root}>
     <span className={classes.relevanceLabel}>
