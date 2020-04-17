@@ -1135,17 +1135,6 @@ interface unclaimedReportsList_claimedUser { // fragment on Users
   readonly slug: string,
 }
 
-interface VoteMinimumInfo { // fragment on Votes
-  readonly _id: string,
-  readonly voteType: string,
-}
-
-interface VoteFragment { // fragment on Votes
-  readonly _id: string,
-  readonly voteType: string,
-  readonly power: number,
-}
-
 interface WithVotePost { // fragment on Posts
   readonly __typename: string,
   readonly _id: string,
@@ -1176,12 +1165,6 @@ interface WithVoteComment_currentUserVotes { // fragment on Votes
   readonly _id: string,
   readonly voteType: string,
   readonly power: number,
-}
-
-interface VotedItem { // fragment on Votes
-  readonly documentId: string,
-  readonly power: number,
-  readonly votedAt: Date,
 }
 
 interface RevisionDisplay { // fragment on Revisions
@@ -1337,75 +1320,30 @@ interface SuggestAlignmentUser extends UsersMinimumInfo { // fragment on Users
   readonly afSubmittedApplication: boolean,
 }
 
-interface TagRelFragment { // fragment on TagRels
+interface TagRelBasicInfo { // fragment on TagRels
   readonly _id: string,
+  readonly score: number,
   readonly baseScore: number,
   readonly afBaseScore: number,
   readonly voteCount: number,
   readonly userId: string,
   readonly tagId: string,
-  readonly tag: TagRelFragment_tag,
   readonly postId: string,
+}
+
+interface TagRelFragment extends TagRelBasicInfo { // fragment on TagRels
+  readonly tag: TagPreviewFragment,
   readonly post: PostsList,
   readonly currentUserVotes: Array<VoteFragment>,
 }
 
-interface TagRelFragment_tag { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
-  readonly description: TagRelFragment_tag_description,
-}
-
-interface TagRelFragment_tag_description { // fragment on Revisions
-  readonly htmlHighlight: string,
-}
-
-interface TagRelMinimumFragment { // fragment on TagRels
-  readonly _id: string,
-  readonly baseScore: number,
-  readonly afBaseScore: number,
-  readonly userId: string,
-  readonly postId: string,
-  readonly tag: TagRelMinimumFragment_tag,
+interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels
+  readonly tag: TagPreviewFragment,
   readonly currentUserVotes: Array<VoteFragment>,
 }
 
-interface TagRelMinimumFragment_tag { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
-  readonly description: TagRelMinimumFragment_tag_description,
-}
-
-interface TagRelMinimumFragment_tag_description { // fragment on Revisions
-  readonly htmlHighlight: string,
-}
-
-interface WithVoteTagRel { // fragment on TagRels
+interface WithVoteTagRel extends TagRelFragment { // fragment on TagRels
   readonly __typename: string,
-  readonly _id: string,
-  readonly userId: string,
-  readonly tagId: string,
-  readonly tag: WithVoteTagRel_tag,
-  readonly postId: string,
-  readonly currentUserVotes: Array<WithVoteTagRel_currentUserVotes>,
-  readonly baseScore: number,
-  readonly afBaseScore: number,
-  readonly score: number,
-  readonly voteCount: number,
-}
-
-interface WithVoteTagRel_tag { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
-}
-
-interface WithVoteTagRel_currentUserVotes { // fragment on Votes
-  readonly _id: string,
-  readonly voteType: string,
-  readonly power: number,
 }
 
 interface TagsDefaultFragment { // fragment on Tags
@@ -1417,18 +1355,29 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly deleted: boolean,
 }
 
-interface TagFragment { // fragment on Tags
+interface TagBasicInfo { // fragment on Tags
   readonly _id: string,
   readonly name: string,
   readonly slug: string,
   readonly core: boolean,
   readonly postCount: number,
   readonly deleted: boolean,
+}
+
+interface TagFragment extends TagBasicInfo { // fragment on Tags
   readonly description: TagFragment_description,
 }
 
 interface TagFragment_description { // fragment on Revisions
   readonly html: string,
+  readonly htmlHighlight: string,
+}
+
+interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
+  readonly description: TagPreviewFragment_description,
+}
+
+interface TagPreviewFragment_description { // fragment on Revisions
   readonly htmlHighlight: string,
 }
 
@@ -1478,6 +1427,34 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
   readonly plaintextMainText: string,
+}
+
+interface VoteMinimumInfo { // fragment on Votes
+  readonly _id: string,
+  readonly voteType: string,
+}
+
+interface VoteFragment { // fragment on Votes
+  readonly _id: string,
+  readonly voteType: string,
+  readonly power: number,
+}
+
+interface TagRelVotes { // fragment on Votes
+  readonly _id: string,
+  readonly userId: string,
+  readonly voteType: string,
+  readonly power: number,
+  readonly documentId: string,
+  readonly votedAt: Date,
+  readonly isUnvote: boolean,
+  readonly tagRel: WithVoteTagRel,
+}
+
+interface VotedItem { // fragment on Votes
+  readonly documentId: string,
+  readonly power: number,
+  readonly votedAt: Date,
 }
 
 interface NewRelatedPostRel { // fragment on PostRelations
@@ -1589,11 +1566,8 @@ interface FragmentTypes {
   UsersMapEntry: UsersMapEntry
   UsersEdit: UsersEdit
   unclaimedReportsList: unclaimedReportsList
-  VoteMinimumInfo: VoteMinimumInfo
-  VoteFragment: VoteFragment
   WithVotePost: WithVotePost
   WithVoteComment: WithVoteComment
-  VotedItem: VotedItem
   RevisionDisplay: RevisionDisplay
   RevisionEdit: RevisionEdit
   ChaptersFragment: ChaptersFragment
@@ -1607,15 +1581,22 @@ interface FragmentTypes {
   CollectionsEditFragment: CollectionsEditFragment
   SuggestAlignmentPost: SuggestAlignmentPost
   SuggestAlignmentUser: SuggestAlignmentUser
+  TagRelBasicInfo: TagRelBasicInfo
   TagRelFragment: TagRelFragment
   TagRelMinimumFragment: TagRelMinimumFragment
   WithVoteTagRel: WithVoteTagRel
   TagsDefaultFragment: TagsDefaultFragment
+  TagBasicInfo: TagBasicInfo
   TagFragment: TagFragment
+  TagPreviewFragment: TagPreviewFragment
   TagEditFragment: TagEditFragment
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
   SubscriptionState: SubscriptionState
   RevisionsDefaultFragment: RevisionsDefaultFragment
+  VoteMinimumInfo: VoteMinimumInfo
+  VoteFragment: VoteFragment
+  TagRelVotes: TagRelVotes
+  VotedItem: VotedItem
   NewRelatedPostRel: NewRelatedPostRel
   ChildRelatedPostRelList: ChildRelatedPostRelList
   SuggestAlignmentComment: SuggestAlignmentComment

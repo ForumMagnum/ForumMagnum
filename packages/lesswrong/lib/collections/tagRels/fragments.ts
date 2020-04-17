@@ -1,22 +1,25 @@
 import { registerFragment } from '../../vulcan-lib';
 
 registerFragment(`
-  fragment TagRelFragment on TagRel {
+  fragment TagRelBasicInfo on TagRel {
     _id
+    score
     baseScore
     afBaseScore
     voteCount
     userId
     tagId
-    tag {
-      _id
-      name
-      slug
-      description {
-        htmlHighlight
-      }
-    }
     postId
+  }
+`);
+
+
+registerFragment(`
+  fragment TagRelFragment on TagRel {
+    ...TagRelBasicInfo
+    tag {
+      ...TagPreviewFragment
+    }
     post {
       ...PostsList
     }
@@ -28,18 +31,9 @@ registerFragment(`
 
 registerFragment(`
   fragment TagRelMinimumFragment on TagRel {
-    _id
-    baseScore
-    afBaseScore
-    userId
-    postId
+    ...TagRelBasicInfo
     tag {
-      _id
-      name
-      slug
-      description {
-        htmlHighlight
-      }
+      ...TagPreviewFragment
     }
     currentUserVotes {
       ...VoteFragment
@@ -50,23 +44,6 @@ registerFragment(`
 registerFragment(`
   fragment WithVoteTagRel on TagRel {
     __typename
-    _id
-    userId
-    tagId
-    tag {
-      _id
-      name
-      slug
-    }
-    postId
-    currentUserVotes {
-      _id
-      voteType
-      power
-    }
-    baseScore
-    afBaseScore
-    score
-    voteCount
+    ...TagRelFragment
   }
 `);
