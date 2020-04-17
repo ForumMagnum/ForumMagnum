@@ -4,29 +4,29 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { commentBodyStyles } from '../../themes/stylePiping'
-import { seeAllStyles } from './TagRelCard';
 import { truncate } from '../../lib/editor/ellipsize';
 
 const styles = theme => ({
   tagTitle: {
   },
   tagDescription: {
-    marginTop: theme.spacing.unit,
+    paddingTop: 10,
     ...commentBodyStyles(theme)
   },
-  title: {
-    ...commentBodyStyles(theme),
-    ...theme.typography.display0,
-  },
   seeAll: {
-    ...seeAllStyles(theme)
+    padding: theme.spacing.unit,
+    paddingBottom: 0,
+    display: "block",
+    textAlign: "right",
+    color: theme.palette.primary.main,
+    ...theme.typography.commentStyle
   }
 });
 
-const previewPostCount = 4;
+const previewPostCount = 3;
 
 const TagPreview = ({tag, classes}: {
-  tag: TagFragment,
+  tag: TagPreviewFragment,
   classes: ClassesType,
 }) => {
   const { ContentItemBody, PostsItem2, PostsListPlaceholder } = Components;
@@ -43,14 +43,14 @@ const TagPreview = ({tag, classes}: {
   });
 
   if (!tag) return null
-  const highlight = truncate(tag.description?.htmlHighlight, 1, "paragraphs")
+  const highlight = truncate(tag.description?.htmlHighlight, 1, "paragraphs", "")
 
   return (<div>
     {tag.description?.htmlHighlight ? <ContentItemBody
       className={classes.tagDescription}
       dangerouslySetInnerHTML={{__html: highlight}}
       description={`tag ${tag.name}`}
-    /> : <h2 className={classes.title}>{tag.name}</h2 >
+    /> : <div className={classes.tagDescription}><b>{tag.name}</b></div>
     }
     {!results && <PostsListPlaceholder count={previewPostCount}/>}
     {results && results.map((result,i) =>
