@@ -32,15 +32,15 @@ const styles = theme => ({
 });
 
 interface ExternalProps {
-  tagRel: TagRelMinimumFragment,
-  tag: TagRelMinimumFragment_tag,
+  tagRel: TagRelFragment,
+  tag: TagRelFragment_tag,
 }
 interface FooterTagProps extends ExternalProps, WithHoverProps, WithStylesProps {
 }
 
 const FooterTag = ({tagRel, tag, hideScore=false, hover, anchorEl, classes}: {
-  tagRel: TagRelMinimumFragment,
-  tag: TagRelMinimumFragment_tag,
+  tagRel: TagRelFragment,
+  tag: TagRelFragment_tag,
   hideScore?: boolean,
   
   hover: boolean,

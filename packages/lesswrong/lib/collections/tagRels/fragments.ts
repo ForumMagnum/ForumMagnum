@@ -1,17 +1,24 @@
 import { registerFragment } from '../../vulcan-lib';
 
 registerFragment(`
-  fragment TagRelFragment on TagRel {
+  fragment TagRelBasicInfo on TagRel {
     _id
     baseScore
     afBaseScore
     voteCount
     userId
     tagId
+    postId
+  }
+`);
+
+
+registerFragment(`
+  fragment TagRelFragment on TagRel {
+    ...TagRelBasicInfo
     tag {
       ...TagPreviewFragment
     }
-    postId
     post {
       ...PostsList
     }
@@ -23,11 +30,7 @@ registerFragment(`
 
 registerFragment(`
   fragment TagRelMinimumFragment on TagRel {
-    _id
-    baseScore
-    afBaseScore
-    userId
-    postId
+    ...TagRelBasicInfo
     tag {
       ...TagPreviewFragment
     }

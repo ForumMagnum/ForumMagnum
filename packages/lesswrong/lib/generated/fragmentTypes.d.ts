@@ -1320,26 +1320,25 @@ interface SuggestAlignmentUser extends UsersMinimumInfo { // fragment on Users
   readonly afSubmittedApplication: boolean,
 }
 
-interface TagRelFragment { // fragment on TagRels
+interface TagRelBasicInfo { // fragment on TagRels
   readonly _id: string,
   readonly baseScore: number,
   readonly afBaseScore: number,
   readonly voteCount: number,
   readonly userId: string,
   readonly tagId: string,
-  readonly tag: TagPreviewFragment,
   readonly postId: string,
+}
+
+interface TagRelFragment extends TagRelBasicInfo { // fragment on TagRels
+  readonly tag: TagPreviewFragment,
   readonly post: PostsList,
   readonly currentUserVotes: Array<VoteFragment>,
 }
 
-interface TagRelMinimumFragment { // fragment on TagRels
-  readonly _id: string,
-  readonly baseScore: number,
-  readonly afBaseScore: number,
-  readonly userId: string,
-  readonly postId: string,
+interface TagRelMinimumFragment extends TagRelBasicInfo { // fragment on TagRels
   readonly tag: TagPreviewFragment,
+  readonly post: PostsList,
   readonly currentUserVotes: Array<VoteFragment>,
 }
 
@@ -1609,6 +1608,7 @@ interface FragmentTypes {
   CollectionsEditFragment: CollectionsEditFragment
   SuggestAlignmentPost: SuggestAlignmentPost
   SuggestAlignmentUser: SuggestAlignmentUser
+  TagRelBasicInfo: TagRelBasicInfo
   TagRelFragment: TagRelFragment
   TagRelMinimumFragment: TagRelMinimumFragment
   TagRelDocumentInfo: TagRelDocumentInfo
