@@ -149,7 +149,7 @@ function filterSettingsToParams(filterSettings: FilterSettings): any {
   const tagsExcluded = _.filter(filterSettings.tags, t=>t.filterMode==="Hidden");
   
   let frontpageFilter: any;
-  let frontpageSoftFilter: any = null;
+  let frontpageSoftFilter: Array<any> = [];
   if (filterSettings.personalBlog === "Hidden") {
     frontpageFilter = {frontpageDate: {$gt: new Date(0)}}
   } else if (filterSettings.personalBlog === "Required") {
