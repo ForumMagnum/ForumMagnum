@@ -1327,21 +1327,10 @@ interface TagRelFragment { // fragment on TagRels
   readonly voteCount: number,
   readonly userId: string,
   readonly tagId: string,
-  readonly tag: TagRelFragment_tag,
+  readonly tag: TagFragment,
   readonly postId: string,
   readonly post: PostsList,
   readonly currentUserVotes: Array<VoteFragment>,
-}
-
-interface TagRelFragment_tag { // fragment on Tags
-  readonly _id: string,
-  readonly name: string,
-  readonly slug: string,
-  readonly description: TagRelFragment_tag_description,
-}
-
-interface TagRelFragment_tag_description { // fragment on Revisions
-  readonly htmlHighlight: string,
 }
 
 interface TagRelMinimumFragment { // fragment on TagRels
