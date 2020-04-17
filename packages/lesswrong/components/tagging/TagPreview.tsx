@@ -4,7 +4,6 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { commentBodyStyles } from '../../themes/stylePiping'
-import { seeAllStyles } from './TagRelCard';
 import { truncate } from '../../lib/editor/ellipsize';
 
 const styles = theme => ({
@@ -27,7 +26,7 @@ const styles = theme => ({
 const previewPostCount = 4;
 
 const TagPreview = ({tag, classes}: {
-  tag: TagFragment,
+  tag: TagPreviewFragment,
   classes: ClassesType,
 }) => {
   const { ContentItemBody, PostsItem2, PostsListPlaceholder } = Components;

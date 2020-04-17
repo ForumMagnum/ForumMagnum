@@ -9,7 +9,7 @@ registerFragment(`
     userId
     tagId
     tag {
-      ...TagFragment
+      ...TagPreviewFragment
     }
     postId
     post {

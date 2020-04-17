@@ -1327,7 +1327,7 @@ interface TagRelFragment { // fragment on TagRels
   readonly voteCount: number,
   readonly userId: string,
   readonly tagId: string,
-  readonly tag: TagFragment,
+  readonly tag: TagPreviewFragment,
   readonly postId: string,
   readonly post: PostsList,
   readonly currentUserVotes: Array<VoteFragment>,
@@ -1394,18 +1394,29 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly deleted: boolean,
 }
 
-interface TagFragment { // fragment on Tags
+interface TagBasicInfo { // fragment on Tags
   readonly _id: string,
   readonly name: string,
   readonly slug: string,
   readonly core: boolean,
   readonly postCount: number,
   readonly deleted: boolean,
+}
+
+interface TagFragment extends TagBasicInfo { // fragment on Tags
   readonly description: TagFragment_description,
 }
 
 interface TagFragment_description { // fragment on Revisions
   readonly html: string,
+  readonly htmlHighlight: string,
+}
+
+interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
+  readonly description: TagPreviewFragment_description,
+}
+
+interface TagPreviewFragment_description { // fragment on Revisions
   readonly htmlHighlight: string,
 }
 
@@ -1614,7 +1625,9 @@ interface FragmentTypes {
   TagRelDocumentInfo: TagRelDocumentInfo
   WithVoteTagRel: WithVoteTagRel
   TagsDefaultFragment: TagsDefaultFragment
+  TagBasicInfo: TagBasicInfo
   TagFragment: TagFragment
+  TagPreviewFragment: TagPreviewFragment
   TagEditFragment: TagEditFragment
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
   SubscriptionState: SubscriptionState
