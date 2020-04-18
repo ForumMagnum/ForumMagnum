@@ -397,7 +397,9 @@ class PostsPage extends Component<PostsPageProps> {
                         { html && <ContentItemBody dangerouslySetInnerHTML={{__html: htmlWithAnchors}} description={`post ${post._id}`}/> }
                       </AnalyticsContext>
                     </div>
-                    <FooterTagList post={post}/>
+                    <AnalyticsContext pageSectionContext="tagFooter">
+                      <FooterTagList post={post}/>
+                    </AnalyticsContext>
                   </div>
                 </div>
 

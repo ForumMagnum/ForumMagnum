@@ -8,8 +8,11 @@ import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 
 const styles = theme => ({
   root: {
+    ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    color: theme.palette.grey[600]
+    color: theme.palette.grey[600],
+    marginTop: theme.spacing.unit,
+    marginBottom: theme.spacing.unit
   },
   selectMenu: {
     cursor: "pointer",
@@ -37,11 +40,11 @@ const PostsListSortDropdown = ({classes, value}:{
   
   const newSortings = {
     ...sortings,
-    relevance: "Tag Relevance"
+    relevance: "Most Relevant"
   }
 
   return <div className={classes.root}>
-    Sorted by <span className={classes.selectMenu} onClick={e=>setAnchorEl(e.currentTarget)}>
+    <span className={classes.selectMenu} onClick={e=>setAnchorEl(e.currentTarget)}>
       {newSortings[value]} <ArrowDropDownIcon className={classes.icon}/>
     </span>
     <Menu
