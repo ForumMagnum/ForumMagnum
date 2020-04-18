@@ -270,7 +270,7 @@ class SmartForm extends Component<any,any> {
   */
   getFieldGroups = () => {
     // build fields array by iterating over the list of field names
-    let fields = this.getFieldNames().map(fieldName => {
+    let fields: Array<string> = this.getFieldNames().map(fieldName => {
       // get schema for the current field
       return this.createField(fieldName, this.state.schema);
     });
