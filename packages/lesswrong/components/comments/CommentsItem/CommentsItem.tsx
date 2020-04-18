@@ -340,6 +340,11 @@ export class CommentsItem extends Component<CommentsItemProps,CommentsItemState>
         !hideReply &&
         !comment.deleted &&
         (!blockedReplies || Users.canDo(currentUser,'comments.replyOnBlocked.all')) &&
+        // FIXME Users.isAllowedToComment depends on some post metadatadata that we
+        // often don't want to include in fragments, producing a type-check error
+        // here. We should do something more complicated to give client-side feedback
+        // if you're banned.
+        // @ts-ignore
         (!currentUser || Users.isAllowedToComment(currentUser, this.props.post))
       )
 
