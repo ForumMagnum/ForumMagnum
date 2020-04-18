@@ -41,9 +41,34 @@ registerFragment(`
   }
 `);
 
+
+// This fragment has to be fully dereferences, because the context of vote fragments doesn't allow for spreading other fragments
 registerFragment(`
   fragment WithVoteTagRel on TagRel {
     __typename
-    ...TagRelFragment
+    _id
+    score
+    baseScore
+    afBaseScore
+    voteCount
+    userId
+    tagId
+    postId
+    tag {
+      _id
+      name
+      slug
+      core
+      postCount
+      deleted
+      description {
+        htmlHighlight
+      }
+    }
+    currentUserVotes {
+      _id
+      voteType
+      power
+    }
   }
 `);
